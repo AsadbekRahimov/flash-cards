@@ -1,38 +1,41 @@
 # Progress Log
 
-## Sprint 1 — Foundation ✅ (2026-04-23)
+## Sprint 1 — Foundation ✅
+## Sprint 2 — Database & Models ✅
+## Sprint 3 — Filament Admin ✅ (2FA отложен до Sprint 9)
+## Sprint 4 — Import & Content ✅
 
-- [x] Laravel 12 + Filament 5 baseline.
-- [x] Пакеты: `spatie/laravel-permission`, `irazasyed/telegram-bot-sdk`, `firebase/php-jwt`, `owen-it/laravel-auditing`, `larastan/larastan`, `pestphp/pest`.
-- [x] PHPUnit заменён на Pest 3.
-- [x] Docker (app/nginx/postgres-16/redis-7) + PHP 8.3-fpm-alpine.
-- [x] phpstan.neon (level 8) + pint.json + Makefile.
-- [x] .env.example синхронизирован с docs/02_ARCHITECTURE.md §7.
-- [x] GitHub Actions CI: lint / analyse / pest.
-- [x] README — локальный запуск через Docker.
+## Sprint 5 — Bot Basics ✅ (2026-04-23)
 
-## Sprint 2 — Database & Models ✅ (2026-04-23)
+- [x] `config/telegram.php` — token / 2 секрета / webhook URL / queue.
+- [x] `.env.example` обновлён: `TELEGRAM_URL_SECRET`, `TELEGRAM_HEADER_SECRET`, `TELEGRAM_WEBHOOK_URL`, `TELEGRAM_QUEUE`.
+- [x] `POST /telegram/webhook/{secret}` → `WebhookController` с двойной проверкой (URL + header) через `hash_equals`; CSRF exemption в `bootstrap/app.php`.
+- [x] `HandleTelegramUpdate` job → очередь `high`, retry 3/backoff 5. PII маскируется перед логированием (`UpdateSanitizer`).
+- [x] `TelegramDispatcher` + интерфейс `UpdateHandler`, 4 handler'а:
+  - `MyChatMemberHandler` — создаёт `TelegramGroup` (pending); kick/left → status `disabled`.
+  - `NewMembersHandler` — upsert `students` (боты игнорируются).
+  - `StartCommandHandler` — ЛС, привязка учителя по `telegram_user_id`, `last_login_at = now()`.
+  - `HelpCommandHandler` — справка в private/group.
+- [x] `TelegramApi` — обёртка над `irazasyed/telegram-bot-sdk` (sendMessage/setWebhook/deleteWebhook).
+- [x] `artisan telegram:set-webhook [--delete]` — регистрация/удаление webhook.
+- [x] Логи `Log::channel('daily')` — `telegram.update` / `telegram.handler_failed` (PII masked).
 
-- [x] 14 миграций + partial-index + patched users.
-- [x] 14 Eloquent-моделей с relationships и casts.
-- [x] 14 factories + 7 seeders (120 EN→RU слов, SM-2 demo-состояния).
-- [x] `DatabaseSchemaTest` (индексы, FK, cascade, `migrate:fresh --seed`).
+### Тесты
+- `TelegramWebhookTest` (4): wrong URL secret, missing header, wrong header, happy path с `Bus::fake`.
+- `TelegramHandlersTest` (6): pending-group, kick→disabled, upsert students (skip bot), /help, /start bind, /start unknown.
+- `UpdateSanitizerTest` (1): PII masking.
 
-## Sprint 3 — Filament Admin ✅ (2026-04-23)
-
-- [x] `AdminPanelProvider`: brandName, 5 виджетов в dashboard, rate-limit 5/min (`AppServiceProvider`).
-- [x] `User` реализует `FilamentUser::canAccessPanel` → только `admin` role + `is_active=true`.
-- [x] Ресурсы: `UserResource` (CRUD + роли через spatie), `TelegramGroupResource` (view/edit + actions activate/deactivate), `StudentResource` (read-only + toggleActive), `StageResource` (CRUD + LessonsRelationManager), `LessonResource` (CRUD + WordsRelationManager).
-- [x] 5 виджетов: `TotalStudentsWidget`, `ExamsLast30DaysWidget`, `ActivityChartWidget` (line, 30 дней), `TopStudentsTableWidget`, `HardestWordsTableWidget`.
-- [x] `FilamentAdminAccessTest`: admin → 200, teacher → 403, неактивный admin → 403, guest → redirect to login.
-- [ ] **2FA — отложено до Sprint 9** (Security & QA). TODO оставлен в `AdminPanelProvider`.
-
-**DoD verify:**
+**DoD verify (staging / ngrok):**
 ```
-make fresh                             # migrations + demo data
-docker compose exec app php artisan serve   # или через nginx
-# открыть http://localhost/admin
-# логин: admin@local / password
+# в .env
+TELEGRAM_BOT_TOKEN=...
+TELEGRAM_URL_SECRET=$(openssl rand -hex 24)
+TELEGRAM_HEADER_SECRET=$(openssl rand -hex 24)
+TELEGRAM_WEBHOOK_URL=https://<ngrok>.ngrok-free.app
+# затем
+docker compose exec app php artisan telegram:set-webhook
+# добавить бота в тестовую группу → TelegramGroup status='pending'
+# /admin → активировать группу
+# /help в группе отвечает
+# /start в ЛС от учителя с прописанным telegram_user_id → «Привет, {name}»
 ```
-
-Dashboard должен показать: Total students = 5, Exams last 30 days = 0 (ещё не стартовали), Activity chart = пустой, Top students = пусто (нет training_reviews в сиде), Hardest words = пусто.

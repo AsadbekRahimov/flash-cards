@@ -1,0 +1,106 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Domain\Telegram\Services\TelegramApi;
+use App\Domain\Telegram\Services\TelegramDispatcher;
+use App\Models\Student;
+use App\Models\TelegramGroup;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
+
+beforeEach(function (): void {
+    $this->api = Mockery::mock(TelegramApi::class);
+    $this->app->instance(TelegramApi::class, $this->api);
+});
+
+it('creates a pending TelegramGroup on my_chat_member into a group', function (): void {
+    app(TelegramDispatcher::class)->dispatch([
+        'my_chat_member' => [
+            'chat' => ['id' => -10012345, 'type' => 'supergroup', 'title' => 'Class 1'],
+            'new_chat_member' => ['status' => 'member'],
+        ],
+    ]);
+
+    $group = TelegramGroup::where('chat_id', -10012345)->firstOrFail();
+    expect($group->status)->toBe('pending');
+    expect($group->title)->toBe('Class 1');
+});
+
+it('marks group as disabled when bot is kicked', function (): void {
+    TelegramGroup::factory()->create(['chat_id' => -9999, 'status' => 'active']);
+
+    app(TelegramDispatcher::class)->dispatch([
+        'my_chat_member' => [
+            'chat' => ['id' => -9999, 'type' => 'supergroup', 'title' => 'X'],
+            'new_chat_member' => ['status' => 'kicked'],
+        ],
+    ]);
+
+    expect(TelegramGroup::where('chat_id', -9999)->value('status'))->toBe('disabled');
+});
+
+it('upserts students on new_chat_members', function (): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => -7777, 'status' => 'active']);
+
+    app(TelegramDispatcher::class)->dispatch([
+        'message' => [
+            'chat' => ['id' => -7777, 'type' => 'supergroup'],
+            'new_chat_members' => [
+                ['id' => 111, 'first_name' => 'Alice', 'is_bot' => false],
+                ['id' => 222, 'first_name' => 'Bob', 'username' => 'bobby', 'is_bot' => false],
+                ['id' => 333, 'first_name' => 'Bot', 'is_bot' => true],
+            ],
+        ],
+    ]);
+
+    expect(Student::where('telegram_group_id', $group->id)->count())->toBe(2);
+    expect(Student::where('telegram_user_id', 222)->value('username'))->toBe('bobby');
+});
+
+it('responds to /help in private chat', function (): void {
+    $this->api->shouldReceive('sendMessage')
+        ->once()
+        ->with(500, Mockery::pattern('/LexiFlow/'), Mockery::any());
+
+    app(TelegramDispatcher::class)->dispatch([
+        'message' => [
+            'chat' => ['id' => 500, 'type' => 'private'],
+            'text' => '/help',
+        ],
+    ]);
+});
+
+it('binds a teacher on /start in DM when telegram_user_id matches', function (): void {
+    $teacher = User::factory()->create(['telegram_user_id' => 12345, 'last_login_at' => null]);
+
+    $this->api->shouldReceive('sendMessage')
+        ->once()
+        ->with(12345, Mockery::pattern('/Привет/'), Mockery::any());
+
+    app(TelegramDispatcher::class)->dispatch([
+        'message' => [
+            'chat' => ['id' => 12345, 'type' => 'private'],
+            'from' => ['id' => 12345],
+            'text' => '/start',
+        ],
+    ]);
+
+    expect($teacher->fresh()->last_login_at)->not->toBeNull();
+});
+
+it('tells unknown TG user their ID on /start', function (): void {
+    $this->api->shouldReceive('sendMessage')
+        ->once()
+        ->with(999, Mockery::pattern('/999/'), Mockery::any());
+
+    app(TelegramDispatcher::class)->dispatch([
+        'message' => [
+            'chat' => ['id' => 999, 'type' => 'private'],
+            'from' => ['id' => 999],
+            'text' => '/start',
+        ],
+    ]);
+});
