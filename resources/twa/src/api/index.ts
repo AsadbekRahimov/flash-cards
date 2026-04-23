@@ -2,6 +2,10 @@ import { createApiClient } from './client'
 import { useAuthStore } from '@/stores/auth'
 import type {
   AuthResponse,
+  ExamAnswerResponse,
+  ExamJoinResponse,
+  ExamQuestionResponse,
+  ExamResultResponse,
   MeResponse,
   NextCardResponse,
   Quality,
@@ -47,5 +51,22 @@ export const api = {
         quality,
         time_spent_ms: timeSpentMs,
       }),
+  },
+  exam: {
+    join: (sessionId: number) =>
+      client().post<ExamJoinResponse>(`/exam/sessions/${sessionId}/join`),
+    question: (sessionId: number, index: number) =>
+      client().get<ExamQuestionResponse>(`/exam/sessions/${sessionId}/question`, { index }),
+    answer: (
+      sessionId: number,
+      body: {
+        question_index: number
+        word_id: number
+        selected_option_index: number | null
+        time_spent_ms: number
+      },
+    ) => client().post<ExamAnswerResponse>(`/exam/sessions/${sessionId}/answer`, body),
+    result: (sessionId: number) =>
+      client().get<ExamResultResponse>(`/exam/sessions/${sessionId}/result`),
   },
 }

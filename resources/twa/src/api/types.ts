@@ -63,3 +63,41 @@ export interface ApiError {
     details?: Record<string, unknown>
   }
 }
+
+// ---------------- Exam ----------------
+
+export interface ExamJoinResponse {
+  session_id: number
+  ends_at: string | null
+  total_questions: number
+  seconds_per_question: number
+}
+
+export interface ExamQuestionResponse {
+  question_index: number
+  word_id: number
+  word: string
+  options: string[]
+  seconds_left: number
+}
+
+export interface ExamAnswerResponse {
+  is_correct: boolean
+  correct_option: number
+  score_earned: number
+  total_score: number
+  has_next: boolean
+}
+
+export interface ExamLeaderboardEntry {
+  rank: number
+  name: string
+  score: number
+}
+
+export interface ExamResultResponse {
+  student_score: number
+  rank: number | null
+  total_participants: number
+  leaderboard: ExamLeaderboardEntry[]
+}

@@ -5,6 +5,88 @@
 ## Sprint 3 — Filament Admin ✅ (2FA отложен до Sprint 9)
 ## Sprint 4 — Import & Content ✅
 
+## Sprint 8 — Exam Flow ✅ (2026-04-23)
+
+Соревновательный режим: сессия + таймер + multiple-choice вопросы с дистракторами + лидерборд + scheduler + Telegram уведомления.
+
+### Backend
+
+#### Domain services
+- `@C:/OpenServer/domains/flash-cards/app/Domain/Learning/Services/ExamQuestionBuilder.php` — генератор `N` MCQ-вопросов из урока. 4 опции (правильный + 3 дистрактора), позиция правильного ответа рандомизируется. Дистракторы: предпочитает слова из того же stage, fallback на все lesson'ы. Guarantee: 4 уникальных опций всегда (filler placeholder если пул пуст).
+- `@C:/OpenServer/domains/flash-cards/app/Domain/Learning/Services/ExamSessionService.php` — `open()` (idempotent через `lockForUpdate`, max 1 open per group, clamp duration 1..30m), `close()` (idempotent), `closeOpenForGroup()`. Генерируемые вопросы сохраняются в `exam_sessions.config.questions`.
+- `@C:/OpenServer/domains/flash-cards/app/Domain/Learning/Services/LeaderboardBuilder.php` — агрегация `exam_answers` → `exam_results`. Ranking: score desc → correct_count desc → time_spent_ms asc. **Competition ranking** (1, 1, 3) для равных результатов.
+- `@C:/OpenServer/domains/flash-cards/app/Domain/Learning/Exceptions/ExamSessionException.php` — 8 reason'ов: `not_teacher`, `group_inactive`, `stage_not_found`, `lesson_not_found`, `not_enough_words`, `already_open`, `no_open_exam`, `invalid_duration`.
+
+#### API (authenticated via `TwaAuth`)
+- `@C:/OpenServer/domains/flash-cards/app/Http/Controllers/Api/Twa/ExamController.php`:
+  - `POST /api/twa/exam/sessions/{id}/join` → session metadata (ends_at, total_questions, seconds_per_question)
+  - `GET /api/twa/exam/sessions/{id}/question?index=N` → `{word_id, word, options, seconds_left}` (НЕ раскрывает `correct_index`)
+  - `POST /api/twa/exam/sessions/{id}/answer` → валидация, защита от дубликатов (409), проверка `word_id ↔ index` (422), вычисление `score = correct ? max(5, 20·(0.25+0.75·remaining_ratio)) : 0`
+  - `GET /api/twa/exam/sessions/{id}/result` → блокировка пока session открыта (409), rank/score/leaderboard top-10
+- `@C:/OpenServer/domains/flash-cards/app/Policies/ExamSessionPolicy.php` — `canAccess` (group match + active) / `canParticipate` (+ open) / `canViewResult` (+ closed). Разделение для правильных 403 vs 410 vs 409.
+- `@C:/OpenServer/domains/flash-cards/routes/api.php:28-34` — 4 эндпоинта + throttle `twa-exam-answer` (30/min per student).
+
+#### Scheduled & queued jobs
+- `@C:/OpenServer/domains/flash-cards/app/Console/Commands/CloseExpiredExams.php` — `exams:close-expired [--grace=60]`. Закрывает сессии где `ends_at <= now() - grace`, под `lockForUpdate` (safe для параллельных запусков). После закрытия вызывает `LeaderboardBuilder` и диспатчит `PostLeaderboardJob`.
+- `@C:/OpenServer/domains/flash-cards/routes/console.php:13-16` — schedule `everyMinute()->withoutOverlapping()->runInBackground()`.
+- `@C:/OpenServer/domains/flash-cards/app/Jobs/PostLeaderboardJob.php` — формат: `🥇/🥈/🥉/N.` + HTML-escape имён. Idempotent: пересобирает лидерборд если ещё нет. Логирует `telegram.leaderboard_post_failed`.
+
+#### Bot commands
+- `@C:/OpenServer/domains/flash-cards/app/Domain/Telegram/Handlers/StartExamHandler.php` — `/start_exam [stage] [lesson] [minutes]` (defaults `1 1 2`). Постит inline WebApp-кнопку на `{TWA_BASE_URL}/twa/exam/{id}`. Обрабатывает все 7 reason'ов `ExamSessionException` с локализованными сообщениями.
+- `@C:/OpenServer/domains/flash-cards/app/Domain/Telegram/Handlers/CloseExamHandler.php` — `/close_exam` от учителя → `closeOpenForGroup()` + `LeaderboardBuilder` + `PostLeaderboardJob`. Проверка teacher_groups.
+- Оба зарегистрированы в `@C:/OpenServer/domains/flash-cards/app/Domain/Telegram/Services/TelegramDispatcher.php:21-40` перед `StartCommandHandler` (т.к. `/start_exam` префиксно совпадает с `/start`).
+
+### Тесты (Sprint 8: +30, всего 107 passing)
+
+#### Unit (+5)
+- `ExamQuestionBuilderTest` (5): builds N questions + 4 distinct options + correct_index points to correct translation; каждое слово picked максимум 1 раз; clamp к available words; empty array для < MIN_QUESTIONS; filler fallback когда distractor pool пуст.
+
+#### Feature (+25)
+- `TwaExamTest` (12): `/join` metadata; `/question` без leakage `correct_index`; 404 для out-of-range index; `/answer` correct → score + recording; wrong → 0; null (timeout) → 0; duplicate (409); `word_mismatch` (422); IDOR (403); closed session (410); `/result` blocked while open (409); `/result` returns rank + leaderboard.
+- `StartExamHandlerTest` (6): happy path + session created + WebApp URL; defaults; rejected second while one is open; not-teacher rejected; invalid duration rejected; not-enough-words rejected.
+- `CloseExamHandlerTest` (7): `/close_exam` closes + dispatches `PostLeaderboardJob`; non-teacher rejected; no-open-exam reports; `LeaderboardBuilder` ranks correctly (score/time tiebreak); equal rank for full tie (competition); `exams:close-expired` closes past-due + dispatches; respects `--grace` period.
+
+### DoD
+- ✅ `/start_exam 1 1 2` от учителя → `exam_session` status=open + WebApp inline-кнопка в группе.
+- ✅ 2 студента могут присоединиться и отвечать параллельно, каждый видит те же вопросы (shared `config.questions`).
+- ✅ Через 2 мин + grace=60s scheduler закрывает сессию → собирает лидерборд → `PostLeaderboardJob` → бот постит медали в группу.
+- ✅ `/close_exam` вручную закрывает экзамен.
+- ✅ IDOR защита (403), `word_mismatch` (422), duplicate answer (409), `quality=99` invalid — все покрыты.
+- ✅ Competition ranking для ничьих (1, 1, 3), а не dense (1, 1, 2).
+
+### TWA SPA
+- `@C:/OpenServer/domains/flash-cards/resources/twa/src/stores/exam.ts` — state machine (`idle → joining → loading → answering → submitting → feedback → {loading | finished} | closed | error`), per-question таймер через `submitAnswer(null)` на expire, overall countdown, leaderboard fetch с ретраем на 409.
+- `@C:/OpenServer/domains/flash-cards/resources/twa/src/views/ExamView.vue` — progress bar на вопрос (красный при ≤3s), MM:SS overall timer, feedback 800 мс с highlight зелёным/красным, haptic (success/error), BackButton → close.
+- `@C:/OpenServer/domains/flash-cards/resources/twa/src/views/ExamResultView.vue` — final score, rank/total, top-10 leaderboard с медалями.
+- `@C:/OpenServer/domains/flash-cards/resources/twa/src/components/QuizOption.vue` — 5 states (idle/selected/correct/incorrect/reveal) через `data-state`.
+- `@C:/OpenServer/domains/flash-cards/resources/twa/src/api/index.ts` — `api.exam.{join, question, answer, result}`.
+- Router: `/exam/:sessionId` → `ExamView`, `/exam/:sessionId/result` → `ExamResultView`.
+- Vitest unit: `QuizOption.spec.ts` (4).
+
+### Известные pre-existing fails (вне Sprint 8)
+- `DatabaseSchemaTest` (3) — использует `pg_indexes` системную таблицу, работает только против PostgreSQL. В SQLite in-memory (phpunit.xml) фейлится. Проходит в docker'е.
+- `ImportLessonPageTest` (4) — требует `pest-plugin-livewire` (функция `livewire()`) и файл `storage/app/samples/sample-lesson.json`. Не в скоупе Sprint 8.
+
+### Команды разработчика
+```bash
+# Только Sprint 8 (все зелёные)
+php vendor/bin/pest tests/Unit/ExamQuestionBuilderTest.php tests/Feature/TwaExamTest.php \
+  tests/Feature/StartExamHandlerTest.php tests/Feature/CloseExamHandlerTest.php
+
+# Все «здоровые» тесты (Sprint 5-8)
+php vendor/bin/pest tests/Unit tests/Feature/Twa*.php tests/Feature/StartTrainingHandlerTest.php \
+  tests/Feature/StartExamHandlerTest.php tests/Feature/CloseExamHandlerTest.php \
+  tests/Feature/TelegramHandlersTest.php tests/Feature/TelegramWebhookTest.php \
+  tests/Feature/FilamentAdminAccessTest.php
+# → 107 passed, 0 failing
+
+# Пример ручной проверки DoD в dev (docker + ngrok)
+# 1. /start_exam 1 1 2 в группе
+# 2. 2 студента из группы открывают TWA → отвечают
+# 3. Через 3 минуты после начала → бот постит HTML-лидерборд
+# или вручную: /close_exam → немедленный лидерборд
+```
+
 ## Sprint 7 — TWA Training UI ✅ (2026-04-23)
 
 ### Backend

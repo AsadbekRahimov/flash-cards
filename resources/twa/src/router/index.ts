@@ -21,6 +21,18 @@ const routes: RouteRecordRaw[] = [
       nextInDays: Number(route.query.next ?? 0),
     }),
   },
+  {
+    path: '/exam/:sessionId(\\d+)',
+    name: 'exam',
+    component: () => import('@/views/ExamView.vue'),
+    props: (route) => ({ sessionId: Number(route.params.sessionId) }),
+  },
+  {
+    path: '/exam/:sessionId(\\d+)/result',
+    name: 'exam-result',
+    component: () => import('@/views/ExamResultView.vue'),
+    props: (route) => ({ sessionId: Number(route.params.sessionId) }),
+  },
   // Catch-all -> landing. Telegram sometimes appends junk query params.
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]

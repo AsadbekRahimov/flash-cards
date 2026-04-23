@@ -58,5 +58,15 @@ class AppServiceProvider extends ServiceProvider
 
             return Limit::perMinute(60)->by('twa-review|'.$key);
         });
+
+        RateLimiter::for('twa-exam-answer', function (Request $request): Limit {
+            /** @var array{student_id:int}|null $ctx */
+            $ctx = $request->attributes->get('twa');
+            $key = $ctx['student_id'] ?? $request->ip();
+
+            // Exam pace cap: ~30 answers/min protects against script spam
+            // while leaving headroom for 10-questions-in-2-minutes sprints.
+            return Limit::perMinute(30)->by('twa-exam-answer|'.$key);
+        });
     }
 }
