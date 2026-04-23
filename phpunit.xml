@@ -32,5 +32,8 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
+        <env name="TELEGRAM_BOT_TOKEN" value="test-bot-token-1234567890"/>
+        <env name="TWA_JWT_SECRET" value="test-jwt-secret-at-least-32-chars-long-abcdef"/>
+        <env name="TWA_JWT_TTL" value="900"/>
     </php>
 </phpunit>
