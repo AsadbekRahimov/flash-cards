@@ -7,9 +7,10 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\StageResource\Pages;
 use App\Filament\Resources\StageResource\RelationManagers\LessonsRelationManager;
 use App\Models\Stage;
+use Filament\Actions;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 
@@ -23,9 +24,9 @@ class StageResource extends Resource
 
     protected static ?int $navigationSort = 10;
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
+        return $schema->components([
             Forms\Components\TextInput::make('number')->numeric()->required()->unique(ignoreRecord: true),
             Forms\Components\TextInput::make('title')->required()->maxLength(255),
             Forms\Components\Textarea::make('description')->rows(3)->columnSpanFull(),
@@ -42,8 +43,8 @@ class StageResource extends Resource
                 Tables\Columns\TextColumn::make('created_at')->dateTime()->toggleable(isToggledHiddenByDefault: true),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Actions\EditAction::make(),
+                Actions\DeleteAction::make(),
             ])
             ->defaultSort('number');
     }

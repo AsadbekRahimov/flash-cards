@@ -63,7 +63,7 @@ it('upserts students on new_chat_members', function (): void {
 it('responds to /help in private chat', function (): void {
     $this->api->shouldReceive('sendMessage')
         ->once()
-        ->with(500, Mockery::pattern('/LexiFlow/'), Mockery::any());
+        ->with(500, Mockery::pattern('/LexiFlow/'));
 
     app(TelegramDispatcher::class)->dispatch([
         'message' => [
@@ -78,7 +78,7 @@ it('binds a teacher on /start in DM when telegram_user_id matches', function ():
 
     $this->api->shouldReceive('sendMessage')
         ->once()
-        ->with(12345, Mockery::pattern('/Привет/'), Mockery::any());
+        ->with(12345, Mockery::pattern('/Привет/'));
 
     app(TelegramDispatcher::class)->dispatch([
         'message' => [
@@ -94,7 +94,7 @@ it('binds a teacher on /start in DM when telegram_user_id matches', function ():
 it('tells unknown TG user their ID on /start', function (): void {
     $this->api->shouldReceive('sendMessage')
         ->once()
-        ->with(999, Mockery::pattern('/999/'), Mockery::any());
+        ->with(999, Mockery::pattern('/999/'));
 
     app(TelegramDispatcher::class)->dispatch([
         'message' => [

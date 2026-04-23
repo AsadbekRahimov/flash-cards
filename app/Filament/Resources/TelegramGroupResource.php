@@ -6,9 +6,10 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\TelegramGroupResource\Pages;
 use App\Models\TelegramGroup;
+use Filament\Actions;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 
@@ -24,9 +25,9 @@ class TelegramGroupResource extends Resource
 
     protected static ?int $navigationSort = 20;
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
+        return $schema->components([
             Forms\Components\TextInput::make('chat_id')->disabled(),
             Forms\Components\TextInput::make('title')->required()->maxLength(255),
             Forms\Components\Select::make('status')
@@ -72,19 +73,19 @@ class TelegramGroupResource extends Resource
                 ]),
             ])
             ->actions([
-                Tables\Actions\Action::make('activate')
+                Actions\Action::make('activate')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->visible(fn (TelegramGroup $record): bool => $record->status !== 'active')
                     ->requiresConfirmation()
                     ->action(fn (TelegramGroup $record) => $record->update(['status' => 'active'])),
-                Tables\Actions\Action::make('deactivate')
+                Actions\Action::make('deactivate')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
                     ->visible(fn (TelegramGroup $record): bool => $record->status === 'active')
                     ->requiresConfirmation()
                     ->action(fn (TelegramGroup $record) => $record->update(['status' => 'disabled'])),
-                Tables\Actions\EditAction::make(),
+                Actions\EditAction::make(),
             ])
             ->defaultSort('created_at', 'desc');
     }

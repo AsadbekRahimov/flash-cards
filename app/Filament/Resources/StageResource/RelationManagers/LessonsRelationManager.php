@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\StageResource\RelationManagers;
 
+use Filament\Actions;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 
@@ -16,9 +17,9 @@ class LessonsRelationManager extends RelationManager
 
     protected static ?string $recordTitleAttribute = 'title';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form->schema([
+        return $schema->components([
             Forms\Components\TextInput::make('number')->numeric()->required(),
             Forms\Components\TextInput::make('title')->maxLength(255),
         ]);
@@ -32,10 +33,10 @@ class LessonsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('title')->searchable(),
                 Tables\Columns\TextColumn::make('words_count')->counts('words')->label('Words'),
             ])
-            ->headerActions([Tables\Actions\CreateAction::make()])
+            ->headerActions([Actions\CreateAction::make()])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Actions\EditAction::make(),
+                Actions\DeleteAction::make(),
             ])
             ->defaultSort('number');
     }

@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class TopStudentsTableWidget extends TableWidget
 {
-    protected ?string $heading = 'Top students — last 30 days';
+    protected static ?string $heading = 'Top students — last 30 days';
 
     protected static ?int $sort = 4;
 

@@ -7,18 +7,18 @@ namespace App\Filament\Pages;
 use App\Domain\Content\Services\VocabularyImporter;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Concerns\InteractsWithSchemas;
+use Filament\Schemas\Contracts\HasSchemas;
+use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-class ImportLesson extends Page implements HasForms
+class ImportLesson extends Page implements HasSchemas
 {
-    use InteractsWithForms;
+    use InteractsWithSchemas;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-arrow-up-tray';
 
@@ -28,7 +28,7 @@ class ImportLesson extends Page implements HasForms
 
     protected static ?int $navigationSort = 30;
 
-    protected static string $view = 'filament.pages.import-lesson';
+    protected string $view = 'filament.pages.import-lesson';
 
     /** @var array<string, mixed> */
     public array $data = [];
@@ -41,10 +41,10 @@ class ImportLesson extends Page implements HasForms
         $this->form->fill();
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 FileUpload::make('file')
                     ->label('Lesson JSON')
                     ->acceptedFileTypes(['application/json', 'text/plain'])

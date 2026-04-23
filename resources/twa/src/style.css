@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --tg-bg: #ffffff;
+  --tg-text: #000000;
+  --tg-hint: #999999;
+  --tg-link: #2481cc;
+  --tg-button: #2481cc;
+  --tg-button-text: #ffffff;
+  --tg-secondary-bg: #f1f1f1;
+}
+
+html, body, #app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background: var(--tg-bg);
+  color: var(--tg-text);
+}
+
+body {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center rounded-xl px-4 py-3 font-semibold transition-colors duration-150 active:scale-[0.98];
+  }
+  .btn-primary {
+    background: var(--tg-button);
+    color: var(--tg-button-text);
+  }
+  .btn-secondary {
+    background: var(--tg-secondary-bg);
+    color: var(--tg-text);
+  }
+  .card {
+    @apply rounded-2xl shadow-sm p-5;
+    background: var(--tg-secondary-bg);
+  }
+}

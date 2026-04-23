@@ -13,14 +13,21 @@ uses(RefreshDatabase::class);
 
 function sampleJson(array $overrides = []): string
 {
-    $data = array_replace_recursive([
+    // Top-level replace (not recursive) — so a caller passing
+    // `['words' => [...]]` fully overrides the words array instead of
+    // getting the defaults merged back in by numeric key.
+    $data = [
         'stage' => ['number' => 1, 'title' => 'Beginner'],
         'lesson' => ['number' => 1, 'title' => 'L1'],
         'words' => [
             ['word' => 'hello', 'translation' => 'привет', 'part_of_speech' => 'interjection'],
             ['word' => 'world', 'translation' => 'мир', 'part_of_speech' => 'noun'],
         ],
-    ], $overrides);
+    ];
+
+    foreach ($overrides as $key => $value) {
+        $data[$key] = $value;
+    }
 
     return json_encode($data, JSON_THROW_ON_ERROR);
 }

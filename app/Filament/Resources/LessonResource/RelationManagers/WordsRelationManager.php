@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\LessonResource\RelationManagers;
 
+use Filament\Actions;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 
@@ -16,9 +17,9 @@ class WordsRelationManager extends RelationManager
 
     protected static ?string $recordTitleAttribute = 'word';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form->schema([
+        return $schema->components([
             Forms\Components\TextInput::make('word')->required()->maxLength(100),
             Forms\Components\TextInput::make('translation')->required()->maxLength(500),
             Forms\Components\Textarea::make('example')->rows(2)->columnSpanFull(),
@@ -45,10 +46,10 @@ class WordsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('part_of_speech')->badge()->toggleable(),
                 Tables\Columns\TextColumn::make('transcription')->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->headerActions([Tables\Actions\CreateAction::make()])
+            ->headerActions([Actions\CreateAction::make()])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Actions\EditAction::make(),
+                Actions\DeleteAction::make(),
             ])
             ->defaultSort('word');
     }

@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 
 class HardestWordsTableWidget extends TableWidget
 {
-    protected ?string $heading = 'Hardest words — last 30 days';
+    protected static ?string $heading = 'Hardest words — last 30 days';
 
     protected static ?int $sort = 5;
 

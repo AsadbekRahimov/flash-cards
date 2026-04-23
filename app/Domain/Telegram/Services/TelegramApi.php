@@ -6,7 +6,7 @@ namespace App\Domain\Telegram\Services;
 
 use Telegram\Bot\Api;
 
-final class TelegramApi
+class TelegramApi
 {
     private Api $api;
 
@@ -15,15 +15,26 @@ final class TelegramApi
         $this->api = new Api((string) config('telegram.bot_token'));
     }
 
-    public function sendMessage(int|string $chatId, string $text, ?string $parseMode = null): void
-    {
+    /**
+     * @param  array<string, mixed>|null  $replyMarkup  Optional inline/reply keyboard markup.
+     */
+    public function sendMessage(
+        int|string $chatId,
+        string $text,
+        ?string $parseMode = null,
+        ?array $replyMarkup = null,
+    ): void {
         $params = [
             'chat_id' => $chatId,
-            'text' => $text,
+            'text'    => $text,
         ];
 
         if ($parseMode !== null) {
             $params['parse_mode'] = $parseMode;
+        }
+
+        if ($replyMarkup !== null) {
+            $params['reply_markup'] = json_encode($replyMarkup, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
         }
 
         $this->api->sendMessage($params);

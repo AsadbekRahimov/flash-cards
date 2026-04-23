@@ -9,6 +9,7 @@ use App\Domain\Telegram\Handlers\HelpCommandHandler;
 use App\Domain\Telegram\Handlers\MyChatMemberHandler;
 use App\Domain\Telegram\Handlers\NewMembersHandler;
 use App\Domain\Telegram\Handlers\StartCommandHandler;
+use App\Domain\Telegram\Handlers\StartTrainingHandler;
 
 final class TelegramDispatcher
 {
@@ -17,11 +18,12 @@ final class TelegramDispatcher
 
     public function __construct(
         StartCommandHandler $start,
+        StartTrainingHandler $startTraining,
         HelpCommandHandler $help,
         MyChatMemberHandler $myChatMember,
         NewMembersHandler $newMembers,
     ) {
-        $this->handlers = [$myChatMember, $newMembers, $start, $help];
+        $this->handlers = [$myChatMember, $newMembers, $startTraining, $start, $help];
     }
 
     /** @param array<string, mixed> $update */

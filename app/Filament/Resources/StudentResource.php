@@ -6,6 +6,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\StudentResource\Pages;
 use App\Models\Student;
+use Filament\Actions;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -53,13 +54,13 @@ class StudentResource extends Resource
                     ->label('Group'),
             ])
             ->actions([
-                Tables\Actions\Action::make('toggleActive')
+                Actions\Action::make('toggleActive')
                     ->icon('heroicon-o-power')
                     ->label(fn (Student $record): string => $record->is_active ? 'Deactivate' : 'Activate')
                     ->color(fn (Student $record): string => $record->is_active ? 'danger' : 'success')
                     ->requiresConfirmation()
                     ->action(fn (Student $record) => $record->update(['is_active' => ! $record->is_active])),
-                Tables\Actions\ViewAction::make(),
+                Actions\ViewAction::make(),
             ])
             ->defaultSort('last_seen_at', 'desc');
     }
