@@ -13,30 +13,26 @@
 
 ## Sprint 2 — Database & Models ✅ (2026-04-23)
 
-- [x] 14 миграций (+ patched users) — все из `docs/03_DATABASE.md` со всеми составными индексами и FK.
-- [x] Partial index `word_repetitions_student_is_hard_idx WHERE is_hard = true` через `DB::statement`.
-- [x] 14 Eloquent-моделей с `$fillable`, `casts`, relationships, generic-аннотациями для phpstan.
-- [x] User: `HasRoles` (spatie), доп. поля `telegram_user_id`, `is_active`, `last_login_at`.
-- [x] 14 factories.
-- [x] 7 сидеров: `RolePermissionSeeder`, `DemoAdmin/Teacher/Group/Content/Students/Repetitions`.
-- [x] `DemoContentSeeder`: 2 stages × 3 lessons × 20 words = 120 реальных EN→RU слов.
-- [x] `DemoRepetitionsSeeder`: SM-2 состояния, часть слов due (next_review_at <= now()).
-- [x] `tests/Feature/DatabaseSchemaTest.php` — таблицы, unique-constraints, каскады, partial+composite индексы, прогон `migrate:fresh --seed`.
+- [x] 14 миграций + partial-index + patched users.
+- [x] 14 Eloquent-моделей с relationships и casts.
+- [x] 14 factories + 7 seeders (120 EN→RU слов, SM-2 demo-состояния).
+- [x] `DatabaseSchemaTest` (индексы, FK, cascade, `migrate:fresh --seed`).
 
-**Pre-seed step (один раз):**
-```
-docker compose exec app php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider" --tag="migrations"
-```
+## Sprint 3 — Filament Admin ✅ (2026-04-23)
+
+- [x] `AdminPanelProvider`: brandName, 5 виджетов в dashboard, rate-limit 5/min (`AppServiceProvider`).
+- [x] `User` реализует `FilamentUser::canAccessPanel` → только `admin` role + `is_active=true`.
+- [x] Ресурсы: `UserResource` (CRUD + роли через spatie), `TelegramGroupResource` (view/edit + actions activate/deactivate), `StudentResource` (read-only + toggleActive), `StageResource` (CRUD + LessonsRelationManager), `LessonResource` (CRUD + WordsRelationManager).
+- [x] 5 виджетов: `TotalStudentsWidget`, `ExamsLast30DaysWidget`, `ActivityChartWidget` (line, 30 дней), `TopStudentsTableWidget`, `HardestWordsTableWidget`.
+- [x] `FilamentAdminAccessTest`: admin → 200, teacher → 403, неактивный admin → 403, guest → redirect to login.
+- [ ] **2FA — отложено до Sprint 9** (Security & QA). TODO оставлен в `AdminPanelProvider`.
 
 **DoD verify:**
 ```
-make fresh        # migrate:fresh --seed
-make test         # включает DatabaseSchemaTest
-make analyse      # larastan level 8
+make fresh                             # migrations + demo data
+docker compose exec app php artisan serve   # или через nginx
+# открыть http://localhost/admin
+# логин: admin@local / password
 ```
 
-**Tinker chain check:**
-```php
-$s = App\Models\Student::first();
-$s->repetitions->first()->word->lesson->stage; // student → repetition → word → lesson → stage
-```
+Dashboard должен показать: Total students = 5, Exams last 30 days = 0 (ещё не стартовали), Activity chart = пустой, Top students = пусто (нет training_reviews в сиде), Hardest words = пусто.
