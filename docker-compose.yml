@@ -1,0 +1,60 @@
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                UID: ${UID:-1000}
+                GID: ${GID:-1000}
+        image: lexiflow/app:dev
+        container_name: lexiflow-app
+        depends_on:
+            postgres:
+                condition: service_healthy
+            redis:
+                condition: service_started
+        volumes:
+            - ./:/var/www/html
+        environment:
+            PHP_IDE_CONFIG: serverName=lexiflow
+
+    nginx:
+        image: nginx:1.27-alpine
+        container_name: lexiflow-nginx
+        depends_on:
+            - app
+        ports:
+            - "${APP_PORT:-80}:80"
+        volumes:
+            - ./:/var/www/html:ro
+            - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+
+    postgres:
+        image: postgres:16-alpine
+        container_name: lexiflow-postgres
+        environment:
+            POSTGRES_DB: ${DB_DATABASE:-lexiflow}
+            POSTGRES_USER: ${DB_USERNAME:-lexiflow}
+            POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
+        ports:
+            - "${DB_PORT_HOST:-5432}:5432"
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-lexiflow}"]
+            interval: 5s
+            timeout: 3s
+            retries: 10
+
+    redis:
+        image: redis:7-alpine
+        container_name: lexiflow-redis
+        command: ["redis-server", "--appendonly", "yes"]
+        ports:
+            - "${REDIS_PORT_HOST:-6379}:6379"
+        volumes:
+            - redisdata:/data
+
+volumes:
+    pgdata:
+    redisdata:

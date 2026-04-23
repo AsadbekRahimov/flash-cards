@@ -1,49 +1,69 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory;
+    use HasRoles;
+    use Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    /** @var list<string> */
     protected $fillable = [
         'name',
         'email',
         'password',
+        'telegram_user_id',
+        'is_active',
+        'last_login_at',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
+    /** @var list<string> */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+    /** @return array<string, string> */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
+            'last_login_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
+            'telegram_user_id' => 'integer',
         ];
+    }
+
+    /** @return BelongsToMany<TelegramGroup, $this> */
+    public function telegramGroups(): BelongsToMany
+    {
+        return $this->belongsToMany(TelegramGroup::class, 'teacher_groups')
+            ->withPivot('is_primary')
+            ->withTimestamps();
+    }
+
+    /** @return HasMany<TrainingSession, $this> */
+    public function trainingSessions(): HasMany
+    {
+        return $this->hasMany(TrainingSession::class, 'started_by_user_id');
+    }
+
+    /** @return HasMany<ExamSession, $this> */
+    public function examSessions(): HasMany
+    {
+        return $this->hasMany(ExamSession::class, 'started_by_user_id');
     }
 }

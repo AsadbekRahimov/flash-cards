@@ -1,0 +1,111 @@
+name: CI
+
+on:
+    push:
+        branches: [master, main]
+    pull_request:
+        branches: [master, main]
+
+jobs:
+    quality:
+        name: Lint & Static analysis
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.3'
+                  extensions: mbstring, intl, bcmath, pdo_pgsql, redis, zip
+                  coverage: none
+                  tools: composer:v2
+
+            - name: Cache Composer packages
+              uses: actions/cache@v4
+              with:
+                  path: vendor
+                  key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+                  restore-keys: ${{ runner.os }}-composer-
+
+            - name: Install dependencies
+              run: composer install --prefer-dist --no-interaction --no-progress
+
+            - name: Pint (code style)
+              run: ./vendor/bin/pint --test
+
+            - name: PHPStan (larastan)
+              run: ./vendor/bin/phpstan analyse --no-progress --memory-limit=1G
+
+    test:
+        name: Pest
+        runs-on: ubuntu-latest
+        services:
+            postgres:
+                image: postgres:16-alpine
+                env:
+                    POSTGRES_DB: lexiflow
+                    POSTGRES_USER: lexiflow
+                    POSTGRES_PASSWORD: secret
+                ports:
+                    - 5432:5432
+                options: >-
+                    --health-cmd "pg_isready -U lexiflow"
+                    --health-interval 5s
+                    --health-timeout 3s
+                    --health-retries 10
+
+            redis:
+                image: redis:7-alpine
+                ports:
+                    - 6379:6379
+                options: >-
+                    --health-cmd "redis-cli ping"
+                    --health-interval 5s
+                    --health-timeout 3s
+                    --health-retries 10
+
+        env:
+            DB_CONNECTION: pgsql
+            DB_HOST: 127.0.0.1
+            DB_PORT: 5432
+            DB_DATABASE: lexiflow
+            DB_USERNAME: lexiflow
+            DB_PASSWORD: secret
+            REDIS_HOST: 127.0.0.1
+            REDIS_PORT: 6379
+            CACHE_STORE: redis
+            QUEUE_CONNECTION: sync
+            SESSION_DRIVER: array
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.3'
+                  extensions: mbstring, intl, bcmath, pdo_pgsql, redis, zip
+                  coverage: none
+                  tools: composer:v2
+
+            - name: Cache Composer packages
+              uses: actions/cache@v4
+              with:
+                  path: vendor
+                  key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+                  restore-keys: ${{ runner.os }}-composer-
+
+            - name: Install dependencies
+              run: composer install --prefer-dist --no-interaction --no-progress
+
+            - name: Prepare .env
+              run: |
+                  cp .env.example .env
+                  php artisan key:generate
+
+            - name: Run migrations
+              run: php artisan migrate --force
+
+            - name: Run Pest
+              run: ./vendor/bin/pest

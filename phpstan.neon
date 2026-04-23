@@ -1,0 +1,14 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 8
+    paths:
+        - app
+        - database
+        - routes
+        - tests
+    excludePaths:
+        - app/Filament/*/Pages/Dashboard.php
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false

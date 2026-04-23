@@ -1,0 +1,16 @@
+.git
+.github
+.idea
+.vscode
+node_modules
+vendor
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+public/build
+.env
+.env.*
+!.env.example
+*.md
+docs
