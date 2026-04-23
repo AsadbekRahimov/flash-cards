@@ -29,7 +29,7 @@ describe('FlashCard', () => {
     expect(w.get('[data-testid=word]').text()).toBe('Resilient')
     expect(w.get('[data-testid=transcription]').text()).toBe('rɪˈzɪl.i.ənt')
     expect(w.find('[data-testid=translation]').exists()).toBe(false)
-    expect(w.get('[data-testid=reveal-btn]').exists()).toBe(true)
+    expect(w.find('[data-testid=reveal-btn]').exists()).toBe(true)
   })
 
   it('emits reveal when "Show translation" is clicked', async () => {
@@ -42,9 +42,9 @@ describe('FlashCard', () => {
     const w = mount(FlashCard, { props: { card, showTranslation: true } })
     expect(w.get('[data-testid=translation]').text()).toBe('Устойчивый')
     expect(w.get('[data-testid=example]').text()).toContain('resilient')
-    expect(w.get('[data-testid=grade-hard]').exists()).toBe(true)
-    expect(w.get('[data-testid=grade-medium]').exists()).toBe(true)
-    expect(w.get('[data-testid=grade-easy]').exists()).toBe(true)
+    expect(w.find('[data-testid=grade-hard]').exists()).toBe(true)
+    expect(w.find('[data-testid=grade-medium]').exists()).toBe(true)
+    expect(w.find('[data-testid=grade-easy]').exists()).toBe(true)
   })
 
   it('emits grade event with correct quality (2/3/5) per button', async () => {

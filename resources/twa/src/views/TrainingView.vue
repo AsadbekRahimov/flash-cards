@@ -15,8 +15,7 @@ const auth = useAuthStore()
 const training = useTrainingStore()
 const { close, showBackButton } = useTelegram()
 
-const { status, card, progress, lesson, errorMessage, reviewedCount, lastIntervalDays } =
-  storeToRefs(training)
+const { status, card, progress, lesson, errorMessage } = storeToRefs(training)
 
 const isBusy = computed(() => status.value === 'submitting' || status.value === 'loading')
 const showSpinner = computed(() =>
