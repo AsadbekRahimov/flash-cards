@@ -9,6 +9,7 @@ use App\Filament\Resources\LessonResource\RelationManagers\WordsRelationManager;
 use App\Models\Lesson;
 use Filament\Actions;
 use Filament\Forms;
+use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
@@ -63,7 +64,7 @@ class LessonResource extends Resource
         return [WordsRelationManager::class];
     }
 
-    /** @return array<string, \Filament\Resources\Pages\PageRegistration> */
+    /** @return array<string, PageRegistration> */
     public static function getPages(): array
     {
         return [

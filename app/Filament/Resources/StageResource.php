@@ -9,6 +9,7 @@ use App\Filament\Resources\StageResource\RelationManagers\LessonsRelationManager
 use App\Models\Stage;
 use Filament\Actions;
 use Filament\Forms;
+use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
@@ -55,7 +56,7 @@ class StageResource extends Resource
         return [LessonsRelationManager::class];
     }
 
-    /** @return array<string, \Filament\Resources\Pages\PageRegistration> */
+    /** @return array<string, PageRegistration> */
     public static function getPages(): array
     {
         return [

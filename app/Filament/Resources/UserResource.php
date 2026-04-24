@@ -8,6 +8,7 @@ use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
 use Filament\Actions;
 use Filament\Forms;
+use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
@@ -102,7 +103,7 @@ class UserResource extends Resource
         return parent::getEloquentQuery()->with('roles');
     }
 
-    /** @return array<string, \Filament\Resources\Pages\PageRegistration> */
+    /** @return array<string, PageRegistration> */
     public static function getPages(): array
     {
         return [

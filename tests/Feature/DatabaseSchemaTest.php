@@ -8,6 +8,7 @@ use App\Models\Student;
 use App\Models\TelegramGroup;
 use App\Models\Word;
 use App\Models\WordRepetition;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -33,21 +34,21 @@ it('creates all expected tables', function () use ($expectedTables): void {
 it('enforces unique chat_id on telegram_groups', function (): void {
     TelegramGroup::factory()->create(['chat_id' => -555]);
     expect(fn () => TelegramGroup::factory()->create(['chat_id' => -555]))
-        ->toThrow(Throwable::class);
+        ->toThrow(QueryException::class);
 });
 
 it('enforces unique student per (telegram_user_id, telegram_group_id)', function (): void {
     $group = TelegramGroup::factory()->create();
     Student::factory()->create(['telegram_user_id' => 12345, 'telegram_group_id' => $group->id]);
     expect(fn () => Student::factory()->create(['telegram_user_id' => 12345, 'telegram_group_id' => $group->id]))
-        ->toThrow(Throwable::class);
+        ->toThrow(QueryException::class);
 });
 
 it('enforces (lesson_id, word) uniqueness', function (): void {
     $lesson = Lesson::factory()->for(Stage::factory())->create();
     Word::factory()->create(['lesson_id' => $lesson->id, 'word' => 'apple']);
     expect(fn () => Word::factory()->create(['lesson_id' => $lesson->id, 'word' => 'apple']))
-        ->toThrow(Throwable::class);
+        ->toThrow(QueryException::class);
 });
 
 it('cascades student deletion to word_repetitions', function (): void {

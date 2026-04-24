@@ -26,7 +26,7 @@ it('renders the import page for admin', function (): void {
 });
 
 it('imports a lesson via the Filament page', function (): void {
-    $json = file_get_contents(storage_path('app/samples/sample-lesson.json'));
+    $json = file_get_contents(storage_path('app/private/samples/sample-lesson.json'));
     $file = UploadedFile::fake()->createWithContent('lesson.json', $json);
 
     livewire(ImportLesson::class)
