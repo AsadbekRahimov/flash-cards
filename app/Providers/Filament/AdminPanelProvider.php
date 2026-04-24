@@ -63,8 +63,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                \App\Http\Middleware\RequireTwoFactor::class,
             ]);
-
-        // TODO (Sprint 9): enable 2FA — ручная реализация через pragmarx/google2fa-qrcode.
     }
 }

@@ -7,12 +7,15 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "bacon/bacon-qr-code": "^3.1",
         "filament/filament": "^5.0",
-        "firebase/php-jwt": "^6.10",
+        "firebase/php-jwt": "7.0",
         "irazasyed/telegram-bot-sdk": "^3.15",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "owen-it/laravel-auditing": "^14.0",
+        "pragmarx/google2fa-laravel": "^3.0",
+        "spatie/laravel-backup": "^10.2",
         "spatie/laravel-permission": "^6.10"
     },
     "require-dev": {

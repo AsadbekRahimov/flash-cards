@@ -5,6 +5,120 @@
 ## Sprint 3 — Filament Admin ✅ (2FA отложен до Sprint 10)
 ## Sprint 4 — Import & Content ✅
 
+## Sprint 10 — Deploy & Docs ✅ (2026-04-24)
+
+Пользователь выбрал **deploy-ready артефакты** (без реального развёртывания). Закрыты критические долги Sprint 9: JWT upgrade + 2FA. Stage/Lighthouse/HTTPS-smoke остаются внешними, но для них подготовлен чек-лист и компоненты.
+
+### Фаза A — `firebase/php-jwt` 6 → 7
+- `composer require firebase/php-jwt:^7.0` — апгрейд безболезненный: `JwtService` уже использовал `Key`-объект, API-изменения v7 не затронули наш код.
+- Advisory CVE-2025-45769 ушло: `composer audit` → clean.
+- Тесты `JwtServiceTest`, `TwaAuthTest`, `TwaTrainingTest` — все зелёные без правок.
+
+### Фаза B — 2FA для Filament admin (`pragmarx/google2fa-laravel`)
+- `composer require pragmarx/google2fa-laravel bacon/bacon-qr-code`.
+- **Миграция** `@C:/OpenServer/domains/flash-cards/database/migrations/2026_04_24_100000_add_two_factor_to_users_table.php` — `two_factor_secret`, `two_factor_recovery_codes`, `two_factor_confirmed_at`.
+- **User model** (`@C:/OpenServer/domains/flash-cards/app/Models/User.php`): поля в `$fillable`/`$hidden`, casts `encrypted` + `encrypted:array` + `datetime`, хелпер `hasTwoFactorEnabled()`.
+- **Middleware** `@C:/OpenServer/domains/flash-cards/app/Http/Middleware/RequireTwoFactor.php` — приклеен к `authMiddleware` Filament AdminPanel. Flow: не-admin → пропускается; admin без 2FA → `/2fa/setup`; admin с 2FA, нет `session('2fa.passed_at')` → `/2fa/challenge`.
+- **Controller** `@C:/OpenServer/domains/flash-cards/app/Http/Controllers/TwoFactorController.php` — 5 методов:
+  - `setup()` — генерирует secret, хранит в session до подтверждения, рендерит QR через `BaconQrCode` (SVG backend, без imagick).
+  - `confirm()` — проверяет TOTP, генерирует 8 recovery-кодов, персистит `two_factor_confirmed_at`.
+  - `recoveryCodes()` — одноразовый показ кодов после setup.
+  - `challenge()` + `verify()` — TOTP (6 цифр) или recovery-код (21 символ); recovery-код удаляется при использовании (одноразовый).
+- **Views** в `resources/views/2fa/`: `setup.blade.php`, `challenge.blade.php`, `recovery-codes.blade.php`, `_styles.blade.php` — plain Blade + inline CSS (без Filament-assets, чтобы работало до входа в панель).
+- **Routes** в `@C:/OpenServer/domains/flash-cards/routes/web.php` — `/2fa/{setup,confirm,recovery-codes,challenge,verify}` под `auth` middleware.
+
+### Фаза C — Production compose + Nginx + Certbot
+- `@C:/OpenServer/domains/flash-cards/docker-compose.prod.yml` — **6 сервисов:** app (php-fpm), queue (`queue:work --queue=high,default`), scheduler (`schedule:work`), nginx, certbot (renew loop каждые 12ч), postgres, redis. Все с `restart: unless-stopped`. Нет bind-mount кода (только `app_storage`, `app_public`, letsencrypt, certbot_www volumes). Postgres/Redis порты НЕ exposed.
+- `@C:/OpenServer/domains/flash-cards/docker/nginx/prod.conf` — шаблон, nginx запускает его через `envsubst '$APP_DOMAIN'` в `command:` (фильтруем одну переменную, чтобы не затронуть `$host`/`$uri`/etc). HTTP redirect на HTTPS (кроме `.well-known/acme-challenge/` для certbot). HTTPS с TLS 1.2+1.3, OCSP stapling, HSTS. Same `/twa/` handling что и в dev-конфиге.
+- Certbot sidecar: `trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait; done`.
+
+### Фаза D — `spatie/laravel-backup`
+- `composer require spatie/laravel-backup` + `vendor:publish` конфига.
+- **Schedule** (`@C:/OpenServer/domains/flash-cards/routes/console.php`): `backup:clean` 01:00, `backup:run` 01:30, `backup:monitor` 02:00 (ежедневно).
+- **Конфиг** `@C:/OpenServer/domains/flash-cards/config/backup.php`:
+  - `destination.disks` теперь читается из env (`BACKUP_DISKS=local` по умолчанию; для S3/Yandex Object Storage → `local,s3`).
+  - `notifications.mail.to` из `BACKUP_NOTIFICATION_MAIL` с fallback `backup@lexiflow.local` (валидный email нужен, иначе boot падает на `FILTER_VALIDATE_EMAIL`).
+- `.env.example` получил `BACKUP_DISKS`, `BACKUP_NOTIFICATION_MAIL`, `AWS_*` плейсхолдеры.
+
+### Фаза E — `deploy.sh` + Makefile таргеты
+- `@C:/OpenServer/domains/flash-cards/deploy.sh` — идемпотентный скрипт: `git reset --hard @{upstream}` → `compose build app` → (опц.) `npm ci && npm run build` в `resources/twa/` → `compose up -d` → `migrate --force` → `config:cache / route:cache / view:cache / event:cache` → `restart queue scheduler` → `nginx -s reload` (для подхвата новых certов). Флаги `--skip-twa`, `--skip-migrate`.
+- **Makefile** получил таргеты: `prod-build`, `prod-up`, `prod-down`, `deploy`, `backup`.
+
+### Фаза F — Docs
+- `@C:/OpenServer/domains/flash-cards/README.md` — новая секция **Production deployment**: таблица артефактов, пошаговый first-time setup (6 шагов: .env → старт без https → `certonly --standalone` → полный up → migrate+seed+cache → admin+2FA), инструкции по backup'ам, **smoke-test чек-лист** (9 пунктов для проверки после deploy).
+- `@C:/OpenServer/domains/flash-cards/docs/TEACHER_GUIDE.md` — 1-страничная инструкция учителя: подготовка → `/start_training` → `/start_exam` → `/close_exam` → что видно в `/admin` → FAQ.
+
+### Тесты (Sprint 10: +6, всего 123 passing)
+
+#### Feature (+6)
+- `@C:/OpenServer/domains/flash-cards/tests/Feature/TwoFactorTest.php`:
+  - admin без 2FA → redirect `/2fa/setup`.
+  - setup с валидным TOTP → `two_factor_confirmed_at` устанавливается, 8 recovery-кодов, redirect на `/2fa/recovery-codes`.
+  - invalid TOTP code → redirect back с errors, 2FA не активируется.
+  - admin с confirmed 2FA → `/admin` редирект на `/2fa/challenge`; после `verify` с валидным TOTP → `2fa.passed_at` в session.
+  - recovery-код одноразовый: первый раз — redirect, второй раз — validation error + код удалён из массива.
+  - non-admin → middleware пропускает, дальше блокирует `canAccessPanel` (403).
+
+- Обновлён `FilamentAdminAccessTest > allows admin users to reach /admin` — теперь admin создаётся с `two_factor_confirmed_at` + session `2fa.passed_at` (отражает реальный user flow после Sprint 10).
+
+### Audits
+- `composer audit` → **No security vulnerability advisories found** (после Sprint 10 A).
+- `npm audit --omit=dev` в `resources/twa/` → 0 vulns (без изменений с Sprint 9).
+
+### § 17 Checklist — финальное состояние
+
+| Пункт | Статус |
+|-------|--------|
+| HTTPS с Let's Encrypt | ✅ артефакты готовы (certbot sidecar + nginx prod.conf) |
+| `APP_DEBUG=false`, `APP_ENV=production` | ✅ задокументировано в README step 1 |
+| Секреты сгенерены заново | ✅ задокументировано в README (первый setup) |
+| Webhook secret + валидация | ✅ (Sprint 5) |
+| `initData` валидация покрыта тестом | ✅ (Sprint 6) |
+| **2FA для админов** | ✅ Sprint 10 B |
+| Rate limits | ✅ (Sprint 6, тест в Sprint 9) |
+| CSP, HSTS, X-Frame headers | ✅ (Sprint 9 — middleware; Sprint 10 — продублировано в nginx prod.conf для статики) |
+| `composer audit` + `npm audit` clean | ✅ Sprint 10 A |
+| Бэкапы БД | ✅ Sprint 10 D (spatie/laravel-backup + schedule) |
+| Sentry/аналог | **deferred** (пользователь подтвердил не делать) |
+| Логи без PII | ✅ (Sprint 9) |
+| Smoke-test в проде | 📋 chek-list в README (требует реального сервера для прогона) |
+| OWASP ZAP baseline | 📋 в backlog (требует staging) |
+| Lighthouse ≥ 90 для TWA | 📋 в smoke-check-листе (требует браузер в Telegram) |
+
+### DoD
+- ✅ Production docker-compose.prod.yml отдельно от dev.
+- ✅ `deploy.sh` + `make deploy` реализованы.
+- ✅ Let's Encrypt интегрирован через certbot sidecar в compose.
+- ✅ Бэкапы БД настроены через spatie/laravel-backup + schedule.
+- ✅ README.md обновлён с production-инструкцией (first-time setup + smoke-check).
+- ✅ TEACHER_GUIDE.md — 1 страница для учителя.
+- ⚠️ Реальный smoke-test в проде — вне scope'а этого спринта (пользователь выбрал deploy-ready артефакты), но чек-лист из 9 пунктов в README готов к исполнению.
+
+### Команды разработчика
+```bash
+# Sprint 10 только
+php vendor/bin/pest tests/Feature/TwoFactorTest.php
+
+# Полный прогон (Sprint 1-10)
+php vendor/bin/pest tests/Unit tests/Feature/Twa*.php \
+  tests/Feature/Start*.php tests/Feature/CloseExamHandlerTest.php \
+  tests/Feature/Telegram*.php tests/Feature/Filament*.php \
+  tests/Feature/Security*.php tests/Feature/TwoFactorTest.php
+# → 123 passed (413 assertions)
+
+# Prod build / deploy (на сервере)
+make prod-build
+./deploy.sh
+make backup        # ручной запуск
+```
+
+### Что осталось за периметром MVP
+- Sentry integration.
+- Реальный OWASP ZAP baseline против staging.
+- Lighthouse прогон для TWA (требует живой Telegram-клиент).
+- Coverage reporting в CI (Xdebug/pcov + phpunit `--coverage-text`).
+- Экспорт данных студента (GDPR) — в `docs/08_ROADMAP.md § После MVP`.
+
 ## Sprint 9 — Security & QA ✅ (2026-04-24)
 
 Цель: закрыть чек-лист `07_SECURITY.md § 17` в пределах, возможных без staging-инфраструктуры. 2FA и Sentry перенесены (см. ниже).

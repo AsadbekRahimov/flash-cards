@@ -12,11 +12,17 @@ beforeEach(function (): void {
     $this->seed(RolePermissionSeeder::class);
 });
 
-it('allows admin users to reach /admin', function (): void {
-    $admin = User::factory()->create(['is_active' => true]);
+it('allows admin users to reach /admin when 2FA is confirmed', function (): void {
+    $admin = User::factory()->create([
+        'is_active' => true,
+        'two_factor_secret' => 'stub',
+        'two_factor_recovery_codes' => [],
+        'two_factor_confirmed_at' => now(),
+    ]);
     $admin->assignRole('admin');
 
     $this->actingAs($admin)
+        ->withSession(['2fa.passed_at' => now()->timestamp])
         ->get('/admin')
         ->assertOk();
 });

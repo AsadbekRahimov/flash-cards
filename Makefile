@@ -1,4 +1,4 @@
-.PHONY: help up down build shell test lint lint-fix analyse migrate fresh seed cache-clear
+.PHONY: help up down build shell test lint lint-fix analyse migrate fresh seed cache-clear prod-build prod-up prod-down deploy backup
 
 DC      ?= docker compose
 APP     ?= $(DC) exec app
@@ -42,3 +42,23 @@ seed: ## Run database seeders
 
 cache-clear: ## Clear Laravel caches
 	$(ARTISAN) optimize:clear
+
+# -----------------------------------------------------------------------------
+# Production targets
+# -----------------------------------------------------------------------------
+PROD_DC ?= docker compose -f docker-compose.prod.yml --env-file .env
+
+prod-build: ## Build production app image
+	$(PROD_DC) build --pull app
+
+prod-up: ## Start production stack
+	$(PROD_DC) up -d
+
+prod-down: ## Stop production stack (keeps volumes)
+	$(PROD_DC) down
+
+deploy: ## Full production deploy (pull, build, migrate, cache, restart)
+	./deploy.sh
+
+backup: ## Run backup:run inside production app
+	$(PROD_DC) exec -T app php artisan backup:run
