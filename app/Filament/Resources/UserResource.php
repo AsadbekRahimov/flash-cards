@@ -102,7 +102,7 @@ class UserResource extends Resource
         return parent::getEloquentQuery()->with('roles');
     }
 
-    /** @return array<string, array<string, string>|class-string> */
+    /** @return array<string, \Filament\Resources\Pages\PageRegistration> */
     public static function getPages(): array
     {
         return [
