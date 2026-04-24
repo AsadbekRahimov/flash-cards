@@ -154,7 +154,7 @@ it('sets last_reviewed_at and next_review_at based on provided now()', function 
     app(SpacedRepetitionEngine::class)->applyReview($rep, 3, $now);
 
     $fresh = $rep->fresh();
-    expect($fresh->last_reviewed_at->toIso8601String())->toBe($now->toIso8601String());
+    expect($fresh->last_reviewed_at?->toIso8601String())->toBe($now->toIso8601String());
     expect($fresh->next_review_at->toIso8601String())->toBe($now->addDays(6)->toIso8601String());
 });
 

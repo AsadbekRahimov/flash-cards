@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Telegram\WebhookController;
+use App\Http\Controllers\TwoFactorController;
 use App\Http\Middleware\TelegramIpAllowlist;
 use Illuminate\Support\Facades\Route;
 

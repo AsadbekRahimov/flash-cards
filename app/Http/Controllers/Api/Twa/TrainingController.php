@@ -123,7 +123,7 @@ final class TrainingController
         ]);
 
         return response()->json([
-            'next_review_at' => $rep->next_review_at?->toIso8601String(),
+            'next_review_at' => $rep->next_review_at->toIso8601String(),
             'new_interval_days' => (int) $rep->interval_days,
             'easiness_factor' => (float) $rep->easiness_factor,
         ]);

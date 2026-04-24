@@ -13,6 +13,9 @@ beforeEach(function (): void {
     $this->seed(RolePermissionSeeder::class);
 });
 
+/**
+ * @param  array<string, mixed>  $attrs
+ */
 function adminUser(array $attrs = []): User
 {
     $user = User::factory()->create(array_merge([
