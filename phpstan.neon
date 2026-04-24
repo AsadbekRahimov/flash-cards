@@ -10,5 +10,3 @@ parameters:
         - tests
     excludePaths:
         - app/Filament/*/Pages/Dashboard.php
-    checkMissingIterableValueType: false
-    checkGenericClassInNonGenericObjectType: false
