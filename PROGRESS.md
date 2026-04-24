@@ -2,8 +2,112 @@
 
 ## Sprint 1 — Foundation ✅
 ## Sprint 2 — Database & Models ✅
-## Sprint 3 — Filament Admin ✅ (2FA отложен до Sprint 9)
+## Sprint 3 — Filament Admin ✅ (2FA отложен до Sprint 10)
 ## Sprint 4 — Import & Content ✅
+
+## Sprint 9 — Security & QA ✅ (2026-04-24)
+
+Цель: закрыть чек-лист `07_SECURITY.md § 17` в пределах, возможных без staging-инфраструктуры. 2FA и Sentry перенесены (см. ниже).
+
+### Backend
+
+#### HTTP security headers
+- `@C:/OpenServer/domains/flash-cards/app/Http/Middleware/SecurityHeaders.php` — глобальный middleware, приклеенный к стэку в `bootstrap/app.php`.
+  - Всегда: `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Frame-Options: SAMEORIGIN`, `Permissions-Policy: camera=(), microphone=(), geolocation=()`.
+  - Только HTTPS: `Strict-Transport-Security: max-age=15552000; includeSubDomains`.
+  - Только HTML-ответы: `Content-Security-Policy` (default-src 'self' + inline/eval для Filament Livewire + data/blob img/font).
+  - CSP не ставится на JSON/API — чтобы не ломать клиентский fetch.
+
+#### Session hardening (`.env.example`)
+- `SESSION_ENCRYPT=true`, `SESSION_SECURE_COOKIE=true`, `SESSION_SAME_SITE=lax` добавлены по умолчанию.
+
+#### Telegram webhook IP allowlist
+- `@C:/OpenServer/domains/flash-cards/app/Http/Middleware/TelegramIpAllowlist.php` — проверяет `REMOTE_ADDR` против CIDR-списка `149.154.160.0/20` + `91.108.4.0/22` через `Symfony\IpUtils`.
+- По умолчанию **выключен** (`TELEGRAM_IP_ALLOWLIST_ENABLED=false`), чтобы не ломать локальную разработку / ngrok. Включить в проде — установить `=true`.
+- Настройка в `@C:/OpenServer/domains/flash-cards/config/telegram.php` (`ip_allowlist.enabled`, `ip_allowlist.cidrs`).
+- Подключён на маршрут в `@C:/OpenServer/domains/flash-cards/routes/web.php`.
+
+#### Log hygiene (аудит, без Sentry)
+Все `Log::` вызовы в приложении проверены на PII:
+- `@C:/OpenServer/domains/flash-cards/app/Jobs/HandleTelegramUpdate.php:35` — PII маскируется `UpdateSanitizer::forLog` (`first_name`, `last_name`, `username`, `text`, `caption` → `первые 2 символа + ***`).
+- `@C:/OpenServer/domains/flash-cards/app/Jobs/HandleTelegramUpdate.php:40` (`handler_failed`) — только `message` исключения + `update_id`, без PII.
+- `@C:/OpenServer/domains/flash-cards/app/Jobs/PostLeaderboardJob.php:64` — только `telegram_group_id` + `exam_session_id`, без студентских имён.
+- HTTP-контроллеры (`Api/Twa/*`) — `Log::` не используют, все ошибки через JSON-ответы.
+- **Решение по Sentry:** интеграция отложена (пользователь подтвердил не делать в Sprint 9). `SENTRY_LARAVEL_DSN` остаётся в `.env.example` как плейсхолдер для Sprint 10.
+
+### Тесты (Sprint 9: +10, всего 117 passing)
+
+#### Feature (+10)
+- `@C:/OpenServer/domains/flash-cards/tests/Feature/SecurityHeadersTest.php` (3): базовые заголовки на HTML; CSP отсутствует на JSON, остальные baseline-заголовки остаются; HSTS только через HTTPS.
+- `@C:/OpenServer/domains/flash-cards/tests/Feature/TelegramIpAllowlistTest.php` (3): флаг `false` → любой IP пропущен; флаг `true` → IP из `149.154.160.0/20` и `91.108.4.0/22` пропускаются; `true` → IP `8.8.8.8` → 403 + job не диспатчится.
+- `@C:/OpenServer/domains/flash-cards/tests/Feature/SecurityChecklistTest.php` (4):
+  - `/api/twa/auth` — 20 запросов проходят (401 invalid_init_data), 21-й → **429** (rate-limit).
+  - XSS-payload (`<script>`) в Blade → экранируется в `&lt;script&gt;` (покрывает рендер через Filament).
+  - **Race на `new_chat_members`:** 3 последовательных dispatch одного update → 1 строка `students` (idempotent через `updateOrCreate`).
+  - **Уникальный индекс (`telegram_user_id`, `telegram_group_id`)** на DB-уровне гарантирует, что параллельные инсерты не создадут дубликатов (второй упадёт с `QueryException`).
+
+### Audits
+
+| Tool | Result |
+|------|--------|
+| `composer audit` | **1 low-severity advisory:** `firebase/php-jwt 6.x` — CVE-2025-45769 (weak encryption). Исправление в v7.0.0 (breaking). Апгрейд требует согласования и миграции JWT-кода; вынесен в backlog. |
+| `npm audit` (resources/twa, production) | **0 vulnerabilities.** |
+
+### § 17 Checklist
+
+| Пункт | Статус |
+|-------|--------|
+| HTTPS с Let's Encrypt | **deferred → Sprint 10** (инфра) |
+| `APP_DEBUG=false`, `APP_ENV=production` | `.env.example` — плейсхолдеры; enforce в deploy-скрипте Sprint 10 |
+| Секреты сгенерены заново | deferred → Sprint 10 (deploy) |
+| Webhook secret + валидация | ✅ (Sprint 5) |
+| `initData` валидация покрыта тестом | ✅ (Sprint 6, +Sprint 9 tampered hash/rate-limit) |
+| **2FA для админов** | **deferred → Sprint 10** (пользователь подтвердил) |
+| Rate limits | ✅ (покрытие 20 req/min на `/auth` протестировано в Sprint 9) |
+| CSP, HSTS, X-Frame headers | ✅ Sprint 9 |
+| `composer audit` + `npm audit` clean | ⚠️ 1 low advisory (`firebase/php-jwt`) — задокументирован; npm — clean |
+| Бэкапы БД | deferred → Sprint 10 |
+| Sentry/аналог | **deferred → Sprint 10** (пользователь подтвердил) |
+| Логи без PII | ✅ `UpdateSanitizer` + аудит (Sprint 9) |
+| Smoke-test в проде | deferred → Sprint 10 |
+| OWASP ZAP baseline | deferred → Sprint 10 (нужен staging) |
+| Lighthouse ≥ 90 для TWA | deferred → Sprint 10 (нужен браузер) |
+
+### DoD (Sprint 9 scope)
+- ✅ Security headers middleware работает и покрыт тестами.
+- ✅ IP allowlist реализован как env-gated, готов к включению в проде.
+- ✅ Рейт-лимит на `/auth` подтверждён тестом (21-й → 429).
+- ✅ Race на `new_chat_members` — идемпотентен + DB-unique.
+- ✅ XSS из импорта экранируется на рендере.
+- ✅ Log hygiene аудит пройден, PII не утекает.
+- ✅ 117/117 тестов зелёные (+10 к Sprint 8).
+- ⚠️ Нет backend покрытия ≥ 70% — целевая метрика не измерена (отсутствует `phpunit.xml` coverage-config / нужен Xdebug в CI). Отложено в Sprint 10 с настройкой CI-coverage.
+
+### Команды разработчика
+```bash
+# Весь Sprint 9
+php vendor/bin/pest tests/Feature/SecurityHeadersTest.php \
+  tests/Feature/TelegramIpAllowlistTest.php \
+  tests/Feature/SecurityChecklistTest.php
+
+# Полный прогон (все Sprint 1-9)
+php vendor/bin/pest tests/Unit tests/Feature/Twa*.php \
+  tests/Feature/Start*.php tests/Feature/CloseExamHandlerTest.php \
+  tests/Feature/Telegram*.php tests/Feature/Filament*.php \
+  tests/Feature/Security*.php
+# → 117 passed
+
+# Аудиты
+composer audit
+cd resources/twa && npm audit
+```
+
+### Вопросы, перенесённые в Sprint 10
+1. **Апгрейд `firebase/php-jwt` до v7** — API `JWT::decode()` сменил сигнатуру ключа; переписать `JwtService` и тесты (1-2 часа).
+2. **2FA для Filament admin** — выбрать пакет (`stephenjude/...` vs `pragmarx/google2fa-laravel`).
+3. **Sentry integration** — подключить `sentry/sentry-laravel`, настроить breadcrumb scrubbing.
+4. **OWASP ZAP + Lighthouse + HTTPS** — требуют развёрнутого staging.
+5. **Coverage reporting** — Xdebug/pcov в Docker + `phpunit --coverage-text` в CI.
 
 ## Sprint 8 — Exam Flow ✅ (2026-04-23)
 

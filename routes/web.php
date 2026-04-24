@@ -8,5 +8,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', fn () => view('welcome'));
 
 Route::post('/telegram/webhook/{secret}', WebhookController::class)
+    ->middleware(\App\Http\Middleware\TelegramIpAllowlist::class)
     ->where('secret', '[A-Za-z0-9\-_]{16,128}')
     ->name('telegram.webhook');

@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash('C:\\\\OpenServer\\\\modules\\\\php\\\\PHP_8.3\\\\php.exe' vendor/bin/pest tests/Feature/SecurityChecklistTest.php)",
+      "Bash('C:\\\\OpenServer\\\\modules\\\\php\\\\PHP_8.3\\\\php.exe' 'C:\\\\OpenServer\\\\modules\\\\php\\\\PHP_8.3\\\\composer.phar' audit --no-dev)",
+      "Bash(npm audit *)"
+    ]
+  }
+}
