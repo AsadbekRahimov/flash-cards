@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Models\Word;
 use App\Models\WordRepetition;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Collection;
 
 uses(RefreshDatabase::class);
 
@@ -26,23 +27,23 @@ function authHeaders(Student $student): array
 }
 
 /**
- * @return array{session: TrainingSession, student: Student, lesson: Lesson, words: \Illuminate\Support\Collection}
+ * @return array{session: TrainingSession, student: Student, lesson: Lesson, words: Collection}
  */
 function seedTrainingScenario(int $wordCount = 3): array
 {
-    $group   = TelegramGroup::factory()->create(['status' => 'active']);
+    $group = TelegramGroup::factory()->create(['status' => 'active']);
     $teacher = User::factory()->create();
     $student = Student::factory()->create(['telegram_group_id' => $group->id, 'is_active' => true]);
 
-    $stage  = Stage::factory()->create();
+    $stage = Stage::factory()->create();
     $lesson = Lesson::factory()->for($stage)->create();
-    $words  = Word::factory()->count($wordCount)->for($lesson)->create();
+    $words = Word::factory()->count($wordCount)->for($lesson)->create();
 
     $session = TrainingSession::factory()->create([
-        'telegram_group_id'  => $group->id,
-        'lesson_id'          => $lesson->id,
+        'telegram_group_id' => $group->id,
+        'lesson_id' => $lesson->id,
         'started_by_user_id' => $teacher->id,
-        'status'             => 'open',
+        'status' => 'open',
     ]);
 
     return compact('session', 'student', 'lesson', 'words');
@@ -81,7 +82,7 @@ it('returns 403 when a student from another group tries to start', function (): 
     $s = seedTrainingScenario();
 
     $otherGroup = TelegramGroup::factory()->create(['status' => 'active']);
-    $intruder   = Student::factory()->create(['telegram_group_id' => $otherGroup->id]);
+    $intruder = Student::factory()->create(['telegram_group_id' => $otherGroup->id]);
 
     $this->withHeaders(authHeaders($intruder))
         ->postJson("/api/twa/training/sessions/{$s['session']->id}/start")
@@ -142,8 +143,8 @@ it('completes a full training cycle and updates intervals', function (): void {
 
         $this->withHeaders($headers)
             ->postJson("/api/twa/training/sessions/{$s['session']->id}/review", [
-                'word_id'       => $wordId,
-                'quality'       => 5,
+                'word_id' => $wordId,
+                'quality' => 5,
                 'time_spent_ms' => 3000,
             ])
             ->assertOk()
@@ -174,13 +175,13 @@ it('rejects review with quality out of range (validation 422)', function (): voi
 
     WordRepetition::factory()->create([
         'student_id' => $s['student']->id,
-        'word_id'    => $word->id,
+        'word_id' => $word->id,
     ]);
 
     $this->withHeaders(authHeaders($s['student']))
         ->postJson("/api/twa/training/sessions/{$s['session']->id}/review", [
-            'word_id'       => $word->id,
-            'quality'       => 99,
+            'word_id' => $word->id,
+            'quality' => 99,
             'time_spent_ms' => 1000,
         ])
         ->assertStatus(422);
@@ -192,16 +193,16 @@ it('rejects review for another student\'s session (IDOR)', function (): void {
 
     WordRepetition::factory()->create([
         'student_id' => $s['student']->id,
-        'word_id'    => $word->id,
+        'word_id' => $word->id,
     ]);
 
     $otherGroup = TelegramGroup::factory()->create(['status' => 'active']);
-    $intruder   = Student::factory()->create(['telegram_group_id' => $otherGroup->id]);
+    $intruder = Student::factory()->create(['telegram_group_id' => $otherGroup->id]);
 
     $this->withHeaders(authHeaders($intruder))
         ->postJson("/api/twa/training/sessions/{$s['session']->id}/review", [
-            'word_id'       => $word->id,
-            'quality'       => 5,
+            'word_id' => $word->id,
+            'quality' => 5,
             'time_spent_ms' => 1000,
         ])
         ->assertStatus(403);
@@ -213,8 +214,8 @@ it('returns 409 when reviewing a card that was never served', function (): void 
 
     $this->withHeaders(authHeaders($s['student']))
         ->postJson("/api/twa/training/sessions/{$s['session']->id}/review", [
-            'word_id'       => $word->id,
-            'quality'       => 5,
+            'word_id' => $word->id,
+            'quality' => 5,
             'time_spent_ms' => 1000,
         ])
         ->assertStatus(409)
@@ -226,17 +227,17 @@ it('returns 422 when reviewing a word from another lesson', function (): void {
 
     // word from a different lesson in the same stage
     $otherLesson = Lesson::factory()->for(Stage::factory())->create();
-    $otherWord   = Word::factory()->for($otherLesson)->create();
+    $otherWord = Word::factory()->for($otherLesson)->create();
 
     WordRepetition::factory()->create([
         'student_id' => $s['student']->id,
-        'word_id'    => $otherWord->id,
+        'word_id' => $otherWord->id,
     ]);
 
     $this->withHeaders(authHeaders($s['student']))
         ->postJson("/api/twa/training/sessions/{$s['session']->id}/review", [
-            'word_id'       => $otherWord->id,
-            'quality'       => 5,
+            'word_id' => $otherWord->id,
+            'quality' => 5,
             'time_spent_ms' => 1000,
         ])
         ->assertStatus(422)

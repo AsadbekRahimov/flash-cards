@@ -13,6 +13,7 @@ use App\Policies\ExamSessionPolicy;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 /**
  * TWA exam endpoints.
@@ -42,9 +43,9 @@ final class ExamController
         $config = $session->config ?? [];
 
         return response()->json([
-            'session_id'           => $session->id,
-            'ends_at'              => $session->ends_at?->toIso8601String(),
-            'total_questions'      => (int) ($config['total_questions'] ?? 0),
+            'session_id' => $session->id,
+            'ends_at' => $session->ends_at?->toIso8601String(),
+            'total_questions' => (int) ($config['total_questions'] ?? 0),
             'seconds_per_question' => (int) ($config['seconds_per_question'] ?? 0),
         ]);
     }
@@ -68,10 +69,10 @@ final class ExamController
 
         return response()->json([
             'question_index' => $index,
-            'word_id'        => (int) $q['word_id'],
-            'word'           => (string) $q['word'],
-            'options'        => array_values($q['options']),
-            'seconds_left'   => $secondsLeft,
+            'word_id' => (int) $q['word_id'],
+            'word' => (string) $q['word'],
+            'options' => array_values($q['options']),
+            'seconds_left' => $secondsLeft,
         ]);
     }
 
@@ -83,14 +84,14 @@ final class ExamController
         }
 
         $validated = $request->validate([
-            'question_index'         => ['required', 'integer', 'min:0'],
-            'word_id'                => ['required', 'integer'],
-            'selected_option_index'  => ['nullable', 'integer', 'min:0'],
-            'time_spent_ms'          => ['required', 'integer', 'min:0', 'max:600000'],
+            'question_index' => ['required', 'integer', 'min:0'],
+            'word_id' => ['required', 'integer'],
+            'selected_option_index' => ['nullable', 'integer', 'min:0'],
+            'time_spent_ms' => ['required', 'integer', 'min:0', 'max:600000'],
         ]);
 
         $questions = $this->questions($session);
-        $index     = (int) $validated['question_index'];
+        $index = (int) $validated['question_index'];
 
         if ($index < 0 || $index >= count($questions)) {
             return $this->error(404, 'question_not_found', 'Question index is out of range.');
@@ -112,7 +113,7 @@ final class ExamController
         }
 
         $selectedIndex = $validated['selected_option_index'] ?? null;
-        $options       = $q['options'] ?? [];
+        $options = $q['options'] ?? [];
         $isCorrect = $selectedIndex !== null
             && isset($options[$selectedIndex])
             && (int) $selectedIndex === (int) $q['correct_index'];
@@ -120,14 +121,14 @@ final class ExamController
         $score = $this->computeScore($isCorrect, (int) $validated['time_spent_ms'], $session);
 
         ExamAnswer::query()->create([
-            'exam_session_id'      => $session->id,
-            'student_id'           => $student->id,
-            'word_id'              => $validated['word_id'],
+            'exam_session_id' => $session->id,
+            'student_id' => $student->id,
+            'word_id' => $validated['word_id'],
             'selected_translation' => $selectedIndex !== null ? ($options[$selectedIndex] ?? null) : null,
-            'is_correct'           => $isCorrect,
-            'score'                => $score,
-            'time_spent_ms'        => (int) $validated['time_spent_ms'],
-            'answered_at'          => now(),
+            'is_correct' => $isCorrect,
+            'score' => $score,
+            'time_spent_ms' => (int) $validated['time_spent_ms'],
+            'answered_at' => now(),
         ]);
 
         $totalScore = (int) ExamAnswer::query()
@@ -138,11 +139,11 @@ final class ExamController
         $totalQuestions = count($questions);
 
         return response()->json([
-            'is_correct'     => $isCorrect,
+            'is_correct' => $isCorrect,
             'correct_option' => (int) $q['correct_index'],
-            'score_earned'   => $score,
-            'total_score'    => $totalScore,
-            'has_next'       => $index + 1 < $totalQuestions,
+            'score_earned' => $score,
+            'total_score' => $totalScore,
+            'has_next' => $index + 1 < $totalQuestions,
         ]);
     }
 
@@ -162,7 +163,7 @@ final class ExamController
             $this->leaderboard->build($session);
         }
 
-        /** @var \Illuminate\Support\Collection<int, ExamResult> $all */
+        /** @var Collection<int, ExamResult> $all */
         $all = ExamResult::query()
             ->with('student')
             ->where('exam_session_id', $session->id)
@@ -172,12 +173,12 @@ final class ExamController
         $mine = $all->firstWhere('student_id', $student->id);
 
         return response()->json([
-            'student_score'      => $mine?->total_score ?? 0,
-            'rank'               => $mine?->rank ?? null,
+            'student_score' => $mine?->total_score ?? 0,
+            'rank' => $mine?->rank ?? null,
             'total_participants' => $all->count(),
-            'leaderboard'        => $all->take(10)->map(fn (ExamResult $r): array => [
-                'rank'  => $r->rank,
-                'name'  => $r->student?->first_name ?? '—',
+            'leaderboard' => $all->take(10)->map(fn (ExamResult $r): array => [
+                'rank' => $r->rank,
+                'name' => $r->student?->first_name ?? '—',
                 'score' => $r->total_score,
             ])->values(),
         ]);
@@ -190,8 +191,8 @@ final class ExamController
         }
 
         $perQuestion = (int) ($session->config['seconds_per_question'] ?? 10);
-        $totalMs     = $perQuestion * 1000;
-        $remaining   = max(0.0, 1.0 - ($timeSpentMs / max(1, $totalMs)));
+        $totalMs = $perQuestion * 1000;
+        $remaining = max(0.0, 1.0 - ($timeSpentMs / max(1, $totalMs)));
 
         // Minimum 5 points for a correct answer even if time ran out.
         return max(5, (int) round(self::MAX_POINTS_PER_QUESTION * (0.25 + 0.75 * $remaining)));
@@ -199,8 +200,11 @@ final class ExamController
 
     private function questionSecondsLeft(ExamSession $session): int
     {
-        if ($session->ends_at === null) return 0;
+        if ($session->ends_at === null) {
+            return 0;
+        }
         $left = CarbonImmutable::now()->diffInSeconds($session->ends_at, false);
+
         return max(0, (int) $left);
     }
 
@@ -211,6 +215,7 @@ final class ExamController
     {
         /** @var list<array{word_id:int, word:string, correct_translation:string, correct_index:int, options:list<string>}> $q */
         $q = $session->config['questions'] ?? [];
+
         return $q;
     }
 

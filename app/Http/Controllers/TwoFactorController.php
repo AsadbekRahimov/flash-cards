@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
+use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
 use Illuminate\Http\RedirectResponse;
@@ -41,7 +41,7 @@ final class TwoFactorController extends Controller
             $secret,
         );
 
-        $renderer = new ImageRenderer(new RendererStyle(220), new SvgImageBackEnd());
+        $renderer = new ImageRenderer(new RendererStyle(220), new SvgImageBackEnd);
         $writer = new Writer($renderer);
         $qrSvg = $writer->writeString($qrUrl);
 

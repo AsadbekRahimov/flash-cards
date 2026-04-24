@@ -5,7 +5,9 @@ declare(strict_types=1);
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Models\Student;
 use App\Models\TelegramGroup;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\RateLimiter;
 
@@ -32,7 +34,7 @@ it('rate-limits /api/twa/auth at 20 requests per minute per IP', function (): vo
 
 it('escapes XSS payload from JSON import when rendered via Blade', function (): void {
     $xss = '<script>alert(1)</script>';
-    $rendered = \Illuminate\Support\Facades\Blade::render('{{ $v }}', ['v' => $xss]);
+    $rendered = Blade::render('{{ $v }}', ['v' => $xss]);
 
     expect($rendered)
         ->not->toContain('<script>')
@@ -71,5 +73,5 @@ it('enforces unique (telegram_user_id, telegram_group_id) index at DB level', fu
     expect(fn () => Student::factory()->create([
         'telegram_group_id' => $group->id,
         'telegram_user_id' => 100,
-    ]))->toThrow(\Illuminate\Database\QueryException::class);
+    ]))->toThrow(QueryException::class);
 });

@@ -25,22 +25,22 @@ beforeEach(function (): void {
 function attachExamTeacher(User $user, TelegramGroup $group): void
 {
     DB::table('teacher_groups')->insert([
-        'user_id'           => $user->id,
+        'user_id' => $user->id,
         'telegram_group_id' => $group->id,
-        'is_primary'        => true,
-        'created_at'        => now(),
-        'updated_at'        => now(),
+        'is_primary' => true,
+        'created_at' => now(),
+        'updated_at' => now(),
     ]);
 }
 
 /** @return array{group: TelegramGroup, teacher: User, lesson: Lesson} */
 function seedLessonWithWords(int $chatId = -1001, int $telegramUserId = 777): array
 {
-    $group   = TelegramGroup::factory()->create(['chat_id' => $chatId, 'status' => 'active']);
+    $group = TelegramGroup::factory()->create(['chat_id' => $chatId, 'status' => 'active']);
     $teacher = User::factory()->create(['telegram_user_id' => $telegramUserId]);
     attachExamTeacher($teacher, $group);
 
-    $stage  = Stage::factory()->create(['number' => 1]);
+    $stage = Stage::factory()->create(['number' => 1]);
     $lesson = Lesson::factory()->for($stage)->create(['number' => 1]);
     Word::factory()->count(10)->for($lesson)->create();
 
@@ -162,10 +162,10 @@ it('rejects invalid duration', function (): void {
 });
 
 it('rejects lesson with not enough words', function (): void {
-    $group   = TelegramGroup::factory()->create(['chat_id' => -3003, 'status' => 'active']);
+    $group = TelegramGroup::factory()->create(['chat_id' => -3003, 'status' => 'active']);
     $teacher = User::factory()->create(['telegram_user_id' => 888]);
     attachExamTeacher($teacher, $group);
-    $stage  = Stage::factory()->create(['number' => 1]);
+    $stage = Stage::factory()->create(['number' => 1]);
     $lesson = Lesson::factory()->for($stage)->create(['number' => 1]);
     Word::factory()->count(2)->for($lesson)->create(); // less than min 4
 

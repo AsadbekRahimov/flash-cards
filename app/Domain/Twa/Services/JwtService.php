@@ -28,7 +28,7 @@ final class JwtService
      */
     public function issue(int $studentId, int $groupId): array
     {
-        $now     = time();
+        $now = time();
         $expires = $now + $this->ttl;
 
         $payload = [
@@ -40,7 +40,7 @@ final class JwtService
         ];
 
         return [
-            'token'      => JWT::encode($payload, $this->secret, $this->alg),
+            'token' => JWT::encode($payload, $this->secret, $this->alg),
             'expires_in' => $this->ttl,
             'expires_at' => $expires,
         ];
@@ -62,9 +62,9 @@ final class JwtService
 
         return [
             'student_id' => (int) $payload['sub'],
-            'group_id'   => (int) $payload['gid'],
-            'iat'        => (int) ($payload['iat'] ?? 0),
-            'exp'        => (int) $payload['exp'],
+            'group_id' => (int) $payload['gid'],
+            'iat' => (int) ($payload['iat'] ?? 0),
+            'exp' => (int) $payload['exp'],
         ];
     }
 }

@@ -8,13 +8,20 @@ use DomainException;
 
 final class ExamSessionException extends DomainException
 {
-    public const REASON_NOT_TEACHER      = 'not_teacher';
-    public const REASON_GROUP_INACTIVE   = 'group_inactive';
-    public const REASON_STAGE_NOT_FOUND  = 'stage_not_found';
+    public const REASON_NOT_TEACHER = 'not_teacher';
+
+    public const REASON_GROUP_INACTIVE = 'group_inactive';
+
+    public const REASON_STAGE_NOT_FOUND = 'stage_not_found';
+
     public const REASON_LESSON_NOT_FOUND = 'lesson_not_found';
+
     public const REASON_NOT_ENOUGH_WORDS = 'not_enough_words';
-    public const REASON_ALREADY_OPEN     = 'already_open';
-    public const REASON_NO_OPEN_EXAM     = 'no_open_exam';
+
+    public const REASON_ALREADY_OPEN = 'already_open';
+
+    public const REASON_NO_OPEN_EXAM = 'no_open_exam';
+
     public const REASON_INVALID_DURATION = 'invalid_duration';
 
     public function __construct(public readonly string $reason, string $message = '')

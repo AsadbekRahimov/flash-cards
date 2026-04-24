@@ -10,12 +10,12 @@ const BOT_TOKEN = 'test-bot-token-1234567890';
 function buildInitData(array $overrides = [], ?int $authDateOverride = null): string
 {
     $fields = array_merge([
-        'query_id'  => 'AAHdF6IQAAAAAN0XohDhrOrc',
-        'user'      => json_encode([
-            'id'            => 42,
-            'first_name'    => 'Alex',
-            'last_name'     => 'Ivanov',
-            'username'      => 'alex',
+        'query_id' => 'AAHdF6IQAAAAAN0XohDhrOrc',
+        'user' => json_encode([
+            'id' => 42,
+            'first_name' => 'Alex',
+            'last_name' => 'Ivanov',
+            'username' => 'alex',
             'language_code' => 'ru',
         ]),
         'auth_date' => (string) ($authDateOverride ?? time()),
@@ -59,7 +59,7 @@ it('rejects initData signed with a different bot token', function (): void {
 
 it('rejects initData without hash field', function (): void {
     try {
-        (new InitDataValidator(BOT_TOKEN))->validate('user=%7B%22id%22%3A42%7D&auth_date=' . time());
+        (new InitDataValidator(BOT_TOKEN))->validate('user=%7B%22id%22%3A42%7D&auth_date='.time());
         $this->fail('Expected exception was not thrown');
     } catch (InvalidInitDataException $e) {
         expect($e->reason)->toBe(InvalidInitDataException::REASON_MISSING_FIELDS);
@@ -79,7 +79,7 @@ it('rejects initData older than max_age', function (): void {
 
 it('rejects initData without a user field', function (): void {
     $initData = InitDataValidator::sign(BOT_TOKEN, [
-        'query_id'  => 'abc',
+        'query_id' => 'abc',
         'auth_date' => (string) time(),
     ]);
 
@@ -94,9 +94,9 @@ it('rejects initData without a user field', function (): void {
 it('preserves special characters inside the user JSON during signing and validation', function (): void {
     $initData = buildInitData([
         'user' => json_encode([
-            'id'         => 777,
+            'id' => 777,
             'first_name' => 'Алёна',
-            'username'   => 'user.with.dots',
+            'username' => 'user.with.dots',
         ]),
     ]);
 

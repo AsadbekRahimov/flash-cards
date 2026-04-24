@@ -30,16 +30,16 @@ final class MeController
 
         return response()->json([
             'student' => [
-                'id'         => $student->id,
+                'id' => $student->id,
                 'first_name' => $student->first_name,
-                'username'   => $student->username,
+                'username' => $student->username,
             ],
             'group' => $student->group ? [
-                'id'    => $student->group->id,
+                'id' => $student->group->id,
                 'title' => $student->group->title,
             ] : null,
             'stats' => [
-                'words_learned'   => $wordsLearned,
+                'words_learned' => $wordsLearned,
                 'words_due_today' => $wordsDueToday,
             ],
         ]);

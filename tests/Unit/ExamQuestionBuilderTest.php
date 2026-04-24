@@ -12,11 +12,11 @@ uses(RefreshDatabase::class);
 
 function seedLessonForBuilder(int $wordsInTarget = 10, int $distractors = 30): Lesson
 {
-    $stage   = Stage::factory()->create();
-    $target  = Lesson::factory()->for($stage)->create();
+    $stage = Stage::factory()->create();
+    $target = Lesson::factory()->for($stage)->create();
     Word::factory()->count($wordsInTarget)->for($target)->sequence(
         ...array_map(fn (int $i): array => [
-            'word'        => "w{$i}",
+            'word' => "w{$i}",
             'translation' => "tr{$i}",
         ], range(0, $wordsInTarget - 1)),
     )->create();
@@ -61,7 +61,7 @@ it('clamps totalQuestions to the words available', function (): void {
 });
 
 it('returns empty array when the lesson has fewer than MIN_QUESTIONS words', function (): void {
-    $stage  = Stage::factory()->create();
+    $stage = Stage::factory()->create();
     $lesson = Lesson::factory()->for($stage)->create();
     Word::factory()->count(2)->for($lesson)->create();
 
@@ -72,7 +72,7 @@ it('returns empty array when the lesson has fewer than MIN_QUESTIONS words', fun
 
 it('falls back to filler options when distractor pool is too small', function (): void {
     // only 5 words in target + 2 words total in the stage beyond = tight pool
-    $stage  = Stage::factory()->create();
+    $stage = Stage::factory()->create();
     $target = Lesson::factory()->for($stage)->create();
     Word::factory()->count(5)->for($target)->sequence(
         ['translation' => 'aa'],

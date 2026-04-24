@@ -13,6 +13,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -48,7 +49,7 @@ final class PostLeaderboardJob implements ShouldQueue
             $builder->build($session);
         }
 
-        /** @var \Illuminate\Support\Collection<int, ExamResult> $results */
+        /** @var Collection<int, ExamResult> $results */
         $results = ExamResult::query()
             ->with('student')
             ->where('exam_session_id', $session->id)
@@ -63,7 +64,7 @@ final class PostLeaderboardJob implements ShouldQueue
         } catch (\Throwable $e) {
             Log::channel('daily')->warning('telegram.leaderboard_post_failed', [
                 'exam_session_id' => $session->id,
-                'error'           => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
 
             throw $e;
@@ -71,25 +72,25 @@ final class PostLeaderboardJob implements ShouldQueue
     }
 
     /**
-     * @param  \Illuminate\Support\Collection<int, ExamResult>  $results
+     * @param  Collection<int, ExamResult>  $results
      */
     private function format(ExamSession $session, $results): string
     {
         $lessonNumber = $session->lesson?->number ?? '?';
-        $header       = "🏁 <b>Итоги экзамена</b>\nУрок {$lessonNumber}";
+        $header = "🏁 <b>Итоги экзамена</b>\nУрок {$lessonNumber}";
 
         if ($results->isEmpty()) {
-            return $header . "\n\nНикто не ответил 😅";
+            return $header."\n\nНикто не ответил 😅";
         }
 
         $rows = $results->map(function (ExamResult $r): string {
             $medal = match ($r->rank) {
-                1       => '🥇',
-                2       => '🥈',
-                3       => '🥉',
+                1 => '🥇',
+                2 => '🥈',
+                3 => '🥉',
                 default => "{$r->rank}.",
             };
-            $name  = $this->escapeHtml($r->student?->first_name ?? '—');
+            $name = $this->escapeHtml($r->student?->first_name ?? '—');
             $score = $r->total_score;
 
             return "{$medal} {$name} — <b>{$score}</b>";

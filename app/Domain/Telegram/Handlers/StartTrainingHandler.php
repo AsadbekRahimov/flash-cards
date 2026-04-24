@@ -38,7 +38,7 @@ final class StartTrainingHandler implements UpdateHandler
         }
 
         $chatType = (string) ($message['chat']['type'] ?? '');
-        $text     = (string) ($message['text'] ?? '');
+        $text = (string) ($message['text'] ?? '');
 
         return in_array($chatType, ['group', 'supergroup'], true)
             && preg_match('~^/start_training(?:@\w+)?(\s|$)~', $text) === 1;
@@ -49,9 +49,9 @@ final class StartTrainingHandler implements UpdateHandler
     {
         /** @var array<string, mixed> $message */
         $message = $update['message'];
-        $chatId  = (int) $message['chat']['id'];
-        $fromId  = (int) ($message['from']['id'] ?? 0);
-        $text    = (string) ($message['text'] ?? '');
+        $chatId = (int) $message['chat']['id'];
+        $fromId = (int) ($message['from']['id'] ?? 0);
+        $text = (string) ($message['text'] ?? '');
 
         if ($fromId === 0) {
             return;
@@ -103,8 +103,8 @@ final class StartTrainingHandler implements UpdateHandler
     private function humanizeError(TrainingSessionException $e): string
     {
         return match ($e->reason) {
-            TrainingSessionException::REASON_NOT_TEACHER     => 'Только учитель этой группы может запускать тренировку.',
-            TrainingSessionException::REASON_GROUP_INACTIVE  => 'Группа не активирована. Попросите админа активировать её в /admin.',
+            TrainingSessionException::REASON_NOT_TEACHER => 'Только учитель этой группы может запускать тренировку.',
+            TrainingSessionException::REASON_GROUP_INACTIVE => 'Группа не активирована. Попросите админа активировать её в /admin.',
             TrainingSessionException::REASON_STAGE_NOT_FOUND => 'Указанный stage не найден.',
             TrainingSessionException::REASON_LESSON_NOT_FOUND => 'Урок не найден.',
             default => 'Не удалось запустить тренировку.',
@@ -114,7 +114,7 @@ final class StartTrainingHandler implements UpdateHandler
     private function postWebAppButton(int $chatId, TrainingSession $session, int $stage, int $lesson): void
     {
         $base = rtrim((string) config('twa.base_url'), '/');
-        $url  = "{$base}/twa/training/{$session->id}";
+        $url = "{$base}/twa/training/{$session->id}";
 
         $this->api->sendMessage(
             $chatId,
@@ -122,7 +122,7 @@ final class StartTrainingHandler implements UpdateHandler
             replyMarkup: [
                 'inline_keyboard' => [[
                     [
-                        'text'    => '🎯 Открыть тренировку',
+                        'text' => '🎯 Открыть тренировку',
                         'web_app' => ['url' => $url],
                     ],
                 ]],

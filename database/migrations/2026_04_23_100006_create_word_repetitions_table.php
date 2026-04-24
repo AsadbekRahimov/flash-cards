@@ -32,7 +32,7 @@ return new class extends Migration
         DB::statement(
             'CREATE INDEX word_repetitions_student_is_hard_idx
              ON word_repetitions (student_id)
-             WHERE is_hard = true'
+             WHERE is_hard = true',
         );
     }
 

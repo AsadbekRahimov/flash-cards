@@ -32,18 +32,18 @@ class HardestWordsTableWidget extends TableWidget
                             ->selectRaw('COUNT(*)')
                             ->whereColumn('training_reviews.word_id', 'words.id')
                             ->where('training_reviews.created_at', '>=', $since),
-                        'attempts'
+                        'attempts',
                     )
                     ->selectSub(
                         fn (Builder $q) => $q->from('training_reviews')
                             ->selectRaw('SUM(CASE WHEN quality < 3 THEN 1 ELSE 0 END)::float / NULLIF(COUNT(*), 0)')
                             ->whereColumn('training_reviews.word_id', 'words.id')
                             ->where('training_reviews.created_at', '>=', $since),
-                        'hard_ratio'
+                        'hard_ratio',
                     )
                     ->havingRaw('(SELECT COUNT(*) FROM training_reviews WHERE training_reviews.word_id = words.id AND training_reviews.created_at >= ?) >= 5', [$since])
                     ->orderByDesc(DB::raw('hard_ratio'))
-                    ->limit(10)
+                    ->limit(10),
             )
             ->columns([
                 Tables\Columns\TextColumn::make('word')->weight('bold'),

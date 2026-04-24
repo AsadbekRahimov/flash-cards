@@ -9,6 +9,7 @@ use App\Filament\Widgets\ExamsLast30DaysWidget;
 use App\Filament\Widgets\HardestWordsTableWidget;
 use App\Filament\Widgets\TopStudentsTableWidget;
 use App\Filament\Widgets\TotalStudentsWidget;
+use App\Http\Middleware\RequireTwoFactor;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -63,7 +64,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-                \App\Http\Middleware\RequireTwoFactor::class,
+                RequireTwoFactor::class,
             ]);
     }
 }

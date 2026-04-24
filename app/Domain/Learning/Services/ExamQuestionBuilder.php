@@ -21,8 +21,10 @@ use App\Models\Word;
 final class ExamQuestionBuilder
 {
     public const OPTIONS_PER_QUESTION = 4;
-    public const MIN_QUESTIONS        = 4;
-    public const MAX_QUESTIONS        = 30;
+
+    public const MIN_QUESTIONS = 4;
+
+    public const MAX_QUESTIONS = 30;
 
     /**
      * @return array<int, array{
@@ -89,11 +91,11 @@ final class ExamQuestionBuilder
         }
 
         return [
-            'word_id'             => $word->id,
-            'word'                => $word->word,
+            'word_id' => $word->id,
+            'word' => $word->word,
             'correct_translation' => $correct,
-            'correct_index'       => (int) $correctIndex,
-            'options'             => array_values($options),
+            'correct_index' => (int) $correctIndex,
+            'options' => array_values($options),
         ];
     }
 

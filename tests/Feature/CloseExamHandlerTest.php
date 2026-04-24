@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Learning\Services\LeaderboardBuilder;
 use App\Domain\Telegram\Services\TelegramApi;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Jobs\PostLeaderboardJob;
@@ -28,38 +29,38 @@ beforeEach(function (): void {
 
 function seedOpenExam(int $chatId, int $teacherTgId): array
 {
-    $group   = TelegramGroup::factory()->create(['chat_id' => $chatId, 'status' => 'active']);
+    $group = TelegramGroup::factory()->create(['chat_id' => $chatId, 'status' => 'active']);
     $teacher = User::factory()->create(['telegram_user_id' => $teacherTgId]);
     DB::table('teacher_groups')->insert([
-        'user_id'           => $teacher->id,
+        'user_id' => $teacher->id,
         'telegram_group_id' => $group->id,
-        'is_primary'        => true,
-        'created_at'        => now(),
-        'updated_at'        => now(),
+        'is_primary' => true,
+        'created_at' => now(),
+        'updated_at' => now(),
     ]);
 
-    $stage  = Stage::factory()->create();
+    $stage = Stage::factory()->create();
     $lesson = Lesson::factory()->for($stage)->create();
     Word::factory()->count(6)->for($lesson)->create();
     $correct = Word::where('lesson_id', $lesson->id)->first();
 
     $session = ExamSession::factory()->create([
-        'telegram_group_id'  => $group->id,
-        'lesson_id'          => $lesson->id,
+        'telegram_group_id' => $group->id,
+        'lesson_id' => $lesson->id,
         'started_by_user_id' => $teacher->id,
-        'status'             => 'open',
-        'started_at'         => now()->subMinutes(5),
-        'ends_at'            => now()->addMinute(),
-        'config'             => [
-            'total_questions'      => 4,
+        'status' => 'open',
+        'started_at' => now()->subMinutes(5),
+        'ends_at' => now()->addMinute(),
+        'config' => [
+            'total_questions' => 4,
             'seconds_per_question' => 10,
-            'duration_minutes'     => 2,
-            'questions'            => [[
-                'word_id'             => $correct->id,
-                'word'                => 'test',
+            'duration_minutes' => 2,
+            'questions' => [[
+                'word_id' => $correct->id,
+                'word' => 'test',
                 'correct_translation' => 'тест',
-                'correct_index'       => 0,
-                'options'             => ['тест', 'a', 'b', 'c'],
+                'correct_index' => 0,
+                'options' => ['тест', 'a', 'b', 'c'],
             ]],
         ],
     ]);
@@ -99,14 +100,14 @@ it('/close_exam from non-teacher is rejected', function (): void {
 });
 
 it('/close_exam reports "no open exam" when there is none', function (): void {
-    $group   = TelegramGroup::factory()->create(['chat_id' => -9999, 'status' => 'active']);
+    $group = TelegramGroup::factory()->create(['chat_id' => -9999, 'status' => 'active']);
     $teacher = User::factory()->create(['telegram_user_id' => 444]);
     DB::table('teacher_groups')->insert([
-        'user_id'           => $teacher->id,
+        'user_id' => $teacher->id,
         'telegram_group_id' => $group->id,
-        'is_primary'        => true,
-        'created_at'        => now(),
-        'updated_at'        => now(),
+        'is_primary' => true,
+        'created_at' => now(),
+        'updated_at' => now(),
     ]);
 
     // no exam in the group
@@ -126,7 +127,7 @@ it('LeaderboardBuilder ranks students correctly and stores exam_results', functi
     $session = $s['session'];
 
     $alice = Student::factory()->create(['telegram_group_id' => $s['group']->id]);
-    $bob   = Student::factory()->create(['telegram_group_id' => $s['group']->id]);
+    $bob = Student::factory()->create(['telegram_group_id' => $s['group']->id]);
     $carol = Student::factory()->create(['telegram_group_id' => $s['group']->id]);
 
     // Alice: 30 pts, Bob: 30 pts but slower, Carol: 0 pts
@@ -136,7 +137,7 @@ it('LeaderboardBuilder ranks students correctly and stores exam_results', functi
         ['exam_session_id' => $session->id, 'student_id' => $carol->id, 'word_id' => $s['correct']->id, 'selected_translation' => 'a',    'is_correct' => false, 'score' => 0,  'time_spent_ms' => 2000, 'answered_at' => now()],
     ]);
 
-    $built = app(\App\Domain\Learning\Services\LeaderboardBuilder::class)->build($session);
+    $built = app(LeaderboardBuilder::class)->build($session);
 
     expect(ExamResult::query()->where('exam_session_id', $session->id)->count())->toBe(3);
 
@@ -154,7 +155,7 @@ it('LeaderboardBuilder assigns equal rank for full ties', function (): void {
     $session = $s['session'];
 
     $alice = Student::factory()->create(['telegram_group_id' => $s['group']->id]);
-    $bob   = Student::factory()->create(['telegram_group_id' => $s['group']->id]);
+    $bob = Student::factory()->create(['telegram_group_id' => $s['group']->id]);
     $carol = Student::factory()->create(['telegram_group_id' => $s['group']->id]);
 
     // Alice and Bob fully tied; Carol worse
@@ -164,7 +165,7 @@ it('LeaderboardBuilder assigns equal rank for full ties', function (): void {
         ['exam_session_id' => $session->id, 'student_id' => $carol->id, 'word_id' => $s['correct']->id, 'selected_translation' => 'a',    'is_correct' => false, 'score' => 0,  'time_spent_ms' => 3000, 'answered_at' => now()],
     ]);
 
-    app(\App\Domain\Learning\Services\LeaderboardBuilder::class)->build($session);
+    app(LeaderboardBuilder::class)->build($session);
 
     $ranks = ExamResult::query()
         ->where('exam_session_id', $session->id)

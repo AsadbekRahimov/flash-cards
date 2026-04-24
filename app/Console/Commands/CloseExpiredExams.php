@@ -10,6 +10,7 @@ use App\Jobs\PostLeaderboardJob;
 use App\Models\ExamSession;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -36,7 +37,7 @@ final class CloseExpiredExams extends Command
         $grace = max(0, (int) $this->option('grace'));
         $cutoff = CarbonImmutable::now()->subSeconds($grace);
 
-        /** @var \Illuminate\Support\Collection<int, ExamSession> $expired */
+        /** @var Collection<int, ExamSession> $expired */
         $expired = ExamSession::query()
             ->where('status', 'open')
             ->where('ends_at', '<=', $cutoff)

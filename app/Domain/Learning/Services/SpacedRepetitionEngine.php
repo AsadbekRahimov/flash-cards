@@ -27,10 +27,12 @@ use InvalidArgumentException;
  */
 final class SpacedRepetitionEngine
 {
-    public const MIN_EF     = 1.30;
+    public const MIN_EF = 1.30;
+
     public const DEFAULT_EF = 2.50;
 
     public const MIN_QUALITY = 0;
+
     public const MAX_QUALITY = 5;
 
     public function applyReview(
@@ -43,32 +45,32 @@ final class SpacedRepetitionEngine
         $now ??= CarbonImmutable::now();
 
         $previousRepetitions = (int) $rep->repetitions;
-        $previousInterval    = (int) $rep->interval_days;
-        $previousEf          = (float) $rep->easiness_factor;
+        $previousInterval = (int) $rep->interval_days;
+        $previousEf = (float) $rep->easiness_factor;
 
         $ef = $this->newEasinessFactor($previousEf, $quality);
 
         if ($quality < 3) {
             $repetitions = 0;
-            $interval    = 1;
-            $isHard      = true;
+            $interval = 1;
+            $isHard = true;
         } else {
             $repetitions = $previousRepetitions + 1;
-            $interval    = match (true) {
+            $interval = match (true) {
                 $previousRepetitions === 0 => 1,
                 $previousRepetitions === 1 => 6,
-                default                    => max(1, (int) round($previousInterval * $ef)),
+                default => max(1, (int) round($previousInterval * $ef)),
             };
             $isHard = false;
         }
 
-        $rep->easiness_factor  = round($ef, 2);
-        $rep->repetitions      = $repetitions;
-        $rep->interval_days    = $interval;
-        $rep->last_quality     = $quality;
+        $rep->easiness_factor = round($ef, 2);
+        $rep->repetitions = $repetitions;
+        $rep->interval_days = $interval;
+        $rep->last_quality = $quality;
         $rep->last_reviewed_at = $now;
-        $rep->next_review_at   = $now->addDays($interval);
-        $rep->is_hard          = $isHard;
+        $rep->next_review_at = $now->addDays($interval);
+        $rep->is_hard = $isHard;
 
         $rep->save();
 

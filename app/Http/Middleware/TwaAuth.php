@@ -53,7 +53,7 @@ final class TwaAuth
 
         $request->attributes->set('twa', [
             'student_id' => $payload['student_id'],
-            'group_id'   => $payload['group_id'],
+            'group_id' => $payload['group_id'],
         ]);
         $request->attributes->set('student', $student);
 

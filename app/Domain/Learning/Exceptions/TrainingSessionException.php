@@ -8,9 +8,12 @@ use DomainException;
 
 final class TrainingSessionException extends DomainException
 {
-    public const REASON_NOT_TEACHER     = 'not_teacher';
-    public const REASON_GROUP_INACTIVE  = 'group_inactive';
+    public const REASON_NOT_TEACHER = 'not_teacher';
+
+    public const REASON_GROUP_INACTIVE = 'group_inactive';
+
     public const REASON_STAGE_NOT_FOUND = 'stage_not_found';
+
     public const REASON_LESSON_NOT_FOUND = 'lesson_not_found';
 
     public function __construct(public readonly string $reason, string $message = '')

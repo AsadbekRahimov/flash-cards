@@ -16,27 +16,27 @@ uses(RefreshDatabase::class);
 
 function makeRepetition(array $overrides = []): WordRepetition
 {
-    $group  = TelegramGroup::factory()->create();
+    $group = TelegramGroup::factory()->create();
     $student = Student::factory()->create(['telegram_group_id' => $group->id]);
-    $stage  = Stage::factory()->create();
+    $stage = Stage::factory()->create();
     $lesson = Lesson::factory()->for($stage)->create();
-    $word   = Word::factory()->for($lesson)->create();
+    $word = Word::factory()->for($lesson)->create();
 
     return WordRepetition::factory()->create(array_merge([
-        'student_id'      => $student->id,
-        'word_id'         => $word->id,
-        'repetitions'     => 0,
-        'interval_days'   => 0,
+        'student_id' => $student->id,
+        'word_id' => $word->id,
+        'repetitions' => 0,
+        'interval_days' => 0,
         'easiness_factor' => SpacedRepetitionEngine::DEFAULT_EF,
-        'last_quality'    => null,
-        'is_hard'         => false,
+        'last_quality' => null,
+        'is_hard' => false,
     ], $overrides));
 }
 
 it('resets interval and flags hard when quality < 3 on a mature card', function (): void {
     $rep = makeRepetition([
-        'repetitions'     => 5,
-        'interval_days'   => 30,
+        'repetitions' => 5,
+        'interval_days' => 30,
         'easiness_factor' => 2.40,
     ]);
 
@@ -75,8 +75,8 @@ it('uses interval=6 on second successful repetition', function (): void {
 
 it('multiplies interval by EF from third repetition onwards', function (): void {
     $rep = makeRepetition([
-        'repetitions'     => 2,
-        'interval_days'   => 6,
+        'repetitions' => 2,
+        'interval_days' => 6,
         'easiness_factor' => 2.50,
     ]);
 
@@ -125,8 +125,8 @@ it('throws on quality out of 0..5 range', function (int $q): void {
 
 it('advances the full 3-step cycle producing intervals 1, 6, ~15', function (): void {
     $rep = makeRepetition([
-        'repetitions'     => 0,
-        'interval_days'   => 0,
+        'repetitions' => 0,
+        'interval_days' => 0,
         'easiness_factor' => SpacedRepetitionEngine::DEFAULT_EF,
     ]);
 
@@ -160,10 +160,10 @@ it('sets last_reviewed_at and next_review_at based on provided now()', function 
 
 it('clears is_hard flag after a successful review on a previously-hard card', function (): void {
     $rep = makeRepetition([
-        'repetitions'     => 0,
-        'interval_days'   => 1,
-        'is_hard'         => true,
-        'last_quality'    => 2,
+        'repetitions' => 0,
+        'interval_days' => 1,
+        'is_hard' => true,
+        'last_quality' => 2,
     ]);
 
     app(SpacedRepetitionEngine::class)->applyReview($rep, 5);

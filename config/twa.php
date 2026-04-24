@@ -11,9 +11,9 @@ return [
 
     'jwt' => [
         'secret' => env('TWA_JWT_SECRET', ''),
-        'ttl'    => (int) env('TWA_JWT_TTL', 900),   // seconds
-        'alg'    => env('TWA_JWT_ALG', 'HS256'),
-        'iss'    => env('TWA_JWT_ISS', 'lexiflow'),
+        'ttl' => (int) env('TWA_JWT_TTL', 900),   // seconds
+        'alg' => env('TWA_JWT_ALG', 'HS256'),
+        'iss' => env('TWA_JWT_ISS', 'lexiflow'),
     ],
 
     'init_data' => [

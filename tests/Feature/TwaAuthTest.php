@@ -17,10 +17,10 @@ beforeEach(function (): void {
 function signedInitData(int $telegramUserId, string $firstName = 'Alex'): string
 {
     return InitDataValidator::sign('test-bot-token-1234567890', [
-        'query_id'  => 'AAHdF6IQAAAAAN0XohDhrOrc',
-        'user'      => json_encode([
-            'id'            => $telegramUserId,
-            'first_name'    => $firstName,
+        'query_id' => 'AAHdF6IQAAAAAN0XohDhrOrc',
+        'user' => json_encode([
+            'id' => $telegramUserId,
+            'first_name' => $firstName,
             'language_code' => 'ru',
         ]),
         'auth_date' => (string) time(),
@@ -28,11 +28,11 @@ function signedInitData(int $telegramUserId, string $firstName = 'Alex'): string
 }
 
 it('issues a JWT for a known active student', function (): void {
-    $group   = TelegramGroup::factory()->create(['status' => 'active']);
+    $group = TelegramGroup::factory()->create(['status' => 'active']);
     $student = Student::factory()->create([
         'telegram_group_id' => $group->id,
-        'telegram_user_id'  => 555,
-        'is_active'         => true,
+        'telegram_user_id' => 555,
+        'is_active' => true,
     ]);
 
     $response = $this->postJson('/api/twa/auth', [
@@ -52,7 +52,7 @@ it('returns 401 on invalid init_data', function (): void {
 });
 
 it('returns 401 for tampered hash', function (): void {
-    $valid    = signedInitData(555);
+    $valid = signedInitData(555);
     $tampered = preg_replace('/hash=[a-f0-9]+/', 'hash='.str_repeat('0', 64), $valid);
 
     $this->postJson('/api/twa/auth', ['init_data' => $tampered])
@@ -70,8 +70,8 @@ it('returns 403 when the student group is inactive', function (): void {
     $group = TelegramGroup::factory()->create(['status' => 'pending']);
     Student::factory()->create([
         'telegram_group_id' => $group->id,
-        'telegram_user_id'  => 555,
-        'is_active'         => true,
+        'telegram_user_id' => 555,
+        'is_active' => true,
     ]);
 
     $this->postJson('/api/twa/auth', [

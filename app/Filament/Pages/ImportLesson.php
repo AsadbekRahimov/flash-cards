@@ -12,6 +12,7 @@ use Filament\Pages\Page;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -72,7 +73,7 @@ class ImportLesson extends Page implements HasSchemas
     {
         $state = $this->form->getState();
 
-        /** @var \Illuminate\Http\UploadedFile|null $file */
+        /** @var UploadedFile|null $file */
         $file = $state['file'] ?? null;
 
         if ($file === null) {

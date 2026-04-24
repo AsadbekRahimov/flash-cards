@@ -28,7 +28,7 @@ class TopStudentsTableWidget extends TableWidget
                     ->withCount(['trainingReviews as reviews_count' => fn (Builder $q): Builder => $q->where('created_at', '>=', $since)])
                     ->having('reviews_count', '>', 0)
                     ->orderByDesc('reviews_count')
-                    ->limit(10)
+                    ->limit(10),
             )
             ->columns([
                 Tables\Columns\TextColumn::make('first_name')

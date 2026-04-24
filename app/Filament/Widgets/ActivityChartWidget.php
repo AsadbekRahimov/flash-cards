@@ -7,7 +7,6 @@ namespace App\Filament\Widgets;
 use App\Models\TrainingReview;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 
 class ActivityChartWidget extends ChartWidget
 {

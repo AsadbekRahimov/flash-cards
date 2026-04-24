@@ -64,7 +64,7 @@ it('has partial index on word_repetitions for is_hard', function (): void {
     $exists = DB::selectOne(
         "SELECT 1 AS x FROM pg_indexes
          WHERE tablename = 'word_repetitions'
-           AND indexname = 'word_repetitions_student_is_hard_idx'"
+           AND indexname = 'word_repetitions_student_is_hard_idx'",
     );
     expect($exists)->not->toBeNull();
 });
@@ -73,7 +73,7 @@ it('has composite index (student_id, next_review_at)', function (): void {
     $row = DB::selectOne(
         "SELECT 1 AS x FROM pg_indexes
          WHERE tablename = 'word_repetitions'
-           AND indexdef LIKE '%(student_id, next_review_at)%'"
+           AND indexdef LIKE '%(student_id, next_review_at)%'",
     );
     expect($row)->not->toBeNull();
 });

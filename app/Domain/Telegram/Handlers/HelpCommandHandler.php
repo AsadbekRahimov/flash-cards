@@ -9,9 +9,7 @@ use App\Domain\Telegram\Services\TelegramApi;
 
 final class HelpCommandHandler implements UpdateHandler
 {
-    public function __construct(private readonly TelegramApi $api)
-    {
-    }
+    public function __construct(private readonly TelegramApi $api) {}
 
     /** @param array<string, mixed> $update */
     public function matches(array $update): bool
@@ -32,11 +30,11 @@ final class HelpCommandHandler implements UpdateHandler
         $text = $chatType === 'private'
             ? "LexiFlow — помощник для изучения английского.\n\n".
               "Для учителей: добавьте бота в группу, админ активирует её.\n".
-              "Доступные команды в группе: /start_training, /start_exam, /help"
+              'Доступные команды в группе: /start_training, /start_exam, /help'
             : "LexiFlow Bot в группе.\n\nКоманды учителя:\n".
               "/start_training — запустить тренировку\n".
               "/start_exam — запустить экзамен\n".
-              "/help — эта справка";
+              '/help — эта справка';
 
         $this->api->sendMessage($chatId, $text);
     }
