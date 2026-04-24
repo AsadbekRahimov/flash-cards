@@ -31,7 +31,7 @@ final class LeaderboardBuilder
         return DB::transaction(function () use ($session): Collection {
             ExamResult::query()->where('exam_session_id', $session->id)->delete();
 
-            /** @var Collection<int, object> $rows */
+            /** @var Collection<int, object{student_id: int|string, total_score: int|string|null, correct_count: int|string|null, total_count: int|string, time_spent_ms: int|string|null}> $rows */
             $rows = ExamAnswer::query()
                 ->where('exam_session_id', $session->id)
                 ->whereNotNull('student_id')

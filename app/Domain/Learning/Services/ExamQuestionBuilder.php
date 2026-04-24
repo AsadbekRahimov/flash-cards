@@ -95,7 +95,7 @@ final class ExamQuestionBuilder
             'word' => $word->word,
             'correct_translation' => $correct,
             'correct_index' => (int) $correctIndex,
-            'options' => array_values($options),
+            'options' => $options,
         ];
     }
 
@@ -154,6 +154,6 @@ final class ExamQuestionBuilder
             $picked[] = "— (filler #{$i})";
         }
 
-        return array_values($picked);
+        return $picked;
     }
 }
