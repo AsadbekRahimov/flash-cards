@@ -236,7 +236,7 @@ return [
         'notifiable' => Notifiable::class,
 
         'mail' => [
-            'to' => env('BACKUP_NOTIFICATION_MAIL', 'backup@lexiflow.local'),
+            'to' => env('BACKUP_NOTIFICATION_MAIL') ?: 'backup@lexiflow.local',
 
             'from' => [
                 'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
