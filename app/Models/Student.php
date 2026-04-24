@@ -9,6 +9,17 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property int $id
+ * @property int $telegram_user_id
+ * @property int $telegram_group_id
+ * @property string|null $username
+ * @property string|null $first_name
+ * @property string|null $last_name
+ * @property string|null $language_code
+ * @property \Illuminate\Support\Carbon|null $last_seen_at
+ * @property bool $is_active
+ */
 class Student extends Model
 {
     use HasFactory;

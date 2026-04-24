@@ -63,7 +63,7 @@ class LessonResource extends Resource
         return [WordsRelationManager::class];
     }
 
-    /** @return array<string, array<string, string>|class-string> */
+    /** @return array<string, \Filament\Resources\Pages\PageRegistration> */
     public static function getPages(): array
     {
         return [

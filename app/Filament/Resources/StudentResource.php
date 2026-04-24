@@ -65,7 +65,7 @@ class StudentResource extends Resource
             ->defaultSort('last_seen_at', 'desc');
     }
 
-    /** @return array<string, array<string, string>|class-string> */
+    /** @return array<string, \Filament\Resources\Pages\PageRegistration> */
     public static function getPages(): array
     {
         return [

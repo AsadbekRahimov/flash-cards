@@ -96,7 +96,7 @@ class TelegramGroupResource extends Resource
         return [];
     }
 
-    /** @return array<string, array<string, string>|class-string> */
+    /** @return array<string, \Filament\Resources\Pages\PageRegistration> */
     public static function getPages(): array
     {
         return [
