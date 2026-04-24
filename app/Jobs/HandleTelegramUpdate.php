@@ -26,9 +26,7 @@ class HandleTelegramUpdate implements ShouldQueue
     public int $backoff = 5;
 
     /** @param  array<string, mixed>  $update */
-    public function __construct(public readonly array $update)
-    {
-    }
+    public function __construct(public readonly array $update) {}
 
     public function handle(TelegramDispatcher $dispatcher): void
     {

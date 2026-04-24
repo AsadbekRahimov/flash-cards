@@ -6,6 +6,7 @@ use App\Jobs\HandleTelegramUpdate;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Testing\TestResponse;
 
 uses(RefreshDatabase::class);
 
@@ -14,7 +15,7 @@ beforeEach(function (): void {
     Config::set('telegram.header_secret', 'header-secret-value-abcdef');
 });
 
-function postWebhook(array $server = []): \Illuminate\Testing\TestResponse
+function postWebhook(array $server = []): TestResponse
 {
     return test()->withServerVariables($server)->postJson(
         '/telegram/webhook/url-secret-value-1234567890',

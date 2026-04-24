@@ -7,6 +7,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\StudentResource\Pages;
 use App\Models\Student;
 use Filament\Actions;
+use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -65,7 +66,7 @@ class StudentResource extends Resource
             ->defaultSort('last_seen_at', 'desc');
     }
 
-    /** @return array<string, \Filament\Resources\Pages\PageRegistration> */
+    /** @return array<string, PageRegistration> */
     public static function getPages(): array
     {
         return [

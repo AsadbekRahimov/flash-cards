@@ -1,5 +1,6 @@
 includes:
     - vendor/larastan/larastan/extension.neon
+    - phpstan-baseline.neon
 
 parameters:
     level: 8
@@ -10,5 +11,3 @@ parameters:
         - tests
     excludePaths:
         - app/Filament/*/Pages/Dashboard.php
-    checkMissingIterableValueType: false
-    checkGenericClassInNonGenericObjectType: false

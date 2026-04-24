@@ -23,7 +23,7 @@ final class SecurityHeaders
         if ($request->isSecure()) {
             $response->headers->set(
                 'Strict-Transport-Security',
-                'max-age=15552000; includeSubDomains'
+                'max-age=15552000; includeSubDomains',
             );
         }
 
@@ -37,7 +37,7 @@ final class SecurityHeaders
                 ."img-src 'self' data: blob:; "
                 ."font-src 'self' data:; "
                 ."connect-src 'self'; "
-                ."frame-ancestors 'self';"
+                ."frame-ancestors 'self';",
             );
         }
 

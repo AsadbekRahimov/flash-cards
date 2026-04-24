@@ -27,7 +27,7 @@ final class VocabularyImporter
      */
     public function import(string $rawJson, array $auditContext = []): ImportReport
     {
-        $report = new ImportReport();
+        $report = new ImportReport;
 
         if (strlen($rawJson) > self::MAX_BYTES) {
             $report->aborted = true;
@@ -64,7 +64,6 @@ final class VocabularyImporter
         }
 
         /** @var array{stage:array{number:int,title?:string,description?:string},lesson:array{number:int,title?:string},words:list<array<string,string>>} $data */
-
         $this->assertUniqueWords($data['words'], $report);
 
         if ($report->aborted) {

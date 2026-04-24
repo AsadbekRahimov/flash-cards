@@ -35,7 +35,7 @@ final class CloseExamHandler implements UpdateHandler
         }
 
         $chatType = (string) ($message['chat']['type'] ?? '');
-        $text     = (string) ($message['text'] ?? '');
+        $text = (string) ($message['text'] ?? '');
 
         return in_array($chatType, ['group', 'supergroup'], true)
             && preg_match('~^/close_exam(?:@\w+)?(\s|$)~', $text) === 1;
@@ -46,8 +46,8 @@ final class CloseExamHandler implements UpdateHandler
     {
         /** @var array<string, mixed> $message */
         $message = $update['message'];
-        $chatId  = (int) $message['chat']['id'];
-        $fromId  = (int) ($message['from']['id'] ?? 0);
+        $chatId = (int) $message['chat']['id'];
+        $fromId = (int) ($message['from']['id'] ?? 0);
 
         if ($fromId === 0) {
             return;
@@ -63,6 +63,7 @@ final class CloseExamHandler implements UpdateHandler
         $teacher = User::query()->where('telegram_user_id', $fromId)->first();
         if ($teacher === null) {
             $this->api->sendMessage($chatId, 'Ваш Telegram-аккаунт не привязан к учителю.');
+
             return;
         }
 
@@ -73,6 +74,7 @@ final class CloseExamHandler implements UpdateHandler
 
         if (! $teaches) {
             $this->api->sendMessage($chatId, 'Только учитель этой группы может закрыть экзамен.');
+
             return;
         }
 
@@ -85,6 +87,7 @@ final class CloseExamHandler implements UpdateHandler
                     ? 'Сейчас в группе нет открытого экзамена.'
                     : 'Не удалось закрыть экзамен.',
             );
+
             return;
         }
 

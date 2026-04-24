@@ -56,12 +56,12 @@ final class AuthController
         $jwt = $this->jwt->issue($student->id, (int) $student->telegram_group_id);
 
         return response()->json([
-            'token'      => $jwt['token'],
+            'token' => $jwt['token'],
             'expires_in' => $jwt['expires_in'],
-            'student'    => [
-                'id'                => $student->id,
-                'first_name'        => $student->first_name,
-                'username'          => $student->username,
+            'student' => [
+                'id' => $student->id,
+                'first_name' => $student->first_name,
+                'username' => $student->username,
                 'telegram_group_id' => (int) $student->telegram_group_id,
             ],
         ]);

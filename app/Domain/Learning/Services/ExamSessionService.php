@@ -25,8 +25,11 @@ use Illuminate\Support\Facades\DB;
 final class ExamSessionService
 {
     public const MIN_DURATION_MINUTES = 1;
+
     public const MAX_DURATION_MINUTES = 30;
-    public const DEFAULT_QUESTIONS    = 10;
+
+    public const DEFAULT_QUESTIONS = 10;
+
     public const DEFAULT_SECONDS_PER_QUESTION = 10;
 
     public function __construct(private readonly ExamQuestionBuilder $questionBuilder) {}
@@ -56,7 +59,7 @@ final class ExamSessionService
             throw ExamSessionException::invalidDuration($durationMinutes);
         }
 
-        $totalQuestions    ??= self::DEFAULT_QUESTIONS;
+        $totalQuestions ??= self::DEFAULT_QUESTIONS;
         $secondsPerQuestion ??= self::DEFAULT_SECONDS_PER_QUESTION;
 
         /** @var Stage|null $stage */
@@ -109,17 +112,17 @@ final class ExamSessionService
             }
 
             return ExamSession::query()->create([
-                'telegram_group_id'  => $group->id,
-                'lesson_id'          => $lesson->id,
+                'telegram_group_id' => $group->id,
+                'lesson_id' => $lesson->id,
                 'started_by_user_id' => $teacher->id,
-                'status'             => 'open',
-                'started_at'         => $now,
-                'ends_at'            => $now->addMinutes($durationMinutes),
-                'config'             => [
-                    'total_questions'      => count($questions),
+                'status' => 'open',
+                'started_at' => $now,
+                'ends_at' => $now->addMinutes($durationMinutes),
+                'config' => [
+                    'total_questions' => count($questions),
                     'seconds_per_question' => $secondsPerQuestion,
-                    'duration_minutes'     => $durationMinutes,
-                    'questions'            => $questions,
+                    'duration_minutes' => $durationMinutes,
+                    'questions' => $questions,
                 ],
             ]);
         });
@@ -138,7 +141,7 @@ final class ExamSessionService
         $now ??= CarbonImmutable::now();
 
         $session->update([
-            'status'    => 'closed',
+            'status' => 'closed',
             'closed_at' => $now,
         ]);
 

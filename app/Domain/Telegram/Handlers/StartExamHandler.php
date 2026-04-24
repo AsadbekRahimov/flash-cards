@@ -33,7 +33,7 @@ final class StartExamHandler implements UpdateHandler
         }
 
         $chatType = (string) ($message['chat']['type'] ?? '');
-        $text     = (string) ($message['text'] ?? '');
+        $text = (string) ($message['text'] ?? '');
 
         return in_array($chatType, ['group', 'supergroup'], true)
             && preg_match('~^/start_exam(?:@\w+)?(\s|$)~', $text) === 1;
@@ -44,9 +44,9 @@ final class StartExamHandler implements UpdateHandler
     {
         /** @var array<string, mixed> $message */
         $message = $update['message'];
-        $chatId  = (int) $message['chat']['id'];
-        $fromId  = (int) ($message['from']['id'] ?? 0);
-        $text    = (string) ($message['text'] ?? '');
+        $chatId = (int) $message['chat']['id'];
+        $fromId = (int) ($message['from']['id'] ?? 0);
+        $text = (string) ($message['text'] ?? '');
 
         if ($fromId === 0) {
             return;
@@ -62,6 +62,7 @@ final class StartExamHandler implements UpdateHandler
         $teacher = User::query()->where('telegram_user_id', $fromId)->first();
         if ($teacher === null) {
             $this->api->sendMessage($chatId, 'Ваш Telegram-аккаунт не привязан к учителю.');
+
             return;
         }
 
@@ -71,6 +72,7 @@ final class StartExamHandler implements UpdateHandler
             $session = $this->exams->open($group, $stage, $lesson, $minutes, $teacher);
         } catch (ExamSessionException $e) {
             $this->api->sendMessage($chatId, $this->humanizeError($e));
+
             return;
         }
 
@@ -98,14 +100,14 @@ final class StartExamHandler implements UpdateHandler
     private function humanizeError(ExamSessionException $e): string
     {
         return match ($e->reason) {
-            ExamSessionException::REASON_NOT_TEACHER      => 'Только учитель этой группы может запускать экзамен.',
-            ExamSessionException::REASON_GROUP_INACTIVE   => 'Группа не активирована.',
-            ExamSessionException::REASON_STAGE_NOT_FOUND  => 'Указанный stage не найден.',
+            ExamSessionException::REASON_NOT_TEACHER => 'Только учитель этой группы может запускать экзамен.',
+            ExamSessionException::REASON_GROUP_INACTIVE => 'Группа не активирована.',
+            ExamSessionException::REASON_STAGE_NOT_FOUND => 'Указанный stage не найден.',
             ExamSessionException::REASON_LESSON_NOT_FOUND => 'Урок не найден.',
             ExamSessionException::REASON_NOT_ENOUGH_WORDS => 'В уроке недостаточно слов для экзамена.',
-            ExamSessionException::REASON_ALREADY_OPEN     => 'В группе уже идёт экзамен. Завершите его через /close_exam.',
+            ExamSessionException::REASON_ALREADY_OPEN => 'В группе уже идёт экзамен. Завершите его через /close_exam.',
             ExamSessionException::REASON_INVALID_DURATION => 'Длительность экзамена должна быть от 1 до 30 минут.',
-            default                                       => 'Не удалось запустить экзамен.',
+            default => 'Не удалось запустить экзамен.',
         };
     }
 
@@ -117,7 +119,7 @@ final class StartExamHandler implements UpdateHandler
         int $minutes,
     ): void {
         $base = rtrim((string) config('twa.base_url'), '/');
-        $url  = "{$base}/twa/exam/{$session->id}";
+        $url = "{$base}/twa/exam/{$session->id}";
 
         $this->api->sendMessage(
             $chatId,
@@ -126,7 +128,7 @@ final class StartExamHandler implements UpdateHandler
             replyMarkup: [
                 'inline_keyboard' => [[
                     [
-                        'text'    => '🏁 Открыть экзамен',
+                        'text' => '🏁 Открыть экзамен',
                         'web_app' => ['url' => $url],
                     ],
                 ]],

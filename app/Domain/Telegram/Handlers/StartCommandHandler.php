@@ -10,9 +10,7 @@ use App\Models\User;
 
 final class StartCommandHandler implements UpdateHandler
 {
-    public function __construct(private readonly TelegramApi $api)
-    {
-    }
+    public function __construct(private readonly TelegramApi $api) {}
 
     /** @param array<string, mixed> $update */
     public function matches(array $update): bool

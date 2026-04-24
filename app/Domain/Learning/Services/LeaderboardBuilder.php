@@ -40,17 +40,17 @@ final class LeaderboardBuilder
                      SUM(score) AS total_score,
                      SUM(CASE WHEN is_correct THEN 1 ELSE 0 END) AS correct_count,
                      COUNT(*) AS total_count,
-                     SUM(time_spent_ms) AS time_spent_ms'
+                     SUM(time_spent_ms) AS time_spent_ms',
                 )
                 ->groupBy('student_id')
                 ->get();
 
             $sorted = $rows
                 ->map(fn ($r): array => [
-                    'student_id'    => (int) $r->student_id,
-                    'total_score'   => (int) $r->total_score,
+                    'student_id' => (int) $r->student_id,
+                    'total_score' => (int) $r->total_score,
                     'correct_count' => (int) $r->correct_count,
-                    'total_count'   => (int) $r->total_count,
+                    'total_count' => (int) $r->total_count,
                     'time_spent_ms' => (int) $r->time_spent_ms,
                 ])
                 ->sortBy([
@@ -79,18 +79,18 @@ final class LeaderboardBuilder
             if ($tieKey === $lastKey) {
                 $rank = $lastRank;
             } else {
-                $rank     = $index + 1;
+                $rank = $index + 1;
                 $lastRank = $rank;
-                $lastKey  = $tieKey;
+                $lastKey = $tieKey;
             }
 
             $result = ExamResult::query()->create([
                 'exam_session_id' => $session->id,
-                'student_id'      => $row['student_id'],
-                'total_score'     => $row['total_score'],
-                'correct_count'   => $row['correct_count'],
-                'total_count'     => $row['total_count'],
-                'rank'            => $rank,
+                'student_id' => $row['student_id'],
+                'total_score' => $row['total_score'],
+                'correct_count' => $row['correct_count'],
+                'total_count' => $row['total_count'],
+                'rank' => $rank,
             ]);
 
             $results->push($result);

@@ -24,20 +24,20 @@ beforeEach(function (): void {
 function attachTeacher(User $user, TelegramGroup $group): void
 {
     DB::table('teacher_groups')->insert([
-        'user_id'           => $user->id,
+        'user_id' => $user->id,
         'telegram_group_id' => $group->id,
-        'is_primary'        => true,
-        'created_at'        => now(),
-        'updated_at'        => now(),
+        'is_primary' => true,
+        'created_at' => now(),
+        'updated_at' => now(),
     ]);
 }
 
 it('opens a training session and posts a WebApp button for the teacher', function (): void {
-    $group   = TelegramGroup::factory()->create(['chat_id' => -1001, 'status' => 'active']);
+    $group = TelegramGroup::factory()->create(['chat_id' => -1001, 'status' => 'active']);
     $teacher = User::factory()->create(['telegram_user_id' => 777]);
     attachTeacher($teacher, $group);
 
-    $stage  = Stage::factory()->create(['number' => 1]);
+    $stage = Stage::factory()->create(['number' => 1]);
     $lesson = Lesson::factory()->for($stage)->create(['number' => 1]);
 
     $this->api->shouldReceive('sendMessage')
@@ -67,10 +67,10 @@ it('opens a training session and posts a WebApp button for the teacher', functio
 });
 
 it('defaults to stage=1 lesson=1 when no arguments are provided', function (): void {
-    $group   = TelegramGroup::factory()->create(['chat_id' => -2002, 'status' => 'active']);
+    $group = TelegramGroup::factory()->create(['chat_id' => -2002, 'status' => 'active']);
     $teacher = User::factory()->create(['telegram_user_id' => 888]);
     attachTeacher($teacher, $group);
-    $stage  = Stage::factory()->create(['number' => 1]);
+    $stage = Stage::factory()->create(['number' => 1]);
     Lesson::factory()->for($stage)->create(['number' => 1]);
 
     $this->api->shouldReceive('sendMessage')->once();
@@ -87,10 +87,10 @@ it('defaults to stage=1 lesson=1 when no arguments are provided', function (): v
 });
 
 it('is idempotent: second invocation reuses the open session', function (): void {
-    $group   = TelegramGroup::factory()->create(['chat_id' => -3003, 'status' => 'active']);
+    $group = TelegramGroup::factory()->create(['chat_id' => -3003, 'status' => 'active']);
     $teacher = User::factory()->create(['telegram_user_id' => 999]);
     attachTeacher($teacher, $group);
-    $stage  = Stage::factory()->create(['number' => 2]);
+    $stage = Stage::factory()->create(['number' => 2]);
     Lesson::factory()->for($stage)->create(['number' => 3]);
 
     $this->api->shouldReceive('sendMessage')->twice();
@@ -129,7 +129,7 @@ it('rejects users that do not teach the group', function (): void {
 });
 
 it('rejects when the group is not active', function (): void {
-    $group   = TelegramGroup::factory()->pending()->create(['chat_id' => -5005]);
+    $group = TelegramGroup::factory()->pending()->create(['chat_id' => -5005]);
     $teacher = User::factory()->create(['telegram_user_id' => 111]);
     attachTeacher($teacher, $group);
 
@@ -147,7 +147,7 @@ it('rejects when the group is not active', function (): void {
 });
 
 it('reports when a lesson does not exist', function (): void {
-    $group   = TelegramGroup::factory()->create(['chat_id' => -6006, 'status' => 'active']);
+    $group = TelegramGroup::factory()->create(['chat_id' => -6006, 'status' => 'active']);
     $teacher = User::factory()->create(['telegram_user_id' => 222]);
     attachTeacher($teacher, $group);
     $stage = Stage::factory()->create(['number' => 1]);

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Domain\Twa\Services\JwtService;
 use App\Models\ExamAnswer;
-use App\Models\ExamResult;
 use App\Models\ExamSession;
 use App\Models\Lesson;
 use App\Models\Stage;
@@ -27,10 +26,10 @@ function examAuthHeaders(Student $student): array
 
 function openExam(array $config = []): array
 {
-    $group   = TelegramGroup::factory()->create(['status' => 'active']);
+    $group = TelegramGroup::factory()->create(['status' => 'active']);
     $teacher = User::factory()->create();
-    $stage   = Stage::factory()->create();
-    $lesson  = Lesson::factory()->for($stage)->create();
+    $stage = Stage::factory()->create();
+    $lesson = Lesson::factory()->for($stage)->create();
     Word::factory()->count(8)->for($lesson)->create();
 
     $questions = [];
@@ -38,32 +37,32 @@ function openExam(array $config = []): array
         $correct = "correct_{$i}";
         $options = ["opt_a_{$i}", $correct, "opt_c_{$i}", "opt_d_{$i}"];
         $questions[] = [
-            'word_id'             => Word::where('lesson_id', $lesson->id)->orderBy('id')->skip($i)->first()->id,
-            'word'                => "word_{$i}",
+            'word_id' => Word::where('lesson_id', $lesson->id)->orderBy('id')->skip($i)->first()->id,
+            'word' => "word_{$i}",
             'correct_translation' => $correct,
-            'correct_index'       => 1,
-            'options'             => $options,
+            'correct_index' => 1,
+            'options' => $options,
         ];
     }
 
     $session = ExamSession::factory()->create([
-        'telegram_group_id'  => $group->id,
-        'lesson_id'          => $lesson->id,
+        'telegram_group_id' => $group->id,
+        'lesson_id' => $lesson->id,
         'started_by_user_id' => $teacher->id,
-        'status'             => 'open',
-        'started_at'         => now()->subMinute(),
-        'ends_at'            => now()->addMinutes(5),
-        'config'             => array_merge([
-            'total_questions'      => 4,
+        'status' => 'open',
+        'started_at' => now()->subMinute(),
+        'ends_at' => now()->addMinutes(5),
+        'config' => array_merge([
+            'total_questions' => 4,
             'seconds_per_question' => 10,
-            'duration_minutes'     => 5,
-            'questions'            => $questions,
+            'duration_minutes' => 5,
+            'questions' => $questions,
         ], $config),
     ]);
 
     $student = Student::factory()->create([
         'telegram_group_id' => $group->id,
-        'is_active'         => true,
+        'is_active' => true,
     ]);
 
     return compact('group', 'teacher', 'stage', 'lesson', 'session', 'student');
@@ -106,10 +105,10 @@ it('POST answer with correct option gives points and records exam_answer', funct
 
     $resp = $this->withHeaders(examAuthHeaders($s['student']))
         ->postJson("/api/twa/exam/sessions/{$s['session']->id}/answer", [
-            'question_index'        => 0,
-            'word_id'               => $q['word_id'],
+            'question_index' => 0,
+            'word_id' => $q['word_id'],
             'selected_option_index' => $q['correct_index'],
-            'time_spent_ms'         => 1500,
+            'time_spent_ms' => 1500,
         ])
         ->assertOk()
         ->assertJsonPath('is_correct', true)
@@ -133,10 +132,10 @@ it('POST answer with wrong option gives 0 points', function (): void {
 
     $this->withHeaders(examAuthHeaders($s['student']))
         ->postJson("/api/twa/exam/sessions/{$s['session']->id}/answer", [
-            'question_index'        => 0,
-            'word_id'               => $q['word_id'],
+            'question_index' => 0,
+            'word_id' => $q['word_id'],
             'selected_option_index' => $wrongIndex,
-            'time_spent_ms'         => 3000,
+            'time_spent_ms' => 3000,
         ])
         ->assertOk()
         ->assertJsonPath('is_correct', false)
@@ -149,10 +148,10 @@ it('POST answer with null selection (timeout) gives 0 points', function (): void
 
     $this->withHeaders(examAuthHeaders($s['student']))
         ->postJson("/api/twa/exam/sessions/{$s['session']->id}/answer", [
-            'question_index'        => 0,
-            'word_id'               => $q['word_id'],
+            'question_index' => 0,
+            'word_id' => $q['word_id'],
             'selected_option_index' => null,
-            'time_spent_ms'         => 10000,
+            'time_spent_ms' => 10000,
         ])
         ->assertOk()
         ->assertJsonPath('is_correct', false);
@@ -164,17 +163,17 @@ it('rejects duplicate answer for the same word (409)', function (): void {
     $headers = examAuthHeaders($s['student']);
 
     $this->withHeaders($headers)->postJson("/api/twa/exam/sessions/{$s['session']->id}/answer", [
-        'question_index'        => 0,
-        'word_id'               => $q['word_id'],
+        'question_index' => 0,
+        'word_id' => $q['word_id'],
         'selected_option_index' => $q['correct_index'],
-        'time_spent_ms'         => 1000,
+        'time_spent_ms' => 1000,
     ])->assertOk();
 
     $this->withHeaders($headers)->postJson("/api/twa/exam/sessions/{$s['session']->id}/answer", [
-        'question_index'        => 0,
-        'word_id'               => $q['word_id'],
+        'question_index' => 0,
+        'word_id' => $q['word_id'],
         'selected_option_index' => $q['correct_index'],
-        'time_spent_ms'         => 1000,
+        'time_spent_ms' => 1000,
     ])
         ->assertStatus(409)
         ->assertJsonPath('error.code', 'already_answered');
@@ -187,10 +186,10 @@ it('rejects answer when word_id does not match the question index (422)', functi
 
     $this->withHeaders(examAuthHeaders($s['student']))
         ->postJson("/api/twa/exam/sessions/{$s['session']->id}/answer", [
-            'question_index'        => 0,
-            'word_id'               => $q1['word_id'],  // wrong word for index 0
+            'question_index' => 0,
+            'word_id' => $q1['word_id'],  // wrong word for index 0
             'selected_option_index' => 0,
-            'time_spent_ms'         => 1000,
+            'time_spent_ms' => 1000,
         ])
         ->assertStatus(422)
         ->assertJsonPath('error.code', 'word_mismatch');
@@ -202,7 +201,7 @@ it('rejects IDOR from student in another group (403)', function (): void {
     $otherGroup = TelegramGroup::factory()->create(['status' => 'active']);
     $intruder = Student::factory()->create([
         'telegram_group_id' => $otherGroup->id,
-        'is_active'         => true,
+        'is_active' => true,
     ]);
 
     $this->withHeaders(examAuthHeaders($intruder))
@@ -235,27 +234,27 @@ it('result returns rank + leaderboard once exam is closed', function (): void {
 
     // Two students answer differently
     $alice = Student::factory()->create(['telegram_group_id' => $s['group']->id]);
-    $bob   = Student::factory()->create(['telegram_group_id' => $s['group']->id]);
+    $bob = Student::factory()->create(['telegram_group_id' => $s['group']->id]);
 
     ExamAnswer::query()->create([
-        'exam_session_id'      => $session->id,
-        'student_id'           => $alice->id,
-        'word_id'              => $q0['word_id'],
+        'exam_session_id' => $session->id,
+        'student_id' => $alice->id,
+        'word_id' => $q0['word_id'],
         'selected_translation' => $q0['options'][$q0['correct_index']],
-        'is_correct'           => true,
-        'score'                => 20,
-        'time_spent_ms'        => 1000,
-        'answered_at'          => now(),
+        'is_correct' => true,
+        'score' => 20,
+        'time_spent_ms' => 1000,
+        'answered_at' => now(),
     ]);
     ExamAnswer::query()->create([
-        'exam_session_id'      => $session->id,
-        'student_id'           => $bob->id,
-        'word_id'              => $q0['word_id'],
+        'exam_session_id' => $session->id,
+        'student_id' => $bob->id,
+        'word_id' => $q0['word_id'],
         'selected_translation' => $q0['options'][0],
-        'is_correct'           => false,
-        'score'                => 0,
-        'time_spent_ms'        => 3000,
-        'answered_at'          => now(),
+        'is_correct' => false,
+        'score' => 0,
+        'time_spent_ms' => 3000,
+        'answered_at' => now(),
     ]);
 
     $session->update(['status' => 'closed', 'closed_at' => now()]);

@@ -53,7 +53,7 @@ final class InitDataValidator
         $dataCheckString = implode("\n", $pairs);
 
         $secretKey = hash_hmac('sha256', $this->botToken, 'WebAppData', true);
-        $calc      = hash_hmac('sha256', $dataCheckString, $secretKey);
+        $calc = hash_hmac('sha256', $dataCheckString, $secretKey);
 
         if (! hash_equals($calc, $hash)) {
             throw new InvalidInitDataException(InvalidInitDataException::REASON_INVALID_HASH);
@@ -71,9 +71,9 @@ final class InitDataValidator
         $user['id'] = (int) $user['id'];
 
         return [
-            'user'      => $user,
+            'user' => $user,
             'auth_date' => $authDate,
-            'raw'       => $data,
+            'raw' => $data,
         ];
     }
 
@@ -93,6 +93,7 @@ final class InitDataValidator
             $eq = strpos($pair, '=');
             if ($eq === false) {
                 $out[urldecode($pair)] = '';
+
                 continue;
             }
             $k = urldecode(substr($pair, 0, $eq));
@@ -116,14 +117,14 @@ final class InitDataValidator
             $lines[] = "{$k}={$v}";
         }
         $dataCheckString = implode("\n", $lines);
-        $secretKey       = hash_hmac('sha256', $botToken, 'WebAppData', true);
-        $hash            = hash_hmac('sha256', $dataCheckString, $secretKey);
+        $secretKey = hash_hmac('sha256', $botToken, 'WebAppData', true);
+        $hash = hash_hmac('sha256', $dataCheckString, $secretKey);
 
         $fields['hash'] = $hash;
 
         $parts = [];
         foreach ($fields as $k => $v) {
-            $parts[] = rawurlencode($k) . '=' . rawurlencode($v);
+            $parts[] = rawurlencode($k).'='.rawurlencode($v);
         }
 
         return implode('&', $parts);

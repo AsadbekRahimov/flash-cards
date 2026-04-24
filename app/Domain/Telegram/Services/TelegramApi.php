@@ -26,7 +26,7 @@ class TelegramApi
     ): void {
         $params = [
             'chat_id' => $chatId,
-            'text'    => $text,
+            'text' => $text,
         ];
 
         if ($parseMode !== null) {

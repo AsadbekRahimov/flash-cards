@@ -1,0 +1,33 @@
+{
+    "stage": {
+        "number": 1,
+        "title": "Beginner",
+        "description": "Stage 1 — most frequent words for complete beginners."
+    },
+    "lesson": {
+        "number": 1,
+        "title": "Lesson 1 — First words"
+    },
+    "words": [
+        {"word": "apple", "translation": "яблоко", "example": "I eat an apple every morning.", "part_of_speech": "noun", "transcription": "/ˈæp.əl/"},
+        {"word": "book", "translation": "книга", "example": "This book is very interesting.", "part_of_speech": "noun", "transcription": "/bʊk/"},
+        {"word": "cat", "translation": "кошка", "example": "The cat is sleeping on the sofa.", "part_of_speech": "noun", "transcription": "/kæt/"},
+        {"word": "dog", "translation": "собака", "example": "My dog loves to play in the park.", "part_of_speech": "noun", "transcription": "/dɒɡ/"},
+        {"word": "eat", "translation": "есть (кушать)", "example": "We eat dinner at seven.", "part_of_speech": "verb", "transcription": "/iːt/"},
+        {"word": "friend", "translation": "друг", "example": "She is my best friend.", "part_of_speech": "noun", "transcription": "/frend/"},
+        {"word": "go", "translation": "идти", "example": "I go to school by bus.", "part_of_speech": "verb", "transcription": "/ɡəʊ/"},
+        {"word": "house", "translation": "дом", "example": "Their house is near the river.", "part_of_speech": "noun", "transcription": "/haʊs/"},
+        {"word": "ice", "translation": "лёд", "example": "There is ice on the road.", "part_of_speech": "noun", "transcription": "/aɪs/"},
+        {"word": "jump", "translation": "прыгать", "example": "The children jump on the trampoline.", "part_of_speech": "verb", "transcription": "/dʒʌmp/"},
+        {"word": "kind", "translation": "добрый", "example": "He is a very kind person.", "part_of_speech": "adjective", "transcription": "/kaɪnd/"},
+        {"word": "learn", "translation": "учить", "example": "I want to learn English.", "part_of_speech": "verb", "transcription": "/lɜːn/"},
+        {"word": "moon", "translation": "луна", "example": "The moon is bright tonight.", "part_of_speech": "noun", "transcription": "/muːn/"},
+        {"word": "new", "translation": "новый", "example": "I bought a new phone.", "part_of_speech": "adjective", "transcription": "/njuː/"},
+        {"word": "open", "translation": "открывать", "example": "Please open the window.", "part_of_speech": "verb", "transcription": "/ˈəʊ.pən/"},
+        {"word": "play", "translation": "играть", "example": "Let's play football together.", "part_of_speech": "verb", "transcription": "/pleɪ/"},
+        {"word": "quick", "translation": "быстрый", "example": "She gave a quick answer.", "part_of_speech": "adjective", "transcription": "/kwɪk/"},
+        {"word": "read", "translation": "читать", "example": "I read a book before bed.", "part_of_speech": "verb", "transcription": "/riːd/"},
+        {"word": "sun", "translation": "солнце", "example": "The sun is shining today.", "part_of_speech": "noun", "transcription": "/sʌn/"},
+        {"word": "tree", "translation": "дерево", "example": "A tall tree grows in the garden.", "part_of_speech": "noun", "transcription": "/triː/"}
+    ]
+}

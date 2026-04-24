@@ -46,8 +46,8 @@ final class CardPicker
         if ($due !== null && $due->word !== null) {
             return [
                 'repetition' => $due,
-                'word'       => $due->word,
-                'kind'       => 'due',
+                'word' => $due->word,
+                'kind' => 'due',
             ];
         }
 
@@ -81,20 +81,20 @@ final class CardPicker
 
             /** @var WordRepetition $rep */
             $rep = WordRepetition::query()->create([
-                'student_id'      => $studentId,
-                'word_id'         => $new->id,
-                'repetitions'     => 0,
-                'interval_days'   => 0,
+                'student_id' => $studentId,
+                'word_id' => $new->id,
+                'repetitions' => 0,
+                'interval_days' => 0,
                 'easiness_factor' => SpacedRepetitionEngine::DEFAULT_EF,
-                'next_review_at'  => $now,
-                'is_hard'         => false,
-                'meta'            => [],
+                'next_review_at' => $now,
+                'is_hard' => false,
+                'meta' => [],
             ]);
 
             return [
                 'repetition' => $rep,
-                'word'       => $new,
-                'kind'       => 'new',
+                'word' => $new,
+                'kind' => 'new',
             ];
         });
     }

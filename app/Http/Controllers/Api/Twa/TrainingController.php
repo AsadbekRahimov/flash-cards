@@ -37,10 +37,10 @@ final class TrainingController
 
         return response()->json([
             'session_id' => $session->id,
-            'lesson'     => [
-                'stage'  => $lesson->stage?->number,
+            'lesson' => [
+                'stage' => $lesson->stage?->number,
                 'lesson' => $lesson->number,
-                'title'  => $lesson->title,
+                'title' => $lesson->title,
             ],
             'total_words' => $totalWords,
         ]);
@@ -58,7 +58,7 @@ final class TrainingController
 
         if ($pick === null) {
             return response()->json([
-                'card'     => null,
+                'card' => null,
                 'progress' => $progress,
             ]);
         }
@@ -67,12 +67,12 @@ final class TrainingController
 
         return response()->json([
             'card' => [
-                'word_id'       => $word->id,
-                'word'          => $word->word,
-                'translation'   => $word->translation,
-                'example'       => $word->example,
+                'word_id' => $word->id,
+                'word' => $word->word,
+                'translation' => $word->translation,
+                'example' => $word->example,
                 'transcription' => $word->transcription,
-                'card_kind'     => $pick['kind'],
+                'card_kind' => $pick['kind'],
             ],
             'progress' => $progress,
         ]);
@@ -86,8 +86,8 @@ final class TrainingController
         }
 
         $validated = $request->validate([
-            'word_id'       => ['required', 'integer'],
-            'quality'       => ['required', 'integer', 'min:0', 'max:5'],
+            'word_id' => ['required', 'integer'],
+            'quality' => ['required', 'integer', 'min:0', 'max:5'],
             'time_spent_ms' => ['required', 'integer', 'min:0', 'max:600000'],
         ]);
 
@@ -115,17 +115,17 @@ final class TrainingController
 
         TrainingReview::query()->create([
             'training_session_id' => $session->id,
-            'student_id'          => $student->id,
-            'word_id'             => $validated['word_id'],
-            'quality'             => $validated['quality'],
-            'time_spent_ms'       => $validated['time_spent_ms'],
-            'created_at'          => $now,
+            'student_id' => $student->id,
+            'word_id' => $validated['word_id'],
+            'quality' => $validated['quality'],
+            'time_spent_ms' => $validated['time_spent_ms'],
+            'created_at' => $now,
         ]);
 
         return response()->json([
-            'next_review_at'    => $rep->next_review_at?->toIso8601String(),
+            'next_review_at' => $rep->next_review_at?->toIso8601String(),
             'new_interval_days' => (int) $rep->interval_days,
-            'easiness_factor'   => (float) $rep->easiness_factor,
+            'easiness_factor' => (float) $rep->easiness_factor,
         ]);
     }
 

@@ -23,7 +23,7 @@ final class TrainingSessionService
 {
     /**
      * @throws TrainingSessionException when the stage/lesson does not exist or
-     *         the user does not teach the group.
+     *                                  the user does not teach the group.
      */
     public function open(
         TelegramGroup $group,
@@ -69,11 +69,11 @@ final class TrainingSessionService
             }
 
             return TrainingSession::query()->create([
-                'telegram_group_id'  => $group->id,
-                'lesson_id'          => $lesson->id,
+                'telegram_group_id' => $group->id,
+                'lesson_id' => $lesson->id,
                 'started_by_user_id' => $teacher->id,
-                'status'             => 'open',
-                'started_at'         => now(),
+                'status' => 'open',
+                'started_at' => now(),
             ]);
         });
     }
