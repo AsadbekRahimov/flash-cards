@@ -17,6 +17,9 @@ use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
+/**
+ * @property Schema $form
+ */
 class ImportLesson extends Page implements HasSchemas
 {
     use InteractsWithSchemas;
@@ -85,7 +88,7 @@ class ImportLesson extends Page implements HasSchemas
         $raw = (string) file_get_contents($file->getRealPath());
 
         $report = $importer->import($raw, [
-            'user_id' => auth()->id(),
+            'user_id' => auth()->id() ? (int) auth()->id() : null,
             'ip' => request()->ip(),
         ]);
 

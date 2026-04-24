@@ -49,6 +49,85 @@ echo "GID=$(id -g)" >> .env
 | `make seed`      | `php artisan db:seed`                             |
 | `make cache-clear` | `php artisan optimize:clear`                    |
 
+## Production deployment
+
+Полный набор артефактов для прода лежит в репозитории:
+
+| Файл / таргет | Назначение |
+|---------------|-----------|
+| `docker-compose.prod.yml` | Prod-стек: app (php-fpm), queue, scheduler, nginx, certbot, postgres, redis |
+| `docker/nginx/prod.conf` | Nginx с HTTPS + ACME webroot (подстановка `APP_DOMAIN` через `envsubst`) |
+| `deploy.sh` / `make deploy` | Git pull → build → TWA build → migrate → cache → restart |
+| `make backup` | Ручной запуск `artisan backup:run` (`spatie/laravel-backup`) |
+
+### Первичный setup на сервере
+
+```bash
+# 1. Склонировать репозиторий и подготовить .env
+git clone <repo> /opt/lexiflow && cd /opt/lexiflow
+cp .env.example .env
+# — отредактировать .env: APP_ENV=production, APP_DEBUG=false, APP_DOMAIN,
+#   APP_KEY (php artisan key:generate), DB_PASSWORD, TELEGRAM_*, TWA_JWT_SECRET, BACKUP_DISKS
+chmod 600 .env
+
+# 2. Поднять стек БЕЗ https (certbot ещё не получил сертификат)
+docker compose -f docker-compose.prod.yml --env-file .env up -d postgres redis app
+
+# 3. Выпустить сертификат (standalone, пока nginx не стартовал)
+docker run --rm -p 80:80 \
+  -v lexiflow_letsencrypt:/etc/letsencrypt \
+  -v lexiflow_certbot_www:/var/www/certbot \
+  certbot/certbot certonly --standalone -d ${APP_DOMAIN} --agree-tos -m admin@${APP_DOMAIN} -n
+
+# 4. Запустить весь стек
+docker compose -f docker-compose.prod.yml --env-file .env up -d
+
+# 5. Миграции + кэши + 2FA
+docker compose -f docker-compose.prod.yml exec -T app php artisan migrate --force
+docker compose -f docker-compose.prod.yml exec -T app php artisan db:seed --class=RolePermissionSeeder
+docker compose -f docker-compose.prod.yml exec -T app php artisan config:cache
+docker compose -f docker-compose.prod.yml exec -T app php artisan route:cache
+docker compose -f docker-compose.prod.yml exec -T app php artisan view:cache
+
+# 6. Создать первого admin и зайти в /admin/login — настроить 2FA
+docker compose -f docker-compose.prod.yml exec -T app php artisan tinker
+# >>> \App\Models\User::create([...])->assignRole('admin');
+
+# 7. Webhook в Telegram
+docker compose -f docker-compose.prod.yml exec -T app php artisan telegram:set-webhook
+```
+
+### Последующие deploy'и
+
+```bash
+git pull && ./deploy.sh
+```
+
+### Бэкапы
+
+`spatie/laravel-backup` запускается по `Schedule` (см. `routes/console.php`):
+- ежедневно в `01:30` — полный backup (DB dump + `base_path()` без `vendor` / `node_modules`),
+- `01:00` — cleanup старых,
+- `02:00` — health-check.
+
+Диски задаются через `BACKUP_DISKS=local,s3`. Для offsite — настроить `AWS_*` в `.env`
+(совместимо с S3 / DO Spaces / Yandex Object Storage через `AWS_ENDPOINT`).
+
+Ручной запуск: `make backup`. Восстановление: `gunzip backup.sql.gz | psql -U lexiflow lexiflow`.
+
+### Smoke-test чек-лист после deploy
+
+- [ ] `curl -sI https://${APP_DOMAIN}/up` → `HTTP/2 200`
+- [ ] `curl -sI https://${APP_DOMAIN}/admin/login` → `HTTP/2 200` + `Strict-Transport-Security` header
+- [ ] Login в `/admin` как admin → редирект на `/2fa/setup`, QR виден.
+- [ ] После setup редирект на `/2fa/recovery-codes`, затем `/admin` отдаёт dashboard.
+- [ ] Logout → login → `/2fa/challenge` → TOTP → /admin.
+- [ ] `composer audit` + `cd resources/twa && npm audit` — без critical/high.
+- [ ] `docker compose -f docker-compose.prod.yml exec app php artisan backup:run --only-db` → видно zip в `storage/app/private/{APP_NAME}/`.
+- [ ] Добавить бота в тестовую Telegram-группу → появляется запись в `telegram_groups` со статусом `pending`.
+- [ ] `/help` в группе → бот отвечает.
+- [ ] Браузерный Lighthouse по `/twa/` в Telegram Desktop → Performance ≥ 90.
+
 ## Documentation
 
 | Документ | Описание |

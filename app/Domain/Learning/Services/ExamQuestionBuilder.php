@@ -154,6 +154,6 @@ final class ExamQuestionBuilder
             $picked[] = "— (filler #{$i})";
         }
 
-        return array_values($picked);
+        return $picked;
     }
 }

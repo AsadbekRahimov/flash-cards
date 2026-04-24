@@ -1,0 +1,114 @@
+# Production compose for LexiFlow Pro.
+#
+# Differences from docker-compose.yml (dev):
+#   - No host bind-mount of the app source — image ships pre-baked code.
+#   - Postgres/Redis ports are NOT exposed to host.
+#   - nginx serves HTTPS via Let's Encrypt, renewed by certbot sidecar.
+#   - Dedicated queue worker container (separate from php-fpm).
+#   - All services restart unless explicitly stopped.
+#
+# Required env vars (populate via .env on the host, chmod 600):
+#   APP_DOMAIN, APP_KEY, DB_PASSWORD, TELEGRAM_BOT_TOKEN, TELEGRAM_URL_SECRET,
+#   TELEGRAM_HEADER_SECRET, TWA_JWT_SECRET, TWA_BASE_URL
+#
+# Usage:
+#   docker compose -f docker-compose.prod.yml --env-file .env up -d
+
+services:
+    app:
+        image: lexiflow/app:${IMAGE_TAG:-latest}
+        container_name: lexiflow-app
+        restart: unless-stopped
+        depends_on:
+            postgres:
+                condition: service_healthy
+            redis:
+                condition: service_started
+        env_file: .env
+        volumes:
+            - app_storage:/var/www/html/storage
+            - app_public:/var/www/html/public
+
+    queue:
+        image: lexiflow/app:${IMAGE_TAG:-latest}
+        container_name: lexiflow-queue
+        restart: unless-stopped
+        depends_on:
+            - app
+            - redis
+        env_file: .env
+        volumes:
+            - app_storage:/var/www/html/storage
+        command: ["php", "artisan", "queue:work", "--queue=high,default", "--tries=3", "--timeout=120"]
+
+    scheduler:
+        image: lexiflow/app:${IMAGE_TAG:-latest}
+        container_name: lexiflow-scheduler
+        restart: unless-stopped
+        depends_on:
+            - app
+        env_file: .env
+        volumes:
+            - app_storage:/var/www/html/storage
+        command: ["php", "artisan", "schedule:work"]
+
+    nginx:
+        image: nginx:1.27-alpine
+        container_name: lexiflow-nginx
+        restart: unless-stopped
+        depends_on:
+            - app
+        ports:
+            - "80:80"
+            - "443:443"
+        environment:
+            APP_DOMAIN: ${APP_DOMAIN}
+        volumes:
+            - app_public:/var/www/html/public:ro
+            - ./docker/nginx/prod.conf:/etc/nginx/prod.conf.template:ro
+            - letsencrypt:/etc/letsencrypt:ro
+            - certbot_www:/var/www/certbot:ro
+        # Substitute ONLY ${APP_DOMAIN}; leave $host / $uri / $request_uri intact.
+        command: /bin/sh -c "envsubst '$$APP_DOMAIN' < /etc/nginx/prod.conf.template > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"
+
+    certbot:
+        image: certbot/certbot:latest
+        container_name: lexiflow-certbot
+        restart: unless-stopped
+        volumes:
+            - letsencrypt:/etc/letsencrypt
+            - certbot_www:/var/www/certbot
+        # Renew loop: try every 12h, nginx reloads via docker exec from host cron.
+        entrypoint: /bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done'
+
+    postgres:
+        image: postgres:16-alpine
+        container_name: lexiflow-postgres
+        restart: unless-stopped
+        environment:
+            POSTGRES_DB: ${DB_DATABASE}
+            POSTGRES_USER: ${DB_USERNAME}
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+    redis:
+        image: redis:7-alpine
+        container_name: lexiflow-redis
+        restart: unless-stopped
+        command: ["redis-server", "--appendonly", "yes"]
+        volumes:
+            - redisdata:/data
+
+volumes:
+    pgdata:
+    redisdata:
+    app_storage:
+    app_public:
+    letsencrypt:
+    certbot_www:
