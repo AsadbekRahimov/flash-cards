@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,12 +17,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $interval_days
  * @property float $easiness_factor
  * @property int $last_quality
- * @property \Carbon\CarbonImmutable|null $last_reviewed_at
- * @property \Carbon\CarbonImmutable $next_review_at
+ * @property CarbonImmutable|null $last_reviewed_at
+ * @property CarbonImmutable $next_review_at
  * @property bool $is_hard
  * @property array<mixed>|null $meta
- * @property \Carbon\CarbonImmutable|null $created_at
- * @property \Carbon\CarbonImmutable|null $updated_at
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
  */
 class WordRepetition extends Model
 {
