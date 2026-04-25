@@ -133,10 +133,13 @@ php artisan db:seed   # loads demo admin, teacher, group, 120 words, 5 students
 If Node.js 18+ is available on the server:
 ```bash
 cd resources/twa
-npm ci --omit=dev
-npm run build       # outputs to public/twa/
+npm ci                  # install all deps — build needs vite/vue-tsc from devDependencies
+npm run build           # outputs to public/twa/
+rm -rf node_modules     # optional: free disk space after build
 cd ../..
 ```
+
+> Do **not** use `npm ci --omit=dev` here — `vite` and `vue-tsc` (the build tools) live in `devDependencies` and the build will fail without them.
 
 If Node.js is not on the server, build locally and upload the `public/twa/` directory via rsync or scp.
 
@@ -207,6 +210,8 @@ server {
     }
 
     location ~ \.php$ {
+        # Update the socket path to match your installed PHP version
+        # (e.g. php8.3-fpm.sock or php8.4-fpm.sock). Verify with: ls /run/php/
         fastcgi_pass unix:/run/php/php8.2-fpm.sock;
         fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
         include fastcgi_params;
@@ -256,7 +261,9 @@ Create `/etc/supervisor/conf.d/lexiflow.conf`:
 ```ini
 [program:lexiflow-worker]
 process_name=%(program_name)s_%(process_num)02d
-command=php /var/www/lexiflow/artisan queue:work redis --queue=high,default --tries=3 --timeout=120 --sleep=3
+; Use the absolute path to the PHP binary (find yours with `which php`).
+; Avoids issues when www-data has a minimal PATH.
+command=/usr/bin/php /var/www/lexiflow/artisan queue:work redis --queue=high,default --tries=3 --timeout=120 --sleep=3
 autostart=true
 autorestart=true
 stopasgroup=true
@@ -285,9 +292,9 @@ supervisorctl status
 crontab -e -u www-data
 ```
 
-Add:
+Add (using the absolute path to PHP — find yours with `which php`):
 ```cron
-* * * * * cd /var/www/lexiflow && php artisan schedule:run >> /dev/null 2>&1
+* * * * * cd /var/www/lexiflow && /usr/bin/php artisan schedule:run >> /dev/null 2>&1
 ```
 
 This runs every minute. Laravel's scheduler internally dispatches:
@@ -357,7 +364,8 @@ composer install --no-dev --optimize-autoloader --no-interaction
 php artisan migrate --force
 
 # Rebuild frontend (if resources/twa/ changed)
-cd resources/twa && npm ci --omit=dev && npm run build && cd ../..
+# Use plain `npm ci` — vite/vue-tsc are devDependencies needed for the build.
+cd resources/twa && npm ci && npm run build && cd ../..
 
 # Re-cache
 php artisan config:cache
