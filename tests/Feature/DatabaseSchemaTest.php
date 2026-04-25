@@ -62,6 +62,10 @@ it('cascades student deletion to word_repetitions', function (): void {
 });
 
 it('has partial index on word_repetitions for is_hard', function (): void {
+    if (DB::getDriverName() !== 'pgsql') {
+        $this->markTestSkipped('pg_indexes catalog is PostgreSQL-only.');
+    }
+
     $exists = DB::selectOne(
         "SELECT 1 AS x FROM pg_indexes
          WHERE tablename = 'word_repetitions'
@@ -71,6 +75,10 @@ it('has partial index on word_repetitions for is_hard', function (): void {
 });
 
 it('has composite index (student_id, next_review_at)', function (): void {
+    if (DB::getDriverName() !== 'pgsql') {
+        $this->markTestSkipped('pg_indexes catalog is PostgreSQL-only.');
+    }
+
     $row = DB::selectOne(
         "SELECT 1 AS x FROM pg_indexes
          WHERE tablename = 'word_repetitions'
@@ -80,6 +88,10 @@ it('has composite index (student_id, next_review_at)', function (): void {
 });
 
 it('runs migrate:fresh --seed and produces demo data', function (): void {
+    if (DB::getDriverName() !== 'pgsql') {
+        $this->markTestSkipped('migrate:fresh runs VACUUM which requires PostgreSQL or a non-transactional SQLite file.');
+    }
+
     $this->artisan('migrate:fresh', ['--seed' => true])->assertSuccessful();
 
     expect(DB::table('users')->where('email', 'admin@local')->exists())->toBeTrue();

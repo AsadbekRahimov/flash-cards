@@ -1,33 +1,33 @@
 {
-    "stage": {
-        "number": 1,
-        "title": "Beginner",
-        "description": "Stage 1 — most frequent words for complete beginners."
-    },
-    "lesson": {
-        "number": 1,
-        "title": "Lesson 1 — First words"
-    },
-    "words": [
-        {"word": "apple", "translation": "яблоко", "example": "I eat an apple every morning.", "part_of_speech": "noun", "transcription": "/ˈæp.əl/"},
-        {"word": "book", "translation": "книга", "example": "This book is very interesting.", "part_of_speech": "noun", "transcription": "/bʊk/"},
-        {"word": "cat", "translation": "кошка", "example": "The cat is sleeping on the sofa.", "part_of_speech": "noun", "transcription": "/kæt/"},
-        {"word": "dog", "translation": "собака", "example": "My dog loves to play in the park.", "part_of_speech": "noun", "transcription": "/dɒɡ/"},
-        {"word": "eat", "translation": "есть (кушать)", "example": "We eat dinner at seven.", "part_of_speech": "verb", "transcription": "/iːt/"},
-        {"word": "friend", "translation": "друг", "example": "She is my best friend.", "part_of_speech": "noun", "transcription": "/frend/"},
-        {"word": "go", "translation": "идти", "example": "I go to school by bus.", "part_of_speech": "verb", "transcription": "/ɡəʊ/"},
-        {"word": "house", "translation": "дом", "example": "Their house is near the river.", "part_of_speech": "noun", "transcription": "/haʊs/"},
-        {"word": "ice", "translation": "лёд", "example": "There is ice on the road.", "part_of_speech": "noun", "transcription": "/aɪs/"},
-        {"word": "jump", "translation": "прыгать", "example": "The children jump on the trampoline.", "part_of_speech": "verb", "transcription": "/dʒʌmp/"},
-        {"word": "kind", "translation": "добрый", "example": "He is a very kind person.", "part_of_speech": "adjective", "transcription": "/kaɪnd/"},
-        {"word": "learn", "translation": "учить", "example": "I want to learn English.", "part_of_speech": "verb", "transcription": "/lɜːn/"},
-        {"word": "moon", "translation": "луна", "example": "The moon is bright tonight.", "part_of_speech": "noun", "transcription": "/muːn/"},
-        {"word": "new", "translation": "новый", "example": "I bought a new phone.", "part_of_speech": "adjective", "transcription": "/njuː/"},
-        {"word": "open", "translation": "открывать", "example": "Please open the window.", "part_of_speech": "verb", "transcription": "/ˈəʊ.pən/"},
-        {"word": "play", "translation": "играть", "example": "Let's play football together.", "part_of_speech": "verb", "transcription": "/pleɪ/"},
-        {"word": "quick", "translation": "быстрый", "example": "She gave a quick answer.", "part_of_speech": "adjective", "transcription": "/kwɪk/"},
-        {"word": "read", "translation": "читать", "example": "I read a book before bed.", "part_of_speech": "verb", "transcription": "/riːd/"},
-        {"word": "sun", "translation": "солнце", "example": "The sun is shining today.", "part_of_speech": "noun", "transcription": "/sʌn/"},
-        {"word": "tree", "translation": "дерево", "example": "A tall tree grows in the garden.", "part_of_speech": "noun", "transcription": "/triː/"}
-    ]
+  "stage": {
+    "number": 1,
+    "title": "Beginner",
+    "description": "Basic everyday vocabulary"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Greetings & Essentials"
+  },
+  "words": [
+    {"word": "hello",   "translation": "привет",    "part_of_speech": "interjection", "transcription": "həˈloʊ",  "example": "Hello, how are you?"},
+    {"word": "world",   "translation": "мир",       "part_of_speech": "noun",         "transcription": "wɜːrld",  "example": "Hello, world!"},
+    {"word": "name",    "translation": "имя",       "part_of_speech": "noun",         "transcription": "neɪm",    "example": "What is your name?"},
+    {"word": "friend",  "translation": "друг",      "part_of_speech": "noun",         "transcription": "frɛnd",   "example": "She is my best friend."},
+    {"word": "family",  "translation": "семья",     "part_of_speech": "noun",         "transcription": "ˈfæməli","example": "My family is large."},
+    {"word": "house",   "translation": "дом",       "part_of_speech": "noun",         "transcription": "haʊs",    "example": "We live in a big house."},
+    {"word": "water",   "translation": "вода",      "part_of_speech": "noun",         "transcription": "ˈwɔːtər","example": "Drink more water."},
+    {"word": "food",    "translation": "еда",       "part_of_speech": "noun",         "transcription": "fuːd",    "example": "The food is delicious."},
+    {"word": "good",    "translation": "хороший",   "part_of_speech": "adjective",    "transcription": "ɡʊd",     "example": "This is a good idea."},
+    {"word": "bad",     "translation": "плохой",    "part_of_speech": "adjective",    "transcription": "bæd",     "example": "That was a bad decision."},
+    {"word": "big",     "translation": "большой",   "part_of_speech": "adjective",    "transcription": "bɪɡ",     "example": "They live in a big city."},
+    {"word": "small",   "translation": "маленький", "part_of_speech": "adjective",    "transcription": "smɔːl",   "example": "It is a small dog."},
+    {"word": "go",      "translation": "идти",      "part_of_speech": "verb",         "transcription": "ɡoʊ",     "example": "Let's go to the park."},
+    {"word": "come",    "translation": "приходить", "part_of_speech": "verb",         "transcription": "kʌm",     "example": "Please come here."},
+    {"word": "see",     "translation": "видеть",    "part_of_speech": "verb",         "transcription": "siː",     "example": "I can see the mountains."},
+    {"word": "eat",     "translation": "есть",      "part_of_speech": "verb",         "transcription": "iːt",     "example": "We eat dinner at seven."},
+    {"word": "drink",   "translation": "пить",      "part_of_speech": "verb",         "transcription": "drɪŋk",   "example": "He drinks coffee every morning."},
+    {"word": "sleep",   "translation": "спать",     "part_of_speech": "verb",         "transcription": "sliːp",   "example": "I sleep eight hours a night."},
+    {"word": "red",     "translation": "красный",   "part_of_speech": "adjective",    "transcription": "rɛd",     "example": "The apple is red."},
+    {"word": "blue",    "translation": "синий",     "part_of_speech": "adjective",    "transcription": "bluː",    "example": "The sky is blue."}
+  ]
 }
