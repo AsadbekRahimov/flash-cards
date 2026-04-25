@@ -1,94 +1,131 @@
-# Инструкция учителя — LexiFlow Pro
+# LexiFlow Pro — Teacher Guide
 
-Эта страница — всё, что нужно знать учителю, чтобы провести тренировку и экзамен.
+This guide covers everything a teacher needs to run training sessions and exams with LexiFlow Pro.
 
-## Подготовка (один раз)
+---
 
-1. **Попросите администратора** добавить бота `@YourBotUsername` в вашу Telegram-группу
-   и выдать вам роль преподавателя (через панель `/admin`).
-2. В ЛС бота напишите `/start` — бот поздоровается. Это привязывает ваш `telegram_user_id`
-   к аккаунту учителя.
-3. Убедитесь, что статус группы в админке — **active** (зелёная).
+## Prerequisites
 
-## Тренировка (повторение слов)
+1. Your Telegram account's `telegram_user_id` must be saved in the system by the administrator.
+2. You must be linked to at least one **active** group in the admin panel.
+3. The LexiFlow bot must be a member of that Telegram group.
 
-В **вашей группе** от имени учителя отправьте:
+---
+
+## Bot Commands Reference
+
+All commands are typed directly into the **group chat** where the bot is active (unless noted).
+
+| Command | Context | Description |
+|---|---|---|
+| `/help` | any | Shows command list |
+| `/start` | private chat (DM) | Links your Telegram account to your teacher profile |
+| `/start_training [stage] [lesson]` | group | Opens a flashcard training session |
+| `/start_exam [stage] [lesson] [minutes]` | group | Opens a timed exam session |
+| `/close_exam` | group | Closes the current exam and posts the leaderboard |
+
+---
+
+## Step 1 — Link Your Account (once)
+
+In **private chat** with the bot, type:
+```
+/start
+```
+The bot replies with your name if your `telegram_user_id` is configured. If you get an "unknown user" message, ask the administrator to add your Telegram ID.
+
+---
+
+## Step 2 — Start a Training Session
+
+In the **group chat**, type:
+```
+/start_training
+```
+Defaults: Stage 1, Lesson 1.
+
+To specify a different stage and lesson:
+```
+/start_training 2 3
+```
+(Stage 2, Lesson 3)
+
+The bot sends a message with an **Open Training** button. Students tap it to open the flashcard interface.
+
+### Notes
+- Only one training session can be open per group at a time.
+- If you run the same command again with the same stage/lesson, the existing session is reused.
+
+---
+
+## Step 3 — Start an Exam
 
 ```
-/start_training <stage> <lesson>
+/start_exam
 ```
+Defaults: Stage 1, Lesson 1, 2 minutes.
 
-Например: `/start_training 1 1` — откроет тренировку по первому уроку первого этапа.
-Если параметры опущены, по умолчанию `stage=1 lesson=1`.
-
-Бот пришлёт в чат кнопку **«Открыть тренировку»**. Каждый студент тапает её — откроется
-Telegram Web App с карточками. Студент оценивает каждое слово на 😰/🙂/😎 (эти кнопки
-соответствуют качеству 2/3/5 в алгоритме SM-2). Слова, которые студент знает плохо,
-вернутся к нему быстрее.
-
-Повторный `/start_training 1 1` **переиспользует** ту же открытую сессию — студенты
-продолжат с того места, где остановились.
-
-## Экзамен
-
+To specify stage, lesson, and duration:
 ```
-/start_exam <stage> <lesson> <minutes>
+/start_exam 2 1 5
 ```
+(Stage 2, Lesson 1, 5 minutes. Min: 1 min, max: 30 min.)
 
-Например: `/start_exam 1 1 2` — экзамен на 2 минуты по уроку 1-1 (по умолчанию `1 1 2`).
-Допустимая длительность — **от 1 до 30 минут**. В группе может быть только **один** открытый
-экзамен одновременно.
+The bot posts a message with a countdown and an **Open Exam** button. Students join by tapping the button.
 
-Бот публикует в чат кнопку **«Пройти экзамен»**. Студенты открывают её, отвечают на
-вопросы с 4 вариантами. Очки за правильный ответ растут с тем, как быстро студент
-отвечает: `score = max(5, 20 · (0.25 + 0.75 · remaining_ratio))`. Неправильный и
-просроченный (не ответил за отведённое время) = 0.
+### What happens automatically
+- Each student sees the same pool of multiple-choice questions (4 options per word).
+- When the timer expires, the session closes and the bot posts the leaderboard in the group.
+- Scheduler also closes sessions automatically after the time limit + a 60-second grace period.
 
-Через 1 минуту после окончания экзамена (grace-period) бот автоматически закрывает
-сессию и публикует в чат лидерборд:
+---
 
-> 🥇 @alice — 180 (9/10, 42 сек)
-> 🥈 @bob   — 155 (8/10, 51 сек)
-> 🥉 @eve   — 140 (7/10, 39 сек)
-
-### Досрочное закрытие
-
-Если нужно завершить раньше — в группе от учителя:
+## Step 4 — Close an Exam Early
 
 ```
 /close_exam
 ```
+This immediately closes the open exam, builds the final leaderboard, and posts it in the group.
 
-Бот закроет текущий экзамен и опубликует лидерборд немедленно.
+---
 
-## Что видно в /admin
+## Error Messages and What They Mean
 
-- **Dashboard:** общая статистика студентов, экзамены за 30 дней, график активности,
-  топ-студенты, самые сложные слова.
-- **Группы (Telegram Groups):** ваши группы, статус (active / pending / disabled).
-- **Студенты:** список студентов ваших групп (read-only).
-- **Stages / Lessons / Words:** контент (редактирует администратор).
+| Bot reply | Cause |
+|---|---|
+| "You are not a teacher of this group" | Your account is not linked to this group. Contact admin. |
+| "Group is not active" | The group is disabled in the admin panel. Contact admin. |
+| "Stage N not found" / "Lesson N not found" | That stage/lesson hasn't been imported yet. Contact admin. |
+| "Not enough words" | The lesson has fewer than the minimum required words. Contact admin. |
+| "An exam is already open" | Another exam is running — close it first with `/close_exam`. |
+| "No exam is open in this group" | You tried `/close_exam` but there is nothing to close. |
+| "Duration must be between 1 and 30 minutes" | The minutes argument is out of range. |
 
-Учителю недоступны разделы **Users** и **Import** — это только для администратора.
+---
 
-## Частые вопросы
+## Viewing Results in the Admin Panel
 
-**Q: Студент не получил кнопку «Открыть тренировку».**
-A: Проверьте: (1) студент есть в группе, (2) статус группы = active, (3) бот не был
-удалён или заблокирован пользователем.
+1. Open your browser and go to `/admin`.
+2. Log in with your teacher credentials.
+3. Navigate to your group to see exam sessions and student progress.
 
-**Q: «Недостаточно слов в уроке» при `/start_exam`.**
-A: В уроке должно быть минимум 4 слова для построения 4 вариантов ответа. Попросите
-админа проверить импорт урока.
+> Note: Teachers can only see their own groups. The admin decides which groups you are linked to.
 
-**Q: TWA не открывается на iPhone.**
-A: Только в нативном Telegram клиенте. В мобильном браузере работать не должно.
-Обновите Telegram до последней версии.
+---
 
-**Q: Как сбросить прогресс студента?**
-A: Через админа — `DELETE FROM word_repetitions WHERE student_id = X` (только для исключительных
-случаев: студент начал заново).
+## Frequently Asked Questions
 
-## Контакты
+**Can students join an exam after it started?**
+Yes. They can join at any time before the session closes, but they have less time to answer.
 
-Админ языкового центра — контакт указан в вашей группе при первом добавлении бота.
+**What happens to unanswered questions?**
+They count as incorrect (0 points).
+
+**Can I have a training session and an exam open at the same time?**
+Yes. Training sessions and exam sessions are independent.
+
+**How many students can join an exam?**
+There is no hard limit. All students in the active group can join.
+
+**Do I need to close the exam manually?**
+No. The scheduler closes it automatically after the time limit + 60-second grace. Use `/close_exam` only if you want to end it early.
