@@ -18,20 +18,19 @@ Telegram-based платформа обучения английскому язы
 
 ```bash
 cp .env.example .env
-docker compose up -d --build
+echo "UID=$(id -u)" >> .env && echo "GID=$(id -g)" >> .env  # macOS / Linux
+docker compose build app
+docker compose up -d
 docker compose exec app composer install
 docker compose exec app php artisan key:generate
-docker compose exec app php artisan migrate
+docker compose exec app php artisan migrate --seed
 ```
 
 Открыть [http://localhost](http://localhost) — должна отобразиться стартовая страница Laravel.
 
-На Linux/macOS установите `UID`/`GID` текущего пользователя в `.env`, чтобы не словить конфликт прав на `storage/`:
-
-```bash
-echo "UID=$(id -u)" >> .env
-echo "GID=$(id -g)" >> .env
-```
+> **Полный гайд** для macOS / Windows / WSL2 + Vite + ngrok (Telegram webhook) +
+> рекомендации по работе с Claude Code в Docker — см.
+> [`docs/LOCAL_DEV_DOCKER.md`](docs/LOCAL_DEV_DOCKER.md).
 
 ## Команды разработки (Makefile)
 
