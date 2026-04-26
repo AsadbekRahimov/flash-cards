@@ -18,7 +18,8 @@ Telegram-based платформа обучения английскому язы
 
 ```bash
 cp .env.example .env
-echo "UID=$(id -u)" >> .env && echo "GID=$(id -g)" >> .env  # macOS / Linux
+# macOS / Linux: подставить UID/GID хоста (sed -i.bak — портабельно для BSD и GNU sed).
+sed -i.bak "s/^UID=.*/UID=$(id -u)/; s/^GID=.*/GID=$(id -g)/" .env && rm .env.bak
 docker compose build app
 docker compose up -d
 docker compose exec app composer install

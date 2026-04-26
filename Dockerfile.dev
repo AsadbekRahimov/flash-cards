@@ -8,6 +8,7 @@ ARG GID=1000
 
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     COMPOSER_MEMORY_LIMIT=-1 \
+    XDEBUG_MODE=off \
     PHP_IDE_CONFIG="serverName=lexiflow"
 
 RUN apk add --no-cache \
@@ -23,10 +24,12 @@ RUN apk add --no-cache \
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Xdebug — выключен по умолчанию, включается через XDEBUG_MODE env var
-# (например, XDEBUG_MODE=debug или XDEBUG_MODE=coverage).
+# Xdebug — выключен по умолчанию (см. ENV XDEBUG_MODE=off выше),
+# включается через переменную окружения XDEBUG_MODE=debug|coverage|profile.
+# ВАЖНО: PHP .ini читает env-переменные как ${VAR}, без shell-style :- defaults,
+# поэтому fallback задаётся через ENV в Dockerfile, а не в самом .ini.
 RUN { \
-        echo "xdebug.mode=\${XDEBUG_MODE:-off}"; \
+        echo "xdebug.mode=\${XDEBUG_MODE}"; \
         echo "xdebug.start_with_request=yes"; \
         echo "xdebug.client_host=host.docker.internal"; \
         echo "xdebug.client_port=9003"; \

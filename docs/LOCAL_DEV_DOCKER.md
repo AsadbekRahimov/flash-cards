@@ -76,9 +76,10 @@ sudo usermod -aG docker "$USER"   # перелогиниться после
 # 1. Конфиг
 cp .env.example .env
 
-# 2. macOS / Linux: подставить UID/GID, чтобы не словить root-owned файлы
-echo "UID=$(id -u)" >> .env
-echo "GID=$(id -g)" >> .env
+# 2. macOS / Linux: подставить UID/GID хоста, чтобы не словить root-owned файлы.
+# `sed -i.bak ... && rm .env.bak` — портабельная форма, работает и на BSD sed
+# (macOS), и на GNU sed (Linux/WSL). Без .bak `sed -i` под macOS падает.
+sed -i.bak "s/^UID=.*/UID=$(id -u)/; s/^GID=.*/GID=$(id -g)/" .env && rm .env.bak
 # (Windows / WSL: обычно UID/GID=1000 уже подходят, шаг можно пропустить.)
 
 # 3. Сборка дев-образа и старт стека
