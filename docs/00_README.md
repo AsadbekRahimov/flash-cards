@@ -15,6 +15,7 @@
 | 07 | [Security](./07_SECURITY.md) | Модель угроз, чек-лист безопасности, конкретные меры защиты |
 | 08 | [Roadmap](./08_ROADMAP.md) | Пошаговый план разработки по спринтам с зависимостями |
 | 09 | [AI Agents Guide](./09_AI_AGENTS_GUIDE.md) | Как эффективно работать с AI-агентами на этом проекте |
+| —  | [Local Dev (Docker)](./LOCAL_DEV_DOCKER.md) | Локальный запуск через Docker для macOS / Windows, ngrok для Telegram, Claude Code в Docker |
 
 ## 🎯 Краткое описание
 

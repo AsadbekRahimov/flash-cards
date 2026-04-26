@@ -1,0 +1,57 @@
+# LexiFlow Pro — dev overrides.
+# Файл подхватывается автоматически при `docker compose up`.
+# Для прода используется отдельный `docker-compose.prod.yml` (этот override
+# не применяется при явном `-f docker-compose.prod.yml`).
+services:
+    app:
+        build:
+            dockerfile: Dockerfile.dev
+        environment:
+            XDEBUG_MODE: ${XDEBUG_MODE:-off}
+            PHP_IDE_CONFIG: serverName=lexiflow
+        extra_hosts:
+            # host.docker.internal нужен для Xdebug на Linux. На macOS/Windows
+            # резолвится автоматически, но дублирование не вредит.
+            - "host.docker.internal:host-gateway"
+
+    # Vite dev-server для TWA фронтенда. Запускается в отдельном контейнере
+    # на порту 5173 (стандартный для Vite). HMR работает через WebSocket.
+    vite:
+        image: node:20-alpine
+        container_name: lexiflow-vite
+        working_dir: /var/www/html
+        # UID/GID хоста — чтобы node_modules не оказался под root на Linux/WSL.
+        user: "${UID:-1000}:${GID:-1000}"
+        # `npm install` запускается ТОЛЬКО если нет node_modules — иначе старт
+        # контейнера занимает 30–60 сек впустую.
+        command: sh -c "[ -d node_modules ] || npm install && npm run dev -- --host 0.0.0.0"
+        environment:
+            # node:alpine не имеет $HOME для произвольного UID — указываем явно,
+            # иначе npm падает с EACCES на ~/.npm.
+            HOME: /tmp
+        ports:
+            - "${VITE_PORT_HOST:-5173}:5173"
+        volumes:
+            - ./:/var/www/html
+        profiles: ["vite"]
+
+    # ngrok — публичный HTTPS-туннель к nginx, чтобы Telegram мог достучаться
+    # до локального webhook'а. Включается профилем: `docker compose --profile ngrok up`.
+    ngrok:
+        image: ngrok/ngrok:latest
+        container_name: lexiflow-ngrok
+        depends_on:
+            - nginx
+        environment:
+            # Если переменная пустая, ngrok сам выкинет понятную ошибку при старте.
+            # Сюда не ставим `:?...` намеренно — иначе валидация compose ломается
+            # для пользователей, которые ngrok не используют.
+            NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN:-}
+        command:
+            - "http"
+            - "nginx:80"
+            - "--log=stdout"
+        ports:
+            # Веб-интерфейс ngrok с туннелями и логом запросов: http://localhost:4040
+            - "${NGROK_WEB_PORT:-4040}:4040"
+        profiles: ["ngrok"]
