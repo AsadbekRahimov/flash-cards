@@ -23,12 +23,14 @@ use Illuminate\Support\Facades\DB;
  */
 final class LeaderboardBuilder
 {
+    public function __construct(private readonly LearningCache $cache) {}
+
     /**
      * @return Collection<int, ExamResult>
      */
     public function build(ExamSession $session): Collection
     {
-        return DB::transaction(function () use ($session): Collection {
+        $results = DB::transaction(function () use ($session): Collection {
             ExamResult::query()->where('exam_session_id', $session->id)->delete();
 
             /** @var Collection<int, object{student_id: int|string, total_score: int|string|null, correct_count: int|string|null, total_count: int|string, time_spent_ms: int|string|null}> $rows */
@@ -62,6 +64,10 @@ final class LeaderboardBuilder
 
             return $this->assignRanks($session, $sorted);
         });
+
+        $this->cache->forgetExam($session);
+
+        return $results;
     }
 
     /**

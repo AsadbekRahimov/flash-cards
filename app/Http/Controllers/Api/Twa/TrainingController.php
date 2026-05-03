@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Twa;
 
 use App\Domain\Learning\Services\CardPicker;
+use App\Domain\Learning\Services\LearningCache;
 use App\Domain\Learning\Services\SpacedRepetitionEngine;
 use App\Models\Student;
 use App\Models\TrainingReview;
@@ -20,6 +21,7 @@ final class TrainingController
     public function __construct(
         private readonly CardPicker $picker,
         private readonly SpacedRepetitionEngine $engine,
+        private readonly LearningCache $cache,
         private readonly TrainingSessionPolicy $policy,
     ) {}
 
@@ -33,7 +35,13 @@ final class TrainingController
         $session->loadMissing('lesson.stage');
 
         $lesson = $session->lesson;
-        $totalWords = $lesson->words()->count();
+        if ($lesson === null) {
+            return response()->json([
+                'error' => ['code' => 'lesson_not_found', 'message' => 'Training lesson not found.'],
+            ], 404);
+        }
+
+        $totalWords = $this->cache->lessonWordCount((int) $lesson->id);
 
         return response()->json([
             'session_id' => $session->id,

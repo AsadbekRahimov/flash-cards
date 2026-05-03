@@ -132,6 +132,8 @@ erDiagram
 - `(student_id, word_id)` unique.
 - `(student_id, next_review_at)` — для «что показывать».
 - `(student_id, is_hard)` partial index `WHERE is_hard = true`.
+- `(student_id, is_hard, next_review_at)` — hot path для выбора следующей карточки с приоритетом hard.
+- `(next_review_at, student_id)` — batch scan студентов, которым пора напомнить о повторении.
 
 ### 2.9 `training_sessions`
 | Колонка | Тип |
@@ -156,6 +158,9 @@ erDiagram
 | created_at | timestamp |
 
 **Индексы:** `(student_id, created_at)`, `(word_id, quality)` для аналитики «трудных слов».
+Дополнительно для нагрузки:
+- `(created_at, student_id)` — отчёты по активности за период.
+- `(training_session_id, student_id)` — прогресс ученика внутри занятия.
 
 ### 2.11 `exam_sessions`
 | Колонка | Тип |
@@ -171,6 +176,9 @@ erDiagram
 | config | jsonb default '{}' | — кол-во вопросов, мультипликаторы и т.п. |
 
 **Индексы:** `status`, `ends_at` (для scheduler).
+Дополнительно для нагрузки:
+- `(status, ends_at)` — закрытие истёкших экзаменов одним range scan.
+- `(telegram_group_id, status, started_at)` — поиск открытого/последнего экзамена группы.
 
 ### 2.12 `exam_answers`
 | Колонка | Тип |
@@ -186,6 +194,9 @@ erDiagram
 | answered_at | timestamp |
 
 **Индексы:** `(exam_session_id, student_id)`, `(student_id, answered_at)`.
+Дополнительно для нагрузки:
+- `(exam_session_id, student_id, word_id)` unique — защита от двойного ответа при параллельных запросах.
+- `(answered_at, student_id)` — аналитика и cleanup по периоду.
 
 ### 2.13 `exam_results` (materialized-style snapshot)
 Заполняется при закрытии экзамена. Денормализация для быстрого лидерборда.
@@ -200,7 +211,7 @@ erDiagram
 | total_count | int |
 | rank | int |
 
-**Индексы:** `(exam_session_id, rank)`.
+**Индексы:** `(exam_session_id, rank)`, `(exam_session_id, student_id)` unique.
 
 ### 2.14 `notifications_log` — аудит пушей студентам
 | Колонка | Тип |
@@ -211,7 +222,7 @@ erDiagram
 | payload | jsonb | — что отправили |
 | sent_at | timestamp |
 
-**Индексы:** `(student_id, type, sent_at)` — rate-limit «не чаще 1 в сутки».
+**Индексы:** `(student_id, type, sent_at)` — rate-limit «не чаще 1 в сутки», `(type, sent_at)` — batch-аудит рассылок.
 
 ### 2.15 `audit_logs` — минимальный аудит админки
 | Колонка | Тип |
@@ -296,6 +307,12 @@ ORDER BY er.rank ASC;
 ## 6. Партиционирование (на будущее)
 
 Когда `training_reviews` или `exam_answers` перерастут 10M строк — партиционировать по `created_at` (месячные партиции Postgres). В MVP не нужно.
+
+Для ожидаемой нагрузки около 300 учеников в день достаточно:
+- держать hot path индексы выше;
+- не считать лидерборд на каждый запрос — использовать `exam_results` и Redis cache;
+- не считать количество слов урока через `COUNT(*)` каждый старт TWA — использовать Redis cache с инвалидизацией после импорта;
+- выполнять Telegram webhook и рассылки через Redis queue.
 
 ## 7. Бэкап-стратегия
 

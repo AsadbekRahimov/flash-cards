@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Models\ExamAnswer;
+use App\Models\ExamResult;
+use App\Models\ExamSession;
 use App\Models\Lesson;
 use App\Models\Stage;
 use App\Models\Student;
@@ -59,6 +62,39 @@ it('cascades student deletion to word_repetitions', function (): void {
     $student->delete();
 
     expect(WordRepetition::where('student_id', $student->id)->count())->toBe(0);
+});
+
+it('enforces one exam answer per student and word in a session', function (): void {
+    $session = ExamSession::factory()->create();
+    $student = Student::factory()->create(['telegram_group_id' => $session->telegram_group_id]);
+    $word = Word::factory()->create(['lesson_id' => $session->lesson_id]);
+
+    ExamAnswer::factory()->create([
+        'exam_session_id' => $session->id,
+        'student_id' => $student->id,
+        'word_id' => $word->id,
+    ]);
+
+    expect(fn () => ExamAnswer::factory()->create([
+        'exam_session_id' => $session->id,
+        'student_id' => $student->id,
+        'word_id' => $word->id,
+    ]))->toThrow(QueryException::class);
+});
+
+it('enforces one exam result per student in a session', function (): void {
+    $session = ExamSession::factory()->create();
+    $student = Student::factory()->create(['telegram_group_id' => $session->telegram_group_id]);
+
+    ExamResult::factory()->create([
+        'exam_session_id' => $session->id,
+        'student_id' => $student->id,
+    ]);
+
+    expect(fn () => ExamResult::factory()->create([
+        'exam_session_id' => $session->id,
+        'student_id' => $student->id,
+    ]))->toThrow(QueryException::class);
 });
 
 it('has partial index on word_repetitions for is_hard', function (): void {

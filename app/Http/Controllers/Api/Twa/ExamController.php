@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Twa;
 
 use App\Domain\Learning\Services\LeaderboardBuilder;
+use App\Domain\Learning\Services\LearningCache;
 use App\Models\ExamAnswer;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
@@ -13,7 +14,6 @@ use App\Policies\ExamSessionPolicy;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 
 /**
  * TWA exam endpoints.
@@ -31,6 +31,7 @@ final class ExamController
     public function __construct(
         private readonly ExamSessionPolicy $policy,
         private readonly LeaderboardBuilder $leaderboard,
+        private readonly LearningCache $cache,
     ) {}
 
     public function join(Request $request, int $sessionId): JsonResponse
@@ -163,24 +164,27 @@ final class ExamController
             $this->leaderboard->build($session);
         }
 
-        /** @var Collection<int, ExamResult> $all */
-        $all = ExamResult::query()
-            ->with('student')
-            ->where('exam_session_id', $session->id)
-            ->orderBy('rank')
-            ->get();
-
-        $mine = $all->firstWhere('student_id', $student->id);
+        $leaderboard = $this->cache->examLeaderboard($session);
+        $mine = null;
+        foreach ($leaderboard['rows'] as $row) {
+            if ($row['student_id'] === (int) $student->id) {
+                $mine = $row;
+                break;
+            }
+        }
 
         return response()->json([
-            'student_score' => $mine?->total_score ?? 0,
-            'rank' => $mine?->rank ?? null,
-            'total_participants' => $all->count(),
-            'leaderboard' => $all->take(10)->map(fn (ExamResult $r): array => [
-                'rank' => $r->rank,
-                'name' => $r->student?->first_name ?? '—',
-                'score' => $r->total_score,
-            ])->values(),
+            'student_score' => $mine['score'] ?? 0,
+            'rank' => $mine['rank'] ?? null,
+            'total_participants' => $leaderboard['total_participants'],
+            'leaderboard' => collect($leaderboard['rows'])
+                ->take(10)
+                ->map(fn (array $row): array => [
+                    'rank' => $row['rank'],
+                    'name' => $row['name'],
+                    'score' => $row['score'],
+                ])
+                ->values(),
         ]);
     }
 

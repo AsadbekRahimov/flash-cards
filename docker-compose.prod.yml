@@ -23,7 +23,7 @@ services:
             postgres:
                 condition: service_healthy
             redis:
-                condition: service_started
+                condition: service_healthy
         env_file: .env
         volumes:
             - app_storage:/var/www/html/storage
@@ -34,12 +34,14 @@ services:
         container_name: lexiflow-queue
         restart: unless-stopped
         depends_on:
-            - app
-            - redis
+            app:
+                condition: service_started
+            redis:
+                condition: service_healthy
         env_file: .env
         volumes:
             - app_storage:/var/www/html/storage
-        command: ["php", "artisan", "queue:work", "--queue=high,default", "--tries=3", "--timeout=120"]
+        command: ["php", "artisan", "queue:work", "redis", "--queue=high,default,low", "--sleep=1", "--tries=3", "--timeout=120", "--max-time=3600"]
 
     scheduler:
         image: lexiflow/app:${IMAGE_TAG:-latest}
@@ -101,9 +103,23 @@ services:
         image: redis:7-alpine
         container_name: lexiflow-redis
         restart: unless-stopped
-        command: ["redis-server", "--appendonly", "yes"]
+        command:
+            - redis-server
+            - --appendonly
+            - "yes"
+            - --appendfsync
+            - everysec
+            - --maxmemory
+            - ${REDIS_MAXMEMORY:-256mb}
+            - --maxmemory-policy
+            - ${REDIS_MAXMEMORY_POLICY:-noeviction}
         volumes:
             - redisdata:/data
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
 
 volumes:
     pgdata:

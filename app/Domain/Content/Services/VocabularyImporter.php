@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Content\Services;
 
 use App\Domain\Content\DTO\ImportReport;
+use App\Domain\Learning\Services\LearningCache;
 use App\Models\AuditLog;
 use App\Models\Lesson;
 use App\Models\Stage;
@@ -21,6 +22,8 @@ final class VocabularyImporter
         'noun', 'verb', 'adjective', 'adverb',
         'pronoun', 'preposition', 'conjunction', 'interjection',
     ];
+
+    public function __construct(private readonly LearningCache $cache) {}
 
     /**
      * @param  array{user_id?:int|null, ip?:string|null}  $auditContext
@@ -125,6 +128,8 @@ final class VocabularyImporter
                     'report' => $report->toArray(),
                 ],
             ]);
+
+            $this->cache->forgetLesson($lesson);
         });
 
         return $report;

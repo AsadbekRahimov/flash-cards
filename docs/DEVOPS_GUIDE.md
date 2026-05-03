@@ -81,6 +81,18 @@ DB_PASSWORD=your_strong_password
 
 REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
+REDIS_DB=0
+REDIS_CACHE_DB=1
+REDIS_QUEUE_CONNECTION=queue
+REDIS_QUEUE_DB=2
+REDIS_SESSION_DB=3
+REDIS_LOCK_DB=4
+REDIS_QUEUE_BLOCK_FOR=5
+REDIS_MAXMEMORY=256mb
+REDIS_MAXMEMORY_POLICY=noeviction
+CACHE_STORE=redis
+SESSION_DRIVER=redis
+SESSION_CONNECTION=session
 
 QUEUE_CONNECTION=redis
 TELEGRAM_QUEUE=high
@@ -263,7 +275,7 @@ Create `/etc/supervisor/conf.d/lexiflow.conf`:
 process_name=%(program_name)s_%(process_num)02d
 ; Use the absolute path to the PHP binary (find yours with `which php`).
 ; Avoids issues when www-data has a minimal PATH.
-command=/usr/bin/php /var/www/lexiflow/artisan queue:work redis --queue=high,default --tries=3 --timeout=120 --sleep=3
+command=/usr/bin/php /var/www/lexiflow/artisan queue:work redis --queue=high,default,low --tries=3 --timeout=120 --sleep=1 --max-time=3600
 autostart=true
 autorestart=true
 stopasgroup=true
@@ -275,6 +287,10 @@ stdout_logfile_maxbytes=10MB
 stdout_logfile_backups=3
 user=www-data
 ```
+
+For bigger classes, increase `numprocs` before adding app containers. With Redis queue and the current DB indexes, 2-3 workers are enough for roughly 300 active students/day unless Telegram API latency dominates.
+
+Keep `REDIS_MAXMEMORY_POLICY=noeviction` while cache, sessions and queues share the same Redis instance. `allkeys-lru` is only safe after moving queues/sessions to a separate Redis instance, otherwise Redis can evict pending jobs under memory pressure.
 
 Apply:
 ```bash
@@ -410,7 +426,14 @@ chmod 600 .env
 | `TWA_JWT_SECRET` | ✅ | `openssl rand -hex 32` |
 | `TWA_BASE_URL` | ✅ | `https://yourdomain.com` |
 | `REDIS_HOST` | ✅ | `127.0.0.1` |
+| `REDIS_CACHE_DB` | recommended | `1` |
+| `REDIS_QUEUE_DB` | recommended | `2` |
+| `REDIS_SESSION_DB` | recommended | `3` |
+| `REDIS_LOCK_DB` | recommended | `4` |
+| `REDIS_MAXMEMORY_POLICY` | recommended | `noeviction` |
 | `QUEUE_CONNECTION` | ✅ | `redis` |
+| `CACHE_STORE` | ✅ | `redis` |
+| `SESSION_DRIVER` | ✅ | `redis` |
 | `TELEGRAM_IP_ALLOWLIST_ENABLED` | recommended | `true` |
 | `BACKUP_NOTIFICATION_MAIL` | ✅ | `admin@yourdomain.com` |
 | `BACKUP_DISKS` | ✅ | `local` or `local,s3` |

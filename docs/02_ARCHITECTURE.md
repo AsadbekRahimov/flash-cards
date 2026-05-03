@@ -72,9 +72,10 @@ flowchart LR
 Альтернатива — MySQL 8 (тоже ок, но JSONB и оконные функции в Postgres удобнее для аналитики).
 
 ### 2.3 Redis 7
-- **Cache:** настройки, rate limits.
+- **Cache:** настройки, rate limits, счётчики слов урока, готовые лидерборды закрытых экзаменов.
 - **Queue:** `high` (webhook ACK), `default` (рассылки), `low` (аналитика).
 - **Locks:** `Cache::lock()` для критических секций (импорт, завершение экзамена).
+- Redis connection DB разделены по назначению: `default=0`, `cache=1`, `queue=2`, `session=3`, `locks=4`. Это снижает риск, что burst очередей вытеснит session/cache keys.
 
 ### 2.4 Queue Workers (Supervisor)
 - Отдельные воркеры на три очереди.
@@ -275,7 +276,13 @@ DB_DATABASE=lexiflow
 DB_USERNAME=lexiflow
 DB_PASSWORD=...
 REDIS_HOST=redis
+REDIS_CACHE_DB=1
+REDIS_QUEUE_DB=2
+REDIS_SESSION_DB=3
+REDIS_LOCK_DB=4
 QUEUE_CONNECTION=redis
+CACHE_STORE=redis
+SESSION_DRIVER=redis
 TELEGRAM_BOT_TOKEN=...
 TELEGRAM_WEBHOOK_SECRET=...        # случайная 64-символьная строка
 TWA_JWT_SECRET=...

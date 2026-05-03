@@ -1,9 +1,77 @@
 {
-  "permissions": {
-    "allow": [
-      "Bash('C:\\\\OpenServer\\\\modules\\\\php\\\\PHP_8.3\\\\php.exe' vendor/bin/pest tests/Feature/SecurityChecklistTest.php)",
-      "Bash('C:\\\\OpenServer\\\\modules\\\\php\\\\PHP_8.3\\\\php.exe' 'C:\\\\OpenServer\\\\modules\\\\php\\\\PHP_8.3\\\\composer.phar' audit --no-dev)",
-      "Bash(npm audit *)"
-    ]
-  }
+    "permissions": {
+        "allow": [
+            "Read",
+            "Glob",
+            "Grep",
+            "LS",
+            "Edit",
+            "MultiEdit",
+            "Write(src/**)",
+            "Write(tests/**)",
+            "Write(docs/**)",
+            "Bash(npm run *)",
+            "Bash(npm install *)",
+            "Bash(npm test *)",
+            "Bash(npx tsc *)",
+            "Bash(npx vitest *)",
+            "Bash(npx prettier *)",
+            "Bash(npx eslint *)",
+            "Bash(git status)",
+            "Bash(git diff *)",
+            "Bash(git log *)",
+            "Bash(git add *)",
+            "Bash(git commit *)",
+            "Bash(git checkout *)",
+            "Bash(git branch *)",
+            "Bash(cat *)",
+            "Bash(head *)",
+            "Bash(tail *)",
+            "Bash(wc *)",
+            "Bash(find *)",
+            "Bash(echo *)"
+        ],
+        "deny": [
+            "Read(.env*)",
+            "Read(**/secrets/**)",
+            "Write(.env*)",
+            "Write(production.*)",
+            "Write(.github/workflows/*)",
+            "Write(package-lock.json)",
+            "Bash(rm -rf *)",
+            "Bash(sudo *)",
+            "Bash(git push *)",
+            "Bash(git merge *)",
+            "Bash(git rebase *)",
+            "Bash(npm publish *)",
+            "Bash(docker *)",
+            "Bash(curl * | sh)",
+            "Bash(wget *)",
+            "Bash(chmod *)",
+            "Bash(chown *)"
+        ],
+        "defaultMode": "acceptEdits"
+    },
+    "hooks": {
+        "PostToolUse": [
+            {
+                "matcher": "Write(*.ts)",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "npx prettier --write $file"
+                    }
+                ]
+            },
+            {
+                "matcher": "Write(*.tsx)",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "npx prettier --write $file"
+                    }
+                ]
+            }
+        ]
+    }
 }

@@ -12,7 +12,7 @@ services:
             postgres:
                 condition: service_healthy
             redis:
-                condition: service_started
+                condition: service_healthy
         volumes:
             - ./:/var/www/html
         environment:
@@ -49,11 +49,25 @@ services:
     redis:
         image: redis:7-alpine
         container_name: lexiflow-redis
-        command: ["redis-server", "--appendonly", "yes"]
+        command:
+            - redis-server
+            - --appendonly
+            - "yes"
+            - --appendfsync
+            - everysec
+            - --maxmemory
+            - ${REDIS_MAXMEMORY:-256mb}
+            - --maxmemory-policy
+            - ${REDIS_MAXMEMORY_POLICY:-noeviction}
         ports:
             - "${REDIS_PORT_HOST:-6379}:6379"
         volumes:
             - redisdata:/data
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 5s
+            timeout: 3s
+            retries: 10
 
 volumes:
     pgdata:
