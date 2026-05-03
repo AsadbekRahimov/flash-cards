@@ -68,5 +68,13 @@ class AppServiceProvider extends ServiceProvider
             // while leaving headroom for 10-questions-in-2-minutes sprints.
             return Limit::perMinute(30)->by('twa-exam-answer|'.$key);
         });
+
+        RateLimiter::for('twa-tts', function (Request $request): Limit {
+            /** @var array{student_id:int}|null $ctx */
+            $ctx = $request->attributes->get('twa');
+            $key = $ctx['student_id'] ?? $request->ip();
+
+            return Limit::perMinute(30)->by('twa-tts|'.$key);
+        });
     }
 }

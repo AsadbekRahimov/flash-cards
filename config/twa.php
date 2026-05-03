@@ -32,6 +32,11 @@ return [
         'max_cards_per_session' => (int) env('TWA_MAX_CARDS_PER_SESSION', 100),
     ],
 
+    'tts' => [
+        'service_url' => env('TTS_SERVICE_URL', ''),
+        'timeout' => (int) env('TTS_SERVICE_TIMEOUT', 8),
+    ],
+
     /**
      * Public base URL of the TWA SPA (served as static files from /twa/).
      * Telegram web_app buttons MUST point to HTTPS. For local ngrok usage

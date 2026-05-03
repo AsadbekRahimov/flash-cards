@@ -17,6 +17,10 @@ Schedule::command('exams:close-expired')
     ->withoutOverlapping()
     ->runInBackground();
 
+Schedule::command('repetitions:notify')
+    ->dailyAt('18:00')
+    ->withoutOverlapping();
+
 // Daily DB + storage backup via spatie/laravel-backup.
 Schedule::command('backup:clean')->daily()->at('01:00');
 Schedule::command('backup:run')->daily()->at('01:30');

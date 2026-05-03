@@ -6,8 +6,10 @@ use App\Domain\Telegram\Services\TelegramApi;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Models\Student;
 use App\Models\TelegramGroup;
+use App\Models\TrainingReview;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
 
@@ -103,4 +105,53 @@ it('tells unknown TG user their ID on /start', function (): void {
             'text' => '/start',
         ],
     ]);
+});
+
+it('sends a seven-day stats report to a teacher in DM', function (): void {
+    $group = TelegramGroup::factory()->create(['status' => 'active']);
+    $teacher = User::factory()->create(['telegram_user_id' => 54321]);
+    DB::table('teacher_groups')->insert([
+        'user_id' => $teacher->id,
+        'telegram_group_id' => $group->id,
+        'is_primary' => true,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+    $student = Student::factory()->create(['telegram_group_id' => $group->id]);
+    TrainingReview::factory()->count(3)->create([
+        'student_id' => $student->id,
+        'created_at' => now()->subDays(2),
+    ]);
+
+    $api = new class extends TelegramApi
+    {
+        /** @var list<array{chat_id:int|string,text:string}> */
+        public array $messages = [];
+
+        public function __construct() {}
+
+        /** @param array<string, mixed>|null $replyMarkup */
+        public function sendMessage(
+            int|string $chatId,
+            string $text,
+            ?string $parseMode = null,
+            ?array $replyMarkup = null,
+        ): void {
+            $this->messages[] = ['chat_id' => $chatId, 'text' => $text];
+        }
+    };
+
+    app()->instance(TelegramApi::class, $api);
+
+    app(TelegramDispatcher::class)->dispatch([
+        'message' => [
+            'chat' => ['id' => 54321, 'type' => 'private'],
+            'from' => ['id' => 54321],
+            'text' => '/stats',
+        ],
+    ]);
+
+    expect($api->messages)->toHaveCount(1);
+    expect($api->messages[0]['chat_id'])->toBe(54321);
+    expect($api->messages[0]['text'])->toMatch('/Статистика LexiFlow/u');
 });

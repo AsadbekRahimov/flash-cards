@@ -52,6 +52,8 @@ final class VocabularyImporter
             return $report;
         }
 
+        $data = $this->normalizeShape($data);
+
         $validator = Validator::make($data, $this->rules());
 
         if ($validator->fails()) {
@@ -126,6 +128,34 @@ final class VocabularyImporter
         });
 
         return $report;
+    }
+
+    /**
+     * Support both the original PRD schema:
+     *   { "stage": 4, "lesson": 8, "vocabulary": [...] }
+     * and the richer admin schema:
+     *   { "stage": {"number": 4}, "lesson": {"number": 8}, "words": [...] }.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function normalizeShape(array $data): array
+    {
+        if (
+            array_key_exists('vocabulary', $data)
+            && ! array_key_exists('words', $data)
+            && isset($data['stage'], $data['lesson'])
+            && ! is_array($data['stage'])
+            && ! is_array($data['lesson'])
+        ) {
+            return [
+                'stage' => ['number' => $data['stage']],
+                'lesson' => ['number' => $data['lesson']],
+                'words' => $data['vocabulary'],
+            ];
+        }
+
+        return $data;
     }
 
     /** @return array<string, array<int, string>|string> */

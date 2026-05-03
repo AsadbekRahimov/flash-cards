@@ -43,6 +43,30 @@ it('imports a valid file and reports added counts', function (): void {
     expect(Word::count())->toBe(2);
 });
 
+it('imports the original PRD vocabulary schema', function (): void {
+    $json = json_encode([
+        'stage' => 4,
+        'lesson' => 8,
+        'vocabulary' => [
+            [
+                'word' => 'resilient',
+                'translation' => 'устойчивый',
+                'part_of_speech' => 'adjective',
+                'transcription' => 'rɪˈzɪl.i.ənt',
+                'example' => 'She is a resilient girl.',
+            ],
+        ],
+    ], JSON_THROW_ON_ERROR);
+
+    $report = app(VocabularyImporter::class)->import($json);
+
+    expect($report->ok())->toBeTrue();
+    expect($report->added)->toBe(1);
+    expect(Stage::query()->where('number', 4)->exists())->toBeTrue();
+    expect(Lesson::query()->where('number', 8)->exists())->toBeTrue();
+    expect(Word::query()->where('word', 'resilient')->exists())->toBeTrue();
+});
+
 it('re-importing the same file updates 0 and skips 2 (no changes)', function (): void {
     $json = sampleJson();
     app(VocabularyImporter::class)->import($json);

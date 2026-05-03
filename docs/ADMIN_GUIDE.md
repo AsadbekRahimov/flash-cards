@@ -72,12 +72,28 @@ Navigate to **Stages → Lessons → Words**.
 ### Importing a lesson via JSON (recommended)
 1. Go to **Import Lesson** in the left sidebar.
 2. Click **Download sample** to get the JSON template.
-3. Prepare your JSON file following the schema:
+3. Prepare your JSON file following the rich admin schema:
 ```json
 {
   "stage": {"number": 1, "title": "Beginner", "description": "Optional"},
   "lesson": {"number": 1, "title": "Greetings"},
   "words": [
+    {
+      "word": "hello",
+      "translation": "привет",
+      "part_of_speech": "interjection",
+      "transcription": "həˈloʊ",
+      "example": "Hello, how are you?"
+    }
+  ]
+}
+```
+The original PRD schema is also supported for compatibility:
+```json
+{
+  "stage": 1,
+  "lesson": 1,
+  "vocabulary": [
     {
       "word": "hello",
       "translation": "привет",

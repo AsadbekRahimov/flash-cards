@@ -12,6 +12,7 @@ use App\Domain\Telegram\Handlers\NewMembersHandler;
 use App\Domain\Telegram\Handlers\StartCommandHandler;
 use App\Domain\Telegram\Handlers\StartExamHandler;
 use App\Domain\Telegram\Handlers\StartTrainingHandler;
+use App\Domain\Telegram\Handlers\StatsCommandHandler;
 
 final class TelegramDispatcher
 {
@@ -23,6 +24,7 @@ final class TelegramDispatcher
         StartTrainingHandler $startTraining,
         StartExamHandler $startExam,
         CloseExamHandler $closeExam,
+        StatsCommandHandler $stats,
         HelpCommandHandler $help,
         MyChatMemberHandler $myChatMember,
         NewMembersHandler $newMembers,
@@ -35,6 +37,7 @@ final class TelegramDispatcher
             $startTraining,
             $startExam,
             $closeExam,
+            $stats,
             $start,
             $help,
         ];

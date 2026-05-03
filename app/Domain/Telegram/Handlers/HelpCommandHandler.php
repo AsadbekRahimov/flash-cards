@@ -30,10 +30,13 @@ final class HelpCommandHandler implements UpdateHandler
         $text = $chatType === 'private'
             ? "LexiFlow — помощник для изучения английского.\n\n".
               "Для учителей: добавьте бота в группу, админ активирует её.\n".
-              'Доступные команды в группе: /start_training, /start_exam, /help'
+              "Доступные команды в группе: /start_training, /start_exam, /close_exam, /help\n".
+              'Личный отчёт: /stats'
             : "LexiFlow Bot в группе.\n\nКоманды учителя:\n".
               "/start_training — запустить тренировку\n".
               "/start_exam — запустить экзамен\n".
+              "/close_exam — закрыть экзамен\n".
+              "/stats — личный отчёт в чате с ботом\n".
               '/help — эта справка';
 
         $this->api->sendMessage($chatId, $text);
