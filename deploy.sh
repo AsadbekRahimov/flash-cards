@@ -34,7 +34,7 @@ $COMPOSE build --pull app
 
 if [ "$SKIP_TWA" -eq 0 ]; then
     echo "==> Building TWA SPA (resources/twa → public/twa)"
-    (cd resources/twa && npm ci --omit=dev && npm run build)
+    (cd resources/twa && npm ci && npm run build)
 fi
 
 echo "==> Starting / updating containers"

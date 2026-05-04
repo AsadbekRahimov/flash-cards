@@ -42,12 +42,14 @@ final class ExamController
         }
 
         $config = $session->config ?? [];
+        $questions = $this->questions($session);
 
         return response()->json([
             'session_id' => $session->id,
             'ends_at' => $session->ends_at?->toIso8601String(),
             'total_questions' => (int) ($config['total_questions'] ?? 0),
             'seconds_per_question' => (int) ($config['seconds_per_question'] ?? 0),
+            'question' => $this->questionPayload($questions, 0, $session),
         ]);
     }
 
@@ -65,16 +67,7 @@ final class ExamController
             return $this->error(404, 'question_not_found', 'Question index is out of range.');
         }
 
-        $q = $questions[$index];
-        $secondsLeft = $this->questionSecondsLeft($session);
-
-        return response()->json([
-            'question_index' => $index,
-            'word_id' => (int) $q['word_id'],
-            'word' => (string) $q['word'],
-            'options' => array_values($q['options']),
-            'seconds_left' => $secondsLeft,
-        ]);
+        return response()->json($this->questionPayload($questions, $index, $session));
     }
 
     public function answer(Request $request, int $sessionId): JsonResponse
@@ -145,6 +138,7 @@ final class ExamController
             'score_earned' => $score,
             'total_score' => $totalScore,
             'has_next' => $index + 1 < $totalQuestions,
+            'next_question' => $this->questionPayload($questions, $index + 1, $session),
         ]);
     }
 
@@ -221,6 +215,27 @@ final class ExamController
         $q = $session->config['questions'] ?? [];
 
         return $q;
+    }
+
+    /**
+     * @param  list<array{word_id:int, word:string, correct_translation:string, correct_index:int, options:list<string>}>  $questions
+     * @return array{question_index:int, word_id:int, word:string, options:list<string>, seconds_left:int}|null
+     */
+    private function questionPayload(array $questions, int $index, ExamSession $session): ?array
+    {
+        if ($index < 0 || $index >= count($questions)) {
+            return null;
+        }
+
+        $q = $questions[$index];
+
+        return [
+            'question_index' => $index,
+            'word_id' => (int) $q['word_id'],
+            'word' => (string) $q['word'],
+            'options' => array_values($q['options']),
+            'seconds_left' => $this->questionSecondsLeft($session),
+        ];
     }
 
     /**

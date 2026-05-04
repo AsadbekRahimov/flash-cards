@@ -51,6 +51,11 @@ export const useTrainingStore = defineStore('training', {
         this.lesson = res.lesson
         this.totalWords = res.total_words
         this.progress = { done: 0, total: res.total_words }
+        if (res.progress) this.progress = res.progress
+        if ('card' in res) {
+          this.applyCard(res.card ?? null)
+          return
+        }
         await this.loadNext()
       } catch (err) {
         this.handleApiError(err)
@@ -64,14 +69,7 @@ export const useTrainingStore = defineStore('training', {
       try {
         const res = await api.training.next(this.sessionId)
         this.progress = res.progress
-        if (res.card === null) {
-          this.card = null
-          this.status = 'finished'
-          return
-        }
-        this.card = res.card
-        this.cardShownAt = Date.now()
-        this.status = 'ready'
+        this.applyCard(res.card)
       } catch (err) {
         this.handleApiError(err)
       }
@@ -90,6 +88,11 @@ export const useTrainingStore = defineStore('training', {
         const res = await api.training.review(this.sessionId, wordId, quality, timeSpent)
         this.reviewedCount += 1
         this.lastIntervalDays = res.new_interval_days
+        if (res.progress) this.progress = res.progress
+        if ('card' in res) {
+          this.applyCard(res.card ?? null)
+          return
+        }
         await this.loadNext()
       } catch (err) {
         this.handleApiError(err)
@@ -107,6 +110,19 @@ export const useTrainingStore = defineStore('training', {
       this.reviewedCount = 0
       this.lastIntervalDays = 0
       this.errorMessage = ''
+    },
+
+    applyCard(card: Card | null): void {
+      this.showTranslation = false
+      if (card === null) {
+        this.card = null
+        this.status = 'finished'
+        return
+      }
+
+      this.card = card
+      this.cardShownAt = Date.now()
+      this.status = 'ready'
     },
 
     handleApiError(err: unknown): void {

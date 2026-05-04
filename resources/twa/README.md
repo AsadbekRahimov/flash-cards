@@ -64,8 +64,9 @@ src/
 2. Backend создаёт `training_session` и постит сообщение с inline-кнопкой WebApp:
    `https://host/twa/training/{session_id}`.
 3. Ученик нажимает → открывается TWA.
-4. `TrainingView` → `auth.ensure()` (POST /api/twa/auth) → `training.start()` → цикл `/next`/`/review`.
-5. Когда `/next` возвращает `card=null` → редирект на `/finished`.
+4. `TrainingView` → `auth.ensure()` (POST /api/twa/auth) → `training.start()`.
+5. Backend отдаёт первую карточку сразу в `/start`; дальше `/review` возвращает результат и следующую карточку одним ответом.
+6. Когда ответ возвращает `card=null` → редирект на `/finished`.
 
 ## Обработка ошибок
 

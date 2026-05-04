@@ -102,9 +102,9 @@ final class CardPicker
     /**
      * @return array{done:int, total:int}
      */
-    public function progress(int $studentId, int $lessonId): array
+    public function progress(int $studentId, int $lessonId, ?int $totalWords = null): array
     {
-        $total = Word::query()->where('lesson_id', $lessonId)->count();
+        $total = $totalWords ?? Word::query()->where('lesson_id', $lessonId)->count();
 
         $done = WordRepetition::query()
             ->where('student_id', $studentId)

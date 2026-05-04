@@ -31,6 +31,9 @@ final class TrainingController
         if ($session instanceof JsonResponse) {
             return $session;
         }
+        if (! $student instanceof Student) {
+            return $this->unauthorizedStudent();
+        }
 
         $session->loadMissing('lesson.stage');
 
@@ -42,6 +45,7 @@ final class TrainingController
         }
 
         $totalWords = $this->cache->lessonWordCount((int) $lesson->id);
+        $next = $this->nextCardPayload($student, (int) $lesson->id, $totalWords);
 
         return response()->json([
             'session_id' => $session->id,
@@ -51,6 +55,8 @@ final class TrainingController
                 'title' => $lesson->title,
             ],
             'total_words' => $totalWords,
+            'card' => $next['card'],
+            'progress' => $next['progress'],
         ]);
     }
 
@@ -60,30 +66,11 @@ final class TrainingController
         if ($session instanceof JsonResponse) {
             return $session;
         }
-
-        $pick = $this->picker->pickNext($student->id, (int) $session->lesson_id);
-        $progress = $this->picker->progress($student->id, (int) $session->lesson_id);
-
-        if ($pick === null) {
-            return response()->json([
-                'card' => null,
-                'progress' => $progress,
-            ]);
+        if (! $student instanceof Student) {
+            return $this->unauthorizedStudent();
         }
 
-        $word = $pick['word'];
-
-        return response()->json([
-            'card' => [
-                'word_id' => $word->id,
-                'word' => $word->word,
-                'translation' => $word->translation,
-                'example' => $word->example,
-                'transcription' => $word->transcription,
-                'card_kind' => $pick['kind'],
-            ],
-            'progress' => $progress,
-        ]);
+        return response()->json($this->nextCardPayload($student, (int) $session->lesson_id));
     }
 
     public function review(Request $request, int $sessionId): JsonResponse
@@ -91,6 +78,9 @@ final class TrainingController
         [$student, $session] = $this->resolve($request, $sessionId);
         if ($session instanceof JsonResponse) {
             return $session;
+        }
+        if (! $student instanceof Student) {
+            return $this->unauthorizedStudent();
         }
 
         $validated = $request->validate([
@@ -134,7 +124,48 @@ final class TrainingController
             'next_review_at' => $rep->next_review_at->toIso8601String(),
             'new_interval_days' => (int) $rep->interval_days,
             'easiness_factor' => (float) $rep->easiness_factor,
+            ...$this->nextCardPayload($student, (int) $session->lesson_id),
         ]);
+    }
+
+    /**
+     * @return array{
+     *   card: array{word_id:int, word:string, translation:string, example:string|null, transcription:string|null, card_kind:string}|null,
+     *   progress: array{done:int, total:int}
+     * }
+     */
+    private function nextCardPayload(Student $student, int $lessonId, ?int $totalWords = null): array
+    {
+        $pick = $this->picker->pickNext((int) $student->id, $lessonId);
+        $progress = $this->picker->progress((int) $student->id, $lessonId, $totalWords);
+
+        if ($pick === null) {
+            return [
+                'card' => null,
+                'progress' => $progress,
+            ];
+        }
+
+        $word = $pick['word'];
+
+        return [
+            'card' => [
+                'word_id' => (int) $word->id,
+                'word' => $word->word,
+                'translation' => $word->translation,
+                'example' => $word->example,
+                'transcription' => $word->transcription,
+                'card_kind' => $pick['kind'],
+            ],
+            'progress' => $progress,
+        ];
+    }
+
+    private function unauthorizedStudent(): JsonResponse
+    {
+        return response()->json([
+            'error' => ['code' => 'student_not_found', 'message' => 'Unauthorized'],
+        ], 401);
     }
 
     /**

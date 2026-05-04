@@ -30,6 +30,8 @@ export interface TrainingStartResponse {
   session_id: number
   lesson: LessonHeader
   total_words: number
+  card?: Card | null
+  progress?: { done: number; total: number }
 }
 
 export type CardKind = 'due' | 'new'
@@ -54,6 +56,8 @@ export interface ReviewResponse {
   next_review_at: string | null
   new_interval_days: number
   easiness_factor: number
+  card?: Card | null
+  progress?: { done: number; total: number }
 }
 
 export interface ApiError {
@@ -71,6 +75,7 @@ export interface ExamJoinResponse {
   ends_at: string | null
   total_questions: number
   seconds_per_question: number
+  question?: ExamQuestionResponse | null
 }
 
 export interface ExamQuestionResponse {
@@ -87,6 +92,7 @@ export interface ExamAnswerResponse {
   score_earned: number
   total_score: number
   has_next: boolean
+  next_question?: ExamQuestionResponse | null
 }
 
 export interface ExamLeaderboardEntry {

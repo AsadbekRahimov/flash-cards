@@ -74,7 +74,13 @@ it('POST /exam/.../join returns session metadata', function (): void {
     $this->withHeaders(examAuthHeaders($s['student']))
         ->postJson("/api/twa/exam/sessions/{$s['session']->id}/join")
         ->assertOk()
-        ->assertJsonStructure(['session_id', 'ends_at', 'total_questions', 'seconds_per_question'])
+        ->assertJsonStructure([
+            'session_id',
+            'ends_at',
+            'total_questions',
+            'seconds_per_question',
+            'question' => ['question_index', 'word_id', 'word', 'options', 'seconds_left'],
+        ])
         ->assertJsonPath('total_questions', 4);
 });
 
@@ -113,7 +119,10 @@ it('POST answer with correct option gives points and records exam_answer', funct
         ->assertOk()
         ->assertJsonPath('is_correct', true)
         ->assertJsonPath('correct_option', $q['correct_index'])
-        ->assertJsonPath('has_next', true);
+        ->assertJsonPath('has_next', true)
+        ->assertJsonStructure([
+            'next_question' => ['question_index', 'word_id', 'word', 'options', 'seconds_left'],
+        ]);
 
     expect($resp->json('score_earned'))->toBeGreaterThan(0);
     expect($resp->json('total_score'))->toBe($resp->json('score_earned'));

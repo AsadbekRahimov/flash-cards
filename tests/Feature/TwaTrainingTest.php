@@ -74,7 +74,13 @@ it('starts a training session for an eligible student', function (): void {
     $this->withHeaders(authHeaders($s['student']))
         ->postJson("/api/twa/training/sessions/{$s['session']->id}/start")
         ->assertOk()
-        ->assertJsonStructure(['session_id', 'lesson' => ['stage', 'lesson', 'title'], 'total_words'])
+        ->assertJsonStructure([
+            'session_id',
+            'lesson' => ['stage', 'lesson', 'title'],
+            'total_words',
+            'card',
+            'progress' => ['done', 'total'],
+        ])
         ->assertJsonPath('total_words', 3);
 });
 
@@ -148,7 +154,13 @@ it('completes a full training cycle and updates intervals', function (): void {
                 'time_spent_ms' => 3000,
             ])
             ->assertOk()
-            ->assertJsonStructure(['next_review_at', 'new_interval_days', 'easiness_factor']);
+            ->assertJsonStructure([
+                'next_review_at',
+                'new_interval_days',
+                'easiness_factor',
+                'card',
+                'progress' => ['done', 'total'],
+            ]);
     }
 
     // after 2 successful "easy" reviews, each WordRepetition has repetitions >= 1

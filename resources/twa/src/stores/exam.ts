@@ -80,6 +80,10 @@ export const useExamStore = defineStore('exam', {
         this.endsAt = res.ends_at ? Date.parse(res.ends_at) : null
         this.totalQuestions = res.total_questions
         this.secondsPerQuestion = res.seconds_per_question
+        if (res.question) {
+          this.applyQuestion(res.question)
+          return
+        }
         await this.loadQuestion(0)
       } catch (err) {
         this.handleApiError(err)
@@ -143,6 +147,10 @@ export const useExamStore = defineStore('exam', {
         await this.finish()
         return
       }
+      if (this.lastAnswer.next_question) {
+        this.applyQuestion(this.lastAnswer.next_question)
+        return
+      }
       await this.loadQuestion(this.currentIndex + 1)
     },
 
@@ -185,6 +193,15 @@ export const useExamStore = defineStore('exam', {
       this.finalRank = null
       this.totalParticipants = 0
       this.leaderboard = []
+    },
+
+    applyQuestion(question: ExamQuestionResponse): void {
+      this.currentIndex = question.question_index
+      this.currentQuestion = question
+      this.questionStartedAt = Date.now()
+      this.selectedIndex = null
+      this.lastAnswer = null
+      this.status = 'answering'
     },
 
     handleApiError(err: unknown): void {
