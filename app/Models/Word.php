@@ -41,4 +41,10 @@ class Word extends Model
     {
         return $this->hasMany(WordRepetition::class);
     }
+
+    /** @return HasMany<TrainingReview, $this> */
+    public function trainingReviews(): HasMany
+    {
+        return $this->hasMany(TrainingReview::class);
+    }
 }

@@ -9,7 +9,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 
 class HardestWordsTableWidget extends TableWidget
 {
@@ -28,21 +28,21 @@ class HardestWordsTableWidget extends TableWidget
                 Word::query()
                     ->select('words.*')
                     ->selectSub(
-                        fn (Builder $q) => $q->from('training_reviews')
+                        fn (QueryBuilder $q) => $q->from('training_reviews')
                             ->selectRaw('COUNT(*)')
                             ->whereColumn('training_reviews.word_id', 'words.id')
                             ->where('training_reviews.created_at', '>=', $since),
                         'attempts',
                     )
                     ->selectSub(
-                        fn (Builder $q) => $q->from('training_reviews')
-                            ->selectRaw('SUM(CASE WHEN quality < 3 THEN 1 ELSE 0 END)::float / NULLIF(COUNT(*), 0)')
+                        fn (QueryBuilder $q) => $q->from('training_reviews')
+                            ->selectRaw('CAST(SUM(CASE WHEN quality < ? THEN ? ELSE ? END) AS FLOAT) / NULLIF(COUNT(*), 0)', [3, 1, 0])
                             ->whereColumn('training_reviews.word_id', 'words.id')
                             ->where('training_reviews.created_at', '>=', $since),
                         'hard_ratio',
                     )
-                    ->havingRaw('(SELECT COUNT(*) FROM training_reviews WHERE training_reviews.word_id = words.id AND training_reviews.created_at >= ?) >= 5', [$since])
-                    ->orderByDesc(DB::raw('hard_ratio'))
+                    ->whereHas('trainingReviews', fn (Builder $q): Builder => $q->where('created_at', '>=', $since), '>=', 5)
+                    ->orderByDesc('hard_ratio')
                     ->limit(10),
             )
             ->columns([
