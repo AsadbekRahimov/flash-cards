@@ -36,7 +36,7 @@ class HardestWordsTableWidget extends TableWidget
                     )
                     ->selectSub(
                         fn (QueryBuilder $q) => $q->from('training_reviews')
-                            ->selectRaw('CAST(SUM(CASE WHEN quality < ? THEN ? ELSE ? END) AS FLOAT) / NULLIF(COUNT(*), 0)', [3, 1, 0])
+                            ->selectRaw('CAST(SUM(CASE WHEN quality < ? THEN 1 ELSE 0 END) AS FLOAT) / NULLIF(COUNT(*), 0)', [3])
                             ->whereColumn('training_reviews.word_id', 'words.id')
                             ->where('training_reviews.created_at', '>=', $since),
                         'hard_ratio',
