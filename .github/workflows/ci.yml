@@ -165,4 +165,4 @@ jobs:
                   host: ${{ secrets.SSH_HOST }}
                   username: ${{ secrets.SSH_USER }}
                   password: ${{ secrets.SSH_PASSWORD }}
-                  script: cd /var/www/lexiflow && yes | bash ./deploy.sh
+                  script: cd /var/www/lexiflow && yes | bash /usr/local/bin/deploy.sh
