@@ -48,6 +48,9 @@ if [ "$SKIP_MIGRATE" -eq 0 ]; then
     $EXEC_APP php artisan migrate --force
 fi
 
+echo "==> Publishing Livewire browser assets"
+$EXEC_APP php artisan livewire:publish --assets --no-interaction
+
 echo "==> Caching config / routes / views"
 $EXEC_APP php artisan config:cache
 $EXEC_APP php artisan route:cache

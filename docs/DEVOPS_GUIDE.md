@@ -217,6 +217,13 @@ server {
         }
     }
 
+    # Livewire uses hash-prefixed Laravel routes such as
+    # /livewire-<hash>/livewire.min.js for Filament admin assets.
+    # This must be handled by Laravel, not by a generic static *.js location.
+    location ^~ /livewire- {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
     location / {
         try_files $uri $uri/ /index.php?$query_string;
     }
@@ -384,6 +391,7 @@ php artisan migrate --force
 cd resources/twa && npm ci && npm run build && cd ../..
 
 # Re-cache
+php artisan livewire:publish --assets --no-interaction
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
@@ -393,6 +401,20 @@ php artisan event:cache
 supervisorctl restart lexiflow-worker:*
 
 # Reload nginx
+nginx -t && systemctl reload nginx
+```
+
+If Filament login loads but the browser reports `404` for
+`/livewire-<hash>/livewire.min.js`, verify that the route exists and that
+Nginx forwards it to Laravel:
+
+```bash
+php artisan optimize:clear
+php artisan route:list --path=livewire
+php artisan livewire:publish --assets --no-interaction
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
 nginx -t && systemctl reload nginx
 ```
 
