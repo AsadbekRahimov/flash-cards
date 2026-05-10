@@ -64,6 +64,6 @@ it('uses telegram bot sdk when sending a WebApp button', function (): void {
         'chat_id' => -1001,
         'text' => 'Training started',
         'parse_mode' => 'HTML',
-        'reply_markup' => '{"inline_keyboard":[[{"text":"Open","web_app":{"url":"https:\/\/twa.test\/twa\/training\/123"}}]]}',
+        'reply_markup' => '{"inline_keyboard":[[{"text":"Open","web_app":{"url":"https://twa.test/twa/training/123"}}]]}',
     ]]);
 });

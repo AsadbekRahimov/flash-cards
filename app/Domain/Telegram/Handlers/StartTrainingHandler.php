@@ -8,6 +8,7 @@ use App\Domain\Learning\Exceptions\TrainingSessionException;
 use App\Domain\Learning\Services\TrainingSessionService;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Models\Lesson;
 use App\Models\TelegramGroup;
 use App\Models\TrainingSession;
 use App\Models\User;
@@ -18,12 +19,20 @@ use App\Models\User;
  * Flow:
  *   1. Reject if not in a group or the group is not `active`.
  *   2. Resolve the teacher by `from.id`; reject unless they teach this group.
- *   3. Parse `stage` and `lesson` (defaults: 1 1).
+ *   3a. If stage + lesson params given: open session and post WebApp button.
+ *   3b. If no params: show an inline keyboard listing available lessons
+ *       (up to 20). The callback is handled by StartTrainingCallbackHandler.
  *   4. Delegate to TrainingSessionService::open() (idempotent).
  *   5. Post a group message with a WebApp inline button pointing to the TWA SPA.
  */
 final class StartTrainingHandler implements UpdateHandler
 {
+    /** Max lessons shown in the picker keyboard. */
+    private const MAX_PICKER_ROWS = 20;
+
+    /** Callback data prefix shared with StartTrainingCallbackHandler. */
+    public const CALLBACK_PREFIX = 'tstart:';
+
     public function __construct(
         private readonly TelegramClient $telegram,
         private readonly TrainingSessionService $trainingService,
@@ -71,7 +80,15 @@ final class StartTrainingHandler implements UpdateHandler
             return;
         }
 
-        [$stageNumber, $lessonNumber] = $this->parseArgs($text);
+        $args = $this->parseArgs($text);
+
+        if ($args === null) {
+            $this->sendLessonPicker($chatId);
+
+            return;
+        }
+
+        [$stageNumber, $lessonNumber] = $args;
 
         try {
             $session = $this->trainingService->open($group, $stageNumber, $lessonNumber, $teacher);
@@ -85,9 +102,9 @@ final class StartTrainingHandler implements UpdateHandler
     }
 
     /**
-     * @return array{0:int,1:int}
+     * @return array{0:int,1:int}|null null when no arguments were provided
      */
-    private function parseArgs(string $text): array
+    private function parseArgs(string $text): ?array
     {
         if (preg_match('~^/start_training(?:@\w+)?\s+(\d+)\s+(\d+)~', $text, $m) === 1) {
             return [(int) $m[1], (int) $m[2]];
@@ -97,7 +114,39 @@ final class StartTrainingHandler implements UpdateHandler
             return [(int) $m[1], 1];
         }
 
-        return [1, 1];
+        return null;
+    }
+
+    private function sendLessonPicker(int $chatId): void
+    {
+        $lessons = Lesson::query()
+            ->with('stage')
+            ->orderBy('stage_id')
+            ->orderBy('number')
+            ->limit(self::MAX_PICKER_ROWS)
+            ->get();
+
+        if ($lessons->isEmpty()) {
+            $this->telegram->sendMessage($chatId, 'В системе пока нет уроков. Попросите администратора загрузить контент.');
+
+            return;
+        }
+
+        $rows = $lessons->map(function (Lesson $lesson): array {
+            $stageNum = $lesson->stage?->number ?? '?';
+            $lessonNum = $lesson->number;
+
+            return [[
+                'text' => "Stage {$stageNum} / Lesson {$lessonNum}",
+                'callback_data' => self::CALLBACK_PREFIX."{$stageNum}:{$lessonNum}",
+            ]];
+        })->values()->all();
+
+        $this->telegram->sendMessage(
+            chatId: $chatId,
+            text: 'Выберите урок для тренировки:',
+            replyMarkup: ['inline_keyboard' => $rows],
+        );
     }
 
     private function humanizeError(TrainingSessionException $e): string

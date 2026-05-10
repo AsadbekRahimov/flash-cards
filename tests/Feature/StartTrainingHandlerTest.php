@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Handlers\StartTrainingHandler;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Models\Lesson;
 use App\Models\Stage;
@@ -65,20 +66,56 @@ it('opens a training session and posts a WebApp button for the teacher', functio
         ->count())->toBe(1);
 });
 
-it('defaults to stage=1 lesson=1 when no arguments are provided', function (): void {
+it('sends a lesson picker when no arguments are provided', function (): void {
     $group = TelegramGroup::factory()->create(['chat_id' => -2002, 'status' => 'active']);
     $teacher = User::factory()->create(['telegram_user_id' => 888]);
     attachTeacher($teacher, $group);
     $stage = Stage::factory()->create(['number' => 1]);
     Lesson::factory()->for($stage)->create(['number' => 1]);
+    Lesson::factory()->for($stage)->create(['number' => 2]);
 
-    $this->api->shouldReceive('sendWebAppButton')->once();
+    $this->api->shouldReceive('sendMessage')
+        ->once()
+        ->withArgs(function (int $chatId, string $text, ?string $parseMode, ?array $replyMarkup): bool {
+            return $chatId === -2002
+                && str_contains($text, 'Выберите урок')
+                && is_array($replyMarkup['inline_keyboard'] ?? null)
+                && str_starts_with($replyMarkup['inline_keyboard'][0][0]['callback_data'], StartTrainingHandler::CALLBACK_PREFIX);
+        });
 
     app(TelegramDispatcher::class)->dispatch([
         'message' => [
             'chat' => ['id' => -2002, 'type' => 'supergroup'],
             'from' => ['id' => 888],
             'text' => '/start_training',
+        ],
+    ]);
+
+    expect(TrainingSession::query()->where('status', 'open')->count())->toBe(0);
+});
+
+it('opens a training session via callback when a lesson is chosen from the picker', function (): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => -2003, 'status' => 'active']);
+    $teacher = User::factory()->create(['telegram_user_id' => 888]);
+    attachTeacher($teacher, $group);
+    $stage = Stage::factory()->create(['number' => 1]);
+    Lesson::factory()->for($stage)->create(['number' => 1]);
+
+    $this->api->shouldReceive('answerCallbackQuery')->once()->with('cq-id-123');
+    $this->api->shouldReceive('sendWebAppButton')
+        ->once()
+        ->withArgs(function (int $chatId, string $text, string $buttonText, string $url): bool {
+            return $chatId === -2003
+                && str_contains($text, 'Stage 1')
+                && str_starts_with($url, 'https://twa.test/twa/training/');
+        });
+
+    app(TelegramDispatcher::class)->dispatch([
+        'callback_query' => [
+            'id' => 'cq-id-123',
+            'from' => ['id' => 888],
+            'data' => StartTrainingHandler::CALLBACK_PREFIX.'1:1',
+            'message' => ['chat' => ['id' => -2003, 'type' => 'supergroup']],
         ],
     ]);
 

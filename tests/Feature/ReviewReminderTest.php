@@ -115,6 +115,8 @@ it('sends a reminder message and writes notification log', function (): void {
             ];
         }
 
+        public function answerCallbackQuery(string $callbackQueryId): void {}
+
         public function setWebhook(string $url, string $secretHeader): bool
         {
             return true;
