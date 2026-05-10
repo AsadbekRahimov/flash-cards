@@ -231,18 +231,11 @@ public function __invoke(Request $request, string $secret)
 ### B.4 Формат сообщения с WebApp-кнопкой
 
 ```php
-// Пример на nutgram
-$bot->sendMessage(
-    chat_id: $group->chat_id,
+$telegram->sendWebAppButton(
+    chatId: $group->chat_id,
     text: "📚 Тренировка: Урок {$lesson->number}\nНажмите кнопку, чтобы начать.",
-    reply_markup: InlineKeyboardMarkup::make()->addRow(
-        InlineKeyboardButton::make(
-            text: '🎯 Открыть тренировку',
-            web_app: new WebAppInfo(
-                url: route('twa.training', ['session' => $session->id])
-            )
-        )
-    ),
+    buttonText: '🎯 Открыть тренировку',
+    url: "{$baseUrl}/twa/training/{$session->id}",
 );
 ```
 

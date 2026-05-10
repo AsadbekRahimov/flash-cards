@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Handlers;
 
+use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
-use App\Domain\Telegram\Services\TelegramApi;
 use App\Models\User;
 
 final class StartCommandHandler implements UpdateHandler
 {
-    public function __construct(private readonly TelegramApi $api) {}
+    public function __construct(private readonly TelegramClient $telegram) {}
 
     /** @param array<string, mixed> $update */
     public function matches(array $update): bool
@@ -43,7 +43,7 @@ final class StartCommandHandler implements UpdateHandler
         $user = User::where('telegram_user_id', $tgUserId)->first();
 
         if ($user === null) {
-            $this->api->sendMessage(
+            $this->telegram->sendMessage(
                 $chatId,
                 "Этот Telegram-аккаунт не привязан к учителю в LexiFlow. Попросите админа прописать ваш Telegram ID: {$tgUserId}.",
             );
@@ -53,7 +53,7 @@ final class StartCommandHandler implements UpdateHandler
 
         $user->update(['last_login_at' => now()]);
 
-        $this->api->sendMessage(
+        $this->telegram->sendMessage(
             $chatId,
             "Привет, {$user->name}! Вы авторизованы как учитель LexiFlow. Команды в группе: /help",
         );

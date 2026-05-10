@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Learning\Services\LeaderboardBuilder;
-use App\Domain\Telegram\Services\TelegramApi;
+use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Jobs\PostLeaderboardJob;
 use App\Models\ExamAnswer;
@@ -22,9 +22,9 @@ use Illuminate\Support\Facades\DB;
 uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
-    $this->api = Mockery::mock(TelegramApi::class);
+    $this->api = Mockery::mock(TelegramClient::class);
     $this->api->shouldReceive('sendMessage')->zeroOrMoreTimes();
-    $this->app->instance(TelegramApi::class, $this->api);
+    $this->app->instance(TelegramClient::class, $this->api);
 });
 
 function seedOpenExam(int $chatId, int $teacherTgId): array

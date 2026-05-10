@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Domain\Telegram\Services\TelegramApi;
+use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Models\ExamSession;
 use App\Models\Lesson;
@@ -18,8 +18,8 @@ uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     Config::set('twa.base_url', 'https://twa.test');
-    $this->api = Mockery::mock(TelegramApi::class);
-    $this->app->instance(TelegramApi::class, $this->api);
+    $this->api = Mockery::mock(TelegramClient::class);
+    $this->app->instance(TelegramClient::class, $this->api);
 });
 
 function attachExamTeacher(User $user, TelegramGroup $group): void
@@ -54,15 +54,14 @@ function seedLessonWithWords(int $chatId = -1001, int $telegramUserId = 777): ar
 it('opens an exam session via /start_exam and posts WebApp button', function (): void {
     seedLessonWithWords();
 
-    $this->api->shouldReceive('sendMessage')
+    $this->api->shouldReceive('sendWebAppButton')
         ->once()
-        ->withArgs(function (int $chatId, string $text, ?string $parseMode, ?array $markup): bool {
-            $button = $markup['inline_keyboard'][0][0] ?? null;
-
+        ->withArgs(function (int $chatId, string $text, string $buttonText, string $url, ?string $parseMode): bool {
             return $chatId === -1001
                 && str_contains($text, 'Экзамен запущен')
-                && $button !== null
-                && str_starts_with($button['web_app']['url'], 'https://twa.test/twa/exam/');
+                && $buttonText === '🏁 Открыть экзамен'
+                && str_starts_with($url, 'https://twa.test/twa/exam/')
+                && $parseMode === 'HTML';
         });
 
     app(TelegramDispatcher::class)->dispatch([
@@ -86,7 +85,7 @@ it('opens an exam session via /start_exam and posts WebApp button', function ():
 
 it('defaults to stage=1 lesson=1 minutes=2 when no arguments', function (): void {
     seedLessonWithWords();
-    $this->api->shouldReceive('sendMessage')->once();
+    $this->api->shouldReceive('sendWebAppButton')->once();
 
     app(TelegramDispatcher::class)->dispatch([
         'message' => [
@@ -101,7 +100,7 @@ it('defaults to stage=1 lesson=1 minutes=2 when no arguments', function (): void
 
 it('rejects second /start_exam while one is already open', function (): void {
     seedLessonWithWords();
-    $this->api->shouldReceive('sendMessage')->once();                      // 1st call ok
+    $this->api->shouldReceive('sendWebAppButton')->once();                 // 1st call ok
     $this->api->shouldReceive('sendMessage')->once()                       // 2nd call: error
         ->with(-1001, Mockery::pattern('/уже идёт/u'));
 

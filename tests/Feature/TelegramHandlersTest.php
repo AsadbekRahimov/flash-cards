@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Domain\Telegram\Services\TelegramApi;
+use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Models\Student;
 use App\Models\TelegramGroup;
@@ -14,8 +14,8 @@ use Illuminate\Support\Facades\DB;
 uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
-    $this->api = Mockery::mock(TelegramApi::class);
-    $this->app->instance(TelegramApi::class, $this->api);
+    $this->api = Mockery::mock(TelegramClient::class);
+    $this->app->instance(TelegramClient::class, $this->api);
 });
 
 it('creates a pending TelegramGroup on my_chat_member into a group', function (): void {
@@ -123,12 +123,10 @@ it('sends a seven-day stats report to a teacher in DM', function (): void {
         'created_at' => now()->subDays(2),
     ]);
 
-    $api = new class extends TelegramApi
+    $api = new class implements TelegramClient
     {
         /** @var list<array{chat_id:int|string,text:string}> */
         public array $messages = [];
-
-        public function __construct() {}
 
         /** @param array<string, mixed>|null $replyMarkup */
         public function sendMessage(
@@ -139,9 +137,29 @@ it('sends a seven-day stats report to a teacher in DM', function (): void {
         ): void {
             $this->messages[] = ['chat_id' => $chatId, 'text' => $text];
         }
+
+        public function sendWebAppButton(
+            int|string $chatId,
+            string $text,
+            string $buttonText,
+            string $url,
+            ?string $parseMode = null,
+        ): void {
+            $this->messages[] = ['chat_id' => $chatId, 'text' => $text];
+        }
+
+        public function setWebhook(string $url, string $secretHeader): bool
+        {
+            return true;
+        }
+
+        public function deleteWebhook(): bool
+        {
+            return true;
+        }
     };
 
-    app()->instance(TelegramApi::class, $api);
+    app()->instance(TelegramClient::class, $api);
 
     app(TelegramDispatcher::class)->dispatch([
         'message' => [

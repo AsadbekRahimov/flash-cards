@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Handlers;
 
+use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
 use App\Domain\Telegram\Services\TeacherStatsReporter;
-use App\Domain\Telegram\Services\TelegramApi;
 use App\Models\User;
 
 final class StatsCommandHandler implements UpdateHandler
 {
     public function __construct(
-        private readonly TelegramApi $api,
+        private readonly TelegramClient $telegram,
         private readonly TeacherStatsReporter $reporter,
     ) {}
 
@@ -50,7 +50,7 @@ final class StatsCommandHandler implements UpdateHandler
             ->first();
 
         if ($teacher === null) {
-            $this->api->sendMessage(
+            $this->telegram->sendMessage(
                 $chatId,
                 "Этот Telegram-аккаунт не привязан к учителю LexiFlow.\nВаш Telegram ID: {$fromId}",
             );
@@ -58,6 +58,6 @@ final class StatsCommandHandler implements UpdateHandler
             return;
         }
 
-        $this->api->sendMessage($chatId, $this->reporter->build($teacher));
+        $this->telegram->sendMessage($chatId, $this->reporter->build($teacher));
     }
 }

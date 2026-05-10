@@ -6,8 +6,8 @@ namespace App\Domain\Telegram\Handlers;
 
 use App\Domain\Learning\Exceptions\ExamSessionException;
 use App\Domain\Learning\Services\ExamSessionService;
+use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
-use App\Domain\Telegram\Services\TelegramApi;
 use App\Models\ExamSession;
 use App\Models\TelegramGroup;
 use App\Models\User;
@@ -20,7 +20,7 @@ use App\Models\User;
 final class StartExamHandler implements UpdateHandler
 {
     public function __construct(
-        private readonly TelegramApi $api,
+        private readonly TelegramClient $telegram,
         private readonly ExamSessionService $exams,
     ) {}
 
@@ -61,7 +61,7 @@ final class StartExamHandler implements UpdateHandler
         /** @var User|null $teacher */
         $teacher = User::query()->where('telegram_user_id', $fromId)->first();
         if ($teacher === null) {
-            $this->api->sendMessage($chatId, 'Ваш Telegram-аккаунт не привязан к учителю.');
+            $this->telegram->sendMessage($chatId, 'Ваш Telegram-аккаунт не привязан к учителю.');
 
             return;
         }
@@ -71,7 +71,7 @@ final class StartExamHandler implements UpdateHandler
         try {
             $session = $this->exams->open($group, $stage, $lesson, $minutes, $teacher);
         } catch (ExamSessionException $e) {
-            $this->api->sendMessage($chatId, $this->humanizeError($e));
+            $this->telegram->sendMessage($chatId, $this->humanizeError($e));
 
             return;
         }
@@ -121,18 +121,12 @@ final class StartExamHandler implements UpdateHandler
         $base = rtrim((string) config('twa.base_url'), '/');
         $url = "{$base}/twa/exam/{$session->id}";
 
-        $this->api->sendMessage(
-            $chatId,
-            "🏁 <b>Экзамен запущен!</b>\nStage {$stage} · Lesson {$lesson} · <b>{$minutes} мин</b>\nНажмите кнопку, чтобы присоединиться.",
+        $this->telegram->sendWebAppButton(
+            chatId: $chatId,
+            text: "🏁 <b>Экзамен запущен!</b>\nStage {$stage} · Lesson {$lesson} · <b>{$minutes} мин</b>\nНажмите кнопку, чтобы присоединиться.",
+            buttonText: '🏁 Открыть экзамен',
+            url: $url,
             parseMode: 'HTML',
-            replyMarkup: [
-                'inline_keyboard' => [[
-                    [
-                        'text' => '🏁 Открыть экзамен',
-                        'web_app' => ['url' => $url],
-                    ],
-                ]],
-            ],
         );
     }
 }
