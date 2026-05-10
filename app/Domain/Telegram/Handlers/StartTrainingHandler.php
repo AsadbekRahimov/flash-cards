@@ -133,7 +133,7 @@ final class StartTrainingHandler implements UpdateHandler
         }
 
         $rows = $lessons->map(function (Lesson $lesson): array {
-            $stageNum = $lesson->stage?->number ?? '?';
+            $stageNum = $lesson->stage->number ?? '?';
             $lessonNum = $lesson->number;
 
             return [[
