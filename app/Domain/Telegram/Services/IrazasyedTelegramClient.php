@@ -33,7 +33,7 @@ class IrazasyedTelegramClient implements TelegramClient
         }
 
         if ($replyMarkup !== null) {
-            $params['reply_markup'] = json_encode($replyMarkup, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+            $params['reply_markup'] = json_encode($replyMarkup, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
         }
 
         $this->api->sendMessage($params);
@@ -54,17 +54,22 @@ class IrazasyedTelegramClient implements TelegramClient
         );
     }
 
+    public function answerCallbackQuery(string $callbackQueryId): void
+    {
+        $this->api->answerCallbackQuery(['callback_query_id' => $callbackQueryId]);
+    }
+
     public function setWebhook(string $url, string $secretHeader): bool
     {
         return (bool) $this->api->setWebhook([
             'url' => $url,
             'secret_token' => $secretHeader,
-            'allowed_updates' => ['message', 'my_chat_member', 'chat_member'],
+            'allowed_updates' => ['message', 'my_chat_member', 'chat_member', 'callback_query'],
         ]);
     }
 
     public function deleteWebhook(): bool
     {
-        return (bool) $this->api->removeWebhook();
+        return (bool) $this->api->deleteWebhook();
     }
 }

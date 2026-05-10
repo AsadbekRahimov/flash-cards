@@ -24,6 +24,8 @@ interface TelegramClient
         ?string $parseMode = null,
     ): void;
 
+    public function answerCallbackQuery(string $callbackQueryId): void;
+
     public function setWebhook(string $url, string $secretHeader): bool;
 
     public function deleteWebhook(): bool;

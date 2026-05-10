@@ -148,6 +148,8 @@ it('sends a seven-day stats report to a teacher in DM', function (): void {
             $this->messages[] = ['chat_id' => $chatId, 'text' => $text];
         }
 
+        public function answerCallbackQuery(string $callbackQueryId): void {}
+
         public function setWebhook(string $url, string $secretHeader): bool
         {
             return true;

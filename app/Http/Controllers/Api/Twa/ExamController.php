@@ -10,6 +10,7 @@ use App\Models\ExamAnswer;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
 use App\Models\Student;
+use App\Models\WordRepetition;
 use App\Policies\ExamSessionPolicy;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
@@ -112,7 +113,12 @@ final class ExamController
             && isset($options[$selectedIndex])
             && (int) $selectedIndex === (int) $q['correct_index'];
 
-        $score = $this->computeScore($isCorrect, (int) $validated['time_spent_ms'], $session);
+        $isHard = (bool) WordRepetition::query()
+            ->where('student_id', $student->id)
+            ->where('word_id', $validated['word_id'])
+            ->value('is_hard');
+
+        $score = $this->computeScore($isCorrect, (int) $validated['time_spent_ms'], $session, $isHard);
 
         ExamAnswer::query()->create([
             'exam_session_id' => $session->id,
@@ -182,7 +188,7 @@ final class ExamController
         ]);
     }
 
-    private function computeScore(bool $isCorrect, int $timeSpentMs, ExamSession $session): int
+    private function computeScore(bool $isCorrect, int $timeSpentMs, ExamSession $session, bool $isHard = false): int
     {
         if (! $isCorrect) {
             return 0;
@@ -193,7 +199,10 @@ final class ExamController
         $remaining = max(0.0, 1.0 - ($timeSpentMs / max(1, $totalMs)));
 
         // Minimum 5 points for a correct answer even if time ran out.
-        return max(5, (int) round(self::MAX_POINTS_PER_QUESTION * (0.25 + 0.75 * $remaining)));
+        $base = max(5, (int) round(self::MAX_POINTS_PER_QUESTION * (0.25 + 0.75 * $remaining)));
+
+        // PRD FR-TWA-03: hard words reward 1.5× to incentivise reviewing difficult vocabulary.
+        return $isHard ? (int) round($base * 1.5) : $base;
     }
 
     private function questionSecondsLeft(ExamSession $session): int
