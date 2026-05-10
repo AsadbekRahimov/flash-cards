@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 use App\Domain\Learning\Services\LeaderboardBuilder;
-use App\Domain\Telegram\Services\TelegramApi;
+use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
 use Illuminate\Bus\Queueable;
@@ -34,7 +34,7 @@ final class PostLeaderboardJob implements ShouldQueue
 
     public function __construct(public readonly int $examSessionId) {}
 
-    public function handle(TelegramApi $api, LeaderboardBuilder $builder): void
+    public function handle(TelegramClient $telegram, LeaderboardBuilder $builder): void
     {
         /** @var ExamSession|null $session */
         $session = ExamSession::query()
@@ -60,7 +60,7 @@ final class PostLeaderboardJob implements ShouldQueue
         $text = $this->format($session, $results);
 
         try {
-            $api->sendMessage($session->group->chat_id, $text, parseMode: 'HTML');
+            $telegram->sendMessage($session->group->chat_id, $text, parseMode: 'HTML');
         } catch (\Throwable $e) {
             Log::channel('daily')->warning('telegram.leaderboard_post_failed', [
                 'exam_session_id' => $session->id,

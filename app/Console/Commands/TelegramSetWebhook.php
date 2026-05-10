@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use App\Domain\Telegram\Services\TelegramApi;
+use App\Domain\Telegram\Contracts\TelegramClient;
 use Illuminate\Console\Command;
 
 class TelegramSetWebhook extends Command
@@ -13,10 +13,10 @@ class TelegramSetWebhook extends Command
 
     protected $description = 'Register or remove the Telegram webhook URL';
 
-    public function handle(TelegramApi $api): int
+    public function handle(TelegramClient $telegram): int
     {
         if ($this->option('delete')) {
-            $ok = $api->deleteWebhook();
+            $ok = $telegram->deleteWebhook();
             $this->info($ok ? 'Webhook removed.' : 'Failed to remove webhook.');
 
             return $ok ? self::SUCCESS : self::FAILURE;
@@ -34,7 +34,7 @@ class TelegramSetWebhook extends Command
 
         $fullUrl = "{$baseUrl}/telegram/webhook/{$urlSecret}";
 
-        $ok = $api->setWebhook($fullUrl, $headerSecret);
+        $ok = $telegram->setWebhook($fullUrl, $headerSecret);
 
         if ($ok) {
             $this->info('Webhook set: '.$fullUrl);

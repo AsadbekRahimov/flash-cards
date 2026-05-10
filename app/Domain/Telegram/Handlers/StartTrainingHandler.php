@@ -6,8 +6,8 @@ namespace App\Domain\Telegram\Handlers;
 
 use App\Domain\Learning\Exceptions\TrainingSessionException;
 use App\Domain\Learning\Services\TrainingSessionService;
+use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
-use App\Domain\Telegram\Services\TelegramApi;
 use App\Models\TelegramGroup;
 use App\Models\TrainingSession;
 use App\Models\User;
@@ -25,7 +25,7 @@ use App\Models\User;
 final class StartTrainingHandler implements UpdateHandler
 {
     public function __construct(
-        private readonly TelegramApi $api,
+        private readonly TelegramClient $telegram,
         private readonly TrainingSessionService $trainingService,
     ) {}
 
@@ -66,7 +66,7 @@ final class StartTrainingHandler implements UpdateHandler
         /** @var User|null $teacher */
         $teacher = User::query()->where('telegram_user_id', $fromId)->first();
         if ($teacher === null) {
-            $this->api->sendMessage($chatId, 'Ваш Telegram-аккаунт не привязан к учителю. Попросите админа добавить вас.');
+            $this->telegram->sendMessage($chatId, 'Ваш Telegram-аккаунт не привязан к учителю. Попросите админа добавить вас.');
 
             return;
         }
@@ -76,7 +76,7 @@ final class StartTrainingHandler implements UpdateHandler
         try {
             $session = $this->trainingService->open($group, $stageNumber, $lessonNumber, $teacher);
         } catch (TrainingSessionException $e) {
-            $this->api->sendMessage($chatId, $this->humanizeError($e));
+            $this->telegram->sendMessage($chatId, $this->humanizeError($e));
 
             return;
         }
@@ -116,17 +116,11 @@ final class StartTrainingHandler implements UpdateHandler
         $base = rtrim((string) config('twa.base_url'), '/');
         $url = "{$base}/twa/training/{$session->id}";
 
-        $this->api->sendMessage(
-            $chatId,
-            "📚 Тренировка Stage {$stage} / Lesson {$lesson} запущена! Нажмите кнопку, чтобы начать.",
-            replyMarkup: [
-                'inline_keyboard' => [[
-                    [
-                        'text' => '🎯 Открыть тренировку',
-                        'web_app' => ['url' => $url],
-                    ],
-                ]],
-            ],
+        $this->telegram->sendWebAppButton(
+            chatId: $chatId,
+            text: "📚 Тренировка Stage {$stage} / Lesson {$lesson} запущена! Нажмите кнопку, чтобы начать.",
+            buttonText: '🎯 Открыть тренировку',
+            url: $url,
         );
     }
 }

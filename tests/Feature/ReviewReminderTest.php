@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Learning\Services\ReviewReminderLinkBuilder;
 use App\Domain\Learning\Services\ReviewReminderService;
-use App\Domain\Telegram\Services\TelegramApi;
+use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Jobs\SendReviewReminderJob;
 use App\Models\Lesson;
 use App\Models\NotificationLog;
@@ -76,12 +76,10 @@ it('sends a reminder message and writes notification log', function (): void {
         'word_id' => $word->id,
     ]);
 
-    $api = new class extends TelegramApi
+    $api = new class implements TelegramClient
     {
-        /** @var list<array{chat_id:int|string,text:string,parse_mode:string|null,reply_markup:array<string, mixed>|null}> */
+        /** @var list<array{chat_id:int|string,text:string,parse_mode:string|null,button_text:string|null,url:string|null,reply_markup:array<string, mixed>|null}> */
         public array $messages = [];
-
-        public function __construct() {}
 
         /** @param array<string, mixed>|null $replyMarkup */
         public function sendMessage(
@@ -94,8 +92,37 @@ it('sends a reminder message and writes notification log', function (): void {
                 'chat_id' => $chatId,
                 'text' => $text,
                 'parse_mode' => $parseMode,
+                'button_text' => null,
+                'url' => null,
                 'reply_markup' => $replyMarkup,
             ];
+        }
+
+        public function sendWebAppButton(
+            int|string $chatId,
+            string $text,
+            string $buttonText,
+            string $url,
+            ?string $parseMode = null,
+        ): void {
+            $this->messages[] = [
+                'chat_id' => $chatId,
+                'text' => $text,
+                'parse_mode' => $parseMode,
+                'button_text' => $buttonText,
+                'url' => $url,
+                'reply_markup' => null,
+            ];
+        }
+
+        public function setWebhook(string $url, string $secretHeader): bool
+        {
+            return true;
+        }
+
+        public function deleteWebhook(): bool
+        {
+            return true;
         }
     };
 
@@ -103,15 +130,12 @@ it('sends a reminder message and writes notification log', function (): void {
 
     expect($api->messages)->toHaveCount(1);
     $message = $api->messages[0];
-    $replyMarkup = $message['reply_markup'];
-    if ($replyMarkup === null) {
-        throw new RuntimeException('Expected reminder reply markup.');
-    }
 
     expect($message['chat_id'])->toBe(777001);
     expect($message['text'])->toContain('5 слов');
     $session = TrainingSession::query()->firstOrFail();
-    expect($replyMarkup['inline_keyboard'][0][0]['web_app']['url'])->toBe("https://twa.test/twa/training/{$session->id}");
+    expect($message['button_text'])->toBe('Открыть LexiFlow');
+    expect($message['url'])->toBe("https://twa.test/twa/training/{$session->id}");
 
     expect(NotificationLog::query()
         ->where('student_id', $student->id)

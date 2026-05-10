@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Handlers;
 
+use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
-use App\Domain\Telegram\Services\TelegramApi;
 
 final class HelpCommandHandler implements UpdateHandler
 {
-    public function __construct(private readonly TelegramApi $api) {}
+    public function __construct(private readonly TelegramClient $telegram) {}
 
     /** @param array<string, mixed> $update */
     public function matches(array $update): bool
@@ -39,6 +39,6 @@ final class HelpCommandHandler implements UpdateHandler
               "/stats — личный отчёт в чате с ботом\n".
               '/help — эта справка';
 
-        $this->api->sendMessage($chatId, $text);
+        $this->telegram->sendMessage($chatId, $text);
     }
 }

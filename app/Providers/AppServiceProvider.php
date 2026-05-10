@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Services\IrazasyedTelegramClient;
+use App\Domain\Telegram\Services\TelegramKeyboardFactory;
 use App\Domain\Twa\Services\InitDataValidator;
 use App\Domain\Twa\Services\JwtService;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -11,11 +14,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Telegram\Bot\Api;
 
 class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $this->app->singleton(TelegramClient::class, function (): TelegramClient {
+            return new IrazasyedTelegramClient(
+                new Api((string) config('telegram.bot_token')),
+                $this->app->make(TelegramKeyboardFactory::class),
+            );
+        });
+
         $this->app->singleton(InitDataValidator::class, function (): InitDataValidator {
             return new InitDataValidator((string) config('telegram.bot_token'));
         });

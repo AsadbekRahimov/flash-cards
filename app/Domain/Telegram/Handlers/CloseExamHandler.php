@@ -7,8 +7,8 @@ namespace App\Domain\Telegram\Handlers;
 use App\Domain\Learning\Exceptions\ExamSessionException;
 use App\Domain\Learning\Services\ExamSessionService;
 use App\Domain\Learning\Services\LeaderboardBuilder;
+use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
-use App\Domain\Telegram\Services\TelegramApi;
 use App\Jobs\PostLeaderboardJob;
 use App\Models\TelegramGroup;
 use App\Models\User;
@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\DB;
 final class CloseExamHandler implements UpdateHandler
 {
     public function __construct(
-        private readonly TelegramApi $api,
+        private readonly TelegramClient $telegram,
         private readonly ExamSessionService $exams,
         private readonly LeaderboardBuilder $leaderboard,
     ) {}
@@ -62,7 +62,7 @@ final class CloseExamHandler implements UpdateHandler
         /** @var User|null $teacher */
         $teacher = User::query()->where('telegram_user_id', $fromId)->first();
         if ($teacher === null) {
-            $this->api->sendMessage($chatId, 'Ваш Telegram-аккаунт не привязан к учителю.');
+            $this->telegram->sendMessage($chatId, 'Ваш Telegram-аккаунт не привязан к учителю.');
 
             return;
         }
@@ -73,7 +73,7 @@ final class CloseExamHandler implements UpdateHandler
             ->exists();
 
         if (! $teaches) {
-            $this->api->sendMessage($chatId, 'Только учитель этой группы может закрыть экзамен.');
+            $this->telegram->sendMessage($chatId, 'Только учитель этой группы может закрыть экзамен.');
 
             return;
         }
@@ -81,7 +81,7 @@ final class CloseExamHandler implements UpdateHandler
         try {
             $session = $this->exams->closeOpenForGroup($group);
         } catch (ExamSessionException $e) {
-            $this->api->sendMessage(
+            $this->telegram->sendMessage(
                 $chatId,
                 $e->reason === ExamSessionException::REASON_NO_OPEN_EXAM
                     ? 'Сейчас в группе нет открытого экзамена.'

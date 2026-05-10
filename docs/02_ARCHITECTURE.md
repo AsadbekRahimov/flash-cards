@@ -89,11 +89,14 @@ flowchart LR
   - `analytics:refresh-materialized-views` — ночью.
 
 ### 2.6 Telegram Bot SDK
-Рекомендация: **nutgram/nutgram** — современный, FastRoute-подобный роутинг, хорошая работа с middleware.
+Текущая реализация использует `irazasyed/telegram-bot-sdk` как транспортный адаптер для Telegram Bot API.
 
-Альтернативы:
-- `irazasyed/telegram-bot-sdk` — стабильный, но старше по стилю.
-- `defstudio/telegraph` — Laravel-native, хорошая интеграция с моделями.
+Правило поддержки: бизнес-логика бота не зависит напрямую от vendor SDK. Domain handlers (`app/Domain/Telegram/Handlers`) работают с контрактом `App\Domain\Telegram\Contracts\TelegramClient`; реализация `IrazasyedTelegramClient` инкапсулирует `Telegram\Bot\Api`, форматирование `reply_markup` и вызовы `sendMessage` / `setWebhook`.
+
+Зачем так:
+- SDK реально используется для общения с Telegram.
+- Хендлеры остаются простыми, тестируемыми и не знают деталей vendor API.
+- Если позже понадобится перейти на `nutgram/nutgram` или `defstudio/telegraph`, меняется adapter, а не вся бизнес-логика.
 
 ### 2.7 TWA Frontend
 - **Vue 3** + Composition API + Pinia (state) + Vite.

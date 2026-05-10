@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Domain\Telegram\Services\TelegramApi;
+use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Models\Lesson;
 use App\Models\Stage;
@@ -17,8 +17,8 @@ uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     Config::set('twa.base_url', 'https://twa.test');
-    $this->api = Mockery::mock(TelegramApi::class);
-    $this->app->instance(TelegramApi::class, $this->api);
+    $this->api = Mockery::mock(TelegramClient::class);
+    $this->app->instance(TelegramClient::class, $this->api);
 });
 
 function attachTeacher(User $user, TelegramGroup $group): void
@@ -40,15 +40,14 @@ it('opens a training session and posts a WebApp button for the teacher', functio
     $stage = Stage::factory()->create(['number' => 1]);
     $lesson = Lesson::factory()->for($stage)->create(['number' => 1]);
 
-    $this->api->shouldReceive('sendMessage')
+    $this->api->shouldReceive('sendWebAppButton')
         ->once()
-        ->withArgs(function (int $chatId, string $text, ?string $parseMode, ?array $markup): bool {
-            $button = $markup['inline_keyboard'][0][0] ?? null;
-
+        ->withArgs(function (int $chatId, string $text, string $buttonText, string $url, ?string $parseMode = null): bool {
             return $chatId === -1001
                 && str_contains($text, 'Stage 1')
-                && $button !== null
-                && str_starts_with($button['web_app']['url'], 'https://twa.test/twa/training/');
+                && $buttonText === '🎯 Открыть тренировку'
+                && str_starts_with($url, 'https://twa.test/twa/training/')
+                && $parseMode === null;
         });
 
     app(TelegramDispatcher::class)->dispatch([
@@ -73,7 +72,7 @@ it('defaults to stage=1 lesson=1 when no arguments are provided', function (): v
     $stage = Stage::factory()->create(['number' => 1]);
     Lesson::factory()->for($stage)->create(['number' => 1]);
 
-    $this->api->shouldReceive('sendMessage')->once();
+    $this->api->shouldReceive('sendWebAppButton')->once();
 
     app(TelegramDispatcher::class)->dispatch([
         'message' => [
@@ -93,7 +92,7 @@ it('is idempotent: second invocation reuses the open session', function (): void
     $stage = Stage::factory()->create(['number' => 2]);
     Lesson::factory()->for($stage)->create(['number' => 3]);
 
-    $this->api->shouldReceive('sendMessage')->twice();
+    $this->api->shouldReceive('sendWebAppButton')->twice();
 
     for ($i = 0; $i < 2; $i++) {
         app(TelegramDispatcher::class)->dispatch([

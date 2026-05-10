@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 use App\Domain\Learning\Services\ReviewReminderLinkBuilder;
-use App\Domain\Telegram\Services\TelegramApi;
+use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Models\NotificationLog;
 use App\Models\Student;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -20,7 +20,7 @@ final class SendReviewReminderJob implements ShouldQueue
         public readonly int $dueCount,
     ) {}
 
-    public function handle(TelegramApi $api, ReviewReminderLinkBuilder $links): void
+    public function handle(TelegramClient $telegram, ReviewReminderLinkBuilder $links): void
     {
         /** @var Student|null $student */
         $student = Student::query()
@@ -43,17 +43,11 @@ final class SendReviewReminderJob implements ShouldQueue
 
         $url = $links->buildTrainingUrl($student);
 
-        $api->sendMessage(
-            $student->telegram_user_id,
-            "Пора повторить {$this->dueCount} слов в LexiFlow.",
-            replyMarkup: [
-                'inline_keyboard' => [[
-                    [
-                        'text' => 'Открыть LexiFlow',
-                        'web_app' => ['url' => $url],
-                    ],
-                ]],
-            ],
+        $telegram->sendWebAppButton(
+            chatId: $student->telegram_user_id,
+            text: "Пора повторить {$this->dueCount} слов в LexiFlow.",
+            buttonText: 'Открыть LexiFlow',
+            url: $url,
         );
 
         NotificationLog::query()->create([
