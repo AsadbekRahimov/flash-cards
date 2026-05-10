@@ -102,7 +102,7 @@ final class StartTrainingHandler implements UpdateHandler
     }
 
     /**
-     * @return array{0:int,1:int}|null  null when no arguments were provided
+     * @return array{0:int,1:int}|null null when no arguments were provided
      */
     private function parseArgs(string $text): ?array
     {
