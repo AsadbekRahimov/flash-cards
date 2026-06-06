@@ -143,6 +143,32 @@ it('opens a training session via callback when a lesson is chosen from the picke
     expect(TrainingSession::query()->where('status', 'open')->count())->toBe(1);
 });
 
+it('acknowledges a stale picker callback in a non-active group but sends nothing', function (): void {
+    // The group was disabled after the picker keyboard was posted; tapping the
+    // stale button must dismiss the spinner (answerCallbackQuery) without any
+    // chat message, so the Group Lock stays silent but the UI does not hang.
+    $group = TelegramGroup::factory()->pending()->create(['chat_id' => -2004]);
+    $teacher = User::factory()->create(['telegram_user_id' => 890]);
+    attachTeacher($teacher, $group);
+    $stage = Stage::factory()->create(['number' => 1]);
+    Lesson::factory()->for($stage)->create(['number' => 1]);
+
+    $this->api->shouldReceive('answerCallbackQuery')->once()->with('cq-stale-1');
+    $this->api->shouldReceive('sendMessage')->never();
+    $this->api->shouldReceive('sendWebAppButton')->never();
+
+    app(TelegramDispatcher::class)->dispatch([
+        'callback_query' => [
+            'id' => 'cq-stale-1',
+            'from' => ['id' => 890],
+            'data' => StartTrainingHandler::CALLBACK_PREFIX.'1:1',
+            'message' => ['chat' => ['id' => -2004, 'type' => 'supergroup']],
+        ],
+    ]);
+
+    expect(TrainingSession::query()->where('status', 'open')->count())->toBe(0);
+});
+
 it('is idempotent: second invocation reuses the open session', function (): void {
     $group = TelegramGroup::factory()->create(['chat_id' => -3003, 'status' => 'active']);
     $teacher = User::factory()->create(['telegram_user_id' => 999]);

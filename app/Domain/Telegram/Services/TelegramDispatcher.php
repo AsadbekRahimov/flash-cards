@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Services;
 
+use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\CloseExamHandler;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
 use App\Domain\Telegram\Handlers\HelpCommandHandler;
@@ -25,6 +26,7 @@ final class TelegramDispatcher
     private array $callbackHandlers;
 
     public function __construct(
+        private readonly TelegramClient $telegram,
         StartCommandHandler $start,
         StartTrainingHandler $startTraining,
         StartTrainingCallbackHandler $startTrainingCallback,
@@ -72,12 +74,27 @@ final class TelegramDispatcher
                 && $this->isFromGroupChat($update)
                 && ! $this->isActiveGroup($update)
             ) {
+                // No chat message is sent (the group stays silent), but a tapped
+                // inline button must still be acknowledged so the user's client
+                // dismisses its loading spinner instead of hanging until timeout.
+                $this->acknowledgeCallback($update);
+
                 return;
             }
 
             $handler->handle($update);
 
             return;
+        }
+    }
+
+    /** @param array<string, mixed> $update */
+    private function acknowledgeCallback(array $update): void
+    {
+        $callbackQueryId = (string) ($update['callback_query']['id'] ?? '');
+
+        if ($callbackQueryId !== '') {
+            $this->telegram->answerCallbackQuery($callbackQueryId);
         }
     }
 
