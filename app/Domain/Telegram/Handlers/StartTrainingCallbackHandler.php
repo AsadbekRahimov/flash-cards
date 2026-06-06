@@ -33,6 +33,11 @@ final class StartTrainingCallbackHandler implements UpdateHandler
         return str_starts_with($data, StartTrainingHandler::CALLBACK_PREFIX);
     }
 
+    public function requiresActiveGroup(): bool
+    {
+        return true;
+    }
+
     /** @param array<string, mixed> $update */
     public function handle(array $update): void
     {

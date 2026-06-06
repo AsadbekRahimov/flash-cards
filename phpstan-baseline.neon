@@ -273,7 +273,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property Pest\\PendingCalls\\TestCall\:\:\$api\.$#'
 			identifier: property.notFound
-			count: 10
+			count: 16
 			path: tests/Feature/StartTrainingHandlerTest.php
 
 		-
@@ -285,7 +285,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property Pest\\PendingCalls\\TestCall\:\:\$api\.$#'
 			identifier: property.notFound
-			count: 4
+			count: 6
 			path: tests/Feature/TelegramHandlersTest.php
 
 		-

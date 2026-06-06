@@ -19,6 +19,13 @@ final class HelpCommandHandler implements UpdateHandler
         return str_starts_with($text, '/help');
     }
 
+    // Group Lock is enforced centrally by the dispatcher: /help only answers in
+    // active groups, but private chats bypass the check (see dispatcher).
+    public function requiresActiveGroup(): bool
+    {
+        return true;
+    }
+
     /** @param array<string, mixed> $update */
     public function handle(array $update): void
     {

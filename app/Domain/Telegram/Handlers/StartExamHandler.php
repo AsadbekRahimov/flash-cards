@@ -39,6 +39,11 @@ final class StartExamHandler implements UpdateHandler
             && preg_match('~^/start_exam(?:@\w+)?(\s|$)~', $text) === 1;
     }
 
+    public function requiresActiveGroup(): bool
+    {
+        return true;
+    }
+
     /** @param array<string, mixed> $update */
     public function handle(array $update): void
     {

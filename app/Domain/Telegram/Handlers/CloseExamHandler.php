@@ -41,6 +41,11 @@ final class CloseExamHandler implements UpdateHandler
             && preg_match('~^/close_exam(?:@\w+)?(\s|$)~', $text) === 1;
     }
 
+    public function requiresActiveGroup(): bool
+    {
+        return true;
+    }
+
     /** @param array<string, mixed> $update */
     public function handle(array $update): void
     {

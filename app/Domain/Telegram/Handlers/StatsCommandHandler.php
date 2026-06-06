@@ -31,6 +31,12 @@ final class StatsCommandHandler implements UpdateHandler
             && preg_match('~^/stats(?:@\w+)?(\s|$)~', $text) === 1;
     }
 
+    // Private-chat only command; the Group Lock does not apply.
+    public function requiresActiveGroup(): bool
+    {
+        return false;
+    }
+
     /** @param array<string, mixed> $update */
     public function handle(array $update): void
     {

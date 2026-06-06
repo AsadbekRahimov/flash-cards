@@ -94,6 +94,27 @@ it('sends a lesson picker when no arguments are provided', function (): void {
     expect(TrainingSession::query()->where('status', 'open')->count())->toBe(0);
 });
 
+it('stays silent on the lesson picker path in a non-active group (Group Lock)', function (): void {
+    // Regression: previously the no-args picker bypassed the active-group check
+    // (only the service validated status), so the bot replied in pending groups.
+    $group = TelegramGroup::factory()->create(['chat_id' => -2009, 'status' => 'pending']);
+    $teacher = User::factory()->create(['telegram_user_id' => 889]);
+    attachTeacher($teacher, $group);
+    $stage = Stage::factory()->create(['number' => 1]);
+    Lesson::factory()->for($stage)->create(['number' => 1]);
+
+    $this->api->shouldReceive('sendMessage')->never();
+    $this->api->shouldReceive('sendWebAppButton')->never();
+
+    app(TelegramDispatcher::class)->dispatch([
+        'message' => [
+            'chat' => ['id' => -2009, 'type' => 'supergroup'],
+            'from' => ['id' => 889],
+            'text' => '/start_training',
+        ],
+    ]);
+});
+
 it('opens a training session via callback when a lesson is chosen from the picker', function (): void {
     $group = TelegramGroup::factory()->create(['chat_id' => -2003, 'status' => 'active']);
     $teacher = User::factory()->create(['telegram_user_id' => 888]);
@@ -120,6 +141,32 @@ it('opens a training session via callback when a lesson is chosen from the picke
     ]);
 
     expect(TrainingSession::query()->where('status', 'open')->count())->toBe(1);
+});
+
+it('acknowledges a stale picker callback in a non-active group but sends nothing', function (): void {
+    // The group was disabled after the picker keyboard was posted; tapping the
+    // stale button must dismiss the spinner (answerCallbackQuery) without any
+    // chat message, so the Group Lock stays silent but the UI does not hang.
+    $group = TelegramGroup::factory()->pending()->create(['chat_id' => -2004]);
+    $teacher = User::factory()->create(['telegram_user_id' => 890]);
+    attachTeacher($teacher, $group);
+    $stage = Stage::factory()->create(['number' => 1]);
+    Lesson::factory()->for($stage)->create(['number' => 1]);
+
+    $this->api->shouldReceive('answerCallbackQuery')->once()->with('cq-stale-1');
+    $this->api->shouldReceive('sendMessage')->never();
+    $this->api->shouldReceive('sendWebAppButton')->never();
+
+    app(TelegramDispatcher::class)->dispatch([
+        'callback_query' => [
+            'id' => 'cq-stale-1',
+            'from' => ['id' => 890],
+            'data' => StartTrainingHandler::CALLBACK_PREFIX.'1:1',
+            'message' => ['chat' => ['id' => -2004, 'type' => 'supergroup']],
+        ],
+    ]);
+
+    expect(TrainingSession::query()->where('status', 'open')->count())->toBe(0);
 });
 
 it('is idempotent: second invocation reuses the open session', function (): void {
@@ -164,14 +211,15 @@ it('rejects users that do not teach the group', function (): void {
     expect(TrainingSession::query()->count())->toBe(0);
 });
 
-it('rejects when the group is not active', function (): void {
+it('stays silent when the group is not active (Group Lock)', function (): void {
+    // FR-BOT-01: the bot must not reveal itself in non-whitelisted groups, so
+    // even an authorised teacher's command is dropped silently by the dispatcher.
     $group = TelegramGroup::factory()->pending()->create(['chat_id' => -5005]);
     $teacher = User::factory()->create(['telegram_user_id' => 111]);
     attachTeacher($teacher, $group);
 
-    $this->api->shouldReceive('sendMessage')
-        ->once()
-        ->with(-5005, Mockery::pattern('/активирована/u'));
+    $this->api->shouldReceive('sendMessage')->never();
+    $this->api->shouldReceive('sendWebAppButton')->never();
 
     app(TelegramDispatcher::class)->dispatch([
         'message' => [
@@ -180,6 +228,8 @@ it('rejects when the group is not active', function (): void {
             'text' => '/start_training 1 1',
         ],
     ]);
+
+    expect(TrainingSession::query()->where('status', 'open')->count())->toBe(0);
 });
 
 it('reports when a lesson does not exist', function (): void {

@@ -18,6 +18,13 @@ final class NewMembersHandler implements UpdateHandler
         return is_array($members) && $members !== [];
     }
 
+    // Lifecycle handler: performs its own group resolution and must keep
+    // working independently of the command whitelist.
+    public function requiresActiveGroup(): bool
+    {
+        return false;
+    }
+
     /** @param array<string, mixed> $update */
     public function handle(array $update): void
     {

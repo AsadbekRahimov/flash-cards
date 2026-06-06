@@ -75,6 +75,43 @@ it('responds to /help in private chat', function (): void {
     ]);
 });
 
+it('responds to /help in an active whitelisted group', function (): void {
+    TelegramGroup::factory()->create(['chat_id' => -5001, 'status' => 'active']);
+
+    $this->api->shouldReceive('sendMessage')
+        ->once()
+        ->with(-5001, Mockery::pattern('/LexiFlow Bot в группе/u'));
+
+    app(TelegramDispatcher::class)->dispatch([
+        'message' => [
+            'chat' => ['id' => -5001, 'type' => 'supergroup'],
+            'text' => '/help',
+        ],
+    ]);
+});
+
+it('stays silent on /help in an unknown or inactive group (group lock)', function (): void {
+    TelegramGroup::factory()->create(['chat_id' => -5002, 'status' => 'pending']);
+
+    $this->api->shouldReceive('sendMessage')->never();
+
+    // Inactive (pending) group.
+    app(TelegramDispatcher::class)->dispatch([
+        'message' => [
+            'chat' => ['id' => -5002, 'type' => 'supergroup'],
+            'text' => '/help',
+        ],
+    ]);
+
+    // Completely unknown group.
+    app(TelegramDispatcher::class)->dispatch([
+        'message' => [
+            'chat' => ['id' => -9090, 'type' => 'supergroup'],
+            'text' => '/help',
+        ],
+    ]);
+});
+
 it('binds a teacher on /start in DM when telegram_user_id matches', function (): void {
     $teacher = User::factory()->create(['telegram_user_id' => 12345, 'last_login_at' => null]);
 
