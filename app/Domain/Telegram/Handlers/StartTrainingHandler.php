@@ -53,6 +53,11 @@ final class StartTrainingHandler implements UpdateHandler
             && preg_match('~^/start_training(?:@\w+)?(\s|$)~', $text) === 1;
     }
 
+    public function requiresActiveGroup(): bool
+    {
+        return true;
+    }
+
     /** @param array<string, mixed> $update */
     public function handle(array $update): void
     {

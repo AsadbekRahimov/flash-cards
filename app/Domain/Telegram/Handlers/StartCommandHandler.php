@@ -26,6 +26,12 @@ final class StartCommandHandler implements UpdateHandler
         return $chatType === 'private' && str_starts_with($text, '/start');
     }
 
+    // Private-chat only command; the Group Lock does not apply.
+    public function requiresActiveGroup(): bool
+    {
+        return false;
+    }
+
     /** @param array<string, mixed> $update */
     public function handle(array $update): void
     {

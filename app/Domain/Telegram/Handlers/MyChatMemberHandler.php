@@ -15,6 +15,13 @@ final class MyChatMemberHandler implements UpdateHandler
         return isset($update['my_chat_member']);
     }
 
+    // Lifecycle handler: this is how groups become known/activated, so it must
+    // run regardless of the whitelist.
+    public function requiresActiveGroup(): bool
+    {
+        return false;
+    }
+
     /** @param array<string, mixed> $update */
     public function handle(array $update): void
     {

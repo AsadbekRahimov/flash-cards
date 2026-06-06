@@ -14,6 +14,7 @@ use App\Domain\Telegram\Handlers\StartExamHandler;
 use App\Domain\Telegram\Handlers\StartTrainingCallbackHandler;
 use App\Domain\Telegram\Handlers\StartTrainingHandler;
 use App\Domain\Telegram\Handlers\StatsCommandHandler;
+use App\Models\TelegramGroup;
 
 final class TelegramDispatcher
 {
@@ -60,11 +61,76 @@ final class TelegramDispatcher
             : $this->messageHandlers;
 
         foreach ($handlers as $handler) {
-            if ($handler->matches($update)) {
-                $handler->handle($update);
+            if (! $handler->matches($update)) {
+                continue;
+            }
 
+            // Group Lock (FR-BOT-01): handlers that require an active group are
+            // dropped silently when the update comes from a group chat that is
+            // not whitelisted/active. Private chats and lifecycle updates pass.
+            if ($handler->requiresActiveGroup()
+                && $this->isFromGroupChat($update)
+                && ! $this->isActiveGroup($update)
+            ) {
                 return;
             }
+
+            $handler->handle($update);
+
+            return;
         }
+    }
+
+    /** @param array<string, mixed> $update */
+    private function isFromGroupChat(array $update): bool
+    {
+        return in_array($this->chatType($update), ['group', 'supergroup'], true);
+    }
+
+    /** @param array<string, mixed> $update */
+    private function isActiveGroup(array $update): bool
+    {
+        $chatId = $this->chatId($update);
+
+        if ($chatId === null) {
+            return false;
+        }
+
+        return TelegramGroup::query()
+            ->where('chat_id', $chatId)
+            ->where('status', 'active')
+            ->exists();
+    }
+
+    /** @param array<string, mixed> $update */
+    private function chatType(array $update): string
+    {
+        $chat = $this->chat($update);
+
+        return is_array($chat) ? (string) ($chat['type'] ?? '') : '';
+    }
+
+    /** @param array<string, mixed> $update */
+    private function chatId(array $update): ?int
+    {
+        $chat = $this->chat($update);
+
+        if (! is_array($chat) || ! isset($chat['id'])) {
+            return null;
+        }
+
+        return (int) $chat['id'];
+    }
+
+    /**
+     * @param  array<string, mixed>  $update
+     * @return array<string, mixed>|null
+     */
+    private function chat(array $update): ?array
+    {
+        $message = $update['callback_query']['message'] ?? $update['message'] ?? null;
+        $chat = is_array($message) ? ($message['chat'] ?? null) : null;
+
+        return is_array($chat) ? $chat : null;
     }
 }
