@@ -6,6 +6,7 @@ namespace App\Domain\Telegram\Handlers;
 
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Models\TelegramGroup;
 
 final class HelpCommandHandler implements UpdateHandler
 {
@@ -26,6 +27,14 @@ final class HelpCommandHandler implements UpdateHandler
         $message = $update['message'];
         $chatId = (int) $message['chat']['id'];
         $chatType = (string) $message['chat']['type'];
+
+        // Group Lock (FR-BOT-01): in group chats the bot stays silent unless
+        // the chat is a whitelisted, active group. Private chats are open.
+        if ($chatType !== 'private'
+            && ! TelegramGroup::query()->where('chat_id', $chatId)->where('status', 'active')->exists()
+        ) {
+            return;
+        }
 
         $text = $chatType === 'private'
             ? "LexiFlow — помощник для изучения английского.\n\n".

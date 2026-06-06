@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             DemoContentSeeder::class,
             DemoStudentsSeeder::class,
             DemoRepetitionsSeeder::class,
+            DemoActivitySeeder::class,
         ]);
     }
 }
