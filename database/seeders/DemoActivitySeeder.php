@@ -28,7 +28,11 @@ class DemoActivitySeeder extends Seeder
 {
     public function run(): void
     {
-        $group = TelegramGroup::where('chat_id', -1001234567890)->firstOrFail();
+        $group = TelegramGroup::where('chat_id', -1001234567890)->first();
+
+        if ($group === null) {
+            return;
+        }
 
         $teacher = $group->teachers()->first()
             ?? User::query()->whereNotNull('telegram_user_id')->first();
