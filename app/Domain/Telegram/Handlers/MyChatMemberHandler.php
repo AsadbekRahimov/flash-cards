@@ -44,13 +44,14 @@ final class MyChatMemberHandler implements UpdateHandler
             return;
         }
 
-        TelegramGroup::updateOrCreate(
-            ['chat_id' => $chatId],
-            [
-                'title' => (string) ($chat['title'] ?? 'Untitled group'),
-                'status' => TelegramGroup::where('chat_id', $chatId)->value('status') ?? 'pending',
-                'meta' => ['type' => $chatType],
-            ],
-        );
+        $group = TelegramGroup::firstOrNew(['chat_id' => $chatId]);
+
+        if (! $group->exists) {
+            $group->status = 'pending';
+        }
+
+        $group->title = (string) ($chat['title'] ?? 'Untitled group');
+        $group->meta = ['type' => $chatType];
+        $group->save();
     }
 }

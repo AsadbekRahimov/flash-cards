@@ -171,7 +171,7 @@ export const useExamStore = defineStore('exam', {
       } catch (err) {
         // A 409 "exam_still_open" is expected while server-side grace
         // period hasn't elapsed. Leave leaderboard empty in that case.
-        if (!(err instanceof ApiClientError) || err.kind !== 'validation') {
+        if (!(err instanceof ApiClientError) || err.kind !== 'conflict') {
           this.handleApiError(err)
         }
       }

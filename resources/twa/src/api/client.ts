@@ -12,6 +12,7 @@ export class ApiClientError extends Error {
       | 'forbidden'    // 403 — policy / group mismatch
       | 'gone'         // 410 — session closed
       | 'not_found'    // 404
+      | 'conflict'     // 409 — already answered / results not ready yet
       | 'validation'   // 422
       | 'rate_limited' // 429
       | 'server'       // 5xx
@@ -100,6 +101,7 @@ function mapError(err: unknown): ApiClientError {
   if (status === 401) return new ApiClientError('unauthorized', 401, code, message, err)
   if (status === 403) return new ApiClientError('forbidden', 403, code, message, err)
   if (status === 404) return new ApiClientError('not_found', 404, code, message, err)
+  if (status === 409) return new ApiClientError('conflict', 409, code, message, err)
   if (status === 410) return new ApiClientError('gone', 410, code, message, err)
   if (status === 422) return new ApiClientError('validation', 422, code, message, err)
   if (status === 429) return new ApiClientError('rate_limited', 429, code, message, err)

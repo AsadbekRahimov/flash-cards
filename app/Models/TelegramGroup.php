@@ -9,6 +9,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property int $id
+ * @property int $chat_id
+ * @property string $title
+ * @property string $status
+ * @property array<string, mixed> $meta
+ */
 class TelegramGroup extends Model
 {
     use HasFactory;

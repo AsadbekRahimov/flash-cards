@@ -31,6 +31,21 @@ it('creates a pending TelegramGroup on my_chat_member into a group', function ()
     expect($group->title)->toBe('Class 1');
 });
 
+it('keeps an active group active on subsequent my_chat_member updates', function (): void {
+    TelegramGroup::factory()->create(['chat_id' => -10012345, 'status' => 'active', 'title' => 'Old title']);
+
+    app(TelegramDispatcher::class)->dispatch([
+        'my_chat_member' => [
+            'chat' => ['id' => -10012345, 'type' => 'supergroup', 'title' => 'Renamed class'],
+            'new_chat_member' => ['status' => 'administrator'],
+        ],
+    ]);
+
+    $group = TelegramGroup::where('chat_id', -10012345)->firstOrFail();
+    expect($group->status)->toBe('active');
+    expect($group->title)->toBe('Renamed class');
+});
+
 it('marks group as disabled when bot is kicked', function (): void {
     TelegramGroup::factory()->create(['chat_id' => -9999, 'status' => 'active']);
 
