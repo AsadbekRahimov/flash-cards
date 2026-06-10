@@ -13,6 +13,7 @@ use App\Models\Student;
 use App\Models\WordRepetition;
 use App\Policies\ExamSessionPolicy;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -120,16 +121,22 @@ final class ExamController
 
         $score = $this->computeScore($isCorrect, (int) $validated['time_spent_ms'], $session, $isHard);
 
-        ExamAnswer::query()->create([
-            'exam_session_id' => $session->id,
-            'student_id' => $student->id,
-            'word_id' => $validated['word_id'],
-            'selected_translation' => $selectedIndex !== null ? ($options[$selectedIndex] ?? null) : null,
-            'is_correct' => $isCorrect,
-            'score' => $score,
-            'time_spent_ms' => (int) $validated['time_spent_ms'],
-            'answered_at' => now(),
-        ]);
+        try {
+            ExamAnswer::query()->create([
+                'exam_session_id' => $session->id,
+                'student_id' => $student->id,
+                'word_id' => $validated['word_id'],
+                'selected_translation' => $selectedIndex !== null ? ($options[$selectedIndex] ?? null) : null,
+                'is_correct' => $isCorrect,
+                'score' => $score,
+                'time_spent_ms' => (int) $validated['time_spent_ms'],
+                'answered_at' => now(),
+            ]);
+        } catch (UniqueConstraintViolationException) {
+            // Concurrent duplicate of the same answer slipped past the
+            // exists() check above; the unique index is the source of truth.
+            return $this->error(409, 'already_answered', 'You have already answered this question.');
+        }
 
         $totalScore = (int) ExamAnswer::query()
             ->where('exam_session_id', $session->id)
