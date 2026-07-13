@@ -1,66 +1,51 @@
 #!/usr/bin/env bash
-# Production deploy for LexiFlow Pro.
-#
-# Usage: ./deploy.sh [--skip-twa] [--skip-migrate]
-#
-# Assumes:
-#   - Current host has .env configured (chmod 600).
-#   - docker-compose.prod.yml is the active compose file.
-#   - The app image is already built (via `make prod-build` or CI).
-#
-# This script is intentionally idempotent: running it twice in a row is safe.
+# Reproducible production deploy for LexiFlow Pro.
+# Usage: ./deploy.sh [--skip-migrate]
 
 set -euo pipefail
 
-SKIP_TWA=0
 SKIP_MIGRATE=0
 for arg in "$@"; do
     case "$arg" in
-        --skip-twa) SKIP_TWA=1 ;;
         --skip-migrate) SKIP_MIGRATE=1 ;;
         *) echo "Unknown flag: $arg" >&2; exit 1 ;;
     esac
 done
 
 COMPOSE="docker compose -f docker-compose.prod.yml --env-file .env"
-EXEC_APP="$COMPOSE exec -T app"
 
-echo "==> Pulling latest source"
-git fetch --all --tags
-git reset --hard "@{upstream}"
+echo "==> Pulling latest source with fast-forward only"
+git pull --ff-only
 
-echo "==> Building app image"
-$COMPOSE build --pull app
+echo "==> Building immutable application and nginx images"
+$COMPOSE build --pull app nginx
 
-if [ "$SKIP_TWA" -eq 0 ]; then
-    echo "==> Building TWA SPA (resources/twa → public/twa)"
-    (cd resources/twa && npm ci && npm run build)
+echo "==> Starting database and Redis"
+$COMPOSE up -d postgres redis
+
+echo "==> Checking the TLS certificate"
+if ! $COMPOSE run --rm --no-deps --entrypoint sh certbot -c \
+    'test -s "/etc/letsencrypt/live/$APP_DOMAIN/fullchain.pem"'; then
+    echo "==> No certificate found; requesting the initial certificate"
+    $COMPOSE stop nginx || true
+    $COMPOSE run --rm --no-deps --publish 80:80 --entrypoint sh certbot -c \
+        ': "${APP_DOMAIN:?Set APP_DOMAIN in .env}"; : "${CERTBOT_EMAIL:?Set CERTBOT_EMAIL in .env}"; exec certbot certonly --standalone --non-interactive --agree-tos --no-eff-email --email "$CERTBOT_EMAIL" -d "$APP_DOMAIN"'
 fi
-
-echo "==> Starting / updating containers"
-$COMPOSE up -d --remove-orphans
-
-echo "==> Waiting for app to become healthy"
-sleep 3
 
 if [ "$SKIP_MIGRATE" -eq 0 ]; then
-    echo "==> Running migrations"
-    $EXEC_APP php artisan migrate --force
+    echo "==> Running migrations before switching application containers"
+    $COMPOSE run --rm app php artisan migrate --force
 fi
 
-echo "==> Publishing Livewire browser assets"
-$EXEC_APP php artisan livewire:publish --assets --no-interaction
+echo "==> Starting / updating the production stack"
+$COMPOSE up -d --remove-orphans
 
-echo "==> Caching config / routes / views"
-$EXEC_APP php artisan config:cache
-$EXEC_APP php artisan route:cache
-$EXEC_APP php artisan view:cache
-$EXEC_APP php artisan event:cache
+echo "==> Verifying the application container"
+$COMPOSE exec -T app php artisan about --only=environment
 
-echo "==> Restarting queue worker to pick up new code"
-$COMPOSE restart queue scheduler
+DOMAIN="$($COMPOSE run --rm --no-deps --entrypoint sh certbot -c 'printf "%s" "$APP_DOMAIN"')"
+echo "==> Running HTTPS smoke check"
+curl --fail --silent --show-error --retry 10 --retry-delay 2 --retry-all-errors \
+    "https://${DOMAIN}/up" >/dev/null
 
-echo "==> Reloading nginx (if certs were renewed by certbot sidecar)"
-$COMPOSE exec -T nginx nginx -s reload || true
-
-echo "==> Done. Smoke-check: curl -sI https://\${APP_DOMAIN}/up"
+echo "==> Done: https://${DOMAIN}/up"

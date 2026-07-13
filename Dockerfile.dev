@@ -1,7 +1,7 @@
 # LexiFlow Pro — Dev image.
 # Полный образ для локальной разработки: PHP 8.3, Xdebug, Node 20 (для Vite),
 # composer, git, bash, oh-my-quality-of-life tools. НЕ использовать в проде.
-FROM php:8.3-fpm-alpine
+FROM php:8.3-fpm-alpine AS app
 
 ARG UID=1000
 ARG GID=1000

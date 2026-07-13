@@ -8,20 +8,23 @@ use App\Domain\Learning\Services\LeaderboardBuilder;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
+use App\Models\Lesson;
+use App\Models\Student;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 /**
  * Posts the final leaderboard for a closed exam session to the group chat.
  *
  * Called by the scheduler (`exams:close-expired`) and by the manual
- * `/close_exam` handler. Idempotent: if results already exist they are
- * rebuilt only when empty; posting itself is a single Telegram message.
+ * `/close_exam` handler. A cache lock and persisted marker prevent repeated
+ * or concurrent job deliveries from posting the leaderboard more than once.
  */
 final class PostLeaderboardJob implements ShouldQueue
 {
@@ -41,7 +44,12 @@ final class PostLeaderboardJob implements ShouldQueue
             ->with(['group', 'lesson'])
             ->find($this->examSessionId);
 
-        if ($session === null || $session->group === null) {
+        if (
+            $session === null
+            || $session->status !== 'closed'
+            || $session->group === null
+            || $session->leaderboard_posted_at !== null
+        ) {
             return;
         }
 
@@ -59,16 +67,29 @@ final class PostLeaderboardJob implements ShouldQueue
 
         $text = $this->format($session, $results);
 
-        try {
-            $telegram->sendMessage($session->group->chat_id, $text, parseMode: 'HTML');
-        } catch (\Throwable $e) {
-            Log::channel('daily')->warning('telegram.leaderboard_post_failed', [
-                'exam_session_id' => $session->id,
-                'error' => $e->getMessage(),
-            ]);
+        Cache::lock("telegram:leaderboard:{$session->id}", 120)->block(10, function () use (
+            $telegram,
+            $session,
+            $text,
+        ): void {
+            /** @var ExamSession|null $fresh */
+            $fresh = ExamSession::query()->find($session->id);
+            if ($fresh === null || $fresh->leaderboard_posted_at !== null) {
+                return;
+            }
 
-            throw $e;
-        }
+            try {
+                $telegram->sendMessage($session->group->chat_id, $text, parseMode: 'HTML');
+                $fresh->update(['leaderboard_posted_at' => now()]);
+            } catch (\Throwable $e) {
+                Log::channel('daily')->warning('telegram.leaderboard_post_failed', [
+                    'exam_session_id' => $session->id,
+                    'error' => $e->getMessage(),
+                ]);
+
+                throw $e;
+            }
+        });
     }
 
     /**
@@ -76,7 +97,8 @@ final class PostLeaderboardJob implements ShouldQueue
      */
     private function format(ExamSession $session, $results): string
     {
-        $lessonNumber = $session->lesson?->number ?? '?';
+        $lesson = $session->getRelation('lesson');
+        $lessonNumber = $lesson instanceof Lesson ? $lesson->number : '?';
         $header = "🏁 <b>Итоги экзамена</b>\nУрок {$lessonNumber}";
 
         if ($results->isEmpty()) {
@@ -90,7 +112,8 @@ final class PostLeaderboardJob implements ShouldQueue
                 3 => '🥉',
                 default => "{$r->rank}.",
             };
-            $name = $this->escapeHtml($r->student?->first_name ?? '—');
+            $student = $r->getRelation('student');
+            $name = $this->escapeHtml($student instanceof Student ? ($student->first_name ?? '—') : '—');
             $score = $r->total_score;
 
             return "{$medal} {$name} — <b>{$score}</b>";

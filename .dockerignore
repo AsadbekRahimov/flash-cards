@@ -5,10 +5,12 @@
 node_modules
 vendor
 storage/logs/*
+storage/tmp/*
 storage/framework/cache/*
 storage/framework/sessions/*
 storage/framework/views/*
 public/build
+public/twa
 .env
 .env.*
 !.env.example

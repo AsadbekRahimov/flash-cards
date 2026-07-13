@@ -7,6 +7,7 @@ namespace App\Providers;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\IrazasyedTelegramClient;
 use App\Domain\Telegram\Services\TelegramKeyboardFactory;
+use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
 use App\Domain\Twa\Services\InitDataValidator;
 use App\Domain\Twa\Services\JwtService;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -20,10 +21,19 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->singleton(TelegramClient::class, function (): TelegramClient {
+        $this->app->singleton(IrazasyedTelegramClient::class, function (): IrazasyedTelegramClient {
             return new IrazasyedTelegramClient(
                 new Api((string) config('telegram.bot_token')),
                 $this->app->make(TelegramKeyboardFactory::class),
+                $this->app->make(TelegramMessageRateLimiter::class),
+            );
+        });
+        $this->app->alias(IrazasyedTelegramClient::class, TelegramClient::class);
+
+        $this->app->singleton(TelegramMessageRateLimiter::class, function (): TelegramMessageRateLimiter {
+            return new TelegramMessageRateLimiter(
+                maxMessages: max(1, (int) config('telegram.outbound_rate_limit.max_messages', 20)),
+                windowSeconds: max(1, (int) config('telegram.outbound_rate_limit.window_seconds', 60)),
             );
         });
 

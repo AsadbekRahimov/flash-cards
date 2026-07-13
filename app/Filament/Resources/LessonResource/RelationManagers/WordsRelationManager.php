@@ -49,7 +49,6 @@ class WordsRelationManager extends RelationManager
             ->headerActions([Actions\CreateAction::make()])
             ->actions([
                 Actions\EditAction::make(),
-                Actions\DeleteAction::make(),
             ])
             ->defaultSort('word');
     }

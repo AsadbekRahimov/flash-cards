@@ -56,8 +56,12 @@ final class JwtService
         $decoded = JWT::decode($token, new Key($this->secret, $this->alg));
         $payload = (array) $decoded;
 
-        if (! isset($payload['sub'], $payload['gid'], $payload['exp'])) {
+        if (! isset($payload['iss'], $payload['sub'], $payload['gid'], $payload['exp'])) {
             throw new UnexpectedValueException('malformed_jwt_payload');
+        }
+
+        if (! is_string($payload['iss']) || ! hash_equals($this->issuer, $payload['iss'])) {
+            throw new UnexpectedValueException('invalid_jwt_issuer');
         }
 
         return [

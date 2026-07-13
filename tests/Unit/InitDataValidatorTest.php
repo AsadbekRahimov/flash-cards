@@ -77,6 +77,17 @@ it('rejects initData older than max_age', function (): void {
     }
 });
 
+it('rejects initData with an auth_date too far in the future', function (): void {
+    $initData = buildInitData([], authDateOverride: time() + 3600);
+
+    try {
+        (new InitDataValidator(BOT_TOKEN))->validate($initData);
+        $this->fail('Expected exception was not thrown');
+    } catch (InvalidInitDataException $e) {
+        expect($e->reason)->toBe(InvalidInitDataException::REASON_EXPIRED);
+    }
+});
+
 it('rejects initData without a user field', function (): void {
     $initData = InitDataValidator::sign(BOT_TOKEN, [
         'query_id' => 'abc',

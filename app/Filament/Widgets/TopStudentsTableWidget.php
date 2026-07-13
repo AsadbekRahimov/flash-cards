@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Widgets;
 
+use App\Domain\Administration\Services\PanelDataScope;
 use App\Models\Student;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -24,7 +25,7 @@ class TopStudentsTableWidget extends TableWidget
 
         return $table
             ->query(
-                Student::query()
+                app(PanelDataScope::class)->students()
                     ->withCount(['trainingReviews as reviews_count' => fn (Builder $q): Builder => $q->where('created_at', '>=', $since)])
                     ->whereHas('trainingReviews', fn (Builder $q): Builder => $q->where('created_at', '>=', $since))
                     ->orderByDesc('reviews_count')

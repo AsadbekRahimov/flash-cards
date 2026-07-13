@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Domain\Learning\Exceptions\ExamParticipationException;
+use App\Domain\Learning\Services\ExamAnswerService;
 use App\Domain\Twa\Services\JwtService;
 use App\Models\ExamAnswer;
 use App\Models\ExamSession;
@@ -108,8 +110,13 @@ it('rejects question with out-of-range index', function (): void {
 it('POST answer with correct option gives points and records exam_answer', function (): void {
     $s = openExam();
     $q = $s['session']->config['questions'][0];
+    $headers = examAuthHeaders($s['student']);
 
-    $resp = $this->withHeaders(examAuthHeaders($s['student']))
+    $this->withHeaders($headers)
+        ->getJson("/api/twa/exam/sessions/{$s['session']->id}/question?index=0")
+        ->assertOk();
+
+    $resp = $this->withHeaders($headers)
         ->postJson("/api/twa/exam/sessions/{$s['session']->id}/answer", [
             'question_index' => 0,
             'word_id' => $q['word_id'],
@@ -120,9 +127,7 @@ it('POST answer with correct option gives points and records exam_answer', funct
         ->assertJsonPath('is_correct', true)
         ->assertJsonPath('correct_option', $q['correct_index'])
         ->assertJsonPath('has_next', true)
-        ->assertJsonStructure([
-            'next_question' => ['question_index', 'word_id', 'word', 'options', 'seconds_left'],
-        ]);
+        ->assertJsonPath('next_question', null);
 
     expect($resp->json('score_earned'))->toBeGreaterThan(0);
     expect($resp->json('total_score'))->toBe($resp->json('score_earned'));
@@ -138,8 +143,13 @@ it('POST answer with wrong option gives 0 points', function (): void {
     $s = openExam();
     $q = $s['session']->config['questions'][0];
     $wrongIndex = ($q['correct_index'] + 1) % 4;
+    $headers = examAuthHeaders($s['student']);
 
-    $this->withHeaders(examAuthHeaders($s['student']))
+    $this->withHeaders($headers)
+        ->getJson("/api/twa/exam/sessions/{$s['session']->id}/question?index=0")
+        ->assertOk();
+
+    $this->withHeaders($headers)
         ->postJson("/api/twa/exam/sessions/{$s['session']->id}/answer", [
             'question_index' => 0,
             'word_id' => $q['word_id'],
@@ -154,8 +164,13 @@ it('POST answer with wrong option gives 0 points', function (): void {
 it('POST answer with null selection (timeout) gives 0 points', function (): void {
     $s = openExam();
     $q = $s['session']->config['questions'][0];
+    $headers = examAuthHeaders($s['student']);
 
-    $this->withHeaders(examAuthHeaders($s['student']))
+    $this->withHeaders($headers)
+        ->getJson("/api/twa/exam/sessions/{$s['session']->id}/question?index=0")
+        ->assertOk();
+
+    $this->withHeaders($headers)
         ->postJson("/api/twa/exam/sessions/{$s['session']->id}/answer", [
             'question_index' => 0,
             'word_id' => $q['word_id'],
@@ -170,6 +185,10 @@ it('rejects duplicate answer for the same word (409)', function (): void {
     $s = openExam();
     $q = $s['session']->config['questions'][0];
     $headers = examAuthHeaders($s['student']);
+
+    $this->withHeaders($headers)
+        ->getJson("/api/twa/exam/sessions/{$s['session']->id}/question?index=0")
+        ->assertOk();
 
     $this->withHeaders($headers)->postJson("/api/twa/exam/sessions/{$s['session']->id}/answer", [
         'question_index' => 0,
@@ -225,6 +244,100 @@ it('returns 410 for join on a closed exam session', function (): void {
     $this->withHeaders(examAuthHeaders($s['student']))
         ->postJson("/api/twa/exam/sessions/{$s['session']->id}/join")
         ->assertStatus(410);
+});
+
+it('returns 410 immediately when an open exam has passed ends_at', function (): void {
+    $s = openExam();
+    $s['session']->update(['ends_at' => now()->subSecond()]);
+
+    $this->withHeaders(examAuthHeaders($s['student']))
+        ->postJson("/api/twa/exam/sessions/{$s['session']->id}/join")
+        ->assertStatus(410)
+        ->assertJsonPath('error.code', 'session_closed');
+});
+
+it('requires a question to be served before accepting its answer', function (): void {
+    $s = openExam();
+    $question = $s['session']->config['questions'][0];
+
+    $this->withHeaders(examAuthHeaders($s['student']))
+        ->postJson("/api/twa/exam/sessions/{$s['session']->id}/answer", [
+            'question_index' => 0,
+            'word_id' => $question['word_id'],
+            'selected_option_index' => $question['correct_index'],
+            'time_spent_ms' => 0,
+        ])
+        ->assertStatus(409)
+        ->assertJsonPath('error.code', 'question_not_served');
+});
+
+it('uses server timing and does not restart it when a question is reloaded', function (): void {
+    $s = openExam();
+    $question = $s['session']->config['questions'][0];
+    $headers = examAuthHeaders($s['student']);
+    $url = "/api/twa/exam/sessions/{$s['session']->id}/question?index=0";
+
+    $this->withHeaders($headers)->getJson($url)->assertOk();
+    $this->travel(8)->seconds();
+    $this->withHeaders($headers)->getJson($url)->assertOk();
+
+    $response = $this->withHeaders($headers)
+        ->postJson("/api/twa/exam/sessions/{$s['session']->id}/answer", [
+            'question_index' => 0,
+            'word_id' => $question['word_id'],
+            'selected_option_index' => $question['correct_index'],
+            'time_spent_ms' => 0,
+        ])
+        ->assertOk()
+        ->assertJsonPath('is_correct', true);
+
+    expect($response->json('score_earned'))->toBeLessThan(20);
+    expect(ExamAnswer::query()->latest('id')->value('time_spent_ms'))->toBeGreaterThanOrEqual(8000);
+});
+
+it('marks an answer after the per-question deadline as incorrect', function (): void {
+    $s = openExam(['seconds_per_question' => 1]);
+    $question = $s['session']->config['questions'][0];
+    $headers = examAuthHeaders($s['student']);
+
+    $this->withHeaders($headers)
+        ->getJson("/api/twa/exam/sessions/{$s['session']->id}/question?index=0")
+        ->assertOk();
+    $this->travel(2)->seconds();
+
+    $this->withHeaders($headers)
+        ->postJson("/api/twa/exam/sessions/{$s['session']->id}/answer", [
+            'question_index' => 0,
+            'word_id' => $question['word_id'],
+            'selected_option_index' => $question['correct_index'],
+            'time_spent_ms' => 0,
+        ])
+        ->assertOk()
+        ->assertJsonPath('is_correct', false)
+        ->assertJsonPath('score_earned', 0);
+});
+
+it('rejects an answer when a stale session model was closed concurrently', function (): void {
+    $s = openExam();
+    $session = $s['session']->fresh();
+    $question = $session->config['questions'][0];
+    $answers = app(ExamAnswerService::class);
+
+    $answers->serve($session, $s['student'], 0);
+
+    ExamSession::query()
+        ->whereKey($session->id)
+        ->update(['status' => 'closed', 'closed_at' => now()]);
+
+    expect(fn () => $answers->submit(
+        $session,
+        $s['student'],
+        0,
+        $question,
+        $question['correct_index'],
+    ))->toThrow(ExamParticipationException::class);
+
+    expect(ExamAnswer::query()->where('exam_session_id', $session->id)->count())->toBe(0);
 });
 
 it('result is blocked while exam is open (409)', function (): void {

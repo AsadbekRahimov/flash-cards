@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
+use App\Domain\Administration\Services\PanelDataScope;
 use App\Filament\Resources\TelegramGroupResource\Pages;
 use App\Models\TelegramGroup;
 use Filament\Actions;
@@ -13,6 +14,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class TelegramGroupResource extends Resource
 {
@@ -77,18 +79,24 @@ class TelegramGroupResource extends Resource
                 Actions\Action::make('activate')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
-                    ->visible(fn (TelegramGroup $record): bool => $record->status !== 'active')
+                    ->visible(fn (TelegramGroup $record): bool => app(PanelDataScope::class)->isAdmin() && $record->status !== 'active')
                     ->requiresConfirmation()
                     ->action(fn (TelegramGroup $record) => $record->update(['status' => 'active'])),
                 Actions\Action::make('deactivate')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
-                    ->visible(fn (TelegramGroup $record): bool => $record->status === 'active')
+                    ->visible(fn (TelegramGroup $record): bool => app(PanelDataScope::class)->isAdmin() && $record->status === 'active')
                     ->requiresConfirmation()
                     ->action(fn (TelegramGroup $record) => $record->update(['status' => 'disabled'])),
                 Actions\EditAction::make(),
             ])
             ->defaultSort('created_at', 'desc');
+    }
+
+    /** @return Builder<TelegramGroup> */
+    public static function getEloquentQuery(): Builder
+    {
+        return app(PanelDataScope::class)->groups();
     }
 
     /** @return array<int, class-string> */

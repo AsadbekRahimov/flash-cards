@@ -13,6 +13,11 @@ return [
 
     'queue' => env('TELEGRAM_QUEUE', 'high'),
 
+    'outbound_rate_limit' => [
+        'max_messages' => (int) env('TELEGRAM_OUTBOUND_MAX_PER_MINUTE', 20),
+        'window_seconds' => 60,
+    ],
+
     'ip_allowlist' => [
         'enabled' => (bool) env('TELEGRAM_IP_ALLOWLIST_ENABLED', false),
         'cidrs' => ['149.154.160.0/20', '91.108.4.0/22'],

@@ -72,7 +72,7 @@ public function handle(Request $r, string $secret): Response
 3. `secretKey = HMAC_SHA256("WebAppData", bot_token)`.
 4. `calc = HMAC_SHA256(secretKey, dataCheckString)`.
 5. `hex(calc) === hash` → валидно.
-6. Проверяем `auth_date` — не старше 86400 секунд.
+6. Проверяем `auth_date` — не старше 86400 секунд и не более чем на 30 секунд в будущем.
 
 ```php
 <?php

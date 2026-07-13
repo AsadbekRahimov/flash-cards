@@ -3,6 +3,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
+            target: app
             args:
                 UID: ${UID:-1000}
                 GID: ${GID:-1000}

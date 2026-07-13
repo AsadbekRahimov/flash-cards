@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Widgets;
 
-use App\Models\Student;
+use App\Domain\Administration\Services\PanelDataScope;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
@@ -15,9 +15,10 @@ class TotalStudentsWidget extends StatsOverviewWidget
     /** @return array<int, Stat> */
     protected function getStats(): array
     {
-        $total = Student::count();
-        $active = Student::where('is_active', true)->count();
-        $recent = Student::where('last_seen_at', '>=', now()->subDays(7))->count();
+        $students = app(PanelDataScope::class)->students();
+        $total = (clone $students)->count();
+        $active = (clone $students)->where('is_active', true)->count();
+        $recent = (clone $students)->where('last_seen_at', '>=', now()->subDays(7))->count();
 
         return [
             Stat::make('Total students', (string) $total)

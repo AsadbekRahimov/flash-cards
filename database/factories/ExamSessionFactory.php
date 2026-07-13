@@ -24,7 +24,16 @@ class ExamSessionFactory extends Factory
             'started_at' => now(),
             'ends_at' => now()->addHour(),
             'closed_at' => null,
+            'leaderboard_posted_at' => null,
             'config' => ['questions' => 10],
         ];
+    }
+
+    public function closed(): static
+    {
+        return $this->state(fn (): array => [
+            'status' => 'closed',
+            'closed_at' => now(),
+        ]);
     }
 }

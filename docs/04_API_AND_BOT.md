@@ -12,9 +12,12 @@
 **Request:**
 ```json
 {
-  "init_data": "query_id=...&user=%7B...%7D&auth_date=...&hash=..."
+  "init_data": "query_id=...&user=%7B...%7D&auth_date=...&hash=...",
+  "context": { "type": "training", "session_id": 123 }
 }
 ```
+
+`context` передаётся для deep link тренировки/экзамена и однозначно выбирает запись `students` нужной группы. Без него авторизация допустима только при единственной активной группе пользователя.
 
 **Validation:**
 - HMAC-SHA256 по алгоритму Telegram (см. `07_SECURITY.md`).
@@ -37,6 +40,7 @@
 **Errors:**
 - 401 `invalid_init_data` — HMAC не сошёлся.
 - 403 `group_inactive` — студент пришёл из неактивной группы.
+- 409 `session_context_required` — один Telegram-пользователь состоит в нескольких активных группах, но контекст сессии не передан.
 
 ### A.2 `GET /api/twa/me`
 Информация о студенте.
@@ -69,6 +73,8 @@
 ```
 
 #### `GET /api/twa/training/sessions/{session_id}/next`
+
+После `TWA_MAX_CARDS_PER_SESSION` принятых review в рамках одной сессии возвращает `card: null`.
 Следующая карточка. Возвращает либо `due` (для повторения), либо `new` (новое слово из урока).
 
 **Response:**
@@ -239,7 +245,7 @@ $telegram->sendWebAppButton(
 );
 ```
 
-URL TWA: `https://lexiflow.example.com/twa/?mode=training&session_id=123` (SPA сама поймёт режим по query-параметрам).
+URL TWA: `https://lexiflow.example.com/twa/training/123` (для экзамена — `/twa/exam/{id}`).
 
 ### B.5 События бота (не команды)
 
@@ -342,7 +348,7 @@ private function formatLeaderboard(ExamSession $session): string
 ### C.1 Happy path тренировки (E2E)
 1. Teacher в группе: `/start_training 4 8`.
 2. Bot → `HandleTelegramUpdate` (queue) → `StartTrainingHandler` → создаёт `training_sessions` id=123.
-3. Bot отправляет сообщение с WebApp-кнопкой на URL `.../twa/?mode=training&session_id=123`.
+3. Bot отправляет сообщение с WebApp-кнопкой на URL `.../twa/training/123`.
 4. Student нажимает кнопку → открывается TWA.
 5. TWA: `POST /api/twa/auth` с `initData`.
 6. TWA: `POST /api/twa/training/sessions/123/start`.

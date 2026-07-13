@@ -89,6 +89,6 @@ class User extends Authenticatable implements FilamentUser
             return false;
         }
 
-        return $this->is_active === true && $this->hasRole('admin');
+        return $this->is_active === true && $this->hasAnyRole(['admin', 'teacher']);
     }
 }

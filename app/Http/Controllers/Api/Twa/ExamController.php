@@ -4,36 +4,25 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\Twa;
 
+use App\Domain\Learning\Exceptions\ExamParticipationException;
+use App\Domain\Learning\Services\ExamAnswerService;
 use App\Domain\Learning\Services\LeaderboardBuilder;
 use App\Domain\Learning\Services\LearningCache;
 use App\Models\ExamAnswer;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
 use App\Models\Student;
-use App\Models\WordRepetition;
 use App\Policies\ExamSessionPolicy;
-use Carbon\CarbonImmutable;
-use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-/**
- * TWA exam endpoints.
- *
- *   POST /api/twa/exam/sessions/{id}/join
- *   GET  /api/twa/exam/sessions/{id}/question?index=N
- *   POST /api/twa/exam/sessions/{id}/answer
- *   GET  /api/twa/exam/sessions/{id}/result
- */
 final class ExamController
 {
-    /** Points awarded for a correct answer at t=0 (faster = more). */
-    private const MAX_POINTS_PER_QUESTION = 20;
-
     public function __construct(
         private readonly ExamSessionPolicy $policy,
         private readonly LeaderboardBuilder $leaderboard,
         private readonly LearningCache $cache,
+        private readonly ExamAnswerService $answers,
     ) {}
 
     public function join(Request $request, int $sessionId): JsonResponse
@@ -42,8 +31,11 @@ final class ExamController
         if ($session instanceof JsonResponse) {
             return $session;
         }
+        if (! $student instanceof Student) {
+            return $this->unauthorizedStudent();
+        }
 
-        $config = $session->config ?? [];
+        $config = $session->config;
         $questions = $this->questions($session);
 
         return response()->json([
@@ -51,7 +43,7 @@ final class ExamController
             'ends_at' => $session->ends_at?->toIso8601String(),
             'total_questions' => (int) ($config['total_questions'] ?? 0),
             'seconds_per_question' => (int) ($config['seconds_per_question'] ?? 0),
-            'question' => $this->questionPayload($questions, 0, $session),
+            'question' => $this->questionPayload($questions, 0, $session, $student),
         ]);
     }
 
@@ -61,15 +53,18 @@ final class ExamController
         if ($session instanceof JsonResponse) {
             return $session;
         }
+        if (! $student instanceof Student) {
+            return $this->unauthorizedStudent();
+        }
 
         $index = (int) $request->query('index', 0);
-
         $questions = $this->questions($session);
+
         if ($index < 0 || $index >= count($questions)) {
             return $this->error(404, 'question_not_found', 'Question index is out of range.');
         }
 
-        return response()->json($this->questionPayload($questions, $index, $session));
+        return response()->json($this->questionPayload($questions, $index, $session, $student));
     }
 
     public function answer(Request $request, int $sessionId): JsonResponse
@@ -78,11 +73,15 @@ final class ExamController
         if ($session instanceof JsonResponse) {
             return $session;
         }
+        if (! $student instanceof Student) {
+            return $this->unauthorizedStudent();
+        }
 
         $validated = $request->validate([
             'question_index' => ['required', 'integer', 'min:0'],
             'word_id' => ['required', 'integer'],
             'selected_option_index' => ['nullable', 'integer', 'min:0'],
+            // Retained for backwards-compatible client telemetry. Scoring uses server time only.
             'time_spent_ms' => ['required', 'integer', 'min:0', 'max:600000'],
         ]);
 
@@ -93,49 +92,23 @@ final class ExamController
             return $this->error(404, 'question_not_found', 'Question index is out of range.');
         }
 
-        $q = $questions[$index];
-        if ((int) $q['word_id'] !== (int) $validated['word_id']) {
+        $question = $questions[$index];
+        if ($question['word_id'] !== (int) $validated['word_id']) {
             return $this->error(422, 'word_mismatch', 'Word does not match the question at this index.');
         }
 
-        $existing = ExamAnswer::query()
-            ->where('exam_session_id', $session->id)
-            ->where('student_id', $student->id)
-            ->where('word_id', $validated['word_id'])
-            ->exists();
-
-        if ($existing) {
-            return $this->error(409, 'already_answered', 'You have already answered this question.');
-        }
-
         $selectedIndex = $validated['selected_option_index'] ?? null;
-        $options = $q['options'] ?? [];
-        $isCorrect = $selectedIndex !== null
-            && isset($options[$selectedIndex])
-            && (int) $selectedIndex === (int) $q['correct_index'];
-
-        $isHard = (bool) WordRepetition::query()
-            ->where('student_id', $student->id)
-            ->where('word_id', $validated['word_id'])
-            ->value('is_hard');
-
-        $score = $this->computeScore($isCorrect, (int) $validated['time_spent_ms'], $session, $isHard);
 
         try {
-            ExamAnswer::query()->create([
-                'exam_session_id' => $session->id,
-                'student_id' => $student->id,
-                'word_id' => $validated['word_id'],
-                'selected_translation' => $selectedIndex !== null ? ($options[$selectedIndex] ?? null) : null,
-                'is_correct' => $isCorrect,
-                'score' => $score,
-                'time_spent_ms' => (int) $validated['time_spent_ms'],
-                'answered_at' => now(),
-            ]);
-        } catch (UniqueConstraintViolationException) {
-            // Concurrent duplicate of the same answer slipped past the
-            // exists() check above; the unique index is the source of truth.
-            return $this->error(409, 'already_answered', 'You have already answered this question.');
+            $answer = $this->answers->submit(
+                $session,
+                $student,
+                $index,
+                $question,
+                $selectedIndex !== null ? (int) $selectedIndex : null,
+            );
+        } catch (ExamParticipationException $e) {
+            return $this->error($e->status, $e->errorCode, $e->getMessage());
         }
 
         $totalScore = (int) ExamAnswer::query()
@@ -143,15 +116,14 @@ final class ExamController
             ->where('student_id', $student->id)
             ->sum('score');
 
-        $totalQuestions = count($questions);
-
         return response()->json([
-            'is_correct' => $isCorrect,
-            'correct_option' => (int) $q['correct_index'],
-            'score_earned' => $score,
+            'is_correct' => $answer['is_correct'],
+            'correct_option' => $question['correct_index'],
+            'score_earned' => $answer['score'],
             'total_score' => $totalScore,
-            'has_next' => $index + 1 < $totalQuestions,
-            'next_question' => $this->questionPayload($questions, $index + 1, $session),
+            'has_next' => $index + 1 < count($questions),
+            // The next question is fetched after feedback so its server timer starts at display time.
+            'next_question' => null,
         ]);
     }
 
@@ -161,12 +133,14 @@ final class ExamController
         if ($session instanceof JsonResponse) {
             return $session;
         }
+        if (! $student instanceof Student) {
+            return $this->unauthorizedStudent();
+        }
 
         if (! $this->policy->canViewResult($student, $session)) {
             return $this->error(409, 'exam_still_open', 'Results are available only after the exam is closed.');
         }
 
-        // Lazy-build results if the scheduler hasn't run yet.
         if (! ExamResult::query()->where('exam_session_id', $session->id)->exists()) {
             $this->leaderboard->build($session);
         }
@@ -195,62 +169,40 @@ final class ExamController
         ]);
     }
 
-    private function computeScore(bool $isCorrect, int $timeSpentMs, ExamSession $session, bool $isHard = false): int
-    {
-        if (! $isCorrect) {
-            return 0;
-        }
-
-        $perQuestion = (int) ($session->config['seconds_per_question'] ?? 10);
-        $totalMs = $perQuestion * 1000;
-        $remaining = max(0.0, 1.0 - ($timeSpentMs / max(1, $totalMs)));
-
-        // Minimum 5 points for a correct answer even if time ran out.
-        $base = max(5, (int) round(self::MAX_POINTS_PER_QUESTION * (0.25 + 0.75 * $remaining)));
-
-        // PRD FR-TWA-03: hard words reward 1.5× to incentivise reviewing difficult vocabulary.
-        return $isHard ? (int) round($base * 1.5) : $base;
-    }
-
-    private function questionSecondsLeft(ExamSession $session): int
-    {
-        if ($session->ends_at === null) {
-            return 0;
-        }
-        $left = CarbonImmutable::now()->diffInSeconds($session->ends_at, false);
-
-        return max(0, (int) $left);
-    }
-
     /**
      * @return list<array{word_id:int, word:string, correct_translation:string, correct_index:int, options:list<string>}>
      */
     private function questions(ExamSession $session): array
     {
-        /** @var list<array{word_id:int, word:string, correct_translation:string, correct_index:int, options:list<string>}> $q */
-        $q = $session->config['questions'] ?? [];
+        /** @var list<array{word_id:int, word:string, correct_translation:string, correct_index:int, options:list<string>}> $questions */
+        $questions = $session->config['questions'] ?? [];
 
-        return $q;
+        return $questions;
     }
 
     /**
      * @param  list<array{word_id:int, word:string, correct_translation:string, correct_index:int, options:list<string>}>  $questions
      * @return array{question_index:int, word_id:int, word:string, options:list<string>, seconds_left:int}|null
      */
-    private function questionPayload(array $questions, int $index, ExamSession $session): ?array
-    {
+    private function questionPayload(
+        array $questions,
+        int $index,
+        ExamSession $session,
+        Student $student,
+    ): ?array {
         if ($index < 0 || $index >= count($questions)) {
             return null;
         }
 
-        $q = $questions[$index];
+        $question = $questions[$index];
+        $attempt = $this->answers->serve($session, $student, $index);
 
         return [
             'question_index' => $index,
-            'word_id' => (int) $q['word_id'],
-            'word' => (string) $q['word'],
-            'options' => array_values($q['options']),
-            'seconds_left' => $this->questionSecondsLeft($session),
+            'word_id' => $question['word_id'],
+            'word' => $question['word'],
+            'options' => $question['options'],
+            'seconds_left' => $this->answers->secondsLeft($session, $attempt),
         ];
     }
 
@@ -273,7 +225,10 @@ final class ExamController
             return [null, $this->error(403, 'forbidden', 'You cannot access this exam session.')];
         }
 
-        if ($requireOpen && $session->status !== 'open') {
+        if ($requireOpen && (
+            $session->status !== 'open'
+            || ($session->ends_at !== null && ! $session->ends_at->isFuture())
+        )) {
             return [null, $this->error(410, 'session_closed', 'This exam session is closed.')];
         }
 
@@ -283,5 +238,10 @@ final class ExamController
     private function error(int $status, string $code, string $message): JsonResponse
     {
         return response()->json(['error' => ['code' => $code, 'message' => $message]], $status);
+    }
+
+    private function unauthorizedStudent(): JsonResponse
+    {
+        return $this->error(401, 'student_not_found', 'Unauthorized');
     }
 }

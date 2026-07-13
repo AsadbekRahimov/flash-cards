@@ -83,7 +83,7 @@ it('opens an exam session via /start_exam and posts WebApp button', function ():
     expect($diffSec)->toBeGreaterThanOrEqual(110)->toBeLessThanOrEqual(130);
 });
 
-it('defaults to stage=1 lesson=1 minutes=2 when no arguments', function (): void {
+it('defaults to stage=1 lesson=1 minutes=10 when no arguments', function (): void {
     seedLessonWithWords();
     $this->api->shouldReceive('sendWebAppButton')->once();
 
@@ -95,7 +95,8 @@ it('defaults to stage=1 lesson=1 minutes=2 when no arguments', function (): void
         ],
     ]);
 
-    expect(ExamSession::query()->count())->toBe(1);
+    $session = ExamSession::query()->sole();
+    expect($session->config['duration_minutes'])->toBe(10);
 });
 
 it('rejects second /start_exam while one is already open', function (): void {

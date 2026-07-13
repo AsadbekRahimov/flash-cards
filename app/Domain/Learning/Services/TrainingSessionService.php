@@ -10,6 +10,7 @@ use App\Models\Stage;
 use App\Models\TelegramGroup;
 use App\Models\TrainingSession;
 use App\Models\User;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -55,27 +56,38 @@ final class TrainingSessionService
             throw TrainingSessionException::lessonNotFound($stageNumber, $lessonNumber);
         }
 
-        return DB::transaction(function () use ($group, $lesson, $teacher): TrainingSession {
-            /** @var TrainingSession|null $existing */
+        try {
+            return DB::transaction(function () use ($group, $lesson, $teacher): TrainingSession {
+                /** @var TrainingSession|null $existing */
+                $existing = TrainingSession::query()
+                    ->where('telegram_group_id', $group->id)
+                    ->where('lesson_id', $lesson->id)
+                    ->where('status', 'open')
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($existing !== null) {
+                    return $existing;
+                }
+
+                return TrainingSession::query()->create([
+                    'telegram_group_id' => $group->id,
+                    'lesson_id' => $lesson->id,
+                    'started_by_user_id' => $teacher->id,
+                    'status' => 'open',
+                    'started_at' => now(),
+                ]);
+            });
+        } catch (UniqueConstraintViolationException) {
+            /** @var TrainingSession $existing */
             $existing = TrainingSession::query()
                 ->where('telegram_group_id', $group->id)
                 ->where('lesson_id', $lesson->id)
                 ->where('status', 'open')
-                ->lockForUpdate()
-                ->first();
+                ->firstOrFail();
 
-            if ($existing !== null) {
-                return $existing;
-            }
-
-            return TrainingSession::query()->create([
-                'telegram_group_id' => $group->id,
-                'lesson_id' => $lesson->id,
-                'started_by_user_id' => $teacher->id,
-                'status' => 'open',
-                'started_at' => now(),
-            ]);
-        });
+            return $existing;
+        }
     }
 
     private function userTeachesGroup(User $user, TelegramGroup $group): bool

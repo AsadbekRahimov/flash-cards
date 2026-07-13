@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Widgets;
 
+use App\Domain\Administration\Services\PanelDataScope;
 use App\Models\Word;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -22,6 +23,7 @@ class HardestWordsTableWidget extends TableWidget
     public function table(Table $table): Table
     {
         $since = now()->subDays(30);
+        $studentIds = app(PanelDataScope::class)->studentIds();
 
         return $table
             ->query(
@@ -31,6 +33,7 @@ class HardestWordsTableWidget extends TableWidget
                         fn (QueryBuilder $q) => $q->from('training_reviews')
                             ->selectRaw('COUNT(*)')
                             ->whereColumn('training_reviews.word_id', 'words.id')
+                            ->whereIn('training_reviews.student_id', clone $studentIds)
                             ->where('training_reviews.created_at', '>=', $since),
                         'attempts',
                     )
@@ -38,10 +41,18 @@ class HardestWordsTableWidget extends TableWidget
                         fn (QueryBuilder $q) => $q->from('training_reviews')
                             ->selectRaw('CAST(SUM(CASE WHEN quality < ? THEN 1 ELSE 0 END) AS FLOAT) / NULLIF(COUNT(*), 0)', [3])
                             ->whereColumn('training_reviews.word_id', 'words.id')
+                            ->whereIn('training_reviews.student_id', clone $studentIds)
                             ->where('training_reviews.created_at', '>=', $since),
                         'hard_ratio',
                     )
-                    ->whereHas('trainingReviews', fn (Builder $q): Builder => $q->where('created_at', '>=', $since), '>=', 5)
+                    ->whereHas(
+                        'trainingReviews',
+                        fn (Builder $q): Builder => $q
+                            ->whereIn('student_id', clone $studentIds)
+                            ->where('created_at', '>=', $since),
+                        '>=',
+                        5,
+                    )
                     ->orderByDesc('hard_ratio')
                     ->limit(10),
             )

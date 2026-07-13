@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Twa\Services\InitDataValidator;
 use App\Models\Student;
 use App\Models\TelegramGroup;
+use App\Models\TrainingSession;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
 
@@ -83,4 +84,68 @@ it('requires the init_data field', function (): void {
     $this->postJson('/api/twa/auth', [])
         ->assertStatus(422)
         ->assertJsonValidationErrors(['init_data']);
+});
+
+it('selects the membership that belongs to the requested session', function (): void {
+    $firstGroup = TelegramGroup::factory()->create(['status' => 'active']);
+    $secondGroup = TelegramGroup::factory()->create(['status' => 'active']);
+    Student::factory()->create([
+        'telegram_group_id' => $firstGroup->id,
+        'telegram_user_id' => 555,
+        'is_active' => true,
+    ]);
+    $expectedStudent = Student::factory()->create([
+        'telegram_group_id' => $secondGroup->id,
+        'telegram_user_id' => 555,
+        'is_active' => true,
+    ]);
+    $session = TrainingSession::factory()->create([
+        'telegram_group_id' => $secondGroup->id,
+    ]);
+
+    $this->postJson('/api/twa/auth', [
+        'init_data' => signedInitData(555),
+        'context' => [
+            'type' => 'training',
+            'session_id' => $session->id,
+        ],
+    ])->assertOk()
+        ->assertJsonPath('student.id', $expectedStudent->id)
+        ->assertJsonPath('student.telegram_group_id', $secondGroup->id);
+});
+
+it('requires session context when a Telegram account belongs to multiple active groups', function (): void {
+    $groups = TelegramGroup::factory()->count(2)->create(['status' => 'active']);
+
+    foreach ($groups as $group) {
+        Student::factory()->create([
+            'telegram_group_id' => $group->id,
+            'telegram_user_id' => 555,
+            'is_active' => true,
+        ]);
+    }
+
+    $this->postJson('/api/twa/auth', [
+        'init_data' => signedInitData(555),
+    ])->assertStatus(409)->assertJsonPath('error.code', 'session_context_required');
+});
+
+it('invalidates an issued JWT when its group is deactivated', function (): void {
+    $group = TelegramGroup::factory()->create(['status' => 'active']);
+    Student::factory()->create([
+        'telegram_group_id' => $group->id,
+        'telegram_user_id' => 555,
+        'is_active' => true,
+    ]);
+
+    $token = $this->postJson('/api/twa/auth', [
+        'init_data' => signedInitData(555),
+    ])->assertOk()->json('token');
+
+    $group->update(['status' => 'disabled']);
+
+    $this->withToken((string) $token)
+        ->getJson('/api/twa/me')
+        ->assertUnauthorized()
+        ->assertJsonPath('error.code', 'group_inactive');
 });

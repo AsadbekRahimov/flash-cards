@@ -16,7 +16,7 @@ final class WebhookController
         $expectedHeader = (string) config('telegram.header_secret');
 
         if ($expectedUrl === '' || ! hash_equals($expectedUrl, $secret)) {
-            abort(403);
+            abort(404);
         }
 
         $header = (string) $request->header('X-Telegram-Bot-Api-Secret-Token', '');

@@ -9,7 +9,7 @@ Telegram-based платформа обучения английскому язы
 - **Filament** 5 — админка
 - **PostgreSQL** 16 / **Redis** 7
 - **Telegram Bot SDK** (`irazasyed/telegram-bot-sdk`)
-- **Pest** 3 — тесты, **Larastan** level 8 — статический анализ, **Pint** — code style
+- **Pest** 4 — тесты, **Larastan** level 8 — статический анализ, **Pint** — code style
 - **spatie/laravel-permission**, **owen-it/laravel-auditing**, **firebase/php-jwt**
 
 ## Локальный запуск (Docker)
@@ -57,7 +57,7 @@ docker compose exec app php artisan migrate --seed
 |---------------|-----------|
 | `docker-compose.prod.yml` | Prod-стек: app (php-fpm), queue, scheduler, nginx, certbot, postgres, redis |
 | `docker/nginx/prod.conf` | Nginx с HTTPS + ACME webroot (подстановка `APP_DOMAIN` через `envsubst`) |
-| `deploy.sh` / `make deploy` | Git pull → build → TWA build → migrate → cache → restart |
+| `deploy.sh` / `make deploy` | Fast-forward pull → immutable app/nginx images → TLS → migrate → smoke-check |
 | `make backup` | Ручной запуск `artisan backup:run` (`spatie/laravel-backup`) |
 
 ### Первичный setup на сервере
@@ -67,53 +67,43 @@ docker compose exec app php artisan migrate --seed
 git clone <repo> /opt/lexiflow && cd /opt/lexiflow
 cp .env.example .env
 # — отредактировать .env: APP_ENV=production, APP_DEBUG=false, APP_DOMAIN,
-#   APP_KEY (php artisan key:generate), DB_PASSWORD, TELEGRAM_*, TWA_JWT_SECRET, BACKUP_DISKS
+#   CERTBOT_EMAIL, APP_KEY, DB_PASSWORD, TELEGRAM_*, TWA_JWT_SECRET,
+#   BACKUP_DISKS, BACKUP_ARCHIVE_PASSWORD (openssl rand -base64 48)
+# APP_KEY без установленного PHP можно создать так:
+# APP_KEY=base64:$(openssl rand -base64 32)
 chmod 600 .env
 
-# 2. Поднять стек БЕЗ https (certbot ещё не получил сертификат)
-docker compose -f docker-compose.prod.yml --env-file .env up -d postgres redis app
+# 2. Собрать образы, получить первый сертификат, применить миграции и поднять стек.
+# TWA и Laravel assets собираются внутри Dockerfile; Node.js на сервере не нужен.
+bash deploy.sh
 
-# 3. Выпустить сертификат (standalone, пока nginx не стартовал)
-docker run --rm -p 80:80 \
-  -v lexiflow_letsencrypt:/etc/letsencrypt \
-  -v lexiflow_certbot_www:/var/www/certbot \
-  certbot/certbot certonly --standalone -d ${APP_DOMAIN} --agree-tos -m admin@${APP_DOMAIN} -n
-
-# 4. Запустить весь стек
-docker compose -f docker-compose.prod.yml --env-file .env up -d
-
-# 5. Миграции + кэши + 2FA
-docker compose -f docker-compose.prod.yml exec -T app php artisan migrate --force
+# 3. Роли + первый admin + 2FA
 docker compose -f docker-compose.prod.yml exec -T app php artisan db:seed --class=RolePermissionSeeder
-docker compose -f docker-compose.prod.yml exec -T app php artisan config:cache
-docker compose -f docker-compose.prod.yml exec -T app php artisan route:cache
-docker compose -f docker-compose.prod.yml exec -T app php artisan view:cache
-
-# 6. Создать первого admin и зайти в /admin/login — настроить 2FA
 docker compose -f docker-compose.prod.yml exec -T app php artisan tinker
 # >>> \App\Models\User::create([...])->assignRole('admin');
+# Зайти в /admin/login и настроить 2FA.
 
-# 7. Webhook в Telegram
+# 4. Webhook в Telegram
 docker compose -f docker-compose.prod.yml exec -T app php artisan telegram:set-webhook
 ```
 
 ### Последующие deploy'и
 
 ```bash
-git pull && ./deploy.sh
+bash deploy.sh
 ```
 
 ### Бэкапы
 
 `spatie/laravel-backup` запускается по `Schedule` (см. `routes/console.php`):
-- ежедневно в `01:30` — полный backup (DB dump + `base_path()` без `vendor` / `node_modules`),
+- ежедневно в `01:30` — зашифрованный backup (DB dump + исходники без `.env`, `.git`, зависимостей и build/cache-файлов),
 - `01:00` — cleanup старых,
 - `02:00` — health-check.
 
-Диски задаются через `BACKUP_DISKS=local,s3`. Для offsite — настроить `AWS_*` в `.env`
+Архив проверяется сразу после создания и шифруется паролем `BACKUP_ARCHIVE_PASSWORD`. Диски задаются через `BACKUP_DISKS=local,s3`. Для offsite — настроить `AWS_*` в `.env`
 (совместимо с S3 / DO Spaces / Yandex Object Storage через `AWS_ENDPOINT`).
 
-Ручной запуск: `make backup`. Восстановление: `gunzip backup.sql.gz | psql -U lexiflow lexiflow`.
+Ручной запуск: `make backup`. Для восстановления распакуйте ZIP с `BACKUP_ARCHIVE_PASSWORD`, затем передайте SQL-дамп в `psql -U lexiflow -d lexiflow`.
 
 ### Smoke-test чек-лист после deploy
 

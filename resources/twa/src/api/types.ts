@@ -5,6 +5,11 @@ export interface Student {
   telegram_group_id: number
 }
 
+export interface AuthContext {
+  type: 'training' | 'exam'
+  sessionId: number
+}
+
 export interface AuthResponse {
   token: string
   expires_in: number

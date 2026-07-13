@@ -36,7 +36,6 @@ class LessonsRelationManager extends RelationManager
             ->headerActions([Actions\CreateAction::make()])
             ->actions([
                 Actions\EditAction::make(),
-                Actions\DeleteAction::make(),
             ])
             ->defaultSort('number');
     }

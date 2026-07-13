@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Widgets;
 
-use App\Models\TrainingReview;
+use App\Domain\Administration\Services\PanelDataScope;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
 
@@ -20,7 +20,7 @@ class ActivityChartWidget extends ChartWidget
         $since = Carbon::today()->subDays(29);
 
         /** @var array<string, int> $counts */
-        $counts = TrainingReview::query()
+        $counts = app(PanelDataScope::class)->trainingReviews()
             ->where('created_at', '>=', $since)
             ->selectRaw('DATE(created_at) AS d, COUNT(*) AS c')
             ->groupBy('d')

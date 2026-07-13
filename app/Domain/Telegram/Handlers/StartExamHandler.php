@@ -15,7 +15,7 @@ use App\Models\User;
 /**
  * Handles `/start_exam [stage] [lesson] [minutes]` from a teacher in a group.
  *
- * Defaults: stage=1, lesson=1, minutes=2.
+ * Defaults: stage=1, lesson=1, minutes=10.
  */
 final class StartExamHandler implements UpdateHandler
 {
@@ -93,13 +93,13 @@ final class StartExamHandler implements UpdateHandler
             return [(int) $m[1], (int) $m[2], (int) $m[3]];
         }
         if (preg_match('~^/start_exam(?:@\w+)?\s+(\d+)\s+(\d+)~', $text, $m) === 1) {
-            return [(int) $m[1], (int) $m[2], 2];
+            return [(int) $m[1], (int) $m[2], 10];
         }
         if (preg_match('~^/start_exam(?:@\w+)?\s+(\d+)~', $text, $m) === 1) {
-            return [(int) $m[1], 1, 2];
+            return [(int) $m[1], 1, 10];
         }
 
-        return [1, 1, 2];
+        return [1, 1, 10];
     }
 
     private function humanizeError(ExamSessionException $e): string

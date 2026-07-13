@@ -31,6 +31,9 @@ jobs:
             - name: Install dependencies
               run: composer install --prefer-dist --no-interaction --no-progress
 
+            - name: Audit Composer dependencies
+              run: composer audit --no-interaction
+
             - name: Pint (code style)
               run: ./vendor/bin/pint --test
 
@@ -129,14 +132,28 @@ jobs:
             - name: Install root frontend dependencies
               run: npm ci
 
+            - name: Audit root frontend dependencies
+              run: npm audit --omit=dev --audit-level=high
+
             - name: Build Laravel assets
               run: npm run build
 
             - name: Install TWA dependencies
               run: npm ci --prefix resources/twa
 
+            - name: Audit TWA dependencies
+              run: npm audit --prefix resources/twa --omit=dev --audit-level=high
+
+            - name: Test TWA
+              run: npm test --prefix resources/twa
+
             - name: Build TWA assets
               run: npm run build --prefix resources/twa
+
+            - name: Build production Docker targets
+              run: |
+                  docker build --target app --tag lexiflow/app:ci .
+                  docker build --target nginx --tag lexiflow/nginx:ci .
 
             - name: Upload Laravel build artifacts
               uses: actions/upload-artifact@v4
@@ -164,5 +181,5 @@ jobs:
               with:
                   host: ${{ secrets.SSH_HOST }}
                   username: ${{ secrets.SSH_USER }}
-                  password: ${{ secrets.SSH_PASSWORD }}
-                  script: cd /var/www/lexiflow && yes | bash /usr/local/bin/deploy.sh
+                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+                  script: cd /var/www/lexiflow && bash deploy.sh

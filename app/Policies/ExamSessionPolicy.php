@@ -6,9 +6,41 @@ namespace App\Policies;
 
 use App\Models\ExamSession;
 use App\Models\Student;
+use App\Models\User;
 
 final class ExamSessionPolicy
 {
+    public function viewAny(User $user): bool
+    {
+        return $user->is_active && $user->hasAnyRole(['admin', 'teacher']);
+    }
+
+    public function view(User $user, ExamSession $session): bool
+    {
+        return $this->viewAny($user)
+            && ($user->hasRole('admin') || $session->group?->teachers()->whereKey($user->id)->exists() === true);
+    }
+
+    public function create(User $user): bool
+    {
+        return false;
+    }
+
+    public function update(User $user, ExamSession $session): bool
+    {
+        return false;
+    }
+
+    public function delete(User $user, ExamSession $session): bool
+    {
+        return false;
+    }
+
+    public function deleteAny(User $user): bool
+    {
+        return false;
+    }
+
     /**
      * Student is in the same group as the exam session. Use this when we want
      * to distinguish "you don't belong here" (403) from "session closed" (410).
@@ -24,7 +56,9 @@ final class ExamSessionPolicy
      */
     public function canParticipate(Student $student, ExamSession $session): bool
     {
-        return $this->canAccess($student, $session) && $session->status === 'open';
+        return $this->canAccess($student, $session)
+            && $session->status === 'open'
+            && ($session->ends_at === null || $session->ends_at->isFuture());
     }
 
     /**

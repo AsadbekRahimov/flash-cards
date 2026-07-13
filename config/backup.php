@@ -38,9 +38,16 @@ return [
                  * Directories used by the backup process will automatically be excluded.
                  */
                 'exclude' => [
+                    base_path('.env'),
+                    base_path('.git'),
                     base_path('vendor'),
                     base_path('node_modules'),
+                    base_path('resources/twa/node_modules'),
+                    public_path('build'),
+                    public_path('twa'),
                     storage_path('framework'),
+                    storage_path('logs'),
+                    storage_path('tmp'),
                 ],
 
                 /*
@@ -58,7 +65,7 @@ return [
                  * Set to `null` to include complete absolute path
                  * Example: base_path()
                  */
-                'relative_path' => null,
+                'relative_path' => base_path(),
             ],
 
             /*
@@ -198,7 +205,7 @@ return [
          * After creating the zip, verify it can be opened and contains files.
          * Recommended for critical backups but adds a small overhead.
          */
-        'verify_backup' => false,
+        'verify_backup' => true,
 
         /*
          * The number of attempts, in case the backup command encounters an exception

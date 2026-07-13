@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\StudentFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,6 +24,7 @@ use Illuminate\Support\Carbon;
  */
 class Student extends Model
 {
+    /** @use HasFactory<StudentFactory> */
     use HasFactory;
 
     /** @var list<string> */
@@ -69,6 +71,12 @@ class Student extends Model
     public function examAnswers(): HasMany
     {
         return $this->hasMany(ExamAnswer::class);
+    }
+
+    /** @return HasMany<ExamQuestionAttempt, $this> */
+    public function examQuestionAttempts(): HasMany
+    {
+        return $this->hasMany(ExamQuestionAttempt::class);
     }
 
     /** @return HasMany<NotificationLog, $this> */

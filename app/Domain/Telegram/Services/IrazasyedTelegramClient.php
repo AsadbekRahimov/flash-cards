@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Telegram\Services;
 
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Jobs\SendTelegramMessageJob;
 use Telegram\Bot\Api;
 
 class IrazasyedTelegramClient implements TelegramClient
@@ -12,12 +13,37 @@ class IrazasyedTelegramClient implements TelegramClient
     public function __construct(
         private readonly Api $api,
         private readonly TelegramKeyboardFactory $keyboards,
+        private readonly TelegramMessageRateLimiter $rateLimiter,
     ) {}
 
     /**
      * @param  array<string, mixed>|null  $replyMarkup
      */
     public function sendMessage(
+        int|string $chatId,
+        string $text,
+        ?string $parseMode = null,
+        ?array $replyMarkup = null,
+    ): void {
+        $retryAfter = $this->rateLimiter->reserve($chatId);
+        if ($retryAfter > 0) {
+            SendTelegramMessageJob::dispatch($chatId, $text, $parseMode, $replyMarkup)
+                ->onQueue((string) config('telegram.queue', 'high'))
+                ->delay(now()->addSeconds($retryAfter));
+
+            return;
+        }
+
+        $this->sendImmediately($chatId, $text, $parseMode, $replyMarkup);
+    }
+
+    /**
+     * Sends a message without reserving another rate-limit slot.
+     * Only the deferred queue job should call this method directly.
+     *
+     * @param  array<string, mixed>|null  $replyMarkup
+     */
+    public function sendImmediately(
         int|string $chatId,
         string $text,
         ?string $parseMode = null,

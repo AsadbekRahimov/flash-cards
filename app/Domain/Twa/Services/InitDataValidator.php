@@ -20,6 +20,8 @@ use App\Domain\Twa\Exceptions\InvalidInitDataException;
  */
 final class InitDataValidator
 {
+    private const MAX_FUTURE_SKEW_SECONDS = 30;
+
     public function __construct(private readonly string $botToken) {}
 
     /**
@@ -60,7 +62,8 @@ final class InitDataValidator
         }
 
         $authDate = (int) $data['auth_date'];
-        if ((time() - $authDate) > $maxAgeSeconds) {
+        $age = time() - $authDate;
+        if ($age > $maxAgeSeconds || $age < -self::MAX_FUTURE_SKEW_SECONDS) {
             throw new InvalidInitDataException(InvalidInitDataException::REASON_EXPIRED);
         }
 

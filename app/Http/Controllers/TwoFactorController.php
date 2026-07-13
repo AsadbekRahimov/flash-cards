@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Domain\Administration\Services\TwoFactorRecoveryCodeService;
 use App\Models\User;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
@@ -18,7 +19,10 @@ use PragmaRX\Google2FA\Google2FA;
 
 final class TwoFactorController extends Controller
 {
-    public function __construct(private readonly Google2FA $g2fa) {}
+    public function __construct(
+        private readonly Google2FA $g2fa,
+        private readonly TwoFactorRecoveryCodeService $recoveryCodeService,
+    ) {}
 
     public function setup(Request $request): View|RedirectResponse
     {
@@ -78,6 +82,7 @@ final class TwoFactorController extends Controller
 
         $request->session()->forget('2fa.pending_secret');
         $request->session()->put('2fa.passed_at', now()->timestamp);
+        $request->session()->put('2fa.show_recovery_codes', true);
 
         return redirect()->route('2fa.recovery-codes');
     }
@@ -89,6 +94,12 @@ final class TwoFactorController extends Controller
 
         if (! $user->hasTwoFactorEnabled()) {
             return redirect()->route('2fa.setup');
+        }
+
+        if ($request->session()->pull('2fa.show_recovery_codes') !== true) {
+            return $request->session()->has('2fa.passed_at')
+                ? redirect('/admin')
+                : redirect()->route('2fa.challenge');
         }
 
         return view('2fa.recovery-codes', [
@@ -117,16 +128,7 @@ final class TwoFactorController extends Controller
             return redirect()->intended('/admin');
         }
 
-        /** @var list<string> $recoveryCodes */
-        $recoveryCodes = (array) $user->two_factor_recovery_codes;
-        $idx = array_search($code, $recoveryCodes, true);
-
-        if ($idx !== false) {
-            unset($recoveryCodes[$idx]);
-            $user->forceFill([
-                'two_factor_recovery_codes' => array_values($recoveryCodes),
-            ])->save();
-
+        if ($this->recoveryCodeService->consume($user, $code)) {
             $request->session()->put('2fa.passed_at', now()->timestamp);
 
             return redirect()->intended('/admin');

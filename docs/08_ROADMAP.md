@@ -239,7 +239,7 @@ gantt
 
 ### Задачи
 - [ ] Production docker-compose.yml (отдельный от dev).
-- [ ] Скрипт `deploy.sh` / Makefile.
+- [x] Скрипт `deploy.sh` / Makefile.
 - [ ] Настроить Let's Encrypt (caddy или certbot).
 - [ ] Настроить бэкапы БД.
 - [ ] Обновить `README.md` с production-инструкцией.

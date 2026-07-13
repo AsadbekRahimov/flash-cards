@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Domain\Learning\Exceptions\ReviewSubmissionException;
+use App\Domain\Learning\Services\ReviewSubmissionService;
 use App\Domain\Twa\Services\JwtService;
 use App\Models\Lesson;
 use App\Models\Stage;
@@ -254,4 +256,85 @@ it('returns 422 when reviewing a word from another lesson', function (): void {
         ])
         ->assertStatus(422)
         ->assertJsonPath('error.code', 'wrong_lesson');
+});
+
+it('does not apply the same card review more than once', function (): void {
+    $s = seedTrainingScenario(1);
+    $headers = authHeaders($s['student']);
+
+    $wordId = $this->withHeaders($headers)
+        ->getJson("/api/twa/training/sessions/{$s['session']->id}/next")
+        ->assertOk()
+        ->json('card.word_id');
+
+    $payload = [
+        'word_id' => $wordId,
+        'quality' => 5,
+        'time_spent_ms' => 1000,
+    ];
+
+    $this->withHeaders($headers)
+        ->postJson("/api/twa/training/sessions/{$s['session']->id}/review", $payload)
+        ->assertOk();
+
+    $this->withHeaders($headers)
+        ->postJson("/api/twa/training/sessions/{$s['session']->id}/review", $payload)
+        ->assertStatus(409)
+        ->assertJsonPath('error.code', 'card_not_due');
+
+    expect(TrainingReview::query()->where('student_id', $s['student']->id)->count())->toBe(1);
+    expect(WordRepetition::query()->where('student_id', $s['student']->id)->value('repetitions'))->toBe(1);
+});
+
+it('rejects a review when a stale session model was closed concurrently', function (): void {
+    $s = seedTrainingScenario(1);
+    $session = $s['session']->fresh();
+    $word = $s['words']->first();
+
+    WordRepetition::factory()->create([
+        'student_id' => $s['student']->id,
+        'word_id' => $word->id,
+        'next_review_at' => now()->subMinute(),
+    ]);
+
+    TrainingSession::query()
+        ->whereKey($session->id)
+        ->update(['status' => 'closed', 'ended_at' => now()]);
+
+    expect(fn () => app(ReviewSubmissionService::class)->submit(
+        $session,
+        $s['student'],
+        (int) $word->id,
+        5,
+        1000,
+    ))->toThrow(ReviewSubmissionException::class);
+
+    expect(TrainingReview::query()->where('training_session_id', $session->id)->count())->toBe(0);
+});
+
+it('stops serving cards at the configured per-session limit', function (): void {
+    config(['twa.training.max_cards_per_session' => 1]);
+
+    $s = seedTrainingScenario(2);
+    $headers = authHeaders($s['student']);
+    $wordId = $this->withHeaders($headers)
+        ->getJson("/api/twa/training/sessions/{$s['session']->id}/next")
+        ->assertOk()
+        ->json('card.word_id');
+
+    $this->withHeaders($headers)
+        ->postJson("/api/twa/training/sessions/{$s['session']->id}/review", [
+            'word_id' => $wordId,
+            'quality' => 5,
+            'time_spent_ms' => 1000,
+        ])
+        ->assertOk()
+        ->assertJsonPath('card', null);
+
+    $this->withHeaders($headers)
+        ->getJson("/api/twa/training/sessions/{$s['session']->id}/next")
+        ->assertOk()
+        ->assertJsonPath('card', null);
+
+    expect(TrainingReview::query()->where('training_session_id', $s['session']->id)->count())->toBe(1);
 });

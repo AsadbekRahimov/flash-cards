@@ -202,3 +202,28 @@ it('exams:close-expired respects grace period', function (): void {
     expect($s['session']->fresh()->status)->toBe('open');
     Bus::assertNotDispatched(PostLeaderboardJob::class);
 });
+
+it('posts a leaderboard only once when the job is delivered repeatedly', function (): void {
+    $s = seedOpenExam(-1111, 999);
+    $s['session']->update(['status' => 'closed', 'closed_at' => now()]);
+
+    $telegram = Mockery::mock(TelegramClient::class);
+    $telegram->shouldReceive('sendMessage')->once();
+    $job = new PostLeaderboardJob($s['session']->id);
+
+    $job->handle($telegram, app(LeaderboardBuilder::class));
+    $job->handle($telegram, app(LeaderboardBuilder::class));
+
+    expect($s['session']->fresh()->leaderboard_posted_at)->not->toBeNull();
+});
+
+it('does not post a leaderboard while the exam is still open', function (): void {
+    $s = seedOpenExam(-1010, 1001);
+    $telegram = Mockery::mock(TelegramClient::class);
+    $telegram->shouldNotReceive('sendMessage');
+
+    (new PostLeaderboardJob($s['session']->id))
+        ->handle($telegram, app(LeaderboardBuilder::class));
+
+    expect($s['session']->fresh()->leaderboard_posted_at)->toBeNull();
+});

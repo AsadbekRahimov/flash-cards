@@ -5,11 +5,14 @@ declare(strict_types=1);
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\IrazasyedTelegramClient;
 use App\Domain\Telegram\Services\TelegramKeyboardFactory;
+use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
 use Telegram\Bot\Api;
 use Telegram\Bot\Objects\Message as MessageObject;
 
 it('binds the Telegram client contract to the irazasyed adapter', function (): void {
-    expect(app(TelegramClient::class))->toBeInstanceOf(IrazasyedTelegramClient::class);
+    expect(app(TelegramClient::class))
+        ->toBeInstanceOf(IrazasyedTelegramClient::class)
+        ->toBe(app(IrazasyedTelegramClient::class));
 });
 
 it('builds a Telegram WebApp inline keyboard', function (): void {
@@ -50,7 +53,11 @@ it('uses telegram bot sdk when sending a WebApp button', function (): void {
         }
     };
 
-    $client = new IrazasyedTelegramClient($sdk, new TelegramKeyboardFactory);
+    $client = new IrazasyedTelegramClient(
+        $sdk,
+        new TelegramKeyboardFactory,
+        new TelegramMessageRateLimiter,
+    );
 
     $client->sendWebAppButton(
         chatId: -1001,

@@ -97,23 +97,23 @@ export function useTelegramInitData(): string {
 export const useAuth = defineStore('auth', {
   state: () => ({ token: '' as string, expiresAt: 0, student: null as Student | null }),
   actions: {
-    async login() {
+    async login(context: { type: 'training' | 'exam'; sessionId: number }) {
       const initData = useTelegramInitData()
-      const res = await api.auth.authenticate(initData)
+      const res = await api.auth.authenticate(initData, context)
       this.token = res.token
       this.expiresAt = Date.now() + res.expires_in * 1000
       this.student = res.student
     },
-    async ensure() {
-      if (!this.token || Date.now() > this.expiresAt - 60_000) {
-        await this.login()
+    async ensure(context) {
+      if (!this.token || contextChanged(context) || Date.now() > this.expiresAt - 60_000) {
+        await this.login(context)
       }
     },
   },
 })
 ```
 
-Перед каждым запросом вызываем `auth.ensure()`; если бек вернул 401 — пробуем один раз переавторизоваться.
+Перед каждым запросом вызываем `auth.ensure({ type, sessionId })`; если бек вернул 401 — пробуем один раз переавторизоваться с тем же контекстом. Это обязательно, потому что один Telegram-пользователь может состоять в нескольких группах.
 
 ## 5. Режим «Training»
 
@@ -173,6 +173,8 @@ interface ExamState {
 - Глобальный таймер до `endsAt` (MM:SS).
 - Таймер вопроса — `secondsPerQuestion` (по умолчанию 10).
 - По истечении времени вопроса — автосабмит «не ответил» (selected_option_index = null, is_correct = false).
+- Время показа вопроса фиксирует backend. Повторная загрузка вопроса не перезапускает таймер, а клиентское `time_spent_ms` считается только телеметрией и не влияет на баллы.
+- После `ends_at` endpoints `join`, `question` и `answer` немедленно возвращают `410 Gone`, даже если scheduler ещё не перевёл сессию в `closed`.
 
 ### 6.3 UI
 - Top bar: время до конца экзамена + номер вопроса.
@@ -258,8 +260,12 @@ export function useTts() {
 - Nginx отдаёт статику с long-cache:
   ```
   location /twa/ {
-      alias /var/www/html/public/twa/;
       try_files $uri $uri/ /twa/index.html;
+  }
+  location = /twa/index.html {
+      add_header Cache-Control "no-cache, no-store, must-revalidate";
+  }
+  location ^~ /twa/assets/ {
       add_header Cache-Control "public, max-age=31536000, immutable";
   }
   ```

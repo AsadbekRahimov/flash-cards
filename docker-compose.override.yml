@@ -19,7 +19,7 @@ services:
     vite:
         image: node:20-alpine
         container_name: lexiflow-vite
-        working_dir: /var/www/html
+        working_dir: /var/www/html/resources/twa
         # UID/GID хоста — чтобы node_modules не оказался под root на Linux/WSL.
         user: "${UID:-1000}:${GID:-1000}"
         # `npm install` запускается ТОЛЬКО если нет node_modules — иначе старт

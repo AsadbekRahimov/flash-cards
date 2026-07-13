@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\ExamAnswerFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ExamAnswer extends Model
 {
+    /** @use HasFactory<ExamAnswerFactory> */
     use HasFactory;
 
     public $timestamps = false;

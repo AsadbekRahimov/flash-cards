@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\Twa;
 
+use App\Domain\Learning\Exceptions\ReviewSubmissionException;
 use App\Domain\Learning\Services\CardPicker;
 use App\Domain\Learning\Services\LearningCache;
-use App\Domain\Learning\Services\SpacedRepetitionEngine;
+use App\Domain\Learning\Services\ReviewSubmissionService;
 use App\Models\Student;
 use App\Models\TrainingReview;
 use App\Models\TrainingSession;
-use App\Models\WordRepetition;
 use App\Policies\TrainingSessionPolicy;
-use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -20,7 +19,7 @@ final class TrainingController
 {
     public function __construct(
         private readonly CardPicker $picker,
-        private readonly SpacedRepetitionEngine $engine,
+        private readonly ReviewSubmissionService $reviews,
         private readonly LearningCache $cache,
         private readonly TrainingSessionPolicy $policy,
     ) {}
@@ -45,7 +44,7 @@ final class TrainingController
         }
 
         $totalWords = $this->cache->lessonWordCount((int) $lesson->id);
-        $next = $this->nextCardPayload($student, (int) $lesson->id, $totalWords);
+        $next = $this->nextCardPayload($session, $student, (int) $lesson->id, $totalWords);
 
         return response()->json([
             'session_id' => $session->id,
@@ -70,7 +69,7 @@ final class TrainingController
             return $this->unauthorizedStudent();
         }
 
-        return response()->json($this->nextCardPayload($student, (int) $session->lesson_id));
+        return response()->json($this->nextCardPayload($session, $student, (int) $session->lesson_id));
     }
 
     public function review(Request $request, int $sessionId): JsonResponse
@@ -89,42 +88,25 @@ final class TrainingController
             'time_spent_ms' => ['required', 'integer', 'min:0', 'max:600000'],
         ]);
 
-        /** @var WordRepetition|null $rep */
-        $rep = WordRepetition::query()
-            ->where('student_id', $student->id)
-            ->where('word_id', $validated['word_id'])
-            ->with('word')
-            ->first();
-
-        if ($rep === null || $rep->word === null) {
+        try {
+            $rep = $this->reviews->submit(
+                $session,
+                $student,
+                (int) $validated['word_id'],
+                (int) $validated['quality'],
+                (int) $validated['time_spent_ms'],
+            );
+        } catch (ReviewSubmissionException $e) {
             return response()->json([
-                'error' => ['code' => 'card_not_started', 'message' => 'Card was never served to this student.'],
-            ], 409);
+                'error' => ['code' => $e->errorCode, 'message' => $e->getMessage()],
+            ], $e->status);
         }
-
-        if ((int) $rep->word->lesson_id !== (int) $session->lesson_id) {
-            return response()->json([
-                'error' => ['code' => 'wrong_lesson', 'message' => 'Word does not belong to this session lesson.'],
-            ], 422);
-        }
-
-        $now = CarbonImmutable::now();
-        $this->engine->applyReview($rep, (int) $validated['quality'], $now);
-
-        TrainingReview::query()->create([
-            'training_session_id' => $session->id,
-            'student_id' => $student->id,
-            'word_id' => $validated['word_id'],
-            'quality' => $validated['quality'],
-            'time_spent_ms' => $validated['time_spent_ms'],
-            'created_at' => $now,
-        ]);
 
         return response()->json([
             'next_review_at' => $rep->next_review_at->toIso8601String(),
             'new_interval_days' => (int) $rep->interval_days,
             'easiness_factor' => (float) $rep->easiness_factor,
-            ...$this->nextCardPayload($student, (int) $session->lesson_id),
+            ...$this->nextCardPayload($session, $student, (int) $session->lesson_id),
         ]);
     }
 
@@ -134,10 +116,26 @@ final class TrainingController
      *   progress: array{done:int, total:int}
      * }
      */
-    private function nextCardPayload(Student $student, int $lessonId, ?int $totalWords = null): array
-    {
-        $pick = $this->picker->pickNext((int) $student->id, $lessonId);
+    private function nextCardPayload(
+        TrainingSession $session,
+        Student $student,
+        int $lessonId,
+        ?int $totalWords = null,
+    ): array {
         $progress = $this->picker->progress((int) $student->id, $lessonId, $totalWords);
+        $reviewCount = TrainingReview::query()
+            ->where('training_session_id', $session->id)
+            ->where('student_id', $student->id)
+            ->count();
+
+        if ($reviewCount >= max(1, (int) config('twa.training.max_cards_per_session', 100))) {
+            return [
+                'card' => null,
+                'progress' => $progress,
+            ];
+        }
+
+        $pick = $this->picker->pickNext((int) $student->id, $lessonId);
 
         if ($pick === null) {
             return [

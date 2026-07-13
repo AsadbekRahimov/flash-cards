@@ -50,6 +50,22 @@ it('lets admin finish 2FA setup with a valid TOTP code', function (): void {
     expect($user->hasTwoFactorEnabled())->toBeTrue();
     expect($user->two_factor_secret)->toBe($secret);
     expect($user->two_factor_recovery_codes)->toHaveCount(8);
+
+    $this->get(route('2fa.recovery-codes'))->assertOk();
+    $this->get(route('2fa.recovery-codes'))->assertRedirect('/admin');
+});
+
+it('never reveals existing recovery codes before the 2FA challenge', function (): void {
+    $user = adminUser([
+        'two_factor_secret' => app(Google2FA::class)->generateSecretKey(),
+        'two_factor_recovery_codes' => ['secret-recovery-code'],
+        'two_factor_confirmed_at' => now(),
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('2fa.recovery-codes'))
+        ->assertRedirect(route('2fa.challenge'))
+        ->assertDontSee('secret-recovery-code');
 });
 
 it('rejects invalid TOTP code on setup confirmation', function (): void {
@@ -108,10 +124,9 @@ it('consumes a recovery code exactly once', function (): void {
         ->assertSessionHasErrors('code');
 });
 
-it('does not gate non-admin users', function (): void {
+it('does not require 2FA from teachers', function (): void {
     $user = User::factory()->create(['is_active' => true]);
     $user->assignRole('teacher');
 
-    // Non-admin passes through the middleware; they are blocked later by canAccessPanel (403).
-    $this->actingAs($user)->get('/admin')->assertForbidden();
+    $this->actingAs($user)->get('/admin')->assertOk();
 });

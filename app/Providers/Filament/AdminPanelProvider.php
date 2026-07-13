@@ -34,7 +34,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName('LexiFlow Admin')
+            ->brandName('LexiFlow Pro')
             ->colors([
                 'primary' => Color::Amber,
             ])

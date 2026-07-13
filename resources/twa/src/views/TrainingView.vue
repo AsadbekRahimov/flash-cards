@@ -27,7 +27,7 @@ let hideBack: (() => void) | null = null
 onMounted(async () => {
   hideBack = showBackButton(() => close())
   try {
-    await auth.ensure()
+    await auth.ensure({ type: 'training', sessionId: props.sessionId })
     await training.start(props.sessionId)
     if (training.status === 'finished') {
       void redirectToFinished()

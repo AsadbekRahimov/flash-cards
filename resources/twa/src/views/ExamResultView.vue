@@ -15,7 +15,7 @@ const { finalScore, finalRank, totalParticipants, leaderboard, errorMessage } = 
 
 onMounted(async () => {
   try {
-    await auth.ensure()
+    await auth.ensure({ type: 'exam', sessionId: props.sessionId })
     // Only refetch if we landed on /exam/:id/result directly (e.g. deep link
     // after the tab was closed). When coming from ExamView the store is
     // already populated.

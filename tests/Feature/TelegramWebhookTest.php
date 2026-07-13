@@ -16,7 +16,7 @@ beforeEach(function (): void {
 
 it('rejects webhook with wrong URL secret', function (): void {
     $this->postJson('/telegram/webhook/wrong-secret-with-enough-length', [])
-        ->assertStatus(403);
+        ->assertNotFound();
 });
 
 it('rejects webhook with missing header secret', function (): void {

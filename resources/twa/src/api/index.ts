@@ -1,6 +1,7 @@
 import { createApiClient } from './client'
 import { useAuthStore } from '@/stores/auth'
 import type {
+  AuthContext,
   AuthResponse,
   ExamAnswerResponse,
   ExamJoinResponse,
@@ -34,8 +35,11 @@ function client() {
 
 export const api = {
   auth: {
-    authenticate: (initData: string) =>
-      client().postPublic<AuthResponse>('/auth', { init_data: initData }),
+    authenticate: (initData: string, context: AuthContext | null) =>
+      client().postPublic<AuthResponse>('/auth', {
+        init_data: initData,
+        ...(context ? { context: { type: context.type, session_id: context.sessionId } } : {}),
+      }),
   },
   me: {
     get: () => client().get<MeResponse>('/me'),

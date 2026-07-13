@@ -13,6 +13,10 @@ class TelegramApi extends IrazasyedTelegramClient
 {
     public function __construct()
     {
-        parent::__construct(new Api((string) config('telegram.bot_token')), new TelegramKeyboardFactory);
+        parent::__construct(
+            new Api((string) config('telegram.bot_token')),
+            new TelegramKeyboardFactory,
+            app(TelegramMessageRateLimiter::class),
+        );
     }
 }

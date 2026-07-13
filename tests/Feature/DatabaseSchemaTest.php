@@ -9,6 +9,7 @@ use App\Models\Lesson;
 use App\Models\Stage;
 use App\Models\Student;
 use App\Models\TelegramGroup;
+use App\Models\TrainingSession;
 use App\Models\Word;
 use App\Models\WordRepetition;
 use Illuminate\Database\QueryException;
@@ -23,7 +24,7 @@ $expectedTables = [
     'telegram_groups', 'teacher_groups', 'students',
     'stages', 'lessons', 'words', 'word_repetitions',
     'training_sessions', 'training_reviews',
-    'exam_sessions', 'exam_answers', 'exam_results',
+    'exam_sessions', 'exam_question_attempts', 'exam_answers', 'exam_results',
     'notifications_log', 'audit_logs',
     'roles', 'permissions', 'model_has_roles', 'model_has_permissions', 'role_has_permissions',
 ];
@@ -95,6 +96,34 @@ it('enforces one exam result per student in a session', function (): void {
         'exam_session_id' => $session->id,
         'student_id' => $student->id,
     ]))->toThrow(QueryException::class);
+});
+
+it('enforces one open exam per group at the database level', function (): void {
+    $first = ExamSession::factory()->create(['status' => 'open']);
+
+    expect(fn () => ExamSession::factory()->create([
+        'telegram_group_id' => $first->telegram_group_id,
+        'status' => 'open',
+    ]))->toThrow(QueryException::class);
+
+    ExamSession::factory()->closed()->create([
+        'telegram_group_id' => $first->telegram_group_id,
+    ]);
+});
+
+it('enforces one open training per group and lesson at the database level', function (): void {
+    $first = TrainingSession::factory()->create(['status' => 'open']);
+
+    expect(fn () => TrainingSession::factory()->create([
+        'telegram_group_id' => $first->telegram_group_id,
+        'lesson_id' => $first->lesson_id,
+        'status' => 'open',
+    ]))->toThrow(QueryException::class);
+
+    TrainingSession::factory()->closed()->create([
+        'telegram_group_id' => $first->telegram_group_id,
+        'lesson_id' => $first->lesson_id,
+    ]);
 });
 
 it('has partial index on word_repetitions for is_hard', function (): void {

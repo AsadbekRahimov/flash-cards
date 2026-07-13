@@ -95,7 +95,7 @@ final class ExamQuestionBuilder
             'word' => $word->word,
             'correct_translation' => $correct,
             'correct_index' => (int) $correctIndex,
-            'options' => array_values($options),
+            'options' => $options,
         ];
     }
 

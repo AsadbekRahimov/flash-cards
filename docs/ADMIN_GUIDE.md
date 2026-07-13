@@ -132,6 +132,17 @@ Open any Stage → Lesson → click on a word to edit its translation, example, 
 
 ---
 
+## Exam Logs
+
+Open **Learning → Exam Logs** to see every exam session, its group, lesson, status, dates, participant count, and answer count. Open a session for two read-only drilldowns:
+
+- **Student results** — score, correct/answered totals, total response time, and rank.
+- **Per-word answers** — student, word, selected and correct translations, correctness, score, and server-measured response time.
+
+Teachers see only exams from their assigned groups; administrators see all groups.
+
+---
+
 ## Telegram Bot Configuration
 
 ### Register the webhook (once after deploy)
@@ -168,7 +179,7 @@ make backup
 docker compose -f docker-compose.prod.yml exec -T app php artisan backup:run
 ```
 
-Backup files are stored in `storage/app/private/Laravel/` (local disk) or on S3 if `BACKUP_DISKS=local,s3` is set.
+Backup files are encrypted with `BACKUP_ARCHIVE_PASSWORD`, verified after creation, and stored in `storage/app/private/Laravel/` (local disk) or on S3 if `BACKUP_DISKS=local,s3` is set. Keep that password in a separate secret store; it is required for restore.
 
 ### Restore from backup
 1. Extract the `.zip` backup file.
@@ -191,6 +202,7 @@ psql -U lexiflow -d lexiflow < dump.sql
 | IP allowlist in production | Set `TELEGRAM_IP_ALLOWLIST_ENABLED=true` in `.env` |
 | HTTPS configured | Via Certbot (see DevOps guide) |
 | Database backups running | Verify in backup monitor emails |
+| Backup archive encryption | Set a unique `BACKUP_ARCHIVE_PASSWORD` of at least 32 random bytes |
 
 ---
 

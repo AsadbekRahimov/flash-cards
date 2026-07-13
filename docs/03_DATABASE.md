@@ -146,6 +146,8 @@ erDiagram
 | started_at | timestamp |
 | ended_at | timestamp nullable |
 
+**Ограничение:** `(telegram_group_id, lesson_id) WHERE status = 'open'` unique — одна открытая тренировка урока на группу даже при параллельных командах.
+
 ### 2.10 `training_reviews` — каждая оценка карточки
 | Колонка | Тип |
 |---------|-----|
@@ -173,12 +175,14 @@ erDiagram
 | started_at | timestamp |
 | ends_at | timestamp |
 | closed_at | timestamp nullable |
+| leaderboard_posted_at | timestamp nullable | — защита от повторной публикации результата |
 | config | jsonb default '{}' | — кол-во вопросов, мультипликаторы и т.п. |
 
 **Индексы:** `status`, `ends_at` (для scheduler).
 Дополнительно для нагрузки:
 - `(status, ends_at)` — закрытие истёкших экзаменов одним range scan.
 - `(telegram_group_id, status, started_at)` — поиск открытого/последнего экзамена группы.
+- `(telegram_group_id) WHERE status = 'open'` unique — не более одного открытого экзамена в группе, включая параллельные команды.
 
 ### 2.12 `exam_answers`
 | Колонка | Тип |
@@ -197,6 +201,21 @@ erDiagram
 Дополнительно для нагрузки:
 - `(exam_session_id, student_id, word_id)` unique — защита от двойного ответа при параллельных запросах.
 - `(answered_at, student_id)` — аналитика и cleanup по периоду.
+
+### 2.12.1 `exam_question_attempts`
+
+Серверный тайминг показа экзаменационного вопроса. Клиентское `time_spent_ms` не используется для начисления баллов.
+
+| Колонка | Тип |
+|---------|-----|
+| id | bigint PK |
+| exam_session_id | bigint FK |
+| student_id | bigint FK |
+| question_index | smallint unsigned |
+| served_at | timestamp |
+| answered_at | timestamp nullable |
+
+**Ограничение:** `(exam_session_id, student_id, question_index)` unique. Повторный `GET question` не перезапускает таймер.
 
 ### 2.13 `exam_results` (materialized-style snapshot)
 Заполняется при закрытии экзамена. Денормализация для быстрого лидерборда.
@@ -252,10 +271,11 @@ erDiagram
 10. `create_training_sessions_table`
 11. `create_training_reviews_table`
 12. `create_exam_sessions_table`
-13. `create_exam_answers_table`
-14. `create_exam_results_table`
-15. `create_notifications_log_table`
-16. `create_audit_logs_table`
+13. `create_exam_question_attempts_table`
+14. `create_exam_answers_table`
+15. `create_exam_results_table`
+16. `create_notifications_log_table`
+17. `create_audit_logs_table`
 
 ## 4. Сидеры (для локальной разработки)
 

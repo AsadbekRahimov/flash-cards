@@ -27,11 +27,19 @@ it('allows admin users to reach /admin when 2FA is confirmed', function (): void
         ->assertOk();
 });
 
-it('forbids users without admin role from /admin', function (): void {
+it('allows active teachers to reach their scoped panel', function (): void {
     $teacher = User::factory()->create(['is_active' => true]);
     $teacher->assignRole('teacher');
 
     $this->actingAs($teacher)
+        ->get('/admin')
+        ->assertOk();
+});
+
+it('forbids users without a panel role from /admin', function (): void {
+    $user = User::factory()->create(['is_active' => true]);
+
+    $this->actingAs($user)
         ->get('/admin')
         ->assertForbidden();
 });

@@ -13,6 +13,19 @@ This guide covers deploying LexiFlow Pro on a **bare server** that already has:
 
 > If you prefer Docker, see `docker-compose.prod.yml` and `deploy.sh` in the project root.
 
+## 0. Docker deployment
+
+The production Dockerfile builds three reproducible stages: both Laravel/TWA frontend bundles, the PHP application with `vendor/`, and an nginx image containing the exact same `public/` tree. Production does not mount a persistent volume over `public/`.
+
+Set `APP_DOMAIN`, `CERTBOT_EMAIL`, `APP_KEY` and the other required values in `.env`, then run:
+
+```bash
+chmod 600 .env
+bash deploy.sh
+```
+
+The script uses `git pull --ff-only`, builds `app` and `nginx`, obtains the initial Let's Encrypt certificate when needed, runs migrations before switching containers, and performs an HTTPS `/up` smoke check. Certificate renewal runs in the `certbot` service; nginx reloads certificates periodically. CI deployment requires the `SSH_PRIVATE_KEY` secret.
+
 ---
 
 ## 1. Create the Database

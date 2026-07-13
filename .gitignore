@@ -19,6 +19,7 @@
 /public/twa
 /storage/*.key
 /storage/pail
+/storage/tmp
 /vendor
 Homestead.json
 Homestead.yaml

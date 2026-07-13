@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Pages;
 
 use App\Domain\Content\Services\VocabularyImporter;
+use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Notifications\Notification;
@@ -39,6 +40,15 @@ class ImportLesson extends Page implements HasSchemas
 
     /** @var array<string, mixed>|null */
     public ?array $lastReport = null;
+
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+
+        return $user instanceof User
+            && $user->is_active
+            && $user->hasAnyRole(['admin', 'teacher']);
+    }
 
     public function mount(): void
     {

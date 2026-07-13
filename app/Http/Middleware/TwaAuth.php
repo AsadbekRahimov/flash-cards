@@ -42,9 +42,13 @@ final class TwaAuth
             return $this->unauthorized('invalid_token');
         }
 
-        $student = Student::query()->find($payload['student_id']);
+        $student = Student::query()->with('group')->find($payload['student_id']);
         if ($student === null || ! $student->is_active) {
             return $this->unauthorized('student_not_found');
+        }
+
+        if ($student->group === null || $student->group->status !== 'active') {
+            return $this->unauthorized('group_inactive');
         }
 
         if ((int) $student->telegram_group_id !== $payload['group_id']) {

@@ -48,8 +48,8 @@ cache-clear: ## Clear Laravel caches
 # -----------------------------------------------------------------------------
 PROD_DC ?= docker compose -f docker-compose.prod.yml --env-file .env
 
-prod-build: ## Build production app image
-	$(PROD_DC) build --pull app
+prod-build: ## Build production app and nginx images
+	$(PROD_DC) build --pull app nginx
 
 prod-up: ## Start production stack
 	$(PROD_DC) up -d
@@ -58,7 +58,7 @@ prod-down: ## Stop production stack (keeps volumes)
 	$(PROD_DC) down
 
 deploy: ## Full production deploy (pull, build, migrate, cache, restart)
-	./deploy.sh
+	bash deploy.sh
 
 backup: ## Run backup:run inside production app
 	$(PROD_DC) exec -T app php artisan backup:run

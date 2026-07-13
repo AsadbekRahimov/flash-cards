@@ -63,7 +63,7 @@ The bot sends a message with an **Open Training** button. Students tap it to ope
 ```
 /start_exam
 ```
-Defaults: Stage 1, Lesson 1, 2 minutes.
+Defaults: Stage 1, Lesson 1, 10 minutes.
 
 To specify stage, lesson, and duration:
 ```
@@ -107,7 +107,7 @@ This immediately closes the open exam, builds the final leaderboard, and posts i
 
 1. Open your browser and go to `/admin`.
 2. Log in with your teacher credentials.
-3. Navigate to your group to see exam sessions and student progress.
+3. Open **Learning → Exam Logs** to see sessions, student results, and the per-word breakdown for your assigned groups.
 
 > Note: Teachers can only see their own groups. The admin decides which groups you are linked to.
 

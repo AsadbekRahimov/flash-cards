@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Twa;
 
 use App\Domain\Twa\Exceptions\InvalidInitDataException;
+use App\Domain\Twa\Exceptions\StudentContextException;
 use App\Domain\Twa\Services\InitDataValidator;
 use App\Domain\Twa\Services\JwtService;
-use App\Models\Student;
-use App\Models\TelegramGroup;
+use App\Domain\Twa\Services\StudentContextResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -17,12 +17,16 @@ final class AuthController
     public function __construct(
         private readonly InitDataValidator $validator,
         private readonly JwtService $jwt,
+        private readonly StudentContextResolver $students,
     ) {}
 
     public function __invoke(Request $request): JsonResponse
     {
         $data = $request->validate([
             'init_data' => ['required', 'string', 'max:4096'],
+            'context' => ['sometimes', 'array'],
+            'context.type' => ['required_with:context', 'string', 'in:training,exam'],
+            'context.session_id' => ['required_with:context', 'integer', 'min:1'],
         ]);
 
         try {
@@ -33,21 +37,14 @@ final class AuthController
 
         $telegramUserId = (int) $parsed['user']['id'];
 
-        /** @var Student|null $student */
-        $student = Student::query()
-            ->where('telegram_user_id', $telegramUserId)
-            ->where('is_active', true)
-            ->with('group')
-            ->first();
-
-        if ($student === null) {
-            return $this->err(403, 'student_not_found', 'Student is not registered in any active group.');
-        }
-
-        /** @var TelegramGroup|null $group */
-        $group = $student->group;
-        if ($group === null || $group->status !== 'active') {
-            return $this->err(403, 'group_inactive', 'Your group is not active.');
+        try {
+            $student = $this->students->resolve(
+                $telegramUserId,
+                isset($data['context']['type']) ? (string) $data['context']['type'] : null,
+                isset($data['context']['session_id']) ? (int) $data['context']['session_id'] : null,
+            );
+        } catch (StudentContextException $e) {
+            return $this->err($e->status, $e->errorCode, $e->getMessage());
         }
 
         $student->last_seen_at = now();

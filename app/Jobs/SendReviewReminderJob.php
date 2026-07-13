@@ -10,6 +10,7 @@ use App\Models\NotificationLog;
 use App\Models\Student;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Cache;
 
 final class SendReviewReminderJob implements ShouldQueue
 {
@@ -31,33 +32,39 @@ final class SendReviewReminderJob implements ShouldQueue
             return;
         }
 
-        $recentlySent = NotificationLog::query()
-            ->where('student_id', $student->id)
-            ->where('type', 'review_reminder')
-            ->where('sent_at', '>=', now()->subHours(24))
-            ->exists();
+        Cache::lock("telegram:review-reminder:{$student->id}", 120)->block(10, function () use (
+            $telegram,
+            $links,
+            $student,
+        ): void {
+            $recentlySent = NotificationLog::query()
+                ->where('student_id', $student->id)
+                ->where('type', 'review_reminder')
+                ->where('sent_at', '>=', now()->subHours(24))
+                ->exists();
 
-        if ($recentlySent) {
-            return;
-        }
+            if ($recentlySent) {
+                return;
+            }
 
-        $url = $links->buildTrainingUrl($student);
+            $url = $links->buildTrainingUrl($student);
 
-        $telegram->sendWebAppButton(
-            chatId: $student->telegram_user_id,
-            text: "Пора повторить {$this->dueCount} слов в LexiFlow.",
-            buttonText: 'Открыть LexiFlow',
-            url: $url,
-        );
+            $telegram->sendWebAppButton(
+                chatId: $student->telegram_user_id,
+                text: "Пора повторить {$this->dueCount} слов в LexiFlow.",
+                buttonText: 'Открыть LexiFlow',
+                url: $url,
+            );
 
-        NotificationLog::query()->create([
-            'student_id' => $student->id,
-            'type' => 'review_reminder',
-            'payload' => [
-                'due_count' => $this->dueCount,
-                'telegram_group_id' => $student->telegram_group_id,
-            ],
-            'sent_at' => now(),
-        ]);
+            NotificationLog::query()->create([
+                'student_id' => $student->id,
+                'type' => 'review_reminder',
+                'payload' => [
+                    'due_count' => $this->dueCount,
+                    'telegram_group_id' => $student->telegram_group_id,
+                ],
+                'sent_at' => now(),
+            ]);
+        });
     }
 }

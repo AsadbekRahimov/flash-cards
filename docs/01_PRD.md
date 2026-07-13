@@ -185,9 +185,16 @@ LexiFlow Pro — инструмент для языковых центров, к
 
 ```json
 {
-  "stage": 4,
-  "lesson": 8,
-  "vocabulary": [
+  "stage": {
+    "number": 4,
+    "title": "Upper Intermediate",
+    "description": "Optional description"
+  },
+  "lesson": {
+    "number": 8,
+    "title": "Resilience"
+  },
+  "words": [
     {
       "word": "Resilient",
       "translation": "Устойчивый, жизнерадостный",
@@ -200,13 +207,14 @@ LexiFlow Pro — инструмент для языковых центров, к
 ```
 
 Валидация:
-- `stage`: integer, ≥ 1, ≤ 20.
-- `lesson`: integer, ≥ 1, ≤ 50.
-- `vocabulary`: array, 1..200 элементов.
-- `word`: string, 1..100 симв., латиница + пробелы + дефис.
+- `stage.number`, `lesson.number`: integer, ≥ 1; title — опционально до 255 символов.
+- `words`: array, 1..500 элементов; слова внутри файла уникальны без учёта регистра.
+- `word`: string, 1..100 символов.
 - `translation`: string, 1..500 симв.
-- `example`: string, 1..500 симв.
-- `part_of_speech`, `transcription`: опциональны.
+- `example`: string, 1..2000 симв.
+- `part_of_speech`: опционально, одно из поддерживаемых значений; `transcription`: опционально до 100 символов.
+
+Legacy-формат с числовыми `stage`, `lesson` и массивом `vocabulary` также принимается для обратной совместимости, но новым каноном является схема выше.
 
 ## 10. Out of Scope (MVP)
 

@@ -71,7 +71,7 @@ let feedbackTimeout: ReturnType<typeof setTimeout> | null = null
 onMounted(async () => {
   hideBack = showBackButton(() => close())
   try {
-    await auth.ensure()
+    await auth.ensure({ type: 'exam', sessionId: props.sessionId })
     await exam.join(props.sessionId)
   } catch {
     /* auth or join error → handled via store.handleApiError */
@@ -86,7 +86,7 @@ onBeforeUnmount(() => {
 // Restart per-question timer whenever a fresh question arrives.
 watch(currentQuestion, (q) => {
   if (q !== null && status.value === 'answering') {
-    questionTimer.start(secondsPerQuestion.value)
+    questionTimer.start(Math.min(secondsPerQuestion.value, q.seconds_left))
   }
 })
 

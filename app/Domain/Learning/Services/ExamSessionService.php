@@ -11,6 +11,7 @@ use App\Models\Stage;
 use App\Models\TelegramGroup;
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -84,48 +85,52 @@ final class ExamSessionService
 
         $now ??= CarbonImmutable::now();
 
-        return DB::transaction(function () use (
-            $group,
-            $lesson,
-            $teacher,
-            $durationMinutes,
-            $totalQuestions,
-            $secondsPerQuestion,
-            $now,
-        ): ExamSession {
-            $openExists = ExamSession::query()
-                ->where('telegram_group_id', $group->id)
-                ->where('status', 'open')
-                ->lockForUpdate()
-                ->exists();
+        try {
+            return DB::transaction(function () use (
+                $group,
+                $lesson,
+                $teacher,
+                $durationMinutes,
+                $totalQuestions,
+                $secondsPerQuestion,
+                $now,
+            ): ExamSession {
+                $openExists = ExamSession::query()
+                    ->where('telegram_group_id', $group->id)
+                    ->where('status', 'open')
+                    ->lockForUpdate()
+                    ->exists();
 
-            if ($openExists) {
-                throw ExamSessionException::alreadyOpen();
-            }
+                if ($openExists) {
+                    throw ExamSessionException::alreadyOpen();
+                }
 
-            $questions = $this->questionBuilder->build($lesson, $totalQuestions);
-            if (count($questions) < ExamQuestionBuilder::MIN_QUESTIONS) {
-                throw ExamSessionException::notEnoughWords(
-                    count($questions),
-                    ExamQuestionBuilder::MIN_QUESTIONS,
-                );
-            }
+                $questions = $this->questionBuilder->build($lesson, $totalQuestions);
+                if (count($questions) < ExamQuestionBuilder::MIN_QUESTIONS) {
+                    throw ExamSessionException::notEnoughWords(
+                        count($questions),
+                        ExamQuestionBuilder::MIN_QUESTIONS,
+                    );
+                }
 
-            return ExamSession::query()->create([
-                'telegram_group_id' => $group->id,
-                'lesson_id' => $lesson->id,
-                'started_by_user_id' => $teacher->id,
-                'status' => 'open',
-                'started_at' => $now,
-                'ends_at' => $now->addMinutes($durationMinutes),
-                'config' => [
-                    'total_questions' => count($questions),
-                    'seconds_per_question' => $secondsPerQuestion,
-                    'duration_minutes' => $durationMinutes,
-                    'questions' => $questions,
-                ],
-            ]);
-        });
+                return ExamSession::query()->create([
+                    'telegram_group_id' => $group->id,
+                    'lesson_id' => $lesson->id,
+                    'started_by_user_id' => $teacher->id,
+                    'status' => 'open',
+                    'started_at' => $now,
+                    'ends_at' => $now->addMinutes($durationMinutes),
+                    'config' => [
+                        'total_questions' => count($questions),
+                        'seconds_per_question' => $secondsPerQuestion,
+                        'duration_minutes' => $durationMinutes,
+                        'questions' => $questions,
+                    ],
+                ]);
+            });
+        } catch (UniqueConstraintViolationException) {
+            throw ExamSessionException::alreadyOpen();
+        }
     }
 
     /**

@@ -53,7 +53,6 @@ class LessonResource extends Resource
             ])
             ->actions([
                 Actions\EditAction::make(),
-                Actions\DeleteAction::make(),
             ])
             ->defaultSort('stage_id');
     }

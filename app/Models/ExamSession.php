@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\ExamSessionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,10 +20,12 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $started_at
  * @property Carbon|null $ends_at
  * @property Carbon|null $closed_at
+ * @property Carbon|null $leaderboard_posted_at
  * @property array<string, mixed> $config
  */
 class ExamSession extends Model
 {
+    /** @use HasFactory<ExamSessionFactory> */
     use HasFactory;
 
     /** @var list<string> */
@@ -34,6 +37,7 @@ class ExamSession extends Model
         'started_at',
         'ends_at',
         'closed_at',
+        'leaderboard_posted_at',
         'config',
     ];
 
@@ -44,6 +48,7 @@ class ExamSession extends Model
             'started_at' => 'datetime',
             'ends_at' => 'datetime',
             'closed_at' => 'datetime',
+            'leaderboard_posted_at' => 'datetime',
             'config' => 'array',
         ];
     }
@@ -76,5 +81,11 @@ class ExamSession extends Model
     public function results(): HasMany
     {
         return $this->hasMany(ExamResult::class);
+    }
+
+    /** @return HasMany<ExamQuestionAttempt, $this> */
+    public function questionAttempts(): HasMany
+    {
+        return $this->hasMany(ExamQuestionAttempt::class);
     }
 }

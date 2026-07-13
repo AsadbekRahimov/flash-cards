@@ -5,6 +5,39 @@
 ## Sprint 3 — Filament Admin ✅ (2FA отложен до Sprint 10)
 ## Sprint 4 — Import & Content ✅
 
+## Sprint 12 — Полный аудит, безопасность и production readiness ✅ (2026-07-13)
+
+Проведена полная сверка кода со всей документацией `docs/`, архитектурой, PRD и security checklist. Исправлены обнаруженные незавершённые и небезопасные сценарии.
+
+### Основные исправления
+
+- TWA-аутентификация теперь однозначно выбирает группу по контексту training/exam; JWT отзывается при деактивации группы и проверяет issuer.
+- Экзамен использует серверный таймер для каждого вопроса, не доверяет времени клиента, не принимает невыданные/повторные/просроченные ответы и блокирует гонку с закрытием сессии.
+- Review тренировки атомарен, не допускает повторного submit, блокирует гонку с закрытием сессии и соблюдает `TWA_MAX_CARDS_PER_SESSION`.
+- Добавлены DB-ограничения для единственной открытой exam/training session и идемпотентная публикация leaderboard.
+- Recovery-коды 2FA показываются один раз и потребляются под `SELECT ... FOR UPDATE`.
+- Реализован teacher-доступ к Filament со строгим scope по назначенным группам; добавлен отсутствовавший FR-ADM-05 **Learning → Exam Logs** с результатами и пословным drilldown.
+- Исходящие Telegram-сообщения получили атомарный per-chat rate limit и безопасный deferred job без рекурсивного re-dispatch.
+- Удалены опасные destructive actions для контента, который по PRD нельзя удалять.
+- Обновлены Laravel/Filament/Symfony и остальные существующие Composer-пакеты до безопасных совместимых версий; production dependency audits чистые.
+- Larastan level 8 теперь проходит без `phpstan-baseline.neon`.
+- Production Docker/Compose/deploy переписаны на immutable app/nginx images, безопасный `git pull --ff-only`, Certbot, migration-before-switch и HTTPS smoke check. Backup-архивы исключают `.env`, шифруются, проверяются и имеют `pg_dump` в runtime-образе.
+- README, API/TWA/DB/security/teacher/admin/DevOps документация приведена в соответствие с реализацией.
+
+### Финальная проверка
+
+- Backend: **180 passed, 603 assertions, 3 PostgreSQL-only skipped локально**.
+- TWA: type-check ✅, **15 tests passed**, production build ✅.
+- Laravel frontend build ✅.
+- Larastan level 8: **0 errors**; Pint: ✅.
+- `composer audit`, root/TWA `npm audit --omit=dev`: **0 advisories**.
+- Composer schema, Compose YAML, shell syntax и `git diff --check`: ✅.
+
+### Требует внешней среды
+
+- Реальная сборка Docker targets выполняется в CI: Docker daemon отсутствует на локальной Windows-машине аудита.
+- Production HTTPS/Telegram smoke-test, restore test, OWASP ZAP и Lighthouse требуют staging/production домена и реального бота.
+
 ## Sprint 11 — Audit, Test Fixes & Documentation ✅ (2026-04-25)
 
 Аудит всех спринтов. Исправлены pre-existing test failures. Создана полная пользовательская документация для всех ролей и DevOps.
