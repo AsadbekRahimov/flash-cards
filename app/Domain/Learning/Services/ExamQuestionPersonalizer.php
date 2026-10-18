@@ -5,35 +5,35 @@ declare(strict_types=1);
 namespace App\Domain\Learning\Services;
 
 use App\Models\ExamSession;
-use App\Models\Student;
+use App\Models\Learner;
 
 /**
  * Projects the shared, canonical question list stored in
- * `exam_sessions.config.questions` onto a per-student view:
+ * `exam_sessions.config.questions` onto a per-learner view:
  *
- *   - the ORDER of questions is a student-specific permutation;
- *   - the ORDER of options inside every question is a student-specific permutation;
+ *   - the ORDER of questions is a learner-specific permutation;
+ *   - the ORDER of options inside every question is a learner-specific permutation;
  *   - `correct_index` is computed server-side for that exact view.
  *
- * Both permutations are derived from an HMAC-SHA256 over (session_id, student_id)
+ * Both permutations are derived from an HMAC-SHA256 over (session_id, learner_id)
  * keyed with the session's random `config.order_secret` (server-side only, never
  * serialized into any API/panel output; sessions created before it existed fall
- * back to `app.key`, so rotating `app.key` cannot reshuffle a running exam), so a student cannot predict a classmate's
+ * back to `app.key`, so rotating `app.key` cannot reshuffle a running exam), so a learner cannot predict a classmate's
  * order, while the mapping is stable for the whole life of the session
  * (re-fetching `?index=i` returns the same word with the same option order).
  *
  * `question_index` everywhere in the exam API / `exam_question_attempts`
- * therefore means "position in THIS student's sequence". Because the
- * permutation is a bijection, the `(exam_session_id, student_id, word_id)`
+ * therefore means "position in THIS learner's sequence". Because the
+ * permutation is a bijection, the `(exam_session_id, learner_id, word_id)`
  * uniqueness in `exam_answers` keeps protecting against double answers.
  *
- * Sessions created before per-student ordering (no `config.question_order`)
+ * Sessions created before per-learner ordering (no `config.question_order`)
  * are served with the identity permutation so in-flight exams finish exactly
  * as they started.
  */
 final class ExamQuestionPersonalizer
 {
-    public const ORDER_PER_STUDENT = 'per_student';
+    public const ORDER_PER_LEARNER = 'per_learner';
 
     public const ORDER_SHARED = 'shared';
 
@@ -50,7 +50,7 @@ final class ExamQuestionPersonalizer
      *   correct_translation: string
      * }|null  null when $index is out of range
      */
-    public function questionAt(ExamSession $session, Student $student, int $index): ?array
+    public function questionAt(ExamSession $session, Learner $learner, int $index): ?array
     {
         $questions = $this->canonicalQuestions($session);
         $total = count($questions);
@@ -59,8 +59,8 @@ final class ExamQuestionPersonalizer
             return null;
         }
 
-        $perStudent = $this->isPerStudent($session);
-        $seed = $perStudent ? $this->seed($session, $student) : null;
+        $perLearner = $this->isPerLearner($session);
+        $seed = $perLearner ? $this->seed($session, $learner) : null;
 
         $canonicalIndex = $seed === null
             ? $index
@@ -104,39 +104,39 @@ final class ExamQuestionPersonalizer
     }
 
     /**
-     * Returns the canonical question indices in the order this student sees
+     * Returns the canonical question indices in the order this learner sees
      * them (position i → canonical index). Exposed for tests and diagnostics.
      *
      * @return list<int>
      */
-    public function questionOrder(ExamSession $session, Student $student): array
+    public function questionOrder(ExamSession $session, Learner $learner): array
     {
         $total = $this->count($session);
         if ($total === 0) {
             return [];
         }
 
-        if (! $this->isPerStudent($session)) {
+        if (! $this->isPerLearner($session)) {
             return range(0, $total - 1);
         }
 
-        return $this->permutation($this->seed($session, $student), 'q', $total);
+        return $this->permutation($this->seed($session, $learner), 'q', $total);
     }
 
-    public function isPerStudent(ExamSession $session): bool
+    public function isPerLearner(ExamSession $session): bool
     {
         $order = $session->config['question_order'] ?? self::ORDER_SHARED;
 
-        return $order === self::ORDER_PER_STUDENT;
+        return $order === self::ORDER_PER_LEARNER;
     }
 
     /**
-     * Secret, per-(session, student) seed. Keyed with the session's own random
+     * Secret, per-(session, learner) seed. Keyed with the session's own random
      * `order_secret` (stable even if `app.key` is rotated mid-exam); legacy
      * sessions without it use the application key. Either way the seed cannot
      * be reconstructed from values visible to a participant.
      */
-    private function seed(ExamSession $session, Student $student): string
+    private function seed(ExamSession $session, Learner $learner): string
     {
         $secret = $session->config['order_secret'] ?? null;
         if (is_string($secret) && $secret !== '') {
@@ -151,7 +151,7 @@ final class ExamQuestionPersonalizer
             }
         }
 
-        return hash_hmac(self::HMAC_ALGO, "exam-order|{$session->id}|{$student->id}", $key, true);
+        return hash_hmac(self::HMAC_ALGO, "exam-order|{$session->id}|{$learner->id}", $key, true);
     }
 
     /**

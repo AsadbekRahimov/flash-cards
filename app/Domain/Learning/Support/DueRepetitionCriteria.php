@@ -11,18 +11,18 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Single definition of "a card the student should come back for" used by
+ * Single definition of "a card the learner should come back for" used by
  * review reminders, `words_due_today` and the reminder deep link
  * (docs/06 §6). Keep these three in sync by changing only this class.
  *
  *   - graduated (`review`) cards with `next_review_at <= now`;
  *   - abandoned (re)learning cards: minute step elapsed more than
- *     `abandoned_after_hours` ago — the student left the session and the
+ *     `abandoned_after_hours` ago — the learner left the session and the
  *     card would otherwise hang without a reminder forever.
  *
  * Fresh in-session steps (minutes old) and `new` rows (card shown, never
  * answered) are deliberately excluded: they belong to the session the
- * student is in, not to "N words to review".
+ * learner is in, not to "N words to review".
  */
 final class DueRepetitionCriteria
 {

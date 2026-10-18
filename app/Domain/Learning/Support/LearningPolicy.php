@@ -16,7 +16,7 @@ use InvalidArgumentException;
  * window shorter than the longest step) would silently cut sessions short,
  * so it throws. AppServiceProvider resolves the singleton at boot, which
  * turns a bad env into a failed `config:cache` / health check at deploy time
- * instead of a 500 on the first student request.
+ * instead of a 500 on the first learner request.
  */
 final class LearningPolicy
 {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Learning\DTO;
 
 /**
- * A question as served to ONE student. `$question` is the raw personalizer
+ * A question as served to ONE learner. `$question` is the raw personalizer
  * view and still carries the answer key (`correct_index`, `correct_translation`,
  * `canonical_index`): it must never be serialised as is — the API resource
  * picks the allowed fields.

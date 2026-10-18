@@ -12,7 +12,7 @@ use App\Http\Resources\Twa\ExamJoinResource;
 use App\Http\Resources\Twa\ExamQuestionResource;
 use App\Http\Resources\Twa\ExamResultResource;
 use App\Models\ExamSession;
-use App\Models\Student;
+use App\Models\Learner;
 use App\Policies\ExamSessionPolicy;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -26,28 +26,28 @@ final class ExamController
 
     public function join(Request $request, int $sessionId): JsonResponse
     {
-        [$student, $session] = $this->resolve($request, $sessionId, requireOpen: true);
+        [$learner, $session] = $this->resolve($request, $sessionId, requireOpen: true);
         if ($session instanceof JsonResponse) {
             return $session;
         }
-        if (! $student instanceof Student) {
-            return $this->unauthorizedStudent();
+        if (! $learner instanceof Learner) {
+            return $this->unauthorizedLearner();
         }
 
-        return (new ExamJoinResource($this->flow->join($session, $student)))->response();
+        return (new ExamJoinResource($this->flow->join($session, $learner)))->response();
     }
 
     public function question(Request $request, int $sessionId): JsonResponse
     {
-        [$student, $session] = $this->resolve($request, $sessionId, requireOpen: true);
+        [$learner, $session] = $this->resolve($request, $sessionId, requireOpen: true);
         if ($session instanceof JsonResponse) {
             return $session;
         }
-        if (! $student instanceof Student) {
-            return $this->unauthorizedStudent();
+        if (! $learner instanceof Learner) {
+            return $this->unauthorizedLearner();
         }
 
-        $served = $this->flow->serveQuestion($session, $student, (int) $request->query('index', 0));
+        $served = $this->flow->serveQuestion($session, $learner, (int) $request->query('index', 0));
 
         if ($served === null) {
             return ApiErrorResource::respond(404, 'question_not_found', 'Question index is out of range.');
@@ -58,12 +58,12 @@ final class ExamController
 
     public function answer(Request $request, int $sessionId): JsonResponse
     {
-        [$student, $session] = $this->resolve($request, $sessionId, requireOpen: true);
+        [$learner, $session] = $this->resolve($request, $sessionId, requireOpen: true);
         if ($session instanceof JsonResponse) {
             return $session;
         }
-        if (! $student instanceof Student) {
-            return $this->unauthorizedStudent();
+        if (! $learner instanceof Learner) {
+            return $this->unauthorizedLearner();
         }
 
         $validated = $request->validate([
@@ -79,7 +79,7 @@ final class ExamController
         try {
             $feedback = $this->flow->answer(
                 $session,
-                $student,
+                $learner,
                 (int) $validated['question_index'],
                 (int) $validated['word_id'],
                 $selectedIndex !== null ? (int) $selectedIndex : null,
@@ -93,15 +93,15 @@ final class ExamController
 
     public function result(Request $request, int $sessionId): JsonResponse
     {
-        [$student, $session] = $this->resolve($request, $sessionId, requireOpen: false);
+        [$learner, $session] = $this->resolve($request, $sessionId, requireOpen: false);
         if ($session instanceof JsonResponse) {
             return $session;
         }
-        if (! $student instanceof Student) {
-            return $this->unauthorizedStudent();
+        if (! $learner instanceof Learner) {
+            return $this->unauthorizedLearner();
         }
 
-        if (! $this->policy->canViewResult($student, $session)) {
+        if (! $this->policy->canViewResult($learner, $session)) {
             return ApiErrorResource::respond(
                 409,
                 'exam_still_open',
@@ -109,16 +109,16 @@ final class ExamController
             );
         }
 
-        return (new ExamResultResource($this->flow->result($session, $student)))->response();
+        return (new ExamResultResource($this->flow->result($session, $learner)))->response();
     }
 
     /**
-     * @return array{0: Student, 1: ExamSession}|array{0: null, 1: JsonResponse}
+     * @return array{0: Learner, 1: ExamSession}|array{0: null, 1: JsonResponse}
      */
     private function resolve(Request $request, int $sessionId, bool $requireOpen): array
     {
-        /** @var Student $student */
-        $student = $request->attributes->get('student');
+        /** @var Learner $learner */
+        $learner = $request->attributes->get('learner');
 
         /** @var ExamSession|null $session */
         $session = ExamSession::query()->find($sessionId);
@@ -127,8 +127,9 @@ final class ExamController
             return [null, ApiErrorResource::respond(404, 'session_not_found', 'Exam session not found.')];
         }
 
-        if (! $this->policy->canAccess($student, $session)) {
-            return [null, ApiErrorResource::respond(403, 'forbidden', 'You cannot access this exam session.')];
+        $denial = $this->policy->denial($learner, $session);
+        if ($denial !== null) {
+            return [null, ApiErrorResource::respond(403, $denial, 'You cannot access this exam session.')];
         }
 
         if ($requireOpen && (
@@ -138,11 +139,11 @@ final class ExamController
             return [null, ApiErrorResource::respond(410, 'session_closed', 'This exam session is closed.')];
         }
 
-        return [$student, $session];
+        return [$learner, $session];
     }
 
-    private function unauthorizedStudent(): JsonResponse
+    private function unauthorizedLearner(): JsonResponse
     {
-        return ApiErrorResource::respond(401, 'student_not_found', 'Unauthorized');
+        return ApiErrorResource::respond(401, 'learner_not_found', 'Unauthorized');
     }
 }

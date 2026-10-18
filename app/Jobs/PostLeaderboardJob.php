@@ -11,8 +11,8 @@ use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
+use App\Models\Learner;
 use App\Models\Lesson;
-use App\Models\Student;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -68,7 +68,7 @@ final class PostLeaderboardJob implements ShouldQueue
 
         /** @var Collection<int, ExamResult> $results */
         $results = ExamResult::query()
-            ->with('student')
+            ->with('learner')
             ->where('exam_session_id', $session->id)
             ->orderBy('rank')
             ->limit(10)
@@ -127,8 +127,8 @@ final class PostLeaderboardJob implements ShouldQueue
                 3 => '🥉',
                 default => "{$r->rank}.",
             };
-            $student = $r->getRelation('student');
-            $name = $this->escapeHtml($student instanceof Student ? ($student->first_name ?? '—') : '—');
+            $learner = $r->getRelation('learner');
+            $name = $this->escapeHtml($learner instanceof Learner ? ($learner->first_name ?? '—') : '—');
             $score = $r->total_score;
 
             return "{$medal} {$name} — <b>{$score}</b>";

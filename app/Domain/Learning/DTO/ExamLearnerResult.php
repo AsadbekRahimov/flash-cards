@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Learning\DTO;
 
-final readonly class ExamStudentResult
+final readonly class ExamLearnerResult
 {
     /**
      * @param  list<array{rank:int, name:string, score:int}>  $top

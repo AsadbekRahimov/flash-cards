@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Domain\Learners\Services\GroupMembershipService;
 use App\Models\ExamSession;
-use App\Models\Student;
+use App\Models\Learner;
 use App\Models\User;
 
 final class ExamSessionPolicy
 {
+    public function __construct(private readonly GroupMembershipService $memberships) {}
+
     public function viewAny(User $user): bool
     {
         return $user->is_active && $user->hasAnyRole(['admin', 'teacher']);
@@ -42,31 +45,45 @@ final class ExamSessionPolicy
     }
 
     /**
-     * Student is in the same group as the exam session. Use this when we want
-     * to distinguish "you don't belong here" (403) from "session closed" (410).
+     * Error code to answer with (403) when the learner may not see this exam,
+     * null when access is granted: an active member of the session's active
+     * group (`not_a_member` / `group_inactive`; 410 for a closed session is
+     * decided separately).
      */
-    public function canAccess(Student $student, ExamSession $session): bool
+    public function denial(Learner $learner, ExamSession $session): ?string
     {
-        return $student->is_active
-            && (int) $student->telegram_group_id === (int) $session->telegram_group_id;
+        if ($learner->blocked_at !== null) {
+            return 'forbidden';
+        }
+
+        return $this->memberships->denialReason($learner, $session->group);
     }
 
     /**
-     * Student can join/answer — session must additionally still be open.
+     * The learner is an active member of the exam's group. Use this when we want
+     * to distinguish "you don't belong here" (403) from "session closed" (410).
      */
-    public function canParticipate(Student $student, ExamSession $session): bool
+    public function canAccess(Learner $learner, ExamSession $session): bool
     {
-        return $this->canAccess($student, $session)
+        return $this->denial($learner, $session) === null;
+    }
+
+    /**
+     * The learner can join/answer — the session must additionally still be open.
+     */
+    public function canParticipate(Learner $learner, ExamSession $session): bool
+    {
+        return $this->canAccess($learner, $session)
             && $session->status === 'open'
             && ($session->ends_at === null || $session->ends_at->isFuture());
     }
 
     /**
-     * Results are viewable only AFTER the session is closed (so students
+     * Results are viewable only AFTER the session is closed (so learners
      * don't see partial leaderboards mid-exam).
      */
-    public function canViewResult(Student $student, ExamSession $session): bool
+    public function canViewResult(Learner $learner, ExamSession $session): bool
     {
-        return $this->canAccess($student, $session) && $session->status === 'closed';
+        return $this->canAccess($learner, $session) && $session->status === 'closed';
     }
 }

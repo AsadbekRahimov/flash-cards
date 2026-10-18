@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 /**
  * GET /api/twa/exam/sessions/{id}/question
  *
- * Student-facing allow-list: the personalizer view also holds `correct_index`,
+ * Learner-facing allow-list: the personalizer view also holds `correct_index`,
  * `correct_translation` and `canonical_index`, which must never leave the server
  * while the question is open.
  *

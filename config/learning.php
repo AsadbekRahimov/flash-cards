@@ -35,7 +35,7 @@ return [
     'graduating_interval_days' => (int) env('LEARNING_GRADUATING_INTERVAL_DAYS', 1),
 
     /**
-     * Interval (days) assigned when the student answers "Easy" (q=5) on a card
+     * Interval (days) assigned when the learner answers "Easy" (q=5) on a card
      * that is still in (re)learning: it skips the remaining steps.
      */
     'easy_interval_days' => (int) env('LEARNING_EASY_INTERVAL_DAYS', 4),
@@ -51,7 +51,7 @@ return [
 
     /**
      * After how many hours an unanswered (re)learning card whose minute step
-     * has elapsed is considered abandoned (the student left the session). Such
+     * has elapsed is considered abandoned (the learner left the session). Such
      * cards count as due for review reminders and `words_due_today`, together
      * with graduated cards (docs/06 §6). Fresh in-session cards are not.
      */

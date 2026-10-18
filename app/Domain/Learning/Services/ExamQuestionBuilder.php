@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
  * A question = { word_id, word, correct_translation, options[] } where
  * `options` contains the correct translation plus up to 3 real distractors.
  * The canonical order of questions / options is irrelevant for participants:
- * {@see ExamQuestionPersonalizer} derives a per-student permutation at
+ * {@see ExamQuestionPersonalizer} derives a per-learner permutation at
  * serving time, so no `correct_index` is stored.
  *
  * Distractors are REAL translations only — never synthetic placeholders,

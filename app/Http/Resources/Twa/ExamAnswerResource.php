@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 /**
  * POST /api/twa/exam/sessions/{id}/answer
  *
- * `correct_option` is an index into THIS student's `options`; it is revealed
+ * `correct_option` is an index into THIS learner's `options`; it is revealed
  * only after the answer is recorded (the TWA highlights it).
  *
  * @property ExamAnswerFeedback $resource

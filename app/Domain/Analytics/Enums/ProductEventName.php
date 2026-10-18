@@ -14,5 +14,6 @@ enum ProductEventName: string
     case ReminderSent = 'reminder.sent';
     case ReminderFailed = 'reminder.failed';
     case GroupBotAdded = 'group.bot_added';
-    case StudentJoined = 'student.joined';
+    case GroupMemberJoined = 'group.member_joined';
+    case GroupMemberLeft = 'group.member_left';
 }

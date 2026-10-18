@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
  * Opens and closes exam sessions. Stores the canonical question list in
  * `exam_sessions.config.questions`; every participant gets their own
  * question/option order from it via {@see ExamQuestionPersonalizer}
- * (`config.question_order = 'per_student'`).
+ * (`config.question_order = 'per_learner'`).
  *
  * Invariants:
  *   - At most ONE exam with status=open per group at any time.
@@ -125,8 +125,8 @@ final class ExamSessionService
                         'total_questions' => count($questions),
                         'seconds_per_question' => $secondsPerQuestion,
                         'duration_minutes' => $durationMinutes,
-                        'question_order' => ExamQuestionPersonalizer::ORDER_PER_STUDENT,
-                        // Server-side HMAC key of the per-student ordering. Never leaves the server.
+                        'question_order' => ExamQuestionPersonalizer::ORDER_PER_LEARNER,
+                        // Server-side HMAC key of the per-learner ordering. Never leaves the server.
                         'order_secret' => bin2hex(random_bytes(32)),
                         'questions' => $questions,
                     ],

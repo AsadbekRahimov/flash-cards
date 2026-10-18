@@ -8,21 +8,19 @@ use App\Domain\Administration\Services\PanelDataScope;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
-class TotalStudentsWidget extends StatsOverviewWidget
+class TotalLearnersWidget extends StatsOverviewWidget
 {
     protected static ?int $sort = 1;
 
     /** @return array<int, Stat> */
     protected function getStats(): array
     {
-        $students = app(PanelDataScope::class)->students();
-        $total = (clone $students)->count();
-        $active = (clone $students)->where('is_active', true)->count();
-        $recent = (clone $students)->where('last_seen_at', '>=', now()->subDays(7))->count();
+        $learners = app(PanelDataScope::class)->learners();
+        $total = (clone $learners)->count();
+        $recent = (clone $learners)->where('last_seen_at', '>=', now()->subDays(7))->count();
 
         return [
-            Stat::make('Total students', (string) $total)
-                ->description($active.' active')
+            Stat::make('Total learners', (string) $total)
                 ->color('primary')
                 ->icon('heroicon-o-academic-cap'),
             Stat::make('Active last 7 days', (string) $recent)

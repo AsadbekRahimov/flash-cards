@@ -11,7 +11,7 @@ final class NotifyDueRepetitions extends Command
 {
     protected $signature = 'repetitions:notify {--threshold=5 : Minimum due cards required for a reminder}';
 
-    protected $description = 'Queue Telegram reminders for students with due vocabulary reviews.';
+    protected $description = 'Queue Telegram reminders for learners with due vocabulary reviews.';
 
     public function handle(ReviewReminderService $service): int
     {

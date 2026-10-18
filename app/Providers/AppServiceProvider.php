@@ -71,7 +71,7 @@ class AppServiceProvider extends ServiceProvider
         // shorter than the longest learning step): LearningPolicy throws with an
         // actionable message, so `artisan config:cache` in the container
         // entrypoint and the health check fail at deploy time rather than the
-        // first student request silently ending sessions early (docs/06 §3.1).
+        // first learner request silently ending sessions early (docs/06 §3.1).
         $this->app->make(LearningPolicy::class);
 
         RateLimiter::for('login', function (Request $request): Limit {
@@ -86,25 +86,25 @@ class AppServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('twa-api', function (Request $request): Limit {
-            /** @var array{student_id:int}|null $ctx */
+            /** @var array{learner_id:int}|null $ctx */
             $ctx = $request->attributes->get('twa');
-            $key = $ctx['student_id'] ?? $request->ip();
+            $key = $ctx['learner_id'] ?? $request->ip();
 
             return Limit::perMinute(60)->by('twa-api|'.$key);
         });
 
         RateLimiter::for('twa-review', function (Request $request): Limit {
-            /** @var array{student_id:int}|null $ctx */
+            /** @var array{learner_id:int}|null $ctx */
             $ctx = $request->attributes->get('twa');
-            $key = $ctx['student_id'] ?? $request->ip();
+            $key = $ctx['learner_id'] ?? $request->ip();
 
             return Limit::perMinute(60)->by('twa-review|'.$key);
         });
 
         RateLimiter::for('twa-exam-answer', function (Request $request): Limit {
-            /** @var array{student_id:int}|null $ctx */
+            /** @var array{learner_id:int}|null $ctx */
             $ctx = $request->attributes->get('twa');
-            $key = $ctx['student_id'] ?? $request->ip();
+            $key = $ctx['learner_id'] ?? $request->ip();
 
             // Exam pace cap: ~30 answers/min protects against script spam
             // while leaving headroom for 10-questions-in-2-minutes sprints.
@@ -112,9 +112,9 @@ class AppServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('twa-tts', function (Request $request): Limit {
-            /** @var array{student_id:int}|null $ctx */
+            /** @var array{learner_id:int}|null $ctx */
             $ctx = $request->attributes->get('twa');
-            $key = $ctx['student_id'] ?? $request->ip();
+            $key = $ctx['learner_id'] ?? $request->ip();
 
             return Limit::perMinute(30)->by('twa-tts|'.$key);
         });

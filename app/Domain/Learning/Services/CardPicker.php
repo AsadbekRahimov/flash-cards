@@ -14,13 +14,13 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Picks the next card for a student inside a specific lesson.
+ * Picks the next card for a learner inside a specific lesson.
  *
  * Strategy:
  *   1. A due repetition for any word of the lesson (`next_review_at <= now()`),
  *      hard cards first, then earliest due. Covers review cards and
  *      (re)learning cards whose minute step has elapsed.
- *   2. Otherwise, a new word of the lesson the student has never seen.
+ *   2. Otherwise, a new word of the lesson the learner has never seen.
  *      Insert initial WordRepetition row so subsequent `review` is idempotent.
  *   3. Otherwise, learn-ahead: the earliest (re)learning card whose step
  *      elapses within `policy->learnAheadMinutes`. It is served early and
@@ -31,7 +31,7 @@ use Illuminate\Support\Facades\DB;
  *      just re-served the same card in the same response. An outstanding
  *      ticket is reused, not reissued: two tabs fetching /next see the same
  *      token and only one of them can consume it.
- *   4. Otherwise, null (student finished the lesson for now).
+ *   4. Otherwise, null (learner finished the lesson for now).
  *
  * `ahead` is true only for step 3: that is the only path that serves a card
  * with a live ticket (a card that later became due is served as due, `ahead`
@@ -54,12 +54,12 @@ final class CardPicker
      *   ahead: bool
      * }|null
      */
-    public function pickNext(int $studentId, int $lessonId, ?CarbonImmutable $now = null): ?array
+    public function pickNext(int $learnerId, int $lessonId, ?CarbonImmutable $now = null): ?array
     {
         $now ??= CarbonImmutable::now();
 
         /** @var WordRepetition|null $due */
-        $due = $this->lessonRepetitions($studentId, $lessonId)
+        $due = $this->lessonRepetitions($learnerId, $lessonId)
             ->where('next_review_at', '<=', $now)
             ->orderByDesc('is_hard')
             ->orderBy('next_review_at')
@@ -76,30 +76,30 @@ final class CardPicker
             ];
         }
 
-        $new = $this->pickNewInTransaction($studentId, $lessonId, $now);
+        $new = $this->pickNewInTransaction($learnerId, $lessonId, $now);
         if ($new !== null) {
             return $new;
         }
 
-        return $this->pickLearnAhead($studentId, $lessonId, $now);
+        return $this->pickLearnAhead($learnerId, $lessonId, $now);
     }
 
     /**
      * @return array{repetition: WordRepetition, word: Word, kind: 'new', ahead: false}|null
      */
-    private function pickNewInTransaction(int $studentId, int $lessonId, CarbonImmutable $now): ?array
+    private function pickNewInTransaction(int $learnerId, int $lessonId, CarbonImmutable $now): ?array
     {
         /** @var ConnectionInterface $db */
         $db = DB::connection();
 
-        return $db->transaction(function () use ($studentId, $lessonId, $now): ?array {
+        return $db->transaction(function () use ($learnerId, $lessonId, $now): ?array {
             /** @var Word|null $new */
             $new = Word::query()
                 ->where('lesson_id', $lessonId)
-                ->whereNotIn('id', function ($q) use ($studentId): void {
+                ->whereNotIn('id', function ($q) use ($learnerId): void {
                     $q->select('word_id')
                         ->from('word_repetitions')
-                        ->where('student_id', $studentId);
+                        ->where('learner_id', $learnerId);
                 })
                 ->orderBy('id')
                 ->lockForUpdate()
@@ -111,7 +111,7 @@ final class CardPicker
 
             /** @var WordRepetition $rep */
             $rep = WordRepetition::query()->create([
-                'student_id' => $studentId,
+                'learner_id' => $learnerId,
                 'word_id' => $new->id,
                 'repetitions' => 0,
                 'interval_days' => 0,
@@ -139,14 +139,14 @@ final class CardPicker
      *
      * @return array{repetition: WordRepetition, word: Word, kind: 'learning', ahead: true}|null
      */
-    private function pickLearnAhead(int $studentId, int $lessonId, CarbonImmutable $now): ?array
+    private function pickLearnAhead(int $learnerId, int $lessonId, CarbonImmutable $now): ?array
     {
         if ($this->policy->learnAheadMinutes <= 0) {
             return null;
         }
 
         /** @var WordRepetition|null $ahead */
-        $ahead = $this->lessonRepetitions($studentId, $lessonId)
+        $ahead = $this->lessonRepetitions($learnerId, $lessonId)
             ->whereIn('state', [RepetitionState::Learning->value, RepetitionState::Relearning->value])
             ->where('next_review_at', '<=', $now->addMinutes($this->policy->learnAheadMinutes))
             ->orderBy('next_review_at')
@@ -213,10 +213,10 @@ final class CardPicker
     /**
      * @return Builder<WordRepetition>
      */
-    private function lessonRepetitions(int $studentId, int $lessonId): Builder
+    private function lessonRepetitions(int $learnerId, int $lessonId): Builder
     {
         return WordRepetition::query()
-            ->where('student_id', $studentId)
+            ->where('learner_id', $learnerId)
             ->whereHas('word', fn ($q) => $q->where('lesson_id', $lessonId));
     }
 
@@ -235,12 +235,12 @@ final class CardPicker
     /**
      * @return array{done:int, total:int}
      */
-    public function progress(int $studentId, int $lessonId, ?int $totalWords = null): array
+    public function progress(int $learnerId, int $lessonId, ?int $totalWords = null): array
     {
         $total = $totalWords ?? Word::query()->where('lesson_id', $lessonId)->count();
 
         $done = WordRepetition::query()
-            ->where('student_id', $studentId)
+            ->where('learner_id', $learnerId)
             ->where('repetitions', '>=', 1)
             ->whereHas('word', fn ($q) => $q->where('lesson_id', $lessonId))
             ->count();

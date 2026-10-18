@@ -8,13 +8,13 @@ use App\Domain\Learning\DTO\ReviewOutcome;
 use App\Domain\Learning\DTO\TrainingStart;
 use App\Domain\Learning\DTO\TrainingStep;
 use App\Domain\Learning\Exceptions\ReviewSubmissionException;
-use App\Models\Student;
+use App\Models\Learner;
 use App\Models\TrainingReview;
 use App\Models\TrainingSession;
 
 /**
  * Orchestrates the TWA training screen: which card comes next (respecting the
- * per-session review cap) and what the student sees after grading a card.
+ * per-session review cap) and what the learner sees after grading a card.
  */
 final class TrainingFlowService
 {
@@ -27,7 +27,7 @@ final class TrainingFlowService
     /**
      * @return TrainingStart|null null when the session's lesson no longer exists
      */
-    public function start(TrainingSession $session, Student $student): ?TrainingStart
+    public function start(TrainingSession $session, Learner $learner): ?TrainingStart
     {
         $session->loadMissing('lesson.stage');
 
@@ -42,25 +42,25 @@ final class TrainingFlowService
             $session,
             $lesson,
             $totalWords,
-            $this->nextStep($session, $student, $totalWords),
+            $this->nextStep($session, $learner, $totalWords),
         );
     }
 
-    public function nextStep(TrainingSession $session, Student $student, ?int $totalWords = null): TrainingStep
+    public function nextStep(TrainingSession $session, Learner $learner, ?int $totalWords = null): TrainingStep
     {
         $lessonId = (int) $session->lesson_id;
-        $progress = $this->picker->progress((int) $student->id, $lessonId, $totalWords);
+        $progress = $this->picker->progress((int) $learner->id, $lessonId, $totalWords);
 
         $reviewCount = TrainingReview::query()
             ->where('training_session_id', $session->id)
-            ->where('student_id', $student->id)
+            ->where('learner_id', $learner->id)
             ->count();
 
         if ($reviewCount >= max(1, (int) config('twa.training.max_cards_per_session', 100))) {
             return new TrainingStep(null, null, $progress);
         }
 
-        $pick = $this->picker->pickNext((int) $student->id, $lessonId);
+        $pick = $this->picker->pickNext((int) $learner->id, $lessonId);
         if ($pick === null) {
             return new TrainingStep(null, null, $progress);
         }
@@ -82,14 +82,14 @@ final class TrainingFlowService
      */
     public function review(
         TrainingSession $session,
-        Student $student,
+        Learner $learner,
         int $wordId,
         int $quality,
         int $timeSpentMs,
         ?string $serveToken = null,
     ): ReviewOutcome {
-        $repetition = $this->reviews->submit($session, $student, $wordId, $quality, $timeSpentMs, $serveToken);
+        $repetition = $this->reviews->submit($session, $learner, $wordId, $quality, $timeSpentMs, $serveToken);
 
-        return new ReviewOutcome($repetition, $this->nextStep($session, $student));
+        return new ReviewOutcome($repetition, $this->nextStep($session, $learner));
     }
 }

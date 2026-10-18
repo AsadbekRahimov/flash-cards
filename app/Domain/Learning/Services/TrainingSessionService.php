@@ -62,6 +62,7 @@ final class TrainingSessionService
                 $existing = TrainingSession::query()
                     ->where('telegram_group_id', $group->id)
                     ->where('lesson_id', $lesson->id)
+                    ->where('mode', 'group_lesson')
                     ->where('status', 'open')
                     ->lockForUpdate()
                     ->first();
@@ -74,6 +75,8 @@ final class TrainingSessionService
                     'telegram_group_id' => $group->id,
                     'lesson_id' => $lesson->id,
                     'started_by_user_id' => $teacher->id,
+                    'mode' => 'group_lesson',
+                    'source' => 'command',
                     'status' => 'open',
                     'started_at' => now(),
                 ]);

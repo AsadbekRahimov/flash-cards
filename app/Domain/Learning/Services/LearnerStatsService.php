@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Domain\Learning\Services;
 
-use App\Domain\Learning\DTO\StudentStats;
+use App\Domain\Learning\DTO\LearnerStats;
 use App\Domain\Learning\Support\DueRepetitionCriteria;
-use App\Models\Student;
+use App\Models\Learner;
 use App\Models\WordRepetition;
 
-final class StudentStatsService
+final class LearnerStatsService
 {
     public function __construct(private readonly DueRepetitionCriteria $due) {}
 
@@ -19,17 +19,17 @@ final class StudentStatsService
      * (re)learning cards abandoned long enough ago. Rows in `new` state and
      * fresh minute steps inside a session are not "due today".
      */
-    public function forStudent(Student $student): StudentStats
+    public function forLearner(Learner $learner): LearnerStats
     {
         $wordsLearned = WordRepetition::query()
-            ->where('student_id', $student->id)
+            ->where('learner_id', $learner->id)
             ->where('repetitions', '>=', 1)
             ->count();
 
         $wordsDueToday = $this->due->apply(
-            WordRepetition::query()->where('student_id', $student->id),
+            WordRepetition::query()->where('learner_id', $learner->id),
         )->count();
 
-        return new StudentStats($wordsLearned, $wordsDueToday);
+        return new LearnerStats($wordsLearned, $wordsDueToday);
     }
 }

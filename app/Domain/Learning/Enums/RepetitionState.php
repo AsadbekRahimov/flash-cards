@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Learning\Enums;
 
 /**
- * Lifecycle of a (student, word) repetition.
+ * Lifecycle of a (learner, word) repetition.
  *
  *   new ──pass steps──▶ review ──fail──▶ relearning ──pass steps──▶ review
  *    │                    ▲                   │

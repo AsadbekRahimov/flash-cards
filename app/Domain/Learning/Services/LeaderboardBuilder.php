@@ -33,23 +33,23 @@ final class LeaderboardBuilder
         $results = DB::transaction(function () use ($session): Collection {
             ExamResult::query()->where('exam_session_id', $session->id)->delete();
 
-            /** @var Collection<int, object{student_id: int|string, total_score: int|string|null, correct_count: int|string|null, total_count: int|string, time_spent_ms: int|string|null}> $rows */
+            /** @var Collection<int, object{learner_id: int|string, total_score: int|string|null, correct_count: int|string|null, total_count: int|string, time_spent_ms: int|string|null}> $rows */
             $rows = ExamAnswer::query()
                 ->where('exam_session_id', $session->id)
-                ->whereNotNull('student_id')
+                ->whereNotNull('learner_id')
                 ->selectRaw(
-                    'student_id,
+                    'learner_id,
                      SUM(score) AS total_score,
                      SUM(CASE WHEN is_correct THEN 1 ELSE 0 END) AS correct_count,
                      COUNT(*) AS total_count,
                      SUM(time_spent_ms) AS time_spent_ms',
                 )
-                ->groupBy('student_id')
+                ->groupBy('learner_id')
                 ->get();
 
             $sorted = $rows
                 ->map(fn ($r): array => [
-                    'student_id' => (int) $r->student_id,
+                    'learner_id' => (int) $r->learner_id,
                     'total_score' => (int) $r->total_score,
                     'correct_count' => (int) $r->correct_count,
                     'total_count' => (int) $r->total_count,
@@ -71,7 +71,7 @@ final class LeaderboardBuilder
     }
 
     /**
-     * @param  Collection<int, array{student_id:int, total_score:int, correct_count:int, total_count:int, time_spent_ms:int}>  $rows
+     * @param  Collection<int, array{learner_id:int, total_score:int, correct_count:int, total_count:int, time_spent_ms:int}>  $rows
      * @return Collection<int, ExamResult>
      */
     private function assignRanks(ExamSession $session, Collection $rows): Collection
@@ -92,7 +92,7 @@ final class LeaderboardBuilder
 
             $result = ExamResult::query()->create([
                 'exam_session_id' => $session->id,
-                'student_id' => $row['student_id'],
+                'learner_id' => $row['learner_id'],
                 'total_score' => $row['total_score'],
                 'correct_count' => $row['correct_count'],
                 'total_count' => $row['total_count'],

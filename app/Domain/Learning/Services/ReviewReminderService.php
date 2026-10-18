@@ -6,7 +6,7 @@ namespace App\Domain\Learning\Services;
 
 use App\Domain\Learning\Support\DueRepetitionCriteria;
 use App\Jobs\SendReviewReminderJob;
-use App\Models\Student;
+use App\Models\Learner;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -27,9 +27,16 @@ final class ReviewReminderService
         $queued = 0;
         $now = CarbonImmutable::now();
 
-        Student::query()
-            ->where('is_active', true)
-            ->whereHas('group', fn ($q) => $q->where('status', 'active'))
+        // One reminder per person, however many groups they study in. Only learners
+        // reachable through at least one active membership of an active group are
+        // reminded (personal reminders for everyone else come with docs/12 task 1.5b).
+        Learner::query()
+            ->whereNull('blocked_at')
+            ->whereHas(
+                'memberships',
+                fn (Builder $q) => $q->where('status', 'active')
+                    ->whereHas('group', fn (Builder $g) => $g->where('status', 'active')),
+            )
             ->whereHas(
                 'repetitions',
                 fn (Builder $q) => $this->due->apply($q, $now),
@@ -43,11 +50,11 @@ final class ReviewReminderService
                 $q->where('type', 'review_reminder')
                     ->where('sent_at', '>=', $now->subHours(24));
             })
-            ->chunkById(200, function ($students) use (&$queued): void {
-                foreach ($students as $student) {
-                    $dueCount = (int) ($student->due_repetitions_count ?? 0);
+            ->chunkById(200, function ($learners) use (&$queued): void {
+                foreach ($learners as $learner) {
+                    $dueCount = (int) ($learner->due_repetitions_count ?? 0);
 
-                    SendReviewReminderJob::dispatch($student->id, $dueCount)
+                    SendReviewReminderJob::dispatch($learner->id, $dueCount)
                         ->onQueue((string) config('telegram.queue', 'high'));
 
                     $queued++;

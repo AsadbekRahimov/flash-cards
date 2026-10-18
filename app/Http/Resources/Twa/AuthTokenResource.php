@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Twa;
 
-use App\Models\Student;
+use App\Models\Learner;
 use Illuminate\Http\Request;
 
 /**
  * POST /api/twa/auth
  *
- * @property array{jwt: array{token: string, expires_in: int, expires_at: int}, student: Student} $resource
+ * @property array{jwt: array{token: string, expires_in: int, expires_at: int}, learner: Learner} $resource
  */
 final class AuthTokenResource extends TwaResource
 {
@@ -18,21 +18,21 @@ final class AuthTokenResource extends TwaResource
      * @return array{
      *   token: string,
      *   expires_in: int,
-     *   student: array{id: int, first_name: string|null, username: string|null, telegram_group_id: int}
+     *   learner: array{id: int, first_name: string|null, locale: string, onboarding_completed: bool}
      * }
      */
     public function toArray(Request $request): array
     {
-        $student = $this->resource['student'];
+        $learner = $this->resource['learner'];
 
         return [
             'token' => $this->resource['jwt']['token'],
             'expires_in' => $this->resource['jwt']['expires_in'],
-            'student' => [
-                'id' => $student->id,
-                'first_name' => $student->first_name,
-                'username' => $student->username,
-                'telegram_group_id' => (int) $student->telegram_group_id,
+            'learner' => [
+                'id' => $learner->id,
+                'first_name' => $learner->first_name,
+                'locale' => $learner->interface_locale,
+                'onboarding_completed' => $learner->onboarding_state === 'done',
             ],
         ];
     }

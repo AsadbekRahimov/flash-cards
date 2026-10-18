@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Telegram\Services;
 
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Handlers\ChatMemberHandler;
 use App\Domain\Telegram\Handlers\CloseExamHandler;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
 use App\Domain\Telegram\Handlers\HelpCommandHandler;
@@ -36,11 +37,13 @@ final class TelegramDispatcher
         HelpCommandHandler $help,
         MyChatMemberHandler $myChatMember,
         NewMembersHandler $newMembers,
+        ChatMemberHandler $chatMember,
     ) {
         // Order matters: more specific commands first (e.g. /start_training
         // must win over the generic /start catch-all).
         $this->messageHandlers = [
             $myChatMember,
+            $chatMember,
             $newMembers,
             $startTraining,
             $startExam,

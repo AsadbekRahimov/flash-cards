@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Localization\Services;
 
-use App\Models\Student;
+use App\Models\Learner;
 use App\Models\TelegramGroup;
 
 /**
@@ -14,7 +14,7 @@ use App\Models\TelegramGroup;
  * long-lived): callers pass the result as the explicit `$locale` argument of
  * `__()` / `trans_choice()`.
  *
- *   - student (DM, reminders): `students.language_code` -> `uz*` => uz, else default
+ *   - learner (DM, reminders): `learners.interface_locale` if supported, else default
  *   - group chat:              `telegram_groups.meta['locale']` if supported, else default
  *   - teacher:                 default
  */
@@ -71,9 +71,11 @@ final class LocaleResolver
         return $this->isSupported($primary) ? $primary : $this->default();
     }
 
-    public function forStudent(Student $student): string
+    public function forLearner(Learner $learner): string
     {
-        return $this->fromLanguageCode($student->language_code);
+        return $this->isSupported($learner->interface_locale)
+            ? $learner->interface_locale
+            : $this->fromLanguageCode($learner->language_code);
     }
 
     public function forGroup(TelegramGroup $group): string

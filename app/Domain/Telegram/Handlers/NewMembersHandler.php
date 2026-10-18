@@ -6,13 +6,18 @@ namespace App\Domain\Telegram\Handlers;
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Learners\Services\GroupMembershipService;
+use App\Domain\Learners\Services\LearnerRegistrar;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
-use App\Models\Student;
 use App\Models\TelegramGroup;
 
 final class NewMembersHandler implements UpdateHandler
 {
-    public function __construct(private readonly ProductEventRecorder $events) {}
+    public function __construct(
+        private readonly ProductEventRecorder $events,
+        private readonly LearnerRegistrar $registrar,
+        private readonly GroupMembershipService $memberships,
+    ) {}
 
     /** @param array<string, mixed> $update */
     public function matches(array $update): bool
@@ -54,20 +59,17 @@ final class NewMembersHandler implements UpdateHandler
                 continue;
             }
 
-            $student = Student::updateOrCreate(
-                ['telegram_user_id' => $tgId, 'telegram_group_id' => $group->id],
-                [
-                    'first_name' => (string) ($m['first_name'] ?? 'Unknown'),
-                    'last_name' => $m['last_name'] ?? null,
-                    'username' => $m['username'] ?? null,
-                    'language_code' => $m['language_code'] ?? null,
-                    'last_seen_at' => now(),
-                    'is_active' => true,
-                ],
-            );
+            // First contact through a group: no /start in DM yet (acquisition_source 'group').
+            $learner = $this->registrar->fromTelegramUser($m, 'group');
+            $member = $this->memberships->join($learner, $group, 'group');
 
-            if ($student->wasRecentlyCreated) {
-                $this->events->record(ProductEventName::StudentJoined, student: $student, group: $group);
+            if ($member->wasRecentlyCreated || $member->wasChanged('status')) {
+                $this->events->record(
+                    ProductEventName::GroupMemberJoined,
+                    ['via' => 'group'],
+                    learner: $learner,
+                    group: $group,
+                );
             }
         }
     }

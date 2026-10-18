@@ -72,9 +72,9 @@ class TelegramGroupResource extends Resource
                         'disabled' => 'danger',
                         default => 'gray',
                     }),
-                Tables\Columns\TextColumn::make('students_count')
-                    ->counts('students')
-                    ->label('Students'),
+                Tables\Columns\TextColumn::make('members_count')
+                    ->counts(['members' => fn (Builder $q): Builder => $q->where('status', 'active')])
+                    ->label('Learners'),
                 Tables\Columns\TextColumn::make('created_at')->dateTime()->sortable(),
             ])
             ->filters([

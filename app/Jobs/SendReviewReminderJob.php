@@ -6,12 +6,13 @@ namespace App\Jobs;
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Learners\Services\GroupMembershipService;
 use App\Domain\Learning\Services\ReviewReminderLinkBuilder;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Models\Learner;
 use App\Models\NotificationLog;
-use App\Models\Student;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Cache;
@@ -22,7 +23,7 @@ final class SendReviewReminderJob implements ShouldQueue
     use Queueable;
 
     public function __construct(
-        public readonly int $studentId,
+        public readonly int $learnerId,
         public readonly int $dueCount,
     ) {}
 
@@ -31,25 +32,24 @@ final class SendReviewReminderJob implements ShouldQueue
         ReviewReminderLinkBuilder $links,
         ProductEventRecorder $events,
         LocaleResolver $locales,
+        GroupMembershipService $memberships,
     ): void {
-        /** @var Student|null $student */
-        $student = Student::query()
-            ->with('group')
-            ->find($this->studentId);
+        /** @var Learner|null $learner */
+        $learner = Learner::query()->find($this->learnerId);
 
-        if ($student === null || ! $student->is_active || $student->group?->status !== 'active') {
+        if ($learner === null || $learner->blocked_at !== null || $memberships->activeGroupIds($learner) === []) {
             return;
         }
 
-        Cache::lock("telegram:review-reminder:{$student->id}", 120)->block(10, function () use (
+        Cache::lock("telegram:review-reminder:{$learner->id}", 120)->block(10, function () use (
             $telegram,
             $links,
             $events,
             $locales,
-            $student,
+            $learner,
         ): void {
             $recentlySent = NotificationLog::query()
-                ->where('student_id', $student->id)
+                ->where('learner_id', $learner->id)
                 ->where('type', 'review_reminder')
                 ->where('sent_at', '>=', now()->subHours(24))
                 ->exists();
@@ -58,12 +58,12 @@ final class SendReviewReminderJob implements ShouldQueue
                 return;
             }
 
-            $url = $links->buildTrainingUrl($student);
-            $locale = $locales->forStudent($student);
+            $url = $links->buildTrainingUrl($learner);
+            $locale = $locales->forLearner($learner);
 
             try {
                 $telegram->sendWebAppButton(
-                    chatId: $student->telegram_user_id,
+                    chatId: $learner->telegram_user_id,
                     text: trans_choice('reminders.review', $this->dueCount, [], $locale),
                     buttonText: __('reminders.open_button', [], $locale),
                     url: $url,
@@ -72,24 +72,23 @@ final class SendReviewReminderJob implements ShouldQueue
                 // Bot blocked / dialog never started: retrying can never succeed,
                 // so finish the job instead of failing it every day.
                 Log::warning('telegram.review_reminder_forbidden', [
-                    'student_id' => $student->id,
+                    'learner_id' => $learner->id,
                     'reason' => $e->reason,
                 ]);
                 $events->record(
                     ProductEventName::ReminderFailed,
                     ['reason' => $e->reason, 'due_count' => $this->dueCount],
-                    student: $student,
+                    learner: $learner,
                 );
 
                 return;
             }
 
             NotificationLog::query()->create([
-                'student_id' => $student->id,
+                'learner_id' => $learner->id,
                 'type' => 'review_reminder',
                 'payload' => [
                     'due_count' => $this->dueCount,
-                    'telegram_group_id' => $student->telegram_group_id,
                 ],
                 'sent_at' => now(),
             ]);
@@ -97,7 +96,7 @@ final class SendReviewReminderJob implements ShouldQueue
             $events->record(
                 ProductEventName::ReminderSent,
                 ['due_count' => $this->dueCount],
-                student: $student,
+                learner: $learner,
             );
         });
     }

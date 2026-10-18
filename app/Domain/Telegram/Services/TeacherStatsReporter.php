@@ -7,7 +7,7 @@ namespace App\Domain\Telegram\Services;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\ExamAnswer;
 use App\Models\ExamSession;
-use App\Models\Student;
+use App\Models\GroupMember;
 use App\Models\TrainingReview;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -32,14 +32,17 @@ final class TeacherStatsReporter
 
         $since = now()->subDays(7);
 
-        $students = Student::query()
+        // Distinct people: a learner in two of the teacher's groups counts once.
+        $learners = GroupMember::query()
             ->whereIn('telegram_group_id', $groupIds)
-            ->where('is_active', true)
-            ->count();
+            ->where('status', 'active')
+            ->distinct()
+            ->count('learner_id');
 
+        // Group work only: personal sessions of a learner are private (docs/12 §4.4).
         $reviews = TrainingReview::query()
             ->where('created_at', '>=', $since)
-            ->whereHas('student', fn ($q) => $q->whereIn('telegram_group_id', $groupIds))
+            ->whereHas('session', fn ($q) => $q->whereIn('telegram_group_id', $groupIds))
             ->count();
 
         $exams = ExamSession::query()
@@ -49,13 +52,13 @@ final class TeacherStatsReporter
 
         $correct = ExamAnswer::query()
             ->where('answered_at', '>=', $since)
-            ->whereHas('student', fn ($q) => $q->whereIn('telegram_group_id', $groupIds))
+            ->whereHas('session', fn ($q) => $q->whereIn('telegram_group_id', $groupIds))
             ->where('is_correct', true)
             ->count();
 
         $answers = ExamAnswer::query()
             ->where('answered_at', '>=', $since)
-            ->whereHas('student', fn ($q) => $q->whereIn('telegram_group_id', $groupIds))
+            ->whereHas('session', fn ($q) => $q->whereIn('telegram_group_id', $groupIds))
             ->count();
 
         $accuracy = $answers > 0 ? (int) round(($correct / $answers) * 100) : 0;
@@ -64,7 +67,7 @@ final class TeacherStatsReporter
             __('stats.title', [], $locale),
             '',
             __('stats.groups', ['count' => count($groupIds)], $locale),
-            __('stats.students', ['count' => $students], $locale),
+            __('stats.learners', ['count' => $learners], $locale),
             __('stats.reviews', ['count' => $reviews], $locale),
             __('stats.exams', ['count' => $exams], $locale),
             __('stats.accuracy', ['percent' => $accuracy], $locale),

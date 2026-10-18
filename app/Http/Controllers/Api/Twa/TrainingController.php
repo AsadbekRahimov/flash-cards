@@ -10,7 +10,7 @@ use App\Http\Resources\ApiErrorResource;
 use App\Http\Resources\Twa\ReviewResultResource;
 use App\Http\Resources\Twa\TrainingNextResource;
 use App\Http\Resources\Twa\TrainingStartResource;
-use App\Models\Student;
+use App\Models\Learner;
 use App\Models\TrainingSession;
 use App\Policies\TrainingSessionPolicy;
 use Illuminate\Http\JsonResponse;
@@ -25,15 +25,15 @@ final class TrainingController
 
     public function start(Request $request, int $sessionId): JsonResponse
     {
-        [$student, $session] = $this->resolve($request, $sessionId);
+        [$learner, $session] = $this->resolve($request, $sessionId);
         if ($session instanceof JsonResponse) {
             return $session;
         }
-        if (! $student instanceof Student) {
-            return $this->unauthorizedStudent();
+        if (! $learner instanceof Learner) {
+            return $this->unauthorizedLearner();
         }
 
-        $start = $this->flow->start($session, $student);
+        $start = $this->flow->start($session, $learner);
         if ($start === null) {
             return ApiErrorResource::respond(404, 'lesson_not_found', 'Training lesson not found.');
         }
@@ -43,25 +43,25 @@ final class TrainingController
 
     public function next(Request $request, int $sessionId): JsonResponse
     {
-        [$student, $session] = $this->resolve($request, $sessionId);
+        [$learner, $session] = $this->resolve($request, $sessionId);
         if ($session instanceof JsonResponse) {
             return $session;
         }
-        if (! $student instanceof Student) {
-            return $this->unauthorizedStudent();
+        if (! $learner instanceof Learner) {
+            return $this->unauthorizedLearner();
         }
 
-        return (new TrainingNextResource($this->flow->nextStep($session, $student)))->response();
+        return (new TrainingNextResource($this->flow->nextStep($session, $learner)))->response();
     }
 
     public function review(Request $request, int $sessionId): JsonResponse
     {
-        [$student, $session] = $this->resolve($request, $sessionId);
+        [$learner, $session] = $this->resolve($request, $sessionId);
         if ($session instanceof JsonResponse) {
             return $session;
         }
-        if (! $student instanceof Student) {
-            return $this->unauthorizedStudent();
+        if (! $learner instanceof Learner) {
+            return $this->unauthorizedLearner();
         }
 
         $validated = $request->validate([
@@ -74,7 +74,7 @@ final class TrainingController
         try {
             $outcome = $this->flow->review(
                 $session,
-                $student,
+                $learner,
                 (int) $validated['word_id'],
                 (int) $validated['quality'],
                 (int) $validated['time_spent_ms'],
@@ -87,18 +87,18 @@ final class TrainingController
         return (new ReviewResultResource($outcome))->response();
     }
 
-    private function unauthorizedStudent(): JsonResponse
+    private function unauthorizedLearner(): JsonResponse
     {
-        return ApiErrorResource::respond(401, 'student_not_found', 'Unauthorized');
+        return ApiErrorResource::respond(401, 'learner_not_found', 'Unauthorized');
     }
 
     /**
-     * @return array{0: Student, 1: TrainingSession}|array{0: null, 1: JsonResponse}
+     * @return array{0: Learner, 1: TrainingSession}|array{0: null, 1: JsonResponse}
      */
     private function resolve(Request $request, int $sessionId): array
     {
-        /** @var Student $student */
-        $student = $request->attributes->get('student');
+        /** @var Learner $learner */
+        $learner = $request->attributes->get('learner');
 
         /** @var TrainingSession|null $session */
         $session = TrainingSession::query()->find($sessionId);
@@ -107,14 +107,15 @@ final class TrainingController
             return [null, ApiErrorResource::respond(404, 'session_not_found', 'Training session not found.')];
         }
 
-        if (! $this->policy->canAccess($student, $session)) {
-            return [null, ApiErrorResource::respond(403, 'forbidden', 'You cannot access this session.')];
+        $denial = $this->policy->denial($learner, $session);
+        if ($denial !== null) {
+            return [null, ApiErrorResource::respond(403, $denial, 'You cannot access this session.')];
         }
 
         if ($session->status !== 'open') {
             return [null, ApiErrorResource::respond(410, 'session_closed', 'This training session is closed.')];
         }
 
-        return [$student, $session];
+        return [$learner, $session];
     }
 }

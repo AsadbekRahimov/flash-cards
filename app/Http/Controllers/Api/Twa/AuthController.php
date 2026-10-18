@@ -7,10 +7,9 @@ namespace App\Http\Controllers\Api\Twa;
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Twa\Exceptions\InvalidInitDataException;
-use App\Domain\Twa\Exceptions\StudentContextException;
 use App\Domain\Twa\Services\InitDataValidator;
 use App\Domain\Twa\Services\JwtService;
-use App\Domain\Twa\Services\StudentContextResolver;
+use App\Domain\Twa\Services\LearnerContextResolver;
 use App\Http\Resources\ApiErrorResource;
 use App\Http\Resources\Twa\AuthTokenResource;
 use Illuminate\Http\JsonResponse;
@@ -21,7 +20,7 @@ final class AuthController
     public function __construct(
         private readonly InitDataValidator $validator,
         private readonly JwtService $jwt,
-        private readonly StudentContextResolver $students,
+        private readonly LearnerContextResolver $learners,
         private readonly ProductEventRecorder $events,
     ) {}
 
@@ -40,29 +39,24 @@ final class AuthController
             return ApiErrorResource::respond(401, 'invalid_init_data', $e->reason);
         }
 
-        $telegramUserId = (int) $parsed['user']['id'];
+        $learner = $this->learners->resolve(
+            $parsed['user'],
+            isset($data['context']['type']) ? (string) $data['context']['type'] : null,
+            isset($data['context']['session_id']) ? (int) $data['context']['session_id'] : null,
+        );
 
-        try {
-            $student = $this->students->resolve(
-                $telegramUserId,
-                isset($data['context']['type']) ? (string) $data['context']['type'] : null,
-                isset($data['context']['session_id']) ? (int) $data['context']['session_id'] : null,
-            );
-        } catch (StudentContextException $e) {
-            return ApiErrorResource::respond($e->status, $e->errorCode, $e->getMessage());
+        if ($learner->blocked_at !== null) {
+            return ApiErrorResource::respond(401, 'learner_blocked', 'Unauthorized');
         }
-
-        $student->last_seen_at = now();
-        $student->save();
 
         $this->events->record(
             ProductEventName::TwaAuthenticated,
             ['context' => isset($data['context']['type']) ? (string) $data['context']['type'] : 'none'],
-            student: $student,
+            learner: $learner,
         );
 
-        $jwt = $this->jwt->issue($student->id, (int) $student->telegram_group_id);
+        $jwt = $this->jwt->issue($learner->id);
 
-        return (new AuthTokenResource(['jwt' => $jwt, 'student' => $student]))->response();
+        return (new AuthTokenResource(['jwt' => $jwt, 'learner' => $learner]))->response();
     }
 }

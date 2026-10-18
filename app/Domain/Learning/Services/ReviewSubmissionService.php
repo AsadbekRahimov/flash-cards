@@ -6,7 +6,7 @@ namespace App\Domain\Learning\Services;
 
 use App\Domain\Learning\Exceptions\ReviewSubmissionException;
 use App\Domain\Learning\Support\LearningPolicy;
-use App\Models\Student;
+use App\Models\Learner;
 use App\Models\TrainingReview;
 use App\Models\TrainingSession;
 use App\Models\WordRepetition;
@@ -15,7 +15,7 @@ use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Atomically applies a student's grade to a card inside an open session.
+ * Atomically applies a learner's grade to a card inside an open session.
  *
  * Double-submit protection: a card may be graded only if it is due
  * (`next_review_at <= now`) or if CardPicker served it early (learn-ahead)
@@ -37,7 +37,7 @@ final class ReviewSubmissionService
      */
     public function submit(
         TrainingSession $session,
-        Student $student,
+        Learner $learner,
         int $wordId,
         int $quality,
         int $timeSpentMs,
@@ -51,7 +51,7 @@ final class ReviewSubmissionService
 
         return $db->transaction(function () use (
             $session,
-            $student,
+            $learner,
             $wordId,
             $quality,
             $timeSpentMs,
@@ -73,7 +73,7 @@ final class ReviewSubmissionService
 
             /** @var WordRepetition|null $repetition */
             $repetition = WordRepetition::query()
-                ->where('student_id', $student->id)
+                ->where('learner_id', $learner->id)
                 ->where('word_id', $wordId)
                 ->with('word')
                 ->lockForUpdate()
@@ -83,7 +83,7 @@ final class ReviewSubmissionService
                 throw new ReviewSubmissionException(
                     409,
                     'card_not_started',
-                    'Card was never served to this student.',
+                    'Card was never served to this learner.',
                 );
             }
 
@@ -107,7 +107,7 @@ final class ReviewSubmissionService
 
             TrainingReview::query()->create([
                 'training_session_id' => $session->id,
-                'student_id' => $student->id,
+                'learner_id' => $learner->id,
                 'word_id' => $wordId,
                 'quality' => $quality,
                 'time_spent_ms' => $timeSpentMs,

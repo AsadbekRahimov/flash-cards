@@ -4,40 +4,44 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Twa;
 
-use App\Domain\Learning\DTO\StudentStats;
-use App\Models\Student;
+use App\Domain\Learning\DTO\LearnerStats;
+use App\Models\Learner;
+use App\Models\TelegramGroup;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 /**
  * GET /api/twa/me
  *
- * @property array{student: Student, stats: StudentStats} $resource
+ * @property array{learner: Learner, groups: Collection<int, TelegramGroup>, stats: LearnerStats} $resource
  */
 final class MeResource extends TwaResource
 {
     /**
      * @return array{
-     *   student: array{id: int, first_name: string|null, username: string|null},
-     *   group: array{id: int, title: string}|null,
+     *   learner: array{id: int, first_name: string|null, username: string|null, locale: string, onboarding_completed: bool},
+     *   groups: list<array{id: int, title: string}>,
      *   stats: array{words_learned: int, words_due_today: int}
      * }
      */
     public function toArray(Request $request): array
     {
-        $student = $this->resource['student'];
+        $learner = $this->resource['learner'];
         $stats = $this->resource['stats'];
-        $group = $student->group;
 
         return [
-            'student' => [
-                'id' => $student->id,
-                'first_name' => $student->first_name,
-                'username' => $student->username,
+            'learner' => [
+                'id' => $learner->id,
+                'first_name' => $learner->first_name,
+                'username' => $learner->username,
+                'locale' => $learner->interface_locale,
+                'onboarding_completed' => $learner->onboarding_state === 'done',
             ],
-            'group' => $group !== null ? [
-                'id' => $group->id,
-                'title' => $group->title,
-            ] : null,
+            'groups' => array_values(
+                $this->resource['groups']
+                    ->map(fn (TelegramGroup $group): array => ['id' => $group->id, 'title' => $group->title])
+                    ->all(),
+            ),
             'stats' => [
                 'words_learned' => $stats->wordsLearned,
                 'words_due_today' => $stats->wordsDueToday,

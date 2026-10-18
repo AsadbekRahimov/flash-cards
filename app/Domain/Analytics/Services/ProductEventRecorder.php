@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Domain\Analytics\Services;
 
 use App\Domain\Analytics\Enums\ProductEventName;
+use App\Models\Learner;
 use App\Models\ProductEvent;
-use App\Models\Student;
 use App\Models\TelegramGroup;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -44,15 +44,15 @@ class ProductEventRecorder
     public function record(
         ProductEventName $name,
         array $props = [],
-        ?Student $student = null,
+        ?Learner $learner = null,
         ?TelegramGroup $group = null,
         ?User $user = null,
     ): void {
         try {
             $attributes = [
                 'name' => $name->value,
-                'student_id' => $student?->id,
-                'telegram_group_id' => $group !== null ? $group->id : $student?->telegram_group_id,
+                'learner_id' => $learner?->id,
+                'telegram_group_id' => $group?->id,
                 'user_id' => $user?->id,
                 'props' => $this->sanitize($props),
                 'occurred_at' => now(),
