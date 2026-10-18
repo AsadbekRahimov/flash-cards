@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
+use App\Domain\Analytics\Enums\ProductEventName;
+use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Learning\Services\ReviewReminderLinkBuilder;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Models\NotificationLog;
 use App\Models\Student;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 final class SendReviewReminderJob implements ShouldQueue
 {
@@ -21,8 +25,11 @@ final class SendReviewReminderJob implements ShouldQueue
         public readonly int $dueCount,
     ) {}
 
-    public function handle(TelegramClient $telegram, ReviewReminderLinkBuilder $links): void
-    {
+    public function handle(
+        TelegramClient $telegram,
+        ReviewReminderLinkBuilder $links,
+        ProductEventRecorder $events,
+    ): void {
         /** @var Student|null $student */
         $student = Student::query()
             ->with('group')
@@ -35,6 +42,7 @@ final class SendReviewReminderJob implements ShouldQueue
         Cache::lock("telegram:review-reminder:{$student->id}", 120)->block(10, function () use (
             $telegram,
             $links,
+            $events,
             $student,
         ): void {
             $recentlySent = NotificationLog::query()
@@ -49,12 +57,28 @@ final class SendReviewReminderJob implements ShouldQueue
 
             $url = $links->buildTrainingUrl($student);
 
-            $telegram->sendWebAppButton(
-                chatId: $student->telegram_user_id,
-                text: "Пора повторить {$this->dueCount} слов в LexiFlow.",
-                buttonText: 'Открыть LexiFlow',
-                url: $url,
-            );
+            try {
+                $telegram->sendWebAppButton(
+                    chatId: $student->telegram_user_id,
+                    text: "Пора повторить {$this->dueCount} слов в LexiFlow.",
+                    buttonText: 'Открыть LexiFlow',
+                    url: $url,
+                );
+            } catch (TelegramForbiddenException $e) {
+                // Bot blocked / dialog never started: retrying can never succeed,
+                // so finish the job instead of failing it every day.
+                Log::warning('telegram.review_reminder_forbidden', [
+                    'student_id' => $student->id,
+                    'reason' => $e->reason,
+                ]);
+                $events->record(
+                    ProductEventName::ReminderFailed,
+                    ['reason' => $e->reason, 'due_count' => $this->dueCount],
+                    student: $student,
+                );
+
+                return;
+            }
 
             NotificationLog::query()->create([
                 'student_id' => $student->id,
@@ -65,6 +89,12 @@ final class SendReviewReminderJob implements ShouldQueue
                 ],
                 'sent_at' => now(),
             ]);
+
+            $events->record(
+                ProductEventName::ReminderSent,
+                ['due_count' => $this->dueCount],
+                student: $student,
+            );
         });
     }
 }

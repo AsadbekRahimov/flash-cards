@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Handlers;
 
+use App\Domain\Analytics\Enums\ProductEventName;
+use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Learning\Exceptions\ExamSessionException;
 use App\Domain\Learning\Services\ExamSessionService;
 use App\Domain\Learning\Services\LeaderboardBuilder;
@@ -24,6 +26,7 @@ final class CloseExamHandler implements UpdateHandler
         private readonly TelegramClient $telegram,
         private readonly ExamSessionService $exams,
         private readonly LeaderboardBuilder $leaderboard,
+        private readonly ProductEventRecorder $events,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -95,6 +98,13 @@ final class CloseExamHandler implements UpdateHandler
 
             return;
         }
+
+        $this->events->record(
+            ProductEventName::ExamClosed,
+            ['exam_session_id' => $session->id, 'source' => 'manual'],
+            group: $group,
+            user: $teacher,
+        );
 
         $this->leaderboard->build($session);
 

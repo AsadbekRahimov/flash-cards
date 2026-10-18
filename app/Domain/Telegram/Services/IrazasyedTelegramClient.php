@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Domain\Telegram\Services;
 
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Jobs\SendTelegramMessageJob;
 use Telegram\Bot\Api;
+use Telegram\Bot\Exceptions\TelegramResponseException;
 
 class IrazasyedTelegramClient implements TelegramClient
 {
@@ -42,6 +44,8 @@ class IrazasyedTelegramClient implements TelegramClient
      * Only the deferred queue job should call this method directly.
      *
      * @param  array<string, mixed>|null  $replyMarkup
+     *
+     * @throws TelegramForbiddenException when Telegram answers 403
      */
     public function sendImmediately(
         int|string $chatId,
@@ -62,7 +66,17 @@ class IrazasyedTelegramClient implements TelegramClient
             $params['reply_markup'] = json_encode($replyMarkup, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
         }
 
-        $this->api->sendMessage($params);
+        try {
+            $this->api->sendMessage($params);
+        } catch (TelegramResponseException $e) {
+            // Keep the SDK behind the TelegramClient boundary: callers only need to
+            // know that the recipient is unreachable (blocked bot / no dialog).
+            if ($e->getCode() === 403 || $e->getHttpStatusCode() === 403) {
+                throw TelegramForbiddenException::fromDescription($e->getMessage(), $e);
+            }
+
+            throw $e;
+        }
     }
 
     public function sendWebAppButton(

@@ -255,6 +255,29 @@ erDiagram
 | meta | jsonb |
 | created_at | timestamp |
 
+### 2.16 `product_events` — продуктовые события
+Append-only журнал для продуктовой аналитики (не путать с Laravel events). Пишется только через
+`App\Domain\Analytics\Services\ProductEventRecorder`; сбой записи логируется warning'ом и не ломает основной поток.
+
+| Колонка | Тип |
+|---------|-----|
+| id | bigint PK |
+| name | string(100) | см. `ProductEventName`, например `exam.started` |
+| student_id | bigint FK nullable → students, ON DELETE SET NULL |
+| telegram_group_id | bigint FK nullable → telegram_groups, ON DELETE SET NULL |
+| user_id | bigint FK nullable → users, ON DELETE SET NULL (учитель) |
+| props | jsonb | только скаляры, ≤ 20 ключей, строки ≤ 100 символов, **без PII** |
+| occurred_at | timestamp |
+
+**Индексы:** `(name, occurred_at)`, `(student_id, occurred_at)`.
+
+**События (MVP):** `twa.authenticated`, `training.session_opened`, `exam.started`, `exam.closed`
+(пока только ручной `/close_exam`), `exam.leaderboard_posted`, `reminder.sent`, `reminder.failed` (`reason`:
+`bot_blocked` / `not_started` / `user_deactivated` / `forbidden`), `group.bot_added`, `student.joined`.
+
+Ключи props с признаками PII (`name`, `username`, `text`, `message`, `title`, `token`, `hash`, `init_data`, ...)
+отбрасываются рекордером автоматически.
+
 ## 3. Порядок миграций
 
 Миграции создаём в таком порядке (порядок имеет значение из-за FK):
@@ -276,6 +299,7 @@ erDiagram
 15. `create_exam_results_table`
 16. `create_notifications_log_table`
 17. `create_audit_logs_table`
+18. `create_product_events_table`
 
 ## 4. Сидеры (для локальной разработки)
 

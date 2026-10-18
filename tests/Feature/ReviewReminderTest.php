@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Learning\Services\ReviewReminderLinkBuilder;
 use App\Domain\Learning\Services\ReviewReminderService;
 use App\Domain\Telegram\Contracts\TelegramClient;
@@ -128,7 +129,7 @@ it('sends a reminder message and writes notification log', function (): void {
         }
     };
 
-    (new SendReviewReminderJob($student->id, 5))->handle($api, app(ReviewReminderLinkBuilder::class));
+    (new SendReviewReminderJob($student->id, 5))->handle($api, app(ReviewReminderLinkBuilder::class), app(ProductEventRecorder::class));
 
     expect($api->messages)->toHaveCount(1);
     $message = $api->messages[0];

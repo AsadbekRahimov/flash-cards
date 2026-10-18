@@ -256,7 +256,7 @@ app/
 | Telegram Bot API | Отправка сообщений, webhook | `TELEGRAM_BOT_TOKEN` |
 | Telegram Web App | Встраивание TWA | `initData` HMAC по `TELEGRAM_BOT_TOKEN` |
 | edge-tts (self-hosted) | Fallback TTS | internal network only |
-| Sentry (опц.) | Error tracking | DSN в env |
+| Sentry / GlitchTip (опц.) | Error tracking | `SENTRY_LARAVEL_DSN` в env |
 
 ## 7. Deployment (Docker Compose)
 
@@ -295,11 +295,21 @@ SENTRY_LARAVEL_DSN=
 
 ## 8. Observability
 
-- **Логи:** Monolog → stdout (в Docker) в JSON-формате → агрегатор (Loki/ELK).
-- **Метрики:** Laravel Telescope в dev, в prod — Prometheus exporter (через `spatie/laravel-prometheus`).
-- **Трейсинг:** OpenTelemetry (опционально, на v2).
-- **Error tracking:** Sentry.
-- **Health endpoint:** `GET /health` → проверка DB, Redis, возвращает 200/503.
+- **Логи:** Laravel Log (channel `stack`/`daily`, отдельный канал `telegram` для Telegram-обновлений). В Docker — stderr/файлы контейнера;
+  PII в логах маскируется (`UpdateSanitizer`: имена, username, тексты).
+- **Error tracking:** Sentry через `sentry/sentry-laravel` (`config/sentry.php`, `Integration::handles()` в `bootstrap/app.php`).
+  Пустой `SENTRY_LARAVEL_DSN` = выключено; совместим с self-hosted GlitchTip (другой DSN). Перед отправкой события проходят
+  `SentryScrubber` (Authorization/Cookie, `init_data`, токены Telegram, секрет вебхука, JWT-секрет).
+- **Health endpoints:** `GET /up` — процесс жив (framework); `GET /health/ready` — готовность зависимостей
+  (`ReadinessProbe`: DB `select 1`, Redis ping если используется, heartbeat планировщика ≤ 3 мин, размер очередей `high`/`default`).
+  200 `{"status":"ok","checks":{...}}` либо 503 с `fail`; наружу только `ok`/`fail`, без текстов ошибок.
+- **Продуктовые события:** таблица `product_events` (`ProductEventRecorder`, enum `ProductEventName`): `twa.authenticated`,
+  `training.session_opened`, `exam.started`, `exam.closed`, `exam.leaderboard_posted`, `reminder.sent`, `reminder.failed`,
+  `group.bot_added`, `student.joined`. Props — только скаляры без PII; запись никогда не ломает основной поток.
+  Подробности — `docs/03_DATABASE.md` §2.16.
+- **Метрики / трейсинг:** отдельный Prometheus/OpenTelemetry пока не подключены. Sentry Performance
+  (`SENTRY_TRACES_SAMPLE_RATE=0.1`) даёт базовые трейсы запросов и джобов.
+- Мониторинг и алерты — `docs/DEVOPS_GUIDE.md` §15.
 
 ## 9. Ключевые архитектурные решения (ADR)
 

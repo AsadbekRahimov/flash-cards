@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
+use App\Domain\Analytics\Enums\ProductEventName;
+use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Learning\Services\LeaderboardBuilder;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Models\ExamResult;
@@ -37,8 +39,11 @@ final class PostLeaderboardJob implements ShouldQueue
 
     public function __construct(public readonly int $examSessionId) {}
 
-    public function handle(TelegramClient $telegram, LeaderboardBuilder $builder): void
-    {
+    public function handle(
+        TelegramClient $telegram,
+        LeaderboardBuilder $builder,
+        ProductEventRecorder $events,
+    ): void {
         /** @var ExamSession|null $session */
         $session = ExamSession::query()
             ->with(['group', 'lesson'])
@@ -69,6 +74,7 @@ final class PostLeaderboardJob implements ShouldQueue
 
         Cache::lock("telegram:leaderboard:{$session->id}", 120)->block(10, function () use (
             $telegram,
+            $events,
             $session,
             $text,
         ): void {
@@ -81,6 +87,11 @@ final class PostLeaderboardJob implements ShouldQueue
             try {
                 $telegram->sendMessage($session->group->chat_id, $text, parseMode: 'HTML');
                 $fresh->update(['leaderboard_posted_at' => now()]);
+                $events->record(
+                    ProductEventName::ExamLeaderboardPosted,
+                    ['exam_session_id' => $session->id],
+                    group: $session->group,
+                );
             } catch (\Throwable $e) {
                 Log::channel('daily')->warning('telegram.leaderboard_post_failed', [
                     'exam_session_id' => $session->id,

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Handlers;
 
+use App\Domain\Analytics\Enums\ProductEventName;
+use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Learning\Exceptions\ExamSessionException;
 use App\Domain\Learning\Services\ExamSessionService;
 use App\Domain\Telegram\Contracts\TelegramClient;
@@ -22,6 +24,7 @@ final class StartExamHandler implements UpdateHandler
     public function __construct(
         private readonly TelegramClient $telegram,
         private readonly ExamSessionService $exams,
+        private readonly ProductEventRecorder $events,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -80,6 +83,18 @@ final class StartExamHandler implements UpdateHandler
 
             return;
         }
+
+        $this->events->record(
+            ProductEventName::ExamStarted,
+            [
+                'exam_session_id' => $session->id,
+                'stage' => $stage,
+                'lesson' => $lesson,
+                'minutes' => $minutes,
+            ],
+            group: $group,
+            user: $teacher,
+        );
 
         $this->postWebAppButton($chatId, $session, $stage, $lesson, $minutes);
     }

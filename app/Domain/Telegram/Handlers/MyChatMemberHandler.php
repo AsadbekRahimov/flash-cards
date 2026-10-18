@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Handlers;
 
+use App\Domain\Analytics\Enums\ProductEventName;
+use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
 use App\Models\TelegramGroup;
 
 final class MyChatMemberHandler implements UpdateHandler
 {
+    public function __construct(private readonly ProductEventRecorder $events) {}
+
     /** @param array<string, mixed> $update */
     public function matches(array $update): bool
     {
@@ -46,6 +50,10 @@ final class MyChatMemberHandler implements UpdateHandler
 
         $group = TelegramGroup::firstOrNew(['chat_id' => $chatId]);
 
+        // New group, or the bot re-joined after leaving / being kicked.
+        $oldStatus = (string) ($event['old_chat_member']['status'] ?? '');
+        $botAdded = ! $group->exists || in_array($oldStatus, ['left', 'kicked'], true);
+
         if (! $group->exists) {
             $group->status = 'pending';
         }
@@ -53,5 +61,13 @@ final class MyChatMemberHandler implements UpdateHandler
         $group->title = (string) ($chat['title'] ?? 'Untitled group');
         $group->meta = ['type' => $chatType];
         $group->save();
+
+        if ($botAdded) {
+            $this->events->record(
+                ProductEventName::GroupBotAdded,
+                ['chat_type' => $chatType, 'readded' => ! $group->wasRecentlyCreated],
+                group: $group,
+            );
+        }
     }
 }

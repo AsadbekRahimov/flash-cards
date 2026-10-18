@@ -25,7 +25,7 @@ $expectedTables = [
     'stages', 'lessons', 'words', 'word_repetitions',
     'training_sessions', 'training_reviews',
     'exam_sessions', 'exam_question_attempts', 'exam_answers', 'exam_results',
-    'notifications_log', 'audit_logs',
+    'notifications_log', 'audit_logs', 'product_events',
     'roles', 'permissions', 'model_has_roles', 'model_has_permissions', 'role_has_permissions',
 ];
 

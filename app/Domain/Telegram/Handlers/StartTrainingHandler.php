@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Handlers;
 
+use App\Domain\Analytics\Enums\ProductEventName;
+use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Learning\Exceptions\TrainingSessionException;
 use App\Domain\Learning\Services\TrainingSessionService;
 use App\Domain\Telegram\Contracts\TelegramClient;
@@ -36,6 +38,7 @@ final class StartTrainingHandler implements UpdateHandler
     public function __construct(
         private readonly TelegramClient $telegram,
         private readonly TrainingSessionService $trainingService,
+        private readonly ProductEventRecorder $events,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -102,6 +105,19 @@ final class StartTrainingHandler implements UpdateHandler
 
             return;
         }
+
+        $this->events->record(
+            ProductEventName::TrainingSessionOpened,
+            [
+                'training_session_id' => $session->id,
+                'stage' => $stageNumber,
+                'lesson' => $lessonNumber,
+                'source' => 'command',
+                'reused' => ! $session->wasRecentlyCreated,
+            ],
+            group: $group,
+            user: $teacher,
+        );
 
         $this->postWebAppButton($chatId, $session, $stageNumber, $lessonNumber);
     }

@@ -366,7 +366,9 @@ Add (using the absolute path to PHP — find yours with `which php`):
 ```
 
 This runs every minute. Laravel's scheduler internally dispatches:
+- `ops:scheduler-heartbeat` — every minute (liveness marker read by `/health/ready`).
 - `exams:close-expired` — every minute (closes timed-out exam sessions).
+- `repetitions:notify` — daily at 18:00 (review reminders).
 - `backup:clean` — daily at 01:00.
 - `backup:run` — daily at 01:30.
 - `backup:monitor` — daily at 02:00.
@@ -392,8 +394,9 @@ curl "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getWebhookInfo"
 Run these checks after every deployment:
 
 ```bash
-# 1. Laravel health check
+# 1. Laravel health check + dependency readiness (DB, Redis, scheduler, queues)
 curl -sf https://yourdomain.com/up && echo "OK"
+curl -sf https://yourdomain.com/health/ready && echo "READY"
 
 # 2. Admin panel accessible
 curl -sI https://yourdomain.com/admin | grep "HTTP/"
@@ -473,6 +476,68 @@ nginx -t && systemctl reload nginx
 
 ---
 
+## 15. Monitoring and Error Tracking
+
+### 15.1 Error tracking (Sentry / GlitchTip)
+
+LexiFlow uses `sentry/sentry-laravel`. The integration is wired in `bootstrap/app.php`
+(`Integration::handles($exceptions)`) and configured in `config/sentry.php`.
+
+```dotenv
+SENTRY_LARAVEL_DSN=https://<key>@sentry.example.com/<project>   # empty = disabled
+SENTRY_ENVIRONMENT=production                                    # empty = APP_ENV
+SENTRY_TRACES_SAMPLE_RATE=0.1                                    # performance sampling, 0 to disable
+SENTRY_SEND_DEFAULT_PII=false                                    # keep false
+```
+
+- **Empty DSN = nothing is sent.** Local development and the test-suite run with an empty DSN.
+- **Self-hosted GlitchTip** speaks the Sentry protocol: just put the GlitchTip project DSN into
+  `SENTRY_LARAVEL_DSN`, no code or config changes are needed.
+- **Privacy.** `before_send` / `before_send_transaction` call
+  `App\Domain\Operations\Support\SentryScrubber`, which strips from every event, breadcrumb and span:
+  `Authorization` / `Cookie` headers and cookies, `init_data` request bodies, the Telegram bot token
+  (also inside `https://api.telegram.org/bot<token>/...` URLs), `TELEGRAM_URL_SECRET` / `TELEGRAM_HEADER_SECRET` /
+  `TWA_JWT_SECRET` values, the `/telegram/webhook/{secret}` URL segment and `secret=`/`token=` query params.
+  Telegram update bodies additionally go through `UpdateSanitizer` (names, usernames and message texts are masked).
+  The hooks are array callables, so `php artisan config:cache` works.
+- Test the wiring after a deploy: `php artisan sentry:test` (needs a DSN) and check that the event arrives
+  without credentials.
+
+### 15.2 Readiness probe: `GET /health/ready`
+
+Unlike the framework `/up` (process is alive), `/health/ready` checks dependencies and is meant for
+an external uptime monitor (UptimeRobot / Better Stack / GlitchTip uptime) and for deploy smoke tests.
+
+| Check | Fails when |
+|---|---|
+| `db` | `select 1` throws |
+| `redis` | `PING` fails (only reported if cache or queue use the `redis` driver) |
+| `scheduler` | no scheduler heartbeat for more than 3 minutes (`READINESS_HEARTBEAT_MAX_AGE`, seconds) |
+| `queue` | backlog of the `high` (`TELEGRAM_QUEUE`) or `default` queue exceeds `READINESS_QUEUE_MAX_SIZE` (1000) |
+
+Response: `200 {"status":"ok","checks":{"db":"ok",...}}` or `503 {"status":"fail","checks":{"db":"fail",...}}`.
+Only `ok`/`fail` is returned; error details, hosts and versions are written to the application log
+(`readiness.check_failed`), never to the response. The route is throttled (60 req/min per IP) and stateless.
+
+The scheduler heartbeat is written by a scheduled callback (`ops:scheduler-heartbeat`, every minute, see
+`routes/console.php`) into the cache. After the very first deploy the check turns green within a minute.
+
+### 15.3 What to monitor and alert on
+
+| Signal | Alert when |
+|---|---|
+| `GET /health/ready` (every 1 min) | 2 consecutive non-200 responses; the `checks` body tells which dependency failed |
+| Sentry / GlitchTip issues | new issue in `production`; spike of a known issue |
+| Failed jobs (`failed_jobs`, `php artisan queue:failed`) | any growth, especially `PostLeaderboardJob` |
+| `backup:monitor` mail | any message (backup is missing or too old) |
+| Certificate expiry | < 14 days |
+| Disk usage on the DB / backup volume | > 80% |
+
+Product events (`product_events` table, see `docs/03_DATABASE.md`) are for product analytics, not alerting.
+`reminder.failed` is expected for students who blocked the bot; alert only on a sudden spike.
+
+---
+
 ## File Permissions Reference
 
 ```bash
@@ -514,3 +579,9 @@ chmod 600 .env
 | `BACKUP_DISKS` | ✅ | `local` or `local,s3` |
 | `SESSION_ENCRYPT` | recommended | `true` |
 | `SESSION_SECURE_COOKIE` | recommended | `true` |
+| `SENTRY_LARAVEL_DSN` | recommended | Sentry / GlitchTip DSN (empty = disabled) |
+| `SENTRY_ENVIRONMENT` | optional | `production` |
+| `SENTRY_TRACES_SAMPLE_RATE` | optional | `0.1` |
+| `SENTRY_SEND_DEFAULT_PII` | keep | `false` |
+| `READINESS_HEARTBEAT_MAX_AGE` | optional | `180` (seconds) |
+| `READINESS_QUEUE_MAX_SIZE` | optional | `1000` |

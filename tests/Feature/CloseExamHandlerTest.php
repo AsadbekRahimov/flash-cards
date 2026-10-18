@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Learning\Services\LeaderboardBuilder;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\TelegramDispatcher;
@@ -211,8 +212,8 @@ it('posts a leaderboard only once when the job is delivered repeatedly', functio
     $telegram->shouldReceive('sendMessage')->once();
     $job = new PostLeaderboardJob($s['session']->id);
 
-    $job->handle($telegram, app(LeaderboardBuilder::class));
-    $job->handle($telegram, app(LeaderboardBuilder::class));
+    $job->handle($telegram, app(LeaderboardBuilder::class), app(ProductEventRecorder::class));
+    $job->handle($telegram, app(LeaderboardBuilder::class), app(ProductEventRecorder::class));
 
     expect($s['session']->fresh()->leaderboard_posted_at)->not->toBeNull();
 });
@@ -223,7 +224,7 @@ it('does not post a leaderboard while the exam is still open', function (): void
     $telegram->shouldNotReceive('sendMessage');
 
     (new PostLeaderboardJob($s['session']->id))
-        ->handle($telegram, app(LeaderboardBuilder::class));
+        ->handle($telegram, app(LeaderboardBuilder::class), app(ProductEventRecorder::class));
 
     expect($s['session']->fresh()->leaderboard_posted_at)->toBeNull();
 });

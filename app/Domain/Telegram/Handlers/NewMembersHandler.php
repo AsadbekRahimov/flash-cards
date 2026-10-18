@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Handlers;
 
+use App\Domain\Analytics\Enums\ProductEventName;
+use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
 use App\Models\Student;
 use App\Models\TelegramGroup;
 
 final class NewMembersHandler implements UpdateHandler
 {
+    public function __construct(private readonly ProductEventRecorder $events) {}
+
     /** @param array<string, mixed> $update */
     public function matches(array $update): bool
     {
@@ -50,7 +54,7 @@ final class NewMembersHandler implements UpdateHandler
                 continue;
             }
 
-            Student::updateOrCreate(
+            $student = Student::updateOrCreate(
                 ['telegram_user_id' => $tgId, 'telegram_group_id' => $group->id],
                 [
                     'first_name' => (string) ($m['first_name'] ?? 'Unknown'),
@@ -61,6 +65,10 @@ final class NewMembersHandler implements UpdateHandler
                     'is_active' => true,
                 ],
             );
+
+            if ($student->wasRecentlyCreated) {
+                $this->events->record(ProductEventName::StudentJoined, student: $student, group: $group);
+            }
         }
     }
 }
