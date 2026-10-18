@@ -27,13 +27,17 @@ use Illuminate\Database\Eloquent\Builder;
  * which would give the answer away. A distractor is also preferably in the
  * SAME language as the correct answer: a Cyrillic ru-fallback option next to
  * a Latin uz answer (or vice versa) would give it away. The candidate pool
- * is layered:
+ * is layered, and only ACTIVE words take part (as questions and as distractors):
  *   1. words of other lessons in the same stage;
- *   2. words of any other lesson;
- *   3. other words of the same lesson.
+ *   2. words of other stages of the SAME course;
+ *   3. other words of the same lesson;
+ *   4. words of other courses — only courses that are `published` and not
+ *      `private`; draft / review / archived / private courses never leak in.
  * Candidates in the language of the correct answer are exhausted across all
  * layers before candidates in another language are touched (last resort, so
- * the exam still works for a barely translated course). Inside every layer,
+ * the exam still works for a barely translated course) — so a foreign
+ * published course in the answer's language still beats an own-course word
+ * in the other language. Inside every layer,
  * candidates sharing the word's `part_of_speech` are preferred. Candidates are de-duplicated case/whitespace-insensitively and
  * can never collide with the correct translation.
  *
@@ -73,6 +77,7 @@ final class ExamQuestionBuilder
         /** @var list<Word> $words */
         $words = Word::query()
             ->where('lesson_id', $lesson->id)
+            ->where('is_active', true)
             ->inRandomOrder()
             ->limit($totalQuestions)
             ->get()
@@ -138,29 +143,48 @@ final class ExamQuestionBuilder
 
         $sameStage = $this->candidates(
             Word::query()
+                ->where('is_active', true)
                 ->where('lesson_id', '!=', $lesson->id)
                 ->whereHas('lesson', fn ($q) => $q->where('stage_id', $lesson->stage_id)),
             $needed,
             $locale,
         );
 
-        $anywhere = count($sameStage) >= $needed
+        $courseId = $lesson->stage()->value('course_id');
+
+        $sameCourse = count($sameStage) >= $needed
             ? []
             : $this->candidates(
                 Word::query()
-                    ->where('lesson_id', '!=', $lesson->id)
-                    ->whereHas('lesson', fn ($q) => $q->where('stage_id', '!=', $lesson->stage_id)),
+                    ->where('is_active', true)
+                    ->whereHas('lesson.stage', fn ($q) => $q
+                        ->where('course_id', $courseId)
+                        ->where('id', '!=', $lesson->stage_id)),
                 $needed,
                 $locale,
             );
 
         $sameLesson = $this->candidates(
-            Word::query()->where('lesson_id', $lesson->id),
+            Word::query()->where('is_active', true)->where('lesson_id', $lesson->id),
             self::MAX_QUESTIONS,
             $locale,
         );
 
-        return [$sameStage, $anywhere, $sameLesson];
+        // Last resort: public published courses of the platform, only when the own course cannot supply enough.
+        $foreign = count($sameStage) + count($sameCourse) + count($sameLesson) >= $needed
+            ? []
+            : $this->candidates(
+                Word::query()
+                    ->where('is_active', true)
+                    ->whereHas('lesson.stage.course', fn ($q) => $q
+                        ->where('courses.id', '!=', $courseId)
+                        ->where('status', 'published')
+                        ->where('visibility', '!=', 'private')),
+                $needed,
+                $locale,
+            );
+
+        return [$sameStage, $sameCourse, $sameLesson, $foreign];
     }
 
     /**

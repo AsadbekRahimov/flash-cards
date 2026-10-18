@@ -109,7 +109,7 @@ list), each move is written to the audit log (`course.status_changed`):
 
 **Publishing is checked.** A course is published only when (1) its title exists in every language, (2) it has
 at least one lesson with active words, and (3) **at least 95% of its active words have a translation in every
-language (RU and UZ)**; otherwise a red message says what is missing (e.g. *"Translations (ru+uz) are complete
+language (RU and UZ; a blank text is no translation, and the word's main Translation field counts as the RU text)**; otherwise a red message says what is missing (e.g. *"Translations (ru+uz) are complete
 for 18 of 20 words (90.0%), required: 95.0%"*). The threshold is `CONTENT_PUBLISH_TRANSLATION_THRESHOLD`
 (default `0.95`). The check applies to **new publications only**: a course that is already published is never
 re-checked, and old content without an Uzbek translation is shown in Uzbek-language sessions with the Russian
@@ -124,7 +124,11 @@ next to a word on the lesson screen) → open the word → **Translations** tabl
 - Editing the `ru` row also updates the word's main Translation, and editing the main Translation on the
   lesson screen updates the `ru` row, so the two never differ.
 - Cards and exams use the translation of the session language and fall back to Russian (see Courses above).
-Words are never deleted. The **Active** flag on the word screen currently only decides whether a word counts in the course word counter and in the publishing check (cards and exams do not filter by it yet).
+Words are never deleted. The **Active** flag on the word screen hides a word: an inactive word is not counted in the
+course word counter or the publishing check, is not asked in exams and is not used as a wrong answer option. Switching
+the flag (or adding a word on the lesson screen) refreshes the lesson cache and the course counter at once.
+Exam wrong options come from the same lesson / stage first, then other stages of the same course, and only when the
+course has too few words from published, non-private courses — never from draft, review, archived or private courses.
 
 ### Importing a lesson via JSON (recommended)
 **Admins only.** In this phase content belongs to the platform: the **Import Lesson** page is hidden from

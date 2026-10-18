@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Learning\Exceptions\ExamSessionException;
 use App\Domain\Learning\Services\ExamQuestionBuilder;
+use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Stage;
 use App\Models\Word;
@@ -335,6 +336,117 @@ it('resolves translations in batches, not one query per word', function (): void
         ->count();
     DB::disableQueryLog();
 
-    // target words + three candidate layers (same stage, anywhere, same lesson)
-    expect($translationQueries)->toBeLessThanOrEqual(4);
+    // target words + candidate layers (same stage, other stages of the course, same lesson, foreign courses)
+    expect($translationQueries)->toBeLessThanOrEqual(5);
 });
+
+// ---------------------------------------------------------------------------
+// Inactive words (W1) and the course boundary of distractors (W2)
+// ---------------------------------------------------------------------------
+
+/** @return list<string> every option of every question */
+function allOptions(array $questions): array
+{
+    return collect($questions)->pluck('options')->flatten()->all();
+}
+
+function wordsIn(Lesson $lesson, string $prefix, int $count, array $attrs = []): void
+{
+    for ($i = 0; $i < $count; $i++) {
+        Word::factory()->for($lesson)->create(['word' => "{$prefix}{$i}", 'translation' => "{$prefix}-{$i}"] + $attrs);
+    }
+}
+
+function lessonInCourse(Course $course, ?Stage $stage = null): Lesson
+{
+    $stage ??= Stage::factory()->create(['course_id' => $course->id]);
+
+    return Lesson::factory()->for($stage)->create();
+}
+
+it('never asks an inactive word and never uses an inactive word as a distractor', function (): void {
+    $course = Course::factory()->published()->create();
+    $stage = Stage::factory()->create(['course_id' => $course->id]);
+    $target = lessonInCourse($course, $stage);
+    wordsIn($target, 'live', 5);
+    wordsIn($target, 'off-target', 5, ['is_active' => false]);
+    wordsIn(lessonInCourse($course, $stage), 'sibling', 10);
+    wordsIn(lessonInCourse($course, $stage), 'off-sibling', 10, ['is_active' => false]);
+    wordsIn(lessonInCourse($course), 'other-stage', 10);
+    wordsIn(lessonInCourse($course), 'off-other-stage', 10, ['is_active' => false]);
+
+    $questions = app(ExamQuestionBuilder::class)->build($target, totalQuestions: 30, locale: 'ru');
+
+    expect($questions)->toHaveCount(5);
+    foreach ($questions as $q) {
+        expect($q['word'])->toStartWith('live');
+    }
+    foreach (allOptions($questions) as $option) {
+        expect($option)->not->toStartWith('off-');
+    }
+});
+
+it('does not count inactive words of the target lesson towards the minimum', function (): void {
+    $course = Course::factory()->published()->create();
+    $target = lessonInCourse($course);
+    wordsIn($target, 'live', 3);
+    wordsIn($target, 'off', 5, ['is_active' => false]);
+    wordsIn(lessonInCourse($course), 'sibling', 10);
+
+    expect(app(ExamQuestionBuilder::class)->build($target, totalQuestions: 10, locale: 'ru'))->toBe([]);
+});
+
+it('takes distractors from the own course (other stages included) before touching foreign courses', function (): void {
+    $course = Course::factory()->published()->create();
+    $stage = Stage::factory()->create(['course_id' => $course->id]);
+    $target = lessonInCourse($course, $stage);
+    wordsIn($target, 'w', 5);
+    wordsIn(lessonInCourse($course, $stage), 'stage', 2);
+    wordsIn(lessonInCourse($course), 'course', 20);
+
+    $foreign = Course::factory()->published()->create();
+    wordsIn(lessonInCourse($foreign), 'foreign', 60);
+
+    $options = allOptions(app(ExamQuestionBuilder::class)->build($target, totalQuestions: 5, locale: 'ru'));
+
+    expect($options)->not->toBeEmpty();
+    foreach ($options as $option) {
+        expect($option)->not->toStartWith('foreign-');
+    }
+    // other stages of the SAME course do supply distractors once the stage is exhausted
+    expect(collect($options)->contains(fn (string $o): bool => str_starts_with($o, 'course-')))->toBeTrue();
+});
+
+it('uses published foreign courses only as the last layer', function (): void {
+    $course = Course::factory()->published()->create();
+    $target = lessonInCourse($course);
+    // 4 words with ONE translation: the own course has no real distractor at all.
+    Word::factory()->count(4)->for($target)->create(['translation' => 'same']);
+
+    $foreign = Course::factory()->published()->create();
+    wordsIn(lessonInCourse($foreign), 'foreign', 10);
+
+    $questions = app(ExamQuestionBuilder::class)->build($target, totalQuestions: 4, locale: 'ru');
+
+    expect($questions)->toHaveCount(4);
+    foreach ($questions as $q) {
+        expect(collect($q['options'])->reject(fn (string $o): bool => $o === 'same')->every(fn (string $o): bool => str_starts_with($o, 'foreign-')))->toBeTrue();
+    }
+});
+
+it('never takes distractors from draft, review, archived or private foreign courses', function (string $status, string $visibility): void {
+    $course = Course::factory()->published()->create();
+    $target = lessonInCourse($course);
+    Word::factory()->count(4)->for($target)->create(['translation' => 'same']);
+
+    $foreign = Course::factory()->create(['status' => $status, 'visibility' => $visibility]);
+    wordsIn(lessonInCourse($foreign), 'foreign', 10);
+
+    expect(fn () => app(ExamQuestionBuilder::class)->build($target, totalQuestions: 4, locale: 'ru'))
+        ->toThrow(ExamSessionException::class, 'distractor');
+})->with([
+    'draft' => ['draft', 'public'],
+    'review' => ['review', 'public'],
+    'archived' => ['archived', 'public'],
+    'published but private' => ['published', 'private'],
+]);

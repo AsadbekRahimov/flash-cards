@@ -233,3 +233,27 @@ it('stores canonical questions with per-learner ordering enabled and no correct_
         }
     }
 });
+
+it('counts only active words towards the exam minimum', function (): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => -3004, 'status' => 'active']);
+    $teacher = User::factory()->create(['telegram_user_id' => 889]);
+    attachExamTeacher($teacher, $group);
+    $stage = Stage::factory()->inDefaultCourse()->create(['number' => 1]);
+    $lesson = Lesson::factory()->for($stage)->create(['number' => 1]);
+    Word::factory()->count(3)->for($lesson)->create();
+    Word::factory()->count(6)->for($lesson)->create(['is_active' => false]); // 9 rows, only 3 live
+
+    $this->api->shouldReceive('sendMessage')
+        ->once()
+        ->with(-3004, Mockery::pattern('/недостаточно/u'));
+
+    app(TelegramDispatcher::class)->dispatch([
+        'message' => [
+            'chat' => ['id' => -3004, 'type' => 'supergroup'],
+            'from' => ['id' => 889],
+            'text' => '/start_exam 1 1 2',
+        ],
+    ]);
+
+    expect(ExamSession::query()->count())->toBe(0);
+});

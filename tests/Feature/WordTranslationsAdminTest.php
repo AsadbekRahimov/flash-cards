@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Content\Services\CoursePublisher;
 use App\Domain\Content\Services\WordTranslationWriter;
 use App\Filament\Resources\LessonResource\Pages\EditLesson;
 use App\Filament\Resources\LessonResource\RelationManagers\WordsRelationManager;
@@ -15,6 +16,7 @@ use App\Models\Word;
 use App\Models\WordTranslation;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Features\SupportTesting\Testable;
 
 use function Pest\Livewire\livewire;
@@ -156,4 +158,47 @@ it('writer: creates a missing ru row from words.translation without changing the
 it('writer: refuses an unsupported locale', function (): void {
     expect(fn () => app(WordTranslationWriter::class)->save($this->word, 'kk', 'сәлем'))
         ->toThrow(InvalidArgumentException::class, "Unsupported locale 'kk'");
+});
+
+it('recounts the course and drops the lesson cache when a word is switched off and on', function (): void {
+    $this->actingAs($this->admin);
+    $lesson = $this->word->lesson;
+    $course = $lesson->stage->course;
+    Word::factory()->count(2)->for($lesson)->create();
+    app(CoursePublisher::class)->recount($course);
+    expect($course->fresh()->words_count)->toBe(3);
+
+    Cache::put("lesson:{$lesson->id}:word_count", 3);
+
+    livewire(EditWord::class, ['record' => $this->word->getRouteKey()])
+        ->fillForm(['is_active' => false])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($course->fresh()->words_count)->toBe(2)
+        ->and(Cache::has("lesson:{$lesson->id}:word_count"))->toBeFalse();
+
+    Cache::put("lesson:{$lesson->id}:word_count", 2);
+
+    livewire(EditWord::class, ['record' => $this->word->getRouteKey()])
+        ->fillForm(['is_active' => true])
+        ->call('save');
+
+    expect($course->fresh()->words_count)->toBe(3)
+        ->and(Cache::has("lesson:{$lesson->id}:word_count"))->toBeFalse();
+});
+
+it('recounts the course and drops the lesson cache when a word is added on the lesson screen', function (): void {
+    $this->actingAs($this->admin);
+    $lesson = $this->word->lesson;
+    $course = $lesson->stage->course;
+    app(CoursePublisher::class)->recount($course);
+    Cache::put("lesson:{$lesson->id}:word_count", 1);
+
+    livewire(WordsRelationManager::class, ['ownerRecord' => $lesson, 'pageClass' => EditLesson::class])
+        ->callTableAction('create', data: ['word' => 'tea', 'translation' => 'чай'])
+        ->assertHasNoTableActionErrors();
+
+    expect($course->fresh()->words_count)->toBe(2)
+        ->and(Cache::has("lesson:{$lesson->id}:word_count"))->toBeFalse();
 });

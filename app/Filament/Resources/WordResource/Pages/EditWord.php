@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\WordResource\Pages;
 
+use App\Domain\Content\Services\LessonContentRefresher;
 use App\Domain\Content\Services\WordTranslationWriter;
 use App\Filament\Resources\WordResource;
 use App\Models\Word;
@@ -20,5 +21,10 @@ class EditWord extends EditRecord
         $word = $this->getRecord();
 
         app(WordTranslationWriter::class)->syncDefaultFromWord($word);
+
+        // An inactive word leaves cards and exams, so the lesson cache and the course counter must follow.
+        if ($word->wasChanged('is_active')) {
+            app(LessonContentRefresher::class)->wordChanged($word);
+        }
     }
 }

@@ -82,7 +82,7 @@ final class ExamSessionService
             throw ExamSessionException::lessonNotFound($stageNumber, $lessonNumber);
         }
 
-        $wordCount = $lesson->words()->count();
+        $wordCount = $lesson->words()->where('is_active', true)->count();
         if ($wordCount < ExamQuestionBuilder::MIN_QUESTIONS) {
             throw ExamSessionException::notEnoughWords($wordCount, ExamQuestionBuilder::MIN_QUESTIONS);
         }

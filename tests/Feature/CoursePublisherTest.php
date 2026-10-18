@@ -185,6 +185,37 @@ it('counts only active words and ignores empty translation rows', function (): v
     expect($coverage['total'])->toBe(4)->and($coverage['covered'])->toBe(3);
 });
 
+it('counts the legacy words.translation as the ru text when the ru row is missing or blank', function (): void {
+    $course = Course::factory()->create(['status' => 'review']);
+    $lesson = Lesson::factory()->for(Stage::factory()->create(['course_id' => $course->id]))->create();
+    $make = function (string $legacy, ?string $ruRow, ?string $uzRow) use ($lesson): void {
+        $word = Word::factory()->for($lesson)->create(['translation' => $legacy]);
+        if ($ruRow !== null) {
+            WordTranslation::factory()->create(['word_id' => $word->id, 'locale' => 'ru', 'translation' => $ruRow]);
+        }
+        if ($uzRow !== null) {
+            WordTranslation::factory()->uz()->create(['word_id' => $word->id, 'translation' => $uzRow]);
+        }
+    };
+
+    $make('привет', null, 'salom');       // no ru row, legacy text -> covered
+    $make('мир', '   ', 'dunyo');         // blank ru row, legacy text -> covered
+    $make('   ', "\t\n", 'tea');          // ru blank everywhere -> not covered
+    $make('чай', 'чай', "  \t");          // uz blank after trim -> not covered
+    $make('кот', 'кот', null);            // no uz at all -> not covered
+
+    $coverage = app(CoursePublisher::class)->translationCoverage($course);
+
+    expect($coverage['total'])->toBe(5)->and($coverage['covered'])->toBe(2);
+});
+
+it('publishes a course whose ru texts live only in words.translation', function (): void {
+    $course = courseWithWords(4, 4);
+    WordTranslation::query()->where('locale', 'ru')->delete();
+
+    expect(app(CoursePublisher::class)->transition($course, 'published', publisherAdmin())->status)->toBe('published');
+});
+
 it('refuses to publish a course without lessons', function (): void {
     $course = Course::factory()->create(['status' => 'review']);
     Stage::factory()->create(['course_id' => $course->id]);

@@ -11,6 +11,7 @@ use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\User;
 use App\Models\Word;
+use App\Models\WordTranslation;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -25,7 +26,8 @@ use Illuminate\Support\Facades\DB;
  *
  * Publishing is the only guarded move: the course needs a title in every
  * supported language, at least one lesson and at least one active word, and
- * a translation in EVERY supported locale (`uz`+`ru`) for at least
+ * a translation in EVERY supported locale (`uz`+`ru`; for ru the legacy
+ * `words.translation` counts too) for at least
  * `config('content.publish_translation_threshold')` of its active words.
  * The gate is applied to NEW publications only — a course that is already
  * published is never re-checked, and the learner sees the ru fallback where
@@ -124,20 +126,48 @@ final class CoursePublisher
     /**
      * Share of active words that have a non-empty translation in every supported locale.
      *
+     * "Non-empty" is the {@see WordTranslationResolver} rule: the text is not blank after `trim()`.
+     * For the fallback locale (ru) the legacy `words.translation` counts as well as a ru row — the
+     * resolver reads it when the row is absent, so a word covered that way is a covered word.
+     *
      * @return array{total:int, covered:int, ratio:float, locales:list<string>}
      */
     public function translationCoverage(Course $course): array
     {
         $locales = $this->locales->supported();
-        $total = $this->courseWords($course)->count();
+        $fallback = $this->locales->fallback();
+        $total = 0;
+        $covered = 0;
 
-        $covered = $this->courseWords($course);
-        foreach ($locales as $locale) {
-            $covered->whereHas('translations', fn (Builder $q) => $q
-                ->where('locale', $locale)
-                ->where('translation', '!=', ''));
-        }
-        $covered = $covered->count();
+        $this->courseWords($course)->select('words.id', 'words.translation')->chunkById(500, function ($words) use ($locales, $fallback, &$total, &$covered): void {
+            /** @var array<int, array<string, true>> $has word_id => locale => true */
+            $has = [];
+            WordTranslation::query()
+                ->whereIn('word_id', $words->pluck('id')->all())
+                ->whereIn('locale', $locales)
+                ->get(['word_id', 'locale', 'translation'])
+                ->each(function (WordTranslation $row) use (&$has): void {
+                    if (trim($row->translation) !== '') {
+                        $has[(int) $row->word_id][$row->locale] = true;
+                    }
+                });
+
+            foreach ($words as $word) {
+                $total++;
+                $ok = true;
+                foreach ($locales as $locale) {
+                    $present = isset($has[(int) $word->id][$locale])
+                        || ($locale === $fallback && trim((string) $word->translation) !== '');
+                    if (! $present) {
+                        $ok = false;
+                        break;
+                    }
+                }
+                if ($ok) {
+                    $covered++;
+                }
+            }
+        }, 'words.id', 'id');
 
         return [
             'total' => $total,
