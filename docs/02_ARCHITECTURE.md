@@ -215,6 +215,8 @@ Database
 
 Домен **`Learners`** (`app/Domain/Learners/Services`, задача 1.1b): `LearnerRegistrar` — единственная точка превращения Telegram-пользователя (initData, апдейт бота, `chat_member`) в `learners`; `GroupMembershipService` — `join` / `leave` / `isActiveMember` / `activeGroups` / `denialReason`, правило «активное членство = `group_members.status = 'active'` и группа `active`» живёт только здесь. Остальные сервисы домена (онбординг, настройки, `LearnerClock`, ежедневная статистика, streak) — задачи 1.3–1.6.
 
+Домен **`Billing`** (`app/Domain/Billing`, задача 1.4a, docs/12 §3.4, §5): `EntitlementResolver` — единственное место правила «эффективный план = max(Free, личная, спонсорская от организации)» и его кэша; `SubscriptionService` — жизненный цикл `subscriptions` (ручная выдача, отзыв, переходы по времени) под блокировкой строки субъекта; `PromoCodeService` — погашение промокодов под блокировкой строки кода; `SubscriptionLiveness` — общее правило «live сейчас». Инвалидация кэша entitlement — после commit; входы вне домена (членство, привязка группы к организации, статус организации) подключены через `GroupMembershipService` и observers `TelegramGroupObserver`/`OrganizationObserver` (`app/Observers`).
+
 Внутри `app/` организуемся по доменам:
 
 ```
@@ -231,6 +233,7 @@ app/
 │   ├── Exam/              # ExamSession, ExamAnswer, Leaderboard
 │   ├── Group/             # TelegramGroup, Teacher
 │   ├── Learners/          # Learner, GroupMember: LearnerRegistrar, GroupMembershipService (docs/12 §3.1)
+│   ├── Billing/           # Plan, Entitlement, EntitlementResolver, SubscriptionService, PromoCodeService (docs/12 §3.4)
 │   └── Analytics/         # агрегаты, views
 ├── Filament/
 │   ├── Resources/
