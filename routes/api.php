@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Api\Twa\AuthController;
 use App\Http\Controllers\Api\Twa\ExamController;
 use App\Http\Controllers\Api\Twa\MeController;
+use App\Http\Controllers\Api\Twa\PromoController;
 use App\Http\Controllers\Api\Twa\TrainingController;
 use App\Http\Controllers\Api\Twa\TtsController;
 use App\Http\Middleware\TwaAuth;
@@ -17,6 +18,9 @@ Route::prefix('twa')->group(function (): void {
 
     Route::middleware([TwaAuth::class, 'throttle:twa-api'])->group(function (): void {
         Route::get('/me', MeController::class)->name('twa.me');
+        Route::post('/promo/redeem', [PromoController::class, 'redeem'])
+            ->middleware('throttle:twa-promo')
+            ->name('twa.promo.redeem');
         Route::get('/tts', TtsController::class)
             ->middleware('throttle:twa-tts')
             ->name('twa.tts');

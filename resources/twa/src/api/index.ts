@@ -44,6 +44,9 @@ export const api = {
   me: {
     get: () => client().get<MeResponse>('/me'),
   },
+  promo: {
+    redeem: (code: string) => client().post<MeResponse>('/promo/redeem', { code }),
+  },
   training: {
     start: (sessionId: number) =>
       client().post<TrainingStartResponse>(`/training/sessions/${sessionId}/start`),

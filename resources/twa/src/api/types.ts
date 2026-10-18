@@ -23,6 +23,23 @@ export interface MeResponse {
     words_learned: number
     words_due_today: number
   }
+  entitlement: Entitlement
+  paywall: Paywall
+}
+
+/** `source`: 'free' | 'subscription' | 'sponsor:organization:<id>'; `until`: ISO 8601, null = no end. */
+export interface Entitlement {
+  plan: 'free' | 'pro'
+  source: string
+  until: string | null
+  /** null = unlimited */
+  new_words_per_day: number | null
+}
+
+/** `contact` is null when the owner has not configured BILLING_SUPPORT_CONTACT — then it is not shown. */
+export interface Paywall {
+  mode: 'coming_soon' | 'purchase'
+  contact: string | null
 }
 
 export interface LessonHeader {

@@ -27,6 +27,11 @@ export const KNOWN_ERROR_CODES = [
   'card_not_due',
   'exam_still_open',
   'tts_unavailable',
+  'promo_not_found',
+  'promo_expired',
+  'promo_exhausted',
+  'promo_already_redeemed',
+  'promo_not_applicable',
 ] as const
 
 export type KnownErrorCode = (typeof KNOWN_ERROR_CODES)[number]
@@ -40,6 +45,8 @@ function isKnownCode(code: string): code is KnownErrorCode {
 /** Human-readable, localized text for anything thrown by the API layer. */
 export function errorMessage(err: unknown, context: ErrorContext): string {
   if (err instanceof ApiClientError) {
+    // Promo codes answer 410 (expired) too — that is not a closed session.
+    if (err.code.startsWith('promo_') && isKnownCode(err.code)) return t(`error.code.${err.code}`)
     if (err.kind === 'gone') return t(`error.closed.${context}`)
     if (err.kind === 'network') return t('error.network')
     if (err.code === 'forbidden') return t(`error.forbidden.${context}`)

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import PromoRedeem from '@/components/PromoRedeem.vue'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
 
@@ -28,6 +29,7 @@ notificationHaptic('success')
         <div class="text-sm text-tg-hint">{{ t('finished.next_label') }}</div>
         <div class="text-lg font-semibold mt-1" data-testid="next-label">{{ nextLabel }}</div>
       </div>
+      <PromoRedeem />
       <button class="btn btn-primary w-full" data-testid="close-btn" @click="close()">
         {{ t('common.close') }}
       </button>

@@ -58,6 +58,13 @@ export const uz: Translations = {
     other: '{count} kundan keyin',
   },
 
+  // ---- promo code ----
+  'promo.toggle': 'Promokodingiz bormi?',
+  'promo.placeholder': 'Promokod',
+  'promo.submit': 'Faollashtirish',
+  'promo.success_until': 'Pro {date} gacha faol.',
+  'promo.success_forever': 'Pro muddatsiz faol.',
+
   // ---- errors (by kind / context) ----
   'error.closed.training': "O'qituvchi mashg'ulotni yakunladi.",
   'error.closed.exam': "Imtihon o'qituvchi tomonidan yakunlandi.",
@@ -90,4 +97,9 @@ export const uz: Translations = {
   'error.code.card_not_due': 'Bu kartochka allaqachon takrorlangan, vaqti hali kelmadi.',
   'error.code.exam_still_open': 'Imtihon hali davom etmoqda, natijalar tugagandan keyin chiqadi.',
   'error.code.tts_unavailable': 'Ovozli talaffuz hozircha mavjud emas.',
+  'error.code.promo_not_found': 'Promokod topilmadi. Xato yozilmaganini tekshiring.',
+  'error.code.promo_expired': 'Promokodning amal qilish muddati tugagan.',
+  'error.code.promo_exhausted': "Bu promokoddan foydalanish limiti tugagan.",
+  'error.code.promo_already_redeemed': 'Siz bu promokodni allaqachon faollashtirgansiz.',
+  'error.code.promo_not_applicable': "Sizda allaqachon muddatsiz Pro bor — promokod kerak emas.",
 }

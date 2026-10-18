@@ -68,6 +68,13 @@ export const ru = {
     other: 'Через {count} дня',
   },
 
+  // ---- promo code ----
+  'promo.toggle': 'Есть промокод?',
+  'promo.placeholder': 'Промокод',
+  'promo.submit': 'Активировать',
+  'promo.success_until': 'Pro активен до {date}.',
+  'promo.success_forever': 'Pro активен без ограничения по сроку.',
+
   // ---- errors (by kind / context) ----
   'error.closed.training': 'Учитель завершил тренировку.',
   'error.closed.exam': 'Экзамен был завершён учителем.',
@@ -100,6 +107,11 @@ export const ru = {
   'error.code.card_not_due': 'Эта карточка уже повторена, её время ещё не пришло.',
   'error.code.exam_still_open': 'Экзамен ещё идёт, результаты появятся после его завершения.',
   'error.code.tts_unavailable': 'Озвучка сейчас недоступна.',
+  'error.code.promo_not_found': 'Промокод не найден. Проверьте, нет ли опечатки.',
+  'error.code.promo_expired': 'Срок действия промокода истёк.',
+  'error.code.promo_exhausted': 'Этим промокодом уже воспользовалось максимальное число людей.',
+  'error.code.promo_already_redeemed': 'Вы уже активировали этот промокод.',
+  'error.code.promo_not_applicable': 'У вас уже есть Pro без ограничения по сроку — промокод не нужен.',
 } satisfies Record<string, Message>
 
 export type Dictionary = typeof ru

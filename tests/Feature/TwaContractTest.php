@@ -20,11 +20,13 @@ use App\Models\ExamSession;
 use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\Stage;
+use App\Models\Subscription;
 use App\Models\TelegramGroup;
 use App\Models\TrainingSession;
 use App\Models\User;
 use App\Models\Word;
 use App\Models\WordRepetition;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
@@ -111,11 +113,45 @@ it('GET /me keeps its exact JSON shape', function (): void {
             'learner' => ['id', 'first_name', 'username', 'locale', 'onboarding_completed'],
             'groups' => [['id', 'title']],
             'stats' => ['words_learned', 'words_due_today'],
+            'entitlement' => ['plan', 'source', 'until', 'new_words_per_day'],
+            'paywall' => ['mode', 'contact'],
         ]);
 
     expect($response->json('stats'))->toBe(['words_learned' => 0, 'words_due_today' => 0])
         ->and($response->json('groups.0.id'))->toBe($s['group']->id)
         ->and($response->json('learner.id'))->toBe($s['learner']->id);
+});
+
+it('GET /me reports the Free entitlement and a paywall without contact while BILLING_SUPPORT_CONTACT is empty', function (): void {
+    Config::set('billing.paywall.contact', '');
+    $s = contractTraining();
+
+    $this->withHeaders(contractHeaders($s['learner']))
+        ->getJson('/api/twa/me')
+        ->assertOk()
+        ->assertJsonPath('entitlement', ['plan' => 'free', 'source' => 'free', 'until' => null, 'new_words_per_day' => 20])
+        ->assertJsonPath('paywall', ['mode' => 'coming_soon', 'contact' => null]);
+});
+
+it('GET /me reports Pro with its end (ISO 8601) and the configured contact', function (): void {
+    Config::set('billing.paywall.contact', '@lexiflow_support');
+    $s = contractTraining();
+    $until = now()->addDays(10)->startOfSecond();
+    Subscription::factory()->create([
+        'subscriber_id' => $s['learner']->id,
+        'provider' => 'promo',
+        'current_period_ends_at' => $until,
+    ]);
+
+    $response = $this->withHeaders(contractHeaders($s['learner']))
+        ->getJson('/api/twa/me')
+        ->assertOk()
+        ->assertJsonPath('entitlement.plan', 'pro')
+        ->assertJsonPath('entitlement.source', 'subscription')
+        ->assertJsonPath('entitlement.new_words_per_day', null)
+        ->assertJsonPath('paywall', ['mode' => 'coming_soon', 'contact' => '@lexiflow_support']);
+
+    expect(CarbonImmutable::parse((string) $response->json('entitlement.until'))->equalTo($until))->toBeTrue();
 });
 
 it('GET /me counts due graduated cards and abandoned (re)learning cards as due today', function (): void {
