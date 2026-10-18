@@ -69,7 +69,9 @@ final class TrainingFlowService
             $pick['word'],
             $pick['kind'],
             $progress,
-            $pick['repetition']->served_ahead_token,
+            // Only learn-ahead cards carry a ticket (docs/04): a card served ahead earlier and
+            // due now is a plain due card; submit() accepts it without a token.
+            $pick['ahead'] ? $pick['repetition']->served_ahead_token : null,
         );
     }
 

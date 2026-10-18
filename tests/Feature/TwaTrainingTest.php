@@ -637,6 +637,40 @@ it('accepts a due card with or without a serve_token (ticket only matters for le
         ->assertStatus(422);
 });
 
+it('sends serve_token = null for a card that was served ahead earlier but is due now', function (): void {
+    bindLearningPolicy(learnAheadMinutes: 5, learningSteps: [1, 3], relearningSteps: [3]);
+    $s = seedTrainingScenario(1);
+    $headers = authHeaders($s['student']);
+    $url = "/api/twa/training/sessions/{$s['session']->id}";
+    $word = $s['words']->first();
+
+    // Served ahead (stamped ticket), the client never answered, and the step has elapsed since.
+    $rep = WordRepetition::factory()->learning(step: 1)->create([
+        'student_id' => $s['student']->id,
+        'word_id' => $word->id,
+        'next_review_at' => now()->addMinutes(3),
+        'served_ahead_at' => now(),
+        'served_ahead_token' => 'stale-ticket',
+    ]);
+
+    // Still inside the window and nothing else left: learn-ahead, the ticket goes out.
+    $this->withHeaders($headers)->getJson("{$url}/next")->assertOk()
+        ->assertJsonPath('card.card_kind', 'learning')
+        ->assertJsonPath('card.serve_token', 'stale-ticket');
+
+    $rep->forceFill(['next_review_at' => now()->subMinute()])->save();
+
+    // Now it is due: a plain card without a ticket, and it is accepted without one.
+    $this->withHeaders($headers)->getJson("{$url}/next")->assertOk()
+        ->assertJsonPath('card.word_id', $word->id)
+        ->assertJsonPath('card.card_kind', 'learning')
+        ->assertJsonPath('card.serve_token', null);
+
+    $this->withHeaders($headers)
+        ->postJson("{$url}/review", ['word_id' => $word->id, 'quality' => 4, 'time_spent_ms' => 1000])
+        ->assertOk();
+});
+
 it('ends the session early when learn-ahead is disabled (card returns on its own schedule)', function (): void {
     bindLearningPolicy(learnAheadMinutes: 0);
     $s = seedTrainingScenario(1);

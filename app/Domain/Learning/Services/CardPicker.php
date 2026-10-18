@@ -33,6 +33,10 @@ use Illuminate\Support\Facades\DB;
  *      token and only one of them can consume it.
  *   4. Otherwise, null (student finished the lesson for now).
  *
+ * `ahead` is true only for step 3: that is the only path that serves a card
+ * with a live ticket (a card that later became due is served as due, `ahead`
+ * false, even if a stale ticket is still stamped on its row).
+ *
  * `kind` tells the client how to label the card:
  *   'new'      — never answered (state new)
  *   'learning' — inside minute-based (re)learning steps
@@ -46,7 +50,8 @@ final class CardPicker
      * @return array{
      *   repetition: WordRepetition,
      *   word: Word,
-     *   kind: 'due'|'new'|'learning'
+     *   kind: 'due'|'new'|'learning',
+     *   ahead: bool
      * }|null
      */
     public function pickNext(int $studentId, int $lessonId, ?CarbonImmutable $now = null): ?array
@@ -67,6 +72,7 @@ final class CardPicker
                 'repetition' => $due,
                 'word' => $due->word,
                 'kind' => self::kindOf($due),
+                'ahead' => false,
             ];
         }
 
@@ -79,7 +85,7 @@ final class CardPicker
     }
 
     /**
-     * @return array{repetition: WordRepetition, word: Word, kind: 'new'}|null
+     * @return array{repetition: WordRepetition, word: Word, kind: 'new', ahead: false}|null
      */
     private function pickNewInTransaction(int $studentId, int $lessonId, CarbonImmutable $now): ?array
     {
@@ -122,6 +128,7 @@ final class CardPicker
                 'repetition' => $rep,
                 'word' => $new,
                 'kind' => 'new',
+                'ahead' => false,
             ];
         });
     }
@@ -130,7 +137,7 @@ final class CardPicker
      * Serve the nearest (re)learning card before its step elapsed, so the
      * session does not end with cards hanging for a few minutes.
      *
-     * @return array{repetition: WordRepetition, word: Word, kind: 'learning'}|null
+     * @return array{repetition: WordRepetition, word: Word, kind: 'learning', ahead: true}|null
      */
     private function pickLearnAhead(int $studentId, int $lessonId, CarbonImmutable $now): ?array
     {
@@ -158,6 +165,7 @@ final class CardPicker
             'repetition' => $ahead,
             'word' => $word,
             'kind' => 'learning',
+            'ahead' => true,
         ];
     }
 
