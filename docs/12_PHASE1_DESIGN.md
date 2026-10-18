@@ -124,6 +124,7 @@ erDiagram
 | source | **новая**, varchar(16) NOT NULL default `'command'`: `command` / `picker` / `self` / `reminder` / `onboarding` |
 | course_id | **новая**, bigint nullable FK → courses `nullOnDelete` — для `daily_review`: откуда брать новые слова |
 | expires_at | **новая**, timestamp nullable — личные сессии закрываются планировщиком через `config('learning.session_ttl_hours')` (12 ч) |
+| done_reason | **новая** (1.3a), varchar(16) nullable — `finished` (learner завершил) / `expired` (планировщик или замена просроченной при повторном `openPersonal`); `NULL` пока открыта |
 
 **Ограничения:**
 - существующий partial unique `(telegram_group_id, lesson_id) WHERE status='open'` остаётся (NULL не конфликтуют ни в PG, ни в sqlite);
@@ -479,6 +480,17 @@ final class TodayService
 final class LearnerStatsService { public function forLearner(Learner $l): LearnerStats; } // wordsLearned, wordsDueToday — замена StudentStatsService
 ```
 
+> **Реализация 1.3a, часть A (2026-10-18, architect).** Уточнения к контракту выше:
+> - `TrainingScope::lesson(int $lessonId)` / `TrainingScope::daily(?int $courseId)` / `TrainingScope::forSession(TrainingSession)` — без `learnerId` (он и так параметр каждого вызова; дублировать его в VO значило бы хранить два источника истины). Неактивные слова (`is_active = false`) вне scope всегда (docs/06 §4.1).
+> - `CardPicker::pickNext(int $learnerId, TrainingScope $scope, ?NewCardBudget $budget = null, ?CarbonImmutable $now = null): CardPick` — результат-объект вместо `array|null`, с `doneReason` (`DoneReason` enum: `lesson_complete` / `nothing_due` / `new_quota_exhausted`; `session_cap` ставит `TrainingFlowService`). `progress(int $learnerId, int $lessonId, ?int $totalWords)` остался урочным; прогресс `daily_review` считает `TrainingFlowService` (оценок в сессии / `daily_goal`).
+> - `NewCardBudget` — не «`{remaining: ?int}`», а VO с ленивым вычислением: `unlimited()` / `of(int)` / `lazy(Closure(learnerId, now): ?int)`; `remaining()` пикер вызывает **под блокировкой строки learner'а внутри транзакции** новой карточки, иначе две вкладки читали бы один и тот же остаток. Бюджет во flow поступает через контракт `NewCardBudgetResolver::budgetFor(Learner, now)` (по умолчанию безлимит), 1.4b перепривязывает его — сигнатуры `TrainingFlowService` не меняются.
+> - `TrainingSessionService::openPersonal(Learner $l, string $mode, ?Lesson $lesson = null, string $source = 'self', ?CarbonImmutable $now = null)`: для `lesson` курс урока должен быть `published` (`lesson_not_available`); для `daily_review` при повторном открытии `course_id` **обновляется** до текущего `active_course_id` (смена курса днём действует сразу); открытая сессия с истёкшим `expires_at` (планировщик ещё не прошёл) закрывается `done_reason = expired` и заменяется новой. Исключения `TrainingSessionException`: `invalid_mode`, `lesson_mismatch`, `lesson_not_available`.
+> - `finish(TrainingSession $s, string $reason = 'finished', ?CarbonImmutable $now = null): SessionSummary {session, reviewed, correct, newWords, wasOpen}` — без `Learner` (владение проверяет `TrainingSessionPolicy::canFinish`); идемпотентен (повтор → `wasOpen = false`, те же числа); для `group_lesson` — `not_personal`. `newWords` = слова, чья строка `word_repetitions` создана не раньше `started_at`. Цель/streak добавляет `TodayService` (1.3b).
+> - `closeExpired(?CarbonImmutable $now = null): int` закрывает личные (`expires_at <= now`) и групповые (`started_at <= now − group_session_ttl_hours`, 24 ч) сессии с `done_reason = expired`, `ended_at = now` (момент закрытия — до него оценки принимались; `DB::raw('expires_at')` в проекте запрещён).
+> - `TrainingSessionService::assertModeShape(array)` — зеркало PG CHECK `training_sessions_mode_shape_check` для всех драйверов, вызывается перед каждым INSERT.
+> - `ReviewSubmissionService` вызывает `DailyStatsService::recordReview(Learner, int $quality, int $timeSpentMs, bool $isNewCard, CarbonImmutable $now): void` в транзакции оценки; в 1.3a это no-op, который 1.3b наполняет (и меняет возврат на `LearnerDailyStats`).
+> - `CourseCatalogService::nextLessonWithNewWords(Course, Learner)` реализован (нужен `TodayService` для `active_course.next_lesson`); сам пикер берёт новые слова `daily_review` одним запросом по словам курса в учебном порядке.
+
 `ExamQuestionPersonalizer`, `ExamAnswerService`, `ExamFlowService`, `LeaderboardBuilder`, `LearningCache::examLeaderboard`: `Student` → `Learner`, `student_id` → `learner_id`; поведение не меняется. `ReviewReminderLinkBuilder` упрощается: ссылка всегда `{twa.base_url}/twa/?from=reminder` (экран «Сегодня» сам откроет `daily_review`); путь с открытием сессии от имени учителя удаляется.
 
 ### 3.4 `app/Domain/Billing` (новый)
@@ -792,7 +804,7 @@ flowchart TD
 
 ### 7.6 Жизненный цикл личной сессии
 
-`openPersonal` идемпотентен (partial unique → вернуть открытую); `expires_at = now + 12 ч`; `training:close-expired` каждые 15 мин закрывает просроченные личные сессии (`status = closed`, `ended_at = expires_at`). `finish` — явное закрытие с summary. Повторный `/start` сессии после закрытия → 410 `session_closed`, клиент создаёт новую. Групповые сессии (D5 из docs/11) — закрытие через 24 ч тем же планировщиком (`mode = group_lesson AND started_at < now - 24h`) — безопасно, учитель всегда может открыть снова (`open` идемпотентен).
+`openPersonal` идемпотентен (partial unique → вернуть открытую); `expires_at = now + 12 ч`; `training:close-expired` каждые 15 мин закрывает просроченные личные сессии (`status = closed`, `ended_at = now`, `done_reason = expired`). `finish` — явное закрытие с summary (`done_reason = finished`). Повторный `/start` сессии после закрытия → 410 `session_closed`, клиент создаёт новую. Групповые сессии (D5 из docs/11) — закрытие через 24 ч тем же планировщиком (`mode = group_lesson AND started_at < now - 24h`) — безопасно, учитель всегда может открыть снова (`open` идемпотентен).
 
 ### 7.7 Продуктовые события Фазы 1
 

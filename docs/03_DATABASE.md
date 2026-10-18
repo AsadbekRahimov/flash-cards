@@ -165,7 +165,7 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 - `(learner_id, created_at)` — квота новых слов за локальный день (docs/12 §5.3).
 
 ### 2.9 `training_sessions`
-Одна таблица для групповых и (с задачи 1.3a) личных сессий. Сегодня создаются только групповые (`mode = group_lesson`).
+Одна таблица для групповых (`mode = group_lesson`, открывает учитель) и личных сессий (`lesson`, `daily_review` — открывает сам learner через `TrainingSessionService::openPersonal`, задача 1.3a).
 
 | Колонка | Тип |
 |---------|-----|
@@ -181,6 +181,7 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 | started_at | timestamp |
 | ended_at | timestamp nullable |
 | expires_at | timestamp nullable — автозакрытие личных сессий планировщиком |
+| done_reason | varchar(16) nullable — почему закрыта: `finished` (learner нажал «Завершить») / `expired` (планировщик `training:close-expired` или замена просроченной при повторном открытии); `NULL` пока открыта *(1.3a)* |
 
 **Ограничения:**
 - `(telegram_group_id, lesson_id) WHERE status = 'open'` unique — одна открытая тренировка урока на группу даже при параллельных командах (у личных сессий группа `NULL`, они не конфликтуют);

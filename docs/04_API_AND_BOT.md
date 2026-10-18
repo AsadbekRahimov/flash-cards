@@ -166,7 +166,8 @@ Learner присоединяется к открытой тренировке. �
 
 Ошибки: 409 `card_not_started` (карточка не выдавалась), 409 `card_not_due` (повторный submit:
 карточка ещё не due, а `serve_token` отсутствует, устарел или чужой — docs/06 §5.2; клиенту следует
-перезапросить `GET /next`), 422 `wrong_lesson`, 410 `session_closed`.
+перезапросить `GET /next`), 422 `out_of_scope` (слово вне scope сессии: в `group_lesson`/`lesson` — слово другого урока,
+в любом режиме — неактивное слово `words.is_active = false`; бывш. `wrong_lesson`), 410 `session_closed`.
 
 ### A.4 Exam mode
 
