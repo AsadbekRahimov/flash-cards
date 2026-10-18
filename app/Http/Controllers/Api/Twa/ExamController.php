@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api\Twa;
 
 use App\Domain\Learning\Exceptions\ExamParticipationException;
 use App\Domain\Learning\Services\ExamAnswerService;
+use App\Domain\Learning\Services\ExamQuestionPersonalizer;
 use App\Domain\Learning\Services\LeaderboardBuilder;
 use App\Domain\Learning\Services\LearningCache;
 use App\Models\ExamAnswer;
@@ -23,6 +24,7 @@ final class ExamController
         private readonly LeaderboardBuilder $leaderboard,
         private readonly LearningCache $cache,
         private readonly ExamAnswerService $answers,
+        private readonly ExamQuestionPersonalizer $personalizer,
     ) {}
 
     public function join(Request $request, int $sessionId): JsonResponse
@@ -36,14 +38,13 @@ final class ExamController
         }
 
         $config = $session->config;
-        $questions = $this->questions($session);
 
         return response()->json([
             'session_id' => $session->id,
             'ends_at' => $session->ends_at?->toIso8601String(),
             'total_questions' => (int) ($config['total_questions'] ?? 0),
             'seconds_per_question' => (int) ($config['seconds_per_question'] ?? 0),
-            'question' => $this->questionPayload($questions, 0, $session, $student),
+            'question' => $this->questionPayload($session, $student, 0),
         ]);
     }
 
@@ -58,13 +59,13 @@ final class ExamController
         }
 
         $index = (int) $request->query('index', 0);
-        $questions = $this->questions($session);
+        $payload = $this->questionPayload($session, $student, $index);
 
-        if ($index < 0 || $index >= count($questions)) {
+        if ($payload === null) {
             return $this->error(404, 'question_not_found', 'Question index is out of range.');
         }
 
-        return response()->json($this->questionPayload($questions, $index, $session, $student));
+        return response()->json($payload);
     }
 
     public function answer(Request $request, int $sessionId): JsonResponse
@@ -85,26 +86,17 @@ final class ExamController
             'time_spent_ms' => ['required', 'integer', 'min:0', 'max:600000'],
         ]);
 
-        $questions = $this->questions($session);
         $index = (int) $validated['question_index'];
-
-        if ($index < 0 || $index >= count($questions)) {
-            return $this->error(404, 'question_not_found', 'Question index is out of range.');
-        }
-
-        $question = $questions[$index];
-        if ($question['word_id'] !== (int) $validated['word_id']) {
-            return $this->error(422, 'word_mismatch', 'Word does not match the question at this index.');
-        }
-
         $selectedIndex = $validated['selected_option_index'] ?? null;
 
         try {
+            // The correct option is resolved inside the service for THIS student's
+            // personal question/option order — never trusted from the request.
             $answer = $this->answers->submit(
                 $session,
                 $student,
                 $index,
-                $question,
+                (int) $validated['word_id'],
                 $selectedIndex !== null ? (int) $selectedIndex : null,
             );
         } catch (ExamParticipationException $e) {
@@ -118,10 +110,10 @@ final class ExamController
 
         return response()->json([
             'is_correct' => $answer['is_correct'],
-            'correct_option' => $question['correct_index'],
+            'correct_option' => $answer['correct_index'],
             'score_earned' => $answer['score'],
             'total_score' => $totalScore,
-            'has_next' => $index + 1 < count($questions),
+            'has_next' => $index + 1 < $this->personalizer->count($session),
             // The next question is fetched after feedback so its server timer starts at display time.
             'next_question' => null,
         ]);
@@ -170,31 +162,18 @@ final class ExamController
     }
 
     /**
-     * @return list<array{word_id:int, word:string, correct_translation:string, correct_index:int, options:list<string>}>
-     */
-    private function questions(ExamSession $session): array
-    {
-        /** @var list<array{word_id:int, word:string, correct_translation:string, correct_index:int, options:list<string>}> $questions */
-        $questions = $session->config['questions'] ?? [];
-
-        return $questions;
-    }
-
-    /**
-     * @param  list<array{word_id:int, word:string, correct_translation:string, correct_index:int, options:list<string>}>  $questions
+     * Student-facing view of question $index in THIS student's sequence.
+     * Never exposes `correct_index` / `correct_translation`.
+     *
      * @return array{question_index:int, word_id:int, word:string, options:list<string>, seconds_left:int}|null
      */
-    private function questionPayload(
-        array $questions,
-        int $index,
-        ExamSession $session,
-        Student $student,
-    ): ?array {
-        if ($index < 0 || $index >= count($questions)) {
+    private function questionPayload(ExamSession $session, Student $student, int $index): ?array
+    {
+        $question = $this->personalizer->questionAt($session, $student, $index);
+        if ($question === null) {
             return null;
         }
 
-        $question = $questions[$index];
         $attempt = $this->answers->serve($session, $student, $index);
 
         return [

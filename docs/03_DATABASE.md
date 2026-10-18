@@ -176,7 +176,20 @@ erDiagram
 | ends_at | timestamp |
 | closed_at | timestamp nullable |
 | leaderboard_posted_at | timestamp nullable | — защита от повторной публикации результата |
-| config | jsonb default '{}' | — кол-во вопросов, мультипликаторы и т.п. |
+| config | jsonb default '{}' | — параметры и канонический набор вопросов, см. ниже |
+
+`config` (пишется `ExamSessionService::open`, неизменяем после создания):
+- `total_questions`, `seconds_per_question`, `duration_minutes` — параметры сессии;
+- `question_order` — `'per_student'`: порядок вопросов и вариантов у каждого студента свой
+  (`ExamQuestionPersonalizer`, HMAC от `app.key` + `session_id` + `student_id`). Отсутствие ключа =
+  legacy-сессия с общим порядком — доигрывается как есть;
+- `questions[]` — **канонический** список `{word_id, word, correct_translation, options[]}`; `options`
+  содержит правильный перевод и 1–3 реальных дистрактора. `correct_index` **не хранится** — он зависит
+  от студента и вычисляется на сервере при выдаче/ответе (legacy-записи с `correct_index` читаются корректно).
+
+Следствие: `exam_question_attempts.question_index` — позиция в личной последовательности студента, а не в
+`config.questions`. Перестановка — биекция, поэтому unique `(exam_session_id, student_id, word_id)` в
+`exam_answers` по-прежнему защищает от повторного ответа на слово.
 
 **Индексы:** `status`, `ends_at` (для scheduler).
 Дополнительно для нагрузки:

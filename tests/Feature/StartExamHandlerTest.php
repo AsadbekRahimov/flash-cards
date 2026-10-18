@@ -183,3 +183,52 @@ it('rejects lesson with not enough words', function (): void {
 
     expect(ExamSession::query()->count())->toBe(0);
 });
+
+it('rejects a lesson whose words have no real distractors and leaves no session behind', function (): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => -4004, 'status' => 'active']);
+    $teacher = User::factory()->create(['telegram_user_id' => 999]);
+    attachExamTeacher($teacher, $group);
+    $stage = Stage::factory()->create(['number' => 1]);
+    $lesson = Lesson::factory()->for($stage)->create(['number' => 1]);
+    // 4 words, all with the same translation and nothing else in the library.
+    Word::factory()->count(4)->for($lesson)->create(['translation' => 'одно и то же']);
+
+    $this->api->shouldReceive('sendMessage')
+        ->once()
+        ->with(-4004, Mockery::pattern('/вариантов ответа/u'));
+
+    app(TelegramDispatcher::class)->dispatch([
+        'message' => [
+            'chat' => ['id' => -4004, 'type' => 'supergroup'],
+            'from' => ['id' => 999],
+            'text' => '/start_exam 1 1 2',
+        ],
+    ]);
+
+    expect(ExamSession::query()->count())->toBe(0);
+});
+
+it('stores canonical questions with per-student ordering enabled and no correct_index', function (): void {
+    seedLessonWithWords();
+    $this->api->shouldReceive('sendWebAppButton')->once();
+
+    app(TelegramDispatcher::class)->dispatch([
+        'message' => [
+            'chat' => ['id' => -1001, 'type' => 'supergroup'],
+            'from' => ['id' => 777],
+            'text' => '/start_exam 1 1 2',
+        ],
+    ]);
+
+    $session = ExamSession::query()->sole();
+    expect($session->config['question_order'])->toBe('per_student')
+        ->and($session->config['total_questions'])->toBe(count($session->config['questions']));
+    foreach ($session->config['questions'] as $q) {
+        expect($q)->toHaveKeys(['word_id', 'word', 'correct_translation', 'options'])
+            ->and($q)->not->toHaveKey('correct_index')
+            ->and(array_keys($q['options'], $q['correct_translation'], true))->toHaveCount(1);
+        foreach ($q['options'] as $o) {
+            expect($o)->not->toContain('filler');
+        }
+    }
+});
