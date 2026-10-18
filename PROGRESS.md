@@ -5,6 +5,22 @@
 ## Sprint 3 — Filament Admin ✅ (2FA отложен до Sprint 10)
 ## Sprint 4 — Import & Content ✅
 
+## Sprint 13 — Фаза 0 «Стабилизация ядра» 🚧 (старт 2026-10-18)
+
+Основание: `docs/11_SYSTEM_ANALYSIS_AND_SAAS_STRATEGY.md` §10, стратегия B2C-first.
+Решения владельца: ученик центра получает полный Pro; языки интерфейса и переводов — узбекский и русский; изучаемый язык — только английский.
+
+| # | Задача | Исполнитель | Статус |
+|---|--------|-------------|--------|
+| 0.1 | SRS: оценка «Средне» без штрафа EF, learning steps внутри сессии | architect | ⏳ |
+| 0.2 | Экзамен: per-student порядок вопросов и вариантов, реальные дистракторы вместо filler | architect | ⏳ |
+| 0.3 | `/health/ready` (DB, Redis, scheduler heartbeat, очередь); error tracking — после согласования зависимости | coder | ⏳ |
+| 0.4 | Таблица `events` + `ProductEventRecorder` + базовые события | coder | ⏳ |
+| 0.5 | i18n каркас: `lang/{ru,uz}`, `trans_choice`, vue-i18n в TWA | coder | ⏳ |
+| 0.6 | API Resource-классы для TWA, вынос логики из контроллеров | coder | ⏳ |
+| 0.7 | Staging: restore-тест, ZAP baseline, k6 | координатор (нужен staging) | ⏳ |
+| 0.8 | Сжатие трафика: предсжатая статика TWA (`gzip_static`), тюнинг gzip, без сжатия аудио, защита от BREACH на admin | coder | ⏳ |
+
 ## Sprint 12 — Полный аудит, безопасность и production readiness ✅ (2026-07-13)
 
 Проведена полная сверка кода со всей документацией `docs/`, архитектурой, PRD и security checklist. Исправлены обнаруженные незавершённые и небезопасные сценарии.
