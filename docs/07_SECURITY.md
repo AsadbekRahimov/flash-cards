@@ -173,11 +173,12 @@ public function denial(Learner $learner, TrainingSession $s): ?string   // null 
 | `POST /api/twa/training/*/review` | 60/min per learner | Нормальный темп — не больше |
 | `POST /api/twa/exam/*/answer` | 30/min per learner | |
 | `GET /api/twa/tts` | 30/min per learner | |
+| `POST /api/twa/promo/redeem` | 5/min per learner + 20/min per IP | Подбор промокодов; бот `/promo` — те же 5/min на learner'а |
 | Остальные `/api/twa/*` | 60/min per learner | ключ rate limiter'а — `learner_id` из JWT |
 | Filament login | 5/15min per IP + per email | Против brute-force |
 | Webhook | не ограничиваем (но валидация по secret обязательна) | |
 
-Реализация через `Route::middleware('throttle:...')`.
+Реализация через `Route::middleware('throttle:...')`. `TwaAuth` стоит в списке приоритетов middleware **перед** `ThrottleRequests` (`bootstrap/app.php`), иначе лимитеры не видели бы `learner_id` и считали всех по IP.
 
 ## 7. Секреты и конфигурация
 

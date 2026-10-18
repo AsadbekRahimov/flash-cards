@@ -206,6 +206,50 @@ Open any Stage → Lesson → click on a word to edit its translation, example, 
 
 ---
 
+## Billing: subscriptions, promo codes, organizations
+
+Navigate to **Billing → Subscriptions / Promo codes / Organizations**. These screens are for **admins only**
+(teachers do not see them). Free learners get 20 new words a day; **Pro** removes the limit. Pro comes from a
+subscription of the learner, or from the subscription of an **organization** whose group the learner is an active
+member of (sponsored Pro). There is no online payment yet.
+
+### Subscriptions
+The table shows every subscription: subject (learner or organization), plan, status, provider (`manual` — granted
+by an admin, `promo` — from a promo code), start, **Until** (empty = no end), who granted it and the reason.
+Filters: status, provider, plan, subject, and *Live status* (live = trialing / active / past due).
+
+- **Grant Pro** (button above the table): pick the subject — a *Learner* (search by name, @username or Telegram ID)
+  or an *Organization* — and either switch on **No end date** or set **Pro until**. The **Reason** is required and
+  is stored in the audit log (`subscription.granted`). If the subject already has a live subscription it is
+  extended / replaced in place (no second subscription is created).
+- **Revoke** (row button, live subscriptions only): ends the subscription now; **Reason** required, audit
+  `subscription.revoked`. The learner loses Pro within seconds (the cached plan is dropped at once).
+- A subscription that ran out of time is closed automatically by the hourly job `subscriptions:expire`.
+
+### Promo codes
+**Billing → Promo codes → New**. The code is suggested automatically (10 characters); you may type your own —
+spaces and dashes are ignored and the code is stored in upper case (`summer-2026` → `SUMMER2026`), 4–32 Latin
+letters / digits, unique. Set the **plan**, **duration (days)**, optional **max redemptions** and **valid until**,
+and a note (who the code is for). Creation is written to the audit log (`promo.created`).
+
+- *Redeemed* is read-only: it grows only when a learner redeems the code. One learner can redeem a code once.
+- To stop a code, switch **Active** off (edit). A code that was already redeemed cannot be deleted — only deactivated.
+- The learner enters the code in the TWA ("Have a promo code?" on the finish screen) or sends `/promo CODE` to the
+  bot in a private chat. A learner who already has Pro with an end date gets the days added to it.
+
+### Organizations (sponsored Pro for a learning center)
+1. **Billing → Organizations → New**: name, slug (Latin, cannot be changed), time zone, language.
+2. Open the organization → **Groups** table → **Link group** and pick the Telegram group (only groups that belong
+   to no organization are offered). **Unlink** takes it away again. Both are written to the audit log
+   (`organization.linked_group` / `organization.unlinked_group`).
+3. **Billing → Subscriptions → Grant Pro** with the *Organization* subject.
+
+Every **active member of an active linked group** now has Pro (source "sponsor" in `/me`); after unlinking, leaving the
+group, suspending the organization or the end of the subscription they are back on Free (their progress stays).
+**Status: Suspended** switches the sponsorship off without deleting anything. Changes apply within seconds.
+
+---
+
 ## Dashboard Widgets
 
 | Widget | What it shows |

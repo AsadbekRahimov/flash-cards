@@ -71,7 +71,9 @@
   "stats": {
     "words_learned": 234,
     "words_due_today": 18
-  }
+  },
+  "entitlement": { "plan": "pro", "source": "subscription", "until": "2026-12-31T12:00:00+00:00", "new_words_per_day": null },
+  "paywall": { "mode": "coming_soon", "contact": null }
 }
 ```
 
@@ -81,7 +83,13 @@
   `review` с `next_review_at <= now` плюс **брошенные** learning/relearning карточки, чей минутный шаг истёк
   больше `LEARNING_ABANDONED_AFTER_HOURS` (12 ч) назад. Свежие шаги внутри сессии и `new`-строки
   (карточка показана, не оценена) не считаются. Считается по всему прогрессу learner'а, а не по одной группе.
-- `entitlement`, настройки и `current_streak_days` появятся в задачах 1.3b / 1.4a / 1.6 (docs/12 §3.8).
+- `entitlement` — тариф learner'а сейчас (`EntitlementResolver::for`, docs/12 §5.1): `plan` — `free` | `pro`; `source` — `free` |
+  `subscription` (личная подписка: ручная выдача, промокод) | `sponsor:organization:<id>` (Pro центра, к группе которого привязана
+  группа learner'а); `until` — ISO 8601, `null` = конца нет (Free или бессрочная выдача); `new_words_per_day` — лимит новых слов
+  в день (`20` у Free), `null` = безлимит. Значение из кэша (TTL 300 с), изменения подписки/членства сбрасывают его сразу.
+- `paywall` — что показать при исчерпанной квоте (docs/12 §5.4): `mode` — `coming_soon` | `purchase`; `contact` — контакт
+  поддержки для центров (`BILLING_SUPPORT_CONTACT`), **`null`, если не задан — строку с контактом тогда не показывать**.
+- Настройки и `current_streak_days` появятся в задачах 1.3b / 1.6 (docs/12 §3.8).
 
 ### A.3 Training mode
 
@@ -277,11 +285,39 @@ Learner присоединяется к открытой тренировке. �
 
 ### A.6 Общие правила
 - Все даты в ISO 8601 UTC.
-- Rate limit: 60 запросов/минуту на JWT (кроме `/tts` — 30/мин).
+- Rate limit: 60 запросов/минуту на learner'а (кроме `/tts` — 30/мин, `/promo/redeem` — A.7). `TwaAuth` выполняется **до** `throttle:*`
+  (`bootstrap/app.php`, `prependToPriorityList`), поэтому ключ лимитера — `learner_id`, а не IP.
 - При любой 4xx/5xx (кроме 422 валидации Laravel) ответ — `ApiErrorResource`:
 ```json
 { "error": { "code": "string", "message": "string" } }
 ```
+
+### A.7 `POST /api/twa/promo/redeem`
+Активация промокода (docs/12 §5.5). Rate limit `twa-promo`: **5/мин на learner'а и 20/мин на IP** (429) — защита от подбора кодов.
+
+**Request:** `{ "code": "welcome-30" }` — `required|string|max:64`; регистр, пробелы и дефисы не важны
+(`PromoCodeService::normalize`). Нарушение валидации — 422 в стандартном формате Laravel (`message` + `errors.code`).
+
+**Response 200:** тот же JSON, что у `GET /me` (A.2), с уже новым `entitlement`:
+```json
+{ "learner": {…}, "groups": […], "stats": {…},
+  "entitlement": { "plan": "pro", "source": "subscription", "until": "2026-11-17T12:00:00+00:00", "new_words_per_day": null },
+  "paywall": { "mode": "coming_soon", "contact": null } }
+```
+Нет живой личной подписки → создаётся подписка `provider=promo` на `duration_days`; есть живая личная с конечной датой →
+продлевается на месте (`until = max(until, now) + duration_days`). Спонсорский Pro центра не мешает.
+
+**Ошибки** (`ApiErrorResource`: `{"error": {"code", "message"}}`; клиент показывает свой текст по `code`, `message` — английский):
+
+| HTTP | `error.code` | Когда |
+|------|--------------|-------|
+| 404 | `promo_not_found` | код неизвестен, пуст или деактивирован (не различаем намеренно) |
+| 410 | `promo_expired` | прошёл `expires_at` |
+| 409 | `promo_exhausted` | исчерпан `max_redemptions` |
+| 409 | `promo_already_redeemed` | этот learner уже активировал этот код |
+| 409 | `promo_not_applicable` | у learner'а бессрочная личная подписка — код ничего не добавит и не тратится |
+
+Событие `promo.redeemed` пишется сервисом; запись в `audit_logs` не делается (действие самого learner'а).
 
 ## Часть B — Telegram Bot
 
@@ -321,6 +357,7 @@ public function __invoke(Request $request, string $secret)
 | `/start_exam [stage] [lesson] [minutes]` | группа | teacher | Создаёт `exam_session`, планирует закрытие. Номера — в курсе группы, как выше. |
 | `/close_exam` | группа | teacher | Досрочно закрывает открытый экзамен. |
 | `/stats` | ЛС | teacher | Отчёт по его группам за 7 дней. |
+| `/promo КОД` | ЛС | любой learner | Активирует промокод (`PromoCodeService::redeem`, как A.7). `/promo` без кода — подсказка. Learner создаётся/обновляется по самому человеку (`LearnerRegistrar::fromTelegramUser`). Ответ — на языке learner'а: «Pro активен до дд.мм.гггг» (в поясе learner'а) / «без ограничения по сроку», либо текст ошибки по `errorCode` (`lang/{ru,uz}/bot.php`, `bot.promo.errors.*`). Не более 5 попыток в минуту на learner'а (иначе «слишком много попыток»); заблокированному — «доступ ограничен». В **активной группе** бот отвечает «откройте личный чат» и код не обрабатывает (код в группе виден всем), в неактивной — молчит (Group Lock). |
 | `/help` | любой | любая | Список доступных команд для роли. |
 
 ### B.4 Формат сообщения с WebApp-кнопкой
