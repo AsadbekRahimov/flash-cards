@@ -6,6 +6,11 @@
 **Auth:** JWT в `Authorization: Bearer <token>` (кроме `/auth`).
 **Content-Type:** `application/json`.
 
+**Реализация.** Контроллер только валидирует запрос и вызывает сервис (`TrainingFlowService`,
+`ExamFlowService`, `StudentStatsService`), ответ собирает Resource-класс из `app/Http/Resources/Twa/`
+(ошибки — `ApiErrorResource`). Ответы идут **без обёртки `data`** — формы ниже закреплены
+контрактными тестами `tests/Feature/TwaContractTest.php` (`assertExactJsonStructure`).
+
 ### A.1 `POST /api/twa/auth`
 Аутентификация через Telegram `initData`.
 
@@ -48,15 +53,21 @@
 **Response:**
 ```json
 {
-  "student": { "id": 42, "first_name": "Alex" },
+  "student": { "id": 42, "first_name": "Alex", "username": "alex_dev" },
   "group": { "id": 7, "title": "B1 English Evening" },
   "stats": {
     "words_learned": 234,
-    "words_due_today": 18,
-    "current_streak_days": 5
+    "words_due_today": 18
   }
 }
 ```
+
+- `group` — `null`, если у студента нет группы.
+- `words_learned` — слова с хотя бы одним успешным повторением (`repetitions >= 1`).
+- `words_due_today` — карточки **только в состоянии `review`** с `next_review_at <= now`. Это то же правило,
+  что у напоминаний (docs/06 §6): `new`-строки создаются в момент показа карточки, а learning/relearning
+  планируются в минутах внутри сессии — «на сегодня» они не считаются.
+- `current_streak_days` пока не реализован (серии — Фаза 1).
 
 ### A.3 Training mode
 
@@ -68,9 +79,14 @@
 {
   "session_id": 123,
   "lesson": { "stage": 4, "lesson": 8, "title": "Resilience" },
-  "total_words": 25
+  "total_words": 25,
+  "card": { "word_id": 1001, "word": "Resilient", "translation": "Устойчивый", "example": null, "transcription": null, "card_kind": "new" } | null,
+  "progress": { "done": 0, "total": 25 }
 }
 ```
+
+`card` / `progress` — первая карточка и прогресс в том же формате, что у `/next`.
+Если у сессии нет урока — 404 `lesson_not_found`.
 
 #### `GET /api/twa/training/sessions/{session_id}/next`
 
@@ -147,11 +163,13 @@
   "session_id": 55,
   "ends_at": "2026-04-19T19:10:00Z",
   "total_questions": 10,
-  "seconds_per_question": 10
+  "seconds_per_question": 10,
+  "question": { "question_index": 0, "word_id": 1001, "word": "Resilient", "options": ["..."], "seconds_left": 10 }
 }
 ```
 
-Ошибка 409 `already_joined` если студент уже подключался.
+`question` — первый вопрос **личной** последовательности студента (формат как у `/question`);
+`null`, если в сессии нет вопросов. Повторный `join` идемпотентен: серверный таймер вопроса не перезапускается.
 
 #### `GET /api/twa/exam/sessions/{session_id}/question?index=0`
 **Response:**
@@ -166,7 +184,7 @@
     "Смелый",
     "Тихий"
   ],
-  "seconds_left": 9.8
+  "seconds_left": 10
 }
 ```
 
@@ -192,6 +210,9 @@
   "next_question": null
 }
 ```
+
+`next_question` всегда `null`: следующий вопрос запрашивается после показа фидбэка, чтобы его серверный
+таймер стартовал в момент показа.
 
 `selected_option_index` и `correct_option` — индексы в `options` **этого** студента (его личный порядок).
 `correct_option` возвращается только после фиксации ответа (для подсветки в TWA). Ошибки: 404 `question_not_found`,
@@ -219,9 +240,9 @@
 ### A.6 Общие правила
 - Все даты в ISO 8601 UTC.
 - Rate limit: 60 запросов/минуту на JWT (кроме `/tts` — 30/мин).
-- При любой 4xx/5xx ответ:
+- При любой 4xx/5xx (кроме 422 валидации Laravel) ответ — `ApiErrorResource`:
 ```json
-{ "error": { "code": "string", "message": "string", "details": {} } }
+{ "error": { "code": "string", "message": "string" } }
 ```
 
 ## Часть B — Telegram Bot
