@@ -21,7 +21,26 @@ erDiagram
     WORDS ||--o{ EXAM_ANSWERS : about
     STUDENTS ||--o{ TRAINING_REVIEWS : makes
     TRAINING_SESSIONS ||--o{ TRAINING_REVIEWS : logs
+    LEARNERS ||--o{ GROUP_MEMBERS : joins
+    TELEGRAM_GROUPS ||--o{ GROUP_MEMBERS : has
+    ORGANIZATIONS ||--o{ TELEGRAM_GROUPS : owns
+    COURSES ||--o{ STAGES : modules
+    COURSES ||--o{ TELEGRAM_GROUPS : group_course
+    COURSES ||--o{ LEARNERS : active_course
+    WORDS ||--o{ WORD_TRANSLATIONS : uz_ru
+    LEARNERS ||--o{ LEARNER_DAILY_STATS : per_day
+    LEARNERS ||--o{ SUBSCRIPTIONS : personal
+    ORGANIZATIONS ||--o{ SUBSCRIPTIONS : sponsor
+    USERS ||--o{ SUBSCRIPTIONS : granted_by
+    PROMO_CODES ||--o{ PROMO_REDEMPTIONS : redeemed
+    LEARNERS ||--o{ PROMO_REDEMPTIONS : redeems
+    SUBSCRIPTIONS ||--o{ PROMO_REDEMPTIONS : result
 ```
+
+> **Переход на learner-first (docs/12, Sprint 14).** Задача 1.1a добавляет таблицы `learners`, `group_members`,
+> `courses`, `organizations`, `word_translations`, `learner_daily_stats`, `subscriptions`, `promo_codes`,
+> `promo_redemptions` (§2.17–§2.25) **аддитивно**: `students` и все `student_id` остаются до задачи 1.1b, которая
+> заменит их на `learner_id` и удалит `students`. До этого `group_members` / `learners` не используются кодом.
 
 ## 2. Таблицы
 
@@ -48,10 +67,12 @@ erDiagram
 | chat_id | bigint unique | Telegram chat_id (может быть отрицательный для supergroup) |
 | title | string(255) | Название группы |
 | status | enum('pending','active','disabled') default 'pending' | |
+| organization_id | bigint nullable FK → organizations, ON DELETE SET NULL | организация-владелец (спонсор Pro для участников) |
+| course_id | bigint nullable FK → courses, ON DELETE SET NULL | курс для команд учителя; `NULL` = курс `default` |
 | meta | jsonb default '{}' | Member count, type и т.п. |
 | created_at, updated_at | | |
 
-**Индексы:** `chat_id` unique, `status`.
+**Индексы:** `chat_id` unique, `status`, `organization_id`, `course_id`.
 
 ### 2.3 `teacher_groups` — pivot учитель ↔ группа
 | Колонка | Тип |
@@ -81,13 +102,16 @@ erDiagram
 
 Заметка: один и тот же пользователь в двух разных группах будет двумя записями — это нормально, у каждой группы своя история обучения.
 
-### 2.5 `stages`
+### 2.5 `stages` — модули курса
 | Колонка | Тип |
 |---------|-----|
 | id | bigint PK |
-| number | int unique |
+| course_id | bigint FK → courses, ON DELETE CASCADE, NOT NULL |
+| number | int |
 | title | string(255) |
 | description | text nullable |
+
+**Индексы:** `(course_id, number)` unique — номер модуля уникален внутри курса (одинаковый `number` в разных курсах разрешён).
 
 ### 2.6 `lessons`
 | Колонка | Тип |
@@ -309,35 +333,217 @@ Append-only журнал для продуктовой аналитики (не 
 Ключи props с признаками PII (`name`, `username`, `text`, `message`, `title`, `token`, `hash`, `init_data`, ...)
 отбрасываются рекордером автоматически.
 
+### 2.17 `learners` — профиль ученика (один на Telegram-пользователя)
+Центральный объект Фазы 1: прогресс и подписка принадлежат человеку, а не паре (человек, группа). Заменит `students` в задаче 1.1b.
+
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| telegram_user_id | bigint NOT NULL unique | |
+| first_name, last_name | string(100) nullable | из Telegram |
+| username | string(100) nullable | |
+| language_code | string(10) nullable | сырой код Telegram |
+| interface_locale | string(5) default 'ru' | `ru` / `uz` — язык бота и TWA |
+| timezone | string(64) default 'Asia/Tashkent' | IANA; дефолт — `config('learners.default_timezone')` |
+| goal | string(20) nullable | `general` / `ielts` / `sat` / `school` |
+| level | string(2) nullable | `A1`..`C2` |
+| active_course_id | bigint nullable FK → courses, ON DELETE SET NULL | курс для новых слов экрана «Сегодня» |
+| daily_goal | smallint default 20 | карточек (оценок) в день |
+| reminder_time | time nullable default '19:00' | локальное время напоминания; `NULL` = выключено |
+| next_reminder_at | timestamp nullable | ближайшее напоминание, UTC |
+| dm_blocked_at | timestamp nullable | Telegram ответил 403 на ЛС |
+| onboarding_state | string(16) default 'new' | `new` → `locale` → `goal` → `level` → `timezone` → `reminder` → `done` |
+| onboarding_completed_at | timestamp nullable | |
+| acquisition_source | string(64) nullable | `ref`, `org`, `src:<channel>`, `course:<slug>`, `group` |
+| start_payload | string(64) nullable | сырой payload `/start` |
+| referrer_learner_id | bigint nullable FK → learners, ON DELETE SET NULL | реферер (только фиксируется) |
+| streak_current, streak_best | smallint default 0 | |
+| streak_last_date | date nullable | локальная дата, когда дневная цель выполнялась последний раз |
+| last_seen_at | timestamp nullable | |
+| blocked_at | timestamp nullable | бан платформой |
+| deleted_at | timestamp nullable | `SoftDeletes` |
+| meta | jsonb default '{}' | |
+| created_at, updated_at | | |
+
+**Индексы:** `telegram_user_id` unique; `next_reminder_at` — **partial** `WHERE next_reminder_at IS NOT NULL AND dm_blocked_at IS NULL`
+(`learners_next_reminder_at_idx`, PostgreSQL; на sqlite — обычный индекс); `onboarding_state`; `last_seen_at`; `active_course_id`; `referrer_learner_id`.
+
+### 2.18 `group_members` — членство learner'а в Telegram-группе
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| telegram_group_id | bigint FK → telegram_groups, ON DELETE CASCADE | |
+| learner_id | bigint FK → learners, ON DELETE CASCADE | |
+| status | string(12) default 'active' | `active` / `left` / `removed` / `banned` |
+| joined_at | timestamp NOT NULL | |
+| left_at | timestamp nullable | |
+| created_at, updated_at | | |
+
+**Индексы:** `(telegram_group_id, learner_id)` unique; `(learner_id, status)`; `(telegram_group_id, status)`.
+
+### 2.19 `organizations` — минимальные организации (центр / репетитор)
+| Колонка | Тип |
+|---------|-----|
+| id | bigint PK |
+| name | string(150) |
+| slug | string(64) unique |
+| type | string(16) default 'center' (`center` / `tutor`) |
+| status | string(16) default 'active' (`active` / `suspended`) |
+| timezone | string(64) default 'Asia/Tashkent' |
+| locale | string(5) default 'ru' |
+| settings | jsonb default '{}' |
+| created_at, updated_at | |
+
+Членство learner'а в организации выводится из активного членства в её группах; отдельной таблицы участников в Фазе 1 нет.
+
+### 2.20 `courses`
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| slug | string(64) unique | `default` — платформенный курс для демо-контента и импорта без указания курса |
+| owner_type | string(16) default 'platform' | `platform` / `organization` |
+| owner_id | bigint nullable | полиморфный, FK не ставим (целостность — в сервисе) |
+| title | jsonb NOT NULL | `{"ru": "...", "uz": "..."}` |
+| description | jsonb default '{}' | по локалям |
+| target_language | string(5) default 'en' | |
+| level | string(2) nullable | `A1`..`C2` |
+| exam_tag | string(16) nullable | `ielts` / `sat` / `school` / `general` |
+| visibility | string(10) default 'public' | `public` / `unlisted` / `private` |
+| status | string(10) default 'draft' | `draft` → `review` → `published` (→ `archived`) |
+| published_at | timestamp nullable | |
+| position | int default 0 | порядок в каталоге |
+| is_featured | boolean default false | |
+| words_count | int default 0 | денормализация |
+| meta | jsonb default '{}' | |
+| created_at, updated_at | | |
+
+**Индексы:** `slug` unique; `(status, visibility, position)`; `(owner_type, owner_id)`.
+
+### 2.21 `word_translations` — переводы слов по локалям
+| Колонка | Тип |
+|---------|-----|
+| id | bigint PK |
+| word_id | bigint FK → words, ON DELETE CASCADE |
+| locale | string(5) NOT NULL (`ru` / `uz`) |
+| translation | string(500) NOT NULL |
+| example_translation | text nullable |
+| source | string(16) default 'import' (`import` / `manual` / `ai`) |
+| reviewed_at | timestamp nullable (проверено носителем) |
+| created_at, updated_at | |
+
+**Индексы:** `(word_id, locale)` unique.
+
+### 2.22 `learner_daily_stats` — агрегат за локальный день
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| learner_id | bigint FK → learners, ON DELETE CASCADE | |
+| date | date NOT NULL | локальная дата learner'а |
+| reviews_count | int default 0 | все принятые оценки |
+| new_words_count | int default 0 | карточек впервые показано (то, что ограничивает Free) |
+| correct_count | int default 0 | `quality >= 3` |
+| time_spent_ms | bigint default 0 | |
+| goal_met_at | timestamp nullable | |
+| created_at, updated_at | | |
+
+**Индексы:** `(learner_id, date)` unique.
+
+### 2.23 `subscriptions`
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| subscriber_type | string(16) | `learner` / `organization` |
+| subscriber_id | bigint | полиморфный, без FK |
+| plan | string(16) | `pro` |
+| status | string(12) | `trialing` / `active` / `past_due` / `canceled` / `expired` |
+| provider | string(16) | `manual` / `promo` / `telegram_stars` / `payme` / `click` |
+| provider_ref | string(191) nullable | |
+| starts_at | timestamp NOT NULL | |
+| current_period_ends_at | timestamp nullable | `NULL` = бессрочно (только `manual`) |
+| grace_until | timestamp nullable | |
+| canceled_at, ended_at | timestamp nullable | |
+| seats_limit | int nullable | для организаций (Фаза 2) |
+| granted_by_user_id | bigint nullable FK → users, ON DELETE SET NULL | |
+| note | string(255) nullable | |
+| meta | jsonb default '{}' | |
+| created_at, updated_at | | |
+
+**Индексы:** `(subscriber_type, subscriber_id, status)`; `(status, current_period_ends_at)`; `(status, grace_until)`; `granted_by_user_id`;
+partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscriber_id) WHERE status IN ('trialing','active','past_due')`
+(PostgreSQL и sqlite; на других драйверах — проверка в сервисе под `lockForUpdate`).
+
+### 2.24 `promo_codes`
+| Колонка | Тип |
+|---------|-----|
+| id | bigint PK |
+| code | string(32) unique (upper-case) |
+| plan | string(16) |
+| duration_days | smallint |
+| max_redemptions | int nullable |
+| redemptions_count | int default 0 |
+| expires_at | timestamp nullable |
+| is_active | boolean default true |
+| created_by_user_id | bigint nullable FK → users, ON DELETE SET NULL |
+| note | string(255) nullable |
+| created_at, updated_at | |
+
+### 2.25 `promo_redemptions`
+| Колонка | Тип |
+|---------|-----|
+| id | bigint PK |
+| promo_code_id | bigint FK → promo_codes, ON DELETE CASCADE |
+| learner_id | bigint FK → learners, ON DELETE CASCADE |
+| subscription_id | bigint nullable FK → subscriptions, ON DELETE SET NULL |
+| redeemed_at | timestamp |
+| created_at, updated_at | |
+
+**Индексы:** `(promo_code_id, learner_id)` unique.
+
+`payments` в Фазе 1 не создаётся (оплата вне Фазы 1, docs/12 §1.9).
+
 ## 3. Порядок миграций
 
-Миграции создаём в таком порядке (порядок имеет значение из-за FK):
+Миграции создаём в таком порядке (порядок имеет значение из-за FK). Пока на дисках лежат исходные create-миграции
+(до пересоздания БД `migrate:fresh --seed`), правки схемы вносятся **в них на месте**, а новые таблицы получают более
+ранние/поздние метки времени, чтобы цели FK создавались раньше (docs/12 §2.2–§2.3):
 
 1. `create_users_table` (стандартный Laravel, правим)
 2. `create_permission_tables` (spatie)
-3. `create_telegram_groups_table`
-4. `create_teacher_groups_table`
-5. `create_students_table`
-6. `create_stages_table`
-7. `create_lessons_table`
-8. `create_words_table`
-9. `create_word_repetitions_table`
-10. `create_training_sessions_table`
-11. `create_training_reviews_table`
-12. `create_exam_sessions_table`
-13. `create_exam_question_attempts_table`
-14. `create_exam_answers_table`
-15. `create_exam_results_table`
-16. `create_notifications_log_table`
-17. `create_audit_logs_table`
-18. `create_product_events_table`
+3. `2026_04_23_095900_create_organizations_table` *(1.1a)*
+4. `2026_04_23_095901_create_courses_table` *(1.1a)*
+5. `2026_04_23_095902_create_learners_table` *(1.1a)*
+6. `create_telegram_groups_table` (+ `organization_id`, `course_id`) *(1.1a)*
+7. `create_teacher_groups_table`
+8. `create_students_table` *(удаляется в 1.1b)*
+9. `create_stages_table` (+ `course_id`, unique `(course_id, number)`) *(1.1a)*
+10. `create_lessons_table`
+11. `create_words_table` (+ `audio_path`, `is_active`) *(1.1a)*
+12. `create_word_repetitions_table`
+13. `create_training_sessions_table`
+14. `create_training_reviews_table`
+15. `create_exam_sessions_table`
+16. `create_exam_question_attempts_table`
+17. `create_exam_answers_table`
+18. `create_exam_results_table`
+19. `create_notifications_log_table`
+20. `create_audit_logs_table`
+21. `2026_04_23_100014_create_group_members_table` *(1.1a)*
+22. `2026_04_23_100015_create_word_translations_table` *(1.1a)*
+23. `2026_04_23_100016_create_learner_daily_stats_table` *(1.1a)*
+24. `2026_04_23_100017_create_subscriptions_table` *(1.1a)*
+25. `2026_04_23_100018_create_promo_codes_table` *(1.1a)*
+26. `2026_04_23_100019_create_promo_redemptions_table` *(1.1a)*
+27. `create_product_events_table`
+
+Правило: до первого прод-релиза история миграций правится на месте (все среды — `php artisan migrate:fresh --seed`);
+с первого прод-релиза — только forward-миграции.
 
 ## 4. Сидеры (для локальной разработки)
 
 - `DemoAdminSeeder` — создаёт админа `admin@local` / `password`.
 - `DemoTeacherSeeder` — создаёт учителя.
-- `DemoGroupSeeder` — тестовая группа со статусом `active`.
-- `DemoContentSeeder` — 2 stages × 3 lessons × 20 words (из JSON-fixture).
+- `DemoContentSeeder` — платформенный курс `default` (slug из `config('content.default_course_slug')`, `published`, `public`) и в нём 2 stages × 3 lessons × 20 words (из JSON-fixture). Запускается до `DemoGroupSeeder`.
+- `DemoGroupSeeder` — тестовая группа со статусом `active` и `course_id` = курс `default`.
 - `DemoStudentsSeeder` — 5 тестовых студентов.
 - `DemoRepetitionsSeeder` — разбрасывает состояния SM-2 так, чтобы у некоторых слов `next_review_at <= now()`.
 
