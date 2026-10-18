@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Operations\Services\SchedulerHeartbeat;
+use App\Models\ProductEvent;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -26,6 +27,9 @@ Schedule::command('exams:close-expired')
 Schedule::command('repetitions:notify')
     ->dailyAt('18:00')
     ->withoutOverlapping();
+
+// Retention of product_events (operations.product_events.retention_days).
+Schedule::command('model:prune', ['--model' => [ProductEvent::class]])->daily()->at('03:00');
 
 // Daily DB + storage backup via spatie/laravel-backup.
 Schedule::command('backup:clean')->daily()->at('01:00');

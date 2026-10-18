@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
+use Carbon\CarbonImmutable;
 
 /**
  * Append-only product analytics event. Written via ProductEventRecorder only.
@@ -17,10 +19,12 @@ use Illuminate\Support\Carbon;
  * @property int|null $telegram_group_id
  * @property int|null $user_id
  * @property array<string, bool|int|float|string|null> $props
- * @property Carbon $occurred_at
+ * @property CarbonImmutable $occurred_at
  */
 class ProductEvent extends Model
 {
+    use MassPrunable;
+
     public $timestamps = false;
 
     /** @var list<string> */
@@ -31,8 +35,21 @@ class ProductEvent extends Model
     {
         return [
             'props' => 'array',
-            'occurred_at' => 'datetime',
+            'occurred_at' => 'immutable_datetime',
         ];
+    }
+
+    /**
+     * Retention: events older than `operations.product_events.retention_days`
+     * are deleted by the scheduled `model:prune`.
+     *
+     * @return Builder<static>
+     */
+    public function prunable(): Builder
+    {
+        $days = max(1, (int) config('operations.product_events.retention_days', 400));
+
+        return static::query()->where('occurred_at', '<', now()->subDays($days));
     }
 
     /** @return BelongsTo<Student, $this> */

@@ -16,4 +16,14 @@ return [
         'queues' => [(string) env('TELEGRAM_QUEUE', 'high'), 'default'],
         'queue_max_size' => (int) env('READINESS_QUEUE_MAX_SIZE', 1000),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Product analytics events (product_events)
+    |--------------------------------------------------------------------------
+    */
+    'product_events' => [
+        // Older events are removed daily by `model:prune` (see routes/console.php).
+        'retention_days' => (int) env('PRODUCT_EVENTS_RETENTION_DAYS', 400),
+    ],
 ];
