@@ -10,10 +10,10 @@ import { t } from './index'
 export const KNOWN_ERROR_CODES = [
   'session_closed',
   'session_not_found',
-  'student_not_found',
+  'learner_not_found',
+  'learner_blocked',
+  'not_a_member',
   'group_inactive',
-  'group_mismatch',
-  'session_context_required',
   'invalid_init_data',
   'invalid_token',
   'missing_token',

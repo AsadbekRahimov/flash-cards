@@ -82,10 +82,10 @@ export const ru = {
   // ---- errors (by API error.code) ----
   'error.code.session_closed': 'Сессия уже закрыта.',
   'error.code.session_not_found': 'Сессия не найдена. Попросите учителя запустить её заново.',
-  'error.code.student_not_found': 'Ваш профиль не найден. Вступите в группу и попробуйте снова.',
+  'error.code.learner_not_found': 'Ваш профиль не найден. Откройте приложение заново из Telegram.',
+  'error.code.learner_blocked': 'Доступ к аккаунту ограничен. Обратитесь в поддержку.',
+  'error.code.not_a_member': 'Вы не состоите в этой группе. Вступите в группу и откройте ссылку снова.',
   'error.code.group_inactive': 'Группа не активирована. Обратитесь к учителю.',
-  'error.code.group_mismatch': 'Эта сессия относится к другой группе.',
-  'error.code.session_context_required': 'Откройте тренировку или экзамен по кнопке в группе.',
   'error.code.invalid_init_data': 'Не удалось подтвердить Telegram-сессию. Откройте приложение заново.',
   'error.code.invalid_token': 'Сессия устарела. Откройте приложение заново.',
   'error.code.missing_token': 'Вы не авторизованы. Откройте приложение заново из Telegram.',

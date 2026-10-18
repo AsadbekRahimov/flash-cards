@@ -9,7 +9,7 @@ export class ApiClientError extends Error {
     public readonly kind:
       | 'network'      // connectivity / CORS / fetch threw
       | 'unauthorized' // 401 — JWT invalid/expired
-      | 'forbidden'    // 403 — policy / group mismatch
+      | 'forbidden'    // 403 — policy / not a group member
       | 'gone'         // 410 — session closed
       | 'not_found'    // 404
       | 'conflict'     // 409 — already answered / results not ready yet

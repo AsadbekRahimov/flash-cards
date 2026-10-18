@@ -1,8 +1,8 @@
-export interface Student {
+export interface Learner {
   id: number
-  first_name: string
-  username?: string | null
-  telegram_group_id: number
+  first_name: string | null
+  locale: string
+  onboarding_completed: boolean
 }
 
 export interface AuthContext {
@@ -13,12 +13,12 @@ export interface AuthContext {
 export interface AuthResponse {
   token: string
   expires_in: number
-  student: Student
+  learner: Learner
 }
 
 export interface MeResponse {
-  student: Pick<Student, 'id' | 'first_name' | 'username'>
-  group: { id: number; title: string } | null
+  learner: Learner & { username: string | null }
+  groups: { id: number; title: string }[]
   stats: {
     words_learned: number
     words_due_today: number
@@ -125,7 +125,7 @@ export interface ExamLeaderboardEntry {
 }
 
 export interface ExamResultResponse {
-  student_score: number
+  learner_score: number
   rank: number | null
   total_participants: number
   leaderboard: ExamLeaderboardEntry[]

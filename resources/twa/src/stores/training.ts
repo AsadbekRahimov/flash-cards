@@ -8,7 +8,7 @@ export type TrainingStatus =
   | 'idle'          // initial
   | 'starting'      // POST /start in flight
   | 'loading'       // GET /next in flight
-  | 'ready'         // card visible, waiting for student input
+  | 'ready'         // card visible, waiting for learner input
   | 'submitting'    // POST /review in flight
   | 'finished'      // card === null after /next
   | 'closed'        // 410 Gone from server

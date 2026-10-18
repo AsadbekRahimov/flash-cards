@@ -23,7 +23,7 @@ describe('exam store — loadResults', () => {
 
   it('stores results on success', async () => {
     vi.mocked(api.exam.result).mockResolvedValue({
-      student_score: 42,
+      learner_score: 42,
       rank: 2,
       total_participants: 7,
       leaderboard: [{ rank: 1, name: 'Anna', score: 50 }],

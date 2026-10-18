@@ -12,7 +12,7 @@ export type ExamStatus =
   | 'idle'
   | 'joining'
   | 'loading'       // fetching next question
-  | 'answering'     // waiting for student to click an option
+  | 'answering'     // waiting for learner to click an option
   | 'submitting'    // POST /answer in flight
   | 'feedback'      // showing correct/incorrect highlight
   | 'finished'
@@ -165,7 +165,7 @@ export const useExamStore = defineStore('exam', {
       if (this.sessionId === null) return
       try {
         const res = await api.exam.result(this.sessionId)
-        this.finalScore = res.student_score
+        this.finalScore = res.learner_score
         this.finalRank = res.rank
         this.totalParticipants = res.total_participants
         this.leaderboard = res.leaderboard

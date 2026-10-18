@@ -72,10 +72,10 @@ export const uz: Translations = {
   // ---- errors (by API error.code) ----
   'error.code.session_closed': 'Sessiya allaqachon yopilgan.',
   'error.code.session_not_found': "Sessiya topilmadi. O'qituvchidan uni qaytadan boshlashini so'rang.",
-  'error.code.student_not_found': "Profilingiz topilmadi. Guruhga qo'shiling va qayta urinib ko'ring.",
+  'error.code.learner_not_found': 'Profilingiz topilmadi. Ilovani Telegram orqali qaytadan oching.',
+  'error.code.learner_blocked': "Akkauntga kirish cheklangan. Qo'llab-quvvatlash xizmatiga murojaat qiling.",
+  'error.code.not_a_member': "Siz bu guruh a'zosi emassiz. Guruhga qo'shiling va havolani qaytadan oching.",
   'error.code.group_inactive': "Guruh faollashtirilmagan. O'qituvchiga murojaat qiling.",
-  'error.code.group_mismatch': 'Bu sessiya boshqa guruhga tegishli.',
-  'error.code.session_context_required': "Mashg'ulot yoki imtihonni guruhdagi tugma orqali oching.",
   'error.code.invalid_init_data': "Telegram sessiyasini tasdiqlab bo'lmadi. Ilovani qaytadan oching.",
   'error.code.invalid_token': 'Sessiya eskirgan. Ilovani qaytadan oching.',
   'error.code.missing_token': 'Siz tizimga kirmagansiz. Ilovani Telegram orqali qaytadan oching.',
