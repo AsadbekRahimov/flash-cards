@@ -23,6 +23,9 @@ use Illuminate\Support\Facades\DB;
 final class TrainingSessionService
 {
     /**
+     * @param  string  $source  stored on a NEWLY created session only (`command`, `reminder`, ...);
+     *                          an already open session keeps the source it was created with.
+     *
      * @throws TrainingSessionException when the stage/lesson does not exist or
      *                                  the user does not teach the group.
      */
@@ -31,6 +34,7 @@ final class TrainingSessionService
         int $stageNumber,
         int $lessonNumber,
         User $teacher,
+        string $source = 'command',
     ): TrainingSession {
         if (! $this->userTeachesGroup($teacher, $group)) {
             throw TrainingSessionException::notTeacher();
@@ -57,7 +61,7 @@ final class TrainingSessionService
         }
 
         try {
-            return DB::transaction(function () use ($group, $lesson, $teacher): TrainingSession {
+            return DB::transaction(function () use ($group, $lesson, $teacher, $source): TrainingSession {
                 /** @var TrainingSession|null $existing */
                 $existing = TrainingSession::query()
                     ->where('telegram_group_id', $group->id)
@@ -76,7 +80,7 @@ final class TrainingSessionService
                     'lesson_id' => $lesson->id,
                     'started_by_user_id' => $teacher->id,
                     'mode' => 'group_lesson',
-                    'source' => 'command',
+                    'source' => $source,
                     'status' => 'open',
                     'started_at' => now(),
                 ]);

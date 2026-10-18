@@ -153,7 +153,8 @@ php artisan db:seed   # loads demo admin, teacher, 2 groups, 120 words, 5 learne
 
 > **Migration history (docs/12 §2.2).** Until the first production release the create-migrations are edited **in place**
 > (the learner-first schema replaced `students` that way), so every non-production environment — local, CI, the demo
-> stand — is rebuilt with `php artisan migrate:fresh --seed`; applying new code over an old database shows a
+> stand — is rebuilt with `php artisan migrate:fresh --seed` **followed by `php artisan cache:clear`** (Redis keeps
+> leaderboard keys of the old format); applying new code over an old database shows a
 > `migrate:status` mismatch (the `create_students_table` row has no file on disk). From the first production release on,
 > schema changes are **forward migrations only**.
 

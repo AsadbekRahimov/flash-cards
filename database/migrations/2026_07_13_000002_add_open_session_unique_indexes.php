@@ -39,7 +39,7 @@ return new class extends Migration
              WHERE status = 'open' AND mode = 'lesson'",
         );
 
-        // Shape invariant is duplicated in TrainingSessionService for other drivers.
+        // PostgreSQL-only; the shape invariant will be duplicated in the personal-session service (task 1.3a) for other drivers.
         if (DB::getDriverName() === 'pgsql') {
             DB::statement(
                 "ALTER TABLE training_sessions

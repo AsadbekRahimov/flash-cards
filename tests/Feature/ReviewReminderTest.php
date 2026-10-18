@@ -17,6 +17,7 @@ use App\Models\Lesson;
 use App\Models\NotificationLog;
 use App\Models\Stage;
 use App\Models\TelegramGroup;
+use App\Models\TrainingReview;
 use App\Models\TrainingSession;
 use App\Models\User;
 use App\Models\Word;
@@ -163,6 +164,44 @@ it('opens the reminder session in a group of the learner that has a teacher', fu
     $session = TrainingSession::query()->sole();
     expect($session->telegram_group_id)->toBe($withTeacher->id)
         ->and($url)->toBe("https://twa.test/twa/training/{$session->id}");
+});
+
+it('prefers the group where the learner already studied the due lesson and marks the session as a reminder', function (): void {
+    Config::set('twa.base_url', 'https://twa.test');
+
+    $first = TelegramGroup::factory()->create(['status' => 'active']);
+    $studied = TelegramGroup::factory()->create(['status' => 'active']);
+    foreach ([$first, $studied] as $i => $group) {
+        DB::table('teacher_groups')->insert([
+            'user_id' => User::factory()->create()->id,
+            'telegram_group_id' => $group->id,
+            'is_primary' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    }
+    $learner = Learner::factory()->memberOf($first)->memberOf($studied)->create();
+    $lesson = Lesson::factory()->for(Stage::factory()->create(['number' => 1]))->create(['number' => 1]);
+    $otherLesson = Lesson::factory()->for($lesson->stage)->create(['number' => 2]);
+    $word = Word::factory()->for($lesson)->create();
+    WordRepetition::factory()->due()->create(['learner_id' => $learner->id, 'word_id' => $word->id]);
+
+    // A review of ANOTHER lesson in the first group does not count; one of the due lesson in the second does.
+    TrainingReview::factory()->create([
+        'learner_id' => $learner->id,
+        'training_session_id' => TrainingSession::factory()->create(['telegram_group_id' => $first->id, 'lesson_id' => $otherLesson->id, 'status' => 'closed'])->id,
+    ]);
+    TrainingReview::factory()->create([
+        'learner_id' => $learner->id,
+        'training_session_id' => TrainingSession::factory()->create(['telegram_group_id' => $studied->id, 'lesson_id' => $lesson->id, 'status' => 'closed'])->id,
+    ]);
+
+    app(ReviewReminderLinkBuilder::class)->buildTrainingUrl($learner);
+
+    $session = TrainingSession::query()->where('status', 'open')->sole();
+    expect($session->telegram_group_id)->toBe($studied->id)
+        ->and($session->lesson_id)->toBe($lesson->id)
+        ->and($session->source)->toBe('reminder');
 });
 
 it('falls back to the TWA root when no group of the learner has a teacher', function (): void {

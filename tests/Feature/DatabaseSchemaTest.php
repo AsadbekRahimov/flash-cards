@@ -302,7 +302,7 @@ it('has the CHECK constraint on the shape of training_sessions by mode', functio
     expectConstraintViolation(fn () => DB::table('training_sessions')->insert([...$base, 'mode' => 'group_lesson']));
     expectConstraintViolation(fn () => DB::table('training_sessions')->insert([...$base, 'mode' => 'daily_review']));
     DB::table('training_sessions')->insert([...$base, 'mode' => 'daily_review', 'learner_id' => $learner->id]);
-})->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'The CHECK constraint is PostgreSQL-only; TrainingSessionService guards the shape elsewhere.');
+})->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'The CHECK constraint is PostgreSQL-only; the personal-session service (task 1.3a) will duplicate the shape invariant.');
 
 it('has partial index on word_repetitions for is_hard', function (): void {
     $exists = DB::selectOne(

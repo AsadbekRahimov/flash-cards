@@ -7,9 +7,12 @@ namespace App\Domain\Learning\Services;
 use App\Domain\Learners\Services\GroupMembershipService;
 use App\Domain\Learning\Support\DueRepetitionCriteria;
 use App\Models\Learner;
+use App\Models\TelegramGroup;
+use App\Models\TrainingReview;
 use App\Models\TrainingSession;
 use App\Models\User;
 use App\Models\WordRepetition;
+use Illuminate\Support\Collection;
 use Throwable;
 
 final class ReviewReminderLinkBuilder
@@ -51,8 +54,9 @@ final class ReviewReminderLinkBuilder
             throw new \RuntimeException('review_reminder_context_incomplete');
         }
 
-        // The session is opened on behalf of a teacher of one of the learner's active groups.
-        foreach ($this->memberships->activeGroups($learner) as $group) {
+        // The session is opened on behalf of a teacher of one of the learner's active groups,
+        // preferring a group where they already studied this lesson.
+        foreach ($this->groupsPreferringStudied($learner, (int) $lesson->id) as $group) {
             $teacher = $group->teachers()
                 ->orderByDesc('teacher_groups.is_primary')
                 ->first();
@@ -63,10 +67,33 @@ final class ReviewReminderLinkBuilder
                     (int) $stage->number,
                     (int) $lesson->number,
                     $teacher,
+                    source: 'reminder',
                 );
             }
         }
 
         throw new \RuntimeException('review_reminder_context_incomplete');
+    }
+
+    /**
+     * Active groups of the learner; those with group-lesson reviews of $lessonId by
+     * the learner come first (the rest keep their order).
+     *
+     * @return Collection<int, TelegramGroup>
+     */
+    private function groupsPreferringStudied(Learner $learner, int $lessonId): Collection
+    {
+        $studiedGroupIds = TrainingSession::query()
+            ->where('mode', 'group_lesson')
+            ->where('lesson_id', $lessonId)
+            ->whereIn('id', TrainingReview::query()
+                ->where('learner_id', $learner->id)
+                ->select('training_session_id'))
+            ->pluck('telegram_group_id')
+            ->all();
+
+        return $this->memberships->activeGroups($learner)
+            ->sortBy(fn (TelegramGroup $group): int => in_array($group->id, $studiedGroupIds, true) ? 0 : 1)
+            ->values();
     }
 }
