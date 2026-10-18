@@ -19,6 +19,7 @@ const routes: RouteRecordRaw[] = [
     props: (route) => ({
       reviewed: Number(route.query.reviewed ?? 0),
       nextInDays: Number(route.query.next ?? 0),
+      reason: typeof route.query.reason === 'string' ? route.query.reason : null,
     }),
   },
   {

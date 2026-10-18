@@ -6,6 +6,7 @@ import ProgressBar from '@/components/ProgressBar.vue'
 import { courseMeta } from '@/composables/courseLabels'
 import { useAuthStore } from '@/stores/auth'
 import { useCoursesStore } from '@/stores/courses'
+import { useTrainingStore } from '@/stores/training'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
 
@@ -14,10 +15,12 @@ const props = defineProps<{ slug: string }>()
 const router = useRouter()
 const auth = useAuthStore()
 const catalog = useCoursesStore()
+const training = useTrainingStore()
 const { showBackButton } = useTelegram()
 const { t } = useI18n()
 
 const { detail, status, selecting, errorMessage } = storeToRefs(catalog)
+const { opening, openError } = storeToRefs(training)
 
 let hideBack: (() => void) | null = null
 
@@ -28,6 +31,11 @@ async function load(): Promise<void> {
   } catch (err) {
     catalog.fail(err)
   }
+}
+
+async function learn(lessonId: number): Promise<void> {
+  const sessionId = await training.open({ mode: 'lesson', lesson_id: lessonId, source: 'picker' })
+  if (sessionId !== null) await router.push({ name: 'training', params: { sessionId } })
 }
 
 onMounted(() => {
@@ -68,6 +76,7 @@ onBeforeUnmount(() => {
           {{ t('catalog.progress', { done: detail.progress.done, total: detail.progress.total }) }}
         </p>
         <p v-if="errorMessage" class="text-sm text-red-600" data-testid="select-error">{{ errorMessage }}</p>
+        <p v-if="openError" class="text-sm text-red-600" data-testid="open-error">{{ openError }}</p>
         <button
           v-if="detail.is_active"
           type="button"
@@ -116,6 +125,15 @@ onBeforeUnmount(() => {
               </span>
             </div>
             <ProgressBar :done="lesson.progress.done" :total="lesson.progress.total" />
+            <button
+              type="button"
+              class="btn btn-primary w-full"
+              :disabled="opening || lesson.progress.total === 0"
+              data-testid="learn-btn"
+              @click="learn(lesson.id)"
+            >
+              {{ t('course.learn') }}
+            </button>
           </li>
         </ul>
       </section>

@@ -12,8 +12,10 @@ import type {
   ExamResultResponse,
   MeResponse,
   NextCardResponse,
+  OpenSessionRequest,
   Quality,
   ReviewResponse,
+  SessionSummary,
   TrainingStartResponse,
 } from './types'
 
@@ -56,10 +58,15 @@ export const api = {
     select: (slug: string) => client().post<Course>('/me/course', { slug }),
   },
   training: {
+    /** Opens (or returns the already open) personal session; answers like `start`. */
+    open: (body: OpenSessionRequest) =>
+      client().post<TrainingStartResponse>('/training/sessions', { ...body }),
     start: (sessionId: number) =>
       client().post<TrainingStartResponse>(`/training/sessions/${sessionId}/start`),
     next: (sessionId: number) =>
       client().get<NextCardResponse>(`/training/sessions/${sessionId}/next`),
+    finish: (sessionId: number) =>
+      client().post<SessionSummary>(`/training/sessions/${sessionId}/finish`),
     review: (
       sessionId: number,
       wordId: number,

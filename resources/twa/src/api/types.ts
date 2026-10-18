@@ -48,12 +48,37 @@ export interface LessonHeader {
   title: string | null
 }
 
+/** Why a session has no card to show (docs/04 A.3). `null`/absent while there is a card. */
+export type DoneReason = 'lesson_complete' | 'nothing_due' | 'new_quota_exhausted' | 'session_cap'
+
+export type TrainingMode = 'group_lesson' | 'lesson' | 'daily_review'
+
+/** Where a personal session was opened from (stored for analytics). */
+export type SessionSource = 'self' | 'picker' | 'reminder' | 'onboarding'
+
 export interface TrainingStartResponse {
   session_id: number
-  lesson: LessonHeader
+  mode: TrainingMode
+  /** null for `daily_review`: the scope spans every lesson. */
+  lesson: LessonHeader | null
   total_words: number
   card?: Card | null
   progress?: { done: number; total: number }
+  done_reason?: DoneReason | null
+}
+
+/** Body of POST /training/sessions. */
+export interface OpenSessionRequest {
+  mode: 'lesson' | 'daily_review'
+  lesson_id?: number
+  source?: SessionSource
+}
+
+/** Answer of POST /training/sessions/{id}/finish. */
+export interface SessionSummary {
+  reviewed: number
+  correct: number
+  new_words: number
 }
 
 /**
@@ -87,6 +112,7 @@ export interface Card {
 export interface NextCardResponse {
   card: Card | null
   progress: { done: number; total: number }
+  done_reason?: DoneReason | null
 }
 
 /**
@@ -104,6 +130,7 @@ export interface ReviewResponse {
   easiness_factor: number
   card?: Card | null
   progress?: { done: number; total: number }
+  done_reason?: DoneReason | null
 }
 
 export interface ApiError {

@@ -9,9 +9,11 @@ import type { Card } from '@/api/types'
 vi.mock('@/api', () => ({
   api: {
     training: {
+      open: vi.fn(),
       start: vi.fn(),
       next: vi.fn(),
       review: vi.fn(),
+      finish: vi.fn(),
     },
   },
 }))
@@ -37,6 +39,7 @@ describe('training store — learn-ahead serve_token', () => {
   it('echoes the serve_token of the card being graded and switches to the re-served card', async () => {
     vi.mocked(api.training.start).mockResolvedValue({
       session_id: 1,
+      mode: 'group_lesson',
       lesson: { stage: 1, lesson: 1, title: null },
       total_words: 1,
       card: card({ card_kind: 'new', serve_token: null }),
@@ -97,6 +100,7 @@ describe('training store — review rejected with card_not_due', () => {
   const startWithCard = async () => {
     vi.mocked(api.training.start).mockResolvedValue({
       session_id: 1,
+      mode: 'group_lesson',
       lesson: { stage: 1, lesson: 1, title: null },
       total_words: 2,
       card: card({}),
@@ -203,5 +207,177 @@ describe('training store — localized errors', () => {
     await store.start(1)
     expect(store.status).toBe('error')
     expect(store.errorMessage).toBe('Непредвиденная ошибка.')
+  })
+})
+
+describe('training store — personal sessions', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+  })
+
+  afterEach(() => setLocale('ru'))
+
+  const card: Card = {
+    word_id: 7,
+    word: 'Resilient',
+    translation: 'Устойчивый',
+    translation_fallback: false,
+    example: null,
+    transcription: null,
+    card_kind: 'due',
+    serve_token: null,
+  }
+
+  it('opens a session and returns its id', async () => {
+    vi.mocked(api.training.open).mockResolvedValue({
+      session_id: 42,
+      mode: 'lesson',
+      lesson: { stage: 1, lesson: 2, title: null },
+      total_words: 3,
+      card,
+      progress: { done: 0, total: 3 },
+      done_reason: null,
+    })
+
+    const store = useTrainingStore()
+    const id = await store.open({ mode: 'lesson', lesson_id: 11, source: 'picker' })
+
+    expect(id).toBe(42)
+    expect(api.training.open).toHaveBeenCalledWith({ mode: 'lesson', lesson_id: 11, source: 'picker' })
+    expect(store.opening).toBe(false)
+    expect(store.openError).toBe('')
+  })
+
+  it('explains an open failure in the active language and returns null', async () => {
+    vi.mocked(api.training.open).mockRejectedValue(
+      new ApiClientError('not_found', 404, 'lesson_not_found', 'Training lesson not found.'),
+    )
+
+    const store = useTrainingStore()
+    expect(await store.open({ mode: 'lesson', lesson_id: 11 })).toBeNull()
+    expect(store.openError).toBe('Урок не найден.')
+
+    vi.mocked(api.training.open).mockRejectedValue(
+      new ApiClientError('validation', 422, 'lesson_mismatch', 'A lesson session needs a lesson.'),
+    )
+    setLocale('uz')
+    await store.open({ mode: 'lesson' })
+    expect(store.openError).toBe('Bu rejim tanlangan darsga mos kelmaydi.')
+    expect(store.opening).toBe(false)
+  })
+
+  it('ignores a second open while one is in flight', async () => {
+    let resolve: (v: Awaited<ReturnType<typeof api.training.open>>) => void = () => {}
+    vi.mocked(api.training.open).mockReturnValue(new Promise((r) => (resolve = r)))
+
+    const store = useTrainingStore()
+    const first = store.open({ mode: 'daily_review' })
+    expect(await store.open({ mode: 'daily_review' })).toBeNull()
+    resolve({ session_id: 5, mode: 'daily_review', lesson: null, total_words: 10 })
+
+    expect(await first).toBe(5)
+    expect(api.training.open).toHaveBeenCalledTimes(1)
+  })
+
+  it('starts a daily review with lesson: null, keeps the done reason and clamps progress to the goal', async () => {
+    vi.mocked(api.training.start).mockResolvedValue({
+      session_id: 5,
+      mode: 'daily_review',
+      lesson: null,
+      total_words: 10,
+      card,
+      progress: { done: 12, total: 10 },
+      done_reason: null,
+    })
+    vi.mocked(api.training.review).mockResolvedValue({
+      next_review_at: null,
+      new_interval_days: 3,
+      easiness_factor: 2.5,
+      card: null,
+      progress: { done: 13, total: 10 },
+      done_reason: 'new_quota_exhausted',
+    })
+
+    const store = useTrainingStore()
+    await store.start(5)
+    expect(store.mode).toBe('daily_review')
+    expect(store.lesson).toBeNull()
+    expect(store.progress).toEqual({ done: 10, total: 10 })
+
+    await store.submitReview(4)
+    expect(store.status).toBe('finished')
+    expect(store.doneReason).toBe('new_quota_exhausted')
+    expect(store.progress).toEqual({ done: 10, total: 10 })
+  })
+
+  it('takes done_reason from /next and resets it with a new session', async () => {
+    vi.mocked(api.training.start).mockResolvedValue({
+      session_id: 6, mode: 'lesson', lesson: { stage: 1, lesson: 1, title: null }, total_words: 2,
+    })
+    vi.mocked(api.training.next).mockResolvedValue({
+      card: null,
+      progress: { done: 2, total: 2 },
+      done_reason: 'lesson_complete',
+    })
+
+    const store = useTrainingStore()
+    await store.start(6)
+    expect(store.status).toBe('finished')
+    expect(store.doneReason).toBe('lesson_complete')
+
+    store.resetForSession(7)
+    expect(store.doneReason).toBeNull()
+    expect(store.summary).toBeNull()
+  })
+
+  it('finalize closes a personal session and keeps the server summary', async () => {
+    vi.mocked(api.training.start).mockResolvedValue({
+      session_id: 5, mode: 'daily_review', lesson: null, total_words: 10, card: null, progress: { done: 0, total: 10 },
+      done_reason: 'nothing_due',
+    })
+    vi.mocked(api.training.finish).mockResolvedValue({ reviewed: 8, correct: 6, new_words: 2 })
+
+    const store = useTrainingStore()
+    await store.start(5)
+    await store.finalize()
+
+    expect(api.training.finish).toHaveBeenCalledWith(5)
+    expect(store.summary).toEqual({ reviewed: 8, correct: 6, new_words: 2 })
+  })
+
+  it('finalize never closes a group session and survives a failing finish', async () => {
+    vi.mocked(api.training.start).mockResolvedValue({
+      session_id: 1, mode: 'group_lesson', lesson: { stage: 1, lesson: 1, title: null }, total_words: 1, card: null,
+      progress: { done: 1, total: 1 }, done_reason: 'lesson_complete',
+    })
+    const store = useTrainingStore()
+    await store.start(1)
+    await store.finalize()
+    expect(api.training.finish).not.toHaveBeenCalled()
+    expect(store.summary).toBeNull()
+
+    vi.mocked(api.training.start).mockResolvedValue({
+      session_id: 2, mode: 'lesson', lesson: { stage: 1, lesson: 1, title: null }, total_words: 1, card: null,
+      progress: { done: 1, total: 1 }, done_reason: 'lesson_complete',
+    })
+    vi.mocked(api.training.finish).mockRejectedValue(new ApiClientError('network', 0, 'unknown', 'fetch failed'))
+    await store.start(2)
+    await store.finalize()
+    expect(api.training.finish).toHaveBeenCalledWith(2)
+    expect(store.summary).toBeNull()
+  })
+
+  it('explains out_of_scope in both languages', async () => {
+    vi.mocked(api.training.start).mockRejectedValue(
+      new ApiClientError('validation', 422, 'out_of_scope', 'Word is outside the scope.'),
+    )
+    const store = useTrainingStore()
+    await store.start(1)
+    expect(store.errorMessage).toBe('Это слово не относится к этой тренировке.')
+
+    setLocale('uz')
+    await store.start(1)
+    expect(store.errorMessage).toBe("Bu so'z ushbu mashg'ulotga tegishli emas.")
   })
 })

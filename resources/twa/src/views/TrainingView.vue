@@ -17,7 +17,7 @@ const training = useTrainingStore()
 const { close, showBackButton } = useTelegram()
 const { t } = useI18n()
 
-const { status, card, progress, lesson, errorMessage } = storeToRefs(training)
+const { status, card, progress, lesson, mode, errorMessage } = storeToRefs(training)
 
 const isBusy = computed(() => status.value === 'submitting' || status.value === 'loading')
 const showSpinner = computed(() =>
@@ -52,11 +52,14 @@ async function onGrade(q: Quality): Promise<void> {
 }
 
 async function redirectToFinished(): Promise<void> {
+  await training.finalize()
   await router.replace({
     name: 'finished',
     query: {
-      reviewed: String(training.reviewedCount),
+      // The server counts the whole personal session, also what was graded before this visit.
+      reviewed: String(training.summary?.reviewed ?? training.reviewedCount),
       next: String(training.lastIntervalDays),
+      ...(training.doneReason ? { reason: training.doneReason } : {}),
     },
   })
 }
@@ -74,6 +77,9 @@ function onRetry(): void {
       </div>
       <div v-if="lesson" class="text-sm font-semibold">
         {{ t('training.lesson_header', { stage: lesson.stage ?? '—', lesson: lesson.lesson }) }}
+      </div>
+      <div v-else-if="mode === 'daily_review'" class="text-sm font-semibold" data-testid="daily-header">
+        {{ t('training.daily_header') }}
       </div>
       <button
         type="button"

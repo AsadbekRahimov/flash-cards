@@ -15,6 +15,9 @@ vi.mock('@/api', () => ({
       get: vi.fn(),
       select: vi.fn(),
     },
+    training: {
+      open: vi.fn(),
+    },
   },
 }))
 
@@ -55,11 +58,12 @@ async function render(slug = 'english-a1') {
     history: createMemoryHistory(),
     routes: [
       { path: '/courses', name: 'courses', component: { template: '<div />' } },
+      { path: '/training/:sessionId(\\d+)', name: 'training', component: { template: '<div />' } },
     ],
   })
   const wrapper = mount(CourseView, { props: { slug }, global: { plugins: [router] } })
   await flushPromises()
-  return wrapper
+  return { wrapper, router }
 }
 
 describe('CourseView', () => {
@@ -72,7 +76,7 @@ describe('CourseView', () => {
   it('loads the course by slug and shows stages with lesson progress', async () => {
     vi.mocked(api.courses.get).mockResolvedValue(detail())
 
-    const wrapper = await render()
+    const { wrapper } = await render()
 
     expect(api.courses.get).toHaveBeenCalledWith('english-a1')
     expect(wrapper.get('[data-testid=title]').text()).toBe('Английский A1')
@@ -92,14 +96,54 @@ describe('CourseView', () => {
     expect(untitled.text()).not.toContain('·')
   })
 
-  it('does not offer to start a lesson yet', async () => {
+  it('offers to learn every lesson that has words', async () => {
+    vi.mocked(api.courses.get).mockResolvedValue(detail({
+      stages: [{
+        number: 1, title: 'Basics', progress: { done: 0, total: 3 },
+        lessons: [
+          { id: 11, number: 1, title: 'Greetings', progress: { done: 2, total: 3 } },
+          { id: 12, number: 2, title: null, progress: { done: 0, total: 0 } },
+        ],
+      }],
+    }))
+
+    const { wrapper } = await render()
+
+    const learn = wrapper.get('[data-testid=lesson-11]').get('[data-testid=learn-btn]')
+    expect(learn.text()).toBe('Учить')
+    expect(learn.attributes('disabled')).toBeUndefined()
+    // An empty lesson has nothing to learn.
+    expect(wrapper.get('[data-testid=lesson-12]').get('[data-testid=learn-btn]').attributes('disabled')).toBeDefined()
+  })
+
+  it('opens a personal lesson session from the picker and goes to the training screen', async () => {
     vi.mocked(api.courses.get).mockResolvedValue(detail())
+    vi.mocked(api.training.open).mockResolvedValue({
+      session_id: 77, mode: 'lesson', lesson: { stage: 1, lesson: 2, title: null }, total_words: 2,
+    })
 
-    const wrapper = await render()
+    const { wrapper, router } = await render()
+    await wrapper.get('[data-testid=lesson-12]').get('[data-testid=learn-btn]').trigger('click')
+    await flushPromises()
 
-    // Only the "choose course" button exists; lessons have no action (personal sessions arrive in 1.3a).
-    expect(wrapper.findAll('button')).toHaveLength(1)
-    expect(wrapper.get('[data-testid=lesson-11]').find('button').exists()).toBe(false)
+    expect(api.training.open).toHaveBeenCalledWith({ mode: 'lesson', lesson_id: 12, source: 'picker' })
+    expect(router.currentRoute.value.name).toBe('training')
+    expect(router.currentRoute.value.params.sessionId).toBe('77')
+  })
+
+  it('stays on the course and explains why a lesson could not be opened', async () => {
+    vi.mocked(api.courses.get).mockResolvedValue(detail())
+    vi.mocked(api.training.open).mockRejectedValue(
+      new ApiClientError('not_found', 404, 'lesson_not_found', 'Training lesson not found.'),
+    )
+
+    const { wrapper, router } = await render()
+    await router.push('/courses')
+    await wrapper.get('[data-testid=lesson-11]').get('[data-testid=learn-btn]').trigger('click')
+    await flushPromises()
+
+    expect(router.currentRoute.value.name).toBe('courses')
+    expect(wrapper.get('[data-testid=open-error]').text()).toBe('Урок не найден.')
   })
 
   it('selects the course and flips the button to the active mark', async () => {
@@ -109,7 +153,7 @@ describe('CourseView', () => {
       words_count: 6, is_featured: false, is_active: true, progress: { done: 2, total: 5 },
     } satisfies Course)
 
-    const wrapper = await render()
+    const { wrapper } = await render()
     await wrapper.get('[data-testid=choose-btn]').trigger('click')
     await flushPromises()
 
@@ -121,7 +165,7 @@ describe('CourseView', () => {
   it('shows the active mark for the active course', async () => {
     vi.mocked(api.courses.get).mockResolvedValue(detail({ is_active: true }))
 
-    const wrapper = await render()
+    const { wrapper } = await render()
 
     expect(wrapper.find('[data-testid=choose-btn]').exists()).toBe(false)
     expect(wrapper.find('[data-testid=active-badge]').exists()).toBe(true)
@@ -130,7 +174,7 @@ describe('CourseView', () => {
   it('shows a placeholder for a course without lessons', async () => {
     vi.mocked(api.courses.get).mockResolvedValue(detail({ stages: [], progress: { done: 0, total: 0 } }))
 
-    const wrapper = await render()
+    const { wrapper } = await render()
 
     expect(wrapper.get('[data-testid=no-lessons]').text()).toBe('В курсе пока нет уроков.')
   })
@@ -140,7 +184,7 @@ describe('CourseView', () => {
       new ApiClientError('not_found', 404, 'course_not_found', 'Course not found.'),
     )
 
-    const wrapper = await render('gone')
+    const { wrapper } = await render('gone')
 
     expect(wrapper.get('[data-testid=error]').text()).toContain('Курс не найден или недоступен.')
     expect(wrapper.find('[data-testid=title]').exists()).toBe(false)
@@ -150,11 +194,12 @@ describe('CourseView', () => {
     setLocale('uz')
     vi.mocked(api.courses.get).mockResolvedValue(detail())
 
-    const wrapper = await render()
+    const { wrapper } = await render()
 
     expect(wrapper.get('[data-testid=stage-1]').text()).toContain('1-modul')
     expect(wrapper.get('[data-testid=lesson-11]').text()).toContain('1-dars · Greetings')
     expect(wrapper.get('[data-testid=progress-text]').text()).toBe("5 tadan 2 tasi o'rganildi")
     expect(wrapper.get('[data-testid=choose-btn]').text()).toBe('Tanlash')
+    expect(wrapper.get('[data-testid=lesson-11]').get('[data-testid=learn-btn]').text()).toBe("O'rganish")
   })
 })
