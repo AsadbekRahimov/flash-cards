@@ -24,7 +24,9 @@ return [
     'recovery' => [
         'title' => 'Tiklash kodlari',
         'heading' => "Tiklash kodlarini saqlab qo'ying",
-        'intro' => "Har bir kod <strong>faqat bir marta</strong> amal qiladi. Telefoningizni yo'qotsangiz, ulardan foydalaning. Kodlarni parollar menejerida saqlang.",
+        // `:emphasis` is replaced in the view by an escaped, <strong>-wrapped `intro_emphasis`.
+        'intro' => "Har bir kod :emphasis amal qiladi. Telefoningizni yo'qotsangiz, ulardan foydalaning. Kodlarni parollar menejerida saqlang.",
+        'intro_emphasis' => 'faqat bir marta',
         'to_admin' => "→ Admin panelga o'tish",
     ],
 

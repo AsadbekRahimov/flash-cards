@@ -9,7 +9,8 @@
 <body>
 <div class="card">
     <h1>{{ __('twofactor.recovery.heading', [], $locale) }}</h1>
-    <p>{!! __('twofactor.recovery.intro', [], $locale) !!}</p>
+    @php($intro = explode(':emphasis', __('twofactor.recovery.intro', [], $locale), 2))
+    <p>{{ $intro[0] }}<strong>{{ __('twofactor.recovery.intro_emphasis', [], $locale) }}</strong>{{ $intro[1] ?? '' }}</p>
 
     <ul class="codes">
         @foreach ($codes as $code)
