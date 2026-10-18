@@ -18,7 +18,16 @@ const emit = defineEmits<{
 const { speak } = useTts()
 const { haptic, selectionHaptic } = useTelegram()
 
-const kindLabel = computed(() => (props.card.card_kind === 'new' ? 'Новое слово' : 'Повторение'))
+const kindLabel = computed(() => {
+  switch (props.card.card_kind) {
+    case 'new':
+      return 'Новое слово'
+    case 'learning':
+      return 'Закрепление'
+    default:
+      return 'Повторение'
+  }
+})
 
 function onSpeak(): void {
   selectionHaptic()
@@ -94,7 +103,7 @@ function onGrade(q: Quality): void {
           class="btn btn-secondary flex-col py-4"
           data-testid="grade-medium"
           :disabled="disabled"
-          @click="onGrade(3)"
+          @click="onGrade(4)"
         >
           <span class="text-2xl">🙂</span>
           <span class="text-xs mt-1">Средне</span>
