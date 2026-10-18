@@ -53,12 +53,21 @@ final class SiteLinks
     /** Absolute URL of a public page (`home|offer|privacy`) in an explicit locale. */
     public function pageUrl(string $page, string $locale): string
     {
-        return route("site.{$page}.localized", ['locale' => $locale]);
+        return $this->absolute(route("site.{$page}.localized", ['locale' => $locale], false));
     }
 
     /** URL of the unprefixed variant (language negotiated from `Accept-Language`). */
     public function defaultUrl(string $page): string
     {
-        return route("site.{$page}");
+        return $this->absolute(route("site.{$page}", [], false));
+    }
+
+    /**
+     * Canonical / hreflang / internal links are built from `APP_URL`, never from the Host of the request:
+     * the pages are cacheable and indexable, and a forged `Host` must not poison them.
+     */
+    private function absolute(string $path): string
+    {
+        return rtrim((string) config('app.url'), '/').$path;
     }
 }

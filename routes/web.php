@@ -6,6 +6,7 @@ use App\Http\Controllers\PublicSiteController;
 use App\Http\Controllers\ReadinessController;
 use App\Http\Controllers\Telegram\WebhookController;
 use App\Http\Controllers\TwoFactorController;
+use App\Http\Middleware\StaticPageCsp;
 use App\Http\Middleware\TelegramIpAllowlist;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -17,6 +18,7 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 // Public site (landing, offer, privacy): static pages, so no session / cookies / CSRF.
 // `/page` negotiates the language from Accept-Language (ru default); `/{locale}/page` is explicit.
 Route::withoutMiddleware([EncryptCookies::class, AddQueuedCookiesToResponse::class, StartSession::class, ShareErrorsFromSession::class, VerifyCsrfToken::class])
+    ->middleware(StaticPageCsp::class)
     ->group(function (): void {
         $locales = implode('|', array_map(preg_quote(...), (array) config('localization.supported', ['ru'])));
 

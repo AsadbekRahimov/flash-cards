@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Site\Services\SiteLinks;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Route;
 
 beforeEach(function (): void {
     Config::set('telegram.bot_username', 'lexiflow_test_bot');
@@ -107,10 +108,47 @@ it('applies security headers and CSP to every public page', function (string $ur
     $response->assertHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     $response->assertHeader('X-Frame-Options', 'SAMEORIGIN');
 
+    // Static pages run no script at all; every other directive is the same as for the rest of the app.
     expect($response->headers->get('Content-Security-Policy'))
         ->toContain("default-src 'self'")
+        ->toContain("script-src 'none'")
+        ->not->toContain("'unsafe-inline' 'unsafe-eval'")
+        ->toContain("style-src 'self' 'unsafe-inline'")
         ->toContain("frame-ancestors 'self'");
 })->with(['/', '/offer', '/privacy', '/ru', '/uz', '/uz/offer', '/uz/privacy']);
+
+it('does not weaken or change the CSP of the rest of the app', function (): void {
+    $this->get('/up')->assertOk();
+
+    Route::get('/_csp_other', fn () => response('<html></html>')->header('Content-Type', 'text/html; charset=UTF-8'));
+
+    expect($this->get('/_csp_other')->headers->get('Content-Security-Policy'))
+        ->toContain("script-src 'self' 'unsafe-inline' 'unsafe-eval'")
+        ->not->toContain("script-src 'none'");
+});
+
+it('builds canonical, hreflang and internal links from APP_URL, never from the Host header', function (string $url): void {
+    Config::set('app.url', 'https://lexiflow.example');
+
+    $html = $this->get('http://evil.example'.$url, ['Host' => 'evil.example'])->assertOk()->getContent();
+
+    expect($html)->not->toContain('evil.example')
+        ->and($html)->toContain('<link rel="canonical" href="https://lexiflow.example/')
+        ->and($html)->toContain('hreflang="x-default" href="https://lexiflow.example/')
+        ->and($html)->toContain('<meta property="og:url" content="https://lexiflow.example/');
+})->with(['/', '/uz', '/offer', '/uz/privacy']);
+
+it('keeps the APP_URL links exact', function (): void {
+    Config::set('app.url', 'https://lexiflow.example/');
+
+    $html = $this->get('/uz/privacy', ['Host' => 'evil.example'])->getContent();
+
+    expect($html)
+        ->toContain('<link rel="canonical" href="https://lexiflow.example/uz/privacy">')
+        ->toContain('hreflang="ru" href="https://lexiflow.example/ru/privacy"')
+        ->toContain('hreflang="uz" href="https://lexiflow.example/uz/privacy"')
+        ->toContain('hreflang="x-default" href="https://lexiflow.example/privacy"');
+});
 
 it('sends HSTS over HTTPS on the landing', function (): void {
     expect($this->get('https://localhost/uz')->headers->get('Strict-Transport-Security'))
