@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Operations\Services\SchedulerHeartbeat;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -9,6 +10,11 @@ use Illuminate\Support\Facades\Schedule;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+// Liveness marker for GET /health/ready: stale heartbeat (> 3 min) = scheduler is down.
+Schedule::call(fn () => app(SchedulerHeartbeat::class)->beat())
+    ->name('ops:scheduler-heartbeat')
+    ->everyMinute();
 
 // Close exams whose `ends_at` passed more than a minute ago and post the
 // group leaderboard. See CloseExpiredExams for idempotency guarantees.
