@@ -45,4 +45,14 @@ final class TrainingSessionPolicy
     {
         return $this->canAccess($learner, $session) && $session->status === 'open';
     }
+
+    /**
+     * May the learner close this session (`POST /finish`)? Only the owner of a
+     * personal session; group sessions are closed by the scheduler, never by a learner.
+     * Does not require the session to be open — finish() is idempotent.
+     */
+    public function canFinish(Learner $learner, TrainingSession $session): bool
+    {
+        return $session->mode !== TrainingSession::MODE_GROUP_LESSON && $this->canAccess($learner, $session);
+    }
 }

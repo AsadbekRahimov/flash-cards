@@ -22,7 +22,9 @@ use Illuminate\Database\Eloquent\Model;
  *
  * Fresh in-session steps (minutes old) and `new` rows (card shown, never
  * answered) are deliberately excluded: they belong to the session the
- * learner is in, not to "N words to review".
+ * learner is in, not to "N words to review". Repetitions of inactive words
+ * (`words.is_active = false`) are excluded too: the picker never serves them,
+ * so a reminder about them could not be acted upon.
  */
 final class DueRepetitionCriteria
 {
@@ -41,6 +43,8 @@ final class DueRepetitionCriteria
     {
         $now ??= CarbonImmutable::now();
         $abandonedBefore = $now->subHours($this->policy->abandonedAfterHours);
+
+        $query->whereHas('word', fn (Builder $word) => $word->where('is_active', true));
 
         return $query->where(function (Builder $q) use ($now, $abandonedBefore): void {
             $q->where(function (Builder $graduated) use ($now): void {

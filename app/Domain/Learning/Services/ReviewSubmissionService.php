@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Domain\Learning\Services;
 
+use App\Domain\Learners\Services\DailyStatsService;
+use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Learning\Exceptions\ReviewSubmissionException;
 use App\Domain\Learning\Support\LearningPolicy;
+use App\Domain\Learning\Support\TrainingScope;
 use App\Models\Learner;
 use App\Models\TrainingReview;
 use App\Models\TrainingSession;
@@ -16,6 +19,14 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Atomically applies a learner's grade to a card inside an open session.
+ *
+ * Checks, in order (docs/06 §5.1): session open (410 `session_closed`) → the
+ * repetition row exists (409 `card_not_started`) → the word is inside the
+ * session's TrainingScope (422 `out_of_scope`) → the card may be graded now
+ * (409 `card_not_due`). Then SM-2 is applied, the grade is logged in
+ * `training_reviews` and the day's aggregate is updated through
+ * DailyStatsService::recordReview — all in ONE transaction, so a failure in any
+ * step leaves no partial state.
  *
  * Double-submit protection: a card may be graded only if it is due
  * (`next_review_at <= now`) or if CardPicker served it early (learn-ahead)
@@ -30,6 +41,7 @@ final class ReviewSubmissionService
     public function __construct(
         private readonly SpacedRepetitionEngine $engine,
         private readonly LearningPolicy $policy,
+        private readonly DailyStatsService $dailyStats,
     ) {}
 
     /**
@@ -87,11 +99,11 @@ final class ReviewSubmissionService
                 );
             }
 
-            if ((int) $repetition->word->lesson_id !== (int) $lockedSession->lesson_id) {
+            if (! TrainingScope::forSession($lockedSession)->contains($repetition->word)) {
                 throw new ReviewSubmissionException(
                     422,
-                    'wrong_lesson',
-                    'Word does not belong to this session lesson.',
+                    'out_of_scope',
+                    'Word is outside the scope of this training session.',
                 );
             }
 
@@ -103,6 +115,9 @@ final class ReviewSubmissionService
                 );
             }
 
+            // First grade of a card that was only served so far (docs/12 §3.3).
+            $isNewCard = $repetition->state === RepetitionState::New;
+
             $this->engine->applyReview($repetition, $quality, $now);
 
             TrainingReview::query()->create([
@@ -113,6 +128,8 @@ final class ReviewSubmissionService
                 'time_spent_ms' => $timeSpentMs,
                 'created_at' => $now,
             ]);
+
+            $this->dailyStats->recordReview($learner, $quality, $timeSpentMs, $isNewCard, $now);
 
             return $repetition;
         });

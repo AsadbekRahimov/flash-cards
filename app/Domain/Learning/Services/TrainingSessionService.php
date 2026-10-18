@@ -5,20 +5,32 @@ declare(strict_types=1);
 namespace App\Domain\Learning\Services;
 
 use App\Domain\Content\Services\CourseCatalogService;
+use App\Domain\Learning\DTO\SessionSummary;
 use App\Domain\Learning\Exceptions\TrainingSessionException;
+use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\TelegramGroup;
 use App\Models\TrainingSession;
 use App\Models\User;
+use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
+use LogicException;
 
 /**
- * Opens and closes training sessions bound to (telegram_group, lesson, teacher).
+ * Opens and closes training sessions (docs/12 §1.4, §3.3, §7.6).
  *
- * A single (group, lesson) pair can have at most one `open` session at a time;
- * if one already exists, it is returned as-is so the teacher's `/start_training`
- * command is idempotent.
+ * Group sessions (`group_lesson`) are bound to (telegram_group, lesson, teacher);
+ * personal sessions (`lesson`, `daily_review`) to a learner. Each kind has at most
+ * one `open` row per key — the partial unique indexes
+ * `training_sessions_one_open_per_group_lesson_unique`, `..._one_open_lesson_per_learner`
+ * and `..._one_open_daily_per_learner` are the source of truth, and every open path
+ * is idempotent: an existing open session is returned, a lost INSERT race re-reads
+ * the winner's row.
+ *
+ * The `mode_shape` invariant (group session ⇒ group and lesson; personal ⇒ learner)
+ * is enforced here for every driver and additionally by a PostgreSQL CHECK.
  */
 final class TrainingSessionService
 {
@@ -74,6 +86,190 @@ final class TrainingSessionService
         return $this->openLesson($group, $lesson, $teacher, $source);
     }
 
+    /**
+     * Opens (or returns) the learner's personal session (docs/12 §7.6).
+     *
+     *   - `lesson`: one open session per (learner, lesson); the lesson's course must be published.
+     *   - `daily_review`: one open session per learner; `course_id` is a snapshot of the
+     *     learner's `active_course_id` (where new words come from) and is refreshed on re-open.
+     *
+     * Idempotent: an open, unexpired session is returned as-is. An open session whose
+     * `expires_at` has passed (the scheduler has not run yet) is closed with
+     * `done_reason = expired` and replaced. Two concurrent calls end up with one session.
+     *
+     * @param  string  $mode  `lesson` | `daily_review`
+     * @param  string  $source  `self` | `picker` | `reminder` | `onboarding` (new sessions only)
+     *
+     * @throws TrainingSessionException invalid_mode | lesson_mismatch | lesson_not_available
+     */
+    public function openPersonal(
+        Learner $learner,
+        string $mode,
+        ?Lesson $lesson = null,
+        string $source = 'self',
+        ?CarbonImmutable $now = null,
+    ): TrainingSession {
+        $now ??= CarbonImmutable::now();
+
+        if (! in_array($mode, [TrainingSession::MODE_LESSON, TrainingSession::MODE_DAILY_REVIEW], true)) {
+            throw TrainingSessionException::invalidMode($mode);
+        }
+
+        if ($mode === TrainingSession::MODE_LESSON) {
+            if ($lesson === null) {
+                throw TrainingSessionException::lessonRequired();
+            }
+            $this->assertLessonAvailable($lesson);
+        } elseif ($lesson !== null) {
+            throw TrainingSessionException::lessonNotAllowed();
+        }
+
+        $attributes = [
+            'learner_id' => $learner->id,
+            'mode' => $mode,
+            'lesson_id' => $lesson?->id,
+            'course_id' => $mode === TrainingSession::MODE_DAILY_REVIEW ? $learner->active_course_id : null,
+            'telegram_group_id' => null,
+            'started_by_user_id' => null,
+            'source' => $source,
+            'status' => 'open',
+            'started_at' => $now,
+            'expires_at' => $now->addHours($this->sessionTtlHours()),
+        ];
+        self::assertModeShape($attributes);
+
+        try {
+            return DB::transaction(function () use ($learner, $mode, $lesson, $attributes, $now): TrainingSession {
+                /** @var TrainingSession|null $existing */
+                $existing = $this->openPersonalQuery($learner, $mode, $lesson)->lockForUpdate()->first();
+
+                if ($existing !== null) {
+                    if ($existing->expires_at === null || $existing->expires_at->isAfter($now)) {
+                        if ($mode === TrainingSession::MODE_DAILY_REVIEW
+                            && (int) $existing->course_id !== (int) $learner->active_course_id) {
+                            $existing->update(['course_id' => $learner->active_course_id]);
+                        }
+
+                        return $existing;
+                    }
+
+                    // Expired but not yet closed by the scheduler: close it, open a fresh one.
+                    $existing->update([
+                        'status' => 'closed',
+                        'ended_at' => $existing->expires_at,
+                        'done_reason' => TrainingSession::DONE_EXPIRED,
+                    ]);
+                }
+
+                return TrainingSession::query()->create($attributes);
+            });
+        } catch (UniqueConstraintViolationException) {
+            // Lost the race against a parallel open: the winner's row satisfies the request.
+            return $this->openPersonalQuery($learner, $mode, $lesson)->firstOrFail();
+        }
+    }
+
+    /**
+     * Closes a personal session (idempotent) and summarises what the learner did in it.
+     *
+     * @param  string  $reason  `done_reason` to store: `finished` (default) | `expired`
+     *
+     * @throws TrainingSessionException not_personal for a group session
+     */
+    public function finish(
+        TrainingSession $session,
+        string $reason = TrainingSession::DONE_FINISHED,
+        ?CarbonImmutable $now = null,
+    ): SessionSummary {
+        $now ??= CarbonImmutable::now();
+
+        if ($session->mode === TrainingSession::MODE_GROUP_LESSON) {
+            throw TrainingSessionException::notPersonal();
+        }
+
+        return DB::transaction(function () use ($session, $reason, $now): SessionSummary {
+            /** @var TrainingSession $locked */
+            $locked = TrainingSession::query()->lockForUpdate()->findOrFail($session->id);
+
+            $wasOpen = $locked->status === 'open';
+            if ($wasOpen) {
+                $locked->update([
+                    'status' => 'closed',
+                    'ended_at' => $now,
+                    'done_reason' => $reason,
+                ]);
+            }
+
+            return $this->summarise($locked, $wasOpen);
+        });
+    }
+
+    /**
+     * Scheduler (`training:close-expired`, every 15 min): closes personal sessions whose
+     * `expires_at` has passed and group sessions older than `group_session_ttl_hours`.
+     * `ended_at` is the moment of closing: grades were accepted until then.
+     *
+     * @return int number of sessions closed
+     */
+    public function closeExpired(?CarbonImmutable $now = null): int
+    {
+        $now ??= CarbonImmutable::now();
+
+        $personal = TrainingSession::query()
+            ->where('status', 'open')
+            ->where('mode', '<>', TrainingSession::MODE_GROUP_LESSON)
+            ->whereNotNull('expires_at')
+            ->where('expires_at', '<=', $now)
+            ->update([
+                'status' => 'closed',
+                'ended_at' => $now,
+                'done_reason' => TrainingSession::DONE_EXPIRED,
+                'updated_at' => $now,
+            ]);
+
+        $group = TrainingSession::query()
+            ->where('status', 'open')
+            ->where('mode', TrainingSession::MODE_GROUP_LESSON)
+            ->where('started_at', '<=', $now->subHours($this->groupSessionTtlHours()))
+            ->update([
+                'status' => 'closed',
+                'ended_at' => $now,
+                'done_reason' => TrainingSession::DONE_EXPIRED,
+                'updated_at' => $now,
+            ]);
+
+        return $personal + $group;
+    }
+
+    /**
+     * The `mode_shape` invariant of `training_sessions` (docs/12 §1.4), mirrored from the
+     * PostgreSQL CHECK so every driver rejects a malformed row before INSERT.
+     *
+     * @param  array<string, mixed>  $attributes
+     *
+     * @throws LogicException
+     */
+    public static function assertModeShape(array $attributes): void
+    {
+        $mode = $attributes['mode'] ?? null;
+
+        if ($mode === TrainingSession::MODE_GROUP_LESSON) {
+            if (($attributes['telegram_group_id'] ?? null) === null || ($attributes['lesson_id'] ?? null) === null) {
+                throw new LogicException('A group_lesson session needs telegram_group_id and lesson_id.');
+            }
+
+            return;
+        }
+
+        if (! in_array($mode, [TrainingSession::MODE_LESSON, TrainingSession::MODE_DAILY_REVIEW], true)) {
+            throw new LogicException("Unknown training session mode '{$mode}'.");
+        }
+
+        if (($attributes['learner_id'] ?? null) === null) {
+            throw new LogicException("A {$mode} session needs learner_id.");
+        }
+    }
+
     private function assertCanOpen(TelegramGroup $group, User $teacher): void
     {
         if (! $this->userTeachesGroup($teacher, $group)) {
@@ -85,15 +281,35 @@ final class TrainingSessionService
         }
     }
 
+    private function assertLessonAvailable(Lesson $lesson): void
+    {
+        $lesson->loadMissing('stage.course');
+
+        if ($lesson->stage?->course?->status !== 'published') {
+            throw TrainingSessionException::lessonNotAvailable((int) $lesson->id);
+        }
+    }
+
     private function openLesson(TelegramGroup $group, Lesson $lesson, User $teacher, string $source): TrainingSession
     {
+        $attributes = [
+            'telegram_group_id' => $group->id,
+            'lesson_id' => $lesson->id,
+            'started_by_user_id' => $teacher->id,
+            'mode' => TrainingSession::MODE_GROUP_LESSON,
+            'source' => $source,
+            'status' => 'open',
+            'started_at' => now(),
+        ];
+        self::assertModeShape($attributes);
+
         try {
-            return DB::transaction(function () use ($group, $lesson, $teacher, $source): TrainingSession {
+            return DB::transaction(function () use ($group, $lesson, $attributes): TrainingSession {
                 /** @var TrainingSession|null $existing */
                 $existing = TrainingSession::query()
                     ->where('telegram_group_id', $group->id)
                     ->where('lesson_id', $lesson->id)
-                    ->where('mode', 'group_lesson')
+                    ->where('mode', TrainingSession::MODE_GROUP_LESSON)
                     ->where('status', 'open')
                     ->lockForUpdate()
                     ->first();
@@ -102,15 +318,7 @@ final class TrainingSessionService
                     return $existing;
                 }
 
-                return TrainingSession::query()->create([
-                    'telegram_group_id' => $group->id,
-                    'lesson_id' => $lesson->id,
-                    'started_by_user_id' => $teacher->id,
-                    'mode' => 'group_lesson',
-                    'source' => $source,
-                    'status' => 'open',
-                    'started_at' => now(),
-                ]);
+                return TrainingSession::query()->create($attributes);
             });
         } catch (UniqueConstraintViolationException) {
             /** @var TrainingSession $existing */
@@ -122,6 +330,57 @@ final class TrainingSessionService
 
             return $existing;
         }
+    }
+
+    /**
+     * @return Builder<TrainingSession>
+     */
+    private function openPersonalQuery(Learner $learner, string $mode, ?Lesson $lesson): Builder
+    {
+        $query = TrainingSession::query()
+            ->where('learner_id', $learner->id)
+            ->where('mode', $mode)
+            ->where('status', 'open');
+
+        if ($mode === TrainingSession::MODE_LESSON) {
+            $query->where('lesson_id', $lesson?->id);
+        }
+
+        return $query;
+    }
+
+    private function summarise(TrainingSession $session, bool $wasOpen): SessionSummary
+    {
+        $reviews = DB::table('training_reviews')
+            ->where('training_reviews.training_session_id', $session->id);
+        if ($session->learner_id !== null) {
+            $reviews->where('training_reviews.learner_id', $session->learner_id);
+        }
+
+        $reviewed = (clone $reviews)->count();
+        $correct = (clone $reviews)->where('training_reviews.quality', '>=', 3)->count();
+
+        // Words whose progress row was born during this session = first served here.
+        $newWords = (clone $reviews)
+            ->join('word_repetitions', function ($join): void {
+                $join->on('word_repetitions.word_id', '=', 'training_reviews.word_id')
+                    ->on('word_repetitions.learner_id', '=', 'training_reviews.learner_id');
+            })
+            ->where('word_repetitions.created_at', '>=', $session->started_at)
+            ->distinct()
+            ->count('training_reviews.word_id');
+
+        return new SessionSummary($session, $reviewed, $correct, $newWords, $wasOpen);
+    }
+
+    private function sessionTtlHours(): int
+    {
+        return max(1, (int) config('learning.session_ttl_hours', 12));
+    }
+
+    private function groupSessionTtlHours(): int
+    {
+        return max(1, (int) config('learning.group_session_ttl_hours', 24));
     }
 
     private function userTeachesGroup(User $user, TelegramGroup $group): bool

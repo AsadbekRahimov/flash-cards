@@ -24,6 +24,8 @@ return new class extends Migration
             $table->timestamp('started_at');
             $table->timestamp('ended_at')->nullable();
             $table->timestamp('expires_at')->nullable();
+            // Why the session was closed: `finished` (learner), `expired` (scheduler); NULL while open.
+            $table->string('done_reason', 16)->nullable();
             $table->timestamps();
 
             $table->index(['learner_id', 'status', 'started_at']);

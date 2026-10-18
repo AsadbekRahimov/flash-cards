@@ -396,7 +396,7 @@ it('returns 422 when reviewing a word from another lesson', function (): void {
             'time_spent_ms' => 1000,
         ])
         ->assertStatus(422)
-        ->assertJsonPath('error.code', 'wrong_lesson');
+        ->assertJsonPath('error.code', 'out_of_scope');
 });
 
 it('does not apply the same card review more than once', function (): void {

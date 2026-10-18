@@ -607,7 +607,7 @@ it('rolls back and re-applies the learner-first migrations (1.1a + 1.1b)', funct
     expect(Schema::hasTable('students'))->toBeFalse()
         ->and(Schema::hasColumn('word_repetitions', 'learner_id'))->toBeTrue()
         ->and(Schema::hasColumn('word_repetitions', 'student_id'))->toBeFalse()
-        ->and(Schema::hasColumns('training_sessions', ['learner_id', 'mode', 'source', 'course_id', 'expires_at']))->toBeTrue();
+        ->and(Schema::hasColumns('training_sessions', ['learner_id', 'mode', 'source', 'course_id', 'expires_at', 'done_reason']))->toBeTrue();
 
     $indexes = array_column(Schema::getIndexes('training_sessions'), 'name');
     expect($indexes)->toContain('training_sessions_one_open_daily_per_learner')

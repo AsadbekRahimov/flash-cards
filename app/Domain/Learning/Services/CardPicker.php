@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace App\Domain\Learning\Services;
 
+use App\Domain\Learning\DTO\CardPick;
+use App\Domain\Learning\Enums\DoneReason;
 use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Learning\Support\LearningPolicy;
+use App\Domain\Learning\Support\NewCardBudget;
+use App\Domain\Learning\Support\TrainingScope;
 use App\Models\Word;
 use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
@@ -14,15 +18,18 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Picks the next card for a learner inside a specific lesson.
+ * Picks the next card for a learner inside a TrainingScope (docs/06 §4).
  *
  * Strategy:
- *   1. A due repetition for any word of the lesson (`next_review_at <= now()`),
- *      hard cards first, then earliest due. Covers review cards and
- *      (re)learning cards whose minute step has elapsed.
- *   2. Otherwise, a new word of the lesson the learner has never seen.
- *      Insert initial WordRepetition row so subsequent `review` is idempotent.
- *   3. Otherwise, learn-ahead: the earliest (re)learning card whose step
+ *   1. A due repetition in scope (`next_review_at <= now()`), hard cards first,
+ *      then earliest due. Covers review cards and (re)learning cards whose
+ *      minute step has elapsed.
+ *   2. Otherwise, a new word of the scope the learner has never seen — only if the
+ *      NewCardBudget allows it. Insert initial WordRepetition row so subsequent
+ *      `review` is idempotent. The learner row is locked for the duration, so two
+ *      tabs of one learner are served different words and cannot jointly exceed
+ *      the budget (docs/12 §5.3).
+ *   3. Otherwise, learn-ahead: the earliest (re)learning card in scope whose step
  *      elapses within `policy->learnAheadMinutes`. It is served early and
  *      stamped with a one-time ticket (`served_ahead_at` + random
  *      `served_ahead_token`). The token travels to the client as
@@ -31,7 +38,11 @@ use Illuminate\Support\Facades\DB;
  *      just re-served the same card in the same response. An outstanding
  *      ticket is reused, not reissued: two tabs fetching /next see the same
  *      token and only one of them can consume it.
- *   4. Otherwise, null (learner finished the lesson for now).
+ *   4. Otherwise, no card with a DoneReason: `new_quota_exhausted` when (and only
+ *      when) step 2 was stopped by the budget while unseen words remain, else the
+ *      scope's own reason (`lesson_complete` / `nothing_due`).
+ *
+ * Words with `is_active = false` are never served (new, due or ahead).
  *
  * `ahead` is true only for step 3: that is the only path that serves a card
  * with a live ticket (a card that later became due is served as due, `ahead`
@@ -46,20 +57,17 @@ final class CardPicker
 {
     public function __construct(private readonly LearningPolicy $policy) {}
 
-    /**
-     * @return array{
-     *   repetition: WordRepetition,
-     *   word: Word,
-     *   kind: 'due'|'new'|'learning',
-     *   ahead: bool
-     * }|null
-     */
-    public function pickNext(int $learnerId, int $lessonId, ?CarbonImmutable $now = null): ?array
-    {
+    public function pickNext(
+        int $learnerId,
+        TrainingScope $scope,
+        ?NewCardBudget $budget = null,
+        ?CarbonImmutable $now = null,
+    ): CardPick {
         $now ??= CarbonImmutable::now();
+        $budget ??= NewCardBudget::unlimited();
 
         /** @var WordRepetition|null $due */
-        $due = $this->lessonRepetitions($learnerId, $lessonId)
+        $due = $this->scopedRepetitions($learnerId, $scope)
             ->where('next_review_at', '<=', $now)
             ->orderByDesc('is_hard')
             ->orderBy('next_review_at')
@@ -68,45 +76,55 @@ final class CardPicker
             ->first();
 
         if ($due !== null && $due->word !== null) {
-            return [
-                'repetition' => $due,
-                'word' => $due->word,
-                'kind' => self::kindOf($due),
-                'ahead' => false,
-            ];
+            return CardPick::card($due, $due->word, self::kindOf($due));
         }
 
-        $new = $this->pickNewInTransaction($learnerId, $lessonId, $now);
+        [$new, $quotaBlocked] = $this->pickNewInTransaction($learnerId, $scope, $budget, $now);
         if ($new !== null) {
             return $new;
         }
 
-        return $this->pickLearnAhead($learnerId, $lessonId, $now);
+        $ahead = $this->pickLearnAhead($learnerId, $scope, $now);
+        if ($ahead !== null) {
+            return $ahead;
+        }
+
+        return CardPick::done($quotaBlocked ? DoneReason::NewQuotaExhausted : $scope->exhaustedReason());
     }
 
     /**
-     * @return array{repetition: WordRepetition, word: Word, kind: 'new', ahead: false}|null
+     * Serialised per learner: `SELECT ... FOR UPDATE` on the learner row (PostgreSQL;
+     * sqlite locks the whole database) orders concurrent tabs, so the second one sees
+     * the row the first inserted and the budget it consumed before choosing a word.
+     *
+     * @return array{0: CardPick|null, 1: bool} [pick, quotaBlocked]
      */
-    private function pickNewInTransaction(int $learnerId, int $lessonId, CarbonImmutable $now): ?array
-    {
+    private function pickNewInTransaction(
+        int $learnerId,
+        TrainingScope $scope,
+        NewCardBudget $budget,
+        CarbonImmutable $now,
+    ): array {
+        $candidates = $scope->newWordCandidates($learnerId);
+        if ($candidates === null) {
+            return [null, false];
+        }
+
         /** @var ConnectionInterface $db */
         $db = DB::connection();
 
-        return $db->transaction(function () use ($learnerId, $lessonId, $now): ?array {
-            /** @var Word|null $new */
-            $new = Word::query()
-                ->where('lesson_id', $lessonId)
-                ->whereNotIn('id', function ($q) use ($learnerId): void {
-                    $q->select('word_id')
-                        ->from('word_repetitions')
-                        ->where('learner_id', $learnerId);
-                })
-                ->orderBy('id')
-                ->lockForUpdate()
-                ->first();
+        return $db->transaction(function () use ($learnerId, $candidates, $budget, $now): array {
+            DB::table('learners')->where('id', $learnerId)->lockForUpdate()->value('id');
 
+            /** @var Word|null $new */
+            $new = $candidates->first();
             if ($new === null) {
-                return null;
+                return [null, false];
+            }
+
+            $remaining = $budget->remaining($learnerId, $now);
+            if ($remaining !== null && $remaining <= 0) {
+                return [null, true];
             }
 
             /** @var WordRepetition $rep */
@@ -124,29 +142,22 @@ final class CardPicker
                 'meta' => [],
             ]);
 
-            return [
-                'repetition' => $rep,
-                'word' => $new,
-                'kind' => 'new',
-                'ahead' => false,
-            ];
+            return [CardPick::card($rep, $new, 'new'), false];
         });
     }
 
     /**
      * Serve the nearest (re)learning card before its step elapsed, so the
      * session does not end with cards hanging for a few minutes.
-     *
-     * @return array{repetition: WordRepetition, word: Word, kind: 'learning', ahead: true}|null
      */
-    private function pickLearnAhead(int $learnerId, int $lessonId, CarbonImmutable $now): ?array
+    private function pickLearnAhead(int $learnerId, TrainingScope $scope, CarbonImmutable $now): ?CardPick
     {
         if ($this->policy->learnAheadMinutes <= 0) {
             return null;
         }
 
         /** @var WordRepetition|null $ahead */
-        $ahead = $this->lessonRepetitions($learnerId, $lessonId)
+        $ahead = $this->scopedRepetitions($learnerId, $scope)
             ->whereIn('state', [RepetitionState::Learning->value, RepetitionState::Relearning->value])
             ->where('next_review_at', '<=', $now->addMinutes($this->policy->learnAheadMinutes))
             ->orderBy('next_review_at')
@@ -161,12 +172,7 @@ final class CardPicker
 
         $this->issueTicket($ahead, $now);
 
-        return [
-            'repetition' => $ahead,
-            'word' => $word,
-            'kind' => 'learning',
-            'ahead' => true,
-        ];
+        return CardPick::card($ahead, $word, 'learning', ahead: true);
     }
 
     /**
@@ -213,11 +219,11 @@ final class CardPicker
     /**
      * @return Builder<WordRepetition>
      */
-    private function lessonRepetitions(int $learnerId, int $lessonId): Builder
+    private function scopedRepetitions(int $learnerId, TrainingScope $scope): Builder
     {
-        return WordRepetition::query()
-            ->where('learner_id', $learnerId)
-            ->whereHas('word', fn ($q) => $q->where('lesson_id', $lessonId));
+        return $scope->constrainRepetitions(
+            WordRepetition::query()->where('learner_id', $learnerId),
+        );
     }
 
     /**
@@ -233,16 +239,22 @@ final class CardPicker
     }
 
     /**
+     * Lesson progress: graduated (answered at least once successfully) active words
+     * of the lesson vs. all its active words.
+     *
+     * @param  int|null  $totalWords  pre-computed active word count (LearningCache::lessonWordCount)
      * @return array{done:int, total:int}
      */
     public function progress(int $learnerId, int $lessonId, ?int $totalWords = null): array
     {
-        $total = $totalWords ?? Word::query()->where('lesson_id', $lessonId)->count();
+        $total = $totalWords ?? Word::query()
+            ->where('lesson_id', $lessonId)
+            ->where('is_active', true)
+            ->count();
 
-        $done = WordRepetition::query()
-            ->where('learner_id', $learnerId)
+        $done = TrainingScope::lesson($lessonId)
+            ->constrainRepetitions(WordRepetition::query()->where('learner_id', $learnerId))
             ->where('repetitions', '>=', 1)
-            ->whereHas('word', fn ($q) => $q->where('lesson_id', $lessonId))
             ->count();
 
         return ['done' => $done, 'total' => $total];

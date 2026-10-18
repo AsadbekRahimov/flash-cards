@@ -16,6 +16,10 @@ final class LearningCache
 
     private const EXAM_RESULT_TTL = 3600;
 
+    /**
+     * Active words of the lesson (`is_active = false` replaces deletion and is not
+     * trainable). Call {@see forgetLesson()} after toggling `is_active` or importing.
+     */
     public function lessonWordCount(int $lessonId): int
     {
         return (int) Cache::remember(
@@ -23,6 +27,7 @@ final class LearningCache
             self::LESSON_WORD_COUNT_TTL,
             fn (): int => (int) DB::table('words')
                 ->where('lesson_id', $lessonId)
+                ->where('is_active', true)
                 ->count(),
         );
     }

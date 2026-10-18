@@ -63,4 +63,18 @@ return [
      * value must stay within 1..32767. Default: 10 years.
      */
     'max_interval_days' => (int) env('LEARNING_MAX_INTERVAL_DAYS', 3650),
+
+    /**
+     * Personal sessions (`lesson`, `daily_review`) expire this many hours after
+     * they were opened: `expires_at = started_at + ttl`, and `training:close-expired`
+     * closes them with `done_reason = expired` (docs/12 §7.6).
+     */
+    'session_ttl_hours' => (int) env('LEARNING_SESSION_TTL_HOURS', 12),
+
+    /**
+     * Group sessions (`group_lesson`) have no `expires_at`; the same scheduler
+     * closes those started more than this many hours ago. The teacher can always
+     * re-open the lesson (`/start_training` is idempotent).
+     */
+    'group_session_ttl_hours' => (int) env('LEARNING_GROUP_SESSION_TTL_HOURS', 24),
 ];
