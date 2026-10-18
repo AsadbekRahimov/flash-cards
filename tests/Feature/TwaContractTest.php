@@ -15,6 +15,7 @@ use App\Domain\Twa\Services\InitDataValidator;
 use App\Domain\Twa\Services\JwtService;
 use App\Http\Resources\ApiErrorResource;
 use App\Http\Resources\Twa\ExamQuestionResource;
+use App\Models\Course;
 use App\Models\ExamAnswer;
 use App\Models\ExamSession;
 use App\Models\Learner;
@@ -182,6 +183,71 @@ it('GET /me counts due graduated cards and abandoned (re)learning cards as due t
         ->assertOk()
         ->assertJsonPath('stats.words_due_today', 2)
         ->assertJsonPath('stats.words_learned', 3);
+});
+
+// --- courses --------------------------------------------------------------
+
+const CONTRACT_COURSE = ['slug', 'title', 'description', 'level', 'exam_tag', 'words_count', 'is_featured', 'is_active', 'progress' => CONTRACT_PROGRESS];
+
+/** @return array{learner: Learner, course: Course} */
+function contractCourse(): array
+{
+    $course = Course::factory()->published()->create(['slug' => 'contract-course', 'level' => 'A2', 'description' => ['ru' => 'Описание']]);
+    $stage = Stage::factory()->create(['course_id' => $course->id]);
+    Word::factory()->count(2)->for(Lesson::factory()->for($stage)->create())->create();
+
+    return ['learner' => Learner::factory()->create(), 'course' => $course];
+}
+
+it('GET /courses keeps its exact JSON shape', function (): void {
+    $s = contractCourse();
+
+    $response = $this->withHeaders(contractHeaders($s['learner']))
+        ->getJson('/api/twa/courses')
+        ->assertOk()
+        ->assertExactJsonStructure(['courses' => [CONTRACT_COURSE]]);
+
+    expect($response->json('courses.0'))->toMatchArray([
+        'slug' => 'contract-course',
+        'title' => $s['course']->title['ru'],
+        'description' => 'Описание',
+        'level' => 'A2',
+        'exam_tag' => null,
+        'is_active' => false,
+        'progress' => ['done' => 0, 'total' => 2],
+    ]);
+});
+
+it('GET /courses/{slug} keeps its exact JSON shape', function (): void {
+    $s = contractCourse();
+
+    $this->withHeaders(contractHeaders($s['learner']))
+        ->getJson('/api/twa/courses/contract-course')
+        ->assertOk()
+        ->assertExactJsonStructure([
+            'slug', 'title', 'description', 'level', 'exam_tag', 'words_count', 'is_active',
+            'progress' => CONTRACT_PROGRESS,
+            'stages' => [[
+                'number', 'title', 'progress' => CONTRACT_PROGRESS,
+                'lessons' => [['id', 'number', 'title', 'progress' => CONTRACT_PROGRESS]],
+            ]],
+        ]);
+});
+
+it('POST /me/course keeps its exact JSON shape (a course row) and 404 error envelope', function (): void {
+    $s = contractCourse();
+    $headers = contractHeaders($s['learner']);
+
+    $this->withHeaders($headers)
+        ->postJson('/api/twa/me/course', ['slug' => 'contract-course'])
+        ->assertOk()
+        ->assertExactJsonStructure(CONTRACT_COURSE)
+        ->assertJsonPath('is_active', true);
+
+    $this->withHeaders($headers)
+        ->postJson('/api/twa/me/course', ['slug' => 'missing'])
+        ->assertNotFound()
+        ->assertExactJsonStructure(['error' => ['code', 'message']]);
 });
 
 // --- training -------------------------------------------------------------

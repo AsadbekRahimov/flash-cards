@@ -75,11 +75,35 @@ export const ru = {
   'promo.success_until': 'Pro активен до {date}.',
   'promo.success_forever': 'Pro активен без ограничения по сроку.',
 
+  // ---- course catalog ----
+  'catalog.title': 'Курсы',
+  'catalog.open': 'Каталог курсов',
+  'catalog.empty': 'Курсов пока нет. Загляните позже.',
+  'catalog.choose': 'Выбрать',
+  'catalog.active': 'Активный',
+  'catalog.words': {
+    one: '{count} слово',
+    few: '{count} слова',
+    many: '{count} слов',
+    other: '{count} слова',
+  },
+  'catalog.progress': 'Изучено {done} из {total}',
+  'catalog.goal.general': 'Общий английский',
+  'catalog.goal.school': 'Школа',
+  'catalog.goal.ielts': 'IELTS',
+  'catalog.goal.sat': 'SAT',
+  'course.back': 'К курсам',
+  'course.module': 'Модуль {number}',
+  'course.lesson': 'Урок {number}',
+  'course.no_lessons': 'В курсе пока нет уроков.',
+
   // ---- errors (by kind / context) ----
   'error.closed.training': 'Учитель завершил тренировку.',
   'error.closed.exam': 'Экзамен был завершён учителем.',
+  'error.closed.catalog': 'Курс больше недоступен.',
   'error.forbidden.training': 'У вас нет доступа к этой тренировке.',
   'error.forbidden.exam': 'У вас нет доступа к этому экзамену.',
+  'error.forbidden.catalog': 'У вас нет доступа к каталогу курсов.',
   'error.network': 'Нет связи с сервером. Попробуйте ещё раз.',
   'error.rate_limited': 'Слишком много запросов. Подождите немного и повторите.',
   'error.server': 'Сервер временно недоступен. Попробуйте позже.',
@@ -112,6 +136,7 @@ export const ru = {
   'error.code.promo_exhausted': 'Этим промокодом уже воспользовалось максимальное число людей.',
   'error.code.promo_already_redeemed': 'Вы уже активировали этот промокод.',
   'error.code.promo_not_applicable': 'У вас уже есть Pro без ограничения по сроку — промокод не нужен.',
+  'error.code.course_not_found': 'Курс не найден или недоступен.',
 } satisfies Record<string, Message>
 
 export type Dictionary = typeof ru

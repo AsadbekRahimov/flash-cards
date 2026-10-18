@@ -424,6 +424,8 @@ it('drops the lesson cache only once the import transaction has closed', functio
 
         return true;
     });
+    // The published-catalog cache is dropped via recount as well; not under test here.
+    Cache::shouldReceive('deleteMultiple')->andReturn(true);
 
     expect(app(VocabularyImporter::class)->importAsSystem(sampleJson())->ok())->toBeTrue();
 
@@ -438,6 +440,8 @@ it('defers the cache drop to the outer commit when the caller wraps the import i
 
         return true;
     });
+    // The published-catalog cache is dropped via recount as well; not under test here.
+    Cache::shouldReceive('deleteMultiple')->andReturn(true);
 
     $inside = null;
     DB::transaction(function () use (&$levels, &$inside): void {

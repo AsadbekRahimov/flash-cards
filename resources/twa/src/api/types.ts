@@ -153,3 +153,53 @@ export interface ExamResultResponse {
   total_participants: number
   leaderboard: ExamLeaderboardEntry[]
 }
+
+// ---------------- Course catalog ----------------
+
+export interface Progress {
+  done: number
+  total: number
+}
+
+/** Row of GET /courses and the answer of POST /me/course. Texts are localized by the server. */
+export interface Course {
+  slug: string
+  title: string
+  description: string | null
+  level: string | null
+  exam_tag: string | null
+  words_count: number
+  is_featured: boolean
+  is_active: boolean
+  progress: Progress
+}
+
+export interface CoursesResponse {
+  courses: Course[]
+}
+
+export interface CourseLesson {
+  id: number
+  number: number
+  title: string | null
+  progress: Progress
+}
+
+export interface CourseStage {
+  number: number
+  title: string
+  progress: Progress
+  lessons: CourseLesson[]
+}
+
+export interface CourseDetail {
+  slug: string
+  title: string
+  description: string | null
+  level: string | null
+  exam_tag: string | null
+  words_count: number
+  is_active: boolean
+  progress: Progress
+  stages: CourseStage[]
+}

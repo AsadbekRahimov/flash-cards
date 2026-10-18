@@ -3,6 +3,9 @@ import { useAuthStore } from '@/stores/auth'
 import type {
   AuthContext,
   AuthResponse,
+  Course,
+  CourseDetail,
+  CoursesResponse,
   ExamAnswerResponse,
   ExamJoinResponse,
   ExamQuestionResponse,
@@ -46,6 +49,11 @@ export const api = {
   },
   promo: {
     redeem: (code: string) => client().post<MeResponse>('/promo/redeem', { code }),
+  },
+  courses: {
+    list: () => client().get<CoursesResponse>('/courses'),
+    get: (slug: string) => client().get<CourseDetail>(`/courses/${encodeURIComponent(slug)}`),
+    select: (slug: string) => client().post<Course>('/me/course', { slug }),
   },
   training: {
     start: (sessionId: number) =>

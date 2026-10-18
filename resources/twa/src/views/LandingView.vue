@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { RouterLink } from 'vue-router'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
 
@@ -19,6 +20,14 @@ onMounted(() => {
       <p v-if="inTelegram" class="text-tg-hint">
         {{ t('landing.in_telegram') }}
       </p>
+      <RouterLink
+        v-if="inTelegram"
+        :to="{ name: 'courses' }"
+        class="btn btn-secondary w-full"
+        data-testid="catalog-link"
+      >
+        {{ t('catalog.open') }}
+      </RouterLink>
       <p v-else class="text-tg-hint">
         {{ t('landing.outside_telegram') }}
       </p>
