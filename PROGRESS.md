@@ -12,8 +12,8 @@
 | # | Задача | Исполнитель | Статус |
 |---|--------|-------------|--------|
 | 1.0 | Проект: learner-first модель, курсы, entitlement, схема без переноса данных, нарезка на задачи (`docs/12_PHASE1_DESIGN.md`, ред. 2 после ответов владельца) | architect | ✅ |
-| 1.1a | Схема learner-first, аддитивно: `organizations`, `courses`, `learners`, `group_members`, `word_translations`, `learner_daily_stats`, `subscriptions`, `promo_*`; правки `telegram_groups`/`stages`/`words`; модели, factories, курс `default` в сидере; docs/03 (docs/12 §2.3, §9) | coder | ⏳ |
-| 1.1b | Переход на Learner: `student_id` → `learner_id` в create-миграциях, удаление `students`/`Student*`, `LearnerRegistrar`, `GroupMembershipService`, `LearnerContextResolver`, JWT v2, политики по членству, `PanelDataScope::learners()`, Filament/TWA, `DemoLearnersSeeder`, тесты по смыслу (docs/12 §9) | coder (консультация architect по политикам/экзамену при затруднении) | ⏳ |
+| 1.1a | Схема learner-first, аддитивно: `organizations`, `courses`, `learners`, `group_members`, `word_translations`, `learner_daily_stats`, `subscriptions`, `promo_*`; правки `telegram_groups`/`stages`/`words`; модели, factories, курс `default` в сидере; docs/03 (docs/12 §2.3, §9) | coder | ✅ |
+| 1.1b | Переход на Learner: `student_id` → `learner_id` в create-миграциях, удаление `students`/`Student*`, `LearnerRegistrar`, `GroupMembershipService`, `LearnerContextResolver`, JWT v2, политики по членству, `PanelDataScope::learners()`, Filament/TWA, `DemoLearnersSeeder`, тесты по смыслу (docs/12 §9) | coder (консультация architect по политикам/экзамену при затруднении) | ✅ |
 | 1.2 | Онбординг в боте `/start`: язык, цель, уровень, часовой пояс, время напоминаний | coder | ⏳ |
 | 1.3 | Каталог курсов: `courses`, `word_translations` (uz/ru), статусы публикации, предгенерация аудио | coder | ⏳ |
 | 1.4 | Личное обучение: экран «Сегодня», тренировка всех due, тренировка урока, streak, дневная цель | coder | ⏳ |
@@ -22,6 +22,9 @@
 | 1.7 | Оплата — **отложена владельцем** (за пределами Фазы 1); в Фазе 1 только контракт `BillingProvider` и схема на вырост | — | ⏸ |
 | 1.8 | Публичный лендинг, оферта, политика конфиденциальности | coder | ⏳ |
 | 1.9 | Суперадмин-панель: пользователи, подписки, MRR, модерация контента | coder | ⏳ |
+
+**1.1 принята (2026-10-18):** ревью + повторное ревью, блокирующих нет. Проверки: pint, Larastan 8, Pest 574 (sqlite и PG 16), vue-tsc, vitest 93, build. Попутно: потолок интервала SM-2 `LEARNING_MAX_INTERVAL_DAYS` (3650) — на PG интервал переполнял smallint; jsonb-сравнения в тестах без зависимости от порядка ключей. По ревью: профиль из Telegram — полный снимок имени/username, `language_code` только если пришёл; soft-deleted learner восстанавливается только своим `/auth` (пассивные события пропускаются); `last_seen_at` только на `/auth`; запоздалые апдейты членства не применяются (по `date`); block/unblock — `LearnerModerationService` + аудит; фильтр по группе в панели ограничен скоупом; ссылка напоминания — группа, где проходили урок, `source=reminder`.
+Хвосты: CI (`.github/workflows`) не запускается на ветках `claude/**` — PG-прогон делает координатор вручную; `acquisition_source` пишется только при создании learner'а — для 1.5a решить, ставит ли `/start ref_…` источник learner'у, созданному ранее через `/auth` (сейчас — нет); stage по номеру без курса и дубль курса `default` — закрываются в 1.2a.
 
 ## Sprint 13 — Фаза 0 «Стабилизация ядра» ✅ (2026-10-18; 0.7 ждёт staging)
 
