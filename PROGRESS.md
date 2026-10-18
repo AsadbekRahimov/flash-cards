@@ -14,12 +14,18 @@
 |---|--------|-------------|--------|
 | 0.1 | SRS: оценка «Средне» без штрафа EF, learning steps внутри сессии | architect | ⏳ |
 | 0.2 | Экзамен: per-student порядок вопросов и вариантов, реальные дистракторы вместо filler | architect | ⏳ |
-| 0.3 | `/health/ready` (DB, Redis, scheduler heartbeat, очередь); error tracking — после согласования зависимости | coder | ⏳ |
-| 0.4 | Таблица `events` + `ProductEventRecorder` + базовые события | coder | ⏳ |
+| 0.3 | `/health/ready` (DB, Redis, scheduler heartbeat, очередь); error tracking — после согласования зависимости | coder | ✅ |
+| 0.4 | Таблица `events` + `ProductEventRecorder` + базовые события | coder | ✅ |
 | 0.5 | i18n каркас: `lang/{ru,uz}`, `trans_choice`, vue-i18n в TWA | coder | ⏳ |
 | 0.6 | API Resource-классы для TWA, вынос логики из контроллеров | coder | ⏳ |
 | 0.7 | Staging: restore-тест, ZAP baseline, k6 | координатор (нужен staging) | ⏳ |
 | 0.8 | Сжатие трафика: предсжатая статика TWA (`gzip_static`), тюнинг gzip, без сжатия аудио, защита от BREACH на admin | coder | ✅ |
+
+Хвосты, найденные по ходу (взять в работу до приёмки фазы):
+- `exam.closed` не пишется при автозакрытии экзамена по расписанию (`CloseExpiredExams`).
+- `SendTelegramMessageJob` (отложенная отправка, `$tries = 25`) не обрабатывает `TelegramForbiddenException` — ретраи впустую.
+- Студент, заблокировавший бота, получает попытку напоминания каждый день → флаг `dm_blocked_at` (Фаза 1, learners).
+- `/health/ready` отдаёт 503 первую минуту после деплоя (нет heartbeat) — учесть grace-период в healthcheck.
 
 ## Sprint 12 — Полный аудит, безопасность и production readiness ✅ (2026-07-13)
 
