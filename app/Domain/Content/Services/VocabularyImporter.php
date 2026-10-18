@@ -6,11 +6,14 @@ namespace App\Domain\Content\Services;
 
 use App\Domain\Content\DTO\ImportReport;
 use App\Domain\Learning\Services\LearningCache;
+use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\AuditLog;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Stage;
 use App\Models\Word;
+use App\Models\WordTranslation;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Throwable;
@@ -24,9 +27,27 @@ final class VocabularyImporter
         'pronoun', 'preposition', 'conjunction', 'interjection',
     ];
 
-    public function __construct(private readonly LearningCache $cache) {}
+    public function __construct(
+        private readonly LearningCache $cache,
+        private readonly CourseCatalogService $catalog,
+        private readonly CoursePublisher $publisher,
+        private readonly LocaleResolver $locales,
+    ) {}
 
     /**
+     * Imports one lesson. Two file schemas are accepted (docs/12 §3.2):
+     *
+     *   v1: {"stage": N | {number,...}, "lesson": N | {number,...}, "words": [ {word, translation, ...} ]}
+     *       (the PRD form with `vocabulary` instead of `words` works too)
+     *   v2: v1 plus
+     *       - top-level `course`: slug of an EXISTING course (absent → the `default` course);
+     *       - per word `translations`: {"ru": "...", "uz": "..."} and optional `example_translations`.
+     *         `translation` stays the ru translation; `translations.ru` is its alias (both → must be equal).
+     *
+     * The ru text is always written to `words.translation` AND to `word_translations`. Re-importing a
+     * file is idempotent: unchanged rows are skipped; a changed translation is overwritten and loses its
+     * `reviewed_at` mark. Everything is written in ONE transaction or nothing at all.
+     *
      * @param  array{user_id?:int|null, ip?:string|null}  $auditContext
      */
     public function import(string $rawJson, array $auditContext = []): ImportReport
@@ -69,16 +90,20 @@ final class VocabularyImporter
             return $report;
         }
 
-        /** @var array{stage:array{number:int,title?:string,description?:string},lesson:array{number:int,title?:string},words:list<array<string,string>>} $data */
+        /** @var array{course?:string|null,stage:array{number:int,title?:string,description?:string},lesson:array{number:int,title?:string},words:list<array<string,mixed>>} $data */
         $this->assertUniqueWords($data['words'], $report);
+        $words = $this->normalizeWords($data['words'], $report);
+        $course = $this->resolveCourse($data['course'] ?? null, $report);
 
-        if ($report->aborted) {
+        if ($report->aborted || $course === null) {
+            $report->aborted = true;
+
             return $report;
         }
 
-        DB::transaction(function () use ($data, $report, $auditContext): void {
+        DB::transaction(function () use ($data, $words, $course, $report, $auditContext): void {
             $stage = Stage::updateOrCreate(
-                ['course_id' => $this->defaultCourse()->id, 'number' => $data['stage']['number']],
+                ['course_id' => $course->id, 'number' => $data['stage']['number']],
                 array_filter([
                     'title' => $data['stage']['title'] ?? "Stage {$data['stage']['number']}",
                     'description' => $data['stage']['description'] ?? null,
@@ -90,31 +115,54 @@ final class VocabularyImporter
                 ['title' => $data['lesson']['title'] ?? null],
             );
 
-            foreach ($data['words'] as $w) {
-                $existing = Word::where('lesson_id', $lesson->id)
-                    ->where('word', $w['word'])
-                    ->first();
+            /** @var Collection<string, Word> $existingWords */
+            $existingWords = Word::query()->where('lesson_id', $lesson->id)->get()->keyBy('word');
+            /** @var Collection<int, Collection<string, WordTranslation>> $existingTranslations */
+            $existingTranslations = WordTranslation::query()
+                ->whereIn('word_id', $existingWords->pluck('id')->all())
+                ->get()
+                ->groupBy('word_id')
+                ->map(fn (Collection $rows): Collection => $rows->keyBy('locale'));
+
+            foreach ($words as $w) {
+                $existing = $existingWords->get($w['word']);
 
                 $payload = [
-                    'translation' => $w['translation'],
-                    'example' => $w['example'] ?? null,
-                    'part_of_speech' => $w['part_of_speech'] ?? null,
-                    'transcription' => $w['transcription'] ?? null,
+                    'translation' => $w['translations']['ru'],
+                    'example' => $w['example'],
+                    'part_of_speech' => $w['part_of_speech'],
+                    'transcription' => $w['transcription'],
                 ];
 
                 if ($existing === null) {
-                    Word::create(['lesson_id' => $lesson->id, 'word' => $w['word']] + $payload);
+                    $word = Word::create(['lesson_id' => $lesson->id, 'word' => $w['word']] + $payload);
+                    $this->upsertTranslations($word, $w, new Collection, $report);
                     $report->added++;
+
+                    continue;
+                }
+
+                $existing->fill($payload);
+                $changed = $existing->isDirty();
+                if ($changed) {
+                    $existing->save();
+                }
+
+                $translationsChanged = $this->upsertTranslations(
+                    $existing,
+                    $w,
+                    $existingTranslations->get((int) $existing->id, new Collection),
+                    $report,
+                );
+
+                if ($changed || $translationsChanged) {
+                    $report->updated++;
                 } else {
-                    $existing->fill($payload);
-                    if ($existing->isDirty()) {
-                        $existing->save();
-                        $report->updated++;
-                    } else {
-                        $report->skipped++;
-                    }
+                    $report->skipped++;
                 }
             }
+
+            $this->publisher->recount($course);
 
             AuditLog::create([
                 'user_id' => $auditContext['user_id'] ?? null,
@@ -123,6 +171,8 @@ final class VocabularyImporter
                 'entity_id' => $lesson->id,
                 'ip' => $auditContext['ip'] ?? null,
                 'meta' => [
+                    'course_id' => $course->id,
+                    'course_slug' => $course->slug,
                     'stage_id' => $stage->id,
                     'stage_number' => $stage->number,
                     'lesson_number' => $lesson->number,
@@ -137,21 +187,143 @@ final class VocabularyImporter
     }
 
     /**
-     * Imports without an explicit course go to the platform course (docs/12 §1.7).
-     * Per-file `course` selection arrives with VocabularyImporter v2 (task 1.2a).
+     * `course` is the slug of an existing course; no `course` → the platform default course.
      */
-    private function defaultCourse(): Course
+    private function resolveCourse(mixed $slug, ImportReport $report): ?Course
     {
-        return Course::firstOrCreate(
-            ['slug' => (string) config('content.default_course_slug')],
-            [
-                'owner_type' => 'platform',
-                'title' => ['ru' => 'Базовый курс', 'uz' => 'Asosiy kurs'],
-                'visibility' => 'public',
-                'status' => 'published',
-                'published_at' => now(),
-            ],
-        );
+        if ($slug === null) {
+            return $this->catalog->defaultCourse();
+        }
+
+        $course = is_string($slug) ? $this->catalog->findBySlug($slug) : null;
+        if ($course === null) {
+            $report->aborted = true;
+            $report->errors[] = 'Course '.(is_string($slug) ? "'{$slug}'" : '(invalid)').' not found: create it in the admin panel first.';
+        }
+
+        return $course;
+    }
+
+    /**
+     * Flattens both file schemas into one shape and checks the translation rules the
+     * validator cannot express: ru is required (it is `words.translation`), `translation`
+     * and `translations.ru` must agree, only supported locales are allowed.
+     *
+     * @param  list<array<string, mixed>>  $words
+     * @return list<array{word:string, example:?string, part_of_speech:?string, transcription:?string, translations:array<string,string>, example_translations:array<string,string>}>
+     */
+    private function normalizeWords(array $words, ImportReport $report): array
+    {
+        $supported = $this->locales->supported();
+        $out = [];
+
+        foreach ($words as $i => $w) {
+            $label = "Word '{$w['word']}' (index {$i})";
+            $translations = $this->stringMap($w['translations'] ?? null);
+            $exampleTranslations = $this->stringMap($w['example_translations'] ?? null);
+
+            foreach (['translations' => $translations, 'example_translations' => $exampleTranslations] as $field => $map) {
+                foreach (array_keys($map) as $locale) {
+                    if (! in_array($locale, $supported, true)) {
+                        $report->aborted = true;
+                        $report->errors[] = "{$label}: unsupported locale '{$locale}' in {$field} (supported: ".implode(', ', $supported).').';
+                    }
+                }
+            }
+
+            $legacy = isset($w['translation']) && is_string($w['translation']) ? trim($w['translation']) : '';
+            $ru = $translations['ru'] ?? '';
+
+            if ($legacy !== '' && $ru !== '' && $legacy !== $ru) {
+                $report->aborted = true;
+                $report->errors[] = "{$label}: 'translation' and 'translations.ru' differ.";
+            }
+
+            if ($legacy === '' && $ru === '') {
+                $report->aborted = true;
+                $report->errors[] = "{$label}: ru translation is required ('translation' or 'translations.ru').";
+            }
+
+            $translations['ru'] = $legacy !== '' ? $legacy : $ru;
+
+            $out[] = [
+                'word' => (string) $w['word'],
+                'example' => isset($w['example']) ? (string) $w['example'] : null,
+                'part_of_speech' => isset($w['part_of_speech']) ? (string) $w['part_of_speech'] : null,
+                'transcription' => isset($w['transcription']) ? (string) $w['transcription'] : null,
+                'translations' => $translations,
+                'example_translations' => $exampleTranslations,
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
+     * Non-empty, trimmed string values of a `locale => text` object.
+     *
+     * @return array<string, string>
+     */
+    private function stringMap(mixed $value): array
+    {
+        if (! is_array($value)) {
+            return [];
+        }
+
+        $out = [];
+        foreach ($value as $key => $text) {
+            if (is_string($text) && trim($text) !== '') {
+                $out[(string) $key] = trim($text);
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Writes the `word_translations` rows of one word; returns true when anything changed.
+     * A changed text is overwritten as an `import` row and loses `reviewed_at` (needs a new check).
+     *
+     * @param  array{translations:array<string,string>, example_translations:array<string,string>}  $w
+     * @param  Collection<string, WordTranslation>  $existing  rows of this word by locale
+     */
+    private function upsertTranslations(Word $word, array $w, Collection $existing, ImportReport $report): bool
+    {
+        $changed = false;
+
+        foreach ($w['translations'] as $locale => $text) {
+            $example = $w['example_translations'][$locale] ?? null;
+            $row = $existing->get($locale);
+
+            if ($row === null) {
+                WordTranslation::create([
+                    'word_id' => $word->id,
+                    'locale' => $locale,
+                    'translation' => $text,
+                    'example_translation' => $example,
+                    'source' => 'import',
+                ]);
+                $report->translationsAdded++;
+                $changed = true;
+
+                continue;
+            }
+
+            if ($row->translation === $text && ($example === null || $row->example_translation === $example)) {
+                continue;
+            }
+
+            $row->fill([
+                'translation' => $text,
+                'example_translation' => $example ?? $row->example_translation,
+                'source' => 'import',
+                'reviewed_at' => null,
+            ])->save();
+            $report->translationsUpdated++;
+            $changed = true;
+        }
+
+        return $changed;
     }
 
     /**
@@ -159,6 +331,7 @@ final class VocabularyImporter
      *   { "stage": 4, "lesson": 8, "vocabulary": [...] }
      * and the richer admin schema:
      *   { "stage": {"number": 4}, "lesson": {"number": 8}, "words": [...] }.
+     * `course` (v2) is passed through in both.
      *
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
@@ -173,6 +346,7 @@ final class VocabularyImporter
             && ! is_array($data['lesson'])
         ) {
             return [
+                'course' => $data['course'] ?? null,
                 'stage' => ['number' => $data['stage']],
                 'lesson' => ['number' => $data['lesson']],
                 'words' => $data['vocabulary'],
@@ -186,6 +360,8 @@ final class VocabularyImporter
     private function rules(): array
     {
         return [
+            'course' => ['sometimes', 'nullable', 'string', 'max:64'],
+
             'stage' => ['required', 'array'],
             'stage.number' => ['required', 'integer', 'min:1'],
             'stage.title' => ['sometimes', 'string', 'max:255'],
@@ -198,19 +374,24 @@ final class VocabularyImporter
             'words' => ['required', 'array', 'min:1', 'max:500'],
             'words.*' => ['required', 'array'],
             'words.*.word' => ['required', 'string', 'max:100'],
-            'words.*.translation' => ['required', 'string', 'max:500'],
+            // ru text: `translation` and/or `translations.ru` — presence is checked in normalizeWords().
+            'words.*.translation' => ['sometimes', 'nullable', 'string', 'max:500'],
+            'words.*.translations' => ['sometimes', 'nullable', 'array'],
+            'words.*.translations.*' => ['nullable', 'string', 'max:500'],
+            'words.*.example_translations' => ['sometimes', 'nullable', 'array'],
+            'words.*.example_translations.*' => ['nullable', 'string', 'max:2000'],
             'words.*.example' => ['sometimes', 'nullable', 'string', 'max:2000'],
             'words.*.part_of_speech' => ['sometimes', 'nullable', 'string', 'in:'.implode(',', self::ALLOWED_POS)],
             'words.*.transcription' => ['sometimes', 'nullable', 'string', 'max:100'],
         ];
     }
 
-    /** @param  list<array<string,string>>  $words */
+    /** @param  list<array<string,mixed>>  $words */
     private function assertUniqueWords(array $words, ImportReport $report): void
     {
         $seen = [];
         foreach ($words as $i => $w) {
-            $key = mb_strtolower(trim($w['word']));
+            $key = mb_strtolower(trim((string) $w['word']));
             if (isset($seen[$key])) {
                 $report->aborted = true;
                 $report->errors[] = "Duplicate word '{$w['word']}' at index {$i}.";

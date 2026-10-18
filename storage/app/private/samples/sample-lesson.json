@@ -9,9 +9,9 @@
     "title": "Greetings & Essentials"
   },
   "words": [
-    {"word": "hello",   "translation": "привет",    "part_of_speech": "interjection", "transcription": "həˈloʊ",  "example": "Hello, how are you?"},
-    {"word": "world",   "translation": "мир",       "part_of_speech": "noun",         "transcription": "wɜːrld",  "example": "Hello, world!"},
-    {"word": "name",    "translation": "имя",       "part_of_speech": "noun",         "transcription": "neɪm",    "example": "What is your name?"},
+    {"word": "hello",   "translation": "привет",    "translations": {"uz": "salom"},   "part_of_speech": "interjection", "transcription": "həˈloʊ",  "example": "Hello, how are you?"},
+    {"word": "world",   "translation": "мир",       "translations": {"uz": "dunyo"},   "part_of_speech": "noun",         "transcription": "wɜːrld",  "example": "Hello, world!"},
+    {"word": "name",    "translation": "имя",       "translations": {"uz": "ism"},     "part_of_speech": "noun",         "transcription": "neɪm",    "example": "What is your name?"},
     {"word": "friend",  "translation": "друг",      "part_of_speech": "noun",         "transcription": "frɛnd",   "example": "She is my best friend."},
     {"word": "family",  "translation": "семья",     "part_of_speech": "noun",         "transcription": "ˈfæməli","example": "My family is large."},
     {"word": "house",   "translation": "дом",       "part_of_speech": "noun",         "transcription": "haʊs",    "example": "We live in a big house."},
