@@ -14,17 +14,26 @@
 | 1.0 | Проект: learner-first модель, курсы, entitlement, схема без переноса данных, нарезка на задачи (`docs/12_PHASE1_DESIGN.md`, ред. 2 после ответов владельца) | architect | ✅ |
 | 1.1a | Схема learner-first, аддитивно: `organizations`, `courses`, `learners`, `group_members`, `word_translations`, `learner_daily_stats`, `subscriptions`, `promo_*`; правки `telegram_groups`/`stages`/`words`; модели, factories, курс `default` в сидере; docs/03 (docs/12 §2.3, §9) | coder | ✅ |
 | 1.1b | Переход на Learner: `student_id` → `learner_id` в create-миграциях, удаление `students`/`Student*`, `LearnerRegistrar`, `GroupMembershipService`, `LearnerContextResolver`, JWT v2, политики по членству, `PanelDataScope::learners()`, Filament/TWA, `DemoLearnersSeeder`, тесты по смыслу (docs/12 §9) | coder (консультация architect по политикам/экзамену при затруднении) | ✅ |
-| 1.2 | Онбординг в боте `/start`: язык, цель, уровень, часовой пояс, время напоминаний | coder | ⏳ |
-| 1.3 | Каталог курсов: `courses`, `word_translations` (uz/ru), статусы публикации, предгенерация аудио | coder | ⏳ |
-| 1.4 | Личное обучение: экран «Сегодня», тренировка всех due, тренировка урока, streak, дневная цель | coder | ⏳ |
-| 1.5 | Напоминания по локальному времени + `dm_blocked_at` | coder | ⏳ |
-| 1.6 | Free/Pro: entitlement-сервис, paywall, лимит новых слов | architect → coder | ⏳ |
-| 1.7 | Оплата — **отложена владельцем** (за пределами Фазы 1); в Фазе 1 только контракт `BillingProvider` и схема на вырост | — | ⏸ |
-| 1.8 | Публичный лендинг, оферта, политика конфиденциальности | coder | ⏳ |
-| 1.9 | Суперадмин-панель: пользователи, подписки, MRR, модерация контента | coder | ⏳ |
+| 1.2a | Курсы и переводы: `CourseCatalogService`, `CoursePublisher`, `WordTranslationResolver`, импорт v2, Filament курсы/переводы, stage в курсе группы | coder | 🚧 |
+| 1.2b | Каталог курсов в TWA (`/courses`, выбор курса) | coder | ⏳ |
+| 1.2c | Предгенерация аудио (edge-tts → `words.audio_path`) | coder | ⏳ |
+| 1.3a | Личные сессии и scope (`daily_review`, `lesson`), `CardPicker::pickNext(scope, budget)` | architect → coder | ⏳ |
+| 1.3b | «Сегодня», дневная цель, streak (`LearnerClock`, `DailyStatsService`, `StreakService`, `GET /today`) | architect → coder | ⏳ |
+| 1.4a | Entitlement, подписки, промокоды (ядро — architect; Filament, `/promo/redeem`, `/me.entitlement`, бот `/promo` — coder) | architect → coder | 🚧 |
+| 1.4b | Квота Free (20 новых слов/день) и paywall «Pro скоро» + промокод + контакт | coder | ⏳ |
+| 1.5a | Онбординг в боте `/start` (язык, цель, уровень, пояс, время) | coder | ⏳ |
+| 1.5b | Напоминания по локальному времени + `dm_blocked_at` | architect → coder | ⏳ |
+| 1.6 | Настройки (`PATCH /me/settings`, `SettingsView`, `/settings` в боте) | coder | ⏳ |
+| 1.7 | Публичный лендинг `/`, `/offer`, `/privacy` (ru/uz), `security.txt`; оферта и политика — шаблоны до текстов владельца | coder | ✅ (тексты — владелец) |
+| 1.8 | Админка платформы: виджеты learners/воронка/Pro/места организаций | coder | ⏳ |
+| 1.9 | Контент MVP: курсы A1–B2 + переводы uz/ru | владелец + coder | ⏳ |
+| 1.10 | Ревью фазы, smoke на демо-стенде | координатор / reviewer | ⏳ |
+| — | Оплата (Stars/Payme/Click) — **отложена владельцем**, за пределами Фазы 1 | — | ⏸ |
 
 **1.1 принята (2026-10-18):** ревью + повторное ревью, блокирующих нет. Проверки: pint, Larastan 8, Pest 574 (sqlite и PG 16), vue-tsc, vitest 93, build. Попутно: потолок интервала SM-2 `LEARNING_MAX_INTERVAL_DAYS` (3650) — на PG интервал переполнял smallint; jsonb-сравнения в тестах без зависимости от порядка ключей. По ревью: профиль из Telegram — полный снимок имени/username, `language_code` только если пришёл; soft-deleted learner восстанавливается только своим `/auth` (пассивные события пропускаются); `last_seen_at` только на `/auth`; запоздалые апдейты членства не применяются (по `date`); block/unblock — `LearnerModerationService` + аудит; фильтр по группе в панели ограничен скоупом; ссылка напоминания — группа, где проходили урок, `source=reminder`.
 Хвосты: CI (`.github/workflows`) не запускается на ветках `claude/**` — PG-прогон делает координатор вручную; `acquisition_source` пишется только при создании learner'а — для 1.5a решить, ставит ли `/start ref_…` источник learner'у, созданному ранее через `/auth` (сейчас — нет); stage по номеру без курса и дубль курса `default` — закрываются в 1.2a.
+
+**1.7 сделана (2026-10-18):** лендинг/оферта/политика без cookies и CSRF, язык по `Accept-Language` + канонические `/{ru|uz}/…`, статический `public/css/site.css`, контакт поддержки — `config('site.support_contact')` (env `BILLING_SUPPORT_CONTACT`; после 1.4a свести в `config/billing.php`). От владельца: тексты оферты и политики (ru/uz), реквизиты, `TELEGRAM_BOT_USERNAME`, `BILLING_SUPPORT_CONTACT`, контакт для `public/.well-known/security.txt` (сейчас заглушка), проверка uz-текстов лендинга носителем.
 
 ## Sprint 13 — Фаза 0 «Стабилизация ядра» ✅ (2026-10-18; 0.7 ждёт staging)
 
