@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Stage;
 use App\Models\Word;
+use App\Models\WordTranslation;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -155,9 +157,23 @@ class DemoContentSeeder extends Seeder
     public function run(): void
     {
         DB::transaction(function (): void {
+            $course = Course::updateOrCreate(
+                ['slug' => (string) config('content.default_course_slug')],
+                [
+                    'owner_type' => 'platform',
+                    'owner_id' => null,
+                    'title' => ['ru' => 'Базовый курс', 'uz' => 'Asosiy kurs'],
+                    'visibility' => 'public',
+                    'status' => 'published',
+                    'published_at' => now(),
+                ],
+            );
+
+            $wordsCount = 0;
+
             foreach (self::CONTENT as $stageNumber => $lessons) {
                 $stage = Stage::updateOrCreate(
-                    ['number' => $stageNumber],
+                    ['course_id' => $course->id, 'number' => $stageNumber],
                     [
                         'title' => "Stage {$stageNumber}",
                         'description' => "Demo stage {$stageNumber}",
@@ -171,7 +187,7 @@ class DemoContentSeeder extends Seeder
                     );
 
                     foreach ($words as $w) {
-                        Word::updateOrCreate(
+                        $word = Word::updateOrCreate(
                             ['lesson_id' => $lesson->id, 'word' => $w['word']],
                             [
                                 'translation' => $w['translation'],
@@ -179,9 +195,17 @@ class DemoContentSeeder extends Seeder
                                 'meta' => [],
                             ],
                         );
+
+                        WordTranslation::updateOrCreate(
+                            ['word_id' => $word->id, 'locale' => 'ru'],
+                            ['translation' => $w['translation'], 'source' => 'import'],
+                        );
+                        $wordsCount++;
                     }
                 }
             }
+
+            $course->update(['words_count' => $wordsCount]);
         });
     }
 }

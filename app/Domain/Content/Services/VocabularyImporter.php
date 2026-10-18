@@ -7,6 +7,7 @@ namespace App\Domain\Content\Services;
 use App\Domain\Content\DTO\ImportReport;
 use App\Domain\Learning\Services\LearningCache;
 use App\Models\AuditLog;
+use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Stage;
 use App\Models\Word;
@@ -77,7 +78,7 @@ final class VocabularyImporter
 
         DB::transaction(function () use ($data, $report, $auditContext): void {
             $stage = Stage::updateOrCreate(
-                ['number' => $data['stage']['number']],
+                ['course_id' => $this->defaultCourse()->id, 'number' => $data['stage']['number']],
                 array_filter([
                     'title' => $data['stage']['title'] ?? "Stage {$data['stage']['number']}",
                     'description' => $data['stage']['description'] ?? null,
@@ -133,6 +134,24 @@ final class VocabularyImporter
         });
 
         return $report;
+    }
+
+    /**
+     * Imports without an explicit course go to the platform course (docs/12 §1.7).
+     * Per-file `course` selection arrives with VocabularyImporter v2 (task 1.2a).
+     */
+    private function defaultCourse(): Course
+    {
+        return Course::firstOrCreate(
+            ['slug' => (string) config('content.default_course_slug')],
+            [
+                'owner_type' => 'platform',
+                'title' => ['ru' => 'Базовый курс', 'uz' => 'Asosiy kurs'],
+                'visibility' => 'public',
+                'status' => 'published',
+                'published_at' => now(),
+            ],
+        );
     }
 
     /**

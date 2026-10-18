@@ -18,6 +18,8 @@ return new class extends Migration
             $table->text('example')->nullable();
             $table->string('part_of_speech', 30)->nullable();
             $table->string('transcription', 100)->nullable();
+            $table->string('audio_path', 255)->nullable();
+            $table->boolean('is_active')->default(true);
             $table->jsonb('meta')->default('{}');
             $table->timestamps();
 

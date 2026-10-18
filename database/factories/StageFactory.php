@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Models\Course;
 use App\Models\Stage;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -17,6 +18,7 @@ class StageFactory extends Factory
         $counter++;
 
         return [
+            'course_id' => Course::factory(),
             'number' => $counter,
             'title' => "Stage {$counter}",
             'description' => fake()->sentence(),

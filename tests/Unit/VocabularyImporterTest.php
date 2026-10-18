@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Content\Services\VocabularyImporter;
 use App\Models\AuditLog;
+use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Stage;
 use App\Models\Word;
@@ -173,4 +174,26 @@ it('rolls back on transaction failure and writes no partial data', function (): 
     expect(Stage::count())->toBe(0);
     expect(Lesson::count())->toBe(0);
     expect(Word::count())->toBe(0);
+});
+
+it('puts imported stages into the default course and reuses it', function (): void {
+    $importer = app(VocabularyImporter::class);
+
+    expect($importer->import(sampleJson())->ok())->toBeTrue();
+    expect($importer->import(sampleJson(['stage' => ['number' => 2, 'title' => 'Next']]))->ok())->toBeTrue();
+
+    $course = Course::query()->where('slug', config('content.default_course_slug'))->sole();
+
+    expect(Course::count())->toBe(1)
+        ->and(Stage::count())->toBe(2)
+        ->and($course->stages()->count())->toBe(2);
+});
+
+it('imports into an existing default course without duplicating it', function (): void {
+    $course = Course::factory()->published()->create(['slug' => (string) config('content.default_course_slug')]);
+
+    app(VocabularyImporter::class)->import(sampleJson());
+
+    expect(Course::count())->toBe(1)
+        ->and(Stage::sole()->course_id)->toBe($course->id);
 });
