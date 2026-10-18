@@ -100,7 +100,7 @@ Learner присоединяется к открытой тренировке. �
   "session_id": 123,
   "lesson": { "stage": 4, "lesson": 8, "title": "Resilience" },
   "total_words": 25,
-  "card": { "word_id": 1001, "word": "Resilient", "translation": "Устойчивый", "example": null, "transcription": null, "card_kind": "new", "serve_token": null } | null,
+  "card": { "word_id": 1001, "word": "Resilient", "translation": "Устойчивый", "translation_fallback": false, "example": null, "transcription": null, "card_kind": "new", "serve_token": null } | null,
   "progress": { "done": 0, "total": 25 }
 }
 ```
@@ -120,6 +120,7 @@ Learner присоединяется к открытой тренировке. �
     "word_id": 1001,
     "word": "Resilient",
     "translation": "Устойчивый",
+    "translation_fallback": false, // true — перевод на русском, потому что на язык сессии его ещё нет (клиент показывает пометку)
     "example": "She is a resilient girl.",
     "transcription": "rɪˈzɪl.i.ənt",
     "card_kind": "due",     // due | new | learning (минутные learning steps, см. docs/06 §4)
@@ -128,6 +129,11 @@ Learner присоединяется к открытой тренировке. �
   "progress": { "done": 7, "total": 25 }
 }
 ```
+
+**Язык перевода** (`translation`): групповая сессия — язык группы (`telegram_groups.meta.locale`, по умолчанию `ru`),
+личная сессия — язык интерфейса learner'а (`interface_locale`). Если перевода на этот язык нет, отдаётся русский
+(`word_translations.ru` → `words.translation`) и `translation_fallback = true`; для русского языка флаг всегда `false`
+(docs/12 §1.7, docs/03 §2.21).
 
 При отсутствии карточек — `{ "card": null, "progress": { ... } }` и клиент показывает экран «готово».
 Пока в уроке есть карточки в learning steps, сервер отдаёт их досрочно (learn-ahead), а не `null`.
@@ -178,6 +184,9 @@ Learner присоединяется к открытой тренировке. �
 - `options` содержит правильный перевод и до 3 **реальных** дистракторов (другие уроки того же stage →
   любые другие уроки → другие слова этого урока; предпочтительно та же `part_of_speech`; без дубликатов
   с учётом регистра/пробелов). Заглушек нет; при бедной библиотеке вариантов может быть меньше 4 (минимум 2).
+- Тексты вопросов — переводы на язык **группы** (`exam_sessions.config.locale`, фиксируется при `/start_exam`) с fallback
+  на `ru`. Чтобы язык не выдавал ответ (кириллица рядом с латиницей), дистракторы того же языка, что и верный ответ,
+  берутся первыми; другой язык — только если их не хватает. Флага fallback у экзаменационных вопросов нет.
   Если для слова нет ни одного реального дистрактора — `/start_exam` отвечает учителю ошибкой, сессия не создаётся.
 - Сессии, созданные до этого режима (нет `config.question_order`), доигрываются с общим порядком как раньше.
 
@@ -308,8 +317,8 @@ public function __invoke(Request $request, string $secret)
 | Команда | Контекст | Роль | Что делает |
 |---------|----------|------|-----------|
 | `/start` | ЛС | любая | Если `user_id` есть в `users.telegram_user_id` → «Привет, учитель X». Иначе — инструкция, как присоединиться к группе. |
-| `/start_training [stage] [lesson]` | группа | teacher | Создаёт `training_session`, постит сообщение с WebApp-кнопкой. |
-| `/start_exam [stage] [lesson] [minutes]` | группа | teacher | Создаёт `exam_session`, планирует закрытие. |
+| `/start_training [stage] [lesson]` | группа | teacher | Создаёт `training_session`, постит сообщение с WebApp-кнопкой. Номера stage/lesson ищутся **в курсе группы** (`telegram_groups.course_id`, иначе курс `default`); без аргументов — список уроков этого курса. |
+| `/start_exam [stage] [lesson] [minutes]` | группа | teacher | Создаёт `exam_session`, планирует закрытие. Номера — в курсе группы, как выше. |
 | `/close_exam` | группа | teacher | Досрочно закрывает открытый экзамен. |
 | `/stats` | ЛС | teacher | Отчёт по его группам за 7 дней. |
 | `/help` | любой | любая | Список доступных команд для роли. |

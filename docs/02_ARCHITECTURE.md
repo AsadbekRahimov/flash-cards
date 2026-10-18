@@ -215,6 +215,8 @@ Database
 
 Домен **`Learners`** (`app/Domain/Learners/Services`, задача 1.1b): `LearnerRegistrar` — единственная точка превращения Telegram-пользователя (initData, апдейт бота, `chat_member`) в `learners`; `GroupMembershipService` — `join` / `leave` / `isActiveMember` / `activeGroups` / `denialReason`, правило «активное членство = `group_members.status = 'active'` и группа `active`» живёт только здесь. Остальные сервисы домена (онбординг, настройки, `LearnerClock`, ежедневная статистика, streak) — задачи 1.3–1.6.
 
+Домен **`Content`** (`app/Domain/Content`, задача 1.2a): `CourseCatalogService` — единственное место, знающее курс по умолчанию (`defaultCourse()`), курс группы (`courseForGroup`) и поиск stage/урока **внутри курса** (`findStage`/`findLesson`/`lessons`); `CoursePublisher` — статусы курса, порог переводов при публикации, `recount`; `WordTranslationResolver` — единственный читатель переводов (локаль → `ru` → `words.translation`, признак fallback, батч без N+1); `WordTranslationWriter` — ручная запись переводов с синхронизацией `words.translation` ↔ строка `ru`; `VocabularyImporter` v2 (`course`, `translations`). Правила — docs/03 §2.20–2.21.
+
 Внутри `app/` организуемся по доменам:
 
 ```
