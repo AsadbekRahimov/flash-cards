@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Content\Exceptions\CoursePublishException;
+use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Content\Services\CoursePublisher;
 use App\Models\AuditLog;
 use App\Models\Course;
@@ -261,4 +262,29 @@ it('recounts the active words of a course', function (): void {
     expect($course->words_count)->toBe(4)
         ->and($course->fresh()->words_count)->toBe(4)
         ->and($other->fresh()->words_count)->toBe(0);
+});
+
+it('never archives the default course: it serves every group without a course', function (): void {
+    $default = app(CourseCatalogService::class)->defaultCourse();
+    $publisher = app(CoursePublisher::class);
+
+    expect($default->status)->toBe('published')
+        ->and($publisher->allowedTransitions($default))->not->toContain('archived');
+
+    try {
+        $publisher->transition($default, 'archived', publisherAdmin());
+        $this->fail('Expected CoursePublishException');
+    } catch (CoursePublishException $e) {
+        expect($e->reason)->toBe(CoursePublishException::REASON_DEFAULT_COURSE_PROTECTED);
+    }
+
+    expect($default->fresh()->status)->toBe('published')
+        ->and(AuditLog::query()->where('action', 'course.status_changed')->count())->toBe(0);
+});
+
+it('archives any other published course', function (): void {
+    $course = Course::factory()->published()->create(['slug' => 'ielts']);
+
+    expect(app(CoursePublisher::class)->allowedTransitions($course))->toContain('archived')
+        ->and(app(CoursePublisher::class)->transition($course, 'archived', publisherAdmin())->status)->toBe('archived');
 });

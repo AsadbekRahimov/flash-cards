@@ -15,6 +15,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class TelegramGroupResource extends Resource
 {
@@ -42,7 +43,10 @@ class TelegramGroupResource extends Resource
                 ->required(),
             Forms\Components\Select::make('course_id')
                 ->label('Course')
-                ->relationship('course', 'slug')
+                // Archived courses are not offered — except the one the group is already bound to (so its label still shows).
+                ->relationship('course', 'slug', fn (Builder $query, ?Model $record): Builder => $query->where(
+                    fn (Builder $q): Builder => $q->where('courses.status', '!=', 'archived')->orWhere('courses.id', $record?->getAttribute('course_id')),
+                ))
                 ->placeholder('Default course')
                 ->helperText('Course whose stage / lesson numbers the teacher commands /start_training and /start_exam use. Empty = the default course.')
                 ->preload(),

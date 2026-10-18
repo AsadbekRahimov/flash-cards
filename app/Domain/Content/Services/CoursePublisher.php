@@ -24,7 +24,9 @@ use Illuminate\Support\Facades\DB;
  *   published → archived
  *   archived  → draft (re-open for editing; it has to go through review again)
  *
- * Publishing is the only guarded move: the course needs a title in every
+ * The `default` course (config `content.default_course_slug`) can never be archived.
+ *
+ * Publishing is the other guarded move: the course needs a title in every
  * supported language, at least one lesson and at least one active word, and
  * a translation in EVERY supported locale (`uz`+`ru`; for ru the legacy
  * `words.translation` counts too) for at least
@@ -58,7 +60,9 @@ final class CoursePublisher
      */
     public function allowedTransitions(Course $course): array
     {
-        return self::TRANSITIONS[$course->status] ?? [];
+        $to = self::TRANSITIONS[$course->status] ?? [];
+
+        return $this->isDefault($course) ? array_values(array_diff($to, [self::ARCHIVED])) : $to;
     }
 
     /**
@@ -85,6 +89,10 @@ final class CoursePublisher
             }
 
             $report = null;
+            if ($to === self::ARCHIVED && $this->isDefault($locked)) {
+                throw CoursePublishException::defaultCourseProtected();
+            }
+
             if ($to === self::PUBLISHED) {
                 $report = $this->assertPublishable($locked);
             }
@@ -111,6 +119,12 @@ final class CoursePublisher
 
             return $course->refresh();
         });
+    }
+
+    /** The platform default course serves groups with no course of their own: it cannot go away. */
+    private function isDefault(Course $course): bool
+    {
+        return $course->slug === (string) config('content.default_course_slug');
     }
 
     /** Recomputes the denormalised `courses.words_count` (active words). */

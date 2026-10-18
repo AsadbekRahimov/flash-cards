@@ -107,6 +107,9 @@ list), each move is written to the audit log (`course.status_changed`):
 | `published` | Archive | `archived` |
 | `archived` | Back to draft | `draft` |
 
+The `default` course cannot be archived (it serves every group that has no course of its own). Archived courses are not
+offered in the group **Course** select.
+
 **Publishing is checked.** A course is published only when (1) its title exists in every language, (2) it has
 at least one lesson with active words, and (3) **at least 95% of its active words have a translation in every
 language (RU and UZ; a blank text is no translation, and the word's main Translation field counts as the RU text)**; otherwise a red message says what is missing (e.g. *"Translations (ru+uz) are complete

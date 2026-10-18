@@ -17,6 +17,7 @@ use App\Models\User;
 use App\Models\Word;
 use App\Models\WordTranslation;
 use Database\Seeders\RolePermissionSeeder;
+use Filament\Forms\Components\Select;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 use function Pest\Livewire\livewire;
@@ -197,4 +198,42 @@ it('lets an admin pick the course of a group', function (): void {
         ->assertHasNoFormErrors();
 
     expect($group->fresh()->course_id)->toBe($course->id);
+});
+
+it('offers every course except archived ones in the group course select', function (): void {
+    $live = Course::factory()->published()->create(['slug' => 'live']);
+    $draft = Course::factory()->create(['slug' => 'wip']);
+    $archived = Course::factory()->create(['slug' => 'old', 'status' => 'archived']);
+    $group = TelegramGroup::factory()->create(['status' => 'active']);
+    $this->actingAs($this->admin);
+
+    livewire(EditTelegramGroup::class, ['record' => $group->getRouteKey()])
+        ->assertFormFieldExists('course_id', function (Select $field) use ($live, $draft, $archived): bool {
+            $options = $field->getOptions();
+
+            return isset($options[$live->id], $options[$draft->id]) && ! isset($options[$archived->id]);
+        });
+});
+
+it('does not let a group be switched to an archived course', function (): void {
+    $archived = Course::factory()->create(['slug' => 'old', 'status' => 'archived']);
+    $group = TelegramGroup::factory()->create(['status' => 'active']);
+    $this->actingAs($this->admin);
+
+    livewire(EditTelegramGroup::class, ['record' => $group->getRouteKey()])
+        ->fillForm(['course_id' => $archived->id])
+        ->call('save')
+        ->assertHasFormErrors(['course_id']);
+
+    expect($group->fresh()->course_id)->toBeNull();
+});
+
+it('keeps showing the archived course a group is already bound to', function (): void {
+    $archived = Course::factory()->create(['slug' => 'old', 'status' => 'archived']);
+    $group = TelegramGroup::factory()->create(['status' => 'active', 'course_id' => $archived->id]);
+    $this->actingAs($this->admin);
+
+    livewire(EditTelegramGroup::class, ['record' => $group->getRouteKey()])
+        ->assertFormSet(['course_id' => $archived->id])
+        ->assertFormFieldExists('course_id', fn (Select $field): bool => ($field->getOptions()[$archived->id] ?? null) === 'old');
 });

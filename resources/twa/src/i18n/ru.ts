@@ -31,7 +31,7 @@ export const ru = {
   'card.kind.due': 'Повторение',
   'card.speak': 'Произнести',
   'card.reveal': 'Показать перевод',
-  'card.translation_fallback': 'Перевода на ваш язык пока нет — показан русский',
+  'card.translation_fallback': 'Перевода на язык занятия пока нет',
   'card.grade_group': 'Оценка',
   'card.grade.hard': 'Трудно',
   'card.grade.medium': 'Средне',

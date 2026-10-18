@@ -61,14 +61,14 @@ describe('FlashCard', () => {
     })
     expect(fallback.get('[data-testid=translation]').text()).toBe('Устойчивый')
     expect(fallback.get('[data-testid=translation-fallback]').text()).toBe(
-      'Перевода на ваш язык пока нет — показан русский',
+      'Перевода на язык занятия пока нет',
     )
 
     setLocale('uz')
     const uz = mount(FlashCard, {
       props: { card: { ...card, translation_fallback: true }, showTranslation: true },
     })
-    expect(uz.get('[data-testid=translation-fallback]').text()).toContain('ruscha')
+    expect(uz.get('[data-testid=translation-fallback]').text()).toBe("Mashg'ulot tilida tarjima hali yo'q")
 
     // Hidden translation: no note either.
     const hidden = mount(FlashCard, {

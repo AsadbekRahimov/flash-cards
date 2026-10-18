@@ -14,6 +14,8 @@ final class CoursePublishException extends DomainException
 
     public const REASON_INVALID_TRANSITION = 'invalid_transition';
 
+    public const REASON_DEFAULT_COURSE_PROTECTED = 'default_course_protected';
+
     public const REASON_TITLE_INCOMPLETE = 'title_incomplete';
 
     public const REASON_NO_LESSONS = 'no_lessons';
@@ -40,6 +42,11 @@ final class CoursePublishException extends DomainException
     public static function invalidTransition(string $from, string $to): self
     {
         return new self(self::REASON_INVALID_TRANSITION, "Course cannot go from '{$from}' to '{$to}'.");
+    }
+
+    public static function defaultCourseProtected(): self
+    {
+        return new self(self::REASON_DEFAULT_COURSE_PROTECTED, 'The default course serves every group without a course and cannot be archived.');
     }
 
     /** @param  list<string>  $locales  locales with a missing / empty title */

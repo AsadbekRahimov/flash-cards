@@ -168,7 +168,7 @@
 | `card.kind.due` | Takrorlash | Повторение |
 | `card.speak` | Talaffuz qilish | Произнести |
 | `card.reveal` | Tarjimani ko'rsatish | Показать перевод |
-| `card.translation_fallback` | Sizning tilingizdagi tarjima hali yo'q — ruscha ko'rsatildi | Перевода на ваш язык пока нет — показан русский |
+| `card.translation_fallback` | Mashg'ulot tilida tarjima hali yo'q | Перевода на язык занятия пока нет |
 | `card.grade_group` | Baho | Оценка |
 | `card.grade.hard` | Qiyin | Трудно |
 | `card.grade.medium` | O'rtacha | Средне |
