@@ -569,7 +569,7 @@ it('runs the learning-state migration backfill and rollback cleanly', function (
     [$graduated, $failed, $untouched] = $s['words']->pluck('id')->all();
 
     /** @var Migration $migration */
-    $migration = require base_path('database/migrations/2026_10_18_000001_add_learning_state_to_word_repetitions.php');
+    $migration = require base_path('database/migrations/2026_10_18_000002_add_learning_state_to_word_repetitions.php');
 
     $migration->down();
     expect(Schema::hasColumns('word_repetitions', ['state', 'learning_step', 'lapses', 'served_ahead_at']))->toBeFalse();
