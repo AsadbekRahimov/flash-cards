@@ -78,6 +78,7 @@ export const uz: Translations = {
   'error.code.session_context_required': "Mashg'ulot yoki imtihonni guruhdagi tugma orqali oching.",
   'error.code.invalid_init_data': "Telegram sessiyasini tasdiqlab bo'lmadi. Ilovani qaytadan oching.",
   'error.code.invalid_token': 'Sessiya eskirgan. Ilovani qaytadan oching.',
+  'error.code.missing_token': 'Siz tizimga kirmagansiz. Ilovani Telegram orqali qaytadan oching.',
   'error.code.lesson_not_found': 'Dars topilmadi.',
   'error.code.question_not_found': 'Savol topilmadi.',
   'error.code.question_not_served': "Savol hali ko'rsatilmagan. Ekranni yangilang.",
