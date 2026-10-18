@@ -18,7 +18,8 @@ final class TrainingNextResource extends TwaResource
     /**
      * @return array{
      *   card: array{word_id: int, word: string, translation: string, translation_fallback: bool, example: string|null, transcription: string|null, card_kind: string, serve_token: string|null}|null,
-     *   progress: array{done: int, total: int}
+     *   progress: array{done: int, total: int},
+     *   done_reason: string|null
      * }
      */
     public function toArray(Request $request): array
@@ -43,6 +44,8 @@ final class TrainingNextResource extends TwaResource
                 'done' => $this->resource->progress['done'],
                 'total' => $this->resource->progress['total'],
             ],
+            // Why `card` is null (docs/04 A.3); null while there is a card.
+            'done_reason' => $this->resource->doneReason?->value,
         ];
     }
 }

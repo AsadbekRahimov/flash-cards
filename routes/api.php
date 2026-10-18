@@ -29,9 +29,14 @@ Route::prefix('twa')->group(function (): void {
             ->middleware('throttle:twa-tts')
             ->name('twa.tts');
 
+        Route::post('/training/sessions', [TrainingController::class, 'open'])
+            ->middleware('throttle:twa-session-create')
+            ->name('twa.training.open');
+
         Route::prefix('training/sessions/{session}')->whereNumber('session')->group(function (): void {
             Route::post('/start', [TrainingController::class, 'start'])->name('twa.training.start');
             Route::get('/next', [TrainingController::class, 'next'])->name('twa.training.next');
+            Route::post('/finish', [TrainingController::class, 'finish'])->name('twa.training.finish');
             Route::post('/review', [TrainingController::class, 'review'])
                 ->middleware('throttle:twa-review')
                 ->name('twa.training.review');
