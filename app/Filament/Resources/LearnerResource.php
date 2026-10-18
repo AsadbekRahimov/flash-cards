@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\Filament\Resources;
 
 use App\Domain\Administration\Services\PanelDataScope;
+use App\Domain\Learners\Services\LearnerModerationService;
 use App\Filament\Resources\LearnerResource\Pages;
-use App\Models\AuditLog;
 use App\Models\Learner;
+use App\Models\User;
 use Filament\Actions;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Pages\PageRegistration;
@@ -95,12 +96,14 @@ class LearnerResource extends Resource
                         ->orderBy('title')
                         ->pluck('title', 'id')
                         ->all())
+                    // The value comes from the client (Livewire state): restrict it to the viewer's own groups.
                     ->query(fn (Builder $query, array $data): Builder => ($data['value'] ?? null) === null || $data['value'] === ''
                         ? $query
                         : $query->whereHas(
                             'memberships',
                             fn (Builder $members): Builder => $members
                                 ->where('telegram_group_id', $data['value'])
+                                ->whereIn('telegram_group_id', app(PanelDataScope::class)->groups()->select('telegram_groups.id'))
                                 ->where('status', 'active'),
                         ))
                     ->label('Group'),
@@ -111,19 +114,16 @@ class LearnerResource extends Resource
                     ->label(fn (Learner $record): string => $record->blocked_at !== null ? 'Unblock' : 'Block')
                     ->color(fn (Learner $record): string => $record->blocked_at !== null ? 'success' : 'danger')
                     ->visible($isAdmin)
+                    ->authorize('update')
                     ->requiresConfirmation()
                     ->action(function (Learner $record): void {
-                        $blocked = $record->blocked_at === null;
-                        $record->update(['blocked_at' => $blocked ? now() : null]);
+                        /** @var User $actor */
+                        $actor = Auth::user();
+                        $moderation = app(LearnerModerationService::class);
 
-                        AuditLog::create([
-                            'user_id' => Auth::id(),
-                            'action' => $blocked ? 'learner.blocked' : 'learner.unblocked',
-                            'entity_type' => Learner::class,
-                            'entity_id' => $record->id,
-                            'ip' => request()->ip(),
-                            'meta' => [],
-                        ]);
+                        $record->blocked_at === null
+                            ? $moderation->block($record, $actor, request()->ip())
+                            : $moderation->unblock($record, $actor, request()->ip());
                     }),
                 Actions\ViewAction::make(),
             ])

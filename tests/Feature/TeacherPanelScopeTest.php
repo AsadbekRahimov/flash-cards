@@ -261,6 +261,44 @@ it('hides the block action from teachers', function (): void {
         ->assertTableActionHidden('toggleBlocked', $learner);
 });
 
+it('does not let a teacher block a learner even by calling the action directly', function (): void {
+    $group = TelegramGroup::factory()->create();
+    $teacher = panelTeacher($group);
+    $learner = Learner::factory()->memberOf($group)->create();
+
+    expect($teacher->can('update', $learner))->toBeFalse();
+
+    $this->actingAs($teacher);
+
+    // A forged Livewire call that bypasses the (hidden) button.
+    Livewire::test(LearnerResource\Pages\ListLearners::class)
+        ->call('mountTableAction', 'toggleBlocked', $learner->getKey())
+        ->call('callMountedTableAction');
+
+    expect($learner->fresh()->blocked_at)->toBeNull()
+        ->and(AuditLog::query()->count())->toBe(0);
+});
+
+it('ignores a forged group filter value that is outside the teacher scope', function (): void {
+    $ownGroup = TelegramGroup::factory()->create();
+    $otherGroup = TelegramGroup::factory()->create();
+    $teacher = panelTeacher($ownGroup);
+    $shared = Learner::factory()->memberOf($ownGroup)->memberOf($otherGroup)->create();
+    $own = Learner::factory()->memberOf($ownGroup)->create();
+    Learner::factory()->memberOf($otherGroup)->create();
+
+    $this->actingAs($teacher);
+
+    // The select only offers the teacher's groups; a tampered Livewire state with a foreign id reveals nothing.
+    Livewire::test(LearnerResource\Pages\ListLearners::class)
+        ->filterTable('telegram_group_id', $otherGroup->id)
+        ->assertCanNotSeeTableRecords([$shared, $own]);
+
+    Livewire::test(LearnerResource\Pages\ListLearners::class)
+        ->filterTable('telegram_group_id', $ownGroup->id)
+        ->assertCanSeeTableRecords([$shared, $own]);
+});
+
 it('filters the learner table by group through active membership', function (): void {
     $admin = panelAdmin();
     $groupA = TelegramGroup::factory()->create();
