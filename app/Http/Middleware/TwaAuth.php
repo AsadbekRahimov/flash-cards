@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Middleware;
 
 use App\Domain\Twa\Services\JwtService;
+use App\Http\Resources\ApiErrorResource;
 use App\Models\Student;
 use Closure;
 use Illuminate\Http\JsonResponse;
@@ -66,8 +67,6 @@ final class TwaAuth
 
     private function unauthorized(string $code): JsonResponse
     {
-        return response()->json([
-            'error' => ['code' => $code, 'message' => 'Unauthorized'],
-        ], 401);
+        return ApiErrorResource::respond(401, $code, 'Unauthorized');
     }
 }

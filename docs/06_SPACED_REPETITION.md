@@ -173,6 +173,9 @@ review-карточку** (то есть после того, как слово 
 
 Расписание: `$schedule->command('repetitions:notify')->dailyAt('18:00');`
 
+Тот же критерий (`state = review AND next_review_at <= now`) использует `words_due_today` в `GET /api/twa/me`
+(`StudentStatsService`), чтобы число на экране совпадало с текстом напоминания.
+
 ## 7. Тестирование
 
 - `tests/Unit/SpacedRepetitionEngineTest.php` — формула EF для 0..5 как раньше; q=4 не меняет EF;

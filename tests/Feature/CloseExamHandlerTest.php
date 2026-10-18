@@ -40,31 +40,17 @@ function seedOpenExam(int $chatId, int $teacherTgId): array
         'updated_at' => now(),
     ]);
 
-    $stage = Stage::factory()->create();
-    $lesson = Lesson::factory()->for($stage)->create();
-    Word::factory()->count(6)->for($lesson)->create();
-    $correct = Word::where('lesson_id', $lesson->id)->first();
+    $lesson = Lesson::factory()->for(Stage::factory()->create())->create();
 
-    $session = ExamSession::factory()->create([
+    $session = ExamSession::factory()->withQuestions(4)->create([
         'telegram_group_id' => $group->id,
         'lesson_id' => $lesson->id,
         'started_by_user_id' => $teacher->id,
         'status' => 'open',
         'started_at' => now()->subMinutes(5),
         'ends_at' => now()->addMinute(),
-        'config' => [
-            'total_questions' => 4,
-            'seconds_per_question' => 10,
-            'duration_minutes' => 2,
-            'questions' => [[
-                'word_id' => $correct->id,
-                'word' => 'test',
-                'correct_translation' => 'тест',
-                'correct_index' => 0,
-                'options' => ['тест', 'a', 'b', 'c'],
-            ]],
-        ],
     ]);
+    $correct = Word::where('lesson_id', $lesson->id)->first();
 
     return compact('group', 'teacher', 'lesson', 'session', 'correct');
 }

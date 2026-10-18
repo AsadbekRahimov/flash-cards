@@ -301,6 +301,32 @@ it('records exam.closed for /close_exam', function (): void {
     Bus::assertDispatched(PostLeaderboardJob::class);
 });
 
+it('records exam.closed with source=scheduler when exams:close-expired closes an exam', function (): void {
+    Bus::fake();
+    $group = TelegramGroup::factory()->create();
+    $expired = ExamSession::factory()->create([
+        'telegram_group_id' => $group->id,
+        'started_at' => now()->subMinutes(10),
+        'ends_at' => now()->subMinutes(5),
+    ]);
+
+    $this->artisan('exams:close-expired', ['--grace' => 0])->assertSuccessful();
+
+    $event = peEvent(ProductEventName::ExamClosed);
+    expect($event->props)->toBe(['exam_session_id' => $expired->id, 'source' => 'scheduler'])
+        ->and($event->telegram_group_id)->toBe($group->id)
+        ->and(ProductEvent::query()->where('name', 'exam.closed')->count())->toBe(1);
+});
+
+it('does not record exam.closed for exams that are still running', function (): void {
+    Bus::fake();
+    ExamSession::factory()->create(['ends_at' => now()->addMinutes(5)]);
+
+    $this->artisan('exams:close-expired', ['--grace' => 0])->assertSuccessful();
+
+    expect(ProductEvent::query()->where('name', 'exam.closed')->count())->toBe(0);
+});
+
 it('records exam.leaderboard_posted once even if the job is delivered twice', function (): void {
     ['group' => $group] = peTeacherInGroup(-2004, 804);
     $session = ExamSession::factory()->closed()->create(['telegram_group_id' => $group->id]);
