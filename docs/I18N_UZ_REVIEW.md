@@ -192,6 +192,27 @@
 | `finished.next_in_days.few` | _(в uz этой формы нет — используется `other`)_ | Через {count} дня |
 | `finished.next_in_days.many` | _(в uz этой формы нет — используется `other`)_ | Через {count} дней |
 | `finished.next_in_days.other` | {count} kundan keyin | Через {count} дня |
+| `catalog.title` | Kurslar | Курсы |
+| `catalog.open` | Kurslar katalogi | Каталог курсов |
+| `catalog.empty` | Hozircha kurslar yo'q. Keyinroq qaytib ko'ring. | Курсов пока нет. Загляните позже. |
+| `catalog.choose` | Tanlash | Выбрать |
+| `catalog.active` | Faol | Активный |
+| `catalog.words.one` | {count} ta so'z | {count} слово |
+| `catalog.words.few` | _(в uz этой формы нет — используется `other`)_ | {count} слова |
+| `catalog.words.many` | _(в uz этой формы нет — используется `other`)_ | {count} слов |
+| `catalog.words.other` | {count} ta so'z | {count} слова |
+| `catalog.progress` | {total} tadan {done} tasi o'rganildi | Изучено {done} из {total} |
+| `catalog.goal.general` | Umumiy ingliz tili | Общий английский |
+| `catalog.goal.school` | Maktab | Школа |
+| `catalog.goal.ielts` | IELTS | IELTS |
+| `catalog.goal.sat` | SAT | SAT |
+| `course.back` | Kurslarga | К курсам |
+| `course.module` | {number}-modul | Модуль {number} |
+| `course.lesson` | {number}-dars | Урок {number} |
+| `course.no_lessons` | Kursda hali darslar yo'q. | В курсе пока нет уроков. |
+| `error.closed.catalog` | Kurs endi mavjud emas. | Курс больше недоступен. |
+| `error.forbidden.catalog` | Sizda kurslar katalogiga kirish huquqi yo'q. | У вас нет доступа к каталогу курсов. |
+| `error.code.course_not_found` | Kurs topilmadi yoki mavjud emas. | Курс не найден или недоступен. |
 | `error.closed.training` | O'qituvchi mashg'ulotni yakunladi. | Учитель завершил тренировку. |
 | `error.closed.exam` | Imtihon o'qituvchi tomonidan yakunlandi. | Экзамен был завершён учителем. |
 | `error.forbidden.training` | Sizda bu mashg'ulotga kirish huquqi yo'q. | У вас нет доступа к этой тренировке. |

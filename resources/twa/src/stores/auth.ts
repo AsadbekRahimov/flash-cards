@@ -52,7 +52,7 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    async ensure(context: AuthContext): Promise<void> {
+    async ensure(context: AuthContext | null = null): Promise<void> {
       // One learner for every session, so a context change needs no new token:
       // access to a session is checked by the server on that session's routes.
       // Refresh only if the token is missing or closer than 60s to expiry.
@@ -60,7 +60,8 @@ export const useAuthStore = defineStore('auth', {
         await this.login(context)
         return
       }
-      this.context = context
+      // Screens outside a session (course catalog) pass no context and keep the current one.
+      if (context) this.context = context
     },
 
     logout(): void {

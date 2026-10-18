@@ -27,11 +27,12 @@ export const KNOWN_ERROR_CODES = [
   'card_not_due',
   'exam_still_open',
   'tts_unavailable',
+  'course_not_found',
 ] as const
 
 export type KnownErrorCode = (typeof KNOWN_ERROR_CODES)[number]
 
-export type ErrorContext = 'training' | 'exam'
+export type ErrorContext = 'training' | 'exam' | 'catalog'
 
 function isKnownCode(code: string): code is KnownErrorCode {
   return (KNOWN_ERROR_CODES as readonly string[]).includes(code)

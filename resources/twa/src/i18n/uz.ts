@@ -58,11 +58,33 @@ export const uz: Translations = {
     other: '{count} kundan keyin',
   },
 
+  // ---- course catalog ----
+  'catalog.title': 'Kurslar',
+  'catalog.open': 'Kurslar katalogi',
+  'catalog.empty': "Hozircha kurslar yo'q. Keyinroq qaytib ko'ring.",
+  'catalog.choose': 'Tanlash',
+  'catalog.active': 'Faol',
+  'catalog.words': {
+    one: "{count} ta so'z",
+    other: "{count} ta so'z",
+  },
+  'catalog.progress': "{total} tadan {done} tasi o'rganildi",
+  'catalog.goal.general': 'Umumiy ingliz tili',
+  'catalog.goal.school': 'Maktab',
+  'catalog.goal.ielts': 'IELTS',
+  'catalog.goal.sat': 'SAT',
+  'course.back': 'Kurslarga',
+  'course.module': '{number}-modul',
+  'course.lesson': '{number}-dars',
+  'course.no_lessons': "Kursda hali darslar yo'q.",
+
   // ---- errors (by kind / context) ----
   'error.closed.training': "O'qituvchi mashg'ulotni yakunladi.",
   'error.closed.exam': "Imtihon o'qituvchi tomonidan yakunlandi.",
+  'error.closed.catalog': 'Kurs endi mavjud emas.',
   'error.forbidden.training': "Sizda bu mashg'ulotga kirish huquqi yo'q.",
   'error.forbidden.exam': "Sizda bu imtihonga kirish huquqi yo'q.",
+  'error.forbidden.catalog': "Sizda kurslar katalogiga kirish huquqi yo'q.",
   'error.network': "Server bilan aloqa yo'q. Qayta urinib ko'ring.",
   'error.rate_limited': "Juda ko'p so'rov yuborildi. Biroz kutib, qayta urinib ko'ring.",
   'error.server': "Server vaqtincha mavjud emas. Keyinroq urinib ko'ring.",
@@ -89,5 +111,6 @@ export const uz: Translations = {
   'error.code.card_not_started': "Bu kartochka hali ko'rsatilmagan. Ekranni yangilang.",
   'error.code.card_not_due': 'Bu kartochka allaqachon takrorlangan, vaqti hali kelmadi.',
   'error.code.exam_still_open': 'Imtihon hali davom etmoqda, natijalar tugagandan keyin chiqadi.',
-  'error.code.tts_unavailable': 'Ovozli talaffuz hozircha mavjud emas.',
+  'error.code.course_not_found': 'Kurs topilmadi yoki mavjud emas.',
+  'error.code.tts_unavailable':'Ovozli talaffuz hozircha mavjud emas.',
 }
