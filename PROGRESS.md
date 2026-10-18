@@ -13,7 +13,7 @@
 | # | Задача | Исполнитель | Статус |
 |---|--------|-------------|--------|
 | 0.1 | SRS: оценка «Средне» без штрафа EF, learning steps внутри сессии | architect | ⏳ |
-| 0.2 | Экзамен: per-student порядок вопросов и вариантов, реальные дистракторы вместо filler | architect | ⏳ |
+| 0.2 | Экзамен: per-student порядок вопросов и вариантов, реальные дистракторы вместо filler | architect | ✅ |
 | 0.3 | `/health/ready` (DB, Redis, scheduler heartbeat, очередь); error tracking — после согласования зависимости | coder | ✅ |
 | 0.4 | Таблица `events` + `ProductEventRecorder` + базовые события | coder | ✅ |
 | 0.5 | i18n каркас: `lang/{ru,uz}`, `trans_choice`, vue-i18n в TWA | coder | ⏳ |
@@ -26,6 +26,8 @@
 - `SendTelegramMessageJob` (отложенная отправка, `$tries = 25`) не обрабатывает `TelegramForbiddenException` — ретраи впустую.
 - Студент, заблокировавший бота, получает попытку напоминания каждый день → флаг `dm_blocked_at` (Фаза 1, learners).
 - `/health/ready` отдаёт 503 первую минуту после деплоя (нет heartbeat) — учесть grace-период в healthcheck.
+- `ExamSessionFactory` даёт `config.questions = 10` (число, а не список) — добавить state `withQuestions(n)` в каноническом формате.
+- Пул дистракторов использует `inRandomOrder()` (ORDER BY RANDOM()) — при росте публичной библиотеки заменить выборкой по случайным id.
 
 ## Sprint 12 — Полный аудит, безопасность и production readiness ✅ (2026-07-13)
 
