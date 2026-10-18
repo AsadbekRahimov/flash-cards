@@ -8,8 +8,11 @@ use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Stage;
 use App\Models\Word;
+use App\Models\User;
 use App\Models\WordTranslation;
+use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 
 uses(RefreshDatabase::class);
 
@@ -150,10 +153,7 @@ it('rejects root that is not an object', function (): void {
 });
 
 it('writes an audit_logs row on successful import', function (): void {
-    app(VocabularyImporter::class)->import(sampleJson(), [
-        'user_id' => null,
-        'ip' => '127.0.0.1',
-    ]);
+    app(VocabularyImporter::class)->import(sampleJson(), null, ['ip' => '127.0.0.1']);
 
     $log = AuditLog::first();
     expect($log)->not->toBeNull();
@@ -318,7 +318,7 @@ it('writes a ru translation row for a v1 file too', function (): void {
 it('imports into the course named by `course` and leaves the default course alone', function (): void {
     $course = Course::factory()->create(['slug' => 'ielts-academic']);
 
-    $report = app(VocabularyImporter::class)->import(sampleJson(['course' => 'ielts-academic', 'words' => v2Words()]), ['user_id' => null]);
+    $report = app(VocabularyImporter::class)->import(sampleJson(['course' => 'ielts-academic', 'words' => v2Words()]));
 
     expect($report->ok())->toBeTrue()
         ->and(Stage::sole()->course_id)->toBe($course->id)
@@ -376,6 +376,11 @@ it('rejects a v2 file whose ru text is missing, conflicting or in an unsupported
     'translation vs translations.ru' => [['word' => 'x', 'translation' => 'a', 'translations' => ['ru' => 'b']], "'translation' and 'translations.ru' differ"],
     'unsupported locale' => [['word' => 'x', 'translation' => 'a', 'translations' => ['kk' => 'z']], "unsupported locale 'kk'"],
     'unsupported example locale' => [['word' => 'x', 'translation' => 'a', 'example_translations' => ['de' => 'z']], "unsupported locale 'de'"],
+    'unsupported locale with an empty value' => [['word' => 'x', 'translation' => 'a', 'translations' => ['kk' => '']], "unsupported locale 'kk'"],
+    'unsupported locale with a blank value' => [['word' => 'x', 'translation' => 'a', 'translations' => ['kk' => '  ']], "unsupported locale 'kk'"],
+    'unsupported example locale with a null value' => [['word' => 'x', 'translation' => 'a', 'example_translations' => ['de' => null]], "unsupported locale 'de'"],
+    'example translation without the translation (uz)' => [['word' => 'x', 'translation' => 'a', 'example_translations' => ['uz' => 'Salom!']], "example_translations 'uz' has no matching translations.uz"],
+    'example translation with an empty translation (uz)' => [['word' => 'x', 'translation' => 'a', 'translations' => ['uz' => ' '], 'example_translations' => ['uz' => 'Salom!']], "example_translations 'uz' has no matching translations.uz"],
     'translations is not an object' => [['word' => 'x', 'translation' => 'a', 'translations' => 'uz'], 'translations'],
 ]);
 
@@ -400,4 +405,122 @@ it('rolls the whole import back when a write fails midway', function (): void {
         ->and(WordTranslation::count())->toBe(0)
         ->and(AuditLog::count())->toBe(0)
         ->and($course->fresh()->words_count)->toBe(0);
+});
+
+it('drops the lesson cache after a successful commit', function (): void {
+    Cache::spy();
+
+    expect(app(VocabularyImporter::class)->import(sampleJson())->ok())->toBeTrue();
+
+    Cache::shouldHaveReceived('forget')->once()->with('lesson:'.Lesson::sole()->id.':word_count');
+});
+
+it('does not touch the lesson cache when the import rolls back', function (): void {
+    Course::factory()->create(['slug' => 'broken']);
+    Cache::spy();
+
+    $inserts = 0;
+    WordTranslation::creating(function () use (&$inserts): void {
+        if (++$inserts === 2) {
+            throw new RuntimeException('boom');
+        }
+    });
+
+    expect(fn () => app(VocabularyImporter::class)->import(sampleJson(['course' => 'broken', 'words' => v2Words()])))
+        ->toThrow(RuntimeException::class);
+
+    WordTranslation::flushEventListeners();
+
+    Cache::shouldNotHaveReceived('forget');
+});
+
+function importer_user(string $role, bool $active = true): User
+{
+    test()->seed(RolePermissionSeeder::class);
+    $user = User::factory()->create(['is_active' => $active]);
+    $user->assignRole($role);
+
+    return $user;
+}
+
+it('imports on behalf of an active admin and records them in the audit log', function (): void {
+    $admin = importer_user('admin');
+
+    $report = app(VocabularyImporter::class)->import(sampleJson(), $admin, ['ip' => '10.0.0.1']);
+
+    expect($report->ok())->toBeTrue()
+        ->and(Word::count())->toBe(2)
+        ->and(AuditLog::sole()->user_id)->toBe($admin->id);
+});
+
+it('refuses a teacher: aborted, nothing is written', function (): void {
+    $teacher = importer_user('teacher');
+
+    $report = app(VocabularyImporter::class)->import(sampleJson(), $teacher);
+
+    expect($report->aborted)->toBeTrue()
+        ->and($report->errors[0])->toContain('not allowed')
+        ->and(Course::count())->toBe(0)
+        ->and(Stage::count())->toBe(0)
+        ->and(Word::count())->toBe(0)
+        ->and(AuditLog::count())->toBe(0);
+});
+
+it('refuses an inactive admin and a user without roles', function (): void {
+    $inactive = importer_user('admin', active: false);
+    $plain = User::factory()->create(['is_active' => true]);
+
+    foreach ([$inactive, $plain] as $user) {
+        $report = app(VocabularyImporter::class)->import(sampleJson(), $user);
+
+        expect($report->aborted)->toBeTrue();
+    }
+    expect(Word::count())->toBe(0);
+});
+
+it('refuses a teacher even when the target course exists', function (): void {
+    $teacher = importer_user('teacher');
+    $course = Course::factory()->published()->create(['slug' => 'extra']);
+
+    $report = app(VocabularyImporter::class)->import(sampleJson(['course' => 'extra']), $teacher);
+
+    expect($report->aborted)->toBeTrue()
+        ->and($course->stages()->count())->toBe(0);
+});
+
+it('allows the userless (system) path only from the console', function (): void {
+    // Pest runs in the console: allowed.
+    expect(app(VocabularyImporter::class)->import(sampleJson())->ok())->toBeTrue();
+
+    $flag = new ReflectionProperty($this->app, 'isRunningInConsole');
+    $flag->setValue($this->app, false);
+
+    try {
+        $report = app(VocabularyImporter::class)->import(sampleJson([
+            'lesson' => ['number' => 2],
+        ]));
+    } finally {
+        $flag->setValue($this->app, true);
+    }
+
+    expect($report->aborted)->toBeTrue()
+        ->and(Lesson::query()->where('number', 2)->exists())->toBeFalse();
+});
+
+it('accepts example_translations.ru when the ru text comes from `translation`', function (): void {
+    $report = app(VocabularyImporter::class)->import(sampleJson(['words' => [
+        ['word' => 'x', 'translation' => 'а', 'example' => 'X.', 'example_translations' => ['ru' => 'Икс.']],
+    ]]));
+
+    expect($report->ok())->toBeTrue()
+        ->and(WordTranslation::query()->where('locale', 'ru')->sole()->example_translation)->toBe('Икс.');
+});
+
+it('ignores an empty example translation that has no translation', function (): void {
+    $report = app(VocabularyImporter::class)->import(sampleJson(['words' => [
+        ['word' => 'x', 'translation' => 'а', 'example_translations' => ['uz' => '']],
+    ]]));
+
+    expect($report->ok())->toBeTrue()
+        ->and(WordTranslation::query()->where('locale', 'uz')->count())->toBe(0);
 });

@@ -12,9 +12,11 @@ use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Stage;
 use App\Models\Word;
+use App\Models\User;
 use App\Models\WordTranslation;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use Throwable;
 
@@ -48,11 +50,20 @@ final class VocabularyImporter
      * file is idempotent: unchanged rows are skipped; a changed translation is overwritten and loses its
      * `reviewed_at` mark. Everything is written in ONE transaction or nothing at all.
      *
-     * @param  array{user_id?:int|null, ip?:string|null}  $auditContext
+     * Who may import (docs/12 §8: in Phase 1 content is platform-owned): `$by` must pass the `update`
+     * ability of the target course (CoursePolicy → an active admin); a refusal is an `aborted` report
+     * and nothing is written. `$by = null` is the system path (seeders, artisan, queue) and is allowed
+     * ONLY when the app runs in the console — an HTTP request can never import without a user.
+     *
+     * @param  array{ip?:string|null}  $auditContext
      */
-    public function import(string $rawJson, array $auditContext = []): ImportReport
+    public function import(string $rawJson, ?User $by = null, array $auditContext = []): ImportReport
     {
         $report = new ImportReport;
+
+        if ($by === null ? ! app()->runningInConsole() : Gate::forUser($by)->denies('viewAny', Course::class)) {
+            return $this->refuse($report);
+        }
 
         if (strlen($rawJson) > self::MAX_BYTES) {
             $report->aborted = true;
@@ -101,7 +112,11 @@ final class VocabularyImporter
             return $report;
         }
 
-        DB::transaction(function () use ($data, $words, $course, $report, $auditContext): void {
+        if ($by !== null && Gate::forUser($by)->denies('update', $course)) {
+            return $this->refuse($report);
+        }
+
+        $lesson = DB::transaction(function () use ($data, $words, $course, $report, $by, $auditContext): Lesson {
             $stage = Stage::updateOrCreate(
                 ['course_id' => $course->id, 'number' => $data['stage']['number']],
                 array_filter([
@@ -165,7 +180,7 @@ final class VocabularyImporter
             $this->publisher->recount($course);
 
             AuditLog::create([
-                'user_id' => $auditContext['user_id'] ?? null,
+                'user_id' => $by?->id,
                 'action' => 'import.uploaded',
                 'entity_type' => Lesson::class,
                 'entity_id' => $lesson->id,
@@ -180,8 +195,19 @@ final class VocabularyImporter
                 ],
             ]);
 
-            $this->cache->forgetLesson($lesson);
+            return $lesson;
         });
+
+        // After the commit: a rolled-back import must not drop (or re-warm from stale rows) the cache.
+        $this->cache->forgetLesson($lesson);
+
+        return $report;
+    }
+
+    private function refuse(ImportReport $report): ImportReport
+    {
+        $report->aborted = true;
+        $report->errors[] = 'Import is not allowed: only a platform admin can import vocabulary.';
 
         return $report;
     }
@@ -222,9 +248,10 @@ final class VocabularyImporter
             $translations = $this->stringMap($w['translations'] ?? null);
             $exampleTranslations = $this->stringMap($w['example_translations'] ?? null);
 
-            foreach (['translations' => $translations, 'example_translations' => $exampleTranslations] as $field => $map) {
-                foreach (array_keys($map) as $locale) {
-                    if (! in_array($locale, $supported, true)) {
+            // Locale keys are checked on the raw maps: an empty value must not hide an unsupported locale.
+            foreach (['translations' => $w['translations'] ?? null, 'example_translations' => $w['example_translations'] ?? null] as $field => $raw) {
+                foreach (is_array($raw) ? array_keys($raw) : [] as $locale) {
+                    if (! in_array((string) $locale, $supported, true)) {
                         $report->aborted = true;
                         $report->errors[] = "{$label}: unsupported locale '{$locale}' in {$field} (supported: ".implode(', ', $supported).').';
                     }
@@ -245,6 +272,14 @@ final class VocabularyImporter
             }
 
             $translations['ru'] = $legacy !== '' ? $legacy : $ru;
+
+            // An example translation needs its word translation; silently dropping it would hide a typo.
+            foreach (array_keys($exampleTranslations) as $locale) {
+                if (in_array($locale, $supported, true) && ($translations[$locale] ?? '') === '') {
+                    $report->aborted = true;
+                    $report->errors[] = "{$label}: example_translations '{$locale}' has no matching translations.{$locale}.";
+                }
+            }
 
             $out[] = [
                 'word' => (string) $w['word'],

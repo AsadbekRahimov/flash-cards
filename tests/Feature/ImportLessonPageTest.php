@@ -53,3 +53,20 @@ it('streams the sample JSON on downloadSample', function (): void {
     livewire(ImportLesson::class)
         ->call('downloadSample');
 });
+
+it('hides the import page from teachers (403) and does not import', function (): void {
+    $teacher = User::factory()->create(['is_active' => true]);
+    $teacher->assignRole('teacher');
+    $this->actingAs($teacher);
+
+    $this->get('/admin/import-lesson')->assertForbidden();
+    expect(ImportLesson::canAccess())->toBeFalse();
+});
+
+it('hides the import page from an inactive admin', function (): void {
+    $admin = User::factory()->create(['is_active' => false]);
+    $admin->assignRole('admin');
+    $this->actingAs($admin);
+
+    expect(ImportLesson::canAccess())->toBeFalse();
+});

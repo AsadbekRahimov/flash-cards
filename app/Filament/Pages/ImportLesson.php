@@ -41,13 +41,14 @@ class ImportLesson extends Page implements HasSchemas
     /** @var array<string, mixed>|null */
     public ?array $lastReport = null;
 
+    /** Phase 1: content is platform-owned (docs/12 §8) — only an active admin imports. */
     public static function canAccess(): bool
     {
         $user = auth()->user();
 
         return $user instanceof User
             && $user->is_active
-            && $user->hasAnyRole(['admin', 'teacher']);
+            && $user->hasRole('admin');
     }
 
     public function mount(): void
@@ -97,10 +98,12 @@ class ImportLesson extends Page implements HasSchemas
 
         $raw = (string) file_get_contents($file->getRealPath());
 
-        $report = $importer->import($raw, [
-            'user_id' => auth()->id() ? (int) auth()->id() : null,
-            'ip' => request()->ip(),
-        ]);
+        $user = auth()->user();
+        if (! $user instanceof User) {
+            abort(403);
+        }
+
+        $report = $importer->import($raw, $user, ['ip' => request()->ip()]);
 
         $this->lastReport = $report->toArray();
 

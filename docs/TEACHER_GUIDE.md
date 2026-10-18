@@ -10,6 +10,10 @@ This guide covers everything a teacher needs to run training sessions and exams 
 2. You must be linked to at least one **active** group in the admin panel.
 3. The LexiFlow bot must be a member of that Telegram group.
 
+> **Content is managed by platform administrators.** In this phase a teacher cannot import lessons, edit
+> courses or words, or open the **Import Lesson** page (it answers *403*). If a lesson or stage you need is
+> missing, ask the administrator to import it.
+
 ---
 
 ## Bot Commands Reference
@@ -95,7 +99,7 @@ This immediately closes the open exam, builds the final leaderboard, and posts i
 |---|---|
 | "You are not a teacher of this group" | Your account is not linked to this group. Contact admin. |
 | "Group is not active" | The group is disabled in the admin panel. Contact admin. |
-| "Stage N not found" / "Lesson N not found" | That stage/lesson hasn't been imported yet. Contact admin. |
+| "Stage N not found" / "Lesson N not found" | That stage/lesson hasn't been imported yet. Ask the admin to import it (teachers cannot). |
 | "Not enough words" | The lesson has fewer than the minimum required words. Contact admin. |
 | "An exam is already open" | Another exam is running — close it first with `/close_exam`. |
 | "No exam is open in this group" | You tried `/close_exam` but there is nothing to close. |

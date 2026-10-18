@@ -127,6 +127,9 @@ next to a word on the lesson screen) → open the word → **Translations** tabl
 Words are never deleted. The **Active** flag on the word screen currently only decides whether a word counts in the course word counter and in the publishing check (cards and exams do not filter by it yet).
 
 ### Importing a lesson via JSON (recommended)
+**Admins only.** In this phase content belongs to the platform: the **Import Lesson** page is hidden from
+teachers (direct link → *403*), and the importer itself refuses any user who is not an active admin
+(nothing is written). Seeders and artisan commands run without a user and are allowed only in the console.
 1. Go to **Import Lesson** in the left sidebar.
 2. Click **Download sample** to get the JSON template.
 3. Prepare your JSON file following the rich admin schema:
