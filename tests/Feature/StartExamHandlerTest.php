@@ -40,7 +40,7 @@ function seedLessonWithWords(int $chatId = -1001, int $telegramUserId = 777): ar
     $teacher = User::factory()->create(['telegram_user_id' => $telegramUserId]);
     attachExamTeacher($teacher, $group);
 
-    $stage = Stage::factory()->create(['number' => 1]);
+    $stage = Stage::factory()->inDefaultCourse()->create(['number' => 1]);
     $lesson = Lesson::factory()->for($stage)->create(['number' => 1]);
     Word::factory()->count(10)->for($lesson)->create();
 
@@ -165,7 +165,7 @@ it('rejects lesson with not enough words', function (): void {
     $group = TelegramGroup::factory()->create(['chat_id' => -3003, 'status' => 'active']);
     $teacher = User::factory()->create(['telegram_user_id' => 888]);
     attachExamTeacher($teacher, $group);
-    $stage = Stage::factory()->create(['number' => 1]);
+    $stage = Stage::factory()->inDefaultCourse()->create(['number' => 1]);
     $lesson = Lesson::factory()->for($stage)->create(['number' => 1]);
     Word::factory()->count(2)->for($lesson)->create(); // less than min 4
 
@@ -188,7 +188,7 @@ it('rejects a lesson whose words have no real distractors and leaves no session 
     $group = TelegramGroup::factory()->create(['chat_id' => -4004, 'status' => 'active']);
     $teacher = User::factory()->create(['telegram_user_id' => 999]);
     attachExamTeacher($teacher, $group);
-    $stage = Stage::factory()->create(['number' => 1]);
+    $stage = Stage::factory()->inDefaultCourse()->create(['number' => 1]);
     $lesson = Lesson::factory()->for($stage)->create(['number' => 1]);
     // 4 words, all with the same translation and nothing else in the library.
     Word::factory()->count(4)->for($lesson)->create(['translation' => 'одно и то же']);

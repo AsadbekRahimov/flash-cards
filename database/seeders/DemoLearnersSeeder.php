@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Learners\Services\GroupMembershipService;
-use App\Models\Course;
 use App\Models\Learner;
 use App\Models\TelegramGroup;
 use Illuminate\Database\Seeder;
@@ -32,9 +32,7 @@ class DemoLearnersSeeder extends Seeder
 
         $group = TelegramGroup::where('chat_id', -1001234567890)->firstOrFail();
 
-        $courseId = Course::query()
-            ->where('slug', (string) config('content.default_course_slug'))
-            ->value('id');
+        $courseId = app(CourseCatalogService::class)->defaultCourse()->id;
 
         $secondGroup = TelegramGroup::updateOrCreate(
             ['chat_id' => -1001234567891],

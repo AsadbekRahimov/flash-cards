@@ -65,7 +65,7 @@ class ImportLesson extends Page implements HasSchemas
                     ->maxSize(VocabularyImporter::MAX_BYTES / 1024)
                     ->required()
                     ->storeFiles(false)
-                    ->helperText('Max 2 MB. Schema: see "Download sample".'),
+                    ->helperText('Max 2 MB. Schema: see "Download sample". Optional "course": slug of an existing course (default: the default course); per word "translations": {"ru", "uz"}.'),
             ])
             ->statePath('data');
     }

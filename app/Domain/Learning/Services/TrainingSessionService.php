@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\Learning\Services;
 
+use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Learning\Exceptions\TrainingSessionException;
 use App\Models\Lesson;
-use App\Models\Stage;
 use App\Models\TelegramGroup;
 use App\Models\TrainingSession;
 use App\Models\User;
@@ -22,7 +22,13 @@ use Illuminate\Support\Facades\DB;
  */
 final class TrainingSessionService
 {
+    public function __construct(private readonly CourseCatalogService $catalog) {}
+
     /**
+     * Teacher command `/start_training <stage> <lesson>`: the numbers are resolved inside the
+     * course of the group (`telegram_groups.course_id`, else the default course) — stage numbers
+     * repeat across courses.
+     *
      * @param  string  $source  stored on a NEWLY created session only (`command`, `reminder`, ...);
      *                          an already open session keeps the source it was created with.
      *
@@ -36,6 +42,40 @@ final class TrainingSessionService
         User $teacher,
         string $source = 'command',
     ): TrainingSession {
+        $this->assertCanOpen($group, $teacher);
+
+        $stage = $this->catalog->findStage($this->catalog->courseForGroup($group), $stageNumber);
+        if ($stage === null) {
+            throw TrainingSessionException::stageNotFound($stageNumber);
+        }
+
+        $lesson = $this->catalog->findLesson($stage, $lessonNumber);
+        if ($lesson === null) {
+            throw TrainingSessionException::lessonNotFound($stageNumber, $lessonNumber);
+        }
+
+        return $this->openLesson($group, $lesson, $teacher, $source);
+    }
+
+    /**
+     * Same as {@see open()} for a lesson that is already known (reminder links): no number
+     * lookup, so the lesson need not belong to the course of the group.
+     *
+     * @throws TrainingSessionException when the user does not teach the group or it is inactive.
+     */
+    public function openForLesson(
+        TelegramGroup $group,
+        Lesson $lesson,
+        User $teacher,
+        string $source = 'command',
+    ): TrainingSession {
+        $this->assertCanOpen($group, $teacher);
+
+        return $this->openLesson($group, $lesson, $teacher, $source);
+    }
+
+    private function assertCanOpen(TelegramGroup $group, User $teacher): void
+    {
         if (! $this->userTeachesGroup($teacher, $group)) {
             throw TrainingSessionException::notTeacher();
         }
@@ -43,23 +83,10 @@ final class TrainingSessionService
         if ($group->status !== 'active') {
             throw TrainingSessionException::groupInactive();
         }
+    }
 
-        /** @var Stage|null $stage */
-        $stage = Stage::query()->where('number', $stageNumber)->first();
-        if ($stage === null) {
-            throw TrainingSessionException::stageNotFound($stageNumber);
-        }
-
-        /** @var Lesson|null $lesson */
-        $lesson = Lesson::query()
-            ->where('stage_id', $stage->id)
-            ->where('number', $lessonNumber)
-            ->first();
-
-        if ($lesson === null) {
-            throw TrainingSessionException::lessonNotFound($stageNumber, $lessonNumber);
-        }
-
+    private function openLesson(TelegramGroup $group, Lesson $lesson, User $teacher, string $source): TrainingSession
+    {
         try {
             return DB::transaction(function () use ($group, $lesson, $teacher, $source): TrainingSession {
                 /** @var TrainingSession|null $existing */

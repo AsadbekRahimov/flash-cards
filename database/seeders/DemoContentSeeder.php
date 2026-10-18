@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Models\Course;
+use App\Domain\Content\Services\CourseCatalogService;
+use App\Domain\Content\Services\CoursePublisher;
 use App\Models\Lesson;
 use App\Models\Stage;
 use App\Models\Word;
@@ -157,19 +158,7 @@ class DemoContentSeeder extends Seeder
     public function run(): void
     {
         DB::transaction(function (): void {
-            $course = Course::updateOrCreate(
-                ['slug' => (string) config('content.default_course_slug')],
-                [
-                    'owner_type' => 'platform',
-                    'owner_id' => null,
-                    'title' => ['ru' => 'Базовый курс', 'uz' => 'Asosiy kurs'],
-                    'visibility' => 'public',
-                    'status' => 'published',
-                    'published_at' => now(),
-                ],
-            );
-
-            $wordsCount = 0;
+            $course = app(CourseCatalogService::class)->defaultCourse();
 
             foreach (self::CONTENT as $stageNumber => $lessons) {
                 $stage = Stage::updateOrCreate(
@@ -200,12 +189,11 @@ class DemoContentSeeder extends Seeder
                             ['word_id' => $word->id, 'locale' => 'ru'],
                             ['translation' => $w['translation'], 'source' => 'import'],
                         );
-                        $wordsCount++;
                     }
                 }
             }
 
-            $course->update(['words_count' => $wordsCount]);
+            app(CoursePublisher::class)->recount($course);
         });
     }
 }

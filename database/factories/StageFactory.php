@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Domain\Content\Services\CourseCatalogService;
 use App\Models\Course;
 use App\Models\Stage;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -23,5 +24,13 @@ class StageFactory extends Factory
             'title' => "Stage {$counter}",
             'description' => fake()->sentence(),
         ];
+    }
+
+    /** The stage lives in the platform `default` course (where teacher commands look for it when the group has no course). */
+    public function inDefaultCourse(): static
+    {
+        return $this->state(fn (): array => [
+            'course_id' => app(CourseCatalogService::class)->defaultCourse()->id,
+        ]);
     }
 }

@@ -50,6 +50,12 @@ export interface Card {
   word_id: number
   word: string
   translation: string
+  /**
+   * true — `translation` is the Russian fallback because the language of the
+   * session (group / learner) has no translation of this word yet; the card
+   * shows a note (docs/12 §1.7).
+   */
+  translation_fallback: boolean
   example: string | null
   transcription: string | null
   card_kind: CardKind

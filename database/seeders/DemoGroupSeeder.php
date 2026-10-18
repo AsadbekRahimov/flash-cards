@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Models\Course;
+use App\Domain\Content\Services\CourseCatalogService;
 use App\Models\TelegramGroup;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -14,9 +14,7 @@ class DemoGroupSeeder extends Seeder
     public function run(): void
     {
         // Needs DemoContentSeeder to have run first (see DatabaseSeeder).
-        $courseId = Course::query()
-            ->where('slug', (string) config('content.default_course_slug'))
-            ->value('id');
+        $courseId = app(CourseCatalogService::class)->defaultCourse()->id;
 
         $group = TelegramGroup::updateOrCreate(
             ['chat_id' => -1001234567890],

@@ -19,6 +19,7 @@ const card: Card = {
   word_id: 1,
   word: 'Resilient',
   translation: 'Устойчивый',
+  translation_fallback: false,
   example: 'She is a resilient girl.',
   transcription: 'rɪˈzɪl.i.ənt',
   card_kind: 'new',
@@ -49,6 +50,31 @@ describe('FlashCard', () => {
     expect(w.find('[data-testid=grade-hard]').exists()).toBe(true)
     expect(w.find('[data-testid=grade-medium]').exists()).toBe(true)
     expect(w.find('[data-testid=grade-easy]').exists()).toBe(true)
+  })
+
+  it('notes that the translation is a Russian fallback only when the server says so', () => {
+    const plain = mount(FlashCard, { props: { card, showTranslation: true } })
+    expect(plain.find('[data-testid=translation-fallback]').exists()).toBe(false)
+
+    const fallback = mount(FlashCard, {
+      props: { card: { ...card, translation_fallback: true }, showTranslation: true },
+    })
+    expect(fallback.get('[data-testid=translation]').text()).toBe('Устойчивый')
+    expect(fallback.get('[data-testid=translation-fallback]').text()).toBe(
+      'Перевода на ваш язык пока нет — показан русский',
+    )
+
+    setLocale('uz')
+    const uz = mount(FlashCard, {
+      props: { card: { ...card, translation_fallback: true }, showTranslation: true },
+    })
+    expect(uz.get('[data-testid=translation-fallback]').text()).toContain('ruscha')
+
+    // Hidden translation: no note either.
+    const hidden = mount(FlashCard, {
+      props: { card: { ...card, translation_fallback: true }, showTranslation: false },
+    })
+    expect(hidden.find('[data-testid=translation-fallback]').exists()).toBe(false)
   })
 
   it('emits grade event with quality 2 / 4 / 5 (Again / Good / Easy) per button', async () => {

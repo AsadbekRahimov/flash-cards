@@ -71,7 +71,7 @@ function peTeacherInGroup(int $chatId, int $telegramUserId): array
 
 function peLesson(int $words = 10): Lesson
 {
-    $stage = Stage::factory()->create(['number' => 1]);
+    $stage = Stage::factory()->inDefaultCourse()->create(['number' => 1]);
     $lesson = Lesson::factory()->for($stage)->create(['number' => 1]);
     Word::factory()->count($words)->for($lesson)->create();
 

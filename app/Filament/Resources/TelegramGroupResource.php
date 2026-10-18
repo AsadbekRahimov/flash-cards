@@ -40,6 +40,12 @@ class TelegramGroupResource extends Resource
                     'disabled' => 'Disabled',
                 ])
                 ->required(),
+            Forms\Components\Select::make('course_id')
+                ->label('Course')
+                ->relationship('course', 'slug')
+                ->placeholder('Default course')
+                ->helperText('Course whose stage / lesson numbers the teacher commands /start_training and /start_exam use. Empty = the default course.')
+                ->preload(),
             // Stored as meta['locale']; see EditTelegramGroup for the mapping.
             Forms\Components\Select::make('locale')
                 ->label('Bot language')

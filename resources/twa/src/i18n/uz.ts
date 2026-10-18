@@ -25,6 +25,7 @@ export const uz: Translations = {
   'card.kind.due': 'Takrorlash',
   'card.speak': 'Talaffuz qilish',
   'card.reveal': "Tarjimani ko'rsatish",
+  'card.translation_fallback': "Sizning tilingizdagi tarjima hali yo'q — ruscha ko'rsatildi",
   'card.grade_group': 'Baho',
   'card.grade.hard': 'Qiyin',
   'card.grade.medium': "O'rtacha",

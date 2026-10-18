@@ -63,6 +63,12 @@ New groups appear here automatically with status `pending` when the bot is added
 3. Link at least one teacher via the **Teacher Groups** tab.
 4. Save.
 
+### Set the course of a group
+Open the group record and pick **Course** (empty = the `default` course). The teacher commands
+`/start_training <stage> <lesson>` and `/start_exam <stage> <lesson>`, and the lesson picker of
+`/start_training`, look for the stage number **inside this course** only: two courses may both have
+"Stage 1 / Lesson 1". Only admins can change the course of a group.
+
 ### Set the bot language of a group
 The bot writes to the group (command replies, lesson buttons, exam leaderboard) in Russian by default.
 To switch a group to Uzbek (Latin), open the group record, set **Bot language** = `O'zbekcha` and save
@@ -70,12 +76,55 @@ To switch a group to Uzbek (Latin), open the group record, set **Bot language** 
 removed and re-added. Personal messages (e.g. review reminders) follow each learner's interface language
 (`learners.interface_locale`; for a new learner it starts from the Telegram language: `uz*` → Uzbek, anything else → Russian).
 The Web App follows the learner's Telegram language.
+The group language also decides the language of **exam questions** (answers and distractors) and of the
+translations on cards in a group training session; personal sessions use the learner's own language.
 
 ---
 
 ## Content Management
 
-Navigate to **Stages → Lessons → Words**.
+Navigate to **Content → Courses / Stages / Lessons / Words**.
+
+Content hierarchy: **Course → Module (stage) → Lesson → Word**. Stage numbers are unique *within a course*.
+The platform course `default` (created by the seeder or by the first import) receives everything that does
+not name a course.
+
+### Courses (admins only)
+**Content → Courses** lists the catalog. A course has a unique `slug` (Latin lowercase, digits, dashes;
+it cannot be changed after creation), a **title in every language** (RU and UZ are both required),
+an optional description, level (A1–C2), goal (General / School / IELTS / SAT), visibility
+(`public` — in the catalog, `unlisted` — by link or group, `private`) and a position in the catalog.
+The **Modules (stages)** table on the course page adds and edits the modules of the course; lessons and
+words are edited on the stage / lesson screens.
+
+**Status.** The status is never typed into the form — it moves with the buttons on the course page (and in the
+list), each move is written to the audit log (`course.status_changed`):
+
+| From | Button | To |
+|---|---|---|
+| `draft` | Send to review | `review` |
+| `review` | Publish / Back to draft | `published` / `draft` |
+| `published` | Archive | `archived` |
+| `archived` | Back to draft | `draft` |
+
+**Publishing is checked.** A course is published only when (1) its title exists in every language, (2) it has
+at least one lesson with active words, and (3) **at least 95% of its active words have a translation in every
+language (RU and UZ)**; otherwise a red message says what is missing (e.g. *"Translations (ru+uz) are complete
+for 18 of 20 words (90.0%), required: 95.0%"*). The threshold is `CONTENT_PUBLISH_TRANSLATION_THRESHOLD`
+(default `0.95`). The check applies to **new publications only**: a course that is already published is never
+re-checked, and old content without an Uzbek translation is shown in Uzbek-language sessions with the Russian
+text and a small note *"No translation in your language yet — Russian shown"*.
+
+### Translations
+Every word has a Russian text (the **Translation** field, also stored as the `ru` translation) and optional
+translations into other interface languages. To edit them: **Content → Words** (or the **Translations** button
+next to a word on the lesson screen) → open the word → **Translations** table:
+- **Create** adds a language (one row per language and word); **Edit** changes the text. A changed text becomes
+  a `manual` translation and loses its *Reviewed* mark; **Mark reviewed** is for the native-speaker check.
+- Editing the `ru` row also updates the word's main Translation, and editing the main Translation on the
+  lesson screen updates the `ru` row, so the two never differ.
+- Cards and exams use the translation of the session language and fall back to Russian (see Courses above).
+Words are never deleted. The **Active** flag on the word screen currently only decides whether a word counts in the course word counter and in the publishing check (cards and exams do not filter by it yet).
 
 ### Importing a lesson via JSON (recommended)
 1. Go to **Import Lesson** in the left sidebar.
@@ -83,20 +132,35 @@ Navigate to **Stages → Lessons → Words**.
 3. Prepare your JSON file following the rich admin schema:
 ```json
 {
+  "course": "english-a1",
   "stage": {"number": 1, "title": "Beginner", "description": "Optional"},
   "lesson": {"number": 1, "title": "Greetings"},
   "words": [
     {
       "word": "hello",
-      "translation": "привет",
+      "translations": {"ru": "привет", "uz": "salom"},
+      "example": "Hello, how are you?",
+      "example_translations": {"uz": "Salom, qalaysiz?"},
       "part_of_speech": "interjection",
-      "transcription": "həˈloʊ",
-      "example": "Hello, how are you?"
+      "transcription": "həˈloʊ"
     }
   ]
 }
 ```
-The original PRD schema is also supported for compatibility:
+- `course` (optional): the **slug of an existing course** (create it under Courses first). Without it the lesson
+  goes into the `default` course. An unknown slug rejects the whole file.
+- `translations` (optional): `ru` / `uz` texts. The Russian text may also be given as `translation` (the old
+  field; if both are present they must be equal). Russian is always required. `example_translations` is optional.
+
+The old files keep working unchanged — without `course` and `translations`:
+```json
+{
+  "stage": {"number": 1},
+  "lesson": {"number": 1},
+  "words": [{"word": "hello", "translation": "привет"}]
+}
+```
+The original PRD schema is also supported for compatibility (`course` may be added to it too):
 ```json
 {
   "stage": 1,
@@ -113,15 +177,19 @@ The original PRD schema is also supported for compatibility:
 }
 ```
 4. Upload the file and click **Import**.
-5. Review the report: `added / updated / skipped / errors`.
+5. Review the report: `added / updated / skipped / translations new+updated / errors`.
 
 ### Import rules
 - Max file size: 2 MB.
 - Max 500 words per file.
 - Allowed `part_of_speech`: `noun`, `verb`, `adjective`, `adverb`, `pronoun`, `preposition`, `conjunction`, `interjection`.
+- Allowed translation languages: those enabled for the platform (now `ru`, `uz`).
 - Duplicate words within the same lesson are rejected.
-- Importing again with the same stage/lesson numbers **updates** existing words (upsert).
+- Importing again with the same course/stage/lesson numbers **updates** existing words (upsert); an identical
+  file changes nothing (all words are *skipped*). A changed translation overwrites the stored one — including a
+  manual edit — and removes its *Reviewed* mark, so re-importing a corrected pack sends the changed texts back to review.
 - If any validation error occurs, **nothing is written** (atomic transaction).
+- The course's word counter is refreshed after every import.
 
 ### Manual word editing
 Open any Stage → Lesson → click on a word to edit its translation, example, or transcription.
@@ -220,7 +288,8 @@ psql -U lexiflow -d lexiflow < dump.sql
 Check: (1) group status is `active`, (2) teacher is linked to the group, (3) teacher's `telegram_user_id` is correct.
 
 **"Stage not found" error when starting training.**
-The requested stage/lesson hasn't been imported yet. Import a lesson first.
+The requested stage/lesson hasn't been imported yet — or it exists in a different course. The teacher commands look
+for the stage number in the **course of the group** (group record → Course; empty = the `default` course).
 
 **Admin panel shows a blank page after login.**
 Run `php artisan optimize:clear` (or `make cache-clear`) to clear cached views.

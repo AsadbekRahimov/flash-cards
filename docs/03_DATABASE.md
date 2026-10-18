@@ -122,10 +122,12 @@ erDiagram
 | id | bigint PK | |
 | lesson_id | bigint FK → lessons | |
 | word | string(100) | английское слово |
-| translation | string(500) | перевод |
+| translation | string(500) | русский перевод по умолчанию (NOT NULL); читать переводы в коде — только через `WordTranslationResolver` (см. 2.21) |
 | example | text nullable | пример предложения |
 | part_of_speech | string(30) nullable | noun/verb/... |
 | transcription | string(100) nullable | IPA |
+| audio_path | string(255) nullable | предгенерированное аудио (задача 1.2c) |
+| is_active | boolean default true | слово не удаляем, а деактивируем; учитывается в `courses.words_count` и в проверке публикации курса |
 | meta | jsonb default '{}' | |
 
 **Индексы:** `(lesson_id, word)` unique, `lesson_id`, `word` (для поиска).
@@ -219,6 +221,8 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 
 `config` (пишется `ExamSessionService::open`, неизменяем после создания):
 - `total_questions`, `seconds_per_question`, `duration_minutes` — параметры сессии;
+- `locale` — язык текстов вопросов: локаль **группы** (`LocaleResolver::forGroup`) на момент открытия экзамена,
+  переводы с fallback на `ru` (см. 2.21); вопросы канонические и не пересчитываются при смене языка группы;
 - `question_order` — `'per_learner'`: порядок вопросов и вариантов у каждого learner'а свой
   (`ExamQuestionPersonalizer`, HMAC от `session_id` + `learner_id`). Отсутствие ключа =
   legacy-сессия с общим порядком — доигрывается как есть;
@@ -425,6 +429,16 @@ Append-only журнал для продуктовой аналитики (не 
 
 **Индексы:** `slug` unique; `(status, visibility, position)`; `(owner_type, owner_id)`.
 
+**Жизненный цикл** (`CoursePublisher::transition`, только активный admin, каждый переход — строка `audit_logs`
+`course.status_changed` с `from`/`to`): `draft → review`, `review → draft | published`, `published → archived`,
+`archived → draft`; прочие переходы — ошибка. **Публикация** (`→ published`) требует: заголовок на каждом
+поддерживаемом языке (`config('localization.supported')`), ≥ 1 урока, ≥ 1 активного слова и переводы **всех**
+поддерживаемых локалей (сейчас `uz` + `ru`) не менее чем у `config('content.publish_translation_threshold')`
+(0.95) активных слов. Проверка — только при новой публикации: уже опубликованный курс не пересматривается,
+контент без `uz` показывается с ru-fallback и пометкой. `words_count` — число активных слов курса,
+пересчитывается `CoursePublisher::recount` после импорта. Курс `default` создаётся `CourseCatalogService::defaultCourse()`
+(сидер, первый импорт без `course`) сразу в статусе `published`; группа с `telegram_groups.course_id = NULL` работает в нём.
+
 ### 2.21 `word_translations` — переводы слов по локалям
 | Колонка | Тип |
 |---------|-----|
@@ -438,6 +452,14 @@ Append-only журнал для продуктовой аналитики (не 
 | created_at, updated_at | |
 
 **Индексы:** `(word_id, locale)` unique.
+
+**Чтение** — только `WordTranslationResolver`: `word_translations[locale]` → `word_translations[ru]` →
+`words.translation`; пустая строка = нет перевода. Признак `is_fallback` = «показан не запрошенный язык»
+(запрос `ru` не бывает fallback'ом). Батч (`map`/`resolveMany`) — один запрос на пачку слов. Язык выбирается так:
+личная сессия — `learners.interface_locale`; групповая тренировка и экзамен — локаль группы
+(`telegram_groups.meta.locale`, по умолчанию `ru`). **Запись** дублирует русский текст в обе стороны:
+`words.translation` ↔ строка `ru` (импорт `VocabularyImporter` и админка через `WordTranslationWriter`).
+`source`: `import` — из файла; `manual` — правка в админке; изменённый текст теряет `reviewed_at`.
 
 ### 2.22 `learner_daily_stats` — агрегат за локальный день
 | Колонка | Тип | Описание |
@@ -616,7 +638,7 @@ ORDER BY er.rank ASC;
 
 ## 8. Важные правила
 
-1. **Никогда не удаляем `words`** — только soft-deactivate (`words.is_active` — если понадобится, добавить на v2). Иначе сломается история `word_repetitions`.
+1. **Никогда не удаляем `words`** — только soft-deactivate (`words.is_active`). Иначе сломается история `word_repetitions`.
 2. **Удаление learner'а** (жёсткое) — каскадом удаляются его `group_members`, `word_repetitions`, `training_reviews`, `exam_question_attempts`, `notifications_log`, `learner_daily_stats`, личные `training_sessions`. `exam_answers`, `exam_results` и `product_events` сохраняются с анонимизацией `learner_id → NULL`, чтобы статистика группы не разваливалась. Обычное удаление аккаунта — мягкое (`learners.deleted_at`); при следующем входе тем же Telegram-пользователем `LearnerRegistrar` возвращает запись.
 2a. **Выход из группы** не удаляет ничего: `group_members.status` становится `left` / `removed`, прогресс остаётся у learner'а.
 3. **FK всегда с `onDelete` явно**. Не полагайся на дефолты.
