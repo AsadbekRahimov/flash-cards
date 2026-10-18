@@ -474,4 +474,11 @@ events                 id, learner_id NULL, organization_id NULL, name, props js
 | Защита от BREACH | gzip + HTTPS + секрет в ответе (CSRF-токен Filament) + отражённый ввод — классический вектор | `gzip off` для `/admin`, `/2fa`, `/livewire-` (HTML админки маленький, трафик ничтожный); `SESSION_SAME_SITE=lax` уже стоит; JSON API TWA не содержит CSRF-токенов, JWT берётся из initData — для API сжатие оставляем |
 | Проверка | | smoke-тест: `curl -sI -H 'Accept-Encoding: gzip' …/twa/assets/*.js` → `Content-Encoding: gzip`; Lighthouse ≥ 90 |
 
+**Реализовано (задача 0.8):**
+- ✅ Предсжатая статика: `resources/twa/scripts/precompress.mjs` (встроенный `zlib`, gzip level 9, файлы ≥ 512 байт, `.gz` только если меньше), подключён в `npm run build` после `vite build`; `gzip_static on` для `/twa/`; `.gz` попадают в Docker-образ через существующий `COPY public/twa`.
+- ✅ `gzip_min_length 512` и новые типы (`manifest+json`, `xml`, `font/ttf`, `font/otf`) — в `docker/nginx/prod.conf` и `default.conf`.
+- ✅ BREACH: `/admin`, `/2fa`, `/livewire-` вынесены в отдельный regex-`location` с `gzip off` и прямым `fastcgi_pass` на `index.php` (`gzip off` внутри `try_files`-location не работает: внутренний редирект уходит в `location ~ \.php$`, где gzip включён).
+- ✅ Тест скрипта (vitest) и описание в `docs/DEVOPS_GUIDE.md` (раздел «Compression and BREACH», smoke-проверки).
+- ⏳ Brotli, Lighthouse ≥ 90 и CDN — не сделаны (Brotli — после согласования отдельного образа/модуля).
+
 Дальше (Фаза 1+): ответы API компактнее (Resource-классы без лишних полей), предзагрузка аудио следующей карточки, CDN для статики и аудио при росте аудитории.

@@ -6,7 +6,8 @@
   "description": "LexiFlow Telegram Web App — training/exam SPA.",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build",
+    "build": "vue-tsc --noEmit && vite build && node scripts/precompress.mjs",
+    "precompress": "node scripts/precompress.mjs",
     "preview": "vite preview",
     "type-check": "vue-tsc --noEmit",
     "test": "vitest run",

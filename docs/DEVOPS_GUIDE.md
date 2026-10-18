@@ -159,14 +159,14 @@ If Node.js 18+ is available on the server:
 ```bash
 cd resources/twa
 npm ci                  # install all deps — build needs vite/vue-tsc from devDependencies
-npm run build           # outputs to public/twa/
+npm run build           # outputs to public/twa/ (+ pre-gzipped *.gz siblings, see "Compression" below)
 rm -rf node_modules     # optional: free disk space after build
 cd ../..
 ```
 
 > Do **not** use `npm ci --omit=dev` here — `vite` and `vue-tsc` (the build tools) live in `devDependencies` and the build will fail without them.
 
-If Node.js is not on the server, build locally and upload the `public/twa/` directory via rsync or scp.
+If Node.js is not on the server, build locally and upload the `public/twa/` directory via rsync or scp (include the `*.gz` files — nginx `gzip_static` serves them).
 
 ---
 
@@ -219,8 +219,19 @@ server {
     root /var/www/lexiflow/public;
     index index.php;
 
+    # Compression (see "Compression and BREACH" below)
+    gzip on;
+    gzip_vary on;
+    gzip_comp_level 6;
+    gzip_min_length 512;
+    gzip_types
+        application/javascript application/json application/manifest+json
+        application/wasm application/xml font/otf font/ttf image/svg+xml
+        text/css text/javascript text/plain text/xml;
+
     # TWA SPA: serve the compiled Vue app with SPA fallback
     location /twa/ {
+        gzip_static on;   # use the *.gz files created by `npm run build`
         try_files $uri $uri/ /twa/index.html;
         location ~* /twa/assets/ {
             add_header Cache-Control "public, max-age=31536000, immutable";
@@ -230,11 +241,18 @@ server {
         }
     }
 
-    # Livewire uses hash-prefixed Laravel routes such as
-    # /livewire-<hash>/livewire.min.js for Filament admin assets.
-    # This must be handled by Laravel, not by a generic static *.js location.
-    location ^~ /livewire- {
-        try_files $uri $uri/ /index.php?$query_string;
+    # Admin panel, 2FA pages and Livewire (hash-prefixed routes such as
+    # /livewire-<hash>/livewire.min.js). Handled by Laravel, never by a static
+    # *.js location, and never compressed (BREACH). PHP-FPM is called directly:
+    # `gzip off` inside a try_files location would be lost on the internal
+    # redirect to `location ~ \.php$`.
+    location ~ ^/(?:admin(?:/|$)|2fa(?:/|$)|livewire-) {
+        gzip off;
+        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $realpath_root/index.php;
+        fastcgi_param SCRIPT_NAME /index.php;
+        fastcgi_param DOCUMENT_URI /index.php;
     }
 
     location / {
@@ -261,6 +279,20 @@ ln -s /etc/nginx/sites-available/lexiflow /etc/nginx/sites-enabled/
 nginx -t
 systemctl reload nginx
 ```
+
+### Compression and BREACH
+
+The Docker configs (`docker/nginx/prod.conf`, `docker/nginx/default.conf`) and the example above compress traffic as follows:
+
+| What | Behaviour |
+|---|---|
+| TWA static (`/twa/`) | `npm run build` runs `resources/twa/scripts/precompress.mjs` (built-in `node:zlib`, gzip level 9) and writes `file.gz` next to every `.js .css .html .svg .json .webmanifest .txt` of at least 512 bytes (only if smaller). nginx serves them with `gzip_static on`, no CPU per request. Files without `.gz` fall back to on-the-fly gzip. Run `npm run precompress --prefix resources/twa` to redo it by hand. |
+| API / other dynamic responses | on-the-fly `gzip`, level 6, `gzip_min_length 512`; types: JS, JSON, `manifest+json`, XML, wasm, SVG, CSS, text, `font/ttf`, `font/otf`. |
+| Not compressed | `woff2`, `mp3` (TTS audio, `/api/twa/tts`), `png/jpg/webp` — already compressed. |
+| `/admin`, `/2fa`, `/livewire-*` | `gzip off` (BREACH: pages carry CSRF tokens and reflect input). The traffic is negligible. |
+| Brotli | not enabled (no module in `nginx:alpine`); a possible later step. |
+
+Why admin paths are separate `location` blocks with their own `fastcgi_pass`: `gzip off` inside `location /admin { try_files ... /index.php; }` does not help — `try_files` makes an internal redirect to `/index.php`, and the response is then produced by `location ~ \.php$`, where gzip is on. Therefore these paths go straight to PHP-FPM with `SCRIPT_FILENAME`/`SCRIPT_NAME`/`DOCUMENT_URI` pointing at `index.php` (the same values the internal redirect would give). If you change the fastcgi params in `location ~ \.php$`, mirror the change in that block. Filament's static files live in `/css/filament`, `/js/filament`, `/fonts/filament` (not under `/admin`) and stay compressed.
 
 ---
 
@@ -380,6 +412,14 @@ curl "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getWebhookInfo" | python
 
 # 7. Audit log clean
 php artisan composer:audit 2>/dev/null || composer audit
+
+# 8. Compression: pre-compressed TWA asset is served as gzip
+ASSET=$(ls public/twa/assets/*.js | head -1 | xargs basename)
+curl -sI -H 'Accept-Encoding: gzip' "https://yourdomain.com/twa/assets/$ASSET" | grep -i "content-encoding"   # -> gzip
+
+# 9. Compression is OFF for the admin panel and 2FA (BREACH): expect no output
+curl -sI -H 'Accept-Encoding: gzip' https://yourdomain.com/admin/login | grep -i "content-encoding"
+curl -sI -H 'Accept-Encoding: gzip' https://yourdomain.com/2fa/challenge | grep -i "content-encoding"
 ```
 
 ---
