@@ -42,6 +42,7 @@ return [
     // Only continue incoming traces when the organization IDs are compatible with this SDK instance.
     'strict_trace_continuation' => env('SENTRY_STRICT_TRACE_CONTINUATION', false),
 
+    // Off by default; if enabled, records pass through before_send_log (see below).
     // @see: https://docs.sentry.io/platforms/php/guides/laravel/configuration/options/#enable_logs
     'enable_logs' => env('SENTRY_ENABLE_LOGS', false),
 
@@ -65,6 +66,8 @@ return [
     // @see: https://docs.sentry.io/platforms/php/guides/laravel/configuration/options/#before_send
     'before_send' => [SentryScrubber::class, 'beforeSend'],
     'before_send_transaction' => [SentryScrubber::class, 'beforeSendTransaction'],
+    // Sentry Logs (enable_logs) skip before_send; the same scrubber redacts body and attributes.
+    'before_send_log' => [SentryScrubber::class, 'beforeSendLog'],
 
     // @see: https://docs.sentry.io/platforms/php/guides/laravel/configuration/options/#ignore_exceptions
     // 'ignore_exceptions' => [],

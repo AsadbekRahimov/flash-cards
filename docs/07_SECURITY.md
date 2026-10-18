@@ -238,6 +238,15 @@ public function participate(Student $student, TrainingSession $s): bool
 - Не логируем: пароли, полные JWT-токены, `initData` целиком (только user_id).
 - Маскируем: email до `a***@domain.com`.
 - Логи в Sentry — без PII в breadcrumbs.
+- **Секреты в сообщениях исключений.** Guzzle/SDK кладут в message полный URL `https://api.telegram.org/bot<TOKEN>/…`.
+  Единый редактор `App\Domain\Operations\Support\SecretRedactor` маскирует `bot<id>:<token>`, значения
+  `TELEGRAM_BOT_TOKEN` / `TELEGRAM_URL_SECRET` / `TELEGRAM_HEADER_SECRET` / `TWA_JWT_SECRET`, сегмент
+  `/telegram/webhook/{secret}`, `Bearer …`, `secret=`/`token=`/`init_data=`. Применяется в трёх местах:
+  (1) Monolog-процессор `RedactingLogProcessor` (tap `RedactSecretsInLogs` на каждом канале в `config/logging.php`) —
+  `message`, `context`, `extra`, исключения в context заменяются замаскированным текстом без аргументов вызовов;
+  (2) границей Telegram-клиента: `IrazasyedTelegramClient` бросает `TelegramApiException` с замаскированным
+  сообщением и без `previous` — поэтому токена нет и в `failed_jobs.exception`; (3) Sentry (`SentryScrubber`,
+  включая `before_send_log`). Подробности — DEVOPS_GUIDE §15.1a. Новый канал логов обязан получить тот же `tap`.
 - Срок хранения production-логов — 30 дней, audit_logs — 2 года.
 
 ## 14. Pen-testing checklist (перед релизом)

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
+use App\Domain\Operations\Support\SecretRedactor;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Domain\Telegram\Support\UpdateSanitizer;
@@ -44,7 +45,7 @@ class HandleTelegramUpdate implements ShouldQueue
             ]);
         } catch (Throwable $e) {
             Log::channel('daily')->error('telegram.handler_failed', [
-                'message' => $e->getMessage(),
+                'message' => SecretRedactor::redact($e->getMessage()),
                 'update_id' => $this->update['update_id'] ?? null,
             ]);
 

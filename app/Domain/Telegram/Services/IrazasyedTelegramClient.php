@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Domain\Telegram\Services;
 
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Jobs\SendTelegramMessageJob;
+use Closure;
+use Exception;
 use Telegram\Bot\Api;
 use Telegram\Bot\Exceptions\TelegramResponseException;
 
@@ -46,6 +49,7 @@ class IrazasyedTelegramClient implements TelegramClient
      * @param  array<string, mixed>|null  $replyMarkup
      *
      * @throws TelegramForbiddenException when Telegram answers 403
+     * @throws TelegramApiException on any other failed Bot API call
      */
     public function sendImmediately(
         int|string $chatId,
@@ -66,17 +70,7 @@ class IrazasyedTelegramClient implements TelegramClient
             $params['reply_markup'] = json_encode($replyMarkup, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
         }
 
-        try {
-            $this->api->sendMessage($params);
-        } catch (TelegramResponseException $e) {
-            // Keep the SDK behind the TelegramClient boundary: callers only need to
-            // know that the recipient is unreachable (blocked bot / no dialog).
-            if ($e->getCode() === 403 || $e->getHttpStatusCode() === 403) {
-                throw TelegramForbiddenException::fromDescription($e->getMessage(), $e);
-            }
-
-            throw $e;
-        }
+        $this->call(fn () => $this->api->sendMessage($params), mapForbidden: true);
     }
 
     public function sendWebAppButton(
@@ -96,20 +90,50 @@ class IrazasyedTelegramClient implements TelegramClient
 
     public function answerCallbackQuery(string $callbackQueryId): void
     {
-        $this->api->answerCallbackQuery(['callback_query_id' => $callbackQueryId]);
+        $this->call(fn () => $this->api->answerCallbackQuery(['callback_query_id' => $callbackQueryId]));
     }
 
     public function setWebhook(string $url, string $secretHeader): bool
     {
-        return (bool) $this->api->setWebhook([
+        return (bool) $this->call(fn () => $this->api->setWebhook([
             'url' => $url,
             'secret_token' => $secretHeader,
             'allowed_updates' => ['message', 'my_chat_member', 'chat_member', 'callback_query'],
-        ]);
+        ]));
     }
 
     public function deleteWebhook(): bool
     {
-        return (bool) $this->api->deleteWebhook();
+        return (bool) $this->call(fn () => $this->api->deleteWebhook());
+    }
+
+    /**
+     * Single exit point for SDK calls: nothing from the SDK/Guzzle leaves this
+     * class, because their messages contain the bot token (see
+     * {@see TelegramApiException}).
+     *
+     * @template T
+     *
+     * @param  Closure(): T  $call
+     * @return T
+     *
+     * @throws TelegramForbiddenException
+     * @throws TelegramApiException
+     */
+    private function call(Closure $call, bool $mapForbidden = false): mixed
+    {
+        try {
+            return $call();
+        } catch (TelegramResponseException $e) {
+            // Keep the SDK behind the TelegramClient boundary: callers only need to
+            // know that the recipient is unreachable (blocked bot / no dialog).
+            if ($mapForbidden && ($e->getCode() === 403 || $e->getHttpStatusCode() === 403)) {
+                throw TelegramForbiddenException::fromDescription($e->getMessage());
+            }
+
+            throw TelegramApiException::fromSdk($e);
+        } catch (Exception $e) {
+            throw TelegramApiException::fromSdk($e);
+        }
     }
 }

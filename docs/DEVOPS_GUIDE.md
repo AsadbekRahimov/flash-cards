@@ -505,13 +505,37 @@ SENTRY_SEND_DEFAULT_PII=false                                    # keep false
   cleared entirely. JSON bodies of Livewire requests (`snapshot` / `updates`) get `password*`, `code`,
   `recovery_code` and `one_time_password` masked, also when double-encoded.
   The hooks are array callables, so `php artisan config:cache` works.
+- **Sentry Logs.** `enable_logs` (`SENTRY_ENABLE_LOGS`) is `false` by default. Log records sent that way bypass
+  `before_send`, so `before_send_log` is wired to `SentryScrubber::beforeSendLog` (body and attributes go through
+  the same redactor). Do not remove that hook if you enable the option.
 - **Defense in depth: `zend.exception_ignore_args = On`.** The app image installs `docker/php/zz-lexiflow.ini`
   (`zend.exception_ignore_args=On`, `expose_php=Off`), so PHP does not even put call arguments into exception
-  traces - they never reach logs or Sentry. On a bare-metal php-fpm (no Docker) set the same in
+  traces. It does **not** touch exception *messages* (see 15.1a). On a bare-metal php-fpm (no Docker) set the same in
   `php.ini` / `conf.d` of the FPM pool and the CLI queue workers. sentry-php has no option to skip frame
   arguments, so this ini setting plus the scrubber are the two layers.
 - Test the wiring after a deploy: `php artisan sentry:test` (needs a DSN) and check that the event arrives
   without credentials.
+
+### 15.1a Secrets in logs and `failed_jobs`
+
+Network errors of the Bot API client carry the full request URL in the exception **message**
+(`cURL error 28: ... for https://api.telegram.org/bot<id>:<token>/sendMessage`; Guzzle masks only URL userinfo).
+Without extra care it would land in `storage/logs/laravel.log`, stderr and `failed_jobs.exception`
+(Laravel stores `(string) $exception`, including the `previous` chain). One redactor,
+`App\Domain\Operations\Support\SecretRedactor`, is used at three places:
+
+| Where | Mechanism |
+|-------|-----------|
+| `laravel.log` / `stderr` / syslog / errorlog / slack / papertrail | `RedactSecretsInLogs` tap on every channel in `config/logging.php` pushes `RedactingLogProcessor`: masks `message`, `context`, `extra` recursively; a `Throwable` in the context (`exception`) is replaced by its redacted text (message, `previous` chain, trace without call arguments). New channels must get the same `tap`. |
+| `failed_jobs.exception` and any exception that leaves the Telegram client | `IrazasyedTelegramClient` wraps every SDK/Guzzle error into `TelegramApiException` with the redacted message and **without** `previous`, so `(string) $e` is clean. 403 stays `TelegramForbiddenException`. |
+| Sentry events / transactions / logs | `SentryScrubber` (15.1). |
+
+Masked: `bot<id>:<token>` in URLs and bare bot tokens, literal values of `TELEGRAM_BOT_TOKEN`,
+`TELEGRAM_URL_SECRET`, `TELEGRAM_HEADER_SECRET`, `TWA_JWT_SECRET`, the `/telegram/webhook/{secret}` segment,
+`Bearer ...`, `secret=`/`token=`/`init_data=` pairs, values under keys containing `token`, `secret`, `password`,
+`authorization`, `cookie`, `signature`, `init_data` (context arrays only). Not covered: the Laravel "emergency" logger
+(used only if a channel cannot be created) and third-party sinks that do not use the Laravel logger.
+After a token rotation the old value is not in the config any more, but the URL pattern still masks it.
 
 ### 15.2 Readiness probe: `GET /health/ready`
 
