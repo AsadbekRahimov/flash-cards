@@ -125,6 +125,7 @@ final class StartExamHandler implements UpdateHandler
             ExamSessionException::REASON_STAGE_NOT_FOUND => 'Указанный stage не найден.',
             ExamSessionException::REASON_LESSON_NOT_FOUND => 'Урок не найден.',
             ExamSessionException::REASON_NOT_ENOUGH_WORDS => 'В уроке недостаточно слов для экзамена.',
+            ExamSessionException::REASON_NOT_ENOUGH_DISTRACTORS => 'Не хватает слов для вариантов ответа: добавьте больше слов в урок или в другие уроки этого stage.',
             ExamSessionException::REASON_ALREADY_OPEN => 'В группе уже идёт экзамен. Завершите его через /close_exam.',
             ExamSessionException::REASON_INVALID_DURATION => 'Длительность экзамена должна быть от 1 до 30 минут.',
             default => 'Не удалось запустить экзамен.',

@@ -19,6 +19,8 @@ final class ExamAnswerService
 {
     private const MAX_POINTS_PER_QUESTION = 20;
 
+    public function __construct(private readonly ExamQuestionPersonalizer $personalizer) {}
+
     public function serve(
         ExamSession $session,
         Student $student,
@@ -62,18 +64,38 @@ final class ExamAnswerService
     }
 
     /**
-     * @param  array{word_id:int, word:string, correct_translation:string, correct_index:int, options:list<string>}  $question
-     * @return array{is_correct:bool, score:int, time_spent_ms:int}
+     * Records the answer of $student to the question at $questionIndex of
+     * THEIR personal sequence. The correct option is recomputed here from the
+     * student's own permutation, so an index copied from a classmate's screen
+     * is graded against this student's option order, not the classmate's.
+     *
+     * @return array{is_correct:bool, score:int, time_spent_ms:int, correct_index:int, word_id:int}
+     *
+     * @throws ExamParticipationException 404 question_not_found, 422 word_mismatch,
+     *                                    409 question_not_served / already_answered, 410 session_closed
      */
     public function submit(
         ExamSession $session,
         Student $student,
         int $questionIndex,
-        array $question,
+        int $wordId,
         ?int $selectedIndex,
         ?CarbonImmutable $now = null,
     ): array {
         $now ??= CarbonImmutable::now();
+
+        $question = $this->personalizer->questionAt($session, $student, $questionIndex);
+        if ($question === null) {
+            throw new ExamParticipationException(404, 'question_not_found', 'Question index is out of range.');
+        }
+
+        if ($question['word_id'] !== $wordId) {
+            throw new ExamParticipationException(
+                422,
+                'word_mismatch',
+                'Word does not match the question at this index.',
+            );
+        }
 
         /** @var ConnectionInterface $db */
         $db = DB::connection();
@@ -157,6 +179,8 @@ final class ExamAnswerService
                     'is_correct' => $isCorrect,
                     'score' => $score,
                     'time_spent_ms' => $timeSpentMs,
+                    'correct_index' => $question['correct_index'],
+                    'word_id' => $question['word_id'],
                 ];
             });
         } catch (UniqueConstraintViolationException) {

@@ -15,9 +15,10 @@ use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Opens and closes exam sessions. Stores the pre-generated question list in
- * `exam_sessions.config.questions` so every participant sees the same
- * sequence.
+ * Opens and closes exam sessions. Stores the canonical question list in
+ * `exam_sessions.config.questions`; every participant gets their own
+ * question/option order from it via {@see ExamQuestionPersonalizer}
+ * (`config.question_order = 'per_student'`).
  *
  * Invariants:
  *   - At most ONE exam with status=open per group at any time.
@@ -124,6 +125,7 @@ final class ExamSessionService
                         'total_questions' => count($questions),
                         'seconds_per_question' => $secondsPerQuestion,
                         'duration_minutes' => $durationMinutes,
+                        'question_order' => ExamQuestionPersonalizer::ORDER_PER_STUDENT,
                         'questions' => $questions,
                     ],
                 ]);
