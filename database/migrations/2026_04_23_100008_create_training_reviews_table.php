@@ -13,13 +13,13 @@ return new class extends Migration
         Schema::create('training_reviews', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('training_session_id')->constrained('training_sessions')->cascadeOnDelete();
-            $table->foreignId('student_id')->constrained('students')->cascadeOnDelete();
+            $table->foreignId('learner_id')->constrained('learners')->cascadeOnDelete();
             $table->foreignId('word_id')->constrained('words')->restrictOnDelete();
             $table->smallInteger('quality');
             $table->unsignedInteger('time_spent_ms');
             $table->timestamp('created_at')->useCurrent();
 
-            $table->index(['student_id', 'created_at']);
+            $table->index(['learner_id', 'created_at']);
             $table->index(['word_id', 'quality']);
         });
     }

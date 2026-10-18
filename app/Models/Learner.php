@@ -121,6 +121,36 @@ class Learner extends Model
             ->withTimestamps();
     }
 
+    /** @return HasMany<WordRepetition, $this> */
+    public function repetitions(): HasMany
+    {
+        return $this->hasMany(WordRepetition::class);
+    }
+
+    /** @return HasMany<TrainingReview, $this> */
+    public function trainingReviews(): HasMany
+    {
+        return $this->hasMany(TrainingReview::class);
+    }
+
+    /** @return HasMany<ExamAnswer, $this> */
+    public function examAnswers(): HasMany
+    {
+        return $this->hasMany(ExamAnswer::class);
+    }
+
+    /** @return HasMany<ExamQuestionAttempt, $this> */
+    public function examQuestionAttempts(): HasMany
+    {
+        return $this->hasMany(ExamQuestionAttempt::class);
+    }
+
+    /** @return HasMany<NotificationLog, $this> */
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(NotificationLog::class);
+    }
+
     /** @return HasMany<LearnerDailyStats, $this> */
     public function dailyStats(): HasMany
     {

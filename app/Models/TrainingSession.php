@@ -9,7 +9,22 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property int|null $telegram_group_id
+ * @property int|null $lesson_id
+ * @property int|null $started_by_user_id
+ * @property int|null $learner_id
+ * @property string $mode
+ * @property string $source
+ * @property int|null $course_id
+ * @property string $status
+ * @property Carbon $started_at
+ * @property Carbon|null $ended_at
+ * @property Carbon|null $expires_at
+ */
 class TrainingSession extends Model
 {
     /** @use HasFactory<TrainingSessionFactory> */
@@ -20,9 +35,14 @@ class TrainingSession extends Model
         'telegram_group_id',
         'lesson_id',
         'started_by_user_id',
+        'learner_id',
+        'mode',
+        'source',
+        'course_id',
         'status',
         'started_at',
         'ended_at',
+        'expires_at',
     ];
 
     /** @return array<string, string> */
@@ -31,6 +51,7 @@ class TrainingSession extends Model
         return [
             'started_at' => 'datetime',
             'ended_at' => 'datetime',
+            'expires_at' => 'datetime',
         ];
     }
 
@@ -50,6 +71,18 @@ class TrainingSession extends Model
     public function startedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'started_by_user_id');
+    }
+
+    /** @return BelongsTo<Learner, $this> */
+    public function learner(): BelongsTo
+    {
+        return $this->belongsTo(Learner::class);
+    }
+
+    /** @return BelongsTo<Course, $this> */
+    public function course(): BelongsTo
+    {
+        return $this->belongsTo(Course::class);
     }
 
     /** @return HasMany<TrainingReview, $this> */

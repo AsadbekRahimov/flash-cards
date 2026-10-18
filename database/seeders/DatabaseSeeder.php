@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
             DemoTeacherSeeder::class,
             DemoContentSeeder::class,
             DemoGroupSeeder::class,
-            DemoStudentsSeeder::class,
+            DemoLearnersSeeder::class,
             DemoRepetitionsSeeder::class,
             DemoActivitySeeder::class,
         ]);

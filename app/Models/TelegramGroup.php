@@ -45,12 +45,6 @@ class TelegramGroup extends Model
             ->withTimestamps();
     }
 
-    /** @return HasMany<Student, $this> */
-    public function students(): HasMany
-    {
-        return $this->hasMany(Student::class);
-    }
-
     /** @return BelongsTo<Organization, $this> */
     public function organization(): BelongsTo
     {

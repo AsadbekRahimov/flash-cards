@@ -6,7 +6,7 @@ namespace Database\Factories;
 
 use App\Models\ExamResult;
 use App\Models\ExamSession;
-use App\Models\Student;
+use App\Models\Learner;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /** @extends Factory<ExamResult> */
@@ -20,7 +20,7 @@ class ExamResultFactory extends Factory
 
         return [
             'exam_session_id' => ExamSession::factory(),
-            'student_id' => Student::factory(),
+            'learner_id' => Learner::factory(),
             'total_score' => $correct * 10,
             'correct_count' => $correct,
             'total_count' => $total,

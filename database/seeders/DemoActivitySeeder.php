@@ -7,8 +7,8 @@ namespace Database\Seeders;
 use App\Models\ExamAnswer;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
+use App\Models\Learner;
 use App\Models\Lesson;
-use App\Models\Student;
 use App\Models\TelegramGroup;
 use App\Models\TrainingReview;
 use App\Models\TrainingSession;
@@ -37,12 +37,15 @@ class DemoActivitySeeder extends Seeder
         $teacher = $group->teachers()->first()
             ?? User::query()->whereNotNull('telegram_user_id')->first();
 
-        $students = Student::where('telegram_group_id', $group->id)->get();
+        $learners = Learner::query()
+            ->whereHas('memberships', fn ($q) => $q->where('telegram_group_id', $group->id)->where('status', 'active'))
+            ->orderBy('id')
+            ->get();
 
         /** @var Collection<int, Lesson> $lessons */
         $lessons = Lesson::query()->with('words')->has('words')->orderBy('id')->take(3)->get();
 
-        if ($teacher === null || $students->isEmpty() || $lessons->isEmpty()) {
+        if ($teacher === null || $learners->isEmpty() || $lessons->isEmpty()) {
             return;
         }
 
@@ -55,20 +58,20 @@ class DemoActivitySeeder extends Seeder
             return;
         }
 
-        DB::transaction(function () use ($group, $teacher, $students, $lessons): void {
-            $this->seedTrainingHistory($group, $teacher, $students, $lessons);
-            $this->seedExamHistory($group, $teacher, $students, $lessons);
+        DB::transaction(function () use ($group, $teacher, $learners, $lessons): void {
+            $this->seedTrainingHistory($group, $teacher, $learners, $lessons);
+            $this->seedExamHistory($group, $teacher, $learners, $lessons);
         });
     }
 
     /**
-     * @param  Collection<int, Student>  $students
+     * @param  Collection<int, Learner>  $learners
      * @param  Collection<int, Lesson>  $lessons
      */
     private function seedTrainingHistory(
         TelegramGroup $group,
         User $teacher,
-        Collection $students,
+        Collection $learners,
         Collection $lessons,
     ): void {
         // One training session every ~3 days across the last 30 days.
@@ -90,17 +93,17 @@ class DemoActivitySeeder extends Seeder
 
             $words = $lesson->words->take(10);
 
-            foreach ($students as $studentIndex => $student) {
+            foreach ($learners as $learnerIndex => $learner) {
                 foreach ($words as $wordIndex => $word) {
                     // Deterministic but varied quality; some words consistently
                     // hard (low quality) so the "hardest words" widget has signal.
                     $quality = ($wordIndex < 3)
-                        ? (($studentIndex + $dayOffset) % 3)        // 0..2 → hard
-                        : 3 + (($studentIndex + $wordIndex) % 3);   // 3..5 → ok
+                        ? (($learnerIndex + $dayOffset) % 3)        // 0..2 → hard
+                        : 3 + (($learnerIndex + $wordIndex) % 3);   // 3..5 → ok
 
                     TrainingReview::create([
                         'training_session_id' => $session->id,
-                        'student_id' => $student->id,
+                        'learner_id' => $learner->id,
                         'word_id' => $word->id,
                         'quality' => $quality,
                         'time_spent_ms' => random_int(1500, 9000),
@@ -112,13 +115,13 @@ class DemoActivitySeeder extends Seeder
     }
 
     /**
-     * @param  Collection<int, Student>  $students
+     * @param  Collection<int, Learner>  $learners
      * @param  Collection<int, Lesson>  $lessons
      */
     private function seedExamHistory(
         TelegramGroup $group,
         User $teacher,
-        Collection $students,
+        Collection $learners,
         Collection $lessons,
     ): void {
         foreach ([24, 12, 4] as $dayOffset) {
@@ -146,13 +149,13 @@ class DemoActivitySeeder extends Seeder
 
             $scoreboard = [];
 
-            foreach ($students as $studentIndex => $student) {
+            foreach ($learners as $learnerIndex => $learner) {
                 $totalScore = 0;
                 $correctCount = 0;
 
-                // Stronger students (lower index) miss fewer words, so the
+                // Stronger learners (lower index) miss fewer words, so the
                 // leaderboard has distinct ranks instead of a flat scoreboard.
-                $missThreshold = ($studentIndex + $dayOffset) % $words->count();
+                $missThreshold = ($learnerIndex + $dayOffset) % $words->count();
 
                 foreach ($words as $wordIndex => $word) {
                     $isCorrect = $wordIndex >= $missThreshold;
@@ -162,7 +165,7 @@ class DemoActivitySeeder extends Seeder
 
                     ExamAnswer::create([
                         'exam_session_id' => $session->id,
-                        'student_id' => $student->id,
+                        'learner_id' => $learner->id,
                         'word_id' => $word->id,
                         'selected_translation' => $isCorrect ? $word->translation : 'неверный вариант',
                         'is_correct' => $isCorrect,
@@ -173,7 +176,7 @@ class DemoActivitySeeder extends Seeder
                 }
 
                 $scoreboard[] = [
-                    'student_id' => $student->id,
+                    'learner_id' => $learner->id,
                     'total_score' => $totalScore,
                     'correct_count' => $correctCount,
                     'total_count' => $words->count(),
@@ -186,7 +189,7 @@ class DemoActivitySeeder extends Seeder
             foreach ($scoreboard as $rankIndex => $row) {
                 ExamResult::create([
                     'exam_session_id' => $session->id,
-                    'student_id' => $row['student_id'],
+                    'learner_id' => $row['learner_id'],
                     'total_score' => $row['total_score'],
                     'correct_count' => $row['correct_count'],
                     'total_count' => $row['total_count'],

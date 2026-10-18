@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Models\GroupMember;
 use App\Models\Learner;
+use App\Models\TelegramGroup;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /** @extends Factory<Learner> */
@@ -26,6 +28,21 @@ class LearnerFactory extends Factory
             'onboarding_state' => 'new',
             'meta' => [],
         ];
+    }
+
+    /** The learner is (by default an active) member of $group. */
+    public function memberOf(TelegramGroup|int $group, string $status = 'active'): static
+    {
+        $groupId = $group instanceof TelegramGroup ? $group->id : $group;
+
+        return $this->afterCreating(function (Learner $learner) use ($groupId, $status): void {
+            GroupMember::factory()->create([
+                'telegram_group_id' => $groupId,
+                'learner_id' => $learner->id,
+                'status' => $status,
+                'left_at' => $status === 'active' ? null : now(),
+            ]);
+        });
     }
 
     public function onboarded(): static

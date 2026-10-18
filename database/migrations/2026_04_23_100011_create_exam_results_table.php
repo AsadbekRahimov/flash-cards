@@ -13,7 +13,7 @@ return new class extends Migration
         Schema::create('exam_results', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('exam_session_id')->constrained('exam_sessions')->cascadeOnDelete();
-            $table->foreignId('student_id')->nullable()->constrained('students')->nullOnDelete();
+            $table->foreignId('learner_id')->nullable()->constrained('learners')->nullOnDelete();
             $table->integer('total_score');
             $table->integer('correct_count');
             $table->integer('total_count');

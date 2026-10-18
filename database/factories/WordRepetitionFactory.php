@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Domain\Learning\Enums\RepetitionState;
-use App\Models\Student;
+use App\Models\Learner;
 use App\Models\Word;
 use App\Models\WordRepetition;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -21,7 +21,7 @@ class WordRepetitionFactory extends Factory
         $interval = $reps === 0 ? 0 : fake()->numberBetween(1, 30);
 
         return [
-            'student_id' => Student::factory(),
+            'learner_id' => Learner::factory(),
             'word_id' => Word::factory(),
             'repetitions' => $reps,
             'interval_days' => $interval,

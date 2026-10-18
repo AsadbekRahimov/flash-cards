@@ -19,7 +19,7 @@ class NotificationLog extends Model
     protected $table = 'notifications_log';
 
     /** @var list<string> */
-    protected $fillable = ['student_id', 'type', 'payload', 'sent_at'];
+    protected $fillable = ['learner_id', 'type', 'payload', 'sent_at'];
 
     /** @return array<string, string> */
     protected function casts(): array
@@ -30,9 +30,9 @@ class NotificationLog extends Model
         ];
     }
 
-    /** @return BelongsTo<Student, $this> */
-    public function student(): BelongsTo
+    /** @return BelongsTo<Learner, $this> */
+    public function learner(): BelongsTo
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(Learner::class);
     }
 }

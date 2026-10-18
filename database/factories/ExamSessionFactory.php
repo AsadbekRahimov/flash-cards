@@ -97,7 +97,7 @@ class ExamSessionFactory extends Factory
             'total_questions' => count($questions),
             'seconds_per_question' => 10,
             'duration_minutes' => 60,
-            'question_order' => ExamQuestionPersonalizer::ORDER_PER_STUDENT,
+            'question_order' => ExamQuestionPersonalizer::ORDER_PER_LEARNER,
             'questions' => $questions,
         ];
     }

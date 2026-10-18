@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property string $name
- * @property int|null $student_id
+ * @property int|null $learner_id
  * @property int|null $telegram_group_id
  * @property int|null $user_id
  * @property array<string, bool|int|float|string|null> $props
@@ -28,7 +28,7 @@ class ProductEvent extends Model
     public $timestamps = false;
 
     /** @var list<string> */
-    protected $fillable = ['name', 'student_id', 'telegram_group_id', 'user_id', 'props', 'occurred_at'];
+    protected $fillable = ['name', 'learner_id', 'telegram_group_id', 'user_id', 'props', 'occurred_at'];
 
     /** @return array<string, string> */
     protected function casts(): array
@@ -52,10 +52,10 @@ class ProductEvent extends Model
         return static::query()->where('occurred_at', '<', now()->subDays($days));
     }
 
-    /** @return BelongsTo<Student, $this> */
-    public function student(): BelongsTo
+    /** @return BelongsTo<Learner, $this> */
+    public function learner(): BelongsTo
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(Learner::class);
     }
 
     /** @return BelongsTo<TelegramGroup, $this> */
