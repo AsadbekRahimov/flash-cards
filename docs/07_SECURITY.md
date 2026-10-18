@@ -7,8 +7,8 @@
 | Поверхность | Угроза | Последствие | Меры |
 |-------------|--------|-------------|------|
 | Telegram webhook | Злоумышленник шлёт поддельные апдейты | Создание «экзаменов», спам, доступ к чужим группам | `{secret}` в URL + заголовок `X-Telegram-Bot-Api-Secret-Token` + hash_equals |
-| TWA API | Подмена студента через поддельный `initData` | Доступ к чужим данным, накрутка рейтинга | HMAC-SHA256 валидация `initData` по boot-key, срок 24 ч, short-lived JWT |
-| TWA API | IDOR (доступ к чужим сессиям) | Чтение/запись чужих ответов | Policy-checks: `student.id` из JWT должен совпадать с владельцем сессии/группой |
+| TWA API | Подмена learner'а через поддельный `initData` | Доступ к чужим данным, накрутка рейтинга | HMAC-SHA256 валидация `initData` по boot-key, срок 24 ч, short-lived JWT |
+| TWA API | IDOR (доступ к чужим сессиям) | Чтение/запись чужих ответов | Policy-checks: `sub` (learner_id) из JWT должен быть владельцем личной сессии или активным участником группы сессии (§5) |
 | Admin panel | Brute-force пароля | Захват админки | Rate-limit login, mandatory 2FA для admin (через `filament/2fa` или `pragmarx/google2fa-laravel`) |
 | Admin panel | XSS через импорт JSON | Угон админской сессии | Whitelist html/escape во всех полях, CSP заголовок |
 | Admin panel | Privilege escalation через form-tampering | Teacher → Admin | Policy-based авторизация в Filament, не полагаться на hide-in-UI |
@@ -16,7 +16,7 @@
 | Импорт JSON | JSON injection / large file DoS | Падение воркера, OOM | Лимит размера 2 MB, валидация схемы, парсинг в стриме при необходимости |
 | Импорт JSON | XXE | N/A — JSON, не XML | — |
 | БД | SQL injection | Полный компромат | Только Eloquent / Query Builder, запрет `DB::raw()` без bindings |
-| БД | Данные студентов в clear text в логах | Утечка PII | Монитор логов: не писать full update из Telegram, отрезать `from.first_name`/`username` до `***` |
+| БД | Данные learner'ов в clear text в логах | Утечка PII | Монитор логов: не писать full update из Telegram, отрезать `from.first_name`/`username` до `***` |
 | Очереди | Unsafe unserialize в job payload | RCE | Не кладём в job полные модели; только IDs + примитивы |
 | Инфра | Слабые секреты в env | Компромет | `.env` не в git, секреты через CI/CD secret store, ротация `APP_KEY`, `TELEGRAM_WEBHOOK_SECRET` раз в 6 мес |
 | Инфра | HTTP вместо HTTPS | MITM на TWA/webhook | Force HTTPS, HSTS (6 мес), Telegram webhooks **требуют** HTTPS |
@@ -125,8 +125,10 @@ final class InitDataValidator
 ## 4. JWT для TWA
 
 - Алгоритм: `HS256`.
-- Payload: `{ sub: student_id, gid: group_id, iat, exp }`.
+- Payload (формат **v2**): `{ iss: 'lexiflow', sub: learner_id, v: 2, iat, exp }`. Группы в токене нет: learner один на все свои группы, доступ к сессии проверяется политиками по членству на каждом запросе (§5).
+- `verify()` требует `v === 2` и `iss === 'lexiflow'`; токен без `v` (старый формат: `sub` = `students.id`, есть `gid`) или с другой версией → 401 `invalid_token`. Без версии `students.id` № 42 читался бы как `learners.id` № 42 — чужой аккаунт. Клиент по 401 сам вызывает `/auth` заново (`api/client.ts`), поэтому переход прозрачен. Претензия `v` остаётся для будущей смены формата.
 - Срок: 15 минут.
+- Отзыв: `learners.blocked_at` проверяется middleware `TwaAuth` на каждом запросе (401 `learner_blocked`, в т.ч. на `/auth`); удалённый (soft-delete) learner → 401 `learner_not_found`. `jti`-denylist не вводим (docs/12 §8).
 - Refresh — повторный `/auth` с тем же `initData` (валиден 24 часа).
 - Библиотека: `firebase/php-jwt` или `lcobucci/jwt`.
 
@@ -136,31 +138,42 @@ Gate/Policy-правила на бэке:
 
 | Ресурс | Действие | Правило |
 |--------|----------|---------|
-| `TrainingSession` | view/participate | Только студенты, чья `telegram_group_id` совпадает с `training_session.telegram_group_id` и `status='open'` |
-| `ExamSession` | join | То же + `ends_at > now()` |
+| `TrainingSession` (групповая, `mode = group_lesson`) | view/participate | Только **активный участник активной группы** сессии (`group_members.status = 'active'` и `telegram_groups.status = 'active'`); participate — ещё и `status='open'` |
+| `TrainingSession` (личная, `mode <> group_lesson`) | view/participate | Только владелец (`learner_id == sub`); членства в группах не влияют |
+| `ExamSession` | view/join | Активный участник активной группы экзамена; join/answer — ещё `status='open'` и `ends_at > now()` (410 после конца); результат — только после закрытия |
+| Любая сессия | — | Заблокированный learner (`blocked_at`) не проходит ни одну проверку; `learner_id` никогда не берётся из тела запроса |
+| `Learner` в Filament | view | `admin` — любой; учитель — только learner'ы с **активным** членством в его группах (`PanelDataScope::learners()`); имя/username и метрики по его группам, без Telegram ID, настроек и личных сессий |
+| `TrainingReview` в Filament | view | учитель — только отзывы **групповых** сессий его групп (личные занятия ученика скрыты) |
 | `ExamSession` | close досрочно | Только `started_by_user_id == current teacher` |
 | `Lesson` в Filament | edit | Пользователь с ролью `admin` |
 | `AnalyticsDashboard` | view | `admin` или учитель (видит только свои группы) |
 | `User` CRUD в Filament | всё | `admin` |
 
-Реализация:
+Реализация (`app/Policies/TrainingSessionPolicy.php`, `ExamSessionPolicy.php`; правило членства — `GroupMembershipService`):
 ```php
-// app/Policies/TrainingSessionPolicy.php
-public function participate(Student $student, TrainingSession $s): bool
+public function denial(Learner $learner, TrainingSession $s): ?string   // null = доступ разрешён
 {
-    return $student->telegram_group_id === $s->telegram_group_id
-        && $s->status === 'open';
+    if ($learner->blocked_at !== null) return 'forbidden';
+
+    if ($s->mode !== 'group_lesson') {
+        return (int) $s->learner_id === (int) $learner->id ? null : 'forbidden';   // личная
+    }
+
+    return $this->memberships->denialReason($learner, $s->group);   // null | 'not_a_member' | 'group_inactive'
 }
 ```
+Контроллеры отвечают 403 с этим кодом: `not_a_member` (нет активного членства, вышел/исключён/забанен — чужие группы не раскрываются),
+`group_inactive` (участник группы, которая ещё/уже не активна), `forbidden` (чужая личная сессия); закрытая сессия — отдельно 410 `session_closed`.
 
 ## 6. Rate limits
 
 | Endpoint | Limit | Комментарий |
 |----------|-------|-------------|
 | `POST /api/twa/auth` | 20/min per IP | Защита от перебора |
-| `POST /api/twa/training/*/review` | 60/min per JWT | Нормальный темп — не больше |
-| `POST /api/twa/exam/*/answer` | 30/min per JWT | |
-| `GET /api/twa/tts` | 30/min per JWT | |
+| `POST /api/twa/training/*/review` | 60/min per learner | Нормальный темп — не больше |
+| `POST /api/twa/exam/*/answer` | 30/min per learner | |
+| `GET /api/twa/tts` | 30/min per learner | |
+| Остальные `/api/twa/*` | 60/min per learner | ключ rate limiter'а — `learner_id` из JWT |
 | Filament login | 5/15min per IP + per email | Против brute-force |
 | Webhook | не ограничиваем (но валидация по secret обязательна) | |
 
@@ -216,9 +229,9 @@ public function participate(Student $student, TrainingSession $s): bool
   - Не храним `phone`, `photo_url`.
 - Шифрование в purpose:
   - `users.email` и `users.name` — в clear (нужны для UI).
-  - `audit_logs.meta` — может содержать IP студента; JSONB — без шифрования, но логи не экспортируем наружу.
-- **Удаление студента по запросу:** soft-delete → через 30 дней hard-delete с анонимизацией `exam_answers.student_id = NULL`.
-- **Экспорт данных студента (GDPR):** endpoint в admin `GET /admin/students/{id}/export` — JSON дампа его данных. Не в MVP, но заложить.
+  - `audit_logs.meta` — может содержать IP учителя/администратора; JSONB — без шифрования, но логи не экспортируем наружу.
+- **Удаление learner'а по запросу:** soft-delete (`learners.deleted_at`) → через 30 дней hard-delete; FK-каскады удаляют его прогресс, а `exam_answers.learner_id` / `exam_results.learner_id` / `product_events.learner_id` обнуляются (`SET NULL`). Анонимизация вместо удаления — Фаза 2.
+- **Экспорт данных learner'а (GDPR):** endpoint в admin `GET /admin/learners/{id}/export` — JSON дампа его данных. Не в MVP, но заложить.
 
 ## 11. SQL Injection — превентивные меры
 
@@ -253,7 +266,10 @@ public function participate(Student $student, TrainingSession $s): bool
 
 - [ ] OWASP ZAP baseline scan против staging.
 - [ ] Попытка подделать `initData` — 401.
-- [ ] Попытка открыть чужую `exam_session` по id — 403.
+- [ ] Токен старого формата (без `v`, `sub` = `students.id`) — 401 `invalid_token`.
+- [ ] Токен заблокированного learner'а (`blocked_at`) — 401 `learner_blocked`.
+- [ ] Попытка открыть чужую `exam_session` / `training_session` по id (не участник группы, вышедший, чужая личная сессия) — 403.
+- [ ] Учитель не видит learner'а, вышедшего из его группы, и личные сессии учеников.
 - [ ] Попытка отправить `review` с `quality=10` — 422.
 - [ ] SQL injection в поиске по словам в админке — запросы через bindings.
 - [ ] XSS в JSON-импорте (`<script>alert(1)</script>` в `translation`) — экранировано.

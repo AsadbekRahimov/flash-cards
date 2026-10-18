@@ -7,12 +7,14 @@
 **Content-Type:** `application/json`.
 
 **Реализация.** Контроллер только валидирует запрос и вызывает сервис (`TrainingFlowService`,
-`ExamFlowService`, `StudentStatsService`), ответ собирает Resource-класс из `app/Http/Resources/Twa/`
+`ExamFlowService`, `LearnerStatsService`), ответ собирает Resource-класс из `app/Http/Resources/Twa/`
 (ошибки — `ApiErrorResource`). Ответы идут **без обёртки `data`** — формы ниже закреплены
 контрактными тестами `tests/Feature/TwaContractTest.php` (`assertExactJsonStructure`).
 
 ### A.1 `POST /api/twa/auth`
-Аутентификация через Telegram `initData`.
+Аутентификация через Telegram `initData`. **Identity — только Telegram-пользователь**: первый вход создаёт `learner`
+(`LearnerRegistrar`), повторные возвращают того же и обновляют имя/username/`last_seen_at`. Состоять в какой-либо группе
+для входа не нужно; доступ к конкретной сессии проверяется на её маршрутах (A.3, A.4).
 
 **Request:**
 ```json
@@ -22,7 +24,9 @@
 }
 ```
 
-`context` передаётся для deep link тренировки/экзамена и однозначно выбирает запись `students` нужной группы. Без него авторизация допустима только при единственной активной группе пользователя.
+`context` необязателен и **не влияет на выбор learner'а**: он оставлен для совместимости клиента и аналитики
+(`twa.authenticated`); если он указывает на групповую сессию, а learner новый, тот получает `acquisition_source = 'twa_group'`.
+Несуществующая сессия в `context` не является ошибкой.
 
 **Validation:**
 - HMAC-SHA256 по алгоритму Telegram (см. `07_SECURITY.md`).
@@ -33,28 +37,37 @@
 {
   "token": "eyJhbGciOi...",
   "expires_in": 900,
-  "student": {
+  "learner": {
     "id": 42,
     "first_name": "Alex",
-    "username": "alex_dev",
-    "telegram_group_id": 7
+    "locale": "ru",
+    "onboarding_completed": false
   }
 }
 ```
 
+Токен — JWT **v2**: `{iss, sub: learner_id, v: 2, iat, exp}` (без `gid`), TTL 15 мин. Токен без `v = 2` (старый формат,
+где `sub` был `students.id`) отклоняется с 401 `invalid_token`; клиент перелогинивается автоматически (`api/client.ts`).
+
 **Errors:**
-- 401 `invalid_init_data` — HMAC не сошёлся.
-- 403 `group_inactive` — студент пришёл из неактивной группы.
-- 409 `session_context_required` — один Telegram-пользователь состоит в нескольких активных группах, но контекст сессии не передан.
+- 401 `invalid_init_data` — HMAC не сошёлся / `initData` просрочен.
+- 401 `learner_blocked` — learner заблокирован платформой (`learners.blocked_at`).
+- 422 — нет поля `init_data`.
+
+Ошибок `session_context_required` (409) и `student_not_found` (403) на `/auth` больше нет.
+
+**Ошибки защищённых маршрутов (`TwaAuth`, любой запрос с токеном):** 401 `missing_token`, 401 `invalid_token`
+(подпись, срок, `iss`, версия), 401 `learner_not_found` (learner удалён), 401 `learner_blocked`
+(проверяется на каждом запросе — бан действует немедленно).
 
 ### A.2 `GET /api/twa/me`
-Информация о студенте.
+Информация о learner'е.
 
 **Response:**
 ```json
 {
-  "student": { "id": 42, "first_name": "Alex", "username": "alex_dev" },
-  "group": { "id": 7, "title": "B1 English Evening" },
+  "learner": { "id": 42, "first_name": "Alex", "username": "alex_dev", "locale": "ru", "onboarding_completed": true },
+  "groups": [{ "id": 7, "title": "B1 English Evening" }],
   "stats": {
     "words_learned": 234,
     "words_due_today": 18
@@ -62,18 +75,24 @@
 }
 ```
 
-- `group` — `null`, если у студента нет группы.
+- `groups` — группы, где learner состоит **сейчас** (активное членство в активной группе); пустой массив, если групп нет.
 - `words_learned` — слова с хотя бы одним успешным повторением (`repetitions >= 1`).
 - `words_due_today` — то же правило, что у напоминаний (`DueRepetitionCriteria`, docs/06 §6): карточки в
   `review` с `next_review_at <= now` плюс **брошенные** learning/relearning карточки, чей минутный шаг истёк
   больше `LEARNING_ABANDONED_AFTER_HOURS` (12 ч) назад. Свежие шаги внутри сессии и `new`-строки
-  (карточка показана, не оценена) не считаются.
-- `current_streak_days` пока не реализован (серии — Фаза 1).
+  (карточка показана, не оценена) не считаются. Считается по всему прогрессу learner'а, а не по одной группе.
+- `entitlement`, настройки и `current_streak_days` появятся в задачах 1.3b / 1.4a / 1.6 (docs/12 §3.8).
 
 ### A.3 Training mode
 
 #### `POST /api/twa/training/sessions/{session_id}/start`
-Студент присоединяется к открытой тренировке. Валидируется, что `training_session.status = 'open'` и студент в той же группе.
+Learner присоединяется к открытой тренировке. Доступ — по членству (docs/12 §4.4): групповая сессия доступна **активному
+участнику активной группы**, личная (`mode <> group_lesson`) — только её владельцу. Порядок проверок: 404 `session_not_found` →
+403 (`not_a_member` — нет активного членства, в т.ч. вышел/исключён; `group_inactive` — участник группы, которая не активирована;
+`forbidden` — чужая личная сессия) → 410 `session_closed` (`status <> 'open'`).
+
+Прогресс общий: у learner'а в двух группах одна строка `word_repetitions` на слово, поэтому оценка в тренировке группы A
+видна в тренировке группы B.
 
 **Response:**
 ```json
@@ -148,19 +167,23 @@
 **Персональный порядок (anti-cheat).** Набор вопросов строится один раз при `/start_exam`
 (`ExamQuestionBuilder`) и хранится в `exam_sessions.config.questions` в *каноническом* виде
 (`word_id, word, correct_translation, options[]`, без `correct_index`). При выдаче
-`ExamQuestionPersonalizer` применяет к нему детерминированную перестановку **для конкретного студента**:
-порядок вопросов и порядок вариантов у каждого свои, seed = `HMAC-SHA256(config.order_secret, session_id|student_id)` (случайный секрет сессии, не отдаётся в API; для legacy-сессий без него — `app.key`) —
+`ExamQuestionPersonalizer` применяет к нему детерминированную перестановку **для конкретного learner'а**:
+порядок вопросов и порядок вариантов у каждого свои, seed = `HMAC-SHA256(config.order_secret, session_id|learner_id)` (случайный секрет сессии, не отдаётся в API; для legacy-сессий без него — `app.key`) —
 участник не может вычислить чужой порядок. Следствия:
 
-- `question_index` везде — позиция в **личной** последовательности студента; повторный
+- `question_index` везде — позиция в **личной** последовательности learner'а; повторный
   `GET /question?index=i` возвращает тот же `word_id` и тот же порядок `options`, таймер не перезапускается.
-- Правильный индекс считается сервером для этого студента и при выдаче, и при `answer`; подсказка
+- Правильный индекс считается сервером для этого learner'а и при выдаче, и при `answer`; подсказка
   «3 — B» из чата у соседа не сработает (у него другой вопрос под №3 и другой порядок вариантов).
 - `options` содержит правильный перевод и до 3 **реальных** дистракторов (другие уроки того же stage →
   любые другие уроки → другие слова этого урока; предпочтительно та же `part_of_speech`; без дубликатов
   с учётом регистра/пробелов). Заглушек нет; при бедной библиотеке вариантов может быть меньше 4 (минимум 2).
   Если для слова нет ни одного реального дистрактора — `/start_exam` отвечает учителю ошибкой, сессия не создаётся.
 - Сессии, созданные до этого режима (нет `config.question_order`), доигрываются с общим порядком как раньше.
+
+**Доступ к экзамену** (все маршруты `/exam/sessions/{id}/*`): активное членство в активной группе сессии (`ExamSessionPolicy`).
+Ошибки: 403 `not_a_member` (бывш. `forbidden`), 403 `group_inactive`, 410 `session_closed` (join/question/answer после конца), 409 `exam_still_open` (`/result` до закрытия).
+Один learner в двух группах участвует в экзаменах каждой группы независимо (ответы и результаты привязаны к `(exam_session_id, learner_id)`).
 
 #### `POST /api/twa/exam/sessions/{session_id}/join`
 **Response:**
@@ -174,7 +197,7 @@
 }
 ```
 
-`question` — первый вопрос **личной** последовательности студента (формат как у `/question`);
+`question` — первый вопрос **личной** последовательности learner'а (формат как у `/question`);
 `null`, если в сессии нет вопросов. Повторный `join` идемпотентен: серверный таймер вопроса не перезапускается.
 
 #### `GET /api/twa/exam/sessions/{session_id}/question?index=0`
@@ -220,16 +243,16 @@
 `next_question` всегда `null`: следующий вопрос запрашивается после показа фидбэка, чтобы его серверный
 таймер стартовал в момент показа.
 
-`selected_option_index` и `correct_option` — индексы в `options` **этого** студента (его личный порядок).
+`selected_option_index` и `correct_option` — индексы в `options` **этого** learner'а (его личный порядок).
 `correct_option` возвращается только после фиксации ответа (для подсветки в TWA). Ошибки: 404 `question_not_found`,
-422 `word_mismatch` (`word_id` не соответствует вопросу под этим индексом у данного студента),
+422 `word_mismatch` (`word_id` не соответствует вопросу под этим индексом у данного learner'а),
 409 `question_not_served` / `already_answered`, 410 `session_closed`.
 
 #### `GET /api/twa/exam/sessions/{session_id}/result`
 Доступно только после закрытия сессии.
 ```json
 {
-  "student_score": 95,
+  "learner_score": 95,
   "rank": 3,
   "total_participants": 12,
   "leaderboard": [
@@ -311,7 +334,7 @@ URL TWA: `https://lexiflow.example.com/twa/training/123` (для экзамен�
 | Кому сообщение | Откуда язык |
 |----------------|-------------|
 | Сообщение в группу (ответы на команды, кнопка WebApp, лидерборд) | `telegram_groups.meta['locale']` (`ru`/`uz`), если не задан или не поддерживается — дефолт (`ru`) |
-| Студенту в ЛС (напоминание о повторении) | `students.language_code`: `uz*` → `uz`, иначе `ru` |
+| Learner'у в ЛС (напоминание о повторении) | `learners.interface_locale` (`ru`/`uz`); если значение не поддерживается — по `learners.language_code`: `uz*` → `uz`, иначе `ru` |
 | Учителю в ЛС (`/start` для привязанного учителя, `/stats`) | дефолт (`ru`) |
 | Неопознанному пользователю в ЛС (`/start`, `/stats`, `/help`) | `language_code` из апдейта по тому же правилу (`uz*` → `uz`, иначе `ru`) |
 
@@ -325,7 +348,10 @@ URL TWA: `https://lexiflow.example.com/twa/training/123` (для экзамен�
   - Added → создаём запись `telegram_groups` со статусом `pending`, уведомляем админов.
   - Removed → `status = 'disabled'`, лочим операции.
 - **`message` в группе от `new_chat_members`** — в `new_chat_members` есть `id` бота или новых студентов.
-  - Для новых студентов: upsert в `students`.
+  - Для каждого человека (не бота): `LearnerRegistrar::fromTelegramUser` (upsert `learners` по `telegram_user_id`, `acquisition_source = 'group'` у нового) и `GroupMembershipService::join` (`group_members.status = 'active'`; повторное вступление после выхода возвращает `active`). Событие `group.member_joined {via: group}`.
+- **`chat_member`** — изменился статус участника группы (боту нужны права админа, `allowed_updates` уже включает `chat_member`).
+  - `member` / `administrator` / `creator` / `restricted(is_member)` → `join` (событие `group.member_joined {via: chat_member}`).
+  - `left` → `group_members.status = 'left'`, `kicked` → `'removed'` (+ `left_at`, событие `group.member_left`). Learner и его прогресс остаются; новый learner ради выхода не создаётся.
 - **Callback query** — пока не используется (весь UX через WebApp), но хендлер на будущее.
 
 ### B.6 Событие `update` от WebApp (опционально)
@@ -399,7 +425,7 @@ $schedule->command('exams:close-expired')->everyMinute()->withoutOverlapping();
 // app/Jobs/PostLeaderboardJob.php — скелет
 public function handle(TelegramGateway $tg): void
 {
-    $session = ExamSession::with('results.student', 'group')->findOrFail($this->sessionId);
+    $session = ExamSession::with('results.learner', 'group')->findOrFail($this->sessionId);
     $text = $this->formatLeaderboard($session);
     $tg->sendMessage($session->group->chat_id, $text, parseMode: 'HTML');
 }
@@ -408,7 +434,7 @@ private function formatLeaderboard(ExamSession $session): string
 {
     $rows = $session->results->sortBy('rank')->map(function (ExamResult $r) {
         $medal = match ($r->rank) { 1 => '🥇', 2 => '🥈', 3 => '🥉', default => "{$r->rank}." };
-        return "{$medal} {$r->student->first_name} — <b>{$r->total_score}</b>";
+        return "{$medal} {$r->learner->first_name} — <b>{$r->total_score}</b>";
     })->implode("\n");
 
     // Заголовок — из lang/{ru,uz}/exam.php по языку группы (см. B.4a); имена экранируются.
@@ -422,7 +448,7 @@ private function formatLeaderboard(ExamSession $session): string
 1. Teacher в группе: `/start_training 4 8`.
 2. Bot → `HandleTelegramUpdate` (queue) → `StartTrainingHandler` → создаёт `training_sessions` id=123.
 3. Bot отправляет сообщение с WebApp-кнопкой на URL `.../twa/training/123`.
-4. Student нажимает кнопку → открывается TWA.
+4. Learner нажимает кнопку → открывается TWA.
 5. TWA: `POST /api/twa/auth` с `initData`.
 6. TWA: `POST /api/twa/training/sessions/123/start`.
 7. Цикл: `GET .../next` → показать карточку → `POST .../review` с `quality`.
@@ -432,6 +458,6 @@ private function formatLeaderboard(ExamSession $session): string
 1. Teacher: `/start_exam 4 8 10`.
 2. Создана `exam_sessions` со `ends_at = now() + 10 min`.
 3. Сообщение с WebApp-кнопкой.
-4. Student через TWA: `join`, `question`, `answer` × N.
+4. Learner через TWA: `join`, `question`, `answer` × N.
 5. Scheduler через минуту после `ends_at` закрывает сессию, считает `exam_results`, диспатчит `PostLeaderboardJob`.
 6. Бот постит лидерборд в группу.

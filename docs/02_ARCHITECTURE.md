@@ -5,7 +5,7 @@
 ```mermaid
 flowchart LR
     subgraph TG[Telegram]
-        U1[Student]
+        U1[Learner]
         U2[Teacher]
         G[Group Chat]
     end
@@ -85,7 +85,7 @@ flowchart LR
 - Каждую минуту — `artisan schedule:run`.
 - Задачи:
   - `exam:close-expired` — раз в минуту.
-  - `repetitions:notify-students` — 18:00 UTC.
+  - `repetitions:notify` — ежедневно в 18:00, напоминания learner'ам: одно на человека, сколько бы групп у него ни было (`ReviewReminderService`; перевод на локальное время по `learners.next_reminder_at` — задача 1.5b, docs/12 §7.5).
   - `analytics:refresh-materialized-views` — ночью.
 
 ### 2.6 Telegram Bot SDK
@@ -135,11 +135,11 @@ sequenceDiagram
     B->>TG: sendMessage + Inline Keyboard (WebApp button)
 ```
 
-### 3.2 Студент открывает TWA и учит карточки
+### 3.2 Learner открывает TWA и учит карточки
 
 ```mermaid
 sequenceDiagram
-    participant S as Student
+    participant S as Learner
     participant TWA as TWA (Vue)
     participant API as Laravel API
     participant SR as SpacedRepetitionService
@@ -148,16 +148,16 @@ sequenceDiagram
     S->>TWA: нажимает кнопку WebApp
     TWA->>TWA: получает Telegram.WebApp.initData
     TWA->>API: POST /api/twa/auth {initData}
-    API->>API: validate HMAC
-    API-->>TWA: JWT (15 min)
+    API->>API: validate HMAC, upsert learner
+    API-->>TWA: JWT v2 (sub = learner_id, 15 min)
     TWA->>API: GET /api/twa/training/next?session_id=...
-    API->>SR: getDueWords(student, lesson)
+    API->>SR: getDueWords(learner, lesson)
     SR->>DB: SELECT word_repetitions ORDER BY next_review_at
     SR-->>API: words[]
     API-->>TWA: Card[]
     S->>TWA: оценка "Hard"
     TWA->>API: POST /api/twa/training/review {word_id, quality: 2}
-    API->>SR: applyReview(student, word, 2)
+    API->>SR: applyReview(learner, word, 2)
     SR->>DB: UPDATE word_repetitions (SM-2)
     SR-->>API: next_review_at
     API-->>TWA: {next_review_at, xp_earned}
@@ -168,7 +168,7 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant T as Teacher
-    participant S as Students
+    participant S as Learners
     participant B as Bot
     participant API
     participant Q as Scheduler
@@ -213,6 +213,8 @@ Database
 
 ## 5. Модули (package-by-feature)
 
+Домен **`Learners`** (`app/Domain/Learners/Services`, задача 1.1b): `LearnerRegistrar` — единственная точка превращения Telegram-пользователя (initData, апдейт бота, `chat_member`) в `learners`; `GroupMembershipService` — `join` / `leave` / `isActiveMember` / `activeGroups` / `denialReason`, правило «активное членство = `group_members.status = 'active'` и группа `active`» живёт только здесь. Остальные сервисы домена (онбординг, настройки, `LearnerClock`, ежедневная статистика, streak) — задачи 1.3–1.6.
+
 Внутри `app/` организуемся по доменам:
 
 ```
@@ -227,7 +229,8 @@ app/
 │   │   ├── Services/
 │   │   └── Jobs/
 │   ├── Exam/              # ExamSession, ExamAnswer, Leaderboard
-│   ├── Group/             # TelegramGroup, Teacher, Student
+│   ├── Group/             # TelegramGroup, Teacher
+│   ├── Learners/          # Learner, GroupMember: LearnerRegistrar, GroupMembershipService (docs/12 §3.1)
 │   └── Analytics/         # агрегаты, views
 ├── Filament/
 │   ├── Resources/
@@ -305,7 +308,7 @@ SENTRY_LARAVEL_DSN=
   200 `{"status":"ok","checks":{...}}` либо 503 с `fail`; наружу только `ok`/`fail`, без текстов ошибок.
 - **Продуктовые события:** таблица `product_events` (`ProductEventRecorder`, enum `ProductEventName`): `twa.authenticated`,
   `training.session_opened`, `exam.started`, `exam.closed`, `exam.leaderboard_posted`, `reminder.sent`, `reminder.failed`,
-  `group.bot_added`, `student.joined`. Props — только скаляры без PII; запись никогда не ломает основной поток.
+  `group.bot_added`, `group.member_joined`, `group.member_left`. Props — только скаляры без PII; запись никогда не ломает основной поток.
   Подробности — `docs/03_DATABASE.md` §2.16.
 - **Метрики / трейсинг:** отдельный Prometheus/OpenTelemetry пока не подключены. Sentry Performance
   (`SENTRY_TRACES_SAMPLE_RATE=0.1`) даёт базовые трейсы запросов и джобов.
@@ -322,6 +325,7 @@ SENTRY_LARAVEL_DSN=
 | ADR-5 | JWT для TWA, не session | Stateless, проще масштабировать |
 | ADR-6 | Web Speech API primary, edge-tts fallback | Нулевая стоимость на базовом сценарии |
 | ADR-7 | Упрощённый SM-2 | Хорошо изучен, достаточно для MVP |
+| ADR-8 | **Learner-first**: центральный объект — `learners` (один на Telegram-пользователя), `students` удалена; членство в группе — `group_members`; прогресс (`word_repetitions`), оценки, ответы экзаменов и напоминания привязаны к `learner_id`; JWT `sub = learner_id` (формат v2); доступ к групповым сессиям — по активному членству | Прогресс принадлежит человеку, а не паре (человек, группа): один человек в двух группах — один прогресс, одно напоминание, один аккаунт. Это основа B2C-режима (личные сессии, подписки, цели) без второго рефакторинга; подробности и отвергнутые варианты — docs/12 §0, §11 |
 
 ## 10. Открытые архитектурные вопросы
 

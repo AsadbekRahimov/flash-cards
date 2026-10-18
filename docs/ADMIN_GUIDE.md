@@ -67,8 +67,9 @@ New groups appear here automatically with status `pending` when the bot is added
 The bot writes to the group (command replies, lesson buttons, exam leaderboard) in Russian by default.
 To switch a group to Uzbek (Latin), open the group record, set **Bot language** = `O'zbekcha` and save
 (**Default** = Russian). The choice is stored in the group's `meta.locale` and survives the bot being
-removed and re-added. Personal messages (e.g. review reminders) follow each student's own Telegram
-language: `uz*` → Uzbek, anything else → Russian. The Web App follows the student's Telegram language too.
+removed and re-added. Personal messages (e.g. review reminders) follow each learner's interface language
+(`learners.interface_locale`; for a new learner it starts from the Telegram language: `uz*` → Uzbek, anything else → Russian).
+The Web App follows the learner's Telegram language.
 
 ---
 
@@ -131,10 +132,10 @@ Open any Stage → Lesson → click on a word to edit its translation, example, 
 
 | Widget | What it shows |
 |---|---|
-| Total Students | Count of all enrolled students |
+| Total Learners | Learners visible to you (admin: all; teacher: active members of your groups) and how many were active in the last 7 days |
 | Exams Last 30 Days | Number of exam sessions in the past month |
-| Activity Chart | Daily active students (line chart) |
-| Top Students | Top 10 students by correct answers |
+| Activity Chart | Daily active learners (line chart) |
+| Top Learners | Top 10 learners by reviews in group trainings (last 30 days; a learner's personal practice is never counted for teachers) |
 | Hardest Words | Top 20 words with lowest accuracy |
 
 ---
@@ -143,8 +144,8 @@ Open any Stage → Lesson → click on a word to edit its translation, example, 
 
 Open **Learning → Exam Logs** to see every exam session, its group, lesson, status, dates, participant count, and answer count. Open a session for two read-only drilldowns:
 
-- **Student results** — score, correct/answered totals, total response time, and rank.
-- **Per-word answers** — student, word, selected and correct translations, correctness, score, and server-measured response time.
+- **Learner results** — score, correct/answered totals, total response time, and rank.
+- **Per-word answers** — learner, word, selected and correct translations, correctness, score, and server-measured response time.
 
 Teachers see only exams from their assigned groups; administrators see all groups.
 

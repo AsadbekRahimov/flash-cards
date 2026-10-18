@@ -43,7 +43,7 @@
 | `stats.no_groups` | Sizda hozircha biriktirilgan guruhlar yo'q.<br>Administratordan guruhni /admin orqali biriktirishini so'rang. | У вас пока нет привязанных групп.<br>Попросите администратора привязать группу в /admin. |
 | `stats.title` | 📊 LexiFlow statistikasi (so'nggi 7 kun) | 📊 Статистика LexiFlow за 7 дней |
 | `stats.groups` | Guruhlar: :count | Групп: :count |
-| `stats.students` | Faol o'quvchilar: :count | Активных студентов: :count |
+| `stats.learners` | Faol o'quvchilar: :count | Активных студентов: :count |
 | `stats.reviews` | Kartochkalarni takrorlashlar: :count | Повторений карточек: :count |
 | `stats.exams` | Boshlangan imtihonlar: :count | Экзаменов запущено: :count |
 | `stats.accuracy` | Imtihonlardagi aniqlik: :percent% | Точность экзаменов: :percent% |

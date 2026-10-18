@@ -197,7 +197,7 @@ review-карточку** (то есть после того, как слово 
 Единое определение «карточка, за которой студенту надо вернуться» —
 `App\Domain\Learning\Support\DueRepetitionCriteria::apply()`. Его используют **три** потребителя,
 и только его: `ReviewReminderService` (порог и число в сообщении), `ReviewReminderLinkBuilder`
-(урок для deep-link) и `StudentStatsService` → `words_due_today` в `GET /api/twa/me`, чтобы число
+(урок для deep-link) и `LearnerStatsService` → `words_due_today` в `GET /api/twa/me`, чтобы число
 на экране совпадало с текстом напоминания. Due считается карточка, если:
 
 - `state = review` и `next_review_at <= now` — выпущенная карточка, срок настал; **или**

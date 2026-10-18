@@ -100,25 +100,28 @@ export function useTelegramInitData(): string {
 ```ts
 // src/stores/auth.ts
 export const useAuth = defineStore('auth', {
-  state: () => ({ token: '' as string, expiresAt: 0, student: null as Student | null }),
+  state: () => ({ token: '' as string, expiresAt: 0, learner: null as Learner | null }),
   actions: {
     async login(context: { type: 'training' | 'exam'; sessionId: number }) {
       const initData = useTelegramInitData()
       const res = await api.auth.authenticate(initData, context)
       this.token = res.token
       this.expiresAt = Date.now() + res.expires_in * 1000
-      this.student = res.student
+      this.learner = res.learner
     },
     async ensure(context) {
-      if (!this.token || contextChanged(context) || Date.now() > this.expiresAt - 60_000) {
+      // One learner for every session: a context change needs no new token.
+      if (!this.token || Date.now() > this.expiresAt - 60_000) {
         await this.login(context)
+      } else {
+        this.context = context
       }
     },
   },
 })
 ```
 
-Перед каждым запросом вызываем `auth.ensure({ type, sessionId })`; если бек вернул 401 — пробуем один раз переавторизоваться с тем же контекстом. Это обязательно, потому что один Telegram-пользователь может состоять в нескольких группах.
+Перед каждым запросом вызываем `auth.ensure({ type, sessionId })`; если бек вернул 401 — пробуем один раз переавторизоваться (`api/client.ts`). Смена контекста новый токен не требует: learner один на все сессии, доступ к сессии проверяет сервер по членству (403 `not_a_member`). `context` остаётся только для аналитики.
 
 ## 5. Режим «Training»
 
@@ -191,7 +194,7 @@ interface ExamState {
 - По окончании: редирект на `ResultView`.
 
 ### 6.4 ResultView
-- Показывает `student_score / rank / total_participants`.
+- Показывает `learner_score / rank / total_participants`.
 - Таблица-лидерборд (первые 10).
 - Кнопка «Закрыть».
 

@@ -146,10 +146,16 @@ chmod 600 .env
 
 ```bash
 php artisan migrate --force
-php artisan db:seed   # loads demo admin, teacher, group, 120 words, 5 students
+php artisan db:seed   # loads demo admin, teacher, 2 groups, 120 words, 5 learners (6 group memberships)
 ```
 
 > On subsequent deploys, run `php artisan migrate --force` only — **never re-seed in production**.
+
+> **Migration history (docs/12 §2.2).** Until the first production release the create-migrations are edited **in place**
+> (the learner-first schema replaced `students` that way), so every non-production environment — local, CI, the demo
+> stand — is rebuilt with `php artisan migrate:fresh --seed`; applying new code over an old database shows a
+> `migrate:status` mismatch (the `create_students_table` row has no file on disk). From the first production release on,
+> schema changes are **forward migrations only**.
 
 ---
 
