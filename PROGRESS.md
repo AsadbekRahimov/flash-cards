@@ -7,12 +7,13 @@
 
 ## Sprint 14 — Фаза 1 «Публичный B2C MVP» 🚧 (старт 2026-10-18)
 
-Основание: `docs/11_SYSTEM_ANALYSIS_AND_SAAS_STRATEGY.md` §5, §6, §10 (Фаза 1). Решения владельца: B2C-first, полный Pro для учеников центра, языки uz/ru, изучаемый — только английский; оплата на старте отложена; Free — 20 новых слов в день.
+Основание: `docs/11_SYSTEM_ANALYSIS_AND_SAAS_STRATEGY.md` §5, §6, §10 (Фаза 1); проект — `docs/12_PHASE1_DESIGN.md` (ред. 2). Решения владельца: B2C-first, полный Pro для учеников центра, языки uz/ru, изучаемый — только английский; оплата на старте отложена; Free — 20 новых слов в день; **прода с реальными данными нет** — данные `students` не переносятся, create-миграции правятся на месте, все среды `migrate:fresh --seed` (docs/12 §2); текущему центру Pro не выдаём; paywall = «Pro скоро» + промокод + контакт `BILLING_SUPPORT_CONTACT` (пусто → не показывать); дефолты онбординга 20 / 19:00 / `Asia/Tashkent` / порог 1 приняты; uz-интерфейс запускаем при ru-переводах контента; юр. тексты — позже, делаем шаблоны.
 
 | # | Задача | Исполнитель | Статус |
 |---|--------|-------------|--------|
-| 1.0 | Проект: learner-first модель, курсы, entitlement, план миграции и нарезка на задачи (`docs/12_PHASE1_DESIGN.md`) | architect | ✅ |
-| 1.1 | Схема `learners`/`group_members`, миграция `students`, JWT по learner | architect → coder | ⏳ |
+| 1.0 | Проект: learner-first модель, курсы, entitlement, схема без переноса данных, нарезка на задачи (`docs/12_PHASE1_DESIGN.md`, ред. 2 после ответов владельца) | architect | ✅ |
+| 1.1a | Схема learner-first, аддитивно: `organizations`, `courses`, `learners`, `group_members`, `word_translations`, `learner_daily_stats`, `subscriptions`, `promo_*`; правки `telegram_groups`/`stages`/`words`; модели, factories, курс `default` в сидере; docs/03 (docs/12 §2.3, §9) | coder | ⏳ |
+| 1.1b | Переход на Learner: `student_id` → `learner_id` в create-миграциях, удаление `students`/`Student*`, `LearnerRegistrar`, `GroupMembershipService`, `LearnerContextResolver`, JWT v2, политики по членству, `PanelDataScope::learners()`, Filament/TWA, `DemoLearnersSeeder`, тесты по смыслу (docs/12 §9) | coder (консультация architect по политикам/экзамену при затруднении) | ⏳ |
 | 1.2 | Онбординг в боте `/start`: язык, цель, уровень, часовой пояс, время напоминаний | coder | ⏳ |
 | 1.3 | Каталог курсов: `courses`, `word_translations` (uz/ru), статусы публикации, предгенерация аудио | coder | ⏳ |
 | 1.4 | Личное обучение: экран «Сегодня», тренировка всех due, тренировка урока, streak, дневная цель | coder | ⏳ |

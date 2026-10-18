@@ -1,6 +1,6 @@
 # 12. Фаза 1 — проектирование публичного B2C MVP (learner-first)
 
-> Статус: проект, ред. 1 — 2026-10-18. Автор: architect (задача 1.0, Sprint 14).
+> Статус: проект, ред. 2 — 2026-10-18 (ред. 1 — тот же день). Автор: architect (задача 1.0, Sprint 14). Ред. 2 учитывает ответы владельца на вопросы §10: прода с данными нет → §2 переписан без переноса данных, задачи 1.1a–1.1d слиты в 1.1a/1.1b.
 > База: ветка `claude/magical-pascal-qz05gz` после приёмки Фазы 0 (Pest 409, Larastan 8, CI на PostgreSQL 16, локально sqlite).
 > Этот документ **уточняет и в части Фазы 1 заменяет** [11_SYSTEM_ANALYSIS_AND_SAAS_STRATEGY.md](./11_SYSTEM_ANALYSIS_AND_SAAS_STRATEGY.md) §5–§6, §10. Там — стратегия; здесь — схема, контракты сервисов, план миграции и нарезка на задачи. Где docs/11 расходится с кодом или с решениями владельца — сказано прямо (§13).
 
@@ -13,16 +13,16 @@
 | Вопрос | Решение | Почему |
 |---|---|---|
 | Центральный объект | Новая таблица `learners` (один на `telegram_user_id`); `students` заменяется таблицей членств `group_members` | Прогресс и подписка принадлежат человеку, а не паре (человек, группа) |
-| `students`: расширять или заменять | **Заменить**: новые таблицы + колонки `learner_id` во всех зависимых таблицах, `students` замораживается и удаляется релизом B | Прогресс одного человека из двух групп всё равно надо слить; «добавить `learner_id` в `students`» оставляет `word_repetitions` привязанными к группе |
+| `students`: расширять или заменять | **Заменить**: `students` удаляется, во всех зависимых таблицах `student_id` → `learner_id` | Прогресс принадлежит человеку; «добавить `learner_id` в `students`» оставляет `word_repetitions` привязанными к группе |
 | Личное обучение | **Обобщить `training_sessions`** (`mode`, `learner_id`), а не заводить отдельную `learner_sessions` | `training_reviews`, `TrainingFlowService`, `ReviewSubmissionService`, маршрут TWA `/training/:id` переиспользуются без дублирования |
-| Контент | `courses` → `stages` (модули курса) → `lessons` → `words` + `word_translations (uz/ru)`; существующий контент → платформенный курс `legacy-default` | Сохраняем команды учителя `/start_training <stage> <lesson>` и импортёр; переводы отделены от слова |
+| Контент | `courses` → `stages` (модули курса) → `lessons` → `words` + `word_translations (uz/ru)`; демо-контент и импорт без указания курса → платформенный курс `default` | Сохраняем команды учителя `/start_training <stage> <lesson>` и импортёр; переводы отделены от слова |
 | Организации | В Фазе 1 — **минимальная `organizations`** + `telegram_groups.organization_id`; спонсорство = подписка организации; места/инвайты/кабинет — Фаза 2 | Нужен субъект подписки для центра-клиента уже сейчас; UI центра без оплаты не окупается |
 | Entitlement | `EntitlementResolver`: `max(личная подписка, подписка организации любой активной группы learner'а)`; кэш Redis 5 мин с инвалидацией | Один код для личного и спонсорского Pro |
 | Оплата | Схема `subscriptions` + `promo_codes` сейчас; `payments` и `BillingProvider` — контракт описан, реализация вынесена за Фазу 1 | Решение владельца; схема не потребует переделки при подключении провайдера |
-| JWT | `{iss, sub: learner_id, v: 2, iat, exp}` без `gid`; токены без `v=2` отклоняются | `sub` старых токенов — `students.id`, его нельзя трактовать как `learner_id` |
+| JWT | `{iss, sub: learner_id, v: 2, iat, exp}` без `gid`; токены без `v=2` → 401 `invalid_token` | Смысл `sub` меняется (`students.id` → `learners.id`); токен любой старой сборки (демо-стенд, локально) должен отклоняться, а не читаться как чужой learner; клиент перелогинивается на 401 |
 | Напоминания | `learners.next_reminder_at` (UTC), пересчитывается после отправки; планировщик каждые 15 мин выбирает `next_reminder_at <= now()` | Переносимо (sqlite/PG), корректно при DST, индексируемо |
 | День / streak | Локальная дата learner'а (`timezone`), агрегаты в `learner_daily_stats` | «Сегодня» за O(1), streak без сканирования `training_reviews` |
-| Деплой схемы | Один релиз A с окном обслуживания 2–5 мин (`artisan down`), релиз B (удаление `students`) через ≥ 7 дней | Деплой-скрипт запускает миграции при живом старом коде; dual-write потребовал бы двойного рефакторинга |
+| Схема в коде | Create-миграции правятся **на месте** (+ новые create-файлы, `create_students_table` удаляется), все среды — `migrate:fresh --seed` | Прода с данными нет (решение владельца); переносить нечего, forward-миграции drop/create были бы одноразовым кодом с `down()` для мёртвой таблицы (§2.2) |
 
 ---
 
@@ -59,7 +59,7 @@ erDiagram
     USERS ||--o{ SUBSCRIPTIONS : granted_by
 ```
 
-Таблицы `users`, `teacher_groups`, `exam_sessions`, `exam_question_attempts`, `audit_logs` остаются как в docs/03.
+Таблицы `users`, `teacher_groups`, `exam_sessions`, `audit_logs` остаются как в docs/03; `students` **удаляется** (§2).
 
 ### 1.2 `learners` — профиль ученика (один на Telegram-пользователя)
 
@@ -81,7 +81,7 @@ erDiagram
 | dm_blocked_at | timestamp nullable | Telegram ответил 403 на ЛС; сбрасывается любым входящим сообщением learner'а |
 | onboarding_state | varchar(16) NOT NULL default `'new'` | `new` → `locale` → `goal` → `level` → `timezone` → `reminder` → `done` |
 | onboarding_completed_at | timestamp nullable | |
-| acquisition_source | varchar(64) nullable | из `start`-параметра: `ref`, `org`, `src:<channel>`, `course:<slug>`; `group` для пришедших через группу; `legacy` для мигрированных |
+| acquisition_source | varchar(64) nullable | из `start`-параметра: `ref`, `org`, `src:<channel>`, `course:<slug>`; `group` для пришедших через группу |
 | start_payload | varchar(64) nullable | сырой payload `/start` (Telegram ограничивает 64 символами `[A-Za-z0-9_-]`) |
 | referrer_learner_id | bigint nullable FK → learners `nullOnDelete` | только фиксируем; награды — Фаза 2 |
 | streak_current, streak_best | smallint NOT NULL default 0 | |
@@ -104,7 +104,6 @@ erDiagram
 | status | varchar(12) NOT NULL default `'active'` | `active` / `left` (сам вышел, `chat_member`) / `removed` (учитель/админ) / `banned` |
 | joined_at | timestamp NOT NULL | |
 | left_at | timestamp nullable | |
-| legacy_student_id | bigint nullable **unique** | `students.id` до миграции; удаляется релизом B |
 | created_at, updated_at | | |
 
 **Индексы:** `(telegram_group_id, learner_id)` unique; `(learner_id, status)`; `(telegram_group_id, status)`.
@@ -135,9 +134,9 @@ erDiagram
 
 ### 1.5 Зависимые таблицы: `student_id` → `learner_id`
 
-Во все таблицы добавляется `learner_id` (FK → learners), старая `student_id` становится nullable и удаляется релизом B (§2).
+Во всех таблицах `student_id` **заменяется** на `learner_id` (FK → learners) правкой create-миграций на месте (§2.3); колонки `student_id` в целевой схеме нет.
 
-| Таблица | learner_id | onDelete | Уникальности / индексы после миграции |
+| Таблица | learner_id | onDelete | Уникальности / индексы |
 |---|---|---|---|
 | word_repetitions | NOT NULL | cascade | unique `(learner_id, word_id)`; `(learner_id, next_review_at)`; `(learner_id, is_hard, next_review_at)`; `(next_review_at, learner_id)`; partial `(learner_id) WHERE is_hard`; **новый** `(learner_id, created_at)` — квота новых слов (§5.3) |
 | training_reviews | NOT NULL | cascade | `(learner_id, created_at)`; `(created_at, learner_id)`; `(training_session_id, learner_id)` |
@@ -147,7 +146,7 @@ erDiagram
 | notifications_log | NOT NULL | cascade | `(learner_id, type, sent_at)` |
 | product_events | nullable | setNull | `(learner_id, occurred_at)` |
 
-Конфликтов уникальностей при переносе нет: внутри одной группы на `telegram_user_id` ровно одна строка `students` (unique `(telegram_user_id, telegram_group_id)`), а экзамен принадлежит одной группе. Единственное место слияния — `word_repetitions` (§2.3).
+Смысл уникальностей: `word_repetitions (learner_id, word_id)` — один прогресс по слову на человека независимо от числа групп; `exam_*` остаются в рамках сессии (экзамен принадлежит одной группе), поэтому один learner в двух группах участвует в экзаменах каждой из них независимо.
 
 ### 1.6 `learner_daily_stats` — агрегат за локальный день
 
@@ -172,7 +171,7 @@ Unique `(learner_id, date)`. Обновляется в той же транза�
 | Колонка | Тип | Описание |
 |---|---|---|
 | id | bigint PK | |
-| slug | varchar(64) unique | `english-a1`, `ielts-academic`, `legacy-default` |
+| slug | varchar(64) unique | `default` (платформенный курс для демо-контента и импорта без `course`), `english-a1`, `ielts-academic` |
 | owner_type | varchar(16) NOT NULL default `'platform'` | `platform` / `organization` (Фаза 2: `learner`) |
 | owner_id | bigint nullable | `organizations.id` при `owner_type='organization'`; FK не ставим (полиморфный), целостность — в `CourseService` |
 | title | jsonb NOT NULL | `{"ru": "...", "uz": "..."}` — обязательны оба ключа (валидация в сервисе) |
@@ -191,11 +190,11 @@ Unique `(learner_id, date)`. Обновляется в той же транза�
 
 Индексы: `slug` unique; `(status, visibility, position)`; `(owner_type, owner_id)`.
 
-**`stages`** (модули курса): + `course_id` bigint FK → courses `cascadeOnDelete` (после backfill NOT NULL); unique `number` **заменяется** на unique `(course_id, number)`. В UI называем «Модуль»; команды учителя `/start_training <stage> <lesson>` резолвят номер в курсе группы (`telegram_groups.course_id`, иначе `legacy-default`).
+**`stages`** (модули курса): + `course_id` bigint NOT NULL FK → courses `cascadeOnDelete`; unique `number` **заменяется** на unique `(course_id, number)`. В UI называем «Модуль»; команды учителя `/start_training <stage> <lesson>` резолвят номер в курсе группы (`telegram_groups.course_id`, иначе курс `default`; slug — `config('content.default_course_slug')`).
 
 **`lessons`**: без изменений схемы (`stage_id`, `number`, `title`). Порядок внутри курса — `(stage.number, lesson.number)`.
 
-**`words`**: + `audio_path` varchar(255) nullable (предгенерированный mp3, относительный путь в `storage/app/public/audio`), + `is_active` boolean default true (docs/03 §8 правило 1 — слова не удаляем). `translation` остаётся как **legacy ru** на период Фазы 1 и источником backfill; чтение переводов — только через `WordTranslationResolver`.
+**`words`**: + `audio_path` varchar(255) nullable (предгенерированный mp3, относительный путь в `storage/app/public/audio`), + `is_active` boolean default true (docs/03 §8 правило 1 — слова не удаляем). `translation` остаётся **ru-переводом по умолчанию** (NOT NULL, как сейчас — его читают импортёр v1, экзамен и демо-сидер); `VocabularyImporter` v2 пишет ru и в `translation`, и в `word_translations`; чтение переводов в коде — только через `WordTranslationResolver` (`word_translations[locale]` → `ru` → `words.translation`).
 
 **`word_translations`**
 
@@ -212,7 +211,7 @@ Unique `(learner_id, date)`. Обновляется в той же транза�
 
 Unique `(word_id, locale)`. Экзаменационные дистракторы строятся на переводах локали **группы** (`LocaleResolver::forGroup`) с fallback на `ru`; личных экзаменов в Фазе 1 нет.
 
-**`telegram_groups`**: + `organization_id` bigint nullable FK → organizations `nullOnDelete`; + `course_id` bigint nullable FK → courses `nullOnDelete` (курс для команд учителя; `NULL` = `legacy-default`).
+**`telegram_groups`**: + `organization_id` bigint nullable FK → organizations `nullOnDelete`; + `course_id` bigint nullable FK → courses `nullOnDelete` (курс для команд учителя; `NULL` = курс `default`).
 
 ### 1.8 Организации (минимум Фазы 1)
 
@@ -270,76 +269,76 @@ Unique `(word_id, locale)`. Экзаменационные дистрактор�
 
 ---
 
-## 2. Миграция данных `students` → `learners` без потери
+## 2. Переход схемы `students` → `learners` (без переноса данных)
 
-### 2.1 Выбор стратегии
+### 2.1 Исходные условия
+
+Решение владельца (2026-10-18): **продакшена с реальными данными нет** — только тестовые/демо-стенды, данные которых пересоздаются `migrate:fresh --seed`. Следствия:
+
+- переносить `students` нечего — `StudentsToLearnersMigrator`, слияние `word_repetitions`, архив `word_repetitions_merge_archive`, `group_members.legacy_student_id`, окно обслуживания, dual-write и двухрелизный переход (A/B) **из проекта удалены**; coder их не делает;
+- остаётся один вопрос — как получить целевую схему §1 в коде миграций так, чтобы `down()` работал (CLAUDE.md), тесты шли и на sqlite (локально), и на PostgreSQL (CI), а FK и порядок таблиц были корректны.
+
+### 2.2 Выбор пути
 
 | Вариант | Плюсы | Минусы | Решение |
 |---|---|---|---|
-| A. Оставить `students`, добавить `students.learner_id` | минимальные правки FK | `word_repetitions.student_id` остаётся групповым: прогресс одного человека в двух группах не слит; все сервисы продолжают думать «студент = группа»; второй рефакторинг неизбежен | отклонён |
-| B. `ALTER TABLE students RENAME TO group_members` + добавить `learner_id`, удалить профильные колонки | id сохраняются | тот же объём правок кода; таблица тянет лишние колонки до релиза B; `down()` — обратный rename с восстановлением колонок; FK `*_id → students` всё равно надо перевести на learners | отклонён |
-| **C. Новые `learners` + `group_members (legacy_student_id)`, колонки `learner_id` в зависимых таблицах, `students` заморожена до релиза B** | чистая целевая схема сразу; `students` остаётся нетронутым источником для `down()` и сверки; слияние прогресса — один раз | большой рефакторинг кода (неизбежен в любом варианте) | **принят** |
+| (a) Forward-миграции поверх текущих: `drop students`, `create learners/group_members`, замена `student_id` → `learner_id` в 7 таблицах, `down()` возвращает всё обратно | тем, у кого ветка накатана локально, достаточно `migrate` | ~9 файлов одноразового кода: `down()` воссоздаёт `students`, которой не пользуется ни одна строка кода, но обязан работать и быть покрыт тестом; на sqlite замена FK-колонки — пересборка таблицы (Laravel 12 делает её сам, но raw partial-индекс `word_repetitions_student_is_hard_idx` и уникальности `(…, student_id, …)` надо снимать руками до `dropColumn`, и ту же цепочку повторять в `down()`); история миграций навсегда несёт мёртвую `students`; FK, добавленные через `Schema::table`, на sqlite не применяются без пересборки — локальные тесты каскадов расходятся с CI | отклонён |
+| **(b) Правка исходных create-миграций на месте + новые create-файлы + `migrate:fresh`** | итоговая схема читается «с нуля», одна таблица — одна миграция со своими FK (на sqlite FK гарантированно есть, т.к. задаются при `create`); `down()` — симметричные `dropIfExists`/`dropIndex`, как сейчас; нет кода, который никогда не выполнится в проде; минимум файлов | все локальные БД пересоздаются `migrate:fresh --seed` | **принят** |
 
-### 2.2 Релизы и окно обслуживания
+Почему (b) корректен: проект ещё не выкатывался, миграции — часть кода, а не истории прода; прецедент уже есть (PROGRESS.md, Sprint 13: миграции `2026_10_18_*` правились на месте). Правило на будущее фиксируем в DEVOPS_GUIDE: **до первого прод-релиза история миграций может правиться на месте; с первого прод-релиза — только forward-миграции.**
 
-Деплой-скрипт (DEVOPS_GUIDE §1) выполняет `migrate --force` **до** переключения контейнеров, то есть при живом старом коде. Старый код пишет `student_id` и не знает про `learner_id`; как только `learner_id` станет NOT NULL, его INSERT упадёт. Поэтому:
+### 2.3 План правок миграций (`database/migrations/`)
 
-- **Релиз A (задачи 1.1a–1.1c) — с окном обслуживания 2–5 минут.** Порядок: предусловия → бэкап → `artisan down --secret=<…>` → дренаж очередей (`queue:work --stop-when-empty` для `high`/`default`, остановка воркеров и планировщика) → `migrate --force` (миграции §2.4) → переключение образов → `artisan up` → smoke (§2.6). Это одноразовое структурное изменение при аудитории одного центра; простой в минуты приемлем.
-- **Релиз B (задача 1.1d), не раньше чем через 7 дней работы на новой схеме:** удаление `student_id`, `students`, `word_repetitions_merge_archive`, `group_members.legacy_student_id`. Выполняется обычным деплоем без окна.
-- Отклонено: двухрелизный dual-write (новый код пишет и `student_id`, и `learner_id`, `learner_id` NOT NULL — в следующем релизе). Потребовал бы сохранить модель `Student` и все её потребители на один релиз, то есть рефакторить дважды.
+Порядок файлов определяет порядок создания таблиц, поэтому таблицы-цели FK получают более ранние метки времени. Переименований нет: только новые файлы, правки на месте и одно удаление.
 
-**Предусловия релиза A** (проверяет координатор, фиксируется в DEVOPS_GUIDE):
-1. Нет открытых экзаменов: `SELECT count(*) FROM exam_sessions WHERE status = 'open'` = 0 (экзамен ≤ 30 мин; при необходимости `/close_exam`). Причина: `ExamQuestionPersonalizer` строит seed из `(session_id, student_id)`; после миграции seed строится из `learner_id`, и открытый экзамен **перемешался бы** у участников. Закрытым экзаменам seed не нужен (результаты в `exam_results`, ответы — в `exam_answers`).
-2. Время деплоя не совпадает с рассылкой напоминаний (сейчас 18:00 UTC): в очереди не должно быть `SendReviewReminderJob(studentId)` — его сигнатура меняется.
-3. Свежий бэкап `backup:run` завершён.
-
-### 2.3 Правила переноса
-
-**Learner из students.** Для каждого уникального `students.telegram_user_id` — одна строка `learners`. Профиль (`first_name`, `last_name`, `username`, `language_code`) берётся из строки с максимальным `last_seen_at` (NULL — последним), при равенстве — с большим `id`. `interface_locale = LocaleResolver::fromLanguageCode(language_code)`; `timezone` — дефолт конфигурации; `onboarding_state = 'done'`, `onboarding_completed_at = now()` (мигрированные уже учатся — онбординг им не навязываем, но бот при первом ЛС предложит `/settings`); `acquisition_source = 'legacy'`; `last_seen_at = max(students.last_seen_at)`.
-
-**group_members из students.** Один к одному: `legacy_student_id = students.id`, `status = is_active ? 'active' : 'removed'`, `joined_at = students.created_at`.
-
-**word_repetitions — слияние.** Конфликт: одна пара `(telegram_user_id, word_id)` встречается в нескольких `students`. Правило выбора победителя (в порядке убывания приоритета):
-1. `state`: `review` > `relearning` > `learning` > `new`;
-2. `repetitions` больше;
-3. `last_reviewed_at` новее (NULL — последним);
-4. `id` больше.
-
-Победитель получает `learner_id`, у него `lapses = max(lapses)` по всем строкам (провалы — факт истории, а не параметр расписания), `is_hard = OR` по строкам в состоянии победителя; остальные поля — только победителя (EF и интервал — свойства одного расписания, смешивать их нельзя). Проигравшие копируются в `word_repetitions_merge_archive` (все колонки + `merged_into_id`, `legacy_student_id`) и удаляются. Правило docs/11 «брать с большим `repetitions`» недостаточно: после Фазы 0 строка в `review` с `repetitions = 1` ценнее строки в `relearning` с `repetitions = 0`, а `repetitions` сбрасывается при провале.
-
-**Остальные таблицы** (`training_reviews`, `exam_answers`, `exam_results`, `exam_question_attempts`, `notifications_log`, `product_events`): `learner_id = learners.id` по `students.telegram_user_id`. Конфликтов нет (§1.5).
-
-**Контент.** Создаётся курс `legacy-default` (`owner_type = platform`, `status = published`, `visibility = public`, `title = {ru: "Базовый курс", uz: "Asosiy kurs"}`), все `stages.course_id` указывают на него; `words.translation` → `word_translations (locale = 'ru', source = 'import')`. Все активные группы получают `course_id = legacy-default`.
-
-### 2.4 Порядок миграций релиза A
-
-| # | Файл (`database/migrations/2026_10_2x_…`) | up | down |
+| Файл | Действие | Задача | Содержимое |
 |---|---|---|---|
-| 1 | `create_learners_table` | §1.2 без FK `active_course_id` | drop |
-| 2 | `create_group_members_table` | §1.3 | drop |
-| 3 | `create_organizations_table` | §1.8 | drop |
-| 4 | `create_courses_and_word_translations` | `courses`, `word_translations`, `words.audio_path/is_active`, `stages.course_id` nullable, `telegram_groups.organization_id/course_id`, `learners.active_course_id` FK | обратные drop/dropColumn |
-| 5 | `add_learner_id_to_learning_tables` | nullable `learner_id` + FK + индексы в 7 таблицах (§1.5); `training_sessions`: новые колонки, `telegram_group_id/started_by_user_id/lesson_id` → nullable | dropColumn / обратный NOT NULL (данные личных сессий к этому моменту отсутствуют или удаляются в down) |
-| 6 | `create_learner_daily_stats_table` | §1.6 | drop |
-| 7 | `create_subscriptions_and_promo_tables` | §1.9 | drop |
-| 8 | `backfill_learners_from_students` | **данные**: вызывает `StudentsToLearnersMigrator::run()` (§2.5); создаёт `word_repetitions_merge_archive`; курс `legacy-default` и backfill `stages.course_id`, `word_translations(ru)`, `telegram_groups.course_id` | `StudentsToLearnersMigrator::rollback()`: восстановить проигравших из архива, `learner_id = NULL` везде, удалить `group_members`, `learners`, `word_translations(source='import')`, `stages.course_id = NULL`, курс `legacy-default`; drop архива |
-| 9 | `enforce_learner_schema` | `learner_id` NOT NULL где положено; `student_id` → nullable во всех 7 таблицах; замена уникальностей `(student_id, …)` → `(learner_id, …)` (создать новые, затем удалить старые); `stages.course_id` NOT NULL, unique `(course_id, number)` вместо `number`; partial unique/CHECK для `training_sessions` (§1.4) | обратные операции (`student_id` NOT NULL восстанавливается только если нет строк с NULL — иначе исключение с подсказкой «rollback сначала 9, затем 8») |
+| `2026_04_23_095900_create_organizations_table` | новый | 1.1a | §1.8 |
+| `2026_04_23_095901_create_courses_table` | новый | 1.1a | §1.7 `courses` (FK наружу нет: `owner_id` полиморфный) |
+| `2026_04_23_095902_create_learners_table` | новый | 1.1a | §1.2, включая FK `active_course_id → courses nullOnDelete`, `referrer_learner_id → learners nullOnDelete` (self); partial-индекс `next_reminder_at` — только `pgsql` (guard драйвера как в `2026_07_13_000002`), на sqlite обычный |
+| `2026_04_23_100000_create_telegram_groups_table` | правка | 1.1a | + `organization_id`, `course_id` (nullable FK, `nullOnDelete`) |
+| `2026_04_23_100002_create_students_table` | **удалить** | 1.1b | — |
+| `2026_04_23_100003_create_stages_table` | правка | 1.1a | + `course_id` NOT NULL FK → courses `cascadeOnDelete`; unique `(course_id, number)` **вместо** unique `number` |
+| `2026_04_23_100005_create_words_table` | правка | 1.1a | + `audio_path`, `is_active` |
+| `2026_04_23_100006_create_word_repetitions_table` | правка | 1.1b | `student_id` → `learner_id` (FK learners cascade); unique `(learner_id, word_id)`; индексы §1.5; partial `word_repetitions_learner_is_hard_idx` |
+| `2026_04_23_100007_create_training_sessions_table` | правка | 1.1b | §1.4: `telegram_group_id`/`lesson_id`/`started_by_user_id` nullable; + `learner_id`, `mode`, `source`, `course_id`, `expires_at`; индексы `(learner_id, status, started_at)`, `(status, expires_at)` |
+| `2026_04_23_100008_create_training_reviews_table` | правка | 1.1b | `learner_id` NOT NULL cascade; индекс `(learner_id, created_at)` |
+| `2026_04_23_100010_create_exam_answers_table` | правка | 1.1b | `learner_id` nullable setNull; индексы §1.5 |
+| `2026_04_23_100011_create_exam_results_table` | правка | 1.1b | `learner_id` nullable setNull |
+| `2026_04_23_100012_create_notifications_log_table` | правка | 1.1b | `learner_id` NOT NULL cascade; индекс `(learner_id, type, sent_at)` |
+| `2026_04_23_100014_create_group_members_table` | новый | 1.1a | §1.3 (после `telegram_groups` и `learners`) |
+| `2026_04_23_100015_create_word_translations_table` | новый | 1.1a | §1.7 |
+| `2026_04_23_100016_create_learner_daily_stats_table` | новый | 1.1a | §1.6 |
+| `2026_04_23_100017_create_subscriptions_table` | новый | 1.1a | §1.9; partial unique `subscriptions_one_live_per_subscriber` — `pgsql`/`sqlite` с guard драйвера |
+| `2026_04_23_100018_create_promo_codes_table`, `2026_04_23_100019_create_promo_redemptions_table` | новые | 1.1a | §1.9 |
+| `2026_05_03_000001_add_performance_indexes` | правка | 1.1b | колонки и имена индексов `student` → `learner` (`word_repetitions_learner_hard_due_idx`, `word_repetitions_due_learners_idx`, `training_reviews_created_learner_idx`, `training_reviews_session_learner_idx`, `exam_answers_session_learner_word_unique`, `exam_answers_answered_learner_idx`, `exam_results_session_learner_unique`) |
+| `2026_07_13_000001_create_exam_question_attempts_table` | правка | 1.1b | `learner_id` NOT NULL cascade; unique `(exam_session_id, learner_id, question_index)` |
+| `2026_07_13_000002_add_open_session_unique_indexes` | правка | 1.1b | + `training_sessions_one_open_daily_per_learner`, `training_sessions_one_open_lesson_per_learner` (§1.4); PG-only CHECK `training_sessions_mode_shape_check`; `down()` симметричен |
+| `2026_10_18_000001_create_product_events_table` | правка | 1.1b | `learner_id` nullable setNull; индекс `(learner_id, occurred_at)` |
+| `2026_10_18_000002_add_learning_state_to_word_repetitions` | без изменений | — | backfill на пустой таблице — no-op; тест `down()`/`up()` в `TwaTrainingTest` остаётся |
 
-Релиз B — одна миграция `drop_students_legacy`: dropColumn `student_id` (7 таблиц), drop `students`, drop `word_repetitions_merge_archive`, dropColumn `group_members.legacy_student_id`. `down()` восстанавливает **схему** (nullable колонки, пустую `students`), не данные — к этому моменту старый код не существует; задокументировать в DEVOPS_GUIDE.
+Файлы `0001_01_01_*`, `teacher_groups`, `lessons`, `exam_sessions`, `audit_logs`, `permission_tables`, `two_factor`, `leaderboard_posted_at` не трогаем.
 
-### 2.5 `StudentsToLearnersMigrator` — требования к реализации
+Правила для всех правок:
+- `down()` обязателен и симметричен (`dropIfExists` для create; `dropIndex`/`DROP INDEX IF EXISTS` для индексных миграций);
+- partial-индексы и CHECK — через `DB::statement` с guard `in_array(DB::getDriverName(), ['pgsql', 'sqlite'])` (CHECK — только `pgsql`), как в `2026_07_13_000002`; инварианты дублируются в сервисах;
+- никаких `DB::raw` с интерполяцией; литералы статусов — в тексте `CREATE INDEX … WHERE status = 'open'` (как сейчас).
 
-Класс `App\Domain\Learners\Migration\StudentsToLearnersMigrator` (вызывается из миграции 8 и из artisan-команды `learners:migrate-from-students {--dry-run}` для прогона на копии прода):
+### 2.4 Демо-данные (сидеры)
 
-- **Идемпотентен и возобновляем**: все шаги фильтруют `WHERE learner_id IS NULL` / `WHERE NOT EXISTS (learners.telegram_user_id = …)`; падение на середине не портит данные, повторный запуск доделывает.
-- **Батчи**: `students` читаются `chunkById(500)`; для каждого `telegram_user_id` — своя короткая транзакция (создать learner, членства, слить прогресс, проставить `learner_id` в 7 таблицах запросами вида `->where('student_id', $sid)->whereNull('learner_id')->update(['learner_id' => $lid])` — они бьют по существующим индексам `student_id`, без `DB::raw`). При 1–2 тыс. студентов это ~10–15 тыс. коротких UPDATE — секунды. Для масштаба в сотни тысяч студентов предусмотрен PG-путь `UPDATE … FROM` с bindings (`DB::statement` с `?`), включаемый флагом `--bulk` — в Фазе 1 не нужен, не реализуем.
-- Слияние `word_repetitions` — выборка конфликтов одним запросом (`GROUP BY telegram_user_id, word_id HAVING count(*) > 1` через join со `students`), затем по-строчно в PHP по правилу §2.3.
-- Прогресс пишется в лог (`learners.migration`) по каждым 500 студентам; итог: число learners, членств, слитых строк, перенесённых строк по таблицам — сравнивается с контрольными суммами (`count(*)` до/после по каждой таблице: сумма `learner_id IS NOT NULL` должна равняться числу строк со `student_id IS NOT NULL`).
-- **Тесты (Pest, sqlite локально + PG в CI):** один человек в двух группах с пересечением слов (победитель по `state`, по `repetitions`, по `last_reviewed_at`); `lapses = max`; архив содержит проигравших; `training_reviews`/`exam_*`/`notifications_log`/`product_events` получают `learner_id`; `is_active = false` → `removed`; профиль из последней по `last_seen_at`; повторный `run()` ничего не меняет; `rollback()` возвращает исходное (включая проигравших) — assert по снимку таблиц; миграции 8+9 `down()` → `up()` по образцу теста `runs the learning-state migration backfill and rollback cleanly` в `TwaTrainingTest`; `DatabaseSchemaTest`: новые таблицы, уникальности, PG-индексы (partial) через `pg_indexes`.
+- `DemoContentSeeder`: создаёт платформенный курс `default` (`owner_type = platform`, `status = published`, `visibility = public`, `title = {ru: "Базовый курс", uz: "Asosiy kurs"}`), все демо-`stages` — в нём; ru-переводы слов дублируются в `word_translations (locale = 'ru', source = 'import')`.
+- `DemoGroupSeeder`: `telegram_groups.course_id = default`.
+- `DemoLearnersSeeder` (заменяет `DemoStudentsSeeder`, задача 1.1b): 5 learners с `onboarding_state = 'done'`, членства в демо-группе; один learner состоит в двух группах (вторая группа создаётся здесь) — на нём виден принцип «один человек — один прогресс».
+- `DemoRepetitionsSeeder`, `DemoActivitySeeder`: `student_id` → `learner_id`.
+- `DatabaseSchemaTest` «`migrate:fresh --seed`»: ожидание `students = 5` → `learners = 5`, `group_members = 6`, `courses = 1`.
 
-### 2.6 Smoke после релиза A
+### 2.5 Локальные среды, CI, демо-стенд
 
-`POST /api/twa/auth` (старый токен → 401 `invalid_token`, новый → `learner.id`), `GET /api/twa/today`, открытие старой ссылки `/twa/training/{id}` группы (id сессий сохранены), `/start` в ЛС нового пользователя, Filament: Learners, Courses. Сверка: `select count(*) from learners` = `select count(distinct telegram_user_id) from students`.
+После приёмки 1.1a и 1.1b каждый разработчик выполняет `php artisan migrate:fresh --seed`; «накатить поверх» нельзя — `migrate:status` покажет расхождение (в `migrations` есть `create_students_table`, которой нет на диске). CI создаёт БД с нуля — изменений не требует. Демо-стенд пересоздаётся тем же `migrate:fresh --seed` (данные не нужны). Правило «до первого прод-релиза — правки на месте, после — только forward» фиксируется в DEVOPS_GUIDE (§12).
+
+### 2.6 Smoke после 1.1b (демо-стенд)
+
+`migrate:fresh --seed`; `POST /api/twa/auth` без `context` → 200 с `learner.id` (повторный вызов — тот же `learner.id`); токен старого формата (без `v`) → 401 `invalid_token`; `/start` в ЛС нового пользователя → learner создан; в группе `/start_training 1 1` → ссылка → тренировка работает; Filament: Learners (учитель видит только участников своих групп), Courses; напоминание уходит learner'у, состоящему в двух группах, **один раз**.
 
 ---
 
@@ -360,7 +359,7 @@ final class OnboardingService
 {
     public function start(Learner $l, ?string $startPayload): OnboardingStep;      // парсит payload (§7.2), ставит state=locale
     public function apply(Learner $l, string $step, string $value): OnboardingStep; // валидирует значение шага, сохраняет, возвращает следующий шаг
-    public function skipToDone(Learner $l): void;                                   // мигрированные/повторный /start
+    public function skipToDone(Learner $l): void;                                   // повторный /start, «пропустить» из TWA-баннера
 }
 final readonly class OnboardingStep { public string $state; public string $messageKey; public array $options; } // options → inline-кнопки
 
@@ -586,17 +585,17 @@ TWA экраны: `TodayView` (новый `/`), `CoursesView`, `CourseView`, `Tr
 
 ### 4.1 JWT v2
 
-Payload `{iss: 'lexiflow', sub: '<learner_id>', v: 2, iat, exp}`; TTL 15 мин как сейчас. `verify()` требует `v === 2` — иначе `invalid_token`. Так старые токены (где `sub` = `students.id`) **не могут** быть прочитаны как learner — иначе в момент деплоя студент №42 стал бы learner'ом №42. Клиент уже умеет 401 → `login()` → retry (`api/client.ts`), поэтому переход прозрачен. `jti` + denylist отложены (§8): отзыв в Фазе 1 — `learners.blocked_at`, проверяемый `TwaAuth` на каждом запросе (как сегодня проверяется `is_active`).
+Payload `{iss: 'lexiflow', sub: '<learner_id>', v: 2, iat, exp}`; TTL 15 мин как сейчас. `verify()` требует `v === 2` — иначе `invalid_token`. Токены старого формата (где `sub` = `students.id`, есть `gid`) **не могут** быть прочитаны как learner: прода нет, но демо-стенды и локальные сборки выдавали такие токены, и без версии студент №42 стал бы learner'ом №42. Претензия `v` остаётся и на будущее для смены формата. Клиент уже умеет 401 → `login()` → retry (`api/client.ts`), поэтому переход прозрачен. `jti` + denylist отложены (§8): отзыв в Фазе 1 — `learners.blocked_at`, проверяемый `TwaAuth` на каждом запросе (как сегодня проверяется `is_active`).
 
 ### 4.2 Вход в TWA без контекста сессии
 
 `POST /auth` принимает `init_data` и необязательный `context` (оставлен для совместимости клиента и для события `twa.authenticated`). Identity = `initData.user.id` → `LearnerRegistrar::fromTelegramUser` (создаёт learner при первом входе — например, человек открыл кнопку в группе, не нажимая `/start` в ЛС). Ошибок `session_context_required`/`student_not_found` на `/auth` больше нет. Доступ к конкретной сессии проверяется на её маршрутах.
 
-### 4.3 Старые ссылки и кнопки
+### 4.3 Совместимость со старым клиентом, ссылками и токенами
 
-- `/twa/training/{id}`, `/twa/exam/{id}` — id сессий сохраняются, маршруты те же; проверка доступа — по членству (§4.4).
-- Напоминания, отправленные до деплоя, ведут на `/twa/training/{id}` групповой сессии — работают, пока сессия `open`.
-- `/twa/` (бывший «откройте через кнопку в группе») становится экраном «Сегодня».
+- Совместимость с данными, сессиями и напоминаниями «до деплоя» **не требуется** — прода нет (§2.1). Единственная обязательная мера — `v: 2` в JWT (§4.1): токен старого формата → 401 `invalid_token`, клиент перелогинивается сам.
+- `/twa/training/{id}`, `/twa/exam/{id}` — маршруты те же; проверка доступа — по членству (§4.4). Клиент TWA деплоится вместе с API (один образ), версионирования API не нужно.
+- `/twa/` (сейчас заглушка «откройте через кнопку в группе») становится экраном «Сегодня» в задаче 1.3b; до неё остаётся заглушка.
 - Кнопка бота в ЛС: `web_app` URL `{base}/twa/?from=bot`. Прямые ссылки `t.me/<bot>/<app>?startapp=…` требуют регистрации Mini App в BotFather — опционально, не в Фазе 1.
 
 ### 4.4 Политики
@@ -651,7 +650,7 @@ live = status IN (trialing, active) OR (status = past_due AND grace_until > now)
 
 ### 5.4 Paywall в Фазе 1
 
-`EntitlementResolver` отдаёт `paywall.mode` из конфига. Режим `coming_soon` (старт): лист «Лимит новых слов на сегодня исчерпан — повторения доступны без ограничений. Pro скоро откроется. Есть промокод? [Ввести код]. Учитесь в центре? Попросите администратора центра подключить LexiFlow Pro: {contact}». Кнопки: «Повторить due-слова», «Ввести промокод», «Напомнить завтра» (просто закрывает). Событие `paywall.shown {reason}`. Режим `purchase` появится вместе с провайдером — та же компонента, другой текст и кнопка оплаты.
+`EntitlementResolver` отдаёт `paywall.mode` из конфига. Режим `coming_soon` (старт): лист «Лимит новых слов на сегодня исчерпан — повторения доступны без ограничений. Pro скоро откроется. Есть промокод? [Ввести код]. Учитесь в центре? Попросите администратора центра подключить LexiFlow Pro: {contact}». Фраза про контакт показывается **только если** `config('billing.paywall.contact')` непустой (`BILLING_SUPPORT_CONTACT` владелец задаст позже); `/me.entitlement`/`/today` отдают `paywall: {mode, contact: string|null}`. Кнопки: «Повторить due-слова», «Ввести промокод», «Напомнить завтра» (просто закрывает). Событие `paywall.shown {reason}`. Режим `purchase` появится вместе с провайдером — та же компонента, другой текст и кнопка оплаты.
 
 ### 5.5 Способы получить Pro без оплаты (Фаза 1)
 
@@ -784,7 +783,7 @@ flowchart TD
 - `repetitions:notify` → **каждые 15 минут** (`Schedule::command('reminders:dispatch')->everyFifteenMinutes()->withoutOverlapping()`): `ReminderDispatcher::dispatchDue(now)`: выборка `learners WHERE next_reminder_at <= now AND dm_blocked_at IS NULL AND blocked_at IS NULL AND deleted_at IS NULL` `chunkById(200)`; для каждого — атомарный «клейм» `UPDATE learners SET next_reminder_at = <next> WHERE id = ? AND next_reminder_at = <old>` (affected = 1 → диспатч `SendLearnerReminderJob(learnerId)`), иначе пропуск (второй инстанс планировщика/повтор). Это идемпотентность первого уровня; второй — `notifications_log` «не чаще 1 раза в 20 ч» внутри job под `Cache::lock` (как сейчас).
 - Содержимое решает job: `due = DueRepetitionCriteria`; `streakAtRisk = StreakService::current().atRisk`. Если `due >= threshold (config 1)` → `reminders.review` (`trans_choice`); иначе если `streakAtRisk` → `reminders.streak_at_risk`; иначе не отправлять (но `next_reminder_at` уже сдвинут на завтра — это и нужно). Кнопка → `/twa/?from=reminder`. `threshold` снижаем с 5 до 1: в B2C «1 слово к повторению» — валидный повод вернуться; значение в `config/learning.php`.
 - `TelegramForbiddenException` (`bot_blocked` / `not_started` / `user_deactivated`) → `dm_blocked_at = now`, событие `reminder.failed {reason}`, без повторов. Любое входящее сообщение/callback от learner'а в ЛС → `dm_blocked_at = NULL` (`LearnerDmHandler`, `StartCommandHandler`).
-- Мигрированные learner'ы: `reminder_time = '19:00'`, `next_reminder_at` рассчитан; у них может не быть ЛС с ботом — первая попытка пометит `dm_blocked_at`, дальше тишина до их `/start`.
+- Learner, созданный из группы (`NewMembersHandler`) или из TWA без `/start` в ЛС: `reminder_time = '19:00'` по умолчанию, `next_reminder_at` рассчитан; ЛС с ботом у него может не быть — первая попытка пометит `dm_blocked_at`, дальше тишина до его `/start`.
 
 ### 7.6 Жизненный цикл личной сессии
 
@@ -824,39 +823,41 @@ flowchart TD
 
 | # | Задача | Исп. | Зависит от | Цель и файлы | DoD / тесты |
 |---|---|---|---|---|---|
-| 1.1a | **Схема learner-first (expand)** | C | — | Миграции 1–7 (§2.4); модели `Learner`, `GroupMember`, `Organization`, `Course`, `WordTranslation`, `LearnerDailyStats`, `Subscription`, `PromoCode`, `PromoRedemption`; `learner_id` nullable в 7 таблицах; `training_sessions` новые колонки; factories; docs/03 обновлён (новые разделы, `student_id` помечен legacy) | `DatabaseSchemaTest`: таблицы, уникальности, FK onDelete, PG partial-индексы; все миграции `down()` проходят на sqlite и PG (CI); старые тесты зелёные (старый код ещё пишет `student_id`) |
-| 1.1b | **Миграция данных students → learners** | **A** | 1.1a | `StudentsToLearnersMigrator` (§2.5), команда `learners:migrate-from-students --dry-run`, миграции 8–9, `word_repetitions_merge_archive`, курс `legacy-default`, backfill `word_translations(ru)`, `stages.course_id`, `telegram_groups.course_id` | тесты §2.5 (слияние по всем правилам, идемпотентность, rollback, контрольные суммы); DEVOPS_GUIDE: runbook релиза A (§2.2, §2.6) |
-| 1.1c | **Рефакторинг кода на Learner/GroupMember + JWT v2** | C | 1.1b | удалить `Student*`; `LearnerRegistrar`, `GroupMembershipService`, `LearnerContextResolver`, `JwtService` v2, `TwaAuth`, политики §4.4, `PanelDataScope::learners()`, `LearnerResource` вместо `StudentResource`, виджеты, `TeacherStatsReporter`, `NewMembersHandler`→membership, `ChatMemberHandler`, `ProductEventRecorder(learner:)`, `LocaleResolver::forLearner`, `SendReviewReminderJob(learnerId)`, `ReviewReminderService` по learners; `AuthTokenResource`/`MeResource`; TWA `types.ts`/`auth.ts` (`Learner`), `ensure()` без перелогина по контексту; docs/04 A.1–A.2, docs/07 §4–§5 обновлены | `TwaAuthTest`: без контекста → 200; токен без `v` → 401; `learner_blocked` → 401; `TwaTrainingTest`/`TwaExamTest`: доступ по членству (чужая группа 403, `left` 403); `TeacherPanelScopeTest` на `learners()`; `JwtServiceTest` v2; весь suite зелёный; `migrate:fresh --seed` с новыми сидерами (`DemoLearnersSeeder`) |
-| 1.1d | **Релиз B: удаление legacy** (через ≥ 7 дней прод-работы) | C | 1.1c в проде | миграция `drop_students_legacy`; удалить `legacy_student_id`, архив; docs/03 финальный | `DatabaseSchemaTest` без `students`; `down()` восстанавливает схему |
-| 1.2a | **Курсы и переводы: контент-слой** | C | 1.1c | `CourseCatalogService`, `CoursePublisher`, `WordTranslationResolver`, `VocabularyImporter` v2 (`course`, `translations`), `CardPicker`/`ExamQuestionBuilder`/Resource'ы читают перевод по локали (learner / группа) с fallback; Filament `CourseResource` (статусы, i18n-заголовки, relation stages), `WordTranslationsRelationManager`; команды учителя резолвят stage в курсе группы; docs/03 §контент, ADMIN_GUIDE | `VocabularyImporterTest` v2 (обе схемы, переводы, идемпотентность); `CoursePublisherTest` (переходы, порог переводов); `ExamQuestionBuilderTest` на локали группы; Filament-тест публикации |
+| 1.1a | **Схема learner-first: новые таблицы (аддитивно)** | C | — | Новые create-миграции и правки на месте, помеченные «1.1a» в §2.3: `organizations`, `courses`, `learners`, `group_members`, `word_translations`, `learner_daily_stats`, `subscriptions`, `promo_codes`, `promo_redemptions`; `telegram_groups` + `organization_id`/`course_id`; `stages` + `course_id` NOT NULL, unique `(course_id, number)`; `words` + `audio_path`/`is_active`. Модели (только связи, casts, `SoftDeletes` у `Learner` — без бизнес-логики): `Learner`, `GroupMember`, `Organization`, `Course`, `WordTranslation`, `LearnerDailyStats`, `Subscription`, `PromoCode`, `PromoRedemption`; factories для всех; `StageFactory` → `course_id`; `DemoContentSeeder` создаёт курс `default` (§2.4), `DemoGroupSeeder` ставит `course_id`; `config/content.php` (`default_course_slug`), `config/learners.php` (`default_timezone`, `default_reminder_time`, `default_daily_goal`); `students` и весь код `Student*` **не трогать** — задача аддитивная. docs/03 обновлён до кода: новые таблицы, ERD, порядок миграций (§2.3) | Suite остаётся зелёным (старый код не меняется); `DatabaseSchemaTest`: новые таблицы в `$expectedTables`; unique `learners.telegram_user_id`, `(telegram_group_id, learner_id)`, `(course_id, number)` (одинаковый `number` в двух курсах — разрешён), `(word_id, locale)`, `(learner_id, date)`, `(promo_code_id, learner_id)`; каскады: удаление learner → `group_members`/`learner_daily_stats`; удаление course → `stages`; `nullOnDelete` для `telegram_groups.course_id`, `learners.active_course_id`; PG: partial unique `subscriptions_one_live_per_subscriber`, partial `learners_next_reminder_at` через `pg_indexes` (skip на sqlite); `down()` всех новых миграций на sqlite и PG (`migrate:rollback` + `migrate` в тесте); `migrate:fresh --seed` на PG (CI) — `courses = 1`, `stages` в курсе |
+| 1.1b | **Переход на Learner: схема, код, JWT v2, сидеры, тесты** | C (при затруднении с политиками/`ExamQuestionPersonalizer` — консультация A, без второй попытки «вслепую») | 1.1a | Атомарная задача — схема и код меняются вместе, промежуточных «зелёных» состояний нет; принимается только целиком с зелёным suite. Порядок работы: **(1) миграции** — правки «1.1b» из §2.3 (`student_id` → `learner_id` в `word_repetitions`, `training_reviews`, `exam_answers`, `exam_results`, `exam_question_attempts`, `notifications_log`, `product_events`; обобщение `training_sessions` §1.4; индексные миграции), удалить `create_students_table`; **(2) модели** — удалить `Student`; `learner()` вместо `student()` в 7 моделях; `TelegramGroup::members()/learners()` через `group_members`; `TrainingSession::learner()/course()`, `mode`/`source`/`expires_at` в `$fillable`/casts; `Learner::memberships()/groups()/repetitions()`; **(3) домен** — новые `App\Domain\Learners\Services\LearnerRegistrar`, `GroupMembershipService` (§3.1), `App\Domain\Twa\Services\LearnerContextResolver` вместо `StudentContextResolver` (§3.5), `JwtService` v2 (§4.1), `TwaAuth` (`learner_not_found`/`learner_blocked`), `TrainingSessionPolicy`/`ExamSessionPolicy` по членству (§4.4; удалить `StudentPolicy`), `PanelDataScope::learners()` + `trainingReviews()` только `mode = group_lesson`, `LearnerStatsService` вместо `StudentStatsService`, `LocaleResolver::forLearner`, `ProductEventRecorder(learner:)`, `CardPicker`/`TrainingFlowService`/`ReviewSubmissionService`/`LearningCache`/`LeaderboardBuilder`/`ExamAnswerService`/`ExamFlowService`/`ExamQuestionPersonalizer(Learner)` — `student_id` → `learner_id`, поведение не меняется; `ReviewReminderService` + `SendReviewReminderJob(learnerId)` итерируют learners (один человек — одно напоминание), `ReviewReminderLinkBuilder` — минимальная адаптация (упрощение — в 1.5b); `NewMembersHandler` → `LearnerRegistrar` + `GroupMembershipService::join(via: 'group')`; новый `ChatMemberHandler` (`left`/`kicked` → `leave`); `TeacherStatsReporter`, `PostLeaderboardJob`; **(4) HTTP** — `MeController`/`TrainingController`/`ExamController`, `AuthTokenResource` (`learner`), `MeResource`, `ExamQuestionResource`; rate limiter'ы по `learner_id`; **(5) Filament** — `LearnerResource` вместо `StudentResource` (учителю — усечённые поля §4.4), `TopStudentsTableWidget` → `TopLearnersTableWidget`, `HardestWordsTableWidget`, relation managers экзамена; **(6) TWA** — `types.ts`/`stores/auth.ts` (`Learner`, `ensure()` без перелогина по контексту), `api/client.ts`; vitest; **(7) сидеры** — `DemoLearnersSeeder` вместо `DemoStudentsSeeder` (§2.4), `DemoRepetitionsSeeder`, `DemoActivitySeeder`; **(8) docs** — docs/04 A.1–A.2 (`learner`, без `session_context_required`/`student_not_found`), docs/07 §4–§5, docs/02 домены `Learners` + ADR-8 «learner-first»; docs/03 — `students` удалена, запросы §5 на `learner_id`. Объём: ~45 файлов `app/`, ~21 тест, ~8 файлов TWA | Тесты переписываются **по смыслу**, не sed'ом: `JwtServiceTest` — payload `{iss, sub, v: 2}` без `gid`; отклоняются: без `v`, `v = 1`, чужой `iss`, истёкший, подделанный; `TwaAuthTest` — `/auth` без `context` → 200 и строка `learners` по `telegram_user_id`; повторный `/auth` — тот же `learner.id`, обновлённые имя/username; токен старого формата → 401 `invalid_token`; `blocked_at` → 401 `learner_blocked`; несуществующий/soft-deleted `sub` → 401 `learner_not_found`; `TwaTrainingTest`/`TwaExamTest` — доступ по членству: active → 200, нет членства → 403 `not_a_member`, `left`/`removed` → 403, группа `inactive` → 403 `group_inactive`; **один learner в двух группах**: оценка слова в сессии группы A меняет его `word_repetitions` и видна в сессии группы B (единая строка `(learner_id, word_id)`); `ExamQuestionPersonalizerTest` — хелпер `personalizerLearner`, свойства детерминизма/биекции/зависимости от `order_secret` сохранены, seed строится из `(session_id, learner_id)`; feature-экзамен: два learner'а одной сессии получают разные порядки, один learner — одинаковый порядок между запросами; `exam_answers` unique `(exam_session_id, learner_id, word_id)`; leaderboard из `exam_results.learner_id` с именами из `learners`; `ExamOrderSecretTest` на learner + членство; `TeacherPanelScopeTest` — `learners()`: учитель видит только активных участников своих групп, `left` не виден, админ — всех; личные сессии (`mode <> group_lesson`) учителю не видны; `ReviewReminderTest` — learner в двух группах получает **одно** напоминание; `TelegramHandlersTest`/`HandleTelegramUpdateTest` — новый участник → learner + membership; тот же человек во второй группе → один learner, два членства; `chat_member` `left` → `status = left`; `ProductEventsTest` — `learner_id`; `TwaContractTest` — ключ `learner` в `/auth`, `/me`; `DatabaseSchemaTest` — без `students`, unique `(learner_id, word_id)`, каскад learner → `word_repetitions`, PG-индексы `word_repetitions_learner_is_hard_idx`, `(learner_id, next_review_at)`, partial unique `training_sessions_one_open_*_per_learner`, `migrate:fresh --seed`: `learners = 5`, `group_members = 6`; `migrate:rollback --step=N` + `migrate` для изменённых миграций; pint, Larastan 8, Pest, vue-tsc, vitest, `npm run build` — зелёные |
+| 1.2a | **Курсы и переводы: контент-слой** | C | 1.1b | `CourseCatalogService`, `CoursePublisher`, `WordTranslationResolver`, `VocabularyImporter` v2 (`course`, `translations`), `CardPicker`/`ExamQuestionBuilder`/Resource'ы читают перевод по локали (learner / группа) с fallback; Filament `CourseResource` (статусы, i18n-заголовки, relation stages), `WordTranslationsRelationManager`; команды учителя резолвят stage в курсе группы; docs/03 §контент, ADMIN_GUIDE | `VocabularyImporterTest` v2 (обе схемы, переводы, идемпотентность); `CoursePublisherTest` (переходы, порог переводов); `ExamQuestionBuilderTest` на локали группы; Filament-тест публикации |
 | 1.2b ‖ | **Каталог в TWA** | C | 1.2a | `GET /courses`, `/courses/{slug}`, `POST /me/course`; `CourseResource`, `CourseDetailResource`; `CoursesView`, `CourseView`; кэш каталога | `TwaContractTest` (структуры), прогресс по курсу считается верно; vitest для views |
 | 1.2c ‖ | **Предгенерация аудио** | C | 1.2a | `PregenerateWordAudioJob` (очередь `low`, edge-tts → `storage/app/public/audio/{sha1}.mp3`, `words.audio_path`), команда `audio:pregenerate {course}`, `TtsController` отдаёт файл если есть; `Card.audio_url` | тесты с фейковым `Http`; идемпотентность по `audio_path` |
-| 1.3a | **Личные сессии и scope** | **A→C** | 1.1c, 1.2a | A: `TrainingScope`, `CardPicker::pickNext(scope, budget)` с блокировкой learner'а, `ReviewSubmissionService` (scope-проверка + `DailyStatsService::recordReview` в транзакции), `TrainingSessionService::openPersonal/finish/closeExpired`, `TrainingSessionPolicy`; C: `POST /training/sessions`, `/finish`, `done_reason`, `training:close-expired` в планировщике, `TrainingStartResource`/`SessionSummaryResource`; docs/04 A.3, docs/06 §4 (scope) | A: гонки — две вкладки/`openPersonal` одновременно → одна сессия; due из разных уроков в `daily_review`; `wrong_lesson` → `out_of_scope`; закрытие по `expires_at`; C: контрактные тесты, 410 после finish |
+| 1.3a | **Личные сессии и scope** | **A→C** | 1.1b, 1.2a | A: `TrainingScope`, `CardPicker::pickNext(scope, budget)` с блокировкой learner'а, `ReviewSubmissionService` (scope-проверка + `DailyStatsService::recordReview` в транзакции), `TrainingSessionService::openPersonal/finish/closeExpired`, `TrainingSessionPolicy`; C: `POST /training/sessions`, `/finish`, `done_reason`, `training:close-expired` в планировщике, `TrainingStartResource`/`SessionSummaryResource`; docs/04 A.3, docs/06 §4 (scope) | A: гонки — две вкладки/`openPersonal` одновременно → одна сессия; due из разных уроков в `daily_review`; `wrong_lesson` → `out_of_scope`; закрытие по `expires_at`; C: контрактные тесты, 410 после finish |
 | 1.3b | **Сегодня, цель, streak** | **A→C** | 1.3a | A: `LearnerClock`, `DailyStatsService` (upsert под уникальностью, гонка), `StreakService` (правила §7.4, граница дня, смена tz); C: `TodayService`, `GET /today`, `TodayResource`, `TodayView`, `FinishedView` с summary, `LearnerStatsService`; docs/04 A.2a | A: unit-тесты по датам (полночь в Ташкенте vs UTC, DST-пояс, streak 1→2→обнуление, `goal_met_at` один раз); C: контракт `/today`, vitest `TodayView` |
-| 1.4a | **Entitlement, подписки, промокоды** | **A→C** | 1.1c | A: `Plan`, `Entitlement`, `EntitlementResolver` (+кэш и инвалидация), `SubscriptionService::grantManual/revoke/expireDue`, `PromoCodeService::redeem` (блокировки, лимиты), `config/billing.php`, `subscriptions:expire`; C: Filament `SubscriptionResource` («Grant Pro» с `note` + audit), `PromoCodeResource`, `OrganizationResource` (привязка групп), `POST /promo/redeem`, `/me.entitlement`, бот `/promo`; docs/03 §1.9, новый docs/04 A.7 | A: max(личная, спонсорская); `left`-член → Free; grace; partial unique «одна живая»; промокод: лимит, повтор, истечение, гонка двух погашений; инвалидация кэша при привязке группы; C: Filament-тесты с аудитом, throttle 429 |
+| 1.4a | **Entitlement, подписки, промокоды** | **A→C** | 1.1b | A: `Plan`, `Entitlement`, `EntitlementResolver` (+кэш и инвалидация), `SubscriptionService::grantManual/revoke/expireDue`, `PromoCodeService::redeem` (блокировки, лимиты), `config/billing.php`, `subscriptions:expire`; C: Filament `SubscriptionResource` («Grant Pro» с `note` + audit), `PromoCodeResource`, `OrganizationResource` (привязка групп), `POST /promo/redeem`, `/me.entitlement`, бот `/promo`; docs/03 §1.9, новый docs/04 A.7 | A: max(личная, спонсорская); `left`-член → Free; grace; partial unique «одна живая»; промокод: лимит, повтор, истечение, гонка двух погашений; инвалидация кэша при привязке группы; C: Filament-тесты с аудитом, throttle 429 |
 | 1.4b | **Квота Free и paywall** | C | 1.3a, 1.4a | `NewWordQuota` → `NewCardBudget` в `TrainingFlowService`; `done_reason = new_quota_exhausted`; `quota.new_words_remaining` в `/next`, `/today`; `PaywallSheet` (`coming_soon`), событие `paywall.shown`; docs/04 | 21-я новая карточка не выдаётся, due выдаётся; Pro — без лимита; гонка двух вкладок не превышает лимит (тест с параллельными транзакциями на PG, skip на sqlite); смена tz не сбрасывает счётчик |
-| 1.5a ‖ | **Онбординг в боте** | C | 1.1c, 1.2a | `OnboardingService`, `StartPayload`, `OnboardingCallbackHandler`, `LearnerDmHandler`, `StartCommandHandler` (ветка learner), `TodayCommandHandler`, `SettingsCommandHandler`, `TelegramClient::editMessageReplyMarkup`, `lang/{ru,uz}/onboarding.php`, `I18N_UZ_REVIEW.md` дополнен; события §7.7; docs/04 B.3 | `OnboardingFlowTest`: полный путь за 5 callback'ов, повтор старой кнопки идемпотентен, payload `ref_/src_/c_`, учитель не попадает в онбординг, мигрированный learner → «Сегодня»; `LocalizationTest` на новые ключи |
+| 1.5a ‖ | **Онбординг в боте** | C | 1.1b, 1.2a | `OnboardingService`, `StartPayload`, `OnboardingCallbackHandler`, `LearnerDmHandler`, `StartCommandHandler` (ветка learner), `TodayCommandHandler`, `SettingsCommandHandler`, `TelegramClient::editMessageReplyMarkup`, `lang/{ru,uz}/onboarding.php`, `I18N_UZ_REVIEW.md` дополнен; события §7.7; docs/04 B.3 | `OnboardingFlowTest`: полный путь за 5 callback'ов, повтор старой кнопки идемпотентен, payload `ref_/src_/c_`, учитель не попадает в онбординг, learner с `onboarding_state = done` → «Сегодня»; `LocalizationTest` на новые ключи |
 | 1.5b | **Напоминания по локальному времени** | **A→C** | 1.3b, 1.5a | A: `ReminderDispatcher` (клейм `next_reminder_at`, выборка, идемпотентность), `SendLearnerReminderJob` (review / streak_at_risk, `dm_blocked_at`), `LearnerClock::nextOccurrenceUtc`; C: расписание `everyFifteenMinutes`, `lang/reminders.php` новые ключи, сброс `dm_blocked_at` во входящих, `reminders:dispatch` вместо `repetitions:notify`; docs/06 §6, docs/02 §2.5 | A: двойной запуск диспетчера не дублирует job; 403 → `dm_blocked_at` и больше не выбирается; DST-пояс; `reminder_time = NULL` не выбирается; порог 1; C: `ReviewReminderTest` переписан |
 | 1.6 ‖ | **Настройки** | C | 1.3b | `PATCH /me/settings`, `LearnerSettingsService`, `SettingsView` (язык, пояс, время, цель, курс), `/settings` в боте; docs/04 | валидация tz (IANA список `DateTimeZone::listIdentifiers`), пересчёт `next_reminder_at`, смена локали меняет перевод в карточке |
 | 1.7 ‖ | **Публичный лендинг, оферта, политика** | C | — (тексты — от владельца) | `routes/web.php` `/`, `/offer`, `/privacy`, Blade + Tailwind, i18n ru/uz, ссылка на бота, `security.txt` | SecurityHeaders/CSP тесты для новых страниц; Lighthouse ≥ 90 вручную |
 | 1.8 ‖ | **Админка платформы** | C | 1.4a, 1.3b | `LearnerResource` (поиск, бан, подписка, события), виджеты: learners/активные 7д, воронка онбординга 7д, Pro-подписки (active/expiring), «участники / места» по организациям; `ADMIN_GUIDE.md` | Filament-тесты: учитель не видит виджеты платформы; бан → 401 в TWA |
 | 1.9 | **Контент MVP: курсы A1–B2 + переводы uz/ru** | владелец + C (импорт) | 1.2a | JSON-пакеты курсов, импорт, проверка носителем, публикация | ≥ 1 опубликованный курс на каждую цель онбординга; порог переводов выполнен |
-| 1.10 | **Ревью фазы, smoke на staging, релиз A** | координатор / reviewer | все | runbook §2.2; k6 на `/today`, `/next`, `/review` | pint/phpstan/pest зелёные, блокирующих находок нет, PROGRESS.md |
+| 1.10 | **Ревью фазы, smoke на демо-стенде, релиз** | координатор / reviewer | все | `migrate:fresh --seed` на демо-стенде, smoke §2.6; k6 на `/today`, `/next`, `/review` | pint/phpstan/pest зелёные, блокирующих находок нет, PROGRESS.md |
 
 **Вне Фазы 1 (решение владельца):** `payments`, `BillingProvider` реализации (Telegram Stars, Payme, Click), вебхуки, `/pay`, `paywall.mode = purchase`; `organization_members`/места/инвайты; рефералы с наградами; RLS. Задачи **зависят от решения владельца**: 1.7 (юридические тексты, контакт поддержки для paywall), 1.9 (кто готовит и проверяет контент), цены в `config('billing.prices')`.
 
-Параллельность: после 1.1c можно вести одновременно {1.2a → 1.2b/1.2c}, {1.4a}, {1.5a}, {1.7}; 1.3a ждёт 1.2a (scope курса); 1.3b → 1.5b; 1.4b ждёт 1.3a и 1.4a.
+Параллельность: после 1.1b можно вести одновременно {1.2a → 1.2b/1.2c}, {1.4a}, {1.5a}, {1.7}; 1.3a ждёт 1.2a (scope курса); 1.3b → 1.5b; 1.4b ждёт 1.3a и 1.4a.
 
 ---
 
-## 10. Открытые вопросы к владельцу (блокирующие)
+## 10. Вопросы к владельцу — решены (2026-10-18)
 
-1. **Окно обслуживания релиза A (2–5 минут простоя бота и TWA) — допустимо?** Рекомендация: да, ночью по Ташкенту, с предупреждением учителям за день. Альтернатива (dual-write) удваивает объём рефакторинга.
-2. **Текущий центр-клиент: выдать его ученикам Pro сразу после релиза A?** Рекомендация: да — создать `organizations` «<название центра>», привязать его группы, ручная подписка `pro` до даты окончания договора. Нужны: название, срок.
-3. **Запуск uz-интерфейса при ru-переводах контента.** Весь существующий контент — только ru; uz-переводы появятся с курсами MVP (1.9). Рекомендация: не блокировать — показывать ru-перевод с пометкой до появления uz; `CoursePublisher` требует uz+ru только для **новых** публикаций.
-4. **Контакт поддержки для paywall «попросите доступ»** (`BILLING_SUPPORT_CONTACT`, например `@lexiflow_support`) и промокоды — делать? Рекомендация: промокоды делать (1.4a), контакт — Telegram-аккаунт поддержки.
-5. **Дефолты онбординга:** цель 20 карточек/день, напоминание 19:00, пояс `Asia/Tashkent`, порог напоминания 1 слово. Рекомендация: принять, менять через env.
-6. **Юридические тексты** (оферта, политика конфиденциальности, юрлицо) для 1.7 — нужны от владельца/юриста; разработка шаблонов не блокируется.
+| # | Вопрос | Решение владельца | Отражено |
+|---|---|---|---|
+| 1 | Окно обслуживания релиза A (простой 2–5 мин) | **Не нужно: продакшена с реальными данными нет**, только тест/демо; данные `students` не переносятся, демо пересоздаётся `migrate:fresh --seed`. Релиз B, `StudentsToLearnersMigrator`, слияние `word_repetitions`, архив, `legacy_student_id` — не делаются | §0, §2, §9 (1.1a/1.1b), §11 |
+| 2 | Выдать Pro текущему центру-клиенту | **Нет** — центра в проде нет. Механика спонсорского Pro (organizations + подписка организации) остаётся в 1.4a как продукт | §1.8, §5 |
+| 3 | uz-интерфейс при ru-переводах контента | **Принято:** запускаем; показываем ru-перевод с пометкой до появления uz; `CoursePublisher` требует uz+ru только для новых публикаций | §1.7, §3.2 (1.2a) |
+| 4 | Paywall и промокоды | **Принято:** paywall Фазы 1 = «Pro скоро» + ввод промокода + контакт поддержки; контакт — `BILLING_SUPPORT_CONTACT` в env, значение владелец задаст позже, **если пусто — строку контакта не показывать**; промокоды делаем | §3.4 (`config/billing.php`), §5.4, §5.5 (1.4a/1.4b) |
+| 5 | Дефолты онбординга (20 карточек/день, 19:00, `Asia/Tashkent`, порог напоминания 1 слово) | **Принято**, меняются через env/config | §1.2, §7.4, §7.5 |
+| 6 | Юридические тексты для 1.7 | **Позже, от владельца**; делаем шаблоны страниц с заглушками, не блокирует | §9 (1.7) |
+
+Открытых блокирующих вопросов нет. Ждут владельца (не блокируют код): значение `BILLING_SUPPORT_CONTACT`, тексты оферты/политики (1.7), контент курсов и проверка uz носителем (1.9), цены (вне Фазы 1).
 
 ---
 
@@ -864,9 +865,10 @@ flowchart TD
 
 | Вариант | Причина отказа |
 |---|---|
-| Оставить `students`, добавить `learner_id` | прогресс остаётся групповым; второй рефакторинг неизбежен (§2.1) |
-| `RENAME students → group_members` | тот же объём правок, лишние колонки и более хрупкий `down()` (§2.1) |
-| Dual-write в два релиза без окна обслуживания | модель `Student` и все потребители живут ещё релиз — двойной рефакторинг; простой в минуты дешевле |
+| Оставить `students`, добавить `learner_id` | прогресс остаётся групповым (`word_repetitions` на пару человек–группа); второй рефакторинг неизбежен (§0) |
+| Forward-миграции drop/create поверх текущих (вариант (a) §2.2) | ~9 файлов одноразового кода с `down()`, воссоздающим мёртвую `students`; пересборка таблиц на sqlite; история миграций с лишней таблицей — при отсутствии данных это только риск без выгоды |
+| `RENAME students → group_members` / dual-write / релизы A и B / окно обслуживания | решали задачу переноса данных, которой нет (владелец: прода с данными нет) |
+| Разбить 1.1 на «expand» (nullable `learner_id` рядом со `student_id`) и «contract» | без данных это та же двойная работа: старый код пишет `student_id`, новый — `learner_id`, обе схемы надо держать валидными; аддитивный 1.1a + атомарный 1.1b даёт зелёный suite на каждой границе без лишнего кода (§9) |
 | Отдельная таблица `learner_sessions` (docs/11) | дублирует `training_sessions`/`training_reviews`/flow-сервисы/маршруты TWA; достаточно `mode` + `learner_id` |
 | Полные `organizations` (участники, места, инвайты, `organization_users`) в Фазе 1 | без оплаты и кабинета центра — мёртвый код; минимальная таблица даёт субъекта подписки уже сейчас |
 | `payments` в схеме Фазы 1 | нечему писать; добавляется вместе с первым провайдером без изменений `subscriptions` |
@@ -874,7 +876,6 @@ flowchart TD
 | Тариф в JWT (`plan` claim) | смена тарифа должна действовать сразу; Redis-кэш 5 мин дешевле и управляемее |
 | Переводы колонками `translation_uz`/`translation_ru` в `words` | каждый новый язык — миграция; `word_translations` + resolver с fallback |
 | Заголовки курсов в отдельной `course_translations` | две локали, редко меняются — jsonb `{ru, uz}` проще в Filament и API |
-| Правило слияния «больше `repetitions`» (docs/11) | не учитывает `state` после Фазы 0 и сброс `repetitions` при провале (§2.3) |
 | Выборка напоминаний SQL-выражением «локальное время = reminder_time» | непереносимо между sqlite/PG, не индексируется, ошибки DST; `next_reminder_at` решает всё |
 | Считать новые слова по `training_reviews` | первая оценка приходит позже выдачи; выдача (`word_repetitions.created_at`/`new_words_count`) — точнее и защищена блокировкой |
 | Postgres RLS в Фазе 1 | нет данных организаций для изоляции; высокая эксплуатационная цена (роли, `SET LOCAL`, бэкапы) |
@@ -886,20 +887,20 @@ flowchart TD
 
 ## 12. Правки существующих документов (делать до кода соответствующей задачи)
 
-- **docs/03_DATABASE.md** — задачи 1.1a/1.1b/1.2a/1.4a: новые таблицы §1, `student_id` → legacy, ERD, порядок миграций, правила удаления (learner cascade), §5 запросы на `learner_id`.
-- **docs/04_API_AND_BOT.md** — 1.1c/1.3a/1.3b/1.4a/1.5a/1.6: A.1–A.2 (`learner`, без `session_context_required`), A.3 (`POST /training/sessions`, `finish`, `done_reason`, `quota`), новые A.2a `/today`, A.6 `/courses`, A.7 `/promo`, B.3 команды `/start` (онбординг), `/today`, `/settings`, `/promo`; B.5 `chat_member`.
+- **docs/03_DATABASE.md** — 1.1a: новые таблицы §1, ERD, порядок миграций (§2.3); 1.1b: `students` удалена, `student_id` → `learner_id`, правила удаления (learner cascade), §5 запросы на `learner_id`; 1.2a/1.4a — контент и тарифы.
+- **docs/04_API_AND_BOT.md** — 1.1b/1.3a/1.3b/1.4a/1.5a/1.6: A.1–A.2 (`learner`, без `session_context_required`), A.3 (`POST /training/sessions`, `finish`, `done_reason`, `quota`), новые A.2a `/today`, A.6 `/courses`, A.7 `/promo`, B.3 команды `/start` (онбординг), `/today`, `/settings`, `/promo`; B.5 `chat_member`.
 - **docs/06_SPACED_REPETITION.md** — 1.3a/1.5b: §4 scope (lesson/daily), бюджет новых карточек, §6 напоминания каждые 15 мин по `next_reminder_at`, порог 1.
-- **docs/07_SECURITY.md** — 1.1c/1.4a: §4 JWT v2, §5 политики по членству, §6 новые rate limits, §1 строки про промокоды/ручную выдачу, §14 чек-лист (§8 этого документа).
-- **docs/02_ARCHITECTURE.md** — 1.1c: домены `Learners`, `Billing`, `Organizations`; §2.5 планировщик; ADR-8 «learner-first», ADR-9 «entitlement через подписки learner/organization».
-- **docs/DEVOPS_GUIDE.md** — 1.1b: runbook релиза A/B (§2.2, §2.6), новые env (`BILLING_*`, `LEARNERS_DEFAULT_TIMEZONE`, `TWA_INIT_DATA_MAX_AGE=3600`).
-- **docs/11** — пометить §5.2 и §10 «Фаза 1» как уточнённые этим документом.
+- **docs/07_SECURITY.md** — 1.1b/1.4a: §4 JWT v2, §5 политики по членству, §6 новые rate limits, §1 строки про промокоды/ручную выдачу, §14 чек-лист (§8 этого документа).
+- **docs/02_ARCHITECTURE.md** — 1.1b: домены `Learners`, `Billing`, `Organizations`; §2.5 планировщик; ADR-8 «learner-first», ADR-9 «entitlement через подписки learner/organization».
+- **docs/DEVOPS_GUIDE.md** — 1.1b: правило «до первого прод-релиза история миграций правится на месте, после — только forward-миграции» (§2.2), `migrate:fresh --seed` для локальных сред и демо-стенда (§2.5), smoke §2.6; новые env (`BILLING_*`, `BILLING_SUPPORT_CONTACT`, `LEARNERS_DEFAULT_TIMEZONE`, `TWA_INIT_DATA_MAX_AGE=3600`). Runbook с окном обслуживания не нужен.
+- **docs/11** — §5.2 и §10 «Фаза 1» помечены «уточнено в docs/12» (сделано в ред. 2).
 
 ---
 
 ## 13. Где docs/11 расходится с кодом или решениями
 
 1. docs/11 §5.2 предлагает `learner_sessions`, `usage_counters`, `events`, `assignments`: в коде уже есть `product_events` (Фаза 0), `usage_counters` заменены `learner_daily_stats`, `learner_sessions` — режимом `training_sessions`, `assignments` — Фаза 2.
-2. docs/11 §5.2 правило слияния прогресса по `repetitions` недостаточно после learning steps (§2.3).
+2. docs/11 §5.2 «миграция без потери данных» и правило слияния прогресса по `repetitions` — **не применяются**: прода с данными нет (решение владельца 2026-10-18), схема создаётся заново (§2). Если переносить данные всё же придётся, правило `repetitions` недостаточно после learning steps Фазы 0 (нужен приоритет по `state`).
 3. docs/11 §6.4 и §10 «Фаза 1 п.7» — оплата Stars/Payme/Click: **отложена решением владельца**; в Фазе 1 только схема и ручные/промо-гранты.
 4. docs/11 §6.3 «15–20 новых слов» → владелец зафиксировал **20** (`BILLING_FREE_NEW_WORDS_PER_DAY`).
 5. docs/11 §5.2 `word_translations.language (uz|ru|kk|ky|tg|tr)` — колонка `locale varchar(5)`, допустимые значения ограничены `config('localization.supported')` (сейчас `ru`, `uz`).

@@ -186,6 +186,8 @@ Learner (Telegram-пользователь)  ← главный объект, у
 
 ### 5.2 Изменения схемы (черновик для `architect`)
 
+> **Уточнено в docs/12 (§1, §2, §13).** Актуальная схема Фазы 1 — там. Главные отличия: переноса данных `students` → `learners` **нет** (владелец: прода с данными нет; create-миграции правятся на месте, `migrate:fresh --seed`), поэтому правило слияния по `repetitions` не применяется; `learner_sessions` → режим `training_sessions.mode`; `usage_counters` → `learner_daily_stats`; `events` → уже существующая `product_events`; `organization_users`/`organization_members`/`assignments`/`payments` — Фаза 2 или вместе с оплатой; `word_translations.language` → `locale` (`ru`/`uz`); RLS отложен.
+
 ```
 learners               id, telegram_user_id UNIQUE, first_name, username, interface_locale,
                        native_language, target_language, level, timezone, reminder_time,
@@ -385,13 +387,15 @@ events                 id, learner_id NULL, organization_id NULL, name, props js
 
 ### Фаза 1 — публичный B2C MVP (5–7 недель)
 
-1. **Learner-first схема** + миграция `students` → `learners`/`group_members`, JWT по learner (**architect**).
-2. **Онбординг в боте:** `/start` → язык интерфейса → родной язык → цель (IELTS/SAT/школа/общий) → уровень (короткий тест) → часовой пояс и время напоминаний → первая тренировка за < 2 минуты.
+> **Уточнено в docs/12 §9** (нарезка 1.1a–1.10 с исполнителями и DoD) и §10 (решения владельца 2026-10-18). Пункты ниже — стратегический уровень; расхождения отмечены.
+
+1. **Learner-first схема** + миграция `students` → `learners`/`group_members`, JWT по learner (**architect**). *(уточнено в docs/12 §2: данные не переносятся — прода нет; схема правится на месте; задачи 1.1a/1.1b — coder.)*
+2. **Онбординг в боте:** `/start` → язык интерфейса → родной язык → цель (IELTS/SAT/школа/общий) → уровень (короткий тест) → часовой пояс и время напоминаний → первая тренировка за < 2 минуты. *(уточнено в docs/12 §7.1: шаг «родной язык» отсутствует — интерфейс только uz/ru; уровень — самооценка, без теста.)*
 3. **Каталог курсов и курсы MVP** (`courses`, `word_translations`, статусы публикации, предгенерация аудио).
 4. **Личное обучение:** домашний экран «Сегодня», тренировка всех due-слов, тренировка урока, streak, дневная цель.
 5. **Напоминания по локальному времени** + `dm_blocked_at`.
 6. **Free/Pro и entitlement-сервис**, paywall, лимит новых слов.
-7. **Telegram Stars** (подписка Pro) + **веб-оплата Payme/Click** (**architect** — идемпотентность и деньги).
+7. **Telegram Stars** (подписка Pro) + **веб-оплата Payme/Click** (**architect** — идемпотентность и деньги). *(уточнено в docs/12 §6: отложено решением владельца; в Фазе 1 — схема `subscriptions`/`promo_codes`, ручная выдача и промокоды, paywall «Pro скоро».)*
 8. Публичный лендинг, оферта, политика конфиденциальности.
 9. Суперадмин-панель: пользователи, подписки, MRR, модерация контента.
 
