@@ -17,6 +17,7 @@
 | 09 | [AI Agents Guide](./09_AI_AGENTS_GUIDE.md) | Как эффективно работать с AI-агентами на этом проекте |
 | 10 | [B2C Expansion](./10_B2C_EXPANSION.md) | Идеи расширения до B2C SaaS |
 | 11 | [System Analysis & SaaS Strategy](./11_SYSTEM_ANALYSIS_AND_SAAS_STRATEGY.md) | Аудит системы и стратегия B2C-first SaaS: learner-first модель, тарифы для студентов и центров, roadmap |
+| —  | [Uzbek strings review](./I18N_UZ_REVIEW.md) | Все узбекские строки бота и TWA рядом с русскими — для проверки носителем |
 | —  | [Local Dev (Docker)](./LOCAL_DEV_DOCKER.md) | Локальный запуск через Docker для macOS / Windows, ngrok для Telegram, Claude Code в Docker |
 
 ## 🎯 Краткое описание
