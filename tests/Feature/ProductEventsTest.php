@@ -6,6 +6,7 @@ use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Learning\Services\LeaderboardBuilder;
 use App\Domain\Learning\Services\ReviewReminderLinkBuilder;
+use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Services\IrazasyedTelegramClient;
@@ -444,6 +445,7 @@ it('records reminder.sent after a successful reminder', function (): void {
         $this->api,
         app(ReviewReminderLinkBuilder::class),
         app(ProductEventRecorder::class),
+        app(LocaleResolver::class),
     );
 
     $event = peEvent(ProductEventName::ReminderSent);
@@ -464,6 +466,7 @@ it('records reminder.failed and does not fail the job on Telegram 403', function
         $telegram,
         app(ReviewReminderLinkBuilder::class),
         app(ProductEventRecorder::class),
+        app(LocaleResolver::class),
     );
 
     $event = peEvent(ProductEventName::ReminderFailed);
@@ -488,6 +491,7 @@ it('still rethrows other Telegram errors from the reminder job', function (): vo
         $telegram,
         app(ReviewReminderLinkBuilder::class),
         app(ProductEventRecorder::class),
+        app(LocaleResolver::class),
     ))->toThrow(RuntimeException::class, 'Telegram is down');
 
     expect(ProductEvent::query()->count())->toBe(0);

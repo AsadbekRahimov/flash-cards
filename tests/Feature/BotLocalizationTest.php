@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Learning\Services\LeaderboardBuilder;
 use App\Domain\Learning\Services\ReviewReminderLinkBuilder;
+use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\TeacherStatsReporter;
 use App\Domain\Telegram\Services\TelegramDispatcher;
@@ -248,6 +249,7 @@ function locRunReminder(Student $student, int $due): void
         test()->api,
         app(ReviewReminderLinkBuilder::class),
         app(ProductEventRecorder::class),
+        app(LocaleResolver::class),
     );
 }
 
@@ -301,6 +303,7 @@ function locRunLeaderboard(ExamSession $session): void
         test()->api,
         app(LeaderboardBuilder::class),
         app(ProductEventRecorder::class),
+        app(LocaleResolver::class),
     );
 }
 

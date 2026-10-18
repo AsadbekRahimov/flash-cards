@@ -30,10 +30,8 @@ final class SendReviewReminderJob implements ShouldQueue
         TelegramClient $telegram,
         ReviewReminderLinkBuilder $links,
         ProductEventRecorder $events,
-        ?LocaleResolver $locales = null,
+        LocaleResolver $locales,
     ): void {
-        $locales ??= app(LocaleResolver::class);
-
         /** @var Student|null $student */
         $student = Student::query()
             ->with('group')
