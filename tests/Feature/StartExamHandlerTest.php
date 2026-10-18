@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Domain\Learning\Exceptions\ExamSessionException;
+use App\Domain\Learning\Services\ExamSessionService;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Models\ExamSession;
@@ -256,4 +258,8 @@ it('counts only active words towards the exam minimum', function (): void {
     ]);
 
     expect(ExamSession::query()->count())->toBe(0);
+
+    // The handler's text carries no number: pin the counted value (3 live words, not 9 rows) on the service.
+    expect(fn () => app(ExamSessionService::class)->open($group, 1, 1, 10, $teacher))
+        ->toThrow(ExamSessionException::class, 'Lesson has only 3 words');
 });
