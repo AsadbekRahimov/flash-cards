@@ -63,6 +63,13 @@ New groups appear here automatically with status `pending` when the bot is added
 3. Link at least one teacher via the **Teacher Groups** tab.
 4. Save.
 
+### Set the bot language of a group
+The bot writes to the group (command replies, lesson buttons, exam leaderboard) in Russian by default.
+To switch a group to Uzbek (Latin), open the group record, set **Bot language** = `O'zbekcha` and save
+(**Default** = Russian). The choice is stored in the group's `meta.locale` and survives the bot being
+removed and re-added. Personal messages (e.g. review reminders) follow each student's own Telegram
+language: `uz*` → Uzbek, anything else → Russian. The Web App follows the student's Telegram language too.
+
 ---
 
 ## Content Management

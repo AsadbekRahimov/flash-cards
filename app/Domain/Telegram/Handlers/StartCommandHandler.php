@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Handlers;
 
+use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
 use App\Models\User;
 
 final class StartCommandHandler implements UpdateHandler
 {
-    public function __construct(private readonly TelegramClient $telegram) {}
+    public function __construct(
+        private readonly TelegramClient $telegram,
+        private readonly LocaleResolver $locales,
+    ) {}
 
     /** @param array<string, mixed> $update */
     public function matches(array $update): bool
@@ -49,9 +53,12 @@ final class StartCommandHandler implements UpdateHandler
         $user = User::where('telegram_user_id', $tgUserId)->first();
 
         if ($user === null) {
+            // Unknown account: the best signal we have is its Telegram language.
+            $locale = $this->locales->fromLanguageCode(isset($from['language_code']) ? (string) $from['language_code'] : null);
+
             $this->telegram->sendMessage(
                 $chatId,
-                "Этот Telegram-аккаунт не привязан к учителю в LexiFlow. Попросите админа прописать ваш Telegram ID: {$tgUserId}.",
+                __('bot.start.not_linked', ['id' => $tgUserId], $locale),
             );
 
             return;
@@ -61,7 +68,7 @@ final class StartCommandHandler implements UpdateHandler
 
         $this->telegram->sendMessage(
             $chatId,
-            "Привет, {$user->name}! Вы авторизованы как учитель LexiFlow. Команды в группе: /help",
+            __('bot.start.greeting', ['name' => $user->name], $this->locales->forTeacher()),
         );
     }
 }

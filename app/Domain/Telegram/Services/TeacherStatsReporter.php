@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Services;
 
+use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\ExamAnswer;
 use App\Models\ExamSession;
 use App\Models\Student;
@@ -13,8 +14,12 @@ use Illuminate\Support\Facades\DB;
 
 final class TeacherStatsReporter
 {
-    public function build(User $teacher): string
+    public function __construct(private readonly LocaleResolver $locales) {}
+
+    public function build(User $teacher, ?string $locale = null): string
     {
+        $locale ??= $this->locales->forTeacher();
+
         $groupIds = DB::table('teacher_groups')
             ->where('user_id', $teacher->id)
             ->pluck('telegram_group_id')
@@ -22,7 +27,7 @@ final class TeacherStatsReporter
             ->all();
 
         if ($groupIds === []) {
-            return "У вас пока нет привязанных групп.\nПопросите администратора привязать группу в /admin.";
+            return __('stats.no_groups', [], $locale);
         }
 
         $since = now()->subDays(7);
@@ -56,13 +61,13 @@ final class TeacherStatsReporter
         $accuracy = $answers > 0 ? (int) round(($correct / $answers) * 100) : 0;
 
         return implode("\n", [
-            '📊 Статистика LexiFlow за 7 дней',
+            __('stats.title', [], $locale),
             '',
-            'Групп: '.count($groupIds),
-            "Активных студентов: {$students}",
-            "Повторений карточек: {$reviews}",
-            "Экзаменов запущено: {$exams}",
-            "Точность экзаменов: {$accuracy}%",
+            __('stats.groups', ['count' => count($groupIds)], $locale),
+            __('stats.students', ['count' => $students], $locale),
+            __('stats.reviews', ['count' => $reviews], $locale),
+            __('stats.exams', ['count' => $exams], $locale),
+            __('stats.accuracy', ['percent' => $accuracy], $locale),
         ]);
     }
 }

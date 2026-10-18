@@ -11,6 +11,11 @@ export function useTelegram() {
     return webApp?.initData ?? ''
   }
 
+  /** Telegram UI language of the current user (`initDataUnsafe.user.language_code`), if any. */
+  function languageCode(): string | null {
+    return webApp?.initDataUnsafe?.user?.language_code ?? null
+  }
+
   function isInTelegram(): boolean {
     return Boolean(initData())
   }
@@ -47,6 +52,7 @@ export function useTelegram() {
   return {
     webApp,
     initData,
+    languageCode,
     isInTelegram,
     close,
     haptic,

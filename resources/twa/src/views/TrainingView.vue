@@ -6,6 +6,7 @@ import FlashCard from '@/components/FlashCard.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useTrainingStore } from '@/stores/training'
 import { useTelegram } from '@/composables/useTelegram'
+import { useI18n } from '@/i18n'
 import type { Quality } from '@/api/types'
 
 const props = defineProps<{ sessionId: number }>()
@@ -14,6 +15,7 @@ const router = useRouter()
 const auth = useAuthStore()
 const training = useTrainingStore()
 const { close, showBackButton } = useTelegram()
+const { t } = useI18n()
 
 const { status, card, progress, lesson, errorMessage } = storeToRefs(training)
 
@@ -32,8 +34,9 @@ onMounted(async () => {
     if (training.status === 'finished') {
       void redirectToFinished()
     }
-  } catch {
-    // auth failure → training.status stays 'idle'; render landing message
+  } catch (err) {
+    // start() handles its own errors; this is an auth failure.
+    training.handleApiError(err)
   }
 })
 
@@ -70,12 +73,12 @@ function onRetry(): void {
         {{ progress.done }} / {{ progress.total }}
       </div>
       <div v-if="lesson" class="text-sm font-semibold">
-        Stage {{ lesson.stage ?? '—' }} · Lesson {{ lesson.lesson }}
+        {{ t('training.lesson_header', { stage: lesson.stage ?? '—', lesson: lesson.lesson }) }}
       </div>
       <button
         type="button"
         class="text-tg-hint"
-        aria-label="Закрыть"
+        :aria-label="t('common.close')"
         @click="close()"
       >
         ✕
@@ -83,22 +86,22 @@ function onRetry(): void {
     </header>
 
     <div v-if="showSpinner" class="flex-1 flex items-center justify-center" data-testid="spinner">
-      <p class="text-tg-hint">Загрузка…</p>
+      <p class="text-tg-hint">{{ t('common.loading') }}</p>
     </div>
 
     <div v-else-if="status === 'closed'" class="flex-1 flex items-center justify-center text-center" data-testid="closed">
       <div class="space-y-4">
-        <p class="text-lg font-semibold">🔒 Тренировка завершена учителем</p>
+        <p class="text-lg font-semibold">{{ t('training.closed_title') }}</p>
         <p class="text-tg-hint">{{ errorMessage }}</p>
-        <button class="btn btn-primary" @click="close()">Закрыть</button>
+        <button class="btn btn-primary" data-testid="close-btn" @click="close()">{{ t('common.close') }}</button>
       </div>
     </div>
 
     <div v-else-if="status === 'error'" class="flex-1 flex items-center justify-center text-center" data-testid="error">
       <div class="space-y-4">
-        <p class="text-lg font-semibold">⚠️ Ошибка</p>
+        <p class="text-lg font-semibold">⚠️ {{ t('common.error_title') }}</p>
         <p class="text-tg-hint">{{ errorMessage }}</p>
-        <button class="btn btn-primary" @click="onRetry">Повторить</button>
+        <button class="btn btn-primary" data-testid="retry-btn" @click="onRetry">{{ t('common.retry') }}</button>
       </div>
     </div>
 

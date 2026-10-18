@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import type { Card, Quality } from '@/api/types'
 import { useTts } from '@/composables/useTts'
 import { useTelegram } from '@/composables/useTelegram'
+import { useI18n } from '@/i18n'
 
 const props = defineProps<{
   card: Card
@@ -17,15 +18,16 @@ const emit = defineEmits<{
 
 const { speak } = useTts()
 const { haptic, selectionHaptic } = useTelegram()
+const { t } = useI18n()
 
 const kindLabel = computed(() => {
   switch (props.card.card_kind) {
     case 'new':
-      return 'Новое слово'
+      return t('card.kind.new')
     case 'learning':
-      return 'Закрепление'
+      return t('card.kind.learning')
     default:
-      return 'Повторение'
+      return t('card.kind.due')
   }
 })
 
@@ -53,7 +55,7 @@ function onGrade(q: Quality): void {
       <button
         type="button"
         class="text-tg-link text-xl"
-        aria-label="Произнести"
+        :aria-label="t('card.speak')"
         @click="onSpeak"
       >
         🔊
@@ -75,7 +77,7 @@ function onGrade(q: Quality): void {
         :disabled="disabled"
         @click="onReveal"
       >
-        Показать перевод
+        {{ t('card.reveal') }}
       </button>
     </div>
 
@@ -87,7 +89,7 @@ function onGrade(q: Quality): void {
         </p>
       </div>
 
-      <div class="grid grid-cols-3 gap-2" role="group" aria-label="Оценка">
+      <div class="grid grid-cols-3 gap-2" role="group" :aria-label="t('card.grade_group')">
         <button
           type="button"
           class="btn btn-secondary flex-col py-4"
@@ -96,7 +98,7 @@ function onGrade(q: Quality): void {
           @click="onGrade(2)"
         >
           <span class="text-2xl">😰</span>
-          <span class="text-xs mt-1">Трудно</span>
+          <span class="text-xs mt-1">{{ t('card.grade.hard') }}</span>
         </button>
         <button
           type="button"
@@ -106,7 +108,7 @@ function onGrade(q: Quality): void {
           @click="onGrade(4)"
         >
           <span class="text-2xl">🙂</span>
-          <span class="text-xs mt-1">Средне</span>
+          <span class="text-xs mt-1">{{ t('card.grade.medium') }}</span>
         </button>
         <button
           type="button"
@@ -116,7 +118,7 @@ function onGrade(q: Quality): void {
           @click="onGrade(5)"
         >
           <span class="text-2xl">😎</span>
-          <span class="text-xs mt-1">Легко</span>
+          <span class="text-xs mt-1">{{ t('card.grade.easy') }}</span>
         </button>
       </div>
     </div>

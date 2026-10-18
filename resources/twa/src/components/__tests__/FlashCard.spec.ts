@@ -1,7 +1,8 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import FlashCard from '../FlashCard.vue'
 import type { Card } from '@/api/types'
+import { setLocale } from '@/i18n'
 
 // Stub Telegram SDK and TTS to avoid DOM/Telegram dependencies in unit tests.
 vi.mock('@/composables/useTelegram', () => ({
@@ -24,6 +25,8 @@ const card: Card = {
 }
 
 describe('FlashCard', () => {
+  afterEach(() => setLocale('ru'))
+
   it('shows the word, transcription and hides translation by default', () => {
     const w = mount(FlashCard, { props: { card, showTranslation: false } })
     expect(w.get('[data-testid=word]').text()).toBe('Resilient')
@@ -73,5 +76,25 @@ describe('FlashCard', () => {
     const w = mount(FlashCard, { props: { card, showTranslation: true, disabled: true } })
     await w.get('[data-testid=grade-easy]').trigger('click')
     expect(w.emitted('grade')).toBeUndefined()
+  })
+
+  it('renders the Uzbek interface (kind labels, reveal and grade buttons) when locale is uz', async () => {
+    setLocale('uz')
+    const kinds: [Card['card_kind'], string][] = [
+      ['new', "Yangi so'z"],
+      ['learning', 'Mustahkamlash'],
+      ['due', 'Takrorlash'],
+    ]
+    for (const [card_kind, label] of kinds) {
+      expect(mount(FlashCard, { props: { card: { ...card, card_kind }, showTranslation: false } }).text()).toContain(label)
+    }
+
+    const hidden = mount(FlashCard, { props: { card, showTranslation: false } })
+    expect(hidden.get('[data-testid=reveal-btn]').text()).toBe("Tarjimani ko'rsatish")
+
+    const revealed = mount(FlashCard, { props: { card, showTranslation: true } })
+    expect(revealed.get('[data-testid=grade-hard]').text()).toContain('Qiyin')
+    expect(revealed.get('[data-testid=grade-medium]').text()).toContain("O'rtacha")
+    expect(revealed.get('[data-testid=grade-easy]').text()).toContain('Oson')
   })
 })

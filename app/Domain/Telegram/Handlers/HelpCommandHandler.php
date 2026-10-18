@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Handlers;
 
+use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Models\TelegramGroup;
 
 final class HelpCommandHandler implements UpdateHandler
 {
-    public function __construct(private readonly TelegramClient $telegram) {}
+    public function __construct(
+        private readonly TelegramClient $telegram,
+        private readonly LocaleResolver $locales,
+    ) {}
 
     /** @param array<string, mixed> $update */
     public function matches(array $update): bool
@@ -34,17 +39,16 @@ final class HelpCommandHandler implements UpdateHandler
         $chatId = (int) $message['chat']['id'];
         $chatType = (string) $message['chat']['type'];
 
-        $text = $chatType === 'private'
-            ? "LexiFlow — помощник для изучения английского.\n\n".
-              "Для учителей: добавьте бота в группу, админ активирует её.\n".
-              "Доступные команды в группе: /start_training, /start_exam, /close_exam, /help\n".
-              'Личный отчёт: /stats'
-            : "LexiFlow Bot в группе.\n\nКоманды учителя:\n".
-              "/start_training — запустить тренировку\n".
-              "/start_exam — запустить экзамен\n".
-              "/close_exam — закрыть экзамен\n".
-              "/stats — личный отчёт в чате с ботом\n".
-              '/help — эта справка';
+        if ($chatType === 'private') {
+            // Anyone may ask for help in a DM: follow their Telegram language.
+            $languageCode = $message['from']['language_code'] ?? null;
+            $locale = $this->locales->fromLanguageCode(is_string($languageCode) ? $languageCode : null);
+            $text = __('bot.help.private', [], $locale);
+        } else {
+            $group = TelegramGroup::query()->where('chat_id', $chatId)->first();
+            $locale = $group !== null ? $this->locales->forGroup($group) : $this->locales->default();
+            $text = __('bot.help.group', [], $locale);
+        }
 
         $this->telegram->sendMessage($chatId, $text);
     }

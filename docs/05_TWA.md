@@ -32,6 +32,11 @@ resources/twa/
 │   │   ├── auth.ts
 │   │   ├── training.ts
 │   │   └── exam.ts
+│   ├── i18n/
+│   │   ├── index.ts         # t(), tn(), useI18n(), initLocale()
+│   │   ├── ru.ts            # словарь-эталон (ключи выводятся из него)
+│   │   ├── uz.ts            # узбекский (латиница); обязан иметь те же ключи
+│   │   └── errors.ts        # error.code -> локализованный текст
 │   ├── composables/
 │   │   ├── useTelegram.ts   # обёртка над @twa-dev/sdk
 │   │   ├── useTts.ts
@@ -243,6 +248,16 @@ export function useTts() {
   }
   ```
 - `WebApp.HapticFeedback.impactOccurred('light')` — лёгкий хаптик на нажатие оценок.
+
+## 8a. Локализация (i18n)
+
+Языки интерфейса — **русский (по умолчанию) и узбекский (латиница)**; изучаемый язык (английский) не переводится. Внешняя библиотека (vue-i18n) не используется — модуль `src/i18n/` (~100 строк).
+
+- **Выбор языка:** `Telegram.WebApp.initDataUnsafe.user.language_code` (через `useTelegram().languageCode()`) → `uz*` → `uz`, всё остальное (и запуск вне Telegram) → `ru`. Выбирается один раз в `main.ts` (`initLocale`), там же выставляется `<html lang>`.
+- **Словари:** `ru.ts` — эталон; тип `Translations` выводится из него, поэтому `uz.ts` с пропущенным/лишним ключом не проходит `vue-tsc`. Ключи плоские, `section.name`. Plural-значения — объект форм `{ one, few, many, other }`.
+- **API:** `t(key, params?)` — подстановка `{name}`; `tn(key, count, params?)` — форма по `Intl.PluralRules` (ru: one/few/many, uz: one/other; `{count}` подставляется автоматически); `useI18n()` в компонентах.
+- **Ошибки API:** клиент не показывает `error.message` сервера (он английский), а локализует по `error.code` (`src/i18n/errors.ts`, список `KNOWN_ERROR_CODES`; остальное — по `kind` ответа: сеть, 403, 410, 429, 5xx). Новый код ошибки в бэкенде = новая запись в `KNOWN_ERROR_CODES` + строки `error.code.<code>` в обоих словарях.
+- **Правила:** в `.vue`/`.ts` вне `src/i18n` кириллицы быть не должно (проверяет vitest). Новый текст = ключ в `ru.ts` и `uz.ts` одновременно.
 
 ## 9. Производительность
 
