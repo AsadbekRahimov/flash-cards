@@ -5,7 +5,7 @@
 ## Sprint 3 — Filament Admin ✅ (2FA отложен до Sprint 10)
 ## Sprint 4 — Import & Content ✅
 
-## Sprint 13 — Фаза 0 «Стабилизация ядра» 🚧 (старт 2026-10-18)
+## Sprint 13 — Фаза 0 «Стабилизация ядра» ✅ (2026-10-18; 0.7 ждёт staging)
 
 Основание: `docs/11_SYSTEM_ANALYSIS_AND_SAAS_STRATEGY.md` §10, стратегия B2C-first.
 Решения владельца: ученик центра получает полный Pro; языки интерфейса и переводов — узбекский и русский; изучаемый язык — только английский.
@@ -20,6 +20,13 @@
 | 0.6 | API Resource-классы для TWA, вынос логики из контроллеров | coder | ✅ |
 | 0.7 | Staging: restore-тест, ZAP baseline, k6 | координатор (нужен staging) | ⏳ |
 | 0.8 | Сжатие трафика: предсжатая статика TWA (`gzip_static`), тюнинг gzip, без сжатия аудио, защита от BREACH на admin | coder | ✅ |
+
+### Итог фазы
+- Ревью (`reviewer`) всего diff фазы: 2 блокирующие, 3 желательные, 9 мелких находок — все закрыты; повторное ревью исправлений — ✅ без блокирующих.
+- Доп. исправления по ревью: очистка аргументов стек-фреймов в Sentry + `zend.exception_ignore_args=On`; heartbeat из Redis; одноразовый `serve_token` для learn-ahead карточек; «брошенные» learning/relearning снова в напоминаниях (`DueRepetitionCriteria`); fail-fast валидация `LearningPolicy`; `order_secret` экзамена; ретенция `product_events`; маскирование токена бота в логах и `failed_jobs` (`SecretRedactor`, Monolog-processor, `TelegramApiException`); fallback-локаль `ru`.
+- Проверки на приёмке: Pest **409 passed / 3 skipped**, Larastan level 8 — 0 ошибок, Pint ✅, TWA vue-tsc ✅, vitest **89 passed**, `npm run build` ✅.
+- Узбекские строки — на проверку носителю: `docs/I18N_UZ_REVIEW.md`.
+- Миграции `2026_10_18_000001/000002` правились на месте до выкатки — при локально накаченных ранних версиях нужен `migrate:fresh`.
 
 Хвосты, найденные по ходу (взять в работу до приёмки фазы):
 - Студент, заблокировавший бота, получает попытку напоминания каждый день → флаг `dm_blocked_at` (Фаза 1, learners).
