@@ -69,6 +69,90 @@
 | `twofactor.errors.invalid_code` | Kod noto'g'ri. Qayta urinib ko'ring. | Неверный код. Попробуйте ещё раз. |
 | `twofactor.errors.invalid_code_or_recovery` | Kod yoki tiklash kodi noto'g'ri. | Неверный код или recovery-код. |
 
+## Публичный сайт: лендинг, оферта, политика (`lang/uz/landing.php`, `lang/uz/legal.php`)
+
+> Задача 1.7. Тексты оферты и политики — заглушки (структура разделов); юридический текст предоставит владелец и затем потребует отдельной проверки носителем.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `landing.meta.title` | LexiFlow - Telegram orqali inglizcha so'zlarni o'rganing | LexiFlow — английский слово за словом в Telegram |
+| `landing.meta.description` | LexiFlow - Telegramdagi bot va mini-ilova: kartochkalar, ovozli talaffuz va aqlli takrorlash orqali inglizcha so'zlarni o'rganing. Bepul: kuniga 20 ta yangi so'z. | LexiFlow — бот и мини-приложение в Telegram для изучения английских слов: карточки, озвучка и умные повторения. Бесплатно: 20 новых слов в день. |
+| `landing.nav.how` | Qanday ishlaydi | Как это работает |
+| `landing.nav.pricing` | Tariflar | Тарифы |
+| `landing.nav.teachers` | O'quv markazlari uchun | Для центров |
+| `landing.nav.label` | Asosiy navigatsiya | Основная навигация |
+| `landing.hero.title` | Esda qoladigan inglizcha so'zlar | Английские слова, которые остаются в памяти |
+| `landing.hero.subtitle` | Ingliz tilini bevosita Telegramda o'rganing: ovozli va misolli kartochkalar, bot esa so'zlarni unuta boshlagan paytingizda takrorlashni eslatadi. | Учите английский прямо в Telegram: карточки с озвучкой и примерами, а бот напоминает повторить слова ровно тогда, когда вы начинаете их забывать. |
+| `landing.hero.cta_bot` | Botni ochish | Открыть бота |
+| `landing.hero.cta_unavailable` | Bot tez orada ochiladi | Бот скоро откроется |
+| `landing.hero.note` | Bepul: kuniga 20 ta yangi so'z, takrorlash esa cheklovsiz. | Бесплатно: 20 новых слов в день, повторения — без ограничений. |
+| `landing.how.title` | Qanday ishlaydi | Как это работает |
+| `landing.how.steps.0.title` | Botni oching | Откройте бота |
+| `landing.how.steps.0.text` | Telegramda «Start» tugmasini bosing va interfeys tilini tanlang. Hech narsa o'rnatish shart emas. | Нажмите «Старт» в Telegram и выберите язык интерфейса. Ничего устанавливать не нужно. |
+| `landing.how.steps.1.title` | Kartochkalar bilan o'rganing | Учите по карточкам |
+| `landing.how.steps.1.text` | Mini-ilova Telegramning o'zida ochiladi: so'z, tarjima, misol va ovozli talaffuz. | Мини-приложение открывается прямо в Telegram: слово, перевод, пример и озвучка. |
+| `landing.how.steps.2.title` | O'z vaqtida takrorlang | Повторяйте вовремя |
+| `landing.how.steps.2.text` | Intervalli takrorlash so'zni yangilash vaqtini tanlaydi, bot esa eslatma yuboradi. | Интервальные повторения подбирают момент, когда слово пора освежить, а бот присылает напоминание. |
+| `landing.features.title` | Ichida nimalar bor | Что внутри |
+| `landing.features.items.0.title` | Bot va mini-ilova | Бот и мини-приложение |
+| `landing.features.items.0.text` | Bot - boshlash va eslatmalar uchun, mini-ilova - mashg'ulotlar uchun. Hammasi bitta messenjerda. | Бот — для старта и напоминаний, мини-приложение — для самих занятий. Всё в одном мессенджере. |
+| `landing.features.items.1.title` | Aqlli takrorlash | Умные повторения |
+| `landing.features.items.1.text` | Har bir so'z tobora uzayib boruvchi oraliqlarda qaytadi - shu tarzda u uzoq muddatli xotiraga o'tadi. | Каждое слово возвращается через растущие промежутки времени — так оно переходит в долговременную память. |
+| `landing.features.items.2.title` | Ovoz va misollar | Озвучка и примеры |
+| `landing.features.items.2.text` | Talaffuzni tinglang va so'z gapda qanday ishlatilishini ko'ring. | Слушайте произношение и смотрите, как слово употребляется в предложении. |
+| `landing.features.items.3.title` | O'zbek va rus tillari | Узбекский и русский |
+| `landing.features.items.3.text` | Bot va mini-ilova interfeysi o'zbek va rus tillarida mavjud. | Интерфейс бота и мини-приложения доступен на русском и узбекском языках. |
+| `landing.pricing.title` | Tariflar | Тарифы |
+| `landing.pricing.subtitle` | Bepul boshlang. Pullik imkoniyatlar keyinroq paydo bo'ladi - bunda yutuqlaringiz saqlanib qoladi. | Начните бесплатно. Платные возможности появятся позже — прогресс при этом сохранится. |
+| `landing.pricing.soon` | Tez orada | Скоро |
+| `landing.pricing.free.name` | Free | Free |
+| `landing.pricing.free.tagline` | Kundalik mashq uchun | Для ежедневной практики |
+| `landing.pricing.free.features.0` | Ommaviy kurslar | Публичные курсы |
+| `landing.pricing.free.features.1` | Kuniga 20 ta yangi so'z | 20 новых слов в день |
+| `landing.pricing.free.features.2` | Cheklovsiz takrorlash | Повторения без ограничений |
+| `landing.pricing.free.features.3` | Bot va mini-ilova | Бот и мини-приложение |
+| `landing.pricing.pro.name` | Pro | Pro |
+| `landing.pricing.pro.tagline` | Ko'proq istaganlar uchun | Для тех, кто хочет больше |
+| `landing.pricing.pro.features.0` | Yangi so'zlar uchun kunlik limitsiz | Без дневного лимита новых слов |
+| `landing.pricing.pro.features.1` | Mashqlarning ko'proq turlari | Больше типов упражнений |
+| `landing.pricing.pro.features.2` | Mashq testlari | Тренировочные тесты |
+| `landing.pricing.pro.features.3` | Batafsil statistika | Подробная статистика |
+| `landing.pricing.pro.note` | Pro tarkibi va narxlari hozircha aniqlanmoqda. | Состав и цены Pro пока уточняются. |
+| `landing.pricing.centers.name` | O'quv markazlari uchun | Для учебных центров |
+| `landing.pricing.centers.tagline` | Oyiga bir marta qat'iy to'lov | Фиксированная оплата раз в месяц |
+| `landing.pricing.centers.features.0` | Markaz oyiga bir marta qat'iy summa to'laydi | Центр платит фиксированную сумму раз в месяц |
+| `landing.pricing.centers.features.1` | Markaz o'quvchilari markazda ekan, to'liq Pro oladi | Все студенты центра получают полный Pro, пока состоят в центре |
+| `landing.pricing.centers.features.2` | Telegramdagi guruhlar, o'qituvchilar uchun mashg'ulot va imtihonlar | Группы в Telegram, тренировки и экзамены для учителей |
+| `landing.pricing.centers.contact` | Markazni ulash: | Подключить центр: |
+| `landing.footer.tagline` | LexiFlow - Telegramda ingliz tili. | LexiFlow — английский в Telegram. |
+| `landing.footer.contact` | Qo'llab-quvvatlash: | Поддержка: |
+| `landing.footer.language` | Til | Язык |
+| `landing.footer.legal_label` | Hujjatlar | Документы |
+| `legal.draft_notice` | Qoralama. Ushbu hujjat matni xizmat egasi tomonidan taqdim etiladi; sahifa hozircha amaldagi hujjat hisoblanmaydi. | Черновик. Текст этого документа будет предоставлен владельцем сервиса; страница пока не является действующим документом. |
+| `legal.placeholder` | Bo'lim matni xizmat egasi tomonidan taqdim etiladi. | Текст раздела будет предоставлен владельцем. |
+| `legal.back` | Bosh sahifaga | На главную |
+| `legal.offer.title` | Ommaviy oferta | Публичная оферта |
+| `legal.offer.sections.0` | Umumiy qoidalar | Общие положения |
+| `legal.offer.sections.1` | Shartnoma predmeti | Предмет договора |
+| `legal.offer.sections.2` | Ro'yxatdan o'tish va hisob | Регистрация и учётная запись |
+| `legal.offer.sections.3` | Tariflar, to'lov va qaytarish tartibi | Тарифы, порядок оплаты и возврата |
+| `legal.offer.sections.4` | Tomonlarning huquq va majburiyatlari | Права и обязанности сторон |
+| `legal.offer.sections.5` | Tomonlarning javobgarligi | Ответственность сторон |
+| `legal.offer.sections.6` | Shaxsiy ma'lumotlar | Персональные данные |
+| `legal.offer.sections.7` | Nizolarni hal qilish | Разрешение споров |
+| `legal.offer.sections.8` | Amal qilish muddati va shartlarni o'zgartirish | Срок действия и изменение условий |
+| `legal.offer.sections.9` | Ijrochining rekvizitlari | Реквизиты исполнителя |
+| `legal.privacy.title` | Maxfiylik siyosati | Политика конфиденциальности |
+| `legal.privacy.sections.0` | Umumiy qoidalar | Общие положения |
+| `legal.privacy.sections.1` | Qanday ma'lumotlarni qayta ishlaymiz | Какие данные мы обрабатываем |
+| `legal.privacy.sections.2` | Qayta ishlash maqsadlari va asoslari | Цели и основания обработки |
+| `legal.privacy.sections.3` | Ma'lumotlarni uchinchi shaxslarga berish | Передача данных третьим лицам |
+| `legal.privacy.sections.4` | Ma'lumotlarni saqlash va himoya qilish | Хранение и защита данных |
+| `legal.privacy.sections.5` | Foydalanuvchi huquqlari | Права пользователя |
+| `legal.privacy.sections.6` | Cookie fayllar va analitika | Файлы cookie и аналитика |
+| `legal.privacy.sections.7` | Siyosatni o'zgartirish | Изменение политики |
+| `legal.privacy.sections.8` | Ma'lumotlar operatorining aloqa ma'lumotlari | Контакты оператора данных |
+
 ## TWA (`resources/twa/src/i18n/uz.ts`)
 
 | Ключ | uz | ru |
