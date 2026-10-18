@@ -132,6 +132,14 @@ bash deploy.sh
 | [`docs/08_ROADMAP.md`](docs/08_ROADMAP.md) | Roadmap |
 | [`docs/09_AI_AGENTS_GUIDE.md`](docs/09_AI_AGENTS_GUIDE.md) | Guide для AI-агентов |
 
+## Локализация
+
+Язык интерфейса — русский (по умолчанию) и узбекский (латиница); изучаемый язык — английский.
+Тексты бота и напоминаний: `lang/{ru,uz}/*.php` (`LocaleResolver`, `config/localization.php`),
+TWA: `resources/twa/src/i18n/`. Язык бота в группе задаётся в Filament
+(**Telegram Groups → Edit → Bot language**, хранится в `meta.locale`), студентам — по `language_code`
+Telegram. Подробности: `docs/04_API_AND_BOT.md` (B.4a), `docs/05_TWA.md` (8a).
+
 ## Contributing
 
 Правила — в [`CLAUDE.md`](CLAUDE.md). Каждый коммит должен проходить `make lint`, `make analyse`, `make test`.

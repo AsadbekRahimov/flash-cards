@@ -277,6 +277,21 @@ $telegram->sendWebAppButton(
 
 URL TWA: `https://lexiflow.example.com/twa/training/123` (для экзамена — `/twa/exam/{id}`).
 
+### B.4a Язык сообщений бота (i18n)
+
+Все тексты бота, напоминаний и лидерборда лежат в `lang/{ru,uz}/*.php` (`bot`, `errors`, `training`, `exam`, `reminders`, `stats`, `twofactor`) и выводятся через `__()` / `trans_choice()` с **явным** параметром `$locale` — глобальная локаль процесса не меняется (воркеры очередей долгоживущие). Поддерживаемые языки и дефолт — `config/localization.php` (`ru`, `uz`; дефолт и fallback `ru`). Выбор языка — `App\Domain\Localization\Services\LocaleResolver`:
+
+| Кому сообщение | Откуда язык |
+|----------------|-------------|
+| Сообщение в группу (ответы на команды, кнопка WebApp, лидерборд) | `telegram_groups.meta['locale']` (`ru`/`uz`), если не задан или не поддерживается — дефолт (`ru`) |
+| Студенту в ЛС (напоминание о повторении) | `students.language_code`: `uz*` → `uz`, иначе `ru` |
+| Учителю в ЛС (`/start` для привязанного учителя, `/stats`) | дефолт (`ru`) |
+| Неопознанному пользователю в ЛС (`/start`, `/stats`, `/help`) | `language_code` из апдейта по тому же правилу (`uz*` → `uz`, иначе `ru`) |
+
+Числительные: ru — `trans_choice` с формами «слово | слова | слов» (1 / 2–4 / 5+, с учётом 11–14, 21, 22…); uz — без согласования («5 ta so'z»). HTML-сообщения (лидерборд) по-прежнему экранируют пользовательские данные (`htmlspecialchars`) — переводы содержат только статичную разметку. Язык группы задаётся в Filament (**Telegram Groups → Edit → Bot language**) и сохраняется при повторном добавлении бота в группу. Не переводятся: `message` в JSON-ответах TWA API (клиент локализует по `error.code`), логи, имена команд.
+
+Новая строка бота = ключ в `lang/ru/*.php` **и** `lang/uz/*.php` (тест `LocalizationTest` сверяет наборы ключей и плейсхолдеров и запрещает кириллицу в PHP-коде `app/Domain/Telegram` и `app/Jobs`).
+
 ### B.5 События бота (не команды)
 
 - **`my_chat_member`** — бот добавлен/удалён из группы.
@@ -369,7 +384,8 @@ private function formatLeaderboard(ExamSession $session): string
         return "{$medal} {$r->student->first_name} — <b>{$r->total_score}</b>";
     })->implode("\n");
 
-    return "🏁 <b>Итоги экзамена</b>\nУрок {$session->lesson->number}\n\n{$rows}";
+    // Заголовок — из lang/{ru,uz}/exam.php по языку группы (см. B.4a); имена экранируются.
+    return __('exam.leaderboard.title', ['lesson' => $session->lesson->number], $locale)."\n\n{$rows}";
 }
 ```
 
