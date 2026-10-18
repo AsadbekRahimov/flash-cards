@@ -1,270 +1,207 @@
-# 06. Spaced Repetition — Алгоритм SM-2
+# 06. Spaced Repetition — SM-2 + learning steps
 
 ## 1. Кратко об алгоритме
 
-SM-2 — классический алгоритм интервальных повторений (SuperMemo 2, Piotr Woźniak, 1987). Для каждой карточки хранятся:
-- `repetitions` — количество успешных повторений подряд (сброс при провале).
-- `interval` — текущий интервал в днях до следующего показа.
-- `easiness_factor` (EF) — коэффициент лёгкости, от 1.3 до ~2.5+.
+Основа — классический SM-2 (SuperMemo 2, Piotr Woźniak, 1987) для «дневных» интервалов,
+дополненный **learning steps** в стиле Anki для работы внутри одной сессии. Для каждой пары
+(студент, слово) в `word_repetitions` хранятся:
 
-Мы используем **упрощённый** вариант: 3 кнопки вместо 6-балльной шкалы.
+- `state` — `new` | `learning` | `review` | `relearning` (см. §3.1).
+- `learning_step` — индекс текущего минутного шага внутри `learning`/`relearning`.
+- `repetitions` — количество успешных повторений подряд в состоянии `review` (сброс при провале).
+- `interval_days` — текущий интервал в днях (0, пока карточка в минутных шагах).
+- `easiness_factor` (EF) — коэффициент лёгкости, от 1.30 до ~2.5+.
+- `lapses` — сколько раз выпущенная карточка была провалена.
+- `is_hard` — флаг «трудная» (см. §3.5).
+- `served_ahead_at` — служебная метка learn-ahead (см. §5.2).
+
+Реализация: `app/Domain/Learning/Services/SpacedRepetitionEngine.php`, параметры —
+`config/learning.php` → `App\Domain\Learning\Support\LearningPolicy`. Схема —
+`docs/03_DATABASE.md` §2.8. Миграция на FSRS (docs/11 §4.1) добавит реализацию алгоритма
+рядом, не меняя контракт `applyReview(WordRepetition, int $quality, CarbonImmutable $now)`.
 
 ## 2. Маппинг оценок студента
 
-| Кнопка в UI | Quality (0..5) | Семантика |
-|-------------|----------------|-----------|
-| 😰 Трудно | 2 | Вспомнил с трудом или неправильно |
-| 🙂 Средне | 3 | Вспомнил с паузой, но правильно |
-| 😎 Легко | 5 | Моментально и уверенно |
+API принимает `quality` 0..5 (как и раньше). Смысл значений:
 
-На v1.1 можно добавить промежуточные 4 (без значка) — если будет запрос.
+| Кнопка в UI | Quality | Anki-аналог | Результат |
+|-------------|---------|-------------|-----------|
+| 😰 Трудно | **2** | Again | провал: карточка уходит на минутные шаги (`learning`/`relearning`), `is_hard = true` |
+| 🙂 Средне | **4** | Good | успех, **EF не меняется** |
+| 😎 Легко | **5** | Easy | успех, EF +0.10; в минутных шагах — немедленный выпуск с `easy_interval_days` |
+| — | 3 | Hard (pass) | успех с трудом, EF −0.14; кнопки в v1 нет, значение валидно для API |
+| — | 0, 1 | Again | провал, как 2, но сильнее штраф EF (−0.80 / −0.54) при провале `review`-карточки |
 
-## 3. Формулы SM-2
+Почему «Средне» = 4, а не 3: в SM-2 q=3 уменьшает EF на 0.14, и студент, честно нажимающий
+«Средне», за 8–9 повторений упирается в EF = 1.30 («ease hell»: интервалы почти не растут,
+повторений всё больше). q=4 оставляет EF без изменений — это и есть «вспомнил нормально».
+Провал (q<3) по-прежнему пишется в `training_reviews.quality`, поэтому аналитика
+«трудных слов» (`quality < 3`) не меняется.
 
-### 3.1 Обновление EF
+## 3. Правила планирования
+
+### 3.1 Состояния
+
 ```
-EF' = EF + (0.1 − (5 − q) · (0.08 + (5 − q) · 0.02))
-EF' = max(1.3, EF')
+new ──pass──▶ learning(step 1) ──pass──▶ review ──fail──▶ relearning ──pass──▶ review
+ │                 ▲    │                  ▲                    │
+ └──fail──▶ learning(step 0)  (fail: назад на step 0) ◀────────┘
 ```
 
-### 3.2 Обновление interval и repetitions
+- `new`, `learning` — карточка ещё не выпущена; расписание в **минутах** (`learning_steps`).
+- `review` — выпущена; расписание в **днях** по SM-2.
+- `relearning` — выпущенная карточка провалена; минутные шаги (`relearning_steps`), затем снова `review`.
+
+Шаги по умолчанию (`config/learning.php`): `learning_steps = 1,10` мин, `relearning_steps = 10` мин,
+`graduating_interval_days = 1`, `easy_interval_days = 4`, `learn_ahead_minutes = 20`.
+Env: `LEARNING_STEPS`, `RELEARNING_STEPS`, `LEARNING_GRADUATING_INTERVAL_DAYS`,
+`LEARNING_EASY_INTERVAL_DAYS`, `LEARNING_LEARN_AHEAD_MINUTES`.
+
+### 3.2 Карточка в `new` / `learning` (EF **не трогаем**)
 
 ```
-if q < 3:
-    repetitions = 0
-    interval = 1           // показать завтра
+if q < 3:                       # Трудно
+    state = learning, learning_step = 0
+    next_review_at = now + learning_steps[0]
+    is_hard = true
+elif q == 5:                    # Легко — пропускаем оставшиеся шаги
+    graduate(interval = easy_interval_days)
+else:                           # 3 или 4
+    step = learning_step + 1
+    if step < len(learning_steps):
+        learning_step = step; next_review_at = now + learning_steps[step]
+    else:
+        graduate(interval = graduating_interval_days)
+
+graduate(interval):
+    state = review, learning_step = 0, repetitions = 1
+    interval_days = interval, next_review_at = now + interval days
+    # is_hard не меняется: сбросится при первом успешном review-ответе
+```
+
+Как в Anki, ошибки во время заучивания не портят EF: иначе три «Трудно» на новом слове за одну
+сессию стоили бы −0.96 EF.
+
+### 3.3 Карточка в `review` — классический SM-2
+
+```
+EF' = max(1.30, EF + (0.1 − (5 − q) · (0.08 + (5 − q) · 0.02)))
+
+if q < 3:                       # lapse
+    lapses += 1, repetitions = 0, interval_days = 0
+    state = relearning, learning_step = 0
+    next_review_at = now + relearning_steps[0]
     is_hard = true
 else:
-    if repetitions == 0:
-        interval = 1
-    elif repetitions == 1:
-        interval = 6
-    else:
-        interval = round(interval * EF')
-    repetitions += 1
-    is_hard = (q == 2)     // "с трудом" — флаг для бустинга частоты
+    interval = 1 if repetitions == 0
+             = 6 if repetitions == 1
+             = round(interval_days · EF') иначе (минимум 1)
+    repetitions += 1, interval_days = interval
+    next_review_at = now + interval days
+    is_hard = false
 ```
 
-### 3.3 next_review_at
-```
-next_review_at = now() + interval * 1 day
-```
+Штраф EF за провал начисляется **один раз** — в момент lapse. Дальнейшие провалы внутри
+`relearning` EF не меняют.
 
-В UI ранее показываем «трудные» — если `is_hard = true`, кладём в очередь выборки перед обычными, даже если `next_review_at` одинаковые.
+### 3.4 Карточка в `relearning`
 
-## 4. PHP-реализация (Service)
+Те же правила, что в §3.2, но со списком `relearning_steps`; при выпуске `repetitions = 1`,
+`interval_days = graduating_interval_days` (1 день) — то есть ровно то, что старый SM-2 давал
+на следующий день после провала. `is_hard` остаётся `true` до первого успешного ответа в `review`.
 
-```php
-<?php
+### 3.5 Семантика `is_hard`
 
-namespace App\Domain\Learning\Services;
+`is_hard = true` с момента провала (в любом состоянии) и до первого **успешного ответа на
+review-карточку** (то есть после того, как слово пережило хотя бы один дневной интервал).
+Выпуск из `relearning` флаг **не** снимает.
 
-use App\Domain\Learning\Models\WordRepetition;
-use Carbon\CarbonImmutable;
+Где используется:
+- `CardPicker` — среди due-карточек трудные показываются первыми.
+- `ExamAnswerService` — бонус ×1.5 за правильный ответ на трудное слово. Поведение сохранено:
+  слово, проваленное на тренировке, остаётся «трудным» на экзамене до следующего удачного
+  дневного повторения.
 
-final class SpacedRepetitionEngine
-{
-    public const MIN_EF = 1.30;
-    public const DEFAULT_EF = 2.50;
+## 4. Выборка «что показать студенту» (`CardPicker::pickNext`)
 
-    public function applyReview(WordRepetition $rep, int $quality, ?CarbonImmutable $now = null): WordRepetition
-    {
-        $this->assertQuality($quality);
-        $now ??= CarbonImmutable::now();
+1. **Due**: `next_review_at <= now` в рамках урока, `ORDER BY is_hard DESC, next_review_at, id`.
+   Сюда попадают и review-карточки, и learning-карточки, у которых минутный шаг уже истёк.
+2. **New**: слово урока без строки в `word_repetitions` (создаётся строка `state = new`,
+   `next_review_at = now`) — под `lockForUpdate` в транзакции.
+3. **Learn-ahead**: если due и new нет — ближайшая `learning`/`relearning` карточка с
+   `next_review_at <= now + learn_ahead_minutes`. Она выдаётся **досрочно**, и в строке
+   ставится `served_ahead_at = now`.
+4. Иначе `null` — урок на сегодня закончен.
 
-        $ef = $this->newEasinessFactor((float) $rep->easiness_factor, $quality);
+`card_kind` в ответе API: `new` (state new) · `learning` (learning/relearning) · `due` (review).
 
-        if ($quality < 3) {
-            $repetitions = 0;
-            $interval = 1;
-            $isHard = true;
-        } else {
-            $repetitions = $rep->repetitions + 1;
-            $interval = match (true) {
-                $rep->repetitions === 0 => 1,
-                $rep->repetitions === 1 => 6,
-                default => (int) round($rep->interval_days * $ef),
-            };
-            $isHard = $quality === 2;
-        }
+Таким образом сессия не завершается, пока в уроке есть карточки в минутных шагах
+(при `learn_ahead_minutes >= max(шаг)`). Если learn-ahead выключен (`0`), сессия завершится,
+а карточка вернётся, когда наступит её срок.
 
-        $rep->easiness_factor = round($ef, 2);
-        $rep->repetitions = $repetitions;
-        $rep->interval_days = $interval;
-        $rep->last_quality = $quality;
-        $rep->last_reviewed_at = $now;
-        $rep->next_review_at = $now->addDays($interval);
-        $rep->is_hard = $isHard;
+## 5. Приём оценки (`ReviewSubmissionService::submit`)
 
-        $rep->save();
+### 5.1 Порядок проверок
+1. Сессия `open` (под `lockForUpdate`) — иначе 410 `session_closed`.
+2. Строка `word_repetitions` существует — иначе 409 `card_not_started`.
+3. Слово принадлежит уроку сессии — иначе 422 `wrong_lesson`.
+4. Карточку **можно оценить** (§5.2) — иначе 409 `card_not_due`.
+5. `SpacedRepetitionEngine::applyReview`, запись в `training_reviews`.
 
-        return $rep;
-    }
+### 5.2 Защита от повторного submit и learn-ahead
 
-    private function newEasinessFactor(float $ef, int $quality): float
-    {
-        $delta = 0.1 - (5 - $quality) * (0.08 + (5 - $quality) * 0.02);
-        return max(self::MIN_EF, $ef + $delta);
-    }
+Оценка принимается, если выполняется одно из двух:
+- `next_review_at <= now` (карточка due — как и раньше), **или**
+- карточка в `learning`/`relearning`, `served_ahead_at != null` и
+  `next_review_at <= now + learn_ahead_minutes` (карточка выдана досрочно пикером).
 
-    private function assertQuality(int $q): void
-    {
-        if ($q < 0 || $q > 5) {
-            throw new \InvalidArgumentException("Quality must be 0..5, got {$q}");
-        }
-    }
-}
-```
+Любой принятый ответ переносит `next_review_at` в будущее (минимум на 1 минуту) и
+**обнуляет `served_ahead_at`**. Поэтому повтор того же запроса получает 409 `card_not_due`,
+пока пикер не выдаст карточку снова. Гонка «два клиента получили одну и ту же learn-ahead
+карточку» разрешается блокировкой строки: первый submit принимается, второй — 409.
 
-## 5. Выборка «что показать студенту»
+Лимит `twa.training.max_cards_per_session` считает **оценки** (`training_reviews`), а не слова;
+с шагами 1/10 мин урок из 25 слов стоит ~75 оценок плюс провалы, поэтому значение по умолчанию
+поднято до 200.
 
-```php
-<?php
+## 6. Персональные напоминания
 
-namespace App\Domain\Learning\Services;
-
-use App\Domain\Content\Models\Word;
-use App\Domain\Learning\Models\WordRepetition;
-
-final class CardPicker
-{
-    public function __construct(private SpacedRepetitionEngine $engine) {}
-
-    /**
-     * @return array{ card: ?array, kind: 'due'|'new'|null }
-     */
-    public function pickNext(int $studentId, int $lessonId, int $batchSize = 15): array
-    {
-        // 1. due to review (в рамках урока или в рамках всех слов, которые студент уже видел)
-        $due = WordRepetition::query()
-            ->where('student_id', $studentId)
-            ->whereHas('word', fn ($q) => $q->where('lesson_id', $lessonId))
-            ->where('next_review_at', '<=', now())
-            ->orderByDesc('is_hard')
-            ->orderBy('next_review_at')
-            ->with('word')
-            ->first();
-
-        if ($due) {
-            return ['card' => $due->word->toArray(), 'kind' => 'due'];
-        }
-
-        // 2. новые слова — те, которых нет в word_repetitions у студента
-        $new = Word::query()
-            ->where('lesson_id', $lessonId)
-            ->whereNotIn('id', function ($q) use ($studentId) {
-                $q->select('word_id')->from('word_repetitions')->where('student_id', $studentId);
-            })
-            ->orderBy('id')
-            ->first();
-
-        if ($new) {
-            // создаём начальное состояние
-            $rep = WordRepetition::create([
-                'student_id' => $studentId,
-                'word_id' => $new->id,
-                'repetitions' => 0,
-                'interval_days' => 0,
-                'easiness_factor' => SpacedRepetitionEngine::DEFAULT_EF,
-                'next_review_at' => now(),
-                'is_hard' => false,
-            ]);
-
-            return ['card' => $new->toArray(), 'kind' => 'new'];
-        }
-
-        return ['card' => null, 'kind' => null];
-    }
-}
-```
-
-## 6. Персональные напоминания (cron)
-
-```php
-<?php
-// app/Console/Commands/NotifyDueRepetitions.php
-
-namespace App\Console\Commands;
-
-use App\Domain\Group\Models\Student;
-use App\Domain\Learning\Jobs\SendReviewReminderJob;
-use Illuminate\Console\Command;
-
-class NotifyDueRepetitions extends Command
-{
-    protected $signature = 'repetitions:notify {--threshold=5 : min words due}';
-    protected $description = 'Find students with due cards and queue notifications';
-
-    public function handle(): int
-    {
-        $threshold = (int) $this->option('threshold');
-
-        Student::query()
-            ->where('is_active', true)
-            ->whereHas('group', fn ($q) => $q->where('status', 'active'))
-            ->withCount(['wordRepetitions as due_count' => fn ($q) => $q->where('next_review_at', '<=', now())])
-            ->having('due_count', '>=', $threshold)
-            ->whereDoesntHave('notificationsLog', function ($q) {
-                $q->where('type', 'review_reminder')
-                  ->where('sent_at', '>=', now()->subHours(24));
-            })
-            ->chunkById(200, function ($students) {
-                foreach ($students as $s) {
-                    SendReviewReminderJob::dispatch($s->id, $s->due_count)->onQueue('default');
-                }
-            });
-
-        return self::SUCCESS;
-    }
-}
-```
+`ReviewReminderService` и `ReviewReminderLinkBuilder` считают due **только `state = review`**:
+минутные learning-карточки принадлежат сессии (идущей или брошенной) и не должны порождать
+«Пора повторить N слов» через 5 минут после тренировки. Порог по умолчанию — 5 due-слов,
+не чаще раза в 24 часа.
 
 Расписание: `$schedule->command('repetitions:notify')->dailyAt('18:00');`
 
 ## 7. Тестирование
 
-### 7.1 Unit-тест на движок
-```php
-// tests/Unit/SpacedRepetitionEngineTest.php (скелет)
-
-it('resets interval on quality < 3', function () {
-    $rep = WordRepetition::factory()->create([
-        'repetitions' => 5,
-        'interval_days' => 30,
-        'easiness_factor' => 2.40,
-    ]);
-
-    app(SpacedRepetitionEngine::class)->applyReview($rep, quality: 2);
-
-    expect($rep->fresh())
-        ->repetitions->toBe(0)
-        ->interval_days->toBe(1)
-        ->is_hard->toBeTrue();
-});
-
-it('uses interval=1 for first repetition', function () { /* ... */ });
-it('uses interval=6 for second repetition', function () { /* ... */ });
-it('multiplies by EF from third onwards', function () { /* ... */ });
-it('never lowers EF below 1.3', function () { /* ... */ });
-```
-
-### 7.2 Feature-тест на полный цикл
-«Студент трижды правильно отвечает на новую карточку → интервалы 1, 6, ~15 дней».
+- `tests/Unit/SpacedRepetitionEngineTest.php` — формула EF для 0..5 как раньше; q=4 не меняет EF;
+  провал запускает шаги; выпуск после последнего шага; Easy-выпуск; lapse → relearning → review;
+  EF не меняется в learning/relearning; жизненный цикл `is_hard`; legacy-строки после backfill;
+  парсинг `LearningPolicy`.
+- `tests/Feature/TwaTrainingTest.php` — «Трудно» возвращает карточку в той же сессии (learn-ahead);
+  сессия не завершается, пока есть learning-карточки; повторный submit → 409; гонка двух клиентов;
+  learn-ahead выключен; порядок due → new; миграция `down()`/`up()` с backfill.
+- `tests/Feature/ReviewReminderTest.php` — learning-карточки не считаются due для напоминаний.
+- TWA `FlashCard.spec.ts` — кнопки шлют 2 / 4 / 5, метка «Закрепление» для `learning`.
 
 ## 8. Аналитика на основе SM-2
 
-- **Трудное слово для группы** — где у ≥ 40% студентов `last_quality < 3` (при min. 10 попыток).
-- **Прогресс студента** — средний EF по всем его карточкам (растёт = прогресс).
+- **Трудное слово для группы** — где у ≥ 40% студентов `training_reviews.quality < 3` (при min. 10 попыток).
+- **Прогресс студента** — средний EF по всем его карточкам (растёт = прогресс); число карточек в `review`.
+- **Leech-кандидаты** — `lapses >= 5`.
 - **Heatmap активности** — количество `training_reviews` на студента по дням недели.
 
 ## 9. Будущие улучшения (не MVP)
 
 - Учёт времени ответа (`time_spent_ms`): если ответил «легко» за 10 секунд — подозрительно, сбавить EF прирост.
-- FSRS (Free Spaced Repetition Scheduler) — более современная модель на основе градиентного бустинга. Требует больше данных.
-- Leech-detection: если слово уже 5+ раз «провалено» — пометить как leech, показать учителю «студенту X сложно даётся Y, обрати внимание».
-- Fuzzing интервалов: к next_review_at добавлять случайный ±10%, чтобы не возникало «стен» в один день.
+- Четвёртая кнопка «С трудом» (q=3) — если будет запрос; API уже поддерживает.
+- FSRS (Free Spaced Repetition Scheduler) — интерфейс алгоритма поверх `applyReview`,
+  поля `stability`/`difficulty` в `word_repetitions`, флаг алгоритма для A/B (docs/11 §4.1).
+- Leech-detection: `lapses >= N` → пометить, показать учителю.
+- Fuzzing интервалов: к `next_review_at` добавлять случайный ±10%, чтобы не возникало «стен» в один день.
 
 ## 10. Канонические источники
 - Оригинальный пейпер SM-2: `https://super-memory.com/english/ol/sm2.htm`
-- Открытая Anki реализация (обёртка SM-2 с модификациями): `https://docs.ankiweb.net/`
+- Anki (learning steps, learn ahead, relearning): `https://docs.ankiweb.net/deck-options.html`
 - FSRS для сравнения: `https://github.com/open-spaced-repetition/fsrs4anki`

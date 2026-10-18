@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Domain\Learning\Enums\RepetitionState;
 use App\Models\Student;
 use App\Models\TelegramGroup;
 use App\Models\Word;
@@ -41,6 +42,10 @@ class DemoRepetitionsSeeder extends Seeder
                             'last_reviewed_at' => now()->subDays(random_int(0, 7)),
                             'next_review_at' => now()->addHours($dueOffset),
                             'is_hard' => $isHard,
+                            // Failed-but-never-graduated rows are relearning (minute steps on next visit).
+                            'state' => $reps >= 1 ? RepetitionState::Review : RepetitionState::Relearning,
+                            'learning_step' => 0,
+                            'lapses' => $reps >= 1 ? 0 : 1,
                             'meta' => [],
                         ],
                     );

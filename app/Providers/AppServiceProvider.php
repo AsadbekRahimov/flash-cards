@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Domain\Learning\Support\LearningPolicy;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\IrazasyedTelegramClient;
 use App\Domain\Telegram\Services\TelegramKeyboardFactory;
@@ -39,6 +40,13 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(InitDataValidator::class, function (): InitDataValidator {
             return new InitDataValidator((string) config('telegram.bot_token'));
+        });
+
+        $this->app->singleton(LearningPolicy::class, function (): LearningPolicy {
+            /** @var array<string, mixed> $config */
+            $config = (array) config('learning', []);
+
+            return LearningPolicy::fromConfig($config);
         });
 
         $this->app->singleton(JwtService::class, function (): JwtService {

@@ -112,7 +112,7 @@ final class TrainingController
 
     /**
      * @return array{
-     *   card: array{word_id:int, word:string, translation:string, example:string|null, transcription:string|null, card_kind:string}|null,
+     *   card: array{word_id:int, word:string, translation:string, example:string|null, transcription:string|null, card_kind:'due'|'new'|'learning'}|null,
      *   progress: array{done:int, total:int}
      * }
      */

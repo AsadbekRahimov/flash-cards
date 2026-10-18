@@ -4,9 +4,15 @@ declare(strict_types=1);
 
 namespace App\Domain\Learning\Services;
 
+use App\Domain\Learning\Enums\RepetitionState;
 use App\Jobs\SendReviewReminderJob;
 use App\Models\Student;
 
+/**
+ * Only graduated (`review`) cards count towards the reminder threshold:
+ * (re)learning cards are scheduled in minutes and belong to the session the
+ * student is (or was) in, so they must not trigger "N words due" messages.
+ */
 final class ReviewReminderService
 {
     public const DEFAULT_THRESHOLD = 5;
@@ -20,12 +26,14 @@ final class ReviewReminderService
             ->whereHas('group', fn ($q) => $q->where('status', 'active'))
             ->whereHas(
                 'repetitions',
-                fn ($q) => $q->where('next_review_at', '<=', now()),
+                fn ($q) => $q->where('state', RepetitionState::Review->value)->where('next_review_at', '<=', now()),
                 '>=',
                 $threshold,
             )
             ->withCount([
-                'repetitions as due_repetitions_count' => fn ($q) => $q->where('next_review_at', '<=', now()),
+                'repetitions as due_repetitions_count' => fn ($q) => $q
+                    ->where('state', RepetitionState::Review->value)
+                    ->where('next_review_at', '<=', now()),
             ])
             ->whereDoesntHave('notifications', function ($q): void {
                 $q->where('type', 'review_reminder')

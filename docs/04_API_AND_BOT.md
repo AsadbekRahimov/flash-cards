@@ -86,13 +86,14 @@
     "translation": "Устойчивый",
     "example": "She is a resilient girl.",
     "transcription": "rɪˈzɪl.i.ənt",
-    "card_kind": "due"      // due | new
+    "card_kind": "due"      // due | new | learning (минутные learning steps, см. docs/06 §4)
   },
   "progress": { "done": 7, "total": 25 }
 }
 ```
 
 При отсутствии карточек — `{ "card": null, "progress": { ... } }` и клиент показывает экран «готово».
+Пока в уроке есть карточки в learning steps, сервер отдаёт их досрочно (learn-ahead), а не `null`.
 
 #### `POST /api/twa/training/sessions/{session_id}/review`
 Оценка карточки.
@@ -101,7 +102,7 @@
 ```json
 {
   "word_id": 1001,
-  "quality": 2,             // 2=hard, 3=medium, 5=easy
+  "quality": 2,             // 0..5; TWA шлёт 2=Трудно (Again), 4=Средне (Good), 5=Легко (Easy); 3 = Hard-pass
   "time_spent_ms": 4300
 }
 ```
@@ -110,10 +111,15 @@
 ```json
 {
   "next_review_at": "2026-04-22T14:00:00Z",
-  "new_interval_days": 3,
-  "easiness_factor": 2.45
+  "new_interval_days": 3,    // 0, пока карточка в минутных learning steps
+  "easiness_factor": 2.45,
+  "card": { ... } | null,    // следующая карточка (как в /next)
+  "progress": { "done": 7, "total": 25 }
 }
 ```
+
+Ошибки: 409 `card_not_started` (карточка не выдавалась), 409 `card_not_due` (повторный submit:
+карточка ещё не due и не выдана досрочно пикером — docs/06 §5.2), 422 `wrong_lesson`, 410 `session_closed`.
 
 ### A.4 Exam mode
 

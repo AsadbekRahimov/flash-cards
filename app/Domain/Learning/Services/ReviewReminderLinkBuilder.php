@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Learning\Services;
 
+use App\Domain\Learning\Enums\RepetitionState;
 use App\Models\Student;
 use App\Models\TrainingSession;
 use App\Models\User;
@@ -32,6 +33,7 @@ final class ReviewReminderLinkBuilder
         /** @var WordRepetition|null $due */
         $due = WordRepetition::query()
             ->where('student_id', $student->id)
+            ->where('state', RepetitionState::Review->value)
             ->where('next_review_at', '<=', now())
             ->orderByDesc('is_hard')
             ->orderBy('next_review_at')
