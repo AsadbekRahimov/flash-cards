@@ -11,14 +11,19 @@ use App\Domain\Learners\Services\LearnerRegistrar;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
 use App\Models\Learner;
 use App\Models\TelegramGroup;
+use Carbon\CarbonImmutable;
 
 /**
  * `chat_member` updates: a person's own membership in a group changed (the bot
  * must be an admin of the group to receive them). Keeps `group_members` in sync:
  *
- *   member / administrator / creator / restricted(is_member) -> join (re-activates left / removed)
- *   left                                                      -> status `left`
- *   kicked                                                    -> status `removed`
+ *   member / administrator / creator / restricted(is_member = true) -> join (re-activates left / removed)
+ *   left / restricted(is_member != true)                            -> status `left`
+ *   kicked                                                          -> status `removed`
+ *
+ * Both directions are passive events: a soft-deleted learner is neither revived
+ * nor given a membership, and `last_seen_at` is not touched. Updates are applied
+ * by their Telegram `date`, so a late one cannot undo a newer state.
  *
  * Changes of the bot's own membership are `my_chat_member` (MyChatMemberHandler).
  */
@@ -72,28 +77,35 @@ final class ChatMemberHandler implements UpdateHandler
         }
 
         $status = (string) ($newMember['status'] ?? '');
+        $at = isset($event['date']) && is_numeric($event['date']) ? CarbonImmutable::createFromTimestamp((int) $event['date']) : null;
 
-        if (in_array($status, ['left', 'kicked'], true)) {
-            $this->leave((int) $user['id'], $group, $status === 'kicked' ? GroupMembershipService::REMOVED : GroupMembershipService::LEFT);
+        // A muted participant who left is reported as `restricted` with is_member = false.
+        $restrictedOut = $status === 'restricted' && ($newMember['is_member'] ?? false) !== true;
+
+        if (in_array($status, ['left', 'kicked'], true) || $restrictedOut) {
+            $this->leave((int) $user['id'], $group, $status === 'kicked' ? GroupMembershipService::REMOVED : GroupMembershipService::LEFT, $at);
 
             return;
         }
 
-        $isMember = in_array($status, self::JOINED_STATUSES, true)
-            || ($status === 'restricted' && ($newMember['is_member'] ?? false) === true);
+        $isMember = in_array($status, self::JOINED_STATUSES, true) || $status === 'restricted';
         if (! $isMember) {
             return;
         }
 
-        $learner = $this->registrar->fromTelegramUser($user, 'group');
-        $member = $this->memberships->join($learner, $group, 'chat_member');
+        $learner = $this->registrar->observeTelegramUser($user, 'group');
+        if ($learner === null) {
+            return;
+        }
+
+        $member = $this->memberships->join($learner, $group, 'chat_member', $at);
 
         if ($member->wasRecentlyCreated || $member->wasChanged('status')) {
             $this->events->record(ProductEventName::GroupMemberJoined, ['via' => 'chat_member'], learner: $learner, group: $group);
         }
     }
 
-    private function leave(int $telegramUserId, TelegramGroup $group, string $status): void
+    private function leave(int $telegramUserId, TelegramGroup $group, string $status, ?CarbonImmutable $at): void
     {
         // Never create a learner just to record that they left.
         /** @var Learner|null $learner */
@@ -102,7 +114,7 @@ final class ChatMemberHandler implements UpdateHandler
             return;
         }
 
-        if ($this->memberships->leave($learner, $group, $status)) {
+        if ($this->memberships->leave($learner, $group, $status, $at)) {
             $this->events->record(ProductEventName::GroupMemberLeft, ['reason' => $status], learner: $learner, group: $group);
         }
     }

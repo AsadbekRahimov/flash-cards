@@ -6,6 +6,7 @@ use App\Domain\Twa\Services\InitDataValidator;
 use App\Domain\Twa\Services\JwtService;
 use App\Models\GroupMember;
 use App\Models\Learner;
+use App\Models\ProductEvent;
 use App\Models\TelegramGroup;
 use App\Models\TrainingSession;
 use Firebase\JWT\JWT;
@@ -156,6 +157,36 @@ it('revives a soft-deleted learner instead of violating the unique telegram_user
         ->assertJsonPath('learner.id', $learner->id);
 
     expect(Learner::count())->toBe(1);
+});
+
+it('bumps last_seen_at of a soft-deleted learner only through its own /auth', function (): void {
+    $old = now()->subDays(20)->startOfSecond();
+    $learner = Learner::factory()->create(['telegram_user_id' => 555, 'last_seen_at' => $old]);
+    $learner->delete();
+
+    $this->postJson('/api/twa/auth', ['init_data' => signedInitData(555)])->assertOk();
+
+    expect($learner->fresh()->trashed())->toBeFalse()
+        ->and($learner->fresh()->last_seen_at?->isToday())->toBeTrue();
+});
+
+it('records the group of the session context in twa.authenticated', function (): void {
+    $session = TrainingSession::factory()->create();
+
+    $this->postJson('/api/twa/auth', [
+        'init_data' => signedInitData(601),
+        'context' => ['type' => 'training', 'session_id' => $session->id],
+    ])->assertOk();
+    $this->postJson('/api/twa/auth', [
+        'init_data' => signedInitData(602),
+        'context' => ['type' => 'exam', 'session_id' => 999_999],
+    ])->assertOk();
+
+    $events = ProductEvent::query()->where('name', 'twa.authenticated')->orderBy('id')->get();
+
+    expect($events)->toHaveCount(2)
+        ->and($events[0]->telegram_group_id)->toBe($session->telegram_group_id)
+        ->and($events[1]->telegram_group_id)->toBeNull();
 });
 
 it('returns 401 learner_blocked from /auth for a banned learner', function (): void {

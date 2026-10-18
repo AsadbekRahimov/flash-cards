@@ -10,6 +10,7 @@ use App\Domain\Learners\Services\GroupMembershipService;
 use App\Domain\Learners\Services\LearnerRegistrar;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
 use App\Models\TelegramGroup;
+use Carbon\CarbonImmutable;
 
 final class NewMembersHandler implements UpdateHandler
 {
@@ -48,6 +49,7 @@ final class NewMembersHandler implements UpdateHandler
 
         /** @var list<array<string, mixed>> $members */
         $members = $message['new_chat_members'];
+        $at = isset($message['date']) && is_numeric($message['date']) ? CarbonImmutable::createFromTimestamp((int) $message['date']) : null;
 
         foreach ($members as $m) {
             if (($m['is_bot'] ?? false) === true) {
@@ -60,8 +62,13 @@ final class NewMembersHandler implements UpdateHandler
             }
 
             // First contact through a group: no /start in DM yet (acquisition_source 'group').
-            $learner = $this->registrar->fromTelegramUser($m, 'group');
-            $member = $this->memberships->join($learner, $group, 'group');
+            // A passive event: a soft-deleted learner stays deleted and gets no membership.
+            $learner = $this->registrar->observeTelegramUser($m, 'group');
+            if ($learner === null) {
+                continue;
+            }
+
+            $member = $this->memberships->join($learner, $group, 'group', $at);
 
             if ($member->wasRecentlyCreated || $member->wasChanged('status')) {
                 $this->events->record(

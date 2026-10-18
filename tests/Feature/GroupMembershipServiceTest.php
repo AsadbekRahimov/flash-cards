@@ -6,6 +6,7 @@ use App\Domain\Learners\Services\GroupMembershipService;
 use App\Models\GroupMember;
 use App\Models\Learner;
 use App\Models\TelegramGroup;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -128,4 +129,53 @@ it('explains why access is denied without disclosing foreign groups', function (
         ->and($service->denialReason($stranger, $disabled))->toBe('not_a_member')
         ->and($service->denialReason($stranger, $active))->toBe('not_a_member')
         ->and($service->denialReason($member, null))->toBe('not_a_member');
+});
+
+it('ignores a late join that is older than the leave already applied', function (): void {
+    $service = app(GroupMembershipService::class);
+    $group = TelegramGroup::factory()->create(['status' => 'active']);
+    $learner = Learner::factory()->create();
+    $t0 = CarbonImmutable::now()->subHour()->startOfSecond();
+
+    $service->join($learner, $group, 'chat_member', $t0);
+    expect($service->leave($learner, $group, GroupMembershipService::LEFT, $t0->addSeconds(10)))->toBeTrue();
+
+    $member = $service->join($learner, $group, 'chat_member', $t0->addSeconds(5));
+
+    expect($member->wasChanged('status'))->toBeFalse()
+        ->and(GroupMember::sole()->status)->toBe('left')
+        ->and(GroupMember::sole()->left_at?->equalTo($t0->addSeconds(10)))->toBeTrue();
+
+    // A genuinely newer join still re-activates.
+    $service->join($learner, $group, 'chat_member', $t0->addSeconds(20));
+    expect(GroupMember::sole()->status)->toBe('active');
+});
+
+it('ignores a late leave that is older than the join already applied', function (): void {
+    $service = app(GroupMembershipService::class);
+    $group = TelegramGroup::factory()->create(['status' => 'active']);
+    $learner = Learner::factory()->create();
+    $t0 = CarbonImmutable::now()->subHour()->startOfSecond();
+
+    $service->join($learner, $group, 'chat_member', $t0->addSeconds(10));
+
+    expect($service->leave($learner, $group, GroupMembershipService::LEFT, $t0->addSeconds(5)))->toBeFalse()
+        ->and(GroupMember::sole()->status)->toBe('active')
+        ->and(GroupMember::sole()->joined_at?->equalTo($t0->addSeconds(10)))->toBeTrue();
+
+    expect($service->leave($learner, $group, GroupMembershipService::REMOVED, $t0->addSeconds(30)))->toBeTrue()
+        ->and(GroupMember::sole()->status)->toBe('removed');
+});
+
+it('re-activates a membership that left before the join event', function (): void {
+    $service = app(GroupMembershipService::class);
+    $group = TelegramGroup::factory()->create(['status' => 'active']);
+    $learner = Learner::factory()->create();
+    $t0 = CarbonImmutable::now()->subHour()->startOfSecond();
+
+    $service->join($learner, $group, 'group', $t0);
+    $service->leave($learner, $group, GroupMembershipService::LEFT, $t0->addSeconds(10));
+    $service->join($learner, $group, 'group', $t0->addSeconds(10));
+
+    expect(GroupMember::sole()->status)->toBe('active');
 });

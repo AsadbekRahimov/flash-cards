@@ -39,7 +39,7 @@ final class AuthController
             return ApiErrorResource::respond(401, 'invalid_init_data', $e->reason);
         }
 
-        $learner = $this->learners->resolve(
+        [$learner, $contextGroup] = $this->learners->resolve(
             $parsed['user'],
             isset($data['context']['type']) ? (string) $data['context']['type'] : null,
             isset($data['context']['session_id']) ? (int) $data['context']['session_id'] : null,
@@ -53,6 +53,7 @@ final class AuthController
             ProductEventName::TwaAuthenticated,
             ['context' => isset($data['context']['type']) ? (string) $data['context']['type'] : 'none'],
             learner: $learner,
+            group: $contextGroup,
         );
 
         $jwt = $this->jwt->issue($learner->id);

@@ -199,6 +199,103 @@ it('ignores chat_member updates of bots, unknown groups and private chats', func
     expect(Learner::count())->toBe(0)->and(GroupMember::count())->toBe(0);
 });
 
+it('treats a restricted chat_member without membership as a leave and a restricted member as staying', function (): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => -7009, 'status' => 'active']);
+    $learner = Learner::factory()->memberOf($group)->create(['telegram_user_id' => 111]);
+    $restricted = fn (array $extra) => ['chat_member' => [
+        'chat' => ['id' => -7009, 'type' => 'supergroup'],
+        'new_chat_member' => ['status' => 'restricted', 'user' => ['id' => 111, 'first_name' => 'Alice', 'is_bot' => false], ...$extra],
+    ]];
+
+    app(TelegramDispatcher::class)->dispatch($restricted(['is_member' => true]));
+    expect(GroupMember::where('learner_id', $learner->id)->value('status'))->toBe('active');
+
+    app(TelegramDispatcher::class)->dispatch($restricted(['is_member' => false]));
+    $member = GroupMember::where('learner_id', $learner->id)->sole();
+    expect($member->status)->toBe('left')->and($member->left_at)->not->toBeNull();
+
+    // is_member absent is not "still a member" either.
+    $member->update(['status' => 'active', 'left_at' => null]);
+    app(TelegramDispatcher::class)->dispatch($restricted([]));
+    expect($member->fresh()->status)->toBe('left');
+
+    // ...and a restricted member who is back inside re-activates.
+    app(TelegramDispatcher::class)->dispatch($restricted(['is_member' => true, 'date' => now()->addMinute()->timestamp]));
+    expect($member->fresh()->status)->toBe('active');
+});
+
+it('does not revive a soft-deleted learner nor create a membership on passive group events', function (): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => -7010, 'status' => 'active']);
+    $learner = Learner::factory()->create(['telegram_user_id' => 111]);
+    $learner->delete();
+
+    app(TelegramDispatcher::class)->dispatch([
+        'message' => [
+            'chat' => ['id' => -7010, 'type' => 'supergroup'],
+            'new_chat_members' => [['id' => 111, 'first_name' => 'Alice', 'is_bot' => false]],
+        ],
+    ]);
+    app(TelegramDispatcher::class)->dispatch(['chat_member' => [
+        'chat' => ['id' => -7010, 'type' => 'supergroup'],
+        'new_chat_member' => ['status' => 'member', 'user' => ['id' => 111, 'first_name' => 'Alice', 'is_bot' => false]],
+    ]]);
+
+    expect(Learner::withTrashed()->count())->toBe(1)
+        ->and(Learner::withTrashed()->find($learner->id)?->trashed())->toBeTrue()
+        ->and(GroupMember::count())->toBe(0)
+        ->and($group->members()->count())->toBe(0);
+});
+
+it('does not touch last_seen_at on passive group events', function (): void {
+    TelegramGroup::factory()->create(['chat_id' => -7011, 'status' => 'active']);
+    $old = now()->subDays(9)->startOfSecond();
+    $learner = Learner::factory()->create(['telegram_user_id' => 111, 'last_seen_at' => $old]);
+
+    app(TelegramDispatcher::class)->dispatch([
+        'message' => [
+            'chat' => ['id' => -7011, 'type' => 'supergroup'],
+            'new_chat_members' => [['id' => 111, 'first_name' => 'Alice', 'is_bot' => false], ['id' => 222, 'first_name' => 'Bob', 'is_bot' => false]],
+        ],
+    ]);
+    app(TelegramDispatcher::class)->dispatch(['chat_member' => [
+        'chat' => ['id' => -7011, 'type' => 'supergroup'],
+        'new_chat_member' => ['status' => 'member', 'user' => ['id' => 111, 'first_name' => 'Alice', 'is_bot' => false]],
+    ]]);
+
+    expect($learner->fresh()->last_seen_at?->equalTo($old))->toBeTrue()
+        ->and(Learner::where('telegram_user_id', 222)->value('last_seen_at'))->toBeNull();
+});
+
+it('applies chat_member and new_chat_members by their Telegram date, not by arrival order', function (): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => -7012, 'status' => 'active']);
+    $base = now()->subHour()->startOfSecond()->timestamp;
+    $user = ['id' => 111, 'first_name' => 'Alice', 'is_bot' => false];
+    $chatMember = fn (string $status, int $date) => ['chat_member' => [
+        'chat' => ['id' => -7012, 'type' => 'supergroup'],
+        'date' => $date,
+        'new_chat_member' => ['status' => $status, 'user' => $user],
+    ]];
+
+    app(TelegramDispatcher::class)->dispatch($chatMember('member', $base));
+    app(TelegramDispatcher::class)->dispatch($chatMember('left', $base + 10));
+    // Delivered late: the join happened (t+5) before the leave (t+10).
+    app(TelegramDispatcher::class)->dispatch($chatMember('member', $base + 5));
+    app(TelegramDispatcher::class)->dispatch(['message' => [
+        'chat' => ['id' => -7012, 'type' => 'supergroup'],
+        'date' => $base + 6,
+        'new_chat_members' => [$user],
+    ]]);
+
+    expect(GroupMember::where('telegram_group_id', $group->id)->sole()->status)->toBe('left');
+
+    app(TelegramDispatcher::class)->dispatch($chatMember('member', $base + 20));
+    expect(GroupMember::where('telegram_group_id', $group->id)->sole()->status)->toBe('active');
+
+    // A stale leave does not end the newer membership.
+    app(TelegramDispatcher::class)->dispatch($chatMember('left', $base + 15));
+    expect(GroupMember::where('telegram_group_id', $group->id)->sole()->status)->toBe('active');
+});
+
 it('responds to /help in private chat', function (): void {
     $this->api->shouldReceive('sendMessage')
         ->once()

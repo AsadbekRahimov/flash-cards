@@ -351,8 +351,11 @@ Unique `(word_id, locale)`. Экзаменационные дистрактор�
 ```php
 final class LearnerRegistrar
 {
-    /** Upsert по telegram_user_id из initData/апдейта; обновляет имя/username/language_code/last_seen_at; НЕ трогает interface_locale после онбординга. */
+    /** Собственное действие человека (/auth, /start в ЛС): upsert по telegram_user_id; обновляет только присутствующие в payload поля имени/username/language_code, last_seen_at; восстанавливает soft-deleted; НЕ трогает interface_locale после онбординга (и при отсутствии language_code). */
     public function fromTelegramUser(array $tgUser, ?string $source = null, ?string $startPayload = null): Learner;
+
+    /** Пассивное событие группы (new_chat_members, chat_member): то же, но без last_seen_at; soft-deleted не восстанавливает и возвращает null. */
+    public function observeTelegramUser(array $tgUser, ?string $source = null): ?Learner;
 }
 
 final class OnboardingService

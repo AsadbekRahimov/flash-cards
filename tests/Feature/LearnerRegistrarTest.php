@@ -55,8 +55,8 @@ it('is an upsert by telegram_user_id and refreshes the profile and last_seen_at'
         ->and(Learner::count())->toBe(1)
         ->and($second->first_name)->toBe('New')
         ->and($second->last_name)->toBe('Name')
-        // A field Telegram no longer sends is cleared, not kept stale.
-        ->and($second->username)->toBeNull()
+        // A field the payload carries empty is cleared; an absent key is left alone (see the partial-payload test).
+        ->and($second->username)->toBe('old_u')
         ->and($second->last_seen_at?->isToday())->toBeTrue();
 });
 
@@ -123,4 +123,61 @@ it('truncates over-long profile fields instead of failing', function (): void {
 it('rejects a payload without a Telegram user id', function (): void {
     expect(fn () => app(LearnerRegistrar::class)->fromTelegramUser(['first_name' => 'A']))
         ->toThrow(InvalidArgumentException::class);
+});
+
+it('clears a field that the payload carries empty', function (): void {
+    $registrar = app(LearnerRegistrar::class);
+    $registrar->fromTelegramUser(['id' => 4009, 'first_name' => 'A', 'username' => 'gone']);
+
+    $again = $registrar->fromTelegramUser(['id' => 4009, 'first_name' => 'A', 'username' => '']);
+
+    expect($again->username)->toBeNull();
+});
+
+it('does not touch locale and username when a later payload lacks language_code and username', function (): void {
+    $registrar = app(LearnerRegistrar::class);
+    $registrar->fromTelegramUser(['id' => 4010, 'first_name' => 'A', 'username' => 'kept_u', 'language_code' => 'uz']);
+
+    // e.g. new_chat_members: a bare User object while onboarding is still `new`.
+    $again = $registrar->observeTelegramUser(['id' => 4010, 'first_name' => 'A2'], 'group');
+
+    expect($again?->fresh()->interface_locale)->toBe('uz')
+        ->and($again->username)->toBe('kept_u')
+        ->and($again->language_code)->toBe('uz')
+        ->and($again->first_name)->toBe('A2');
+
+    $self = $registrar->fromTelegramUser(['id' => 4010, 'first_name' => 'A3']);
+
+    expect($self->fresh()->interface_locale)->toBe('uz')
+        ->and($self->username)->toBe('kept_u');
+});
+
+it('does not revive a soft-deleted learner on a passive observation', function (): void {
+    $registrar = app(LearnerRegistrar::class);
+    $learner = $registrar->fromTelegramUser(['id' => 4011, 'first_name' => 'A']);
+    $learner->delete();
+
+    expect($registrar->observeTelegramUser(['id' => 4011, 'first_name' => 'A'], 'group'))->toBeNull()
+        ->and(Learner::withTrashed()->count())->toBe(1)
+        ->and(Learner::withTrashed()->find($learner->id)?->trashed())->toBeTrue();
+});
+
+it('observes a new person without marking them as seen, and does not bump last_seen_at of a known one', function (): void {
+    $registrar = app(LearnerRegistrar::class);
+
+    $created = $registrar->observeTelegramUser(['id' => 4012, 'first_name' => 'A'], 'group');
+    expect($created)->not->toBeNull()
+        ->and($created->fresh()->last_seen_at)->toBeNull()
+        ->and($created->acquisition_source)->toBe('group');
+
+    $old = now()->subDays(5)->startOfSecond();
+    Learner::query()->whereKey($created->id)->update(['last_seen_at' => $old]);
+
+    $registrar->observeTelegramUser(['id' => 4012, 'first_name' => 'A'], 'group');
+
+    expect($created->fresh()->last_seen_at?->equalTo($old))->toBeTrue();
+
+    $registrar->fromTelegramUser(['id' => 4012, 'first_name' => 'A']);
+
+    expect($created->fresh()->last_seen_at?->isToday())->toBeTrue();
 });
