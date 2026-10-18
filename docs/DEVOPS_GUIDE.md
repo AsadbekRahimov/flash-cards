@@ -591,7 +591,7 @@ Product events (`product_events` table, see `docs/03_DATABASE.md`) are for produ
 | Legal texts (ru/uz) | `lang/{ru,uz}/legal.php` |
 | Styles | `public/css/site.css` (static, no build step; dark theme via `prefers-color-scheme`) |
 | Bot button | `https://t.me/<TELEGRAM_BOT_USERNAME>`; with an empty/invalid username the button is replaced by a disabled "coming soon" label |
-| Support contact | `BILLING_SUPPORT_CONTACT` (-> `config('site.support_contact')`): e-mail, `@telegram_handle`, `https://` URL or plain text. Empty -> the contact line is not rendered anywhere |
+| Support contact | `BILLING_SUPPORT_CONTACT` (-> `config('billing.paywall.contact')`): e-mail, `@telegram_handle`, `https://` URL or plain text. Empty -> the contact line is not rendered anywhere |
 | security.txt | `public/.well-known/security.txt` (RFC 9116) |
 
 The pages are stateless: the route group drops cookies, session and CSRF middleware, so responses carry no `Set-Cookie` and are sent with `Cache-Control: public, max-age=300`. Security headers and CSP come from the global `SecurityHeaders` middleware. nginx needs no changes: the pages go through `location /` (they contain no secrets, so they are *not* in the BREACH `gzip off` block) and `.well-known/security.txt` is a plain static file (`location ~ /\.(?!well-known).*` only denies other dot-paths).

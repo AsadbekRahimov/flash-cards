@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 
 beforeEach(function (): void {
     Config::set('telegram.bot_username', 'lexiflow_test_bot');
-    Config::set('site.support_contact', '');
+    Config::set('billing.paywall.contact', '');
 });
 
 // --- pages, locales, lang attribute ---------------------------------------
@@ -209,7 +209,7 @@ it('hides the support contact when BILLING_SUPPORT_CONTACT is empty', function (
 });
 
 it('shows the support contact in footer and pricing when configured', function (): void {
-    Config::set('site.support_contact', 'help@example.com');
+    Config::set('billing.paywall.contact', 'help@example.com');
 
     $this->get('/ru')
         ->assertSee('href="mailto:help@example.com"', false)
@@ -221,7 +221,7 @@ it('shows the support contact in footer and pricing when configured', function (
 });
 
 it('formats the support contact by kind', function (string $raw, ?array $expected): void {
-    Config::set('site.support_contact', $raw);
+    Config::set('billing.paywall.contact', $raw);
 
     expect((new SiteLinks)->supportContact())->toBe($expected);
 })->with([
@@ -235,7 +235,7 @@ it('formats the support contact by kind', function (string $raw, ?array $expecte
 ]);
 
 it('escapes a hostile support contact', function (): void {
-    Config::set('site.support_contact', '<script>alert(1)</script>');
+    Config::set('billing.paywall.contact', '<script>alert(1)</script>');
 
     $this->get('/ru')->assertDontSee('<script>alert(1)</script>', false)->assertSee('&lt;script&gt;', false);
 });

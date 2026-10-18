@@ -12,6 +12,10 @@ use App\Domain\Telegram\Services\TelegramKeyboardFactory;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
 use App\Domain\Twa\Services\InitDataValidator;
 use App\Domain\Twa\Services\JwtService;
+use App\Models\Organization;
+use App\Models\TelegramGroup;
+use App\Observers\OrganizationObserver;
+use App\Observers\TelegramGroupObserver;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -73,6 +77,12 @@ class AppServiceProvider extends ServiceProvider
         // entrypoint and the health check fail at deploy time rather than the
         // first learner request silently ending sessions early (docs/06 §3.1).
         $this->app->make(LearningPolicy::class);
+
+        // Entitlement cache invalidation on the inputs that live outside the
+        // billing services: a group's organization link / status and an
+        // organization's status (docs/12 §5.2).
+        TelegramGroup::observe(TelegramGroupObserver::class);
+        Organization::observe(OrganizationObserver::class);
 
         RateLimiter::for('login', function (Request $request): Limit {
             $email = (string) $request->input('email', '');

@@ -16,4 +16,7 @@ enum ProductEventName: string
     case GroupBotAdded = 'group.bot_added';
     case GroupMemberJoined = 'group.member_joined';
     case GroupMemberLeft = 'group.member_left';
+    case SubscriptionGranted = 'subscription.granted';
+    case SubscriptionExpired = 'subscription.expired';
+    case PromoRedeemed = 'promo.redeemed';
 }

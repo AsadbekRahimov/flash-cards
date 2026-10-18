@@ -264,7 +264,7 @@ Unique `(word_id, locale)`. Экзаменационные дистрактор�
 ### 1.10 Прочее
 
 - `product_events`: `student_id` → `learner_id` (§1.5); новые имена событий — §7.7.
-- `audit_logs`: действия `subscription.granted`, `subscription.revoked`, `promo.created`, `learner.blocked`, `course.published`, `organization.linked_group`.
+- `audit_logs`: действия `subscription.granted` (meta: subscriber_type/id, plan, until, note, extended), `subscription.revoked` (meta: subscriber_type/id, plan, note), `promo.created`, `learner.blocked`, `course.published`, `organization.linked_group`; `entity_type = App\Models\Subscription`, `ip` — передаёт обвязка.
 - `notifications_log.type`: `review_reminder`, `streak_reminder`, `onboarding_nudge`.
 
 ---
@@ -483,40 +483,71 @@ final class LearnerStatsService { public function forLearner(Learner $l): Learne
 
 ### 3.4 `app/Domain/Billing` (новый)
 
+Реализовано в 1.4a (часть A). Структура: `Enums/` (`Plan`, `SubscriptionStatus`, `SubscriptionProvider`), `DTO/Entitlement`, `Support/SubscriptionLiveness`, `Services/`, `Exceptions/`.
+
 ```php
-enum Plan: string { case Free = 'free'; case Pro = 'pro'; public function rank(): int; }
+enum Plan: string { case Free = 'free'; case Pro = 'pro';
+    public static function fromKey(string $key): self;   // InvalidArgumentException для ключа вне config('billing.plans')
+    public function rank(): int; public function features(): array; public function newWordsPerDay(): ?int; public function outranks(self $o): bool; }
+enum SubscriptionStatus: string { Trialing, Active, PastDue, Canceled, Expired; public static function liveValues(): array; public function isLive(): bool; }
+enum SubscriptionProvider: string { Manual, Promo, TelegramStars, Payme, Click; public function hasGrace(): bool; } // grace только у автопродляемых
 
 final readonly class Entitlement
 {
     public Plan $plan;
     public string $source;              // 'free' | 'subscription' | 'sponsor:organization:<id>'
-    public ?CarbonImmutable $until;
+    public ?CarbonImmutable $until;     // null = конца нет (Free или бессрочная выдача)
     public array $features;             // из config('billing.plans.<plan>.features')
     public ?int $newWordsPerDay;        // null = безлимит
-    public function can(string $feature): bool;
+    public ?int $subscriptionId;        // откуда план (null для Free)
+    public function can(string $feature): bool; public function isUnlimited(): bool; public function isSponsored(): bool;
+    public function toArray(): array; public static function fromArray(array $a): self;   // форма хранения в кэше (не сериализованный объект)
+}
+
+final class SubscriptionLiveness   // единое правило «live сейчас» для резолвера и планировщика (§5.1)
+{
+    public static function isLive(Subscription $s, CarbonImmutable $now): bool;
+    public static function liveUntil(Subscription $s): ?CarbonImmutable;
 }
 
 final class EntitlementResolver
 {
-    public function for(Learner $l, ?CarbonImmutable $now = null): Entitlement;   // кэш "entitlement:learner:{id}" TTL config('billing.cache_ttl') (300 с)
-    public function forget(Learner $l): void;
-    public function forgetOrganization(Organization $o): void;                   // чистит кэш всем learner'ам активных групп организации (chunk)
+    public function for(Learner $l, ?CarbonImmutable $now = null): Entitlement;   // кэш "entitlement:learner:{id}" TTL config('billing.cache_ttl') (300 с); снимок с истёкшим until пересчитывается без forget
+    public function resolve(Learner $l, ?CarbonImmutable $now = null): Entitlement; // без кэша
+    public function forget(Learner|int $l): void;
+    public function forgetMany(iterable $learnerIds): void;
+    public function forgetOrganization(Organization|int $o): void;                // чистит кэш всем активным участникам групп организации (chunk)
+    public function forgetGroup(TelegramGroup|int $g): void;                      // чистит кэш активным участникам группы
+    public function paywall(): array;                                             // {mode, contact: string|null} из config('billing.paywall'); пустой contact → null
 }
 
 final class SubscriptionService
 {
-    public function grantManual(Learner|Organization $subscriber, Plan $plan, ?CarbonImmutable $until, User $by, string $note): Subscription; // lockForUpdate субъекта; если есть live — продлевает/заменяет; audit_log; forget()
-    public function revoke(Subscription $s, User $by, string $note): Subscription;      // status=expired, ended_at=now
-    public function expireDue(CarbonImmutable $now): int;                               // планировщик: active с current_period_ends_at<now → past_due (grace) или expired; past_due с grace_until<now → expired
-    public function applyProviderEvent(ProviderEvent $e): Subscription;                 // контракт для будущих провайдеров (§6), в Фазе 1 не реализуется
+    /** lockForUpdate строки субъекта (learners/organizations) → live-подписка под блокировкой; есть live — продлевает/заменяет на месте (тот же id, provider=manual); audit `subscription.granted`; событие; forget после commit.
+     *  SubscriptionException: plan_not_grantable (422) | until_in_past (422) | subscriber_not_found (404) */
+    public function grantManual(Learner|Organization $subscriber, Plan $plan, ?CarbonImmutable $until, User $by, string $note, ?string $ip = null, ?CarbonImmutable $now = null): Subscription;
+    /** status=expired, ended_at=now; audit `subscription.revoked`; SubscriptionException subscription_not_live (409), если уже не live */
+    public function revoke(Subscription $s, User $by, string $note, ?string $ip = null, ?CarbonImmutable $now = null): Subscription;
+    /** планировщик (§5.6); каждая строка — своя транзакция с lockForUpdate и повторной проверкой; возвращает число переходов */
+    public function expireDue(?CarbonImmutable $now = null): int;
+    public function liveFor(Learner|Organization $subscriber): ?Subscription;     // для отображения (без блокировки)
+    /** @internal для PromoCodeService: внутри его транзакции; создаёт promo-подписку или продлевает live личную (§5.5) */
+    public function grantFromPromo(Learner $l, PromoCode $promo, CarbonImmutable $now): Subscription;
+    public function applyProviderEvent(ProviderEvent $e): Subscription;           // контракт для будущих провайдеров (§6), в Фазе 1 не реализуется
 }
 
 final class PromoCodeService
 {
-    public function redeem(Learner $l, string $code, ?CarbonImmutable $now = null): Subscription; // lockForUpdate promo_codes; проверки: active, не истёк, лимит, не использован этим learner'ом; создаёт subscription(provider=promo, until=now+duration_days) через SubscriptionService
+    /** lockForUpdate promo_codes → проверки (active, не истёк, лимит, не использован этим learner'ом) → grantFromPromo (блокирует learner) → promo_redemptions → redemptions_count++ → событие `promo.redeemed`.
+     *  PromoCodeException: promo_not_found (404; неизвестный, пустой или деактивированный код) | promo_expired (410) | promo_exhausted (409) | promo_already_redeemed (409) | promo_not_applicable (409, у learner'а бессрочная личная подписка) */
+    public function redeem(Learner $l, string $code, ?CarbonImmutable $now = null): Subscription;
+    public static function normalize(string $code): string;                        // trim, без пробелов/дефисов, upper-case
+    public function generateCode(): string;                                        // уникальный Str::upper(Str::random(10)) — для Filament PromoCodeResource
 }
 
-final class NewWordQuota
+abstract class BillingException extends RuntimeException { public readonly string $errorCode; abstract public function httpStatus(): int; } // база PromoCodeException / SubscriptionException
+
+final class NewWordQuota   // задача 1.4b
 {
     public function budget(Learner $l, Entitlement $e, ?CarbonImmutable $now = null): NewCardBudget; // remaining = limit - learner_daily_stats.today.new_words_count (fallback: count word_repetitions created в локальном дне)
 }
@@ -526,8 +557,8 @@ final class NewWordQuota
 
 ```php
 return [
-    'cache_ttl' => 300,
-    'grace_days' => 3,
+    'cache_ttl' => (int) env('BILLING_CACHE_TTL', 300),
+    'grace_days' => (int) env('BILLING_GRACE_DAYS', 3),
     'plans' => [
         'free' => ['rank' => 0, 'limits' => ['new_words_per_day' => (int) env('BILLING_FREE_NEW_WORDS_PER_DAY', 20)], 'features' => ['courses.public', 'training.daily', 'training.lesson']],
         'pro'  => ['rank' => 1, 'limits' => ['new_words_per_day' => null], 'features' => ['courses.public', 'training.daily', 'training.lesson', 'stats.detailed', 'streak.freeze' /* Фаза 2 */]],
@@ -635,15 +666,19 @@ Filament (`PanelDataScope`): `students()` → `learners()`: админ — вс�
 ```
 effective(learner) = argmax_rank( Free,
                                   live personal subscription(plan),
-                                  live subscription of any organization owning an active group where learner has active membership )
-live = status IN (trialing, active) OR (status = past_due AND grace_until > now)
+                                  live subscription of any active organization owning an active group where learner has active membership )
+live(s) = status IN (trialing, active) AND (current_period_ends_at IS NULL OR liveUntil(s) > now)
+       OR status = past_due AND grace_until > now
+liveUntil(s) = current_period_ends_at (+ grace_days, если provider автопродляемый: telegram_stars/payme/click)
 ```
 
-Запрос спонсора: `subscriptions WHERE subscriber_type='organization' AND subscriber_id IN (SELECT g.organization_id FROM telegram_groups g JOIN group_members gm ON gm.telegram_group_id=g.id WHERE gm.learner_id=? AND gm.status='active' AND g.status='active' AND g.organization_id IS NOT NULL) AND <live>`. Результат — `Entitlement` с `source`. Ушёл из группы → при следующем вычислении Free (прогресс остаётся у learner'а).
+Уточнения 1.4a: (1) `canceled` и `expired` никогда не live (§6.2 «Pro до конца периода» для `canceled` будет решено вместе с провайдером — в Фазе 1 отмены нет); (2) `active` с прошедшим `current_period_ends_at` у `manual`/`promo` не даёт Pro даже до запуска планировщика — резолвер и `expireDue` используют одно правило `SubscriptionLiveness`; у автопродляемых провайдеров до конца grace план сохраняется, чтобы не «мигать» между концом периода и часовым запуском; (3) организация спонсирует только в статусе `active`; (4) при равном ранге выигрывает подписка с более поздним концом (бессрочная — всегда), при полном равенстве — личная перед спонсорской, чтобы «Pro до X» в UI был самой поздней истинной датой.
+
+Запрос спонсора: `subscriptions WHERE subscriber_type='organization' AND subscriber_id IN (SELECT g.organization_id FROM telegram_groups g JOIN group_members gm ON gm.telegram_group_id=g.id JOIN organizations o ON o.id=g.organization_id WHERE gm.learner_id=? AND gm.status='active' AND g.status='active' AND o.status='active') AND status IN (live-статусы)`; liveness по датам считается в PHP (`SubscriptionLiveness`). Результат — `Entitlement` с `source` и `subscriptionId`. Ушёл из группы → при следующем вычислении Free (прогресс остаётся у learner'а).
 
 ### 5.2 Кэш и инвалидация
 
-Ключ `entitlement:learner:{id}`, TTL 300 с. `forget()` вызывают: `SubscriptionService` (grant/revoke/expire — для организации `forgetOrganization`), `GroupMembershipService` (join/leave), `PromoCodeService`, Filament-действия привязки группы к организации. Пропуск инвалидации стоит максимум 5 минут задержки, но никогда не даёт лишний Pro дольше TTL — приемлемо.
+Ключ `entitlement:learner:{id}`, TTL 300 с, хранится `Entitlement::toArray()`. Снимок, чей `until` уже прошёл, пересчитывается при чтении без инвалидации — план не переживает подписку даже при опоздании планировщика. `forget()` вызывают **после commit** (`DB::afterCommit`, вне транзакции — сразу): `SubscriptionService` (grant/revoke/expire — для организации `forgetOrganization`), `PromoCodeService` (через `grantFromPromo`), `GroupMembershipService::join/leave` (только при реальном изменении статуса членства), `TelegramGroupObserver` (смена `organization_id`/`status`, удаление группы → `forgetGroup`/`forgetMany`), `OrganizationObserver` (смена `status`, удаление → `forgetOrganization`/`forgetMany`). Observers зарегистрированы в `AppServiceProvider::boot` — любой путь привязки группы к организации (relation manager, форма группы, консоль) инвалидирует кэш без кода в Filament. Обновления через query builder (`TelegramGroup::where()->update()` в `MyChatMemberHandler`) observers не ловят — там допустима задержка до TTL. Пропуск инвалидации стоит максимум 5 минут задержки, но никогда не даёт лишний Pro дольше TTL — приемлемо.
 
 ### 5.3 Лимит новых слов (Free = 20/день)
 
@@ -662,7 +697,7 @@ live = status IN (trialing, active) OR (status = past_due AND grace_until > now)
 | Способ | Кто | Механика | Аудит |
 |---|---|---|---|
 | Ручная выдача | суперадмин (Filament `SubscriptionResource` → «Grant Pro»: субъект learner/organization, срок или бессрочно, причина) | `SubscriptionService::grantManual` | `audit_logs` `subscription.granted` + `granted_by_user_id`, `note` |
-| Промокод | learner в TWA/боте (`/promo CODE`) | `PromoCodeService::redeem` | `promo_redemptions`, событие `promo.redeemed` |
+| Промокод | learner в TWA/боте (`/promo CODE`) | `PromoCodeService::redeem`: нет live личной подписки → новая `provider=promo`, `until = now + duration_days`; есть live личная с конечной датой → **продление на месте** (тот же id, `until = max(until, now) + duration_days`, `past_due` → `active`, провайдер сохраняется, запись в `meta.history`); бессрочная личная → `promo_not_applicable`, код не тратится; спонсорский Pro не мешает — создаётся личная подписка | `promo_redemptions`, событие `promo.redeemed`; audit не пишется (действие learner'а) |
 | Спонсорство центра | суперадмин создаёт `organizations`, привязывает группы, выдаёт организации ручную подписку | §5.1 | те же `audit_logs` |
 | Триал | **не вводим** в Фазе 1 | без оплаты триал заканчивается стеной «скоро» — хуже, чем честный Free | — |
 
@@ -670,7 +705,7 @@ live = status IN (trialing, active) OR (status = past_due AND grace_until > now)
 
 ### 5.6 Планировщик
 
-`subscriptions:expire` — каждый час (`SubscriptionService::expireDue`): `active` с `current_period_ends_at < now` → `past_due` с `grace_until = ends + grace_days` (для `manual`/`promo` без автопродления — сразу `expired`, grace не имеет смысла); `past_due` с `grace_until < now` → `expired`; каждый переход — `forget()`.
+`subscriptions:expire` — каждый час (`hourly()->withoutOverlapping()`, `SubscriptionService::expireDue`): `active`/`trialing` с `current_period_ends_at <= now` → `past_due` с `grace_until = ends + grace_days` (для `manual`/`promo` без автопродления — сразу `expired`, grace не имеет смысла; если grace к моменту запуска уже прошёл — тоже сразу `expired`); `canceled` с `current_period_ends_at <= now` → `expired`; `past_due` с `grace_until <= now` (или NULL) → `expired`; `ended_at = now`. Каждая строка — отдельная транзакция с `lockForUpdate` и повторной проверкой (параллельный запуск или продление между выборкой и переходом безопасны); каждый переход — событие `subscription.expired {reason: period_ended|grace_over}` и `forget()` после commit; audit не пишется (не действие человека).
 
 ---
 

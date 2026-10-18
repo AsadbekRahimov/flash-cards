@@ -217,6 +217,8 @@ Database
 
 Домен **`Content`** (`app/Domain/Content`, задача 1.2a): `CourseCatalogService` — единственное место, знающее курс по умолчанию (`defaultCourse()`), курс группы (`courseForGroup`) и поиск stage/урока **внутри курса** (`findStage`/`findLesson`/`lessons`); `CoursePublisher` — статусы курса, порог переводов при публикации, `recount`; `WordTranslationResolver` — единственный читатель переводов (локаль → `ru` → `words.translation`, признак fallback, батч без N+1); `WordTranslationWriter` — ручная запись переводов с синхронизацией `words.translation` ↔ строка `ru`; `VocabularyImporter` v2 (`course`, `translations`). Правила — docs/03 §2.20–2.21.
 
+Домен **`Billing`** (`app/Domain/Billing`, задача 1.4a, docs/12 §3.4, §5): `EntitlementResolver` — единственное место правила «эффективный план = max(Free, личная, спонсорская от организации)» и его кэша; `SubscriptionService` — жизненный цикл `subscriptions` (ручная выдача, отзыв, переходы по времени) под блокировкой строки субъекта; `PromoCodeService` — погашение промокодов под блокировкой строки кода; `SubscriptionLiveness` — общее правило «live сейчас». Инвалидация кэша entitlement — после commit; входы вне домена (членство, привязка группы к организации, статус организации) подключены через `GroupMembershipService` и observers `TelegramGroupObserver`/`OrganizationObserver` (`app/Observers`).
+
 Внутри `app/` организуемся по доменам:
 
 ```
@@ -233,6 +235,7 @@ app/
 │   ├── Exam/              # ExamSession, ExamAnswer, Leaderboard
 │   ├── Group/             # TelegramGroup, Teacher
 │   ├── Learners/          # Learner, GroupMember: LearnerRegistrar, GroupMembershipService (docs/12 §3.1)
+│   ├── Billing/           # Plan, Entitlement, EntitlementResolver, SubscriptionService, PromoCodeService (docs/12 §3.4)
 │   └── Analytics/         # агрегаты, views
 ├── Filament/
 │   ├── Resources/

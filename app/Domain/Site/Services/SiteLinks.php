@@ -28,7 +28,7 @@ final class SiteLinks
      */
     public function supportContact(): ?array
     {
-        $raw = config('site.support_contact');
+        $raw = config('billing.paywall.contact');
         $raw = is_string($raw) ? trim($raw) : '';
 
         if ($raw === '') {

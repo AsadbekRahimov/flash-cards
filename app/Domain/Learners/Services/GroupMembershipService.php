@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Learners\Services;
 
+use App\Domain\Billing\Services\EntitlementResolver;
 use App\Models\GroupMember;
 use App\Models\Learner;
 use App\Models\TelegramGroup;
@@ -11,12 +12,17 @@ use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Membership of a learner in a Telegram group (`group_members`, docs/12 §1.3).
  *
  * "Active membership" = `group_members.status = 'active'` AND the group itself
  * is `active`; this is the only rule behind every group-scoped access check.
+ *
+ * Membership is an input of the learner's entitlement (sponsored Pro through an
+ * organization's group, docs/12 §5.1), so every real change drops the cached
+ * entitlement after commit (docs/12 §5.2).
  */
 final class GroupMembershipService
 {
@@ -27,6 +33,8 @@ final class GroupMembershipService
     public const REMOVED = 'removed';
 
     public const BANNED = 'banned';
+
+    public function __construct(private readonly EntitlementResolver $entitlements) {}
 
     /**
      * Idempotent: creates the membership or re-activates a `left` / `removed` one.
@@ -43,11 +51,17 @@ final class GroupMembershipService
         $at = $at !== null ? CarbonImmutable::instance($at) : CarbonImmutable::now();
 
         try {
-            return $this->upsertActive($learner, $group, $at);
+            $member = $this->upsertActive($learner, $group, $at);
         } catch (UniqueConstraintViolationException) {
             // Parallel join of the same pair (duplicate Telegram deliveries): the winner's row is fine.
-            return $this->upsertActive($learner, $group, $at);
+            $member = $this->upsertActive($learner, $group, $at);
         }
+
+        if ($member->wasRecentlyCreated || $member->wasChanged('status')) {
+            $this->forgetEntitlement($learner);
+        }
+
+        return $member;
     }
 
     /**
@@ -62,12 +76,18 @@ final class GroupMembershipService
     {
         $at = $at !== null ? CarbonImmutable::instance($at) : CarbonImmutable::now();
 
-        return GroupMember::query()
+        $ended = GroupMember::query()
             ->where('telegram_group_id', $group->id)
             ->where('learner_id', $learner->id)
             ->where('status', self::ACTIVE)
             ->where('joined_at', '<=', $at)
             ->update(['status' => $status, 'left_at' => $at, 'updated_at' => now()]) > 0;
+
+        if ($ended) {
+            $this->forgetEntitlement($learner);
+        }
+
+        return $ended;
     }
 
     public function isActiveMember(Learner $learner, TelegramGroup $group): bool
@@ -126,6 +146,14 @@ final class GroupMembershipService
             )
             ->orderBy('id')
             ->get();
+    }
+
+    private function forgetEntitlement(Learner $learner): void
+    {
+        $learnerId = $learner->id;
+
+        // Runs at once outside a transaction; otherwise only once the change is visible.
+        DB::afterCommit(fn () => $this->entitlements->forget($learnerId));
     }
 
     private function upsertActive(Learner $learner, TelegramGroup $group, CarbonImmutable $at): GroupMember
