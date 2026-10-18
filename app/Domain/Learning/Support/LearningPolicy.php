@@ -22,11 +22,17 @@ final class LearningPolicy
 {
     public const DEFAULT_ABANDONED_AFTER_HOURS = 12;
 
+    public const DEFAULT_MAX_INTERVAL_DAYS = 3650;
+
+    /** `word_repetitions.interval_days` is a smallint. */
+    public const MAX_INTERVAL_DAYS_LIMIT = 32767;
+
     /**
      * @param  list<int>  $learningStepsMinutes  non-empty, each >= 1
      * @param  list<int>  $relearningStepsMinutes  non-empty, each >= 1
      * @param  int  $learnAheadMinutes  0 disables learn-ahead; otherwise >= max step
      * @param  int  $abandonedAfterHours  >= 1 and longer than the max step; see `config/learning.php`
+     * @param  int  $maxIntervalDays  1..32767 (smallint column); ceiling for every scheduled interval
      */
     public function __construct(
         public readonly array $learningStepsMinutes,
@@ -35,6 +41,7 @@ final class LearningPolicy
         public readonly int $easyIntervalDays,
         public readonly int $learnAheadMinutes,
         public readonly int $abandonedAfterHours = self::DEFAULT_ABANDONED_AFTER_HOURS,
+        public readonly int $maxIntervalDays = self::DEFAULT_MAX_INTERVAL_DAYS,
     ) {
         self::assertSteps($learningStepsMinutes, 'learning_steps');
         self::assertSteps($relearningStepsMinutes, 'relearning_steps');
@@ -70,6 +77,14 @@ final class LearningPolicy
                 $maxStep,
             ));
         }
+
+        if ($maxIntervalDays < 1 || $maxIntervalDays > self::MAX_INTERVAL_DAYS_LIMIT) {
+            throw new InvalidArgumentException(sprintf(
+                'max_interval_days (%d) must be within 1..%d. Fix LEARNING_MAX_INTERVAL_DAYS.',
+                $maxIntervalDays,
+                self::MAX_INTERVAL_DAYS_LIMIT,
+            ));
+        }
     }
 
     /**
@@ -84,6 +99,7 @@ final class LearningPolicy
             easyIntervalDays: (int) ($config['easy_interval_days'] ?? 4),
             learnAheadMinutes: (int) ($config['learn_ahead_minutes'] ?? 20),
             abandonedAfterHours: (int) ($config['abandoned_after_hours'] ?? self::DEFAULT_ABANDONED_AFTER_HOURS),
+            maxIntervalDays: (int) ($config['max_interval_days'] ?? self::DEFAULT_MAX_INTERVAL_DAYS),
         );
     }
 

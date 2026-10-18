@@ -30,6 +30,7 @@ use InvalidArgumentException;
  *                   EF' = max(1.30, EF + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02)))
  *                   fail  -> lapses++, repetitions = 0, state = relearning (step 0), is_hard = true
  *                   pass  -> repetitions++, interval = 1 | 6 | round(interval * EF'), is_hard = false
+ *   Every scheduled interval is capped at policy->maxIntervalDays (smallint column).
  *   relearning    : minute steps (policy->relearningStepsMinutes).
  *                   fail  -> step 0 (EF already penalised at the lapse)
  *                   pass  -> next step, or graduate (repetitions = 1, interval = 1 day)
@@ -156,6 +157,7 @@ final class SpacedRepetitionEngine
             $previousRepetitions === 1 => 6,
             default => max(1, (int) round($previousInterval * $ef)),
         };
+        $interval = min($interval, $this->policy->maxIntervalDays);
 
         $rep->state = RepetitionState::Review;
         $rep->learning_step = 0;
@@ -207,6 +209,8 @@ final class SpacedRepetitionEngine
      */
     private function graduate(WordRepetition $rep, int $intervalDays, CarbonImmutable $now): void
     {
+        $intervalDays = min($intervalDays, $this->policy->maxIntervalDays);
+
         $rep->state = RepetitionState::Review;
         $rep->learning_step = 0;
         $rep->repetitions = 1;

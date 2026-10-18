@@ -319,7 +319,7 @@ it('records exam.closed for /close_exam', function (): void {
     ]);
 
     $event = peEvent(ProductEventName::ExamClosed);
-    expect($event->props)->toBe(['exam_session_id' => $session->id, 'source' => 'manual'])
+    expect(ksorted($event->props))->toBe(ksorted(['exam_session_id' => $session->id, 'source' => 'manual']))
         ->and($event->telegram_group_id)->toBe($group->id);
     Bus::assertDispatched(PostLeaderboardJob::class);
 });
@@ -336,7 +336,7 @@ it('records exam.closed with source=scheduler when exams:close-expired closes an
     $this->artisan('exams:close-expired', ['--grace' => 0])->assertSuccessful();
 
     $event = peEvent(ProductEventName::ExamClosed);
-    expect($event->props)->toBe(['exam_session_id' => $expired->id, 'source' => 'scheduler'])
+    expect(ksorted($event->props))->toBe(ksorted(['exam_session_id' => $expired->id, 'source' => 'scheduler']))
         ->and($event->telegram_group_id)->toBe($group->id)
         ->and(ProductEvent::query()->where('name', 'exam.closed')->count())->toBe(1);
 });
@@ -375,7 +375,7 @@ it('records group.bot_added when the bot joins a new group', function (): void {
 
     $event = peEvent(ProductEventName::GroupBotAdded);
     expect($event->telegram_group_id)->toBe(TelegramGroup::query()->where('chat_id', -3001)->value('id'))
-        ->and($event->props)->toBe(['chat_type' => 'supergroup', 'readded' => false]);
+        ->and(ksorted($event->props))->toBe(ksorted(['chat_type' => 'supergroup', 'readded' => false]));
     expect(json_encode($event->getAttributes()))->not->toContain('Secret Class Title');
 });
 
@@ -471,7 +471,7 @@ it('records reminder.failed and does not fail the job on Telegram 403', function
 
     $event = peEvent(ProductEventName::ReminderFailed);
     expect($event->student_id)->toBe($student->id)
-        ->and($event->props)->toBe(['reason' => 'bot_blocked', 'due_count' => 7]);
+        ->and(ksorted($event->props))->toBe(ksorted(['reason' => 'bot_blocked', 'due_count' => 7]));
     expect(ProductEvent::query()->where('name', 'reminder.sent')->exists())->toBeFalse();
     expect(NotificationLog::query()->where('student_id', $student->id)->exists())->toBeFalse();
 

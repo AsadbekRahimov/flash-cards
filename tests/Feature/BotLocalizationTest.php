@@ -377,7 +377,7 @@ it('lets an admin pick the bot language of a group in Filament', function (): vo
         ->call('save')
         ->assertHasNoFormErrors();
 
-    expect($group->fresh()->meta)->toBe(['type' => 'supergroup', 'member_count' => 12, 'locale' => 'uz']);
+    expect(ksorted($group->fresh()->meta))->toBe(ksorted(['type' => 'supergroup', 'member_count' => 12, 'locale' => 'uz']));
 
     livewire(EditTelegramGroup::class, ['record' => $group->getKey()])
         ->assertFormSet(['locale' => 'uz'])
@@ -385,7 +385,7 @@ it('lets an admin pick the bot language of a group in Filament', function (): vo
         ->call('save')
         ->assertHasNoFormErrors();
 
-    expect($group->fresh()->meta)->toBe(['type' => 'supergroup', 'member_count' => 12]);
+    expect(ksorted($group->fresh()->meta))->toBe(ksorted(['type' => 'supergroup', 'member_count' => 12]));
 });
 
 // --- 2FA pages (teacher/admin => default language) -------------------------

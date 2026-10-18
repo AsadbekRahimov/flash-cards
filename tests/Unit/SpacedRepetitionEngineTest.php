@@ -125,6 +125,46 @@ it('raises EF by 0.10 on a review card graded Easy (q=5)', function () use ($now
         ->is_hard->toBeFalse();
 });
 
+it('never lets the interval exceed the ceiling over a long series of Easy answers, and persists the clamped value', function () use ($now): void {
+    $rep = makeReviewRepetition(['repetitions' => 3, 'interval_days' => 15, 'easiness_factor' => 2.50]);
+    $engine = engine();
+    $at = $now;
+
+    for ($i = 0; $i < 30; $i++) {
+        $engine->applyReview($rep->fresh(), 5, $at);
+        $fresh = $rep->fresh();
+        expect($fresh->interval_days)->toBeLessThanOrEqual(3650);
+        $at = $at->addDays($fresh->interval_days);
+    }
+
+    $fresh = $rep->fresh();
+    expect($fresh)->interval_days->toBe(3650);
+    expect($fresh->next_review_at->toIso8601String())->toBe($at->toIso8601String());
+});
+
+it('clamps the interval to a custom ceiling and schedules next_review_at from the clamped value', function () use ($now): void {
+    $engine = engine(new LearningPolicy([1, 10], [10], 1, 4, 20, maxIntervalDays: 30));
+    $rep = makeReviewRepetition(['repetitions' => 5, 'interval_days' => 20, 'easiness_factor' => 2.50]);
+
+    $engine->applyReview($rep, 4, $now); // round(20 * 2.5) = 50 -> 30
+
+    expect($rep->fresh())->interval_days->toBe(30);
+    expect($rep->fresh()->next_review_at->toIso8601String())->toBe($now->addDays(30)->toIso8601String());
+});
+
+it('clamps the graduation interval when leaving (re)learning', function () use ($now): void {
+    $engine = engine(new LearningPolicy([1, 10], [10], 5, 9, 20, maxIntervalDays: 3));
+
+    $relearning = makeRepetition(['state' => RepetitionState::Relearning->value, 'is_hard' => true]);
+    $engine->applyReview($relearning, 4, $now);
+    expect($relearning->fresh())->state->toBe(RepetitionState::Review)->interval_days->toBe(3);
+    expect($relearning->fresh()->next_review_at->toIso8601String())->toBe($now->addDays(3)->toIso8601String());
+
+    $learning = makeRepetition(['state' => RepetitionState::Learning->value, 'learning_step' => 0]);
+    $engine->applyReview($learning, 5, $now);
+    expect($learning->fresh())->interval_days->toBe(3);
+});
+
 it('still allows q=3 ("Hard" pass) on a review card with a -0.14 EF penalty', function () use ($now): void {
     $rep = makeReviewRepetition(['repetitions' => 2, 'interval_days' => 6, 'easiness_factor' => 2.50]);
 
@@ -410,6 +450,19 @@ it('validates abandoned_after_hours and defaults it to 12', function (): void {
     // Must be strictly longer than the largest step, otherwise a card in a live session counts as abandoned.
     expect(fn () => LearningPolicy::fromConfig([...$base, 'learning_steps' => '1,120', 'learn_ahead_minutes' => 120, 'abandoned_after_hours' => 2]))
         ->toThrow(InvalidArgumentException::class, 'abandoned_after_hours (2 h) must be longer');
+});
+
+it('validates max_interval_days (1..32767) and defaults it to 3650', function (): void {
+    $base = ['learning_steps' => '1,10', 'relearning_steps' => '10', 'learn_ahead_minutes' => 20];
+
+    expect(LearningPolicy::fromConfig($base)->maxIntervalDays)->toBe(3650);
+    expect(LearningPolicy::fromConfig([...$base, 'max_interval_days' => 1])->maxIntervalDays)->toBe(1);
+    expect(LearningPolicy::fromConfig([...$base, 'max_interval_days' => 32767])->maxIntervalDays)->toBe(32767);
+
+    foreach ([0, -1, 40000] as $invalid) {
+        expect(fn () => LearningPolicy::fromConfig([...$base, 'max_interval_days' => $invalid]))
+            ->toThrow(InvalidArgumentException::class, 'LEARNING_MAX_INTERVAL_DAYS');
+    }
 });
 
 it('fails fast at boot when the learning config is inconsistent', function (): void {

@@ -54,9 +54,14 @@ new ──pass──▶ learning(step 1) ──pass──▶ review ──fail�
 
 Шаги по умолчанию (`config/learning.php`): `learning_steps = 1,10` мин, `relearning_steps = 10` мин,
 `graduating_interval_days = 1`, `easy_interval_days = 4`, `learn_ahead_minutes = 20`,
-`abandoned_after_hours = 12` (см. §6).
+`abandoned_after_hours = 12` (см. §6), `max_interval_days = 3650`.
 Env: `LEARNING_STEPS`, `RELEARNING_STEPS`, `LEARNING_GRADUATING_INTERVAL_DAYS`,
-`LEARNING_EASY_INTERVAL_DAYS`, `LEARNING_LEARN_AHEAD_MINUTES`, `LEARNING_ABANDONED_AFTER_HOURS`.
+`LEARNING_EASY_INTERVAL_DAYS`, `LEARNING_LEARN_AHEAD_MINUTES`, `LEARNING_ABANDONED_AFTER_HOURS`,
+`LEARNING_MAX_INTERVAL_DAYS`.
+
+**Потолок интервала.** Любой рассчитанный интервал (SM-2 в `review`, выпуск из (re)learning)
+зажимается до `max_interval_days` (по умолчанию 3650 дней, валидация `1..32767` — колонка
+`interval_days` это smallint); `next_review_at` считается от зажатого значения.
 
 **Валидация конфигурации (fail fast).** `LearningPolicy` при построении проверяет согласованность:
 шаги ≥ 1 мин; `learn_ahead_minutes` равен `0` (learn-ahead выключен) **или** ≥ максимального шага

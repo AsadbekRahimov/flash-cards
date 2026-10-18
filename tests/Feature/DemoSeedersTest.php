@@ -21,7 +21,7 @@ it('seeds the default course with all demo stages and ru translations', function
     expect($course->status)->toBe('published')
         ->and($course->visibility)->toBe('public')
         ->and($course->owner_type)->toBe('platform')
-        ->and($course->title)->toBe(['ru' => 'Базовый курс', 'uz' => 'Asosiy kurs'])
+        ->and(ksorted($course->title))->toBe(ksorted(['ru' => 'Базовый курс', 'uz' => 'Asosiy kurs']))
         ->and($course->words_count)->toBe(120)
         ->and($course->stages()->count())->toBe(2)
         ->and(Stage::whereNull('course_id')->count())->toBe(0)

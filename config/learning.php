@@ -56,4 +56,11 @@ return [
      * with graduated cards (docs/06 §6). Fresh in-session cards are not.
      */
     'abandoned_after_hours' => (int) env('LEARNING_ABANDONED_AFTER_HOURS', 12),
+
+    /**
+     * Ceiling (days) for any scheduled interval. SM-2 grows intervals
+     * exponentially; `word_repetitions.interval_days` is a smallint, so the
+     * value must stay within 1..32767. Default: 10 years.
+     */
+    'max_interval_days' => (int) env('LEARNING_MAX_INTERVAL_DAYS', 3650),
 ];
