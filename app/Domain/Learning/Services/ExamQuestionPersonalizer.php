@@ -15,8 +15,10 @@ use App\Models\Student;
  *   - the ORDER of options inside every question is a student-specific permutation;
  *   - `correct_index` is computed server-side for that exact view.
  *
- * Both permutations are derived from an HMAC-SHA256 keyed with `app.key`
- * over (session_id, student_id), so a student cannot predict a classmate's
+ * Both permutations are derived from an HMAC-SHA256 over (session_id, student_id)
+ * keyed with the session's random `config.order_secret` (server-side only, never
+ * serialized into any API/panel output; sessions created before it existed fall
+ * back to `app.key`, so rotating `app.key` cannot reshuffle a running exam), so a student cannot predict a classmate's
  * order, while the mapping is stable for the whole life of the session
  * (re-fetching `?index=i` returns the same word with the same option order).
  *
@@ -129,16 +131,23 @@ final class ExamQuestionPersonalizer
     }
 
     /**
-     * Secret, per-(session, student) seed. Uses the application key so the
-     * seed cannot be reconstructed from values visible to a participant.
+     * Secret, per-(session, student) seed. Keyed with the session's own random
+     * `order_secret` (stable even if `app.key` is rotated mid-exam); legacy
+     * sessions without it use the application key. Either way the seed cannot
+     * be reconstructed from values visible to a participant.
      */
     private function seed(ExamSession $session, Student $student): string
     {
-        $key = (string) config('app.key');
-        if (str_starts_with($key, 'base64:')) {
-            $decoded = base64_decode(substr($key, 7), true);
-            if ($decoded !== false) {
-                $key = $decoded;
+        $secret = $session->config['order_secret'] ?? null;
+        if (is_string($secret) && $secret !== '') {
+            $key = $secret;
+        } else {
+            $key = (string) config('app.key');
+            if (str_starts_with($key, 'base64:')) {
+                $decoded = base64_decode(substr($key, 7), true);
+                if ($decoded !== false) {
+                    $key = $decoded;
+                }
             }
         }
 

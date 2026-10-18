@@ -151,6 +151,17 @@ describe('errorMessage', () => {
     }
   })
 
+  it('explains a 401 missing_token (TwaAuth) in both languages', () => {
+    expect(KNOWN_ERROR_CODES).toContain('missing_token')
+    expect(errorMessage(err('unknown', 401, 'missing_token'), 'training')).toBe(
+      'Вы не авторизованы. Откройте приложение заново из Telegram.',
+    )
+    setLocale('uz')
+    expect(errorMessage(err('unknown', 401, 'missing_token'), 'exam')).toBe(
+      'Siz tizimga kirmagansiz. Ilovani Telegram orqali qaytadan oching.',
+    )
+  })
+
   it('never shows the English server message', () => {
     expect(errorMessage(err('unknown', 418, 'something_new'), 'exam')).toBe('Что-то пошло не так.')
     expect(errorMessage(err('server', 500, 'internal'), 'exam')).toBe('Сервер временно недоступен. Попробуйте позже.')

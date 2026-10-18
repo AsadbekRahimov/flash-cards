@@ -126,6 +126,8 @@ final class ExamSessionService
                         'seconds_per_question' => $secondsPerQuestion,
                         'duration_minutes' => $durationMinutes,
                         'question_order' => ExamQuestionPersonalizer::ORDER_PER_STUDENT,
+                        // Server-side HMAC key of the per-student ordering. Never leaves the server.
+                        'order_secret' => bin2hex(random_bytes(32)),
                         'questions' => $questions,
                     ],
                 ]);

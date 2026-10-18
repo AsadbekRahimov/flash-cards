@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Student;
 use App\Models\TelegramGroup;
+use App\Providers\AppServiceProvider;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Config;
 
@@ -131,6 +132,24 @@ it('uses the ASCII apostrophe in uz strings', function (): void {
     foreach (loadLangFiles('uz') as $key => $text) {
         expect(preg_match('/[‘’ʻʼ`´]/u', $text))->toBe(0, "non-ASCII apostrophe in {$key}");
     }
+});
+
+it('falls back to ru (not the raw key) for a key missing in uz', function (): void {
+    app('translator')->addLines(['fallback_probe.only_ru' => 'Только по-русски'], 'ru');
+
+    expect(app()->getFallbackLocale())->toBe('ru')
+        ->and(__('fallback_probe.only_ru', [], 'uz'))->toBe('Только по-русски')
+        ->and(__('fallback_probe.nowhere', [], 'uz'))->toBe('fallback_probe.nowhere');
+});
+
+it('takes the fallback locale from config/localization.php even if APP_FALLBACK_LOCALE is stale', function (): void {
+    Config::set('app.fallback_locale', 'en');
+    expect(app()->getFallbackLocale())->toBe('en');
+
+    (new AppServiceProvider(app()))->boot();
+
+    expect(app()->getFallbackLocale())->toBe('ru')
+        ->and(config('app.fallback_locale'))->toBe('ru');
 });
 
 // --- plural forms ---------------------------------------------------------

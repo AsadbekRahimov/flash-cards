@@ -36,6 +36,7 @@ RUN apk add --no-cache \
     && rm -rf /tmp/* /var/cache/apk/*
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+COPY docker/php/zz-lexiflow.ini /usr/local/etc/php/conf.d/zz-lexiflow.ini
 
 RUN addgroup -g "${GID}" app \
     && adduser -D -u "${UID}" -G app -s /bin/bash app

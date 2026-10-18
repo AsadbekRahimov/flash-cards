@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Operations\Services\SchedulerHeartbeat;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schedule;
@@ -92,4 +93,19 @@ it('registers the scheduler heartbeat to run every minute', function (): void {
 
     expect($event)->not->toBeNull()
         ->and($event->expression)->toBe('* * * * *');
+});
+
+it('reads a heartbeat stored as a numeric string (Redis store)', function (): void {
+    Cache::put(SchedulerHeartbeat::CACHE_KEY, (string) time(), 60);
+
+    $beat = app(SchedulerHeartbeat::class)->lastBeatAt();
+
+    expect($beat)->not->toBeNull()
+        ->and($beat?->getTimestamp())->toBeGreaterThan(time() - 5);
+});
+
+it('ignores a garbage heartbeat value', function (): void {
+    Cache::put(SchedulerHeartbeat::CACHE_KEY, 'not-a-timestamp', 60);
+
+    expect(app(SchedulerHeartbeat::class)->lastBeatAt())->toBeNull();
 });

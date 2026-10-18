@@ -88,6 +88,7 @@ export const ru = {
   'error.code.session_context_required': 'Откройте тренировку или экзамен по кнопке в группе.',
   'error.code.invalid_init_data': 'Не удалось подтвердить Telegram-сессию. Откройте приложение заново.',
   'error.code.invalid_token': 'Сессия устарела. Откройте приложение заново.',
+  'error.code.missing_token': 'Вы не авторизованы. Откройте приложение заново из Telegram.',
   'error.code.lesson_not_found': 'Урок не найден.',
   'error.code.question_not_found': 'Вопрос не найден.',
   'error.code.question_not_served': 'Вопрос ещё не показан. Обновите экран.',

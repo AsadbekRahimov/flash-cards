@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Domain\Learning\Support\LearningPolicy;
+use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\IrazasyedTelegramClient;
 use App\Domain\Telegram\Services\TelegramKeyboardFactory;
@@ -61,6 +62,11 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // There is no lang/en: a key missing in uz must resolve to the ru text, not
+        // render raw. config/localization.php is the single source of truth (this also
+        // overrides a stale APP_FALLBACK_LOCALE=en copied from an old .env.example).
+        $this->app->setFallbackLocale($this->app->make(LocaleResolver::class)->fallback());
+
         RateLimiter::for('login', function (Request $request): Limit {
             $email = (string) $request->input('email', '');
 

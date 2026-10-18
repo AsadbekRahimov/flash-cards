@@ -188,8 +188,12 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 `config` (пишется `ExamSessionService::open`, неизменяем после создания):
 - `total_questions`, `seconds_per_question`, `duration_minutes` — параметры сессии;
 - `question_order` — `'per_student'`: порядок вопросов и вариантов у каждого студента свой
-  (`ExamQuestionPersonalizer`, HMAC от `app.key` + `session_id` + `student_id`). Отсутствие ключа =
+  (`ExamQuestionPersonalizer`, HMAC от `session_id` + `student_id`). Отсутствие ключа =
   legacy-сессия с общим порядком — доигрывается как есть;
+- `order_secret` — случайные 32 байта (hex), HMAC-ключ перестановки этой сессии; независим от `app.key`, поэтому
+  ротация ключа приложения посреди экзамена не сдвигает вопросы. У сессий без `order_secret` (созданных до
+  появления поля) ключом остаётся `app.key`. **Секрет никогда не отдаётся наружу**: `ExamSession::$hidden = ['config']`,
+  Resource-классы TWA — по белому списку, Filament показывает отдельные поля (не `config` целиком) — это закреплено тестами;
 - `questions[]` — **канонический** список `{word_id, word, correct_translation, options[]}`; `options`
   содержит правильный перевод и 1–3 реальных дистрактора. `correct_index` **не хранится** — он зависит
   от студента и вычисляется на сервере при выдаче/ответе (legacy-записи с `correct_index` читаются корректно).
@@ -289,7 +293,12 @@ Append-only журнал для продуктовой аналитики (не 
 | props | jsonb | только скаляры, ≤ 20 ключей, строки ≤ 100 символов, **без PII** |
 | occurred_at | timestamp |
 
-**Индексы:** `(name, occurred_at)`, `(student_id, occurred_at)`.
+**Индексы:** `(name, occurred_at)`, `(student_id, occurred_at)`, `(telegram_group_id, occurred_at)`, `(user_id)`
+(индексы на FK нужны для `ON DELETE SET NULL` и аналитики по группе/учителю).
+
+**Ретенция:** модель `ProductEvent` — `MassPrunable`; события старше `operations.product_events.retention_days`
+(env `PRODUCT_EVENTS_RETENTION_DAYS`, по умолчанию 400 дней) удаляются ежедневно в 03:00 командой
+`model:prune --model=App\Models\ProductEvent` (см. `routes/console.php`). `occurred_at` кастится в `immutable_datetime`.
 
 **События (MVP):** `twa.authenticated`, `training.session_opened`, `exam.started`, `exam.closed`
 (пока только ручной `/close_exam`), `exam.leaderboard_posted`, `reminder.sent`, `reminder.failed` (`reason`:

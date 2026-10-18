@@ -222,6 +222,7 @@ it('stores canonical questions with per-student ordering enabled and no correct_
 
     $session = ExamSession::query()->sole();
     expect($session->config['question_order'])->toBe('per_student')
+        ->and($session->config['order_secret'])->toMatch('/^[0-9a-f]{64}$/')
         ->and($session->config['total_questions'])->toBe(count($session->config['questions']));
     foreach ($session->config['questions'] as $q) {
         expect($q)->toHaveKeys(['word_id', 'word', 'correct_translation', 'options'])

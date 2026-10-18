@@ -143,7 +143,7 @@
 (`ExamQuestionBuilder`) и хранится в `exam_sessions.config.questions` в *каноническом* виде
 (`word_id, word, correct_translation, options[]`, без `correct_index`). При выдаче
 `ExamQuestionPersonalizer` применяет к нему детерминированную перестановку **для конкретного студента**:
-порядок вопросов и порядок вариантов у каждого свои, seed = `HMAC-SHA256(app.key, session_id|student_id)` —
+порядок вопросов и порядок вариантов у каждого свои, seed = `HMAC-SHA256(config.order_secret, session_id|student_id)` (случайный секрет сессии, не отдаётся в API; для legacy-сессий без него — `app.key`) —
 участник не может вычислить чужой порядок. Следствия:
 
 - `question_index` везде — позиция в **личной** последовательности студента; повторный

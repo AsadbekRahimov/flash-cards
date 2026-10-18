@@ -16,6 +16,7 @@ export const KNOWN_ERROR_CODES = [
   'session_context_required',
   'invalid_init_data',
   'invalid_token',
+  'missing_token',
   'lesson_not_found',
   'question_not_found',
   'question_not_served',

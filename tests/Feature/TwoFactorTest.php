@@ -55,6 +55,27 @@ it('lets admin finish 2FA setup with a valid TOTP code', function (): void {
     $this->get(route('2fa.recovery-codes'))->assertRedirect('/admin');
 });
 
+it('renders the recovery-code intro escaped, with markup only from the template', function (string $locale): void {
+    app('translator')->addLines([
+        'twofactor.recovery.intro' => 'Intro <script>alert(1)</script> :emphasis & more',
+        'twofactor.recovery.intro_emphasis' => '<b>once</b>',
+    ], $locale);
+
+    $html = view('2fa.recovery-codes', ['codes' => ['aaaa-bbbb'], 'locale' => $locale])->render();
+
+    expect($html)->not->toContain('<script>')
+        ->and($html)->not->toContain('<b>once</b>')
+        ->and($html)->toContain('Intro &lt;script&gt;alert(1)&lt;/script&gt; <strong>&lt;b&gt;once&lt;/b&gt;</strong> &amp; more')
+        ->and($html)->toContain('aaaa-bbbb');
+})->with(['ru', 'uz']);
+
+it('keeps the real recovery-code intro readable in ru and uz', function (string $locale, string $emphasis): void {
+    $html = view('2fa.recovery-codes', ['codes' => ['aaaa-bbbb'], 'locale' => $locale])->render();
+
+    expect($html)->toContain("<strong>{$emphasis}</strong>")
+        ->and($html)->not->toContain(':emphasis');
+})->with([['ru', 'один раз'], ['uz', 'faqat bir marta']]);
+
 it('never reveals existing recovery codes before the 2FA challenge', function (): void {
     $user = adminUser([
         'two_factor_secret' => app(Google2FA::class)->generateSecretKey(),

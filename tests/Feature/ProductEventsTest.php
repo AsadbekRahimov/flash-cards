@@ -6,6 +6,7 @@ use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Learning\Services\LeaderboardBuilder;
 use App\Domain\Learning\Services\ReviewReminderLinkBuilder;
+use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Services\IrazasyedTelegramClient;
@@ -24,12 +25,14 @@ use App\Models\Student;
 use App\Models\TelegramGroup;
 use App\Models\User;
 use App\Models\Word;
+use Carbon\CarbonImmutable;
 use GuzzleHttp\Psr7\Response as PsrResponse;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schedule;
 use Illuminate\Support\Facades\Schema;
 use Telegram\Bot\Api;
 use Telegram\Bot\Exceptions\TelegramResponseException;
@@ -92,7 +95,27 @@ it('stores an event with relations and occurred_at', function (): void {
         ->and($event->telegram_group_id)->toBe($group->id)
         ->and($event->user_id)->toBeNull()
         ->and($event->props)->toBe(['due_count' => 5])
-        ->and($event->occurred_at)->not->toBeNull();
+        ->and($event->occurred_at)->toBeInstanceOf(CarbonImmutable::class);
+});
+
+it('prunes only events older than the configured retention', function (): void {
+    Config::set('operations.product_events.retention_days', 30);
+    $old = ProductEvent::create(['name' => 'old', 'props' => [], 'occurred_at' => now()->subDays(31)]);
+    $fresh = ProductEvent::create(['name' => 'fresh', 'props' => [], 'occurred_at' => now()->subDays(29)]);
+
+    expect((new ProductEvent)->prunable()->pluck('id')->all())->toBe([$old->id]);
+
+    $this->artisan('model:prune', ['--model' => [ProductEvent::class]])->assertSuccessful();
+
+    expect(ProductEvent::query()->pluck('id')->all())->toBe([$fresh->id]);
+});
+
+it('schedules model:prune for product events daily', function (): void {
+    $event = collect(Schedule::events())->first(fn ($e): bool => str_contains((string) $e->command, 'model:prune'));
+
+    expect($event)->not->toBeNull()
+        ->and((string) $event->command)->toContain(ProductEvent::class)
+        ->and($event->expression)->toBe('0 3 * * *');
 });
 
 it('keeps only safe scalar props', function (): void {
@@ -422,6 +445,7 @@ it('records reminder.sent after a successful reminder', function (): void {
         $this->api,
         app(ReviewReminderLinkBuilder::class),
         app(ProductEventRecorder::class),
+        app(LocaleResolver::class),
     );
 
     $event = peEvent(ProductEventName::ReminderSent);
@@ -442,6 +466,7 @@ it('records reminder.failed and does not fail the job on Telegram 403', function
         $telegram,
         app(ReviewReminderLinkBuilder::class),
         app(ProductEventRecorder::class),
+        app(LocaleResolver::class),
     );
 
     $event = peEvent(ProductEventName::ReminderFailed);
@@ -466,6 +491,7 @@ it('still rethrows other Telegram errors from the reminder job', function (): vo
         $telegram,
         app(ReviewReminderLinkBuilder::class),
         app(ProductEventRecorder::class),
+        app(LocaleResolver::class),
     ))->toThrow(RuntimeException::class, 'Telegram is down');
 
     expect(ProductEvent::query()->count())->toBe(0);

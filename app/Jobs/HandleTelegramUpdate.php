@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
+use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Domain\Telegram\Support\UpdateSanitizer;
 use Illuminate\Bus\Queueable;
@@ -34,6 +35,13 @@ class HandleTelegramUpdate implements ShouldQueue
 
         try {
             $dispatcher->dispatch($this->update);
+        } catch (TelegramForbiddenException $e) {
+            // Bot was kicked / blocked in the middle of a command: Telegram will keep
+            // answering 403, a retry could only repeat side effects. Finish quietly.
+            Log::channel('daily')->warning('telegram.handler_forbidden', [
+                'reason' => $e->reason,
+                'update_id' => $this->update['update_id'] ?? null,
+            ]);
         } catch (Throwable $e) {
             Log::channel('daily')->error('telegram.handler_failed', [
                 'message' => $e->getMessage(),

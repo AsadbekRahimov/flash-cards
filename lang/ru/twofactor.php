@@ -24,7 +24,9 @@ return [
     'recovery' => [
         'title' => 'Recovery-коды',
         'heading' => 'Сохраните recovery-коды',
-        'intro' => 'Каждый код действителен <strong>один раз</strong>. Используйте их, если потеряете телефон. Храните в менеджере паролей.',
+        // `:emphasis` is replaced in the view by an escaped, <strong>-wrapped `intro_emphasis`.
+        'intro' => 'Каждый код действителен :emphasis. Используйте их, если потеряете телефон. Храните в менеджере паролей.',
+        'intro_emphasis' => 'один раз',
         'to_admin' => '→ Перейти в админку',
     ],
 

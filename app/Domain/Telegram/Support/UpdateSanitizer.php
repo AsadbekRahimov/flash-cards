@@ -28,7 +28,7 @@ final class UpdateSanitizer
                 continue;
             }
 
-            if (in_array($k, ['first_name', 'last_name', 'username', 'text', 'caption'], true) && is_string($v)) {
+            if (in_array($k, ['first_name', 'last_name', 'username', 'text', 'caption', 'title', 'phone_number'], true) && is_string($v)) {
                 $data[$k] = self::mask($v);
             }
         }
