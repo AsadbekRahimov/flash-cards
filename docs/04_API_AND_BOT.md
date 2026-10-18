@@ -275,6 +275,54 @@ Learner присоединяется к открытой тренировке. �
 `GET /api/twa/tts?word=resilient&voice=en-US-AriaNeural`
 Возвращает `audio/mpeg`. Cache-friendly: `Cache-Control: public, max-age=2592000`.
 
+### A.5a Каталог курсов (docs/12 §1.7, §3.2)
+
+Все три маршрута — под `TwaAuth` и `throttle:twa-api`. Название и описание отдаются на `learners.interface_locale`
+с fallback на `ru` (пустое описание — `null`). Видимость: список показывает курсы `status = published` и
+`visibility = public`; по slug открывается и выбирается любой `published` курс, кроме `private` (`unlisted` — «по ссылке»).
+Всё остальное (draft / review / archived / private / неизвестный slug) отвечает **одинаково**: `404 course_not_found`
+— существование не раскрывается.
+
+**Прогресс** — по слову learner'а, не по группе: `done` = активные слова курса (`words.is_active = true`), у которых есть
+строка `word_repetitions` этого learner'а с `repetitions >= 1` (то же правило, что `stats.words_learned`); `total` = все
+активные слова. Неактивные слова не считаются ни в `done`, ни в `total`. Считается живым агрегатным запросом, не кэшируется.
+
+#### `GET /api/twa/courses`
+```json
+{
+  "courses": [
+    {
+      "slug": "english-a1", "title": "Английский A1", "description": "Первые 500 слов", "level": "A1", "exam_tag": "general",
+      "words_count": 500, "is_featured": true, "is_active": true,
+      "progress": { "done": 120, "total": 500 }
+    }
+  ]
+}
+```
+Порядок — `position`, затем `id`. `is_active` — это `learners.active_course_id`. Активный курс learner'а остаётся в списке,
+даже если он `unlisted` (выбран по ссылке), пока курс доступен. Список курсов без прогресса кэшируется на 10 минут
+(по локали) и сбрасывается при публикации/архивации/правке курса и `CoursePublisher::recount`.
+
+#### `GET /api/twa/courses/{slug}`
+```json
+{
+  "slug": "english-a1", "title": "Английский A1", "description": null, "level": "A1", "exam_tag": "general",
+  "words_count": 500, "is_active": true, "progress": { "done": 120, "total": 500 },
+  "stages": [
+    {
+      "number": 1, "title": "Stage 1", "progress": { "done": 40, "total": 100 },
+      "lessons": [ { "id": 11, "number": 1, "title": "Greetings", "progress": { "done": 20, "total": 25 } } ]
+    }
+  ]
+}
+```
+Модули и уроки — в порядке изучения `(stage.number, lesson.number)`; `lessons[].title` может быть `null`.
+
+#### `POST /api/twa/me/course`
+Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 → иначе 422). Ставит `learners.active_course_id`
+(идемпотентно). Ответ — строка курса в формате элемента `GET /courses` (`is_active = true`, актуальный `progress`).
+Недоступный курс — `404 course_not_found`, активный курс не меняется.
+
 ### A.6 Общие правила
 - Все даты в ISO 8601 UTC.
 - Rate limit: 60 запросов/минуту на JWT (кроме `/tts` — 30/мин).

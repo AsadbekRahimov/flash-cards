@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Content\Services\CourseCatalogService;
 use App\Filament\Resources\CourseResource;
 use App\Filament\Resources\CourseResource\Pages\CreateCourse;
 use App\Filament\Resources\CourseResource\Pages\EditCourse;
@@ -115,6 +116,20 @@ it('cannot change the status or the slug through the edit form', function (): vo
     expect($course->status)->toBe('draft')
         ->and($course->slug)->toBe($slug)
         ->and($course->title['ru'])->toBe('Новое имя');
+});
+
+it('refreshes the cached TWA catalog when a course is edited', function (): void {
+    $course = adminCourse('published');
+    $catalog = app(CourseCatalogService::class);
+    expect($catalog->published('ru')[0]->title)->not->toBe('Новое имя');
+    $this->actingAs($this->admin);
+
+    livewire(EditCourse::class, ['record' => $course->getRouteKey()])
+        ->set('data.title.ru', 'Новое имя')
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($catalog->published('ru')[0]->title)->toBe('Новое имя');
 });
 
 it('publishes a course through the table actions, step by step, with an audit trail', function (): void {

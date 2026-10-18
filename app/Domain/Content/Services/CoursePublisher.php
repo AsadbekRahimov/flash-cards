@@ -53,7 +53,10 @@ final class CoursePublisher
         self::ARCHIVED => [self::DRAFT],
     ];
 
-    public function __construct(private readonly LocaleResolver $locales) {}
+    public function __construct(
+        private readonly LocaleResolver $locales,
+        private readonly CourseCatalogService $catalog,
+    ) {}
 
     /**
      * @return list<string> statuses $course can move to from where it is now
@@ -78,7 +81,7 @@ final class CoursePublisher
             throw CoursePublishException::unknownStatus($to);
         }
 
-        return DB::transaction(function () use ($course, $to, $by, $ip): Course {
+        $result = DB::transaction(function () use ($course, $to, $by, $ip): Course {
             // Re-read under a row lock: two admins pressing buttons at once must not both pass the gate.
             /** @var Course $locked */
             $locked = Course::query()->whereKey($course->id)->lockForUpdate()->firstOrFail();
@@ -119,6 +122,11 @@ final class CoursePublisher
 
             return $course->refresh();
         });
+
+        // After commit: a request that re-fills the cache earlier would store the old status.
+        $this->catalog->forgetPublished();
+
+        return $result;
     }
 
     /** The platform default course serves groups with no course of their own: it cannot go away. */
@@ -135,6 +143,9 @@ final class CoursePublisher
         Course::query()->whereKey($course->id)->update(['words_count' => $count]);
         $course->words_count = $count;
         $course->syncOriginalAttribute('words_count');
+
+        // The importer calls this inside its transaction: forget once that commits.
+        DB::afterCommit(fn () => $this->catalog->forgetPublished());
     }
 
     /**
