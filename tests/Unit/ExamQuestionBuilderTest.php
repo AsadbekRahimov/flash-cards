@@ -434,19 +434,67 @@ it('uses published foreign courses only as the last layer', function (): void {
     }
 });
 
-it('never takes distractors from draft, review, archived or private foreign courses', function (string $status, string $visibility): void {
+it('never takes distractors from foreign courses outside the published + public + platform whitelist', function (string $status, string $visibility, string $ownerType): void {
     $course = Course::factory()->published()->create();
     $target = lessonInCourse($course);
     Word::factory()->count(4)->for($target)->create(['translation' => 'same']);
 
-    $foreign = Course::factory()->create(['status' => $status, 'visibility' => $visibility]);
+    $foreign = Course::factory()->create(['status' => $status, 'visibility' => $visibility, 'owner_type' => $ownerType]);
     wordsIn(lessonInCourse($foreign), 'foreign', 10);
 
     expect(fn () => app(ExamQuestionBuilder::class)->build($target, totalQuestions: 4, locale: 'ru'))
         ->toThrow(ExamSessionException::class, 'distractor');
 })->with([
-    'draft' => ['draft', 'public'],
-    'review' => ['review', 'public'],
-    'archived' => ['archived', 'public'],
-    'published but private' => ['published', 'private'],
+    'draft' => ['draft', 'public', 'platform'],
+    'review' => ['review', 'public', 'platform'],
+    'archived' => ['archived', 'public', 'platform'],
+    'published but private' => ['published', 'private', 'platform'],
+    'published but unlisted' => ['published', 'unlisted', 'platform'],
+    'published public but not a platform course' => ['published', 'public', 'organization'],
 ]);
+
+it('borrows answer-language distractors from a foreign course when the own course has only ru-only words', function (): void {
+    // Own course: 40 ru-only sibling words (enough in total, but none of them in uz) + 4 target words, 2 of them in uz.
+    $target = localizedLessons(4, 40, ['t0', 't1']);
+
+    $foreign = Course::factory()->published()->create();
+    $foreignLesson = lessonInCourse($foreign);
+    for ($i = 0; $i < 10; $i++) {
+        $word = Word::factory()->for($foreignLesson)->create(['word' => "f{$i}", 'translation' => "ru-f{$i}"]);
+        WordTranslation::factory()->uz()->create(['word_id' => $word->id, 'translation' => "uz-f{$i}"]);
+    }
+
+    $questions = collect(app(ExamQuestionBuilder::class)->build($target, totalQuestions: 4, locale: 'uz'))->keyBy('word');
+
+    foreach (['t0', 't1'] as $name) {
+        $q = $questions[$name];
+        assertWellFormedQuestion($q);
+        expect($q['options'])->toHaveCount(ExamQuestionBuilder::OPTIONS_PER_QUESTION);
+        foreach ($q['options'] as $option) {
+            expect($option)->toStartWith('uz-');
+        }
+        // the lesson offers one other uz word; the other two distractors can only come from the foreign course
+        expect(collect($q['options'])->filter(fn (string $o): bool => str_starts_with($o, 'uz-f'))->count())->toBeGreaterThanOrEqual(2);
+    }
+});
+
+it('does not load foreign courses while the own course supplies enough answer-language candidates', function (): void {
+    $stage = Stage::factory()->create(['course_id' => Course::factory()->published()->create()->id]);
+    $target = Lesson::factory()->for($stage)->create();
+    $sibling = Lesson::factory()->for($stage)->create();
+    foreach ([[$target, 't', 4], [$sibling, 'o', 40]] as [$lesson, $prefix, $count]) {
+        for ($i = 0; $i < $count; $i++) {
+            $word = Word::factory()->for($lesson)->create(['word' => "{$prefix}{$i}", 'translation' => "ru-{$prefix}{$i}"]);
+            WordTranslation::factory()->uz()->create(['word_id' => $word->id, 'translation' => "uz-{$prefix}{$i}"]);
+        }
+    }
+
+    $foreign = Course::factory()->published()->create();
+    wordsIn(lessonInCourse($foreign), 'uz-foreign', 10);
+
+    foreach (app(ExamQuestionBuilder::class)->build($target, totalQuestions: 4, locale: 'uz') as $q) {
+        foreach ($q['options'] as $option) {
+            expect($option)->not->toContain('foreign');
+        }
+    }
+});

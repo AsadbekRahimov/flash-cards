@@ -52,16 +52,35 @@ final class VocabularyImporter
      *
      * Who may import (docs/12 §8: in Phase 1 content is platform-owned): `$by` must pass the `update`
      * ability of the target course (CoursePolicy → an active admin); a refusal is an `aborted` report
-     * and nothing is written. `$by = null` is the system path (seeders, artisan, queue) and is allowed
-     * ONLY when the app runs in the console — an HTTP request can never import without a user.
+     * and nothing is written. A person is always passed explicitly to {@see import()}; trusted code
+     * without a user (seeders, artisan) calls {@see importAsSystem()} — an explicit entry point that
+     * skips the policy and marks the audit row `meta.actor = system`. The environment (console, queue
+     * worker, Octane) never decides who is allowed to import.
      *
      * @param  array{ip?:string|null}  $auditContext
      */
-    public function import(string $rawJson, ?User $by = null, array $auditContext = []): ImportReport
+    public function import(string $rawJson, User $by, array $auditContext = []): ImportReport
+    {
+        return $this->run($rawJson, $by, $auditContext);
+    }
+
+    /**
+     * Import by trusted system code (seeders, artisan commands): no policy check, audit `user_id` is
+     * null and `meta.actor` is `system`. Never call it with a user-supplied file from a request.
+     *
+     * @param  array{ip?:string|null}  $auditContext
+     */
+    public function importAsSystem(string $rawJson, array $auditContext = []): ImportReport
+    {
+        return $this->run($rawJson, null, $auditContext);
+    }
+
+    /** @param  array{ip?:string|null}  $auditContext */
+    private function run(string $rawJson, ?User $by, array $auditContext): ImportReport
     {
         $report = new ImportReport;
 
-        if ($by === null ? ! app()->runningInConsole() : Gate::forUser($by)->denies('viewAny', Course::class)) {
+        if ($by !== null && Gate::forUser($by)->denies('viewAny', Course::class)) {
             return $this->refuse($report);
         }
 
@@ -186,6 +205,7 @@ final class VocabularyImporter
                 'entity_id' => $lesson->id,
                 'ip' => $auditContext['ip'] ?? null,
                 'meta' => [
+                    'actor' => $by === null ? 'system' : 'user',
                     'course_id' => $course->id,
                     'course_slug' => $course->slug,
                     'stage_id' => $stage->id,
@@ -198,8 +218,9 @@ final class VocabularyImporter
             return $lesson;
         });
 
-        // After the commit: a rolled-back import must not drop (or re-warm from stale rows) the cache.
-        $this->cache->forgetLesson($lesson);
+        // After the commit (also the OUTER one, when the caller wraps us in a transaction): a rolled-back
+        // import must not drop (or re-warm from stale rows) the cache.
+        DB::afterCommit(fn () => $this->cache->forgetLesson($lesson));
 
         return $report;
     }

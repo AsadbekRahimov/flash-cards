@@ -31,15 +31,19 @@ use Illuminate\Database\Eloquent\Builder;
  *   1. words of other lessons in the same stage;
  *   2. words of other stages of the SAME course;
  *   3. other words of the same lesson;
- *   4. words of other courses — only courses that are `published` and not
- *      `private`; draft / review / archived / private courses never leak in.
+ *   4. words of other courses — a whitelist: only `published` + `public`
+ *      courses of the platform (`owner_type = platform`); draft / review /
+ *      archived / unlisted / private / organization courses never leak in.
+ *      This layer is loaded only when the own course has fewer unique
+ *      candidates IN THE ANSWER LANGUAGE (`$locale`) than needed — a course
+ *      full of ru-only words does not stop a uz group from borrowing uz words.
  * Candidates in the language of the correct answer are exhausted across all
  * layers before candidates in another language are touched (last resort, so
  * the exam still works for a barely translated course) — so a foreign
  * published course in the answer's language still beats an own-course word
- * in the other language. Inside every layer,
- * candidates sharing the word's `part_of_speech` are preferred. Candidates are de-duplicated case/whitespace-insensitively and
- * can never collide with the correct translation.
+ * in the other language. Inside every layer, candidates sharing the word's
+ * `part_of_speech` are preferred. Candidates are de-duplicated
+ * case/whitespace-insensitively and can never collide with the correct translation.
  *
  * If a word still has fewer than 3 distractors, the question is emitted
  * with fewer options (but at least MIN_OPTIONS_PER_QUESTION). A word with no
@@ -152,7 +156,7 @@ final class ExamQuestionBuilder
 
         $courseId = $lesson->stage()->value('course_id');
 
-        $sameCourse = count($sameStage) >= $needed
+        $sameCourse = $this->uniqueInLocale($sameStage, $locale) >= $needed
             ? []
             : $this->candidates(
                 Word::query()
@@ -170,8 +174,9 @@ final class ExamQuestionBuilder
             $locale,
         );
 
-        // Last resort: public published courses of the platform, only when the own course cannot supply enough.
-        $foreign = count($sameStage) + count($sameCourse) + count($sameLesson) >= $needed
+        // Last resort: public published courses of the platform, only when the own course cannot supply
+        // enough unique candidates in the answer language.
+        $foreign = $this->uniqueInLocale(array_merge($sameStage, $sameCourse, $sameLesson), $locale) >= $needed
             ? []
             : $this->candidates(
                 Word::query()
@@ -179,12 +184,30 @@ final class ExamQuestionBuilder
                     ->whereHas('lesson.stage.course', fn ($q) => $q
                         ->where('courses.id', '!=', $courseId)
                         ->where('status', 'published')
-                        ->where('visibility', '!=', 'private')),
+                        ->where('visibility', 'public')
+                        ->where('owner_type', 'platform')),
                 $needed,
                 $locale,
             );
 
         return [$sameStage, $sameCourse, $sameLesson, $foreign];
+    }
+
+    /**
+     * Number of distinct (case/whitespace-insensitive) candidate texts written in `$locale`.
+     *
+     * @param  list<array{translation:string, part_of_speech:string|null, locale:string}>  $candidates
+     */
+    private function uniqueInLocale(array $candidates, string $locale): int
+    {
+        $unique = [];
+        foreach ($candidates as $c) {
+            if ($c['locale'] === $locale) {
+                $unique[$this->normalize($c['translation'])] = true;
+            }
+        }
+
+        return count($unique);
     }
 
     /**
