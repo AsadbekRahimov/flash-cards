@@ -71,6 +71,26 @@ final class LocaleResolver
         return $this->isSupported($primary) ? $primary : $this->default();
     }
 
+    /**
+     * Picks the first supported locale from a quality-ordered list of
+     * `Accept-Language` tags (as returned by `Request::getLanguages()`), by
+     * primary subtag; the default locale if none is supported.
+     *
+     * @param  array<array-key, string>  $languages
+     */
+    public function fromAcceptLanguage(array $languages): string
+    {
+        foreach ($languages as $tag) {
+            $primary = strtolower(preg_split('/[-_]/', trim($tag), 2)[0] ?? '');
+
+            if ($this->isSupported($primary)) {
+                return $primary;
+            }
+        }
+
+        return $this->default();
+    }
+
     public function forLearner(Learner $learner): string
     {
         return $this->isSupported($learner->interface_locale)

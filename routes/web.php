@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\PublicSiteController;
 use App\Http\Controllers\ReadinessController;
 use App\Http\Controllers\Telegram\WebhookController;
 use App\Http\Controllers\TwoFactorController;
@@ -13,7 +14,20 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
-Route::get('/', fn () => view('welcome'));
+// Public site (landing, offer, privacy): static pages, so no session / cookies / CSRF.
+// `/page` negotiates the language from Accept-Language (ru default); `/{locale}/page` is explicit.
+Route::withoutMiddleware([EncryptCookies::class, AddQueuedCookiesToResponse::class, StartSession::class, ShareErrorsFromSession::class, VerifyCsrfToken::class])
+    ->group(function (): void {
+        $locales = implode('|', array_map(preg_quote(...), (array) config('localization.supported', ['ru'])));
+
+        Route::get('/', [PublicSiteController::class, 'home'])->name('site.home');
+        Route::get('/offer', [PublicSiteController::class, 'offer'])->name('site.offer');
+        Route::get('/privacy', [PublicSiteController::class, 'privacy'])->name('site.privacy');
+
+        Route::get('/{locale}', [PublicSiteController::class, 'home'])->where('locale', $locales)->name('site.home.localized');
+        Route::get('/{locale}/offer', [PublicSiteController::class, 'offer'])->where('locale', $locales)->name('site.offer.localized');
+        Route::get('/{locale}/privacy', [PublicSiteController::class, 'privacy'])->where('locale', $locales)->name('site.privacy.localized');
+    });
 
 // Readiness probe for monitoring: stateless (no session/cookies), throttled.
 Route::get('/health/ready', ReadinessController::class)
