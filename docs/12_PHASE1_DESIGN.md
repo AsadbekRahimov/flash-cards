@@ -1,0 +1,908 @@
+# 12. Фаза 1 — проектирование публичного B2C MVP (learner-first)
+
+> Статус: проект, ред. 1 — 2026-10-18. Автор: architect (задача 1.0, Sprint 14).
+> База: ветка `claude/magical-pascal-qz05gz` после приёмки Фазы 0 (Pest 409, Larastan 8, CI на PostgreSQL 16, локально sqlite).
+> Этот документ **уточняет и в части Фазы 1 заменяет** [11_SYSTEM_ANALYSIS_AND_SAAS_STRATEGY.md](./11_SYSTEM_ANALYSIS_AND_SAAS_STRATEGY.md) §5–§6, §10. Там — стратегия; здесь — схема, контракты сервисов, план миграции и нарезка на задачи. Где docs/11 расходится с кодом или с решениями владельца — сказано прямо (§13).
+
+**Решения владельца, зафиксированные в проекте:** B2C-first; платные тарифы для всех; ученик центра получает полный Pro; языки интерфейса и переводов — uz (латиница) и ru; изучаемый язык — только английский; **оплата (Telegram Stars, Payme/Click) в Фазе 1 не реализуется** — Pro выдаётся вручную суперадмином (с аудитом) и промокодом; **Free-лимит — 20 новых слов в день**, повторения не ограничиваются никогда.
+
+---
+
+## 0. Резюме решений
+
+| Вопрос | Решение | Почему |
+|---|---|---|
+| Центральный объект | Новая таблица `learners` (один на `telegram_user_id`); `students` заменяется таблицей членств `group_members` | Прогресс и подписка принадлежат человеку, а не паре (человек, группа) |
+| `students`: расширять или заменять | **Заменить**: новые таблицы + колонки `learner_id` во всех зависимых таблицах, `students` замораживается и удаляется релизом B | Прогресс одного человека из двух групп всё равно надо слить; «добавить `learner_id` в `students`» оставляет `word_repetitions` привязанными к группе |
+| Личное обучение | **Обобщить `training_sessions`** (`mode`, `learner_id`), а не заводить отдельную `learner_sessions` | `training_reviews`, `TrainingFlowService`, `ReviewSubmissionService`, маршрут TWA `/training/:id` переиспользуются без дублирования |
+| Контент | `courses` → `stages` (модули курса) → `lessons` → `words` + `word_translations (uz/ru)`; существующий контент → платформенный курс `legacy-default` | Сохраняем команды учителя `/start_training <stage> <lesson>` и импортёр; переводы отделены от слова |
+| Организации | В Фазе 1 — **минимальная `organizations`** + `telegram_groups.organization_id`; спонсорство = подписка организации; места/инвайты/кабинет — Фаза 2 | Нужен субъект подписки для центра-клиента уже сейчас; UI центра без оплаты не окупается |
+| Entitlement | `EntitlementResolver`: `max(личная подписка, подписка организации любой активной группы learner'а)`; кэш Redis 5 мин с инвалидацией | Один код для личного и спонсорского Pro |
+| Оплата | Схема `subscriptions` + `promo_codes` сейчас; `payments` и `BillingProvider` — контракт описан, реализация вынесена за Фазу 1 | Решение владельца; схема не потребует переделки при подключении провайдера |
+| JWT | `{iss, sub: learner_id, v: 2, iat, exp}` без `gid`; токены без `v=2` отклоняются | `sub` старых токенов — `students.id`, его нельзя трактовать как `learner_id` |
+| Напоминания | `learners.next_reminder_at` (UTC), пересчитывается после отправки; планировщик каждые 15 мин выбирает `next_reminder_at <= now()` | Переносимо (sqlite/PG), корректно при DST, индексируемо |
+| День / streak | Локальная дата learner'а (`timezone`), агрегаты в `learner_daily_stats` | «Сегодня» за O(1), streak без сканирования `training_reviews` |
+| Деплой схемы | Один релиз A с окном обслуживания 2–5 мин (`artisan down`), релиз B (удаление `students`) через ≥ 7 дней | Деплой-скрипт запускает миграции при живом старом коде; dual-write потребовал бы двойного рефакторинга |
+
+---
+
+## 1. Модель данных
+
+### 1.1 ERD (целевое состояние после Фазы 1)
+
+```mermaid
+erDiagram
+    LEARNERS ||--o{ GROUP_MEMBERS : joins
+    TELEGRAM_GROUPS ||--o{ GROUP_MEMBERS : has
+    ORGANIZATIONS ||--o{ TELEGRAM_GROUPS : owns
+    LEARNERS ||--o{ WORD_REPETITIONS : progress
+    LEARNERS ||--o{ TRAINING_SESSIONS : personal
+    TELEGRAM_GROUPS ||--o{ TRAINING_SESSIONS : group
+    TRAINING_SESSIONS ||--o{ TRAINING_REVIEWS : logs
+    LEARNERS ||--o{ TRAINING_REVIEWS : makes
+    LEARNERS ||--o{ LEARNER_DAILY_STATS : per_day
+    LEARNERS ||--o{ EXAM_ANSWERS : gives
+    LEARNERS ||--o{ EXAM_RESULTS : ranked
+    LEARNERS ||--o{ NOTIFICATIONS_LOG : receives
+    LEARNERS ||--o{ PRODUCT_EVENTS : emits
+    COURSES ||--o{ STAGES : modules
+    STAGES ||--o{ LESSONS : contains
+    LESSONS ||--o{ WORDS : contains
+    WORDS ||--o{ WORD_TRANSLATIONS : uz_ru
+    WORDS ||--o{ WORD_REPETITIONS : tracked
+    COURSES ||--o{ LEARNERS : active_course
+    ORGANIZATIONS ||--o{ COURSES : owns_optional
+    LEARNERS ||--o{ SUBSCRIPTIONS : personal
+    ORGANIZATIONS ||--o{ SUBSCRIPTIONS : sponsor
+    PROMO_CODES ||--o{ PROMO_REDEMPTIONS : redeemed
+    LEARNERS ||--o{ PROMO_REDEMPTIONS : redeems
+    USERS ||--o{ SUBSCRIPTIONS : granted_by
+```
+
+Таблицы `users`, `teacher_groups`, `exam_sessions`, `exam_question_attempts`, `audit_logs` остаются как в docs/03.
+
+### 1.2 `learners` — профиль ученика (один на Telegram-пользователя)
+
+| Колонка | Тип | Описание |
+|---|---|---|
+| id | bigint PK | |
+| telegram_user_id | bigint NOT NULL **unique** | |
+| first_name, last_name | varchar(100) nullable | из Telegram, обновляются при каждом `/auth` и сообщении |
+| username | varchar(100) nullable | |
+| language_code | varchar(10) nullable | сырой код Telegram (только для аналитики/дефолта) |
+| interface_locale | varchar(5) NOT NULL default `'ru'` | `ru` / `uz` — выбран в онбординге; единственный источник языка для бота и TWA |
+| timezone | varchar(64) NOT NULL default `'Asia/Tashkent'` | IANA; дефолт — `config('learners.default_timezone')` |
+| goal | varchar(20) nullable | `general` / `ielts` / `sat` / `school` |
+| level | varchar(2) nullable | `A1`..`C2` (самооценка в онбординге) |
+| active_course_id | bigint nullable FK → courses `nullOnDelete` | курс, из которого берутся новые слова на экране «Сегодня» |
+| daily_goal | smallint NOT NULL default 20 | карточек (оценок) в день; варианты 10/20/40 |
+| reminder_time | time nullable default `'19:00'` | локальное время напоминания; `NULL` = выключено |
+| next_reminder_at | timestamp nullable | ближайшее напоминание в UTC (см. §7.5) |
+| dm_blocked_at | timestamp nullable | Telegram ответил 403 на ЛС; сбрасывается любым входящим сообщением learner'а |
+| onboarding_state | varchar(16) NOT NULL default `'new'` | `new` → `locale` → `goal` → `level` → `timezone` → `reminder` → `done` |
+| onboarding_completed_at | timestamp nullable | |
+| acquisition_source | varchar(64) nullable | из `start`-параметра: `ref`, `org`, `src:<channel>`, `course:<slug>`; `group` для пришедших через группу; `legacy` для мигрированных |
+| start_payload | varchar(64) nullable | сырой payload `/start` (Telegram ограничивает 64 символами `[A-Za-z0-9_-]`) |
+| referrer_learner_id | bigint nullable FK → learners `nullOnDelete` | только фиксируем; награды — Фаза 2 |
+| streak_current, streak_best | smallint NOT NULL default 0 | |
+| streak_last_date | date nullable | локальная дата, когда дневная цель выполнялась последний раз |
+| last_seen_at | timestamp nullable | |
+| blocked_at | timestamp nullable | бан платформой (суперадмин); `TwaAuth` отвечает 401 `learner_blocked` |
+| deleted_at | timestamp nullable | `SoftDeletes` — удаление аккаунта по запросу (анонимизация — Фаза 2, схема готова) |
+| meta | jsonb default `'{}'` | |
+| created_at, updated_at | | |
+
+**Индексы:** `telegram_user_id` unique; `next_reminder_at` partial `WHERE next_reminder_at IS NOT NULL AND dm_blocked_at IS NULL` (PG; на sqlite — обычный индекс); `onboarding_state`; `last_seen_at`; `active_course_id`; `referrer_learner_id`.
+
+### 1.3 `group_members` — членство learner'а в Telegram-группе (замена `students`)
+
+| Колонка | Тип | Описание |
+|---|---|---|
+| id | bigint PK | |
+| telegram_group_id | bigint FK → telegram_groups `cascadeOnDelete` | |
+| learner_id | bigint FK → learners `cascadeOnDelete` | |
+| status | varchar(12) NOT NULL default `'active'` | `active` / `left` (сам вышел, `chat_member`) / `removed` (учитель/админ) / `banned` |
+| joined_at | timestamp NOT NULL | |
+| left_at | timestamp nullable | |
+| legacy_student_id | bigint nullable **unique** | `students.id` до миграции; удаляется релизом B |
+| created_at, updated_at | | |
+
+**Индексы:** `(telegram_group_id, learner_id)` unique; `(learner_id, status)`; `(telegram_group_id, status)`.
+
+Правила: «активное членство» = `status = 'active'` **и** `telegram_groups.status = 'active'`. Деактивация студента админом (бывшее `students.is_active = false`) → `status = 'removed'`. Учитель видит learner'а только через активное членство (§4.4).
+
+### 1.4 `training_sessions` — обобщение под личные сессии
+
+Изменения существующей таблицы (все — nullable/с default, старые строки валидны):
+
+| Колонка | Изменение |
+|---|---|
+| telegram_group_id | → **nullable** (личная сессия без группы) |
+| started_by_user_id | → **nullable** |
+| lesson_id | → **nullable** (`daily_review` охватывает все уроки) |
+| learner_id | **новая**, bigint nullable FK → learners `cascadeOnDelete` — владелец личной сессии |
+| mode | **новая**, varchar(16) NOT NULL default `'group_lesson'`: `group_lesson` (как сейчас) / `lesson` (личная тренировка урока) / `daily_review` (экран «Сегодня») |
+| source | **новая**, varchar(16) NOT NULL default `'command'`: `command` / `picker` / `self` / `reminder` / `onboarding` |
+| course_id | **новая**, bigint nullable FK → courses `nullOnDelete` — для `daily_review`: откуда брать новые слова |
+| expires_at | **новая**, timestamp nullable — личные сессии закрываются планировщиком через `config('learning.session_ttl_hours')` (12 ч) |
+
+**Ограничения:**
+- существующий partial unique `(telegram_group_id, lesson_id) WHERE status='open'` остаётся (NULL не конфликтуют ни в PG, ни в sqlite);
+- новый partial unique `training_sessions_one_open_daily_per_learner` `(learner_id) WHERE status='open' AND mode='daily_review'`;
+- новый partial unique `training_sessions_one_open_lesson_per_learner` `(learner_id, lesson_id) WHERE status='open' AND mode='lesson'`;
+- PG-only CHECK `training_sessions_mode_shape_check`: `(mode='group_lesson' AND telegram_group_id IS NOT NULL AND lesson_id IS NOT NULL) OR (mode<>'group_lesson' AND learner_id IS NOT NULL)` (как в `2026_07_13_000002` — пропуск на других драйверах, инвариант дублируется в `TrainingSessionService`);
+- индекс `(learner_id, status, started_at)`; `(status, expires_at)` для закрытия просроченных.
+
+### 1.5 Зависимые таблицы: `student_id` → `learner_id`
+
+Во все таблицы добавляется `learner_id` (FK → learners), старая `student_id` становится nullable и удаляется релизом B (§2).
+
+| Таблица | learner_id | onDelete | Уникальности / индексы после миграции |
+|---|---|---|---|
+| word_repetitions | NOT NULL | cascade | unique `(learner_id, word_id)`; `(learner_id, next_review_at)`; `(learner_id, is_hard, next_review_at)`; `(next_review_at, learner_id)`; partial `(learner_id) WHERE is_hard`; **новый** `(learner_id, created_at)` — квота новых слов (§5.3) |
+| training_reviews | NOT NULL | cascade | `(learner_id, created_at)`; `(created_at, learner_id)`; `(training_session_id, learner_id)` |
+| exam_answers | nullable | setNull | unique `(exam_session_id, learner_id, word_id)`; `(exam_session_id, learner_id)`; `(learner_id, answered_at)`; `(answered_at, learner_id)` |
+| exam_results | nullable | setNull | unique `(exam_session_id, learner_id)` |
+| exam_question_attempts | NOT NULL | cascade | unique `(exam_session_id, learner_id, question_index)` |
+| notifications_log | NOT NULL | cascade | `(learner_id, type, sent_at)` |
+| product_events | nullable | setNull | `(learner_id, occurred_at)` |
+
+Конфликтов уникальностей при переносе нет: внутри одной группы на `telegram_user_id` ровно одна строка `students` (unique `(telegram_user_id, telegram_group_id)`), а экзамен принадлежит одной группе. Единственное место слияния — `word_repetitions` (§2.3).
+
+### 1.6 `learner_daily_stats` — агрегат за локальный день
+
+| Колонка | Тип | Описание |
+|---|---|---|
+| id | bigint PK | |
+| learner_id | FK → learners cascade | |
+| date | date NOT NULL | **локальная** дата learner'а на момент оценки |
+| reviews_count | int default 0 | все принятые оценки (включая минутные шаги) |
+| new_words_count | int default 0 | карточек впервые показано (строка `word_repetitions` создана) — то, что ограничивает Free |
+| correct_count | int default 0 | `quality >= 3` |
+| time_spent_ms | bigint default 0 | |
+| goal_met_at | timestamp nullable | момент, когда `reviews_count >= daily_goal` |
+| created_at, updated_at | | |
+
+Unique `(learner_id, date)`. Обновляется в той же транзакции, что и `training_reviews` (§3.3). Это замена `usage_counters` из docs/11 — хранить счётчики по дням проще и полезнее для аналитики.
+
+### 1.7 Контент: `courses`, `stages`, `lessons`, `words`, `word_translations`
+
+**`courses`**
+
+| Колонка | Тип | Описание |
+|---|---|---|
+| id | bigint PK | |
+| slug | varchar(64) unique | `english-a1`, `ielts-academic`, `legacy-default` |
+| owner_type | varchar(16) NOT NULL default `'platform'` | `platform` / `organization` (Фаза 2: `learner`) |
+| owner_id | bigint nullable | `organizations.id` при `owner_type='organization'`; FK не ставим (полиморфный), целостность — в `CourseService` |
+| title | jsonb NOT NULL | `{"ru": "...", "uz": "..."}` — обязательны оба ключа (валидация в сервисе) |
+| description | jsonb default `'{}'` | по локалям |
+| target_language | varchar(5) NOT NULL default `'en'` | параметр «на вырост», в Фазе 1 всегда `en` |
+| level | varchar(2) nullable | `A1`..`C2` |
+| exam_tag | varchar(16) nullable | `ielts` / `sat` / `school` / `general` |
+| visibility | varchar(10) NOT NULL default `'public'` | `public` / `unlisted` (по ссылке/группе) / `private` (только владелец) |
+| status | varchar(10) NOT NULL default `'draft'` | `draft` → `review` → `published` (→ `archived`) |
+| published_at | timestamp nullable | |
+| position | int default 0 | порядок в каталоге |
+| is_featured | boolean default false | |
+| words_count | int default 0 | денормализация, пересчёт в `CourseService::recount()` после импорта |
+| meta | jsonb default `'{}'` | |
+| created_at, updated_at | | |
+
+Индексы: `slug` unique; `(status, visibility, position)`; `(owner_type, owner_id)`.
+
+**`stages`** (модули курса): + `course_id` bigint FK → courses `cascadeOnDelete` (после backfill NOT NULL); unique `number` **заменяется** на unique `(course_id, number)`. В UI называем «Модуль»; команды учителя `/start_training <stage> <lesson>` резолвят номер в курсе группы (`telegram_groups.course_id`, иначе `legacy-default`).
+
+**`lessons`**: без изменений схемы (`stage_id`, `number`, `title`). Порядок внутри курса — `(stage.number, lesson.number)`.
+
+**`words`**: + `audio_path` varchar(255) nullable (предгенерированный mp3, относительный путь в `storage/app/public/audio`), + `is_active` boolean default true (docs/03 §8 правило 1 — слова не удаляем). `translation` остаётся как **legacy ru** на период Фазы 1 и источником backfill; чтение переводов — только через `WordTranslationResolver`.
+
+**`word_translations`**
+
+| Колонка | Тип |
+|---|---|
+| id | bigint PK |
+| word_id | FK → words cascade |
+| locale | varchar(5) NOT NULL (`ru` / `uz`; значения — `config('localization.supported')`) |
+| translation | varchar(500) NOT NULL |
+| example_translation | text nullable |
+| source | varchar(16) default `'import'` (`import` / `manual` / `ai`) |
+| reviewed_at | timestamp nullable — проверено носителем |
+| created_at, updated_at | |
+
+Unique `(word_id, locale)`. Экзаменационные дистракторы строятся на переводах локали **группы** (`LocaleResolver::forGroup`) с fallback на `ru`; личных экзаменов в Фазе 1 нет.
+
+**`telegram_groups`**: + `organization_id` bigint nullable FK → organizations `nullOnDelete`; + `course_id` bigint nullable FK → courses `nullOnDelete` (курс для команд учителя; `NULL` = `legacy-default`).
+
+### 1.8 Организации (минимум Фазы 1)
+
+**`organizations`**
+
+| Колонка | Тип |
+|---|---|
+| id | bigint PK |
+| name | varchar(150) |
+| slug | varchar(64) unique |
+| type | varchar(16) default `'center'` (`center` / `tutor`) |
+| status | varchar(16) default `'active'` (`active` / `suspended`) |
+| timezone | varchar(64) default `'Asia/Tashkent'` |
+| locale | varchar(5) default `'ru'` |
+| settings | jsonb default `'{}'` |
+| created_at, updated_at | |
+
+В Фазе 1 организацию создаёт только суперадмин в Filament и привязывает к ней группы. Членство learner'а в организации **выводится** из активного членства в её группах — отдельной `organization_members` нет. Обоснование: без оплаты и кабинета центра явные участники, места, инвайт-коды и `organization_users` (owner/admin) не нужны; но субъект «организация» необходим уже сейчас, чтобы существующий центр-клиент получил спонсорский Pro через тот же `subscriptions`, что и физлица. Фаза 2 добавит `organization_members` (status, joined_at, invited_via), `organization_users`, `seats_limit`, инвайт-коды и deep-link `start=org_<code>` — без изменения уже созданных таблиц.
+
+### 1.9 Тарифы: `subscriptions`, `promo_codes`, `promo_redemptions`
+
+**`subscriptions`**
+
+| Колонка | Тип | Описание |
+|---|---|---|
+| id | bigint PK | |
+| subscriber_type | varchar(16) NOT NULL | `learner` / `organization` |
+| subscriber_id | bigint NOT NULL | без FK (полиморфный); целостность — `SubscriptionService` |
+| plan | varchar(16) NOT NULL | `pro` (ключ из `config('billing.plans')`); для организаций — тоже `pro` (спонсорский) |
+| status | varchar(12) NOT NULL | `trialing` / `active` / `past_due` / `canceled` / `expired` |
+| provider | varchar(16) NOT NULL | `manual` / `promo` / `telegram_stars` / `payme` / `click` |
+| provider_ref | varchar(191) nullable | id подписки/договора у провайдера |
+| starts_at | timestamp NOT NULL | |
+| current_period_ends_at | timestamp nullable | `NULL` = бессрочно (только `manual`) |
+| grace_until | timestamp nullable | конец grace-периода при `past_due` |
+| canceled_at, ended_at | timestamp nullable | |
+| seats_limit | int nullable | для организаций (Фаза 2 — проверка мест) |
+| granted_by_user_id | bigint nullable FK → users `nullOnDelete` | кто выдал вручную |
+| note | varchar(255) nullable | причина ручной выдачи |
+| meta | jsonb default `'{}'` | |
+| created_at, updated_at | | |
+
+Индексы: `(subscriber_type, subscriber_id, status)`; `(status, current_period_ends_at)`; `(status, grace_until)`; partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscriber_id) WHERE status IN ('trialing','active','past_due')` — не больше одной «живой» подписки у субъекта (PG/sqlite; на других драйверах — проверка в сервисе под `lockForUpdate`).
+
+**`promo_codes`**: id, `code` varchar(32) unique (нормализуется в upper-case, генерируется `Str::upper(Str::random(10))`), `plan` varchar(16), `duration_days` smallint, `max_redemptions` int nullable, `redemptions_count` int default 0, `expires_at` nullable, `is_active` bool default true, `created_by_user_id` FK users nullOnDelete, `note`, timestamps.
+**`promo_redemptions`**: id, `promo_code_id` FK cascade, `learner_id` FK cascade, `subscription_id` FK → subscriptions nullOnDelete, `redeemed_at`; unique `(promo_code_id, learner_id)`.
+
+**`payments`** — **не создаётся в Фазе 1** (нечему писать). Целевая форма для задачи «Оплата» (вне Фазы 1): id, `subscription_id` FK nullable, `subscriber_type/id`, `provider`, `provider_event_id` varchar(191) **unique вместе с provider** `(provider, provider_event_id)`, `kind` (`charge` / `refund` / `renewal`), `amount` bigint (минорные единицы / Stars), `currency` varchar(8) (`XTR`, `UZS`), `status` (`succeeded` / `refunded` / `failed`), `raw` jsonb, `occurred_at`. См. §6.
+
+### 1.10 Прочее
+
+- `product_events`: `student_id` → `learner_id` (§1.5); новые имена событий — §7.7.
+- `audit_logs`: действия `subscription.granted`, `subscription.revoked`, `promo.created`, `learner.blocked`, `course.published`, `organization.linked_group`.
+- `notifications_log.type`: `review_reminder`, `streak_reminder`, `onboarding_nudge`.
+
+---
+
+## 2. Миграция данных `students` → `learners` без потери
+
+### 2.1 Выбор стратегии
+
+| Вариант | Плюсы | Минусы | Решение |
+|---|---|---|---|
+| A. Оставить `students`, добавить `students.learner_id` | минимальные правки FK | `word_repetitions.student_id` остаётся групповым: прогресс одного человека в двух группах не слит; все сервисы продолжают думать «студент = группа»; второй рефакторинг неизбежен | отклонён |
+| B. `ALTER TABLE students RENAME TO group_members` + добавить `learner_id`, удалить профильные колонки | id сохраняются | тот же объём правок кода; таблица тянет лишние колонки до релиза B; `down()` — обратный rename с восстановлением колонок; FK `*_id → students` всё равно надо перевести на learners | отклонён |
+| **C. Новые `learners` + `group_members (legacy_student_id)`, колонки `learner_id` в зависимых таблицах, `students` заморожена до релиза B** | чистая целевая схема сразу; `students` остаётся нетронутым источником для `down()` и сверки; слияние прогресса — один раз | большой рефакторинг кода (неизбежен в любом варианте) | **принят** |
+
+### 2.2 Релизы и окно обслуживания
+
+Деплой-скрипт (DEVOPS_GUIDE §1) выполняет `migrate --force` **до** переключения контейнеров, то есть при живом старом коде. Старый код пишет `student_id` и не знает про `learner_id`; как только `learner_id` станет NOT NULL, его INSERT упадёт. Поэтому:
+
+- **Релиз A (задачи 1.1a–1.1c) — с окном обслуживания 2–5 минут.** Порядок: предусловия → бэкап → `artisan down --secret=<…>` → дренаж очередей (`queue:work --stop-when-empty` для `high`/`default`, остановка воркеров и планировщика) → `migrate --force` (миграции §2.4) → переключение образов → `artisan up` → smoke (§2.6). Это одноразовое структурное изменение при аудитории одного центра; простой в минуты приемлем.
+- **Релиз B (задача 1.1d), не раньше чем через 7 дней работы на новой схеме:** удаление `student_id`, `students`, `word_repetitions_merge_archive`, `group_members.legacy_student_id`. Выполняется обычным деплоем без окна.
+- Отклонено: двухрелизный dual-write (новый код пишет и `student_id`, и `learner_id`, `learner_id` NOT NULL — в следующем релизе). Потребовал бы сохранить модель `Student` и все её потребители на один релиз, то есть рефакторить дважды.
+
+**Предусловия релиза A** (проверяет координатор, фиксируется в DEVOPS_GUIDE):
+1. Нет открытых экзаменов: `SELECT count(*) FROM exam_sessions WHERE status = 'open'` = 0 (экзамен ≤ 30 мин; при необходимости `/close_exam`). Причина: `ExamQuestionPersonalizer` строит seed из `(session_id, student_id)`; после миграции seed строится из `learner_id`, и открытый экзамен **перемешался бы** у участников. Закрытым экзаменам seed не нужен (результаты в `exam_results`, ответы — в `exam_answers`).
+2. Время деплоя не совпадает с рассылкой напоминаний (сейчас 18:00 UTC): в очереди не должно быть `SendReviewReminderJob(studentId)` — его сигнатура меняется.
+3. Свежий бэкап `backup:run` завершён.
+
+### 2.3 Правила переноса
+
+**Learner из students.** Для каждого уникального `students.telegram_user_id` — одна строка `learners`. Профиль (`first_name`, `last_name`, `username`, `language_code`) берётся из строки с максимальным `last_seen_at` (NULL — последним), при равенстве — с большим `id`. `interface_locale = LocaleResolver::fromLanguageCode(language_code)`; `timezone` — дефолт конфигурации; `onboarding_state = 'done'`, `onboarding_completed_at = now()` (мигрированные уже учатся — онбординг им не навязываем, но бот при первом ЛС предложит `/settings`); `acquisition_source = 'legacy'`; `last_seen_at = max(students.last_seen_at)`.
+
+**group_members из students.** Один к одному: `legacy_student_id = students.id`, `status = is_active ? 'active' : 'removed'`, `joined_at = students.created_at`.
+
+**word_repetitions — слияние.** Конфликт: одна пара `(telegram_user_id, word_id)` встречается в нескольких `students`. Правило выбора победителя (в порядке убывания приоритета):
+1. `state`: `review` > `relearning` > `learning` > `new`;
+2. `repetitions` больше;
+3. `last_reviewed_at` новее (NULL — последним);
+4. `id` больше.
+
+Победитель получает `learner_id`, у него `lapses = max(lapses)` по всем строкам (провалы — факт истории, а не параметр расписания), `is_hard = OR` по строкам в состоянии победителя; остальные поля — только победителя (EF и интервал — свойства одного расписания, смешивать их нельзя). Проигравшие копируются в `word_repetitions_merge_archive` (все колонки + `merged_into_id`, `legacy_student_id`) и удаляются. Правило docs/11 «брать с большим `repetitions`» недостаточно: после Фазы 0 строка в `review` с `repetitions = 1` ценнее строки в `relearning` с `repetitions = 0`, а `repetitions` сбрасывается при провале.
+
+**Остальные таблицы** (`training_reviews`, `exam_answers`, `exam_results`, `exam_question_attempts`, `notifications_log`, `product_events`): `learner_id = learners.id` по `students.telegram_user_id`. Конфликтов нет (§1.5).
+
+**Контент.** Создаётся курс `legacy-default` (`owner_type = platform`, `status = published`, `visibility = public`, `title = {ru: "Базовый курс", uz: "Asosiy kurs"}`), все `stages.course_id` указывают на него; `words.translation` → `word_translations (locale = 'ru', source = 'import')`. Все активные группы получают `course_id = legacy-default`.
+
+### 2.4 Порядок миграций релиза A
+
+| # | Файл (`database/migrations/2026_10_2x_…`) | up | down |
+|---|---|---|---|
+| 1 | `create_learners_table` | §1.2 без FK `active_course_id` | drop |
+| 2 | `create_group_members_table` | §1.3 | drop |
+| 3 | `create_organizations_table` | §1.8 | drop |
+| 4 | `create_courses_and_word_translations` | `courses`, `word_translations`, `words.audio_path/is_active`, `stages.course_id` nullable, `telegram_groups.organization_id/course_id`, `learners.active_course_id` FK | обратные drop/dropColumn |
+| 5 | `add_learner_id_to_learning_tables` | nullable `learner_id` + FK + индексы в 7 таблицах (§1.5); `training_sessions`: новые колонки, `telegram_group_id/started_by_user_id/lesson_id` → nullable | dropColumn / обратный NOT NULL (данные личных сессий к этому моменту отсутствуют или удаляются в down) |
+| 6 | `create_learner_daily_stats_table` | §1.6 | drop |
+| 7 | `create_subscriptions_and_promo_tables` | §1.9 | drop |
+| 8 | `backfill_learners_from_students` | **данные**: вызывает `StudentsToLearnersMigrator::run()` (§2.5); создаёт `word_repetitions_merge_archive`; курс `legacy-default` и backfill `stages.course_id`, `word_translations(ru)`, `telegram_groups.course_id` | `StudentsToLearnersMigrator::rollback()`: восстановить проигравших из архива, `learner_id = NULL` везде, удалить `group_members`, `learners`, `word_translations(source='import')`, `stages.course_id = NULL`, курс `legacy-default`; drop архива |
+| 9 | `enforce_learner_schema` | `learner_id` NOT NULL где положено; `student_id` → nullable во всех 7 таблицах; замена уникальностей `(student_id, …)` → `(learner_id, …)` (создать новые, затем удалить старые); `stages.course_id` NOT NULL, unique `(course_id, number)` вместо `number`; partial unique/CHECK для `training_sessions` (§1.4) | обратные операции (`student_id` NOT NULL восстанавливается только если нет строк с NULL — иначе исключение с подсказкой «rollback сначала 9, затем 8») |
+
+Релиз B — одна миграция `drop_students_legacy`: dropColumn `student_id` (7 таблиц), drop `students`, drop `word_repetitions_merge_archive`, dropColumn `group_members.legacy_student_id`. `down()` восстанавливает **схему** (nullable колонки, пустую `students`), не данные — к этому моменту старый код не существует; задокументировать в DEVOPS_GUIDE.
+
+### 2.5 `StudentsToLearnersMigrator` — требования к реализации
+
+Класс `App\Domain\Learners\Migration\StudentsToLearnersMigrator` (вызывается из миграции 8 и из artisan-команды `learners:migrate-from-students {--dry-run}` для прогона на копии прода):
+
+- **Идемпотентен и возобновляем**: все шаги фильтруют `WHERE learner_id IS NULL` / `WHERE NOT EXISTS (learners.telegram_user_id = …)`; падение на середине не портит данные, повторный запуск доделывает.
+- **Батчи**: `students` читаются `chunkById(500)`; для каждого `telegram_user_id` — своя короткая транзакция (создать learner, членства, слить прогресс, проставить `learner_id` в 7 таблицах запросами вида `->where('student_id', $sid)->whereNull('learner_id')->update(['learner_id' => $lid])` — они бьют по существующим индексам `student_id`, без `DB::raw`). При 1–2 тыс. студентов это ~10–15 тыс. коротких UPDATE — секунды. Для масштаба в сотни тысяч студентов предусмотрен PG-путь `UPDATE … FROM` с bindings (`DB::statement` с `?`), включаемый флагом `--bulk` — в Фазе 1 не нужен, не реализуем.
+- Слияние `word_repetitions` — выборка конфликтов одним запросом (`GROUP BY telegram_user_id, word_id HAVING count(*) > 1` через join со `students`), затем по-строчно в PHP по правилу §2.3.
+- Прогресс пишется в лог (`learners.migration`) по каждым 500 студентам; итог: число learners, членств, слитых строк, перенесённых строк по таблицам — сравнивается с контрольными суммами (`count(*)` до/после по каждой таблице: сумма `learner_id IS NOT NULL` должна равняться числу строк со `student_id IS NOT NULL`).
+- **Тесты (Pest, sqlite локально + PG в CI):** один человек в двух группах с пересечением слов (победитель по `state`, по `repetitions`, по `last_reviewed_at`); `lapses = max`; архив содержит проигравших; `training_reviews`/`exam_*`/`notifications_log`/`product_events` получают `learner_id`; `is_active = false` → `removed`; профиль из последней по `last_seen_at`; повторный `run()` ничего не меняет; `rollback()` возвращает исходное (включая проигравших) — assert по снимку таблиц; миграции 8+9 `down()` → `up()` по образцу теста `runs the learning-state migration backfill and rollback cleanly` в `TwaTrainingTest`; `DatabaseSchemaTest`: новые таблицы, уникальности, PG-индексы (partial) через `pg_indexes`.
+
+### 2.6 Smoke после релиза A
+
+`POST /api/twa/auth` (старый токен → 401 `invalid_token`, новый → `learner.id`), `GET /api/twa/today`, открытие старой ссылки `/twa/training/{id}` группы (id сессий сохранены), `/start` в ЛС нового пользователя, Filament: Learners, Courses. Сверка: `select count(*) from learners` = `select count(distinct telegram_user_id) from students`.
+
+---
+
+## 3. Границы доменов и контракты сервисов
+
+Модели остаются в `app/Models` (конвенция проекта). Удаляются `Student`, `StudentPolicy`, `StudentContextResolver`, `StudentStatsService`, `StudentFactory`, `DemoStudentsSeeder` (замены ниже). Домен `Content` **не переименовываем** в `Catalog` — лишний churn; курсы добавляются в него.
+
+### 3.1 `app/Domain/Learners` (новый)
+
+```php
+final class LearnerRegistrar
+{
+    /** Upsert по telegram_user_id из initData/апдейта; обновляет имя/username/language_code/last_seen_at; НЕ трогает interface_locale после онбординга. */
+    public function fromTelegramUser(array $tgUser, ?string $source = null, ?string $startPayload = null): Learner;
+}
+
+final class OnboardingService
+{
+    public function start(Learner $l, ?string $startPayload): OnboardingStep;      // парсит payload (§7.2), ставит state=locale
+    public function apply(Learner $l, string $step, string $value): OnboardingStep; // валидирует значение шага, сохраняет, возвращает следующий шаг
+    public function skipToDone(Learner $l): void;                                   // мигрированные/повторный /start
+}
+final readonly class OnboardingStep { public string $state; public string $messageKey; public array $options; } // options → inline-кнопки
+
+final class LearnerSettingsService
+{
+    public function update(Learner $l, LearnerSettings $dto): Learner; // locale, timezone, reminder_time, daily_goal, active_course_id; пересчитывает next_reminder_at; инвалидирует кэш
+}
+
+final class LearnerClock
+{
+    public function today(Learner $l, ?CarbonImmutable $now = null): CarbonImmutable;        // локальная дата (00:00 в tz learner'а)
+    public function dayBoundsUtc(Learner $l, ?CarbonImmutable $now = null): array;            // [startUtc, endUtc] текущего локального дня
+    public function nextOccurrenceUtc(Learner $l, string $localTime, CarbonImmutable $after): CarbonImmutable;
+}
+
+final class DailyStatsService
+{
+    /** В транзакции review: upsert строки (learner_id, localDate) + инкременты; возвращает актуальную строку. */
+    public function recordReview(Learner $l, int $quality, int $timeSpentMs, bool $isNewCard, CarbonImmutable $now): LearnerDailyStats;
+    public function today(Learner $l): ?LearnerDailyStats;
+}
+
+final class StreakService
+{
+    /** Вызывается DailyStatsService, когда reviews_count впервые >= daily_goal за день. Правила §7.4. */
+    public function onGoalMet(Learner $l, CarbonImmutable $localDate): void;
+    public function current(Learner $l, CarbonImmutable $today): StreakState; // {current, best, atRisk, metToday}; current=0 если streak_last_date < yesterday
+}
+
+final class GroupMembershipService
+{
+    public function join(Learner $l, TelegramGroup $g, string $via): GroupMember;     // active (idempotent)
+    public function leave(Learner $l, TelegramGroup $g, string $status = 'left'): void;
+    public function isActiveMember(Learner $l, TelegramGroup $g): bool;              // status=active AND group active
+    public function activeGroupIds(Learner $l): array;
+}
+```
+
+### 3.2 `app/Domain/Content` (расширяется)
+
+```php
+final class CourseCatalogService
+{
+    public function published(string $locale): Collection;                 // public+published, с title[locale]; кэш 10 мин
+    public function forLearner(Learner $l): Collection;                     // + progress % по курсу
+    public function lessonsWithProgress(Course $c, Learner $l): Collection; // (stage.number, lesson.number, title, total, done)
+    public function nextLessonWithNewWords(Course $c, Learner $l): ?Lesson; // источник новых слов для daily_review
+    public function recommend(?string $goal, ?string $level): ?Course;      // онбординг: exam_tag=goal → level → featured
+}
+
+final class CoursePublisher
+{
+    public function transition(Course $c, string $to, User $by): Course;    // draft→review→published→archived; audit_log; published требует >= 1 урока и переводы uz+ru у >= 95% слов (порог в config)
+    public function recount(Course $c): void;
+}
+
+final class WordTranslationResolver
+{
+    public function for(Word $w, string $locale): string;                   // word_translations[locale] → [fallback 'ru'] → words.translation
+    /** Батч: избегаем N+1 в CardPicker/ExamQuestionBuilder. */
+    public function map(Collection $words, string $locale): array;          // word_id => translation
+}
+
+// VocabularyImporter v2: схема JSON получает `course` (slug) и `translations: {ru, uz}` у слова; `translation` как раньше = ru.
+```
+
+### 3.3 `app/Domain/Learning` (изменяется)
+
+```php
+final readonly class TrainingScope
+{
+    public static function lesson(int $lessonId): self;
+    public static function daily(int $learnerId, ?int $courseId): self;   // due по всем словам + new из nextLessonWithNewWords(course)
+    public ?int $lessonId; public ?int $courseId; public bool $includeNew;
+}
+
+final class TrainingSessionService
+{
+    public function open(TelegramGroup $g, int $stage, int $lesson, User $teacher): TrainingSession;              // как сейчас; mode=group_lesson; stage/lesson резолвятся в курсе группы
+    public function openPersonal(Learner $l, string $mode, ?Lesson $lesson, string $source): TrainingSession;     // idempotent по partial unique; expires_at = now + session_ttl_hours
+    public function finish(TrainingSession $s, Learner $l): SessionSummary;                                       // status=closed, ended_at; summary из training_reviews сессии
+    public function closeExpired(CarbonImmutable $now): int;                                                      // планировщик, личные сессии
+}
+
+final class CardPicker
+{
+    /** @return array{repetition, word, kind, ahead}|null */
+    public function pickNext(int $learnerId, TrainingScope $scope, NewCardBudget $budget, ?CarbonImmutable $now = null): ?array;
+    public function progress(int $learnerId, TrainingScope $scope, ?int $totalWords = null): array;
+}
+// NewCardBudget: {remaining: ?int} — null = безлимит; pickNew пропускается при remaining <= 0 и возвращает причину в TrainingStep.doneReason
+
+final class TrainingFlowService
+{
+    public function start(TrainingSession $s, Learner $l): ?TrainingStart;
+    public function nextStep(TrainingSession $s, Learner $l, ?int $totalWords = null): TrainingStep; // + doneReason: lesson_complete|nothing_due|new_quota_exhausted|session_cap
+    public function review(TrainingSession $s, Learner $l, int $wordId, int $quality, int $timeSpentMs, ?string $serveToken = null): ReviewOutcome;
+}
+
+final class ReviewSubmissionService
+{
+    // Проверка «слово принадлежит уроку сессии» → «слово в scope сессии»: для daily_review — любое слово со строкой word_repetitions learner'а.
+    // В той же транзакции: DailyStatsService::recordReview(...). isNewCard = repetition.state === New до applyReview.
+}
+
+final class TodayService
+{
+    public function summary(Learner $l, ?CarbonImmutable $now = null): TodaySummary;
+    // {dueCount (DueRepetitionCriteria), newRemaining (?int), goal: {target, done, met}, streak: StreakState, activeCourse, openDailySessionId, entitlement: plan}
+}
+
+final class LearnerStatsService { public function forLearner(Learner $l): LearnerStats; } // wordsLearned, wordsDueToday — замена StudentStatsService
+```
+
+`ExamQuestionPersonalizer`, `ExamAnswerService`, `ExamFlowService`, `LeaderboardBuilder`, `LearningCache::examLeaderboard`: `Student` → `Learner`, `student_id` → `learner_id`; поведение не меняется. `ReviewReminderLinkBuilder` упрощается: ссылка всегда `{twa.base_url}/twa/?from=reminder` (экран «Сегодня» сам откроет `daily_review`); путь с открытием сессии от имени учителя удаляется.
+
+### 3.4 `app/Domain/Billing` (новый)
+
+```php
+enum Plan: string { case Free = 'free'; case Pro = 'pro'; public function rank(): int; }
+
+final readonly class Entitlement
+{
+    public Plan $plan;
+    public string $source;              // 'free' | 'subscription' | 'sponsor:organization:<id>'
+    public ?CarbonImmutable $until;
+    public array $features;             // из config('billing.plans.<plan>.features')
+    public ?int $newWordsPerDay;        // null = безлимит
+    public function can(string $feature): bool;
+}
+
+final class EntitlementResolver
+{
+    public function for(Learner $l, ?CarbonImmutable $now = null): Entitlement;   // кэш "entitlement:learner:{id}" TTL config('billing.cache_ttl') (300 с)
+    public function forget(Learner $l): void;
+    public function forgetOrganization(Organization $o): void;                   // чистит кэш всем learner'ам активных групп организации (chunk)
+}
+
+final class SubscriptionService
+{
+    public function grantManual(Learner|Organization $subscriber, Plan $plan, ?CarbonImmutable $until, User $by, string $note): Subscription; // lockForUpdate субъекта; если есть live — продлевает/заменяет; audit_log; forget()
+    public function revoke(Subscription $s, User $by, string $note): Subscription;      // status=expired, ended_at=now
+    public function expireDue(CarbonImmutable $now): int;                               // планировщик: active с current_period_ends_at<now → past_due (grace) или expired; past_due с grace_until<now → expired
+    public function applyProviderEvent(ProviderEvent $e): Subscription;                 // контракт для будущих провайдеров (§6), в Фазе 1 не реализуется
+}
+
+final class PromoCodeService
+{
+    public function redeem(Learner $l, string $code, ?CarbonImmutable $now = null): Subscription; // lockForUpdate promo_codes; проверки: active, не истёк, лимит, не использован этим learner'ом; создаёт subscription(provider=promo, until=now+duration_days) через SubscriptionService
+}
+
+final class NewWordQuota
+{
+    public function budget(Learner $l, Entitlement $e, ?CarbonImmutable $now = null): NewCardBudget; // remaining = limit - learner_daily_stats.today.new_words_count (fallback: count word_repetitions created в локальном дне)
+}
+```
+
+`config/billing.php` — единственное место цен и лимитов:
+
+```php
+return [
+    'cache_ttl' => 300,
+    'grace_days' => 3,
+    'plans' => [
+        'free' => ['rank' => 0, 'limits' => ['new_words_per_day' => (int) env('BILLING_FREE_NEW_WORDS_PER_DAY', 20)], 'features' => ['courses.public', 'training.daily', 'training.lesson']],
+        'pro'  => ['rank' => 1, 'limits' => ['new_words_per_day' => null], 'features' => ['courses.public', 'training.daily', 'training.lesson', 'stats.detailed', 'streak.freeze' /* Фаза 2 */]],
+    ],
+    'prices' => [ /* заполняется при подключении оплаты: ['pro' => ['month' => ['XTR' => …, 'UZS' => …], 'year' => […]]] */ ],
+    'paywall' => ['mode' => env('BILLING_PAYWALL_MODE', 'coming_soon'), 'contact' => env('BILLING_SUPPORT_CONTACT', '')], // coming_soon | purchase (после подключения провайдера)
+];
+```
+
+### 3.5 `app/Domain/Twa` (изменяется)
+
+```php
+final class JwtService
+{
+    public function issue(int $learnerId): array;             // {token, expires_in, expires_at}; payload {iss, sub, v:2, iat, exp}
+    public function verify(string $token): array;             // {learner_id, iat, exp}; отклоняет v≠2, iss≠lexiflow
+}
+
+final class LearnerContextResolver
+{
+    /** Находит/создаёт learner по initData (LearnerRegistrar), фиксирует source='twa_group' если context указывает на групповую сессию и learner новый. Никогда не отвечает 409 session_context_required. */
+    public function resolve(array $tgUser, ?string $contextType, ?int $sessionId): Learner;
+}
+```
+
+`TwaAuth`: грузит `Learner` по `sub`, отвечает 401 `learner_not_found` / `learner_blocked`; кладёт в `request->attributes`: `twa = ['learner_id' => int]`, `learner = Learner`. Rate limiter'ы (`AppServiceProvider`) ключуются `learner_id`.
+
+### 3.6 `app/Domain/Telegram` (изменяется)
+
+Новые хендлеры: `OnboardingCallbackHandler` (`callback_data` `onb:<step>:<value>`), `LearnerDmHandler` (любое сообщение в ЛС не-учителя: сброс `dm_blocked_at`, повтор текущего шага онбординга или краткое меню), `ChatMemberHandler` (`chat_member` → `GroupMembershipService::join/leave`; `allowed_updates` уже включает `chat_member`), `TodayCommandHandler` (`/today` → web_app-кнопка на `/twa/`), `SettingsCommandHandler` (`/settings` → inline-меню, те же шаги онбординга по одному). `StartCommandHandler` разветвляется: учитель (есть `users.telegram_user_id`) — как сейчас; иначе — `OnboardingService::start`. `NewMembersHandler` → `GroupMembershipService::join(via: 'group')` (learner создаётся `LearnerRegistrar`, `onboarding_state = 'new'`, `acquisition_source = 'group'`). `TelegramClient` получает `editMessageReplyMarkup(chatId, messageId, ?array)` для снятия кнопок после выбора (опционально).
+
+### 3.7 `app/Domain/Organizations` (Фаза 1 — модель и Filament-ресурс)
+
+`Organization` модель, `OrganizationResource` (CRUD суперадмина, привязка групп через relation manager). Сервисов нет до Фазы 2.
+
+### 3.8 Контроллеры/Resource (обвязка для coder)
+
+Маршруты `/api/twa/*` (все под `TwaAuth` + `throttle:twa-api`, кроме `/auth`):
+
+| Метод | Путь | Сервис | Resource |
+|---|---|---|---|
+| POST | `/auth` | `LearnerContextResolver` → `JwtService::issue` | `AuthTokenResource` → `{token, expires_in, learner: {id, first_name, locale, onboarding_completed}}` |
+| GET | `/me` | `LearnerStatsService`, `EntitlementResolver` | `MeResource` → `{learner: {...settings}, entitlement: {plan, source, until, new_words_per_day}, stats: {words_learned, words_due_today}}` |
+| PATCH | `/me/settings` | `LearnerSettingsService` | `MeResource` |
+| GET | `/today` | `TodayService` | `TodayResource` |
+| GET | `/courses` | `CourseCatalogService::forLearner` | `CourseResource` (collection) |
+| GET | `/courses/{slug}` | `lessonsWithProgress` | `CourseDetailResource` |
+| POST | `/me/course` `{course_id}` | `LearnerSettingsService` | `MeResource` |
+| POST | `/training/sessions` `{mode, lesson_id?}` (throttle `twa-session-create` 10/min) | `TrainingSessionService::openPersonal` + `TrainingFlowService::start` | `TrainingStartResource` (+ `mode`, `done_reason`) |
+| POST/GET/POST | `/training/sessions/{id}/start|next|review` | без изменений формы; `card: null` сопровождается `done_reason`; `quota: {new_words_remaining}` | существующие Resource + поля |
+| POST | `/training/sessions/{id}/finish` | `TrainingSessionService::finish` | `SessionSummaryResource` → `{reviewed, correct, new_words, goal: {target, done, met}, streak}` |
+| POST | `/promo/redeem` `{code}` (throttle `twa-promo` 5/min per learner, 20/min per IP) | `PromoCodeService::redeem` | `MeResource`; ошибки 404 `promo_not_found`, 409 `promo_exhausted`/`promo_already_redeemed`, 410 `promo_expired` |
+| … | `/exam/sessions/{id}/*` | без изменений; доступ через членство | без изменений |
+
+TWA экраны: `TodayView` (новый `/`), `CoursesView`, `CourseView`, `TrainingView` (режимы), `FinishedView` (summary), `SettingsView`, `PaywallSheet` (компонент), экзамен — без изменений. `stores/auth.ts`: `Student` → `Learner`, `context` остаётся для аналитики, `ensure()` больше не перелогинивает при смене контекста (один learner).
+
+---
+
+## 4. Аутентификация и доступ
+
+### 4.1 JWT v2
+
+Payload `{iss: 'lexiflow', sub: '<learner_id>', v: 2, iat, exp}`; TTL 15 мин как сейчас. `verify()` требует `v === 2` — иначе `invalid_token`. Так старые токены (где `sub` = `students.id`) **не могут** быть прочитаны как learner — иначе в момент деплоя студент №42 стал бы learner'ом №42. Клиент уже умеет 401 → `login()` → retry (`api/client.ts`), поэтому переход прозрачен. `jti` + denylist отложены (§8): отзыв в Фазе 1 — `learners.blocked_at`, проверяемый `TwaAuth` на каждом запросе (как сегодня проверяется `is_active`).
+
+### 4.2 Вход в TWA без контекста сессии
+
+`POST /auth` принимает `init_data` и необязательный `context` (оставлен для совместимости клиента и для события `twa.authenticated`). Identity = `initData.user.id` → `LearnerRegistrar::fromTelegramUser` (создаёт learner при первом входе — например, человек открыл кнопку в группе, не нажимая `/start` в ЛС). Ошибок `session_context_required`/`student_not_found` на `/auth` больше нет. Доступ к конкретной сессии проверяется на её маршрутах.
+
+### 4.3 Старые ссылки и кнопки
+
+- `/twa/training/{id}`, `/twa/exam/{id}` — id сессий сохраняются, маршруты те же; проверка доступа — по членству (§4.4).
+- Напоминания, отправленные до деплоя, ведут на `/twa/training/{id}` групповой сессии — работают, пока сессия `open`.
+- `/twa/` (бывший «откройте через кнопку в группе») становится экраном «Сегодня».
+- Кнопка бота в ЛС: `web_app` URL `{base}/twa/?from=bot`. Прямые ссылки `t.me/<bot>/<app>?startapp=…` требуют регистрации Mini App в BotFather — опционально, не в Фазе 1.
+
+### 4.4 Политики
+
+```php
+final class TrainingSessionPolicy
+{
+    public function canAccess(Learner $l, TrainingSession $s): bool
+    {
+        if ($l->blocked_at !== null) return false;
+        if ($s->mode !== 'group_lesson') return (int) $s->learner_id === (int) $l->id;      // личная
+        return $this->memberships->isActiveMember($l, $s->group);                             // групповая
+    }
+    public function canParticipate(...)  // + status=open (410 отдельно, как сейчас)
+}
+```
+
+`ExamSessionPolicy::canAccess/canParticipate/canViewResult(Learner, ExamSession)` — через `isActiveMember`. Ошибки: 403 `not_a_member` (бывш. `forbidden`), 403 `group_inactive`, 410 `session_closed`.
+
+Filament (`PanelDataScope`): `students()` → `learners()`: админ — все; учитель — learner'ы с **активным** членством в его группах (`whereHas('memberships', fn => active + group in teacher_groups)`). `trainingReviews()` учителя ограничиваются **групповыми** сессиями его групп (`training_sessions.mode = 'group_lesson'`) — личные занятия ученика учителю не видны (приватность, docs/11 §5.2). `LearnerResource` для учителя показывает только имя/username и учебные метрики по его группам; настройки, подписка, курсы, личные сессии — только админу.
+
+### 4.5 Изоляция организаций
+
+Фаза 1: данных организаций, кроме привязки групп и подписки, нет; изоляция — существующий `teacher_groups` scope + тесты «учитель A не видит учеников группы B» (есть `TeacherPanelScopeTest`, расширить на `learners()`). Postgres RLS — **не в Фазе 1**: RLS требует отдельной БД-роли без `BYPASSRLS`, `SET LOCAL app.current_org` на каждый запрос (включая очереди и Filament) и ломает `migrate`/`backup` сценарии; окупается, когда появятся кабинеты центров с собственными данными (Фаза 2). Тогда — global scope `BelongsToOrganization` на моделях центра + RLS как второй рубеж.
+
+---
+
+## 5. Entitlement и тарифы
+
+### 5.1 Вычисление
+
+```
+effective(learner) = argmax_rank( Free,
+                                  live personal subscription(plan),
+                                  live subscription of any organization owning an active group where learner has active membership )
+live = status IN (trialing, active) OR (status = past_due AND grace_until > now)
+```
+
+Запрос спонсора: `subscriptions WHERE subscriber_type='organization' AND subscriber_id IN (SELECT g.organization_id FROM telegram_groups g JOIN group_members gm ON gm.telegram_group_id=g.id WHERE gm.learner_id=? AND gm.status='active' AND g.status='active' AND g.organization_id IS NOT NULL) AND <live>`. Результат — `Entitlement` с `source`. Ушёл из группы → при следующем вычислении Free (прогресс остаётся у learner'а).
+
+### 5.2 Кэш и инвалидация
+
+Ключ `entitlement:learner:{id}`, TTL 300 с. `forget()` вызывают: `SubscriptionService` (grant/revoke/expire — для организации `forgetOrganization`), `GroupMembershipService` (join/leave), `PromoCodeService`, Filament-действия привязки группы к организации. Пропуск инвалидации стоит максимум 5 минут задержки, но никогда не даёт лишний Pro дольше TTL — приемлемо.
+
+### 5.3 Лимит новых слов (Free = 20/день)
+
+- **Что считается:** первая выдача карточки (создание строки `word_repetitions`, `state = new`) — `learner_daily_stats.new_words_count` за **локальный** день learner'а. Повторения (`due`, `learning`, learn-ahead) **никогда** не ограничиваются — ни Free, ни лимитом сессии (`max_cards_per_session` остаётся защитой от зацикливания клиента и считает оценки, как сейчас).
+- **Где:** `CardPicker::pickNewInTransaction` получает `NewCardBudget`; при `remaining <= 0` шаг «new» пропускается, пикер идёт к learn-ahead, затем `null` с `doneReason = new_quota_exhausted` (только если именно квота остановила — то есть в scope были невыданные слова). Клиент показывает paywall-лист (§5.4), но сессия не завершается, пока есть learning-карточки.
+- **Гонка двух вкладок:** внутри транзакции `pickNewInTransaction` сначала `Learner::whereKey($id)->lockForUpdate()` (сериализует выдачу новых карточек одного learner'а; существующий `lockForUpdate` на строке `words` убрать — он блокирует глобальную строку слова для всех учеников), затем пересчёт `remaining` по `learner_daily_stats` под той же блокировкой, затем INSERT. На sqlite `FOR UPDATE` игнорируется (блокировка всей БД делает то же).
+- **Граница дня:** `LearnerClock::today()`; смена часового пояса в настройках не «обнуляет» квоту задним числом: `new_words_count` хранится по дате, вычисленной в момент выдачи.
+- Лимит и фичи — только в `config/billing.php`; Pro — `null` (безлимит).
+
+### 5.4 Paywall в Фазе 1
+
+`EntitlementResolver` отдаёт `paywall.mode` из конфига. Режим `coming_soon` (старт): лист «Лимит новых слов на сегодня исчерпан — повторения доступны без ограничений. Pro скоро откроется. Есть промокод? [Ввести код]. Учитесь в центре? Попросите администратора центра подключить LexiFlow Pro: {contact}». Кнопки: «Повторить due-слова», «Ввести промокод», «Напомнить завтра» (просто закрывает). Событие `paywall.shown {reason}`. Режим `purchase` появится вместе с провайдером — та же компонента, другой текст и кнопка оплаты.
+
+### 5.5 Способы получить Pro без оплаты (Фаза 1)
+
+| Способ | Кто | Механика | Аудит |
+|---|---|---|---|
+| Ручная выдача | суперадмин (Filament `SubscriptionResource` → «Grant Pro»: субъект learner/organization, срок или бессрочно, причина) | `SubscriptionService::grantManual` | `audit_logs` `subscription.granted` + `granted_by_user_id`, `note` |
+| Промокод | learner в TWA/боте (`/promo CODE`) | `PromoCodeService::redeem` | `promo_redemptions`, событие `promo.redeemed` |
+| Спонсорство центра | суперадмин создаёт `organizations`, привязывает группы, выдаёт организации ручную подписку | §5.1 | те же `audit_logs` |
+| Триал | **не вводим** в Фазе 1 | без оплаты триал заканчивается стеной «скоро» — хуже, чем честный Free | — |
+
+Рекомендация по промокодам: да, реализовать — это дешёвый канал для блогеров/центров и инструмент поддержки до появления оплаты.
+
+### 5.6 Планировщик
+
+`subscriptions:expire` — каждый час (`SubscriptionService::expireDue`): `active` с `current_period_ends_at < now` → `past_due` с `grace_until = ends + grace_days` (для `manual`/`promo` без автопродления — сразу `expired`, grace не имеет смысла); `past_due` с `grace_until < now` → `expired`; каждый переход — `forget()`.
+
+---
+
+## 6. Оплата — архитектура без выбора провайдера (реализация вне Фазы 1)
+
+Владелец отложил подключение провайдеров; схема §1.9 и сервисы §3.4 спроектированы так, чтобы любой провайдер подключался добавлением класса и таблицы `payments`, без правок `subscriptions`.
+
+### 6.1 Контракт
+
+```php
+interface BillingProvider
+{
+    public function key(): string;                                                  // 'telegram_stars' | 'payme' | 'click' | 'manual'
+    public function createCheckout(Learner|Organization $subscriber, Plan $plan, string $period /* month|year */): CheckoutIntent; // {url|invoice_link, provider_ref}
+    public function parseWebhook(Request $request): ProviderEvent;                  // проверка подписи/IP, нормализация; бросает InvalidWebhookException
+    public function refund(Payment $payment): void;
+}
+final readonly class ProviderEvent { string $provider; string $providerEventId; string $kind /* charge|renewal|refund|failed|canceled */; string $subscriberType; int $subscriberId; string $plan; int $amount; string $currency; CarbonImmutable $occurredAt; ?CarbonImmutable $periodEndsAt; array $raw; }
+```
+
+`SubscriptionService::applyProviderEvent(ProviderEvent $e)`: одна транзакция — `INSERT payments` (unique `(provider, provider_event_id)`; `UniqueConstraintViolationException` → событие уже обработано, выход без побочных эффектов), `lockForUpdate` живой подписки субъекта (или создание), сверка `amount/currency/plan` с `config('billing.prices')` (несовпадение → `status = failed`, алерт, подписка не меняется), переход состояния, `forget()`. Повторы вебхука и параллельная доставка безопасны за счёт уникальности и блокировки.
+
+### 6.2 Состояния подписки
+
+```mermaid
+stateDiagram-v2
+    [*] --> trialing: trial (если будет)
+    [*] --> active: charge / manual grant / promo
+    trialing --> active: charge
+    trialing --> expired: trial end
+    active --> past_due: renewal failed / period ended (auto-renew)
+    past_due --> active: renewal charge
+    past_due --> expired: grace_until passed
+    active --> canceled: user cancels (Pro до конца периода)
+    canceled --> expired: period ended
+    active --> expired: manual/promo ended, revoke
+    expired --> [*]
+```
+
+### 6.3 Особенности провайдеров (для будущей задачи)
+
+- **Telegram Stars** (единственный разрешённый способ продажи цифровых подписок внутри бота/Mini App): `createInvoiceLink(currency: 'XTR', prices: [{amount}], subscription_period: 2592000)` — только 30-дневный период; `pre_checkout_query` надо ответить `answerPreCheckoutQuery` за 10 с (в `TelegramDispatcher` появится приоритетный хендлер); `successful_payment` в `message` несёт `telegram_payment_charge_id` (= `provider_event_id`), `is_recurring`, `is_first_recurring`, `subscription_expiration_date`; отмена — `editUserStarSubscription`; возврат — `refundStarPayment`. Webhook — существующий (подписан secret-token), IP allowlist уже есть. Вывод Stars — с задержкой и комиссией; проверить правила перед запуском.
+- **Payme** (Merchant API, JSON-RPC: `CheckPerformTransaction`, `CreateTransaction`, `PerformTransaction`, `CancelTransaction`, `CheckTransaction`): аутентификация `Authorization: Basic base64(Paycom:<key>)` — сравнивать `hash_equals`; идемпотентность по `params.id` транзакции; обязателен отдельный маршрут `/billing/webhook/payme` без CSRF с rate limit и IP allowlist (адреса из кабинета Payme — в config).
+- **Click** (Prepare/Complete): подпись `sign_string = md5(click_trans_id + service_id + secret_key + merchant_trans_id + amount + action + sign_time)` (`hash_equals`), `provider_event_id = click_trans_id + ':' + action`.
+- Веб-оплата живёт на публичном сайте (Фаза 1 даёт лендинг), привязка к learner'у — через одноразовую ссылку из бота (`/pay` → `billing_checkout_tokens`, TTL 15 мин) — таблица появится вместе с провайдером.
+
+---
+
+## 7. Онбординг и личное обучение
+
+### 7.1 Поток `/start` (цель: первая тренировка < 2 минут, 5 нажатий)
+
+```mermaid
+flowchart TD
+    A["/start [payload]"] --> B{users.telegram_user_id?}
+    B -- учитель --> T[Приветствие учителя — как сейчас]
+    B -- нет --> C[LearnerRegistrar::fromTelegramUser + parse payload]
+    C --> D{onboarding_state}
+    D -- done --> H["/today: кнопка «Открыть LexiFlow»"]
+    D -- иначе --> E["Шаг locale: 🇺🇿 O'zbekcha / 🇷🇺 Русский"]
+    E --> F["Шаг goal: Общий английский / IELTS / SAT / Школа"]
+    F --> G["Шаг level: A1 / A2 / B1 / B2 / Не знаю (→A1)"]
+    G --> I["Шаг timezone: Toshkent UTC+5 / Другой…(список)"]
+    I --> J["Шаг reminder: 08:00 / 13:00 / 19:00 / 21:00 / Без напоминаний"]
+    J --> K["recommend(goal, level) → active_course_id; state=done; onboarding.completed"]
+    K --> L["Сообщение с web_app-кнопкой «Начать первую тренировку» → /twa/?from=onboarding"]
+```
+
+- Каждый шаг — одно сообщение с inline-клавиатурой, `callback_data = onb:<step>:<value>` (≤ 64 байт). После выбора бот редактирует клавиатуру (убирает кнопки) и шлёт следующий шаг; повторное нажатие старой кнопки — `OnboardingService::apply` отвергает шаг ≠ текущему (идемпотентно, `answerCallbackQuery` без текста).
+- Язык первого сообщения — `LocaleResolver::fromLanguageCode(from.language_code)`; после шага `locale` — только `learners.interface_locale`. `LocaleResolver::forLearner(Learner)` заменяет `forStudent`.
+- Любое текстовое сообщение в ЛС во время онбординга → повтор текущего шага. `/start` повторно при `done` → экран «Сегодня».
+- Дефолты, если человек сразу открыл TWA из группы (онбординг не пройден): `interface_locale` из `language_code`, `timezone` дефолт, `daily_goal` 20, напоминания 19:00; TWA показывает баннер «Настроить язык/напоминания» → `SettingsView`. Онбординг не блокирует обучение.
+
+### 7.2 Deep-link параметры
+
+`start_payload` ≤ 64 символов; парсер `StartPayload::parse(string): StartPayload`:
+
+| Префикс | Значение | Действие в Фазе 1 |
+|---|---|---|
+| `ref_<code>` | код приглашающего learner'а (`learners.referral_code` — добавить колонку varchar(16) unique, генерируется лениво) | `referrer_learner_id`, `acquisition_source = 'ref'`; наград нет |
+| `src_<channel>` | канал/блогер (`[a-z0-9_]{1,32}`) | `acquisition_source = 'src:<channel>'` |
+| `c_<slug>` | курс | `active_course_id` после онбординга, если курс опубликован; `acquisition_source = 'course:<slug>'` |
+| `org_<code>` | инвайт центра | Фаза 2; в Фазе 1 сохраняется в `start_payload`, пользователю — обычный онбординг |
+
+Источник записывается только при **первом** `/start` (не перетирается). Событие `onboarding.started {source_kind}`.
+
+### 7.3 Экран «Сегодня» (`GET /api/twa/today`)
+
+```json
+{
+  "due_count": 23,                       // DueRepetitionCriteria по всем словам learner'а
+  "new_words_remaining": 12,             // null = безлимит (Pro); 0 → paywall при попытке
+  "goal": { "target": 20, "done": 8, "met": false },
+  "streak": { "current": 5, "best": 12, "met_today": false, "at_risk": true },   // at_risk = current>0 && !met_today
+  "active_course": { "id": 3, "slug": "english-a1", "title": "English A1", "progress": { "learned": 120, "total": 900 }, "next_lesson": { "stage": 2, "lesson": 4, "title": "..." } } | null,
+  "open_session_id": 918 | null,         // открытая daily_review — продолжить
+  "entitlement": { "plan": "free", "source": "free", "until": null },
+  "onboarding_completed": true
+}
+```
+
+Кнопка «Начать» → `POST /training/sessions {mode: 'daily_review'}` → `TrainingView`. Порядок карточек в `daily_review`: due (hard first) по всем словам → новые из `nextLessonWithNewWords(active_course)` в пределах бюджета → learn-ahead → done. Если `active_course` отсутствует — только due; экран предлагает выбрать курс.
+
+### 7.4 Дневная цель и streak
+
+- Единица цели — **оценки** (`reviews_count`), потому что они доступны и Free, и при пустом каталоге. `daily_goal` ∈ {10, 20, 40}, дефолт 20.
+- Локальная дата — `LearnerClock::today()` в момент оценки. `goal_met_at` ставится один раз за день (под блокировкой строки `learner_daily_stats`).
+- Streak: при первом выполнении цели за день `d`: если `streak_last_date = d - 1` → `streak_current++`, иначе `streak_current = 1`; `streak_best = max`; `streak_last_date = d`. Чтение (`StreakService::current`): если `streak_last_date < today - 1` → `current = 0` (ленивое обнуление, без ночного job); `at_risk = current > 0 && streak_last_date = today - 1`. Смена часового пояса может сдвинуть «сегодня» на день — допускаем (мелкая аномалия, не эксплойт: цель всё равно требует 20 оценок).
+- «Заморозки» streak (Pro) — Фаза 2; флаг фичи уже в конфиге.
+- События: `daily_goal.met {streak}`, `streak.extended {current}`.
+
+### 7.5 Напоминания по локальному времени
+
+- `learners.next_reminder_at` (UTC) = ближайшее `reminder_time` в `timezone` после `now` (`LearnerClock::nextOccurrenceUtc`); пересчитывается при изменении настроек и после каждой попытки отправки (на следующий день). DST и смена пояса учитываются автоматически при каждом пересчёте.
+- `repetitions:notify` → **каждые 15 минут** (`Schedule::command('reminders:dispatch')->everyFifteenMinutes()->withoutOverlapping()`): `ReminderDispatcher::dispatchDue(now)`: выборка `learners WHERE next_reminder_at <= now AND dm_blocked_at IS NULL AND blocked_at IS NULL AND deleted_at IS NULL` `chunkById(200)`; для каждого — атомарный «клейм» `UPDATE learners SET next_reminder_at = <next> WHERE id = ? AND next_reminder_at = <old>` (affected = 1 → диспатч `SendLearnerReminderJob(learnerId)`), иначе пропуск (второй инстанс планировщика/повтор). Это идемпотентность первого уровня; второй — `notifications_log` «не чаще 1 раза в 20 ч» внутри job под `Cache::lock` (как сейчас).
+- Содержимое решает job: `due = DueRepetitionCriteria`; `streakAtRisk = StreakService::current().atRisk`. Если `due >= threshold (config 1)` → `reminders.review` (`trans_choice`); иначе если `streakAtRisk` → `reminders.streak_at_risk`; иначе не отправлять (но `next_reminder_at` уже сдвинут на завтра — это и нужно). Кнопка → `/twa/?from=reminder`. `threshold` снижаем с 5 до 1: в B2C «1 слово к повторению» — валидный повод вернуться; значение в `config/learning.php`.
+- `TelegramForbiddenException` (`bot_blocked` / `not_started` / `user_deactivated`) → `dm_blocked_at = now`, событие `reminder.failed {reason}`, без повторов. Любое входящее сообщение/callback от learner'а в ЛС → `dm_blocked_at = NULL` (`LearnerDmHandler`, `StartCommandHandler`).
+- Мигрированные learner'ы: `reminder_time = '19:00'`, `next_reminder_at` рассчитан; у них может не быть ЛС с ботом — первая попытка пометит `dm_blocked_at`, дальше тишина до их `/start`.
+
+### 7.6 Жизненный цикл личной сессии
+
+`openPersonal` идемпотентен (partial unique → вернуть открытую); `expires_at = now + 12 ч`; `training:close-expired` каждые 15 мин закрывает просроченные личные сессии (`status = closed`, `ended_at = expires_at`). `finish` — явное закрытие с summary. Повторный `/start` сессии после закрытия → 410 `session_closed`, клиент создаёт новую. Групповые сессии (D5 из docs/11) — закрытие через 24 ч тем же планировщиком (`mode = group_lesson AND started_at < now - 24h`) — безопасно, учитель всегда может открыть снова (`open` идемпотентен).
+
+### 7.7 Продуктовые события Фазы 1
+
+`onboarding.started {source_kind}`, `onboarding.step_completed {step}`, `onboarding.completed {goal, level, locale}`, `course.selected {course_id, via}`, `training.session_opened {mode, source}` (уже есть, расширить props), `training.session_finished {mode, reviewed, correct, new_words}`, `daily_goal.met {streak}`, `streak.extended {current}`, `paywall.shown {reason}`, `promo.redeemed {promo_code_id}`, `subscription.granted {plan, provider, subscriber_type}`, `subscription.expired`, `reminder.sent {kind, due_count}`, `reminder.failed {reason}`, `group.member_joined {via}` (замена `student.joined`), `group.member_left`. Воронка онбординга и activation считаются из `product_events` SQL'ом (Filament-виджет «Funnel 7d» — задача 1.8).
+
+---
+
+## 8. Безопасность Фазы 1
+
+| Угроза | Мера в Фазе 1 | Позже |
+|---|---|---|
+| Поддельный `initData` / replay | HMAC как сейчас; `TWA_INIT_DATA_MAX_AGE` **86400 → 3600** (Telegram выдаёт свежий `initData` при каждом открытии; клиент перелогинивается на 401) | — |
+| Чужой JWT / старый формат | `v: 2`, `iss`; `sub` = learner; `blocked_at` на каждом запросе; TTL 15 мин | `jti` + denylist при появлении «выйти со всех устройств» |
+| IDOR между learner'ами | все `/training/*`, `/exam/*` через `TrainingSessionPolicy`/`ExamSessionPolicy` (личная — владелец, групповая — активное членство); `learner_id` никогда не принимается из тела запроса; `/me/*`, `/today`, `/promo` — только по JWT | тесты: чужая личная сессия → 403, чужая группа → 403 |
+| Утечка данных между центрами / учителями | `PanelDataScope::learners()` через активное членство; личные сессии учителю не видны; `TeacherPanelScopeTest` расширяется; `LearnerResource` для учителя — усечённые поля | RLS + org-scope в Фазе 2 |
+| Фрод оплаты | провайдеров нет; ручная выдача — только роль `admin` с обязательной 2FA (есть) + `audit_logs`; Filament-действие требует `note` | §6.1: подпись, `(provider, provider_event_id)` unique, сверка суммы/валюты, IP allowlist, `lockForUpdate` |
+| Перебор промокодов | коды 10 символов из `[A-Z0-9]` (≈ 36^10); throttle `twa-promo` 5/мин per learner + 20/мин per IP; бот `/promo` — те же лимиты через `RateLimiter` по `telegram_user_id`; событие `promo.rejected` при ≥ 5 ошибок — алерт | — |
+| Перепродажа мест центра | спонсорский Pro только через группу организации, которую привязал **суперадмин**; `seats_limit` в подписке организации + виджет «активных участников / мест» и warning в Filament при превышении; `telegram_groups.status` админом | жёсткий лимит мест, инвайт-коды с TTL, алерты на аномальные вступления (Фаза 2) |
+| Фарм рефералов / рейтингов | награды не выдаются (только `referrer_learner_id`); публичных рейтингов нет | награда после 3 дней активности приглашённого, лимиты, анти-чит лиг |
+| DoS публичных эндпоинтов анонимами | `/auth` 20/мин per IP (есть) + 10/мин per `telegram_user_id`; `/courses` — кэш 10 мин, `Cache-Control: public, max-age=300`; `POST /training/sessions` 10/мин; все остальные per-learner (есть) | CDN для статики TWA/аудио |
+| Бот: спам `/start` и callback'ов | Telegram-лимиты + `TelegramMessageRateLimiter` на исходящие (есть); `OnboardingService::apply` идемпотентен по шагу; входящие от одного `telegram_user_id` > 30/мин → игнор без ответа (`RateLimiter` в `TelegramDispatcher`) | — |
+| Приватность несовершеннолетних / минимизация | храним то же, что и раньше (+ timezone, цель, уровень); никаких телефонов/фото; `SoftDeletes` и команда анонимизации — Фаза 2 (схема готова); оферта/политика — задача 1.7 | экспорт данных по запросу |
+| Пользовательский контент | в Фазе 1 контент только платформенный (Filament, роль admin); переводы экранируются Blade/Vue как сейчас | модерация колод (Фаза 2–3) |
+| Секреты в логах | `SecretRedactor` (есть) — добавить маски для будущих ключей провайдеров (`PAYME_*`, `CLICK_*`) при их появлении | — |
+
+Чек-лист к пен-тесту (докс/07 §14) дополняется: чужая личная сессия → 403; старый JWT (без `v`) → 401; промокод 6 раз подряд → 429; квота Free: 21-я новая карточка за день не выдаётся, due — выдаётся; учитель не видит личные сессии ученика; `exam result` не-участником → 403.
+
+---
+
+## 9. Нарезка на задачи (порядок зависимостей)
+
+Обозначения: **A** — architect (ядро + тесты), **C** — coder, **A→C** — architect задаёт/реализует ядро, coder — обвязку. ‖ — можно вести параллельно с предыдущей. Все задачи: pint, Larastan 8, Pest зелёные; docs обновляются **до** кода задачи (указано какие).
+
+| # | Задача | Исп. | Зависит от | Цель и файлы | DoD / тесты |
+|---|---|---|---|---|---|
+| 1.1a | **Схема learner-first (expand)** | C | — | Миграции 1–7 (§2.4); модели `Learner`, `GroupMember`, `Organization`, `Course`, `WordTranslation`, `LearnerDailyStats`, `Subscription`, `PromoCode`, `PromoRedemption`; `learner_id` nullable в 7 таблицах; `training_sessions` новые колонки; factories; docs/03 обновлён (новые разделы, `student_id` помечен legacy) | `DatabaseSchemaTest`: таблицы, уникальности, FK onDelete, PG partial-индексы; все миграции `down()` проходят на sqlite и PG (CI); старые тесты зелёные (старый код ещё пишет `student_id`) |
+| 1.1b | **Миграция данных students → learners** | **A** | 1.1a | `StudentsToLearnersMigrator` (§2.5), команда `learners:migrate-from-students --dry-run`, миграции 8–9, `word_repetitions_merge_archive`, курс `legacy-default`, backfill `word_translations(ru)`, `stages.course_id`, `telegram_groups.course_id` | тесты §2.5 (слияние по всем правилам, идемпотентность, rollback, контрольные суммы); DEVOPS_GUIDE: runbook релиза A (§2.2, §2.6) |
+| 1.1c | **Рефакторинг кода на Learner/GroupMember + JWT v2** | C | 1.1b | удалить `Student*`; `LearnerRegistrar`, `GroupMembershipService`, `LearnerContextResolver`, `JwtService` v2, `TwaAuth`, политики §4.4, `PanelDataScope::learners()`, `LearnerResource` вместо `StudentResource`, виджеты, `TeacherStatsReporter`, `NewMembersHandler`→membership, `ChatMemberHandler`, `ProductEventRecorder(learner:)`, `LocaleResolver::forLearner`, `SendReviewReminderJob(learnerId)`, `ReviewReminderService` по learners; `AuthTokenResource`/`MeResource`; TWA `types.ts`/`auth.ts` (`Learner`), `ensure()` без перелогина по контексту; docs/04 A.1–A.2, docs/07 §4–§5 обновлены | `TwaAuthTest`: без контекста → 200; токен без `v` → 401; `learner_blocked` → 401; `TwaTrainingTest`/`TwaExamTest`: доступ по членству (чужая группа 403, `left` 403); `TeacherPanelScopeTest` на `learners()`; `JwtServiceTest` v2; весь suite зелёный; `migrate:fresh --seed` с новыми сидерами (`DemoLearnersSeeder`) |
+| 1.1d | **Релиз B: удаление legacy** (через ≥ 7 дней прод-работы) | C | 1.1c в проде | миграция `drop_students_legacy`; удалить `legacy_student_id`, архив; docs/03 финальный | `DatabaseSchemaTest` без `students`; `down()` восстанавливает схему |
+| 1.2a | **Курсы и переводы: контент-слой** | C | 1.1c | `CourseCatalogService`, `CoursePublisher`, `WordTranslationResolver`, `VocabularyImporter` v2 (`course`, `translations`), `CardPicker`/`ExamQuestionBuilder`/Resource'ы читают перевод по локали (learner / группа) с fallback; Filament `CourseResource` (статусы, i18n-заголовки, relation stages), `WordTranslationsRelationManager`; команды учителя резолвят stage в курсе группы; docs/03 §контент, ADMIN_GUIDE | `VocabularyImporterTest` v2 (обе схемы, переводы, идемпотентность); `CoursePublisherTest` (переходы, порог переводов); `ExamQuestionBuilderTest` на локали группы; Filament-тест публикации |
+| 1.2b ‖ | **Каталог в TWA** | C | 1.2a | `GET /courses`, `/courses/{slug}`, `POST /me/course`; `CourseResource`, `CourseDetailResource`; `CoursesView`, `CourseView`; кэш каталога | `TwaContractTest` (структуры), прогресс по курсу считается верно; vitest для views |
+| 1.2c ‖ | **Предгенерация аудио** | C | 1.2a | `PregenerateWordAudioJob` (очередь `low`, edge-tts → `storage/app/public/audio/{sha1}.mp3`, `words.audio_path`), команда `audio:pregenerate {course}`, `TtsController` отдаёт файл если есть; `Card.audio_url` | тесты с фейковым `Http`; идемпотентность по `audio_path` |
+| 1.3a | **Личные сессии и scope** | **A→C** | 1.1c, 1.2a | A: `TrainingScope`, `CardPicker::pickNext(scope, budget)` с блокировкой learner'а, `ReviewSubmissionService` (scope-проверка + `DailyStatsService::recordReview` в транзакции), `TrainingSessionService::openPersonal/finish/closeExpired`, `TrainingSessionPolicy`; C: `POST /training/sessions`, `/finish`, `done_reason`, `training:close-expired` в планировщике, `TrainingStartResource`/`SessionSummaryResource`; docs/04 A.3, docs/06 §4 (scope) | A: гонки — две вкладки/`openPersonal` одновременно → одна сессия; due из разных уроков в `daily_review`; `wrong_lesson` → `out_of_scope`; закрытие по `expires_at`; C: контрактные тесты, 410 после finish |
+| 1.3b | **Сегодня, цель, streak** | **A→C** | 1.3a | A: `LearnerClock`, `DailyStatsService` (upsert под уникальностью, гонка), `StreakService` (правила §7.4, граница дня, смена tz); C: `TodayService`, `GET /today`, `TodayResource`, `TodayView`, `FinishedView` с summary, `LearnerStatsService`; docs/04 A.2a | A: unit-тесты по датам (полночь в Ташкенте vs UTC, DST-пояс, streak 1→2→обнуление, `goal_met_at` один раз); C: контракт `/today`, vitest `TodayView` |
+| 1.4a | **Entitlement, подписки, промокоды** | **A→C** | 1.1c | A: `Plan`, `Entitlement`, `EntitlementResolver` (+кэш и инвалидация), `SubscriptionService::grantManual/revoke/expireDue`, `PromoCodeService::redeem` (блокировки, лимиты), `config/billing.php`, `subscriptions:expire`; C: Filament `SubscriptionResource` («Grant Pro» с `note` + audit), `PromoCodeResource`, `OrganizationResource` (привязка групп), `POST /promo/redeem`, `/me.entitlement`, бот `/promo`; docs/03 §1.9, новый docs/04 A.7 | A: max(личная, спонсорская); `left`-член → Free; grace; partial unique «одна живая»; промокод: лимит, повтор, истечение, гонка двух погашений; инвалидация кэша при привязке группы; C: Filament-тесты с аудитом, throttle 429 |
+| 1.4b | **Квота Free и paywall** | C | 1.3a, 1.4a | `NewWordQuota` → `NewCardBudget` в `TrainingFlowService`; `done_reason = new_quota_exhausted`; `quota.new_words_remaining` в `/next`, `/today`; `PaywallSheet` (`coming_soon`), событие `paywall.shown`; docs/04 | 21-я новая карточка не выдаётся, due выдаётся; Pro — без лимита; гонка двух вкладок не превышает лимит (тест с параллельными транзакциями на PG, skip на sqlite); смена tz не сбрасывает счётчик |
+| 1.5a ‖ | **Онбординг в боте** | C | 1.1c, 1.2a | `OnboardingService`, `StartPayload`, `OnboardingCallbackHandler`, `LearnerDmHandler`, `StartCommandHandler` (ветка learner), `TodayCommandHandler`, `SettingsCommandHandler`, `TelegramClient::editMessageReplyMarkup`, `lang/{ru,uz}/onboarding.php`, `I18N_UZ_REVIEW.md` дополнен; события §7.7; docs/04 B.3 | `OnboardingFlowTest`: полный путь за 5 callback'ов, повтор старой кнопки идемпотентен, payload `ref_/src_/c_`, учитель не попадает в онбординг, мигрированный learner → «Сегодня»; `LocalizationTest` на новые ключи |
+| 1.5b | **Напоминания по локальному времени** | **A→C** | 1.3b, 1.5a | A: `ReminderDispatcher` (клейм `next_reminder_at`, выборка, идемпотентность), `SendLearnerReminderJob` (review / streak_at_risk, `dm_blocked_at`), `LearnerClock::nextOccurrenceUtc`; C: расписание `everyFifteenMinutes`, `lang/reminders.php` новые ключи, сброс `dm_blocked_at` во входящих, `reminders:dispatch` вместо `repetitions:notify`; docs/06 §6, docs/02 §2.5 | A: двойной запуск диспетчера не дублирует job; 403 → `dm_blocked_at` и больше не выбирается; DST-пояс; `reminder_time = NULL` не выбирается; порог 1; C: `ReviewReminderTest` переписан |
+| 1.6 ‖ | **Настройки** | C | 1.3b | `PATCH /me/settings`, `LearnerSettingsService`, `SettingsView` (язык, пояс, время, цель, курс), `/settings` в боте; docs/04 | валидация tz (IANA список `DateTimeZone::listIdentifiers`), пересчёт `next_reminder_at`, смена локали меняет перевод в карточке |
+| 1.7 ‖ | **Публичный лендинг, оферта, политика** | C | — (тексты — от владельца) | `routes/web.php` `/`, `/offer`, `/privacy`, Blade + Tailwind, i18n ru/uz, ссылка на бота, `security.txt` | SecurityHeaders/CSP тесты для новых страниц; Lighthouse ≥ 90 вручную |
+| 1.8 ‖ | **Админка платформы** | C | 1.4a, 1.3b | `LearnerResource` (поиск, бан, подписка, события), виджеты: learners/активные 7д, воронка онбординга 7д, Pro-подписки (active/expiring), «участники / места» по организациям; `ADMIN_GUIDE.md` | Filament-тесты: учитель не видит виджеты платформы; бан → 401 в TWA |
+| 1.9 | **Контент MVP: курсы A1–B2 + переводы uz/ru** | владелец + C (импорт) | 1.2a | JSON-пакеты курсов, импорт, проверка носителем, публикация | ≥ 1 опубликованный курс на каждую цель онбординга; порог переводов выполнен |
+| 1.10 | **Ревью фазы, smoke на staging, релиз A** | координатор / reviewer | все | runbook §2.2; k6 на `/today`, `/next`, `/review` | pint/phpstan/pest зелёные, блокирующих находок нет, PROGRESS.md |
+
+**Вне Фазы 1 (решение владельца):** `payments`, `BillingProvider` реализации (Telegram Stars, Payme, Click), вебхуки, `/pay`, `paywall.mode = purchase`; `organization_members`/места/инвайты; рефералы с наградами; RLS. Задачи **зависят от решения владельца**: 1.7 (юридические тексты, контакт поддержки для paywall), 1.9 (кто готовит и проверяет контент), цены в `config('billing.prices')`.
+
+Параллельность: после 1.1c можно вести одновременно {1.2a → 1.2b/1.2c}, {1.4a}, {1.5a}, {1.7}; 1.3a ждёт 1.2a (scope курса); 1.3b → 1.5b; 1.4b ждёт 1.3a и 1.4a.
+
+---
+
+## 10. Открытые вопросы к владельцу (блокирующие)
+
+1. **Окно обслуживания релиза A (2–5 минут простоя бота и TWA) — допустимо?** Рекомендация: да, ночью по Ташкенту, с предупреждением учителям за день. Альтернатива (dual-write) удваивает объём рефакторинга.
+2. **Текущий центр-клиент: выдать его ученикам Pro сразу после релиза A?** Рекомендация: да — создать `organizations` «<название центра>», привязать его группы, ручная подписка `pro` до даты окончания договора. Нужны: название, срок.
+3. **Запуск uz-интерфейса при ru-переводах контента.** Весь существующий контент — только ru; uz-переводы появятся с курсами MVP (1.9). Рекомендация: не блокировать — показывать ru-перевод с пометкой до появления uz; `CoursePublisher` требует uz+ru только для **новых** публикаций.
+4. **Контакт поддержки для paywall «попросите доступ»** (`BILLING_SUPPORT_CONTACT`, например `@lexiflow_support`) и промокоды — делать? Рекомендация: промокоды делать (1.4a), контакт — Telegram-аккаунт поддержки.
+5. **Дефолты онбординга:** цель 20 карточек/день, напоминание 19:00, пояс `Asia/Tashkent`, порог напоминания 1 слово. Рекомендация: принять, менять через env.
+6. **Юридические тексты** (оферта, политика конфиденциальности, юрлицо) для 1.7 — нужны от владельца/юриста; разработка шаблонов не блокируется.
+
+---
+
+## 11. Отвергнутые варианты
+
+| Вариант | Причина отказа |
+|---|---|
+| Оставить `students`, добавить `learner_id` | прогресс остаётся групповым; второй рефакторинг неизбежен (§2.1) |
+| `RENAME students → group_members` | тот же объём правок, лишние колонки и более хрупкий `down()` (§2.1) |
+| Dual-write в два релиза без окна обслуживания | модель `Student` и все потребители живут ещё релиз — двойной рефакторинг; простой в минуты дешевле |
+| Отдельная таблица `learner_sessions` (docs/11) | дублирует `training_sessions`/`training_reviews`/flow-сервисы/маршруты TWA; достаточно `mode` + `learner_id` |
+| Полные `organizations` (участники, места, инвайты, `organization_users`) в Фазе 1 | без оплаты и кабинета центра — мёртвый код; минимальная таблица даёт субъекта подписки уже сейчас |
+| `payments` в схеме Фазы 1 | нечему писать; добавляется вместе с первым провайдером без изменений `subscriptions` |
+| Автоматический триал Pro | без оплаты заканчивается стеной «скоро»; честный Free + промокоды лучше для удержания |
+| Тариф в JWT (`plan` claim) | смена тарифа должна действовать сразу; Redis-кэш 5 мин дешевле и управляемее |
+| Переводы колонками `translation_uz`/`translation_ru` в `words` | каждый новый язык — миграция; `word_translations` + resolver с fallback |
+| Заголовки курсов в отдельной `course_translations` | две локали, редко меняются — jsonb `{ru, uz}` проще в Filament и API |
+| Правило слияния «больше `repetitions`» (docs/11) | не учитывает `state` после Фазы 0 и сброс `repetitions` при провале (§2.3) |
+| Выборка напоминаний SQL-выражением «локальное время = reminder_time» | непереносимо между sqlite/PG, не индексируется, ошибки DST; `next_reminder_at` решает всё |
+| Считать новые слова по `training_reviews` | первая оценка приходит позже выдачи; выдача (`word_repetitions.created_at`/`new_words_count`) — точнее и защищена блокировкой |
+| Postgres RLS в Фазе 1 | нет данных организаций для изоляции; высокая эксплуатационная цена (роли, `SET LOCAL`, бэкапы) |
+| `jti`-denylist сейчас | отзыв нужен только при бане — `blocked_at` проверяется на каждом запросе; TTL 15 мин |
+| vue-i18n / новые зависимости | свой модуль i18n уже есть; новые пакеты только по согласованию |
+| FSRS в Фазе 1 | контракт `applyReview` сохранён; алгоритм — Фаза 2, A/B с SM-2 |
+
+---
+
+## 12. Правки существующих документов (делать до кода соответствующей задачи)
+
+- **docs/03_DATABASE.md** — задачи 1.1a/1.1b/1.2a/1.4a: новые таблицы §1, `student_id` → legacy, ERD, порядок миграций, правила удаления (learner cascade), §5 запросы на `learner_id`.
+- **docs/04_API_AND_BOT.md** — 1.1c/1.3a/1.3b/1.4a/1.5a/1.6: A.1–A.2 (`learner`, без `session_context_required`), A.3 (`POST /training/sessions`, `finish`, `done_reason`, `quota`), новые A.2a `/today`, A.6 `/courses`, A.7 `/promo`, B.3 команды `/start` (онбординг), `/today`, `/settings`, `/promo`; B.5 `chat_member`.
+- **docs/06_SPACED_REPETITION.md** — 1.3a/1.5b: §4 scope (lesson/daily), бюджет новых карточек, §6 напоминания каждые 15 мин по `next_reminder_at`, порог 1.
+- **docs/07_SECURITY.md** — 1.1c/1.4a: §4 JWT v2, §5 политики по членству, §6 новые rate limits, §1 строки про промокоды/ручную выдачу, §14 чек-лист (§8 этого документа).
+- **docs/02_ARCHITECTURE.md** — 1.1c: домены `Learners`, `Billing`, `Organizations`; §2.5 планировщик; ADR-8 «learner-first», ADR-9 «entitlement через подписки learner/organization».
+- **docs/DEVOPS_GUIDE.md** — 1.1b: runbook релиза A/B (§2.2, §2.6), новые env (`BILLING_*`, `LEARNERS_DEFAULT_TIMEZONE`, `TWA_INIT_DATA_MAX_AGE=3600`).
+- **docs/11** — пометить §5.2 и §10 «Фаза 1» как уточнённые этим документом.
+
+---
+
+## 13. Где docs/11 расходится с кодом или решениями
+
+1. docs/11 §5.2 предлагает `learner_sessions`, `usage_counters`, `events`, `assignments`: в коде уже есть `product_events` (Фаза 0), `usage_counters` заменены `learner_daily_stats`, `learner_sessions` — режимом `training_sessions`, `assignments` — Фаза 2.
+2. docs/11 §5.2 правило слияния прогресса по `repetitions` недостаточно после learning steps (§2.3).
+3. docs/11 §6.4 и §10 «Фаза 1 п.7» — оплата Stars/Payme/Click: **отложена решением владельца**; в Фазе 1 только схема и ручные/промо-гранты.
+4. docs/11 §6.3 «15–20 новых слов» → владелец зафиксировал **20** (`BILLING_FREE_NEW_WORDS_PER_DAY`).
+5. docs/11 §5.2 `word_translations.language (uz|ru|kk|ky|tg|tr)` — колонка `locale varchar(5)`, допустимые значения ограничены `config('localization.supported')` (сейчас `ru`, `uz`).
+6. docs/11 §8 «`jti` + denylist», «RLS» — отложены (§8, §4.5) с обоснованием.
+7. docs/02 ADR-3 (nutgram) и структура `app/Services/*` устарели — уже отмечено в docs/11 T4; в этом документе используются реальные пути `app/Domain/*`.
+8. docs/11 §5.3 «Центр привязывает группу кодом `/link`» и `start=org_` — Фаза 2; в Фазе 1 группы к организации привязывает суперадмин.
