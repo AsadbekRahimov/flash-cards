@@ -75,6 +75,82 @@ describe('training store — learn-ahead serve_token', () => {
   })
 })
 
+describe('training store — review rejected with card_not_due', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+  })
+
+  const card = (overrides: Partial<Card>): Card => ({
+    word_id: 7,
+    word: 'Resilient',
+    translation: 'Устойчивый',
+    example: null,
+    transcription: null,
+    card_kind: 'learning',
+    serve_token: 'ticket-1',
+    ...overrides,
+  })
+
+  const startWithCard = async () => {
+    vi.mocked(api.training.start).mockResolvedValue({
+      session_id: 1,
+      lesson: { stage: 1, lesson: 1, title: null },
+      total_words: 2,
+      card: card({}),
+      progress: { done: 0, total: 2 },
+    })
+    const store = useTrainingStore()
+    await store.start(1)
+    return store
+  }
+
+  const cardNotDue = () => new ApiClientError('conflict', 409, 'card_not_due', 'Card is not due.')
+
+  it('silently loads the next card without counting the grade', async () => {
+    const store = await startWithCard()
+    vi.mocked(api.training.review).mockRejectedValue(cardNotDue())
+    vi.mocked(api.training.next).mockResolvedValue({
+      card: card({ word_id: 8, serve_token: 'ticket-2' }),
+      progress: { done: 0, total: 2 },
+    })
+
+    await store.submitReview(4)
+
+    expect(api.training.review).toHaveBeenCalledTimes(1)
+    expect(api.training.next).toHaveBeenCalledTimes(1)
+    expect(store.status).toBe('ready')
+    expect(store.card?.word_id).toBe(8)
+    expect(store.card?.serve_token).toBe('ticket-2')
+    expect(store.reviewedCount).toBe(0)
+    expect(store.errorMessage).toBe('')
+  })
+
+  it('falls back to the error state when the follow-up next fails too', async () => {
+    const store = await startWithCard()
+    vi.mocked(api.training.review).mockRejectedValue(cardNotDue())
+    vi.mocked(api.training.next).mockRejectedValue(new ApiClientError('network', 0, 'unknown', 'fetch failed'))
+
+    await store.submitReview(4)
+
+    expect(api.training.next).toHaveBeenCalledTimes(1)
+    expect(store.status).toBe('error')
+    expect(store.reviewedCount).toBe(0)
+  })
+
+  it('keeps the error state for other error codes without reloading', async () => {
+    const store = await startWithCard()
+    vi.mocked(api.training.review).mockRejectedValue(
+      new ApiClientError('conflict', 409, 'something_else', 'Conflict.'),
+    )
+
+    await store.submitReview(4)
+
+    expect(api.training.next).not.toHaveBeenCalled()
+    expect(store.status).toBe('error')
+  })
+})
+
 describe('training store — localized errors', () => {
   beforeEach(() => {
     setActivePinia(createPinia())

@@ -98,6 +98,13 @@ export const useTrainingStore = defineStore('training', {
         }
         await this.loadNext()
       } catch (err) {
+        // The server already consumed/re-issued this serve (rare race or network replay):
+        // the grade was not counted, so silently fetch the actual card. Once per submit —
+        // loadNext() never re-submits, and its own failure goes through the usual error path.
+        if (err instanceof ApiClientError && err.kind === 'conflict' && err.code === 'card_not_due') {
+          await this.loadNext()
+          return
+        }
         this.handleApiError(err)
       }
     },
