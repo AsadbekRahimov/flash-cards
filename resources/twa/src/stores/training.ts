@@ -83,10 +83,12 @@ export const useTrainingStore = defineStore('training', {
     async submitReview(quality: Quality): Promise<void> {
       if (this.sessionId === null || this.card === null || this.status !== 'ready') return
       const wordId = this.card.word_id
+      // Learn-ahead ticket of *this* serve; the server rejects a replay without it.
+      const serveToken = this.card.serve_token ?? null
       const timeSpent = Math.max(0, Date.now() - this.cardShownAt)
       this.status = 'submitting'
       try {
-        const res = await api.training.review(this.sessionId, wordId, quality, timeSpent)
+        const res = await api.training.review(this.sessionId, wordId, quality, timeSpent, serveToken)
         this.reviewedCount += 1
         this.lastIntervalDays = res.new_interval_days
         if (res.progress) this.progress = res.progress

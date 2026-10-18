@@ -11,6 +11,7 @@ use App\Models\Student;
 use App\Models\TelegramGroup;
 use App\Models\Word;
 use App\Models\WordRepetition;
+use App\Providers\AppServiceProvider;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -375,4 +376,56 @@ it('parses comma-separated steps from config and rejects invalid ones', function
         ->toThrow(InvalidArgumentException::class);
     expect(fn () => LearningPolicy::fromConfig(['learning_steps' => 'abc']))
         ->toThrow(InvalidArgumentException::class);
+});
+
+it('rejects a learn-ahead window shorter than the largest step, but allows 0 (disabled) and >= max', function (): void {
+    $base = [
+        'learning_steps' => '1,10,60',
+        'relearning_steps' => '10',
+        'graduating_interval_days' => 1,
+        'easy_interval_days' => 4,
+    ];
+
+    // The misconfiguration from the review: LEARNING_STEPS=1,10,60 with the default 20-minute window.
+    expect(fn () => LearningPolicy::fromConfig([...$base, 'learn_ahead_minutes' => 20]))
+        ->toThrow(InvalidArgumentException::class, 'learn_ahead_minutes (20) must be 0 (disabled) or >= the largest learning/relearning step (60 min)');
+
+    expect(LearningPolicy::fromConfig([...$base, 'learn_ahead_minutes' => 60])->learnAheadMinutes)->toBe(60);
+    expect(LearningPolicy::fromConfig([...$base, 'learn_ahead_minutes' => 0])->learnAheadMinutes)->toBe(0);
+    expect(LearningPolicy::fromConfig([...$base, 'learn_ahead_minutes' => 0])->maxStepMinutes())->toBe(60);
+
+    // The largest step may live in relearning_steps.
+    expect(fn () => LearningPolicy::fromConfig([...$base, 'learning_steps' => '1,10', 'relearning_steps' => '30', 'learn_ahead_minutes' => 20]))
+        ->toThrow(InvalidArgumentException::class, '(30 min)');
+});
+
+it('validates abandoned_after_hours and defaults it to 12', function (): void {
+    $base = ['learning_steps' => '1,10', 'relearning_steps' => '10', 'learn_ahead_minutes' => 20];
+
+    expect(LearningPolicy::fromConfig($base)->abandonedAfterHours)->toBe(12);
+    expect(LearningPolicy::fromConfig([...$base, 'abandoned_after_hours' => 1])->abandonedAfterHours)->toBe(1);
+
+    expect(fn () => LearningPolicy::fromConfig([...$base, 'abandoned_after_hours' => 0]))
+        ->toThrow(InvalidArgumentException::class, 'abandoned_after_hours must be >= 1');
+    // Must be strictly longer than the largest step, otherwise a card in a live session counts as abandoned.
+    expect(fn () => LearningPolicy::fromConfig([...$base, 'learning_steps' => '1,120', 'learn_ahead_minutes' => 120, 'abandoned_after_hours' => 2]))
+        ->toThrow(InvalidArgumentException::class, 'abandoned_after_hours (2 h) must be longer');
+});
+
+it('fails fast at boot when the learning config is inconsistent', function (): void {
+    config([
+        'learning.learning_steps' => '1,10,60',
+        'learning.relearning_steps' => '10',
+        'learning.learn_ahead_minutes' => 20,
+    ]);
+    app()->forgetInstance(LearningPolicy::class);
+
+    expect(fn () => (new AppServiceProvider(app()))->boot())
+        ->toThrow(InvalidArgumentException::class, 'LEARNING_LEARN_AHEAD_MINUTES');
+
+    // Consistent config boots and yields the singleton.
+    config(['learning.learn_ahead_minutes' => 60]);
+    app()->forgetInstance(LearningPolicy::class);
+    (new AppServiceProvider(app()))->boot();
+    expect(app(LearningPolicy::class)->learnAheadMinutes)->toBe(60);
 });

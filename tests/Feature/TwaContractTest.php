@@ -32,7 +32,7 @@ use Illuminate\Support\Facades\Config;
 uses(RefreshDatabase::class);
 
 const CONTRACT_PROGRESS = ['done', 'total'];
-const CONTRACT_CARD = ['word_id', 'word', 'translation', 'example', 'transcription', 'card_kind'];
+const CONTRACT_CARD = ['word_id', 'word', 'translation', 'example', 'transcription', 'card_kind', 'serve_token'];
 const CONTRACT_EXAM_QUESTION = ['question_index', 'word_id', 'word', 'options', 'seconds_left'];
 const CONTRACT_FORBIDDEN_EXAM_KEYS = ['correct_index', 'correct_translation', 'canonical_index'];
 
@@ -117,27 +117,33 @@ it('GET /me keeps its exact JSON shape', function (): void {
     expect($response->json('stats'))->toBe(['words_learned' => 0, 'words_due_today' => 0]);
 });
 
-it('GET /me counts only graduated cards as due today', function (): void {
+it('GET /me counts due graduated cards and abandoned (re)learning cards as due today', function (): void {
     $s = contractTraining(0);
-    $words = Word::factory()->count(5)->for($s['lesson'])->create();
+    $words = Word::factory()->count(7)->for($s['lesson'])->create();
     $make = fn (Word $w, RepetitionState $state, int $reps, string $due) => WordRepetition::factory()->create([
         'student_id' => $s['student']->id,
         'word_id' => $w->id,
         'state' => $state->value,
         'repetitions' => $reps,
-        'next_review_at' => $due === 'past' ? now()->subHour() : now()->addDays(2),
+        'next_review_at' => match ($due) {
+            'past' => now()->subHour(),
+            'abandoned' => now()->subHours(13),
+            default => now()->addDays(2),
+        },
     ]);
 
-    $make($words[0], RepetitionState::Review, 3, 'past');       // due review
-    $make($words[1], RepetitionState::Review, 3, 'future');     // not yet due
-    $make($words[2], RepetitionState::New, 0, 'past');          // just-shown new card
-    $make($words[3], RepetitionState::Learning, 0, 'past');     // minute step elapsed
-    $make($words[4], RepetitionState::Relearning, 1, 'past');   // lapsed, relearning
+    $make($words[0], RepetitionState::Review, 3, 'past');           // due review
+    $make($words[1], RepetitionState::Review, 3, 'future');         // not yet due
+    $make($words[2], RepetitionState::New, 0, 'past');              // just-shown new card
+    $make($words[3], RepetitionState::Learning, 0, 'past');         // minute step elapsed an hour ago (session may still be on)
+    $make($words[4], RepetitionState::Relearning, 1, 'past');       // lapsed, relearning, fresh
+    $make($words[5], RepetitionState::Relearning, 0, 'abandoned');  // lapsed and left for > abandoned_after_hours
+    $make($words[6], RepetitionState::New, 0, 'abandoned');         // shown long ago, never answered: not "to review"
 
     $this->withHeaders(contractHeaders($s['student']))
         ->getJson('/api/twa/me')
         ->assertOk()
-        ->assertJsonPath('stats.words_due_today', 1)
+        ->assertJsonPath('stats.words_due_today', 2)
         ->assertJsonPath('stats.words_learned', 3);
 });
 

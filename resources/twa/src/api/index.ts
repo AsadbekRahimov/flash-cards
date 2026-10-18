@@ -49,11 +49,18 @@ export const api = {
       client().post<TrainingStartResponse>(`/training/sessions/${sessionId}/start`),
     next: (sessionId: number) =>
       client().get<NextCardResponse>(`/training/sessions/${sessionId}/next`),
-    review: (sessionId: number, wordId: number, quality: Quality, timeSpentMs: number) =>
+    review: (
+      sessionId: number,
+      wordId: number,
+      quality: Quality,
+      timeSpentMs: number,
+      serveToken: string | null = null,
+    ) =>
       client().post<ReviewResponse>(`/training/sessions/${sessionId}/review`, {
         word_id: wordId,
         quality,
         time_spent_ms: timeSpentMs,
+        serve_token: serveToken,
       }),
   },
   exam: {

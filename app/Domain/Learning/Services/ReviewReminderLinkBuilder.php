@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Learning\Services;
 
-use App\Domain\Learning\Enums\RepetitionState;
+use App\Domain\Learning\Support\DueRepetitionCriteria;
 use App\Models\Student;
 use App\Models\TrainingSession;
 use App\Models\User;
@@ -13,7 +13,10 @@ use Throwable;
 
 final class ReviewReminderLinkBuilder
 {
-    public function __construct(private readonly TrainingSessionService $trainingSessions) {}
+    public function __construct(
+        private readonly TrainingSessionService $trainingSessions,
+        private readonly DueRepetitionCriteria $due,
+    ) {}
 
     public function buildTrainingUrl(Student $student): string
     {
@@ -30,11 +33,10 @@ final class ReviewReminderLinkBuilder
 
     private function openSessionForFirstDueLesson(Student $student): TrainingSession
     {
+        // Same "due" rule as the reminder count (DueRepetitionCriteria), so the
+        // deep link opens the lesson the message is about.
         /** @var WordRepetition|null $due */
-        $due = WordRepetition::query()
-            ->where('student_id', $student->id)
-            ->where('state', RepetitionState::Review->value)
-            ->where('next_review_at', '<=', now())
+        $due = $this->due->apply(WordRepetition::query()->where('student_id', $student->id))
             ->orderByDesc('is_hard')
             ->orderBy('next_review_at')
             ->with('word.lesson.stage')

@@ -130,10 +130,12 @@ erDiagram
 | learning_step | smallint default 0 | индекс текущего минутного шага внутри learning/relearning |
 | lapses | smallint default 0 | сколько раз карточка в `review` была провалена |
 | served_ahead_at | timestamp nullable | метка learn-ahead: карточка выдана до `next_review_at`; обнуляется при приёме оценки |
+| served_ahead_token | varchar(64) nullable | одноразовый билет learn-ahead (32 hex); уходит клиенту как `card.serve_token`, обязан вернуться в `POST /review`; обнуляется при приёме оценки (docs/06 §5.2) |
 | meta | jsonb default '{}' | |
 
 Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions >= 1` → `review`;
-`repetitions = 0` и `last_quality` не null → `relearning`; остальные → `new`.
+`repetitions = 0` и `last_quality` не null → `relearning` (в напоминания они возвращаются по правилу
+«брошенных» карточек, docs/06 §6); остальные → `new`.
 
 **Индексы:**
 - `(student_id, word_id)` unique.

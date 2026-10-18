@@ -11,12 +11,22 @@ use InvalidArgumentException;
  * and the review submission guard. Built once from `config/learning.php`
  * (see AppServiceProvider) so every component agrees on the same steps and
  * learn-ahead window.
+ *
+ * The constructor is strict: an inconsistent policy (e.g. a learn-ahead
+ * window shorter than the longest step) would silently cut sessions short,
+ * so it throws. AppServiceProvider resolves the singleton at boot, which
+ * turns a bad env into a failed `config:cache` / health check at deploy time
+ * instead of a 500 on the first student request.
  */
 final class LearningPolicy
 {
+    public const DEFAULT_ABANDONED_AFTER_HOURS = 12;
+
     /**
      * @param  list<int>  $learningStepsMinutes  non-empty, each >= 1
      * @param  list<int>  $relearningStepsMinutes  non-empty, each >= 1
+     * @param  int  $learnAheadMinutes  0 disables learn-ahead; otherwise >= max step
+     * @param  int  $abandonedAfterHours  >= 1 and longer than the max step; see `config/learning.php`
      */
     public function __construct(
         public readonly array $learningStepsMinutes,
@@ -24,6 +34,7 @@ final class LearningPolicy
         public readonly int $graduatingIntervalDays,
         public readonly int $easyIntervalDays,
         public readonly int $learnAheadMinutes,
+        public readonly int $abandonedAfterHours = self::DEFAULT_ABANDONED_AFTER_HOURS,
     ) {
         self::assertSteps($learningStepsMinutes, 'learning_steps');
         self::assertSteps($relearningStepsMinutes, 'relearning_steps');
@@ -36,6 +47,28 @@ final class LearningPolicy
         }
         if ($learnAheadMinutes < 0) {
             throw new InvalidArgumentException('learn_ahead_minutes must be >= 0');
+        }
+
+        $maxStep = $this->maxStepMinutes();
+        if ($learnAheadMinutes > 0 && $learnAheadMinutes < $maxStep) {
+            throw new InvalidArgumentException(sprintf(
+                'learn_ahead_minutes (%d) must be 0 (disabled) or >= the largest learning/relearning step (%d min); '
+                .'otherwise sessions end with cards still waiting for their step. '
+                .'Fix LEARNING_LEARN_AHEAD_MINUTES / LEARNING_STEPS / RELEARNING_STEPS.',
+                $learnAheadMinutes,
+                $maxStep,
+            ));
+        }
+
+        if ($abandonedAfterHours < 1) {
+            throw new InvalidArgumentException('abandoned_after_hours must be >= 1');
+        }
+        if ($abandonedAfterHours * 60 <= $maxStep) {
+            throw new InvalidArgumentException(sprintf(
+                'abandoned_after_hours (%d h) must be longer than the largest learning/relearning step (%d min).',
+                $abandonedAfterHours,
+                $maxStep,
+            ));
         }
     }
 
@@ -50,7 +83,16 @@ final class LearningPolicy
             graduatingIntervalDays: (int) ($config['graduating_interval_days'] ?? 1),
             easyIntervalDays: (int) ($config['easy_interval_days'] ?? 4),
             learnAheadMinutes: (int) ($config['learn_ahead_minutes'] ?? 20),
+            abandonedAfterHours: (int) ($config['abandoned_after_hours'] ?? self::DEFAULT_ABANDONED_AFTER_HOURS),
         );
+    }
+
+    /** Longest minute step across learning and relearning. */
+    public function maxStepMinutes(): int
+    {
+        // Both lists are non-empty (assertSteps); the literal 0 only keeps the
+        // array provably non-empty for static analysis.
+        return max([...$this->learningStepsMinutes, ...$this->relearningStepsMinutes, 0]);
     }
 
     /**

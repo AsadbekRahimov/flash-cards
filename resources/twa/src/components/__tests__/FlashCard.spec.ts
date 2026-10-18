@@ -22,6 +22,7 @@ const card: Card = {
   example: 'She is a resilient girl.',
   transcription: 'rɪˈzɪl.i.ənt',
   card_kind: 'new',
+  serve_token: null,
 }
 
 describe('FlashCard', () => {

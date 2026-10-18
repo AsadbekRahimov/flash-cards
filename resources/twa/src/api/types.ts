@@ -53,6 +53,12 @@ export interface Card {
   example: string | null
   transcription: string | null
   card_kind: CardKind
+  /**
+   * One-time learn-ahead ticket (docs/06 §5.2). Non-null only when the server
+   * served a `learning` card before its step elapsed; must be echoed as
+   * `serve_token` in POST /review for that card, otherwise 409 `card_not_due`.
+   */
+  serve_token: string | null
 }
 
 export interface NextCardResponse {

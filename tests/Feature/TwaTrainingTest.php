@@ -348,15 +348,31 @@ it('stops serving cards at the configured per-session limit', function (): void 
 // Learning steps inside a session (docs/06 §3, §5)
 // ---------------------------------------------------------------------------
 
-function bindLearningPolicy(int $learnAheadMinutes = 20): void
+function bindLearningPolicy(int $learnAheadMinutes = 20, array $learningSteps = [1, 10], array $relearningSteps = [10]): void
 {
     app()->instance(LearningPolicy::class, new LearningPolicy(
-        learningStepsMinutes: [1, 10],
-        relearningStepsMinutes: [10],
+        learningStepsMinutes: $learningSteps,
+        relearningStepsMinutes: $relearningSteps,
         graduatingIntervalDays: 1,
         easyIntervalDays: 4,
         learnAheadMinutes: $learnAheadMinutes,
     ));
+}
+
+/**
+ * Builds the POST /review body the TWA client sends for a card from /next, /start or /review.
+ *
+ * @param  array{word_id:int, serve_token?:string|null}  $card
+ * @return array{word_id:int, quality:int, time_spent_ms:int, serve_token:string|null}
+ */
+function reviewPayload(array $card, int $quality): array
+{
+    return [
+        'word_id' => $card['word_id'],
+        'quality' => $quality,
+        'time_spent_ms' => 1000,
+        'serve_token' => $card['serve_token'] ?? null,
+    ];
 }
 
 it('shows a card graded "Трудно" again in the same session as a learning card', function (): void {
@@ -365,23 +381,26 @@ it('shows a card graded "Трудно" again in the same session as a learning c
     $headers = authHeaders($s['student']);
     $url = "/api/twa/training/sessions/{$s['session']->id}";
 
-    $wordId = $this->withHeaders($headers)->getJson("{$url}/next")->assertOk()
+    $card = $this->withHeaders($headers)->getJson("{$url}/next")->assertOk()
         ->assertJsonPath('card.card_kind', 'new')
-        ->json('card.word_id');
+        ->assertJsonPath('card.serve_token', null)
+        ->json('card');
 
     // Again: restarts learning steps (1 min). Nothing else to show -> learn-ahead serves it immediately.
-    $this->withHeaders($headers)
-        ->postJson("{$url}/review", ['word_id' => $wordId, 'quality' => 2, 'time_spent_ms' => 2000])
+    $resp = $this->withHeaders($headers)
+        ->postJson("{$url}/review", reviewPayload($card, 2))
         ->assertOk()
         ->assertJsonPath('new_interval_days', 0)
-        ->assertJsonPath('card.word_id', $wordId)
+        ->assertJsonPath('card.word_id', $card['word_id'])
         ->assertJsonPath('card.card_kind', 'learning')
         ->assertJsonPath('progress.done', 0);
 
-    $rep = WordRepetition::query()->where('student_id', $s['student']->id)->where('word_id', $wordId)->firstOrFail();
+    $rep = WordRepetition::query()->where('student_id', $s['student']->id)->where('word_id', $card['word_id'])->firstOrFail();
     expect($rep->state)->toBe(RepetitionState::Learning)
         ->and($rep->is_hard)->toBeTrue()
         ->and($rep->served_ahead_at)->not->toBeNull()
+        ->and($rep->served_ahead_token)->toBeString()->toHaveLength(32)
+        ->and($resp->json('card.serve_token'))->toBe($rep->served_ahead_token)
         ->and($rep->next_review_at->isAfter(now()))->toBeTrue();
 });
 
@@ -391,18 +410,20 @@ it('does not finish the session while learning cards remain, and finishes once t
     $headers = authHeaders($s['student']);
     $url = "/api/twa/training/sessions/{$s['session']->id}";
 
-    $wordId = $this->withHeaders($headers)->getJson("{$url}/next")->json('card.word_id');
+    $card = $this->withHeaders($headers)->getJson("{$url}/next")->json('card');
 
     // Good on a new card -> step 2 (10 min). Served ahead, not finished.
-    $this->withHeaders($headers)
-        ->postJson("{$url}/review", ['word_id' => $wordId, 'quality' => 4, 'time_spent_ms' => 1000])
+    $card = $this->withHeaders($headers)
+        ->postJson("{$url}/review", reviewPayload($card, 4))
         ->assertOk()
-        ->assertJsonPath('card.word_id', $wordId)
-        ->assertJsonPath('card.card_kind', 'learning');
+        ->assertJsonPath('card.word_id', $card['word_id'])
+        ->assertJsonPath('card.card_kind', 'learning')
+        ->json('card');
+    expect($card['serve_token'])->toBeString();
 
     // Good on the last step -> graduates to 1 day. Now nothing is left: finished.
     $this->withHeaders($headers)
-        ->postJson("{$url}/review", ['word_id' => $wordId, 'quality' => 4, 'time_spent_ms' => 1000])
+        ->postJson("{$url}/review", reviewPayload($card, 4))
         ->assertOk()
         ->assertJsonPath('new_interval_days', 1)
         ->assertJsonPath('card', null)
@@ -411,7 +432,9 @@ it('does not finish the session while learning cards remain, and finishes once t
     $this->withHeaders($headers)->getJson("{$url}/next")->assertOk()->assertJsonPath('card', null);
 
     expect(TrainingReview::query()->where('training_session_id', $s['session']->id)->count())->toBe(2);
-    expect(WordRepetition::query()->where('word_id', $wordId)->value('state'))->toBe(RepetitionState::Review);
+    $rep = WordRepetition::query()->where('word_id', $card['word_id'])->firstOrFail();
+    expect($rep->state)->toBe(RepetitionState::Review)
+        ->and($rep->served_ahead_token)->toBeNull();
 });
 
 it('"Средне" (q=4) keeps EF at 2.50 across the whole lesson', function (): void {
@@ -426,7 +449,7 @@ it('"Средне" (q=4) keeps EF at 2.50 across the whole lesson', function ():
             break;
         }
         $this->withHeaders($headers)
-            ->postJson("{$url}/review", ['word_id' => $card['word_id'], 'quality' => 4, 'time_spent_ms' => 1000])
+            ->postJson("{$url}/review", reviewPayload($card, 4))
             ->assertOk()
             ->assertJsonPath('easiness_factor', 2.5);
     }
@@ -437,20 +460,66 @@ it('"Средне" (q=4) keeps EF at 2.50 across the whole lesson', function ():
     expect(WordRepetition::query()->where('student_id', $s['student']->id)->where('state', RepetitionState::Review->value)->count())->toBe(2);
 });
 
+it('rejects a replayed review when the same learn-ahead card was re-served in the response (409 card_not_due)', function (): void {
+    // Review finding A: lesson of 1 word -> /next -> review(q=4) re-serves the same
+    // card ahead with a new ticket. Replaying the identical request must fail.
+    bindLearningPolicy();
+    $s = seedTrainingScenario(1);
+    $headers = authHeaders($s['student']);
+    $url = "/api/twa/training/sessions/{$s['session']->id}";
+
+    $card = $this->withHeaders($headers)->getJson("{$url}/next")->assertOk()->json('card');
+    $payload = reviewPayload($card, 4);
+
+    $reserved = $this->withHeaders($headers)->postJson("{$url}/review", $payload)->assertOk()
+        ->assertJsonPath('card.word_id', $card['word_id'])
+        ->assertJsonPath('card.card_kind', 'learning')
+        ->json('card');
+    expect($reserved['serve_token'])->toBeString()->not->toBe($payload['serve_token']);
+
+    // Exact replay (same body: no token, because the first serve was a due "new" card).
+    $this->withHeaders($headers)->postJson("{$url}/review", $payload)
+        ->assertStatus(409)
+        ->assertJsonPath('error.code', 'card_not_due');
+
+    // Replay with a forged / foreign token is rejected too.
+    $this->withHeaders($headers)->postJson("{$url}/review", [...$payload, 'serve_token' => str_repeat('a', 32)])
+        ->assertStatus(409)
+        ->assertJsonPath('error.code', 'card_not_due');
+
+    $rep = WordRepetition::query()->where('word_id', $card['word_id'])->firstOrFail();
+    expect(TrainingReview::query()->where('training_session_id', $s['session']->id)->count())->toBe(1)
+        ->and($rep->state)->toBe(RepetitionState::Learning)
+        ->and($rep->learning_step)->toBe(1);
+
+    // The legitimate second answer (with the re-served ticket) graduates the card...
+    $this->withHeaders($headers)->postJson("{$url}/review", reviewPayload($reserved, 4))
+        ->assertOk()
+        ->assertJsonPath('new_interval_days', 1)
+        ->assertJsonPath('card', null);
+
+    // ...and replaying *that* one fails as well: the ticket was consumed.
+    $this->withHeaders($headers)->postJson("{$url}/review", reviewPayload($reserved, 4))
+        ->assertStatus(409)
+        ->assertJsonPath('error.code', 'card_not_due');
+
+    expect(TrainingReview::query()->where('training_session_id', $s['session']->id)->count())->toBe(2);
+});
+
 it('still rejects a replayed review of a learning card that was not served again (409 card_not_due)', function (): void {
     bindLearningPolicy();
     $s = seedTrainingScenario(2);
     $headers = authHeaders($s['student']);
     $url = "/api/twa/training/sessions/{$s['session']->id}";
 
-    $first = $this->withHeaders($headers)->getJson("{$url}/next")->json('card.word_id');
-    $payload = ['word_id' => $first, 'quality' => 4, 'time_spent_ms' => 1000];
+    $first = $this->withHeaders($headers)->getJson("{$url}/next")->json('card');
+    $payload = reviewPayload($first, 4);
 
     // Response serves the second (new) word, so the first is pending for 10 min with no ticket.
     $second = $this->withHeaders($headers)->postJson("{$url}/review", $payload)->assertOk()
         ->assertJsonPath('card.card_kind', 'new')
         ->json('card.word_id');
-    expect($second)->not->toBe($first);
+    expect($second)->not->toBe($first['word_id']);
 
     $this->withHeaders($headers)->postJson("{$url}/review", $payload)
         ->assertStatus(409)
@@ -466,37 +535,37 @@ it('accepts a learn-ahead served card exactly once even when two clients fetched
     $url = "/api/twa/training/sessions/{$s['session']->id}";
 
     // Put both words into learning (step 2, due in 10 min).
-    $a = $this->withHeaders($headers)->getJson("{$url}/next")->json('card.word_id');
+    $a = $this->withHeaders($headers)->getJson("{$url}/next")->json('card');
     $b = $this->withHeaders($headers)
-        ->postJson("{$url}/review", ['word_id' => $a, 'quality' => 4, 'time_spent_ms' => 1000])
-        ->json('card.word_id');
+        ->postJson("{$url}/review", reviewPayload($a, 4))
+        ->json('card');
     $ahead = $this->withHeaders($headers)
-        ->postJson("{$url}/review", ['word_id' => $b, 'quality' => 4, 'time_spent_ms' => 1000])
+        ->postJson("{$url}/review", reviewPayload($b, 4))
         ->assertJsonPath('card.card_kind', 'learning')
-        ->json('card.word_id');
-    expect($ahead)->toBe($a);
+        ->json('card');
+    expect($ahead['word_id'])->toBe($a['word_id']);
 
-    // Two "tabs" fetch /next: both get A served ahead (same ticket).
-    $this->withHeaders($headers)->getJson("{$url}/next")->assertJsonPath('card.word_id', $a);
-    $this->withHeaders($headers)->getJson("{$url}/next")->assertJsonPath('card.word_id', $a);
+    // Two "tabs" fetch /next: both get A served ahead with the *same* outstanding ticket.
+    $tab1 = $this->withHeaders($headers)->getJson("{$url}/next")->assertJsonPath('card.word_id', $a['word_id'])->json('card');
+    $tab2 = $this->withHeaders($headers)->getJson("{$url}/next")->assertJsonPath('card.word_id', $a['word_id'])->json('card');
+    expect($tab1['serve_token'])->toBe($ahead['serve_token'])
+        ->and($tab2['serve_token'])->toBe($ahead['serve_token']);
 
-    $payload = ['word_id' => $a, 'quality' => 4, 'time_spent_ms' => 1000];
-
-    // First submit graduates A (1 day) and serves B ahead.
-    $this->withHeaders($headers)->postJson("{$url}/review", $payload)->assertOk()
+    // First tab graduates A (1 day); B is served ahead.
+    $this->withHeaders($headers)->postJson("{$url}/review", reviewPayload($tab1, 4))->assertOk()
         ->assertJsonPath('new_interval_days', 1)
-        ->assertJsonPath('card.word_id', $b);
+        ->assertJsonPath('card.word_id', $b['word_id']);
 
-    // Replay from the other tab: A is a review card due tomorrow -> rejected.
-    $this->withHeaders($headers)->postJson("{$url}/review", $payload)
+    // Second tab answers the same serve: A is a review card due tomorrow -> rejected.
+    $this->withHeaders($headers)->postJson("{$url}/review", reviewPayload($tab2, 4))
         ->assertStatus(409)
         ->assertJsonPath('error.code', 'card_not_due');
 
-    expect(TrainingReview::query()->where('training_session_id', $s['session']->id)->where('word_id', $a)->count())->toBe(2);
+    expect(TrainingReview::query()->where('training_session_id', $s['session']->id)->where('word_id', $a['word_id'])->count())->toBe(2);
 });
 
-it('rejects a learn-ahead answer for a card outside the window or without a ticket', function (): void {
-    bindLearningPolicy(learnAheadMinutes: 5);
+it('rejects a learn-ahead answer without a ticket, with a stale ticket or outside the window', function (): void {
+    bindLearningPolicy(learnAheadMinutes: 5, learningSteps: [1, 3], relearningSteps: [3]);
     $s = seedTrainingScenario(1);
     $word = $s['words']->first();
 
@@ -505,23 +574,67 @@ it('rejects a learn-ahead answer for a card outside the window or without a tick
         'word_id' => $word->id,
         'next_review_at' => now()->addMinutes(3),
         'served_ahead_at' => null,
+        'served_ahead_token' => null,
     ]);
 
     $service = app(ReviewSubmissionService::class);
+    $submit = fn (?string $token) => $service->submit($s['session'], $s['student'], (int) $word->id, 4, 1000, $token);
 
-    // Inside window but never served ahead -> not acceptable.
-    expect(fn () => $service->submit($s['session'], $s['student'], (int) $word->id, 4, 1000))
-        ->toThrow(ReviewSubmissionException::class, 'not due');
+    // Inside window but never served ahead -> not acceptable, whatever the client sends.
+    expect(fn () => $submit(null))->toThrow(ReviewSubmissionException::class, 'not due');
+    expect(fn () => $submit('deadbeef'))->toThrow(ReviewSubmissionException::class, 'not due');
 
-    // Served ahead but beyond the window -> not acceptable.
-    $rep->forceFill(['served_ahead_at' => now(), 'next_review_at' => now()->addMinutes(30)])->save();
-    expect(fn () => $service->submit($s['session'], $s['student'], (int) $word->id, 4, 1000))
-        ->toThrow(ReviewSubmissionException::class, 'not due');
+    // Served ahead, but the client has no / a different token (old client, replay) -> rejected.
+    $rep->forceFill(['served_ahead_at' => now(), 'served_ahead_token' => 't-current'])->save();
+    expect(fn () => $submit(null))->toThrow(ReviewSubmissionException::class, 'not due');
+    expect(fn () => $submit(''))->toThrow(ReviewSubmissionException::class, 'not due');
+    expect(fn () => $submit('t-stale'))->toThrow(ReviewSubmissionException::class, 'not due');
 
-    // Served ahead inside the window -> accepted, ticket consumed.
-    $rep->forceFill(['served_ahead_at' => now(), 'next_review_at' => now()->addMinutes(3)])->save();
-    $service->submit($s['session'], $s['student'], (int) $word->id, 4, 1000);
-    expect($rep->fresh()->served_ahead_at)->toBeNull();
+    // Right token but beyond the window -> not acceptable.
+    $rep->forceFill(['next_review_at' => now()->addMinutes(30)])->save();
+    expect(fn () => $submit('t-current'))->toThrow(ReviewSubmissionException::class, 'not due');
+
+    // Right token inside the window -> accepted, ticket consumed.
+    $rep->forceFill(['next_review_at' => now()->addMinutes(3)])->save();
+    $submit('t-current');
+    $fresh = $rep->fresh();
+    expect($fresh->served_ahead_at)->toBeNull()
+        ->and($fresh->served_ahead_token)->toBeNull();
+    expect(TrainingReview::query()->where('training_session_id', $s['session']->id)->count())->toBe(1);
+});
+
+it('accepts a due card with or without a serve_token (ticket only matters for learn-ahead)', function (): void {
+    bindLearningPolicy();
+    $s = seedTrainingScenario(2);
+    $headers = authHeaders($s['student']);
+    $url = "/api/twa/training/sessions/{$s['session']->id}";
+    [$a, $b] = $s['words']->pluck('id')->all();
+
+    WordRepetition::factory()->review()->create([
+        'student_id' => $s['student']->id,
+        'word_id' => $a,
+        'next_review_at' => now()->subDay(),
+    ]);
+    WordRepetition::factory()->review()->create([
+        'student_id' => $s['student']->id,
+        'word_id' => $b,
+        'next_review_at' => now()->subDay(),
+    ]);
+
+    // Old client: no serve_token field at all.
+    $this->withHeaders($headers)
+        ->postJson("{$url}/review", ['word_id' => $a, 'quality' => 4, 'time_spent_ms' => 1000])
+        ->assertOk();
+
+    // New client echoing a garbage token on a due card: still accepted (due wins).
+    $this->withHeaders($headers)
+        ->postJson("{$url}/review", ['word_id' => $b, 'quality' => 4, 'time_spent_ms' => 1000, 'serve_token' => 'whatever'])
+        ->assertOk();
+
+    // Oversized token is a validation error, not a 500.
+    $this->withHeaders($headers)
+        ->postJson("{$url}/review", ['word_id' => $b, 'quality' => 4, 'time_spent_ms' => 1000, 'serve_token' => str_repeat('x', 65)])
+        ->assertStatus(422);
 });
 
 it('ends the session early when learn-ahead is disabled (card returns on its own schedule)', function (): void {
@@ -530,18 +643,19 @@ it('ends the session early when learn-ahead is disabled (card returns on its own
     $headers = authHeaders($s['student']);
     $url = "/api/twa/training/sessions/{$s['session']->id}";
 
-    $wordId = $this->withHeaders($headers)->getJson("{$url}/next")->json('card.word_id');
+    $card = $this->withHeaders($headers)->getJson("{$url}/next")->json('card');
 
     $this->withHeaders($headers)
-        ->postJson("{$url}/review", ['word_id' => $wordId, 'quality' => 2, 'time_spent_ms' => 1000])
+        ->postJson("{$url}/review", reviewPayload($card, 2))
         ->assertOk()
         ->assertJsonPath('card', null);
 
-    // Once the step elapses the card is due and is served as a learning card.
+    // Once the step elapses the card is due and is served as a learning card (no ticket needed).
     $this->travel(2)->minutes();
     $this->withHeaders($headers)->getJson("{$url}/next")->assertOk()
-        ->assertJsonPath('card.word_id', $wordId)
-        ->assertJsonPath('card.card_kind', 'learning');
+        ->assertJsonPath('card.word_id', $card['word_id'])
+        ->assertJsonPath('card.card_kind', 'learning')
+        ->assertJsonPath('card.serve_token', null);
 });
 
 it('prefers due cards over new ones and labels graduated cards as due', function (): void {
@@ -572,7 +686,7 @@ it('runs the learning-state migration backfill and rollback cleanly', function (
     $migration = require base_path('database/migrations/2026_10_18_000002_add_learning_state_to_word_repetitions.php');
 
     $migration->down();
-    expect(Schema::hasColumns('word_repetitions', ['state', 'learning_step', 'lapses', 'served_ahead_at']))->toBeFalse();
+    expect(Schema::hasColumns('word_repetitions', ['state', 'learning_step', 'lapses', 'served_ahead_at', 'served_ahead_token']))->toBeFalse();
 
     $legacy = [
         'student_id' => $s['student']->id,
@@ -590,6 +704,7 @@ it('runs the learning-state migration backfill and rollback cleanly', function (
     ]);
 
     $migration->up();
+    expect(Schema::hasColumns('word_repetitions', ['state', 'learning_step', 'lapses', 'served_ahead_at', 'served_ahead_token']))->toBeTrue();
 
     $states = WordRepetition::query()->where('student_id', $s['student']->id)->pluck('state', 'word_id');
     expect($states[$graduated])->toBe(RepetitionState::Review)

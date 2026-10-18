@@ -72,6 +72,7 @@ final class SpacedRepetitionEngine
         $rep->last_reviewed_at = $now;
         // Any answer consumes the learn-ahead ticket issued by CardPicker.
         $rep->served_ahead_at = null;
+        $rep->served_ahead_token = null;
 
         $rep->save();
 

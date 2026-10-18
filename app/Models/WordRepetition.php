@@ -26,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $learning_step
  * @property int $lapses
  * @property CarbonImmutable|null $served_ahead_at
+ * @property string|null $served_ahead_token
  * @property array<mixed>|null $meta
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
@@ -50,6 +51,7 @@ class WordRepetition extends Model
         'learning_step',
         'lapses',
         'served_ahead_at',
+        'served_ahead_token',
         'meta',
     ];
 

@@ -65,10 +65,17 @@ final class TrainingFlowService
             return new TrainingStep(null, null, $progress);
         }
 
-        return new TrainingStep($pick['word'], $pick['kind'], $progress);
+        return new TrainingStep(
+            $pick['word'],
+            $pick['kind'],
+            $progress,
+            $pick['repetition']->served_ahead_token,
+        );
     }
 
     /**
+     * @param  string|null  $serveToken  `card.serve_token` of the card being graded (required for learn-ahead cards)
+     *
      * @throws ReviewSubmissionException
      */
     public function review(
@@ -77,8 +84,9 @@ final class TrainingFlowService
         int $wordId,
         int $quality,
         int $timeSpentMs,
+        ?string $serveToken = null,
     ): ReviewOutcome {
-        $repetition = $this->reviews->submit($session, $student, $wordId, $quality, $timeSpentMs);
+        $repetition = $this->reviews->submit($session, $student, $wordId, $quality, $timeSpentMs, $serveToken);
 
         return new ReviewOutcome($repetition, $this->nextStep($session, $student));
     }

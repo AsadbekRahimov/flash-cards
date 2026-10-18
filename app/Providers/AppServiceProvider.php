@@ -61,6 +61,13 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Fail fast on an inconsistent SRS configuration (e.g. learn-ahead window
+        // shorter than the longest learning step): LearningPolicy throws with an
+        // actionable message, so `artisan config:cache` in the container
+        // entrypoint and the health check fail at deploy time rather than the
+        // first student request silently ending sessions early (docs/06 §3.1).
+        $this->app->make(LearningPolicy::class);
+
         RateLimiter::for('login', function (Request $request): Limit {
             $email = (string) $request->input('email', '');
 
