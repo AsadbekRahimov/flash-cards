@@ -53,6 +53,34 @@ it('queues reminders only for active students with enough due words and no recen
     Bus::assertDispatched(SendReviewReminderJob::class, fn (SendReviewReminderJob $job): bool => $job->studentId === $student->id && $job->dueCount === 5);
 });
 
+it('ignores minute-based learning cards when counting due words for reminders', function (): void {
+    Bus::fake();
+
+    $group = TelegramGroup::factory()->create(['status' => 'active']);
+    $student = Student::factory()->create(['telegram_group_id' => $group->id]);
+
+    // 4 graduated due cards + 3 learning cards whose step already elapsed (abandoned session).
+    foreach (Word::factory()->count(4)->create() as $word) {
+        WordRepetition::factory()->due()->create(['student_id' => $student->id, 'word_id' => $word->id]);
+    }
+    foreach (Word::factory()->count(3)->create() as $word) {
+        WordRepetition::factory()->learning(step: 1)->create([
+            'student_id' => $student->id,
+            'word_id' => $word->id,
+            'next_review_at' => now()->subMinutes(5),
+        ]);
+    }
+
+    expect(app(ReviewReminderService::class)->queueDueReminders(5))->toBe(0);
+    Bus::assertNothingDispatched();
+
+    // One more graduated due card crosses the threshold; learning cards are still not counted.
+    WordRepetition::factory()->due()->create(['student_id' => $student->id, 'word_id' => Word::factory()->create()->id]);
+
+    expect(app(ReviewReminderService::class)->queueDueReminders(5))->toBe(1);
+    Bus::assertDispatched(SendReviewReminderJob::class, fn (SendReviewReminderJob $job): bool => $job->dueCount === 5);
+});
+
 it('sends a reminder message and writes notification log', function (): void {
     Config::set('twa.base_url', 'https://twa.test');
 

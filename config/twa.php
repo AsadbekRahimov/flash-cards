@@ -26,10 +26,12 @@ return [
 
     'training' => [
         /**
-         * Max cards per training session (protects against infinite loops
-         * on the client if bugs cause it to never stop requesting next).
+         * Max graded cards (training_reviews rows) per training session.
+         * Protects against infinite loops on the client if bugs cause it to
+         * never stop requesting next. With learning steps every step is a
+         * review, so a 25-word lesson needs ~75 reviews plus lapses.
          */
-        'max_cards_per_session' => (int) env('TWA_MAX_CARDS_PER_SESSION', 100),
+        'max_cards_per_session' => (int) env('TWA_MAX_CARDS_PER_SESSION', 200),
     ],
 
     'tts' => [

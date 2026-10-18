@@ -4,29 +4,44 @@ declare(strict_types=1);
 
 namespace App\Domain\Learning\Services;
 
+use App\Domain\Learning\Enums\RepetitionState;
+use App\Domain\Learning\Support\LearningPolicy;
 use App\Models\Word;
 use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Picks the next card for a student inside a specific lesson.
  *
- * Strategy (MVP):
- *   1. Find a due repetition for any word of the lesson (`next_review_at <= now()`).
- *      Prefer hard cards first, then earliest due.
- *   2. Otherwise, find a new word of the lesson the student has never seen.
+ * Strategy:
+ *   1. A due repetition for any word of the lesson (`next_review_at <= now()`),
+ *      hard cards first, then earliest due. Covers review cards and
+ *      (re)learning cards whose minute step has elapsed.
+ *   2. Otherwise, a new word of the lesson the student has never seen.
  *      Insert initial WordRepetition row so subsequent `review` is idempotent.
- *   3. Otherwise, return null (student finished the lesson for now).
+ *   3. Otherwise, learn-ahead: the earliest (re)learning card whose step
+ *      elapses within `policy->learnAheadMinutes`. It is served early and
+ *      stamped with `served_ahead_at` so ReviewSubmissionService can accept
+ *      the answer before `next_review_at` without opening a double-submit hole.
+ *   4. Otherwise, null (student finished the lesson for now).
+ *
+ * `kind` tells the client how to label the card:
+ *   'new'      — never answered (state new)
+ *   'learning' — inside minute-based (re)learning steps
+ *   'due'      — graduated card scheduled in days
  */
 final class CardPicker
 {
+    public function __construct(private readonly LearningPolicy $policy) {}
+
     /**
      * @return array{
      *   repetition: WordRepetition,
      *   word: Word,
-     *   kind: 'due'|'new'
+     *   kind: 'due'|'new'|'learning'
      * }|null
      */
     public function pickNext(int $studentId, int $lessonId, ?CarbonImmutable $now = null): ?array
@@ -34,12 +49,11 @@ final class CardPicker
         $now ??= CarbonImmutable::now();
 
         /** @var WordRepetition|null $due */
-        $due = WordRepetition::query()
-            ->where('student_id', $studentId)
-            ->whereHas('word', fn ($q) => $q->where('lesson_id', $lessonId))
+        $due = $this->lessonRepetitions($studentId, $lessonId)
             ->where('next_review_at', '<=', $now)
             ->orderByDesc('is_hard')
             ->orderBy('next_review_at')
+            ->orderBy('id')
             ->with('word')
             ->first();
 
@@ -47,11 +61,16 @@ final class CardPicker
             return [
                 'repetition' => $due,
                 'word' => $due->word,
-                'kind' => 'due',
+                'kind' => self::kindOf($due),
             ];
         }
 
-        return $this->pickNewInTransaction($studentId, $lessonId, $now);
+        $new = $this->pickNewInTransaction($studentId, $lessonId, $now);
+        if ($new !== null) {
+            return $new;
+        }
+
+        return $this->pickLearnAhead($studentId, $lessonId, $now);
     }
 
     /**
@@ -88,6 +107,9 @@ final class CardPicker
                 'easiness_factor' => SpacedRepetitionEngine::DEFAULT_EF,
                 'next_review_at' => $now,
                 'is_hard' => false,
+                'state' => RepetitionState::New,
+                'learning_step' => 0,
+                'lapses' => 0,
                 'meta' => [],
             ]);
 
@@ -97,6 +119,63 @@ final class CardPicker
                 'kind' => 'new',
             ];
         });
+    }
+
+    /**
+     * Serve the nearest (re)learning card before its step elapsed, so the
+     * session does not end with cards hanging for a few minutes.
+     *
+     * @return array{repetition: WordRepetition, word: Word, kind: 'learning'}|null
+     */
+    private function pickLearnAhead(int $studentId, int $lessonId, CarbonImmutable $now): ?array
+    {
+        if ($this->policy->learnAheadMinutes <= 0) {
+            return null;
+        }
+
+        /** @var WordRepetition|null $ahead */
+        $ahead = $this->lessonRepetitions($studentId, $lessonId)
+            ->whereIn('state', [RepetitionState::Learning->value, RepetitionState::Relearning->value])
+            ->where('next_review_at', '<=', $now->addMinutes($this->policy->learnAheadMinutes))
+            ->orderBy('next_review_at')
+            ->orderBy('id')
+            ->with('word')
+            ->first();
+
+        if ($ahead === null || $ahead->word === null) {
+            return null;
+        }
+
+        $ahead->served_ahead_at = $now;
+        $ahead->save();
+
+        return [
+            'repetition' => $ahead,
+            'word' => $ahead->word,
+            'kind' => 'learning',
+        ];
+    }
+
+    /**
+     * @return Builder<WordRepetition>
+     */
+    private function lessonRepetitions(int $studentId, int $lessonId): Builder
+    {
+        return WordRepetition::query()
+            ->where('student_id', $studentId)
+            ->whereHas('word', fn ($q) => $q->where('lesson_id', $lessonId));
+    }
+
+    /**
+     * @return 'due'|'new'|'learning'
+     */
+    public static function kindOf(WordRepetition $rep): string
+    {
+        return match ($rep->state) {
+            RepetitionState::New => 'new',
+            RepetitionState::Review => 'due',
+            RepetitionState::Learning, RepetitionState::Relearning => 'learning',
+        };
     }
 
     /**

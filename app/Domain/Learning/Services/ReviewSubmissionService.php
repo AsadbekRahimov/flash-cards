@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Learning\Services;
 
 use App\Domain\Learning\Exceptions\ReviewSubmissionException;
+use App\Domain\Learning\Support\LearningPolicy;
 use App\Models\Student;
 use App\Models\TrainingReview;
 use App\Models\TrainingSession;
@@ -13,9 +14,21 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Atomically applies a student's grade to a card inside an open session.
+ *
+ * Double-submit protection: a card may be graded only if it is due
+ * (`next_review_at <= now`) or if CardPicker served it early (learn-ahead)
+ * and that ticket (`served_ahead_at`) has not been consumed yet. Every
+ * accepted review moves `next_review_at` into the future and clears the
+ * ticket, so replaying the same request is rejected with 409 `card_not_due`.
+ */
 final class ReviewSubmissionService
 {
-    public function __construct(private readonly SpacedRepetitionEngine $engine) {}
+    public function __construct(
+        private readonly SpacedRepetitionEngine $engine,
+        private readonly LearningPolicy $policy,
+    ) {}
 
     public function submit(
         TrainingSession $session,
@@ -75,7 +88,7 @@ final class ReviewSubmissionService
                 );
             }
 
-            if ($repetition->next_review_at->isAfter($now)) {
+            if (! $this->isAcceptable($repetition, $now)) {
                 throw new ReviewSubmissionException(
                     409,
                     'card_not_due',
@@ -96,5 +109,20 @@ final class ReviewSubmissionService
 
             return $repetition;
         });
+    }
+
+    private function isAcceptable(WordRepetition $repetition, CarbonImmutable $now): bool
+    {
+        if (! $repetition->next_review_at->isAfter($now)) {
+            return true;
+        }
+
+        if ($repetition->served_ahead_at === null || ! $repetition->state->isIntraSession()) {
+            return false;
+        }
+
+        // Learn-ahead ticket is valid only inside the configured window, and only
+        // if it was issued after the previous answer (the engine clears it on review).
+        return ! $repetition->next_review_at->isAfter($now->addMinutes($this->policy->learnAheadMinutes));
     }
 }

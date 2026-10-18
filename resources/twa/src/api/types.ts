@@ -39,7 +39,12 @@ export interface TrainingStartResponse {
   progress?: { done: number; total: number }
 }
 
-export type CardKind = 'due' | 'new'
+/**
+ * due      — graduated card scheduled in days (SM-2)
+ * new      — never answered
+ * learning — inside minute-based learning/relearning steps (returns in the same session)
+ */
+export type CardKind = 'due' | 'new' | 'learning'
 
 export interface Card {
   word_id: number
@@ -55,7 +60,14 @@ export interface NextCardResponse {
   progress: { done: number; total: number }
 }
 
-export type Quality = 2 | 3 | 5
+/**
+ * Grade sent to POST /review (server accepts 0..5).
+ *   2 — Трудно / Again: failed, card restarts learning steps
+ *   4 — Средне / Good:  passed, EF unchanged
+ *   5 — Легко  / Easy:  passed, EF +0.10 (skips remaining learning steps)
+ * 3 ("Hard" pass, EF -0.14) is valid for the API but has no button in v1.
+ */
+export type Quality = 2 | 4 | 5
 
 export interface ReviewResponse {
   next_review_at: string | null

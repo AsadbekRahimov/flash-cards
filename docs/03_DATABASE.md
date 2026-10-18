@@ -119,14 +119,21 @@ erDiagram
 | id | bigint PK | |
 | student_id | bigint FK → students | |
 | word_id | bigint FK → words | |
-| repetitions | smallint default 0 | счётчик успешных повторений |
-| interval_days | smallint default 0 | текущий интервал в днях |
+| repetitions | smallint default 0 | счётчик успешных повторений в состоянии `review` (сброс при провале) |
+| interval_days | smallint default 0 | текущий интервал в днях (0, пока карточка в минутных шагах) |
 | easiness_factor | decimal(4,2) default 2.50 | EF из SM-2 |
 | last_quality | smallint nullable | 0..5, последняя оценка |
 | last_reviewed_at | timestamp nullable | |
-| next_review_at | timestamp | индексируем для запроса «что пора повторить» |
-| is_hard | boolean default false | last_quality ≤ 2 — флаг для бустинга частоты |
+| next_review_at | timestamp | индексируем для запроса «что пора повторить»; для `learning`/`relearning` — минуты |
+| is_hard | boolean default false | провалена и ещё не прошла успешное review-повторение (docs/06 §3.5) |
+| state | varchar(16) default 'new' | `new` / `learning` / `review` / `relearning` (docs/06 §3.1) |
+| learning_step | smallint default 0 | индекс текущего минутного шага внутри learning/relearning |
+| lapses | smallint default 0 | сколько раз карточка в `review` была провалена |
+| served_ahead_at | timestamp nullable | метка learn-ahead: карточка выдана до `next_review_at`; обнуляется при приёме оценки |
 | meta | jsonb default '{}' | |
+
+Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions >= 1` → `review`;
+`repetitions = 0` и `last_quality` не null → `relearning`; остальные → `new`.
 
 **Индексы:**
 - `(student_id, word_id)` unique.

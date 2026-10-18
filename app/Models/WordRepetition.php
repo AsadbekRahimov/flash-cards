@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Domain\Learning\Enums\RepetitionState;
 use Carbon\CarbonImmutable;
 use Database\Factories\WordRepetitionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -21,6 +22,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property CarbonImmutable|null $last_reviewed_at
  * @property CarbonImmutable $next_review_at
  * @property bool $is_hard
+ * @property RepetitionState $state
+ * @property int $learning_step
+ * @property int $lapses
+ * @property CarbonImmutable|null $served_ahead_at
  * @property array<mixed>|null $meta
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
@@ -41,6 +46,10 @@ class WordRepetition extends Model
         'last_reviewed_at',
         'next_review_at',
         'is_hard',
+        'state',
+        'learning_step',
+        'lapses',
+        'served_ahead_at',
         'meta',
     ];
 
@@ -55,6 +64,10 @@ class WordRepetition extends Model
             'last_reviewed_at' => 'immutable_datetime',
             'next_review_at' => 'immutable_datetime',
             'is_hard' => 'boolean',
+            'state' => RepetitionState::class,
+            'learning_step' => 'integer',
+            'lapses' => 'integer',
+            'served_ahead_at' => 'immutable_datetime',
             'meta' => 'array',
         ];
     }

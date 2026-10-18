@@ -47,7 +47,7 @@ describe('FlashCard', () => {
     expect(w.find('[data-testid=grade-easy]').exists()).toBe(true)
   })
 
-  it('emits grade event with correct quality (2/3/5) per button', async () => {
+  it('emits grade event with quality 2 / 4 / 5 (Again / Good / Easy) per button', async () => {
     const w = mount(FlashCard, { props: { card, showTranslation: true } })
     await w.get('[data-testid=grade-hard]').trigger('click')
     await w.get('[data-testid=grade-medium]').trigger('click')
@@ -55,8 +55,18 @@ describe('FlashCard', () => {
     const events = w.emitted('grade') as unknown[][] | undefined
     expect(events).toHaveLength(3)
     expect(events?.[0]).toEqual([2])
-    expect(events?.[1]).toEqual([3])
+    expect(events?.[1]).toEqual([4])
     expect(events?.[2]).toEqual([5])
+  })
+
+  it('labels learning-step cards distinctly from new and due cards', () => {
+    expect(mount(FlashCard, { props: { card, showTranslation: false } }).text()).toContain('Новое слово')
+    expect(
+      mount(FlashCard, { props: { card: { ...card, card_kind: 'learning' }, showTranslation: false } }).text(),
+    ).toContain('Закрепление')
+    expect(
+      mount(FlashCard, { props: { card: { ...card, card_kind: 'due' }, showTranslation: false } }).text(),
+    ).toContain('Повторение')
   })
 
   it('does not emit grade when disabled', async () => {
