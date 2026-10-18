@@ -19,7 +19,7 @@
 | 0.5 | i18n каркас: `lang/{ru,uz}`, `trans_choice`, vue-i18n в TWA | coder | ⏳ |
 | 0.6 | API Resource-классы для TWA, вынос логики из контроллеров | coder | ⏳ |
 | 0.7 | Staging: restore-тест, ZAP baseline, k6 | координатор (нужен staging) | ⏳ |
-| 0.8 | Сжатие трафика: предсжатая статика TWA (`gzip_static`), тюнинг gzip, без сжатия аудио, защита от BREACH на admin | coder | ⏳ |
+| 0.8 | Сжатие трафика: предсжатая статика TWA (`gzip_static`), тюнинг gzip, без сжатия аудио, защита от BREACH на admin | coder | ✅ |
 
 ## Sprint 12 — Полный аудит, безопасность и production readiness ✅ (2026-07-13)
 
