@@ -93,6 +93,52 @@
 
 ### A.3 Training mode
 
+#### `POST /api/twa/training/sessions`
+Learner открывает **личную** сессию (docs/12 §7.6): урок целиком (`lesson`) или ежедневное повторение по всем урокам (`daily_review`).
+Идемпотентно: пока есть открытая неистёкшая сессия того же (learner, урок) / (learner, `daily_review`), возвращается она же
+(одна на пару, в том числе при гонке двух вкладок); просроченная, но ещё не закрытая планировщиком — закрывается
+(`done_reason = expired`) и заменяется новой. Для `daily_review` `course_id` сессии обновляется до текущего активного курса.
+
+**Request:**
+```json
+{
+  "mode": "lesson",          // lesson | daily_review (group_lesson открывает только учитель из бота)
+  "lesson_id": 321,          // обязателен для lesson (integer ≥ 1), запрещён для daily_review
+  "source": "picker"         // optional: self (по умолчанию) | picker | reminder | onboarding; записывается только в НОВУЮ сессию
+}
+```
+
+**Response (200, всегда — и для новой, и для уже открытой сессии):** ровно как у `/start` ниже (`session_id`, `mode`, `lesson`,
+`total_words`, `card`, `progress`, `done_reason`). Клиент после ответа переходит на экран тренировки по `session_id`
+(экран снова вызывает `/start`, это идемпотентно: первая карточка та же).
+
+**Ошибки:** 422 валидации Laravel (`mode` вне `lesson`/`daily_review`, `lesson_id` не integer, `source` вне списка) →
+422 `lesson_mismatch` (`lesson` без `lesson_id` или `daily_review` с ним) → 404 `lesson_not_found` (урока нет **или** его курс
+не `published` — статус курса не раскрывается) → 429 (лимит `twa-session-create`, 10 запросов/мин на learner'а).
+(`invalid_mode` из сервиса при HTTP недостижим — режим отсекает валидация; код оставлен в списке для клиента.)
+
+Побочный эффект: событие `training.session_opened` `{training_session_id, mode, source, reused}` (`reused = true`, если вернулась уже открытая сессия).
+
+#### `POST /api/twa/training/sessions/{session_id}/finish`
+Learner завершает **свою личную** сессию (`status = closed`, `ended_at`, `done_reason = finished`) и получает итог по ней.
+Идемпотентно: повтор отвечает 200 с теми же числами и не меняет `ended_at`/`done_reason` (в том числе у сессии, уже закрытой
+планировщиком с `expired`). Порядок проверок: 404 `session_not_found` → 403 (`forbidden` — чужая личная сессия; `not_a_member` / `group_inactive` — групповая сессия, к которой нет доступа) → 403 `forbidden` для
+**любой** групповой сессии (её закрывает учитель/планировщик; сервис при прямом вызове отвечает `not_personal`). Закрытая
+сессия — не 410: здесь 410 нет.
+
+**Response:**
+```json
+{ "reviewed": 14, "correct": 11, "new_words": 4 }
+```
+`reviewed` — принятые оценки в сессии, `correct` — из них с `quality >= 3`, `new_words` — слова, у которых строка
+`word_repetitions` создана не раньше начала сессии. Цель дня и streak добавит `/today` (task 1.3b).
+
+Незавершённые сессии закрывает команда `training:close-expired` (планировщик, каждые 15 минут, `withoutOverlapping`): личные — по
+`expires_at` (`now + learning.session_ttl_hours`, 12 ч, при открытии), групповые — старше `group_session_ttl_hours`; обе с
+`done_reason = expired`, `ended_at` = момент закрытия.
+
+После `finish` (и после закрытия планировщиком) `/start`, `/next`, `/review` этой сессии отвечают 410 `session_closed`.
+
 #### `POST /api/twa/training/sessions/{session_id}/start`
 Learner присоединяется к открытой тренировке. Доступ — по членству (docs/12 §4.4): групповая сессия доступна **активному
 участнику активной группы**, личная (`mode <> group_lesson`) — только её владельцу. Порядок проверок: 404 `session_not_found` →
@@ -106,15 +152,17 @@ Learner присоединяется к открытой тренировке. �
 ```json
 {
   "session_id": 123,
-  "lesson": { "stage": 4, "lesson": 8, "title": "Resilience" },
-  "total_words": 25,
+  "mode": "group_lesson",    // group_lesson | lesson | daily_review
+  "lesson": { "stage": 4, "lesson": 8, "title": "Resilience" } | null,   // null для daily_review
+  "total_words": 25,         // lesson/group_lesson: активные слова урока; daily_review: learners.daily_goal
   "card": { "word_id": 1001, "word": "Resilient", "translation": "Устойчивый", "translation_fallback": false, "example": null, "transcription": null, "card_kind": "new", "serve_token": null } | null,
-  "progress": { "done": 0, "total": 25 }
+  "progress": { "done": 0, "total": 25 },
+  "done_reason": null        // см. ниже; не null ровно когда card = null
 }
 ```
 
-`card` / `progress` — первая карточка и прогресс в том же формате, что у `/next`.
-Если у сессии нет урока — 404 `lesson_not_found`.
+`card` / `progress` / `done_reason` — первая карточка, прогресс и причина «карточек нет» в том же формате, что у `/next`.
+Если у урока сессии нет (удалён) — 404 `lesson_not_found`.
 
 #### `GET /api/twa/training/sessions/{session_id}/next`
 
@@ -134,9 +182,26 @@ Learner присоединяется к открытой тренировке. �
     "card_kind": "due",     // due | new | learning (минутные learning steps, см. docs/06 §4)
     "serve_token": null     // string для карточки, выданной досрочно (learn-ahead) — вернуть в POST /review
   },
-  "progress": { "done": 7, "total": 25 }
+  "progress": { "done": 7, "total": 25 },
+  "done_reason": null        // null, пока есть card; иначе причина, см. ниже
 }
 ```
+
+**`progress`:** в уроке — `done` = слова урока, дошедшие до `repetitions >= 1`, `total` = активные слова урока; в `daily_review` —
+`done` = оценки в этой сессии, `total` = `learners.daily_goal`. В `daily_review` `done` может превысить `total`
+(цель перевыполнена) — клиент обрезает полосу прогресса до `total`.
+
+**`done_reason`** (`card: null` ⇒ ровно одно из значений; при наличии карточки — `null`):
+
+| Значение | Когда |
+|---|---|
+| `lesson_complete` | scope `lesson`: все слова урока пройдены, ничего не due и не в learning steps |
+| `nothing_due` | scope `daily_review`: ничего не due, а новых слов в активном курсе нет (или курс не выбран) |
+| `new_quota_exhausted` | новые слова ещё есть, но дневной лимит новых карточек исчерпан, а due нет (план Free; в 1.3a бюджет безлимитный, лимит включает 1.4b) |
+| `session_cap` | принято `TWA_MAX_CARDS_PER_SESSION` оценок в этой сессии |
+
+Клиент показывает экран «готово» с текстом по `done_reason`; для `new_quota_exhausted` пока только текст (paywall — 1.4b).
+Личную сессию на экране «готово» клиент закрывает `POST /finish` (best effort); групповую не закрывает никогда.
 
 **Язык перевода** (`translation`): групповая сессия — язык группы (`telegram_groups.meta.locale`, по умолчанию `ru`),
 личная сессия — язык интерфейса learner'а (`interface_locale`). Если перевода на этот язык нет, отдаётся русский
@@ -168,7 +233,8 @@ Learner присоединяется к открытой тренировке. �
   "new_interval_days": 3,    // 0, пока карточка в минутных learning steps
   "easiness_factor": 2.45,
   "card": { ... } | null,    // следующая карточка (как в /next)
-  "progress": { "done": 7, "total": 25 }
+  "progress": { "done": 7, "total": 25 },
+  "done_reason": null
 }
 ```
 
@@ -338,7 +404,7 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 
 ### A.6 Общие правила
 - Все даты в ISO 8601 UTC.
-- Rate limit: 60 запросов/минуту на learner'а (кроме `/tts` — 30/мин, `/promo/redeem` — A.7). `TwaAuth` выполняется **до** `throttle:*`
+- Rate limit: 60 запросов/минуту на learner'а (кроме `/tts` — 30/мин, `/promo/redeem` — A.7, `POST /training/sessions` — 10/мин). `TwaAuth` выполняется **до** `throttle:*`
   (`bootstrap/app.php`, `prependToPriorityList`), поэтому ключ лимитера — `learner_id`, а не IP.
 - При любой 4xx/5xx (кроме 422 валидации Laravel) ответ — `ApiErrorResource`:
 ```json

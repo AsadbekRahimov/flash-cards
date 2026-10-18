@@ -277,3 +277,24 @@
 | `error.code.promo_not_applicable` | Sizda allaqachon muddatsiz Pro bor — promokod kerak emas. | У вас уже есть Pro без ограничения по сроку — промокод не нужен. |
 
 Проверить: термин «promokod», «faollashtirish» (активировать), «limiti tugagan» (исчерпан лимит).
+
+## Фаза 1 · задача 1.3a C (личные сессии) — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `course.learn` (кнопка у урока) | O'rganish | Учить |
+| `landing.review_all` (кнопка на стартовом экране) | Hammasini takrorlash | Повторить всё |
+| `training.daily_header` | Takrorlash | Повторение |
+| `finished.reason.lesson_complete` | Darsdagi barcha so'zlar o'tildi. | Все слова урока пройдены. |
+| `finished.reason.nothing_due` | Bugun takrorlaydigan narsa yo'q. | На сегодня повторять нечего. |
+| `finished.reason.new_quota_exhausted` | Bugungi yangi so'zlar limiti tugadi. Yangi so'zlar ertaga ochiladi. | Лимит новых слов на сегодня исчерпан. Новые слова откроются завтра. |
+| `finished.reason.session_cap` | Bu uzun mashg'ulot bo'ldi — biroz dam oling. | Это была длинная сессия — сделайте перерыв. |
+| `error.code.out_of_scope` (было `wrong_lesson`) | Bu so'z ushbu mashg'ulotga tegishli emas. | Это слово не относится к этой тренировке. |
+| `error.code.lesson_mismatch` | Bu rejim tanlangan darsga mos kelmaydi. | Этот режим не подходит к выбранному уроку. |
+| `error.code.invalid_mode` | Noma'lum mashg'ulot rejimi. | Неизвестный режим тренировки. |
+
+Ключ `error.code.wrong_lesson` удалён (код ошибки переименован в `out_of_scope`).
+
+Проверить: «O'rganish» (учить) на кнопке рядом с «Takrorlash» (повторять); «mashg'ulot» (тренировка/сессия) — как в остальных текстах.

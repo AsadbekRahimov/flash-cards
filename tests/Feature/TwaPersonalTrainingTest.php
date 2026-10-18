@@ -298,14 +298,14 @@ it('does not let a learner finish a group session, not even a member', function 
     expect($session->fresh()?->status)->toBe('open');
 });
 
-it('does not let a blocked learner finish their session', function (): void {
+it('rejects a blocked learner at the door (401 learner_blocked) and leaves the session open', function (): void {
     $learner = Learner::factory()->create();
     $session = TrainingSession::factory()->personal($learner, 'daily_review')->create();
     $learner->update(['blocked_at' => now()]);
 
     $res = $this->withHeaders(ptHeaders($learner))->postJson("/api/twa/training/sessions/{$session->id}/finish");
 
-    expect($res->status())->toBeIn([401, 403]);
+    $res->assertStatus(401)->assertJsonPath('error.code', 'learner_blocked');
     expect($session->fresh()?->status)->toBe('open');
 });
 
