@@ -23,3 +23,19 @@ it('masks PII fields but keeps structure', function (): void {
     expect($cleaned['update_id'])->toBe(1);
     expect($cleaned['message']['chat']['id'])->toBe(42);
 });
+
+it('masks group titles and shared phone numbers', function (): void {
+    $update = [
+        'message' => [
+            'chat' => ['id' => -100, 'type' => 'supergroup', 'title' => 'Class 7B Parents'],
+            'contact' => ['phone_number' => '+998901234567', 'user_id' => 7],
+        ],
+    ];
+
+    $cleaned = UpdateSanitizer::forLog($update);
+
+    expect($cleaned['message']['chat']['title'])->toBe('Cl***')
+        ->and($cleaned['message']['chat']['id'])->toBe(-100)
+        ->and($cleaned['message']['contact']['phone_number'])->toBe('+9***')
+        ->and($cleaned['message']['contact']['user_id'])->toBe(7);
+});

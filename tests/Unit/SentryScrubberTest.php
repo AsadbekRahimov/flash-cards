@@ -6,6 +6,8 @@ use App\Domain\Operations\Support\SentryScrubber;
 use Sentry\Breadcrumb;
 use Sentry\Event;
 use Sentry\ExceptionDataBag;
+use Sentry\Frame;
+use Sentry\Stacktrace;
 
 const SCRUB_BOT_TOKEN = '123456789:AAEhBP0av18UbLNvPLhm4RxQ0l7hTqlJkP8';
 const SCRUB_WEBHOOK_SECRET = 'whsec_AbCdEf0123456789xyz';
@@ -116,6 +118,86 @@ it('masks personal fields of Telegram update bodies via UpdateSanitizer', functi
         ->and($json)->not->toContain('Alexander')
         ->and($json)->not->toContain('alex_secret')
         ->and($json)->toContain('update_id');
+});
+
+it('drops stack frame arguments of exceptions and of the event stacktrace', function (): void {
+    $leakyFrame = fn (): Frame => new Frame(
+        'GuzzleHttp\Client::send',
+        'vendor/guzzlehttp/guzzle/src/Client.php',
+        10,
+        null,
+        null,
+        [
+            'https://api.telegram.org/bot'.SCRUB_BOT_TOKEN.'/sendMessage',
+            ['chat_id' => 1, 'text' => 'Dear Alexander', 'init_data' => 'query_id=AAH&hash=deadbeef'],
+        ],
+    );
+
+    $event = Event::createEvent();
+    $event->setExceptions([
+        new ExceptionDataBag(new RuntimeException('timeout'), new Stacktrace([$leakyFrame(), $leakyFrame()])),
+    ]);
+    $event->setStacktrace(new Stacktrace([$leakyFrame()]));
+
+    $scrubbed = SentryScrubber::beforeSend($event);
+
+    $frames = [
+        ...$scrubbed->getExceptions()[0]->getStacktrace()->getFrames(),
+        ...$scrubbed->getStacktrace()->getFrames(),
+    ];
+    $json = json_encode(array_map(fn (Frame $f): array => [$f->getFunctionName(), $f->getVars()], $frames), JSON_THROW_ON_ERROR);
+
+    expect($frames)->toHaveCount(3)
+        ->and($json)->not->toContain('AAEhBP0av18')
+        ->and($json)->not->toContain('Alexander')
+        ->and($json)->not->toContain('query_id')
+        ->and($json)->not->toContain('deadbeef')
+        ->and($json)->toContain('GuzzleHttp');
+    foreach ($frames as $frame) {
+        expect($frame->getVars())->toBe([]);
+    }
+});
+
+it('does not touch events without any stacktrace', function (): void {
+    expect(SentryScrubber::beforeSend(Event::createEvent())->getStacktrace())->toBeNull();
+});
+
+it('masks password and 2FA codes inside Livewire JSON bodies', function (): void {
+    $snapshot = json_encode(['data' => ['password' => 'hunter2-secret', 'code' => '123456', 'email' => 'a@b.c']], JSON_THROW_ON_ERROR);
+    $event = Event::createEvent();
+    $event->setRequest([
+        'data' => [
+            'components' => [[
+                'snapshot' => $snapshot,
+                'updates' => ['data.code' => '654321', 'data.recovery_code' => 'abcde-12345'],
+                'calls' => [],
+            ]],
+            'wrapped' => json_encode(['snapshot' => $snapshot, 'recovery_code' => 'rec-98765', 'one_time_password' => 777888], JSON_THROW_ON_ERROR),
+            'code' => '555444',
+        ],
+    ]);
+
+    $json = scrubbedJson(SentryScrubber::beforeSend($event));
+
+    expect($json)->not->toContain('hunter2-secret')
+        ->and($json)->not->toContain('123456')
+        ->and($json)->not->toContain('654321')
+        ->and($json)->not->toContain('abcde-12345')
+        ->and($json)->not->toContain('rec-98765')
+        ->and($json)->not->toContain('777888')
+        ->and($json)->not->toContain('555444')
+        ->and($json)->toContain('a@b.c');
+});
+
+it('masks double-encoded JSON credentials', function (): void {
+    $inner = json_encode(['password' => 'p@ss"word-leak', 'code' => '246810', 'name' => 'ok'], JSON_THROW_ON_ERROR);
+    $outer = json_encode(['snapshot' => $inner], JSON_THROW_ON_ERROR);
+
+    $scrubbed = SentryScrubber::scrubString($outer);
+
+    expect($scrubbed)->not->toContain('word-leak')
+        ->and($scrubbed)->not->toContain('246810')
+        ->and($scrubbed)->toContain('ok');
 });
 
 it('is registered as before_send hook in config/sentry.php', function (): void {

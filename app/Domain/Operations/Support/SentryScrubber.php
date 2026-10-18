@@ -7,6 +7,7 @@ namespace App\Domain\Operations\Support;
 use App\Domain\Telegram\Support\UpdateSanitizer;
 use Sentry\Event;
 use Sentry\EventHint;
+use Sentry\Stacktrace;
 
 /**
  * `before_send` / `before_send_transaction` hooks for Sentry (and GlitchTip).
@@ -15,6 +16,12 @@ use Sentry\EventHint;
  * Authorization/Cookie headers, `init_data` bodies, Telegram bot token and
  * webhook secrets (also inside URLs, exception messages, breadcrumbs and
  * spans). Telegram update bodies reuse {@see UpdateSanitizer}.
+ *
+ * Stack frame arguments (`Frame::getVars()`) are dropped entirely: sentry-php
+ * puts the raw arguments of every call there (e.g. the
+ * `https://api.telegram.org/bot<TOKEN>/…` URL passed to the HTTP client, chat
+ * texts, `initData`), and unlike request data they have no structure we could
+ * whitelist. Source-code context lines are kept (they are code, not data).
  *
  * Referenced from config/sentry.php as array callables so `config:cache`
  * keeps working (closures cannot be cached).
@@ -34,6 +41,13 @@ final class SentryScrubber
         'initdata',
         'signature',
     ];
+
+    /**
+     * Exact keys (last dotted segment, lower-case) that are sensitive only inside
+     * the request payload: 2FA / recovery codes posted by forms and Livewire
+     * (`updates` keys look like `data.code`).
+     */
+    private const SENSITIVE_REQUEST_KEYS = ['code', 'recovery_code', 'one_time_password'];
 
     public static function beforeSend(Event $event, ?EventHint $hint = null): Event
     {
@@ -55,7 +69,7 @@ final class SentryScrubber
                 $data = $request['data'];
                 $request['data'] = UpdateSanitizer::forLog($data);
             }
-            $event->setRequest(self::scrubArray($request));
+            $event->setRequest(self::scrubArray($request, true));
         }
 
         $message = $event->getMessage();
@@ -75,7 +89,9 @@ final class SentryScrubber
 
         foreach ($event->getExceptions() as $exception) {
             $exception->setValue(self::scrubString($exception->getValue()));
+            self::scrubStacktrace($exception->getStacktrace());
         }
+        self::scrubStacktrace($event->getStacktrace());
 
         $breadcrumbs = [];
         foreach ($event->getBreadcrumbs() as $breadcrumb) {
@@ -130,27 +146,41 @@ final class SentryScrubber
             '#Bearer\s+[A-Za-z0-9._~+/=-]+#i' => 'Bearer '.self::REDACTED,
             // ?secret=... / init_data=... / token=...
             '#\b(secret|init_?data|token|hash|signature)=[^&\s"\']+#i' => '$1='.self::REDACTED,
+            // JSON strings (Livewire `snapshot` / `updates`, possibly double-encoded):
+            // "password":"…", "code":"…", "recovery_code":"…"
+            '#(\\\\*"(?:[a-z_]*password[a-z_]*|code|recovery_code|one_time_password)\\\\*"\s*:\s*)(?:(\\\\*)".*?(?<!\\\\)\\2"|[^,}\]\s"\\\\]+)#i' => '$1$2"'.self::REDACTED.'$2"',
         ];
 
         return preg_replace(array_keys($patterns), array_values($patterns), $value) ?? self::REDACTED;
+    }
+
+    private static function scrubStacktrace(?Stacktrace $stacktrace): void
+    {
+        if ($stacktrace === null) {
+            return;
+        }
+
+        foreach ($stacktrace->getFrames() as $frame) {
+            $frame->setVars([]);
+        }
     }
 
     /**
      * @param  array<array-key, mixed>  $data
      * @return array<array-key, mixed>
      */
-    private static function scrubArray(array $data): array
+    private static function scrubArray(array $data, bool $inRequest = false): array
     {
         $result = [];
         foreach ($data as $key => $value) {
-            if (is_string($key) && self::isSensitiveKey($key)) {
+            if (is_string($key) && (self::isSensitiveKey($key) || ($inRequest && self::isSensitiveRequestKey($key)))) {
                 $result[$key] = self::REDACTED;
 
                 continue;
             }
 
             $result[$key] = match (true) {
-                is_array($value) => self::scrubArray($value),
+                is_array($value) => self::scrubArray($value, $inRequest),
                 is_string($value) => self::scrubString($value),
                 default => $value,
             };
@@ -170,6 +200,13 @@ final class SentryScrubber
         }
 
         return false;
+    }
+
+    private static function isSensitiveRequestKey(string $key): bool
+    {
+        $segments = explode('.', strtolower($key));
+
+        return in_array(end($segments), self::SENSITIVE_REQUEST_KEYS, true);
     }
 
     /**

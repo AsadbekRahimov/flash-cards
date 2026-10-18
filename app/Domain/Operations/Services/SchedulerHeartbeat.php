@@ -28,6 +28,7 @@ final class SchedulerHeartbeat
     {
         $timestamp = $this->cache->get(self::CACHE_KEY);
 
-        return is_int($timestamp) ? CarbonImmutable::createFromTimestamp($timestamp) : null;
+        // RedisStore returns numeric values as strings.
+        return is_numeric($timestamp) ? CarbonImmutable::createFromTimestamp((int) $timestamp) : null;
     }
 }

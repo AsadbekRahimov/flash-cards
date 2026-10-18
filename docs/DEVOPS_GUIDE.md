@@ -498,8 +498,18 @@ SENTRY_SEND_DEFAULT_PII=false                                    # keep false
   `Authorization` / `Cookie` headers and cookies, `init_data` request bodies, the Telegram bot token
   (also inside `https://api.telegram.org/bot<token>/...` URLs), `TELEGRAM_URL_SECRET` / `TELEGRAM_HEADER_SECRET` /
   `TWA_JWT_SECRET` values, the `/telegram/webhook/{secret}` URL segment and `secret=`/`token=` query params.
-  Telegram update bodies additionally go through `UpdateSanitizer` (names, usernames and message texts are masked).
+  Telegram update bodies additionally go through `UpdateSanitizer` (names, usernames, message texts, group titles and phone numbers are masked).
+  The scrubber also **drops all stack-frame arguments** (`Frame::getVars()`) of every exception and of the
+  event stacktrace: sentry-php stores the raw call arguments there (e.g. the URL with the bot token passed to
+  the HTTP client on a Telegram timeout, chat texts, `initData`), which cannot be whitelisted, so they are
+  cleared entirely. JSON bodies of Livewire requests (`snapshot` / `updates`) get `password*`, `code`,
+  `recovery_code` and `one_time_password` masked, also when double-encoded.
   The hooks are array callables, so `php artisan config:cache` works.
+- **Defense in depth: `zend.exception_ignore_args = On`.** The app image installs `docker/php/zz-lexiflow.ini`
+  (`zend.exception_ignore_args=On`, `expose_php=Off`), so PHP does not even put call arguments into exception
+  traces - they never reach logs or Sentry. On a bare-metal php-fpm (no Docker) set the same in
+  `php.ini` / `conf.d` of the FPM pool and the CLI queue workers. sentry-php has no option to skip frame
+  arguments, so this ini setting plus the scrubber are the two layers.
 - Test the wiring after a deploy: `php artisan sentry:test` (needs a DSN) and check that the event arrives
   without credentials.
 
