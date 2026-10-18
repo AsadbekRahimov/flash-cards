@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Domain\Analytics\Enums\ProductEventName;
+use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Learning\Services\ExamSessionService;
 use App\Domain\Learning\Services\LeaderboardBuilder;
 use App\Jobs\PostLeaderboardJob;
@@ -33,6 +35,7 @@ final class CloseExpiredExams extends Command
     public function handle(
         ExamSessionService $service,
         LeaderboardBuilder $leaderboard,
+        ProductEventRecorder $events,
     ): int {
         $grace = max(0, (int) $this->option('grace'));
         $cutoff = CarbonImmutable::now()->subSeconds($grace);
@@ -66,6 +69,12 @@ final class CloseExpiredExams extends Command
             if ($closed === null) {
                 continue;
             }
+
+            $events->record(
+                ProductEventName::ExamClosed,
+                ['exam_session_id' => $closed->id, 'source' => 'scheduler'],
+                group: $closed->group,
+            );
 
             $leaderboard->build($closed);
 
