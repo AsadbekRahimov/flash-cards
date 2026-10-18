@@ -27,6 +27,10 @@ final class LessonContentRefresher
         }
 
         $this->cache->forgetLesson($lesson);
-        $this->publisher->recount($lesson->stage->course);
+
+        $course = $lesson->stage?->course;
+        if ($course !== null) {
+            $this->publisher->recount($course);
+        }
     }
 }
