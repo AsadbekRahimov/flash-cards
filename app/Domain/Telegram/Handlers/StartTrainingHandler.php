@@ -6,6 +6,7 @@ namespace App\Domain\Telegram\Handlers;
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Learning\Exceptions\TrainingSessionException;
 use App\Domain\Learning\Services\TrainingSessionService;
 use App\Domain\Localization\Services\LocaleResolver;
@@ -41,6 +42,7 @@ final class StartTrainingHandler implements UpdateHandler
         private readonly TrainingSessionService $trainingService,
         private readonly ProductEventRecorder $events,
         private readonly LocaleResolver $locales,
+        private readonly CourseCatalogService $catalog,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -95,7 +97,7 @@ final class StartTrainingHandler implements UpdateHandler
         $args = $this->parseArgs($text);
 
         if ($args === null) {
-            $this->sendLessonPicker($chatId, $locale);
+            $this->sendLessonPicker($chatId, $group, $locale);
 
             return;
         }
@@ -142,14 +144,11 @@ final class StartTrainingHandler implements UpdateHandler
         return null;
     }
 
-    private function sendLessonPicker(int $chatId, string $locale): void
+    private function sendLessonPicker(int $chatId, TelegramGroup $group, string $locale): void
     {
-        $lessons = Lesson::query()
-            ->with('stage')
-            ->orderBy('stage_id')
-            ->orderBy('number')
-            ->limit(self::MAX_PICKER_ROWS)
-            ->get();
+        // Only the lessons of the group's course: the buttons carry stage/lesson numbers,
+        // which are resolved in that same course when pressed.
+        $lessons = $this->catalog->lessons($this->catalog->courseForGroup($group), self::MAX_PICKER_ROWS);
 
         if ($lessons->isEmpty()) {
             $this->telegram->sendMessage($chatId, __('training.picker.empty', [], $locale));

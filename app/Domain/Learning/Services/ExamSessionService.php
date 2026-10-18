@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Domain\Learning\Services;
 
+use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Learning\Exceptions\ExamSessionException;
+use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\ExamSession;
-use App\Models\Lesson;
-use App\Models\Stage;
 use App\Models\TelegramGroup;
 use App\Models\User;
 use Carbon\CarbonImmutable;
@@ -34,9 +34,17 @@ final class ExamSessionService
 
     public const DEFAULT_SECONDS_PER_QUESTION = 10;
 
-    public function __construct(private readonly ExamQuestionBuilder $questionBuilder) {}
+    public function __construct(
+        private readonly ExamQuestionBuilder $questionBuilder,
+        private readonly CourseCatalogService $catalog,
+        private readonly LocaleResolver $locales,
+    ) {}
 
     /**
+     * Stage / lesson numbers are resolved inside the course of the group (`telegram_groups.course_id`,
+     * else the default course). Question texts are the translations in the locale of the GROUP
+     * (fallback ru), fixed when the exam is opened and stored in `config.locale`.
+     *
      * @throws ExamSessionException
      */
     public function open(
@@ -64,17 +72,12 @@ final class ExamSessionService
         $totalQuestions ??= self::DEFAULT_QUESTIONS;
         $secondsPerQuestion ??= self::DEFAULT_SECONDS_PER_QUESTION;
 
-        /** @var Stage|null $stage */
-        $stage = Stage::query()->where('number', $stageNumber)->first();
+        $stage = $this->catalog->findStage($this->catalog->courseForGroup($group), $stageNumber);
         if ($stage === null) {
             throw ExamSessionException::stageNotFound($stageNumber);
         }
 
-        /** @var Lesson|null $lesson */
-        $lesson = Lesson::query()
-            ->where('stage_id', $stage->id)
-            ->where('number', $lessonNumber)
-            ->first();
+        $lesson = $this->catalog->findLesson($stage, $lessonNumber);
         if ($lesson === null) {
             throw ExamSessionException::lessonNotFound($stageNumber, $lessonNumber);
         }
@@ -85,10 +88,12 @@ final class ExamSessionService
         }
 
         $now ??= CarbonImmutable::now();
+        $locale = $this->locales->forGroup($group);
 
         try {
             return DB::transaction(function () use (
                 $group,
+                $locale,
                 $lesson,
                 $teacher,
                 $durationMinutes,
@@ -106,7 +111,7 @@ final class ExamSessionService
                     throw ExamSessionException::alreadyOpen();
                 }
 
-                $questions = $this->questionBuilder->build($lesson, $totalQuestions);
+                $questions = $this->questionBuilder->build($lesson, $totalQuestions, $locale);
                 if (count($questions) < ExamQuestionBuilder::MIN_QUESTIONS) {
                     throw ExamSessionException::notEnoughWords(
                         count($questions),
@@ -123,6 +128,7 @@ final class ExamSessionService
                     'ends_at' => $now->addMinutes($durationMinutes),
                     'config' => [
                         'total_questions' => count($questions),
+                        'locale' => $locale,
                         'seconds_per_question' => $secondsPerQuestion,
                         'duration_minutes' => $durationMinutes,
                         'question_order' => ExamQuestionPersonalizer::ORDER_PER_LEARNER,

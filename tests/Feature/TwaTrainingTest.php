@@ -17,6 +17,7 @@ use App\Models\TrainingSession;
 use App\Models\User;
 use App\Models\Word;
 use App\Models\WordRepetition;
+use App\Models\WordTranslation;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
@@ -879,4 +880,69 @@ it('runs the learning-state migration backfill and rollback cleanly', function (
     expect($states[$graduated])->toBe(RepetitionState::Review)
         ->and($states[$failed])->toBe(RepetitionState::Relearning)
         ->and($states[$untouched])->toBe(RepetitionState::New);
+});
+
+// ---------------------------------------------------------------------------
+// Card translation by locale (docs/12 §1.7): group locale in a group session, ru fallback flag
+// ---------------------------------------------------------------------------
+
+it('serves the card translation in the language of the group', function (): void {
+    $s = seedTrainingScenario(1);
+    $s['session']->group->update(['meta' => ['locale' => 'uz']]);
+    $word = $s['words']->first();
+    $word->update(['translation' => 'привет']);
+    WordTranslation::factory()->create(['word_id' => $word->id, 'locale' => 'ru', 'translation' => 'привет']);
+    WordTranslation::factory()->uz()->create(['word_id' => $word->id, 'translation' => 'salom']);
+
+    $this->withHeaders(authHeaders($s['learner']))
+        ->postJson("/api/twa/training/sessions/{$s['session']->id}/start")
+        ->assertOk()
+        ->assertJsonPath('card.translation', 'salom')
+        ->assertJsonPath('card.translation_fallback', false);
+});
+
+it('shows the ru translation flagged as fallback when the word has no uz yet', function (): void {
+    $s = seedTrainingScenario(1);
+    $s['session']->group->update(['meta' => ['locale' => 'uz']]);
+    $word = $s['words']->first();
+    $word->update(['translation' => 'привет']);
+    WordTranslation::factory()->create(['word_id' => $word->id, 'locale' => 'ru', 'translation' => 'привет']);
+
+    $this->withHeaders(authHeaders($s['learner']))
+        ->postJson("/api/twa/training/sessions/{$s['session']->id}/start")
+        ->assertOk()
+        ->assertJsonPath('card.translation', 'привет')
+        ->assertJsonPath('card.translation_fallback', true);
+
+    $this->withHeaders(authHeaders($s['learner']))
+        ->getJson("/api/twa/training/sessions/{$s['session']->id}/next")
+        ->assertOk()
+        ->assertJsonPath('card.translation_fallback', true);
+});
+
+it('falls back to words.translation for content imported before translations existed', function (): void {
+    $s = seedTrainingScenario(1);
+    $s['words']->first()->update(['translation' => 'старое слово']);
+
+    // ru group (default locale): plain words.translation, no flag.
+    $this->withHeaders(authHeaders($s['learner']))
+        ->postJson("/api/twa/training/sessions/{$s['session']->id}/start")
+        ->assertOk()
+        ->assertJsonPath('card.translation', 'старое слово')
+        ->assertJsonPath('card.translation_fallback', false);
+});
+
+it('reads the translation in the interface language of the learner in a personal session', function (): void {
+    $s = seedTrainingScenario(1);
+    $word = $s['words']->first();
+    WordTranslation::factory()->uz()->create(['word_id' => $word->id, 'translation' => 'salom']);
+    $s['learner']->update(['interface_locale' => 'uz']);
+    // The group is ru, but a personal session ignores the group.
+    $s['session']->update(['mode' => 'lesson', 'learner_id' => $s['learner']->id]);
+
+    $this->withHeaders(authHeaders($s['learner']))
+        ->postJson("/api/twa/training/sessions/{$s['session']->id}/start")
+        ->assertOk()
+        ->assertJsonPath('card.translation', 'salom')
+        ->assertJsonPath('card.translation_fallback', false);
 });

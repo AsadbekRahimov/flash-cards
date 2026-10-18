@@ -87,7 +87,7 @@ function locTeacher(TelegramGroup $group, int $tgId): User
 
 function locSeedLessons(): void
 {
-    $stage = Stage::factory()->create(['number' => 1]);
+    $stage = Stage::factory()->inDefaultCourse()->create(['number' => 1]);
     $lesson = Lesson::factory()->for($stage)->create(['number' => 1]);
     Word::factory()->count(10)->for($lesson)->create();
     $other = Lesson::factory()->for($stage)->create(['number' => 2]);

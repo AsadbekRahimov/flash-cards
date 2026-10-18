@@ -32,7 +32,7 @@ use Illuminate\Support\Facades\Config;
 uses(RefreshDatabase::class);
 
 const CONTRACT_PROGRESS = ['done', 'total'];
-const CONTRACT_CARD = ['word_id', 'word', 'translation', 'example', 'transcription', 'card_kind', 'serve_token'];
+const CONTRACT_CARD = ['word_id', 'word', 'translation', 'translation_fallback', 'example', 'transcription', 'card_kind', 'serve_token'];
 const CONTRACT_EXAM_QUESTION = ['question_index', 'word_id', 'word', 'options', 'seconds_left'];
 const CONTRACT_FORBIDDEN_EXAM_KEYS = ['correct_index', 'correct_translation', 'canonical_index'];
 

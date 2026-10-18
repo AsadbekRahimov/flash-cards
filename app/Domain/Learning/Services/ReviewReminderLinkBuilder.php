@@ -44,13 +44,12 @@ final class ReviewReminderLinkBuilder
         $due = $this->due->apply(WordRepetition::query()->where('learner_id', $learner->id))
             ->orderByDesc('is_hard')
             ->orderBy('next_review_at')
-            ->with('word.lesson.stage')
+            ->with('word.lesson')
             ->first();
 
         $lesson = $due?->word?->lesson;
-        $stage = $lesson?->stage;
 
-        if ($lesson === null || $stage === null) {
+        if ($lesson === null) {
             throw new \RuntimeException('review_reminder_context_incomplete');
         }
 
@@ -62,13 +61,9 @@ final class ReviewReminderLinkBuilder
                 ->first();
 
             if ($teacher instanceof User) {
-                return $this->trainingSessions->open(
-                    $group,
-                    (int) $stage->number,
-                    (int) $lesson->number,
-                    $teacher,
-                    source: 'reminder',
-                );
+                // By the lesson itself, not by stage/lesson numbers: the lesson may belong to a
+                // different course than the group's.
+                return $this->trainingSessions->openForLesson($group, $lesson, $teacher, source: 'reminder');
             }
         }
 

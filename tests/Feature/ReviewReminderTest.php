@@ -12,6 +12,7 @@ use App\Domain\Learning\Support\LearningPolicy;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Jobs\SendReviewReminderJob;
+use App\Models\Course;
 use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\NotificationLog;
@@ -479,4 +480,36 @@ it('sends a reminder message and writes notification log', function (): void {
         ->where('learner_id', $learner->id)
         ->where('type', 'review_reminder')
         ->exists())->toBeTrue();
+});
+
+it('opens the reminder session on the due lesson itself even if the group studies another course with the same numbers', function (): void {
+    Config::set('twa.base_url', 'https://twa.test');
+
+    $groupCourse = Course::factory()->published()->create();
+    $dueCourse = Course::factory()->published()->create();
+    // Both courses have "stage 1 / lesson 1": the numbers alone would pick the group's lesson.
+    $groupLesson = Lesson::factory()->for(Stage::factory()->create(['course_id' => $groupCourse->id, 'number' => 1]))->create(['number' => 1]);
+    $dueLesson = Lesson::factory()->for(Stage::factory()->create(['course_id' => $dueCourse->id, 'number' => 1]))->create(['number' => 1]);
+
+    $group = TelegramGroup::factory()->create(['status' => 'active', 'course_id' => $groupCourse->id]);
+    DB::table('teacher_groups')->insert([
+        'user_id' => User::factory()->create()->id,
+        'telegram_group_id' => $group->id,
+        'is_primary' => true,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+    $learner = Learner::factory()->memberOf($group)->create();
+    WordRepetition::factory()->due()->create([
+        'learner_id' => $learner->id,
+        'word_id' => Word::factory()->for($dueLesson)->create()->id,
+    ]);
+
+    $url = app(ReviewReminderLinkBuilder::class)->buildTrainingUrl($learner);
+
+    $session = TrainingSession::query()->sole();
+    expect($session->lesson_id)->toBe($dueLesson->id)
+        ->and($session->lesson_id)->not->toBe($groupLesson->id)
+        ->and($session->source)->toBe('reminder')
+        ->and($url)->toBe("https://twa.test/twa/training/{$session->id}");
 });

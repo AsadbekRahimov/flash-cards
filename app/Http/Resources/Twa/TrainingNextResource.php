@@ -17,19 +17,22 @@ final class TrainingNextResource extends TwaResource
 {
     /**
      * @return array{
-     *   card: array{word_id: int, word: string, translation: string, example: string|null, transcription: string|null, card_kind: string, serve_token: string|null}|null,
+     *   card: array{word_id: int, word: string, translation: string, translation_fallback: bool, example: string|null, transcription: string|null, card_kind: string, serve_token: string|null}|null,
      *   progress: array{done: int, total: int}
      * }
      */
     public function toArray(Request $request): array
     {
         $word = $this->resource->word;
+        $translation = $this->resource->translation;
 
         return [
             'card' => $word !== null ? [
                 'word_id' => (int) $word->id,
                 'word' => $word->word,
-                'translation' => $word->translation,
+                'translation' => $translation->text ?? $word->translation,
+                // true: the text is the ru fallback because the session's language has no translation yet.
+                'translation_fallback' => $translation->isFallback ?? false,
                 'example' => $word->example,
                 'transcription' => $word->transcription,
                 'card_kind' => (string) $this->resource->kind,
