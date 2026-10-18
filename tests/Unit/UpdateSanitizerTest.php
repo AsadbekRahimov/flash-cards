@@ -39,3 +39,22 @@ it('masks group titles and shared phone numbers', function (): void {
         ->and($cleaned['message']['contact']['phone_number'])->toBe('+9***')
         ->and($cleaned['message']['contact']['user_id'])->toBe(7);
 });
+
+it('masks the vcard of a shared contact', function (): void {
+    $update = [
+        'message' => [
+            'contact' => [
+                'phone_number' => '+998901234567',
+                'first_name' => 'Alexander',
+                'user_id' => 7,
+                'vcard' => "BEGIN:VCARD\nVERSION:3.0\nFN:Alexander\nTEL:+998901234567\nEND:VCARD",
+            ],
+        ],
+    ];
+
+    $cleaned = UpdateSanitizer::forLog($update);
+
+    expect($cleaned['message']['contact']['vcard'])->toBe('BE***')
+        ->and(json_encode($cleaned))->not->toContain('998901234567')
+        ->and($cleaned['message']['contact']['user_id'])->toBe(7);
+});
