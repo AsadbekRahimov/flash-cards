@@ -138,33 +138,69 @@ review-карточку** (то есть после того, как слово 
 
 ## 4. Выборка «что показать студенту» (`CardPicker::pickNext`)
 
-1. **Due**: `next_review_at <= now` в рамках урока, `ORDER BY is_hard DESC, next_review_at, id`.
-   Сюда попадают и review-карточки, и learning-карточки, у которых минутный шаг уже истёк.
-2. **New**: слово урока без строки в `word_repetitions` (создаётся строка `state = new`,
-   `next_review_at = now`) — под `lockForUpdate` в транзакции.
-3. **Learn-ahead**: если due и new нет — ближайшая `learning`/`relearning` карточка с
+Сигнатура: `pickNext(int $learnerId, TrainingScope $scope, ?NewCardBudget $budget = null, ?CarbonImmutable $now = null): CardPick`
+(`CardPick` — карточка `{repetition, word, kind, ahead}` **или** `doneReason`).
+
+### 4.1 Scope — какие карточки допустимы (`App\Domain\Learning\Support\TrainingScope`)
+
+| Режим сессии | Scope | Due / learn-ahead | Новые слова |
+|---|---|---|---|
+| `group_lesson`, `lesson` | `TrainingScope::lesson($lessonId)` | строки `word_repetitions` learner'а по словам **этого урока** | слова урока без строки `word_repetitions`, по `words.id` |
+| `daily_review` | `TrainingScope::daily($courseId)` (`training_sessions.course_id` — снимок `learners.active_course_id`) | строки learner'а по **всем** словам всех уроков и курсов | слова курса `course_id` без строки, в порядке `(stage.number, lesson.number, words.id)`; без курса — только due |
+
+Слова с `is_active = false` (замена удаления, docs/03 §8) **не выдаются ни в одном шаге** — ни как новые, ни как due,
+ни досрочно; их строки `word_repetitions` не трогаются и не считаются в `DueRepetitionCriteria`, прогрессе урока и
+`LearningCache::lessonWordCount`. `TrainingScope::forSession(TrainingSession)` строит scope из строки сессии; для
+`lesson`-режимов без `lesson_id` бросает `LogicException` (инвариант `mode_shape`).
+
+### 4.2 Порядок выдачи
+
+1. **Due**: `next_review_at <= now` в scope, `ORDER BY is_hard DESC, next_review_at, id`.
+   Сюда попадают и review-карточки, и learning-карточки, у которых минутный шаг уже истёк. Для `daily_review` —
+   из любых уроков: трудные карточки разных курсов идут вперемешку, по сроку.
+2. **New**: первое невыданное слово scope (создаётся строка `state = new`, `next_review_at = now`) — в транзакции
+   под `SELECT … FOR UPDATE` строки **learner'а** (`learners.id`; sqlite блокирует всю БД). Блокировка сериализует
+   выдачу новых карточек одному человеку: две вкладки получают разные слова, а бюджет (ниже) считается после
+   блокировки и не может быть превышен совместно. Блокировки на строке `words` нет — она была бы глобальной для всех учеников.
+   Вкладка, пришедшая **после** коммита первой, может получить её ещё не оценённую `new`-карточку через шаг 1 (строка
+   `state = new`, `next_review_at = now` — due): это штатно, как и с любой due-карточкой — оценку примет одна вкладка,
+   вторая получит 409 `card_not_due` и перезапросит `/next`. Гарантия блокировки — каждое слово **вводится** (строка
+   создаётся) ровно один раз и бюджет не превышается.
+   **Бюджет** (`NewCardBudget`, docs/12 §5.3): `remaining(learnerId, now)` вычисляется под той же блокировкой;
+   `null` — безлимит (по умолчанию и для Pro), `<= 0` — шаг пропускается, строка не создаётся. Повторения бюджетом
+   **никогда** не ограничиваются. Бюджет отдаёт `NewCardBudgetResolver::budgetFor(Learner, now)` (контракт в
+   `App\Domain\Learning\Contracts`); по умолчанию привязан `UnlimitedNewCardBudgetResolver`, квота Free (задача 1.4b)
+   перепривязывает контракт и строит `NewCardBudget::lazy(fn ($learnerId, $now) => limit − выдано сегодня)`.
+3. **Learn-ahead**: если due и new нет — ближайшая `learning`/`relearning` карточка scope с
    `next_review_at <= now + learn_ahead_minutes`. Она выдаётся **досрочно**, и в строке
    ставится билет: `served_ahead_at = now`, `served_ahead_token = random(32 hex)`. Токен уходит
    клиенту как `card.serve_token`. Если билет уже выдан и не погашен (карточку досрочно получили
    два «таба»), он **переиспользуется**, а не перевыпускается — погасить его сможет только один ответ.
    Выдача — условный `UPDATE ... WHERE served_ahead_token IS NULL`, проигравший гонку берёт токен победителя.
-4. Иначе `null` — урок на сегодня закончен.
+4. Иначе карточки нет, и `CardPick::doneReason` объясняет почему (`App\Domain\Learning\Enums\DoneReason`):
+   `new_quota_exhausted` — шаг 2 остановил именно бюджет, а невыданные слова в scope есть; иначе `lesson_complete`
+   (lesson-scope) или `nothing_due` (daily-scope). `TrainingFlowService` добавляет `session_cap`, когда достигнут
+   `twa.training.max_cards_per_session` — ещё до обращения к пикеру. Клиент получает `done_reason` рядом с `card: null`.
 
 `card_kind` в ответе API: `new` (state new) · `learning` (learning/relearning) · `due` (review).
 `card.serve_token` — `null` для due/new карточек и для learning-карточек, чей шаг уже истёк (они due).
 
-Таким образом сессия не завершается, пока в уроке есть карточки в минутных шагах
+Таким образом сессия не завершается, пока в scope есть карточки в минутных шагах
 (при `learn_ahead_minutes >= max(шаг)`). Если learn-ahead выключен (`0`), сессия завершится,
 а карточка вернётся, когда наступит её срок.
+
+**Прогресс** (`progress: {done, total}`): lesson-scope — `CardPicker::progress`: выпущенные (`repetitions >= 1`)
+активные слова урока / все активные слова урока (`LearningCache::lessonWordCount`); daily-scope — оценок в этой сессии /
+`learners.daily_goal` (точнее «сделано сегодня» появится с `learner_daily_stats` в 1.3b).
 
 ## 5. Приём оценки (`ReviewSubmissionService::submit`)
 
 ### 5.1 Порядок проверок
 1. Сессия `open` (под `lockForUpdate`) — иначе 410 `session_closed`.
 2. Строка `word_repetitions` существует — иначе 409 `card_not_started`.
-3. Слово принадлежит уроку сессии — иначе 422 `wrong_lesson`.
+3. Слово в scope сессии (`TrainingScope::contains`: урок сессии для `group_lesson`/`lesson`, любое уже виденное слово для `daily_review`; неактивное слово — всегда вне scope) — иначе 422 `out_of_scope`.
 4. Карточку **можно оценить** (§5.2) — иначе 409 `card_not_due`.
-5. `SpacedRepetitionEngine::applyReview`, запись в `training_reviews`.
+5. `SpacedRepetitionEngine::applyReview`, запись в `training_reviews`, затем `DailyStatsService::recordReview(learner, quality, timeSpentMs, isNewCard, now)` — **в той же транзакции** (`isNewCard` = карточка была в `new` до этой оценки; агрегат за день наполняет задача 1.3b, в 1.3a это хук-заглушка). Ошибка в любом шаге откатывает всё, включая оценку.
 
 ### 5.2 Защита от повторного submit и learn-ahead
 
@@ -236,6 +272,13 @@ review-карточку** (то есть после того, как слово 
   (`> abandoned_after_hours`) считаются и в напоминании, и в `words_due_today`, и в deep-link;
   legacy-строки после backfill не теряются.
 - `tests/Feature/TwaContractTest.php` — `card.serve_token` в контракте; `words_due_today`.
+- `tests/Feature/PersonalTrainingSessionTest.php` — scope: due из разных уроков и курсов в `daily_review` (hard first),
+  новые слова из активного курса в учебном порядке, без курса — только due; `out_of_scope`; `done_reason`
+  (`lesson_complete` / `nothing_due` / `new_quota_exhausted` / `session_cap`); бюджет не трогает due; неактивные
+  слова не выдаются и не считаются; `DailyStatsService::recordReview` в транзакции и откат оценки при его сбое.
+- `tests/Feature/TrainingConcurrencyTest.php` (только PostgreSQL, форк процессов) — параллельные `openPersonal` → одна
+  сессия; параллельные `pickNext` одного learner'а не выдают одно новое слово дважды и не превышают бюджет совместно.
+- `tests/Unit/TrainingScopeTest.php` — `TrainingScope`, `NewCardBudget`, инвариант `mode_shape`.
 - TWA `FlashCard.spec.ts` — кнопки шлют 2 / 4 / 5, метка «Закрепление» для `learning`;
   `stores/__tests__/training.spec.ts` — `serve_token` карточки уходит в `POST /review`.
 

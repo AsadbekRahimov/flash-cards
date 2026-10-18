@@ -23,7 +23,8 @@ final class TrainingStartResource extends TwaResource
 
         return [
             'session_id' => $this->resource->session->id,
-            'lesson' => [
+            // null for daily_review: the scope spans every lesson of the learner.
+            'lesson' => $lesson === null ? null : [
                 'stage' => $lesson->stage?->number,
                 'lesson' => $lesson->number,
                 'title' => $lesson->title,

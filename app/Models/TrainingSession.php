@@ -24,11 +24,24 @@ use Illuminate\Support\Carbon;
  * @property Carbon $started_at
  * @property Carbon|null $ended_at
  * @property Carbon|null $expires_at
+ * @property string|null $done_reason
  */
 class TrainingSession extends Model
 {
     /** @use HasFactory<TrainingSessionFactory> */
     use HasFactory;
+
+    public const MODE_GROUP_LESSON = 'group_lesson';
+
+    public const MODE_LESSON = 'lesson';
+
+    public const MODE_DAILY_REVIEW = 'daily_review';
+
+    /** `done_reason`: closed explicitly by the learner (`/finish`). */
+    public const DONE_FINISHED = 'finished';
+
+    /** `done_reason`: closed by the scheduler (`expires_at` / group TTL) or superseded on re-open. */
+    public const DONE_EXPIRED = 'expired';
 
     /** @var list<string> */
     protected $fillable = [
@@ -43,6 +56,7 @@ class TrainingSession extends Model
         'started_at',
         'ended_at',
         'expires_at',
+        'done_reason',
     ];
 
     /** @return array<string, string> */

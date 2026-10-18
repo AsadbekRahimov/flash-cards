@@ -5,21 +5,24 @@ declare(strict_types=1);
 namespace App\Domain\Learning\DTO;
 
 use App\Domain\Content\DTO\ResolvedTranslation;
+use App\Domain\Learning\Enums\DoneReason;
 use App\Models\Word;
 
 /**
- * What the training screen should show next: a card (or nothing — "done")
- * plus the lesson progress.
+ * What the training screen should show next: a card (or nothing — "done", with
+ * the reason) plus the session progress.
  */
 final readonly class TrainingStep
 {
     /**
      * @param  'due'|'new'|'learning'|null  $kind  null exactly when $word is null
-     * @param  array{done:int, total:int}  $progress
+     * @param  array{done:int, total:int}  $progress  lesson scope: graduated / active words of the lesson;
+     *                                                daily scope: grades in this session / learner's daily_goal
      * @param  string|null  $serveToken  learn-ahead ticket the client must echo in POST /review
      *                                   (docs/06 §5.2); null for due/new cards and when $word is null
      * @param  ResolvedTranslation|null  $translation  the card's translation in the session's locale (with the ru
      *                                                 fallback flag); null exactly when $word is null
+     * @param  DoneReason|null  $doneReason  why there is no card; set exactly when $word is null
      */
     public function __construct(
         public ?Word $word,
@@ -27,5 +30,14 @@ final readonly class TrainingStep
         public array $progress,
         public ?string $serveToken = null,
         public ?ResolvedTranslation $translation = null,
+        public ?DoneReason $doneReason = null,
     ) {}
+
+    /**
+     * @param  array{done:int, total:int}  $progress
+     */
+    public static function done(DoneReason $reason, array $progress): self
+    {
+        return new self(null, null, $progress, doneReason: $reason);
+    }
 }
