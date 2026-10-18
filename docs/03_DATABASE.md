@@ -295,7 +295,7 @@ Append-only журнал для продуктовой аналитики (не 
 | props | jsonb | только скаляры, ≤ 20 ключей, строки ≤ 100 символов, **без PII** |
 | occurred_at | timestamp |
 
-**Индексы:** `(name, occurred_at)`, `(student_id, occurred_at)`, `(telegram_group_id, occurred_at)`, `(user_id)`
+**Индексы:** `(name, occurred_at)`, `(student_id, occurred_at)`, `(telegram_group_id, occurred_at)`, `(user_id)`, `(occurred_at)` (пакетный prune)
 (индексы на FK нужны для `ON DELETE SET NULL` и аналитики по группе/учителю).
 
 **Ретенция:** модель `ProductEvent` — `MassPrunable`; события старше `operations.product_events.retention_days`

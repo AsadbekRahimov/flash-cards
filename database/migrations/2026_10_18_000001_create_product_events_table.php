@@ -24,6 +24,8 @@ return new class extends Migration
             // FK columns: ON DELETE SET NULL scans these tables, plus per-group / per-teacher analytics.
             $table->index(['telegram_group_id', 'occurred_at']);
             $table->index('user_id');
+            // Bulk pruning (`MassPrunable`) filters by occurred_at alone.
+            $table->index('occurred_at');
         });
     }
 
