@@ -24,6 +24,12 @@ Schedule::command('exams:close-expired')
     ->withoutOverlapping()
     ->runInBackground();
 
+// Time-based subscription transitions (period end -> past_due / expired),
+// docs/12 §5.6. Idempotent: every row is re-checked under lockForUpdate.
+Schedule::command('subscriptions:expire')
+    ->hourly()
+    ->withoutOverlapping();
+
 Schedule::command('repetitions:notify')
     ->dailyAt('18:00')
     ->withoutOverlapping();
