@@ -546,8 +546,8 @@ final class JwtService
 
 final class LearnerContextResolver
 {
-    /** Находит/создаёт learner по initData (LearnerRegistrar), фиксирует source='twa_group' если context указывает на групповую сессию и learner новый. Никогда не отвечает 409 session_context_required. */
-    public function resolve(array $tgUser, ?string $contextType, ?int $sessionId): Learner;
+    /** Находит/создаёт learner по initData (LearnerRegistrar), source через /auth не пишется (acquisition_source фиксируется только при создании learner'а: 'group' из события группы, 'ref'/'src:*' из /start). Группа из context возвращается (для аналитики) только если learner — её активный участник. Никогда не отвечает 409 session_context_required. */
+    public function resolve(array $tgUser, ?string $contextType, ?int $sessionId): array; // [Learner, ?TelegramGroup]
 }
 ```
 

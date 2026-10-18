@@ -55,8 +55,8 @@ it('is an upsert by telegram_user_id and refreshes the profile and last_seen_at'
         ->and(Learner::count())->toBe(1)
         ->and($second->first_name)->toBe('New')
         ->and($second->last_name)->toBe('Name')
-        // A field the payload carries empty is cleared; an absent key is left alone (see the partial-payload test).
-        ->and($second->username)->toBe('old_u')
+        // The Telegram User is a full snapshot: a key it no longer carries is cleared.
+        ->and($second->username)->toBeNull()
         ->and($second->last_seen_at?->isToday())->toBeTrue();
 });
 
@@ -79,7 +79,7 @@ it('refreshes the locale from the Telegram language only while onboarding has no
     expect($again->interface_locale)->toBe('uz');
 });
 
-it('writes the acquisition source and start payload once, on the first contact that carries them', function (): void {
+it('keeps the creation-time acquisition source and records the start payload on the first contact that carries it', function (): void {
     $registrar = app(LearnerRegistrar::class);
 
     $learner = $registrar->fromTelegramUser(['id' => 4006, 'first_name' => 'A'], 'group');
@@ -125,31 +125,47 @@ it('rejects a payload without a Telegram user id', function (): void {
         ->toThrow(InvalidArgumentException::class);
 });
 
-it('clears a field that the payload carries empty', function (): void {
+it('clears a field that the payload carries empty or lacks', function (): void {
     $registrar = app(LearnerRegistrar::class);
-    $registrar->fromTelegramUser(['id' => 4009, 'first_name' => 'A', 'username' => 'gone']);
+    $registrar->fromTelegramUser(['id' => 4009, 'first_name' => 'A', 'last_name' => 'B', 'username' => 'gone']);
 
-    $again = $registrar->fromTelegramUser(['id' => 4009, 'first_name' => 'A', 'username' => '']);
+    $empty = $registrar->fromTelegramUser(['id' => 4009, 'first_name' => 'A', 'last_name' => 'B', 'username' => '']);
+    expect($empty->username)->toBeNull();
 
-    expect($again->username)->toBeNull();
+    $registrar->fromTelegramUser(['id' => 4009, 'first_name' => 'A', 'last_name' => 'B', 'username' => 'back']);
+    $lacking = $registrar->observeTelegramUser(['id' => 4009, 'first_name' => 'A']);
+
+    expect($lacking?->username)->toBeNull()
+        ->and($lacking->last_name)->toBeNull()
+        ->and($lacking->first_name)->toBe('A');
 });
 
-it('does not touch locale and username when a later payload lacks language_code and username', function (): void {
+it('does not touch language_code and interface_locale when a later payload lacks language_code', function (): void {
     $registrar = app(LearnerRegistrar::class);
-    $registrar->fromTelegramUser(['id' => 4010, 'first_name' => 'A', 'username' => 'kept_u', 'language_code' => 'uz']);
+    $registrar->fromTelegramUser(['id' => 4010, 'first_name' => 'A', 'language_code' => 'uz']);
 
-    // e.g. new_chat_members: a bare User object while onboarding is still `new`.
+    // e.g. new_chat_members: a User object without language_code while onboarding is still `new`.
     $again = $registrar->observeTelegramUser(['id' => 4010, 'first_name' => 'A2'], 'group');
 
     expect($again?->fresh()->interface_locale)->toBe('uz')
-        ->and($again->username)->toBe('kept_u')
         ->and($again->language_code)->toBe('uz')
         ->and($again->first_name)->toBe('A2');
 
-    $self = $registrar->fromTelegramUser(['id' => 4010, 'first_name' => 'A3']);
+    $self = $registrar->fromTelegramUser(['id' => 4010, 'first_name' => 'A3', 'language_code' => '']);
 
     expect($self->fresh()->interface_locale)->toBe('uz')
-        ->and($self->username)->toBe('kept_u');
+        ->and($self->language_code)->toBe('uz');
+});
+
+it('writes acquisition_source only when the learner is created', function (): void {
+    $registrar = app(LearnerRegistrar::class);
+
+    // Created by a bare /auth: no source, and later contacts do not fill it in.
+    $learner = $registrar->fromTelegramUser(['id' => 4013, 'first_name' => 'A']);
+    $registrar->observeTelegramUser(['id' => 4013, 'first_name' => 'A'], 'group');
+    $registrar->fromTelegramUser(['id' => 4013, 'first_name' => 'A'], 'src:blog');
+
+    expect($learner->fresh()->acquisition_source)->toBeNull();
 });
 
 it('does not revive a soft-deleted learner on a passive observation', function (): void {

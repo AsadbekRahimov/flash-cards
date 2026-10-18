@@ -120,20 +120,15 @@ it('never answers 409 session_context_required: a learner in several groups logs
         ->and($withContext)->toBe($learner->id);
 });
 
-it('marks a learner created from a group session context as twa_group and ignores an unknown session', function (): void {
+it('never writes an acquisition source through /auth, even with a group session context', function (): void {
     $session = TrainingSession::factory()->create();
 
     $this->postJson('/api/twa/auth', [
         'init_data' => signedInitData(601),
         'context' => ['type' => 'training', 'session_id' => $session->id],
     ])->assertOk();
-    $this->postJson('/api/twa/auth', [
-        'init_data' => signedInitData(602),
-        'context' => ['type' => 'exam', 'session_id' => 999_999],
-    ])->assertOk();
 
-    expect(Learner::where('telegram_user_id', 601)->value('acquisition_source'))->toBe('twa_group')
-        ->and(Learner::where('telegram_user_id', 602)->value('acquisition_source'))->toBeNull();
+    expect(Learner::where('telegram_user_id', 601)->value('acquisition_source'))->toBeNull();
 });
 
 it('does not overwrite the acquisition source of an existing learner', function (): void {
@@ -170,8 +165,10 @@ it('bumps last_seen_at of a soft-deleted learner only through its own /auth', fu
         ->and($learner->fresh()->last_seen_at?->isToday())->toBeTrue();
 });
 
-it('records the group of the session context in twa.authenticated', function (): void {
+it('records the group of the session context in twa.authenticated only for an active member', function (): void {
     $session = TrainingSession::factory()->create();
+    $member = Learner::factory()->create(['telegram_user_id' => 601]);
+    GroupMember::factory()->create(['telegram_group_id' => $session->telegram_group_id, 'learner_id' => $member->id]);
 
     $this->postJson('/api/twa/auth', [
         'init_data' => signedInitData(601),
@@ -187,6 +184,29 @@ it('records the group of the session context in twa.authenticated', function ():
     expect($events)->toHaveCount(2)
         ->and($events[0]->telegram_group_id)->toBe($session->telegram_group_id)
         ->and($events[1]->telegram_group_id)->toBeNull();
+});
+
+it('ignores a forged context that points at a group the learner does not belong to', function (): void {
+    $foreign = TrainingSession::factory()->create();
+    $left = TrainingSession::factory()->create();
+    $leaver = Learner::factory()->create(['telegram_user_id' => 603]);
+    GroupMember::factory()->left()->create(['telegram_group_id' => $left->telegram_group_id, 'learner_id' => $leaver->id]);
+
+    // 601 is brand new, 603 left the group: neither is an active member.
+    $this->postJson('/api/twa/auth', [
+        'init_data' => signedInitData(601),
+        'context' => ['type' => 'training', 'session_id' => $foreign->id],
+    ])->assertOk();
+    $this->postJson('/api/twa/auth', [
+        'init_data' => signedInitData(603),
+        'context' => ['type' => 'training', 'session_id' => $left->id],
+    ])->assertOk();
+
+    $events = ProductEvent::query()->where('name', 'twa.authenticated')->get();
+
+    expect($events)->toHaveCount(2)
+        ->and($events->pluck('telegram_group_id')->filter()->all())->toBe([])
+        ->and(Learner::where('telegram_user_id', 601)->value('acquisition_source'))->toBeNull();
 });
 
 it('returns 401 learner_blocked from /auth for a banned learner', function (): void {

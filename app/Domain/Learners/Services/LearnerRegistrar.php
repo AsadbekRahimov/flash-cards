@@ -21,17 +21,21 @@ use Illuminate\Support\Facades\Log;
  */
 final class LearnerRegistrar
 {
-    private const PROFILE_FIELDS = ['first_name' => 100, 'last_name' => 100, 'username' => 100, 'language_code' => 10];
+    /** Telegram always sends the whole `User` (optional fields are simply absent): an absent key means "no value". */
+    private const SNAPSHOT_FIELDS = ['first_name' => 100, 'last_name' => 100, 'username' => 100];
+
+    private const LANGUAGE_MAX = 10;
 
     public function __construct(private readonly LocaleResolver $locales) {}
 
     /**
      * The person acted themselves. Upsert by `telegram_user_id`: revives a soft-deleted
-     * learner, refreshes the profile fields the payload carries and `last_seen_at`.
-     * `interface_locale` is derived from the Telegram language only for a learner who has
-     * not chosen one yet (onboarding `new`) and only when the payload carries a language;
-     * `acquisition_source` / `start_payload` are written once, on the first contact that
-     * carries them.
+     * learner, refreshes the profile and `last_seen_at`. `first_name` / `last_name` /
+     * `username` are a full snapshot (an absent key clears the stored value); `language_code`
+     * is updated only when the payload carries a non-empty one, and only then is
+     * `interface_locale` derived from it — and only for a learner who has not chosen one yet
+     * (onboarding `new`). `acquisition_source` is written once, when the learner is created;
+     * `start_payload` — on the first contact that carries it.
      *
      * @param  array<string, mixed>  $tgUser  Telegram `User` object (`id`, `first_name`, ...)
      */
@@ -65,12 +69,14 @@ final class LearnerRegistrar
             throw new \InvalidArgumentException('Telegram user id is required.');
         }
 
-        // Only the keys Telegram actually sent: an absent key must not erase what is stored.
         $profile = [];
-        foreach (self::PROFILE_FIELDS as $field => $max) {
-            if (array_key_exists($field, $tgUser)) {
-                $profile[$field] = $this->nullableString($tgUser[$field], $max);
-            }
+        foreach (self::SNAPSHOT_FIELDS as $field => $max) {
+            $profile[$field] = $this->nullableString($tgUser[$field] ?? null, $max);
+        }
+        // A bare User without `language_code` must not reset the stored language and the chosen locale.
+        $language = $this->nullableString($tgUser['language_code'] ?? null, self::LANGUAGE_MAX);
+        if ($language !== null) {
+            $profile['language_code'] = $language;
         }
 
         try {
@@ -82,7 +88,7 @@ final class LearnerRegistrar
     }
 
     /**
-     * @param  array<string, string|null>  $profile
+     * @param  array<string, string|null>  $profile  `language_code` only when present
      */
     private function upsert(int $telegramUserId, array $profile, ?string $source, ?string $startPayload, bool $selfInitiated): ?Learner
     {
@@ -130,9 +136,6 @@ final class LearnerRegistrar
 
         if ($learner->onboarding_state === 'new' && ($profile['language_code'] ?? null) !== null) {
             $learner->interface_locale = $this->locales->fromLanguageCode($profile['language_code']);
-        }
-        if ($learner->acquisition_source === null && $source !== null) {
-            $learner->acquisition_source = $source;
         }
         if ($learner->start_payload === null && $startPayload !== null) {
             $learner->start_payload = $startPayload;

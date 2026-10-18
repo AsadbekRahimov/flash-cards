@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Twa\Services;
 
+use App\Domain\Learners\Services\GroupMembershipService;
 use App\Domain\Learners\Services\LearnerRegistrar;
 use App\Models\ExamSession;
 use App\Models\Learner;
@@ -19,9 +20,10 @@ use App\Models\TrainingSession;
  */
 final class LearnerContextResolver
 {
-    public const SOURCE_TWA_GROUP = 'twa_group';
-
-    public function __construct(private readonly LearnerRegistrar $registrar) {}
+    public function __construct(
+        private readonly LearnerRegistrar $registrar,
+        private readonly GroupMembershipService $memberships,
+    ) {}
 
     /**
      * Logging in is the person's own action: it revives a soft-deleted learner and
@@ -29,14 +31,20 @@ final class LearnerContextResolver
      *
      * @param  array<string, mixed>  $tgUser  `user` object of the validated initData
      * @param  string|null  $contextType  `training` | `exam` (analytics hint only)
-     * @return array{0: Learner, 1: TelegramGroup|null} the learner and the group of the opened session, if any
+     * @return array{0: Learner, 1: TelegramGroup|null} the learner and the group of the opened
+     *                                                  session — only when the learner is its active member
      */
     public function resolve(array $tgUser, ?string $contextType, ?int $sessionId): array
     {
-        $group = $this->contextGroup($contextType, $sessionId);
-        $source = $group !== null ? self::SOURCE_TWA_GROUP : null;
+        $learner = $this->registrar->fromTelegramUser($tgUser);
 
-        return [$this->registrar->fromTelegramUser($tgUser, $source), $group];
+        // `context` is client-supplied: it feeds analytics only for a group the learner really belongs to.
+        $group = $this->contextGroup($contextType, $sessionId);
+        if ($group !== null && ! $this->memberships->isActiveMember($learner, $group)) {
+            $group = null;
+        }
+
+        return [$learner, $group];
     }
 
     private function contextGroup(?string $contextType, ?int $sessionId): ?TelegramGroup

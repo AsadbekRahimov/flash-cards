@@ -228,6 +228,7 @@ public function denial(Learner $learner, TrainingSession $s): ?string   // null 
   - `first_name`, `username`, `language_code`.
   - Не храним `phone`, `photo_url`.
 - **Кто может «вернуть» learner'а:** `restore()` soft-deleted learner'а и обновление `last_seen_at` — только по его собственным действиям (`/auth` в TWA, `/start` в ЛС); пассивные события группы (`new_chat_members`, `chat_member`) такого learner'а не восстанавливают, членство ему не создают и `last_seen_at` не трогают.
+  **Известное ограничение:** soft-deleted learner, вошедший в группу, членства не получает; после собственного `/auth` / `/start` он восстанавливается, но доступ к группе появится только со следующим событием `chat_member` / `new_chat_members`.
 - Шифрование в purpose:
   - `users.email` и `users.name` — в clear (нужны для UI).
   - `audit_logs.meta` — может содержать IP учителя/администратора; JSONB — без шифрования, но логи не экспортируем наружу.

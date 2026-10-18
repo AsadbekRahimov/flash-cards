@@ -66,7 +66,7 @@ final class GroupMembershipService
             ->where('telegram_group_id', $group->id)
             ->where('learner_id', $learner->id)
             ->where('status', self::ACTIVE)
-            ->where(fn ($q) => $q->whereNull('joined_at')->orWhere('joined_at', '<=', $at))
+            ->where('joined_at', '<=', $at)
             ->update(['status' => $status, 'left_at' => $at, 'updated_at' => now()]) > 0;
     }
 
