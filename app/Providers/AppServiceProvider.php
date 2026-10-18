@@ -12,11 +12,13 @@ use App\Domain\Telegram\Services\TelegramKeyboardFactory;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
 use App\Domain\Twa\Services\InitDataValidator;
 use App\Domain\Twa\Services\JwtService;
+use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\TelegramGroup;
 use App\Observers\OrganizationObserver;
 use App\Observers\TelegramGroupObserver;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -78,6 +80,9 @@ class AppServiceProvider extends ServiceProvider
         // first learner request silently ending sessions early (docs/06 §3.1).
         $this->app->make(LearningPolicy::class);
 
+        // `subscriptions.subscriber_type` stores 'learner' / 'organization' (docs/12 §1.9).
+        Relation::morphMap(['learner' => Learner::class, 'organization' => Organization::class]);
+
         // Entitlement cache invalidation on the inputs that live outside the
         // billing services: a group's organization link / status and an
         // organization's status (docs/12 §5.2).
@@ -119,6 +124,17 @@ class AppServiceProvider extends ServiceProvider
             // Exam pace cap: ~30 answers/min protects against script spam
             // while leaving headroom for 10-questions-in-2-minutes sprints.
             return Limit::perMinute(30)->by('twa-exam-answer|'.$key);
+        });
+
+        RateLimiter::for('twa-promo', function (Request $request): array {
+            /** @var array{learner_id:int}|null $ctx */
+            $ctx = $request->attributes->get('twa');
+
+            // Guessing codes: 5/min per learner, 20/min per IP (several accounts behind one address).
+            return [
+                Limit::perMinute(5)->by('twa-promo|learner|'.($ctx['learner_id'] ?? $request->ip())),
+                Limit::perMinute(20)->by('twa-promo|ip|'.$request->ip()),
+            ];
         });
 
         RateLimiter::for('twa-tts', function (Request $request): Limit {

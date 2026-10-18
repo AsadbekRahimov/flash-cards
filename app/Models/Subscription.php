@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
 
 /**
@@ -66,6 +67,17 @@ class Subscription extends Model
             'seats_limit' => 'integer',
             'meta' => 'array',
         ];
+    }
+
+    /**
+     * The learner / organization the subscription belongs to (`subscriber_type` is
+     * 'learner' | 'organization', see the morph map in AppServiceProvider).
+     *
+     * @return MorphTo<Model, $this>
+     */
+    public function subscriber(): MorphTo
+    {
+        return $this->morphTo();
     }
 
     /** @return BelongsTo<User, $this> */
