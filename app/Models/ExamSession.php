@@ -41,6 +41,13 @@ class ExamSession extends Model
         'config',
     ];
 
+    /**
+     * `config` holds the answer key and the ordering secret: never serialize it.
+     *
+     * @var list<string>
+     */
+    protected $hidden = ['config'];
+
     /** @return array<string, string> */
     protected function casts(): array
     {

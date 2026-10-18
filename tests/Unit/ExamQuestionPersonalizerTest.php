@@ -174,6 +174,55 @@ it('depends on the application key (seed is not derivable from public ids)', fun
     expect($a)->not->toBe($b);
 });
 
+it('keeps the order stable when app.key is rotated if the session has an order_secret', function (): void {
+    $p = new ExamQuestionPersonalizer;
+    $session = personalizerSession(100, canonicalQuestions(12));
+    $session->config = [...$session->config, 'order_secret' => bin2hex(random_bytes(32))];
+    $student = personalizerStudent(3);
+
+    $before = fullView($p, $session, $student);
+    Config::set('app.key', 'base64:'.base64_encode(random_bytes(32)));
+    $after = fullView($p, $session, $student);
+
+    expect($after)->toBe($before);
+});
+
+it('derives different orders from different order_secrets and stays deterministic per secret', function (): void {
+    $p = new ExamQuestionPersonalizer;
+    $student = personalizerStudent(3);
+    $make = function (string $secret): ExamSession {
+        $session = personalizerSession(100, canonicalQuestions(12));
+        $session->config = [...$session->config, 'order_secret' => $secret];
+
+        return $session;
+    };
+
+    $a = $p->questionOrder($make('secret-a'), $student);
+
+    expect($p->questionOrder($make('secret-a'), $student))->toBe($a)
+        ->and($p->questionOrder($make('secret-b'), $student))->not->toBe($a);
+});
+
+it('still gives different students different orders with an order_secret', function (): void {
+    $p = new ExamQuestionPersonalizer;
+    $session = personalizerSession(100, canonicalQuestions(12));
+    $session->config = [...$session->config, 'order_secret' => bin2hex(random_bytes(32))];
+
+    expect($p->questionOrder($session, personalizerStudent(1)))
+        ->not->toBe($p->questionOrder($session, personalizerStudent(2)));
+});
+
+it('falls back to app.key for sessions created before order_secret existed', function (): void {
+    $p = new ExamQuestionPersonalizer;
+    $session = personalizerSession(100, canonicalQuestions(12));
+    $student = personalizerStudent(3);
+
+    $before = $p->questionOrder($session, $student);
+    Config::set('app.key', 'base64:'.base64_encode(random_bytes(32)));
+
+    expect($p->questionOrder($session, $student))->not->toBe($before);
+});
+
 it('serves legacy sessions (no question_order) with the identity permutation', function (): void {
     $legacy = canonicalQuestions(6);
     foreach ($legacy as $i => $q) {

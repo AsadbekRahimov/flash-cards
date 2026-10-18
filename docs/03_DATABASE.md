@@ -188,8 +188,12 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 `config` (пишется `ExamSessionService::open`, неизменяем после создания):
 - `total_questions`, `seconds_per_question`, `duration_minutes` — параметры сессии;
 - `question_order` — `'per_student'`: порядок вопросов и вариантов у каждого студента свой
-  (`ExamQuestionPersonalizer`, HMAC от `app.key` + `session_id` + `student_id`). Отсутствие ключа =
+  (`ExamQuestionPersonalizer`, HMAC от `session_id` + `student_id`). Отсутствие ключа =
   legacy-сессия с общим порядком — доигрывается как есть;
+- `order_secret` — случайные 32 байта (hex), HMAC-ключ перестановки этой сессии; независим от `app.key`, поэтому
+  ротация ключа приложения посреди экзамена не сдвигает вопросы. У сессий без `order_secret` (созданных до
+  появления поля) ключом остаётся `app.key`. **Секрет никогда не отдаётся наружу**: `ExamSession::$hidden = ['config']`,
+  Resource-классы TWA — по белому списку, Filament показывает отдельные поля (не `config` целиком) — это закреплено тестами;
 - `questions[]` — **канонический** список `{word_id, word, correct_translation, options[]}`; `options`
   содержит правильный перевод и 1–3 реальных дистрактора. `correct_index` **не хранится** — он зависит
   от студента и вычисляется на сервере при выдаче/ответе (legacy-записи с `correct_index` читаются корректно).
