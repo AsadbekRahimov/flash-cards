@@ -3,7 +3,8 @@
 declare(strict_types=1);
 
 use App\Domain\Telegram\Services\TelegramDispatcher;
-use App\Models\Student;
+use App\Models\GroupMember;
+use App\Models\Learner;
 use App\Models\TelegramGroup;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -57,21 +58,19 @@ it('is idempotent on repeated new_chat_members updates (race-safe)', function ()
     app(TelegramDispatcher::class)->dispatch($update);
     app(TelegramDispatcher::class)->dispatch($update);
 
-    expect(Student::where('telegram_group_id', $group->id)
-        ->where('telegram_user_id', 42)
-        ->count())->toBe(1);
+    expect(Learner::where('telegram_user_id', 42)->count())->toBe(1)
+        ->and(GroupMember::where('telegram_group_id', $group->id)->count())->toBe(1);
 });
 
-it('enforces unique (telegram_user_id, telegram_group_id) index at DB level', function (): void {
+it('enforces unique telegram_user_id on learners and (telegram_group_id, learner_id) on members at DB level', function (): void {
     $group = TelegramGroup::factory()->create(['status' => 'active']);
 
-    Student::factory()->create([
-        'telegram_group_id' => $group->id,
-        'telegram_user_id' => 100,
-    ]);
+    $learner = Learner::factory()->create(['telegram_user_id' => 100]);
+    GroupMember::factory()->create(['telegram_group_id' => $group->id, 'learner_id' => $learner->id]);
 
-    expect(fn () => Student::factory()->create([
-        'telegram_group_id' => $group->id,
-        'telegram_user_id' => 100,
-    ]))->toThrow(QueryException::class);
+    expect(fn () => Learner::factory()->create(['telegram_user_id' => 100]))->toThrow(QueryException::class)
+        ->and(fn () => GroupMember::factory()->create([
+            'telegram_group_id' => $group->id,
+            'learner_id' => $learner->id,
+        ]))->toThrow(QueryException::class);
 });

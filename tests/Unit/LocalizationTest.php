@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Localization\Services\LocaleResolver;
-use App\Models\Student;
+use App\Models\Learner;
 use App\Models\TelegramGroup;
 use App\Providers\AppServiceProvider;
 use Illuminate\Support\Arr;
@@ -35,12 +35,19 @@ it('maps Telegram language codes to supported locales', function (?string $code,
     'blank falls back' => ['  ', 'ru'],
 ]);
 
-it('resolves a student locale from language_code', function (): void {
+it('resolves a learner locale from the chosen interface_locale', function (): void {
     $resolver = new LocaleResolver;
 
-    expect($resolver->forStudent(new Student(['language_code' => 'uz'])))->toBe('uz')
-        ->and($resolver->forStudent(new Student(['language_code' => 'en'])))->toBe('ru')
-        ->and($resolver->forStudent(new Student(['language_code' => null])))->toBe('ru');
+    expect($resolver->forLearner(new Learner(['interface_locale' => 'uz', 'language_code' => 'ru'])))->toBe('uz')
+        ->and($resolver->forLearner(new Learner(['interface_locale' => 'ru', 'language_code' => 'uz'])))->toBe('ru');
+});
+
+it('falls back to language_code, then to the default, for an unsupported interface_locale', function (): void {
+    $resolver = new LocaleResolver;
+
+    expect($resolver->forLearner(new Learner(['interface_locale' => 'xx', 'language_code' => 'uz'])))->toBe('uz')
+        ->and($resolver->forLearner(new Learner(['interface_locale' => 'xx', 'language_code' => 'en'])))->toBe('ru')
+        ->and($resolver->forLearner(new Learner(['interface_locale' => 'xx', 'language_code' => null])))->toBe('ru');
 });
 
 it('resolves a group locale from meta.locale only when supported', function (): void {

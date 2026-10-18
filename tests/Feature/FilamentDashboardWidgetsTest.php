@@ -5,10 +5,12 @@ declare(strict_types=1);
 use App\Filament\Widgets\ActivityChartWidget;
 use App\Filament\Widgets\ExamsLast30DaysWidget;
 use App\Filament\Widgets\HardestWordsTableWidget;
-use App\Filament\Widgets\TopStudentsTableWidget;
-use App\Filament\Widgets\TotalStudentsWidget;
-use App\Models\Student;
+use App\Filament\Widgets\TopLearnersTableWidget;
+use App\Filament\Widgets\TotalLearnersWidget;
+use App\Models\Learner;
+use App\Models\TelegramGroup;
 use App\Models\TrainingReview;
+use App\Models\TrainingSession;
 use App\Models\User;
 use App\Models\Word;
 use Database\Seeders\RolePermissionSeeder;
@@ -35,21 +37,79 @@ beforeEach(function (): void {
 });
 
 it('renders all dashboard widgets without livewire errors', function (): void {
-    $student = Student::factory()->create();
+    $learner = Learner::factory()->create();
     $word = Word::factory()->create(['word' => 'difficult']);
 
     TrainingReview::factory()
         ->count(5)
         ->create([
-            'student_id' => $student->id,
+            'learner_id' => $learner->id,
             'word_id' => $word->id,
             'quality' => 2,
             'created_at' => now(),
         ]);
 
-    Livewire::test(TotalStudentsWidget::class)->assertOk();
+    Livewire::test(TotalLearnersWidget::class)->assertOk();
     Livewire::test(ExamsLast30DaysWidget::class)->assertOk();
     Livewire::test(ActivityChartWidget::class)->assertOk();
-    Livewire::test(TopStudentsTableWidget::class)->assertCanSeeTableRecords([$student]);
+    Livewire::test(TopLearnersTableWidget::class)->assertCanSeeTableRecords([$learner]);
     Livewire::test(HardestWordsTableWidget::class)->assertCanSeeTableRecords([$word]);
+});
+
+it('counts the total and the recently active learners of the platform for an admin', function (): void {
+    Learner::factory()->create(['last_seen_at' => now()->subDay()]);
+    Learner::factory()->create(['last_seen_at' => now()->subDays(30)]);
+    Learner::factory()->create(['last_seen_at' => null]);
+
+    Livewire::test(TotalLearnersWidget::class)
+        ->assertSee('Total learners')
+        ->assertSee('3')
+        ->assertSee('Active last 7 days');
+});
+
+it('scopes the widgets of a teacher to group sessions of their own groups', function (): void {
+    $teacher = User::factory()->create(['is_active' => true]);
+    $teacher->assignRole('teacher');
+    $ownGroup = TelegramGroup::factory()->create(['title' => 'Own Class']);
+    $otherGroup = TelegramGroup::factory()->create();
+    $teacher->telegramGroups()->attach($ownGroup->id);
+
+    $diligent = Learner::factory()->memberOf($ownGroup)->create(['first_name' => 'Diligent']);
+    $privateOnly = Learner::factory()->memberOf($ownGroup)->create(['first_name' => 'PrivateOnly']);
+    $foreign = Learner::factory()->memberOf($otherGroup)->create(['first_name' => 'Foreign']);
+
+    $ownSession = TrainingSession::factory()->create(['telegram_group_id' => $ownGroup->id]);
+    $otherSession = TrainingSession::factory()->create(['telegram_group_id' => $otherGroup->id]);
+    $makeReviews = fn (TrainingSession $session, Learner $learner, Word $word, int $count) => TrainingReview::factory()
+        ->count($count)
+        ->create([
+            'training_session_id' => $session->id,
+            'learner_id' => $learner->id,
+            'word_id' => $word->id,
+            'quality' => 1,
+            'created_at' => now(),
+        ]);
+
+    $groupWord = Word::factory()->create(['word' => 'groupword']);
+    $personalWord = Word::factory()->create(['word' => 'personalword']);
+    $foreignWord = Word::factory()->create(['word' => 'foreignword']);
+
+    $makeReviews($ownSession, $diligent, $groupWord, 6);
+    $makeReviews(TrainingSession::factory()->personal($diligent)->create(), $diligent, $personalWord, 9);
+    $makeReviews(TrainingSession::factory()->personal($privateOnly)->create(), $privateOnly, $personalWord, 9);
+    $makeReviews($otherSession, $foreign, $foreignWord, 9);
+
+    Auth::login($teacher);
+
+    Livewire::test(TopLearnersTableWidget::class)
+        ->assertCanSeeTableRecords([$diligent])
+        ->assertCanNotSeeTableRecords([$privateOnly, $foreign])
+        ->assertSee('Own Class')
+        ->assertSee('6');
+
+    Livewire::test(HardestWordsTableWidget::class)
+        ->assertCanSeeTableRecords([$groupWord])
+        ->assertCanNotSeeTableRecords([$personalWord, $foreignWord]);
+
+    Livewire::test(TotalLearnersWidget::class)->assertOk()->assertSee('2');
 });

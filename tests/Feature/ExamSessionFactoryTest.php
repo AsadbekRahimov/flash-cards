@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Domain\Learning\Services\ExamAnswerService;
 use App\Domain\Learning\Services\ExamQuestionPersonalizer;
 use App\Models\ExamSession;
-use App\Models\Student;
+use App\Models\Learner;
 use App\Models\Word;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -30,7 +30,7 @@ it('withQuestions(n) stores n canonical questions backed by real words of the le
 
     expect($session->config['questions'])->toHaveCount(6)
         ->and($session->config['total_questions'])->toBe(6)
-        ->and($session->config['question_order'])->toBe(ExamQuestionPersonalizer::ORDER_PER_STUDENT);
+        ->and($session->config['question_order'])->toBe(ExamQuestionPersonalizer::ORDER_PER_LEARNER);
 
     $wordIds = array_column($session->config['questions'], 'word_id');
     expect(Word::query()->where('lesson_id', $session->lesson_id)->whereIn('id', $wordIds)->count())->toBe(6)
@@ -39,13 +39,13 @@ it('withQuestions(n) stores n canonical questions backed by real words of the le
 
 it('withQuestions(n) yields an exam that can actually be played', function (): void {
     $session = ExamSession::factory()->withQuestions(4)->create();
-    $student = Student::factory()->create(['telegram_group_id' => $session->telegram_group_id]);
+    $learner = Learner::factory()->create();
     $personalizer = app(ExamQuestionPersonalizer::class);
     $answers = app(ExamAnswerService::class);
 
-    $view = $personalizer->questionAt($session, $student, 0);
-    $answers->serve($session, $student, 0);
-    $result = $answers->submit($session, $student, 0, $view['word_id'], $view['correct_index']);
+    $view = $personalizer->questionAt($session, $learner, 0);
+    $answers->serve($session, $learner, 0);
+    $result = $answers->submit($session, $learner, 0, $view['word_id'], $view['correct_index']);
 
     expect($result['is_correct'])->toBeTrue();
 });

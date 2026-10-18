@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Learners\Services\GroupMembershipService;
 use App\Domain\Learning\Services\LeaderboardBuilder;
 use App\Domain\Learning\Services\ReviewReminderLinkBuilder;
 use App\Domain\Localization\Services\LocaleResolver;
@@ -14,9 +15,9 @@ use App\Jobs\PostLeaderboardJob;
 use App\Jobs\SendReviewReminderJob;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
+use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\Stage;
-use App\Models\Student;
 use App\Models\TelegramGroup;
 use App\Models\User;
 use App\Models\Word;
@@ -241,27 +242,28 @@ it('renders the teacher stats report from lang files', function (): void {
         ->toContain('Imtihonlardagi aniqlik: 0%');
 });
 
-// --- review reminders (student language) -----------------------------------
+// --- review reminders (learner language) -----------------------------------
 
-function locRunReminder(Student $student, int $due): void
+function locRunReminder(Learner $learner, int $due): void
 {
-    (new SendReviewReminderJob($student->id, $due))->handle(
+    (new SendReviewReminderJob($learner->id, $due))->handle(
         test()->api,
         app(ReviewReminderLinkBuilder::class),
         app(ProductEventRecorder::class),
         app(LocaleResolver::class),
+        app(GroupMembershipService::class),
     );
 }
 
-it('sends the reminder in the student language with correct number forms', function (string $languageCode, int $due, string $expected, string $button): void {
+it('sends the reminder in the learner interface language with correct number forms', function (string $interfaceLocale, int $due, string $expected, string $button): void {
     $group = locGroup(-5009);
-    $student = Student::factory()->create([
-        'telegram_group_id' => $group->id,
+    $learner = Learner::factory()->memberOf($group)->create([
         'telegram_user_id' => 880001,
-        'language_code' => $languageCode,
-    ]);
+        'interface_locale' => $interfaceLocale,
+        // The Telegram language is only a fallback now: it must not override the chosen locale.
+        'language_code' => 'ru']);
 
-    locRunReminder($student, $due);
+    locRunReminder($learner, $due);
 
     expect($this->api->log)->toHaveCount(1)
         ->and($this->api->log[0]['text'])->toBe($expected)
@@ -275,19 +277,31 @@ it('sends the reminder in the student language with correct number forms', funct
     'ru 22' => ['ru', 22, 'Пора повторить 22 слова в LexiFlow.', 'Открыть LexiFlow'],
     'ru 25' => ['ru', 25, 'Пора повторить 25 слов в LexiFlow.', 'Открыть LexiFlow'],
     'uz 5' => ['uz', 5, "LexiFlow'da 5 ta so'zni takrorlash vaqti keldi.", "LexiFlow'ni ochish"],
-    'uz-UZ 21' => ['uz-UZ', 21, "LexiFlow'da 21 ta so'zni takrorlash vaqti keldi.", "LexiFlow'ni ochish"],
-    'unknown language -> default' => ['en', 2, 'Пора повторить 2 слова в LexiFlow.', 'Открыть LexiFlow'],
+    'uz 21' => ['uz', 21, "LexiFlow'da 21 ta so'zni takrorlash vaqti keldi.", "LexiFlow'ni ochish"],
+    'unsupported locale -> default' => ['en', 2, 'Пора повторить 2 слова в LexiFlow.', 'Открыть LexiFlow'],
 ]);
+
+it('falls back to the Telegram language when the stored interface locale is unsupported', function (): void {
+    $group = locGroup(-5019);
+    $learner = Learner::factory()->memberOf($group)->create([
+        'interface_locale' => 'xx',
+        'language_code' => 'uz-UZ',
+    ]);
+
+    locRunReminder($learner, 5);
+
+    expect($this->api->log[0]['text'])->toBe("LexiFlow'da 5 ta so'zni takrorlash vaqti keldi.");
+});
 
 // --- leaderboard (group language, HTML escaping preserved) -----------------
 
 function locClosedExamWithWinner(TelegramGroup $group, string $name): ExamSession
 {
     $session = ExamSession::factory()->closed()->create(['telegram_group_id' => $group->id]);
-    $student = Student::factory()->create(['telegram_group_id' => $group->id, 'first_name' => $name]);
+    $learner = Learner::factory()->memberOf($group)->create(['first_name' => $name]);
     ExamResult::query()->create([
         'exam_session_id' => $session->id,
-        'student_id' => $student->id,
+        'learner_id' => $learner->id,
         'total_score' => 40,
         'correct_count' => 2,
         'total_count' => 2,
@@ -341,7 +355,7 @@ it('leaves the application locale untouched after handling updates and jobs', fu
     $group = locGroup(-5012, ['locale' => 'uz']);
     locDispatch(['chat' => ['id' => -5012, 'type' => 'supergroup'], 'from' => ['id' => 1], 'text' => '/help']);
     locRunLeaderboard(ExamSession::factory()->closed()->create(['telegram_group_id' => $group->id]));
-    locRunReminder(Student::factory()->create(['telegram_group_id' => $group->id, 'language_code' => 'uz']), 3);
+    locRunReminder(Learner::factory()->memberOf($group)->create(['interface_locale' => 'uz']), 3);
 
     expect(app()->getLocale())->toBe($before);
 });

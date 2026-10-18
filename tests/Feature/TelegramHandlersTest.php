@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\TelegramDispatcher;
-use App\Models\Student;
+use App\Models\GroupMember;
+use App\Models\Learner;
 use App\Models\TelegramGroup;
 use App\Models\TrainingReview;
+use App\Models\TrainingSession;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -59,22 +61,142 @@ it('marks group as disabled when bot is kicked', function (): void {
     expect(TelegramGroup::where('chat_id', -9999)->value('status'))->toBe('disabled');
 });
 
-it('upserts students on new_chat_members', function (): void {
+it('creates a learner and an active membership for every human in new_chat_members', function (): void {
     $group = TelegramGroup::factory()->create(['chat_id' => -7777, 'status' => 'active']);
 
     app(TelegramDispatcher::class)->dispatch([
         'message' => [
             'chat' => ['id' => -7777, 'type' => 'supergroup'],
             'new_chat_members' => [
-                ['id' => 111, 'first_name' => 'Alice', 'is_bot' => false],
+                ['id' => 111, 'first_name' => 'Alice', 'language_code' => 'uz', 'is_bot' => false],
                 ['id' => 222, 'first_name' => 'Bob', 'username' => 'bobby', 'is_bot' => false],
                 ['id' => 333, 'first_name' => 'Bot', 'is_bot' => true],
             ],
         ],
     ]);
 
-    expect(Student::where('telegram_group_id', $group->id)->count())->toBe(2);
-    expect(Student::where('telegram_user_id', 222)->value('username'))->toBe('bobby');
+    expect(Learner::count())->toBe(2)
+        ->and(GroupMember::where('telegram_group_id', $group->id)->where('status', 'active')->count())->toBe(2)
+        ->and(Learner::where('telegram_user_id', 222)->value('username'))->toBe('bobby')
+        ->and(Learner::where('telegram_user_id', 333)->exists())->toBeFalse();
+
+    // Arrived through a group, not through /start in DM: onboarding is still ahead of them.
+    $alice = Learner::where('telegram_user_id', 111)->sole();
+    expect($alice->acquisition_source)->toBe('group')
+        ->and($alice->onboarding_state)->toBe('new')
+        ->and($alice->interface_locale)->toBe('uz');
+});
+
+it('keeps ONE learner when the same person joins a second group', function (): void {
+    $groupA = TelegramGroup::factory()->create(['chat_id' => -7001, 'status' => 'active']);
+    $groupB = TelegramGroup::factory()->create(['chat_id' => -7002, 'status' => 'active']);
+    $join = fn (int $chatId, string $firstName) => app(TelegramDispatcher::class)->dispatch([
+        'message' => [
+            'chat' => ['id' => $chatId, 'type' => 'supergroup'],
+            'new_chat_members' => [['id' => 111, 'first_name' => $firstName, 'username' => 'alice_u', 'is_bot' => false]],
+        ],
+    ]);
+
+    $join(-7001, 'Alice');
+    $join(-7002, 'Alicia');
+
+    $learner = Learner::where('telegram_user_id', 111)->sole();
+    expect(Learner::count())->toBe(1)
+        ->and($learner->first_name)->toBe('Alicia')
+        ->and($learner->acquisition_source)->toBe('group')
+        ->and(GroupMember::where('learner_id', $learner->id)->pluck('telegram_group_id')->sort()->values()->all())
+        ->toBe([$groupA->id, $groupB->id]);
+});
+
+it('re-activates a membership when a person who left joins again', function (): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => -7003, 'status' => 'active']);
+    $learner = Learner::factory()->memberOf($group, 'left')->create(['telegram_user_id' => 111]);
+
+    app(TelegramDispatcher::class)->dispatch([
+        'message' => [
+            'chat' => ['id' => -7003, 'type' => 'supergroup'],
+            'new_chat_members' => [['id' => 111, 'first_name' => 'Alice', 'is_bot' => false]],
+        ],
+    ]);
+
+    $member = GroupMember::where('learner_id', $learner->id)->sole();
+    expect($member->status)->toBe('active')
+        ->and($member->left_at)->toBeNull()
+        ->and(GroupMember::count())->toBe(1);
+});
+
+it('ignores new_chat_members of an unknown group', function (): void {
+    app(TelegramDispatcher::class)->dispatch([
+        'message' => [
+            'chat' => ['id' => -7999, 'type' => 'supergroup'],
+            'new_chat_members' => [['id' => 111, 'first_name' => 'Alice', 'is_bot' => false]],
+        ],
+    ]);
+
+    expect(Learner::count())->toBe(0)->and(GroupMember::count())->toBe(0);
+});
+
+it('marks the membership as left on a chat_member left update', function (): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => -7004, 'status' => 'active']);
+    $other = TelegramGroup::factory()->create(['chat_id' => -7005, 'status' => 'active']);
+    $learner = Learner::factory()->memberOf($group)->memberOf($other)->create(['telegram_user_id' => 111]);
+
+    app(TelegramDispatcher::class)->dispatch([
+        'chat_member' => [
+            'chat' => ['id' => -7004, 'type' => 'supergroup'],
+            'new_chat_member' => ['status' => 'left', 'user' => ['id' => 111, 'first_name' => 'Alice', 'is_bot' => false]],
+        ],
+    ]);
+
+    $left = GroupMember::where('learner_id', $learner->id)->where('telegram_group_id', $group->id)->sole();
+    expect($left->status)->toBe('left')
+        ->and($left->left_at)->not->toBeNull()
+        // The other group is untouched; the learner (and their progress) stays.
+        ->and(GroupMember::where('learner_id', $learner->id)->where('telegram_group_id', $other->id)->value('status'))->toBe('active')
+        ->and(Learner::count())->toBe(1);
+});
+
+it('marks the membership as removed on a chat_member kicked update', function (): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => -7006, 'status' => 'active']);
+    $learner = Learner::factory()->memberOf($group)->create(['telegram_user_id' => 111]);
+
+    app(TelegramDispatcher::class)->dispatch([
+        'chat_member' => [
+            'chat' => ['id' => -7006, 'type' => 'supergroup'],
+            'new_chat_member' => ['status' => 'kicked', 'user' => ['id' => 111, 'first_name' => 'Alice', 'is_bot' => false]],
+        ],
+    ]);
+
+    expect(GroupMember::where('learner_id', $learner->id)->value('status'))->toBe('removed');
+});
+
+it('creates the membership on a chat_member join update and does not create learners on leave', function (): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => -7007, 'status' => 'active']);
+    $update = fn (string $status, int $userId) => ['chat_member' => [
+        'chat' => ['id' => -7007, 'type' => 'supergroup'],
+        'new_chat_member' => ['status' => $status, 'user' => ['id' => $userId, 'first_name' => 'X', 'is_bot' => false]],
+    ]];
+
+    app(TelegramDispatcher::class)->dispatch($update('member', 111));
+    app(TelegramDispatcher::class)->dispatch($update('left', 222)); // never seen before
+
+    expect(Learner::pluck('telegram_user_id')->all())->toBe([111])
+        ->and(GroupMember::where('telegram_group_id', $group->id)->where('status', 'active')->count())->toBe(1);
+});
+
+it('ignores chat_member updates of bots, unknown groups and private chats', function (): void {
+    TelegramGroup::factory()->create(['chat_id' => -7008, 'status' => 'active']);
+
+    $dispatch = fn (array $chat, array $user) => app(TelegramDispatcher::class)->dispatch(['chat_member' => [
+        'chat' => $chat,
+        'new_chat_member' => ['status' => 'member', 'user' => $user],
+    ]]);
+
+    $dispatch(['id' => -7008, 'type' => 'supergroup'], ['id' => 900, 'first_name' => 'Bot', 'is_bot' => true]);
+    $dispatch(['id' => -7777777, 'type' => 'supergroup'], ['id' => 111, 'first_name' => 'A', 'is_bot' => false]);
+    $dispatch(['id' => 111, 'type' => 'private'], ['id' => 111, 'first_name' => 'A', 'is_bot' => false]);
+
+    expect(Learner::count())->toBe(0)->and(GroupMember::count())->toBe(0);
 });
 
 it('responds to /help in private chat', function (): void {
@@ -169,9 +291,17 @@ it('sends a seven-day stats report to a teacher in DM', function (): void {
         'created_at' => now(),
         'updated_at' => now(),
     ]);
-    $student = Student::factory()->create(['telegram_group_id' => $group->id]);
+    $learner = Learner::factory()->memberOf($group)->create();
+    $groupSession = TrainingSession::factory()->create(['telegram_group_id' => $group->id]);
     TrainingReview::factory()->count(3)->create([
-        'student_id' => $student->id,
+        'training_session_id' => $groupSession->id,
+        'learner_id' => $learner->id,
+        'created_at' => now()->subDays(2),
+    ]);
+    // The learner's personal practice is private: the teacher's report never counts it.
+    TrainingReview::factory()->count(4)->create([
+        'training_session_id' => TrainingSession::factory()->personal($learner)->create()->id,
+        'learner_id' => $learner->id,
         'created_at' => now()->subDays(2),
     ]);
 
@@ -225,5 +355,7 @@ it('sends a seven-day stats report to a teacher in DM', function (): void {
 
     expect($api->messages)->toHaveCount(1);
     expect($api->messages[0]['chat_id'])->toBe(54321);
-    expect($api->messages[0]['text'])->toMatch('/Статистика LexiFlow/u');
+    expect($api->messages[0]['text'])->toMatch('/Статистика LexiFlow/u')
+        ->and($api->messages[0]['text'])->toContain('Повторений карточек: 3')
+        ->and($api->messages[0]['text'])->toContain('Активных студентов: 1');
 });

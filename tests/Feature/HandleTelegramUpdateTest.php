@@ -6,6 +6,9 @@ use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Jobs\HandleTelegramUpdate;
+use App\Models\GroupMember;
+use App\Models\Learner;
+use App\Models\TelegramGroup;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
 
@@ -52,4 +55,41 @@ it('still rethrows other handler failures so the job is retried', function (): v
 
     expect(fn () => (new HandleTelegramUpdate(forbiddenHelpUpdate()))->handle(app(TelegramDispatcher::class)))
         ->toThrow(RuntimeException::class, 'boom');
+});
+
+it('processes a new_chat_members update through the queued job: learner + membership', function (): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => -4242, 'status' => 'active']);
+    $channel = Mockery::mock();
+    Log::shouldReceive('channel')->with('daily')->andReturn($channel);
+    $channel->shouldReceive('info')->once();
+
+    (new HandleTelegramUpdate([
+        'update_id' => 78,
+        'message' => [
+            'chat' => ['id' => -4242, 'type' => 'supergroup'],
+            'new_chat_members' => [['id' => 777, 'first_name' => 'Alexander', 'is_bot' => false]],
+        ],
+    ]))->handle(app(TelegramDispatcher::class));
+
+    $learner = Learner::query()->where('telegram_user_id', 777)->sole();
+    expect(GroupMember::query()->where('learner_id', $learner->id)->where('telegram_group_id', $group->id)->value('status'))
+        ->toBe('active');
+});
+
+it('processes a chat_member left update through the queued job: membership becomes left', function (): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => -4243, 'status' => 'active']);
+    $learner = Learner::factory()->memberOf($group)->create(['telegram_user_id' => 777]);
+    $channel = Mockery::mock();
+    Log::shouldReceive('channel')->with('daily')->andReturn($channel);
+    $channel->shouldReceive('info')->once();
+
+    (new HandleTelegramUpdate([
+        'update_id' => 79,
+        'chat_member' => [
+            'chat' => ['id' => -4243, 'type' => 'supergroup'],
+            'new_chat_member' => ['status' => 'left', 'user' => ['id' => 777, 'first_name' => 'Alexander', 'is_bot' => false]],
+        ],
+    ]))->handle(app(TelegramDispatcher::class));
+
+    expect(GroupMember::query()->where('learner_id', $learner->id)->value('status'))->toBe('left');
 });

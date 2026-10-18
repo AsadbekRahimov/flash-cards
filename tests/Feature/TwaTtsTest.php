@@ -3,8 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Twa\Services\JwtService;
-use App\Models\Student;
-use App\Models\TelegramGroup;
+use App\Models\Learner;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
@@ -15,18 +14,18 @@ use Symfony\Component\HttpFoundation\Response;
 uses(RefreshDatabase::class);
 
 /** @return array<string, string> */
-function twaTtsHeaders(Student $student): array
+function twaTtsHeaders(Learner $learner): array
 {
     /** @var JwtService $jwt */
     $jwt = app(JwtService::class);
-    $token = $jwt->issue($student->id, (int) $student->telegram_group_id)['token'];
+    $token = $jwt->issue($learner->id)['token'];
 
     return ['Authorization' => 'Bearer '.$token];
 }
 
-function twaTtsRequest(Student $student, string $query): Response
+function twaTtsRequest(Learner $learner, string $query): Response
 {
-    $headers = twaTtsHeaders($student);
+    $headers = twaTtsHeaders($learner);
 
     $request = Request::create('/api/twa/tts?'.$query, 'GET', server: [
         'HTTP_AUTHORIZATION' => $headers['Authorization'],
@@ -39,14 +38,13 @@ function twaTtsRequest(Student $student, string $query): Response
 it('proxies TTS fallback audio from the configured service', function (): void {
     Config::set('twa.tts.service_url', 'http://tts.test');
 
-    $group = TelegramGroup::factory()->create(['status' => 'active']);
-    $student = Student::factory()->create(['telegram_group_id' => $group->id]);
+    $learner = Learner::factory()->create();
 
     Http::fake([
         'http://tts.test/tts' => Http::response('mp3-bytes', 200, ['Content-Type' => 'audio/mpeg']),
     ]);
 
-    $response = twaTtsRequest($student, 'word=resilient&voice=en-US-AriaNeural');
+    $response = twaTtsRequest($learner, 'word=resilient&voice=en-US-AriaNeural');
 
     expect($response->getStatusCode())->toBe(200);
     expect($response->headers->get('Content-Type'))->toContain('audio/mpeg');
@@ -60,10 +58,9 @@ it('proxies TTS fallback audio from the configured service', function (): void {
 it('returns 503 when TTS fallback service is not configured', function (): void {
     Config::set('twa.tts.service_url', '');
 
-    $group = TelegramGroup::factory()->create(['status' => 'active']);
-    $student = Student::factory()->create(['telegram_group_id' => $group->id]);
+    $learner = Learner::factory()->create();
 
-    $response = twaTtsRequest($student, 'word=resilient');
+    $response = twaTtsRequest($learner, 'word=resilient');
     $payload = json_decode((string) $response->getContent(), true, flags: JSON_THROW_ON_ERROR);
 
     expect($response->getStatusCode())->toBe(503);
@@ -73,10 +70,9 @@ it('returns 503 when TTS fallback service is not configured', function (): void 
 it('rejects unsafe TTS word input', function (): void {
     Config::set('twa.tts.service_url', 'http://tts.test');
 
-    $group = TelegramGroup::factory()->create(['status' => 'active']);
-    $student = Student::factory()->create(['telegram_group_id' => $group->id]);
+    $learner = Learner::factory()->create();
 
-    $response = twaTtsRequest($student, 'word=%3Cscript%3E');
+    $response = twaTtsRequest($learner, 'word=%3Cscript%3E');
     $payload = json_decode((string) $response->getContent(), true, flags: JSON_THROW_ON_ERROR);
 
     expect($response->getStatusCode())->toBe(422);

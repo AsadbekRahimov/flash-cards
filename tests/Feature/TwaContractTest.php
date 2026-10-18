@@ -17,9 +17,9 @@ use App\Http\Resources\ApiErrorResource;
 use App\Http\Resources\Twa\ExamQuestionResource;
 use App\Models\ExamAnswer;
 use App\Models\ExamSession;
+use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\Stage;
-use App\Models\Student;
 use App\Models\TelegramGroup;
 use App\Models\TrainingSession;
 use App\Models\User;
@@ -36,20 +36,20 @@ const CONTRACT_CARD = ['word_id', 'word', 'translation', 'example', 'transcripti
 const CONTRACT_EXAM_QUESTION = ['question_index', 'word_id', 'word', 'options', 'seconds_left'];
 const CONTRACT_FORBIDDEN_EXAM_KEYS = ['correct_index', 'correct_translation', 'canonical_index'];
 
-function contractHeaders(Student $student): array
+function contractHeaders(Learner $learner): array
 {
-    $token = app(JwtService::class)->issue($student->id, (int) $student->telegram_group_id)['token'];
+    $token = app(JwtService::class)->issue($learner->id)['token'];
 
     return ['Authorization' => 'Bearer '.$token];
 }
 
 /**
- * @return array{student: Student, group: TelegramGroup, lesson: Lesson, session: TrainingSession}
+ * @return array{learner: Learner, group: TelegramGroup, lesson: Lesson, session: TrainingSession}
  */
 function contractTraining(int $words = 3): array
 {
     $group = TelegramGroup::factory()->create(['status' => 'active']);
-    $student = Student::factory()->create(['telegram_group_id' => $group->id, 'is_active' => true]);
+    $learner = Learner::factory()->memberOf($group)->create();
     $lesson = Lesson::factory()->for(Stage::factory()->create())->create();
     Word::factory()->count($words)->for($lesson)->create();
     $session = TrainingSession::factory()->create([
@@ -59,11 +59,11 @@ function contractTraining(int $words = 3): array
         'status' => 'open',
     ]);
 
-    return compact('student', 'group', 'lesson', 'session');
+    return compact('learner', 'group', 'lesson', 'session');
 }
 
 /**
- * @return array{student: Student, group: TelegramGroup, session: ExamSession}
+ * @return array{learner: Learner, group: TelegramGroup, session: ExamSession}
  */
 function contractExam(int $questions = 4): array
 {
@@ -73,17 +73,16 @@ function contractExam(int $questions = 4): array
         'started_at' => now()->subMinute(),
         'ends_at' => now()->addMinutes(5),
     ]);
-    $student = Student::factory()->create(['telegram_group_id' => $group->id, 'is_active' => true]);
+    $learner = Learner::factory()->memberOf($group)->create();
 
-    return compact('student', 'group', 'session');
+    return compact('learner', 'group', 'session');
 }
 
 // --- auth / me ------------------------------------------------------------
 
 it('POST /auth keeps its exact JSON shape', function (): void {
     Config::set('telegram.bot_token', 'test-bot-token-1234567890');
-    $group = TelegramGroup::factory()->create(['status' => 'active']);
-    Student::factory()->create(['telegram_group_id' => $group->id, 'telegram_user_id' => 777, 'is_active' => true]);
+    Learner::factory()->create(['telegram_user_id' => 777]);
 
     $initData = InitDataValidator::sign('test-bot-token-1234567890', [
         'user' => json_encode(['id' => 777, 'first_name' => 'Alex']),
@@ -95,33 +94,35 @@ it('POST /auth keeps its exact JSON shape', function (): void {
         ->assertExactJsonStructure([
             'token',
             'expires_in',
-            'student' => ['id', 'first_name', 'username', 'telegram_group_id'],
+            'learner' => ['id', 'first_name', 'locale', 'onboarding_completed'],
         ]);
 
     expect($response->json('expires_in'))->toBeInt()
-        ->and($response->json('student.telegram_group_id'))->toBe($group->id);
+        ->and($response->json('learner.onboarding_completed'))->toBeFalse();
 });
 
 it('GET /me keeps its exact JSON shape', function (): void {
     $s = contractTraining();
 
-    $response = $this->withHeaders(contractHeaders($s['student']))
+    $response = $this->withHeaders(contractHeaders($s['learner']))
         ->getJson('/api/twa/me')
         ->assertOk()
         ->assertExactJsonStructure([
-            'student' => ['id', 'first_name', 'username'],
-            'group' => ['id', 'title'],
+            'learner' => ['id', 'first_name', 'username', 'locale', 'onboarding_completed'],
+            'groups' => [['id', 'title']],
             'stats' => ['words_learned', 'words_due_today'],
         ]);
 
-    expect($response->json('stats'))->toBe(['words_learned' => 0, 'words_due_today' => 0]);
+    expect($response->json('stats'))->toBe(['words_learned' => 0, 'words_due_today' => 0])
+        ->and($response->json('groups.0.id'))->toBe($s['group']->id)
+        ->and($response->json('learner.id'))->toBe($s['learner']->id);
 });
 
 it('GET /me counts due graduated cards and abandoned (re)learning cards as due today', function (): void {
     $s = contractTraining(0);
     $words = Word::factory()->count(7)->for($s['lesson'])->create();
     $make = fn (Word $w, RepetitionState $state, int $reps, string $due) => WordRepetition::factory()->create([
-        'student_id' => $s['student']->id,
+        'learner_id' => $s['learner']->id,
         'word_id' => $w->id,
         'state' => $state->value,
         'repetitions' => $reps,
@@ -140,7 +141,7 @@ it('GET /me counts due graduated cards and abandoned (re)learning cards as due t
     $make($words[5], RepetitionState::Relearning, 0, 'abandoned');  // lapsed and left for > abandoned_after_hours
     $make($words[6], RepetitionState::New, 0, 'abandoned');         // shown long ago, never answered: not "to review"
 
-    $this->withHeaders(contractHeaders($s['student']))
+    $this->withHeaders(contractHeaders($s['learner']))
         ->getJson('/api/twa/me')
         ->assertOk()
         ->assertJsonPath('stats.words_due_today', 2)
@@ -152,7 +153,7 @@ it('GET /me counts due graduated cards and abandoned (re)learning cards as due t
 it('POST /training/start keeps its exact JSON shape', function (): void {
     $s = contractTraining();
 
-    $this->withHeaders(contractHeaders($s['student']))
+    $this->withHeaders(contractHeaders($s['learner']))
         ->postJson("/api/twa/training/sessions/{$s['session']->id}/start")
         ->assertOk()
         ->assertExactJsonStructure([
@@ -167,7 +168,7 @@ it('POST /training/start keeps its exact JSON shape', function (): void {
 
 it('GET /training/next keeps its exact JSON shape, with and without a card', function (): void {
     $s = contractTraining(1);
-    $headers = contractHeaders($s['student']);
+    $headers = contractHeaders($s['learner']);
 
     $this->withHeaders($headers)
         ->getJson("/api/twa/training/sessions/{$s['session']->id}/next")
@@ -175,7 +176,7 @@ it('GET /training/next keeps its exact JSON shape, with and without a card', fun
         ->assertExactJsonStructure(['card' => CONTRACT_CARD, 'progress' => CONTRACT_PROGRESS]);
 
     // Pretend the only card was already graduated and is not due: nothing to show.
-    WordRepetition::query()->where('student_id', $s['student']->id)->update([
+    WordRepetition::query()->where('learner_id', $s['learner']->id)->update([
         'state' => RepetitionState::Review->value,
         'repetitions' => 1,
         'next_review_at' => now()->addDays(3),
@@ -191,7 +192,7 @@ it('GET /training/next keeps its exact JSON shape, with and without a card', fun
 
 it('POST /training/review keeps its exact JSON shape', function (): void {
     $s = contractTraining();
-    $headers = contractHeaders($s['student']);
+    $headers = contractHeaders($s['learner']);
 
     $card = $this->withHeaders($headers)
         ->getJson("/api/twa/training/sessions/{$s['session']->id}/next")
@@ -219,7 +220,7 @@ it('POST /training/review keeps its exact JSON shape', function (): void {
 
 it('wraps every API error in the same envelope', function (): void {
     $s = contractTraining();
-    $headers = contractHeaders($s['student']);
+    $headers = contractHeaders($s['learner']);
     $openExam = contractExam();
     $closedExam = contractExam();
     $closedExam['session']->update(['status' => 'closed', 'closed_at' => now()]);
@@ -227,9 +228,9 @@ it('wraps every API error in the same envelope', function (): void {
     $errors = [
         401 => $this->getJson('/api/twa/me'),
         404 => $this->withHeaders($headers)->postJson('/api/twa/training/sessions/999999/start'),
-        410 => $this->withHeaders(contractHeaders($closedExam['student']))
+        410 => $this->withHeaders(contractHeaders($closedExam['learner']))
             ->postJson("/api/twa/exam/sessions/{$closedExam['session']->id}/join"),
-        409 => $this->withHeaders(contractHeaders($openExam['student']))
+        409 => $this->withHeaders(contractHeaders($openExam['learner']))
             ->getJson("/api/twa/exam/sessions/{$openExam['session']->id}/result"),
     ];
 
@@ -250,7 +251,7 @@ it('ApiErrorResource builds the envelope without a data wrapper', function (): v
 it('POST /exam/join keeps its exact JSON shape and hides the answer key', function (): void {
     $s = contractExam();
 
-    $response = $this->withHeaders(contractHeaders($s['student']))
+    $response = $this->withHeaders(contractHeaders($s['learner']))
         ->postJson("/api/twa/exam/sessions/{$s['session']->id}/join")
         ->assertOk()
         ->assertExactJsonStructure([
@@ -271,7 +272,7 @@ it('POST /exam/join keeps its exact JSON shape and hides the answer key', functi
 it('GET /exam/question keeps its exact JSON shape and hides the answer key', function (): void {
     $s = contractExam();
 
-    $response = $this->withHeaders(contractHeaders($s['student']))
+    $response = $this->withHeaders(contractHeaders($s['learner']))
         ->getJson("/api/twa/exam/sessions/{$s['session']->id}/question?index=1")
         ->assertOk()
         ->assertExactJsonStructure(CONTRACT_EXAM_QUESTION);
@@ -285,7 +286,7 @@ it('GET /exam/question keeps its exact JSON shape and hides the answer key', fun
 
 it('POST /exam/answer keeps its exact JSON shape', function (): void {
     $s = contractExam();
-    $headers = contractHeaders($s['student']);
+    $headers = contractHeaders($s['learner']);
 
     $question = $this->withHeaders($headers)
         ->getJson("/api/twa/exam/sessions/{$s['session']->id}/question?index=0")
@@ -315,11 +316,11 @@ it('POST /exam/answer keeps its exact JSON shape', function (): void {
 
 it('GET /exam/result keeps its exact JSON shape', function (): void {
     $s = contractExam();
-    $question = app(ExamQuestionPersonalizer::class)->questionAt($s['session'], $s['student'], 0);
+    $question = app(ExamQuestionPersonalizer::class)->questionAt($s['session'], $s['learner'], 0);
 
     ExamAnswer::query()->create([
         'exam_session_id' => $s['session']->id,
-        'student_id' => $s['student']->id,
+        'learner_id' => $s['learner']->id,
         'word_id' => $question['word_id'],
         'selected_translation' => $question['correct_translation'],
         'is_correct' => true,
@@ -329,24 +330,24 @@ it('GET /exam/result keeps its exact JSON shape', function (): void {
     ]);
     $s['session']->update(['status' => 'closed', 'closed_at' => now()]);
 
-    $response = $this->withHeaders(contractHeaders($s['student']))
+    $response = $this->withHeaders(contractHeaders($s['learner']))
         ->getJson("/api/twa/exam/sessions/{$s['session']->id}/result")
         ->assertOk()
         ->assertExactJsonStructure([
-            'student_score',
+            'learner_score',
             'rank',
             'total_participants',
             'leaderboard' => ['*' => ['rank', 'name', 'score']],
         ]);
 
-    expect($response->json('student_score'))->toBe(18)
+    expect($response->json('learner_score'))->toBe(18)
         ->and($response->json('rank'))->toBe(1)
         ->and($response->json('leaderboard'))->toBeArray()->toHaveCount(1);
 });
 
 it('ExamQuestionResource exposes only the allow-listed fields of the personalizer view', function (): void {
     $s = contractExam();
-    $question = app(ExamQuestionPersonalizer::class)->questionAt($s['session'], $s['student'], 0);
+    $question = app(ExamQuestionPersonalizer::class)->questionAt($s['session'], $s['learner'], 0);
 
     // The raw view really does carry the answer key ...
     expect($question)->toHaveKeys(CONTRACT_FORBIDDEN_EXAM_KEYS);

@@ -4,19 +4,22 @@ declare(strict_types=1);
 
 use App\Models\Course;
 use App\Models\ExamAnswer;
+use App\Models\ExamQuestionAttempt;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
 use App\Models\GroupMember;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
 use App\Models\Lesson;
+use App\Models\NotificationLog;
 use App\Models\Organization;
+use App\Models\ProductEvent;
 use App\Models\PromoCode;
 use App\Models\PromoRedemption;
 use App\Models\Stage;
-use App\Models\Student;
 use App\Models\Subscription;
 use App\Models\TelegramGroup;
+use App\Models\TrainingReview;
 use App\Models\TrainingSession;
 use App\Models\User;
 use App\Models\Word;
@@ -31,14 +34,14 @@ uses(RefreshDatabase::class);
 
 $expectedTables = [
     'users', 'password_reset_tokens', 'sessions',
-    'telegram_groups', 'teacher_groups', 'students',
+    'telegram_groups', 'teacher_groups', 'learners', 'group_members',
     'stages', 'lessons', 'words', 'word_repetitions',
     'training_sessions', 'training_reviews',
     'exam_sessions', 'exam_question_attempts', 'exam_answers', 'exam_results',
     'notifications_log', 'audit_logs', 'product_events',
     'roles', 'permissions', 'model_has_roles', 'model_has_permissions', 'role_has_permissions',
-    // Phase 1 (docs/12 §1): learner-first schema, additive in 1.1a.
-    'organizations', 'courses', 'learners', 'group_members', 'word_translations',
+    // Phase 1 (docs/12 §1): learner-first schema.
+    'organizations', 'courses', 'word_translations',
     'learner_daily_stats', 'subscriptions', 'promo_codes', 'promo_redemptions',
 ];
 
@@ -57,15 +60,34 @@ it('creates all expected tables', function () use ($expectedTables): void {
     }
 });
 
+it('has no students table and no student_id column anywhere (learner-first, docs/12 §2)', function (): void {
+    expect(Schema::hasTable('students'))->toBeFalse();
+
+    foreach (Schema::getTableListing(schemaQualified: false) as $table) {
+        expect(Schema::hasColumn($table, 'student_id'))->toBeFalse("{$table}.student_id still exists");
+    }
+
+    foreach (['word_repetitions', 'training_reviews', 'exam_answers', 'exam_results', 'exam_question_attempts', 'notifications_log', 'product_events'] as $table) {
+        expect(Schema::hasColumn($table, 'learner_id'))->toBeTrue("{$table}.learner_id missing");
+    }
+});
+
 it('enforces unique chat_id on telegram_groups', function (): void {
     TelegramGroup::factory()->create(['chat_id' => -555]);
     expectConstraintViolation(fn () => TelegramGroup::factory()->create(['chat_id' => -555]));
 });
 
-it('enforces unique student per (telegram_user_id, telegram_group_id)', function (): void {
-    $group = TelegramGroup::factory()->create();
-    Student::factory()->create(['telegram_user_id' => 12345, 'telegram_group_id' => $group->id]);
-    expectConstraintViolation(fn () => Student::factory()->create(['telegram_user_id' => 12345, 'telegram_group_id' => $group->id]));
+it('enforces unique (learner_id, word_id) on word_repetitions: one progress row per person and word', function (): void {
+    $learner = Learner::factory()->create();
+    $word = Word::factory()->create();
+    WordRepetition::factory()->create(['learner_id' => $learner->id, 'word_id' => $word->id]);
+
+    expectConstraintViolation(fn () => WordRepetition::factory()->create(['learner_id' => $learner->id, 'word_id' => $word->id]));
+
+    // Another learner may track the same word; the same learner another word.
+    WordRepetition::factory()->create(['learner_id' => Learner::factory()->create()->id, 'word_id' => $word->id]);
+    WordRepetition::factory()->create(['learner_id' => $learner->id, 'word_id' => Word::factory()->create()->id]);
+    expect(WordRepetition::count())->toBe(3);
 });
 
 it('enforces (lesson_id, word) uniqueness', function (): void {
@@ -74,46 +96,80 @@ it('enforces (lesson_id, word) uniqueness', function (): void {
     expectConstraintViolation(fn () => Word::factory()->create(['lesson_id' => $lesson->id, 'word' => 'apple']));
 });
 
-it('cascades student deletion to word_repetitions', function (): void {
-    $student = Student::factory()->for(TelegramGroup::factory(), 'group')->create();
+it('cascades learner deletion to word_repetitions', function (): void {
+    $learner = Learner::factory()->create();
+    $keep = Learner::factory()->create();
     $word = Word::factory()->for(Lesson::factory()->for(Stage::factory()))->create();
-    WordRepetition::factory()->create(['student_id' => $student->id, 'word_id' => $word->id]);
+    WordRepetition::factory()->create(['learner_id' => $learner->id, 'word_id' => $word->id]);
+    WordRepetition::factory()->create(['learner_id' => $keep->id, 'word_id' => $word->id]);
 
-    $student->delete();
+    $learner->forceDelete();
 
-    expect(WordRepetition::where('student_id', $student->id)->count())->toBe(0);
+    expect(WordRepetition::where('learner_id', $learner->id)->count())->toBe(0)
+        ->and(WordRepetition::where('learner_id', $keep->id)->count())->toBe(1);
 });
 
-it('enforces one exam answer per student and word in a session', function (): void {
+it('cascades learner deletion to training_reviews, exam_question_attempts and notifications_log', function (): void {
+    $learner = Learner::factory()->create();
+    $review = TrainingReview::factory()->create(['learner_id' => $learner->id]);
+    NotificationLog::factory()->create(['learner_id' => $learner->id]);
+    ExamQuestionAttempt::query()->create([
+        'exam_session_id' => ExamSession::factory()->create()->id,
+        'learner_id' => $learner->id,
+        'question_index' => 0,
+        'served_at' => now(),
+    ]);
+
+    $learner->forceDelete();
+
+    expect(TrainingReview::whereKey($review->id)->exists())->toBeFalse()
+        ->and(NotificationLog::count())->toBe(0)
+        ->and(ExamQuestionAttempt::count())->toBe(0);
+});
+
+it('keeps exam answers, exam results and product events (learner_id set to NULL) when the learner is deleted', function (): void {
+    $learner = Learner::factory()->create();
+    $answer = ExamAnswer::factory()->create(['learner_id' => $learner->id]);
+    $result = ExamResult::factory()->create(['learner_id' => $learner->id]);
+    $event = ProductEvent::create(['name' => 'x', 'learner_id' => $learner->id, 'props' => [], 'occurred_at' => now()]);
+
+    $learner->forceDelete();
+
+    expect($answer->fresh()?->learner_id)->toBeNull()
+        ->and($result->fresh()?->learner_id)->toBeNull()
+        ->and($event->fresh()?->learner_id)->toBeNull();
+});
+
+it('enforces one exam answer per learner and word in a session', function (): void {
     $session = ExamSession::factory()->create();
-    $student = Student::factory()->create(['telegram_group_id' => $session->telegram_group_id]);
+    $learner = Learner::factory()->memberOf($session->telegram_group_id)->create();
     $word = Word::factory()->create(['lesson_id' => $session->lesson_id]);
 
     ExamAnswer::factory()->create([
         'exam_session_id' => $session->id,
-        'student_id' => $student->id,
+        'learner_id' => $learner->id,
         'word_id' => $word->id,
     ]);
 
     expectConstraintViolation(fn () => ExamAnswer::factory()->create([
         'exam_session_id' => $session->id,
-        'student_id' => $student->id,
+        'learner_id' => $learner->id,
         'word_id' => $word->id,
     ]));
 });
 
-it('enforces one exam result per student in a session', function (): void {
+it('enforces one exam result per learner in a session', function (): void {
     $session = ExamSession::factory()->create();
-    $student = Student::factory()->create(['telegram_group_id' => $session->telegram_group_id]);
+    $learner = Learner::factory()->memberOf($session->telegram_group_id)->create();
 
     ExamResult::factory()->create([
         'exam_session_id' => $session->id,
-        'student_id' => $student->id,
+        'learner_id' => $learner->id,
     ]);
 
     expectConstraintViolation(fn () => ExamResult::factory()->create([
         'exam_session_id' => $session->id,
-        'student_id' => $student->id,
+        'learner_id' => $learner->id,
     ]));
 });
 
@@ -145,20 +201,123 @@ it('enforces one open training per group and lesson at the database level', func
     ]);
 });
 
+it('enforces one open personal daily_review session per learner', function (): void {
+    $learner = Learner::factory()->create();
+    TrainingSession::factory()->personal($learner, 'daily_review')->create();
+
+    expectConstraintViolation(fn () => TrainingSession::factory()->personal($learner, 'daily_review')->create());
+
+    // A closed one, another learner's, and a lesson-mode session are all fine.
+    TrainingSession::factory()->personal($learner, 'daily_review')->closed()->create();
+    TrainingSession::factory()->personal(Learner::factory()->create(), 'daily_review')->create();
+    TrainingSession::factory()->personal($learner, 'lesson')->create();
+
+    expect(TrainingSession::where('learner_id', $learner->id)->count())->toBe(3);
+});
+
+it('enforces one open personal lesson session per (learner, lesson)', function (): void {
+    $learner = Learner::factory()->create();
+    $lesson = Lesson::factory()->for(Stage::factory())->create();
+    TrainingSession::factory()->personal($learner)->create(['lesson_id' => $lesson->id]);
+
+    expectConstraintViolation(fn () => TrainingSession::factory()->personal($learner)->create(['lesson_id' => $lesson->id]));
+
+    // Another lesson, another learner and a closed session do not conflict.
+    TrainingSession::factory()->personal($learner)->create();
+    TrainingSession::factory()->personal(Learner::factory()->create())->create(['lesson_id' => $lesson->id]);
+    TrainingSession::factory()->personal($learner)->closed()->create(['lesson_id' => $lesson->id]);
+
+    expect(TrainingSession::where('learner_id', $learner->id)->count())->toBe(3);
+});
+
+it('lets personal sessions coexist with a group session of the same lesson', function (): void {
+    $group = TrainingSession::factory()->create(['status' => 'open']);
+    $learner = Learner::factory()->create();
+
+    TrainingSession::factory()->personal($learner)->create(['lesson_id' => $group->lesson_id]);
+    // Personal sessions have a NULL group: NULLs never collide in the group/lesson unique index.
+    TrainingSession::factory()->personal(Learner::factory()->create())->create(['lesson_id' => $group->lesson_id]);
+
+    expect(TrainingSession::count())->toBe(3);
+});
+
+it('stores the generalised training_sessions columns (mode, source, course, expiry)', function (): void {
+    $course = Course::factory()->create();
+    $session = TrainingSession::factory()->personal(Learner::factory()->create(), 'daily_review')
+        ->create(['course_id' => $course->id, 'source' => 'reminder']);
+
+    $session->refresh();
+    expect($session->mode)->toBe('daily_review')
+        ->and($session->source)->toBe('reminder')
+        ->and($session->telegram_group_id)->toBeNull()
+        ->and($session->lesson_id)->toBeNull()
+        ->and($session->started_by_user_id)->toBeNull()
+        ->and($session->course->is($course))->toBeTrue()
+        ->and($session->expires_at)->not->toBeNull();
+
+    $legacy = TrainingSession::factory()->create();
+    expect($legacy->fresh()?->mode)->toBe('group_lesson')
+        ->and($legacy->fresh()?->source)->toBe('command')
+        ->and($legacy->fresh()?->expires_at)->toBeNull();
+
+    $course->delete();
+    expect($session->fresh()?->course_id)->toBeNull();
+});
+
+it('creates the renamed learner indexes and none of the student ones', function (): void {
+    $expected = [
+        'word_repetitions' => ['word_repetitions_learner_hard_due_idx', 'word_repetitions_due_learners_idx', 'word_repetitions_learner_is_hard_idx'],
+        'training_reviews' => ['training_reviews_created_learner_idx', 'training_reviews_session_learner_idx'],
+        'exam_answers' => ['exam_answers_session_learner_word_unique', 'exam_answers_answered_learner_idx'],
+        'exam_results' => ['exam_results_session_learner_unique'],
+        'exam_question_attempts' => ['exam_question_attempts_session_learner_index_unique'],
+        'training_sessions' => [
+            'training_sessions_one_open_per_group_lesson_unique',
+            'training_sessions_one_open_daily_per_learner',
+            'training_sessions_one_open_lesson_per_learner',
+        ],
+    ];
+
+    foreach ($expected as $table => $names) {
+        $present = array_column(Schema::getIndexes($table), 'name');
+        foreach ($names as $name) {
+            expect($present)->toContain($name);
+        }
+        foreach ($present as $name) {
+            expect($name)->not->toContain('student');
+        }
+    }
+});
+
+it('has the CHECK constraint on the shape of training_sessions by mode', function (): void {
+    $row = DB::selectOne(
+        "SELECT 1 AS x FROM pg_constraint WHERE conname = 'training_sessions_mode_shape_check'",
+    );
+    expect($row)->not->toBeNull();
+
+    $learner = Learner::factory()->create();
+    $base = ['status' => 'open', 'started_at' => now(), 'created_at' => now(), 'updated_at' => now()];
+
+    // A group lesson needs a group and a lesson; a personal mode needs a learner.
+    expectConstraintViolation(fn () => DB::table('training_sessions')->insert([...$base, 'mode' => 'group_lesson']));
+    expectConstraintViolation(fn () => DB::table('training_sessions')->insert([...$base, 'mode' => 'daily_review']));
+    DB::table('training_sessions')->insert([...$base, 'mode' => 'daily_review', 'learner_id' => $learner->id]);
+})->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'The CHECK constraint is PostgreSQL-only; TrainingSessionService guards the shape elsewhere.');
+
 it('has partial index on word_repetitions for is_hard', function (): void {
     $exists = DB::selectOne(
         "SELECT 1 AS x FROM pg_indexes
          WHERE tablename = 'word_repetitions'
-           AND indexname = 'word_repetitions_student_is_hard_idx'",
+           AND indexname = 'word_repetitions_learner_is_hard_idx'",
     );
     expect($exists)->not->toBeNull();
 })->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'pg_indexes catalog is PostgreSQL-only.');
 
-it('has composite index (student_id, next_review_at)', function (): void {
+it('has composite index (learner_id, next_review_at)', function (): void {
     $row = DB::selectOne(
         "SELECT 1 AS x FROM pg_indexes
          WHERE tablename = 'word_repetitions'
-           AND indexdef LIKE '%(student_id, next_review_at)%'",
+           AND indexdef LIKE '%(learner_id, next_review_at)%'",
     );
     expect($row)->not->toBeNull();
 })->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'pg_indexes catalog is PostgreSQL-only.');
@@ -172,7 +331,15 @@ it('runs migrate:fresh --seed and produces demo data', function (): void {
     expect(DB::table('stages')->count())->toBe(2);
     expect(DB::table('lessons')->count())->toBe(6);
     expect(DB::table('words')->count())->toBe(120);
-    expect(DB::table('students')->count())->toBe(5);
+    expect(DB::table('learners')->count())->toBe(5);
+    expect(DB::table('group_members')->count())->toBe(6);
+    expect(DB::table('group_members')->where('status', 'active')->count())->toBe(6);
+    expect(DB::table('telegram_groups')->count())->toBe(2);
+    // The first learner studies in both groups, with one shared progress per word.
+    expect(DB::table('group_members')->select('learner_id')->groupBy('learner_id')->havingRaw('COUNT(*) = 2')->get())->toHaveCount(1);
+    expect(DB::table('word_repetitions')->selectRaw('learner_id, word_id, COUNT(*) AS c')->groupBy('learner_id', 'word_id')->havingRaw('COUNT(*) > 1')->get())->toHaveCount(0);
+    expect(DB::table('learners')->where('onboarding_state', 'done')->count())->toBe(5);
+    expect(Schema::hasTable('students'))->toBeFalse();
     expect(DB::table('courses')->count())->toBe(1);
     expect(DB::table('courses')->where('slug', config('content.default_course_slug'))->exists())->toBeTrue();
     expect(DB::table('stages')->where('course_id', DB::table('courses')->value('id'))->count())->toBe(2);
@@ -415,7 +582,7 @@ it('has partial unique index subscriptions_one_live_per_subscriber', function ()
         ->and($row->indexdef)->toContain('subscriber_type, subscriber_id');
 })->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'pg_indexes catalog is PostgreSQL-only.');
 
-it('rolls back and re-applies the 1.1a migrations', function (): void {
+it('rolls back and re-applies the learner-first migrations (1.1a + 1.1b)', function (): void {
     $newTables = [
         'promo_redemptions', 'promo_codes', 'subscriptions', 'learner_daily_stats',
         'word_translations', 'group_members', 'learners', 'courses', 'organizations',
@@ -435,4 +602,37 @@ it('rolls back and re-applies the 1.1a migrations', function (): void {
     expect(Schema::hasColumns('telegram_groups', ['organization_id', 'course_id']))->toBeTrue()
         ->and(Schema::hasColumn('stages', 'course_id'))->toBeTrue()
         ->and(Schema::hasColumns('words', ['audio_path', 'is_active']))->toBeTrue();
+
+    // 1.1b: the schema comes back in its learner-first shape, not the student one.
+    expect(Schema::hasTable('students'))->toBeFalse()
+        ->and(Schema::hasColumn('word_repetitions', 'learner_id'))->toBeTrue()
+        ->and(Schema::hasColumn('word_repetitions', 'student_id'))->toBeFalse()
+        ->and(Schema::hasColumns('training_sessions', ['learner_id', 'mode', 'source', 'course_id', 'expires_at']))->toBeTrue();
+
+    $indexes = array_column(Schema::getIndexes('training_sessions'), 'name');
+    expect($indexes)->toContain('training_sessions_one_open_daily_per_learner')
+        ->and($indexes)->toContain('training_sessions_one_open_lesson_per_learner');
+});
+
+it('drops the learner-first indexes on rollback of the open-session migration', function (): void {
+    $migration = require database_path('migrations/2026_07_13_000002_add_open_session_unique_indexes.php');
+
+    $migration->down();
+    $indexes = array_column(Schema::getIndexes('training_sessions'), 'name');
+    expect($indexes)->not->toContain('training_sessions_one_open_daily_per_learner')
+        ->and($indexes)->not->toContain('training_sessions_one_open_lesson_per_learner')
+        ->and($indexes)->not->toContain('training_sessions_one_open_per_group_lesson_unique');
+
+    $migration->up();
+    $indexes = array_column(Schema::getIndexes('training_sessions'), 'name');
+    expect($indexes)->toContain('training_sessions_one_open_daily_per_learner')
+        ->and($indexes)->toContain('training_sessions_one_open_lesson_per_learner')
+        ->and($indexes)->toContain('training_sessions_one_open_per_group_lesson_unique');
+
+    if (DB::getDriverName() === 'pgsql') {
+        $migration->down();
+        expect(DB::selectOne("SELECT 1 AS x FROM pg_constraint WHERE conname = 'training_sessions_mode_shape_check'"))->toBeNull();
+        $migration->up();
+        expect(DB::selectOne("SELECT 1 AS x FROM pg_constraint WHERE conname = 'training_sessions_mode_shape_check'"))->not->toBeNull();
+    }
 });

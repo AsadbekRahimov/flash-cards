@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Learners\Services\GroupMembershipService;
 use App\Domain\Learning\Services\LeaderboardBuilder;
 use App\Domain\Learning\Services\ReviewReminderLinkBuilder;
 use App\Domain\Localization\Services\LocaleResolver;
@@ -17,11 +18,11 @@ use App\Domain\Twa\Services\InitDataValidator;
 use App\Jobs\PostLeaderboardJob;
 use App\Jobs\SendReviewReminderJob;
 use App\Models\ExamSession;
+use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\NotificationLog;
 use App\Models\ProductEvent;
 use App\Models\Stage;
-use App\Models\Student;
 use App\Models\TelegramGroup;
 use App\Models\User;
 use App\Models\Word;
@@ -86,12 +87,12 @@ function peEvent(ProductEventName $name): ProductEvent
 
 it('stores an event with relations and occurred_at', function (): void {
     $group = TelegramGroup::factory()->create();
-    $student = Student::factory()->create(['telegram_group_id' => $group->id]);
+    $learner = Learner::factory()->memberOf($group)->create();
 
-    app(ProductEventRecorder::class)->record(ProductEventName::ReminderSent, ['due_count' => 5], student: $student);
+    app(ProductEventRecorder::class)->record(ProductEventName::ReminderSent, ['due_count' => 5], learner: $learner, group: $group);
 
     $event = peEvent(ProductEventName::ReminderSent);
-    expect($event->student_id)->toBe($student->id)
+    expect($event->learner_id)->toBe($learner->id)
         ->and($event->telegram_group_id)->toBe($group->id)
         ->and($event->user_id)->toBeNull()
         ->and($event->props)->toBe(['due_count' => 5])
@@ -185,12 +186,10 @@ it('can roll back the product_events migration', function (): void {
 
 it('records twa.authenticated on successful TWA auth without PII', function (): void {
     $group = TelegramGroup::factory()->create(['status' => 'active']);
-    $student = Student::factory()->create([
-        'telegram_group_id' => $group->id,
+    $learner = Learner::factory()->memberOf($group)->create([
         'telegram_user_id' => 555,
         'first_name' => 'Zinaida',
-        'username' => 'zina_private',
-    ]);
+        'username' => 'zina_private']);
 
     $initData = InitDataValidator::sign('test-bot-token-1234567890', [
         'query_id' => 'AAHdF6IQAAAAAN0XohDhrOrc',
@@ -201,8 +200,9 @@ it('records twa.authenticated on successful TWA auth without PII', function (): 
     $this->postJson('/api/twa/auth', ['init_data' => $initData])->assertOk();
 
     $event = peEvent(ProductEventName::TwaAuthenticated);
-    expect($event->student_id)->toBe($student->id)
-        ->and($event->telegram_group_id)->toBe($group->id)
+    // A learner belongs to many groups: the event carries no group of its own.
+    expect($event->learner_id)->toBe($learner->id)
+        ->and($event->telegram_group_id)->toBeNull()
         ->and($event->props)->toBe(['context' => 'none']);
 
     $raw = json_encode($event->getAttributes());
@@ -407,7 +407,7 @@ it('records group.bot_added with readded=true when the bot returns after leaving
     expect(peEvent(ProductEventName::GroupBotAdded)->props)->toMatchArray(['readded' => true]);
 });
 
-it('records student.joined only for newly created students', function (): void {
+it('records group.member_joined only when a membership is created or re-activated', function (): void {
     $group = TelegramGroup::factory()->create(['chat_id' => -3004, 'status' => 'active']);
     $update = [
         'message' => [
@@ -420,41 +420,66 @@ it('records student.joined only for newly created students', function (): void {
     ];
 
     app(TelegramDispatcher::class)->dispatch($update);
-    app(TelegramDispatcher::class)->dispatch($update); // re-join: not a new student
+    app(TelegramDispatcher::class)->dispatch($update); // duplicate delivery: nothing changed
 
-    $events = ProductEvent::query()->where('name', 'student.joined')->get();
+    $events = ProductEvent::query()->where('name', 'group.member_joined')->get();
     expect($events)->toHaveCount(1)
         ->and($events[0]->telegram_group_id)->toBe($group->id)
-        ->and($events[0]->student_id)->toBe(Student::query()->where('telegram_user_id', 111)->value('id'));
+        ->and($events[0]->props)->toBe(['via' => 'group'])
+        ->and($events[0]->learner_id)->toBe(Learner::query()->where('telegram_user_id', 111)->value('id'));
     expect(json_encode($events[0]->getAttributes()))->not->toContain('Alice')->and(json_encode($events[0]->getAttributes()))->not->toContain('alice_u');
+});
+
+it('records group.member_left for a chat_member leave and group.member_joined again on re-join', function (): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => -3005, 'status' => 'active']);
+    $learner = Learner::factory()->memberOf($group)->create(['telegram_user_id' => 111]);
+    $chatMember = fn (string $status): array => ['chat_member' => [
+        'chat' => ['id' => -3005, 'type' => 'supergroup'],
+        'new_chat_member' => ['status' => $status, 'user' => ['id' => 111, 'first_name' => 'Alice', 'is_bot' => false]],
+    ]];
+
+    app(TelegramDispatcher::class)->dispatch($chatMember('left'));
+    app(TelegramDispatcher::class)->dispatch($chatMember('left')); // already left: no second event
+
+    $left = ProductEvent::query()->where('name', 'group.member_left')->get();
+    expect($left)->toHaveCount(1)
+        ->and($left[0]->learner_id)->toBe($learner->id)
+        ->and($left[0]->telegram_group_id)->toBe($group->id)
+        ->and($left[0]->props)->toBe(['reason' => 'left']);
+
+    app(TelegramDispatcher::class)->dispatch($chatMember('member'));
+
+    expect(ProductEvent::query()->where('name', 'group.member_joined')->get()->pluck('props.via')->all())
+        ->toBe(['chat_member']);
 });
 
 // --- reminders ------------------------------------------------------------
 
-function peReminderStudent(): Student
+function peReminderLearner(): Learner
 {
     $group = TelegramGroup::factory()->create(['status' => 'active']);
 
-    return Student::factory()->create(['telegram_group_id' => $group->id, 'telegram_user_id' => 900100]);
+    return Learner::factory()->memberOf($group)->create(['telegram_user_id' => 900100]);
 }
 
 it('records reminder.sent after a successful reminder', function (): void {
-    $student = peReminderStudent();
+    $learner = peReminderLearner();
 
-    (new SendReviewReminderJob($student->id, 7))->handle(
+    (new SendReviewReminderJob($learner->id, 7))->handle(
         $this->api,
         app(ReviewReminderLinkBuilder::class),
         app(ProductEventRecorder::class),
         app(LocaleResolver::class),
+        app(GroupMembershipService::class),
     );
 
     $event = peEvent(ProductEventName::ReminderSent);
-    expect($event->student_id)->toBe($student->id)
+    expect($event->learner_id)->toBe($learner->id)
         ->and($event->props)->toBe(['due_count' => 7]);
 });
 
 it('records reminder.failed and does not fail the job on Telegram 403', function (): void {
-    $student = peReminderStudent();
+    $learner = peReminderLearner();
     Log::spy();
 
     $telegram = Mockery::mock(TelegramClient::class);
@@ -462,36 +487,38 @@ it('records reminder.failed and does not fail the job on Telegram 403', function
         ->once()
         ->andThrow(new TelegramForbiddenException(TelegramForbiddenException::REASON_BOT_BLOCKED));
 
-    (new SendReviewReminderJob($student->id, 7))->handle(
+    (new SendReviewReminderJob($learner->id, 7))->handle(
         $telegram,
         app(ReviewReminderLinkBuilder::class),
         app(ProductEventRecorder::class),
         app(LocaleResolver::class),
+        app(GroupMembershipService::class),
     );
 
     $event = peEvent(ProductEventName::ReminderFailed);
-    expect($event->student_id)->toBe($student->id)
+    expect($event->learner_id)->toBe($learner->id)
         ->and(ksorted($event->props))->toBe(ksorted(['reason' => 'bot_blocked', 'due_count' => 7]));
     expect(ProductEvent::query()->where('name', 'reminder.sent')->exists())->toBeFalse();
-    expect(NotificationLog::query()->where('student_id', $student->id)->exists())->toBeFalse();
+    expect(NotificationLog::query()->where('learner_id', $learner->id)->exists())->toBeFalse();
 
-    Log::shouldHaveReceived('warning')->withArgs(function (string $message, array $context) use ($student): bool {
+    Log::shouldHaveReceived('warning')->withArgs(function (string $message, array $context) use ($learner): bool {
         return $message === 'telegram.review_reminder_forbidden'
-            && $context === ['student_id' => $student->id, 'reason' => 'bot_blocked'];
+            && $context === ['learner_id' => $learner->id, 'reason' => 'bot_blocked'];
     })->once();
 });
 
 it('still rethrows other Telegram errors from the reminder job', function (): void {
-    $student = peReminderStudent();
+    $learner = peReminderLearner();
 
     $telegram = Mockery::mock(TelegramClient::class);
     $telegram->shouldReceive('sendWebAppButton')->once()->andThrow(new RuntimeException('Telegram is down'));
 
-    expect(fn () => (new SendReviewReminderJob($student->id, 7))->handle(
+    expect(fn () => (new SendReviewReminderJob($learner->id, 7))->handle(
         $telegram,
         app(ReviewReminderLinkBuilder::class),
         app(ProductEventRecorder::class),
         app(LocaleResolver::class),
+        app(GroupMembershipService::class),
     ))->toThrow(RuntimeException::class, 'Telegram is down');
 
     expect(ProductEvent::query()->count())->toBe(0);

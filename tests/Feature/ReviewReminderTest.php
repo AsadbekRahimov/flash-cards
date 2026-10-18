@@ -3,18 +3,19 @@
 declare(strict_types=1);
 
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Learners\Services\GroupMembershipService;
 use App\Domain\Learning\Enums\RepetitionState;
+use App\Domain\Learning\Services\LearnerStatsService;
 use App\Domain\Learning\Services\ReviewReminderLinkBuilder;
 use App\Domain\Learning\Services\ReviewReminderService;
-use App\Domain\Learning\Services\StudentStatsService;
 use App\Domain\Learning\Support\LearningPolicy;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Jobs\SendReviewReminderJob;
+use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\NotificationLog;
 use App\Models\Stage;
-use App\Models\Student;
 use App\Models\TelegramGroup;
 use App\Models\TrainingSession;
 use App\Models\User;
@@ -28,26 +29,26 @@ use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
 
-it('queues reminders only for active students with enough due words and no recent reminder', function (): void {
+it('queues reminders only for active learners with enough due words and no recent reminder', function (): void {
     Bus::fake();
 
     $group = TelegramGroup::factory()->create(['status' => 'active']);
-    $student = Student::factory()->create(['telegram_group_id' => $group->id]);
-    $recentlyNotified = Student::factory()->create(['telegram_group_id' => $group->id]);
-    $notEnoughDue = Student::factory()->create(['telegram_group_id' => $group->id]);
+    $learner = Learner::factory()->memberOf($group)->create();
+    $recentlyNotified = Learner::factory()->memberOf($group)->create();
+    $notEnoughDue = Learner::factory()->memberOf($group)->create();
 
     $words = Word::factory()->count(10)->create();
     foreach ($words->take(5) as $word) {
-        WordRepetition::factory()->due()->create(['student_id' => $student->id, 'word_id' => $word->id]);
+        WordRepetition::factory()->due()->create(['learner_id' => $learner->id, 'word_id' => $word->id]);
     }
     foreach ($words->skip(5)->take(5) as $word) {
-        WordRepetition::factory()->due()->create(['student_id' => $recentlyNotified->id, 'word_id' => $word->id]);
+        WordRepetition::factory()->due()->create(['learner_id' => $recentlyNotified->id, 'word_id' => $word->id]);
     }
     $singleDueWord = Word::factory()->create();
-    WordRepetition::factory()->due()->create(['student_id' => $notEnoughDue->id, 'word_id' => $singleDueWord->id]);
+    WordRepetition::factory()->due()->create(['learner_id' => $notEnoughDue->id, 'word_id' => $singleDueWord->id]);
 
     NotificationLog::factory()->create([
-        'student_id' => $recentlyNotified->id,
+        'learner_id' => $recentlyNotified->id,
         'type' => 'review_reminder',
         'sent_at' => now()->subHours(2),
     ]);
@@ -55,22 +56,137 @@ it('queues reminders only for active students with enough due words and no recen
     $queued = app(ReviewReminderService::class)->queueDueReminders(5);
 
     expect($queued)->toBe(1);
-    Bus::assertDispatched(SendReviewReminderJob::class, fn (SendReviewReminderJob $job): bool => $job->studentId === $student->id && $job->dueCount === 5);
+    Bus::assertDispatched(SendReviewReminderJob::class, fn (SendReviewReminderJob $job): bool => $job->learnerId === $learner->id && $job->dueCount === 5);
+});
+
+it('queues ONE reminder for a learner who studies in two groups', function (): void {
+    Bus::fake();
+
+    $groupA = TelegramGroup::factory()->create(['status' => 'active']);
+    $groupB = TelegramGroup::factory()->create(['status' => 'active']);
+    $learner = Learner::factory()->memberOf($groupA)->memberOf($groupB)->create();
+
+    foreach (Word::factory()->count(5)->create() as $word) {
+        WordRepetition::factory()->due()->create(['learner_id' => $learner->id, 'word_id' => $word->id]);
+    }
+
+    expect(app(ReviewReminderService::class)->queueDueReminders(5))->toBe(1);
+    Bus::assertDispatchedTimes(SendReviewReminderJob::class, 1);
+    Bus::assertDispatched(SendReviewReminderJob::class, fn (SendReviewReminderJob $job): bool => $job->learnerId === $learner->id && $job->dueCount === 5);
+});
+
+it('does not remind learners without an active membership in an active group, or banned ones', function (): void {
+    Bus::fake();
+
+    $active = TelegramGroup::factory()->create(['status' => 'active']);
+    $disabled = TelegramGroup::factory()->create(['status' => 'disabled']);
+    $left = Learner::factory()->memberOf($active, 'left')->create();
+    $removed = Learner::factory()->memberOf($active, 'removed')->create();
+    $inDisabledGroup = Learner::factory()->memberOf($disabled)->create();
+    $noGroup = Learner::factory()->create();
+    $banned = Learner::factory()->memberOf($active)->create(['blocked_at' => now()]);
+    $reachable = Learner::factory()->memberOf($active)->create();
+
+    foreach ([$left, $removed, $inDisabledGroup, $noGroup, $banned, $reachable] as $learner) {
+        foreach (Word::factory()->count(5)->create() as $word) {
+            WordRepetition::factory()->due()->create(['learner_id' => $learner->id, 'word_id' => $word->id]);
+        }
+    }
+
+    expect(app(ReviewReminderService::class)->queueDueReminders(5))->toBe(1);
+    Bus::assertDispatched(SendReviewReminderJob::class, fn (SendReviewReminderJob $job): bool => $job->learnerId === $reachable->id);
+});
+
+it('keeps the reminder one-per-day across groups when the job runs twice', function (): void {
+    Config::set('twa.base_url', 'https://twa.test');
+    $groupA = TelegramGroup::factory()->create(['status' => 'active']);
+    $groupB = TelegramGroup::factory()->create(['status' => 'active']);
+    $learner = Learner::factory()->memberOf($groupA)->memberOf($groupB)->create();
+    WordRepetition::factory()->due()->create(['learner_id' => $learner->id, 'word_id' => Word::factory()->create()->id]);
+
+    $telegram = Mockery::mock(TelegramClient::class);
+    $telegram->shouldReceive('sendWebAppButton')->once();
+
+    $run = fn () => (new SendReviewReminderJob($learner->id, 5))->handle(
+        $telegram,
+        app(ReviewReminderLinkBuilder::class),
+        app(ProductEventRecorder::class),
+        app(LocaleResolver::class),
+        app(GroupMembershipService::class),
+    );
+    $run();
+    $run();
+
+    expect(NotificationLog::query()->where('learner_id', $learner->id)->count())->toBe(1);
+});
+
+it('does not send a reminder from the job once the learner has no active group any more', function (): void {
+    $group = TelegramGroup::factory()->create(['status' => 'active']);
+    $learner = Learner::factory()->memberOf($group, 'left')->create();
+
+    $telegram = Mockery::mock(TelegramClient::class);
+    $telegram->shouldNotReceive('sendWebAppButton');
+
+    (new SendReviewReminderJob($learner->id, 5))->handle(
+        $telegram,
+        app(ReviewReminderLinkBuilder::class),
+        app(ProductEventRecorder::class),
+        app(LocaleResolver::class),
+        app(GroupMembershipService::class),
+    );
+
+    expect(NotificationLog::count())->toBe(0);
+});
+
+it('opens the reminder session in a group of the learner that has a teacher', function (): void {
+    Config::set('twa.base_url', 'https://twa.test');
+
+    $withoutTeacher = TelegramGroup::factory()->create(['status' => 'active']);
+    $withTeacher = TelegramGroup::factory()->create(['status' => 'active']);
+    $teacher = User::factory()->create();
+    DB::table('teacher_groups')->insert([
+        'user_id' => $teacher->id,
+        'telegram_group_id' => $withTeacher->id,
+        'is_primary' => true,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+    $learner = Learner::factory()->memberOf($withoutTeacher)->memberOf($withTeacher)->create();
+    $lesson = Lesson::factory()->for(Stage::factory()->create(['number' => 1]))->create(['number' => 1]);
+    WordRepetition::factory()->due()->create([
+        'learner_id' => $learner->id,
+        'word_id' => Word::factory()->for($lesson)->create()->id,
+    ]);
+
+    $url = app(ReviewReminderLinkBuilder::class)->buildTrainingUrl($learner);
+
+    $session = TrainingSession::query()->sole();
+    expect($session->telegram_group_id)->toBe($withTeacher->id)
+        ->and($url)->toBe("https://twa.test/twa/training/{$session->id}");
+});
+
+it('falls back to the TWA root when no group of the learner has a teacher', function (): void {
+    Config::set('twa.base_url', 'https://twa.test');
+    $learner = Learner::factory()->memberOf(TelegramGroup::factory()->create(['status' => 'active']))->create();
+    WordRepetition::factory()->due()->create(['learner_id' => $learner->id, 'word_id' => Word::factory()->create()->id]);
+
+    expect(app(ReviewReminderLinkBuilder::class)->buildTrainingUrl($learner))->toBe('https://twa.test/twa/')
+        ->and(TrainingSession::count())->toBe(0);
 });
 
 it('ignores minute-based learning cards when counting due words for reminders', function (): void {
     Bus::fake();
 
     $group = TelegramGroup::factory()->create(['status' => 'active']);
-    $student = Student::factory()->create(['telegram_group_id' => $group->id]);
+    $learner = Learner::factory()->memberOf($group)->create();
 
     // 4 graduated due cards + 3 learning cards whose step already elapsed (abandoned session).
     foreach (Word::factory()->count(4)->create() as $word) {
-        WordRepetition::factory()->due()->create(['student_id' => $student->id, 'word_id' => $word->id]);
+        WordRepetition::factory()->due()->create(['learner_id' => $learner->id, 'word_id' => $word->id]);
     }
     foreach (Word::factory()->count(3)->create() as $word) {
         WordRepetition::factory()->learning(step: 1)->create([
-            'student_id' => $student->id,
+            'learner_id' => $learner->id,
             'word_id' => $word->id,
             'next_review_at' => now()->subMinutes(5),
         ]);
@@ -80,7 +196,7 @@ it('ignores minute-based learning cards when counting due words for reminders', 
     Bus::assertNothingDispatched();
 
     // One more graduated due card crosses the threshold; learning cards are still not counted.
-    WordRepetition::factory()->due()->create(['student_id' => $student->id, 'word_id' => Word::factory()->create()->id]);
+    WordRepetition::factory()->due()->create(['learner_id' => $learner->id, 'word_id' => Word::factory()->create()->id]);
 
     expect(app(ReviewReminderService::class)->queueDueReminders(5))->toBe(1);
     Bus::assertDispatched(SendReviewReminderJob::class, fn (SendReviewReminderJob $job): bool => $job->dueCount === 5);
@@ -98,37 +214,37 @@ it('counts (re)learning cards abandoned longer than abandoned_after_hours, but n
     ));
 
     $group = TelegramGroup::factory()->create(['status' => 'active']);
-    $student = Student::factory()->create(['telegram_group_id' => $group->id]);
+    $learner = Learner::factory()->memberOf($group)->create();
 
     // 3 graduated due cards + 1 relearning card lapsed and abandoned yesterday evening
     // + 1 learning card abandoned a day ago = 5 -> reaches the threshold.
     foreach (Word::factory()->count(3)->create() as $word) {
-        WordRepetition::factory()->due()->create(['student_id' => $student->id, 'word_id' => $word->id]);
+        WordRepetition::factory()->due()->create(['learner_id' => $learner->id, 'word_id' => $word->id]);
     }
     WordRepetition::factory()->relearning()->create([
-        'student_id' => $student->id,
+        'learner_id' => $learner->id,
         'word_id' => Word::factory()->create()->id,
         'next_review_at' => now()->subHours(12)->subMinute(),
     ]);
     WordRepetition::factory()->learning(step: 1)->create([
-        'student_id' => $student->id,
+        'learner_id' => $learner->id,
         'word_id' => Word::factory()->create()->id,
         'next_review_at' => now()->subDay(),
     ]);
     // Fresh in-session cards (step elapsed minutes / a few hours ago) must not count.
     WordRepetition::factory()->relearning()->create([
-        'student_id' => $student->id,
+        'learner_id' => $learner->id,
         'word_id' => Word::factory()->create()->id,
         'next_review_at' => now()->subMinutes(3),
     ]);
     WordRepetition::factory()->learning()->create([
-        'student_id' => $student->id,
+        'learner_id' => $learner->id,
         'word_id' => Word::factory()->create()->id,
         'next_review_at' => now()->subHours(11),
     ]);
     // A `new` row shown long ago but never answered is not "to review" either.
     WordRepetition::factory()->create([
-        'student_id' => $student->id,
+        'learner_id' => $learner->id,
         'word_id' => Word::factory()->create()->id,
         'state' => RepetitionState::New->value,
         'repetitions' => 0,
@@ -136,23 +252,23 @@ it('counts (re)learning cards abandoned longer than abandoned_after_hours, but n
     ]);
 
     expect(app(ReviewReminderService::class)->queueDueReminders(5))->toBe(1);
-    Bus::assertDispatched(SendReviewReminderJob::class, fn (SendReviewReminderJob $job): bool => $job->studentId === $student->id && $job->dueCount === 5);
+    Bus::assertDispatched(SendReviewReminderJob::class, fn (SendReviewReminderJob $job): bool => $job->learnerId === $learner->id && $job->dueCount === 5);
 
-    // Same number the student sees in GET /me.
-    expect(app(StudentStatsService::class)->forStudent($student)->wordsDueToday)->toBe(5);
+    // Same number the learner sees in GET /me.
+    expect(app(LearnerStatsService::class)->forLearner($learner)->wordsDueToday)->toBe(5);
 });
 
 it('does not remind about a relearning card abandoned less than abandoned_after_hours ago', function (): void {
     Bus::fake();
 
     $group = TelegramGroup::factory()->create(['status' => 'active']);
-    $student = Student::factory()->create(['telegram_group_id' => $group->id]);
+    $learner = Learner::factory()->memberOf($group)->create();
 
     foreach (Word::factory()->count(4)->create() as $word) {
-        WordRepetition::factory()->due()->create(['student_id' => $student->id, 'word_id' => $word->id]);
+        WordRepetition::factory()->due()->create(['learner_id' => $learner->id, 'word_id' => $word->id]);
     }
     $abandoned = WordRepetition::factory()->relearning()->create([
-        'student_id' => $student->id,
+        'learner_id' => $learner->id,
         'word_id' => Word::factory()->create()->id,
         'next_review_at' => now()->subHours(11),
     ]);
@@ -179,15 +295,15 @@ it('deep-links the reminder to the lesson of an abandoned relearning card', func
         'created_at' => now(),
         'updated_at' => now(),
     ]);
-    $student = Student::factory()->create(['telegram_group_id' => $group->id]);
+    $learner = Learner::factory()->memberOf($group)->create();
     $lesson = Lesson::factory()->for(Stage::factory()->create(['number' => 2]))->create(['number' => 5]);
     WordRepetition::factory()->relearning()->create([
-        'student_id' => $student->id,
+        'learner_id' => $learner->id,
         'word_id' => Word::factory()->for($lesson)->create()->id,
         'next_review_at' => now()->subDay(),
     ]);
 
-    $url = app(ReviewReminderLinkBuilder::class)->buildTrainingUrl($student);
+    $url = app(ReviewReminderLinkBuilder::class)->buildTrainingUrl($learner);
 
     $session = TrainingSession::query()->firstOrFail();
     expect($url)->toBe("https://twa.test/twa/training/{$session->id}")
@@ -198,7 +314,7 @@ it('keeps legacy failed cards (backfilled to relearning) in reminders once their
     Bus::fake();
 
     $group = TelegramGroup::factory()->create(['status' => 'active']);
-    $student = Student::factory()->create(['telegram_group_id' => $group->id]);
+    $learner = Learner::factory()->memberOf($group)->create();
     $words = Word::factory()->count(5)->create();
 
     /** @var Migration $migration */
@@ -209,7 +325,7 @@ it('keeps legacy failed cards (backfilled to relearning) in reminders once their
     // Simulate rows whose legacy due moment is already 13 hours in the past.
     foreach ($words as $word) {
         DB::table('word_repetitions')->insert([
-            'student_id' => $student->id,
+            'learner_id' => $learner->id,
             'word_id' => $word->id,
             'repetitions' => 0,
             'interval_days' => 1,
@@ -226,12 +342,12 @@ it('keeps legacy failed cards (backfilled to relearning) in reminders once their
 
     $migration->up();
 
-    expect(WordRepetition::query()->where('student_id', $student->id)->pluck('state')->unique()->all())
+    expect(WordRepetition::query()->where('learner_id', $learner->id)->pluck('state')->unique()->all())
         ->toBe([RepetitionState::Relearning]);
 
     expect(app(ReviewReminderService::class)->queueDueReminders(5))->toBe(1);
-    Bus::assertDispatched(SendReviewReminderJob::class, fn (SendReviewReminderJob $job): bool => $job->studentId === $student->id && $job->dueCount === 5);
-    expect(app(StudentStatsService::class)->forStudent($student)->wordsDueToday)->toBe(5);
+    Bus::assertDispatched(SendReviewReminderJob::class, fn (SendReviewReminderJob $job): bool => $job->learnerId === $learner->id && $job->dueCount === 5);
+    expect(app(LearnerStatsService::class)->forLearner($learner)->wordsDueToday)->toBe(5);
 });
 
 it('sends a reminder message and writes notification log', function (): void {
@@ -246,16 +362,14 @@ it('sends a reminder message and writes notification log', function (): void {
         'created_at' => now(),
         'updated_at' => now(),
     ]);
-    $student = Student::factory()->create([
-        'telegram_group_id' => $group->id,
+    $learner = Learner::factory()->memberOf($group)->create([
         'telegram_user_id' => 777001,
-        'language_code' => 'ru',
-    ]);
+        'language_code' => 'ru']);
     $stage = Stage::factory()->create(['number' => 3]);
     $lesson = Lesson::factory()->for($stage)->create(['number' => 4]);
     $word = Word::factory()->for($lesson)->create();
     WordRepetition::factory()->due()->create([
-        'student_id' => $student->id,
+        'learner_id' => $learner->id,
         'word_id' => $word->id,
     ]);
 
@@ -311,7 +425,7 @@ it('sends a reminder message and writes notification log', function (): void {
         }
     };
 
-    (new SendReviewReminderJob($student->id, 5))->handle($api, app(ReviewReminderLinkBuilder::class), app(ProductEventRecorder::class), app(LocaleResolver::class));
+    (new SendReviewReminderJob($learner->id, 5))->handle($api, app(ReviewReminderLinkBuilder::class), app(ProductEventRecorder::class), app(LocaleResolver::class), app(GroupMembershipService::class));
 
     expect($api->messages)->toHaveCount(1);
     $message = $api->messages[0];
@@ -323,7 +437,7 @@ it('sends a reminder message and writes notification log', function (): void {
     expect($message['url'])->toBe("https://twa.test/twa/training/{$session->id}");
 
     expect(NotificationLog::query()
-        ->where('student_id', $student->id)
+        ->where('learner_id', $learner->id)
         ->where('type', 'review_reminder')
         ->exists())->toBeTrue();
 });

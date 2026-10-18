@@ -5,10 +5,9 @@ declare(strict_types=1);
 use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Learning\Services\SpacedRepetitionEngine;
 use App\Domain\Learning\Support\LearningPolicy;
+use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\Stage;
-use App\Models\Student;
-use App\Models\TelegramGroup;
 use App\Models\Word;
 use App\Models\WordRepetition;
 use App\Providers\AppServiceProvider;
@@ -19,14 +18,13 @@ uses(RefreshDatabase::class);
 
 function makeRepetition(array $overrides = []): WordRepetition
 {
-    $group = TelegramGroup::factory()->create();
-    $student = Student::factory()->create(['telegram_group_id' => $group->id]);
+    $learner = Learner::factory()->create();
     $stage = Stage::factory()->create();
     $lesson = Lesson::factory()->for($stage)->create();
     $word = Word::factory()->for($lesson)->create();
 
     return WordRepetition::factory()->create(array_merge([
-        'student_id' => $student->id,
+        'learner_id' => $learner->id,
         'word_id' => $word->id,
         'repetitions' => 0,
         'interval_days' => 0,

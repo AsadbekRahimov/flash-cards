@@ -208,7 +208,7 @@ it('rejects a lesson whose words have no real distractors and leaves no session 
     expect(ExamSession::query()->count())->toBe(0);
 });
 
-it('stores canonical questions with per-student ordering enabled and no correct_index', function (): void {
+it('stores canonical questions with per-learner ordering enabled and no correct_index', function (): void {
     seedLessonWithWords();
     $this->api->shouldReceive('sendWebAppButton')->once();
 
@@ -221,7 +221,7 @@ it('stores canonical questions with per-student ordering enabled and no correct_
     ]);
 
     $session = ExamSession::query()->sole();
-    expect($session->config['question_order'])->toBe('per_student')
+    expect($session->config['question_order'])->toBe('per_learner')
         ->and($session->config['order_secret'])->toMatch('/^[0-9a-f]{64}$/')
         ->and($session->config['total_questions'])->toBe(count($session->config['questions']));
     foreach ($session->config['questions'] as $q) {
