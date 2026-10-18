@@ -14,9 +14,13 @@ class LessonFactory extends Factory
     /** @return array<string, mixed> */
     public function definition(): array
     {
+        // Monotonic counter: random numbers collided on UNIQUE(stage_id, number).
+        static $counter = 0;
+        $counter++;
+
         return [
             'stage_id' => Stage::factory(),
-            'number' => fake()->numberBetween(1, 100),
+            'number' => $counter,
             'title' => fake()->sentence(3),
         ];
     }
