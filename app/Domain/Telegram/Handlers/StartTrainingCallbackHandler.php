@@ -8,6 +8,7 @@ use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Learning\Exceptions\TrainingSessionException;
 use App\Domain\Learning\Services\TrainingSessionService;
+use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
 use App\Models\TelegramGroup;
@@ -26,6 +27,7 @@ final class StartTrainingCallbackHandler implements UpdateHandler
         private readonly TelegramClient $telegram,
         private readonly TrainingSessionService $trainingService,
         private readonly ProductEventRecorder $events,
+        private readonly LocaleResolver $locales,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -77,10 +79,12 @@ final class StartTrainingCallbackHandler implements UpdateHandler
             return;
         }
 
+        $locale = $this->locales->forGroup($group);
+
         /** @var User|null $teacher */
         $teacher = User::query()->where('telegram_user_id', $fromId)->first();
         if ($teacher === null) {
-            $this->telegram->sendMessage($chatId, 'Ваш Telegram-аккаунт не привязан к учителю.');
+            $this->telegram->sendMessage($chatId, __('errors.teacher_not_linked', [], $locale));
 
             return;
         }
@@ -88,7 +92,7 @@ final class StartTrainingCallbackHandler implements UpdateHandler
         try {
             $session = $this->trainingService->open($group, $stageNumber, $lessonNumber, $teacher);
         } catch (TrainingSessionException $e) {
-            $this->telegram->sendMessage($chatId, $this->humanizeError($e));
+            $this->telegram->sendMessage($chatId, $this->humanizeError($e, $locale));
 
             return;
         }
@@ -106,29 +110,29 @@ final class StartTrainingCallbackHandler implements UpdateHandler
             user: $teacher,
         );
 
-        $this->postWebAppButton($chatId, $session, $stageNumber, $lessonNumber);
+        $this->postWebAppButton($chatId, $session, $stageNumber, $lessonNumber, $locale);
     }
 
-    private function humanizeError(TrainingSessionException $e): string
+    private function humanizeError(TrainingSessionException $e, string $locale): string
     {
         return match ($e->reason) {
-            TrainingSessionException::REASON_NOT_TEACHER => 'Только учитель этой группы может запускать тренировку.',
-            TrainingSessionException::REASON_GROUP_INACTIVE => 'Группа не активирована.',
-            TrainingSessionException::REASON_STAGE_NOT_FOUND => 'Указанный stage не найден.',
-            TrainingSessionException::REASON_LESSON_NOT_FOUND => 'Урок не найден.',
-            default => 'Не удалось запустить тренировку.',
+            TrainingSessionException::REASON_NOT_TEACHER => __('errors.training.not_teacher', [], $locale),
+            TrainingSessionException::REASON_GROUP_INACTIVE => __('errors.group_inactive', [], $locale),
+            TrainingSessionException::REASON_STAGE_NOT_FOUND => __('errors.stage_not_found', [], $locale),
+            TrainingSessionException::REASON_LESSON_NOT_FOUND => __('errors.lesson_not_found', [], $locale),
+            default => __('errors.training.failed', [], $locale),
         };
     }
 
-    private function postWebAppButton(int $chatId, TrainingSession $session, int $stage, int $lesson): void
+    private function postWebAppButton(int $chatId, TrainingSession $session, int $stage, int $lesson, string $locale): void
     {
         $base = rtrim((string) config('twa.base_url'), '/');
         $url = "{$base}/twa/training/{$session->id}";
 
         $this->telegram->sendWebAppButton(
             chatId: $chatId,
-            text: "📚 Тренировка Stage {$stage} / Lesson {$lesson} запущена! Нажмите кнопку, чтобы начать.",
-            buttonText: '🎯 Открыть тренировку',
+            text: __('training.started', ['stage' => $stage, 'lesson' => $lesson], $locale),
+            buttonText: __('training.open_button', [], $locale),
             url: $url,
         );
     }

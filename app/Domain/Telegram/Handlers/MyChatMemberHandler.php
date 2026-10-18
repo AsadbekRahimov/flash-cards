@@ -59,7 +59,8 @@ final class MyChatMemberHandler implements UpdateHandler
         }
 
         $group->title = (string) ($chat['title'] ?? 'Untitled group');
-        $group->meta = ['type' => $chatType];
+        // Merge: admin-managed keys such as `locale` must survive a re-add.
+        $group->meta = array_merge($group->meta ?? [], ['type' => $chatType]);
         $group->save();
 
         if ($botAdded) {

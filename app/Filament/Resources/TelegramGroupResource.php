@@ -40,6 +40,15 @@ class TelegramGroupResource extends Resource
                     'disabled' => 'Disabled',
                 ])
                 ->required(),
+            // Stored as meta['locale']; see EditTelegramGroup for the mapping.
+            Forms\Components\Select::make('locale')
+                ->label('Bot language')
+                ->helperText('Language of bot messages posted to this group. Empty = default.')
+                ->options([
+                    'ru' => 'Русский',
+                    'uz' => "O'zbekcha",
+                ])
+                ->placeholder('Default'),
             Forms\Components\KeyValue::make('meta')->columnSpanFull(),
             Forms\Components\Select::make('teachers')
                 ->relationship('teachers', 'name')

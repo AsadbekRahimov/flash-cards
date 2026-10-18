@@ -7,6 +7,7 @@ namespace App\Jobs;
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Learning\Services\LeaderboardBuilder;
+use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
@@ -43,7 +44,10 @@ final class PostLeaderboardJob implements ShouldQueue
         TelegramClient $telegram,
         LeaderboardBuilder $builder,
         ProductEventRecorder $events,
+        ?LocaleResolver $locales = null,
     ): void {
+        $locales ??= app(LocaleResolver::class);
+
         /** @var ExamSession|null $session */
         $session = ExamSession::query()
             ->with(['group', 'lesson'])
@@ -70,7 +74,7 @@ final class PostLeaderboardJob implements ShouldQueue
             ->limit(10)
             ->get();
 
-        $text = $this->format($session, $results);
+        $text = $this->format($session, $results, $locales->forGroup($session->group));
 
         Cache::lock("telegram:leaderboard:{$session->id}", 120)->block(10, function () use (
             $telegram,
@@ -106,14 +110,14 @@ final class PostLeaderboardJob implements ShouldQueue
     /**
      * @param  Collection<int, ExamResult>  $results
      */
-    private function format(ExamSession $session, $results): string
+    private function format(ExamSession $session, $results, string $locale): string
     {
         $lesson = $session->getRelation('lesson');
         $lessonNumber = $lesson instanceof Lesson ? $lesson->number : '?';
-        $header = "🏁 <b>Итоги экзамена</b>\nУрок {$lessonNumber}";
+        $header = __('exam.leaderboard.title', ['lesson' => $lessonNumber], $locale);
 
         if ($results->isEmpty()) {
-            return $header."\n\nНикто не ответил 😅";
+            return $header."\n\n".__('exam.leaderboard.nobody', [], $locale);
         }
 
         $rows = $results->map(function (ExamResult $r): string {

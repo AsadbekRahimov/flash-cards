@@ -9,6 +9,7 @@ use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Learning\Exceptions\ExamSessionException;
 use App\Domain\Learning\Services\ExamSessionService;
 use App\Domain\Learning\Services\LeaderboardBuilder;
+use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
 use App\Jobs\PostLeaderboardJob;
@@ -27,6 +28,7 @@ final class CloseExamHandler implements UpdateHandler
         private readonly ExamSessionService $exams,
         private readonly LeaderboardBuilder $leaderboard,
         private readonly ProductEventRecorder $events,
+        private readonly LocaleResolver $locales,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -67,10 +69,12 @@ final class CloseExamHandler implements UpdateHandler
             return;
         }
 
+        $locale = $this->locales->forGroup($group);
+
         /** @var User|null $teacher */
         $teacher = User::query()->where('telegram_user_id', $fromId)->first();
         if ($teacher === null) {
-            $this->telegram->sendMessage($chatId, 'Ваш Telegram-аккаунт не привязан к учителю.');
+            $this->telegram->sendMessage($chatId, __('errors.teacher_not_linked', [], $locale));
 
             return;
         }
@@ -81,7 +85,7 @@ final class CloseExamHandler implements UpdateHandler
             ->exists();
 
         if (! $teaches) {
-            $this->telegram->sendMessage($chatId, 'Только учитель этой группы может закрыть экзамен.');
+            $this->telegram->sendMessage($chatId, __('errors.exam.close_not_teacher', [], $locale));
 
             return;
         }
@@ -92,8 +96,8 @@ final class CloseExamHandler implements UpdateHandler
             $this->telegram->sendMessage(
                 $chatId,
                 $e->reason === ExamSessionException::REASON_NO_OPEN_EXAM
-                    ? 'Сейчас в группе нет открытого экзамена.'
-                    : 'Не удалось закрыть экзамен.',
+                    ? __('errors.exam.no_open_exam', [], $locale)
+                    : __('errors.exam.close_failed', [], $locale),
             );
 
             return;

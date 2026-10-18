@@ -7,6 +7,7 @@ namespace App\Jobs;
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Learning\Services\ReviewReminderLinkBuilder;
+use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Models\NotificationLog;
@@ -29,7 +30,10 @@ final class SendReviewReminderJob implements ShouldQueue
         TelegramClient $telegram,
         ReviewReminderLinkBuilder $links,
         ProductEventRecorder $events,
+        ?LocaleResolver $locales = null,
     ): void {
+        $locales ??= app(LocaleResolver::class);
+
         /** @var Student|null $student */
         $student = Student::query()
             ->with('group')
@@ -43,6 +47,7 @@ final class SendReviewReminderJob implements ShouldQueue
             $telegram,
             $links,
             $events,
+            $locales,
             $student,
         ): void {
             $recentlySent = NotificationLog::query()
@@ -56,12 +61,13 @@ final class SendReviewReminderJob implements ShouldQueue
             }
 
             $url = $links->buildTrainingUrl($student);
+            $locale = $locales->forStudent($student);
 
             try {
                 $telegram->sendWebAppButton(
                     chatId: $student->telegram_user_id,
-                    text: "Пора повторить {$this->dueCount} слов в LexiFlow.",
-                    buttonText: 'Открыть LexiFlow',
+                    text: trans_choice('reminders.review', $this->dueCount, [], $locale),
+                    buttonText: __('reminders.open_button', [], $locale),
                     url: $url,
                 );
             } catch (TelegramForbiddenException $e) {

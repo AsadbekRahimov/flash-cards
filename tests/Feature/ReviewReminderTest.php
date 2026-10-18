@@ -96,6 +96,7 @@ it('sends a reminder message and writes notification log', function (): void {
     $student = Student::factory()->create([
         'telegram_group_id' => $group->id,
         'telegram_user_id' => 777001,
+        'language_code' => 'ru',
     ]);
     $stage = Stage::factory()->create(['number' => 3]);
     $lesson = Lesson::factory()->for($stage)->create(['number' => 4]);
