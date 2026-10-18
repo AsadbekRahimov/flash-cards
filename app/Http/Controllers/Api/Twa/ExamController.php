@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Twa;
 
 use App\Domain\Learning\Exceptions\ExamParticipationException;
-use App\Domain\Learning\Services\ExamAnswerService;
-use App\Domain\Learning\Services\ExamQuestionPersonalizer;
-use App\Domain\Learning\Services\LeaderboardBuilder;
-use App\Domain\Learning\Services\LearningCache;
-use App\Models\ExamAnswer;
-use App\Models\ExamResult;
+use App\Domain\Learning\Services\ExamFlowService;
+use App\Http\Resources\ApiErrorResource;
+use App\Http\Resources\Twa\ExamAnswerResource;
+use App\Http\Resources\Twa\ExamJoinResource;
+use App\Http\Resources\Twa\ExamQuestionResource;
+use App\Http\Resources\Twa\ExamResultResource;
 use App\Models\ExamSession;
 use App\Models\Student;
 use App\Policies\ExamSessionPolicy;
@@ -21,10 +21,7 @@ final class ExamController
 {
     public function __construct(
         private readonly ExamSessionPolicy $policy,
-        private readonly LeaderboardBuilder $leaderboard,
-        private readonly LearningCache $cache,
-        private readonly ExamAnswerService $answers,
-        private readonly ExamQuestionPersonalizer $personalizer,
+        private readonly ExamFlowService $flow,
     ) {}
 
     public function join(Request $request, int $sessionId): JsonResponse
@@ -37,15 +34,7 @@ final class ExamController
             return $this->unauthorizedStudent();
         }
 
-        $config = $session->config;
-
-        return response()->json([
-            'session_id' => $session->id,
-            'ends_at' => $session->ends_at?->toIso8601String(),
-            'total_questions' => (int) ($config['total_questions'] ?? 0),
-            'seconds_per_question' => (int) ($config['seconds_per_question'] ?? 0),
-            'question' => $this->questionPayload($session, $student, 0),
-        ]);
+        return (new ExamJoinResource($this->flow->join($session, $student)))->response();
     }
 
     public function question(Request $request, int $sessionId): JsonResponse
@@ -58,14 +47,13 @@ final class ExamController
             return $this->unauthorizedStudent();
         }
 
-        $index = (int) $request->query('index', 0);
-        $payload = $this->questionPayload($session, $student, $index);
+        $served = $this->flow->serveQuestion($session, $student, (int) $request->query('index', 0));
 
-        if ($payload === null) {
-            return $this->error(404, 'question_not_found', 'Question index is out of range.');
+        if ($served === null) {
+            return ApiErrorResource::respond(404, 'question_not_found', 'Question index is out of range.');
         }
 
-        return response()->json($payload);
+        return (new ExamQuestionResource($served))->response();
     }
 
     public function answer(Request $request, int $sessionId): JsonResponse
@@ -86,37 +74,21 @@ final class ExamController
             'time_spent_ms' => ['required', 'integer', 'min:0', 'max:600000'],
         ]);
 
-        $index = (int) $validated['question_index'];
         $selectedIndex = $validated['selected_option_index'] ?? null;
 
         try {
-            // The correct option is resolved inside the service for THIS student's
-            // personal question/option order — never trusted from the request.
-            $answer = $this->answers->submit(
+            $feedback = $this->flow->answer(
                 $session,
                 $student,
-                $index,
+                (int) $validated['question_index'],
                 (int) $validated['word_id'],
                 $selectedIndex !== null ? (int) $selectedIndex : null,
             );
         } catch (ExamParticipationException $e) {
-            return $this->error($e->status, $e->errorCode, $e->getMessage());
+            return ApiErrorResource::respond($e->status, $e->errorCode, $e->getMessage());
         }
 
-        $totalScore = (int) ExamAnswer::query()
-            ->where('exam_session_id', $session->id)
-            ->where('student_id', $student->id)
-            ->sum('score');
-
-        return response()->json([
-            'is_correct' => $answer['is_correct'],
-            'correct_option' => $answer['correct_index'],
-            'score_earned' => $answer['score'],
-            'total_score' => $totalScore,
-            'has_next' => $index + 1 < $this->personalizer->count($session),
-            // The next question is fetched after feedback so its server timer starts at display time.
-            'next_question' => null,
-        ]);
+        return (new ExamAnswerResource($feedback))->response();
     }
 
     public function result(Request $request, int $sessionId): JsonResponse
@@ -130,59 +102,14 @@ final class ExamController
         }
 
         if (! $this->policy->canViewResult($student, $session)) {
-            return $this->error(409, 'exam_still_open', 'Results are available only after the exam is closed.');
+            return ApiErrorResource::respond(
+                409,
+                'exam_still_open',
+                'Results are available only after the exam is closed.',
+            );
         }
 
-        if (! ExamResult::query()->where('exam_session_id', $session->id)->exists()) {
-            $this->leaderboard->build($session);
-        }
-
-        $leaderboard = $this->cache->examLeaderboard($session);
-        $mine = null;
-        foreach ($leaderboard['rows'] as $row) {
-            if ($row['student_id'] === (int) $student->id) {
-                $mine = $row;
-                break;
-            }
-        }
-
-        return response()->json([
-            'student_score' => $mine['score'] ?? 0,
-            'rank' => $mine['rank'] ?? null,
-            'total_participants' => $leaderboard['total_participants'],
-            'leaderboard' => collect($leaderboard['rows'])
-                ->take(10)
-                ->map(fn (array $row): array => [
-                    'rank' => $row['rank'],
-                    'name' => $row['name'],
-                    'score' => $row['score'],
-                ])
-                ->values(),
-        ]);
-    }
-
-    /**
-     * Student-facing view of question $index in THIS student's sequence.
-     * Never exposes `correct_index` / `correct_translation`.
-     *
-     * @return array{question_index:int, word_id:int, word:string, options:list<string>, seconds_left:int}|null
-     */
-    private function questionPayload(ExamSession $session, Student $student, int $index): ?array
-    {
-        $question = $this->personalizer->questionAt($session, $student, $index);
-        if ($question === null) {
-            return null;
-        }
-
-        $attempt = $this->answers->serve($session, $student, $index);
-
-        return [
-            'question_index' => $index,
-            'word_id' => $question['word_id'],
-            'word' => $question['word'],
-            'options' => $question['options'],
-            'seconds_left' => $this->answers->secondsLeft($session, $attempt),
-        ];
+        return (new ExamResultResource($this->flow->result($session, $student)))->response();
     }
 
     /**
@@ -197,30 +124,25 @@ final class ExamController
         $session = ExamSession::query()->find($sessionId);
 
         if ($session === null) {
-            return [null, $this->error(404, 'session_not_found', 'Exam session not found.')];
+            return [null, ApiErrorResource::respond(404, 'session_not_found', 'Exam session not found.')];
         }
 
         if (! $this->policy->canAccess($student, $session)) {
-            return [null, $this->error(403, 'forbidden', 'You cannot access this exam session.')];
+            return [null, ApiErrorResource::respond(403, 'forbidden', 'You cannot access this exam session.')];
         }
 
         if ($requireOpen && (
             $session->status !== 'open'
             || ($session->ends_at !== null && ! $session->ends_at->isFuture())
         )) {
-            return [null, $this->error(410, 'session_closed', 'This exam session is closed.')];
+            return [null, ApiErrorResource::respond(410, 'session_closed', 'This exam session is closed.')];
         }
 
         return [$student, $session];
     }
 
-    private function error(int $status, string $code, string $message): JsonResponse
-    {
-        return response()->json(['error' => ['code' => $code, 'message' => $message]], $status);
-    }
-
     private function unauthorizedStudent(): JsonResponse
     {
-        return $this->error(401, 'student_not_found', 'Unauthorized');
+        return ApiErrorResource::respond(401, 'student_not_found', 'Unauthorized');
     }
 }
