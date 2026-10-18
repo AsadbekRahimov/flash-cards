@@ -4,6 +4,7 @@ import { useTrainingStore } from '../training'
 import { ApiClientError } from '@/api/client'
 import { api } from '@/api'
 import { setLocale } from '@/i18n'
+import type { Card } from '@/api/types'
 
 vi.mock('@/api', () => ({
   api: {
@@ -14,6 +15,65 @@ vi.mock('@/api', () => ({
     },
   },
 }))
+
+describe('training store — learn-ahead serve_token', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+  })
+
+  const card = (overrides: Partial<Card>): Card => ({
+    word_id: 7,
+    word: 'Resilient',
+    translation: 'Устойчивый',
+    example: null,
+    transcription: null,
+    card_kind: 'new',
+    serve_token: null,
+    ...overrides,
+  })
+
+  it('echoes the serve_token of the card being graded and switches to the re-served card', async () => {
+    vi.mocked(api.training.start).mockResolvedValue({
+      session_id: 1,
+      lesson: { stage: 1, lesson: 1, title: null },
+      total_words: 1,
+      card: card({ card_kind: 'new', serve_token: null }),
+      progress: { done: 0, total: 1 },
+    })
+    vi.mocked(api.training.review)
+      .mockResolvedValueOnce({
+        next_review_at: null,
+        new_interval_days: 0,
+        easiness_factor: 2.5,
+        card: card({ card_kind: 'learning', serve_token: 'ticket-1' }),
+        progress: { done: 0, total: 1 },
+      })
+      .mockResolvedValueOnce({
+        next_review_at: null,
+        new_interval_days: 1,
+        easiness_factor: 2.5,
+        card: null,
+        progress: { done: 1, total: 1 },
+      })
+
+    const store = useTrainingStore()
+    await store.start(1)
+    expect(store.card?.serve_token).toBeNull()
+
+    // Due card: no ticket to echo.
+    await store.submitReview(4)
+    expect(vi.mocked(api.training.review).mock.calls[0]?.slice(0, 3)).toEqual([1, 7, 4])
+    expect(vi.mocked(api.training.review).mock.calls[0]?.[4]).toBeNull()
+    expect(store.status).toBe('ready')
+    expect(store.card?.serve_token).toBe('ticket-1')
+
+    // Learn-ahead card: the ticket from *this* serve goes back to the server.
+    await store.submitReview(4)
+    expect(vi.mocked(api.training.review).mock.calls[1]?.[4]).toBe('ticket-1')
+    expect(store.status).toBe('finished')
+  })
+})
 
 describe('training store — localized errors', () => {
   beforeEach(() => {

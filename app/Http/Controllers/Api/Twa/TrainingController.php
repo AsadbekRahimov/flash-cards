@@ -68,6 +68,7 @@ final class TrainingController
             'word_id' => ['required', 'integer'],
             'quality' => ['required', 'integer', 'min:0', 'max:5'],
             'time_spent_ms' => ['required', 'integer', 'min:0', 'max:600000'],
+            'serve_token' => ['nullable', 'string', 'max:64'],
         ]);
 
         try {
@@ -77,6 +78,7 @@ final class TrainingController
                 (int) $validated['word_id'],
                 (int) $validated['quality'],
                 (int) $validated['time_spent_ms'],
+                isset($validated['serve_token']) ? (string) $validated['serve_token'] : null,
             );
         } catch (ReviewSubmissionException $e) {
             return ApiErrorResource::respond($e->status, $e->errorCode, $e->getMessage());

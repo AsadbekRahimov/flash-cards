@@ -64,9 +64,10 @@
 
 - `group` — `null`, если у студента нет группы.
 - `words_learned` — слова с хотя бы одним успешным повторением (`repetitions >= 1`).
-- `words_due_today` — карточки **только в состоянии `review`** с `next_review_at <= now`. Это то же правило,
-  что у напоминаний (docs/06 §6): `new`-строки создаются в момент показа карточки, а learning/relearning
-  планируются в минутах внутри сессии — «на сегодня» они не считаются.
+- `words_due_today` — то же правило, что у напоминаний (`DueRepetitionCriteria`, docs/06 §6): карточки в
+  `review` с `next_review_at <= now` плюс **брошенные** learning/relearning карточки, чей минутный шаг истёк
+  больше `LEARNING_ABANDONED_AFTER_HOURS` (12 ч) назад. Свежие шаги внутри сессии и `new`-строки
+  (карточка показана, не оценена) не считаются.
 - `current_streak_days` пока не реализован (серии — Фаза 1).
 
 ### A.3 Training mode
@@ -80,7 +81,7 @@
   "session_id": 123,
   "lesson": { "stage": 4, "lesson": 8, "title": "Resilience" },
   "total_words": 25,
-  "card": { "word_id": 1001, "word": "Resilient", "translation": "Устойчивый", "example": null, "transcription": null, "card_kind": "new" } | null,
+  "card": { "word_id": 1001, "word": "Resilient", "translation": "Устойчивый", "example": null, "transcription": null, "card_kind": "new", "serve_token": null } | null,
   "progress": { "done": 0, "total": 25 }
 }
 ```
@@ -102,7 +103,8 @@
     "translation": "Устойчивый",
     "example": "She is a resilient girl.",
     "transcription": "rɪˈzɪl.i.ənt",
-    "card_kind": "due"      // due | new | learning (минутные learning steps, см. docs/06 §4)
+    "card_kind": "due",     // due | new | learning (минутные learning steps, см. docs/06 §4)
+    "serve_token": null     // string для карточки, выданной досрочно (learn-ahead) — вернуть в POST /review
   },
   "progress": { "done": 7, "total": 25 }
 }
@@ -110,6 +112,8 @@
 
 При отсутствии карточек — `{ "card": null, "progress": { ... } }` и клиент показывает экран «готово».
 Пока в уроке есть карточки в learning steps, сервер отдаёт их досрочно (learn-ahead), а не `null`.
+Такая карточка приходит с одноразовым `serve_token` (docs/06 §4–5.2): клиент хранит его вместе с
+карточкой и отправляет в `POST /review`. Для due/new карточек `serve_token = null`.
 
 #### `POST /api/twa/training/sessions/{session_id}/review`
 Оценка карточки.
@@ -119,7 +123,8 @@
 {
   "word_id": 1001,
   "quality": 2,             // 0..5; TWA шлёт 2=Трудно (Again), 4=Средне (Good), 5=Легко (Easy); 3 = Hard-pass
-  "time_spent_ms": 4300
+  "time_spent_ms": 4300,
+  "serve_token": null       // optional, <= 64 символов: card.serve_token выданной карточки (обязателен для learn-ahead)
 }
 ```
 
@@ -135,7 +140,8 @@
 ```
 
 Ошибки: 409 `card_not_started` (карточка не выдавалась), 409 `card_not_due` (повторный submit:
-карточка ещё не due и не выдана досрочно пикером — docs/06 §5.2), 422 `wrong_lesson`, 410 `session_closed`.
+карточка ещё не due, а `serve_token` отсутствует, устарел или чужой — docs/06 §5.2; клиенту следует
+перезапросить `GET /next`), 422 `wrong_lesson`, 410 `session_closed`.
 
 ### A.4 Exam mode
 

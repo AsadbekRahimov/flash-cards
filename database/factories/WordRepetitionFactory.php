@@ -38,6 +38,7 @@ class WordRepetitionFactory extends Factory
             'learning_step' => 0,
             'lapses' => 0,
             'served_ahead_at' => null,
+            'served_ahead_token' => null,
             'meta' => [],
         ];
     }

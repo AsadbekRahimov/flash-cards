@@ -19,9 +19,11 @@ use Illuminate\Support\Facades\DB;
  *
  * Double-submit protection: a card may be graded only if it is due
  * (`next_review_at <= now`) or if CardPicker served it early (learn-ahead)
- * and that ticket (`served_ahead_at`) has not been consumed yet. Every
- * accepted review moves `next_review_at` into the future and clears the
- * ticket, so replaying the same request is rejected with 409 `card_not_due`.
+ * and the client presents that serve's one-time ticket (`serve_token`, the
+ * row's `served_ahead_token`). Every accepted review moves `next_review_at`
+ * into the future and clears the ticket, so replaying the same request —
+ * even after the engine re-served the same card with a new ticket in the
+ * same response — is rejected with 409 `card_not_due`.
  */
 final class ReviewSubmissionService
 {
@@ -30,12 +32,16 @@ final class ReviewSubmissionService
         private readonly LearningPolicy $policy,
     ) {}
 
+    /**
+     * @param  string|null  $serveToken  `card.serve_token` echoed by the client; ignored for due cards
+     */
     public function submit(
         TrainingSession $session,
         Student $student,
         int $wordId,
         int $quality,
         int $timeSpentMs,
+        ?string $serveToken = null,
         ?CarbonImmutable $now = null,
     ): WordRepetition {
         $now ??= CarbonImmutable::now();
@@ -49,6 +55,7 @@ final class ReviewSubmissionService
             $wordId,
             $quality,
             $timeSpentMs,
+            $serveToken,
             $now,
         ): WordRepetition {
             /** @var TrainingSession|null $lockedSession */
@@ -88,7 +95,7 @@ final class ReviewSubmissionService
                 );
             }
 
-            if (! $this->isAcceptable($repetition, $now)) {
+            if (! $this->isAcceptable($repetition, $serveToken, $now)) {
                 throw new ReviewSubmissionException(
                     409,
                     'card_not_due',
@@ -111,18 +118,27 @@ final class ReviewSubmissionService
         });
     }
 
-    private function isAcceptable(WordRepetition $repetition, CarbonImmutable $now): bool
+    private function isAcceptable(WordRepetition $repetition, ?string $serveToken, CarbonImmutable $now): bool
     {
         if (! $repetition->next_review_at->isAfter($now)) {
             return true;
         }
 
-        if ($repetition->served_ahead_at === null || ! $repetition->state->isIntraSession()) {
+        if (! $repetition->state->isIntraSession()) {
             return false;
         }
 
-        // Learn-ahead ticket is valid only inside the configured window, and only
-        // if it was issued after the previous answer (the engine clears it on review).
+        // Learn-ahead: the client must present the ticket of the serve it is
+        // answering. A missing, stale or foreign token means this is a replay
+        // (or an old client) — the engine clears the token on every answer.
+        if ($serveToken === null || $serveToken === '' || $repetition->served_ahead_token === null) {
+            return false;
+        }
+        if (! hash_equals($repetition->served_ahead_token, $serveToken)) {
+            return false;
+        }
+
+        // The ticket is valid only inside the configured window.
         return ! $repetition->next_review_at->isAfter($now->addMinutes($this->policy->learnAheadMinutes));
     }
 }

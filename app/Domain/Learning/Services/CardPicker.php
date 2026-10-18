@@ -24,8 +24,13 @@ use Illuminate\Support\Facades\DB;
  *      Insert initial WordRepetition row so subsequent `review` is idempotent.
  *   3. Otherwise, learn-ahead: the earliest (re)learning card whose step
  *      elapses within `policy->learnAheadMinutes`. It is served early and
- *      stamped with `served_ahead_at` so ReviewSubmissionService can accept
- *      the answer before `next_review_at` without opening a double-submit hole.
+ *      stamped with a one-time ticket (`served_ahead_at` + random
+ *      `served_ahead_token`). The token travels to the client as
+ *      `card.serve_token` and must come back in POST /review, so a replayed
+ *      answer (same body, stale token) is rejected even when the engine has
+ *      just re-served the same card in the same response. An outstanding
+ *      ticket is reused, not reissued: two tabs fetching /next see the same
+ *      token and only one of them can consume it.
  *   4. Otherwise, null (student finished the lesson for now).
  *
  * `kind` tells the client how to label the card:
@@ -142,18 +147,59 @@ final class CardPicker
             ->with('word')
             ->first();
 
-        if ($ahead === null || $ahead->word === null) {
+        $word = $ahead?->word;
+        if ($ahead === null || $word === null) {
             return null;
         }
 
-        $ahead->served_ahead_at = $now;
-        $ahead->save();
+        $this->issueTicket($ahead, $now);
 
         return [
             'repetition' => $ahead,
-            'word' => $ahead->word,
+            'word' => $word,
             'kind' => 'learning',
         ];
+    }
+
+    /**
+     * Stamp the learn-ahead ticket. If one is already outstanding (the card
+     * was served ahead and not answered yet) it is kept, so concurrent fetches
+     * share a single ticket; otherwise a fresh random token is issued with a
+     * conditional UPDATE, and on a lost race the winner's token is reloaded.
+     */
+    private function issueTicket(WordRepetition $rep, CarbonImmutable $now): void
+    {
+        if ($rep->served_ahead_token !== null) {
+            return;
+        }
+
+        $token = self::newToken();
+
+        $updated = WordRepetition::query()
+            ->whereKey($rep->id)
+            ->whereNull('served_ahead_token')
+            ->update([
+                'served_ahead_at' => $now,
+                'served_ahead_token' => $token,
+            ]);
+
+        if ($updated === 0) {
+            // Lost the race with another request: adopt its ticket (may be null
+            // again if an answer consumed it meanwhile — then this client's
+            // answer is rejected with 409 and it refetches /next).
+            $rep->refresh();
+
+            return;
+        }
+
+        $rep->served_ahead_at = $now;
+        $rep->served_ahead_token = $token;
+        $rep->syncOriginal();
+    }
+
+    public static function newToken(): string
+    {
+        return bin2hex(random_bytes(16));
     }
 
     /**

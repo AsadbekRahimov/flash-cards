@@ -13,7 +13,7 @@
 - `easiness_factor` (EF) — коэффициент лёгкости, от 1.30 до ~2.5+.
 - `lapses` — сколько раз выпущенная карточка была провалена.
 - `is_hard` — флаг «трудная» (см. §3.5).
-- `served_ahead_at` — служебная метка learn-ahead (см. §5.2).
+- `served_ahead_at`, `served_ahead_token` — служебный одноразовый «билет» learn-ahead (см. §5.2).
 
 Реализация: `app/Domain/Learning/Services/SpacedRepetitionEngine.php`, параметры —
 `config/learning.php` → `App\Domain\Learning\Support\LearningPolicy`. Схема —
@@ -53,9 +53,18 @@ new ──pass──▶ learning(step 1) ──pass──▶ review ──fail�
 - `relearning` — выпущенная карточка провалена; минутные шаги (`relearning_steps`), затем снова `review`.
 
 Шаги по умолчанию (`config/learning.php`): `learning_steps = 1,10` мин, `relearning_steps = 10` мин,
-`graduating_interval_days = 1`, `easy_interval_days = 4`, `learn_ahead_minutes = 20`.
+`graduating_interval_days = 1`, `easy_interval_days = 4`, `learn_ahead_minutes = 20`,
+`abandoned_after_hours = 12` (см. §6).
 Env: `LEARNING_STEPS`, `RELEARNING_STEPS`, `LEARNING_GRADUATING_INTERVAL_DAYS`,
-`LEARNING_EASY_INTERVAL_DAYS`, `LEARNING_LEARN_AHEAD_MINUTES`.
+`LEARNING_EASY_INTERVAL_DAYS`, `LEARNING_LEARN_AHEAD_MINUTES`, `LEARNING_ABANDONED_AFTER_HOURS`.
+
+**Валидация конфигурации (fail fast).** `LearningPolicy` при построении проверяет согласованность:
+шаги ≥ 1 мин; `learn_ahead_minutes` равен `0` (learn-ahead выключен) **или** ≥ максимального шага
+среди `learning_steps`/`relearning_steps` (иначе сессия молча обрывалась бы с висящими карточками);
+`abandoned_after_hours` ≥ 1 и дольше максимального шага. При нарушении бросается
+`InvalidArgumentException` с подсказкой, какую env-переменную править. `AppServiceProvider::boot()`
+резолвит политику сразу, поэтому ошибочный env валит `artisan config:cache` в entrypoint контейнера
+и health-check **на этапе деплоя**, а не первый запрос студента.
 
 ### 3.2 Карточка в `new` / `learning` (EF **не трогаем**)
 
@@ -130,10 +139,14 @@ review-карточку** (то есть после того, как слово 
    `next_review_at = now`) — под `lockForUpdate` в транзакции.
 3. **Learn-ahead**: если due и new нет — ближайшая `learning`/`relearning` карточка с
    `next_review_at <= now + learn_ahead_minutes`. Она выдаётся **досрочно**, и в строке
-   ставится `served_ahead_at = now`.
+   ставится билет: `served_ahead_at = now`, `served_ahead_token = random(32 hex)`. Токен уходит
+   клиенту как `card.serve_token`. Если билет уже выдан и не погашен (карточку досрочно получили
+   два «таба»), он **переиспользуется**, а не перевыпускается — погасить его сможет только один ответ.
+   Выдача — условный `UPDATE ... WHERE served_ahead_token IS NULL`, проигравший гонку берёт токен победителя.
 4. Иначе `null` — урок на сегодня закончен.
 
 `card_kind` в ответе API: `new` (state new) · `learning` (learning/relearning) · `due` (review).
+`card.serve_token` — `null` для due/new карточек и для learning-карточек, чей шаг уже истёк (они due).
 
 Таким образом сессия не завершается, пока в уроке есть карточки в минутных шагах
 (при `learn_ahead_minutes >= max(шаг)`). Если learn-ahead выключен (`0`), сессия завершится,
@@ -151,30 +164,54 @@ review-карточку** (то есть после того, как слово 
 ### 5.2 Защита от повторного submit и learn-ahead
 
 Оценка принимается, если выполняется одно из двух:
-- `next_review_at <= now` (карточка due — как и раньше), **или**
-- карточка в `learning`/`relearning`, `served_ahead_at != null` и
-  `next_review_at <= now + learn_ahead_minutes` (карточка выдана досрочно пикером).
+- `next_review_at <= now` (карточка due — как и раньше; `serve_token` в теле игнорируется), **или**
+- карточка в `learning`/`relearning`, в теле запроса есть `serve_token`, он **совпадает**
+  (`hash_equals`) с `served_ahead_token` строки и `next_review_at <= now + learn_ahead_minutes`
+  (карточка выдана досрочно пикером, и клиент отвечает именно на эту выдачу).
 
 Любой принятый ответ переносит `next_review_at` в будущее (минимум на 1 минуту) и
-**обнуляет `served_ahead_at`**. Поэтому повтор того же запроса получает 409 `card_not_due`,
-пока пикер не выдаст карточку снова. Гонка «два клиента получили одну и ту же learn-ahead
-карточку» разрешается блокировкой строки: первый submit принимается, второй — 409.
+**обнуляет билет** (`served_ahead_at`, `served_ahead_token`). Поэтому повтор того же запроса
+(тот же `word_id`/`quality`/`serve_token` — например, ретрай сети или второй таб) получает
+409 `card_not_due` **даже если движок в том же ответе снова выдал ту же карточку досрочно**:
+новая выдача — новый токен, а в повторе — старый или пустой. Без токена нельзя было отличить
+легитимный ответ на повторную выдачу от реплея (урок из 1 слова: `/next` → review → в ответе та же
+карточка → повтор запроса принимался и выпускал карточку без показа).
+
+Гонка «два клиента получили одну и ту же learn-ahead карточку» разрешается блокировкой строки:
+первый submit принимается, второй — 409. Старый клиент, не присылающий `serve_token`, продолжает
+работать с due/new карточками и получает 409 на learn-ahead карточках (функция впервые выезжает
+вместе с токеном, поэтому таких клиентов в проде нет). Рекомендуемая реакция TWA на
+409 `card_not_due` — перезапросить `GET /next`, а не показывать экран ошибки.
 
 Лимит `twa.training.max_cards_per_session` считает **оценки** (`training_reviews`), а не слова;
 с шагами 1/10 мин урок из 25 слов стоит ~75 оценок плюс провалы, поэтому значение по умолчанию
 поднято до 200.
 
-## 6. Персональные напоминания
+## 6. Персональные напоминания и `words_due_today`
 
-`ReviewReminderService` и `ReviewReminderLinkBuilder` считают due **только `state = review`**:
-минутные learning-карточки принадлежат сессии (идущей или брошенной) и не должны порождать
-«Пора повторить N слов» через 5 минут после тренировки. Порог по умолчанию — 5 due-слов,
-не чаще раза в 24 часа.
+Единое определение «карточка, за которой студенту надо вернуться» —
+`App\Domain\Learning\Support\DueRepetitionCriteria::apply()`. Его используют **три** потребителя,
+и только его: `ReviewReminderService` (порог и число в сообщении), `ReviewReminderLinkBuilder`
+(урок для deep-link) и `StudentStatsService` → `words_due_today` в `GET /api/twa/me`, чтобы число
+на экране совпадало с текстом напоминания. Due считается карточка, если:
+
+- `state = review` и `next_review_at <= now` — выпущенная карточка, срок настал; **или**
+- `state in (learning, relearning)` и `next_review_at <= now - abandoned_after_hours` (по умолчанию
+  12 ч, env `LEARNING_ABANDONED_AFTER_HOURS`) — **брошенная** карточка: минутный шаг истёк давно,
+  студент ушёл из сессии. Без этого правила провал в `relearning` посреди сессии (и legacy-строки
+  после backfill, см. ниже) навсегда выпадал бы из напоминаний.
+
+Не считаются: свежие минутные шаги (минуты–часы после тренировки — сессия, возможно, ещё идёт) и
+строки в `new` (карточка показана, но ни разу не оценена — «повторять» нечего). Порог по умолчанию —
+5 due-слов, не чаще раза в 24 часа.
 
 Расписание: `$schedule->command('repetitions:notify')->dailyAt('18:00');`
 
-Тот же критерий (`state = review AND next_review_at <= now`) использует `words_due_today` в `GET /api/twa/me`
-(`StudentStatsService`), чтобы число на экране совпадало с текстом напоминания.
+**Legacy backfill.** Миграция `add_learning_state_to_word_repetitions` переводит строки
+`repetitions = 0 AND last_quality IS NOT NULL` (проваленные в старом SM-2, у них `next_review_at`
+был «завтра») в `relearning`. По правилу выше они снова попадают в напоминания через
+`abandoned_after_hours` после своего `next_review_at` — при ежедневной рассылке в 18:00 это тот же
+день, что и раньше, либо на день позже; слова не теряются.
 
 ## 7. Тестирование
 
@@ -182,11 +219,20 @@ review-карточку** (то есть после того, как слово 
   провал запускает шаги; выпуск после последнего шага; Easy-выпуск; lapse → relearning → review;
   EF не меняется в learning/relearning; жизненный цикл `is_hard`; legacy-строки после backfill;
   парсинг `LearningPolicy`.
+- `tests/Unit/SpacedRepetitionEngineTest.php` (продолжение) — валидация `LearningPolicy`:
+  `learn_ahead_minutes < max(step)` → исключение (0 и ≥ max — ок), `abandoned_after_hours`,
+  fail-fast в `AppServiceProvider::boot()`.
 - `tests/Feature/TwaTrainingTest.php` — «Трудно» возвращает карточку в той же сессии (learn-ahead);
-  сессия не завершается, пока есть learning-карточки; повторный submit → 409; гонка двух клиентов;
-  learn-ahead выключен; порядок due → new; миграция `down()`/`up()` с backfill.
-- `tests/Feature/ReviewReminderTest.php` — learning-карточки не считаются due для напоминаний.
-- TWA `FlashCard.spec.ts` — кнопки шлют 2 / 4 / 5, метка «Закрепление» для `learning`.
+  сессия не завершается, пока есть learning-карточки; повтор запроса, когда та же карточка
+  переиздана в ответе (урок из 1 слова) → 409; повтор без повторной выдачи → 409; два таба делят
+  один билет, гасит его один; ответ без/с чужим/просроченным токеном → 409; due-карточка принимается
+  и без токена; learn-ahead выключен; порядок due → new; миграция `down()`/`up()` с backfill.
+- `tests/Feature/ReviewReminderTest.php` — свежие learning-карточки не считаются due; брошенные
+  (`> abandoned_after_hours`) считаются и в напоминании, и в `words_due_today`, и в deep-link;
+  legacy-строки после backfill не теряются.
+- `tests/Feature/TwaContractTest.php` — `card.serve_token` в контракте; `words_due_today`.
+- TWA `FlashCard.spec.ts` — кнопки шлют 2 / 4 / 5, метка «Закрепление» для `learning`;
+  `stores/__tests__/training.spec.ts` — `serve_token` карточки уходит в `POST /review`.
 
 ## 8. Аналитика на основе SM-2
 

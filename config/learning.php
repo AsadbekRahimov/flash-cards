@@ -48,4 +48,12 @@ return [
      * completion of all steps.
      */
     'learn_ahead_minutes' => (int) env('LEARNING_LEARN_AHEAD_MINUTES', 20),
+
+    /**
+     * After how many hours an unanswered (re)learning card whose minute step
+     * has elapsed is considered abandoned (the student left the session). Such
+     * cards count as due for review reminders and `words_due_today`, together
+     * with graduated cards (docs/06 §6). Fresh in-session cards are not.
+     */
+    'abandoned_after_hours' => (int) env('LEARNING_ABANDONED_AFTER_HOURS', 12),
 ];

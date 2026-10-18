@@ -17,7 +17,7 @@ final class TrainingNextResource extends TwaResource
 {
     /**
      * @return array{
-     *   card: array{word_id: int, word: string, translation: string, example: string|null, transcription: string|null, card_kind: string}|null,
+     *   card: array{word_id: int, word: string, translation: string, example: string|null, transcription: string|null, card_kind: string, serve_token: string|null}|null,
      *   progress: array{done: int, total: int}
      * }
      */
@@ -33,6 +33,8 @@ final class TrainingNextResource extends TwaResource
                 'example' => $word->example,
                 'transcription' => $word->transcription,
                 'card_kind' => (string) $this->resource->kind,
+                // Learn-ahead ticket: must be echoed as `serve_token` in POST /review (docs/06 §5.2).
+                'serve_token' => $this->resource->serveToken,
             ] : null,
             'progress' => [
                 'done' => $this->resource->progress['done'],

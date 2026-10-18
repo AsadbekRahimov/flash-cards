@@ -15,10 +15,13 @@ final readonly class TrainingStep
     /**
      * @param  'due'|'new'|'learning'|null  $kind  null exactly when $word is null
      * @param  array{done:int, total:int}  $progress
+     * @param  string|null  $serveToken  learn-ahead ticket the client must echo in POST /review
+     *                                   (docs/06 §5.2); null for due/new cards and when $word is null
      */
     public function __construct(
         public ?Word $word,
         public ?string $kind,
         public array $progress,
+        public ?string $serveToken = null,
     ) {}
 }
