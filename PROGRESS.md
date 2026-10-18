@@ -11,7 +11,7 @@
 
 | # | Задача | Исполнитель | Статус |
 |---|--------|-------------|--------|
-| 1.0 | Проект: learner-first модель, курсы, entitlement, план миграции и нарезка на задачи (`docs/12_PHASE1_DESIGN.md`) | architect | ⏳ |
+| 1.0 | Проект: learner-first модель, курсы, entitlement, план миграции и нарезка на задачи (`docs/12_PHASE1_DESIGN.md`) | architect | ✅ |
 | 1.1 | Схема `learners`/`group_members`, миграция `students`, JWT по learner | architect → coder | ⏳ |
 | 1.2 | Онбординг в боте `/start`: язык, цель, уровень, часовой пояс, время напоминаний | coder | ⏳ |
 | 1.3 | Каталог курсов: `courses`, `word_translations` (uz/ru), статусы публикации, предгенерация аудио | coder | ⏳ |
