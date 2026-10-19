@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
+import { errorMessage } from '@/i18n/errors'
 import type {
   ExamAnswerResponse,
   ExamLeaderboardEntry,
@@ -11,7 +12,7 @@ export type ExamStatus =
   | 'idle'
   | 'joining'
   | 'loading'       // fetching next question
-  | 'answering'     // waiting for student to click an option
+  | 'answering'     // waiting for learner to click an option
   | 'submitting'    // POST /answer in flight
   | 'feedback'      // showing correct/incorrect highlight
   | 'finished'
@@ -164,7 +165,7 @@ export const useExamStore = defineStore('exam', {
       if (this.sessionId === null) return
       try {
         const res = await api.exam.result(this.sessionId)
-        this.finalScore = res.student_score
+        this.finalScore = res.learner_score
         this.finalRank = res.rank
         this.totalParticipants = res.total_participants
         this.leaderboard = res.leaderboard
@@ -205,28 +206,8 @@ export const useExamStore = defineStore('exam', {
     },
 
     handleApiError(err: unknown): void {
-      if (err instanceof ApiClientError) {
-        if (err.kind === 'gone') {
-          this.status = 'closed'
-          this.errorMessage = 'Экзамен был завершён учителем.'
-          return
-        }
-        if (err.kind === 'network') {
-          this.status = 'error'
-          this.errorMessage = 'Нет связи с сервером. Попробуйте ещё раз.'
-          return
-        }
-        if (err.kind === 'forbidden') {
-          this.status = 'error'
-          this.errorMessage = 'У вас нет доступа к этому экзамену.'
-          return
-        }
-        this.status = 'error'
-        this.errorMessage = err.message || 'Что-то пошло не так.'
-        return
-      }
-      this.status = 'error'
-      this.errorMessage = 'Непредвиденная ошибка.'
+      this.status = err instanceof ApiClientError && err.kind === 'gone' ? 'closed' : 'error'
+      this.errorMessage = errorMessage(err, 'exam')
     },
   },
 })

@@ -33,6 +33,7 @@ src/
 ├── App.vue             # корень
 ├── style.css           # Tailwind + Telegram CSS variables
 ├── router/index.ts     # /, /training/:id, /finished
+├── i18n/               # ru/uz словари, t()/tn(), локализация ошибок по error.code
 ├── composables/
 │   ├── useTelegram.ts  # обёртка над SDK: initData, close, haptic, BackButton
 │   ├── useTts.ts       # Web Speech API + fallback на /api/twa/tts

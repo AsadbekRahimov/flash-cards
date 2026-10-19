@@ -19,11 +19,36 @@ return new class extends Migration
              WHERE status = 'open'",
         );
 
+        // Group sessions only: personal sessions have NULL group, and NULLs never conflict.
         DB::statement(
             "CREATE UNIQUE INDEX training_sessions_one_open_per_group_lesson_unique
              ON training_sessions (telegram_group_id, lesson_id)
              WHERE status = 'open'",
         );
+
+        // One open personal session per learner and scope (docs/12 §1.4).
+        DB::statement(
+            "CREATE UNIQUE INDEX training_sessions_one_open_daily_per_learner
+             ON training_sessions (learner_id)
+             WHERE status = 'open' AND mode = 'daily_review'",
+        );
+
+        DB::statement(
+            "CREATE UNIQUE INDEX training_sessions_one_open_lesson_per_learner
+             ON training_sessions (learner_id, lesson_id)
+             WHERE status = 'open' AND mode = 'lesson'",
+        );
+
+        // PostgreSQL-only; the shape invariant will be duplicated in the personal-session service (task 1.3a) for other drivers.
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement(
+                "ALTER TABLE training_sessions
+                 ADD CONSTRAINT training_sessions_mode_shape_check CHECK (
+                     (mode = 'group_lesson' AND telegram_group_id IS NOT NULL AND lesson_id IS NOT NULL)
+                     OR (mode <> 'group_lesson' AND learner_id IS NOT NULL)
+                 )",
+            );
+        }
     }
 
     public function down(): void
@@ -32,6 +57,12 @@ return new class extends Migration
             return;
         }
 
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE training_sessions DROP CONSTRAINT IF EXISTS training_sessions_mode_shape_check');
+        }
+
+        DB::statement('DROP INDEX IF EXISTS training_sessions_one_open_lesson_per_learner');
+        DB::statement('DROP INDEX IF EXISTS training_sessions_one_open_daily_per_learner');
         DB::statement('DROP INDEX IF EXISTS training_sessions_one_open_per_group_lesson_unique');
         DB::statement('DROP INDEX IF EXISTS exam_sessions_one_open_per_group_unique');
     }

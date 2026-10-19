@@ -18,7 +18,7 @@ class TrainingReview extends Model
 
     protected $fillable = [
         'training_session_id',
-        'student_id',
+        'learner_id',
         'word_id',
         'quality',
         'time_spent_ms',
@@ -41,10 +41,10 @@ class TrainingReview extends Model
         return $this->belongsTo(TrainingSession::class, 'training_session_id');
     }
 
-    /** @return BelongsTo<Student, $this> */
-    public function student(): BelongsTo
+    /** @return BelongsTo<Learner, $this> */
+    public function learner(): BelongsTo
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(Learner::class);
     }
 
     /** @return BelongsTo<Word, $this> */

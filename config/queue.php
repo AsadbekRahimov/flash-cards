@@ -70,7 +70,8 @@ return [
             'driver' => 'redis',
             'connection' => env('REDIS_QUEUE_CONNECTION', 'queue'),
             'queue' => env('REDIS_QUEUE', 'default'),
-            'retry_after' => (int) env('REDIS_QUEUE_RETRY_AFTER', 90),
+            // Above the worker's --timeout (120 in docker-compose.prod.yml / supervisor): see docs/DEVOPS_GUIDE.md.
+            'retry_after' => (int) env('REDIS_QUEUE_RETRY_AFTER', 180),
             'block_for' => (int) env('REDIS_QUEUE_BLOCK_FOR', 5),
             'after_commit' => false,
         ],

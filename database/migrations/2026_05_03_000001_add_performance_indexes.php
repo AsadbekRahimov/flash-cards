@@ -11,8 +11,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('word_repetitions', function (Blueprint $table): void {
-            $table->index(['student_id', 'is_hard', 'next_review_at'], 'word_repetitions_student_hard_due_idx');
-            $table->index(['next_review_at', 'student_id'], 'word_repetitions_due_students_idx');
+            $table->index(['learner_id', 'is_hard', 'next_review_at'], 'word_repetitions_learner_hard_due_idx');
+            $table->index(['next_review_at', 'learner_id'], 'word_repetitions_due_learners_idx');
         });
 
         Schema::table('training_sessions', function (Blueprint $table): void {
@@ -21,8 +21,8 @@ return new class extends Migration
         });
 
         Schema::table('training_reviews', function (Blueprint $table): void {
-            $table->index(['created_at', 'student_id'], 'training_reviews_created_student_idx');
-            $table->index(['training_session_id', 'student_id'], 'training_reviews_session_student_idx');
+            $table->index(['created_at', 'learner_id'], 'training_reviews_created_learner_idx');
+            $table->index(['training_session_id', 'learner_id'], 'training_reviews_session_learner_idx');
         });
 
         Schema::table('exam_sessions', function (Blueprint $table): void {
@@ -31,12 +31,12 @@ return new class extends Migration
         });
 
         Schema::table('exam_answers', function (Blueprint $table): void {
-            $table->unique(['exam_session_id', 'student_id', 'word_id'], 'exam_answers_session_student_word_unique');
-            $table->index(['answered_at', 'student_id'], 'exam_answers_answered_student_idx');
+            $table->unique(['exam_session_id', 'learner_id', 'word_id'], 'exam_answers_session_learner_word_unique');
+            $table->index(['answered_at', 'learner_id'], 'exam_answers_answered_learner_idx');
         });
 
         Schema::table('exam_results', function (Blueprint $table): void {
-            $table->unique(['exam_session_id', 'student_id'], 'exam_results_session_student_unique');
+            $table->unique(['exam_session_id', 'learner_id'], 'exam_results_session_learner_unique');
         });
 
         Schema::table('notifications_log', function (Blueprint $table): void {
@@ -51,12 +51,12 @@ return new class extends Migration
         });
 
         Schema::table('exam_results', function (Blueprint $table): void {
-            $table->dropUnique('exam_results_session_student_unique');
+            $table->dropUnique('exam_results_session_learner_unique');
         });
 
         Schema::table('exam_answers', function (Blueprint $table): void {
-            $table->dropIndex('exam_answers_answered_student_idx');
-            $table->dropUnique('exam_answers_session_student_word_unique');
+            $table->dropIndex('exam_answers_answered_learner_idx');
+            $table->dropUnique('exam_answers_session_learner_word_unique');
         });
 
         Schema::table('exam_sessions', function (Blueprint $table): void {
@@ -65,8 +65,8 @@ return new class extends Migration
         });
 
         Schema::table('training_reviews', function (Blueprint $table): void {
-            $table->dropIndex('training_reviews_session_student_idx');
-            $table->dropIndex('training_reviews_created_student_idx');
+            $table->dropIndex('training_reviews_session_learner_idx');
+            $table->dropIndex('training_reviews_created_learner_idx');
         });
 
         Schema::table('training_sessions', function (Blueprint $table): void {
@@ -75,8 +75,8 @@ return new class extends Migration
         });
 
         Schema::table('word_repetitions', function (Blueprint $table): void {
-            $table->dropIndex('word_repetitions_due_students_idx');
-            $table->dropIndex('word_repetitions_student_hard_due_idx');
+            $table->dropIndex('word_repetitions_due_learners_idx');
+            $table->dropIndex('word_repetitions_learner_hard_due_idx');
         });
     }
 };

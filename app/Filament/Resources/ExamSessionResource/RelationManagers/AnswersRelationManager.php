@@ -20,10 +20,10 @@ class AnswersRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('student.first_name')
-                    ->label('Student')
+                Tables\Columns\TextColumn::make('learner.first_name')
+                    ->label('Learner')
                     ->formatStateUsing(fn (ExamAnswer $record): string => trim(
-                        ($record->student->first_name ?? '—').' '.($record->student->last_name ?? ''),
+                        ($record->learner->first_name ?? '—').' '.($record->learner->last_name ?? ''),
                     ))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('word.word')

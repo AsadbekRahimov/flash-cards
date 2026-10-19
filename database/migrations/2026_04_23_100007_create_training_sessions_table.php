@@ -12,13 +12,26 @@ return new class extends Migration
     {
         Schema::create('training_sessions', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('telegram_group_id')->constrained('telegram_groups')->cascadeOnDelete();
-            $table->foreignId('lesson_id')->constrained('lessons')->restrictOnDelete();
-            $table->foreignId('started_by_user_id')->constrained('users')->restrictOnDelete();
+            // Personal sessions (mode <> group_lesson) have no group, teacher or (for daily_review) lesson.
+            $table->foreignId('telegram_group_id')->nullable()->constrained('telegram_groups')->cascadeOnDelete();
+            $table->foreignId('lesson_id')->nullable()->constrained('lessons')->restrictOnDelete();
+            $table->foreignId('started_by_user_id')->nullable()->constrained('users')->restrictOnDelete();
+            $table->foreignId('learner_id')->nullable()->constrained('learners')->cascadeOnDelete();
+            $table->string('mode', 16)->default('group_lesson');
+            $table->string('source', 16)->default('command');
+            $table->foreignId('course_id')->nullable()->constrained('courses')->nullOnDelete();
             $table->enum('status', ['open', 'closed'])->default('open')->index();
             $table->timestamp('started_at');
             $table->timestamp('ended_at')->nullable();
+            $table->timestamp('expires_at')->nullable();
+            // Why the session was closed: `finished` (learner), `expired` (scheduler); NULL while open.
+            $table->string('done_reason', 16)->nullable();
             $table->timestamps();
+
+            $table->index(['learner_id', 'status', 'started_at']);
+            $table->index(['status', 'expires_at']);
+            // FK columns are not indexed automatically on PostgreSQL (needed for ON DELETE SET NULL scans).
+            $table->index('course_id');
         });
     }
 

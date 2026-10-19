@@ -3,6 +3,8 @@ import { createPinia } from 'pinia'
 import WebApp from '@twa-dev/sdk'
 import App from './App.vue'
 import router from './router'
+import { initLocale } from './i18n'
+import { useTelegram } from './composables/useTelegram'
 import './style.css'
 
 // Initialize Telegram Web App. If opened outside Telegram these are no-ops
@@ -35,6 +37,9 @@ function applyTelegramTheme(): void {
     if (value) root.style.setProperty(name, value)
   }
 }
+
+// Interface language follows Telegram's language_code (uz* -> uz, otherwise ru).
+initLocale(useTelegram().languageCode())
 
 const app = createApp(App)
 app.use(createPinia())

@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import type { Card, Quality } from '@/api/types'
 import { useTts } from '@/composables/useTts'
 import { useTelegram } from '@/composables/useTelegram'
+import { useI18n } from '@/i18n'
 
 const props = defineProps<{
   card: Card
@@ -17,12 +18,22 @@ const emit = defineEmits<{
 
 const { speak } = useTts()
 const { haptic, selectionHaptic } = useTelegram()
+const { t } = useI18n()
 
-const kindLabel = computed(() => (props.card.card_kind === 'new' ? 'Новое слово' : 'Повторение'))
+const kindLabel = computed(() => {
+  switch (props.card.card_kind) {
+    case 'new':
+      return t('card.kind.new')
+    case 'learning':
+      return t('card.kind.learning')
+    default:
+      return t('card.kind.due')
+  }
+})
 
 function onSpeak(): void {
   selectionHaptic()
-  void speak(props.card.word)
+  void speak(props.card.word, 'en-US', props.card.audio_url)
 }
 
 function onReveal(): void {
@@ -44,7 +55,7 @@ function onGrade(q: Quality): void {
       <button
         type="button"
         class="text-tg-link text-xl"
-        aria-label="Произнести"
+        :aria-label="t('card.speak')"
         @click="onSpeak"
       >
         🔊
@@ -66,19 +77,26 @@ function onGrade(q: Quality): void {
         :disabled="disabled"
         @click="onReveal"
       >
-        Показать перевод
+        {{ t('card.reveal') }}
       </button>
     </div>
 
     <div v-else class="flex flex-col gap-4 mt-2">
       <div class="text-center">
         <p class="text-2xl font-semibold" data-testid="translation">{{ card.translation }}</p>
+        <p
+          v-if="card.translation_fallback"
+          class="text-tg-hint text-xs mt-1"
+          data-testid="translation-fallback"
+        >
+          {{ t('card.translation_fallback') }}
+        </p>
         <p v-if="card.example" class="text-tg-hint italic mt-2" data-testid="example">
           {{ card.example }}
         </p>
       </div>
 
-      <div class="grid grid-cols-3 gap-2" role="group" aria-label="Оценка">
+      <div class="grid grid-cols-3 gap-2" role="group" :aria-label="t('card.grade_group')">
         <button
           type="button"
           class="btn btn-secondary flex-col py-4"
@@ -87,17 +105,17 @@ function onGrade(q: Quality): void {
           @click="onGrade(2)"
         >
           <span class="text-2xl">😰</span>
-          <span class="text-xs mt-1">Трудно</span>
+          <span class="text-xs mt-1">{{ t('card.grade.hard') }}</span>
         </button>
         <button
           type="button"
           class="btn btn-secondary flex-col py-4"
           data-testid="grade-medium"
           :disabled="disabled"
-          @click="onGrade(3)"
+          @click="onGrade(4)"
         >
           <span class="text-2xl">🙂</span>
-          <span class="text-xs mt-1">Средне</span>
+          <span class="text-xs mt-1">{{ t('card.grade.medium') }}</span>
         </button>
         <button
           type="button"
@@ -107,7 +125,7 @@ function onGrade(q: Quality): void {
           @click="onGrade(5)"
         >
           <span class="text-2xl">😎</span>
-          <span class="text-xs mt-1">Легко</span>
+          <span class="text-xs mt-1">{{ t('card.grade.easy') }}</span>
         </button>
       </div>
     </div>

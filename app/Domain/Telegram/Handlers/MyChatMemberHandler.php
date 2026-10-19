@@ -4,11 +4,19 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Handlers;
 
+use App\Domain\Analytics\Enums\ProductEventName;
+use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Domain\Telegram\Support\DmLearnerResolver;
 use App\Models\TelegramGroup;
 
 final class MyChatMemberHandler implements UpdateHandler
 {
+    public function __construct(
+        private readonly ProductEventRecorder $events,
+        private readonly DmLearnerResolver $dmLearners,
+    ) {}
+
     /** @param array<string, mixed> $update */
     public function matches(array $update): bool
     {
@@ -32,26 +40,53 @@ final class MyChatMemberHandler implements UpdateHandler
         $chatId = isset($chat['id']) ? (int) $chat['id'] : 0;
         $chatType = (string) ($chat['type'] ?? '');
 
+        $newStatus = (string) ($event['new_chat_member']['status'] ?? '');
+
+        // The user blocked / unblocked the bot: in a private chat `chat.id` is the user's id.
+        // No learner is created — this is not the person writing to the bot (docs/12 §7.5).
+        if ($chatType === 'private') {
+            match ($newStatus) {
+                'kicked' => $this->dmLearners->markBlocked($chatId),
+                'member' => $this->dmLearners->markReachable($chatId),
+                default => null,
+            };
+
+            return;
+        }
+
         if ($chatId === 0 || ! in_array($chatType, ['group', 'supergroup'], true)) {
             return;
         }
 
-        $newStatus = (string) ($event['new_chat_member']['status'] ?? '');
-
         if (in_array($newStatus, ['left', 'kicked'], true)) {
-            TelegramGroup::where('chat_id', $chatId)->update(['status' => 'disabled']);
+            // Through Eloquent (not a query-builder update): TelegramGroupObserver drops the
+            // members' cached entitlement, so a sponsored Pro ends at once (docs/12 §5.2).
+            TelegramGroup::query()->where('chat_id', $chatId)->first()?->update(['status' => 'disabled']);
 
             return;
         }
 
         $group = TelegramGroup::firstOrNew(['chat_id' => $chatId]);
 
+        // New group, or the bot re-joined after leaving / being kicked.
+        $oldStatus = (string) ($event['old_chat_member']['status'] ?? '');
+        $botAdded = ! $group->exists || in_array($oldStatus, ['left', 'kicked'], true);
+
         if (! $group->exists) {
             $group->status = 'pending';
         }
 
         $group->title = (string) ($chat['title'] ?? 'Untitled group');
-        $group->meta = ['type' => $chatType];
+        // Merge: admin-managed keys such as `locale` must survive a re-add.
+        $group->meta = array_merge($group->meta ?? [], ['type' => $chatType]);
         $group->save();
+
+        if ($botAdded) {
+            $this->events->record(
+                ProductEventName::GroupBotAdded,
+                ['chat_type' => $chatType, 'readded' => ! $group->wasRecentlyCreated],
+                group: $group,
+            );
+        }
     }
 }

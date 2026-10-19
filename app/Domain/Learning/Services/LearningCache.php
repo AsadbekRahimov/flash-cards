@@ -16,6 +16,10 @@ final class LearningCache
 
     private const EXAM_RESULT_TTL = 3600;
 
+    /**
+     * Active words of the lesson (`is_active = false` replaces deletion and is not
+     * trainable). Call {@see forgetLesson()} after toggling `is_active` or importing.
+     */
     public function lessonWordCount(int $lessonId): int
     {
         return (int) Cache::remember(
@@ -23,6 +27,7 @@ final class LearningCache
             self::LESSON_WORD_COUNT_TTL,
             fn (): int => (int) DB::table('words')
                 ->where('lesson_id', $lessonId)
+                ->where('is_active', true)
                 ->count(),
         );
     }
@@ -30,28 +35,28 @@ final class LearningCache
     /**
      * @return array{
      *   total_participants:int,
-     *   rows:list<array{student_id:int|null, rank:int, name:string, score:int}>
+     *   rows:list<array{learner_id:int|null, rank:int, name:string, score:int}>
      * }
      */
     public function examLeaderboard(ExamSession $session): array
     {
-        /** @var array{total_participants:int, rows:list<array{student_id:int|null, rank:int, name:string, score:int}>} $leaderboard */
+        /** @var array{total_participants:int, rows:list<array{learner_id:int|null, rank:int, name:string, score:int}>} $leaderboard */
         $leaderboard = Cache::remember(
             "exam:{$session->id}:leaderboard",
             self::EXAM_RESULT_TTL,
             function () use ($session): array {
                 $rows = ExamResult::query()
-                    ->with('student')
+                    ->with('learner')
                     ->where('exam_session_id', $session->id)
                     ->orderBy('rank')
                     ->get()
                     ->map(function (ExamResult $result): array {
-                        $student = $result->student;
+                        $learner = $result->learner;
 
                         return [
-                            'student_id' => $result->student_id === null ? null : (int) $result->student_id,
+                            'learner_id' => $result->learner_id === null ? null : (int) $result->learner_id,
                             'rank' => (int) $result->rank,
-                            'name' => $student === null ? '—' : $student->first_name,
+                            'name' => $learner === null ? '—' : ($learner->first_name ?? '—'),
                             'score' => (int) $result->total_score,
                         ];
                     })

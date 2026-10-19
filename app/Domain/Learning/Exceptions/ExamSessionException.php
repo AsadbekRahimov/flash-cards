@@ -18,6 +18,8 @@ final class ExamSessionException extends DomainException
 
     public const REASON_NOT_ENOUGH_WORDS = 'not_enough_words';
 
+    public const REASON_NOT_ENOUGH_DISTRACTORS = 'not_enough_distractors';
+
     public const REASON_ALREADY_OPEN = 'already_open';
 
     public const REASON_NO_OPEN_EXAM = 'no_open_exam';
@@ -57,6 +59,14 @@ final class ExamSessionException extends DomainException
         return new self(
             self::REASON_NOT_ENOUGH_WORDS,
             "Lesson has only {$have} words, but exam needs at least {$need}.",
+        );
+    }
+
+    public static function notEnoughDistractors(string $word): self
+    {
+        return new self(
+            self::REASON_NOT_ENOUGH_DISTRACTORS,
+            "No real distractor could be found for the word \"{$word}\"; add more vocabulary first.",
         );
     }
 

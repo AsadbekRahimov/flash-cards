@@ -10,6 +10,10 @@ This guide covers everything a teacher needs to run training sessions and exams 
 2. You must be linked to at least one **active** group in the admin panel.
 3. The LexiFlow bot must be a member of that Telegram group.
 
+> **Content is managed by platform administrators.** In this phase a teacher cannot import lessons, edit
+> courses or words, or open the **Import Lesson** page (it answers *403*). If a lesson or stage you need is
+> missing, ask the administrator to import it.
+
 ---
 
 ## Bot Commands Reference
@@ -19,10 +23,11 @@ All commands are typed directly into the **group chat** where the bot is active 
 | Command | Context | Description |
 |---|---|---|
 | `/help` | any | Shows command list |
-| `/start` | private chat (DM) | Links your Telegram account to your teacher profile |
+| `/start` | private chat (DM) | Greets a teacher whose Telegram ID is linked to their profile (an unlinked account gets the learner onboarding) |
 | `/start_training [stage] [lesson]` | group | Opens a flashcard training session |
 | `/start_exam [stage] [lesson] [minutes]` | group | Opens a timed exam session |
 | `/close_exam` | group | Closes the current exam and posts the leaderboard |
+| `/stats` | private chat (DM) | Your report for the last 7 days; an account that is not linked yet is shown its Telegram ID |
 
 ---
 
@@ -32,7 +37,7 @@ In **private chat** with the bot, type:
 ```
 /start
 ```
-The bot replies with your name if your `telegram_user_id` is configured. If you get an "unknown user" message, ask the administrator to add your Telegram ID.
+The bot replies with your name if your `telegram_user_id` is linked to your teacher profile. Until it is linked the bot treats you as an ordinary learner and starts the learner onboarding (language, goal, level, ...). To find your Telegram ID, send `/stats` to the bot in the private chat: it shows the ID for an account that is not linked yet. Give this ID to the administrator, who adds it to your profile; after that `/start` greets you as a teacher.
 
 ---
 
@@ -95,7 +100,7 @@ This immediately closes the open exam, builds the final leaderboard, and posts i
 |---|---|
 | "You are not a teacher of this group" | Your account is not linked to this group. Contact admin. |
 | "Group is not active" | The group is disabled in the admin panel. Contact admin. |
-| "Stage N not found" / "Lesson N not found" | That stage/lesson hasn't been imported yet. Contact admin. |
+| "Stage N not found" / "Lesson N not found" | That stage/lesson hasn't been imported yet. Ask the admin to import it (teachers cannot). |
 | "Not enough words" | The lesson has fewer than the minimum required words. Contact admin. |
 | "An exam is already open" | Another exam is running — close it first with `/close_exam`. |
 | "No exam is open in this group" | You tried `/close_exam` but there is nothing to close. |

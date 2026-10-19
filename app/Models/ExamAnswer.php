@@ -19,7 +19,7 @@ class ExamAnswer extends Model
     /** @var list<string> */
     protected $fillable = [
         'exam_session_id',
-        'student_id',
+        'learner_id',
         'word_id',
         'selected_translation',
         'is_correct',
@@ -45,10 +45,10 @@ class ExamAnswer extends Model
         return $this->belongsTo(ExamSession::class, 'exam_session_id');
     }
 
-    /** @return BelongsTo<Student, $this> */
-    public function student(): BelongsTo
+    /** @return BelongsTo<Learner, $this> */
+    public function learner(): BelongsTo
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(Learner::class);
     }
 
     /** @return BelongsTo<Word, $this> */

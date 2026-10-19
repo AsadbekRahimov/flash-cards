@@ -4,44 +4,84 @@ declare(strict_types=1);
 
 namespace App\Domain\Learning\Services;
 
+use App\Domain\Content\DTO\ResolvedTranslation;
+use App\Domain\Content\Services\WordTranslationResolver;
+use App\Domain\Learning\Exceptions\ExamSessionException;
 use App\Models\Lesson;
 use App\Models\Word;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
- * Builds a fixed set of multiple-choice questions for an exam session.
+ * Builds the CANONICAL set of multiple-choice questions for an exam session.
  *
- * A question = { word_id, word, correct_translation, options[4] }
- * where `options` always contains the correct translation plus 3 distractors
- * randomly picked from other lessons (same or any stage). The position of the
- * correct option is randomized per question.
+ * A question = { word_id, word, correct_translation, options[] } where
+ * `options` contains the correct translation plus up to 3 real distractors.
+ * The canonical order of questions / options is irrelevant for participants:
+ * {@see ExamQuestionPersonalizer} derives a per-learner permutation at
+ * serving time, so no `correct_index` is stored.
  *
- * The returned array is meant to be persisted verbatim into
- * `exam_sessions.config.questions` so every student sees the same sequence.
+ * Texts are the translations in `$locale` (the locale of the group) with the
+ * ru fallback, read through {@see WordTranslationResolver}.
+ *
+ * Distractors are REAL translations only — never synthetic placeholders,
+ * which would give the answer away. A distractor is also preferably in the
+ * SAME language as the correct answer: a Cyrillic ru-fallback option next to
+ * a Latin uz answer (or vice versa) would give it away. The candidate pool
+ * is layered, and only ACTIVE words take part (as questions and as distractors):
+ *   1. words of other lessons in the same stage;
+ *   2. words of other stages of the SAME course;
+ *   3. other words of the same lesson;
+ *   4. words of other courses — a whitelist: only `published` + `public`
+ *      courses of the platform (`owner_type = platform`); draft / review /
+ *      archived / unlisted / private / organization courses never leak in.
+ *      This layer is loaded only when the own course has fewer unique
+ *      candidates IN THE ANSWER LANGUAGE (`$locale`) than needed — a course
+ *      full of ru-only words does not stop a uz group from borrowing uz words.
+ * Candidates in the language of the correct answer are exhausted across all
+ * layers before candidates in another language are touched (last resort, so
+ * the exam still works for a barely translated course) — so a foreign
+ * published course in the answer's language still beats an own-course word
+ * in the other language. Inside every layer, candidates sharing the word's
+ * `part_of_speech` are preferred. Candidates are de-duplicated
+ * case/whitespace-insensitively and can never collide with the correct translation.
+ *
+ * If a word still has fewer than 3 distractors, the question is emitted
+ * with fewer options (but at least MIN_OPTIONS_PER_QUESTION). A word with no
+ * distractor at all makes the exam impossible — an exception is thrown so the
+ * teacher gets a clear message instead of a broken exam.
+ *
+ * The returned array is persisted verbatim into `exam_sessions.config.questions`.
  */
 final class ExamQuestionBuilder
 {
     public const OPTIONS_PER_QUESTION = 4;
 
+    public const MIN_OPTIONS_PER_QUESTION = 2;
+
     public const MIN_QUESTIONS = 4;
 
     public const MAX_QUESTIONS = 30;
 
+    public function __construct(private readonly WordTranslationResolver $translations) {}
+
     /**
-     * @return array<int, array{
+     * @return list<array{
      *   word_id: int,
      *   word: string,
      *   correct_translation: string,
-     *   correct_index: int,
      *   options: list<string>
      * }>
+     *
+     * @throws ExamSessionException when some word has no real distractor at all
      */
-    public function build(Lesson $lesson, int $totalQuestions): array
+    public function build(Lesson $lesson, int $totalQuestions, string $locale): array
     {
         $totalQuestions = max(self::MIN_QUESTIONS, min(self::MAX_QUESTIONS, $totalQuestions));
 
         /** @var list<Word> $words */
         $words = Word::query()
             ->where('lesson_id', $lesson->id)
+            ->where('is_active', true)
             ->inRandomOrder()
             ->limit($totalQuestions)
             ->get()
@@ -51,109 +91,223 @@ final class ExamQuestionBuilder
             return [];
         }
 
-        $distractorPool = $this->loadDistractorPool($lesson, count($words));
+        $layers = $this->loadDistractorLayers($lesson, count($words), $locale);
+        $correct = $this->translations->resolveMany($words, $locale);
 
         $questions = [];
         foreach ($words as $word) {
-            $questions[] = $this->buildQuestion($word, $distractorPool);
+            $questions[] = $this->buildQuestion($word, $correct[(int) $word->id], $layers);
         }
 
         return $questions;
     }
 
     /**
-     * @param  list<string>  $distractorPool
-     * @return array{
-     *   word_id: int,
-     *   word: string,
-     *   correct_translation: string,
-     *   correct_index: int,
-     *   options: list<string>
-     * }
+     * @param  list<list<array{translation:string, part_of_speech:string|null, locale:string}>>  $layers
+     * @return array{word_id:int, word:string, correct_translation:string, options:list<string>}
+     *
+     * @throws ExamSessionException
      */
-    private function buildQuestion(Word $word, array $distractorPool): array
+    private function buildQuestion(Word $word, ResolvedTranslation $resolved, array $layers): array
     {
-        $correct = $word->translation;
+        $correct = $resolved->text;
 
-        $distractors = $this->pickDistinctDistractors(
-            $distractorPool,
+        $distractors = $this->pickDistractors(
+            $layers,
             self::OPTIONS_PER_QUESTION - 1,
             $correct,
+            $word->part_of_speech,
+            $resolved->locale,
         );
+
+        if (count($distractors) < self::MIN_OPTIONS_PER_QUESTION - 1) {
+            throw ExamSessionException::notEnoughDistractors($word->word);
+        }
 
         $options = array_merge([$correct], $distractors);
         shuffle($options);
 
-        $correctIndex = array_search($correct, $options, true);
-        if ($correctIndex === false) {
-            $correctIndex = 0;
-            $options[0] = $correct;
-        }
-
         return [
-            'word_id' => $word->id,
+            'word_id' => (int) $word->id,
             'word' => $word->word,
             'correct_translation' => $correct,
-            'correct_index' => (int) $correctIndex,
             'options' => $options,
         ];
     }
 
     /**
-     * @return list<string>
+     * Loads candidate pools, most preferred layer first.
+     *
+     * @return list<list<array{translation:string, part_of_speech:string|null, locale:string}>>
      */
-    private function loadDistractorPool(Lesson $lesson, int $wordCount): array
+    private function loadDistractorLayers(Lesson $lesson, int $wordCount, string $locale): array
     {
-        // Prefer distractors from the SAME stage (stylistic consistency),
-        // falling back to any other lesson if the stage has too few words.
-        $needed = max(12, $wordCount * 3);
+        // Enough variety to avoid repeating the same distractors across the exam.
+        $needed = max(40, $wordCount * 6);
 
-        /** @var list<string> $sameStage */
-        $sameStage = Word::query()
-            ->where('lesson_id', '!=', $lesson->id)
-            ->whereHas('lesson', fn ($q) => $q->where('stage_id', $lesson->stage_id))
-            ->inRandomOrder()
-            ->limit($needed)
-            ->pluck('translation')
-            ->all();
+        $sameStage = $this->candidates(
+            Word::query()
+                ->where('is_active', true)
+                ->where('lesson_id', '!=', $lesson->id)
+                ->whereHas('lesson', fn ($q) => $q->where('stage_id', $lesson->stage_id)),
+            $needed,
+            $locale,
+        );
 
-        if (count($sameStage) >= $needed) {
-            return array_values(array_unique($sameStage));
-        }
+        $courseId = $lesson->stage()->value('course_id');
 
-        /** @var list<string> $anywhere */
-        $anywhere = Word::query()
-            ->where('lesson_id', '!=', $lesson->id)
-            ->inRandomOrder()
-            ->limit($needed)
-            ->pluck('translation')
-            ->all();
+        $sameCourse = $this->uniqueInLocale($sameStage, $locale) >= $needed
+            ? []
+            : $this->candidates(
+                Word::query()
+                    ->where('is_active', true)
+                    ->whereHas('lesson.stage', fn ($q) => $q
+                        ->where('course_id', $courseId)
+                        ->where('id', '!=', $lesson->stage_id)),
+                $needed,
+                $locale,
+            );
 
-        return array_values(array_unique(array_merge($sameStage, $anywhere)));
+        $sameLesson = $this->candidates(
+            Word::query()->where('is_active', true)->where('lesson_id', $lesson->id),
+            self::MAX_QUESTIONS,
+            $locale,
+        );
+
+        // Last resort: public published courses of the platform, only when the own course cannot supply
+        // enough unique candidates in the answer language.
+        $foreign = $this->uniqueInLocale(array_merge($sameStage, $sameCourse, $sameLesson), $locale) >= $needed
+            ? []
+            : $this->candidates(
+                Word::query()
+                    ->where('is_active', true)
+                    ->whereHas('lesson.stage.course', fn ($q) => $q
+                        ->where('courses.id', '!=', $courseId)
+                        ->where('status', 'published')
+                        ->where('visibility', 'public')
+                        ->where('owner_type', 'platform')),
+                $needed,
+                $locale,
+            );
+
+        return [$sameStage, $sameCourse, $sameLesson, $foreign];
     }
 
     /**
-     * @param  list<string>  $pool
+     * Number of distinct (case/whitespace-insensitive) candidate texts written in `$locale`.
+     *
+     * @param  list<array{translation:string, part_of_speech:string|null, locale:string}>  $candidates
+     */
+    private function uniqueInLocale(array $candidates, string $locale): int
+    {
+        $unique = [];
+        foreach ($candidates as $c) {
+            if ($c['locale'] === $locale) {
+                $unique[$this->normalize($c['translation'])] = true;
+            }
+        }
+
+        return count($unique);
+    }
+
+    /**
+     * @param  Builder<Word>  $query
+     * @return list<array{translation:string, part_of_speech:string|null, locale:string}>
+     */
+    private function candidates(Builder $query, int $limit, string $locale): array
+    {
+        $rows = $query
+            ->inRandomOrder()
+            ->limit($limit)
+            ->get(['id', 'translation', 'part_of_speech']);
+
+        $resolved = $this->translations->resolveMany($rows, $locale);
+
+        $out = [];
+        foreach ($rows as $row) {
+            $translation = $resolved[(int) $row->id];
+            $out[] = [
+                'translation' => $translation->text,
+                'part_of_speech' => $row->part_of_speech !== null ? (string) $row->part_of_speech : null,
+                'locale' => $translation->locale,
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
+     * Picks up to $count distinct real distractors: first the candidates in the language of
+     * the correct answer (`$locale`), then — only if there are not enough — the others. Inside
+     * a language, layers are walked in order, preferring the same part of speech in each layer.
+     *
+     * @param  list<list<array{translation:string, part_of_speech:string|null, locale:string}>>  $layers
      * @return list<string>
      */
-    private function pickDistinctDistractors(array $pool, int $count, string $exclude): array
+    private function pickDistractors(array $layers, int $count, string $correct, ?string $partOfSpeech, string $locale): array
     {
-        $unique = array_values(array_unique(array_filter(
-            $pool,
-            static fn (string $t): bool => $t !== $exclude,
-        )));
+        $seen = [$this->normalize($correct) => true];
+        $picked = [];
 
-        shuffle($unique);
+        foreach ([true, false] as $sameLanguage) {
+            foreach ($layers as $layer) {
+                $inLanguage = array_values(array_filter(
+                    $layer,
+                    fn (array $c): bool => ($c['locale'] === $locale) === $sameLanguage,
+                ));
 
-        $picked = array_slice($unique, 0, $count);
+                foreach ($this->byPreference($inLanguage, $partOfSpeech) as $bucket) {
+                    shuffle($bucket);
+                    foreach ($bucket as $candidate) {
+                        if (count($picked) >= $count) {
+                            return $picked;
+                        }
 
-        // Guarantee we always return exactly $count items — even if the pool
-        // is too small, by padding with synthetic placeholders. This avoids
-        // leaking back the correct answer as a duplicate option.
-        for ($i = count($picked); $i < $count; $i++) {
-            $picked[] = "— (filler #{$i})";
+                        $key = $this->normalize($candidate['translation']);
+                        if ($key === '' || isset($seen[$key])) {
+                            continue;
+                        }
+
+                        $seen[$key] = true;
+                        $picked[] = $candidate['translation'];
+                    }
+                }
+            }
         }
 
         return $picked;
+    }
+
+    /**
+     * Splits a layer into [same part of speech, the rest]. When the target
+     * word has no part of speech, everything goes into a single bucket.
+     *
+     * @param  list<array{translation:string, part_of_speech:string|null, locale:string}>  $layer
+     * @return list<list<array{translation:string, part_of_speech:string|null, locale:string}>>
+     */
+    private function byPreference(array $layer, ?string $partOfSpeech): array
+    {
+        if ($partOfSpeech === null || $partOfSpeech === '') {
+            return [$layer];
+        }
+
+        $same = [];
+        $other = [];
+        foreach ($layer as $candidate) {
+            if ($candidate['part_of_speech'] !== null && strcasecmp($candidate['part_of_speech'], $partOfSpeech) === 0) {
+                $same[] = $candidate;
+            } else {
+                $other[] = $candidate;
+            }
+        }
+
+        return [$same, $other];
+    }
+
+    private function normalize(string $translation): string
+    {
+        $collapsed = preg_replace('/\s+/u', ' ', trim($translation));
+
+        return mb_strtolower($collapsed ?? trim($translation));
     }
 }

@@ -7,8 +7,11 @@ namespace App\Providers\Filament;
 use App\Filament\Widgets\ActivityChartWidget;
 use App\Filament\Widgets\ExamsLast30DaysWidget;
 use App\Filament\Widgets\HardestWordsTableWidget;
-use App\Filament\Widgets\TopStudentsTableWidget;
-use App\Filament\Widgets\TotalStudentsWidget;
+use App\Filament\Widgets\OnboardingFunnelWidget;
+use App\Filament\Widgets\OrganizationSeatsTableWidget;
+use App\Filament\Widgets\PlatformSubscriptionsWidget;
+use App\Filament\Widgets\TopLearnersTableWidget;
+use App\Filament\Widgets\TotalLearnersWidget;
 use App\Http\Middleware\RequireTwoFactor;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -45,11 +48,14 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                TotalStudentsWidget::class,
+                TotalLearnersWidget::class,
                 ExamsLast30DaysWidget::class,
                 ActivityChartWidget::class,
-                TopStudentsTableWidget::class,
+                TopLearnersTableWidget::class,
                 HardestWordsTableWidget::class,
+                PlatformSubscriptionsWidget::class,
+                OnboardingFunnelWidget::class,
+                OrganizationSeatsTableWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

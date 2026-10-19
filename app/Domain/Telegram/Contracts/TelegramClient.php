@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Contracts;
 
+use App\Domain\Telegram\Exceptions\TelegramApiException;
+
 interface TelegramClient
 {
     /**
@@ -25,6 +27,15 @@ interface TelegramClient
     ): void;
 
     public function answerCallbackQuery(string $callbackQueryId): void;
+
+    /**
+     * Replaces the inline keyboard of an already sent message; `null` removes it.
+     *
+     * @param  array<string, mixed>|null  $replyMarkup
+     *
+     * @throws TelegramApiException when Telegram refuses (message deleted / unchanged)
+     */
+    public function editMessageReplyMarkup(int|string $chatId, int $messageId, ?array $replyMarkup = null): void;
 
     public function setWebhook(string $url, string $secretHeader): bool;
 

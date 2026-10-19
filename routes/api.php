@@ -3,8 +3,12 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Api\Twa\AuthController;
+use App\Http\Controllers\Api\Twa\CourseController;
 use App\Http\Controllers\Api\Twa\ExamController;
 use App\Http\Controllers\Api\Twa\MeController;
+use App\Http\Controllers\Api\Twa\PromoController;
+use App\Http\Controllers\Api\Twa\SettingsController;
+use App\Http\Controllers\Api\Twa\TodayController;
 use App\Http\Controllers\Api\Twa\TrainingController;
 use App\Http\Controllers\Api\Twa\TtsController;
 use App\Http\Middleware\TwaAuth;
@@ -17,13 +21,26 @@ Route::prefix('twa')->group(function (): void {
 
     Route::middleware([TwaAuth::class, 'throttle:twa-api'])->group(function (): void {
         Route::get('/me', MeController::class)->name('twa.me');
+        Route::patch('/me/settings', [SettingsController::class, 'update'])->name('twa.me.settings');
+        Route::get('/today', TodayController::class)->name('twa.today');
+        Route::post('/promo/redeem', [PromoController::class, 'redeem'])
+            ->middleware('throttle:twa-promo')
+            ->name('twa.promo.redeem');
+        Route::get('/courses', [CourseController::class, 'index'])->name('twa.courses.index');
+        Route::get('/courses/{slug}', [CourseController::class, 'show'])->name('twa.courses.show');
+        Route::post('/me/course', [CourseController::class, 'select'])->name('twa.me.course');
         Route::get('/tts', TtsController::class)
             ->middleware('throttle:twa-tts')
             ->name('twa.tts');
 
+        Route::post('/training/sessions', [TrainingController::class, 'open'])
+            ->middleware('throttle:twa-session-create')
+            ->name('twa.training.open');
+
         Route::prefix('training/sessions/{session}')->whereNumber('session')->group(function (): void {
             Route::post('/start', [TrainingController::class, 'start'])->name('twa.training.start');
             Route::get('/next', [TrainingController::class, 'next'])->name('twa.training.next');
+            Route::post('/finish', [TrainingController::class, 'finish'])->name('twa.training.finish');
             Route::post('/review', [TrainingController::class, 'review'])
                 ->middleware('throttle:twa-review')
                 ->name('twa.training.review');

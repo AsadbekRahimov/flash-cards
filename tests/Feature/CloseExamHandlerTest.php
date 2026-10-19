@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Learning\Services\LeaderboardBuilder;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\TelegramDispatcher;
@@ -9,9 +10,9 @@ use App\Jobs\PostLeaderboardJob;
 use App\Models\ExamAnswer;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
+use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\Stage;
-use App\Models\Student;
 use App\Models\TelegramGroup;
 use App\Models\User;
 use App\Models\Word;
@@ -39,31 +40,17 @@ function seedOpenExam(int $chatId, int $teacherTgId): array
         'updated_at' => now(),
     ]);
 
-    $stage = Stage::factory()->create();
-    $lesson = Lesson::factory()->for($stage)->create();
-    Word::factory()->count(6)->for($lesson)->create();
-    $correct = Word::where('lesson_id', $lesson->id)->first();
+    $lesson = Lesson::factory()->for(Stage::factory()->create())->create();
 
-    $session = ExamSession::factory()->create([
+    $session = ExamSession::factory()->withQuestions(4)->create([
         'telegram_group_id' => $group->id,
         'lesson_id' => $lesson->id,
         'started_by_user_id' => $teacher->id,
         'status' => 'open',
         'started_at' => now()->subMinutes(5),
         'ends_at' => now()->addMinute(),
-        'config' => [
-            'total_questions' => 4,
-            'seconds_per_question' => 10,
-            'duration_minutes' => 2,
-            'questions' => [[
-                'word_id' => $correct->id,
-                'word' => 'test',
-                'correct_translation' => 'тест',
-                'correct_index' => 0,
-                'options' => ['тест', 'a', 'b', 'c'],
-            ]],
-        ],
     ]);
+    $correct = Word::where('lesson_id', $lesson->id)->first();
 
     return compact('group', 'teacher', 'lesson', 'session', 'correct');
 }
@@ -122,19 +109,19 @@ it('/close_exam reports "no open exam" when there is none', function (): void {
     expect(ExamSession::query()->count())->toBe(0);
 });
 
-it('LeaderboardBuilder ranks students correctly and stores exam_results', function (): void {
+it('LeaderboardBuilder ranks learners correctly and stores exam_results', function (): void {
     $s = seedOpenExam(-5555, 555);
     $session = $s['session'];
 
-    $alice = Student::factory()->create(['telegram_group_id' => $s['group']->id]);
-    $bob = Student::factory()->create(['telegram_group_id' => $s['group']->id]);
-    $carol = Student::factory()->create(['telegram_group_id' => $s['group']->id]);
+    $alice = Learner::factory()->memberOf($s['group'])->create();
+    $bob = Learner::factory()->memberOf($s['group'])->create();
+    $carol = Learner::factory()->memberOf($s['group'])->create();
 
     // Alice: 30 pts, Bob: 30 pts but slower, Carol: 0 pts
     ExamAnswer::query()->insert([
-        ['exam_session_id' => $session->id, 'student_id' => $alice->id, 'word_id' => $s['correct']->id, 'selected_translation' => 'тест', 'is_correct' => true,  'score' => 30, 'time_spent_ms' => 1000, 'answered_at' => now()],
-        ['exam_session_id' => $session->id, 'student_id' => $bob->id,   'word_id' => $s['correct']->id, 'selected_translation' => 'тест', 'is_correct' => true,  'score' => 30, 'time_spent_ms' => 5000, 'answered_at' => now()],
-        ['exam_session_id' => $session->id, 'student_id' => $carol->id, 'word_id' => $s['correct']->id, 'selected_translation' => 'a',    'is_correct' => false, 'score' => 0,  'time_spent_ms' => 2000, 'answered_at' => now()],
+        ['exam_session_id' => $session->id, 'learner_id' => $alice->id, 'word_id' => $s['correct']->id, 'selected_translation' => 'тест', 'is_correct' => true,  'score' => 30, 'time_spent_ms' => 1000, 'answered_at' => now()],
+        ['exam_session_id' => $session->id, 'learner_id' => $bob->id,   'word_id' => $s['correct']->id, 'selected_translation' => 'тест', 'is_correct' => true,  'score' => 30, 'time_spent_ms' => 5000, 'answered_at' => now()],
+        ['exam_session_id' => $session->id, 'learner_id' => $carol->id, 'word_id' => $s['correct']->id, 'selected_translation' => 'a',    'is_correct' => false, 'score' => 0,  'time_spent_ms' => 2000, 'answered_at' => now()],
     ]);
 
     $built = app(LeaderboardBuilder::class)->build($session);
@@ -142,11 +129,11 @@ it('LeaderboardBuilder ranks students correctly and stores exam_results', functi
     expect(ExamResult::query()->where('exam_session_id', $session->id)->count())->toBe(3);
 
     $results = ExamResult::query()->where('exam_session_id', $session->id)->orderBy('rank')->get();
-    expect($results[0]->student_id)->toBe($alice->id)
+    expect($results[0]->learner_id)->toBe($alice->id)
         ->and($results[0]->rank)->toBe(1)
-        ->and($results[1]->student_id)->toBe($bob->id)
+        ->and($results[1]->learner_id)->toBe($bob->id)
         ->and($results[1]->rank)->toBe(2)
-        ->and($results[2]->student_id)->toBe($carol->id)
+        ->and($results[2]->learner_id)->toBe($carol->id)
         ->and($results[2]->rank)->toBe(3);
 });
 
@@ -154,23 +141,23 @@ it('LeaderboardBuilder assigns equal rank for full ties', function (): void {
     $s = seedOpenExam(-4444, 666);
     $session = $s['session'];
 
-    $alice = Student::factory()->create(['telegram_group_id' => $s['group']->id]);
-    $bob = Student::factory()->create(['telegram_group_id' => $s['group']->id]);
-    $carol = Student::factory()->create(['telegram_group_id' => $s['group']->id]);
+    $alice = Learner::factory()->memberOf($s['group'])->create();
+    $bob = Learner::factory()->memberOf($s['group'])->create();
+    $carol = Learner::factory()->memberOf($s['group'])->create();
 
     // Alice and Bob fully tied; Carol worse
     ExamAnswer::query()->insert([
-        ['exam_session_id' => $session->id, 'student_id' => $alice->id, 'word_id' => $s['correct']->id, 'selected_translation' => 'тест', 'is_correct' => true,  'score' => 20, 'time_spent_ms' => 2000, 'answered_at' => now()],
-        ['exam_session_id' => $session->id, 'student_id' => $bob->id,   'word_id' => $s['correct']->id, 'selected_translation' => 'тест', 'is_correct' => true,  'score' => 20, 'time_spent_ms' => 2000, 'answered_at' => now()],
-        ['exam_session_id' => $session->id, 'student_id' => $carol->id, 'word_id' => $s['correct']->id, 'selected_translation' => 'a',    'is_correct' => false, 'score' => 0,  'time_spent_ms' => 3000, 'answered_at' => now()],
+        ['exam_session_id' => $session->id, 'learner_id' => $alice->id, 'word_id' => $s['correct']->id, 'selected_translation' => 'тест', 'is_correct' => true,  'score' => 20, 'time_spent_ms' => 2000, 'answered_at' => now()],
+        ['exam_session_id' => $session->id, 'learner_id' => $bob->id,   'word_id' => $s['correct']->id, 'selected_translation' => 'тест', 'is_correct' => true,  'score' => 20, 'time_spent_ms' => 2000, 'answered_at' => now()],
+        ['exam_session_id' => $session->id, 'learner_id' => $carol->id, 'word_id' => $s['correct']->id, 'selected_translation' => 'a',    'is_correct' => false, 'score' => 0,  'time_spent_ms' => 3000, 'answered_at' => now()],
     ]);
 
     app(LeaderboardBuilder::class)->build($session);
 
     $ranks = ExamResult::query()
         ->where('exam_session_id', $session->id)
-        ->orderBy('student_id')
-        ->pluck('rank', 'student_id');
+        ->orderBy('learner_id')
+        ->pluck('rank', 'learner_id');
 
     expect($ranks[$alice->id])->toBe(1);
     expect($ranks[$bob->id])->toBe(1);
@@ -211,8 +198,8 @@ it('posts a leaderboard only once when the job is delivered repeatedly', functio
     $telegram->shouldReceive('sendMessage')->once();
     $job = new PostLeaderboardJob($s['session']->id);
 
-    $job->handle($telegram, app(LeaderboardBuilder::class));
-    $job->handle($telegram, app(LeaderboardBuilder::class));
+    $job->handle($telegram, app(LeaderboardBuilder::class), app(ProductEventRecorder::class));
+    $job->handle($telegram, app(LeaderboardBuilder::class), app(ProductEventRecorder::class));
 
     expect($s['session']->fresh()->leaderboard_posted_at)->not->toBeNull();
 });
@@ -223,7 +210,7 @@ it('does not post a leaderboard while the exam is still open', function (): void
     $telegram->shouldNotReceive('sendMessage');
 
     (new PostLeaderboardJob($s['session']->id))
-        ->handle($telegram, app(LeaderboardBuilder::class));
+        ->handle($telegram, app(LeaderboardBuilder::class), app(ProductEventRecorder::class));
 
     expect($s['session']->fresh()->leaderboard_posted_at)->toBeNull();
 });

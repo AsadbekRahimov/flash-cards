@@ -4,29 +4,55 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Models\Student;
+use App\Domain\Learners\Services\GroupMembershipService;
+use App\Models\Learner;
 use App\Models\TrainingSession;
 
 final class TrainingSessionPolicy
 {
+    public function __construct(private readonly GroupMembershipService $memberships) {}
+
     /**
-     * Can the student see this training session at all?
-     * Valid iff student's group matches the session group and student is active.
-     * (Session status is handled separately so we can return 410 for closed
-     * sessions vs 403 for cross-group IDOR.)
+     * Error code to answer with (403) when the learner may not see this session,
+     * null when access is granted:
+     *   - personal session (`mode` <> group_lesson): only its owner (`forbidden`);
+     *   - group session: an active member of an active group (`not_a_member` / `group_inactive`).
+     * Session status is handled separately so closed sessions answer 410, not 403.
      */
-    public function canAccess(Student $student, TrainingSession $session): bool
+    public function denial(Learner $learner, TrainingSession $session): ?string
     {
-        return $student->is_active
-            && (int) $student->telegram_group_id === (int) $session->telegram_group_id;
+        if ($learner->blocked_at !== null) {
+            return 'forbidden';
+        }
+
+        if ($session->mode !== 'group_lesson') {
+            return (int) $session->learner_id === (int) $learner->id ? null : 'forbidden';
+        }
+
+        return $this->memberships->denialReason($learner, $session->group);
+    }
+
+    public function canAccess(Learner $learner, TrainingSession $session): bool
+    {
+        return $this->denial($learner, $session) === null;
     }
 
     /**
-     * Can the student actively participate (review) right now?
-     * Requires session to be open on top of the access check.
+     * Can the learner actively participate (review) right now?
+     * Requires the session to be open on top of the access check.
      */
-    public function canParticipate(Student $student, TrainingSession $session): bool
+    public function canParticipate(Learner $learner, TrainingSession $session): bool
     {
-        return $this->canAccess($student, $session) && $session->status === 'open';
+        return $this->canAccess($learner, $session) && $session->status === 'open';
+    }
+
+    /**
+     * May the learner close this session (`POST /finish`)? Only the owner of a
+     * personal session; group sessions are closed by the scheduler, never by a learner.
+     * Does not require the session to be open — finish() is idempotent.
+     */
+    public function canFinish(Learner $learner, TrainingSession $session): bool
+    {
+        return $session->mode !== TrainingSession::MODE_GROUP_LESSON && $this->canAccess($learner, $session);
     }
 }

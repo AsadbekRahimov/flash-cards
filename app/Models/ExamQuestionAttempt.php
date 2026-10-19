@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @property int $id
  * @property int $exam_session_id
- * @property int $student_id
+ * @property int $learner_id
  * @property int $question_index
  * @property CarbonImmutable $served_at
  * @property CarbonImmutable|null $answered_at
@@ -23,7 +23,7 @@ class ExamQuestionAttempt extends Model
     /** @var list<string> */
     protected $fillable = [
         'exam_session_id',
-        'student_id',
+        'learner_id',
         'question_index',
         'served_at',
         'answered_at',
@@ -45,9 +45,9 @@ class ExamQuestionAttempt extends Model
         return $this->belongsTo(ExamSession::class, 'exam_session_id');
     }
 
-    /** @return BelongsTo<Student, $this> */
-    public function student(): BelongsTo
+    /** @return BelongsTo<Learner, $this> */
+    public function learner(): BelongsTo
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(Learner::class);
     }
 }

@@ -6,7 +6,7 @@ namespace Database\Factories;
 
 use App\Models\ExamAnswer;
 use App\Models\ExamSession;
-use App\Models\Student;
+use App\Models\Learner;
 use App\Models\Word;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -20,7 +20,7 @@ class ExamAnswerFactory extends Factory
 
         return [
             'exam_session_id' => ExamSession::factory(),
-            'student_id' => Student::factory(),
+            'learner_id' => Learner::factory(),
             'word_id' => Word::factory(),
             'selected_translation' => fake()->word(),
             'is_correct' => $isCorrect,

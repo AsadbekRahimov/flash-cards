@@ -23,19 +23,30 @@ class Word extends Model
         'example',
         'part_of_speech',
         'transcription',
+        'audio_path',
+        'is_active',
         'meta',
     ];
 
     /** @return array<string, string> */
     protected function casts(): array
     {
-        return ['meta' => 'array'];
+        return [
+            'is_active' => 'boolean',
+            'meta' => 'array',
+        ];
     }
 
     /** @return BelongsTo<Lesson, $this> */
     public function lesson(): BelongsTo
     {
         return $this->belongsTo(Lesson::class);
+    }
+
+    /** @return HasMany<WordTranslation, $this> */
+    public function translations(): HasMany
+    {
+        return $this->hasMany(WordTranslation::class);
     }
 
     /** @return HasMany<WordRepetition, $this> */

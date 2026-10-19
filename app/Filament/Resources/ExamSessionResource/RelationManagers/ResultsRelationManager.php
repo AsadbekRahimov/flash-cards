@@ -15,7 +15,7 @@ class ResultsRelationManager extends RelationManager
 {
     protected static string $relationship = 'results';
 
-    protected static ?string $title = 'Student results';
+    protected static ?string $title = 'Learner results';
 
     public function table(Table $table): Table
     {
@@ -25,7 +25,7 @@ class ResultsRelationManager extends RelationManager
             ->modifyQueryUsing(function (Builder $query) use ($sessionId): Builder {
                 $timeQuery = ExamAnswer::query()
                     ->selectRaw('COALESCE(SUM(time_spent_ms), 0)')
-                    ->whereColumn('exam_answers.student_id', 'exam_results.student_id')
+                    ->whereColumn('exam_answers.learner_id', 'exam_results.learner_id')
                     ->where('exam_answers.exam_session_id', $sessionId);
 
                 return $query
@@ -33,10 +33,10 @@ class ResultsRelationManager extends RelationManager
                     ->selectSub($timeQuery, 'time_spent_ms');
             })
             ->columns([
-                Tables\Columns\TextColumn::make('student.first_name')
-                    ->label('Student')
+                Tables\Columns\TextColumn::make('learner.first_name')
+                    ->label('Learner')
                     ->formatStateUsing(fn (ExamResult $record): string => trim(
-                        ($record->student->first_name ?? '—').' '.($record->student->last_name ?? ''),
+                        ($record->learner->first_name ?? '—').' '.($record->learner->last_name ?? ''),
                     ))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('total_score')->label('Score')->sortable(),

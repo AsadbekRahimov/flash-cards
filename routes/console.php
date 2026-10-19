@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Domain\Operations\Services\SchedulerHeartbeat;
+use App\Models\NotificationLog;
+use App\Models\ProductEvent;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -10,6 +13,11 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
+// Liveness marker for GET /health/ready: stale heartbeat (> 3 min) = scheduler is down.
+Schedule::call(fn () => app(SchedulerHeartbeat::class)->beat())
+    ->name('ops:scheduler-heartbeat')
+    ->everyMinute();
+
 // Close exams whose `ends_at` passed more than a minute ago and post the
 // group leaderboard. See CloseExpiredExams for idempotency guarantees.
 Schedule::command('exams:close-expired')
@@ -17,9 +25,28 @@ Schedule::command('exams:close-expired')
     ->withoutOverlapping()
     ->runInBackground();
 
-Schedule::command('repetitions:notify')
-    ->dailyAt('18:00')
+// Personal sessions past `expires_at` and stale group sessions get `done_reason = expired`
+// (docs/12 §7.6). A plain UPDATE, so overlapping or repeated runs are harmless.
+Schedule::command('training:close-expired')
+    ->everyFifteenMinutes()
     ->withoutOverlapping();
+
+// Time-based subscription transitions (period end -> past_due / expired),
+// docs/12 §5.6. Idempotent: every row is re-checked under lockForUpdate.
+Schedule::command('subscriptions:expire')
+    ->hourly()
+    ->withoutOverlapping();
+
+// Personal reminders by the learner's local time (docs/12 §7.5): claims
+// `learners.next_reminder_at <= now` with a conditional UPDATE, so a parallel or
+// repeated run never reminds anyone twice.
+Schedule::command('reminders:dispatch')
+    ->everyFifteenMinutes()
+    ->withoutOverlapping(10)
+    ->runInBackground();
+
+// Retention of product_events and notifications_log (operations.*.retention_days).
+Schedule::command('model:prune', ['--model' => [ProductEvent::class, NotificationLog::class]])->daily()->at('03:00');
 
 // Daily DB + storage backup via spatie/laravel-backup.
 Schedule::command('backup:clean')->daily()->at('01:00');

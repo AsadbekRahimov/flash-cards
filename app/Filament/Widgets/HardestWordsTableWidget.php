@@ -23,7 +23,7 @@ class HardestWordsTableWidget extends TableWidget
     public function table(Table $table): Table
     {
         $since = now()->subDays(30);
-        $studentIds = app(PanelDataScope::class)->studentIds();
+        $sessionIds = app(PanelDataScope::class)->trainingSessionIds();
 
         return $table
             ->query(
@@ -33,7 +33,7 @@ class HardestWordsTableWidget extends TableWidget
                         fn (QueryBuilder $q) => $q->from('training_reviews')
                             ->selectRaw('COUNT(*)')
                             ->whereColumn('training_reviews.word_id', 'words.id')
-                            ->whereIn('training_reviews.student_id', clone $studentIds)
+                            ->whereIn('training_reviews.training_session_id', clone $sessionIds)
                             ->where('training_reviews.created_at', '>=', $since),
                         'attempts',
                     )
@@ -41,14 +41,14 @@ class HardestWordsTableWidget extends TableWidget
                         fn (QueryBuilder $q) => $q->from('training_reviews')
                             ->selectRaw('CAST(SUM(CASE WHEN quality < ? THEN 1 ELSE 0 END) AS FLOAT) / NULLIF(COUNT(*), 0)', [3])
                             ->whereColumn('training_reviews.word_id', 'words.id')
-                            ->whereIn('training_reviews.student_id', clone $studentIds)
+                            ->whereIn('training_reviews.training_session_id', clone $sessionIds)
                             ->where('training_reviews.created_at', '>=', $since),
                         'hard_ratio',
                     )
                     ->whereHas(
                         'trainingReviews',
                         fn (Builder $q): Builder => $q
-                            ->whereIn('student_id', clone $studentIds)
+                            ->whereIn('training_session_id', clone $sessionIds)
                             ->where('created_at', '>=', $since),
                         '>=',
                         5,

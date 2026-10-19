@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Domain\Content\Services\CourseCatalogService;
+use App\Domain\Content\Services\CoursePublisher;
 use App\Models\Lesson;
 use App\Models\Stage;
 use App\Models\Word;
+use App\Models\WordTranslation;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -155,9 +158,11 @@ class DemoContentSeeder extends Seeder
     public function run(): void
     {
         DB::transaction(function (): void {
+            $course = app(CourseCatalogService::class)->defaultCourse();
+
             foreach (self::CONTENT as $stageNumber => $lessons) {
                 $stage = Stage::updateOrCreate(
-                    ['number' => $stageNumber],
+                    ['course_id' => $course->id, 'number' => $stageNumber],
                     [
                         'title' => "Stage {$stageNumber}",
                         'description' => "Demo stage {$stageNumber}",
@@ -171,7 +176,7 @@ class DemoContentSeeder extends Seeder
                     );
 
                     foreach ($words as $w) {
-                        Word::updateOrCreate(
+                        $word = Word::updateOrCreate(
                             ['lesson_id' => $lesson->id, 'word' => $w['word']],
                             [
                                 'translation' => $w['translation'],
@@ -179,9 +184,16 @@ class DemoContentSeeder extends Seeder
                                 'meta' => [],
                             ],
                         );
+
+                        WordTranslation::updateOrCreate(
+                            ['word_id' => $word->id, 'locale' => 'ru'],
+                            ['translation' => $w['translation'], 'source' => 'import'],
+                        );
                     }
                 }
             }
+
+            app(CoursePublisher::class)->recount($course);
         });
     }
 }

@@ -1,12 +1,13 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
-import type { AuthContext, Student } from '@/api/types'
+import type { AuthContext, Learner } from '@/api/types'
 import { useTelegram } from '@/composables/useTelegram'
+import { setLocale, SUPPORTED_LOCALES, type Locale } from '@/i18n'
 
 interface AuthState {
   token: string
   expiresAt: number         // epoch ms; refresh before reaching this
-  student: Student | null
+  learner: Learner | null
   context: AuthContext | null
   loading: boolean
   error: string | null
@@ -16,7 +17,7 @@ export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
     token: '',
     expiresAt: 0,
-    student: null,
+    learner: null,
     context: null,
     loading: false,
     error: null,
@@ -43,7 +44,9 @@ export const useAuthStore = defineStore('auth', {
         const res = await api.auth.authenticate(payload, resolvedContext)
         this.token = res.token
         this.expiresAt = Date.now() + res.expires_in * 1000
-        this.student = res.student
+        this.learner = res.learner
+        // The learner's own choice (onboarding / settings) beats Telegram's language_code picked at startup.
+        if ((SUPPORTED_LOCALES as readonly string[]).includes(res.learner.locale)) setLocale(res.learner.locale as Locale)
       } catch (err: unknown) {
         this.error = (err as { code?: string })?.code ?? 'auth_failed'
         throw err
@@ -52,19 +55,22 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    async ensure(context: AuthContext): Promise<void> {
-      // Refresh if missing or closer than 60s to expiry.
-      const contextChanged = this.context?.type !== context.type
-        || this.context?.sessionId !== context.sessionId
-      if (!this.token || contextChanged || Date.now() > this.expiresAt - 60_000) {
+    async ensure(context?: AuthContext): Promise<void> {
+      // One learner for every session, so a context change needs no new token:
+      // access to a session is checked by the server on that session's routes.
+      // Refresh only if the token is missing or closer than 60s to expiry. No context
+      // (`undefined`, screens outside a session) keeps the current one, also on a refresh.
+      if (!this.token || Date.now() > this.expiresAt - 60_000) {
         await this.login(context)
+        return
       }
+      if (context) this.context = context
     },
 
     logout(): void {
       this.token = ''
       this.expiresAt = 0
-      this.student = null
+      this.learner = null
       this.context = null
       this.error = null
     },

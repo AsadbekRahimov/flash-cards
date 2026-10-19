@@ -24,17 +24,36 @@ return [
         'max_age' => (int) env('TWA_INIT_DATA_MAX_AGE', 86400),
     ],
 
+    /**
+     * Requests refused by TwaAuth (no / bad / expired token, unknown or blocked learner) per IP per
+     * minute. TwaAuth runs before the per-learner throttles, so this is the only brake on garbage tokens;
+     * above it the answer is 429 `rate_limited`. Valid requests are not counted.
+     */
+    'unauthorized_per_minute' => (int) env('TWA_UNAUTHORIZED_PER_MINUTE', 60),
+
     'training' => [
         /**
-         * Max cards per training session (protects against infinite loops
-         * on the client if bugs cause it to never stop requesting next).
+         * Max graded cards (training_reviews rows) per training session.
+         * Protects against infinite loops on the client if bugs cause it to
+         * never stop requesting next. With learning steps every step is a
+         * review, so a 25-word lesson needs ~75 reviews plus lapses.
          */
-        'max_cards_per_session' => (int) env('TWA_MAX_CARDS_PER_SESSION', 100),
+        'max_cards_per_session' => (int) env('TWA_MAX_CARDS_PER_SESSION', 200),
     ],
 
     'tts' => [
         'service_url' => env('TTS_SERVICE_URL', ''),
         'timeout' => (int) env('TTS_SERVICE_TIMEOUT', 8),
+
+        /**
+         * Pre-generated word audio (docs/12 task 1.2c): `audio/{sha1(text|voice|version)}.mp3`
+         * on the `public` disk. Bump `audio_version` to re-voice the whole library
+         * (new hash -> new files; `php artisan audio:pregenerate <course>`).
+         */
+        'voice' => env('TTS_VOICE', 'en-US-AriaNeural'),
+        'audio_version' => (int) env('TTS_AUDIO_VERSION', 1),
+        'audio_disk' => 'public',
+        'audio_dir' => 'audio',
     ],
 
     /**

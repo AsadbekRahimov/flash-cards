@@ -1,20 +1,48 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
+import PaywallSheet from '@/components/PaywallSheet.vue'
+import PromoRedeem from '@/components/PromoRedeem.vue'
+import { useTrainingStore } from '@/stores/training'
 import { useTelegram } from '@/composables/useTelegram'
+import { useI18n } from '@/i18n'
 
 const props = defineProps<{
   reviewed: number
   nextInDays: number
+  /** `done_reason` of the last answer (docs/04 A.3); unknown values show no extra line. */
+  reason?: string | null
 }>()
 
-const { close, notificationHaptic } = useTelegram()
+const REASONS = ['lesson_complete', 'nothing_due', 'new_quota_exhausted', 'session_cap'] as const
 
-const nextLabel = computed(() => {
-  if (props.nextInDays <= 0) return 'Сегодня'
-  if (props.nextInDays === 1) return 'Через 1 день'
-  if (props.nextInDays < 5) return `Через ${props.nextInDays} дня`
-  return `Через ${props.nextInDays} дней`
+const { close, notificationHaptic } = useTelegram()
+const { t, tn } = useI18n()
+const router = useRouter()
+const training = useTrainingStore()
+
+// Goal and streak of the day come with the server summary of a personal session (absent for group sessions).
+const goal = computed(() => training.summary?.goal ?? null)
+const streak = computed(() => training.summary?.streak ?? null)
+
+const nextLabel = computed(() =>
+  props.nextInDays <= 0 ? t('finished.next_today') : tn('finished.next_in_days', props.nextInDays),
+)
+
+const reasonLabel = computed(() => {
+  const reason = REASONS.find((r) => r === props.reason)
+  return reason ? t(`finished.reason.${reason}`) : null
 })
+
+// The end of today's new words is the moment to say what Free gives and what Pro will (docs/12 §5.4).
+const paywallOpen = ref(props.reason === 'new_quota_exhausted')
+
+/** "Repeat words" in the paywall: closes it and starts a daily review; a failure is shown on this screen. */
+async function reviewFromPaywall(): Promise<void> {
+  paywallOpen.value = false
+  const sessionId = await training.open({ mode: 'daily_review', source: 'self' })
+  if (sessionId !== null) await router.push({ name: 'training', params: { sessionId } })
+}
 
 notificationHaptic('success')
 </script>
@@ -23,18 +51,42 @@ notificationHaptic('success')
   <section class="flex-1 flex items-center justify-center p-6 text-center">
     <div class="max-w-sm space-y-5">
       <div class="text-6xl">🎉</div>
-      <h1 class="text-2xl font-bold">Отлично!</h1>
-      <p class="text-tg-hint">
-        Вы повторили <b class="text-tg-text">{{ reviewed }}</b>
-        {{ reviewed === 1 ? 'слово' : 'слов' }}.
-      </p>
+      <h1 class="text-2xl font-bold">{{ t('finished.title') }}</h1>
+      <p v-if="reasonLabel" class="text-tg-hint" data-testid="reason">{{ reasonLabel }}</p>
+      <p v-if="reviewed > 0 || !reasonLabel" class="text-tg-hint" data-testid="reviewed">{{ tn('finished.reviewed', reviewed) }}</p>
       <div class="card">
-        <div class="text-sm text-tg-hint">Следующее повторение</div>
+        <div class="text-sm text-tg-hint">{{ t('finished.next_label') }}</div>
         <div class="text-lg font-semibold mt-1" data-testid="next-label">{{ nextLabel }}</div>
       </div>
-      <button class="btn btn-primary w-full" data-testid="close-btn" @click="close()">
-        Закрыть
+      <div v-if="goal" class="card space-y-1" data-testid="goal">
+        <div class="text-lg font-semibold" data-testid="goal-text">
+          {{ goal.met ? t('finished.goal_met') : t('finished.goal', { done: goal.done, target: goal.target }) }}
+        </div>
+        <div v-if="streak && streak.current > 0" class="text-sm" data-testid="streak">
+          🔥 {{ tn('today.streak.days', streak.current) }}
+        </div>
+        <div v-if="streak?.at_risk" class="text-sm text-red-600" data-testid="streak-at-risk">
+          {{ t('today.streak.at_risk') }}
+        </div>
+      </div>
+      <PromoRedeem v-if="reason !== 'new_quota_exhausted'" />
+      <button
+        v-else
+        type="button"
+        class="text-tg-link underline w-full text-center"
+        data-testid="paywall-open"
+        @click="paywallOpen = true"
+      >
+        {{ t('paywall.open') }}
+      </button>
+      <p v-if="training.openError" class="text-sm text-red-600" data-testid="open-error">{{ training.openError }}</p>
+      <RouterLink :to="{ name: 'today' }" class="btn btn-primary w-full" data-testid="home-btn">
+        {{ t('finished.home') }}
+      </RouterLink>
+      <button class="btn btn-secondary w-full" data-testid="close-btn" @click="close()">
+        {{ t('common.close') }}
       </button>
     </div>
+    <PaywallSheet v-if="paywallOpen" reason="quota" @close="paywallOpen = false" @review="reviewFromPaywall" />
   </section>
 </template>

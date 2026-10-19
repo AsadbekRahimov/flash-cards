@@ -5,20 +5,29 @@ declare(strict_types=1);
 namespace App\Http\Middleware;
 
 use App\Domain\Twa\Services\JwtService;
-use App\Models\Student;
+use App\Http\Resources\ApiErrorResource;
+use App\Models\Learner;
 use Closure;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 /**
- * Authenticates TWA API requests by verifying the Bearer JWT and
- * loading the corresponding student into the request.
+ * Authenticates TWA API requests by verifying the Bearer JWT (v2) and
+ * loading the corresponding learner into the request.
  *
  * Sets:
- *   $request->attributes->get('twa') = ['student_id' => int, 'group_id' => int]
- *   $request->attributes->get('student') = Student
+ *   $request->attributes->get('twa') = ['learner_id' => int]
+ *   $request->attributes->get('learner') = Learner
+ *
+ * Access to a concrete group session is NOT decided here (membership policies
+ * on the session routes); a platform ban (`blocked_at`) is checked on every request.
+ *
+ * It runs before the `throttle:*` middleware (so they see the learner), which leaves refused
+ * requests without a limit of their own: every refusal counts against the client IP
+ * (`twa.unauthorized_per_minute`), and past it the answer is 429 `rate_limited`.
  */
 final class TwaAuth
 {
@@ -28,46 +37,46 @@ final class TwaAuth
     {
         $header = (string) $request->header('Authorization', '');
         if (! str_starts_with($header, 'Bearer ')) {
-            return $this->unauthorized('missing_token');
+            return $this->unauthorized($request, 'missing_token');
         }
 
         $token = substr($header, 7);
         if ($token === '') {
-            return $this->unauthorized('missing_token');
+            return $this->unauthorized($request, 'missing_token');
         }
 
         try {
             $payload = $this->jwt->verify($token);
         } catch (Throwable) {
-            return $this->unauthorized('invalid_token');
+            return $this->unauthorized($request, 'invalid_token');
         }
 
-        $student = Student::query()->with('group')->find($payload['student_id']);
-        if ($student === null || ! $student->is_active) {
-            return $this->unauthorized('student_not_found');
+        $learner = Learner::query()->find($payload['learner_id']);
+        if ($learner === null) {
+            return $this->unauthorized($request, 'learner_not_found');
         }
 
-        if ($student->group === null || $student->group->status !== 'active') {
-            return $this->unauthorized('group_inactive');
+        if ($learner->blocked_at !== null) {
+            return $this->unauthorized($request, 'learner_blocked');
         }
 
-        if ((int) $student->telegram_group_id !== $payload['group_id']) {
-            return $this->unauthorized('group_mismatch');
-        }
-
-        $request->attributes->set('twa', [
-            'student_id' => $payload['student_id'],
-            'group_id' => $payload['group_id'],
-        ]);
-        $request->attributes->set('student', $student);
+        $request->attributes->set('twa', ['learner_id' => (int) $learner->id]);
+        $request->attributes->set('learner', $learner);
 
         return $next($request);
     }
 
-    private function unauthorized(string $code): JsonResponse
+    private function unauthorized(Request $request, string $code): JsonResponse
     {
-        return response()->json([
-            'error' => ['code' => $code, 'message' => 'Unauthorized'],
-        ], 401);
+        $key = 'twa-unauthorized|'.$request->ip();
+
+        if (RateLimiter::tooManyAttempts($key, (int) config('twa.unauthorized_per_minute', 60))) {
+            return ApiErrorResource::respond(429, 'rate_limited', 'Too many requests')
+                ->header('Retry-After', (string) RateLimiter::availableIn($key));
+        }
+
+        RateLimiter::hit($key, 60);
+
+        return ApiErrorResource::respond(401, $code, 'Unauthorized');
     }
 }

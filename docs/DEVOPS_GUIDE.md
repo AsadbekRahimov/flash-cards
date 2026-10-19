@@ -146,10 +146,17 @@ chmod 600 .env
 
 ```bash
 php artisan migrate --force
-php artisan db:seed   # loads demo admin, teacher, group, 120 words, 5 students
+php artisan db:seed   # loads demo admin, teacher, 2 groups, 120 words, 5 learners (6 group memberships)
 ```
 
 > On subsequent deploys, run `php artisan migrate --force` only — **never re-seed in production**.
+
+> **Migration history (docs/12 §2.2).** Until the first production release the create-migrations are edited **in place**
+> (the learner-first schema replaced `students` that way), so every non-production environment — local, CI, the demo
+> stand — is rebuilt with `php artisan migrate:fresh --seed` **followed by `php artisan cache:clear`** (Redis keeps
+> leaderboard keys of the old format); applying new code over an old database shows a
+> `migrate:status` mismatch (the `create_students_table` row has no file on disk). From the first production release on,
+> schema changes are **forward migrations only**.
 
 ---
 
@@ -159,14 +166,14 @@ If Node.js 18+ is available on the server:
 ```bash
 cd resources/twa
 npm ci                  # install all deps — build needs vite/vue-tsc from devDependencies
-npm run build           # outputs to public/twa/
+npm run build           # outputs to public/twa/ (+ pre-gzipped *.gz siblings, see "Compression" below)
 rm -rf node_modules     # optional: free disk space after build
 cd ../..
 ```
 
 > Do **not** use `npm ci --omit=dev` here — `vite` and `vue-tsc` (the build tools) live in `devDependencies` and the build will fail without them.
 
-If Node.js is not on the server, build locally and upload the `public/twa/` directory via rsync or scp.
+If Node.js is not on the server, build locally and upload the `public/twa/` directory via rsync or scp (include the `*.gz` files — nginx `gzip_static` serves them).
 
 ---
 
@@ -219,8 +226,19 @@ server {
     root /var/www/lexiflow/public;
     index index.php;
 
+    # Compression (see "Compression and BREACH" below)
+    gzip on;
+    gzip_vary on;
+    gzip_comp_level 6;
+    gzip_min_length 512;
+    gzip_types
+        application/javascript application/json application/manifest+json
+        application/wasm application/xml font/otf font/ttf image/svg+xml
+        text/css text/javascript text/plain text/xml;
+
     # TWA SPA: serve the compiled Vue app with SPA fallback
     location /twa/ {
+        gzip_static on;   # use the *.gz files created by `npm run build`
         try_files $uri $uri/ /twa/index.html;
         location ~* /twa/assets/ {
             add_header Cache-Control "public, max-age=31536000, immutable";
@@ -230,11 +248,31 @@ server {
         }
     }
 
-    # Livewire uses hash-prefixed Laravel routes such as
-    # /livewire-<hash>/livewire.min.js for Filament admin assets.
-    # This must be handled by Laravel, not by a generic static *.js location.
-    location ^~ /livewire- {
-        try_files $uri $uri/ /index.php?$query_string;
+    # Pre-generated word audio (task 1.2c, `php artisan audio:pregenerate`): content-addressed
+    # mp3 files, never change -> long cache; no gzip. Only audio/ is exposed.
+    location ^~ /storage/audio/ {
+        alias /var/www/lexiflow/storage/app/public/audio/;
+        gzip off;
+        add_header Cache-Control "public, max-age=2592000, immutable";
+
+        # `^~` skips the server-level dotfile rule: deny `.tmp/` (half-written files) explicitly.
+        location ~ /\. {
+            deny all;
+        }
+    }
+
+    # Admin panel, 2FA pages and Livewire (hash-prefixed routes such as
+    # /livewire-<hash>/livewire.min.js). Handled by Laravel, never by a static
+    # *.js location, and never compressed (BREACH). PHP-FPM is called directly:
+    # `gzip off` inside a try_files location would be lost on the internal
+    # redirect to `location ~ \.php$`.
+    location ~ ^/(?:admin(?:/|$)|2fa(?:/|$)|livewire-) {
+        gzip off;
+        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $realpath_root/index.php;
+        fastcgi_param SCRIPT_NAME /index.php;
+        fastcgi_param DOCUMENT_URI /index.php;
     }
 
     location / {
@@ -261,6 +299,20 @@ ln -s /etc/nginx/sites-available/lexiflow /etc/nginx/sites-enabled/
 nginx -t
 systemctl reload nginx
 ```
+
+### Compression and BREACH
+
+The Docker configs (`docker/nginx/prod.conf`, `docker/nginx/default.conf`) and the example above compress traffic as follows:
+
+| What | Behaviour |
+|---|---|
+| TWA static (`/twa/`) | `npm run build` runs `resources/twa/scripts/precompress.mjs` (built-in `node:zlib`, gzip level 9) and writes `file.gz` next to every `.js .css .html .svg .json .webmanifest .txt` of at least 512 bytes (only if smaller). nginx serves them with `gzip_static on`, no CPU per request. Files without `.gz` fall back to on-the-fly gzip. Run `npm run precompress --prefix resources/twa` to redo it by hand. |
+| API / other dynamic responses | on-the-fly `gzip`, level 6, `gzip_min_length 512`; types: JS, JSON, `manifest+json`, XML, wasm, SVG, CSS, text, `font/ttf`, `font/otf`. |
+| Not compressed | `woff2`, `mp3` (TTS audio, `/api/twa/tts` and `/storage/audio/`), `png/jpg/webp` — already compressed. |
+| `/admin`, `/2fa`, `/livewire-*` | `gzip off` (BREACH: pages carry CSRF tokens and reflect input). The traffic is negligible. |
+| Brotli | not enabled (no module in `nginx:alpine`); a possible later step. |
+
+Why admin paths are separate `location` blocks with their own `fastcgi_pass`: `gzip off` inside `location /admin { try_files ... /index.php; }` does not help — `try_files` makes an internal redirect to `/index.php`, and the response is then produced by `location ~ \.php$`, where gzip is on. Therefore these paths go straight to PHP-FPM with `SCRIPT_FILENAME`/`SCRIPT_NAME`/`DOCUMENT_URI` pointing at `index.php` (the same values the internal redirect would give). If you change the fastcgi params in `location ~ \.php$`, mirror the change in that block. Filament's static files live in `/css/filament`, `/js/filament`, `/fonts/filament` (not under `/admin`) and stay compressed.
 
 ---
 
@@ -308,6 +360,8 @@ stdout_logfile_backups=3
 user=www-data
 ```
 
+Pre-generated word audio (`PregenerateWordAudioJob`, see below) runs on the `low` queue, which the `--queue=high,default,low` list above already includes (the Docker `queue` service uses the same list). The job retries 5 times with backoff 30s / 2m / 10m / 30m.
+
 For bigger classes, increase `numprocs` before adding app containers. With Redis queue and the current DB indexes, 2-3 workers are enough for roughly 300 active students/day unless Telegram API latency dominates.
 
 Keep `REDIS_MAXMEMORY_POLICY=noeviction` while cache, sessions and queues share the same Redis instance. `allkeys-lru` is only safe after moving queues/sessions to a separate Redis instance, otherwise Redis can evict pending jobs under memory pressure.
@@ -319,6 +373,32 @@ supervisorctl update
 supervisorctl start lexiflow-worker:*
 supervisorctl status
 ```
+
+---
+
+### 10.1 Pre-generated word audio (task 1.2c)
+
+Words are voiced once by the edge-tts service (`TTS_SERVICE_URL`, `TTS_SERVICE_TIMEOUT`) instead of on every learner request:
+
+```bash
+php artisan audio:pregenerate <course-slug>          # queue jobs for active words without current audio
+php artisan audio:pregenerate <course-slug> --force  # re-synthesize existing files (one TTS call per unique text)
+```
+
+- Files: `storage/app/public/audio/{sha1(text|voice|version)}.mp3` (public disk), `words.audio_path` holds the relative path. Same text in several words/courses = one file. Writes are atomic: the body goes to `audio/.tmp/{name}.{random}` and is renamed onto the final name; an empty or truncated file counts as "not generated" and is rebuilt. Changing `TTS_VOICE` or `TTS_AUDIO_VERSION` produces new file names on its own, so run the command **without** `--force` after that (`--force` is only for replacing the contents of files that already exist, e.g. a bad batch); old files stay on disk (delete `storage/app/public/audio` and re-run the command to clean up). Editing a word's English text in the admin panel clears its `audio_path` and queues a new job.
+- The `tts` container must be reachable from the queue worker. If it is down, jobs retry and then land in `failed_jobs` (`php artisan queue:retry all` when it is back); the rest of the batch is not affected, learners just keep getting Web Speech / live `/api/twa/tts` (503 `tts_unavailable` when the TTS service is down or unreachable).
+- Serving: nginx `location ^~ /storage/audio/` (see `docker/nginx/*.conf`) reads `storage/app/public/audio` directly and denies dotfiles (`.tmp/`). In `docker-compose.prod.yml` the audio lives in its own named volume `app_audio`, mounted at `/var/www/html/storage/app/public/audio` in `app`, `queue` and `scheduler` (read-write) and **only** that volume, read-only, in `nginx`: logs, sessions and other `storage/` contents are not visible to nginx. `php artisan storage:link` is not required for the audio, but the card `audio_url` is built from `APP_URL` + `/storage/...`, so `APP_URL` must be the public https origin.
+- Deploying this volume layout onto an existing install (audio already generated into `app_storage`): the first `docker compose -f docker-compose.prod.yml up -d` creates an empty `app_audio`, so existing mp3 files are not served until you copy them over (or just re-run `audio:pregenerate`, which re-creates them; until then learners get the live `/api/twa/tts`). To keep them (the old files are in the `app_storage` volume under `app/public/audio/`, which the new mount shadows, so copy from a throw-away container; if `app_audio` does not exist yet, `docker volume create <project>_app_audio` first):
+
+  ```bash
+  docker compose -f docker-compose.prod.yml down            # stop (volumes are kept)
+  docker run --rm -v <project>_app_storage:/old:ro -v <project>_app_audio:/new alpine \
+      sh -c 'mkdir -p /new && cp -a /old/app/public/audio/. /new/ && chown -R 1000:1000 /new'   # UID:GID = build args UID/GID of the `app` user
+  docker compose -f docker-compose.prod.yml up -d
+  ```
+
+  (`<project>` is the compose project name, see `docker volume ls`.) The old copy inside `app_storage` can be deleted afterwards (optional). An `app_audio` created by Docker from a fresh image is already owned by `app` (the image creates `storage/app/public/audio`); only a manually created volume needs the `chown`.
+- Pre-generation is not triggered automatically (neither by import nor by publishing): run the command after importing or publishing a course.
 
 ---
 
@@ -334,7 +414,12 @@ Add (using the absolute path to PHP — find yours with `which php`):
 ```
 
 This runs every minute. Laravel's scheduler internally dispatches:
+- `ops:scheduler-heartbeat` — every minute (liveness marker read by `/health/ready`).
 - `exams:close-expired` — every minute (closes timed-out exam sessions).
+- `reminders:dispatch` — every 15 minutes (personal reminders by the learner's local time; a learner is claimed by a conditional UPDATE, so overlapping runs are safe; `withoutOverlapping(10)` — the mutex expires after 10 minutes — and `runInBackground`). Its jobs go to the `default` queue, spread at `REMINDERS_SEND_RATE_PER_SECOND` (25/s) over at most 14 minutes.
+- `model:prune` — daily at 03:00 (`product_events` and `notifications_log`, 400 days by default).
+- `training:close-expired` — every 15 minutes (expired personal / stale group training sessions).
+- `subscriptions:expire` — hourly (time-based subscription transitions).
 - `backup:clean` — daily at 01:00.
 - `backup:run` — daily at 01:30.
 - `backup:monitor` — daily at 02:00.
@@ -360,8 +445,9 @@ curl "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getWebhookInfo"
 Run these checks after every deployment:
 
 ```bash
-# 1. Laravel health check
+# 1. Laravel health check + dependency readiness (DB, Redis, scheduler, queues)
 curl -sf https://yourdomain.com/up && echo "OK"
+curl -sf https://yourdomain.com/health/ready && echo "READY"
 
 # 2. Admin panel accessible
 curl -sI https://yourdomain.com/admin | grep "HTTP/"
@@ -380,6 +466,14 @@ curl "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getWebhookInfo" | python
 
 # 7. Audit log clean
 php artisan composer:audit 2>/dev/null || composer audit
+
+# 8. Compression: pre-compressed TWA asset is served as gzip
+ASSET=$(ls public/twa/assets/*.js | head -1 | xargs basename)
+curl -sI -H 'Accept-Encoding: gzip' "https://yourdomain.com/twa/assets/$ASSET" | grep -i "content-encoding"   # -> gzip
+
+# 9. Compression is OFF for the admin panel and 2FA (BREACH): expect no output
+curl -sI -H 'Accept-Encoding: gzip' https://yourdomain.com/admin/login | grep -i "content-encoding"
+curl -sI -H 'Accept-Encoding: gzip' https://yourdomain.com/2fa/challenge | grep -i "content-encoding"
 ```
 
 ---
@@ -431,6 +525,139 @@ php artisan view:cache
 nginx -t && systemctl reload nginx
 ```
 
+### 14.1 Deploying task 1.5b (personal reminders)
+
+Reminders by the learner's local time replace the old daily `repetitions:notify`. Deploy it like this:
+
+1. **Avoid the peak.** Most learners keep the default 19:00 Tashkent time = 14:00 UTC. Do not deploy (and do not restart workers) between about 13:30 and 14:30 UTC.
+2. **Backfill right after the deploy.** `php artisan migrate --force`, restart the workers, then run `php artisan reminders:dispatch` once by hand: it gives `next_reminder_at` to every existing learner with a `reminder_time` (up to `REMINDERS_BACKFILL_LIMIT`, default 10000, per run — repeat the command until `backfilled` is 0 on a base larger than that). Without it the backfill happens on the next 15-minute runs, which is fine but invisible. Run it before 13:30 UTC or after 14:30 UTC: learners whose time has already passed today are not reminded late (`REMINDERS_MAX_DELAY_MINUTES`), their pointer just moves to tomorrow.
+3. **Clean up the old queue.** The removed `SendReviewReminderJob` may still sit in the Redis queues or in `failed_jobs`: let the workers drain the queue (`php artisan queue:work --stop-when-empty`, or check `redis-cli -n 2 llen queues:default`) and then `php artisan queue:flush` to drop the old failed jobs. A queued old job would fail with a missing class, harmlessly, but would pollute `failed_jobs` alerts.
+4. **Queue visibility timeout.** `REDIS_QUEUE_RETRY_AFTER` must be above the workers' `--timeout` (120 in `docker-compose.prod.yml` and in the supervisor unit); the default and `.env.example` now say 180. A lower value hands a long-running job to a second worker while the first is still running it.
+5. After the first evening check `reminders:dispatch` output (`claimed / queued / skipped stale / repaired / backfilled`) and `failed_jobs`; a peak of N learners takes about N / 25 seconds to leave (at most 14 minutes).
+
+---
+
+## 15. Monitoring and Error Tracking
+
+### 15.1 Error tracking (Sentry / GlitchTip)
+
+LexiFlow uses `sentry/sentry-laravel`. The integration is wired in `bootstrap/app.php`
+(`Integration::handles($exceptions)`) and configured in `config/sentry.php`.
+
+```dotenv
+SENTRY_LARAVEL_DSN=https://<key>@sentry.example.com/<project>   # empty = disabled
+SENTRY_ENVIRONMENT=production                                    # empty = APP_ENV
+SENTRY_TRACES_SAMPLE_RATE=0.1                                    # performance sampling, 0 to disable
+SENTRY_SEND_DEFAULT_PII=false                                    # keep false
+```
+
+- **Empty DSN = nothing is sent.** Local development and the test-suite run with an empty DSN.
+- **Self-hosted GlitchTip** speaks the Sentry protocol: just put the GlitchTip project DSN into
+  `SENTRY_LARAVEL_DSN`, no code or config changes are needed.
+- **Privacy.** `before_send` / `before_send_transaction` call
+  `App\Domain\Operations\Support\SentryScrubber`, which strips from every event, breadcrumb and span:
+  `Authorization` / `Cookie` headers and cookies, `init_data` request bodies, the Telegram bot token
+  (also inside `https://api.telegram.org/bot<token>/...` URLs), `TELEGRAM_URL_SECRET` / `TELEGRAM_HEADER_SECRET` /
+  `TWA_JWT_SECRET` values, the `/telegram/webhook/{secret}` URL segment and `secret=`/`token=` query params.
+  Telegram update bodies additionally go through `UpdateSanitizer` (names, usernames, message texts, group titles and phone numbers are masked).
+  The scrubber also **drops all stack-frame arguments** (`Frame::getVars()`) of every exception and of the
+  event stacktrace: sentry-php stores the raw call arguments there (e.g. the URL with the bot token passed to
+  the HTTP client on a Telegram timeout, chat texts, `initData`), which cannot be whitelisted, so they are
+  cleared entirely. JSON bodies of Livewire requests (`snapshot` / `updates`) get `password*`, `code`,
+  `recovery_code` and `one_time_password` masked, also when double-encoded.
+  The hooks are array callables, so `php artisan config:cache` works.
+- **Sentry Logs.** `enable_logs` (`SENTRY_ENABLE_LOGS`) is `false` by default. Log records sent that way bypass
+  `before_send`, so `before_send_log` is wired to `SentryScrubber::beforeSendLog` (body and attributes go through
+  the same redactor). Do not remove that hook if you enable the option.
+- **Defense in depth: `zend.exception_ignore_args = On`.** The app image installs `docker/php/zz-lexiflow.ini`
+  (`zend.exception_ignore_args=On`, `expose_php=Off`), so PHP does not even put call arguments into exception
+  traces. It does **not** touch exception *messages* (see 15.1a). On a bare-metal php-fpm (no Docker) set the same in
+  `php.ini` / `conf.d` of the FPM pool and the CLI queue workers. sentry-php has no option to skip frame
+  arguments, so this ini setting plus the scrubber are the two layers.
+- Test the wiring after a deploy: `php artisan sentry:test` (needs a DSN) and check that the event arrives
+  without credentials.
+
+### 15.1a Secrets in logs and `failed_jobs`
+
+Network errors of the Bot API client carry the full request URL in the exception **message**
+(`cURL error 28: ... for https://api.telegram.org/bot<id>:<token>/sendMessage`; Guzzle masks only URL userinfo).
+Without extra care it would land in `storage/logs/laravel.log`, stderr and `failed_jobs.exception`
+(Laravel stores `(string) $exception`, including the `previous` chain). One redactor,
+`App\Domain\Operations\Support\SecretRedactor`, is used at three places:
+
+| Where | Mechanism |
+|-------|-----------|
+| `laravel.log` / `stderr` / syslog / errorlog / slack / papertrail | `RedactSecretsInLogs` tap on every channel in `config/logging.php` pushes `RedactingLogProcessor`: masks `message`, `context`, `extra` recursively; a `Throwable` in the context (`exception`) is replaced by its redacted text (message, `previous` chain, trace without call arguments). New channels must get the same `tap`. |
+| `failed_jobs.exception` and any exception that leaves the Telegram client | `IrazasyedTelegramClient` wraps every SDK/Guzzle error into `TelegramApiException` with the redacted message and **without** `previous`, so `(string) $e` is clean. 403 stays `TelegramForbiddenException`. |
+| Sentry events / transactions / logs | `SentryScrubber` (15.1). |
+
+Masked: `bot<id>:<token>` in URLs and bare bot tokens, literal values of `TELEGRAM_BOT_TOKEN`,
+`TELEGRAM_URL_SECRET`, `TELEGRAM_HEADER_SECRET`, `TWA_JWT_SECRET`, the `/telegram/webhook/{secret}` segment,
+`Bearer ...`, `secret=`/`token=`/`init_data=` pairs, values under keys containing `token`, `secret`, `password`,
+`authorization`, `cookie`, `signature`, `init_data` (context arrays only). Not covered: the Laravel "emergency" logger
+(used only if a channel cannot be created) and third-party sinks that do not use the Laravel logger.
+After a token rotation the old value is not in the config any more, but the URL pattern still masks it.
+
+### 15.2 Readiness probe: `GET /health/ready`
+
+Unlike the framework `/up` (process is alive), `/health/ready` checks dependencies and is meant for
+an external uptime monitor (UptimeRobot / Better Stack / GlitchTip uptime) and for deploy smoke tests.
+
+| Check | Fails when |
+|---|---|
+| `db` | `select 1` throws |
+| `redis` | `PING` fails (only reported if cache or queue use the `redis` driver) |
+| `scheduler` | no scheduler heartbeat for more than 3 minutes (`READINESS_HEARTBEAT_MAX_AGE`, seconds) |
+| `queue` | backlog of the `high` (`TELEGRAM_QUEUE`) or `default` queue exceeds `READINESS_QUEUE_MAX_SIZE` (1000) |
+
+Response: `200 {"status":"ok","checks":{"db":"ok",...}}` or `503 {"status":"fail","checks":{"db":"fail",...}}`.
+Only `ok`/`fail` is returned; error details, hosts and versions are written to the application log
+(`readiness.check_failed`), never to the response. The route is throttled (60 req/min per IP) and stateless.
+
+The scheduler heartbeat is written by a scheduled callback (`ops:scheduler-heartbeat`, every minute, see
+`routes/console.php`) into the cache. After the very first deploy the check turns green within a minute.
+
+### 15.3 What to monitor and alert on
+
+| Signal | Alert when |
+|---|---|
+| `GET /health/ready` (every 1 min) | 2 consecutive non-200 responses; the `checks` body tells which dependency failed |
+| Sentry / GlitchTip issues | new issue in `production`; spike of a known issue |
+| Failed jobs (`failed_jobs`, `php artisan queue:failed`) | any growth, especially `PostLeaderboardJob` |
+| `backup:monitor` mail | any message (backup is missing or too old) |
+| Certificate expiry | < 14 days |
+| Disk usage on the DB / backup volume | > 80% |
+| `billing.promo_rejected_burst` (warning log; `learner_id`, `rejections`, `last_reason`) | any occurrence outside a known broken client — one learner failed ≥ 5 promo redemptions in 10 min (`BILLING_PROMO_REJECTIONS_ALERT_*`): code guessing; consider blocking the learner |
+
+Product events (`product_events` table, see `docs/03_DATABASE.md`) are for product analytics, not alerting.
+`reminder.failed` is expected for learners who blocked the bot or never opened a DM with it (`reason`: `bot_blocked` / `not_started` / `user_deactivated` / `chat_not_found`); it sets `learners.dm_blocked_at` and the learner is not retried until they write to the bot. Alert only on a sudden spike. `reminders:dispatch` prints `claimed / queued / skipped stale / repaired / backfilled`; a steadily non-zero `skipped stale` means the scheduler or the queue lags by more than `REMINDERS_MAX_DELAY_MINUTES`.
+`promo.rejected` is likewise expected (typos); the burst *log line* above, not the event, is the alert.
+
+---
+
+## 16. Public site (landing, offer, privacy, security.txt)
+
+| What | Where |
+|---|---|
+| Routes | `routes/web.php`: `/`, `/offer`, `/privacy` (language from `Accept-Language`, `ru` default, `Vary: Accept-Language`) and explicit `/{ru\|uz}`, `/{ru\|uz}/offer`, `/{ru\|uz}/privacy` (canonical URLs, used by the language switcher and `hreflang`) |
+| Code | `App\Http\Controllers\PublicSiteController`, `App\Domain\Site\Services\SiteLinks`, `LocaleResolver::fromAcceptLanguage()` |
+| Links and CSP | `canonical` / `hreflang` / internal links are built from `APP_URL` (a forged `Host` cannot change them — set `APP_URL` to the public https origin). The pages send `script-src 'none'` (`App\Http\Middleware\StaticPageCsp`); all other CSP directives equal the app-wide policy |
+| Templates | `resources/views/site/` (`layout`, `landing`, `_legal` shared by `offer` and `privacy`) |
+| Landing texts (ru/uz) | `lang/{ru,uz}/landing.php` |
+| Legal texts (ru/uz) | `lang/{ru,uz}/legal.php` |
+| Styles | `public/css/site.css` (static, no build step; dark theme via `prefers-color-scheme`) |
+| Bot button | `https://t.me/<TELEGRAM_BOT_USERNAME>`; with an empty/invalid username the button is replaced by a disabled "coming soon" label |
+| Support contact | `BILLING_SUPPORT_CONTACT` (-> `config('billing.paywall.contact')`): e-mail, `@telegram_handle`, `https://` URL or plain text. Empty -> the contact line is not rendered anywhere |
+| security.txt | `public/.well-known/security.txt` (RFC 9116) |
+
+The pages are stateless: the route group drops cookies, session and CSRF middleware, so responses carry no `Set-Cookie` and are sent with `Cache-Control: public, max-age=300`. Security headers and CSP come from the global `SecurityHeaders` middleware. nginx needs no changes: the pages go through `location /` (they contain no secrets, so they are *not* in the BREACH `gzip off` block) and `.well-known/security.txt` is a plain static file (`location ~ /\.(?!well-known).*` only denies other dot-paths).
+
+**Replacing the legal text placeholders.** `offer` and `privacy` are stubs: a numbered list of section titles, each followed by "text will be provided by the owner", plus a "draft" notice and `noindex`. In `lang/{ru,uz}/legal.php`, `offer.sections` / `privacy.sections` is a list; replace a title string with `['title' => '...', 'text' => "Paragraph 1\n\nParagraph 2"]` to publish its text (paragraphs are split on blank lines; plain strings stay placeholders). Section order/count may differ from the stub but must stay identical in `ru` and `uz` (`LocalizationTest` checks key parity). Once all sections are real: remove `draft_notice` from the views (`resources/views/site/_legal.blade.php`) and drop `'noindex' => true` in `offer.blade.php` / `privacy.blade.php`.
+
+**security.txt.** `Contact` is a placeholder (`security@example.com`): put a real monitored address there before launch. `Expires` must be renewed at least once a year (currently `2027-10-18`).
+
+Smoke check: `curl -sI https://yourdomain.com/ | grep -i -e content-security -e set-cookie` (CSP present, no cookie) and `curl -s https://yourdomain.com/.well-known/security.txt`.
+
 ---
 
 ## File Permissions Reference
@@ -467,6 +694,8 @@ chmod 600 .env
 | `REDIS_LOCK_DB` | recommended | `4` |
 | `REDIS_MAXMEMORY_POLICY` | recommended | `noeviction` |
 | `QUEUE_CONNECTION` | ✅ | `redis` |
+| `TTS_VOICE` | optional | `en-US-AriaNeural` (voice of pre-generated audio) |
+| `TTS_AUDIO_VERSION` | optional | `1` (bump to re-voice the library) |
 | `CACHE_STORE` | ✅ | `redis` |
 | `SESSION_DRIVER` | ✅ | `redis` |
 | `TELEGRAM_IP_ALLOWLIST_ENABLED` | recommended | `true` |
@@ -474,3 +703,19 @@ chmod 600 .env
 | `BACKUP_DISKS` | ✅ | `local` or `local,s3` |
 | `SESSION_ENCRYPT` | recommended | `true` |
 | `SESSION_SECURE_COOKIE` | recommended | `true` |
+| `SENTRY_LARAVEL_DSN` | recommended | Sentry / GlitchTip DSN (empty = disabled) |
+| `SENTRY_ENVIRONMENT` | optional | `production` |
+| `SENTRY_TRACES_SAMPLE_RATE` | optional | `0.1` |
+| `SENTRY_SEND_DEFAULT_PII` | keep | `false` |
+| `READINESS_HEARTBEAT_MAX_AGE` | optional | `180` (seconds) |
+| `READINESS_QUEUE_MAX_SIZE` | optional | `1000` |
+| `REDIS_QUEUE_RETRY_AFTER` | recommended | `180` (must be above the workers' `--timeout`, 120) |
+| `LEARNERS_DEFAULT_TIMEZONE` / `LEARNERS_DEFAULT_REMINDER_TIME` / `LEARNERS_DEFAULT_DAILY_GOAL` | optional | `Asia/Tashkent` / `19:00` / `20` |
+| `LEARNING_SESSION_TTL_HOURS` / `LEARNING_GROUP_SESSION_TTL_HOURS` | optional | `12` / `24` |
+| `BILLING_CACHE_TTL` | optional | `300` (seconds, entitlement cache) |
+| `REMINDERS_DUE_THRESHOLD` | optional | `1` |
+| `REMINDERS_MIN_INTERVAL_HOURS` | optional | `2` (floor between two reminders, >= 1; the main rule is one per local day) |
+| `REMINDERS_MAX_DELAY_MINUTES` | optional | `120` (>= 15) |
+| `REMINDERS_BATCH_SIZE` / `REMINDERS_BACKFILL_LIMIT` | optional | `200` / `10000` |
+| `REMINDERS_SEND_RATE_PER_SECOND` | optional | `25` (>= 1; Telegram allows about 30/s per bot) |
+| `PRODUCT_EVENTS_RETENTION_DAYS` / `NOTIFICATIONS_LOG_RETENTION_DAYS` | optional | `400` / `400` |

@@ -18,6 +18,12 @@ return [
         'window_seconds' => 60,
     ],
 
+    // Incoming updates per sender (docs/12 §8): over the limit they are dropped without a reply.
+    'inbound_rate_limit' => [
+        'max_messages' => (int) env('TELEGRAM_INBOUND_MAX_PER_MINUTE', 30),
+        'window_seconds' => 60,
+    ],
+
     'ip_allowlist' => [
         'enabled' => (bool) env('TELEGRAM_IP_ALLOWLIST_ENABLED', false),
         'cidrs' => ['149.154.160.0/20', '91.108.4.0/22'],

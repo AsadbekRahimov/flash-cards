@@ -5,6 +5,83 @@
 ## Sprint 3 — Filament Admin ✅ (2FA отложен до Sprint 10)
 ## Sprint 4 — Import & Content ✅
 
+## Sprint 14 — Фаза 1 «Публичный B2C MVP» ✅ (2026-10-18 — 2026-10-19; 1.9 ждёт контент владельца)
+
+Основание: `docs/11_SYSTEM_ANALYSIS_AND_SAAS_STRATEGY.md` §5, §6, §10 (Фаза 1); проект — `docs/12_PHASE1_DESIGN.md` (ред. 2). Решения владельца: B2C-first, полный Pro для учеников центра, языки uz/ru, изучаемый — только английский; оплата на старте отложена; Free — 20 новых слов в день; **прода с реальными данными нет** — данные `students` не переносятся, create-миграции правятся на месте, все среды `migrate:fresh --seed` (docs/12 §2); текущему центру Pro не выдаём; paywall = «Pro скоро» + промокод + контакт `BILLING_SUPPORT_CONTACT` (пусто → не показывать); дефолты онбординга 20 / 19:00 / `Asia/Tashkent` / порог 1 приняты; uz-интерфейс запускаем при ru-переводах контента; юр. тексты — позже, делаем шаблоны.
+
+| # | Задача | Исполнитель | Статус |
+|---|--------|-------------|--------|
+| 1.0 | Проект: learner-first модель, курсы, entitlement, схема без переноса данных, нарезка на задачи (`docs/12_PHASE1_DESIGN.md`, ред. 2 после ответов владельца) | architect | ✅ |
+| 1.1a | Схема learner-first, аддитивно: `organizations`, `courses`, `learners`, `group_members`, `word_translations`, `learner_daily_stats`, `subscriptions`, `promo_*`; правки `telegram_groups`/`stages`/`words`; модели, factories, курс `default` в сидере; docs/03 (docs/12 §2.3, §9) | coder | ✅ |
+| 1.1b | Переход на Learner: `student_id` → `learner_id` в create-миграциях, удаление `students`/`Student*`, `LearnerRegistrar`, `GroupMembershipService`, `LearnerContextResolver`, JWT v2, политики по членству, `PanelDataScope::learners()`, Filament/TWA, `DemoLearnersSeeder`, тесты по смыслу (docs/12 §9) | coder (консультация architect по политикам/экзамену при затруднении) | ✅ |
+| 1.2a | Курсы и переводы: `CourseCatalogService`, `CoursePublisher`, `WordTranslationResolver`, импорт v2, Filament курсы/переводы, stage в курсе группы | coder | ✅ |
+| 1.2b | Каталог курсов в TWA (`/courses`, выбор курса) | coder | ✅ |
+| 1.2c | Предгенерация аудио (edge-tts → `words.audio_path`) | coder | ✅ |
+| 1.3a | Личные сессии и scope (`daily_review`, `lesson`), `CardPicker::pickNext(scope, budget)` | architect → coder | ✅ |
+| 1.3b | «Сегодня», дневная цель, streak (`LearnerClock`, `DailyStatsService`, `StreakService`, `GET /today`) | architect → coder | ✅ |
+| 1.4a | Entitlement, подписки, промокоды (ядро — architect; Filament, `/promo/redeem`, `/me.entitlement`, бот `/promo` — coder) | architect → coder | ✅ |
+| 1.4b | Квота Free (20 новых слов/день) и paywall «Pro скоро» + промокод + контакт; по ревью (architect): смена пояса переносит день и разрешена раз в 24 ч (`422 timezone_change_too_soon`), групповые уроки вне квоты (`word_repetitions.introduced_mode`), серверное `paywall.shown` раз в локальный день | coder → architect | ✅ |
+| 1.5a | Онбординг в боте `/start` (язык, цель, уровень, пояс, время) | coder | ✅ |
+| 1.5b | Напоминания по локальному времени + `dm_blocked_at` | architect | ✅ |
+| 1.6 | Настройки (`PATCH /me/settings`, `SettingsView`, `/settings` в боте) | coder | ✅ |
+| 1.7 | Публичный лендинг `/`, `/offer`, `/privacy` (ru/uz), `security.txt`; оферта и политика — шаблоны до текстов владельца | coder | ✅ (тексты — владелец) |
+| 1.8 | Админка платформы: виджеты learners/воронка/Pro/места организаций | coder | ✅ |
+| 1.9 | Контент MVP: курсы A1–B2 + переводы uz/ru | владелец + coder | ⏳ |
+| 1.10 | Ревью фазы, smoke на демо-данных | координатор / reviewer | ✅ (staging/k6 — вместе с 0.7) |
+| — | Оплата (Stars/Payme/Click) — **отложена владельцем**, за пределами Фазы 1 | — | ⏸ |
+
+**1.1 принята (2026-10-18):** ревью + повторное ревью, блокирующих нет. Проверки: pint, Larastan 8, Pest 574 (sqlite и PG 16), vue-tsc, vitest 93, build. Попутно: потолок интервала SM-2 `LEARNING_MAX_INTERVAL_DAYS` (3650) — на PG интервал переполнял smallint; jsonb-сравнения в тестах без зависимости от порядка ключей. По ревью: профиль из Telegram — полный снимок имени/username, `language_code` только если пришёл; soft-deleted learner восстанавливается только своим `/auth` (пассивные события пропускаются); `last_seen_at` только на `/auth`; запоздалые апдейты членства не применяются (по `date`); block/unblock — `LearnerModerationService` + аудит; фильтр по группе в панели ограничен скоупом; ссылка напоминания — группа, где проходили урок, `source=reminder`.
+Хвосты: CI (`.github/workflows`) не запускается на ветках `claude/**` — PG-прогон делает координатор вручную; `acquisition_source` пишется только при создании learner'а — для 1.5a решить, ставит ли `/start ref_…` источник learner'у, созданному ранее через `/auth` (сейчас — нет); stage по номеру без курса и дубль курса `default` — закрываются в 1.2a.
+
+**1.2a принята (2026-10-18):** ревью + повторное ревью; блокирующее (импорт учителем в любой курс) закрыто — импорт только для admin с проверкой в сервисе. Неактивные слова не участвуют в экзамене, дистракторы — из своего курса, чужие только опубликованные; курс `default` нельзя архивировать; порог публикации учитывает `words.translation`. Доработки ревью (явный системный актор импорта, подгрузка чужих курсов по языку ответа, белый список `visibility = public`) — отдельной задачей. `is_active` в `CardPicker`/счётчиках прогресса — в 1.3a.
+
+**1.7 принята (2026-10-18):** лендинг/оферта/политика без cookies и CSRF, язык по `Accept-Language` + канонические `/{ru|uz}/…`, статический `public/css/site.css`, контакт поддержки — `config('billing.paywall.contact')` (env `BILLING_SUPPORT_CONTACT`), ссылки от `APP_URL`, CSP `script-src 'none'`. От владельца: тексты оферты и политики (ru/uz), реквизиты, `TELEGRAM_BOT_USERNAME`, `BILLING_SUPPORT_CONTACT`, контакт для `public/.well-known/security.txt` (сейчас заглушка), проверка uz-текстов лендинга носителем.
+
+**1.2b, 1.3a, 1.4a, 1.5a приняты (2026-10-19)** после ревью и исправлений; 1.2c — сделана, ревью в составе 1.10. Ключевое по ревью:
+- 1.3a: выдача новой карточки под `FOR NO KEY UPDATE` строки learner'а (две вкладки не обходят квоту и не вводят слово дважды); единый порядок блокировок записан в docs/06 §4.2; групповая сессия старше половины TTL переоткрывается; просроченная личная — 410; флак теста гонки устранён (30/30 на PG).
+- 1.2b: одно правило доступности курса (`published` и не `private`) для каталога, уроков, `daily_review` и «Сегодня».
+- 1.4a: взаимная блокировка learners ↔ subscriptions (воспроизведена на PG) устранена единым порядком «субъект → подписка → FK-вставки»; детерминированные тесты гонок; `promo.rejected` + алерт; версионный кэш entitlement; лимит промокодов по IP 60/мин (CGNAT); выход из группы по `left_chat_member`; аудит правок промокодов и статусов организаций; отказы `TwaAuth` ограничены по IP (60/мин). Исправлен баг: TWA-лимиты считались по IP, а не по learner'у (`TwaAuth` теперь перед throttle).
+- 1.5a: лимит входящих в бот 30/мин на пользователя; повтор шага онбординга при сбое отправки; `next_reminder_at` считается при выборе пояса/времени.
+Хвосты: предупреждение при привязке группы, где бот не админ (нужен `getChatMember`); `ref_<id>` → непредсказуемый `referral_code` до наград за рефералов (Фаза 2); при подключении оплаты — согласованно сделать `canceled` live до конца периода (чек-лист в docs/12 §5.1/§6.2); перед запуском — заменить заглушку `security.txt`.
+
+**Фаза 1 закрыта (2026-10-19).** Все задачи, кроме контента 1.9, приняты после ревью и исправлений. Итоговые проверки: pint, Larastan 8, Pest 1495 (sqlite) / 1502 (PostgreSQL 16), vue-tsc, vitest 268, `npm run build`. Интеграционное ревью и smoke на демо-данных (PG, `migrate:fresh --seed`, HTTP + webhook бота + планировщик) — без блокирующих находок.
+- 1.4b: обход квоты Free сменой пояса (480 карточек/сутки в пробе) закрыт «переносом дня» (`LearnerClock::limitWindowUtc`) + смена пояса не чаще раза в 24 ч; групповые уроки учителя вне квоты (`word_repetitions.introduced_mode`); `paywall.shown` пишет сервер раз в окно квоты.
+- 1.5b: напоминания «не больше одного раза» (лог до отправки), не чаще одного за локальный день + минимум 2 ч, разнос пика (25/с), очередь `default`, `chat not found` и `my_chat_member` в ЛС → `dm_blocked_at`; деплой — DEVOPS_GUIDE §14.1.
+- 1.6: явный выбор языка не перетирается из Telegram (`meta.locale_chosen`); 1.8: SQL-правило подписок сверяется с PHP на матрице, фильтр Free/Pro ~7× быстрее.
+- Интеграция: демо-сид не съедает квоту; `/auth` 60/мин per IP + 10/мин per `telegram_user_id`; переводы валидации ru/uz; `.env.example` полный (`EnvExampleTest`); `REDIS_QUEUE_RETRY_AFTER` 180 > таймаута воркера; `UzReviewDocTest` следит за полнотой `I18N_UZ_REVIEW.md`.
+Решения координатора (могут быть пересмотрены владельцем): групповые уроки не тратят квоту Free; `paywall.shown` — серверный; при смене пояса «длинный день» до ~48 ч; отмена ошибочной смены пояса не делается; цель, засчитанная после понижения, не отзывается при повышении.
+Хвосты на Фазу 2 / перед запуском: CI не запускается на ветках `claude/**` (PG-прогон — вручную); staging (0.7: restore, ZAP, k6, Lighthouse); глобальный лимит исходящих Telegram при > ~21 тыс. напоминаний за 15 мин; TWA-запросы идут с `APP_LOCALE=ru` — тексты валидации на uz не применяются (нужна локаль запроса по learner'у); `audio_url` через DTO `TrainingStep`; `getChatMember`-предупреждение при привязке группы; `referral_code` вместо `ref_<id>`; `canceled` как live при подключении оплаты (чек-лист docs/12 §5.1); отмена ошибочной смены пояса.
+От владельца: контент курсов A1–B2 с переводами uz/ru (1.9); тексты оферты и политики (ru/uz) и реквизиты; `TELEGRAM_BOT_USERNAME`, `BILLING_SUPPORT_CONTACT`, контакт для `security.txt`; проверка носителем `docs/I18N_UZ_REVIEW.md` (включая новый раздел validation).
+
+## Sprint 13 — Фаза 0 «Стабилизация ядра» ✅ (2026-10-18; 0.7 ждёт staging)
+
+Основание: `docs/11_SYSTEM_ANALYSIS_AND_SAAS_STRATEGY.md` §10, стратегия B2C-first.
+Решения владельца: ученик центра получает полный Pro; языки интерфейса и переводов — узбекский и русский; изучаемый язык — только английский.
+
+| # | Задача | Исполнитель | Статус |
+|---|--------|-------------|--------|
+| 0.1 | SRS: оценка «Средне» без штрафа EF, learning steps внутри сессии | architect | ✅ |
+| 0.2 | Экзамен: per-student порядок вопросов и вариантов, реальные дистракторы вместо filler | architect | ✅ |
+| 0.3 | `/health/ready` (DB, Redis, scheduler heartbeat, очередь); error tracking — после согласования зависимости | coder | ✅ |
+| 0.4 | Таблица `events` + `ProductEventRecorder` + базовые события | coder | ✅ |
+| 0.5 | i18n каркас: `lang/{ru,uz}`, `trans_choice`, свой модуль i18n в TWA (без vue-i18n); строки uz — на проверку носителю: `docs/I18N_UZ_REVIEW.md` | coder | ✅ |
+| 0.6 | API Resource-классы для TWA, вынос логики из контроллеров | coder | ✅ |
+| 0.7 | Staging: restore-тест, ZAP baseline, k6 | координатор (нужен staging) | ⏳ |
+| 0.8 | Сжатие трафика: предсжатая статика TWA (`gzip_static`), тюнинг gzip, без сжатия аудио, защита от BREACH на admin | coder | ✅ |
+
+### Итог фазы
+- Ревью (`reviewer`) всего diff фазы: 2 блокирующие, 3 желательные, 9 мелких находок — все закрыты; повторное ревью исправлений — ✅ без блокирующих.
+- Доп. исправления по ревью: очистка аргументов стек-фреймов в Sentry + `zend.exception_ignore_args=On`; heartbeat из Redis; одноразовый `serve_token` для learn-ahead карточек; «брошенные» learning/relearning снова в напоминаниях (`DueRepetitionCriteria`); fail-fast валидация `LearningPolicy`; `order_secret` экзамена; ретенция `product_events`; маскирование токена бота в логах и `failed_jobs` (`SecretRedactor`, Monolog-processor, `TelegramApiException`); fallback-локаль `ru`.
+- Проверки на приёмке: Pest **409 passed / 3 skipped**, Larastan level 8 — 0 ошибок, Pint ✅, TWA vue-tsc ✅, vitest **89 passed**, `npm run build` ✅.
+- Узбекские строки — на проверку носителю: `docs/I18N_UZ_REVIEW.md`.
+- Миграции `2026_10_18_000001/000002` правились на месте до выкатки — при локально накаченных ранних версиях нужен `migrate:fresh`.
+
+Хвосты, найденные по ходу (взять в работу до приёмки фазы):
+- Студент, заблокировавший бота, получает попытку напоминания каждый день → флаг `dm_blocked_at` (Фаза 1, learners).
+- `/health/ready` отдаёт 503 первую минуту после деплоя (нет heartbeat) — учесть grace-период в healthcheck.
+- Пул дистракторов использует `inRandomOrder()` (ORDER BY RANDOM()) — при росте публичной библиотеки заменить выборкой по случайным id.
+- Backfill-миграция `state` в `word_repetitions` — один UPDATE без батчей; для больших объёмов перевести на `chunkById`.
+
 ## Sprint 12 — Полный аудит, безопасность и production readiness ✅ (2026-07-13)
 
 Проведена полная сверка кода со всей документацией `docs/`, архитектурой, PRD и security checklist. Исправлены обнаруженные незавершённые и небезопасные сценарии.

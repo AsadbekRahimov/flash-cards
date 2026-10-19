@@ -20,6 +20,7 @@
                 <li>Added: <strong>{{ $lastReport['added'] }}</strong></li>
                 <li>Updated: <strong>{{ $lastReport['updated'] }}</strong></li>
                 <li>Skipped: <strong>{{ $lastReport['skipped'] }}</strong></li>
+                <li>Translations: <strong>+{{ $lastReport['translations_added'] }}</strong> new, <strong>{{ $lastReport['translations_updated'] }}</strong> updated</li>
                 <li>Aborted: <strong>{{ $lastReport['aborted'] ? 'yes' : 'no' }}</strong></li>
             </ul>
 

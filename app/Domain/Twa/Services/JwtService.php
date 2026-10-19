@@ -11,11 +11,16 @@ use UnexpectedValueException;
 /**
  * Short-lived JWT for TWA clients.
  *
- * Payload:
- *   { iss, sub: student_id, gid: telegram_group_id, iat, exp }
+ * Payload (format v2, docs/12 §4.1):
+ *   { iss, sub: learner_id, v: 2, iat, exp }
+ *
+ * `v` is mandatory: tokens issued before learner-first (where `sub` was a
+ * `students.id` and a `gid` claim was present) must never be read as a learner id.
  */
 final class JwtService
 {
+    public const VERSION = 2;
+
     public function __construct(
         private readonly string $secret,
         private readonly int $ttl,
@@ -26,15 +31,15 @@ final class JwtService
     /**
      * @return array{token:string, expires_in:int, expires_at:int}
      */
-    public function issue(int $studentId, int $groupId): array
+    public function issue(int $learnerId): array
     {
         $now = time();
         $expires = $now + $this->ttl;
 
         $payload = [
             'iss' => $this->issuer,
-            'sub' => (string) $studentId,
-            'gid' => $groupId,
+            'sub' => (string) $learnerId,
+            'v' => self::VERSION,
             'iat' => $now,
             'exp' => $expires,
         ];
@@ -47,7 +52,7 @@ final class JwtService
     }
 
     /**
-     * @return array{student_id:int, group_id:int, iat:int, exp:int}
+     * @return array{learner_id:int, iat:int, exp:int}
      *
      * @throws UnexpectedValueException
      */
@@ -56,8 +61,12 @@ final class JwtService
         $decoded = JWT::decode($token, new Key($this->secret, $this->alg));
         $payload = (array) $decoded;
 
-        if (! isset($payload['iss'], $payload['sub'], $payload['gid'], $payload['exp'])) {
+        if (! isset($payload['iss'], $payload['sub'], $payload['exp'])) {
             throw new UnexpectedValueException('malformed_jwt_payload');
+        }
+
+        if (($payload['v'] ?? null) !== self::VERSION) {
+            throw new UnexpectedValueException('unsupported_jwt_version');
         }
 
         if (! is_string($payload['iss']) || ! hash_equals($this->issuer, $payload['iss'])) {
@@ -65,8 +74,7 @@ final class JwtService
         }
 
         return [
-            'student_id' => (int) $payload['sub'],
-            'group_id' => (int) $payload['gid'],
+            'learner_id' => (int) $payload['sub'],
             'iat' => (int) ($payload['iat'] ?? 0),
             'exp' => (int) $payload['exp'],
         ];

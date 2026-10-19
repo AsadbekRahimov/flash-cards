@@ -14,9 +14,9 @@ class DatabaseSeeder extends Seeder
             RolePermissionSeeder::class,
             DemoAdminSeeder::class,
             DemoTeacherSeeder::class,
-            DemoGroupSeeder::class,
             DemoContentSeeder::class,
-            DemoStudentsSeeder::class,
+            DemoGroupSeeder::class,
+            DemoLearnersSeeder::class,
             DemoRepetitionsSeeder::class,
             DemoActivitySeeder::class,
         ]);

@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
+use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Services\IrazasyedTelegramClient;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Log;
 
 final class SendTelegramMessageJob implements ShouldQueue
 {
@@ -36,11 +38,26 @@ final class SendTelegramMessageJob implements ShouldQueue
             return;
         }
 
-        $telegram->sendImmediately(
-            $this->chatId,
-            $this->text,
-            $this->parseMode,
-            $this->replyMarkup,
-        );
+        try {
+            $telegram->sendImmediately(
+                $this->chatId,
+                $this->text,
+                $this->parseMode,
+                $this->replyMarkup,
+            );
+        } catch (TelegramForbiddenException $e) {
+            // Bot blocked / kicked / dialog never started: retrying (up to $tries
+            // times) can never succeed, so finish the job without failing it.
+            // The chat id is logged only as a keyed fingerprint, never in clear.
+            Log::warning('telegram.deferred_message_forbidden', [
+                'reason' => $e->reason,
+                'chat' => $this->chatFingerprint(),
+            ]);
+        }
+    }
+
+    private function chatFingerprint(): string
+    {
+        return substr(hash_hmac('sha256', (string) $this->chatId, (string) config('app.key')), 0, 12);
     }
 }

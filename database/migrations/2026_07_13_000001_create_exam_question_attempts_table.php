@@ -13,14 +13,14 @@ return new class extends Migration
         Schema::create('exam_question_attempts', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('exam_session_id')->constrained('exam_sessions')->cascadeOnDelete();
-            $table->foreignId('student_id')->constrained('students')->cascadeOnDelete();
+            $table->foreignId('learner_id')->constrained('learners')->cascadeOnDelete();
             $table->unsignedSmallInteger('question_index');
             $table->timestamp('served_at');
             $table->timestamp('answered_at')->nullable();
 
             $table->unique(
-                ['exam_session_id', 'student_id', 'question_index'],
-                'exam_question_attempts_session_student_index_unique',
+                ['exam_session_id', 'learner_id', 'question_index'],
+                'exam_question_attempts_session_learner_index_unique',
             );
         });
     }

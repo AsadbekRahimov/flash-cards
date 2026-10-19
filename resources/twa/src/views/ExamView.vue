@@ -6,6 +6,7 @@ import QuizOption from '@/components/QuizOption.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useExamStore } from '@/stores/exam'
 import { useTelegram } from '@/composables/useTelegram'
+import { useI18n } from '@/i18n'
 import { useTimer } from '@/composables/useTimer'
 
 const props = defineProps<{ sessionId: number }>()
@@ -14,6 +15,7 @@ const router = useRouter()
 const auth = useAuthStore()
 const exam = useExamStore()
 const { close, showBackButton, haptic, notificationHaptic } = useTelegram()
+const { t } = useI18n()
 
 const {
   status,
@@ -73,8 +75,9 @@ onMounted(async () => {
   try {
     await auth.ensure({ type: 'exam', sessionId: props.sessionId })
     await exam.join(props.sessionId)
-  } catch {
-    /* auth or join error → handled via store.handleApiError */
+  } catch (err) {
+    // join() handles its own errors; this is an auth failure.
+    exam.handleApiError(err)
   }
 })
 
@@ -137,16 +140,16 @@ function onRetry(): void {
     <div v-if="status === 'joining' || status === 'loading'"
          class="flex-1 flex items-center justify-center"
          data-testid="spinner">
-      <p class="text-tg-hint">Загрузка…</p>
+      <p class="text-tg-hint">{{ t('common.loading') }}</p>
     </div>
 
     <div v-else-if="status === 'closed'"
          class="flex-1 flex items-center justify-center text-center"
          data-testid="closed">
       <div class="space-y-4">
-        <p class="text-lg font-semibold">🔒 Экзамен завершён учителем</p>
+        <p class="text-lg font-semibold">{{ t('exam.closed_title') }}</p>
         <p class="text-tg-hint">{{ errorMessage }}</p>
-        <button class="btn btn-primary" @click="close()">Закрыть</button>
+        <button class="btn btn-primary" data-testid="close-btn" @click="close()">{{ t('common.close') }}</button>
       </div>
     </div>
 
@@ -154,9 +157,9 @@ function onRetry(): void {
          class="flex-1 flex items-center justify-center text-center"
          data-testid="error">
       <div class="space-y-4">
-        <p class="text-lg font-semibold">⚠️ Ошибка</p>
+        <p class="text-lg font-semibold">⚠️ {{ t('common.error_title') }}</p>
         <p class="text-tg-hint">{{ errorMessage }}</p>
-        <button class="btn btn-primary" @click="onRetry">Повторить</button>
+        <button class="btn btn-primary" data-testid="retry-btn" @click="onRetry">{{ t('common.retry') }}</button>
       </div>
     </div>
 

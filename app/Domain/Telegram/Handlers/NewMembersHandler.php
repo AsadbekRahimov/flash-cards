@@ -4,12 +4,22 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Handlers;
 
+use App\Domain\Analytics\Enums\ProductEventName;
+use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Learners\Services\GroupMembershipService;
+use App\Domain\Learners\Services\LearnerRegistrar;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
-use App\Models\Student;
 use App\Models\TelegramGroup;
+use Carbon\CarbonImmutable;
 
 final class NewMembersHandler implements UpdateHandler
 {
+    public function __construct(
+        private readonly ProductEventRecorder $events,
+        private readonly LearnerRegistrar $registrar,
+        private readonly GroupMembershipService $memberships,
+    ) {}
+
     /** @param array<string, mixed> $update */
     public function matches(array $update): bool
     {
@@ -39,6 +49,7 @@ final class NewMembersHandler implements UpdateHandler
 
         /** @var list<array<string, mixed>> $members */
         $members = $message['new_chat_members'];
+        $at = isset($message['date']) && is_numeric($message['date']) ? CarbonImmutable::createFromTimestamp((int) $message['date']) : null;
 
         foreach ($members as $m) {
             if (($m['is_bot'] ?? false) === true) {
@@ -50,17 +61,23 @@ final class NewMembersHandler implements UpdateHandler
                 continue;
             }
 
-            Student::updateOrCreate(
-                ['telegram_user_id' => $tgId, 'telegram_group_id' => $group->id],
-                [
-                    'first_name' => (string) ($m['first_name'] ?? 'Unknown'),
-                    'last_name' => $m['last_name'] ?? null,
-                    'username' => $m['username'] ?? null,
-                    'language_code' => $m['language_code'] ?? null,
-                    'last_seen_at' => now(),
-                    'is_active' => true,
-                ],
-            );
+            // First contact through a group: no /start in DM yet (acquisition_source 'group').
+            // A passive event: a soft-deleted learner stays deleted and gets no membership.
+            $learner = $this->registrar->observeTelegramUser($m, 'group');
+            if ($learner === null) {
+                continue;
+            }
+
+            $member = $this->memberships->join($learner, $group, 'group', $at);
+
+            if ($member->wasRecentlyCreated || $member->wasChanged('status')) {
+                $this->events->record(
+                    ProductEventName::GroupMemberJoined,
+                    ['via' => 'group'],
+                    learner: $learner,
+                    group: $group,
+                );
+            }
         }
     }
 }

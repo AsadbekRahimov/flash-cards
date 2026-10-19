@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Domain\Learning\Exceptions\ExamSessionException;
+use App\Domain\Learning\Services\ExamSessionService;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Models\ExamSession;
@@ -40,7 +42,7 @@ function seedLessonWithWords(int $chatId = -1001, int $telegramUserId = 777): ar
     $teacher = User::factory()->create(['telegram_user_id' => $telegramUserId]);
     attachExamTeacher($teacher, $group);
 
-    $stage = Stage::factory()->create(['number' => 1]);
+    $stage = Stage::factory()->inDefaultCourse()->create(['number' => 1]);
     $lesson = Lesson::factory()->for($stage)->create(['number' => 1]);
     Word::factory()->count(10)->for($lesson)->create();
 
@@ -165,7 +167,7 @@ it('rejects lesson with not enough words', function (): void {
     $group = TelegramGroup::factory()->create(['chat_id' => -3003, 'status' => 'active']);
     $teacher = User::factory()->create(['telegram_user_id' => 888]);
     attachExamTeacher($teacher, $group);
-    $stage = Stage::factory()->create(['number' => 1]);
+    $stage = Stage::factory()->inDefaultCourse()->create(['number' => 1]);
     $lesson = Lesson::factory()->for($stage)->create(['number' => 1]);
     Word::factory()->count(2)->for($lesson)->create(); // less than min 4
 
@@ -182,4 +184,82 @@ it('rejects lesson with not enough words', function (): void {
     ]);
 
     expect(ExamSession::query()->count())->toBe(0);
+});
+
+it('rejects a lesson whose words have no real distractors and leaves no session behind', function (): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => -4004, 'status' => 'active']);
+    $teacher = User::factory()->create(['telegram_user_id' => 999]);
+    attachExamTeacher($teacher, $group);
+    $stage = Stage::factory()->inDefaultCourse()->create(['number' => 1]);
+    $lesson = Lesson::factory()->for($stage)->create(['number' => 1]);
+    // 4 words, all with the same translation and nothing else in the library.
+    Word::factory()->count(4)->for($lesson)->create(['translation' => 'одно и то же']);
+
+    $this->api->shouldReceive('sendMessage')
+        ->once()
+        ->with(-4004, Mockery::pattern('/вариантов ответа/u'));
+
+    app(TelegramDispatcher::class)->dispatch([
+        'message' => [
+            'chat' => ['id' => -4004, 'type' => 'supergroup'],
+            'from' => ['id' => 999],
+            'text' => '/start_exam 1 1 2',
+        ],
+    ]);
+
+    expect(ExamSession::query()->count())->toBe(0);
+});
+
+it('stores canonical questions with per-learner ordering enabled and no correct_index', function (): void {
+    seedLessonWithWords();
+    $this->api->shouldReceive('sendWebAppButton')->once();
+
+    app(TelegramDispatcher::class)->dispatch([
+        'message' => [
+            'chat' => ['id' => -1001, 'type' => 'supergroup'],
+            'from' => ['id' => 777],
+            'text' => '/start_exam 1 1 2',
+        ],
+    ]);
+
+    $session = ExamSession::query()->sole();
+    expect($session->config['question_order'])->toBe('per_learner')
+        ->and($session->config['order_secret'])->toMatch('/^[0-9a-f]{64}$/')
+        ->and($session->config['total_questions'])->toBe(count($session->config['questions']));
+    foreach ($session->config['questions'] as $q) {
+        expect($q)->toHaveKeys(['word_id', 'word', 'correct_translation', 'options'])
+            ->and($q)->not->toHaveKey('correct_index')
+            ->and(array_keys($q['options'], $q['correct_translation'], true))->toHaveCount(1);
+        foreach ($q['options'] as $o) {
+            expect($o)->not->toContain('filler');
+        }
+    }
+});
+
+it('counts only active words towards the exam minimum', function (): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => -3004, 'status' => 'active']);
+    $teacher = User::factory()->create(['telegram_user_id' => 889]);
+    attachExamTeacher($teacher, $group);
+    $stage = Stage::factory()->inDefaultCourse()->create(['number' => 1]);
+    $lesson = Lesson::factory()->for($stage)->create(['number' => 1]);
+    Word::factory()->count(3)->for($lesson)->create();
+    Word::factory()->count(6)->for($lesson)->create(['is_active' => false]); // 9 rows, only 3 live
+
+    $this->api->shouldReceive('sendMessage')
+        ->once()
+        ->with(-3004, Mockery::pattern('/недостаточно/u'));
+
+    app(TelegramDispatcher::class)->dispatch([
+        'message' => [
+            'chat' => ['id' => -3004, 'type' => 'supergroup'],
+            'from' => ['id' => 889],
+            'text' => '/start_exam 1 1 2',
+        ],
+    ]);
+
+    expect(ExamSession::query()->count())->toBe(0);
+
+    // The handler's text carries no number: pin the counted value (3 live words, not 9 rows) on the service.
+    expect(fn () => app(ExamSessionService::class)->open($group, 1, 1, 10, $teacher))
+        ->toThrow(ExamSessionException::class, 'Lesson has only 3 words');
 });

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Domain\Administration\Services\TwoFactorRecoveryCodeService;
+use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\User;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
@@ -22,6 +23,7 @@ final class TwoFactorController extends Controller
     public function __construct(
         private readonly Google2FA $g2fa,
         private readonly TwoFactorRecoveryCodeService $recoveryCodeService,
+        private readonly LocaleResolver $locales,
     ) {}
 
     public function setup(Request $request): View|RedirectResponse
@@ -52,6 +54,7 @@ final class TwoFactorController extends Controller
         return view('2fa.setup', [
             'secret' => $secret,
             'qrSvg' => $qrSvg,
+            'locale' => $this->locales->forTeacher(),
         ]);
     }
 
@@ -66,7 +69,7 @@ final class TwoFactorController extends Controller
         $secret = (string) $request->session()->get('2fa.pending_secret', '');
 
         if ($secret === '' || ! $this->g2fa->verifyKey($secret, $data['code'])) {
-            return back()->withErrors(['code' => 'Неверный код. Попробуйте ещё раз.']);
+            return back()->withErrors(['code' => __('twofactor.errors.invalid_code', [], $this->locales->forTeacher())]);
         }
 
         $recoveryCodes = collect(range(1, 8))
@@ -104,12 +107,13 @@ final class TwoFactorController extends Controller
 
         return view('2fa.recovery-codes', [
             'codes' => (array) $user->two_factor_recovery_codes,
+            'locale' => $this->locales->forTeacher(),
         ]);
     }
 
     public function challenge(): View
     {
-        return view('2fa.challenge');
+        return view('2fa.challenge', ['locale' => $this->locales->forTeacher()]);
     }
 
     public function verify(Request $request): RedirectResponse
@@ -134,6 +138,6 @@ final class TwoFactorController extends Controller
             return redirect()->intended('/admin');
         }
 
-        return back()->withErrors(['code' => 'Неверный код или recovery-код.']);
+        return back()->withErrors(['code' => __('twofactor.errors.invalid_code_or_recovery', [], $this->locales->forTeacher())]);
     }
 }

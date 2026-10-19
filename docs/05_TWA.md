@@ -32,12 +32,18 @@ resources/twa/
 │   │   ├── auth.ts
 │   │   ├── training.ts
 │   │   └── exam.ts
+│   ├── i18n/
+│   │   ├── index.ts         # t(), tn(), useI18n(), initLocale()
+│   │   ├── ru.ts            # словарь-эталон (ключи выводятся из него)
+│   │   ├── uz.ts            # узбекский (латиница); обязан иметь те же ключи
+│   │   └── errors.ts        # error.code -> локализованный текст
 │   ├── composables/
 │   │   ├── useTelegram.ts   # обёртка над @twa-dev/sdk
 │   │   ├── useTts.ts
 │   │   └── useTimer.ts
 │   ├── views/
 │   │   ├── LandingView.vue
+│   │   ├── TodayView.vue
 │   │   ├── TrainingView.vue
 │   │   ├── ExamView.vue
 │   │   └── ResultView.vue
@@ -72,7 +78,9 @@ app.mount('#app')
 
 | Path | View | Описание |
 |------|------|----------|
-| `/` | LandingView | Показывается, если режим не задан или ошибка. |
+| `/` | LandingView | Без контекста сессии внутри Telegram сразу переходит (`replace`, с query) на `/today`; вне Telegram показывает подсказку. |
+| `/today` | TodayView | Главный экран learner'а (1.3b): цель дня (кольцо), streak, «Повторить» (`daily_review`), активный курс и «Следующий урок», каталог, бейдж Free/Pro. Данные — `GET /today` (docs/04 A.2a), стор `today`. |
+| `/finished` | FinishedView | Итог сессии; цель и streak дня из `finish`-summary (стор `training.summary`), кнопка «На главную» → `/today`; при `done_reason = new_quota_exhausted` открывает `PaywallSheet` (docs/04 A.3, 1.4b). |
 | `/training/:sessionId` | TrainingView | Flashcards. |
 | `/exam/:sessionId` | ExamView | Экзамен с таймером. |
 | `/exam/:sessionId/result` | ResultView | Итоги + лидерборд. |
@@ -95,25 +103,28 @@ export function useTelegramInitData(): string {
 ```ts
 // src/stores/auth.ts
 export const useAuth = defineStore('auth', {
-  state: () => ({ token: '' as string, expiresAt: 0, student: null as Student | null }),
+  state: () => ({ token: '' as string, expiresAt: 0, learner: null as Learner | null }),
   actions: {
     async login(context: { type: 'training' | 'exam'; sessionId: number }) {
       const initData = useTelegramInitData()
       const res = await api.auth.authenticate(initData, context)
       this.token = res.token
       this.expiresAt = Date.now() + res.expires_in * 1000
-      this.student = res.student
+      this.learner = res.learner
     },
     async ensure(context) {
-      if (!this.token || contextChanged(context) || Date.now() > this.expiresAt - 60_000) {
+      // One learner for every session: a context change needs no new token.
+      if (!this.token || Date.now() > this.expiresAt - 60_000) {
         await this.login(context)
+      } else {
+        this.context = context
       }
     },
   },
 })
 ```
 
-Перед каждым запросом вызываем `auth.ensure({ type, sessionId })`; если бек вернул 401 — пробуем один раз переавторизоваться с тем же контекстом. Это обязательно, потому что один Telegram-пользователь может состоять в нескольких группах.
+Перед каждым запросом вызываем `auth.ensure({ type, sessionId })`; если бек вернул 401 — пробуем один раз переавторизоваться (`api/client.ts`). Смена контекста новый токен не требует: learner один на все сессии, доступ к сессии проверяет сервер по членству (403 `not_a_member`). `context` остаётся только для аналитики.
 
 ## 5. Режим «Training»
 
@@ -138,10 +149,13 @@ interface TrainingState {
   - Большая кнопка «Показать перевод» (если `showTranslation=false`) — по клику `showTranslation=true`.
   - Когда показан перевод: translation + example.
   - Три кнопки: 😰 Трудно / 🙂 Средне / 😎 Легко.
+  - Метка типа карточки по `card_kind`: `new` — «Новое слово», `learning` — «Закрепление»
+    (карточка в минутных learning steps, вернётся в этой же сессии), `due` — «Повторение».
 - При клике на оценку:
-  - POST `/review` с соответствующим `quality` (2 / 3 / 5).
-  - Локально: `progress.done++`, очищаем карточку, загружаем следующую.
-  - Если следующая — `null` → `isFinished = true`.
+  - POST `/review` с соответствующим `quality` (2 / 4 / 5 — Again / Good / Easy, см. docs/06 §2).
+  - Локально: очищаем карточку, показываем следующую из ответа `/review`.
+  - Если следующая — `null` → `isFinished = true`. Сервер не вернёт `null`, пока в уроке остаются
+    learning-карточки (learn-ahead, docs/06 §4), поэтому клиенту ждать/опрашивать не нужно.
 
 ### 5.3 Экран «всё готово»
 - Сообщение «Отлично! Вы повторили N слов. Следующее повторение — через X дней.»
@@ -183,11 +197,13 @@ interface ExamState {
 - По окончании: редирект на `ResultView`.
 
 ### 6.4 ResultView
-- Показывает `student_score / rank / total_participants`.
+- Показывает `learner_score / rank / total_participants`.
 - Таблица-лидерборд (первые 10).
 - Кнопка «Закрыть».
 
 ## 7. TTS (useTts)
+
+> Порядок (задача 1.2c): `speak(text, lang, audioUrl)` — если у карточки есть `audio_url`, играет предгенерированный mp3; при `null` или ошибке воспроизведения — Web Speech API, затем `GET /api/twa/tts`. Пример ниже — исходная схема без `audioUrl`.
 
 ```ts
 // src/composables/useTts.ts
@@ -240,6 +256,16 @@ export function useTts() {
   }
   ```
 - `WebApp.HapticFeedback.impactOccurred('light')` — лёгкий хаптик на нажатие оценок.
+
+## 8a. Локализация (i18n)
+
+Языки интерфейса — **русский (по умолчанию) и узбекский (латиница)**; изучаемый язык (английский) не переводится. Внешняя библиотека (vue-i18n) не используется — модуль `src/i18n/` (~100 строк).
+
+- **Выбор языка:** `Telegram.WebApp.initDataUnsafe.user.language_code` (через `useTelegram().languageCode()`) → `uz*` → `uz`, всё остальное (и запуск вне Telegram) → `ru`. Выбирается один раз в `main.ts` (`initLocale`), там же выставляется `<html lang>`.
+- **Словари:** `ru.ts` — эталон; тип `Translations` выводится из него, поэтому `uz.ts` с пропущенным/лишним ключом не проходит `vue-tsc`. Ключи плоские, `section.name`. Plural-значения — объект форм `{ one, few, many, other }`.
+- **API:** `t(key, params?)` — подстановка `{name}`; `tn(key, count, params?)` — форма по `Intl.PluralRules` (ru: one/few/many, uz: one/other; `{count}` подставляется автоматически); `useI18n()` в компонентах.
+- **Ошибки API:** клиент не показывает `error.message` сервера (он английский), а локализует по `error.code` (`src/i18n/errors.ts`, список `KNOWN_ERROR_CODES`; остальное — по `kind` ответа: сеть, 403, 410, 429, 5xx). Новый код ошибки в бэкенде = новая запись в `KNOWN_ERROR_CODES` + строки `error.code.<code>` в обоих словарях.
+- **Правила:** в `.vue`/`.ts` вне `src/i18n` кириллицы быть не должно (проверяет vitest). Новый текст = ключ в `ru.ts` и `uz.ts` одновременно.
 
 ## 9. Производительность
 

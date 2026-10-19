@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
+use App\Domain\Analytics\Enums\ProductEventName;
+use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Learning\Services\LeaderboardBuilder;
+use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
+use App\Models\Learner;
 use App\Models\Lesson;
-use App\Models\Student;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -37,8 +40,14 @@ final class PostLeaderboardJob implements ShouldQueue
 
     public function __construct(public readonly int $examSessionId) {}
 
-    public function handle(TelegramClient $telegram, LeaderboardBuilder $builder): void
-    {
+    public function handle(
+        TelegramClient $telegram,
+        LeaderboardBuilder $builder,
+        ProductEventRecorder $events,
+        ?LocaleResolver $locales = null,
+    ): void {
+        $locales ??= app(LocaleResolver::class);
+
         /** @var ExamSession|null $session */
         $session = ExamSession::query()
             ->with(['group', 'lesson'])
@@ -59,16 +68,17 @@ final class PostLeaderboardJob implements ShouldQueue
 
         /** @var Collection<int, ExamResult> $results */
         $results = ExamResult::query()
-            ->with('student')
+            ->with('learner')
             ->where('exam_session_id', $session->id)
             ->orderBy('rank')
             ->limit(10)
             ->get();
 
-        $text = $this->format($session, $results);
+        $text = $this->format($session, $results, $locales->forGroup($session->group));
 
         Cache::lock("telegram:leaderboard:{$session->id}", 120)->block(10, function () use (
             $telegram,
+            $events,
             $session,
             $text,
         ): void {
@@ -81,6 +91,11 @@ final class PostLeaderboardJob implements ShouldQueue
             try {
                 $telegram->sendMessage($session->group->chat_id, $text, parseMode: 'HTML');
                 $fresh->update(['leaderboard_posted_at' => now()]);
+                $events->record(
+                    ProductEventName::ExamLeaderboardPosted,
+                    ['exam_session_id' => $session->id],
+                    group: $session->group,
+                );
             } catch (\Throwable $e) {
                 Log::channel('daily')->warning('telegram.leaderboard_post_failed', [
                     'exam_session_id' => $session->id,
@@ -95,14 +110,14 @@ final class PostLeaderboardJob implements ShouldQueue
     /**
      * @param  Collection<int, ExamResult>  $results
      */
-    private function format(ExamSession $session, $results): string
+    private function format(ExamSession $session, $results, string $locale): string
     {
         $lesson = $session->getRelation('lesson');
         $lessonNumber = $lesson instanceof Lesson ? $lesson->number : '?';
-        $header = "🏁 <b>Итоги экзамена</b>\nУрок {$lessonNumber}";
+        $header = __('exam.leaderboard.title', ['lesson' => $lessonNumber], $locale);
 
         if ($results->isEmpty()) {
-            return $header."\n\nНикто не ответил 😅";
+            return $header."\n\n".__('exam.leaderboard.nobody', [], $locale);
         }
 
         $rows = $results->map(function (ExamResult $r): string {
@@ -112,8 +127,8 @@ final class PostLeaderboardJob implements ShouldQueue
                 3 => '🥉',
                 default => "{$r->rank}.",
             };
-            $student = $r->getRelation('student');
-            $name = $this->escapeHtml($student instanceof Student ? ($student->first_name ?? '—') : '—');
+            $learner = $r->getRelation('learner');
+            $name = $this->escapeHtml($learner instanceof Learner ? ($learner->first_name ?? '—') : '—');
             $score = $r->total_score;
 
             return "{$medal} {$name} — <b>{$score}</b>";

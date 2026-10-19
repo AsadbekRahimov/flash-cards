@@ -29,18 +29,24 @@ final class SecurityHeaders
 
         $contentType = (string) $response->headers->get('Content-Type', '');
         if (str_contains($contentType, 'text/html') && ! $response->headers->has('Content-Security-Policy')) {
-            $response->headers->set(
-                'Content-Security-Policy',
-                "default-src 'self'; "
-                ."script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
-                ."style-src 'self' 'unsafe-inline'; "
-                ."img-src 'self' data: blob:; "
-                ."font-src 'self' data:; "
-                ."connect-src 'self'; "
-                ."frame-ancestors 'self';",
-            );
+            $response->headers->set('Content-Security-Policy', self::contentSecurityPolicy());
         }
 
         return $response;
+    }
+
+    /**
+     * The app-wide policy; `$scriptSrc` is the only directive a route group may replace
+     * (static pages pass `'none'`, see {@see StaticPageCsp}).
+     */
+    public static function contentSecurityPolicy(string $scriptSrc = "'self' 'unsafe-inline' 'unsafe-eval'"): string
+    {
+        return "default-src 'self'; "
+            ."script-src {$scriptSrc}; "
+            ."style-src 'self' 'unsafe-inline'; "
+            ."img-src 'self' data: blob:; "
+            ."font-src 'self' data:; "
+            ."connect-src 'self'; "
+            ."frame-ancestors 'self';";
     }
 }

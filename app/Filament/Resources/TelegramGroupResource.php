@@ -15,6 +15,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class TelegramGroupResource extends Resource
 {
@@ -40,6 +41,24 @@ class TelegramGroupResource extends Resource
                     'disabled' => 'Disabled',
                 ])
                 ->required(),
+            Forms\Components\Select::make('course_id')
+                ->label('Course')
+                // Archived courses are not offered — except the one the group is already bound to (so its label still shows).
+                ->relationship('course', 'slug', fn (Builder $query, ?Model $record): Builder => $query->where(
+                    fn (Builder $q): Builder => $q->where('courses.status', '!=', 'archived')->orWhere('courses.id', $record?->getAttribute('course_id')),
+                ))
+                ->placeholder('Default course')
+                ->helperText('Course whose stage / lesson numbers the teacher commands /start_training and /start_exam use. Empty = the default course.')
+                ->preload(),
+            // Stored as meta['locale']; see EditTelegramGroup for the mapping.
+            Forms\Components\Select::make('locale')
+                ->label('Bot language')
+                ->helperText('Language of bot messages posted to this group. Empty = default.')
+                ->options([
+                    'ru' => 'Русский',
+                    'uz' => "O'zbekcha",
+                ])
+                ->placeholder('Default'),
             Forms\Components\KeyValue::make('meta')->columnSpanFull(),
             Forms\Components\Select::make('teachers')
                 ->relationship('teachers', 'name')
@@ -63,9 +82,9 @@ class TelegramGroupResource extends Resource
                         'disabled' => 'danger',
                         default => 'gray',
                     }),
-                Tables\Columns\TextColumn::make('students_count')
-                    ->counts('students')
-                    ->label('Students'),
+                Tables\Columns\TextColumn::make('members_count')
+                    ->counts(['members' => fn (Builder $q): Builder => $q->where('status', 'active')])
+                    ->label('Learners'),
                 Tables\Columns\TextColumn::make('created_at')->dateTime()->sortable(),
             ])
             ->filters([

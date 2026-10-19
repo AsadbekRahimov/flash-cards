@@ -8,7 +8,7 @@ use App\Domain\Learning\Exceptions\ExamParticipationException;
 use App\Models\ExamAnswer;
 use App\Models\ExamQuestionAttempt;
 use App\Models\ExamSession;
-use App\Models\Student;
+use App\Models\Learner;
 use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\ConnectionInterface;
@@ -19,9 +19,11 @@ final class ExamAnswerService
 {
     private const MAX_POINTS_PER_QUESTION = 20;
 
+    public function __construct(private readonly ExamQuestionPersonalizer $personalizer) {}
+
     public function serve(
         ExamSession $session,
-        Student $student,
+        Learner $learner,
         int $questionIndex,
         ?CarbonImmutable $now = null,
     ): ExamQuestionAttempt {
@@ -31,7 +33,7 @@ final class ExamAnswerService
             /** @var ExamQuestionAttempt $attempt */
             $attempt = ExamQuestionAttempt::query()->firstOrCreate([
                 'exam_session_id' => $session->id,
-                'student_id' => $student->id,
+                'learner_id' => $learner->id,
                 'question_index' => $questionIndex,
             ], [
                 'served_at' => $now,
@@ -42,7 +44,7 @@ final class ExamAnswerService
             /** @var ExamQuestionAttempt $attempt */
             $attempt = ExamQuestionAttempt::query()
                 ->where('exam_session_id', $session->id)
-                ->where('student_id', $student->id)
+                ->where('learner_id', $learner->id)
                 ->where('question_index', $questionIndex)
                 ->firstOrFail();
 
@@ -62,18 +64,38 @@ final class ExamAnswerService
     }
 
     /**
-     * @param  array{word_id:int, word:string, correct_translation:string, correct_index:int, options:list<string>}  $question
-     * @return array{is_correct:bool, score:int, time_spent_ms:int}
+     * Records the answer of $learner to the question at $questionIndex of
+     * THEIR personal sequence. The correct option is recomputed here from the
+     * learner's own permutation, so an index copied from a classmate's screen
+     * is graded against this learner's option order, not the classmate's.
+     *
+     * @return array{is_correct:bool, score:int, time_spent_ms:int, correct_index:int, word_id:int}
+     *
+     * @throws ExamParticipationException 404 question_not_found, 422 word_mismatch,
+     *                                    409 question_not_served / already_answered, 410 session_closed
      */
     public function submit(
         ExamSession $session,
-        Student $student,
+        Learner $learner,
         int $questionIndex,
-        array $question,
+        int $wordId,
         ?int $selectedIndex,
         ?CarbonImmutable $now = null,
     ): array {
         $now ??= CarbonImmutable::now();
+
+        $question = $this->personalizer->questionAt($session, $learner, $questionIndex);
+        if ($question === null) {
+            throw new ExamParticipationException(404, 'question_not_found', 'Question index is out of range.');
+        }
+
+        if ($question['word_id'] !== $wordId) {
+            throw new ExamParticipationException(
+                422,
+                'word_mismatch',
+                'Word does not match the question at this index.',
+            );
+        }
 
         /** @var ConnectionInterface $db */
         $db = DB::connection();
@@ -81,7 +103,7 @@ final class ExamAnswerService
         try {
             return $db->transaction(function () use (
                 $session,
-                $student,
+                $learner,
                 $questionIndex,
                 $question,
                 $selectedIndex,
@@ -103,7 +125,7 @@ final class ExamAnswerService
                 /** @var ExamQuestionAttempt|null $attempt */
                 $attempt = ExamQuestionAttempt::query()
                     ->where('exam_session_id', $session->id)
-                    ->where('student_id', $student->id)
+                    ->where('learner_id', $learner->id)
                     ->where('question_index', $questionIndex)
                     ->lockForUpdate()
                     ->first();
@@ -133,7 +155,7 @@ final class ExamAnswerService
                     && $selectedIndex === $question['correct_index'];
 
                 $isHard = (bool) WordRepetition::query()
-                    ->where('student_id', $student->id)
+                    ->where('learner_id', $learner->id)
                     ->where('word_id', $question['word_id'])
                     ->value('is_hard');
 
@@ -141,7 +163,7 @@ final class ExamAnswerService
 
                 ExamAnswer::query()->create([
                     'exam_session_id' => $session->id,
-                    'student_id' => $student->id,
+                    'learner_id' => $learner->id,
                     'word_id' => $question['word_id'],
                     'selected_translation' => $selectedIndex !== null ? ($options[$selectedIndex] ?? null) : null,
                     'is_correct' => $isCorrect,
@@ -157,6 +179,8 @@ final class ExamAnswerService
                     'is_correct' => $isCorrect,
                     'score' => $score,
                     'time_spent_ms' => $timeSpentMs,
+                    'correct_index' => $question['correct_index'],
+                    'word_id' => $question['word_id'],
                 ];
             });
         } catch (UniqueConstraintViolationException) {

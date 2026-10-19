@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Domain\Learning\Enums\RepetitionState;
 use Carbon\CarbonImmutable;
 use Database\Factories\WordRepetitionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int $id
- * @property int $student_id
+ * @property int $learner_id
  * @property int $word_id
  * @property int $repetitions
  * @property int $interval_days
@@ -21,6 +22,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property CarbonImmutable|null $last_reviewed_at
  * @property CarbonImmutable $next_review_at
  * @property bool $is_hard
+ * @property string $introduced_mode mode of the session that first served the word (TrainingSession::MODE_*)
+ * @property RepetitionState $state
+ * @property int $learning_step
+ * @property int $lapses
+ * @property CarbonImmutable|null $served_ahead_at
+ * @property string|null $served_ahead_token
  * @property array<mixed>|null $meta
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
@@ -32,7 +39,7 @@ class WordRepetition extends Model
 
     /** @var list<string> */
     protected $fillable = [
-        'student_id',
+        'learner_id',
         'word_id',
         'repetitions',
         'interval_days',
@@ -41,6 +48,12 @@ class WordRepetition extends Model
         'last_reviewed_at',
         'next_review_at',
         'is_hard',
+        'introduced_mode',
+        'state',
+        'learning_step',
+        'lapses',
+        'served_ahead_at',
+        'served_ahead_token',
         'meta',
     ];
 
@@ -55,14 +68,18 @@ class WordRepetition extends Model
             'last_reviewed_at' => 'immutable_datetime',
             'next_review_at' => 'immutable_datetime',
             'is_hard' => 'boolean',
+            'state' => RepetitionState::class,
+            'learning_step' => 'integer',
+            'lapses' => 'integer',
+            'served_ahead_at' => 'immutable_datetime',
             'meta' => 'array',
         ];
     }
 
-    /** @return BelongsTo<Student, $this> */
-    public function student(): BelongsTo
+    /** @return BelongsTo<Learner, $this> */
+    public function learner(): BelongsTo
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(Learner::class);
     }
 
     /** @return BelongsTo<Word, $this> */

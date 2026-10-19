@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\LessonResource\RelationManagers;
 
+use App\Domain\Content\Services\LessonContentRefresher;
+use App\Domain\Content\Services\WordTranslationWriter;
+use App\Filament\Resources\WordResource;
+use App\Models\Word;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -46,9 +50,29 @@ class WordsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('part_of_speech')->badge()->toggleable(),
                 Tables\Columns\TextColumn::make('transcription')->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->headerActions([Actions\CreateAction::make()])
+            // `translation` is the ru text: mirror it into the ru row of word_translations.
+            ->headerActions([
+                Actions\CreateAction::make()
+                    ->after(function (Word $record): void {
+                        app(WordTranslationWriter::class)->syncDefaultFromWord($record);
+                        app(LessonContentRefresher::class)->wordChanged($record);
+                    }),
+            ])
             ->actions([
-                Actions\EditAction::make(),
+                Actions\EditAction::make()
+                    ->after(function (Word $record): void {
+                        $textChanged = $record->wasChanged('word');
+
+                        app(WordTranslationWriter::class)->syncDefaultFromWord($record);
+                        if ($textChanged) {
+                            app(LessonContentRefresher::class)->wordTextChanged($record);
+                        }
+                    }),
+                Actions\Action::make('translations')
+                    ->label('Translations')
+                    ->icon('heroicon-o-language')
+                    ->visible(fn (Word $record): bool => WordResource::canEdit($record))
+                    ->url(fn (Word $record): string => WordResource::getUrl('edit', ['record' => $record])),
             ])
             ->defaultSort('word');
     }

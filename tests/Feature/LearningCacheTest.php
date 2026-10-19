@@ -5,9 +5,9 @@ declare(strict_types=1);
 use App\Domain\Learning\Services\LearningCache;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
+use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\Stage;
-use App\Models\Student;
 use App\Models\TelegramGroup;
 use App\Models\Word;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -45,12 +45,12 @@ it('caches exam leaderboards until the exam cache is cleared', function (): void
         'status' => 'closed',
         'closed_at' => now(),
     ]);
-    $alice = Student::factory()->create(['telegram_group_id' => $group->id, 'first_name' => 'Alice']);
-    $bob = Student::factory()->create(['telegram_group_id' => $group->id, 'first_name' => 'Bob']);
+    $alice = Learner::factory()->memberOf($group)->create(['first_name' => 'Alice']);
+    $bob = Learner::factory()->memberOf($group)->create(['first_name' => 'Bob']);
 
     ExamResult::factory()->create([
         'exam_session_id' => $session->id,
-        'student_id' => $alice->id,
+        'learner_id' => $alice->id,
         'total_score' => 30,
         'rank' => 1,
     ]);
@@ -63,7 +63,7 @@ it('caches exam leaderboards until the exam cache is cleared', function (): void
 
     ExamResult::factory()->create([
         'exam_session_id' => $session->id,
-        'student_id' => $bob->id,
+        'learner_id' => $bob->id,
         'total_score' => 20,
         'rank' => 2,
     ]);

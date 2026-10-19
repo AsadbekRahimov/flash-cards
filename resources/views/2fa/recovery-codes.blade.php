@@ -1,15 +1,16 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="{{ $locale }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Recovery-коды — {{ config('app.name') }}</title>
+    <title>{{ __('twofactor.recovery.title', [], $locale) }} — {{ config('app.name') }}</title>
     @include('2fa._styles')
 </head>
 <body>
 <div class="card">
-    <h1>Сохраните recovery-коды</h1>
-    <p>Каждый код действителен <strong>один раз</strong>. Используйте их, если потеряете телефон. Храните в менеджере паролей.</p>
+    <h1>{{ __('twofactor.recovery.heading', [], $locale) }}</h1>
+    @php($intro = explode(':emphasis', __('twofactor.recovery.intro', [], $locale), 2))
+    <p>{{ $intro[0] }}<strong>{{ __('twofactor.recovery.intro_emphasis', [], $locale) }}</strong>{{ $intro[1] ?? '' }}</p>
 
     <ul class="codes">
         @foreach ($codes as $code)
@@ -17,7 +18,7 @@
         @endforeach
     </ul>
 
-    <a class="link" href="/admin">→ Перейти в админку</a>
+    <a class="link" href="/admin">{{ __('twofactor.recovery.to_admin', [], $locale) }}</a>
 </div>
 </body>
 </html>

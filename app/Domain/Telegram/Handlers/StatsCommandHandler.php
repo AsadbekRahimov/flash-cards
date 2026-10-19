@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Handlers;
 
+use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
 use App\Domain\Telegram\Services\TeacherStatsReporter;
@@ -14,6 +15,7 @@ final class StatsCommandHandler implements UpdateHandler
     public function __construct(
         private readonly TelegramClient $telegram,
         private readonly TeacherStatsReporter $reporter,
+        private readonly LocaleResolver $locales,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -56,10 +58,11 @@ final class StatsCommandHandler implements UpdateHandler
             ->first();
 
         if ($teacher === null) {
-            $this->telegram->sendMessage(
-                $chatId,
-                "Этот Telegram-аккаунт не привязан к учителю LexiFlow.\nВаш Telegram ID: {$fromId}",
-            );
+            // Unknown account: the best signal we have is its Telegram language.
+            $languageCode = $message['from']['language_code'] ?? null;
+            $locale = $this->locales->fromLanguageCode(is_string($languageCode) ? $languageCode : null);
+
+            $this->telegram->sendMessage($chatId, __('bot.stats.not_linked', ['id' => $fromId], $locale));
 
             return;
         }

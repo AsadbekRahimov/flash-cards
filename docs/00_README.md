@@ -15,6 +15,10 @@
 | 07 | [Security](./07_SECURITY.md) | Модель угроз, чек-лист безопасности, конкретные меры защиты |
 | 08 | [Roadmap](./08_ROADMAP.md) | Пошаговый план разработки по спринтам с зависимостями |
 | 09 | [AI Agents Guide](./09_AI_AGENTS_GUIDE.md) | Как эффективно работать с AI-агентами на этом проекте |
+| 10 | [B2C Expansion](./10_B2C_EXPANSION.md) | Идеи расширения до B2C SaaS |
+| 11 | [System Analysis & SaaS Strategy](./11_SYSTEM_ANALYSIS_AND_SAAS_STRATEGY.md) | Аудит системы и стратегия B2C-first SaaS: learner-first модель, тарифы для студентов и центров, roadmap |
+| 12 | [Phase 1 Design](./12_PHASE1_DESIGN.md) | Проект Фазы 1: схема learners/курсов/подписок, миграция `students` → `learners`, домены и контракты сервисов, entitlement и Free-лимит, онбординг, безопасность, нарезка на задачи |
+| —  | [Uzbek strings review](./I18N_UZ_REVIEW.md) | Все узбекские строки бота и TWA рядом с русскими — для проверки носителем |
 | —  | [Local Dev (Docker)](./LOCAL_DEV_DOCKER.md) | Локальный запуск через Docker для macOS / Windows, ngrok для Telegram, Claude Code в Docker |
 
 ## 🎯 Краткое описание

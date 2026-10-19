@@ -6,14 +6,17 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\StageResource\Pages;
 use App\Filament\Resources\StageResource\RelationManagers\LessonsRelationManager;
+use App\Models\Course;
 use App\Models\Stage;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Validation\Rules\Unique;
 
 class StageResource extends Resource
 {
@@ -28,7 +31,25 @@ class StageResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Forms\Components\TextInput::make('number')->numeric()->required()->unique(ignoreRecord: true),
+            Forms\Components\Select::make('course_id')
+                ->label('Course')
+                ->relationship('course', 'slug')
+                ->default(fn (): ?int => Course::query()
+                    ->where('slug', (string) config('content.default_course_slug'))
+                    ->value('id'))
+                ->required()
+                ->live()
+                ->preload()
+                // Moving a stage to another course would leave both courses' words_count stale.
+                ->disabledOn('edit'),
+            Forms\Components\TextInput::make('number')
+                ->numeric()
+                ->required()
+                // Stage numbers are unique within a course, not globally.
+                ->unique(
+                    ignoreRecord: true,
+                    modifyRuleUsing: fn (Unique $rule, Get $get): Unique => $rule->where('course_id', $get('course_id')),
+                ),
             Forms\Components\TextInput::make('title')->required()->maxLength(255),
             Forms\Components\Textarea::make('description')->rows(3)->columnSpanFull(),
         ]);
@@ -38,6 +59,7 @@ class StageResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('course.slug')->label('Course')->sortable(),
                 Tables\Columns\TextColumn::make('number')->sortable(),
                 Tables\Columns\TextColumn::make('title')->searchable(),
                 Tables\Columns\TextColumn::make('lessons_count')->counts('lessons')->label('Lessons'),

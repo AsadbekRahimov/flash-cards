@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Handlers\StartTrainingHandler;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Models\Lesson;
@@ -38,7 +39,7 @@ it('opens a training session and posts a WebApp button for the teacher', functio
     $teacher = User::factory()->create(['telegram_user_id' => 777]);
     attachTeacher($teacher, $group);
 
-    $stage = Stage::factory()->create(['number' => 1]);
+    $stage = Stage::factory()->inDefaultCourse()->create(['number' => 1]);
     $lesson = Lesson::factory()->for($stage)->create(['number' => 1]);
 
     $this->api->shouldReceive('sendWebAppButton')
@@ -70,7 +71,7 @@ it('sends a lesson picker when no arguments are provided', function (): void {
     $group = TelegramGroup::factory()->create(['chat_id' => -2002, 'status' => 'active']);
     $teacher = User::factory()->create(['telegram_user_id' => 888]);
     attachTeacher($teacher, $group);
-    $stage = Stage::factory()->create(['number' => 1]);
+    $stage = Stage::factory()->inDefaultCourse()->create(['number' => 1]);
     Lesson::factory()->for($stage)->create(['number' => 1]);
     Lesson::factory()->for($stage)->create(['number' => 2]);
 
@@ -100,7 +101,7 @@ it('stays silent on the lesson picker path in a non-active group (Group Lock)', 
     $group = TelegramGroup::factory()->create(['chat_id' => -2009, 'status' => 'pending']);
     $teacher = User::factory()->create(['telegram_user_id' => 889]);
     attachTeacher($teacher, $group);
-    $stage = Stage::factory()->create(['number' => 1]);
+    $stage = Stage::factory()->inDefaultCourse()->create(['number' => 1]);
     Lesson::factory()->for($stage)->create(['number' => 1]);
 
     $this->api->shouldReceive('sendMessage')->never();
@@ -119,7 +120,7 @@ it('opens a training session via callback when a lesson is chosen from the picke
     $group = TelegramGroup::factory()->create(['chat_id' => -2003, 'status' => 'active']);
     $teacher = User::factory()->create(['telegram_user_id' => 888]);
     attachTeacher($teacher, $group);
-    $stage = Stage::factory()->create(['number' => 1]);
+    $stage = Stage::factory()->inDefaultCourse()->create(['number' => 1]);
     Lesson::factory()->for($stage)->create(['number' => 1]);
 
     $this->api->shouldReceive('answerCallbackQuery')->once()->with('cq-id-123');
@@ -143,6 +144,30 @@ it('opens a training session via callback when a lesson is chosen from the picke
     expect(TrainingSession::query()->where('status', 'open')->count())->toBe(1);
 });
 
+it('opens the session even when Telegram refuses the callback acknowledgement', function (): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => -2010, 'status' => 'active']);
+    $teacher = User::factory()->create(['telegram_user_id' => 891]);
+    attachTeacher($teacher, $group);
+    $stage = Stage::factory()->inDefaultCourse()->create(['number' => 1]);
+    Lesson::factory()->for($stage)->create(['number' => 1]);
+
+    // The retry of a job, or a slow worker: "query is too old".
+    $this->api->shouldReceive('answerCallbackQuery')->once()
+        ->andThrow(new TelegramApiException('query is too old'));
+    $this->api->shouldReceive('sendWebAppButton')->once();
+
+    app(TelegramDispatcher::class)->dispatch([
+        'callback_query' => [
+            'id' => 'cq-old',
+            'from' => ['id' => 891],
+            'data' => StartTrainingHandler::CALLBACK_PREFIX.'1:1',
+            'message' => ['chat' => ['id' => -2010, 'type' => 'supergroup']],
+        ],
+    ]);
+
+    expect(TrainingSession::query()->where('status', 'open')->count())->toBe(1);
+});
+
 it('acknowledges a stale picker callback in a non-active group but sends nothing', function (): void {
     // The group was disabled after the picker keyboard was posted; tapping the
     // stale button must dismiss the spinner (answerCallbackQuery) without any
@@ -150,7 +175,7 @@ it('acknowledges a stale picker callback in a non-active group but sends nothing
     $group = TelegramGroup::factory()->pending()->create(['chat_id' => -2004]);
     $teacher = User::factory()->create(['telegram_user_id' => 890]);
     attachTeacher($teacher, $group);
-    $stage = Stage::factory()->create(['number' => 1]);
+    $stage = Stage::factory()->inDefaultCourse()->create(['number' => 1]);
     Lesson::factory()->for($stage)->create(['number' => 1]);
 
     $this->api->shouldReceive('answerCallbackQuery')->once()->with('cq-stale-1');
@@ -173,7 +198,7 @@ it('is idempotent: second invocation reuses the open session', function (): void
     $group = TelegramGroup::factory()->create(['chat_id' => -3003, 'status' => 'active']);
     $teacher = User::factory()->create(['telegram_user_id' => 999]);
     attachTeacher($teacher, $group);
-    $stage = Stage::factory()->create(['number' => 2]);
+    $stage = Stage::factory()->inDefaultCourse()->create(['number' => 2]);
     Lesson::factory()->for($stage)->create(['number' => 3]);
 
     $this->api->shouldReceive('sendWebAppButton')->twice();
@@ -236,7 +261,7 @@ it('reports when a lesson does not exist', function (): void {
     $group = TelegramGroup::factory()->create(['chat_id' => -6006, 'status' => 'active']);
     $teacher = User::factory()->create(['telegram_user_id' => 222]);
     attachTeacher($teacher, $group);
-    $stage = Stage::factory()->create(['number' => 1]);
+    $stage = Stage::factory()->inDefaultCourse()->create(['number' => 1]);
     Lesson::factory()->for($stage)->create(['number' => 1]);
 
     $this->api->shouldReceive('sendMessage')
