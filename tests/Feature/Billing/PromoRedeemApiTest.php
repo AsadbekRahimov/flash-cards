@@ -105,8 +105,8 @@ it('throttles code guessing per learner: the 6th attempt in a minute is 429', fu
         ->assertStatus(404);
 });
 
-it('caps one IP at 20 attempts a minute across learners', function (): void {
-    foreach (range(1, 20) as $_) {
+it('caps one IP at 60 attempts a minute across learners (CGNAT: many learners share one address)', function (): void {
+    foreach (range(1, 60) as $_) {
         $this->withHeaders(promoHeaders(Learner::factory()->create()))
             ->postJson('/api/twa/promo/redeem', ['code' => 'GUESS'])
             ->assertStatus(404);

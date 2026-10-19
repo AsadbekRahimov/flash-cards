@@ -14,6 +14,7 @@ use App\Models\TelegramGroup;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
 
@@ -202,6 +203,55 @@ it('caches the entitlement per learner and recomputes only after forget()', func
     $resolver->forget($learner);
     expect(Cache::has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse()
         ->and($resolver->for($learner)->plan)->toBe(Plan::Pro);
+});
+
+it('invalidates by bumping the version: the old snapshot ages out, the new key starts empty', function (): void {
+    $learner = Learner::factory()->create();
+    $resolver = app(EntitlementResolver::class);
+
+    expect(EntitlementResolver::version($learner->id))->toBe(0);
+    $resolver->for($learner);
+    $v0Key = EntitlementResolver::cacheKey($learner->id);
+    expect($v0Key)->toEndWith(':v0')->and(Cache::has($v0Key))->toBeTrue();
+
+    $resolver->forget($learner);
+    $resolver->forget($learner->id);
+    $resolver->forgetMany([$learner->id, $learner->id, 999_999]);
+
+    expect(EntitlementResolver::version($learner->id))->toBe(3)
+        ->and(EntitlementResolver::version(999_999))->toBe(1)
+        ->and(EntitlementResolver::cacheKey($learner->id))->toEndWith(':v3')
+        ->and(Cache::has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse()
+        ->and(Cache::has($v0Key))->toBeTrue(); // not deleted: nobody reads it any more, the TTL reclaims it
+});
+
+it('never caches a snapshot computed before a concurrent invalidation', function (): void {
+    $learner = Learner::factory()->create();
+    $resolver = app(EntitlementResolver::class);
+    expect($resolver->for($learner)->plan)->toBe(Plan::Free);
+    $resolver->forget($learner);
+
+    // Request A misses the cache and runs resolve(); its query has already
+    // returned the pre-grant rows when request B grants Pro and invalidates.
+    // A then writes its (stale) Free snapshot *after* B's forget().
+    $injected = false;
+    DB::listen(function () use (&$injected, $learner, $resolver): void {
+        if ($injected) {
+            return;
+        }
+        $injected = true;
+
+        entitlementSubscription($learner, ['current_period_ends_at' => null]);
+        $resolver->forget($learner);
+    });
+
+    $staleAnswer = $resolver->for($learner);
+    expect($injected)->toBeTrue()
+        ->and($staleAnswer->plan)->toBe(Plan::Free); // A's own answer is computed from what it read: unavoidable
+
+    // ... but it must not shadow B's write for the next TTL: a plain forget() + put() did exactly that.
+    expect($resolver->for($learner)->plan)->toBe(Plan::Pro)
+        ->and(Entitlement::fromArray(Cache::get(EntitlementResolver::cacheKey($learner->id)))->plan)->toBe(Plan::Pro);
 });
 
 it('recomputes a cached snapshot whose end has passed even without invalidation', function (): void {

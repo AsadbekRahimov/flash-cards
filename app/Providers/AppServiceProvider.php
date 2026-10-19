@@ -145,10 +145,12 @@ class AppServiceProvider extends ServiceProvider
             /** @var array{learner_id:int}|null $ctx */
             $ctx = $request->attributes->get('twa');
 
-            // Guessing codes: 5/min per learner, 20/min per IP (several accounts behind one address).
+            // Guessing codes: 5/min per learner; 60/min per IP — mobile carriers put
+            // whole classrooms behind one CGNAT address, so the IP cap only has to stop
+            // scripted guessing from many accounts, not legitimate bursts (docs/12 §8).
             return [
                 Limit::perMinute(5)->by('twa-promo|learner|'.($ctx['learner_id'] ?? $request->ip())),
-                Limit::perMinute(20)->by('twa-promo|ip|'.$request->ip()),
+                Limit::perMinute(60)->by('twa-promo|ip|'.$request->ip()),
             ];
         });
 
