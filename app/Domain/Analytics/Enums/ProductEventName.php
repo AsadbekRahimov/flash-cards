@@ -23,4 +23,6 @@ enum ProductEventName: string
     case SubscriptionGranted = 'subscription.granted';
     case SubscriptionExpired = 'subscription.expired';
     case PromoRedeemed = 'promo.redeemed';
+    case DailyGoalMet = 'daily_goal.met';
+    case StreakExtended = 'streak.extended';
 }

@@ -2,17 +2,22 @@
 
 declare(strict_types=1);
 
+use App\Domain\Analytics\Enums\ProductEventName;
+use App\Domain\Learners\Services\DailyStatsService;
 use App\Domain\Learning\Services\CardPicker;
 use App\Domain\Learning\Services\TrainingSessionService;
 use App\Domain\Learning\Support\NewCardBudget;
 use App\Domain\Learning\Support\TrainingScope;
 use App\Models\Course;
 use App\Models\Learner;
+use App\Models\LearnerDailyStats;
 use App\Models\Lesson;
+use App\Models\ProductEvent;
 use App\Models\Stage;
 use App\Models\TrainingSession;
 use App\Models\Word;
 use App\Models\WordRepetition;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Support\Facades\DB;
 
@@ -211,4 +216,54 @@ it('does not let four tabs jointly exceed a budget of two new cards', function (
         ->toBe($rows->sort()->values()->all())
         ->and($cards)->not->toBeEmpty()
         ->and($others)->each->toBe('done:new_quota_exhausted');
+});
+
+it('aggregates six simultaneous grades into one day row, meets the goal once and credits the streak once', function (): void {
+    // Six workers grade at the same instant, each in its own review-like transaction (docs/12 §1.6, §7.4).
+    // Without the row lock on learner_daily_stats two of them would read the same counters and one grade
+    // would be lost; without the "goal_met_at IS NULL" guard the goal would be met more than once.
+    $learner = Learner::factory()->create(['daily_goal' => 4, 'timezone' => 'Asia/Tashkent']);
+    $learnerId = (int) $learner->id;
+    $now = CarbonImmutable::parse('2026-10-18 10:00:00', 'UTC');
+
+    $results = runConcurrently(array_map(
+        fn (int $i): Closure => function () use ($learnerId, $now, $i): array {
+            $learner = Learner::query()->findOrFail($learnerId);
+            $row = DB::transaction(fn (): LearnerDailyStats => app(DailyStatsService::class)->recordReview(
+                $learner,
+                $i % 2 === 0 ? 5 : 1,        // three correct, three wrong
+                100,
+                $i < 2,                      // two new cards
+                $now,
+            ));
+
+            return ['reviews' => $row->reviews_count, 'met' => $row->goal_met_at !== null];
+        },
+        range(0, 5),
+    ));
+
+    expect(array_column(array_filter($results, fn (array $r): bool => ! $r['ok']), 'error'))->toBe([]);
+
+    $rows = LearnerDailyStats::query()->where('learner_id', $learnerId)->get();
+    expect($rows)->toHaveCount(1);
+
+    $row = $rows->first();
+    expect($row?->date->toDateString())->toBe('2026-10-18')
+        ->and($row?->reviews_count)->toBe(6)
+        ->and($row?->correct_count)->toBe(3)
+        ->and($row?->new_words_count)->toBe(2)
+        ->and($row?->time_spent_ms)->toBe(600)
+        ->and($row?->goal_met_at)->not->toBeNull();
+
+    // Every worker saw a distinct running total — the increments were serialised, none lost.
+    $seen = array_column(array_column($results, 'result'), 'reviews');
+    sort($seen);
+    expect($seen)->toBe([1, 2, 3, 4, 5, 6]);
+
+    // The goal flipped exactly once (workers with totals 4, 5, 6 see it met), and the streak was credited once.
+    $fresh = Learner::query()->findOrFail($learnerId);
+    expect($fresh->streak_current)->toBe(1)
+        ->and($fresh->streak_best)->toBe(1)
+        ->and($fresh->streak_last_date?->toDateString())->toBe('2026-10-18')
+        ->and(ProductEvent::query()->where('name', ProductEventName::DailyGoalMet->value)->where('learner_id', $learnerId)->count())->toBe(1);
 });
