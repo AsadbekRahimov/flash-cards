@@ -628,7 +628,7 @@ URL TWA: `https://lexiflow.example.com/twa/training/123` (для экзамен�
 ### B.5 События бота (не команды)
 
 - **`my_chat_member`** — бот добавлен/удалён из группы.
-  - Added → создаём запись `telegram_groups` со статусом `pending`, уведомляем админов.
+  - Added → создаём запись `telegram_groups` со статусом `pending`, уведомляем админов. Затем `GroupBotAccessChecker` спрашивает `getChatMember` про самого бота; если статус не `administrator`/`creator`, в группу (на языке группы) уходит `bot.group.bot_not_admin` — бот без прав админа не видит сообщения и состав участников. Регистрацию это не блокирует; ошибка вызова — warning в лог (без токена).
   - Removed → `status = 'disabled'`, лочим операции.
 - **`message` в группе от `new_chat_members`** — в `new_chat_members` есть `id` бота или новых студентов.
   - Для каждого человека (не бота): `LearnerRegistrar::fromTelegramUser` (upsert `learners` по `telegram_user_id`, `acquisition_source = 'group'` у нового) и `GroupMembershipService::join` (`group_members.status = 'active'`; повторное вступление после выхода возвращает `active`). Событие `group.member_joined {via: group}`.

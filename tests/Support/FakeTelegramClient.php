@@ -31,6 +31,15 @@ final class FakeTelegramClient implements TelegramClient
     /** The next N sendMessage / sendWebAppButton calls throw like a Bot API outage (a retried job then succeeds). */
     public int $failSends = 0;
 
+    /** What getChatMemberStatus answers (the bot's own status in the group for the admin check). */
+    public string $chatMemberStatus = 'administrator';
+
+    /** When true, getChatMemberStatus throws like a Bot API outage / 4xx. */
+    public bool $failChatMember = false;
+
+    /** @var list<array{chat_id:int|string, user_id:int}> */
+    public array $chatMemberLookups = [];
+
     public function sendMessage(int|string $chatId, string $text, ?string $parseMode = null, ?array $replyMarkup = null): void
     {
         $this->failNextSend();
@@ -59,6 +68,17 @@ final class FakeTelegramClient implements TelegramClient
         }
 
         $this->edits[] = ['chat_id' => $chatId, 'message_id' => $messageId, 'markup' => $replyMarkup];
+    }
+
+    public function getChatMemberStatus(int|string $chatId, int $userId): string
+    {
+        $this->chatMemberLookups[] = ['chat_id' => $chatId, 'user_id' => $userId];
+
+        if ($this->failChatMember) {
+            throw new TelegramApiException('Bad Request: chat not found');
+        }
+
+        return $this->chatMemberStatus;
     }
 
     public function setWebhook(string $url, string $secretHeader): bool

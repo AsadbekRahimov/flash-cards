@@ -24,6 +24,11 @@ return [
             '/help — ushbu yordam',
     ],
 
+    'group' => [
+        'bot_not_admin' => "⚠️ Botni guruh administratori qiling. Aks holda bot xabarlarni va a'zolarning chiqib ketishini ko'rmaydi, LexiFlow to'liq ishlamaydi. ".
+            "Guruh → Boshqarish → Administratorlar → Administrator qo'shish.",
+    ],
+
     'stats' => [
         'not_linked' => "Bu Telegram akkaunt LexiFlow o'qituvchisiga biriktirilmagan.\nSizning Telegram ID'ngiz: :id",
     ],

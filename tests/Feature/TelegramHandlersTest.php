@@ -513,6 +513,11 @@ it('sends a seven-day stats report to a teacher in DM', function (): void {
 
         public function editMessageReplyMarkup(int|string $chatId, int $messageId, ?array $replyMarkup = null): void {}
 
+        public function getChatMemberStatus(int|string $chatId, int $userId): string
+        {
+            return 'administrator';
+        }
+
         public function setWebhook(string $url, string $secretHeader): bool
         {
             return true;

@@ -11,15 +11,16 @@ use App\Http\Controllers\Api\Twa\SettingsController;
 use App\Http\Controllers\Api\Twa\TodayController;
 use App\Http\Controllers\Api\Twa\TrainingController;
 use App\Http\Controllers\Api\Twa\TtsController;
+use App\Http\Middleware\SetTwaLocale;
 use App\Http\Middleware\TwaAuth;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('twa')->group(function (): void {
     Route::post('/auth', AuthController::class)
-        ->middleware('throttle:twa-auth')
+        ->middleware([SetTwaLocale::class, 'throttle:twa-auth'])
         ->name('twa.auth');
 
-    Route::middleware([TwaAuth::class, 'throttle:twa-api'])->group(function (): void {
+    Route::middleware([TwaAuth::class, SetTwaLocale::class, 'throttle:twa-api'])->group(function (): void {
         Route::get('/me', MeController::class)->name('twa.me');
         Route::patch('/me/settings', [SettingsController::class, 'update'])->name('twa.me.settings');
         Route::get('/today', TodayController::class)->name('twa.today');
