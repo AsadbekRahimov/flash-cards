@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Learners\Services;
 
 use App\Domain\Billing\Services\EntitlementResolver;
+use App\Domain\Billing\Services\NewWordQuota;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Learners\DTO\DailyGoal;
 use App\Domain\Learners\DTO\DailyProgress;
@@ -32,6 +33,7 @@ final class TodayService
         private readonly LearnerStatsService $stats,
         private readonly CourseCatalogService $catalog,
         private readonly EntitlementResolver $entitlements,
+        private readonly NewWordQuota $quota,
     ) {}
 
     public function summary(Learner $learner, ?CarbonImmutable $now = null): TodaySummary
@@ -40,8 +42,7 @@ final class TodayService
 
         return new TodaySummary(
             dueCount: $this->stats->dueCount($learner, $now),
-            // Filled by the new-words quota of task 1.4b; null = unlimited until then.
-            newWordsRemaining: null,
+            newWordsRemaining: $this->quota->remaining($learner, $now),
             progress: $this->progress($learner, $now),
             activeCourse: $this->activeCourse($learner),
             openSessionId: $this->openDailySessionId($learner, $now),

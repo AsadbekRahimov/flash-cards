@@ -13,7 +13,7 @@ final readonly class TodaySummary
 {
     /**
      * @param  int  $dueCount  cards due for review (DueRepetitionCriteria — active words only)
-     * @param  int|null  $newWordsRemaining  Free quota left for the day; null = unlimited. Always null until task 1.4b
+     * @param  int|null  $newWordsRemaining  Free quota left for the day (NewWordQuota); null = unlimited
      * @param  int|null  $openSessionId  the open, unexpired `daily_review` session to continue
      */
     public function __construct(

@@ -150,7 +150,7 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
         ]);
 
     expect($response->json('due_count'))->toBeInt()
-        ->and($response->json('new_words_remaining'))->toBeNull()
+        ->and($response->json('new_words_remaining'))->toBe(20)
         ->and($response->json('open_session_id'))->toBeInt()
         ->and($response->json('onboarding_completed'))->toBeTrue()
         ->and($response->json('entitlement'))->toBe(['plan' => 'free', 'source' => 'free', 'until' => null]);
@@ -231,6 +231,8 @@ it('GET /me counts due graduated cards and abandoned (re)learning cards as due t
 
 // --- courses --------------------------------------------------------------
 
+const CONTRACT_QUOTA = ['new_words_remaining'];
+
 const CONTRACT_COURSE = ['slug', 'title', 'description', 'level', 'exam_tag', 'words_count', 'is_featured', 'is_active', 'progress' => CONTRACT_PROGRESS];
 
 /** @return array{learner: Learner, course: Course} */
@@ -310,6 +312,7 @@ it('POST /training/start keeps its exact JSON shape', function (): void {
             'card' => CONTRACT_CARD,
             'progress' => CONTRACT_PROGRESS,
             'done_reason',
+            'quota' => CONTRACT_QUOTA,
         ])
         ->assertJsonPath('mode', 'group_lesson')
         ->assertJsonPath('card.card_kind', 'new')
@@ -334,6 +337,7 @@ it('POST /training/sessions keeps its exact JSON shape, for a lesson and for a d
             'card' => CONTRACT_CARD,
             'progress' => CONTRACT_PROGRESS,
             'done_reason',
+            'quota' => CONTRACT_QUOTA,
         ]);
 
     $this->withHeaders($headers)
@@ -347,6 +351,7 @@ it('POST /training/sessions keeps its exact JSON shape, for a lesson and for a d
             'card' => CONTRACT_CARD,
             'progress' => CONTRACT_PROGRESS,
             'done_reason',
+            'quota' => CONTRACT_QUOTA,
         ])
         ->assertJsonPath('lesson', null);
 
@@ -384,7 +389,7 @@ it('GET /training/next keeps its exact JSON shape, with and without a card', fun
     $this->withHeaders($headers)
         ->getJson("/api/twa/training/sessions/{$s['session']->id}/next")
         ->assertOk()
-        ->assertExactJsonStructure(['card' => CONTRACT_CARD, 'progress' => CONTRACT_PROGRESS, 'done_reason']);
+        ->assertExactJsonStructure(['card' => CONTRACT_CARD, 'progress' => CONTRACT_PROGRESS, 'done_reason', 'quota' => CONTRACT_QUOTA]);
 
     // Pretend the only card was already graduated and is not due: nothing to show.
     WordRepetition::query()->where('learner_id', $s['learner']->id)->update([
@@ -396,7 +401,7 @@ it('GET /training/next keeps its exact JSON shape, with and without a card', fun
     $response = $this->withHeaders($headers)
         ->getJson("/api/twa/training/sessions/{$s['session']->id}/next")
         ->assertOk()
-        ->assertExactJsonStructure(['card', 'progress' => CONTRACT_PROGRESS, 'done_reason']);
+        ->assertExactJsonStructure(['card', 'progress' => CONTRACT_PROGRESS, 'done_reason', 'quota' => CONTRACT_QUOTA]);
 
     expect($response->json('card'))->toBeNull()
         ->and($response->json('done_reason'))->toBe('lesson_complete');
@@ -424,6 +429,7 @@ it('POST /training/review keeps its exact JSON shape', function (): void {
             'card' => CONTRACT_CARD,
             'progress' => CONTRACT_PROGRESS,
             'done_reason',
+            'quota' => CONTRACT_QUOTA,
         ]);
 
     expect($response->json('new_interval_days'))->toBeInt()

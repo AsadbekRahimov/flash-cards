@@ -9,7 +9,7 @@ use App\Domain\Learning\Support\NewCardBudget;
 use App\Models\Learner;
 use Carbon\CarbonImmutable;
 
-/** Default until the Free-plan quota (task 1.4b) is bound: no limit on new cards. */
+/** No limit on new cards. Not bound in production (`NewWordQuota` is, task 1.4b); for tests and tooling. */
 final class UnlimitedNewCardBudgetResolver implements NewCardBudgetResolver
 {
     public function budgetFor(Learner $learner, CarbonImmutable $now): NewCardBudget
