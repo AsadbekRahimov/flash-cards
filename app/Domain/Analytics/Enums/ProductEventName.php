@@ -24,6 +24,14 @@ enum ProductEventName: string
     case GroupMemberLeft = 'group.member_left';
     case SubscriptionGranted = 'subscription.granted';
     case SubscriptionExpired = 'subscription.expired';
+    /** Auto-renewal stopped by the user; Pro stays until the period end (docs/13 §2.1). */
+    case SubscriptionCanceled = 'subscription.canceled';
+    case SubscriptionResumed = 'subscription.resumed';
+    case CheckoutStarted = 'checkout.started';
+    case PaymentSucceeded = 'payment.succeeded';
+    /** A provider event that could not be applied (amount mismatch, dead order): money may need a manual refund. */
+    case PaymentFailed = 'payment.failed';
+    case PaymentRefunded = 'payment.refunded';
     /** A Free learner ran into the daily new-word limit: `done_reason = new_quota_exhausted` was answered (once per local day; docs/12 §5.4). */
     case PaywallShown = 'paywall.shown';
     case PromoRedeemed = 'promo.redeemed';
