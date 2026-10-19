@@ -624,5 +624,58 @@
 | `validation.attributes.word_id` | so'z | слово |
 | `validation.attributes.quality` | baho | оценка |
 | `validation.attributes.time_spent_ms` | sarflangan vaqt | затраченное время |
+| `validation.attributes.title` | nomi | название |
+| `validation.attributes.text` | matn | текст |
+| `validation.attributes.format` | format | формат |
 
 Проверить в первую очередь: «maydoni» как «поле»; «:attribute ... bo'lishi kerak» (должно быть); «to'ldirilishi shart» (обязательно для заполнения); «kamida / oshmasligi kerak» (не меньше / не больше); названия полей API в `validation.attributes.*` (interfeys tili, vaqt mintaqasi, eslatma vaqti, kunlik maqsad, o'qish maqsadi, daraja, kod, rejim, so'z, baho, sarflangan vaqt).
+
+## Фаза 2 · задача 2D.1 (свои колоды) — на проверку носителю
+
+> Экраны «Мои колоды» / редактор колоды в TWA. Термин: колода = «to'plam» (по смыслу «набор слов»); если у носителя есть
+> более привычное слово для набора карточек — заменить во всех строках `decks.*`. Проверить порядок слов в `decks.report`
+> и `decks.rejected` («{line}-qator»), а также тексты отказов по лимитам тарифа (`error.code.deck_*`, `paywall.lead_decks`).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `decks.title` | Mening to'plamlarim | Мои колоды |
+| `decks.open` | Mening to'plamlarim | Мои колоды |
+| `decks.intro` | O'z to'plamingizni yarating va so'zlarni ro'yxat yoki CSV orqali qo'shing. To'plamni faqat siz ko'rasiz. | Создайте свою колоду и добавьте слова списком или из CSV. Колоду видите только вы. |
+| `decks.empty` | Sizda hali to'plamlar yo'q. | У вас пока нет колод. |
+| `decks.limit` | To'plamlar: {max} tadan {used} tasi. Bitta to'plamda {words} tagacha so'z. | Колод: {used} из {max}. В одной колоде — до {words} слов. |
+| `decks.new.placeholder` | To'plam nomi | Название колоды |
+| `decks.new.submit` | To'plam yaratish | Создать колоду |
+| `decks.edit.back` | To'plamlarga | К колодам |
+| `decks.edit.rename` | Nomi | Название |
+| `decks.edit.save` | Saqlash | Сохранить |
+| `decks.edit.words` | So'zlar | Слова |
+| `decks.edit.no_words` | To'plamda hali so'zlar yo'q. | В колоде пока нет слов. |
+| `decks.edit.remove_word` | Olib tashlash | Убрать |
+| `decks.edit.import` | So'zlar qo'shish | Добавить слова |
+| `decks.edit.format.list` | Ro'yxat | Списком |
+| `decks.edit.format.csv` | CSV | CSV |
+| `decks.edit.hint.list` | Har qatorda bitta so'z: so'z — tarjima (yoki so'z;tarjima). | По слову в строке: слово — перевод (или слово;перевод). |
+| `decks.edit.hint.csv` | Ustunlar: word,translation_ru,translation_uz,example. | Колонки: word,translation_ru,translation_uz,example. |
+| `decks.edit.text.placeholder` | apple — olma | apple — яблоко |
+| `decks.edit.add` | Qo'shish | Добавить |
+| `decks.edit.delete` | To'plamni o'chirish | Удалить колоду |
+| `decks.edit.delete.confirm` | {title} to'plami o'chirilsinmi? So'zlar arxivga o'tadi, natijangiz saqlanadi. | Удалить колоду «{title}»? Слова уйдут в архив, ваш прогресс сохранится. |
+| `decks.edit.delete.yes` | Ha, o'chirish | Да, удалить |
+| `decks.edit.delete.no` | Bekor qilish | Отмена |
+| `decks.report` | Qo'shildi: {added} · qaytdi: {reactivated} · allaqachon bor: {duplicates} · o'tkazib yuborilgan qatorlar: {rejected} | Добавлено: {added} · вернулось: {reactivated} · уже были: {duplicates} · пропущено строк: {rejected} |
+| `decks.rejected` | {line}-qator: {reason} | Строка {line}: {reason} |
+| `decks.reason.empty_translation` | tarjima yo'q | нет перевода |
+| `decks.reason.junk` | so'zga o'xshamaydi | не похоже на слово |
+| `decks.reason.too_long` | juda uzun | слишком длинно |
+| `decks.reason.duplicate` | takror | повтор |
+| `decks.reason.over_limit` | qatorlar limitidan ortiq | сверх лимита строк |
+| `decks.error.too_large` | Matn juda katta: 256 KB dan oshmasligi kerak. | Текст слишком большой: не больше 256 КБ. |
+| `paywall.lead_decks` | Free tarifida to'plamlar limiti: 50 tagacha so'zli 1 ta to'plam. Pro'da 2000 tadan so'zli 20 tagacha to'plam. | Лимит колод тарифа Free: 1 колода до 50 слов. В Pro — до 20 колод по 2000 слов. |
+| `error.closed.decks` | To'plam endi mavjud emas. | Колода больше недоступна. |
+| `error.forbidden.decks` | Sizda to'plamlarga kirish huquqi yo'q. | У вас нет доступа к колодам. |
+| `error.code.deck_not_found` | To'plam topilmadi. | Колода не найдена. |
+| `error.code.deck_word_not_found` | To'plamda bunday so'z yo'q. | Такого слова в колоде нет. |
+| `error.code.deck_limit_reached` | Tarifingizdagi to'plamlar limitiga yetdingiz. | Достигнут лимит колод вашего тарифа. |
+| `error.code.deck_words_limit_reached` | Tarifingizdagi to'plamdagi so'zlar limitiga yetdingiz. Hech narsa qo'shilmadi. | Достигнут лимит слов в колоде вашего тарифа. Ничего не добавлено. |
+| `error.code.deck_import_empty` | Matnda mos keladigan birorta qator topilmadi. | В тексте не нашлось ни одной подходящей строки. |
+| `error.code.deck_title_invalid` | To'plam nomida harflar bo'lishi kerak. | Название колоды должно содержать буквы. |

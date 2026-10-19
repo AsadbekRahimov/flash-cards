@@ -45,6 +45,7 @@ async function render(response: TodayResponse) {
     routes: [
       { path: '/today', name: 'today', component: { template: '<div />' } },
       { path: '/courses', name: 'courses', component: { template: '<div />' } },
+      { path: '/decks', name: 'decks', component: { template: '<div />' } },
       { path: '/settings', name: 'settings', component: { template: '<div />' } },
       { path: '/training/:sessionId(\\d+)', name: 'training', component: { template: '<div />' } },
     ],

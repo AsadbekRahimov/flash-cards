@@ -11,8 +11,8 @@ import type { MeResponse } from '@/api/types'
  * Paywall of Phase 1 (docs/12 §5.4, mode `coming_soon`): "Pro is coming", what Free gives, a promo
  * code field and — only when the owner configured one — the support contact for centers.
  *
- * `reason = 'quota'` is the end of today's new words; `'info'` is the learner opening it from the
- * Today screen. A promo code that works refreshes `/me` (billing store) and `/today`.
+ * `reason = 'quota'` is the end of today's new words; `'decks'` is a refused deck / deck-word limit
+ * (docs/04 A.10); `'info'` is the learner opening it from the Today screen. A promo code that works refreshes `/me` (billing store) and `/today`.
  *
  * "Repeat words" (shown when the Today store knows of due cards) emits `review`: reviews are never
  * limited on Free, so the quota wall is not a dead end. The parent opens the daily_review session.
@@ -23,7 +23,7 @@ import type { MeResponse } from '@/api/types'
  * a11y (minimal): the focus moves into the dialog on open and returns to the opener on close;
  * Escape closes it.
  */
-const props = withDefaults(defineProps<{ reason?: 'quota' | 'info' }>(), { reason: 'info' })
+const props = withDefaults(defineProps<{ reason?: 'quota' | 'info' | 'decks' }>(), { reason: 'info' })
 const emit = defineEmits<{ close: []; redeemed: [me: MeResponse]; review: [] }>()
 
 const { t } = useI18n()
@@ -81,6 +81,9 @@ onBeforeUnmount(() => {
       <template v-if="!redeemed">
         <p v-if="props.reason === 'quota'" class="text-center" data-testid="paywall-lead">
           {{ t('paywall.lead_quota') }} {{ t('paywall.soon') }}
+        </p>
+        <p v-else-if="props.reason === 'decks'" class="text-center" data-testid="paywall-lead">
+          {{ t('paywall.lead_decks') }} {{ t('paywall.soon') }}
         </p>
         <p v-else class="text-center" data-testid="paywall-lead">{{ t('paywall.soon') }}</p>
 

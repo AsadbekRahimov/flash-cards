@@ -413,13 +413,14 @@ Append-only журнал для продуктовой аналитики (не 
 |---------|-----|----------|
 | id | bigint PK | |
 | slug | string(64) unique | `default` — платформенный курс для демо-контента и импорта без указания курса |
-| owner_type | string(16) default 'platform' | `platform` / `organization` |
-| owner_id | bigint nullable | полиморфный, FK не ставим (целостность — в сервисе) |
+| owner_type | string(16) default 'platform' | `platform` / `organization` / `learner` (колода learner'а, docs/13 §8.1) |
+| owner_id | bigint nullable | полиморфный (`organizations.id` / `learners.id`), FK не ставим (целостность — в сервисе) |
 | title | jsonb NOT NULL | `{"ru": "...", "uz": "..."}` |
 | description | jsonb default '{}' | по локалям |
 | target_language | string(5) default 'en' | |
 | level | string(2) nullable | `A1`..`C2` |
 | exam_tag | string(16) nullable | `ielts` / `sat` / `school` / `general` |
+| source | string(12) default 'platform' | происхождение для фильтров: `platform` / `organization` / `learner` |
 | visibility | string(10) default 'public' | `public` / `unlisted` / `private` |
 | status | string(10) default 'draft' | `draft` → `review` → `published` (→ `archived`) |
 | published_at | timestamp nullable | |
@@ -430,6 +431,15 @@ Append-only журнал для продуктовой аналитики (не 
 | created_at, updated_at | | |
 
 **Индексы:** `slug` unique; `(status, visibility, position)`; `(owner_type, owner_id)`.
+
+**Колоды learner'а** (Фаза 2, 2D.1, `LearnerDeckService`): `owner_type = learner`, `owner_id = learners.id`, `source = learner`,
+`visibility = private`, `status = published` сразу (без модерации и публикационного гейта), `slug = deck-<learner_id>-<случайный суффикс>`,
+`title = {ru, uz}` (одно и то же название в обеих локалях). Содержимое — обычные `stages` / `lessons` / `words`: один stage
+«Моя колода» (`number = 1`), уроки «Часть N» по 50 слов. `private` доступен **только** владельцу
+(`CourseCatalogService::isAvailable($course, $learner)` / `Course::availableTo($learnerId)`); для всех остальных — как несуществующий.
+Лимиты колод — `config/decks.php` (Free 1 колода × 50 слов, Pro 20 × 2000; считаются неархивные колоды и активные слова).
+«Удаление» колоды = `courses.status = archived` + `words.is_active = false` у её слов (правило §8.1: строки не удаляем),
+`word_repetitions` остаются, `learners.active_course_id` на эту колоду сбрасывается.
 
 **Жизненный цикл** (`CoursePublisher::transition`, только активный admin, каждый переход — строка `audit_logs`
 `course.status_changed` с `from`/`to`): `draft → review`, `review → draft | published`, `published → archived`,

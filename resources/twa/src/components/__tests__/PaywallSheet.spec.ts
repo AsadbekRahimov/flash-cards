@@ -31,7 +31,7 @@ function me(overrides: { plan?: 'free' | 'pro'; contact?: string | null; limit?:
   }
 }
 
-async function render(response: MeResponse = me(), props: { reason?: 'quota' | 'info' } = {}) {
+async function render(response: MeResponse = me(), props: { reason?: 'quota' | 'info' | 'decks' } = {}) {
   vi.mocked(api.me.get).mockResolvedValue(response)
   const wrapper = mount(PaywallSheet, { props })
   await flushPromises()
@@ -51,6 +51,14 @@ describe('PaywallSheet', () => {
     expect(w.get('[data-testid=paywall-title]').text()).toBe('Pro скоро')
     expect(w.get('[data-testid=paywall-lead]').text()).toBe('Pro скоро откроется.')
     expect(w.get('[data-testid=paywall-free]').text()).toBe('Сейчас у вас тариф Free: 20 новых слов в день, повторения — без лимита.')
+  })
+
+  it('explains the deck limits when a deck write was refused', async () => {
+    const w = await render(me(), { reason: 'decks' })
+
+    expect(w.get('[data-testid=paywall-lead]').text()).toBe(
+      'Лимит колод тарифа Free: 1 колода до 50 слов. В Pro — до 20 колод по 2000 слов. Pro скоро откроется.',
+    )
   })
 
   it('reads the limit from /me, not from a constant', async () => {

@@ -194,6 +194,9 @@ onBeforeUnmount(() => training.clearOpenError())
       <RouterLink :to="{ name: 'courses' }" class="btn btn-secondary w-full" data-testid="catalog-link">
         {{ t('catalog.open') }}
       </RouterLink>
+      <RouterLink :to="{ name: 'decks' }" class="btn btn-secondary w-full" data-testid="decks-link">
+        {{ t('decks.open') }}
+      </RouterLink>
       <RouterLink :to="{ name: 'settings' }" class="btn btn-secondary w-full" data-testid="settings-link">
         ⚙️ {{ t('settings.title') }}
       </RouterLink>

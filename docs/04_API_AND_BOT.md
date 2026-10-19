@@ -501,9 +501,50 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 (идемпотентно). Ответ — строка курса в формате элемента `GET /courses` (`is_active = true`, актуальный `progress`).
 Недоступный курс — `404 course_not_found`, активный курс не меняется.
 
+### A.10 Свои колоды learner'а (docs/13 §8.1, Фаза 2 / 2D.1)
+
+Все маршруты — под `TwaAuth` и `throttle:twa-api`; изменяющие — ещё `throttle:twa-decks` (30/мин на learner'а), импорт слов —
+`throttle:twa-deck-import` (10/мин на learner'а). Колода — курс с `owner_type = learner` (docs/03 §2.20); маршруты работают только с
+**собственными** колодами: чужая, архивная и неизвестная колода отвечают одинаково — `404 deck_not_found`.
+Выбор колоды активным курсом — существующий `POST /me/course {slug}` (A.5a): владелец может выбрать свою колоду, остальные получают
+`404 course_not_found`. Активная колода попадает в `GET /courses` (как и любой доступный активный курс). Колода участвует в
+`daily_review` и в квоте Free (20 новых слов/день) как обычный курс.
+
+Лимиты — `config/decks.php`, по плану из `EntitlementResolver`: Free 1 колода × 50 слов, Pro 20 × 2000 (`limits.decks`, `limits.deck_words`).
+Считаются неархивные колоды и **активные** слова колоды. Превышение — `422` с кодом-paywall (`deck_limit_reached` — колод,
+`deck_words_limit_reached` — слов); импорт принимается целиком или не принимается вовсе. Клиент по этим кодам показывает `PaywallSheet`.
+
+| Метод | Путь | Тело | Ответ |
+|-------|------|------|-------|
+| GET | `/decks` | — | `{ "decks": [Deck…], "limits": {decks, deck_words, used_decks} }` |
+| POST | `/decks` | `{ "title": "string 1..60" }` | `201` `Deck` |
+| GET | `/decks/{slug}` | — | `DeckDetail` (`Deck` + `words`) |
+| PATCH | `/decks/{slug}` | `{ "title" }` | `Deck` |
+| DELETE | `/decks/{slug}` | — | `204`, колода архивируется, прогресс сохраняется |
+| POST | `/decks/{slug}/words` | `{ "text": "...", "format": "list"\|"csv" }` | `DeckImport` |
+| DELETE | `/decks/{slug}/words/{word}` | — | `204`, слово деактивируется (`is_active = false`) |
+
+```json
+// Deck
+{ "slug": "deck-7-k3x9", "title": "Мои слова", "words_count": 12, "is_active": false, "progress": { "done": 3, "total": 12 } }
+// DeckDetail = Deck + words (только активные, по порядку добавления)
+{ "...": "...", "words": [ { "id": 5, "word": "apple", "translation": "яблоко", "translation_uz": null, "example": null } ] }
+// DeckImport
+{ "added": 10, "reactivated": 0, "duplicates": 2, "rejected": [ { "line": 4, "reason": "junk" } ], "deck": { "...Deck..." } }
+```
+
+**Ввод слов** (`DeckImportParser`, ≤ 256 КБ и ≤ 500 непустых строк за запрос; всё, что дальше, — `rejected: over_limit`):
+- `format = list` — строка на слово: `word — перевод`, `word - перевод` (дефис с пробелами), `word;перевод`, `word<TAB>перевод`, `word = перевод`; делится по первому разделителю.
+  Перевод попадает в `words.translation` и в `word_translations` (ru; для learner'а с локалью uz — ещё и uz).
+- `format = csv` — `word,translation_ru,translation_uz,example` (заголовок необязателен; разделитель `,` `;` или TAB определяется по первой строке; кавычки RFC 4180).
+- Нормализация: NFC, `strip_tags`, управляющие символы удаляются, пробелы схлопываются; слово ≤ 100 символов, перевод ≤ 500, пример ≤ 300.
+- Отсев (`rejected[].reason`): `empty_translation`, `junk` (слово без букв, недопустимые символы, ссылки), `too_long`, `duplicate` (повтор слова в тексте без учёта регистра), `over_limit`.
+  Слово, которое уже есть в колоде и активно, считается `duplicates`; деактивированное — `reactivated` (перевод обновляется).
+- Размер текста > 256 КБ — `422` валидации (`errors.text`); ни одной годной строки — `422 deck_import_empty`.
+
 ### A.6 Общие правила
 - Все даты в ISO 8601 UTC.
-- Rate limit: 60 запросов/минуту на learner'а (кроме `/tts` — 30/мин, `/promo/redeem` — A.7, `POST /training/sessions` — 10/мин). `TwaAuth` выполняется **до** `throttle:*`
+- Rate limit: 60 запросов/минуту на learner'а (кроме `/tts` — 30/мин, `/promo/redeem` — A.7, `POST /training/sessions` — 10/мин, `/decks*` — A.10). `TwaAuth` выполняется **до** `throttle:*`
   (`bootstrap/app.php`, `prependToPriorityList`), поэтому ключ лимитера — `learner_id`, а не IP.
 - При любой 4xx/5xx (кроме 422 валидации Laravel) ответ — `ApiErrorResource`:
 ```json

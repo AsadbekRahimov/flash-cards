@@ -6,6 +6,11 @@ import type {
   Course,
   CourseDetail,
   CoursesResponse,
+  Deck,
+  DeckDetail,
+  DeckImportFormat,
+  DeckImportResult,
+  DecksResponse,
   ExamAnswerResponse,
   ExamJoinResponse,
   ExamQuestionResponse,
@@ -62,6 +67,19 @@ export const api = {
     list: () => client().get<CoursesResponse>('/courses'),
     get: (slug: string) => client().get<CourseDetail>(`/courses/${encodeURIComponent(slug)}`),
     select: (slug: string) => client().post<Course>('/me/course', { slug }),
+  },
+  decks: {
+    list: () => client().get<DecksResponse>('/decks'),
+    get: (slug: string) => client().get<DeckDetail>(`/decks/${encodeURIComponent(slug)}`),
+    create: (title: string) => client().post<Deck>('/decks', { title }),
+    rename: (slug: string, title: string) =>
+      client().patch<Deck>(`/decks/${encodeURIComponent(slug)}`, { title }),
+    /** Archives the deck; the progress stays. */
+    remove: (slug: string) => client().delete<void>(`/decks/${encodeURIComponent(slug)}`),
+    addWords: (slug: string, text: string, format: DeckImportFormat) =>
+      client().post<DeckImportResult>(`/decks/${encodeURIComponent(slug)}/words`, { text, format }),
+    removeWord: (slug: string, wordId: number) =>
+      client().delete<void>(`/decks/${encodeURIComponent(slug)}/words/${wordId}`),
   },
   training: {
     /** Opens (or returns the already open) personal session; answers like `start`. */

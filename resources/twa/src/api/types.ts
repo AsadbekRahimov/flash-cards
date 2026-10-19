@@ -324,3 +324,49 @@ export interface CourseDetail {
   progress: Progress
   stages: CourseStage[]
 }
+
+/** A learner's own deck (docs/04 A.10). */
+export interface Deck {
+  slug: string
+  title: string
+  words_count: number
+  is_active: boolean
+  progress: Progress
+}
+
+export interface DeckWord {
+  id: number
+  word: string
+  translation: string
+  translation_uz: string | null
+  example: string | null
+}
+
+export interface DeckDetail extends Deck {
+  words: DeckWord[]
+}
+
+/** Plan limits of decks: `decks` per learner, `deck_words` per deck; `used_decks` is the current count. */
+export interface DeckLimits {
+  decks: number
+  deck_words: number
+  used_decks: number
+}
+
+export interface DecksResponse {
+  decks: Deck[]
+  limits: DeckLimits
+}
+
+export type DeckImportFormat = 'list' | 'csv'
+
+export type DeckRejectReason = 'empty_translation' | 'junk' | 'too_long' | 'duplicate' | 'over_limit'
+
+/** Answer of POST /decks/{slug}/words. */
+export interface DeckImportResult {
+  added: number
+  reactivated: number
+  duplicates: number
+  rejected: { line: number; reason: DeckRejectReason }[]
+  deck: Deck
+}
