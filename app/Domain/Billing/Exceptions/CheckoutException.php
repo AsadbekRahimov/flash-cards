@@ -1,0 +1,85 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Domain\Billing\Exceptions;
+
+/**
+ * Why a checkout could not be started (CheckoutService::create, docs/13 §2.1):
+ *
+ *   price_not_configured    409  no price for (plan/tier, period, currency), or above the provider's cap
+ *   provider_disabled       409  provider not registered or `billing.providers.<key>.enabled` is false
+ *   provider_not_supported  422  provider does not serve this subscriber type / currency (Stars for an organization)
+ *   checkout_conflict       409  a live auto-renewing subscription exists and another provider was chosen
+ *   too_many_pending        429  the subscriber already has `checkout.max_pending_per_subscriber` pending orders
+ *   offer_not_applicable    409  the offer is redeemed / expired / someone else's / for another plan or period
+ *   invalid_period          422  period is not one of `billing.periods`
+ *   invalid_tier            422  organization checkout without a sellable tier
+ */
+final class CheckoutException extends BillingException
+{
+    public const PRICE_NOT_CONFIGURED = 'price_not_configured';
+
+    public const PROVIDER_DISABLED = 'provider_disabled';
+
+    public const PROVIDER_NOT_SUPPORTED = 'provider_not_supported';
+
+    public const CONFLICT = 'checkout_conflict';
+
+    public const TOO_MANY_PENDING = 'too_many_pending';
+
+    public const OFFER_NOT_APPLICABLE = 'offer_not_applicable';
+
+    public const INVALID_PERIOD = 'invalid_period';
+
+    public const INVALID_TIER = 'invalid_tier';
+
+    public static function priceNotConfigured(string $what): self
+    {
+        return new self(self::PRICE_NOT_CONFIGURED, "No price is configured for {$what}.");
+    }
+
+    public static function providerDisabled(string $provider): self
+    {
+        return new self(self::PROVIDER_DISABLED, "Payment provider [{$provider}] is not available.");
+    }
+
+    public static function providerNotSupported(string $provider, string $subscriberType, string $currency): self
+    {
+        return new self(self::PROVIDER_NOT_SUPPORTED, "Payment provider [{$provider}] does not serve {$subscriberType} in {$currency}.");
+    }
+
+    public static function conflict(string $liveProvider): self
+    {
+        return new self(self::CONFLICT, "A live auto-renewing [{$liveProvider}] subscription exists; cancel its renewal before paying with another provider.");
+    }
+
+    public static function tooManyPending(int $max): self
+    {
+        return new self(self::TOO_MANY_PENDING, "Too many pending orders (max {$max}); pay or wait for one to expire.");
+    }
+
+    public static function offerNotApplicable(): self
+    {
+        return new self(self::OFFER_NOT_APPLICABLE, 'The offer cannot be applied to this purchase.');
+    }
+
+    public static function invalidPeriod(string $period): self
+    {
+        return new self(self::INVALID_PERIOD, "Unknown billing period [{$period}].");
+    }
+
+    public static function invalidTier(?string $tier): self
+    {
+        return new self(self::INVALID_TIER, $tier === null ? 'An organization checkout requires a tier.' : "Unknown or unsellable tier [{$tier}].");
+    }
+
+    public function httpStatus(): int
+    {
+        return match ($this->errorCode) {
+            self::PROVIDER_NOT_SUPPORTED, self::INVALID_PERIOD, self::INVALID_TIER => 422,
+            self::TOO_MANY_PENDING => 429,
+            default => 409,
+        };
+    }
+}

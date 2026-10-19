@@ -12,20 +12,28 @@ declare(strict_types=1);
  * row locks and `:memory:` is per-connection: skipped there.
  */
 
+use App\Domain\Billing\DTO\ChargeEvent;
 use App\Domain\Billing\Enums\Plan;
+use App\Domain\Billing\Enums\SubscriptionProvider;
+use App\Domain\Billing\Enums\SubscriptionStatus;
 use App\Domain\Billing\Exceptions\BillingException;
 use App\Domain\Billing\Exceptions\PromoCodeException;
 use App\Domain\Billing\Services\NewWordQuota;
+use App\Domain\Billing\Services\PaymentApplier;
 use App\Domain\Billing\Services\PromoCodeService;
+use App\Domain\Billing\Services\ProviderTransactionService;
 use App\Domain\Billing\Services\SubscriptionService;
 use App\Domain\Learning\Services\CardPicker;
 use App\Domain\Learning\Support\TrainingScope;
 use App\Models\Course;
 use App\Models\Learner;
 use App\Models\Lesson;
+use App\Models\Payment;
+use App\Models\PaymentOrder;
 use App\Models\ProductEvent;
 use App\Models\PromoCode;
 use App\Models\PromoRedemption;
+use App\Models\ProviderTransaction;
 use App\Models\Stage;
 use App\Models\Subscription;
 use App\Models\User;
@@ -206,7 +214,7 @@ it('keeps one live subscription when grants and a redemption race for the same l
     $ids = collect($results)->pluck('result')->unique();
     expect($ids)->toHaveCount(1)
         ->and(Subscription::query()->count())->toBe(1)
-        ->and(Subscription::query()->whereIn('status', ['trialing', 'active', 'past_due'])->count())->toBe(1)
+        ->and(Subscription::query()->whereIn('status', SubscriptionStatus::liveValues())->count())->toBe(1)
         ->and(PromoRedemption::query()->sole()->subscription_id)->toBe($ids->first());
 });
 
@@ -294,7 +302,7 @@ it('does not deadlock when a revoke and a promo redemption hit the same learner'
 
     expect(billingCodes($results))->toBe(['ok', 'ok'])
         ->and($live->refresh()->status)->toBe('expired')
-        ->and(Subscription::query()->whereIn('status', ['trialing', 'active', 'past_due'])->count())->toBe(1)
+        ->and(Subscription::query()->whereIn('status', SubscriptionStatus::liveValues())->count())->toBe(1)
         ->and(Subscription::query()->where('provider', 'promo')->where('subscriber_id', $learner->id)->exists())->toBeTrue()
         ->and(PromoRedemption::query()->count())->toBe(1)
         ->and(ProductEvent::query()->where('name', 'subscription.expired')->where('learner_id', $learner->id)->count())->toBe(1);
@@ -325,7 +333,7 @@ it('does not deadlock when the expire scheduler and a manual grant hit the same 
     expect(billingCodes($results))->toBe(['ok', 'ok'])
         ->and($results[0]['result'])->toBe(1)
         ->and($due->refresh()->status)->toBe('expired')
-        ->and(Subscription::query()->whereIn('status', ['trialing', 'active', 'past_due'])->count())->toBe(1)
+        ->and(Subscription::query()->whereIn('status', SubscriptionStatus::liveValues())->count())->toBe(1)
         ->and(Subscription::query()->where('provider', 'manual')->where('subscriber_id', $learner->id)->sole()->id)->toBe($results[1]['result'])
         ->and(ProductEvent::query()->where('name', 'subscription.expired')->where('learner_id', $learner->id)->count())->toBe(1);
 });
@@ -375,4 +383,123 @@ it('does not let several tabs of one Free learner exceed the daily new-word quot
         ->and($outcomes->filter(fn (string $o): bool => $o === 'card')->count())->toBe(3)
         // ... and every other attempt was stopped by the quota, not by an empty lesson.
         ->and($outcomes->reject(fn (string $o): bool => $o === 'card')->unique()->values()->all())->toBe(['new_quota_exhausted']);
+});
+
+/*
+ * Phase 2 (docs/13 §3 rule 6): payment events against the same order / learner.
+ */
+
+/** A pending Stars order for the learner, as CheckoutService would leave it. */
+function billingStarsOrder(Learner $learner): PaymentOrder
+{
+    return PaymentOrder::factory()->create(['subscriber_id' => $learner->id, 'provider' => 'telegram_stars', 'currency' => 'XTR', 'amount' => 150, 'list_amount' => 150]);
+}
+
+function billingChargeEvent(PaymentOrder $order, string $eventId, bool $renewal = false): ChargeEvent
+{
+    return new ChargeEvent(
+        provider: SubscriptionProvider::TelegramStars,
+        providerEventId: $eventId,
+        providerChargeId: $eventId,
+        orderToken: $order->token,
+        amount: $order->amount,
+        currency: $order->currency,
+        isRenewal: $renewal,
+        periodEndsAt: null,
+        occurredAt: CarbonImmutable::now(),
+    );
+}
+
+it('applies a successful_payment delivered four times at once exactly once', function (): void {
+    $learner = Learner::factory()->create();
+    $order = billingStarsOrder($learner);
+
+    $results = billingRunInParallel(array_fill(0, 4, function () use ($order): int {
+        // Every delivery sleeps between the subscription write and the ledger INSERT (inside its
+        // transaction): without the order row lock all four would extend the subscription before
+        // any of them reaches the unique index.
+        Payment::creating(static function (): void {
+            usleep(150_000);
+        });
+
+        return app(PaymentApplier::class)->applyCharge(billingChargeEvent($order, 'charge-dup'))->id;
+    }));
+
+    // One winner; the losers see the committed ledger row and report the duplicate without side effects.
+    expect(billingCodes($results))->toBe(['duplicate_payment', 'duplicate_payment', 'duplicate_payment', 'ok'])
+        ->and(Payment::query()->count())->toBe(1)
+        ->and(Payment::query()->sole()->status)->toBe('succeeded')
+        ->and(Subscription::query()->count())->toBe(1)
+        ->and($order->refresh()->status)->toBe('paid');
+
+    $sub = Subscription::query()->sole();
+    expect($sub->current_period_ends_at?->diffInDays($sub->starts_at, true))->toEqualWithDelta(30.0, 0.01)
+        ->and(count($sub->meta['history']))->toBe(1);
+});
+
+it('does not deadlock when a payment and a manual grant hit the same learner', function (): void {
+    $learner = Learner::factory()->create();
+    $admin = User::factory()->create();
+    $order = billingStarsOrder($learner);
+    $until = CarbonImmutable::now()->addDays(90);
+    $signal = billingSignalFile();
+
+    $results = billingRunInParallel([
+        function () use ($order, $signal): int {
+            // The applier holds learner + subscription and pauses after its subscription write while
+            // the grant arrives and waits on the learner row; the applier then inserts payments /
+            // product_events (KEY SHARE on rows it already holds) and commits.
+            Subscription::created(static function () use ($signal): void {
+                billingWaitForFile($signal);
+                usleep(500_000);
+            });
+
+            return app(PaymentApplier::class)->applyCharge(billingChargeEvent($order, 'charge-vs-grant'))->id;
+        },
+        function () use ($learner, $admin, $until, $signal): int {
+            usleep(150_000); // let the applier take its locks first
+            touch($signal);
+
+            return app(SubscriptionService::class)->grantManual($learner, Plan::Pro, $until, $admin, 'race')->id;
+        },
+    ]);
+    billingRemoveSignalFile($signal);
+
+    expect(billingCodes($results))->toBe(['ok', 'ok'])
+        ->and(Subscription::query()->count())->toBe(1)
+        ->and(Subscription::query()->whereIn('status', SubscriptionStatus::liveValues())->count())->toBe(1)
+        ->and(Payment::query()->where('status', 'succeeded')->count())->toBe(1)
+        ->and(Subscription::query()->sole()->id)->toBe($results[1]['result'])
+        ->and(Payment::query()->sole()->subscription_id)->toBe($results[1]['result']);
+});
+
+it('lets exactly one of two simultaneous CreateTransaction calls open a transaction on an order', function (): void {
+    $order = PaymentOrder::factory()->payme()->create();
+
+    $results = billingRunInParallel(array_map(fn (string $txId) => function () use ($order, $txId): int {
+        // Sleep between "no open transaction on this order" and the INSERT: without the order lock both would insert.
+        ProviderTransaction::creating(static function (): void {
+            usleep(150_000);
+        });
+
+        return app(ProviderTransactionService::class)->open(SubscriptionProvider::Payme, $txId, $order->token, $order->amount, null, [])->id;
+    }, ['payme-tx-a', 'payme-tx-b']));
+
+    expect(billingCodes($results))->toBe(['ok', 'order_busy'])
+        ->and(ProviderTransaction::query()->count())->toBe(1)
+        ->and(ProviderTransaction::query()->sole()->state)->toBe(1);
+
+    // The same provider transaction id delivered twice at once is one row, returned to both.
+    $order2 = PaymentOrder::factory()->payme()->create();
+    $results = billingRunInParallel(array_fill(0, 2, function () use ($order2): int {
+        ProviderTransaction::creating(static function (): void {
+            usleep(150_000);
+        });
+
+        return app(ProviderTransactionService::class)->open(SubscriptionProvider::Payme, 'payme-tx-same', $order2->token, $order2->amount, null, [])->id;
+    }));
+
+    expect(billingCodes($results))->toBe(['ok', 'ok'])
+        ->and(collect($results)->pluck('result')->unique())->toHaveCount(1)
+        ->and(ProviderTransaction::query()->where('payment_order_id', $order2->id)->count())->toBe(1);
 });

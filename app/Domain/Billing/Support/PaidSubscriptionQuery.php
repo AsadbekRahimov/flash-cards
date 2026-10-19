@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\DB;
  * plan at instant $now" without resolving learners one by one in PHP (the per-learner answer the
  * product enforces stays {@see EntitlementResolver}).
  * Same rule: trialing / active live until the period end (plus the grace days for an auto-renewing
- * provider; NULL end = perpetual), past_due until `grace_until`.
+ * provider; NULL end = perpetual), canceled until the period end without grace, past_due until `grace_until`.
  */
 final class PaidSubscriptionQuery
 {
@@ -148,20 +148,25 @@ final class PaidSubscriptionQuery
         $graceEdge = $at->subDays(SubscriptionLiveness::graceDays());
 
         // Every live status except past_due is judged by the period end; past_due by `grace_until`
-        // (the same split as SubscriptionLiveness). The lists come from the enum, so a status that
-        // becomes live there (docs/12 §5.1: `canceled`) is picked up here with the rest of the rule.
+        // (the same split as SubscriptionLiveness). The lists come from the enum. `canceled` is
+        // judged by the bare period end whatever the provider: the renewal was stopped, there is
+        // no grace to wait for (docs/13 §2.1).
         $byPeriod = array_values(array_diff(SubscriptionStatus::liveValues(), [SubscriptionStatus::PastDue->value]));
+        $canceled = SubscriptionStatus::Canceled->value;
 
         return $query
-            ->where(function (Builder $ongoing) use ($at, $byPeriod, $withGrace, $graceEdge): void {
+            ->where(function (Builder $ongoing) use ($at, $byPeriod, $withGrace, $graceEdge, $canceled): void {
                 $ongoing
                     ->whereIn('subscriptions.status', $byPeriod)
-                    ->where(function (Builder $end) use ($at, $withGrace, $graceEdge): void {
+                    ->where(function (Builder $end) use ($at, $withGrace, $graceEdge, $canceled): void {
                         $end->whereNull('subscriptions.current_period_ends_at')
                             ->orWhere(fn (Builder $fixed): Builder => $fixed
-                                ->whereNotIn('subscriptions.provider', $withGrace)
+                                ->where(fn (Builder $noGrace): Builder => $noGrace
+                                    ->where('subscriptions.status', $canceled)
+                                    ->orWhereNotIn('subscriptions.provider', $withGrace))
                                 ->where('subscriptions.current_period_ends_at', '>', $at))
                             ->orWhere(fn (Builder $renewing): Builder => $renewing
+                                ->where('subscriptions.status', '<>', $canceled)
                                 ->whereIn('subscriptions.provider', $withGrace)
                                 ->where('subscriptions.current_period_ends_at', '>', $graceEdge));
                     });

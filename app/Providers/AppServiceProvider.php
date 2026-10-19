@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Domain\Billing\Services\BillingProviderRegistry;
 use App\Domain\Billing\Services\NewWordQuota;
 use App\Domain\Learning\Contracts\NewCardBudgetResolver;
 use App\Domain\Learning\Support\LearningPolicy;
@@ -53,6 +54,10 @@ class AppServiceProvider extends ServiceProvider
 
         // New-card budget for CardPicker: the plan's daily limit of new words (Free 20, Pro unlimited; docs/12 §5.3).
         $this->app->bind(NewCardBudgetResolver::class, NewWordQuota::class);
+
+        // Payment providers register themselves here as they land (2A.3 Stars, 2A.4 Payme,
+        // 2A.5 Click); whether one is sellable is `billing.providers.<key>.enabled` (docs/13 §2.2).
+        $this->app->singleton(BillingProviderRegistry::class, fn (): BillingProviderRegistry => new BillingProviderRegistry);
 
         $this->app->singleton(LearningPolicy::class, function (): LearningPolicy {
             /** @var array<string, mixed> $config */

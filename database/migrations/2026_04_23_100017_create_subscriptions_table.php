@@ -17,6 +17,8 @@ return new class extends Migration
             // Polymorphic subscriber (learners.id / organizations.id): no FK by design.
             $table->unsignedBigInteger('subscriber_id');
             $table->string('plan', 16);
+            // Organization tariff (tutor / center_s / center_m / center_l, docs/13 §1.6); NULL for learners.
+            $table->string('tier', 16)->nullable();
             $table->string('status', 12);
             $table->string('provider', 16);
             $table->string('provider_ref', 191)->nullable();
@@ -37,13 +39,14 @@ return new class extends Migration
             $table->index('granted_by_user_id');
         });
 
-        // At most one "live" subscription per subscriber. On other drivers the
-        // invariant is enforced by SubscriptionService under lockForUpdate.
+        // At most one "live" subscription per subscriber (`canceled` is live until the
+        // period end, docs/13 §2.1). On other drivers the invariant is enforced by
+        // SubscriptionService under lockForUpdate.
         if (in_array(DB::getDriverName(), ['pgsql', 'sqlite'], true)) {
             DB::statement(
                 "CREATE UNIQUE INDEX subscriptions_one_live_per_subscriber
                  ON subscriptions (subscriber_type, subscriber_id)
-                 WHERE status IN ('trialing', 'active', 'past_due')",
+                 WHERE status IN ('trialing', 'active', 'past_due', 'canceled')",
             );
         }
     }

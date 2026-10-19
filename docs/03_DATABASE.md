@@ -39,7 +39,18 @@ erDiagram
     PROMO_CODES ||--o{ PROMO_REDEMPTIONS : redeemed
     LEARNERS ||--o{ PROMO_REDEMPTIONS : redeems
     SUBSCRIPTIONS ||--o{ PROMO_REDEMPTIONS : result
+    LEARNERS ||--o{ PAYMENT_ORDERS : buys
+    ORGANIZATIONS ||--o{ PAYMENT_ORDERS : buys
+    PAYMENT_ORDERS ||--o{ PROVIDER_TRANSACTIONS : provider_state
+    PAYMENT_ORDERS ||--o{ PAYMENTS : settles
+    SUBSCRIPTIONS ||--o{ PAYMENTS : funds
+    PAYMENTS ||--o| PAYMENTS : refunds
+    LEARNERS ||--o{ OFFERS : personal_discount
+    OFFERS ||--o| PAYMENT_ORDERS : applied_to
 ```
+
+> **Фаза 2, оплата (docs/13 §1.2, задача 2A.1).** Добавлены `offers`, `payment_orders`, `provider_transactions`,
+> `payments` (§2.26–§2.29); `subscriptions` получила `tier`, а статус `canceled` стал live (предикат partial unique).
 
 > **Learner-first (docs/12, Sprint 14).** Прогресс, оценки, ответы и напоминания принадлежат человеку —
 > `learners` (один на Telegram-пользователя); членство в группе — `group_members`. Таблицы `students` **больше нет**
@@ -495,8 +506,9 @@ Append-only журнал для продуктовой аналитики (не 
 | subscriber_type | string(16) | `learner` / `organization` |
 | subscriber_id | bigint | полиморфный, без FK |
 | plan | string(16) | `pro` |
-| status | string(12) | `trialing` / `active` / `past_due` / `canceled` / `expired` |
-| provider | string(16) | `manual` / `promo` / `telegram_stars` / `payme` / `click` |
+| tier | string(16) nullable | тариф организации `tutor` / `center_s` / `center_m` / `center_l` (docs/13 §6.1), `NULL` у learner'а *(2A.1)* |
+| status | string(12) | `trialing` / `active` / `past_due` / `canceled` / `expired`; `canceled` — live до `current_period_ends_at` без grace *(2A.1, docs/13 §2.1)* |
+| provider | string(16) | `manual` / `promo` / `reward` / `telegram_stars` / `payme` / `click`; grace (`past_due`) — только у `telegram_stars` |
 | provider_ref | string(191) nullable | |
 | starts_at | timestamp NOT NULL | |
 | current_period_ends_at | timestamp nullable | `NULL` = бессрочно (только `manual`) |
@@ -509,8 +521,12 @@ Append-only журнал для продуктовой аналитики (не 
 | created_at, updated_at | | |
 
 **Индексы:** `(subscriber_type, subscriber_id, status)`; `(status, current_period_ends_at)`; `(status, grace_until)`; `granted_by_user_id`;
-partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscriber_id) WHERE status IN ('trialing','active','past_due')`
+partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscriber_id) WHERE status IN ('trialing','active','past_due','canceled')`
 (PostgreSQL и sqlite; на других драйверах — проверка в сервисе под `lockForUpdate`).
+
+`meta` (2A.1): `history[]` — журнал переходов (`manual_grant` / `charge` / `renewal` / `promo_extension` / `reward` / `canceled` / `resumed` / `ended` / `revoked`
+с `from {plan,status,provider,until}`); `stars.charge_id` — `telegram_payment_charge_id` первого платежа Stars-подписки (нужен `editUserStarSubscription`);
+`renewal_reminders[]` — маркеры `"<days>@<ISO конца периода>"` уже поднятых напоминаний о продлении (`SubscriptionService::remindExpiring`).
 
 ### 2.24 `promo_codes`
 | Колонка | Тип |
@@ -539,7 +555,83 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 
 **Индексы:** `(promo_code_id, learner_id)` unique.
 
-`payments` в Фазе 1 не создаётся (оплата вне Фазы 1, docs/12 §1.9).
+### 2.26 `offers` — персональные скидки *(2A.1, docs/13 §1.2)*
+| Колонка | Тип |
+|---------|-----|
+| id | bigint PK |
+| learner_id | bigint FK → learners, ON DELETE CASCADE |
+| kind | string(24): `post_org_discount` / `winback` / `campaign` |
+| plan, period | string(16), string(8) nullable (`NULL` = любой период) |
+| discount_pct | smallint 1..90 |
+| expires_at | timestamp NOT NULL |
+| redeemed_at | timestamp nullable |
+| payment_order_id | bigint nullable → payment_orders (FK ON DELETE SET NULL **только на PostgreSQL**: на sqlite `ALTER TABLE` пересоздаёт таблицу и теряет предикат partial-индекса) |
+| source_organization_id | bigint nullable FK → organizations, ON DELETE SET NULL |
+| meta, created_at, updated_at | |
+
+**Индексы:** `(learner_id, kind, expires_at)`; `payment_order_id`; partial unique `offers_one_open_per_learner_kind (learner_id, kind) WHERE redeemed_at IS NULL`
+(считает и просроченные непогашенные — `OfferService::createPostOrgDiscount` удаляет просроченную непогашенную того же вида перед вставкой).
+
+### 2.27 `payment_orders` — намерение купить, единственный источник суммы *(2A.1)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| token | string(32) unique | `Str::random(32)`; уходит провайдеру как `invoice_payload` / `account.order_id` / `merchant_trans_id` |
+| subscriber_type / subscriber_id | string(16) / bigint | `learner` / `organization`, без FK (как `subscriptions`) |
+| plan | string(16) | `pro` |
+| tier | string(16) nullable | тариф организации |
+| period | string(8) | `month` / `year` (дни — `config('billing.periods')`) |
+| provider | string(16) | `telegram_stars` / `payme` / `click` |
+| amount, list_amount | bigint | минорные единицы (тийины / Stars) после и до скидки |
+| currency | string(8) | `UZS` / `XTR` |
+| offer_id | bigint nullable FK → offers, ON DELETE SET NULL | |
+| status | string(12) default `pending` | `pending` → `paid` / `canceled` / `expired` / `failed`; Stars-подписка остаётся `paid` как якорь продлений |
+| provider_ref | string(191) nullable | ссылка на оплату (не id транзакции); вид ссылки — `meta.checkout.kind` |
+| expires_at | timestamp NOT NULL | `now + checkout.order_ttl_minutes` |
+| paid_at | timestamp nullable | первая успешная оплата |
+| subscription_id | bigint nullable FK → subscriptions, ON DELETE SET NULL | |
+| created_via | string(16) | `twa` / `bot` / `org_panel` / `admin` |
+| meta | jsonb | `{learner_locale, checkout: {kind, expires_at}, checkout_error?}` |
+
+**Индексы:** `token` unique; `(subscriber_type, subscriber_id, status)`; `(status, expires_at)`; `subscription_id`; `offer_id`.
+
+### 2.28 `provider_transactions` — состояние транзакции провайдера *(2A.1)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | для Click — `merchant_prepare_id` |
+| provider | string(16) | `payme` / `click` |
+| provider_transaction_id | string(64) | Payme `params.id`, Click `click_trans_id` |
+| payment_order_id | bigint FK → payment_orders, ON DELETE RESTRICT | |
+| state | smallint | Payme: 1 / 2 / −1 / −2; Click: 1 / 2 / −1 |
+| amount | bigint | как пришло от провайдера (сверяется с заказом) |
+| provider_time | bigint nullable | Payme `params.time` (мс) |
+| created_at_provider, performed_at, canceled_at | timestamp nullable | |
+| cancel_reason | smallint nullable | |
+| raw | jsonb | последний запрос без секретов |
+| history | jsonb | `[{method, at, state_from, state_to}]` |
+
+**Индексы:** `(provider, provider_transaction_id)` unique; `payment_order_id`; `(provider, state, created_at_provider)`.
+
+### 2.29 `payments` — леджер *(2A.1)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| payment_order_id | bigint nullable FK → payment_orders, ON DELETE SET NULL | |
+| provider_transaction_id | bigint nullable FK → provider_transactions, ON DELETE SET NULL | |
+| subscription_id | bigint nullable FK → subscriptions, ON DELETE SET NULL | |
+| subscriber_type / subscriber_id | string(16) / bigint | дублируется из заказа |
+| provider | string(16) | |
+| provider_event_id | string(191) | ключ идемпотентности (Stars `telegram_payment_charge_id`; Payme `<id>:perform` / `:cancel`; Click `<click_trans_id>:complete` / `:refund:<n>`) |
+| provider_charge_id | string(191) nullable | что нужно для возврата |
+| kind | string(12) | `charge` / `renewal` / `refund` |
+| status | string(12) | `succeeded` / `refunded` / `failed` (`failed` = деньги могли прийти, но заказ/сумма не сошлись — `raw.failure_reason`) |
+| amount, currency | bigint, string(8) | положительные; возврат — отдельная строка с `refunded_payment_id` |
+| refunded_payment_id | bigint nullable FK → payments, ON DELETE SET NULL | |
+| period_starts_at, period_ends_at | timestamp nullable | за какой период уплачено |
+| occurred_at | timestamp NOT NULL | момент у провайдера |
+| raw | jsonb | нормализованное событие без секретов |
+
+**Индексы:** `(provider, provider_event_id)` unique; `(subscriber_type, subscriber_id, occurred_at)`; `(status, occurred_at)`; `subscription_id`; `payment_order_id`; `provider_charge_id`.
 
 ## 3. Порядок миграций
 
@@ -574,6 +666,10 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 25. `2026_04_23_100018_create_promo_codes_table` *(1.1a)*
 26. `2026_04_23_100019_create_promo_redemptions_table` *(1.1a)*
 27. `create_product_events_table`
+28. `2026_10_20_000001_create_offers_table` *(2A.1; до `payment_orders` из-за FK `payment_orders.offer_id`)*
+29. `2026_10_20_000002_create_payment_orders_table` *(2A.1; добавляет FK `offers.payment_order_id` — PostgreSQL)*
+30. `2026_10_20_000003_create_provider_transactions_table` *(2A.1)*
+31. `2026_10_20_000004_create_payments_table` *(2A.1; self-FK `refunded_payment_id`)*
 
 Индексные миграции (`add_performance_indexes`, `add_open_session_unique_indexes`) и `create_exam_*`, `create_notifications_log_table`,
 `create_product_events_table` переведены на `learner_id` на месте; `add_open_session_unique_indexes` дополнительно создаёт
