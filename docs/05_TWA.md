@@ -80,7 +80,7 @@ app.mount('#app')
 |------|------|----------|
 | `/` | LandingView | Без контекста сессии внутри Telegram сразу переходит (`replace`, с query) на `/today`; вне Telegram показывает подсказку. |
 | `/today` | TodayView | Главный экран learner'а (1.3b): цель дня (кольцо), streak, «Повторить» (`daily_review`), активный курс и «Следующий урок», каталог, бейдж Free/Pro. Данные — `GET /today` (docs/04 A.2a), стор `today`. |
-| `/finished` | FinishedView | Итог сессии; цель и streak дня из `finish`-summary (стор `training.summary`), кнопка «На главную» → `/today`. |
+| `/finished` | FinishedView | Итог сессии; цель и streak дня из `finish`-summary (стор `training.summary`), кнопка «На главную» → `/today`; при `done_reason = new_quota_exhausted` открывает `PaywallSheet` (docs/04 A.3, 1.4b). |
 | `/training/:sessionId` | TrainingView | Flashcards. |
 | `/exam/:sessionId` | ExamView | Экзамен с таймером. |
 | `/exam/:sessionId/result` | ResultView | Итоги + лидерборд. |

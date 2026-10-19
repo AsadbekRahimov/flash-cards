@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Domain\Billing\Services\NewWordQuota;
 use App\Domain\Learning\Contracts\NewCardBudgetResolver;
-use App\Domain\Learning\Services\UnlimitedNewCardBudgetResolver;
 use App\Domain\Learning\Support\LearningPolicy;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
@@ -51,9 +51,8 @@ class AppServiceProvider extends ServiceProvider
             return new InitDataValidator((string) config('telegram.bot_token'));
         });
 
-        // New-card budget for CardPicker: unlimited until the Free-plan quota (task 1.4b)
-        // rebinds this contract to the entitlement-aware resolver.
-        $this->app->bind(NewCardBudgetResolver::class, UnlimitedNewCardBudgetResolver::class);
+        // New-card budget for CardPicker: the plan's daily limit of new words (Free 20, Pro unlimited; docs/12 §5.3).
+        $this->app->bind(NewCardBudgetResolver::class, NewWordQuota::class);
 
         $this->app->singleton(LearningPolicy::class, function (): LearningPolicy {
             /** @var array<string, mixed> $config */

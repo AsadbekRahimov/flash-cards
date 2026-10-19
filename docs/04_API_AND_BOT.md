@@ -113,7 +113,7 @@
 ```
 
 - `due_count` — то же правило, что `words_due_today` в `/me` (`DueRepetitionCriteria`, A.2): слова, выведенные из курса (`is_active = false`), не считаются.
-- `new_words_remaining` — сколько новых слов осталось по квоте Free на сегодня; `null` = безлимит. **До задачи 1.4b всегда `null`** (поле зарезервировано, клиент считает `null` безлимитом).
+- `new_words_remaining` — сколько новых слов осталось по квоте Free на сегодня; `null` = безлимит. Считает `NewWordQuota::remaining` (1.4b): лимит плана (`config/billing.php`, Free = 20) минус число новых карточек, выданных learner'у в **локальный** день (`word_repetitions.created_at` в `[startUtc, endUtc)` по `learners.timezone`), не меньше 0; в **любом** режиме сессии (личная, групповая — квота принадлежит learner'у). Только чтение, без блокировок. `null` — Pro (личный и спонсорский) без лимита.
 - `goal` — цель дня: `target` = `learners.daily_goal` (оценки), `done` = `learner_daily_stats.reviews_count` за **локальный** день learner'а (`learners.timezone`, граница — локальная полночь, не UTC), `met` — цель достигнута (остаётся `true`, когда `done` растёт дальше).
 - `streak` — `current` серия дней с выполненной целью (0, если пропущен день — обнуляется при чтении), `best` рекорд, `met_today` сегодня уже засчитан, `at_risk` = `current > 0 && !met_today` (серия оборвётся, если не выполнить цель до локальной полуночи). Правила — docs/12 §7.4.
 - `active_course` — активный курс learner'а или `null` (курса нет или он уже недоступен — не `published` либо `private`, единое правило `CourseCatalogService::isAvailable`, — тогда экран предлагает выбрать курс). `title` на языке learner'а (fallback `ru`); `progress` — активные слова курса: `learned` (`repetitions >= 1`) из `total`. `next_lesson` — первый урок курса с ещё не показанными активными словами (источник новых слов `daily_review`), `null`, если показано всё; `id` — для `POST /training/sessions {mode: "lesson", lesson_id}`, `title` может быть `null`.
@@ -195,11 +195,12 @@ Learner присоединяется к открытой тренировке. �
   "total_words": 25,         // lesson/group_lesson: активные слова урока; daily_review: learners.daily_goal
   "card": { "word_id": 1001, "word": "Resilient", "translation": "Устойчивый", "translation_fallback": false, "example": null, "transcription": null, "audio_url": null, "card_kind": "new", "serve_token": null } | null,
   "progress": { "done": 0, "total": 25 },
-  "done_reason": null        // см. ниже; не null ровно когда card = null
+  "done_reason": null,       // см. ниже; не null ровно когда card = null
+  "quota": { "new_words_remaining": 19 }   // см. «Квота новых слов» ниже; null = безлимит (Pro)
 }
 ```
 
-`card` / `progress` / `done_reason` — первая карточка, прогресс и причина «карточек нет» в том же формате, что у `/next`.
+`card` / `progress` / `done_reason` / `quota` — первая карточка, прогресс, причина «карточек нет» и квота в том же формате, что у `/next`.
 Если у урока сессии нет (удалён) — 404 `lesson_not_found`.
 
 #### `GET /api/twa/training/sessions/{session_id}/next`
@@ -221,7 +222,8 @@ Learner присоединяется к открытой тренировке. �
     "serve_token": null     // string для карточки, выданной досрочно (learn-ahead) — вернуть в POST /review
   },
   "progress": { "done": 7, "total": 25 },
-  "done_reason": null        // null, пока есть card; иначе причина, см. ниже
+  "done_reason": null,       // null, пока есть card; иначе причина, см. ниже
+  "quota": { "new_words_remaining": 12 }   // null = безлимит (Pro)
 }
 ```
 
@@ -235,10 +237,24 @@ Learner присоединяется к открытой тренировке. �
 |---|---|
 | `lesson_complete` | scope `lesson`: все слова урока пройдены, ничего не due и не в learning steps |
 | `nothing_due` | scope `daily_review`: ничего не due, а новых слов в активном курсе нет (или курс не выбран) |
-| `new_quota_exhausted` | новые слова ещё есть, но дневной лимит новых карточек исчерпан, а due нет (план Free; в 1.3a бюджет безлимитный, лимит включает 1.4b) |
+| `new_quota_exhausted` | новые слова ещё есть, но дневной лимит новых карточек исчерпан, а due и learning-карточек нет (план Free, 1.4b); клиент показывает paywall |
 | `session_cap` | принято `TWA_MAX_CARDS_PER_SESSION` оценок в этой сессии |
 
-Клиент показывает экран «готово» с текстом по `done_reason`; для `new_quota_exhausted` пока только текст (paywall — 1.4b).
+Клиент показывает экран «готово» с текстом по `done_reason`; для `new_quota_exhausted` — ещё и `PaywallSheet` (ниже).
+
+**Квота новых слов (`quota`, 1.4b; docs/12 §5.3).** `quota.new_words_remaining: int|null` есть в ответах `/start`, `/next`, `/review` и `POST /training/sessions`
+(в том числе когда `card = null`): сколько новых карточек learner ещё получит **сегодня** (локальный день, `learners.timezone`) **после** этого шага — только что выданная
+новая карточка уже учтена. `null` — безлимит (Pro, личный или спонсорский центром). Free: `20` (`BILLING_FREE_NEW_WORDS_PER_DAY`) минус число строк
+`word_repetitions` learner'а, созданных в этот день; считается в любом режиме сессии, групповые уроки не исключение. Повторения (due, learning, learn-ahead)
+квотой не ограничиваются: после исчерпания `/next` по-прежнему отдаёт due-карточки, а `done_reason = new_quota_exhausted` приходит, только когда больше нечего показать.
+Число — для отображения (читается без блокировки, вне транзакции выдачи); сам лимит применяет сервер при выдаче, под блокировкой строки learner'а. Смена часового пояса
+сдвигает границы дня: карточки вне нового окна в квоту не входят (не больше `limit` выдач в любом локальном дне, docs/12 §5.3).
+
+**`PaywallSheet`** (режим `paywall.mode = coming_soon`, данные — `GET /me`: `entitlement.new_words_per_day`, `paywall.contact`): заголовок «Pro скоро», описание Free (N новых слов в день,
+повторения без лимита), встроенный ввод промокода (`POST /promo/redeem`, A.7) и — только при непустом `paywall.contact` — строка «Учитесь в центре? …» со ссылкой
+(`@handle` → `https://t.me/handle`, e-mail → `mailto:`, `http(s)` URL — как есть, иное — простой текст; никакого `v-html`). Показывается на экране «готово» при `done_reason = new_quota_exhausted`
+и по кнопке «Узнать о Pro» на экране «Сегодня» у плана Free. После успешного промокода обновляются `/me` и `/today`. Событие `paywall.shown {reason}` клиент пока не отправляет: клиентского
+канала продуктовых событий нет (см. docs/12 §5.4, реализация 1.4b).
 Личную сессию на экране «готово» клиент закрывает `POST /finish` (best effort); групповую не закрывает никогда.
 
 **Язык перевода** (`translation`): групповая сессия — язык группы (`telegram_groups.meta.locale`, по умолчанию `ru`),
@@ -272,7 +288,8 @@ Learner присоединяется к открытой тренировке. �
   "easiness_factor": 2.45,
   "card": { ... } | null,    // следующая карточка (как в /next)
   "progress": { "done": 7, "total": 25 },
-  "done_reason": null
+  "done_reason": null,
+  "quota": { "new_words_remaining": 12 }
 }
 ```
 

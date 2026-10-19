@@ -51,6 +51,11 @@ export interface LessonHeader {
 /** Why a session has no card to show (docs/04 A.3). `null`/absent while there is a card. */
 export type DoneReason = 'lesson_complete' | 'nothing_due' | 'new_quota_exhausted' | 'session_cap'
 
+/** Free new-word quota after the step (docs/04 A.3); `new_words_remaining` null = unlimited. */
+export interface Quota {
+  new_words_remaining: number | null
+}
+
 export type TrainingMode = 'group_lesson' | 'lesson' | 'daily_review'
 
 /** Where a personal session was opened from (stored for analytics). */
@@ -65,6 +70,7 @@ export interface TrainingStartResponse {
   card?: Card | null
   progress?: { done: number; total: number }
   done_reason?: DoneReason | null
+  quota?: Quota
 }
 
 /** Body of POST /training/sessions. */
@@ -163,6 +169,7 @@ export interface NextCardResponse {
   card: Card | null
   progress: { done: number; total: number }
   done_reason?: DoneReason | null
+  quota?: Quota
 }
 
 /**
@@ -181,6 +188,7 @@ export interface ReviewResponse {
   card?: Card | null
   progress?: { done: number; total: number }
   done_reason?: DoneReason | null
+  quota?: Quota
 }
 
 export interface ApiError {

@@ -82,12 +82,12 @@ it('requires authentication', function (): void {
     $this->getJson('/api/twa/today')->assertStatus(401);
 });
 
-it('is empty for a fresh learner: zero goal progress, no streak, no course, quota not limited yet', function (): void {
+it('is empty for a fresh learner: zero goal progress, no streak, no course, the full Free quota', function (): void {
     $learner = Learner::factory()->create(['daily_goal' => 10]);
 
     todayGet($this, $learner)->assertOk()->assertExactJson([
         'due_count' => 0,
-        'new_words_remaining' => null,
+        'new_words_remaining' => 20,
         'goal' => ['target' => 10, 'done' => 0, 'met' => false],
         'streak' => ['current' => 0, 'best' => 0, 'met_today' => false, 'at_risk' => false],
         'active_course' => null,

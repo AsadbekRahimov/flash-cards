@@ -109,6 +109,16 @@ export const uz: Translations = {
   'promo.success_until': 'Pro {date} gacha faol.',
   'promo.success_forever': 'Pro muddatsiz faol.',
 
+  // ---- paywall (Free quota, mode coming_soon; docs/12 §5.4) ----
+  'paywall.title': 'Pro tez orada',
+  'paywall.lead_quota': "Bugungi yangi so'zlar limiti tugadi — takrorlash cheklovsiz.",
+  'paywall.soon': 'Pro tez orada ochiladi.',
+  'paywall.free': "Hozir sizda Free tarif: kuniga {count} ta yangi so'z, takrorlash cheklovsiz.",
+  'paywall.free_generic': "Hozir sizda Free tarif: yangi so'zlar kunlik limit bilan cheklangan, takrorlash cheklovsiz.",
+  'paywall.contact': "Markazda o'qiysizmi? Markaz administratoridan LexiFlow Pro'ni ulashni so'rang:",
+  'paywall.dismiss': 'Tushunarli',
+  'paywall.open': 'Pro haqida bilib oling',
+
   // ---- course catalog ----
   'catalog.title': 'Kurslar',
   'catalog.open': 'Kurslar katalogi',
