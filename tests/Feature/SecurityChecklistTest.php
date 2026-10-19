@@ -19,10 +19,10 @@ beforeEach(function (): void {
     RateLimiter::clear('twa-auth');
 });
 
-it('rate-limits /api/twa/auth at 20 requests per minute per IP', function (): void {
+it('rate-limits /api/twa/auth at 60 requests per minute per IP (one CGNAT address serves whole classrooms)', function (): void {
     $server = ['REMOTE_ADDR' => '203.0.113.10'];
 
-    for ($i = 0; $i < 20; $i++) {
+    for ($i = 0; $i < 60; $i++) {
         $response = $this->withServerVariables($server)
             ->postJson('/api/twa/auth', ['init_data' => 'garbage']);
         $response->assertStatus(401);

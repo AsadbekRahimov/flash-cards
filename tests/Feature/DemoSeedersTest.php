@@ -2,13 +2,18 @@
 
 declare(strict_types=1);
 
+use App\Domain\Twa\Services\JwtService;
 use App\Models\Course;
+use App\Models\Learner;
 use App\Models\Stage;
 use App\Models\TelegramGroup;
 use App\Models\Word;
+use App\Models\WordRepetition;
 use App\Models\WordTranslation;
+use Database\Seeders\DatabaseSeeder;
 use Database\Seeders\DemoContentSeeder;
 use Database\Seeders\DemoGroupSeeder;
+use Database\Seeders\DemoRepetitionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -54,4 +59,26 @@ it('honours content.default_course_slug', function (): void {
     $this->seed(DemoContentSeeder::class);
 
     expect(Course::query()->sole()->slug)->toBe('custom');
+});
+
+it('seeds demo repetitions as lessons the groups already taught, so a Free demo learner still has the full new-word quota today', function (): void {
+    $this->seed(DatabaseSeeder::class);
+
+    expect(WordRepetition::query()->count())->toBeGreaterThan(0)
+        ->and(WordRepetition::query()->where('introduced_mode', '!=', 'group_lesson')->count())->toBe(0)
+        ->and(WordRepetition::query()->where('created_at', '>', now()->subDays(8))->count())->toBe(0)
+        ->and(WordRepetition::query()->where('created_at', '<=', now()->subDays(30)->subMinute())->count())->toBe(0);
+
+    foreach (Learner::query()->get() as $learner) {
+        $token = app(JwtService::class)->issue($learner->id)['token'];
+
+        $this->withHeaders(['Authorization' => "Bearer {$token}"])
+            ->getJson('/api/twa/today')
+            ->assertOk()
+            ->assertJsonPath('new_words_remaining', 20);
+    }
+
+    // Running the seeder again keeps the history in the past (idempotent, deterministic).
+    $this->seed(DemoRepetitionsSeeder::class);
+    expect(WordRepetition::query()->where('created_at', '>', now()->subDays(8))->count())->toBe(0);
 });

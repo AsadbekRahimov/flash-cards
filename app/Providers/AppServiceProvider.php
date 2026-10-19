@@ -101,8 +101,11 @@ class AppServiceProvider extends ServiceProvider
                 ->by(Str::lower($email).'|'.$request->ip());
         });
 
+        // 60/min per IP: a mobile carrier's CGNAT address serves whole classrooms. The per-person
+        // cap (10/min per Telegram user) can only be applied after the initData HMAC check, so it
+        // lives in AuthController ('twa-auth-user|{telegram_user_id}'), docs/12 §8.
         RateLimiter::for('twa-auth', function (Request $request): Limit {
-            return Limit::perMinute(20)->by((string) $request->ip());
+            return Limit::perMinute(60)->by((string) $request->ip());
         });
 
         RateLimiter::for('twa-api', function (Request $request): Limit {

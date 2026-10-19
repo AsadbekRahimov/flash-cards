@@ -7,6 +7,7 @@ namespace Database\Seeders;
 use App\Domain\Learning\Enums\RepetitionState;
 use App\Models\Learner;
 use App\Models\TelegramGroup;
+use App\Models\TrainingSession;
 use App\Models\Word;
 use App\Models\WordRepetition;
 use Illuminate\Database\Seeder;
@@ -35,23 +36,27 @@ class DemoRepetitionsSeeder extends Seeder
                     $isHard = $quality <= 2;
                     $dueOffset = ($j % 3 === 0) ? -random_int(1, 24) : random_int(1, 14) * 24;
 
-                    WordRepetition::updateOrCreate(
-                        ['learner_id' => $learner->id, 'word_id' => $word->id],
-                        [
-                            'repetitions' => $reps,
-                            'interval_days' => $reps === 0 ? 0 : min(30, $reps * 3),
-                            'easiness_factor' => round(2.5 + ($quality - 3) * 0.1, 2),
-                            'last_quality' => $quality,
-                            'last_reviewed_at' => now()->subDays(random_int(0, 7)),
-                            'next_review_at' => now()->addHours($dueOffset),
-                            'is_hard' => $isHard,
-                            // Failed-but-never-graduated rows are relearning (minute steps on next visit).
-                            'state' => $reps >= 1 ? RepetitionState::Review : RepetitionState::Relearning,
-                            'learning_step' => 0,
-                            'lapses' => $reps >= 1 ? 0 : 1,
-                            'meta' => [],
-                        ],
-                    );
+                    $repetition = WordRepetition::firstOrNew(['learner_id' => $learner->id, 'word_id' => $word->id]);
+                    $repetition->fill([
+                        'repetitions' => $reps,
+                        'interval_days' => $reps === 0 ? 0 : min(30, $reps * 3),
+                        'easiness_factor' => round(2.5 + ($quality - 3) * 0.1, 2),
+                        'last_quality' => $quality,
+                        'last_reviewed_at' => now()->subDays(random_int(0, 7)),
+                        'next_review_at' => now()->addHours($dueOffset),
+                        'is_hard' => $isHard,
+                        // Failed-but-never-graduated rows are relearning (minute steps on next visit).
+                        'state' => $reps >= 1 ? RepetitionState::Review : RepetitionState::Relearning,
+                        'learning_step' => 0,
+                        'lapses' => $reps >= 1 ? 0 : 1,
+                        // History: the group's lessons introduced these words 8..30 days ago. Neither
+                        // today's Free new-word quota (counted by created_at, outside group lessons)
+                        // nor the demo learner's "Today" screen should be eaten by seed data.
+                        'introduced_mode' => TrainingSession::MODE_GROUP_LESSON,
+                        'meta' => [],
+                    ]);
+                    $repetition->created_at = now()->subDays(8 + ($i * 7 + $j) % 23);
+                    $repetition->save();
                 }
             }
         });

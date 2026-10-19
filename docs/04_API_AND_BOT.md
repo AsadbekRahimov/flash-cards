@@ -53,6 +53,7 @@
 - 401 `invalid_init_data` — HMAC не сошёлся / `initData` просрочен.
 - 401 `learner_blocked` — learner заблокирован платформой (`learners.blocked_at`).
 - 422 — нет поля `init_data`.
+- 429 `rate_limited` (`Retry-After`) — больше 60 запросов в минуту с одного IP либо больше 10 проверенных входов в минуту одного `telegram_user_id` (второй счётчик начинается только после проверки HMAC).
 
 Ошибок `session_context_required` (409) и `student_not_found` (403) на `/auth` больше нет.
 
@@ -510,7 +511,7 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 ```
 
 ### A.7 `POST /api/twa/promo/redeem`
-Активация промокода (docs/12 §5.5). Rate limit `twa-promo`: **5/мин на learner'а и 20/мин на IP** (429) — защита от подбора кодов.
+Активация промокода (docs/12 §5.5). Rate limit `twa-promo`: **5/мин на learner'а и 60/мин на IP** (429) — защита от подбора кодов.
 
 **Request:** `{ "code": "welcome-30" }` — `required|string|max:64`; регистр, пробелы и дефисы не важны
 (`PromoCodeService::normalize`). Нарушение валидации — 422 в стандартном формате Laravel (`message` + `errors.code`).

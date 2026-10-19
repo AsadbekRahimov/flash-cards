@@ -13,6 +13,7 @@ use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\RateLimiter;
 
 uses(RefreshDatabase::class);
 
@@ -390,4 +391,60 @@ it('takes the refusal limit from config', function (): void {
     $this->getJson('/api/twa/me')->assertUnauthorized();
     $this->getJson('/api/twa/me')->assertUnauthorized();
     $this->getJson('/api/twa/me')->assertStatus(429);
+});
+
+// --- /auth rate limits (docs/12 §8, docs/07 §6) ---------------------------------------------
+
+it('allows 10 verified /auth calls per minute for one Telegram user, then answers 429 rate_limited', function (): void {
+    RateLimiter::clear('twa-auth-user|555');
+
+    for ($i = 1; $i <= 10; $i++) {
+        $this->postJson('/api/twa/auth', ['init_data' => signedInitData(555)])->assertOk();
+    }
+
+    $this->postJson('/api/twa/auth', ['init_data' => signedInitData(555)])
+        ->assertStatus(429)
+        ->assertJsonPath('error.code', 'rate_limited')
+        ->assertHeader('Retry-After');
+
+    // Somebody else on the same address is not affected, nor is the same person a minute later.
+    $this->postJson('/api/twa/auth', ['init_data' => signedInitData(556)])->assertOk();
+    $this->travel(61)->seconds();
+    $this->postJson('/api/twa/auth', ['init_data' => signedInitData(555)])->assertOk();
+});
+
+it('counts the per-user budget only after the HMAC check: forged initData cannot burn a victim\'s budget', function (): void {
+    RateLimiter::clear('twa-auth-user|777');
+    $forged = signedInitData(777).'0';   // valid payload, broken signature
+
+    for ($i = 1; $i <= 15; $i++) {
+        $this->withServerVariables(['REMOTE_ADDR' => '198.51.100.'.$i])
+            ->postJson('/api/twa/auth', ['init_data' => $forged])
+            ->assertUnauthorized();
+    }
+
+    $this->postJson('/api/twa/auth', ['init_data' => signedInitData(777)])->assertOk();
+    expect(RateLimiter::attempts('twa-auth-user|777'))->toBe(1);
+});
+
+it('does not create or touch a learner once the per-user limit is hit', function (): void {
+    RateLimiter::clear('twa-auth-user|888');
+    for ($i = 1; $i <= 10; $i++) {
+        $this->postJson('/api/twa/auth', ['init_data' => signedInitData(888, 'Alex')])->assertOk();
+    }
+
+    $this->postJson('/api/twa/auth', ['init_data' => signedInitData(888, 'Renamed')])->assertStatus(429);
+
+    expect(Learner::query()->where('telegram_user_id', 888)->sole()->first_name)->toBe('Alex');
+});
+
+it('has a per-IP budget of 60 /auth requests per minute', function (): void {
+    RateLimiter::clear('twa-auth');
+    $server = ['REMOTE_ADDR' => '203.0.113.77'];
+
+    for ($i = 1; $i <= 60; $i++) {
+        $this->withServerVariables($server)->postJson('/api/twa/auth', ['init_data' => signedInitData(9000 + $i)])->assertOk();
+    }
+
+    $this->withServerVariables($server)->postJson('/api/twa/auth', ['init_data' => signedInitData(9100)])->assertStatus(429);
 });

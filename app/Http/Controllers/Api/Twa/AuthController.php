@@ -14,9 +14,13 @@ use App\Http\Resources\ApiErrorResource;
 use App\Http\Resources\Twa\AuthTokenResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 
 final class AuthController
 {
+    /** Verified `/auth` calls per Telegram user per minute (a legitimate client calls it once per token). */
+    private const USER_ATTEMPTS_PER_MINUTE = 10;
+
     public function __construct(
         private readonly InitDataValidator $validator,
         private readonly JwtService $jwt,
@@ -38,6 +42,15 @@ final class AuthController
         } catch (InvalidInitDataException $e) {
             return ApiErrorResource::respond(401, 'invalid_init_data', $e->reason);
         }
+
+        // Per person, and only for a verified identity: a forged initData must not be able to burn
+        // the budget of the Telegram id it claims (docs/12 §8).
+        $userKey = 'twa-auth-user|'.(int) ($parsed['user']['id'] ?? 0);
+        if (RateLimiter::tooManyAttempts($userKey, self::USER_ATTEMPTS_PER_MINUTE)) {
+            return ApiErrorResource::respond(429, 'rate_limited', 'Too many requests')
+                ->header('Retry-After', (string) RateLimiter::availableIn($userKey));
+        }
+        RateLimiter::hit($userKey, 60);
 
         [$learner, $contextGroup] = $this->learners->resolve(
             $parsed['user'],

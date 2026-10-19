@@ -169,7 +169,7 @@ public function denial(Learner $learner, TrainingSession $s): ?string   // null 
 
 | Endpoint | Limit | Комментарий |
 |----------|-------|-------------|
-| `POST /api/twa/auth` | 20/min per IP | Защита от перебора |
+| `POST /api/twa/auth` | 60/min per IP (`throttle:twa-auth`) + 10/min per `telegram_user_id` (`AuthController`, `RateLimiter` `twa-auth-user\|<id>`) | IP-лимит широкий — мобильные операторы (CGNAT) прячут целые классы за одним адресом. Персональный лимит считается **после** проверки HMAC initData: подделанный `init_data` с чужим `id` не расходует бюджет жертвы. Превышение → 429 `rate_limited` + `Retry-After`, learner не создаётся и не обновляется |
 | `POST /api/twa/training/*/review` | 60/min per learner | Нормальный темп — не больше |
 | `POST /api/twa/exam/*/answer` | 30/min per learner | |
 | `GET /api/twa/tts` | 30/min per learner | |
@@ -277,7 +277,7 @@ public function denial(Learner $learner, TrainingSession $s): ?string   // null 
 - [ ] Попытка отправить `review` с `quality=10` — 422.
 - [ ] SQL injection в поиске по словам в админке — запросы через bindings.
 - [ ] XSS в JSON-импорте (`<script>alert(1)</script>` в `translation`) — экранировано.
-- [ ] Rate-limit срабатывает на `/auth` после 20 попыток.
+- [ ] Rate-limit срабатывает на `/auth`: после 60 запросов с одного IP и после 10 проверенных входов в минуту одного `telegram_user_id`.
 - [ ] Webhook без `X-Telegram-Bot-Api-Secret-Token` — 403.
 - [ ] Webhook с правильным secret, но из левого IP (опция) — 403.
 - [ ] 2FA для админа работает, recovery codes работают, нельзя отключить без пароля.
