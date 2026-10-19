@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace App\Domain\Telegram\Handlers;
 
 use App\Domain\Learners\DTO\StartPayload;
+use App\Domain\Learners\Enums\StartPayloadKind;
 use App\Domain\Learners\Services\LearnerRegistrar;
 use App\Domain\Learners\Services\OnboardingService;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
 use App\Domain\Telegram\Services\OnboardingMessenger;
+use App\Domain\Telegram\Services\OrganizationMessenger;
 use App\Domain\Telegram\Services\TodayScreen;
 use App\Domain\Telegram\Support\DmLearnerResolver;
 use App\Models\User;
@@ -18,7 +20,9 @@ use App\Models\User;
 /**
  * `/start [payload]` in a DM (docs/12 §7.1). A linked teacher gets the greeting as before; anyone
  * else is a learner: the deep-link payload is attributed (first touch wins), then the onboarding
- * starts — or, for a learner who has finished it, the "Today" screen is shown.
+ * starts — or, for a learner who has finished it, the "Today" screen is shown. An `org_<code>` link
+ * (docs/13 §6.2) adds a "Join center X?" question: at once for a learner who has finished the
+ * onboarding, after its last step otherwise; a code that cannot be used is explained and ignored.
  */
 final class StartCommandHandler implements UpdateHandler
 {
@@ -29,6 +33,7 @@ final class StartCommandHandler implements UpdateHandler
         private readonly LearnerRegistrar $registrar,
         private readonly OnboardingMessenger $messenger,
         private readonly TodayScreen $today,
+        private readonly OrganizationMessenger $organizations,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -94,11 +99,23 @@ final class StartCommandHandler implements UpdateHandler
         $this->registrar->attributeAcquisition($learner, $payload);
 
         if ($learner->onboarding_state === OnboardingService::DONE) {
+            if ($payload->kind === StartPayloadKind::Org && $payload->value !== null) {
+                // The invite link is why they came: the question replaces "Today".
+                $this->organizations->offer($learner, $chatId, $payload->value);
+
+                return;
+            }
+
             $this->today->send($learner, $chatId);
             // A `c_<slug>` link of a finished learner does not change the active course; it opens the course.
             $this->messenger->sendCourseLink($learner, $chatId, $payload);
 
             return;
+        }
+
+        // A code that cannot be used is explained now and not remembered for the end of the onboarding.
+        if (! $this->organizations->acceptsPayload($learner, $chatId, $payload)) {
+            $payload = StartPayload::none();
         }
 
         $this->messenger->resume($learner, $chatId, $payload);

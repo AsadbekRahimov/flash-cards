@@ -25,6 +25,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $expires_at
  * @property bool $is_active
  * @property int|null $created_by_user_id
+ * @property-read Organization $organization FK is NOT NULL with cascade: an invite always has its organization
  */
 class OrganizationInvite extends Model
 {

@@ -190,6 +190,14 @@ class AppServiceProvider extends ServiceProvider
             ];
         });
 
+        RateLimiter::for('twa-organizations', function (Request $request): Limit {
+            /** @var array{learner_id:int}|null $ctx */
+            $ctx = $request->attributes->get('twa');
+            $key = $ctx['learner_id'] ?? $request->ip();
+
+            return Limit::perMinute(10)->by('twa-organizations|'.$key);
+        });
+
         RateLimiter::for('twa-tts', function (Request $request): Limit {
             /** @var array{learner_id:int}|null $ctx */
             $ctx = $request->attributes->get('twa');

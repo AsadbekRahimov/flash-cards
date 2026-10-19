@@ -10,6 +10,7 @@ use App\Domain\Learners\DTO\StartPayload;
 use App\Domain\Learners\Services\LearnerClock;
 use App\Domain\Learners\Services\OnboardingService;
 use App\Domain\Localization\Services\LocaleResolver;
+use App\Domain\Organizations\Services\LearnerOrganizationsService;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Models\Course;
@@ -38,6 +39,7 @@ final class OnboardingMessenger
         private readonly OnboardingService $onboarding,
         private readonly CourseCatalogService $catalog,
         private readonly LearnerClock $clock,
+        private readonly LearnerOrganizationsService $organizations,
     ) {}
 
     /** `/start` and any message of a learner who has not finished the onboarding: begin it or repeat the current step. */
@@ -108,8 +110,17 @@ final class OnboardingMessenger
             OnboardingService::STEPS,
         );
 
+        $rows = array_chunk($buttons, 2);
+        // "My centers" (docs/13 §6.2) only for a learner who is in one; its buttons are OrganizationMessenger's.
+        if ($this->organizations->hasMemberships($learner)) {
+            $rows[] = [[
+                'text' => __('organizations.settings_button', [], $locale),
+                'callback_data' => OrganizationMessenger::PREFIX.':list',
+            ]];
+        }
+
         $this->telegram->sendMessage($chatId, __('onboarding.settings.menu', [], $locale), replyMarkup: [
-            'inline_keyboard' => array_chunk($buttons, 2),
+            'inline_keyboard' => $rows,
         ]);
     }
 

@@ -858,7 +858,7 @@ flowchart TD
 | `ref_<code>` | код приглашающего learner'а (`learners.referral_code` — добавить колонку varchar(16) unique, генерируется лениво) | `referrer_learner_id`, `acquisition_source = 'ref'`; наград нет |
 | `src_<channel>` | канал/блогер (`[a-z0-9_]{1,32}`) | `acquisition_source = 'src:<channel>'` |
 | `c_<slug>` | курс | `active_course_id` после онбординга, если курс опубликован; `acquisition_source = 'course:<slug>'` |
-| `org_<code>` | инвайт центра | Фаза 2; в Фазе 1 сохраняется в `start_payload`, пользователю — обычный онбординг |
+| `org_<code>` | инвайт центра | Фаза 1: сохраняется в `start_payload`, пользователю — обычный онбординг. **Фаза 2 (2B.2, docs/13 §6.2): `meta.pending_org_invite` → подтверждение `org1:join` / `org1:skip` после онбординга (сразу — для прошедшего его learner'а); см. docs/04 B.3** |
 
 Источник записывается только при **первом** `/start` (не перетирается). Событие `onboarding.started {source_kind}`.
 

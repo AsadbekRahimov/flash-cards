@@ -55,6 +55,23 @@ export interface LearnerSettings {
   }
 }
 
+/** One active membership of GET /me/organizations (docs/04 A.11). */
+export interface OrganizationMembership {
+  /** organization_members.id: what DELETE /me/organizations/{id} takes. */
+  id: number
+  name: string
+  /** `seated` = Pro from the center; `waitlisted` = no free seat yet (plain Free). */
+  seat_state: 'seated' | 'waitlisted' | string
+  /** `invite` / `admin` can be left by the learner; `group` comes back with the group chat. */
+  joined_via: 'invite' | 'group' | 'admin' | string
+  joined_at: string
+  can_leave: boolean
+}
+
+export interface OrganizationsResponse {
+  organizations: OrganizationMembership[]
+}
+
 /** Body of PATCH /me/settings: only the fields to change; `reminder_time: null` turns the reminders off. */
 export type SettingsPatch = Partial<
   Pick<LearnerSettings, 'interface_locale' | 'timezone' | 'reminder_time' | 'daily_goal' | 'goal' | 'level'>

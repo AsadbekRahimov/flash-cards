@@ -106,6 +106,28 @@ final class OrganizationMembershipService
     }
 
     /**
+     * Read-only check of a code for the bot's confirmation step ("Join center X?"): the same
+     * refusals as {@see self::joinByInvite()} (without the locked re-read), nothing is written.
+     * The invite comes back with its organization loaded.
+     *
+     * @throws OrganizationMembershipException invite_invalid | invite_expired | invite_exhausted | organization_suspended
+     */
+    public function previewInvite(string $code, ?CarbonImmutable $now = null): OrganizationInvite
+    {
+        $now ??= CarbonImmutable::now();
+        $code = OrganizationInviteService::normalizeCode($code);
+
+        $invite = $this->usableInvite(OrganizationInvite::query()->with('organization')->where('code', $code)->first(), $code, $now);
+
+        $organization = $invite->organization;
+        if (! $organization->isActive()) {
+            throw OrganizationMembershipException::organizationSuspended($organization->id);
+        }
+
+        return $invite;
+    }
+
+    /**
      * Membership through a Telegram group of the organization (joined_via = group); called by
      * GroupMembershipService::join after its own write, in a separate transaction. Null when the
      * group has no organization or the organization is suspended (best effort, never throws for

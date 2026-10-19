@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Domain\Organizations\Enums\JoinedVia;
 use App\Domain\Organizations\Enums\MemberStatus;
 use App\Domain\Organizations\Enums\SeatState;
 use Database\Factories\OrganizationMemberFactory;
@@ -28,6 +29,8 @@ use Illuminate\Support\Carbon;
  * @property Carbon $joined_at
  * @property Carbon|null $left_at
  * @property array<string, mixed> $meta
+ * @property-read Organization $organization both FKs are NOT NULL with cascade: the parents of a membership always exist
+ * @property-read Learner $learner
  */
 class OrganizationMember extends Model
 {
@@ -73,6 +76,15 @@ class OrganizationMember extends Model
     public function isSeated(): bool
     {
         return $this->isActive() && $this->seat_state === SeatState::Seated->value;
+    }
+
+    /**
+     * Whether the learner may end this membership themselves: invite / admin ones. A `group`
+     * membership comes back with the next entry to a group chat of the center (docs/13 §6.2).
+     */
+    public function isLeavableByLearner(): bool
+    {
+        return $this->joined_via !== JoinedVia::Group->value;
     }
 
     public function isWaitlisted(): bool
