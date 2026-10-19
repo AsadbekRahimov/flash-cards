@@ -24,6 +24,7 @@ use App\Models\TelegramGroup;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -454,4 +455,66 @@ it('records the old and new expiry of a promo code as ISO dates and writes nothi
     expect($fresh?->code)->not->toBe('HACKED')
         ->and($fresh?->redemptions_count)->toBe(0)
         ->and(AuditLog::query()->where('action', 'promo.updated')->count())->toBe(1);
+});
+
+it('audits a status change of an organization (suspend and activate), but not other edits', function (): void {
+    $org = Organization::factory()->create(['name' => 'Bright Center', 'status' => 'active']);
+    $this->actingAs($this->admin);
+
+    $page = Livewire::test(OrganizationResource\Pages\EditOrganization::class, ['record' => $org->getKey()]);
+
+    $page->fillForm(['name' => 'Bright Center 2'])->call('save')->assertHasNoFormErrors();
+    expect(AuditLog::query()->count())->toBe(0);
+
+    $page->fillForm(['status' => 'suspended'])->call('save')->assertHasNoFormErrors();
+    $page->fillForm(['status' => 'active'])->call('save')->assertHasNoFormErrors();
+
+    $audits = AuditLog::query()->where('action', 'organization.status_changed')->orderBy('id')->get();
+    expect($audits)->toHaveCount(2)
+        ->and($audits[0]->user_id)->toBe($this->admin->id)
+        ->and($audits[0]->entity_type)->toBe(Organization::class)
+        ->and($audits[0]->entity_id)->toBe($org->id)
+        ->and($audits[0]->meta['from'])->toBe('active')
+        ->and($audits[0]->meta['to'])->toBe('suspended')
+        ->and($audits[1]->meta['from'])->toBe('suspended')
+        ->and($audits[1]->meta['to'])->toBe('active')
+        ->and($org->fresh()?->name)->toBe('Bright Center 2');
+});
+
+it('does not delete an organization with a live subscription or linked groups and says why', function (): void {
+    $withSubscription = Organization::factory()->create();
+    Subscription::factory()->forOrganization($withSubscription)->create(['current_period_ends_at' => null]);
+    $withGroup = Organization::factory()->create();
+    TelegramGroup::factory()->create(['organization_id' => $withGroup->id]);
+    $this->actingAs($this->admin);
+
+    expect(Gate::forUser($this->admin)->inspect('delete', $withSubscription)->message())->toContain('live subscription')
+        ->and(Gate::forUser($this->admin)->inspect('delete', $withGroup)->message())->toContain('linked groups');
+
+    Livewire::test(ListOrganizations::class)
+        ->assertCanSeeTableRecords([$withSubscription, $withGroup])
+        ->assertTableActionVisible('delete', $withSubscription)   // visible, with the reason as its tooltip
+        ->callTableAction('delete', $withSubscription)
+        ->assertNotified()
+        ->callTableAction('delete', $withGroup);
+
+    expect(Organization::query()->whereKey([$withSubscription->id, $withGroup->id])->count())->toBe(2);
+});
+
+it('deletes an organization that has neither a live subscription nor groups', function (): void {
+    $org = Organization::factory()->create();
+    Subscription::factory()->forOrganization($org)->expired()->create();
+    $this->actingAs($this->admin);
+
+    expect(Gate::forUser($this->admin)->allows('delete', $org))->toBeTrue();
+
+    Livewire::test(ListOrganizations::class)->callTableAction('delete', $org);
+
+    expect(Organization::query()->whereKey($org->id)->exists())->toBeFalse();
+});
+
+it('never lets a teacher delete an organization', function (): void {
+    $org = Organization::factory()->create();
+
+    expect(Gate::forUser($this->teacher)->allows('delete', $org))->toBeFalse();
 });

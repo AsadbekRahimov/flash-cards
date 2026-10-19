@@ -84,7 +84,7 @@ class OrganizationResource extends Resource
             ])
             ->actions([
                 Actions\EditAction::make(),
-                Actions\DeleteAction::make(),
+                Actions\DeleteAction::make()->authorizationTooltip()->authorizationNotification(),
             ])
             ->defaultSort('name');
     }
