@@ -216,6 +216,24 @@ it('audio:pregenerate skips words whose audio is current unless --force', functi
     Queue::assertPushed(PregenerateWordAudioJob::class, fn (PregenerateWordAudioJob $job): bool => $job->force);
 });
 
+it('audio:pregenerate --force re-synthesizes each unique text once', function (): void {
+    Queue::fake();
+    $course = Course::factory()->create(['slug' => 'ielts']);
+    $a = audioWord('Alpha', $course);
+    $b = audioWord('alpha ', $course);
+    $c = audioWord('beta', $course);
+
+    $this->artisan('audio:pregenerate', ['course' => 'ielts', '--force' => true])
+        ->expectsOutputToContain('Queued: 3')
+        ->assertSuccessful();
+
+    Queue::assertPushed(PregenerateWordAudioJob::class, 3);
+    expect(Queue::pushed(PregenerateWordAudioJob::class, fn (PregenerateWordAudioJob $job): bool => $job->force))->toHaveCount(2);
+    Queue::assertPushed(PregenerateWordAudioJob::class, fn (PregenerateWordAudioJob $job): bool => $job->wordId === $a->id && $job->force);
+    Queue::assertPushed(PregenerateWordAudioJob::class, fn (PregenerateWordAudioJob $job): bool => $job->wordId === $b->id && ! $job->force);
+    Queue::assertPushed(PregenerateWordAudioJob::class, fn (PregenerateWordAudioJob $job): bool => $job->wordId === $c->id && $job->force);
+});
+
 it('audio:pregenerate fails for an unknown course', function (): void {
     Queue::fake();
 

@@ -254,6 +254,11 @@ server {
         alias /var/www/lexiflow/storage/app/public/audio/;
         gzip off;
         add_header Cache-Control "public, max-age=2592000, immutable";
+
+        # `^~` skips the server-level dotfile rule: deny `.tmp/` (half-written files) explicitly.
+        location ~ /\. {
+            deny all;
+        }
     }
 
     # Admin panel, 2FA pages and Livewire (hash-prefixed routes such as
@@ -377,12 +382,22 @@ Words are voiced once by the edge-tts service (`TTS_SERVICE_URL`, `TTS_SERVICE_T
 
 ```bash
 php artisan audio:pregenerate <course-slug>          # queue jobs for active words without current audio
-php artisan audio:pregenerate <course-slug> --force  # re-synthesize everything (e.g. after changing the voice)
+php artisan audio:pregenerate <course-slug> --force  # re-synthesize existing files (one TTS call per unique text)
 ```
 
-- Files: `storage/app/public/audio/{sha1(text|voice|version)}.mp3` (public disk), `words.audio_path` holds the relative path. Same text in several words/courses = one file. Changing `TTS_VOICE` or `TTS_AUDIO_VERSION` produces new file names; old files stay on disk (delete `storage/app/public/audio` and re-run the command to clean up).
-- The `tts` container must be reachable from the queue worker. If it is down, jobs retry and then land in `failed_jobs` (`php artisan queue:retry all` when it is back); the rest of the batch is not affected, learners just keep getting Web Speech / live `/api/twa/tts`.
-- Serving: nginx `location ^~ /storage/audio/` (see `docker/nginx/*.conf`) reads `storage/app/public/audio` directly. In `docker-compose.prod.yml` the nginx service mounts the `app_storage` volume read-only for this. `php artisan storage:link` is not required for the audio, but the card `audio_url` is built from `APP_URL` + `/storage/...`, so `APP_URL` must be the public https origin.
+- Files: `storage/app/public/audio/{sha1(text|voice|version)}.mp3` (public disk), `words.audio_path` holds the relative path. Same text in several words/courses = one file. Writes are atomic: the body goes to `audio/.tmp/{name}.{random}` and is renamed onto the final name; an empty or truncated file counts as "not generated" and is rebuilt. Changing `TTS_VOICE` or `TTS_AUDIO_VERSION` produces new file names on its own, so run the command **without** `--force` after that (`--force` is only for replacing the contents of files that already exist, e.g. a bad batch); old files stay on disk (delete `storage/app/public/audio` and re-run the command to clean up). Editing a word's English text in the admin panel clears its `audio_path` and queues a new job.
+- The `tts` container must be reachable from the queue worker. If it is down, jobs retry and then land in `failed_jobs` (`php artisan queue:retry all` when it is back); the rest of the batch is not affected, learners just keep getting Web Speech / live `/api/twa/tts` (503 `tts_unavailable` when the TTS service is down or unreachable).
+- Serving: nginx `location ^~ /storage/audio/` (see `docker/nginx/*.conf`) reads `storage/app/public/audio` directly and denies dotfiles (`.tmp/`). In `docker-compose.prod.yml` the audio lives in its own named volume `app_audio`, mounted at `/var/www/html/storage/app/public/audio` in `app`, `queue` and `scheduler` (read-write) and **only** that volume, read-only, in `nginx`: logs, sessions and other `storage/` contents are not visible to nginx. `php artisan storage:link` is not required for the audio, but the card `audio_url` is built from `APP_URL` + `/storage/...`, so `APP_URL` must be the public https origin.
+- Deploying this volume layout onto an existing install (audio already generated into `app_storage`): the first `docker compose -f docker-compose.prod.yml up -d` creates an empty `app_audio`, so existing mp3 files are not served until you copy them over (or just re-run `audio:pregenerate`, which re-creates them; until then learners get the live `/api/twa/tts`). To keep them (the old files are in the `app_storage` volume under `app/public/audio/`, which the new mount shadows, so copy from a throw-away container; if `app_audio` does not exist yet, `docker volume create <project>_app_audio` first):
+
+  ```bash
+  docker compose -f docker-compose.prod.yml down            # stop (volumes are kept)
+  docker run --rm -v <project>_app_storage:/old:ro -v <project>_app_audio:/new alpine \
+      sh -c 'mkdir -p /new && cp -a /old/app/public/audio/. /new/ && chown -R 1000:1000 /new'   # UID:GID = build args UID/GID of the `app` user
+  docker compose -f docker-compose.prod.yml up -d
+  ```
+
+  (`<project>` is the compose project name, see `docker volume ls`.) The old copy inside `app_storage` can be deleted afterwards (optional). An `app_audio` created by Docker from a fresh image is already owned by `app` (the image creates `storage/app/public/audio`); only a manually created volume needs the `chown`.
 - Pre-generation is not triggered automatically (neither by import nor by publishing): run the command after importing or publishing a course.
 
 ---
