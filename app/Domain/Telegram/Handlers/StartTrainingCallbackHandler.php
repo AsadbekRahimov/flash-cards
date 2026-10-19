@@ -11,6 +11,7 @@ use App\Domain\Learning\Services\TrainingSessionService;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Domain\Telegram\Support\CallbackAcknowledger;
 use App\Models\TelegramGroup;
 use App\Models\TrainingSession;
 use App\Models\User;
@@ -28,6 +29,7 @@ final class StartTrainingCallbackHandler implements UpdateHandler
         private readonly TrainingSessionService $trainingService,
         private readonly ProductEventRecorder $events,
         private readonly LocaleResolver $locales,
+        private readonly CallbackAcknowledger $acknowledger,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -48,12 +50,9 @@ final class StartTrainingCallbackHandler implements UpdateHandler
     {
         /** @var array<string, mixed> $cq */
         $cq = $update['callback_query'];
-        $callbackQueryId = (string) ($cq['id'] ?? '');
 
-        // Always answer immediately to dismiss the loading spinner.
-        if ($callbackQueryId !== '') {
-            $this->telegram->answerCallbackQuery($callbackQueryId);
-        }
+        // Always answer immediately to dismiss the loading spinner (a refusal does not stop the work).
+        $this->acknowledger->acknowledge($update);
 
         $fromId = (int) ($cq['from']['id'] ?? 0);
         $chatId = (int) ($cq['message']['chat']['id'] ?? 0);

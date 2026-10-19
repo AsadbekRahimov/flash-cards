@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Services;
 
-use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\ChatMemberHandler;
 use App\Domain\Telegram\Handlers\CloseExamHandler;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
@@ -21,7 +20,9 @@ use App\Domain\Telegram\Handlers\StartTrainingCallbackHandler;
 use App\Domain\Telegram\Handlers\StartTrainingHandler;
 use App\Domain\Telegram\Handlers\StatsCommandHandler;
 use App\Domain\Telegram\Handlers\TodayCommandHandler;
+use App\Domain\Telegram\Support\CallbackAcknowledger;
 use App\Models\TelegramGroup;
+use Illuminate\Support\Facades\RateLimiter;
 
 final class TelegramDispatcher
 {
@@ -32,7 +33,7 @@ final class TelegramDispatcher
     private array $callbackHandlers;
 
     public function __construct(
-        private readonly TelegramClient $telegram,
+        private readonly CallbackAcknowledger $acknowledger,
         StartCommandHandler $start,
         StartTrainingHandler $startTraining,
         StartTrainingCallbackHandler $startTrainingCallback,
@@ -77,6 +78,14 @@ final class TelegramDispatcher
     /** @param array<string, mixed> $update */
     public function dispatch(array $update): void
     {
+        if (! $this->withinInboundLimit($update)) {
+            // Flood: no handler, no database write, no reply. A tapped button is still
+            // acknowledged (best effort) so the client does not spin until timeout.
+            $this->acknowledgeCallback($update);
+
+            return;
+        }
+
         $handlers = isset($update['callback_query'])
             ? $this->callbackHandlers
             : $this->messageHandlers;
@@ -110,11 +119,32 @@ final class TelegramDispatcher
     /** @param array<string, mixed> $update */
     private function acknowledgeCallback(array $update): void
     {
-        $callbackQueryId = (string) ($update['callback_query']['id'] ?? '');
-
-        if ($callbackQueryId !== '') {
-            $this->telegram->answerCallbackQuery($callbackQueryId);
+        if (isset($update['callback_query'])) {
+            $this->acknowledger->acknowledge($update);
         }
+    }
+
+    /**
+     * More than `telegram.inbound_rate_limit.max_messages` messages / button taps from one
+     * Telegram user per window are ignored (docs/12 §8). Updates without a sender (channel posts,
+     * ...) are not limited here. Own counter, separate from the `bot-promo:` one of `/promo`.
+     *
+     * @param  array<string, mixed>  $update
+     */
+    private function withinInboundLimit(array $update): bool
+    {
+        $fromId = (int) ($update['callback_query']['from']['id'] ?? $update['message']['from']['id'] ?? 0);
+
+        if ($fromId <= 0) {
+            return true;
+        }
+
+        return RateLimiter::attempt(
+            'bot-in:'.$fromId,
+            max(1, (int) config('telegram.inbound_rate_limit.max_messages', 30)),
+            static fn (): bool => true,
+            max(1, (int) config('telegram.inbound_rate_limit.window_seconds', 60)),
+        );
     }
 
     /** @param array<string, mixed> $update */

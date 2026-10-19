@@ -25,18 +25,30 @@ final class FakeTelegramClient implements TelegramClient
     /** When true, editMessageReplyMarkup throws like Telegram does for a deleted / unchanged message. */
     public bool $failEdits = false;
 
+    /** When true, answerCallbackQuery throws like Telegram does for an expired query ("query is too old"). */
+    public bool $failAnswers = false;
+
+    /** The next N sendMessage / sendWebAppButton calls throw like a Bot API outage (a retried job then succeeds). */
+    public int $failSends = 0;
+
     public function sendMessage(int|string $chatId, string $text, ?string $parseMode = null, ?array $replyMarkup = null): void
     {
+        $this->failNextSend();
         $this->sent[] = ['chat_id' => $chatId, 'text' => $text, 'button' => null, 'url' => null, 'markup' => $replyMarkup];
     }
 
     public function sendWebAppButton(int|string $chatId, string $text, string $buttonText, string $url, ?string $parseMode = null): void
     {
+        $this->failNextSend();
         $this->sent[] = ['chat_id' => $chatId, 'text' => $text, 'button' => $buttonText, 'url' => $url, 'markup' => null];
     }
 
     public function answerCallbackQuery(string $callbackQueryId): void
     {
+        if ($this->failAnswers) {
+            throw new TelegramApiException('query is too old and response timeout expired');
+        }
+
         $this->answered[] = $callbackQueryId;
     }
 
@@ -57,6 +69,15 @@ final class FakeTelegramClient implements TelegramClient
     public function deleteWebhook(): bool
     {
         return true;
+    }
+
+    private function failNextSend(): void
+    {
+        if ($this->failSends > 0) {
+            $this->failSends--;
+
+            throw new TelegramApiException('Bad Gateway');
+        }
     }
 
     /**
