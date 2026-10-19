@@ -53,6 +53,33 @@ return [
             'Автопродление Stars можно отключить командой /pro.',
     ],
 
+    // Telegram Stars (docs/13 §4.1): the invoice, pre-checkout refusals and the payment / refund replies.
+    'stars' => [
+        'invoice' => [
+            // Telegram limits: title ≤ 32, label ≤ 32, description ≤ 255 characters.
+            'title' => 'LexiFlow Pro — :period',
+            'label' => 'LexiFlow Pro, :period',
+            'description_month' => 'Подписка LexiFlow Pro: новые слова без лимита, подробная статистика. Продлевается автоматически каждые 30 дней; отключить можно командой /pro.',
+            'description_year' => 'LexiFlow Pro на 1 год (365 дней): новые слова без лимита, подробная статистика. Разовая оплата без автопродления.',
+        ],
+        'precheckout' => [
+            'order_not_found' => 'Счёт не найден. Откройте /pro и создайте новый.',
+            'foreign' => 'Этот счёт выставлен другому пользователю. Откройте /pro и создайте свой.',
+            'blocked' => 'Доступ к аккаунту ограничен. Обратитесь в поддержку: /paysupport.',
+            'order_closed' => 'Этот счёт уже оплачен или закрыт. Откройте /pro.',
+            'order_expired' => 'Срок счёта истёк. Откройте /pro и создайте новый.',
+            'amount_mismatch' => 'Сумма счёта не совпадает с заказом. Откройте /pro и создайте новый.',
+            'provider_disabled' => 'Оплата Telegram Stars сейчас недоступна. Выберите другой способ в /pro.',
+            'unavailable' => 'Сервис временно недоступен. Попробуйте через минуту.',
+        ],
+        'paid' => 'Оплата получена! LexiFlow Pro активен до :date.',
+        'renewed' => 'Подписка продлена: LexiFlow Pro активен до :date.',
+        'paid_forever' => 'Оплата получена! У вас LexiFlow Pro без ограничения по сроку.',
+        'open_button' => 'Открыть LexiFlow',
+        'paid_unresolved' => 'Оплата получена, но автоматически зачесть её не удалось. Мы разберёмся и включим Pro или вернём Stars. Чтобы ускорить — напишите в поддержку: /paysupport.',
+        'refunded' => 'Возврат :amount выполнен. Если этим платежом был оплачен текущий период Pro, он завершён.',
+    ],
+
     'period' => [
         'month' => '1 месяц',
         'year' => '1 год',

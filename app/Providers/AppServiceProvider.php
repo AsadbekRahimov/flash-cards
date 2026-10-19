@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Domain\Billing\Providers\TelegramStarsProvider;
 use App\Domain\Billing\Services\BillingProviderRegistry;
 use App\Domain\Billing\Services\NewWordQuota;
 use App\Domain\Learning\Contracts\NewCardBudgetResolver;
@@ -57,7 +58,12 @@ class AppServiceProvider extends ServiceProvider
 
         // Payment providers register themselves here as they land (2A.3 Stars, 2A.4 Payme,
         // 2A.5 Click); whether one is sellable is `billing.providers.<key>.enabled` (docs/13 §2.2).
-        $this->app->singleton(BillingProviderRegistry::class, fn (): BillingProviderRegistry => new BillingProviderRegistry);
+        $this->app->singleton(BillingProviderRegistry::class, function (): BillingProviderRegistry {
+            $registry = new BillingProviderRegistry;
+            $registry->register($this->app->make(TelegramStarsProvider::class));
+
+            return $registry;
+        });
 
         $this->app->singleton(LearningPolicy::class, function (): LearningPolicy {
             /** @var array<string, mixed> $config */

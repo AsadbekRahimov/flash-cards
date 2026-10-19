@@ -679,7 +679,8 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 **URL:** `POST /telegram/webhook/{secret}`
 - `{secret}` генерируется при развёртывании и совпадает с `TELEGRAM_WEBHOOK_SECRET`.
 - Дополнительно проверяем заголовок `X-Telegram-Bot-Api-Secret-Token` (Telegram сам его шлёт, если указать при `setWebhook`).
-- Контроллер кладёт `Update` в очередь `high` и мгновенно отвечает 200.
+- Контроллер кладёт `Update` в очередь `high` и мгновенно отвечает 200. Исключение — `pre_checkout_query` (оплата Stars): отвечается **синхронно** в том же запросе (B.11), в очередь не попадает.
+- `allowed_updates` при `setWebhook` (`IrazasyedTelegramClient::ALLOWED_UPDATES`): `message`, `my_chat_member`, `chat_member`, `callback_query`, `pre_checkout_query`; `successful_payment` и `refunded_payment` приходят внутри `message`. После добавления типа апдейта — повторить `php artisan telegram:set-webhook`.
 
 ```php
 // app/Http/Controllers/TelegramWebhookController.php (скелет)
@@ -740,7 +741,7 @@ public function __invoke(Request $request, string $secret)
 
 **Deep-link параметры** (`StartPayload::parse`, ≤ 64 символов `[A-Za-z0-9_-]`, иное — как «без параметра»): `ref_<id learner'а>` → `acquisition_source = 'ref'` + `referrer_learner_id`; `src_<канал>` (`[a-z0-9_]{1,32}`) → `src:<канал>`; `c_<slug>` → `course:<slug>`, а курс (если опубликован и не private) становится `active_course_id` по окончании онбординга; `org_<код>` → `org` (инвайт центра; подтверждение вступления — см. `/start` выше). Атрибуция — first-touch: пишется, пока `acquisition_source` пуст (в том числе learner'у, созданному раньше через `/auth`); заполненное не перезаписывается. Курс без `c_`-ссылки — `CourseCatalogService::recommend(goal, level)` (опубликованные публичные курсы с `exam_tag = goal`: сначала нужный уровень, затем featured), если подходящего нет — курс по умолчанию. Если и курс по умолчанию недоступен (не опубликован / private), `active_course_id` остаётся `NULL`, а онбординг заканчивается сообщением без названия курса.
 
-**Лимит входящих** (docs/12 §8): не более `telegram.inbound_rate_limit.max_messages` (30, env `TELEGRAM_INBOUND_MAX_PER_MINUTE`) сообщений и нажатий кнопок в минуту от одного `from.id` (`RateLimiter` `bot-in:<id>` в `TelegramDispatcher` — до хендлеров). Сверх лимита апдейт молча отбрасывается: ни ответа, ни записи в БД (в т.ч. `last_seen_at`); на callback отправляется только пустой `answerCallbackQuery` (best effort). Апдейты без `from` (channel posts) лимитом не затрагиваются. Счётчик `/promo` (`bot-promo:`) отдельный.
+**Лимит входящих** (docs/12 §8): не более `telegram.inbound_rate_limit.max_messages` (30, env `TELEGRAM_INBOUND_MAX_PER_MINUTE`) сообщений и нажатий кнопок в минуту от одного `from.id` (`RateLimiter` `bot-in:<id>` в `TelegramDispatcher` — до хендлеров). Сверх лимита апдейт молча отбрасывается: ни ответа, ни записи в БД (в т.ч. `last_seen_at`); на callback отправляется только пустой `answerCallbackQuery` (best effort). Апдейты без `from` (channel posts) и платёжные сообщения (`successful_payment`, `refunded_payment` — B.11) лимитом не затрагиваются. Счётчик `/promo` (`bot-promo:`) отдельный.
 
 ### B.4 Формат сообщения с WebApp-кнопкой
 
@@ -880,6 +881,16 @@ private function formatLeaderboard(ExamSession $session): string
     return __('exam.leaderboard.title', ['lesson' => $session->lesson->number], $locale)."\n\n{$rows}";
 }
 ```
+
+### B.11 Оплата Telegram Stars: `pre_checkout_query`, `successful_payment`, `refunded_payment` (docs/13 §4.1, 2A.3)
+
+| Апдейт | Где обрабатывается | Что делает |
+|---|---|---|
+| `pre_checkout_query` | `WebhookController` → `PreCheckoutResponder` → `StarsPreCheckoutGuard` — **синхронно**, ≤ 10 с, без очереди | Один SELECT: заказ по `invoice_payload` (= `payment_orders.token`) вместе с learner'ом. `ok=true`, если заказ Stars, `pending`, не истёк, `from.id` = `learners.telegram_user_id` владельца, learner не заблокирован/удалён, `total_amount`/`currency` = заказ, провайдер включён. Иначе `answerPreCheckoutQuery(ok=false, error_message)` с текстом `billing.stars.precheckout.<reason>` (`order_not_found`, `foreign`, `blocked`, `order_closed`, `order_expired`, `amount_mismatch`, `provider_disabled`) на языке learner'а (чужому плательщику — на его Telegram-языке, без деталей заказа). Сбой проверки → `ok=false` + `unavailable`; HTTP-ответ всегда 200. Ничего не пишет. |
+| `message.successful_payment` | `SuccessfulPaymentHandler` — первый в списке хендлеров, ЛС, Group Lock не применяется | `TelegramStarsProvider::parseSuccessfulPayment` → `PaymentApplier::applyCharge`: `telegram_payment_charge_id` — ключ идемпотентности и charge id, `invoice_payload` — заказ, `is_recurring && !is_first_recurring` — продление, `subscription_expiration_date` → `current_period_ends_at`. Ответ: `billing.stars.paid` / `renewed` / `paid_forever` («Pro до дд.мм.гггг» в поясе learner'а) + web_app-кнопка «Открыть LexiFlow» → `/twa/?from=payment`. Повтор апдейта — молча (один платёж). Заказ не найден → `recordOrphan` (`payments.status=failed`, алерт `billing.payment_orphan`); истёкший/оплаченный заказ или другая сумма → `failed`-строка; во всех этих случаях learner'у — `billing.stars.paid_unresolved` (поддержка, `/paysupport`), job не повторяется. Падение БД/Telegram — retry job'а. |
+| `message.refunded_payment` | `RefundedPaymentHandler` — второй | `parseRefundedPayment` → `PaymentApplier::applyRefund` с `provider_event_id = refund:<charge id>`: строка `refund`, списание → `refunded`, подписка `expired`, если возвращён текущий период. Ответ — `billing.stars.refunded` («Возврат N ⭐ выполнен…»). Повтор и эхо админского возврата (`already_refunded`) — молча; неизвестный charge id — `Log::error('billing.stars.refund_unknown_charge')`. |
+
+Исходящие вызовы (вне транзакций БД): `createInvoiceLink` (`CheckoutService::create`, после commit заказа), `editUserStarSubscription(user_id, charge_id первого списания = subscriptions.meta.stars.charge_id, is_canceled)` (`/pro` → `pro1:cancel|resume`, `POST /billing/subscription/cancel|resume` — до изменения подписки; отказ Telegram → `provider_unavailable`, подписка не меняется), `refundStarPayment(user_id, charge_id)` (Filament **Payments → Refund**), `getStarTransactions` (`billing:reconcile-stars`, ежедневно: расхождения с `payments` → `billing.reconcile_missing`, `billing.reconcile_missing_refund`). Тексты — `lang/{ru,uz}/billing.php`, ключи `billing.stars.*`.
 
 ## Часть C — Примеры полного цикла
 

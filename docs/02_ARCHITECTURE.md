@@ -89,6 +89,7 @@ flowchart LR
   - `training:close-expired` — каждые 15 минут, просроченные личные и устаревшие групповые сессии.
   - `subscriptions:expire` — раз в час, переходы подписок по времени.
   - `billing:expire-orders` — каждые 15 минут, `withoutOverlapping`: `pending`-заказы оплаты с `expires_at <= now` → `expired` одним UPDATE без блокировок субъекта (docs/13 §4.4).
+  - `billing:reconcile-stars` — ежедневно 04:30 UTC: `getStarTransactions` за 2 дня против `payments`, только чтение и алерты в лог (`billing.reconcile_missing*`); ничего не делает, пока Stars выключен (docs/13 §4.4).
   - `analytics:refresh-materialized-views` — ночью.
 
 ### 2.6 Telegram Bot SDK

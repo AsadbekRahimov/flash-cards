@@ -49,6 +49,12 @@ Schedule::command('organizations:sync-members')
     ->hourly()
     ->withoutOverlapping();
 
+// Telegram's Stars ledger vs ours for the last 2 days (docs/13 §4.4): read-only, logs
+// `billing.reconcile_missing*`; exits early while Stars is disabled.
+Schedule::command('billing:reconcile-stars')
+    ->dailyAt('04:30')
+    ->withoutOverlapping();
+
 // Personal reminders by the learner's local time (docs/12 §7.5): claims
 // `learners.next_reminder_at <= now` with a conditional UPDATE, so a parallel or
 // repeated run never reminds anyone twice.
