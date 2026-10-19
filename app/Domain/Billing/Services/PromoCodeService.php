@@ -25,8 +25,11 @@ use Illuminate\Support\Str;
  * increment are serialized per code — two learners racing for the last slot
  * get exactly one subscription, and a learner double-submitting gets one
  * redemption and one `promo_already_redeemed`. The learner row is locked next
- * (inside SubscriptionService::grantFromPromo); lock order is always
- * promo_codes -> learners, and grantManual locks only learners, so no cycle.
+ * (inside SubscriptionService::grantFromPromo), then the subscription, then the
+ * FK inserts — the project-wide lock order of docs/12 §3.4
+ * (`promo_codes -> subject row -> subscriptions -> FK inserts`), which every
+ * other billing write path (grantManual, revoke, expireDue) follows from the
+ * subject row on, so no cycle is possible.
  * `promo_redemptions (promo_code_id, learner_id)` unique is the backstop.
  */
 final class PromoCodeService
