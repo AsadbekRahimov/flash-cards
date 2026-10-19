@@ -6,6 +6,7 @@ import TodayView from '../TodayView.vue'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
+import { useTrainingStore } from '@/stores/training'
 import type { TodayResponse } from '@/api/types'
 
 const state = vi.hoisted(() => ({ ensure: vi.fn() }))
@@ -142,6 +143,18 @@ describe('TodayView', () => {
 
     expect(w.router.currentRoute.value.name).not.toBe('training')
     expect(text(w, 'open-error')).toBe('Слишком много запросов. Подождите немного и повторите.')
+  })
+
+  it('forgets the open error when the learner leaves the screen', async () => {
+    vi.mocked(api.training.open).mockRejectedValue(new ApiClientError('rate_limited', 429, 'unknown', 'Too Many Attempts.'))
+    const w = await render()
+    await w.get('[data-testid=review-btn]').trigger('click')
+    await flushPromises()
+    expect(useTrainingStore().openError).not.toBe('')
+
+    w.unmount()
+
+    expect(useTrainingStore().openError).toBe('')
   })
 
   it('shows the active course with its progress and opens the next lesson as a lesson session', async () => {
