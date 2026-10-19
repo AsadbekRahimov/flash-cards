@@ -270,6 +270,14 @@
 | `promo.submit` | Faollashtirish | Активировать |
 | `promo.success_until` | Pro {date} gacha faol. | Pro активен до {date}. |
 | `promo.success_forever` | Pro muddatsiz faol. | Pro активен без ограничения по сроку. |
+| `paywall.title` | Pro tez orada | Pro скоро |
+| `paywall.lead_quota` | Bugungi yangi so'zlar limiti tugadi — takrorlash cheklovsiz. | Лимит новых слов на сегодня исчерпан — повторения доступны без ограничений. |
+| `paywall.soon` | Pro tez orada ochiladi. | Pro скоро откроется. |
+| `paywall.free` | Hozir sizda Free tarif: kuniga {count} ta yangi so'z, takrorlash cheklovsiz. | Сейчас у вас тариф Free: {count} новых слов в день, повторения — без лимита. |
+| `paywall.free_generic` | Hozir sizda Free tarif: yangi so'zlar kunlik limit bilan cheklangan, takrorlash cheklovsiz. | Сейчас у вас тариф Free: новые слова ограничены дневным лимитом, повторения — без лимита. |
+| `paywall.contact` | Markazda o'qiysizmi? Markaz administratoridan LexiFlow Pro'ni ulashni so'rang: | Учитесь в центре? Попросите администратора центра подключить LexiFlow Pro: |
+| `paywall.dismiss` | Tushunarli | Понятно |
+| `paywall.open` | Pro haqida bilib oling | Узнать о Pro |
 | `error.code.promo_not_found` | Promokod topilmadi. Xato yozilmaganini tekshiring. | Промокод не найден. Проверьте, нет ли опечатки. |
 | `error.code.promo_expired` | Promokodning amal qilish muddati tugagan. | Срок действия промокода истёк. |
 | `error.code.promo_exhausted` | Bu promokoddan foydalanish limiti tugagan. | Этим промокодом уже воспользовалось максимальное число людей. |

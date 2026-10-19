@@ -1,0 +1,277 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Domain\Learners\Services;
+
+use App\Domain\Analytics\Enums\ProductEventName;
+use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Content\Services\CourseCatalogService;
+use App\Domain\Learners\Exceptions\InvalidSettingException;
+use App\Domain\Localization\Services\LocaleResolver;
+use App\Models\Learner;
+use Carbon\CarbonImmutable;
+use DateTimeImmutable;
+use DateTimeZone;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Lang;
+
+/**
+ * The only place that changes a learner's settings (docs/12 §3.8): the TWA `PATCH /me/settings` and
+ * the bot's `/settings` (through {@see OnboardingService::applySetting()}) both end up in {@see update()}.
+ *
+ * Fields and rules:
+ *  - `interface_locale`  one of the supported locales;
+ *  - `timezone`          any IANA id PHP knows (`DateTimeZone::listIdentifiers()`);
+ *  - `reminder_time`     `HH:MM` on a {@see REMINDER_STEP_MINUTES}-minute step, or `null` = reminders off;
+ *  - `daily_goal`        one of `config('learners.daily_goal_options')` (10 / 20 / 40);
+ *  - `goal`, `level`     the onboarding whitelists.
+ * Values are checked here again whatever the caller validated: strict types, no coercion.
+ *
+ * `update()` locks the learner row, writes everything in one transaction and recomputes
+ * `next_reminder_at` when the time zone or the reminder time is part of the change (`NULL` while
+ * reminders are off; the scheduler of 1.5b advances it after each send, docs/12 §7.5).
+ *
+ * Lowering `daily_goal` to or below what is already done today completes today's goal at once
+ * ({@see DailyStatsService::reconcileGoal()}) — in its own transaction AFTER the `learners` one has
+ * committed, so `learners` and `learner_daily_stats` are never locked together (docs/06 §4.2; the
+ * review transaction holds only the latter and never touches `learners`). The streak is credited
+ * after that commit, as for any other goal.
+ *
+ * Nothing is cached per setting: the entitlement cache does not depend on them and the catalog
+ * cache is per locale and public.
+ */
+final class LearnerSettingsService
+{
+    public const REMINDER_STEP_MINUTES = 15;
+
+    public function __construct(
+        private readonly LocaleResolver $locales,
+        private readonly LearnerClock $clock,
+        private readonly DailyStatsService $stats,
+        private readonly CourseCatalogService $catalog,
+        private readonly ProductEventRecorder $events,
+    ) {}
+
+    /**
+     * @param  array<string, mixed>  $changes  field => new value (a partial update; only the keys present are touched)
+     *
+     * @throws InvalidSettingException for an unknown field or a value the field does not accept
+     */
+    public function update(Learner $learner, array $changes): Learner
+    {
+        $values = $this->normalize($changes);
+        if ($values === []) {
+            return $learner;
+        }
+
+        $changed = [];
+
+        DB::transaction(function () use ($learner, $values, &$changed): void {
+            /** @var Learner $fresh */
+            $fresh = Learner::query()->whereKey($learner->id)->lockForUpdate()->firstOrFail();
+
+            foreach ($values as $field => $value) {
+                $current = $field === 'reminder_time' ? $this->shortTime($fresh->reminder_time) : $fresh->getAttribute($field);
+                if ($current !== $value) {
+                    $changed[] = $field;
+                }
+            }
+
+            $fresh->fill($values);
+            if (array_key_exists('timezone', $values) || array_key_exists('reminder_time', $values)) {
+                $this->scheduleReminder($fresh);
+            }
+
+            $fresh->save();
+        });
+
+        $learner->refresh();
+
+        if ($changed !== []) {
+            $this->events->record(ProductEventName::SettingsChanged, ['fields' => implode(',', $changed)], learner: $learner);
+        }
+
+        if (in_array('daily_goal', $changed, true)) {
+            $this->stats->reconcileGoal($learner);
+        }
+
+        return $learner;
+    }
+
+    /**
+     * What the TWA settings screen shows: the current values and the choices for each field,
+     * labelled in the learner's language. A time zone / reminder time the learner already has but
+     * the lists do not offer (set through the API) is added to the list, so the picker can show it.
+     *
+     * @return array{
+     *   interface_locale: string,
+     *   timezone: string,
+     *   reminder_time: string|null,
+     *   daily_goal: int,
+     *   goal: string|null,
+     *   level: string|null,
+     *   active_course: array{slug: string, title: string}|null,
+     *   options: array{
+     *     locales: list<array{id: string, label: string}>,
+     *     timezones: list<array{id: string, label: string}>,
+     *     reminder_times: list<string>,
+     *     daily_goals: list<int>
+     *   }
+     * }
+     */
+    public function describe(Learner $learner): array
+    {
+        $locale = $this->locales->forLearner($learner);
+        $reminder = $this->shortTime($learner->reminder_time);
+
+        $zones = $this->timezoneOptions();
+        if (! in_array($learner->timezone, $zones, true)) {
+            $zones[] = $learner->timezone;
+        }
+
+        $times = $this->reminderPresets();
+        if ($reminder !== null && ! in_array($reminder, $times, true)) {
+            $times[] = $reminder;
+            sort($times);
+        }
+
+        return [
+            'interface_locale' => $learner->interface_locale,
+            'timezone' => $learner->timezone,
+            'reminder_time' => $reminder,
+            'daily_goal' => $learner->daily_goal,
+            'goal' => $learner->goal,
+            'level' => $learner->level,
+            'active_course' => $this->activeCourse($learner),
+            'options' => [
+                'locales' => array_map(
+                    fn (string $id): array => ['id' => $id, 'label' => (string) config('localization.names.'.$id, $id)],
+                    $this->locales->supported(),
+                ),
+                'timezones' => array_map(
+                    fn (string $zone): array => ['id' => $zone, 'label' => $this->timezoneLabel($zone, $locale)],
+                    $zones,
+                ),
+                'reminder_times' => $times,
+                'daily_goals' => $this->dailyGoals(),
+            ],
+        ];
+    }
+
+    /**
+     * Time zones offered in pickers (the bot's `/settings` and the TWA): `config('learners.timezone_options')`
+     * limited to ids PHP also knows, so a typo in the config can never become a value.
+     *
+     * @return list<string>
+     */
+    public function timezoneOptions(): array
+    {
+        $known = $this->knownTimezones();
+
+        return array_values(array_filter(
+            array_map('strval', (array) config('learners.timezone_options', [])),
+            fn (string $zone): bool => in_array($zone, $known, true),
+        ));
+    }
+
+    /** @return list<string> every IANA id a learner may set */
+    public function knownTimezones(): array
+    {
+        return DateTimeZone::listIdentifiers();
+    }
+
+    /** @return list<int> */
+    public function dailyGoals(): array
+    {
+        return array_values(array_map('intval', (array) config('learners.daily_goal_options', [10, 20, 40])));
+    }
+
+    /** @return list<string> the times the pickers offer (the bot's buttons); the API accepts any quarter of an hour */
+    public function reminderPresets(): array
+    {
+        return array_values(OnboardingService::REMINDER_TIMES);
+    }
+
+    /** `HH:MM` of a stored `time` (PostgreSQL returns `HH:MM:SS`); `null` stays `null`. */
+    public function shortTime(?string $time): ?string
+    {
+        return $time === null || $time === '' ? null : substr($time, 0, 5);
+    }
+
+    /** "Ташкент (UTC+5)": the city name of the bot's strings when there is one, else the id; plus the current UTC offset. */
+    public function timezoneLabel(string $zone, string $locale): string
+    {
+        $offset = $this->offsetLabel($zone);
+        $key = 'onboarding.options.timezone.'.strtolower(substr((string) strrchr($zone, '/'), 1));
+
+        return Lang::has($key, $locale, false)
+            ? __($key, ['offset' => $offset], $locale)
+            : "{$zone} ({$offset})";
+    }
+
+    public function offsetLabel(string $zone): string
+    {
+        $seconds = (new DateTimeZone($zone))->getOffset(new DateTimeImmutable('now'));
+        $minutes = intdiv(abs($seconds) % 3600, 60);
+
+        return 'UTC'.($seconds < 0 ? '-' : '+').intdiv(abs($seconds), 3600).($minutes > 0 ? sprintf(':%02d', $minutes) : '');
+    }
+
+    /**
+     * @param  array<string, mixed>  $changes
+     * @return array<string, int|string|null>
+     */
+    private function normalize(array $changes): array
+    {
+        $values = [];
+
+        foreach ($changes as $field => $value) {
+            $values[$field] = match ($field) {
+                'interface_locale' => is_string($value) && $this->locales->isSupported($value) ? $value : throw InvalidSettingException::invalid($field),
+                'timezone' => is_string($value) && in_array($value, $this->knownTimezones(), true) ? $value : throw InvalidSettingException::invalid($field),
+                'reminder_time' => $value === null || (is_string($value) && $this->isReminderTime($value)) ? $value : throw InvalidSettingException::invalid($field),
+                'daily_goal' => is_int($value) && in_array($value, $this->dailyGoals(), true) ? $value : throw InvalidSettingException::invalid($field),
+                'goal' => is_string($value) && in_array($value, OnboardingService::GOALS, true) ? $value : throw InvalidSettingException::invalid($field),
+                'level' => is_string($value) && in_array($value, OnboardingService::LEVELS, true) ? $value : throw InvalidSettingException::invalid($field),
+                default => throw InvalidSettingException::unknown((string) $field),
+            };
+        }
+
+        return $values;
+    }
+
+    private function isReminderTime(string $value): bool
+    {
+        return preg_match('/^([01]\d|2[0-3]):([0-5]\d)$/', $value, $m) === 1
+            && (int) $m[2] % self::REMINDER_STEP_MINUTES === 0;
+    }
+
+    /** `next_reminder_at` for the learner's current time zone and `reminder_time` (`NULL` = reminders are off). */
+    private function scheduleReminder(Learner $learner): void
+    {
+        $time = $learner->reminder_time;
+
+        $learner->next_reminder_at = $time === null || $time === ''
+            ? null
+            : Carbon::instance($this->clock->nextOccurrenceUtc($learner, $time, CarbonImmutable::now()));
+    }
+
+    /** @return array{slug: string, title: string}|null null while the learner has no course or it is no longer available */
+    private function activeCourse(Learner $learner): ?array
+    {
+        if ($learner->active_course_id === null) {
+            return null;
+        }
+
+        $course = $learner->activeCourse;
+        if ($course === null || ! $this->catalog->isAvailable($course)) {
+            return null;
+        }
+
+        $title = $this->catalog->listing($course, $learner)->course->title;
+
+        return ['slug' => $course->slug, 'title' => $title];
+    }
+}

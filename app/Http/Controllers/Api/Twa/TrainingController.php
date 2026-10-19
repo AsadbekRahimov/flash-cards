@@ -32,6 +32,7 @@ final class TrainingController
         private readonly TrainingSessionService $sessions,
         private readonly TrainingSessionPolicy $policy,
         private readonly ProductEventRecorder $events,
+        private readonly TodayService $today,
     ) {}
 
     /**
@@ -88,7 +89,7 @@ final class TrainingController
      * POST /api/twa/training/sessions/{id}/finish — idempotent: a repeat answers 200 with the
      * same numbers. Unlike the other session routes a closed session is not 410 here.
      */
-    public function finish(Request $request, int $sessionId, TodayService $today): JsonResponse
+    public function finish(Request $request, int $sessionId): JsonResponse
     {
         /** @var Learner $learner */
         $learner = $request->attributes->get('learner');
@@ -129,7 +130,7 @@ final class TrainingController
             );
         }
 
-        return (new SessionSummaryResource(['summary' => $summary, 'progress' => $today->progress($learner)]))->response();
+        return (new SessionSummaryResource(['summary' => $summary, 'progress' => $this->today->progress($learner)]))->response();
     }
 
     public function start(Request $request, int $sessionId): JsonResponse

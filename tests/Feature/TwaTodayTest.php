@@ -82,12 +82,12 @@ it('requires authentication', function (): void {
     $this->getJson('/api/twa/today')->assertStatus(401);
 });
 
-it('is empty for a fresh learner: zero goal progress, no streak, no course, quota not limited yet', function (): void {
+it('is empty for a fresh learner: zero goal progress, no streak, no course, the full Free quota', function (): void {
     $learner = Learner::factory()->create(['daily_goal' => 10]);
 
     todayGet($this, $learner)->assertOk()->assertExactJson([
         'due_count' => 0,
-        'new_words_remaining' => null,
+        'new_words_remaining' => 20,
         'goal' => ['target' => 10, 'done' => 0, 'met' => false],
         'streak' => ['current' => 0, 'best' => 0, 'met_today' => false, 'at_risk' => false],
         'active_course' => null,
@@ -95,6 +95,12 @@ it('is empty for a fresh learner: zero goal progress, no streak, no course, quot
         'entitlement' => ['plan' => 'free', 'source' => 'free', 'until' => null],
         'onboarding_completed' => false,
     ]);
+});
+
+it('never reports a goal target below 1, like the daily stats that decide when it is met', function (): void {
+    $learner = Learner::factory()->create(['daily_goal' => 0]);
+
+    todayGet($this, $learner)->assertOk()->assertJsonPath('goal.target', 1);
 });
 
 it('reports onboarding_completed and the Pro entitlement with its end', function (): void {
@@ -255,6 +261,18 @@ it('treats an active course that is no longer published as absent', function ():
     Course::query()->whereKey($learner->active_course_id)->update(['status' => 'archived']);
 
     todayGet($this, $learner)->assertOk()->assertJsonPath('active_course', null);
+});
+
+it('treats a published but private active course as absent (the single availability rule)', function (): void {
+    $lessons = todayCourse(1, 1);
+    $learner = Learner::factory()->create(['active_course_id' => $lessons[0]->stage?->course_id]);
+    Course::query()->whereKey($learner->active_course_id)->update(['visibility' => 'private']);
+
+    todayGet($this, $learner)->assertOk()->assertJsonPath('active_course', null);
+
+    // `unlisted` is "by link" and stays available.
+    Course::query()->whereKey($learner->active_course_id)->update(['visibility' => 'unlisted']);
+    todayGet($this, $learner)->assertOk()->assertJsonPath('active_course.id', $learner->active_course_id);
 });
 
 it('runs a constant number of queries however many lessons the course has', function (): void {

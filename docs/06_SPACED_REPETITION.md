@@ -174,8 +174,8 @@ review-карточку** (то есть после того, как слово 
    **Бюджет** (`NewCardBudget`, docs/12 §5.3): `remaining(learnerId, now)` вычисляется под той же блокировкой;
    `null` — безлимит (по умолчанию и для Pro), `<= 0` — шаг пропускается, строка не создаётся. Повторения бюджетом
    **никогда** не ограничиваются. Бюджет отдаёт `NewCardBudgetResolver::budgetFor(Learner, now)` (контракт в
-   `App\Domain\Learning\Contracts`); по умолчанию привязан `UnlimitedNewCardBudgetResolver`, квота Free (задача 1.4b)
-   перепривязывает контракт и строит `NewCardBudget::lazy(fn ($learnerId, $now) => limit − выдано сегодня)`,
+   `App\Domain\Learning\Contracts`); привязан `NewWordQuota` (задача 1.4b: Pro → `unlimited()`, Free →
+   `NewCardBudget::lazy(fn ($learnerId, $now) => limit − выдано сегодня)`; `UnlimitedNewCardBudgetResolver` остался для тестов),
    где «сегодня» — `LearnerClock::dayBoundsUtc($learner, $now)` → `[startUtc, endUtc)` локального дня, а «выдано» —
    `word_repetitions.created_at` в этих границах (не `learner_daily_stats.new_words_count`, docs/12 §1.6).
    **Порядок блокировок** (1.3b, обязателен для всех будущих правок). Пикер держит строку `learners`
@@ -186,8 +186,11 @@ review-карточку** (то есть после того, как слово 
    «оценка держит статистику и ждёт learner'а, пикер держит learner'а и ждёт статистику». Поэтому `StreakService::onGoalMet`
    лишь регистрирует `DB::afterCommit`, а проекция `learners.streak_*` обновляется после коммита одиночным
    условным `UPDATE … WHERE streak_last_date = <прочитанное>` (без `FOR UPDATE`, вне любой другой транзакции);
-   источник истины для streak — `learner_daily_stats.goal_met_at`, по нему `StreakService::current()` чинит
-   отставшую проекцию (docs/12 §3.1, §7.4).
+   источник истины для streak — `learner_daily_stats.goal_met_at`, по нему `StreakService::apply()` при разрыве пересчитывает серию, а `current()` чинит
+   отставшую проекцию (docs/12 §3.1, §7.4). Поэтому и `current()` — не чистое чтение: он может выполнить тот же
+   одиночный `UPDATE learners`, и его (а с ним `TodayService::summary/progress`) нельзя вызывать внутри транзакции,
+   которая держит `training_sessions` / `word_repetitions` / `learner_daily_stats` (в частности из
+   `SendLearnerReminderJob` 1.5b — только вне транзакции).
 3. **Learn-ahead**: если due и new нет — ближайшая `learning`/`relearning` карточка scope с
    `next_review_at <= now + learn_ahead_minutes`. Она выдаётся **досрочно**, и в строке
    ставится билет: `served_ahead_at = now`, `served_ahead_token = random(32 hex)`. Токен уходит
@@ -303,7 +306,8 @@ review-карточку** (то есть после того, как слово 
   streak не проецируется на `learners` до коммита и не проецируется при откате, реальный поток `TrainingFlowService::review`.
 - `tests/Feature/StreakServiceTest.php` — 1 → 2 → обнуление после пропуска, `at_risk` / `met_today`, зачёт дня один раз,
   граница дня, смена пояса на запад/восток, запрет зачёта «вчера» после уже зачтённого «сегодня», best, события,
-  починка проекции из строки «сегодня».
+  починка проекции из строки «сегодня», пересчёт серии по фактам при потерянном колбэке «вчера» (в т.ч. порядок
+  колбэков вокруг полуночи), глубина 400 дней, `current()` чинит «вчера» и не пишет без факта.
 - `tests/Unit/TrainingScopeTest.php` — `TrainingScope`, `NewCardBudget`, инвариант `mode_shape`.
 - TWA `FlashCard.spec.ts` — кнопки шлют 2 / 4 / 5, метка «Закрепление» для `learning`;
   `stores/__tests__/training.spec.ts` — `serve_token` карточки уходит в `POST /review`.
