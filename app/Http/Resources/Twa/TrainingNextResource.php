@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Twa;
 
+use App\Domain\Content\Services\WordAudioService;
 use App\Domain\Learning\DTO\TrainingStep;
 use Illuminate\Http\Request;
 
@@ -17,7 +18,7 @@ final class TrainingNextResource extends TwaResource
 {
     /**
      * @return array{
-     *   card: array{word_id: int, word: string, translation: string, translation_fallback: bool, example: string|null, transcription: string|null, card_kind: string, serve_token: string|null}|null,
+     *   card: array{word_id: int, word: string, translation: string, translation_fallback: bool, example: string|null, transcription: string|null, audio_url: string|null, card_kind: string, serve_token: string|null}|null,
      *   progress: array{done: int, total: int},
      *   done_reason: string|null
      * }
@@ -36,6 +37,8 @@ final class TrainingNextResource extends TwaResource
                 'translation_fallback' => $translation->isFallback ?? false,
                 'example' => $word->example,
                 'transcription' => $word->transcription,
+                // Pre-generated mp3 (task 1.2c); null -> the client falls back to Web Speech / GET /tts.
+                'audio_url' => app(WordAudioService::class)->urlFor($word),
                 'card_kind' => (string) $this->resource->kind,
                 // Learn-ahead ticket: must be echoed as `serve_token` in POST /review (docs/06 §5.2).
                 'serve_token' => $this->resource->serveToken,

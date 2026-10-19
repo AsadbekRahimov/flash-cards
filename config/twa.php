@@ -44,6 +44,16 @@ return [
     'tts' => [
         'service_url' => env('TTS_SERVICE_URL', ''),
         'timeout' => (int) env('TTS_SERVICE_TIMEOUT', 8),
+
+        /**
+         * Pre-generated word audio (docs/12 task 1.2c): `audio/{sha1(text|voice|version)}.mp3`
+         * on the `public` disk. Bump `audio_version` to re-voice the whole library
+         * (new hash -> new files; `php artisan audio:pregenerate <course>`).
+         */
+        'voice' => env('TTS_VOICE', 'en-US-AriaNeural'),
+        'audio_version' => (int) env('TTS_AUDIO_VERSION', 1),
+        'audio_disk' => 'public',
+        'audio_dir' => 'audio',
     ],
 
     /**
