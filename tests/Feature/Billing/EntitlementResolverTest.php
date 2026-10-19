@@ -185,7 +185,13 @@ it('applies the liveness rule: status, period end, grace', function (string $sta
     'past_due inside grace' => ['past_due', 'telegram_stars', -2, 1, true, 1],
     'past_due grace over' => ['past_due', 'telegram_stars', -5, -1, false, null],
     'past_due without grace_until' => ['past_due', 'telegram_stars', -5, null, false, null],
-    'canceled' => ['canceled', 'telegram_stars', 10, null, false, null],
+    // docs/13 §2.1: canceled = Pro until the period end, never with grace (even for Stars).
+    'canceled stars, period running' => ['canceled', 'telegram_stars', 10, null, true, 10],
+    'canceled stars, period ended, no grace' => ['canceled', 'telegram_stars', -1, null, false, null],
+    'canceled stars, perpetual' => ['canceled', 'telegram_stars', null, null, true, null],
+    'canceled payme, period running' => ['canceled', 'payme', 3, null, true, 3],
+    'active payme, period ended: no grace for pay-per-period' => ['active', 'payme', -1, null, false, null],
+    'active reward, period running' => ['active', 'reward', 7, null, true, 7],
     'expired' => ['expired', 'manual', null, null, false, null],
 ]);
 

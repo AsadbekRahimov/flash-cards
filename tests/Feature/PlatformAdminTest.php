@@ -146,9 +146,10 @@ it('computes Pro subscription figures: own, sponsored, expiring; ended and suspe
     pa_pro($active, '+30 days');
     pa_pro($expiring, '+3 days');
     pa_pro($perpetual, 'never');
-    pa_pro($pastDue, '-1 day', ['status' => 'past_due', 'provider' => 'payme', 'grace_until' => now()->addDays(2)]);
+    pa_pro($pastDue, '-1 day', ['status' => 'past_due', 'provider' => 'telegram_stars', 'grace_until' => now()->addDays(2)]);
     pa_pro($lapsed, '-1 day'); // manual: ran out, the expire job has not run yet
-    pa_pro($canceled, '+30 days', ['status' => 'canceled']);
+    pa_pro($canceled, '+30 days', ['status' => 'canceled', 'provider' => 'telegram_stars']); // canceled = Pro until the period end (docs/13 §2.1)
+    pa_pro(Learner::factory()->create(), '-1 day', ['status' => 'canceled', 'provider' => 'telegram_stars']); // canceled and over: no grace
 
     // Sponsored: org A active, 2 members (one of them also has a personal Pro), expires in 5 days.
     $orgA = Organization::factory()->create();
@@ -167,9 +168,9 @@ it('computes Pro subscription figures: own, sponsored, expiring; ended and suspe
     $stats = app(PlatformStatsService::class)->subscriptions();
 
     expect($stats)->toBe([
-        // active, expiring, perpetual, pastDue + 2 sponsored members (the third is `active`, counted once)
-        'pro_learners' => 6,
-        'personal' => 4,
+        // active, expiring, perpetual, pastDue, canceled + 2 sponsored members (the third is `active`, counted once)
+        'pro_learners' => 7,
+        'personal' => 5,
         'organizations' => 1,
         'expiring' => 3, // $expiring (3 days), $pastDue (grace ends in 2 days) and org A (5 days)
     ]);
@@ -177,16 +178,18 @@ it('computes Pro subscription figures: own, sponsored, expiring; ended and suspe
     $this->actingAs(pa_user('admin'));
     Livewire::test(PlatformSubscriptionsWidget::class)
         ->assertSee('Pro learners')
-        ->assertSee('6')
-        ->assertSee('4 own, 1 sponsoring organizations');
+        ->assertSee('7')
+        ->assertSee('5 own, 1 sponsoring organizations');
 });
 
-it('adds the grace period of an auto-renewing provider before a subscription stops granting', function (): void {
+it('adds the grace period of the auto-renewing provider (Stars) before a subscription stops granting; pay-per-period and grants get none', function (): void {
     $graceful = Learner::factory()->create();
     $strict = Learner::factory()->create();
-    // payme: the period ended a day ago, inside the 3 grace days (status still `active`: the job is late).
-    pa_pro($graceful, '-1 day', ['provider' => 'payme']);
+    $period = Learner::factory()->create();
+    // Stars: the period ended a day ago, inside the 3 grace days (status still `active`: the job is late).
+    pa_pro($graceful, '-1 day', ['provider' => 'telegram_stars']);
     pa_pro($strict, '-1 day', ['provider' => 'promo']);
+    pa_pro($period, '-1 day', ['provider' => 'payme']); // docs/13 §0: no renewal, no grace
 
     expect(app(PlatformStatsService::class)->subscriptions()['personal'])->toBe(1);
 });
