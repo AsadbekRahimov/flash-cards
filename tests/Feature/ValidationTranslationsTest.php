@@ -24,9 +24,8 @@ function validationPlaceholders(string $text): array
     return $unique;
 }
 
-it('translates the PATCH /me/settings 422 in the app locale instead of showing the raw key', function (string $locale, string $expected): void {
-    app()->setLocale($locale);
-    $learner = Learner::factory()->create();
+it('translates the PATCH /me/settings 422 in the learner\'s locale instead of showing the raw key', function (string $locale, string $expected): void {
+    $learner = Learner::factory()->create(['interface_locale' => $locale]);
     $token = app(JwtService::class)->issue($learner->id)['token'];
 
     $response = $this->withToken($token)->patchJson('/api/twa/me/settings', ['daily_goal' => '20'])

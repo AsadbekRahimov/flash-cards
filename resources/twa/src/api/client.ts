@@ -1,4 +1,5 @@
 import { ofetch, type FetchError } from 'ofetch'
+import { getLocale } from '@/i18n'
 
 /**
  * Categorizes failures from the TWA API so views can render different
@@ -53,7 +54,9 @@ export function createApiClient(opts: ClientOptions) {
     } = {},
   ): Promise<T> {
     const withAuth = init.withAuth ?? true
-    const headers: Record<string, string> = { Accept: 'application/json' }
+    // The server picks the language of validation/error texts: by the learner when authenticated,
+    // by this header on /auth.
+    const headers: Record<string, string> = { Accept: 'application/json', 'Accept-Language': getLocale() }
     if (withAuth) {
       const token = opts.getToken()
       if (token) headers.Authorization = `Bearer ${token}`
