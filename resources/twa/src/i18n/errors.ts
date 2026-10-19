@@ -34,6 +34,7 @@ export const KNOWN_ERROR_CODES = [
   'promo_exhausted',
   'promo_already_redeemed',
   'promo_not_applicable',
+  'plan_unknown',
   'course_not_found',
 ] as const
 

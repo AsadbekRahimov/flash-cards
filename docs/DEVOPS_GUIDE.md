@@ -599,9 +599,11 @@ The scheduler heartbeat is written by a scheduled callback (`ops:scheduler-heart
 | `backup:monitor` mail | any message (backup is missing or too old) |
 | Certificate expiry | < 14 days |
 | Disk usage on the DB / backup volume | > 80% |
+| `billing.promo_rejected_burst` (warning log; `learner_id`, `rejections`, `last_reason`) | any occurrence outside a known broken client — one learner failed ≥ 5 promo redemptions in 10 min (`BILLING_PROMO_REJECTIONS_ALERT_*`): code guessing; consider blocking the learner |
 
 Product events (`product_events` table, see `docs/03_DATABASE.md`) are for product analytics, not alerting.
 `reminder.failed` is expected for students who blocked the bot; alert only on a sudden spike.
+`promo.rejected` is likewise expected (typos); the burst *log line* above, not the event, is the alert.
 
 ---
 

@@ -477,7 +477,7 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 | 409 | `promo_already_redeemed` | этот learner уже активировал этот код |
 | 409 | `promo_not_applicable` | у learner'а бессрочная личная подписка — код ничего не добавит и не тратится |
 
-Событие `promo.redeemed` пишется сервисом; запись в `audit_logs` не делается (действие самого learner'а).
+Событие `promo.redeemed` пишется сервисом; запись в `audit_logs` не делается (действие самого learner'а). Каждый отказ (любой код ошибки выше) — событие `promo.rejected {reason, promo_code_id|null, code_length}` без самого кода; серия отказов одного learner'а — предупреждение в логе (docs/12 §8). Неизвестный ключ плана в данных — `plan_unknown` (422, `PlanException`).
 
 ## Часть B — Telegram Bot
 

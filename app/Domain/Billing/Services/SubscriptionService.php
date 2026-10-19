@@ -32,6 +32,22 @@ use Illuminate\Support\Facades\DB;
  * reading its live subscription — grant, promo and revoke of the same subject
  * are serialized, so a "live" check cannot be stale when the row is written.
  *
+ * LOCK ORDER (docs/12 §3.4) — every write path takes its row locks in this order
+ * and never in another:
+ *
+ *   [promo_codes] -> subject row (learners / organizations) -> subscriptions -> FK inserts
+ *
+ * The last step matters: inserting into `product_events` / `promo_redemptions` /
+ * `audit_logs` takes `FOR KEY SHARE` on the referenced learner / promo / user,
+ * which conflicts with another transaction's `FOR UPDATE` on that row. That is
+ * why `revoke()` and `expireOne()` lock the subject row *before* the subscription
+ * even though they do not need it for the invariant: locking the subscription
+ * first and the learner last (implicitly, through the FK) deadlocked against
+ * `grantManual` / `grantFromPromo`, which hold the learner and wait for the
+ * subscription. The subject is read without a lock first (`subscriber_*` never
+ * change after insert), locked, and only then the subscription row is locked and
+ * re-checked.
+ *
  * Every transition writes an audit record (when a human did it), a product
  * event and schedules the entitlement cache invalidation after commit.
  */
@@ -147,6 +163,8 @@ final class SubscriptionService
     /**
      * Ends a live subscription now (status `expired`, `ended_at = now`).
      *
+     * Lock order: subject row (if it still exists) -> subscription -> inserts.
+     *
      * @throws SubscriptionException subscription_not_live
      */
     public function revoke(Subscription $subscription, User $by, string $note, ?string $ip = null, ?CarbonImmutable $now = null): Subscription
@@ -154,6 +172,16 @@ final class SubscriptionService
         $now ??= CarbonImmutable::now();
 
         return DB::transaction(function () use ($subscription, $by, $note, $ip, $now): Subscription {
+            $subject = $this->subjectOf($subscription->id);
+
+            if ($subject === null) {
+                throw SubscriptionException::notLive($subscription->id);
+            }
+
+            // A hard-deleted subject is not an error here: there is no row to
+            // lock and no FK insert can wait on it either.
+            $this->lockSubjectRow(...$subject);
+
             /** @var Subscription|null $locked */
             $locked = Subscription::query()->whereKey($subscription->id)->lockForUpdate()->first();
 
@@ -300,7 +328,7 @@ final class SubscriptionService
             ];
 
             $live->fill([
-                'plan' => $plan->outranks(Plan::from($live->plan)) ? $plan->value : $live->plan,
+                'plan' => $plan->outranks(Plan::fromKey($live->plan)) ? $plan->value : $live->plan,
                 'status' => SubscriptionStatus::Active->value,
                 'current_period_ends_at' => $from->addDays($days),
                 'grace_until' => null,
@@ -327,9 +355,22 @@ final class SubscriptionService
         return $subscriber instanceof Learner ? 'learner' : 'organization';
     }
 
+    /**
+     * One due row in its own transaction. Lock order: subject row (a missing
+     * subject is not an error — the row is expired all the same) -> subscription
+     * (re-checked: it may have been extended or already expired since the
+     * candidate list was built) -> `product_events` insert.
+     */
     private function expireOne(int $id, CarbonImmutable $now): bool
     {
         return DB::transaction(function () use ($id, $now): bool {
+            $subject = $this->subjectOf($id);
+            if ($subject === null) {
+                return false;
+            }
+
+            $this->lockSubjectRow(...$subject);
+
             /** @var Subscription|null $s */
             $s = Subscription::query()->whereKey($id)->lockForUpdate()->first();
             if ($s === null) {
@@ -403,13 +444,38 @@ final class SubscriptionService
      */
     private function lockSubscriber(Learner|Organization $subscriber): void
     {
-        $query = $subscriber instanceof Learner
-            ? Learner::withTrashed()->whereKey($subscriber->id)
-            : Organization::query()->whereKey($subscriber->id);
-
-        if (! $query->lockForUpdate()->exists()) {
+        if (! $this->lockSubjectRow(self::subscriberType($subscriber), $subscriber->id)) {
             throw SubscriptionException::subscriberNotFound(self::subscriberType($subscriber), $subscriber->id);
         }
+    }
+
+    /**
+     * `SELECT ... FOR UPDATE` on the learners / organizations row (soft-deleted
+     * learners included — their subscriptions still exist). False when the row
+     * is gone; the caller decides whether that is an error.
+     */
+    private function lockSubjectRow(string $type, int $id): bool
+    {
+        $query = $type === 'organization'
+            ? Organization::query()->whereKey($id)
+            : Learner::withTrashed()->whereKey($id);
+
+        return $query->lockForUpdate()->value('id') !== null;
+    }
+
+    /**
+     * `(subscriber_type, subscriber_id)` of a subscription, read without a lock:
+     * both columns are immutable after insert, so this is safe to read before
+     * the subject row is locked.
+     *
+     * @return array{string, int}|null
+     */
+    private function subjectOf(int $subscriptionId): ?array
+    {
+        /** @var Subscription|null $row */
+        $row = Subscription::query()->whereKey($subscriptionId)->first(['id', 'subscriber_type', 'subscriber_id']);
+
+        return $row === null ? null : [$row->subscriber_type, $row->subscriber_id];
     }
 
     private function lockedLive(Learner|Organization $subscriber): ?Subscription

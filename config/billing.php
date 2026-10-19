@@ -47,6 +47,19 @@ return [
     'prices' => [],
 
     /**
+     * Promo codes (docs/12 §8). Every failed redemption is a `promo.rejected`
+     * product event; `rejections_alert` logs a warning (`billing.promo_rejected_burst`)
+     * when one learner collects `threshold` rejections within `window` seconds
+     * (code guessing / a broken client). threshold 0 disables the alert.
+     */
+    'promo' => [
+        'rejections_alert' => [
+            'threshold' => (int) env('BILLING_PROMO_REJECTIONS_ALERT_THRESHOLD', 5),
+            'window' => (int) env('BILLING_PROMO_REJECTIONS_ALERT_WINDOW', 600),
+        ],
+    ],
+
+    /**
      * Paywall shown when the Free new-word quota is exhausted (docs/12 §5.4).
      * mode: `coming_soon` (Phase 1) | `purchase` (once a provider exists).
      * contact: how a learning center can reach us to sponsor its groups; the

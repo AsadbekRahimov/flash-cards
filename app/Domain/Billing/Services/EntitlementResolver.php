@@ -28,7 +28,17 @@ use Illuminate\Support\Facades\DB;
  * Ties are broken by the later end (perpetual wins), then personal over sponsor,
  * so "Pro until X" shown to the learner is the latest date that is actually true.
  *
- * Cached per learner ("entitlement:learner:{id}", config('billing.cache_ttl')).
+ * Cached per learner (config('billing.cache_ttl')) under a *versioned* key
+ * "entitlement:learner:{id}:v{n}", where n is the integer at
+ * "entitlement:ver:{id}" (missing = 0). forget*() does not delete the snapshot:
+ * it increments the version, so the key every later reader looks at is a new
+ * one. A read that computed its snapshot from pre-write data and only writes it
+ * after the invalidation lands on the *old* key, which nobody reads any more —
+ * the delete-then-put race of a plain forget() cannot resurrect stale data
+ * (docs/12 §5.2). Old snapshots simply age out with the TTL; the version key has
+ * no TTL (a few bytes per learner; if it is ever evicted readers fall back to
+ * v0, which can only be stale within one TTL of a learner's first-ever forget).
+ *
  * A cached snapshot whose own end has passed is recomputed on read, so a plan
  * never outlives its subscription even if the scheduler is late. Every write
  * that changes the inputs calls forget*(): SubscriptionService, PromoCodeService,
@@ -39,11 +49,15 @@ final class EntitlementResolver
 {
     public const CACHE_KEY_PREFIX = 'entitlement:learner:';
 
+    public const VERSION_KEY_PREFIX = 'entitlement:ver:';
+
     private const FORGET_CHUNK = 500;
 
     public function for(Learner $learner, ?CarbonImmutable $now = null): Entitlement
     {
         $now ??= CarbonImmutable::now();
+        // The version is read once, *before* resolve(): a forget() that happens
+        // while we compute bumps it, and our put() below goes to the dead key.
         $key = self::cacheKey($learner->id);
 
         $cached = Cache::get($key);
@@ -77,21 +91,22 @@ final class EntitlementResolver
         return $best;
     }
 
+    /** Invalidates by bumping the learner's cache version (see the class docblock). */
     public function forget(Learner|int $learner): void
     {
-        Cache::forget(self::cacheKey($learner instanceof Learner ? $learner->id : $learner));
+        self::bumpVersion($learner instanceof Learner ? $learner->id : $learner);
     }
 
     /** @param iterable<int> $learnerIds */
     public function forgetMany(iterable $learnerIds): void
     {
-        $keys = [];
+        $ids = [];
         foreach ($learnerIds as $id) {
-            $keys[] = self::cacheKey($id);
+            $ids[$id] = true;
         }
 
-        foreach (array_chunk(array_values(array_unique($keys)), self::FORGET_CHUNK) as $chunk) {
-            Cache::deleteMultiple($chunk);
+        foreach (array_keys($ids) as $id) {
+            self::bumpVersion($id);
         }
     }
 
@@ -136,9 +151,25 @@ final class EntitlementResolver
         ];
     }
 
+    /** The key the *current* version of the learner's snapshot lives under. */
     public static function cacheKey(int $learnerId): string
     {
-        return self::CACHE_KEY_PREFIX.$learnerId;
+        return self::CACHE_KEY_PREFIX.$learnerId.':v'.self::version($learnerId);
+    }
+
+    public static function versionKey(int $learnerId): string
+    {
+        return self::VERSION_KEY_PREFIX.$learnerId;
+    }
+
+    public static function version(int $learnerId): int
+    {
+        return (int) Cache::get(self::versionKey($learnerId), 0);
+    }
+
+    private static function bumpVersion(int $learnerId): void
+    {
+        Cache::increment(self::versionKey($learnerId));
     }
 
     /** @return list<Entitlement> */
@@ -210,13 +241,8 @@ final class EntitlementResolver
             ->distinct()
             ->orderBy('gm.learner_id')
             ->chunk(self::FORGET_CHUNK, function ($rows): void {
-                $keys = [];
                 foreach ($rows as $row) {
-                    $keys[] = self::cacheKey((int) $row->learner_id);
-                }
-
-                if ($keys !== []) {
-                    Cache::deleteMultiple($keys);
+                    self::bumpVersion((int) $row->learner_id);
                 }
             });
     }

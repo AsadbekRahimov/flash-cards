@@ -39,6 +39,7 @@ return [
             'promo_exhausted' => 'Bu promokoddan foydalanish limiti tugagan.',
             'promo_already_redeemed' => 'Siz bu promokodni allaqachon faollashtirgansiz.',
             'promo_not_applicable' => 'Sizda allaqachon muddatsiz Pro bor — promokod kerak emas.',
+            'plan_unknown' => "Bu promokod hozircha mavjud emas. Qo'llab-quvvatlash xizmatiga yozing.",
         ],
     ],
 

@@ -17,6 +17,7 @@ use App\Models\TelegramGroup;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 uses(RefreshDatabase::class);
 
@@ -188,7 +189,113 @@ it('refuses to redeem onto a perpetual personal subscription (409 promo_not_appl
         ->and($e->httpStatus())->toBe(409)
         ->and($promo->refresh()->redemptions_count)->toBe(0)
         ->and(PromoRedemption::query()->count())->toBe(0)
-        ->and(ProductEvent::query()->count())->toBe(0);
+        ->and(ProductEvent::query()->where('name', '!=', 'promo.rejected')->count())->toBe(0);
+});
+
+it('records promo.rejected with the reason and the code id, never the code itself, on every failure', function (): void {
+    $learner = Learner::factory()->create();
+    $expired = PromoCode::factory()->create(['code' => 'OLDCODE', 'expires_at' => CarbonImmutable::now()->subDay()]);
+    $disabled = PromoCode::factory()->create(['code' => 'DISABLED', 'is_active' => false]);
+    $service = app(PromoCodeService::class);
+
+    promoFailure(fn () => $service->redeem($learner, 'nope-123'));
+    promoFailure(fn () => $service->redeem($learner, 'old code'));
+    promoFailure(fn () => $service->redeem($learner, 'DISABLED'));
+    promoFailure(fn () => $service->redeem($learner, '   '));
+
+    $events = ProductEvent::query()->where('name', 'promo.rejected')->orderBy('id')->get();
+
+    expect($events)->toHaveCount(4)
+        ->and($events->pluck('learner_id')->unique()->all())->toBe([$learner->id])
+        ->and(ksorted($events[0]->props))->toBe(ksorted(['reason' => 'promo_not_found', 'promo_code_id' => null, 'code_length' => 7]))
+        ->and(ksorted($events[1]->props))->toBe(ksorted(['reason' => 'promo_expired', 'promo_code_id' => $expired->id, 'code_length' => 7]))
+        // a deactivated code is promo_not_found for the user but keeps its id for analytics
+        ->and(ksorted($events[2]->props))->toBe(ksorted(['reason' => 'promo_not_found', 'promo_code_id' => $disabled->id, 'code_length' => 8]))
+        ->and(ksorted($events[3]->props))->toBe(ksorted(['reason' => 'promo_not_found', 'promo_code_id' => null, 'code_length' => 0]));
+
+    $raw = json_encode($events->map(fn (ProductEvent $e): array => $e->getAttributes())->all());
+    expect($raw)->not->toContain('NOPE123')->not->toContain('OLDCODE')->not->toContain('DISABLED');
+
+    // The event survives the rolled-back transaction and nothing else was written.
+    expect(PromoRedemption::query()->count())->toBe(0)
+        ->and(Subscription::query()->count())->toBe(0)
+        ->and(ProductEvent::query()->where('name', '!=', 'promo.rejected')->count())->toBe(0);
+});
+
+it('records promo.rejected for failures found after the code was locked (exhausted, already redeemed, not applicable)', function (): void {
+    $a = Learner::factory()->create();
+    $b = Learner::factory()->create();
+    $perpetual = Learner::factory()->create();
+    Subscription::factory()->create(['subscriber_id' => $perpetual->id, 'current_period_ends_at' => null]);
+    $promo = PromoCode::factory()->create(['code' => 'ONESLOT', 'max_redemptions' => 1]);
+    $unlimited = PromoCode::factory()->create(['code' => 'NOLIMIT', 'max_redemptions' => null]);
+    $service = app(PromoCodeService::class);
+
+    $service->redeem($a, 'ONESLOT');
+    promoFailure(fn () => $service->redeem($b, 'ONESLOT'));
+    $service->redeem($a, 'NOLIMIT');
+    promoFailure(fn () => $service->redeem($a, 'NOLIMIT'));
+    promoFailure(fn () => $service->redeem($perpetual, 'NOLIMIT'));
+
+    $reasons = ProductEvent::query()->where('name', 'promo.rejected')->orderBy('id')->get()
+        ->map(fn (ProductEvent $e): array => [$e->learner_id, $e->props['reason'], $e->props['promo_code_id']])
+        ->all();
+
+    expect($reasons)->toBe([
+        [$b->id, 'promo_exhausted', $promo->id],
+        [$a->id, 'promo_already_redeemed', $unlimited->id],
+        [$perpetual->id, 'promo_not_applicable', $unlimited->id],
+    ]);
+});
+
+it('warns about a rejection burst at the threshold and at each further multiple, per learner', function (): void {
+    config()->set('billing.promo.rejections_alert.threshold', 5);
+    config()->set('billing.promo.rejections_alert.window', 600);
+    Log::spy();
+    $guesser = Learner::factory()->create();
+    $other = Learner::factory()->create();
+    $service = app(PromoCodeService::class);
+
+    foreach (range(1, 10) as $i) {
+        promoFailure(fn () => $service->redeem($guesser, "GUESS{$i}"));
+    }
+    foreach (range(1, 4) as $i) {
+        promoFailure(fn () => $service->redeem($other, "GUESS{$i}"));
+    }
+
+    Log::shouldHaveReceived('warning')
+        ->with('billing.promo_rejected_burst', Mockery::on(fn (array $ctx): bool => $ctx['learner_id'] === $guesser->id && $ctx['rejections'] === 5 && $ctx['window_seconds'] === 600 && $ctx['last_reason'] === 'promo_not_found'))
+        ->once();
+    Log::shouldHaveReceived('warning')
+        ->with('billing.promo_rejected_burst', Mockery::on(fn (array $ctx): bool => $ctx['learner_id'] === $guesser->id && $ctx['rejections'] === 10))
+        ->once();
+    Log::shouldNotHaveReceived('warning', ['billing.promo_rejected_burst', Mockery::on(fn (array $ctx): bool => $ctx['learner_id'] === $other->id)]);
+
+    expect(ProductEvent::query()->where('name', 'promo.rejected')->count())->toBe(14);
+});
+
+it('does not warn about rejection bursts when the threshold is 0', function (): void {
+    config()->set('billing.promo.rejections_alert.threshold', 0);
+    Log::spy();
+    $learner = Learner::factory()->create();
+    $service = app(PromoCodeService::class);
+
+    foreach (range(1, 6) as $i) {
+        promoFailure(fn () => $service->redeem($learner, "GUESS{$i}"));
+    }
+
+    Log::shouldNotHaveReceived('warning');
+    expect(ProductEvent::query()->where('name', 'promo.rejected')->count())->toBe(6);
+});
+
+it('does not record promo.rejected on a successful redemption', function (): void {
+    $learner = Learner::factory()->create();
+    PromoCode::factory()->create(['code' => 'FINE']);
+
+    app(PromoCodeService::class)->redeem($learner, 'FINE');
+
+    expect(ProductEvent::query()->where('name', 'promo.rejected')->count())->toBe(0)
+        ->and(ProductEvent::query()->where('name', 'promo.redeemed')->count())->toBe(1);
 });
 
 it('creates a personal subscription for a learner whose Pro is only sponsored', function (): void {

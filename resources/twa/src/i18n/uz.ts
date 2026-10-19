@@ -173,5 +173,6 @@ export const uz: Translations = {
   'error.code.promo_exhausted': "Bu promokoddan foydalanish limiti tugagan.",
   'error.code.promo_already_redeemed': 'Siz bu promokodni allaqachon faollashtirgansiz.',
   'error.code.promo_not_applicable': "Sizda allaqachon muddatsiz Pro bor — promokod kerak emas.",
+  'error.code.plan_unknown': "Bu promokod hozircha mavjud emas. Qo'llab-quvvatlash xizmatiga yozing.",
   'error.code.course_not_found': 'Kurs topilmadi yoki mavjud emas.',
 }

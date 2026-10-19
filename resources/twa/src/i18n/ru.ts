@@ -191,6 +191,7 @@ export const ru = {
   'error.code.promo_exhausted': 'Этим промокодом уже воспользовалось максимальное число людей.',
   'error.code.promo_already_redeemed': 'Вы уже активировали этот промокод.',
   'error.code.promo_not_applicable': 'У вас уже есть Pro без ограничения по сроку — промокод не нужен.',
+  'error.code.plan_unknown': 'Этот промокод сейчас недоступен. Напишите в поддержку.',
   'error.code.course_not_found': 'Курс не найден или недоступен.',
 } satisfies Record<string, Message>
 
