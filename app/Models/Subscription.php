@@ -17,6 +17,7 @@ use Illuminate\Support\Carbon;
  * @property string $subscriber_type
  * @property int $subscriber_id
  * @property string $plan
+ * @property string|null $tier
  * @property string $status
  * @property string $provider
  * @property string|null $provider_ref
@@ -40,6 +41,7 @@ class Subscription extends Model
         'subscriber_type',
         'subscriber_id',
         'plan',
+        'tier',
         'status',
         'provider',
         'provider_ref',
@@ -90,5 +92,17 @@ class Subscription extends Model
     public function promoRedemptions(): HasMany
     {
         return $this->hasMany(PromoRedemption::class);
+    }
+
+    /** @return HasMany<Payment, $this> */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    /** @return HasMany<PaymentOrder, $this> */
+    public function paymentOrders(): HasMany
+    {
+        return $this->hasMany(PaymentOrder::class);
     }
 }
