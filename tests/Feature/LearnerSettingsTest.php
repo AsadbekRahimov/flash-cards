@@ -570,7 +570,8 @@ it('the onboarding "locale" step marks the language as chosen too', function ():
     app(OnboardingService::class)->apply($learner, 'locale', 'uz');
 
     expect($learner->fresh()->interface_locale)->toBe('uz')
-        ->and($learner->fresh()->meta)->toBe(['pending_course' => 'x', 'locale_chosen' => true]);
+        ->and($learner->fresh()->meta)->toMatchArray(['pending_course' => 'x', 'locale_chosen' => true])
+        ->and($learner->fresh()->meta)->toHaveCount(2);
 
     app(LearnerRegistrar::class)->fromTelegramUser(['id' => 7004, 'first_name' => 'A', 'language_code' => 'ru']);
     expect($learner->fresh()->interface_locale)->toBe('uz');
