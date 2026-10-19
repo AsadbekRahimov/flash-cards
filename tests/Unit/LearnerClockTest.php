@@ -121,6 +121,37 @@ it('keeps the wall-clock reminder time across a DST transition', function (): vo
         ->and($gap->isAfter(utc('2026-03-28 12:00:00')))->toBeTrue();
 });
 
+it('keeps the wall-clock reminder time across the autumn fall-back and picks the first of an ambiguous hour', function (): void {
+    $clock = new LearnerClock;
+    $berlin = clockLearner('Europe/Berlin');
+
+    // Saturday 2026-10-24 19:00 CEST = 17:00 UTC; Sunday 2026-10-25 (clocks go back at 03:00) 19:00 CET = 18:00 UTC.
+    $sat = $clock->nextOccurrenceUtc($berlin, '19:00', utc('2026-10-24 12:00:00'));
+    $sun = $clock->nextOccurrenceUtc($berlin, '19:00', $sat);
+    $mon = $clock->nextOccurrenceUtc($berlin, '19:00', $sun);
+
+    expect($sat->toDateTimeString())->toBe('2026-10-24 17:00:00')
+        ->and($sun->toDateTimeString())->toBe('2026-10-25 18:00:00')
+        ->and($mon->toDateTimeString())->toBe('2026-10-26 18:00:00')
+        ->and($sun->setTimezone('Europe/Berlin')->format('H:i'))->toBe('19:00');
+
+    // 02:30 happens twice on the 25th (CEST = 00:30 UTC, CET = 01:30 UTC). PHP resolves the ambiguous
+    // wall time in the offset of the instant it starts from; what matters for reminders is that a
+    // learner is never scheduled twice on that night: from either pass the next one is Monday's.
+    $fromSaturday = $clock->nextOccurrenceUtc($berlin, '02:30', utc('2026-10-24 12:00:00'));
+    $fromFirstPass = $clock->nextOccurrenceUtc($berlin, '02:30', utc('2026-10-25 00:00:00'));
+    expect($fromSaturday->toDateTimeString())->toBe('2026-10-25 01:30:00')
+        ->and($fromFirstPass->toDateTimeString())->toBe('2026-10-25 00:30:00')
+        ->and($clock->nextOccurrenceUtc($berlin, '02:30', $fromSaturday)->toDateTimeString())->toBe('2026-10-26 01:30:00')
+        ->and($clock->nextOccurrenceUtc($berlin, '02:30', $fromFirstPass)->toDateTimeString())->toBe('2026-10-26 01:30:00')
+        ->and($clock->nextOccurrenceUtc($berlin, '02:30', $fromFirstPass->addMinutes(5))->toDateTimeString())->toBe('2026-10-26 01:30:00');
+
+    // A fixed-offset zone is unaffected: 19:00 Tashkent stays 14:00 UTC on both sides of the European change.
+    $tashkent = clockLearner('Asia/Tashkent');
+    expect($clock->nextOccurrenceUtc($tashkent, '19:00', utc('2026-10-24 14:00:00'))->toDateTimeString())->toBe('2026-10-25 14:00:00')
+        ->and($clock->nextOccurrenceUtc($tashkent, '19:00', utc('2026-10-25 14:00:00'))->toDateTimeString())->toBe('2026-10-26 14:00:00');
+});
+
 it('rejects a malformed local time', function (): void {
     $clock = new LearnerClock;
 

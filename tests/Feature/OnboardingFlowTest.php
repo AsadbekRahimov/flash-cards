@@ -400,16 +400,17 @@ it('schedules next_reminder_at in UTC from the chosen time zone and reminder tim
     onbTap(7090, 'onb1:locale:ru', 1);
     onbTap(7090, 'onb1:goal:general', 2);
     onbTap(7090, 'onb1:level:A1', 3);
-    expect(onbLearner(7090)->next_reminder_at)->toBeNull();
-
-    // The time zone alone already moves the (default 19:00) reminder: 19:00 in Tashkent = 14:00 UTC.
-    onbTap(7090, 'onb1:timezone:Asia/Tashkent', 4);
+    // Scheduled from the defaults (Tashkent, 19:00) the moment the learner is created (docs/12 §7.5, 1.5b).
     expect(onbLearner(7090)->next_reminder_at?->utc()->toDateTimeString())->toBe('2026-10-19 14:00:00');
 
-    onbTap(7090, 'onb1:reminder:1900', 5);
+    // The time zone step alone recomputes the (default 19:00) reminder: 19:00 in Moscow = 16:00 UTC.
+    onbTap(7090, 'onb1:timezone:Europe/Moscow', 4);
+    expect(onbLearner(7090)->next_reminder_at?->utc()->toDateTimeString())->toBe('2026-10-19 16:00:00');
+
+    onbTap(7090, 'onb1:reminder:2100', 5);
     $learner = onbLearner(7090);
     expect($learner->onboarding_state)->toBe('done')
-        ->and($learner->next_reminder_at?->utc()->toDateTimeString())->toBe('2026-10-19 14:00:00');
+        ->and($learner->next_reminder_at?->utc()->toDateTimeString())->toBe('2026-10-19 18:00:00');
 });
 
 it('takes the next day when the chosen time has already passed today and ends with NULL for "no reminders"', function (): void {

@@ -36,8 +36,11 @@ Schedule::command('subscriptions:expire')
     ->hourly()
     ->withoutOverlapping();
 
-Schedule::command('repetitions:notify')
-    ->dailyAt('18:00')
+// Personal reminders by the learner's local time (docs/12 §7.5): claims
+// `learners.next_reminder_at <= now` with a conditional UPDATE, so a parallel or
+// repeated run never reminds anyone twice.
+Schedule::command('reminders:dispatch')
+    ->everyFifteenMinutes()
     ->withoutOverlapping();
 
 // Retention of product_events (operations.product_events.retention_days).

@@ -24,8 +24,10 @@ use InvalidArgumentException;
  *  - day boundaries are wall-clock midnights, so a local day is 23 h or 25 h on a
  *    DST transition day (see DayBounds);
  *  - a non-existent wall-clock time (spring-forward gap) resolves forward to the
- *    first existing instant, as PHP does; an ambiguous one (fall-back) to its first
- *    occurrence.
+ *    first existing instant, as PHP does; an ambiguous one (fall-back) resolves in
+ *    the offset of the instant the computation starts from — either pass may be
+ *    picked, but never both on the same night (`nextOccurrenceUtc` from inside the
+ *    repeated hour already yields the next day).
  */
 final class LearnerClock
 {
