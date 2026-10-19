@@ -93,6 +93,19 @@ class IrazasyedTelegramClient implements TelegramClient
         $this->call(fn () => $this->api->answerCallbackQuery(['callback_query_id' => $callbackQueryId]));
     }
 
+    /**
+     * @param  array<string, mixed>|null  $replyMarkup
+     */
+    public function editMessageReplyMarkup(int|string $chatId, int $messageId, ?array $replyMarkup = null): void
+    {
+        $this->call(fn () => $this->api->editMessageReplyMarkup([
+            'chat_id' => $chatId,
+            'message_id' => $messageId,
+            // An empty `inline_keyboard` is how the Bot API removes the buttons.
+            'reply_markup' => json_encode($replyMarkup ?? ['inline_keyboard' => []], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
+        ]));
+    }
+
     public function setWebhook(string $url, string $secretHeader): bool
     {
         return (bool) $this->call(fn () => $this->api->setWebhook([

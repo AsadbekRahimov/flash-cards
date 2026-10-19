@@ -74,11 +74,59 @@ export interface OpenSessionRequest {
   source?: SessionSource
 }
 
-/** Answer of POST /training/sessions/{id}/finish. */
+/** Goal of the learner's local day (docs/04 A.2a). */
+export interface DailyGoal {
+  target: number
+  done: number
+  met: boolean
+}
+
+export interface Streak {
+  current: number
+  best: number
+  /** Today's goal is already met: the series cannot break today. */
+  met_today: boolean
+  /** The series ends unless the goal is met before local midnight. */
+  at_risk: boolean
+}
+
+/** Answer of POST /training/sessions/{id}/finish. `goal` / `streak`: state of the whole day, not of the session. */
 export interface SessionSummary {
   reviewed: number
   correct: number
   new_words: number
+  goal?: DailyGoal
+  streak?: Streak
+}
+
+export interface TodayLesson {
+  id: number
+  stage: number | null
+  lesson: number
+  title: string | null
+}
+
+export interface TodayCourse {
+  id: number
+  slug: string
+  title: string
+  progress: { learned: number; total: number }
+  /** null once every word of the course has been served. */
+  next_lesson: TodayLesson | null
+}
+
+/** Answer of GET /today (docs/04 A.2a). */
+export interface TodayResponse {
+  due_count: number
+  /** Free quota left for today; null = unlimited. */
+  new_words_remaining: number | null
+  goal: DailyGoal
+  streak: Streak
+  active_course: TodayCourse | null
+  /** Open, unexpired daily review to continue. */
+  open_session_id: number | null
+  entitlement: Pick<Entitlement, 'plan' | 'source' | 'until'>
+  onboarding_completed: boolean
 }
 
 /**

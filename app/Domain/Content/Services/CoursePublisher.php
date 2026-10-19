@@ -123,8 +123,9 @@ final class CoursePublisher
             return $course->refresh();
         });
 
-        // After commit: a request that re-fills the cache earlier would store the old status.
-        $this->catalog->forgetPublished();
+        // After commit (the caller's too, if it wraps us): a request that re-fills the cache earlier
+        // would store the old status.
+        DB::afterCommit(fn () => $this->catalog->forgetPublished());
 
         return $result;
     }

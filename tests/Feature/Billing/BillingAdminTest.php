@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Services\EntitlementResolver;
+use App\Domain\Billing\Services\PromoCodeAdminService;
 use App\Filament\Resources\OrganizationResource;
 use App\Filament\Resources\OrganizationResource\Pages\CreateOrganization;
 use App\Filament\Resources\OrganizationResource\Pages\ListOrganizations;
@@ -23,6 +24,8 @@ use App\Models\TelegramGroup;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -389,9 +392,8 @@ it('suspending an organization stops the sponsorship at once (observer drops the
     expect($resolver->for($member)->plan)->toBe(Plan::Free);
 });
 
-it('does not let a teacher link or unlink a group through a direct Livewire call', function (): void {
+it('does not let a teacher link a group through a direct Livewire call', function (): void {
     $org = Organization::factory()->create();
-    $linked = TelegramGroup::factory()->create(['organization_id' => $org->id]);
     $free = TelegramGroup::factory()->create();
     $this->actingAs($this->teacher);
 
@@ -399,12 +401,193 @@ it('does not let a teacher link or unlink a group through a direct Livewire call
 
     try {
         $manager->callTableAction('linkGroup', data: ['telegram_group_id' => $free->id]);
-        $manager->callTableAction('unlinkGroup', $linked);
     } catch (Throwable) {
         // an unauthorized or hidden action may also fail loudly — what matters is the data below
     }
 
     expect($free->fresh()?->organization_id)->toBeNull()
-        ->and($linked->fresh()?->organization_id)->toBe($org->id)
         ->and(AuditLog::query()->count())->toBe(0);
+});
+
+it('does not let a teacher unlink a group through a direct Livewire call', function (): void {
+    $org = Organization::factory()->create();
+    $linked = TelegramGroup::factory()->create(['organization_id' => $org->id]);
+    $this->actingAs($this->teacher);
+
+    $manager = Livewire::test(GroupsRelationManager::class, ['ownerRecord' => $org, 'pageClass' => OrganizationResource\Pages\EditOrganization::class]);
+
+    try {
+        $manager->callTableAction('unlinkGroup', $linked);
+    } catch (Throwable) {
+        // an unauthorized or hidden action may also fail loudly — what matters is the data below
+    }
+
+    expect($linked->fresh()?->organization_id)->toBe($org->id)
+        ->and(AuditLog::query()->count())->toBe(0);
+});
+
+it('audits an edit of a promo code with a from / to diff of the changed fields only', function (): void {
+    $promo = PromoCode::factory()->create([
+        'code' => 'EDITME', 'max_redemptions' => 10, 'duration_days' => 30, 'expires_at' => null, 'is_active' => true,
+    ]);
+    $this->actingAs($this->admin);
+
+    Livewire::test(EditPromoCode::class, ['record' => $promo->getKey()])
+        ->fillForm(['max_redemptions' => 25, 'duration_days' => 30, 'is_active' => false])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($promo->fresh()?->max_redemptions)->toBe(25)
+        ->and($promo->fresh()?->is_active)->toBeFalse();
+
+    $audit = AuditLog::query()->where('action', 'promo.updated')->sole();
+    expect($audit->user_id)->toBe($this->admin->id)
+        ->and($audit->entity_type)->toBe(PromoCode::class)
+        ->and($audit->entity_id)->toBe($promo->id)
+        ->and($audit->meta['code'])->toBe('EDITME')
+        // toEqual: jsonb on PostgreSQL does not keep the key order
+        ->and($audit->meta['changes'])->toEqual([
+            'max_redemptions' => ['from' => 10, 'to' => 25],
+            'is_active' => ['from' => true, 'to' => false],
+        ]);
+});
+
+it('records the old and new expiry of a promo code as ISO dates and writes nothing for a no-op save', function (): void {
+    $promo = PromoCode::factory()->create(['expires_at' => now()->addDays(5)->startOfSecond()]);
+    $old = $promo->expires_at?->toIso8601String();
+    $new = now()->addDays(40)->startOfSecond();
+
+    $service = app(PromoCodeAdminService::class);
+    $service->update($promo, ['expires_at' => $new], $this->admin, '10.0.0.7');
+
+    $audit = AuditLog::query()->where('action', 'promo.updated')->sole();
+    expect($audit->ip)->toBe('10.0.0.7')
+        ->and($audit->meta['changes']['expires_at'])->toEqual(['from' => $old, 'to' => $new->toIso8601String()]);
+
+    // Same values again, and keys that are not editable (code, plan, counter): nothing changes, nothing is logged.
+    $service->update($promo->fresh(), ['expires_at' => $new, 'code' => 'HACKED', 'plan' => 'free', 'redemptions_count' => 99], $this->admin);
+
+    $fresh = $promo->fresh();
+    expect($fresh?->code)->not->toBe('HACKED')
+        ->and($fresh?->redemptions_count)->toBe(0)
+        ->and(AuditLog::query()->where('action', 'promo.updated')->count())->toBe(1);
+});
+
+it('audits a status change of an organization (suspend and activate), but not other edits', function (): void {
+    $org = Organization::factory()->create(['name' => 'Bright Center', 'status' => 'active']);
+    $this->actingAs($this->admin);
+
+    $page = Livewire::test(OrganizationResource\Pages\EditOrganization::class, ['record' => $org->getKey()]);
+
+    $page->fillForm(['name' => 'Bright Center 2'])->call('save')->assertHasNoFormErrors();
+    expect(AuditLog::query()->count())->toBe(0);
+
+    $page->fillForm(['status' => 'suspended'])->call('save')->assertHasNoFormErrors();
+    $page->fillForm(['status' => 'active'])->call('save')->assertHasNoFormErrors();
+
+    $audits = AuditLog::query()->where('action', 'organization.status_changed')->orderBy('id')->get();
+    expect($audits)->toHaveCount(2)
+        ->and($audits[0]->user_id)->toBe($this->admin->id)
+        ->and($audits[0]->entity_type)->toBe(Organization::class)
+        ->and($audits[0]->entity_id)->toBe($org->id)
+        ->and($audits[0]->meta['from'])->toBe('active')
+        ->and($audits[0]->meta['to'])->toBe('suspended')
+        ->and($audits[1]->meta['from'])->toBe('suspended')
+        ->and($audits[1]->meta['to'])->toBe('active')
+        ->and($org->fresh()?->name)->toBe('Bright Center 2');
+});
+
+it('does not delete an organization with a live subscription or linked groups and says why', function (): void {
+    $withSubscription = Organization::factory()->create();
+    Subscription::factory()->forOrganization($withSubscription)->create(['current_period_ends_at' => null]);
+    $withGroup = Organization::factory()->create();
+    TelegramGroup::factory()->create(['organization_id' => $withGroup->id]);
+    $this->actingAs($this->admin);
+
+    expect(Gate::forUser($this->admin)->inspect('delete', $withSubscription)->message())->toContain('live subscription')
+        ->and(Gate::forUser($this->admin)->inspect('delete', $withGroup)->message())->toContain('linked groups');
+
+    Livewire::test(ListOrganizations::class)
+        ->assertCanSeeTableRecords([$withSubscription, $withGroup])
+        ->assertTableActionVisible('delete', $withSubscription)   // visible, with the reason as its tooltip
+        ->callTableAction('delete', $withSubscription)
+        ->assertNotified()
+        ->callTableAction('delete', $withGroup);
+
+    expect(Organization::query()->whereKey([$withSubscription->id, $withGroup->id])->count())->toBe(2);
+});
+
+it('deletes an organization that has neither a live subscription nor groups', function (): void {
+    $org = Organization::factory()->create();
+    Subscription::factory()->forOrganization($org)->expired()->create();
+    $this->actingAs($this->admin);
+
+    expect(Gate::forUser($this->admin)->allows('delete', $org))->toBeTrue();
+
+    Livewire::test(ListOrganizations::class)->callTableAction('delete', $org);
+
+    expect(Organization::query()->whereKey($org->id)->exists())->toBeFalse();
+});
+
+it('never lets a teacher delete an organization', function (): void {
+    $org = Organization::factory()->create();
+
+    expect(Gate::forUser($this->teacher)->allows('delete', $org))->toBeFalse();
+});
+
+it('reads the promo expiry as local time (default learner time zone) and stores it as UTC', function (): void {
+    $this->actingAs($this->admin);
+    expect(config('learners.default_timezone'))->toBe('Asia/Tashkent');   // UTC+5, no DST
+
+    Livewire::test(CreatePromoCode::class)
+        ->fillForm(['code' => 'TZPROMO1', 'plan' => 'pro', 'duration_days' => 30, 'expires_at' => '2031-06-01 12:00:00'])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $promo = PromoCode::query()->where('code', 'TZPROMO1')->sole();
+    expect($promo->expires_at?->utc()->format('Y-m-d H:i:s'))->toBe('2031-06-01 07:00:00');
+    expect(DB::table('promo_codes')->where('id', $promo->id)->value('expires_at'))->toStartWith('2031-06-01 07:00:00');
+
+    // The edit form shows the stored UTC moment in local time again.
+    expect(Livewire::test(EditPromoCode::class, ['record' => $promo->getKey()])->get('data.expires_at'))->toBe('2031-06-01 12:00:00');
+});
+
+it('reads the Grant Pro end date as local time and stores it as UTC; a past local moment is refused', function (): void {
+    $learner = Learner::factory()->create();
+    $this->actingAs($this->admin);
+
+    Livewire::test(ListSubscriptions::class)
+        ->callAction('grantPro', ['subscriber_type' => 'learner', 'learner_id' => $learner->id, 'perpetual' => false, 'until' => '2031-06-01 12:00:00', 'note' => 'tz'])
+        ->assertHasNoActionErrors();
+
+    expect(Subscription::query()->where('subscriber_id', $learner->id)->sole()->current_period_ends_at?->utc()->format('Y-m-d H:i:s'))->toBe('2031-06-01 07:00:00');
+
+    // One hour ago in real time, written as local (UTC+5) wall-clock time: still in the past.
+    $past = now()->subHour()->setTimezone('Asia/Tashkent')->format('Y-m-d H:i:s');
+    Livewire::test(ListSubscriptions::class)
+        ->callAction('grantPro', ['subscriber_type' => 'learner', 'learner_id' => $learner->id, 'perpetual' => false, 'until' => $past, 'note' => 'late'])
+        ->assertHasActionErrors(['until']);
+
+    // Two hours ahead in real time, as local wall-clock time: accepted.
+    $soon = now()->addHours(2)->setTimezone('Asia/Tashkent')->format('Y-m-d H:i:s');
+    $other = Learner::factory()->create();
+    Livewire::test(ListSubscriptions::class)
+        ->callAction('grantPro', ['subscriber_type' => 'learner', 'learner_id' => $other->id, 'perpetual' => false, 'until' => $soon, 'note' => 'soon'])
+        ->assertHasNoActionErrors();
+});
+
+it('requires a promo code of at least 6 characters', function (): void {
+    $this->actingAs($this->admin);
+
+    Livewire::test(CreatePromoCode::class)
+        ->fillForm(['code' => 'AB-CDE', 'plan' => 'pro', 'duration_days' => 30])   // 5 after normalizing
+        ->call('create')
+        ->assertHasFormErrors(['code']);
+
+    Livewire::test(CreatePromoCode::class)
+        ->fillForm(['code' => 'AB-CDEF', 'plan' => 'pro', 'duration_days' => 30])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(PromoCode::query()->sole()->code)->toBe('ABCDEF');
 });

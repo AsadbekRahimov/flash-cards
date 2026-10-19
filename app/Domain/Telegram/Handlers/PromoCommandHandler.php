@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Handlers;
 
-use App\Domain\Billing\Exceptions\PromoCodeException;
+use App\Domain\Billing\Exceptions\BillingException;
 use App\Domain\Billing\Services\PromoCodeService;
 use App\Domain\Learners\Services\LearnerRegistrar;
 use App\Domain\Localization\Services\LocaleResolver;
@@ -92,7 +92,7 @@ final class PromoCommandHandler implements UpdateHandler
 
         try {
             $subscription = $this->promos->redeem($learner, $code);
-        } catch (PromoCodeException $e) {
+        } catch (BillingException $e) {
             $this->telegram->sendMessage($chatId, __('bot.promo.errors.'.$e->errorCode, [], $locale));
 
             return;

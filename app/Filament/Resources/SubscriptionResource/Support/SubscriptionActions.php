@@ -60,7 +60,10 @@ final class SubscriptionActions
                     ->live(),
                 Forms\Components\DateTimePicker::make('until')
                     ->label('Pro until')
-                    ->minDate(now())
+                    ->timezone(config('learners.default_timezone'))
+                    ->helperText('Time zone: '.config('learners.default_timezone').'.')
+                    // Validated as typed (local wall-clock time), so "now" is expressed in the same zone.
+                    ->minDate(fn () => now()->setTimezone(config('learners.default_timezone')))
                     ->visible(fn (callable $get): bool => ! $get('perpetual'))
                     ->required(fn (callable $get): bool => ! $get('perpetual')),
                 Forms\Components\Textarea::make('note')

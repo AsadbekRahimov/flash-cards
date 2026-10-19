@@ -5,7 +5,6 @@ declare(strict_types=1);
 return [
 
     'start' => [
-        'not_linked' => "Bu Telegram akkaunt LexiFlow'dagi o'qituvchiga biriktirilmagan. Administratordan Telegram ID'ngizni kiritishini so'rang: :id.",
         'greeting' => "Salom, :name! Siz LexiFlow o'qituvchisi sifatida tizimga kirdingiz. Guruhdagi buyruqlar: /help",
     ],
 
@@ -40,6 +39,7 @@ return [
             'promo_exhausted' => 'Bu promokoddan foydalanish limiti tugagan.',
             'promo_already_redeemed' => 'Siz bu promokodni allaqachon faollashtirgansiz.',
             'promo_not_applicable' => 'Sizda allaqachon muddatsiz Pro bor — promokod kerak emas.',
+            'plan_unknown' => "Bu promokod hozircha mavjud emas. Qo'llab-quvvatlash xizmatiga yozing.",
         ],
     ],
 

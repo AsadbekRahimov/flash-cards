@@ -24,6 +24,13 @@ return [
         'max_age' => (int) env('TWA_INIT_DATA_MAX_AGE', 86400),
     ],
 
+    /**
+     * Requests refused by TwaAuth (no / bad / expired token, unknown or blocked learner) per IP per
+     * minute. TwaAuth runs before the per-learner throttles, so this is the only brake on garbage tokens;
+     * above it the answer is 429 `rate_limited`. Valid requests are not counted.
+     */
+    'unauthorized_per_minute' => (int) env('TWA_UNAUTHORIZED_PER_MINUTE', 60),
+
     'training' => [
         /**
          * Max graded cards (training_reviews rows) per training session.

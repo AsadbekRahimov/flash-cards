@@ -467,12 +467,12 @@ Append-only журнал для продуктовой аналитики (не 
 |---------|-----|----------|
 | id | bigint PK | |
 | learner_id | bigint FK → learners, ON DELETE CASCADE | |
-| date | date NOT NULL | локальная дата learner'а |
+| date | date NOT NULL | локальная дата learner'а (`LearnerClock::today()` в момент оценки) |
 | reviews_count | int default 0 | все принятые оценки |
-| new_words_count | int default 0 | карточек впервые показано (то, что ограничивает Free) |
+| new_words_count | int default 0 | карточек **впервые оценено** за день (`state = new` до оценки); квота Free считается не по нему, а по `word_repetitions.created_at` в границах локального дня (docs/12 §1.6, §5.3) |
 | correct_count | int default 0 | `quality >= 3` |
 | time_spent_ms | bigint default 0 | |
-| goal_met_at | timestamp nullable | |
+| goal_met_at | timestamp nullable | момент первого достижения `reviews_count >= learners.daily_goal`; ставится один раз под `FOR UPDATE` строки; источник истины для streak (`learners.streak_*` — проекция, обновляемая после commit) |
 | created_at, updated_at | | |
 
 **Индексы:** `(learner_id, date)` unique.

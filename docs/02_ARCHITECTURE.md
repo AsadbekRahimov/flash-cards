@@ -313,7 +313,8 @@ SENTRY_LARAVEL_DSN=
   200 `{"status":"ok","checks":{...}}` либо 503 с `fail`; наружу только `ok`/`fail`, без текстов ошибок.
 - **Продуктовые события:** таблица `product_events` (`ProductEventRecorder`, enum `ProductEventName`): `twa.authenticated`,
   `training.session_opened`, `exam.started`, `exam.closed`, `exam.leaderboard_posted`, `reminder.sent`, `reminder.failed`,
-  `group.bot_added`, `group.member_joined`, `group.member_left`. Props — только скаляры без PII; запись никогда не ломает основной поток.
+  `group.bot_added`, `group.member_joined`, `group.member_left`, `subscription.granted`, `subscription.expired`, `promo.redeemed`,
+  `daily_goal.met`, `streak.extended`. Props — только скаляры без PII; запись никогда не ломает основной поток.
   Подробности — `docs/03_DATABASE.md` §2.16.
 - **Метрики / трейсинг:** отдельный Prometheus/OpenTelemetry пока не подключены. Sentry Performance
   (`SENTRY_TRACES_SAMPLE_RATE=0.1`) даёт базовые трейсы запросов и джобов.

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Database\Factories\CourseFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -65,6 +66,17 @@ class Course extends Model
             'words_count' => 'integer',
             'meta' => 'array',
         ];
+    }
+
+    /**
+     * Courses a learner may open and study: published and not private. The SQL half of the single
+     * availability rule — the PHP half is CourseCatalogService::isAvailable(); change them together.
+     *
+     * @param  Builder<Course>  $query
+     */
+    public function scopeAvailable(Builder $query): void
+    {
+        $query->where('courses.status', 'published')->where('courses.visibility', '!=', 'private');
     }
 
     /** @return HasMany<Stage, $this> */

@@ -228,9 +228,11 @@ Filters: status, provider, plan, subject, and *Live status* (live = trialing / a
 
 ### Promo codes
 **Billing → Promo codes → New**. The code is suggested automatically (10 characters); you may type your own —
-spaces and dashes are ignored and the code is stored in upper case (`summer-2026` → `SUMMER2026`), 4–32 Latin
+spaces and dashes are ignored and the code is stored in upper case (`summer-2026` → `SUMMER2026`), 6–32 Latin
 letters / digits, unique. Set the **plan**, **duration (days)**, optional **max redemptions** and **valid until**,
-and a note (who the code is for). Creation is written to the audit log (`promo.created`).
+and a note (who the code is for). *Valid until* (like *Pro until* in Grant Pro) is entered in local time
+(Asia/Tashkent by default) and stored in UTC. Creation is written to the audit log (`promo.created`), every edit of
+the limits / validity / *Active* / note too (`promo.updated`, with the old and new values).
 
 - *Redeemed* is read-only: it grows only when a learner redeems the code. One learner can redeem a code once.
 - To stop a code, switch **Active** off (edit). A code that was already redeemed cannot be deleted — only deactivated.
@@ -242,11 +244,16 @@ and a note (who the code is for). Creation is written to the audit log (`promo.c
 2. Open the organization → **Groups** table → **Link group** and pick the Telegram group (only groups that belong
    to no organization are offered). **Unlink** takes it away again. Both are written to the audit log
    (`organization.linked_group` / `organization.unlinked_group`).
+   Make the bot an **administrator** of the group: then Telegram reports every leave / removal; without admin rights
+   only the service message "left the group" arrives, which can be missed (a member who left may keep sponsored Pro).
 3. **Billing → Subscriptions → Grant Pro** with the *Organization* subject.
 
 Every **active member of an active linked group** now has Pro (source "sponsor" in `/me`); after unlinking, leaving the
 group, suspending the organization or the end of the subscription they are back on Free (their progress stays).
-**Status: Suspended** switches the sponsorship off without deleting anything. Changes apply within seconds.
+**Status: Suspended** switches the sponsorship off without deleting anything; every status change is written to the
+audit log (`organization.status_changed`). An organization with a live subscription or linked groups cannot be
+deleted (the Delete button explains why): revoke the subscription and unlink the groups, or just suspend it.
+Changes apply within seconds.
 
 ---
 

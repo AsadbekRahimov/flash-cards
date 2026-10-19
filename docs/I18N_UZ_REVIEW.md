@@ -13,7 +13,6 @@
 
 | Ключ | uz | ru |
 |---|---|---|
-| `bot.start.not_linked` | Bu Telegram akkaunt LexiFlow'dagi o'qituvchiga biriktirilmagan. Administratordan Telegram ID'ngizni kiritishini so'rang: :id. | Этот Telegram-аккаунт не привязан к учителю в LexiFlow. Попросите админа прописать ваш Telegram ID: :id. |
 | `bot.start.greeting` | Salom, :name! Siz LexiFlow o'qituvchisi sifatida tizimga kirdingiz. Guruhdagi buyruqlar: /help | Привет, :name! Вы авторизованы как учитель LexiFlow. Команды в группе: /help |
 | `bot.help.private` | LexiFlow — ingliz tilini o'rganish yordamchisi.<br><br>O'qituvchilar uchun: botni guruhga qo'shing, administrator uni faollashtiradi.<br>Guruhdagi mavjud buyruqlar: /start_training, /start_exam, /close_exam, /help<br>Shaxsiy hisobot: /stats | LexiFlow — помощник для изучения английского.<br><br>Для учителей: добавьте бота в группу, админ активирует её.<br>Доступные команды в группе: /start_training, /start_exam, /close_exam, /help<br>Личный отчёт: /stats |
 | `bot.help.group` | LexiFlow Bot guruhda.<br><br>O'qituvchi buyruqlari:<br>/start_training — mashg'ulotni boshlash<br>/start_exam — imtihonni boshlash<br>/close_exam — imtihonni yopish<br>/stats — bot bilan shaxsiy chatda hisobot<br>/help — ushbu yordam | LexiFlow Bot в группе.<br><br>Команды учителя:<br>/start_training — запустить тренировку<br>/start_exam — запустить экзамен<br>/close_exam — закрыть экзамен<br>/stats — личный отчёт в чате с ботом<br>/help — эта справка |
@@ -161,7 +160,6 @@
 | `common.loading` | Yuklanmoqda… | Загрузка… |
 | `common.retry` | Qayta urinish | Повторить |
 | `common.error_title` | Xatolik | Ошибка |
-| `landing.in_telegram` | Mashg'ulotni Telegram guruhidagi tugma orqali oching. | Откройте тренировку через кнопку в группе Telegram. |
 | `landing.outside_telegram` | Bu sahifa faqat Telegram Web App ichida ishlaydi. O'qituvchidan mashg'ulot havolasini guruhga yuborishini so'rang. | Эта страница работает только внутри Telegram Web App. Попросите учителя прислать ссылку-тренировку в группу. |
 | `card.kind.new` | Yangi so'z | Новое слово |
 | `card.kind.learning` | Mustahkamlash | Закрепление |
@@ -260,6 +258,7 @@
 | `bot.promo.errors.promo_exhausted` | Bu promokoddan foydalanish limiti tugagan. | Этим промокодом уже воспользовалось максимальное число людей. |
 | `bot.promo.errors.promo_already_redeemed` | Siz bu promokodni allaqachon faollashtirgansiz. | Вы уже активировали этот промокод. |
 | `bot.promo.errors.promo_not_applicable` | Sizda allaqachon muddatsiz Pro bor — promokod kerak emas. | У вас уже есть Pro без ограничения по сроку — промокод не нужен. |
+| `bot.promo.errors.plan_unknown` | Bu promokod hozircha mavjud emas. Qo'llab-quvvatlash xizmatiga yozing. | Этот промокод сейчас недоступен. Напишите в поддержку. |
 
 ### TWA (`resources/twa/src/i18n/uz.ts`)
 
@@ -275,8 +274,60 @@
 | `error.code.promo_exhausted` | Bu promokoddan foydalanish limiti tugagan. | Этим промокодом уже воспользовалось максимальное число людей. |
 | `error.code.promo_already_redeemed` | Siz bu promokodni allaqachon faollashtirgansiz. | Вы уже активировали этот промокод. |
 | `error.code.promo_not_applicable` | Sizda allaqachon muddatsiz Pro bor — promokod kerak emas. | У вас уже есть Pro без ограничения по сроку — промокод не нужен. |
+| `error.code.plan_unknown` | Bu promokod hozircha mavjud emas. Qo'llab-quvvatlash xizmatiga yozing. | Этот промокод сейчас недоступен. Напишите в поддержку. |
 
 Проверить: термин «promokod», «faollashtirish» (активировать), «limiti tugagan» (исчерпан лимит).
+
+## Фаза 1 · задача 1.5a (онбординг в боте) — на проверку носителю
+
+> `lang/uz/onboarding.php`: пять шагов `/start` (язык, цель, уровень, часовой пояс, время напоминаний), экран «Сегодня» (`/today`), краткое меню, `/settings`.
+> Из `bot.start.not_linked` убрана строка «аккаунт не привязан к учителю»: неизвестный человек в ЛС теперь проходит онбординг (в списке выше она больше не показана).
+> Названия языков в выборе языка (`config/localization.php` → `names`) не переводятся: «🇷🇺 Русский» и «🇺🇿 O'zbekcha» одинаковы в обоих языках.
+> В подписях часовых поясов `:offset` — смещение вида `UTC+5`; в `options.reminder.time` `:time` — `08:00`, `13:00`, `19:00`, `21:00`.
+> Проверить в первую очередь: «Maqsad» (цель), «Daraja» (уровень), «Vaqt mintaqasi» (часовой пояс), «Eslatmalar» (напоминания), уровни `A1 — boshlayapman` / `B2 — o'rtadan yuqori`, названия городов (Almati, Ashxobod, Moskva).
+
+### Бот (`lang/uz/onboarding.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `onboarding.blocked` | Akkauntingizga kirish cheklangan. Qo'llab-quvvatlash xizmatiga murojaat qiling. | Доступ к аккаунту ограничен. Обратитесь в поддержку. |
+| `onboarding.steps.locale` | Interfeys tilini tanlang | Выберите язык интерфейса |
+| `onboarding.steps.goal` | Ingliz tilini nima uchun o'rganmoqchisiz? | Для чего вам английский? |
+| `onboarding.steps.level` | Darajangiz qanday? O'zingizni baholang — keyinroq o'zgartirish mumkin. | Какой у вас уровень? Оцените себя как получится — позже его можно изменить. |
+| `onboarding.steps.timezone` | Qaysi vaqt mintaqasida yashaysiz? Eslatmalar o'z vaqtida kelishi uchun. | В каком часовом поясе вы живёте? Так напоминания придут вовремя. |
+| `onboarding.steps.reminder` | So'zlarni takrorlashni qachon eslatib turay? | Когда напоминать о повторении слов? |
+| `onboarding.options.goal.general` | Umumiy ingliz tili | Общий английский |
+| `onboarding.options.goal.ielts` | IELTS | IELTS |
+| `onboarding.options.goal.sat` | SAT | SAT |
+| `onboarding.options.goal.school` | Maktab | Школа |
+| `onboarding.options.level.A1` | A1 — boshlayapman | A1 — начинаю |
+| `onboarding.options.level.A2` | A2 — elementar | A2 — базовый |
+| `onboarding.options.level.B1` | B1 — o'rta | B1 — средний |
+| `onboarding.options.level.B2` | B2 — o'rtadan yuqori | B2 — выше среднего |
+| `onboarding.options.level.unknown` | Bilmayman | Не знаю |
+| `onboarding.options.timezone.tashkent` | Toshkent (:offset) | Ташкент (:offset) |
+| `onboarding.options.timezone.almaty` | Almati (:offset) | Алматы (:offset) |
+| `onboarding.options.timezone.bishkek` | Bishkek (:offset) | Бишкек (:offset) |
+| `onboarding.options.timezone.dushanbe` | Dushanbe (:offset) | Душанбе (:offset) |
+| `onboarding.options.timezone.ashgabat` | Ashxobod (:offset) | Ашхабад (:offset) |
+| `onboarding.options.timezone.moscow` | Moskva (:offset) | Москва (:offset) |
+| `onboarding.options.timezone.istanbul` | Istanbul (:offset) | Стамбул (:offset) |
+| `onboarding.options.reminder.time` | :time | :time |
+| `onboarding.options.reminder.off` | Eslatmasiz | Без напоминаний |
+| `onboarding.done.text` | Tayyor! Kursingiz: :course. Tugmani bosing — birinchi mashg'ulot bir necha daqiqa oladi. | Готово! Ваш курс: :course. Нажмите кнопку — первая тренировка займёт пару минут. |
+| `onboarding.done.text_plain` | Tayyor! Tugmani bosing — birinchi mashg'ulot bir necha daqiqa oladi. | Готово! Нажмите кнопку — первая тренировка займёт пару минут. |
+| `onboarding.done.button` | 🎯 Birinchi mashg'ulotni boshlash | 🎯 Начать первую тренировку |
+| `onboarding.today.due` | Bugun takrorlash uchun: :count ta so'z. | Сегодня к повторению: :count слово.\|Сегодня к повторению: :count слова.\|Сегодня к повторению: :count слов. |
+| `onboarding.today.empty` | Bugun takrorlanadigan so'z yo'q. Yangi so'zlarni o'rganish uchun LexiFlow'ni oching. | На сегодня повторений нет. Откройте LexiFlow, чтобы выучить новые слова. |
+| `onboarding.today.button` | LexiFlow'ni ochish | Открыть LexiFlow |
+| `onboarding.menu.text` | Keyingi qadam?<br>/today — bugungi takrorlashlar<br>/settings — sozlamalar<br>/promo KOD — Pro uchun promokod<br>/help — yordam | Что дальше?<br>/today — повторения на сегодня<br>/settings — настройки<br>/promo КОД — промокод на Pro<br>/help — справка |
+| `onboarding.settings.menu` | Nimani o'zgartirmoqchisiz? | Что хотите изменить? |
+| `onboarding.settings.saved` | Saqlandi. | Сохранено. |
+| `onboarding.settings.buttons.locale` | Til | Язык |
+| `onboarding.settings.buttons.goal` | Maqsad | Цель |
+| `onboarding.settings.buttons.level` | Daraja | Уровень |
+| `onboarding.settings.buttons.timezone` | Vaqt mintaqasi | Часовой пояс |
+| `onboarding.settings.buttons.reminder` | Eslatmalar | Напоминания |
 
 ## Фаза 1 · задача 1.3a C (личные сессии) — на проверку носителю
 
@@ -285,7 +336,6 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `course.learn` (кнопка у урока) | O'rganish | Учить |
-| `landing.review_all` (кнопка на стартовом экране) | Hammasini takrorlash | Повторить всё |
 | `training.daily_header` | Takrorlash | Повторение |
 | `finished.reason.lesson_complete` | Darsdagi barcha so'zlar o'tildi. | Все слова урока пройдены. |
 | `finished.reason.nothing_due` | Bugun takrorlaydigan narsa yo'q. | На сегодня повторять нечего. |
@@ -298,3 +348,53 @@
 Ключ `error.code.wrong_lesson` удалён (код ошибки переименован в `out_of_scope`).
 
 Проверить: «O'rganish» (учить) на кнопке рядом с «Takrorlash» (повторять); «mashg'ulot» (тренировка/сессия) — как в остальных текстах.
+
+## Фаза 1 · задача 1.3b C (экран «Сегодня») — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `today.title` | Bugun | Сегодня |
+| `today.plan.free` | Free | Free |
+| `today.plan.pro` | Pro | Pro |
+| `today.goal.title` | Kunlik maqsad | Цель дня |
+| `today.goal.progress` | {target} tadan {done} tasi | {done} из {target} |
+| `today.goal.met` | Maqsad bajarildi | Цель выполнена |
+| `today.goal.left.one` | {count} ta kartochka qoldi | Осталась {count} карточка |
+| `today.goal.left.few` | _(в uz этой формы нет — используется `other`)_ | Осталось {count} карточки |
+| `today.goal.left.many` | _(в uz этой формы нет — используется `other`)_ | Осталось {count} карточек |
+| `today.goal.left.other` | {count} ta kartochka qoldi | Осталось {count} карточки |
+| `today.streak.title` | Seriya | Серия |
+| `today.streak.days.one` | {count} kun | {count} день |
+| `today.streak.days.few` | _(в uz этой формы нет — используется `other`)_ | {count} дня |
+| `today.streak.days.many` | _(в uz этой формы нет — используется `other`)_ | {count} дней |
+| `today.streak.days.other` | {count} kun | {count} дня |
+| `today.streak.none` | Seriyani boshlash uchun kunlik maqsadni bajaring | Выполните цель дня, чтобы начать серию |
+| `today.streak.at_risk` | Seriya xavf ostida: maqsadni yarim tungacha bajaring | Серия под угрозой: выполните цель до полуночи |
+| `today.streak.safe` | Bugungi kun uchun seriya uzaytirildi | На сегодня серия продлена |
+| `today.streak.best` | Rekord: {best} | Рекорд: {best} |
+| `today.review.title` | Takrorlash | Повторение |
+| `today.review.due.one` | Takrorlash uchun {count} ta so'z | {count} слово к повторению |
+| `today.review.due.few` | _(в uz этой формы нет — используется `other`)_ | {count} слова к повторению |
+| `today.review.due.many` | _(в uz этой формы нет — используется `other`)_ | {count} слов к повторению |
+| `today.review.due.other` | Takrorlash uchun {count} ta so'z | {count} слова к повторению |
+| `today.review.none` | Hozircha takrorlaydigan narsa yo'q | Повторять пока нечего |
+| `today.review.start` | Takrorlash | Повторить |
+| `today.review.continue` | Davom etish | Продолжить |
+| `today.new.remaining` | Bugun yana {count} ta yangi so'z o'rganish mumkin | Новых слов на сегодня осталось: {count} |
+| `today.new.exhausted` | Bugungi yangi so'zlar limiti tugadi | Лимит новых слов на сегодня исчерпан |
+| `today.course.title` | Kurs | Курс |
+| `today.course.next` | Keyingi dars | Следующий урок |
+| `today.course.completed` | Kursdagi barcha so'zlar ko'rsatildi | Все слова курса уже показаны |
+| `today.course.none` | Yangi so'zlarni o'rganish uchun kursni tanlang | Выберите курс, чтобы учить новые слова |
+| `today.onboarding_hint` | Sozlashni yakunlang: botga /start yuboring | Завершите настройку: отправьте боту /start |
+| `finished.home` | Bosh sahifaga | На главную |
+| `finished.goal` | Kunlik maqsad: {target} tadan {done} tasi | Цель дня: {done} из {target} |
+| `finished.goal_met` | Kunlik maqsad bajarildi! | Цель дня выполнена! |
+| `error.closed.today` | Bugun ekrani endi mavjud emas. | Экран «Сегодня» больше недоступен. |
+| `error.forbidden.today` | Sizda Bugun ekraniga kirish huquqi yo'q. | У вас нет доступа к экрану «Сегодня». |
+
+Удалены ключи `landing.in_telegram` и `landing.review_all`: стартовый экран в Telegram теперь сразу ведёт на «Сегодня».
+
+Проверить: «Bugun» как название экрана (вместе с «Bugun» = «Сегодня» в `finished.next_today`); «Seriya» (серия дней подряд с выполненной целью) и «Rekord»; «Kunlik maqsad» (цель дня) и форму «{target} tadan {done} tasi» ("X из Y"); «xavf ostida» (под угрозой) в `today.streak.at_risk`; `today.goal.left` — «N ta kartochka qoldi» (осталось N карточек); `today.course.completed` («barcha so'zlar ko'rsatildi» — все слова показаны, не «выучены»).

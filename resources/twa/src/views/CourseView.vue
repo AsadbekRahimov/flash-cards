@@ -19,7 +19,7 @@ const training = useTrainingStore()
 const { showBackButton } = useTelegram()
 const { t } = useI18n()
 
-const { detail, status, selecting, errorMessage } = storeToRefs(catalog)
+const { detail, detailStatus: status, selecting, errorMessage } = storeToRefs(catalog)
 const { opening, openError } = storeToRefs(training)
 
 let hideBack: (() => void) | null = null
@@ -29,7 +29,7 @@ async function load(): Promise<void> {
     await auth.ensure()
     await catalog.loadDetail(props.slug)
   } catch (err) {
-    catalog.fail(err)
+    catalog.fail(err, 'detail')
   }
 }
 
@@ -45,6 +45,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   hideBack?.()
+  training.clearOpenError()
 })
 </script>
 

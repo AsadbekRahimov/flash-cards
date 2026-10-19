@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Learning\Support;
 
 use App\Domain\Learning\Enums\DoneReason;
+use App\Models\Course;
 use App\Models\TrainingSession;
 use App\Models\Word;
 use App\Models\WordRepetition;
@@ -19,7 +20,8 @@ use LogicException;
  *   - daily scope (`daily_review`): due repetitions of EVERY word the learner has ever
  *     seen, in any lesson of any course, plus new words from the session's course
  *     (`training_sessions.course_id`, a snapshot of `learners.active_course_id`) in
- *     study order `(stage.number, lesson.number, word.id)`. Without a course the
+ *     study order `(stage.number, lesson.number, word.id)`, as long as that course is
+ *     available (published, not private) — otherwise only due cards. Without a course the
  *     daily session serves due cards only.
  *
  * Inactive words (`words.is_active = false`, the replacement for deletion) are never
@@ -142,6 +144,8 @@ final readonly class TrainingScope
             ->join('lessons', 'lessons.id', '=', 'words.lesson_id')
             ->join('stages', 'stages.id', '=', 'lessons.stage_id')
             ->where('stages.course_id', $this->courseId)
+            // The snapshot course may have been archived or made private since the session opened.
+            ->whereIn('stages.course_id', Course::query()->available()->select('courses.id'))
             ->where('words.is_active', true)
             ->whereNotExists($unseen)
             ->orderBy('stages.number')

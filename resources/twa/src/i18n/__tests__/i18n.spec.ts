@@ -169,7 +169,7 @@ describe('errorMessage', () => {
   })
 
   it('uses context-specific texts for gone / forbidden', () => {
-    expect(errorMessage(err('gone', 410, 'session_closed'), 'training')).toBe('Учитель завершил тренировку.')
+    expect(errorMessage(err('gone', 410, 'session_closed'), 'training')).toBe('Эта тренировка уже закрыта: она завершена или время сессии истекло.')
     expect(errorMessage(err('gone', 410, 'session_closed'), 'exam')).toBe('Экзамен был завершён учителем.')
     expect(errorMessage(err('forbidden', 403, 'forbidden'), 'training')).toBe('У вас нет доступа к этой тренировке.')
     expect(errorMessage(err('forbidden', 403, 'forbidden'), 'exam')).toBe('У вас нет доступа к этому экзамену.')

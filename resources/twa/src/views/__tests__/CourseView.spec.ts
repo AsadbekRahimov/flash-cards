@@ -6,6 +6,7 @@ import CourseView from '../CourseView.vue'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
+import { useTrainingStore } from '@/stores/training'
 import type { Course, CourseDetail } from '@/api/types'
 
 vi.mock('@/api', () => ({
@@ -144,6 +145,22 @@ describe('CourseView', () => {
 
     expect(router.currentRoute.value.name).toBe('courses')
     expect(wrapper.get('[data-testid=open-error]').text()).toBe('Урок не найден.')
+  })
+
+  it('forgets the open error when the learner leaves the screen', async () => {
+    vi.mocked(api.courses.get).mockResolvedValue(detail())
+    vi.mocked(api.training.open).mockRejectedValue(
+      new ApiClientError('not_found', 404, 'lesson_not_found', 'Training lesson not found.'),
+    )
+
+    const { wrapper } = await render()
+    await wrapper.get('[data-testid=lesson-11]').get('[data-testid=learn-btn]').trigger('click')
+    await flushPromises()
+    expect(useTrainingStore().openError).toBe('Урок не найден.')
+
+    wrapper.unmount()
+
+    expect(useTrainingStore().openError).toBe('')
   })
 
   it('selects the course and flips the button to the active mark', async () => {

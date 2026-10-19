@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Learners\Services;
 
+use App\Domain\Analytics\Enums\ProductEventName;
+use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Models\Course;
 use App\Models\Learner;
@@ -15,7 +17,10 @@ use App\Models\Learner;
  */
 final class LearnerCourseService
 {
-    public function __construct(private readonly CourseCatalogService $catalog) {}
+    public function __construct(
+        private readonly CourseCatalogService $catalog,
+        private readonly ProductEventRecorder $events,
+    ) {}
 
     /**
      * @return Course|null the chosen course, or null when no available course has this slug
@@ -29,6 +34,12 @@ final class LearnerCourseService
 
         if ($learner->active_course_id !== $course->id) {
             $learner->forceFill(['active_course_id' => $course->id])->save();
+
+            $this->events->record(
+                ProductEventName::CourseSelected,
+                ['course_id' => $course->id, 'via' => 'twa'],
+                learner: $learner,
+            );
         }
 
         return $course;

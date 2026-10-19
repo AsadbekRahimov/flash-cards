@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api\Twa;
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Learners\Services\TodayService;
 use App\Domain\Learning\Exceptions\ReviewSubmissionException;
 use App\Domain\Learning\Exceptions\TrainingSessionException;
 use App\Domain\Learning\Services\TrainingFlowService;
@@ -20,6 +21,7 @@ use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\TrainingSession;
 use App\Policies\TrainingSessionPolicy;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -86,7 +88,7 @@ final class TrainingController
      * POST /api/twa/training/sessions/{id}/finish — idempotent: a repeat answers 200 with the
      * same numbers. Unlike the other session routes a closed session is not 410 here.
      */
-    public function finish(Request $request, int $sessionId): JsonResponse
+    public function finish(Request $request, int $sessionId, TodayService $today): JsonResponse
     {
         /** @var Learner $learner */
         $learner = $request->attributes->get('learner');
@@ -113,7 +115,21 @@ final class TrainingController
             return ApiErrorResource::respond(403, $e->reason, $e->getMessage());
         }
 
-        return (new SessionSummaryResource($summary))->response();
+        if ($summary->wasOpen) {
+            $this->events->record(
+                ProductEventName::TrainingSessionFinished,
+                [
+                    'training_session_id' => $session->id,
+                    'mode' => $session->mode,
+                    'reviewed' => $summary->reviewed,
+                    'correct' => $summary->correct,
+                    'new_words' => $summary->newWords,
+                ],
+                learner: $learner,
+            );
+        }
+
+        return (new SessionSummaryResource(['summary' => $summary, 'progress' => $today->progress($learner)]))->response();
     }
 
     public function start(Request $request, int $sessionId): JsonResponse
@@ -210,7 +226,7 @@ final class TrainingController
             return [null, ApiErrorResource::respond(403, $denial, 'You cannot access this session.')];
         }
 
-        if ($session->status !== 'open') {
+        if (! $session->isLiveAt(CarbonImmutable::now())) {
             return [null, ApiErrorResource::respond(410, 'session_closed', 'This training session is closed.')];
         }
 

@@ -82,6 +82,7 @@ class Learner extends Model
     {
         return [
             'telegram_user_id' => 'integer',
+            'active_course_id' => 'integer',
             'daily_goal' => 'integer',
             'next_reminder_at' => 'datetime',
             'dm_blocked_at' => 'datetime',

@@ -2,10 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Domain\Billing\Enums\Plan;
+use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Models\GroupMember;
 use App\Models\Learner;
+use App\Models\Organization;
+use App\Models\Subscription;
 use App\Models\TelegramGroup;
 use App\Models\TrainingReview;
 use App\Models\TrainingSession;
@@ -59,6 +63,25 @@ it('marks group as disabled when bot is kicked', function (): void {
     ]);
 
     expect(TelegramGroup::where('chat_id', -9999)->value('status'))->toBe('disabled');
+});
+
+it('drops the sponsored Pro of the members at once when the bot is removed from the group', function (): void {
+    $org = Organization::factory()->create();
+    Subscription::factory()->forOrganization($org)->create(['current_period_ends_at' => null]);
+    $group = TelegramGroup::factory()->create(['chat_id' => -9998, 'status' => 'active', 'organization_id' => $org->id]);
+    $member = Learner::factory()->memberOf($group)->create();
+    $resolver = app(EntitlementResolver::class);
+    expect($resolver->for($member)->plan)->toBe(Plan::Pro);   // primes the cache
+
+    app(TelegramDispatcher::class)->dispatch([
+        'my_chat_member' => [
+            'chat' => ['id' => -9998, 'type' => 'supergroup', 'title' => 'X'],
+            'new_chat_member' => ['status' => 'left'],
+        ],
+    ]);
+
+    expect($group->fresh()?->status)->toBe('disabled')
+        ->and($resolver->for($member)->plan)->toBe(Plan::Free);
 });
 
 it('creates a learner and an active membership for every human in new_chat_members', function (): void {
@@ -197,6 +220,63 @@ it('ignores chat_member updates of bots, unknown groups and private chats', func
     $dispatch(['id' => 111, 'type' => 'private'], ['id' => 111, 'first_name' => 'A', 'is_bot' => false]);
 
     expect(Learner::count())->toBe(0)->and(GroupMember::count())->toBe(0);
+});
+
+it('ends the membership on a left_chat_member service message (bot without admin rights)', function (): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => -7010, 'status' => 'active']);
+    $other = TelegramGroup::factory()->create(['chat_id' => -7011, 'status' => 'active']);
+    $learner = Learner::factory()->memberOf($group)->memberOf($other)->create(['telegram_user_id' => 111]);
+    $date = now()->addMinute()->getTimestamp();
+
+    $dispatch = fn () => app(TelegramDispatcher::class)->dispatch(['message' => [
+        'chat' => ['id' => -7010, 'type' => 'supergroup'],
+        'from' => ['id' => 111, 'first_name' => 'Alice', 'is_bot' => false],
+        'date' => $date,
+        'left_chat_member' => ['id' => 111, 'first_name' => 'Alice', 'is_bot' => false],
+    ]]);
+
+    $dispatch();
+    $left = GroupMember::where('learner_id', $learner->id)->where('telegram_group_id', $group->id)->sole();
+    expect($left->status)->toBe('left')
+        ->and($left->left_at?->getTimestamp())->toBe($date)
+        ->and(GroupMember::where('learner_id', $learner->id)->where('telegram_group_id', $other->id)->value('status'))->toBe('active');
+
+    // A repeated delivery is a no-op: the recorded leave is not overwritten.
+    $dispatch();
+    expect($left->fresh()?->left_at?->getTimestamp())->toBe($date)
+        ->and(DB::table('product_events')->where('name', 'group.member_left')->count())->toBe(1);
+});
+
+it('records a member removed by an admin as removed', function (): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => -7012, 'status' => 'active']);
+    $learner = Learner::factory()->memberOf($group)->create(['telegram_user_id' => 111]);
+
+    app(TelegramDispatcher::class)->dispatch(['message' => [
+        'chat' => ['id' => -7012, 'type' => 'supergroup'],
+        'from' => ['id' => 5, 'first_name' => 'Teacher', 'is_bot' => false],
+        'date' => now()->addMinute()->getTimestamp(),
+        'left_chat_member' => ['id' => 111, 'first_name' => 'Alice', 'is_bot' => false],
+    ]]);
+
+    expect(GroupMember::where('learner_id', $learner->id)->value('status'))->toBe('removed');
+});
+
+it('ignores left_chat_member of the bot itself, of an unknown group and of a stranger', function (): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => -7013, 'status' => 'active']);
+    $learner = Learner::factory()->memberOf($group)->create(['telegram_user_id' => 111]);
+
+    $dispatch = fn (int $chatId, array $user) => app(TelegramDispatcher::class)->dispatch(['message' => [
+        'chat' => ['id' => $chatId, 'type' => 'supergroup'],
+        'date' => now()->addMinute()->getTimestamp(),
+        'left_chat_member' => $user,
+    ]]);
+
+    $dispatch(-7013, ['id' => 900, 'first_name' => 'LexiBot', 'is_bot' => true]);
+    $dispatch(-7777777, ['id' => 111, 'first_name' => 'Alice', 'is_bot' => false]);
+    $dispatch(-7013, ['id' => 222, 'first_name' => 'Stranger', 'is_bot' => false]);   // never seen: no learner created
+
+    expect(GroupMember::where('learner_id', $learner->id)->value('status'))->toBe('active')
+        ->and(Learner::count())->toBe(1);
 });
 
 it('treats a restricted chat_member without membership as a leave and a restricted member as staying', function (): void {
@@ -364,10 +444,10 @@ it('binds a teacher on /start in DM when telegram_user_id matches', function ():
     expect($teacher->fresh()->last_login_at)->not->toBeNull();
 });
 
-it('tells unknown TG user their ID on /start', function (): void {
+it('starts the learner onboarding for an unknown TG user on /start', function (): void {
     $this->api->shouldReceive('sendMessage')
         ->once()
-        ->with(999, Mockery::pattern('/999/'));
+        ->with(999, Mockery::pattern('/язык/u'), null, Mockery::type('array'));
 
     app(TelegramDispatcher::class)->dispatch([
         'message' => [
@@ -376,6 +456,8 @@ it('tells unknown TG user their ID on /start', function (): void {
             'text' => '/start',
         ],
     ]);
+
+    expect(Learner::query()->where('telegram_user_id', 999)->value('onboarding_state'))->toBe('locale');
 });
 
 it('sends a seven-day stats report to a teacher in DM', function (): void {
@@ -428,6 +510,8 @@ it('sends a seven-day stats report to a teacher in DM', function (): void {
         }
 
         public function answerCallbackQuery(string $callbackQueryId): void {}
+
+        public function editMessageReplyMarkup(int|string $chatId, int $messageId, ?array $replyMarkup = null): void {}
 
         public function setWebhook(string $url, string $secretHeader): bool
         {

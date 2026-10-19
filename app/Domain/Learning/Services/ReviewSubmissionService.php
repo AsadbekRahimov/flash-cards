@@ -75,7 +75,7 @@ final class ReviewSubmissionService
                 ->lockForUpdate()
                 ->find($session->id);
 
-            if ($lockedSession === null || $lockedSession->status !== 'open') {
+            if ($lockedSession === null || ! $lockedSession->isLiveAt($now)) {
                 throw new ReviewSubmissionException(
                     410,
                     'session_closed',

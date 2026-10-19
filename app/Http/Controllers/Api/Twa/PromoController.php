@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\Twa;
 
-use App\Domain\Billing\Exceptions\PromoCodeException;
+use App\Domain\Billing\Exceptions\BillingException;
 use App\Domain\Billing\Services\PromoCodeService;
 use App\Domain\Twa\Services\MePayloadBuilder;
 use App\Http\Requests\Twa\RedeemPromoRequest;
@@ -28,7 +28,7 @@ final class PromoController
 
         try {
             $this->promos->redeem($learner, $request->string('code')->toString());
-        } catch (PromoCodeException $e) {
+        } catch (BillingException $e) {
             return ApiErrorResource::respond($e->httpStatus(), $e->errorCode, $e->getMessage());
         }
 

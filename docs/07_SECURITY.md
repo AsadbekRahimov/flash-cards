@@ -29,7 +29,7 @@
 curl -X POST "https://api.telegram.org/bot${TOKEN}/setWebhook" \
   -d "url=https://lexiflow.example.com/telegram/webhook/${SECRET_IN_URL}" \
   -d "secret_token=${SECRET_HEADER}" \
-  -d "allowed_updates=[\"message\",\"my_chat_member\",\"callback_query\"]"
+  -d "allowed_updates=[\"message\",\"my_chat_member\",\"chat_member\",\"callback_query\"]"
 ```
 
 Используем **два разных секрета**: один в URL (не увидят проксирующие логи), другой в заголовке — Telegram подставляет его сам.
@@ -173,7 +173,8 @@ public function denial(Learner $learner, TrainingSession $s): ?string   // null 
 | `POST /api/twa/training/*/review` | 60/min per learner | Нормальный темп — не больше |
 | `POST /api/twa/exam/*/answer` | 30/min per learner | |
 | `GET /api/twa/tts` | 30/min per learner | |
-| `POST /api/twa/promo/redeem` | 5/min per learner + 60/min per IP | Подбор промокодов; бот `/promo` — те же 5/min на learner'а. По IP — мягко: мобильные операторы (CGNAT) сажают десятки учеников за один адрес, лимит ловит только перебор с многих аккаунтов. Каждая ошибка — событие `promo.rejected`; ≥ 5 отказов одного learner'а за 10 мин — `billing.promo_rejected_burst` (warning, docs/12 §8) |
+| `POST /api/twa/promo/redeem` | 5/min per learner + 60/min per IP | Подбор промокодов; бот `/promo` — **отдельный** лимит 5/min на learner'а (`RateLimiter` `bot-promo:<learner_id>`), счётчики бота и TWA не складываются. По IP — мягко: мобильные операторы (CGNAT) сажают десятки учеников за один адрес, лимит ловит только перебор с многих аккаунтов. Каждая ошибка — событие `promo.rejected`; ≥ 5 отказов одного learner'а за 10 мин — `billing.promo_rejected_burst` (warning, docs/12 §8) |
+| Отказы `TwaAuth` (нет/битый/просроченный токен, learner не найден/заблокирован) | 60/min per IP (`TWA_UNAUTHORIZED_PER_MINUTE`) | `TwaAuth` стоит перед throttle, поэтому у отказов свой лимит; выше — 429 `rate_limited`. Успешные запросы не считаются и не блокируются |
 | Остальные `/api/twa/*` | 60/min per learner | ключ rate limiter'а — `learner_id` из JWT |
 | Filament login | 5/15min per IP + per email | Против brute-force |
 | Webhook | не ограничиваем (но валидация по secret обязательна) | |

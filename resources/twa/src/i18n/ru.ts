@@ -21,10 +21,50 @@ export const ru = {
   'common.error_title': 'Ошибка',
 
   // ---- landing ----
-  'landing.in_telegram': 'Откройте тренировку через кнопку в группе Telegram.',
-  'landing.review_all': 'Повторить всё',
   'landing.outside_telegram':
     'Эта страница работает только внутри Telegram Web App. Попросите учителя прислать ссылку-тренировку в группу.',
+
+  // ---- today ----
+  'today.title': 'Сегодня',
+  'today.plan.free': 'Free',
+  'today.plan.pro': 'Pro',
+  'today.goal.title': 'Цель дня',
+  'today.goal.progress': '{done} из {target}',
+  'today.goal.met': 'Цель выполнена',
+  'today.goal.left': {
+    one: 'Осталась {count} карточка',
+    few: 'Осталось {count} карточки',
+    many: 'Осталось {count} карточек',
+    other: 'Осталось {count} карточки',
+  },
+  'today.streak.title': 'Серия',
+  'today.streak.days': {
+    one: '{count} день',
+    few: '{count} дня',
+    many: '{count} дней',
+    other: '{count} дня',
+  },
+  'today.streak.none': 'Выполните цель дня, чтобы начать серию',
+  'today.streak.at_risk': 'Серия под угрозой: выполните цель до полуночи',
+  'today.streak.safe': 'На сегодня серия продлена',
+  'today.streak.best': 'Рекорд: {best}',
+  'today.review.title': 'Повторение',
+  'today.review.due': {
+    one: '{count} слово к повторению',
+    few: '{count} слова к повторению',
+    many: '{count} слов к повторению',
+    other: '{count} слова к повторению',
+  },
+  'today.review.none': 'Повторять пока нечего',
+  'today.review.start': 'Повторить',
+  'today.review.continue': 'Продолжить',
+  'today.new.remaining': 'Новых слов на сегодня осталось: {count}',
+  'today.new.exhausted': 'Лимит новых слов на сегодня исчерпан',
+  'today.course.title': 'Курс',
+  'today.course.next': 'Следующий урок',
+  'today.course.completed': 'Все слова курса уже показаны',
+  'today.course.none': 'Выберите курс, чтобы учить новые слова',
+  'today.onboarding_hint': 'Завершите настройку: отправьте боту /start',
 
   // ---- flashcard ----
   'card.kind.new': 'Новое слово',
@@ -41,7 +81,8 @@ export const ru = {
   // ---- training ----
   'training.lesson_header': 'Stage {stage} · Lesson {lesson}',
   'training.daily_header': 'Повторение',
-  'training.closed_title': '🔒 Тренировка завершена учителем',
+  'training.closed_title': '🔒 Тренировка завершена',
+  'training.restart': 'Начать заново',
 
   // ---- exam ----
   'exam.closed_title': '🔒 Экзамен завершён учителем',
@@ -65,6 +106,9 @@ export const ru = {
   'finished.reason.nothing_due': 'На сегодня повторять нечего.',
   'finished.reason.new_quota_exhausted': 'Лимит новых слов на сегодня исчерпан. Новые слова откроются завтра.',
   'finished.reason.session_cap': 'Это была длинная сессия — сделайте перерыв.',
+  'finished.home': 'На главную',
+  'finished.goal': 'Цель дня: {done} из {target}',
+  'finished.goal_met': 'Цель дня выполнена!',
   'finished.next_label': 'Следующее повторение',
   'finished.next_today': 'Сегодня',
   'finished.next_in_days': {
@@ -105,12 +149,14 @@ export const ru = {
   'course.no_lessons': 'В курсе пока нет уроков.',
 
   // ---- errors (by kind / context) ----
-  'error.closed.training': 'Учитель завершил тренировку.',
+  'error.closed.training': 'Эта тренировка уже закрыта: она завершена или время сессии истекло.',
   'error.closed.exam': 'Экзамен был завершён учителем.',
   'error.closed.catalog': 'Курс больше недоступен.',
+  'error.closed.today': 'Экран «Сегодня» больше недоступен.',
   'error.forbidden.training': 'У вас нет доступа к этой тренировке.',
   'error.forbidden.exam': 'У вас нет доступа к этому экзамену.',
   'error.forbidden.catalog': 'У вас нет доступа к каталогу курсов.',
+  'error.forbidden.today': 'У вас нет доступа к экрану «Сегодня».',
   'error.network': 'Нет связи с сервером. Попробуйте ещё раз.',
   'error.rate_limited': 'Слишком много запросов. Подождите немного и повторите.',
   'error.server': 'Сервер временно недоступен. Попробуйте позже.',
@@ -145,6 +191,7 @@ export const ru = {
   'error.code.promo_exhausted': 'Этим промокодом уже воспользовалось максимальное число людей.',
   'error.code.promo_already_redeemed': 'Вы уже активировали этот промокод.',
   'error.code.promo_not_applicable': 'У вас уже есть Pro без ограничения по сроку — промокод не нужен.',
+  'error.code.plan_unknown': 'Этот промокод сейчас недоступен. Напишите в поддержку.',
   'error.code.course_not_found': 'Курс не найден или недоступен.',
 } satisfies Record<string, Message>
 

@@ -7,6 +7,7 @@ namespace App\Domain\Learning\Services;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Learning\DTO\SessionSummary;
 use App\Domain\Learning\Exceptions\TrainingSessionException;
+use App\Models\Course;
 use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\TelegramGroup;
@@ -43,6 +44,9 @@ final class TrainingSessionService
      *
      * @param  string  $source  stored on a NEWLY created session only (`command`, `reminder`, ...);
      *                          an already open session keeps the source it was created with.
+     *
+     * An open session of the same lesson is reused unless it is older than half of
+     * `group_session_ttl_hours` — then it is closed (`expired`) and a fresh one is opened.
      *
      * @throws TrainingSessionException when the stage/lesson does not exist or
      *                                  the user does not teach the group.
@@ -91,11 +95,15 @@ final class TrainingSessionService
      *
      *   - `lesson`: one open session per (learner, lesson); the lesson's course must be published.
      *   - `daily_review`: one open session per learner; `course_id` is a snapshot of the
-     *     learner's `active_course_id` (where new words come from) and is refreshed on re-open.
+     *     learner's `active_course_id` (where new words come from; null once that course is no longer
+     *     available) and is refreshed on re-open.
      *
      * Idempotent: an open, unexpired session is returned as-is. An open session whose
      * `expires_at` has passed (the scheduler has not run yet) is closed with
      * `done_reason = expired` and replaced. Two concurrent calls end up with one session.
+     *
+     * Must not be called inside an outer transaction: the lost-race recovery re-reads the winner's
+     * row after a unique violation, which on PostgreSQL would run in an already aborted transaction.
      *
      * @param  string  $mode  `lesson` | `daily_review`
      * @param  string  $source  `self` | `picker` | `reminder` | `onboarding` (new sessions only)
@@ -128,7 +136,7 @@ final class TrainingSessionService
             'learner_id' => $learner->id,
             'mode' => $mode,
             'lesson_id' => $lesson?->id,
-            'course_id' => $mode === TrainingSession::MODE_DAILY_REVIEW ? $learner->active_course_id : null,
+            'course_id' => $mode === TrainingSession::MODE_DAILY_REVIEW ? $this->dailyCourseId($learner) : null,
             'telegram_group_id' => null,
             'started_by_user_id' => null,
             'source' => $source,
@@ -145,9 +153,11 @@ final class TrainingSessionService
 
                 if ($existing !== null) {
                     if ($existing->expires_at === null || $existing->expires_at->isAfter($now)) {
-                        if ($mode === TrainingSession::MODE_DAILY_REVIEW
-                            && (int) $existing->course_id !== (int) $learner->active_course_id) {
-                            $existing->update(['course_id' => $learner->active_course_id]);
+                        if ($mode === TrainingSession::MODE_DAILY_REVIEW) {
+                            $courseId = $this->dailyCourseId($learner);
+                            if ($existing->course_id !== $courseId) {
+                                $existing->update(['course_id' => $courseId]);
+                            }
                         }
 
                         return $existing;
@@ -285,13 +295,30 @@ final class TrainingSessionService
     {
         $lesson->loadMissing('stage.course');
 
-        if ($lesson->stage?->course?->status !== 'published') {
+        $course = $lesson->stage?->course;
+        if ($course === null || ! $this->catalog->isAvailable($course)) {
             throw TrainingSessionException::lessonNotAvailable((int) $lesson->id);
         }
     }
 
+    /**
+     * The course `daily_review` takes new words from: the learner's active course while it is
+     * still available (published, not private), else none — only due cards are served.
+     */
+    private function dailyCourseId(Learner $learner): ?int
+    {
+        if ($learner->active_course_id === null) {
+            return null;
+        }
+
+        $id = Course::query()->available()->whereKey($learner->active_course_id)->value('id');
+
+        return $id === null ? null : (int) $id;
+    }
+
     private function openLesson(TelegramGroup $group, Lesson $lesson, User $teacher, string $source): TrainingSession
     {
+        $now = CarbonImmutable::now();
         $attributes = [
             'telegram_group_id' => $group->id,
             'lesson_id' => $lesson->id,
@@ -299,12 +326,12 @@ final class TrainingSessionService
             'mode' => TrainingSession::MODE_GROUP_LESSON,
             'source' => $source,
             'status' => 'open',
-            'started_at' => now(),
+            'started_at' => $now,
         ];
         self::assertModeShape($attributes);
 
         try {
-            return DB::transaction(function () use ($group, $lesson, $attributes): TrainingSession {
+            return DB::transaction(function () use ($group, $lesson, $attributes, $now): TrainingSession {
                 /** @var TrainingSession|null $existing */
                 $existing = TrainingSession::query()
                     ->where('telegram_group_id', $group->id)
@@ -315,7 +342,17 @@ final class TrainingSessionService
                     ->first();
 
                 if ($existing !== null) {
-                    return $existing;
+                    if (! $this->isStaleGroupSession($existing, $now)) {
+                        return $existing;
+                    }
+
+                    // Too old to be "the class that is on right now" (the scheduler would only close it
+                    // at the full TTL): close it and start over, as openPersonal does with an expired one.
+                    $existing->update([
+                        'status' => 'closed',
+                        'ended_at' => $now,
+                        'done_reason' => TrainingSession::DONE_EXPIRED,
+                    ]);
                 }
 
                 return TrainingSession::query()->create($attributes);
@@ -330,6 +367,16 @@ final class TrainingSessionService
 
             return $existing;
         }
+    }
+
+    /**
+     * A group session older than half of `group_session_ttl_hours` is not reused by a teacher
+     * command or a reminder link: those come minutes after the class, while the scheduler closes
+     * the session only at the full TTL.
+     */
+    private function isStaleGroupSession(TrainingSession $session, CarbonImmutable $now): bool
+    {
+        return $session->started_at->lte($now->subMinutes($this->groupSessionTtlHours() * 30));
     }
 
     /**
@@ -360,7 +407,9 @@ final class TrainingSessionService
         $reviewed = (clone $reviews)->count();
         $correct = (clone $reviews)->where('training_reviews.quality', '>=', 3)->count();
 
-        // Words whose progress row was born during this session = first served here.
+        // Words whose progress row was born during this session = first served here. An
+        // approximation: a word first served to the learner in another tab while this session was
+        // open is counted here too, as long as it was graded in this session.
         $newWords = (clone $reviews)
             ->join('word_repetitions', function ($join): void {
                 $join->on('word_repetitions.word_id', '=', 'training_reviews.word_id')

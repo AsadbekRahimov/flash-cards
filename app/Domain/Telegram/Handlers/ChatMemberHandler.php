@@ -25,6 +25,11 @@ use Carbon\CarbonImmutable;
  * nor given a membership, and `last_seen_at` is not touched. Updates are applied
  * by their Telegram `date`, so a late one cannot undo a newer state.
  *
+ * A bot that is not an admin of the group gets no `chat_member`, but the service message
+ * `left_chat_member` still arrives with the ordinary messages (like `new_chat_members`): it
+ * ends the membership as `left` (as `removed` when the remover is someone else than the user).
+ * The bot's own removal (`left_chat_member` is the bot) is `my_chat_member`, not handled here.
+ *
  * Changes of the bot's own membership are `my_chat_member` (MyChatMemberHandler).
  */
 final class ChatMemberHandler implements UpdateHandler
@@ -40,7 +45,8 @@ final class ChatMemberHandler implements UpdateHandler
     /** @param array<string, mixed> $update */
     public function matches(array $update): bool
     {
-        return isset($update['chat_member']) && is_array($update['chat_member']);
+        return (isset($update['chat_member']) && is_array($update['chat_member']))
+            || is_array($update['message']['left_chat_member'] ?? null);
     }
 
     // Lifecycle handler (like new members): membership is tracked for every known group.
@@ -52,8 +58,44 @@ final class ChatMemberHandler implements UpdateHandler
     /** @param array<string, mixed> $update */
     public function handle(array $update): void
     {
-        /** @var array<string, mixed> $event */
-        $event = $update['chat_member'];
+        if (isset($update['chat_member']) && is_array($update['chat_member'])) {
+            $this->handleChatMember($update['chat_member']);
+
+            return;
+        }
+
+        /** @var array<string, mixed> $message */
+        $message = $update['message'];
+        $this->handleLeftMessage($message);
+    }
+
+    /** @param array<string, mixed> $message a message carrying `left_chat_member` */
+    private function handleLeftMessage(array $message): void
+    {
+        $chatId = isset($message['chat']['id']) ? (int) $message['chat']['id'] : 0;
+        $user = $message['left_chat_member'];
+
+        if ($chatId === 0 || ! is_array($user) || ($user['is_bot'] ?? false) === true || ! isset($user['id'])) {
+            return;
+        }
+
+        $group = TelegramGroup::query()->where('chat_id', $chatId)->first();
+        if ($group === null) {
+            return;
+        }
+
+        $at = isset($message['date']) && is_numeric($message['date']) ? CarbonImmutable::createFromTimestamp((int) $message['date']) : null;
+
+        // `from` is whoever performed the action: the user themselves (left) or an admin (removed).
+        $actor = $message['from']['id'] ?? null;
+        $removedByOther = is_numeric($actor) && (int) $actor !== (int) $user['id'];
+
+        $this->leave((int) $user['id'], $group, $removedByOther ? GroupMembershipService::REMOVED : GroupMembershipService::LEFT, $at);
+    }
+
+    /** @param array<string, mixed> $event */
+    private function handleChatMember(array $event): void
+    {
         /** @var array<string, mixed> $chat */
         $chat = $event['chat'] ?? [];
         $chatId = isset($chat['id']) ? (int) $chat['id'] : 0;

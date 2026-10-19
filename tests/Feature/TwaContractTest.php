@@ -35,6 +35,8 @@ use Illuminate\Support\Facades\Config;
 uses(RefreshDatabase::class);
 
 const CONTRACT_PROGRESS = ['done', 'total'];
+const CONTRACT_GOAL = ['target', 'done', 'met'];
+const CONTRACT_STREAK = ['current', 'best', 'met_today', 'at_risk'];
 const CONTRACT_CARD = ['word_id', 'word', 'translation', 'translation_fallback', 'example', 'transcription', 'card_kind', 'serve_token'];
 const CONTRACT_EXAM_QUESTION = ['question_index', 'word_id', 'word', 'options', 'seconds_left'];
 const CONTRACT_FORBIDDEN_EXAM_KEYS = ['correct_index', 'correct_translation', 'canonical_index'];
@@ -121,6 +123,48 @@ it('GET /me keeps its exact JSON shape', function (): void {
     expect($response->json('stats'))->toBe(['words_learned' => 0, 'words_due_today' => 0])
         ->and($response->json('groups.0.id'))->toBe($s['group']->id)
         ->and($response->json('learner.id'))->toBe($s['learner']->id);
+});
+
+it('GET /today keeps its exact JSON shape, with and without an active course', function (): void {
+    $lesson = Lesson::factory()->for(Stage::factory()->for(Course::factory()->published())->create(['number' => 1]))->create(['number' => 1]);
+    Word::factory()->for($lesson)->create();
+    $learner = Learner::factory()->onboarded()->create(['active_course_id' => $lesson->stage?->course_id]);
+    TrainingSession::factory()->personal($learner, 'daily_review')->create();
+
+    $response = $this->withHeaders(contractHeaders($learner))
+        ->getJson('/api/twa/today')
+        ->assertOk()
+        ->assertExactJsonStructure([
+            'due_count',
+            'new_words_remaining',
+            'goal' => CONTRACT_GOAL,
+            'streak' => CONTRACT_STREAK,
+            'active_course' => [
+                'id', 'slug', 'title',
+                'progress' => ['learned', 'total'],
+                'next_lesson' => ['id', 'stage', 'lesson', 'title'],
+            ],
+            'open_session_id',
+            'entitlement' => ['plan', 'source', 'until'],
+            'onboarding_completed',
+        ]);
+
+    expect($response->json('due_count'))->toBeInt()
+        ->and($response->json('new_words_remaining'))->toBeNull()
+        ->and($response->json('open_session_id'))->toBeInt()
+        ->and($response->json('onboarding_completed'))->toBeTrue()
+        ->and($response->json('entitlement'))->toBe(['plan' => 'free', 'source' => 'free', 'until' => null]);
+
+    $bare = Learner::factory()->create();
+    $this->withHeaders(contractHeaders($bare))
+        ->getJson('/api/twa/today')
+        ->assertOk()
+        ->assertExactJsonStructure([
+            'due_count', 'new_words_remaining', 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK,
+            'active_course', 'open_session_id', 'entitlement' => ['plan', 'source', 'until'], 'onboarding_completed',
+        ])
+        ->assertJsonPath('active_course', null)
+        ->assertJsonPath('open_session_id', null);
 });
 
 it('GET /me reports the Free entitlement and a paywall without contact while BILLING_SUPPORT_CONTACT is empty', function (): void {
@@ -319,11 +363,18 @@ it('POST /training/finish keeps its exact JSON shape', function (): void {
     $response = $this->withHeaders(contractHeaders($learner))
         ->postJson("/api/twa/training/sessions/{$session->id}/finish")
         ->assertOk()
-        ->assertExactJsonStructure(['reviewed', 'correct', 'new_words']);
+        ->assertExactJsonStructure([
+            'reviewed', 'correct', 'new_words',
+            'goal' => CONTRACT_GOAL,
+            'streak' => CONTRACT_STREAK,
+        ]);
 
     expect($response->json('reviewed'))->toBeInt()
         ->and($response->json('correct'))->toBeInt()
-        ->and($response->json('new_words'))->toBeInt();
+        ->and($response->json('new_words'))->toBeInt()
+        ->and($response->json('goal.target'))->toBeInt()
+        ->and($response->json('goal.met'))->toBeBool()
+        ->and($response->json('streak.at_risk'))->toBeBool();
 });
 
 it('GET /training/next keeps its exact JSON shape, with and without a card', function (): void {

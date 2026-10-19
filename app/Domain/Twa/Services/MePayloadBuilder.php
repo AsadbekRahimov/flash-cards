@@ -9,13 +9,12 @@ use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Learners\Services\GroupMembershipService;
 use App\Domain\Learning\DTO\LearnerStats;
 use App\Domain\Learning\Services\LearnerStatsService;
-use App\Http\Resources\Twa\MeResource;
 use App\Models\Learner;
 use App\Models\TelegramGroup;
 use Illuminate\Support\Collection;
 
 /**
- * The data behind {@see MeResource}: GET /me and every
+ * The data behind `App\Http\Resources\Twa\MeResource`: GET /me and every
  * endpoint that answers with the refreshed profile (e.g. POST /promo/redeem).
  */
 final class MePayloadBuilder

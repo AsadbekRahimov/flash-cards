@@ -14,6 +14,8 @@ use App\Models\Word;
 use App\Models\WordTranslation;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
 
@@ -133,6 +135,26 @@ it('only lets an active admin change the status', function (): void {
     }
 
     expect($course->fresh()->status)->toBe('draft');
+});
+
+it('drops the catalog cache only after the outermost transaction has committed', function (): void {
+    $course = courseWithWords(4, 4, status: 'draft');
+    $admin = publisherAdmin();
+    $base = DB::transactionLevel();
+    $levels = [];
+    Cache::shouldReceive('deleteMultiple')->andReturnUsing(function () use (&$levels): bool {
+        $levels[] = DB::transactionLevel();
+
+        return true;
+    });
+
+    $inside = null;
+    DB::transaction(function () use ($course, $admin, &$levels, &$inside): void {
+        app(CoursePublisher::class)->transition($course, 'review', $admin);
+        $inside = $levels;
+    });
+
+    expect($inside)->toBe([])->and($levels)->toBe([$base]);
 });
 
 it('publishes when translations are complete for exactly the threshold share of words', function (): void {

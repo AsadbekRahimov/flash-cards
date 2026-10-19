@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted } from 'vue'
+import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import FlashCard from '@/components/FlashCard.vue'
@@ -17,7 +17,8 @@ const training = useTrainingStore()
 const { close, showBackButton } = useTelegram()
 const { t } = useI18n()
 
-const { status, card, progress, lesson, mode, errorMessage } = storeToRefs(training)
+const { status, card, progress, lesson, mode, errorMessage, restartRequest, opening, openError } =
+  storeToRefs(training)
 
 const isBusy = computed(() => status.value === 'submitting' || status.value === 'loading')
 const showSpinner = computed(() =>
@@ -26,8 +27,7 @@ const showSpinner = computed(() =>
 
 let hideBack: (() => void) | null = null
 
-onMounted(async () => {
-  hideBack = showBackButton(() => close())
+async function begin(): Promise<void> {
   try {
     await auth.ensure({ type: 'training', sessionId: props.sessionId })
     await training.start(props.sessionId)
@@ -38,10 +38,19 @@ onMounted(async () => {
     // start() handles its own errors; this is an auth failure.
     training.handleApiError(err)
   }
+}
+
+onMounted(() => {
+  hideBack = showBackButton(() => close())
+  void begin()
 })
+
+// "Start again" replaces the route with a new session id; the component is reused.
+watch(() => props.sessionId, () => void begin())
 
 onBeforeUnmount(() => {
   hideBack?.()
+  training.clearOpenError()
 })
 
 async function onGrade(q: Quality): Promise<void> {
@@ -66,6 +75,14 @@ async function redirectToFinished(): Promise<void> {
 
 function onRetry(): void {
   void training.loadNext()
+}
+
+/** A personal session ended (finished elsewhere or expired): open the same kind again. */
+async function onRestart(): Promise<void> {
+  const request = restartRequest.value
+  if (request === null) return
+  const sessionId = await training.open(request)
+  if (sessionId !== null) await router.replace({ name: 'training', params: { sessionId } })
 }
 </script>
 
@@ -99,7 +116,24 @@ function onRetry(): void {
       <div class="space-y-4">
         <p class="text-lg font-semibold">{{ t('training.closed_title') }}</p>
         <p class="text-tg-hint">{{ errorMessage }}</p>
-        <button class="btn btn-primary" data-testid="close-btn" @click="close()">{{ t('common.close') }}</button>
+        <p v-if="openError" class="text-sm text-red-600" data-testid="open-error">{{ openError }}</p>
+        <button
+          v-if="restartRequest"
+          class="btn btn-primary"
+          :disabled="opening"
+          data-testid="restart-btn"
+          @click="onRestart"
+        >
+          {{ t('training.restart') }}
+        </button>
+        <button
+          v-else
+          class="btn btn-primary"
+          data-testid="close-btn"
+          @click="close()"
+        >
+          {{ t('common.close') }}
+        </button>
       </div>
     </div>
 

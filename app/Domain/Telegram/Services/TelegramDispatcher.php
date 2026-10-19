@@ -9,14 +9,18 @@ use App\Domain\Telegram\Handlers\ChatMemberHandler;
 use App\Domain\Telegram\Handlers\CloseExamHandler;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
 use App\Domain\Telegram\Handlers\HelpCommandHandler;
+use App\Domain\Telegram\Handlers\LearnerDmHandler;
 use App\Domain\Telegram\Handlers\MyChatMemberHandler;
 use App\Domain\Telegram\Handlers\NewMembersHandler;
+use App\Domain\Telegram\Handlers\OnboardingCallbackHandler;
 use App\Domain\Telegram\Handlers\PromoCommandHandler;
+use App\Domain\Telegram\Handlers\SettingsCommandHandler;
 use App\Domain\Telegram\Handlers\StartCommandHandler;
 use App\Domain\Telegram\Handlers\StartExamHandler;
 use App\Domain\Telegram\Handlers\StartTrainingCallbackHandler;
 use App\Domain\Telegram\Handlers\StartTrainingHandler;
 use App\Domain\Telegram\Handlers\StatsCommandHandler;
+use App\Domain\Telegram\Handlers\TodayCommandHandler;
 use App\Models\TelegramGroup;
 
 final class TelegramDispatcher
@@ -40,6 +44,10 @@ final class TelegramDispatcher
         MyChatMemberHandler $myChatMember,
         NewMembersHandler $newMembers,
         ChatMemberHandler $chatMember,
+        TodayCommandHandler $today,
+        SettingsCommandHandler $settings,
+        LearnerDmHandler $learnerDm,
+        OnboardingCallbackHandler $onboardingCallback,
     ) {
         // Order matters: more specific commands first (e.g. /start_training
         // must win over the generic /start catch-all).
@@ -53,11 +61,16 @@ final class TelegramDispatcher
             $stats,
             $promo,
             $start,
+            $today,
+            $settings,
             $help,
+            // Catch-all for the rest of a learner's DM: must stay last.
+            $learnerDm,
         ];
 
         $this->callbackHandlers = [
             $startTrainingCallback,
+            $onboardingCallback,
         ];
     }
 

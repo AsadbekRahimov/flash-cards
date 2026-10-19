@@ -8,7 +8,12 @@ export type CatalogStatus = 'idle' | 'loading' | 'ready' | 'error'
 interface CoursesState {
   courses: Course[]
   detail: CourseDetail | null
-  status: CatalogStatus
+  /** state of the list request; independent of the detail request (the screens overlap on "back") */
+  listStatus: CatalogStatus
+  detailStatus: CatalogStatus
+  /** newest request number per kind: an older response that arrives late is ignored */
+  listSeq: number
+  detailSeq: number
   /** slug of the course whose selection is in flight, if any */
   selecting: string | null
   errorMessage: string
@@ -18,32 +23,41 @@ export const useCoursesStore = defineStore('courses', {
   state: (): CoursesState => ({
     courses: [],
     detail: null,
-    status: 'idle',
+    listStatus: 'idle',
+    detailStatus: 'idle',
+    listSeq: 0,
+    detailSeq: 0,
     selecting: null,
     errorMessage: '',
   }),
 
   actions: {
     async load(): Promise<void> {
-      this.status = 'loading'
+      const seq = ++this.listSeq
+      this.listStatus = 'loading'
       this.errorMessage = ''
       try {
-        this.courses = (await api.courses.list()).courses
-        this.status = 'ready'
+        const res = await api.courses.list()
+        if (seq !== this.listSeq) return
+        this.courses = res.courses
+        this.listStatus = 'ready'
       } catch (err) {
-        this.fail(err)
+        if (seq === this.listSeq) this.fail(err, 'list')
       }
     },
 
     async loadDetail(slug: string): Promise<void> {
-      this.status = 'loading'
+      const seq = ++this.detailSeq
+      this.detailStatus = 'loading'
       this.errorMessage = ''
       this.detail = null
       try {
-        this.detail = await api.courses.get(slug)
-        this.status = 'ready'
+        const res = await api.courses.get(slug)
+        if (seq !== this.detailSeq) return
+        this.detail = res
+        this.detailStatus = 'ready'
       } catch (err) {
-        this.fail(err)
+        if (seq === this.detailSeq) this.fail(err, 'detail')
       }
     },
 
@@ -67,8 +81,9 @@ export const useCoursesStore = defineStore('courses', {
       }
     },
 
-    fail(err: unknown): void {
-      this.status = 'error'
+    fail(err: unknown, kind: 'list' | 'detail'): void {
+      if (kind === 'list') this.listStatus = 'error'
+      else this.detailStatus = 'error'
       this.errorMessage = errorMessage(err, 'catalog')
     },
   },

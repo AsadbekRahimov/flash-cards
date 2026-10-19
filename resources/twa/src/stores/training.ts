@@ -10,6 +10,7 @@ import type {
   Quality,
   SessionSummary,
   TrainingMode,
+  TrainingStartResponse,
 } from '@/api/types'
 
 type Progress = { done: number; total: number }
@@ -47,6 +48,17 @@ interface TrainingState {
   summary: SessionSummary | null
   opening: boolean
   openError: string
+  /**
+   * What `open()` got back for a session the training screen has not entered yet: `start()`
+   * consumes it instead of asking the server for the same answer again.
+   */
+  preloaded: { sessionId: number; response: TrainingStartResponse } | null
+  /**
+   * How the personal session `sessionId` was opened: lets the 410 screen offer "start again"
+   * (the same lesson / the daily review). Unknown for a session this run did not open
+   * (page reload, group session).
+   */
+  opened: { sessionId: number; request: OpenSessionRequest } | null
   reviewedCount: number
   lastIntervalDays: number
   status: TrainingStatus
@@ -67,24 +79,38 @@ export const useTrainingStore = defineStore('training', {
     summary: null,
     opening: false,
     openError: '',
+    preloaded: null,
+    opened: null,
     reviewedCount: 0,
     lastIntervalDays: 0,
     status: 'idle',
     errorMessage: '',
   }),
 
+  getters: {
+    /**
+     * Request to open the same kind of session again after a 410, or null when this run did not
+     * open the current session itself (then there is nothing to restart: the screen just closes).
+     */
+    restartRequest: (s): OpenSessionRequest | null =>
+      s.opened !== null && s.opened.sessionId === s.sessionId ? s.opened.request : null,
+  },
+
   actions: {
     /**
      * Opens (or reuses) a personal session. Returns its id for the training route, or null
-     * with `openError` set. The first card comes with the answer but the training screen
-     * asks for it again through `start()` (idempotent on the server).
+     * with `openError` set. The answer carries the first card: it is kept for `start()`, so
+     * the training screen does not ask the server for it a second time.
      */
     async open(body: OpenSessionRequest): Promise<number | null> {
       if (this.opening) return null
       this.opening = true
       this.openError = ''
       try {
-        return (await api.training.open(body)).session_id
+        const res = await api.training.open(body)
+        this.preloaded = { sessionId: res.session_id, response: res }
+        this.opened = { sessionId: res.session_id, request: { ...body } }
+        return res.session_id
       } catch (err) {
         this.openError = errorMessage(err, 'training')
         return null
@@ -94,24 +120,34 @@ export const useTrainingStore = defineStore('training', {
     },
 
     async start(sessionId: number): Promise<void> {
+      const preloaded = this.preloaded?.sessionId === sessionId ? this.preloaded.response : null
+      this.preloaded = null
       this.resetForSession(sessionId)
       this.status = 'starting'
       try {
-        const res = await api.training.start(sessionId)
-        this.mode = res.mode
-        this.lesson = res.lesson
-        this.totalWords = res.total_words
-        this.progress = { done: 0, total: res.total_words }
-        if (res.progress) this.progress = clampProgress(res.progress)
-        if ('card' in res) {
-          this.doneReason = res.done_reason ?? null
-          this.applyCard(res.card ?? null)
-          return
-        }
-        await this.loadNext()
+        await this.applyStart(preloaded ?? (await api.training.start(sessionId)))
       } catch (err) {
         this.handleApiError(err)
       }
+    },
+
+    async applyStart(res: TrainingStartResponse): Promise<void> {
+      this.mode = res.mode
+      this.lesson = res.lesson
+      this.totalWords = res.total_words
+      this.progress = { done: 0, total: res.total_words }
+      if (res.progress) this.progress = clampProgress(res.progress)
+      if ('card' in res) {
+        this.doneReason = res.done_reason ?? null
+        this.applyCard(res.card ?? null)
+        return
+      }
+      await this.loadNext()
+    },
+
+    /** Forgets a failed-open message when the learner leaves the screen that showed it. */
+    clearOpenError(): void {
+      this.openError = ''
     },
 
     async loadNext(): Promise<void> {

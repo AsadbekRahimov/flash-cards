@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { RouterLink } from 'vue-router'
 import PromoRedeem from '@/components/PromoRedeem.vue'
+import { useTrainingStore } from '@/stores/training'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
 
@@ -15,6 +17,11 @@ const REASONS = ['lesson_complete', 'nothing_due', 'new_quota_exhausted', 'sessi
 
 const { close, notificationHaptic } = useTelegram()
 const { t, tn } = useI18n()
+const training = useTrainingStore()
+
+// Goal and streak of the day come with the server summary of a personal session (absent for group sessions).
+const goal = computed(() => training.summary?.goal ?? null)
+const streak = computed(() => training.summary?.streak ?? null)
 
 const nextLabel = computed(() =>
   props.nextInDays <= 0 ? t('finished.next_today') : tn('finished.next_in_days', props.nextInDays),
@@ -39,8 +46,22 @@ notificationHaptic('success')
         <div class="text-sm text-tg-hint">{{ t('finished.next_label') }}</div>
         <div class="text-lg font-semibold mt-1" data-testid="next-label">{{ nextLabel }}</div>
       </div>
+      <div v-if="goal" class="card space-y-1" data-testid="goal">
+        <div class="text-lg font-semibold" data-testid="goal-text">
+          {{ goal.met ? t('finished.goal_met') : t('finished.goal', { done: goal.done, target: goal.target }) }}
+        </div>
+        <div v-if="streak && streak.current > 0" class="text-sm" data-testid="streak">
+          🔥 {{ tn('today.streak.days', streak.current) }}
+        </div>
+        <div v-if="streak?.at_risk" class="text-sm text-red-600" data-testid="streak-at-risk">
+          {{ t('today.streak.at_risk') }}
+        </div>
+      </div>
       <PromoRedeem />
-      <button class="btn btn-primary w-full" data-testid="close-btn" @click="close()">
+      <RouterLink :to="{ name: 'today' }" class="btn btn-primary w-full" data-testid="home-btn">
+        {{ t('finished.home') }}
+      </RouterLink>
+      <button class="btn btn-secondary w-full" data-testid="close-btn" @click="close()">
         {{ t('common.close') }}
       </button>
     </div>
