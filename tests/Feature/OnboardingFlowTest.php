@@ -1075,7 +1075,7 @@ it('also guards the zone step while a carried day is active (a carry without a s
     expect($learner->timezone)->toBe('Asia/Almaty')
         ->and($learner->onboarding_state)->toBe('reminder')
         ->and($learner->meta['timezone_changed_at'])->toBe('2026-10-19T10:00:00+00:00')
-        ->and($learner->meta['local_day_carry'])->toBe($carry);
+        ->and(ksorted($learner->meta['local_day_carry']))->toBe(ksorted($carry));
 });
 
 it('sets the very first zone as before: no stamp, no carry, no time limit', function (): void {

@@ -49,7 +49,8 @@ use Throwable;
  * (`learners.meta.timezone_changed_at`, `learners.meta.local_day_carry`), under the learner-row
  * lock the card picker also takes, so a concurrent pick sees either the old zone or the new zone
  * with its carry. The onboarding sets the first zone directly (OnboardingService::apply) and is
- * not subject to either rule.
+ * not subject to either rule — unless a zone change through the settings already happened (or its
+ * carried day is still running): then the onboarding's zone step calls {@see update()} too.
  *
  * Lowering `daily_goal` to or below what is already done today completes today's goal at once
  * ({@see DailyStatsService::reconcileGoal()}) — in its own transaction AFTER the `learners` one has
