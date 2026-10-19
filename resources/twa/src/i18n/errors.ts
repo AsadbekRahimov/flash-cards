@@ -36,12 +36,18 @@ export const KNOWN_ERROR_CODES = [
   'promo_not_applicable',
   'plan_unknown',
   'course_not_found',
+  'deck_not_found',
+  'deck_word_not_found',
+  'deck_limit_reached',
+  'deck_words_limit_reached',
+  'deck_import_empty',
+  'deck_title_invalid',
   'timezone_change_too_soon',
 ] as const
 
 export type KnownErrorCode = (typeof KNOWN_ERROR_CODES)[number]
 
-export type ErrorContext = 'training' | 'exam' | 'catalog' | 'today' | 'settings'
+export type ErrorContext = 'training' | 'exam' | 'catalog' | 'today' | 'settings' | 'decks'
 
 function isKnownCode(code: string): code is KnownErrorCode {
   return (KNOWN_ERROR_CODES as readonly string[]).includes(code)

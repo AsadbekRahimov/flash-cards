@@ -51,6 +51,17 @@ const routes: RouteRecordRaw[] = [
     props: (route) => ({ slug: String(route.params.slug) }),
   },
   {
+    path: '/decks',
+    name: 'decks',
+    component: () => import('@/views/MyDecksView.vue'),
+  },
+  {
+    path: '/decks/:slug',
+    name: 'deck',
+    component: () => import('@/views/DeckEditView.vue'),
+    props: (route) => ({ slug: String(route.params.slug) }),
+  },
+  {
     path: '/settings',
     name: 'settings',
     component: () => import('@/views/SettingsView.vue'),

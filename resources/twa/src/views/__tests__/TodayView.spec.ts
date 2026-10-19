@@ -41,6 +41,7 @@ const makeRouter = () =>
     routes: [
       { path: '/today', name: 'today', component: { template: '<div />' } },
       { path: '/courses', name: 'courses', component: { template: '<div />' } },
+      { path: '/decks', name: 'decks', component: { template: '<div />' } },
       { path: '/settings', name: 'settings', component: { template: '<div />' } },
       { path: '/training/:sessionId(\\d+)', name: 'training', component: { template: '<div />' } },
     ],
@@ -254,6 +255,13 @@ describe('TodayView', () => {
     const link = w.get('[data-testid=catalog-link]')
     expect(link.attributes('href')).toBe('/courses')
     expect(link.text()).toBe('Каталог курсов')
+  })
+
+  it('links to the learner decks', async () => {
+    const link = (await render()).get('[data-testid=decks-link]')
+
+    expect(link.attributes('href')).toBe('/decks')
+    expect(link.text()).toBe('Мои колоды')
   })
 
   it('links to the settings', async () => {
