@@ -16,7 +16,8 @@
 | 2R.1 | Локаль API TWA по learner'у (`SetTwaLocale`, `Accept-Language` из TWA) | coder | ✅ |
 | 2R.2 | Предупреждение в группу, если бот не админ (`GroupBotAccessChecker`, `getChatMember`) | coder | ✅ |
 | 2A.1 | Ядро биллинга: `canceled` live до конца периода, `payment_orders`/`provider_transactions`/`payments`/`offers`, `BillingProvider` + реестр + `FakeBillingProvider`, `CheckoutService`, `PaymentApplier` (идемпотентность, PG-гонки), `SubscriptionService::applyCharge/cancel/resume/endNow/grantReward/remindExpiring`, `OfferService`, `config/billing.php`. Отклонения — docs/13 §2.1 «Реализация 2A.1». На ревью 2A.8: failed-строки при `order_expired`/`order_mismatch` восстанавливаются только вручную | architect | ✅ |
-| 2A.2–2A.8 | Checkout API/paywall, Stars, Payme, Click, напоминания о продлении, админка, ревью | см. docs/13 §11 | ⏳ |
+| 2A.2 | Checkout API (`/billing/catalog|checkout|orders|subscription/cancel|resume`), `LearnerBillingService`, `/me.entitlement.renewal`, paywall `purchase` (без провайдеров → `coming_soon`), `BillingView`, бот `/pro` и `/paysupport`, `billing:expire-orders`. Контракт для 2A.3–2A.5: сбой сети/API провайдера → `RuntimeException` → 502 `provider_unavailable` | coder | ✅ |
+| 2A.3–2A.8 | Stars, Payme, Click, напоминания о продлении, админка, ревью | см. docs/13 §11 | ⏳ |
 | 2B.1–2B.8 | Центры: места, инвайты, кабинет `/org`, задания, отчёты, оплата центра, offer | см. docs/13 §11 | ⏳ |
 | 2C.1–2C.5 | Рефералка, streak freeze, лиги, достижения/шеринг, друзья/вызовы | см. docs/13 §11 | ⏳ |
 | 2D.1 | Свои колоды: `LearnerDeckService`, `DeckImportParser` (список/CSV), API `/decks*`, TWA `MyDecksView`/`DeckEditView`; лимиты `config/decks.php` (Free 1×50, Pro 20×2000); участие в `daily_review` и квоте. Хвосты: uz-тексты на проверку носителем; PG-теста параллельных импортов нет | coder | ✅ |
