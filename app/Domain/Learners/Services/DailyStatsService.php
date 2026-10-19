@@ -57,7 +57,10 @@ class DailyStatsService
         $row = $this->lockedRow($learner->id, $today->toDateString(), $now);
 
         $reviews = $row->reviews_count + 1;
-        $goal = max(1, $learner->daily_goal);
+        // A fresh plain read, not `$learner->daily_goal`: the model is as old as the request and a
+        // goal lowered meanwhile (PATCH /me/settings) would be missed. No lock and no write on
+        // `learners`, so the lock order of docs/06 §4.2 holds.
+        $goal = max(1, (int) (Learner::query()->whereKey($learner->id)->value('daily_goal') ?? $learner->daily_goal));
         $goalJustMet = $row->goal_met_at === null && $reviews >= $goal;
 
         $row->forceFill([

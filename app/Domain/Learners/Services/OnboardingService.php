@@ -14,8 +14,6 @@ use App\Domain\Learners\Exceptions\OnboardingException;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Course;
 use App\Models\Learner;
-use Carbon\CarbonImmutable;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -60,7 +58,6 @@ final class OnboardingService
         private readonly LocaleResolver $locales,
         private readonly CourseCatalogService $catalog,
         private readonly ProductEventRecorder $events,
-        private readonly LearnerClock $clock,
         private readonly LearnerSettingsService $settings,
     ) {}
 
@@ -132,8 +129,11 @@ final class OnboardingService
             }
 
             $fresh->fill($changes);
+            if ($step === 'locale') {
+                $fresh->meta = [...$fresh->meta, LearnerSettingsService::LOCALE_CHOSEN => true];
+            }
             if ($step === 'timezone' || $step === 'reminder') {
-                $this->scheduleReminder($fresh);
+                $this->settings->scheduleReminder($fresh);
             }
 
             $next = self::STEPS[array_search($step, self::STEPS, true) + 1] ?? self::DONE;
@@ -143,7 +143,7 @@ final class OnboardingService
                 $completed = true;
                 [$course, $via] = $this->completeCourse($fresh);
                 $fresh->onboarding_completed_at = now();
-                $this->scheduleReminder($fresh);
+                $this->settings->scheduleReminder($fresh);
             }
 
             $fresh->save();
@@ -319,16 +319,6 @@ final class OnboardingService
         $learner->active_course_id = $course->id;
 
         return [$course, 'onboarding'];
-    }
-
-    /** `next_reminder_at` for the learner's current time zone and `reminder_time` (`NULL` = reminders are off). */
-    private function scheduleReminder(Learner $learner): void
-    {
-        $time = $learner->reminder_time;
-
-        $learner->next_reminder_at = $time === null || $time === ''
-            ? null
-            : Carbon::instance($this->clock->nextOccurrenceUtc($learner, $time, CarbonImmutable::now()));
     }
 
     private function lock(Learner $learner): Learner

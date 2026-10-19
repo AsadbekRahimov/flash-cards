@@ -12,8 +12,11 @@ use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Learners\Exceptions\InvalidSettingException;
 use App\Domain\Learners\Exceptions\OnboardingException;
 use App\Domain\Learners\Services\DailyStatsService;
+use App\Domain\Learners\Services\LearnerClock;
+use App\Domain\Learners\Services\LearnerRegistrar;
 use App\Domain\Learners\Services\LearnerSettingsService;
 use App\Domain\Learners\Services\OnboardingService;
+use App\Domain\Learners\Services\StreakService;
 use App\Domain\Twa\Services\JwtService;
 use App\Models\Course;
 use App\Models\Learner;
@@ -26,6 +29,7 @@ use App\Models\WordTranslation;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Testing\TestResponse;
 
 uses(RefreshDatabase::class);
@@ -520,4 +524,135 @@ it('applies the bot /settings answers through the service: event, next_reminder_
 
     $unfinished = Learner::factory()->create(['onboarding_state' => 'goal']);
     expect(fn () => $onboarding->applySetting($unfinished, 'level', 'B1'))->toThrow(OnboardingException::class);
+});
+
+// --- Review 1.6 fixes ---------------------------------------------------------------
+
+it('keeps the language chosen in the settings before the onboarding: /auth and passive events no longer overwrite it', function (string $telegramLanguage): void {
+    $learner = Learner::factory()->create(['telegram_user_id' => 7001, 'language_code' => 'ru', 'interface_locale' => 'ru']);
+
+    patchSettings($this, $learner, ['interface_locale' => 'uz'])->assertOk();
+    expect($learner->fresh()->onboarding_state)->toBe('new');
+
+    $registrar = app(LearnerRegistrar::class);
+    $registrar->fromTelegramUser(['id' => 7001, 'first_name' => 'A', 'language_code' => $telegramLanguage]);
+    expect($learner->fresh()->interface_locale)->toBe('uz');
+
+    $registrar->observeTelegramUser(['id' => 7001, 'first_name' => 'A', 'language_code' => $telegramLanguage]);
+    expect($learner->fresh()->interface_locale)->toBe('uz')
+        // The Telegram language itself is still refreshed.
+        ->and($learner->fresh()->language_code)->toBe($telegramLanguage);
+})->with(['en', 'ru']);
+
+it('marks an explicit choice even when it equals the current language', function (): void {
+    $learner = Learner::factory()->create(['telegram_user_id' => 7002, 'interface_locale' => 'ru']);
+
+    patchSettings($this, $learner, ['interface_locale' => 'ru'])->assertOk();
+    app(LearnerRegistrar::class)->fromTelegramUser(['id' => 7002, 'first_name' => 'A', 'language_code' => 'uz']);
+
+    expect($learner->fresh()->interface_locale)->toBe('ru')
+        ->and($learner->fresh()->meta)->toMatchArray(['locale_chosen' => true]);
+});
+
+it('still derives the language from Telegram for a learner who has not chosen one', function (): void {
+    $learner = Learner::factory()->create(['telegram_user_id' => 7003, 'interface_locale' => 'ru']);
+
+    patchSettings($this, $learner, ['daily_goal' => 40])->assertOk();
+    app(LearnerRegistrar::class)->fromTelegramUser(['id' => 7003, 'first_name' => 'A', 'language_code' => 'uz']);
+
+    expect($learner->fresh()->interface_locale)->toBe('uz')
+        ->and($learner->fresh()->meta)->not->toHaveKey('locale_chosen');
+});
+
+it('the onboarding "locale" step marks the language as chosen too', function (): void {
+    $learner = Learner::factory()->create(['telegram_user_id' => 7004, 'language_code' => 'ru', 'interface_locale' => 'ru', 'onboarding_state' => 'locale', 'meta' => ['pending_course' => 'x']]);
+
+    app(OnboardingService::class)->apply($learner, 'locale', 'uz');
+
+    expect($learner->fresh()->interface_locale)->toBe('uz')
+        ->and($learner->fresh()->meta)->toBe(['pending_course' => 'x', 'locale_chosen' => true]);
+
+    app(LearnerRegistrar::class)->fromTelegramUser(['id' => 7004, 'first_name' => 'A', 'language_code' => 'ru']);
+    expect($learner->fresh()->interface_locale)->toBe('uz');
+});
+
+it('describe() takes the course title without computing the progress of the course', function (): void {
+    $course = Course::factory()->published()->create(['slug' => 'big', 'title' => ['ru' => 'Большой', 'uz' => 'Katta']]);
+    $lesson = Lesson::factory()->for(Stage::factory()->create(['course_id' => $course->id, 'number' => 1]))->create(['number' => 1]);
+    Word::factory()->count(5)->for($lesson)->create();
+    $learner = settingsLearner(['active_course_id' => $course->id]);
+
+    $queries = [];
+    DB::listen(function ($query) use (&$queries): void {
+        $queries[] = $query->sql;
+    });
+    $described = app(LearnerSettingsService::class)->describe($learner);
+
+    expect($described['active_course'])->toBe(['slug' => 'big', 'title' => 'Большой'])
+        ->and(array_filter($queries, fn (string $sql): bool => str_contains($sql, '"words"') || str_contains($sql, 'word_repetitions') || str_contains($sql, '"stages"')))->toBe([]);
+});
+
+it('GET /me runs the same number of queries for a small course and a big one', function (): void {
+    $count = function (int $words): int {
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->for(Stage::factory()->create(['course_id' => $course->id, 'number' => 1]))->create(['number' => 1]);
+        Word::factory()->count($words)->for($lesson)->create();
+        $learner = settingsLearner(['active_course_id' => $course->id]);
+        $headers = settingsHeaders($learner);
+
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+        $this->withHeaders($headers)->getJson('/api/twa/me')->assertOk();
+        $n = count(DB::getQueryLog());
+        DB::disableQueryLog();
+
+        return $n;
+    };
+
+    expect($count(30))->toBe($count(2));
+});
+
+it('does not turn a failed goal reconcile into a 500: the settings are already saved', function (): void {
+    Exceptions::fake();
+    $this->app->instance(DailyStatsService::class, new class(app(LearnerClock::class), app(StreakService::class)) extends DailyStatsService
+    {
+        public function reconcileGoal(Learner $learner, ?CarbonImmutable $now = null): bool
+        {
+            throw new RuntimeException('deadlock');
+        }
+    });
+    $learner = settingsLearner();
+
+    patchSettings($this, $learner, ['daily_goal' => 10])->assertOk()->assertJsonPath('settings.daily_goal', 10);
+
+    expect($learner->fresh()->daily_goal)->toBe(10);
+    Exceptions::assertReported(fn (RuntimeException $e): bool => $e->getMessage() === 'deadlock');
+});
+
+it('answers 401 learner_blocked to PATCH /me/settings from a blocked learner and changes nothing', function (): void {
+    $learner = settingsLearner();
+    $headers = settingsHeaders($learner);
+    $learner->update(['blocked_at' => now()]);
+
+    $this->withHeaders($headers)->patchJson('/api/twa/me/settings', ['daily_goal' => 10])
+        ->assertStatus(401)
+        ->assertJsonPath('error.code', 'learner_blocked');
+
+    expect($learner->fresh()->daily_goal)->toBe(20);
+});
+
+it('accepts the legacy aliases PHP lists (DateTimeZone::ALL_WITH_BC, e.g. Asia/Calcutta) as they are', function (): void {
+    // Which aliases exist depends on the tz database of the PHP build; take the ones this runtime has.
+    $aliases = array_values(array_filter(
+        array_diff(DateTimeZone::listIdentifiers(DateTimeZone::ALL_WITH_BC), DateTimeZone::listIdentifiers()),
+        fn (string $id): bool => str_contains($id, '/'),
+    ));
+    expect($aliases)->not->toBeEmpty();
+    $learner = settingsLearner();
+
+    foreach (array_slice($aliases, 0, 3) as $alias) {
+        patchSettings($this, $learner, ['timezone' => $alias])->assertOk()->assertJsonPath('settings.timezone', $alias);
+    }
+    expect($learner->fresh()->timezone)->toBe($alias);
+    patchSettings($this, $learner, ['timezone' => 'Mars/Olympus'])->assertStatus(422);
 });

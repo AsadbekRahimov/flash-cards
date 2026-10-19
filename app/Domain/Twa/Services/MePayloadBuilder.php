@@ -15,6 +15,8 @@ use App\Models\TelegramGroup;
 use Illuminate\Support\Collection;
 
 /**
+ * @phpstan-import-type SettingsPayload from LearnerSettingsService
+ *
  * The data behind `App\Http\Resources\Twa\MeResource`: GET /me and every
  * endpoint that answers with the refreshed profile (e.g. POST /promo/redeem).
  */
@@ -34,7 +36,7 @@ final class MePayloadBuilder
      *   stats: LearnerStats,
      *   entitlement: Entitlement,
      *   paywall: array{mode: string, contact: string|null},
-     *   settings: array<string, mixed>
+     *   settings: SettingsPayload
      * }
      */
     public function build(Learner $learner): array

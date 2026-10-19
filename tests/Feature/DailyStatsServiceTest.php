@@ -217,3 +217,26 @@ it('is driven by the real review flow: a first grade counts as a new word, a re-
         ->and($state->metToday)->toBeTrue()
         ->and($state->atRisk)->toBeFalse();
 });
+
+it('counts a goal lowered in parallel: the 10th grade completes it although the learner model still has the old goal', function (): void {
+    $learner = statsLearner(20);          // the model the request was authenticated with
+    grade($learner, 9, '2026-10-18 10:00:00');
+    Learner::query()->whereKey($learner->id)->update(['daily_goal' => 10]); // PATCH /me/settings committed meanwhile
+    expect($learner->daily_goal)->toBe(20);
+
+    $row = grade($learner, 1, '2026-10-18 10:05:00');
+
+    expect($row->reviews_count)->toBe(10)
+        ->and($row->goal_met_at)->not->toBeNull()
+        ->and($learner->fresh()->streak_current)->toBe(1);
+});
+
+it('does not credit the goal early when it was raised in parallel', function (): void {
+    $learner = statsLearner(10);
+    grade($learner, 9, '2026-10-18 10:00:00');
+    Learner::query()->whereKey($learner->id)->update(['daily_goal' => 20]);
+
+    $row = grade($learner, 1, '2026-10-18 10:05:00');
+
+    expect($row->goal_met_at)->toBeNull();
+});

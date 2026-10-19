@@ -41,7 +41,7 @@ final class LearnerRegistrar
      * `username` are a full snapshot (an absent key clears the stored value); `language_code`
      * is updated only when the payload carries a non-empty one, and only then is
      * `interface_locale` derived from it — and only for a learner who has not chosen one yet
-     * (onboarding `new`). `acquisition_source` is written once, when the learner is created;
+     * (onboarding `new` and no `meta.locale_chosen` from the settings). `acquisition_source` is written once, when the learner is created;
      * `start_payload` — on the first contact that carries it.
      *
      * @param  array<string, mixed>  $tgUser  Telegram `User` object (`id`, `first_name`, ...)
@@ -202,7 +202,11 @@ final class LearnerRegistrar
             $learner->last_seen_at = now();
         }
 
-        if ($learner->onboarding_state === 'new' && ($profile['language_code'] ?? null) !== null) {
+        // `meta.locale_chosen`: the learner picked a language in the settings before `/start` — it stays.
+        if ($learner->onboarding_state === 'new'
+            && ($learner->meta[LearnerSettingsService::LOCALE_CHOSEN] ?? false) !== true
+            && ($profile['language_code'] ?? null) !== null
+        ) {
             $learner->interface_locale = $this->locales->fromLanguageCode($profile['language_code']);
         }
         if ($learner->start_payload === null && $startPayload !== null) {

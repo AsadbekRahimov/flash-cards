@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Resources\Twa;
 
 use App\Domain\Billing\DTO\Entitlement;
+use App\Domain\Learners\Services\LearnerSettingsService;
 use App\Domain\Learning\DTO\LearnerStats;
 use App\Models\Learner;
 use App\Models\TelegramGroup;
@@ -14,7 +15,9 @@ use Illuminate\Support\Collection;
 /**
  * GET /api/twa/me
  *
- * @property array{learner: Learner, groups: Collection<int, TelegramGroup>, stats: LearnerStats, entitlement: Entitlement, paywall: array{mode: string, contact: string|null}, settings: array<string, mixed>} $resource
+ * @phpstan-import-type SettingsPayload from LearnerSettingsService
+ *
+ * @property array{learner: Learner, groups: Collection<int, TelegramGroup>, stats: LearnerStats, entitlement: Entitlement, paywall: array{mode: string, contact: string|null}, settings: SettingsPayload} $resource
  */
 final class MeResource extends TwaResource
 {
@@ -25,7 +28,7 @@ final class MeResource extends TwaResource
      *   stats: array{words_learned: int, words_due_today: int},
      *   entitlement: array{plan: string, source: string, until: string|null, new_words_per_day: int|null},
      *   paywall: array{mode: string, contact: string|null},
-     *   settings: array<string, mixed>
+     *   settings: SettingsPayload
      * }
      */
     public function toArray(Request $request): array

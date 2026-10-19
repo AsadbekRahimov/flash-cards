@@ -16,14 +16,21 @@ use DateTimeZone;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
+use Throwable;
 
 /**
- * The only place that changes a learner's settings (docs/12 §3.8): the TWA `PATCH /me/settings` and
- * the bot's `/settings` (through {@see OnboardingService::applySetting()}) both end up in {@see update()}.
+ * The place that changes a learner's settings AFTER the onboarding (docs/12 §3.8): the TWA
+ * `PATCH /me/settings` and the bot's `/settings` (through {@see OnboardingService::applySetting()})
+ * both end up in {@see update()}. The onboarding steps write the same columns themselves, in the
+ * state machine of {@see OnboardingService}, and share {@see scheduleReminder()} and the
+ * {@see LOCALE_CHOSEN} mark with this class.
  *
  * Fields and rules:
- *  - `interface_locale`  one of the supported locales;
- *  - `timezone`          any IANA id PHP knows (`DateTimeZone::listIdentifiers()`);
+ *  - `interface_locale`  one of the supported locales; choosing one (even the current one) sets
+ *                        `meta.locale_chosen`, after which {@see LearnerRegistrar} no longer derives
+ *                        the language from Telegram's `language_code`;
+ *  - `timezone`          any id PHP knows, also the legacy aliases (`DateTimeZone::ALL_WITH_BC`, e.g.
+ *                        `Asia/Calcutta`), stored as given;
  *  - `reminder_time`     `HH:MM` on a {@see REMINDER_STEP_MINUTES}-minute step, or `null` = reminders off;
  *  - `daily_goal`        one of `config('learners.daily_goal_options')` (10 / 20 / 40);
  *  - `goal`, `level`     the onboarding whitelists.
@@ -39,12 +46,31 @@ use Illuminate\Support\Facades\Lang;
  * review transaction holds only the latter and never touches `learners`). The streak is credited
  * after that commit, as for any other goal.
  *
+ * @phpstan-type SettingsPayload array{
+ *   interface_locale: string,
+ *   timezone: string,
+ *   reminder_time: string|null,
+ *   daily_goal: int,
+ *   goal: string|null,
+ *   level: string|null,
+ *   active_course: array{slug: string, title: string}|null,
+ *   options: array{
+ *     locales: list<array{id: string, label: string}>,
+ *     timezones: list<array{id: string, label: string}>,
+ *     reminder_times: list<string>,
+ *     daily_goals: list<int>
+ *   }
+ * }
+ *
  * Nothing is cached per setting: the entitlement cache does not depend on them and the catalog
  * cache is per locale and public.
  */
 final class LearnerSettingsService
 {
     public const REMINDER_STEP_MINUTES = 15;
+
+    /** `learners.meta` key: the learner picked the interface language (settings / onboarding) — Telegram's `language_code` stops deciding it. */
+    public const LOCALE_CHOSEN = 'locale_chosen';
 
     public function __construct(
         private readonly LocaleResolver $locales,
@@ -69,8 +95,11 @@ final class LearnerSettingsService
         $changed = [];
 
         DB::transaction(function () use ($learner, $values, &$changed): void {
+            // `FOR NO KEY UPDATE` on PostgreSQL (as in CardPicker): the row is rewritten, but rows that
+            // reference `learners` (daily stats, events, ...) can keep being inserted meanwhile.
+            $lock = Learner::query()->whereKey($learner->id);
             /** @var Learner $fresh */
-            $fresh = Learner::query()->whereKey($learner->id)->lockForUpdate()->firstOrFail();
+            $fresh = (DB::connection()->getDriverName() === 'pgsql' ? $lock->lock('for no key update') : $lock->lockForUpdate())->firstOrFail();
 
             foreach ($values as $field => $value) {
                 $current = $field === 'reminder_time' ? $this->shortTime($fresh->reminder_time) : $fresh->getAttribute($field);
@@ -80,6 +109,9 @@ final class LearnerSettingsService
             }
 
             $fresh->fill($values);
+            if (array_key_exists('interface_locale', $values)) {
+                $fresh->meta = [...$fresh->meta, self::LOCALE_CHOSEN => true];
+            }
             if (array_key_exists('timezone', $values) || array_key_exists('reminder_time', $values)) {
                 $this->scheduleReminder($fresh);
             }
@@ -94,7 +126,14 @@ final class LearnerSettingsService
         }
 
         if (in_array('daily_goal', $changed, true)) {
-            $this->stats->reconcileGoal($learner);
+            // The settings are committed: a failed reconcile (deadlock, timeout) must not turn the
+            // request into a 500. The goal is then completed by the next grade (`recordReview` reads
+            // the fresh `daily_goal`) or by the next change.
+            try {
+                $this->stats->reconcileGoal($learner);
+            } catch (Throwable $e) {
+                report($e);
+            }
         }
 
         return $learner;
@@ -105,21 +144,7 @@ final class LearnerSettingsService
      * labelled in the learner's language. A time zone / reminder time the learner already has but
      * the lists do not offer (set through the API) is added to the list, so the picker can show it.
      *
-     * @return array{
-     *   interface_locale: string,
-     *   timezone: string,
-     *   reminder_time: string|null,
-     *   daily_goal: int,
-     *   goal: string|null,
-     *   level: string|null,
-     *   active_course: array{slug: string, title: string}|null,
-     *   options: array{
-     *     locales: list<array{id: string, label: string}>,
-     *     timezones: list<array{id: string, label: string}>,
-     *     reminder_times: list<string>,
-     *     daily_goals: list<int>
-     *   }
-     * }
+     * @return SettingsPayload
      */
     public function describe(Learner $learner): array
     {
@@ -144,7 +169,7 @@ final class LearnerSettingsService
             'daily_goal' => $learner->daily_goal,
             'goal' => $learner->goal,
             'level' => $learner->level,
-            'active_course' => $this->activeCourse($learner),
+            'active_course' => $this->activeCourse($learner, $locale),
             'options' => [
                 'locales' => array_map(
                     fn (string $id): array => ['id' => $id, 'label' => (string) config('localization.names.'.$id, $id)],
@@ -176,10 +201,10 @@ final class LearnerSettingsService
         ));
     }
 
-    /** @return list<string> every IANA id a learner may set */
+    /** @return list<string> every time zone id a learner may set (IANA ids and their legacy aliases) */
     public function knownTimezones(): array
     {
-        return DateTimeZone::listIdentifiers();
+        return DateTimeZone::listIdentifiers(DateTimeZone::ALL_WITH_BC);
     }
 
     /** @return list<int> */
@@ -248,8 +273,11 @@ final class LearnerSettingsService
             && (int) $m[2] % self::REMINDER_STEP_MINUTES === 0;
     }
 
-    /** `next_reminder_at` for the learner's current time zone and `reminder_time` (`NULL` = reminders are off). */
-    private function scheduleReminder(Learner $learner): void
+    /**
+     * Sets `next_reminder_at` (not saved) for the learner's current time zone and `reminder_time`
+     * (`NULL` = reminders are off). Shared with {@see OnboardingService}.
+     */
+    public function scheduleReminder(Learner $learner): void
     {
         $time = $learner->reminder_time;
 
@@ -259,7 +287,7 @@ final class LearnerSettingsService
     }
 
     /** @return array{slug: string, title: string}|null null while the learner has no course or it is no longer available */
-    private function activeCourse(Learner $learner): ?array
+    private function activeCourse(Learner $learner, string $locale): ?array
     {
         if ($learner->active_course_id === null) {
             return null;
@@ -270,8 +298,6 @@ final class LearnerSettingsService
             return null;
         }
 
-        $title = $this->catalog->listing($course, $learner)->course->title;
-
-        return ['slug' => $course->slug, 'title' => $title];
+        return ['slug' => $course->slug, 'title' => $this->catalog->title($course, $locale)];
     }
 }
