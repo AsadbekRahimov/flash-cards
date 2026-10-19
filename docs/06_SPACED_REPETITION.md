@@ -174,8 +174,8 @@ review-карточку** (то есть после того, как слово 
    **Бюджет** (`NewCardBudget`, docs/12 §5.3): `remaining(learnerId, now)` вычисляется под той же блокировкой;
    `null` — безлимит (по умолчанию и для Pro), `<= 0` — шаг пропускается, строка не создаётся. Повторения бюджетом
    **никогда** не ограничиваются. Бюджет отдаёт `NewCardBudgetResolver::budgetFor(Learner, now)` (контракт в
-   `App\Domain\Learning\Contracts`); по умолчанию привязан `UnlimitedNewCardBudgetResolver`, квота Free (задача 1.4b)
-   перепривязывает контракт и строит `NewCardBudget::lazy(fn ($learnerId, $now) => limit − выдано сегодня)`,
+   `App\Domain\Learning\Contracts`); привязан `NewWordQuota` (задача 1.4b: Pro → `unlimited()`, Free →
+   `NewCardBudget::lazy(fn ($learnerId, $now) => limit − выдано сегодня)`; `UnlimitedNewCardBudgetResolver` остался для тестов),
    где «сегодня» — `LearnerClock::dayBoundsUtc($learner, $now)` → `[startUtc, endUtc)` локального дня, а «выдано» —
    `word_repetitions.created_at` в этих границах (не `learner_daily_stats.new_words_count`, docs/12 §1.6).
    **Порядок блокировок** (1.3b, обязателен для всех будущих правок). Пикер держит строку `learners`

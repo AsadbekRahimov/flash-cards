@@ -125,6 +125,16 @@ export const ru = {
   'promo.success_until': 'Pro активен до {date}.',
   'promo.success_forever': 'Pro активен без ограничения по сроку.',
 
+  // ---- paywall (Free quota, mode coming_soon; docs/12 §5.4) ----
+  'paywall.title': 'Pro скоро',
+  'paywall.lead_quota': 'Лимит новых слов на сегодня исчерпан — повторения доступны без ограничений.',
+  'paywall.soon': 'Pro скоро откроется.',
+  'paywall.free': 'Сейчас у вас тариф Free: {count} новых слов в день, повторения — без лимита.',
+  'paywall.free_generic': 'Сейчас у вас тариф Free: новые слова ограничены дневным лимитом, повторения — без лимита.',
+  'paywall.contact': 'Учитесь в центре? Попросите администратора центра подключить LexiFlow Pro:',
+  'paywall.dismiss': 'Понятно',
+  'paywall.open': 'Узнать о Pro',
+
   // ---- course catalog ----
   'catalog.title': 'Курсы',
   'catalog.open': 'Каталог курсов',

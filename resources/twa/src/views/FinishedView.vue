@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import PaywallSheet from '@/components/PaywallSheet.vue'
 import PromoRedeem from '@/components/PromoRedeem.vue'
 import { useTrainingStore } from '@/stores/training'
 import { useTelegram } from '@/composables/useTelegram'
@@ -32,6 +33,9 @@ const reasonLabel = computed(() => {
   return reason ? t(`finished.reason.${reason}`) : null
 })
 
+// The end of today's new words is the moment to say what Free gives and what Pro will (docs/12 §5.4).
+const paywallOpen = ref(props.reason === 'new_quota_exhausted')
+
 notificationHaptic('success')
 </script>
 
@@ -57,7 +61,16 @@ notificationHaptic('success')
           {{ t('today.streak.at_risk') }}
         </div>
       </div>
-      <PromoRedeem />
+      <PromoRedeem v-if="reason !== 'new_quota_exhausted'" />
+      <button
+        v-else
+        type="button"
+        class="text-tg-link underline w-full text-center"
+        data-testid="paywall-open"
+        @click="paywallOpen = true"
+      >
+        {{ t('paywall.open') }}
+      </button>
       <RouterLink :to="{ name: 'today' }" class="btn btn-primary w-full" data-testid="home-btn">
         {{ t('finished.home') }}
       </RouterLink>
@@ -65,5 +78,6 @@ notificationHaptic('success')
         {{ t('common.close') }}
       </button>
     </div>
+    <PaywallSheet v-if="paywallOpen" reason="quota" @close="paywallOpen = false" />
   </section>
 </template>

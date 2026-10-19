@@ -576,9 +576,10 @@ final class PromoCodeService
 
 abstract class BillingException extends RuntimeException { public readonly string $errorCode; abstract public function httpStatus(): int; } // база PromoCodeException / SubscriptionException / PlanException (plan_unknown, 422)
 
-final class NewWordQuota   // задача 1.4b
+final class NewWordQuota implements NewCardBudgetResolver   // задача 1.4b (реализовано)
 {
-    public function budget(Learner $l, Entitlement $e, ?CarbonImmutable $now = null): NewCardBudget; // remaining = limit - learner_daily_stats.today.new_words_count (fallback: count word_repetitions created в локальном дне)
+    public function budgetFor(Learner $l, CarbonImmutable $now): NewCardBudget;   // Pro (newWordsPerDay = null) → unlimited(); Free → lazy(limit − count(word_repetitions за локальный день)); план — EntitlementResolver::for, ВНЕ транзакции выдачи
+    public function remaining(Learner $l, ?CarbonImmutable $now = null): ?int;    // тот же подсчёт без блокировки — для /today и quota.new_words_remaining; null = безлимит
 }
 ```
 
@@ -727,6 +728,14 @@ liveUntil(s) = current_period_ends_at (+ grace_days, если provider авто�
 - **Гонка двух вкладок:** внутри транзакции `pickNewInTransaction` сначала `Learner::whereKey($id)->lockForUpdate()` (сериализует выдачу новых карточек одного learner'а; существующий `lockForUpdate` на строке `words` убрать — он блокирует глобальную строку слова для всех учеников), затем пересчёт `remaining` по `learner_daily_stats` под той же блокировкой, затем INSERT. На sqlite `FOR UPDATE` игнорируется (блокировка всей БД делает то же).
 - **Граница дня:** `LearnerClock::dayBoundsUtc($learner, $now)` → `[startUtc, endUtc)` текущего локального дня; `remaining = limit − count(word_repetitions WHERE learner_id = ? AND created_at >= startUtc AND created_at < endUtc)` (см. уточнение в §1.6 и §3.1 — `new_words_count` для квоты не используется). Смена часового пояса в настройках сдвигает границы «сегодня» — выданные карточки с `created_at` вне нового окна в квоту не попадают; это та же «мелкая аномалия», что и у streak (§7.4), не эксплойт: лимит — 20 выдач за любой локальный день.
 - Лимит и фичи — только в `config/billing.php`; Pro — `null` (безлимит).
+
+> **Реализация 1.4b (2026-10-19).**
+> - `NewWordQuota` (`app/Domain/Billing/Services`) привязан к `NewCardBudgetResolver` в `AppServiceProvider::register`. `budgetFor()` вызывает `EntitlementResolver::for` до транзакции пикера (кэш; при промахе читает подписки) — замыкание под блокировкой learner'а делает один `COUNT(*)` по `word_repetitions (learner_id, created_at)` (индекс есть), без других блокировок (docs/06 §4.2). `CardPicker`, `TrainingScope` и сервисы оценки не менялись.
+> - **Групповые сессии не исключены:** строка `word_repetitions` создаётся при первой выдаче слова в любом режиме, а learner один — Free-ученик в групповом уроке упирается в тот же дневной лимит (`new_quota_exhausted`, сессия остаётся открытой для due/learning). Спонсорский Pro центра (§5.1) снимает лимит, как и личный.
+> - **`quota.new_words_remaining`** — `TrainingStep::$newWordsRemaining`, считается `TrainingFlowService::nextStep` через тот же `NewCardBudget::remaining` *после* выбора карточки (только что выданная новая уже учтена), включая шаги `done` и `session_cap`; `TrainingNextResource` отдаёт `quota: {new_words_remaining}`, оно же вложено в `/start`, `/review` и `POST /training/sessions`. `/today.new_words_remaining` — `NewWordQuota::remaining` (одна точка в `TodayService::summary`).
+> - **Смена часового пояса:** граница дня берётся по `learners.timezone` на момент запроса. Если новое окно по-прежнему содержит выданные сегодня карточки — счётчик не меняется (проверено: Tashkent → Dubai/Almaty/Moscow); если окно сдвинулось так, что они выпали (Tashkent → Honolulu позже 10:00 UTC) — они не считаются: лимит «не больше `limit` выдач за любое локальное окно», та же мелкая аномалия, что у streak (§7.4). Формулировка строки 1.4b «смена tz не сбрасывает счётчик» читается именно так.
+> - **TWA:** `PaywallSheet` (`mode = coming_soon`) + стор `billing` (`GET /me`: лимит и `paywall.contact`), `PromoRedeem` умеет `emit('redeemed')`; после успешного кода обновляются `/me` и `/today`. Показывается на `FinishedView` при `new_quota_exhausted` и по кнопке «Узнать о Pro» на `TodayView` у Free. Контакт — `@handle` → `t.me`, e-mail → `mailto:`, `http(s)` → как есть, иное — текст (правила `SiteLinks::supportContact`), без `v-html`.
+> - **`paywall.shown`:** в коде нет клиентского канала продуктовых событий (`ProductEventRecorder` вызывается только сервером), поэтому клиент событие **не отправляет**. Варианты: (а) `POST /api/twa/events {name: 'paywall.shown', reason}` с белым списком имён, throttle и записью через `ProductEventRecorder`; (б) серверная запись при выдаче `done_reason = new_quota_exhausted` с дедупликацией «раз в локальный день» (`Cache::add`), без нового эндпоинта — но тогда считается «упёрся в лимит», а не «увидел paywall». Решение — за координатором (отдельная задача).
 
 ### 5.4 Paywall в Фазе 1
 

@@ -3,6 +3,9 @@ import { ref } from 'vue'
 import { api } from '@/api'
 import { errorMessage } from '@/i18n/errors'
 import { useI18n } from '@/i18n'
+import type { MeResponse } from '@/api/types'
+
+const emit = defineEmits<{ redeemed: [me: MeResponse] }>()
 
 const { t, locale } = useI18n()
 
@@ -28,6 +31,7 @@ async function submit(): Promise<void> {
     const until = me.entitlement.until
     success.value = until ? t('promo.success_until', { date: formatDate(until) }) : t('promo.success_forever')
     code.value = ''
+    emit('redeemed', me)
   } catch (err) {
     error.value = errorMessage(err, 'training')
   } finally {
