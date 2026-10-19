@@ -186,6 +186,85 @@ describe('PaywallSheet', () => {
     expect(w.emitted('close')).toHaveLength(2)
   })
 
+  describe('repeat words', () => {
+    const withDue = (dueCount: number | null) => {
+      if (dueCount !== null) useTodayStore().data = { due_count: dueCount } as never
+    }
+
+    it('offers a review when cards are due and tells the parent', async () => {
+      withDue(5)
+      const w = await render(me(), { reason: 'quota' })
+
+      expect(w.get('[data-testid=paywall-review]').text()).toBe('Повторить слова')
+      await w.get('[data-testid=paywall-review]').trigger('click')
+
+      expect(w.emitted('review')).toHaveLength(1)
+      expect(w.emitted('close')).toBeUndefined()
+    })
+
+    it.each([[0], [null]])('is not offered when nothing is due (%s)', async (due) => {
+      withDue(due)
+      const w = await render()
+
+      expect(w.find('[data-testid=paywall-review]').exists()).toBe(false)
+    })
+
+    it('goes away once a promo code made the learner Pro', async () => {
+      withDue(5)
+      vi.mocked(api.promo.redeem).mockResolvedValue(me({ plan: 'pro' }))
+      vi.mocked(api.today.get).mockResolvedValue({ due_count: 5 } as never)
+      const w = await render()
+
+      await w.get('[data-testid=promo-toggle]').trigger('click')
+      await w.get('[data-testid=promo-input]').setValue('PRO30')
+      await w.get('form').trigger('submit')
+      await flushPromises()
+
+      expect(w.find('[data-testid=paywall-review]').exists()).toBe(false)
+    })
+
+    it('renders in Uzbek', async () => {
+      setLocale('uz')
+      withDue(2)
+      const w = await render()
+
+      expect(w.get('[data-testid=paywall-review]').text()).toBe("So'zlarni takrorlash")
+    })
+  })
+
+  describe('accessibility', () => {
+    it('moves the focus into the dialog and closes on Escape', async () => {
+      const w = mount(PaywallSheet, { attachTo: document.body })
+      vi.mocked(api.me.get).mockResolvedValue(me())
+      await flushPromises()
+
+      expect(document.activeElement).toBe(w.get('[data-testid=paywall]').element)
+
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }))
+      expect(w.emitted('close')).toBeUndefined()
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+      expect(w.emitted('close')).toHaveLength(1)
+
+      w.unmount()
+    })
+
+    it('stops listening for Escape and gives the focus back when it is gone', async () => {
+      const opener = document.createElement('button')
+      document.body.appendChild(opener)
+      opener.focus()
+      const w = mount(PaywallSheet, { attachTo: document.body })
+      await flushPromises()
+      expect(document.activeElement).not.toBe(opener)
+
+      w.unmount()
+
+      expect(document.activeElement).toBe(opener)
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+      expect(w.emitted('close')).toBeUndefined()
+      opener.remove()
+    })
+  })
+
   it('renders in Uzbek', async () => {
     setLocale('uz')
     const w = await render(me({ contact: '@lexiflow_help' }), { reason: 'quota' })

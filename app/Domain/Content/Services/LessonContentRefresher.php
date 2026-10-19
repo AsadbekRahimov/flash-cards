@@ -17,6 +17,7 @@ final class LessonContentRefresher
     public function __construct(
         private readonly LearningCache $cache,
         private readonly CoursePublisher $publisher,
+        private readonly WordAudioService $audio,
     ) {}
 
     public function wordChanged(Word $word): void
@@ -32,5 +33,11 @@ final class LessonContentRefresher
         if ($course !== null) {
             $this->publisher->recount($course);
         }
+    }
+
+    /** The English text of a word was edited in the admin panel: its pre-generated audio is stale. */
+    public function wordTextChanged(Word $word): void
+    {
+        $this->audio->textChanged($word);
     }
 }

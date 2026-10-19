@@ -60,7 +60,14 @@ class WordsRelationManager extends RelationManager
             ])
             ->actions([
                 Actions\EditAction::make()
-                    ->after(fn (Word $record) => app(WordTranslationWriter::class)->syncDefaultFromWord($record)),
+                    ->after(function (Word $record): void {
+                        $textChanged = $record->wasChanged('word');
+
+                        app(WordTranslationWriter::class)->syncDefaultFromWord($record);
+                        if ($textChanged) {
+                            app(LessonContentRefresher::class)->wordTextChanged($record);
+                        }
+                    }),
                 Actions\Action::make('translations')
                     ->label('Translations')
                     ->icon('heroicon-o-language')

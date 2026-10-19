@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import PromoRedeem from '@/components/PromoRedeem.vue'
 import { useTrainingStore } from '@/stores/training'
@@ -18,6 +18,7 @@ const REASONS = ['lesson_complete', 'nothing_due', 'new_quota_exhausted', 'sessi
 
 const { close, notificationHaptic } = useTelegram()
 const { t, tn } = useI18n()
+const router = useRouter()
 const training = useTrainingStore()
 
 // Goal and streak of the day come with the server summary of a personal session (absent for group sessions).
@@ -35,6 +36,13 @@ const reasonLabel = computed(() => {
 
 // The end of today's new words is the moment to say what Free gives and what Pro will (docs/12 §5.4).
 const paywallOpen = ref(props.reason === 'new_quota_exhausted')
+
+/** "Repeat words" in the paywall: closes it and starts a daily review; a failure is shown on this screen. */
+async function reviewFromPaywall(): Promise<void> {
+  paywallOpen.value = false
+  const sessionId = await training.open({ mode: 'daily_review', source: 'self' })
+  if (sessionId !== null) await router.push({ name: 'training', params: { sessionId } })
+}
 
 notificationHaptic('success')
 </script>
@@ -71,6 +79,7 @@ notificationHaptic('success')
       >
         {{ t('paywall.open') }}
       </button>
+      <p v-if="training.openError" class="text-sm text-red-600" data-testid="open-error">{{ training.openError }}</p>
       <RouterLink :to="{ name: 'today' }" class="btn btn-primary w-full" data-testid="home-btn">
         {{ t('finished.home') }}
       </RouterLink>
@@ -78,6 +87,6 @@ notificationHaptic('success')
         {{ t('common.close') }}
       </button>
     </div>
-    <PaywallSheet v-if="paywallOpen" reason="quota" @close="paywallOpen = false" />
+    <PaywallSheet v-if="paywallOpen" reason="quota" @close="paywallOpen = false" @review="reviewFromPaywall" />
   </section>
 </template>

@@ -49,7 +49,7 @@ COPY --from=frontend --chown=app:app /build/public/twa ./public/twa
 
 RUN mkdir -p \
         bootstrap/cache \
-        storage/app/public \
+        storage/app/public/audio \
         storage/framework/cache \
         storage/framework/sessions \
         storage/framework/views \
