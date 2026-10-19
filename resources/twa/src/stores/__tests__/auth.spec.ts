@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { useAuthStore } from '../auth'
 import { api } from '@/api'
+import { getLocale, setLocale } from '@/i18n'
 
 vi.mock('@/api', () => ({
   api: {
@@ -32,6 +33,20 @@ describe('auth store — one learner for every session', () => {
     expect(auth.learner).toEqual(learner)
     expect(auth.token).toBe('jwt-1')
     expect(auth.isAuthenticated).toBe(true)
+  })
+
+  it('switches the interface to the learner\'s own language on login, and ignores one it does not know', async () => {
+    const auth = useAuthStore()
+    vi.mocked(api.auth.authenticate).mockResolvedValue({ token: 'jwt-1', expires_in: 900, learner: { ...learner, locale: 'uz' } })
+
+    await auth.login()
+    expect(getLocale()).toBe('uz')
+
+    vi.mocked(api.auth.authenticate).mockResolvedValue({ token: 'jwt-2', expires_in: 900, learner: { ...learner, locale: 'de' } })
+    await auth.login()
+    expect(getLocale()).toBe('uz')
+
+    setLocale('ru')
   })
 
   it('does not log in again when only the context changes', async () => {

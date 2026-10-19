@@ -7,6 +7,7 @@ namespace App\Domain\Twa\Services;
 use App\Domain\Billing\DTO\Entitlement;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Learners\Services\GroupMembershipService;
+use App\Domain\Learners\Services\LearnerSettingsService;
 use App\Domain\Learning\DTO\LearnerStats;
 use App\Domain\Learning\Services\LearnerStatsService;
 use App\Models\Learner;
@@ -23,6 +24,7 @@ final class MePayloadBuilder
         private readonly LearnerStatsService $stats,
         private readonly GroupMembershipService $memberships,
         private readonly EntitlementResolver $entitlements,
+        private readonly LearnerSettingsService $settings,
     ) {}
 
     /**
@@ -31,7 +33,8 @@ final class MePayloadBuilder
      *   groups: Collection<int, TelegramGroup>,
      *   stats: LearnerStats,
      *   entitlement: Entitlement,
-     *   paywall: array{mode: string, contact: string|null}
+     *   paywall: array{mode: string, contact: string|null},
+     *   settings: array<string, mixed>
      * }
      */
     public function build(Learner $learner): array
@@ -42,6 +45,7 @@ final class MePayloadBuilder
             'stats' => $this->stats->forLearner($learner),
             'entitlement' => $this->entitlements->for($learner),
             'paywall' => $this->entitlements->paywall(),
+            'settings' => $this->settings->describe($learner),
         ];
     }
 }

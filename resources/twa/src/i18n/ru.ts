@@ -125,6 +125,16 @@ export const ru = {
   'promo.success_until': 'Pro активен до {date}.',
   'promo.success_forever': 'Pro активен без ограничения по сроку.',
 
+  // ---- paywall (Free quota, mode coming_soon; docs/12 §5.4) ----
+  'paywall.title': 'Pro скоро',
+  'paywall.lead_quota': 'Лимит новых слов на сегодня исчерпан — повторения доступны без ограничений.',
+  'paywall.soon': 'Pro скоро откроется.',
+  'paywall.free': 'Сейчас у вас тариф Free: {count} новых слов в день, повторения — без лимита.',
+  'paywall.free_generic': 'Сейчас у вас тариф Free: новые слова ограничены дневным лимитом, повторения — без лимита.',
+  'paywall.contact': 'Учитесь в центре? Попросите администратора центра подключить LexiFlow Pro:',
+  'paywall.dismiss': 'Понятно',
+  'paywall.open': 'Узнать о Pro',
+
   // ---- course catalog ----
   'catalog.title': 'Курсы',
   'catalog.open': 'Каталог курсов',
@@ -148,15 +158,35 @@ export const ru = {
   'course.learn': 'Учить',
   'course.no_lessons': 'В курсе пока нет уроков.',
 
+  // ---- settings ----
+  'settings.title': 'Настройки',
+  'settings.language': 'Язык интерфейса',
+  'settings.timezone': 'Часовой пояс',
+  'settings.reminder': 'Напоминания',
+  'settings.reminder.off': 'Без напоминаний',
+  'settings.reminder.hint': 'Время — по вашему часовому поясу.',
+  'settings.daily_goal': 'Цель на день',
+  'settings.daily_goal.option': {
+    one: '{count} карточка',
+    few: '{count} карточки',
+    many: '{count} карточек',
+    other: '{count} карточки',
+  },
+  'settings.course': 'Активный курс',
+  'settings.course.none': 'Курс не выбран',
+  'settings.saved': 'Сохранено',
+
   // ---- errors (by kind / context) ----
   'error.closed.training': 'Эта тренировка уже закрыта: она завершена или время сессии истекло.',
   'error.closed.exam': 'Экзамен был завершён учителем.',
   'error.closed.catalog': 'Курс больше недоступен.',
   'error.closed.today': 'Экран «Сегодня» больше недоступен.',
+  'error.closed.settings': 'Настройки больше недоступны.',
   'error.forbidden.training': 'У вас нет доступа к этой тренировке.',
   'error.forbidden.exam': 'У вас нет доступа к этому экзамену.',
   'error.forbidden.catalog': 'У вас нет доступа к каталогу курсов.',
   'error.forbidden.today': 'У вас нет доступа к экрану «Сегодня».',
+  'error.forbidden.settings': 'У вас нет доступа к настройкам.',
   'error.network': 'Нет связи с сервером. Попробуйте ещё раз.',
   'error.rate_limited': 'Слишком много запросов. Подождите немного и повторите.',
   'error.server': 'Сервер временно недоступен. Попробуйте позже.',

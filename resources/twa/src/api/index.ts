@@ -16,6 +16,7 @@ import type {
   Quality,
   ReviewResponse,
   SessionSummary,
+  SettingsPatch,
   TodayResponse,
   TrainingStartResponse,
 } from './types'
@@ -49,6 +50,7 @@ export const api = {
   },
   me: {
     get: () => client().get<MeResponse>('/me'),
+    updateSettings: (patch: SettingsPatch) => client().patch<MeResponse>('/me/settings', { ...patch }),
   },
   today: {
     get: () => client().get<TodayResponse>('/today'),

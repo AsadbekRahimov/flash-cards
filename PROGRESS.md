@@ -15,17 +15,17 @@
 | 1.1a | Схема learner-first, аддитивно: `organizations`, `courses`, `learners`, `group_members`, `word_translations`, `learner_daily_stats`, `subscriptions`, `promo_*`; правки `telegram_groups`/`stages`/`words`; модели, factories, курс `default` в сидере; docs/03 (docs/12 §2.3, §9) | coder | ✅ |
 | 1.1b | Переход на Learner: `student_id` → `learner_id` в create-миграциях, удаление `students`/`Student*`, `LearnerRegistrar`, `GroupMembershipService`, `LearnerContextResolver`, JWT v2, политики по членству, `PanelDataScope::learners()`, Filament/TWA, `DemoLearnersSeeder`, тесты по смыслу (docs/12 §9) | coder (консультация architect по политикам/экзамену при затруднении) | ✅ |
 | 1.2a | Курсы и переводы: `CourseCatalogService`, `CoursePublisher`, `WordTranslationResolver`, импорт v2, Filament курсы/переводы, stage в курсе группы | coder | ✅ |
-| 1.2b | Каталог курсов в TWA (`/courses`, выбор курса) | coder | ⏳ |
-| 1.2c | Предгенерация аудио (edge-tts → `words.audio_path`) | coder | ⏳ |
-| 1.3a | Личные сессии и scope (`daily_review`, `lesson`), `CardPicker::pickNext(scope, budget)` | architect → coder | ⏳ |
-| 1.3b | «Сегодня», дневная цель, streak (`LearnerClock`, `DailyStatsService`, `StreakService`, `GET /today`) | architect → coder | ⏳ |
-| 1.4a | Entitlement, подписки, промокоды (ядро — architect; Filament, `/promo/redeem`, `/me.entitlement`, бот `/promo` — coder) | architect → coder | 🚧 (ядро ✅) |
-| 1.4b | Квота Free (20 новых слов/день) и paywall «Pro скоро» + промокод + контакт | coder | ⏳ |
-| 1.5a | Онбординг в боте `/start` (язык, цель, уровень, пояс, время) | coder | ⏳ |
-| 1.5b | Напоминания по локальному времени + `dm_blocked_at` | architect → coder | ⏳ |
+| 1.2b | Каталог курсов в TWA (`/courses`, выбор курса) | coder | ✅ |
+| 1.2c | Предгенерация аудио (edge-tts → `words.audio_path`) | coder | ✅ (ревью — в 1.10) |
+| 1.3a | Личные сессии и scope (`daily_review`, `lesson`), `CardPicker::pickNext(scope, budget)` | architect → coder | ✅ |
+| 1.3b | «Сегодня», дневная цель, streak (`LearnerClock`, `DailyStatsService`, `StreakService`, `GET /today`) | architect → coder | 🚧 (исправления по ревью) |
+| 1.4a | Entitlement, подписки, промокоды (ядро — architect; Filament, `/promo/redeem`, `/me.entitlement`, бот `/promo` — coder) | architect → coder | ✅ |
+| 1.4b | Квота Free (20 новых слов/день) и paywall «Pro скоро» + промокод + контакт | coder | 🚧 |
+| 1.5a | Онбординг в боте `/start` (язык, цель, уровень, пояс, время) | coder | ✅ |
+| 1.5b | Напоминания по локальному времени + `dm_blocked_at` | architect | 🚧 |
 | 1.6 | Настройки (`PATCH /me/settings`, `SettingsView`, `/settings` в боте) | coder | ⏳ |
 | 1.7 | Публичный лендинг `/`, `/offer`, `/privacy` (ru/uz), `security.txt`; оферта и политика — шаблоны до текстов владельца | coder | ✅ (тексты — владелец) |
-| 1.8 | Админка платформы: виджеты learners/воронка/Pro/места организаций | coder | ⏳ |
+| 1.8 | Админка платформы: виджеты learners/воронка/Pro/места организаций | coder | 🚧 |
 | 1.9 | Контент MVP: курсы A1–B2 + переводы uz/ru | владелец + coder | ⏳ |
 | 1.10 | Ревью фазы, smoke на демо-стенде | координатор / reviewer | ⏳ |
 | — | Оплата (Stars/Payme/Click) — **отложена владельцем**, за пределами Фазы 1 | — | ⏸ |
@@ -36,6 +36,13 @@
 **1.2a принята (2026-10-18):** ревью + повторное ревью; блокирующее (импорт учителем в любой курс) закрыто — импорт только для admin с проверкой в сервисе. Неактивные слова не участвуют в экзамене, дистракторы — из своего курса, чужие только опубликованные; курс `default` нельзя архивировать; порог публикации учитывает `words.translation`. Доработки ревью (явный системный актор импорта, подгрузка чужих курсов по языку ответа, белый список `visibility = public`) — отдельной задачей. `is_active` в `CardPicker`/счётчиках прогресса — в 1.3a.
 
 **1.7 принята (2026-10-18):** лендинг/оферта/политика без cookies и CSRF, язык по `Accept-Language` + канонические `/{ru|uz}/…`, статический `public/css/site.css`, контакт поддержки — `config('billing.paywall.contact')` (env `BILLING_SUPPORT_CONTACT`), ссылки от `APP_URL`, CSP `script-src 'none'`. От владельца: тексты оферты и политики (ru/uz), реквизиты, `TELEGRAM_BOT_USERNAME`, `BILLING_SUPPORT_CONTACT`, контакт для `public/.well-known/security.txt` (сейчас заглушка), проверка uz-текстов лендинга носителем.
+
+**1.2b, 1.3a, 1.4a, 1.5a приняты (2026-10-19)** после ревью и исправлений; 1.2c — сделана, ревью в составе 1.10. Ключевое по ревью:
+- 1.3a: выдача новой карточки под `FOR NO KEY UPDATE` строки learner'а (две вкладки не обходят квоту и не вводят слово дважды); единый порядок блокировок записан в docs/06 §4.2; групповая сессия старше половины TTL переоткрывается; просроченная личная — 410; флак теста гонки устранён (30/30 на PG).
+- 1.2b: одно правило доступности курса (`published` и не `private`) для каталога, уроков, `daily_review` и «Сегодня».
+- 1.4a: взаимная блокировка learners ↔ subscriptions (воспроизведена на PG) устранена единым порядком «субъект → подписка → FK-вставки»; детерминированные тесты гонок; `promo.rejected` + алерт; версионный кэш entitlement; лимит промокодов по IP 60/мин (CGNAT); выход из группы по `left_chat_member`; аудит правок промокодов и статусов организаций; отказы `TwaAuth` ограничены по IP (60/мин). Исправлен баг: TWA-лимиты считались по IP, а не по learner'у (`TwaAuth` теперь перед throttle).
+- 1.5a: лимит входящих в бот 30/мин на пользователя; повтор шага онбординга при сбое отправки; `next_reminder_at` считается при выборе пояса/времени.
+Хвосты: предупреждение при привязке группы, где бот не админ (нужен `getChatMember`); `ref_<id>` → непредсказуемый `referral_code` до наград за рефералов (Фаза 2); при подключении оплаты — согласованно сделать `canceled` live до конца периода (чек-лист в docs/12 §5.1/§6.2); перед запуском — заменить заглушку `security.txt`.
 
 ## Sprint 13 — Фаза 0 «Стабилизация ядра» ✅ (2026-10-18; 0.7 ждёт staging)
 

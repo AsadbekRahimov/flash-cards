@@ -15,14 +15,22 @@ declare(strict_types=1);
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Exceptions\BillingException;
 use App\Domain\Billing\Exceptions\PromoCodeException;
+use App\Domain\Billing\Services\NewWordQuota;
 use App\Domain\Billing\Services\PromoCodeService;
 use App\Domain\Billing\Services\SubscriptionService;
+use App\Domain\Learning\Services\CardPicker;
+use App\Domain\Learning\Support\TrainingScope;
+use App\Models\Course;
 use App\Models\Learner;
+use App\Models\Lesson;
 use App\Models\ProductEvent;
 use App\Models\PromoCode;
 use App\Models\PromoRedemption;
+use App\Models\Stage;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Models\Word;
+use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Support\Facades\DB;
@@ -320,4 +328,51 @@ it('does not deadlock when the expire scheduler and a manual grant hit the same 
         ->and(Subscription::query()->whereIn('status', ['trialing', 'active', 'past_due'])->count())->toBe(1)
         ->and(Subscription::query()->where('provider', 'manual')->where('subscriber_id', $learner->id)->sole()->id)->toBe($results[1]['result'])
         ->and(ProductEvent::query()->where('name', 'subscription.expired')->where('learner_id', $learner->id)->count())->toBe(1);
+});
+
+it('does not let several tabs of one Free learner exceed the daily new-word quota', function (): void {
+    config()->set('billing.plans.free.limits.new_words_per_day', 3);
+    $course = Course::factory()->published()->create();
+    $lesson = Lesson::factory()->create(['stage_id' => Stage::factory()->create(['course_id' => $course->id])->id]);
+    Word::factory()->count(8)->for($lesson)->create();
+    $learner = Learner::factory()->create(['timezone' => 'Asia/Tashkent']);
+    $learnerId = (int) $learner->id;
+    $lessonId = (int) $lesson->id;
+
+    $results = billingRunInParallel(array_fill(0, 6, function () use ($learnerId, $lessonId): array {
+        // Every contender sleeps between "count the day" and "INSERT the card" (inside the picker's transaction):
+        // without the learner-row lock around the count all of them would see 0 served cards and insert one.
+        WordRepetition::creating(static function (): void {
+            usleep(120_000);
+        });
+
+        $learner = Learner::query()->findOrFail($learnerId);
+        $outcomes = [];
+        for ($i = 0; $i < 3; $i++) {
+            $now = CarbonImmutable::now();
+            $pick = app(CardPicker::class)->pickNext(
+                $learnerId,
+                TrainingScope::lesson($lessonId),
+                app(NewWordQuota::class)->budgetFor($learner, $now),
+                $now,
+            );
+            $outcomes[] = $pick->hasCard() ? 'card' : (string) $pick->doneReason?->value;
+
+            // "Grade" the card the way a tab would: it is not due again.
+            if ($pick->repetition !== null) {
+                $pick->repetition->update(['next_review_at' => $now->addDay()]);
+            }
+        }
+
+        return $outcomes;
+    }));
+
+    expect(billingCodes($results))->toBe(array_fill(0, 6, 'ok'));
+
+    $outcomes = collect($results)->pluck('result')->flatten();
+    // Exactly the limit was ever introduced, however the six tabs interleaved ...
+    expect(WordRepetition::query()->where('learner_id', $learnerId)->count())->toBe(3)
+        ->and($outcomes->filter(fn (string $o): bool => $o === 'card')->count())->toBe(3)
+        // ... and every other attempt was stopped by the quota, not by an empty lesson.
+        ->and($outcomes->reject(fn (string $o): bool => $o === 'card')->unique()->values()->all())->toBe(['new_quota_exhausted']);
 });

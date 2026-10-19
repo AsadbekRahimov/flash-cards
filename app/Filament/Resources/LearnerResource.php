@@ -5,10 +5,15 @@ declare(strict_types=1);
 namespace App\Filament\Resources;
 
 use App\Domain\Administration\Services\PanelDataScope;
+use App\Domain\Billing\Services\EntitlementResolver;
+use App\Domain\Billing\Support\PaidSubscriptionQuery;
 use App\Domain\Learners\Services\LearnerModerationService;
+use App\Domain\Learners\Services\OnboardingService;
 use App\Filament\Resources\LearnerResource\Pages;
+use App\Filament\Resources\LearnerResource\RelationManagers;
 use App\Models\Learner;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Filament\Actions;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Pages\PageRegistration;
@@ -23,7 +28,8 @@ use Illuminate\Support\Facades\Auth;
  * Learners (one row per person). A teacher sees only the people with an active
  * membership in their groups, and only name / username plus learning metrics
  * limited to THEIR groups; identity (Telegram ID), global progress, settings and
- * moderation stay admin-only (docs/12 §4.4).
+ * moderation stay admin-only (docs/12 §4.4). The platform view — Telegram ID search, plan
+ * (Free / Pro by effective plan), onboarding state, subscriptions / events / daily stats tabs — is admin-only too.
  */
 class LearnerResource extends Resource
 {
@@ -54,6 +60,20 @@ class LearnerResource extends Resource
                 ->state(fn (Learner $record): string => self::groupTitles($record)),
             TextEntry::make('last_seen_at')->dateTime()->placeholder('Never')->visible($isAdmin),
             TextEntry::make('blocked_at')->dateTime()->placeholder('—')->visible($isAdmin),
+            TextEntry::make('onboarding_state')
+                ->label('Onboarding')
+                ->formatStateUsing(fn (string $state): string => $state === OnboardingService::DONE ? 'Done' : 'In progress ('.$state.')')
+                ->visible($isAdmin),
+            TextEntry::make('effective_plan')
+                ->label('Plan')
+                ->state(function (Learner $record): string {
+                    $entitlement = app(EntitlementResolver::class)->resolve($record);
+
+                    return ucfirst($entitlement->plan->value)
+                        .($entitlement->isSponsored() ? ' (sponsored by organization #'.substr($entitlement->source, strlen('sponsor:organization:')).')' : '')
+                        .($entitlement->until !== null ? ', until '.$entitlement->until->toDateTimeString() : '');
+                })
+                ->visible($isAdmin),
             TextEntry::make('repetitions_count')->label('Cards started')->visible($isAdmin),
             TextEntry::make('training_reviews_count')->label('Training reviews'),
             TextEntry::make('exam_answers_count')->label('Exam answers'),
@@ -74,8 +94,34 @@ class LearnerResource extends Resource
                 Tables\Columns\TextColumn::make('username')
                     ->prefix('@')
                     ->placeholder('—')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('telegram_user_id')->label('TG ID')->copyable()->toggleable()->visible($isAdmin),
+                    // "@name" and "name" both match; the leading @ is not part of the stored username.
+                    ->searchable(query: fn (Builder $query, string $search): Builder => $query->whereLike('username', '%'.ltrim(trim($search), '@').'%')),
+                // Searching by Telegram ID is exact (the number is an identity: never a partial match) and admin-only,
+                // also here, because a hidden column still takes part in the table search.
+                Tables\Columns\TextColumn::make('telegram_user_id')
+                    ->label('TG ID')
+                    ->copyable()
+                    ->toggleable()
+                    ->visible($isAdmin)
+                    ->searchable(query: fn (Builder $query, string $search): Builder => app(PanelDataScope::class)->isAdmin() && ctype_digit(trim($search)) && strlen(trim($search)) <= 18
+                        ? $query->where('learners.telegram_user_id', (int) trim($search))
+                        : $query->whereNull('learners.id')),
+                Tables\Columns\TextColumn::make('plan')
+                    ->label('Plan')
+                    ->badge()
+                    ->state(fn (Learner $record): string => match (true) {
+                        $record->getAttribute('personal_pro_id') !== null => 'Pro',
+                        $record->getAttribute('sponsor_pro_id') !== null => 'Pro (sponsored)',
+                        default => 'Free',
+                    })
+                    ->color(fn (string $state): string => $state === 'Free' ? 'gray' : 'success')
+                    ->visible($isAdmin),
+                Tables\Columns\IconColumn::make('onboarded')
+                    ->label('Onboarded')
+                    ->state(fn (Learner $record): bool => $record->onboarding_state === OnboardingService::DONE)
+                    ->boolean()
+                    ->toggleable()
+                    ->visible($isAdmin),
                 Tables\Columns\TextColumn::make('groups_list')
                     ->label('Groups')
                     ->state(fn (Learner $record): string => self::groupTitles($record)),
@@ -107,6 +153,24 @@ class LearnerResource extends Resource
                                 ->where('status', 'active'),
                         ))
                     ->label('Group'),
+                // Platform filters: admin only. `visible()` hides the control; the query closures re-check the
+                // role because the filter state comes from the client.
+                Tables\Filters\SelectFilter::make('plan')
+                    ->label('Plan')
+                    ->options(['free' => 'Free', 'pro' => 'Pro (own or sponsored)'])
+                    ->query(fn (Builder $query, array $data): Builder => self::filterByPlan($query, $data['value'] ?? null))
+                    ->visible($isAdmin),
+                Tables\Filters\TernaryFilter::make('onboarded')
+                    ->label('Onboarding')
+                    ->placeholder('All')
+                    ->trueLabel('Done')
+                    ->falseLabel('Not done')
+                    ->queries(
+                        true: fn (Builder $query): Builder => app(PanelDataScope::class)->isAdmin() ? $query->where('onboarding_state', OnboardingService::DONE) : $query,
+                        false: fn (Builder $query): Builder => app(PanelDataScope::class)->isAdmin() ? $query->where('onboarding_state', '<>', OnboardingService::DONE) : $query,
+                        blank: fn (Builder $query): Builder => $query,
+                    )
+                    ->visible($isAdmin),
             ])
             ->actions([
                 Actions\Action::make('toggleBlocked')
@@ -143,7 +207,7 @@ class LearnerResource extends Resource
         $sessionIds = $scope->trainingSessionIds();
         $examIds = $scope->exams()->select('exam_sessions.id');
 
-        return $scope
+        $query = $scope
             ->learners()
             ->with(['groups' => fn ($groups) => $groups
                 ->wherePivot('status', 'active')
@@ -153,6 +217,61 @@ class LearnerResource extends Resource
                 'trainingReviews' => fn (Builder $q): Builder => $q->whereIn('training_session_id', clone $sessionIds),
                 'examAnswers' => fn (Builder $q): Builder => $q->whereIn('exam_session_id', clone $examIds),
             ]);
+
+        if ($scope->isAdmin()) {
+            // The plan column in one query (no per-row entitlement lookups): the id of a granting own /
+            // sponsoring subscription, or NULL.
+            $now = CarbonImmutable::now();
+            $query->addSelect([
+                'personal_pro_id' => PaidSubscriptionQuery::personalFor($now)->select('subscriptions.id')->limit(1),
+                'sponsor_pro_id' => PaidSubscriptionQuery::sponsorFor($now)->select('subscriptions.id')->limit(1),
+            ]);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Free / Pro by EFFECTIVE plan, as two correlated EXISTS (own granting subscription, or a granting
+     * subscription of an active organization the learner is sponsored by), evaluated by the database for
+     * the page being rendered instead of resolving every learner in PHP. The rule is the SQL twin of
+     * EntitlementResolver (see PaidSubscriptionQuery); admin only.
+     *
+     * @param  Builder<Learner>  $query
+     * @return Builder<Learner>
+     */
+    private static function filterByPlan(Builder $query, mixed $plan): Builder
+    {
+        if (! app(PanelDataScope::class)->isAdmin() || ! in_array($plan, ['free', 'pro'], true)) {
+            return $query;
+        }
+
+        $now = CarbonImmutable::now();
+
+        return $plan === 'pro'
+            ? $query->where(fn (Builder $q): Builder => self::wherePro($q, $now))
+            : $query->whereNot(fn (Builder $q): Builder => self::wherePro($q, $now));
+    }
+
+    /**
+     * @param  Builder<Learner>  $query
+     * @return Builder<Learner>
+     */
+    private static function wherePro(Builder $query, CarbonImmutable $now): Builder
+    {
+        return $query
+            ->whereExists(PaidSubscriptionQuery::personalFor($now)->select('subscriptions.id'))
+            ->orWhereIn('learners.id', PaidSubscriptionQuery::sponsoredLearnerIds($now));
+    }
+
+    /** @return array<int, class-string> */
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\SubscriptionsRelationManager::class,
+            RelationManagers\ProductEventsRelationManager::class,
+            RelationManagers\DailyStatsRelationManager::class,
+        ];
     }
 
     /** @return array<string, PageRegistration> */

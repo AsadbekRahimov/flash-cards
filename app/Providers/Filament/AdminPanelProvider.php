@@ -7,6 +7,9 @@ namespace App\Providers\Filament;
 use App\Filament\Widgets\ActivityChartWidget;
 use App\Filament\Widgets\ExamsLast30DaysWidget;
 use App\Filament\Widgets\HardestWordsTableWidget;
+use App\Filament\Widgets\OnboardingFunnelWidget;
+use App\Filament\Widgets\OrganizationSeatsTableWidget;
+use App\Filament\Widgets\PlatformSubscriptionsWidget;
 use App\Filament\Widgets\TopLearnersTableWidget;
 use App\Filament\Widgets\TotalLearnersWidget;
 use App\Http\Middleware\RequireTwoFactor;
@@ -50,6 +53,9 @@ class AdminPanelProvider extends PanelProvider
                 ActivityChartWidget::class,
                 TopLearnersTableWidget::class,
                 HardestWordsTableWidget::class,
+                PlatformSubscriptionsWidget::class,
+                OnboardingFunnelWidget::class,
+                OrganizationSeatsTableWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

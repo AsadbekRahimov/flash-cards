@@ -15,8 +15,6 @@ use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Course;
 use App\Models\Learner;
 use Carbon\CarbonImmutable;
-use DateTimeImmutable;
-use DateTimeZone;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -63,6 +61,7 @@ final class OnboardingService
         private readonly CourseCatalogService $catalog,
         private readonly ProductEventRecorder $events,
         private readonly LearnerClock $clock,
+        private readonly LearnerSettingsService $settings,
     ) {}
 
     /**
@@ -174,7 +173,8 @@ final class OnboardingService
 
     /**
      * `/settings` — change one onboarding value of a learner who has finished the onboarding.
-     * Same whitelists as {@see self::apply()}, but no state machine.
+     * Same whitelists as {@see self::apply()}, but no state machine; the change itself (and the
+     * `next_reminder_at` it implies) is {@see LearnerSettingsService::update()}.
      *
      * @throws OnboardingException when the onboarding is not finished or $value is not allowed for $step
      */
@@ -182,21 +182,13 @@ final class OnboardingService
     {
         $changes = $this->changes($step, $value);
 
-        DB::transaction(function () use ($learner, $step, $changes): void {
-            $fresh = $this->lock($learner);
-            if ($fresh->onboarding_state !== self::DONE) {
-                throw OnboardingException::staleStep($step);
-            }
+        // `done` is terminal (nothing moves a learner back), so a read before the update is as good as a lock.
+        $state = Learner::query()->whereKey($learner->id)->value('onboarding_state');
+        if ($state !== self::DONE) {
+            throw OnboardingException::staleStep($step);
+        }
 
-            $fresh->fill($changes);
-            if ($step === 'timezone' || $step === 'reminder') {
-                $this->scheduleReminder($fresh);
-            }
-
-            $fresh->save();
-        });
-
-        $learner->refresh();
+        $this->settings->update($learner, $changes);
     }
 
     /** The message and buttons of $step (`done` and unknown states give the final / first one). */
@@ -242,9 +234,9 @@ final class OnboardingService
                     fn (string $zone): OnboardingOption => new OnboardingOption(
                         $zone,
                         'onboarding.options.timezone.'.strtolower((string) substr((string) strrchr($zone, '/'), 1)),
-                        ['offset' => $this->offsetLabel($zone)],
+                        ['offset' => $this->settings->offsetLabel($zone)],
                     ),
-                    $this->timezones(),
+                    $this->settings->timezoneOptions(),
                 );
             case 'reminder':
                 return [
@@ -280,7 +272,7 @@ final class OnboardingService
                 in_array($value, self::LEVELS, true) => ['level' => $value],
                 default => throw OnboardingException::invalidValue($step),
             },
-            'timezone' => in_array($value, $this->timezones(), true)
+            'timezone' => in_array($value, $this->settings->timezoneOptions(), true)
                 ? ['timezone' => $value]
                 : throw OnboardingException::invalidValue($step),
             'reminder' => match (true) {
@@ -290,29 +282,6 @@ final class OnboardingService
             },
             default => throw OnboardingException::invalidValue($step),
         };
-    }
-
-    /**
-     * Offered time zones that PHP also knows (a typo in the config can never become a value).
-     *
-     * @return list<string>
-     */
-    private function timezones(): array
-    {
-        $known = DateTimeZone::listIdentifiers();
-
-        return array_values(array_filter(
-            array_map('strval', (array) config('learners.timezone_options', [])),
-            fn (string $zone): bool => in_array($zone, $known, true),
-        ));
-    }
-
-    private function offsetLabel(string $zone): string
-    {
-        $seconds = (new DateTimeZone($zone))->getOffset(new DateTimeImmutable('now'));
-        $minutes = intdiv(abs($seconds) % 3600, 60);
-
-        return 'UTC'.($seconds < 0 ? '-' : '+').intdiv(abs($seconds), 3600).($minutes > 0 ? sprintf(':%02d', $minutes) : '');
     }
 
     /**

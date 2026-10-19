@@ -11,6 +11,7 @@ enum ProductEventName: string
     case OnboardingStepCompleted = 'onboarding.step_completed';
     case OnboardingCompleted = 'onboarding.completed';
     case CourseSelected = 'course.selected';
+    case SettingsChanged = 'settings.changed';
     case TrainingSessionOpened = 'training.session_opened';
     case TrainingSessionFinished = 'training.session_finished';
     case ExamStarted = 'exam.started';

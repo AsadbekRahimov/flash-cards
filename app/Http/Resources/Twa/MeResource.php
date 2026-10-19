@@ -14,7 +14,7 @@ use Illuminate\Support\Collection;
 /**
  * GET /api/twa/me
  *
- * @property array{learner: Learner, groups: Collection<int, TelegramGroup>, stats: LearnerStats, entitlement: Entitlement, paywall: array{mode: string, contact: string|null}} $resource
+ * @property array{learner: Learner, groups: Collection<int, TelegramGroup>, stats: LearnerStats, entitlement: Entitlement, paywall: array{mode: string, contact: string|null}, settings: array<string, mixed>} $resource
  */
 final class MeResource extends TwaResource
 {
@@ -24,7 +24,8 @@ final class MeResource extends TwaResource
      *   groups: list<array{id: int, title: string}>,
      *   stats: array{words_learned: int, words_due_today: int},
      *   entitlement: array{plan: string, source: string, until: string|null, new_words_per_day: int|null},
-     *   paywall: array{mode: string, contact: string|null}
+     *   paywall: array{mode: string, contact: string|null},
+     *   settings: array<string, mixed>
      * }
      */
     public function toArray(Request $request): array
@@ -57,6 +58,7 @@ final class MeResource extends TwaResource
                 'new_words_per_day' => $entitlement->newWordsPerDay,
             ],
             'paywall' => $this->resource['paywall'],
+            'settings' => $this->resource['settings'],
         ];
     }
 }

@@ -75,9 +75,16 @@ it('gives a 23-hour day on the Berlin spring-forward date and a 25-hour day on f
         ->and($clock->localDate($berlin, utc('2026-10-25 23:00:00')))->toBe('2026-10-26');
 });
 
-it('rejects a malformed local date', function (): void {
-    expect(fn () => (new LearnerClock)->localDateBoundsUtc(clockLearner('UTC'), '2026-1-5'))
+it('rejects a malformed or non-existent local date', function (string $date): void {
+    expect(fn () => (new LearnerClock)->localDateBoundsUtc(clockLearner('UTC'), $date))
         ->toThrow(InvalidArgumentException::class);
+})->with(['2026-1-5', '2026-02-30', '2026-13-01', '2026-00-10', '2026-04-31', '2026-10-19 ', '']);
+
+it('accepts a leap day only in a leap year', function (): void {
+    $clock = new LearnerClock;
+
+    expect($clock->localDateBoundsUtc(clockLearner('UTC'), '2028-02-29')->date)->toBe('2028-02-29')
+        ->and(fn () => $clock->localDateBoundsUtc(clockLearner('UTC'), '2026-02-29'))->toThrow(InvalidArgumentException::class);
 });
 
 it('falls back to the configured default zone and then UTC for an unknown timezone', function (): void {

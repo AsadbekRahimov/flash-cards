@@ -25,7 +25,38 @@ export interface MeResponse {
   }
   entitlement: Entitlement
   paywall: Paywall
+  settings: LearnerSettings
 }
+
+export interface SettingsChoice {
+  id: string
+  /** Localized by the server (the time zone with its UTC offset). */
+  label: string
+}
+
+/** `settings` of GET /me and of the answer to PATCH /me/settings (docs/04 A.2). */
+export interface LearnerSettings {
+  interface_locale: string
+  /** IANA id. */
+  timezone: string
+  /** `HH:MM` local time; null = reminders are off. */
+  reminder_time: string | null
+  daily_goal: number
+  goal: string | null
+  level: string | null
+  active_course: { slug: string; title: string } | null
+  options: {
+    locales: SettingsChoice[]
+    timezones: SettingsChoice[]
+    reminder_times: string[]
+    daily_goals: number[]
+  }
+}
+
+/** Body of PATCH /me/settings: only the fields to change; `reminder_time: null` turns the reminders off. */
+export type SettingsPatch = Partial<
+  Pick<LearnerSettings, 'interface_locale' | 'timezone' | 'reminder_time' | 'daily_goal' | 'goal' | 'level'>
+>
 
 /** `source`: 'free' | 'subscription' | 'sponsor:organization:<id>'; `until`: ISO 8601, null = no end. */
 export interface Entitlement {
@@ -51,6 +82,11 @@ export interface LessonHeader {
 /** Why a session has no card to show (docs/04 A.3). `null`/absent while there is a card. */
 export type DoneReason = 'lesson_complete' | 'nothing_due' | 'new_quota_exhausted' | 'session_cap'
 
+/** Free new-word quota after the step (docs/04 A.3); `new_words_remaining` null = unlimited. */
+export interface Quota {
+  new_words_remaining: number | null
+}
+
 export type TrainingMode = 'group_lesson' | 'lesson' | 'daily_review'
 
 /** Where a personal session was opened from (stored for analytics). */
@@ -65,6 +101,7 @@ export interface TrainingStartResponse {
   card?: Card | null
   progress?: { done: number; total: number }
   done_reason?: DoneReason | null
+  quota?: Quota
 }
 
 /** Body of POST /training/sessions. */
@@ -163,6 +200,7 @@ export interface NextCardResponse {
   card: Card | null
   progress: { done: number; total: number }
   done_reason?: DoneReason | null
+  quota?: Quota
 }
 
 /**
@@ -181,6 +219,7 @@ export interface ReviewResponse {
   card?: Card | null
   progress?: { done: number; total: number }
   done_reason?: DoneReason | null
+  quota?: Quota
 }
 
 export interface ApiError {

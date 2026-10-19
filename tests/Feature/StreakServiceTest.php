@@ -227,3 +227,119 @@ it('returns zeros for a learner who never met a goal', function (): void {
     expect(app(StreakService::class)->current($learner, localDay($learner, '2026-10-18'))->toArray())
         ->toBe(['current' => 0, 'best' => 0, 'met_today' => false, 'at_risk' => false]);
 });
+
+/** Facts as the review transaction leaves them: one `goal_met_at` row per local day, no `learners` projection. */
+function goalFacts(Learner $learner, array $dates): void
+{
+    foreach ($dates as $date) {
+        LearnerDailyStats::factory()->create([
+            'learner_id' => $learner->id,
+            'date' => $date,
+            'reviews_count' => $learner->daily_goal,
+            'goal_met_at' => CarbonImmutable::parse($date.' 10:00:00', 'UTC'),
+        ]);
+    }
+}
+
+it('rebuilds the series from the facts when yesterday\'s afterCommit callback was lost', function (): void {
+    $learner = streakLearner();
+    $learner->forceFill(['streak_current' => 2, 'streak_best' => 2, 'streak_last_date' => '2026-10-16'])->save();
+    goalFacts($learner, ['2026-10-15', '2026-10-16', '2026-10-17']); // the 17th was never projected
+
+    meetGoal($learner, '2026-10-18 10:00:00'); // the real flow: grades on the 18th → apply('2026-10-18')
+
+    expect(storedStreak($learner))->toBe([4, 4, '2026-10-18']);
+});
+
+it('counts only consecutive facts ending yesterday when rebuilding', function (): void {
+    $learner = streakLearner();
+    goalFacts($learner, ['2026-10-10', '2026-10-11', '2026-10-13', '2026-10-14', '2026-10-15']); // the 12th is a hole
+
+    expect(app(StreakService::class)->apply($learner, '2026-10-16'))->toBeTrue()
+        ->and(storedStreak($learner))->toBe([4, 4, '2026-10-16']);
+
+    // No fact for yesterday → a plain restart.
+    $other = streakLearner();
+    goalFacts($other, ['2026-10-10', '2026-10-11']);
+    app(StreakService::class)->apply($other, '2026-10-16');
+    expect(storedStreak($other))->toBe([1, 1, '2026-10-16']);
+});
+
+it('keeps the best streak when the rebuilt series is shorter, and raises it when longer', function (): void {
+    $learner = streakLearner();
+    $learner->forceFill(['streak_current' => 9, 'streak_best' => 9, 'streak_last_date' => '2026-10-01'])->save();
+    goalFacts($learner, ['2026-10-14', '2026-10-15']);
+
+    app(StreakService::class)->apply($learner, '2026-10-16');
+    expect(storedStreak($learner))->toBe([3, 9, '2026-10-16']);
+
+    $long = streakLearner();
+    goalFacts($long, ['2026-10-12', '2026-10-13', '2026-10-14', '2026-10-15']);
+    app(StreakService::class)->apply($long, '2026-10-16');
+    expect(storedStreak($long))->toBe([5, 5, '2026-10-16']);
+});
+
+it('does not lose a day when the callbacks run around midnight in the wrong order (apply(d+1) before apply(d))', function (): void {
+    $learner = streakLearner();
+    $learner->forceFill(['streak_current' => 2, 'streak_best' => 2, 'streak_last_date' => '2026-10-16'])->save();
+    goalFacts($learner, ['2026-10-15', '2026-10-16', '2026-10-17', '2026-10-18']);
+    $streaks = app(StreakService::class);
+
+    expect($streaks->apply($learner, '2026-10-18'))->toBeTrue()  // callback of the later day first
+        ->and($streaks->apply($learner, '2026-10-17'))->toBeFalse() // never backwards: a no-op, nothing is lost
+        ->and(storedStreak($learner))->toBe([4, 4, '2026-10-18']);
+});
+
+it('rebuilds at most 400 days deep', function (): void {
+    $learner = streakLearner();
+    $stored = fn (string $date): string => (string) (new LearnerDailyStats)->fromDateTime($date);
+    $rows = [];
+    for ($i = 1; $i <= 450; $i++) {
+        $date = CarbonImmutable::parse('2026-10-15')->subDays($i - 1)->toDateString();
+        $rows[] = [
+            'learner_id' => $learner->id, 'date' => $stored($date), 'reviews_count' => 2, 'new_words_count' => 0,
+            'correct_count' => 0, 'time_spent_ms' => 0, 'goal_met_at' => '2026-10-15 10:00:00',
+            'created_at' => '2026-10-15 10:00:00', 'updated_at' => '2026-10-15 10:00:00',
+        ];
+    }
+    LearnerDailyStats::query()->insert($rows);
+
+    app(StreakService::class)->apply($learner, '2026-10-16');
+
+    expect(storedStreak($learner))->toBe([401, 401, '2026-10-16']);
+});
+
+it('keeps yesterday\'s credit on read when its callback was lost: current() repairs from the facts', function (): void {
+    $learner = streakLearner();
+    $learner->forceFill(['streak_current' => 3, 'streak_best' => 3, 'streak_last_date' => '2026-10-16'])->save();
+    goalFacts($learner, ['2026-10-14', '2026-10-15', '2026-10-16', '2026-10-17']);
+
+    $state = app(StreakService::class)->current($learner, localDay($learner, '2026-10-18'));
+
+    expect($state->toArray())->toBe(['current' => 4, 'best' => 4, 'met_today' => false, 'at_risk' => true])
+        ->and(storedStreak($learner))->toBe([4, 4, '2026-10-17']);
+});
+
+it('current() does not touch learners when there is no fact for yesterday', function (): void {
+    $learner = streakLearner();
+    $learner->forceFill(['streak_current' => 3, 'streak_best' => 3, 'streak_last_date' => '2026-10-16'])->save();
+    goalFacts($learner, ['2026-10-16']);
+
+    DB::enableQueryLog();
+    $state = app(StreakService::class)->current($learner, localDay($learner, '2026-10-18'));
+    $writes = collect(DB::getQueryLog())->filter(fn (array $q): bool => str_starts_with(strtolower($q['query']), 'update'));
+    DB::disableQueryLog();
+
+    expect($state->toArray())->toBe(['current' => 0, 'best' => 3, 'met_today' => false, 'at_risk' => false])
+        ->and($writes)->toHaveCount(0)
+        ->and(storedStreak($learner))->toBe([3, 3, '2026-10-16']);
+});
+
+it('current() repairs a never-projected yesterday for a learner whose very first credit was lost', function (): void {
+    $learner = streakLearner();
+    goalFacts($learner, ['2026-10-17']);
+
+    $state = app(StreakService::class)->current($learner, localDay($learner, '2026-10-18'));
+
+    expect($state->toArray())->toBe(['current' => 1, 'best' => 1, 'met_today' => false, 'at_risk' => true]);
+});

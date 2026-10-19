@@ -50,6 +50,11 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/CourseView.vue'),
     props: (route) => ({ slug: String(route.params.slug) }),
   },
+  {
+    path: '/settings',
+    name: 'settings',
+    component: () => import('@/views/SettingsView.vue'),
+  },
   // Catch-all -> landing. Telegram sometimes appends junk query params.
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]

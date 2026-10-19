@@ -5,6 +5,7 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import type { MeResponse } from '@/api/types'
+import { settingsFixture } from '@/api/__tests__/settingsFixture'
 
 vi.mock('@/api', () => ({ api: { promo: { redeem: vi.fn() } } }))
 
@@ -15,6 +16,7 @@ function me(until: string | null): MeResponse {
     stats: { words_learned: 0, words_due_today: 0 },
     entitlement: { plan: 'pro', source: 'subscription', until, new_words_per_day: null },
     paywall: { mode: 'coming_soon', contact: null },
+    settings: settingsFixture(),
   }
 }
 
@@ -47,6 +49,15 @@ describe('PromoRedeem', () => {
     expect(w.find('[data-testid=promo-input]').exists()).toBe(false)
   })
 
+  it('tells the parent which plan was redeemed', async () => {
+    const pro = me('2026-12-31T12:00:00+00:00')
+    vi.mocked(api.promo.redeem).mockResolvedValue(pro)
+
+    const w = await submit('AB-12')
+
+    expect(w.emitted('redeemed')).toEqual([[pro]])
+  })
+
   it('says so when the plan has no end', async () => {
     vi.mocked(api.promo.redeem).mockResolvedValue(me(null))
 
@@ -66,6 +77,7 @@ describe('PromoRedeem', () => {
 
     expect(w.get('[data-testid=promo-error]').text()).toBe(text)
     expect(w.find('[data-testid=promo-input]').exists()).toBe(true)
+    expect(w.emitted('redeemed')).toBeUndefined()
   })
 
   it('localizes to Uzbek', async () => {

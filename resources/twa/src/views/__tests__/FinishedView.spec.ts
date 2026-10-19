@@ -3,9 +3,13 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import FinishedView from '../FinishedView.vue'
+import { api } from '@/api'
 import { setLocale } from '@/i18n'
 import { useTrainingStore } from '@/stores/training'
 import type { SessionSummary } from '@/api/types'
+import { settingsFixture } from '@/api/__tests__/settingsFixture'
+
+vi.mock('@/api', () => ({ api: { me: { get: vi.fn() }, promo: { redeem: vi.fn() }, today: { get: vi.fn() } } }))
 
 vi.mock('@/composables/useTelegram', () => ({
   useTelegram: () => ({
@@ -36,7 +40,10 @@ const summary = (overrides: Partial<SessionSummary> = {}): SessionSummary => ({
 })
 
 describe('FinishedView', () => {
-  beforeEach(() => setActivePinia(createPinia()))
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+  })
   afterEach(() => setLocale('ru'))
 
   it.each([
@@ -92,6 +99,45 @@ describe('FinishedView', () => {
     setLocale('uz')
     expect(render(3, 1, 'new_quota_exhausted').get('[data-testid=reason]').text())
       .toBe("Bugungi yangi so'zlar limiti tugadi. Yangi so'zlar ertaga ochiladi.")
+  })
+
+  describe('paywall', () => {
+    beforeEach(() => {
+      vi.mocked(api.me.get).mockResolvedValue({
+        learner: { id: 1, first_name: 'A', username: null, locale: 'ru', onboarding_completed: true },
+        groups: [],
+        stats: { words_learned: 0, words_due_today: 0 },
+        entitlement: { plan: 'free', source: 'free', until: null, new_words_per_day: 20 },
+        paywall: { mode: 'coming_soon', contact: '@lexiflow_help' },
+        settings: settingsFixture(),
+      })
+    })
+
+    it('opens when the new words of the day ran out, with the contact, and can be dismissed', async () => {
+      const w = render(3, 1, 'new_quota_exhausted')
+      await flushPromises()
+
+      expect(w.get('[data-testid=paywall-title]').text()).toBe('Pro скоро')
+      expect(w.get('[data-testid=paywall-lead]').text()).toContain('Лимит новых слов на сегодня исчерпан')
+      expect(w.get('[data-testid=paywall-contact-link]').attributes('href')).toBe('https://t.me/lexiflow_help')
+
+      await w.get('[data-testid=paywall-close]').trigger('click')
+      expect(w.find('[data-testid=paywall]').exists()).toBe(false)
+
+      // The learner can bring it back; the promo field lives inside the paywall then.
+      await w.get('[data-testid=paywall-open]').trigger('click')
+      expect(w.find('[data-testid=paywall]').exists()).toBe(true)
+    })
+
+    it.each(['lesson_complete', 'nothing_due', 'session_cap', null])('does not open for done_reason %s', async (reason) => {
+      const w = render(3, 1, reason)
+      await flushPromises()
+
+      expect(w.find('[data-testid=paywall]').exists()).toBe(false)
+      expect(w.find('[data-testid=paywall-open]').exists()).toBe(false)
+      expect(w.find('[data-testid=promo]').exists()).toBe(true)
+      expect(api.me.get).not.toHaveBeenCalled()
+    })
   })
 
   describe('goal and streak of the day', () => {

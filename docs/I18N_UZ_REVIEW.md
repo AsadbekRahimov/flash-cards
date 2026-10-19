@@ -270,6 +270,14 @@
 | `promo.submit` | Faollashtirish | Активировать |
 | `promo.success_until` | Pro {date} gacha faol. | Pro активен до {date}. |
 | `promo.success_forever` | Pro muddatsiz faol. | Pro активен без ограничения по сроку. |
+| `paywall.title` | Pro tez orada | Pro скоро |
+| `paywall.lead_quota` | Bugungi yangi so'zlar limiti tugadi — takrorlash cheklovsiz. | Лимит новых слов на сегодня исчерпан — повторения доступны без ограничений. |
+| `paywall.soon` | Pro tez orada ochiladi. | Pro скоро откроется. |
+| `paywall.free` | Hozir sizda Free tarif: kuniga {count} ta yangi so'z, takrorlash cheklovsiz. | Сейчас у вас тариф Free: {count} новых слов в день, повторения — без лимита. |
+| `paywall.free_generic` | Hozir sizda Free tarif: yangi so'zlar kunlik limit bilan cheklangan, takrorlash cheklovsiz. | Сейчас у вас тариф Free: новые слова ограничены дневным лимитом, повторения — без лимита. |
+| `paywall.contact` | Markazda o'qiysizmi? Markaz administratoridan LexiFlow Pro'ni ulashni so'rang: | Учитесь в центре? Попросите администратора центра подключить LexiFlow Pro: |
+| `paywall.dismiss` | Tushunarli | Понятно |
+| `paywall.open` | Pro haqida bilib oling | Узнать о Pro |
 | `error.code.promo_not_found` | Promokod topilmadi. Xato yozilmaganini tekshiring. | Промокод не найден. Проверьте, нет ли опечатки. |
 | `error.code.promo_expired` | Promokodning amal qilish muddati tugagan. | Срок действия промокода истёк. |
 | `error.code.promo_exhausted` | Bu promokoddan foydalanish limiti tugagan. | Этим промокодом уже воспользовалось максимальное число людей. |
@@ -411,3 +419,26 @@
 | `reminders.streak_at_risk` | Seriyangiz — :count kun. Uni uzmaslik uchun bugungi maqsadni bajaring. | Ваша серия — :count день. Выполните цель дня, чтобы не прервать её.\|Ваша серия — :count дня. …\|Ваша серия — :count дней. … |
 
 `:count` — длина серии в днях; в ru три формы числа, в uz одна. Ключи `reminders.review` и `reminders.open_button` без изменений. Проверить: «Seriyangiz» (ваша серия — согласовано с «Seriya» на экране «Сегодня»), «uzmaslik» (не прервать), «bugungi maqsad» (цель дня — тот же термин, что `today.goal.title` «Kunlik maqsad»; если носителю ближе «kunlik maqsadni», заменить).
+
+## Фаза 1 · задача 1.6 (настройки) — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `settings.title` | Sozlamalar | Настройки |
+| `settings.language` | Interfeys tili | Язык интерфейса |
+| `settings.timezone` | Vaqt mintaqasi | Часовой пояс |
+| `settings.reminder` | Eslatmalar | Напоминания |
+| `settings.reminder.off` | Eslatmalarsiz | Без напоминаний |
+| `settings.reminder.hint` | Vaqt sizning vaqt mintaqangiz bo'yicha. | Время — по вашему часовому поясу. |
+| `settings.daily_goal` | Kunlik maqsad | Цель на день |
+| `settings.daily_goal.option.one/other` | {count} ta kartochka | {count} карточка / карточки / карточек |
+| `settings.course` | Faol kurs | Активный курс |
+| `settings.course.none` | Kurs tanlanmagan | Курс не выбран |
+| `settings.saved` | Saqlandi | Сохранено |
+| `error.closed.settings` | Sozlamalar endi mavjud emas. | Настройки больше недоступны. |
+| `error.forbidden.settings` | Sizda sozlamalarga kirish huquqi yo'q. | У вас нет доступа к настройкам. |
+
+Проверить: «Sozlamalar» (настройки), «Interfeys tili» (язык интерфейса), «Vaqt mintaqasi» (часовой пояс), «Eslatmalar»/«Eslatmalarsiz» (напоминания / без напоминаний), «Faol kurs» (активный курс). Названия городов в списке часовых поясов приходят с сервера из `lang/uz/onboarding.php` (проверены в 1.5a).
+

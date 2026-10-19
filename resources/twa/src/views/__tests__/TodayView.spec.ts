@@ -6,6 +6,7 @@ import TodayView from '../TodayView.vue'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
+import { useTrainingStore } from '@/stores/training'
 import type { TodayResponse } from '@/api/types'
 
 const state = vi.hoisted(() => ({ ensure: vi.fn() }))
@@ -40,6 +41,7 @@ const makeRouter = () =>
     routes: [
       { path: '/today', name: 'today', component: { template: '<div />' } },
       { path: '/courses', name: 'courses', component: { template: '<div />' } },
+      { path: '/settings', name: 'settings', component: { template: '<div />' } },
       { path: '/training/:sessionId(\\d+)', name: 'training', component: { template: '<div />' } },
     ],
   })
@@ -195,6 +197,18 @@ describe('TodayView', () => {
     expect(text(w, 'open-error')).toBe('Слишком много запросов. Подождите немного и повторите.')
   })
 
+  it('forgets the open error when the learner leaves the screen', async () => {
+    vi.mocked(api.training.open).mockRejectedValue(new ApiClientError('rate_limited', 429, 'unknown', 'Too Many Attempts.'))
+    const w = await render()
+    await w.get('[data-testid=review-btn]').trigger('click')
+    await flushPromises()
+    expect(useTrainingStore().openError).not.toBe('')
+
+    w.unmount()
+
+    expect(useTrainingStore().openError).toBe('')
+  })
+
   it('shows the active course with its progress and opens the next lesson as a lesson session', async () => {
     vi.mocked(api.training.open).mockResolvedValue({
       session_id: 55,
@@ -233,6 +247,13 @@ describe('TodayView', () => {
     const link = w.get('[data-testid=catalog-link]')
     expect(link.attributes('href')).toBe('/courses')
     expect(link.text()).toBe('Каталог курсов')
+  })
+
+  it('links to the settings', async () => {
+    const link = (await render()).get('[data-testid=settings-link]')
+
+    expect(link.attributes('href')).toBe('/settings')
+    expect(link.text()).toContain('Настройки')
   })
 
   it('badges the plan', async () => {

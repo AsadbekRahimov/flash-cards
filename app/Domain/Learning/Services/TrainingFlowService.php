@@ -80,19 +80,20 @@ final class TrainingFlowService
             ? ['done' => $reviewCount, 'total' => $this->dailyGoal($learner)]
             : $this->picker->progress((int) $learner->id, (int) $scope->lessonId, $totalWords);
 
+        $budget = $this->budgets->budgetFor($learner, $now);
+
         if ($reviewCount >= max(1, (int) config('twa.training.max_cards_per_session', 100))) {
-            return TrainingStep::done(DoneReason::SessionCap, $progress);
+            return TrainingStep::done(DoneReason::SessionCap, $progress, $budget->remaining((int) $learner->id, $now));
         }
 
-        $pick = $this->picker->pickNext(
-            (int) $learner->id,
-            $scope,
-            $this->budgets->budgetFor($learner, $now),
-            $now,
-        );
+        $pick = $this->picker->pickNext((int) $learner->id, $scope, $budget, $now);
+
+        // What is left of today's new-card budget AFTER this pick (a freshly served new card is already
+        // spent). A plain read outside the picker's transaction: it is only for display (docs/12 §5.3).
+        $remaining = $budget->remaining((int) $learner->id, $now);
 
         if ($pick->word === null || $pick->repetition === null || $pick->doneReason !== null) {
-            return TrainingStep::done($pick->doneReason ?? $scope->exhaustedReason(), $progress);
+            return TrainingStep::done($pick->doneReason ?? $scope->exhaustedReason(), $progress, $remaining);
         }
 
         return new TrainingStep(
@@ -103,6 +104,7 @@ final class TrainingFlowService
             // due now is a plain due card; submit() accepts it without a token.
             $pick->ahead ? $pick->repetition->served_ahead_token : null,
             $this->translations->resolve($pick->word, $this->localeFor($session, $learner)),
+            newWordsRemaining: $remaining,
         );
     }
 

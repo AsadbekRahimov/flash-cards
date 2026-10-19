@@ -109,6 +109,16 @@ export const uz: Translations = {
   'promo.success_until': 'Pro {date} gacha faol.',
   'promo.success_forever': 'Pro muddatsiz faol.',
 
+  // ---- paywall (Free quota, mode coming_soon; docs/12 §5.4) ----
+  'paywall.title': 'Pro tez orada',
+  'paywall.lead_quota': "Bugungi yangi so'zlar limiti tugadi — takrorlash cheklovsiz.",
+  'paywall.soon': 'Pro tez orada ochiladi.',
+  'paywall.free': "Hozir sizda Free tarif: kuniga {count} ta yangi so'z, takrorlash cheklovsiz.",
+  'paywall.free_generic': "Hozir sizda Free tarif: yangi so'zlar kunlik limit bilan cheklangan, takrorlash cheklovsiz.",
+  'paywall.contact': "Markazda o'qiysizmi? Markaz administratoridan LexiFlow Pro'ni ulashni so'rang:",
+  'paywall.dismiss': 'Tushunarli',
+  'paywall.open': 'Pro haqida bilib oling',
+
   // ---- course catalog ----
   'catalog.title': 'Kurslar',
   'catalog.open': 'Kurslar katalogi',
@@ -130,15 +140,33 @@ export const uz: Translations = {
   'course.learn': "O'rganish",
   'course.no_lessons': "Kursda hali darslar yo'q.",
 
+  // ---- settings ----
+  'settings.title': 'Sozlamalar',
+  'settings.language': 'Interfeys tili',
+  'settings.timezone': 'Vaqt mintaqasi',
+  'settings.reminder': 'Eslatmalar',
+  'settings.reminder.off': 'Eslatmalarsiz',
+  'settings.reminder.hint': "Vaqt sizning vaqt mintaqangiz bo'yicha.",
+  'settings.daily_goal': 'Kunlik maqsad',
+  'settings.daily_goal.option': {
+    one: '{count} ta kartochka',
+    other: '{count} ta kartochka',
+  },
+  'settings.course': 'Faol kurs',
+  'settings.course.none': 'Kurs tanlanmagan',
+  'settings.saved': 'Saqlandi',
+
   // ---- errors (by kind / context) ----
   'error.closed.training': "Bu mashg'ulot allaqachon yopilgan: u yakunlangan yoki sessiya vaqti tugagan.",
   'error.closed.exam': "Imtihon o'qituvchi tomonidan yakunlandi.",
   'error.closed.catalog': 'Kurs endi mavjud emas.',
   'error.closed.today': 'Bugun ekrani endi mavjud emas.',
+  'error.closed.settings': 'Sozlamalar endi mavjud emas.',
   'error.forbidden.training': "Sizda bu mashg'ulotga kirish huquqi yo'q.",
   'error.forbidden.exam': "Sizda bu imtihonga kirish huquqi yo'q.",
   'error.forbidden.catalog': "Sizda kurslar katalogiga kirish huquqi yo'q.",
   'error.forbidden.today': "Sizda Bugun ekraniga kirish huquqi yo'q.",
+  'error.forbidden.settings': "Sizda sozlamalarga kirish huquqi yo'q.",
   'error.network': "Server bilan aloqa yo'q. Qayta urinib ko'ring.",
   'error.rate_limited': "Juda ko'p so'rov yuborildi. Biroz kutib, qayta urinib ko'ring.",
   'error.server': "Server vaqtincha mavjud emas. Keyinroq urinib ko'ring.",

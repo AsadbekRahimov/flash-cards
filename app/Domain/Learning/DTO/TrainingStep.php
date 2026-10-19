@@ -23,6 +23,8 @@ final readonly class TrainingStep
      * @param  ResolvedTranslation|null  $translation  the card's translation in the session's locale (with the ru
      *                                                 fallback flag); null exactly when $word is null
      * @param  DoneReason|null  $doneReason  why there is no card; set exactly when $word is null
+     * @param  int|null  $newWordsRemaining  new cards the learner may still get today after this step
+     *                                       (Free quota, docs/12 §5.3); null = unlimited
      */
     public function __construct(
         public ?Word $word,
@@ -31,13 +33,14 @@ final readonly class TrainingStep
         public ?string $serveToken = null,
         public ?ResolvedTranslation $translation = null,
         public ?DoneReason $doneReason = null,
+        public ?int $newWordsRemaining = null,
     ) {}
 
     /**
      * @param  array{done:int, total:int}  $progress
      */
-    public static function done(DoneReason $reason, array $progress): self
+    public static function done(DoneReason $reason, array $progress, ?int $newWordsRemaining = null): self
     {
-        return new self(null, null, $progress, doneReason: $reason);
+        return new self(null, null, $progress, doneReason: $reason, newWordsRemaining: $newWordsRemaining);
     }
 }

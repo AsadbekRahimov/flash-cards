@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Learners\Services;
 
 use App\Domain\Billing\Services\EntitlementResolver;
+use App\Domain\Billing\Services\NewWordQuota;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Learners\DTO\DailyGoal;
 use App\Domain\Learners\DTO\DailyProgress;
@@ -20,8 +21,13 @@ use Illuminate\Database\Eloquent\Builder;
 
 /**
  * The "Today" screen (`GET /api/twa/today`, docs/12 §7.3) and the goal / streak block of the
- * `/finish` summary. Read-only: the numbers are written by the review transaction
- * (DailyStatsService, StreakService); here they are only put together for the learner's local day.
+ * `/finish` summary. The numbers are written by the review transaction (DailyStatsService,
+ * StreakService); here they are only put together for the learner's local day.
+ *
+ * Not strictly read-only: {@see StreakService::current()} may repair a lagging `learners.streak_*`
+ * projection with a single `UPDATE learners`. So `summary()` / `progress()` must not be called
+ * inside a transaction that holds `training_sessions` / `word_repetitions` / `learner_daily_stats`
+ * (it would add `learners` after them — the lock order docs/12 §3.1 forbids).
  */
 final class TodayService
 {
@@ -32,6 +38,7 @@ final class TodayService
         private readonly LearnerStatsService $stats,
         private readonly CourseCatalogService $catalog,
         private readonly EntitlementResolver $entitlements,
+        private readonly NewWordQuota $quota,
     ) {}
 
     public function summary(Learner $learner, ?CarbonImmutable $now = null): TodaySummary
@@ -40,8 +47,7 @@ final class TodayService
 
         return new TodaySummary(
             dueCount: $this->stats->dueCount($learner, $now),
-            // Filled by the new-words quota of task 1.4b; null = unlimited until then.
-            newWordsRemaining: null,
+            newWordsRemaining: $this->quota->remaining($learner, $now),
             progress: $this->progress($learner, $now),
             activeCourse: $this->activeCourse($learner),
             openSessionId: $this->openDailySessionId($learner, $now),
@@ -61,7 +67,7 @@ final class TodayService
 
         return new DailyProgress(
             new DailyGoal(
-                target: $learner->daily_goal,
+                target: max(1, $learner->daily_goal),
                 done: $stats->reviews_count ?? 0,
                 met: $stats?->goal_met_at !== null,
             ),
@@ -69,7 +75,7 @@ final class TodayService
         );
     }
 
-    /** Null when the learner has no active course, or it is no longer published. */
+    /** Null when the learner has no active course, or it is no longer available (CourseCatalogService::isAvailable). */
     private function activeCourse(Learner $learner): ?TodayCourse
     {
         if ($learner->active_course_id === null) {
@@ -78,7 +84,7 @@ final class TodayService
 
         /** @var Course|null $course */
         $course = $learner->activeCourse;
-        if ($course === null || $course->status !== 'published') {
+        if ($course === null || ! $this->catalog->isAvailable($course)) {
             return null;
         }
 

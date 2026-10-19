@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import GoalRing from '@/components/GoalRing.vue'
+import PaywallSheet from '@/components/PaywallSheet.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useTodayStore } from '@/stores/today'
@@ -50,6 +51,8 @@ function learnNext(lessonId: number): Promise<void> {
   return openSession({ mode: 'lesson', lesson_id: lessonId, source: 'self' })
 }
 
+const paywallOpen = ref(false)
+
 const goalLeft = computed(() => (data.value ? Math.max(0, data.value.goal.target - data.value.goal.done) : 0))
 const streak = computed(() => data.value?.streak ?? null)
 const lessonLabel = computed(() => {
@@ -62,6 +65,9 @@ const lessonLabel = computed(() => {
 onMounted(() => {
   void load()
 })
+
+// An open error belongs to this screen only; it must not greet the learner on the next one.
+onBeforeUnmount(() => training.clearOpenError())
 </script>
 
 <template>
@@ -133,6 +139,15 @@ onMounted(() => {
         <div v-if="data.new_words_remaining !== null" class="text-sm text-tg-hint" data-testid="new-remaining">
           {{ data.new_words_remaining > 0 ? t('today.new.remaining', { count: data.new_words_remaining }) : t('today.new.exhausted') }}
         </div>
+        <button
+          v-if="data.entitlement.plan === 'free'"
+          type="button"
+          class="text-tg-link underline text-sm"
+          data-testid="paywall-open"
+          @click="paywallOpen = true"
+        >
+          {{ t('paywall.open') }}
+        </button>
         <button type="button" class="btn btn-primary w-full" :disabled="opening" data-testid="review-btn" @click="review">
           {{ data.open_session_id !== null ? t('today.review.continue') : t('today.review.start') }}
         </button>
@@ -173,6 +188,11 @@ onMounted(() => {
       <RouterLink :to="{ name: 'courses' }" class="btn btn-secondary w-full" data-testid="catalog-link">
         {{ t('catalog.open') }}
       </RouterLink>
+      <RouterLink :to="{ name: 'settings' }" class="btn btn-secondary w-full" data-testid="settings-link">
+        ⚙️ {{ t('settings.title') }}
+      </RouterLink>
     </div>
+
+    <PaywallSheet v-if="paywallOpen" :reason="data?.new_words_remaining === 0 ? 'quota' : 'info'" @close="paywallOpen = false" />
   </section>
 </template>

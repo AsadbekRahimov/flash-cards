@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Twa\CourseController;
 use App\Http\Controllers\Api\Twa\ExamController;
 use App\Http\Controllers\Api\Twa\MeController;
 use App\Http\Controllers\Api\Twa\PromoController;
+use App\Http\Controllers\Api\Twa\SettingsController;
 use App\Http\Controllers\Api\Twa\TodayController;
 use App\Http\Controllers\Api\Twa\TrainingController;
 use App\Http\Controllers\Api\Twa\TtsController;
@@ -20,6 +21,7 @@ Route::prefix('twa')->group(function (): void {
 
     Route::middleware([TwaAuth::class, 'throttle:twa-api'])->group(function (): void {
         Route::get('/me', MeController::class)->name('twa.me');
+        Route::patch('/me/settings', [SettingsController::class, 'update'])->name('twa.me.settings');
         Route::get('/today', TodayController::class)->name('twa.today');
         Route::post('/promo/redeem', [PromoController::class, 'redeem'])
             ->middleware('throttle:twa-promo')
