@@ -83,6 +83,24 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(ExamSession::class, 'started_by_user_id');
     }
 
+    /**
+     * Tenant roles of the `/org` cabinet (`organization_users`, docs/13 §1.3).
+     *
+     * @return HasMany<OrganizationUser, $this>
+     */
+    public function organizationRoles(): HasMany
+    {
+        return $this->hasMany(OrganizationUser::class);
+    }
+
+    /** @return BelongsToMany<Organization, $this> */
+    public function organizations(): BelongsToMany
+    {
+        return $this->belongsToMany(Organization::class, 'organization_users')
+            ->withPivot('role')
+            ->withTimestamps();
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         if ($panel->getId() !== 'admin') {

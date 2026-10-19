@@ -53,4 +53,35 @@ class Organization extends Model
         return $this->hasMany(Subscription::class, 'subscriber_id')
             ->where('subscriber_type', 'organization');
     }
+
+    /**
+     * Every membership row, whatever its status (docs/13 §1.3).
+     *
+     * @return HasMany<OrganizationMember, $this>
+     */
+    public function members(): HasMany
+    {
+        return $this->hasMany(OrganizationMember::class);
+    }
+
+    /** @return HasMany<OrganizationInvite, $this> */
+    public function invites(): HasMany
+    {
+        return $this->hasMany(OrganizationInvite::class);
+    }
+
+    /**
+     * Staff rows (`organization_users`): owners and teachers of the cabinet.
+     *
+     * @return HasMany<OrganizationUser, $this>
+     */
+    public function staff(): HasMany
+    {
+        return $this->hasMany(OrganizationUser::class);
+    }
+
+    public function isActive(): bool
+    {
+        return $this->status === 'active';
+    }
 }
