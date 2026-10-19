@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Administration\Services\PlatformStatsService;
+use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Twa\Services\JwtService;
 use App\Filament\Resources\LearnerResource;
@@ -243,6 +244,7 @@ it('lists members and seats per organization from active memberships of active g
     Learner::factory()->memberOf($second)->create();
     Learner::factory()->memberOf($active, 'left')->create();
     Learner::factory()->memberOf($disabled)->create();
+    Learner::factory()->memberOf($active)->create(['deleted_at' => now()]);
     pa_pro($center, 'never', ['seats_limit' => 50]);
 
     $empty = Organization::factory()->create(['name' => 'Beta Center']);
@@ -508,4 +510,58 @@ it('links from the learner page to the Subscriptions screen filtered by that lea
         ->test(ListSubscriptions::class)
         ->assertCanSeeTableRecords([$mine])
         ->assertCanNotSeeTableRecords([$theirs]);
+});
+
+// --- review 1.8 ---------------------------------------------------------------
+
+it('captions the plan the same way in the list column and on the learner page', function (): void {
+    $personal = Learner::factory()->create();
+    $sponsored = Learner::factory()->create();
+    $free = Learner::factory()->create();
+    pa_pro($personal, 'never');
+    $org = Organization::factory()->create();
+    $group = TelegramGroup::factory()->create(['organization_id' => $org->id, 'status' => 'active']);
+    $sponsored->groups()->attach($group->id, ['status' => 'active', 'joined_at' => now()]);
+    pa_pro($org, 'never');
+
+    $this->actingAs(pa_user('admin'));
+
+    expect(LearnerResource::planLabel(Plan::Free, false))->toBe('Free')
+        ->and(LearnerResource::planLabel(Plan::Pro, false))->toBe('Pro')
+        ->and(LearnerResource::planLabel(Plan::Pro, true))->toBe('Pro (sponsored)')
+        ->and(LearnerResource::planLabel(Plan::Free, true))->toBe('Free');
+
+    foreach ([[$personal, 'Pro'], [$sponsored, 'Pro (sponsored)'], [$free, 'Free']] as [$learner, $label]) {
+        Livewire::test(ListLearners::class)->assertTableColumnStateSet('plan', $label, $learner);
+        Livewire::test(ViewLearner::class, ['record' => $learner->getKey()])->assertSeeText($label);
+    }
+    Livewire::test(ViewLearner::class, ['record' => $sponsored->getKey()])->assertSeeText('Pro (sponsored), organization #'.$org->id);
+    Livewire::test(ViewLearner::class, ['record' => $personal->getKey()])->assertDontSeeText('sponsored');
+});
+
+it('hides twa.authenticated in the recent events until it is picked in the filter, and filters by event name', function (): void {
+    $learner = Learner::factory()->create();
+    foreach (range(1, 60) as $i) {
+        pa_event('twa.authenticated', $learner, "-{$i} seconds");
+    }
+    $started = pa_event('onboarding.started', $learner, '-2 hours');
+    $finished = pa_event('training.session_finished', $learner, '-3 hours');
+    $auth = ProductEvent::query()->where('name', 'twa.authenticated')->first();
+
+    $this->actingAs(pa_user('admin'));
+    $props = ['ownerRecord' => $learner, 'pageClass' => ViewLearner::class];
+
+    // By default the 60 logins do not push the real events out of the 50.
+    Livewire::test(ProductEventsRelationManager::class, $props)
+        ->assertCanSeeTableRecords([$started, $finished])
+        ->assertCanNotSeeTableRecords([$auth]);
+
+    Livewire::test(ProductEventsRelationManager::class, $props)
+        ->filterTable('name', 'onboarding.started')
+        ->assertCanSeeTableRecords([$started])
+        ->assertCanNotSeeTableRecords([$finished, $auth]);
+
+    $logins = Livewire::test(ProductEventsRelationManager::class, $props)->filterTable('name', 'twa.authenticated');
+    expect($logins->instance()->getTableRecords())->toHaveCount(ProductEventsRelationManager::LIMIT);
+    $logins->assertCanNotSeeTableRecords([$started]);
 });

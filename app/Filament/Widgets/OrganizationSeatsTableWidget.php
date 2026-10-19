@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * "Members / seats" per organization. Members = distinct learners with an ACTIVE membership in an
- * ACTIVE group of the organization (membership is derived, there is no organization_members table in
+ * ACTIVE group of the organization, not soft-deleted (membership is derived, there is no organization_members table in
  * Phase 1, docs/12 §1.8). Seats = `seats_limit` of the organization's granting subscription; the
  * limit is not enforced in Phase 1 and is empty for subscriptions granted from the admin panel.
  * Admin only.
@@ -42,6 +42,9 @@ class OrganizationSeatsTableWidget extends TableWidget
 
         $members = DB::table('group_members as gm')
             ->join('telegram_groups as g', 'g.id', '=', 'gm.telegram_group_id')
+            // A deleted learner (soft delete) is not a member any more, though the membership row stays.
+            ->join('learners as l', 'l.id', '=', 'gm.learner_id')
+            ->whereNull('l.deleted_at')
             ->whereColumn('g.organization_id', 'organizations.id')
             ->where('g.status', 'active')
             ->where('gm.status', 'active')
