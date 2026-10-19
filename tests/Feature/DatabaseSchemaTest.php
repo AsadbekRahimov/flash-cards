@@ -14,6 +14,9 @@ use App\Models\Lesson;
 use App\Models\NotificationLog;
 use App\Models\Offer;
 use App\Models\Organization;
+use App\Models\OrganizationInvite;
+use App\Models\OrganizationMember;
+use App\Models\OrganizationUser;
 use App\Models\Payment;
 use App\Models\PaymentOrder;
 use App\Models\ProductEvent;
@@ -49,6 +52,8 @@ $expectedTables = [
     'learner_daily_stats', 'subscriptions', 'promo_codes', 'promo_redemptions',
     // Phase 2 (docs/13 §1.2): payments.
     'offers', 'payment_orders', 'provider_transactions', 'payments',
+    // Phase 2 (docs/13 §1.3): organizations — staff, invites, members / seats.
+    'organization_users', 'organization_invites', 'organization_members',
 ];
 
 /**
@@ -652,10 +657,87 @@ it('has partial unique index subscriptions_one_live_per_subscriber', function ()
         ->and($offers->indexdef)->toContain('redeemed_at IS NULL');
 })->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'pg_indexes catalog is PostgreSQL-only.');
 
+it('rolls back and re-applies the organization migrations (2B.1) in FK order', function (): void {
+    $tables = ['organization_members', 'organization_invites', 'organization_users'];
+
+    // The three 2B.1 files are the last ones: members -> invites (FK invite_id) -> users.
+    $this->artisan('migrate:rollback', ['--step' => 3])->assertSuccessful();
+    foreach ($tables as $table) {
+        expect(Schema::hasTable($table))->toBeFalse("Table {$table} survived rollback");
+    }
+    expect(Schema::hasTable('payments'))->toBeTrue()
+        ->and(Schema::hasTable('organizations'))->toBeTrue();
+
+    $this->artisan('migrate')->assertSuccessful();
+    foreach ($tables as $table) {
+        expect(Schema::hasTable($table))->toBeTrue("Table {$table} missing after re-migrate");
+    }
+
+    if (DB::getDriverName() === 'pgsql') {
+        $memberKeys = collect(array_column(Schema::getForeignKeys('organization_members'), 'columns'))->flatten()->all();
+        expect($memberKeys)->toContain('organization_id', 'learner_id', 'invite_id');
+    }
+});
+
+it('enforces the organization uniqueness keys: members (organization_id, learner_id), invites.code, users (organization_id, user_id)', function (): void {
+    $org = Organization::factory()->create();
+    $learner = Learner::factory()->create();
+    $user = User::factory()->create();
+
+    OrganizationMember::factory()->create(['organization_id' => $org->id, 'learner_id' => $learner->id]);
+    expectConstraintViolation(fn () => OrganizationMember::factory()->left()->create(['organization_id' => $org->id, 'learner_id' => $learner->id]));
+    // The same learner in another organization is fine.
+    OrganizationMember::factory()->create(['learner_id' => $learner->id]);
+
+    OrganizationInvite::factory()->create(['organization_id' => $org->id, 'code' => 'ABCDEFGHJK']);
+    expectConstraintViolation(fn () => OrganizationInvite::factory()->create(['code' => 'ABCDEFGHJK']));
+
+    OrganizationUser::factory()->create(['organization_id' => $org->id, 'user_id' => $user->id]);
+    expectConstraintViolation(fn () => OrganizationUser::factory()->teacher()->create(['organization_id' => $org->id, 'user_id' => $user->id]));
+});
+
+it('cascades and nulls the organization foreign keys as designed (docs/13 §1.3)', function (): void {
+    $org = Organization::factory()->create();
+    $learner = Learner::factory()->create();
+    $staff = User::factory()->create();
+    $creator = User::factory()->create();
+    $group = TelegramGroup::factory()->create(['organization_id' => $org->id]);
+    $invite = OrganizationInvite::factory()->create(['organization_id' => $org->id, 'telegram_group_id' => $group->id, 'created_by_user_id' => $creator->id]);
+    $member = OrganizationMember::factory()->create(['organization_id' => $org->id, 'learner_id' => $learner->id, 'invite_id' => $invite->id]);
+    OrganizationUser::factory()->create(['organization_id' => $org->id, 'user_id' => $staff->id, 'invited_by_user_id' => $creator->id]);
+
+    // nullOnDelete: the invite keeps living without its group / creator, the member without its invite.
+    $group->delete();
+    $creator->delete();
+    expect($invite->fresh()?->telegram_group_id)->toBeNull()
+        ->and($invite->fresh()?->created_by_user_id)->toBeNull()
+        ->and(OrganizationUser::query()->sole()->invited_by_user_id)->toBeNull();
+
+    $invite->delete();
+    expect($member->fresh()?->invite_id)->toBeNull()
+        ->and($member->fresh()?->status)->toBe('active');
+
+    // cascade: a hard-deleted learner / user / organization takes its rows along.
+    $learner->forceDelete();
+    expect(OrganizationMember::query()->count())->toBe(0);
+
+    $staff->delete();
+    expect(OrganizationUser::query()->count())->toBe(0);
+
+    OrganizationMember::factory()->create(['organization_id' => $org->id]);
+    OrganizationInvite::factory()->create(['organization_id' => $org->id]);
+    OrganizationUser::factory()->create(['organization_id' => $org->id]);
+    $org->delete();
+    expect(OrganizationMember::query()->count())->toBe(0)
+        ->and(OrganizationInvite::query()->count())->toBe(0)
+        ->and(OrganizationUser::query()->count())->toBe(0);
+});
+
 it('rolls back and re-applies the billing migrations (2A.1) in FK order', function (): void {
     $tables = ['payments', 'provider_transactions', 'payment_orders', 'offers'];
 
-    $this->artisan('migrate:rollback', ['--step' => 4])->assertSuccessful();
+    // 7 steps: the three 2B.1 organization files sit on top of the four 2A.1 billing files.
+    $this->artisan('migrate:rollback', ['--step' => 7])->assertSuccessful();
     foreach ($tables as $table) {
         expect(Schema::hasTable($table))->toBeFalse("Table {$table} survived rollback");
     }

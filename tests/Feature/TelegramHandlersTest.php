@@ -15,6 +15,7 @@ use App\Models\TrainingReview;
 use App\Models\TrainingSession;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
@@ -65,11 +66,12 @@ it('marks group as disabled when bot is kicked', function (): void {
     expect(TelegramGroup::where('chat_id', -9999)->value('status'))->toBe('disabled');
 });
 
-it('drops the sponsored Pro of the members at once when the bot is removed from the group', function (): void {
+it('keeps the seat (and the sponsored Pro) of the members when the bot is removed from the group', function (): void {
     $org = Organization::factory()->create();
     Subscription::factory()->forOrganization($org)->create(['current_period_ends_at' => null]);
     $group = TelegramGroup::factory()->create(['chat_id' => -9998, 'status' => 'active', 'organization_id' => $org->id]);
-    $member = Learner::factory()->memberOf($group)->create();
+    // In the group AND seated through it (what the join hook creates, docs/13 §1.3).
+    $member = Learner::factory()->memberOf($group)->seatedIn($org, 'seated', 'group')->create();
     $resolver = app(EntitlementResolver::class);
     expect($resolver->for($member)->plan)->toBe(Plan::Pro);   // primes the cache
 
@@ -80,8 +82,11 @@ it('drops the sponsored Pro of the members at once when the bot is removed from 
         ],
     ]);
 
+    // Since 2B.1 the plan hangs on the seat, not on the group row (docs/13 §1.3): the bot leaving
+    // the chat does not take the learner out of the center. The cache is still dropped (observer).
     expect($group->fresh()?->status)->toBe('disabled')
-        ->and($resolver->for($member)->plan)->toBe(Plan::Free);
+        ->and(Cache::has(EntitlementResolver::cacheKey($member->id)))->toBeFalse()
+        ->and($resolver->for($member)->plan)->toBe(Plan::Pro);
 });
 
 it('creates a learner and an active membership for every human in new_chat_members', function (): void {

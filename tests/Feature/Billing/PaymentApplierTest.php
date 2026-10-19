@@ -11,7 +11,6 @@ use App\Domain\Billing\Services\CheckoutService;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Billing\Services\PaymentApplier;
 use App\Models\AuditLog;
-use App\Models\GroupMember;
 use App\Models\Learner;
 use App\Models\Offer;
 use App\Models\Organization;
@@ -19,7 +18,6 @@ use App\Models\Payment;
 use App\Models\PaymentOrder;
 use App\Models\ProductEvent;
 use App\Models\Subscription;
-use App\Models\TelegramGroup;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -265,9 +263,8 @@ it('redeems the applied offer exactly once', function (): void {
 
 it('credits an organization order with its tier and drops the cache of the sponsored members', function (): void {
     $org = Organization::factory()->create();
-    $group = TelegramGroup::factory()->create(['status' => 'active', 'organization_id' => $org->id]);
-    $member = Learner::factory()->create();
-    GroupMember::factory()->create(['telegram_group_id' => $group->id, 'learner_id' => $member->id]);
+    // Joined before the center paid: no seat yet (waitlisted). The payment's `reseat` after commit seats them (docs/13 §2.3).
+    $member = Learner::factory()->seatedIn($org, 'waitlisted')->create();
     $resolver = app(EntitlementResolver::class);
     expect($resolver->for($member)->plan)->toBe(Plan::Free);
 

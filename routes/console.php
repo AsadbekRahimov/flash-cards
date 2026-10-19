@@ -37,6 +37,12 @@ Schedule::command('subscriptions:expire')
     ->hourly()
     ->withoutOverlapping();
 
+// Repair path of the group -> organization membership hook (docs/13 §2.3): any learner in a
+// group of an organization without a membership row gets one (joined_via = group). Idempotent.
+Schedule::command('organizations:sync-members')
+    ->hourly()
+    ->withoutOverlapping();
+
 // Personal reminders by the learner's local time (docs/12 §7.5): claims
 // `learners.next_reminder_at <= now` with a conditional UPDATE, so a parallel or
 // repeated run never reminds anyone twice.

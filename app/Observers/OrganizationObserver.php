@@ -9,8 +9,8 @@ use App\Models\Organization;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Only an `active` organization sponsors its groups (docs/12 §5.1): suspending
- * or deleting one drops the cached entitlement of every member of its groups.
+ * Only an `active` organization sponsors its seated members (docs/12 §5.1, docs/13 §1.3):
+ * suspending or deleting one drops the cached entitlement of every active member.
  * Registered in AppServiceProvider.
  */
 final class OrganizationObserver
@@ -26,15 +26,14 @@ final class OrganizationObserver
         }
     }
 
-    /** `telegram_groups.organization_id` is nulled by the FK: enumerate members now, forget after commit. */
+    /** `organization_members` are removed by the FK cascade: enumerate members now, forget after commit. */
     public function deleting(Organization $organization): void
     {
         /** @var list<int> $learnerIds */
-        $learnerIds = DB::table('group_members as gm')
-            ->join('telegram_groups as g', 'g.id', '=', 'gm.telegram_group_id')
-            ->where('g.organization_id', $organization->id)
-            ->where('gm.status', 'active')
-            ->pluck('gm.learner_id')
+        $learnerIds = DB::table('organization_members')
+            ->where('organization_id', $organization->id)
+            ->where('status', 'active')
+            ->pluck('learner_id')
             ->map(static fn (mixed $id): int => (int) $id)
             ->all();
 

@@ -20,6 +20,7 @@ use App\Models\GroupMember;
 use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\Organization;
+use App\Models\OrganizationMember;
 use App\Models\ProductEvent;
 use App\Models\Stage;
 use App\Models\Subscription;
@@ -292,8 +293,8 @@ it('does not limit a Pro learner, personal or sponsored by a center', function (
 
     $sponsored = nwqLearner(5);
     $organization = Organization::factory()->create();
-    $group = TelegramGroup::factory()->create(['status' => 'active', 'organization_id' => $organization->id]);
-    GroupMember::factory()->create(['telegram_group_id' => $group->id, 'learner_id' => $sponsored->id]);
+    // Since 2B.1 the sponsored Pro hangs on a seat (organization_members), not on the group row.
+    OrganizationMember::factory()->create(['organization_id' => $organization->id, 'learner_id' => $sponsored->id]);
     Subscription::factory()->forOrganization($organization)->create();
 
     foreach ([$personal, $sponsored] as $learner) {

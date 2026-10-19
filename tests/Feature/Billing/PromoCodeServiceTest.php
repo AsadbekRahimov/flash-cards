@@ -6,14 +6,12 @@ use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Exceptions\PromoCodeException;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Billing\Services\PromoCodeService;
-use App\Models\GroupMember;
 use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\ProductEvent;
 use App\Models\PromoCode;
 use App\Models\PromoRedemption;
 use App\Models\Subscription;
-use App\Models\TelegramGroup;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
@@ -299,10 +297,8 @@ it('does not record promo.rejected on a successful redemption', function (): voi
 });
 
 it('creates a personal subscription for a learner whose Pro is only sponsored', function (): void {
-    $learner = Learner::factory()->create();
     $org = Organization::factory()->create();
-    $group = TelegramGroup::factory()->create(['status' => 'active', 'organization_id' => $org->id]);
-    GroupMember::factory()->create(['telegram_group_id' => $group->id, 'learner_id' => $learner->id]);
+    $learner = Learner::factory()->seatedIn($org)->create(); // a seat, not a group row, sponsors since 2B.1
     Subscription::factory()->forOrganization($org)->create(['current_period_ends_at' => CarbonImmutable::now()->addDays(5)]);
     PromoCode::factory()->create(['code' => 'OWN', 'duration_days' => 30]);
     $resolver = app(EntitlementResolver::class);

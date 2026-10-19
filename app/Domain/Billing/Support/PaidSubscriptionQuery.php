@@ -80,9 +80,10 @@ final class PaidSubscriptionQuery
     }
 
     /**
-     * A granting subscription of an active organization that owns an active group where the learner
-     * is an active member (the chain EntitlementResolver uses), correlated with `learners.id`: for
-     * the rows of one page. For filtering a whole table use {@see self::sponsoredLearnerIds()}.
+     * A granting subscription of an active organization where the learner holds a seat
+     * (`organization_members`: active, seated — the chain EntitlementResolver uses since 2B.1,
+     * docs/13 §2.3), correlated with `learners.id`: for the rows of one page. For filtering a
+     * whole table use {@see self::sponsoredLearnerIds()}.
      *
      * @return Builder<Subscription>
      */
@@ -91,37 +92,35 @@ final class PaidSubscriptionQuery
         return self::granting(
             Subscription::query()
                 ->where('subscriptions.subscriber_type', 'organization')
-                ->whereIn('subscriptions.subscriber_id', DB::table('group_members as gm')
-                    ->join('telegram_groups as g', 'g.id', '=', 'gm.telegram_group_id')
-                    ->join('organizations as o', 'o.id', '=', 'g.organization_id')
-                    ->whereColumn('gm.learner_id', 'learners.id')
-                    ->where('gm.status', 'active')
-                    ->where('g.status', 'active')
+                ->whereIn('subscriptions.subscriber_id', DB::table('organization_members as om')
+                    ->join('organizations as o', 'o.id', '=', 'om.organization_id')
+                    ->whereColumn('om.learner_id', 'learners.id')
+                    ->where('om.status', 'active')
+                    ->where('om.seat_state', 'seated')
                     ->where('o.status', 'active')
-                    ->select('g.organization_id')),
+                    ->select('om.organization_id')),
             $now,
         );
     }
 
     /**
-     * Ids of every learner sponsored right now: an active member of an active group of an active
-     * organization that has a granting subscription. Uncorrelated (the few sponsoring organizations
-     * are resolved once and hashed), so it suits "who is Pro" over the whole table, where the
-     * correlated {@see self::sponsorFor()} would run its subquery per learner.
+     * Ids of every learner sponsored right now: seated in an active organization that has a
+     * granting subscription. Uncorrelated (the few sponsoring organizations are resolved once and
+     * hashed), so it suits "who is Pro" over the whole table, where the correlated
+     * {@see self::sponsorFor()} would run its subquery per learner.
      */
     public static function sponsoredLearnerIds(CarbonImmutable $now): QueryBuilder
     {
-        return DB::table('group_members as gm')
-            ->join('telegram_groups as g', 'g.id', '=', 'gm.telegram_group_id')
-            ->join('organizations as o', 'o.id', '=', 'g.organization_id')
-            ->where('gm.status', 'active')
-            ->where('g.status', 'active')
+        return DB::table('organization_members as om')
+            ->join('organizations as o', 'o.id', '=', 'om.organization_id')
+            ->where('om.status', 'active')
+            ->where('om.seat_state', 'seated')
             ->where('o.status', 'active')
             ->whereIn('o.id', self::granting(
                 Subscription::query()->where('subscriptions.subscriber_type', 'organization'),
                 $now,
             )->select('subscriptions.subscriber_id'))
-            ->select('gm.learner_id');
+            ->select('om.learner_id');
     }
 
     /** @return list<string> plan keys ranked above Free */
