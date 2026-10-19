@@ -22,7 +22,7 @@ final class OrganizationMembershipsResource extends TwaResource
     public function toArray(Request $request): array
     {
         return [
-            'organizations' => $this->resource
+            'organizations' => array_values($this->resource
                 ->map(static fn (OrganizationMember $member): array => [
                     'id' => $member->id,
                     'name' => $member->organization->name,
@@ -31,8 +31,7 @@ final class OrganizationMembershipsResource extends TwaResource
                     'joined_at' => $member->joined_at->toIso8601String(),
                     'can_leave' => $member->isLeavableByLearner(),
                 ])
-                ->values()
-                ->all(),
+                ->all()),
         ];
     }
 }

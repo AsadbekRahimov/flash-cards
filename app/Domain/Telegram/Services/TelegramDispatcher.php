@@ -12,6 +12,7 @@ use App\Domain\Telegram\Handlers\LearnerDmHandler;
 use App\Domain\Telegram\Handlers\MyChatMemberHandler;
 use App\Domain\Telegram\Handlers\NewMembersHandler;
 use App\Domain\Telegram\Handlers\OnboardingCallbackHandler;
+use App\Domain\Telegram\Handlers\OrganizationCallbackHandler;
 use App\Domain\Telegram\Handlers\PaySupportCommandHandler;
 use App\Domain\Telegram\Handlers\ProCallbackHandler;
 use App\Domain\Telegram\Handlers\ProCommandHandler;
@@ -57,6 +58,7 @@ final class TelegramDispatcher
         LearnerDmHandler $learnerDm,
         OnboardingCallbackHandler $onboardingCallback,
         ProCallbackHandler $proCallback,
+        OrganizationCallbackHandler $organizationCallback,
     ) {
         // Order matters: more specific commands first (e.g. /start_training
         // must win over the generic /start catch-all).
@@ -83,6 +85,7 @@ final class TelegramDispatcher
             $startTrainingCallback,
             $onboardingCallback,
             $proCallback,
+            $organizationCallback,
         ];
     }
 

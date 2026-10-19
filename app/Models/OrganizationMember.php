@@ -29,6 +29,8 @@ use Illuminate\Support\Carbon;
  * @property Carbon $joined_at
  * @property Carbon|null $left_at
  * @property array<string, mixed> $meta
+ * @property-read Organization $organization both FKs are NOT NULL with cascade: the parents of a membership always exist
+ * @property-read Learner $learner
  */
 class OrganizationMember extends Model
 {

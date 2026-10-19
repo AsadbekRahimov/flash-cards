@@ -10,9 +10,11 @@ use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Learners\DTO\OnboardingOption;
 use App\Domain\Learners\DTO\OnboardingStep;
 use App\Domain\Learners\DTO\StartPayload;
+use App\Domain\Learners\Enums\StartPayloadKind;
 use App\Domain\Learners\Exceptions\OnboardingException;
 use App\Domain\Learners\Exceptions\TimezoneChangeTooSoonException;
 use App\Domain\Localization\Services\LocaleResolver;
+use App\Domain\Organizations\Services\OrganizationInviteService;
 use App\Models\Course;
 use App\Models\Learner;
 use Illuminate\Support\Facades\DB;
@@ -60,6 +62,9 @@ final class OnboardingService
     /** `learners.meta` key: the course slug of a `c_<slug>` link, applied when the onboarding completes. */
     private const PENDING_COURSE = 'pending_course';
 
+    /** `learners.meta` key: the invite code of an `org_<code>` link, offered once the onboarding is done (docs/13 §6.2). */
+    private const PENDING_ORG_INVITE = 'pending_org_invite';
+
     public function __construct(
         private readonly LocaleResolver $locales,
         private readonly CourseCatalogService $catalog,
@@ -71,7 +76,8 @@ final class OnboardingService
     /**
      * `/start` of a learner who has not finished the onboarding: `new` moves to the first step
      * (`onboarding.started`); a learner in the middle of it just gets their current step again.
-     * A `c_<slug>` payload is remembered and picks the active course when the onboarding ends.
+     * A `c_<slug>` payload is remembered and picks the active course when the onboarding ends;
+     * an `org_<code>` payload is remembered too and offered as "Join center X?" after the last step.
      */
     public function start(Learner $learner, StartPayload $payload): OnboardingStep
     {
@@ -92,6 +98,10 @@ final class OnboardingService
                 $fresh->meta = [...$fresh->meta, self::PENDING_COURSE => $payload->courseSlug()];
             }
 
+            if ($payload->kind === StartPayloadKind::Org && $payload->value !== null) {
+                $fresh->meta = [...$fresh->meta, self::PENDING_ORG_INVITE => OrganizationInviteService::normalizeCode($payload->value)];
+            }
+
             $fresh->save();
         });
 
@@ -108,6 +118,33 @@ final class OnboardingService
         }
 
         return $this->current($learner);
+    }
+
+    /** The invite code of an `org_<code>` link waiting for the end of the onboarding, if any. */
+    public function pendingOrganizationInvite(Learner $learner): ?string
+    {
+        $code = ($learner->meta ?? [])[self::PENDING_ORG_INVITE] ?? null;
+
+        return is_string($code) && $code !== '' ? $code : null;
+    }
+
+    /** Forgets the pending invite once it has been offered (or turned out to be unusable). */
+    public function clearPendingOrganizationInvite(Learner $learner): void
+    {
+        DB::transaction(function () use ($learner): void {
+            $fresh = $this->lock($learner);
+            $meta = $fresh->meta;
+
+            if (! array_key_exists(self::PENDING_ORG_INVITE, $meta)) {
+                return;
+            }
+
+            unset($meta[self::PENDING_ORG_INVITE]);
+            $fresh->meta = $meta;
+            $fresh->save();
+        });
+
+        $learner->refresh();
     }
 
     /** The step the learner has to answer now (`done` when finished; `new` counts as the first step). */

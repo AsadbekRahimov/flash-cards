@@ -790,3 +790,44 @@
 | `error.code.provider_not_registered` | Bu amal sizning to'lov usulingiz uchun mavjud emas. | Это действие недоступно для вашего способа оплаты. |
 | `error.code.provider_unavailable` | To'lov xizmati javob bermayapti. Bir necha daqiqadan keyin urinib ko'ring. | Платёжный сервис не отвечает. Попробуйте через несколько минут. |
 | `error.code.order_not_found` | Hisob topilmadi. | Счёт не найден. |
+
+## Фаза 2 · задача 2B.2 (инвайт-ссылка центра и бот) — на проверку носителю
+
+> Проверить: «markaz» (учебный центр; единый термин для центра во всех строках `organizations.*`), «Qo'shilish» / «tark etish» (вступить / покинуть), «joy» (место: «joy bo'shadi», «joy kutilmoqda»), «guruh orqali» (через группу).
+> В строках `organizations.errors.*` — причины отказа по ссылке центра: недействительна, истёк срок, исчерпана, центр приостановлен.
+
+### Бот (`lang/uz/organizations.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `organizations.offer.text` | «:organization» o'quv markazi sizni LexiFlow'ga taklif qilmoqda. Markaz beradigan Pro imkoniyatini olish uchun qo'shilasizmi? | Учебный центр «:organization» приглашает вас в LexiFlow. Вступить, чтобы получить Pro от центра? |
+| `organizations.offer.join` | Qo'shilish | Вступить |
+| `organizations.offer.skip` | Hozir emas | Не сейчас |
+| `organizations.already` | Siz allaqachon «:organization» markazidasiz. | Вы уже в центре «:organization». |
+| `organizations.skipped` | Mayli. Markaz havolasi orqali istalgan vaqtda qo'shilishingiz mumkin. | Хорошо. Вступить можно в любой момент по ссылке центра. |
+| `organizations.joined.seated` | Siz «:organization» markazidasiz. Pro faol — cheklovlarsiz shug'ullaning. | Вы в центре «:organization». Pro активен — занимайтесь без ограничений. |
+| `organizations.joined.waitlisted` | Siz «:organization» markazidasiz, lekin hozircha bo'sh joy yo'q. Markaz administratoriga murojaat qiling — joy bo'shashi bilan Pro avtomatik yoqiladi. | Вы в центре «:organization», но свободных мест пока нет. Сообщите администратору центра — как только место освободится, Pro включится автоматически. |
+| `organizations.joined.button` | LexiFlow'ni ochish | Открыть LexiFlow |
+| `organizations.seated.text` | «:organization» markazida siz uchun joy bo'shadi. Pro faol! | В центре «:organization» освободилось место для вас. Pro активен! |
+| `organizations.seated.button` | LexiFlow'ni ochish | Открыть LexiFlow |
+| `organizations.errors.invite_invalid` | Markaz havolasi yaroqsiz yoki o'chirilgan. Administratordan yangisini so'rang. | Ссылка центра недействительна или отключена. Попросите у администратора новую. |
+| `organizations.errors.invite_expired` | Markaz havolasining amal qilish muddati tugagan. Administratordan yangisini so'rang. | Срок действия ссылки центра истёк. Попросите у администратора новую. |
+| `organizations.errors.invite_exhausted` | Markaz havolasi ruxsat etilgan maksimal marta ishlatilgan. Administratordan yangisini so'rang. | Эта ссылка центра уже использована максимальное число раз. Попросите у администратора новую. |
+| `organizations.errors.organization_suspended` | Markaz hozircha o'quvchilarni qabul qilmaydi. Markaz administratoriga murojaat qiling. | Центр сейчас не принимает учеников. Обратитесь к администратору центра. |
+| `organizations.errors.not_a_member` | Siz endi bu markazda emassiz. | Вы уже не состоите в этом центре. |
+| `organizations.errors.membership_not_found` | Siz endi bu markazda emassiz. | Вы уже не состоите в этом центре. |
+| `organizations.errors.membership_via_group` | Siz «:organization» markazidasiz — guruh orqali. Markazdan chiqish uchun Telegram'da markaz guruhini tark eting. | Вы в центре «:organization» через группу: покинуть его можно, выйдя из группы центра в Telegram. |
+| `organizations.errors.generic` | Bajarilmadi. Keyinroq qayta urinib ko'ring. | Не получилось. Попробуйте ещё раз позже. |
+| `organizations.settings_button` | Mening markazlarim | Мои центры |
+| `organizations.list.title` | Sizning markazlaringiz: | Ваши центры: |
+| `organizations.list.empty` | Siz hech qaysi markazda emassiz. | Вы не состоите ни в одном центре. |
+| `organizations.list.line` | • «:organization» — :state | • «:organization» — :state |
+| `organizations.list.state.seated` | Pro faol | Pro активен |
+| `organizations.list.state.waitlisted` | joy kutilmoqda | в очереди на место |
+| `organizations.list.group_note` | Guruh orqali qo'shilgan markazlarni bu yerdan tark etib bo'lmaydi: Telegram'da markaz guruhini tark eting. | Центры, в которых вы через группу, отсюда не покинуть: выйдите из группы центра в Telegram. |
+| `organizations.list.leave` | «:organization» markazini tark etish | Покинуть «:organization» |
+| `organizations.leave.confirm` | «:organization» markazini tark etasizmi? Markaz bergan Pro o'chadi, shaxsiy obunangiz (agar bo'lsa) saqlanadi. | Покинуть центр «:organization»? Pro от центра отключится, личная подписка (если есть) останется. |
+| `organizations.leave.yes` | Ha, tark etaman | Да, покинуть |
+| `organizations.leave.no` | Bekor qilish | Отмена |
+| `organizations.leave.done` | Siz «:organization» markazini tark etdingiz. | Вы покинули центр «:organization». |
+| `organizations.leave.cancelled` | Mayli, hech narsa o'zgarmadi. | Хорошо, ничего не изменилось. |
