@@ -85,7 +85,9 @@ flowchart LR
 - Каждую минуту — `artisan schedule:run`.
 - Задачи:
   - `exam:close-expired` — раз в минуту.
-  - `repetitions:notify` — ежедневно в 18:00, напоминания learner'ам: одно на человека, сколько бы групп у него ни было (`ReviewReminderService`; перевод на локальное время по `learners.next_reminder_at` — задача 1.5b, docs/12 §7.5).
+  - `reminders:dispatch` — каждые 15 минут, `withoutOverlapping`: персональные напоминания по локальному времени learner'а (`ReminderDispatcher` клеймит `learners.next_reminder_at <= now` условным UPDATE и ставит `SendLearnerReminderJob`; текст — review / streak_at_risk — решает job; docs/06 §6, docs/12 §7.5). Параллельный или повторный запуск ничего не дублирует.
+  - `training:close-expired` — каждые 15 минут, просроченные личные и устаревшие групповые сессии.
+  - `subscriptions:expire` — раз в час, переходы подписок по времени.
   - `analytics:refresh-materialized-views` — ночью.
 
 ### 2.6 Telegram Bot SDK

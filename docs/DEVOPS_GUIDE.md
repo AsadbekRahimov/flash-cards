@@ -401,7 +401,9 @@ Add (using the absolute path to PHP — find yours with `which php`):
 This runs every minute. Laravel's scheduler internally dispatches:
 - `ops:scheduler-heartbeat` — every minute (liveness marker read by `/health/ready`).
 - `exams:close-expired` — every minute (closes timed-out exam sessions).
-- `repetitions:notify` — daily at 18:00 (review reminders).
+- `reminders:dispatch` — every 15 minutes (personal reminders by the learner's local time; a learner is claimed by a conditional UPDATE, so overlapping runs are safe).
+- `training:close-expired` — every 15 minutes (expired personal / stale group training sessions).
+- `subscriptions:expire` — hourly (time-based subscription transitions).
 - `backup:clean` — daily at 01:00.
 - `backup:run` — daily at 01:30.
 - `backup:monitor` — daily at 02:00.
@@ -602,7 +604,7 @@ The scheduler heartbeat is written by a scheduled callback (`ops:scheduler-heart
 | `billing.promo_rejected_burst` (warning log; `learner_id`, `rejections`, `last_reason`) | any occurrence outside a known broken client — one learner failed ≥ 5 promo redemptions in 10 min (`BILLING_PROMO_REJECTIONS_ALERT_*`): code guessing; consider blocking the learner |
 
 Product events (`product_events` table, see `docs/03_DATABASE.md`) are for product analytics, not alerting.
-`reminder.failed` is expected for students who blocked the bot; alert only on a sudden spike.
+`reminder.failed` is expected for learners who blocked the bot or never opened a DM with it (`reason`: `bot_blocked` / `not_started` / `user_deactivated`); it sets `learners.dm_blocked_at` and the learner is not retried until they write to the bot. Alert only on a sudden spike. `reminders:dispatch` prints `claimed / queued / skipped stale / repaired / backfilled`; a steadily non-zero `skipped stale` means the scheduler or the queue lags by more than `REMINDERS_MAX_DELAY_MINUTES`.
 `promo.rejected` is likewise expected (typos); the burst *log line* above, not the event, is the alert.
 
 ---

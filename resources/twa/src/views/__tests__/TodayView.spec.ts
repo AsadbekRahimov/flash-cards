@@ -127,6 +127,57 @@ describe('TodayView', () => {
     expect(w.router.currentRoute.value.params.sessionId).toBe('918')
   })
 
+  describe('opened from a reminder (?from=reminder)', () => {
+    async function renderAt(path: string, response: TodayResponse = today()) {
+      vi.mocked(api.today.get).mockResolvedValue(response)
+      const router = makeRouter()
+      await router.push(path)
+      await router.isReady()
+      const wrapper = mount(TodayView, { global: { plugins: [router] } })
+      await flushPromises()
+      return Object.assign(wrapper, { router })
+    }
+
+    it('opens the daily review as a reminder session right away and drops the marker from the URL', async () => {
+      vi.mocked(api.training.open).mockResolvedValue({ session_id: 918, mode: 'daily_review', lesson: null, total_words: 20 })
+
+      const w = await renderAt('/today?from=reminder')
+
+      expect(api.today.get).toHaveBeenCalledTimes(1)
+      expect(api.training.open).toHaveBeenCalledTimes(1)
+      expect(api.training.open).toHaveBeenCalledWith({ mode: 'daily_review', source: 'reminder' })
+      expect(w.router.currentRoute.value.name).toBe('training')
+      expect(w.router.currentRoute.value.params.sessionId).toBe('918')
+      // The `today` entry behind us no longer carries the marker: going back does not reopen a session.
+      w.router.back()
+      await flushPromises()
+      expect(w.router.currentRoute.value.query.from).toBeUndefined()
+    })
+
+    it('stays on the screen with the error when the session cannot be opened', async () => {
+      vi.mocked(api.training.open).mockRejectedValue(new ApiClientError('rate_limited', 429, 'unknown', 'Too Many Attempts.'))
+
+      const w = await renderAt('/today?from=reminder')
+
+      expect(w.router.currentRoute.value.name).toBe('today')
+      expect(w.router.currentRoute.value.query.from).toBeUndefined()
+      expect(text(w, 'open-error')).toBe('Слишком много запросов. Подождите немного и повторите.')
+      expect(text(w, 'goal-text')).toBe('8 из 20')
+    })
+
+    it('does not open anything when the Today data failed to load, nor for other sources', async () => {
+      vi.mocked(api.today.get).mockRejectedValueOnce(new ApiClientError('server', 500, 'server_error', 'boom'))
+      const failed = await renderAt('/today?from=reminder')
+      expect(api.training.open).not.toHaveBeenCalled()
+      expect(failed.find('[data-testid=error]').exists()).toBe(true)
+
+      const other = await renderAt('/today?from=today')
+      expect(api.training.open).not.toHaveBeenCalled()
+      expect(other.router.currentRoute.value.name).toBe('today')
+      expect(other.router.currentRoute.value.query.from).toBe('today')
+    })
+  })
+
   it('offers to continue an open daily review', async () => {
     const w = await render(today({ open_session_id: 918 }))
 

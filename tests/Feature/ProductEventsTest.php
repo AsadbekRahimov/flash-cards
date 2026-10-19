@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
-use App\Domain\Learners\Services\GroupMembershipService;
+use App\Domain\Learners\Services\ReminderSender;
 use App\Domain\Learning\Services\LeaderboardBuilder;
-use App\Domain\Learning\Services\ReviewReminderLinkBuilder;
-use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Services\IrazasyedTelegramClient;
@@ -16,7 +14,6 @@ use App\Domain\Telegram\Services\TelegramKeyboardFactory;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
 use App\Domain\Twa\Services\InitDataValidator;
 use App\Jobs\PostLeaderboardJob;
-use App\Jobs\SendReviewReminderJob;
 use App\Models\ExamSession;
 use App\Models\Learner;
 use App\Models\Lesson;
@@ -26,6 +23,7 @@ use App\Models\Stage;
 use App\Models\TelegramGroup;
 use App\Models\User;
 use App\Models\Word;
+use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
 use GuzzleHttp\Psr7\Response as PsrResponse;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -455,31 +453,29 @@ it('records group.member_left for a chat_member leave and group.member_joined ag
 
 // --- reminders ------------------------------------------------------------
 
-function peReminderLearner(): Learner
+/** A learner with $due graduated due cards, sent through the reminder sender with the given Telegram client. */
+function peRunReminder(TelegramClient $telegram, int $due = 7): Learner
 {
-    $group = TelegramGroup::factory()->create(['status' => 'active']);
+    $learner = Learner::factory()->create(['telegram_user_id' => 900100, 'reminder_time' => '19:00']);
+    foreach (Word::factory()->count($due)->create() as $word) {
+        WordRepetition::factory()->due()->create(['learner_id' => $learner->id, 'word_id' => $word->id]);
+    }
+    app()->instance(TelegramClient::class, $telegram);
 
-    return Learner::factory()->memberOf($group)->create(['telegram_user_id' => 900100]);
+    app(ReminderSender::class)->send($learner->id, CarbonImmutable::now()->subMinutes(5));
+
+    return $learner;
 }
 
-it('records reminder.sent after a successful reminder', function (): void {
-    $learner = peReminderLearner();
-
-    (new SendReviewReminderJob($learner->id, 7))->handle(
-        $this->api,
-        app(ReviewReminderLinkBuilder::class),
-        app(ProductEventRecorder::class),
-        app(LocaleResolver::class),
-        app(GroupMembershipService::class),
-    );
+it('records reminder.sent with the kind and the due count after a successful reminder', function (): void {
+    $learner = peRunReminder($this->api);
 
     $event = peEvent(ProductEventName::ReminderSent);
     expect($event->learner_id)->toBe($learner->id)
-        ->and($event->props)->toBe(['due_count' => 7]);
+        ->and(ksorted($event->props))->toBe(ksorted(['kind' => 'review', 'due_count' => 7]));
 });
 
-it('records reminder.failed and does not fail the job on Telegram 403', function (): void {
-    $learner = peReminderLearner();
+it('records reminder.failed, marks the DM blocked and does not fail the job on Telegram 403', function (): void {
     Log::spy();
 
     $telegram = Mockery::mock(TelegramClient::class);
@@ -487,39 +483,26 @@ it('records reminder.failed and does not fail the job on Telegram 403', function
         ->once()
         ->andThrow(new TelegramForbiddenException(TelegramForbiddenException::REASON_BOT_BLOCKED));
 
-    (new SendReviewReminderJob($learner->id, 7))->handle(
-        $telegram,
-        app(ReviewReminderLinkBuilder::class),
-        app(ProductEventRecorder::class),
-        app(LocaleResolver::class),
-        app(GroupMembershipService::class),
-    );
+    $learner = peRunReminder($telegram);
 
     $event = peEvent(ProductEventName::ReminderFailed);
     expect($event->learner_id)->toBe($learner->id)
-        ->and(ksorted($event->props))->toBe(ksorted(['reason' => 'bot_blocked', 'due_count' => 7]));
+        ->and(ksorted($event->props))->toBe(ksorted(['reason' => 'bot_blocked', 'kind' => 'review']));
     expect(ProductEvent::query()->where('name', 'reminder.sent')->exists())->toBeFalse();
     expect(NotificationLog::query()->where('learner_id', $learner->id)->exists())->toBeFalse();
+    expect($learner->fresh()->dm_blocked_at)->not->toBeNull();
 
     Log::shouldHaveReceived('warning')->withArgs(function (string $message, array $context) use ($learner): bool {
-        return $message === 'telegram.review_reminder_forbidden'
+        return $message === 'telegram.reminder_forbidden'
             && $context === ['learner_id' => $learner->id, 'reason' => 'bot_blocked'];
     })->once();
 });
 
-it('still rethrows other Telegram errors from the reminder job', function (): void {
-    $learner = peReminderLearner();
-
+it('still rethrows other Telegram errors from the reminder sender', function (): void {
     $telegram = Mockery::mock(TelegramClient::class);
     $telegram->shouldReceive('sendWebAppButton')->once()->andThrow(new RuntimeException('Telegram is down'));
 
-    expect(fn () => (new SendReviewReminderJob($learner->id, 7))->handle(
-        $telegram,
-        app(ReviewReminderLinkBuilder::class),
-        app(ProductEventRecorder::class),
-        app(LocaleResolver::class),
-        app(GroupMembershipService::class),
-    ))->toThrow(RuntimeException::class, 'Telegram is down');
+    expect(fn () => peRunReminder($telegram))->toThrow(RuntimeException::class, 'Telegram is down');
 
     expect(ProductEvent::query()->count())->toBe(0);
 });

@@ -21,6 +21,7 @@ use App\Domain\Telegram\Handlers\StartTrainingHandler;
 use App\Domain\Telegram\Handlers\StatsCommandHandler;
 use App\Domain\Telegram\Handlers\TodayCommandHandler;
 use App\Domain\Telegram\Support\CallbackAcknowledger;
+use App\Domain\Telegram\Support\DmLearnerResolver;
 use App\Models\TelegramGroup;
 use Illuminate\Support\Facades\RateLimiter;
 
@@ -34,6 +35,7 @@ final class TelegramDispatcher
 
     public function __construct(
         private readonly CallbackAcknowledger $acknowledger,
+        private readonly DmLearnerResolver $dmLearners,
         StartCommandHandler $start,
         StartTrainingHandler $startTraining,
         StartTrainingCallbackHandler $startTrainingCallback,
@@ -86,6 +88,13 @@ final class TelegramDispatcher
             return;
         }
 
+        // Any message or button tap in a private chat proves the DM is open: a learner who
+        // got a Telegram 403 on a reminder becomes reachable again (docs/12 §7.5). Before
+        // the handlers, so every DM command counts — not only those that resolve a learner.
+        if ($this->chatType($update) === 'private') {
+            $this->dmLearners->markReachable($this->fromId($update));
+        }
+
         $handlers = isset($update['callback_query'])
             ? $this->callbackHandlers
             : $this->messageHandlers;
@@ -133,7 +142,7 @@ final class TelegramDispatcher
      */
     private function withinInboundLimit(array $update): bool
     {
-        $fromId = (int) ($update['callback_query']['from']['id'] ?? $update['message']['from']['id'] ?? 0);
+        $fromId = $this->fromId($update);
 
         if ($fromId <= 0) {
             return true;
@@ -145,6 +154,12 @@ final class TelegramDispatcher
             static fn (): bool => true,
             max(1, (int) config('telegram.inbound_rate_limit.window_seconds', 60)),
         );
+    }
+
+    /** @param array<string, mixed> $update */
+    private function fromId(array $update): int
+    {
+        return (int) ($update['callback_query']['from']['id'] ?? $update['message']['from']['id'] ?? 0);
     }
 
     /** @param array<string, mixed> $update */

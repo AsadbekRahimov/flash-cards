@@ -43,4 +43,22 @@ final class DmLearnerResolver
 
         return $learner;
     }
+
+    /**
+     * Any message or button tap in a private chat proves the DM is open: clears `dm_blocked_at`
+     * of an existing learner without creating one (`/help`, `/stats`, `/promo` and future DM
+     * handlers do not go through {@see resolve()}). One indexed conditional UPDATE; a no-op for
+     * teachers and unknown senders. Called by the dispatcher before any handler (docs/12 §7.5).
+     */
+    public function markReachable(int $telegramUserId): void
+    {
+        if ($telegramUserId <= 0) {
+            return;
+        }
+
+        Learner::query()
+            ->where('telegram_user_id', $telegramUserId)
+            ->whereNotNull('dm_blocked_at')
+            ->update(['dm_blocked_at' => null]);
+    }
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import GoalRing from '@/components/GoalRing.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
@@ -13,6 +13,7 @@ import type { OpenSessionRequest } from '@/api/types'
 
 const { t, tn } = useI18n()
 const router = useRouter()
+const route = useRoute()
 const auth = useAuthStore()
 const today = useTodayStore()
 const training = useTrainingStore()
@@ -28,6 +29,13 @@ async function load(): Promise<void> {
     return
   }
   await today.load()
+
+  // Opened from a reminder (`/twa/?from=reminder`, docs/12 §7.5): go straight into the daily
+  // review. The marker is dropped from the URL first so a reload or "back" does not reopen it.
+  if (route.query.from === 'reminder' && today.data !== null) {
+    await router.replace({ name: 'today', query: {} })
+    await openSession({ mode: 'daily_review', source: 'reminder' })
+  }
 }
 
 /** Opens a personal session and goes to the training screen; a failure stays on this screen. */
