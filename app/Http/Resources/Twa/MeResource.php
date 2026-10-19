@@ -17,7 +17,7 @@ use Illuminate\Support\Collection;
  *
  * @phpstan-import-type SettingsPayload from LearnerSettingsService
  *
- * @property array{learner: Learner, groups: Collection<int, TelegramGroup>, stats: LearnerStats, entitlement: Entitlement, paywall: array{mode: string, contact: string|null}, settings: SettingsPayload} $resource
+ * @property array{learner: Learner, groups: Collection<int, TelegramGroup>, stats: LearnerStats, entitlement: Entitlement, renewal: array{auto: bool, provider: string, ends_at: string|null, reminder_sent: bool}|null, paywall: array{mode: string, contact: string|null}, settings: SettingsPayload} $resource
  */
 final class MeResource extends TwaResource
 {
@@ -26,7 +26,7 @@ final class MeResource extends TwaResource
      *   learner: array{id: int, first_name: string|null, username: string|null, locale: string, onboarding_completed: bool},
      *   groups: list<array{id: int, title: string}>,
      *   stats: array{words_learned: int, words_due_today: int},
-     *   entitlement: array{plan: string, source: string, until: string|null, new_words_per_day: int|null},
+     *   entitlement: array{plan: string, source: string, until: string|null, new_words_per_day: int|null, renewal: array{auto: bool, provider: string, ends_at: string|null, reminder_sent: bool}|null},
      *   paywall: array{mode: string, contact: string|null},
      *   settings: SettingsPayload
      * }
@@ -59,6 +59,7 @@ final class MeResource extends TwaResource
                 'source' => $entitlement->source,
                 'until' => $entitlement->until?->toIso8601String(),
                 'new_words_per_day' => $entitlement->newWordsPerDay,
+                'renewal' => $this->resource['renewal'],
             ],
             'paywall' => $this->resource['paywall'],
             'settings' => $this->resource['settings'],

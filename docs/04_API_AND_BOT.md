@@ -73,7 +73,10 @@
     "words_learned": 234,
     "words_due_today": 18
   },
-  "entitlement": { "plan": "pro", "source": "subscription", "until": "2026-12-31T12:00:00+00:00", "new_words_per_day": null },
+  "entitlement": {
+    "plan": "pro", "source": "subscription", "until": "2026-12-31T12:00:00+00:00", "new_words_per_day": null,
+    "renewal": { "auto": true, "provider": "telegram_stars", "ends_at": "2026-12-31T12:00:00+00:00", "reminder_sent": false }
+  },
   "paywall": { "mode": "coming_soon", "contact": null },
   "settings": {
     "interface_locale": "ru", "timezone": "Asia/Tashkent", "reminder_time": "19:00", "daily_goal": 20,
@@ -98,8 +101,14 @@
   `subscription` (личная подписка: ручная выдача, промокод) | `sponsor:organization:<id>` (Pro центра, к группе которого привязана
   группа learner'а); `until` — ISO 8601, `null` = конца нет (Free или бессрочная выдача); `new_words_per_day` — лимит новых слов
   в день (`20` у Free), `null` = безлимит. Значение из кэша (TTL 300 с), изменения подписки/членства сбрасывают его сразу.
+- `entitlement.renewal` (2A.2, docs/13 §5) — **собственная** живая подписка learner'а (спонсорский Pro центра ему не продлевать), `null` — если её нет (Free, только спонсор):
+  `auto` — автопродление работает сейчас (Telegram Stars, статус `active`); `provider` — `telegram_stars` | `payme` | `click` | `manual` | `promo` | `reward`;
+  `ends_at` — до какого момента подписка действует (ISO 8601, `null` — бессрочно; для Stars `past_due` — конец grace); `reminder_sent` — напоминание о продлении за 3/1 день по текущему
+  концу периода уже отправлено (маркеры `subscriptions.meta.renewal_reminders`, docs/13 §2.1). Не кэшируется (одна выборка подписки на запрос).
 - `paywall` — что показать при исчерпанной квоте (docs/12 §5.4): `mode` — `coming_soon` | `purchase`; `contact` — контакт
   поддержки для центров (`BILLING_SUPPORT_CONTACT`), **`null`, если не задан — строку с контактом тогда не показывать**.
+  `purchase` отдаётся, только если `BILLING_PAYWALL_MODE=purchase` **и** есть что продавать (`GET /billing/catalog` → `items` не пуст: включён хотя бы один провайдер, обслуживающий learner'а, и задана цена);
+  иначе режим понижается до `coming_soon` (`LearnerBillingService::paywall`; `EntitlementResolver::paywall()` отдаёт сырой режим конфига).
 - `settings` — текущие настройки (A.2b) и варианты выбора для экрана «Настройки»: `reminder_time` — `HH:MM` в часовом поясе learner'а, `null` = напоминания выключены;
   `timezone_change_available_at` — ISO 8601 UTC, когда можно снова сменить часовой пояс (раз в 24 ч, A.2b), `null` = можно сейчас (TWA блокирует выбор пояса до этого момента);
   `active_course` — `null`, если курса нет или он стал недоступен; `options.timezones[].label` и `active_course.title` — на языке learner'а (город + текущее смещение UTC,
@@ -296,6 +305,13 @@ learning, learn-ahead) квотой не ограничиваются: посл�
 и по кнопке «Узнать о Pro» на экране «Сегодня» у плана Free. После успешного промокода обновляются `/me` и `/today`. Событие `paywall.shown {reason: new_quota_exhausted, source: server}`
 пишет **сервер** (`TrainingFlowService::nextStep`) при первом за окно квоты (`LearnerClock::limitWindowUtc`, а не за календарный день: после смены пояса окно длиннее суток) ответе с `done_reason = new_quota_exhausted` (дедупликация `Cache::add`, ключ — начало окна, TTL 3 суток);
 клиентского канала продуктовых событий нет, так что «упёрся в лимит» и есть «увидел paywall» (docs/12 §5.4).
+
+**`PaywallSheet`, режим `purchase`** (2A.2, `paywall.mode = purchase` в `/me`): заголовок «LexiFlow Pro», переключатель периода (месяц/год) из `GET /billing/catalog`, цена на период и кнопки способов
+оплаты — «⭐ Stars» (`checkout.kind = invoice_link` → `Telegram.WebApp.openInvoice(url, cb)`), «Payme», «Click» (`kind = redirect` → `Telegram.WebApp.openLink(url)`); цены в тийинах делятся на 100 на клиенте, перечёркнутая
+`list_prices` и бейдж скидки — при открытом offer. Кнопки — только для провайдеров из `providers` с ценой в их валюте. Если автопродление Stars уже работает (`subscription.auto_renew`), покупка скрыта (сначала отключить
+его в `/billing`) — иначе `checkout_conflict`. После `openInvoice` со статусом `paid` и после возврата с Payme/Click (окно снова видимо) TWA опрашивает `GET /billing/orders/{token}` не чаще раза в 3 с (до 2 мин):
+`paid` → обновление `/me` и `/today`, текст «Pro до <дата>»; `expired`/`canceled`/`failed` — сообщение об ошибке. Промокод остаётся. Если сервер вернул `coming_soon` — шторка как в Фазе 1. Экран **`/billing`** (`BillingView`,
+ссылка из «Настроек»): план и срок, автопродление, кнопки «Отключить» / «Включить автопродление» (`/billing/subscription/cancel|resume`) и «Купить / Продлить» (шторка выше). История платежей — задача 2A.7.
 Личную сессию на экране «готово» клиент закрывает `POST /finish` (best effort); групповую не закрывает никогда.
 
 **Язык перевода** (`translation`): групповая сессия — язык группы (`telegram_groups.meta.locale`, по умолчанию `ru`),
@@ -544,7 +560,7 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 
 ### A.6 Общие правила
 - Все даты в ISO 8601 UTC.
-- Rate limit: 60 запросов/минуту на learner'а (кроме `/tts` — 30/мин, `/promo/redeem` — A.7, `POST /training/sessions` — 10/мин, `/decks*` — A.10). `TwaAuth` выполняется **до** `throttle:*`
+- Rate limit: 60 запросов/минуту на learner'а (кроме `/tts` — 30/мин, `/promo/redeem` — A.7, `POST /billing/checkout` — A.8, `POST /training/sessions` — 10/мин, `/decks*` — A.10). `TwaAuth` выполняется **до** `throttle:*`
   (`bootstrap/app.php`, `prependToPriorityList`), поэтому ключ лимитера — `learner_id`, а не IP.
 - При любой 4xx/5xx (кроме 422 валидации Laravel) ответ — `ApiErrorResource`:
 ```json
@@ -577,6 +593,64 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 | 409 | `promo_not_applicable` | у learner'а бессрочная личная подписка — код ничего не добавит и не тратится |
 
 Событие `promo.redeemed` пишется сервисом; запись в `audit_logs` не делается (действие самого learner'а). Каждый отказ (любой код ошибки выше) — событие `promo.rejected {reason, promo_code_id|null, code_length}` без самого кода; серия отказов одного learner'а — предупреждение в логе (docs/12 §8). Неизвестный ключ плана в данных — `plan_unknown` (422, `PlanException`).
+
+### A.8 `/api/twa/billing/*` — покупка и автопродление (docs/13 §5, Фаза 2 / 2A.2)
+Только для собственной подписки learner'а (центры платят через кабинет, docs/13 §6.5). Серверная сторона — `LearnerBillingService` поверх `CheckoutService` / `SubscriptionService` (сумма и валюта выбираются
+сервером по `config('billing.prices')` и открытому offer, клиент их не присылает). Ошибки — `ApiErrorResource`, клиент показывает свой текст по `error.code`.
+
+| Метод | Путь | Что делает |
+|---|---|---|
+| GET | `/billing/catalog` | что можно купить сейчас |
+| POST | `/billing/checkout` | создаёт заказ `pending` и платёжную ссылку; **throttle `twa-checkout`: 10/мин на learner'а и 120/мин на IP** (429) |
+| GET | `/billing/orders/{token}` | статус заказа (только владельцу) — TWA опрашивает после оплаты |
+| POST | `/billing/subscription/cancel` | отключает автопродление Stars (сначала у провайдера, вне транзакции), подписка → `canceled`, Pro до конца периода |
+| POST | `/billing/subscription/resume` | включает обратно (`canceled` → `active`, пока период не закончился) |
+
+**`GET /billing/catalog`** → `200`:
+```json
+{
+  "items": [
+    { "plan": "pro", "tier": null, "period": "month", "prices": { "XTR": 150, "UZS": 2900000 }, "list_prices": { "XTR": 150, "UZS": 2900000 } },
+    { "plan": "pro", "tier": null, "period": "year",  "prices": { "XTR": 1300, "UZS": 24900000 }, "list_prices": { "XTR": 1300, "UZS": 24900000 } }
+  ],
+  "providers": ["telegram_stars", "payme", "click"],
+  "offer": { "kind": "post_org_discount", "discount_pct": 30, "expires_at": "2026-11-02T12:00:00+00:00" },
+  "subscription": { "status": "active", "provider": "telegram_stars", "plan": "pro", "ends_at": "2026-11-18T12:00:00+00:00", "auto_renew": true, "can_cancel": true, "can_resume": false }
+}
+```
+Суммы — **минорные единицы**: `XTR` — целые Stars, `UZS` — тийины (делить на 100). `prices` — после скидки offer, `list_prices` — до. В `items` попадают только периоды, у которых есть цена хотя бы в одной валюте
+включённого провайдера; `prices` содержит только такие валюты; `items: []` — продавать нечего (paywall остаётся `coming_soon`). `providers` — включённые (`billing.providers.<key>.enabled`) и обслуживающие learner'а.
+`offer` — открытый offer (`null` — нет), `subscription` — собственная live-подписка (`null` — нет): `ends_at` — конец действия (ISO 8601, `null` — бессрочно), `auto_renew` — автопродление идёт,
+`can_cancel` / `can_resume` — какие из кнопок «Отключить» / «Включить» показывать. (В docs/13 §5 массив назван `plans`; фактическое имя — `items`.)
+
+**`POST /billing/checkout`** `{ "plan": "pro", "period": "month", "provider": "telegram_stars" }` — `plan` ∈ `Plan`, `period` ∈ `config('billing.periods')`, `provider` ∈ `telegram_stars|payme|click` (иное — `422` валидации Laravel). → `201`:
+```json
+{ "order": { "id": 17, "token": "q3…32 символа", "status": "pending", "amount": 150, "currency": "XTR", "expires_at": "2026-10-20T12:00:00+00:00" },
+  "checkout": { "url": "https://t.me/$AbCd…", "kind": "invoice_link" } }
+```
+`checkout.kind`: `invoice_link` (Stars — открыть `Telegram.WebApp.openInvoice(url)`) | `redirect` (Payme/Click — `openLink(url)`). Заказ живёт `BILLING_ORDER_TTL_MINUTES` (24 ч); просроченные закрывает `billing:expire-orders` (каждые 15 мин).
+Событие `checkout.started`. Если провайдер не смог выдать ссылку — заказ `failed`, ответ `502 provider_unavailable`.
+
+**`GET /billing/orders/{token}`** → `200 { "status": "pending|paid|canceled|expired|failed", "paid_at": "…"|null, "subscription": { …как в catalog.subscription… }|null }`;
+`subscription` заполнена у `paid`. Чужой, неизвестный или неправильный `token` — `404 order_not_found` (чужой заказ неотличим от несуществующего).
+
+**`POST /billing/subscription/cancel|resume`** (без тела; общий лимит `twa-api`) → `200`, тот же JSON, что у `GET /me` (A.2), с новым `entitlement.renewal`.
+
+| HTTP | `error.code` | Когда |
+|---|---|---|
+| 409 | `price_not_configured` | нет цены на (план, период, валюта) или Stars-подписка дороже потолка Telegram; план Free |
+| 409 | `provider_disabled` | провайдер не подключён / выключен (`billing.providers.<key>.enabled`) |
+| 409 | `checkout_conflict` | живая Stars-подписка с автопродлением, выбран другой провайдер (сначала `cancel`) |
+| 409 | `offer_not_applicable` | скидка не подходит (клиент её не передаёт — сервер берёт лучший открытый offer сам) |
+| 422 | `provider_not_supported` | провайдер не обслуживает этого плательщика/валюту |
+| 422 | `invalid_period`, `invalid_tier` | период вне `billing.periods` (при валидном теле не встречается) |
+| 429 | `too_many_pending` | у learner'а уже 3 неоплаченных заказа |
+| 429 | (throttle) | `twa-checkout` |
+| 409 | `not_cancelable` | нет live-подписки, подписка не `active` или её провайдер не продлевает (Payme/Click/выдача) |
+| 409 | `not_resumable` | подписка не `canceled`, период закончился или провайдер не продлевает |
+| 409 | `provider_capability`, `provider_not_registered` | у провайдера нет такой операции / адаптер не подключён |
+| 502 | `provider_unavailable` | провайдер не ответил; в нашей БД ничего не изменено (при checkout — заказ `failed`) |
+| 404 | `order_not_found` | `GET /billing/orders/{token}` |
 
 ## Часть B — Telegram Bot
 
@@ -620,7 +694,9 @@ public function __invoke(Request $request, string $secret)
 | `/close_exam` | группа | teacher | Досрочно закрывает открытый экзамен. |
 | `/stats` | ЛС | teacher | Отчёт по его группам за 7 дней. |
 | `/promo КОД` | ЛС | любой learner | Активирует промокод (`PromoCodeService::redeem`, как A.7). `/promo` без кода — подсказка. Learner создаётся/обновляется по самому человеку (`LearnerRegistrar::fromTelegramUser`). Ответ — на языке learner'а: «Pro активен до дд.мм.гггг» (в поясе learner'а) / «без ограничения по сроку», либо текст ошибки по `errorCode` (`lang/{ru,uz}/bot.php`, `bot.promo.errors.*`). Не более 5 попыток в минуту на learner'а (иначе «слишком много попыток»); заблокированному — «доступ ограничен». В **активной группе** бот отвечает «откройте личный чат» и код не обрабатывает (код в группе виден всем), в неактивной — молчит (Group Lock). |
-| `/help` | любой | любая | Список доступных команд для роли (в ЛС — в том числе `/today`, `/settings`, `/stats`, `/promo`). |
+| `/pro` | ЛС | любой learner | Тариф и оплата (docs/13 §5, 2A.2). Текст: «Free: N новых слов в день» / «LexiFlow Pro до дд.мм.гггг» (в поясе learner'а), состояние автопродления Stars. При `paywall.mode = purchase` и непустом каталоге — цены периодов и по inline-кнопке на (период × провайдер): `pro1:buy:<period>:<telegram_stars\|payme\|click>`; **заказ создаётся только по нажатию** (меню не расходует лимит 3 неоплаченных заказов); пока автопродление Stars работает, кнопок покупки нет (сначала «Отключить автопродление»). Иначе — «Pro скоро откроется», подсказка `/promo` и `BILLING_SUPPORT_CONTACT`. Кнопки `pro1:cancel` / `pro1:resume` — отключить/включить автопродление Stars (`LearnerBillingService`). Только в личном чате; в группе и у учителя — молчание, заблокированному learner'у — «доступ ограничен». |
+| `/paysupport` | ЛС, активная группа | любой | Требование Telegram для оплаты Stars: контакт платёжной поддержки (`BILLING_SUPPORT_CONTACT`; «не указан», если пуст), ссылка на публичную оферту (правила возврата) и подсказка про `/pro`. Язык: learner'а, иначе Telegram-язык отправителя / язык группы. В неактивной группе — молчание (Group Lock). |
+| `/help` | любой | любая | Список доступных команд для роли (в ЛС — в том числе `/today`, `/settings`, `/stats`, `/promo`, `/pro`, `/paysupport`). |
 
 #### Онбординг и `/settings`: шаги и `callback_data`
 
@@ -631,6 +707,10 @@ public function __invoke(Request $request, string $secret)
 | `onb1:<step>:<value>` | ответ на шаг онбординга |
 | `set1:<step>` | `/settings`: показать варианты шага |
 | `set1:<step>:<value>` | `/settings`: сохранить значение |
+
+**Кнопки `/pro` (`ProCallbackHandler`):** `pro1:buy:<period>:<provider>`, `pro1:cancel`, `pro1:resume`. Формат — строгий regex; `period`/`provider` проверяет `CheckoutService` (сумму кнопка не несёт — её считает сервер). Принимаются только из личного чата отправителя
+(кнопка из группы игнорируется), не чаще 10 нажатий в минуту на learner'а (`RateLimiter` `bot-pro:<learner_id>`). Успешная покупка — сообщение «Счёт создан: …» с URL-кнопкой «Оплатить» (`checkout.url`), отказ — текст по `error.code`
+(`lang/{ru,uz}/billing.php`, `billing.pro.errors.*`; незнакомый код — `generic`). Тексты `/pro`, `/paysupport` — `lang/{ru,uz}/billing.php`.
 
 Префикс несёт версию формата (`onb1`, `set1`): при смене раскладки старые кнопки перестают совпадать и молча игнорируются. Подписи нет — `callback_data` считается недоверенным: формат проверяется строгим regex, `<step>` — из списка шагов, `<value>` — по белому списку шага. `OnboardingService::apply` принимает **только ответ на текущий шаг**, под блокировкой строки learner'а: повторное нажатие старой кнопки, двойной тап и параллельные доставки отклоняются без изменений; на любой callback бот сразу отвечает `answerCallbackQuery` без текста — через `CallbackAcknowledger`: отказ Telegram («query is too old», повтор job) логируется (`Log::warning`, без PII) и работу хендлера не прерывает; это же относится к `tstart:`. Кнопки принимаются только из личного чата отправителя (`message.chat.id = from.id`), ответы идут на `from.id`; нажатие из группы, чужого чата или учителем (у него нет learner'а) ничего не создаёт и не отправляет. Исключение из «молчаливого» stale: если шаг устаревшей кнопки `onb1` — ровно предыдущий перед текущим состоянием learner'а (ответ сохранён, а следующий шаг не дошёл до Telegram и job `HandleTelegramUpdate` повторяется, tries = 3), бот **отправляет текущий шаг ещё раз**; двойной тап может дать дубль вопроса — это допустимо. После принятого ответа у сообщения снимается клавиатура (`editMessageReplyMarkup`; ошибка Telegram при этом не мешает потоку) и приходит следующий шаг; после последнего — сообщение с web_app-кнопкой «Начать первую тренировку» → `/twa/?from=onboarding`. При установке или смене часового пояса и времени напоминания (онбординг и `/settings`) `next_reminder_at` сразу пересчитывается: `LearnerClock::nextOccurrenceUtc(learner, reminder_time, now())` с новыми значениями (Ташкент 19:00 → 14:00 UTC; «без напоминаний» → `NULL`); завершение онбординга тоже выставляет его. Дальше его ведёт планировщик напоминаний (docs/12 §7.5). `OnboardingService::applySetting` сам проверяет, что онбординг завершён. События: `onboarding.started {source_kind}` (вид **принятой** атрибуции learner'а — `ref`/`src`/`course`/`org`/`group`; `direct`, если её нет: payload отвергнут — невалидный, самореферал, неизвестный/заблокированный реферер — или не было), `onboarding.step_completed {step}`, `onboarding.completed {goal, level, locale}`, `course.selected {course_id, via: onboarding|deeplink}`.
 

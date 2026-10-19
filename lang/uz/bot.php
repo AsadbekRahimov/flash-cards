@@ -15,7 +15,9 @@ return [
             "Shaxsiy hisobot: /stats\n".
             "Bugungi takrorlashlar: /today\n".
             "Sozlamalar (til, maqsad, daraja, vaqt mintaqasi, eslatmalar): /settings\n".
-            'Pro uchun promokod: /promo KOD',
+            "Pro uchun promokod: /promo KOD\n".
+            "Pro'ni rasmiylashtirish va avtoyangilash: /pro\n".
+            "To'lov bo'yicha savollar: /paysupport",
         'group' => "LexiFlow Bot guruhda.\n\nO'qituvchi buyruqlari:\n".
             "/start_training — mashg'ulotni boshlash\n".
             "/start_exam — imtihonni boshlash\n".

@@ -27,7 +27,7 @@ it('redeems a code and answers with the refreshed profile (Pro with its end)', f
             'learner' => ['id', 'first_name', 'username', 'locale', 'onboarding_completed'],
             'groups',
             'stats' => ['words_learned', 'words_due_today'],
-            'entitlement' => ['plan', 'source', 'until', 'new_words_per_day'],
+            'entitlement' => ['plan', 'source', 'until', 'new_words_per_day', 'renewal'],
             'paywall' => ['mode', 'contact'],
             'settings' => [
                 'interface_locale', 'timezone', 'reminder_time', 'daily_goal', 'goal', 'level', 'timezone_change_available_at', 'active_course',
