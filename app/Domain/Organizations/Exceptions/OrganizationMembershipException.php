@@ -16,6 +16,8 @@ use RuntimeException;
  *   invite_exhausted        409  `max_uses` reached
  *   organization_suspended  409  only an `active` organization accepts members
  *   not_a_member            404  leave / remove of a learner without an active membership
+ *   membership_not_found    404  "my centers" API: no such active membership of THIS learner
+ *   membership_via_group    409  a `joined_via = group` membership cannot be left by the learner (it returns with the group)
  */
 final class OrganizationMembershipException extends RuntimeException
 {
@@ -28,6 +30,10 @@ final class OrganizationMembershipException extends RuntimeException
     public const ORGANIZATION_SUSPENDED = 'organization_suspended';
 
     public const NOT_A_MEMBER = 'not_a_member';
+
+    public const MEMBERSHIP_NOT_FOUND = 'membership_not_found';
+
+    public const MEMBERSHIP_VIA_GROUP = 'membership_via_group';
 
     public function __construct(
         public readonly string $errorCode,
@@ -61,10 +67,20 @@ final class OrganizationMembershipException extends RuntimeException
         return new self(self::NOT_A_MEMBER, "Learner #{$learnerId} is not an active member of organization #{$organizationId}.");
     }
 
+    public static function membershipNotFound(int $memberId): self
+    {
+        return new self(self::MEMBERSHIP_NOT_FOUND, "No active membership #{$memberId} for this learner.");
+    }
+
+    public static function membershipViaGroup(int $memberId): self
+    {
+        return new self(self::MEMBERSHIP_VIA_GROUP, "Membership #{$memberId} came through a group of the organization; leave the group instead.");
+    }
+
     public function httpStatus(): int
     {
         return match ($this->errorCode) {
-            self::INVITE_INVALID, self::NOT_A_MEMBER => 404,
+            self::INVITE_INVALID, self::NOT_A_MEMBER, self::MEMBERSHIP_NOT_FOUND => 404,
             self::INVITE_EXPIRED => 410,
             default => 409,
         };

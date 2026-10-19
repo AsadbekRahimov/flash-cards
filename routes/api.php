@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Twa\CourseController;
 use App\Http\Controllers\Api\Twa\DeckController;
 use App\Http\Controllers\Api\Twa\ExamController;
 use App\Http\Controllers\Api\Twa\MeController;
+use App\Http\Controllers\Api\Twa\OrganizationController;
 use App\Http\Controllers\Api\Twa\PromoController;
 use App\Http\Controllers\Api\Twa\SettingsController;
 use App\Http\Controllers\Api\Twa\TodayController;
@@ -25,6 +26,11 @@ Route::prefix('twa')->group(function (): void {
     Route::middleware([TwaAuth::class, SetTwaLocale::class, 'throttle:twa-api'])->group(function (): void {
         Route::get('/me', MeController::class)->name('twa.me');
         Route::patch('/me/settings', [SettingsController::class, 'update'])->name('twa.me.settings');
+        Route::get('/me/organizations', [OrganizationController::class, 'index'])->name('twa.me.organizations');
+        Route::delete('/me/organizations/{member}', [OrganizationController::class, 'leave'])
+            ->whereNumber('member')
+            ->middleware('throttle:twa-organizations')
+            ->name('twa.me.organizations.leave');
         Route::get('/today', TodayController::class)->name('twa.today');
         Route::post('/promo/redeem', [PromoController::class, 'redeem'])
             ->middleware('throttle:twa-promo')
