@@ -22,6 +22,7 @@ import type {
   MeResponse,
   NextCardResponse,
   OrderStatusResponse,
+  OrganizationsResponse,
   OpenSessionRequest,
   Quality,
   ReviewResponse,
@@ -64,6 +65,11 @@ export const api = {
   },
   today: {
     get: () => client().get<TodayResponse>('/today'),
+  },
+  organizations: {
+    list: () => client().get<OrganizationsResponse>('/me/organizations'),
+    /** Leaves the center; answers with the refreshed list. */
+    leave: (membershipId: number) => client().delete<OrganizationsResponse>(`/me/organizations/${membershipId}`),
   },
   promo: {
     redeem: (code: string) => client().post<MeResponse>('/promo/redeem', { code }),

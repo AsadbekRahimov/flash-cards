@@ -8,11 +8,13 @@ import { settingsFixture } from '@/api/__tests__/settingsFixture'
 import { ApiClientError } from '@/api/client'
 import { getLocale, setLocale } from '@/i18n'
 import { useAuthStore } from '@/stores/auth'
-import type { LearnerSettings, MeResponse, SettingsPatch } from '@/api/types'
+import type { LearnerSettings, MeResponse, OrganizationMembership, SettingsPatch } from '@/api/types'
 
 const state = vi.hoisted(() => ({ ensure: vi.fn(), back: undefined as undefined | (() => void), hideBack: vi.fn() }))
 
-vi.mock('@/api', () => ({ api: { me: { get: vi.fn(), updateSettings: vi.fn() } } }))
+vi.mock('@/api', () => ({
+  api: { me: { get: vi.fn(), updateSettings: vi.fn() }, organizations: { list: vi.fn(), leave: vi.fn() } },
+}))
 
 vi.mock('@/stores/auth', () => {
   const auth = { ensure: state.ensure, learner: { id: 1, first_name: 'A', locale: 'ru', onboarding_completed: true } }
@@ -60,8 +62,19 @@ const makeRouter = () =>
     ],
   })
 
-async function render(settings: LearnerSettings = settingsFixture()) {
+const membership = (overrides: Partial<OrganizationMembership> = {}): OrganizationMembership => ({
+  id: 17,
+  name: 'Bright Center',
+  seat_state: 'seated',
+  joined_via: 'invite',
+  joined_at: '2026-10-19T12:00:00+00:00',
+  can_leave: true,
+  ...overrides,
+})
+
+async function render(settings: LearnerSettings = settingsFixture(), memberships: OrganizationMembership[] = []) {
   vi.mocked(api.me.get).mockResolvedValue(me(settings))
+  vi.mocked(api.organizations.list).mockResolvedValue({ organizations: memberships })
   const router = makeRouter()
   await router.push('/settings')
   const wrapper = mount(SettingsView, { global: { plugins: [router] } })
@@ -313,4 +326,95 @@ describe('SettingsView', () => {
     w.unmount()
     expect(state.hideBack).toHaveBeenCalledOnce()
   })
+
+  describe('my centers', () => {
+    it('shows nothing for a learner who is in no center', async () => {
+      const w = await render()
+
+      expect(w.find('[data-testid=orgs-card]').exists()).toBe(false)
+      expect(vi.mocked(api.organizations.list)).toHaveBeenCalledOnce()
+    })
+
+    it('lists the centers with the state of the seat', async () => {
+      const w = await render(settingsFixture(), [
+        membership(),
+        membership({ id: 18, name: 'Other Center', seat_state: 'waitlisted' }),
+      ])
+
+      const names = w.findAll('[data-testid=org-name]').map((n) => n.text())
+      const states = w.findAll('[data-testid=org-state]').map((n) => n.text())
+      expect(names).toEqual(['Bright Center', 'Other Center'])
+      expect(states).toEqual(['Pro от центра активен', 'Свободных мест нет — вы в очереди'])
+    })
+
+    it('explains a center joined through a group instead of offering to leave it', async () => {
+      const w = await render(settingsFixture(), [membership({ joined_via: 'group', can_leave: false })])
+
+      expect(w.find('[data-testid=org-leave]').exists()).toBe(false)
+      expect(w.get('[data-testid=org-via-group]').text()).toContain('через группу')
+    })
+
+    it('asks for confirmation, then leaves and shows the refreshed list', async () => {
+      const w = await render(settingsFixture(), [membership(), membership({ id: 18, name: 'Other Center' })])
+      vi.mocked(api.organizations.leave).mockResolvedValue({ organizations: [membership({ id: 18, name: 'Other Center' })] })
+
+      await w.get('[data-testid=org-17] [data-testid=org-leave]').trigger('click')
+      expect(w.get('[data-testid=org-confirm]').text()).toContain('Покинуть центр «Bright Center»?')
+      expect(vi.mocked(api.organizations.leave)).not.toHaveBeenCalled()
+
+      await w.get('[data-testid=org-leave-yes]').trigger('click')
+      await flushPromises()
+
+      expect(vi.mocked(api.organizations.leave).mock.calls).toEqual([[17]])
+      expect(w.findAll('[data-testid=org-name]').map((n) => n.text())).toEqual(['Other Center'])
+      expect(w.find('[data-testid=org-confirm]').exists()).toBe(false)
+    })
+
+    it('keeps the center when the learner cancels the confirmation', async () => {
+      const w = await render(settingsFixture(), [membership()])
+
+      await w.get('[data-testid=org-leave]').trigger('click')
+      await w.get('[data-testid=org-leave-no]').trigger('click')
+
+      expect(vi.mocked(api.organizations.leave)).not.toHaveBeenCalled()
+      expect(w.find('[data-testid=org-confirm]').exists()).toBe(false)
+      expect(w.find('[data-testid=org-leave]').exists()).toBe(true)
+    })
+
+    it('shows why leaving was refused and takes the list from the server again', async () => {
+      const w = await render(settingsFixture(), [membership()])
+      vi.mocked(api.organizations.leave).mockRejectedValue(new ApiClientError('conflict', 409, 'membership_via_group', 'x'))
+      vi.mocked(api.organizations.list).mockResolvedValue({ organizations: [membership({ joined_via: 'group', can_leave: false })] })
+
+      await w.get('[data-testid=org-leave]').trigger('click')
+      await w.get('[data-testid=org-leave-yes]').trigger('click')
+      await flushPromises()
+
+      expect(w.get('[data-testid=orgs-error]').text()).toContain('через группу')
+      expect(w.find('[data-testid=org-leave]').exists()).toBe(false)
+      expect(w.find('[data-testid=org-via-group]').exists()).toBe(true)
+    })
+
+    it('answers in Uzbek when the interface is Uzbek', async () => {
+      const w = await render(uzSettings(), [membership()])
+      vi.mocked(api.me.updateSettings).mockResolvedValue(me(uzSettings()))
+      await choose(w, 'locale-select', 'uz')
+
+      expect(w.get('[data-testid=orgs-card]').text()).toContain('Mening markazlarim')
+      expect(w.get('[data-testid=org-state]').text()).toBe('Markaz bergan Pro faol')
+    })
+
+    it('does not hide the settings when the list cannot be loaded', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(me())
+      vi.mocked(api.organizations.list).mockRejectedValue(new ApiClientError('network', 0, 'network', 'x'))
+      const router = makeRouter()
+      await router.push('/settings')
+      const w = mount(SettingsView, { global: { plugins: [router] } })
+      await flushPromises()
+
+      expect(w.find('[data-testid=locale-select]').exists()).toBe(true)
+      expect(w.find('[data-testid=orgs-card]').exists()).toBe(false)
+    })
+  })
+
 })

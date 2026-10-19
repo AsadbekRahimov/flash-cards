@@ -251,6 +251,16 @@ export const ru = {
   'settings.course.none': 'Курс не выбран',
   'settings.saved': 'Сохранено',
 
+  // ---- settings: my centers (docs/13 §6.2) ----
+  'orgs.title': 'Мои центры',
+  'orgs.seated': 'Pro от центра активен',
+  'orgs.waitlisted': 'Свободных мест нет — вы в очереди',
+  'orgs.via_group': 'Вы в центре через группу. Чтобы выйти, покиньте группу центра в Telegram.',
+  'orgs.leave': 'Покинуть центр',
+  'orgs.leave.confirm': 'Покинуть центр «{name}»? Pro от центра отключится, личная подписка (если есть) останется.',
+  'orgs.leave.yes': 'Да, покинуть',
+  'orgs.leave.no': 'Отмена',
+
   // ---- errors (by kind / context) ----
   'error.closed.training': 'Эта тренировка уже закрыта: она завершена или время сессии истекло.',
   'error.closed.exam': 'Экзамен был завершён учителем.',
@@ -287,6 +297,8 @@ export const ru = {
   'error.code.provider_not_registered': 'Это действие недоступно для вашего способа оплаты.',
   'error.code.provider_unavailable': 'Платёжный сервис не отвечает. Попробуйте через несколько минут.',
   'error.code.order_not_found': 'Счёт не найден.',
+  'error.code.membership_not_found': 'Вы уже не состоите в этом центре.',
+  'error.code.membership_via_group': 'Вы в центре через группу: покинуть его можно, выйдя из группы центра в Telegram.',
   'error.code.session_closed': 'Сессия уже закрыта.',
   'error.code.session_not_found': 'Сессия не найдена. Попросите учителя запустить её заново.',
   'error.code.learner_not_found': 'Ваш профиль не найден. Откройте приложение заново из Telegram.',

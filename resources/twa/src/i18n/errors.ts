@@ -57,6 +57,8 @@ export const KNOWN_ERROR_CODES = [
   'provider_not_registered',
   'provider_unavailable',
   'order_not_found',
+  'membership_not_found',
+  'membership_via_group',
 ] as const
 
 export type KnownErrorCode = (typeof KNOWN_ERROR_CODES)[number]

@@ -231,6 +231,16 @@ export const uz: Translations = {
   'settings.course.none': 'Kurs tanlanmagan',
   'settings.saved': 'Saqlandi',
 
+  // ---- settings: my centers (docs/13 §6.2) ----
+  'orgs.title': 'Mening markazlarim',
+  'orgs.seated': 'Markaz bergan Pro faol',
+  'orgs.waitlisted': "Bo'sh joy yo'q — navbatdasiz",
+  'orgs.via_group': "Siz markazdasiz — guruh orqali. Chiqish uchun Telegram'da markaz guruhini tark eting.",
+  'orgs.leave': 'Markazni tark etish',
+  'orgs.leave.confirm': "«{name}» markazini tark etasizmi? Markaz bergan Pro o'chadi, shaxsiy obunangiz (agar bo'lsa) saqlanadi.",
+  'orgs.leave.yes': 'Ha, tark etaman',
+  'orgs.leave.no': 'Bekor qilish',
+
   // ---- errors (by kind / context) ----
   'error.closed.training': "Bu mashg'ulot allaqachon yopilgan: u yakunlangan yoki sessiya vaqti tugagan.",
   'error.closed.exam': "Imtihon o'qituvchi tomonidan yakunlandi.",
@@ -293,6 +303,8 @@ export const uz: Translations = {
   'error.code.provider_not_registered': "Bu amal sizning to'lov usulingiz uchun mavjud emas.",
   'error.code.provider_unavailable': "To'lov xizmati javob bermayapti. Bir necha daqiqadan keyin urinib ko'ring.",
   'error.code.order_not_found': 'Hisob topilmadi.',
+  'error.code.membership_not_found': 'Siz endi bu markazda emassiz.',
+  'error.code.membership_via_group': "Siz markazdasiz — guruh orqali: chiqish uchun Telegram'da markaz guruhini tark eting.",
   'error.code.plan_unknown': "Bu promokod hozircha mavjud emas. Qo'llab-quvvatlash xizmatiga yozing.",
   'error.code.course_not_found': 'Kurs topilmadi yoki mavjud emas.',
   'error.code.deck_not_found': "To'plam topilmadi.",
