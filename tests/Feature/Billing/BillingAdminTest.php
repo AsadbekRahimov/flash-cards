@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Services\EntitlementResolver;
+use App\Domain\Billing\Services\PromoCodeAdminService;
 use App\Filament\Resources\OrganizationResource;
 use App\Filament\Resources\OrganizationResource\Pages\CreateOrganization;
 use App\Filament\Resources\OrganizationResource\Pages\ListOrganizations;
@@ -407,4 +408,50 @@ it('does not let a teacher link or unlink a group through a direct Livewire call
     expect($free->fresh()?->organization_id)->toBeNull()
         ->and($linked->fresh()?->organization_id)->toBe($org->id)
         ->and(AuditLog::query()->count())->toBe(0);
+});
+
+it('audits an edit of a promo code with a from / to diff of the changed fields only', function (): void {
+    $promo = PromoCode::factory()->create([
+        'code' => 'EDITME', 'max_redemptions' => 10, 'duration_days' => 30, 'expires_at' => null, 'is_active' => true,
+    ]);
+    $this->actingAs($this->admin);
+
+    Livewire::test(EditPromoCode::class, ['record' => $promo->getKey()])
+        ->fillForm(['max_redemptions' => 25, 'duration_days' => 30, 'is_active' => false])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($promo->fresh()?->max_redemptions)->toBe(25)
+        ->and($promo->fresh()?->is_active)->toBeFalse();
+
+    $audit = AuditLog::query()->where('action', 'promo.updated')->sole();
+    expect($audit->user_id)->toBe($this->admin->id)
+        ->and($audit->entity_type)->toBe(PromoCode::class)
+        ->and($audit->entity_id)->toBe($promo->id)
+        ->and($audit->meta['code'])->toBe('EDITME')
+        ->and($audit->meta['changes'])->toBe([
+            'max_redemptions' => ['from' => 10, 'to' => 25],
+            'is_active' => ['from' => true, 'to' => false],
+        ]);
+});
+
+it('records the old and new expiry of a promo code as ISO dates and writes nothing for a no-op save', function (): void {
+    $promo = PromoCode::factory()->create(['expires_at' => now()->addDays(5)->startOfSecond()]);
+    $old = $promo->expires_at?->toIso8601String();
+    $new = now()->addDays(40)->startOfSecond();
+
+    $service = app(PromoCodeAdminService::class);
+    $service->update($promo, ['expires_at' => $new], $this->admin, '10.0.0.7');
+
+    $audit = AuditLog::query()->where('action', 'promo.updated')->sole();
+    expect($audit->ip)->toBe('10.0.0.7')
+        ->and($audit->meta['changes']['expires_at'])->toBe(['from' => $old, 'to' => $new->toIso8601String()]);
+
+    // Same values again, and keys that are not editable (code, plan, counter): nothing changes, nothing is logged.
+    $service->update($promo->fresh(), ['expires_at' => $new, 'code' => 'HACKED', 'plan' => 'free', 'redemptions_count' => 99], $this->admin);
+
+    $fresh = $promo->fresh();
+    expect($fresh?->code)->not->toBe('HACKED')
+        ->and($fresh?->redemptions_count)->toBe(0)
+        ->and(AuditLog::query()->where('action', 'promo.updated')->count())->toBe(1);
 });
