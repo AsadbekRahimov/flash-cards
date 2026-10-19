@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import GoalRing from '@/components/GoalRing.vue'
@@ -57,6 +57,9 @@ const lessonLabel = computed(() => {
 onMounted(() => {
   void load()
 })
+
+// An open error belongs to this screen only; it must not greet the learner on the next one.
+onBeforeUnmount(() => training.clearOpenError())
 </script>
 
 <template>
