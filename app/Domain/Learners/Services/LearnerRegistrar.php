@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Learners\Services;
 
+use App\Domain\Learners\DTO\StartPayload;
+use App\Domain\Learners\Enums\StartPayloadKind;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Learner;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -57,6 +59,58 @@ final class LearnerRegistrar
     public function observeTelegramUser(array $tgUser, ?string $source = null): ?Learner
     {
         return $this->register($tgUser, $source, null, selfInitiated: false);
+    }
+
+    /**
+     * First-touch attribution from a `/start <payload>` (docs/12 §7.2): written only while
+     * `acquisition_source` is still empty — a learner created earlier without a source (e.g. via
+     * `/auth`) gets the source of their first deep link; one that already has a source (`group`,
+     * an earlier link) keeps it, together with `start_payload` / `referrer_learner_id`. A
+     * `ref_` link to the learner themself or to an unknown / deleted learner is ignored
+     * entirely, so a later valid link can still attribute. The write is a conditional UPDATE,
+     * so two parallel `/start` updates cannot overwrite each other.
+     *
+     * Deliberately separate from {@see self::fromTelegramUser()}: it is the only place that
+     * attributes after the learner exists, and the other paths keep their behaviour.
+     *
+     * @return bool whether the payload was recorded
+     */
+    public function attributeAcquisition(Learner $learner, StartPayload $payload): bool
+    {
+        $source = $payload->acquisitionSource();
+        if ($source === null || $learner->acquisition_source !== null) {
+            return false;
+        }
+
+        $values = ['acquisition_source' => $source];
+
+        if ($payload->kind === StartPayloadKind::Ref) {
+            $referrerId = (int) $payload->referrerId();
+            if ($referrerId === $learner->id || ! Learner::query()->whereKey($referrerId)->exists()) {
+                return false;
+            }
+            $values['referrer_learner_id'] = $referrerId;
+        }
+
+        if ($learner->start_payload === null) {
+            $values['start_payload'] = $payload->raw;
+        }
+
+        $updated = Learner::query()
+            ->whereKey($learner->id)
+            ->whereNull('acquisition_source')
+            ->update($values);
+
+        if ($updated === 0) {
+            // Lost the race: another request has attributed this learner first.
+            $learner->refresh();
+
+            return false;
+        }
+
+        $learner->forceFill($values)->syncOriginalAttributes(array_keys($values));
+
+        return true;
     }
 
     /**

@@ -5,7 +5,6 @@ declare(strict_types=1);
 return [
 
     'start' => [
-        'not_linked' => 'Этот Telegram-аккаунт не привязан к учителю в LexiFlow. Попросите админа прописать ваш Telegram ID: :id.',
         'greeting' => 'Привет, :name! Вы авторизованы как учитель LexiFlow. Команды в группе: /help',
     ],
 

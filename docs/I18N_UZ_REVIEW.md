@@ -13,7 +13,6 @@
 
 | Ключ | uz | ru |
 |---|---|---|
-| `bot.start.not_linked` | Bu Telegram akkaunt LexiFlow'dagi o'qituvchiga biriktirilmagan. Administratordan Telegram ID'ngizni kiritishini so'rang: :id. | Этот Telegram-аккаунт не привязан к учителю в LexiFlow. Попросите админа прописать ваш Telegram ID: :id. |
 | `bot.start.greeting` | Salom, :name! Siz LexiFlow o'qituvchisi sifatida tizimga kirdingiz. Guruhdagi buyruqlar: /help | Привет, :name! Вы авторизованы как учитель LexiFlow. Команды в группе: /help |
 | `bot.help.private` | LexiFlow — ingliz tilini o'rganish yordamchisi.<br><br>O'qituvchilar uchun: botni guruhga qo'shing, administrator uni faollashtiradi.<br>Guruhdagi mavjud buyruqlar: /start_training, /start_exam, /close_exam, /help<br>Shaxsiy hisobot: /stats | LexiFlow — помощник для изучения английского.<br><br>Для учителей: добавьте бота в группу, админ активирует её.<br>Доступные команды в группе: /start_training, /start_exam, /close_exam, /help<br>Личный отчёт: /stats |
 | `bot.help.group` | LexiFlow Bot guruhda.<br><br>O'qituvchi buyruqlari:<br>/start_training — mashg'ulotni boshlash<br>/start_exam — imtihonni boshlash<br>/close_exam — imtihonni yopish<br>/stats — bot bilan shaxsiy chatda hisobot<br>/help — ushbu yordam | LexiFlow Bot в группе.<br><br>Команды учителя:<br>/start_training — запустить тренировку<br>/start_exam — запустить экзамен<br>/close_exam — закрыть экзамен<br>/stats — личный отчёт в чате с ботом<br>/help — эта справка |
@@ -277,3 +276,54 @@
 | `error.code.promo_not_applicable` | Sizda allaqachon muddatsiz Pro bor — promokod kerak emas. | У вас уже есть Pro без ограничения по сроку — промокод не нужен. |
 
 Проверить: термин «promokod», «faollashtirish» (активировать), «limiti tugagan» (исчерпан лимит).
+
+## Фаза 1 · задача 1.5a (онбординг в боте) — на проверку носителю
+
+> `lang/uz/onboarding.php`: пять шагов `/start` (язык, цель, уровень, часовой пояс, время напоминаний), экран «Сегодня» (`/today`), краткое меню, `/settings`.
+> Из `bot.start.not_linked` убрана строка «аккаунт не привязан к учителю»: неизвестный человек в ЛС теперь проходит онбординг (в списке выше она больше не показана).
+> Названия языков в выборе языка (`config/localization.php` → `names`) не переводятся: «🇷🇺 Русский» и «🇺🇿 O'zbekcha» одинаковы в обоих языках.
+> В подписях часовых поясов `:offset` — смещение вида `UTC+5`; в `options.reminder.time` `:time` — `08:00`, `13:00`, `19:00`, `21:00`.
+> Проверить в первую очередь: «Maqsad» (цель), «Daraja» (уровень), «Vaqt mintaqasi» (часовой пояс), «Eslatmalar» (напоминания), уровни `A1 — boshlayapman` / `B2 — o'rtadan yuqori`, названия городов (Almati, Ashxobod, Moskva).
+
+### Бот (`lang/uz/onboarding.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `onboarding.blocked` | Akkauntingizga kirish cheklangan. Qo'llab-quvvatlash xizmatiga murojaat qiling. | Доступ к аккаунту ограничен. Обратитесь в поддержку. |
+| `onboarding.steps.locale` | Interfeys tilini tanlang | Выберите язык интерфейса |
+| `onboarding.steps.goal` | Ingliz tilini nima uchun o'rganmoqchisiz? | Для чего вам английский? |
+| `onboarding.steps.level` | Darajangiz qanday? O'zingizni baholang — keyinroq o'zgartirish mumkin. | Какой у вас уровень? Оцените себя как получится — позже его можно изменить. |
+| `onboarding.steps.timezone` | Qaysi vaqt mintaqasida yashaysiz? Eslatmalar o'z vaqtida kelishi uchun. | В каком часовом поясе вы живёте? Так напоминания придут вовремя. |
+| `onboarding.steps.reminder` | So'zlarni takrorlashni qachon eslatib turay? | Когда напоминать о повторении слов? |
+| `onboarding.options.goal.general` | Umumiy ingliz tili | Общий английский |
+| `onboarding.options.goal.ielts` | IELTS | IELTS |
+| `onboarding.options.goal.sat` | SAT | SAT |
+| `onboarding.options.goal.school` | Maktab | Школа |
+| `onboarding.options.level.A1` | A1 — boshlayapman | A1 — начинаю |
+| `onboarding.options.level.A2` | A2 — elementar | A2 — базовый |
+| `onboarding.options.level.B1` | B1 — o'rta | B1 — средний |
+| `onboarding.options.level.B2` | B2 — o'rtadan yuqori | B2 — выше среднего |
+| `onboarding.options.level.unknown` | Bilmayman | Не знаю |
+| `onboarding.options.timezone.tashkent` | Toshkent (:offset) | Ташкент (:offset) |
+| `onboarding.options.timezone.almaty` | Almati (:offset) | Алматы (:offset) |
+| `onboarding.options.timezone.bishkek` | Bishkek (:offset) | Бишкек (:offset) |
+| `onboarding.options.timezone.dushanbe` | Dushanbe (:offset) | Душанбе (:offset) |
+| `onboarding.options.timezone.ashgabat` | Ashxobod (:offset) | Ашхабад (:offset) |
+| `onboarding.options.timezone.moscow` | Moskva (:offset) | Москва (:offset) |
+| `onboarding.options.timezone.istanbul` | Istanbul (:offset) | Стамбул (:offset) |
+| `onboarding.options.reminder.time` | :time | :time |
+| `onboarding.options.reminder.off` | Eslatmasiz | Без напоминаний |
+| `onboarding.done.text` | Tayyor! Kursingiz: :course. Tugmani bosing — birinchi mashg'ulot bir necha daqiqa oladi. | Готово! Ваш курс: :course. Нажмите кнопку — первая тренировка займёт пару минут. |
+| `onboarding.done.text_plain` | Tayyor! Tugmani bosing — birinchi mashg'ulot bir necha daqiqa oladi. | Готово! Нажмите кнопку — первая тренировка займёт пару минут. |
+| `onboarding.done.button` | 🎯 Birinchi mashg'ulotni boshlash | 🎯 Начать первую тренировку |
+| `onboarding.today.due` | Bugun takrorlash uchun: :count ta so'z. | Сегодня к повторению: :count слово.\|Сегодня к повторению: :count слова.\|Сегодня к повторению: :count слов. |
+| `onboarding.today.empty` | Bugun takrorlanadigan so'z yo'q. Yangi so'zlarni o'rganish uchun LexiFlow'ni oching. | На сегодня повторений нет. Откройте LexiFlow, чтобы выучить новые слова. |
+| `onboarding.today.button` | LexiFlow'ni ochish | Открыть LexiFlow |
+| `onboarding.menu.text` | Keyingi qadam?<br>/today — bugungi takrorlashlar<br>/settings — sozlamalar<br>/promo KOD — Pro uchun promokod<br>/help — yordam | Что дальше?<br>/today — повторения на сегодня<br>/settings — настройки<br>/promo КОД — промокод на Pro<br>/help — справка |
+| `onboarding.settings.menu` | Nimani o'zgartirmoqchisiz? | Что хотите изменить? |
+| `onboarding.settings.saved` | Saqlandi. | Сохранено. |
+| `onboarding.settings.buttons.locale` | Til | Язык |
+| `onboarding.settings.buttons.goal` | Maqsad | Цель |
+| `onboarding.settings.buttons.level` | Daraja | Уровень |
+| `onboarding.settings.buttons.timezone` | Vaqt mintaqasi | Часовой пояс |
+| `onboarding.settings.buttons.reminder` | Eslatmalar | Напоминания |

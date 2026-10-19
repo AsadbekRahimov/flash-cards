@@ -364,10 +364,10 @@ it('binds a teacher on /start in DM when telegram_user_id matches', function ():
     expect($teacher->fresh()->last_login_at)->not->toBeNull();
 });
 
-it('tells unknown TG user their ID on /start', function (): void {
+it('starts the learner onboarding for an unknown TG user on /start', function (): void {
     $this->api->shouldReceive('sendMessage')
         ->once()
-        ->with(999, Mockery::pattern('/999/'));
+        ->with(999, Mockery::pattern('/язык/u'), null, Mockery::type('array'));
 
     app(TelegramDispatcher::class)->dispatch([
         'message' => [
@@ -376,6 +376,8 @@ it('tells unknown TG user their ID on /start', function (): void {
             'text' => '/start',
         ],
     ]);
+
+    expect(Learner::query()->where('telegram_user_id', 999)->value('onboarding_state'))->toBe('locale');
 });
 
 it('sends a seven-day stats report to a teacher in DM', function (): void {
@@ -428,6 +430,8 @@ it('sends a seven-day stats report to a teacher in DM', function (): void {
         }
 
         public function answerCallbackQuery(string $callbackQueryId): void {}
+
+        public function editMessageReplyMarkup(int|string $chatId, int $messageId, ?array $replyMarkup = null): void {}
 
         public function setWebhook(string $url, string $secretHeader): bool
         {

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Learners\DTO\StartPayload;
 use App\Domain\Learners\Services\LearnerRegistrar;
 use App\Models\Learner;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -196,4 +197,65 @@ it('observes a new person without marking them as seen, and does not bump last_s
     $registrar->fromTelegramUser(['id' => 4012, 'first_name' => 'A']);
 
     expect($created->fresh()->last_seen_at?->isToday())->toBeTrue();
+});
+
+// --- attributeAcquisition (first touch from /start <payload>) ---------------
+
+it('attributes the first deep link to a learner without a source and updates the instance', function (): void {
+    $registrar = app(LearnerRegistrar::class);
+    $referrer = Learner::factory()->create();
+    $learner = $registrar->fromTelegramUser(['id' => 4101, 'first_name' => 'A']);
+
+    expect($registrar->attributeAcquisition($learner, StartPayload::parse('ref_'.$referrer->id)))->toBeTrue()
+        ->and($learner->acquisition_source)->toBe('ref')
+        ->and($learner->referrer_learner_id)->toBe($referrer->id)
+        ->and($learner->start_payload)->toBe('ref_'.$referrer->id)
+        ->and($learner->isDirty())->toBeFalse()
+        ->and($learner->fresh()->acquisition_source)->toBe('ref');
+});
+
+it('does not overwrite an existing source, payload or referrer', function (): void {
+    $registrar = app(LearnerRegistrar::class);
+    $learner = $registrar->fromTelegramUser(['id' => 4102, 'first_name' => 'A'], 'src:old', 'src_old');
+
+    expect($registrar->attributeAcquisition($learner, StartPayload::parse('src_new')))->toBeFalse()
+        ->and($registrar->attributeAcquisition($learner, StartPayload::parse('ref_'.Learner::factory()->create()->id)))->toBeFalse();
+
+    $learner->refresh();
+    expect($learner->acquisition_source)->toBe('src:old')
+        ->and($learner->start_payload)->toBe('src_old')
+        ->and($learner->referrer_learner_id)->toBeNull();
+});
+
+it('loses the race quietly when another request attributed the learner first', function (): void {
+    $registrar = app(LearnerRegistrar::class);
+    $stale = $registrar->fromTelegramUser(['id' => 4103, 'first_name' => 'A']);
+
+    // A parallel /start wrote the source after $stale was loaded.
+    Learner::query()->whereKey($stale->id)->update(['acquisition_source' => 'src:other', 'start_payload' => 'src_other']);
+
+    expect($registrar->attributeAcquisition($stale, StartPayload::parse('src_mine')))->toBeFalse()
+        ->and($stale->acquisition_source)->toBe('src:other')
+        ->and($stale->start_payload)->toBe('src_other');
+});
+
+it('ignores an empty payload, a self-referral and an unknown referrer', function (): void {
+    $registrar = app(LearnerRegistrar::class);
+    $learner = $registrar->fromTelegramUser(['id' => 4104, 'first_name' => 'A']);
+
+    expect($registrar->attributeAcquisition($learner, StartPayload::none()))->toBeFalse()
+        ->and($registrar->attributeAcquisition($learner, StartPayload::parse('ref_'.$learner->id)))->toBeFalse()
+        ->and($registrar->attributeAcquisition($learner, StartPayload::parse('ref_987654321')))->toBeFalse()
+        ->and($learner->fresh()->acquisition_source)->toBeNull();
+});
+
+it('keeps the other registration paths free of attribution', function (): void {
+    $registrar = app(LearnerRegistrar::class);
+
+    $learner = $registrar->fromTelegramUser(['id' => 4105, 'first_name' => 'A']);
+    $registrar->fromTelegramUser(['id' => 4105, 'first_name' => 'A']);
+    $registrar->observeTelegramUser(['id' => 4105, 'first_name' => 'A'], 'group');
+
+    // Neither a repeated /auth nor a group event writes a source into an existing learner.
+    expect($learner->fresh()->acquisition_source)->toBeNull();
 });
