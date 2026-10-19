@@ -209,6 +209,36 @@ Open any Stage → Lesson → click on a word to edit its translation, example, 
 
 ---
 
+## Learners
+
+Navigate to **Administration → Learners**. An admin sees every learner; a teacher sees only the active members
+of their own groups, with name / username and the learning metrics of their groups (no Telegram ID, plan,
+onboarding state, subscriptions or events).
+
+**List (admin).** Columns: name, @username, Telegram ID, **Plan** (`Free`, `Pro` — own subscription,
+`Pro (sponsored)` — through an organization), blocked, onboarded, last seen.
+
+- **Search** (box above the table): by name, by @username (`@anna` and `anna` both work, partial match) or by
+  **Telegram ID** (exact: type the whole number, `12345` does not find `123456789`).
+- **Filters:** *Group*; *Plan* — Free / Pro (own **or** sponsored; the rule is the same as in the bot and the TWA:
+  a subscription counts until its end, an auto-renewing provider gets the grace days, a suspended organization or a
+  member who left sponsors nothing); *Onboarding* — Done / Not done.
+- **Block / Unblock** (row button, confirmation required): the learner's next TWA request answers
+  `401 learner_blocked` (the TWA is closed to them) and review reminders stop; progress is kept. Every change is written to the audit log
+  (`learner.blocked` / `learner.unblocked`). Unblocking restores access at once.
+
+**Learner page (admin).** Besides the profile it shows the onboarding state and the **effective plan** (source:
+own or sponsored by organization #N, and until when), and three read-only tabs:
+
+- *Subscriptions* — the learner's own subscriptions (plan, status, provider, until, reason). The button
+  **Open in Subscriptions** opens the Billing screen filtered to this learner, where Grant Pro / Revoke live.
+  Sponsored Pro is a subscription of the organization and is not listed here.
+- *Recent events* — the last 50 product events of the learner (time, name, properties). The properties contain
+  no personal data by design (no promo codes, no message text).
+- *Last 14 days* — daily stats: reviews, correct answers, new words, time, whether the daily goal was met.
+
+---
+
 ## Billing: subscriptions, promo codes, organizations
 
 Navigate to **Billing → Subscriptions / Promo codes / Organizations**. These screens are for **admins only**
@@ -262,13 +292,25 @@ Changes apply within seconds.
 
 ## Dashboard Widgets
 
-| Widget | What it shows |
-|---|---|
-| Total Learners | Learners visible to you (admin: all; teacher: active members of your groups) and how many were active in the last 7 days |
-| Exams Last 30 Days | Number of exam sessions in the past month |
-| Activity Chart | Daily active learners (line chart) |
-| Top Learners | Top 10 learners by reviews in group trainings (last 30 days; a learner's personal practice is never counted for teachers) |
-| Hardest Words | Top 20 words with lowest accuracy |
+| Widget | Who sees it | What it shows |
+|---|---|---|
+| Total Learners | admin, teacher | Learners visible to you (admin: all; teacher: active members of your groups) and how many were active in the last 7 days (`last_seen_at`) |
+| Exams Last 30 Days | admin, teacher | Number of exam sessions in the past month |
+| Activity Chart | admin, teacher | Daily active learners (line chart) |
+| Top Learners | admin, teacher | Top 10 learners by reviews in group trainings (last 30 days; a learner's personal practice is never counted for teachers) |
+| Hardest Words | admin, teacher | Top 20 words with lowest accuracy |
+| Pro subscriptions | **admin only** | *Pro learners* — learners whose effective plan is Pro right now (own or sponsored, each counted once), with the split "own subscriptions / sponsoring organizations"; *Pro ending in 7 days* — own and organization subscriptions whose paid access ends within a week (for an auto-renewing provider: the end of the grace period) |
+| Onboarding funnel — 7 days | **admin only** | Learners who started onboarding in the last 7 days (`onboarding.started`), how many of them have completed it (`onboarding.completed`) and the conversion %. Distinct learners; a learner who started earlier and finished this week is not in the cohort |
+| Organizations — members / seats | **admin only** | Per organization: active groups, **members** (distinct learners with an active membership in an active group of the organization), **seats** (`seats_limit` of the organization's live subscription; empty when none was set) and whether it is sponsoring Pro |
+
+The three *admin only* widgets show platform-wide data: a teacher never sees them (they are not on the dashboard and
+cannot be opened directly; an inactive admin gets the same). In Phase 1 the seat limit is informational — it is not
+enforced and the Grant Pro form does not set it, so the column is normally empty; members are derived from group
+membership (there is no separate organization member list yet).
+
+The Pro and funnel figures are cached for 2 minutes, so a new subscription or event may take up to that long to show
+up. The funnel reads `product_events` through the `(name, occurred_at)` index; events older than the retention period
+(`PRODUCT_EVENTS_RETENTION_DAYS`, 400 days) are pruned and do not affect a 7-day window.
 
 ---
 
