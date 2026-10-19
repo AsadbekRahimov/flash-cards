@@ -8,6 +8,7 @@ enum ProductEventName: string
 {
     case TwaAuthenticated = 'twa.authenticated';
     case TrainingSessionOpened = 'training.session_opened';
+    case TrainingSessionFinished = 'training.session_finished';
     case ExamStarted = 'exam.started';
     case ExamClosed = 'exam.closed';
     case ExamLeaderboardPosted = 'exam.leaderboard_posted';
@@ -19,4 +20,5 @@ enum ProductEventName: string
     case SubscriptionGranted = 'subscription.granted';
     case SubscriptionExpired = 'subscription.expired';
     case PromoRedeemed = 'promo.redeemed';
+    case CourseSelected = 'course.selected';
 }

@@ -361,6 +361,57 @@ it('training:close-expired closes expired sessions and leaves live ones', functi
     expect($expired->fresh()?->done_reason)->toBe('expired');
 });
 
+it('answers 410 session_closed to a personal session past expires_at before the scheduler has run', function (): void {
+    $lesson = ptCourseLessons(1, 2)->first();
+    $learner = Learner::factory()->create();
+    $headers = ptHeaders($learner);
+    $id = ptOpen($this, $learner, ['mode' => 'lesson', 'lesson_id' => $lesson->id])->assertOk()->json('session_id');
+    $wordId = (int) WordRepetition::query()->where('learner_id', $learner->id)->value('word_id');
+
+    $this->travel(13)->hours();
+
+    foreach (['postJson' => 'start', 'getJson' => 'next'] as $method => $route) {
+        $this->withHeaders($headers)->{$method}("/api/twa/training/sessions/{$id}/{$route}")
+            ->assertStatus(410)->assertJsonPath('error.code', 'session_closed');
+    }
+    $this->withHeaders($headers)
+        ->postJson("/api/twa/training/sessions/{$id}/review", ['word_id' => $wordId, 'quality' => 4, 'time_spent_ms' => 100])
+        ->assertStatus(410)->assertJsonPath('error.code', 'session_closed');
+
+    expect(TrainingSession::query()->findOrFail($id)->status)->toBe('open')
+        ->and(WordRepetition::query()->where('learner_id', $learner->id)->value('repetitions'))->toBe(0);
+});
+
+it('answers 404 lesson_not_found for a lesson of a private course', function (): void {
+    $lesson = ptCourseLessons(1, 1)->first();
+    Course::query()->whereKey($lesson->stage?->course_id)->update(['visibility' => 'private']);
+    $learner = Learner::factory()->create();
+
+    ptOpen($this, $learner, ['mode' => 'lesson', 'lesson_id' => $lesson->id])
+        ->assertStatus(404)->assertJsonPath('error.code', 'lesson_not_found');
+
+    expect(TrainingSession::query()->count())->toBe(0);
+});
+
+it('records training.session_finished once, on the request that really closes the session', function (): void {
+    $lesson = ptCourseLessons(1, 2)->first();
+    $learner = Learner::factory()->create();
+    $headers = ptHeaders($learner);
+    $id = ptOpen($this, $learner, ['mode' => 'lesson', 'lesson_id' => $lesson->id])->assertOk()->json('session_id');
+    $card = $this->withHeaders($headers)->getJson("/api/twa/training/sessions/{$id}/next")->assertOk()->json('card');
+    $this->withHeaders($headers)
+        ->postJson("/api/twa/training/sessions/{$id}/review", ['word_id' => $card['word_id'], 'quality' => 5, 'time_spent_ms' => 500])
+        ->assertOk();
+
+    $this->withHeaders($headers)->postJson("/api/twa/training/sessions/{$id}/finish")->assertOk();
+    $this->withHeaders($headers)->postJson("/api/twa/training/sessions/{$id}/finish")->assertOk();
+
+    $events = ProductEvent::query()->where('name', ProductEventName::TrainingSessionFinished->value)->get();
+    expect($events)->toHaveCount(1)
+        ->and($events[0]->learner_id)->toBe($learner->id)
+        ->and($events[0]->props)->toMatchArray(['training_session_id' => $id, 'mode' => 'lesson', 'reviewed' => 1, 'correct' => 1, 'new_words' => 1]);
+});
+
 it('schedules training:close-expired every 15 minutes without overlapping', function (): void {
     $event = collect(app(Schedule::class)->events())
         ->first(fn ($e) => str_contains((string) $e->command, 'training:close-expired'));

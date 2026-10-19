@@ -419,38 +419,51 @@ it('drops the lesson cache after a successful commit', function (): void {
 it('drops the lesson cache only once the import transaction has closed', function (): void {
     $base = DB::transactionLevel();
     $levels = [];
+    $catalogLevels = [];
     Cache::shouldReceive('forget')->andReturnUsing(function () use (&$levels): bool {
         $levels[] = DB::transactionLevel();
 
         return true;
     });
-    // The published-catalog cache is dropped via recount as well; not under test here.
-    Cache::shouldReceive('deleteMultiple')->andReturn(true);
+    // The published-catalog cache is dropped via recount as well: after commit too.
+    Cache::shouldReceive('deleteMultiple')->andReturnUsing(function () use (&$catalogLevels): bool {
+        $catalogLevels[] = DB::transactionLevel();
+
+        return true;
+    });
 
     expect(app(VocabularyImporter::class)->importAsSystem(sampleJson())->ok())->toBeTrue();
 
-    expect($levels)->toBe([$base]);
+    expect($levels)->toBe([$base])->and($catalogLevels)->toBe([$base]);
 });
 
 it('defers the cache drop to the outer commit when the caller wraps the import in a transaction', function (): void {
     $base = DB::transactionLevel();
     $levels = [];
+    $catalogLevels = [];
     Cache::shouldReceive('forget')->andReturnUsing(function () use (&$levels): bool {
         $levels[] = DB::transactionLevel();
 
         return true;
     });
-    // The published-catalog cache is dropped via recount as well; not under test here.
-    Cache::shouldReceive('deleteMultiple')->andReturn(true);
+    Cache::shouldReceive('deleteMultiple')->andReturnUsing(function () use (&$catalogLevels): bool {
+        $catalogLevels[] = DB::transactionLevel();
+
+        return true;
+    });
 
     $inside = null;
-    DB::transaction(function () use (&$levels, &$inside): void {
+    $catalogInside = null;
+    DB::transaction(function () use (&$levels, &$catalogLevels, &$inside, &$catalogInside): void {
         app(VocabularyImporter::class)->importAsSystem(sampleJson());
         $inside = $levels;
+        $catalogInside = $catalogLevels;
     });
 
     expect($inside)->toBe([])
-        ->and($levels)->toBe([$base]);
+        ->and($catalogInside)->toBe([])
+        ->and($levels)->toBe([$base])
+        ->and($catalogLevels)->toBe([$base]);
 });
 
 it('does not touch the lesson cache when the import rolls back', function (): void {

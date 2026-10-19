@@ -31,7 +31,9 @@ class LessonResource extends Resource
             Forms\Components\Select::make('stage_id')
                 ->relationship('stage', 'title')
                 ->required()
-                ->searchable(),
+                ->searchable()
+                // Moving a lesson to a stage of another course would leave words_count stale.
+                ->disabledOn('edit'),
             Forms\Components\TextInput::make('number')->numeric()->required(),
             Forms\Components\TextInput::make('title')->maxLength(255),
         ]);

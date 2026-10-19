@@ -7,12 +7,14 @@ declare(strict_types=1);
  * progress over active words, visibility rules and the catalog cache.
  */
 
+use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Content\Services\CoursePublisher;
 use App\Domain\Twa\Services\JwtService;
 use App\Models\Course;
 use App\Models\Learner;
 use App\Models\Lesson;
+use App\Models\ProductEvent;
 use App\Models\Stage;
 use App\Models\TelegramGroup;
 use App\Models\User;
@@ -304,6 +306,25 @@ it('switches the active course and is idempotent', function (): void {
     $this->withHeaders($headers)->postJson('/api/twa/me/course', ['slug' => 'second'])->assertOk();
 
     expect($learner->fresh()->active_course_id)->toBe($second->id);
+});
+
+it('records course.selected only when the active course really changes', function (): void {
+    $first = catalogCourse(['slug' => 'first'])['course'];
+    $second = catalogCourse(['slug' => 'second'])['course'];
+    $learner = Learner::factory()->create(['active_course_id' => $first->id]);
+    $headers = courseHeaders($learner);
+
+    $this->withHeaders($headers)->postJson('/api/twa/me/course', ['slug' => 'first'])->assertOk();
+    expect(ProductEvent::query()->count())->toBe(0);
+
+    $this->withHeaders($headers)->postJson('/api/twa/me/course', ['slug' => 'second'])->assertOk();
+    $this->withHeaders($headers)->postJson('/api/twa/me/course', ['slug' => 'second'])->assertOk();
+    $this->withHeaders($headers)->postJson('/api/twa/me/course', ['slug' => 'missing'])->assertNotFound();
+
+    $events = ProductEvent::query()->where('name', ProductEventName::CourseSelected->value)->get();
+    expect($events)->toHaveCount(1)
+        ->and($events[0]->learner_id)->toBe($learner->id)
+        ->and($events[0]->props)->toBe(['course_id' => $second->id, 'via' => 'twa']);
 });
 
 it('can choose an unlisted published course', function (): void {

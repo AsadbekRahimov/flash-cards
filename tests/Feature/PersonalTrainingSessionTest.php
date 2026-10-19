@@ -373,6 +373,72 @@ it('serves only due cards in a daily review without an active course', function 
         ->and(WordRepetition::query()->where('learner_id', $learner->id)->count())->toBe(1);
 });
 
+it('gives a daily review no new words from an active course that is archived, draft or private', function (array $change): void {
+    $course = publishedCourse(1, 2);
+    $learner = Learner::factory()->create(['active_course_id' => $course->id]);
+    $service = app(TrainingSessionService::class);
+    $due = dueRow($learner, Word::factory()->for(courseLessons($course)->first())->create());
+
+    // Opened while the course was available: the snapshot points at it ...
+    $session = $service->openPersonal($learner, 'daily_review');
+    expect($session->course_id)->toBe($course->id);
+
+    // ... and then the course goes away. Even the stale snapshot must not yield its new words.
+    $course->update($change);
+    $scope = TrainingScope::forSession($session);
+    $first = pick($learner, $scope);
+    expect($first->kind)->toBe('due')->and($first->word?->id)->toBe($due->word_id);
+    $first->repetition?->update(['next_review_at' => now()->addDays(6)]);
+    expect(pick($learner, $scope)->doneReason)->toBe(DoneReason::NothingDue)
+        ->and(WordRepetition::query()->where('learner_id', $learner->id)->count())->toBe(1);
+
+    // Re-opening refreshes the snapshot to "no course"; a fresh session starts without one.
+    expect($service->openPersonal($learner, 'daily_review')->course_id)->toBeNull();
+    $session->forceFill(['status' => 'closed'])->save();
+    expect($service->openPersonal($learner, 'daily_review')->course_id)->toBeNull();
+})->with([
+    'archived' => [['status' => 'archived']],
+    'draft' => [['status' => 'draft']],
+    'private' => [['visibility' => 'private']],
+]);
+
+it('still serves an unlisted published active course in a daily review', function (): void {
+    $course = publishedCourse(1, 2);
+    $course->update(['visibility' => 'unlisted']);
+    $learner = Learner::factory()->create(['active_course_id' => $course->id]);
+
+    $session = app(TrainingSessionService::class)->openPersonal($learner, 'daily_review');
+
+    expect($session->course_id)->toBe($course->id)
+        ->and(pick($learner, TrainingScope::forSession($session))->kind)->toBe('new');
+});
+
+it('refuses a personal lesson session for a lesson of a private course', function (): void {
+    $course = publishedCourse(1, 1);
+    $course->update(['visibility' => 'private']);
+    $learner = Learner::factory()->create();
+
+    expect(fn () => app(TrainingSessionService::class)->openPersonal($learner, 'lesson', courseLessons($course)->first()))
+        ->toThrow(fn (TrainingSessionException $e) => expect($e->reason)->toBe('lesson_not_available'));
+});
+
+it('rejects a grade for a personal session past expires_at even though the scheduler has not closed it', function (): void {
+    $lesson = courseLessons(publishedCourse(1, 2))->first();
+    $learner = Learner::factory()->create();
+    $service = app(TrainingSessionService::class);
+    $opened = CarbonImmutable::now();
+    $session = $service->openPersonal($learner, 'lesson', $lesson, 'self', $opened);
+    $word = app(TrainingFlowService::class)->nextStep($session, $learner)->word;
+
+    $submit = fn (CarbonImmutable $at) => app(ReviewSubmissionService::class)
+        ->submit($session, $learner, (int) $word?->id, 4, 100, null, $at);
+
+    expect(fn () => $submit($opened->addHours(13)))
+        ->toThrow(fn (ReviewSubmissionException $e) => expect($e->status)->toBe(410)->and($e->errorCode)->toBe('session_closed'));
+    $submit($opened->addHours(11));
+    expect(TrainingReview::query()->where('training_session_id', $session->id)->count())->toBe(1);
+});
+
 it('finds the next lesson with new words of a course for the learner', function (): void {
     $course = publishedCourse(3, 1);
     [$l1, $l2, $l3] = courseLessons($course)->all();
@@ -668,4 +734,34 @@ it('keeps group sessions on the lesson scope: teacher open is idempotent and car
         ->assertOk()
         ->assertJsonPath('lesson.lesson', $lessonA->number)
         ->assertJsonPath('total_words', 1);
+});
+
+it('replaces a group session older than half of the group TTL but keeps a younger one', function (): void {
+    config(['learning.group_session_ttl_hours' => 24]);
+    $group = TelegramGroup::factory()->create(['status' => 'active']);
+    $teacher = User::factory()->create();
+    DB::table('teacher_groups')->insert(['user_id' => $teacher->id, 'telegram_group_id' => $group->id, 'created_at' => now(), 'updated_at' => now()]);
+    $lesson = courseLessons(publishedCourse(1, 1))->first();
+    $service = app(TrainingSessionService::class);
+
+    $young = TrainingSession::factory()->create([
+        'telegram_group_id' => $group->id,
+        'lesson_id' => $lesson->id,
+        'started_by_user_id' => $teacher->id,
+        'started_at' => now()->subHours(11),
+    ]);
+    expect($service->openForLesson($group, $lesson, $teacher)->id)->toBe($young->id)
+        ->and($young->fresh()?->status)->toBe('open');
+
+    // 13 h: still before the 24 h scheduler rule, but a teacher command means a new class.
+    $young->forceFill(['started_at' => now()->subHours(13)])->save();
+    $fresh = $service->openForLesson($group, $lesson, $teacher, 'reminder');
+
+    expect($fresh->id)->not->toBe($young->id)
+        ->and($fresh->status)->toBe('open')
+        ->and($fresh->source)->toBe('reminder')
+        ->and($young->fresh()?->status)->toBe('closed')
+        ->and($young->fresh()?->done_reason)->toBe('expired')
+        ->and($young->fresh()?->ended_at)->not->toBeNull()
+        ->and(TrainingSession::query()->where('telegram_group_id', $group->id)->where('status', 'open')->count())->toBe(1);
 });

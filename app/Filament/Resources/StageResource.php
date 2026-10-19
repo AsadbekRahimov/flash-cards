@@ -39,7 +39,9 @@ class StageResource extends Resource
                     ->value('id'))
                 ->required()
                 ->live()
-                ->preload(),
+                ->preload()
+                // Moving a stage to another course would leave both courses' words_count stale.
+                ->disabledOn('edit'),
             Forms\Components\TextInput::make('number')
                 ->numeric()
                 ->required()

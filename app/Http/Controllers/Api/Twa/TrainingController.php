@@ -20,6 +20,7 @@ use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\TrainingSession;
 use App\Policies\TrainingSessionPolicy;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -111,6 +112,20 @@ final class TrainingController
             $summary = $this->sessions->finish($session);
         } catch (TrainingSessionException $e) {
             return ApiErrorResource::respond(403, $e->reason, $e->getMessage());
+        }
+
+        if ($summary->wasOpen) {
+            $this->events->record(
+                ProductEventName::TrainingSessionFinished,
+                [
+                    'training_session_id' => $session->id,
+                    'mode' => $session->mode,
+                    'reviewed' => $summary->reviewed,
+                    'correct' => $summary->correct,
+                    'new_words' => $summary->newWords,
+                ],
+                learner: $learner,
+            );
         }
 
         return (new SessionSummaryResource($summary))->response();
@@ -210,7 +225,7 @@ final class TrainingController
             return [null, ApiErrorResource::respond(403, $denial, 'You cannot access this session.')];
         }
 
-        if ($session->status !== 'open') {
+        if (! $session->isLiveAt(CarbonImmutable::now())) {
             return [null, ApiErrorResource::respond(410, 'session_closed', 'This training session is closed.')];
         }
 

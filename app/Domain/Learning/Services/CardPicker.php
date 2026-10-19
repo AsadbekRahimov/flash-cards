@@ -93,7 +93,7 @@ final class CardPicker
     }
 
     /**
-     * Serialised per learner: `SELECT ... FOR UPDATE` on the learner row (PostgreSQL;
+     * Serialised per learner: `SELECT ... FOR NO KEY UPDATE` on the learner row (PostgreSQL;
      * sqlite locks the whole database) orders concurrent tabs, so the second one sees
      * the row the first inserted and the budget it consumed before choosing a word.
      *
@@ -114,7 +114,11 @@ final class CardPicker
         $db = DB::connection();
 
         return $db->transaction(function () use ($learnerId, $candidates, $budget, $now): array {
-            DB::table('learners')->where('id', $learnerId)->lockForUpdate()->value('id');
+            // Serialises the learner's tabs. On PostgreSQL `FOR NO KEY UPDATE`, not `FOR UPDATE`: it
+            // conflicts with itself but not with the `FOR KEY SHARE` that every FK insert referencing
+            // learners (word_repetitions, training_reviews, ...) takes, so those never wait for us.
+            $lock = DB::table('learners')->where('id', $learnerId);
+            (DB::connection()->getDriverName() === 'pgsql' ? $lock->lock('for no key update') : $lock->lockForUpdate())->value('id');
 
             /** @var Word|null $new */
             $new = $candidates->first();

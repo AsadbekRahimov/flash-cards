@@ -203,12 +203,18 @@ it('does not let four tabs jointly exceed a budget of two new cards', function (
     $others = array_values(array_filter($outcomes, fn (string $o): bool => ! str_starts_with($o, 'card:')));
     $rows = WordRepetition::query()->where('learner_id', $learnerId)->pluck('word_id');
 
-    // Exactly two words were introduced (never three, whatever the interleaving), every tab that got a
-    // card got one of those two (a late tab may see an introduced-but-ungraded card as due), and every
-    // tab without a card was stopped by the quota — not by an empty lesson.
-    expect($rows)->toHaveCount(2)
-        ->and(collect($cards)->map(fn (string $c): int => (int) substr($c, 5))->unique()->sort()->values()->all())
-        ->toBe($rows->sort()->values()->all())
+    // Never more than two words were introduced, whatever the interleaving. A tab that starts after
+    // another one committed may legitimately receive that tab's still-ungraded `new` card through the
+    // due step (docs/06 §4.2) and never reach the quota check, so as few as one row is possible; but
+    // a tab can only be stopped by the quota once the budget is really spent: then there are exactly
+    // two rows. Every card served is one of the introduced words, every tab without a card was
+    // stopped by the quota — not by an empty lesson.
+    expect($rows->count())->toBeGreaterThanOrEqual(1)->toBeLessThanOrEqual(2)
         ->and($cards)->not->toBeEmpty()
+        ->and(collect($cards)->map(fn (string $c): int => (int) substr($c, 5))->unique()->diff($rows)->all())->toBe([])
         ->and($others)->each->toBe('done:new_quota_exhausted');
+
+    if ($others !== []) {
+        expect($rows)->toHaveCount(2);
+    }
 });

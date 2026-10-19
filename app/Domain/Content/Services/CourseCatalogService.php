@@ -36,7 +36,7 @@ use Illuminate\Support\Facades\DB;
  */
 final class CourseCatalogService
 {
-    private const PUBLISHED_CACHE_PREFIX = 'catalog:courses:published:';
+    private const PUBLISHED_CACHE_PREFIX = 'catalog:courses:published:v1:';
 
     private const PUBLISHED_CACHE_TTL = 600;
 
@@ -99,6 +99,9 @@ final class CourseCatalogService
      * The first lesson of the course (in study order) that still has an active word the
      * learner has never been served — where `daily_review` takes its new words from
      * (docs/12 §7.3). Null when the learner has seen the whole course.
+     *
+     * Not used by the picker (it selects new words with one query); kept for task 1.3b
+     * (`TodayService`: `active_course.next_lesson`).
      */
     public function nextLessonWithNewWords(Course $course, Learner $learner): ?Lesson
     {
@@ -179,14 +182,19 @@ final class CourseCatalogService
         ));
     }
 
-    /** Published and not private: openable by slug and selectable as the active course. */
+    /**
+     * THE availability rule: a course is available (openable by slug, selectable as the active
+     * course, a source of lessons and new words) when it is published and not private. Its SQL
+     * twin is the `Course::available()` scope — keep them in step.
+     */
+    public function isAvailable(Course $course): bool
+    {
+        return $course->status === 'published' && $course->visibility !== 'private';
+    }
+
     public function findAvailable(string $slug): ?Course
     {
-        return Course::query()
-            ->where('slug', $slug)
-            ->where('status', 'published')
-            ->where('visibility', '!=', 'private')
-            ->first();
+        return Course::query()->available()->where('slug', $slug)->first();
     }
 
     /**
@@ -202,11 +210,7 @@ final class CourseCatalogService
         $activeId = $learner->active_course_id;
 
         if ($activeId !== null && collect($courses)->doesntContain(fn (CatalogCourse $c): bool => $c->id === $activeId)) {
-            $active = Course::query()
-                ->whereKey($activeId)
-                ->where('status', 'published')
-                ->where('visibility', '!=', 'private')
-                ->first();
+            $active = Course::query()->available()->whereKey($activeId)->first();
             if ($active !== null) {
                 $courses[] = $this->present($active, $locale);
             }

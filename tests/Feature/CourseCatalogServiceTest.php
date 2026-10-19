@@ -74,3 +74,19 @@ it('lists the lessons of a course in study order', function (): void {
     expect($order)->toBe(['1.1', '1.2', '2.1'])
         ->and($catalog->lessons($course, 2))->toHaveCount(2);
 });
+
+it('applies one availability rule to the predicate, the slug lookup and the query scope', function (string $status, string $visibility, bool $available): void {
+    $course = Course::factory()->create(['slug' => 'rule', 'status' => $status, 'visibility' => $visibility]);
+    $catalog = app(CourseCatalogService::class);
+
+    expect($catalog->isAvailable($course))->toBe($available)
+        ->and($catalog->findAvailable('rule')?->id)->toBe($available ? $course->id : null)
+        ->and(Course::query()->available()->whereKey($course->id)->exists())->toBe($available);
+})->with([
+    'published public' => ['published', 'public', true],
+    'published unlisted' => ['published', 'unlisted', true],
+    'published private' => ['published', 'private', false],
+    'draft public' => ['draft', 'public', false],
+    'review public' => ['review', 'public', false],
+    'archived unlisted' => ['archived', 'unlisted', false],
+]);

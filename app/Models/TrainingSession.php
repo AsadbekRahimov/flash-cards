@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\CarbonInterface;
 use Database\Factories\TrainingSessionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -63,10 +64,24 @@ class TrainingSession extends Model
     protected function casts(): array
     {
         return [
+            'course_id' => 'integer',
             'started_at' => 'datetime',
             'ended_at' => 'datetime',
             'expires_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Open and, for a personal session, not past `expires_at` — the scheduler may not have run yet.
+     * Group sessions have no `expires_at` (their age is judged on open, see TrainingSessionService).
+     */
+    public function isLiveAt(CarbonInterface $now): bool
+    {
+        if ($this->status !== 'open') {
+            return false;
+        }
+
+        return $this->expires_at === null || $this->expires_at->isAfter($now);
     }
 
     /** @return BelongsTo<TelegramGroup, $this> */
