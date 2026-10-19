@@ -15,7 +15,7 @@
 | 2R.0 | CI на push в `claude/**` | координатор | ✅ |
 | 2R.1 | Локаль API TWA по learner'у (`SetTwaLocale`, `Accept-Language` из TWA) | coder | ✅ |
 | 2R.2 | Предупреждение в группу, если бот не админ (`GroupBotAccessChecker`, `getChatMember`) | coder | ✅ |
-| 2A.1 | Ядро биллинга: `canceled` live, `payment_orders`/`provider_transactions`/`payments`/`offers`, `CheckoutService`, `PaymentApplier` | architect | ⏳ |
+| 2A.1 | Ядро биллинга: `canceled` live до конца периода, `payment_orders`/`provider_transactions`/`payments`/`offers`, `BillingProvider` + реестр + `FakeBillingProvider`, `CheckoutService`, `PaymentApplier` (идемпотентность, PG-гонки), `SubscriptionService::applyCharge/cancel/resume/endNow/grantReward/remindExpiring`, `OfferService`, `config/billing.php`. Отклонения — docs/13 §2.1 «Реализация 2A.1». На ревью 2A.8: failed-строки при `order_expired`/`order_mismatch` восстанавливаются только вручную | architect | ✅ |
 | 2A.2–2A.8 | Checkout API/paywall, Stars, Payme, Click, напоминания о продлении, админка, ревью | см. docs/13 §11 | ⏳ |
 | 2B.1–2B.8 | Центры: места, инвайты, кабинет `/org`, задания, отчёты, оплата центра, offer | см. docs/13 §11 | ⏳ |
 | 2C.1–2C.5 | Рефералка, streak freeze, лиги, достижения/шеринг, друзья/вызовы | см. docs/13 §11 | ⏳ |
