@@ -113,7 +113,7 @@ final class CardPicker
         /** @var ConnectionInterface $db */
         $db = DB::connection();
 
-        return $db->transaction(function () use ($learnerId, $candidates, $budget, $now): array {
+        return $db->transaction(function () use ($learnerId, $scope, $candidates, $budget, $now): array {
             // Serialises the learner's tabs. On PostgreSQL `FOR NO KEY UPDATE`, not `FOR UPDATE`: it
             // conflicts with itself but not with the `FOR KEY SHARE` that every FK insert referencing
             // learners (word_repetitions, training_reviews, ...) takes, so those never wait for us.
@@ -140,6 +140,8 @@ final class CardPicker
                 'easiness_factor' => SpacedRepetitionEngine::DEFAULT_EF,
                 'next_review_at' => $now,
                 'is_hard' => false,
+                // Who introduced the word: a group lesson's words stay outside the Free quota (docs/12 §5.3).
+                'introduced_mode' => $scope->sessionMode,
                 'state' => RepetitionState::New,
                 'learning_step' => 0,
                 'lapses' => 0,

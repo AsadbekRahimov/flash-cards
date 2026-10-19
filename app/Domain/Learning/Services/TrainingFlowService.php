@@ -4,28 +4,46 @@ declare(strict_types=1);
 
 namespace App\Domain\Learning\Services;
 
+use App\Domain\Analytics\Enums\ProductEventName;
+use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Content\Services\WordTranslationResolver;
+use App\Domain\Learners\Services\LearnerClock;
 use App\Domain\Learning\Contracts\NewCardBudgetResolver;
 use App\Domain\Learning\DTO\ReviewOutcome;
 use App\Domain\Learning\DTO\TrainingStart;
 use App\Domain\Learning\DTO\TrainingStep;
 use App\Domain\Learning\Enums\DoneReason;
 use App\Domain\Learning\Exceptions\ReviewSubmissionException;
+use App\Domain\Learning\Support\NewCardBudget;
 use App\Domain\Learning\Support\TrainingScope;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Learner;
 use App\Models\TrainingReview;
 use App\Models\TrainingSession;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Orchestrates the TWA training screen: which card comes next (respecting the
  * per-session review cap and the learner's new-card budget) and what the learner
  * sees after grading a card. Works for group and personal sessions alike — the
  * difference is the TrainingScope derived from the session (docs/06 §4).
+ *
+ * The new-card budget applies to PERSONAL sessions only: a teacher-led group lesson
+ * (`mode = group_lesson`) gets an unlimited budget, so every member sees the whole
+ * lesson whatever their plan, and `quota.new_words_remaining` is `null` there
+ * (docs/12 §5.3). Its words are not charged to the personal quota either — see
+ * NewWordQuota.
+ *
+ * `paywall.shown {reason: new_quota_exhausted, source: server}` is recorded the
+ * first time per local day a step ends with `done_reason = new_quota_exhausted`
+ * (docs/12 §5.4): the client has no event channel, so "ran into the limit" stands
+ * for "saw the paywall". Done after the pick, outside any transaction.
  */
 final class TrainingFlowService
 {
+    public const PAYWALL_CACHE_PREFIX = 'paywall_shown:';
+
     public function __construct(
         private readonly CardPicker $picker,
         private readonly ReviewSubmissionService $reviews,
@@ -33,6 +51,8 @@ final class TrainingFlowService
         private readonly WordTranslationResolver $translations,
         private readonly LocaleResolver $locales,
         private readonly NewCardBudgetResolver $budgets,
+        private readonly LearnerClock $clock,
+        private readonly ProductEventRecorder $events,
     ) {}
 
     /**
@@ -80,7 +100,9 @@ final class TrainingFlowService
             ? ['done' => $reviewCount, 'total' => $this->dailyGoal($learner)]
             : $this->picker->progress((int) $learner->id, (int) $scope->lessonId, $totalWords);
 
-        $budget = $this->budgets->budgetFor($learner, $now);
+        // Group lessons are outside the Free quota (docs/12 §5.3); same lock order either way —
+        // the budget is resolved before the picker's transaction.
+        $budget = $scope->isGroupLesson() ? NewCardBudget::unlimited() : $this->budgets->budgetFor($learner, $now);
 
         if ($reviewCount >= max(1, (int) config('twa.training.max_cards_per_session', 100))) {
             return TrainingStep::done(DoneReason::SessionCap, $progress, $budget->remaining((int) $learner->id, $now));
@@ -93,7 +115,12 @@ final class TrainingFlowService
         $remaining = $budget->remaining((int) $learner->id, $now);
 
         if ($pick->word === null || $pick->repetition === null || $pick->doneReason !== null) {
-            return TrainingStep::done($pick->doneReason ?? $scope->exhaustedReason(), $progress, $remaining);
+            $reason = $pick->doneReason ?? $scope->exhaustedReason();
+            if ($reason === DoneReason::NewQuotaExhausted) {
+                $this->recordPaywallShown($learner, $now);
+            }
+
+            return TrainingStep::done($reason, $progress, $remaining);
         }
 
         return new TrainingStep(
@@ -127,6 +154,22 @@ final class TrainingFlowService
     private function dailyGoal(Learner $learner): int
     {
         return max(1, (int) $learner->daily_goal);
+    }
+
+    /** Once per local day of the learner: `Cache::add` wins the race between tabs, the key expires with the day. */
+    private function recordPaywallShown(Learner $learner, CarbonImmutable $now): void
+    {
+        $day = $this->clock->dayBoundsUtc($learner, $now);
+        $ttl = max(1, (int) $now->diffInSeconds($day->endUtc, false));
+
+        if (! Cache::add(self::PAYWALL_CACHE_PREFIX.$learner->id.':'.$day->date, true, $ttl)) {
+            return;
+        }
+
+        $this->events->record(ProductEventName::PaywallShown, [
+            'reason' => DoneReason::NewQuotaExhausted->value,
+            'source' => 'server',
+        ], learner: $learner);
     }
 
     /**

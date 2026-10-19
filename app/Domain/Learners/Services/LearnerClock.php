@@ -25,10 +25,15 @@ use InvalidArgumentException;
  *    DST transition day (see DayBounds);
  *  - a non-existent wall-clock time (spring-forward gap) resolves forward to the
  *    first existing instant, as PHP does; an ambiguous one (fall-back) to its first
- *    occurrence.
+ *    occurrence;
+ *  - per-day limits read `limitWindowUtc()`, not `dayBoundsUtc()`: a timezone change
+ *    carries the running day over so that no zone-hopping can shorten it (docs/12 §5.3).
  */
 final class LearnerClock
 {
+    /** `learners.meta` key of the day carried across a timezone change (see {@see limitWindowUtc()}). */
+    public const DAY_CARRY_META = 'local_day_carry';
+
     public function timezone(Learner $learner): DateTimeZone
     {
         return $this->makeZone($learner->timezone)
@@ -104,6 +109,64 @@ final class LearnerClock
         }
 
         return $candidate->utc();
+    }
+
+    /**
+     * UTC window whose events count against a per-day limit right now (the Free new-word
+     * quota, docs/12 §5.3). Normally the current local day. Right after a timezone change
+     * it is the previous zone's day *carried over* (`learners.meta.local_day_carry`, written
+     * by {@see carryDayAcrossTimezoneChange()}): the window keeps that day's start and lasts
+     * until the first midnight of the new zone at or after that day's end. Consecutive
+     * windows are therefore never shorter than a local day, whatever zones are chosen, so a
+     * change of zone can neither shorten the day nor hand out a second one; the price is one
+     * long day (under 48 h) after a change. `date` / `timezone` describe the carried day.
+     */
+    public function limitWindowUtc(Learner $learner, ?CarbonImmutable $now = null): DayBounds
+    {
+        $now ??= CarbonImmutable::now();
+
+        $carry = $this->dayCarry($learner);
+        if ($carry !== null) {
+            $until = $this->firstMidnightAtOrAfter($learner, $carry->endUtc);
+            if ($now->isBefore($until)) {
+                return new DayBounds($carry->date, $carry->timezone, $carry->startUtc, $until);
+            }
+        }
+
+        return $this->dayBoundsUtc($learner, $now);
+    }
+
+    /**
+     * Marks the learner's current limit window as carried into the zone about to be set. Call
+     * BEFORE `learners.timezone` is changed (the model must still carry the old zone); the
+     * caller saves the model. A carry that is still active is kept: a second change during it
+     * must not move the window's start forward. Not for the first zone of the onboarding —
+     * nothing was counted in a day the learner never had.
+     */
+    public function carryDayAcrossTimezoneChange(Learner $learner, ?CarbonImmutable $now = null): void
+    {
+        $now ??= CarbonImmutable::now();
+
+        $carry = $this->dayCarry($learner);
+        if ($carry !== null && $now->isBefore($this->firstMidnightAtOrAfter($learner, $carry->endUtc))) {
+            return;
+        }
+
+        $learner->meta = [...($learner->meta ?? []), self::DAY_CARRY_META => $this->dayBoundsUtc($learner, $now)->toArray()];
+    }
+
+    /** The carried day from `learners.meta`, if the record is well-formed. */
+    public function dayCarry(Learner $learner): ?DayBounds
+    {
+        return DayBounds::tryFromArray(($learner->meta ?? [])[self::DAY_CARRY_META] ?? null);
+    }
+
+    /** First local midnight of the learner's zone at or after `$instant`, in UTC (wall-clock, so DST-correct). */
+    public function firstMidnightAtOrAfter(Learner $learner, CarbonImmutable $instant): CarbonImmutable
+    {
+        $day = $this->dayBoundsUtc($learner, $instant);
+
+        return $day->startUtc->equalTo($instant) ? $day->startUtc : $day->endUtc;
     }
 
     private function makeZone(?string $name): ?DateTimeZone

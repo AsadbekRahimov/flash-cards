@@ -334,6 +334,7 @@
 | `onboarding.menu.text` | Keyingi qadam?<br>/today — bugungi takrorlashlar<br>/settings — sozlamalar<br>/promo KOD — Pro uchun promokod<br>/help — yordam | Что дальше?<br>/today — повторения на сегодня<br>/settings — настройки<br>/promo КОД — промокод на Pro<br>/help — справка |
 | `onboarding.settings.menu` | Nimani o'zgartirmoqchisiz? | Что хотите изменить? |
 | `onboarding.settings.saved` | Saqlandi. | Сохранено. |
+| `onboarding.settings.timezone_too_soon` | Vaqt mintaqasini kuniga bir martadan ko'p o'zgartirib bo'lmaydi. Keyingi o'zgartirish — :when dan keyin (joriy vaqtingiz bo'yicha). | Часовой пояс можно менять не чаще одного раза в сутки. Следующая смена — после :when (по вашему текущему времени). |
 | `onboarding.settings.buttons.locale` | Til | Язык |
 | `onboarding.settings.buttons.goal` | Maqsad | Цель |
 | `onboarding.settings.buttons.level` | Daraja | Уровень |

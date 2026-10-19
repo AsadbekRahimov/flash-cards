@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Learners\DTO\DayBounds;
 use App\Domain\Learners\Services\LearnerClock;
 use App\Models\Learner;
 use Carbon\CarbonImmutable;
@@ -135,4 +136,124 @@ it('rejects a malformed local time', function (): void {
         ->toThrow(InvalidArgumentException::class)
         ->and(fn () => $clock->nextOccurrenceUtc(clockLearner('UTC'), '7pm', utc('2026-10-18 12:00:00')))
         ->toThrow(InvalidArgumentException::class);
+});
+
+// --- Per-day limit window and the day carried across a timezone change (docs/12 §5.3) ---------
+
+it('uses the plain local day as the limit window while no day is carried', function (): void {
+    $clock = new LearnerClock;
+    $learner = clockLearner('Asia/Tashkent');
+    $now = utc('2026-10-19 08:00:00');
+
+    $window = $clock->limitWindowUtc($learner, $now);
+    $day = $clock->dayBoundsUtc($learner, $now);
+
+    expect($window->startUtc->equalTo($day->startUtc))->toBeTrue()
+        ->and($window->endUtc->equalTo($day->endUtc))->toBeTrue()
+        ->and($clock->dayCarry($learner))->toBeNull();
+});
+
+it('carries the old zone\'s day: start kept, end = first midnight of the new zone at or after the old day\'s end', function (): void {
+    $clock = new LearnerClock;
+    $learner = clockLearner('Asia/Tashkent');
+    $now = utc('2026-10-19 08:00:00'); // Tashkent 19 Oct = [18th 19:00, 19th 19:00) UTC
+
+    $clock->carryDayAcrossTimezoneChange($learner, $now);
+    $learner->timezone = 'Pacific/Honolulu'; // UTC-10, midnights at 10:00 UTC
+
+    expect($learner->meta[LearnerClock::DAY_CARRY_META])->toBe([
+        'date' => '2026-10-19', 'timezone' => 'Asia/Tashkent', 'start' => '2026-10-18T19:00:00+00:00', 'end' => '2026-10-19T19:00:00+00:00',
+    ]);
+
+    $window = $clock->limitWindowUtc($learner, $now);
+    expect($window->date)->toBe('2026-10-19')
+        ->and($window->timezone)->toBe('Asia/Tashkent')
+        ->and($window->startUtc->toDateTimeString())->toBe('2026-10-18 19:00:00')
+        ->and($window->endUtc->toDateTimeString())->toBe('2026-10-20 10:00:00');
+
+    // Honolulu's own midnight at 19th 10:00 UTC does not open a new window; the carry does end at 20th 10:00.
+    expect($clock->limitWindowUtc($learner, utc('2026-10-19 10:00:00'))->startUtc->toDateTimeString())->toBe('2026-10-18 19:00:00')
+        ->and($clock->limitWindowUtc($learner, utc('2026-10-20 09:59:59'))->startUtc->toDateTimeString())->toBe('2026-10-18 19:00:00')
+        ->and($clock->limitWindowUtc($learner, utc('2026-10-20 10:00:00'))->startUtc->toDateTimeString())->toBe('2026-10-20 10:00:00')
+        ->and($clock->limitWindowUtc($learner, utc('2026-10-20 10:00:00'))->endUtc->toDateTimeString())->toBe('2026-10-21 10:00:00');
+});
+
+it('ends the carried day with the old one when the new zone shares its midnight', function (): void {
+    $clock = new LearnerClock;
+    $learner = clockLearner('Asia/Tashkent');
+
+    $clock->carryDayAcrossTimezoneChange($learner, utc('2026-10-19 08:00:00'));
+    $learner->timezone = 'Asia/Karachi'; // also UTC+5
+
+    expect($clock->limitWindowUtc($learner, utc('2026-10-19 08:00:00'))->endUtc->toDateTimeString())->toBe('2026-10-19 19:00:00')
+        ->and($clock->firstMidnightAtOrAfter($learner, utc('2026-10-19 19:00:00'))->toDateTimeString())->toBe('2026-10-19 19:00:00')
+        ->and($clock->firstMidnightAtOrAfter($learner, utc('2026-10-19 19:00:01'))->toDateTimeString())->toBe('2026-10-20 19:00:00');
+});
+
+it('keeps an active carry on a further change and replaces an expired one', function (): void {
+    $clock = new LearnerClock;
+    $learner = clockLearner('Asia/Tashkent');
+
+    $clock->carryDayAcrossTimezoneChange($learner, utc('2026-10-19 08:00:00'));
+    $learner->timezone = 'Pacific/Honolulu';
+    $first = $learner->meta[LearnerClock::DAY_CARRY_META];
+
+    // Still carried (until 20th 10:00 UTC): the record stays, so the window start cannot move forward.
+    $clock->carryDayAcrossTimezoneChange($learner, utc('2026-10-20 09:00:00'));
+    expect($learner->meta[LearnerClock::DAY_CARRY_META])->toBe($first);
+    $learner->timezone = 'Asia/Tokyo';
+    expect($clock->limitWindowUtc($learner, utc('2026-10-20 09:00:00'))->startUtc->toDateTimeString())->toBe('2026-10-18 19:00:00')
+        ->and($clock->limitWindowUtc($learner, utc('2026-10-20 09:00:00'))->endUtc->toDateTimeString())->toBe('2026-10-20 15:00:00');
+
+    // Expired: the current Tokyo day is carried instead.
+    $clock->carryDayAcrossTimezoneChange($learner, utc('2026-10-21 12:00:00'));
+    expect($learner->meta[LearnerClock::DAY_CARRY_META]['timezone'])->toBe('Asia/Tokyo')
+        ->and($learner->meta[LearnerClock::DAY_CARRY_META]['start'])->toBe('2026-10-20T15:00:00+00:00');
+});
+
+it('carries a 25-hour fall-back day in full and respects DST in the new zone', function (): void {
+    $clock = new LearnerClock;
+    $learner = clockLearner('Europe/Berlin'); // 25 Oct 2026: 03:00 CEST -> 02:00 CET
+
+    $clock->carryDayAcrossTimezoneChange($learner, utc('2026-10-25 00:30:00'));
+    $learner->timezone = 'America/New_York'; // still EDT (UTC-4) until 1 Nov: midnights at 04:00 UTC
+
+    $window = $clock->limitWindowUtc($learner, utc('2026-10-25 00:30:00'));
+    expect($window->startUtc->toDateTimeString())->toBe('2026-10-24 22:00:00')
+        ->and($learner->meta[LearnerClock::DAY_CARRY_META]['end'])->toBe('2026-10-25T23:00:00+00:00')
+        ->and($window->endUtc->toDateTimeString())->toBe('2026-10-26 04:00:00');
+});
+
+it('ignores a malformed carry record and overwrites it on the next change', function (mixed $garbage): void {
+    $clock = new LearnerClock;
+    $learner = clockLearner('Asia/Tashkent');
+    $learner->meta = [LearnerClock::DAY_CARRY_META => $garbage, 'other' => 1];
+    $now = utc('2026-10-19 08:00:00');
+
+    expect($clock->dayCarry($learner))->toBeNull()
+        ->and($clock->limitWindowUtc($learner, $now)->startUtc->toDateTimeString())->toBe('2026-10-18 19:00:00')
+        ->and($clock->limitWindowUtc($learner, $now)->endUtc->toDateTimeString())->toBe('2026-10-19 19:00:00');
+
+    $clock->carryDayAcrossTimezoneChange($learner, $now);
+    expect($learner->meta['other'])->toBe(1)
+        ->and($learner->meta[LearnerClock::DAY_CARRY_META]['start'])->toBe('2026-10-18T19:00:00+00:00');
+})->with([
+    'string' => ['yesterday'],
+    'missing keys' => [['start' => '2026-10-18T19:00:00+00:00']],
+    'end before start' => [['date' => '2026-10-19', 'timezone' => 'Asia/Tashkent', 'start' => '2026-10-19T19:00:00+00:00', 'end' => '2026-10-18T19:00:00+00:00']],
+    'unparseable' => [['date' => 'x', 'timezone' => 'x', 'start' => 'not a date', 'end' => 'nor this']],
+    'numbers' => [['date' => 1, 'timezone' => 2, 'start' => 3, 'end' => 4]],
+]);
+
+it('round-trips DayBounds through its array form', function (): void {
+    $bounds = (new LearnerClock)->localDateBoundsUtc(clockLearner('Europe/Berlin'), '2026-03-29');
+
+    $back = DayBounds::tryFromArray($bounds->toArray());
+
+    expect($back)->not->toBeNull()
+        ->and($back?->date)->toBe('2026-03-29')
+        ->and($back?->timezone)->toBe('Europe/Berlin')
+        ->and($back?->startUtc->equalTo($bounds->startUtc))->toBeTrue()
+        ->and($back?->endUtc->equalTo($bounds->endUtc))->toBeTrue()
+        ->and(DayBounds::tryFromArray(null))->toBeNull();
 });

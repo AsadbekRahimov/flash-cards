@@ -30,6 +30,7 @@ class WordRepetitionFactory extends Factory
             'last_reviewed_at' => now()->subDays(fake()->numberBetween(0, 10)),
             'next_review_at' => now()->addDays(fake()->numberBetween(-2, 14)),
             'is_hard' => $quality <= 2,
+            'introduced_mode' => 'lesson',
             // Derived from the (possibly overridden) repetitions count so that
             // `->create(['repetitions' => 5])` yields a graduated card.
             'state' => fn (array $attributes): string => ((int) ($attributes['repetitions'] ?? 0)) >= 1

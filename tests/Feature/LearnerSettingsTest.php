@@ -11,7 +11,9 @@ declare(strict_types=1);
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Learners\Exceptions\InvalidSettingException;
 use App\Domain\Learners\Exceptions\OnboardingException;
+use App\Domain\Learners\Exceptions\TimezoneChangeTooSoonException;
 use App\Domain\Learners\Services\DailyStatsService;
+use App\Domain\Learners\Services\LearnerClock;
 use App\Domain\Learners\Services\LearnerSettingsService;
 use App\Domain\Learners\Services\OnboardingService;
 use App\Domain\Twa\Services\JwtService;
@@ -176,10 +178,79 @@ it('ignores fields that are not settings and treats an empty body as a no-op', f
 });
 
 it('accepts any IANA time zone, not only the ones the picker offers', function (): void {
+    CarbonImmutable::setTestNow('2026-10-19 10:00:00');
     $learner = settingsLearner();
 
     patchSettings($this, $learner, ['timezone' => 'America/New_York'])->assertOk()->assertJsonPath('settings.timezone', 'America/New_York');
+
+    CarbonImmutable::setTestNow('2026-10-20 10:00:00'); // a zone may change once in 24 h
     patchSettings($this, $learner, ['timezone' => 'UTC'])->assertOk()->assertJsonPath('settings.timezone', 'UTC');
+});
+
+// --- Time zone: once in 24 h, and the running day is carried (docs/12 §5.3) -------------------
+
+it('refuses a second time-zone change within 24 h with 422 timezone_change_too_soon and applies nothing of the update', function (): void {
+    CarbonImmutable::setTestNow('2026-10-19 10:00:00');
+    $learner = settingsLearner();
+    patchSettings($this, $learner, ['timezone' => 'Europe/Moscow'])->assertOk();
+    $events = ProductEvent::query()->count();
+
+    CarbonImmutable::setTestNow('2026-10-20 09:59:59');
+    patchSettings($this, $learner, ['timezone' => 'Asia/Tokyo', 'daily_goal' => 40])
+        ->assertStatus(422)
+        ->assertExactJson(['error' => [
+            'code' => 'timezone_change_too_soon',
+            'message' => 'The time zone can be changed once in 24 hours; next change at 2026-10-20T10:00:00+00:00.',
+        ]]);
+
+    $fresh = $learner->fresh();
+    expect($fresh->timezone)->toBe('Europe/Moscow')
+        ->and($fresh->daily_goal)->toBe(20)
+        ->and(ProductEvent::query()->count())->toBe($events)
+        ->and(app(LearnerSettingsService::class)->timezoneChangeAvailableAt($fresh)?->toIso8601String())->toBe('2026-10-20T10:00:00+00:00');
+
+    // Exactly 24 h later it is allowed again.
+    CarbonImmutable::setTestNow('2026-10-20 10:00:00');
+    expect(app(LearnerSettingsService::class)->timezoneChangeAvailableAt($learner->fresh()))->toBeNull();
+    patchSettings($this, $learner, ['timezone' => 'Asia/Tokyo', 'daily_goal' => 40])->assertOk()
+        ->assertJsonPath('settings.timezone', 'Asia/Tokyo')
+        ->assertJsonPath('settings.daily_goal', 40);
+});
+
+it('does not count the onboarding zone or a repeated same value as a change', function (): void {
+    CarbonImmutable::setTestNow('2026-10-19 10:00:00');
+    $learner = settingsLearner(); // zone set by the factory / onboarding: no `timezone_changed_at`
+    expect(app(LearnerSettingsService::class)->timezoneChangeAvailableAt($learner))->toBeNull();
+
+    patchSettings($this, $learner, ['timezone' => 'Asia/Tashkent'])->assertOk(); // same value: nothing happens
+    expect($learner->fresh()->meta)->toBe([]);
+
+    patchSettings($this, $learner, ['timezone' => 'Europe/Moscow'])->assertOk();
+    patchSettings($this, $learner, ['timezone' => 'Europe/Moscow', 'daily_goal' => 10])->assertOk(); // same again: not a change, not refused
+
+    expect($learner->fresh()->daily_goal)->toBe(10)
+        ->and($learner->fresh()->meta[LearnerSettingsService::TIMEZONE_CHANGED_AT_META])->toBe('2026-10-19T10:00:00+00:00')
+        ->and(ksorted($learner->fresh()->meta[LearnerClock::DAY_CARRY_META]))->toBe(ksorted([
+            'date' => '2026-10-19', 'timezone' => 'Asia/Tashkent', 'start' => '2026-10-18T19:00:00+00:00', 'end' => '2026-10-19T19:00:00+00:00',
+        ]));
+});
+
+it('throws TimezoneChangeTooSoonException from the service itself, so the bot can explain', function (): void {
+    CarbonImmutable::setTestNow('2026-10-19 10:00:00');
+    $learner = settingsLearner();
+    $service = app(LearnerSettingsService::class);
+    $service->update($learner, ['timezone' => 'Europe/Moscow']);
+
+    CarbonImmutable::setTestNow('2026-10-19 20:00:00');
+    try {
+        $service->update($learner, ['timezone' => 'Asia/Almaty']);
+        $this->fail('second change accepted');
+    } catch (TimezoneChangeTooSoonException $e) {
+        expect($e->errorCode)->toBe('timezone_change_too_soon')
+            ->and($e->availableAt->toIso8601String())->toBe('2026-10-20T10:00:00+00:00');
+    }
+
+    expect($learner->fresh()->timezone)->toBe('Europe/Moscow');
 });
 
 it('rejects invalid values with 422 and changes nothing', function (string $field, mixed $value): void {
@@ -269,17 +340,19 @@ it('recomputes next_reminder_at when the time zone changes, and keeps null while
     patchSettings($this, $learner, ['timezone' => 'Europe/Moscow'])->assertOk();
     expect(nextReminder($learner))->toBe('2026-10-19 16:00:00');
 
+    CarbonImmutable::setTestNow('2026-10-20 10:00:00'); // one zone change per 24 h
     patchSettings($this, $learner, ['timezone' => 'America/New_York'])->assertOk();
-    // 19:00 EDT (UTC-4) on 19 Oct.
-    expect(nextReminder($learner))->toBe('2026-10-19 23:00:00');
+    // 19:00 EDT (UTC-4) on 20 Oct.
+    expect(nextReminder($learner))->toBe('2026-10-20 23:00:00');
 
+    CarbonImmutable::setTestNow('2026-10-21 10:00:00');
     patchSettings($this, $learner, ['reminder_time' => null])->assertOk();
     patchSettings($this, $learner, ['timezone' => 'Asia/Almaty'])->assertOk();
     expect(nextReminder($learner))->toBeNull();
 
     // Switching the reminders back on schedules the next one in the CURRENT zone (Almaty UTC+5).
     patchSettings($this, $learner, ['reminder_time' => '19:00'])->assertOk();
-    expect(nextReminder($learner))->toBe('2026-10-19 14:00:00');
+    expect(nextReminder($learner))->toBe('2026-10-21 14:00:00');
 });
 
 it('follows daylight saving time of the zone when it recomputes', function (): void {

@@ -448,10 +448,31 @@ it('recomputes next_reminder_at when /settings changes the time zone or the remi
     expect($learner->fresh()->reminder_time)->toBeNull()
         ->and($learner->fresh()->next_reminder_at)->toBeNull();
 
-    // Reminders off stay off when only the time zone changes.
+    // Reminders off stay off when only the time zone changes (a day later: the zone changes once in 24 h).
+    $this->travelTo(CarbonImmutable::parse('2026-10-20 10:00:00', 'UTC'));
     $service->applySetting($learner, 'timezone', 'Asia/Almaty');
     expect($learner->fresh()->next_reminder_at)->toBeNull();
 });
+
+it('tells the learner in their language when /settings refuses a second time-zone change within 24 h', function (string $locale, string $expected): void {
+    $this->travelTo(CarbonImmutable::parse('2026-10-19 10:00:00', 'UTC'));
+    $learner = Learner::factory()->onboarded()->create(['telegram_user_id' => 7094, 'timezone' => 'Asia/Tashkent', 'interface_locale' => $locale]);
+
+    onbTap(7094, 'set1:timezone:Europe/Moscow', 100);
+    expect(end($this->tg->sent)['text'])->toBe(__('onboarding.settings.saved', [], $locale));
+
+    $this->travelTo(CarbonImmutable::parse('2026-10-19 20:00:00', 'UTC'));
+    $edits = count($this->tg->edits);
+    onbTap(7094, 'set1:timezone:Asia/Almaty', 101);
+
+    // Next change at 20 Oct 10:00 UTC = 13:00 in Moscow, the learner's current zone; the keyboard stays, nothing changed.
+    expect(end($this->tg->sent)['text'])->toBe($expected)
+        ->and($this->tg->edits)->toHaveCount($edits)
+        ->and(onbLearner(7094)->timezone)->toBe('Europe/Moscow');
+})->with([
+    'ru' => ['ru', 'Часовой пояс можно менять не чаще одного раза в сутки. Следующая смена — после 20.10 13:00 (по вашему текущему времени).'],
+    'uz' => ['uz', "Vaqt mintaqasini kuniga bir martadan ko'p o'zgartirib bo'lmaydi. Keyingi o'zgartirish — 20.10 13:00 dan keyin (joriy vaqtingiz bo'yicha)."],
+]);
 
 it('recomputes next_reminder_at through the /settings buttons', function (): void {
     $this->travelTo(CarbonImmutable::parse('2026-10-19 10:00:00', 'UTC'));

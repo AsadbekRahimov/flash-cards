@@ -20,7 +20,7 @@
 | 1.3a | Личные сессии и scope (`daily_review`, `lesson`), `CardPicker::pickNext(scope, budget)` | architect → coder | ✅ |
 | 1.3b | «Сегодня», дневная цель, streak (`LearnerClock`, `DailyStatsService`, `StreakService`, `GET /today`) | architect → coder | 🚧 (исправления по ревью) |
 | 1.4a | Entitlement, подписки, промокоды (ядро — architect; Filament, `/promo/redeem`, `/me.entitlement`, бот `/promo` — coder) | architect → coder | ✅ |
-| 1.4b | Квота Free (20 новых слов/день) и paywall «Pro скоро» + промокод + контакт | coder | 🚧 |
+| 1.4b | Квота Free (20 новых слов/день) и paywall «Pro скоро» + промокод + контакт; по ревью (architect): смена пояса переносит день и разрешена раз в 24 ч (`422 timezone_change_too_soon`), групповые уроки вне квоты (`word_repetitions.introduced_mode`), серверное `paywall.shown` раз в локальный день | coder → architect | 🚧 (исправления по ревью готовы; TWA-обвязка 422 — coder) |
 | 1.5a | Онбординг в боте `/start` (язык, цель, уровень, пояс, время) | coder | ✅ |
 | 1.5b | Напоминания по локальному времени + `dm_blocked_at` | architect | 🚧 |
 | 1.6 | Настройки (`PATCH /me/settings`, `SettingsView`, `/settings` в боте) | coder | ⏳ |

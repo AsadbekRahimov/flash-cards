@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Telegram\Handlers;
 
 use App\Domain\Learners\Exceptions\OnboardingException;
+use App\Domain\Learners\Exceptions\TimezoneChangeTooSoonException;
 use App\Domain\Learners\Services\OnboardingService;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
 use App\Domain\Telegram\Services\OnboardingMessenger;
@@ -120,6 +121,9 @@ final class OnboardingCallbackHandler implements UpdateHandler
             if ($e->errorCode === OnboardingException::STALE_STEP && $m[1] === OnboardingMessenger::ONBOARDING_PREFIX) {
                 $this->repeatLostStep($learner, $step, $chatId);
             }
+        } catch (TimezoneChangeTooSoonException $e) {
+            // A legitimate tap the rules refuse: the learner is told when the zone can change again.
+            $this->messenger->sendTimezoneChangeTooSoon($learner, $chatId, $e->availableAt);
         }
     }
 

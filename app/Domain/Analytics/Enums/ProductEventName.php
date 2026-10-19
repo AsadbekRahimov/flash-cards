@@ -24,6 +24,8 @@ enum ProductEventName: string
     case GroupMemberLeft = 'group.member_left';
     case SubscriptionGranted = 'subscription.granted';
     case SubscriptionExpired = 'subscription.expired';
+    /** A Free learner ran into the daily new-word limit: `done_reason = new_quota_exhausted` was answered (once per local day; docs/12 §5.4). */
+    case PaywallShown = 'paywall.shown';
     case PromoRedeemed = 'promo.redeemed';
     case PromoRejected = 'promo.rejected';
     case DailyGoalMet = 'daily_goal.met';

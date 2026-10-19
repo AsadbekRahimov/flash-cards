@@ -33,20 +33,28 @@ final readonly class TrainingScope
 
     private const KIND_DAILY = 'daily';
 
+    /**
+     * @param  string  $sessionMode  `TrainingSession::MODE_*` of the session the scope was built for. Does not
+     *                               change what is served; CardPicker stamps it on every word it introduces
+     *                               (`word_repetitions.introduced_mode`), so the Free quota can leave words of a
+     *                               teacher's group lesson out (docs/12 §5.3).
+     */
     private function __construct(
         private string $kind,
         public ?int $lessonId,
         public ?int $courseId,
+        public string $sessionMode,
     ) {}
 
-    public static function lesson(int $lessonId): self
+    /** @param string $sessionMode `lesson` (personal, default) or `group_lesson` */
+    public static function lesson(int $lessonId, string $sessionMode = TrainingSession::MODE_LESSON): self
     {
-        return new self(self::KIND_LESSON, $lessonId, null);
+        return new self(self::KIND_LESSON, $lessonId, null, $sessionMode);
     }
 
     public static function daily(?int $courseId): self
     {
-        return new self(self::KIND_DAILY, null, $courseId);
+        return new self(self::KIND_DAILY, null, $courseId, TrainingSession::MODE_DAILY_REVIEW);
     }
 
     /**
@@ -63,7 +71,13 @@ final readonly class TrainingScope
             throw new LogicException("Training session {$session->id} ({$session->mode}) has no lesson.");
         }
 
-        return self::lesson((int) $session->lesson_id);
+        return self::lesson((int) $session->lesson_id, (string) $session->mode);
+    }
+
+    /** A teacher-led group lesson (`mode = group_lesson`): its new words are outside the Free quota. */
+    public function isGroupLesson(): bool
+    {
+        return $this->sessionMode === TrainingSession::MODE_GROUP_LESSON;
     }
 
     public function isLesson(): bool

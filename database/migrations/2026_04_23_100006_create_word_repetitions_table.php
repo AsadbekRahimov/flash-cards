@@ -22,6 +22,10 @@ return new class extends Migration
             $table->timestamp('last_reviewed_at')->nullable();
             $table->timestamp('next_review_at');
             $table->boolean('is_hard')->default(false);
+            // Mode of the training session that first served the word (`group_lesson` / `lesson` /
+            // `daily_review`): words introduced by a teacher's group lesson are outside the Free
+            // quota (docs/12 §5.3). The default covers rows not created by CardPicker (seeders).
+            $table->string('introduced_mode', 16)->default('lesson');
             $table->jsonb('meta')->default('{}');
             $table->timestamps();
 

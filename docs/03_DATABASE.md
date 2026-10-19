@@ -145,6 +145,7 @@ erDiagram
 | last_reviewed_at | timestamp nullable | |
 | next_review_at | timestamp | индексируем для запроса «что пора повторить»; для `learning`/`relearning` — минуты |
 | is_hard | boolean default false | провалена и ещё не прошла успешное review-повторение (docs/06 §3.5) |
+| introduced_mode | varchar(16) NOT NULL default 'lesson' | режим сессии, в которой слово было выдано впервые: `group_lesson` / `lesson` / `daily_review` (`TrainingScope::$sessionMode` → `CardPicker`); квота Free не считает строки `group_lesson` (docs/12 §5.3). Дефолт — для строк не от пикера (сидеры) |
 | state | varchar(16) default 'new' | `new` / `learning` / `review` / `relearning` (docs/06 §3.1) |
 | learning_step | smallint default 0 | индекс текущего минутного шага внутри learning/relearning |
 | lapses | smallint default 0 | сколько раз карточка в `review` была провалена |

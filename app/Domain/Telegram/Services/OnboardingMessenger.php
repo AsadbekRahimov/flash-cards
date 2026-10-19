@@ -7,12 +7,14 @@ namespace App\Domain\Telegram\Services;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Learners\DTO\OnboardingStep;
 use App\Domain\Learners\DTO\StartPayload;
+use App\Domain\Learners\Services\LearnerClock;
 use App\Domain\Learners\Services\OnboardingService;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Models\Course;
 use App\Models\Learner;
+use Carbon\CarbonImmutable;
 
 /**
  * Renders onboarding and `/settings` screens: message text from `lang/{ru,uz}/onboarding.php` in the
@@ -35,6 +37,7 @@ final class OnboardingMessenger
         private readonly LocaleResolver $locales,
         private readonly OnboardingService $onboarding,
         private readonly CourseCatalogService $catalog,
+        private readonly LearnerClock $clock,
     ) {}
 
     /** `/start` and any message of a learner who has not finished the onboarding: begin it or repeat the current step. */
@@ -127,6 +130,17 @@ final class OnboardingMessenger
     public function sendSettingSaved(Learner $learner, int|string $chatId): void
     {
         $this->telegram->sendMessage($chatId, __('onboarding.settings.saved', [], $this->locales->forLearner($learner)));
+    }
+
+    /** `/settings` refused a time-zone change (once per 24 h): says when it is possible again, in the learner's current local time. */
+    public function sendTimezoneChangeTooSoon(Learner $learner, int|string $chatId, CarbonImmutable $availableAt): void
+    {
+        $local = $availableAt->setTimezone($this->clock->timezone($learner));
+
+        $this->telegram->sendMessage(
+            $chatId,
+            __('onboarding.settings.timezone_too_soon', ['when' => $local->format('d.m H:i')], $this->locales->forLearner($learner)),
+        );
     }
 
     /** Removes the buttons of an answered message; a message Telegram no longer lets us edit is not worth failing for. */

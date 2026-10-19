@@ -8,6 +8,7 @@ use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Learners\Exceptions\InvalidSettingException;
+use App\Domain\Learners\Exceptions\TimezoneChangeTooSoonException;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Learner;
 use Carbon\CarbonImmutable;
@@ -33,6 +34,16 @@ use Illuminate\Support\Facades\Lang;
  * `next_reminder_at` when the time zone or the reminder time is part of the change (`NULL` while
  * reminders are off; the scheduler of 1.5b advances it after each send, docs/12 §7.5).
  *
+ * A change of `timezone` (a value different from the current one) is allowed once per
+ * {@see TIMEZONE_CHANGE_INTERVAL_HOURS} — otherwise {@see TimezoneChangeTooSoonException} and nothing
+ * of the update is applied — and carries the learner's running local day into the new zone
+ * ({@see LearnerClock::carryDayAcrossTimezoneChange()}), so the Free quota cannot be replayed by
+ * hopping between zones (docs/12 §5.3). Both are written in the same transaction as the zone
+ * (`learners.meta.timezone_changed_at`, `learners.meta.local_day_carry`), under the learner-row
+ * lock the card picker also takes, so a concurrent pick sees either the old zone or the new zone
+ * with its carry. The onboarding sets the first zone directly (OnboardingService::apply) and is
+ * not subject to either rule.
+ *
  * Lowering `daily_goal` to or below what is already done today completes today's goal at once
  * ({@see DailyStatsService::reconcileGoal()}) — in its own transaction AFTER the `learners` one has
  * committed, so `learners` and `learner_daily_stats` are never locked together (docs/06 §4.2; the
@@ -46,6 +57,12 @@ final class LearnerSettingsService
 {
     public const REMINDER_STEP_MINUTES = 15;
 
+    /** Minimum time between two changes of `timezone` (docs/12 §5.3). */
+    public const TIMEZONE_CHANGE_INTERVAL_HOURS = 24;
+
+    /** `learners.meta` key: UTC instant of the last accepted change of `timezone` (not set by the onboarding). */
+    public const TIMEZONE_CHANGED_AT_META = 'timezone_changed_at';
+
     public function __construct(
         private readonly LocaleResolver $locales,
         private readonly LearnerClock $clock,
@@ -58,6 +75,7 @@ final class LearnerSettingsService
      * @param  array<string, mixed>  $changes  field => new value (a partial update; only the keys present are touched)
      *
      * @throws InvalidSettingException for an unknown field or a value the field does not accept
+     * @throws TimezoneChangeTooSoonException when `timezone` differs from the current one but the last change is too recent
      */
     public function update(Learner $learner, array $changes): Learner
     {
@@ -77,6 +95,10 @@ final class LearnerSettingsService
                 if ($current !== $value) {
                     $changed[] = $field;
                 }
+            }
+
+            if (in_array('timezone', $changed, true)) {
+                $this->changeTimezone($fresh, CarbonImmutable::now());
             }
 
             $fresh->fill($values);
@@ -194,6 +216,27 @@ final class LearnerSettingsService
         return array_values(OnboardingService::REMINDER_TIMES);
     }
 
+    /**
+     * When the learner may next change `timezone`: `null` = right now (never changed, or the interval has
+     * passed). For the settings screen to say so before the learner tries.
+     */
+    public function timezoneChangeAvailableAt(Learner $learner, ?CarbonImmutable $now = null): ?CarbonImmutable
+    {
+        $now ??= CarbonImmutable::now();
+        $raw = ($learner->meta ?? [])[self::TIMEZONE_CHANGED_AT_META] ?? null;
+        if (! is_string($raw)) {
+            return null;
+        }
+
+        try {
+            $availableAt = CarbonImmutable::parse($raw)->utc()->addHours(self::TIMEZONE_CHANGE_INTERVAL_HOURS);
+        } catch (\Throwable) {
+            return null;
+        }
+
+        return $now->isBefore($availableAt) ? $availableAt : null;
+    }
+
     /** `HH:MM` of a stored `time` (PostgreSQL returns `HH:MM:SS`); `null` stays `null`. */
     public function shortTime(?string $time): ?string
     {
@@ -246,6 +289,23 @@ final class LearnerSettingsService
     {
         return preg_match('/^([01]\d|2[0-3]):([0-5]\d)$/', $value, $m) === 1
             && (int) $m[2] % self::REMINDER_STEP_MINUTES === 0;
+    }
+
+    /**
+     * The zone is about to change (the model still has the old one): enforce the interval and carry the
+     * running day over. Both marks live in `meta` and are saved with the zone by the caller.
+     *
+     * @throws TimezoneChangeTooSoonException
+     */
+    private function changeTimezone(Learner $fresh, CarbonImmutable $now): void
+    {
+        $availableAt = $this->timezoneChangeAvailableAt($fresh, $now);
+        if ($availableAt !== null) {
+            throw new TimezoneChangeTooSoonException($availableAt);
+        }
+
+        $this->clock->carryDayAcrossTimezoneChange($fresh, $now);
+        $fresh->meta = [...($fresh->meta ?? []), self::TIMEZONE_CHANGED_AT_META => $now->utc()->toIso8601String()];
     }
 
     /** `next_reminder_at` for the learner's current time zone and `reminder_time` (`NULL` = reminders are off). */

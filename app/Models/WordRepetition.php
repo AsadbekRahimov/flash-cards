@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property CarbonImmutable|null $last_reviewed_at
  * @property CarbonImmutable $next_review_at
  * @property bool $is_hard
+ * @property string $introduced_mode mode of the session that first served the word (TrainingSession::MODE_*)
  * @property RepetitionState $state
  * @property int $learning_step
  * @property int $lapses
@@ -47,6 +48,7 @@ class WordRepetition extends Model
         'last_reviewed_at',
         'next_review_at',
         'is_hard',
+        'introduced_mode',
         'state',
         'learning_step',
         'lapses',

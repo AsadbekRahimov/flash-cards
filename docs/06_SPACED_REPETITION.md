@@ -176,8 +176,11 @@ review-карточку** (то есть после того, как слово 
    **никогда** не ограничиваются. Бюджет отдаёт `NewCardBudgetResolver::budgetFor(Learner, now)` (контракт в
    `App\Domain\Learning\Contracts`); привязан `NewWordQuota` (задача 1.4b: Pro → `unlimited()`, Free →
    `NewCardBudget::lazy(fn ($learnerId, $now) => limit − выдано сегодня)`; `UnlimitedNewCardBudgetResolver` остался для тестов),
-   где «сегодня» — `LearnerClock::dayBoundsUtc($learner, $now)` → `[startUtc, endUtc)` локального дня, а «выдано» —
-   `word_repetitions.created_at` в этих границах (не `learner_daily_stats.new_words_count`, docs/12 §1.6).
+   где «сегодня» — `LearnerClock::limitWindowUtc($learner, $now)` → `[startUtc, endUtc)` локального дня, при смене часового пояса —
+   перенесённого в новый пояс (docs/12 §5.3), а «выдано» — `word_repetitions.created_at` в этих границах с `introduced_mode <> 'group_lesson'`
+   (не `learner_daily_stats.new_words_count`, docs/12 §1.6). Групповые уроки (`mode = group_lesson`) бюджетом не ограничиваются:
+   `TrainingFlowService` отдаёт пикеру `unlimited()`, а пикер помечает каждое введённое слово режимом сессии (`TrainingScope::$sessionMode` →
+   `word_repetitions.introduced_mode`), чтобы личная квота не считала слова группового урока.
    **Порядок блокировок** (1.3b, обязателен для всех будущих правок). Пикер держит строку `learners`
    (`FOR UPDATE` / `FOR NO KEY UPDATE`) в **своей** транзакции и под ней может читать `word_repetitions` /
    `learner_daily_stats`. Транзакция оценки (`ReviewSubmissionService::submit`) берёт
