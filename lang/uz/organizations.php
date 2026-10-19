@@ -44,7 +44,7 @@ return [
 
     'list' => [
         'title' => 'Sizning markazlaringiz:',
-        'empty' => "Siz hech qaysi markazda emassiz.",
+        'empty' => 'Siz hech qaysi markazda emassiz.',
         'line' => '• «:organization» — :state',
         'state' => [
             'seated' => 'Pro faol',

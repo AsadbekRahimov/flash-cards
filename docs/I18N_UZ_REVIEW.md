@@ -831,3 +831,18 @@
 | `organizations.leave.no` | Bekor qilish | Отмена |
 | `organizations.leave.done` | Siz «:organization» markazini tark etdingiz. | Вы покинули центр «:organization». |
 | `organizations.leave.cancelled` | Mayli, hech narsa o'zgarmadi. | Хорошо, ничего не изменилось. |
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `orgs.title` | Mening markazlarim | Мои центры |
+| `orgs.seated` | Markaz bergan Pro faol | Pro от центра активен |
+| `orgs.waitlisted` | Bo'sh joy yo'q — navbatdasiz | Свободных мест нет — вы в очереди |
+| `orgs.via_group` | Siz markazdasiz — guruh orqali. Chiqish uchun Telegram'da markaz guruhini tark eting. | Вы в центре через группу. Чтобы выйти, покиньте группу центра в Telegram. |
+| `orgs.leave` | Markazni tark etish | Покинуть центр |
+| `orgs.leave.confirm` | «{name}» markazini tark etasizmi? Markaz bergan Pro o'chadi, shaxsiy obunangiz (agar bo'lsa) saqlanadi. | Покинуть центр «{name}»? Pro от центра отключится, личная подписка (если есть) останется. |
+| `orgs.leave.yes` | Ha, tark etaman | Да, покинуть |
+| `orgs.leave.no` | Bekor qilish | Отмена |
+| `error.code.membership_not_found` | Siz endi bu markazda emassiz. | Вы уже не состоите в этом центре. |
+| `error.code.membership_via_group` | Siz markazdasiz — guruh orqali: chiqish uchun Telegram'da markaz guruhini tark eting. | Вы в центре через группу: покинуть его можно, выйдя из группы центра в Telegram. |
