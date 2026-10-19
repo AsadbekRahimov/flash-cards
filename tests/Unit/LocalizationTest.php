@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Learners\Services\OnboardingService;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Learner;
 use App\Models\TelegramGroup;
@@ -185,6 +186,67 @@ it('does not inflect the noun in uz review reminders', function (int $count): vo
     expect(trans_choice('reminders.review', $count, [], 'uz'))
         ->toBe("LexiFlow'da {$count} ta so'zni takrorlash vaqti keldi.");
 })->with([1, 2, 5, 11, 21, 22, 25]);
+
+it('picks the correct ru plural form for the Today screen in the bot', function (int $count, string $expected): void {
+    expect(trans_choice('onboarding.today.due', $count, ['count' => $count], 'ru'))->toBe("Сегодня к повторению: {$count} {$expected}.");
+})->with([
+    [1, 'слово'],
+    [2, 'слова'],
+    [5, 'слов'],
+    [11, 'слов'],
+    [21, 'слово'],
+    [22, 'слова'],
+]);
+
+it('does not inflect the noun on the Today screen in uz', function (int $count): void {
+    expect(trans_choice('onboarding.today.due', $count, ['count' => $count], 'uz'))->toBe("Bugun takrorlash uchun: {$count} ta so'z.");
+})->with([1, 2, 5, 21]);
+
+it('has a caption in ru and uz for every onboarding step, option and settings button', function (): void {
+    $service = app(OnboardingService::class);
+    $steps = [...OnboardingService::STEPS, OnboardingService::DONE];
+
+    foreach (['ru', 'uz'] as $locale) {
+        foreach ($steps as $step) {
+            $view = $service->step($step);
+            expect(__($view->messageKey, [], $locale))->not->toBe($view->messageKey, "missing {$locale} text of step {$step}");
+
+            foreach ($view->options as $option) {
+                if ($option->labelKey === null) {
+                    expect($option->label)->not->toBeNull()->not->toBe('');
+
+                    continue;
+                }
+                expect(__($option->labelKey, $option->labelParams, $locale))->not->toBe($option->labelKey, "missing {$locale} caption {$option->labelKey}");
+            }
+        }
+
+        foreach (OnboardingService::STEPS as $step) {
+            expect(__('onboarding.settings.buttons.'.$step, [], $locale))->not->toBe('onboarding.settings.buttons.'.$step);
+        }
+    }
+});
+
+it('names every supported language in the language picker', function (): void {
+    foreach ((new LocaleResolver)->supported() as $locale) {
+        expect(config('localization.names.'.$locale))->toBeString()->not->toBe('');
+    }
+});
+
+it('offers only time zones that PHP knows and that have a caption', function (): void {
+    $known = DateTimeZone::listIdentifiers();
+    $offered = array_map(fn ($option) => $option->value, app(OnboardingService::class)->options('timezone'));
+
+    expect($offered)->toBe(array_map('strval', config('learners.timezone_options')))
+        ->and($offered[0])->toBe(config('learners.default_timezone'));
+
+    foreach ($offered as $zone) {
+        expect($known)->toContain($zone);
+    }
+
+    config(['learners.timezone_options' => ['Asia/Tashkent', 'Mars/Base']]);
+    expect(array_map(fn ($option) => $option->value, app(OnboardingService::class)->options('timezone')))->toBe(['Asia/Tashkent']);
+});
 
 it('does not change the process locale when translating with an explicit locale', function (): void {
     $before = app()->getLocale();

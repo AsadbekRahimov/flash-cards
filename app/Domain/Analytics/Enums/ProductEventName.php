@@ -7,6 +7,10 @@ namespace App\Domain\Analytics\Enums;
 enum ProductEventName: string
 {
     case TwaAuthenticated = 'twa.authenticated';
+    case OnboardingStarted = 'onboarding.started';
+    case OnboardingStepCompleted = 'onboarding.step_completed';
+    case OnboardingCompleted = 'onboarding.completed';
+    case CourseSelected = 'course.selected';
     case TrainingSessionOpened = 'training.session_opened';
     case TrainingSessionFinished = 'training.session_finished';
     case ExamStarted = 'exam.started';
@@ -20,5 +24,6 @@ enum ProductEventName: string
     case SubscriptionGranted = 'subscription.granted';
     case SubscriptionExpired = 'subscription.expired';
     case PromoRedeemed = 'promo.redeemed';
-    case CourseSelected = 'course.selected';
+    case DailyGoalMet = 'daily_goal.met';
+    case StreakExtended = 'streak.extended';
 }

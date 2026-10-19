@@ -39,7 +39,7 @@ export const KNOWN_ERROR_CODES = [
 
 export type KnownErrorCode = (typeof KNOWN_ERROR_CODES)[number]
 
-export type ErrorContext = 'training' | 'exam' | 'catalog'
+export type ErrorContext = 'training' | 'exam' | 'catalog' | 'today'
 
 function isKnownCode(code: string): code is KnownErrorCode {
   return (KNOWN_ERROR_CODES as readonly string[]).includes(code)

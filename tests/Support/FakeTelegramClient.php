@@ -1,0 +1,89 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Support;
+
+use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Exceptions\TelegramApiException;
+
+/**
+ * Recording TelegramClient for tests: every outgoing call is kept in `$sent`,
+ * `$answered` and `$edits` so a test can assert on text, buttons and order.
+ */
+final class FakeTelegramClient implements TelegramClient
+{
+    /** @var list<array{chat_id:int|string, text:string, button:string|null, url:string|null, markup:array<string, mixed>|null}> */
+    public array $sent = [];
+
+    /** @var list<string> */
+    public array $answered = [];
+
+    /** @var list<array{chat_id:int|string, message_id:int, markup:array<string, mixed>|null}> */
+    public array $edits = [];
+
+    /** When true, editMessageReplyMarkup throws like Telegram does for a deleted / unchanged message. */
+    public bool $failEdits = false;
+
+    public function sendMessage(int|string $chatId, string $text, ?string $parseMode = null, ?array $replyMarkup = null): void
+    {
+        $this->sent[] = ['chat_id' => $chatId, 'text' => $text, 'button' => null, 'url' => null, 'markup' => $replyMarkup];
+    }
+
+    public function sendWebAppButton(int|string $chatId, string $text, string $buttonText, string $url, ?string $parseMode = null): void
+    {
+        $this->sent[] = ['chat_id' => $chatId, 'text' => $text, 'button' => $buttonText, 'url' => $url, 'markup' => null];
+    }
+
+    public function answerCallbackQuery(string $callbackQueryId): void
+    {
+        $this->answered[] = $callbackQueryId;
+    }
+
+    public function editMessageReplyMarkup(int|string $chatId, int $messageId, ?array $replyMarkup = null): void
+    {
+        if ($this->failEdits) {
+            throw new TelegramApiException('message is not modified');
+        }
+
+        $this->edits[] = ['chat_id' => $chatId, 'message_id' => $messageId, 'markup' => $replyMarkup];
+    }
+
+    public function setWebhook(string $url, string $secretHeader): bool
+    {
+        return true;
+    }
+
+    public function deleteWebhook(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Callback data of every callback button of the last sent message that carried an inline keyboard.
+     *
+     * @return list<string>
+     */
+    public function lastCallbackData(): array
+    {
+        for ($i = count($this->sent) - 1; $i >= 0; $i--) {
+            $markup = $this->sent[$i]['markup'];
+            if ($markup === null) {
+                continue;
+            }
+
+            $data = [];
+            foreach ((array) ($markup['inline_keyboard'] ?? []) as $row) {
+                foreach ((array) $row as $button) {
+                    if (is_array($button) && isset($button['callback_data'])) {
+                        $data[] = (string) $button['callback_data'];
+                    }
+                }
+            }
+
+            return $data;
+        }
+
+        return [];
+    }
+}

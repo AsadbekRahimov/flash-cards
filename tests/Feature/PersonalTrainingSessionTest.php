@@ -21,6 +21,7 @@ use App\Domain\Learning\Support\TrainingScope;
 use App\Domain\Twa\Services\JwtService;
 use App\Models\Course;
 use App\Models\Learner;
+use App\Models\LearnerDailyStats;
 use App\Models\Lesson;
 use App\Models\Stage;
 use App\Models\TelegramGroup;
@@ -646,12 +647,14 @@ it('records the day aggregate in the review transaction with isNewCard for the f
     $this->mock(DailyStatsService::class, function ($mock) use (&$calls): void {
         $mock->shouldReceive('recordReview')
             ->twice()
-            ->andReturnUsing(function (Learner $l, int $q, int $ms, bool $isNew, CarbonImmutable $now) use (&$calls): void {
+            ->andReturnUsing(function (Learner $l, int $q, int $ms, bool $isNew, CarbonImmutable $now) use (&$calls): LearnerDailyStats {
                 $calls[] = [
                     'learner' => $l->id, 'quality' => $q, 'ms' => $ms, 'new' => $isNew,
                     'tx' => DB::transactionLevel(),
                     'review_logged' => TrainingReview::query()->count(),
                 ];
+
+                return new LearnerDailyStats;
             });
     });
 

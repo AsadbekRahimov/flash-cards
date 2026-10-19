@@ -445,7 +445,8 @@ it('audits an edit of a promo code with a from / to diff of the changed fields o
         ->and($audit->entity_type)->toBe(PromoCode::class)
         ->and($audit->entity_id)->toBe($promo->id)
         ->and($audit->meta['code'])->toBe('EDITME')
-        ->and($audit->meta['changes'])->toBe([
+        // toEqual: jsonb on PostgreSQL does not keep the key order
+        ->and($audit->meta['changes'])->toEqual([
             'max_redemptions' => ['from' => 10, 'to' => 25],
             'is_active' => ['from' => true, 'to' => false],
         ]);
@@ -461,7 +462,7 @@ it('records the old and new expiry of a promo code as ISO dates and writes nothi
 
     $audit = AuditLog::query()->where('action', 'promo.updated')->sole();
     expect($audit->ip)->toBe('10.0.0.7')
-        ->and($audit->meta['changes']['expires_at'])->toBe(['from' => $old, 'to' => $new->toIso8601String()]);
+        ->and($audit->meta['changes']['expires_at'])->toEqual(['from' => $old, 'to' => $new->toIso8601String()]);
 
     // Same values again, and keys that are not editable (code, plan, counter): nothing changes, nothing is logged.
     $service->update($promo->fresh(), ['expires_at' => $new, 'code' => 'HACKED', 'plan' => 'free', 'redemptions_count' => 99], $this->admin);

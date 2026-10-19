@@ -15,10 +15,44 @@ export const uz: Translations = {
   'common.error_title': 'Xatolik',
 
   // ---- landing ----
-  'landing.in_telegram': "Mashg'ulotni Telegram guruhidagi tugma orqali oching.",
-  'landing.review_all': 'Hammasini takrorlash',
   'landing.outside_telegram':
     "Bu sahifa faqat Telegram Web App ichida ishlaydi. O'qituvchidan mashg'ulot havolasini guruhga yuborishini so'rang.",
+
+  // ---- today ----
+  'today.title': 'Bugun',
+  'today.plan.free': 'Free',
+  'today.plan.pro': 'Pro',
+  'today.goal.title': 'Kunlik maqsad',
+  'today.goal.progress': '{target} tadan {done} tasi',
+  'today.goal.met': 'Maqsad bajarildi',
+  'today.goal.left': {
+    one: '{count} ta kartochka qoldi',
+    other: '{count} ta kartochka qoldi',
+  },
+  'today.streak.title': 'Seriya',
+  'today.streak.days': {
+    one: '{count} kun',
+    other: '{count} kun',
+  },
+  'today.streak.none': 'Seriyani boshlash uchun kunlik maqsadni bajaring',
+  'today.streak.at_risk': 'Seriya xavf ostida: maqsadni yarim tungacha bajaring',
+  'today.streak.safe': 'Bugungi kun uchun seriya uzaytirildi',
+  'today.streak.best': 'Rekord: {best}',
+  'today.review.title': 'Takrorlash',
+  'today.review.due': {
+    one: "Takrorlash uchun {count} ta so'z",
+    other: "Takrorlash uchun {count} ta so'z",
+  },
+  'today.review.none': "Hozircha takrorlaydigan narsa yo'q",
+  'today.review.start': 'Takrorlash',
+  'today.review.continue': 'Davom etish',
+  'today.new.remaining': "Bugun yana {count} ta yangi so'z o'rganish mumkin",
+  'today.new.exhausted': "Bugungi yangi so'zlar limiti tugadi",
+  'today.course.title': 'Kurs',
+  'today.course.next': 'Keyingi dars',
+  'today.course.completed': "Kursdagi barcha so'zlar ko'rsatildi",
+  'today.course.none': "Yangi so'zlarni o'rganish uchun kursni tanlang",
+  'today.onboarding_hint': 'Sozlashni yakunlang: botga /start yuboring',
 
   // ---- flashcard ----
   'card.kind.new': "Yangi so'z",
@@ -58,6 +92,9 @@ export const uz: Translations = {
   'finished.reason.nothing_due': "Bugun takrorlaydigan narsa yo'q.",
   'finished.reason.new_quota_exhausted': "Bugungi yangi so'zlar limiti tugadi. Yangi so'zlar ertaga ochiladi.",
   'finished.reason.session_cap': "Bu uzun mashg'ulot bo'ldi — biroz dam oling.",
+  'finished.home': 'Bosh sahifaga',
+  'finished.goal': 'Kunlik maqsad: {target} tadan {done} tasi',
+  'finished.goal_met': 'Kunlik maqsad bajarildi!',
   'finished.next_label': 'Keyingi takrorlash',
   'finished.next_today': 'Bugun',
   'finished.next_in_days': {
@@ -97,9 +134,11 @@ export const uz: Translations = {
   'error.closed.training': "Bu mashg'ulot allaqachon yopilgan: u yakunlangan yoki sessiya vaqti tugagan.",
   'error.closed.exam': "Imtihon o'qituvchi tomonidan yakunlandi.",
   'error.closed.catalog': 'Kurs endi mavjud emas.',
+  'error.closed.today': 'Bugun ekrani endi mavjud emas.',
   'error.forbidden.training': "Sizda bu mashg'ulotga kirish huquqi yo'q.",
   'error.forbidden.exam': "Sizda bu imtihonga kirish huquqi yo'q.",
   'error.forbidden.catalog': "Sizda kurslar katalogiga kirish huquqi yo'q.",
+  'error.forbidden.today': "Sizda Bugun ekraniga kirish huquqi yo'q.",
   'error.network': "Server bilan aloqa yo'q. Qayta urinib ko'ring.",
   'error.rate_limited': "Juda ko'p so'rov yuborildi. Biroz kutib, qayta urinib ko'ring.",
   'error.server': "Server vaqtincha mavjud emas. Keyinroq urinib ko'ring.",

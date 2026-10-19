@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api\Twa;
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Learners\Services\TodayService;
 use App\Domain\Learning\Exceptions\ReviewSubmissionException;
 use App\Domain\Learning\Exceptions\TrainingSessionException;
 use App\Domain\Learning\Services\TrainingFlowService;
@@ -87,7 +88,7 @@ final class TrainingController
      * POST /api/twa/training/sessions/{id}/finish — idempotent: a repeat answers 200 with the
      * same numbers. Unlike the other session routes a closed session is not 410 here.
      */
-    public function finish(Request $request, int $sessionId): JsonResponse
+    public function finish(Request $request, int $sessionId, TodayService $today): JsonResponse
     {
         /** @var Learner $learner */
         $learner = $request->attributes->get('learner');
@@ -128,7 +129,7 @@ final class TrainingController
             );
         }
 
-        return (new SessionSummaryResource($summary))->response();
+        return (new SessionSummaryResource(['summary' => $summary, 'progress' => $today->progress($learner)]))->response();
     }
 
     public function start(Request $request, int $sessionId): JsonResponse

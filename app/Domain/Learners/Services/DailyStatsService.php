@@ -5,28 +5,43 @@ declare(strict_types=1);
 namespace App\Domain\Learners\Services;
 
 use App\Models\Learner;
+use App\Models\LearnerDailyStats;
 use Carbon\CarbonImmutable;
+use RuntimeException;
 
 /**
- * Per-local-day aggregates of a learner (`learner_daily_stats`, docs/12 §1.6, §3.1).
+ * Per-local-day aggregates of a learner (`learner_daily_stats`, docs/12 §1.6, §3.1, §7.4).
  *
- * Task 1.3a wires the hook: ReviewSubmissionService calls {@see recordReview()}
- * inside the review transaction (after SM-2 and the `training_reviews` insert),
- * so whatever this method writes is committed or rolled back together with the
- * grade. Task 1.3b fills it in: `LearnerClock::today()` for the local date,
- * upsert of `(learner_id, date)` under the unique index with increments of
- * `reviews_count` / `correct_count` (`quality >= 3`) / `new_words_count`
- * (`$isNewCard`) / `time_spent_ms`, `goal_met_at` set once when `reviews_count`
- * first reaches `daily_goal` (→ StreakService::onGoalMet); the return type then
- * becomes `LearnerDailyStats` (the caller ignores the return value).
+ * {@see recordReview()} is called by ReviewSubmissionService **inside the review
+ * transaction** (after SM-2 and the `training_reviews` insert), so the counters
+ * are committed or rolled back together with the grade. The day is the
+ * learner's local date at the moment of the grade (LearnerClock); a review at
+ * 23:59 and one at 00:01 local time land in two different rows even though
+ * they may share a UTC date.
  *
- * Until then it is a no-op so personal sessions can ship first.
+ * Concurrency (two tabs grading at the same instant):
+ *  1. `INSERT ... ON CONFLICT DO NOTHING` makes sure the `(learner_id, date)`
+ *     row exists — a loser of the race simply does nothing;
+ *  2. `SELECT ... FOR UPDATE` on that row serialises the increments; the
+ *     winner's row is what the second transaction reads once it unblocks;
+ *  3. counters are rewritten from the locked values (no raw SQL expressions);
+ *  4. `goal_met_at` is set only while it is NULL under that same lock, so the
+ *     goal is "met" exactly once per day and StreakService hears about it once.
+ *
+ * Lock order inside the review transaction stays `training_sessions →
+ * word_repetitions → learner_daily_stats`; this class never touches `learners`
+ * (CardPicker holds that row in its own transaction — docs/12 §5.3).
  *
  * Deliberately not final: tests of the review transaction replace it with a
  * double to observe the call and to fault it (rollback of the grade).
  */
 class DailyStatsService
 {
+    public function __construct(
+        private readonly LearnerClock $clock,
+        private readonly StreakService $streaks,
+    ) {}
+
     /**
      * @param  bool  $isNewCard  the card was in state `new` before this grade (first answer ever)
      */
@@ -36,7 +51,85 @@ class DailyStatsService
         int $timeSpentMs,
         bool $isNewCard,
         CarbonImmutable $now,
-    ): void {
-        // Filled in by task 1.3b.
+    ): LearnerDailyStats {
+        $today = $this->clock->today($learner, $now);
+        $row = $this->lockedRow($learner->id, $today->toDateString(), $now);
+
+        $reviews = $row->reviews_count + 1;
+        $goal = max(1, $learner->daily_goal);
+        $goalJustMet = $row->goal_met_at === null && $reviews >= $goal;
+
+        $row->forceFill([
+            'reviews_count' => $reviews,
+            'correct_count' => $row->correct_count + ($quality >= 3 ? 1 : 0),
+            'new_words_count' => $row->new_words_count + ($isNewCard ? 1 : 0),
+            'time_spent_ms' => $row->time_spent_ms + max(0, $timeSpentMs),
+            'goal_met_at' => $goalJustMet ? $now : $row->goal_met_at,
+        ])->save();
+
+        if ($goalJustMet) {
+            $this->streaks->onGoalMet($learner, $today);
+        }
+
+        return $row;
+    }
+
+    /** The learner's row for the current local day, or null when nothing was graded yet. */
+    public function today(Learner $learner, ?CarbonImmutable $now = null): ?LearnerDailyStats
+    {
+        return $this->forDate($learner, $this->clock->localDate($learner, $now));
+    }
+
+    /** @param  string  $localDate  `Y-m-d` */
+    public function forDate(Learner $learner, string $localDate): ?LearnerDailyStats
+    {
+        /** @var LearnerDailyStats|null $row */
+        $row = LearnerDailyStats::query()
+            ->where('learner_id', $learner->id)
+            ->where('date', $this->storedDate($localDate))
+            ->first();
+
+        return $row;
+    }
+
+    private function lockedRow(int $learnerId, string $date, CarbonImmutable $now): LearnerDailyStats
+    {
+        $stored = $this->storedDate($date);
+
+        LearnerDailyStats::query()->insertOrIgnore([
+            'learner_id' => $learnerId,
+            'date' => $stored,
+            'reviews_count' => 0,
+            'new_words_count' => 0,
+            'correct_count' => 0,
+            'time_spent_ms' => 0,
+            'goal_met_at' => null,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+
+        /** @var LearnerDailyStats|null $row */
+        $row = LearnerDailyStats::query()
+            ->where('learner_id', $learnerId)
+            ->where('date', $stored)
+            ->lockForUpdate()
+            ->first();
+
+        if ($row === null) {
+            throw new RuntimeException("learner_daily_stats row for learner {$learnerId} on {$date} vanished after upsert.");
+        }
+
+        return $row;
+    }
+
+    /**
+     * The `date` column exactly as Eloquent stores a `date` cast (`Y-m-d 00:00:00`
+     * via the connection's date format). PostgreSQL normalises it to DATE either
+     * way; on sqlite the column is text, so every write and comparison must use
+     * one representation or the unique index would not see duplicates.
+     */
+    private function storedDate(string $localDate): string
+    {
+        return (string) (new LearnerDailyStats)->fromDateTime($localDate);
     }
 }

@@ -1,7 +1,11 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises, mount } from '@vue/test-utils'
+import { createPinia, setActivePinia } from 'pinia'
+import { createMemoryHistory, createRouter } from 'vue-router'
 import FinishedView from '../FinishedView.vue'
 import { setLocale } from '@/i18n'
+import { useTrainingStore } from '@/stores/training'
+import type { SessionSummary } from '@/api/types'
 
 vi.mock('@/composables/useTelegram', () => ({
   useTelegram: () => ({
@@ -10,11 +14,29 @@ vi.mock('@/composables/useTelegram', () => ({
   }),
 }))
 
+const router = createRouter({
+  history: createMemoryHistory(),
+  routes: [
+    { path: '/', name: 'landing', component: { template: '<div />' } },
+    { path: '/today', name: 'today', component: { template: '<div />' } },
+  ],
+})
+
 function render(reviewed: number, nextInDays: number, reason: string | null = null) {
-  return mount(FinishedView, { props: { reviewed, nextInDays, reason } })
+  return mount(FinishedView, { props: { reviewed, nextInDays, reason }, global: { plugins: [router] } })
 }
 
+const summary = (overrides: Partial<SessionSummary> = {}): SessionSummary => ({
+  reviewed: 5,
+  correct: 4,
+  new_words: 1,
+  goal: { target: 20, done: 12, met: false },
+  streak: { current: 3, best: 7, met_today: false, at_risk: true },
+  ...overrides,
+})
+
 describe('FinishedView', () => {
+  beforeEach(() => setActivePinia(createPinia()))
   afterEach(() => setLocale('ru'))
 
   it.each([
@@ -70,5 +92,61 @@ describe('FinishedView', () => {
     setLocale('uz')
     expect(render(3, 1, 'new_quota_exhausted').get('[data-testid=reason]').text())
       .toBe("Bugungi yangi so'zlar limiti tugadi. Yangi so'zlar ertaga ochiladi.")
+  })
+
+  describe('goal and streak of the day', () => {
+    it('shows the progress to the goal, the streak and the risk to it', () => {
+      useTrainingStore().summary = summary()
+      const w = render(5, 1)
+
+      expect(w.get('[data-testid=goal-text]').text()).toBe('Цель дня: 12 из 20')
+      expect(w.get('[data-testid=streak]').text()).toContain('3 дня')
+      expect(w.get('[data-testid=streak-at-risk]').text()).toBe('Серия под угрозой: выполните цель до полуночи')
+    })
+
+    it('celebrates a met goal and drops the risk line', () => {
+      useTrainingStore().summary = summary({
+        goal: { target: 20, done: 21, met: true },
+        streak: { current: 1, best: 1, met_today: true, at_risk: false },
+      })
+      const w = render(5, 1)
+
+      expect(w.get('[data-testid=goal-text]').text()).toBe('Цель дня выполнена!')
+      expect(w.get('[data-testid=streak]').text()).toContain('1 день')
+      expect(w.find('[data-testid=streak-at-risk]').exists()).toBe(false)
+    })
+
+    it('has no streak line while the series is zero', () => {
+      useTrainingStore().summary = summary({ streak: { current: 0, best: 0, met_today: false, at_risk: false } })
+
+      expect(render(5, 1).find('[data-testid=streak]').exists()).toBe(false)
+    })
+
+    it('shows nothing about the day for a session without summary (group lesson, failed finish)', () => {
+      const w = render(5, 1)
+
+      expect(w.find('[data-testid=goal]').exists()).toBe(false)
+      expect(w.get('[data-testid=reviewed]').text()).toBe('Вы повторили 5 слов.')
+    })
+
+    it('renders in Uzbek', () => {
+      setLocale('uz')
+      useTrainingStore().summary = summary()
+      const w = render(5, 1)
+
+      expect(w.get('[data-testid=goal-text]').text()).toBe('Kunlik maqsad: 20 tadan 12 tasi')
+      expect(w.get('[data-testid=home-btn]').text()).toBe('Bosh sahifaga')
+    })
+  })
+
+  it('leads home to the Today screen', async () => {
+    const w = render(5, 1)
+    const home = w.get('[data-testid=home-btn]')
+
+    expect(home.text()).toBe('На главную')
+    expect(home.attributes('href')).toBe('/today')
+    await home.trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('today')
   })
 })

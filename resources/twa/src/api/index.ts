@@ -16,6 +16,7 @@ import type {
   Quality,
   ReviewResponse,
   SessionSummary,
+  TodayResponse,
   TrainingStartResponse,
 } from './types'
 
@@ -48,6 +49,9 @@ export const api = {
   },
   me: {
     get: () => client().get<MeResponse>('/me'),
+  },
+  today: {
+    get: () => client().get<TodayResponse>('/today'),
   },
   promo: {
     redeem: (code: string) => client().post<MeResponse>('/promo/redeem', { code }),

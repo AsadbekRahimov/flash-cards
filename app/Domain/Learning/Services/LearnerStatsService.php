@@ -8,6 +8,7 @@ use App\Domain\Learning\DTO\LearnerStats;
 use App\Domain\Learning\Support\DueRepetitionCriteria;
 use App\Models\Learner;
 use App\Models\WordRepetition;
+use Carbon\CarbonImmutable;
 
 final class LearnerStatsService
 {
@@ -26,10 +27,18 @@ final class LearnerStatsService
             ->where('repetitions', '>=', 1)
             ->count();
 
-        $wordsDueToday = $this->due->apply(
-            WordRepetition::query()->where('learner_id', $learner->id),
-        )->count();
+        return new LearnerStats($wordsLearned, $this->dueCount($learner));
+    }
 
-        return new LearnerStats($wordsLearned, $wordsDueToday);
+    /**
+     * Cards the learner should come back for right now — the number shown as `words_due_today`
+     * and as `due_count` of the "Today" screen.
+     */
+    public function dueCount(Learner $learner, ?CarbonImmutable $now = null): int
+    {
+        return $this->due->apply(
+            WordRepetition::query()->where('learner_id', $learner->id),
+            $now,
+        )->count();
     }
 }
