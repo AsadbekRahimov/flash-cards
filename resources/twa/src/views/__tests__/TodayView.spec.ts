@@ -41,6 +41,7 @@ const makeRouter = () =>
     routes: [
       { path: '/today', name: 'today', component: { template: '<div />' } },
       { path: '/courses', name: 'courses', component: { template: '<div />' } },
+      { path: '/settings', name: 'settings', component: { template: '<div />' } },
       { path: '/training/:sessionId(\\d+)', name: 'training', component: { template: '<div />' } },
     ],
   })
@@ -195,6 +196,13 @@ describe('TodayView', () => {
     const link = w.get('[data-testid=catalog-link]')
     expect(link.attributes('href')).toBe('/courses')
     expect(link.text()).toBe('Каталог курсов')
+  })
+
+  it('links to the settings', async () => {
+    const link = (await render()).get('[data-testid=settings-link]')
+
+    expect(link.attributes('href')).toBe('/settings')
+    expect(link.text()).toContain('Настройки')
   })
 
   it('badges the plan', async () => {

@@ -5,6 +5,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import TodayView from '../TodayView.vue'
 import { api } from '@/api'
 import type { MeResponse, TodayResponse } from '@/api/types'
+import { settingsFixture } from '@/api/__tests__/settingsFixture'
 
 // The paywall entry point of the Today screen (task 1.4b); the rest of the screen is in TodayView.spec.ts.
 
@@ -34,6 +35,7 @@ const me = (plan: 'free' | 'pro', contact: string | null = null): MeResponse => 
   stats: { words_learned: 0, words_due_today: 0 },
   entitlement: { plan, source: plan === 'pro' ? 'subscription' : 'free', until: null, new_words_per_day: plan === 'free' ? 20 : null },
   paywall: { mode: 'coming_soon', contact },
+  settings: settingsFixture(),
 })
 
 async function render(response: TodayResponse) {
@@ -43,6 +45,7 @@ async function render(response: TodayResponse) {
     routes: [
       { path: '/today', name: 'today', component: { template: '<div />' } },
       { path: '/courses', name: 'courses', component: { template: '<div />' } },
+      { path: '/settings', name: 'settings', component: { template: '<div />' } },
       { path: '/training/:sessionId(\\d+)', name: 'training', component: { template: '<div />' } },
     ],
   })

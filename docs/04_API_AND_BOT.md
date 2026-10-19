@@ -73,7 +73,17 @@
     "words_due_today": 18
   },
   "entitlement": { "plan": "pro", "source": "subscription", "until": "2026-12-31T12:00:00+00:00", "new_words_per_day": null },
-  "paywall": { "mode": "coming_soon", "contact": null }
+  "paywall": { "mode": "coming_soon", "contact": null },
+  "settings": {
+    "interface_locale": "ru", "timezone": "Asia/Tashkent", "reminder_time": "19:00", "daily_goal": 20,
+    "goal": "general", "level": "A1", "active_course": { "slug": "english-a1", "title": "Английский A1" },
+    "options": {
+      "locales": [{ "id": "ru", "label": "🇷🇺 Русский" }, { "id": "uz", "label": "🇺🇿 O'zbekcha" }],
+      "timezones": [{ "id": "Asia/Tashkent", "label": "Ташкент (UTC+5)" }],
+      "reminder_times": ["08:00", "13:00", "19:00", "21:00"],
+      "daily_goals": [10, 20, 40]
+    }
+  }
 }
 ```
 
@@ -89,7 +99,29 @@
   в день (`20` у Free), `null` = безлимит. Значение из кэша (TTL 300 с), изменения подписки/членства сбрасывают его сразу.
 - `paywall` — что показать при исчерпанной квоте (docs/12 §5.4): `mode` — `coming_soon` | `purchase`; `contact` — контакт
   поддержки для центров (`BILLING_SUPPORT_CONTACT`), **`null`, если не задан — строку с контактом тогда не показывать**.
-- Цель дня и streak — в `GET /today` (A.2a), не в `/me`. Настройки появятся в задаче 1.6 (docs/12 §3.8).
+- `settings` — текущие настройки (A.2b) и варианты выбора для экрана «Настройки»: `reminder_time` — `HH:MM` в часовом поясе learner'а, `null` = напоминания выключены;
+  `active_course` — `null`, если курса нет или он стал недоступен; `options.timezones[].label` и `active_course.title` — на языке learner'а (город + текущее смещение UTC,
+  например «Ташкент (UTC+5)»); текущий пояс/время, которых нет в списках (выставлены через API), добавляются в конец списка. `options.locales[].label` — всегда на самом языке.
+- Цель дня и streak — в `GET /today` (A.2a), не в `/me`.
+
+### A.2b `PATCH /api/twa/me/settings`
+Частичное изменение настроек (docs/12 §3.8); `LearnerSettingsService::update` — то же место, через которое идёт `/settings` в боте. Меняются только переданные поля,
+лишние поля игнорируются, пустое тело — no-op. Ответ — тот же JSON, что у `GET /me` (A.2), уже с новыми настройками (подписи в новом языке).
+
+| Поле | Правило |
+|---|---|
+| `interface_locale` | `ru` \| `uz` |
+| `timezone` | строка, id из `DateTimeZone::listIdentifiers()` (IANA, регистр важен, любой — не только из списка выбора) |
+| `reminder_time` | `HH:MM`, минуты кратны 15 (`00/15/30/45`); `null` — выключить напоминания |
+| `daily_goal` | целое (не строка) из `config('learners.daily_goal_options')`: 10 / 20 / 40 |
+| `goal`, `level` | как в онбординге: `general`/`ielts`/`sat`/`school`; `A1`..`B2` |
+
+Невалидное значение — `422` (стандартный ответ валидации Laravel), ничего не меняется. Активный курс меняется отдельно — `POST /me/course` (A.5a).
+Побочные эффекты: при передаче `timezone` или `reminder_time` пересчитывается `learners.next_reminder_at` (`LearnerClock::nextOccurrenceUtc`; `NULL`, пока напоминания выключены);
+смена `interface_locale` действует сразу (перевод карточки в `/next`, каталог, бот); если `daily_goal` понижен до уже набранного сегодня `reviews_count` и больше —
+`goal_met_at` ставится сразу (`DailyStatsService::reconcileGoal`, отдельной транзакцией после коммита `learners`; streak засчитывается после commit, событие `daily_goal.met`);
+уже выполненная цель не отзывается при повышении. Событие `settings.changed {fields}` (список реально изменённых полей через запятую; без изменений — без события).
+Rate limit — общий `twa-api`.
 
 ### A.2a `GET /api/twa/today`
 Экран «Сегодня» (docs/12 §7.3): всё, что нужно главному экрану learner'а, за один запрос. `TodayService::summary`. Не «чистое чтение»: `StreakService::current()` может выполнить одиночный `UPDATE learners` (самопочинка отставшей проекции streak, docs/12 §7.4), поэтому метод нельзя вызывать внутри транзакции, держащей `training_sessions` / `word_repetitions` / `learner_daily_stats` (порядок блокировок docs/12 §3.1; важно для напоминаний 1.5b).

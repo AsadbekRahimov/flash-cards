@@ -7,6 +7,7 @@ import { api } from '@/api'
 import { setLocale } from '@/i18n'
 import { useTrainingStore } from '@/stores/training'
 import type { SessionSummary } from '@/api/types'
+import { settingsFixture } from '@/api/__tests__/settingsFixture'
 
 vi.mock('@/api', () => ({ api: { me: { get: vi.fn() }, promo: { redeem: vi.fn() }, today: { get: vi.fn() } } }))
 
@@ -108,6 +109,7 @@ describe('FinishedView', () => {
         stats: { words_learned: 0, words_due_today: 0 },
         entitlement: { plan: 'free', source: 'free', until: null, new_words_per_day: 20 },
         paywall: { mode: 'coming_soon', contact: '@lexiflow_help' },
+        settings: settingsFixture(),
       })
     })
 

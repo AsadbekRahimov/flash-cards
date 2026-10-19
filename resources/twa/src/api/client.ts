@@ -45,7 +45,7 @@ export function createApiClient(opts: ClientOptions) {
   async function request<T>(
     path: string,
     init: {
-      method?: 'GET' | 'POST'
+      method?: 'GET' | 'POST' | 'PATCH'
       body?: Record<string, unknown>
       query?: Record<string, unknown>
       withAuth?: boolean
@@ -84,6 +84,8 @@ export function createApiClient(opts: ClientOptions) {
       request<T>(path, { method: 'GET', query }),
     post: <T>(path: string, body?: Record<string, unknown>) =>
       request<T>(path, { method: 'POST', body }),
+    patch: <T>(path: string, body?: Record<string, unknown>) =>
+      request<T>(path, { method: 'PATCH', body }),
     /** Unauthenticated POST — used only for /auth. */
     postPublic: <T>(path: string, body: Record<string, unknown>) =>
       request<T>(path, { method: 'POST', body, withAuth: false }),

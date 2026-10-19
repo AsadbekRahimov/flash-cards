@@ -409,3 +409,26 @@
 Удалены ключи `landing.in_telegram` и `landing.review_all`: стартовый экран в Telegram теперь сразу ведёт на «Сегодня».
 
 Проверить: «Bugun» как название экрана (вместе с «Bugun» = «Сегодня» в `finished.next_today`); «Seriya» (серия дней подряд с выполненной целью) и «Rekord»; «Kunlik maqsad» (цель дня) и форму «{target} tadan {done} tasi» ("X из Y"); «xavf ostida» (под угрозой) в `today.streak.at_risk`; `today.goal.left` — «N ta kartochka qoldi» (осталось N карточек); `today.course.completed` («barcha so'zlar ko'rsatildi» — все слова показаны, не «выучены»).
+
+## Фаза 1 · задача 1.6 (настройки) — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `settings.title` | Sozlamalar | Настройки |
+| `settings.language` | Interfeys tili | Язык интерфейса |
+| `settings.timezone` | Vaqt mintaqasi | Часовой пояс |
+| `settings.reminder` | Eslatmalar | Напоминания |
+| `settings.reminder.off` | Eslatmalarsiz | Без напоминаний |
+| `settings.reminder.hint` | Vaqt sizning vaqt mintaqangiz bo'yicha. | Время — по вашему часовому поясу. |
+| `settings.daily_goal` | Kunlik maqsad | Цель на день |
+| `settings.daily_goal.option.one/other` | {count} ta kartochka | {count} карточка / карточки / карточек |
+| `settings.course` | Faol kurs | Активный курс |
+| `settings.course.none` | Kurs tanlanmagan | Курс не выбран |
+| `settings.saved` | Saqlandi | Сохранено |
+| `error.closed.settings` | Sozlamalar endi mavjud emas. | Настройки больше недоступны. |
+| `error.forbidden.settings` | Sizda sozlamalarga kirish huquqi yo'q. | У вас нет доступа к настройкам. |
+
+Проверить: «Sozlamalar» (настройки), «Interfeys tili» (язык интерфейса), «Vaqt mintaqasi» (часовой пояс), «Eslatmalar»/«Eslatmalarsiz» (напоминания / без напоминаний), «Faol kurs» (активный курс). Названия городов в списке часовых поясов приходят с сервера из `lang/uz/onboarding.php` (проверены в 1.5a).
+

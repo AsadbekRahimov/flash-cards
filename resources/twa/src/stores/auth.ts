@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { api } from '@/api'
 import type { AuthContext, Learner } from '@/api/types'
 import { useTelegram } from '@/composables/useTelegram'
+import { setLocale, SUPPORTED_LOCALES, type Locale } from '@/i18n'
 
 interface AuthState {
   token: string
@@ -44,6 +45,8 @@ export const useAuthStore = defineStore('auth', {
         this.token = res.token
         this.expiresAt = Date.now() + res.expires_in * 1000
         this.learner = res.learner
+        // The learner's own choice (onboarding / settings) beats Telegram's language_code picked at startup.
+        if ((SUPPORTED_LOCALES as readonly string[]).includes(res.learner.locale)) setLocale(res.learner.locale as Locale)
       } catch (err: unknown) {
         this.error = (err as { code?: string })?.code ?? 'auth_failed'
         throw err

@@ -7,6 +7,7 @@ import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { useTodayStore } from '@/stores/today'
 import type { MeResponse, Paywall } from '@/api/types'
+import { settingsFixture } from '@/api/__tests__/settingsFixture'
 
 vi.mock('@/api', () => ({
   api: { me: { get: vi.fn() }, promo: { redeem: vi.fn() }, today: { get: vi.fn() } },
@@ -26,6 +27,7 @@ function me(overrides: { plan?: 'free' | 'pro'; contact?: string | null; limit?:
       new_words_per_day: 'limit' in overrides ? (overrides.limit ?? null) : plan === 'free' ? 20 : null,
     },
     paywall,
+    settings: settingsFixture(),
   }
 }
 

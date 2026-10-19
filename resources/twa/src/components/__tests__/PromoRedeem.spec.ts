@@ -5,6 +5,7 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import type { MeResponse } from '@/api/types'
+import { settingsFixture } from '@/api/__tests__/settingsFixture'
 
 vi.mock('@/api', () => ({ api: { promo: { redeem: vi.fn() } } }))
 
@@ -15,6 +16,7 @@ function me(until: string | null): MeResponse {
     stats: { words_learned: 0, words_due_today: 0 },
     entitlement: { plan: 'pro', source: 'subscription', until, new_words_per_day: null },
     paywall: { mode: 'coming_soon', contact: null },
+    settings: settingsFixture(),
   }
 }
 

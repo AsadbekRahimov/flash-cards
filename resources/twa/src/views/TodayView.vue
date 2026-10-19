@@ -180,6 +180,9 @@ onBeforeUnmount(() => training.clearOpenError())
       <RouterLink :to="{ name: 'courses' }" class="btn btn-secondary w-full" data-testid="catalog-link">
         {{ t('catalog.open') }}
       </RouterLink>
+      <RouterLink :to="{ name: 'settings' }" class="btn btn-secondary w-full" data-testid="settings-link">
+        ⚙️ {{ t('settings.title') }}
+      </RouterLink>
     </div>
 
     <PaywallSheet v-if="paywallOpen" :reason="data?.new_words_remaining === 0 ? 'quota' : 'info'" @close="paywallOpen = false" />
