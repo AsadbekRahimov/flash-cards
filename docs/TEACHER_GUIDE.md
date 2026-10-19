@@ -23,10 +23,11 @@ All commands are typed directly into the **group chat** where the bot is active 
 | Command | Context | Description |
 |---|---|---|
 | `/help` | any | Shows command list |
-| `/start` | private chat (DM) | Links your Telegram account to your teacher profile |
+| `/start` | private chat (DM) | Greets a teacher whose Telegram ID is linked to their profile (an unlinked account gets the learner onboarding) |
 | `/start_training [stage] [lesson]` | group | Opens a flashcard training session |
 | `/start_exam [stage] [lesson] [minutes]` | group | Opens a timed exam session |
 | `/close_exam` | group | Closes the current exam and posts the leaderboard |
+| `/stats` | private chat (DM) | Your report for the last 7 days; an account that is not linked yet is shown its Telegram ID |
 
 ---
 
@@ -36,7 +37,7 @@ In **private chat** with the bot, type:
 ```
 /start
 ```
-The bot replies with your name if your `telegram_user_id` is configured. If you get an "unknown user" message, ask the administrator to add your Telegram ID.
+The bot replies with your name if your `telegram_user_id` is linked to your teacher profile. Until it is linked the bot treats you as an ordinary learner and starts the learner onboarding (language, goal, level, ...). To find your Telegram ID, send `/stats` to the bot in the private chat: it shows the ID for an account that is not linked yet. Give this ID to the administrator, who adds it to your profile; after that `/start` greets you as a teacher.
 
 ---
 

@@ -51,6 +51,12 @@ return [
         'button' => "🎯 Birinchi mashg'ulotni boshlash",
     ],
 
+    // `/start c_<slug>` of a learner who has already finished the onboarding: the course opens in the app.
+    'course_link' => [
+        'text' => "«:course» kursi LexiFlow'da mavjud. Uni quyidagi tugma bilan oching — o'zingiz tanlamaguningizcha joriy kurs o'zgarmaydi.",
+        'button' => 'Kursni ochish',
+    ],
+
     // Minimal "Today" in the bot; the full screen is in the app.
     'today' => [
         // Uzbek does not inflect nouns after numerals: a single form for any count.

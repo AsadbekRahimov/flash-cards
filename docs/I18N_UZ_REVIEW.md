@@ -247,6 +247,7 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `bot.help.private` (добавлена строка) | Pro uchun promokod: /promo KOD | Промокод на Pro: /promo КОД |
+| `bot.help.private` (добавлены строки, 1.5a) | Bugungi takrorlashlar: /today<br>Sozlamalar (til, maqsad, daraja, vaqt mintaqasi, eslatmalar): /settings | Повторения на сегодня: /today<br>Настройки (язык, цель, уровень, часовой пояс, напоминания): /settings |
 | `bot.promo.usage` | Promokodni quyidagicha yuboring: /promo KOD | Отправьте промокод так: /promo КОД |
 | `bot.promo.use_private` | Promokodni guruhda ko'rsatmaslik yaxshi. Bot bilan shaxsiy chatni oching va /promo KOD yuboring. | Промокод лучше не показывать в группе. Откройте личный чат с ботом и отправьте /promo КОД. |
 | `bot.promo.blocked` | Akkauntga kirish cheklangan. Qo'llab-quvvatlash xizmatiga murojaat qiling. | Доступ к аккаунту ограничен. Обратитесь в поддержку. |
@@ -317,6 +318,8 @@
 | `onboarding.done.text` | Tayyor! Kursingiz: :course. Tugmani bosing — birinchi mashg'ulot bir necha daqiqa oladi. | Готово! Ваш курс: :course. Нажмите кнопку — первая тренировка займёт пару минут. |
 | `onboarding.done.text_plain` | Tayyor! Tugmani bosing — birinchi mashg'ulot bir necha daqiqa oladi. | Готово! Нажмите кнопку — первая тренировка займёт пару минут. |
 | `onboarding.done.button` | 🎯 Birinchi mashg'ulotni boshlash | 🎯 Начать первую тренировку |
+| `onboarding.course_link.text` | «:course» kursi LexiFlow'da mavjud. Uni quyidagi tugma bilan oching — o'zingiz tanlamaguningizcha joriy kurs o'zgarmaydi. | Курс «:course» доступен в LexiFlow. Откройте его кнопкой ниже — текущий курс не изменится, пока вы сами его не выберете. |
+| `onboarding.course_link.button` | Kursni ochish | Открыть курс |
 | `onboarding.today.due` | Bugun takrorlash uchun: :count ta so'z. | Сегодня к повторению: :count слово.\|Сегодня к повторению: :count слова.\|Сегодня к повторению: :count слов. |
 | `onboarding.today.empty` | Bugun takrorlanadigan so'z yo'q. Yangi so'zlarni o'rganish uchun LexiFlow'ni oching. | На сегодня повторений нет. Откройте LexiFlow, чтобы выучить новые слова. |
 | `onboarding.today.button` | LexiFlow'ni ochish | Открыть LexiFlow |

@@ -83,17 +83,20 @@ final class StartCommandHandler implements UpdateHandler
             return;
         }
 
-        $payload = StartPayload::parse($this->payloadFrom((string) ($message['text'] ?? '')));
-        $this->registrar->attributeAcquisition($learner, $payload);
-
+        // A blocked learner is told so and nothing else is recorded about them.
         if ($learner->blocked_at !== null) {
             $this->telegram->sendMessage($chatId, __('onboarding.blocked', [], $this->locales->forLearner($learner)));
 
             return;
         }
 
+        $payload = StartPayload::parse($this->payloadFrom((string) ($message['text'] ?? '')));
+        $this->registrar->attributeAcquisition($learner, $payload);
+
         if ($learner->onboarding_state === OnboardingService::DONE) {
             $this->today->send($learner, $chatId);
+            // A `c_<slug>` link of a finished learner does not change the active course; it opens the course.
+            $this->messenger->sendCourseLink($learner, $chatId, $payload);
 
             return;
         }

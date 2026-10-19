@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Content\Services\CourseCatalogService;
+use App\Domain\Learners\DTO\StartPayload;
 use App\Filament\Resources\CourseResource;
 use App\Filament\Resources\CourseResource\Pages\CreateCourse;
 use App\Filament\Resources\CourseResource\Pages\EditCourse;
@@ -98,6 +99,23 @@ it('requires the title in both languages and a valid unique slug', function (): 
         ->fillForm(['slug' => 'taken', 'title' => ['ru' => 'Курс', 'uz' => 'Kurs']])
         ->call('create')
         ->assertHasFormErrors(['slug' => 'unique']);
+});
+
+it('keeps the slug short enough for a c_<slug> bot link', function (): void {
+    $this->actingAs($this->admin);
+    $title = ['ru' => 'Курс', 'uz' => 'Kurs'];
+
+    livewire(CreateCourse::class)
+        ->fillForm(['slug' => str_repeat('a', StartPayload::COURSE_SLUG_MAX + 1), 'title' => $title])
+        ->call('create')
+        ->assertHasFormErrors(['slug' => 'max']);
+
+    livewire(CreateCourse::class)
+        ->fillForm(['slug' => str_repeat('a', StartPayload::COURSE_SLUG_MAX), 'title' => $title])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(StartPayload::parse('c_'.str_repeat('a', StartPayload::COURSE_SLUG_MAX))->courseSlug())->not->toBeNull();
 });
 
 it('cannot change the status or the slug through the edit form', function (): void {

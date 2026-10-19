@@ -35,7 +35,11 @@ final class LearnerDmHandler implements UpdateHandler
             return false;
         }
 
+        // Service messages (pinned_message, new_chat_title, ...) carry no `text`: they are not
+        // something the person wrote to the bot.
         return ($message['chat']['type'] ?? '') === 'private'
+            && is_string($message['text'] ?? null)
+            && $message['text'] !== ''
             && is_array($message['from'] ?? null)
             && (int) ($message['from']['id'] ?? 0) > 0
             && empty($message['from']['is_bot']);

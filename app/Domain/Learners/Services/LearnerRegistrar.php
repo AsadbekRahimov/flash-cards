@@ -66,7 +66,7 @@ final class LearnerRegistrar
      * `acquisition_source` is still empty — a learner created earlier without a source (e.g. via
      * `/auth`) gets the source of their first deep link; one that already has a source (`group`,
      * an earlier link) keeps it, together with `start_payload` / `referrer_learner_id`. A
-     * `ref_` link to the learner themself or to an unknown / deleted learner is ignored
+     * `ref_` link to the learner themself or to an unknown / deleted / blocked learner is ignored
      * entirely, so a later valid link can still attribute. The write is a conditional UPDATE,
      * so two parallel `/start` updates cannot overwrite each other.
      *
@@ -86,7 +86,9 @@ final class LearnerRegistrar
 
         if ($payload->kind === StartPayloadKind::Ref) {
             $referrerId = (int) $payload->referrerId();
-            if ($referrerId === $learner->id || ! Learner::query()->whereKey($referrerId)->exists()) {
+            if ($referrerId === $learner->id
+                || ! Learner::query()->whereKey($referrerId)->whereNull('blocked_at')->exists()
+            ) {
                 return false;
             }
             $values['referrer_learner_id'] = $referrerId;

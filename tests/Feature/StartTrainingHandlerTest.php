@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Handlers\StartTrainingHandler;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Models\Lesson;
@@ -137,6 +138,30 @@ it('opens a training session via callback when a lesson is chosen from the picke
             'from' => ['id' => 888],
             'data' => StartTrainingHandler::CALLBACK_PREFIX.'1:1',
             'message' => ['chat' => ['id' => -2003, 'type' => 'supergroup']],
+        ],
+    ]);
+
+    expect(TrainingSession::query()->where('status', 'open')->count())->toBe(1);
+});
+
+it('opens the session even when Telegram refuses the callback acknowledgement', function (): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => -2010, 'status' => 'active']);
+    $teacher = User::factory()->create(['telegram_user_id' => 891]);
+    attachTeacher($teacher, $group);
+    $stage = Stage::factory()->inDefaultCourse()->create(['number' => 1]);
+    Lesson::factory()->for($stage)->create(['number' => 1]);
+
+    // The retry of a job, or a slow worker: "query is too old".
+    $this->api->shouldReceive('answerCallbackQuery')->once()
+        ->andThrow(new TelegramApiException('query is too old'));
+    $this->api->shouldReceive('sendWebAppButton')->once();
+
+    app(TelegramDispatcher::class)->dispatch([
+        'callback_query' => [
+            'id' => 'cq-old',
+            'from' => ['id' => 891],
+            'data' => StartTrainingHandler::CALLBACK_PREFIX.'1:1',
+            'message' => ['chat' => ['id' => -2010, 'type' => 'supergroup']],
         ],
     ]);
 
