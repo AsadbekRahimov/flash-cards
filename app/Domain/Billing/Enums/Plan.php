@@ -4,25 +4,29 @@ declare(strict_types=1);
 
 namespace App\Domain\Billing\Enums;
 
-use InvalidArgumentException;
+use App\Domain\Billing\Exceptions\PlanException;
 
 /**
  * Tariff plan. Ranks, feature lists and limits come from config/billing.php
  * (docs/12 §3.4); the enum only names the keys so the rest of the code never
  * compares raw strings.
+ *
+ * Use `fromKey()` for any key that comes from outside the enum (forms, stored
+ * rows, config): unlike the native `from()`, it raises a domain exception the
+ * HTTP / bot layer understands instead of a ValueError.
  */
 enum Plan: string
 {
     case Free = 'free';
     case Pro = 'pro';
 
-    /** @throws InvalidArgumentException for a key that is not a configured plan */
+    /** @throws PlanException plan_unknown for a key that is not a configured plan */
     public static function fromKey(string $key): self
     {
         $plan = self::tryFrom($key);
 
         if ($plan === null || ! is_array(config("billing.plans.{$key}"))) {
-            throw new InvalidArgumentException("Unknown billing plan [{$key}].");
+            throw PlanException::unknown($key);
         }
 
         return $plan;

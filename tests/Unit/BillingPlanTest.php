@@ -5,6 +5,8 @@ declare(strict_types=1);
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Enums\SubscriptionStatus;
+use App\Domain\Billing\Exceptions\BillingException;
+use App\Domain\Billing\Exceptions\PlanException;
 
 it('ranks plans and reads limits and features from config/billing.php', function (): void {
     expect(Plan::Free->rank())->toBe(0)
@@ -21,12 +23,21 @@ it('ranks plans and reads limits and features from config/billing.php', function
     expect(Plan::Free->newWordsPerDay())->toBe(0);
 });
 
-it('accepts only configured plan keys', function (): void {
+it('accepts only configured plan keys and reports the rest as a domain error (plan_unknown, 422)', function (): void {
     expect(Plan::fromKey('pro'))->toBe(Plan::Pro)
-        ->and(fn () => Plan::fromKey('platinum'))->toThrow(InvalidArgumentException::class);
+        ->and(fn () => Plan::fromKey('platinum'))->toThrow(PlanException::class);
+
+    try {
+        Plan::fromKey('platinum');
+    } catch (PlanException $e) {
+        expect($e)->toBeInstanceOf(BillingException::class)
+            ->and($e->errorCode)->toBe(PlanException::UNKNOWN)
+            ->and($e->httpStatus())->toBe(422)
+            ->and($e->getMessage())->toContain('platinum');
+    }
 
     config()->set('billing.plans.pro', null);
-    expect(fn () => Plan::fromKey('pro'))->toThrow(InvalidArgumentException::class);
+    expect(fn () => Plan::fromKey('pro'))->toThrow(PlanException::class);
 });
 
 it('knows which statuses are live and which providers have a grace period', function (): void {

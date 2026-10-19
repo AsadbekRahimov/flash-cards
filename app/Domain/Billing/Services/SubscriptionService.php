@@ -328,7 +328,7 @@ final class SubscriptionService
             ];
 
             $live->fill([
-                'plan' => $plan->outranks(Plan::from($live->plan)) ? $plan->value : $live->plan,
+                'plan' => $plan->outranks(Plan::fromKey($live->plan)) ? $plan->value : $live->plan,
                 'status' => SubscriptionStatus::Active->value,
                 'current_period_ends_at' => $from->addDays($days),
                 'grace_until' => null,
