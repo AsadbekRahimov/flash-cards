@@ -203,6 +203,8 @@ interface ExamState {
 
 ## 7. TTS (useTts)
 
+> Порядок (задача 1.2c): `speak(text, lang, audioUrl)` — если у карточки есть `audio_url`, играет предгенерированный mp3; при `null` или ошибке воспроизведения — Web Speech API, затем `GET /api/twa/tts`. Пример ниже — исходная схема без `audioUrl`.
+
 ```ts
 // src/composables/useTts.ts
 export function useTts() {

@@ -11,8 +11,9 @@ vi.mock('@/composables/useTelegram', () => ({
     selectionHaptic: vi.fn(),
   }),
 }))
+const { speak } = vi.hoisted(() => ({ speak: vi.fn().mockResolvedValue(undefined) }))
 vi.mock('@/composables/useTts', () => ({
-  useTts: () => ({ supported: false, speak: vi.fn().mockResolvedValue(undefined) }),
+  useTts: () => ({ supported: false, speak }),
 }))
 
 const card: Card = {
@@ -27,7 +28,22 @@ const card: Card = {
 }
 
 describe('FlashCard', () => {
-  afterEach(() => setLocale('ru'))
+  afterEach(() => {
+    setLocale('ru')
+    speak.mockClear()
+  })
+
+  it('hands the pre-generated audio_url to the speaker', async () => {
+    const w = mount(FlashCard, {
+      props: { card: { ...card, audio_url: 'https://x.test/storage/audio/a.mp3' }, showTranslation: false },
+    })
+    await w.get('button[aria-label]').trigger('click')
+    expect(speak).toHaveBeenCalledWith('Resilient', 'en-US', 'https://x.test/storage/audio/a.mp3')
+
+    speak.mockClear()
+    await mount(FlashCard, { props: { card, showTranslation: false } }).get('button[aria-label]').trigger('click')
+    expect(speak).toHaveBeenCalledWith('Resilient', 'en-US', undefined)
+  })
 
   it('shows the word, transcription and hides translation by default', () => {
     const w = mount(FlashCard, { props: { card, showTranslation: false } })

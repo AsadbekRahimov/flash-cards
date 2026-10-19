@@ -148,6 +148,8 @@ export interface Card {
   translation_fallback: boolean
   example: string | null
   transcription: string | null
+  /** Pre-generated mp3 (docs/12 task 1.2c); absent/null → Web Speech / `GET /tts` fallback. */
+  audio_url?: string | null
   card_kind: CardKind
   /**
    * One-time learn-ahead ticket (docs/06 §5.2). Non-null only when the server

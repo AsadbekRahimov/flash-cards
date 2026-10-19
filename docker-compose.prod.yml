@@ -81,6 +81,8 @@ services:
             APP_DOMAIN: ${APP_DOMAIN}
         volumes:
             - ./docker/nginx/prod.conf:/etc/nginx/prod.conf.template:ro
+            # Pre-generated audio (/storage/audio/, docs/12 task 1.2c) is served straight from the shared volume.
+            - app_storage:/var/www/html/storage:ro
             - letsencrypt:/etc/letsencrypt:ro
             - certbot_www:/var/www/certbot:ro
         # The image entrypoint substitutes only APP_DOMAIN and periodically reloads renewed certificates.

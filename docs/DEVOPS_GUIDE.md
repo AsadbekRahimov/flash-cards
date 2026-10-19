@@ -248,6 +248,14 @@ server {
         }
     }
 
+    # Pre-generated word audio (task 1.2c, `php artisan audio:pregenerate`): content-addressed
+    # mp3 files, never change -> long cache; no gzip. Only audio/ is exposed.
+    location ^~ /storage/audio/ {
+        alias /var/www/lexiflow/storage/app/public/audio/;
+        gzip off;
+        add_header Cache-Control "public, max-age=2592000, immutable";
+    }
+
     # Admin panel, 2FA pages and Livewire (hash-prefixed routes such as
     # /livewire-<hash>/livewire.min.js). Handled by Laravel, never by a static
     # *.js location, and never compressed (BREACH). PHP-FPM is called directly:
@@ -295,7 +303,7 @@ The Docker configs (`docker/nginx/prod.conf`, `docker/nginx/default.conf`) and t
 |---|---|
 | TWA static (`/twa/`) | `npm run build` runs `resources/twa/scripts/precompress.mjs` (built-in `node:zlib`, gzip level 9) and writes `file.gz` next to every `.js .css .html .svg .json .webmanifest .txt` of at least 512 bytes (only if smaller). nginx serves them with `gzip_static on`, no CPU per request. Files without `.gz` fall back to on-the-fly gzip. Run `npm run precompress --prefix resources/twa` to redo it by hand. |
 | API / other dynamic responses | on-the-fly `gzip`, level 6, `gzip_min_length 512`; types: JS, JSON, `manifest+json`, XML, wasm, SVG, CSS, text, `font/ttf`, `font/otf`. |
-| Not compressed | `woff2`, `mp3` (TTS audio, `/api/twa/tts`), `png/jpg/webp` — already compressed. |
+| Not compressed | `woff2`, `mp3` (TTS audio, `/api/twa/tts` and `/storage/audio/`), `png/jpg/webp` — already compressed. |
 | `/admin`, `/2fa`, `/livewire-*` | `gzip off` (BREACH: pages carry CSRF tokens and reflect input). The traffic is negligible. |
 | Brotli | not enabled (no module in `nginx:alpine`); a possible later step. |
 
@@ -347,6 +355,8 @@ stdout_logfile_backups=3
 user=www-data
 ```
 
+Pre-generated word audio (`PregenerateWordAudioJob`, see below) runs on the `low` queue, which the `--queue=high,default,low` list above already includes (the Docker `queue` service uses the same list). The job retries 5 times with backoff 30s / 2m / 10m / 30m.
+
 For bigger classes, increase `numprocs` before adding app containers. With Redis queue and the current DB indexes, 2-3 workers are enough for roughly 300 active students/day unless Telegram API latency dominates.
 
 Keep `REDIS_MAXMEMORY_POLICY=noeviction` while cache, sessions and queues share the same Redis instance. `allkeys-lru` is only safe after moving queues/sessions to a separate Redis instance, otherwise Redis can evict pending jobs under memory pressure.
@@ -358,6 +368,22 @@ supervisorctl update
 supervisorctl start lexiflow-worker:*
 supervisorctl status
 ```
+
+---
+
+### 10.1 Pre-generated word audio (task 1.2c)
+
+Words are voiced once by the edge-tts service (`TTS_SERVICE_URL`, `TTS_SERVICE_TIMEOUT`) instead of on every learner request:
+
+```bash
+php artisan audio:pregenerate <course-slug>          # queue jobs for active words without current audio
+php artisan audio:pregenerate <course-slug> --force  # re-synthesize everything (e.g. after changing the voice)
+```
+
+- Files: `storage/app/public/audio/{sha1(text|voice|version)}.mp3` (public disk), `words.audio_path` holds the relative path. Same text in several words/courses = one file. Changing `TTS_VOICE` or `TTS_AUDIO_VERSION` produces new file names; old files stay on disk (delete `storage/app/public/audio` and re-run the command to clean up).
+- The `tts` container must be reachable from the queue worker. If it is down, jobs retry and then land in `failed_jobs` (`php artisan queue:retry all` when it is back); the rest of the batch is not affected, learners just keep getting Web Speech / live `/api/twa/tts`.
+- Serving: nginx `location ^~ /storage/audio/` (see `docker/nginx/*.conf`) reads `storage/app/public/audio` directly. In `docker-compose.prod.yml` the nginx service mounts the `app_storage` volume read-only for this. `php artisan storage:link` is not required for the audio, but the card `audio_url` is built from `APP_URL` + `/storage/...`, so `APP_URL` must be the public https origin.
+- Pre-generation is not triggered automatically (neither by import nor by publishing): run the command after importing or publishing a course.
 
 ---
 
@@ -638,6 +664,8 @@ chmod 600 .env
 | `REDIS_LOCK_DB` | recommended | `4` |
 | `REDIS_MAXMEMORY_POLICY` | recommended | `noeviction` |
 | `QUEUE_CONNECTION` | ✅ | `redis` |
+| `TTS_VOICE` | optional | `en-US-AriaNeural` (voice of pre-generated audio) |
+| `TTS_AUDIO_VERSION` | optional | `1` (bump to re-voice the library) |
 | `CACHE_STORE` | ✅ | `redis` |
 | `SESSION_DRIVER` | ✅ | `redis` |
 | `TELEGRAM_IP_ALLOWLIST_ENABLED` | recommended | `true` |

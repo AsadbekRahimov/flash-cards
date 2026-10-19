@@ -201,6 +201,9 @@ The original PRD schema is also supported for compatibility (`course` may be add
 - If any validation error occurs, **nothing is written** (atomic transaction).
 - The course's word counter is refreshed after every import.
 
+### Word audio (pre-generation)
+Cards play a pre-generated mp3 when the word has one; otherwise the app falls back to the browser voice / live TTS. After importing a lesson pack or publishing a course, ask the developer/DevOps to run `php artisan audio:pregenerate <course-slug>` (it only queues the words that do not have current audio yet; `--force` redoes all). It runs in the background — voiced words appear within minutes. Edited word texts need a re-run. Inactive words are skipped. Publishing does not start it automatically.
+
 ### Manual word editing
 Open any Stage → Lesson → click on a word to edit its translation, example, or transcription.
 

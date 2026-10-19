@@ -193,7 +193,7 @@ Learner присоединяется к открытой тренировке. �
   "mode": "group_lesson",    // group_lesson | lesson | daily_review
   "lesson": { "stage": 4, "lesson": 8, "title": "Resilience" } | null,   // null для daily_review
   "total_words": 25,         // lesson/group_lesson: активные слова урока; daily_review: learners.daily_goal
-  "card": { "word_id": 1001, "word": "Resilient", "translation": "Устойчивый", "translation_fallback": false, "example": null, "transcription": null, "card_kind": "new", "serve_token": null } | null,
+  "card": { "word_id": 1001, "word": "Resilient", "translation": "Устойчивый", "translation_fallback": false, "example": null, "transcription": null, "audio_url": null, "card_kind": "new", "serve_token": null } | null,
   "progress": { "done": 0, "total": 25 },
   "done_reason": null        // см. ниже; не null ровно когда card = null
 }
@@ -391,6 +391,9 @@ Learner присоединяется к открытой тренировке. �
 ### A.5 TTS fallback
 `GET /api/twa/tts?word=resilient&voice=en-US-AriaNeural`
 Возвращает `audio/mpeg`. Cache-friendly: `Cache-Control: public, max-age=2592000`.
+Если для `word` (+`voice`, по умолчанию `TTS_VOICE`) есть предгенерированный файл (`audio:pregenerate`, задача 1.2c), он отдаётся с диска без обращения к edge-tts; иначе — запрос в сервис.
+
+**`card.audio_url`** (`/training/.../start|next|review`): публичный URL предгенерированного mp3 (`APP_URL/storage/audio/{sha1}.mp3`, раздаёт nginx) или `null`, если у слова нет `audio_path`. TWA при `audio_url` проигрывает файл, при `null`/ошибке — Web Speech, затем `GET /tts`.
 
 ### A.5a Каталог курсов (docs/12 §1.7, §3.2)
 

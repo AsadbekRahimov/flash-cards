@@ -1,5 +1,6 @@
 /**
- * Text-to-speech helper — uses the browser's Web Speech API where available,
+ * Text-to-speech helper — plays the pre-generated mp3 (`audio_url` of the card,
+ * docs/12 task 1.2c) when there is one, else uses the browser's Web Speech API,
  * otherwise falls back to the server-side TTS endpoint (backend Sprint 9+).
  *
  * iOS Safari quirk: `getVoices()` may return `[]` on first call; we listen
@@ -20,8 +21,16 @@ export function useTts() {
     synth.addEventListener?.('voiceschanged', pick)
   }
 
-  async function speak(text: string, lang = 'en-US'): Promise<void> {
+  async function speak(text: string, lang = 'en-US', audioUrl?: string | null): Promise<void> {
     if (!text) return
+    if (audioUrl) {
+      try {
+        await new Audio(audioUrl).play()
+        return
+      } catch {
+        // file missing / blocked — fall through to Web Speech
+      }
+    }
     if (supported && synth) {
       try {
         const u = new SpeechSynthesisUtterance(text)

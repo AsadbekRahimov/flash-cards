@@ -33,7 +33,7 @@ const kindLabel = computed(() => {
 
 function onSpeak(): void {
   selectionHaptic()
-  void speak(props.card.word)
+  void speak(props.card.word, 'en-US', props.card.audio_url)
 }
 
 function onReveal(): void {
