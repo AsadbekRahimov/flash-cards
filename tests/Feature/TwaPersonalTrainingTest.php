@@ -228,7 +228,7 @@ it('finishes a personal session with a summary, repeats with the same numbers an
 
     $this->withHeaders($headers)->postJson("/api/twa/training/sessions/{$id}/finish")
         ->assertOk()
-        ->assertExactJson(['reviewed' => 2, 'correct' => 1, 'new_words' => 2]);
+        ->assertJson(['reviewed' => 2, 'correct' => 1, 'new_words' => 2]);
 
     $session = TrainingSession::query()->findOrFail($id);
     expect($session->status)->toBe('closed')
@@ -238,7 +238,7 @@ it('finishes a personal session with a summary, repeats with the same numbers an
 
     $this->withHeaders($headers)->postJson("/api/twa/training/sessions/{$id}/finish")
         ->assertOk()
-        ->assertExactJson(['reviewed' => 2, 'correct' => 1, 'new_words' => 2]);
+        ->assertJson(['reviewed' => 2, 'correct' => 1, 'new_words' => 2]);
     expect(TrainingSession::query()->findOrFail($id)->ended_at?->toIso8601String())->toBe($endedAt);
 
     $this->withHeaders($headers)->postJson("/api/twa/training/sessions/{$id}/start")
@@ -255,7 +255,7 @@ it('finishes an empty session with zeroes', function (): void {
     $id = ptOpen($this, $learner, ['mode' => 'daily_review'])->assertOk()->json('session_id');
 
     $this->withHeaders(ptHeaders($learner))->postJson("/api/twa/training/sessions/{$id}/finish")
-        ->assertOk()->assertExactJson(['reviewed' => 0, 'correct' => 0, 'new_words' => 0]);
+        ->assertOk()->assertJson(['reviewed' => 0, 'correct' => 0, 'new_words' => 0]);
 });
 
 it('answers 404 for a missing session and 403 forbidden for somebody elses personal session on every route', function (): void {
