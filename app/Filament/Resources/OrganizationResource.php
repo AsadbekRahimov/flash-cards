@@ -7,6 +7,8 @@ namespace App\Filament\Resources;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Filament\Resources\OrganizationResource\Pages;
 use App\Filament\Resources\OrganizationResource\RelationManagers\GroupsRelationManager;
+use App\Filament\Resources\OrganizationResource\RelationManagers\InvitesRelationManager;
+use App\Filament\Resources\OrganizationResource\RelationManagers\MembersRelationManager;
 use App\Models\Organization;
 use Filament\Actions;
 use Filament\Forms;
@@ -21,6 +23,7 @@ use Filament\Tables\Table;
  * (docs/12 §5.1). Admin only (OrganizationPolicy). The sponsorship itself is a subscription of the
  * organization ("Grant Pro" on the Subscriptions screen); groups are linked in the relation manager.
  * Only an `active` organization sponsors: suspend it to stop the sponsorship without deleting anything.
+ * Invite links and members (seats, waiting list, remove / add) are managed in their relation managers (docs/13 §6.2).
  */
 class OrganizationResource extends Resource
 {
@@ -92,7 +95,7 @@ class OrganizationResource extends Resource
     /** @return array<int, class-string> */
     public static function getRelations(): array
     {
-        return [GroupsRelationManager::class];
+        return [GroupsRelationManager::class, InvitesRelationManager::class, MembersRelationManager::class];
     }
 
     /** @return array<string, PageRegistration> */
