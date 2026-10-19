@@ -67,10 +67,10 @@ final class LearnerClock
         $zone = $this->timezone($learner);
         $start = preg_match('/^\d{4}-\d{2}-\d{2}$/', $localDate) === 1
             ? CarbonImmutable::createFromFormat('!Y-m-d', $localDate, $zone)
-            : false;
+            : null;
 
         // createFromFormat rolls '2026-02-30' over to March: a date that moved is not a date.
-        if ($start === false || $start->format('Y-m-d') !== $localDate) {
+        if (! $start instanceof CarbonImmutable || $start->format('Y-m-d') !== $localDate) {
             throw new InvalidArgumentException("Local date must be a valid Y-m-d, got '{$localDate}'.");
         }
 

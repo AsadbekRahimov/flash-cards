@@ -186,7 +186,7 @@ review-карточку** (то есть после того, как слово 
    «оценка держит статистику и ждёт learner'а, пикер держит learner'а и ждёт статистику». Поэтому `StreakService::onGoalMet`
    лишь регистрирует `DB::afterCommit`, а проекция `learners.streak_*` обновляется после коммита одиночным
    условным `UPDATE … WHERE streak_last_date = <прочитанное>` (без `FOR UPDATE`, вне любой другой транзакции);
-   источник истины для streak — `learner_daily_stats.goal_met_at`, по нему `StreakService::current()` чинит
+   источник истины для streak — `learner_daily_stats.goal_met_at`, по нему `StreakService::apply()` при разрыве пересчитывает серию, а `current()` чинит
    отставшую проекцию (docs/12 §3.1, §7.4). Поэтому и `current()` — не чистое чтение: он может выполнить тот же
    одиночный `UPDATE learners`, и его (а с ним `TodayService::summary/progress`) нельзя вызывать внутри транзакции,
    которая держит `training_sessions` / `word_repetitions` / `learner_daily_stats` (в частности из
@@ -306,7 +306,8 @@ review-карточку** (то есть после того, как слово 
   streak не проецируется на `learners` до коммита и не проецируется при откате, реальный поток `TrainingFlowService::review`.
 - `tests/Feature/StreakServiceTest.php` — 1 → 2 → обнуление после пропуска, `at_risk` / `met_today`, зачёт дня один раз,
   граница дня, смена пояса на запад/восток, запрет зачёта «вчера» после уже зачтённого «сегодня», best, события,
-  починка проекции из строки «сегодня».
+  починка проекции из строки «сегодня», пересчёт серии по фактам при потерянном колбэке «вчера» (в т.ч. порядок
+  колбэков вокруг полуночи), глубина 400 дней, `current()` чинит «вчера» и не пишет без факта.
 - `tests/Unit/TrainingScopeTest.php` — `TrainingScope`, `NewCardBudget`, инвариант `mode_shape`.
 - TWA `FlashCard.spec.ts` — кнопки шлют 2 / 4 / 5, метка «Закрепление» для `learning`;
   `stores/__tests__/training.spec.ts` — `serve_token` карточки уходит в `POST /review`.
