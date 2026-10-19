@@ -352,3 +352,42 @@ it('keeps the token valid when a group is deactivated: the group just disappears
         ->assertOk()
         ->assertJsonPath('groups', []);
 });
+
+it('limits refused requests per IP: the 61st invalid token in a minute is 429 rate_limited', function (): void {
+    for ($i = 1; $i <= 60; $i++) {
+        $this->withHeaders(['Authorization' => 'Bearer garbage'])->getJson('/api/twa/me')
+            ->assertUnauthorized()
+            ->assertJsonPath('error.code', 'invalid_token');
+    }
+
+    $this->withHeaders(['Authorization' => 'Bearer garbage'])->getJson('/api/twa/me')
+        ->assertStatus(429)
+        ->assertJsonPath('error.code', 'rate_limited')
+        ->assertHeader('Retry-After');
+
+    // Any kind of refusal shares the budget (here: no header at all).
+    $this->getJson('/api/twa/me')->assertStatus(429)->assertJsonPath('error.code', 'rate_limited');
+});
+
+it('does not count valid requests against the refusal limit and does not block them once it is exceeded', function (): void {
+    $learner = Learner::factory()->create();
+    $headers = ['Authorization' => 'Bearer '.app(JwtService::class)->issue($learner->id)['token']];
+
+    for ($i = 1; $i <= 30; $i++) {
+        $this->withHeaders($headers)->getJson('/api/twa/me')->assertOk();
+    }
+    for ($i = 1; $i <= 60; $i++) {
+        $this->withHeaders(['Authorization' => 'Bearer garbage'])->getJson('/api/twa/me')->assertUnauthorized();   // 60 refusals: still not limited after 30 valid ones
+    }
+
+    $this->withHeaders(['Authorization' => 'Bearer garbage'])->getJson('/api/twa/me')->assertStatus(429);
+    $this->withHeaders($headers)->getJson('/api/twa/me')->assertOk();
+});
+
+it('takes the refusal limit from config', function (): void {
+    Config::set('twa.unauthorized_per_minute', 2);
+
+    $this->getJson('/api/twa/me')->assertUnauthorized();
+    $this->getJson('/api/twa/me')->assertUnauthorized();
+    $this->getJson('/api/twa/me')->assertStatus(429);
+});
