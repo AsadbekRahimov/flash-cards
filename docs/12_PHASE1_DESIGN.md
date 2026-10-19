@@ -412,6 +412,8 @@ final class GroupMembershipService
 > - Квота Free для 1.4b: `NewCardBudget::lazy(fn (int $learnerId, CarbonImmutable $now) => limit − WordRepetition::where('learner_id', $learnerId)->where('created_at', '>=', $b->startUtc)->where('created_at', '<', $b->endUtc)->count())`, где `$b = LearnerClock::dayBoundsUtc($learner, $now)`; замыкание выполняется пикером под `FOR UPDATE` строки `learners` (§5.3). `learner_daily_stats.new_words_count` для квоты не используется (§1.6).
 > - `TodayService` (часть C) собирает: `clock->today($l, $now)` → `stats = dailyStats->today($l, $now)` → `goal = {target: $l->daily_goal, done: stats?->reviews_count ?? 0, met: stats?->goal_met_at !== null}` → `streak = streaks->current($l, $today, $stats)->toArray()`; `due_count` — `DueRepetitionCriteria`; `new_words_remaining` — из 1.4b (до него `null`).
 
+> **Реализация 1.3b, часть C (2026-10-19).** `TodayService::summary(Learner, ?now): TodaySummary` (DTO `app/Domain/Learners/DTO/{TodaySummary,DailyProgress,DailyGoal,TodayCourse,TodayLesson}`) и `progress(Learner, ?now): DailyProgress {goal, streak}` — второй вход для summary `/finish` (`SessionSummaryResource` принимает `{summary, progress}`). `due_count` — `LearnerStatsService::dueCount(Learner, ?now)` (общий с `words_due_today`); `active_course` — только `published` курс learner'а: прогресс из `CourseCatalogService::listing`, следующий урок из `nextLessonWithNewWords`; `open_session_id` — открытая `daily_review` с `expires_at` NULL или в будущем; `new_words_remaining` — `null` до 1.4b. `entitlement` в `/today` без `new_words_per_day` (он есть в `/me`). Streak в `/me` не добавлялся: контракт `/me` остаётся прежним. TWA: `TodayView` + `GoalRing`, стор `today`; `LandingView` в Telegram переходит на `/today`, кнопка «Повторить всё» убрана; `FinishedView` берёт goal/streak из `training.summary`.
+
 ### 3.2 `app/Domain/Content` (расширяется)
 
 ```php
@@ -657,7 +659,7 @@ Payload `{iss: 'lexiflow', sub: '<learner_id>', v: 2, iat, exp}`; TTL 15 мин 
 
 - Совместимость с данными, сессиями и напоминаниями «до деплоя» **не требуется** — прода нет (§2.1). Единственная обязательная мера — `v: 2` в JWT (§4.1): токен старого формата → 401 `invalid_token`, клиент перелогинивается сам.
 - `/twa/training/{id}`, `/twa/exam/{id}` — маршруты те же; проверка доступа — по членству (§4.4). Клиент TWA деплоится вместе с API (один образ), версионирования API не нужно.
-- `/twa/` (сейчас заглушка «откройте через кнопку в группе») становится экраном «Сегодня» в задаче 1.3b; до неё остаётся заглушка.
+- `/twa/` становится экраном «Сегодня» (реализовано в 1.3b C: `LandingView` в Telegram переходит на `/twa/today`; вне Telegram остаётся подсказка).
 - Кнопка бота в ЛС: `web_app` URL `{base}/twa/?from=bot`. Прямые ссылки `t.me/<bot>/<app>?startapp=…` требуют регистрации Mini App в BotFather — опционально, не в Фазе 1.
 
 ### 4.4 Политики

@@ -89,7 +89,39 @@
   в день (`20` у Free), `null` = безлимит. Значение из кэша (TTL 300 с), изменения подписки/членства сбрасывают его сразу.
 - `paywall` — что показать при исчерпанной квоте (docs/12 §5.4): `mode` — `coming_soon` | `purchase`; `contact` — контакт
   поддержки для центров (`BILLING_SUPPORT_CONTACT`), **`null`, если не задан — строку с контактом тогда не показывать**.
-- Настройки и `current_streak_days` появятся в задачах 1.3b / 1.6 (docs/12 §3.8).
+- Цель дня и streak — в `GET /today` (A.2a), не в `/me`. Настройки появятся в задаче 1.6 (docs/12 §3.8).
+
+### A.2a `GET /api/twa/today`
+Экран «Сегодня» (docs/12 §7.3): всё, что нужно главному экрану learner'а, за один запрос. Только чтение, `TodayService::summary`.
+
+**Response:**
+```json
+{
+  "due_count": 23,
+  "new_words_remaining": null,
+  "goal": { "target": 20, "done": 8, "met": false },
+  "streak": { "current": 5, "best": 12, "met_today": false, "at_risk": true },
+  "active_course": {
+    "id": 3, "slug": "english-a1", "title": "English A1",
+    "progress": { "learned": 120, "total": 900 },
+    "next_lesson": { "id": 41, "stage": 2, "lesson": 4, "title": "Food" }
+  },
+  "open_session_id": 918,
+  "entitlement": { "plan": "free", "source": "free", "until": null },
+  "onboarding_completed": true
+}
+```
+
+- `due_count` — то же правило, что `words_due_today` в `/me` (`DueRepetitionCriteria`, A.2): слова, выведенные из курса (`is_active = false`), не считаются.
+- `new_words_remaining` — сколько новых слов осталось по квоте Free на сегодня; `null` = безлимит. **До задачи 1.4b всегда `null`** (поле зарезервировано, клиент считает `null` безлимитом).
+- `goal` — цель дня: `target` = `learners.daily_goal` (оценки), `done` = `learner_daily_stats.reviews_count` за **локальный** день learner'а (`learners.timezone`, граница — локальная полночь, не UTC), `met` — цель достигнута (остаётся `true`, когда `done` растёт дальше).
+- `streak` — `current` серия дней с выполненной целью (0, если пропущен день — обнуляется при чтении), `best` рекорд, `met_today` сегодня уже засчитан, `at_risk` = `current > 0 && !met_today` (серия оборвётся, если не выполнить цель до локальной полуночи). Правила — docs/12 §7.4.
+- `active_course` — активный курс learner'а или `null` (курса нет или он уже не `published` — тогда экран предлагает выбрать курс). `title` на языке learner'а (fallback `ru`); `progress` — активные слова курса: `learned` (`repetitions >= 1`) из `total`. `next_lesson` — первый урок курса с ещё не показанными активными словами (источник новых слов `daily_review`), `null`, если показано всё; `id` — для `POST /training/sessions {mode: "lesson", lesson_id}`, `title` может быть `null`.
+- `open_session_id` — открытая и **неистёкшая** `daily_review` learner'а (продолжить); `null` — нет такой (просроченная, но не закрытая планировщиком, не считается).
+- `entitlement` — как в `/me` (A.2), без `new_words_per_day`.
+- `onboarding_completed` — `onboarding_state = done`. Экран работает и без онбординга (learner мог прийти из группы), но может подсказать завершить настройку в боте.
+
+Кнопка «Повторить» — `POST /training/sessions {"mode": "daily_review", "source": "self"}` (A.3). Ошибки: 401 (как у всех маршрутов TWA).
 
 ### A.3 Training mode
 
@@ -128,10 +160,16 @@ Learner завершает **свою личную** сессию (`status = clo
 
 **Response:**
 ```json
-{ "reviewed": 14, "correct": 11, "new_words": 4 }
+{
+  "reviewed": 14, "correct": 11, "new_words": 4,
+  "goal": { "target": 20, "done": 14, "met": false },
+  "streak": { "current": 5, "best": 12, "met_today": false, "at_risk": true }
+}
 ```
 `reviewed` — принятые оценки в сессии, `correct` — из них с `quality >= 3`, `new_words` — слова, у которых строка
-`word_repetitions` создана не раньше начала сессии. Цель дня и streak добавит `/today` (task 1.3b).
+`word_repetitions` создана не раньше начала сессии. `goal` и `streak` — состояние **дня** learner'а на момент ответа (те же
+поля и правила, что в `GET /today`, A.2a): `goal.done` считает все оценки локального дня, а не только этой сессии. Повторный
+`finish` в тот же день отдаёт те же `goal`/`streak`; в следующем локальном дне они уже будут новыми (числа сессии — прежними).
 
 Незавершённые сессии закрывает команда `training:close-expired` (планировщик, каждые 15 минут, `withoutOverlapping`): личные — по
 `expires_at` (`now + learning.session_ttl_hours`, 12 ч, при открытии), групповые — старше `group_session_ttl_hours`; обе с

@@ -160,7 +160,6 @@
 | `common.loading` | Yuklanmoqda… | Загрузка… |
 | `common.retry` | Qayta urinish | Повторить |
 | `common.error_title` | Xatolik | Ошибка |
-| `landing.in_telegram` | Mashg'ulotni Telegram guruhidagi tugma orqali oching. | Откройте тренировку через кнопку в группе Telegram. |
 | `landing.outside_telegram` | Bu sahifa faqat Telegram Web App ichida ishlaydi. O'qituvchidan mashg'ulot havolasini guruhga yuborishini so'rang. | Эта страница работает только внутри Telegram Web App. Попросите учителя прислать ссылку-тренировку в группу. |
 | `card.kind.new` | Yangi so'z | Новое слово |
 | `card.kind.learning` | Mustahkamlash | Закрепление |
@@ -335,7 +334,6 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `course.learn` (кнопка у урока) | O'rganish | Учить |
-| `landing.review_all` (кнопка на стартовом экране) | Hammasini takrorlash | Повторить всё |
 | `training.daily_header` | Takrorlash | Повторение |
 | `finished.reason.lesson_complete` | Darsdagi barcha so'zlar o'tildi. | Все слова урока пройдены. |
 | `finished.reason.nothing_due` | Bugun takrorlaydigan narsa yo'q. | На сегодня повторять нечего. |
@@ -348,3 +346,53 @@
 Ключ `error.code.wrong_lesson` удалён (код ошибки переименован в `out_of_scope`).
 
 Проверить: «O'rganish» (учить) на кнопке рядом с «Takrorlash» (повторять); «mashg'ulot» (тренировка/сессия) — как в остальных текстах.
+
+## Фаза 1 · задача 1.3b C (экран «Сегодня») — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `today.title` | Bugun | Сегодня |
+| `today.plan.free` | Free | Free |
+| `today.plan.pro` | Pro | Pro |
+| `today.goal.title` | Kunlik maqsad | Цель дня |
+| `today.goal.progress` | {target} tadan {done} tasi | {done} из {target} |
+| `today.goal.met` | Maqsad bajarildi | Цель выполнена |
+| `today.goal.left.one` | {count} ta kartochka qoldi | Осталась {count} карточка |
+| `today.goal.left.few` | _(в uz этой формы нет — используется `other`)_ | Осталось {count} карточки |
+| `today.goal.left.many` | _(в uz этой формы нет — используется `other`)_ | Осталось {count} карточек |
+| `today.goal.left.other` | {count} ta kartochka qoldi | Осталось {count} карточки |
+| `today.streak.title` | Seriya | Серия |
+| `today.streak.days.one` | {count} kun | {count} день |
+| `today.streak.days.few` | _(в uz этой формы нет — используется `other`)_ | {count} дня |
+| `today.streak.days.many` | _(в uz этой формы нет — используется `other`)_ | {count} дней |
+| `today.streak.days.other` | {count} kun | {count} дня |
+| `today.streak.none` | Seriyani boshlash uchun kunlik maqsadni bajaring | Выполните цель дня, чтобы начать серию |
+| `today.streak.at_risk` | Seriya xavf ostida: maqsadni yarim tungacha bajaring | Серия под угрозой: выполните цель до полуночи |
+| `today.streak.safe` | Bugungi kun uchun seriya uzaytirildi | На сегодня серия продлена |
+| `today.streak.best` | Rekord: {best} | Рекорд: {best} |
+| `today.review.title` | Takrorlash | Повторение |
+| `today.review.due.one` | Takrorlash uchun {count} ta so'z | {count} слово к повторению |
+| `today.review.due.few` | _(в uz этой формы нет — используется `other`)_ | {count} слова к повторению |
+| `today.review.due.many` | _(в uz этой формы нет — используется `other`)_ | {count} слов к повторению |
+| `today.review.due.other` | Takrorlash uchun {count} ta so'z | {count} слова к повторению |
+| `today.review.none` | Hozircha takrorlaydigan narsa yo'q | Повторять пока нечего |
+| `today.review.start` | Takrorlash | Повторить |
+| `today.review.continue` | Davom etish | Продолжить |
+| `today.new.remaining` | Bugun yana {count} ta yangi so'z o'rganish mumkin | Новых слов на сегодня осталось: {count} |
+| `today.new.exhausted` | Bugungi yangi so'zlar limiti tugadi | Лимит новых слов на сегодня исчерпан |
+| `today.course.title` | Kurs | Курс |
+| `today.course.next` | Keyingi dars | Следующий урок |
+| `today.course.completed` | Kursdagi barcha so'zlar ko'rsatildi | Все слова курса уже показаны |
+| `today.course.none` | Yangi so'zlarni o'rganish uchun kursni tanlang | Выберите курс, чтобы учить новые слова |
+| `today.onboarding_hint` | Sozlashni yakunlang: botga /start yuboring | Завершите настройку: отправьте боту /start |
+| `finished.home` | Bosh sahifaga | На главную |
+| `finished.goal` | Kunlik maqsad: {target} tadan {done} tasi | Цель дня: {done} из {target} |
+| `finished.goal_met` | Kunlik maqsad bajarildi! | Цель дня выполнена! |
+| `error.closed.today` | Bugun ekrani endi mavjud emas. | Экран «Сегодня» больше недоступен. |
+| `error.forbidden.today` | Sizda Bugun ekraniga kirish huquqi yo'q. | У вас нет доступа к экрану «Сегодня». |
+
+Удалены ключи `landing.in_telegram` и `landing.review_all`: стартовый экран в Telegram теперь сразу ведёт на «Сегодня».
+
+Проверить: «Bugun» как название экрана (вместе с «Bugun» = «Сегодня» в `finished.next_today`); «Seriya» (серия дней подряд с выполненной целью) и «Rekord»; «Kunlik maqsad» (цель дня) и форму «{target} tadan {done} tasi» ("X из Y"); «xavf ostida» (под угрозой) в `today.streak.at_risk`; `today.goal.left` — «N ta kartochka qoldi» (осталось N карточек); `today.course.completed` («barcha so'zlar ko'rsatildi» — все слова показаны, не «выучены»).

@@ -7,6 +7,11 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/LandingView.vue'),
   },
   {
+    path: '/today',
+    name: 'today',
+    component: () => import('@/views/TodayView.vue'),
+  },
+  {
     path: '/training/:sessionId(\\d+)',
     name: 'training',
     component: () => import('@/views/TrainingView.vue'),

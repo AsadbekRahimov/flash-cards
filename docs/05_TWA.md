@@ -43,6 +43,7 @@ resources/twa/
 │   │   └── useTimer.ts
 │   ├── views/
 │   │   ├── LandingView.vue
+│   │   ├── TodayView.vue
 │   │   ├── TrainingView.vue
 │   │   ├── ExamView.vue
 │   │   └── ResultView.vue
@@ -77,7 +78,9 @@ app.mount('#app')
 
 | Path | View | Описание |
 |------|------|----------|
-| `/` | LandingView | Показывается, если режим не задан или ошибка. |
+| `/` | LandingView | Без контекста сессии внутри Telegram сразу переходит (`replace`, с query) на `/today`; вне Telegram показывает подсказку. |
+| `/today` | TodayView | Главный экран learner'а (1.3b): цель дня (кольцо), streak, «Повторить» (`daily_review`), активный курс и «Следующий урок», каталог, бейдж Free/Pro. Данные — `GET /today` (docs/04 A.2a), стор `today`. |
+| `/finished` | FinishedView | Итог сессии; цель и streak дня из `finish`-summary (стор `training.summary`), кнопка «На главную» → `/today`. |
 | `/training/:sessionId` | TrainingView | Flashcards. |
 | `/exam/:sessionId` | ExamView | Экзамен с таймером. |
 | `/exam/:sessionId/result` | ResultView | Итоги + лидерборд. |
