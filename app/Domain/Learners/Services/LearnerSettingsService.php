@@ -64,6 +64,7 @@ use Throwable;
  *   daily_goal: int,
  *   goal: string|null,
  *   level: string|null,
+ *   timezone_change_available_at: string|null,
  *   active_course: array{slug: string, title: string}|null,
  *   options: array{
  *     locales: list<array{id: string, label: string}>,
@@ -191,6 +192,7 @@ final class LearnerSettingsService
             'daily_goal' => $learner->daily_goal,
             'goal' => $learner->goal,
             'level' => $learner->level,
+            'timezone_change_available_at' => $this->timezoneChangeAvailableAt($learner)?->utc()->toIso8601String(),
             'active_course' => $this->activeCourse($learner, $locale),
             'options' => [
                 'locales' => array_map(

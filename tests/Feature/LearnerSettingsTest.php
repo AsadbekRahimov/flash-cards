@@ -220,6 +220,21 @@ it('refuses a second time-zone change within 24 h with 422 timezone_change_too_s
         ->assertJsonPath('settings.daily_goal', 40);
 });
 
+it('tells the settings screen when the time zone may be changed next (null = now)', function (): void {
+    CarbonImmutable::setTestNow('2026-10-19 10:00:00');
+    $learner = settingsLearner();
+    $this->withHeaders(settingsHeaders($learner))->getJson('/api/twa/me')->assertOk()->assertJsonPath('settings.timezone_change_available_at', null);
+
+    patchSettings($this, $learner, ['timezone' => 'Europe/Moscow'])->assertOk()
+        ->assertJsonPath('settings.timezone_change_available_at', '2026-10-20T10:00:00+00:00');
+
+    CarbonImmutable::setTestNow('2026-10-20 09:59:59');
+    $this->withHeaders(settingsHeaders($learner))->getJson('/api/twa/me')->assertJsonPath('settings.timezone_change_available_at', '2026-10-20T10:00:00+00:00');
+
+    CarbonImmutable::setTestNow('2026-10-20 10:00:00');
+    $this->withHeaders(settingsHeaders($learner))->getJson('/api/twa/me')->assertJsonPath('settings.timezone_change_available_at', null);
+});
+
 it('does not count the onboarding zone or a repeated same value as a change', function (): void {
     CarbonImmutable::setTestNow('2026-10-19 10:00:00');
     $learner = settingsLearner(); // zone set by the factory / onboarding: no `timezone_changed_at`
