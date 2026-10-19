@@ -9,6 +9,7 @@ use App\Domain\Learners\Exceptions\OnboardingException;
 use App\Domain\Learners\Services\LearnerRegistrar;
 use App\Domain\Learners\Services\OnboardingService;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Models\Course;
 use App\Models\Learner;
@@ -16,6 +17,7 @@ use App\Models\ProductEvent;
 use App\Models\User;
 use App\Models\Word;
 use App\Models\WordRepetition;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\Support\FakeTelegramClient;
@@ -200,25 +202,95 @@ it('recommends by goal, then level, then featured, and ignores private and draft
 
 // --- idempotency and untrusted callback_data ---------------------------------
 
-it('ignores a repeated tap on an old button and a tap on a step that is not current', function (): void {
+it('ignores a tap on an old button and a tap on a step that is not current', function (): void {
     onbSend(7010, '/start');
     onbTap(7010, 'onb1:locale:uz', 1);
+    onbTap(7010, 'onb1:goal:sat', 2);
     $sentBefore = count($this->tg->sent);
     $eventsBefore = ProductEvent::query()->count();
+    $editsBefore = count($this->tg->edits);
 
-    // Same button again (double tap / old message): answered, nothing changes, nothing is sent.
-    onbTap(7010, 'onb1:locale:ru', 1);
-    // A button of a step that has not been asked yet.
+    // A button of a step that has not been asked yet, and one from two steps back.
     onbTap(7010, 'onb1:reminder:off', 9);
+    onbTap(7010, 'onb1:locale:ru', 1);
 
     $learner = onbLearner(7010);
-    expect($learner->onboarding_state)->toBe('goal')
+    expect($learner->onboarding_state)->toBe('level')
+        ->and($learner->goal)->toBe('sat')
         ->and($learner->interface_locale)->toBe('uz')
         ->and($learner->reminder_time)->not->toBeNull()
         ->and($this->tg->sent)->toHaveCount($sentBefore)
-        ->and($this->tg->edits)->toHaveCount(1)
-        ->and($this->tg->answered)->toHaveCount(3)
+        ->and($this->tg->edits)->toHaveCount($editsBefore)
+        ->and($this->tg->answered)->toHaveCount(4)
         ->and(ProductEvent::query()->count())->toBe($eventsBefore);
+});
+
+it('sends the current question again on a double tap, without changing the answer', function (): void {
+    onbSend(7015, '/start');
+    onbTap(7015, 'onb1:locale:uz', 1);
+    onbTap(7015, 'onb1:goal:sat', 2);
+    $sentBefore = count($this->tg->sent);
+    $eventsBefore = ProductEvent::query()->count();
+
+    // The button of the step just answered is tapped once more.
+    onbTap(7015, 'onb1:goal:ielts', 2);
+
+    expect(onbLearner(7015)->goal)->toBe('sat')
+        ->and(onbLearner(7015)->onboarding_state)->toBe('level')
+        ->and($this->tg->sent)->toHaveCount($sentBefore + 1)
+        ->and(end($this->tg->sent)['text'])->toContain('Darajangiz qanday')
+        ->and(ProductEvent::query()->count())->toBe($eventsBefore);
+});
+
+it('sends the next step on the retry of an update whose answer was saved but whose reply was lost', function (): void {
+    onbSend(7016, '/start');
+    onbTap(7016, 'onb1:locale:uz', 1);
+    expect($this->tg->sent)->toHaveCount(2);
+
+    // HandleTelegramUpdate (tries = 3) runs the very same update again after Telegram failed.
+    $this->tg->failSends = 1;
+    expect(fn () => onbTap(7016, 'onb1:goal:ielts', 2))->toThrow(TelegramApiException::class);
+    expect(onbLearner(7016)->onboarding_state)->toBe('level')
+        ->and($this->tg->sent)->toHaveCount(2);
+
+    onbTap(7016, 'onb1:goal:ielts', 2);
+
+    expect($this->tg->sent)->toHaveCount(3)
+        ->and(end($this->tg->sent)['text'])->toContain('Darajangiz qanday')
+        ->and($this->tg->lastCallbackData())->toContain('onb1:level:B1')
+        ->and(onbLearner(7016)->goal)->toBe('ielts')
+        // The answer is counted once.
+        ->and(ProductEvent::query()->where('name', 'onboarding.step_completed')->count())->toBe(2);
+});
+
+it('sends the closing message again when the retry follows a lost last reply', function (): void {
+    onbCourse('general-a1', 'general');
+    onbSend(7017, '/start');
+    onbTap(7017, 'onb1:locale:ru', 1);
+    onbTap(7017, 'onb1:goal:general', 2);
+    onbTap(7017, 'onb1:level:A1', 3);
+    onbTap(7017, 'onb1:timezone:Asia/Tashkent', 4);
+
+    $this->tg->failSends = 1;
+    expect(fn () => onbTap(7017, 'onb1:reminder:1900', 5))->toThrow(TelegramApiException::class);
+    $sentBefore = count($this->tg->sent);
+
+    onbTap(7017, 'onb1:reminder:1900', 5);
+
+    expect($this->tg->sent)->toHaveCount($sentBefore + 1)
+        ->and(end($this->tg->sent)['url'])->toBe('https://twa.test/twa/?from=onboarding')
+        ->and(onbLearner(7017)->onboarding_state)->toBe('done');
+});
+
+it('keeps answering the callback when Telegram refuses the acknowledgement', function (): void {
+    onbSend(7018, '/start');
+    $this->tg->failAnswers = true;
+
+    onbTap(7018, 'onb1:locale:uz', 1);
+
+    expect(onbLearner(7018)->onboarding_state)->toBe('goal')
+        ->and(onbLearner(7018)->interface_locale)->toBe('uz')
+        ->and(end($this->tg->sent)['text'])->toBe("Ingliz tilini nima uchun o'rganmoqchisiz?");
 });
 
 it('does not reopen a finished onboarding when an old button is tapped', function (): void {
@@ -229,12 +301,18 @@ it('does not reopen a finished onboarding when an old button is tapped', functio
     $sentBefore = count($this->tg->sent);
     $eventsBefore = ProductEvent::query()->count();
 
-    onbTap(7011, 'onb1:reminder:off', 5);
     onbTap(7011, 'onb1:goal:school', 2);
 
     expect(onbLearner(7011)->only(['goal', 'level', 'timezone', 'interface_locale', 'reminder_time', 'active_course_id']))->toBe($before)
+        ->and($this->tg->sent)->toHaveCount($sentBefore);
+
+    // The button of the LAST step is the retry case: the closing message may have been lost, so it is sent again.
+    onbTap(7011, 'onb1:reminder:off', 5);
+
+    expect(onbLearner(7011)->only(['goal', 'level', 'timezone', 'interface_locale', 'reminder_time', 'active_course_id']))->toBe($before)
         ->and(onbLearner(7011)->onboarding_state)->toBe('done')
-        ->and($this->tg->sent)->toHaveCount($sentBefore)
+        ->and($this->tg->sent)->toHaveCount($sentBefore + 1)
+        ->and(end($this->tg->sent)['url'])->toBe('https://twa.test/twa/?from=onboarding')
         ->and(ProductEvent::query()->count())->toBe($eventsBefore);
 });
 
@@ -314,29 +392,83 @@ it('applies only the current step in the service, under any order of calls', fun
     expect(fn () => $service->apply($learner, 'goal', 'sat'))->toThrow(OnboardingException::class);
 });
 
-it('clears next_reminder_at when the time zone or the reminder time changes', function (): void {
+it('schedules next_reminder_at in UTC from the chosen time zone and reminder time', function (): void {
+    // 15:00 in Tashkent (UTC+5).
+    $this->travelTo(CarbonImmutable::parse('2026-10-19 10:00:00', 'UTC'));
+
+    onbSend(7090, '/start');
+    onbTap(7090, 'onb1:locale:ru', 1);
+    onbTap(7090, 'onb1:goal:general', 2);
+    onbTap(7090, 'onb1:level:A1', 3);
+    expect(onbLearner(7090)->next_reminder_at)->toBeNull();
+
+    // The time zone alone already moves the (default 19:00) reminder: 19:00 in Tashkent = 14:00 UTC.
+    onbTap(7090, 'onb1:timezone:Asia/Tashkent', 4);
+    expect(onbLearner(7090)->next_reminder_at?->utc()->toDateTimeString())->toBe('2026-10-19 14:00:00');
+
+    onbTap(7090, 'onb1:reminder:1900', 5);
+    $learner = onbLearner(7090);
+    expect($learner->onboarding_state)->toBe('done')
+        ->and($learner->next_reminder_at?->utc()->toDateTimeString())->toBe('2026-10-19 14:00:00');
+});
+
+it('takes the next day when the chosen time has already passed today and ends with NULL for "no reminders"', function (): void {
+    // 21:00 in Tashkent.
+    $this->travelTo(CarbonImmutable::parse('2026-10-19 16:00:00', 'UTC'));
+
+    onbSend(7091, '/start');
+    onbComplete(7091, 'ru', 'general', 'A1', 'Asia/Tashkent', '1900');
+    expect(onbLearner(7091)->next_reminder_at?->utc()->toDateTimeString())->toBe('2026-10-20 14:00:00');
+
+    onbSend(7092, '/start');
+    onbComplete(7092, 'ru', 'general', 'A1', 'Asia/Tashkent', 'off');
+    expect(onbLearner(7092)->reminder_time)->toBeNull()
+        ->and(onbLearner(7092)->next_reminder_at)->toBeNull();
+});
+
+it('recomputes next_reminder_at when /settings changes the time zone or the reminder time, and only then', function (): void {
+    // 16:00 in Bishkek (UTC+6), 15:00 in Tashkent.
+    $this->travelTo(CarbonImmutable::parse('2026-10-19 10:00:00', 'UTC'));
     $service = app(OnboardingService::class);
-    $learner = Learner::factory()->onboarded()->create(['next_reminder_at' => now()->addHour()]);
+    $learner = Learner::factory()->onboarded()->create([
+        'timezone' => 'Asia/Tashkent', 'reminder_time' => '19:00', 'next_reminder_at' => '2026-10-19 14:00:00',
+    ]);
 
     $service->applySetting($learner, 'goal', 'sat');
-    expect($learner->fresh()->next_reminder_at)->not->toBeNull();
+    expect($learner->fresh()->next_reminder_at?->utc()->toDateTimeString())->toBe('2026-10-19 14:00:00');
 
     $service->applySetting($learner, 'timezone', 'Asia/Bishkek');
-    expect($learner->fresh()->next_reminder_at)->toBeNull();
+    expect($learner->fresh()->next_reminder_at?->utc()->toDateTimeString())->toBe('2026-10-19 13:00:00');
 
-    $learner->forceFill(['next_reminder_at' => now()->addHour()])->save();
+    // 08:00 in Bishkek has passed today.
     $service->applySetting($learner, 'reminder', '0800');
+    expect($learner->fresh()->next_reminder_at?->utc()->toDateTimeString())->toBe('2026-10-20 02:00:00');
+
+    $service->applySetting($learner, 'reminder', 'off');
+    expect($learner->fresh()->reminder_time)->toBeNull()
+        ->and($learner->fresh()->next_reminder_at)->toBeNull();
+
+    // Reminders off stay off when only the time zone changes.
+    $service->applySetting($learner, 'timezone', 'Asia/Almaty');
     expect($learner->fresh()->next_reminder_at)->toBeNull();
 });
 
-it('skips the onboarding to done without choosing a course', function (): void {
-    $learner = Learner::factory()->create(['onboarding_state' => 'level']);
+it('recomputes next_reminder_at through the /settings buttons', function (): void {
+    $this->travelTo(CarbonImmutable::parse('2026-10-19 10:00:00', 'UTC'));
+    $learner = Learner::factory()->onboarded()->create(['telegram_user_id' => 7093, 'timezone' => 'Asia/Tashkent', 'reminder_time' => '19:00']);
 
-    app(OnboardingService::class)->skipToDone($learner);
+    onbTap(7093, 'set1:timezone:Europe/Moscow');
 
-    expect($learner->fresh()->onboarding_state)->toBe('done')
-        ->and($learner->fresh()->onboarding_completed_at)->not->toBeNull()
-        ->and($learner->fresh()->active_course_id)->toBeNull();
+    // 19:00 in Moscow (UTC+3) = 16:00 UTC.
+    expect($learner->fresh()->next_reminder_at?->utc()->toDateTimeString())->toBe('2026-10-19 16:00:00');
+});
+
+it('refuses /settings changes in the service until the onboarding is finished', function (): void {
+    $learner = Learner::factory()->create(['onboarding_state' => 'level', 'goal' => 'general']);
+
+    expect(fn () => app(OnboardingService::class)->applySetting($learner, 'goal', 'sat'))->toThrow(OnboardingException::class);
+
+    expect($learner->fresh()->goal)->toBe('general');
 });
 
 // --- /start payloads -------------------------------------------------------
@@ -489,6 +621,37 @@ it('attributes first touch for a done learner too', function (): void {
     expect($learner->fresh()->acquisition_source)->toBe('src:late');
 });
 
+it('opens the linked course for a learner who has finished the onboarding, without changing the active one', function (): void {
+    $mine = onbCourse('general-a1', 'general');
+    onbCourse('english-b1', 'general', 'B1', visibility: 'unlisted');
+    $learner = Learner::factory()->onboarded()->create(['telegram_user_id' => 7033, 'interface_locale' => 'ru', 'active_course_id' => $mine->id]);
+
+    onbSend(7033, '/start c_english-b1');
+
+    expect($this->tg->sent)->toHaveCount(2)
+        ->and($this->tg->sent[0]['url'])->toBe('https://twa.test/twa/?from=today')
+        ->and($this->tg->sent[1]['url'])->toBe('https://twa.test/twa/courses/english-b1')
+        ->and($this->tg->sent[1]['button'])->toBe('Открыть курс')
+        ->and($this->tg->sent[1]['text'])->toContain('Курс english-b1')
+        ->and($learner->fresh()->active_course_id)->toBe($mine->id)
+        ->and($learner->fresh()->acquisition_source)->toBe('course:english-b1');
+});
+
+it('says nothing extra when a finished learner follows a link to an unavailable course or a plain /start', function (string $case): void {
+    match ($case) {
+        'draft' => Course::factory()->create(['slug' => 'linked']),
+        'private' => onbCourse('linked', 'general', visibility: 'private'),
+        'missing' => null,
+        'plain' => null,
+    };
+    Learner::factory()->onboarded()->create(['telegram_user_id' => 7035]);
+
+    onbSend(7035, $case === 'plain' ? '/start' : '/start c_linked');
+
+    expect($this->tg->sent)->toHaveCount(1)
+        ->and($this->tg->sent[0]['url'])->toBe('https://twa.test/twa/?from=today');
+})->with(['draft', 'private', 'missing', 'plain']);
+
 // --- teachers, blocked learners, done learners --------------------------------
 
 it('does not put a linked teacher into the onboarding', function (): void {
@@ -608,12 +771,50 @@ it('answers a finished learner with a short menu', function (): void {
 });
 
 it('keeps /help, /promo and group commands away from the catch-all', function (): void {
+    // /help: the command's own answer, listing the learner commands; no learner, no onboarding.
     onbSend(7053, '/help');
-
     expect($this->tg->sent)->toHaveCount(1)
-        ->and($this->tg->sent[0]['text'])->toContain('LexiFlow')
+        ->and($this->tg->sent[0]['text'])->toContain('LexiFlow')->toContain('/today')->toContain('/settings')
+        ->and($this->tg->sent[0]['markup'])->toBeNull()
         ->and(Learner::query()->where('telegram_user_id', 7053)->exists())->toBeFalse();
+
+    // /promo without a code: the promo hint, not the first onboarding question.
+    onbSend(7054, '/promo');
+    expect($this->tg->sent)->toHaveCount(2)
+        ->and($this->tg->sent[1]['text'])->toBe('Отправьте промокод так: /promo КОД')
+        ->and($this->tg->sent[1]['markup'])->toBeNull()
+        ->and(onbLearner(7054)->onboarding_state)->toBe('new');
+
+    // A teacher command typed in a group the bot does not serve: silence.
+    app(TelegramDispatcher::class)->dispatch(['message' => [
+        'chat' => ['id' => -100777, 'type' => 'supergroup'],
+        'from' => ['id' => 7055, 'first_name' => 'Ali'],
+        'text' => '/start_training 1 1',
+    ]]);
+    expect($this->tg->sent)->toHaveCount(2)
+        ->and(Learner::query()->where('telegram_user_id', 7055)->exists())->toBeFalse();
 });
+
+it('names the learner commands in the Uzbek help too', function (): void {
+    onbSend(7056, '/help', ['language_code' => 'uz']);
+
+    expect($this->tg->sent[0]['text'])->toContain('/today')->toContain('/settings')->toContain('Sozlamalar');
+});
+
+it('ignores service messages in the DM instead of starting or repeating the onboarding', function (array $service): void {
+    app(TelegramDispatcher::class)->dispatch(['message' => [
+        'chat' => ['id' => 7057, 'type' => 'private'],
+        'from' => ['id' => 7057, 'first_name' => 'Ali'],
+        ...$service,
+    ]]);
+
+    expect($this->tg->sent)->toBe([])
+        ->and(Learner::query()->where('telegram_user_id', 7057)->exists())->toBeFalse();
+})->with([
+    'pinned message' => [['pinned_message' => ['message_id' => 5, 'date' => 1]]],
+    'new chat title' => [['new_chat_title' => 'Chat']],
+    'empty text' => [['text' => '']],
+]);
 
 // --- /settings -----------------------------------------------------------------
 
@@ -693,3 +894,108 @@ it('lets a fresh c_ link replace a pending one before the onboarding ends', func
     expect($learner->fresh()->meta['pending_course'])->toBe('second')
         ->and($first->id)->not->toBe($second->id);
 });
+
+// --- attribution details -----------------------------------------------------------
+
+it('writes nothing about a blocked learner who follows a deep link', function (): void {
+    $blocked = Learner::factory()->create(['telegram_user_id' => 7080, 'blocked_at' => now(), 'acquisition_source' => null]);
+
+    onbSend(7080, '/start src_campaign');
+
+    expect($this->tg->sent)->toHaveCount(1)
+        ->and($blocked->fresh()->acquisition_source)->toBeNull()
+        ->and($blocked->fresh()->start_payload)->toBeNull();
+});
+
+it('does not take a blocked learner as a referrer', function (): void {
+    $referrer = Learner::factory()->create(['blocked_at' => now()]);
+    $learner = Learner::factory()->create(['acquisition_source' => null]);
+
+    $recorded = app(LearnerRegistrar::class)->attributeAcquisition($learner, StartPayload::parse('ref_'.$referrer->id));
+
+    expect($recorded)->toBeFalse()
+        ->and($learner->fresh()->acquisition_source)->toBeNull()
+        ->and($learner->fresh()->referrer_learner_id)->toBeNull();
+});
+
+it('reports the kind of the accepted attribution in onboarding.started', function (string $payload, string $kind): void {
+    onbSend(7081, '/start '.$payload);
+
+    expect(ProductEvent::query()->where('name', 'onboarding.started')->firstOrFail()->props)->toBe(['source_kind' => $kind]);
+})->with([
+    'unknown referrer is rejected' => ['ref_999998', 'direct'],
+    'invalid payload' => ['ref_abc', 'direct'],
+    'campaign' => ['src_blog', 'src'],
+    'course' => ['c_english-a1', 'course'],
+    'centre' => ['org_Center', 'org'],
+]);
+
+it('reports direct when the learner refers themself', function (): void {
+    $learner = Learner::factory()->create(['telegram_user_id' => 7087, 'onboarding_state' => 'new']);
+
+    onbSend(7087, '/start ref_'.$learner->id);
+
+    expect(ProductEvent::query()->where('name', 'onboarding.started')->firstOrFail()->props)->toBe(['source_kind' => 'direct']);
+});
+
+it('keeps the group as the source kind when a later link is rejected by first touch', function (): void {
+    app(LearnerRegistrar::class)->observeTelegramUser(['id' => 7082, 'first_name' => 'G'], 'group');
+
+    onbSend(7082, '/start src_blog');
+
+    expect(ProductEvent::query()->where('name', 'onboarding.started')->firstOrFail()->props)->toBe(['source_kind' => 'group']);
+});
+
+// --- callbacks from the wrong place ---------------------------------------------------
+
+it('ignores onboarding buttons that were not pressed in the private chat of the sender', function (): void {
+    // In a group: nothing is created, sent or edited.
+    app(TelegramDispatcher::class)->dispatch(['callback_query' => [
+        'id' => 'cb-group',
+        'from' => ['id' => 7083, 'first_name' => 'Ali'],
+        'message' => ['message_id' => 3, 'chat' => ['id' => -100123, 'type' => 'supergroup']],
+        'data' => 'onb1:locale:uz',
+    ]]);
+    // In another private chat than the sender's own.
+    app(TelegramDispatcher::class)->dispatch(['callback_query' => [
+        'id' => 'cb-other',
+        'from' => ['id' => 7083, 'first_name' => 'Ali'],
+        'message' => ['message_id' => 3, 'chat' => ['id' => 7084, 'type' => 'private']],
+        'data' => 'onb1:locale:uz',
+    ]]);
+
+    expect($this->tg->answered)->toBe(['cb-group', 'cb-other'])
+        ->and($this->tg->sent)->toBe([])
+        ->and($this->tg->edits)->toBe([])
+        ->and(Learner::query()->whereIn('telegram_user_id', [7083, 7084])->exists())->toBeFalse();
+});
+
+it('creates no learner and sends nothing when a linked teacher presses onboarding or settings buttons', function (string $data): void {
+    User::factory()->create(['telegram_user_id' => 7085]);
+
+    onbTap(7085, $data);
+
+    expect($this->tg->answered)->toHaveCount(1)
+        ->and($this->tg->sent)->toBe([])
+        ->and($this->tg->edits)->toBe([])
+        ->and(Learner::query()->where('telegram_user_id', 7085)->exists())->toBeFalse();
+})->with(['onb1:locale:uz', 'set1:timezone', 'set1:timezone:Asia/Bishkek']);
+
+// --- the default course -----------------------------------------------------------------
+
+it('leaves the active course empty when the default course cannot be opened', function (string $state): void {
+    Course::factory()->create(['slug' => (string) config('content.default_course_slug'), ...match ($state) {
+        'draft' => ['status' => 'draft'],
+        'archived' => ['status' => 'archived'],
+        'private' => ['status' => 'published', 'visibility' => 'private'],
+    }]);
+
+    onbSend(7086, '/start');
+    onbComplete(7086, 'ru', 'general', 'A1');
+
+    $last = end($this->tg->sent);
+    expect(onbLearner(7086)->onboarding_state)->toBe('done')
+        ->and(onbLearner(7086)->active_course_id)->toBeNull()
+        ->and($last['text'])->toBe('Готово! Нажмите кнопку — первая тренировка займёт пару минут.')
+        ->and(ProductEvent::query()->where('name', 'course.selected')->exists())->toBeFalse();
+})->with(['draft', 'archived', 'private']);

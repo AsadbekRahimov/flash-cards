@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Services;
 
+use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Learners\DTO\OnboardingStep;
 use App\Domain\Learners\DTO\StartPayload;
 use App\Domain\Learners\Services\OnboardingService;
@@ -33,6 +34,7 @@ final class OnboardingMessenger
         private readonly TelegramClient $telegram,
         private readonly LocaleResolver $locales,
         private readonly OnboardingService $onboarding,
+        private readonly CourseCatalogService $catalog,
     ) {}
 
     /** `/start` and any message of a learner who has not finished the onboarding: begin it or repeat the current step. */
@@ -64,6 +66,29 @@ final class OnboardingMessenger
             $chatId,
             __($step->messageKey, [], $locale),
             replyMarkup: $this->keyboard($step, $locale, self::ONBOARDING_PREFIX),
+        );
+    }
+
+    /**
+     * `/start c_<slug>` of a learner who has finished the onboarding: a button that opens that
+     * course in the app (`/twa/courses/<slug>`). Nothing when the link has no course or the
+     * course is not available (draft, private, archived, deleted).
+     */
+    public function sendCourseLink(Learner $learner, int|string $chatId, StartPayload $payload): void
+    {
+        $slug = $payload->courseSlug();
+        $course = $slug === null ? null : $this->catalog->findAvailable($slug);
+        if ($course === null) {
+            return;
+        }
+
+        $locale = $this->locales->forLearner($learner);
+
+        $this->telegram->sendWebAppButton(
+            chatId: $chatId,
+            text: __('onboarding.course_link.text', ['course' => $this->courseTitle($course, $locale)], $locale),
+            buttonText: __('onboarding.course_link.button', [], $locale),
+            url: rtrim((string) config('twa.base_url'), '/').'/twa/courses/'.rawurlencode($course->slug),
         );
     }
 

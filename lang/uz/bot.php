@@ -13,6 +13,8 @@ return [
             "O'qituvchilar uchun: botni guruhga qo'shing, administrator uni faollashtiradi.\n".
             "Guruhdagi mavjud buyruqlar: /start_training, /start_exam, /close_exam, /help\n".
             "Shaxsiy hisobot: /stats\n".
+            "Bugungi takrorlashlar: /today\n".
+            "Sozlamalar (til, maqsad, daraja, vaqt mintaqasi, eslatmalar): /settings\n".
             'Pro uchun promokod: /promo KOD',
         'group' => "LexiFlow Bot guruhda.\n\nO'qituvchi buyruqlari:\n".
             "/start_training — mashg'ulotni boshlash\n".

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
+use App\Domain\Learners\DTO\StartPayload;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Filament\Resources\CourseResource\Pages;
 use App\Filament\Resources\CourseResource\RelationManagers\StagesRelationManager;
@@ -36,9 +37,9 @@ class CourseResource extends Resource
         $fields = [
             Forms\Components\TextInput::make('slug')
                 ->required()
-                ->maxLength(64)
+                ->maxLength(StartPayload::COURSE_SLUG_MAX)
                 ->regex('/^[a-z0-9]+(?:-[a-z0-9]+)*$/')
-                ->helperText('Latin lowercase, digits and dashes. Used in links and in the import file ("course"); cannot be changed later.')
+                ->helperText('Latin lowercase, digits and dashes, up to '.StartPayload::COURSE_SLUG_MAX.' characters (a course link in the bot, c_<slug>, must fit Telegram\'s 64). Used in links and in the import file ("course"); cannot be changed later.')
                 ->unique(ignoreRecord: true)
                 ->disabledOn('edit'),
             Forms\Components\TextInput::make('status')

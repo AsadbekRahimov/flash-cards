@@ -51,6 +51,12 @@ return [
         'button' => '🎯 Начать первую тренировку',
     ],
 
+    // `/start c_<slug>` of a learner who has already finished the onboarding: the course opens in the app.
+    'course_link' => [
+        'text' => 'Курс «:course» доступен в LexiFlow. Откройте его кнопкой ниже — текущий курс не изменится, пока вы сами его не выберете.',
+        'button' => 'Открыть курс',
+    ],
+
     // Minimal "Today" in the bot; the full screen is in the app.
     'today' => [
         // Plural forms (ru): 1 слово | 2–4 слова | 5+ слов (see trans_choice).

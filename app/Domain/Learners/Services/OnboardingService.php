@@ -14,8 +14,10 @@ use App\Domain\Learners\Exceptions\OnboardingException;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Course;
 use App\Models\Learner;
+use Carbon\CarbonImmutable;
 use DateTimeImmutable;
 use DateTimeZone;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -29,8 +31,10 @@ use Illuminate\Support\Facades\DB;
  * Every value is checked against a whitelist; `callback_data` is not signed and is treated as
  * untrusted input.
  *
- * Changing the time zone or the reminder time clears `next_reminder_at` (the stored UTC instant
- * would be wrong); the reminder scheduler recomputes it (docs/12 §7.5, task 1.5b).
+ * Setting or changing the time zone or the reminder time recomputes `next_reminder_at` — the next
+ * UTC instant at which the learner's wall clock shows `reminder_time` ({@see LearnerClock}), `NULL`
+ * when reminders are off; the reminder scheduler keeps it up to date after each send
+ * (docs/12 §7.5, task 1.5b).
  */
 final class OnboardingService
 {
@@ -58,6 +62,7 @@ final class OnboardingService
         private readonly LocaleResolver $locales,
         private readonly CourseCatalogService $catalog,
         private readonly ProductEventRecorder $events,
+        private readonly LearnerClock $clock,
     ) {}
 
     /**
@@ -90,10 +95,12 @@ final class OnboardingService
         $learner->refresh();
 
         if ($began) {
+            // The kind of the attribution that was ACCEPTED (first touch wins): a rejected payload
+            // (invalid, self-referral, a learner who already has a source) does not count.
             $this->events->record(ProductEventName::OnboardingStarted, [
-                'source_kind' => $payload->isEmpty()
-                    ? ($learner->acquisition_source === 'group' ? 'group' : 'direct')
-                    : $payload->kind->value,
+                'source_kind' => $learner->acquisition_source === null
+                    ? 'direct'
+                    : explode(':', $learner->acquisition_source, 2)[0],
             ], learner: $learner);
         }
 
@@ -126,6 +133,9 @@ final class OnboardingService
             }
 
             $fresh->fill($changes);
+            if ($step === 'timezone' || $step === 'reminder') {
+                $this->scheduleReminder($fresh);
+            }
 
             $next = self::STEPS[array_search($step, self::STEPS, true) + 1] ?? self::DONE;
             $fresh->onboarding_state = $next;
@@ -134,6 +144,7 @@ final class OnboardingService
                 $completed = true;
                 [$course, $via] = $this->completeCourse($fresh);
                 $fresh->onboarding_completed_at = now();
+                $this->scheduleReminder($fresh);
             }
 
             $fresh->save();
@@ -161,28 +172,31 @@ final class OnboardingService
         return $this->current($learner);
     }
 
-    /** "Skip" (e.g. the TWA banner): the defaults stay and no course is chosen. */
-    public function skipToDone(Learner $learner): void
-    {
-        if ($learner->onboarding_state === self::DONE) {
-            return;
-        }
-
-        $learner->forceFill([
-            'onboarding_state' => self::DONE,
-            'onboarding_completed_at' => $learner->onboarding_completed_at ?? now(),
-        ])->save();
-    }
-
     /**
      * `/settings` — change one onboarding value of a learner who has finished the onboarding.
      * Same whitelists as {@see self::apply()}, but no state machine.
      *
-     * @throws OnboardingException when $value is not allowed for $step
+     * @throws OnboardingException when the onboarding is not finished or $value is not allowed for $step
      */
     public function applySetting(Learner $learner, string $step, string $value): void
     {
-        $learner->forceFill($this->changes($step, $value))->save();
+        $changes = $this->changes($step, $value);
+
+        DB::transaction(function () use ($learner, $step, $changes): void {
+            $fresh = $this->lock($learner);
+            if ($fresh->onboarding_state !== self::DONE) {
+                throw OnboardingException::staleStep($step);
+            }
+
+            $fresh->fill($changes);
+            if ($step === 'timezone' || $step === 'reminder') {
+                $this->scheduleReminder($fresh);
+            }
+
+            $fresh->save();
+        });
+
+        $learner->refresh();
     }
 
     /** The message and buttons of $step (`done` and unknown states give the final / first one). */
@@ -267,11 +281,11 @@ final class OnboardingService
                 default => throw OnboardingException::invalidValue($step),
             },
             'timezone' => in_array($value, $this->timezones(), true)
-                ? ['timezone' => $value, 'next_reminder_at' => null]
+                ? ['timezone' => $value]
                 : throw OnboardingException::invalidValue($step),
             'reminder' => match (true) {
-                $value === self::REMINDER_OFF => ['reminder_time' => null, 'next_reminder_at' => null],
-                array_key_exists($value, self::REMINDER_TIMES) => ['reminder_time' => self::REMINDER_TIMES[$value], 'next_reminder_at' => null],
+                $value === self::REMINDER_OFF => ['reminder_time' => null],
+                array_key_exists($value, self::REMINDER_TIMES) => ['reminder_time' => self::REMINDER_TIMES[$value]],
                 default => throw OnboardingException::invalidValue($step),
             },
             default => throw OnboardingException::invalidValue($step),
@@ -326,10 +340,26 @@ final class OnboardingService
             return [null, null];
         }
 
-        $course = $this->catalog->recommend($learner->goal, $learner->level) ?? $this->catalog->defaultCourse();
+        // The default course is a fallback only while it can be opened (published, not private).
+        $course = $this->catalog->recommend($learner->goal, $learner->level)
+            ?? $this->catalog->findAvailable($this->catalog->defaultCourse()->slug);
+        if ($course === null) {
+            return [null, null];
+        }
+
         $learner->active_course_id = $course->id;
 
         return [$course, 'onboarding'];
+    }
+
+    /** `next_reminder_at` for the learner's current time zone and `reminder_time` (`NULL` = reminders are off). */
+    private function scheduleReminder(Learner $learner): void
+    {
+        $time = $learner->reminder_time;
+
+        $learner->next_reminder_at = $time === null || $time === ''
+            ? null
+            : Carbon::instance($this->clock->nextOccurrenceUtc($learner, $time, CarbonImmutable::now()));
     }
 
     private function lock(Learner $learner): Learner
