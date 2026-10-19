@@ -324,7 +324,7 @@ it('records course.selected only when the active course really changes', functio
     $events = ProductEvent::query()->where('name', ProductEventName::CourseSelected->value)->get();
     expect($events)->toHaveCount(1)
         ->and($events[0]->learner_id)->toBe($learner->id)
-        ->and($events[0]->props)->toBe(['course_id' => $second->id, 'via' => 'twa']);
+        ->and(ksorted($events[0]->props))->toBe(['course_id' => $second->id, 'via' => 'twa']);
 });
 
 it('can choose an unlisted published course', function (): void {
