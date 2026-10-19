@@ -51,6 +51,8 @@ class SubscriptionResource extends Resource
                     ->label('Name')
                     ->state(fn (Subscription $record): string => self::subscriberLabel($record)),
                 Tables\Columns\TextColumn::make('plan')->badge()->sortable(),
+                Tables\Columns\TextColumn::make('tier')->badge()->placeholder('—')->sortable()->toggleable(),
+                Tables\Columns\TextColumn::make('seats_limit')->label('Seats')->placeholder('—')->toggleable(),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {

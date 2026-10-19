@@ -171,11 +171,13 @@ final class PaymentApplier
      * paid for the period that is currently running (docs/13 §2.1).
      *
      * @param  User|null  $by  the admin who initiated the refund (audit `payment.refunded`), null for a provider-initiated one
+     * @param  string|null  $note  the admin's reason, stored in the audit meta (admin refunds only)
+     * @param  string|null  $ip  the admin's IP for the audit record
      *
      * @throws DuplicatePaymentException
      * @throws PaymentApplyException payment_not_found | already_refunded
      */
-    public function applyRefund(RefundEvent $e, ?User $by = null, ?CarbonImmutable $now = null): Payment
+    public function applyRefund(RefundEvent $e, ?User $by = null, ?CarbonImmutable $now = null, ?string $note = null, ?string $ip = null): Payment
     {
         $now ??= CarbonImmutable::now();
 
@@ -185,7 +187,7 @@ final class PaymentApplier
         }
 
         try {
-            return DB::transaction(function () use ($e, $by, $now): Payment {
+            return DB::transaction(function () use ($e, $by, $now, $note, $ip): Payment {
                 /** @var Payment|null $probe */
                 $probe = Payment::query()
                     ->where('provider', $e->provider->value)
@@ -253,7 +255,7 @@ final class PaymentApplier
                         'action' => self::ACTION_REFUNDED,
                         'entity_type' => Payment::class,
                         'entity_id' => $charge->id,
-                        'ip' => null,
+                        'ip' => $ip,
                         'meta' => [
                             'refund_payment_id' => $refund->id,
                             'subscriber_type' => $charge->subscriber_type,
@@ -262,6 +264,7 @@ final class PaymentApplier
                             'amount' => $e->amount,
                             'currency' => $e->currency,
                             'subscription_ended' => $endedNow,
+                            ...($note !== null ? ['note' => $note] : []),
                         ],
                     ]);
                 }
