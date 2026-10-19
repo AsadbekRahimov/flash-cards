@@ -51,6 +51,8 @@ beforeEach(function (): void {
 
         public function answerCallbackQuery(string $callbackQueryId): void {}
 
+        public function editMessageReplyMarkup(int|string $chatId, int $messageId, ?array $replyMarkup = null): void {}
+
         public function setWebhook(string $url, string $secretHeader): bool
         {
             return true;
@@ -210,13 +212,13 @@ it('greets a linked teacher in the default language regardless of Telegram langu
     expect($this->api->log[0]['text'])->toContain('Привет, Aziz!');
 });
 
-it('tells an unlinked /start sender in their own language', function (string $languageCode, string $needle): void {
+it('starts the onboarding of a /start sender in their Telegram language', function (string $languageCode, string $needle): void {
     locDispatch(['chat' => ['id' => 44, 'type' => 'private'], 'from' => ['id' => 44, 'language_code' => $languageCode], 'text' => '/start']);
 
-    expect($this->api->log[0]['text'])->toContain($needle)->toContain('44');
+    expect($this->api->log[0]['text'])->toContain($needle);
 })->with([
-    'uz' => ['uz', "o'qituvchiga biriktirilmagan"],
-    'fr -> default' => ['fr', 'не привязан к учителю'],
+    'uz' => ['uz', 'Interfeys tilini tanlang'],
+    'fr -> default' => ['fr', 'Выберите язык интерфейса'],
 ]);
 
 it('reports /stats to a teacher in the default language and to unlinked users in their language', function (): void {

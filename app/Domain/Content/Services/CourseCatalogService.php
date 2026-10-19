@@ -190,6 +190,30 @@ final class CourseCatalogService
     }
 
     /**
+     * The course onboarding suggests for a goal and a self-assessed level (docs/12 §3.2): among
+     * public published courses with `exam_tag = goal`, the one of the same level first, then
+     * featured ones, then catalog order. Null when no course fits the goal — the caller falls
+     * back to the default course.
+     */
+    public function recommend(?string $goal, ?string $level): ?Course
+    {
+        if ($goal === null || $goal === '') {
+            return null;
+        }
+
+        $matching = array_values(array_filter(
+            $this->published($this->locales->default()),
+            fn (CatalogCourse $c): bool => $c->examTag === $goal,
+        ));
+
+        // usort is stable: equal candidates stay in catalog order (position, id).
+        usort($matching, fn (CatalogCourse $a, CatalogCourse $b): int => [$b->level === $level && $level !== null, $b->isFeatured]
+            <=> [$a->level === $level && $level !== null, $a->isFeatured]);
+
+        return $matching === [] ? null : Course::query()->find($matching[0]->id);
+    }
+
+    /**
      * The catalog with the learner's progress. The learner's own active course is listed even when
      * it is `unlisted` (chosen by a link), as long as it is still available.
      *

@@ -22,4 +22,13 @@ return [
 
     'fallback' => 'ru',
 
+    /*
+    | Each language in its own name, for the language picker of the onboarding — the same
+    | whatever the current locale, so a person can always find their language.
+    */
+    'names' => [
+        'ru' => '🇷🇺 Русский',
+        'uz' => "🇺🇿 O'zbekcha",
+    ],
+
 ];

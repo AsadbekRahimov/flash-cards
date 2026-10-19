@@ -74,3 +74,36 @@ it('uses telegram bot sdk when sending a WebApp button', function (): void {
         'reply_markup' => '{"inline_keyboard":[[{"text":"Open","web_app":{"url":"https://twa.test/twa/training/123"}}]]}',
     ]]);
 });
+
+it('removes or replaces the inline keyboard of a sent message through the SDK', function (): void {
+    $sdk = new class extends Api
+    {
+        /** @var list<array<string, mixed>> */
+        public array $edits = [];
+
+        public function __construct()
+        {
+            parent::__construct('test-token');
+        }
+
+        /**
+         * @param  array<string, mixed>  $params
+         */
+        public function editMessageReplyMarkup(array $params): MessageObject
+        {
+            $this->edits[] = $params;
+
+            return new MessageObject([]);
+        }
+    };
+
+    $client = new IrazasyedTelegramClient($sdk, new TelegramKeyboardFactory, new TelegramMessageRateLimiter);
+
+    $client->editMessageReplyMarkup(555, 42);
+    $client->editMessageReplyMarkup(555, 43, ['inline_keyboard' => [[['text' => 'Go', 'callback_data' => 'x:y']]]]);
+
+    expect($sdk->edits)->toBe([
+        ['chat_id' => 555, 'message_id' => 42, 'reply_markup' => '{"inline_keyboard":[]}'],
+        ['chat_id' => 555, 'message_id' => 43, 'reply_markup' => '{"inline_keyboard":[[{"text":"Go","callback_data":"x:y"}]]}'],
+    ]);
+});
