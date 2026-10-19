@@ -47,10 +47,21 @@ erDiagram
     PAYMENTS ||--o| PAYMENTS : refunds
     LEARNERS ||--o{ OFFERS : personal_discount
     OFFERS ||--o| PAYMENT_ORDERS : applied_to
+    ORGANIZATIONS ||--o{ ORGANIZATION_MEMBERS : seats
+    LEARNERS ||--o{ ORGANIZATION_MEMBERS : member
+    ORGANIZATIONS ||--o{ ORGANIZATION_INVITES : codes
+    ORGANIZATION_INVITES ||--o{ ORGANIZATION_MEMBERS : joined_via
+    ORGANIZATIONS ||--o{ ORGANIZATION_USERS : staff
+    USERS ||--o{ ORGANIZATION_USERS : role
 ```
 
 > **Фаза 2, оплата (docs/13 §1.2, задача 2A.1).** Добавлены `offers`, `payment_orders`, `provider_transactions`,
 > `payments` (§2.26–§2.29); `subscriptions` получила `tier`, а статус `canceled` стал live (предикат partial unique).
+
+> **Фаза 2, центры (docs/13 §1.3, задача 2B.1).** Добавлены `organization_users`, `organization_invites`,
+> `organization_members` (§2.30–§2.32). Членство learner'а в организации теперь **явное**: спонсорский Pro даёт
+> только место (`organization_members.status = active AND seat_state = seated`) в активной организации с live-подпиской;
+> группа организации лишь создаёт членство (`joined_via = group`).
 
 > **Learner-first (docs/12, Sprint 14).** Прогресс, оценки, ответы и напоминания принадлежат человеку —
 > `learners` (один на Telegram-пользователя); членство в группе — `group_members`. Таблицы `students` **больше нет**
@@ -417,7 +428,10 @@ Append-only журнал для продуктовой аналитики (не 
 | settings | jsonb default '{}' |
 | created_at, updated_at | |
 
-Членство learner'а в организации выводится из активного членства в её группах; отдельной таблицы участников в Фазе 1 нет.
+~~Членство learner'а в организации выводится из активного членства в её группах; отдельной таблицы участников в Фазе 1 нет.~~
+**Изменено в 2B.1 (docs/13 §1.3):** членство явное — `organization_members` (§2.32); группа организации создаёт его автоматически
+(`joined_via = group`, хук `GroupMembershipService::join/leave`), инвайт-код — `organization_invites` (§2.31), персонал кабинета —
+`organization_users` (§2.30). Спонсирует только место (`seated`), лимит мест — `subscriptions.seats_limit` live-подписки организации.
 
 ### 2.20 `courses`
 | Колонка | Тип | Описание |
@@ -633,6 +647,60 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 
 **Индексы:** `(provider, provider_event_id)` unique; `(subscriber_type, subscriber_id, occurred_at)`; `(status, occurred_at)`; `subscription_id`; `payment_order_id`; `provider_charge_id`.
 
+### 2.30 `organization_users` — персонал кабинета `/org` *(2B.1, docs/13 §1.3)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| organization_id | bigint FK → organizations, ON DELETE CASCADE | |
+| user_id | bigint FK → users, ON DELETE CASCADE | |
+| role | string(12) | `owner` / `teacher` — tenant-роль (не spatie: у одного пользователя разные роли в разных организациях) |
+| invited_by_user_id | bigint nullable FK → users, ON DELETE SET NULL | |
+| created_at, updated_at | | |
+
+**Индексы:** `(organization_id, user_id)` unique; `(user_id, role)`. Читается панелью `/org` (2B.3): `User::getTenants()` / `canAccessTenant()`.
+
+### 2.31 `organization_invites` — инвайт-коды *(2B.1)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| organization_id | bigint FK → organizations, ON DELETE CASCADE | |
+| code | string(16) unique | 10 символов из алфавита без `0/O/1/I` (`OrganizationInviteService::generateCode`); deep-link `t.me/<bot>?start=org_<code>` |
+| label | string(64) nullable | метка («группа 7Б») |
+| telegram_group_id | bigint nullable FK → telegram_groups, ON DELETE SET NULL | только метка; в чат человек вступает сам |
+| max_uses | int unsigned nullable | NULL = без лимита |
+| uses_count | int unsigned default 0 | инкремент под блокировкой `organizations` при каждом реальном вступлении (включая `waitlisted`) |
+| expires_at | timestamp nullable | |
+| is_active | boolean default true | |
+| created_by_user_id | bigint nullable FK → users, ON DELETE SET NULL | |
+| created_at, updated_at | | |
+
+**Индексы:** `code` unique; `(organization_id, is_active)`.
+
+### 2.32 `organization_members` — членство и место *(2B.1)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| organization_id | bigint FK → organizations, ON DELETE CASCADE | |
+| learner_id | bigint FK → learners, ON DELETE CASCADE | |
+| status | string(12) | `active` / `left` (сам или вышел из всех групп организации) / `removed` (персонал/суперадмин) |
+| seat_state | string(12) | `seated` / `waitlisted` (мест нет) / `none` (status ≠ active) |
+| joined_via | string(12) | `invite` / `group` / `admin`; `group` → `invite` при погашении кода уже участником группы |
+| invite_id | bigint nullable FK → organization_invites, ON DELETE SET NULL | |
+| seated_at, waitlisted_at | timestamp nullable | `waitlisted_at` — порядок FIFO |
+| joined_at | timestamp NOT NULL | |
+| left_at | timestamp nullable | |
+| meta | jsonb default '{}' | |
+| created_at, updated_at | | |
+
+**Индексы:** `(organization_id, learner_id)` unique; `(organization_id, status, seat_state)`; `(learner_id, status)`;
+`organization_members_waitlist_fifo_idx (organization_id, seat_state, waitlisted_at)`.
+
+**Правила (docs/13 §1.3, §6.1):** место = `status = active AND seat_state = seated`; спонсорский Pro — только у `seated` в организации
+`status = active` с live-подпиской (`EntitlementResolver`, `PaidSubscriptionQuery::sponsorFor/sponsoredLearnerIds`). Все записи — через
+`OrganizationMembershipService` под `organizations FOR UPDATE` (порядок блокировок docs/13 §3): вступление садит, если
+`seated < seats_limit` (NULL при live = без лимита; нет live-подписки = все `waitlisted`); освобождённое место отдаётся самому раннему
+`waitlisted` в той же транзакции; повышение тарифа — `reseat()` после commit подписки; понижение никого не снимает (виджет показывает превышение).
+
 ## 3. Порядок миграций
 
 Миграции создаём в таком порядке (порядок имеет значение из-за FK). Пока на дисках лежат исходные create-миграции
@@ -670,6 +738,9 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 29. `2026_10_20_000002_create_payment_orders_table` *(2A.1; добавляет FK `offers.payment_order_id` — PostgreSQL)*
 30. `2026_10_20_000003_create_provider_transactions_table` *(2A.1)*
 31. `2026_10_20_000004_create_payments_table` *(2A.1; self-FK `refunded_payment_id`)*
+32. `2026_10_21_000001_create_organization_users_table` *(2B.1)*
+33. `2026_10_21_000002_create_organization_invites_table` *(2B.1; до `organization_members` из-за FK `invite_id`)*
+34. `2026_10_21_000003_create_organization_members_table` *(2B.1)*
 
 Индексные миграции (`add_performance_indexes`, `add_open_session_unique_indexes`) и `create_exam_*`, `create_notifications_log_table`,
 `create_product_events_table` переведены на `learner_id` на месте; `add_open_session_unique_indexes` дополнительно создаёт

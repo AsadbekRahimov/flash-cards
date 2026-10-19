@@ -232,6 +232,8 @@ Unique `(word_id, locale)`. Экзаменационные дистрактор�
 | settings | jsonb default `'{}'` |
 | created_at, updated_at | |
 
+> **Изменено в 2B.1 (docs/13 §1.3, 2026-10-19):** членство стало явным — `organization_members` (status, seat_state, joined_via), плюс `organization_invites` и `organization_users` (docs/03 §2.30–2.32). Спонсорский Pro даёт **место** (`seated`), лимит — `subscriptions.seats_limit`; группа организации создаёт членство автоматически (`GroupMembershipService::join` → `OrganizationMembershipService::joinFromGroup`). Текст ниже — историческое обоснование Фазы 1.
+
 В Фазе 1 организацию создаёт только суперадмин в Filament и привязывает к ней группы. Членство learner'а в организации **выводится** из активного членства в её группах — отдельной `organization_members` нет. Обоснование: без оплаты и кабинета центра явные участники, места, инвайт-коды и `organization_users` (owner/admin) не нужны; но субъект «организация» необходим уже сейчас, чтобы существующий центр-клиент получил спонсорский Pro через тот же `subscriptions`, что и физлица. Фаза 2 добавит `organization_members` (status, joined_at, invited_via), `organization_users`, `seats_limit`, инвайт-коды и deep-link `start=org_<code>` — без изменения уже созданных таблиц.
 
 ### 1.9 Тарифы: `subscriptions`, `promo_codes`, `promo_redemptions`
@@ -716,6 +718,8 @@ live(s) = status IN (trialing, active) AND (current_period_ends_at IS NULL OR li
        OR status = past_due AND grace_until > now
 liveUntil(s) = current_period_ends_at (+ grace_days, если provider автопродляемый: telegram_stars/payme/click)
 ```
+
+> **Изменено в 2B.1 (docs/13 §1.3, §2.3, 2026-10-19):** третий аргумент `argmax` — больше не «активное членство в активной группе организации», а **место**: `organization_members WHERE learner_id = ? AND status = 'active' AND seat_state = 'seated'` в организации `status = 'active'`. Статус группы (`telegram_groups.status`) из правила ушёл: бот, удалённый из чата, не выселяет учеников из центра; выход из всех групп организации завершает членство `joined_via = group`. Запрос спонсора ниже и SQL-близнец `PaidSubscriptionQuery::sponsorFor/sponsoredLearnerIds` переведены на `organization_members`; `forgetOrganization` — по `organization_members`, `forgetGroup` оставлен для observers. Инвалидация дополнена `OrganizationMembershipService` (join/leave/reseat) и хуками `TelegramGroupObserver` (привязка группы → `syncGroup`, отвязка/удаление → `leaveGroupOrphans/releaseOrphans`).
 
 > **Выполнено в 2A.1 (docs/13 §2.1, 2026-10-19):** `canceled` — live до `current_period_ends_at` без grace; чек-лист ниже применён целиком одним изменением (`liveValues()`, `SubscriptionLiveness`, предикат partial unique — правкой create-миграции на месте, `PaidSubscriptionQuery::aliveAt` с отдельной веткой для `canceled`, тесты). `hasGrace()` теперь только у `telegram_stars`; появился провайдер `reward`. Текст ниже — историческое обоснование.
 
