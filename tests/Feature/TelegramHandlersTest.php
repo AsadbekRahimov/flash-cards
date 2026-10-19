@@ -222,6 +222,63 @@ it('ignores chat_member updates of bots, unknown groups and private chats', func
     expect(Learner::count())->toBe(0)->and(GroupMember::count())->toBe(0);
 });
 
+it('ends the membership on a left_chat_member service message (bot without admin rights)', function (): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => -7010, 'status' => 'active']);
+    $other = TelegramGroup::factory()->create(['chat_id' => -7011, 'status' => 'active']);
+    $learner = Learner::factory()->memberOf($group)->memberOf($other)->create(['telegram_user_id' => 111]);
+    $date = now()->addMinute()->getTimestamp();
+
+    $dispatch = fn () => app(TelegramDispatcher::class)->dispatch(['message' => [
+        'chat' => ['id' => -7010, 'type' => 'supergroup'],
+        'from' => ['id' => 111, 'first_name' => 'Alice', 'is_bot' => false],
+        'date' => $date,
+        'left_chat_member' => ['id' => 111, 'first_name' => 'Alice', 'is_bot' => false],
+    ]]);
+
+    $dispatch();
+    $left = GroupMember::where('learner_id', $learner->id)->where('telegram_group_id', $group->id)->sole();
+    expect($left->status)->toBe('left')
+        ->and($left->left_at?->getTimestamp())->toBe($date)
+        ->and(GroupMember::where('learner_id', $learner->id)->where('telegram_group_id', $other->id)->value('status'))->toBe('active');
+
+    // A repeated delivery is a no-op: the recorded leave is not overwritten.
+    $dispatch();
+    expect($left->fresh()?->left_at?->getTimestamp())->toBe($date)
+        ->and(DB::table('product_events')->where('name', 'group.member_left')->count())->toBe(1);
+});
+
+it('records a member removed by an admin as removed', function (): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => -7012, 'status' => 'active']);
+    $learner = Learner::factory()->memberOf($group)->create(['telegram_user_id' => 111]);
+
+    app(TelegramDispatcher::class)->dispatch(['message' => [
+        'chat' => ['id' => -7012, 'type' => 'supergroup'],
+        'from' => ['id' => 5, 'first_name' => 'Teacher', 'is_bot' => false],
+        'date' => now()->addMinute()->getTimestamp(),
+        'left_chat_member' => ['id' => 111, 'first_name' => 'Alice', 'is_bot' => false],
+    ]]);
+
+    expect(GroupMember::where('learner_id', $learner->id)->value('status'))->toBe('removed');
+});
+
+it('ignores left_chat_member of the bot itself, of an unknown group and of a stranger', function (): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => -7013, 'status' => 'active']);
+    $learner = Learner::factory()->memberOf($group)->create(['telegram_user_id' => 111]);
+
+    $dispatch = fn (int $chatId, array $user) => app(TelegramDispatcher::class)->dispatch(['message' => [
+        'chat' => ['id' => $chatId, 'type' => 'supergroup'],
+        'date' => now()->addMinute()->getTimestamp(),
+        'left_chat_member' => $user,
+    ]]);
+
+    $dispatch(-7013, ['id' => 900, 'first_name' => 'LexiBot', 'is_bot' => true]);
+    $dispatch(-7777777, ['id' => 111, 'first_name' => 'Alice', 'is_bot' => false]);
+    $dispatch(-7013, ['id' => 222, 'first_name' => 'Stranger', 'is_bot' => false]);   // never seen: no learner created
+
+    expect(GroupMember::where('learner_id', $learner->id)->value('status'))->toBe('active')
+        ->and(Learner::count())->toBe(1);
+});
+
 it('treats a restricted chat_member without membership as a leave and a restricted member as staying', function (): void {
     $group = TelegramGroup::factory()->create(['chat_id' => -7009, 'status' => 'active']);
     $learner = Learner::factory()->memberOf($group)->create(['telegram_user_id' => 111]);
