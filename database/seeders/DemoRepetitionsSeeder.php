@@ -10,6 +10,7 @@ use App\Models\TelegramGroup;
 use App\Models\TrainingSession;
 use App\Models\Word;
 use App\Models\WordRepetition;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -55,7 +56,7 @@ class DemoRepetitionsSeeder extends Seeder
                         'introduced_mode' => TrainingSession::MODE_GROUP_LESSON,
                         'meta' => [],
                     ]);
-                    $repetition->created_at = now()->subDays(8 + ($i * 7 + $j) % 23);
+                    $repetition->created_at = CarbonImmutable::now()->subDays(8 + ($i * 7 + $j) % 23);
                     $repetition->save();
                 }
             }

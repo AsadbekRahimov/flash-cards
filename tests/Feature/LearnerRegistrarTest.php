@@ -281,3 +281,18 @@ it('schedules the first reminder at creation from the default zone and time, or 
     expect($off->reminder_time)->toBeNull()
         ->and($off->next_reminder_at)->toBeNull();
 });
+
+it('creates the learner with an empty JSON object in meta, as the column default does, not an empty array', function (): void {
+    $learner = app(LearnerRegistrar::class)->fromTelegramUser(['id' => 4090, 'first_name' => 'Alex']);
+
+    $raw = DB::table('learners')->where('id', $learner->id)->value('meta');
+
+    expect(json_decode((string) $raw, false))->toBeObject()
+        ->and(str_replace(' ', '', (string) $raw))->toBe('{}')
+        ->and($learner->meta)->toBe([])
+        ->and($learner->fresh()?->meta)->toBe([]);
+
+    // A later write of real content keeps working through the array cast.
+    $learner->forceFill(['meta' => ['locale_chosen' => true]])->save();
+    expect($learner->fresh()?->meta)->toBe(['locale_chosen' => true]);
+});

@@ -45,7 +45,7 @@ final class AuthController
 
         // Per person, and only for a verified identity: a forged initData must not be able to burn
         // the budget of the Telegram id it claims (docs/12 §8).
-        $userKey = 'twa-auth-user|'.(int) ($parsed['user']['id'] ?? 0);
+        $userKey = 'twa-auth-user|'.$parsed['user']['id'];
         if (RateLimiter::tooManyAttempts($userKey, self::USER_ATTEMPTS_PER_MINUTE)) {
             return ApiErrorResource::respond(429, 'rate_limited', 'Too many requests')
                 ->header('Retry-After', (string) RateLimiter::availableIn($userKey));

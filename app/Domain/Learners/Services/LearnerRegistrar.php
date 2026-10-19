@@ -12,6 +12,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use stdClass;
 
 /**
  * The single entry point that turns a Telegram user (initData, bot update,
@@ -180,7 +181,8 @@ final class LearnerRegistrar
                 'acquisition_source' => $source,
                 'start_payload' => $startPayload,
                 'last_seen_at' => $selfInitiated ? now() : null,
-                'meta' => [],
+                // An object, like the column default `{}`: the `array` cast would store an empty PHP array as `[]`.
+                'meta' => new stdClass,
             ]);
 
             return $created;
