@@ -211,6 +211,7 @@
 | `error.closed.catalog` | Kurs endi mavjud emas. | Курс больше недоступен. |
 | `error.forbidden.catalog` | Sizda kurslar katalogiga kirish huquqi yo'q. | У вас нет доступа к каталогу курсов. |
 | `error.code.course_not_found` | Kurs topilmadi yoki mavjud emas. | Курс не найден или недоступен. |
+| `error.code.timezone_change_too_soon` | Vaqt mintaqasini kuniga bir martadan ko'p o'zgartirib bo'lmaydi. | Часовой пояс можно менять не чаще раза в сутки. |
 | `error.closed.training` | O'qituvchi mashg'ulotni yakunladi. | Учитель завершил тренировку. |
 | `error.closed.exam` | Imtihon o'qituvchi tomonidan yakunlandi. | Экзамен был завершён учителем. |
 | `error.forbidden.training` | Sizda bu mashg'ulotga kirish huquqi yo'q. | У вас нет доступа к этой тренировке. |
@@ -430,6 +431,7 @@
 | `settings.title` | Sozlamalar | Настройки |
 | `settings.language` | Interfeys tili | Язык интерфейса |
 | `settings.timezone` | Vaqt mintaqasi | Часовой пояс |
+| `settings.timezone.locked` | Vaqt mintaqasini kuniga bir martadan ko'p o'zgartirib bo'lmaydi. Keyingi o'zgartirish — {when}. | Часовой пояс можно менять не чаще раза в сутки. Следующая смена — {when}. |
 | `settings.reminder` | Eslatmalar | Напоминания |
 | `settings.reminder.off` | Eslatmalarsiz | Без напоминаний |
 | `settings.reminder.hint` | Vaqt sizning vaqt mintaqangiz bo'yicha. | Время — по вашему часовому поясу. |

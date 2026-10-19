@@ -15,7 +15,7 @@ const settings = useSettingsStore()
 const { showBackButton } = useTelegram()
 const { t, tn } = useI18n()
 
-const { data, status, saving, saved, errorMessage: message } = storeToRefs(settings)
+const { data, status, saving, saved, errorMessage: message, timezoneLockMessage } = storeToRefs(settings)
 
 let hideBack: (() => void) | null = null
 
@@ -88,9 +88,10 @@ onBeforeUnmount(() => {
 
       <label class="card block space-y-2">
         <span class="font-semibold">{{ t('settings.timezone') }}</span>
-        <select class="w-full rounded-xl px-3 py-3" :value="data.timezone" :disabled="saving" data-testid="timezone-select" @change="onTimezone">
+        <select class="w-full rounded-xl px-3 py-3" :value="data.timezone" :disabled="saving || timezoneLockMessage !== null" data-testid="timezone-select" @change="onTimezone">
           <option v-for="option in data.options.timezones" :key="option.id" :value="option.id">{{ option.label }}</option>
         </select>
+        <span v-if="timezoneLockMessage" class="block text-xs text-tg-hint" data-testid="timezone-locked">{{ timezoneLockMessage }}</span>
       </label>
 
       <label class="card block space-y-2">

@@ -44,6 +44,8 @@ export interface LearnerSettings {
   daily_goal: number
   goal: string | null
   level: string | null
+  /** ISO 8601 UTC: the time zone may be changed again from then on (once in 24 h); null = now. */
+  timezone_change_available_at: string | null
   active_course: { slug: string; title: string } | null
   options: {
     locales: SettingsChoice[]
@@ -82,7 +84,10 @@ export interface LessonHeader {
 /** Why a session has no card to show (docs/04 A.3). `null`/absent while there is a card. */
 export type DoneReason = 'lesson_complete' | 'nothing_due' | 'new_quota_exhausted' | 'session_cap'
 
-/** Free new-word quota after the step (docs/04 A.3); `new_words_remaining` null = unlimited. */
+/**
+ * Free new-word quota after the step (docs/04 A.3); `new_words_remaining` null = no limit applies (Pro, or a group
+ * lesson, also for Free). It says nothing about the plan: that comes only from `/me.entitlement`.
+ */
 export interface Quota {
   new_words_remaining: number | null
 }
@@ -155,7 +160,7 @@ export interface TodayCourse {
 /** Answer of GET /today (docs/04 A.2a). */
 export interface TodayResponse {
   due_count: number
-  /** Free quota left for today; null = unlimited. */
+  /** Free quota left for today; null = no limit applies. Not a Pro marker: the plan is `entitlement.plan`. */
   new_words_remaining: number | null
   goal: DailyGoal
   streak: Streak

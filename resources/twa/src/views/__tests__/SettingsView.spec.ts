@@ -178,6 +178,68 @@ describe('SettingsView', () => {
     expect(getLocale()).toBe('ru')
   })
 
+  describe('time zone change limit (once in 24 h)', () => {
+    afterEach(() => vi.useRealTimers())
+
+    // 2026-10-20T10:00:00Z is 15:00 in Tashkent (UTC+5).
+    const locked = (timezone = 'Asia/Tashkent') => settingsFixture({ timezone, timezone_change_available_at: '2026-10-20T10:00:00+00:00' })
+
+    it('locks the time zone select with a hint while the next change is in the future, in the learner zone', async () => {
+      vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-10-19T12:00:00Z') })
+      const w = await render(locked())
+
+      expect((select(w, 'timezone-select').element as HTMLSelectElement).disabled).toBe(true)
+      expect((select(w, 'goal-select').element as HTMLSelectElement).disabled).toBe(false)
+      expect(w.get('[data-testid=timezone-locked]').text()).toMatch(
+        /^Часовой пояс можно менять не чаще раза в сутки\. Следующая смена — 20 октября(?: в)?,? 15:00\.$/,
+      )
+    })
+
+    it('says it in Uzbek and in the zone of the learner, not of the device', async () => {
+      vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-10-19T12:00:00Z') })
+      const w = await render({ ...locked('Europe/Moscow'), interface_locale: 'uz' })
+
+      expect(w.get('[data-testid=timezone-locked]').text()).toContain("Vaqt mintaqasini kuniga bir martadan ko'p o'zgartirib bo'lmaydi. Keyingi o'zgartirish — ")
+      expect(w.get('[data-testid=timezone-locked]').text()).toContain('13:00')
+    })
+
+    it.each([[null], ['2026-10-19T11:59:59+00:00']])('does not lock the select when the available time is %s', async (at) => {
+      vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-10-19T12:00:00Z') })
+      const w = await render(settingsFixture({ timezone_change_available_at: at }))
+
+      expect((select(w, 'timezone-select').element as HTMLSelectElement).disabled).toBe(false)
+      expect(w.find('[data-testid=timezone-locked]').exists()).toBe(false)
+    })
+
+    it('on 422 timezone_change_too_soon puts the select back, takes the server settings and shows the same text', async () => {
+      vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-10-19T12:00:00Z') })
+      const w = await render()
+      vi.mocked(api.me.updateSettings).mockRejectedValue(
+        new ApiClientError('validation', 422, 'timezone_change_too_soon', 'The time zone can be changed once in 24 hours; next change at 2026-10-20T10:00:00+00:00.'),
+      )
+      vi.mocked(api.me.get).mockResolvedValue(me(locked()))
+
+      await choose(w, 'timezone-select', 'Europe/Moscow')
+
+      expect(value(w, 'timezone-select')).toBe('Asia/Tashkent')
+      expect(w.get('[data-testid=settings-error]').text()).toBe(w.get('[data-testid=timezone-locked]').text())
+      expect(w.get('[data-testid=settings-error]').text()).toContain('Следующая смена — 20 октября')
+      expect((select(w, 'timezone-select').element as HTMLSelectElement).disabled).toBe(true)
+      expect(w.find('[data-testid=saved]').exists()).toBe(false)
+    })
+
+    it('on 422 timezone_change_too_soon falls back to the text without a date when the settings cannot be reloaded', async () => {
+      const w = await render()
+      vi.mocked(api.me.updateSettings).mockRejectedValue(new ApiClientError('validation', 422, 'timezone_change_too_soon', 'x'))
+      vi.mocked(api.me.get).mockRejectedValue(new ApiClientError('network', 0, 'unknown', 'Failed to fetch'))
+
+      await choose(w, 'timezone-select', 'Europe/Moscow')
+
+      expect(w.get('[data-testid=settings-error]').text()).toBe('Часовой пояс можно менять не чаще раза в сутки.')
+      expect(value(w, 'timezone-select')).toBe('Asia/Tashkent')
+    })
+  })
+
   it('explains a network failure and clears the message on the next successful change', async () => {
     const w = await render()
     vi.mocked(api.me.updateSettings).mockRejectedValueOnce(new ApiClientError('network', 0, 'unknown', 'Failed to fetch'))

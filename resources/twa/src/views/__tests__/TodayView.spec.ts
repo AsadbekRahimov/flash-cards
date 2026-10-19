@@ -116,6 +116,13 @@ describe('TodayView', () => {
     expect(text(await render(today({ new_words_remaining: 0 })), 'new-remaining')).toBe('Лимит новых слов на сегодня исчерпан')
   })
 
+  it('takes the plan only from the entitlement: a Free learner without a quota number is still Free', async () => {
+    const w = await render(today({ new_words_remaining: null, entitlement: { plan: 'free', source: 'free', until: null } }))
+
+    expect(text(w, 'plan-badge')).toBe('Free')
+    expect(w.find('[data-testid=paywall-open]').exists()).toBe(true)
+  })
+
   it('opens the daily review and goes to the training screen', async () => {
     vi.mocked(api.training.open).mockResolvedValue({ session_id: 918, mode: 'daily_review', lesson: null, total_words: 20 })
     const w = await render()

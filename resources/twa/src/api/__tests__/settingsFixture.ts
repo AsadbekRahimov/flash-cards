@@ -9,6 +9,7 @@ export function settingsFixture(overrides: Partial<LearnerSettings> = {}): Learn
     daily_goal: 20,
     goal: null,
     level: null,
+    timezone_change_available_at: null,
     active_course: null,
     options: {
       locales: [

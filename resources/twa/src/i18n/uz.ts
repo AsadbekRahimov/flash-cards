@@ -145,6 +145,7 @@ export const uz: Translations = {
   'settings.title': 'Sozlamalar',
   'settings.language': 'Interfeys tili',
   'settings.timezone': 'Vaqt mintaqasi',
+  'settings.timezone.locked': "Vaqt mintaqasini kuniga bir martadan ko'p o'zgartirib bo'lmaydi. Keyingi o'zgartirish — {when}.",
   'settings.reminder': 'Eslatmalar',
   'settings.reminder.off': 'Eslatmalarsiz',
   'settings.reminder.hint': "Vaqt sizning vaqt mintaqangiz bo'yicha.",
@@ -202,6 +203,7 @@ export const uz: Translations = {
   'error.code.promo_exhausted': "Bu promokoddan foydalanish limiti tugagan.",
   'error.code.promo_already_redeemed': 'Siz bu promokodni allaqachon faollashtirgansiz.',
   'error.code.promo_not_applicable': "Sizda allaqachon muddatsiz Pro bor — promokod kerak emas.",
+  'error.code.timezone_change_too_soon': "Vaqt mintaqasini kuniga bir martadan ko'p o'zgartirib bo'lmaydi.",
   'error.code.plan_unknown': "Bu promokod hozircha mavjud emas. Qo'llab-quvvatlash xizmatiga yozing.",
   'error.code.course_not_found': 'Kurs topilmadi yoki mavjud emas.',
 }

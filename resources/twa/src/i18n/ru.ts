@@ -163,6 +163,7 @@ export const ru = {
   'settings.title': 'Настройки',
   'settings.language': 'Язык интерфейса',
   'settings.timezone': 'Часовой пояс',
+  'settings.timezone.locked': 'Часовой пояс можно менять не чаще раза в сутки. Следующая смена — {when}.',
   'settings.reminder': 'Напоминания',
   'settings.reminder.off': 'Без напоминаний',
   'settings.reminder.hint': 'Время — по вашему часовому поясу.',
@@ -196,6 +197,7 @@ export const ru = {
   'error.outside_telegram': 'Откройте приложение через Telegram.',
 
   // ---- errors (by API error.code) ----
+  'error.code.timezone_change_too_soon': 'Часовой пояс можно менять не чаще раза в сутки.',
   'error.code.session_closed': 'Сессия уже закрыта.',
   'error.code.session_not_found': 'Сессия не найдена. Попросите учителя запустить её заново.',
   'error.code.learner_not_found': 'Ваш профиль не найден. Откройте приложение заново из Telegram.',

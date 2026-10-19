@@ -36,6 +36,7 @@ export const KNOWN_ERROR_CODES = [
   'promo_not_applicable',
   'plan_unknown',
   'course_not_found',
+  'timezone_change_too_soon',
 ] as const
 
 export type KnownErrorCode = (typeof KNOWN_ERROR_CODES)[number]
