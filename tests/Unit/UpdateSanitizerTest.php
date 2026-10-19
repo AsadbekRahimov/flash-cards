@@ -58,3 +58,20 @@ it('masks the vcard of a shared contact', function (): void {
         ->and(json_encode($cleaned))->not->toContain('998901234567')
         ->and($cleaned['message']['contact']['user_id'])->toBe(7);
 });
+
+it('masks the payment order token carried as invoice_payload but keeps the payment ids', function (): void {
+    $update = [
+        'message' => [
+            'chat' => ['id' => 42, 'type' => 'private'],
+            'successful_payment' => ['invoice_payload' => 'AbCdEfGhIjKlMnOpQrStUvWxYz123456', 'telegram_payment_charge_id' => 'ch_1', 'total_amount' => 150],
+        ],
+        'pre_checkout_query' => ['id' => 'q1', 'invoice_payload' => 'AbCdEfGhIjKlMnOpQrStUvWxYz123456'],
+    ];
+
+    $cleaned = UpdateSanitizer::forLog($update);
+
+    expect($cleaned['message']['successful_payment']['invoice_payload'])->toBe('Ab***')
+        ->and($cleaned['message']['successful_payment']['telegram_payment_charge_id'])->toBe('ch_1')
+        ->and($cleaned['message']['successful_payment']['total_amount'])->toBe(150)
+        ->and($cleaned['pre_checkout_query']['invoice_payload'])->toBe('Ab***');
+});

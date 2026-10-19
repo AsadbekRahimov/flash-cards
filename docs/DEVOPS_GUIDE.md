@@ -434,6 +434,10 @@ cd /var/www/lexiflow
 php artisan telegram:set-webhook
 ```
 
+The command registers `allowed_updates = message, my_chat_member, chat_member, callback_query, pre_checkout_query`
+(`IrazasyedTelegramClient::ALLOWED_UPDATES`). Re-run it after any deploy that adds an update type — task 2A.3
+(Telegram Stars) added `pre_checkout_query`; without it Stars invoices cannot be paid.
+
 To verify:
 ```bash
 curl "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getWebhookInfo"
@@ -667,17 +671,18 @@ Reference: docs/13_PHASE2_DESIGN.md §4, §10; admin side: ADMIN_GUIDE "Billing"
 (`BILLING_PAYWALL_MODE=coming_soon`, every `*_ENABLED=false`): deploying the code changes nothing for learners until
 you switch a provider on.
 
-> **Status.** The ledger, checkout API, admin screens and the `billing:expire-orders` job exist (tasks 2A.1, 2A.2,
-> 2A.7). The provider adapters and their webhook URLs are added by 2A.3 (Stars), 2A.4 (Payme) and 2A.5 (Click):
-> every URL and check below marked **(2A.3)** / **(2A.4)** / **(2A.5)** works only after that task is deployed. The
-> `PAYME_*` / `CLICK_*` / `BILLING_STARS_*` variables can be filled in beforehand.
+> **Status.** The ledger, checkout API, admin screens, the `billing:expire-orders` job (2A.1, 2A.2, 2A.7) and the
+> **Telegram Stars adapter** (2A.3: invoices, `pre_checkout_query`, `successful_payment` / `refunded_payment`,
+> cancel / resume, admin refund, `billing:reconcile-stars`) exist. Payme and Click adapters and their webhook URLs
+> are added by 2A.4 and 2A.5: every URL and check below marked **(2A.4)** / **(2A.5)** works only after that task
+> is deployed. The `PAYME_*` / `CLICK_*` variables can be filled in beforehand.
 
 ### 17.1 Environment
 
 | Variable | Notes |
 |---|---|
 | `BILLING_PAYWALL_MODE` | `coming_soon` → `purchase` once at least one provider is enabled **and** prices are set. With an empty catalog the API silently falls back to `coming_soon` |
-| `BILLING_STARS_ENABLED` | `true` makes the Stars adapter sellable (2A.3). No separate key: Stars use the bot token |
+| `BILLING_STARS_ENABLED` | `true` makes the Stars adapter sellable. No separate key or URL: Stars use the bot token and the bot webhook |
 | `BILLING_STARS_MAX_SUBSCRIPTION_PRICE` | Telegram's cap for a Stars *subscription* price (10000); a month above it is not sold |
 | `PAYME_ENABLED`, `PAYME_MERCHANT_ID` | merchant id from the Payme business cabinet |
 | `PAYME_KEY` | **production** merchant key (secret) |
@@ -705,7 +710,7 @@ Nginx must pass them to Laravel like `/telegram/webhook`; do **not** put them be
 
 | Provider | URL | Appears in | Authentication |
 |---|---|---|---|
-| Telegram Stars | the existing `/telegram/webhook/{secret}` — **no new URL**, but `allowed_updates` must include `pre_checkout_query`; re-run `php artisan telegram:set-webhook` after deploying 2A.3 | 2A.3 | `TELEGRAM_URL_SECRET` + `X-Telegram-Bot-Api-Secret-Token` |
+| Telegram Stars | the existing `/telegram/webhook/{secret}` — **no new URL and nothing to register in a cabinet**; `allowed_updates` must include `pre_checkout_query`, which `php artisan telegram:set-webhook` now sets — re-run it once after deploying 2A.3 (check with `getWebhookInfo`) | done (2A.3) | `TELEGRAM_URL_SECRET` + `X-Telegram-Bot-Api-Secret-Token`; the `pre_checkout_query` is answered synchronously in that request |
 | Payme | `https://<domain>/billing/webhook/payme` (one URL for all JSON-RPC methods) | 2A.4 | `Authorization: Basic base64("Paycom:" + key)`, `hash_equals` with `PAYME_KEY` / `PAYME_TEST_KEY` |
 | Click Prepare | `https://<domain>/billing/webhook/click/prepare` | 2A.5 | md5 `sign_string` with `CLICK_SECRET_KEY` |
 | Click Complete | `https://<domain>/billing/webhook/click/complete` | 2A.5 | same |
@@ -726,21 +731,28 @@ sign of success; read the body or the payment screens. If the provider publishes
 2. **Click.** Use the test service (test `service_id`, `merchant_id`, secret) and the Click test flow; complete a
    payment and a cancel from the cabinet.
 3. **Stars.** Run the whole flow with a real account on a **small price** (e.g. `BILLING_PRICE_PRO_MONTH_XTR=1` on a
-   staging bot): invoice, payment, `successful_payment`, a refund from the admin panel (**Payments → Refund**).
+   staging bot): `/pro` → invoice (subscription, 30 days) and a yearly one-off invoice, `pre_checkout_query` answered
+   (try a wrong account: must be refused with a text), `successful_payment` → the bot replies "Pro until …" and
+   **Payments** shows a `succeeded` row; cancel / resume the auto-renewal from `/pro`; a refund from the admin panel
+   (**Payments → Refund**) and the `refunded_payment` echo; `php artisan billing:reconcile-stars` exits 0. Before
+   enabling in production compare the raw `successful_payment` / `refunded_payment` payloads with
+   docs/13 §15 (field names `subscription_expiration_date`, `is_recurring`, `is_first_recurring`): if Telegram's
+   names differ, only `TelegramStarsProvider::parseSuccessfulPayment` / `parseRefundedPayment` change.
 4. Production switch: real keys, real prices, `*_ENABLED=true`, `BILLING_PAYWALL_MODE=purchase`, `config:cache`,
    restart workers. Keep one provider enabled at first.
 
 ### 17.4 After every deploy of billing code
 
 1. `php artisan migrate --force` (new billing tables / columns), `config:cache`, `supervisorctl restart lexiflow-worker:*`.
-2. `php artisan schedule:list` shows `billing:expire-orders` (every 15 min) and `subscriptions:expire` (hourly); the
-   scheduler heartbeat on `/health/ready` is green.
+2. `php artisan schedule:list` shows `billing:expire-orders` (every 15 min), `subscriptions:expire` (hourly) and
+   `billing:reconcile-stars` (daily 04:30 UTC); the scheduler heartbeat on `/health/ready` is green.
+   `php artisan telegram:set-webhook` was re-run once after 2A.3 (`allowed_updates` includes `pre_checkout_query`).
 3. Admin panel (admin account): **Billing → Payments / Payment orders / Provider transactions** open; the two
    dashboard widgets ("Revenue, last 30 days", "Payment webhook errors, last 24 h") render. A **teacher** account must
    get 403 on `/admin/payments` and must not see the Billing group.
 4. The checkout catalog (`GET /api/twa/billing/catalog` with a valid TWA token): `items` and `providers` list exactly the
    providers you enabled and nothing else.
-5. Provider webhooks **(2A.3–2A.5)**: from the provider's cabinet send a test call; a wrong key / signature must be
+5. Provider webhooks **(2A.4–2A.5)**: from the provider's cabinet send a test call; a wrong key / signature must be
    rejected (Payme body `-32504`, Click `-1`), a right one answered; make one sandbox payment end to end and see the
    `succeeded` row in **Payments**, the order `paid` and the subscription in **Subscriptions**.
 6. After the first payments, look for error lines in `storage/logs/laravel.log` (`grep 'billing\.' storage/logs/laravel.log`):
@@ -753,7 +765,10 @@ sign of success; read the body or the payment screens. If the provider publishes
 |---|---|
 | Dashboard "Payment webhook errors, last 24 h" > 0 | a `failed` ledger row: money arrived but was not credited (wrong amount / currency, dead or paid order, orphan Stars renewal). Open **Payments → Status: failed**, decide: grant Pro by hand or refund |
 | `billing.amount_mismatch` (error log) | a provider sent an amount different from the order: check `BILLING_PRICE_*` changes between checkout and payment; repeated = possible tampering |
-| `billing.payment_orphan` (error log) | Stars renewal whose order is gone; the learner paid without getting Pro until support acts |
+| `billing.payment_orphan` (error log) | Stars payment whose order is gone (or from an unknown Telegram user); the learner paid without getting Pro until support acts: **Payments → Status: failed**, grant Pro by hand or refund |
+| `billing.reconcile_missing` / `billing.reconcile_missing_refund` (error log, `billing:reconcile-stars` exit 1) | Telegram has a Stars transaction (payment / refund) that the ledger does not: a lost webhook update. Compare with **Payments**, then grant / record by hand |
+| `billing.stars.pre_checkout_refused` (warning log) | an invoice was refused at pre-checkout (`reason`: foreign payer, expired / paid order, wrong amount, Stars disabled). A burst of `foreign` = someone passing invoice links around |
+| `billing.stars.pre_checkout_failed` / `pre_checkout_unanswered` (error / warning) | the synchronous pre-checkout could not read the order (database) or Telegram did not take the answer; the payer sees "try again" |
 | `billing.admin_refund_unrecorded` (error log) | an admin refund returned the money at the provider but the ledger write failed; fix the cause, then record it with "returned by hand" |
 | `billing.admin_refund_provider_failed` (error log) | the provider refused / was down for an admin refund; nothing was changed |
 | Pending orders keep growing | `billing:expire-orders` is not running: the scheduler is down (see 11) |

@@ -29,10 +29,12 @@
 curl -X POST "https://api.telegram.org/bot${TOKEN}/setWebhook" \
   -d "url=https://lexiflow.example.com/telegram/webhook/${SECRET_IN_URL}" \
   -d "secret_token=${SECRET_HEADER}" \
-  -d "allowed_updates=[\"message\",\"my_chat_member\",\"chat_member\",\"callback_query\"]"
+  -d "allowed_updates=[\"message\",\"my_chat_member\",\"chat_member\",\"callback_query\",\"pre_checkout_query\"]"
 ```
 
 Используем **два разных секрета**: один в URL (не увидят проксирующие логи), другой в заголовке — Telegram подставляет его сам.
+
+`pre_checkout_query` (оплата Telegram Stars, docs/13 §4.1) проходит те же две проверки секретов и отвечается синхронно в запросе вебхука (`PreCheckoutResponder` → `StarsPreCheckoutGuard`): одно чтение заказа по `invoice_payload`, сравнение `from.id` с владельцем заказа, суммы и валюты — с `payment_orders` (сумма от клиента не принимается); чужому плательщику ничего о заказе не сообщается. Деньги зачитываются только по `message.successful_payment` того же вебхука через `PaymentApplier` (идемпотентность по `telegram_payment_charge_id`, docs/13 §10). `invoice_payload` (токен заказа) маскируется в логе апдейтов (`UpdateSanitizer`) и в админке (`PayloadMasker`).
 
 ### 2.2 Проверка на входе
 ```php

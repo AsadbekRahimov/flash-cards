@@ -527,6 +527,22 @@ it('sends a seven-day stats report to a teacher in DM', function (): void {
         {
             return true;
         }
+
+        public function createInvoiceLink(string $title, string $description, string $payload, string $currency, array $prices, ?int $subscriptionPeriod = null): string
+        {
+            return 'https://t.me/$test-invoice';
+        }
+
+        public function answerPreCheckoutQuery(string $preCheckoutQueryId, bool $ok, ?string $errorMessage = null): void {}
+
+        public function editUserStarSubscription(int $userId, string $telegramPaymentChargeId, bool $isCanceled): void {}
+
+        public function refundStarPayment(int $userId, string $telegramPaymentChargeId): void {}
+
+        public function getStarTransactions(int $offset = 0, int $limit = 100): array
+        {
+            return [];
+        }
     };
 
     app()->instance(TelegramClient::class, $api);

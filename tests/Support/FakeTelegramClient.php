@@ -6,6 +6,7 @@ namespace Tests\Support;
 
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
+use Closure;
 
 /**
  * Recording TelegramClient for tests: every outgoing call is kept in `$sent`,
@@ -39,6 +40,34 @@ final class FakeTelegramClient implements TelegramClient
 
     /** @var list<array{chat_id:int|string, user_id:int}> */
     public array $chatMemberLookups = [];
+
+    /** @var list<array{title:string, description:string, payload:string, currency:string, prices:list<array{label:string, amount:int}>, subscription_period:int|null}> */
+    public array $invoiceLinks = [];
+
+    /** @var list<array{id:string, ok:bool, error_message:string|null}> */
+    public array $preCheckoutAnswers = [];
+
+    /** @var list<array{user_id:int, charge_id:string, is_canceled:bool}> */
+    public array $starSubscriptionEdits = [];
+
+    /** @var list<array{user_id:int, charge_id:string}> */
+    public array $starRefunds = [];
+
+    /**
+     * What getStarTransactions pages through (newest first), as raw `StarTransaction` arrays.
+     *
+     * @var list<array<string, mixed>>
+     */
+    public array $starTransactions = [];
+
+    /** @var list<array{offset:int, limit:int}> */
+    public array $starTransactionPages = [];
+
+    /** When true, every Stars method (invoice link, subscription edit, refund, transactions) throws like a Bot API outage. */
+    public bool $failStars = false;
+
+    /** Called on every Stars method before it is recorded: a test hooks it to assert on the moment of the call (e.g. no open transaction). */
+    public ?Closure $onStarsCall = null;
 
     public function sendMessage(int|string $chatId, string $text, ?string $parseMode = null, ?array $replyMarkup = null): void
     {
@@ -89,6 +118,51 @@ final class FakeTelegramClient implements TelegramClient
     public function deleteWebhook(): bool
     {
         return true;
+    }
+
+    public function createInvoiceLink(string $title, string $description, string $payload, string $currency, array $prices, ?int $subscriptionPeriod = null): string
+    {
+        $this->starsCall('createInvoiceLink');
+        $this->invoiceLinks[] = ['title' => $title, 'description' => $description, 'payload' => $payload, 'currency' => $currency, 'prices' => $prices, 'subscription_period' => $subscriptionPeriod];
+
+        return 'https://t.me/$fake-invoice-'.count($this->invoiceLinks);
+    }
+
+    public function answerPreCheckoutQuery(string $preCheckoutQueryId, bool $ok, ?string $errorMessage = null): void
+    {
+        $this->starsCall('answerPreCheckoutQuery');
+        $this->preCheckoutAnswers[] = ['id' => $preCheckoutQueryId, 'ok' => $ok, 'error_message' => $errorMessage];
+    }
+
+    public function editUserStarSubscription(int $userId, string $telegramPaymentChargeId, bool $isCanceled): void
+    {
+        $this->starsCall('editUserStarSubscription');
+        $this->starSubscriptionEdits[] = ['user_id' => $userId, 'charge_id' => $telegramPaymentChargeId, 'is_canceled' => $isCanceled];
+    }
+
+    public function refundStarPayment(int $userId, string $telegramPaymentChargeId): void
+    {
+        $this->starsCall('refundStarPayment');
+        $this->starRefunds[] = ['user_id' => $userId, 'charge_id' => $telegramPaymentChargeId];
+    }
+
+    public function getStarTransactions(int $offset = 0, int $limit = 100): array
+    {
+        $this->starsCall('getStarTransactions');
+        $this->starTransactionPages[] = ['offset' => $offset, 'limit' => $limit];
+
+        return array_values(array_slice($this->starTransactions, $offset, $limit));
+    }
+
+    private function starsCall(string $method): void
+    {
+        if ($this->onStarsCall !== null) {
+            ($this->onStarsCall)($method);
+        }
+
+        if ($this->failStars) {
+            throw new TelegramApiException('Bad Gateway');
+        }
     }
 
     private function failNextSend(): void
