@@ -11,6 +11,7 @@ use App\Filament\Resources\SubscriptionResource\Support\SubscriptionActions;
 use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\Subscription;
+use Filament\Forms;
 use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -73,6 +74,13 @@ class SubscriptionResource extends Resource
                 Tables\Filters\SelectFilter::make('provider')->options(self::options(array_column(SubscriptionProvider::cases(), 'value'))),
                 Tables\Filters\SelectFilter::make('plan')->options(self::options(array_keys((array) config('billing.plans')))),
                 Tables\Filters\SelectFilter::make('subscriber_type')->label('Subject')->options(['learner' => 'Learner', 'organization' => 'Organization']),
+                // Target of the "Subscriptions" link on a learner's page: ?filters[learner][learner_id]=<id>.
+                Tables\Filters\Filter::make('learner')
+                    ->schema([Forms\Components\TextInput::make('learner_id')->label('Learner ID')->numeric()->minValue(1)])
+                    ->query(fn (Builder $query, array $data): Builder => filled($data['learner_id'] ?? null)
+                        ? $query->where('subscriber_type', 'learner')->where('subscriber_id', (int) $data['learner_id'])
+                        : $query)
+                    ->indicateUsing(fn (array $data): ?string => filled($data['learner_id'] ?? null) ? 'Learner #'.$data['learner_id'] : null),
                 Tables\Filters\TernaryFilter::make('live')
                     ->label('Live status')
                     ->placeholder('All')

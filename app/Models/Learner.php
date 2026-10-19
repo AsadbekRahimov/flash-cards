@@ -158,6 +158,12 @@ class Learner extends Model
         return $this->hasMany(LearnerDailyStats::class);
     }
 
+    /** @return HasMany<ProductEvent, $this> */
+    public function productEvents(): HasMany
+    {
+        return $this->hasMany(ProductEvent::class);
+    }
+
     /** @return HasMany<Subscription, $this> */
     public function subscriptions(): HasMany
     {
