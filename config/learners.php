@@ -20,6 +20,9 @@ return [
     /** Daily goal in reviewed cards (options in the UI: 10 / 20 / 40). */
     'default_daily_goal' => (int) env('LEARNERS_DEFAULT_DAILY_GOAL', 20),
 
+    /** Values of `daily_goal` a learner can choose (settings, docs/12 §7.4); the default above must be one of them. */
+    'daily_goal_options' => [10, 20, 40],
+
     /**
      * Time zones offered in the onboarding / `/settings` picker (IANA ids, the default first;
      * each needs a `onboarding.options.timezone.<city>` string in lang/{ru,uz}). Only ids that

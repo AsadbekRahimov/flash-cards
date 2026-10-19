@@ -7,6 +7,7 @@ namespace App\Domain\Learners\Services;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
 /**
@@ -72,6 +73,43 @@ class DailyStatsService
         }
 
         return $row;
+    }
+
+    /**
+     * Completes today's goal when the daily goal was lowered to (or below) what is already done:
+     * sets `goal_met_at` under the lock of today's row and lets {@see StreakService} credit the day
+     * after commit. Does nothing when there is no row yet, the goal is already met, or it is not reached.
+     * A goal raised again later does not take `goal_met_at` back — a day is met once (docs/12 §7.4).
+     *
+     * Runs in its own transaction and locks only `learner_daily_stats`: call it with `$learner->daily_goal`
+     * already saved and no lock on `learners` held (LearnerSettingsService does it after its commit).
+     *
+     * @return bool the goal was completed by this call
+     */
+    public function reconcileGoal(Learner $learner, ?CarbonImmutable $now = null): bool
+    {
+        $now ??= CarbonImmutable::now();
+        $today = $this->clock->today($learner, $now);
+        $met = false;
+
+        DB::transaction(function () use ($learner, $now, $today, &$met): void {
+            /** @var LearnerDailyStats|null $row */
+            $row = LearnerDailyStats::query()
+                ->where('learner_id', $learner->id)
+                ->where('date', $this->storedDate($today->toDateString()))
+                ->lockForUpdate()
+                ->first();
+
+            if ($row === null || $row->goal_met_at !== null || $row->reviews_count < max(1, $learner->daily_goal)) {
+                return;
+            }
+
+            $row->forceFill(['goal_met_at' => $now])->save();
+            $this->streaks->onGoalMet($learner, $today);
+            $met = true;
+        });
+
+        return $met;
     }
 
     /** The learner's row for the current local day, or null when nothing was graded yet. */

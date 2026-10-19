@@ -118,6 +118,15 @@ it('GET /me keeps its exact JSON shape', function (): void {
             'stats' => ['words_learned', 'words_due_today'],
             'entitlement' => ['plan', 'source', 'until', 'new_words_per_day'],
             'paywall' => ['mode', 'contact'],
+            'settings' => [
+                'interface_locale', 'timezone', 'reminder_time', 'daily_goal', 'goal', 'level', 'active_course',
+                'options' => [
+                    'locales' => ['*' => ['id', 'label']],
+                    'timezones' => ['*' => ['id', 'label']],
+                    'reminder_times',
+                    'daily_goals',
+                ],
+            ],
         ]);
 
     expect($response->json('stats'))->toBe(['words_learned' => 0, 'words_due_today' => 0])

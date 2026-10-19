@@ -29,6 +29,15 @@ it('redeems a code and answers with the refreshed profile (Pro with its end)', f
             'stats' => ['words_learned', 'words_due_today'],
             'entitlement' => ['plan', 'source', 'until', 'new_words_per_day'],
             'paywall' => ['mode', 'contact'],
+            'settings' => [
+                'interface_locale', 'timezone', 'reminder_time', 'daily_goal', 'goal', 'level', 'active_course',
+                'options' => [
+                    'locales' => ['*' => ['id', 'label']],
+                    'timezones' => ['*' => ['id', 'label']],
+                    'reminder_times',
+                    'daily_goals',
+                ],
+            ],
         ])
         ->assertJsonPath('entitlement.plan', 'pro')
         ->assertJsonPath('entitlement.source', 'subscription')
