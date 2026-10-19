@@ -106,6 +106,17 @@ class IrazasyedTelegramClient implements TelegramClient
         ]));
     }
 
+    public function getChatMemberStatus(int|string $chatId, int $userId): string
+    {
+        $member = $this->call(fn () => $this->api->getChatMember(['chat_id' => $chatId, 'user_id' => $userId]));
+
+        // The SDK wraps the whole response body (`{ok, result: {status, …}}`) into the object.
+        $data = $member->toArray();
+        $result = is_array($data['result'] ?? null) ? $data['result'] : $data;
+
+        return is_string($result['status'] ?? null) ? $result['status'] : '';
+    }
+
     public function setWebhook(string $url, string $secretHeader): bool
     {
         return (bool) $this->call(fn () => $this->api->setWebhook([

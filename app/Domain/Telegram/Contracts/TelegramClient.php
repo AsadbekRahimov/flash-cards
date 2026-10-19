@@ -37,6 +37,13 @@ interface TelegramClient
      */
     public function editMessageReplyMarkup(int|string $chatId, int $messageId, ?array $replyMarkup = null): void;
 
+    /**
+     * Status of a user in a chat (`creator`, `administrator`, `member`, `restricted`, `left`, `kicked`).
+     *
+     * @throws TelegramApiException when Telegram refuses or cannot be reached
+     */
+    public function getChatMemberStatus(int|string $chatId, int $userId): string;
+
     public function setWebhook(string $url, string $secretHeader): bool;
 
     public function deleteWebhook(): bool;
