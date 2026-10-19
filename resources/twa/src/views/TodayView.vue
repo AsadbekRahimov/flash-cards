@@ -45,6 +45,12 @@ function learnNext(lessonId: number): Promise<void> {
 
 const paywallOpen = ref(false)
 
+/** "Repeat words" in the paywall: close the sheet (a failure shows on this screen) and start the review. */
+async function onPaywallReview(): Promise<void> {
+  paywallOpen.value = false
+  await review()
+}
+
 const goalLeft = computed(() => (data.value ? Math.max(0, data.value.goal.target - data.value.goal.done) : 0))
 const streak = computed(() => data.value?.streak ?? null)
 const lessonLabel = computed(() => {
@@ -185,6 +191,11 @@ onBeforeUnmount(() => training.clearOpenError())
       </RouterLink>
     </div>
 
-    <PaywallSheet v-if="paywallOpen" :reason="data?.new_words_remaining === 0 ? 'quota' : 'info'" @close="paywallOpen = false" />
+    <PaywallSheet
+      v-if="paywallOpen"
+      :reason="data?.new_words_remaining === 0 ? 'quota' : 'info'"
+      @close="paywallOpen = false"
+      @review="onPaywallReview"
+    />
   </section>
 </template>

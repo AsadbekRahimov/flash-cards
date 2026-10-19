@@ -26,8 +26,9 @@ export const useBillingStore = defineStore('billing', {
       this.loading = true
       try {
         this.apply(await api.me.get())
-      } catch {
-        // keep whatever we had
+      } catch (err) {
+        // keep whatever we had, but leave a trace for debugging
+        console.warn('billing: failed to load /me', err)
       } finally {
         this.loading = false
       }
