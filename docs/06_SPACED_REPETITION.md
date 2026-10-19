@@ -170,7 +170,19 @@ review-карточку** (то есть после того, как слово 
    `null` — безлимит (по умолчанию и для Pro), `<= 0` — шаг пропускается, строка не создаётся. Повторения бюджетом
    **никогда** не ограничиваются. Бюджет отдаёт `NewCardBudgetResolver::budgetFor(Learner, now)` (контракт в
    `App\Domain\Learning\Contracts`); по умолчанию привязан `UnlimitedNewCardBudgetResolver`, квота Free (задача 1.4b)
-   перепривязывает контракт и строит `NewCardBudget::lazy(fn ($learnerId, $now) => limit − выдано сегодня)`.
+   перепривязывает контракт и строит `NewCardBudget::lazy(fn ($learnerId, $now) => limit − выдано сегодня)`,
+   где «сегодня» — `LearnerClock::dayBoundsUtc($learner, $now)` → `[startUtc, endUtc)` локального дня, а «выдано» —
+   `word_repetitions.created_at` в этих границах (не `learner_daily_stats.new_words_count`, docs/12 §1.6).
+   **Порядок блокировок** (1.3b, обязателен для всех будущих правок). Пикер держит строку `learners`
+   (`FOR UPDATE` / `FOR NO KEY UPDATE`) в **своей** транзакции и под ней может читать `word_repetitions` /
+   `learner_daily_stats`. Транзакция оценки (`ReviewSubmissionService::submit`) берёт
+   `training_sessions → word_repetitions → learner_daily_stats` (`DailyStatsService::recordReview`) и **никогда не
+   пишет и не блокирует `learners`** — обычный `UPDATE learners` взял бы ту же строчную блокировку и дал цикл
+   «оценка держит статистику и ждёт learner'а, пикер держит learner'а и ждёт статистику». Поэтому `StreakService::onGoalMet`
+   лишь регистрирует `DB::afterCommit`, а проекция `learners.streak_*` обновляется после коммита одиночным
+   условным `UPDATE … WHERE streak_last_date = <прочитанное>` (без `FOR UPDATE`, вне любой другой транзакции);
+   источник истины для streak — `learner_daily_stats.goal_met_at`, по нему `StreakService::current()` чинит
+   отставшую проекцию (docs/12 §3.1, §7.4).
 3. **Learn-ahead**: если due и new нет — ближайшая `learning`/`relearning` карточка scope с
    `next_review_at <= now + learn_ahead_minutes`. Она выдаётся **досрочно**, и в строке
    ставится билет: `served_ahead_at = now`, `served_ahead_token = random(32 hex)`. Токен уходит
@@ -277,7 +289,16 @@ review-карточку** (то есть после того, как слово 
   (`lesson_complete` / `nothing_due` / `new_quota_exhausted` / `session_cap`); бюджет не трогает due; неактивные
   слова не выдаются и не считаются; `DailyStatsService::recordReview` в транзакции и откат оценки при его сбое.
 - `tests/Feature/TrainingConcurrencyTest.php` (только PostgreSQL, форк процессов) — параллельные `openPersonal` → одна
-  сессия; параллельные `pickNext` одного learner'а не выдают одно новое слово дважды и не превышают бюджет совместно.
+  сессия; параллельные `pickNext` одного learner'а не выдают одно новое слово дважды и не превышают бюджет совместно;
+  шесть одновременных `recordReview` → одна строка `learner_daily_stats`, суммы точны, `goal_met_at` и зачёт streak — один раз.
+- `tests/Unit/LearnerClockTest.php` — 23:59 / 00:01 по Ташкенту — разные локальные дни при одной UTC-дате; день DST-перехода
+  в `Europe/Berlin` — 23 и 25 часов; `nextOccurrenceUtc` строго после `after`, через DST, время в «дыре» перевода;
+  fallback невалидного пояса.
+- `tests/Feature/DailyStatsServiceTest.php` — счётчики, строка на локальный день, `goal_met_at` ровно один раз, цель 0,
+  streak не проецируется на `learners` до коммита и не проецируется при откате, реальный поток `TrainingFlowService::review`.
+- `tests/Feature/StreakServiceTest.php` — 1 → 2 → обнуление после пропуска, `at_risk` / `met_today`, зачёт дня один раз,
+  граница дня, смена пояса на запад/восток, запрет зачёта «вчера» после уже зачтённого «сегодня», best, события,
+  починка проекции из строки «сегодня».
 - `tests/Unit/TrainingScopeTest.php` — `TrainingScope`, `NewCardBudget`, инвариант `mode_shape`.
 - TWA `FlashCard.spec.ts` — кнопки шлют 2 / 4 / 5, метка «Закрепление» для `learning`;
   `stores/__tests__/training.spec.ts` — `serve_token` карточки уходит в `POST /review`.
