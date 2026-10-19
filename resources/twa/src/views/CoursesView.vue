@@ -15,7 +15,7 @@ const catalog = useCoursesStore()
 const { showBackButton } = useTelegram()
 const { t } = useI18n()
 
-const { courses, status, selecting, errorMessage } = storeToRefs(catalog)
+const { courses, listStatus: status, selecting, errorMessage } = storeToRefs(catalog)
 
 let hideBack: (() => void) | null = null
 
@@ -24,7 +24,7 @@ async function load(): Promise<void> {
     await auth.ensure()
     await catalog.load()
   } catch (err) {
-    catalog.fail(err)
+    catalog.fail(err, 'list')
   }
 }
 

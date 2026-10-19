@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
@@ -31,6 +31,8 @@ async function reviewAll(): Promise<void> {
 onMounted(() => {
   inTelegram.value = isInTelegram()
 })
+
+onBeforeUnmount(() => training.clearOpenError())
 </script>
 
 <template>

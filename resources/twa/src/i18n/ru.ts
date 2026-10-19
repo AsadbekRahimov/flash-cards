@@ -41,7 +41,8 @@ export const ru = {
   // ---- training ----
   'training.lesson_header': 'Stage {stage} · Lesson {lesson}',
   'training.daily_header': 'Повторение',
-  'training.closed_title': '🔒 Тренировка завершена учителем',
+  'training.closed_title': '🔒 Тренировка завершена',
+  'training.restart': 'Начать заново',
 
   // ---- exam ----
   'exam.closed_title': '🔒 Экзамен завершён учителем',
@@ -105,7 +106,7 @@ export const ru = {
   'course.no_lessons': 'В курсе пока нет уроков.',
 
   // ---- errors (by kind / context) ----
-  'error.closed.training': 'Учитель завершил тренировку.',
+  'error.closed.training': 'Эта тренировка уже закрыта: она завершена или время сессии истекло.',
   'error.closed.exam': 'Экзамен был завершён учителем.',
   'error.closed.catalog': 'Курс больше недоступен.',
   'error.forbidden.training': 'У вас нет доступа к этой тренировке.',

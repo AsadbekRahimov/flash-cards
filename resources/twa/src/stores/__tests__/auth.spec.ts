@@ -54,6 +54,28 @@ describe('auth store — one learner for every session', () => {
     expect(api.auth.authenticate).toHaveBeenCalledTimes(2)
   })
 
+  it('keeps the current context when an expired token is refreshed by a screen without one', async () => {
+    const auth = useAuthStore()
+    await auth.ensure({ type: 'training', sessionId: 7 })
+    auth.expiresAt = Date.now() - 1_000
+
+    await auth.ensure()
+
+    expect(api.auth.authenticate).toHaveBeenCalledTimes(2)
+    expect(api.auth.authenticate).toHaveBeenLastCalledWith('signed-init-data', { type: 'training', sessionId: 7 })
+    expect(auth.context).toEqual({ type: 'training', sessionId: 7 })
+  })
+
+  it('replaces the context when an expired token is refreshed with a new one', async () => {
+    const auth = useAuthStore()
+    await auth.ensure({ type: 'training', sessionId: 7 })
+    auth.expiresAt = Date.now() - 1_000
+
+    await auth.ensure({ type: 'exam', sessionId: 3 })
+
+    expect(auth.context).toEqual({ type: 'exam', sessionId: 3 })
+  })
+
   it('clears the learner on logout', async () => {
     const auth = useAuthStore()
     await auth.login(null)

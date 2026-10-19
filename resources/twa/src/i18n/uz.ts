@@ -35,7 +35,8 @@ export const uz: Translations = {
   // ---- training ----
   'training.lesson_header': 'Stage {stage} · Lesson {lesson}',
   'training.daily_header': 'Takrorlash',
-  'training.closed_title': "🔒 Mashg'ulot o'qituvchi tomonidan yakunlandi",
+  'training.closed_title': "🔒 Mashg'ulot yakunlandi",
+  'training.restart': 'Qaytadan boshlash',
 
   // ---- exam ----
   'exam.closed_title': "🔒 Imtihon o'qituvchi tomonidan yakunlandi",
@@ -70,6 +71,7 @@ export const uz: Translations = {
   'promo.submit': 'Faollashtirish',
   'promo.success_until': 'Pro {date} gacha faol.',
   'promo.success_forever': 'Pro muddatsiz faol.',
+
   // ---- course catalog ----
   'catalog.title': 'Kurslar',
   'catalog.open': 'Kurslar katalogi',
@@ -92,7 +94,7 @@ export const uz: Translations = {
   'course.no_lessons': "Kursda hali darslar yo'q.",
 
   // ---- errors (by kind / context) ----
-  'error.closed.training': "O'qituvchi mashg'ulotni yakunladi.",
+  'error.closed.training': "Bu mashg'ulot allaqachon yopilgan: u yakunlangan yoki sessiya vaqti tugagan.",
   'error.closed.exam': "Imtihon o'qituvchi tomonidan yakunlandi.",
   'error.closed.catalog': 'Kurs endi mavjud emas.',
   'error.forbidden.training': "Sizda bu mashg'ulotga kirish huquqi yo'q.",

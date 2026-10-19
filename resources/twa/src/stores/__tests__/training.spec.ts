@@ -174,11 +174,11 @@ describe('training store — localized errors', () => {
     await store.start(1)
 
     expect(store.status).toBe('closed')
-    expect(store.errorMessage).toBe('Учитель завершил тренировку.')
+    expect(store.errorMessage).toBe('Эта тренировка уже закрыта: она завершена или время сессии истекло.')
 
     setLocale('uz')
     await store.start(1)
-    expect(store.errorMessage).toBe("O'qituvchi mashg'ulotni yakunladi.")
+    expect(store.errorMessage).toBe("Bu mashg'ulot allaqachon yopilgan: u yakunlangan yoki sessiya vaqti tugagan.")
   })
 
   it('explains API error codes in the active language instead of the English server message', async () => {
@@ -246,6 +246,89 @@ describe('training store — personal sessions', () => {
     expect(id).toBe(42)
     expect(api.training.open).toHaveBeenCalledWith({ mode: 'lesson', lesson_id: 11, source: 'picker' })
     expect(store.opening).toBe(false)
+    expect(store.openError).toBe('')
+  })
+
+  it('hands the answer of open() to start() instead of asking the server for it again', async () => {
+    vi.mocked(api.training.open).mockResolvedValue({
+      session_id: 42,
+      mode: 'lesson',
+      lesson: { stage: 1, lesson: 2, title: null },
+      total_words: 3,
+      card,
+      progress: { done: 1, total: 3 },
+      done_reason: null,
+    })
+
+    const store = useTrainingStore()
+    await store.open({ mode: 'lesson', lesson_id: 11, source: 'picker' })
+    await store.start(42)
+
+    expect(api.training.start).not.toHaveBeenCalled()
+    expect(api.training.next).not.toHaveBeenCalled()
+    expect(store.status).toBe('ready')
+    expect(store.card?.word_id).toBe(7)
+    expect(store.progress).toEqual({ done: 1, total: 3 })
+    expect(store.mode).toBe('lesson')
+
+    // Consumed once: a later visit of the same session asks the server.
+    vi.mocked(api.training.start).mockResolvedValue({
+      session_id: 42, mode: 'lesson', lesson: { stage: 1, lesson: 2, title: null }, total_words: 3, card, progress: { done: 2, total: 3 },
+    })
+    await store.start(42)
+    expect(api.training.start).toHaveBeenCalledTimes(1)
+    expect(store.progress).toEqual({ done: 2, total: 3 })
+  })
+
+  it('asks the server for a session whose answer was not preloaded by open()', async () => {
+    vi.mocked(api.training.open).mockResolvedValue({
+      session_id: 42, mode: 'daily_review', lesson: null, total_words: 10, card, progress: { done: 0, total: 10 },
+    })
+    vi.mocked(api.training.start).mockResolvedValue({
+      session_id: 9, mode: 'group_lesson', lesson: { stage: 1, lesson: 1, title: null }, total_words: 1, card, progress: { done: 0, total: 1 },
+    })
+
+    const store = useTrainingStore()
+    await store.open({ mode: 'daily_review' })
+    await store.start(9)
+
+    expect(api.training.start).toHaveBeenCalledWith(9)
+    expect(store.mode).toBe('group_lesson')
+  })
+
+  it('offers a restart request only for a personal session this run opened', async () => {
+    vi.mocked(api.training.open).mockResolvedValue({
+      session_id: 42, mode: 'lesson', lesson: { stage: 1, lesson: 2, title: null }, total_words: 3,
+    })
+    vi.mocked(api.training.start).mockRejectedValue(
+      new ApiClientError('gone', 410, 'session_closed', 'This training session is closed.'),
+    )
+
+    const store = useTrainingStore()
+    expect(store.restartRequest).toBeNull()
+
+    await store.open({ mode: 'lesson', lesson_id: 11, source: 'picker' })
+    store.preloaded = null // the visit that follows open() was long ago
+    await store.start(42)
+    expect(store.status).toBe('closed')
+    expect(store.restartRequest).toEqual({ mode: 'lesson', lesson_id: 11, source: 'picker' })
+
+    // A group session (or one opened before a page reload) is not ours to restart.
+    await store.start(7)
+    expect(store.status).toBe('closed')
+    expect(store.restartRequest).toBeNull()
+  })
+
+  it('forgets the open error on demand', async () => {
+    vi.mocked(api.training.open).mockRejectedValue(
+      new ApiClientError('not_found', 404, 'lesson_not_found', 'Training lesson not found.'),
+    )
+    const store = useTrainingStore()
+    await store.open({ mode: 'lesson', lesson_id: 11 })
+    expect(store.openError).not.toBe('')
+
+    store.clearOpenError()
+
     expect(store.openError).toBe('')
   })
 
