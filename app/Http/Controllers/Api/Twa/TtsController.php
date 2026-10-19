@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\Twa;
 use App\Domain\Content\Services\WordAudioService;
 use App\Domain\Twa\Services\TtsFallbackService;
 use App\Http\Resources\ApiErrorResource;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,7 +37,7 @@ final class TtsController
 
         try {
             $synth = $this->tts->synthesize($data['word'], $data['voice'] ?? null);
-        } catch (RuntimeException) {
+        } catch (RuntimeException|ConnectionException) {
             return ApiErrorResource::respond(503, 'tts_unavailable', 'TTS fallback service is unavailable.');
         }
 

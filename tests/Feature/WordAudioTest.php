@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 use App\Domain\Content\Services\WordAudioService;
 use App\Domain\Twa\Services\JwtService;
+use App\Filament\Resources\LessonResource\Pages\EditLesson;
+use App\Filament\Resources\LessonResource\RelationManagers\WordsRelationManager;
+use App\Filament\Resources\WordResource\Pages\EditWord;
 use App\Jobs\PregenerateWordAudioJob;
 use App\Models\Course;
 use App\Models\Learner;
@@ -13,12 +16,16 @@ use App\Models\TelegramGroup;
 use App\Models\TrainingSession;
 use App\Models\User;
 use App\Models\Word;
+use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
+
+use function Pest\Livewire\livewire;
 
 uses(RefreshDatabase::class);
 
@@ -288,4 +295,166 @@ it('exposes audio_url on the training card only when the word has audio', functi
         ->json('card.audio_url');
 
     expect($url)->toBe(Storage::disk('public')->url($path))->toEndWith('/storage/'.$path);
+});
+
+it('an empty (partial) file is not ready: it is regenerated and not served', function (): void {
+    fakeTts();
+    $path = audioPathOf('resilient');
+    Storage::disk('public')->put($path, '');
+    $word = audioWord('resilient', attrs: ['audio_path' => $path]);
+    $service = app(WordAudioService::class);
+
+    expect($service->isCurrent($word))->toBeFalse()
+        ->and($service->storedPath('resilient'))->toBeNull();
+
+    $learner = Learner::factory()->create();
+    $served = $this->withHeaders(audioAuthHeaders($learner))->get('/api/twa/tts?word=resilient');
+    expect($served->getContent())->toBe('mp3-bytes');
+    Http::assertSentCount(1);
+
+    expect($service->generate($word))->toBeTrue()
+        ->and(Storage::disk('public')->get($path))->toBe('mp3-bytes')
+        ->and($service->isCurrent($word))->toBeTrue();
+});
+
+it('audio:pregenerate does not skip a word whose file is empty', function (): void {
+    Queue::fake();
+    $course = Course::factory()->create(['slug' => 'ielts']);
+    $path = audioPathOf('alpha');
+    Storage::disk('public')->put($path, '');
+    audioWord('alpha', $course, ['audio_path' => $path]);
+
+    $this->artisan('audio:pregenerate', ['course' => 'ielts'])
+        ->expectsOutputToContain('Queued: 1, already up to date: 0')
+        ->assertSuccessful();
+});
+
+it('writes through a temporary file that is gone afterwards', function (): void {
+    fakeTts();
+    $word = audioWord('resilient');
+
+    app(WordAudioService::class)->generate($word);
+
+    expect(Storage::disk('public')->allFiles('audio'))->toBe([audioPathOf('resilient')])
+        ->and(Storage::disk('public')->allFiles('audio/.tmp'))->toBe([]);
+});
+
+it('never exposes a half-written final file: the body is put under audio/.tmp first', function (): void {
+    fakeTts();
+    $word = audioWord('resilient');
+    $final = audioPathOf('resilient');
+    $seen = [];
+    $disk = Storage::disk('public');
+    // Observe the final path at the moment the temp file is written.
+    $spy = Mockery::mock($disk)->makePartial();
+    $spy->shouldReceive('put')->andReturnUsing(function (string $path, $contents) use ($disk, $final, &$seen) {
+        $seen[] = [$path, $disk->exists($final)];
+
+        return $disk->put($path, $contents);
+    });
+    Storage::set('public', $spy);
+
+    app(WordAudioService::class)->generate($word);
+
+    expect($seen)->toHaveCount(1)
+        ->and($seen[0][0])->toStartWith('audio/.tmp/')
+        ->and($seen[0][0])->not->toBe($final)
+        ->and($seen[0][1])->toBeFalse()
+        ->and($disk->get($final))->toBe('mp3-bytes');
+});
+
+it('audio_url is null once the word text changed, even before audio_path is reset', function (): void {
+    $path = audioPathOf('resilient');
+    $word = audioWord('resilient', attrs: ['audio_path' => $path]);
+    $service = app(WordAudioService::class);
+
+    expect($service->urlFor($word))->toBe(Storage::disk('public')->url($path));
+
+    $word->word = 'durable';
+
+    expect($service->urlFor($word))->toBeNull();
+});
+
+it('audio_url is null for a stale path from another voice version', function (): void {
+    $word = audioWord('resilient', attrs: ['audio_path' => audioPathOf('resilient')]);
+
+    Config::set('twa.tts.audio_version', 2);
+
+    expect(app(WordAudioService::class)->urlFor($word))->toBeNull();
+});
+
+function audioAdmin(): User
+{
+    test()->seed(RolePermissionSeeder::class);
+    $admin = User::factory()->create(['is_active' => true]);
+    $admin->assignRole('admin');
+
+    return $admin;
+}
+
+it('editing the word text on the word screen resets audio_path and queues regeneration', function (): void {
+    Queue::fake();
+    $this->actingAs(audioAdmin());
+    $word = audioWord('resilient', attrs: ['audio_path' => audioPathOf('resilient')]);
+
+    livewire(EditWord::class, ['record' => $word->getRouteKey()])
+        ->fillForm(['word' => 'durable'])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($word->fresh()?->audio_path)->toBeNull();
+    Queue::assertPushed(PregenerateWordAudioJob::class, fn (PregenerateWordAudioJob $job): bool => $job->wordId === $word->id && $job->queue === 'low');
+});
+
+it('saving the word screen without a text change keeps audio_path and queues nothing', function (): void {
+    Queue::fake();
+    $this->actingAs(audioAdmin());
+    $path = audioPathOf('resilient');
+    $word = audioWord('resilient', attrs: ['audio_path' => $path]);
+
+    livewire(EditWord::class, ['record' => $word->getRouteKey()])
+        ->fillForm(['translation' => 'стойкий'])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($word->fresh()?->audio_path)->toBe($path);
+    Queue::assertNothingPushed();
+});
+
+it('editing the word text on the lesson screen resets audio_path and queues regeneration', function (): void {
+    Queue::fake();
+    $this->actingAs(audioAdmin());
+    $word = audioWord('resilient', attrs: ['audio_path' => audioPathOf('resilient')]);
+    $lesson = Lesson::query()->findOrFail($word->lesson_id);
+
+    livewire(WordsRelationManager::class, ['ownerRecord' => $lesson, 'pageClass' => EditLesson::class])
+        ->callTableAction('edit', $word, data: ['word' => 'durable', 'translation' => $word->translation])
+        ->assertHasNoTableActionErrors();
+
+    expect($word->fresh()?->audio_path)->toBeNull();
+    Queue::assertPushed(PregenerateWordAudioJob::class, fn (PregenerateWordAudioJob $job): bool => $job->wordId === $word->id);
+});
+
+it('editing only the translation on the lesson screen does not touch the audio', function (): void {
+    Queue::fake();
+    $this->actingAs(audioAdmin());
+    $path = audioPathOf('resilient');
+    $word = audioWord('resilient', attrs: ['audio_path' => $path]);
+    $lesson = Lesson::query()->findOrFail($word->lesson_id);
+
+    livewire(WordsRelationManager::class, ['ownerRecord' => $lesson, 'pageClass' => EditLesson::class])
+        ->callTableAction('edit', $word, data: ['word' => 'resilient', 'translation' => 'новый'])
+        ->assertHasNoTableActionErrors();
+
+    expect($word->fresh()?->audio_path)->toBe($path);
+    Queue::assertNothingPushed();
+});
+
+it('GET /tts answers 503 tts_unavailable when the TTS service is unreachable', function (): void {
+    Http::fake(['http://tts.test/tts' => fn () => throw new ConnectionException('cURL error 7: connection refused')]);
+    $learner = Learner::factory()->create();
+
+    $this->withHeaders(audioAuthHeaders($learner))->getJson('/api/twa/tts?word=different')
+        ->assertStatus(503)
+        ->assertJsonPath('error.code', 'tts_unavailable');
 });
