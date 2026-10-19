@@ -391,9 +391,8 @@ it('suspending an organization stops the sponsorship at once (observer drops the
     expect($resolver->for($member)->plan)->toBe(Plan::Free);
 });
 
-it('does not let a teacher link or unlink a group through a direct Livewire call', function (): void {
+it('does not let a teacher link a group through a direct Livewire call', function (): void {
     $org = Organization::factory()->create();
-    $linked = TelegramGroup::factory()->create(['organization_id' => $org->id]);
     $free = TelegramGroup::factory()->create();
     $this->actingAs($this->teacher);
 
@@ -401,13 +400,28 @@ it('does not let a teacher link or unlink a group through a direct Livewire call
 
     try {
         $manager->callTableAction('linkGroup', data: ['telegram_group_id' => $free->id]);
-        $manager->callTableAction('unlinkGroup', $linked);
     } catch (Throwable) {
         // an unauthorized or hidden action may also fail loudly — what matters is the data below
     }
 
     expect($free->fresh()?->organization_id)->toBeNull()
-        ->and($linked->fresh()?->organization_id)->toBe($org->id)
+        ->and(AuditLog::query()->count())->toBe(0);
+});
+
+it('does not let a teacher unlink a group through a direct Livewire call', function (): void {
+    $org = Organization::factory()->create();
+    $linked = TelegramGroup::factory()->create(['organization_id' => $org->id]);
+    $this->actingAs($this->teacher);
+
+    $manager = Livewire::test(GroupsRelationManager::class, ['ownerRecord' => $org, 'pageClass' => OrganizationResource\Pages\EditOrganization::class]);
+
+    try {
+        $manager->callTableAction('unlinkGroup', $linked);
+    } catch (Throwable) {
+        // an unauthorized or hidden action may also fail loudly — what matters is the data below
+    }
+
+    expect($linked->fresh()?->organization_id)->toBe($org->id)
         ->and(AuditLog::query()->count())->toBe(0);
 });
 
