@@ -375,7 +375,7 @@ it('records a c_ payload and uses the course when the onboarding ends', function
 
     expect(onbLearner(7023)->active_course_id)->toBe($linked->id)
         ->and(onbLearner(7023)->meta)->not->toHaveKey('pending_course')
-        ->and(ProductEvent::query()->where('name', 'course.selected')->firstOrFail()->props)->toBe(['course_id' => $linked->id, 'via' => 'deeplink']);
+        ->and(ksorted(ProductEvent::query()->where('name', 'course.selected')->firstOrFail()->props))->toBe(['course_id' => $linked->id, 'via' => 'deeplink']);
 });
 
 it('falls back to the recommendation when the linked course is not available', function (string $state): void {
@@ -643,7 +643,7 @@ it('lets a finished learner change one value at a time through /settings', funct
 
 it('validates /settings values against the same whitelists', function (string $data): void {
     $learner = Learner::factory()->onboarded()->create(['telegram_user_id' => 7061]);
-    $before = $learner->only(['goal', 'level', 'timezone', 'interface_locale', 'reminder_time']);
+    $before = $learner->fresh()->only(['goal', 'level', 'timezone', 'interface_locale', 'reminder_time']);
 
     onbTap(7061, $data);
 
