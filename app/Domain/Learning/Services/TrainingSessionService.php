@@ -127,7 +127,7 @@ final class TrainingSessionService
             if ($lesson === null) {
                 throw TrainingSessionException::lessonRequired();
             }
-            $this->assertLessonAvailable($lesson);
+            $this->assertLessonAvailable($lesson, $learner);
         } elseif ($lesson !== null) {
             throw TrainingSessionException::lessonNotAllowed();
         }
@@ -291,19 +291,20 @@ final class TrainingSessionService
         }
     }
 
-    private function assertLessonAvailable(Lesson $lesson): void
+    /** @param  Learner|null  $learner  the owner of a personal session: the lessons of their own deck are available to them */
+    private function assertLessonAvailable(Lesson $lesson, ?Learner $learner = null): void
     {
         $lesson->loadMissing('stage.course');
 
         $course = $lesson->stage?->course;
-        if ($course === null || ! $this->catalog->isAvailable($course)) {
+        if ($course === null || ! $this->catalog->isAvailable($course, $learner)) {
             throw TrainingSessionException::lessonNotAvailable((int) $lesson->id);
         }
     }
 
     /**
      * The course `daily_review` takes new words from: the learner's active course while it is
-     * still available (published, not private), else none — only due cards are served.
+     * still available to them (published and not private, or their own deck), else none — only due cards are served.
      */
     private function dailyCourseId(Learner $learner): ?int
     {
@@ -311,7 +312,7 @@ final class TrainingSessionService
             return null;
         }
 
-        $id = Course::query()->available()->whereKey($learner->active_course_id)->value('id');
+        $id = Course::query()->availableTo($learner->id)->whereKey($learner->active_course_id)->value('id');
 
         return $id === null ? null : (int) $id;
     }

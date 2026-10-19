@@ -186,15 +186,32 @@ final class CourseCatalogService
      * THE availability rule: a course is available (openable by slug, selectable as the active
      * course, a source of lessons and new words) when it is published and not private. Its SQL
      * twin is the `Course::available()` scope — keep them in step.
+     *
+     * One exception: with `$learner` given, a private course the learner OWNS (their own deck,
+     * `owner_type = learner`, docs/13 §8.1) is available to that learner and to nobody else. SQL twin:
+     * `Course::availableTo()`. Callers without a learner (groups, deep links) never see a private course.
      */
-    public function isAvailable(Course $course): bool
+    public function isAvailable(Course $course, ?Learner $learner = null): bool
     {
-        return $course->status === 'published' && $course->visibility !== 'private';
+        if ($course->status !== 'published') {
+            return false;
+        }
+
+        return $course->visibility !== 'private' || ($learner !== null && $this->isOwnedBy($course, $learner));
     }
 
-    public function findAvailable(string $slug): ?Course
+    /** A learner's own deck: `owner_type = learner` and `owner_id` is this learner. */
+    public function isOwnedBy(Course $course, Learner $learner): bool
     {
-        return Course::query()->available()->where('slug', $slug)->first();
+        return $course->owner_type === 'learner' && $course->owner_id === $learner->id;
+    }
+
+    public function findAvailable(string $slug, ?Learner $learner = null): ?Course
+    {
+        $query = Course::query()->where('slug', $slug);
+        $learner === null ? $query->available() : $query->availableTo($learner->id);
+
+        return $query->first();
     }
 
     /**
@@ -223,7 +240,7 @@ final class CourseCatalogService
 
     /**
      * The catalog with the learner's progress. The learner's own active course is listed even when
-     * it is `unlisted` (chosen by a link), as long as it is still available.
+     * it is `unlisted` (chosen by a link) or the learner's own deck, as long as it is still available.
      *
      * @return list<CourseListing>
      */
@@ -234,7 +251,7 @@ final class CourseCatalogService
         $activeId = $learner->active_course_id;
 
         if ($activeId !== null && collect($courses)->doesntContain(fn (CatalogCourse $c): bool => $c->id === $activeId)) {
-            $active = Course::query()->available()->whereKey($activeId)->first();
+            $active = Course::query()->availableTo($learner->id)->whereKey($activeId)->first();
             if ($active !== null) {
                 $courses[] = $this->present($active, $locale);
             }
@@ -256,6 +273,32 @@ final class CourseCatalogService
     public function title(Course $course, string $locale): string
     {
         return $this->localized($course->title, $locale) ?? $course->slug;
+    }
+
+    /**
+     * Catalog rows for the given courses (the learner's decks), in the order given, with ONE progress query.
+     *
+     * @param  iterable<Course>  $courses
+     * @return list<CourseListing>
+     */
+    public function listings(iterable $courses, Learner $learner): array
+    {
+        $list = [];
+        foreach ($courses as $course) {
+            $list[] = $course;
+        }
+
+        $locale = $this->locales->forLearner($learner);
+        $progress = $this->courseProgress($learner, array_map(fn (Course $c): int => $c->id, $list));
+
+        return array_map(
+            fn (Course $course): CourseListing => new CourseListing(
+                $this->present($course, $locale),
+                $progress[$course->id] ?? new LearnerProgress(0, 0),
+                $learner->active_course_id === $course->id,
+            ),
+            $list,
+        );
     }
 
     /** A single catalog row (the course the learner has just chosen). */

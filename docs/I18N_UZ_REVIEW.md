@@ -624,5 +624,8 @@
 | `validation.attributes.word_id` | so'z | слово |
 | `validation.attributes.quality` | baho | оценка |
 | `validation.attributes.time_spent_ms` | sarflangan vaqt | затраченное время |
+| `validation.attributes.title` | nomi | название |
+| `validation.attributes.text` | matn | текст |
+| `validation.attributes.format` | format | формат |
 
 Проверить в первую очередь: «maydoni» как «поле»; «:attribute ... bo'lishi kerak» (должно быть); «to'ldirilishi shart» (обязательно для заполнения); «kamida / oshmasligi kerak» (не меньше / не больше); названия полей API в `validation.attributes.*` (interfeys tili, vaqt mintaqasi, eslatma vaqti, kunlik maqsad, o'qish maqsadi, daraja, kod, rejim, so'z, baho, sarflangan vaqt).

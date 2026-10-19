@@ -143,6 +143,23 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(30)->by('twa-exam-answer|'.$key);
         });
 
+        RateLimiter::for('twa-decks', function (Request $request): Limit {
+            /** @var array{learner_id:int}|null $ctx */
+            $ctx = $request->attributes->get('twa');
+            $key = $ctx['learner_id'] ?? $request->ip();
+
+            return Limit::perMinute(30)->by('twa-decks|'.$key);
+        });
+
+        RateLimiter::for('twa-deck-import', function (Request $request): Limit {
+            /** @var array{learner_id:int}|null $ctx */
+            $ctx = $request->attributes->get('twa');
+            $key = $ctx['learner_id'] ?? $request->ip();
+
+            // One import is up to 500 lines of inserts: a human pastes a few lists a minute.
+            return Limit::perMinute(10)->by('twa-deck-import|'.$key);
+        });
+
         RateLimiter::for('twa-promo', function (Request $request): array {
             /** @var array{learner_id:int}|null $ctx */
             $ctx = $request->attributes->get('twa');

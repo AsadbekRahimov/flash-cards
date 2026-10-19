@@ -357,7 +357,7 @@ final class LearnerSettingsService
         }
 
         $course = $learner->activeCourse;
-        if ($course === null || ! $this->catalog->isAvailable($course)) {
+        if ($course === null || ! $this->catalog->isAvailable($course, $learner)) {
             return null;
         }
 

@@ -21,7 +21,7 @@ use LogicException;
  *     seen, in any lesson of any course, plus new words from the session's course
  *     (`training_sessions.course_id`, a snapshot of `learners.active_course_id`) in
  *     study order `(stage.number, lesson.number, word.id)`, as long as that course is
- *     available (published, not private) — otherwise only due cards. Without a course the
+ *     available to the learner (published and not private, or the learner's own deck) — otherwise only due cards. Without a course the
  *     daily session serves due cards only.
  *
  * Inactive words (`words.is_active = false`, the replacement for deletion) are never
@@ -158,8 +158,9 @@ final readonly class TrainingScope
             ->join('lessons', 'lessons.id', '=', 'words.lesson_id')
             ->join('stages', 'stages.id', '=', 'lessons.stage_id')
             ->where('stages.course_id', $this->courseId)
-            // The snapshot course may have been archived or made private since the session opened.
-            ->whereIn('stages.course_id', Course::query()->available()->select('courses.id'))
+            // The snapshot course may have been archived or made private since the session opened;
+            // a private course still counts when it is this learner's own deck.
+            ->whereIn('stages.course_id', Course::query()->availableTo($learnerId)->select('courses.id'))
             ->where('words.is_active', true)
             ->whereNotExists($unseen)
             ->orderBy('stages.number')
