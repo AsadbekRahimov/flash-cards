@@ -10,8 +10,10 @@ use App\Filament\Widgets\HardestWordsTableWidget;
 use App\Filament\Widgets\OnboardingFunnelWidget;
 use App\Filament\Widgets\OrganizationSeatsTableWidget;
 use App\Filament\Widgets\PlatformSubscriptionsWidget;
+use App\Filament\Widgets\RevenueLast30DaysWidget;
 use App\Filament\Widgets\TopLearnersTableWidget;
 use App\Filament\Widgets\TotalLearnersWidget;
+use App\Filament\Widgets\WebhookErrorsWidget;
 use App\Http\Middleware\RequireTwoFactor;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -56,6 +58,8 @@ class AdminPanelProvider extends PanelProvider
                 PlatformSubscriptionsWidget::class,
                 OnboardingFunnelWidget::class,
                 OrganizationSeatsTableWidget::class,
+                RevenueLast30DaysWidget::class,
+                WebhookErrorsWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
