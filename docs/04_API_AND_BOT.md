@@ -636,6 +636,16 @@ URL TWA: `https://lexiflow.example.com/twa/training/123` (для экзамен�
 - **`message` в группе от `left_chat_member`** — служебное сообщение о выходе/исключении; приходит и когда бот **не админ** группы (тогда `chat_member` не приходит). Тот же `ChatMemberHandler`: `from.id` = `left_chat_member.id` → `left`, иначе (убрал другой) → `removed`; по `message.date`; бот и неизвестный learner игнорируются, повтор — no-op.
 - **Callback query** — пока не используется (весь UX через WebApp), но хендлер на будущее.
 
+### B.5a Персональные напоминания (`reminders:dispatch`)
+
+Напоминание приходит в ЛС в **локальное** время learner'а (`learners.reminder_time` в `learners.timezone`, выбранные в онбординге / `/settings`; дефолт 19:00 Ташкент). Механика — docs/12 §7.5, docs/06 §6:
+
+- `reminders:dispatch` каждые 15 минут: `ReminderDispatcher` выбирает `next_reminder_at <= now AND dm_blocked_at IS NULL AND blocked_at IS NULL AND deleted_at IS NULL`, для каждого делает условный `UPDATE … SET next_reminder_at = <следующее наступление по LearnerClock> WHERE id = ? AND next_reminder_at = <прочитанное>` и только при `affected = 1` ставит `SendLearnerReminderJob(learnerId, scheduledFor)`. Учитывается и learner с незавершённым онбордингом (у него дефолтные пояс и 19:00). Запоздавшие на > `REMINDERS_MAX_DELAY_MINUTES` (120) клеймы не отправляются — указатель всё равно уходит на следующее наступление. Backfill: у кого `reminder_time` есть, а `next_reminder_at` пуст, получают его тут же (до `REMINDERS_BACKFILL_LIMIT` за запуск); новым learner'ам `LearnerRegistrar` ставит его при создании.
+- Текст решает `ReminderContentResolver` в job: `due_count` (`DueRepetitionCriteria`, то же число, что на экране «Сегодня») `>= REMINDERS_DUE_THRESHOLD` (1) → `reminders.review` (trans_choice); иначе серия под угрозой (`StreakService::current().atRisk`) → `reminders.streak_at_risk` (`:count` = дней серии); иначе молчание. Кнопка `reminders.open_button` — web_app → `/twa/?from=reminder`: экран «Сегодня» сразу открывает `daily_review` с `source: 'reminder'`.
+- Идемпотентность: клейм указателя (двойной запуск планировщика ничего не дублирует) + `notifications_log` (`review_reminder` / `streak_reminder`) под `Cache::lock` — не чаще одного напоминания любого вида за `REMINDERS_MIN_INTERVAL_HOURS` (20).
+- Telegram 403 (`bot_blocked` / `not_started` / `user_deactivated`) → `dm_blocked_at = now`, событие `reminder.failed {reason, kind}`, без повторов; learner выпадает из выборки. **Любой** входящий `message` или `callback_query` из приватного чата (`/help`, `/stats`, `/promo`, кнопки, текст) снимает `dm_blocked_at` — `TelegramDispatcher` делает это до хендлеров одним условным UPDATE по `telegram_user_id`, без создания learner'а. Вход в TWA (`/auth`) флаг **не** снимает: открытие приложения не доказывает, что ЛС с ботом открыт.
+- События: `reminder.sent {kind, due_count}`, `reminder.failed {reason, kind}`.
+
 ### B.6 Событие `update` от WebApp (опционально)
 
 Если TWA вызывает `Telegram.WebApp.sendData(...)`, то в чат приходит апдейт типа `web_app_data` (только в приватных чатах). В нашем дизайне студент общается с API напрямую, а не через `sendData` — это упрощает масштабирование. Но оставляем возможность добавить лёгкие «отправки» (например, «поделиться результатом экзамена»).

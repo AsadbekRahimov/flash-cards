@@ -134,6 +134,7 @@ export const ru = {
   'paywall.contact': 'Учитесь в центре? Попросите администратора центра подключить LexiFlow Pro:',
   'paywall.dismiss': 'Понятно',
   'paywall.open': 'Узнать о Pro',
+  'paywall.review': 'Повторить слова',
 
   // ---- course catalog ----
   'catalog.title': 'Курсы',

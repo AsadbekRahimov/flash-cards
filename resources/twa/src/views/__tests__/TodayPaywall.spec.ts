@@ -116,4 +116,23 @@ describe('TodayView paywall entry', () => {
     expect(w.find('[data-testid=paywall]').exists()).toBe(false)
     expect(w.find('[data-testid=review-btn]').exists()).toBe(true)
   })
+
+  it('"Repeat words" in the paywall opens a daily review and leaves for the training screen', async () => {
+    vi.mocked(api.training.open).mockResolvedValue({ session_id: 918, mode: 'daily_review', lesson: null, total_words: 3 })
+    const w = await render(today({ new_words_remaining: 0 }))
+    await w.get('[data-testid=paywall-open]').trigger('click')
+
+    await w.get('[data-testid=paywall-review]').trigger('click')
+    await flushPromises()
+
+    expect(api.training.open).toHaveBeenCalledWith({ mode: 'daily_review', source: 'self' })
+    expect(w.find('[data-testid=paywall]').exists()).toBe(false)
+  })
+
+  it('does not offer "Repeat words" when nothing is due', async () => {
+    const w = await render(today({ due_count: 0, new_words_remaining: 0 }))
+    await w.get('[data-testid=paywall-open]').trigger('click')
+
+    expect(w.find('[data-testid=paywall-review]').exists()).toBe(false)
+  })
 })

@@ -254,9 +254,9 @@ review-карточку** (то есть после того, как слово 
 ## 6. Персональные напоминания и `words_due_today`
 
 Единое определение «карточка, за которой студенту надо вернуться» —
-`App\Domain\Learning\Support\DueRepetitionCriteria::apply()`. Его используют **три** потребителя,
-и только его: `ReviewReminderService` (порог и число в сообщении), `ReviewReminderLinkBuilder`
-(урок для deep-link) и `LearnerStatsService` → `words_due_today` в `GET /api/twa/me`, чтобы число
+`App\Domain\Learning\Support\DueRepetitionCriteria::apply()`. Его используют только через
+`LearnerStatsService::dueCount()`: напоминание (`ReminderContentResolver` — порог и число в
+сообщении), `words_due_today` в `GET /api/twa/me` и `due_count` экрана «Сегодня», чтобы число
 на экране совпадало с текстом напоминания. Due считается карточка, если:
 
 - `state = review` и `next_review_at <= now` — выпущенная карточка, срок настал; **или**
@@ -266,16 +266,42 @@ review-карточку** (то есть после того, как слово 
   после backfill, см. ниже) навсегда выпадал бы из напоминаний.
 
 Не считаются: свежие минутные шаги (минуты–часы после тренировки — сессия, возможно, ещё идёт) и
-строки в `new` (карточка показана, но ни разу не оценена — «повторять» нечего). Порог по умолчанию —
-5 due-слов, не чаще раза в 24 часа.
+строки в `new` (карточка показана, но ни разу не оценена — «повторять» нечего).
 
-Расписание: `$schedule->command('repetitions:notify')->dailyAt('18:00');`
+**Когда и что приходит (docs/12 §7.5, задача 1.5b).** Напоминание — одно в день, в локальное время
+learner'а (`learners.reminder_time` в `learners.timezone`; `NULL` = выключено). Указатель
+`learners.next_reminder_at` (UTC) считает `LearnerClock::nextOccurrenceUtc` — при выборе пояса/времени
+в онбординге и `/settings`, при создании learner'а (`LearnerRegistrar`, дефолты Ташкент 19:00) и после
+каждого клейма; DST и смена пояса учитываются при каждом пересчёте.
+
+- `reminders:dispatch` — `everyFifteenMinutes()->withoutOverlapping()`. `ReminderDispatcher::dispatchDue(now)`
+  выбирает по партиал-индексу `learners_next_reminder_at_idx` (`next_reminder_at <= now AND dm_blocked_at
+  IS NULL`, плюс `blocked_at IS NULL`, soft-delete) пачками `chunkById(200)` и клеймит каждого условным
+  `UPDATE learners SET next_reminder_at = <следующее наступление от now> WHERE id = ? AND next_reminder_at = <прочитанное>`;
+  только `affected = 1` ставит `SendLearnerReminderJob(learnerId, scheduledFor)`. Второй инстанс или повтор
+  той же минуты видит 0 строк и ничего не дублирует. Указатель двигается **до** постановки job: сбой между
+  ними теряет одно напоминание, а не удваивает его. Следующее наступление считается от `now`, поэтому после
+  простоя планировщика всё догоняется одним запуском, а клеймы старше `REMINDERS_MAX_DELAY_MINUTES` (120)
+  не отправляются — напоминание «в случайный час» хуже тишины. Там же backfill: у кого `reminder_time` есть,
+  а указателя нет (старые строки, импорт), получают его (до `REMINDERS_BACKFILL_LIMIT` = 1000 за запуск);
+  `dm_blocked_at`, `blocked_at`, удалённые — не трогаются.
+- Текст решает job в момент отправки (`ReminderContentResolver`): `dueCount >= REMINDERS_DUE_THRESHOLD`
+  (**1**, было 5 — в B2C одно слово к повторению уже повод вернуться) → `reminders.review`; иначе серия под
+  угрозой (`StreakService::current().atRisk`) → `reminders.streak_at_risk`; иначе молчание (указатель уже
+  на завтра — это и нужно). Кнопка → `/twa/?from=reminder`, экран «Сегодня» сам открывает `daily_review`
+  (`source: 'reminder'`). Незавершённый онбординг не мешает: learner из группы получает одну попытку с
+  дефолтами, 403 → `dm_blocked_at`, дальше тишина до его первого сообщения боту.
+- Второй уровень идемпотентности — в job (`ReminderSender`, `Cache::lock` на learner'а): не чаще одного
+  напоминания **любого вида** за `REMINDERS_MIN_INTERVAL_HOURS` (20) по `notifications_log`
+  (`review_reminder` / `streak_reminder`). Повтор job, двойная доставка — одно сообщение.
+- Telegram 403 → `dm_blocked_at = now`, `reminder.failed {reason, kind}`, без повторов; любое входящее
+  сообщение/кнопка в ЛС снимает флаг (`TelegramDispatcher`, до хендлеров). Остальные ошибки Telegram
+  пробрасываются — очередь повторит (tries 3).
 
 **Legacy backfill.** Миграция `add_learning_state_to_word_repetitions` переводит строки
 `repetitions = 0 AND last_quality IS NOT NULL` (проваленные в старом SM-2, у них `next_review_at`
 был «завтра») в `relearning`. По правилу выше они снова попадают в напоминания через
-`abandoned_after_hours` после своего `next_review_at` — при ежедневной рассылке в 18:00 это тот же
-день, что и раньше, либо на день позже; слова не теряются.
+`abandoned_after_hours` после своего `next_review_at`; слова не теряются.
 
 ## 7. Тестирование
 

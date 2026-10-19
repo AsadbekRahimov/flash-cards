@@ -252,6 +252,12 @@ final class CourseCatalogService
         );
     }
 
+    /** The course title in $locale (falls back to the default locale, then to the slug) — no progress is computed. */
+    public function title(Course $course, string $locale): string
+    {
+        return $this->localized($course->title, $locale) ?? $course->slug;
+    }
+
     /** A single catalog row (the course the learner has just chosen). */
     public function listing(Course $course, Learner $learner): CourseListing
     {
@@ -361,7 +367,7 @@ final class CourseCatalogService
         return new CatalogCourse(
             $course->id,
             $course->slug,
-            $this->localized($course->title, $locale) ?? $course->slug,
+            $this->title($course, $locale),
             $this->localized($course->description, $locale),
             $course->level,
             $course->exam_tag,

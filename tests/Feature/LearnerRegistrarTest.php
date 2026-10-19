@@ -259,3 +259,25 @@ it('keeps the other registration paths free of attribution', function (): void {
     // Neither a repeated /auth nor a group event writes a source into an existing learner.
     expect($learner->fresh()->acquisition_source)->toBeNull();
 });
+
+it('schedules the first reminder at creation from the default zone and time, or none when the default is empty', function (): void {
+    config(['learners.default_timezone' => 'Asia/Tashkent', 'learners.default_reminder_time' => '19:00']);
+    $this->travelTo('2026-10-18 10:00:00'); // 15:00 in Tashkent -> today 19:00 local = 14:00 UTC
+
+    $learner = app(LearnerRegistrar::class)->fromTelegramUser(['id' => 4201, 'first_name' => 'A'])->fresh();
+    expect($learner->next_reminder_at?->toDateTimeString())->toBe('2026-10-18 14:00:00');
+
+    // A passive group event schedules too (docs/12 §7.5: one attempt, a 403 then sets dm_blocked_at).
+    $observed = app(LearnerRegistrar::class)->observeTelegramUser(['id' => 4202, 'first_name' => 'B'], 'group')?->fresh();
+    expect($observed?->next_reminder_at?->toDateTimeString())->toBe('2026-10-18 14:00:00');
+
+    // An existing learner is not rescheduled by a later contact (the scheduler owns the pointer).
+    Learner::query()->whereKey($learner->id)->update(['next_reminder_at' => null]);
+    app(LearnerRegistrar::class)->fromTelegramUser(['id' => 4201, 'first_name' => 'A']);
+    expect($learner->fresh()->next_reminder_at)->toBeNull();
+
+    config(['learners.default_reminder_time' => '']);
+    $off = app(LearnerRegistrar::class)->fromTelegramUser(['id' => 4203, 'first_name' => 'C'])->fresh();
+    expect($off->reminder_time)->toBeNull()
+        ->and($off->next_reminder_at)->toBeNull();
+});

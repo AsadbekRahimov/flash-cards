@@ -5,11 +5,15 @@ import { createMemoryHistory, createRouter } from 'vue-router'
 import FinishedView from '../FinishedView.vue'
 import { api } from '@/api'
 import { setLocale } from '@/i18n'
+import { ApiClientError } from '@/api/client'
+import { useTodayStore } from '@/stores/today'
 import { useTrainingStore } from '@/stores/training'
 import type { SessionSummary } from '@/api/types'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 
-vi.mock('@/api', () => ({ api: { me: { get: vi.fn() }, promo: { redeem: vi.fn() }, today: { get: vi.fn() } } }))
+vi.mock('@/api', () => ({
+  api: { me: { get: vi.fn() }, promo: { redeem: vi.fn() }, today: { get: vi.fn() }, training: { open: vi.fn() } },
+}))
 
 vi.mock('@/composables/useTelegram', () => ({
   useTelegram: () => ({
@@ -23,6 +27,7 @@ const router = createRouter({
   routes: [
     { path: '/', name: 'landing', component: { template: '<div />' } },
     { path: '/today', name: 'today', component: { template: '<div />' } },
+    { path: '/training/:sessionId(\\d+)', name: 'training', component: { template: '<div />' } },
   ],
 })
 
@@ -127,6 +132,36 @@ describe('FinishedView', () => {
       // The learner can bring it back; the promo field lives inside the paywall then.
       await w.get('[data-testid=paywall-open]').trigger('click')
       expect(w.find('[data-testid=paywall]').exists()).toBe(true)
+    })
+
+    it('"Repeat words" starts a daily review from the paywall when cards are due', async () => {
+      vi.mocked(api.training.open).mockResolvedValue({ session_id: 55, mode: 'daily_review', lesson: null, total_words: 4 })
+      vi.mocked(api.today.get).mockResolvedValue({} as never)
+      useTodayStore().data = { due_count: 4 } as never
+      const w = render(3, 1, 'new_quota_exhausted')
+      await flushPromises()
+
+      await w.get('[data-testid=paywall-review]').trigger('click')
+      await flushPromises()
+
+      expect(api.training.open).toHaveBeenCalledWith({ mode: 'daily_review', source: 'self' })
+      expect(w.find('[data-testid=paywall]').exists()).toBe(false)
+      expect(router.currentRoute.value.name).toBe('training')
+      expect(router.currentRoute.value.params.sessionId).toBe('55')
+    })
+
+    it('shows the error and stays here when the review cannot be opened', async () => {
+      vi.mocked(api.training.open).mockRejectedValue(new ApiClientError('rate_limited', 429, 'unknown', 'Too Many Attempts.'))
+      useTodayStore().data = { due_count: 4 } as never
+      await router.push('/')
+      const w = render(3, 1, 'new_quota_exhausted')
+      await flushPromises()
+
+      await w.get('[data-testid=paywall-review]').trigger('click')
+      await flushPromises()
+
+      expect(w.find('[data-testid=open-error]').exists()).toBe(true)
+      expect(router.currentRoute.value.name).toBe('landing')
     })
 
     it.each(['lesson_complete', 'nothing_due', 'session_cap', null])('does not open for done_reason %s', async (reason) => {

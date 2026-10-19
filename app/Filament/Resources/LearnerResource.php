@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources;
 
 use App\Domain\Administration\Services\PanelDataScope;
+use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Billing\Support\PaidSubscriptionQuery;
 use App\Domain\Learners\Services\LearnerModerationService;
@@ -69,8 +70,8 @@ class LearnerResource extends Resource
                 ->state(function (Learner $record): string {
                     $entitlement = app(EntitlementResolver::class)->resolve($record);
 
-                    return ucfirst($entitlement->plan->value)
-                        .($entitlement->isSponsored() ? ' (sponsored by organization #'.substr($entitlement->source, strlen('sponsor:organization:')).')' : '')
+                    return self::planLabel($entitlement->plan, $entitlement->isSponsored())
+                        .($entitlement->isSponsored() ? ', organization #'.substr($entitlement->source, strlen('sponsor:organization:')) : '')
                         .($entitlement->until !== null ? ', until '.$entitlement->until->toDateTimeString() : '');
                 })
                 ->visible($isAdmin),
@@ -110,11 +111,11 @@ class LearnerResource extends Resource
                     ->label('Plan')
                     ->badge()
                     ->state(fn (Learner $record): string => match (true) {
-                        $record->getAttribute('personal_pro_id') !== null => 'Pro',
-                        $record->getAttribute('sponsor_pro_id') !== null => 'Pro (sponsored)',
-                        default => 'Free',
+                        $record->getAttribute('personal_pro_id') !== null => self::planLabel(Plan::Pro, sponsored: false),
+                        $record->getAttribute('sponsor_pro_id') !== null => self::planLabel(Plan::Pro, sponsored: true),
+                        default => self::planLabel(Plan::Free, sponsored: false),
                     })
-                    ->color(fn (string $state): string => $state === 'Free' ? 'gray' : 'success')
+                    ->color(fn (string $state): string => $state === self::planLabel(Plan::Free, sponsored: false) ? 'gray' : 'success')
                     ->visible($isAdmin),
                 Tables\Columns\IconColumn::make('onboarded')
                     ->label('Onboarded')
@@ -260,8 +261,14 @@ class LearnerResource extends Resource
     private static function wherePro(Builder $query, CarbonImmutable $now): Builder
     {
         return $query
-            ->whereExists(PaidSubscriptionQuery::personalFor($now)->select('subscriptions.id'))
+            ->whereIn('learners.id', PaidSubscriptionQuery::personalLearnerIds($now))
             ->orWhereIn('learners.id', PaidSubscriptionQuery::sponsoredLearnerIds($now));
+    }
+
+    /** The one plan caption of the platform view (list column and learner page): "Free", "Pro", "Pro (sponsored)". */
+    public static function planLabel(Plan $plan, bool $sponsored): string
+    {
+        return ucfirst($plan->value).($sponsored && $plan !== Plan::Free ? ' (sponsored)' : '');
     }
 
     /** @return array<int, class-string> */

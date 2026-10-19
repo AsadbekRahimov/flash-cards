@@ -202,7 +202,7 @@ The original PRD schema is also supported for compatibility (`course` may be add
 - The course's word counter is refreshed after every import.
 
 ### Word audio (pre-generation)
-Cards play a pre-generated mp3 when the word has one; otherwise the app falls back to the browser voice / live TTS. After importing a lesson pack or publishing a course, ask the developer/DevOps to run `php artisan audio:pregenerate <course-slug>` (it only queues the words that do not have current audio yet; `--force` redoes all). It runs in the background — voiced words appear within minutes. Edited word texts need a re-run. Inactive words are skipped. Publishing does not start it automatically.
+Cards play a pre-generated mp3 when the word has one; otherwise the app falls back to the browser voice / live TTS. After importing a lesson pack or publishing a course, ask the developer/DevOps to run `php artisan audio:pregenerate <course-slug>` (it only queues the words that do not have current audio yet; `--force` redoes all). It runs in the background — voiced words appear within minutes. Editing a word's English text clears its audio and queues a new voice-over automatically. Inactive words are skipped. Publishing does not start it automatically.
 
 ### Manual word editing
 Open any Stage → Lesson → click on a word to edit its translation, example, or transcription.
@@ -228,13 +228,14 @@ onboarding state, subscriptions or events).
   (`learner.blocked` / `learner.unblocked`). Unblocking restores access at once.
 
 **Learner page (admin).** Besides the profile it shows the onboarding state and the **effective plan** (source:
-own or sponsored by organization #N, and until when), and three read-only tabs:
+captioned *Free* / *Pro* / *Pro (sponsored)* as in the list, then the organization #N for sponsored Pro and until when), and three read-only tabs:
 
 - *Subscriptions* — the learner's own subscriptions (plan, status, provider, until, reason). The button
   **Open in Subscriptions** opens the Billing screen filtered to this learner, where Grant Pro / Revoke live.
   Sponsored Pro is a subscription of the organization and is not listed here.
 - *Recent events* — the last 50 product events of the learner (time, name, properties). The properties contain
-  no personal data by design (no promo codes, no message text).
+  no personal data by design (no promo codes, no message text). The login event `twa.authenticated` is hidden
+  (it is written on every TWA open); pick it in the *Event* filter to see it, or pick any other name to narrow the list.
 - *Last 14 days* — daily stats: reviews, correct answers, new words, time, whether the daily goal was met.
 
 ---
@@ -301,7 +302,7 @@ Changes apply within seconds.
 | Hardest Words | admin, teacher | Top 20 words with lowest accuracy |
 | Pro subscriptions | **admin only** | *Pro learners* — learners whose effective plan is Pro right now (own or sponsored, each counted once), with the split "own subscriptions / sponsoring organizations"; *Pro ending in 7 days* — own and organization subscriptions whose paid access ends within a week (for an auto-renewing provider: the end of the grace period) |
 | Onboarding funnel — 7 days | **admin only** | Learners who started onboarding in the last 7 days (`onboarding.started`), how many of them have completed it (`onboarding.completed`) and the conversion %. Distinct learners; a learner who started earlier and finished this week is not in the cohort |
-| Organizations — members / seats | **admin only** | Per organization: active groups, **members** (distinct learners with an active membership in an active group of the organization), **seats** (`seats_limit` of the organization's live subscription; empty when none was set) and whether it is sponsoring Pro |
+| Organizations — members / seats | **admin only** | Per organization: active groups, **members** (distinct learners with an active membership in an active group of the organization; deleted learners are not counted), **seats** (`seats_limit` of the organization's live subscription; empty when none was set) and whether it is sponsoring Pro |
 
 The three *admin only* widgets show platform-wide data: a teacher never sees them (they are not on the dashboard and
 cannot be opened directly; an inactive admin gets the same). In Phase 1 the seat limit is informational — it is not

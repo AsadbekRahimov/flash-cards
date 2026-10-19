@@ -118,6 +118,7 @@ export const uz: Translations = {
   'paywall.contact': "Markazda o'qiysizmi? Markaz administratoridan LexiFlow Pro'ni ulashni so'rang:",
   'paywall.dismiss': 'Tushunarli',
   'paywall.open': 'Pro haqida bilib oling',
+  'paywall.review': "So'zlarni takrorlash",
 
   // ---- course catalog ----
   'catalog.title': 'Kurslar',

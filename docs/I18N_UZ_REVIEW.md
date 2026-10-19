@@ -411,6 +411,16 @@
 
 Проверить: «Bugun» как название экрана (вместе с «Bugun» = «Сегодня» в `finished.next_today`); «Seriya» (серия дней подряд с выполненной целью) и «Rekord»; «Kunlik maqsad» (цель дня) и форму «{target} tadan {done} tasi» ("X из Y"); «xavf ostida» (под угрозой) в `today.streak.at_risk`; `today.goal.left` — «N ta kartochka qoldi» (осталось N карточек); `today.course.completed` («barcha so'zlar ko'rsatildi» — все слова показаны, не «выучены»).
 
+## Фаза 1 · задача 1.5b (напоминания по локальному времени) — на проверку носителю
+
+### Бот (`lang/uz/reminders.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `reminders.streak_at_risk` | Seriyangiz — :count kun. Uni uzmaslik uchun bugungi maqsadni bajaring. | Ваша серия — :count день. Выполните цель дня, чтобы не прервать её.\|Ваша серия — :count дня. …\|Ваша серия — :count дней. … |
+
+`:count` — длина серии в днях; в ru три формы числа, в uz одна. Ключи `reminders.review` и `reminders.open_button` без изменений. Проверить: «Seriyangiz» (ваша серия — согласовано с «Seriya» на экране «Сегодня»), «uzmaslik» (не прервать), «bugungi maqsad» (цель дня — тот же термин, что `today.goal.title` «Kunlik maqsad»; если носителю ближе «kunlik maqsadni», заменить).
+
 ## Фаза 1 · задача 1.6 (настройки) — на проверку носителю
 
 ### TWA (`resources/twa/src/i18n/uz.ts`)

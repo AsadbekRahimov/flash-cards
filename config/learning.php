@@ -77,4 +77,39 @@ return [
      * re-open the lesson (`/start_training` is idempotent).
      */
     'group_session_ttl_hours' => (int) env('LEARNING_GROUP_SESSION_TTL_HOURS', 24),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Personal reminders (docs/06 §6, docs/12 §7.5)
+    |--------------------------------------------------------------------------
+    |
+    | `reminders:dispatch` runs every 15 minutes and claims learners whose
+    | `next_reminder_at` has passed; the job then decides what to say.
+    */
+    'reminders' => [
+        /**
+         * Minimum due cards for a "N words to review" reminder. Below it the job
+         * falls back to the streak warning (when the streak is at risk) or stays silent.
+         * B2C: a single due word is a valid reason to come back (was 5).
+         */
+        'due_threshold' => max(1, (int) env('REMINDERS_DUE_THRESHOLD', 1)),
+
+        /**
+         * At most one reminder of any kind per learner within this window —
+         * the second idempotency level, in `notifications_log`, for retried jobs
+         * and overlapping claims.
+         */
+        'min_interval_hours' => (int) env('REMINDERS_MIN_INTERVAL_HOURS', 20),
+
+        /**
+         * A claimed reminder older than this (scheduler was down, queue lagged,
+         * `dm_blocked_at` was cleared weeks later) is not sent: a reminder at a
+         * random hour is spam. `next_reminder_at` still moves to the next day.
+         */
+        'max_delay_minutes' => (int) env('REMINDERS_MAX_DELAY_MINUTES', 120),
+
+        /** Learners claimed per SELECT; the backfill of missing `next_reminder_at` is capped per run. */
+        'batch_size' => (int) env('REMINDERS_BATCH_SIZE', 200),
+        'backfill_limit' => (int) env('REMINDERS_BACKFILL_LIMIT', 1000),
+    ],
 ];

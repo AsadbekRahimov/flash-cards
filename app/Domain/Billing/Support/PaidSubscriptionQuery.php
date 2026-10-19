@@ -49,8 +49,8 @@ final class PaidSubscriptionQuery
     }
 
     /**
-     * The learner's own granting subscription, correlated with `learners.id` (for whereExists /
-     * addSelect on a learners query).
+     * The learner's own granting subscription, correlated with `learners.id`: for the rows of one
+     * page (addSelect). For filtering a whole table use {@see self::personalLearnerIds()}.
      *
      * @return Builder<Subscription>
      */
@@ -62,6 +62,21 @@ final class PaidSubscriptionQuery
                 ->whereColumn('subscriptions.subscriber_id', 'learners.id'),
             $now,
         );
+    }
+
+    /**
+     * Ids of every learner with an own granting subscription right now. Uncorrelated, like
+     * {@see self::sponsoredLearnerIds()}: the subscriptions table is read once and hashed, instead of
+     * running {@see self::personalFor()} per learner when a whole `learners` table is filtered.
+     *
+     * @return Builder<Subscription>
+     */
+    public static function personalLearnerIds(CarbonImmutable $now): Builder
+    {
+        return self::granting(
+            Subscription::query()->where('subscriptions.subscriber_type', 'learner'),
+            $now,
+        )->select('subscriptions.subscriber_id');
     }
 
     /**
@@ -132,10 +147,15 @@ final class PaidSubscriptionQuery
         ));
         $graceEdge = $at->subDays(SubscriptionLiveness::graceDays());
 
+        // Every live status except past_due is judged by the period end; past_due by `grace_until`
+        // (the same split as SubscriptionLiveness). The lists come from the enum, so a status that
+        // becomes live there (docs/12 §5.1: `canceled`) is picked up here with the rest of the rule.
+        $byPeriod = array_values(array_diff(SubscriptionStatus::liveValues(), [SubscriptionStatus::PastDue->value]));
+
         return $query
-            ->where(function (Builder $ongoing) use ($at, $withGrace, $graceEdge): void {
+            ->where(function (Builder $ongoing) use ($at, $byPeriod, $withGrace, $graceEdge): void {
                 $ongoing
-                    ->whereIn('subscriptions.status', [SubscriptionStatus::Trialing->value, SubscriptionStatus::Active->value])
+                    ->whereIn('subscriptions.status', $byPeriod)
                     ->where(function (Builder $end) use ($at, $withGrace, $graceEdge): void {
                         $end->whereNull('subscriptions.current_period_ends_at')
                             ->orWhere(fn (Builder $fixed): Builder => $fixed

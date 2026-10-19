@@ -8,7 +8,9 @@ use App\Domain\Learners\DTO\StartPayload;
 use App\Domain\Learners\Enums\StartPayloadKind;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Learner;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -28,7 +30,10 @@ final class LearnerRegistrar
 
     private const LANGUAGE_MAX = 10;
 
-    public function __construct(private readonly LocaleResolver $locales) {}
+    public function __construct(
+        private readonly LocaleResolver $locales,
+        private readonly LearnerClock $clock,
+    ) {}
 
     /**
      * The person acted themselves. Upsert by `telegram_user_id`: revives a soft-deleted
@@ -36,7 +41,7 @@ final class LearnerRegistrar
      * `username` are a full snapshot (an absent key clears the stored value); `language_code`
      * is updated only when the payload carries a non-empty one, and only then is
      * `interface_locale` derived from it — and only for a learner who has not chosen one yet
-     * (onboarding `new`). `acquisition_source` is written once, when the learner is created;
+     * (onboarding `new` and no `meta.locale_chosen` from the settings). `acquisition_source` is written once, when the learner is created;
      * `start_payload` — on the first contact that carries it.
      *
      * @param  array<string, mixed>  $tgUser  Telegram `User` object (`id`, `first_name`, ...)
@@ -152,6 +157,9 @@ final class LearnerRegistrar
         $learner = Learner::withTrashed()->where('telegram_user_id', $telegramUserId)->first();
 
         if ($learner === null) {
+            $timezone = (string) config('learners.default_timezone');
+            $reminderTime = trim((string) config('learners.default_reminder_time'));
+
             /** @var Learner $created */
             $created = Learner::query()->create([
                 'telegram_user_id' => $telegramUserId,
@@ -161,9 +169,13 @@ final class LearnerRegistrar
                 'language_code' => null,
                 ...$profile,
                 'interface_locale' => $this->locales->fromLanguageCode($profile['language_code'] ?? null),
-                'timezone' => (string) config('learners.default_timezone'),
+                'timezone' => $timezone,
                 'daily_goal' => (int) config('learners.default_daily_goal'),
-                'reminder_time' => (string) config('learners.default_reminder_time'),
+                'reminder_time' => $reminderTime === '' ? null : $reminderTime,
+                // Reminders start with the defaults (docs/12 §7.5): a learner who never writes
+                // to the bot gets one attempt, a 403 then sets `dm_blocked_at`. The onboarding
+                // recomputes this when the zone or the time is chosen.
+                'next_reminder_at' => $this->firstReminderAt($timezone, $reminderTime),
                 'onboarding_state' => 'new',
                 'acquisition_source' => $source,
                 'start_payload' => $startPayload,
@@ -190,7 +202,11 @@ final class LearnerRegistrar
             $learner->last_seen_at = now();
         }
 
-        if ($learner->onboarding_state === 'new' && ($profile['language_code'] ?? null) !== null) {
+        // `meta.locale_chosen`: the learner picked a language in the settings before `/start` — it stays.
+        if ($learner->onboarding_state === 'new'
+            && ($learner->meta[LearnerSettingsService::LOCALE_CHOSEN] ?? false) !== true
+            && ($profile['language_code'] ?? null) !== null
+        ) {
             $learner->interface_locale = $this->locales->fromLanguageCode($profile['language_code']);
         }
         if ($learner->start_payload === null && $startPayload !== null) {
@@ -200,6 +216,17 @@ final class LearnerRegistrar
         $learner->save();
 
         return $learner;
+    }
+
+    private function firstReminderAt(string $timezone, string $reminderTime): ?Carbon
+    {
+        if ($reminderTime === '') {
+            return null;
+        }
+
+        $transient = new Learner(['timezone' => $timezone]);
+
+        return Carbon::instance($this->clock->nextOccurrenceUtc($transient, $reminderTime, CarbonImmutable::now()));
     }
 
     private function nullableString(mixed $value, int $max): ?string

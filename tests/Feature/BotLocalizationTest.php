@@ -3,16 +3,14 @@
 declare(strict_types=1);
 
 use App\Domain\Analytics\Services\ProductEventRecorder;
-use App\Domain\Learners\Services\GroupMembershipService;
+use App\Domain\Learners\Services\ReminderSender;
 use App\Domain\Learning\Services\LeaderboardBuilder;
-use App\Domain\Learning\Services\ReviewReminderLinkBuilder;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\TeacherStatsReporter;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Filament\Resources\TelegramGroupResource\Pages\EditTelegramGroup;
 use App\Jobs\PostLeaderboardJob;
-use App\Jobs\SendReviewReminderJob;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
 use App\Models\Learner;
@@ -21,6 +19,8 @@ use App\Models\Stage;
 use App\Models\TelegramGroup;
 use App\Models\User;
 use App\Models\Word;
+use App\Models\WordRepetition;
+use Carbon\CarbonImmutable;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
@@ -246,20 +246,19 @@ it('renders the teacher stats report from lang files', function (): void {
 
 // --- review reminders (learner language) -----------------------------------
 
+/** Gives the learner $due graduated due cards and runs the reminder sender (docs/12 §7.5). */
 function locRunReminder(Learner $learner, int $due): void
 {
-    (new SendReviewReminderJob($learner->id, $due))->handle(
-        test()->api,
-        app(ReviewReminderLinkBuilder::class),
-        app(ProductEventRecorder::class),
-        app(LocaleResolver::class),
-        app(GroupMembershipService::class),
-    );
+    app()->instance(TelegramClient::class, test()->api);
+    foreach (Word::factory()->count($due)->create() as $word) {
+        WordRepetition::factory()->due()->create(['learner_id' => $learner->id, 'word_id' => $word->id]);
+    }
+
+    app(ReminderSender::class)->send($learner->id, CarbonImmutable::now()->subMinutes(5));
 }
 
 it('sends the reminder in the learner interface language with correct number forms', function (string $interfaceLocale, int $due, string $expected, string $button): void {
-    $group = locGroup(-5009);
-    $learner = Learner::factory()->memberOf($group)->create([
+    $learner = Learner::factory()->create([
         'telegram_user_id' => 880001,
         'interface_locale' => $interfaceLocale,
         // The Telegram language is only a fallback now: it must not override the chosen locale.
@@ -284,8 +283,7 @@ it('sends the reminder in the learner interface language with correct number for
 ]);
 
 it('falls back to the Telegram language when the stored interface locale is unsupported', function (): void {
-    $group = locGroup(-5019);
-    $learner = Learner::factory()->memberOf($group)->create([
+    $learner = Learner::factory()->create([
         'interface_locale' => 'xx',
         'language_code' => 'uz-UZ',
     ]);
