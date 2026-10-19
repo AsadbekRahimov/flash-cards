@@ -187,7 +187,10 @@ review-карточку** (то есть после того, как слово 
    лишь регистрирует `DB::afterCommit`, а проекция `learners.streak_*` обновляется после коммита одиночным
    условным `UPDATE … WHERE streak_last_date = <прочитанное>` (без `FOR UPDATE`, вне любой другой транзакции);
    источник истины для streak — `learner_daily_stats.goal_met_at`, по нему `StreakService::current()` чинит
-   отставшую проекцию (docs/12 §3.1, §7.4).
+   отставшую проекцию (docs/12 §3.1, §7.4). Поэтому и `current()` — не чистое чтение: он может выполнить тот же
+   одиночный `UPDATE learners`, и его (а с ним `TodayService::summary/progress`) нельзя вызывать внутри транзакции,
+   которая держит `training_sessions` / `word_repetitions` / `learner_daily_stats` (в частности из
+   `SendLearnerReminderJob` 1.5b — только вне транзакции).
 3. **Learn-ahead**: если due и new нет — ближайшая `learning`/`relearning` карточка scope с
    `next_review_at <= now + learn_ahead_minutes`. Она выдаётся **досрочно**, и в строке
    ставится билет: `served_ahead_at = now`, `served_ahead_token = random(32 hex)`. Токен уходит

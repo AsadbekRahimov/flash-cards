@@ -92,7 +92,7 @@
 - Цель дня и streak — в `GET /today` (A.2a), не в `/me`. Настройки появятся в задаче 1.6 (docs/12 §3.8).
 
 ### A.2a `GET /api/twa/today`
-Экран «Сегодня» (docs/12 §7.3): всё, что нужно главному экрану learner'а, за один запрос. Только чтение, `TodayService::summary`.
+Экран «Сегодня» (docs/12 §7.3): всё, что нужно главному экрану learner'а, за один запрос. `TodayService::summary`. Не «чистое чтение»: `StreakService::current()` может выполнить одиночный `UPDATE learners` (самопочинка отставшей проекции streak, docs/12 §7.4), поэтому метод нельзя вызывать внутри транзакции, держащей `training_sessions` / `word_repetitions` / `learner_daily_stats` (порядок блокировок docs/12 §3.1; важно для напоминаний 1.5b).
 
 **Response:**
 ```json
@@ -116,7 +116,7 @@
 - `new_words_remaining` — сколько новых слов осталось по квоте Free на сегодня; `null` = безлимит. **До задачи 1.4b всегда `null`** (поле зарезервировано, клиент считает `null` безлимитом).
 - `goal` — цель дня: `target` = `learners.daily_goal` (оценки), `done` = `learner_daily_stats.reviews_count` за **локальный** день learner'а (`learners.timezone`, граница — локальная полночь, не UTC), `met` — цель достигнута (остаётся `true`, когда `done` растёт дальше).
 - `streak` — `current` серия дней с выполненной целью (0, если пропущен день — обнуляется при чтении), `best` рекорд, `met_today` сегодня уже засчитан, `at_risk` = `current > 0 && !met_today` (серия оборвётся, если не выполнить цель до локальной полуночи). Правила — docs/12 §7.4.
-- `active_course` — активный курс learner'а или `null` (курса нет или он уже не `published` — тогда экран предлагает выбрать курс). `title` на языке learner'а (fallback `ru`); `progress` — активные слова курса: `learned` (`repetitions >= 1`) из `total`. `next_lesson` — первый урок курса с ещё не показанными активными словами (источник новых слов `daily_review`), `null`, если показано всё; `id` — для `POST /training/sessions {mode: "lesson", lesson_id}`, `title` может быть `null`.
+- `active_course` — активный курс learner'а или `null` (курса нет или он уже недоступен — не `published` либо `private`, единое правило `CourseCatalogService::isAvailable`, — тогда экран предлагает выбрать курс). `title` на языке learner'а (fallback `ru`); `progress` — активные слова курса: `learned` (`repetitions >= 1`) из `total`. `next_lesson` — первый урок курса с ещё не показанными активными словами (источник новых слов `daily_review`), `null`, если показано всё; `id` — для `POST /training/sessions {mode: "lesson", lesson_id}`, `title` может быть `null`.
 - `open_session_id` — открытая и **неистёкшая** `daily_review` learner'а (продолжить); `null` — нет такой (просроченная, но не закрытая планировщиком, не считается).
 - `entitlement` — как в `/me` (A.2), без `new_words_per_day`.
 - `onboarding_completed` — `onboarding_state = done`. Экран работает и без онбординга (learner мог прийти из группы), но может подсказать завершить настройку в боте.
