@@ -265,7 +265,7 @@ Unique `(word_id, locale)`. Экзаменационные дистрактор�
 ### 1.10 Прочее
 
 - `product_events`: `student_id` → `learner_id` (§1.5); новые имена событий — §7.7.
-- `audit_logs`: действия `subscription.granted` (meta: subscriber_type/id, plan, until, note, extended), `subscription.revoked` (meta: subscriber_type/id, plan, note), `promo.created`, `learner.blocked`, `course.published`, `organization.linked_group`; `entity_type = App\Models\Subscription`, `ip` — передаёт обвязка.
+- `audit_logs`: действия `subscription.granted` (meta: subscriber_type/id, plan, until, note, extended), `subscription.revoked` (meta: subscriber_type/id, plan, note), `promo.created`, `promo.updated` (meta: `code`, `changes` — `{поле: {from, to}}` по `max_redemptions`/`duration_days`/`expires_at`/`is_active`/`note`), `learner.blocked`, `course.published`, `organization.linked_group` / `organization.unlinked_group`, `organization.status_changed` (meta: `name`, `from`, `to`); `entity_type = App\Models\Subscription`, `ip` — передаёт обвязка.
 - `notifications_log.type`: `review_reminder`, `streak_reminder`, `onboarding_nudge`.
 
 ---
@@ -858,7 +858,7 @@ flowchart TD
 | IDOR между learner'ами | все `/training/*`, `/exam/*` через `TrainingSessionPolicy`/`ExamSessionPolicy` (личная — владелец, групповая — активное членство); `learner_id` никогда не принимается из тела запроса; `/me/*`, `/today`, `/promo` — только по JWT | тесты: чужая личная сессия → 403, чужая группа → 403 |
 | Утечка данных между центрами / учителями | `PanelDataScope::learners()` через активное членство; личные сессии учителю не видны; `TeacherPanelScopeTest` расширяется; `LearnerResource` для учителя — усечённые поля | RLS + org-scope в Фазе 2 |
 | Фрод оплаты | провайдеров нет; ручная выдача — только роль `admin` с обязательной 2FA (есть) + `audit_logs`; Filament-действие требует `note` | §6.1: подпись, `(provider, provider_event_id)` unique, сверка суммы/валюты, IP allowlist, `lockForUpdate` |
-| Перебор промокодов | коды 10 символов из `[A-Z0-9]` (≈ 36^10); throttle `twa-promo` 5/мин per learner + 20/мин per IP; бот `/promo` — те же лимиты через `RateLimiter` по `telegram_user_id`; событие `promo.rejected` при ≥ 5 ошибок — алерт | — |
+| Перебор промокодов | коды 10 символов из `[A-Z0-9]` (≈ 36^10); throttle `twa-promo` 5/мин per learner + 20/мин per IP; бот `/promo` — отдельный лимит 5/мин на learner'а через `RateLimiter` (`bot-promo:<learner_id>`; со счётчиком TWA не складывается); событие `promo.rejected` при ≥ 5 ошибок — алерт | — |
 | Перепродажа мест центра | спонсорский Pro только через группу организации, которую привязал **суперадмин**; `seats_limit` в подписке организации + виджет «активных участников / мест» и warning в Filament при превышении; `telegram_groups.status` админом | жёсткий лимит мест, инвайт-коды с TTL, алерты на аномальные вступления (Фаза 2) |
 | Фарм рефералов / рейтингов | награды не выдаются (только `referrer_learner_id`); публичных рейтингов нет | награда после 3 дней активности приглашённого, лимиты, анти-чит лиг |
 | DoS публичных эндпоинтов анонимами | `/auth` 20/мин per IP (есть) + 10/мин per `telegram_user_id`; `/courses` — кэш 10 мин, `Cache-Control: public, max-age=300`; `POST /training/sessions` 10/мин; все остальные per-learner (есть) | CDN для статики TWA/аудио |

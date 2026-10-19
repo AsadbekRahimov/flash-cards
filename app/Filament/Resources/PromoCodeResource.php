@@ -38,14 +38,14 @@ class PromoCodeResource extends Resource
             Forms\Components\TextInput::make('code')
                 ->required()
                 ->default(fn (): string => app(PromoCodeService::class)->generateCode())
-                ->helperText('Upper-case letters and digits; spaces and dashes are dropped. Cannot be changed after creation.')
+                ->helperText('6–32 Latin letters or digits; spaces and dashes are dropped. Cannot be changed after creation.')
                 ->disabledOn('edit')
                 ->rules([
                     fn (?PromoCode $record): Closure => function (string $attribute, mixed $value, Closure $fail) use ($record): void {
                         $normalized = PromoCodeService::normalize((string) $value);
 
-                        if (preg_match('/\A[A-Z0-9]{4,32}\z/', $normalized) !== 1) {
-                            $fail('The code must be 4–32 Latin letters or digits (spaces and dashes are ignored).');
+                        if (preg_match('/\A[A-Z0-9]{6,32}\z/', $normalized) !== 1) {
+                            $fail('The code must be 6–32 Latin letters or digits (spaces and dashes are ignored).');
 
                             return;
                         }
@@ -80,7 +80,8 @@ class PromoCodeResource extends Resource
                 ->helperText('Empty = unlimited. One learner can redeem a code only once either way.'),
             Forms\Components\DateTimePicker::make('expires_at')
                 ->label('Valid until')
-                ->helperText('Empty = no expiry date.'),
+                ->timezone(config('learners.default_timezone'))
+                ->helperText('Empty = no expiry date. Time zone: '.config('learners.default_timezone').'.'),
             Forms\Components\Toggle::make('is_active')->label('Active')->default(true),
             Forms\Components\Textarea::make('note')->rows(2)->maxLength(500)->columnSpanFull(),
             Forms\Components\TextInput::make('redemptions_count')

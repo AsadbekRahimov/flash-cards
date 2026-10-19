@@ -8,7 +8,6 @@ use App\Models\PromoCode;
 use App\Models\PromoRedemption;
 use App\Models\Subscription;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\RateLimiter;
 
 uses(RefreshDatabase::class);
 
@@ -16,10 +15,6 @@ function promoHeaders(Learner $learner): array
 {
     return ['Authorization' => 'Bearer '.app(JwtService::class)->issue($learner->id)['token']];
 }
-
-beforeEach(function (): void {
-    RateLimiter::clear('twa-promo');
-});
 
 it('redeems a code and answers with the refreshed profile (Pro with its end)', function (): void {
     $learner = Learner::factory()->create();

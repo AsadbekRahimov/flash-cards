@@ -24,6 +24,7 @@ use App\Models\TelegramGroup;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Livewire;
 
@@ -531,4 +532,61 @@ it('never lets a teacher delete an organization', function (): void {
     $org = Organization::factory()->create();
 
     expect(Gate::forUser($this->teacher)->allows('delete', $org))->toBeFalse();
+});
+
+it('reads the promo expiry as local time (default learner time zone) and stores it as UTC', function (): void {
+    $this->actingAs($this->admin);
+    expect(config('learners.default_timezone'))->toBe('Asia/Tashkent');   // UTC+5, no DST
+
+    Livewire::test(CreatePromoCode::class)
+        ->fillForm(['code' => 'TZPROMO1', 'plan' => 'pro', 'duration_days' => 30, 'expires_at' => '2031-06-01 12:00:00'])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $promo = PromoCode::query()->where('code', 'TZPROMO1')->sole();
+    expect($promo->expires_at?->utc()->format('Y-m-d H:i:s'))->toBe('2031-06-01 07:00:00');
+    expect(DB::table('promo_codes')->where('id', $promo->id)->value('expires_at'))->toStartWith('2031-06-01 07:00:00');
+
+    // The edit form shows the stored UTC moment in local time again.
+    expect(Livewire::test(EditPromoCode::class, ['record' => $promo->getKey()])->get('data.expires_at'))->toBe('2031-06-01 12:00:00');
+});
+
+it('reads the Grant Pro end date as local time and stores it as UTC; a past local moment is refused', function (): void {
+    $learner = Learner::factory()->create();
+    $this->actingAs($this->admin);
+
+    Livewire::test(ListSubscriptions::class)
+        ->callAction('grantPro', ['subscriber_type' => 'learner', 'learner_id' => $learner->id, 'perpetual' => false, 'until' => '2031-06-01 12:00:00', 'note' => 'tz'])
+        ->assertHasNoActionErrors();
+
+    expect(Subscription::query()->where('subscriber_id', $learner->id)->sole()->current_period_ends_at?->utc()->format('Y-m-d H:i:s'))->toBe('2031-06-01 07:00:00');
+
+    // One hour ago in real time, written as local (UTC+5) wall-clock time: still in the past.
+    $past = now()->subHour()->setTimezone('Asia/Tashkent')->format('Y-m-d H:i:s');
+    Livewire::test(ListSubscriptions::class)
+        ->callAction('grantPro', ['subscriber_type' => 'learner', 'learner_id' => $learner->id, 'perpetual' => false, 'until' => $past, 'note' => 'late'])
+        ->assertHasActionErrors(['until']);
+
+    // Two hours ahead in real time, as local wall-clock time: accepted.
+    $soon = now()->addHours(2)->setTimezone('Asia/Tashkent')->format('Y-m-d H:i:s');
+    $other = Learner::factory()->create();
+    Livewire::test(ListSubscriptions::class)
+        ->callAction('grantPro', ['subscriber_type' => 'learner', 'learner_id' => $other->id, 'perpetual' => false, 'until' => $soon, 'note' => 'soon'])
+        ->assertHasNoActionErrors();
+});
+
+it('requires a promo code of at least 6 characters', function (): void {
+    $this->actingAs($this->admin);
+
+    Livewire::test(CreatePromoCode::class)
+        ->fillForm(['code' => 'AB-CDE', 'plan' => 'pro', 'duration_days' => 30])   // 5 after normalizing
+        ->call('create')
+        ->assertHasFormErrors(['code']);
+
+    Livewire::test(CreatePromoCode::class)
+        ->fillForm(['code' => 'AB-CDEF', 'plan' => 'pro', 'duration_days' => 30])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(PromoCode::query()->sole()->code)->toBe('ABCDEF');
 });
