@@ -24,6 +24,12 @@ Schedule::command('exams:close-expired')
     ->withoutOverlapping()
     ->runInBackground();
 
+// Personal sessions past `expires_at` and stale group sessions get `done_reason = expired`
+// (docs/12 §7.6). A plain UPDATE, so overlapping or repeated runs are harmless.
+Schedule::command('training:close-expired')
+    ->everyFifteenMinutes()
+    ->withoutOverlapping();
+
 // Time-based subscription transitions (period end -> past_due / expired),
 // docs/12 §5.6. Idempotent: every row is re-checked under lockForUpdate.
 Schedule::command('subscriptions:expire')

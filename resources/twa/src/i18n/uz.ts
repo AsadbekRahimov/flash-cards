@@ -16,6 +16,7 @@ export const uz: Translations = {
 
   // ---- landing ----
   'landing.in_telegram': "Mashg'ulotni Telegram guruhidagi tugma orqali oching.",
+  'landing.review_all': 'Hammasini takrorlash',
   'landing.outside_telegram':
     "Bu sahifa faqat Telegram Web App ichida ishlaydi. O'qituvchidan mashg'ulot havolasini guruhga yuborishini so'rang.",
 
@@ -33,6 +34,7 @@ export const uz: Translations = {
 
   // ---- training ----
   'training.lesson_header': 'Stage {stage} · Lesson {lesson}',
+  'training.daily_header': 'Takrorlash',
   'training.closed_title': "🔒 Mashg'ulot o'qituvchi tomonidan yakunlandi",
 
   // ---- exam ----
@@ -51,6 +53,10 @@ export const uz: Translations = {
     one: "Siz {count} ta so'zni takrorladingiz.",
     other: "Siz {count} ta so'zni takrorladingiz.",
   },
+  'finished.reason.lesson_complete': "Darsdagi barcha so'zlar o'tildi.",
+  'finished.reason.nothing_due': "Bugun takrorlaydigan narsa yo'q.",
+  'finished.reason.new_quota_exhausted': "Bugungi yangi so'zlar limiti tugadi. Yangi so'zlar ertaga ochiladi.",
+  'finished.reason.session_cap': "Bu uzun mashg'ulot bo'ldi — biroz dam oling.",
   'finished.next_label': 'Keyingi takrorlash',
   'finished.next_today': 'Bugun',
   'finished.next_in_days': {
@@ -82,6 +88,7 @@ export const uz: Translations = {
   'course.back': 'Kurslarga',
   'course.module': '{number}-modul',
   'course.lesson': '{number}-dars',
+  'course.learn': "O'rganish",
   'course.no_lessons': "Kursda hali darslar yo'q.",
 
   // ---- errors (by kind / context) ----
@@ -109,11 +116,13 @@ export const uz: Translations = {
   'error.code.invalid_token': 'Sessiya eskirgan. Ilovani qaytadan oching.',
   'error.code.missing_token': 'Siz tizimga kirmagansiz. Ilovani Telegram orqali qaytadan oching.',
   'error.code.lesson_not_found': 'Dars topilmadi.',
+  'error.code.lesson_mismatch': 'Bu rejim tanlangan darsga mos kelmaydi.',
+  'error.code.invalid_mode': "Noma'lum mashg'ulot rejimi.",
   'error.code.question_not_found': 'Savol topilmadi.',
   'error.code.question_not_served': "Savol hali ko'rsatilmagan. Ekranni yangilang.",
   'error.code.already_answered': 'Siz bu savolga allaqachon javob berdingiz.',
   'error.code.word_mismatch': 'Javob savolga mos kelmaydi. Ekranni yangilang.',
-  'error.code.wrong_lesson': "Bu so'z darsga tegishli emas.",
+  'error.code.out_of_scope': "Bu so'z ushbu mashg'ulotga tegishli emas.",
   'error.code.card_not_started': "Bu kartochka hali ko'rsatilmagan. Ekranni yangilang.",
   'error.code.card_not_due': 'Bu kartochka allaqachon takrorlangan, vaqti hali kelmadi.',
   'error.code.exam_still_open': 'Imtihon hali davom etmoqda, natijalar tugagandan keyin chiqadi.',

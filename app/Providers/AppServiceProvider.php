@@ -122,6 +122,15 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by('twa-review|'.$key);
         });
 
+        RateLimiter::for('twa-session-create', function (Request $request): Limit {
+            /** @var array{learner_id:int}|null $ctx */
+            $ctx = $request->attributes->get('twa');
+            $key = $ctx['learner_id'] ?? $request->ip();
+
+            // Opening a personal session is idempotent; the cap only stops scripts from hammering it.
+            return Limit::perMinute(10)->by('twa-session-create|'.$key);
+        });
+
         RateLimiter::for('twa-exam-answer', function (Request $request): Limit {
             /** @var array{learner_id:int}|null $ctx */
             $ctx = $request->attributes->get('twa');

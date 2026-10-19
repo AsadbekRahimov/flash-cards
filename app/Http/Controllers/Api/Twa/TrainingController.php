@@ -4,13 +4,20 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\Twa;
 
+use App\Domain\Analytics\Enums\ProductEventName;
+use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Learning\Exceptions\ReviewSubmissionException;
+use App\Domain\Learning\Exceptions\TrainingSessionException;
 use App\Domain\Learning\Services\TrainingFlowService;
+use App\Domain\Learning\Services\TrainingSessionService;
+use App\Http\Requests\Twa\OpenTrainingSessionRequest;
 use App\Http\Resources\ApiErrorResource;
 use App\Http\Resources\Twa\ReviewResultResource;
+use App\Http\Resources\Twa\SessionSummaryResource;
 use App\Http\Resources\Twa\TrainingNextResource;
 use App\Http\Resources\Twa\TrainingStartResource;
 use App\Models\Learner;
+use App\Models\Lesson;
 use App\Models\TrainingSession;
 use App\Policies\TrainingSessionPolicy;
 use Illuminate\Http\JsonResponse;
@@ -20,8 +27,94 @@ final class TrainingController
 {
     public function __construct(
         private readonly TrainingFlowService $flow,
+        private readonly TrainingSessionService $sessions,
         private readonly TrainingSessionPolicy $policy,
+        private readonly ProductEventRecorder $events,
     ) {}
+
+    /**
+     * POST /api/twa/training/sessions — opens (or returns the already open) personal session
+     * and answers like `/start`, so the client needs one request to show the first card.
+     */
+    public function open(OpenTrainingSessionRequest $request): JsonResponse
+    {
+        /** @var Learner $learner */
+        $learner = $request->attributes->get('learner');
+
+        $lesson = null;
+        if ($request->lessonId() !== null) {
+            $lesson = Lesson::query()->find($request->lessonId());
+            if ($lesson === null) {
+                return $this->lessonNotFound();
+            }
+        }
+
+        $mode = $request->string('mode')->toString();
+        $source = $request->source();
+
+        try {
+            $session = $this->sessions->openPersonal($learner, $mode, $lesson, $source);
+        } catch (TrainingSessionException $e) {
+            return match ($e->reason) {
+                TrainingSessionException::REASON_LESSON_NOT_AVAILABLE => $this->lessonNotFound(),
+                TrainingSessionException::REASON_INVALID_MODE,
+                TrainingSessionException::REASON_LESSON_MISMATCH => ApiErrorResource::respond(422, $e->reason, $e->getMessage()),
+                default => throw $e,
+            };
+        }
+
+        $this->events->record(
+            ProductEventName::TrainingSessionOpened,
+            [
+                'training_session_id' => $session->id,
+                'mode' => $mode,
+                'source' => $source,
+                'reused' => ! $session->wasRecentlyCreated,
+            ],
+            learner: $learner,
+        );
+
+        $start = $this->flow->start($session, $learner);
+        if ($start === null) {
+            return $this->lessonNotFound();
+        }
+
+        return (new TrainingStartResource($start))->response();
+    }
+
+    /**
+     * POST /api/twa/training/sessions/{id}/finish — idempotent: a repeat answers 200 with the
+     * same numbers. Unlike the other session routes a closed session is not 410 here.
+     */
+    public function finish(Request $request, int $sessionId): JsonResponse
+    {
+        /** @var Learner $learner */
+        $learner = $request->attributes->get('learner');
+
+        /** @var TrainingSession|null $session */
+        $session = TrainingSession::query()->find($sessionId);
+        if ($session === null) {
+            return ApiErrorResource::respond(404, 'session_not_found', 'Training session not found.');
+        }
+
+        $denial = $this->policy->denial($learner, $session);
+        if ($denial !== null) {
+            return ApiErrorResource::respond(403, $denial, 'You cannot access this session.');
+        }
+
+        // Group sessions are closed by the teacher / scheduler, never by a learner.
+        if (! $this->policy->canFinish($learner, $session)) {
+            return ApiErrorResource::respond(403, 'forbidden', 'You cannot finish this session.');
+        }
+
+        try {
+            $summary = $this->sessions->finish($session);
+        } catch (TrainingSessionException $e) {
+            return ApiErrorResource::respond(403, $e->reason, $e->getMessage());
+        }
+
+        return (new SessionSummaryResource($summary))->response();
+    }
 
     public function start(Request $request, int $sessionId): JsonResponse
     {
@@ -35,7 +128,7 @@ final class TrainingController
 
         $start = $this->flow->start($session, $learner);
         if ($start === null) {
-            return ApiErrorResource::respond(404, 'lesson_not_found', 'Training lesson not found.');
+            return $this->lessonNotFound();
         }
 
         return (new TrainingStartResource($start))->response();
@@ -85,6 +178,11 @@ final class TrainingController
         }
 
         return (new ReviewResultResource($outcome))->response();
+    }
+
+    private function lessonNotFound(): JsonResponse
+    {
+        return ApiErrorResource::respond(404, 'lesson_not_found', 'Training lesson not found.');
     }
 
     private function unauthorizedLearner(): JsonResponse

@@ -22,6 +22,7 @@ export const ru = {
 
   // ---- landing ----
   'landing.in_telegram': 'Откройте тренировку через кнопку в группе Telegram.',
+  'landing.review_all': 'Повторить всё',
   'landing.outside_telegram':
     'Эта страница работает только внутри Telegram Web App. Попросите учителя прислать ссылку-тренировку в группу.',
 
@@ -39,6 +40,7 @@ export const ru = {
 
   // ---- training ----
   'training.lesson_header': 'Stage {stage} · Lesson {lesson}',
+  'training.daily_header': 'Повторение',
   'training.closed_title': '🔒 Тренировка завершена учителем',
 
   // ---- exam ----
@@ -59,6 +61,10 @@ export const ru = {
     many: 'Вы повторили {count} слов.',
     other: 'Вы повторили {count} слова.',
   },
+  'finished.reason.lesson_complete': 'Все слова урока пройдены.',
+  'finished.reason.nothing_due': 'На сегодня повторять нечего.',
+  'finished.reason.new_quota_exhausted': 'Лимит новых слов на сегодня исчерпан. Новые слова откроются завтра.',
+  'finished.reason.session_cap': 'Это была длинная сессия — сделайте перерыв.',
   'finished.next_label': 'Следующее повторение',
   'finished.next_today': 'Сегодня',
   'finished.next_in_days': {
@@ -95,6 +101,7 @@ export const ru = {
   'course.back': 'К курсам',
   'course.module': 'Модуль {number}',
   'course.lesson': 'Урок {number}',
+  'course.learn': 'Учить',
   'course.no_lessons': 'В курсе пока нет уроков.',
 
   // ---- errors (by kind / context) ----
@@ -122,11 +129,13 @@ export const ru = {
   'error.code.invalid_token': 'Сессия устарела. Откройте приложение заново.',
   'error.code.missing_token': 'Вы не авторизованы. Откройте приложение заново из Telegram.',
   'error.code.lesson_not_found': 'Урок не найден.',
+  'error.code.lesson_mismatch': 'Этот режим не подходит к выбранному уроку.',
+  'error.code.invalid_mode': 'Неизвестный режим тренировки.',
   'error.code.question_not_found': 'Вопрос не найден.',
   'error.code.question_not_served': 'Вопрос ещё не показан. Обновите экран.',
   'error.code.already_answered': 'Вы уже ответили на этот вопрос.',
   'error.code.word_mismatch': 'Ответ не соответствует вопросу. Обновите экран.',
-  'error.code.wrong_lesson': 'Это слово не относится к уроку.',
+  'error.code.out_of_scope': 'Это слово не относится к этой тренировке.',
   'error.code.card_not_started': 'Эта карточка ещё не показывалась. Обновите экран.',
   'error.code.card_not_due': 'Эта карточка уже повторена, её время ещё не пришло.',
   'error.code.exam_still_open': 'Экзамен ещё идёт, результаты появятся после его завершения.',
