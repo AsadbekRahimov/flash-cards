@@ -173,7 +173,7 @@ public function denial(Learner $learner, TrainingSession $s): ?string   // null 
 | `POST /api/twa/training/*/review` | 60/min per learner | Нормальный темп — не больше |
 | `POST /api/twa/exam/*/answer` | 30/min per learner | |
 | `GET /api/twa/tts` | 30/min per learner | |
-| `POST /api/twa/promo/redeem` | 5/min per learner + 20/min per IP | Подбор промокодов; бот `/promo` — те же 5/min на learner'а |
+| `POST /api/twa/promo/redeem` | 5/min per learner + 60/min per IP | Подбор промокодов; бот `/promo` — те же 5/min на learner'а. По IP — мягко: мобильные операторы (CGNAT) сажают десятки учеников за один адрес, лимит ловит только перебор с многих аккаунтов. Каждая ошибка — событие `promo.rejected`; ≥ 5 отказов одного learner'а за 10 мин — `billing.promo_rejected_burst` (warning, docs/12 §8) |
 | Остальные `/api/twa/*` | 60/min per learner | ключ rate limiter'а — `learner_id` из JWT |
 | Filament login | 5/15min per IP + per email | Против brute-force |
 | Webhook | не ограничиваем (но валидация по secret обязательна) | |

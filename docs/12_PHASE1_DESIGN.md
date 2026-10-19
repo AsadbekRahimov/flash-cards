@@ -501,7 +501,7 @@ final class LearnerStatsService { public function forLearner(Learner $l): Learne
 
 ```php
 enum Plan: string { case Free = 'free'; case Pro = 'pro';
-    public static function fromKey(string $key): self;   // InvalidArgumentException для ключа вне config('billing.plans')
+    public static function fromKey(string $key): self;   // PlanException plan_unknown (422) для ключа вне config('billing.plans'); для ключей извне enum (формы, строки БД) — только fromKey, не from()
     public function rank(): int; public function features(): array; public function newWordsPerDay(): ?int; public function outranks(self $o): bool; }
 enum SubscriptionStatus: string { Trialing, Active, PastDue, Canceled, Expired; public static function liveValues(): array; public function isLive(): bool; }
 enum SubscriptionProvider: string { Manual, Promo, TelegramStars, Payme, Click; public function hasGrace(): bool; } // grace только у автопродляемых
@@ -526,7 +526,7 @@ final class SubscriptionLiveness   // единое правило «live сей�
 
 final class EntitlementResolver
 {
-    public function for(Learner $l, ?CarbonImmutable $now = null): Entitlement;   // кэш "entitlement:learner:{id}" TTL config('billing.cache_ttl') (300 с); снимок с истёкшим until пересчитывается без forget
+    public function for(Learner $l, ?CarbonImmutable $now = null): Entitlement;   // кэш "entitlement:learner:{id}:v{n}" (n — версия из "entitlement:ver:{id}", читается до resolve()) TTL config('billing.cache_ttl') (300 с); снимок с истёкшим until пересчитывается без forget; forget* = инкремент версии (§5.2)
     public function resolve(Learner $l, ?CarbonImmutable $now = null): Entitlement; // без кэша
     public function forget(Learner|int $l): void;
     public function forgetMany(iterable $learnerIds): void;
@@ -540,9 +540,9 @@ final class SubscriptionService
     /** lockForUpdate строки субъекта (learners/organizations) → live-подписка под блокировкой; есть live — продлевает/заменяет на месте (тот же id, provider=manual); audit `subscription.granted`; событие; forget после commit.
      *  SubscriptionException: plan_not_grantable (422) | until_in_past (422) | subscriber_not_found (404) */
     public function grantManual(Learner|Organization $subscriber, Plan $plan, ?CarbonImmutable $until, User $by, string $note, ?string $ip = null, ?CarbonImmutable $now = null): Subscription;
-    /** status=expired, ended_at=now; audit `subscription.revoked`; SubscriptionException subscription_not_live (409), если уже не live */
+    /** subscriber_type/id без блокировки → lockForUpdate строки субъекта (нет строки — не ошибка) → lockForUpdate подписки с повторной проверкой → status=expired, ended_at=now; audit `subscription.revoked`; SubscriptionException subscription_not_live (409), если уже не live */
     public function revoke(Subscription $s, User $by, string $note, ?string $ip = null, ?CarbonImmutable $now = null): Subscription;
-    /** планировщик (§5.6); каждая строка — своя транзакция с lockForUpdate и повторной проверкой; возвращает число переходов */
+    /** планировщик (§5.6); каждая строка — своя транзакция: субъект → подписка (lockForUpdate, повторная проверка) → событие; возвращает число переходов */
     public function expireDue(?CarbonImmutable $now = null): int;
     public function liveFor(Learner|Organization $subscriber): ?Subscription;     // для отображения (без блокировки)
     /** @internal для PromoCodeService: внутри его транзакции; создаёт promo-подписку или продлевает live личную (§5.5) */
@@ -553,19 +553,28 @@ final class SubscriptionService
 final class PromoCodeService
 {
     /** lockForUpdate promo_codes → проверки (active, не истёк, лимит, не использован этим learner'ом) → grantFromPromo (блокирует learner) → promo_redemptions → redemptions_count++ → событие `promo.redeemed`.
+     *  Любая ошибка: после rollback — событие `promo.rejected {reason, promo_code_id|null, code_length}` (сам код не пишется — секрет) + счётчик отказов learner'а (`RateLimiter` `promo-rejected:{id}`, окно config('billing.promo.rejections_alert.window')); на threshold-м отказе и каждом кратном — `Log::warning('billing.promo_rejected_burst')` (§8). TWA и бот идут через этот метод — покрытие одинаковое.
      *  PromoCodeException: promo_not_found (404; неизвестный, пустой или деактивированный код) | promo_expired (410) | promo_exhausted (409) | promo_already_redeemed (409) | promo_not_applicable (409, у learner'а бессрочная личная подписка) */
     public function redeem(Learner $l, string $code, ?CarbonImmutable $now = null): Subscription;
     public static function normalize(string $code): string;                        // trim, без пробелов/дефисов, upper-case
     public function generateCode(): string;                                        // уникальный Str::upper(Str::random(10)) — для Filament PromoCodeResource
 }
 
-abstract class BillingException extends RuntimeException { public readonly string $errorCode; abstract public function httpStatus(): int; } // база PromoCodeException / SubscriptionException
+abstract class BillingException extends RuntimeException { public readonly string $errorCode; abstract public function httpStatus(): int; } // база PromoCodeException / SubscriptionException / PlanException (plan_unknown, 422)
 
 final class NewWordQuota   // задача 1.4b
 {
     public function budget(Learner $l, Entitlement $e, ?CarbonImmutable $now = null): NewCardBudget; // remaining = limit - learner_daily_stats.today.new_words_count (fallback: count word_repetitions created в локальном дне)
 }
 ```
+
+**Порядок блокировок (обязателен для всех путей записи биллинга).** Любая транзакция берёт row-lock'и строго в порядке
+`promo_codes` → **строка субъекта** (`learners` / `organizations`) → `subscriptions` → INSERT'ы с FK (`product_events`, `promo_redemptions`, `audit_logs`) — и никогда иначе.
+Последний шаг не декоративный: INSERT со внешним ключом берёт `FOR KEY SHARE` на строку-родителя (learner, promo, user), и он конфликтует с чужим `FOR UPDATE` на той же строке.
+Поэтому `revoke()` и `expireDue()` (`expireOne`) блокируют строку субъекта **до** подписки, хотя для инварианта «одна live» им это не нужно: вариант «подписка → (неявно, через FK) learner» давал deadlock
+с `grantManual`/`grantFromPromo`, которые держат learner и ждут подписку (`SQLSTATE 40P01`, воспроизведено fork-тестом). Алгоритм: прочитать `subscriber_type/id` без блокировки (поля неизменяемы),
+`lockForUpdate` субъекта (отсутствующая строка — не ошибка: ни блокировать, ни ждать по FK нечего), затем `lockForUpdate` подписки с повторной проверкой статуса/дат. Новый путь записи (провайдер §6, seats, отмена) обязан следовать тому же порядку;
+проверка — `tests/Feature/Billing/BillingConcurrencyTest.php` (PG, форки с хуком задержки).
 
 `config/billing.php` — единственное место цен и лимитов:
 
@@ -578,6 +587,7 @@ return [
         'pro'  => ['rank' => 1, 'limits' => ['new_words_per_day' => null], 'features' => ['courses.public', 'training.daily', 'training.lesson', 'stats.detailed', 'streak.freeze' /* Фаза 2 */]],
     ],
     'prices' => [ /* заполняется при подключении оплаты: ['pro' => ['month' => ['XTR' => …, 'UZS' => …], 'year' => […]]] */ ],
+    'promo' => ['rejections_alert' => ['threshold' => (int) env('BILLING_PROMO_REJECTIONS_ALERT_THRESHOLD', 5), 'window' => (int) env('BILLING_PROMO_REJECTIONS_ALERT_WINDOW', 600)]], // §8; threshold 0 — алерт выключен
     'paywall' => ['mode' => env('BILLING_PAYWALL_MODE', 'coming_soon'), 'contact' => env('BILLING_SUPPORT_CONTACT', '')], // coming_soon | purchase (после подключения провайдера)
 ];
 ```
@@ -686,13 +696,13 @@ live(s) = status IN (trialing, active) AND (current_period_ends_at IS NULL OR li
 liveUntil(s) = current_period_ends_at (+ grace_days, если provider автопродляемый: telegram_stars/payme/click)
 ```
 
-Уточнения 1.4a: (1) `canceled` и `expired` никогда не live (§6.2 «Pro до конца периода» для `canceled` будет решено вместе с провайдером — в Фазе 1 отмены нет); (2) `active` с прошедшим `current_period_ends_at` у `manual`/`promo` не даёт Pro даже до запуска планировщика — резолвер и `expireDue` используют одно правило `SubscriptionLiveness`; у автопродляемых провайдеров до конца grace план сохраняется, чтобы не «мигать» между концом периода и часовым запуском; (3) организация спонсирует только в статусе `active`; (4) при равном ранге выигрывает подписка с более поздним концом (бессрочная — всегда), при полном равенстве — личная перед спонсорской, чтобы «Pro до X» в UI был самой поздней истинной датой.
+Уточнения 1.4a: (1) `canceled` и `expired` никогда не live. В Фазе 1 отмены нет, поэтому `canceled` **сознательно не live**: статус появится только вместе с провайдером, и тогда «Pro до конца периода» (§6.2) надо включать **одним согласованным изменением** в четырёх местах — `SubscriptionStatus::liveValues()` (а через него `isLive()` и `SubscriptionService::lockedLive`/`liveQuery`), `SubscriptionLiveness::isLive()`/`liveUntil()` (canceled живёт до `current_period_ends_at` без grace), partial unique index `subscriptions_one_live_per_subscriber` (новая миграция с `canceled` в `WHERE status IN (...)` — иначе `canceled` + новая `active` будут сосуществовать, а резолвер начнёт считать обе), `EntitlementResolver::liveCandidates` (использует `liveValues()`) и `expireDue` (сейчас `canceled` c истёкшим периодом → `expired` без grace — остаётся). Менять что-то одно из этого списка нельзя: тесты `BillingPlanTest` («knows which statuses are live»), `EntitlementResolverTest` («applies the liveness rule», кейс `canceled`) и `SubscriptionServiceTest` («keeps at most one live subscription») зафиксированы на текущем наборе и должны меняться той же задачей; (2) `active` с прошедшим `current_period_ends_at` у `manual`/`promo` не даёт Pro даже до запуска планировщика — резолвер и `expireDue` используют одно правило `SubscriptionLiveness`; у автопродляемых провайдеров до конца grace план сохраняется, чтобы не «мигать» между концом периода и часовым запуском; (3) организация спонсирует только в статусе `active`; (4) при равном ранге выигрывает подписка с более поздним концом (бессрочная — всегда), при полном равенстве — личная перед спонсорской, чтобы «Pro до X» в UI был самой поздней истинной датой.
 
 Запрос спонсора: `subscriptions WHERE subscriber_type='organization' AND subscriber_id IN (SELECT g.organization_id FROM telegram_groups g JOIN group_members gm ON gm.telegram_group_id=g.id JOIN organizations o ON o.id=g.organization_id WHERE gm.learner_id=? AND gm.status='active' AND g.status='active' AND o.status='active') AND status IN (live-статусы)`; liveness по датам считается в PHP (`SubscriptionLiveness`). Результат — `Entitlement` с `source` и `subscriptionId`. Ушёл из группы → при следующем вычислении Free (прогресс остаётся у learner'а).
 
 ### 5.2 Кэш и инвалидация
 
-Ключ `entitlement:learner:{id}`, TTL 300 с, хранится `Entitlement::toArray()`. Снимок, чей `until` уже прошёл, пересчитывается при чтении без инвалидации — план не переживает подписку даже при опоздании планировщика. `forget()` вызывают **после commit** (`DB::afterCommit`, вне транзакции — сразу): `SubscriptionService` (grant/revoke/expire — для организации `forgetOrganization`), `PromoCodeService` (через `grantFromPromo`), `GroupMembershipService::join/leave` (только при реальном изменении статуса членства), `TelegramGroupObserver` (смена `organization_id`/`status`, удаление группы → `forgetGroup`/`forgetMany`), `OrganizationObserver` (смена `status`, удаление → `forgetOrganization`/`forgetMany`). Observers зарегистрированы в `AppServiceProvider::boot` — любой путь привязки группы к организации (relation manager, форма группы, консоль) инвалидирует кэш без кода в Filament. Обновления через query builder (`TelegramGroup::where()->update()` в `MyChatMemberHandler`) observers не ловят — там допустима задержка до TTL. Пропуск инвалидации стоит максимум 5 минут задержки, но никогда не даёт лишний Pro дольше TTL — приемлемо.
+Ключ **версионный**: `entitlement:learner:{id}:v{n}`, где `n` — целое из `entitlement:ver:{id}` (нет ключа = 0); TTL 300 с, хранится `Entitlement::toArray()`. `forget*()` не удаляет снимок, а делает `Cache::increment` версии: все последующие читатели смотрят в новый (пустой) ключ. Зачем: при обычном «forget → put» запрос, который начал `resolve()` по старым данным, параллельная запись сделала `forget`, а затем запрос положил устаревший снимок — и он жил до конца TTL. С версией `for()` читает `n` **до** `resolve()` и пишет в ключ с этим `n`; если за время вычисления версия выросла, запись ложится в мёртвый ключ, который никто не читает (тест «never caches a snapshot computed before a concurrent invalidation»). Старые снимки доживают TTL сами (одна лишняя запись на learner'а ≤ 5 мин); ключ версии без TTL (несколько байт на learner'а; при вытеснении читатели вернутся к `v0` — устаревшим он может быть только в пределах одного TTL от самого первого forget learner'а). `forgetMany`/`forgetOrganization`/`forgetGroup` — инкремент на каждого участника (chunk 500 по SQL; на Фазе 1 это сотни ключей). Снимок, чей `until` уже прошёл, пересчитывается при чтении без инвалидации — план не переживает подписку даже при опоздании планировщика. `forget()` вызывают **после commit** (`DB::afterCommit`, вне транзакции — сразу): `SubscriptionService` (grant/revoke/expire — для организации `forgetOrganization`), `PromoCodeService` (через `grantFromPromo`), `GroupMembershipService::join/leave` (только при реальном изменении статуса членства), `TelegramGroupObserver` (смена `organization_id`/`status`, удаление группы → `forgetGroup`/`forgetMany`), `OrganizationObserver` (смена `status`, удаление → `forgetOrganization`/`forgetMany`). Observers зарегистрированы в `AppServiceProvider::boot` — любой путь привязки группы к организации (relation manager, форма группы, консоль) инвалидирует кэш без кода в Filament. Обновления через query builder (`TelegramGroup::where()->update()` в `MyChatMemberHandler`) observers не ловят — там допустима задержка до TTL. Пропуск инвалидации стоит максимум 5 минут задержки, но никогда не даёт лишний Pro дольше TTL — приемлемо.
 
 ### 5.3 Лимит новых слов (Free = 20/день)
 
@@ -758,6 +768,8 @@ stateDiagram-v2
     active --> expired: manual/promo ended, revoke
     expired --> [*]
 ```
+
+Переход `active → canceled` («Pro до конца периода») появится только с провайдером. Пока его нет, `canceled` **не live** (§5.1), и при подключении надо одним изменением поменять согласованно: `SubscriptionStatus::liveValues()` (+ `isLive()`, `SubscriptionService::lockedLive`/`liveQuery`, `EntitlementResolver::liveCandidates`), `SubscriptionLiveness::isLive()`/`liveUntil()` (canceled → до `current_period_ends_at`, без grace), partial unique `subscriptions_one_live_per_subscriber` (новая миграция, `canceled` в предикате), `expireDue` (`canceled` c истёкшим периодом → `expired` — уже так) и тесты, перечисленные в §5.1. Любой новый путь записи провайдера (`applyProviderEvent`) обязан соблюдать порядок блокировок §3.4: `payments` (unique) → субъект → подписка → FK-вставки.
 
 ### 6.3 Особенности провайдеров (для будущей задачи)
 
@@ -845,7 +857,7 @@ flowchart TD
 
 ### 7.7 Продуктовые события Фазы 1
 
-`onboarding.started {source_kind}`, `onboarding.step_completed {step}`, `onboarding.completed {goal, level, locale}`, `course.selected {course_id, via}`, `training.session_opened {mode, source}` (уже есть, расширить props), `training.session_finished {mode, reviewed, correct, new_words}`, `daily_goal.met {streak}`, `streak.extended {current}`, `paywall.shown {reason}`, `promo.redeemed {promo_code_id}`, `subscription.granted {plan, provider, subscriber_type}`, `subscription.expired`, `reminder.sent {kind, due_count}`, `reminder.failed {reason}`, `group.member_joined {via}` (замена `student.joined`), `group.member_left`. Воронка онбординга и activation считаются из `product_events` SQL'ом (Filament-виджет «Funnel 7d» — задача 1.8).
+`onboarding.started {source_kind}`, `onboarding.step_completed {step}`, `onboarding.completed {goal, level, locale}`, `course.selected {course_id, via}`, `training.session_opened {mode, source}` (уже есть, расширить props), `training.session_finished {mode, reviewed, correct, new_words}`, `daily_goal.met {streak}`, `streak.extended {current}`, `paywall.shown {reason}`, `promo.redeemed {promo_code_id}`, `promo.rejected {reason, promo_code_id|null, code_length}` (сам код не пишется), `subscription.granted {plan, provider, subscriber_type}`, `subscription.expired`, `reminder.sent {kind, due_count}`, `reminder.failed {reason}`, `group.member_joined {via}` (замена `student.joined`), `group.member_left`. Воронка онбординга и activation считаются из `product_events` SQL'ом (Filament-виджет «Funnel 7d» — задача 1.8).
 
 ---
 
@@ -858,7 +870,7 @@ flowchart TD
 | IDOR между learner'ами | все `/training/*`, `/exam/*` через `TrainingSessionPolicy`/`ExamSessionPolicy` (личная — владелец, групповая — активное членство); `learner_id` никогда не принимается из тела запроса; `/me/*`, `/today`, `/promo` — только по JWT | тесты: чужая личная сессия → 403, чужая группа → 403 |
 | Утечка данных между центрами / учителями | `PanelDataScope::learners()` через активное членство; личные сессии учителю не видны; `TeacherPanelScopeTest` расширяется; `LearnerResource` для учителя — усечённые поля | RLS + org-scope в Фазе 2 |
 | Фрод оплаты | провайдеров нет; ручная выдача — только роль `admin` с обязательной 2FA (есть) + `audit_logs`; Filament-действие требует `note` | §6.1: подпись, `(provider, provider_event_id)` unique, сверка суммы/валюты, IP allowlist, `lockForUpdate` |
-| Перебор промокодов | коды 10 символов из `[A-Z0-9]` (≈ 36^10); throttle `twa-promo` 5/мин per learner + 20/мин per IP; бот `/promo` — те же лимиты через `RateLimiter` по `telegram_user_id`; событие `promo.rejected` при ≥ 5 ошибок — алерт | — |
+| Перебор промокодов | коды 10 символов из `[A-Z0-9]` (≈ 36^10); throttle `twa-promo` 5/мин per learner + **60/мин per IP** (мобильные операторы сажают целые классы за один CGNAT-адрес — лимит по IP должен ловить только скриптовый перебор с многих аккаунтов, 20/мин давал ложные 429 на уроке); бот `/promo` — 5/мин на learner'а через `RateLimiter`; каждая ошибка — событие `promo.rejected {reason, promo_code_id|null, code_length}` в `PromoCodeService::redeem` (TWA и бот — один путь; сам код в событие не пишется: это bearer-секрет, префикс/несолёный хеш пространства 36^10 всё равно утекает); ≥ 5 отказов одного learner'а за 10 мин (`config('billing.promo.rejections_alert')`) — `Log::warning('billing.promo_rejected_burst')` на пороге и каждом кратном (→ Sentry breadcrumb / алерт по логам, DEVOPS_GUIDE §15.3) | — |
 | Перепродажа мест центра | спонсорский Pro только через группу организации, которую привязал **суперадмин**; `seats_limit` в подписке организации + виджет «активных участников / мест» и warning в Filament при превышении; `telegram_groups.status` админом | жёсткий лимит мест, инвайт-коды с TTL, алерты на аномальные вступления (Фаза 2) |
 | Фарм рефералов / рейтингов | награды не выдаются (только `referrer_learner_id`); публичных рейтингов нет | награда после 3 дней активности приглашённого, лимиты, анти-чит лиг |
 | DoS публичных эндпоинтов анонимами | `/auth` 20/мин per IP (есть) + 10/мин per `telegram_user_id`; `/courses` — кэш 10 мин, `Cache-Control: public, max-age=300`; `POST /training/sessions` 10/мин; все остальные per-learner (есть) | CDN для статики TWA/аудио |
