@@ -445,3 +445,183 @@
 
 Проверить: «Sozlamalar» (настройки), «Interfeys tili» (язык интерфейса), «Vaqt mintaqasi» (часовой пояс), «Eslatmalar»/«Eslatmalarsiz» (напоминания / без напоминаний), «Faol kurs» (активный курс). Названия городов в списке часовых поясов приходят с сервера из `lang/uz/onboarding.php` (проверены в 1.5a).
 
+
+
+## Финальные правки Фазы 1 — на проверку носителю
+
+### Пропущенные ранее ключи
+
+#### TWA (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `paywall.review` | So'zlarni takrorlash | Повторить слова |
+| `training.restart` | Qaytadan boshlash | Начать заново |
+| `error.code.learner_not_found` | Profilingiz topilmadi. Ilovani Telegram orqali qaytadan oching. | Ваш профиль не найден. Откройте приложение заново из Telegram. |
+| `error.code.learner_blocked` | Akkauntga kirish cheklangan. Qo'llab-quvvatlash xizmatiga murojaat qiling. | Доступ к аккаунту ограничен. Обратитесь в поддержку. |
+| `error.code.not_a_member` | Siz bu guruh a'zosi emassiz. Guruhga qo'shiling va havolani qaytadan oching. | Вы не состоите в этой группе. Вступите в группу и откройте ссылку снова. |
+| `error.code.missing_token` | Siz tizimga kirmagansiz. Ilovani Telegram orqali qaytadan oching. | Вы не авторизованы. Откройте приложение заново из Telegram. |
+
+#### 2FA (`lang/uz/twofactor.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `twofactor.recovery.intro_emphasis` | faqat bir marta | один раз |
+
+В `recovery.intro` слово подставляется вместо `:emphasis` и выделяется жирным: «Har bir kod **faqat bir marta** amal qiladi». Проверить, что фраза читается целиком.
+
+### validation — на проверку носителю (`lang/uz/validation.php`)
+
+Стандартные сообщения валидации Laravel 12 (ответы 422 API). `:attribute` — название поля (подставляется из `validation.attributes.*` ниже либо имя поля как есть); остальные `:x` — значения. Узбекский — латиница, апостроф ASCII, «maydoni» = «поле». Ключи с плюралами (`min.string` и т.д.) — разные типы значения, не формы числа.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `validation.accepted` | :attribute maydoni qabul qilinishi kerak. | Поле :attribute должно быть принято. |
+| `validation.accepted_if` | :other :value bo'lganda :attribute maydoni qabul qilinishi kerak. | Поле :attribute должно быть принято, когда :other равно :value. |
+| `validation.active_url` | :attribute maydoni to'g'ri URL manzil bo'lishi kerak. | Поле :attribute должно быть корректным URL-адресом. |
+| `validation.after` | :attribute maydoni :date dan keyingi sana bo'lishi kerak. | Поле :attribute должно быть датой после :date. |
+| `validation.after_or_equal` | :attribute maydoni :date yoki undan keyingi sana bo'lishi kerak. | Поле :attribute должно быть датой не раньше :date. |
+| `validation.alpha` | :attribute maydoni faqat harflardan iborat bo'lishi kerak. | Поле :attribute может содержать только буквы. |
+| `validation.alpha_dash` | :attribute maydoni faqat harflar, raqamlar, defis va pastki chiziqdan iborat bo'lishi kerak. | Поле :attribute может содержать только буквы, цифры, дефисы и подчёркивания. |
+| `validation.alpha_num` | :attribute maydoni faqat harflar va raqamlardan iborat bo'lishi kerak. | Поле :attribute может содержать только буквы и цифры. |
+| `validation.any_of` | :attribute maydoni noto'g'ri to'ldirilgan. | Поле :attribute заполнено неверно. |
+| `validation.array` | :attribute maydoni massiv bo'lishi kerak. | Поле :attribute должно быть массивом. |
+| `validation.ascii` | :attribute maydoni faqat bir baytli harflar, raqamlar va belgilardan iborat bo'lishi kerak. | Поле :attribute может содержать только однобайтовые буквы, цифры и символы. |
+| `validation.before` | :attribute maydoni :date dan oldingi sana bo'lishi kerak. | Поле :attribute должно быть датой до :date. |
+| `validation.before_or_equal` | :attribute maydoni :date yoki undan oldingi sana bo'lishi kerak. | Поле :attribute должно быть датой не позже :date. |
+| `validation.between.array` | :attribute maydonida :min dan :max gacha element bo'lishi kerak. | Поле :attribute должно содержать от :min до :max элементов. |
+| `validation.between.file` | :attribute maydonidagi fayl hajmi :min dan :max kilobaytgacha bo'lishi kerak. | Размер файла в поле :attribute должен быть от :min до :max килобайт. |
+| `validation.between.numeric` | :attribute maydoni :min va :max oralig'ida bo'lishi kerak. | Поле :attribute должно быть между :min и :max. |
+| `validation.between.string` | :attribute maydoni uzunligi :min dan :max belgigacha bo'lishi kerak. | Длина поля :attribute должна быть от :min до :max символов. |
+| `validation.boolean` | :attribute maydoni true yoki false bo'lishi kerak. | Поле :attribute должно быть true или false. |
+| `validation.can` | :attribute maydonida ruxsat etilmagan qiymat bor. | Поле :attribute содержит недопустимое значение. |
+| `validation.confirmed` | :attribute maydoni tasdig'i mos kelmadi. | Подтверждение поля :attribute не совпадает. |
+| `validation.contains` | :attribute maydonida majburiy qiymat yo'q. | В поле :attribute отсутствует обязательное значение. |
+| `validation.current_password` | Parol noto'g'ri. | Неверный пароль. |
+| `validation.date` | :attribute maydoni to'g'ri sana bo'lishi kerak. | Поле :attribute должно быть корректной датой. |
+| `validation.date_equals` | :attribute maydoni :date ga teng sana bo'lishi kerak. | Поле :attribute должно быть датой, равной :date. |
+| `validation.date_format` | :attribute maydoni :format formatiga mos bo'lishi kerak. | Поле :attribute должно соответствовать формату :format. |
+| `validation.decimal` | :attribute maydonida verguldan keyin :decimal ta raqam bo'lishi kerak. | Поле :attribute должно содержать :decimal знаков после запятой. |
+| `validation.declined` | :attribute maydoni rad etilishi kerak. | Поле :attribute должно быть отклонено. |
+| `validation.declined_if` | :other :value bo'lganda :attribute maydoni rad etilishi kerak. | Поле :attribute должно быть отклонено, когда :other равно :value. |
+| `validation.different` | :attribute va :other maydonlari bir-biridan farq qilishi kerak. | Поля :attribute и :other должны различаться. |
+| `validation.digits` | :attribute maydoni :digits ta raqamdan iborat bo'lishi kerak. | Поле :attribute должно состоять из :digits цифр. |
+| `validation.digits_between` | :attribute maydoni :min dan :max tagacha raqamdan iborat bo'lishi kerak. | Поле :attribute должно состоять из :min–:max цифр. |
+| `validation.dimensions` | :attribute maydonidagi rasm o'lchamlari noto'g'ri. | Изображение в поле :attribute имеет недопустимые размеры. |
+| `validation.distinct` | :attribute maydonida takrorlanuvchi qiymat bor. | Поле :attribute содержит повторяющееся значение. |
+| `validation.doesnt_contain` | :attribute maydoni quyidagilardan birortasini o'z ichiga olmasligi kerak: :values. | Поле :attribute не должно содержать ничего из: :values. |
+| `validation.doesnt_end_with` | :attribute maydoni quyidagilardan biri bilan tugamasligi kerak: :values. | Поле :attribute не должно заканчиваться одним из: :values. |
+| `validation.doesnt_start_with` | :attribute maydoni quyidagilardan biri bilan boshlanmasligi kerak: :values. | Поле :attribute не должно начинаться с одного из: :values. |
+| `validation.email` | :attribute maydoni to'g'ri elektron pochta manzili bo'lishi kerak. | Поле :attribute должно быть корректным адресом электронной почты. |
+| `validation.encoding` | :attribute maydoni :encoding kodlashida bo'lishi kerak. | Поле :attribute должно быть в кодировке :encoding. |
+| `validation.ends_with` | :attribute maydoni quyidagilardan biri bilan tugashi kerak: :values. | Поле :attribute должно заканчиваться одним из: :values. |
+| `validation.enum` | Tanlangan :attribute qiymati yaroqsiz. | Выбрано недопустимое значение :attribute. |
+| `validation.exists` | Tanlangan :attribute qiymati yaroqsiz. | Выбрано недопустимое значение :attribute. |
+| `validation.extensions` | :attribute maydoni quyidagi kengaytmalardan biriga ega bo'lishi kerak: :values. | Поле :attribute должно иметь одно из расширений: :values. |
+| `validation.file` | :attribute maydoni fayl bo'lishi kerak. | Поле :attribute должно быть файлом. |
+| `validation.filled` | :attribute maydoni to'ldirilgan bo'lishi kerak. | Поле :attribute должно быть заполнено. |
+| `validation.gt.array` | :attribute maydonida :value tadan ko'p element bo'lishi kerak. | Поле :attribute должно содержать больше :value элементов. |
+| `validation.gt.file` | :attribute maydonidagi fayl hajmi :value kilobaytdan katta bo'lishi kerak. | Размер файла в поле :attribute должен быть больше :value килобайт. |
+| `validation.gt.numeric` | :attribute maydoni :value dan katta bo'lishi kerak. | Поле :attribute должно быть больше :value. |
+| `validation.gt.string` | :attribute maydoni uzunligi :value belgidan ko'p bo'lishi kerak. | Длина поля :attribute должна быть больше :value символов. |
+| `validation.gte.array` | :attribute maydonida kamida :value ta element bo'lishi kerak. | Поле :attribute должно содержать не меньше :value элементов. |
+| `validation.gte.file` | :attribute maydonidagi fayl hajmi kamida :value kilobayt bo'lishi kerak. | Размер файла в поле :attribute должен быть не меньше :value килобайт. |
+| `validation.gte.numeric` | :attribute maydoni kamida :value bo'lishi kerak. | Поле :attribute должно быть не меньше :value. |
+| `validation.gte.string` | :attribute maydoni uzunligi kamida :value belgi bo'lishi kerak. | Длина поля :attribute должна быть не меньше :value символов. |
+| `validation.hex_color` | :attribute maydoni to'g'ri o'n oltilik rang kodi bo'lishi kerak. | Поле :attribute должно быть корректным цветом в шестнадцатеричном формате. |
+| `validation.image` | :attribute maydoni rasm bo'lishi kerak. | Поле :attribute должно быть изображением. |
+| `validation.in` | Tanlangan :attribute qiymati yaroqsiz. | Выбрано недопустимое значение :attribute. |
+| `validation.in_array` | :attribute maydoni :other ichida mavjud bo'lishi kerak. | Значение поля :attribute должно присутствовать в :other. |
+| `validation.in_array_keys` | :attribute maydonida quyidagi kalitlardan kamida bittasi bo'lishi kerak: :values. | Поле :attribute должно содержать хотя бы один из ключей: :values. |
+| `validation.integer` | :attribute maydoni butun son bo'lishi kerak. | Поле :attribute должно быть целым числом. |
+| `validation.ip` | :attribute maydoni to'g'ri IP manzil bo'lishi kerak. | Поле :attribute должно быть корректным IP-адресом. |
+| `validation.ipv4` | :attribute maydoni to'g'ri IPv4 manzil bo'lishi kerak. | Поле :attribute должно быть корректным IPv4-адресом. |
+| `validation.ipv6` | :attribute maydoni to'g'ri IPv6 manzil bo'lishi kerak. | Поле :attribute должно быть корректным IPv6-адресом. |
+| `validation.json` | :attribute maydoni to'g'ri JSON satr bo'lishi kerak. | Поле :attribute должно быть корректной JSON-строкой. |
+| `validation.list` | :attribute maydoni ro'yxat bo'lishi kerak. | Поле :attribute должно быть списком. |
+| `validation.lowercase` | :attribute maydoni kichik harflarda bo'lishi kerak. | Поле :attribute должно быть в нижнем регистре. |
+| `validation.lt.array` | :attribute maydonida :value tadan kam element bo'lishi kerak. | Поле :attribute должно содержать меньше :value элементов. |
+| `validation.lt.file` | :attribute maydonidagi fayl hajmi :value kilobaytdan kichik bo'lishi kerak. | Размер файла в поле :attribute должен быть меньше :value килобайт. |
+| `validation.lt.numeric` | :attribute maydoni :value dan kichik bo'lishi kerak. | Поле :attribute должно быть меньше :value. |
+| `validation.lt.string` | :attribute maydoni uzunligi :value belgidan kam bo'lishi kerak. | Длина поля :attribute должна быть меньше :value символов. |
+| `validation.lte.array` | :attribute maydonida :value tadan ko'p element bo'lmasligi kerak. | Поле :attribute должно содержать не больше :value элементов. |
+| `validation.lte.file` | :attribute maydonidagi fayl hajmi :value kilobaytdan oshmasligi kerak. | Размер файла в поле :attribute должен быть не больше :value килобайт. |
+| `validation.lte.numeric` | :attribute maydoni :value dan oshmasligi kerak. | Поле :attribute должно быть не больше :value. |
+| `validation.lte.string` | :attribute maydoni uzunligi :value belgidan oshmasligi kerak. | Длина поля :attribute должна быть не больше :value символов. |
+| `validation.mac_address` | :attribute maydoni to'g'ri MAC manzil bo'lishi kerak. | Поле :attribute должно быть корректным MAC-адресом. |
+| `validation.max.array` | :attribute maydonida :max tadan ko'p element bo'lmasligi kerak. | Поле :attribute должно содержать не больше :max элементов. |
+| `validation.max.file` | :attribute maydonidagi fayl hajmi :max kilobaytdan oshmasligi kerak. | Размер файла в поле :attribute должен быть не больше :max килобайт. |
+| `validation.max.numeric` | :attribute maydoni :max dan oshmasligi kerak. | Поле :attribute должно быть не больше :max. |
+| `validation.max.string` | :attribute maydoni uzunligi :max belgidan oshmasligi kerak. | Длина поля :attribute должна быть не больше :max символов. |
+| `validation.max_digits` | :attribute maydonida :max tadan ko'p raqam bo'lmasligi kerak. | Поле :attribute должно содержать не больше :max цифр. |
+| `validation.mimes` | :attribute maydoni quyidagi turdagi fayl bo'lishi kerak: :values. | Поле :attribute должно быть файлом одного из типов: :values. |
+| `validation.mimetypes` | :attribute maydoni quyidagi turdagi fayl bo'lishi kerak: :values. | Поле :attribute должно быть файлом одного из типов: :values. |
+| `validation.min.array` | :attribute maydonida kamida :min ta element bo'lishi kerak. | Поле :attribute должно содержать не меньше :min элементов. |
+| `validation.min.file` | :attribute maydonidagi fayl hajmi kamida :min kilobayt bo'lishi kerak. | Размер файла в поле :attribute должен быть не меньше :min килобайт. |
+| `validation.min.numeric` | :attribute maydoni kamida :min bo'lishi kerak. | Поле :attribute должно быть не меньше :min. |
+| `validation.min.string` | :attribute maydoni uzunligi kamida :min belgi bo'lishi kerak. | Длина поля :attribute должна быть не меньше :min символов. |
+| `validation.min_digits` | :attribute maydonida kamida :min ta raqam bo'lishi kerak. | Поле :attribute должно содержать не меньше :min цифр. |
+| `validation.missing` | :attribute maydoni bo'lmasligi kerak. | Поле :attribute должно отсутствовать. |
+| `validation.missing_if` | :other :value bo'lganda :attribute maydoni bo'lmasligi kerak. | Поле :attribute должно отсутствовать, когда :other равно :value. |
+| `validation.missing_unless` | :other :value bo'lmasa, :attribute maydoni bo'lmasligi kerak. | Поле :attribute должно отсутствовать, если :other не равно :value. |
+| `validation.missing_with` | :values ko'rsatilganda :attribute maydoni bo'lmasligi kerak. | Поле :attribute должно отсутствовать, когда указано :values. |
+| `validation.missing_with_all` | :values ko'rsatilganda :attribute maydoni bo'lmasligi kerak. | Поле :attribute должно отсутствовать, когда указаны :values. |
+| `validation.multiple_of` | :attribute maydoni :value ga karrali bo'lishi kerak. | Значение поля :attribute должно быть кратно :value. |
+| `validation.not_in` | Tanlangan :attribute qiymati yaroqsiz. | Выбрано недопустимое значение :attribute. |
+| `validation.not_regex` | :attribute maydoni formati noto'g'ri. | Поле :attribute имеет неверный формат. |
+| `validation.numeric` | :attribute maydoni son bo'lishi kerak. | Поле :attribute должно быть числом. |
+| `validation.password.letters` | :attribute maydonida kamida bitta harf bo'lishi kerak. | Поле :attribute должно содержать хотя бы одну букву. |
+| `validation.password.mixed` | :attribute maydonida kamida bitta bosh va bitta kichik harf bo'lishi kerak. | Поле :attribute должно содержать хотя бы одну заглавную и одну строчную букву. |
+| `validation.password.numbers` | :attribute maydonida kamida bitta raqam bo'lishi kerak. | Поле :attribute должно содержать хотя бы одну цифру. |
+| `validation.password.symbols` | :attribute maydonida kamida bitta belgi bo'lishi kerak. | Поле :attribute должно содержать хотя бы один символ. |
+| `validation.password.uncompromised` | Kiritilgan :attribute ma'lumotlar sizib chiqishida topilgan. Boshqasini tanlang. | Указанное значение :attribute обнаружено в утечке данных. Выберите другое. |
+| `validation.present` | :attribute maydoni mavjud bo'lishi kerak. | Поле :attribute должно присутствовать. |
+| `validation.present_if` | :other :value bo'lganda :attribute maydoni mavjud bo'lishi kerak. | Поле :attribute должно присутствовать, когда :other равно :value. |
+| `validation.present_unless` | :other :value bo'lmasa, :attribute maydoni mavjud bo'lishi kerak. | Поле :attribute должно присутствовать, если :other не равно :value. |
+| `validation.present_with` | :values ko'rsatilganda :attribute maydoni mavjud bo'lishi kerak. | Поле :attribute должно присутствовать, когда указано :values. |
+| `validation.present_with_all` | :values ko'rsatilganda :attribute maydoni mavjud bo'lishi kerak. | Поле :attribute должно присутствовать, когда указаны :values. |
+| `validation.prohibited` | :attribute maydoniga ruxsat berilmagan. | Поле :attribute запрещено. |
+| `validation.prohibited_if` | :other :value bo'lganda :attribute maydoniga ruxsat berilmagan. | Поле :attribute запрещено, когда :other равно :value. |
+| `validation.prohibited_if_accepted` | :other qabul qilinganda :attribute maydoniga ruxsat berilmagan. | Поле :attribute запрещено, когда :other принято. |
+| `validation.prohibited_if_declined` | :other rad etilganda :attribute maydoniga ruxsat berilmagan. | Поле :attribute запрещено, когда :other отклонено. |
+| `validation.prohibited_unless` | :other :values ichida bo'lmasa, :attribute maydoniga ruxsat berilmagan. | Поле :attribute запрещено, если :other не входит в :values. |
+| `validation.prohibits` | :attribute maydoni :other ning mavjud bo'lishiga yo'l qo'ymaydi. | Поле :attribute не допускает одновременного указания :other. |
+| `validation.regex` | :attribute maydoni formati noto'g'ri. | Поле :attribute имеет неверный формат. |
+| `validation.required` | :attribute maydoni to'ldirilishi shart. | Поле :attribute обязательно для заполнения. |
+| `validation.required_array_keys` | :attribute maydonida quyidagilar uchun yozuvlar bo'lishi kerak: :values. | Поле :attribute должно содержать записи для: :values. |
+| `validation.required_if` | :other :value bo'lganda :attribute maydoni to'ldirilishi shart. | Поле :attribute обязательно, когда :other равно :value. |
+| `validation.required_if_accepted` | :other qabul qilinganda :attribute maydoni to'ldirilishi shart. | Поле :attribute обязательно, когда :other принято. |
+| `validation.required_if_declined` | :other rad etilganda :attribute maydoni to'ldirilishi shart. | Поле :attribute обязательно, когда :other отклонено. |
+| `validation.required_unless` | :other :values ichida bo'lmasa, :attribute maydoni to'ldirilishi shart. | Поле :attribute обязательно, если :other не входит в :values. |
+| `validation.required_with` | :values ko'rsatilganda :attribute maydoni to'ldirilishi shart. | Поле :attribute обязательно, когда указано :values. |
+| `validation.required_with_all` | :values ko'rsatilganda :attribute maydoni to'ldirilishi shart. | Поле :attribute обязательно, когда указаны :values. |
+| `validation.required_without` | :values ko'rsatilmaganda :attribute maydoni to'ldirilishi shart. | Поле :attribute обязательно, когда не указано :values. |
+| `validation.required_without_all` | :values dan birortasi ham ko'rsatilmaganda :attribute maydoni to'ldirilishi shart. | Поле :attribute обязательно, когда не указано ни одно из :values. |
+| `validation.same` | :attribute maydoni :other bilan bir xil bo'lishi kerak. | Значение поля :attribute должно совпадать с :other. |
+| `validation.size.array` | :attribute maydonida :size ta element bo'lishi kerak. | Поле :attribute должно содержать :size элементов. |
+| `validation.size.file` | :attribute maydonidagi fayl hajmi :size kilobayt bo'lishi kerak. | Размер файла в поле :attribute должен быть равен :size килобайт. |
+| `validation.size.numeric` | :attribute maydoni :size ga teng bo'lishi kerak. | Поле :attribute должно быть равно :size. |
+| `validation.size.string` | :attribute maydoni uzunligi :size belgi bo'lishi kerak. | Длина поля :attribute должна быть равна :size символам. |
+| `validation.starts_with` | :attribute maydoni quyidagilardan biri bilan boshlanishi kerak: :values. | Поле :attribute должно начинаться с одного из: :values. |
+| `validation.string` | :attribute maydoni matn bo'lishi kerak. | Поле :attribute должно быть строкой. |
+| `validation.timezone` | :attribute maydoni to'g'ri vaqt mintaqasi bo'lishi kerak. | Поле :attribute должно быть корректным часовым поясом. |
+| `validation.unique` | Bunday :attribute allaqachon band. | Такое значение поля :attribute уже занято. |
+| `validation.uploaded` | :attribute yuklanmadi. | Не удалось загрузить поле :attribute. |
+| `validation.uppercase` | :attribute maydoni bosh harflarda bo'lishi kerak. | Поле :attribute должно быть в верхнем регистре. |
+| `validation.url` | :attribute maydoni to'g'ri URL manzil bo'lishi kerak. | Поле :attribute должно быть корректным URL-адресом. |
+| `validation.ulid` | :attribute maydoni to'g'ri ULID bo'lishi kerak. | Поле :attribute должно быть корректным ULID. |
+| `validation.uuid` | :attribute maydoni to'g'ri UUID bo'lishi kerak. | Поле :attribute должно быть корректным UUID. |
+| `validation.attributes.init_data` | initData | initData |
+| `validation.attributes.interface_locale` | interfeys tili | язык интерфейса |
+| `validation.attributes.timezone` | vaqt mintaqasi | часовой пояс |
+| `validation.attributes.reminder_time` | eslatma vaqti | время напоминания |
+| `validation.attributes.daily_goal` | kunlik maqsad | дневная цель |
+| `validation.attributes.goal` | o'qish maqsadi | цель обучения |
+| `validation.attributes.level` | daraja | уровень |
+| `validation.attributes.code` | kod | код |
+| `validation.attributes.mode` | rejim | режим |
+| `validation.attributes.word_id` | so'z | слово |
+| `validation.attributes.quality` | baho | оценка |
+| `validation.attributes.time_spent_ms` | sarflangan vaqt | затраченное время |
+
+Проверить в первую очередь: «maydoni» как «поле»; «:attribute ... bo'lishi kerak» (должно быть); «to'ldirilishi shart» (обязательно для заполнения); «kamida / oshmasligi kerak» (не меньше / не больше); названия полей API в `validation.attributes.*` (interfeys tili, vaqt mintaqasi, eslatma vaqti, kunlik maqsad, o'qish maqsadi, daraja, kod, rejim, so'z, baho, sarflangan vaqt).
