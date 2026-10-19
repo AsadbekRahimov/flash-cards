@@ -43,7 +43,9 @@ final class MyChatMemberHandler implements UpdateHandler
         $newStatus = (string) ($event['new_chat_member']['status'] ?? '');
 
         if (in_array($newStatus, ['left', 'kicked'], true)) {
-            TelegramGroup::where('chat_id', $chatId)->update(['status' => 'disabled']);
+            // Through Eloquent (not a query-builder update): TelegramGroupObserver drops the
+            // members' cached entitlement, so a sponsored Pro ends at once (docs/12 §5.2).
+            TelegramGroup::query()->where('chat_id', $chatId)->first()?->update(['status' => 'disabled']);
 
             return;
         }

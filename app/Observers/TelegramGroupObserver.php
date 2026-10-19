@@ -11,12 +11,10 @@ use Illuminate\Support\Facades\DB;
 /**
  * A group's organization link or status is an input of its members' entitlement
  * (sponsored Pro, docs/12 §5.1). Whatever path changes it (Filament relation
- * manager, group edit form, enable / disable action) the members' cached
- * entitlements are dropped (docs/12 §5.2). Registered in AppServiceProvider.
- *
- * Query-builder updates (`TelegramGroup::where()->update()`) bypass observers;
- * the only such path today is the bot leaving a group (MyChatMemberHandler),
- * where the TTL-bounded staleness is acceptable (docs/12 §5.2).
+ * manager, group edit form, enable / disable action, the bot leaving the group)
+ * the members' cached entitlements are dropped (docs/12 §5.2). Registered in
+ * AppServiceProvider. Such changes must go through Eloquent: query-builder
+ * updates (`TelegramGroup::where()->update()`) bypass observers.
  */
 final class TelegramGroupObserver
 {

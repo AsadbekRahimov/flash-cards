@@ -2,10 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Domain\Billing\Enums\Plan;
+use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Models\GroupMember;
 use App\Models\Learner;
+use App\Models\Organization;
+use App\Models\Subscription;
 use App\Models\TelegramGroup;
 use App\Models\TrainingReview;
 use App\Models\TrainingSession;
@@ -59,6 +63,25 @@ it('marks group as disabled when bot is kicked', function (): void {
     ]);
 
     expect(TelegramGroup::where('chat_id', -9999)->value('status'))->toBe('disabled');
+});
+
+it('drops the sponsored Pro of the members at once when the bot is removed from the group', function (): void {
+    $org = Organization::factory()->create();
+    Subscription::factory()->forOrganization($org)->create(['current_period_ends_at' => null]);
+    $group = TelegramGroup::factory()->create(['chat_id' => -9998, 'status' => 'active', 'organization_id' => $org->id]);
+    $member = Learner::factory()->memberOf($group)->create();
+    $resolver = app(EntitlementResolver::class);
+    expect($resolver->for($member)->plan)->toBe(Plan::Pro);   // primes the cache
+
+    app(TelegramDispatcher::class)->dispatch([
+        'my_chat_member' => [
+            'chat' => ['id' => -9998, 'type' => 'supergroup', 'title' => 'X'],
+            'new_chat_member' => ['status' => 'left'],
+        ],
+    ]);
+
+    expect($group->fresh()?->status)->toBe('disabled')
+        ->and($resolver->for($member)->plan)->toBe(Plan::Free);
 });
 
 it('creates a learner and an active membership for every human in new_chat_members', function (): void {
