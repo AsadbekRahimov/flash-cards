@@ -67,6 +67,72 @@ export interface Entitlement {
   until: string | null
   /** null = unlimited */
   new_words_per_day: number | null
+  /**
+   * The learner's own live subscription (docs/04 A.2); null = none (Free, or Pro only from a center).
+   * Absent in the entitlement of `/today` and in the auth answer.
+   */
+  renewal?: Renewal | null
+}
+
+export interface Renewal {
+  /** The auto-renewal is running (Telegram Stars, status `active`). */
+  auto: boolean
+  provider: string
+  /** null = no end. */
+  ends_at: string | null
+  /** A "renew soon" reminder was already sent for the current period end. */
+  reminder_sent: boolean
+}
+
+// ---- billing (docs/04 A.8) ----
+
+export type BillingProviderKey = 'telegram_stars' | 'payme' | 'click'
+export type BillingPeriod = 'month' | 'year'
+/** Prices are minor units: XTR = whole Stars, UZS = tiyin (÷ 100 to show). */
+export type BillingCurrency = 'XTR' | 'UZS'
+export type Prices = Partial<Record<BillingCurrency, number>>
+
+export interface CatalogItem {
+  plan: string
+  tier: string | null
+  period: BillingPeriod
+  /** After the open offer. */
+  prices: Prices
+  /** Before it. */
+  list_prices: Prices
+}
+
+export interface SubscriptionSummary {
+  status: string
+  provider: string
+  plan: string
+  /** null = no end. */
+  ends_at: string | null
+  auto_renew: boolean
+  can_cancel: boolean
+  can_resume: boolean
+}
+
+export interface BillingCatalog {
+  /** Empty = nothing to sell. */
+  items: CatalogItem[]
+  providers: BillingProviderKey[]
+  offer: { kind: string; discount_pct: number; expires_at: string } | null
+  subscription: SubscriptionSummary | null
+}
+
+export interface CheckoutResponse {
+  order: { id: number; token: string; status: OrderStatus; amount: number; currency: BillingCurrency; expires_at: string }
+  /** `invoice_link` → Telegram.WebApp.openInvoice, `redirect` → openLink. */
+  checkout: { url: string; kind: 'invoice_link' | 'redirect' }
+}
+
+export type OrderStatus = 'pending' | 'paid' | 'canceled' | 'expired' | 'failed'
+
+export interface OrderStatusResponse {
+  status: OrderStatus
+  paid_at: string | null
+  subscription: SubscriptionSummary | null
 }
 
 /** `contact` is null when the owner has not configured BILLING_SUPPORT_CONTACT — then it is not shown. */

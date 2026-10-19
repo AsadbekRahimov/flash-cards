@@ -121,6 +121,10 @@ onBeforeUnmount(() => {
           {{ t('catalog.open') }}
         </RouterLink>
       </div>
+
+      <RouterLink :to="{ name: 'billing' }" class="btn btn-secondary w-full" data-testid="billing-link">
+        {{ t('billing.open') }}
+      </RouterLink>
     </div>
   </section>
 </template>

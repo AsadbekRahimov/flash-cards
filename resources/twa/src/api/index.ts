@@ -3,6 +3,10 @@ import { useAuthStore } from '@/stores/auth'
 import type {
   AuthContext,
   AuthResponse,
+  BillingCatalog,
+  BillingPeriod,
+  BillingProviderKey,
+  CheckoutResponse,
   Course,
   CourseDetail,
   CoursesResponse,
@@ -17,6 +21,7 @@ import type {
   ExamResultResponse,
   MeResponse,
   NextCardResponse,
+  OrderStatusResponse,
   OpenSessionRequest,
   Quality,
   ReviewResponse,
@@ -62,6 +67,15 @@ export const api = {
   },
   promo: {
     redeem: (code: string) => client().post<MeResponse>('/promo/redeem', { code }),
+  },
+  billing: {
+    catalog: () => client().get<BillingCatalog>('/billing/catalog'),
+    /** The amount is the server's; only what to buy and how to pay is sent. */
+    checkout: (period: BillingPeriod, provider: BillingProviderKey) =>
+      client().post<CheckoutResponse>('/billing/checkout', { plan: 'pro', period, provider }),
+    order: (token: string) => client().get<OrderStatusResponse>(`/billing/orders/${encodeURIComponent(token)}`),
+    cancel: () => client().post<MeResponse>('/billing/subscription/cancel'),
+    resume: () => client().post<MeResponse>('/billing/subscription/resume'),
   },
   courses: {
     list: () => client().get<CoursesResponse>('/courses'),

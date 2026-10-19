@@ -36,6 +36,32 @@ export function useTelegram() {
     try { webApp?.HapticFeedback?.notificationOccurred(kind) } catch { /* ignore */ }
   }
 
+  /**
+   * Opens a Stars invoice inside Telegram and resolves with its final status. Outside Telegram (or
+   * on a client without invoices) nothing can be paid, so it resolves `failed`.
+   */
+  function openInvoice(url: string): Promise<'paid' | 'cancelled' | 'failed' | 'pending'> {
+    return new Promise((resolve) => {
+      if (!webApp?.openInvoice) {
+        resolve('failed')
+        return
+      }
+      try {
+        webApp.openInvoice(url, (status) => resolve(status))
+      } catch {
+        resolve('failed')
+      }
+    })
+  }
+
+  /** Opens a payment page (Payme, Click) in the external browser. */
+  function openLink(url: string): void {
+    try {
+      if (webApp) webApp.openLink(url)
+      else if (typeof window !== 'undefined') window.open(url, '_blank', 'noopener')
+    } catch { /* ignore */ }
+  }
+
   function showBackButton(handler: () => void): () => void {
     try {
       webApp?.BackButton?.show()
@@ -58,6 +84,8 @@ export function useTelegram() {
     haptic,
     selectionHaptic,
     notificationHaptic,
+    openInvoice,
+    openLink,
     showBackButton,
   }
 }
