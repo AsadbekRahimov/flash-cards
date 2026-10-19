@@ -163,6 +163,14 @@ final class LearnerClock
         return DayBounds::tryFromArray(($learner->meta ?? [])[self::DAY_CARRY_META] ?? null);
     }
 
+    /** Whether a carried day (see {@see limitWindowUtc()}) is still running, i.e. the quota window outlasts the local day. */
+    public function hasActiveDayCarry(Learner $learner, ?CarbonImmutable $now = null): bool
+    {
+        $carry = $this->dayCarry($learner);
+
+        return $carry !== null && ($now ?? CarbonImmutable::now())->isBefore($this->firstMidnightAtOrAfter($learner, $carry->endUtc));
+    }
+
     /** First local midnight of the learner's zone at or after `$instant`, in UTC (wall-clock, so DST-correct). */
     public function firstMidnightAtOrAfter(Learner $learner, CarbonImmutable $instant): CarbonImmutable
     {

@@ -11,6 +11,7 @@ use App\Domain\Learners\DTO\OnboardingOption;
 use App\Domain\Learners\DTO\OnboardingStep;
 use App\Domain\Learners\DTO\StartPayload;
 use App\Domain\Learners\Exceptions\OnboardingException;
+use App\Domain\Learners\Exceptions\TimezoneChangeTooSoonException;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Course;
 use App\Models\Learner;
@@ -26,6 +27,11 @@ use Illuminate\Support\Facades\DB;
  * {@see OnboardingException} and change nothing — that is what makes the buttons idempotent.
  * Every value is checked against a whitelist; `callback_data` is not signed and is treated as
  * untrusted input.
+ *
+ * The first time zone is set here directly. When the learner already changed the zone through the
+ * settings (`meta.timezone_changed_at`) or a carried quota day is running, the zone step goes through
+ * {@see LearnerSettingsService::update()} instead: 24 h between changes and the day carry apply, a
+ * refusal ({@see TimezoneChangeTooSoonException}) leaves the step open.
  *
  * Setting or changing the time zone or the reminder time recomputes `next_reminder_at` — the next
  * UTC instant at which the learner's wall clock shows `reminder_time` ({@see LearnerClock}), `NULL`
@@ -59,6 +65,7 @@ final class OnboardingService
         private readonly CourseCatalogService $catalog,
         private readonly ProductEventRecorder $events,
         private readonly LearnerSettingsService $settings,
+        private readonly LearnerClock $clock,
     ) {}
 
     /**
@@ -128,7 +135,16 @@ final class OnboardingService
                 throw OnboardingException::staleStep($step);
             }
 
-            $fresh->fill($changes);
+            if ($step === 'timezone' && $this->zoneChangeIsGuarded($fresh)) {
+                // Not the learner's first zone: the rules of /settings apply to this entry point too —
+                // 24 h between changes and the running quota day carried over — or re-running this step
+                // would be a way around them (docs/12 §5.3). A refusal rolls the transaction back and
+                // leaves the step as it was.
+                $this->settings->update($fresh, $changes);
+                $fresh->refresh();
+            } else {
+                $fresh->fill($changes);
+            }
             if ($step === 'locale') {
                 $fresh->meta = [...$fresh->meta, LearnerSettingsService::LOCALE_CHOSEN => true];
             }
@@ -169,6 +185,13 @@ final class OnboardingService
         }
 
         return $this->current($learner);
+    }
+
+    /** A zone change already happened through the settings, or its carried day is still running. */
+    private function zoneChangeIsGuarded(Learner $learner): bool
+    {
+        return isset(($learner->meta ?? [])[LearnerSettingsService::TIMEZONE_CHANGED_AT_META])
+            || $this->clock->hasActiveDayCarry($learner);
     }
 
     /**

@@ -482,3 +482,28 @@ it('takes no lock of its own: the budget closure is a single plain count query',
         ->and(strtolower($count[0]))->toStartWith('select count(*)')
         ->and(strtolower($count[0]))->not->toContain('for update');
 });
+
+it('records paywall.shown once per quota window, not once per local calendar day (a carried window spans two local dates)', function (): void {
+    config()->set('billing.plans.free.limits.new_words_per_day', 3);
+    $learner = nwqLearner(10, ['timezone' => 'Asia/Tashkent']);
+    $events = fn () => ProductEvent::query()->where('name', ProductEventName::PaywallShown->value)->where('learner_id', $learner->id)->count();
+
+    CarbonImmutable::setTestNow('2026-10-19 18:30:00'); // 23:30 in Tashkent
+    expect(nwqWalk($this, $learner)['served'])->toBe(3)
+        ->and($events())->toBe(1);
+
+    // Dhaka (UTC+6) is already on the 20th, but the quota window of the 19th is carried to 20 Oct 18:00 UTC.
+    CarbonImmutable::setTestNow('2026-10-19 18:35:00');
+    nwqChangeTimezone($learner, 'Asia/Dhaka');
+    expect(nwqWalk($this, $learner->fresh())['last']->json('done_reason'))->toBe('new_quota_exhausted')
+        ->and($events())->toBe(1);
+
+    CarbonImmutable::setTestNow('2026-10-20 02:00:00'); // still the same window
+    nwqWalk($this, $learner->fresh());
+    expect($events())->toBe(1);
+
+    // A new window, a new quota, a new wall.
+    CarbonImmutable::setTestNow('2026-10-20 18:00:00');
+    expect(nwqWalk($this, $learner->fresh())['served'])->toBe(3)
+        ->and($events())->toBe(2);
+});

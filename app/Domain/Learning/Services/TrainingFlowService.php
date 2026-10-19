@@ -156,13 +156,18 @@ final class TrainingFlowService
         return max(1, (int) $learner->daily_goal);
     }
 
-    /** Once per local day of the learner: `Cache::add` wins the race between tabs, the key expires with the day. */
+    /**
+     * Once per quota window ({@see LearnerClock::limitWindowUtc()}) — the span the Free quota is counted over,
+     * which is what "the wall" is about. Not per local calendar day: right after a timezone change the window
+     * is longer than a day and spans two local dates. `Cache::add` wins the race between tabs. The key holds
+     * the window's start; its TTL is not "until the window's end" (a later zone change can extend the window
+     * past the end seen now) but 3 days, more than the longest window (< 48 h, a little over on a DST change).
+     */
     private function recordPaywallShown(Learner $learner, CarbonImmutable $now): void
     {
-        $day = $this->clock->dayBoundsUtc($learner, $now);
-        $ttl = max(1, (int) $now->diffInSeconds($day->endUtc, false));
+        $window = $this->clock->limitWindowUtc($learner, $now);
 
-        if (! Cache::add(self::PAYWALL_CACHE_PREFIX.$learner->id.':'.$day->date, true, $ttl)) {
+        if (! Cache::add(self::PAYWALL_CACHE_PREFIX.$learner->id.':'.$window->startUtc->format('YmdHis'), true, now()->addDays(3))) {
             return;
         }
 

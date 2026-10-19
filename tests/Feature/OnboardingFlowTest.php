@@ -1021,3 +1021,85 @@ it('leaves the active course empty when the default course cannot be opened', fu
         ->and($last['text'])->toBe('Готово! Нажмите кнопку — первая тренировка займёт пару минут.')
         ->and(ProductEvent::query()->where('name', 'course.selected')->exists())->toBeFalse();
 })->with(['draft', 'archived', 'private']);
+
+// --- the zone step after an earlier zone change ------------------------------------------
+
+function onbAtZoneStep(int $tgId, array $meta = [], array $attributes = []): Learner
+{
+    return Learner::factory()->create([
+        'telegram_user_id' => $tgId,
+        'onboarding_state' => 'timezone',
+        'interface_locale' => 'ru',
+        'goal' => 'general',
+        'level' => 'A1',
+        'timezone' => 'Asia/Tashkent',
+        'meta' => $meta,
+        ...$attributes,
+    ]);
+}
+
+it('keeps the zone step when the zone was changed through the settings less than 24 h ago, and says when it is possible again', function (): void {
+    $this->travelTo(CarbonImmutable::parse('2026-10-19 10:00:00', 'UTC'));
+    $changedAt = CarbonImmutable::parse('2026-10-19 08:00:00', 'UTC')->toIso8601String();
+    $learner = onbAtZoneStep(7201, ['timezone_changed_at' => $changedAt]);
+
+    onbTap(7201, 'onb1:timezone:Asia/Almaty', 4);
+
+    $learner->refresh();
+    expect($learner->timezone)->toBe('Asia/Tashkent')
+        ->and($learner->onboarding_state)->toBe('timezone')
+        ->and($learner->meta['timezone_changed_at'])->toBe($changedAt)
+        // 08:00 UTC + 24 h = 20.10 08:00 UTC = 13:00 in Tashkent.
+        ->and(end($this->tg->sent)['text'])->toBe(__('onboarding.settings.timezone_too_soon', ['when' => '20.10 13:00'], 'ru'));
+
+    // Allowed again after the interval: the step moves on, the change is stamped and the day carried.
+    $this->travelTo(CarbonImmutable::parse('2026-10-20 08:30:00', 'UTC'));
+    onbTap(7201, 'onb1:timezone:Asia/Almaty', 5);
+
+    $learner->refresh();
+    expect($learner->timezone)->toBe('Asia/Almaty')
+        ->and($learner->onboarding_state)->toBe('reminder')
+        ->and($learner->meta['timezone_changed_at'])->toBe('2026-10-20T08:30:00+00:00')
+        ->and($learner->meta)->toHaveKey('local_day_carry');
+});
+
+it('also guards the zone step while a carried day is active (a carry without a stamp)', function (): void {
+    $this->travelTo(CarbonImmutable::parse('2026-10-19 10:00:00', 'UTC'));
+    $carry = ['date' => '2026-10-19', 'timezone' => 'Asia/Tashkent', 'start' => '2026-10-18T19:00:00+00:00', 'end' => '2026-10-19T19:00:00+00:00'];
+    $learner = onbAtZoneStep(7202, ['local_day_carry' => $carry]);
+
+    onbTap(7202, 'onb1:timezone:Asia/Almaty', 4);
+
+    $learner->refresh();
+    // No stamp, so the 24 h rule lets it through — but via the settings path: stamped, and the running carry kept.
+    expect($learner->timezone)->toBe('Asia/Almaty')
+        ->and($learner->onboarding_state)->toBe('reminder')
+        ->and($learner->meta['timezone_changed_at'])->toBe('2026-10-19T10:00:00+00:00')
+        ->and($learner->meta['local_day_carry'])->toBe($carry);
+});
+
+it('sets the very first zone as before: no stamp, no carry, no time limit', function (): void {
+    $this->travelTo(CarbonImmutable::parse('2026-10-19 10:00:00', 'UTC'));
+    $learner = onbAtZoneStep(7203);
+
+    onbTap(7203, 'onb1:timezone:Asia/Almaty', 4);
+
+    $learner->refresh();
+    expect($learner->timezone)->toBe('Asia/Almaty')
+        ->and($learner->onboarding_state)->toBe('reminder')
+        ->and($learner->meta ?? [])->not->toHaveKey('timezone_changed_at')
+        ->and($learner->meta ?? [])->not->toHaveKey('local_day_carry');
+});
+
+it('does not stamp a zone step that keeps the current zone', function (): void {
+    $this->travelTo(CarbonImmutable::parse('2026-10-19 10:00:00', 'UTC'));
+    $changedAt = CarbonImmutable::parse('2026-10-19 08:00:00', 'UTC')->toIso8601String();
+    $learner = onbAtZoneStep(7204, ['timezone_changed_at' => $changedAt]);
+
+    onbTap(7204, 'onb1:timezone:Asia/Tashkent', 4);
+
+    $learner->refresh();
+    expect($learner->timezone)->toBe('Asia/Tashkent')
+        ->and($learner->onboarding_state)->toBe('reminder')
+        ->and($learner->meta['timezone_changed_at'])->toBe($changedAt);
+});
