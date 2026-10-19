@@ -10,6 +10,7 @@ use App\Domain\Billing\Support\PaidSubscriptionQuery;
 use App\Domain\Billing\Support\SubscriptionLiveness;
 use App\Models\Learner;
 use App\Models\Organization;
+use App\Models\OrganizationMember;
 use App\Models\Subscription;
 use App\Models\TelegramGroup;
 use Carbon\CarbonImmutable;
@@ -162,19 +163,28 @@ it('takes its live statuses from SubscriptionStatus::liveValues(): a status adde
     }
 });
 
-it('the sponsor chain (organization x group x membership) agrees with EntitlementResolver', function (): void {
+it('the sponsor chain (organization x membership status x seat) agrees with EntitlementResolver', function (): void {
     $now = CarbonImmutable::now();
     $resolver = app(EntitlementResolver::class);
     $learners = [];
     $expectedPro = [];
 
     foreach (['active', 'suspended'] as $orgStatus) {
-        foreach (['active', 'disabled', 'pending'] as $groupStatus) {
-            foreach (['active', 'left'] as $memberStatus) {
+        foreach (['active', 'left', 'removed'] as $memberStatus) {
+            foreach (['seated', 'waitlisted', 'none'] as $seatState) {
                 foreach ([true, false] as $granting) {
                     $org = Organization::factory()->create(['status' => $orgStatus]);
-                    $group = TelegramGroup::factory()->create(['organization_id' => $org->id, 'status' => $groupStatus]);
-                    $learner = Learner::factory()->memberOf($group, $memberStatus)->create();
+                    $learner = Learner::factory()->create();
+                    OrganizationMember::factory()->create([
+                        'organization_id' => $org->id,
+                        'learner_id' => $learner->id,
+                        'status' => $memberStatus,
+                        'seat_state' => $seatState,
+                        'left_at' => $memberStatus === 'active' ? null : now(),
+                    ]);
+                    // A group row of the organization never sponsors by itself since 2B.1.
+                    $group = TelegramGroup::factory()->create(['organization_id' => $org->id, 'status' => 'active']);
+                    $learner->groups()->attach($group->id, ['status' => 'active', 'joined_at' => now()]);
                     $granting
                         ? Subscription::factory()->forOrganization($org)->create()
                         : Subscription::factory()->forOrganization($org)->expired()->create();
@@ -188,7 +198,7 @@ it('the sponsor chain (organization x group x membership) agrees with Entitlemen
         }
     }
 
-    // Exactly one combination sponsors: active organization, active group, active member, live subscription.
+    // Exactly one combination sponsors: active organization, active member, seated, live subscription.
     expect($expectedPro)->toHaveCount(1);
 
     $viaIds = Learner::query()->whereIn('learners.id', PaidSubscriptionQuery::sponsoredLearnerIds($now))->pluck('id');

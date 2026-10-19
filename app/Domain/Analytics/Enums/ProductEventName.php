@@ -22,6 +22,11 @@ enum ProductEventName: string
     case GroupBotAdded = 'group.bot_added';
     case GroupMemberJoined = 'group.member_joined';
     case GroupMemberLeft = 'group.member_left';
+    /** Membership in an organization became active (props: via, seat_state — docs/13 §2.3). */
+    case OrgMemberJoined = 'org.member_joined';
+    case OrgMemberLeft = 'org.member_left';
+    /** A waitlisted member got a seat (FIFO after a leave or a tariff upgrade). */
+    case OrgMemberSeated = 'org.member_seated';
     case SubscriptionGranted = 'subscription.granted';
     case SubscriptionExpired = 'subscription.expired';
     /** Auto-renewal stopped by the user; Pro stays until the period end (docs/13 §2.1). */

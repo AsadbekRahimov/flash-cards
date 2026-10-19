@@ -9,8 +9,8 @@ use App\Domain\Billing\Events\SubscriptionRenewalDue;
 use App\Domain\Billing\Exceptions\SubscriptionException;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Billing\Services\SubscriptionService;
+use App\Domain\Organizations\Services\OrganizationMembershipService;
 use App\Models\AuditLog;
-use App\Models\GroupMember;
 use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\ProductEvent;
@@ -164,20 +164,24 @@ it('rejects a subscriber that does not exist', function (): void {
         ->toThrow(SubscriptionException::class, 'does not exist');
 });
 
-it('grants to an organization and invalidates all of its groups\' members', function (): void {
+it('grants to an organization, invalidates its members and seats the waitlist after commit (docs/13 §2.3)', function (): void {
     $org = Organization::factory()->create();
     $group = TelegramGroup::factory()->create(['status' => 'active', 'organization_id' => $org->id]);
     $member = Learner::factory()->create();
-    GroupMember::factory()->create(['telegram_group_id' => $group->id, 'learner_id' => $member->id]);
+    // Joined through the group before the center paid: a member without a seat (nothing sponsors yet).
+    $membership = app(OrganizationMembershipService::class)->joinFromGroup($member, $group);
     $outsider = Learner::factory()->create();
     $resolver = app(EntitlementResolver::class);
 
-    expect($resolver->for($member)->plan)->toBe(Plan::Free)
+    expect($membership?->seat_state)->toBe('waitlisted')
+        ->and($resolver->for($member)->plan)->toBe(Plan::Free)
         ->and($resolver->for($outsider)->plan)->toBe(Plan::Free);
 
-    $sub = app(SubscriptionService::class)->grantManual($org, Plan::Pro, null, subscriptionAdmin(), 'center contract');
+    $sub = app(SubscriptionService::class)->grantManual($org, Plan::Pro, null, subscriptionAdmin(), 'center contract', tier: 'tutor');
 
     expect($sub->subscriber_type)->toBe('organization')
+        ->and($sub->seats_limit)->toBe(30)
+        ->and($membership?->fresh()?->seat_state)->toBe('seated')
         ->and(Cache::has(EntitlementResolver::cacheKey($member->id)))->toBeFalse()
         ->and(Cache::has(EntitlementResolver::cacheKey($outsider->id)))->toBeTrue()
         ->and($resolver->for($member)->source)->toBe("sponsor:organization:{$org->id}")

@@ -25,9 +25,14 @@ use App\Domain\Billing\Services\ProviderTransactionService;
 use App\Domain\Billing\Services\SubscriptionService;
 use App\Domain\Learning\Services\CardPicker;
 use App\Domain\Learning\Support\TrainingScope;
+use App\Domain\Organizations\Exceptions\OrganizationMembershipException;
+use App\Domain\Organizations\Services\OrganizationMembershipService;
 use App\Models\Course;
 use App\Models\Learner;
 use App\Models\Lesson;
+use App\Models\Organization;
+use App\Models\OrganizationInvite;
+use App\Models\OrganizationMember;
 use App\Models\Payment;
 use App\Models\PaymentOrder;
 use App\Models\ProductEvent;
@@ -96,7 +101,7 @@ function billingRunInParallel(array $tasks): array
                 $outcome = [
                     'ok' => false,
                     'error' => $e::class,
-                    'code' => $e instanceof BillingException ? $e->errorCode : null,
+                    'code' => $e instanceof BillingException || $e instanceof OrganizationMembershipException ? $e->errorCode : null,
                     'message' => $e->getMessage(),
                 ];
             } finally {
@@ -502,4 +507,110 @@ it('lets exactly one of two simultaneous CreateTransaction calls open a transact
     expect(billingCodes($results))->toBe(['ok', 'ok'])
         ->and(collect($results)->pluck('result')->unique())->toHaveCount(1)
         ->and(ProviderTransaction::query()->where('payment_order_id', $order2->id)->count())->toBe(1);
+});
+
+/*
+ * 2B.1 (docs/13 §3 rule 3 and 6): seats are taken under `organizations FOR UPDATE`; the
+ * subscription path of the organization locks `organizations -> subscriptions` and reseats
+ * after its commit. Neither side ever waits for the other's second lock in reverse.
+ */
+
+/** An active organization sponsoring with $seats, an open invite code for it. */
+function billingSeatedOrganization(int $seats, string $code = 'RACESEATXX'): array
+{
+    $org = Organization::factory()->create();
+    Subscription::factory()->forOrganization($org)->create(['current_period_ends_at' => null, 'tier' => 'tutor', 'seats_limit' => $seats]);
+    $invite = OrganizationInvite::factory()->create(['organization_id' => $org->id, 'code' => $code]);
+
+    return [$org, $invite];
+}
+
+it('gives the last seat to exactly one of six simultaneous invite joins; the others are waitlisted, none fails', function (): void {
+    [$org, $invite] = billingSeatedOrganization(2);
+    Learner::factory()->seatedIn($org)->create(); // one seat already taken: one left
+    $learners = Learner::factory()->count(6)->create();
+
+    $results = billingRunInParallel($learners->map(fn (Learner $learner) => function () use ($learner): string {
+        // Every contender sleeps between "count the seated" and its INSERT (inside the transaction):
+        // without the organization row lock all six would see 1 seated < 2 and sit down.
+        OrganizationMember::creating(static function (): void {
+            usleep(150_000);
+        });
+
+        return app(OrganizationMembershipService::class)->joinByInvite($learner, 'racesEatxx')->seat_state;
+    })->all());
+
+    expect(billingCodes($results))->toBe(array_fill(0, 6, 'ok'));
+
+    $states = collect($results)->pluck('result')->sort()->values()->all();
+    expect($states)->toBe(['seated', 'waitlisted', 'waitlisted', 'waitlisted', 'waitlisted', 'waitlisted'])
+        ->and(OrganizationMember::query()->where('organization_id', $org->id)->where('seat_state', 'seated')->count())->toBe(2)
+        ->and(OrganizationMember::query()->where('organization_id', $org->id)->where('seat_state', 'waitlisted')->count())->toBe(5)
+        ->and(OrganizationMember::query()->where('organization_id', $org->id)->count())->toBe(7)
+        ->and($invite->refresh()->uses_count)->toBe(6)
+        ->and(ProductEvent::query()->where('name', 'org.member_joined')->count())->toBe(6);
+});
+
+it('does not deadlock when an invite join and a manual grant hit the same organization (either one first)', function (): void {
+    $admin = User::factory()->create();
+
+    // 1. The join holds `organizations` and pauses before its INSERT while the grant arrives and waits
+    //    on the same row; the join then inserts organization_members / product_events and commits;
+    //    the grant proceeds (organizations -> subscriptions) and reseats after its commit.
+    [$org, $invite] = billingSeatedOrganization(1);
+    $learner = Learner::factory()->create();
+    $signal = billingSignalFile();
+
+    $results = billingRunInParallel([
+        function () use ($learner, $signal): string {
+            OrganizationMember::creating(static function () use ($signal): void {
+                billingWaitForFile($signal);
+                usleep(500_000);
+            });
+
+            return app(OrganizationMembershipService::class)->joinByInvite($learner, 'RACESEATXX')->seat_state;
+        },
+        function () use ($org, $admin, $signal): int {
+            usleep(150_000); // let the join take the organization lock first
+            touch($signal);
+
+            return app(SubscriptionService::class)->grantManual($org, Plan::Pro, null, $admin, 'race', tier: 'center_s')->id;
+        },
+    ]);
+    billingRemoveSignalFile($signal);
+
+    expect(billingCodes($results))->toBe(['ok', 'ok'])
+        ->and($results[0]['result'])->toBe('seated')
+        ->and(Subscription::query()->where('subscriber_id', $org->id)->sole()->seats_limit)->toBe(100)
+        ->and(OrganizationMember::query()->where('learner_id', $learner->id)->sole()->seat_state)->toBe('seated');
+
+    // 2. The grant holds organizations + subscriptions and pauses after its subscription write while a join
+    //    waits on the organization row; the grant commits, reseats (organization lock again), and the join
+    //    then sees the new limit. The waitlisted learner of a full organization is seated by the upgrade.
+    [$org2] = billingSeatedOrganization(1, 'RACESEATYY');
+    Learner::factory()->seatedIn($org2)->create();
+    $waiting = Learner::factory()->seatedIn($org2, 'waitlisted')->create();
+    $newcomer = Learner::factory()->create();
+    $signal = billingSignalFile();
+
+    $results = billingRunInParallel([
+        function () use ($org2, $admin, $signal): int {
+            billingHoldAfterSubscriptionUpdate($signal);
+
+            return app(SubscriptionService::class)->grantManual($org2, Plan::Pro, null, $admin, 'race', tier: 'center_s')->id;
+        },
+        function () use ($newcomer, $signal): string {
+            usleep(150_000); // let the grant take its locks first
+            touch($signal);
+
+            return app(OrganizationMembershipService::class)->joinByInvite($newcomer, 'RACESEATYY')->seat_state;
+        },
+    ]);
+    billingRemoveSignalFile($signal);
+
+    expect(billingCodes($results))->toBe(['ok', 'ok'])
+        ->and($results[1]['result'])->toBe('seated')
+        ->and(OrganizationMember::query()->where('learner_id', $waiting->id)->sole()->seat_state)->toBe('seated')
+        ->and(OrganizationMember::query()->where('organization_id', $org2->id)->where('seat_state', 'seated')->count())->toBe(3)
+        ->and(Subscription::query()->whereIn('status', SubscriptionStatus::liveValues())->where('subscriber_id', $org2->id)->count())->toBe(1);
 });

@@ -378,8 +378,7 @@ it('does not take a group away from another organization', function (): void {
 it('suspending an organization stops the sponsorship at once (observer drops the cache)', function (): void {
     $org = Organization::factory()->create();
     Subscription::factory()->forOrganization($org)->create(['current_period_ends_at' => null]);
-    $group = TelegramGroup::factory()->create(['status' => 'active', 'organization_id' => $org->id]);
-    $member = Learner::factory()->memberOf($group)->create();
+    $member = Learner::factory()->seatedIn($org)->create(); // a seat sponsors since 2B.1 (docs/13 §1.3)
     $resolver = app(EntitlementResolver::class);
     expect($resolver->for($member)->plan)->toBe(Plan::Pro);
     $this->actingAs($this->admin);

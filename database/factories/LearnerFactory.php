@@ -6,6 +6,8 @@ namespace Database\Factories;
 
 use App\Models\GroupMember;
 use App\Models\Learner;
+use App\Models\Organization;
+use App\Models\OrganizationMember;
 use App\Models\TelegramGroup;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -41,6 +43,26 @@ class LearnerFactory extends Factory
                 'learner_id' => $learner->id,
                 'status' => $status,
                 'left_at' => $status === 'active' ? null : now(),
+            ]);
+        });
+    }
+
+    /**
+     * The learner is an active member of $organization holding a seat (docs/13 §1.3) — what the
+     * sponsored Pro hangs on since 2B.1. `$seatState` `waitlisted` = member without a seat.
+     */
+    public function seatedIn(Organization|int $organization, string $seatState = 'seated', string $via = 'invite'): static
+    {
+        $organizationId = $organization instanceof Organization ? $organization->id : $organization;
+
+        return $this->afterCreating(function (Learner $learner) use ($organizationId, $seatState, $via): void {
+            OrganizationMember::factory()->create([
+                'organization_id' => $organizationId,
+                'learner_id' => $learner->id,
+                'seat_state' => $seatState,
+                'joined_via' => $via,
+                'seated_at' => $seatState === 'seated' ? now() : null,
+                'waitlisted_at' => $seatState === 'waitlisted' ? now() : null,
             ]);
         });
     }

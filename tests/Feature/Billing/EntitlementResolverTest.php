@@ -9,6 +9,7 @@ use App\Domain\Learners\Services\GroupMembershipService;
 use App\Models\GroupMember;
 use App\Models\Learner;
 use App\Models\Organization;
+use App\Models\OrganizationMember;
 use App\Models\Subscription;
 use App\Models\TelegramGroup;
 use Carbon\CarbonImmutable;
@@ -28,7 +29,10 @@ afterEach(function (): void {
 });
 
 /**
- * @return array{learner: Learner, group: TelegramGroup, organization: Organization}
+ * A learner in a group of the organization AND seated in it through that group — the state the
+ * GroupMembershipService hook leaves behind (docs/13 §1.3). Since 2B.1 the seat is what sponsors.
+ *
+ * @return array{learner: Learner, group: TelegramGroup, organization: Organization, member: OrganizationMember}
  */
 function entitlementSponsoredLearner(?Organization $organization = null): array
 {
@@ -36,8 +40,9 @@ function entitlementSponsoredLearner(?Organization $organization = null): array
     $group = TelegramGroup::factory()->create(['status' => 'active', 'organization_id' => $organization->id]);
     $learner = Learner::factory()->create();
     GroupMember::factory()->create(['telegram_group_id' => $group->id, 'learner_id' => $learner->id]);
+    $member = OrganizationMember::factory()->viaGroup()->create(['organization_id' => $organization->id, 'learner_id' => $learner->id]);
 
-    return ['learner' => $learner, 'group' => $group, 'organization' => $organization];
+    return ['learner' => $learner, 'group' => $group, 'organization' => $organization, 'member' => $member];
 }
 
 function entitlementSubscription(Learner|Organization $subscriber, array $attributes = []): Subscription
@@ -85,7 +90,7 @@ it('resolves Pro from a live personal subscription with its end date', function 
         ->and($e->can('stats.detailed'))->toBeTrue();
 });
 
-it('resolves Pro sponsored by an organization through an active group membership', function (): void {
+it('resolves Pro sponsored by an organization through a seat (organization_members: active, seated)', function (): void {
     ['learner' => $learner, 'organization' => $org] = entitlementSponsoredLearner();
     entitlementSubscription($org, ['current_period_ends_at' => null]);
 
@@ -95,6 +100,24 @@ it('resolves Pro sponsored by an organization through an active group membership
         ->and($e->source)->toBe("sponsor:organization:{$org->id}")
         ->and($e->isSponsored())->toBeTrue()
         ->and($e->until)->toBeNull();
+});
+
+it('does not sponsor a member of the organization\'s group without a seat (docs/13 §1.3: the seat sponsors, not the group row)', function (): void {
+    $org = Organization::factory()->create();
+    entitlementSubscription($org, ['current_period_ends_at' => null]);
+    $group = TelegramGroup::factory()->create(['status' => 'active', 'organization_id' => $org->id]);
+    $resolver = app(EntitlementResolver::class);
+
+    // In the group, no membership row at all (the hook did not run yet / sync pending).
+    $noRow = Learner::factory()->memberOf($group)->create();
+    // In the group, member of the organization but waiting for a seat.
+    $waiting = Learner::factory()->memberOf($group)->seatedIn($org, 'waitlisted', 'group')->create();
+    // Seated without any group (invite): sponsored.
+    $invited = Learner::factory()->seatedIn($org)->create();
+
+    expect($resolver->resolve($noRow)->plan)->toBe(Plan::Free)
+        ->and($resolver->resolve($waiting)->plan)->toBe(Plan::Free)
+        ->and($resolver->resolve($invited)->source)->toBe("sponsor:organization:{$org->id}");
 });
 
 it('takes the max of personal and sponsored: higher rank first, then the later end, then personal', function (): void {
@@ -122,24 +145,22 @@ it('takes the max of personal and sponsored: higher rank first, then the later e
     expect($resolver->resolve($learner)->source)->toBe("sponsor:organization:{$org->id}");
 });
 
-it('does not sponsor a learner who left, whose group is inactive, unlinked, or whose organization is suspended', function (): void {
-    ['learner' => $learner, 'group' => $group, 'organization' => $org] = entitlementSponsoredLearner();
+it('does not sponsor a member who left, was removed, waits for a seat, or whose organization is suspended', function (): void {
+    ['learner' => $learner, 'organization' => $org, 'member' => $member] = entitlementSponsoredLearner();
     entitlementSubscription($org, ['current_period_ends_at' => null]);
     $resolver = app(EntitlementResolver::class);
 
     expect($resolver->resolve($learner)->plan)->toBe(Plan::Pro);
 
-    GroupMember::query()->where('learner_id', $learner->id)->update(['status' => 'left', 'left_at' => now()]);
+    foreach (['left', 'removed'] as $status) {
+        $member->update(['status' => $status, 'seat_state' => 'none', 'left_at' => now()]);
+        expect($resolver->resolve($learner)->plan)->toBe(Plan::Free, "status {$status}");
+    }
+
+    $member->update(['status' => 'active', 'seat_state' => 'waitlisted', 'left_at' => null]);
     expect($resolver->resolve($learner)->plan)->toBe(Plan::Free);
 
-    GroupMember::query()->where('learner_id', $learner->id)->update(['status' => 'active', 'left_at' => null]);
-    $group->update(['status' => 'disabled']);
-    expect($resolver->resolve($learner)->plan)->toBe(Plan::Free);
-
-    $group->update(['status' => 'active', 'organization_id' => null]);
-    expect($resolver->resolve($learner)->plan)->toBe(Plan::Free);
-
-    $group->update(['organization_id' => $org->id]);
+    $member->update(['seat_state' => 'seated']);
     $org->update(['status' => 'suspended']);
     expect($resolver->resolve($learner)->plan)->toBe(Plan::Free);
 
@@ -301,9 +322,9 @@ it('invalidates on join and leave through GroupMembershipService', function (): 
     expect(Cache::has(EntitlementResolver::cacheKey($learner->id)))->toBeTrue();
 });
 
-it('invalidates members when a group is linked to / unlinked from an organization or disabled', function (): void {
+it('seats the members of a group linked to an organization and releases them when it is unlinked (TelegramGroupObserver, docs/13 §6.2)', function (): void {
     $org = Organization::factory()->create();
-    entitlementSubscription($org, ['current_period_ends_at' => null]);
+    entitlementSubscription($org, ['current_period_ends_at' => null, 'seats_limit' => 30]);
     $group = TelegramGroup::factory()->create(['status' => 'active', 'organization_id' => null]);
     $learner = Learner::factory()->create();
     GroupMember::factory()->create(['telegram_group_id' => $group->id, 'learner_id' => $learner->id]);
@@ -314,26 +335,52 @@ it('invalidates members when a group is linked to / unlinked from an organizatio
     expect($resolver->for($learner)->plan)->toBe(Plan::Free)
         ->and($resolver->for($leftLearner)->plan)->toBe(Plan::Free);
 
+    // Linking creates `joined_via = group` memberships for the active members only.
     $group->update(['organization_id' => $org->id]);
     expect(Cache::has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse()
         ->and(Cache::has(EntitlementResolver::cacheKey($leftLearner->id)))->toBeTrue() // not a member any more: untouched
-        ->and($resolver->for($learner)->plan)->toBe(Plan::Pro);
+        ->and($resolver->for($learner)->plan)->toBe(Plan::Pro)
+        ->and(OrganizationMember::query()->where('organization_id', $org->id)->pluck('learner_id')->all())->toBe([$learner->id])
+        ->and(OrganizationMember::query()->sole()->joined_via)->toBe('group');
 
     $group->update(['title' => 'Renamed']); // irrelevant change keeps the cache
     expect(Cache::has(EntitlementResolver::cacheKey($learner->id)))->toBeTrue();
 
+    // The group's own status is not an input of the seat any more (the bot being removed does not evict the learners).
     $group->update(['status' => 'disabled']);
-    expect($resolver->for($learner)->plan)->toBe(Plan::Free);
-
-    $group->update(['status' => 'active']);
     expect($resolver->for($learner)->plan)->toBe(Plan::Pro);
+    $group->update(['status' => 'active']);
 
+    // Unlinking the only group of the learner in this organization ends the group membership.
     $group->update(['organization_id' => null]);
-    expect($resolver->for($learner)->plan)->toBe(Plan::Free);
+    expect($resolver->for($learner)->plan)->toBe(Plan::Free)
+        ->and(OrganizationMember::query()->sole()->status)->toBe('left');
+
+    // Relinking brings them back (re-activation of the same row).
+    $group->update(['organization_id' => $org->id]);
+    expect($resolver->for($learner)->plan)->toBe(Plan::Pro)
+        ->and(OrganizationMember::query()->count())->toBe(1);
 });
 
-it('invalidates members when a group is deleted', function (): void {
-    ['learner' => $learner, 'group' => $group, 'organization' => $org] = entitlementSponsoredLearner();
+it('keeps an invite membership when a group is unlinked, and a group membership while another group of the organization remains', function (): void {
+    $org = Organization::factory()->create();
+    entitlementSubscription($org, ['current_period_ends_at' => null]);
+    $groupA = TelegramGroup::factory()->create(['status' => 'active', 'organization_id' => $org->id]);
+    $groupB = TelegramGroup::factory()->create(['status' => 'active', 'organization_id' => $org->id]);
+    $invited = Learner::factory()->memberOf($groupA)->seatedIn($org, 'seated', 'invite')->create();
+    $inBoth = Learner::factory()->memberOf($groupA)->memberOf($groupB)->seatedIn($org, 'seated', 'group')->create();
+    $onlyA = Learner::factory()->memberOf($groupA)->seatedIn($org, 'seated', 'group')->create();
+    $resolver = app(EntitlementResolver::class);
+
+    $groupA->update(['organization_id' => null]);
+
+    expect($resolver->for($invited)->plan)->toBe(Plan::Pro)
+        ->and($resolver->for($inBoth)->plan)->toBe(Plan::Pro)
+        ->and($resolver->for($onlyA)->plan)->toBe(Plan::Free);
+});
+
+it('releases the group members when a group of the organization is deleted', function (): void {
+    ['learner' => $learner, 'group' => $group, 'organization' => $org, 'member' => $member] = entitlementSponsoredLearner();
     entitlementSubscription($org, ['current_period_ends_at' => null]);
     $resolver = app(EntitlementResolver::class);
 
@@ -342,6 +389,7 @@ it('invalidates members when a group is deleted', function (): void {
     $group->delete();
 
     expect(Cache::has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse()
+        ->and($member->fresh()?->status)->toBe('left')
         ->and($resolver->for($learner)->plan)->toBe(Plan::Free);
 });
 

@@ -16,6 +16,7 @@ use App\Domain\Billing\Exceptions\SubscriptionException;
 use App\Domain\Billing\Support\OrgTiers;
 use App\Domain\Billing\Support\PaidSubscriptionQuery;
 use App\Domain\Billing\Support\SubscriptionLiveness;
+use App\Domain\Organizations\Services\OrganizationMembershipService;
 use App\Models\AuditLog;
 use App\Models\Learner;
 use App\Models\Organization;
@@ -78,6 +79,7 @@ final class SubscriptionService
     public function __construct(
         private readonly EntitlementResolver $entitlements,
         private readonly ProductEventRecorder $events,
+        private readonly OrganizationMembershipService $memberships,
     ) {}
 
     /**
@@ -990,6 +992,13 @@ final class SubscriptionService
             ->orderBy('id');
     }
 
+    /**
+     * Cache invalidation after commit. For an organization the waitlist is also re-seated
+     * (docs/13 §2.3, §3 rule 3): a new / upgraded subscription may have freed seats. That runs
+     * in its own transaction (`organizations` lock again, never inside ours) and is idempotent —
+     * with no capacity it is a no-op — so it is safe after a revoke / expiry too. Its failure
+     * is logged, not thrown: the subscription change is already committed.
+     */
     private function forgetAfterCommit(Subscription $subscription): void
     {
         $type = $subscription->subscriber_type;
@@ -998,6 +1007,12 @@ final class SubscriptionService
         DB::afterCommit(function () use ($type, $id): void {
             if ($type === 'organization') {
                 $this->entitlements->forgetOrganization($id);
+
+                try {
+                    $this->memberships->reseat($id);
+                } catch (\Throwable $e) {
+                    Log::error('organizations.reseat_failed', ['organization_id' => $id, 'exception' => $e::class, 'error' => $e->getMessage()]);
+                }
             } else {
                 $this->entitlements->forget($id);
             }
