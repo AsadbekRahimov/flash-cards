@@ -420,6 +420,7 @@ This runs every minute. Laravel's scheduler internally dispatches:
 - `model:prune` — daily at 03:00 (`product_events` and `notifications_log`, 400 days by default).
 - `training:close-expired` — every 15 minutes (expired personal / stale group training sessions).
 - `subscriptions:expire` — hourly (time-based subscription transitions).
+- `billing:expire-orders` — every 15 minutes (pending payment orders past `BILLING_ORDER_TTL_MINUTES` become `expired`).
 - `backup:clean` — daily at 01:00.
 - `backup:run` — daily at 01:30.
 - `backup:monitor` — daily at 02:00.
@@ -660,6 +661,109 @@ Smoke check: `curl -sI https://yourdomain.com/ | grep -i -e content-security -e 
 
 ---
 
+## 17. Payments (Telegram Stars, Payme, Click)
+
+Reference: docs/13_PHASE2_DESIGN.md §4, §10; admin side: ADMIN_GUIDE "Billing". Payments are **off** by default
+(`BILLING_PAYWALL_MODE=coming_soon`, every `*_ENABLED=false`): deploying the code changes nothing for learners until
+you switch a provider on.
+
+> **Status.** The ledger, checkout API, admin screens and the `billing:expire-orders` job exist (tasks 2A.1, 2A.2,
+> 2A.7). The provider adapters and their webhook URLs are added by 2A.3 (Stars), 2A.4 (Payme) and 2A.5 (Click):
+> every URL and check below marked **(2A.3)** / **(2A.4)** / **(2A.5)** works only after that task is deployed. The
+> `PAYME_*` / `CLICK_*` / `BILLING_STARS_*` variables can be filled in beforehand.
+
+### 17.1 Environment
+
+| Variable | Notes |
+|---|---|
+| `BILLING_PAYWALL_MODE` | `coming_soon` → `purchase` once at least one provider is enabled **and** prices are set. With an empty catalog the API silently falls back to `coming_soon` |
+| `BILLING_STARS_ENABLED` | `true` makes the Stars adapter sellable (2A.3). No separate key: Stars use the bot token |
+| `BILLING_STARS_MAX_SUBSCRIPTION_PRICE` | Telegram's cap for a Stars *subscription* price (10000); a month above it is not sold |
+| `PAYME_ENABLED`, `PAYME_MERCHANT_ID` | merchant id from the Payme business cabinet |
+| `PAYME_KEY` | **production** merchant key (secret) |
+| `PAYME_TEST_KEY` | key of the **test** cabinet (secret); the webhook accepts both, so sandbox and prod differ by key. Leave empty in production once testing is done |
+| `PAYME_CHECKOUT_URL` | `https://checkout.paycom.uz` (sandbox: `https://checkout.test.paycom.uz`) |
+| `PAYME_IP_ALLOWLIST` | comma-separated IPs/CIDRs of Payme's callers from the cabinet; empty = off |
+| `PAYME_FISCAL_IKPU`, `PAYME_FISCAL_PACKAGE_CODE`, `PAYME_FISCAL_VAT_PERCENT` | fiscal receipt data (the owner / accountant provides the IKPU code) |
+| `CLICK_ENABLED`, `CLICK_MERCHANT_ID`, `CLICK_SERVICE_ID`, `CLICK_MERCHANT_USER_ID` | from the Click merchant cabinet |
+| `CLICK_SECRET_KEY` | secret key of the service (secret) |
+| `CLICK_CHECKOUT_URL`, `CLICK_IP_ALLOWLIST` | as for Payme |
+| `BILLING_PRICE_*` | prices in minor units (UZS in tiyin = sum x 100; XTR whole Stars); `0` = not for sale in that currency (see `.env.example`) |
+| `BILLING_ORDER_TTL_MINUTES` | 1440; Payme / Click refuse an expired order |
+| `BILLING_SUPPORT_CONTACT` | shown in the paywall and by `/paysupport` |
+
+`PAYME_KEY`, `PAYME_TEST_KEY` and `CLICK_SECRET_KEY` are secrets: only in `.env` (never in git, chat or tickets),
+`chmod 640`. The admin panel masks key-like fields of stored webhook payloads and the order token, and the log redactor
+(`SecretRedactor`) masks `Authorization`, tokens and secrets in `laravel.log` / Sentry; still do not paste raw requests
+anywhere. After editing `.env` run `php artisan config:cache` and restart the workers
+(`supervisorctl restart lexiflow-worker:*`).
+
+### 17.2 Webhook URLs (register in the provider's cabinet)
+
+All are `POST`, publicly reachable over HTTPS, no session / CSRF, throttled to 120 req/min per IP, body up to 64 KB.
+Nginx must pass them to Laravel like `/telegram/webhook`; do **not** put them behind HTTP auth or the admin IP filter.
+
+| Provider | URL | Appears in | Authentication |
+|---|---|---|---|
+| Telegram Stars | the existing `/telegram/webhook/{secret}` — **no new URL**, but `allowed_updates` must include `pre_checkout_query`; re-run `php artisan telegram:set-webhook` after deploying 2A.3 | 2A.3 | `TELEGRAM_URL_SECRET` + `X-Telegram-Bot-Api-Secret-Token` |
+| Payme | `https://<domain>/billing/webhook/payme` (one URL for all JSON-RPC methods) | 2A.4 | `Authorization: Basic base64("Paycom:" + key)`, `hash_equals` with `PAYME_KEY` / `PAYME_TEST_KEY` |
+| Click Prepare | `https://<domain>/billing/webhook/click/prepare` | 2A.5 | md5 `sign_string` with `CLICK_SECRET_KEY` |
+| Click Complete | `https://<domain>/billing/webhook/click/complete` | 2A.5 | same |
+
+These URLs are the design of docs/13 §4 and may be corrected by 2A.3–2A.5 when they check the providers' documentation:
+the task that implements a provider is the final word, and updates this table.
+
+Payme answers errors with HTTP 200 and a JSON-RPC error (`-32504` for a wrong key) — a 200 in the access log is not a
+sign of success; read the body or the payment screens. If the provider publishes caller IPs, put them in
+`*_IP_ALLOWLIST` (behind a reverse proxy make sure the real client IP reaches Laravel: trusted proxies).
+
+### 17.3 Sandbox first
+
+1. **Payme.** Create a test merchant in the Payme test cabinet; put its id in `PAYME_MERCHANT_ID` and the test key in
+   `PAYME_TEST_KEY`, set `PAYME_CHECKOUT_URL=https://checkout.test.paycom.uz`, register the webhook URL for the test
+   cabinet, run the cabinet's check scenarios (CheckPerformTransaction, Create, Perform, Cancel before / after
+   perform, CheckTransaction, GetStatement). Only then switch to the production merchant id, key and checkout URL.
+2. **Click.** Use the test service (test `service_id`, `merchant_id`, secret) and the Click test flow; complete a
+   payment and a cancel from the cabinet.
+3. **Stars.** Run the whole flow with a real account on a **small price** (e.g. `BILLING_PRICE_PRO_MONTH_XTR=1` on a
+   staging bot): invoice, payment, `successful_payment`, a refund from the admin panel (**Payments → Refund**).
+4. Production switch: real keys, real prices, `*_ENABLED=true`, `BILLING_PAYWALL_MODE=purchase`, `config:cache`,
+   restart workers. Keep one provider enabled at first.
+
+### 17.4 After every deploy of billing code
+
+1. `php artisan migrate --force` (new billing tables / columns), `config:cache`, `supervisorctl restart lexiflow-worker:*`.
+2. `php artisan schedule:list` shows `billing:expire-orders` (every 15 min) and `subscriptions:expire` (hourly); the
+   scheduler heartbeat on `/health/ready` is green.
+3. Admin panel (admin account): **Billing → Payments / Payment orders / Provider transactions** open; the two
+   dashboard widgets ("Revenue, last 30 days", "Payment webhook errors, last 24 h") render. A **teacher** account must
+   get 403 on `/admin/payments` and must not see the Billing group.
+4. The checkout catalog (`GET /api/twa/billing/catalog` with a valid TWA token): `items` and `providers` list exactly the
+   providers you enabled and nothing else.
+5. Provider webhooks **(2A.3–2A.5)**: from the provider's cabinet send a test call; a wrong key / signature must be
+   rejected (Payme body `-32504`, Click `-1`), a right one answered; make one sandbox payment end to end and see the
+   `succeeded` row in **Payments**, the order `paid` and the subscription in **Subscriptions**.
+6. After the first payments, look for error lines in `storage/logs/laravel.log` (`grep 'billing\.' storage/logs/laravel.log`):
+   no `billing.amount_mismatch`, `billing.payment_orphan` or `billing.admin_refund_unrecorded` (see 17.5).
+7. Check that no secret ended up in the logs: `grep -E "PAYME_|CLICK_SECRET|sign_string|Authorization: Basic" storage/logs/laravel.log` prints nothing.
+
+### 17.5 What to monitor
+
+| Signal | Meaning / action |
+|---|---|
+| Dashboard "Payment webhook errors, last 24 h" > 0 | a `failed` ledger row: money arrived but was not credited (wrong amount / currency, dead or paid order, orphan Stars renewal). Open **Payments → Status: failed**, decide: grant Pro by hand or refund |
+| `billing.amount_mismatch` (error log) | a provider sent an amount different from the order: check `BILLING_PRICE_*` changes between checkout and payment; repeated = possible tampering |
+| `billing.payment_orphan` (error log) | Stars renewal whose order is gone; the learner paid without getting Pro until support acts |
+| `billing.admin_refund_unrecorded` (error log) | an admin refund returned the money at the provider but the ledger write failed; fix the cause, then record it with "returned by hand" |
+| `billing.admin_refund_provider_failed` (error log) | the provider refused / was down for an admin refund; nothing was changed |
+| Pending orders keep growing | `billing:expire-orders` is not running: the scheduler is down (see 11) |
+| 5xx on `/billing/webhook/*` (2A.4/2A.5) | the provider retries and may cancel the transaction; page the on-call |
+
+Refunds, grants and revokes are in the `audit_logs` table (`payment.refunded`, `subscription.granted`,
+`subscription.revoked`, with the actor, IP and reason).
+
+---
+
 ## File Permissions Reference
 
 ```bash
@@ -713,6 +817,12 @@ chmod 600 .env
 | `LEARNERS_DEFAULT_TIMEZONE` / `LEARNERS_DEFAULT_REMINDER_TIME` / `LEARNERS_DEFAULT_DAILY_GOAL` | optional | `Asia/Tashkent` / `19:00` / `20` |
 | `LEARNING_SESSION_TTL_HOURS` / `LEARNING_GROUP_SESSION_TTL_HOURS` | optional | `12` / `24` |
 | `BILLING_CACHE_TTL` | optional | `300` (seconds, entitlement cache) |
+| `BILLING_PAYWALL_MODE` | optional | `coming_soon` (default) / `purchase` (see 17) |
+| `BILLING_STARS_ENABLED` / `PAYME_ENABLED` / `CLICK_ENABLED` | optional | `false` (a provider is sellable only when enabled; see 17) |
+| `PAYME_MERCHANT_ID` / `PAYME_KEY` / `PAYME_TEST_KEY` | when Payme is on | secrets from the Payme cabinet (17.1) |
+| `CLICK_MERCHANT_ID` / `CLICK_SERVICE_ID` / `CLICK_MERCHANT_USER_ID` / `CLICK_SECRET_KEY` | when Click is on | from the Click cabinet; the key is a secret (17.1) |
+| `PAYME_IP_ALLOWLIST` / `CLICK_IP_ALLOWLIST` | optional | comma-separated IPs/CIDRs; empty = off |
+| `BILLING_PRICE_*` / `BILLING_ORDER_TTL_MINUTES` | when selling | prices in minor units / `1440` (17.1) |
 | `REMINDERS_DUE_THRESHOLD` | optional | `1` |
 | `REMINDERS_MIN_INTERVAL_HOURS` | optional | `2` (floor between two reminders, >= 1; the main rule is one per local day) |
 | `REMINDERS_MAX_DELAY_MINUTES` | optional | `120` (>= 15) |
