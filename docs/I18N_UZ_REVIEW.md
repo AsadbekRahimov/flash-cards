@@ -679,3 +679,114 @@
 | `error.code.deck_words_limit_reached` | Tarifingizdagi to'plamdagi so'zlar limitiga yetdingiz. Hech narsa qo'shilmadi. | Достигнут лимит слов в колоде вашего тарифа. Ничего не добавлено. |
 | `error.code.deck_import_empty` | Matnda mos keladigan birorta qator topilmadi. | В тексте не нашлось ни одной подходящей строки. |
 | `error.code.deck_title_invalid` | To'plam nomida harflar bo'lishi kerak. | Название колоды должно содержать буквы. |
+
+## Фаза 2 · задача 2A.2 (оплата: бот `/pro`, `/paysupport`, TWA paywall и «Подписка») — на проверку носителю
+
+> Проверить: «obuna» / «avtoyangilash» (автопродление), «to'lash» (оплата), «hisob» (счёт), «chegirma» (скидка), «oferta», «pulni qaytarish» (возврат); суммы подставляются как «150 ⭐» и «29 000 so'm».
+
+### Бот (`lang/uz/billing.php`, `lang/uz/bot.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `bot.help.private` (добавлены строки `/pro`, `/paysupport`) | Pro uchun promokod: /promo KOD<br>Pro'ni rasmiylashtirish va avtoyangilash: /pro<br>To'lov bo'yicha savollar: /paysupport | Промокод на Pro: /promo КОД<br>Оформить Pro и автопродление: /pro<br>Вопросы по оплате: /paysupport |
+| `billing.pro.blocked` | Akkauntga kirish cheklangan. Qo'llab-quvvatlash xizmatiga murojaat qiling. | Доступ к аккаунту ограничен. Обратитесь в поддержку. |
+| `billing.pro.rate_limited` | Juda ko'p urinish. Bir daqiqa kutib, qayta urinib ko'ring. | Слишком много попыток. Подождите минуту и повторите. |
+| `billing.pro.status_free` | Hozir sizda Free tarif: kuniga :count ta yangi so'z, takrorlash cheklovsiz. | Сейчас у вас тариф Free: :count новых слов в день, повторения без лимита. |
+| `billing.pro.status_free_generic` | Hozir sizda Free tarif: yangi so'zlar kunlik limit bilan cheklangan, takrorlash cheklovsiz. | Сейчас у вас тариф Free: новые слова ограничены дневным лимитом, повторения без лимита. |
+| `billing.pro.status_pro_until` | Sizda LexiFlow Pro :date gacha. | У вас LexiFlow Pro до :date. |
+| `billing.pro.status_pro_forever` | Sizda LexiFlow Pro muddatsiz. | У вас LexiFlow Pro без ограничения по сроку. |
+| `billing.pro.renewal_auto` | Avtoyangilash yoqilgan: keyingi davr uchun to'lovni Telegram o'zi yechib oladi. | Автопродление включено: следующий период Telegram спишет сам. |
+| `billing.pro.renewal_canceled` | Avtoyangilash o'chirilgan — Pro to'langan davr oxirigacha amal qiladi. | Автопродление отключено — Pro действует до конца оплаченного периода. |
+| `billing.pro.soon` | LexiFlow Pro tez orada ochiladi. Promokodingiz bormi? /promo KOD yuboring. | LexiFlow Pro скоро откроется. Есть промокод? Отправьте /promo КОД. |
+| `billing.pro.contact` | Markazda o'qiysizmi? Markaz administratoridan LexiFlow Pro'ni ulashni so'rang: :contact | Учитесь в центре? Попросите администратора центра подключить LexiFlow Pro: :contact |
+| `billing.pro.choose` | Muddat va to'lov usulini tanlang: | Выберите срок и способ оплаты: |
+| `billing.pro.price_line` | :period — :prices | :period — :prices |
+| `billing.pro.offer` | Birinchi to'lovga :pct% chegirma :date gacha amal qiladi. | Скидка :pct% на первый платёж действует до :date. |
+| `billing.pro.buy_button` | :provider · :period · :price | :provider · :period · :price |
+| `billing.pro.cancel_button` | Avtoyangilashni o'chirish | Отключить автопродление |
+| `billing.pro.resume_button` | Avtoyangilashni yoqish | Включить автопродление |
+| `billing.pro.checkout_ready` | Hisob yaratildi: :period, :price.<br>Quyidagi tugma orqali to'lang — tasdiq kelishi bilan Pro o'zi yoqiladi. | Счёт создан: :period, :price.<br>Оплатите по кнопке ниже — Pro включится сам, как только придёт подтверждение. |
+| `billing.pro.pay_button` | To'lash | Оплатить |
+| `billing.pro.canceled` | Avtoyangilash o'chirildi. Pro :date gacha amal qiladi. | Автопродление отключено. Pro действует до :date. |
+| `billing.pro.resumed` | Avtoyangilash qayta yoqildi. | Автопродление снова включено. |
+| `billing.pro.errors.price_not_configured` | Bu to'lov varianti hozircha mavjud emas. | Этот вариант оплаты пока недоступен. |
+| `billing.pro.errors.provider_disabled` | Bu to'lov usuli hozir mavjud emas. Boshqasini tanlang. | Этот способ оплаты сейчас недоступен. Выберите другой. |
+| `billing.pro.errors.provider_not_supported` | Bu to'lov usuli siz uchun mavjud emas. | Этот способ оплаты вам недоступен. |
+| `billing.pro.errors.checkout_conflict` | Sizda Telegram Stars avtoyangilash yoqilgan. Boshqa usulda to'lashdan oldin uni /pro orqali o'chiring. | У вас включено автопродление Telegram Stars. Отключите его в /pro, прежде чем платить другим способом. |
+| `billing.pro.errors.too_many_pending` | Sizda to'lanmagan hisoblar bor. Ulardan birini to'lang yoki kuting — ular o'zi yopiladi. | У вас уже есть неоплаченные счета. Оплатите один из них или подождите — они закроются сами. |
+| `billing.pro.errors.offer_not_applicable` | Chegirma bu xaridga qo'llanilmaydi. | Скидка к этой покупке не применяется. |
+| `billing.pro.errors.invalid_period` | Bunday to'lov varianti yo'q. | Такого варианта оплаты нет. |
+| `billing.pro.errors.invalid_tier` | Bunday to'lov varianti yo'q. | Такого варианта оплаты нет. |
+| `billing.pro.errors.not_cancelable` | Hozir o'chiriladigan avtoyangilash yo'q. | Автопродление сейчас нечего отключать. |
+| `billing.pro.errors.not_resumable` | Avtoyangilashni hozir yoqib bo'lmaydi: u allaqachon yoqilgan yoki to'langan davr tugagan. | Автопродление сейчас нельзя включить: оно уже включено или оплаченный период закончился. |
+| `billing.pro.errors.provider_capability` | Bu amal sizning to'lov usulingiz uchun mavjud emas. | Это действие недоступно для вашего способа оплаты. |
+| `billing.pro.errors.provider_not_registered` | Bu amal sizning to'lov usulingiz uchun mavjud emas. | Это действие недоступно для вашего способа оплаты. |
+| `billing.pro.errors.provider_unavailable` | To'lov xizmati javob bermayapti. Bir necha daqiqadan keyin urinib ko'ring. | Платёжный сервис не отвечает. Попробуйте через несколько минут. |
+| `billing.pro.errors.generic` | Amalni bajarib bo'lmadi. Keyinroq urinib ko'ring yoki qo'llab-quvvatlash xizmatiga yozing: /paysupport. | Не получилось выполнить действие. Попробуйте позже или напишите в поддержку: /paysupport. |
+| `billing.paysupport.with_contact` | LexiFlow to'lovlar bo'yicha yordam.<br><br>To'lov, pulni qaytarish va obunani bekor qilish masalalari: :contact<br>Muammoni yozing va chek yoki to'lov raqamini ilova qiling. Pulni qaytarish qoidalari ofertada: :offer<br>Stars avtoyangilashini /pro buyrug'i orqali o'chirish mumkin. | Платёжная поддержка LexiFlow.<br><br>Вопросы по оплате, возвраты и отмена подписки: :contact<br>Опишите проблему и приложите чек или номер платежа. Правила возврата — в оферте: :offer<br>Автопродление Stars можно отключить командой /pro. |
+| `billing.paysupport.without_contact` | LexiFlow to'lovlar bo'yicha yordam.<br><br>Yordam kontakti hozircha ko'rsatilmagan. Pulni qaytarish qoidalari ofertada: :offer<br>Stars avtoyangilashini /pro buyrug'i orqali o'chirish mumkin. | Платёжная поддержка LexiFlow.<br><br>Контакт поддержки пока не указан. Правила возврата — в оферте: :offer<br>Автопродление Stars можно отключить командой /pro. |
+| `billing.period.month` | 1 oy | 1 месяц |
+| `billing.period.year` | 1 yil | 1 год |
+| `billing.provider.telegram_stars` | ⭐ Stars | ⭐ Stars |
+| `billing.provider.payme` | Payme | Payme |
+| `billing.provider.click` | Click | Click |
+| `billing.currency.XTR` | :amount ⭐ | :amount ⭐ |
+| `billing.currency.UZS` | :amount so'm | :amount сум |
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `paywall.title_purchase` | LexiFlow Pro | LexiFlow Pro |
+| `paywall.lead_purchase` | Yangi so'zlar kunlik limitsiz, to'plamlar va batafsil statistika. | Новые слова без дневного лимита, колоды и подробная статистика. |
+| `billing.title` | Obuna | Подписка |
+| `billing.open` | Pro obunasi | Подписка Pro |
+| `billing.period.month` | Oy | Месяц |
+| `billing.period.year` | Yil | Год |
+| `billing.pay_with` | To'lash: {provider} · {price} | Оплатить: {provider} · {price} |
+| `billing.provider.telegram_stars` | ⭐ Stars | ⭐ Stars |
+| `billing.provider.payme` | Payme | Payme |
+| `billing.provider.click` | Click | Click |
+| `billing.provider.manual` | qo'lda berilgan | выдан вручную |
+| `billing.provider.promo` | promokod | промокод |
+| `billing.provider.reward` | mukofot | награда |
+| `billing.offer` | Birinchi to'lovga {pct}% chegirma — {date} gacha. | Скидка {pct}% на первый платёж — до {date}. |
+| `billing.starting` | Hisob yaratilmoqda… | Создаём счёт… |
+| `billing.awaiting` | To'lov tasdig'i kutilmoqda… | Ждём подтверждение оплаты… |
+| `billing.timeout` | Tasdiq hali kelmadi. Agar to'lagan bo'lsangiz, Pro bir necha daqiqada yoqiladi. | Подтверждение ещё не пришло. Если вы уже оплатили, Pro включится в течение нескольких минут. |
+| `billing.check_again` | Yana tekshirish | Проверить ещё раз |
+| `billing.payment_failed` | To'lov o'tmadi yoki hisob yopilgan. Qayta urinib ko'ring. | Платёж не прошёл или счёт закрыт. Попробуйте ещё раз. |
+| `billing.paid_until` | Rahmat! Pro {date} gacha faol. | Спасибо! Pro активен до {date}. |
+| `billing.paid_forever` | Rahmat! Pro faol. | Спасибо! Pro активен. |
+| `billing.auto_renew_running` | Stars avtoyangilash yoqilgan — hech narsa to'lash shart emas. Obunani «Sozlamalar → Pro obunasi» bo'limida boshqarish mumkin. | Автопродление Stars включено — оплачивать ничего не нужно. Управлять подпиской можно в «Настройки → Подписка Pro». |
+| `billing.plan.free` | Free tarif | Тариф Free |
+| `billing.plan.pro` | LexiFlow Pro | LexiFlow Pro |
+| `billing.sponsored` | Pro'ni markazingiz ulagan. | Pro подключён вашим центром. |
+| `billing.until` | {date} gacha amal qiladi. | Действует до {date}. |
+| `billing.forever` | Muddatsiz. | Без ограничения по сроку. |
+| `billing.provider_line` | To'lov: {provider}. | Оплата: {provider}. |
+| `billing.auto_on` | Avtoyangilash yoqilgan: keyingi davr uchun to'lovni Telegram o'zi yechib oladi. | Автопродление включено: следующий период Telegram спишет сам. |
+| `billing.auto_off` | Avtoyangilash o'chirilgan — Pro to'langan davr oxirigacha amal qiladi. | Автопродление отключено — Pro действует до конца оплаченного периода. |
+| `billing.cancel` | Avtoyangilashni o'chirish | Отключить автопродление |
+| `billing.resume` | Avtoyangilashni yoqish | Включить автопродление |
+| `billing.buy` | Pro'ni sotib olish | Купить Pro |
+| `billing.renew` | Pro'ni uzaytirish | Продлить Pro |
+| `billing.unavailable` | To'lov tez orada ochiladi. | Оплата скоро откроется. |
+| `billing.sum` | so'm | сум |
+| `error.code.invalid_init_data` | Telegram sessiyasini tasdiqlab bo'lmadi. Ilovani qaytadan oching. | Не удалось подтвердить Telegram-сессию. Откройте приложение заново. |
+| `error.code.invalid_token` | Sessiya eskirgan. Ilovani qaytadan oching. | Сессия устарела. Откройте приложение заново. |
+| `error.code.invalid_mode` | Noma'lum mashg'ulot rejimi. | Неизвестный режим тренировки. |
+| `error.code.price_not_configured` | Bu to'lov varianti hozircha mavjud emas. | Этот вариант оплаты пока недоступен. |
+| `error.code.provider_disabled` | Bu to'lov usuli hozir mavjud emas. Boshqasini tanlang. | Этот способ оплаты сейчас недоступен. Выберите другой. |
+| `error.code.provider_not_supported` | Bu to'lov usuli siz uchun mavjud emas. | Этот способ оплаты вам недоступен. |
+| `error.code.checkout_conflict` | Sizda Stars avtoyangilash yoqilgan. Boshqa usulda to'lashdan oldin uni «Obuna» bo'limida o'chiring. | У вас включено автопродление Stars. Отключите его в «Подписке», прежде чем платить другим способом. |
+| `error.code.too_many_pending` | Sizda to'lanmagan hisoblar bor. Ulardan birini to'lang yoki kuting — ular o'zi yopiladi. | У вас уже есть неоплаченные счета. Оплатите один из них или подождите — они закроются сами. |
+| `error.code.offer_not_applicable` | Chegirma bu xaridga qo'llanilmaydi. | Скидка к этой покупке не применяется. |
+| `error.code.invalid_period` | Bunday to'lov varianti yo'q. | Такого варианта оплаты нет. |
+| `error.code.invalid_tier` | Bunday to'lov varianti yo'q. | Такого варианта оплаты нет. |
+| `error.code.not_cancelable` | Hozir o'chiriladigan avtoyangilash yo'q. | Автопродление сейчас нечего отключать. |
+| `error.code.not_resumable` | Avtoyangilashni hozir yoqib bo'lmaydi: u allaqachon yoqilgan yoki to'langan davr tugagan. | Автопродление сейчас нельзя включить: оно уже включено или оплаченный период закончился. |
+| `error.code.provider_capability` | Bu amal sizning to'lov usulingiz uchun mavjud emas. | Это действие недоступно для вашего способа оплаты. |
+| `error.code.provider_not_registered` | Bu amal sizning to'lov usulingiz uchun mavjud emas. | Это действие недоступно для вашего способа оплаты. |
+| `error.code.provider_unavailable` | To'lov xizmati javob bermayapti. Bir necha daqiqadan keyin urinib ko'ring. | Платёжный сервис не отвечает. Попробуйте через несколько минут. |
+| `error.code.order_not_found` | Hisob topilmadi. | Счёт не найден. |

@@ -55,6 +55,7 @@ const makeRouter = () =>
     routes: [
       { path: '/today', name: 'today', component: { template: '<div />' } },
       { path: '/courses', name: 'courses', component: { template: '<div />' } },
+      { path: '/billing', name: 'billing', component: { template: '<div />' } },
       { path: '/settings', name: 'settings', component: SettingsView },
     ],
   })
@@ -129,6 +130,13 @@ describe('SettingsView', () => {
     const without = await render()
     expect(without.get('[data-testid=course-title]').text()).toBe('Курс не выбран')
     expect(without.get('[data-testid=catalog-link]').text()).toBe('Каталог курсов')
+  })
+
+  it('links to the subscription screen', async () => {
+    const w = await render()
+
+    expect(w.get('[data-testid=billing-link]').attributes('href')).toBe('/billing')
+    expect(w.get('[data-testid=billing-link]').text()).toBe('Подписка Pro')
   })
 
   it.each([

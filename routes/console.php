@@ -37,6 +37,12 @@ Schedule::command('subscriptions:expire')
     ->hourly()
     ->withoutOverlapping();
 
+// Pending payment orders past their TTL become `expired` (docs/13 §4.4): a plain UPDATE without
+// subject locks, so overlapping or repeated runs are harmless.
+Schedule::command('billing:expire-orders')
+    ->everyFifteenMinutes()
+    ->withoutOverlapping();
+
 // Personal reminders by the learner's local time (docs/12 §7.5): claims
 // `learners.next_reminder_at <= now` with a conditional UPDATE, so a parallel or
 // repeated run never reminds anyone twice.

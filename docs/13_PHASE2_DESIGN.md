@@ -336,6 +336,14 @@ final class OfferService
 > - `grantManual(..., ?string $tier = null)` — последний необязательный параметр; `grantReward` при бессрочной подписке возвращает её без изменений (награда не бросает исключений).
 > - `FakeBillingProvider` живёт в `tests/Support` (`FakeBillingProvider::register(SubscriptionProvider)` регистрирует в `BillingProviderRegistry` и включает провайдера в config).
 
+> **Реализация 2A.2 (2026-10-19, coder) — уточнения к §5:**
+> - Оркестрация для TWA и бота — `LearnerBillingService` (`checkout`, `orderFor`, `cancelAutoRenew`/`resumeAutoRenew`, `paywall`, `renewal`): контроллер и хендлеры бота тонкие. Сбой адаптера провайдера (`RuntimeException`, кроме `BillingException`/`QueryException`) → `ProviderUnavailableException` (`provider_unavailable`, 502); при cancel/resume провайдер вызывается до транзакции, и при его отказе подписка не меняется.
+> - `GET /billing/catalog` отдаёт `items` (а не `plans`) — имя из `BillingCatalog` (2A.1). `POST /billing/checkout` отвечает `201`. `GET /billing/orders/{token}` для чужого/неизвестного токена — `404 order_not_found`.
+> - `paywall.mode = purchase` в `/me` понижается до `coming_soon`, если каталог пуст — это делает `LearnerBillingService::paywall()`; `EntitlementResolver::paywall()` не менялся (там сырой режим конфига: файл в зоне 2B.1).
+> - `entitlement.renewal` — только собственная live-подписка learner'а (`null` для Free/спонсорского Pro): `{auto, provider, ends_at, reminder_sent}`.
+> - Бот: `/pro` создаёт заказ только по нажатию кнопки (`pro1:buy:<period>:<provider>`), чтобы меню не съедало лимит неоплаченных заказов; при работающем автопродлении Stars кнопок покупки нет (иначе двойное списание). `/pro` — только личный чат; `/paysupport` — ЛС и активная группа.
+> - Событие `paywall.shown` по-прежнему пишет сервер при исчерпанной квоте (без поля `mode`): клиент событий не шлёт.
+
 **`canceled` как live (2A.1, чек-лист docs/12 §5.1 — выполняется целиком одной задачей):** `SubscriptionStatus::liveValues()` + `canceled`; `SubscriptionLiveness::liveUntil()` — для `canceled` `current_period_ends_at` **без** grace (отдельная ветка до проверки провайдера); `PaidSubscriptionQuery::aliveAt` — `canceled` в ветку «по концу периода без grace» независимо от провайдера; partial unique index — предикат с `canceled` (правка миграции на месте); `EntitlementResolver::liveCandidates` — через `liveValues()` автоматически; `expireDue` — `canceled` → `expired` по концу периода (уже так); тесты `BillingPlanTest`, `EntitlementResolverTest` (кейс `canceled` до/после конца периода), `SubscriptionServiceTest` («одна live» теперь включает `canceled`: `grantManual` поверх `canceled` продлевает ту же строку и возвращает `active`), `PaidSubscriptionQueryTest`.
 
 ### 2.2 `app/Domain/Billing/Providers`

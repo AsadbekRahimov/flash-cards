@@ -88,6 +88,7 @@ flowchart LR
   - `reminders:dispatch` — каждые 15 минут, `withoutOverlapping`: персональные напоминания по локальному времени learner'а (`ReminderDispatcher` клеймит `learners.next_reminder_at <= now` условным UPDATE и ставит `SendLearnerReminderJob`; текст — review / streak_at_risk — решает job; docs/06 §6, docs/12 §7.5). Параллельный или повторный запуск ничего не дублирует.
   - `training:close-expired` — каждые 15 минут, просроченные личные и устаревшие групповые сессии.
   - `subscriptions:expire` — раз в час, переходы подписок по времени.
+  - `billing:expire-orders` — каждые 15 минут, `withoutOverlapping`: `pending`-заказы оплаты с `expires_at <= now` → `expired` одним UPDATE без блокировок субъекта (docs/13 §4.4).
   - `analytics:refresh-materialized-views` — ночью.
 
 ### 2.6 Telegram Bot SDK

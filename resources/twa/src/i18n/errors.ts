@@ -43,6 +43,20 @@ export const KNOWN_ERROR_CODES = [
   'deck_import_empty',
   'deck_title_invalid',
   'timezone_change_too_soon',
+  'price_not_configured',
+  'provider_disabled',
+  'provider_not_supported',
+  'checkout_conflict',
+  'too_many_pending',
+  'offer_not_applicable',
+  'invalid_period',
+  'invalid_tier',
+  'not_cancelable',
+  'not_resumable',
+  'provider_capability',
+  'provider_not_registered',
+  'provider_unavailable',
+  'order_not_found',
 ] as const
 
 export type KnownErrorCode = (typeof KNOWN_ERROR_CODES)[number]

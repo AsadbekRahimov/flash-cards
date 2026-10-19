@@ -178,6 +178,18 @@ class AppServiceProvider extends ServiceProvider
             ];
         });
 
+        RateLimiter::for('twa-checkout', function (Request $request): array {
+            /** @var array{learner_id:int}|null $ctx */
+            $ctx = $request->attributes->get('twa');
+
+            // Every checkout is a row in payment_orders and a call to the payment provider:
+            // 10/min per learner; the IP cap is wide because carriers share addresses (docs/13 §5).
+            return [
+                Limit::perMinute(10)->by('twa-checkout|learner|'.($ctx['learner_id'] ?? $request->ip())),
+                Limit::perMinute(120)->by('twa-checkout|ip|'.$request->ip()),
+            ];
+        });
+
         RateLimiter::for('twa-tts', function (Request $request): Limit {
             /** @var array{learner_id:int}|null $ctx */
             $ctx = $request->attributes->get('twa');

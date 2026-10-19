@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Api\Twa\AuthController;
+use App\Http\Controllers\Api\Twa\BillingController;
 use App\Http\Controllers\Api\Twa\CourseController;
 use App\Http\Controllers\Api\Twa\DeckController;
 use App\Http\Controllers\Api\Twa\ExamController;
@@ -28,6 +29,18 @@ Route::prefix('twa')->group(function (): void {
         Route::post('/promo/redeem', [PromoController::class, 'redeem'])
             ->middleware('throttle:twa-promo')
             ->name('twa.promo.redeem');
+
+        // Purchase and auto-renewal of the learner's own Pro (docs/13 §5, docs/04 A.8).
+        Route::prefix('billing')->group(function (): void {
+            Route::get('/catalog', [BillingController::class, 'catalog'])->name('twa.billing.catalog');
+            Route::post('/checkout', [BillingController::class, 'checkout'])
+                ->middleware('throttle:twa-checkout')
+                ->name('twa.billing.checkout');
+            Route::get('/orders/{token}', [BillingController::class, 'order'])->name('twa.billing.order');
+            Route::post('/subscription/cancel', [BillingController::class, 'cancel'])->name('twa.billing.cancel');
+            Route::post('/subscription/resume', [BillingController::class, 'resume'])->name('twa.billing.resume');
+        });
+
         Route::get('/courses', [CourseController::class, 'index'])->name('twa.courses.index');
         Route::get('/courses/{slug}', [CourseController::class, 'show'])->name('twa.courses.show');
         Route::post('/me/course', [CourseController::class, 'select'])->name('twa.me.course');
