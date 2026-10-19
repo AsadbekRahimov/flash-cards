@@ -61,4 +61,21 @@ final class DmLearnerResolver
             ->whereNotNull('dm_blocked_at')
             ->update(['dm_blocked_at' => null]);
     }
+
+    /**
+     * The learner blocked the bot (`my_chat_member`, private chat, `kicked`): no reminder can reach
+     * them, so they leave the dispatcher's selection at once instead of after the first 403. Only
+     * an existing learner is touched; the first moment is kept on a repeated update.
+     */
+    public function markBlocked(int $telegramUserId): void
+    {
+        if ($telegramUserId <= 0) {
+            return;
+        }
+
+        Learner::query()
+            ->where('telegram_user_id', $telegramUserId)
+            ->whereNull('dm_blocked_at')
+            ->update(['dm_blocked_at' => now()->utc()->format('Y-m-d H:i:s')]);
+    }
 }

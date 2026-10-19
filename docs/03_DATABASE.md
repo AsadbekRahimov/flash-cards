@@ -303,7 +303,7 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 | payload | jsonb | — что отправили: `{kind, due_count, streak, scheduled_for}` |
 | sent_at | timestamp |
 
-**Индексы:** `(learner_id, type, sent_at)` — rate-limit «не чаще одного напоминания любого вида за 20 ч» (`ReminderSender`), `(type, sent_at)` — batch-аудит рассылок.
+**Индексы:** `(learner_id, type, sent_at)` — идемпотентность «не больше одного напоминания любого вида за локальный день learner'а и не чаще раза в 2 ч» (`ReminderSender`), `(type, sent_at)` — batch-аудит рассылок.
 
 ### 2.15 `audit_logs` — минимальный аудит админки
 | Колонка | Тип |

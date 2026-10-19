@@ -15,8 +15,9 @@ use Illuminate\Foundation\Queue\Queueable;
  * after it claimed `next_reminder_at`. `$scheduledFor` is the instant that was claimed: the
  * sender drops the job when the queue delivered it too late (docs/12 §7.5).
  *
- * Idempotent across retries and duplicate deliveries through `notifications_log`
- * ({@see ReminderSender}); a Telegram 403 ends the job without a retry.
+ * At most once across retries and duplicate deliveries: `notifications_log` is written before the
+ * Telegram call ({@see ReminderSender}), so a retry after an ambiguous error only skips; a
+ * Telegram 403 / `chat not found` ends the job without a retry. Runs in the `default` queue.
  */
 final class SendLearnerReminderJob implements ShouldQueue
 {

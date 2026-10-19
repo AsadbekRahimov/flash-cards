@@ -26,4 +26,14 @@ return [
         // Older events are removed daily by `model:prune` (see routes/console.php).
         'retention_days' => (int) env('PRODUCT_EVENTS_RETENTION_DAYS', 400),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Notification log (notifications_log) — reminder idempotency and history
+    |--------------------------------------------------------------------------
+    */
+    'notifications_log' => [
+        // Older rows are removed daily by `model:prune` (see routes/console.php).
+        'retention_days' => (int) env('NOTIFICATIONS_LOG_RETENTION_DAYS', 400),
+    ],
 ];

@@ -27,14 +27,22 @@ use Illuminate\Support\Facades\Log;
  *  1. the learner still exists, is not banned, DM not blocked, reminders still on
  *     (a `/settings` change between claim and send wins);
  *  2. the claim is fresh (`max_delay_minutes`): a reminder hours late is spam;
- *  3. under a per-learner cache lock, `notifications_log` says no reminder of any
- *     kind went out in the last `min_interval_hours` — this is what makes a retried
- *     or duplicated job harmless (the dispatcher's claim is the first level);
+ *  3. under a per-learner cache lock, `notifications_log` says no reminder of any kind
+ *     went out on the learner's local day, nor within the last `min_interval_hours`
+ *     (a floor that also covers midnight and a changed reminder time) — this is what
+ *     makes a retried or duplicated job harmless (the dispatcher's claim is the first
+ *     level);
  *  4. {@see ReminderContentResolver} picks review / streak_at_risk / nothing.
  *
- * Telegram 403 (`bot_blocked`, `not_started`, `user_deactivated`) sets `dm_blocked_at`:
- * the learner leaves the dispatcher's selection until they write to the bot again
- * (any DM clears the flag). Other Telegram errors propagate, so the queue retries.
+ * At most once: the `notifications_log` row is written BEFORE the Telegram call, inside
+ * the same lock. A timeout or 5xx may mean "delivered anyway", so on such an error the
+ * row stays, the exception propagates, and the queue's retry meets the row and ends in
+ * {@see ReminderOutcome::SkippedRecent} — a missed reminder is better than a double one.
+ *
+ * Telegram 403 (`bot_blocked`, `not_started`, `user_deactivated`) or 400 `chat not found`
+ * means certainly not delivered: the row is deleted again and `dm_blocked_at` is set —
+ * the learner leaves the dispatcher's selection until they write to the bot (any DM
+ * clears the flag; so does a `my_chat_member` `member` update in the private chat).
  *
  * No database transaction is opened here on purpose: `StreakService::current()` may
  * repair the `learners` projection with its own UPDATE (lock order, docs/12 §3.1).
@@ -48,6 +56,7 @@ final class ReminderSender
         private readonly ReminderContentResolver $contents,
         private readonly LocaleResolver $locales,
         private readonly ProductEventRecorder $events,
+        private readonly LearnerClock $clock,
     ) {}
 
     public function send(int $learnerId, CarbonImmutable $scheduledFor, ?CarbonImmutable $now = null): ReminderOutcome
@@ -82,6 +91,19 @@ final class ReminderSender
 
             $locale = $this->locales->forLearner($learner);
 
+            // Before the call, not after: see the class comment.
+            $log = NotificationLog::query()->create([
+                'learner_id' => $learner->id,
+                'type' => $content->kind->notificationType(),
+                'payload' => [
+                    'kind' => $content->kind->value,
+                    'due_count' => $content->dueCount,
+                    'streak' => $content->streakCurrent,
+                    'scheduled_for' => $scheduledFor->utc()->toIso8601String(),
+                ],
+                'sent_at' => $now,
+            ]);
+
             try {
                 $this->telegram->sendWebAppButton(
                     chatId: $learner->telegram_user_id,
@@ -90,6 +112,8 @@ final class ReminderSender
                     url: rtrim((string) config('twa.base_url'), '/').self::TWA_PATH,
                 );
             } catch (TelegramForbiddenException $e) {
+                // Definitely not delivered: it must not count against the day.
+                $log->delete();
                 $this->markDmBlocked($learner, $now);
 
                 Log::warning('telegram.reminder_forbidden', [
@@ -104,18 +128,6 @@ final class ReminderSender
 
                 return ReminderOutcome::Forbidden;
             }
-
-            NotificationLog::query()->create([
-                'learner_id' => $learner->id,
-                'type' => $content->kind->notificationType(),
-                'payload' => [
-                    'kind' => $content->kind->value,
-                    'due_count' => $content->dueCount,
-                    'streak' => $content->streakCurrent,
-                    'scheduled_for' => $scheduledFor->utc()->toIso8601String(),
-                ],
-                'sent_at' => $now,
-            ]);
 
             $this->events->record(
                 ProductEventName::ReminderSent,
@@ -137,10 +149,16 @@ final class ReminderSender
 
     private function recentlyReminded(Learner $learner, CarbonImmutable $now): bool
     {
+        // Either one is enough: a reminder already today (the learner's local calendar day,
+        // not the quota window), or one inside the floor — i.e. since the earlier of the two.
+        $dayStart = $this->clock->dayBoundsUtc($learner, $now)->startUtc;
+        $floor = $now->subHours($this->minIntervalHours());
+        $since = $dayStart->isBefore($floor) ? $dayStart : $floor;
+
         return NotificationLog::query()
             ->where('learner_id', $learner->id)
             ->whereIn('type', ReminderKind::notificationTypes())
-            ->where('sent_at', '>=', $now->subHours($this->minIntervalHours()))
+            ->where('sent_at', '>=', $since)
             ->exists();
     }
 
@@ -158,11 +176,11 @@ final class ReminderSender
 
     private function maxDelayMinutes(): int
     {
-        return max(0, (int) config('learning.reminders.max_delay_minutes', 120));
+        return max(15, (int) config('learning.reminders.max_delay_minutes', 120));
     }
 
     private function minIntervalHours(): int
     {
-        return max(0, (int) config('learning.reminders.min_interval_hours', 20));
+        return max(1, (int) config('learning.reminders.min_interval_hours', 2));
     }
 }

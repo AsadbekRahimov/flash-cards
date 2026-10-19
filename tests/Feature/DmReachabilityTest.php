@@ -116,3 +116,59 @@ it('does not clear the flag for a flooding sender (the inbound limit drops the u
 
     expect($learner->fresh()->dm_blocked_at)->not->toBeNull();
 });
+
+// --- my_chat_member in the private chat ---------------------------------------------
+
+/** @return array<string, mixed> */
+function dmMemberUpdate(int $tgId, string $newStatus, string $chatType = 'private'): array
+{
+    return ['my_chat_member' => [
+        'chat' => ['id' => $tgId, 'type' => $chatType, 'first_name' => 'Ali'],
+        'from' => ['id' => $tgId, 'first_name' => 'Ali'],
+        'old_chat_member' => ['status' => $newStatus === 'kicked' ? 'member' : 'kicked'],
+        'new_chat_member' => ['status' => $newStatus],
+    ]];
+}
+
+it('sets dm_blocked_at when the learner blocks the bot (my_chat_member kicked in the private chat)', function (): void {
+    $this->travelTo('2026-10-18 14:05:00');
+    $learner = Learner::factory()->create(['telegram_user_id' => 8201, 'dm_blocked_at' => null]);
+
+    app(TelegramDispatcher::class)->dispatch(dmMemberUpdate(8201, 'kicked'));
+
+    expect($learner->fresh()->dm_blocked_at?->utc()->toDateTimeString())->toBe('2026-10-18 14:05:00')
+        ->and($this->tg->sent)->toBe([]);
+});
+
+it('keeps the first dm_blocked_at when a second kicked update arrives', function (): void {
+    $first = now()->subDays(3)->startOfSecond();
+    $learner = Learner::factory()->create(['telegram_user_id' => 8202, 'dm_blocked_at' => $first]);
+
+    app(TelegramDispatcher::class)->dispatch(dmMemberUpdate(8202, 'kicked'));
+
+    expect($learner->fresh()->dm_blocked_at?->equalTo($first))->toBeTrue();
+});
+
+it('clears dm_blocked_at when the learner unblocks the bot (my_chat_member member in the private chat)', function (): void {
+    $learner = dmBlockedLearner(8203);
+
+    app(TelegramDispatcher::class)->dispatch(dmMemberUpdate(8203, 'member'));
+
+    expect($learner->fresh()->dm_blocked_at)->toBeNull();
+});
+
+it('does not create a learner from a private my_chat_member', function (): void {
+    app(TelegramDispatcher::class)->dispatch(dmMemberUpdate(8204, 'kicked'));
+    app(TelegramDispatcher::class)->dispatch(dmMemberUpdate(8204, 'member'));
+
+    expect(Learner::query()->where('telegram_user_id', 8204)->exists())->toBeFalse()
+        ->and(TelegramGroup::count())->toBe(0);
+});
+
+it('does not touch a private learner for a my_chat_member of a group', function (): void {
+    $learner = Learner::factory()->create(['telegram_user_id' => 8205, 'dm_blocked_at' => null]);
+
+    app(TelegramDispatcher::class)->dispatch(dmMemberUpdate(8205, 'kicked', 'supergroup'));
+
+    expect($learner->fresh()->dm_blocked_at)->toBeNull();
+});

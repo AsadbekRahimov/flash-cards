@@ -20,8 +20,9 @@ use InvalidArgumentException;
  * cannot remind anyone twice:
  *
  *  - selection: `next_reminder_at <= now AND dm_blocked_at IS NULL AND blocked_at IS NULL
- *    AND deleted_at IS NULL` — exactly the shape of the partial index
- *    `learners_next_reminder_at_idx` (PostgreSQL), chunked by id;
+ *    AND deleted_at IS NULL`, chunked by id — the predicate the partial index
+ *    `learners_next_reminder_at_idx` (PostgreSQL) is built for (the planner may still prefer
+ *    another plan on a small table);
  *  - claim: one conditional `UPDATE ... SET next_reminder_at = <next occurrence>
  *    WHERE id = ? AND next_reminder_at = <the value we read>`. Only the instance whose
  *    UPDATE affected a row dispatches the job; the loser sees 0 rows and skips. The
@@ -31,6 +32,8 @@ use InvalidArgumentException;
  *    one run instead of firing once per missed day;
  *  - staleness: a claim older than `learning.reminders.max_delay_minutes` is not
  *    sent (the time of day is wrong by then) — the pointer still moves;
+ *  - spread: the n-th job of a run is delayed by floor(n / send_rate_per_second) seconds
+ *    (at most 14 minutes, see {@see delaySeconds()}) and goes to the `default` queue;
  *  - the job holds the second idempotency level (`notifications_log`, see
  *    {@see ReminderSender}).
  *
@@ -43,6 +46,9 @@ use InvalidArgumentException;
  */
 final class ReminderDispatcher
 {
+    /** The longest a job is held back to flatten the peak (see {@see delaySeconds()}). */
+    public const MAX_SPREAD_SECONDS = 14 * 60;
+
     public function __construct(private readonly LearnerClock $clock) {}
 
     public function dispatchDue(?CarbonImmutable $now = null): ReminderDispatchReport
@@ -149,10 +155,24 @@ final class ReminderDispatcher
             return;
         }
 
+        // Own `default` queue: a reminder peak must not delay the replies of the `high` (bot) queue.
         SendLearnerReminderJob::dispatch($learner->id, $scheduledFor)
-            ->onQueue((string) config('telegram.queue', 'high'));
+            ->onQueue('default')
+            ->delay($this->delaySeconds($report->queued));
 
         $report->queued++;
+    }
+
+    /**
+     * Start delay of the job number `$position` (0-based) of this run: at most
+     * `send_rate_per_second` jobs start in any second, so a 19:00 peak does not hit
+     * Telegram's limit at once. Capped at 14 minutes (< the 15-minute cadence and the
+     * minimum `max_delay_minutes`); the claim is already made, so a peak larger than
+     * rate * 840 learners per run is sent at the 14th minute rather than dropped.
+     */
+    public function delaySeconds(int $position): int
+    {
+        return min(self::MAX_SPREAD_SECONDS, intdiv(max(0, $position), $this->sendRate()));
     }
 
     /** `null` when reminders are off for this learner or the stored time is unusable. */
@@ -179,11 +199,16 @@ final class ReminderDispatcher
 
     private function backfillLimit(): int
     {
-        return max(1, (int) config('learning.reminders.backfill_limit', 1000));
+        return max(1, (int) config('learning.reminders.backfill_limit', 10000));
     }
 
     private function maxDelayMinutes(): int
     {
-        return max(0, (int) config('learning.reminders.max_delay_minutes', 120));
+        return max(15, (int) config('learning.reminders.max_delay_minutes', 120));
+    }
+
+    private function sendRate(): int
+    {
+        return max(1, (int) config('learning.reminders.send_rate_per_second', 25));
     }
 }

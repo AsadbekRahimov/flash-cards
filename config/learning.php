@@ -95,21 +95,30 @@ return [
         'due_threshold' => max(1, (int) env('REMINDERS_DUE_THRESHOLD', 1)),
 
         /**
-         * At most one reminder of any kind per learner within this window —
-         * the second idempotency level, in `notifications_log`, for retried jobs
-         * and overlapping claims.
+         * Safety floor between any two reminders (also across a local midnight or after a
+         * change of the reminder time). The main rule is "at most one reminder per local day
+         * of the learner" (docs/12 §7.5). Read as at least 1.
          */
-        'min_interval_hours' => (int) env('REMINDERS_MIN_INTERVAL_HOURS', 20),
+        'min_interval_hours' => (int) env('REMINDERS_MIN_INTERVAL_HOURS', 2),
 
         /**
          * A claimed reminder older than this (scheduler was down, queue lagged,
          * `dm_blocked_at` was cleared weeks later) is not sent: a reminder at a
          * random hour is spam. `next_reminder_at` still moves to the next day.
+         * Read as at least 15 (the dispatcher's own cadence and the 14-minute spread cap).
          */
         'max_delay_minutes' => (int) env('REMINDERS_MAX_DELAY_MINUTES', 120),
 
         /** Learners claimed per SELECT; the backfill of missing `next_reminder_at` is capped per run. */
         'batch_size' => (int) env('REMINDERS_BATCH_SIZE', 200),
-        'backfill_limit' => (int) env('REMINDERS_BACKFILL_LIMIT', 1000),
+        'backfill_limit' => (int) env('REMINDERS_BACKFILL_LIMIT', 10000),
+
+        /**
+         * Outgoing reminders per second (Telegram: ~30 messages/s per bot). The dispatcher
+         * delays the n-th job of a run by floor(n / rate) seconds, at most 14 minutes
+         * (the claim is already made, so what does not fit goes out at the same 14 minutes).
+         * Read as at least 1.
+         */
+        'send_rate_per_second' => (int) env('REMINDERS_SEND_RATE_PER_SECOND', 25),
     ],
 ];

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Operations\Services\SchedulerHeartbeat;
+use App\Models\NotificationLog;
 use App\Models\ProductEvent;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -41,10 +42,11 @@ Schedule::command('subscriptions:expire')
 // repeated run never reminds anyone twice.
 Schedule::command('reminders:dispatch')
     ->everyFifteenMinutes()
-    ->withoutOverlapping();
+    ->withoutOverlapping(10)
+    ->runInBackground();
 
-// Retention of product_events (operations.product_events.retention_days).
-Schedule::command('model:prune', ['--model' => [ProductEvent::class]])->daily()->at('03:00');
+// Retention of product_events and notifications_log (operations.*.retention_days).
+Schedule::command('model:prune', ['--model' => [ProductEvent::class, NotificationLog::class]])->daily()->at('03:00');
 
 // Daily DB + storage backup via spatie/laravel-backup.
 Schedule::command('backup:clean')->daily()->at('01:00');

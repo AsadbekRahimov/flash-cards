@@ -274,29 +274,46 @@ learner'а (`learners.reminder_time` в `learners.timezone`; `NULL` = выклю
 в онбординге и `/settings`, при создании learner'а (`LearnerRegistrar`, дефолты Ташкент 19:00) и после
 каждого клейма; DST и смена пояса учитываются при каждом пересчёте.
 
-- `reminders:dispatch` — `everyFifteenMinutes()->withoutOverlapping()`. `ReminderDispatcher::dispatchDue(now)`
-  выбирает по партиал-индексу `learners_next_reminder_at_idx` (`next_reminder_at <= now AND dm_blocked_at
-  IS NULL`, плюс `blocked_at IS NULL`, soft-delete) пачками `chunkById(200)` и клеймит каждого условным
+- `reminders:dispatch` — `everyFifteenMinutes()->withoutOverlapping(10)->runInBackground()` (мьютекс живёт
+  10 минут: упавший запуск не блокирует расписание сутками). `ReminderDispatcher::dispatchDue(now)`
+  выбирает `next_reminder_at <= now AND dm_blocked_at IS NULL AND blocked_at IS NULL` (плюс soft-delete)
+  пачками `chunkById(200)` — это предикат, под который построен партиал-индекс `learners_next_reminder_at_idx`
+  (PostgreSQL использует его не всегда: на маленькой или перекошенной таблице планировщик вправе выбрать
+  другой план) — и клеймит каждого условным
   `UPDATE learners SET next_reminder_at = <следующее наступление от now> WHERE id = ? AND next_reminder_at = <прочитанное>`;
   только `affected = 1` ставит `SendLearnerReminderJob(learnerId, scheduledFor)`. Второй инстанс или повтор
   той же минуты видит 0 строк и ничего не дублирует. Указатель двигается **до** постановки job: сбой между
   ними теряет одно напоминание, а не удваивает его. Следующее наступление считается от `now`, поэтому после
   простоя планировщика всё догоняется одним запуском, а клеймы старше `REMINDERS_MAX_DELAY_MINUTES` (120)
   не отправляются — напоминание «в случайный час» хуже тишины. Там же backfill: у кого `reminder_time` есть,
-  а указателя нет (старые строки, импорт), получают его (до `REMINDERS_BACKFILL_LIMIT` = 1000 за запуск);
+  а указателя нет (старые строки, импорт), получают его (до `REMINDERS_BACKFILL_LIMIT` = 10000 за запуск);
   `dm_blocked_at`, `blocked_at`, удалённые — не трогаются.
+- Разнос пика (все хотят 19:00): job'ы идут в очередь `default` (не `high` — ответы бота не ждут рассылку)
+  с задержкой `floor(n / REMINDERS_SEND_RATE_PER_SECOND)` секунд по порядковому номеру n в запуске (дефолт 25/с,
+  лимит Telegram ≈ 30/с на бота), но не больше 14 минут: клейм уже сделан, поэтому хвост пика сверх
+  `rate × 840` learner'ов уходит на 14-й минуте, а не теряется. Нижние границы конфига читаются там же, где
+  используются: `max_delay_minutes` ≥ 15, `min_interval_hours` ≥ 1, `send_rate_per_second` ≥ 1.
 - Текст решает job в момент отправки (`ReminderContentResolver`): `dueCount >= REMINDERS_DUE_THRESHOLD`
   (**1**, было 5 — в B2C одно слово к повторению уже повод вернуться) → `reminders.review`; иначе серия под
   угрозой (`StreakService::current().atRisk`) → `reminders.streak_at_risk`; иначе молчание (указатель уже
   на завтра — это и нужно). Кнопка → `/twa/?from=reminder`, экран «Сегодня» сам открывает `daily_review`
   (`source: 'reminder'`). Незавершённый онбординг не мешает: learner из группы получает одну попытку с
   дефолтами, 403 → `dm_blocked_at`, дальше тишина до его первого сообщения боту.
-- Второй уровень идемпотентности — в job (`ReminderSender`, `Cache::lock` на learner'а): не чаще одного
-  напоминания **любого вида** за `REMINDERS_MIN_INTERVAL_HOURS` (20) по `notifications_log`
-  (`review_reminder` / `streak_reminder`). Повтор job, двойная доставка — одно сообщение.
-- Telegram 403 → `dm_blocked_at = now`, `reminder.failed {reason, kind}`, без повторов; любое входящее
-  сообщение/кнопка в ЛС снимает флаг (`TelegramDispatcher`, до хендлеров). Остальные ошибки Telegram
-  пробрасываются — очередь повторит (tries 3).
+- Второй уровень идемпотентности — в job (`ReminderSender`, `Cache::lock` на learner'а), по
+  `notifications_log` (`review_reminder` / `streak_reminder`): **не больше одного напоминания любого вида за
+  локальный день learner'а** (`sent_at >= LearnerClock::dayBoundsUtc().start`) и страховочный минимум
+  `REMINDERS_MIN_INTERVAL_HOURS` (2) между любыми двумя напоминаниями (полночь, смена времени). Окно «20 ч»
+  не годится: напоминание в 19:00, перенос на 08:00 — и завтра в 08:00 оно бы не пришло. Повтор job, двойная
+  доставка — одно сообщение.
+- Семантика «не больше одного раза»: строка `notifications_log` пишется **до** вызова Telegram (под тем же
+  lock'ом). Двусмысленная ошибка (таймаут, 5xx — сообщение могло дойти) строку оставляет и пробрасывается, а
+  повтор job видит строку и заканчивает `SkippedRecent`: лучше пропустить напоминание, чем прислать два.
+- Telegram 403 (`bot_blocked`, `not_started`, `user_deactivated`) или 400 `chat not found` (удалённый
+  аккаунт; `reason = chat_not_found`) — «точно не доставлено»: строка удаляется, `dm_blocked_at = now`,
+  `reminder.failed {reason, kind}`, без повторов. Флаг снимает любое входящее сообщение/кнопка в ЛС
+  (`TelegramDispatcher`, до хендлеров) и `my_chat_member` `member` в личном чате; `my_chat_member` `kicked`
+  в личном чате (пользователь заблокировал бота) выставляет его сразу, без ожидания первого 403
+  (`DmLearnerResolver`, learner не создаётся).
 
 **Legacy backfill.** Миграция `add_learning_state_to_word_repetitions` переводит строки
 `repetitions = 0 AND last_quality IS NOT NULL` (проваленные в старом SM-2, у них `next_review_at`

@@ -319,6 +319,29 @@ it('keeps mapping Telegram 403 to TelegramForbiddenException', function (): void
     expect(fn () => $client->sendImmediately(1, 'hi'))->toThrow(TelegramForbiddenException::class);
 });
 
+it('maps 400 "chat not found" to TelegramForbiddenException (a dialog that is gone), but not other 400s', function (): void {
+    $client = fn (string $description): IrazasyedTelegramClient => new IrazasyedTelegramClient(
+        new Api(REDACTION_TOKEN, false, new GuzzleHttpClient(new Client([
+            'handler' => HandlerStack::create(new MockHandler([
+                new Response(400, [], json_encode(['ok' => false, 'error_code' => 400, 'description' => $description], JSON_THROW_ON_ERROR)),
+            ])),
+            'http_errors' => false,
+        ]))),
+        new TelegramKeyboardFactory,
+        new TelegramMessageRateLimiter,
+    );
+
+    try {
+        $client('Bad Request: chat not found')->sendImmediately(1, 'hi');
+        $this->fail('chat not found did not throw');
+    } catch (TelegramForbiddenException $e) {
+        expect($e->reason)->toBe(TelegramForbiddenException::REASON_CHAT_NOT_FOUND);
+    }
+
+    expect(fn () => $client('Bad Request: message text is empty')->sendImmediately(1, 'hi'))
+        ->toThrow(TelegramApiException::class);
+});
+
 // --- failed_jobs -------------------------------------------------------------------
 
 it('does not store the bot token in failed_jobs nor in the log when a queued job dies on a network error', function (): void {

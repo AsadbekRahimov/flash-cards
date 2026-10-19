@@ -48,7 +48,7 @@ class IrazasyedTelegramClient implements TelegramClient
      *
      * @param  array<string, mixed>|null  $replyMarkup
      *
-     * @throws TelegramForbiddenException when Telegram answers 403
+     * @throws TelegramForbiddenException when Telegram answers 403 (or 400 "chat not found")
      * @throws TelegramApiException on any other failed Bot API call
      */
     public function sendImmediately(
@@ -141,6 +141,14 @@ class IrazasyedTelegramClient implements TelegramClient
             // Keep the SDK behind the TelegramClient boundary: callers only need to
             // know that the recipient is unreachable (blocked bot / no dialog).
             if ($mapForbidden && ($e->getCode() === 403 || $e->getHttpStatusCode() === 403)) {
+                throw TelegramForbiddenException::fromDescription($e->getMessage());
+            }
+
+            // A deleted account answers 400 "chat not found", which is just as final as a 403.
+            if ($mapForbidden
+                && ($e->getCode() === 400 || $e->getHttpStatusCode() === 400)
+                && str_contains(strtolower($e->getMessage()), 'chat not found')
+            ) {
                 throw TelegramForbiddenException::fromDescription($e->getMessage());
             }
 

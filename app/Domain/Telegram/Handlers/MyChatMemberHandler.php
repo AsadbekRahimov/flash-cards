@@ -7,11 +7,15 @@ namespace App\Domain\Telegram\Handlers;
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Domain\Telegram\Support\DmLearnerResolver;
 use App\Models\TelegramGroup;
 
 final class MyChatMemberHandler implements UpdateHandler
 {
-    public function __construct(private readonly ProductEventRecorder $events) {}
+    public function __construct(
+        private readonly ProductEventRecorder $events,
+        private readonly DmLearnerResolver $dmLearners,
+    ) {}
 
     /** @param array<string, mixed> $update */
     public function matches(array $update): bool
@@ -36,11 +40,23 @@ final class MyChatMemberHandler implements UpdateHandler
         $chatId = isset($chat['id']) ? (int) $chat['id'] : 0;
         $chatType = (string) ($chat['type'] ?? '');
 
-        if ($chatId === 0 || ! in_array($chatType, ['group', 'supergroup'], true)) {
+        $newStatus = (string) ($event['new_chat_member']['status'] ?? '');
+
+        // The user blocked / unblocked the bot: in a private chat `chat.id` is the user's id.
+        // No learner is created — this is not the person writing to the bot (docs/12 §7.5).
+        if ($chatType === 'private') {
+            match ($newStatus) {
+                'kicked' => $this->dmLearners->markBlocked($chatId),
+                'member' => $this->dmLearners->markReachable($chatId),
+                default => null,
+            };
+
             return;
         }
 
-        $newStatus = (string) ($event['new_chat_member']['status'] ?? '');
+        if ($chatId === 0 || ! in_array($chatType, ['group', 'supergroup'], true)) {
+            return;
+        }
 
         if (in_array($newStatus, ['left', 'kicked'], true)) {
             // Through Eloquent (not a query-builder update): TelegramGroupObserver drops the

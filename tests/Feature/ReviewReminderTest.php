@@ -24,6 +24,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schedule;
 use Tests\Support\FakeTelegramClient;
 
 /*
@@ -188,21 +189,64 @@ it('sends one message however often the job is retried or delivered', function (
         ->and(ProductEvent::query()->where('name', ProductEventName::ReminderSent->value)->count())->toBe(1);
 });
 
-it('counts a streak warning and a review reminder against the same once-per-day budget', function (): void {
-    config(['learning.reminders.min_interval_hours' => 20]);
+it('counts a streak warning and a review reminder against the same once-per-local-day budget', function (): void {
     $learner = rmLearner();
     rmStreakAtRisk($learner, 2);
     expect(rmSend($learner))->toBe(ReminderOutcome::Sent);
 
-    // Ten hours later the learner has due words: still inside the window.
-    $this->travelTo(CarbonImmutable::parse('2026-10-19 00:05:00', 'UTC'));
+    // 21:30 the same local day (Tashkent): well past the 2 h floor, but it is the same day.
+    $this->travelTo(CarbonImmutable::parse('2026-10-18 16:30:00', 'UTC'));
     rmDue($learner, 4);
-    expect(rmSend($learner, CarbonImmutable::parse('2026-10-19 00:00:00', 'UTC')))->toBe(ReminderOutcome::SkippedRecent);
+    expect(rmSend($learner, CarbonImmutable::parse('2026-10-18 16:25:00', 'UTC')))->toBe(ReminderOutcome::SkippedRecent);
 
-    // Next day's reminder goes out.
+    // Next local day's reminder goes out.
     $this->travelTo(CarbonImmutable::parse('2026-10-19 14:05:00', 'UTC'));
     expect(rmSend($learner, CarbonImmutable::parse('2026-10-19 14:00:00', 'UTC')))->toBe(ReminderOutcome::Sent)
         ->and($this->tg->sent)->toHaveCount(2);
+});
+
+it('lets a learner who moved the reminder from 19:00 to 08:00 hear from us the next morning (not a 20 h window)', function (): void {
+    $learner = rmLearner();
+    rmDue($learner, 3);
+    expect(rmSend($learner))->toBe(ReminderOutcome::Sent);   // 19:05 Tashkent
+
+    $learner->forceFill(['reminder_time' => '08:00'])->save();
+
+    // 08:00 Tashkent the next day = 13 h later.
+    $this->travelTo(CarbonImmutable::parse('2026-10-19 03:00:30', 'UTC'));
+    expect(rmSend($learner, CarbonImmutable::parse('2026-10-19 03:00:00', 'UTC')))->toBe(ReminderOutcome::Sent)
+        ->and($this->tg->sent)->toHaveCount(2);
+});
+
+it('keeps a floor of min_interval_hours between any two reminders, even across local midnight', function (): void {
+    expect(config('learning.reminders.min_interval_hours'))->toBe(2);
+    $learner = rmLearner(['reminder_time' => '23:50']);
+    rmDue($learner, 3);
+
+    // 23:50 Tashkent.
+    $this->travelTo(CarbonImmutable::parse('2026-10-18 18:50:00', 'UTC'));
+    expect(rmSend($learner, CarbonImmutable::parse('2026-10-18 18:50:00', 'UTC')))->toBe(ReminderOutcome::Sent);
+
+    // 00:10 on the next local day: a new day, but only 20 minutes later.
+    $this->travelTo(CarbonImmutable::parse('2026-10-18 19:10:00', 'UTC'));
+    expect(rmSend($learner, CarbonImmutable::parse('2026-10-18 19:10:00', 'UTC')))->toBe(ReminderOutcome::SkippedRecent);
+
+    // 02:00: two hours passed.
+    $this->travelTo(CarbonImmutable::parse('2026-10-18 20:55:00', 'UTC'));
+    expect(rmSend($learner, CarbonImmutable::parse('2026-10-18 20:55:00', 'UTC')))->toBe(ReminderOutcome::Sent);
+});
+
+it('reads the local day in the learner\'s zone: 23:30 UTC is already tomorrow in Tashkent', function (): void {
+    $learner = rmLearner();
+    rmDue($learner, 3);
+
+    // 2026-10-18 21:30 UTC = 02:30 on the 19th in Tashkent.
+    $this->travelTo(CarbonImmutable::parse('2026-10-18 21:30:00', 'UTC'));
+    expect(rmSend($learner, CarbonImmutable::parse('2026-10-18 21:30:00', 'UTC')))->toBe(ReminderOutcome::Sent);
+
+    // 05:40 Tashkent the same (new) day: 8 h later, same local day -> skipped.
+    $this->travelTo(CarbonImmutable::parse('2026-10-19 00:40:00', 'UTC'));
+    expect(rmSend($learner, CarbonImmutable::parse('2026-10-19 00:40:00', 'UTC')))->toBe(ReminderOutcome::SkippedRecent);
 });
 
 it('drops a claim the queue delivered too late', function (): void {
@@ -266,19 +310,90 @@ it('skips a learner who is banned, deleted, DM-blocked or switched reminders off
         ->and(NotificationLog::count())->toBe(0);
 });
 
-it('lets other Telegram errors propagate so the queue retries, without logging a send', function (): void {
+it('logs the send before calling Telegram: an ambiguous failure propagates, and the retried job does not send a second time', function (): void {
     $learner = rmLearner();
     rmDue($learner, 3);
     $this->tg->failSends = 1;
 
     expect(fn () => rmSend($learner))->toThrow(TelegramApiException::class)
-        ->and(NotificationLog::count())->toBe(0)
+        // The row stays: Telegram may have delivered the message before the timeout.
+        ->and(NotificationLog::query()->where('learner_id', $learner->id)->count())->toBe(1)
         ->and(ProductEvent::count())->toBe(0)
         ->and($learner->fresh()?->dm_blocked_at)->toBeNull();
 
-    // The retry succeeds and is the first (only) logged send.
+    // The queue's retry sees the row and stays quiet: at most once.
+    expect(rmSend($learner))->toBe(ReminderOutcome::SkippedRecent)
+        ->and($this->tg->sent)->toBe([])
+        ->and(NotificationLog::count())->toBe(1)
+        ->and(ProductEvent::count())->toBe(0);
+});
+
+it('writes the notifications_log row before the Telegram call, under the same lock', function (): void {
+    $learner = rmLearner();
+    rmDue($learner, 3);
+
+    $seen = null;
+    $telegram = Mockery::mock(TelegramClient::class);
+    $telegram->shouldReceive('sendWebAppButton')->once()->andReturnUsing(function () use ($learner, &$seen): void {
+        $seen = NotificationLog::query()->where('learner_id', $learner->id)->count();
+    });
+    $this->app->instance(TelegramClient::class, $telegram);
+
     expect(rmSend($learner))->toBe(ReminderOutcome::Sent)
-        ->and(NotificationLog::count())->toBe(1);
+        ->and($seen)->toBe(1);
+});
+
+it('removes the log row on a 403, so a "not sent" reminder does not count against the day', function (): void {
+    $learner = rmLearner();
+    rmDue($learner, 3);
+
+    $telegram = Mockery::mock(TelegramClient::class);
+    $telegram->shouldReceive('sendWebAppButton')->once()
+        ->andThrow(new TelegramForbiddenException(TelegramForbiddenException::REASON_BOT_BLOCKED));
+    $this->app->instance(TelegramClient::class, $telegram);
+
+    expect(rmSend($learner))->toBe(ReminderOutcome::Forbidden)
+        ->and(NotificationLog::count())->toBe(0)
+        ->and($learner->fresh()?->dm_blocked_at)->not->toBeNull();
+});
+
+it('reports a vanished dialog (400 chat not found) as reminder.failed with reason chat_not_found and blocks the DM', function (): void {
+    $learner = rmLearner();
+    rmDue($learner, 3);
+
+    $telegram = Mockery::mock(TelegramClient::class);
+    $telegram->shouldReceive('sendWebAppButton')->once()
+        ->andThrow(new TelegramForbiddenException(TelegramForbiddenException::REASON_CHAT_NOT_FOUND));
+    $this->app->instance(TelegramClient::class, $telegram);
+
+    expect(rmSend($learner))->toBe(ReminderOutcome::Forbidden)
+        ->and($learner->fresh()?->dm_blocked_at)->not->toBeNull();
+
+    $event = ProductEvent::query()->where('name', ProductEventName::ReminderFailed->value)->sole();
+    expect($event->props['reason'])->toBe('chat_not_found');
+});
+
+it('reads max_delay_minutes below 15 as 15', function (): void {
+    config(['learning.reminders.max_delay_minutes' => 0]);
+    $learner = rmLearner();
+    rmDue($learner, 3);
+
+    // now = 14:05: a claim 16 minutes old is stale, one 14 minutes old is not.
+    expect(rmSend($learner, CarbonImmutable::parse('2026-10-18 13:49:00', 'UTC')))->toBe(ReminderOutcome::SkippedStale)
+        ->and(rmSend($learner, CarbonImmutable::parse('2026-10-18 13:51:00', 'UTC')))->toBe(ReminderOutcome::Sent);
+});
+
+it('reads min_interval_hours below 1 as 1', function (): void {
+    config(['learning.reminders.min_interval_hours' => 0]);
+    $learner = rmLearner(['reminder_time' => '23:50']);
+    rmDue($learner, 3);
+
+    $this->travelTo(CarbonImmutable::parse('2026-10-18 18:50:00', 'UTC'));
+    expect(rmSend($learner, CarbonImmutable::parse('2026-10-18 18:50:00', 'UTC')))->toBe(ReminderOutcome::Sent);
+
+    // A new local day, 20 minutes later: still inside the (clamped) 1 h floor.
+    $this->travelTo(CarbonImmutable::parse('2026-10-18 19:10:00', 'UTC'));
+    expect(rmSend($learner, CarbonImmutable::parse('2026-10-18 19:10:00', 'UTC')))->toBe(ReminderOutcome::SkippedRecent);
 });
 
 // --- end to end through the queue ---------------------------------------------------
@@ -426,4 +541,23 @@ it('keeps legacy failed cards (backfilled to relearning) in reminders once their
     rmSend($learner);
     expect($this->tg->sent[0]['text'])->toBe('Пора повторить 5 слов в LexiFlow.')
         ->and(app(LearnerStatsService::class)->forLearner($learner)->wordsDueToday)->toBe(5);
+});
+
+// --- retention ----------------------------------------------------------------------
+
+it('prunes notifications_log rows older than the configured retention, daily with the product events', function (): void {
+    expect(config('operations.notifications_log.retention_days'))->toBe(400);
+    config(['operations.notifications_log.retention_days' => 30]);
+
+    $learner = rmLearner();
+    $old = NotificationLog::factory()->create(['learner_id' => $learner->id, 'sent_at' => now()->subDays(31)]);
+    $fresh = NotificationLog::factory()->create(['learner_id' => $learner->id, 'sent_at' => now()->subDays(29)]);
+
+    $this->artisan('model:prune', ['--model' => [NotificationLog::class]])->assertSuccessful();
+
+    expect(NotificationLog::query()->pluck('id')->all())->toBe([$fresh->id])
+        ->and(NotificationLog::query()->whereKey($old->id)->exists())->toBeFalse();
+
+    $prune = collect(Schedule::events())->first(fn ($e): bool => str_contains((string) $e->command, 'model:prune'));
+    expect((string) $prune?->command)->toContain(NotificationLog::class);
 });

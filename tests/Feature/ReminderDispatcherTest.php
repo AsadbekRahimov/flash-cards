@@ -64,8 +64,40 @@ it('claims every learner whose reminder time has come, queues one job each and m
     Bus::assertDispatchedTimes(SendLearnerReminderJob::class, 2);
     Bus::assertDispatched(SendLearnerReminderJob::class, fn (SendLearnerReminderJob $job): bool => $job->learnerId === $due->id
         && $job->scheduledFor->utc()->toDateTimeString() === '2026-10-18 14:00:00'
-        && $job->queue === config('telegram.queue'));
+        && $job->queue === 'default');
     Bus::assertDispatched(SendLearnerReminderJob::class, fn (SendLearnerReminderJob $job): bool => $job->learnerId === $exactlyNow->id);
+});
+
+it('spreads the jobs so that no more than send_rate start per second, never later than 14 minutes', function (): void {
+    config(['learning.reminders.send_rate_per_second' => 2]);
+    foreach (range(1, 5) as $i) {
+        rdLearner('2026-10-18 14:00:00');
+    }
+
+    app(ReminderDispatcher::class)->dispatchDue(rdUtc('2026-10-18 14:05:00'));
+
+    $delays = [];
+    Bus::assertDispatched(SendLearnerReminderJob::class, function (SendLearnerReminderJob $job) use (&$delays): bool {
+        $delays[] = $job->delay;
+
+        return true;
+    });
+    sort($delays);
+    expect($delays)->toBe([0, 0, 1, 1, 2]);
+
+    $dispatcher = app(ReminderDispatcher::class);
+    expect($dispatcher->delaySeconds(0))->toBe(0)
+        ->and($dispatcher->delaySeconds(3))->toBe(1)
+        ->and($dispatcher->delaySeconds(1_000))->toBe(500)
+        ->and($dispatcher->delaySeconds(1_000_000))->toBe(840);
+});
+
+it('defaults to 25 sends per second and treats a nonsensical rate as 1', function (): void {
+    expect(config('learning.reminders.send_rate_per_second'))->toBe(25)
+        ->and(app(ReminderDispatcher::class)->delaySeconds(100))->toBe(4);
+
+    config(['learning.reminders.send_rate_per_second' => 0]);
+    expect(app(ReminderDispatcher::class)->delaySeconds(100))->toBe(100);
 });
 
 it('does not queue anyone twice when the dispatcher runs again for the same minute', function (): void {
@@ -220,6 +252,10 @@ it('backfills next_reminder_at for learners who have a reminder time but no poin
     expect(app(ReminderDispatcher::class)->backfillMissing($now))->toBe(0);
 });
 
+it('backfills up to 10000 learners per run by default', function (): void {
+    expect(config('learning.reminders.backfill_limit'))->toBe(10_000);
+});
+
 it('caps the backfill per run and continues on the next one', function (): void {
     config(['learning.reminders.backfill_limit' => 2]);
     Learner::factory()->count(5)->create(['reminder_time' => '19:00', 'next_reminder_at' => null]);
@@ -261,7 +297,10 @@ it('is scheduled every fifteen minutes without overlapping, and the daily repeti
     $dispatch = $events->first(fn ($e): bool => str_contains((string) $e->command, 'reminders:dispatch'));
     expect($dispatch)->not->toBeNull()
         ->and($dispatch->expression)->toBe('*/15 * * * *')
-        ->and($dispatch->withoutOverlapping)->toBeTrue();
+        ->and($dispatch->withoutOverlapping)->toBeTrue()
+        // The mutex expires after 10 minutes: a crashed run cannot block the schedule for the default 24 h.
+        ->and($dispatch->expiresAt)->toBe(10)
+        ->and($dispatch->runInBackground)->toBeTrue();
 
     expect($events->first(fn ($e): bool => str_contains((string) $e->command, 'repetitions:notify')))->toBeNull();
 });
