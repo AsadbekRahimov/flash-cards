@@ -46,6 +46,8 @@ export interface LearnerSettings {
   level: string | null
   /** ISO 8601 UTC: the time zone may be changed again from then on (once in 24 h); null = now. */
   timezone_change_available_at: string | null
+  /** until when the last change of the zone can be taken back (10 minutes); null = it cannot */
+  timezone_undo_available_until: string | null
   active_course: { slug: string; title: string } | null
   /** Exercise types the learner has switched on (docs/13 §8.2); flash cards are always on. */
   exercises: ExerciseSettings

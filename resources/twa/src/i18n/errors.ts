@@ -46,6 +46,7 @@ export const KNOWN_ERROR_CODES = [
   'deck_import_empty',
   'deck_title_invalid',
   'timezone_change_too_soon',
+  'timezone_revert_unavailable',
   'price_not_configured',
   'provider_disabled',
   'provider_not_supported',

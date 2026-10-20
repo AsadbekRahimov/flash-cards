@@ -10,6 +10,7 @@ export function settingsFixture(overrides: Partial<LearnerSettings> = {}): Learn
     goal: null,
     level: null,
     timezone_change_available_at: null,
+    timezone_undo_available_until: null,
     active_course: null,
     exercises: { reverse: true, audio: true, spelling: true, gap_fill: true },
     options: {

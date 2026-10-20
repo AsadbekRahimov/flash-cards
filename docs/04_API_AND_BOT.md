@@ -174,6 +174,8 @@
 уже выполненная цель не отзывается при повышении. Событие `settings.changed {fields}` (список реально изменённых полей через запятую; без изменений — без события).
 Rate limit — общий `twa-api`.
 
+**Отмена смены пояса — `POST /api/twa/me/settings/timezone/revert`** (2R.7, без тела). В течение 10 минут после принятой смены `timezone` возвращает прежний пояс и прежние `timezone_changed_at` / `local_day_carry` (при смене они сохраняются в `learners.meta.timezone_change_undo` = `{timezone, changed_at, previous_changed_at, previous_day_carry}`): штрафа 24 ч нет, окно квоты новых слов — ровно такое, каким было бы без смены. Ответ — как у `GET /me`. Позже 10 минут, без недавней смены или повторно (снимок расходуется; новая смена записывает свой) — `422 timezone_revert_unavailable`. Блок `settings` в `GET /me` / ответах отдаёт `timezone_undo_available_until` (ISO-8601 UTC или `null`). Заморозки серии не затрагиваются (`streak_freezes_refilled_on` привязан к неделе и только растёт). Бот: под «Сохранено.» после смены пояса в `/settings` — кнопка «Отменить» (`set1:tzundo`).
+
 ### A.3 Training mode
 
 #### `POST /api/twa/training/sessions`

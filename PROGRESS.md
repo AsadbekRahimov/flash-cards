@@ -39,11 +39,17 @@
 | 2R.CI-b | Pest в CI (PG + Redis-кэш) зелёный: `Cache::flush()` в `TestCase::setUp`, `tests/Support/ForkSafe` (Redis-соединения при `pcntl_fork`), `RateLimiter::clear` вместо `travel` для окон лимитеров, `ReadinessProbeTest` ожидает `redis`. Только тесты, продакшн-багов нет | coder | ✅ |
 | 2C.1 | Рефералка: `referral_code` (ленивый, без 0/O/1/I), `referrals`, `ReferralService` (link только новым learner'ам; активация 3 дня × 10 оценок за 14 локальных дней; клейм + две отдельные транзакции `grantReward`, доначисление по `meta.rewards`; лимиты 10/30 дн. и 50; флаг > 20 привязок/сутки), `RewardReferralJob`, `/invite`, TWA «Пригласить друга» + `/referrals`, Filament (колонка, вкладка, снять флаг/отклонить с аудитом); 4 PG-гонки. `capped` лишает награды обе стороны. Нужен `TELEGRAM_BOT_USERNAME` в проде | architect | ✅ |
 | 2C.2 | Streak freeze (Pro): `StreakFreezeService::tryFreeze` (одна транзакция «декремент → claim даты», откат при неудаче; PG-гонка стабильна), `frozen_at` — «мост» (серия не рвётся, не растёт), refill раз в локальную неделю до 2 (`LEARNERS_STREAK_FREEZE_MAX`), `freezes`/`frozen_yesterday` в `/today` и `/finish`, тизер Pro для Free; `DatabaseSchemaTest` считает `--step` по именам миграций. Трактовка: 2 заморозки покрывают 2 пропуска подряд | architect | ✅ |
-| 2C.3–2C.5 | Лиги (после 2R.3), достижения/шеринг (шрифт — вопрос владельцу §12 п.11), друзья/вызовы (после 2C.1) | см. docs/13 §11 | ⏳ |
+| 2C.3 | Лиги (`league_*`, `LeagueService`, закрытие недели, рассылка через 2R.3, `LeagueView`) | architect | 🔄 |
+| 2C.4 | Достижения и шеринг — ждёт решения владельца по шрифту (docs/13 §12 п.11) | coder | ⏸ |
+| 2C.5 | Друзья и вызовы (`friendships`, `challenges`, `f_<code>`, экран «Друзья») | coder | 🔄 |
 | 2D.1 | Свои колоды: `LearnerDeckService`, `DeckImportParser` (список/CSV), API `/decks*`, TWA `MyDecksView`/`DeckEditView`; лимиты `config/decks.php` (Free 1×50, Pro 20×2000); участие в `daily_review` и квоте. Хвосты: uz-тексты на проверку носителем; PG-теста параллельных импортов нет | coder | ✅ |
-| 2D.2–2D.5 | Упражнения + `audio_url`, FSRS A/B, симулятор IELTS/SAT, ревью | см. docs/13 §11 | ⏳ |
+| 2D.2 | Типы упражнений (reverse/audio/spelling/gap-fill) + `audio_url` (закрывает 2R.4) | architect | 🔄 |
+| 2D.3 | FSRS A/B (после 2D.2) | architect | ⏳ |
+| 2D.5 | Ревью волны C | reviewer | ⏳ |
 | 2R.3 | Глобальный лимит исходящих Telegram: `reserveGlobal` (Redis Lua `INCR`+`EXPIRE`, 25/с), middleware `ThrottleTelegramOutbound` (нет слота → release 1–5 с; `tries=0` + `maxExceptions`) на напоминаниях, продлениях, заданиях, лидерборде, ЛС центров/офферов; `assignments:refresh` ждёт слот до 2 с до клейма; `ReminderDispatcher` ставит ≤ send_rate×840 за запуск. Ответы на входящие апдейты не лимитируются | coder | ✅ |
-| 2R.7–2R.8 | Отмена смены часового пояса; staging 0.7 (владелец/DevOps) | см. docs/13 §9 | ⏳ |
+| 2R.7 | Отмена смены часового пояса: снимок `meta.timezone_change_undo`, `revertTimezone` (10 мин, без штрафа 24 ч, окно квоты как без смены), `POST /me/settings/timezone/revert`, кнопка с таймером в TWA, «Отменить» в боте `/settings`; заморозки не пополняются повторно | coder | ✅ |
+| 2D.4 | Симулятор IELTS/SAT (Pro) | architect | 🔄 |
+| 2R.8 | Staging 0.7 (restore, ZAP, k6, Lighthouse) — владелец/DevOps | — | ⏳ |
 
 ## Sprint 14 — Фаза 1 «Публичный B2C MVP» ✅ (2026-10-18 — 2026-10-19; 1.9 ждёт контент владельца)
 
