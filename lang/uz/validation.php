@@ -180,5 +180,8 @@ return [
         'word_id' => 'so\'z',
         'quality' => 'baho',
         'time_spent_ms' => 'sarflangan vaqt',
+        'title' => 'nomi',
+        'text' => 'matn',
+        'format' => 'format',
     ],
 ];

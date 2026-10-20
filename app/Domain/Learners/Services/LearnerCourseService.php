@@ -12,8 +12,8 @@ use App\Models\Learner;
 
 /**
  * The learner's active course (`learners.active_course_id`, docs/12 §1.2): the course new words
- * come from. Only a course that is available in the catalog — published and not private — can be
- * chosen; anything else behaves as if it did not exist.
+ * come from. Only a course that is available to the learner — published and not private, or their own
+ * deck — can be chosen; anything else behaves as if it did not exist.
  */
 final class LearnerCourseService
 {
@@ -27,7 +27,7 @@ final class LearnerCourseService
      */
     public function select(Learner $learner, string $slug): ?Course
     {
-        $course = $this->catalog->findAvailable($slug);
+        $course = $this->catalog->findAvailable($slug, $learner);
         if ($course === null) {
             return null;
         }

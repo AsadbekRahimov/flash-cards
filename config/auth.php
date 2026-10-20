@@ -44,6 +44,13 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        // `/org` cabinet of a learning center (docs/13 §6.3): same `users` table, separate session
+        // guard, so a `/admin` login never doubles as a cabinet login and vice versa.
+        'org' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
     ],
 
     /*
@@ -99,6 +106,16 @@ return [
             'provider' => 'users',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
             'expire' => 60,
+            'throttle' => 60,
+        ],
+
+        // Broker of the `/org` panel: "forgot password" and the staff invitation of a learning center
+        // share it (docs/13 §6.3). An invitation is read hours later, hence 24 h; the token is
+        // single-use and stored hashed, as in the default broker.
+        'org' => [
+            'provider' => 'users',
+            'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
+            'expire' => 1440,
             'throttle' => 60,
         ],
     ],

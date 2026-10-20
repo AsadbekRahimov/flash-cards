@@ -15,11 +15,11 @@ use Filament\Widgets\TableWidget;
 use Illuminate\Support\Facades\DB;
 
 /**
- * "Members / seats" per organization. Members = distinct learners with an ACTIVE membership in an
- * ACTIVE group of the organization, not soft-deleted (membership is derived, there is no organization_members table in
- * Phase 1, docs/12 §1.8). Seats = `seats_limit` of the organization's granting subscription; the
- * limit is not enforced in Phase 1 and is empty for subscriptions granted from the admin panel.
- * Admin only.
+ * "Seats / waiting" per organization (docs/13 §1.3, §6.1). Seated = `organization_members`
+ * rows `active + seated` of a learner who is not soft-deleted; waiting = `active + waitlisted`.
+ * Seats = `seats_limit` of the organization's granting subscription (empty = unlimited or no
+ * subscription). Seated above the limit (a tariff downgrade) is shown as "excess", nobody is
+ * unseated automatically. Admin only.
  */
 class OrganizationSeatsTableWidget extends TableWidget
 {
@@ -30,7 +30,7 @@ class OrganizationSeatsTableWidget extends TableWidget
         return self::isActiveAdmin();
     }
 
-    protected static ?string $heading = 'Organizations — members / seats';
+    protected static ?string $heading = 'Organizations — seats / waiting';
 
     protected static ?int $sort = 8;
 
@@ -40,15 +40,14 @@ class OrganizationSeatsTableWidget extends TableWidget
     {
         $now = CarbonImmutable::now();
 
-        $members = DB::table('group_members as gm')
-            ->join('telegram_groups as g', 'g.id', '=', 'gm.telegram_group_id')
+        $members = fn (string $seatState) => DB::table('organization_members as om')
             // A deleted learner (soft delete) is not a member any more, though the membership row stays.
-            ->join('learners as l', 'l.id', '=', 'gm.learner_id')
+            ->join('learners as l', 'l.id', '=', 'om.learner_id')
             ->whereNull('l.deleted_at')
-            ->whereColumn('g.organization_id', 'organizations.id')
-            ->where('g.status', 'active')
-            ->where('gm.status', 'active')
-            ->selectRaw('count(distinct gm.learner_id)');
+            ->whereColumn('om.organization_id', 'organizations.id')
+            ->where('om.status', 'active')
+            ->where('om.seat_state', $seatState)
+            ->selectRaw('count(*)');
 
         $sponsoring = PaidSubscriptionQuery::granting(
             Subscription::query()
@@ -62,7 +61,8 @@ class OrganizationSeatsTableWidget extends TableWidget
                 Organization::query()
                     ->withCount(['telegramGroups as active_groups_count' => fn ($groups) => $groups->where('status', 'active')])
                     ->addSelect([
-                        'members_count' => $members,
+                        'members_count' => $members('seated'),
+                        'waitlisted_count' => $members('waitlisted'),
                         'sponsor_subscription_id' => (clone $sponsoring)->select('subscriptions.id'),
                         'seats_limit' => (clone $sponsoring)->select('subscriptions.seats_limit'),
                     ])
@@ -75,7 +75,13 @@ class OrganizationSeatsTableWidget extends TableWidget
                     ->badge()
                     ->color(fn (string $state): string => $state === 'active' ? 'success' : 'gray'),
                 Tables\Columns\TextColumn::make('active_groups_count')->label('Active groups'),
-                Tables\Columns\TextColumn::make('members_count')->label('Members'),
+                Tables\Columns\TextColumn::make('members_count')
+                    ->label('Seated')
+                    ->color(fn (Organization $record): ?string => self::overLimit($record) ? 'danger' : null)
+                    ->description(fn (Organization $record): ?string => self::overLimit($record) ? 'excess over the limit' : null),
+                Tables\Columns\TextColumn::make('waitlisted_count')
+                    ->label('Waiting')
+                    ->color(fn (int|string|null $state): ?string => (int) $state > 0 ? 'warning' : null),
                 Tables\Columns\TextColumn::make('seats_limit')
                     ->label('Seats')
                     ->placeholder('—'),
@@ -85,5 +91,12 @@ class OrganizationSeatsTableWidget extends TableWidget
                     ->boolean(),
             ])
             ->paginated([10, 25]);
+    }
+
+    private static function overLimit(Organization $record): bool
+    {
+        $limit = $record->getAttribute('seats_limit');
+
+        return $limit !== null && (int) $record->getAttribute('members_count') > (int) $limit;
     }
 }

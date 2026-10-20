@@ -12,13 +12,20 @@ use App\Domain\Telegram\Handlers\LearnerDmHandler;
 use App\Domain\Telegram\Handlers\MyChatMemberHandler;
 use App\Domain\Telegram\Handlers\NewMembersHandler;
 use App\Domain\Telegram\Handlers\OnboardingCallbackHandler;
+use App\Domain\Telegram\Handlers\OrganizationCallbackHandler;
+use App\Domain\Telegram\Handlers\OrgCommandHandler;
+use App\Domain\Telegram\Handlers\PaySupportCommandHandler;
+use App\Domain\Telegram\Handlers\ProCallbackHandler;
+use App\Domain\Telegram\Handlers\ProCommandHandler;
 use App\Domain\Telegram\Handlers\PromoCommandHandler;
+use App\Domain\Telegram\Handlers\RefundedPaymentHandler;
 use App\Domain\Telegram\Handlers\SettingsCommandHandler;
 use App\Domain\Telegram\Handlers\StartCommandHandler;
 use App\Domain\Telegram\Handlers\StartExamHandler;
 use App\Domain\Telegram\Handlers\StartTrainingCallbackHandler;
 use App\Domain\Telegram\Handlers\StartTrainingHandler;
 use App\Domain\Telegram\Handlers\StatsCommandHandler;
+use App\Domain\Telegram\Handlers\SuccessfulPaymentHandler;
 use App\Domain\Telegram\Handlers\TodayCommandHandler;
 use App\Domain\Telegram\Support\CallbackAcknowledger;
 use App\Domain\Telegram\Support\DmLearnerResolver;
@@ -36,6 +43,8 @@ final class TelegramDispatcher
     public function __construct(
         private readonly CallbackAcknowledger $acknowledger,
         private readonly DmLearnerResolver $dmLearners,
+        SuccessfulPaymentHandler $successfulPayment,
+        RefundedPaymentHandler $refundedPayment,
         StartCommandHandler $start,
         StartTrainingHandler $startTraining,
         StartTrainingCallbackHandler $startTrainingCallback,
@@ -43,6 +52,9 @@ final class TelegramDispatcher
         CloseExamHandler $closeExam,
         StatsCommandHandler $stats,
         PromoCommandHandler $promo,
+        ProCommandHandler $pro,
+        PaySupportCommandHandler $paySupport,
+        OrgCommandHandler $org,
         HelpCommandHandler $help,
         MyChatMemberHandler $myChatMember,
         NewMembersHandler $newMembers,
@@ -51,10 +63,15 @@ final class TelegramDispatcher
         SettingsCommandHandler $settings,
         LearnerDmHandler $learnerDm,
         OnboardingCallbackHandler $onboardingCallback,
+        ProCallbackHandler $proCallback,
+        OrganizationCallbackHandler $organizationCallback,
     ) {
         // Order matters: more specific commands first (e.g. /start_training
         // must win over the generic /start catch-all).
         $this->messageHandlers = [
+            // Money first (docs/13 §4.1): a Stars payment / refund message is never a DM command.
+            $successfulPayment,
+            $refundedPayment,
             $myChatMember,
             $chatMember,
             $newMembers,
@@ -63,6 +80,9 @@ final class TelegramDispatcher
             $closeExam,
             $stats,
             $promo,
+            $pro,
+            $paySupport,
+            $org,
             $start,
             $today,
             $settings,
@@ -74,6 +94,8 @@ final class TelegramDispatcher
         $this->callbackHandlers = [
             $startTrainingCallback,
             $onboardingCallback,
+            $proCallback,
+            $organizationCallback,
         ];
     }
 
@@ -145,6 +167,12 @@ final class TelegramDispatcher
         $fromId = $this->fromId($update);
 
         if ($fromId <= 0) {
+            return true;
+        }
+
+        // Money is never dropped: Telegram delivers `successful_payment` / `refunded_payment` once we
+        // answer 200, and PaymentApplier is idempotent anyway (docs/13 §4.1).
+        if (isset($update['message']['successful_payment']) || isset($update['message']['refunded_payment'])) {
             return true;
         }
 

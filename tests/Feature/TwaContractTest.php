@@ -8,6 +8,10 @@ declare(strict_types=1);
  * client breaks — change the client and docs/04_API_AND_BOT.md together.
  */
 
+use App\Domain\Billing\Enums\Plan;
+use App\Domain\Billing\Enums\SubscriptionProvider;
+use App\Domain\Billing\Services\CheckoutService;
+use App\Domain\Billing\Services\PaymentApplier;
 use App\Domain\Learning\DTO\ServedExamQuestion;
 use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Learning\Services\ExamQuestionPersonalizer;
@@ -31,6 +35,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
+use Tests\Support\FakeBillingProvider;
 
 uses(RefreshDatabase::class);
 
@@ -116,7 +121,7 @@ it('GET /me keeps its exact JSON shape', function (): void {
             'learner' => ['id', 'first_name', 'username', 'locale', 'onboarding_completed'],
             'groups' => [['id', 'title']],
             'stats' => ['words_learned', 'words_due_today'],
-            'entitlement' => ['plan', 'source', 'until', 'new_words_per_day'],
+            'entitlement' => ['plan', 'source', 'until', 'new_words_per_day', 'renewal', 'lapsed'],
             'paywall' => ['mode', 'contact'],
             'settings' => [
                 'interface_locale', 'timezone', 'reminder_time', 'daily_goal', 'goal', 'level', 'timezone_change_available_at', 'active_course',
@@ -183,7 +188,7 @@ it('GET /me reports the Free entitlement and a paywall without contact while BIL
     $this->withHeaders(contractHeaders($s['learner']))
         ->getJson('/api/twa/me')
         ->assertOk()
-        ->assertJsonPath('entitlement', ['plan' => 'free', 'source' => 'free', 'until' => null, 'new_words_per_day' => 20])
+        ->assertJsonPath('entitlement', ['plan' => 'free', 'source' => 'free', 'until' => null, 'new_words_per_day' => 20, 'renewal' => null, 'lapsed' => null])
         ->assertJsonPath('paywall', ['mode' => 'coming_soon', 'contact' => null]);
 });
 
@@ -236,6 +241,87 @@ it('GET /me counts due graduated cards and abandoned (re)learning cards as due t
         ->assertOk()
         ->assertJsonPath('stats.words_due_today', 2)
         ->assertJsonPath('stats.words_learned', 3);
+});
+
+// --- billing (docs/04 A.8) -------------------------------------------------
+
+const CONTRACT_SUBSCRIPTION_SUMMARY = ['status', 'provider', 'plan', 'ends_at', 'auto_renew', 'can_cancel', 'can_resume'];
+const CONTRACT_RENEWAL = ['auto', 'provider', 'ends_at', 'reminder_sent'];
+
+it('GET /billing/catalog keeps its exact JSON shape', function (): void {
+    FakeBillingProvider::register(SubscriptionProvider::TelegramStars);
+    $s = contractTraining();
+
+    $this->withHeaders(contractHeaders($s['learner']))
+        ->getJson('/api/twa/billing/catalog')
+        ->assertOk()
+        ->assertExactJsonStructure([
+            'items' => ['*' => ['plan', 'tier', 'period', 'prices' => ['XTR'], 'list_prices' => ['XTR']]],
+            'providers',
+            'offer',
+            'subscription',
+        ]);
+});
+
+it('POST /billing/checkout and GET /billing/orders/{token} keep their exact JSON shape; paid orders carry the subscription summary', function (): void {
+    $stars = FakeBillingProvider::register(SubscriptionProvider::TelegramStars);
+    $s = contractTraining();
+
+    $token = (string) $this->withHeaders(contractHeaders($s['learner']))
+        ->postJson('/api/twa/billing/checkout', ['plan' => 'pro', 'period' => 'month', 'provider' => 'telegram_stars'])
+        ->assertCreated()
+        ->assertExactJsonStructure(['order' => ['id', 'token', 'status', 'amount', 'currency', 'expires_at'], 'checkout' => ['url', 'kind']])
+        ->json('order.token');
+
+    $this->withHeaders(contractHeaders($s['learner']))
+        ->getJson("/api/twa/billing/orders/{$token}")
+        ->assertOk()
+        ->assertExactJsonStructure(['status', 'paid_at', 'subscription']);
+
+    $order = app(CheckoutService::class)->findByToken($token);
+    app(PaymentApplier::class)->applyCharge($stars->emitCharge($order));
+
+    $this->withHeaders(contractHeaders($s['learner']))
+        ->getJson("/api/twa/billing/orders/{$token}")
+        ->assertOk()
+        ->assertExactJsonStructure(['status', 'paid_at', 'subscription' => CONTRACT_SUBSCRIPTION_SUMMARY]);
+});
+
+it('GET /me and the cancel / resume answers carry entitlement.renewal for a paying learner', function (): void {
+    $stars = FakeBillingProvider::register(SubscriptionProvider::TelegramStars);
+    $s = contractTraining();
+    $order = app(CheckoutService::class)->create($s['learner'], Plan::Pro, 'month', SubscriptionProvider::TelegramStars, null, 'twa');
+    app(PaymentApplier::class)->applyCharge($stars->emitCharge($order));
+
+    $me = [
+        'learner' => ['id', 'first_name', 'username', 'locale', 'onboarding_completed'],
+        'groups' => [['id', 'title']],
+        'stats' => ['words_learned', 'words_due_today'],
+        'entitlement' => ['plan', 'source', 'until', 'new_words_per_day', 'renewal' => CONTRACT_RENEWAL, 'lapsed'],
+        'paywall' => ['mode', 'contact'],
+        'settings' => [
+            'interface_locale', 'timezone', 'reminder_time', 'daily_goal', 'goal', 'level', 'timezone_change_available_at', 'active_course',
+            'options' => ['locales' => ['*' => ['id', 'label']], 'timezones' => ['*' => ['id', 'label']], 'reminder_times', 'daily_goals'],
+        ],
+    ];
+
+    $this->withHeaders(contractHeaders($s['learner']))->getJson('/api/twa/me')->assertOk()->assertExactJsonStructure($me);
+    $this->withHeaders(contractHeaders($s['learner']))->postJson('/api/twa/billing/subscription/cancel')->assertOk()->assertExactJsonStructure($me);
+    $this->withHeaders(contractHeaders($s['learner']))->postJson('/api/twa/billing/subscription/resume')->assertOk()->assertExactJsonStructure($me);
+});
+
+it('billing errors use the ApiErrorResource envelope', function (): void {
+    $s = contractTraining();
+
+    $this->withHeaders(contractHeaders($s['learner']))
+        ->getJson('/api/twa/billing/orders/nope')
+        ->assertNotFound()
+        ->assertExactJsonStructure(['error' => ['code', 'message']]);
+
+    $this->withHeaders(contractHeaders($s['learner']))
+        ->postJson('/api/twa/billing/subscription/cancel')
+        ->assertStatus(409)
+        ->assertExactJsonStructure(['error' => ['code', 'message']]);
 });
 
 // --- courses --------------------------------------------------------------

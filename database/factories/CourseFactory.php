@@ -20,6 +20,7 @@ class CourseFactory extends Factory
             'slug' => "course-{$counter}",
             'owner_type' => 'platform',
             'owner_id' => null,
+            'source' => 'platform',
             'title' => ['ru' => "Курс {$counter}", 'uz' => "Kurs {$counter}"],
             'description' => [],
             'target_language' => 'en',
@@ -33,6 +34,19 @@ class CourseFactory extends Factory
             'words_count' => 0,
             'meta' => [],
         ];
+    }
+
+    /** A learner's own deck (docs/13 §8.1): private, published at once. */
+    public function deckOf(int $learnerId): static
+    {
+        return $this->state(fn (): array => [
+            'owner_type' => 'learner',
+            'owner_id' => $learnerId,
+            'source' => 'learner',
+            'visibility' => 'private',
+            'status' => 'published',
+            'published_at' => now(),
+        ]);
     }
 
     public function published(): static

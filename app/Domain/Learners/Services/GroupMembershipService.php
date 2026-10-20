@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Learners\Services;
 
 use App\Domain\Billing\Services\EntitlementResolver;
+use App\Domain\Organizations\Services\OrganizationMembershipService;
 use App\Models\GroupMember;
 use App\Models\Learner;
 use App\Models\TelegramGroup;
@@ -13,6 +14,8 @@ use Carbon\CarbonInterface;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 /**
  * Membership of a learner in a Telegram group (`group_members`, docs/12 §1.3).
@@ -20,9 +23,13 @@ use Illuminate\Support\Facades\DB;
  * "Active membership" = `group_members.status = 'active'` AND the group itself
  * is `active`; this is the only rule behind every group-scoped access check.
  *
- * Membership is an input of the learner's entitlement (sponsored Pro through an
- * organization's group, docs/12 §5.1), so every real change drops the cached
- * entitlement after commit (docs/12 §5.2).
+ * A group of an organization makes its members members of the organization
+ * (`organization_members`, joined_via = group — docs/13 §1.3, §6.2): a real join /
+ * leave here is followed, after commit and in its own transaction, by
+ * OrganizationMembershipService::joinFromGroup / onGroupLeft. That hook is best
+ * effort (logged on failure); `organizations:sync-members` repairs any gap.
+ * Since 2B.1 the sponsored Pro comes from the seat, not from the group row, but
+ * the cached entitlement is still dropped on every real change (docs/12 §5.2).
  */
 final class GroupMembershipService
 {
@@ -34,7 +41,10 @@ final class GroupMembershipService
 
     public const BANNED = 'banned';
 
-    public function __construct(private readonly EntitlementResolver $entitlements) {}
+    public function __construct(
+        private readonly EntitlementResolver $entitlements,
+        private readonly OrganizationMembershipService $organizations,
+    ) {}
 
     /**
      * Idempotent: creates the membership or re-activates a `left` / `removed` one.
@@ -59,6 +69,10 @@ final class GroupMembershipService
 
         if ($member->wasRecentlyCreated || $member->wasChanged('status')) {
             $this->forgetEntitlement($learner);
+
+            if ($group->organization_id !== null) {
+                $this->afterCommit(fn () => $this->organizations->joinFromGroup($learner, $group, $at), 'organizations.join_from_group_failed', $learner, $group);
+            }
         }
 
         return $member;
@@ -85,6 +99,10 @@ final class GroupMembershipService
 
         if ($ended) {
             $this->forgetEntitlement($learner);
+
+            if ($group->organization_id !== null) {
+                $this->afterCommit(fn () => $this->organizations->onGroupLeft($learner, $group, $at), 'organizations.on_group_left_failed', $learner, $group);
+            }
         }
 
         return $ended;
@@ -154,6 +172,29 @@ final class GroupMembershipService
 
         // Runs at once outside a transaction; otherwise only once the change is visible.
         DB::afterCommit(fn () => $this->entitlements->forget($learnerId));
+    }
+
+    /**
+     * Organization hook after the membership row is visible: its own transaction, never lets a
+     * failure undo the group membership that Telegram already reported.
+     *
+     * @param  callable(): mixed  $hook
+     */
+    private function afterCommit(callable $hook, string $failureLog, Learner $learner, TelegramGroup $group): void
+    {
+        DB::afterCommit(static function () use ($hook, $failureLog, $learner, $group): void {
+            try {
+                $hook();
+            } catch (Throwable $e) {
+                Log::warning($failureLog, [
+                    'learner_id' => $learner->id,
+                    'telegram_group_id' => $group->id,
+                    'organization_id' => $group->organization_id,
+                    'exception' => $e::class,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        });
     }
 
     private function upsertActive(Learner $learner, TelegramGroup $group, CarbonImmutable $at): GroupMember

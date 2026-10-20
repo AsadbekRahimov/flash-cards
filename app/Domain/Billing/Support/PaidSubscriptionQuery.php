@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\DB;
  * plan at instant $now" without resolving learners one by one in PHP (the per-learner answer the
  * product enforces stays {@see EntitlementResolver}).
  * Same rule: trialing / active live until the period end (plus the grace days for an auto-renewing
- * provider; NULL end = perpetual), past_due until `grace_until`.
+ * provider; NULL end = perpetual), canceled until the period end without grace, past_due until `grace_until`.
  */
 final class PaidSubscriptionQuery
 {
@@ -80,9 +80,10 @@ final class PaidSubscriptionQuery
     }
 
     /**
-     * A granting subscription of an active organization that owns an active group where the learner
-     * is an active member (the chain EntitlementResolver uses), correlated with `learners.id`: for
-     * the rows of one page. For filtering a whole table use {@see self::sponsoredLearnerIds()}.
+     * A granting subscription of an active organization where the learner holds a seat
+     * (`organization_members`: active, seated — the chain EntitlementResolver uses since 2B.1,
+     * docs/13 §2.3), correlated with `learners.id`: for the rows of one page. For filtering a
+     * whole table use {@see self::sponsoredLearnerIds()}.
      *
      * @return Builder<Subscription>
      */
@@ -91,37 +92,35 @@ final class PaidSubscriptionQuery
         return self::granting(
             Subscription::query()
                 ->where('subscriptions.subscriber_type', 'organization')
-                ->whereIn('subscriptions.subscriber_id', DB::table('group_members as gm')
-                    ->join('telegram_groups as g', 'g.id', '=', 'gm.telegram_group_id')
-                    ->join('organizations as o', 'o.id', '=', 'g.organization_id')
-                    ->whereColumn('gm.learner_id', 'learners.id')
-                    ->where('gm.status', 'active')
-                    ->where('g.status', 'active')
+                ->whereIn('subscriptions.subscriber_id', DB::table('organization_members as om')
+                    ->join('organizations as o', 'o.id', '=', 'om.organization_id')
+                    ->whereColumn('om.learner_id', 'learners.id')
+                    ->where('om.status', 'active')
+                    ->where('om.seat_state', 'seated')
                     ->where('o.status', 'active')
-                    ->select('g.organization_id')),
+                    ->select('om.organization_id')),
             $now,
         );
     }
 
     /**
-     * Ids of every learner sponsored right now: an active member of an active group of an active
-     * organization that has a granting subscription. Uncorrelated (the few sponsoring organizations
-     * are resolved once and hashed), so it suits "who is Pro" over the whole table, where the
-     * correlated {@see self::sponsorFor()} would run its subquery per learner.
+     * Ids of every learner sponsored right now: seated in an active organization that has a
+     * granting subscription. Uncorrelated (the few sponsoring organizations are resolved once and
+     * hashed), so it suits "who is Pro" over the whole table, where the correlated
+     * {@see self::sponsorFor()} would run its subquery per learner.
      */
     public static function sponsoredLearnerIds(CarbonImmutable $now): QueryBuilder
     {
-        return DB::table('group_members as gm')
-            ->join('telegram_groups as g', 'g.id', '=', 'gm.telegram_group_id')
-            ->join('organizations as o', 'o.id', '=', 'g.organization_id')
-            ->where('gm.status', 'active')
-            ->where('g.status', 'active')
+        return DB::table('organization_members as om')
+            ->join('organizations as o', 'o.id', '=', 'om.organization_id')
+            ->where('om.status', 'active')
+            ->where('om.seat_state', 'seated')
             ->where('o.status', 'active')
             ->whereIn('o.id', self::granting(
                 Subscription::query()->where('subscriptions.subscriber_type', 'organization'),
                 $now,
             )->select('subscriptions.subscriber_id'))
-            ->select('gm.learner_id');
+            ->select('om.learner_id');
     }
 
     /** @return list<string> plan keys ranked above Free */
@@ -148,20 +147,25 @@ final class PaidSubscriptionQuery
         $graceEdge = $at->subDays(SubscriptionLiveness::graceDays());
 
         // Every live status except past_due is judged by the period end; past_due by `grace_until`
-        // (the same split as SubscriptionLiveness). The lists come from the enum, so a status that
-        // becomes live there (docs/12 §5.1: `canceled`) is picked up here with the rest of the rule.
+        // (the same split as SubscriptionLiveness). The lists come from the enum. `canceled` is
+        // judged by the bare period end whatever the provider: the renewal was stopped, there is
+        // no grace to wait for (docs/13 §2.1).
         $byPeriod = array_values(array_diff(SubscriptionStatus::liveValues(), [SubscriptionStatus::PastDue->value]));
+        $canceled = SubscriptionStatus::Canceled->value;
 
         return $query
-            ->where(function (Builder $ongoing) use ($at, $byPeriod, $withGrace, $graceEdge): void {
+            ->where(function (Builder $ongoing) use ($at, $byPeriod, $withGrace, $graceEdge, $canceled): void {
                 $ongoing
                     ->whereIn('subscriptions.status', $byPeriod)
-                    ->where(function (Builder $end) use ($at, $withGrace, $graceEdge): void {
+                    ->where(function (Builder $end) use ($at, $withGrace, $graceEdge, $canceled): void {
                         $end->whereNull('subscriptions.current_period_ends_at')
                             ->orWhere(fn (Builder $fixed): Builder => $fixed
-                                ->whereNotIn('subscriptions.provider', $withGrace)
+                                ->where(fn (Builder $noGrace): Builder => $noGrace
+                                    ->where('subscriptions.status', $canceled)
+                                    ->orWhereNotIn('subscriptions.provider', $withGrace))
                                 ->where('subscriptions.current_period_ends_at', '>', $at))
                             ->orWhere(fn (Builder $renewing): Builder => $renewing
+                                ->where('subscriptions.status', '<>', $canceled)
                                 ->whereIn('subscriptions.provider', $withGrace)
                                 ->where('subscriptions.current_period_ends_at', '>', $graceEdge));
                     });

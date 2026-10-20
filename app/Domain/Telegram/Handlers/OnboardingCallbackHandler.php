@@ -9,6 +9,7 @@ use App\Domain\Learners\Exceptions\TimezoneChangeTooSoonException;
 use App\Domain\Learners\Services\OnboardingService;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
 use App\Domain\Telegram\Services\OnboardingMessenger;
+use App\Domain\Telegram\Services\OrganizationMessenger;
 use App\Domain\Telegram\Support\CallbackAcknowledger;
 use App\Domain\Telegram\Support\DmLearnerResolver;
 use App\Models\Learner;
@@ -40,6 +41,7 @@ final class OnboardingCallbackHandler implements UpdateHandler
         private readonly DmLearnerResolver $learners,
         private readonly OnboardingService $onboarding,
         private readonly OnboardingMessenger $messenger,
+        private readonly OrganizationMessenger $organizations,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -98,6 +100,11 @@ final class OnboardingCallbackHandler implements UpdateHandler
                 $this->messenger->clearKeyboard($chatId, $messageId);
                 $this->messenger->sendStep($learner, $chatId, $next);
 
+                if ($next->isDone()) {
+                    // The center of an `org_<code>` link opened before the onboarding (docs/13 §6.2).
+                    $this->organizations->offerPending($learner, $chatId);
+                }
+
                 return;
             }
 
@@ -134,7 +141,12 @@ final class OnboardingCallbackHandler implements UpdateHandler
         $following = OnboardingService::STEPS[(int) array_search($answeredStep, OnboardingService::STEPS, true) + 1] ?? OnboardingService::DONE;
 
         if ($learner->onboarding_state === $following) {
-            $this->messenger->sendStep($learner, $chatId, $this->onboarding->current($learner));
+            $step = $this->onboarding->current($learner);
+            $this->messenger->sendStep($learner, $chatId, $step);
+
+            if ($step->isDone()) {
+                $this->organizations->offerPending($learner, $chatId);
+            }
         }
     }
 }

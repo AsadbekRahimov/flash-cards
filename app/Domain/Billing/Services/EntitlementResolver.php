@@ -18,12 +18,16 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Effective plan of a learner (docs/12 §5.1):
+ * Effective plan of a learner (docs/12 §5.1, sponsor rule changed in 2B.1 — docs/13 §1.3, §2.3):
  *
  *   max by rank of { Free,
  *                    the learner's own live subscription,
- *                    a live subscription of any active organization owning an
- *                    active group where the learner is an active member }.
+ *                    a live subscription of any active organization where the
+ *                    learner holds a SEAT (organization_members: active, seated) }.
+ *
+ * Group membership no longer grants anything by itself: a group of an organization
+ * creates the organization membership (GroupMembershipService -> joinFromGroup), and
+ * the seat — limited by `subscriptions.seats_limit` — is what sponsors.
  *
  * Ties are broken by the later end (perpetual wins), then personal over sponsor,
  * so "Pro until X" shown to the learner is the latest date that is actually true.
@@ -42,6 +46,7 @@ use Illuminate\Support\Facades\DB;
  * A cached snapshot whose own end has passed is recomputed on read, so a plan
  * never outlives its subscription even if the scheduler is late. Every write
  * that changes the inputs calls forget*(): SubscriptionService, PromoCodeService,
+ * OrganizationMembershipService (join / leave / seat changes),
  * GroupMembershipService::join/leave, TelegramGroupObserver (organization_id /
  * status), OrganizationObserver (status) — docs/12 §5.2.
  */
@@ -110,20 +115,23 @@ final class EntitlementResolver
         }
     }
 
-    /** Drops the cache of every active member of every group of the organization. */
+    /** Drops the cache of every active member of the organization (`organization_members`, seated or waitlisted). */
     public function forgetOrganization(Organization|int $organization): void
     {
         $organizationId = $organization instanceof Organization ? $organization->id : $organization;
 
         $this->forgetLearnerIds(
-            DB::table('group_members as gm')
-                ->join('telegram_groups as g', 'g.id', '=', 'gm.telegram_group_id')
-                ->where('g.organization_id', $organizationId)
+            DB::table('organization_members as gm')
+                ->where('gm.organization_id', $organizationId)
                 ->where('gm.status', 'active'),
         );
     }
 
-    /** Drops the cache of every active member of the group (its organization or status changed). */
+    /**
+     * Drops the cache of every active member of the group (its organization or status changed).
+     * Since 2B.1 the group row is not an input of the plan any more; kept for the observers,
+     * whose organization hooks run after this.
+     */
     public function forgetGroup(TelegramGroup|int $group): void
     {
         $groupId = $group instanceof TelegramGroup ? $group->id : $group;
@@ -175,14 +183,14 @@ final class EntitlementResolver
     /** @return list<Entitlement> */
     private function liveCandidates(Learner $learner, CarbonImmutable $now): array
     {
-        $sponsorIds = DB::table('telegram_groups as g')
-            ->join('group_members as gm', 'gm.telegram_group_id', '=', 'g.id')
-            ->join('organizations as o', 'o.id', '=', 'g.organization_id')
-            ->where('gm.learner_id', $learner->id)
-            ->where('gm.status', 'active')
-            ->where('g.status', 'active')
+        // docs/13 §2.3: a seat in an active organization. Must stay in step with PaidSubscriptionQuery::sponsorFor().
+        $sponsorIds = DB::table('organization_members as om')
+            ->join('organizations as o', 'o.id', '=', 'om.organization_id')
+            ->where('om.learner_id', $learner->id)
+            ->where('om.status', 'active')
+            ->where('om.seat_state', 'seated')
             ->where('o.status', 'active')
-            ->select('g.organization_id');
+            ->select('om.organization_id');
 
         $subscriptions = Subscription::query()
             ->whereIn('status', SubscriptionStatus::liveValues())

@@ -3,15 +3,26 @@ import { useAuthStore } from '@/stores/auth'
 import type {
   AuthContext,
   AuthResponse,
+  BillingCatalog,
+  BillingPeriod,
+  BillingProviderKey,
+  CheckoutResponse,
   Course,
   CourseDetail,
   CoursesResponse,
+  Deck,
+  DeckDetail,
+  DeckImportFormat,
+  DeckImportResult,
+  DecksResponse,
   ExamAnswerResponse,
   ExamJoinResponse,
   ExamQuestionResponse,
   ExamResultResponse,
   MeResponse,
   NextCardResponse,
+  OrderStatusResponse,
+  OrganizationsResponse,
   OpenSessionRequest,
   Quality,
   ReviewResponse,
@@ -55,13 +66,40 @@ export const api = {
   today: {
     get: () => client().get<TodayResponse>('/today'),
   },
+  organizations: {
+    list: () => client().get<OrganizationsResponse>('/me/organizations'),
+    /** Leaves the center; answers with the refreshed list. */
+    leave: (membershipId: number) => client().delete<OrganizationsResponse>(`/me/organizations/${membershipId}`),
+  },
   promo: {
     redeem: (code: string) => client().post<MeResponse>('/promo/redeem', { code }),
+  },
+  billing: {
+    catalog: () => client().get<BillingCatalog>('/billing/catalog'),
+    /** The amount is the server's; only what to buy and how to pay is sent. */
+    checkout: (period: BillingPeriod, provider: BillingProviderKey) =>
+      client().post<CheckoutResponse>('/billing/checkout', { plan: 'pro', period, provider }),
+    order: (token: string) => client().get<OrderStatusResponse>(`/billing/orders/${encodeURIComponent(token)}`),
+    cancel: () => client().post<MeResponse>('/billing/subscription/cancel'),
+    resume: () => client().post<MeResponse>('/billing/subscription/resume'),
   },
   courses: {
     list: () => client().get<CoursesResponse>('/courses'),
     get: (slug: string) => client().get<CourseDetail>(`/courses/${encodeURIComponent(slug)}`),
     select: (slug: string) => client().post<Course>('/me/course', { slug }),
+  },
+  decks: {
+    list: () => client().get<DecksResponse>('/decks'),
+    get: (slug: string) => client().get<DeckDetail>(`/decks/${encodeURIComponent(slug)}`),
+    create: (title: string) => client().post<Deck>('/decks', { title }),
+    rename: (slug: string, title: string) =>
+      client().patch<Deck>(`/decks/${encodeURIComponent(slug)}`, { title }),
+    /** Archives the deck; the progress stays. */
+    remove: (slug: string) => client().delete<void>(`/decks/${encodeURIComponent(slug)}`),
+    addWords: (slug: string, text: string, format: DeckImportFormat) =>
+      client().post<DeckImportResult>(`/decks/${encodeURIComponent(slug)}/words`, { text, format }),
+    removeWord: (slug: string, wordId: number) =>
+      client().delete<void>(`/decks/${encodeURIComponent(slug)}/words/${wordId}`),
   },
   training: {
     /** Opens (or returns the already open) personal session; answers like `start`. */

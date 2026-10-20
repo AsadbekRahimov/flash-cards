@@ -84,7 +84,7 @@ final class TodayService
 
         /** @var Course|null $course */
         $course = $learner->activeCourse;
-        if ($course === null || ! $this->catalog->isAvailable($course)) {
+        if ($course === null || ! $this->catalog->isAvailable($course, $learner)) {
             return null;
         }
 

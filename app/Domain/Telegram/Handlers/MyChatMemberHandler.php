@@ -7,6 +7,7 @@ namespace App\Domain\Telegram\Handlers;
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Domain\Telegram\Services\GroupBotAccessChecker;
 use App\Domain\Telegram\Support\DmLearnerResolver;
 use App\Models\TelegramGroup;
 
@@ -15,6 +16,7 @@ final class MyChatMemberHandler implements UpdateHandler
     public function __construct(
         private readonly ProductEventRecorder $events,
         private readonly DmLearnerResolver $dmLearners,
+        private readonly GroupBotAccessChecker $botAccess,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -87,6 +89,9 @@ final class MyChatMemberHandler implements UpdateHandler
                 ['chat_type' => $chatType, 'readded' => ! $group->wasRecentlyCreated],
                 group: $group,
             );
+
+            $botId = $event['new_chat_member']['user']['id'] ?? null;
+            $this->botAccess->warnIfNotAdmin($group, is_int($botId) ? $botId : null);
         }
     }
 }

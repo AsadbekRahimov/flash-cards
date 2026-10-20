@@ -12,10 +12,17 @@ use App\Models\Learner;
 use App\Models\LearnerDailyStats;
 use App\Models\Lesson;
 use App\Models\NotificationLog;
+use App\Models\Offer;
 use App\Models\Organization;
+use App\Models\OrganizationInvite;
+use App\Models\OrganizationMember;
+use App\Models\OrganizationUser;
+use App\Models\Payment;
+use App\Models\PaymentOrder;
 use App\Models\ProductEvent;
 use App\Models\PromoCode;
 use App\Models\PromoRedemption;
+use App\Models\ProviderTransaction;
 use App\Models\Stage;
 use App\Models\Subscription;
 use App\Models\TelegramGroup;
@@ -43,6 +50,10 @@ $expectedTables = [
     // Phase 1 (docs/12 §1): learner-first schema.
     'organizations', 'courses', 'word_translations',
     'learner_daily_stats', 'subscriptions', 'promo_codes', 'promo_redemptions',
+    // Phase 2 (docs/13 §1.2): payments.
+    'offers', 'payment_orders', 'provider_transactions', 'payments',
+    // Phase 2 (docs/13 §1.3): organizations — staff, invites, members / seats.
+    'organization_users', 'organization_invites', 'organization_members',
 ];
 
 /**
@@ -428,6 +439,60 @@ it('enforces unique (promo_code_id, learner_id) on promo_redemptions', function 
     expectConstraintViolation(fn () => PromoRedemption::factory()->create(['promo_code_id' => $code->id, 'learner_id' => $learner->id]));
 });
 
+it('enforces the billing uniqueness keys: payments (provider, provider_event_id), provider_transactions (provider, provider_transaction_id), payment_orders.token, one open offer per (learner, kind)', function (): void {
+    Payment::factory()->create(['provider' => 'payme', 'provider_event_id' => 'tx1:perform']);
+    Payment::factory()->create(['provider' => 'click', 'provider_event_id' => 'tx1:perform']); // another provider: fine
+    expectConstraintViolation(fn () => Payment::factory()->create(['provider' => 'payme', 'provider_event_id' => 'tx1:perform']));
+
+    $order = PaymentOrder::factory()->payme()->create(['token' => str_repeat('a', 32)]);
+    expectConstraintViolation(fn () => PaymentOrder::factory()->create(['token' => str_repeat('a', 32)]));
+
+    ProviderTransaction::factory()->create(['provider' => 'payme', 'provider_transaction_id' => 'ptx1', 'payment_order_id' => $order->id]);
+    expectConstraintViolation(fn () => ProviderTransaction::factory()->create(['provider' => 'payme', 'provider_transaction_id' => 'ptx1', 'payment_order_id' => $order->id]));
+
+    $learner = Learner::factory()->create();
+    Offer::factory()->create(['learner_id' => $learner->id, 'kind' => 'post_org_discount']);
+    Offer::factory()->create(['learner_id' => $learner->id, 'kind' => 'winback']); // another kind: fine
+    Offer::factory()->redeemed()->create(['learner_id' => $learner->id, 'kind' => 'post_org_discount']); // redeemed: not counted
+    expectConstraintViolation(fn () => Offer::factory()->create(['learner_id' => $learner->id, 'kind' => 'post_org_discount']));
+    expect(Offer::query()->where('learner_id', $learner->id)->count())->toBe(3);
+});
+
+it('cascades and nulls the billing foreign keys as designed (docs/13 §1.2)', function (): void {
+    $learner = Learner::factory()->create();
+    $offer = Offer::factory()->create(['learner_id' => $learner->id]);
+    $order = PaymentOrder::factory()->payme()->create(['subscriber_id' => $learner->id, 'offer_id' => $offer->id]);
+    $offer->update(['payment_order_id' => $order->id, 'redeemed_at' => now()]);
+    $transaction = ProviderTransaction::factory()->create(['payment_order_id' => $order->id]);
+    $subscription = Subscription::factory()->create(['subscriber_id' => $learner->id, 'provider' => 'payme']);
+    $charge = Payment::factory()->create(['payment_order_id' => $order->id, 'provider_transaction_id' => $transaction->id, 'subscription_id' => $subscription->id, 'subscriber_id' => $learner->id]);
+    $refund = Payment::factory()->create(['refunded_payment_id' => $charge->id, 'kind' => 'refund', 'subscriber_id' => $learner->id]);
+
+    // An order with a provider transaction cannot be deleted (restrict) ...
+    expectConstraintViolation(fn () => $order->delete());
+
+    // ... deleting the subscription / transaction / charge nulls the references, the ledger survives.
+    $subscription->delete();
+    $transaction->delete();
+    expect($charge->fresh()?->subscription_id)->toBeNull()
+        ->and($charge->fresh()?->provider_transaction_id)->toBeNull()
+        ->and($order->fresh()?->subscription_id)->toBeNull();
+
+    $charge->delete();
+    expect($refund->fresh()?->refunded_payment_id)->toBeNull();
+
+    // Deleting the offer nulls the order's offer_id; deleting the order nulls the offer's back-reference
+    // (that FK exists on PostgreSQL only — see the payment_orders migration).
+    $offer->delete();
+    expect($order->fresh()?->offer_id)->toBeNull();
+    $offer2 = Offer::factory()->create(['learner_id' => $learner->id, 'kind' => 'winback', 'payment_order_id' => $order->id]);
+    $order->delete();
+    if (DB::getDriverName() === 'pgsql') {
+        expect($offer2->fresh()?->payment_order_id)->toBeNull();
+    }
+    expect(Payment::query()->count())->toBe(1); // the refund row: payment_order_id nulled, row kept
+});
+
 it('enforces unique promo_codes.code and organizations.slug and courses.slug', function (): void {
     PromoCode::factory()->create(['code' => 'WELCOME']);
     expectConstraintViolation(fn () => PromoCode::factory()->create(['code' => 'WELCOME']));
@@ -446,9 +511,10 @@ it('allows at most one live subscription per subscriber', function (): void {
 
     Subscription::factory()->create(['subscriber_id' => $learner->id]);
 
-    // Second live subscription of the same subscriber is rejected ...
+    // Second live subscription of the same subscriber is rejected (`canceled` is live, docs/13 §2.1) ...
     expectConstraintViolation(fn () => Subscription::factory()->create(['subscriber_id' => $learner->id, 'status' => 'trialing']));
     expectConstraintViolation(fn () => Subscription::factory()->create(['subscriber_id' => $learner->id, 'status' => 'past_due']));
+    expectConstraintViolation(fn () => Subscription::factory()->create(['subscriber_id' => $learner->id, 'status' => 'canceled']));
 
     // ... history rows, other subscribers and the same id under another subscriber_type are fine.
     Subscription::factory()->expired()->create(['subscriber_id' => $learner->id]);
@@ -579,11 +645,126 @@ it('has partial unique index subscriptions_one_live_per_subscriber', function ()
 
     expect($row)->not->toBeNull()
         ->and($row->indexdef)->toContain('UNIQUE')
-        ->and($row->indexdef)->toContain('subscriber_type, subscriber_id');
+        ->and($row->indexdef)->toContain('subscriber_type, subscriber_id')
+        ->and($row->indexdef)->toContain("'canceled'");
+
+    $offers = DB::selectOne(
+        "SELECT indexdef FROM pg_indexes
+         WHERE tablename = 'offers' AND indexname = 'offers_one_open_per_learner_kind'",
+    );
+    expect($offers)->not->toBeNull()
+        ->and($offers->indexdef)->toContain('UNIQUE')
+        ->and($offers->indexdef)->toContain('redeemed_at IS NULL');
 })->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'pg_indexes catalog is PostgreSQL-only.');
+
+it('rolls back and re-applies the organization migrations (2B.1) in FK order', function (): void {
+    $tables = ['organization_members', 'organization_invites', 'organization_users'];
+
+    // The three 2B.1 files are the last ones: members -> invites (FK invite_id) -> users.
+    $this->artisan('migrate:rollback', ['--step' => 3])->assertSuccessful();
+    foreach ($tables as $table) {
+        expect(Schema::hasTable($table))->toBeFalse("Table {$table} survived rollback");
+    }
+    expect(Schema::hasTable('payments'))->toBeTrue()
+        ->and(Schema::hasTable('organizations'))->toBeTrue();
+
+    $this->artisan('migrate')->assertSuccessful();
+    foreach ($tables as $table) {
+        expect(Schema::hasTable($table))->toBeTrue("Table {$table} missing after re-migrate");
+    }
+
+    if (DB::getDriverName() === 'pgsql') {
+        $memberKeys = collect(array_column(Schema::getForeignKeys('organization_members'), 'columns'))->flatten()->all();
+        expect($memberKeys)->toContain('organization_id', 'learner_id', 'invite_id');
+    }
+});
+
+it('enforces the organization uniqueness keys: members (organization_id, learner_id), invites.code, users (organization_id, user_id)', function (): void {
+    $org = Organization::factory()->create();
+    $learner = Learner::factory()->create();
+    $user = User::factory()->create();
+
+    OrganizationMember::factory()->create(['organization_id' => $org->id, 'learner_id' => $learner->id]);
+    expectConstraintViolation(fn () => OrganizationMember::factory()->left()->create(['organization_id' => $org->id, 'learner_id' => $learner->id]));
+    // The same learner in another organization is fine.
+    OrganizationMember::factory()->create(['learner_id' => $learner->id]);
+
+    OrganizationInvite::factory()->create(['organization_id' => $org->id, 'code' => 'ABCDEFGHJK']);
+    expectConstraintViolation(fn () => OrganizationInvite::factory()->create(['code' => 'ABCDEFGHJK']));
+
+    OrganizationUser::factory()->create(['organization_id' => $org->id, 'user_id' => $user->id]);
+    expectConstraintViolation(fn () => OrganizationUser::factory()->teacher()->create(['organization_id' => $org->id, 'user_id' => $user->id]));
+});
+
+it('cascades and nulls the organization foreign keys as designed (docs/13 §1.3)', function (): void {
+    $org = Organization::factory()->create();
+    $learner = Learner::factory()->create();
+    $staff = User::factory()->create();
+    $creator = User::factory()->create();
+    $group = TelegramGroup::factory()->create(['organization_id' => $org->id]);
+    $invite = OrganizationInvite::factory()->create(['organization_id' => $org->id, 'telegram_group_id' => $group->id, 'created_by_user_id' => $creator->id]);
+    $member = OrganizationMember::factory()->create(['organization_id' => $org->id, 'learner_id' => $learner->id, 'invite_id' => $invite->id]);
+    OrganizationUser::factory()->create(['organization_id' => $org->id, 'user_id' => $staff->id, 'invited_by_user_id' => $creator->id]);
+
+    // nullOnDelete: the invite keeps living without its group / creator, the member without its invite.
+    $group->delete();
+    $creator->delete();
+    expect($invite->fresh()?->telegram_group_id)->toBeNull()
+        ->and($invite->fresh()?->created_by_user_id)->toBeNull()
+        ->and(OrganizationUser::query()->sole()->invited_by_user_id)->toBeNull();
+
+    $invite->delete();
+    expect($member->fresh()?->invite_id)->toBeNull()
+        ->and($member->fresh()?->status)->toBe('active');
+
+    // cascade: a hard-deleted learner / user / organization takes its rows along.
+    $learner->forceDelete();
+    expect(OrganizationMember::query()->count())->toBe(0);
+
+    $staff->delete();
+    expect(OrganizationUser::query()->count())->toBe(0);
+
+    OrganizationMember::factory()->create(['organization_id' => $org->id]);
+    OrganizationInvite::factory()->create(['organization_id' => $org->id]);
+    OrganizationUser::factory()->create(['organization_id' => $org->id]);
+    $org->delete();
+    expect(OrganizationMember::query()->count())->toBe(0)
+        ->and(OrganizationInvite::query()->count())->toBe(0)
+        ->and(OrganizationUser::query()->count())->toBe(0);
+});
+
+it('rolls back and re-applies the billing migrations (2A.1) in FK order', function (): void {
+    $tables = ['payments', 'provider_transactions', 'payment_orders', 'offers'];
+
+    // 7 steps: the three 2B.1 organization files sit on top of the four 2A.1 billing files.
+    $this->artisan('migrate:rollback', ['--step' => 7])->assertSuccessful();
+    foreach ($tables as $table) {
+        expect(Schema::hasTable($table))->toBeFalse("Table {$table} survived rollback");
+    }
+    expect(Schema::hasTable('subscriptions'))->toBeTrue();
+
+    $this->artisan('migrate')->assertSuccessful();
+    foreach ($tables as $table) {
+        expect(Schema::hasTable($table))->toBeTrue("Table {$table} missing after re-migrate");
+    }
+    expect(Schema::hasColumns('subscriptions', ['tier']))->toBeTrue()
+        ->and(Schema::hasColumns('offers', ['payment_order_id']))->toBeTrue();
+
+    if (DB::getDriverName() === 'pgsql') {
+        $offerKeys = array_column(Schema::getForeignKeys('offers'), 'columns');
+        expect(collect($offerKeys)->flatten()->all())->toContain('payment_order_id');
+    }
+
+    // The partial predicate of the offers index survived (sqlite would lose it on a table rebuild).
+    $learner = Learner::factory()->create();
+    Offer::factory()->redeemed()->create(['learner_id' => $learner->id, 'kind' => 'campaign']);
+    Offer::factory()->create(['learner_id' => $learner->id, 'kind' => 'campaign']);
+    expect(Offer::query()->count())->toBe(2);
+});
 
 it('rolls back and re-applies the learner-first migrations (1.1a + 1.1b)', function (): void {
     $newTables = [
+        'payments', 'provider_transactions', 'payment_orders', 'offers',
         'promo_redemptions', 'promo_codes', 'subscriptions', 'learner_daily_stats',
         'word_translations', 'group_members', 'learners', 'courses', 'organizations',
     ];

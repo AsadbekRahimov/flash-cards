@@ -14,8 +14,10 @@ return new class extends Migration
             $table->id();
             $table->string('slug', 64)->unique();
             $table->string('owner_type', 16)->default('platform');
-            // Polymorphic owner (organizations.id when owner_type = 'organization'): no FK by design.
+            // Polymorphic owner (organizations.id / learners.id by owner_type): no FK by design.
             $table->unsignedBigInteger('owner_id')->nullable();
+            // Origin for filters: platform | organization | learner (a learner's own deck, docs/13 §8.1).
+            $table->string('source', 12)->default('platform');
             $table->jsonb('title');
             $table->jsonb('description')->default('{}');
             $table->string('target_language', 5)->default('en');

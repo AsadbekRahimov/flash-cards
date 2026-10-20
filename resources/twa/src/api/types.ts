@@ -55,6 +55,23 @@ export interface LearnerSettings {
   }
 }
 
+/** One active membership of GET /me/organizations (docs/04 A.11). */
+export interface OrganizationMembership {
+  /** organization_members.id: what DELETE /me/organizations/{id} takes. */
+  id: number
+  name: string
+  /** `seated` = Pro from the center; `waitlisted` = no free seat yet (plain Free). */
+  seat_state: 'seated' | 'waitlisted' | string
+  /** `invite` / `admin` can be left by the learner; `group` comes back with the group chat. */
+  joined_via: 'invite' | 'group' | 'admin' | string
+  joined_at: string
+  can_leave: boolean
+}
+
+export interface OrganizationsResponse {
+  organizations: OrganizationMembership[]
+}
+
 /** Body of PATCH /me/settings: only the fields to change; `reminder_time: null` turns the reminders off. */
 export type SettingsPatch = Partial<
   Pick<LearnerSettings, 'interface_locale' | 'timezone' | 'reminder_time' | 'daily_goal' | 'goal' | 'level'>
@@ -67,6 +84,83 @@ export interface Entitlement {
   until: string | null
   /** null = unlimited */
   new_words_per_day: number | null
+  /**
+   * The learner's own live subscription (docs/04 A.2); null = none (Free, or Pro only from a center).
+   * Absent in the entitlement of `/today` and in the auth answer.
+   */
+  renewal?: Renewal | null
+  /**
+   * "Pro ended" (docs/04 A.2, `/me` only): the learner is on Free and their own paid subscription expired
+   * lately; null = nothing to offer. Absent in the entitlement of `/today` and in the auth answer.
+   */
+  lapsed?: Lapsed | null
+}
+
+export interface Lapsed {
+  provider: string
+  /** ISO 8601 moment the subscription expired; also the key of the local "dismissed" mark. */
+  ended_at: string
+}
+
+export interface Renewal {
+  /** The auto-renewal is running (Telegram Stars, status `active`). */
+  auto: boolean
+  provider: string
+  /** null = no end. */
+  ends_at: string | null
+  /** A "renew soon" reminder was already sent for the current period end. */
+  reminder_sent: boolean
+}
+
+// ---- billing (docs/04 A.8) ----
+
+export type BillingProviderKey = 'telegram_stars' | 'payme' | 'click'
+export type BillingPeriod = 'month' | 'year'
+/** Prices are minor units: XTR = whole Stars, UZS = tiyin (÷ 100 to show). */
+export type BillingCurrency = 'XTR' | 'UZS'
+export type Prices = Partial<Record<BillingCurrency, number>>
+
+export interface CatalogItem {
+  plan: string
+  tier: string | null
+  period: BillingPeriod
+  /** After the open offer. */
+  prices: Prices
+  /** Before it. */
+  list_prices: Prices
+}
+
+export interface SubscriptionSummary {
+  status: string
+  provider: string
+  plan: string
+  /** null = no end. */
+  ends_at: string | null
+  auto_renew: boolean
+  can_cancel: boolean
+  can_resume: boolean
+}
+
+export interface BillingCatalog {
+  /** Empty = nothing to sell. */
+  items: CatalogItem[]
+  providers: BillingProviderKey[]
+  offer: { kind: string; discount_pct: number; expires_at: string } | null
+  subscription: SubscriptionSummary | null
+}
+
+export interface CheckoutResponse {
+  order: { id: number; token: string; status: OrderStatus; amount: number; currency: BillingCurrency; expires_at: string }
+  /** `invoice_link` → Telegram.WebApp.openInvoice, `redirect` → openLink. */
+  checkout: { url: string; kind: 'invoice_link' | 'redirect' }
+}
+
+export type OrderStatus = 'pending' | 'paid' | 'canceled' | 'expired' | 'failed'
+
+export interface OrderStatusResponse {
+  status: OrderStatus
+  paid_at: string | null
+  subscription: SubscriptionSummary | null
 }
 
 /** `contact` is null when the owner has not configured BILLING_SUPPORT_CONTACT — then it is not shown. */
@@ -323,4 +417,50 @@ export interface CourseDetail {
   is_active: boolean
   progress: Progress
   stages: CourseStage[]
+}
+
+/** A learner's own deck (docs/04 A.10). */
+export interface Deck {
+  slug: string
+  title: string
+  words_count: number
+  is_active: boolean
+  progress: Progress
+}
+
+export interface DeckWord {
+  id: number
+  word: string
+  translation: string
+  translation_uz: string | null
+  example: string | null
+}
+
+export interface DeckDetail extends Deck {
+  words: DeckWord[]
+}
+
+/** Plan limits of decks: `decks` per learner, `deck_words` per deck; `used_decks` is the current count. */
+export interface DeckLimits {
+  decks: number
+  deck_words: number
+  used_decks: number
+}
+
+export interface DecksResponse {
+  decks: Deck[]
+  limits: DeckLimits
+}
+
+export type DeckImportFormat = 'list' | 'csv'
+
+export type DeckRejectReason = 'empty_translation' | 'junk' | 'too_long' | 'duplicate' | 'over_limit'
+
+/** Answer of POST /decks/{slug}/words. */
+export interface DeckImportResult {
+  added: number
+  reactivated: number
+  duplicates: number
+  rejected: { line: number; reason: DeckRejectReason }[]
+  deck: Deck
 }

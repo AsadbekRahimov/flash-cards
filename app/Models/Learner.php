@@ -122,6 +122,16 @@ class Learner extends Model
             ->withTimestamps();
     }
 
+    /**
+     * Memberships in organizations (seats, docs/13 §1.3).
+     *
+     * @return HasMany<OrganizationMember, $this>
+     */
+    public function organizationMemberships(): HasMany
+    {
+        return $this->hasMany(OrganizationMember::class);
+    }
+
     /** @return HasMany<WordRepetition, $this> */
     public function repetitions(): HasMany
     {

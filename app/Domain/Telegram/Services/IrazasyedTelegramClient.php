@@ -15,6 +15,9 @@ use Telegram\Bot\Exceptions\TelegramResponseException;
 
 class IrazasyedTelegramClient implements TelegramClient
 {
+    /** @var list<string> */
+    public const ALLOWED_UPDATES = ['message', 'my_chat_member', 'chat_member', 'callback_query', 'pre_checkout_query'];
+
     public function __construct(
         private readonly Api $api,
         private readonly TelegramKeyboardFactory $keyboards,
@@ -106,18 +109,100 @@ class IrazasyedTelegramClient implements TelegramClient
         ]));
     }
 
+    public function getChatMemberStatus(int|string $chatId, int $userId): string
+    {
+        $member = $this->call(fn () => $this->api->getChatMember(['chat_id' => $chatId, 'user_id' => $userId]));
+
+        // The SDK wraps the whole response body (`{ok, result: {status, …}}`) into the object.
+        $data = $member->toArray();
+        $result = is_array($data['result'] ?? null) ? $data['result'] : $data;
+
+        return is_string($result['status'] ?? null) ? $result['status'] : '';
+    }
+
     public function setWebhook(string $url, string $secretHeader): bool
     {
         return (bool) $this->call(fn () => $this->api->setWebhook([
             'url' => $url,
             'secret_token' => $secretHeader,
-            'allowed_updates' => ['message', 'my_chat_member', 'chat_member', 'callback_query'],
+            // `pre_checkout_query` is answered synchronously by WebhookController (docs/13 §4.1);
+            // `successful_payment` / `refunded_payment` arrive as `message`.
+            'allowed_updates' => self::ALLOWED_UPDATES,
         ]));
     }
 
     public function deleteWebhook(): bool
     {
         return (bool) $this->call(fn () => $this->api->deleteWebhook());
+    }
+
+    /**
+     * @param  list<array{label: string, amount: int}>  $prices
+     */
+    public function createInvoiceLink(string $title, string $description, string $payload, string $currency, array $prices, ?int $subscriptionPeriod = null): string
+    {
+        $params = [
+            'title' => $title,
+            'description' => $description,
+            'payload' => $payload,
+            'currency' => $currency,
+            // The SDK json-encodes `prices` itself. No `provider_token`: Stars have none.
+            'prices' => $prices,
+        ];
+
+        if ($subscriptionPeriod !== null) {
+            $params['subscription_period'] = $subscriptionPeriod;
+        }
+
+        $link = $this->call(fn (): string => (string) $this->api->createInvoiceLink($params));
+
+        if ($link === '') {
+            throw new TelegramApiException('Telegram API request failed (createInvoiceLink): empty result');
+        }
+
+        return $link;
+    }
+
+    public function answerPreCheckoutQuery(string $preCheckoutQueryId, bool $ok, ?string $errorMessage = null): void
+    {
+        $params = ['pre_checkout_query_id' => $preCheckoutQueryId, 'ok' => $ok];
+
+        if (! $ok) {
+            $params['error_message'] = $errorMessage ?? 'Payment refused.';
+        }
+
+        $this->call(fn () => $this->api->answerPreCheckoutQuery($params));
+    }
+
+    public function editUserStarSubscription(int $userId, string $telegramPaymentChargeId, bool $isCanceled): void
+    {
+        // Not wrapped by the SDK (3.x): raw Bot API call through the same boundary.
+        $this->call(fn () => $this->api->post('editUserStarSubscription', [
+            'user_id' => $userId,
+            'telegram_payment_charge_id' => $telegramPaymentChargeId,
+            'is_canceled' => $isCanceled,
+        ]));
+    }
+
+    public function refundStarPayment(int $userId, string $telegramPaymentChargeId): void
+    {
+        $this->call(fn () => $this->api->post('refundStarPayment', [
+            'user_id' => $userId,
+            'telegram_payment_charge_id' => $telegramPaymentChargeId,
+        ]));
+    }
+
+    public function getStarTransactions(int $offset = 0, int $limit = 100): array
+    {
+        $response = $this->call(fn () => $this->api->post('getStarTransactions', [
+            'offset' => max(0, $offset),
+            'limit' => max(1, min(100, $limit)),
+        ]));
+
+        $result = $response->getResult();
+        $transactions = is_array($result) ? ($result['transactions'] ?? null) : null;
+
+        return array_values(array_filter(is_array($transactions) ? $transactions : [], 'is_array'));
     }
 
     /**

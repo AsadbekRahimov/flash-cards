@@ -8,6 +8,7 @@ use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Enums\SubscriptionStatus;
 use App\Domain\Billing\Exceptions\SubscriptionException;
 use App\Domain\Billing\Services\SubscriptionService;
+use App\Domain\Billing\Support\OrgTiers;
 use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\Subscription;
@@ -55,6 +56,12 @@ final class SubscriptionActions
                     ->searchable()
                     ->visible(fn (callable $get): bool => $get('subscriber_type') === 'organization')
                     ->required(fn (callable $get): bool => $get('subscriber_type') === 'organization'),
+                Forms\Components\Select::make('tier')
+                    ->label('Tier')
+                    ->options(fn (): array => self::tierOptions())
+                    ->placeholder('No tier (seats not limited)')
+                    ->helperText('Sets the organization\'s tier and seats limit from the tariff table.')
+                    ->visible(fn (callable $get): bool => $get('subscriber_type') === 'organization'),
                 Forms\Components\Toggle::make('perpetual')
                     ->label('No end date')
                     ->live(),
@@ -91,7 +98,9 @@ final class SubscriptionActions
                 $until = ($data['perpetual'] ?? false) || empty($data['until']) ? null : CarbonImmutable::parse((string) $data['until']);
 
                 try {
-                    app(SubscriptionService::class)->grantManual($subscriber, Plan::Pro, $until, $user, (string) $data['note'], request()->ip());
+                    $tier = $data['subscriber_type'] === 'organization' && filled($data['tier'] ?? null) ? (string) $data['tier'] : null;
+
+                    app(SubscriptionService::class)->grantManual($subscriber, Plan::Pro, $until, $user, (string) $data['note'], request()->ip(), tier: $tier);
                 } catch (SubscriptionException $e) {
                     self::failed($e);
 
@@ -131,6 +140,19 @@ final class SubscriptionActions
 
                 Notification::make()->title('Subscription revoked')->success()->send();
             });
+    }
+
+    /** @return array<string, string> tier key => "Center s · 100 seats" */
+    private static function tierOptions(): array
+    {
+        $options = [];
+
+        foreach (OrgTiers::keys() as $tier) {
+            $seats = OrgTiers::seats($tier);
+            $options[$tier] = ucfirst(str_replace('_', ' ', $tier)).' · '.($seats === null ? 'unlimited seats' : $seats.' seats');
+        }
+
+        return $options;
     }
 
     private static function failed(SubscriptionException $e): void

@@ -111,6 +111,28 @@ it('redacts bot token, configured secrets, webhook segment and bearer tokens in 
         ->and($out)->toContain('api.telegram.org/bot[redacted]/sendMessage');
 });
 
+it('redacts the payment provider keys, Basic credentials and sign_string (docs/13 §10)', function (): void {
+    config(['billing.providers.payme.key' => 'payme-live-key-0123456789', 'billing.providers.payme.test_key' => 'payme-test-key-9876543210', 'billing.providers.click.secret_key' => 'click-secret-key-abcdef']);
+    $basic = 'Basic '.base64_encode('Paycom:payme-live-key-0123456789');
+
+    $text = "Authorization: {$basic}; key=payme-live-key-0123456789; test payme-test-key-9876543210; click-secret-key-abcdef; sign_string=0a1b2c3d";
+    $out = SecretRedactor::redact($text);
+
+    expect($out)->not->toContain('payme-live-key')
+        ->and($out)->not->toContain('payme-test-key')
+        ->and($out)->not->toContain('click-secret-key')
+        ->and($out)->not->toContain(base64_encode('Paycom:'))
+        ->and($out)->toContain('Authorization: Basic [redacted]')
+        ->and($out)->not->toContain('0a1b2c3d');
+
+    $array = SecretRedactor::redactArray(['Authorization' => $basic, 'sign_string' => '0a1b2c3d', 'params' => ['amount' => 2_900_000, 'merchant_key' => 'payme-live-key-0123456789']]);
+    expect($array)->toBe(['Authorization' => '[redacted]', 'sign_string' => '[redacted]', 'params' => ['amount' => 2_900_000, 'merchant_key' => '[redacted]']]);
+
+    // A short literal never becomes a global replacement (an empty key would blank every string).
+    config(['billing.providers.payme.key' => '']);
+    expect(SecretRedactor::redact('plain text'))->toBe('plain text');
+});
+
 it('keeps SentryScrubber::scrubString on the shared redactor', function (): void {
     expect(SentryScrubber::scrubString('x '.REDACTION_TOKEN))->toBe(SecretRedactor::redact('x '.REDACTION_TOKEN))
         ->and(SentryScrubber::scrubString('x '.REDACTION_TOKEN))->not->toContain('AAEhBP');

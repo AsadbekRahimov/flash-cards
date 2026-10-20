@@ -15,6 +15,7 @@ use App\Models\TrainingReview;
 use App\Models\TrainingSession;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
@@ -65,11 +66,12 @@ it('marks group as disabled when bot is kicked', function (): void {
     expect(TelegramGroup::where('chat_id', -9999)->value('status'))->toBe('disabled');
 });
 
-it('drops the sponsored Pro of the members at once when the bot is removed from the group', function (): void {
+it('keeps the seat (and the sponsored Pro) of the members when the bot is removed from the group', function (): void {
     $org = Organization::factory()->create();
     Subscription::factory()->forOrganization($org)->create(['current_period_ends_at' => null]);
     $group = TelegramGroup::factory()->create(['chat_id' => -9998, 'status' => 'active', 'organization_id' => $org->id]);
-    $member = Learner::factory()->memberOf($group)->create();
+    // In the group AND seated through it (what the join hook creates, docs/13 §1.3).
+    $member = Learner::factory()->memberOf($group)->seatedIn($org, 'seated', 'group')->create();
     $resolver = app(EntitlementResolver::class);
     expect($resolver->for($member)->plan)->toBe(Plan::Pro);   // primes the cache
 
@@ -80,8 +82,11 @@ it('drops the sponsored Pro of the members at once when the bot is removed from 
         ],
     ]);
 
+    // Since 2B.1 the plan hangs on the seat, not on the group row (docs/13 §1.3): the bot leaving
+    // the chat does not take the learner out of the center. The cache is still dropped (observer).
     expect($group->fresh()?->status)->toBe('disabled')
-        ->and($resolver->for($member)->plan)->toBe(Plan::Free);
+        ->and(Cache::has(EntitlementResolver::cacheKey($member->id)))->toBeFalse()
+        ->and($resolver->for($member)->plan)->toBe(Plan::Pro);
 });
 
 it('creates a learner and an active membership for every human in new_chat_members', function (): void {
@@ -513,6 +518,11 @@ it('sends a seven-day stats report to a teacher in DM', function (): void {
 
         public function editMessageReplyMarkup(int|string $chatId, int $messageId, ?array $replyMarkup = null): void {}
 
+        public function getChatMemberStatus(int|string $chatId, int $userId): string
+        {
+            return 'administrator';
+        }
+
         public function setWebhook(string $url, string $secretHeader): bool
         {
             return true;
@@ -521,6 +531,22 @@ it('sends a seven-day stats report to a teacher in DM', function (): void {
         public function deleteWebhook(): bool
         {
             return true;
+        }
+
+        public function createInvoiceLink(string $title, string $description, string $payload, string $currency, array $prices, ?int $subscriptionPeriod = null): string
+        {
+            return 'https://t.me/$test-invoice';
+        }
+
+        public function answerPreCheckoutQuery(string $preCheckoutQueryId, bool $ok, ?string $errorMessage = null): void {}
+
+        public function editUserStarSubscription(int $userId, string $telegramPaymentChargeId, bool $isCanceled): void {}
+
+        public function refundStarPayment(int $userId, string $telegramPaymentChargeId): void {}
+
+        public function getStarTransactions(int $offset = 0, int $limit = 100): array
+        {
+            return [];
         }
     };
 

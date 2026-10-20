@@ -35,7 +35,7 @@ final class CourseController
         /** @var Learner $learner */
         $learner = $request->attributes->get('learner');
 
-        $course = $this->catalog->findAvailable($slug);
+        $course = $this->catalog->findAvailable($slug, $learner);
         if ($course === null) {
             return $this->notFound();
         }

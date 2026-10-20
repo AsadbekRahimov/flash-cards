@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
 import { useSettingsStore } from '@/stores/settings'
+import { useOrganizationsStore } from '@/stores/organizations'
 import { useTelegram } from '@/composables/useTelegram'
 import { errorMessage } from '@/i18n/errors'
 import { useI18n } from '@/i18n'
@@ -12,10 +13,14 @@ import type { SettingsPatch } from '@/api/types'
 const router = useRouter()
 const auth = useAuthStore()
 const settings = useSettingsStore()
+const organizations = useOrganizationsStore()
 const { showBackButton } = useTelegram()
 const { t, tn } = useI18n()
 
 const { data, status, saving, saved, errorMessage: message, timezoneLockMessage } = storeToRefs(settings)
+
+// "My centers": the membership whose "Leave" waits for the confirmation tap (null = none).
+const confirmingId = ref<number | null>(null)
 
 let hideBack: (() => void) | null = null
 
@@ -28,6 +33,13 @@ async function load(): Promise<void> {
     return
   }
   await settings.load()
+  // Independent of the settings: a failure here only leaves the block out.
+  await organizations.load()
+}
+
+async function leave(id: number): Promise<void> {
+  await organizations.leave(id)
+  confirmingId.value = null
 }
 
 /** Saves a change; when it is refused the select goes back to the value the server still has. */
@@ -121,6 +133,41 @@ onBeforeUnmount(() => {
           {{ t('catalog.open') }}
         </RouterLink>
       </div>
+
+      <div v-if="organizations.items.length > 0" class="card space-y-3" data-testid="orgs-card">
+        <div class="font-semibold">{{ t('orgs.title') }}</div>
+        <p v-if="organizations.errorMessage" class="text-sm text-red-600" role="alert" data-testid="orgs-error">{{ organizations.errorMessage }}</p>
+
+        <div v-for="org in organizations.items" :key="org.id" class="space-y-2" :data-testid="`org-${org.id}`">
+          <div>
+            <div class="font-medium" data-testid="org-name">{{ org.name }}</div>
+            <div class="text-sm text-tg-hint" data-testid="org-state">
+              {{ org.seat_state === 'seated' ? t('orgs.seated') : t('orgs.waitlisted') }}
+            </div>
+          </div>
+
+          <p v-if="!org.can_leave" class="text-xs text-tg-hint" data-testid="org-via-group">{{ t('orgs.via_group') }}</p>
+
+          <button v-else-if="confirmingId !== org.id" type="button" class="btn btn-secondary w-full" data-testid="org-leave" @click="confirmingId = org.id">
+            {{ t('orgs.leave') }}
+          </button>
+          <div v-else class="space-y-2" data-testid="org-confirm">
+            <p class="text-sm">{{ t('orgs.leave.confirm', { name: org.name }) }}</p>
+            <div class="flex gap-2">
+              <button type="button" class="btn btn-primary flex-1" :disabled="organizations.leaving" data-testid="org-leave-yes" @click="leave(org.id)">
+                {{ t('orgs.leave.yes') }}
+              </button>
+              <button type="button" class="btn btn-secondary flex-1" data-testid="org-leave-no" @click="confirmingId = null">
+                {{ t('orgs.leave.no') }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <RouterLink :to="{ name: 'billing' }" class="btn btn-secondary w-full" data-testid="billing-link">
+        {{ t('billing.open') }}
+      </RouterLink>
     </div>
   </section>
 </template>

@@ -41,12 +41,28 @@ it('accepts only configured plan keys and reports the rest as a domain error (pl
 });
 
 it('knows which statuses are live and which providers have a grace period', function (): void {
-    expect(SubscriptionStatus::liveValues())->toBe(['trialing', 'active', 'past_due'])
-        ->and(SubscriptionStatus::Canceled->isLive())->toBeFalse()
+    // docs/13 §2.1: `canceled` is live ("Pro until the end of the period"); only Stars renews, so only Stars has grace.
+    expect(SubscriptionStatus::liveValues())->toBe(['trialing', 'active', 'past_due', 'canceled'])
+        ->and(SubscriptionStatus::Canceled->isLive())->toBeTrue()
         ->and(SubscriptionStatus::Expired->isLive())->toBeFalse()
         ->and(SubscriptionProvider::Manual->hasGrace())->toBeFalse()
         ->and(SubscriptionProvider::Promo->hasGrace())->toBeFalse()
+        ->and(SubscriptionProvider::Reward->hasGrace())->toBeFalse()
         ->and(SubscriptionProvider::TelegramStars->hasGrace())->toBeTrue()
-        ->and(SubscriptionProvider::Payme->hasGrace())->toBeTrue()
-        ->and(SubscriptionProvider::Click->hasGrace())->toBeTrue();
+        ->and(SubscriptionProvider::Payme->hasGrace())->toBeFalse()
+        ->and(SubscriptionProvider::Click->hasGrace())->toBeFalse();
+});
+
+it('classifies providers: auto-renewing, paid, settlement currency', function (): void {
+    expect(SubscriptionProvider::TelegramStars->isAutoRenewing())->toBeTrue()
+        ->and(SubscriptionProvider::Payme->isAutoRenewing())->toBeFalse()
+        ->and(SubscriptionProvider::Click->isAutoRenewing())->toBeFalse()
+        ->and(SubscriptionProvider::Reward->isAutoRenewing())->toBeFalse()
+        ->and(SubscriptionProvider::paid())->toBe([SubscriptionProvider::TelegramStars, SubscriptionProvider::Payme, SubscriptionProvider::Click])
+        ->and(SubscriptionProvider::Reward->isPaid())->toBeFalse()
+        ->and(SubscriptionProvider::TelegramStars->currency())->toBe('XTR')
+        ->and(SubscriptionProvider::Payme->currency())->toBe('UZS')
+        ->and(SubscriptionProvider::Click->currency())->toBe('UZS')
+        ->and(SubscriptionProvider::Manual->currency())->toBeNull()
+        ->and(SubscriptionProvider::Reward->currency())->toBeNull();
 });

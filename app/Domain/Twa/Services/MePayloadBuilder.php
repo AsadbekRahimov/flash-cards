@@ -6,6 +6,7 @@ namespace App\Domain\Twa\Services;
 
 use App\Domain\Billing\DTO\Entitlement;
 use App\Domain\Billing\Services\EntitlementResolver;
+use App\Domain\Billing\Services\LearnerBillingService;
 use App\Domain\Learners\Services\GroupMembershipService;
 use App\Domain\Learners\Services\LearnerSettingsService;
 use App\Domain\Learning\DTO\LearnerStats;
@@ -27,6 +28,7 @@ final class MePayloadBuilder
         private readonly GroupMembershipService $memberships,
         private readonly EntitlementResolver $entitlements,
         private readonly LearnerSettingsService $settings,
+        private readonly LearnerBillingService $billing,
     ) {}
 
     /**
@@ -35,18 +37,24 @@ final class MePayloadBuilder
      *   groups: Collection<int, TelegramGroup>,
      *   stats: LearnerStats,
      *   entitlement: Entitlement,
+     *   renewal: array{auto: bool, provider: string, ends_at: string|null, reminder_sent: bool}|null,
+     *   lapsed: array{provider: string, ended_at: string}|null,
      *   paywall: array{mode: string, contact: string|null},
      *   settings: SettingsPayload
      * }
      */
     public function build(Learner $learner): array
     {
+        $entitlement = $this->entitlements->for($learner);
+
         return [
             'learner' => $learner,
             'groups' => $this->memberships->activeGroups($learner),
             'stats' => $this->stats->forLearner($learner),
-            'entitlement' => $this->entitlements->for($learner),
-            'paywall' => $this->entitlements->paywall(),
+            'entitlement' => $entitlement,
+            'renewal' => $this->billing->renewal($learner),
+            'lapsed' => $this->billing->lapsed($learner, $entitlement),
+            'paywall' => $this->billing->paywall($learner),
             'settings' => $this->settings->describe($learner),
         ];
     }

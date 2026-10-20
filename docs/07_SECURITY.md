@@ -29,10 +29,12 @@
 curl -X POST "https://api.telegram.org/bot${TOKEN}/setWebhook" \
   -d "url=https://lexiflow.example.com/telegram/webhook/${SECRET_IN_URL}" \
   -d "secret_token=${SECRET_HEADER}" \
-  -d "allowed_updates=[\"message\",\"my_chat_member\",\"chat_member\",\"callback_query\"]"
+  -d "allowed_updates=[\"message\",\"my_chat_member\",\"chat_member\",\"callback_query\",\"pre_checkout_query\"]"
 ```
 
 Используем **два разных секрета**: один в URL (не увидят проксирующие логи), другой в заголовке — Telegram подставляет его сам.
+
+`pre_checkout_query` (оплата Telegram Stars, docs/13 §4.1) проходит те же две проверки секретов и отвечается синхронно в запросе вебхука (`PreCheckoutResponder` → `StarsPreCheckoutGuard`): одно чтение заказа по `invoice_payload`, сравнение `from.id` с владельцем заказа, суммы и валюты — с `payment_orders` (сумма от клиента не принимается); чужому плательщику ничего о заказе не сообщается. Деньги зачитываются только по `message.successful_payment` того же вебхука через `PaymentApplier` (идемпотентность по `telegram_payment_charge_id`, docs/13 §10). `invoice_payload` (токен заказа) маскируется в логе апдейтов (`UpdateSanitizer`) и в админке (`PayloadMasker`).
 
 ### 2.2 Проверка на входе
 ```php
@@ -61,6 +63,14 @@ public function handle(Request $r, string $secret): Response
     return response()->json(['ok' => true]);
 }
 ```
+
+### 2a. Вебхуки платёжных провайдеров (docs/13 §4, §10)
+
+Маршруты `/billing/webhook/*` — без сессии/cookies/CSRF (как `/telegram/webhook`), `throttle:billing-webhook` 120/мин per IP, тело ≤ 64 КБ, необязательный allowlist IP (`BillingIpAllowlist:<provider>`, адреса — из кабинета провайдера; чужой IP → 403 до аутентификации).
+
+- **Payme (2A.4)** — `POST /billing/webhook/payme`: `Authorization: Basic base64("Paycom:" + ключ)`, пароль сравнивается `hash_equals` с `PAYME_KEY` и `PAYME_TEST_KEY` (оба сравнения выполняются всегда; пустой ключ не совпадает ни с чем). Неверно → **HTTP 200 + JSON-RPC `-32504`**, тело запроса при этом не разбирается. Сумма берётся из `payment_orders` (несовпадение → `-31001`, ничего не пишется); транзакция идентифицируется `params.id` Payme, заказ — `account.order_id` = непредсказуемый `token`. Идемпотентность: `(provider, provider_transaction_id)` unique + `payments (provider, provider_event_id)` (`<id>:perform`, `<id>:cancel`) + блокировка строки заказа — повтор любого метода возвращает первый ответ, параллельная доставка сериализуется (`BillingConcurrencyTest`). Сбой инфраструктуры → HTTP 500 (`-32400`) без частичной записи.
+- Страница `GET /billing/return?order=<token>` показывает только статус заказа (без сумм, имён, подписки), `no-store`, `noindex`, 30/мин per IP: токен — capability плательщика, по нему нельзя ничего изменить.
+- Click (2A.5) — подпись `md5` `sign_string` + `service_id`, см. docs/13 §4.3.
 
 ## 3. TWA initData — HMAC валидация
 
@@ -148,6 +158,10 @@ Gate/Policy-правила на бэке:
 | `Lesson` в Filament | edit | Пользователь с ролью `admin` |
 | `AnalyticsDashboard` | view | `admin` или учитель (видит только свои группы) |
 | `User` CRUD в Filament | всё | `admin` |
+| Кабинет центра `/org` (2B.3) | всё | Отдельная панель, guard `org`, tenancy по `Organization` (slug): пользователь без строки `organization_users` в этой организации → **404** на любой URL tenant'а (`User::canAccessTenant`); модели ресурсов (`TelegramGroup`, `OrganizationMember`, `OrganizationInvite`, `OrganizationUser`) получают global scope `organization_id = tenant` на время запроса; политики `App\Policies\Org\*` подставляются `OrgPolicyResolver` **только** в этой панели (в `/admin` — прежние); чужая запись по прямому URL → 404, действие над ней → `ActionNotResolvableException` |
+| `/org`: роль `owner` | всё | Ученики (add/remove через `OrganizationMembershipService`), группы (link только после `getChatMember(chat, owner) ∈ {creator, administrator}`, unlink), инвайты, персонал (`OrganizationStaffService`: invite/role/groups/remove, последний owner неснимаем), настройки, Billing. **2FA обязательна** (`RequireOrgTwoFactor`: нет TOTP → redirect на setup; метка сессии должна принадлежать этому пользователю — `2fa.user_id`) |
+| `/org`: роль `teacher` | чтение | Только группы из `teacher_groups` и активные ученики этих групп (`OrgTenantScope`), Dashboard без мест/подписки, Assignments/Reports; Invites/Teachers/Billing → 403, Settings → 404. 2FA по желанию (включённая — проверяется) |
+| `/org`: Telegram-аккаунт персонала | self-service | `users.telegram_user_id` меняет только сам пользователь в `/org/profile`; владелец видит лишь «привязан / нет» (одна учётка может быть персоналом нескольких центров) |
 
 Реализация (`app/Policies/TrainingSessionPolicy.php`, `ExamSessionPolicy.php`; правило членства — `GroupMembershipService`):
 ```php
@@ -174,10 +188,13 @@ public function denial(Learner $learner, TrainingSession $s): ?string   // null 
 | `POST /api/twa/exam/*/answer` | 30/min per learner | |
 | `GET /api/twa/tts` | 30/min per learner | |
 | `POST /api/twa/promo/redeem` | 5/min per learner + 60/min per IP | Подбор промокодов; бот `/promo` — **отдельный** лимит 5/min на learner'а (`RateLimiter` `bot-promo:<learner_id>`), счётчики бота и TWA не складываются. По IP — мягко: мобильные операторы (CGNAT) сажают десятки учеников за один адрес, лимит ловит только перебор с многих аккаунтов. Каждая ошибка — событие `promo.rejected`; ≥ 5 отказов одного learner'а за 10 мин — `billing.promo_rejected_burst` (warning, docs/12 §8) |
+| `POST /api/twa/billing/checkout` | 10/min per learner + 120/min per IP (`throttle:twa-checkout`) | Каждый вызов — строка `payment_orders` и обращение к платёжному провайдеру; сверх этого — `too_many_pending` (3 неоплаченных заказа, 429). Бот: нажатия `/pro` — 10/min на learner'а (`RateLimiter` `bot-pro:<learner_id>`). Сумма заказа всегда серверная (docs/13 §4) |
 | Отказы `TwaAuth` (нет/битый/просроченный токен, learner не найден/заблокирован) | 60/min per IP (`TWA_UNAUTHORIZED_PER_MINUTE`) | `TwaAuth` стоит перед throttle, поэтому у отказов свой лимит; выше — 429 `rate_limited`. Успешные запросы не считаются и не блокируются |
 | Остальные `/api/twa/*` | 60/min per learner | ключ rate limiter'а — `learner_id` из JWT |
 | Filament login | 5/15min per IP + per email | Против brute-force |
-| Webhook | не ограничиваем (но валидация по secret обязательна) | |
+| Webhook Telegram | не ограничиваем (но валидация по secret обязательна) | |
+| `POST /billing/webhook/*` (Payme, Click) | 120/min per IP (`throttle:billing-webhook`) + allowlist IP по желанию | Провайдер повторяет вызов при не-200; тело ≤ 64 КБ |
+| `GET /billing/return` | 30/min per IP (`throttle:billing-return`) | Публичная страница статуса заказа по токену |
 
 Реализация через `Route::middleware('throttle:...')`. `TwaAuth` стоит в списке приоритетов middleware **перед** `ThrottleRequests` (`bootstrap/app.php`), иначе лимитеры не видели бы `learner_id` и считали всех по IP.
 
@@ -197,6 +214,7 @@ public function denial(Learner $learner, TrainingSession $s): ?string   // null 
 ## 8. Защита админки Filament
 
 - **2FA обязательна для роли admin.** Можно использовать `pxlrbt/filament-google-2fa` или кастомно через `pragmarx/google2fa-laravel`.
+- **Панель `/org` (кабинет центра):** тот же кастомный TOTP-поток (`/2fa/*`, маршруты под `auth:web,org`), обязателен для владельцев центров (`RequireOrgTwoFactor`), для учителей центра — опционально. Сессия у guard'ов общая, поэтому метка `2fa.passed_at` дополнена `2fa.user_id` — кабинет принимает только метку своего пользователя. Сброс пароля / приглашение персонала — broker `org` (токен 24 ч, одноразовый, хранится хэшем).
 - **IP allowlist** для `/admin` — опционально, если языковой центр работает из офиса. Middleware с list из env.
 - **Auditing:** `owen-it/laravel-auditing` на критичные модели (`User`, `TelegramGroup`, `Word`) + своя `audit_logs` для доменных событий.
 - **Session security:**
@@ -261,6 +279,8 @@ public function denial(Learner $learner, TrainingSession $s): ?string   // null 
   `/telegram/webhook/{secret}`, `Bearer …`, `secret=`/`token=`/`init_data=`. Применяется в трёх местах:
   (1) Monolog-процессор `RedactingLogProcessor` (tap `RedactSecretsInLogs` на каждом канале в `config/logging.php`) —
   `message`, `context`, `extra`, исключения в context заменяются замаскированным текстом без аргументов вызовов;
+  с 2A.4 — также литералы `PAYME_KEY` / `PAYME_TEST_KEY` / `CLICK_SECRET_KEY`, `Basic <base64>` (заголовок Payme) и ключ/пара `sign_string` (Click);
+  `provider_transactions.raw` хранится без заголовков (`{method, params}`), в админке `PayloadMasker` маскирует `order_id`, `*key*`, `sign*`;
   (2) границей Telegram-клиента: `IrazasyedTelegramClient` бросает `TelegramApiException` с замаскированным
   сообщением и без `previous` — поэтому токена нет и в `failed_jobs.exception`; (3) Sentry (`SentryScrubber`,
   включая `before_send_log`). Подробности — DEVOPS_GUIDE §15.1a. Новый канал логов обязан получить тот же `tap`.
@@ -281,6 +301,8 @@ public function denial(Learner $learner, TrainingSession $s): ?string   // null 
 - [ ] Webhook без `X-Telegram-Bot-Api-Secret-Token` — 403.
 - [ ] Webhook с правильным secret, но из левого IP (опция) — 403.
 - [ ] 2FA для админа работает, recovery codes работают, нельзя отключить без пароля.
+- [ ] Payme: вебхук без/с чужим Basic — HTTP 200 + `-32504`; `PerformTransaction` дважды и параллельно — один `payments`; `CreateTransaction` с другой суммой — `-31001`; просроченная транзакция — `-31008`, state −1 reason 4; IP вне `PAYME_IP_ALLOWLIST` (если задан) — 403; `grep -E "Basic |PAYME_" storage/logs/laravel.log` пуст.
+- [ ] Чужой `GET /billing/return?order=<случайный токен>` — нейтральная страница без данных заказа.
 
 ## 15. Инциденты (playbook)
 

@@ -53,6 +53,11 @@ beforeEach(function (): void {
 
         public function editMessageReplyMarkup(int|string $chatId, int $messageId, ?array $replyMarkup = null): void {}
 
+        public function getChatMemberStatus(int|string $chatId, int $userId): string
+        {
+            return 'administrator';
+        }
+
         public function setWebhook(string $url, string $secretHeader): bool
         {
             return true;
@@ -61,6 +66,22 @@ beforeEach(function (): void {
         public function deleteWebhook(): bool
         {
             return true;
+        }
+
+        public function createInvoiceLink(string $title, string $description, string $payload, string $currency, array $prices, ?int $subscriptionPeriod = null): string
+        {
+            return 'https://t.me/$test-invoice';
+        }
+
+        public function answerPreCheckoutQuery(string $preCheckoutQueryId, bool $ok, ?string $errorMessage = null): void {}
+
+        public function editUserStarSubscription(int $userId, string $telegramPaymentChargeId, bool $isCanceled): void {}
+
+        public function refundStarPayment(int $userId, string $telegramPaymentChargeId): void {}
+
+        public function getStarTransactions(int $offset = 0, int $limit = 100): array
+        {
+            return [];
         }
     };
 

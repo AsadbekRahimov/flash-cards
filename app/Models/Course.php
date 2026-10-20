@@ -16,6 +16,7 @@ use Illuminate\Support\Carbon;
  * @property string $slug
  * @property string $owner_type
  * @property int|null $owner_id
+ * @property string $source
  * @property array<string, string> $title
  * @property array<string, string> $description
  * @property string $target_language
@@ -39,6 +40,7 @@ class Course extends Model
         'slug',
         'owner_type',
         'owner_id',
+        'source',
         'title',
         'description',
         'target_language',
@@ -77,6 +79,20 @@ class Course extends Model
     public function scopeAvailable(Builder $query): void
     {
         $query->where('courses.status', 'published')->where('courses.visibility', '!=', 'private');
+    }
+
+    /**
+     * SQL half of the availability rule for ONE learner: the `available()` rule, plus the learner's
+     * own private decks (`owner_type = learner`). Twin of CourseCatalogService::isAvailable($course, $learner).
+     *
+     * @param  Builder<Course>  $query
+     */
+    public function scopeAvailableTo(Builder $query, int $learnerId): void
+    {
+        $query->where('courses.status', 'published')->where(function (Builder $q) use ($learnerId): void {
+            $q->where('courses.visibility', '!=', 'private')
+                ->orWhere(fn (Builder $own) => $own->where('courses.owner_type', 'learner')->where('courses.owner_id', $learnerId));
+        });
     }
 
     /** @return HasMany<Stage, $this> */

@@ -15,13 +15,20 @@ return [
             "Shaxsiy hisobot: /stats\n".
             "Bugungi takrorlashlar: /today\n".
             "Sozlamalar (til, maqsad, daraja, vaqt mintaqasi, eslatmalar): /settings\n".
-            'Pro uchun promokod: /promo KOD',
+            "Pro uchun promokod: /promo KOD\n".
+            "Pro'ni rasmiylashtirish va avtoyangilash: /pro\n".
+            "To'lov bo'yicha savollar: /paysupport",
         'group' => "LexiFlow Bot guruhda.\n\nO'qituvchi buyruqlari:\n".
             "/start_training — mashg'ulotni boshlash\n".
             "/start_exam — imtihonni boshlash\n".
             "/close_exam — imtihonni yopish\n".
             "/stats — bot bilan shaxsiy chatda hisobot\n".
             '/help — ushbu yordam',
+    ],
+
+    'group' => [
+        'bot_not_admin' => "⚠️ Botni guruh administratori qiling. Aks holda bot xabarlarni va a'zolarning chiqib ketishini ko'rmaydi, LexiFlow to'liq ishlamaydi. ".
+            "Guruh → Boshqarish → Administratorlar → Administrator qo'shish.",
     ],
 
     'stats' => [

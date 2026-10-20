@@ -18,6 +18,7 @@
 | 10 | [B2C Expansion](./10_B2C_EXPANSION.md) | Идеи расширения до B2C SaaS |
 | 11 | [System Analysis & SaaS Strategy](./11_SYSTEM_ANALYSIS_AND_SAAS_STRATEGY.md) | Аудит системы и стратегия B2C-first SaaS: learner-first модель, тарифы для студентов и центров, roadmap |
 | 12 | [Phase 1 Design](./12_PHASE1_DESIGN.md) | Проект Фазы 1: схема learners/курсов/подписок, миграция `students` → `learners`, домены и контракты сервисов, entitlement и Free-лимит, онбординг, безопасность, нарезка на задачи |
+| 13 | [Phase 2 Design](./13_PHASE2_DESIGN.md) | Проект Фазы 2: оплата (Telegram Stars, Payme, Click, `payment_orders`/`payments`, идемпотентность, порядок блокировок), тарифы и места центров, кабинет `/org`, задания и отчёты, рефералка/лиги/streak freeze, упражнения, FSRS, симулятор; нарезка 2A/2B/2C/2D/2R и вопросы владельцу |
 | —  | [Uzbek strings review](./I18N_UZ_REVIEW.md) | Все узбекские строки бота и TWA рядом с русскими — для проверки носителем |
 | —  | [Local Dev (Docker)](./LOCAL_DEV_DOCKER.md) | Локальный запуск через Docker для macOS / Windows, ngrok для Telegram, Claude Code в Docker |
 

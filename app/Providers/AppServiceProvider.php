@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Domain\Billing\Providers\Payme\PaymeAuth;
+use App\Domain\Billing\Providers\PaymeProvider;
+use App\Domain\Billing\Providers\TelegramStarsProvider;
+use App\Domain\Billing\Services\BillingProviderRegistry;
 use App\Domain\Billing\Services\NewWordQuota;
 use App\Domain\Learning\Contracts\NewCardBudgetResolver;
 use App\Domain\Learning\Support\LearningPolicy;
@@ -19,6 +23,7 @@ use App\Models\Organization;
 use App\Models\TelegramGroup;
 use App\Observers\OrganizationObserver;
 use App\Observers\TelegramGroupObserver;
+use App\Policies\Org\OrgPolicyResolver;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
@@ -53,6 +58,19 @@ class AppServiceProvider extends ServiceProvider
 
         // New-card budget for CardPicker: the plan's daily limit of new words (Free 20, Pro unlimited; docs/12 §5.3).
         $this->app->bind(NewCardBudgetResolver::class, NewWordQuota::class);
+
+        // Payment providers register themselves here as they land (2A.3 Stars, 2A.4 Payme,
+        // 2A.5 Click); whether one is sellable is `billing.providers.<key>.enabled` (docs/13 §2.2).
+        $this->app->singleton(BillingProviderRegistry::class, function (): BillingProviderRegistry {
+            $registry = new BillingProviderRegistry;
+            $registry->register($this->app->make(TelegramStarsProvider::class));
+            $registry->register($this->app->make(PaymeProvider::class));
+
+            return $registry;
+        });
+
+        // Keys are read per request (not a singleton): a rotated PAYME_KEY / PAYME_TEST_KEY applies at once in tests and after config:cache.
+        $this->app->bind(PaymeAuth::class, static fn (): PaymeAuth => PaymeAuth::fromConfig());
 
         $this->app->singleton(LearningPolicy::class, function (): LearningPolicy {
             /** @var array<string, mixed> $config */
@@ -93,6 +111,9 @@ class AppServiceProvider extends ServiceProvider
         // organization's status (docs/12 §5.2).
         TelegramGroup::observe(TelegramGroupObserver::class);
         Organization::observe(OrganizationObserver::class);
+
+        // `/org` cabinet: tenant-aware policies replace the platform ones while that panel is served (docs/13 §6.3).
+        OrgPolicyResolver::register();
 
         RateLimiter::for('login', function (Request $request): Limit {
             $email = (string) $request->input('email', '');
@@ -143,6 +164,23 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(30)->by('twa-exam-answer|'.$key);
         });
 
+        RateLimiter::for('twa-decks', function (Request $request): Limit {
+            /** @var array{learner_id:int}|null $ctx */
+            $ctx = $request->attributes->get('twa');
+            $key = $ctx['learner_id'] ?? $request->ip();
+
+            return Limit::perMinute(30)->by('twa-decks|'.$key);
+        });
+
+        RateLimiter::for('twa-deck-import', function (Request $request): Limit {
+            /** @var array{learner_id:int}|null $ctx */
+            $ctx = $request->attributes->get('twa');
+            $key = $ctx['learner_id'] ?? $request->ip();
+
+            // One import is up to 500 lines of inserts: a human pastes a few lists a minute.
+            return Limit::perMinute(10)->by('twa-deck-import|'.$key);
+        });
+
         RateLimiter::for('twa-promo', function (Request $request): array {
             /** @var array{learner_id:int}|null $ctx */
             $ctx = $request->attributes->get('twa');
@@ -154,6 +192,36 @@ class AppServiceProvider extends ServiceProvider
                 Limit::perMinute(5)->by('twa-promo|learner|'.($ctx['learner_id'] ?? $request->ip())),
                 Limit::perMinute(60)->by('twa-promo|ip|'.$request->ip()),
             ];
+        });
+
+        RateLimiter::for('twa-checkout', function (Request $request): array {
+            /** @var array{learner_id:int}|null $ctx */
+            $ctx = $request->attributes->get('twa');
+
+            // Every checkout is a row in payment_orders and a call to the payment provider:
+            // 10/min per learner; the IP cap is wide because carriers share addresses (docs/13 §5).
+            return [
+                Limit::perMinute(10)->by('twa-checkout|learner|'.($ctx['learner_id'] ?? $request->ip())),
+                Limit::perMinute(120)->by('twa-checkout|ip|'.$request->ip()),
+            ];
+        });
+
+        // Payment provider webhooks (docs/13 §4): 120/min per caller IP; the provider retries on 429 like on any non-200.
+        RateLimiter::for('billing-webhook', function (Request $request): Limit {
+            return Limit::perMinute(120)->by('billing-webhook|ip|'.$request->ip());
+        });
+
+        // The public return page after a Payme / Click checkout: read-only, by order token.
+        RateLimiter::for('billing-return', function (Request $request): Limit {
+            return Limit::perMinute(30)->by('billing-return|ip|'.$request->ip());
+        });
+
+        RateLimiter::for('twa-organizations', function (Request $request): Limit {
+            /** @var array{learner_id:int}|null $ctx */
+            $ctx = $request->attributes->get('twa');
+            $key = $ctx['learner_id'] ?? $request->ip();
+
+            return Limit::perMinute(10)->by('twa-organizations|'.$key);
         });
 
         RateLimiter::for('twa-tts', function (Request $request): Limit {

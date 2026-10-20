@@ -88,6 +88,9 @@ flowchart LR
   - `reminders:dispatch` — каждые 15 минут, `withoutOverlapping`: персональные напоминания по локальному времени learner'а (`ReminderDispatcher` клеймит `learners.next_reminder_at <= now` условным UPDATE и ставит `SendLearnerReminderJob`; текст — review / streak_at_risk — решает job; docs/06 §6, docs/12 §7.5). Параллельный или повторный запуск ничего не дублирует.
   - `training:close-expired` — каждые 15 минут, просроченные личные и устаревшие групповые сессии.
   - `subscriptions:expire` — раз в час, переходы подписок по времени.
+  - `billing:expire-orders` — каждые 15 минут, `withoutOverlapping`: `pending`-заказы оплаты с `expires_at <= now` → `expired` одним UPDATE без блокировок субъекта (docs/13 §4.4).
+  - `subscriptions:remind-expiring` — ежедневно 06:00 UTC, `withoutOverlapping`: события `SubscriptionRenewalDue` за 3 и 1 день до конца неавтопродляемого периода → `RenewalReminderJob` (ЛС learner'у; письмо + ЛС владельцам организации); повтор запуска безопасен (маркеры в `subscriptions.meta.renewal_reminders`).
+  - `billing:reconcile-stars` — ежедневно 04:30 UTC: `getStarTransactions` за 2 дня против `payments`, только чтение и алерты в лог (`billing.reconcile_missing*`); ничего не делает, пока Stars выключен (docs/13 §4.4).
   - `analytics:refresh-materialized-views` — ночью.
 
 ### 2.6 Telegram Bot SDK
@@ -334,6 +337,7 @@ SENTRY_LARAVEL_DSN=
 | ADR-6 | Web Speech API primary, edge-tts fallback | Нулевая стоимость на базовом сценарии |
 | ADR-7 | Упрощённый SM-2 | Хорошо изучен, достаточно для MVP |
 | ADR-8 | **Learner-first**: центральный объект — `learners` (один на Telegram-пользователя), `students` удалена; членство в группе — `group_members`; прогресс (`word_repetitions`), оценки, ответы экзаменов и напоминания привязаны к `learner_id`; JWT `sub = learner_id` (формат v2); доступ к групповым сессиям — по активному членству | Прогресс принадлежит человеку, а не паре (человек, группа): один человек в двух группах — один прогресс, одно напоминание, один аккаунт. Это основа B2C-режима (личные сессии, подписки, цели) без второго рефакторинга; подробности и отвергнутые варианты — docs/12 §0, §11 |
+| ADR-11 | **Кабинет центра — отдельная Filament-панель `/org` с tenancy** по `Organization` (slug в URL, роли `owner`/`teacher` в `organization_users`, свой session-guard `org`); изоляция в три рубежа: tenancy Filament (`canAccessTenant` → 404, global scope `organization_id = tenant` на моделях ресурсов), тенант-политики `App\Policies\Org` (подменяют платформенные только в этой панели через `OrgPolicyResolver`), запросы через `OrgTenantScope` (owner — весь центр, teacher — свои `teacher_groups`) | Платформенные ресурсы `/admin` не делят панель с клиентами — нет риска утечки через непокрытый scope; таблицы/формы/2FA бесплатно; подробности и отвергнутые варианты — docs/13 §6.3, §13 |
 
 ## 10. Открытые архитектурные вопросы
 

@@ -22,6 +22,7 @@ use App\Models\AuditLog;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
 use App\Models\Organization;
+use App\Models\OrganizationMember;
 use App\Models\ProductEvent;
 use App\Models\Subscription;
 use App\Models\TelegramGroup;
@@ -146,30 +147,30 @@ it('computes Pro subscription figures: own, sponsored, expiring; ended and suspe
     pa_pro($active, '+30 days');
     pa_pro($expiring, '+3 days');
     pa_pro($perpetual, 'never');
-    pa_pro($pastDue, '-1 day', ['status' => 'past_due', 'provider' => 'payme', 'grace_until' => now()->addDays(2)]);
+    pa_pro($pastDue, '-1 day', ['status' => 'past_due', 'provider' => 'telegram_stars', 'grace_until' => now()->addDays(2)]);
     pa_pro($lapsed, '-1 day'); // manual: ran out, the expire job has not run yet
-    pa_pro($canceled, '+30 days', ['status' => 'canceled']);
+    pa_pro($canceled, '+30 days', ['status' => 'canceled', 'provider' => 'telegram_stars']); // canceled = Pro until the period end (docs/13 §2.1)
+    pa_pro(Learner::factory()->create(), '-1 day', ['status' => 'canceled', 'provider' => 'telegram_stars']); // canceled and over: no grace
 
-    // Sponsored: org A active, 2 members (one of them also has a personal Pro), expires in 5 days.
+    // Sponsored (a seat, docs/13 §1.3): org A active, 2 seated members (one of them also has a personal Pro), expires in 5 days.
     $orgA = Organization::factory()->create();
-    $groupA = TelegramGroup::factory()->create(['organization_id' => $orgA->id, 'status' => 'active']);
-    Learner::factory()->memberOf($groupA)->count(2)->create();
-    $active->groups()->attach($groupA->id, ['status' => 'active', 'joined_at' => now()]);
+    Learner::factory()->seatedIn($orgA)->count(2)->create();
+    OrganizationMember::factory()->create(['organization_id' => $orgA->id, 'learner_id' => $active->id]);
     pa_pro($orgA, '+5 days');
     // Org B is suspended: its members stay Free and it is not counted as sponsoring.
     $orgB = Organization::factory()->suspended()->create();
-    $groupB = TelegramGroup::factory()->create(['organization_id' => $orgB->id, 'status' => 'active']);
-    Learner::factory()->memberOf($groupB)->create();
+    Learner::factory()->seatedIn($orgB)->create();
     pa_pro($orgB, '+2 days');
-    // A member who left does not get sponsored Pro.
-    Learner::factory()->memberOf($groupA, 'left')->create();
+    // A member who left, or who waits for a seat, does not get sponsored Pro.
+    OrganizationMember::factory()->left()->create(['organization_id' => $orgA->id]);
+    Learner::factory()->seatedIn($orgA, 'waitlisted')->create();
 
     $stats = app(PlatformStatsService::class)->subscriptions();
 
     expect($stats)->toBe([
-        // active, expiring, perpetual, pastDue + 2 sponsored members (the third is `active`, counted once)
-        'pro_learners' => 6,
-        'personal' => 4,
+        // active, expiring, perpetual, pastDue, canceled + 2 sponsored members (the third is `active`, counted once)
+        'pro_learners' => 7,
+        'personal' => 5,
         'organizations' => 1,
         'expiring' => 3, // $expiring (3 days), $pastDue (grace ends in 2 days) and org A (5 days)
     ]);
@@ -177,16 +178,18 @@ it('computes Pro subscription figures: own, sponsored, expiring; ended and suspe
     $this->actingAs(pa_user('admin'));
     Livewire::test(PlatformSubscriptionsWidget::class)
         ->assertSee('Pro learners')
-        ->assertSee('6')
-        ->assertSee('4 own, 1 sponsoring organizations');
+        ->assertSee('7')
+        ->assertSee('5 own, 1 sponsoring organizations');
 });
 
-it('adds the grace period of an auto-renewing provider before a subscription stops granting', function (): void {
+it('adds the grace period of the auto-renewing provider (Stars) before a subscription stops granting; pay-per-period and grants get none', function (): void {
     $graceful = Learner::factory()->create();
     $strict = Learner::factory()->create();
-    // payme: the period ended a day ago, inside the 3 grace days (status still `active`: the job is late).
-    pa_pro($graceful, '-1 day', ['provider' => 'payme']);
+    $period = Learner::factory()->create();
+    // Stars: the period ended a day ago, inside the 3 grace days (status still `active`: the job is late).
+    pa_pro($graceful, '-1 day', ['provider' => 'telegram_stars']);
     pa_pro($strict, '-1 day', ['provider' => 'promo']);
+    pa_pro($period, '-1 day', ['provider' => 'payme']); // docs/13 §0: no renewal, no grace
 
     expect(app(PlatformStatsService::class)->subscriptions()['personal'])->toBe(1);
 });
@@ -233,18 +236,16 @@ it('caches the aggregates briefly and recomputes after flush', function (): void
     expect($service->onboardingFunnel()['started'])->toBe(2);
 });
 
-it('lists members and seats per organization from active memberships of active groups', function (): void {
+it('lists seated and waiting members per organization from organization_members (docs/13 §1.3)', function (): void {
     $center = Organization::factory()->create(['name' => 'Alpha Center']);
-    $active = TelegramGroup::factory()->create(['organization_id' => $center->id, 'status' => 'active']);
-    $second = TelegramGroup::factory()->create(['organization_id' => $center->id, 'status' => 'active']);
-    $disabled = TelegramGroup::factory()->create(['organization_id' => $center->id, 'status' => 'disabled']);
+    TelegramGroup::factory()->create(['organization_id' => $center->id, 'status' => 'active']);
+    TelegramGroup::factory()->create(['organization_id' => $center->id, 'status' => 'active']);
+    TelegramGroup::factory()->create(['organization_id' => $center->id, 'status' => 'disabled']);
 
-    $both = Learner::factory()->memberOf($active)->create();
-    $both->groups()->attach($second->id, ['status' => 'active', 'joined_at' => now()]);
-    Learner::factory()->memberOf($second)->create();
-    Learner::factory()->memberOf($active, 'left')->create();
-    Learner::factory()->memberOf($disabled)->create();
-    Learner::factory()->memberOf($active)->create(['deleted_at' => now()]);
+    Learner::factory()->seatedIn($center)->count(2)->create();
+    Learner::factory()->seatedIn($center, 'waitlisted')->count(3)->create();
+    OrganizationMember::factory()->left()->create(['organization_id' => $center->id]);         // not a member any more
+    Learner::factory()->seatedIn($center)->create(['deleted_at' => now()]);                   // soft-deleted learner: not counted
     pa_pro($center, 'never', ['seats_limit' => 50]);
 
     $empty = Organization::factory()->create(['name' => 'Beta Center']);
@@ -254,9 +255,11 @@ it('lists members and seats per organization from active memberships of active g
     Livewire::test(OrganizationSeatsTableWidget::class)
         ->assertCanSeeTableRecords([$center, $empty], inOrder: true)
         ->assertTableColumnStateSet('members_count', 2, $center)
+        ->assertTableColumnStateSet('waitlisted_count', 3, $center)
         ->assertTableColumnStateSet('active_groups_count', 2, $center)
         ->assertTableColumnStateSet('seats_limit', 50, $center)
         ->assertTableColumnStateSet('members_count', 0, $empty)
+        ->assertTableColumnStateSet('waitlisted_count', 0, $empty)
         ->assertTableColumnStateSet('seats_limit', null, $empty);
 });
 
@@ -307,20 +310,17 @@ it('filters learners Free / Pro by effective plan, personal and sponsored', func
     $free = Learner::factory()->create();
     $personal = Learner::factory()->create();
     $ended = Learner::factory()->create();
-    $sponsored = Learner::factory()->create();
-    $orphanedSponsor = Learner::factory()->create(); // member of a suspended organization
-    $leftSponsor = Learner::factory()->create();     // left the sponsored group
+    $org = Organization::factory()->create();
+    $sponsored = Learner::factory()->seatedIn($org)->create();
+    $leftSponsor = Learner::factory()->create();                                  // left the organization
+    OrganizationMember::factory()->left()->create(['organization_id' => $org->id, 'learner_id' => $leftSponsor->id]);
+    $waiting = Learner::factory()->seatedIn($org, 'waitlisted')->create();       // member without a seat
+    $suspended = Organization::factory()->suspended()->create();
+    $orphanedSponsor = Learner::factory()->seatedIn($suspended)->create();       // seated in a suspended organization
 
     pa_pro($personal);
     pa_pro($ended, '-1 day');
-    $org = Organization::factory()->create();
-    $group = TelegramGroup::factory()->create(['organization_id' => $org->id, 'status' => 'active']);
-    $sponsored->groups()->attach($group->id, ['status' => 'active', 'joined_at' => now()]);
-    $leftSponsor->groups()->attach($group->id, ['status' => 'left', 'joined_at' => now(), 'left_at' => now()]);
     pa_pro($org);
-    $suspended = Organization::factory()->suspended()->create();
-    $suspendedGroup = TelegramGroup::factory()->create(['organization_id' => $suspended->id, 'status' => 'active']);
-    $orphanedSponsor->groups()->attach($suspendedGroup->id, ['status' => 'active', 'joined_at' => now()]);
     pa_pro($suspended);
 
     $this->actingAs(pa_user('admin'));
@@ -328,9 +328,9 @@ it('filters learners Free / Pro by effective plan, personal and sponsored', func
     Livewire::test(ListLearners::class)
         ->filterTable('plan', 'pro')
         ->assertCanSeeTableRecords([$personal, $sponsored])
-        ->assertCanNotSeeTableRecords([$free, $ended, $orphanedSponsor, $leftSponsor])
+        ->assertCanNotSeeTableRecords([$free, $ended, $orphanedSponsor, $leftSponsor, $waiting])
         ->filterTable('plan', 'free')
-        ->assertCanSeeTableRecords([$free, $ended, $orphanedSponsor, $leftSponsor])
+        ->assertCanSeeTableRecords([$free, $ended, $orphanedSponsor, $leftSponsor, $waiting])
         ->assertCanNotSeeTableRecords([$personal, $sponsored])
         ->resetTableFilters()
         ->assertCanSeeTableRecords([$free, $personal, $sponsored]);
@@ -375,12 +375,10 @@ it('shows the plan column from one query, without a lookup per row', function ()
 
 it('labels the plan of a learner: Pro, Pro (sponsored) or Free', function (): void {
     $personal = Learner::factory()->create();
-    $sponsored = Learner::factory()->create();
+    $org = Organization::factory()->create();
+    $sponsored = Learner::factory()->seatedIn($org)->create();
     $free = Learner::factory()->create();
     pa_pro($personal);
-    $org = Organization::factory()->create();
-    $group = TelegramGroup::factory()->create(['organization_id' => $org->id, 'status' => 'active']);
-    $sponsored->groups()->attach($group->id, ['status' => 'active', 'joined_at' => now()]);
     pa_pro($org);
 
     $this->actingAs(pa_user('admin'));
@@ -516,12 +514,10 @@ it('links from the learner page to the Subscriptions screen filtered by that lea
 
 it('captions the plan the same way in the list column and on the learner page', function (): void {
     $personal = Learner::factory()->create();
-    $sponsored = Learner::factory()->create();
+    $org = Organization::factory()->create();
+    $sponsored = Learner::factory()->seatedIn($org)->create();
     $free = Learner::factory()->create();
     pa_pro($personal, 'never');
-    $org = Organization::factory()->create();
-    $group = TelegramGroup::factory()->create(['organization_id' => $org->id, 'status' => 'active']);
-    $sponsored->groups()->attach($group->id, ['status' => 'active', 'joined_at' => now()]);
     pa_pro($org, 'never');
 
     $this->actingAs(pa_user('admin'));

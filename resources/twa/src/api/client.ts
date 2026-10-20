@@ -1,4 +1,5 @@
 import { ofetch, type FetchError } from 'ofetch'
+import { getLocale } from '@/i18n'
 
 /**
  * Categorizes failures from the TWA API so views can render different
@@ -45,7 +46,7 @@ export function createApiClient(opts: ClientOptions) {
   async function request<T>(
     path: string,
     init: {
-      method?: 'GET' | 'POST' | 'PATCH'
+      method?: 'GET' | 'POST' | 'PATCH' | 'DELETE'
       body?: Record<string, unknown>
       query?: Record<string, unknown>
       withAuth?: boolean
@@ -53,7 +54,9 @@ export function createApiClient(opts: ClientOptions) {
     } = {},
   ): Promise<T> {
     const withAuth = init.withAuth ?? true
-    const headers: Record<string, string> = { Accept: 'application/json' }
+    // The server picks the language of validation/error texts: by the learner when authenticated,
+    // by this header on /auth.
+    const headers: Record<string, string> = { Accept: 'application/json', 'Accept-Language': getLocale() }
     if (withAuth) {
       const token = opts.getToken()
       if (token) headers.Authorization = `Bearer ${token}`
@@ -86,6 +89,7 @@ export function createApiClient(opts: ClientOptions) {
       request<T>(path, { method: 'POST', body }),
     patch: <T>(path: string, body?: Record<string, unknown>) =>
       request<T>(path, { method: 'PATCH', body }),
+    delete: <T>(path: string) => request<T>(path, { method: 'DELETE' }),
     /** Unauthenticated POST — used only for /auth. */
     postPublic: <T>(path: string, body: Record<string, unknown>) =>
       request<T>(path, { method: 'POST', body, withAuth: false }),

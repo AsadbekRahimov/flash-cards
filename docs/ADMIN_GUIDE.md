@@ -240,12 +240,14 @@ captioned *Free* / *Pro* / *Pro (sponsored)* as in the list, then the organizati
 
 ---
 
-## Billing: subscriptions, promo codes, organizations
+## Billing: subscriptions, payments, promo codes, organizations
 
-Navigate to **Billing → Subscriptions / Promo codes / Organizations**. These screens are for **admins only**
-(teachers do not see them). Free learners get 20 new words a day; **Pro** removes the limit. Pro comes from a
-subscription of the learner, or from the subscription of an **organization** whose group the learner is an active
-member of (sponsored Pro). There is no online payment yet.
+Navigate to **Billing → Subscriptions / Promo codes / Organizations / Payments / Payment orders / Provider
+transactions**. These screens are for **admins only** (teachers do not see them; an inactive admin does not either).
+Free learners get 20 new words a day; **Pro** removes the limit. Pro comes from a subscription of the learner, or from
+the subscription of an **organization** whose group the learner is an active member of (sponsored Pro). Online payment
+(Telegram Stars, Payme, Click) is switched on per provider by DevOps (see DEVOPS_GUIDE §17); until a provider is enabled
+the payment screens stay empty and Pro is granted by hand or with promo codes.
 
 ### Subscriptions
 The table shows every subscription: subject (learner or organization), plan, status, provider (`manual` — granted
@@ -256,9 +258,58 @@ Filters: status, provider, plan, subject, and *Live status* (live = trialing / a
   or an *Organization* — and either switch on **No end date** or set **Pro until**. The **Reason** is required and
   is stored in the audit log (`subscription.granted`). If the subject already has a live subscription it is
   extended / replaced in place (no second subscription is created).
+  For an *Organization* you can also pick the **Tier** (Tutor 30 seats, Center S 100, Center M 300, Center L
+  unlimited — the table is `billing.org_tiers`): it sets the subscription's tier and **seats limit** and is written to
+  the audit log. This is how the Center L tier (not sold online) and a paid-by-invoice center are activated. Leave it
+  empty to grant without a seat limit (the previous behaviour). A tier on a Learner grant is ignored. The table also
+  has *Tier* and *Seats* columns.
 - **Revoke** (row button, live subscriptions only): ends the subscription now; **Reason** required, audit
   `subscription.revoked`. The learner loses Pro within seconds (the cached plan is dropped at once).
 - A subscription that ran out of time is closed automatically by the hourly job `subscriptions:expire`.
+
+### Payments, payment orders, provider transactions
+Three read-only screens (nothing can be created, edited or deleted there):
+
+- **Payments** — the ledger: one row per provider event. *Kind*: `charge` (first payment), `renewal` (Stars
+  auto-renewal), `refund` (the mirror row of a returned charge). *Status*: `succeeded`, `refunded` (the charge was
+  returned), `failed` (money arrived that could not be credited — amount / currency mismatch, dead order, orphan
+  renewal; **the learner got no Pro, support has to look at it**). Amounts are shown in whole sums (UZS) or Stars
+  (XTR). Filters: status, kind, provider, currency, subject. Search by provider charge / event id. Open a row for the
+  details, the links to its order / provider transaction and the (masked) raw provider payload.
+- **Payment orders** — the intent to buy and the only source of the amount: subject, tier (organizations), period,
+  provider, amount after discount and list price, status (`pending` → `paid` / `canceled` / `expired` / `failed`),
+  expiry, who created it (`twa`, `bot`, `org_panel`, `admin`). Pending orders expire by themselves after
+  `BILLING_ORDER_TTL_MINUTES` (job `billing:expire-orders`).
+- **Provider transactions** — Payme / Click transaction state (created → performed / canceled, cancel reason) and the
+  journal of webhook calls (`history`).
+
+**Secrets are never shown.** The raw payloads, the order meta and the webhook journal are masked on screen: values
+under keys that look like secrets (keys, signatures, tokens, `Authorization`, the order token carried as
+`invoice_payload` / `order_id` / `merchant_trans_id`) appear as `[redacted]`, bot tokens inside text too; the order
+token is shown shortened (`AbCd…wXyZ`) and the payment link of an order is not shown at all. If you need a value that
+is masked, look at the provider's cabinet.
+
+#### Refund
+Open **Payments** and use **Refund** on a `succeeded` charge or renewal (row button or the button on the payment page).
+Only an admin can; the **Reason** is required and is written to the audit log (`payment.refunded`, with the reason,
+the payment, the amount, whether the subscription was ended, your IP).
+
+1. **Telegram Stars** — the money is returned through the Bot API (`refundStarPayment`) when the Stars adapter is
+   deployed (task 2A.3); then the refund is recorded.
+2. **Payme / Click** (and Stars while the adapter is not deployed) cannot be refunded from the panel. First return the
+   money in the provider's cabinet. Then press **Refund** again, switch on **"The money was already returned by hand in
+   the provider's cabinet"** and give the reason: only the local record is made. Without the switch the panel refuses
+   ("Return it in the provider's cabinet…") and changes nothing. Do not switch it on if the money has not really been
+   returned.
+3. Recording the refund marks the charge `refunded`, adds a `refund` row, and **ends the subscription now** if this
+   payment paid for the period that is running (the learner is back on Free within seconds). A refund of an older,
+   already used period only marks the ledger.
+4. A refund can be recorded **once**: the button disappears from a refunded charge, and a second click or a second
+   admin gets "already refunded" with no second provider call.
+
+If the provider returned the money but the panel then reported an error, do not repeat the refund blindly: check the
+**Payments** list; if the charge is still `succeeded`, repeat with the "returned by hand" switch (the money is already
+back) and tell DevOps (log `billing.admin_refund_unrecorded`).
 
 ### Promo codes
 **Billing → Promo codes → New**. The code is suggested automatically (10 characters); you may type your own —
@@ -280,7 +331,7 @@ the limits / validity / *Active* / note too (`promo.updated`, with the old and n
    (`organization.linked_group` / `organization.unlinked_group`).
    Make the bot an **administrator** of the group: then Telegram reports every leave / removal; without admin rights
    only the service message "left the group" arrives, which can be missed (a member who left may keep sponsored Pro).
-3. **Billing → Subscriptions → Grant Pro** with the *Organization* subject.
+3. **Billing → Subscriptions → Grant Pro** with the *Organization* subject (pick the **Tier** to set its seat limit).
 
 Every **active member of an active linked group** now has Pro (source "sponsor" in `/me`); after unlinking, leaving the
 group, suspending the organization or the end of the subscription they are back on Free (their progress stays).
@@ -303,11 +354,14 @@ Changes apply within seconds.
 | Pro subscriptions | **admin only** | *Pro learners* — learners whose effective plan is Pro right now (own or sponsored, each counted once), with the split "own subscriptions / sponsoring organizations"; *Pro ending in 7 days* — own and organization subscriptions whose paid access ends within a week (for an auto-renewing provider: the end of the grace period) |
 | Onboarding funnel — 7 days | **admin only** | Learners who started onboarding in the last 7 days (`onboarding.started`), how many of them have completed it (`onboarding.completed`) and the conversion %. Distinct learners; a learner who started earlier and finished this week is not in the cohort |
 | Organizations — members / seats | **admin only** | Per organization: active groups, **members** (distinct learners with an active membership in an active group of the organization; deleted learners are not counted), **seats** (`seats_limit` of the organization's live subscription; empty when none was set) and whether it is sponsoring Pro |
+| Revenue, last 30 days | **admin only** | One figure per currency, **UZS and XTR are never added together**. *Revenue* = the charges and renewals of the last 30 days (by payment time) that are still `succeeded`, i.e. gross minus the `refunded` ones; the line below shows the number of payments, the gross and the refunded amount. Failed events and the `refund` bookkeeping rows are not counted; a charge older than 30 days that is refunded today does not change this figure |
+| Payment webhook errors, last 24 h | **admin only** | *Failed payments* — ledger rows recorded as `failed` in the last 24 hours (by provider); *Canceled provider transactions* — Payme / Click transactions canceled in that time (a customer closing the page also cancels, so only a spike matters). Any failed payment deserves a look: open **Payments → Status: failed** |
 
-The three *admin only* widgets show platform-wide data: a teacher never sees them (they are not on the dashboard and
-cannot be opened directly; an inactive admin gets the same). In Phase 1 the seat limit is informational — it is not
-enforced and the Grant Pro form does not set it, so the column is normally empty; members are derived from group
-membership (there is no separate organization member list yet).
+The *admin only* widgets show platform-wide data: a teacher never sees them (they are not on the dashboard and
+cannot be opened directly; an inactive admin gets the same). The seat limit is informational in
+this part of the panel (enforcement belongs to the organization-membership work, 2B): it is filled when the
+subscription has a tier — chosen in Grant Pro or bought online — and empty otherwise; members are derived from group
+membership.
 
 The Pro and funnel figures are cached for 2 minutes, so a new subscription or event may take up to that long to show
 up. The funnel reads `product_events` through the `(name, occurred_at)` index; events older than the retention period
@@ -397,6 +451,13 @@ Check: (1) group status is `active`, (2) teacher is linked to the group, (3) tea
 **"Stage not found" error when starting training.**
 The requested stage/lesson hasn't been imported yet — or it exists in a different course. The teacher commands look
 for the stage number in the **course of the group** (group record → Course; empty = the `default` course).
+
+**A learner says they paid but have no Pro.**
+Open **Billing → Payments** and search by the charge id (from the receipt / Telegram) or filter by the learner's subject.
+`succeeded` + an active subscription (**Subscriptions**) means access is there (ask the learner to reopen the app; the
+plan cache is dropped on payment). A `failed` row means the money arrived but could not be credited (see the raw payload
+and **Payment orders** for the reason: expired order, amount mismatch): fix it by granting Pro (**Grant Pro**) or refund
+the payment, and tell DevOps if it looks systematic. No row at all: the provider's webhook did not reach us (DEVOPS_GUIDE §17).
 
 **Admin panel shows a blank page after login.**
 Run `php artisan optimize:clear` (or `make cache-clear`) to clear cached views.

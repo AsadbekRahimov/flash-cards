@@ -16,6 +16,7 @@
 | `bot.start.greeting` | Salom, :name! Siz LexiFlow o'qituvchisi sifatida tizimga kirdingiz. Guruhdagi buyruqlar: /help | Привет, :name! Вы авторизованы как учитель LexiFlow. Команды в группе: /help |
 | `bot.help.private` | LexiFlow — ingliz tilini o'rganish yordamchisi.<br><br>O'qituvchilar uchun: botni guruhga qo'shing, administrator uni faollashtiradi.<br>Guruhdagi mavjud buyruqlar: /start_training, /start_exam, /close_exam, /help<br>Shaxsiy hisobot: /stats | LexiFlow — помощник для изучения английского.<br><br>Для учителей: добавьте бота в группу, админ активирует её.<br>Доступные команды в группе: /start_training, /start_exam, /close_exam, /help<br>Личный отчёт: /stats |
 | `bot.help.group` | LexiFlow Bot guruhda.<br><br>O'qituvchi buyruqlari:<br>/start_training — mashg'ulotni boshlash<br>/start_exam — imtihonni boshlash<br>/close_exam — imtihonni yopish<br>/stats — bot bilan shaxsiy chatda hisobot<br>/help — ushbu yordam | LexiFlow Bot в группе.<br><br>Команды учителя:<br>/start_training — запустить тренировку<br>/start_exam — запустить экзамен<br>/close_exam — закрыть экзамен<br>/stats — личный отчёт в чате с ботом<br>/help — эта справка |
+| `bot.group.bot_not_admin` | ⚠️ Botni guruh administratori qiling. Aks holda bot xabarlarni va a'zolarning chiqib ketishini ko'rmaydi, LexiFlow to'liq ishlamaydi. Guruh → Boshqarish → Administratorlar → Administrator qo'shish. | ⚠️ Сделайте бота администратором группы. Без этого он не видит сообщения и выход участников, и LexiFlow работает не полностью. Группа → Управление → Администраторы → Добавить администратора. |
 | `bot.stats.not_linked` | Bu Telegram akkaunt LexiFlow o'qituvchisiga biriktirilmagan.<br>Sizning Telegram ID'ngiz: :id | Этот Telegram-аккаунт не привязан к учителю LexiFlow.<br>Ваш Telegram ID: :id |
 | `errors.teacher_not_linked` | Sizning Telegram akkauntingiz o'qituvchiga biriktirilmagan. | Ваш Telegram-аккаунт не привязан к учителю. |
 | `errors.teacher_not_linked_ask_admin` | Sizning Telegram akkauntingiz o'qituvchiga biriktirilmagan. Administratordan sizni qo'shishini so'rang. | Ваш Telegram-аккаунт не привязан к учителю. Попросите админа добавить вас. |
@@ -623,5 +624,470 @@
 | `validation.attributes.word_id` | so'z | слово |
 | `validation.attributes.quality` | baho | оценка |
 | `validation.attributes.time_spent_ms` | sarflangan vaqt | затраченное время |
+| `validation.attributes.title` | nomi | название |
+| `validation.attributes.text` | matn | текст |
+| `validation.attributes.format` | format | формат |
 
 Проверить в первую очередь: «maydoni» как «поле»; «:attribute ... bo'lishi kerak» (должно быть); «to'ldirilishi shart» (обязательно для заполнения); «kamida / oshmasligi kerak» (не меньше / не больше); названия полей API в `validation.attributes.*` (interfeys tili, vaqt mintaqasi, eslatma vaqti, kunlik maqsad, o'qish maqsadi, daraja, kod, rejim, so'z, baho, sarflangan vaqt).
+
+## Фаза 2 · задача 2D.1 (свои колоды) — на проверку носителю
+
+> Экраны «Мои колоды» / редактор колоды в TWA. Термин: колода = «to'plam» (по смыслу «набор слов»); если у носителя есть
+> более привычное слово для набора карточек — заменить во всех строках `decks.*`. Проверить порядок слов в `decks.report`
+> и `decks.rejected` («{line}-qator»), а также тексты отказов по лимитам тарифа (`error.code.deck_*`, `paywall.lead_decks`).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `decks.title` | Mening to'plamlarim | Мои колоды |
+| `decks.open` | Mening to'plamlarim | Мои колоды |
+| `decks.intro` | O'z to'plamingizni yarating va so'zlarni ro'yxat yoki CSV orqali qo'shing. To'plamni faqat siz ko'rasiz. | Создайте свою колоду и добавьте слова списком или из CSV. Колоду видите только вы. |
+| `decks.empty` | Sizda hali to'plamlar yo'q. | У вас пока нет колод. |
+| `decks.limit` | To'plamlar: {max} tadan {used} tasi. Bitta to'plamda {words} tagacha so'z. | Колод: {used} из {max}. В одной колоде — до {words} слов. |
+| `decks.new.placeholder` | To'plam nomi | Название колоды |
+| `decks.new.submit` | To'plam yaratish | Создать колоду |
+| `decks.edit.back` | To'plamlarga | К колодам |
+| `decks.edit.rename` | Nomi | Название |
+| `decks.edit.save` | Saqlash | Сохранить |
+| `decks.edit.words` | So'zlar | Слова |
+| `decks.edit.no_words` | To'plamda hali so'zlar yo'q. | В колоде пока нет слов. |
+| `decks.edit.remove_word` | Olib tashlash | Убрать |
+| `decks.edit.import` | So'zlar qo'shish | Добавить слова |
+| `decks.edit.format.list` | Ro'yxat | Списком |
+| `decks.edit.format.csv` | CSV | CSV |
+| `decks.edit.hint.list` | Har qatorda bitta so'z: so'z — tarjima (yoki so'z;tarjima). | По слову в строке: слово — перевод (или слово;перевод). |
+| `decks.edit.hint.csv` | Ustunlar: word,translation_ru,translation_uz,example. | Колонки: word,translation_ru,translation_uz,example. |
+| `decks.edit.text.placeholder` | apple — olma | apple — яблоко |
+| `decks.edit.add` | Qo'shish | Добавить |
+| `decks.edit.delete` | To'plamni o'chirish | Удалить колоду |
+| `decks.edit.delete.confirm` | {title} to'plami o'chirilsinmi? So'zlar arxivga o'tadi, natijangiz saqlanadi. | Удалить колоду «{title}»? Слова уйдут в архив, ваш прогресс сохранится. |
+| `decks.edit.delete.yes` | Ha, o'chirish | Да, удалить |
+| `decks.edit.delete.no` | Bekor qilish | Отмена |
+| `decks.report` | Qo'shildi: {added} · qaytdi: {reactivated} · allaqachon bor: {duplicates} · o'tkazib yuborilgan qatorlar: {rejected} | Добавлено: {added} · вернулось: {reactivated} · уже были: {duplicates} · пропущено строк: {rejected} |
+| `decks.rejected` | {line}-qator: {reason} | Строка {line}: {reason} |
+| `decks.reason.empty_translation` | tarjima yo'q | нет перевода |
+| `decks.reason.junk` | so'zga o'xshamaydi | не похоже на слово |
+| `decks.reason.too_long` | juda uzun | слишком длинно |
+| `decks.reason.duplicate` | takror | повтор |
+| `decks.reason.over_limit` | qatorlar limitidan ortiq | сверх лимита строк |
+| `decks.error.too_large` | Matn juda katta: 256 KB dan oshmasligi kerak. | Текст слишком большой: не больше 256 КБ. |
+| `paywall.lead_decks` | Free tarifida to'plamlar limiti: 50 tagacha so'zli 1 ta to'plam. Pro'da 2000 tadan so'zli 20 tagacha to'plam. | Лимит колод тарифа Free: 1 колода до 50 слов. В Pro — до 20 колод по 2000 слов. |
+| `error.closed.decks` | To'plam endi mavjud emas. | Колода больше недоступна. |
+| `error.forbidden.decks` | Sizda to'plamlarga kirish huquqi yo'q. | У вас нет доступа к колодам. |
+| `error.code.deck_not_found` | To'plam topilmadi. | Колода не найдена. |
+| `error.code.deck_word_not_found` | To'plamda bunday so'z yo'q. | Такого слова в колоде нет. |
+| `error.code.deck_limit_reached` | Tarifingizdagi to'plamlar limitiga yetdingiz. | Достигнут лимит колод вашего тарифа. |
+| `error.code.deck_words_limit_reached` | Tarifingizdagi to'plamdagi so'zlar limitiga yetdingiz. Hech narsa qo'shilmadi. | Достигнут лимит слов в колоде вашего тарифа. Ничего не добавлено. |
+| `error.code.deck_import_empty` | Matnda mos keladigan birorta qator topilmadi. | В тексте не нашлось ни одной подходящей строки. |
+| `error.code.deck_title_invalid` | To'plam nomida harflar bo'lishi kerak. | Название колоды должно содержать буквы. |
+
+## Фаза 2 · задача 2A.3 (оплата Telegram Stars: инвойс, отказ при оплате, подтверждение, возврат) — на проверку носителю
+
+> Проверить: «hisob» (счёт/инвойс), «obuna» (подписка), «avtoyangilash», «qaytarish» (возврат); Telegram ограничивает `invoice.title`/`invoice.label` 32 символами, `invoice.description_*` — 255; `:period` подставляется как «1 oy» / «1 yil», `:date` — «дд.мм.гггг», `:amount` — «150 ⭐».
+
+### Бот (`lang/uz/billing.php`, ключи `billing.stars.*`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `billing.stars.invoice.title` | LexiFlow Pro — :period | LexiFlow Pro — :period |
+| `billing.stars.invoice.label` | LexiFlow Pro, :period | LexiFlow Pro, :period |
+| `billing.stars.invoice.description_month` | LexiFlow Pro obunasi: yangi so'zlar cheklovsiz, batafsil statistika. Har 30 kunda avtomatik yangilanadi; /pro buyrug'i orqali o'chirish mumkin. | Подписка LexiFlow Pro: новые слова без лимита, подробная статистика. Продлевается автоматически каждые 30 дней; отключить можно командой /pro. |
+| `billing.stars.invoice.description_year` | LexiFlow Pro 1 yilga (365 kun): yangi so'zlar cheklovsiz, batafsil statistika. Bir martalik to'lov, avtoyangilashsiz. | LexiFlow Pro на 1 год (365 дней): новые слова без лимита, подробная статистика. Разовая оплата без автопродления. |
+| `billing.stars.precheckout.order_not_found` | Hisob topilmadi. /pro ni oching va yangisini yarating. | Счёт не найден. Откройте /pro и создайте новый. |
+| `billing.stars.precheckout.foreign` | Bu hisob boshqa foydalanuvchiga yozilgan. /pro ni oching va o'zingiznikini yarating. | Этот счёт выставлен другому пользователю. Откройте /pro и создайте свой. |
+| `billing.stars.precheckout.blocked` | Akkauntga kirish cheklangan. Qo'llab-quvvatlash xizmatiga murojaat qiling: /paysupport. | Доступ к аккаунту ограничен. Обратитесь в поддержку: /paysupport. |
+| `billing.stars.precheckout.order_closed` | Bu hisob allaqachon to'langan yoki yopilgan. /pro ni oching. | Этот счёт уже оплачен или закрыт. Откройте /pro. |
+| `billing.stars.precheckout.order_expired` | Hisob muddati tugagan. /pro ni oching va yangisini yarating. | Срок счёта истёк. Откройте /pro и создайте новый. |
+| `billing.stars.precheckout.amount_mismatch` | Hisob summasi buyurtma bilan mos kelmaydi. /pro ni oching va yangisini yarating. | Сумма счёта не совпадает с заказом. Откройте /pro и создайте новый. |
+| `billing.stars.precheckout.provider_disabled` | Telegram Stars orqali to'lov hozir mavjud emas. /pro da boshqa usulni tanlang. | Оплата Telegram Stars сейчас недоступна. Выберите другой способ в /pro. |
+| `billing.stars.precheckout.unavailable` | Xizmat vaqtincha ishlamayapti. Bir daqiqadan keyin urinib ko'ring. | Сервис временно недоступен. Попробуйте через минуту. |
+| `billing.stars.paid` | To'lov qabul qilindi! LexiFlow Pro :date gacha faol. | Оплата получена! LexiFlow Pro активен до :date. |
+| `billing.stars.renewed` | Obuna yangilandi: LexiFlow Pro :date gacha faol. | Подписка продлена: LexiFlow Pro активен до :date. |
+| `billing.stars.paid_forever` | To'lov qabul qilindi! Sizda LexiFlow Pro muddatsiz. | Оплата получена! У вас LexiFlow Pro без ограничения по сроку. |
+| `billing.stars.open_button` | LexiFlow ni ochish | Открыть LexiFlow |
+| `billing.stars.paid_unresolved` | To'lov qabul qilindi, lekin uni avtomatik hisobga olib bo'lmadi. Biz aniqlab, Pro ni yoqamiz yoki Stars ni qaytaramiz. Tezlashtirish uchun qo'llab-quvvatlash xizmatiga yozing: /paysupport. | Оплата получена, но автоматически зачесть её не удалось. Мы разберёмся и включим Pro или вернём Stars. Чтобы ускорить — напишите в поддержку: /paysupport. |
+| `billing.stars.refunded` | :amount qaytarildi. Agar bu to'lov bilan joriy Pro davri to'langan bo'lsa, u yakunlandi. | Возврат :amount выполнен. Если этим платежом был оплачен текущий период Pro, он завершён. |
+| `billing.renewal.dm` | {1} LexiFlow Pro ertaga tugaydi (:date).\|[2,*] LexiFlow Pro :count kundan keyin tugaydi (:date). | {1} LexiFlow Pro заканчивается завтра (:date).\|[2,*] LexiFlow Pro заканчивается через :count дн. (:date). |
+| `billing.renewal.org_dm` | {1} «:organization» markazining obunasi ertaga tugaydi (:date).\|[2,*] «:organization» markazining obunasi :count kundan keyin tugaydi (:date). | {1} Подписка центра «:organization» заканчивается завтра (:date).\|[2,*] Подписка центра «:organization» заканчивается через :count дн. (:date). |
+| `billing.renewal.hint` | Yangi so'zlar kunlik limit bilan cheklanib qolmasligi uchun oldindan yangilang. | Продлите заранее, чтобы новые слова не ограничивались дневным лимитом. |
+| `billing.renewal.hint_canceled` | Avtoyangilash o'chirilgan, shuning uchun Pro o'zi yangilanmaydi. Cheklovsiz imkoniyatni yo'qotmaslik uchun oldindan yangilang. | Автопродление отключено, поэтому Pro не продлится само. Продлите заранее, чтобы не потерять безлимит. |
+| `billing.renewal.org_hint` | Obuna tugagach, markaz ishtirokchilarida yana Free tarifi bo'ladi. | После окончания у участников центра снова будет тариф Free. |
+| `billing.renewal.button` | Pro'ni uzaytirish | Продлить Pro |
+| `billing.renewal.mail.subject` | {1} «:organization» markazining obunasi ertaga tugaydi\|[2,*] «:organization» markazining obunasi :count kundan keyin tugaydi | {1} Подписка центра «:organization» заканчивается завтра\|[2,*] Подписка центра «:organization» заканчивается через :count дн. |
+| `billing.renewal.mail.greeting` | Assalomu alaykum! | Здравствуйте! |
+| `billing.renewal.mail.body` | {1} «:organization» markazining LexiFlow Pro obunasi ertaga tugaydi (:date).\|[2,*] «:organization» markazining LexiFlow Pro obunasi :count kundan keyin tugaydi (:date). | {1} Подписка LexiFlow Pro центра «:organization» заканчивается завтра (:date).\|[2,*] Подписка LexiFlow Pro центра «:organization» заканчивается через :count дн. (:date). |
+| `billing.renewal.mail.keep` | Markaz o'quvchilari Pro ni yo'qotmasligi uchun obunani oldindan yangilang. Tugagach, ularda yana Free tarifi bo'ladi. | Чтобы ученики центра не потеряли Pro, продлите подписку заранее. После окончания у них снова будет тариф Free. |
+| `billing.renewal.mail.action` | Markaz kabinetini ochish | Открыть кабинет центра |
+| `billing.renewal.mail.contact` | To'lov bo'yicha savollar: :contact | Вопросы по оплате: :contact |
+
+`billing.renewal.*` (2A.6): напоминания о продлении — ЛС ученику, ЛС и письмо владельцам центра. Строки с `{1} …\|[2,*] …` — две формы: «завтра» (1 день) и «через :count дней» (в ru «дн.» без склонения). Проверить: «obunasi … tugaydi» (подписка … заканчивается), «Pro'ni uzaytirish» (продлить Pro — как на кнопке в TWA), «Markaz kabinetini ochish» (открыть кабинет центра), «Assalomu alaykum!» в письме.
+
+### Payme и страница возврата `/billing/return` (`lang/uz/billing.php`, ключи `billing.payme.*`, `billing.return.*`, задача 2A.4)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `billing.payme.receipt_item` | LexiFlow Pro — :period | LexiFlow Pro — :period |
+| `billing.return.title` | To'lov holati | Статус оплаты |
+| `billing.return.open_bot` | LexiFlow'ga qaytish | Вернуться в LexiFlow |
+| `billing.return.note` | Bu sahifani yopish mumkin: to'lov holati botda va ilovada ko'rinadi. | Эту страницу можно закрыть: статус оплаты виден в боте и в приложении. |
+| `billing.return.support` | To'lov bo'yicha savollar: | Вопросы по оплате: |
+| `billing.return.paid.heading` | To'lov qabul qilindi | Оплата получена |
+| `billing.return.paid.text` | LexiFlow Pro yoqildi. Botga qayting yoki ilovani oching — kirish allaqachon ishlaydi. | LexiFlow Pro активирован. Вернитесь в бот или откройте приложение — доступ уже работает. |
+| `billing.return.pending.heading` | To'lov tasdiqlanishini kutmoqdamiz | Ждём подтверждение оплаты |
+| `billing.return.pending.text` | To'lov qayta ishlanmoqda. Odatda bu bir daqiqadan kam vaqt oladi; Payme to'lovni tasdiqlashi bilan Pro avtomatik yoqiladi. | Платёж обрабатывается. Обычно это занимает меньше минуты; Pro включится автоматически, как только Payme подтвердит оплату. |
+| `billing.return.expired.heading` | Hisob muddati o'tdi | Срок счёта истёк |
+| `billing.return.expired.text` | Bu hisob endi amal qilmaydi. Botda /pro buyrug'ini oching va yangisini yarating — muddati o'tgan hisob bo'yicha pul yechilmaydi. | Этот счёт больше не действует. Откройте /pro в боте и создайте новый — деньги по истёкшему счёту не списываются. |
+| `billing.return.canceled.heading` | Hisob bekor qilindi | Счёт отменён |
+| `billing.return.canceled.text` | Bu hisob bekor qilingan. Kerak bo'lsa, botda /pro buyrug'i bilan yangisini yarating. | Этот счёт отменён. Если нужно, создайте новый командой /pro в боте. |
+| `billing.return.unknown.heading` | To'lov holati noma'lum | Статус оплаты неизвестен |
+| `billing.return.unknown.text` | Bunday hisobni topa olmadik. Holatni botda /pro buyrug'i bilan tekshiring yoki qo'llab-quvvatlash xizmatiga yozing. | Мы не нашли такой счёт. Проверьте статус в боте командой /pro или напишите в поддержку. |
+
+## Фаза 2 · задача 2A.2 (оплата: бот `/pro`, `/paysupport`, TWA paywall и «Подписка») — на проверку носителю
+
+> Проверить: «obuna» / «avtoyangilash» (автопродление), «to'lash» (оплата), «hisob» (счёт), «chegirma» (скидка), «oferta», «pulni qaytarish» (возврат); суммы подставляются как «150 ⭐» и «29 000 so'm».
+
+### Бот (`lang/uz/billing.php`, `lang/uz/bot.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `bot.help.private` (добавлены строки `/pro`, `/paysupport`) | Pro uchun promokod: /promo KOD<br>Pro'ni rasmiylashtirish va avtoyangilash: /pro<br>To'lov bo'yicha savollar: /paysupport | Промокод на Pro: /promo КОД<br>Оформить Pro и автопродление: /pro<br>Вопросы по оплате: /paysupport |
+| `billing.pro.blocked` | Akkauntga kirish cheklangan. Qo'llab-quvvatlash xizmatiga murojaat qiling. | Доступ к аккаунту ограничен. Обратитесь в поддержку. |
+| `billing.pro.rate_limited` | Juda ko'p urinish. Bir daqiqa kutib, qayta urinib ko'ring. | Слишком много попыток. Подождите минуту и повторите. |
+| `billing.pro.status_free` | Hozir sizda Free tarif: kuniga :count ta yangi so'z, takrorlash cheklovsiz. | Сейчас у вас тариф Free: :count новых слов в день, повторения без лимита. |
+| `billing.pro.status_free_generic` | Hozir sizda Free tarif: yangi so'zlar kunlik limit bilan cheklangan, takrorlash cheklovsiz. | Сейчас у вас тариф Free: новые слова ограничены дневным лимитом, повторения без лимита. |
+| `billing.pro.status_pro_until` | Sizda LexiFlow Pro :date gacha. | У вас LexiFlow Pro до :date. |
+| `billing.pro.status_pro_forever` | Sizda LexiFlow Pro muddatsiz. | У вас LexiFlow Pro без ограничения по сроку. |
+| `billing.pro.renewal_auto` | Avtoyangilash yoqilgan: keyingi davr uchun to'lovni Telegram o'zi yechib oladi. | Автопродление включено: следующий период Telegram спишет сам. |
+| `billing.pro.renewal_canceled` | Avtoyangilash o'chirilgan — Pro to'langan davr oxirigacha amal qiladi. | Автопродление отключено — Pro действует до конца оплаченного периода. |
+| `billing.pro.soon` | LexiFlow Pro tez orada ochiladi. Promokodingiz bormi? /promo KOD yuboring. | LexiFlow Pro скоро откроется. Есть промокод? Отправьте /promo КОД. |
+| `billing.pro.contact` | Markazda o'qiysizmi? Markaz administratoridan LexiFlow Pro'ni ulashni so'rang: :contact | Учитесь в центре? Попросите администратора центра подключить LexiFlow Pro: :contact |
+| `billing.pro.choose` | Muddat va to'lov usulini tanlang: | Выберите срок и способ оплаты: |
+| `billing.pro.price_line` | :period — :prices | :period — :prices |
+| `billing.pro.offer` | Birinchi to'lovga :pct% chegirma :date gacha amal qiladi. | Скидка :pct% на первый платёж действует до :date. |
+| `billing.pro.buy_button` | :provider · :period · :price | :provider · :period · :price |
+| `billing.pro.cancel_button` | Avtoyangilashni o'chirish | Отключить автопродление |
+| `billing.pro.resume_button` | Avtoyangilashni yoqish | Включить автопродление |
+| `billing.pro.checkout_ready` | Hisob yaratildi: :period, :price.<br>Quyidagi tugma orqali to'lang — tasdiq kelishi bilan Pro o'zi yoqiladi. | Счёт создан: :period, :price.<br>Оплатите по кнопке ниже — Pro включится сам, как только придёт подтверждение. |
+| `billing.pro.pay_button` | To'lash | Оплатить |
+| `billing.pro.canceled` | Avtoyangilash o'chirildi. Pro :date gacha amal qiladi. | Автопродление отключено. Pro действует до :date. |
+| `billing.pro.resumed` | Avtoyangilash qayta yoqildi. | Автопродление снова включено. |
+| `billing.pro.errors.price_not_configured` | Bu to'lov varianti hozircha mavjud emas. | Этот вариант оплаты пока недоступен. |
+| `billing.pro.errors.provider_disabled` | Bu to'lov usuli hozir mavjud emas. Boshqasini tanlang. | Этот способ оплаты сейчас недоступен. Выберите другой. |
+| `billing.pro.errors.provider_not_supported` | Bu to'lov usuli siz uchun mavjud emas. | Этот способ оплаты вам недоступен. |
+| `billing.pro.errors.checkout_conflict` | Sizda Telegram Stars avtoyangilash yoqilgan. Boshqa usulda to'lashdan oldin uni /pro orqali o'chiring. | У вас включено автопродление Telegram Stars. Отключите его в /pro, прежде чем платить другим способом. |
+| `billing.pro.errors.too_many_pending` | Sizda to'lanmagan hisoblar bor. Ulardan birini to'lang yoki kuting — ular o'zi yopiladi. | У вас уже есть неоплаченные счета. Оплатите один из них или подождите — они закроются сами. |
+| `billing.pro.errors.offer_not_applicable` | Chegirma bu xaridga qo'llanilmaydi. | Скидка к этой покупке не применяется. |
+| `billing.pro.errors.invalid_period` | Bunday to'lov varianti yo'q. | Такого варианта оплаты нет. |
+| `billing.pro.errors.invalid_tier` | Bunday to'lov varianti yo'q. | Такого варианта оплаты нет. |
+| `billing.pro.errors.not_cancelable` | Hozir o'chiriladigan avtoyangilash yo'q. | Автопродление сейчас нечего отключать. |
+| `billing.pro.errors.not_resumable` | Avtoyangilashni hozir yoqib bo'lmaydi: u allaqachon yoqilgan yoki to'langan davr tugagan. | Автопродление сейчас нельзя включить: оно уже включено или оплаченный период закончился. |
+| `billing.pro.errors.provider_capability` | Bu amal sizning to'lov usulingiz uchun mavjud emas. | Это действие недоступно для вашего способа оплаты. |
+| `billing.pro.errors.provider_not_registered` | Bu amal sizning to'lov usulingiz uchun mavjud emas. | Это действие недоступно для вашего способа оплаты. |
+| `billing.pro.errors.provider_unavailable` | To'lov xizmati javob bermayapti. Bir necha daqiqadan keyin urinib ko'ring. | Платёжный сервис не отвечает. Попробуйте через несколько минут. |
+| `billing.pro.errors.generic` | Amalni bajarib bo'lmadi. Keyinroq urinib ko'ring yoki qo'llab-quvvatlash xizmatiga yozing: /paysupport. | Не получилось выполнить действие. Попробуйте позже или напишите в поддержку: /paysupport. |
+| `billing.paysupport.with_contact` | LexiFlow to'lovlar bo'yicha yordam.<br><br>To'lov, pulni qaytarish va obunani bekor qilish masalalari: :contact<br>Muammoni yozing va chek yoki to'lov raqamini ilova qiling. Pulni qaytarish qoidalari ofertada: :offer<br>Stars avtoyangilashini /pro buyrug'i orqali o'chirish mumkin. | Платёжная поддержка LexiFlow.<br><br>Вопросы по оплате, возвраты и отмена подписки: :contact<br>Опишите проблему и приложите чек или номер платежа. Правила возврата — в оферте: :offer<br>Автопродление Stars можно отключить командой /pro. |
+| `billing.paysupport.without_contact` | LexiFlow to'lovlar bo'yicha yordam.<br><br>Yordam kontakti hozircha ko'rsatilmagan. Pulni qaytarish qoidalari ofertada: :offer<br>Stars avtoyangilashini /pro buyrug'i orqali o'chirish mumkin. | Платёжная поддержка LexiFlow.<br><br>Контакт поддержки пока не указан. Правила возврата — в оферте: :offer<br>Автопродление Stars можно отключить командой /pro. |
+| `billing.period.month` | 1 oy | 1 месяц |
+| `billing.period.year` | 1 yil | 1 год |
+| `billing.provider.telegram_stars` | ⭐ Stars | ⭐ Stars |
+| `billing.provider.payme` | Payme | Payme |
+| `billing.provider.click` | Click | Click |
+| `billing.currency.XTR` | :amount ⭐ | :amount ⭐ |
+| `billing.currency.UZS` | :amount so'm | :amount сум |
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `paywall.title_purchase` | LexiFlow Pro | LexiFlow Pro |
+| `paywall.lead_purchase` | Yangi so'zlar kunlik limitsiz, to'plamlar va batafsil statistika. | Новые слова без дневного лимита, колоды и подробная статистика. |
+| `billing.title` | Obuna | Подписка |
+| `billing.open` | Pro obunasi | Подписка Pro |
+| `billing.period.month` | Oy | Месяц |
+| `billing.period.year` | Yil | Год |
+| `billing.pay_with` | To'lash: {provider} · {price} | Оплатить: {provider} · {price} |
+| `billing.provider.telegram_stars` | ⭐ Stars | ⭐ Stars |
+| `billing.provider.payme` | Payme | Payme |
+| `billing.provider.click` | Click | Click |
+| `billing.provider.manual` | qo'lda berilgan | выдан вручную |
+| `billing.provider.promo` | promokod | промокод |
+| `billing.provider.reward` | mukofot | награда |
+| `billing.offer` | Birinchi to'lovga {pct}% chegirma — {date} gacha. | Скидка {pct}% на первый платёж — до {date}. |
+| `billing.starting` | Hisob yaratilmoqda… | Создаём счёт… |
+| `billing.awaiting` | To'lov tasdig'i kutilmoqda… | Ждём подтверждение оплаты… |
+| `billing.timeout` | Tasdiq hali kelmadi. Agar to'lagan bo'lsangiz, Pro bir necha daqiqada yoqiladi. | Подтверждение ещё не пришло. Если вы уже оплатили, Pro включится в течение нескольких минут. |
+| `billing.check_again` | Yana tekshirish | Проверить ещё раз |
+| `billing.payment_failed` | To'lov o'tmadi yoki hisob yopilgan. Qayta urinib ko'ring. | Платёж не прошёл или счёт закрыт. Попробуйте ещё раз. |
+| `billing.paid_until` | Rahmat! Pro {date} gacha faol. | Спасибо! Pro активен до {date}. |
+| `billing.paid_forever` | Rahmat! Pro faol. | Спасибо! Pro активен. |
+| `billing.auto_renew_running` | Stars avtoyangilash yoqilgan — hech narsa to'lash shart emas. Obunani «Sozlamalar → Pro obunasi» bo'limida boshqarish mumkin. | Автопродление Stars включено — оплачивать ничего не нужно. Управлять подпиской можно в «Настройки → Подписка Pro». |
+| `billing.plan.free` | Free tarif | Тариф Free |
+| `billing.plan.pro` | LexiFlow Pro | LexiFlow Pro |
+| `billing.sponsored` | Pro'ni markazingiz ulagan. | Pro подключён вашим центром. |
+| `billing.until` | {date} gacha amal qiladi. | Действует до {date}. |
+| `billing.forever` | Muddatsiz. | Без ограничения по сроку. |
+| `billing.provider_line` | To'lov: {provider}. | Оплата: {provider}. |
+| `billing.auto_on` | Avtoyangilash yoqilgan: keyingi davr uchun to'lovni Telegram o'zi yechib oladi. | Автопродление включено: следующий период Telegram спишет сам. |
+| `billing.auto_off` | Avtoyangilash o'chirilgan — Pro to'langan davr oxirigacha amal qiladi. | Автопродление отключено — Pro действует до конца оплаченного периода. |
+| `billing.cancel` | Avtoyangilashni o'chirish | Отключить автопродление |
+| `billing.resume` | Avtoyangilashni yoqish | Включить автопродление |
+| `billing.buy` | Pro'ni sotib olish | Купить Pro |
+| `billing.renew` | Pro'ni uzaytirish | Продлить Pro |
+| `billing.unavailable` | To'lov tez orada ochiladi. | Оплата скоро откроется. |
+| `billing.sum` | so'm | сум |
+| `lapsed.title` | Pro tugadi | Pro закончился |
+| `lapsed.text` | Obuna {date} kuni tugadi. Yangi so'zlar yana kunlik limitsiz bo'lishi uchun uzaytiring. | Подписка закончилась {date}. Продлите, чтобы новые слова снова были без дневного лимита. |
+| `lapsed.renew` | Pro'ni uzaytirish | Продлить Pro |
+| `lapsed.dismiss` | Yopish | Скрыть |
+| `error.code.invalid_init_data` | Telegram sessiyasini tasdiqlab bo'lmadi. Ilovani qaytadan oching. | Не удалось подтвердить Telegram-сессию. Откройте приложение заново. |
+| `error.code.invalid_token` | Sessiya eskirgan. Ilovani qaytadan oching. | Сессия устарела. Откройте приложение заново. |
+| `error.code.invalid_mode` | Noma'lum mashg'ulot rejimi. | Неизвестный режим тренировки. |
+| `error.code.price_not_configured` | Bu to'lov varianti hozircha mavjud emas. | Этот вариант оплаты пока недоступен. |
+| `error.code.provider_disabled` | Bu to'lov usuli hozir mavjud emas. Boshqasini tanlang. | Этот способ оплаты сейчас недоступен. Выберите другой. |
+| `error.code.provider_not_supported` | Bu to'lov usuli siz uchun mavjud emas. | Этот способ оплаты вам недоступен. |
+| `error.code.checkout_conflict` | Sizda Stars avtoyangilash yoqilgan. Boshqa usulda to'lashdan oldin uni «Obuna» bo'limida o'chiring. | У вас включено автопродление Stars. Отключите его в «Подписке», прежде чем платить другим способом. |
+| `error.code.too_many_pending` | Sizda to'lanmagan hisoblar bor. Ulardan birini to'lang yoki kuting — ular o'zi yopiladi. | У вас уже есть неоплаченные счета. Оплатите один из них или подождите — они закроются сами. |
+| `error.code.offer_not_applicable` | Chegirma bu xaridga qo'llanilmaydi. | Скидка к этой покупке не применяется. |
+| `error.code.invalid_period` | Bunday to'lov varianti yo'q. | Такого варианта оплаты нет. |
+| `error.code.invalid_tier` | Bunday to'lov varianti yo'q. | Такого варианта оплаты нет. |
+| `error.code.not_cancelable` | Hozir o'chiriladigan avtoyangilash yo'q. | Автопродление сейчас нечего отключать. |
+| `error.code.not_resumable` | Avtoyangilashni hozir yoqib bo'lmaydi: u allaqachon yoqilgan yoki to'langan davr tugagan. | Автопродление сейчас нельзя включить: оно уже включено или оплаченный период закончился. |
+| `error.code.provider_capability` | Bu amal sizning to'lov usulingiz uchun mavjud emas. | Это действие недоступно для вашего способа оплаты. |
+| `error.code.provider_not_registered` | Bu amal sizning to'lov usulingiz uchun mavjud emas. | Это действие недоступно для вашего способа оплаты. |
+| `error.code.provider_unavailable` | To'lov xizmati javob bermayapti. Bir necha daqiqadan keyin urinib ko'ring. | Платёжный сервис не отвечает. Попробуйте через несколько минут. |
+| `error.code.order_not_found` | Hisob topilmadi. | Счёт не найден. |
+
+## Фаза 2 · задача 2B.2 (инвайт-ссылка центра и бот) — на проверку носителю
+
+> Проверить: «markaz» (учебный центр; единый термин для центра во всех строках `organizations.*`), «Qo'shilish» / «tark etish» (вступить / покинуть), «joy» (место: «joy bo'shadi», «joy kutilmoqda»), «guruh orqali» (через группу).
+> В строках `organizations.errors.*` — причины отказа по ссылке центра: недействительна, истёк срок, исчерпана, центр приостановлен.
+
+### Бот (`lang/uz/organizations.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `organizations.offer.text` | «:organization» o'quv markazi sizni LexiFlow'ga taklif qilmoqda. Markaz beradigan Pro imkoniyatini olish uchun qo'shilasizmi? | Учебный центр «:organization» приглашает вас в LexiFlow. Вступить, чтобы получить Pro от центра? |
+| `organizations.offer.join` | Qo'shilish | Вступить |
+| `organizations.offer.skip` | Hozir emas | Не сейчас |
+| `organizations.already` | Siz allaqachon «:organization» markazidasiz. | Вы уже в центре «:organization». |
+| `organizations.skipped` | Mayli. Markaz havolasi orqali istalgan vaqtda qo'shilishingiz mumkin. | Хорошо. Вступить можно в любой момент по ссылке центра. |
+| `organizations.joined.seated` | Siz «:organization» markazidasiz. Pro faol — cheklovlarsiz shug'ullaning. | Вы в центре «:organization». Pro активен — занимайтесь без ограничений. |
+| `organizations.joined.waitlisted` | Siz «:organization» markazidasiz, lekin hozircha bo'sh joy yo'q. Markaz administratoriga murojaat qiling — joy bo'shashi bilan Pro avtomatik yoqiladi. | Вы в центре «:organization», но свободных мест пока нет. Сообщите администратору центра — как только место освободится, Pro включится автоматически. |
+| `organizations.joined.button` | LexiFlow'ni ochish | Открыть LexiFlow |
+| `organizations.seated.text` | «:organization» markazida siz uchun joy bo'shadi. Pro faol! | В центре «:organization» освободилось место для вас. Pro активен! |
+| `organizations.seated.button` | LexiFlow'ni ochish | Открыть LexiFlow |
+| `organizations.errors.invite_invalid` | Markaz havolasi yaroqsiz yoki o'chirilgan. Administratordan yangisini so'rang. | Ссылка центра недействительна или отключена. Попросите у администратора новую. |
+| `organizations.errors.invite_expired` | Markaz havolasining amal qilish muddati tugagan. Administratordan yangisini so'rang. | Срок действия ссылки центра истёк. Попросите у администратора новую. |
+| `organizations.errors.invite_exhausted` | Markaz havolasi ruxsat etilgan maksimal marta ishlatilgan. Administratordan yangisini so'rang. | Эта ссылка центра уже использована максимальное число раз. Попросите у администратора новую. |
+| `organizations.errors.organization_suspended` | Markaz hozircha o'quvchilarni qabul qilmaydi. Markaz administratoriga murojaat qiling. | Центр сейчас не принимает учеников. Обратитесь к администратору центра. |
+| `organizations.errors.not_a_member` | Siz endi bu markazda emassiz. | Вы уже не состоите в этом центре. |
+| `organizations.errors.membership_not_found` | Siz endi bu markazda emassiz. | Вы уже не состоите в этом центре. |
+| `organizations.errors.membership_via_group` | Siz «:organization» markazidasiz — guruh orqali. Markazdan chiqish uchun Telegram'da markaz guruhini tark eting. | Вы в центре «:organization» через группу: покинуть его можно, выйдя из группы центра в Telegram. |
+| `organizations.errors.generic` | Bajarilmadi. Keyinroq qayta urinib ko'ring. | Не получилось. Попробуйте ещё раз позже. |
+| `organizations.settings_button` | Mening markazlarim | Мои центры |
+| `organizations.list.title` | Sizning markazlaringiz: | Ваши центры: |
+| `organizations.list.empty` | Siz hech qaysi markazda emassiz. | Вы не состоите ни в одном центре. |
+| `organizations.list.line` | • «:organization» — :state | • «:organization» — :state |
+| `organizations.list.state.seated` | Pro faol | Pro активен |
+| `organizations.list.state.waitlisted` | joy kutilmoqda | в очереди на место |
+| `organizations.list.group_note` | Guruh orqali qo'shilgan markazlarni bu yerdan tark etib bo'lmaydi: Telegram'da markaz guruhini tark eting. | Центры, в которых вы через группу, отсюда не покинуть: выйдите из группы центра в Telegram. |
+| `organizations.list.leave` | «:organization» markazini tark etish | Покинуть «:organization» |
+| `organizations.leave.confirm` | «:organization» markazini tark etasizmi? Markaz bergan Pro o'chadi, shaxsiy obunangiz (agar bo'lsa) saqlanadi. | Покинуть центр «:organization»? Pro от центра отключится, личная подписка (если есть) останется. |
+| `organizations.leave.yes` | Ha, tark etaman | Да, покинуть |
+| `organizations.leave.no` | Bekor qilish | Отмена |
+| `organizations.leave.done` | Siz «:organization» markazini tark etdingiz. | Вы покинули центр «:organization». |
+| `organizations.leave.cancelled` | Mayli, hech narsa o'zgarmadi. | Хорошо, ничего не изменилось. |
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `orgs.title` | Mening markazlarim | Мои центры |
+| `orgs.seated` | Markaz bergan Pro faol | Pro от центра активен |
+| `orgs.waitlisted` | Bo'sh joy yo'q — navbatdasiz | Свободных мест нет — вы в очереди |
+| `orgs.via_group` | Siz markazdasiz — guruh orqali. Chiqish uchun Telegram'da markaz guruhini tark eting. | Вы в центре через группу. Чтобы выйти, покиньте группу центра в Telegram. |
+| `orgs.leave` | Markazni tark etish | Покинуть центр |
+| `orgs.leave.confirm` | «{name}» markazini tark etasizmi? Markaz bergan Pro o'chadi, shaxsiy obunangiz (agar bo'lsa) saqlanadi. | Покинуть центр «{name}»? Pro от центра отключится, личная подписка (если есть) останется. |
+| `orgs.leave.yes` | Ha, tark etaman | Да, покинуть |
+| `orgs.leave.no` | Bekor qilish | Отмена |
+| `error.code.membership_not_found` | Siz endi bu markazda emassiz. | Вы уже не состоите в этом центре. |
+| `error.code.membership_via_group` | Siz markazdasiz — guruh orqali: chiqish uchun Telegram'da markaz guruhini tark eting. | Вы в центре через группу: покинуть его можно, выйдя из группы центра в Telegram. |
+
+## Фаза 2 · задача 2B.3 (кабинет центра `/org`) — на проверку носителю
+
+> Проверить: «markaz» (центр), «kabinet», «o'rin» (место), «navbatda» (в ожидании), «egasi» (владелец), «taklif» (приглашение/инвайт-код), «bog'lash» (привязать группу). Подстановки: `:count`, `:name`, `:seat`, `:code`, `:title`, `:organization`, `:inviter`, `:hours`, `:date`, `:url`.
+
+### 2FA (`lang/uz/twofactor.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `twofactor.recovery.to_org` | → Markaz kabinetiga o'tish | → Перейти в кабинет центра |
+
+### Кабинет, письмо приглашения, бот `/org` (`lang/uz/org.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `org.nav.dashboard` | Umumiy ko'rinish | Обзор |
+| `org.nav.members` | O'quvchilar | Ученики |
+| `org.nav.groups` | Guruhlar | Группы |
+| `org.nav.invites` | Takliflar | Приглашения |
+| `org.nav.teachers` | O'qituvchilar | Учителя |
+| `org.nav.assignments` | Vazifalar | Задания |
+| `org.nav.reports` | Hisobotlar | Отчёты |
+| `org.nav.billing` | To'lov | Оплата |
+| `org.nav.settings` | Markaz sozlamalari | Настройки центра |
+| `org.members.singular` | O'quvchi | Ученик |
+| `org.members.plural` | O'quvchilar | Ученики |
+| `org.members.columns.learner` | O'quvchi | Ученик |
+| `org.members.columns.username` | Username | Username |
+| `org.members.columns.seat` | O'rin | Место |
+| `org.members.columns.status` | Holat | Статус |
+| `org.members.columns.joined_via` | Qanday qo'shildi | Как вступил |
+| `org.members.columns.joined_at` | Qo'shilgan | Вступил |
+| `org.members.columns.last_seen` | Oxirgi faollik | Был в сети |
+| `org.members.columns.seated_at` | O'rin olingan | Место получено |
+| `org.members.columns.streak` | Kunlar seriyasi | Серия дней |
+| `org.members.seat.seated` | O'rin egallagan | Занимает место |
+| `org.members.seat.waitlisted` | Navbatda | В ожидании |
+| `org.members.seat.none` | O'rinsiz | Без места |
+| `org.members.status.active` | Faol | Активен |
+| `org.members.status.left` | Chiqib ketgan | Вышел |
+| `org.members.status.removed` | Chiqarilgan | Удалён |
+| `org.members.via.invite` | Kod orqali | По коду |
+| `org.members.via.group` | Guruh orqali | Через группу |
+| `org.members.via.admin` | Qo'lda qo'shilgan | Добавлен вручную |
+| `org.members.actions.add` | O'quvchi qo'shish | Добавить ученика |
+| `org.members.actions.remove` | Markazdan chiqarish | Удалить из центра |
+| `org.members.actions.remove_confirm` | O'quvchi o'rnini va markaz bergan Pro-ni yo'qotadi. Bo'shagan o'rin navbatdagi birinchi o'quvchiga o'tadi. | Ученик потеряет место и Pro от центра. Освободившееся место получит первый в очереди. |
+| `org.members.fields.telegram` | O'quvchining Telegrami | Telegram ученика |
+| `org.members.fields.telegram_help` | Botga allaqachon yozgan o'quvchining @username yoki raqamli Telegram ID si. Faqat aniq moslik bo'yicha qidiriladi. | @username или числовой Telegram ID ученика, который уже писал боту. Поиск только по точному совпадению. |
+| `org.members.errors.learner_not_found` | Bunday Telegramli o'quvchi topilmadi. U avval botni ishga tushirishi kerak. | Ученик с таким Telegram не найден. Он должен сначала запустить бота. |
+| `org.members.errors.organization_suspended` | Markaz to'xtatilgan — yangi o'quvchilar qo'shilmaydi. | Центр приостановлен — новые ученики не добавляются. |
+| `org.members.errors.not_a_member` | O'quvchi markaz a'zosi emas. | Ученик уже не состоит в центре. |
+| `org.members.errors.invite_invalid` | Taklif kodi yaroqsiz. | Код приглашения недействителен. |
+| `org.members.errors.invite_expired` | Taklif kodi muddati tugagan. | Код приглашения истёк. |
+| `org.members.errors.invite_exhausted` | Taklif kodining foydalanishlari tugagan. | У кода приглашения закончились использования. |
+| `org.members.notifications.added` | O'quvchi qo'shildi: :seat. | Ученик добавлен: :seat. |
+| `org.members.notifications.removed` | O'quvchi markazdan chiqarildi. | Ученик удалён из центра. |
+| `org.groups.singular` | Guruh | Группа |
+| `org.groups.plural` | Guruhlar | Группы |
+| `org.groups.columns.title` | Nomi | Название |
+| `org.groups.columns.status` | Holat | Статус |
+| `org.groups.columns.learners` | O'quvchilar | Учеников |
+| `org.groups.columns.teachers` | O'qituvchilar | Учителя |
+| `org.groups.columns.since` | Qo'shilgan | Добавлена |
+| `org.groups.status.active` | Faol | Активна |
+| `org.groups.status.pending` | Faollashtirish kutilmoqda | Ожидает активации |
+| `org.groups.status.disabled` | O'chirilgan | Отключена |
+| `org.groups.actions.link` | Guruhni bog'lash | Привязать группу |
+| `org.groups.actions.link_help` | Bot guruhga allaqachon qo'shilgan bo'lishi, siz esa uning yaratuvchisi yoki administratori bo'lishingiz kerak. Profilda Telegram ID ko'rsatilgan bo'lsin. | Бот уже должен быть добавлен в группу, а вы — быть её создателем или администратором. Ваш Telegram ID должен быть указан в профиле. |
+| `org.groups.actions.unlink` | Ajratish | Отвязать |
+| `org.groups.actions.unlink_confirm` | Markazga shu guruh orqali qo'shilgan o'quvchilar, boshqa guruhlarda bo'lmasa, o'rnini yo'qotadi. | Ученики этой группы, вступившие в центр через неё, потеряют место, если не состоят в других группах центра. |
+| `org.groups.fields.chat_id` | Chat ID | ID чата |
+| `org.groups.fields.chat_id_help` | Guruhning raqamli ID si, masalan -1001234567890. Bot uni guruhda /help buyrug'i bilan ko'rsatadi. | Числовой ID группы, например -1001234567890. Бот показывает его командой /help в группе. |
+| `org.groups.errors.group_not_found` | Bot bunday guruhni bilmaydi. Avval botni guruhga qo'shing. | Бот не знает такую группу. Сначала добавьте бота в группу. |
+| `org.groups.errors.group_taken` | Guruh boshqa markazga bog'langan. | Группа уже привязана к другому центру. |
+| `org.groups.errors.owner_telegram_missing` | Profilda Telegram ID ni ko'rsating — usiz guruhdagi huquqlarni tekshirib bo'lmaydi. | Укажите свой Telegram ID в профиле — без него нельзя проверить права в группе. |
+| `org.groups.errors.not_chat_admin` | Siz bu guruhning administratori emassiz. Faqat o'z guruhingizni bog'lash mumkin. | Вы не администратор этой группы. Привязать можно только свою группу. |
+| `org.groups.errors.telegram_unavailable` | Telegram javob bermadi. Bir daqiqadan so'ng qayta urinib ko'ring. | Telegram не ответил. Попробуйте ещё раз через минуту. |
+| `org.groups.errors.not_linked` | Bu guruh markazga bog'lanmagan. | Эта группа не привязана к центру. |
+| `org.groups.notifications.linked` | «:title» guruhi markazga bog'landi. | Группа «:title» привязана к центру. |
+| `org.groups.notifications.unlinked` | Guruh markazdan ajratildi. | Группа отвязана от центра. |
+| `org.invites.singular` | Taklif | Приглашение |
+| `org.invites.plural` | Takliflar | Приглашения |
+| `org.invites.columns.code` | Kod | Код |
+| `org.invites.columns.label` | Yorliq | Метка |
+| `org.invites.columns.group` | Guruh | Группа |
+| `org.invites.columns.uses` | Foydalanishlar | Использований |
+| `org.invites.columns.expires_at` | Amal qilish muddati | Действует до |
+| `org.invites.columns.active` | Faol | Активно |
+| `org.invites.columns.link` | Havola | Ссылка |
+| `org.invites.copied` | Havola nusxalandi | Ссылка скопирована |
+| `org.invites.actions.create` | Taklif yaratish | Создать приглашение |
+| `org.invites.actions.deactivate` | O'chirish | Отключить |
+| `org.invites.fields.label` | Yorliq (masalan, «7B guruhi») | Метка (например, «группа 7Б») |
+| `org.invites.fields.max_uses` | Maksimal foydalanishlar (bo'sh — cheklovsiz) | Максимум использований (пусто — без ограничения) |
+| `org.invites.fields.expires_at` | Amal qilish muddati (bo'sh — muddatsiz) | Действует до (пусто — бессрочно) |
+| `org.invites.fields.group` | Guruh | Группа |
+| `org.invites.fields.group_help` | Faqat hisobotlar uchun yorliq: chatga o'quvchi o'zi qo'shiladi. | Только метка для отчётов: в чат ученик вступает сам. |
+| `org.invites.errors.foreign_group` | Bu guruh markazga tegishli emas. | Эта группа не принадлежит центру. |
+| `org.invites.notifications.created` | :code taklifi yaratildi. | Приглашение :code создано. |
+| `org.invites.notifications.deactivated` | Taklif o'chirildi. | Приглашение отключено. |
+| `org.teachers.singular` | Xodim | Сотрудник |
+| `org.teachers.plural` | O'qituvchilar | Учителя |
+| `org.teachers.columns.name` | Ism | Имя |
+| `org.teachers.columns.email` | Email | Email |
+| `org.teachers.columns.role` | Rol | Роль |
+| `org.teachers.columns.telegram` | Telegram bog'langan | Telegram привязан |
+| `org.teachers.columns.groups` | Guruhlar | Групп |
+| `org.teachers.columns.last_login` | Oxirgi kirish | Последний вход |
+| `org.teachers.never_logged_in` | kirmagan | не входил |
+| `org.teachers.role.owner` | Egasi | Владелец |
+| `org.teachers.role.teacher` | O'qituvchi | Учитель |
+| `org.teachers.actions.invite` | O'qituvchini taklif qilish | Пригласить учителя |
+| `org.teachers.actions.groups` | Guruhlar | Группы |
+| `org.teachers.actions.role` | Rol | Роль |
+| `org.teachers.actions.resend` | Taklifni qayta yuborish | Отправить приглашение ещё раз |
+| `org.teachers.actions.remove` | Markazdan chiqarish | Удалить из центра |
+| `org.teachers.fields.email` | Email | Email |
+| `org.teachers.fields.name` | Ism (ixtiyoriy) | Имя (необязательно) |
+| `org.teachers.errors.already_staff` | Bu email markaz xodimlari ro'yxatida allaqachon bor. | Этот email уже в списке сотрудников центра. |
+| `org.teachers.errors.not_staff` | Xodim bu markazda topilmadi. | Сотрудник не найден в этом центре. |
+| `org.teachers.errors.last_owner` | Markazda kamida bitta egasi qolishi kerak. | В центре должен остаться хотя бы один владелец. |
+| `org.teachers.errors.foreign_group` | Tanlangan guruhlardan biri markazga tegishli emas. | Одна из выбранных групп не принадлежит центру. |
+| `org.teachers.errors.invalid_email` | To'g'ri email kiriting. | Введите корректный email. |
+| `org.teachers.notifications.invited` | Taklif emailga yuborildi. | Приглашение отправлено на email. |
+| `org.teachers.notifications.groups_saved` | O'qituvchi guruhlari saqlandi. | Группы учителя сохранены. |
+| `org.teachers.notifications.role_saved` | Rol o'zgartirildi. | Роль изменена. |
+| `org.teachers.notifications.resent` | Taklif qayta yuborildi. | Приглашение отправлено повторно. |
+| `org.teachers.notifications.removed` | Xodim markazdan chiqarildi. | Сотрудник удалён из центра. |
+| `org.settings.fields.name` | Markaz nomi | Название центра |
+| `org.settings.fields.contact_email` | Aloqa uchun email | Контактный email |
+| `org.settings.fields.contact_phone` | Aloqa uchun telefon | Контактный телефон |
+| `org.settings.fields.contact_telegram` | Telegramdagi aloqa | Контакт в Telegram |
+| `org.settings.fields.timezone` | Vaqt mintaqasi | Часовой пояс |
+| `org.settings.fields.locale` | Kabinet tili | Язык кабинета |
+| `org.profile.fields.telegram_user_id` | Mening Telegram ID m | Мой Telegram ID |
+| `org.profile.fields.telegram_user_id_help` | Telegram akkauntingizning raqamli ID si (bot uni /stats bo'yicha ko'rsatadi). Guruhlardagi o'qituvchi buyruqlari va guruhlarni bog'lash uchun kerak. | Числовой ID вашего аккаунта Telegram (бот показывает его по /stats). Нужен для команд учителя в группах и привязки групп. |
+| `org.stubs.assignments` | Guruhlar uchun vazifalar kabinetning keyingi yangilanishida paydo bo'ladi. | Задания для групп появятся в следующем обновлении кабинета. |
+| `org.stubs.reports` | O'quvchilar faolligi hisoboti kabinetning keyingi yangilanishida paydo bo'ladi. | Отчёт об активности учеников появится в следующем обновлении кабинета. |
+| `org.stubs.billing` | Tarif tanlash va to'lov keyingi yangilanishda paydo bo'ladi. Hozircha tarifni platforma administratori faollashtiradi. | Выбор тарифа и оплата появятся в следующем обновлении. Пока тариф активирует администратор платформы. |
+| `org.billing.rows.tier` | Tarif | Тариф |
+| `org.billing.rows.status` | Obuna holati | Статус подписки |
+| `org.billing.rows.ends_at` | To'langan muddat | Оплачено до |
+| `org.billing.rows.seats` | O'rinlar (band / limit) | Места (занято / лимит) |
+| `org.billing.rows.waitlisted` | O'rin kutayotganlar | В ожидании места |
+| `org.billing.none` | yo'q | нет |
+| `org.billing.status.trialing` | Sinov davri | Пробный период |
+| `org.billing.status.active` | Faol | Активна |
+| `org.billing.status.past_due` | To'lov kutilmoqda | Ожидает оплаты |
+| `org.billing.status.canceled` | Bekor qilingan (davr oxirigacha) | Отменена (до конца периода) |
+| `org.dashboard.seats` | O'rinlar | Места |
+| `org.dashboard.seats_over_limit` | Limit oshib ketgan: tarifni oshiring | Превышение лимита: повысьте тариф |
+| `org.dashboard.seats_free` | Bo'sh: :count | Свободно: :count |
+| `org.dashboard.not_sponsoring` | Faol obuna yo'q — o'quvchilar Pro-siz | Нет активной подписки — ученики без Pro |
+| `org.dashboard.waitlisted` | O'rin kutayotganlar | В ожидании места |
+| `org.dashboard.waitlisted_help` | O'rin bo'shaganda oladilar | Получат место, когда оно освободится |
+| `org.dashboard.subscription` | Obuna | Подписка |
+| `org.dashboard.subscription_none` | Faol obuna yo'q | Нет активной подписки |
+| `org.dashboard.subscription_perpetual` | Muddatsiz | Бессрочная |
+| `org.dashboard.subscription_until` | :date gacha | до :date |
+| `org.dashboard.members` | Markazdagi o'quvchilar | Учеников в центре |
+| `org.dashboard.groups_count` | Guruhlar: :count | Групп: :count |
+| `org.dashboard.active_7d` | 7 kunda faollar | Активных за 7 дней |
+| `org.dashboard.active_7d_help` | Takrorlash yoki yangi so'zlari bo'lgan o'quvchilar | Учеников с повторениями или новыми словами |
+| `org.dashboard.reviews_7d` | 7 kundagi takrorlashlar | Повторений за 7 дней |
+| `org.dashboard.new_words_7d` | Yangi so'zlar: :count | Новых слов: :count |
+| `org.mail.invitation.subject` | «:organization» markazi kabinetiga taklif | Приглашение в кабинет центра «:organization» |
+| `org.mail.invitation.heading` | Sizni «:organization» markaziga taklif qilishdi | Вас пригласили в «:organization» |
+| `org.mail.invitation.intro` | :inviter sizni LexiFlow Pro platformasidagi «:organization» markazi kabinetiga qo'shdi. | :inviter добавил вас в кабинет центра «:organization» на платформе LexiFlow Pro. |
+| `org.mail.invitation.set_password` | Quyidagi havola orqali parol o'rnating — u :hours soat amal qiladi va bir marta ishlaydi. | Задайте пароль по ссылке ниже — она действует :hours ч. и работает один раз. |
+| `org.mail.invitation.button_set_password` | Parol o'rnatish | Задать пароль |
+| `org.mail.invitation.existing_account` | Odatdagi parolingiz bilan kiring — markaz kabinetda allaqachon mavjud. | Войдите с вашим обычным паролем — центр уже доступен в кабинете. |
+| `org.mail.invitation.button_open` | Kabinetni ochish | Открыть кабинет |
+| `org.mail.invitation.ignore` | Agar bu xatni kutmagan bo'lsangiz, shunchaki e'tiborsiz qoldiring. | Если вы не ждали этого письма, просто проигнорируйте его. |
+| `org.bot.not_staff` | /org buyrug'i o'quv markazlari xodimlari uchun. Telegramingiz hech bir kabinetga bog'lanmagan: kabinet profilida Telegram ID ni ko'rsating. | Команда /org — для сотрудников учебных центров. Ваш Telegram не привязан ни к одному кабинету: укажите свой Telegram ID в профиле кабинета. |
+| `org.bot.header` | Sizning markazlaringiz: | Ваши центры: |
+| `org.bot.line` | :name — :role<br>O'rinlar: :seats · 7 kunda faollar: :active<br>:url | :name — :role<br>Места: :seats · активных за 7 дней: :active<br>:url |
+| `org.bot.line_teacher` | :name — :role<br>7 kunda faollar: :active<br>:url | :name — :role<br>Активных за 7 дней: :active<br>:url |
+| `org.bot.seats_unlimited` | cheklovsiz | без лимита |
+| `org.bot.seats_none` | obuna yo'q | нет подписки |
