@@ -30,7 +30,7 @@ it('redeems a code and answers with the refreshed profile (Pro with its end)', f
             'entitlement' => ['plan', 'source', 'until', 'new_words_per_day', 'renewal', 'lapsed'],
             'paywall' => ['mode', 'contact'],
             'settings' => [
-                'interface_locale', 'timezone', 'reminder_time', 'daily_goal', 'goal', 'level', 'leagues_opt_out', 'timezone_change_available_at', 'active_course',
+                'interface_locale', 'timezone', 'reminder_time', 'daily_goal', 'goal', 'level', 'leagues_opt_out', 'timezone_change_available_at', 'timezone_undo_available_until', 'active_course',
                 'options' => [
                     'locales' => ['*' => ['id', 'label']],
                     'timezones' => ['*' => ['id', 'label']],

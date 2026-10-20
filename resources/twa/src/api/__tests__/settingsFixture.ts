@@ -11,6 +11,7 @@ export function settingsFixture(overrides: Partial<LearnerSettings> = {}): Learn
     level: null,
     leagues_opt_out: false,
     timezone_change_available_at: null,
+    timezone_undo_available_until: null,
     active_course: null,
     options: {
       locales: [

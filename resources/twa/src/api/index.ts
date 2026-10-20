@@ -65,6 +65,7 @@ export const api = {
   me: {
     get: () => client().get<MeResponse>('/me'),
     updateSettings: (patch: SettingsPatch) => client().patch<MeResponse>('/me/settings', { ...patch }),
+    revertTimezone: () => client().post<MeResponse>('/me/settings/timezone/revert'),
   },
   today: {
     get: () => client().get<TodayResponse>('/today'),
