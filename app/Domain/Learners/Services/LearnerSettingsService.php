@@ -9,6 +9,7 @@ use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Learners\Exceptions\InvalidSettingException;
 use App\Domain\Learners\Exceptions\TimezoneChangeTooSoonException;
+use App\Domain\Learners\Exceptions\TimezoneRevertUnavailableException;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Learner;
 use Carbon\CarbonImmutable;
@@ -52,6 +53,11 @@ use Throwable;
  * not subject to either rule — unless a zone change through the settings already happened (or its
  * carried day is still running): then the onboarding's zone step calls {@see update()} too.
  *
+ * A change of the zone can be taken back within {@see TIMEZONE_UNDO_MINUTES} ({@see revertTimezone()}):
+ * the change saves what it replaced in `meta.timezone_change_undo` (the previous zone, the moment of the
+ * change and the previous `timezone_changed_at` / `local_day_carry`), and the undo puts exactly that back —
+ * no 24 h penalty and no later quota window than without the change. A newer change overwrites the snapshot.
+ *
  * Lowering `daily_goal` to or below what is already done today completes today's goal at once
  * ({@see DailyStatsService::reconcileGoal()}) — in its own transaction AFTER the `learners` one has
  * committed, so `learners` and `learner_daily_stats` are never locked together (docs/06 §4.2; the
@@ -66,6 +72,7 @@ use Throwable;
  *   goal: string|null,
  *   level: string|null,
  *   timezone_change_available_at: string|null,
+ *   timezone_undo_available_until: string|null,
  *   active_course: array{slug: string, title: string}|null,
  *   options: array{
  *     locales: list<array{id: string, label: string}>,
@@ -87,6 +94,12 @@ final class LearnerSettingsService
 
     /** `learners.meta` key: UTC instant of the last accepted change of `timezone` (not set by the onboarding). */
     public const TIMEZONE_CHANGED_AT_META = 'timezone_changed_at';
+
+    /** How long after a change of `timezone` it can be taken back (docs/13 §9, 2R.7). */
+    public const TIMEZONE_UNDO_MINUTES = 10;
+
+    /** `learners.meta` key: what {@see revertTimezone()} needs — `{timezone, changed_at, previous_changed_at, previous_day_carry}`. */
+    public const TIMEZONE_UNDO_META = 'timezone_change_undo';
 
     /** `learners.meta` key: the learner picked the interface language (settings / onboarding) — Telegram's `language_code` stops deciding it. */
     public const LOCALE_CHOSEN = 'locale_chosen';
@@ -194,6 +207,7 @@ final class LearnerSettingsService
             'goal' => $learner->goal,
             'level' => $learner->level,
             'timezone_change_available_at' => $this->timezoneChangeAvailableAt($learner)?->utc()->toIso8601String(),
+            'timezone_undo_available_until' => $this->timezoneUndoAvailableUntil($learner)?->toIso8601String(),
             'active_course' => $this->activeCourse($learner, $locale),
             'options' => [
                 'locales' => array_map(
@@ -265,6 +279,95 @@ final class LearnerSettingsService
         return $now->isBefore($availableAt) ? $availableAt : null;
     }
 
+    /**
+     * Takes back the last change of `timezone` if it is at most {@see TIMEZONE_UNDO_MINUTES} old: the previous
+     * zone, `timezone_changed_at` and `local_day_carry` come back exactly as they were (a mark that did not
+     * exist is removed), so the learner pays no 24 h wait and the quota window is the one there would be
+     * without the change. The snapshot is consumed: a second undo is refused. `streak_freezes*` are not
+     * touched — a refill is tied to the week, which only moves forward.
+     *
+     * @throws TimezoneRevertUnavailableException no change to take back, or the 10 minutes have passed
+     */
+    public function revertTimezone(Learner $learner): Learner
+    {
+        DB::transaction(function () use ($learner): void {
+            $lock = Learner::query()->whereKey($learner->id);
+            /** @var Learner $fresh */
+            $fresh = (DB::connection()->getDriverName() === 'pgsql' ? $lock->lock('for no key update') : $lock->lockForUpdate())->firstOrFail();
+
+            $undo = $this->timezoneUndo($fresh);
+            $now = CarbonImmutable::now();
+            if ($undo === null || ! $now->isBefore($undo['changed_at']->addMinutes(self::TIMEZONE_UNDO_MINUTES))) {
+                throw new TimezoneRevertUnavailableException;
+            }
+
+            $meta = $fresh->meta ?? [];
+            unset($meta[self::TIMEZONE_UNDO_META], $meta[self::TIMEZONE_CHANGED_AT_META], $meta[LearnerClock::DAY_CARRY_META]);
+            if ($undo['previous_changed_at'] !== null) {
+                $meta[self::TIMEZONE_CHANGED_AT_META] = $undo['previous_changed_at'];
+            }
+            if ($undo['previous_day_carry'] !== null) {
+                $meta[LearnerClock::DAY_CARRY_META] = $undo['previous_day_carry'];
+            }
+
+            $fresh->timezone = $undo['timezone'];
+            $fresh->meta = $meta;
+            $this->scheduleReminder($fresh);
+            $fresh->save();
+        });
+
+        $learner->refresh();
+        $this->events->record(ProductEventName::SettingsChanged, ['fields' => 'timezone'], learner: $learner);
+
+        return $learner;
+    }
+
+    /** Until when the last change of `timezone` can be taken back; `null` = it cannot (never changed, or too late). */
+    public function timezoneUndoAvailableUntil(Learner $learner, ?CarbonImmutable $now = null): ?CarbonImmutable
+    {
+        $undo = $this->timezoneUndo($learner);
+        if ($undo === null) {
+            return null;
+        }
+
+        $until = $undo['changed_at']->addMinutes(self::TIMEZONE_UNDO_MINUTES);
+
+        return ($now ?? CarbonImmutable::now())->isBefore($until) ? $until : null;
+    }
+
+    /**
+     * The well-formed undo snapshot of `learners.meta`, or null.
+     *
+     * @return array{timezone: string, changed_at: CarbonImmutable, previous_changed_at: string|null, previous_day_carry: array<mixed>|null}|null
+     */
+    private function timezoneUndo(Learner $learner): ?array
+    {
+        $raw = ($learner->meta ?? [])[self::TIMEZONE_UNDO_META] ?? null;
+        if (! is_array($raw) || ! is_string($raw['timezone'] ?? null) || ! is_string($raw['changed_at'] ?? null)
+            || ! in_array($raw['timezone'], $this->knownTimezones(), true)) {
+            return null;
+        }
+
+        $previousChangedAt = $raw['previous_changed_at'] ?? null;
+        $previousCarry = $raw['previous_day_carry'] ?? null;
+        if (($previousChangedAt !== null && ! is_string($previousChangedAt)) || ($previousCarry !== null && ! is_array($previousCarry))) {
+            return null;
+        }
+
+        try {
+            $changedAt = CarbonImmutable::parse($raw['changed_at'])->utc();
+        } catch (Throwable) {
+            return null;
+        }
+
+        return [
+            'timezone' => $raw['timezone'],
+            'changed_at' => $changedAt,
+            'previous_changed_at' => $previousChangedAt,
+            'previous_day_carry' => $previousCarry,
+        ];
+    }
+
     /** `HH:MM` of a stored `time` (PostgreSQL returns `HH:MM:SS`); `null` stays `null`. */
     public function shortTime(?string $time): ?string
     {
@@ -332,8 +435,20 @@ final class LearnerSettingsService
             throw new TimezoneChangeTooSoonException($availableAt);
         }
 
+        $before = $fresh->meta ?? [];
+        $undo = [
+            'timezone' => $fresh->timezone,
+            'changed_at' => $now->utc()->toIso8601String(),
+            'previous_changed_at' => $before[self::TIMEZONE_CHANGED_AT_META] ?? null,
+            'previous_day_carry' => $before[LearnerClock::DAY_CARRY_META] ?? null,
+        ];
+
         $this->clock->carryDayAcrossTimezoneChange($fresh, $now);
-        $fresh->meta = [...($fresh->meta ?? []), self::TIMEZONE_CHANGED_AT_META => $now->utc()->toIso8601String()];
+        $fresh->meta = [
+            ...($fresh->meta ?? []),
+            self::TIMEZONE_CHANGED_AT_META => $now->utc()->toIso8601String(),
+            self::TIMEZONE_UNDO_META => $undo,
+        ];
     }
 
     /**

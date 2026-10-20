@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
@@ -21,6 +21,19 @@ const { data, status, saving, saved, errorMessage: message, timezoneLockMessage 
 
 // "My centers": the membership whose "Leave" waits for the confirmation tap (null = none).
 const confirmingId = ref<number | null>(null)
+
+// The "undo" of a time zone change: counts down to `timezone_undo_available_until`.
+const nowMs = ref(Date.now())
+let tick: ReturnType<typeof setInterval> | null = null
+
+const undoLeft = computed((): string | null => {
+  const iso = data.value?.timezone_undo_available_until
+  const left = iso ? new Date(iso).getTime() - nowMs.value : Number.NaN
+  if (!(left > 0)) return null
+
+  const seconds = Math.ceil(left / 1000)
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`
+})
 
 let hideBack: (() => void) | null = null
 
@@ -63,10 +76,12 @@ const onGoal = (e: Event) =>
 
 onMounted(() => {
   hideBack = showBackButton(() => void router.push({ name: 'today' }))
+  tick = setInterval(() => (nowMs.value = Date.now()), 1000)
   void load()
 })
 
 onBeforeUnmount(() => {
+  if (tick !== null) clearInterval(tick)
   hideBack?.()
 })
 </script>
@@ -104,6 +119,16 @@ onBeforeUnmount(() => {
           <option v-for="option in data.options.timezones" :key="option.id" :value="option.id">{{ option.label }}</option>
         </select>
         <span v-if="timezoneLockMessage" class="block text-xs text-tg-hint" data-testid="timezone-locked">{{ timezoneLockMessage }}</span>
+        <button
+          v-if="undoLeft !== null"
+          type="button"
+          class="btn btn-secondary w-full"
+          :disabled="saving"
+          data-testid="timezone-undo"
+          @click.prevent="settings.revertTimezone()"
+        >
+          {{ t('settings.timezone.undo', { time: undoLeft }) }}
+        </button>
       </label>
 
       <label class="card block space-y-2">

@@ -6,6 +6,8 @@ namespace App\Domain\Telegram\Handlers;
 
 use App\Domain\Learners\Exceptions\OnboardingException;
 use App\Domain\Learners\Exceptions\TimezoneChangeTooSoonException;
+use App\Domain\Learners\Exceptions\TimezoneRevertUnavailableException;
+use App\Domain\Learners\Services\LearnerSettingsService;
 use App\Domain\Learners\Services\OnboardingService;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
 use App\Domain\Telegram\Services\OnboardingMessenger;
@@ -40,6 +42,7 @@ final class OnboardingCallbackHandler implements UpdateHandler
         private readonly CallbackAcknowledger $acknowledger,
         private readonly DmLearnerResolver $learners,
         private readonly OnboardingService $onboarding,
+        private readonly LearnerSettingsService $settings,
         private readonly OnboardingMessenger $messenger,
         private readonly OrganizationMessenger $organizations,
     ) {}
@@ -75,7 +78,7 @@ final class OnboardingCallbackHandler implements UpdateHandler
             || $fromId <= 0
             || (int) ($message['chat']['id'] ?? 0) !== $fromId
             || preg_match(self::FORMAT, (string) ($cq['data'] ?? ''), $m) !== 1
-            || ! in_array($m[2], OnboardingService::STEPS, true)
+            || ! (in_array($m[2], OnboardingService::STEPS, true) || $this->isTimezoneUndo($m))
         ) {
             return;
         }
@@ -89,6 +92,12 @@ final class OnboardingCallbackHandler implements UpdateHandler
 
         $step = $m[2];
         $value = $m[3] ?? null;
+
+        if ($this->isTimezoneUndo($m)) {
+            $this->undoTimezone($learner, $chatId, $messageId);
+
+            return;
+        }
 
         try {
             if ($m[1] === OnboardingMessenger::ONBOARDING_PREFIX) {
@@ -121,7 +130,11 @@ final class OnboardingCallbackHandler implements UpdateHandler
 
             $this->onboarding->applySetting($learner, $step, $value);
             $this->messenger->clearKeyboard($chatId, $messageId);
-            $this->messenger->sendSettingSaved($learner, $chatId);
+            $this->messenger->sendSettingSaved(
+                $learner,
+                $chatId,
+                withTimezoneUndo: $step === 'timezone' && $this->settings->timezoneUndoAvailableUntil($learner->refresh()) !== null,
+            );
         } catch (OnboardingException $e) {
             // Stale or tampered button: already answered, nothing to change or say —
             // except the retry of a half-delivered answer, see the class comment.
@@ -131,6 +144,24 @@ final class OnboardingCallbackHandler implements UpdateHandler
         } catch (TimezoneChangeTooSoonException $e) {
             // A legitimate tap the rules refuse: the learner is told when the zone can change again.
             $this->messenger->sendTimezoneChangeTooSoon($learner, $chatId, $e->availableAt);
+        }
+    }
+
+    /** @param array<int, string> $m the matches of {@see FORMAT}: `set1:tzundo` is the "undo" button under the confirmation of a zone change */
+    private function isTimezoneUndo(array $m): bool
+    {
+        return $m[1] === OnboardingMessenger::SETTINGS_PREFIX && $m[2] === OnboardingMessenger::TIMEZONE_UNDO_STEP && ! isset($m[3]);
+    }
+
+    private function undoTimezone(Learner $learner, int $chatId, int $messageId): void
+    {
+        $this->messenger->clearKeyboard($chatId, $messageId);
+
+        try {
+            $this->settings->revertTimezone($learner);
+            $this->messenger->sendTimezoneReverted($learner, $chatId);
+        } catch (TimezoneRevertUnavailableException) {
+            $this->messenger->sendTimezoneRevertUnavailable($learner, $chatId);
         }
     }
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Twa;
 
 use App\Domain\Learners\Exceptions\TimezoneChangeTooSoonException;
+use App\Domain\Learners\Exceptions\TimezoneRevertUnavailableException;
 use App\Domain\Learners\Services\LearnerSettingsService;
 use App\Domain\Twa\Services\MePayloadBuilder;
 use App\Http\Requests\Twa\UpdateSettingsRequest;
@@ -12,6 +13,7 @@ use App\Http\Resources\ApiErrorResource;
 use App\Http\Resources\Twa\MeResource;
 use App\Models\Learner;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 final class SettingsController
 {
@@ -32,6 +34,24 @@ final class SettingsController
         try {
             $this->settings->update($learner, $request->validated());
         } catch (TimezoneChangeTooSoonException $e) {
+            return ApiErrorResource::respond(422, $e->errorCode, $e->getMessage());
+        }
+
+        return (new MeResource($this->payload->build($learner)))->response();
+    }
+
+    /**
+     * POST /api/twa/me/settings/timezone/revert — takes back the last change of the time zone within 10 minutes
+     * (docs/13 §9, 2R.7); answers with the refreshed profile, or 422 `timezone_revert_unavailable`.
+     */
+    public function revertTimezone(Request $request): JsonResponse
+    {
+        /** @var Learner $learner */
+        $learner = $request->attributes->get('learner');
+
+        try {
+            $this->settings->revertTimezone($learner);
+        } catch (TimezoneRevertUnavailableException $e) {
             return ApiErrorResource::respond(422, $e->errorCode, $e->getMessage());
         }
 

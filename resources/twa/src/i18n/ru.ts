@@ -261,6 +261,7 @@ export const ru = {
   'settings.title': 'Настройки',
   'settings.language': 'Язык интерфейса',
   'settings.timezone': 'Часовой пояс',
+  'settings.timezone.undo': 'Отменить смену пояса ({time})',
   'settings.timezone.locked': 'Часовой пояс можно менять не чаще раза в сутки. Следующая смена — {when}.',
   'settings.reminder': 'Напоминания',
   'settings.reminder.off': 'Без напоминаний',
@@ -329,6 +330,7 @@ export const ru = {
 
   // ---- errors (by API error.code) ----
   'error.code.timezone_change_too_soon': 'Часовой пояс можно менять не чаще раза в сутки.',
+  'error.code.timezone_revert_unavailable': 'Отменить смену часового пояса уже нельзя: прошло больше 10 минут или она уже отменена.',
   'error.code.price_not_configured': 'Этот вариант оплаты пока недоступен.',
   'error.code.provider_disabled': 'Этот способ оплаты сейчас недоступен. Выберите другой.',
   'error.code.provider_not_supported': 'Этот способ оплаты вам недоступен.',

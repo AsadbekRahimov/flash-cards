@@ -213,6 +213,7 @@
 | `error.forbidden.catalog` | Sizda kurslar katalogiga kirish huquqi yo'q. | У вас нет доступа к каталогу курсов. |
 | `error.code.course_not_found` | Kurs topilmadi yoki mavjud emas. | Курс не найден или недоступен. |
 | `error.code.timezone_change_too_soon` | Vaqt mintaqasini kuniga bir martadan ko'p o'zgartirib bo'lmaydi. | Часовой пояс можно менять не чаще раза в сутки. |
+| `error.code.timezone_revert_unavailable` | Vaqt mintaqasi o'zgarishini endi bekor qilib bo'lmaydi: 10 daqiqadan ko'proq o'tdi yoki u allaqachon bekor qilingan. | Отменить смену часового пояса уже нельзя: прошло больше 10 минут или она уже отменена. |
 | `error.closed.training` | O'qituvchi mashg'ulotni yakunladi. | Учитель завершил тренировку. |
 | `error.closed.exam` | Imtihon o'qituvchi tomonidan yakunlandi. | Экзамен был завершён учителем. |
 | `error.forbidden.training` | Sizda bu mashg'ulotga kirish huquqi yo'q. | У вас нет доступа к этой тренировке. |
@@ -337,6 +338,9 @@
 | `onboarding.settings.menu` | Nimani o'zgartirmoqchisiz? | Что хотите изменить? |
 | `onboarding.settings.saved` | Saqlandi. | Сохранено. |
 | `onboarding.settings.timezone_too_soon` | Vaqt mintaqasini kuniga bir martadan ko'p o'zgartirib bo'lmaydi. Keyingi o'zgartirish — :when dan keyin (joriy vaqtingiz bo'yicha). | Часовой пояс можно менять не чаще одного раза в сутки. Следующая смена — после :when (по вашему текущему времени). |
+| `onboarding.settings.timezone_undo` | Bekor qilish | Отменить |
+| `onboarding.settings.timezone_reverted` | Vaqt mintaqasi qaytarildi. | Часовой пояс возвращён. |
+| `onboarding.settings.timezone_revert_unavailable` | Vaqt mintaqasi o'zgarishini endi bekor qilib bo'lmaydi: 10 daqiqadan ko'proq o'tdi yoki u allaqachon bekor qilingan. | Отменить смену часового пояса уже нельзя: прошло больше 10 минут или она уже отменена. |
 | `onboarding.settings.buttons.locale` | Til | Язык |
 | `onboarding.settings.buttons.goal` | Maqsad | Цель |
 | `onboarding.settings.buttons.level` | Daraja | Уровень |
@@ -433,6 +437,7 @@
 | `settings.language` | Interfeys tili | Язык интерфейса |
 | `settings.timezone` | Vaqt mintaqasi | Часовой пояс |
 | `settings.timezone.locked` | Vaqt mintaqasini kuniga bir martadan ko'p o'zgartirib bo'lmaydi. Keyingi o'zgartirish — {when}. | Часовой пояс можно менять не чаще раза в сутки. Следующая смена — {when}. |
+| `settings.timezone.undo` | Mintaqa o'zgarishini bekor qilish ({time}) | Отменить смену пояса ({time}) |
 | `settings.reminder` | Eslatmalar | Напоминания |
 | `settings.reminder.off` | Eslatmalarsiz | Без напоминаний |
 | `settings.reminder.hint` | Vaqt sizning vaqt mintaqangiz bo'yicha. | Время — по вашему часовому поясу. |

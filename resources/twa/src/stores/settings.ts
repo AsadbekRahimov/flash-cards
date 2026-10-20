@@ -104,6 +104,31 @@ export const useSettingsStore = defineStore('settings', {
       }
     },
 
+    /**
+     * Takes back the last change of the time zone (within 10 minutes of it). On a refusal
+     * (`timezone_revert_unavailable`: too late / already used) the server's settings are taken again, so the button goes away.
+     *
+     * @returns whether the zone was put back
+     */
+    async revertTimezone(): Promise<boolean> {
+      if (this.saving) return false
+
+      this.saving = true
+      this.saved = false
+      this.errorMessage = ''
+      try {
+        this.apply((await api.me.revertTimezone()).settings)
+        this.saved = true
+        return true
+      } catch (err) {
+        if (err instanceof ApiClientError && err.code === 'timezone_revert_unavailable') await this.reloadQuietly()
+        this.errorMessage = errorMessage(err, 'settings')
+        return false
+      } finally {
+        this.saving = false
+      }
+    },
+
     async reloadQuietly(): Promise<void> {
       try {
         this.apply((await api.me.get()).settings)

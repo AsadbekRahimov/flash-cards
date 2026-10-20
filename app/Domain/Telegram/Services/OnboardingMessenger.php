@@ -33,6 +33,9 @@ final class OnboardingMessenger
 
     public const SETTINGS_PREFIX = 'set1';
 
+    /** `set1:tzundo` — the button that takes back a just-made change of the time zone. */
+    public const TIMEZONE_UNDO_STEP = 'tzundo';
+
     public function __construct(
         private readonly TelegramClient $telegram,
         private readonly LocaleResolver $locales,
@@ -138,9 +141,28 @@ final class OnboardingMessenger
         );
     }
 
-    public function sendSettingSaved(Learner $learner, int|string $chatId): void
+    public function sendSettingSaved(Learner $learner, int|string $chatId, bool $withTimezoneUndo = false): void
     {
-        $this->telegram->sendMessage($chatId, __('onboarding.settings.saved', [], $this->locales->forLearner($learner)));
+        $locale = $this->locales->forLearner($learner);
+
+        $this->telegram->sendMessage(
+            $chatId,
+            __('onboarding.settings.saved', [], $locale),
+            replyMarkup: $withTimezoneUndo ? ['inline_keyboard' => [[[
+                'text' => __('onboarding.settings.timezone_undo', [], $locale),
+                'callback_data' => self::SETTINGS_PREFIX.':'.self::TIMEZONE_UNDO_STEP,
+            ]]]] : null,
+        );
+    }
+
+    public function sendTimezoneReverted(Learner $learner, int|string $chatId): void
+    {
+        $this->telegram->sendMessage($chatId, __('onboarding.settings.timezone_reverted', [], $this->locales->forLearner($learner)));
+    }
+
+    public function sendTimezoneRevertUnavailable(Learner $learner, int|string $chatId): void
+    {
+        $this->telegram->sendMessage($chatId, __('onboarding.settings.timezone_revert_unavailable', [], $this->locales->forLearner($learner)));
     }
 
     /** `/settings` refused a time-zone change (once per 24 h): says when it is possible again, in the learner's current local time. */
