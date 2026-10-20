@@ -267,8 +267,67 @@ return [
         ],
     ],
 
+    'reports' => [
+        'filters' => [
+            'group' => 'Guruh',
+            'all_groups' => 'Barcha guruhlar',
+            'period' => 'Davr',
+            'period_7' => '7 kun',
+            'period_30' => '30 kun',
+            'period_custom' => 'O\'z davrim',
+            'from' => 'Dan',
+            'to' => 'Gacha',
+        ],
+        'period_label' => 'Davr: :from — :to (shu kunlar ham kiradi)',
+        'errors' => [
+            'invalid_range' => 'To\'g\'ri davrni kiriting: "Dan" sanasi "Gacha" sanasidan keyin bo\'lmasligi kerak.',
+            'range_too_long' => 'Davr :days kundan uzun bo\'lishi mumkin emas.',
+        ],
+        'learners' => [
+            'heading' => 'O\'quvchilar',
+            'empty' => 'Hisobot uchun o\'quvchilar yo\'q.',
+        ],
+        'groups' => [
+            'heading' => 'Guruhlar',
+            'empty' => 'Hisobot uchun guruhlar yo\'q.',
+        ],
+        'columns' => [
+            'learner' => 'O\'quvchi',
+            'reviews' => 'Takrorlashlar',
+            'new_words' => 'Yangi so\'zlar',
+            'days_active' => 'Faol kunlar',
+            'goal_met_days' => 'Maqsad bajarilgan kunlar',
+            'streak' => 'Ketma-ket kunlar',
+            'assignments' => 'Vazifalar (bajarilgan / jami)',
+            'last_seen' => 'Oxirgi faollik',
+            'group' => 'Guruh',
+            'learners' => 'O\'quvchilar soni',
+            'active_learners' => 'Faollar',
+        ],
+        'actions' => [
+            'csv_learners' => 'CSV yuklab olish (o\'quvchilar)',
+            'csv_groups' => 'CSV yuklab olish (guruhlar)',
+        ],
+        'csv' => [
+            'learner' => 'O\'quvchi',
+            'username' => 'Username',
+            'reviews' => 'Takrorlashlar',
+            'new_words' => 'Yangi so\'zlar',
+            'days_active' => 'Faol kunlar',
+            'goal_met_days' => 'Maqsad bajarilgan kunlar',
+            'streak' => 'Ketma-ket kunlar',
+            'assignments_done' => 'Bajarilgan vazifalar',
+            'assignments_total' => 'Jami vazifalar',
+            'last_seen' => 'Oxirgi faollik',
+            'group' => 'Guruh',
+            'learners' => 'O\'quvchilar soni',
+            'active_learners' => 'Faol o\'quvchilar',
+        ],
+        'privacy' => 'Hisobotda faqat kunlik yakunlar (takrorlashlar, yangi so\'zlar, faol kunlar) va vazifa natijalari bor; o\'quvchilarning shaxsiy mashg\'ulotlari ko\'rsatilmaydi.',
+        'never' => 'hech qachon',
+    ],
+
     'stubs' => [
-        'reports' => 'O\'quvchilar faolligi hisoboti kabinetning keyingi yangilanishida paydo bo\'ladi.',
         'billing' => 'Tarif tanlash va to\'lov keyingi yangilanishda paydo bo\'ladi. Hozircha tarifni platforma administratori faollashtiradi.',
     ],
 

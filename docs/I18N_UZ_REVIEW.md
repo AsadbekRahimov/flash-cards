@@ -1048,7 +1048,6 @@
 | `org.settings.fields.locale` | Kabinet tili | Язык кабинета |
 | `org.profile.fields.telegram_user_id` | Mening Telegram ID m | Мой Telegram ID |
 | `org.profile.fields.telegram_user_id_help` | Telegram akkauntingizning raqamli ID si (bot uni /stats bo'yicha ko'rsatadi). Guruhlardagi o'qituvchi buyruqlari va guruhlarni bog'lash uchun kerak. | Числовой ID вашего аккаунта Telegram (бот показывает его по /stats). Нужен для команд учителя в группах и привязки групп. |
-| `org.stubs.reports` | O'quvchilar faolligi hisoboti kabinetning keyingi yangilanishida paydo bo'ladi. | Отчёт об активности учеников появится в следующем обновлении кабинета. |
 | `org.stubs.billing` | Tarif tanlash va to'lov keyingi yangilanishda paydo bo'ladi. Hozircha tarifni platforma administratori faollashtiradi. | Выбор тарифа и оплата появятся в следующем обновлении. Пока тариф активирует администратор платформы. |
 | `org.billing.rows.tier` | Tarif | Тариф |
 | `org.billing.rows.status` | Obuna holati | Статус подписки |
@@ -1161,3 +1160,55 @@
 | `assignments.continue` | Davom etish | Продолжить |
 | `assignments.done` | Bajarilgan | Выполнено |
 | `assignments.done_late` | Kechikib bajarilgan | Выполнено с опозданием |
+
+## Фаза 2 · задача 2B.5 (отчёт об активности центра) — на проверку носителю
+
+> Проверить: «hisobot» (отчёт), «davr» (период), «faol kunlar» (дни активности), «takrorlashlar» (повторения), «ketma-ket kunlar» (серия дней), «vazifa» (задание — как в 2B.4). Строка `org.stubs.reports` удалена (заглушка заменена экраном). `org.reports.csv.*` — заголовки CSV-файла (открывается в Excel, разделитель `;`); `:from`, `:to`, `:days` — подстановки.
+
+### Отчёт (`lang/uz/org.php`, блок `reports`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `org.reports.filters.group` | Guruh | Группа |
+| `org.reports.filters.all_groups` | Barcha guruhlar | Все группы |
+| `org.reports.filters.period` | Davr | Период |
+| `org.reports.filters.period_7` | 7 kun | 7 дней |
+| `org.reports.filters.period_30` | 30 kun | 30 дней |
+| `org.reports.filters.period_custom` | O'z davrim | Свой период |
+| `org.reports.filters.from` | Dan | С |
+| `org.reports.filters.to` | Gacha | По |
+| `org.reports.period_label` | Davr: :from — :to (shu kunlar ham kiradi) | Период: :from — :to (включительно) |
+| `org.reports.errors.invalid_range` | To'g'ri davrni kiriting: "Dan" sanasi "Gacha" sanasidan keyin bo'lmasligi kerak. | Укажите корректный период: дата «С» не позже даты «По». |
+| `org.reports.errors.range_too_long` | Davr :days kundan uzun bo'lishi mumkin emas. | Период не может быть длиннее :days дней. |
+| `org.reports.learners.heading` | O'quvchilar | Ученики |
+| `org.reports.learners.empty` | Hisobot uchun o'quvchilar yo'q. | Нет учеников для отчёта. |
+| `org.reports.groups.heading` | Guruhlar | Группы |
+| `org.reports.groups.empty` | Hisobot uchun guruhlar yo'q. | Нет групп для отчёта. |
+| `org.reports.columns.learner` | O'quvchi | Ученик |
+| `org.reports.columns.reviews` | Takrorlashlar | Повторений |
+| `org.reports.columns.new_words` | Yangi so'zlar | Новых слов |
+| `org.reports.columns.days_active` | Faol kunlar | Дней активности |
+| `org.reports.columns.goal_met_days` | Maqsad bajarilgan kunlar | Дней с выполненной целью |
+| `org.reports.columns.streak` | Ketma-ket kunlar | Серия дней |
+| `org.reports.columns.assignments` | Vazifalar (bajarilgan / jami) | Задания (выполнено / всего) |
+| `org.reports.columns.last_seen` | Oxirgi faollik | Был в сети |
+| `org.reports.columns.group` | Guruh | Группа |
+| `org.reports.columns.learners` | O'quvchilar soni | Учеников |
+| `org.reports.columns.active_learners` | Faollar | Активных |
+| `org.reports.actions.csv_learners` | CSV yuklab olish (o'quvchilar) | Скачать CSV (ученики) |
+| `org.reports.actions.csv_groups` | CSV yuklab olish (guruhlar) | Скачать CSV (группы) |
+| `org.reports.csv.learner` | O'quvchi | Ученик |
+| `org.reports.csv.username` | Username | Username |
+| `org.reports.csv.reviews` | Takrorlashlar | Повторений |
+| `org.reports.csv.new_words` | Yangi so'zlar | Новых слов |
+| `org.reports.csv.days_active` | Faol kunlar | Дней активности |
+| `org.reports.csv.goal_met_days` | Maqsad bajarilgan kunlar | Дней с выполненной целью |
+| `org.reports.csv.streak` | Ketma-ket kunlar | Серия дней |
+| `org.reports.csv.assignments_done` | Bajarilgan vazifalar | Заданий выполнено |
+| `org.reports.csv.assignments_total` | Jami vazifalar | Заданий всего |
+| `org.reports.csv.last_seen` | Oxirgi faollik | Был в сети |
+| `org.reports.csv.group` | Guruh | Группа |
+| `org.reports.csv.learners` | O'quvchilar soni | Учеников |
+| `org.reports.csv.active_learners` | Faol o'quvchilar | Активных учеников |
+| `org.reports.privacy` | Hisobotda faqat kunlik yakunlar (takrorlashlar, yangi so'zlar, faol kunlar) va vazifa natijalari bor; o'quvchilarning shaxsiy mashg'ulotlari ko'rsatilmaydi. | В отчёте только суточные итоги (повторения, новые слова, дни активности) и результаты заданий; личные сессии учеников не раскрываются. |
+| `org.reports.never` | hech qachon | никогда |

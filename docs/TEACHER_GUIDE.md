@@ -166,7 +166,7 @@ invitation letter, and you only ever see your own center.
 | **Invitations** | create codes (label, uses, expiry), copy the `t.me/<bot>?start=org_<code>` link, deactivate | — |
 | **Teachers** | invite by email, assign groups, change role, resend the invitation, remove (the last owner cannot be removed) | — |
 | **Assignments** | all groups of the center: set a lesson with a deadline, see who finished, close | your groups only |
-| **Reports** | coming in the next update | coming in the next update |
+| **Reports** | activity of the whole center, per group and per learner; CSV download | the same, for your groups only |
 | **Billing** | tariff, subscription status, seats (payment arrives in a later update) | — |
 | **Center settings** | name, contact, timezone, cabinet language | — |
 
@@ -182,6 +182,17 @@ An assignment is *one lesson of the group's course with a deadline*.
 4. After the deadline an assignment stays open: late completions are still counted and marked **finished late**. **Close** ends it by hand (the final progress stays in the report; a closed assignment cannot be reopened); an assignment overdue for 14 days is closed automatically.
 
 A teacher sees and creates assignments only for their own groups; the owner for all groups of the center.
+
+### Reports
+
+**Reports** shows how the learners practised over a period, as two tables: a summary **per group** and a list **per learner**.
+
+- **Filters.** *Group* (only the groups you can see; empty means all), *Period*: the last 7 days, the last 30 days, or your own dates (from / to, both days included, at most 366 days). Days are counted in the center's time zone (**Center settings**).
+- **Columns per learner.** *Reviews* and *new words* (sums over the period), *days active* (days with at least one review or new word), *days the daily goal was met*, the *current streak* (0 if the learner skipped yesterday), *assignments done / total* and *last seen*. The group table adds the number of learners and how many of them were active.
+- **Assignments.** Counted are the center's assignments whose **deadline falls in the chosen period**, for learners who are still in the assignment's group; "done" means the learner reached the completion threshold (late completions count). The numbers are the last saved snapshot (refreshed every 30 minutes and when an assignment report is opened).
+- **CSV.** **Download CSV (learners)** and **Download CSV (groups)** export exactly what the tables show for the current filters. The file is UTF-8 with a BOM, fields are separated by `;` (opens correctly in Excel with Russian / Uzbek regional settings), the headers are in the cabinet's language. Telegram IDs are not exported.
+- **Who sees what.** The owner sees the whole center; a teacher only the learners and groups of their own groups. Learners of other centers never appear.
+- **Privacy.** The report contains only daily totals and assignment results. A learner's individual sessions and answers are never shown to staff.
 
 ### Seats, in one paragraph
 
