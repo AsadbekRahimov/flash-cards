@@ -161,6 +161,10 @@ export type OrderStatus = 'pending' | 'paid' | 'canceled' | 'expired' | 'failed'
 export interface OrderStatusResponse {
   status: OrderStatus
   paid_at: string | null
+  /** `replaced`: canceled because the offer's discount moved to a newer order / was used up — not a failure. */
+  reason: 'replaced' | null
+  /** Token (never an id) of the order that took over, when known. */
+  replaced_by: string | null
   subscription: SubscriptionSummary | null
 }
 

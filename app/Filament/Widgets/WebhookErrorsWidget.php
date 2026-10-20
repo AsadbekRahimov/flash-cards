@@ -44,6 +44,10 @@ class WebhookErrorsWidget extends StatsOverviewWidget
                 ->description('Payme / Click')
                 ->color($errors['canceled_transactions'] > 0 ? 'warning' : 'gray')
                 ->icon('heroicon-o-x-circle'),
+            Stat::make('Double discounts', (string) $errors['double_discounts'])
+                ->description('Offer discount paid twice (filter on Payment orders)')
+                ->color($errors['double_discounts'] > 0 ? 'danger' : 'success')
+                ->icon('heroicon-o-receipt-percent'),
         ];
     }
 }

@@ -287,7 +287,14 @@ Three read-only screens (nothing can be created, edited or deleted there):
 - **Payment orders** — the intent to buy and the only source of the amount: subject, tier (organizations), period,
   provider, amount after discount and list price, status (`pending` → `paid` / `canceled` / `expired` / `failed`),
   expiry, who created it (`twa`, `bot`, `org_panel`, `admin`). Pending orders expire by themselves after
-  `BILLING_ORDER_TTL_MINUTES` (job `billing:expire-orders`).
+  `BILLING_ORDER_TTL_MINUTES` (job `billing:expire-orders`). Offer bookkeeping badges (columns, also on the order page):
+  *Canceled reason* `offer_moved` (the learner's discount moved to a newer order) / `offer_redeemed` (the discount was
+  used by another payment) — both are normal and harmless; *Paid after cancel* — a payment that was already in flight
+  reached such a canceled order and was credited in full (the money is never lost); **Double discount** (red) — that
+  late payment came after the discount had been used by another order, so the learner got the discount twice. Filter
+  **Double discount** lists them. What to do: nothing is required to keep the customer — the subscription is already
+  valid; if the second discount is not acceptable, agree on a correction with the owner (the case is rare: it needs two
+  payments to be confirmed within seconds). Look at the matching offer (**Learners → Offers**) for the first order.
 - **Provider transactions** — Payme / Click transaction state (created → performed / canceled, cancel reason) and the
   journal of webhook calls (`history`).
 
@@ -378,7 +385,7 @@ Changes apply within seconds.
 | Onboarding funnel — 7 days | **admin only** | Learners who started onboarding in the last 7 days (`onboarding.started`), how many of them have completed it (`onboarding.completed`) and the conversion %. Distinct learners; a learner who started earlier and finished this week is not in the cohort |
 | Organizations — members / seats | **admin only** | Per organization: active groups, **members** (distinct learners with an active membership in an active group of the organization; deleted learners are not counted), **seats** (`seats_limit` of the organization's live subscription; empty when none was set) and whether it is sponsoring Pro |
 | Revenue, last 30 days | **admin only** | One figure per currency, **UZS and XTR are never added together**. *Revenue* = the charges and renewals of the last 30 days (by payment time) that are still `succeeded`, i.e. gross minus the `refunded` ones; the line below shows the number of payments, the gross and the refunded amount. Failed events and the `refund` bookkeeping rows are not counted; a charge older than 30 days that is refunded today does not change this figure |
-| Payment webhook errors, last 24 h | **admin only** | *Failed payments* — ledger rows recorded as `failed` in the last 24 hours (by provider); *Canceled provider transactions* — Payme / Click transactions canceled in that time (a customer closing the page also cancels, so only a spike matters). Any failed payment deserves a look: open **Payments → Status: failed** |
+| Payment webhook errors, last 24 h | **admin only** | *Failed payments* — ledger rows recorded as `failed` in the last 24 hours (by provider); *Canceled provider transactions* — Payme / Click transactions canceled in that time (a customer closing the page also cancels, so only a spike matters). Any failed payment deserves a look: open **Payments → Status: failed**. *Double discounts* — orders paid in the last 24 hours with the red **Double discount** badge (**Payment orders → filter Double discount**); normally 0 |
 
 The *admin only* widgets show platform-wide data: a teacher never sees them (they are not on the dashboard and
 cannot be opened directly; an inactive admin gets the same). The seat limit is informational in

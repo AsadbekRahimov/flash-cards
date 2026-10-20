@@ -47,7 +47,7 @@ const catalog = (overrides: Partial<BillingCatalog> = {}): BillingCatalog => ({
   ...overrides,
 })
 
-const order = (status: OrderStatusResponse['status']): OrderStatusResponse => ({ status, paid_at: null, subscription: null })
+const order = (status: OrderStatusResponse['status']): OrderStatusResponse => ({ status, paid_at: null, reason: null, replaced_by: null, subscription: null })
 
 async function render(props: { reason?: 'quota' | 'info' | 'decks' } = {}) {
   const wrapper = mount(PaywallSheet, { props })
@@ -184,6 +184,41 @@ describe('PaywallSheet in purchase mode', () => {
 
     expect(w.get('[data-testid=purchase-error]').text()).toBe('Этот способ оплаты сейчас недоступен. Выберите другой.')
     expect(w.get('[data-testid=pay-payme]').attributes('disabled')).toBeUndefined()
+  })
+
+  it('explains offer_busy at checkout in Russian and in Uzbek', async () => {
+    vi.mocked(api.billing.checkout).mockRejectedValue(new ApiClientError('conflict', 409, 'offer_busy', 'English'))
+    const w = await render()
+
+    await w.get('[data-testid=pay-payme]').trigger('click')
+    await flushPromises()
+    expect(w.get('[data-testid=purchase-error]').text()).toBe('Предыдущая оплата со скидкой ещё обрабатывается — попробуйте через минуту.')
+
+    setLocale('uz')
+    await w.get('[data-testid=pay-payme]').trigger('click')
+    await flushPromises()
+    expect(w.get('[data-testid=purchase-error]').text()).toBe("Chegirmali oldingi to'lov hali qayta ishlanmoqda — bir daqiqadan so'ng urinib ko'ring.")
+  })
+
+  it('shows a replaced order as information, not as an error, and follows the new order', async () => {
+    vi.useFakeTimers()
+    vi.mocked(api.billing.checkout).mockResolvedValue({
+      order: { id: 1, token: 'old', status: 'pending', amount: 1, currency: 'UZS', expires_at: '2026-10-20T00:00:00+00:00' },
+      checkout: { url: 'https://my.click.uz/pay', kind: 'redirect' },
+    })
+    vi.mocked(api.billing.order)
+      .mockResolvedValueOnce({ ...order('canceled'), reason: 'replaced', replaced_by: 'new' })
+      .mockResolvedValue(order('pending'))
+    const w = await render()
+
+    await w.get('[data-testid=pay-click]').trigger('click')
+    await vi.advanceTimersByTimeAsync(0)
+    await flushPromises()
+
+    expect(w.find('[data-testid=purchase-error]').exists()).toBe(false)
+    expect(w.get('[data-testid=purchase-notice]').text()).toBe('Заказ заменён новым — ждём оплату по нему.')
+    await vi.advanceTimersByTimeAsync(POLL_INTERVAL_MS)
+    expect(api.billing.order).toHaveBeenLastCalledWith('new')
   })
 
   it('does not sell while the Stars auto-renewal is running', async () => {

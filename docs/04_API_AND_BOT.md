@@ -646,8 +646,8 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 `checkout.kind`: `invoice_link` (Stars — открыть `Telegram.WebApp.openInvoice(url)`) | `redirect` (Payme/Click — `openLink(url)`). Заказ живёт `BILLING_ORDER_TTL_MINUTES` (24 ч); просроченные закрывает `billing:expire-orders` (каждые 15 мин).
 Событие `checkout.started`. Если провайдер не смог выдать ссылку — заказ `failed`, ответ `502 provider_unavailable`.
 
-**`GET /billing/orders/{token}`** → `200 { "status": "pending|paid|canceled|expired|failed", "paid_at": "…"|null, "subscription": { …как в catalog.subscription… }|null }`;
-`subscription` заполнена у `paid`. Чужой, неизвестный или неправильный `token` — `404 order_not_found` (чужой заказ неотличим от несуществующего).
+**`GET /billing/orders/{token}`** → `200 { "status": "pending|paid|canceled|expired|failed", "paid_at": "…"|null, "reason": "replaced"|null, "replaced_by": "<token>"|null, "subscription": { …как в catalog.subscription… }|null }`;
+`subscription` заполнена у `paid`. `reason = replaced` — заказ `canceled` самой логикой offer (скидка перенесена на более новый заказ или уже использована): это **не ошибка**, TWA показывает «Заказ заменён новым» и переходит к `replaced_by` — **токену** (не id) заказа-преемника, если он известен и принадлежит тому же learner'у, иначе `null`. У прочих заказов `reason` и `replaced_by` — `null`. Чужой, неизвестный или неправильный `token` — `404 order_not_found` (чужой заказ неотличим от несуществующего).
 
 **`POST /billing/subscription/cancel|resume`** (без тела; общий лимит `twa-api`) → `200`, тот же JSON, что у `GET /me` (A.2), с новым `entitlement.renewal`.
 
@@ -657,6 +657,7 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 | 409 | `provider_disabled` | провайдер не подключён / выключен (`billing.providers.<key>.enabled`) |
 | 409 | `checkout_conflict` | живая Stars-подписка с автопродлением, выбран другой провайдер (сначала `cancel`) |
 | 409 | `offer_not_applicable` | скидка не подходит (клиент её не передаёт — сервер берёт лучший открытый offer сам) |
+| 409 | `offer_busy` | заказ со скидкой сейчас оплачивается (у провайдера открыта транзакция) или параллельный checkout переносит ту же скидку; заказы не менялись, повторить через минуту (бот и TWA показывают «Предыдущая оплата со скидкой ещё обрабатывается — попробуйте через минуту») |
 | 422 | `provider_not_supported` | провайдер не обслуживает этого плательщика/валюту |
 | 422 | `invalid_period`, `invalid_tier` | период вне `billing.periods` (при валидном теле не встречается) |
 | 429 | `too_many_pending` | у learner'а уже 3 неоплаченных заказа |

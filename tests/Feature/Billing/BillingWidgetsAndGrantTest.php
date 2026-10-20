@@ -10,6 +10,7 @@ use App\Models\AuditLog;
 use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\Payment;
+use App\Models\PaymentOrder;
 use App\Models\ProviderTransaction;
 use App\Models\Subscription;
 use App\Models\User;
@@ -113,13 +114,31 @@ it('counts failed payments and canceled provider transactions of the last 24 hou
         'failed_payments' => 3,
         'failed_by_provider' => ['click' => 1, 'payme' => 1, 'telegram_stars' => 1],
         'canceled_transactions' => 2,
+        'double_discounts' => 0,
     ]);
 
     $this->actingAs($this->admin);
     Livewire::test(WebhookErrorsWidget::class)
         ->assertSee('Failed payments')
         ->assertSee('click: 1')
-        ->assertSee('Canceled provider transactions');
+        ->assertSee('Canceled provider transactions')
+        ->assertSee('Double discounts');
+});
+
+it('counts only the double-discount orders paid in the last 24 hours', function (): void {
+    $mk = fn (array $meta, $paidAt) => PaymentOrder::factory()->create(['status' => PaymentOrder::STATUS_PAID, 'paid_at' => $paidAt, 'meta' => $meta]);
+
+    $mk(['offer_double_discount' => true], now()->subHours(2));
+    $mk(['offer_double_discount' => true, 'paid_after_cancel' => true], now()->subHours(23));
+    $mk(['offer_double_discount' => true], now()->subHours(30));
+    $mk(['offer_double_discount' => false], now()->subHours(1));
+    $mk(['paid_after_cancel' => true], now()->subHours(1));
+    $mk([], now()->subHours(1));
+
+    expect(app(BillingReportService::class)->webhookErrorsLast24Hours()['double_discounts'])->toBe(2);
+
+    $this->actingAs($this->admin);
+    Livewire::test(WebhookErrorsWidget::class)->assertSee('Double discounts')->assertSeeText('2');
 });
 
 it('hides both widgets from a teacher and forbids mounting them', function (): void {

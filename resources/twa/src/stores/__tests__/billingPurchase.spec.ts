@@ -48,7 +48,7 @@ const created = (kind: 'invoice_link' | 'redirect' = 'invoice_link'): CheckoutRe
   checkout: { url: 'https://t.me/$inv', kind },
 })
 
-const order = (status: OrderStatus): OrderStatusResponse => ({ status, paid_at: status === 'paid' ? '2026-10-19T00:00:00+00:00' : null, subscription: null })
+const order = (status: OrderStatus): OrderStatusResponse => ({ status, paid_at: status === 'paid' ? '2026-10-19T00:00:00+00:00' : null, reason: null, replaced_by: null, subscription: null })
 
 describe('billing store: catalog and purchase', () => {
   beforeEach(() => {
@@ -203,6 +203,44 @@ describe('billing store: catalog and purchase', () => {
     await done
 
     expect(api.billing.order).toHaveBeenCalledTimes(2)
+    expect(billing.purchase.status).toBe('failed')
+  })
+
+  it('follows a replaced order to the new one and finishes when that is paid', async () => {
+    vi.mocked(api.billing.checkout).mockResolvedValue(created('redirect'))
+    vi.mocked(api.billing.order)
+      .mockResolvedValueOnce({ ...order('canceled'), reason: 'replaced', replaced_by: 'tok8' })
+      .mockResolvedValueOnce(order('paid'))
+    const billing = useBillingStore()
+
+    const done = billing.buy('month', 'payme')
+    await vi.advanceTimersByTimeAsync(POLL_INTERVAL_MS)
+    await done
+
+    expect(vi.mocked(api.billing.order).mock.calls.map((c) => c[0])).toEqual(['tok7', 'tok8'])
+    expect(billing.purchase.status).toBe('paid')
+  })
+
+  it('ends in the informational `replaced` state when the successor is unknown (not failed)', async () => {
+    vi.mocked(api.billing.checkout).mockResolvedValue(created('redirect'))
+    vi.mocked(api.billing.order).mockResolvedValue({ ...order('canceled'), reason: 'replaced', replaced_by: null })
+    const billing = useBillingStore()
+
+    await billing.buy('month', 'payme')
+
+    expect(billing.purchase.status).toBe('replaced')
+    expect(billing.purchase.error).toBe('')
+    expect(billing.purchase.notice).toBe('Заказ заменён новым заказом.')
+    expect(api.billing.order).toHaveBeenCalledTimes(1)
+  })
+
+  it('still fails on a plainly canceled order', async () => {
+    vi.mocked(api.billing.checkout).mockResolvedValue(created('redirect'))
+    vi.mocked(api.billing.order).mockResolvedValue(order('canceled'))
+    const billing = useBillingStore()
+
+    await billing.buy('month', 'payme')
+
     expect(billing.purchase.status).toBe('failed')
   })
 

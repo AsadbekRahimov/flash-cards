@@ -162,6 +162,32 @@ it('never shows secrets from raw payloads or the full order token', function ():
     Livewire::test(ListPaymentOrders::class)->assertDontSee($order->token, escape: false);
 });
 
+// --- offer reservation markers (2B.7b) ---------------------------------------
+
+it('shows the offer markers of an order as badges and filters the double discounts (admin only)', function (): void {
+    $moved = PaymentOrder::factory()->create(['status' => PaymentOrder::STATUS_CANCELED, 'meta' => ['canceled_reason' => PaymentOrder::CANCEL_REASON_OFFER_MOVED, 'offer_moved_to_order_id' => 99]]);
+    $late = PaymentOrder::factory()->create(['status' => PaymentOrder::STATUS_PAID, 'meta' => ['paid_after_cancel' => true]]);
+    $double = PaymentOrder::factory()->create(['status' => PaymentOrder::STATUS_PAID, 'meta' => ['paid_after_cancel' => true, 'offer_double_discount' => true]]);
+    $plain = PaymentOrder::factory()->create(['meta' => []]);
+
+    $this->actingAs($this->admin);
+
+    Livewire::test(ListPaymentOrders::class)
+        ->assertCanSeeTableRecords([$moved, $late, $double, $plain])
+        ->assertSee('offer_moved')
+        ->assertSee('paid after cancel')
+        ->assertSee('double discount')
+        ->filterTable('offer_double_discount')
+        ->assertCanSeeTableRecords([$double])
+        ->assertCanNotSeeTableRecords([$moved, $late, $plain]);
+
+    Livewire::test(ViewPaymentOrder::class, ['record' => $double->id])->assertSee('double discount')->assertSee('paid after cancel');
+
+    $this->actingAs($this->teacher);
+    Livewire::test(ListPaymentOrders::class)->assertForbidden();
+    Livewire::test(ViewPaymentOrder::class, ['record' => $double->id])->assertForbidden();
+});
+
 // --- refund -----------------------------------------------------------------
 
 it('refunds a Stars payment from the table: needs a note, calls the provider once, audits, ends the subscription', function (): void {

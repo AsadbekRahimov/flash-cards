@@ -776,6 +776,7 @@
 | `billing.pro.errors.checkout_conflict` | Sizda Telegram Stars avtoyangilash yoqilgan. Boshqa usulda to'lashdan oldin uni /pro orqali o'chiring. | У вас включено автопродление Telegram Stars. Отключите его в /pro, прежде чем платить другим способом. |
 | `billing.pro.errors.too_many_pending` | Sizda to'lanmagan hisoblar bor. Ulardan birini to'lang yoki kuting — ular o'zi yopiladi. | У вас уже есть неоплаченные счета. Оплатите один из них или подождите — они закроются сами. |
 | `billing.pro.errors.offer_not_applicable` | Chegirma bu xaridga qo'llanilmaydi. | Скидка к этой покупке не применяется. |
+| `billing.pro.errors.offer_busy` | Chegirmali oldingi to'lov hali qayta ishlanmoqda — bir daqiqadan so'ng urinib ko'ring. | Предыдущая оплата со скидкой ещё обрабатывается — попробуйте через минуту. |
 | `billing.pro.errors.invalid_period` | Bunday to'lov varianti yo'q. | Такого варианта оплаты нет. |
 | `billing.pro.errors.invalid_tier` | Bunday to'lov varianti yo'q. | Такого варианта оплаты нет. |
 | `billing.pro.errors.not_cancelable` | Hozir o'chiriladigan avtoyangilash yo'q. | Автопродление сейчас нечего отключать. |
@@ -816,6 +817,8 @@
 | `billing.awaiting` | To'lov tasdig'i kutilmoqda… | Ждём подтверждение оплаты… |
 | `billing.timeout` | Tasdiq hali kelmadi. Agar to'lagan bo'lsangiz, Pro bir necha daqiqada yoqiladi. | Подтверждение ещё не пришло. Если вы уже оплатили, Pro включится в течение нескольких минут. |
 | `billing.check_again` | Yana tekshirish | Проверить ещё раз |
+| `billing.order_replaced` | Buyurtma yangi buyurtma bilan almashtirildi. | Заказ заменён новым заказом. |
+| `billing.order_replaced_follow` | Buyurtma yangisi bilan almashtirildi — u bo'yicha to'lovni kutamiz. | Заказ заменён новым — ждём оплату по нему. |
 | `billing.payment_failed` | To'lov o'tmadi yoki hisob yopilgan. Qayta urinib ko'ring. | Платёж не прошёл или счёт закрыт. Попробуйте ещё раз. |
 | `billing.paid_until` | Rahmat! Pro {date} gacha faol. | Спасибо! Pro активен до {date}. |
 | `billing.paid_forever` | Rahmat! Pro faol. | Спасибо! Pro активен. |
@@ -847,6 +850,7 @@
 | `error.code.checkout_conflict` | Sizda Stars avtoyangilash yoqilgan. Boshqa usulda to'lashdan oldin uni «Obuna» bo'limida o'chiring. | У вас включено автопродление Stars. Отключите его в «Подписке», прежде чем платить другим способом. |
 | `error.code.too_many_pending` | Sizda to'lanmagan hisoblar bor. Ulardan birini to'lang yoki kuting — ular o'zi yopiladi. | У вас уже есть неоплаченные счета. Оплатите один из них или подождите — они закроются сами. |
 | `error.code.offer_not_applicable` | Chegirma bu xaridga qo'llanilmaydi. | Скидка к этой покупке не применяется. |
+| `error.code.offer_busy` | Chegirmali oldingi to'lov hali qayta ishlanmoqda — bir daqiqadan so'ng urinib ko'ring. | Предыдущая оплата со скидкой ещё обрабатывается — попробуйте через минуту. |
 | `error.code.invalid_period` | Bunday to'lov varianti yo'q. | Такого варианта оплаты нет. |
 | `error.code.invalid_tier` | Bunday to'lov varianti yo'q. | Такого варианта оплаты нет. |
 | `error.code.not_cancelable` | Hozir o'chiriladigan avtoyangilash yo'q. | Автопродление сейчас нечего отключать. |

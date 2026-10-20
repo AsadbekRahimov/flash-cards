@@ -14,8 +14,11 @@ import type {
   Paywall,
 } from '@/api/types'
 
-/** idle → starting (order being created) → awaiting (paying / waiting for the confirmation) → paid | failed | timeout. */
-export type PurchaseStatus = 'idle' | 'starting' | 'awaiting' | 'paid' | 'failed' | 'timeout'
+/**
+ * idle → starting (order being created) → awaiting (paying / waiting for the confirmation) → paid | failed | timeout;
+ * `replaced`: the order was replaced by a newer one we do not know — informational, not an error.
+ */
+export type PurchaseStatus = 'idle' | 'starting' | 'awaiting' | 'paid' | 'failed' | 'timeout' | 'replaced'
 
 interface PurchaseState {
   status: PurchaseStatus
@@ -23,6 +26,8 @@ interface PurchaseState {
   orderToken: string | null
   /** Localized text for `failed`. */
   error: string
+  /** Localized information shown next to `awaiting` / `replaced` (e.g. the order was replaced by a new one). */
+  notice: string
 }
 
 interface BillingState {
@@ -41,7 +46,7 @@ interface BillingState {
 export const POLL_INTERVAL_MS = 3000
 export const POLL_ATTEMPTS = 40
 
-const idlePurchase = (): PurchaseState => ({ status: 'idle', orderToken: null, error: '' })
+const idlePurchase = (): PurchaseState => ({ status: 'idle', orderToken: null, error: '', notice: '' })
 
 const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
 
@@ -109,7 +114,7 @@ export const useBillingStore = defineStore('billing', {
     async buy(period: BillingPeriod, provider: BillingProviderKey): Promise<void> {
       if (this.purchase.status === 'starting') return
 
-      this.purchase = { status: 'starting', orderToken: null, error: '' }
+      this.purchase = { status: 'starting', orderToken: null, error: '', notice: '' }
 
       let url: string
       let kind: 'invoice_link' | 'redirect'
@@ -124,7 +129,7 @@ export const useBillingStore = defineStore('billing', {
         return
       }
 
-      this.purchase = { status: 'awaiting', orderToken: token, error: '' }
+      this.purchase = { status: 'awaiting', orderToken: token, error: '', notice: '' }
 
       if (kind === 'invoice_link') {
         const result = await useTelegram().openInvoice(url)
@@ -148,7 +153,7 @@ export const useBillingStore = defineStore('billing', {
 
     /** Polls the current order until it is paid or dead; also the "check again" button after a timeout. */
     async waitForPayment(): Promise<void> {
-      const token = this.purchase.orderToken
+      let token = this.purchase.orderToken
       if (token === null) return
 
       this.purchase.status = 'awaiting'
@@ -161,6 +166,17 @@ export const useBillingStore = defineStore('billing', {
           const order = await api.billing.order(token)
           if (order.status === 'paid') {
             await this.onPaid()
+            return
+          }
+          if (order.status === 'canceled' && order.reason === 'replaced') {
+            // Not an error: the discount moved to another order. Follow it when we know it.
+            if (order.replaced_by !== null && order.replaced_by !== token) {
+              token = order.replaced_by
+              this.purchase.orderToken = token
+              this.purchase.notice = t('billing.order_replaced_follow')
+              continue
+            }
+            this.purchase = { status: 'replaced', orderToken: null, error: '', notice: t('billing.order_replaced') }
             return
           }
           if (order.status !== 'pending') {
@@ -214,6 +230,7 @@ export const useBillingStore = defineStore('billing', {
         status: 'failed',
         orderToken: null,
         error: err === null ? t('billing.payment_failed') : errorMessage(err, 'today'),
+        notice: '',
       }
     },
   },

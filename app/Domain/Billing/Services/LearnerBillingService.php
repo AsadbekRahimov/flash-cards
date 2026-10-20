@@ -77,6 +77,35 @@ final class LearnerBillingService
     }
 
     /**
+     * The order that took over an offer-canceled order of the learner (docs/13 "Реализация 2B.7a"): the
+     * one the discount was moved to (`meta.offer_moved_to_order_id`) or, for an offer used up by another
+     * payment, the order that redeemed it. Only the learner's own orders are ever returned; `null` when the
+     * order was not canceled by offer bookkeeping or the successor is unknown.
+     */
+    public function replacementFor(Learner $learner, PaymentOrder $order): ?PaymentOrder
+    {
+        if (! $order->canceledForOffer()) {
+            return null;
+        }
+
+        $id = $order->meta['offer_moved_to_order_id'] ?? null;
+
+        if (! is_int($id) && ($order->meta['canceled_reason'] ?? null) === PaymentOrder::CANCEL_REASON_OFFER_REDEEMED) {
+            $id = $order->offer?->payment_order_id;
+        }
+
+        if (! is_int($id) || $id === $order->id) {
+            return null;
+        }
+
+        return PaymentOrder::query()
+            ->whereKey($id)
+            ->where('subscriber_type', 'learner')
+            ->where('subscriber_id', $learner->id)
+            ->first();
+    }
+
+    /**
      * Stops the auto-renewal: the provider first (outside any transaction, docs/13 §3 rule 2, §4.1),
      * then `active` -> `canceled`; the paid period stays live to its end.
      *

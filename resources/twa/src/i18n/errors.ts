@@ -49,6 +49,7 @@ export const KNOWN_ERROR_CODES = [
   'checkout_conflict',
   'too_many_pending',
   'offer_not_applicable',
+  'offer_busy',
   'invalid_period',
   'invalid_tier',
   'not_cancelable',

@@ -9,7 +9,9 @@ use App\Domain\Billing\Services\PaymentApplier;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Models\Learner;
+use App\Models\Offer;
 use App\Models\PaymentOrder;
+use App\Models\ProviderTransaction;
 use App\Models\Subscription;
 use App\Models\TelegramGroup;
 use App\Models\User;
@@ -45,11 +47,11 @@ function proMessage(string $text, string $chatType = 'private', int $chatId = 55
 }
 
 /** @return array<string, mixed> */
-function proTap(string $data, string $chatType = 'private', int $chatId = 555): array
+function proTap(string $data, string $chatType = 'private', int $chatId = 555, string $lang = 'ru'): array
 {
     return ['callback_query' => [
         'id' => 'cb1',
-        'from' => ['id' => 555, 'first_name' => 'Alice', 'language_code' => 'ru'],
+        'from' => ['id' => 555, 'first_name' => 'Alice', 'language_code' => $lang],
         'message' => ['message_id' => 10, 'chat' => ['id' => $chatId, 'type' => $chatType]],
         'data' => $data,
     ]];
@@ -160,6 +162,23 @@ it('explains a refused purchase by its error code', function (string $data, stri
             app(PaymentApplier::class)->applyCharge($t->stars->emitCharge($order));
         },
     ],
+]);
+
+it('tells the learner the discounted payment is still being processed (offer_busy) and creates no order', function (string $lang, string $expected): void {
+    $learner = Learner::factory()->create(['telegram_user_id' => 555, 'interface_locale' => $lang]);
+    Offer::factory()->create(['learner_id' => $learner->id, 'discount_pct' => 30, 'period' => 'month']);
+    $holder = app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::Payme, null, 'twa');
+    ProviderTransaction::factory()->create(['payment_order_id' => $holder->id, 'amount' => $holder->amount]);
+
+    app(TelegramDispatcher::class)->dispatch(proTap('pro1:buy:month:telegram_stars', lang: $lang));
+
+    expect($this->sent)->toHaveCount(1)
+        ->and($this->sent[0]['text'])->toBe($expected)
+        ->and(PaymentOrder::query()->count())->toBe(1)
+        ->and($holder->refresh()->status)->toBe(PaymentOrder::STATUS_PENDING);
+})->with([
+    'ru' => ['ru', 'Предыдущая оплата со скидкой ещё обрабатывается — попробуйте через минуту.'],
+    'uz' => ['uz', "Chegirmali oldingi to'lov hali qayta ishlanmoqda — bir daqiqadan so'ng urinib ko'ring."],
 ]);
 
 it('limits the taps of one learner per minute', function (): void {

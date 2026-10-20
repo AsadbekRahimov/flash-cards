@@ -199,11 +199,17 @@ onBeforeUnmount(() => {
           </button>
         </div>
 
+        <p v-if="billing.purchase.status === 'awaiting' && billing.purchase.notice" class="text-sm text-center text-tg-hint" role="status" data-testid="purchase-notice">
+          {{ billing.purchase.notice }}
+        </p>
         <p v-if="billing.purchase.status === 'starting'" class="text-sm text-center text-tg-hint" role="status" data-testid="purchase-starting">
           {{ t('billing.starting') }}
         </p>
         <p v-else-if="billing.purchase.status === 'awaiting'" class="text-sm text-center text-tg-hint" role="status" data-testid="purchase-awaiting">
           {{ t('billing.awaiting') }}
+        </p>
+        <p v-else-if="billing.purchase.status === 'replaced'" class="text-sm text-center text-tg-hint" role="status" data-testid="purchase-replaced">
+          {{ billing.purchase.notice }}
         </p>
         <div v-else-if="billing.purchase.status === 'timeout'" class="space-y-2 text-center" data-testid="purchase-timeout">
           <p class="text-sm text-tg-hint">{{ t('billing.timeout') }}</p>

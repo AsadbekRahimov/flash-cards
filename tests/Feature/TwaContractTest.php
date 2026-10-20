@@ -298,7 +298,7 @@ it('POST /billing/checkout and GET /billing/orders/{token} keep their exact JSON
     $this->withHeaders(contractHeaders($s['learner']))
         ->getJson("/api/twa/billing/orders/{$token}")
         ->assertOk()
-        ->assertExactJsonStructure(['status', 'paid_at', 'subscription']);
+        ->assertExactJsonStructure(['status', 'paid_at', 'reason', 'replaced_by', 'subscription']);
 
     $order = app(CheckoutService::class)->findByToken($token);
     app(PaymentApplier::class)->applyCharge($stars->emitCharge($order));
@@ -306,7 +306,7 @@ it('POST /billing/checkout and GET /billing/orders/{token} keep their exact JSON
     $this->withHeaders(contractHeaders($s['learner']))
         ->getJson("/api/twa/billing/orders/{$token}")
         ->assertOk()
-        ->assertExactJsonStructure(['status', 'paid_at', 'subscription' => CONTRACT_SUBSCRIPTION_SUMMARY]);
+        ->assertExactJsonStructure(['status', 'paid_at', 'reason', 'replaced_by', 'subscription' => CONTRACT_SUBSCRIPTION_SUMMARY]);
 });
 
 it('GET /me and the cancel / resume answers carry entitlement.renewal for a paying learner', function (): void {

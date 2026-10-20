@@ -38,6 +38,7 @@ return [
             'checkout_conflict' => "Sizda Telegram Stars avtoyangilash yoqilgan. Boshqa usulda to'lashdan oldin uni /pro orqali o'chiring.",
             'too_many_pending' => "Sizda to'lanmagan hisoblar bor. Ulardan birini to'lang yoki kuting — ular o'zi yopiladi.",
             'offer_not_applicable' => "Chegirma bu xaridga qo'llanilmaydi.",
+            'offer_busy' => "Chegirmali oldingi to'lov hali qayta ishlanmoqda — bir daqiqadan so'ng urinib ko'ring.",
             'invalid_period' => "Bunday to'lov varianti yo'q.",
             'invalid_tier' => "Bunday to'lov varianti yo'q.",
             'not_cancelable' => "Hozir o'chiriladigan avtoyangilash yo'q.",
