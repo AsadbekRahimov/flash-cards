@@ -296,11 +296,15 @@ the payment, the amount, whether the subscription was ended, your IP).
 
 1. **Telegram Stars** — the money is returned through the Bot API (`refundStarPayment`) when the Stars adapter is
    deployed (task 2A.3); then the refund is recorded.
-2. **Payme / Click** (and Stars while the adapter is not deployed) cannot be refunded from the panel. First return the
-   money in the provider's cabinet. Then press **Refund** again, switch on **"The money was already returned by hand in
-   the provider's cabinet"** and give the reason: only the local record is made. Without the switch the panel refuses
-   ("Return it in the provider's cabinet…") and changes nothing. Do not switch it on if the money has not really been
+2. **Payme / Click** cannot be refunded from the panel. First return the money in the provider's cabinet. Then press
+   **Refund**, switch on **"The money was already returned by hand in the provider's cabinet"** (it is never on by
+   default: you assert it yourself) and give the reason: only the local record is made. Without the switch the panel
+   refuses ("Return it in the provider's cabinet…") and changes nothing. Do not switch it on if the money has not really been
    returned.
+   - *Payme*: a refund made in the Payme cabinet normally reaches us by itself (Payme calls `CancelTransaction`) and
+     appears as a `refund` row without your help; record it by hand only if it did not arrive.
+   - *Click*: Click sends **no** refund notification, so every Click refund is recorded this way: refund in the Click
+     cabinet (by the `click_trans_id` shown as *Charge id*), then **Refund → returned by hand** here.
 3. Recording the refund marks the charge `refunded`, adds a `refund` row, and **ends the subscription now** if this
    payment paid for the period that is running (the learner is back on Free within seconds). A refund of an older,
    already used period only marks the ledger.

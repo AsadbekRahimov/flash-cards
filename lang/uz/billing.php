@@ -130,7 +130,7 @@ return [
         ],
         'pending' => [
             'heading' => "To'lov tasdiqlanishini kutmoqdamiz",
-            'text' => "To'lov qayta ishlanmoqda. Odatda bu bir daqiqadan kam vaqt oladi; Payme to'lovni tasdiqlashi bilan Pro avtomatik yoqiladi.",
+            'text' => "To'lov qayta ishlanmoqda. Odatda bu bir daqiqadan kam vaqt oladi; to'lov tizimi to'lovni tasdiqlashi bilan Pro avtomatik yoqiladi.",
         ],
         'expired' => [
             'heading' => "Hisob muddati o'tdi",
