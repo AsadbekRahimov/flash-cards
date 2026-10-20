@@ -226,6 +226,12 @@ plus the link to the cabinet.
    with the platform's requisites, the number, the date and the amount in sums. **Payments** lists what was
    actually charged or refunded.
 
+**Changing the tariff.** While your subscription is active, online payment only **extends the current tariff**;
+choosing another tariff and pressing Pay shows "To change the tariff, contact us". To move up or down, write to
+the platform (the **Request an invoice** button with a comment works for this too): the change is agreed and
+applied by hand, and from then on you renew the new tariff online. Once the paid period has ended, any tariff can
+be bought online again.
+
 Moving to a **smaller** tariff never removes anyone: learners who already hold a seat keep it, even if there
 are now more of them than the limit ("Over the limit: 5 of 2 seats" on Billing and on the Dashboard); new
 learners wait until seats free up or you raise the tariff again.

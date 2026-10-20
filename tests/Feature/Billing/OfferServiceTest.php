@@ -7,6 +7,7 @@ use App\Domain\Billing\Services\OfferService;
 use App\Models\Learner;
 use App\Models\Offer;
 use App\Models\Organization;
+use App\Models\PaymentOrder;
 use App\Models\Subscription;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -62,6 +63,31 @@ it('creates the post-organization discount once, from config, and not for a lear
     $canceled = Learner::factory()->create();
     Subscription::factory()->create(['subscriber_id' => $canceled->id, 'status' => 'canceled', 'provider' => 'telegram_stars']);
     expect($service->createPostOrgDiscount($canceled, $org, $now))->toBeNull();
+});
+
+it('gives the post-organization discount once in a lifetime: a used one is never re-issued, a lapsed unused one is', function (): void {
+    $service = app(OfferService::class);
+    $org = Organization::factory()->create();
+    $learner = Learner::factory()->create();
+    $now = CarbonImmutable::now();
+
+    $first = $service->createPostOrgDiscount($learner, $org, $now);
+    expect($first)->not->toBeNull();
+
+    // The discount was paid with: joining and leaving a center again (every month, if one likes) gives nothing.
+    $first?->forceFill(['redeemed_at' => $now->addDay(), 'payment_order_id' => PaymentOrder::factory()->create(['subscriber_id' => $learner->id])->id])->save();
+    expect($service->createPostOrgDiscount($learner, $org, $now->addDays(2)))->toBeNull()
+        ->and($service->createPostOrgDiscount($learner, Organization::factory()->create(), $now->addDays(40)))->toBeNull()
+        ->and(Offer::query()->where('learner_id', $learner->id)->count())->toBe(1);
+
+    // A learner who let the discount lapse unused may get one again (that is no abuse); it is still one per lifetime once used.
+    $other = Learner::factory()->create();
+    $lapsed = $service->createPostOrgDiscount($other, $org, $now);
+    $again = $service->createPostOrgDiscount($other, $org, $now->addDays(20));
+    expect($lapsed)->not->toBeNull()
+        ->and($again)->not->toBeNull()
+        ->and($again?->id)->not->toBe($lapsed?->id)
+        ->and(Offer::query()->where('learner_id', $other->id)->count())->toBe(1);
 });
 
 it('applies a discount with rounding and a floor of one Star / one sum', function (): void {

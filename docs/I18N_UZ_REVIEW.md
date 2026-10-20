@@ -1116,6 +1116,7 @@
 | `org.billing.errors.provider_not_supported` | Bu to'lov usuli markazlar uchun mavjud emas. Payme yoki Click'ni tanlang. | Этот способ оплаты недоступен для центров. Выберите Payme или Click. |
 | `org.billing.errors.checkout_conflict` | Hozir to'lov qilib bo'lmaydi: markazda avtoyangilanadigan obuna bor. Qo'llab-quvvatlashga murojaat qiling. | Оплата сейчас невозможна: у центра есть подписка с автопродлением. Обратитесь в поддержку. |
 | `org.billing.errors.too_many_pending` | Markazda to'lanmagan buyurtmalar bor. Birini to'lang yoki kuting — ular o'zi yopiladi. | У центра уже есть неоплаченные заказы. Оплатите один из них или подождите — они закроются сами. |
+| `org.billing.errors.tier_change_requires_support` | Tarifni o'zgartirish uchun biz bilan bog'laning: onlayn faqat joriy tarifni uzaytirish mumkin. | Чтобы сменить тариф, свяжитесь с нами: онлайн можно только продлить текущий тариф. |
 | `org.billing.errors.offer_not_applicable` | Chegirma bu xaridga qo'llanilmaydi. | Скидка к этой покупке не применяется. |
 | `org.billing.errors.invalid_period` | Bunday to'lov muddati yo'q. | Такого срока оплаты нет. |
 | `org.billing.errors.invalid_tier` | Bunday tarif yo'q. | Такого тарифа нет. |

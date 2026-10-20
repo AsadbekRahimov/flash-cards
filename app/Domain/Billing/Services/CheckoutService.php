@@ -12,6 +12,7 @@ use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Enums\SubscriptionStatus;
 use App\Domain\Billing\Exceptions\CheckoutException;
 use App\Domain\Billing\Support\OrgTiers;
+use App\Domain\Billing\Support\ProviderTransactionTimeout;
 use App\Domain\Billing\Support\SubscriptionLiveness;
 use App\Models\Learner;
 use App\Models\Offer;
@@ -68,7 +69,7 @@ final class CheckoutService
      * @param  string  $via  `twa` | `bot` | `org_panel` | `admin`
      * @param  Offer|null  $offer  explicit offer; null = the learner's best applicable open offer, if any
      *
-     * @throws CheckoutException price_not_configured | provider_disabled | provider_not_supported | checkout_conflict | too_many_pending | offer_not_applicable | offer_busy | invalid_period | invalid_tier
+     * @throws CheckoutException price_not_configured | provider_disabled | provider_not_supported | checkout_conflict | tier_change_requires_support | too_many_pending | offer_not_applicable | offer_busy | invalid_period | invalid_tier
      */
     public function create(
         Learner|Organization $subscriber,
@@ -160,7 +161,7 @@ final class CheckoutService
      * null when a holder of the offer appeared between the holder lock and the subject lock —
      * the caller retries and locks it too.
      *
-     * @throws CheckoutException checkout_conflict | too_many_pending | offer_not_applicable | offer_busy
+     * @throws CheckoutException checkout_conflict | tier_change_requires_support | too_many_pending | offer_not_applicable | offer_busy
      */
     private function insertOrder(
         Learner|Organization $subscriber,
@@ -193,6 +194,10 @@ final class CheckoutService
         $live = $this->subscriptions->liveFor($subscriber);
         if ($live !== null && $this->isRenewingElsewhere($live, $provider, $now)) {
             throw CheckoutException::conflict($live->provider);
+        }
+
+        if ($live !== null && $tier !== null && $this->changesLiveTier($live, $tier, $now)) {
+            throw CheckoutException::tierChangeRequiresSupport((string) $live->tier, $tier);
         }
 
         // The holders are about to be canceled: they do not count against the pending limit.
@@ -332,14 +337,14 @@ final class CheckoutService
     public function expirePending(?CarbonImmutable $now = null): int
     {
         $now ??= CarbonImmutable::now();
-        // A provider transaction that is still open and younger than the provider's own timeout (Payme: 12 h)
-        // keeps its order payable: the money may already be on its way to PerformTransaction (docs/13 §4.2).
-        $openSince = $this->offers->openTransactionSince($now);
 
+        // A provider transaction that is still open and younger than ITS provider's timeout (Payme: 12 h,
+        // Click: `transaction_timeout_ms`) keeps its order payable: the money may already be on its way to
+        // PerformTransaction / Complete (docs/13 §4.2, §4.3).
         return PaymentOrder::query()
             ->where('status', PaymentOrder::STATUS_PENDING)
             ->where('expires_at', '<=', $now)
-            ->withoutOpenProviderTransaction($openSince)
+            ->withoutOpenProviderTransaction(ProviderTransactionTimeout::openSinceByProvider($now))
             ->update(['status' => PaymentOrder::STATUS_EXPIRED, 'updated_at' => $now]);
     }
 
@@ -411,6 +416,21 @@ final class CheckoutService
             && $liveProvider !== $chosen
             && $liveProvider->isAutoRenewing()
             && $live->status === SubscriptionStatus::Active->value
+            && SubscriptionLiveness::isLive($live, $now);
+    }
+
+    /**
+     * docs/13 §6.5 (2B.8): while an organization's subscription is live, an online order may only
+     * RENEW its tier — a different tier would re-label the whole prepaid period (12 months of Tutor
+     * + 1 month of Center M would become 13 months of Center M; a prepaid Center M + 1 month of Tutor
+     * would lose 270 seats at once). A change of tariff goes through the platform (`grantManual`).
+     * A live row without a tier (an old grant) and a row whose period has already run out (not yet
+     * swept by `subscriptions:expire`) have nothing to protect.
+     */
+    private function changesLiveTier(Subscription $live, string $tier, CarbonImmutable $now): bool
+    {
+        return $live->tier !== null
+            && $live->tier !== $tier
             && SubscriptionLiveness::isLive($live, $now);
     }
 
