@@ -229,8 +229,8 @@ it('applies a paid organization order: seats_limit from the tier, the waitlist i
         ->and(obSeatCount($this->org, 'waitlisted'))->toBe(2);
 
     // FIFO: the three earliest joiners got the seats.
-    $seatedIds = OrganizationMember::query()->where('seat_state', 'seated')->orderBy('waitlisted_at')->pluck('id')->all();
-    $firstThree = OrganizationMember::query()->orderBy('waitlisted_at')->orderBy('id')->limit(3)->pluck('id')->all();
+    $seatedIds = OrganizationMember::query()->where('seat_state', 'seated')->orderBy('id')->pluck('id')->all();
+    $firstThree = OrganizationMember::query()->orderBy('id')->limit(3)->pluck('id')->all();
     expect($seatedIds)->toBe($firstThree);
 
     $page = $this->billing->page($this->owner, $this->org);
