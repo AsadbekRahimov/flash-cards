@@ -19,7 +19,7 @@ final class TodayResource extends TwaResource
      *   due_count: int,
      *   new_words_remaining: int|null,
      *   goal: array{target: int, done: int, met: bool},
-     *   streak: array{current: int, best: int, met_today: bool, at_risk: bool},
+     *   streak: array{current: int, best: int, met_today: bool, at_risk: bool, freezes: int, frozen_yesterday: bool},
      *   active_course: array{
      *     id: int, slug: string, title: string,
      *     progress: array{learned: int, total: int},

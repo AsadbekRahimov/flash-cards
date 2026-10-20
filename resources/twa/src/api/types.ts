@@ -229,6 +229,10 @@ export interface Streak {
   met_today: boolean
   /** The series ends unless the goal is met before local midnight. */
   at_risk: boolean
+  /** Streak freezes the learner can spend (Pro feature; 0 on Free — docs/13 §7.2). */
+  freezes: number
+  /** Yesterday was missed and held by a freeze. */
+  frozen_yesterday: boolean
 }
 
 /** Answer of POST /training/sessions/{id}/finish. `goal` / `streak`: state of the whole day, not of the session. */

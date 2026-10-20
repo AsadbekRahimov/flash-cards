@@ -21,7 +21,7 @@ const today = (overrides: Partial<TodayResponse> = {}): TodayResponse => ({
   due_count: 3,
   new_words_remaining: 12,
   goal: { target: 20, done: 8, met: false },
-  streak: { current: 0, best: 0, met_today: false, at_risk: false },
+  streak: { current: 0, best: 0, met_today: false, at_risk: false, freezes: 0, frozen_yesterday: false },
   active_course: null,
   open_session_id: null,
   entitlement: { plan: 'free', source: 'free', until: null },

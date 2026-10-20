@@ -89,7 +89,7 @@ it('is empty for a fresh learner: zero goal progress, no streak, no course, the 
         'due_count' => 0,
         'new_words_remaining' => 20,
         'goal' => ['target' => 10, 'done' => 0, 'met' => false],
-        'streak' => ['current' => 0, 'best' => 0, 'met_today' => false, 'at_risk' => false],
+        'streak' => ['current' => 0, 'best' => 0, 'met_today' => false, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false],
         'active_course' => null,
         'open_session_id' => null,
         'entitlement' => ['plan' => 'free', 'source' => 'free', 'until' => null],
@@ -122,12 +122,12 @@ it('counts graded cards towards the goal and credits the streak when the goal is
     todayGrade($this, $learner, 1);
     todayGet($this, $learner)->assertOk()
         ->assertJsonPath('goal', ['target' => 2, 'done' => 1, 'met' => false])
-        ->assertJsonPath('streak', ['current' => 0, 'best' => 0, 'met_today' => false, 'at_risk' => false]);
+        ->assertJsonPath('streak', ['current' => 0, 'best' => 0, 'met_today' => false, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false]);
 
     todayGrade($this, $learner, 1);
     todayGet($this, $learner)->assertOk()
         ->assertJsonPath('goal', ['target' => 2, 'done' => 2, 'met' => true])
-        ->assertJsonPath('streak', ['current' => 1, 'best' => 1, 'met_today' => true, 'at_risk' => false]);
+        ->assertJsonPath('streak', ['current' => 1, 'best' => 1, 'met_today' => true, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false]);
 
     // Grading beyond the goal grows `done` but neither re-credits the day nor un-meets the goal.
     todayGrade($this, $learner, 1);
@@ -142,9 +142,9 @@ it('shows a series that ended yesterday as at risk and one that ended earlier as
     $broken = Learner::factory()->create(['streak_current' => 4, 'streak_best' => 9, 'streak_last_date' => '2026-10-17']);
 
     todayGet($this, $atRisk)->assertOk()
-        ->assertJsonPath('streak', ['current' => 4, 'best' => 9, 'met_today' => false, 'at_risk' => true]);
+        ->assertJsonPath('streak', ['current' => 4, 'best' => 9, 'met_today' => false, 'at_risk' => true, 'freezes' => 0, 'frozen_yesterday' => false]);
     todayGet($this, $broken)->assertOk()
-        ->assertJsonPath('streak', ['current' => 0, 'best' => 9, 'met_today' => false, 'at_risk' => false]);
+        ->assertJsonPath('streak', ['current' => 0, 'best' => 9, 'met_today' => false, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false]);
 });
 
 it('splits the day at the learner\'s local midnight (Asia/Tashkent), not at UTC midnight', function (): void {
@@ -299,7 +299,7 @@ it('adds the day\'s goal and streak to the /finish summary and keeps them on a r
     $expected = [
         'reviewed' => 2, 'correct' => 2, 'new_words' => 2,
         'goal' => ['target' => 2, 'done' => 2, 'met' => true],
-        'streak' => ['current' => 1, 'best' => 1, 'met_today' => true, 'at_risk' => false],
+        'streak' => ['current' => 1, 'best' => 1, 'met_today' => true, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false],
     ];
     $this->withHeaders(todayHeaders($learner))->postJson("/api/twa/training/sessions/{$id}/finish")
         ->assertOk()->assertExactJson($expected);

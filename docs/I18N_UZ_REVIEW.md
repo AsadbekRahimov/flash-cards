@@ -1334,3 +1334,17 @@
 |---|---|---|
 | `billing.offer_dm.text` | Siz «:organization» markazidan chiqdingiz. Shaxsiy LexiFlow Pro birinchi oyga :pct% chegirma bilan — :date gacha.\nTo'lov usulini tanlang: | Вы покинули центр «:organization». Личный LexiFlow Pro со скидкой :pct% на первый месяц — до :date.\nВыберите способ оплаты: |
 | `billing.offer_dm.text_generic` (центр удалён) | Markazdagi joyingiz tugadi. Shaxsiy LexiFlow Pro birinchi oyga :pct% chegirma bilan — :date gacha.\nTo'lov usulini tanlang: | Ваше место в центре закончилось. Личный LexiFlow Pro со скидкой :pct% на первый месяц — до :date.\nВыберите способ оплаты: |
+
+## Фаза 2 · задача 2C.2 (заморозка серии, Pro) — на проверку носителю
+
+> Проверить: «muzlatish» (заморозка серии — термин новый, альтернатива «seriyani saqlash»), «dushanba kuni» (в понедельник), форма «{count} ta muzlatish».
+
+### TWA, карточка серии на экране «Сегодня» и paywall (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `today.streak.freezes` | ❄️ {count} ta muzlatish | ❄️ {count} заморозка / заморозки / заморозок |
+| `today.streak.freezes_none` | ❄️ Muzlatish yo'q — yangisi dushanba kuni | ❄️ Заморозок нет — новая в понедельник |
+| `today.streak.frozen_yesterday` | Kechagi kun muzlatildi — seriya saqlandi | Вчерашний день заморожен — серия сохранена |
+| `today.streak.freeze_teaser` | ❄️ Seriyani muzlatish — Pro'da | ❄️ Заморозки серии — в Pro |
+| `paywall.lead_streak_freeze` | Seriyani muzlatish — Pro'da: o'tkazib yuborilgan kun seriyani uzmaydi, 2 tagacha muzlatish, har hafta +1. | Заморозка серии — в Pro: пропущенный день не обрывает серию, до 2 заморозок, +1 каждую неделю. |

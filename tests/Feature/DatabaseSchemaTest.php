@@ -41,6 +41,20 @@ use Illuminate\Support\Facades\Schema;
 
 uses(RefreshDatabase::class);
 
+/**
+ * `migrate:rollback --step` counts from the newest migration: the number of files from `$firstFile`
+ * (inclusive, by name) to the end of `database/migrations`, so a migration added on top later does
+ * not shift which files a rollback test reaches.
+ */
+function migrationStepsBackTo(string $firstFile): int
+{
+    $files = glob(database_path('migrations/*.php')) ?: [];
+    $names = array_map(fn (string $f): string => basename($f, '.php'), $files);
+    sort($names);
+
+    return count(array_filter($names, fn (string $n): bool => $n >= $firstFile));
+}
+
 $expectedTables = [
     'users', 'password_reset_tokens', 'sessions',
     'telegram_groups', 'teacher_groups', 'learners', 'group_members',
@@ -664,8 +678,8 @@ it('has partial unique index subscriptions_one_live_per_subscriber', function ()
 it('rolls back and re-applies the organization migrations (2B.1) in FK order', function (): void {
     $tables = ['organization_members', 'organization_invites', 'organization_users'];
 
-    // The two 2B.4 assignment files are the last ones, then the three 2B.1 files: members -> invites (FK invite_id) -> users.
-    $this->artisan('migrate:rollback', ['--step' => 5])->assertSuccessful();
+    // Everything from the first 2B.1 file up: the three 2B.1 files (members -> invites (FK invite_id) -> users) and what came later.
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_21_000001_create_organization_users_table')])->assertSuccessful();
     foreach ($tables as $table) {
         expect(Schema::hasTable($table))->toBeFalse("Table {$table} survived rollback");
     }
@@ -740,8 +754,8 @@ it('cascades and nulls the organization foreign keys as designed (docs/13 §1.3)
 it('rolls back and re-applies the billing migrations (2A.1) in FK order', function (): void {
     $tables = ['payments', 'provider_transactions', 'payment_orders', 'offers'];
 
-    // 9 steps: the two 2B.4 and the three 2B.1 files sit on top of the four 2A.1 billing files.
-    $this->artisan('migrate:rollback', ['--step' => 9])->assertSuccessful();
+    // Everything from the first 2A.1 billing file up (the 2B.1 / 2B.4 / 2C files sit on top of the four billing files).
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_20_000001_create_offers_table')])->assertSuccessful();
     foreach ($tables as $table) {
         expect(Schema::hasTable($table))->toBeFalse("Table {$table} survived rollback");
     }
@@ -823,7 +837,7 @@ it('drops the learner-first indexes on rollback of the open-session migration', 
 });
 
 it('rolls back and re-applies the assignment migrations (2B.4) in FK order', function (): void {
-    $this->artisan('migrate:rollback', ['--step' => 2])->assertSuccessful();
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_21_000004_create_assignments_table')])->assertSuccessful();
     expect(Schema::hasTable('assignment_results'))->toBeFalse()
         ->and(Schema::hasTable('assignments'))->toBeFalse()
         ->and(Schema::hasTable('organization_members'))->toBeTrue();
@@ -848,4 +862,23 @@ it('enforces assignment_results (assignment_id, learner_id) unique, cascades the
     $assignment->group()->delete();
     expect(Assignment::query()->count())->toBe(0)
         ->and(AssignmentResult::query()->count())->toBe(0);
+});
+
+it('adds the streak freeze columns (2C.2) and rolls them back', function (): void {
+    expect(Schema::hasColumns('learners', ['streak_freezes', 'streak_freezes_refilled_on']))->toBeTrue()
+        ->and(Schema::hasColumn('learner_daily_stats', 'frozen_at'))->toBeTrue();
+
+    $learner = Learner::factory()->create();
+    expect($learner->fresh()?->streak_freezes)->toBe(0)
+        ->and($learner->fresh()?->streak_freezes_refilled_on)->toBeNull();
+
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_22_200001_add_streak_freeze_columns')])->assertSuccessful();
+    expect(Schema::hasColumn('learners', 'streak_freezes'))->toBeFalse()
+        ->and(Schema::hasColumn('learners', 'streak_freezes_refilled_on'))->toBeFalse()
+        ->and(Schema::hasColumn('learner_daily_stats', 'frozen_at'))->toBeFalse()
+        ->and(Schema::hasTable('learners'))->toBeTrue();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasColumns('learners', ['streak_freezes', 'streak_freezes_refilled_on']))->toBeTrue()
+        ->and(Schema::hasColumn('learner_daily_stats', 'frozen_at'))->toBeTrue();
 });
