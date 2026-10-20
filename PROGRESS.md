@@ -42,7 +42,7 @@
 | 2C.3–2C.5 | Лиги (после 2R.3), достижения/шеринг (шрифт — вопрос владельцу §12 п.11), друзья/вызовы (после 2C.1) | см. docs/13 §11 | ⏳ |
 | 2D.1 | Свои колоды: `LearnerDeckService`, `DeckImportParser` (список/CSV), API `/decks*`, TWA `MyDecksView`/`DeckEditView`; лимиты `config/decks.php` (Free 1×50, Pro 20×2000); участие в `daily_review` и квоте. Хвосты: uz-тексты на проверку носителем; PG-теста параллельных импортов нет | coder | ✅ |
 | 2D.2–2D.5 | Упражнения + `audio_url`, FSRS A/B, симулятор IELTS/SAT, ревью | см. docs/13 §11 | ⏳ |
-| 2R.3 | Глобальный лимит исходящих Telegram (`reserveGlobal`, 25/с) во всех фоновых отправках | coder | 🔄 |
+| 2R.3 | Глобальный лимит исходящих Telegram: `reserveGlobal` (Redis Lua `INCR`+`EXPIRE`, 25/с), middleware `ThrottleTelegramOutbound` (нет слота → release 1–5 с; `tries=0` + `maxExceptions`) на напоминаниях, продлениях, заданиях, лидерборде, ЛС центров/офферов; `assignments:refresh` ждёт слот до 2 с до клейма; `ReminderDispatcher` ставит ≤ send_rate×840 за запуск. Ответы на входящие апдейты не лимитируются | coder | ✅ |
 | 2R.7–2R.8 | Отмена смены часового пояса; staging 0.7 (владелец/DevOps) | см. docs/13 §9 | ⏳ |
 
 ## Sprint 14 — Фаза 1 «Публичный B2C MVP» ✅ (2026-10-18 — 2026-10-19; 1.9 ждёт контент владельца)
