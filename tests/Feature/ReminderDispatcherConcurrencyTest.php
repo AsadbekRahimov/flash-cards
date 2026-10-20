@@ -17,6 +17,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
+use Tests\Support\ForkSafe;
 
 $onPostgres = (getenv('DB_CONNECTION') ?: 'sqlite') === 'pgsql';
 
@@ -44,7 +45,7 @@ afterEach(function (): void {
 function remindersRunInParallel(array $tasks): array
 {
     // The children must not inherit (and later close) the parent's socket.
-    DB::disconnect();
+    ForkSafe::releaseConnections();
 
     $dir = sys_get_temp_dir().'/lexiflow-race-'.getmypid().'-'.bin2hex(random_bytes(4));
     mkdir($dir, 0700, true);
@@ -60,6 +61,7 @@ function remindersRunInParallel(array $tasks): array
         if ($pid === 0) {
             $out = ['ok' => false, 'error' => 'no result'];
             try {
+                ForkSafe::releaseConnections();
                 DB::reconnect();
                 while (microtime(true) < $startAt) {
                     usleep(500);

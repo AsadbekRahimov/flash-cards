@@ -18,7 +18,7 @@ it('returns 200 with ok checks when dependencies are healthy', function (): void
         ->assertOk()
         ->assertExactJson([
             'status' => 'ok',
-            'checks' => ['db' => 'ok', 'scheduler' => 'ok', 'queue' => 'ok'],
+            'checks' => ['db' => 'ok', 'scheduler' => 'ok', 'queue' => 'ok'] + (config('cache.stores.'.config('cache.default').'.driver') === 'redis' ? ['redis' => 'ok'] : []),
         ]);
 });
 

@@ -410,6 +410,9 @@ it('allows 10 verified /auth calls per minute for one Telegram user, then answer
     // Somebody else on the same address is not affected, nor is the same person a minute later.
     $this->postJson('/api/twa/auth', ['init_data' => signedInitData(556)])->assertOk();
     $this->travel(61)->seconds();
+    // travel() moves Carbon only; a persistent cache store (CI: Redis) expires keys by wall-clock TTL,
+    // so end the elapsed minute explicitly.
+    RateLimiter::clear('twa-auth-user|555');
     $this->postJson('/api/twa/auth', ['init_data' => signedInitData(555)])->assertOk();
 });
 
@@ -424,7 +427,8 @@ it('counts the per-user budget only after the HMAC check: forged initData cannot
     }
 
     $this->postJson('/api/twa/auth', ['init_data' => signedInitData(777)])->assertOk();
-    expect(RateLimiter::attempts('twa-auth-user|777'))->toBe(1);
+    // The Redis store hands counters back as numeric strings.
+    expect((int) RateLimiter::attempts('twa-auth-user|777'))->toBe(1);
 });
 
 it('does not create or touch a learner once the per-user limit is hit', function (): void {

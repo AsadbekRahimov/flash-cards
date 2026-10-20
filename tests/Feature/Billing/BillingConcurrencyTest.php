@@ -50,6 +50,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Support\Facades\DB;
 use Tests\Support\ClickFixtures;
+use Tests\Support\ForkSafe;
 use Tests\Support\PaymeFixtures;
 
 $onPostgres = (getenv('DB_CONNECTION') ?: 'sqlite') === 'pgsql';
@@ -79,7 +80,7 @@ afterEach(function (): void {
 function billingRunInParallel(array $tasks): array
 {
     // The children must not inherit (and later close) the parent's socket.
-    DB::disconnect();
+    ForkSafe::releaseConnections();
 
     $dir = sys_get_temp_dir().'/lexiflow-race-'.getmypid().'-'.bin2hex(random_bytes(4));
     mkdir($dir, 0700, true);
@@ -97,7 +98,7 @@ function billingRunInParallel(array $tasks): array
             try {
                 // Same for a persistent cache store (CI: Redis): a socket shared with the
                 // parent and siblings interleaves replies. Drop it so each child dials its own.
-                app('redis')->purge();
+                ForkSafe::releaseConnections();
 
                 $deadline = microtime(true) + 10;
                 while (! file_exists($go) && microtime(true) < $deadline) {

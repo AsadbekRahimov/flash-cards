@@ -6,6 +6,7 @@ use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Models\Learner;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\RateLimiter;
 use Tests\Support\FakeTelegramClient;
 
 uses(RefreshDatabase::class);
@@ -65,6 +66,9 @@ it('counts every sender separately and lets the sender back in when the minute i
         ->and(Learner::query()->where('telegram_user_id', 9103)->exists())->toBeTrue();
 
     $this->travel(61)->seconds();
+    // travel() moves Carbon only; a persistent cache store (CI: Redis) expires keys by wall-clock TTL,
+    // so end the elapsed minute explicitly.
+    RateLimiter::clear('bot-in:9102');
     rlMessage(9102);
 
     expect($this->tg->sent)->toHaveCount(32);
