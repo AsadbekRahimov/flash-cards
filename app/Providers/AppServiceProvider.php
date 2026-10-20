@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Domain\Billing\Providers\Click\ClickSignature;
+use App\Domain\Billing\Providers\ClickProvider;
 use App\Domain\Billing\Providers\Payme\PaymeAuth;
 use App\Domain\Billing\Providers\PaymeProvider;
 use App\Domain\Billing\Providers\TelegramStarsProvider;
@@ -65,12 +67,14 @@ class AppServiceProvider extends ServiceProvider
             $registry = new BillingProviderRegistry;
             $registry->register($this->app->make(TelegramStarsProvider::class));
             $registry->register($this->app->make(PaymeProvider::class));
+            $registry->register($this->app->make(ClickProvider::class));
 
             return $registry;
         });
 
         // Keys are read per request (not a singleton): a rotated PAYME_KEY / PAYME_TEST_KEY applies at once in tests and after config:cache.
         $this->app->bind(PaymeAuth::class, static fn (): PaymeAuth => PaymeAuth::fromConfig());
+        $this->app->bind(ClickSignature::class, static fn (): ClickSignature => ClickSignature::fromConfig());
 
         $this->app->singleton(LearningPolicy::class, function (): LearningPolicy {
             /** @var array<string, mixed> $config */

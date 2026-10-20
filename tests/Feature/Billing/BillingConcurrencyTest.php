@@ -18,6 +18,7 @@ use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Enums\SubscriptionStatus;
 use App\Domain\Billing\Exceptions\BillingException;
 use App\Domain\Billing\Exceptions\PromoCodeException;
+use App\Domain\Billing\Providers\Click\ClickMerchantService;
 use App\Domain\Billing\Providers\Payme\PaymeRpcService;
 use App\Domain\Billing\Services\NewWordQuota;
 use App\Domain\Billing\Services\PaymentApplier;
@@ -48,6 +49,7 @@ use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Support\Facades\DB;
+use Tests\Support\ClickFixtures;
 use Tests\Support\PaymeFixtures;
 
 $onPostgres = (getenv('DB_CONNECTION') ?: 'sqlite') === 'pgsql';
@@ -724,6 +726,125 @@ it('does not deadlock when a Payme PerformTransaction and a manual grant hit the
 
     expect(billingCodes($results))->toBe(['ok', 'ok'])
         ->and($results[0]['result']['result']['state'])->toBe(2)
+        ->and(Subscription::query()->count())->toBe(1)
+        ->and(Subscription::query()->whereIn('status', SubscriptionStatus::liveValues())->count())->toBe(1)
+        ->and(Payment::query()->where('status', 'succeeded')->count())->toBe(1)
+        ->and(Subscription::query()->sole()->id)->toBe($results[1]['result']);
+});
+
+/*
+ * 2A.5 (docs/13 §3 rule 6, §4.3): Click's Complete serializes on the order row like Payme's Perform,
+ * so two deliveries credit once and answer alike; Complete vs Complete(error < 0) end in one of the
+ * two consistent states; Complete vs a manual grant on the same learner cannot deadlock.
+ */
+
+/** A Click order with a prepared (state 1) transaction; returns [order, merchant_prepare_id]. */
+function billingPreparedClickOrder(?Learner $learner = null): array
+{
+    ClickFixtures::configure();
+    $order = PaymentOrder::factory()->click()->create($learner === null ? [] : ['subscriber_id' => $learner->id]);
+    $response = app(ClickMerchantService::class)->prepare(ClickFixtures::prepare($order));
+    if ($response['error'] !== 0) {
+        throw new RuntimeException('Prepare failed: '.json_encode($response));
+    }
+
+    return [$order, (int) $response['merchant_prepare_id']];
+}
+
+it('credits exactly one payment when two Click Complete calls for the same transaction arrive together, answering both alike', function (): void {
+    [$order, $prepareId] = billingPreparedClickOrder();
+    $form = ClickFixtures::complete($order, $prepareId);
+
+    $results = billingRunInParallel(array_fill(0, 2, function () use ($form): array {
+        // Pause between the state check and the ledger insert: without the order lock both would charge.
+        Payment::creating(static function (): void {
+            usleep(200_000);
+        });
+
+        return app(ClickMerchantService::class)->complete($form);
+    }));
+
+    expect(billingCodes($results))->toBe(['ok', 'ok'])
+        ->and($results[0]['result']['error'] ?? null)->toBe(0)
+        ->and($results[0]['result'])->toBe($results[1]['result'])
+        ->and($results[0]['result']['merchant_confirm_id'])->toBe(Payment::query()->sole()->id)
+        ->and(Payment::query()->count())->toBe(1)
+        ->and(Payment::query()->sole()->status)->toBe('succeeded')
+        ->and(Subscription::query()->count())->toBe(1)
+        ->and(ProviderTransaction::query()->sole()->state)->toBe(2)
+        ->and($order->refresh()->status)->toBe('paid');
+});
+
+it('ends in one consistent state when a Click Complete and a Complete with error < 0 race on the same transaction', function (): void {
+    [$order, $prepareId] = billingPreparedClickOrder();
+    $success = ClickFixtures::complete($order, $prepareId);
+    $failure = ClickFixtures::complete($order, $prepareId, ['error' => '-5017']);
+
+    $results = billingRunInParallel([
+        function () use ($success): array {
+            Payment::creating(static function (): void {
+                usleep(200_000);
+            });
+
+            return app(ClickMerchantService::class)->complete($success);
+        },
+        function () use ($failure): array {
+            usleep(50_000);
+
+            return app(ClickMerchantService::class)->complete($failure);
+        },
+    ]);
+
+    expect(billingCodes($results))->toBe(['ok', 'ok']);
+    $tx = ProviderTransaction::query()->sole();
+
+    if ($tx->state === 2) {
+        // The success won: the later cancel is refused with -4 and nothing is undone.
+        expect($results[0]['result']['error'])->toBe(0)
+            ->and($results[1]['result']['error'])->toBe(-4)
+            ->and(Payment::query()->where('status', 'succeeded')->count())->toBe(1)
+            ->and(Subscription::query()->count())->toBe(1)
+            ->and($order->refresh()->status)->toBe('paid');
+    } else {
+        // The cancel won: the success is refused with -9, nothing was charged, the order is canceled.
+        expect($tx->state)->toBe(-1)
+            ->and($results[0]['result']['error'])->toBe(-9)
+            ->and($results[1]['result']['error'])->toBe(-9)
+            ->and(Payment::query()->count())->toBe(0)
+            ->and(Subscription::query()->count())->toBe(0)
+            ->and($order->refresh()->status)->toBe('canceled');
+    }
+});
+
+it('does not deadlock when a Click Complete and a manual grant hit the same learner', function (): void {
+    $learner = Learner::factory()->create();
+    $admin = User::factory()->create();
+    [$order, $prepareId] = billingPreparedClickOrder($learner);
+    $form = ClickFixtures::complete($order, $prepareId);
+    $signal = billingSignalFile();
+
+    $results = billingRunInParallel([
+        function () use ($form, $signal): array {
+            // Holds order + transaction + learner + subscription, pauses after the subscription write while the
+            // grant waits on the learner row, then inserts payments / events and commits.
+            Subscription::created(static function () use ($signal): void {
+                billingWaitForFile($signal);
+                usleep(500_000);
+            });
+
+            return app(ClickMerchantService::class)->complete($form);
+        },
+        function () use ($learner, $admin, $signal): int {
+            usleep(150_000); // let the complete take its locks first
+            touch($signal);
+
+            return app(SubscriptionService::class)->grantManual($learner, Plan::Pro, CarbonImmutable::now()->addDays(90), $admin, 'race')->id;
+        },
+    ]);
+    billingRemoveSignalFile($signal);
+
+    expect(billingCodes($results))->toBe(['ok', 'ok'])
+        ->and($results[0]['result']['error'])->toBe(0)
         ->and(Subscription::query()->count())->toBe(1)
         ->and(Subscription::query()->whereIn('status', SubscriptionStatus::liveValues())->count())->toBe(1)
         ->and(Payment::query()->where('status', 'succeeded')->count())->toBe(1)

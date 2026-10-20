@@ -636,7 +636,7 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 | subscription_id | bigint nullable FK → subscriptions, ON DELETE SET NULL | |
 | subscriber_type / subscriber_id | string(16) / bigint | дублируется из заказа |
 | provider | string(16) | |
-| provider_event_id | string(191) | ключ идемпотентности (Stars `telegram_payment_charge_id`; Payme `<id>:perform` / `:cancel`; Click `<click_trans_id>:complete` / `:refund:<n>`) |
+| provider_event_id | string(191) | ключ идемпотентности (Stars `telegram_payment_charge_id`; Payme `<id>:perform` / `:cancel`; Click `<click_trans_id>:complete`; ручной возврат из админки — `admin-refund:<payment id>`, 2A.7/2A.5) |
 | provider_charge_id | string(191) nullable | что нужно для возврата |
 | kind | string(12) | `charge` / `renewal` / `refund` |
 | status | string(12) | `succeeded` / `refunded` / `failed` (`failed` = деньги могли прийти, но заказ/сумма не сошлись — `raw.failure_reason`) |

@@ -9,6 +9,7 @@ use App\Domain\Billing\DTO\CheckoutLink;
 use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Exceptions\ProviderCapabilityException;
 use App\Domain\Billing\Providers\Payme\PaymeRpcException;
+use App\Domain\Billing\Support\BillingReturnUrl;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Payment;
 use App\Models\PaymentOrder;
@@ -95,7 +96,7 @@ final class PaymeProvider implements BillingProvider
     /** `/billing/return?order=<token>&lang=<lang>` on APP_URL — never on the Host of a request (docs/07 §2). */
     public static function returnUrl(string $token, string $lang): string
     {
-        return rtrim((string) config('app.url'), '/').'/billing/return?'.http_build_query(['order' => $token, 'lang' => $lang]);
+        return BillingReturnUrl::for($token, $lang);
     }
 
     private function checkoutLanguage(PaymentOrder $order): string
