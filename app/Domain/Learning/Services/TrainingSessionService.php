@@ -7,7 +7,9 @@ namespace App\Domain\Learning\Services;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Learning\DTO\SessionSummary;
 use App\Domain\Learning\Exceptions\TrainingSessionException;
+use App\Models\Assignment;
 use App\Models\Course;
+use App\Models\GroupMember;
 use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\TelegramGroup;
@@ -297,9 +299,36 @@ final class TrainingSessionService
         $lesson->loadMissing('stage.course');
 
         $course = $lesson->stage?->course;
-        if ($course === null || ! $this->catalog->isAvailable($course, $learner)) {
+        if ($course === null) {
             throw TrainingSessionException::lessonNotAvailable((int) $lesson->id);
         }
+
+        if ($this->catalog->isAvailable($course, $learner)) {
+            return;
+        }
+
+        // A published private course of a center is open to the learners of the group it was
+        // assigned to — only for the lessons set as a live assignment, nothing else of the course.
+        if ($learner !== null && $course->status === 'published' && $this->isAssignedTo($lesson, $learner)) {
+            return;
+        }
+
+        throw TrainingSessionException::lessonNotAvailable((int) $lesson->id);
+    }
+
+    /** An active assignment of this lesson in a group of an active center where the learner is an active member. */
+    private function isAssignedTo(Lesson $lesson, Learner $learner): bool
+    {
+        return Assignment::query()
+            ->where('lesson_id', $lesson->id)
+            ->where('status', Assignment::STATUS_ACTIVE)
+            ->ofActiveOrganization()
+            ->inLinkedGroup()
+            ->whereIn('telegram_group_id', GroupMember::query()
+                ->select('telegram_group_id')
+                ->where('learner_id', $learner->id)
+                ->where('status', 'active'))
+            ->exists();
     }
 
     /**

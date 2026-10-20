@@ -15,6 +15,7 @@ use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Jobs\AnnounceAssignmentJob;
 use App\Models\Assignment;
 use App\Models\AssignmentResult;
+use App\Models\Course;
 use App\Models\GroupMember;
 use App\Models\Learner;
 use App\Models\Lesson;
@@ -78,12 +79,21 @@ final class AssignmentService
             throw AssignmentException::foreignGroup($group->id, $organization->id);
         }
 
+        if ($group->status !== 'active') {
+            throw AssignmentException::groupInactive($group->id);
+        }
+
         if ($group->course_id === null) {
             throw AssignmentException::groupWithoutCourse($group->id);
         }
 
         if ((int) Stage::query()->whereKey($lesson->stage_id)->value('course_id') !== $group->course_id) {
             throw AssignmentException::lessonNotInCourse($lesson->id, $group->id);
+        }
+
+        // Private is fine (learners of the group open the assigned lesson, TrainingSessionService); a draft is not.
+        if (Course::query()->whereKey($group->course_id)->value('status') !== 'published') {
+            throw AssignmentException::lessonNotAvailable($lesson->id);
         }
 
         if ($dueAt->lte($now)) {
@@ -194,6 +204,8 @@ final class AssignmentService
 
         Assignment::query()
             ->where('status', Assignment::STATUS_ACTIVE)
+            ->ofActiveOrganization()
+            ->inLinkedGroup()
             ->whereNull('announced_at')
             ->where('due_at', '>', $now)
             ->orderBy('id')
@@ -221,6 +233,8 @@ final class AssignmentService
 
         Assignment::query()
             ->where('status', Assignment::STATUS_ACTIVE)
+            ->ofActiveOrganization()
+            ->inLinkedGroup()
             ->whereNull('reminded_at')
             ->where('due_at', '>', $now)
             ->where('due_at', '<=', $now->addHours($this->remindBeforeHours()))
@@ -256,6 +270,11 @@ final class AssignmentService
     {
         $now ??= CarbonImmutable::now();
         $completed = 0;
+
+        // The group left the center (unlinked / moved): its members are not this center's to measure.
+        if (! TelegramGroup::query()->withoutGlobalScopes()->whereKey($assignment->telegram_group_id)->where('organization_id', $assignment->organization_id)->exists()) {
+            return 0;
+        }
 
         GroupMember::query()
             ->where('telegram_group_id', $assignment->telegram_group_id)
@@ -309,6 +328,8 @@ final class AssignmentService
 
         Assignment::query()
             ->where('status', Assignment::STATUS_ACTIVE)
+            ->ofActiveOrganization()
+            ->inLinkedGroup()
             ->orderBy('id')
             ->each(function (Assignment $assignment) use ($now, &$processed): void {
                 try {
@@ -336,18 +357,39 @@ final class AssignmentService
         $assignments = Assignment::query()
             ->with(['lesson.stage', 'group'])
             ->where('status', Assignment::STATUS_ACTIVE)
+            ->ofActiveOrganization()
+            ->inLinkedGroup()
             ->whereIn('telegram_group_id', GroupMember::query()
                 ->select('telegram_group_id')
                 ->where('learner_id', $learner->id)
                 ->where('status', 'active'))
-            ->whereIn('organization_id', Organization::query()->select('id')->where('status', 'active'))
             ->orderBy('due_at')
             ->orderBy('id')
             ->limit((int) config('organizations.assignments.twa_limit', 20))
             ->get();
 
-        foreach ($assignments as $assignment) {
-            $this->compute($assignment, [$learner->id], $now);
+        // Only snapshots older than `stale_after_minutes` are recounted (a read path must not write
+        // on every call), and the lessons' words are loaded once for all of them.
+        $fresh = AssignmentResult::query()
+            ->where('learner_id', $learner->id)
+            ->whereIn('assignment_id', $assignments->modelKeys())
+            ->where('computed_at', '>', $now->subMinutes((int) config('organizations.assignments.stale_after_minutes', 10)))
+            ->pluck('assignment_id')
+            ->map(static fn ($id): int => (int) $id)
+            ->all();
+        $stale = $assignments->reject(static fn (Assignment $a): bool => in_array($a->id, $fresh, true));
+
+        if ($stale->isNotEmpty()) {
+            /** @var array<int, list<int>> $wordsByLesson */
+            $wordsByLesson = [];
+
+            foreach (Word::query()->whereIn('lesson_id', $stale->pluck('lesson_id')->unique()->all())->where('is_active', true)->get(['id', 'lesson_id']) as $word) {
+                $wordsByLesson[(int) $word->lesson_id][] = (int) $word->id;
+            }
+
+            foreach ($stale as $assignment) {
+                $this->compute($assignment, [$learner->id], $now, $wordsByLesson[$assignment->lesson_id] ?? []);
+            }
         }
 
         /** @var Collection<int, AssignmentResult> $results */
@@ -370,16 +412,17 @@ final class AssignmentService
      * Progress of the given learners (all active members of the group) on one assignment.
      *
      * @param  list<int>  $learnerIds
+     * @param  list<int>|null  $wordIds  active words of the lesson when the caller already has them
      * @return int learners that reached the threshold for the first time in this call
      */
-    private function compute(Assignment $assignment, array $learnerIds, CarbonImmutable $now): int
+    private function compute(Assignment $assignment, array $learnerIds, CarbonImmutable $now, ?array $wordIds = null): int
     {
         if ($learnerIds === []) {
             return 0;
         }
 
         /** @var list<int> $wordIds */
-        $wordIds = Word::query()
+        $wordIds ??= Word::query()
             ->where('lesson_id', $assignment->lesson_id)
             ->where('is_active', true)
             ->pluck('id')
@@ -522,6 +565,8 @@ final class AssignmentService
         $claimed = Assignment::query()
             ->whereKey($assignment->id)
             ->where('status', Assignment::STATUS_ACTIVE)
+            ->ofActiveOrganization()
+            ->inLinkedGroup()
             ->whereNull($column)
             ->update([$column => $now, 'updated_at' => $now]);
 
@@ -550,6 +595,11 @@ final class AssignmentService
                 url: rtrim((string) config('twa.base_url'), '/').self::TWA_PATH.$fresh->lesson_id,
             );
         } catch (TelegramApiException|TelegramForbiddenException $e) {
+            // A transport failure (timeout, cURL error) may have been delivered: keep the claim, propagate.
+            if ($e instanceof TelegramApiException && ! $e->isApiResponse()) {
+                throw $e;
+            }
+
             $meta = $fresh->meta;
             $meta[$column.'_failures'] = $this->failures($fresh, $column) + 1;
             $fresh->forceFill([$column => null, 'meta' => $meta])->save();

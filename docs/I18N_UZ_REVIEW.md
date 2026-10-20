@@ -1124,7 +1124,8 @@
 | `org.billing.errors.tier_not_purchasable` | Bu tarifni onlayn to'lab bo'lmaydi. Hisob so'rang. | Этот тариф нельзя оплатить онлайн. Запросите счёт. |
 | `org.billing.errors.invoice_not_found` | Buyurtma topilmadi. | Заказ не найден. |
 | `org.billing.errors.invoice_not_configured` | Hisob so'rash hozir mavjud emas. Qo'llab-quvvatlashga yozing. | Запрос счёта сейчас недоступен. Напишите в поддержку. |
-| `org.billing.errors.invoice_request_throttled` | Bunday so'rov allaqachon yuborilgan. Bir necha daqiqa kuting. | Такой запрос уже отправлен. Подождите несколько минут. |
+| `org.billing.errors.invoice_request_throttled` | Hisob so'rovi yaqinda yuborilgan. Bir necha daqiqa kuting yoki qo'llab-quvvatlashga yozing. | Запрос счёта уже отправлен недавно. Подождите несколько минут или напишите в поддержку. |
+| `org.billing.errors.organization_suspended` | Markaz to'xtatilgan — buyurtma berib bo'lmaydi. Qo'llab-quvvatlashga murojaat qiling. | Центр приостановлен — оформить заказ нельзя. Обратитесь в поддержку. |
 | `org.billing.errors.unknown` | Amalni bajarib bo'lmadi. Keyinroq urinib ko'ring. | Не удалось выполнить действие. Попробуйте позже. |
 | `org.invoice.title` | Hisob :number | Счёт :number |
 | `org.invoice.heading` | To'lov uchun hisob № :number | Счёт на оплату № :number |
@@ -1248,6 +1249,8 @@
 | `org.assignments.errors.foreign_group` | Bu guruh markazga tegishli emas. | Эта группа не принадлежит центру. |
 | `org.assignments.errors.group_without_course` | Guruhga kurs tanlanmagan — dars berish uchun guruh kursini tanlang. | У группы не выбран курс — выберите курс группы, чтобы задавать уроки. |
 | `org.assignments.errors.lesson_not_in_course` | Bu dars guruh kursiga kirmaydi. | Этот урок не входит в курс группы. |
+| `org.assignments.errors.group_inactive` | Guruh faol emas — bot chatdan olib tashlangan. | Группа неактивна — бот удалён из чата. |
+| `org.assignments.errors.lesson_not_available` | Bu darsning kursi e'lon qilinmagan — o'quvchilar uni o'ta olmaydi. | Курс этого урока не опубликован — ученики не смогут его пройти. |
 | `org.assignments.errors.invalid_due` | Muddat kelajakda bo'lishi kerak. | Срок должен быть в будущем. |
 | `org.assignments.errors.invalid_threshold` | Chegara 1 dan 100 gacha bo'lishi kerak. | Порог должен быть от 1 до 100. |
 | `org.assignments.notifications.created` | Vazifa yaratildi. E'lon guruhga yuboriladi. | Задание создано. Объявление уйдёт в группу. |

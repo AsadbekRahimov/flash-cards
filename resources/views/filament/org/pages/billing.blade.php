@@ -159,7 +159,7 @@
                         @foreach ($history['orders'] as $order)
                             <tr class="border-t border-gray-200 dark:border-white/10">
                                 <td class="py-2 pe-4">{{ sprintf('LF-%06d', $order->id) }}</td>
-                                <td class="py-2 pe-4">{{ $order->created_at?->format('d.m.Y') }}</td>
+                                <td class="py-2 pe-4">{{ $order->created_at?->setTimezone(\Filament\Facades\Filament::getTenant()?->timezone ?? 'UTC')->format('d.m.Y') }}</td>
                                 <td class="py-2 pe-4">{{ $order->tier === null ? '—' : __('org.billing.tiers.'.$order->tier.'.name') }} · {{ __('billing.period.'.$order->period) }}</td>
                                 <td class="py-2 pe-4">{{ $this->priceLabel($order->amount, $order->currency) }}</td>
                                 <td class="py-2 pe-4">{{ __('billing.provider.'.$order->provider) }}</td>
@@ -192,12 +192,12 @@
                     <tbody>
                         @foreach ($history['payments'] as $payment)
                             <tr class="border-t border-gray-200 dark:border-white/10">
-                                <td class="py-2 pe-4">{{ $payment->occurred_at->format('d.m.Y') }}</td>
+                                <td class="py-2 pe-4">{{ $payment->occurred_at->setTimezone(\Filament\Facades\Filament::getTenant()?->timezone ?? 'UTC')->format('d.m.Y') }}</td>
                                 <td class="py-2 pe-4">{{ __('org.billing.payment_kind.'.$payment->kind) }}</td>
                                 <td class="py-2 pe-4">{{ $this->priceLabel($payment->amount, $payment->currency) }}</td>
                                 <td class="py-2 pe-4">{{ __('billing.provider.'.$payment->provider) }}</td>
                                 <td class="py-2 pe-4">{{ __('org.billing.payment_status.'.$payment->status) }}</td>
-                                <td class="py-2">{{ $payment->period_ends_at?->format('d.m.Y') ?? '—' }}</td>
+                                <td class="py-2">{{ $payment->period_ends_at?->setTimezone(\Filament\Facades\Filament::getTenant()?->timezone ?? 'UTC')->format('d.m.Y') ?? '—' }}</td>
                             </tr>
                         @endforeach
                     </tbody>

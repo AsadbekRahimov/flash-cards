@@ -433,10 +433,57 @@ it('refuses an invoice request without an address, an unknown tier / period, and
     expect(fn () => $this->billing->requestInvoice($this->owner, $this->org, 'tutor', 'month'))
         ->toThrow(fn (OrgBillingException $e) => $e->errorCode === 'invoice_request_throttled' && $e->httpStatus() === 429);
 
-    // A different choice is a different request.
-    $this->billing->requestInvoice($this->owner, $this->org, 'center_s', 'month');
+    // The limit is per organization: another tier / period does not get around it.
+    expect(fn () => $this->billing->requestInvoice($this->owner, $this->org, 'center_s', 'month'))
+        ->toThrow(fn (OrgBillingException $e) => $e->errorCode === 'invoice_request_throttled');
 
-    Mail::assertSentCount(2);
+    Mail::assertSentCount(1);
+});
+
+it('allows a new invoice request after 10 minutes, but no more than 5 a day per organization', function (): void {
+    Mail::fake();
+    config()->set('billing.invoice.request_email', 'sales@lexiflow.test');
+    $other = Organization::factory()->create();
+    $otherOwner = obStaff($other, OrganizationRole::Owner);
+
+    foreach (range(1, 5) as $i) {
+        $this->billing->requestInvoice($this->owner, $this->org, 'center_s', 'month');
+        CarbonImmutable::setTestNow(CarbonImmutable::now()->addMinutes(11));
+        Cache::flush(); // the array store has no clock of its own: emulate the 10 minute marker expiry
+        Cache::add("org-billing:invoice-request-day:{$this->org->id}:".now()->format('Ymd'), $i);
+    }
+
+    expect(fn () => $this->billing->requestInvoice($this->owner, $this->org, 'center_s', 'month'))
+        ->toThrow(fn (OrgBillingException $e) => $e->errorCode === 'invoice_request_throttled');
+
+    // Another organization has its own budget.
+    $this->billing->requestInvoice($otherOwner, $other, 'center_s', 'month');
+    Mail::assertSentCount(6);
+});
+
+it('does not let a suspended center place an order', function (): void {
+    $this->org->update(['status' => 'suspended']);
+
+    expect(fn () => $this->billing->checkout($this->owner, $this->org, 'center_s', 'month', SubscriptionProvider::Payme))
+        ->toThrow(fn (OrgBillingException $e) => $e->errorCode === 'organization_suspended' && $e->httpStatus() === 409);
+    expect(PaymentOrder::query()->count())->toBe(0);
+});
+
+it('shows a user-typed comment in the invoice mail as text, never as a link', function (): void {
+    Mail::fake();
+    config()->set('billing.invoice.request_email', 'sales@lexiflow.test');
+    $this->org->update(['name' => '[Evil](http://evil.example/org)']);
+
+    $this->billing->requestInvoice($this->owner, $this->org->refresh(), 'center_s', 'month', "[x](http://evil.example)\n# Heading\n<b>raw</b>");
+
+    Mail::assertSent(OrgInvoiceRequestMail::class, function (OrgInvoiceRequestMail $mail): bool {
+        $html = $mail->render();
+
+        return ! str_contains($html, 'href="http://evil.example')
+            && ! str_contains($html, '<h1>Heading')
+            && ! str_contains($html, '<b>raw</b>')
+            && str_contains($html, 'evil.example'); // still readable, as text
+    });
 });
 
 it('lets the owner retry when the mail transport failed', function (): void {
@@ -444,6 +491,6 @@ it('lets the owner retry when the mail transport failed', function (): void {
     Mail::shouldReceive('to')->once()->andThrow(new RuntimeException('smtp down'));
 
     expect(fn () => $this->billing->requestInvoice($this->owner, $this->org, 'tutor', 'month'))->toThrow(RuntimeException::class);
-    expect(Cache::has("org-billing:invoice-request:{$this->org->id}:tutor:month"))->toBeFalse()
+    expect(Cache::has("org-billing:invoice-request:{$this->org->id}"))->toBeFalse()
         ->and(AuditLog::query()->where('action', 'organization.invoice_requested')->count())->toBe(0);
 });

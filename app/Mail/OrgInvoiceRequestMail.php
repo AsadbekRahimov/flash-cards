@@ -29,6 +29,18 @@ final class OrgInvoiceRequestMail extends Mailable
         $this->locale((string) config('app.locale', 'ru'));
     }
 
+    /**
+     * User-typed text inside a Markdown mail: line breaks become spaces and every ASCII punctuation
+     * mark is backslash-escaped (`&`, `<`, `>`, quotes are left to Blade's HTML escaping), so a
+     * comment like `[x](http://evil)` is shown as text, never rendered as a link or a heading.
+     */
+    public static function escapeMarkdown(string $text): string
+    {
+        $text = (string) preg_replace('/\s*\R\s*/u', ' ', $text);
+
+        return (string) preg_replace('/([!#-%(-\/:;=?-@\[-`{-~])/', '\\\\$1', $text);
+    }
+
     public function envelope(): Envelope
     {
         return new Envelope(

@@ -166,7 +166,7 @@ final class OrgTenantScope
      */
     public function assignments(User $user, Organization $organization): Builder
     {
-        $query = Assignment::query()->where('assignments.organization_id', $organization->id);
+        $query = Assignment::query()->where('assignments.organization_id', $organization->id)->inLinkedGroup();
 
         return match ($this->role($user, $organization)) {
             OrganizationRole::Owner => $query,
@@ -179,6 +179,11 @@ final class OrgTenantScope
     public function canSeeAssignment(User $user, Organization $organization, Assignment $assignment): bool
     {
         if ($assignment->organization_id !== $organization->id) {
+            return false;
+        }
+
+        // The group may have been unlinked / moved to another center since: then it is not ours anymore.
+        if (! TelegramGroup::query()->withoutGlobalScopes()->whereKey($assignment->telegram_group_id)->where('organization_id', $organization->id)->exists()) {
             return false;
         }
 

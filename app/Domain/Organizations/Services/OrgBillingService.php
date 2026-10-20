@@ -58,7 +58,10 @@ final class OrgBillingService
     /** Organizations pay through these only (docs/13 §0, §12 q.13). */
     private const PROVIDERS = [SubscriptionProvider::Payme, SubscriptionProvider::Click];
 
+    /** One "request an invoice" per organization per 10 minutes and a few per day, whatever the tier / period. */
     private const INVOICE_THROTTLE_MINUTES = 10;
+
+    private const INVOICE_DAILY_LIMIT = 5;
 
     private const COMMENT_LIMIT = 500;
 
@@ -118,13 +121,17 @@ final class OrgBillingService
      * Opens an order for the tier / period and returns it with its checkout link (`provider_ref`).
      * The provider is called by {@see CheckoutService::create()} outside any transaction.
      *
-     * @throws OrgBillingException not_owner | tier_not_purchasable
+     * @throws OrgBillingException not_owner | organization_suspended | tier_not_purchasable
      * @throws BillingException CheckoutException (provider_not_supported for Stars, provider_disabled, invalid_tier,
      *                          invalid_period, checkout_conflict, too_many_pending ...) | provider_unavailable
      */
     public function checkout(User $by, Organization $organization, string $tier, string $period, SubscriptionProvider $provider, ?CarbonImmutable $now = null): PaymentOrder
     {
         $this->assertOwner($by, $organization);
+
+        if ($organization->status !== 'active') {
+            throw OrgBillingException::organizationSuspended($organization->id);
+        }
 
         if (! in_array($provider, self::PROVIDERS, true)) {
             throw CheckoutException::providerNotSupported($provider->value, 'organization', $provider->currency() ?? '-');
@@ -179,7 +186,8 @@ final class OrgBillingService
     /**
      * "Request an invoice": the owner's choice (tier, period, a comment) goes by e-mail to the platform
      * (`billing.invoice.request_email`, else `site.legal.email`); the platform answers by hand. Any
-     * existing tier may be requested, `center_l` included. The same request is accepted once per 10 minutes.
+     * existing tier may be requested, `center_l` included. An organization may send one request per 10
+     * minutes and at most {@see INVOICE_DAILY_LIMIT} a day, whatever the tier / period.
      *
      * @throws OrgBillingException not_owner | invoice_not_configured | invoice_request_throttled
      * @throws CheckoutException invalid_tier | invalid_period
@@ -191,8 +199,17 @@ final class OrgBillingService
 
         $recipient = $this->invoiceRecipient() ?? throw OrgBillingException::invoiceNotConfigured();
 
-        $marker = "org-billing:invoice-request:{$organization->id}:{$tier}:{$period}";
+        $marker = "org-billing:invoice-request:{$organization->id}";
         if (! Cache::add($marker, 1, now()->addMinutes(self::INVOICE_THROTTLE_MINUTES))) {
+            throw OrgBillingException::invoiceRequestThrottled();
+        }
+
+        $daily = "org-billing:invoice-request-day:{$organization->id}:".now()->format('Ymd');
+        Cache::add($daily, 0, now()->addDay());
+        if ((int) Cache::increment($daily) > self::INVOICE_DAILY_LIMIT) {
+            Cache::decrement($daily);
+            Cache::forget($marker);
+
             throw OrgBillingException::invoiceRequestThrottled();
         }
 
@@ -213,6 +230,7 @@ final class OrgBillingService
             ));
         } catch (Throwable $e) {
             Cache::forget($marker);
+            Cache::decrement($daily);
 
             throw $e;
         }

@@ -32,6 +32,9 @@ final class FakeTelegramClient implements TelegramClient
     /** The next N sendMessage / sendWebAppButton calls throw like a Bot API outage (a retried job then succeeds). */
     public int $failSends = 0;
 
+    /** When true, a failing send looks like a network error (no Bot API answer) instead of a 4xx refusal. */
+    public bool $failSendsAsTransport = false;
+
     /** What getChatMemberStatus answers (the bot's own status in the group for the admin check). */
     public string $chatMemberStatus = 'administrator';
 
@@ -170,7 +173,9 @@ final class FakeTelegramClient implements TelegramClient
         if ($this->failSends > 0) {
             $this->failSends--;
 
-            throw new TelegramApiException('Bad Gateway');
+            throw $this->failSendsAsTransport
+                ? new TelegramApiException('cURL error 28: Operation timed out')
+                : TelegramApiException::apiError('Forbidden: bot was kicked from the group chat', 403);
         }
     }
 

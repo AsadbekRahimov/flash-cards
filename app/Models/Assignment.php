@@ -122,6 +122,32 @@ class Assignment extends Model
     }
 
     /**
+     * Only assignments whose group still belongs to the organization that set them: a group that was
+     * unlinked (and maybe linked to another center) must never expose its members to the old owner,
+     * nor receive its posts (docs/13 "Реализация 2B.8").
+     *
+     * @param  Builder<Assignment>  $query
+     */
+    public function scopeInLinkedGroup(Builder $query): void
+    {
+        $query->whereExists(static fn ($sub) => $sub
+            ->selectRaw('1')
+            ->from('telegram_groups')
+            ->whereColumn('telegram_groups.id', 'assignments.telegram_group_id')
+            ->whereColumn('telegram_groups.organization_id', 'assignments.organization_id'));
+    }
+
+    /**
+     * Only assignments of organizations in `active` status (a suspended center posts nothing).
+     *
+     * @param  Builder<Assignment>  $query
+     */
+    public function scopeOfActiveOrganization(Builder $query): void
+    {
+        $query->whereIn('assignments.organization_id', Organization::query()->select('id')->where('status', 'active'));
+    }
+
+    /**
      * `total_count` / `done_count`: result rows of the learners who are STILL active in the group
      * (a learner who left keeps a snapshot, but is not counted as someone who "should do it").
      *
