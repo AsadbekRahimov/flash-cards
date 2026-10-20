@@ -18,6 +18,7 @@
 | БД | SQL injection | Полный компромат | Только Eloquent / Query Builder, запрет `DB::raw()` без bindings |
 | БД | Данные learner'ов в clear text в логах | Утечка PII | Монитор логов: не писать full update из Telegram, отрезать `from.first_name`/`username` до `***` |
 | Очереди | Unsafe unserialize в job payload | RCE | Не кладём в job полные модели; только IDs + примитивы |
+| Рефералка (2C.1) | Фарм наград: самоприглашение, старые аккаунты, массовые «друзья» | Бесплатный Pro | Награда только после активации (3 дня × 10 оценок за 14 дней, по серверным `learner_daily_stats`), только для learner'ов, созданных этим `/start`, коды `referral_code` непредсказуемы (8 символов, не id), лимиты 10/30 дней и 50 всего на пригласившего, ≥ 20 привязок за сутки → `flagged_at` и ручной ревью (audit) — docs/13 §7.1, §10 |
 | Инфра | Слабые секреты в env | Компромет | `.env` не в git, секреты через CI/CD secret store, ротация `APP_KEY`, `TELEGRAM_WEBHOOK_SECRET` раз в 6 мес |
 | Инфра | HTTP вместо HTTPS | MITM на TWA/webhook | Force HTTPS, HSTS (6 мес), Telegram webhooks **требуют** HTTPS |
 | Зависимости | Уязвимости в composer / npm | RCE / supply chain | `composer audit` и `npm audit` в CI, Renovate/Dependabot, lockfiles в git |

@@ -49,6 +49,14 @@ enum ProductEventName: string
     case OfferRedeemed = 'offer.redeemed';
     case PromoRedeemed = 'promo.redeemed';
     case PromoRejected = 'promo.rejected';
+    /** A new learner came through `ref_<code>` (props: referral_id, referrer_learner_id, flagged — docs/13 §7.1). */
+    case ReferralLinked = 'referral.linked';
+    /** The invited learner studied enough (props: referral_id, active_days). */
+    case ReferralActivated = 'referral.activated';
+    /** Both sides were granted (or skipped: perpetual Pro) their reward (props: referral_id, days, referee_skipped, referrer_skipped). */
+    case ReferralRewarded = 'referral.rewarded';
+    /** A referral was refused (props: reason — self / existing_learner / unknown_code / referrer_capped / flagged). */
+    case ReferralRejected = 'referral.rejected';
     case DailyGoalMet = 'daily_goal.met';
     case StreakExtended = 'streak.extended';
 }

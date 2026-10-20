@@ -61,6 +61,7 @@ const makeRouter = () =>
       { path: '/decks', name: 'decks', component: { template: '<div />' } },
       { path: '/settings', name: 'settings', component: { template: '<div />' } },
       { path: '/billing', name: 'billing', component: { template: '<div />' } },
+      { path: '/referrals', name: 'referrals', component: { template: '<div />' } },
       { path: '/training/:sessionId(\\d+)', name: 'training', component: { template: '<div />' } },
     ],
   })
@@ -406,6 +407,13 @@ describe('TodayView', () => {
 
     expect(link.attributes('href')).toBe('/settings')
     expect(link.text()).toContain('Настройки')
+  })
+
+  it('links to "Invite a friend"', async () => {
+    const link = (await render()).get('[data-testid=referrals-link]')
+
+    expect(link.attributes('href')).toBe('/referrals')
+    expect(link.text()).toContain('Пригласить друга')
   })
 
   it('badges the plan', async () => {

@@ -276,6 +276,27 @@ export const ru = {
   'orgs.leave.yes': 'Да, покинуть',
   'orgs.leave.no': 'Отмена',
 
+  // ---- referrals: invite a friend (docs/13 §7.1) ----
+  'referrals.open': 'Пригласить друга',
+  'referrals.title': 'Пригласить друга',
+  'referrals.rule': 'Когда друг позанимается {days} дн. (от {reviews} карточек в день) в течение {window} дней, вы оба получите {reward} дн. Pro.',
+  'referrals.link_label': 'Ваша ссылка',
+  'referrals.code_label': 'Ваш код',
+  'referrals.no_link': 'Ссылка появится, когда администратор укажет имя бота. Пока отправьте другу код: он вводит /start ref_{code} в боте.',
+  'referrals.share': 'Поделиться',
+  'referrals.copy': 'Скопировать ссылку',
+  'referrals.copied': 'Скопировано',
+  'referrals.share_text': 'Учу английский в LexiFlow — присоединяйся, получим Pro вместе!',
+  'referrals.counts.invited': 'Пришли',
+  'referrals.counts.activated': 'Занимаются',
+  'referrals.counts.rewarded': 'Награждены',
+  'referrals.list.title': 'Приглашённые',
+  'referrals.list.empty': 'Пока никто не пришёл по вашей ссылке.',
+  'referrals.list.anonymous': 'Друг',
+  'referrals.status.pending': 'ещё не активен',
+  'referrals.status.activated': 'занимается',
+  'referrals.status.rewarded': 'Pro получен',
+
   // ---- errors (by kind / context) ----
   'error.closed.training': 'Эта тренировка уже закрыта: она завершена или время сессии истекло.',
   'error.closed.exam': 'Экзамен был завершён учителем.',

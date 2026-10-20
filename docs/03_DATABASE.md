@@ -391,6 +391,7 @@ Append-only журнал для продуктовой аналитики (не 
 | acquisition_source | string(64) nullable | `ref`, `org`, `src:<channel>`, `course:<slug>`, `group` |
 | start_payload | string(64) nullable | сырой payload `/start` |
 | referrer_learner_id | bigint nullable FK → learners, ON DELETE SET NULL | реферер (только фиксируется) |
+| referral_code | string(12) nullable unique | код приглашения *(2C.1, docs/13 §1.5)*: генерируется лениво (`ReferralService::codeFor`, 8 символов алфавита без `0/O/1/I`), ссылка `t.me/<bot>?start=ref_<code>` |
 | streak_current, streak_best | smallint default 0 | |
 | streak_last_date | date nullable | локальная дата, когда дневная цель выполнялась последний раз |
 | last_seen_at | timestamp nullable | |
@@ -400,7 +401,7 @@ Append-only журнал для продуктовой аналитики (не 
 | created_at, updated_at | | |
 
 **Индексы:** `telegram_user_id` unique; `next_reminder_at` — **partial** `WHERE next_reminder_at IS NOT NULL AND dm_blocked_at IS NULL`
-(`learners_next_reminder_at_idx`, PostgreSQL; на sqlite — обычный индекс); `onboarding_state`; `last_seen_at`; `active_course_id`; `referrer_learner_id`.
+(`learners_next_reminder_at_idx`, PostgreSQL; на sqlite — обычный индекс); `onboarding_state`; `last_seen_at`; `active_course_id`; `referrer_learner_id`; `referral_code` unique.
 
 ### 2.18 `group_members` — членство learner'а в Telegram-группе
 | Колонка | Тип | Описание |
@@ -702,6 +703,25 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 `seated < seats_limit` (NULL при live = без лимита; нет live-подписки = все `waitlisted`); освобождённое место отдаётся самому раннему
 `waitlisted` в той же транзакции; повышение тарифа — `reseat()` после commit подписки; понижение никого не снимает (виджет показывает превышение).
 
+### 2.33 `referrals` — «Пригласить друга» *(2C.1, docs/13 §1.5, §7.1)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| referrer_learner_id | bigint FK → learners, ON DELETE CASCADE | пригласивший |
+| referee_learner_id | bigint FK → learners, ON DELETE CASCADE, **unique** | приглашённый — один реферал на learner'а, повторный `/start` ничего не меняет |
+| status | string(12) | `pending` → `activated` → `rewarded`; `rejected` |
+| reject_reason | string(24) nullable | `self` (своя ссылка), `existing_learner` (learner существовал до этого `/start`), `referrer_capped` (лимит наград пригласившего), `flagged` (отклонён админом) |
+| linked_at | timestamp NOT NULL | момент `/start ref_<code>` |
+| activated_at | timestamp nullable | правило активации выполнено (`config('referrals.activation')`: ≥ 3 локальных дня с `learner_daily_stats.reviews_count ≥ 10` в окне 14 дней от локального дня привязки) |
+| rewarded_at | timestamp nullable | клейм награды (`activated → rewarded`); сами гранты — по `meta.rewards` |
+| flagged_at | timestamp nullable | всплеск (≥ 20 привязок пригласившего за 24 ч): награда ждёт снятия флага админом |
+| meta | jsonb default '{}' | `rewards: {referee: {subscription_id, skipped}, referrer: {...}}` (одна транзакция на сторону — повтор доначисляет недостающее; `skipped`: `perpetual` / `learner_missing`), `reward_subscription_ids`, `active_days` |
+| created_at, updated_at | | |
+
+**Индексы:** `referee_learner_id` unique; `(referrer_learner_id, status, linked_at)`.
+
+**Правила:** строки пишет только `ReferralService` (docs/13 §2.4). Порядок блокировок пути награды: `referrals` (FOR UPDATE, строки пригласившего по `id`) → `learners` (FOR UPDATE внутри `SubscriptionService::grantReward`) → `subscriptions`; два learner'а в одной транзакции не блокируются никогда; в транзакцию оценки ничего не добавляется (`evaluate` — после commit).
+
 ## 3. Порядок миграций
 
 Миграции создаём в таком порядке (порядок имеет значение из-за FK). Пока на дисках лежат исходные create-миграции
@@ -712,7 +732,7 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 2. `create_permission_tables` (spatie)
 3. `2026_04_23_095900_create_organizations_table` *(1.1a)*
 4. `2026_04_23_095901_create_courses_table` *(1.1a)*
-5. `2026_04_23_095902_create_learners_table` *(1.1a)*
+5. `2026_04_23_095902_create_learners_table` *(1.1a; + `referral_code` на месте — 2C.1)*
 6. `create_telegram_groups_table` (+ `organization_id`, `course_id`) *(1.1a)*
 7. `create_teacher_groups_table`
 8. ~~`create_students_table`~~ *(удалена в 1.1b)*
@@ -742,6 +762,7 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 32. `2026_10_21_000001_create_organization_users_table` *(2B.1)*
 33. `2026_10_21_000002_create_organization_invites_table` *(2B.1; до `organization_members` из-за FK `invite_id`)*
 34. `2026_10_21_000003_create_organization_members_table` *(2B.1)*
+35. `2026_10_22_100001_create_referrals_table` *(2C.1)*
 
 Индексные миграции (`add_performance_indexes`, `add_open_session_unique_indexes`) и `create_exam_*`, `create_notifications_log_table`,
 `create_product_events_table` переведены на `learner_id` на месте; `add_open_session_unique_indexes` дополнительно создаёт

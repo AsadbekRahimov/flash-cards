@@ -72,6 +72,24 @@ export interface OrganizationsResponse {
   organizations: OrganizationMembership[]
 }
 
+/** GET /referrals (docs/04 A.12): "Invite a friend". `link` is null while the bot username is not configured. */
+export type ReferralStatus = 'pending' | 'activated' | 'rewarded'
+
+export interface ReferralItem {
+  first_name: string | null
+  status: ReferralStatus
+  linked_at: string
+}
+
+export interface ReferralsResponse {
+  code: string
+  link: string | null
+  reward_days: number
+  activation: { days: number; reviews_per_day: number; window_days: number }
+  counts: { invited: number; activated: number; rewarded: number }
+  referrals: ReferralItem[]
+}
+
 /** Body of PATCH /me/settings: only the fields to change; `reminder_time: null` turns the reminders off. */
 export type SettingsPatch = Partial<
   Pick<LearnerSettings, 'interface_locale' | 'timezone' | 'reminder_time' | 'daily_goal' | 'goal' | 'level'>

@@ -256,6 +256,27 @@ export const uz: Translations = {
   'orgs.leave.yes': 'Ha, tark etaman',
   'orgs.leave.no': 'Bekor qilish',
 
+  // ---- referrals: invite a friend (docs/13 §7.1) ----
+  'referrals.open': "Do'stni taklif qilish",
+  'referrals.title': "Do'stni taklif qilish",
+  'referrals.rule': "Do'stingiz {window} kun ichida {days} kun shug'ullansa (kuniga {reviews} ta kartochkadan), ikkalangiz ham {reward} kunlik Pro olasiz.",
+  'referrals.link_label': 'Sizning havolangiz',
+  'referrals.code_label': 'Sizning kodingiz',
+  'referrals.no_link': "Havola administrator bot nomini ko'rsatgach paydo bo'ladi. Hozircha do'stingizga kodni yuboring: u botda /start ref_{code} deb yozadi.",
+  'referrals.share': 'Ulashish',
+  'referrals.copy': 'Havolani nusxalash',
+  'referrals.copied': 'Nusxalandi',
+  'referrals.share_text': "LexiFlow'da ingliz tilini o'rganyapman — qo'shiling, Pro'ni birga olamiz!",
+  'referrals.counts.invited': 'Kelganlar',
+  'referrals.counts.activated': "Shug'ullanayotganlar",
+  'referrals.counts.rewarded': 'Mukofotlanganlar',
+  'referrals.list.title': 'Taklif qilinganlar',
+  'referrals.list.empty': "Havolangiz orqali hali hech kim kelmadi.",
+  'referrals.list.anonymous': "Do'st",
+  'referrals.status.pending': 'hali faol emas',
+  'referrals.status.activated': "shug'ullanmoqda",
+  'referrals.status.rewarded': 'Pro olindi',
+
   // ---- errors (by kind / context) ----
   'error.closed.training': "Bu mashg'ulot allaqachon yopilgan: u yakunlangan yoki sessiya vaqti tugagan.",
   'error.closed.exam': "Imtihon o'qituvchi tomonidan yakunlandi.",

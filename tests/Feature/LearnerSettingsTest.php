@@ -9,6 +9,7 @@ declare(strict_types=1);
  */
 
 use App\Domain\Analytics\Enums\ProductEventName;
+use App\Domain\Engagement\Services\ReferralService;
 use App\Domain\Learners\Exceptions\InvalidSettingException;
 use App\Domain\Learners\Exceptions\OnboardingException;
 use App\Domain\Learners\Exceptions\TimezoneChangeTooSoonException;
@@ -702,7 +703,7 @@ it('GET /me runs the same number of queries for a small course and a big one', f
 
 it('does not turn a failed goal reconcile into a 500: the settings are already saved', function (): void {
     Exceptions::fake();
-    $this->app->instance(DailyStatsService::class, new class(app(LearnerClock::class), app(StreakService::class)) extends DailyStatsService
+    $this->app->instance(DailyStatsService::class, new class(app(LearnerClock::class), app(StreakService::class), app(ReferralService::class)) extends DailyStatsService
     {
         public function reconcileGoal(Learner $learner, ?CarbonImmutable $now = null): bool
         {

@@ -32,6 +32,8 @@ return new class extends Migration
             $table->string('acquisition_source', 64)->nullable();
             $table->string('start_payload', 64)->nullable();
             $table->foreignId('referrer_learner_id')->nullable()->constrained('learners')->nullOnDelete();
+            // 2C.1 (docs/13 §1.5): the learner's own invite code, generated lazily by ReferralService::codeFor.
+            $table->string('referral_code', 12)->nullable()->unique();
             $table->smallInteger('streak_current')->default(0);
             $table->smallInteger('streak_best')->default(0);
             $table->date('streak_last_date')->nullable();

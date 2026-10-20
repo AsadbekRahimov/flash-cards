@@ -1334,3 +1334,44 @@
 |---|---|---|
 | `billing.offer_dm.text` | Siz «:organization» markazidan chiqdingiz. Shaxsiy LexiFlow Pro birinchi oyga :pct% chegirma bilan — :date gacha.\nTo'lov usulini tanlang: | Вы покинули центр «:organization». Личный LexiFlow Pro со скидкой :pct% на первый месяц — до :date.\nВыберите способ оплаты: |
 | `billing.offer_dm.text_generic` (центр удалён) | Markazdagi joyingiz tugadi. Shaxsiy LexiFlow Pro birinchi oyga :pct% chegirma bilan — :date gacha.\nTo'lov usulini tanlang: | Ваше место в центре закончилось. Личный LexiFlow Pro со скидкой :pct% на первый месяц — до :date.\nВыберите способ оплаты: |
+
+## Фаза 2 · задача 2C.1 (рефералка: «Пригласить друга») — на проверку носителю
+
+> Проверить: «taklif qilish» (пригласить), «havola» (ссылка), «ulashish» (поделиться), «mukofotlanganlar» (награждены), «shug'ullanayotganlar» (занимаются). Числа подставляются из конфига.
+
+### Бот (`lang/uz/referrals.php`, `lang/uz/bot.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `referrals.blocked` | Akkauntga kirish cheklangan. Qo'llab-quvvatlash xizmatiga murojaat qiling. | Доступ к аккаунту ограничен. Обратитесь в поддержку. |
+| `referrals.invite.text` | Do'stingizni LexiFlow'ga taklif qiling — :rule\n\nSizning havolangiz:\n:link | Пригласите друга в LexiFlow — :rule\n\nВаша ссылка:\n:link |
+| `referrals.invite.rule` | do'stingiz :days kun shug'ullansa (kuniga :reviews ta kartochkadan), ikkalangiz ham :reward kunlik Pro olasiz. | когда друг позанимается :days дня (от :reviews карточек в день), вы оба получите :reward дней Pro. |
+| `referrals.invite.no_link` | kod :code (havola administrator bot nomini ko'rsatgach paydo bo'ladi) | код :code (ссылка появится, когда администратор укажет имя бота) |
+| `referrals.invite.stats` | Havolangiz orqali kelganlar: :invited · shug'ullanayotganlar: :activated · mukofotlanganlar: :rewarded | Пришли по вашей ссылке: :invited · занимаются: :activated · награждены: :rewarded |
+| `referrals.invite.share_button` | Havolani ulashish | Поделиться ссылкой |
+| `referrals.invite.share_text` | LexiFlow'da ingliz tilini o'rganyapman — qo'shiling, Pro'ni birga olamiz! | Учу английский в LexiFlow — присоединяйся, получим Pro вместе! |
+| `bot.help.private` (новая строка) | Do'stni taklif qilib Pro olish: /invite | Пригласить друга и получить Pro: /invite |
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `referrals.open` | Do'stni taklif qilish | Пригласить друга |
+| `referrals.title` | Do'stni taklif qilish | Пригласить друга |
+| `referrals.rule` | Do'stingiz {window} kun ichida {days} kun shug'ullansa (kuniga {reviews} ta kartochkadan), ikkalangiz ham {reward} kunlik Pro olasiz. | Когда друг позанимается {days} дн. (от {reviews} карточек в день) в течение {window} дней, вы оба получите {reward} дн. Pro. |
+| `referrals.link_label` | Sizning havolangiz | Ваша ссылка |
+| `referrals.code_label` | Sizning kodingiz | Ваш код |
+| `referrals.no_link` | Havola administrator bot nomini ko'rsatgach paydo bo'ladi. Hozircha do'stingizga kodni yuboring: u botda /start ref_{code} deb yozadi. | Ссылка появится, когда администратор укажет имя бота. Пока отправьте другу код: он вводит /start ref_{code} в боте. |
+| `referrals.share` | Ulashish | Поделиться |
+| `referrals.copy` | Havolani nusxalash | Скопировать ссылку |
+| `referrals.copied` | Nusxalandi | Скопировано |
+| `referrals.share_text` | LexiFlow'da ingliz tilini o'rganyapman — qo'shiling, Pro'ni birga olamiz! | Учу английский в LexiFlow — присоединяйся, получим Pro вместе! |
+| `referrals.counts.invited` | Kelganlar | Пришли |
+| `referrals.counts.activated` | Shug'ullanayotganlar | Занимаются |
+| `referrals.counts.rewarded` | Mukofotlanganlar | Награждены |
+| `referrals.list.title` | Taklif qilinganlar | Приглашённые |
+| `referrals.list.empty` | Havolangiz orqali hali hech kim kelmadi. | Пока никто не пришёл по вашей ссылке. |
+| `referrals.list.anonymous` | Do'st | Друг |
+| `referrals.status.pending` | hali faol emas | ещё не активен |
+| `referrals.status.activated` | shug'ullanmoqda | занимается |
+| `referrals.status.rewarded` | Pro olindi | Pro получен |

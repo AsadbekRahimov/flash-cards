@@ -25,6 +25,7 @@ use App\Models\ProductEvent;
 use App\Models\PromoCode;
 use App\Models\PromoRedemption;
 use App\Models\ProviderTransaction;
+use App\Models\Referral;
 use App\Models\Stage;
 use App\Models\Subscription;
 use App\Models\TelegramGroup;
@@ -58,6 +59,8 @@ $expectedTables = [
     'organization_users', 'organization_invites', 'organization_members',
     // Phase 2 (docs/13 §1.4): assignments of a center.
     'assignments', 'assignment_results',
+    // Phase 2 (docs/13 §1.5): referrals.
+    'referrals',
 ];
 
 /**
@@ -664,8 +667,9 @@ it('has partial unique index subscriptions_one_live_per_subscriber', function ()
 it('rolls back and re-applies the organization migrations (2B.1) in FK order', function (): void {
     $tables = ['organization_members', 'organization_invites', 'organization_users'];
 
-    // The two 2B.4 assignment files are the last ones, then the three 2B.1 files: members -> invites (FK invite_id) -> users.
-    $this->artisan('migrate:rollback', ['--step' => 5])->assertSuccessful();
+    // The 2C.1 referrals file is the last one, then the two 2B.4 assignment files, then the three 2B.1 files:
+    // members -> invites (FK invite_id) -> users.
+    $this->artisan('migrate:rollback', ['--step' => 6])->assertSuccessful();
     foreach ($tables as $table) {
         expect(Schema::hasTable($table))->toBeFalse("Table {$table} survived rollback");
     }
@@ -740,8 +744,8 @@ it('cascades and nulls the organization foreign keys as designed (docs/13 §1.3)
 it('rolls back and re-applies the billing migrations (2A.1) in FK order', function (): void {
     $tables = ['payments', 'provider_transactions', 'payment_orders', 'offers'];
 
-    // 9 steps: the two 2B.4 and the three 2B.1 files sit on top of the four 2A.1 billing files.
-    $this->artisan('migrate:rollback', ['--step' => 9])->assertSuccessful();
+    // 10 steps: the 2C.1 referrals file, the two 2B.4 and the three 2B.1 files sit on top of the four 2A.1 billing files.
+    $this->artisan('migrate:rollback', ['--step' => 10])->assertSuccessful();
     foreach ($tables as $table) {
         expect(Schema::hasTable($table))->toBeFalse("Table {$table} survived rollback");
     }
@@ -768,6 +772,7 @@ it('rolls back and re-applies the billing migrations (2A.1) in FK order', functi
 
 it('rolls back and re-applies the learner-first migrations (1.1a + 1.1b)', function (): void {
     $newTables = [
+        'referrals',
         'payments', 'provider_transactions', 'payment_orders', 'offers',
         'promo_redemptions', 'promo_codes', 'subscriptions', 'learner_daily_stats',
         'word_translations', 'group_members', 'learners', 'courses', 'organizations',
@@ -823,7 +828,8 @@ it('drops the learner-first indexes on rollback of the open-session migration', 
 });
 
 it('rolls back and re-applies the assignment migrations (2B.4) in FK order', function (): void {
-    $this->artisan('migrate:rollback', ['--step' => 2])->assertSuccessful();
+    // 3 steps: the 2C.1 referrals file sits on top of the two 2B.4 files.
+    $this->artisan('migrate:rollback', ['--step' => 3])->assertSuccessful();
     expect(Schema::hasTable('assignment_results'))->toBeFalse()
         ->and(Schema::hasTable('assignments'))->toBeFalse()
         ->and(Schema::hasTable('organization_members'))->toBeTrue();
@@ -848,4 +854,40 @@ it('enforces assignment_results (assignment_id, learner_id) unique, cascades the
     $assignment->group()->delete();
     expect(Assignment::query()->count())->toBe(0)
         ->and(AssignmentResult::query()->count())->toBe(0);
+});
+
+// --- 2C.1 referrals (docs/13 §1.5) ----------------------------------------------
+
+it('keeps one referral per invited learner and one referral code per learner', function (): void {
+    $friend = Learner::factory()->create();
+    Referral::factory()->create(['referee_learner_id' => $friend->id]);
+    expectConstraintViolation(fn () => Referral::factory()->create(['referee_learner_id' => $friend->id]));
+
+    Learner::factory()->create(['referral_code' => 'ABCDEFGH']);
+    expectConstraintViolation(fn () => Learner::factory()->create(['referral_code' => 'ABCDEFGH']));
+    // NULL codes do not collide (generated lazily).
+    Learner::factory()->count(2)->create(['referral_code' => null]);
+
+    $indexes = array_column(Schema::getIndexes('referrals'), 'columns');
+    expect($indexes)->toContain(['referrer_learner_id', 'status', 'linked_at']);
+});
+
+it('cascades referrals with either learner', function (): void {
+    $inviter = Learner::factory()->create();
+    $friend = Learner::factory()->create();
+    Referral::factory()->create(['referrer_learner_id' => $inviter->id, 'referee_learner_id' => $friend->id]);
+    Referral::factory()->create(['referrer_learner_id' => $friend->id]);
+
+    $friend->forceDelete();
+    expect(Referral::query()->count())->toBe(0);
+});
+
+it('rolls back and re-applies the referrals migration (2C.1)', function (): void {
+    $this->artisan('migrate:rollback', ['--step' => 1])->assertSuccessful();
+    expect(Schema::hasTable('referrals'))->toBeFalse()
+        ->and(Schema::hasTable('assignment_results'))->toBeTrue();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasTable('referrals'))->toBeTrue()
+        ->and(Schema::hasColumn('learners', 'referral_code'))->toBeTrue();
 });

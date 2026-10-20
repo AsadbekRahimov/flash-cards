@@ -7,7 +7,7 @@ namespace App\Domain\Learners\DTO;
 use App\Domain\Learners\Enums\StartPayloadKind;
 
 /**
- * A parsed and validated `/start` deep-link parameter (docs/12 §7.2).
+ * A parsed and validated `/start` deep-link parameter (docs/12 §7.2, docs/13 §7.1).
  *
  * Telegram allows up to 64 characters of `[A-Za-z0-9_-]`; on top of that each prefix has its own
  * shape. Anything that does not fit — too long, foreign characters, unknown prefix, malformed
@@ -15,10 +15,11 @@ use App\Domain\Learners\Enums\StartPayloadKind;
  * onboarding and nothing is recorded, so a hand-crafted link can never write junk into
  * `acquisition_source` / `start_payload`.
  *
- *   ref_<learner id>  — invited by a learner (digits only)
+ *   ref_<code>        — invited by a learner: their `learners.referral_code`, `[A-Z0-9]{6,12}`
+ *                       (the numeric `ref_<learner id>` of Phase 1 is gone — ids are guessable)
  *   src_<channel>     — campaign / blogger, `[a-z0-9_]{1,32}`
  *   c_<slug>          — course link, a lower-case course slug
- *   org_<code>        — centre invite (Phase 2; only stored in Phase 1)
+ *   org_<code>        — centre invite (docs/13 §6.2)
  */
 final readonly class StartPayload
 {
@@ -29,7 +30,7 @@ final readonly class StartPayload
 
     private function __construct(
         public StartPayloadKind $kind,
-        /** The part after the prefix (learner id, channel, slug, code); null for None. */
+        /** The part after the prefix (referral code, channel, slug, invite code); null for None. */
         public ?string $value,
         /** The validated raw payload, as stored in `learners.start_payload`; null for None. */
         public ?string $raw,
@@ -52,7 +53,7 @@ final readonly class StartPayload
         }
 
         $patterns = [
-            [StartPayloadKind::Ref, '/^ref_([1-9][0-9]{0,14})$/'],
+            [StartPayloadKind::Ref, '/^ref_([A-Z0-9]{6,12})$/'],
             [StartPayloadKind::Src, '/^src_([a-z0-9_]{1,32})$/'],
             [StartPayloadKind::Course, '/^c_([a-z0-9][a-z0-9_-]{0,'.(self::COURSE_SLUG_MAX - 1).'})$/'],
             [StartPayloadKind::Org, '/^org_([A-Za-z0-9_-]{1,32})$/'],
@@ -84,9 +85,10 @@ final readonly class StartPayload
         };
     }
 
-    public function referrerId(): ?int
+    /** The inviter's `referral_code` of a `ref_<code>` link. */
+    public function referralCode(): ?string
     {
-        return $this->kind === StartPayloadKind::Ref ? (int) $this->value : null;
+        return $this->kind === StartPayloadKind::Ref ? $this->value : null;
     }
 
     public function courseSlug(): ?string

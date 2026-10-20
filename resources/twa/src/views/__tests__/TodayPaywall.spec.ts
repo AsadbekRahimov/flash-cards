@@ -47,6 +47,7 @@ async function render(response: TodayResponse) {
       { path: '/courses', name: 'courses', component: { template: '<div />' } },
       { path: '/decks', name: 'decks', component: { template: '<div />' } },
       { path: '/settings', name: 'settings', component: { template: '<div />' } },
+      { path: '/referrals', name: 'referrals', component: { template: '<div />' } },
       { path: '/training/:sessionId(\\d+)', name: 'training', component: { template: '<div />' } },
     ],
   })

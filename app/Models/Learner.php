@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
@@ -34,6 +35,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $acquisition_source
  * @property string|null $start_payload
  * @property int|null $referrer_learner_id
+ * @property string|null $referral_code
  * @property int $streak_current
  * @property int $streak_best
  * @property Carbon|null $streak_last_date
@@ -69,6 +71,7 @@ class Learner extends Model
         'acquisition_source',
         'start_payload',
         'referrer_learner_id',
+        'referral_code',
         'streak_current',
         'streak_best',
         'streak_last_date',
@@ -106,6 +109,26 @@ class Learner extends Model
     public function referrer(): BelongsTo
     {
         return $this->belongsTo(self::class, 'referrer_learner_id');
+    }
+
+    /**
+     * The learners this one invited (docs/13 §1.5 `referrals`, as the inviter).
+     *
+     * @return HasMany<Referral, $this>
+     */
+    public function referrals(): HasMany
+    {
+        return $this->hasMany(Referral::class, 'referrer_learner_id');
+    }
+
+    /**
+     * The referral this learner came through (as the invited one); at most one per learner.
+     *
+     * @return HasOne<Referral, $this>
+     */
+    public function referral(): HasOne
+    {
+        return $this->hasOne(Referral::class, 'referee_learner_id');
     }
 
     /** @return HasMany<GroupMember, $this> */
