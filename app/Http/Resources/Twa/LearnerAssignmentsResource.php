@@ -30,7 +30,7 @@ final class LearnerAssignmentsResource extends TwaResource
                     'title' => $assignment->displayTitle(),
                     'group' => $assignment->group->title,
                     'lesson_id' => $assignment->lesson_id,
-                    'stage' => $assignment->lesson->stage->number,
+                    'stage' => $assignment->lesson->stage->number ?? 0, // stage_id is NOT NULL; fallback only for the nullable relation type
                     'lesson' => $assignment->lesson->number,
                     'due_at' => $assignment->due_at->toIso8601String(),
                     'overdue' => $assignment->isOverdue(),

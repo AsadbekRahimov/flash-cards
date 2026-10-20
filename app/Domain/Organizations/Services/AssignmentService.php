@@ -266,7 +266,7 @@ final class AssignmentService
             ->map(static fn ($id): int => (int) $id)
             ->chunk(self::CHUNK)
             ->each(function ($chunk) use ($assignment, $now, &$completed): void {
-                $completed += $this->compute($assignment, $chunk->values()->all(), $now);
+                $completed += $this->compute($assignment, array_values($chunk->all()), $now);
             });
 
         return $completed;
@@ -357,14 +357,13 @@ final class AssignmentService
             ->get()
             ->keyBy('assignment_id');
 
-        return $assignments
+        return array_values($assignments
             ->map(static fn (Assignment $assignment): LearnerAssignment => new LearnerAssignment(
                 $assignment,
-                $results->get($assignment->id)?->progress_pct ?? 0,
+                $results->get($assignment->id)->progress_pct ?? 0,
                 $results->get($assignment->id)?->completed_at,
             ))
-            ->values()
-            ->all();
+            ->all());
     }
 
     /**
@@ -538,7 +537,7 @@ final class AssignmentService
 
         $text = __('assignments.'.$kind, [
             'title' => $fresh->displayTitle($locale),
-            'stage' => $stage->number,
+            'stage' => $stage->number ?? 0, // stage_id is NOT NULL; the fallback only satisfies the nullable relation type
             'lesson' => $fresh->lesson->number,
             'due' => $due->format('d.m.Y H:i'),
         ], $locale);
