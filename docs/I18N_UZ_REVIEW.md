@@ -711,7 +711,7 @@
 | `billing.renewal.hint` | Yangi so'zlar kunlik limit bilan cheklanib qolmasligi uchun oldindan yangilang. | Продлите заранее, чтобы новые слова не ограничивались дневным лимитом. |
 | `billing.renewal.hint_canceled` | Avtoyangilash o'chirilgan, shuning uchun Pro o'zi yangilanmaydi. Cheklovsiz imkoniyatni yo'qotmaslik uchun oldindan yangilang. | Автопродление отключено, поэтому Pro не продлится само. Продлите заранее, чтобы не потерять безлимит. |
 | `billing.renewal.org_hint` | Obuna tugagach, markaz ishtirokchilarida yana Free tarifi bo'ladi. | После окончания у участников центра снова будет тариф Free. |
-| `billing.renewal.button` | Pro ni yangilash | Продлить Pro |
+| `billing.renewal.button` | Pro'ni uzaytirish | Продлить Pro |
 | `billing.renewal.mail.subject` | {1} «:organization» markazining obunasi ertaga tugaydi\|[2,*] «:organization» markazining obunasi :count kundan keyin tugaydi | {1} Подписка центра «:organization» заканчивается завтра\|[2,*] Подписка центра «:organization» заканчивается через :count дн. |
 | `billing.renewal.mail.greeting` | Assalomu alaykum! | Здравствуйте! |
 | `billing.renewal.mail.body` | {1} «:organization» markazining LexiFlow Pro obunasi ertaga tugaydi (:date).\|[2,*] «:organization» markazining LexiFlow Pro obunasi :count kundan keyin tugaydi (:date). | {1} Подписка LexiFlow Pro центра «:organization» заканчивается завтра (:date).\|[2,*] Подписка LexiFlow Pro центра «:organization» заканчивается через :count дн. (:date). |
@@ -719,7 +719,7 @@
 | `billing.renewal.mail.action` | Markaz kabinetini ochish | Открыть кабинет центра |
 | `billing.renewal.mail.contact` | To'lov bo'yicha savollar: :contact | Вопросы по оплате: :contact |
 
-`billing.renewal.*` (2A.6): напоминания о продлении — ЛС ученику, ЛС и письмо владельцам центра. Строки с `{1} …\|[2,*] …` — две формы: «завтра» (1 день) и «через :count дней» (в ru «дн.» без склонения). Проверить: «obunasi … tugaydi» (подписка … заканчивается), «Pro ni yangilash» (продлить Pro), «Markaz kabinetini ochish» (открыть кабинет центра), «Assalomu alaykum!» в письме.
+`billing.renewal.*` (2A.6): напоминания о продлении — ЛС ученику, ЛС и письмо владельцам центра. Строки с `{1} …\|[2,*] …` — две формы: «завтра» (1 день) и «через :count дней» (в ru «дн.» без склонения). Проверить: «obunasi … tugaydi» (подписка … заканчивается), «Pro'ni uzaytirish» (продлить Pro — как на кнопке в TWA), «Markaz kabinetini ochish» (открыть кабинет центра), «Assalomu alaykum!» в письме.
 
 ## Фаза 2 · задача 2A.2 (оплата: бот `/pro`, `/paysupport`, TWA paywall и «Подписка») — на проверку носителю
 
@@ -814,6 +814,10 @@
 | `billing.renew` | Pro'ni uzaytirish | Продлить Pro |
 | `billing.unavailable` | To'lov tez orada ochiladi. | Оплата скоро откроется. |
 | `billing.sum` | so'm | сум |
+| `lapsed.title` | Pro tugadi | Pro закончился |
+| `lapsed.text` | Obuna {date} kuni tugadi. Yangi so'zlar yana kunlik limitsiz bo'lishi uchun uzaytiring. | Подписка закончилась {date}. Продлите, чтобы новые слова снова были без дневного лимита. |
+| `lapsed.renew` | Pro'ni uzaytirish | Продлить Pro |
+| `lapsed.dismiss` | Yopish | Скрыть |
 | `error.code.invalid_init_data` | Telegram sessiyasini tasdiqlab bo'lmadi. Ilovani qaytadan oching. | Не удалось подтвердить Telegram-сессию. Откройте приложение заново. |
 | `error.code.invalid_token` | Sessiya eskirgan. Ilovani qaytadan oching. | Сессия устарела. Откройте приложение заново. |
 | `error.code.invalid_mode` | Noma'lum mashg'ulot rejimi. | Неизвестный режим тренировки. |

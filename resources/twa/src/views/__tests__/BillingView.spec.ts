@@ -193,6 +193,31 @@ describe('BillingView', () => {
     expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
   })
 
+  it('shows "Pro ended" to a Free learner whose subscription lapsed: the banner and the button both say renew', async () => {
+    const lapsedMe = me()
+    lapsedMe.entitlement.lapsed = { provider: 'payme', ended_at: '2026-10-18T09:30:00+00:00' }
+    window.localStorage.clear()
+    const { wrapper } = await render(lapsedMe, catalog())
+
+    expect(wrapper.get('[data-testid=lapsed-title]').text()).toBe('Pro закончился')
+    expect(wrapper.get('[data-testid=buy]').text()).toBe('Продлить Pro')
+
+    await wrapper.get('[data-testid=lapsed-renew]').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-testid=paywall]').exists()).toBe(true)
+  })
+
+  it('has no banner without a lapse and none for a Pro learner', async () => {
+    window.localStorage.clear()
+    const free = await render(me(), catalog())
+    expect(free.wrapper.find('[data-testid=lapsed-banner]').exists()).toBe(false)
+
+    const proMe = me({ plan: 'pro', until: renewing.ends_at, renewal: renewing })
+    proMe.entitlement.lapsed = { provider: 'payme', ended_at: '2026-10-18T09:30:00+00:00' }
+    const pro = await render(proMe, catalog(summary()))
+    expect(pro.wrapper.find('[data-testid=lapsed-banner]').exists()).toBe(false)
+  })
+
   it('takes the Telegram back button to the settings and hides it on leave', async () => {
     const { wrapper, router } = await render(me(), catalog())
 

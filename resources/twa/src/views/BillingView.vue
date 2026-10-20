@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import LapsedBanner from '@/components/LapsedBanner.vue'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useBillingStore } from '@/stores/billing'
@@ -28,6 +29,7 @@ const entitlement = computed(() => billing.entitlement)
 const isPro = computed(() => entitlement.value?.plan === 'pro')
 const renewal = computed(() => entitlement.value?.renewal ?? null)
 const subscription = computed(() => billing.catalog?.subscription ?? null)
+const lapsed = computed(() => !isPro.value && (entitlement.value?.lapsed ?? null) !== null)
 const sponsored = computed(() => isPro.value && renewal.value === null && entitlement.value?.source.startsWith('sponsor:') === true)
 
 function formatDate(iso: string): string {
@@ -52,6 +54,11 @@ const providerText = computed(() => {
   const label = PROVIDER_LABELS[renewal.value?.provider ?? '']
   return label ? t('billing.provider_line', { provider: t(label) }) : ''
 })
+
+/** The banner's "Renew" is the same action as the button below it, where there is something to buy. */
+function onLapsedRenew(): void {
+  if (billing.canPurchase) paywallOpen.value = true
+}
 
 async function load(): Promise<void> {
   failed.value = ''
@@ -91,6 +98,8 @@ onBeforeUnmount(() => {
     </div>
 
     <div v-else class="space-y-3">
+      <LapsedBanner v-if="!isPro" preloaded @renew="onLapsedRenew()" />
+
       <div class="card space-y-1" data-testid="plan-card">
         <div class="font-semibold" data-testid="plan-name">{{ isPro ? t('billing.plan.pro') : t('billing.plan.free') }}</div>
         <template v-if="isPro">
@@ -137,7 +146,7 @@ onBeforeUnmount(() => {
         data-testid="buy"
         @click="paywallOpen = true"
       >
-        {{ isPro ? t('billing.renew') : t('billing.buy') }}
+        {{ isPro || lapsed ? t('billing.renew') : t('billing.buy') }}
       </button>
       <p v-else-if="!isPro && !billing.canPurchase" class="text-sm text-tg-hint text-center" data-testid="unavailable">{{ t('billing.unavailable') }}</p>
     </div>

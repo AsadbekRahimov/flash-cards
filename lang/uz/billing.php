@@ -103,7 +103,7 @@ return [
         'hint' => 'Yangi so\'zlar kunlik limit bilan cheklanib qolmasligi uchun oldindan yangilang.',
         'hint_canceled' => 'Avtoyangilash o\'chirilgan, shuning uchun Pro o\'zi yangilanmaydi. Cheklovsiz imkoniyatni yo\'qotmaslik uchun oldindan yangilang.',
         'org_hint' => 'Obuna tugagach, markaz ishtirokchilarida yana Free tarifi bo\'ladi.',
-        'button' => 'Pro ni yangilash',
+        'button' => "Pro'ni uzaytirish",
         'mail' => [
             'subject' => '{1} «:organization» markazining obunasi ertaga tugaydi|[2,*] «:organization» markazining obunasi :count kundan keyin tugaydi',
             'greeting' => 'Assalomu alaykum!',

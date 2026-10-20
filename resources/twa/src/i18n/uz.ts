@@ -158,6 +158,10 @@ export const uz: Translations = {
   'billing.renew': "Pro'ni uzaytirish",
   'billing.unavailable': "To'lov tez orada ochiladi.",
   'billing.sum': "so'm",
+  'lapsed.title': 'Pro tugadi',
+  'lapsed.text': "Obuna {date} kuni tugadi. Yangi so'zlar yana kunlik limitsiz bo'lishi uchun uzaytiring.",
+  'lapsed.renew': "Pro'ni uzaytirish",
+  'lapsed.dismiss': 'Yopish',
 
   // ---- course catalog ----
   'catalog.title': 'Kurslar',

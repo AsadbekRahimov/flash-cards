@@ -164,7 +164,7 @@ it('writes the DM in the learner language and logs it', function (): void {
 
     expect(rrSend($sub))->toBe(1);
 
-    expect($this->tg->sent[0]['button'])->toBe('Pro ni yangilash')
+    expect($this->tg->sent[0]['button'])->toBe("Pro'ni uzaytirish")
         ->and($this->tg->sent[0]['text'])->toContain('3 kundan keyin tugaydi')
         ->and($this->tg->sent[0]['text'])->toContain(CarbonImmutable::instance($sub->current_period_ends_at)->setTimezone('Asia/Tashkent')->format('d.m.Y'));
     $log = NotificationLog::query()->firstOrFail();
