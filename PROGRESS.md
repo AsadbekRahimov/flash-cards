@@ -37,10 +37,13 @@
 | 2B.8 | Ревью волны 2B (+ 2A.5): 2 блокирующих + 7 желательных исправлены; повторное ревью: 1 блокирующая (сбой Telegram обрывал `assignments:refresh` — изоляция шагов) и 2 желательные (pre-check Payme `-31053/-31054` и Click `-9` до списания + отмена конкурирующих org-заказов после оплаты; свежесть прогресса) исправлены, обходов расширения доступа к private-урокам нет. sqlite 2200 / PG 2239 / PG+redis 2239 зелёные | reviewer | ✅ |
 | 2R.CI-a | `composer audit` зелёный: Filament 5.10.2, Laravel 12.70, Livewire 4.4.7, guzzle, commonmark, flysystem, symfony/http-foundation|yaml (patch/minor, одобрено владельцем); ассеты Filament переопубликованы; CI: Pint/PHPStan выполняются и при упавшем audit; 14 ошибок PHPStan в 2B.4/2B.5 исправлены | coder | ✅ |
 | 2R.CI-b | Pest в CI (PG + Redis-кэш) зелёный: `Cache::flush()` в `TestCase::setUp`, `tests/Support/ForkSafe` (Redis-соединения при `pcntl_fork`), `RateLimiter::clear` вместо `travel` для окон лимитеров, `ReadinessProbeTest` ожидает `redis`. Только тесты, продакшн-багов нет | coder | ✅ |
-| 2C.1–2C.5 | Рефералка, streak freeze, лиги, достижения/шеринг, друзья/вызовы | см. docs/13 §11 | ⏳ |
+| 2C.1 | Рефералка (`referral_code`, `referrals`, `ReferralService`, `/invite`, TWA «Пригласить друга»; параметры — дефолты docs/13 §12 п.9) | architect | 🔄 |
+| 2C.2 | Streak freeze (Pro): `StreakFreezeService`, `frozen_at`, refill по понедельникам до 2, `/today.streak.freezes` | architect | 🔄 |
+| 2C.3–2C.5 | Лиги (после 2R.3), достижения/шеринг (шрифт — вопрос владельцу §12 п.11), друзья/вызовы (после 2C.1) | см. docs/13 §11 | ⏳ |
 | 2D.1 | Свои колоды: `LearnerDeckService`, `DeckImportParser` (список/CSV), API `/decks*`, TWA `MyDecksView`/`DeckEditView`; лимиты `config/decks.php` (Free 1×50, Pro 20×2000); участие в `daily_review` и квоте. Хвосты: uz-тексты на проверку носителем; PG-теста параллельных импортов нет | coder | ✅ |
 | 2D.2–2D.5 | Упражнения + `audio_url`, FSRS A/B, симулятор IELTS/SAT, ревью | см. docs/13 §11 | ⏳ |
-| 2R.3–2R.9 | Остальные хвосты (docs/13 §9) | см. docs/13 §11 | ⏳ |
+| 2R.3 | Глобальный лимит исходящих Telegram (`reserveGlobal`, 25/с) во всех фоновых отправках | coder | 🔄 |
+| 2R.7–2R.8 | Отмена смены часового пояса; staging 0.7 (владелец/DevOps) | см. docs/13 §9 | ⏳ |
 
 ## Sprint 14 — Фаза 1 «Публичный B2C MVP» ✅ (2026-10-18 — 2026-10-19; 1.9 ждёт контент владельца)
 
