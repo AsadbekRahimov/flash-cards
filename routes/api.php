@@ -30,6 +30,7 @@ Route::prefix('twa')->group(function (): void {
     Route::middleware([TwaAuth::class, SetTwaLocale::class, 'throttle:twa-api'])->group(function (): void {
         Route::get('/me', MeController::class)->name('twa.me');
         Route::patch('/me/settings', [SettingsController::class, 'update'])->name('twa.me.settings');
+        Route::post('/me/settings/timezone/revert', [SettingsController::class, 'revertTimezone'])->name('twa.me.settings.timezone.revert');
         Route::get('/me/organizations', [OrganizationController::class, 'index'])->name('twa.me.organizations');
         Route::delete('/me/organizations/{member}', [OrganizationController::class, 'leave'])
             ->whereNumber('member')

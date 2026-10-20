@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Telegram\Services;
 
 use Illuminate\Cache\RedisStore;
+use Illuminate\Redis\Connections\PhpRedisConnection;
 use Illuminate\Support\Facades\Cache;
 
 final class TelegramMessageRateLimiter
@@ -69,12 +70,13 @@ final class TelegramMessageRateLimiter
         $store = Cache::getStore();
 
         if ($store instanceof RedisStore) {
-            $count = $store->connection()->eval(
-                "local n = redis.call('INCR', KEYS[1]) if n == 1 then redis.call('EXPIRE', KEYS[1], ARGV[1]) end return n",
-                1,
-                $store->getPrefix().$key,
-                $ttlSeconds,
-            );
+            $script = "local n = redis.call('INCR', KEYS[1]) if n == 1 then redis.call('EXPIRE', KEYS[1], ARGV[1]) end return n";
+            $connection = $store->connection();
+            // phpredis: Laravel's wrapper maps (script, numKeys, ...args) onto the client's eval(script, args, numKeys);
+            // predis takes the same order natively.
+            $count = $connection instanceof PhpRedisConnection
+                ? $connection->eval($script, 1, $store->getPrefix().$key, $ttlSeconds)
+                : $connection->command('eval', [$script, 1, $store->getPrefix().$key, $ttlSeconds]);
 
             return (int) $count;
         }
