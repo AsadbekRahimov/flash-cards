@@ -225,12 +225,14 @@ class Reports extends Page
     /** The chosen group, only if the user may see it (otherwise `null` and the report is empty). */
     private function selectedGroup(): ?TelegramGroup
     {
-        if (! $this->hasGroupFilter()) {
+        $groupId = $this->data['group'] ?? null;
+
+        if (! filled($groupId) || ! is_numeric($groupId)) {
             return null;
         }
 
         return app(OrgTenantScope::class)->groups($this->user(), $this->tenant())
-            ->whereKey((int) $this->data['group'])
+            ->whereKey((int) $groupId)
             ->first();
     }
 

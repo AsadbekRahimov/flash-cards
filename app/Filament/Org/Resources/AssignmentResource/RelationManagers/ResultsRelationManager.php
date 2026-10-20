@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Org\Resources\AssignmentResource\RelationManagers;
 
 use App\Filament\Org\Resources\MemberResource;
+use App\Models\Assignment;
 use App\Models\AssignmentResult;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
@@ -72,7 +73,9 @@ class ResultsRelationManager extends RelationManager
                     }),
                 Tables\Columns\TextColumn::make('completed_at')
                     ->label(__('org.assignments.columns.completed_at'))
-                    ->dateTime('d.m.Y H:i', fn (): string => $this->getOwnerRecord()->organization->timezone)
+                    ->dateTime('d.m.Y H:i', fn (): string => $this->getOwnerRecord() instanceof Assignment
+                        ? $this->getOwnerRecord()->organization->timezone
+                        : (string) config('app.timezone'))
                     ->placeholder('—')
                     ->sortable(),
             ])

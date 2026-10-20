@@ -62,6 +62,9 @@ class CreateAssignment extends CreateRecord
             Notification::make()->title(__('org.assignments.errors.'.$e->errorCode))->danger()->send();
 
             $this->halt();
+
+            // halt() always throws Filament's Halt; this keeps every path returning a model or throwing.
+            throw $e;
         }
     }
 

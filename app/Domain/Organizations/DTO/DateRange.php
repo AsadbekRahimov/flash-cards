@@ -75,6 +75,6 @@ final readonly class DateRange
             return null;
         }
 
-        return $parsed !== false && $parsed->toDateString() === $date ? $parsed : null;
+        return $parsed !== null && $parsed->toDateString() === $date ? $parsed : null;
     }
 }

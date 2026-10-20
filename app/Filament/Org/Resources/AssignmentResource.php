@@ -58,7 +58,11 @@ class AssignmentResource extends OrgResource
             ->withProgressCounts();
     }
 
-    /** Groups the user may set an assignment for: their groups that have a course. @return array<int, string> */
+    /**
+     * Groups the user may set an assignment for: their groups that have a course.
+     *
+     * @return array<int, string>
+     */
     public static function groupOptions(): array
     {
         /** @var array<int, string> $options */
@@ -71,7 +75,11 @@ class AssignmentResource extends OrgResource
         return $options;
     }
 
-    /** Lessons of the course of a group the user may use. @return array<int, string> */
+    /**
+     * Lessons of the course of a group the user may use.
+     *
+     * @return array<int, string>
+     */
     public static function lessonOptions(mixed $groupId): array
     {
         if (! is_numeric($groupId)) {
@@ -157,7 +165,7 @@ class AssignmentResource extends OrgResource
                     ->limit(40),
                 Tables\Columns\TextColumn::make('lesson')
                     ->label(__('org.assignments.columns.lesson'))
-                    ->state(fn (Assignment $record): string => $record->lesson->stage->number.'.'.$record->lesson->number),
+                    ->state(fn (Assignment $record): string => ($record->lesson->stage->number ?? 0).'.'.$record->lesson->number),
                 Tables\Columns\TextColumn::make('due_at')
                     ->label(__('org.assignments.columns.due_at'))
                     ->dateTime('d.m.Y H:i', $timezone)
@@ -220,7 +228,7 @@ class AssignmentResource extends OrgResource
             Infolists\Components\TextEntry::make('group.title')->label(__('org.assignments.columns.group')),
             Infolists\Components\TextEntry::make('lesson')
                 ->label(__('org.assignments.columns.lesson'))
-                ->state(fn (Assignment $record): string => $record->lesson->stage->number.'.'.$record->lesson->number),
+                ->state(fn (Assignment $record): string => ($record->lesson->stage->number ?? 0).'.'.$record->lesson->number),
             Infolists\Components\TextEntry::make('due_at')
                 ->label(__('org.assignments.columns.due_at'))
                 ->dateTime('d.m.Y H:i', $timezone),
