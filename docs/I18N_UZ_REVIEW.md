@@ -1389,3 +1389,32 @@
 | `today.streak.frozen_yesterday` | Kechagi kun muzlatildi — seriya saqlandi | Вчерашний день заморожен — серия сохранена |
 | `today.streak.freeze_teaser` | ❄️ Seriyani muzlatish — Pro'da | ❄️ Заморозки серии — в Pro |
 | `paywall.lead_streak_freeze` | Seriyani muzlatish — Pro'da: o'tkazib yuborilgan kun seriyani uzmaydi, 2 tagacha muzlatish, har hafta +1. | Заморозка серии — в Pro: пропущенный день не обрывает серию, до 2 заморозок, +1 каждую неделю. |
+
+## Фаза 2 · задача 2D.2 (типы упражнений) — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `exercise.reverse.title` | So'zni tanlang | Выберите слово |
+| `exercise.audio.title` | Nimani eshitdingiz? | Что вы услышали? |
+| `exercise.audio.play` | Yana eshitish | Прослушать ещё раз |
+| `exercise.spelling.title` | So'zni inglizcha yozing | Напишите слово по-английски |
+| `exercise.gap_fill.title` | Bo'sh joyni to'ldiring | Заполните пропуск |
+| `exercise.input.placeholder` | Javobingiz | Ваш ответ |
+| `exercise.answer_length` | Harflar: {count} | Букв: {count} |
+| `exercise.check` | Tekshirish | Проверить |
+| `exercise.skip` | Bilmayman | Не знаю |
+| `exercise.verdict.correct` | To'g'ri! | Верно! |
+| `exercise.verdict.close` | Deyarli! To'g'risi: {expected} | Почти! Правильно: {expected} |
+| `exercise.verdict.wrong` | Noto'g'ri. To'g'risi: {expected} | Неверно. Правильно: {expected} |
+| `exercise.continue` | Keyingisi | Дальше |
+| `settings.exercises` | Mashqlar | Упражнения |
+| `settings.exercises.hint` | «So'z → tarjima» kartochkalari doim yoqilgan. Yozish va bo'sh joy — Pro'da. | Карточки «слово → перевод» включены всегда. Написание и пропуск — в Pro. |
+| `settings.exercises.reverse` | Tarjima → so'z (4 variant) | Перевод → слово (4 варианта) |
+| `settings.exercises.audio` | Eshitib (4 variant) | На слух (4 варианта) |
+| `settings.exercises.spelling` | So'zni yozish | Написание слова |
+| `settings.exercises.gap_fill` | Misoldagi bo'sh joy | Пропуск в примере |
+| `error.code.answer_not_accepted` | Bu kartochka ekranda baholanadi. Ekranni yangilang. | Эта карточка оценивается на экране. Обновите экран. |
+| `error.code.quality_not_accepted` | Bu kartochkani server tekshiradi. Ekranni yangilang. | Эту карточку проверяет сервер. Обновите экран. |
+| `error.code.exercise_pro_required` | Yozma mashqlar Pro'da mavjud. | Письменные упражнения доступны в Pro. |

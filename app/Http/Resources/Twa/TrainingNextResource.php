@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Twa;
 
-use App\Domain\Content\Services\WordAudioService;
+use App\Domain\Learning\DTO\ExercisePrompt;
 use App\Domain\Learning\DTO\TrainingStep;
 use Illuminate\Http\Request;
 
@@ -18,7 +18,7 @@ final class TrainingNextResource extends TwaResource
 {
     /**
      * @return array{
-     *   card: array{word_id: int, word: string, translation: string, translation_fallback: bool, example: string|null, transcription: string|null, audio_url: string|null, card_kind: string, serve_token: string|null}|null,
+     *   card: array{word_id: int, word: string, translation: string, translation_fallback: bool, example: string|null, transcription: string|null, audio_url: string|null, card_kind: string, serve_token: string|null, prompt: array{type: string, front: string, masked_example: string|null, options: list<string>|null, answer_length: int|null}|null}|null,
      *   progress: array{done: int, total: int},
      *   done_reason: string|null,
      *   quota: array{new_words_remaining: int|null}
@@ -28,6 +28,7 @@ final class TrainingNextResource extends TwaResource
     {
         $word = $this->resource->word;
         $translation = $this->resource->translation;
+        $prompt = $this->resource->prompt ?? ($word === null ? null : ExercisePrompt::flash($word->word, $this->resource->audioUrl));
 
         return [
             'card' => $word !== null ? [
@@ -39,10 +40,19 @@ final class TrainingNextResource extends TwaResource
                 'example' => $word->example,
                 'transcription' => $word->transcription,
                 // Pre-generated mp3 (task 1.2c); null -> the client falls back to Web Speech / GET /tts.
-                'audio_url' => app(WordAudioService::class)->urlFor($word),
+                'audio_url' => $this->resource->audioUrl,
                 'card_kind' => (string) $this->resource->kind,
                 // Learn-ahead ticket: must be echoed as `serve_token` in POST /review (docs/06 §5.2).
                 'serve_token' => $this->resource->serveToken,
+                // The exercise of this serve (docs/13 §2.5, docs/04 A.3): `type` decides the screen and
+                // whether POST /review takes `quality` (flash / reverse / audio) or `answer` (spelling / gap_fill).
+                'prompt' => $prompt === null ? null : [
+                    'type' => $prompt->type->value,
+                    'front' => $prompt->front,
+                    'masked_example' => $prompt->maskedExample,
+                    'options' => $prompt->options,
+                    'answer_length' => $prompt->answerLength,
+                ],
             ] : null,
             'progress' => [
                 'done' => $this->resource->progress['done'],

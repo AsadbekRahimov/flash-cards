@@ -47,6 +47,8 @@ export interface LearnerSettings {
   /** ISO 8601 UTC: the time zone may be changed again from then on (once in 24 h); null = now. */
   timezone_change_available_at: string | null
   active_course: { slug: string; title: string } | null
+  /** Exercise types the learner has switched on (docs/13 §8.2); flash cards are always on. */
+  exercises: ExerciseSettings
   options: {
     locales: SettingsChoice[]
     timezones: SettingsChoice[]
@@ -90,10 +92,19 @@ export interface ReferralsResponse {
   referrals: ReferralItem[]
 }
 
+export interface ExerciseSettings {
+  reverse: boolean
+  audio: boolean
+  /** Pro feature: typed answers are served only with `exercise.spelling`. */
+  spelling: boolean
+  /** Pro feature. */
+  gap_fill: boolean
+}
+
 /** Body of PATCH /me/settings: only the fields to change; `reminder_time: null` turns the reminders off. */
 export type SettingsPatch = Partial<
   Pick<LearnerSettings, 'interface_locale' | 'timezone' | 'reminder_time' | 'daily_goal' | 'goal' | 'level'>
->
+> & { exercises?: Partial<ExerciseSettings> }
 
 /** `source`: 'free' | 'subscription' | 'sponsor:organization:<id>'; `until`: ISO 8601, null = no end. */
 export interface Entitlement {
@@ -324,6 +335,24 @@ export interface AssignmentsResponse {
  */
 export type CardKind = 'due' | 'new' | 'learning'
 
+/**
+ * How the card is presented and who grades it (docs/13 §2.5, docs/04 A.3):
+ * flash / reverse / audio → POST /review {quality}; spelling / gap_fill → POST /review {answer}.
+ */
+export type ExerciseType = 'flash' | 'reverse' | 'audio' | 'spelling' | 'gap_fill'
+
+export interface ExercisePrompt {
+  type: ExerciseType
+  /** reverse / spelling / gap_fill: the translation; flash: the word; audio: '' (the word is only heard). */
+  front: string
+  /** gap_fill: the example with the word's form replaced by `____`. */
+  masked_example: string | null
+  /** reverse: four English words; audio: four translations (the right one among them). */
+  options: string[] | null
+  /** spelling / gap_fill: length of the expected text. */
+  answer_length: number | null
+}
+
 export interface Card {
   word_id: number
   word: string
@@ -345,6 +374,8 @@ export interface Card {
    * `serve_token` in POST /review for that card, otherwise 409 `card_not_due`.
    */
   serve_token: string | null
+  /** The exercise of this serve; absent/null = flash (older servers). */
+  prompt?: ExercisePrompt | null
 }
 
 export interface NextCardResponse {
@@ -363,10 +394,21 @@ export interface NextCardResponse {
  */
 export type Quality = 2 | 4 | 5
 
+/** The server's grade of a typed answer (spelling / gap_fill). */
+export interface Graded {
+  /** 5 exact, 4 within the tolerance, 1 wrong. */
+  quality: number
+  correct: boolean
+  /** The normalized right answer, to show after a miss. */
+  expected: string
+}
+
 export interface ReviewResponse {
   next_review_at: string | null
   new_interval_days: number
   easiness_factor: number
+  /** null when the client graded (quality was sent). */
+  graded?: Graded | null
   card?: Card | null
   progress?: { done: number; total: number }
   done_reason?: DoneReason | null

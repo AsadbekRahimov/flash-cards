@@ -1,8 +1,13 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import AnswerVerdict from '@/components/AnswerVerdict.vue'
+import AudioCard from '@/components/AudioCard.vue'
 import FlashCard from '@/components/FlashCard.vue'
+import GapFillCard from '@/components/GapFillCard.vue'
+import ReverseCard from '@/components/ReverseCard.vue'
+import SpellingCard from '@/components/SpellingCard.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useTrainingStore } from '@/stores/training'
 import { useTelegram } from '@/composables/useTelegram'
@@ -17,8 +22,11 @@ const training = useTrainingStore()
 const { close, showBackButton } = useTelegram()
 const { t } = useI18n()
 
-const { status, card, progress, lesson, mode, errorMessage, restartRequest, opening, openError } =
+const { status, card, progress, lesson, mode, errorMessage, restartRequest, opening, openError, exercise, verdict } =
   storeToRefs(training)
+
+/** The text of the last typed answer, for the verdict screen. */
+const lastAnswer = ref('')
 
 const isBusy = computed(() => status.value === 'submitting' || status.value === 'loading')
 const showSpinner = computed(() =>
@@ -55,6 +63,22 @@ onBeforeUnmount(() => {
 
 async function onGrade(q: Quality): Promise<void> {
   await training.submitReview(q)
+  if (training.status === 'finished') {
+    await redirectToFinished()
+  }
+}
+
+/** Spelling / gap-fill: the server grades; the verdict is shown before the next card. */
+async function onAnswer(text: string): Promise<void> {
+  lastAnswer.value = text
+  await training.submitAnswer(text)
+  if (training.status === 'finished') {
+    await redirectToFinished()
+  }
+}
+
+async function onContinue(): Promise<void> {
+  training.continueAfterVerdict()
   if (training.status === 'finished') {
     await redirectToFinished()
   }
@@ -145,13 +169,22 @@ async function onRestart(): Promise<void> {
       </div>
     </div>
 
-    <FlashCard
-      v-else-if="card"
-      :card="card"
-      :show-translation="training.showTranslation"
-      :disabled="isBusy"
-      @reveal="training.reveal()"
-      @grade="onGrade"
-    />
+    <AnswerVerdict v-else-if="status === 'verdict' && verdict" :verdict="verdict" :answer="lastAnswer" @continue="onContinue" />
+
+    <!-- The exercise of the serve (docs/13 §2.5): `prompt.type` decides the screen; the key restarts the component per card. -->
+    <template v-else-if="card">
+      <ReverseCard v-if="exercise === 'reverse'" :key="`reverse-${card.word_id}`" :card="card" :disabled="isBusy" @grade="onGrade" />
+      <AudioCard v-else-if="exercise === 'audio'" :key="`audio-${card.word_id}`" :card="card" :disabled="isBusy" @grade="onGrade" />
+      <SpellingCard v-else-if="exercise === 'spelling'" :key="`spelling-${card.word_id}`" :card="card" :disabled="isBusy" @answer="onAnswer" />
+      <GapFillCard v-else-if="exercise === 'gap_fill'" :key="`gap-${card.word_id}`" :card="card" :disabled="isBusy" @answer="onAnswer" />
+      <FlashCard
+        v-else
+        :card="card"
+        :show-translation="training.showTranslation"
+        :disabled="isBusy"
+        @reveal="training.reveal()"
+        @grade="onGrade"
+      />
+    </template>
   </section>
 </template>

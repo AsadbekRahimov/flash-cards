@@ -6,6 +6,7 @@ namespace App\Http\Requests\Twa;
 
 use App\Domain\Learners\Services\LearnerSettingsService;
 use App\Domain\Learners\Services\OnboardingService;
+use App\Domain\Learning\DTO\LearnerExerciseSettings;
 use App\Domain\Localization\Services\LocaleResolver;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -29,6 +30,9 @@ final class UpdateSettingsRequest extends FormRequest
             'daily_goal' => ['sometimes', 'integer:strict', Rule::in($settings->dailyGoals())],
             'goal' => ['sometimes', 'string', Rule::in(OnboardingService::GOALS)],
             'level' => ['sometimes', 'string', Rule::in(OnboardingService::LEVELS)],
+            // A partial object: only the exercise types given change (docs/13 §8.2).
+            'exercises' => ['sometimes', Rule::array(LearnerExerciseSettings::KEYS)],
+            'exercises.*' => ['boolean:strict'],
         ];
     }
 }

@@ -88,6 +88,21 @@ export const uz: Translations = {
   'training.closed_title': "🔒 Mashg'ulot yakunlandi",
   'training.restart': 'Qaytadan boshlash',
 
+  // ---- exercises (docs/13 §2.5) ----
+  'exercise.reverse.title': "So'zni tanlang",
+  'exercise.audio.title': 'Nimani eshitdingiz?',
+  'exercise.audio.play': 'Yana eshitish',
+  'exercise.spelling.title': "So'zni inglizcha yozing",
+  'exercise.gap_fill.title': "Bo'sh joyni to'ldiring",
+  'exercise.input.placeholder': 'Javobingiz',
+  'exercise.answer_length': 'Harflar: {count}',
+  'exercise.check': 'Tekshirish',
+  'exercise.skip': 'Bilmayman',
+  'exercise.verdict.correct': "To'g'ri!",
+  'exercise.verdict.close': "Deyarli! To'g'risi: {expected}",
+  'exercise.verdict.wrong': "Noto'g'ri. To'g'risi: {expected}",
+  'exercise.continue': 'Keyingisi',
+
   // ---- exam ----
   'exam.closed_title': "🔒 Imtihon o'qituvchi tomonidan yakunlandi",
 
@@ -253,6 +268,12 @@ export const uz: Translations = {
   'settings.course': 'Faol kurs',
   'settings.course.none': 'Kurs tanlanmagan',
   'settings.saved': 'Saqlandi',
+  'settings.exercises': 'Mashqlar',
+  'settings.exercises.hint': "«So'z → tarjima» kartochkalari doim yoqilgan. Yozish va bo'sh joy — Pro'da.",
+  'settings.exercises.reverse': "Tarjima → so'z (4 variant)",
+  'settings.exercises.audio': 'Eshitib (4 variant)',
+  'settings.exercises.spelling': "So'zni yozish",
+  'settings.exercises.gap_fill': "Misoldagi bo'sh joy",
 
   // ---- settings: my centers (docs/13 §6.2) ----
   'orgs.title': 'Mening markazlarim',
@@ -325,6 +346,9 @@ export const uz: Translations = {
   'error.code.out_of_scope': "Bu so'z ushbu mashg'ulotga tegishli emas.",
   'error.code.card_not_started': "Bu kartochka hali ko'rsatilmagan. Ekranni yangilang.",
   'error.code.card_not_due': 'Bu kartochka allaqachon takrorlangan, vaqti hali kelmadi.',
+  'error.code.answer_not_accepted': 'Bu kartochka ekranda baholanadi. Ekranni yangilang.',
+  'error.code.quality_not_accepted': 'Bu kartochkani server tekshiradi. Ekranni yangilang.',
+  'error.code.exercise_pro_required': "Yozma mashqlar Pro'da mavjud.",
   'error.code.exam_still_open': 'Imtihon hali davom etmoqda, natijalar tugagandan keyin chiqadi.',
   'error.code.tts_unavailable': 'Ovozli talaffuz hozircha mavjud emas.',
   'error.code.promo_not_found': 'Promokod topilmadi. Xato yozilmaganini tekshiring.',

@@ -102,6 +102,21 @@ export const ru = {
   'training.closed_title': '🔒 Тренировка завершена',
   'training.restart': 'Начать заново',
 
+  // ---- exercises (docs/13 §2.5) ----
+  'exercise.reverse.title': 'Выберите слово',
+  'exercise.audio.title': 'Что вы услышали?',
+  'exercise.audio.play': 'Прослушать ещё раз',
+  'exercise.spelling.title': 'Напишите слово по-английски',
+  'exercise.gap_fill.title': 'Заполните пропуск',
+  'exercise.input.placeholder': 'Ваш ответ',
+  'exercise.answer_length': 'Букв: {count}',
+  'exercise.check': 'Проверить',
+  'exercise.skip': 'Не знаю',
+  'exercise.verdict.correct': 'Верно!',
+  'exercise.verdict.close': 'Почти! Правильно: {expected}',
+  'exercise.verdict.wrong': 'Неверно. Правильно: {expected}',
+  'exercise.continue': 'Дальше',
+
   // ---- exam ----
   'exam.closed_title': '🔒 Экзамен завершён учителем',
 
@@ -275,6 +290,12 @@ export const ru = {
   'settings.course': 'Активный курс',
   'settings.course.none': 'Курс не выбран',
   'settings.saved': 'Сохранено',
+  'settings.exercises': 'Упражнения',
+  'settings.exercises.hint': 'Карточки «слово → перевод» включены всегда. Написание и пропуск — в Pro.',
+  'settings.exercises.reverse': 'Перевод → слово (4 варианта)',
+  'settings.exercises.audio': 'На слух (4 варианта)',
+  'settings.exercises.spelling': 'Написание слова',
+  'settings.exercises.gap_fill': 'Пропуск в примере',
 
   // ---- settings: my centers (docs/13 §6.2) ----
   'orgs.title': 'Мои центры',
@@ -365,6 +386,9 @@ export const ru = {
   'error.code.out_of_scope': 'Это слово не относится к этой тренировке.',
   'error.code.card_not_started': 'Эта карточка ещё не показывалась. Обновите экран.',
   'error.code.card_not_due': 'Эта карточка уже повторена, её время ещё не пришло.',
+  'error.code.answer_not_accepted': 'Эта карточка оценивается на экране. Обновите экран.',
+  'error.code.quality_not_accepted': 'Эту карточку проверяет сервер. Обновите экран.',
+  'error.code.exercise_pro_required': 'Письменные упражнения доступны в Pro.',
   'error.code.exam_still_open': 'Экзамен ещё идёт, результаты появятся после его завершения.',
   'error.code.tts_unavailable': 'Озвучка сейчас недоступна.',
   'error.code.promo_not_found': 'Промокод не найден. Проверьте, нет ли опечатки.',

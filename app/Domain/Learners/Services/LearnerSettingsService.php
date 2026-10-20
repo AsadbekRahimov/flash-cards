@@ -9,6 +9,7 @@ use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Learners\Exceptions\InvalidSettingException;
 use App\Domain\Learners\Exceptions\TimezoneChangeTooSoonException;
+use App\Domain\Learning\DTO\LearnerExerciseSettings;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Learner;
 use Carbon\CarbonImmutable;
@@ -34,7 +35,10 @@ use Throwable;
  *                        `Asia/Calcutta`), stored as given;
  *  - `reminder_time`     `HH:MM` on a {@see REMINDER_STEP_MINUTES}-minute step, or `null` = reminders off;
  *  - `daily_goal`        one of `config('learners.daily_goal_options')` (10 / 20 / 40);
- *  - `goal`, `level`     the onboarding whitelists.
+ *  - `goal`, `level`     the onboarding whitelists;
+ *  - `exercises`         `{reverse, audio, spelling, gap_fill}` booleans (a partial object: only the keys
+ *                        given change), stored in `learners.meta.exercises` (docs/13 §8.2); flash cards
+ *                        cannot be switched off.
  * Values are checked here again whatever the caller validated: strict types, no coercion.
  *
  * `update()` locks the learner row, writes everything in one transaction and recomputes
@@ -67,6 +71,7 @@ use Throwable;
  *   level: string|null,
  *   timezone_change_available_at: string|null,
  *   active_course: array{slug: string, title: string}|null,
+ *   exercises: array{reverse: bool, audio: bool, spelling: bool, gap_fill: bool},
  *   options: array{
  *     locales: list<array{id: string, label: string}>,
  *     timezones: list<array{id: string, label: string}>,
@@ -121,6 +126,18 @@ final class LearnerSettingsService
             /** @var Learner $fresh */
             $fresh = (DB::connection()->getDriverName() === 'pgsql' ? $lock->lock('for no key update') : $lock->lockForUpdate())->firstOrFail();
 
+            $exercises = null;
+            if (is_array($values['exercises'] ?? null)) {
+                /** @var array<string, bool> $patch */
+                $patch = $values['exercises'];
+                $current = LearnerExerciseSettings::fromLearner($fresh)->toArray();
+                $exercises = [...$current, ...$patch];
+                if ($exercises !== $current) {
+                    $changed[] = 'exercises';
+                }
+                unset($values['exercises']);
+            }
+
             foreach ($values as $field => $value) {
                 $current = $field === 'reminder_time' ? $this->shortTime($fresh->reminder_time) : $fresh->getAttribute($field);
                 if ($current !== $value) {
@@ -133,6 +150,9 @@ final class LearnerSettingsService
             }
 
             $fresh->fill($values);
+            if ($exercises !== null) {
+                $fresh->meta = [...$fresh->meta, LearnerExerciseSettings::META_KEY => $exercises];
+            }
             if (array_key_exists('interface_locale', $values)) {
                 $fresh->meta = [...$fresh->meta, self::LOCALE_CHOSEN => true];
             }
@@ -195,6 +215,7 @@ final class LearnerSettingsService
             'level' => $learner->level,
             'timezone_change_available_at' => $this->timezoneChangeAvailableAt($learner)?->utc()->toIso8601String(),
             'active_course' => $this->activeCourse($learner, $locale),
+            'exercises' => LearnerExerciseSettings::fromLearner($learner)->toArray(),
             'options' => [
                 'locales' => array_map(
                     fn (string $id): array => ['id' => $id, 'label' => (string) config('localization.names.'.$id, $id)],
@@ -292,7 +313,7 @@ final class LearnerSettingsService
 
     /**
      * @param  array<string, mixed>  $changes
-     * @return array<string, int|string|null>
+     * @return array<string, int|string|array<string, bool>|null>
      */
     private function normalize(array $changes): array
     {
@@ -300,6 +321,7 @@ final class LearnerSettingsService
 
         foreach ($changes as $field => $value) {
             $values[$field] = match ($field) {
+                'exercises' => is_array($value) ? $this->normalizeExercises($value) : throw InvalidSettingException::invalid($field),
                 'interface_locale' => is_string($value) && $this->locales->isSupported($value) ? $value : throw InvalidSettingException::invalid($field),
                 'timezone' => is_string($value) && in_array($value, $this->knownTimezones(), true) ? $value : throw InvalidSettingException::invalid($field),
                 'reminder_time' => $value === null || (is_string($value) && $this->isReminderTime($value)) ? $value : throw InvalidSettingException::invalid($field),
@@ -311,6 +333,23 @@ final class LearnerSettingsService
         }
 
         return $values;
+    }
+
+    /**
+     * @param  array<mixed>  $value
+     * @return array<string, bool>
+     */
+    private function normalizeExercises(array $value): array
+    {
+        $exercises = [];
+        foreach ($value as $key => $enabled) {
+            if (! is_string($key) || ! in_array($key, LearnerExerciseSettings::KEYS, true) || ! is_bool($enabled)) {
+                throw InvalidSettingException::invalid('exercises');
+            }
+            $exercises[$key] = $enabled;
+        }
+
+        return $exercises;
     }
 
     private function isReminderTime(string $value): bool

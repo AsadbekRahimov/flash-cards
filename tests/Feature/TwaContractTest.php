@@ -46,7 +46,8 @@ uses(RefreshDatabase::class);
 const CONTRACT_PROGRESS = ['done', 'total'];
 const CONTRACT_GOAL = ['target', 'done', 'met'];
 const CONTRACT_STREAK = ['current', 'best', 'met_today', 'at_risk', 'freezes', 'frozen_yesterday'];
-const CONTRACT_CARD = ['word_id', 'word', 'translation', 'translation_fallback', 'example', 'transcription', 'audio_url', 'card_kind', 'serve_token'];
+const CONTRACT_PROMPT = ['type', 'front', 'masked_example', 'options', 'answer_length'];
+const CONTRACT_CARD = ['word_id', 'word', 'translation', 'translation_fallback', 'example', 'transcription', 'audio_url', 'card_kind', 'serve_token', 'prompt' => CONTRACT_PROMPT];
 const CONTRACT_EXAM_QUESTION = ['question_index', 'word_id', 'word', 'options', 'seconds_left'];
 const CONTRACT_FORBIDDEN_EXAM_KEYS = ['correct_index', 'correct_translation', 'canonical_index'];
 
@@ -129,6 +130,7 @@ it('GET /me keeps its exact JSON shape', function (): void {
             'paywall' => ['mode', 'contact'],
             'settings' => [
                 'interface_locale', 'timezone', 'reminder_time', 'daily_goal', 'goal', 'level', 'timezone_change_available_at', 'active_course',
+                'exercises' => ['reverse', 'audio', 'spelling', 'gap_fill'],
                 'options' => [
                     'locales' => ['*' => ['id', 'label']],
                     'timezones' => ['*' => ['id', 'label']],
@@ -324,6 +326,7 @@ it('GET /me and the cancel / resume answers carry entitlement.renewal for a payi
         'paywall' => ['mode', 'contact'],
         'settings' => [
             'interface_locale', 'timezone', 'reminder_time', 'daily_goal', 'goal', 'level', 'timezone_change_available_at', 'active_course',
+            'exercises' => ['reverse', 'audio', 'spelling', 'gap_fill'],
             'options' => ['locales' => ['*' => ['id', 'label']], 'timezones' => ['*' => ['id', 'label']], 'reminder_times', 'daily_goals'],
         ],
     ];
@@ -544,6 +547,7 @@ it('POST /training/review keeps its exact JSON shape', function (): void {
             'next_review_at',
             'new_interval_days',
             'easiness_factor',
+            'graded',
             'card' => CONTRACT_CARD,
             'progress' => CONTRACT_PROGRESS,
             'done_reason',

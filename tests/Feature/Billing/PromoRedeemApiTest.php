@@ -31,6 +31,7 @@ it('redeems a code and answers with the refreshed profile (Pro with its end)', f
             'paywall' => ['mode', 'contact'],
             'settings' => [
                 'interface_locale', 'timezone', 'reminder_time', 'daily_goal', 'goal', 'level', 'timezone_change_available_at', 'active_course',
+                'exercises' => ['reverse', 'audio', 'spelling', 'gap_fill'],
                 'options' => [
                     'locales' => ['*' => ['id', 'label']],
                     'timezones' => ['*' => ['id', 'label']],

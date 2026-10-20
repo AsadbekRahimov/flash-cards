@@ -132,6 +132,20 @@ export const api = {
         time_spent_ms: timeSpentMs,
         serve_token: serveToken,
       }),
+    /** A typed answer to a server-graded card (spelling / gap_fill): the server sets the quality. */
+    answer: (
+      sessionId: number,
+      wordId: number,
+      answer: string,
+      timeSpentMs: number,
+      serveToken: string | null = null,
+    ) =>
+      client().post<ReviewResponse>(`/training/sessions/${sessionId}/review`, {
+        word_id: wordId,
+        answer,
+        time_spent_ms: timeSpentMs,
+        serve_token: serveToken,
+      }),
   },
   exam: {
     join: (sessionId: number) =>
