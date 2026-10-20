@@ -75,7 +75,8 @@
   },
   "entitlement": {
     "plan": "pro", "source": "subscription", "until": "2026-12-31T12:00:00+00:00", "new_words_per_day": null,
-    "renewal": { "auto": true, "provider": "telegram_stars", "ends_at": "2026-12-31T12:00:00+00:00", "reminder_sent": false }
+    "renewal": { "auto": true, "provider": "telegram_stars", "ends_at": "2026-12-31T12:00:00+00:00", "reminder_sent": false },
+    "lapsed": null
   },
   "paywall": { "mode": "coming_soon", "contact": null },
   "settings": {
@@ -105,6 +106,7 @@
   `auto` — автопродление работает сейчас (Telegram Stars, статус `active`); `provider` — `telegram_stars` | `payme` | `click` | `manual` | `promo` | `reward`;
   `ends_at` — до какого момента подписка действует (ISO 8601, `null` — бессрочно; для Stars `past_due` — конец grace); `reminder_sent` — напоминание о продлении за 3/1 день по текущему
   концу периода уже отправлено (маркеры `subscriptions.meta.renewal_reminders`, docs/13 §2.1). Не кэшируется (одна выборка подписки на запрос).
+- `entitlement.lapsed` (2A.6) — «Pro закончился»: `{provider, ended_at}`, если learner сейчас на Free, а **своя** платная подписка истекла (`expired`) не раньше `billing.checkout.lapsed_banner_days` (14, `0` = выкл.) дней назад; иначе `null` — Pro действует (в т.ч. от центра), давно истекло, подписку завершили вручную (возврат/chargeback/админ — последняя запись `meta.history` = `ended`) или платных подписок не было. По нему TWA рисует баннер «Pro закончился — продлить» на «Сегодня» и в «Подписке» (закрывается локально, привязан к `ended_at`). Одна индексная выборка на запрос и только для Free.
 - `paywall` — что показать при исчерпанной квоте (docs/12 §5.4): `mode` — `coming_soon` | `purchase`; `contact` — контакт
   поддержки для центров (`BILLING_SUPPORT_CONTACT`), **`null`, если не задан — строку с контактом тогда не показывать**.
   `purchase` отдаётся, только если `BILLING_PAYWALL_MODE=purchase` **и** есть что продавать (`GET /billing/catalog` → `items` не пуст: включён хотя бы один провайдер, обслуживающий learner'а, и задана цена);
@@ -891,6 +893,13 @@ private function formatLeaderboard(ExamSession $session): string
 | `message.refunded_payment` | `RefundedPaymentHandler` — второй | `parseRefundedPayment` → `PaymentApplier::applyRefund` с `provider_event_id = refund:<charge id>`: строка `refund`, списание → `refunded`, подписка `expired`, если возвращён текущий период. Ответ — `billing.stars.refunded` («Возврат N ⭐ выполнен…»). Повтор и эхо админского возврата (`already_refunded`) — молча; неизвестный charge id — `Log::error('billing.stars.refund_unknown_charge')`. |
 
 Исходящие вызовы (вне транзакций БД): `createInvoiceLink` (`CheckoutService::create`, после commit заказа), `editUserStarSubscription(user_id, charge_id первого списания = subscriptions.meta.stars.charge_id, is_canceled)` (`/pro` → `pro1:cancel|resume`, `POST /billing/subscription/cancel|resume` — до изменения подписки; отказ Telegram → `provider_unavailable`, подписка не меняется), `refundStarPayment(user_id, charge_id)` (Filament **Payments → Refund**), `getStarTransactions` (`billing:reconcile-stars`, ежедневно: расхождения с `payments` → `billing.reconcile_missing`, `billing.reconcile_missing_refund`). Тексты — `lang/{ru,uz}/billing.php`, ключи `billing.stars.*`.
+
+### B.12 Напоминания о продлении (docs/13 §4.4, 2A.6)
+
+`subscriptions:remind-expiring` (ежедневно 06:00 UTC) → `SubscriptionService::remindExpiring()` → событие `SubscriptionRenewalDue` → слушатель `QueueRenewalReminder` ставит `RenewalReminderJob` (очередь `default`, tries 3; n-е задание суток откладывается на `⌊n / learning.reminders.send_rate_per_second⌋` с). Напоминают за 3 и 1 день (`billing.checkout.renewal_reminder_days`) о конце периода Payme/Click и `canceled` Stars; `manual/promo/reward` и Stars `active` (автопродление) — никогда. `RenewalReminderSender`: подписка перепроверяется (конец периода тот же, ещё live, платный провайдер), иначе задание молчит.
+- Learner: ЛС с web_app-кнопкой «Продлить Pro» → `/twa/billing?from=renewal`; `notifications_log.type = renewal_reminder`, `payload.key = "<subscription>:<N>@<конец периода>"`; не пишем при `blocked_at`/`dm_blocked_at`; 403 → `dm_blocked_at` и запись лога удаляется.
+- Организация: письмо (`SubscriptionRenewalDueMail`, ru/uz) каждому активному владельцу (`organization_users.role = owner`, `users.is_active`) + ЛС с кнопкой-ссылкой на `/org` тем, у кого есть `users.telegram_user_id` (нет связи — только письмо); язык — `interface_locale` учётки-learner'а владельца, иначе `organizations.locale`, иначе дефолт. Приостановленная организация не получает напоминаний.
+- Не более одного раза на (получатель, подписка, N, конец периода): маркер пишется до отправки (лог для learner'а, ключ кэша для владельца и e-mail); неоднозначная ошибка Bot API — молчим при повторе; сбой почтового транспорта снимает маркер письма и задание повторяется; сбой одного получателя не мешает остальным.
 
 ## Часть C — Примеры полного цикла
 

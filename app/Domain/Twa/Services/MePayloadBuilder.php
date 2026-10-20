@@ -38,18 +38,22 @@ final class MePayloadBuilder
      *   stats: LearnerStats,
      *   entitlement: Entitlement,
      *   renewal: array{auto: bool, provider: string, ends_at: string|null, reminder_sent: bool}|null,
+     *   lapsed: array{provider: string, ended_at: string}|null,
      *   paywall: array{mode: string, contact: string|null},
      *   settings: SettingsPayload
      * }
      */
     public function build(Learner $learner): array
     {
+        $entitlement = $this->entitlements->for($learner);
+
         return [
             'learner' => $learner,
             'groups' => $this->memberships->activeGroups($learner),
             'stats' => $this->stats->forLearner($learner),
-            'entitlement' => $this->entitlements->for($learner),
+            'entitlement' => $entitlement,
             'renewal' => $this->billing->renewal($learner),
+            'lapsed' => $this->billing->lapsed($learner, $entitlement),
             'paywall' => $this->billing->paywall($learner),
             'settings' => $this->settings->describe($learner),
         ];

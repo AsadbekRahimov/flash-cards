@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace App\Domain\Billing\Services;
 
 use App\Domain\Billing\DTO\Checkout;
+use App\Domain\Billing\DTO\Entitlement;
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Enums\SubscriptionStatus;
 use App\Domain\Billing\Exceptions\BillingException;
 use App\Domain\Billing\Exceptions\ProviderUnavailableException;
 use App\Domain\Billing\Exceptions\SubscriptionException;
+use App\Domain\Billing\Support\PaidSubscriptionQuery;
 use App\Models\Learner;
 use App\Models\PaymentOrder;
 use App\Models\Subscription;
@@ -168,6 +170,54 @@ final class LearnerBillingService
             'ends_at' => $summary['ends_at'],
             'reminder_sent' => $this->reminderSent($live),
         ];
+    }
+
+    /**
+     * "Pro ran out" for `/me.entitlement.lapsed`: the learner is on Free now and their own paid
+     * subscription expired within `billing.checkout.lapsed_banner_days` (the TWA shows "Pro ended —
+     * renew"; it hides the banner by itself once dismissed). `null` while any Pro is in force
+     * (own or a center's), when nothing expired lately, and for a subscription ended by hand
+     * (refund / chargeback / admin: `meta.history` ends with an `ended` entry — not a lapse).
+     *
+     * @return array{provider: string, ended_at: string}|null
+     */
+    public function lapsed(Learner $learner, Entitlement $entitlement, ?CarbonImmutable $now = null): ?array
+    {
+        if ($entitlement->plan->rank() > 0) {
+            return null;
+        }
+
+        $now ??= CarbonImmutable::now();
+        $days = (int) config('billing.checkout.lapsed_banner_days', 14);
+
+        if ($days <= 0) {
+            return null;
+        }
+
+        /** @var Subscription|null $last */
+        $last = Subscription::query()
+            ->where('subscriber_type', 'learner')
+            ->where('subscriber_id', $learner->id)
+            ->where('status', SubscriptionStatus::Expired->value)
+            ->whereIn('plan', PaidSubscriptionQuery::paidPlans())
+            ->where('ended_at', '>=', $now->subDays($days))
+            ->where('ended_at', '<=', $now)
+            ->orderByDesc('ended_at')
+            ->orderByDesc('id')
+            ->first();
+
+        if ($last === null || $last->ended_at === null) {
+            return null;
+        }
+
+        $history = $last->meta['history'] ?? [];
+        $latest = is_array($history) && $history !== [] ? end($history) : null;
+
+        if (is_array($latest) && ($latest['action'] ?? null) === 'ended') {
+            return null;
+        }
+
+        return ['provider' => $last->provider, 'ended_at' => CarbonImmutable::instance($last->ended_at)->toIso8601String()];
     }
 
     private function reminderSent(Subscription $live): bool

@@ -421,6 +421,7 @@ This runs every minute. Laravel's scheduler internally dispatches:
 - `training:close-expired` — every 15 minutes (expired personal / stale group training sessions).
 - `subscriptions:expire` — hourly (time-based subscription transitions).
 - `billing:expire-orders` — every 15 minutes (pending payment orders past `BILLING_ORDER_TTL_MINUTES` become `expired`).
+- `subscriptions:remind-expiring` — daily at 06:00 UTC (renewal reminders 3 and 1 day before a Payme/Click period or a canceled Stars period ends; queues `RenewalReminderJob`, so a queue worker must run; organization owners are e-mailed — the `MAIL_*` settings must be real in production, `MAIL_MAILER=log` only logs them).
 - `backup:clean` — daily at 01:00.
 - `backup:run` — daily at 01:30.
 - `backup:monitor` — daily at 02:00.
@@ -744,8 +745,8 @@ sign of success; read the body or the payment screens. If the provider publishes
 ### 17.4 After every deploy of billing code
 
 1. `php artisan migrate --force` (new billing tables / columns), `config:cache`, `supervisorctl restart lexiflow-worker:*`.
-2. `php artisan schedule:list` shows `billing:expire-orders` (every 15 min), `subscriptions:expire` (hourly) and
-   `billing:reconcile-stars` (daily 04:30 UTC); the scheduler heartbeat on `/health/ready` is green.
+2. `php artisan schedule:list` shows `billing:expire-orders` (every 15 min), `subscriptions:expire` (hourly),
+   `billing:reconcile-stars` (daily 04:30 UTC) and `subscriptions:remind-expiring` (daily 06:00 UTC); the scheduler heartbeat on `/health/ready` is green.
    `php artisan telegram:set-webhook` was re-run once after 2A.3 (`allowed_updates` includes `pre_checkout_query`).
 3. Admin panel (admin account): **Billing → Payments / Payment orders / Provider transactions** open; the two
    dashboard widgets ("Revenue, last 30 days", "Payment webhook errors, last 24 h") render. A **teacher** account must
