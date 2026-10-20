@@ -209,7 +209,8 @@ it('renders the printable invoice with the seller details, the number, the date 
 
     $this->get("/org/bright/invoice/{$order->id}")->assertOk()
         ->assertSee(sprintf('LF-%06d', $order->id))
-        ->assertSee($order->created_at?->format('d.m.Y') ?? '')
+        // The invoice date is in the organization's timezone (late UTC evening is already tomorrow in Tashkent).
+        ->assertSee($order->created_at?->copy()->setTimezone($this->org->timezone)->format('d.m.Y') ?? '')
         ->assertSee('349 000 сум')
         ->assertSee('LexiFlow LLC')
         ->assertSee('305123456')
