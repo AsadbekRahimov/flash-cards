@@ -139,8 +139,16 @@ final class PaymentApplier
                 ])->save();
 
                 if ($order->offer_id !== null) {
-                    Offer::query()->whereKey($order->offer_id)->whereNull('redeemed_at')
+                    $redeemed = Offer::query()->whereKey($order->offer_id)->whereNull('redeemed_at')
                         ->update(['redeemed_at' => $now, 'payment_order_id' => $order->id, 'updated_at' => $now]);
+
+                    if ($redeemed > 0) {
+                        $this->events->record(
+                            ProductEventName::OfferRedeemed,
+                            ['offer_id' => $order->offer_id, 'payment_order_id' => $order->id, 'amount' => $order->amount, 'list_amount' => $order->list_amount, 'currency' => $order->currency],
+                            learner: $subject instanceof Learner ? $subject : null,
+                        );
+                    }
                 }
 
                 $this->events->record(

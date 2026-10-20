@@ -270,7 +270,7 @@ it('describes the catalog: priced items per enabled provider, the open offer and
     expect($catalog->items[0]['prices'])->toBe(['XTR' => 105, 'UZS' => 2_030_000])
         ->and($catalog->items[0]['list_prices'])->toBe(['XTR' => 150, 'UZS' => 2_900_000])
         ->and($catalog->items[1]['prices'])->toBe(['XTR' => 1300, 'UZS' => 24_900_000])
-        ->and($catalog->offer)->toBe(['kind' => 'post_org_discount', 'discount_pct' => 30, 'expires_at' => CarbonImmutable::instance($offer->expires_at)->toIso8601String()]);
+        ->and($catalog->offer)->toBe(['kind' => 'post_org_discount', 'discount_pct' => 30, 'period' => 'month', 'expires_at' => CarbonImmutable::instance($offer->expires_at)->toIso8601String()]);
 
     // A live Stars subscription: auto-renewing, can be canceled; once canceled it can be resumed; ends_at is the liveness end.
     $sub = Subscription::factory()->create(['subscriber_id' => $learner->id, 'provider' => 'telegram_stars', 'current_period_ends_at' => $now->addDays(20)]);

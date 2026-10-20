@@ -174,6 +174,12 @@ class Learner extends Model
         return $this->hasMany(ProductEvent::class);
     }
 
+    /** @return HasMany<Offer, $this> */
+    public function offers(): HasMany
+    {
+        return $this->hasMany(Offer::class);
+    }
+
     /** @return HasMany<Subscription, $this> */
     public function subscriptions(): HasMany
     {

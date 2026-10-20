@@ -104,7 +104,7 @@ describe('PaywallSheet in purchase mode', () => {
     vi.mocked(api.billing.catalog).mockResolvedValue(catalog({
       items: [{ plan: 'pro', tier: null, period: 'month', prices: { XTR: 105 }, list_prices: { XTR: 150 } }],
       providers: ['telegram_stars'],
-      offer: { kind: 'post_org_discount', discount_pct: 30, expires_at: '2026-11-02T12:00:00+00:00' },
+      offer: { kind: 'post_org_discount', discount_pct: 30, period: 'month', expires_at: '2026-11-02T12:00:00+00:00' },
     }))
     const w = await render()
 

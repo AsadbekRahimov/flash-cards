@@ -242,7 +242,7 @@ final class CheckoutService
         return new BillingCatalog(
             items: $items,
             providers: $providerKeys,
-            offer: $offer === null ? null : ['kind' => $offer->kind, 'discount_pct' => $offer->discount_pct, 'expires_at' => CarbonImmutable::instance($offer->expires_at)->toIso8601String()],
+            offer: $offer === null ? null : ['kind' => $offer->kind, 'discount_pct' => $offer->discount_pct, 'period' => $offer->period, 'expires_at' => CarbonImmutable::instance($offer->expires_at)->toIso8601String()],
             subscription: $live === null ? null : self::summarize($live, $now),
         );
     }

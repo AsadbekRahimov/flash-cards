@@ -629,13 +629,13 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
     { "plan": "pro", "tier": null, "period": "year",  "prices": { "XTR": 1300, "UZS": 24900000 }, "list_prices": { "XTR": 1300, "UZS": 24900000 } }
   ],
   "providers": ["telegram_stars", "payme", "click"],
-  "offer": { "kind": "post_org_discount", "discount_pct": 30, "expires_at": "2026-11-02T12:00:00+00:00" },
+  "offer": { "kind": "post_org_discount", "discount_pct": 30, "period": "month", "expires_at": "2026-11-02T12:00:00+00:00" },
   "subscription": { "status": "active", "provider": "telegram_stars", "plan": "pro", "ends_at": "2026-11-18T12:00:00+00:00", "auto_renew": true, "can_cancel": true, "can_resume": false }
 }
 ```
 Суммы — **минорные единицы**: `XTR` — целые Stars, `UZS` — тийины (делить на 100). `prices` — после скидки offer, `list_prices` — до. В `items` попадают только периоды, у которых есть цена хотя бы в одной валюте
 включённого провайдера; `prices` содержит только такие валюты; `items: []` — продавать нечего (paywall остаётся `coming_soon`). `providers` — включённые (`billing.providers.<key>.enabled`) и обслуживающие learner'а.
-`offer` — открытый offer (`null` — нет), `subscription` — собственная live-подписка (`null` — нет): `ends_at` — конец действия (ISO 8601, `null` — бессрочно), `auto_renew` — автопродление идёт,
+`offer` — открытый offer (`null` — нет; `period` — период, на который он действует, `null` — любой; цены в `items` уже со скидкой для подходящих периодов, `list_prices` — прайс; offer создаётся при потере seated-места в центре, 2B.7, и применяется к заказу автоматически), `subscription` — собственная live-подписка (`null` — нет): `ends_at` — конец действия (ISO 8601, `null` — бессрочно), `auto_renew` — автопродление идёт,
 `can_cancel` / `can_resume` — какие из кнопок «Отключить» / «Включить» показывать. (В docs/13 §5 массив назван `plans`; фактическое имя — `items`.)
 
 **`POST /billing/checkout`** `{ "plan": "pro", "period": "month", "provider": "telegram_stars" }` — `plan` ∈ `Plan`, `period` ∈ `config('billing.periods')`, `provider` ∈ `telegram_stars|payme|click` (иное — `422` валидации Laravel). → `201`:

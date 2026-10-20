@@ -1314,3 +1314,14 @@
 | `org.reports.csv.active_learners` | Faol o'quvchilar | Активных учеников |
 | `org.reports.privacy` | Hisobotda faqat kunlik yakunlar (takrorlashlar, yangi so'zlar, faol kunlar) va vazifa natijalari bor; o'quvchilarning shaxsiy mashg'ulotlari ko'rsatilmaydi. | В отчёте только суточные итоги (повторения, новые слова, дни активности) и результаты заданий; личные сессии учеников не раскрываются. |
 | `org.reports.never` | hech qachon | никогда |
+
+## Фаза 2 · задача 2B.7 (мост B2B → B2C: скидка после выхода из центра) — на проверку носителю
+
+> Проверить: «shaxsiy» (личный), «chegirma» (скидка), «markazidan chiqdingiz» (вы вышли из центра), «joyingiz tugadi» (место закончилось). Тексты `billing.offer` (TWA и бот) уже проверялись в 2A.2.
+
+### Бот (`lang/uz/billing.php`, блок `offer_dm`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `billing.offer_dm.text` | Siz «:organization» markazidan chiqdingiz. Shaxsiy LexiFlow Pro birinchi oyga :pct% chegirma bilan — :date gacha.\nTo'lov usulini tanlang: | Вы покинули центр «:organization». Личный LexiFlow Pro со скидкой :pct% на первый месяц — до :date.\nВыберите способ оплаты: |
+| `billing.offer_dm.text_generic` (центр удалён) | Markazdagi joyingiz tugadi. Shaxsiy LexiFlow Pro birinchi oyga :pct% chegirma bilan — :date gacha.\nTo'lov usulini tanlang: | Ваше место в центре закончилось. Личный LexiFlow Pro со скидкой :pct% на первый месяц — до :date.\nВыберите способ оплаты: |

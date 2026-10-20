@@ -25,6 +25,7 @@ use App\Models\ExamAnswer;
 use App\Models\ExamSession;
 use App\Models\Learner;
 use App\Models\Lesson;
+use App\Models\Offer;
 use App\Models\Organization;
 use App\Models\Stage;
 use App\Models\Subscription;
@@ -263,6 +264,25 @@ it('GET /billing/catalog keeps its exact JSON shape', function (): void {
             'offer',
             'subscription',
         ]);
+});
+
+it('GET /billing/catalog carries the open offer with its period and the discounted prices', function (): void {
+    FakeBillingProvider::register(SubscriptionProvider::TelegramStars);
+    $s = contractTraining();
+    Offer::factory()->create(['learner_id' => $s['learner']->id, 'discount_pct' => 30, 'period' => 'month']);
+
+    $this->withHeaders(contractHeaders($s['learner']))
+        ->getJson('/api/twa/billing/catalog')
+        ->assertOk()
+        ->assertExactJsonStructure([
+            'items' => ['*' => ['plan', 'tier', 'period', 'prices' => ['XTR'], 'list_prices' => ['XTR']]],
+            'providers',
+            'offer' => ['kind', 'discount_pct', 'period', 'expires_at'],
+            'subscription',
+        ])
+        ->assertJsonPath('offer.period', 'month')
+        ->assertJsonPath('items.0.prices.XTR', 105)
+        ->assertJsonPath('items.0.list_prices.XTR', 150);
 });
 
 it('POST /billing/checkout and GET /billing/orders/{token} keep their exact JSON shape; paid orders carry the subscription summary', function (): void {

@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 return [
 
+    /* DM after leaving a center (docs/13 §6.5): the discounted buy buttons of /pro follow the text. */
+    'offer_dm' => [
+        'text' => "Вы покинули центр «:organization». Личный LexiFlow Pro со скидкой :pct% на первый месяц — до :date.\nВыберите способ оплаты:",
+        'text_generic' => "Ваше место в центре закончилось. Личный LexiFlow Pro со скидкой :pct% на первый месяц — до :date.\nВыберите способ оплаты:",
+    ],
+
     'pro' => [
         'blocked' => 'Доступ к аккаунту ограничен. Обратитесь в поддержку.',
         'rate_limited' => 'Слишком много попыток. Подождите минуту и повторите.',

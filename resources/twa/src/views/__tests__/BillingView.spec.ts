@@ -61,6 +61,13 @@ const catalog = (subscription: SubscriptionSummary | null = null, items = true):
   subscription,
 })
 
+const offerCatalog = (): BillingCatalog => ({
+  items: [{ plan: 'pro', tier: null, period: 'month', prices: { XTR: 105, UZS: 2_030_000 }, list_prices: { XTR: 150, UZS: 2_900_000 } }],
+  providers: ['telegram_stars', 'payme'],
+  offer: { kind: 'post_org_discount', discount_pct: 30, period: 'month', expires_at: '2026-11-02T12:00:00+00:00' },
+  subscription: null,
+})
+
 const makeRouter = () =>
   createRouter({
     history: createMemoryHistory(),
@@ -240,6 +247,26 @@ describe('BillingView', () => {
 
     expect(wrapper.find('[data-testid=error]').exists()).toBe(false)
     expect(wrapper.find('[data-testid=plan-card]').exists()).toBe(true)
+  })
+
+  it('shows the discount: the offer text and the new price next to the struck-out list price per provider', async () => {
+    const { wrapper } = await render(me(), offerCatalog())
+
+    expect(wrapper.get('[data-testid=offer-text]').text()).toMatch(/^Скидка 30% на первый платёж — до .*2026/)
+    expect(wrapper.get('[data-testid=offer-price-telegram_stars]').text()).toContain('105 ⭐')
+    expect(wrapper.get('[data-testid=offer-price-telegram_stars] s').text()).toBe('150 ⭐')
+    expect(wrapper.get('[data-testid=offer-price-payme] s').text()).toContain('29')
+    expect(wrapper.get('[data-testid=offer-price-payme] strong').text()).toContain('20')
+  })
+
+  it('shows no discount block without an offer, nor while the renewal runs', async () => {
+    const plain = await render(me(), catalog())
+    expect(plain.wrapper.find('[data-testid=offer-card]').exists()).toBe(false)
+
+    const withSub = offerCatalog()
+    withSub.subscription = summary()
+    const renewingView = await render(me({ plan: 'pro', until: renewing.ends_at, renewal: renewing }), withSub)
+    expect(renewingView.wrapper.find('[data-testid=offer-card]').exists()).toBe(false)
   })
 
   it('speaks Uzbek', async () => {

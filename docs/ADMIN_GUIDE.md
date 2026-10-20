@@ -336,6 +336,17 @@ the limits / validity / *Active* / note too (`promo.updated`, with the old and n
 - The learner enters the code in the TWA ("Have a promo code?" on the finish screen) or sends `/promo CODE` to the
   bot in a private chat. A learner who already has Pro with an end date gets the days added to it.
 
+### Offers (personal discounts)
+A learner who **loses a seated place** in a center (left, or removed) and has no personal Pro gets a one-time offer
+**30 % off the first month, 14 days** (`BILLING_POST_ORG_DISCOUNT_PCT`) and a bot message with the pay buttons. Waitlisted
+members and learners who already pay get nothing. The discount is applied to the order on the server; the offer is used up
+only by a **paid** order (an expired or canceled order leaves it available until its own deadline).
+
+- **Learners → open a learner → Offers** (admin only): kind, discount, state (*open / redeemed / expired*), deadline, the
+  center it came from and the order that used it. Read-only.
+- **Annul** on an open offer makes it expire at once (use it when the discount was given by mistake). It is written to the
+  audit log (`offer.annulled`). A used or expired offer has no button.
+
 ### Organizations (sponsored Pro for a learning center)
 1. **Billing → Organizations → New**: name, slug (Latin, cannot be changed), time zone, language.
 2. Open the organization → **Groups** table → **Link group** and pick the Telegram group (only groups that belong

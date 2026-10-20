@@ -276,6 +276,7 @@ class LearnerResource extends Resource
     {
         return [
             RelationManagers\SubscriptionsRelationManager::class,
+            RelationManagers\OffersRelationManager::class,
             RelationManagers\ProductEventsRelationManager::class,
             RelationManagers\DailyStatsRelationManager::class,
         ];

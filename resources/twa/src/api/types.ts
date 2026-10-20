@@ -145,7 +145,8 @@ export interface BillingCatalog {
   /** Empty = nothing to sell. */
   items: CatalogItem[]
   providers: BillingProviderKey[]
-  offer: { kind: string; discount_pct: number; expires_at: string } | null
+  /** `period` null = the offer covers any period; the rows of `items` already carry the discounted `prices`. */
+  offer: { kind: string; discount_pct: number; period: BillingPeriod | null; expires_at: string } | null
   subscription: SubscriptionSummary | null
 }
 
