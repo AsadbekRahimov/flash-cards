@@ -78,6 +78,10 @@ onBeforeUnmount(() => {
   <section class="flex-1 flex flex-col p-4 max-w-xl mx-auto w-full">
     <h1 class="text-xl font-bold mb-4">🎁 {{ t('referrals.title') }}</h1>
 
+    <RouterLink :to="{ name: 'friends' }" class="btn btn-secondary w-full mb-3" data-testid="friends-link">
+      👥 {{ t('friends.open') }}
+    </RouterLink>
+
     <div v-if="!data && !message" class="flex-1 flex items-center justify-center" data-testid="spinner">
       <p class="text-tg-hint">{{ t('common.loading') }}</p>
     </div>

@@ -51,6 +51,7 @@ const makeRouter = () =>
     routes: [
       { path: '/today', name: 'today', component: { template: '<div />' } },
       { path: '/referrals', name: 'referrals', component: ReferralsView },
+      { path: '/friends', name: 'friends', component: { template: '<div />' } },
     ],
   })
 
@@ -125,6 +126,12 @@ describe('ReferralsView', () => {
     expect(wrapper.get('[data-testid=no-link]').text()).toContain('/start ref_ABCD2345')
     expect(wrapper.find('[data-testid=share-btn]').exists()).toBe(false)
     expect(wrapper.get('[data-testid=list-empty]').text()).toBe('Пока никто не пришёл по вашей ссылке.')
+  })
+
+  it('links to the friends screen', async () => {
+    const { wrapper } = await render()
+
+    expect(wrapper.get('[data-testid=friends-link]').attributes('href')).toBe('/friends')
   })
 
   it('speaks Uzbek', async () => {

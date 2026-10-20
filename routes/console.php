@@ -31,6 +31,12 @@ Schedule::command('training:close-expired')
     ->everyFifteenMinutes()
     ->withoutOverlapping();
 
+// Friend challenges (docs/13 §7.5): active ones past `ends_at` are scored from learner_daily_stats and finished,
+// unanswered pending ones expire. Idempotent: the claim is a conditional UPDATE, so a repeated run raises nothing twice.
+Schedule::command('challenges:close-due')
+    ->everyFifteenMinutes()
+    ->withoutOverlapping();
+
 // Time-based subscription transitions (period end -> past_due / expired),
 // docs/12 §5.6. Idempotent: every row is re-checked under lockForUpdate.
 Schedule::command('subscriptions:expire')

@@ -1389,3 +1389,111 @@
 | `today.streak.frozen_yesterday` | Kechagi kun muzlatildi — seriya saqlandi | Вчерашний день заморожен — серия сохранена |
 | `today.streak.freeze_teaser` | ❄️ Seriyani muzlatish — Pro'da | ❄️ Заморозки серии — в Pro |
 | `paywall.lead_streak_freeze` | Seriyani muzlatish — Pro'da: o'tkazib yuborilgan kun seriyani uzmaydi, 2 tagacha muzlatish, har hafta +1. | Заморозка серии — в Pro: пропущенный день не обрывает серию, до 2 заморозок, +1 каждую неделю. |
+
+## Фаза 2 · задача 2C.5 (друзья и вызовы) — на проверку носителю
+
+> Проверить: «do'st» (друг), «musobaqa» (вызов/соревнование), «taklif» (приглашение), «qabul qilish / rad etish» (принять / отклонить), «seriya» (серия), «durang» (ничья), «g'alaba / mag'lubiyat» (победа / поражение).
+
+### Бот (`lang/uz/friends.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `friends.anonymous` | Tanishingiz | Ваш знакомый |
+| `friends.offer.text` | :name sizni LexiFlow'da do'st bo'lishga taklif qilmoqda.\n\nDo'stlar bir-birining seriyasini va o'rganilgan so'zlar sonini ko'radi va musobaqa tashlashi mumkin: hafta davomida kim ko'proq takrorlaydi. | :name приглашает вас в друзья в LexiFlow.\n\nДрузья видят серию и число выученных слов друг друга и могут бросать вызовы: кто больше повторит за неделю. |
+| `friends.offer.accept` | Qabul qilish | Принять |
+| `friends.offer.decline` | Rad etish | Отклонить |
+| `friends.accepted` | Tayyor: endi siz va :name do'stsiz. Do'stlar ro'yxati LexiFlow ilovasida. | Готово: вы с :name теперь друзья. Список друзей — в приложении LexiFlow. |
+| `friends.declined` | Xo'p, taklif rad etildi. | Хорошо, приглашение отклонено. |
+| `friends.already` | Siz va :name allaqachon do'stsiz. | Вы с :name уже друзья. |
+| `friends.errors.invalid_link` | Havola yaroqsiz yoki eskirgan. | Ссылка недействительна или устарела. |
+| `friends.errors.friendship_self` | Bu sizning o'z havolangiz. Uni do'stingizga yuboring. | Это ваша собственная ссылка. Отправьте её другу. |
+| `friends.errors.friend_unavailable` | Bu havola mavjud emas. | Эта ссылка недоступна. |
+| `friends.errors.friend_blocked` | Bu havola mavjud emas. | Эта ссылка недоступна. |
+| `friends.errors.friendship_not_found` | Bu taklif endi amal qilmaydi. | Это приглашение больше не действует. |
+| `friends.errors.not_recipient` | Taklifga faqat taklif qilingan kishi javob bera oladi. | Ответить на приглашение может только тот, кого пригласили. |
+| `friends.errors.friend_limit` | Sizda do'stlar soni allaqachon maksimal. | У вас уже максимальное число друзей. |
+| `friends.errors.friend_limit_other` | Do'stingizda do'stlar soni allaqachon maksimal. | У вашего друга уже максимальное число друзей. |
+| `friends.errors.generic` | Bajarib bo'lmadi. Keyinroq urinib ko'ring. | Не получилось. Попробуйте позже. |
+| `friends.metric.reviews` | ko'proq kartochka takrorlaydi | больше повторит карточек |
+| `friends.metric.new_words` | ko'proq yangi so'z o'rganadi | выучит больше новых слов |
+| `friends.dm.friend_accepted` | :name taklifingizni qabul qildi: endi siz do'stsiz! | :name принял(а) ваше приглашение: теперь вы друзья! |
+| `friends.dm.challenge_proposed` | :name sizga musobaqa tashlamoqda: :days kun ichida kim :metric? Qabul qilsangiz, musobaqa ertaga boshlanadi. | :name бросает вам вызов: кто :metric за :days дн.? Если примете, вызов начнётся завтра. |
+| `friends.dm.challenge_accepted` | :name musobaqangizni qabul qildi! Boshlanishi — :starts, tugashi — :ends. | :name принял(а) ваш вызов! Старт — :starts, финиш — :ends. |
+| `friends.dm.challenge_won` | :name bilan musobaqa yakunlandi: siz g'olibsiz! Hisob :mine : :theirs. | Вызов с :name завершён: вы победили! Счёт :mine : :theirs. |
+| `friends.dm.challenge_lost` | :name bilan musobaqa yakunlandi: :name g'alaba qozondi. Hisob :mine : :theirs. Qayta bellashuv — ilovada! | Вызов с :name завершён: победил(а) :name. Счёт :mine : :theirs. Реванш — в приложении! |
+| `friends.dm.challenge_draw` | :name bilan musobaqa durang bilan tugadi: :mine : :theirs. | Вызов с :name завершён вничью: :mine : :theirs. |
+| `friends.dm.button` | LexiFlow ilovasini ochish | Открыть LexiFlow |
+| `friends.challenge.accept` | Musobaqani qabul qilish | Принять вызов |
+| `friends.challenge.decline` | Rad etish | Отклонить |
+| `friends.challenge.accepted` | Musobaqa qabul qilindi! Boshlanishi — :starts, tugashi — :ends. | Вызов принят! Старт — :starts, финиш — :ends. |
+| `friends.challenge.declined` | Xo'p, musobaqa rad etildi. | Хорошо, вызов отклонён. |
+| `friends.challenge.errors.challenge_not_found` | Bu musobaqa endi amal qilmaydi. | Этот вызов больше не действует. |
+| `friends.challenge.errors.challenge_closed` | Bu musobaqa endi amal qilmaydi. | Этот вызов больше не действует. |
+| `friends.challenge.errors.not_opponent` | Musobaqaga faqat unga yo'llangan kishi javob bera oladi. | Ответить на вызов может только тот, кому он адресован. |
+| `friends.challenge.errors.not_friends` | Musobaqani faqat do'stga tashlash mumkin. | Вызов можно бросить только другу. |
+| `friends.challenge.errors.generic` | Bajarib bo'lmadi. Keyinroq urinib ko'ring. | Не получилось. Попробуйте позже. |
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `friends.open` | Do'stlar | Друзья |
+| `friends.title` | Do'stlar | Друзья |
+| `friends.invite.title` | Do'stlikka taklif qilish | Пригласить в друзья |
+| `friends.invite.hint` | Do'stingiz havolani botda ochib, do'stlikni tasdiqlaydi. Do'stlar bir-birining seriyasini va o'rganilgan so'zlar sonini ko'radi va musobaqa tashlashi mumkin. | Друг откроет ссылку в боте и подтвердит дружбу. Друзья видят серию и число выученных слов друг друга и могут бросать вызовы. |
+| `friends.invite.share` | Havolani ulashish | Поделиться ссылкой |
+| `friends.invite.copy` | Havolani nusxalash | Скопировать ссылку |
+| `friends.invite.copied` | Nusxalandi | Скопировано |
+| `friends.invite.share_text` | LexiFlow'da do'st bo'laylik: seriyalarni solishtirib, musobaqa o'tkazamiz! | Давай дружить в LexiFlow: сравним серии и устроим вызов! |
+| `friends.invite.no_link` | Administrator bot nomini ko'rsatgach, havola paydo bo'ladi. | Ссылка появится, когда администратор укажет имя бота. |
+| `friends.incoming.title` | Kiruvchi takliflar | Входящие приглашения |
+| `friends.incoming.accept` | Qabul qilish | Принять |
+| `friends.incoming.decline` | Rad etish | Отклонить |
+| `friends.outgoing.title` | Javob kutilmoqda | Ждут ответа |
+| `friends.outgoing.cancel` | Bekor qilish | Отменить |
+| `friends.list.title` | Mening do'stlarim | Мои друзья |
+| `friends.list.empty` | Hozircha do'stlar yo'q. Havolani tanishingizga yuboring. | Пока нет друзей. Отправьте ссылку знакомому. |
+| `friends.list.count` | {count} / {limit} | {count} из {limit} |
+| `friends.list.anonymous` | Do'st | Друг |
+| `friends.list.streak` | seriya {n} kun | серия {n} дн. |
+| `friends.list.words` | o'rganilgan so'zlar: {n} | слов выучено: {n} |
+| `friends.list.remove` | Do'stlikdan chiqarish | Удалить из друзей |
+| `friends.list.remove_confirm` | {name} do'stlikdan chiqarilsinmi? Shu do'st bilan tugallanmagan musobaqa bekor qilinadi. | Удалить {name} из друзей? Незавершённый вызов с этим другом отменится. |
+| `friends.list.remove_yes` | Ha, chiqarish | Да, удалить |
+| `friends.list.remove_no` | Bekor qilish | Отмена |
+| `friends.challenge.title` | Musobaqalar | Вызовы |
+| `friends.challenge.new` | Musobaqa tashlash | Бросить вызов |
+| `friends.challenge.pick` | {days} kunda kim ko'proq? | Кто больше за {days} дн.? |
+| `friends.challenge.metric.reviews` | Ko'proq kartochka takrorlaydi | Повторит карточек |
+| `friends.challenge.metric.new_words` | Ko'proq yangi so'z o'rganadi | Выучит новых слов |
+| `friends.challenge.cancel` | Bekor qilish | Отмена |
+| `friends.challenge.empty` | Hozircha musobaqalar yo'q. | Вызовов пока нет. |
+| `friends.challenge.finished_title` | Yakunlanganlar | Завершённые |
+| `friends.challenge.with` | {name} bilan | с {name} |
+| `friends.challenge.score` | {mine} : {theirs} | {mine} : {theirs} |
+| `friends.challenge.period` | {from} — {to} | {from} — {to} |
+| `friends.challenge.accept` | Musobaqani qabul qilish | Принять вызов |
+| `friends.challenge.decline` | Rad etish | Отклонить |
+| `friends.challenge.status.pending_sent` | do'st javobini kutyapmiz | ждём ответа друга |
+| `friends.challenge.status.pending_received` | sizga musobaqa tashlandi | вам бросили вызов |
+| `friends.challenge.status.active` | davom etmoqda | идёт |
+| `friends.challenge.status.finished` | yakunlandi | завершён |
+| `friends.challenge.status.declined` | rad etildi | отклонён |
+| `friends.challenge.status.expired` | vaqtida qabul qilinmadi | не принят вовремя |
+| `friends.challenge.status.canceled` | bekor qilindi | отменён |
+| `friends.challenge.result.won` | g'alaba | победа |
+| `friends.challenge.result.lost` | mag'lubiyat | поражение |
+| `friends.challenge.result.draw` | durang | ничья |
+| `error.code.friendship_self` | O'zingiz bilan do'st bo'lib bo'lmaydi. | Нельзя дружить с самим собой. |
+| `error.code.friend_unavailable` | Bu foydalanuvchi mavjud emas. | Этот пользователь недоступен. |
+| `error.code.friendship_not_found` | Bu taklif yoki do'stlik endi amal qilmaydi. | Это приглашение или дружба больше не действует. |
+| `error.code.not_recipient` | Taklifga faqat taklif qilingan kishi javob bera oladi. | Ответить на приглашение может только тот, кого пригласили. |
+| `error.code.friend_limit` | Sizda do'stlar soni allaqachon maksimal. | У вас уже максимальное число друзей. |
+| `error.code.friend_limit_other` | Do'stingizda do'stlar soni allaqachon maksimal. | У вашего друга уже максимальное число друзей. |
+| `error.code.friend_blocked` | Bu foydalanuvchi mavjud emas. | Этот пользователь недоступен. |
+| `error.code.challenge_not_found` | Bu musobaqa endi amal qilmaydi. | Этот вызов больше не действует. |
+| `error.code.not_friends` | Musobaqani faqat do'stga tashlash mumkin. | Вызов можно бросить только другу. |
+| `error.code.challenge_exists` | Bu do'st bilan tugallanmagan musobaqa bor. | С этим другом уже есть незавершённый вызов. |
+| `error.code.challenge_invalid` | Bunday musobaqani yaratib bo'lmaydi. | Такой вызов создать нельзя. |
+| `error.code.not_opponent` | Musobaqaga faqat unga yo'llangan kishi javob bera oladi. | Ответить на вызов может только тот, кому он адресован. |
+| `error.code.challenge_closed` | Bu musobaqa endi amal qilmaydi. | Этот вызов больше не действует. |

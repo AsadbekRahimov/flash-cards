@@ -229,6 +229,15 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(10)->by('twa-organizations|'.$key);
         });
 
+        // Friend requests, answers and challenges (docs/13 §7.5): a few taps a minute are normal, a script is not.
+        RateLimiter::for('twa-friends', function (Request $request): Limit {
+            /** @var array{learner_id:int}|null $ctx */
+            $ctx = $request->attributes->get('twa');
+            $key = $ctx['learner_id'] ?? $request->ip();
+
+            return Limit::perMinute(30)->by('twa-friends|'.$key);
+        });
+
         RateLimiter::for('twa-tts', function (Request $request): Limit {
             /** @var array{learner_id:int}|null $ctx */
             $ctx = $request->attributes->get('twa');

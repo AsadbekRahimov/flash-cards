@@ -20,9 +20,11 @@ use App\Domain\Twa\Services\JwtService;
 use App\Http\Resources\ApiErrorResource;
 use App\Http\Resources\Twa\ExamQuestionResource;
 use App\Models\Assignment;
+use App\Models\Challenge;
 use App\Models\Course;
 use App\Models\ExamAnswer;
 use App\Models\ExamSession;
+use App\Models\Friendship;
 use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\Offer;
@@ -746,4 +748,48 @@ it('GET /referrals keeps its exact JSON shape (docs/04 A.12)', function (): void
         ->and($response->json('link'))->toBe('https://t.me/LexiFlowBot?start=ref_'.$response->json('code'))
         ->and($response->json('referrals.0.first_name'))->toBe('Bek')
         ->and($response->json('referrals.0.status'))->toBe('pending');
+});
+
+it('GET /friends keeps its exact JSON shape (docs/04 A.13)', function (): void {
+    config(['telegram.bot_username' => 'LexiFlowBot']);
+    $me = Learner::factory()->create(['referral_code' => 'CONTRACT']);
+    $friend = Learner::factory()->create(['first_name' => 'Bek']);
+    $asker = Learner::factory()->create(['first_name' => 'Ana']);
+    Friendship::factory()->between($me, $friend)->create();
+    Friendship::factory()->pending()->between($asker, $me, $asker)->create();
+    Friendship::factory()->pending()->between($me, Learner::factory()->create(), $me)->create();
+
+    $this->withHeaders(contractHeaders($me))
+        ->getJson('/api/twa/friends')
+        ->assertOk()
+        ->assertExactJsonStructure([
+            'invite_link', 'limit',
+            'friends' => [['id', 'first_name', 'streak', 'words_learned', 'since']],
+            'incoming' => [['id', 'first_name', 'requested_at']],
+            'outgoing' => [['id', 'first_name', 'requested_at']],
+        ])
+        ->assertJsonPath('invite_link', 'https://t.me/LexiFlowBot?start=f_CONTRACT');
+});
+
+it('GET /challenges and the challenge actions keep their exact JSON shape (docs/04 A.13)', function (): void {
+    $me = Learner::factory()->create();
+    $friend = Learner::factory()->create();
+    $row = Friendship::factory()->between($me, $friend)->create();
+    Challenge::factory()->create(['challenger_id' => $friend->id, 'opponent_id' => $me->id, 'status' => 'finished', 'scores' => ['challenger' => 3, 'opponent' => 5], 'winner_learner_id' => $me->id]);
+    $entry = ['id', 'status', 'metric', 'days', 'role', 'friend_name', 'friendship_id', 'starts_on', 'ends_on', 'created_at', 'my_score', 'their_score', 'result'];
+
+    $this->withHeaders(contractHeaders($me))->getJson('/api/twa/challenges')
+        ->assertOk()
+        ->assertExactJsonStructure(['days', 'open', 'finished' => [$entry]])
+        ->assertJsonPath('finished.0.result', 'won')
+        ->assertJsonPath('finished.0.my_score', 5)
+        ->assertJsonPath('finished.0.their_score', 3);
+
+    $this->withHeaders(contractHeaders($me))->postJson('/api/twa/challenges', ['friendship_id' => $row->id, 'metric' => 'reviews'])
+        ->assertCreated()
+        ->assertExactJsonStructure($entry);
+
+    $this->withHeaders(contractHeaders($me))->postJson('/api/twa/challenges', ['friendship_id' => $row->id, 'metric' => 'reviews'])
+        ->assertStatus(409)
+        ->assertExactJsonStructure(['error' => ['code', 'message']]);
 });

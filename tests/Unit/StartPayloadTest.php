@@ -20,6 +20,7 @@ it('parses the supported deep-link prefixes', function (string $raw, StartPayloa
     'course' => ['c_english-a1', StartPayloadKind::Course, 'english-a1', 'course:english-a1'],
     'course with underscore' => ['c_ielts_academic', StartPayloadKind::Course, 'ielts_academic', 'course:ielts_academic'],
     'org' => ['org_Center-7', StartPayloadKind::Org, 'Center-7', 'org'],
+    'friend' => ['f_ABC234', StartPayloadKind::Friend, 'ABC234', 'friend'],
 ]);
 
 it('exposes the typed parts', function (): void {
@@ -28,6 +29,16 @@ it('exposes the typed parts', function (): void {
         ->and(StartPayload::parse('c_english-a1')->courseSlug())->toBe('english-a1')
         ->and(StartPayload::parse('c_english-a1')->referralCode())->toBeNull();
 });
+
+it('exposes the friend code of an f_ link only', function (): void {
+    expect(StartPayload::parse('f_ABC234')->friendCode())->toBe('ABC234')
+        ->and(StartPayload::parse('f_ABC234')->referralCode())->toBeNull()
+        ->and(StartPayload::parse('ref_ABC234')->friendCode())->toBeNull();
+});
+
+it('rejects malformed f_ payloads', function (string $raw): void {
+    expect(StartPayload::parse($raw)->isEmpty())->toBeTrue();
+})->with(['lower case' => ['f_abc234'], 'too short' => ['f_ABC23'], 'too long' => ['f_ABCDEFGHJK234'], 'empty' => ['f_'], 'foreign' => ['f_ABC-234']]);
 
 it('trims the payload', function (): void {
     expect(StartPayload::parse("  src_abc \n")->raw)->toBe('src_abc');

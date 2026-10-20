@@ -7,6 +7,7 @@ namespace App\Domain\Telegram\Services;
 use App\Domain\Telegram\Handlers\ChatMemberHandler;
 use App\Domain\Telegram\Handlers\CloseExamHandler;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Domain\Telegram\Handlers\FriendsCallbackHandler;
 use App\Domain\Telegram\Handlers\HelpCommandHandler;
 use App\Domain\Telegram\Handlers\InviteCommandHandler;
 use App\Domain\Telegram\Handlers\LearnerDmHandler;
@@ -67,6 +68,7 @@ final class TelegramDispatcher
         OnboardingCallbackHandler $onboardingCallback,
         ProCallbackHandler $proCallback,
         OrganizationCallbackHandler $organizationCallback,
+        FriendsCallbackHandler $friendsCallback,
     ) {
         // Order matters: more specific commands first (e.g. /start_training
         // must win over the generic /start catch-all).
@@ -99,6 +101,7 @@ final class TelegramDispatcher
             $onboardingCallback,
             $proCallback,
             $organizationCallback,
+            $friendsCallback,
         ];
     }
 
