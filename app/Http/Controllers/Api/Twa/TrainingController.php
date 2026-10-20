@@ -202,6 +202,11 @@ final class TrainingController
         return ApiErrorResource::respond(404, 'lesson_not_found', 'Training lesson not found.');
     }
 
+    private function lessonNotAvailable(): JsonResponse
+    {
+        return ApiErrorResource::respond(404, 'lesson_not_available', 'This lesson is no longer available.');
+    }
+
     private function unauthorizedLearner(): JsonResponse
     {
         return ApiErrorResource::respond(401, 'learner_not_found', 'Unauthorized');
@@ -229,6 +234,11 @@ final class TrainingController
 
         if (! $session->isLiveAt(CarbonImmutable::now())) {
             return [null, ApiErrorResource::respond(410, 'session_closed', 'This training session is closed.')];
+        }
+
+        // A center's private lesson stops opening once the assignment or the membership is gone.
+        if (! $this->sessions->ensureStillAvailable($session, $learner)) {
+            return [null, $this->lessonNotAvailable()];
         }
 
         return [$learner, $session];

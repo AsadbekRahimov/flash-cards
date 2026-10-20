@@ -7,6 +7,7 @@ namespace App\Console\Commands;
 use App\Domain\Organizations\Services\AssignmentService;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Command;
+use Throwable;
 
 /**
  * Every 30 minutes (docs/13 §1.4): recounts the progress snapshots of active assignments, posts the
@@ -26,13 +27,26 @@ final class RefreshAssignments extends Command
     {
         $now = CarbonImmutable::now();
 
-        $announced = $assignments->announcePending($now);
-        $refreshed = $assignments->refreshActive($now);
-        $reminded = $assignments->remindDue($now);
-        $closed = $assignments->closeExpired($now);
+        $failed = false;
+        $step = static function (callable $run) use (&$failed): int {
+            try {
+                return (int) $run();
+            } catch (Throwable $e) {
+                // One failing step (a database hiccup, a broken chat) must not skip the others.
+                report($e);
+                $failed = true;
+
+                return 0;
+            }
+        };
+
+        $announced = $step(fn (): int => $assignments->announcePending($now));
+        $refreshed = $step(fn (): int => $assignments->refreshActive($now));
+        $reminded = $step(fn (): int => $assignments->remindDue($now));
+        $closed = $step(fn (): int => $assignments->closeExpired($now));
 
         $this->info("Assignments refreshed: {$refreshed}, announced: {$announced}, reminders: {$reminded}, closed: {$closed}");
 
-        return self::SUCCESS;
+        return $failed ? self::FAILURE : self::SUCCESS;
     }
 }

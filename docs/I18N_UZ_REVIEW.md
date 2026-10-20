@@ -1254,6 +1254,7 @@
 | `org.assignments.errors.lesson_not_available` | Bu darsning kursi e'lon qilinmagan — o'quvchilar uni o'ta olmaydi. | Курс этого урока не опубликован — ученики не смогут его пройти. |
 | `org.assignments.errors.invalid_due` | Muddat kelajakda bo'lishi kerak. | Срок должен быть в будущем. |
 | `org.assignments.errors.invalid_threshold` | Chegara 1 dan 100 gacha bo'lishi kerak. | Порог должен быть от 1 до 100. |
+| `org.assignments.errors.organization_suspended` | Markaz to'xtatilgan — topshiriq berib bo'lmaydi. | Центр приостановлен — задания не создаются. |
 | `org.assignments.notifications.created` | Vazifa yaratildi. E'lon guruhga yuboriladi. | Задание создано. Объявление уйдёт в группу. |
 | `org.assignments.notifications.closed` | Vazifa yopildi. | Задание закрыто. |
 

@@ -16,6 +16,7 @@ use RuntimeException;
  *   lesson_not_available the course of the lesson is not published, so nobody could study it
  *   invalid_due         the due date is not in the future
  *   invalid_threshold   the threshold is outside 1..100
+ *   organization_suspended the center is not active, it sets no assignments
  */
 final class AssignmentException extends RuntimeException
 {
@@ -32,6 +33,8 @@ final class AssignmentException extends RuntimeException
     public const INVALID_DUE = 'invalid_due';
 
     public const INVALID_THRESHOLD = 'invalid_threshold';
+
+    public const ORGANIZATION_SUSPENDED = 'organization_suspended';
 
     public function __construct(
         public readonly string $errorCode,
@@ -73,6 +76,11 @@ final class AssignmentException extends RuntimeException
     public static function invalidThreshold(int $threshold): self
     {
         return new self(self::INVALID_THRESHOLD, "The threshold {$threshold} is outside 1..100.");
+    }
+
+    public static function organizationSuspended(int $organizationId): self
+    {
+        return new self(self::ORGANIZATION_SUSPENDED, "Organization #{$organizationId} is not active.");
     }
 
     public function httpStatus(): int

@@ -309,11 +309,42 @@ final class TrainingSessionService
 
         // A published private course of a center is open to the learners of the group it was
         // assigned to — only for the lessons set as a live assignment, nothing else of the course.
-        if ($learner !== null && $course->status === 'published' && $this->isAssignedTo($lesson, $learner)) {
+        if ($learner !== null && $course->status === 'published' && $course->owner_type !== 'learner' && $this->isAssignedTo($lesson, $learner)) {
             return;
         }
 
         throw TrainingSessionException::lessonNotAvailable((int) $lesson->id);
+    }
+
+    /**
+     * A running lesson session of a center's private course is re-checked on every step: after the
+     * learner left the group or the assignment closed, the session is closed (`expired`) instead of
+     * living to its TTL. Other sessions are not re-checked.
+     *
+     * @return bool false when the session was closed because the lesson is no longer available
+     */
+    public function ensureStillAvailable(TrainingSession $session, Learner $learner): bool
+    {
+        if ($session->mode !== TrainingSession::MODE_LESSON || $session->lesson_id === null) {
+            return true;
+        }
+
+        $lesson = Lesson::query()->with('stage.course')->find($session->lesson_id);
+        $course = $lesson?->stage?->course;
+
+        if ($lesson === null || $course === null || $course->visibility !== 'private' || $course->owner_type === 'learner') {
+            return true;
+        }
+
+        try {
+            $this->assertLessonAvailable($lesson, $learner);
+        } catch (TrainingSessionException) {
+            $this->finish($session, TrainingSession::DONE_EXPIRED);
+
+            return false;
+        }
+
+        return true;
     }
 
     /** An active assignment of this lesson in a group of an active center where the learner is an active member. */

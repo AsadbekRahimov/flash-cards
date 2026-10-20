@@ -262,6 +262,7 @@ return [
             'lesson_not_available' => 'Bu darsning kursi e\'lon qilinmagan — o\'quvchilar uni o\'ta olmaydi.',
             'invalid_due' => 'Muddat kelajakda bo\'lishi kerak.',
             'invalid_threshold' => 'Chegara 1 dan 100 gacha bo\'lishi kerak.',
+            'organization_suspended' => "Markaz to'xtatilgan — topshiriq berib bo'lmaydi.",
         ],
         'notifications' => [
             'created' => 'Vazifa yaratildi. E\'lon guruhga yuboriladi.',

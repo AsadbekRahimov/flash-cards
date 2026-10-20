@@ -28,6 +28,7 @@ use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Throwable;
@@ -75,60 +76,72 @@ final class AssignmentService
     ): Assignment {
         $now ??= CarbonImmutable::now();
 
-        if ($group->organization_id !== $organization->id) {
-            throw AssignmentException::foreignGroup($group->id, $organization->id);
+        if (! $organization->isActive()) {
+            throw AssignmentException::organizationSuspended($organization->id);
         }
 
-        if ($group->status !== 'active') {
-            throw AssignmentException::groupInactive($group->id);
-        }
+        return DB::transaction(function () use ($organization, $group, $lesson, $dueAt, $title, $threshold, $by, $now): Assignment {
+            // The group row is locked: a parallel unlink (TelegramGroupObserver) either commits before
+            // this check (and the group is no longer the center's) or waits until the assignment exists
+            // (and then closes it).
+            $group = TelegramGroup::query()->withoutGlobalScopes()->lockForUpdate()->find($group->id)
+                ?? throw AssignmentException::foreignGroup($group->id, $organization->id);
 
-        if ($group->course_id === null) {
-            throw AssignmentException::groupWithoutCourse($group->id);
-        }
+            if ($group->organization_id !== $organization->id) {
+                throw AssignmentException::foreignGroup($group->id, $organization->id);
+            }
 
-        if ((int) Stage::query()->whereKey($lesson->stage_id)->value('course_id') !== $group->course_id) {
-            throw AssignmentException::lessonNotInCourse($lesson->id, $group->id);
-        }
+            if ($group->status !== 'active') {
+                throw AssignmentException::groupInactive($group->id);
+            }
 
-        // Private is fine (learners of the group open the assigned lesson, TrainingSessionService); a draft is not.
-        if (Course::query()->whereKey($group->course_id)->value('status') !== 'published') {
-            throw AssignmentException::lessonNotAvailable($lesson->id);
-        }
+            if ($group->course_id === null) {
+                throw AssignmentException::groupWithoutCourse($group->id);
+            }
 
-        if ($dueAt->lte($now)) {
-            throw AssignmentException::invalidDue();
-        }
+            if ((int) Stage::query()->whereKey($lesson->stage_id)->value('course_id') !== $group->course_id) {
+                throw AssignmentException::lessonNotInCourse($lesson->id, $group->id);
+            }
 
-        if ($threshold < 1 || $threshold > 100) {
-            throw AssignmentException::invalidThreshold($threshold);
-        }
+            // Private is fine (learners of the group open the assigned lesson, TrainingSessionService); a draft is not.
+            if (Course::query()->whereKey($group->course_id)->value('status') !== 'published') {
+                throw AssignmentException::lessonNotAvailable($lesson->id);
+            }
 
-        $title = $title === null ? '' : trim($title);
-        $title = $title !== '' ? $title : ($lesson->title !== null ? trim($lesson->title) : '');
+            if ($dueAt->lte($now)) {
+                throw AssignmentException::invalidDue();
+            }
 
-        $assignment = Assignment::query()->create([
-            'organization_id' => $organization->id,
-            'telegram_group_id' => $group->id,
-            'lesson_id' => $lesson->id,
-            'title' => $title !== '' ? Str::limit($title, 120, '') : null,
-            'due_at' => CarbonImmutable::instance($dueAt),
-            'status' => Assignment::STATUS_ACTIVE,
-            'completion_threshold' => $threshold,
-            'created_by_user_id' => $by?->id,
-            'meta' => [],
-        ]);
+            if ($threshold < 1 || $threshold > 100) {
+                throw AssignmentException::invalidThreshold($threshold);
+            }
 
-        $this->events->record(
-            ProductEventName::AssignmentCreated,
-            ['assignment_id' => $assignment->id, 'lesson_id' => $lesson->id, 'organization_id' => $organization->id],
-            group: $group,
-            user: $by,
-        );
+            $title = $title === null ? '' : trim($title);
+            $title = $title !== '' ? $title : ($lesson->title !== null ? trim($lesson->title) : '');
 
-        AnnounceAssignmentJob::dispatch($assignment->id)->afterCommit();
+            $assignment = Assignment::query()->create([
+                'organization_id' => $organization->id,
+                'telegram_group_id' => $group->id,
+                'lesson_id' => $lesson->id,
+                'title' => $title !== '' ? Str::limit($title, 120, '') : null,
+                'due_at' => CarbonImmutable::instance($dueAt),
+                'status' => Assignment::STATUS_ACTIVE,
+                'completion_threshold' => $threshold,
+                'created_by_user_id' => $by?->id,
+                'meta' => [],
+            ]);
 
-        return $assignment;
+            $this->events->record(
+                ProductEventName::AssignmentCreated,
+                ['assignment_id' => $assignment->id, 'lesson_id' => $lesson->id, 'organization_id' => $organization->id],
+                group: $group,
+                user: $by,
+            );
+
+            AnnounceAssignmentJob::dispatch($assignment->id)->afterCommit();
+
+            return $assignment;
+        });
     }
 
     /**
@@ -370,10 +383,16 @@ final class AssignmentService
 
         // Only snapshots older than `stale_after_minutes` are recounted (a read path must not write
         // on every call), and the lessons' words are loaded once for all of them.
+        // A snapshot is also stale once the learner reviewed something after it was taken.
+        $threshold = $now->subMinutes((int) config('organizations.assignments.stale_after_minutes', 10));
+        $lastActivity = WordRepetition::query()->where('learner_id', $learner->id)->max('updated_at');
+        $lastActivity = $lastActivity === null ? null : CarbonImmutable::parse((string) $lastActivity);
+
         $fresh = AssignmentResult::query()
             ->where('learner_id', $learner->id)
             ->whereIn('assignment_id', $assignments->modelKeys())
-            ->where('computed_at', '>', $now->subMinutes((int) config('organizations.assignments.stale_after_minutes', 10)))
+            ->where('computed_at', '>', $threshold)
+            ->when($lastActivity !== null, static fn ($query) => $query->where('computed_at', '>=', $lastActivity))
             ->pluck('assignment_id')
             ->map(static fn ($id): int => (int) $id)
             ->all();
@@ -555,7 +574,8 @@ final class AssignmentService
     /**
      * Claims a one-time post by a conditional UPDATE of `$column`, then sends it. A definite
      * Telegram refusal (API error / 403) releases the claim and counts a failure in `meta`; any
-     * other failure keeps the claim (it may have been delivered) and propagates.
+     * transport failure keeps the claim (it may have been delivered), flags `meta.{kind}_uncertain`
+     * and returns false — it never propagates, so one chat cannot stop the whole run.
      *
      * @param  'announced_at'|'reminded_at'  $column
      * @param  'announce'|'remind'  $kind
@@ -595,9 +615,20 @@ final class AssignmentService
                 url: rtrim((string) config('twa.base_url'), '/').self::TWA_PATH.$fresh->lesson_id,
             );
         } catch (TelegramApiException|TelegramForbiddenException $e) {
-            // A transport failure (timeout, cURL error) may have been delivered: keep the claim, propagate.
+            // A transport failure (timeout, cURL error, 5xx) may have been delivered: keep the claim,
+            // flag it for the owner and go on — one dead chat must not stop `assignments:refresh`.
             if ($e instanceof TelegramApiException && ! $e->isApiResponse()) {
-                throw $e;
+                $meta = $fresh->meta;
+                $meta[$kind.'_uncertain'] = true;
+                $fresh->forceFill(['meta' => $meta])->save();
+
+                Log::warning('assignments.post_uncertain', [
+                    'assignment_id' => $fresh->id,
+                    'kind' => $kind,
+                    'error' => Str::limit($e->getMessage(), 200),
+                ]);
+
+                return false;
             }
 
             $meta = $fresh->meta;

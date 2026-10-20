@@ -11,6 +11,7 @@ use App\Domain\Organizations\Services\AssignmentService;
 use App\Domain\Organizations\Services\OrgTenantScope;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
+use App\Domain\Twa\Services\JwtService;
 use App\Models\Assignment;
 use App\Models\AssignmentResult;
 use App\Models\Course;
@@ -182,8 +183,9 @@ it('keeps the claim when the post failed on the network, releases it when Telegr
     $this->tg->failSends = 1;
     $this->tg->failSendsAsTransport = true;
 
-    expect(fn () => $this->service->announce($this->assignment))->toThrow(TelegramApiException::class);
-    expect($this->assignment->fresh()->announced_at)->not->toBeNull();
+    expect($this->service->announce($this->assignment))->toBeFalse();
+    expect($this->assignment->fresh()->announced_at)->not->toBeNull()
+        ->and($this->assignment->fresh()->meta['announce_uncertain'])->toBeTrue();
     expect($this->service->announce($this->assignment->fresh()))->toBeFalse(); // not posted twice
 
     $second = Assignment::factory()->create(['organization_id' => $this->a->id, 'telegram_group_id' => $this->group->id, 'lesson_id' => $this->lesson->id]);
@@ -226,7 +228,7 @@ it('recounts only stale snapshots and its query count does not grow with the ass
         DB::disableQueryLog();
 
         foreach ($log as $entry) {
-            expect($entry['query'])->not->toContain('insert')->not->toContain('update');
+            expect($entry['query'])->not->toStartWith('insert')->not->toStartWith('update');
         }
 
         return count($log);
@@ -261,4 +263,95 @@ it('does not announce, remind or recount for a suspended center', function (): v
 
     $this->a->update(['status' => 'active']);
     expect($this->service->announcePending())->toBe(1);
+});
+
+// --- re-review: one dead chat does not stop the run -------------------------------------------------------------
+
+it('lets one transport failure pass: the other assignments, reminders and auto-close still run', function (): void {
+    $second = Assignment::factory()->create(['organization_id' => $this->a->id, 'telegram_group_id' => $this->group->id, 'lesson_id' => $this->lesson->id, 'due_at' => now()->addHours(10)]);
+    $expired = Assignment::factory()->create([
+        'organization_id' => $this->a->id, 'telegram_group_id' => $this->group->id, 'lesson_id' => $this->lesson->id,
+        'due_at' => now()->subDays(30), 'announced_at' => now()->subDays(40), 'reminded_at' => now()->subDays(31),
+    ]);
+    $this->tg->failSends = 1;
+    $this->tg->failSendsAsTransport = true;
+
+    $this->artisan('assignments:refresh')->assertSuccessful();
+
+    $first = $this->assignment->fresh();
+    expect($first->announced_at)->not->toBeNull()
+        ->and($first->meta['announce_uncertain'])->toBeTrue()
+        ->and($second->fresh()->announced_at)->not->toBeNull()
+        ->and($this->tg->sent)->toHaveCount(1)
+        ->and($expired->fresh()->status)->toBe(Assignment::STATUS_CLOSED);
+});
+
+it('runs every step of assignments:refresh even if one throws, and ends with FAILURE', function (): void {
+    $expired = Assignment::factory()->create([
+        'organization_id' => $this->a->id, 'telegram_group_id' => $this->group->id, 'lesson_id' => $this->lesson->id,
+        'due_at' => now()->subDays(30), 'announced_at' => now()->subDays(40), 'reminded_at' => now()->subDays(31),
+    ]);
+    $telegram = Mockery::mock(TelegramClient::class);
+    $telegram->shouldReceive('sendWebAppButton')->andThrow(new RuntimeException('boom'));
+    $this->app->instance(TelegramClient::class, $telegram);
+    $this->app->forgetInstance(AssignmentService::class);
+
+    $this->artisan('assignments:refresh')->assertFailed();
+
+    expect($expired->fresh()->status)->toBe(Assignment::STATUS_CLOSED);
+});
+
+// --- re-review: fresh progress, lessons, suspended centers, group race ------------------------------------------
+
+it('shows the progress right after the words were repeated, without waiting for the stale window', function (): void {
+    expect($this->service->forLearner($this->learnerA)[0]->progressPct)->toBe(0);
+
+    WordRepetition::factory()->create(['learner_id' => $this->learnerA->id, 'word_id' => $this->words[0]->id, 'repetitions' => 1, 'updated_at' => now()->addSecond()]);
+    WordRepetition::factory()->create(['learner_id' => $this->learnerA->id, 'word_id' => $this->words[1]->id, 'repetitions' => 1, 'updated_at' => now()->addSecond()]);
+
+    expect($this->service->forLearner($this->learnerA, CarbonImmutable::now()->addSeconds(5))[0]->progressPct)->toBe(50);
+});
+
+it('does not open a lesson of a learner\'s personal deck through an assignment', function (): void {
+    $this->course->update(['visibility' => 'private', 'owner_type' => 'learner', 'owner_id' => Learner::factory()->create()->id]);
+
+    expect(fn () => app(TrainingSessionService::class)->openPersonal($this->learnerA, 'lesson', $this->lesson))->toThrow(TrainingSessionException::class);
+});
+
+it('refuses to set an assignment for a suspended center', function (): void {
+    $this->a->update(['status' => 'suspended']);
+
+    try {
+        $this->service->create($this->a->refresh(), $this->group, $this->lesson, now()->addDay());
+        $code = 'none';
+    } catch (AssignmentException $e) {
+        $code = $e->errorCode;
+    }
+
+    expect($code)->toBe(AssignmentException::ORGANIZATION_SUSPENDED)->and(Assignment::query()->count())->toBe(1);
+});
+
+it('checks the group\'s organization on the locked row, not on the object it was handed', function (): void {
+    $stale = $this->group; // still says "center A"
+    TelegramGroup::query()->whereKey($this->group->id)->update(['organization_id' => $this->b->id]);
+
+    expect(fn () => $this->service->create($this->a, $stale, $this->lesson, now()->addDay()))->toThrow(AssignmentException::class);
+    expect(Assignment::query()->count())->toBe(1);
+});
+
+it('closes a running lesson session when the assignment is gone, with 404 lesson_not_available', function (): void {
+    $this->course->update(['visibility' => 'private']);
+    $session = app(TrainingSessionService::class)->openPersonal($this->learnerA, 'lesson', $this->lesson);
+    $headers = ['Authorization' => 'Bearer '.app(JwtService::class)->issue($this->learnerA->id)['token']];
+
+    $this->withHeaders($headers)->getJson("/api/twa/training/sessions/{$session->id}/next")->assertOk();
+
+    $this->service->close($this->assignment);
+
+    $this->withHeaders($headers)->getJson("/api/twa/training/sessions/{$session->id}/next")
+        ->assertNotFound()->assertJsonPath('error.code', 'lesson_not_available');
+    expect($session->fresh()->status)->toBe('closed');
+
+    $this->withHeaders($headers)->postJson("/api/twa/training/sessions/{$session->id}/review", ['word_id' => $this->words[0]->id, 'quality' => 4, 'time_spent_ms' => 1000])
+        ->assertStatus(410);
 });
