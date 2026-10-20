@@ -790,3 +790,183 @@
 | `error.code.provider_not_registered` | Bu amal sizning to'lov usulingiz uchun mavjud emas. | Это действие недоступно для вашего способа оплаты. |
 | `error.code.provider_unavailable` | To'lov xizmati javob bermayapti. Bir necha daqiqadan keyin urinib ko'ring. | Платёжный сервис не отвечает. Попробуйте через несколько минут. |
 | `error.code.order_not_found` | Hisob topilmadi. | Счёт не найден. |
+
+## Фаза 2 · задача 2B.3 (кабинет центра `/org`) — на проверку носителю
+
+> Проверить: «markaz» (центр), «kabinet», «o'rin» (место), «navbatda» (в ожидании), «egasi» (владелец), «taklif» (приглашение/инвайт-код), «bog'lash» (привязать группу). Подстановки: `:count`, `:name`, `:seat`, `:code`, `:title`, `:organization`, `:inviter`, `:hours`, `:date`, `:url`.
+
+### 2FA (`lang/uz/twofactor.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `twofactor.recovery.to_org` | → Markaz kabinetiga o'tish | → Перейти в кабинет центра |
+
+### Кабинет, письмо приглашения, бот `/org` (`lang/uz/org.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `org.nav.dashboard` | Umumiy ko'rinish | Обзор |
+| `org.nav.members` | O'quvchilar | Ученики |
+| `org.nav.groups` | Guruhlar | Группы |
+| `org.nav.invites` | Takliflar | Приглашения |
+| `org.nav.teachers` | O'qituvchilar | Учителя |
+| `org.nav.assignments` | Vazifalar | Задания |
+| `org.nav.reports` | Hisobotlar | Отчёты |
+| `org.nav.billing` | To'lov | Оплата |
+| `org.nav.settings` | Markaz sozlamalari | Настройки центра |
+| `org.members.singular` | O'quvchi | Ученик |
+| `org.members.plural` | O'quvchilar | Ученики |
+| `org.members.columns.learner` | O'quvchi | Ученик |
+| `org.members.columns.username` | Username | Username |
+| `org.members.columns.seat` | O'rin | Место |
+| `org.members.columns.status` | Holat | Статус |
+| `org.members.columns.joined_via` | Qanday qo'shildi | Как вступил |
+| `org.members.columns.joined_at` | Qo'shilgan | Вступил |
+| `org.members.columns.last_seen` | Oxirgi faollik | Был в сети |
+| `org.members.columns.seated_at` | O'rin olingan | Место получено |
+| `org.members.columns.streak` | Kunlar seriyasi | Серия дней |
+| `org.members.seat.seated` | O'rin egallagan | Занимает место |
+| `org.members.seat.waitlisted` | Navbatda | В ожидании |
+| `org.members.seat.none` | O'rinsiz | Без места |
+| `org.members.status.active` | Faol | Активен |
+| `org.members.status.left` | Chiqib ketgan | Вышел |
+| `org.members.status.removed` | Chiqarilgan | Удалён |
+| `org.members.via.invite` | Kod orqali | По коду |
+| `org.members.via.group` | Guruh orqali | Через группу |
+| `org.members.via.admin` | Qo'lda qo'shilgan | Добавлен вручную |
+| `org.members.actions.add` | O'quvchi qo'shish | Добавить ученика |
+| `org.members.actions.remove` | Markazdan chiqarish | Удалить из центра |
+| `org.members.actions.remove_confirm` | O'quvchi o'rnini va markaz bergan Pro-ni yo'qotadi. Bo'shagan o'rin navbatdagi birinchi o'quvchiga o'tadi. | Ученик потеряет место и Pro от центра. Освободившееся место получит первый в очереди. |
+| `org.members.fields.telegram` | O'quvchining Telegrami | Telegram ученика |
+| `org.members.fields.telegram_help` | Botga allaqachon yozgan o'quvchining @username yoki raqamli Telegram ID si. Faqat aniq moslik bo'yicha qidiriladi. | @username или числовой Telegram ID ученика, который уже писал боту. Поиск только по точному совпадению. |
+| `org.members.errors.learner_not_found` | Bunday Telegramli o'quvchi topilmadi. U avval botni ishga tushirishi kerak. | Ученик с таким Telegram не найден. Он должен сначала запустить бота. |
+| `org.members.errors.organization_suspended` | Markaz to'xtatilgan — yangi o'quvchilar qo'shilmaydi. | Центр приостановлен — новые ученики не добавляются. |
+| `org.members.errors.not_a_member` | O'quvchi markaz a'zosi emas. | Ученик уже не состоит в центре. |
+| `org.members.errors.invite_invalid` | Taklif kodi yaroqsiz. | Код приглашения недействителен. |
+| `org.members.errors.invite_expired` | Taklif kodi muddati tugagan. | Код приглашения истёк. |
+| `org.members.errors.invite_exhausted` | Taklif kodining foydalanishlari tugagan. | У кода приглашения закончились использования. |
+| `org.members.notifications.added` | O'quvchi qo'shildi: :seat. | Ученик добавлен: :seat. |
+| `org.members.notifications.removed` | O'quvchi markazdan chiqarildi. | Ученик удалён из центра. |
+| `org.groups.singular` | Guruh | Группа |
+| `org.groups.plural` | Guruhlar | Группы |
+| `org.groups.columns.title` | Nomi | Название |
+| `org.groups.columns.status` | Holat | Статус |
+| `org.groups.columns.learners` | O'quvchilar | Учеников |
+| `org.groups.columns.teachers` | O'qituvchilar | Учителя |
+| `org.groups.columns.since` | Qo'shilgan | Добавлена |
+| `org.groups.status.active` | Faol | Активна |
+| `org.groups.status.pending` | Faollashtirish kutilmoqda | Ожидает активации |
+| `org.groups.status.disabled` | O'chirilgan | Отключена |
+| `org.groups.actions.link` | Guruhni bog'lash | Привязать группу |
+| `org.groups.actions.link_help` | Bot guruhga allaqachon qo'shilgan bo'lishi, siz esa uning yaratuvchisi yoki administratori bo'lishingiz kerak. Profilda Telegram ID ko'rsatilgan bo'lsin. | Бот уже должен быть добавлен в группу, а вы — быть её создателем или администратором. Ваш Telegram ID должен быть указан в профиле. |
+| `org.groups.actions.unlink` | Ajratish | Отвязать |
+| `org.groups.actions.unlink_confirm` | Markazga shu guruh orqali qo'shilgan o'quvchilar, boshqa guruhlarda bo'lmasa, o'rnini yo'qotadi. | Ученики этой группы, вступившие в центр через неё, потеряют место, если не состоят в других группах центра. |
+| `org.groups.fields.chat_id` | Chat ID | ID чата |
+| `org.groups.fields.chat_id_help` | Guruhning raqamli ID si, masalan -1001234567890. Bot uni guruhda /help buyrug'i bilan ko'rsatadi. | Числовой ID группы, например -1001234567890. Бот показывает его командой /help в группе. |
+| `org.groups.errors.group_not_found` | Bot bunday guruhni bilmaydi. Avval botni guruhga qo'shing. | Бот не знает такую группу. Сначала добавьте бота в группу. |
+| `org.groups.errors.group_taken` | Guruh boshqa markazga bog'langan. | Группа уже привязана к другому центру. |
+| `org.groups.errors.owner_telegram_missing` | Profilda Telegram ID ni ko'rsating — usiz guruhdagi huquqlarni tekshirib bo'lmaydi. | Укажите свой Telegram ID в профиле — без него нельзя проверить права в группе. |
+| `org.groups.errors.not_chat_admin` | Siz bu guruhning administratori emassiz. Faqat o'z guruhingizni bog'lash mumkin. | Вы не администратор этой группы. Привязать можно только свою группу. |
+| `org.groups.errors.telegram_unavailable` | Telegram javob bermadi. Bir daqiqadan so'ng qayta urinib ko'ring. | Telegram не ответил. Попробуйте ещё раз через минуту. |
+| `org.groups.errors.not_linked` | Bu guruh markazga bog'lanmagan. | Эта группа не привязана к центру. |
+| `org.groups.notifications.linked` | «:title» guruhi markazga bog'landi. | Группа «:title» привязана к центру. |
+| `org.groups.notifications.unlinked` | Guruh markazdan ajratildi. | Группа отвязана от центра. |
+| `org.invites.singular` | Taklif | Приглашение |
+| `org.invites.plural` | Takliflar | Приглашения |
+| `org.invites.columns.code` | Kod | Код |
+| `org.invites.columns.label` | Yorliq | Метка |
+| `org.invites.columns.group` | Guruh | Группа |
+| `org.invites.columns.uses` | Foydalanishlar | Использований |
+| `org.invites.columns.expires_at` | Amal qilish muddati | Действует до |
+| `org.invites.columns.active` | Faol | Активно |
+| `org.invites.columns.link` | Havola | Ссылка |
+| `org.invites.copied` | Havola nusxalandi | Ссылка скопирована |
+| `org.invites.actions.create` | Taklif yaratish | Создать приглашение |
+| `org.invites.actions.deactivate` | O'chirish | Отключить |
+| `org.invites.fields.label` | Yorliq (masalan, «7B guruhi») | Метка (например, «группа 7Б») |
+| `org.invites.fields.max_uses` | Maksimal foydalanishlar (bo'sh — cheklovsiz) | Максимум использований (пусто — без ограничения) |
+| `org.invites.fields.expires_at` | Amal qilish muddati (bo'sh — muddatsiz) | Действует до (пусто — бессрочно) |
+| `org.invites.fields.group` | Guruh | Группа |
+| `org.invites.fields.group_help` | Faqat hisobotlar uchun yorliq: chatga o'quvchi o'zi qo'shiladi. | Только метка для отчётов: в чат ученик вступает сам. |
+| `org.invites.errors.foreign_group` | Bu guruh markazga tegishli emas. | Эта группа не принадлежит центру. |
+| `org.invites.notifications.created` | :code taklifi yaratildi. | Приглашение :code создано. |
+| `org.invites.notifications.deactivated` | Taklif o'chirildi. | Приглашение отключено. |
+| `org.teachers.singular` | Xodim | Сотрудник |
+| `org.teachers.plural` | O'qituvchilar | Учителя |
+| `org.teachers.columns.name` | Ism | Имя |
+| `org.teachers.columns.email` | Email | Email |
+| `org.teachers.columns.role` | Rol | Роль |
+| `org.teachers.columns.telegram` | Telegram bog'langan | Telegram привязан |
+| `org.teachers.columns.groups` | Guruhlar | Групп |
+| `org.teachers.columns.last_login` | Oxirgi kirish | Последний вход |
+| `org.teachers.never_logged_in` | kirmagan | не входил |
+| `org.teachers.role.owner` | Egasi | Владелец |
+| `org.teachers.role.teacher` | O'qituvchi | Учитель |
+| `org.teachers.actions.invite` | O'qituvchini taklif qilish | Пригласить учителя |
+| `org.teachers.actions.groups` | Guruhlar | Группы |
+| `org.teachers.actions.role` | Rol | Роль |
+| `org.teachers.actions.resend` | Taklifni qayta yuborish | Отправить приглашение ещё раз |
+| `org.teachers.actions.remove` | Markazdan chiqarish | Удалить из центра |
+| `org.teachers.fields.email` | Email | Email |
+| `org.teachers.fields.name` | Ism (ixtiyoriy) | Имя (необязательно) |
+| `org.teachers.errors.already_staff` | Bu email markaz xodimlari ro'yxatida allaqachon bor. | Этот email уже в списке сотрудников центра. |
+| `org.teachers.errors.not_staff` | Xodim bu markazda topilmadi. | Сотрудник не найден в этом центре. |
+| `org.teachers.errors.last_owner` | Markazda kamida bitta egasi qolishi kerak. | В центре должен остаться хотя бы один владелец. |
+| `org.teachers.errors.foreign_group` | Tanlangan guruhlardan biri markazga tegishli emas. | Одна из выбранных групп не принадлежит центру. |
+| `org.teachers.errors.invalid_email` | To'g'ri email kiriting. | Введите корректный email. |
+| `org.teachers.notifications.invited` | Taklif emailga yuborildi. | Приглашение отправлено на email. |
+| `org.teachers.notifications.groups_saved` | O'qituvchi guruhlari saqlandi. | Группы учителя сохранены. |
+| `org.teachers.notifications.role_saved` | Rol o'zgartirildi. | Роль изменена. |
+| `org.teachers.notifications.resent` | Taklif qayta yuborildi. | Приглашение отправлено повторно. |
+| `org.teachers.notifications.removed` | Xodim markazdan chiqarildi. | Сотрудник удалён из центра. |
+| `org.settings.fields.name` | Markaz nomi | Название центра |
+| `org.settings.fields.contact_email` | Aloqa uchun email | Контактный email |
+| `org.settings.fields.contact_phone` | Aloqa uchun telefon | Контактный телефон |
+| `org.settings.fields.contact_telegram` | Telegramdagi aloqa | Контакт в Telegram |
+| `org.settings.fields.timezone` | Vaqt mintaqasi | Часовой пояс |
+| `org.settings.fields.locale` | Kabinet tili | Язык кабинета |
+| `org.profile.fields.telegram_user_id` | Mening Telegram ID m | Мой Telegram ID |
+| `org.profile.fields.telegram_user_id_help` | Telegram akkauntingizning raqamli ID si (bot uni /stats bo'yicha ko'rsatadi). Guruhlardagi o'qituvchi buyruqlari va guruhlarni bog'lash uchun kerak. | Числовой ID вашего аккаунта Telegram (бот показывает его по /stats). Нужен для команд учителя в группах и привязки групп. |
+| `org.stubs.assignments` | Guruhlar uchun vazifalar kabinetning keyingi yangilanishida paydo bo'ladi. | Задания для групп появятся в следующем обновлении кабинета. |
+| `org.stubs.reports` | O'quvchilar faolligi hisoboti kabinetning keyingi yangilanishida paydo bo'ladi. | Отчёт об активности учеников появится в следующем обновлении кабинета. |
+| `org.stubs.billing` | Tarif tanlash va to'lov keyingi yangilanishda paydo bo'ladi. Hozircha tarifni platforma administratori faollashtiradi. | Выбор тарифа и оплата появятся в следующем обновлении. Пока тариф активирует администратор платформы. |
+| `org.billing.rows.tier` | Tarif | Тариф |
+| `org.billing.rows.status` | Obuna holati | Статус подписки |
+| `org.billing.rows.ends_at` | To'langan muddat | Оплачено до |
+| `org.billing.rows.seats` | O'rinlar (band / limit) | Места (занято / лимит) |
+| `org.billing.rows.waitlisted` | O'rin kutayotganlar | В ожидании места |
+| `org.billing.none` | yo'q | нет |
+| `org.billing.status.trialing` | Sinov davri | Пробный период |
+| `org.billing.status.active` | Faol | Активна |
+| `org.billing.status.past_due` | To'lov kutilmoqda | Ожидает оплаты |
+| `org.billing.status.canceled` | Bekor qilingan (davr oxirigacha) | Отменена (до конца периода) |
+| `org.dashboard.seats` | O'rinlar | Места |
+| `org.dashboard.seats_over_limit` | Limit oshib ketgan: tarifni oshiring | Превышение лимита: повысьте тариф |
+| `org.dashboard.seats_free` | Bo'sh: :count | Свободно: :count |
+| `org.dashboard.not_sponsoring` | Faol obuna yo'q — o'quvchilar Pro-siz | Нет активной подписки — ученики без Pro |
+| `org.dashboard.waitlisted` | O'rin kutayotganlar | В ожидании места |
+| `org.dashboard.waitlisted_help` | O'rin bo'shaganda oladilar | Получат место, когда оно освободится |
+| `org.dashboard.subscription` | Obuna | Подписка |
+| `org.dashboard.subscription_none` | Faol obuna yo'q | Нет активной подписки |
+| `org.dashboard.subscription_perpetual` | Muddatsiz | Бессрочная |
+| `org.dashboard.subscription_until` | :date gacha | до :date |
+| `org.dashboard.members` | Markazdagi o'quvchilar | Учеников в центре |
+| `org.dashboard.groups_count` | Guruhlar: :count | Групп: :count |
+| `org.dashboard.active_7d` | 7 kunda faollar | Активных за 7 дней |
+| `org.dashboard.active_7d_help` | Takrorlash yoki yangi so'zlari bo'lgan o'quvchilar | Учеников с повторениями или новыми словами |
+| `org.dashboard.reviews_7d` | 7 kundagi takrorlashlar | Повторений за 7 дней |
+| `org.dashboard.new_words_7d` | Yangi so'zlar: :count | Новых слов: :count |
+| `org.mail.invitation.subject` | «:organization» markazi kabinetiga taklif | Приглашение в кабинет центра «:organization» |
+| `org.mail.invitation.heading` | Sizni «:organization» markaziga taklif qilishdi | Вас пригласили в «:organization» |
+| `org.mail.invitation.intro` | :inviter sizni LexiFlow Pro platformasidagi «:organization» markazi kabinetiga qo'shdi. | :inviter добавил вас в кабинет центра «:organization» на платформе LexiFlow Pro. |
+| `org.mail.invitation.set_password` | Quyidagi havola orqali parol o'rnating — u :hours soat amal qiladi va bir marta ishlaydi. | Задайте пароль по ссылке ниже — она действует :hours ч. и работает один раз. |
+| `org.mail.invitation.button_set_password` | Parol o'rnatish | Задать пароль |
+| `org.mail.invitation.existing_account` | Odatdagi parolingiz bilan kiring — markaz kabinetda allaqachon mavjud. | Войдите с вашим обычным паролем — центр уже доступен в кабинете. |
+| `org.mail.invitation.button_open` | Kabinetni ochish | Открыть кабинет |
+| `org.mail.invitation.ignore` | Agar bu xatni kutmagan bo'lsangiz, shunchaki e'tiborsiz qoldiring. | Если вы не ждали этого письма, просто проигнорируйте его. |
+| `org.bot.not_staff` | /org buyrug'i o'quv markazlari xodimlari uchun. Telegramingiz hech bir kabinetga bog'lanmagan: kabinet profilida Telegram ID ni ko'rsating. | Команда /org — для сотрудников учебных центров. Ваш Telegram не привязан ни к одному кабинету: укажите свой Telegram ID в профиле кабинета. |
+| `org.bot.header` | Sizning markazlaringiz: | Ваши центры: |
+| `org.bot.line` | :name — :role<br>O'rinlar: :seats · 7 kunda faollar: :active<br>:url | :name — :role<br>Места: :seats · активных за 7 дней: :active<br>:url |
+| `org.bot.line_teacher` | :name — :role<br>7 kunda faollar: :active<br>:url | :name — :role<br>Активных за 7 дней: :active<br>:url |
+| `org.bot.seats_unlimited` | cheklovsiz | без лимита |
+| `org.bot.seats_none` | obuna yo'q | нет подписки |

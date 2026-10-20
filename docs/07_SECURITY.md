@@ -148,6 +148,10 @@ Gate/Policy-правила на бэке:
 | `Lesson` в Filament | edit | Пользователь с ролью `admin` |
 | `AnalyticsDashboard` | view | `admin` или учитель (видит только свои группы) |
 | `User` CRUD в Filament | всё | `admin` |
+| Кабинет центра `/org` (2B.3) | всё | Отдельная панель, guard `org`, tenancy по `Organization` (slug): пользователь без строки `organization_users` в этой организации → **404** на любой URL tenant'а (`User::canAccessTenant`); модели ресурсов (`TelegramGroup`, `OrganizationMember`, `OrganizationInvite`, `OrganizationUser`) получают global scope `organization_id = tenant` на время запроса; политики `App\Policies\Org\*` подставляются `OrgPolicyResolver` **только** в этой панели (в `/admin` — прежние); чужая запись по прямому URL → 404, действие над ней → `ActionNotResolvableException` |
+| `/org`: роль `owner` | всё | Ученики (add/remove через `OrganizationMembershipService`), группы (link только после `getChatMember(chat, owner) ∈ {creator, administrator}`, unlink), инвайты, персонал (`OrganizationStaffService`: invite/role/groups/remove, последний owner неснимаем), настройки, Billing. **2FA обязательна** (`RequireOrgTwoFactor`: нет TOTP → redirect на setup; метка сессии должна принадлежать этому пользователю — `2fa.user_id`) |
+| `/org`: роль `teacher` | чтение | Только группы из `teacher_groups` и активные ученики этих групп (`OrgTenantScope`), Dashboard без мест/подписки, Assignments/Reports; Invites/Teachers/Billing → 403, Settings → 404. 2FA по желанию (включённая — проверяется) |
+| `/org`: Telegram-аккаунт персонала | self-service | `users.telegram_user_id` меняет только сам пользователь в `/org/profile`; владелец видит лишь «привязан / нет» (одна учётка может быть персоналом нескольких центров) |
 
 Реализация (`app/Policies/TrainingSessionPolicy.php`, `ExamSessionPolicy.php`; правило членства — `GroupMembershipService`):
 ```php
@@ -198,6 +202,7 @@ public function denial(Learner $learner, TrainingSession $s): ?string   // null 
 ## 8. Защита админки Filament
 
 - **2FA обязательна для роли admin.** Можно использовать `pxlrbt/filament-google-2fa` или кастомно через `pragmarx/google2fa-laravel`.
+- **Панель `/org` (кабинет центра):** тот же кастомный TOTP-поток (`/2fa/*`, маршруты под `auth:web,org`), обязателен для владельцев центров (`RequireOrgTwoFactor`), для учителей центра — опционально. Сессия у guard'ов общая, поэтому метка `2fa.passed_at` дополнена `2fa.user_id` — кабинет принимает только метку своего пользователя. Сброс пароля / приглашение персонала — broker `org` (токен 24 ч, одноразовый, хранится хэшем).
 - **IP allowlist** для `/admin` — опционально, если языковой центр работает из офиса. Middleware с list из env.
 - **Auditing:** `owen-it/laravel-auditing` на критичные модели (`User`, `TelegramGroup`, `Word`) + своя `audit_logs` для доменных событий.
 - **Session security:**

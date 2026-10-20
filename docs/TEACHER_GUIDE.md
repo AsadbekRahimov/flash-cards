@@ -134,3 +134,52 @@ There is no hard limit. All students in the active group can join.
 
 **Do I need to close the exam manually?**
 No. The scheduler closes it automatically after the time limit + 60-second grace. Use `/close_exam` only if you want to end it early.
+
+---
+
+## Learning Center Cabinet (`/org`)
+
+Staff of a learning center (an **owner** or a **teacher** of the center) work in a separate cabinet at
+`https://<host>/org`. It is not the admin panel: you log in with the email and password from your
+invitation letter, and you only ever see your own center.
+
+### Getting in
+
+1. The owner invites you by email (**Teachers → Invite teacher**). You receive a letter with a
+   single-use link (valid 24 hours) to set your password. If the link has expired, use **Forgot
+   password?** on the login page — the account already exists.
+2. Open `/org`, log in. If you belong to several centers, switch between them in the menu at the top.
+3. **Owners must enable two-factor authentication** (Google Authenticator, 1Password, Authy): the cabinet
+   redirects you to the setup page on the first login and asks for a code on every new session. Teachers
+   may enable it in the same way; once enabled, it is required.
+4. In **Profile** (top-right menu) enter **My Telegram ID** — the bot shows it in a private chat on `/stats`.
+   Without it the bot's teacher commands (`/start_training`, `/start_exam`) do not recognise you, and an
+   owner cannot link groups.
+
+### Screens
+
+| Screen | Owner | Teacher |
+|---|---|---|
+| **Dashboard** | seats (taken / limit, waiting list), subscription, learners and activity of the last 7 days | activity of your groups only |
+| **Learners** | all members of the center with their seat state; **Add learner** by exact `@username` or Telegram ID; **Remove from center** (the seat goes to the first learner on the waiting list) | learners of your groups, read-only |
+| **Groups** | **Link group** by chat id — the bot must already be in the group and *you* must be its creator or administrator (the cabinet checks this with Telegram); **Unlink** | your groups only |
+| **Invitations** | create codes (label, uses, expiry), copy the `t.me/<bot>?start=org_<code>` link, deactivate | — |
+| **Teachers** | invite by email, assign groups, change role, resend the invitation, remove (the last owner cannot be removed) | — |
+| **Assignments**, **Reports** | coming in the next updates | coming in the next updates |
+| **Billing** | tariff, subscription status, seats (payment arrives in a later update) | — |
+| **Center settings** | name, contact, timezone, cabinet language | — |
+
+The cabinet speaks the language set in **Center settings** (Russian or Uzbek).
+
+### Seats, in one paragraph
+
+A learner joins the center through an invitation link, through one of the center's groups, or when the
+owner adds them. While the center has an active subscription, every member takes a seat up to the tariff's
+limit and gets Pro; members above the limit wait in the order they joined and get a seat as soon as one is
+freed or the tariff is raised. Nobody is blocked from learning — a waiting learner simply uses the free plan.
+
+### `/org` in the bot
+
+Staff whose Telegram ID is linked can send `/org` to the bot in a private chat: it answers with every
+center you belong to, your role, the seats (owners) and the number of learners active in the last 7 days,
+plus the link to the cabinet.

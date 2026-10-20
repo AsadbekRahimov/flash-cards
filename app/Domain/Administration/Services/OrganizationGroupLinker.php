@@ -16,7 +16,10 @@ use Illuminate\Support\Facades\DB;
  * live subscription gives its members sponsored Pro (docs/12 §5.1). The change goes through
  * Eloquent `save()` so `TelegramGroupObserver` drops the members' entitlement cache (§5.2); both
  * directions are audited (`organization.linked_group` / `organization.unlinked_group`).
- * Who may do it is decided by `OrganizationPolicy::update` at the call site.
+ * Who may do it is decided by `OrganizationPolicy::update` at the call site (superadmin) or by
+ * OrgGroupLinkService (owner of the center, after the `getChatMember` check). The row is read
+ * without global scopes: inside the `/org` panel Filament's tenancy scope would hide a group that
+ * is not yet the tenant's — the whole point of linking it.
  */
 final class OrganizationGroupLinker
 {
@@ -31,7 +34,7 @@ final class OrganizationGroupLinker
     {
         DB::transaction(function () use ($organization, $group, $by, $ip): void {
             /** @var TelegramGroup $current */
-            $current = TelegramGroup::query()->whereKey($group->id)->lockForUpdate()->firstOrFail();
+            $current = TelegramGroup::query()->withoutGlobalScopes()->whereKey($group->id)->lockForUpdate()->firstOrFail();
 
             if ($current->organization_id === $organization->id) {
                 return;
@@ -52,7 +55,7 @@ final class OrganizationGroupLinker
     {
         DB::transaction(function () use ($organization, $group, $by, $ip): void {
             /** @var TelegramGroup $current */
-            $current = TelegramGroup::query()->whereKey($group->id)->lockForUpdate()->firstOrFail();
+            $current = TelegramGroup::query()->withoutGlobalScopes()->whereKey($group->id)->lockForUpdate()->firstOrFail();
 
             if ($current->organization_id !== $organization->id) {
                 return;
