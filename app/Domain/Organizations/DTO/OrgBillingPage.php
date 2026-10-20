@@ -13,12 +13,14 @@ use Carbon\CarbonImmutable;
  * `tiers[].prices` are minor units (tiyin) per period; a tier without prices (center_l) is
  * `purchasable = false` — "contact us / activated by the platform". `below_seated` marks a tier
  * whose limit is lower than the seats taken now: choosing it unseats nobody, new members wait.
+ * `online_allowed` is false for a tier that cannot be bought online now: not sold at all, or another tier
+than the live one (CheckoutService::changesLiveTier, "contact us to change the tariff").
  * `providers` are the enabled providers that serve organizations (Payme / Click), possibly empty.
  */
 final readonly class OrgBillingPage
 {
     /**
-     * @param  list<array{key: string, seats: int|null, prices: array<string, int>, purchasable: bool, below_seated: bool}>  $tiers
+     * @param  list<array{key: string, seats: int|null, prices: array<string, int>, purchasable: bool, below_seated: bool, online_allowed: bool}>  $tiers
      * @param  list<string>  $periods  `month` | `year`
      * @param  list<string>  $providers
      */

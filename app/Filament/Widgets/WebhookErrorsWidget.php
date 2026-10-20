@@ -48,6 +48,10 @@ class WebhookErrorsWidget extends StatsOverviewWidget
                 ->description('Offer discount paid twice (filter on Payment orders)')
                 ->color($errors['double_discounts'] > 0 ? 'danger' : 'success')
                 ->icon('heroicon-o-receipt-percent'),
+            Stat::make('Tier mismatches', (string) $errors['tier_mismatches'])
+                ->description('Paid for a tier other than the live one (filter on Payment orders)')
+                ->color($errors['tier_mismatches'] > 0 ? 'danger' : 'success')
+                ->icon('heroicon-o-arrows-right-left'),
         ];
     }
 }

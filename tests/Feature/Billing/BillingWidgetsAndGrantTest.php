@@ -115,6 +115,7 @@ it('counts failed payments and canceled provider transactions of the last 24 hou
         'failed_by_provider' => ['click' => 1, 'payme' => 1, 'telegram_stars' => 1],
         'canceled_transactions' => 2,
         'double_discounts' => 0,
+        'tier_mismatches' => 0,
     ]);
 
     $this->actingAs($this->admin);
@@ -122,7 +123,8 @@ it('counts failed payments and canceled provider transactions of the last 24 hou
         ->assertSee('Failed payments')
         ->assertSee('click: 1')
         ->assertSee('Canceled provider transactions')
-        ->assertSee('Double discounts');
+        ->assertSee('Double discounts')
+        ->assertSee('Tier mismatches');
 });
 
 it('counts only the double-discount orders paid in the last 24 hours', function (): void {
@@ -222,4 +224,19 @@ it('still grants an organization without a tier (the previous behaviour)', funct
         ->assertHasNoActionErrors();
 
     expect(Subscription::query()->sole()->tier)->toBeNull();
+});
+
+it('counts only the tier-mismatch orders paid in the last 24 hours', function (): void {
+    $mk = fn (array $meta, $paidAt) => PaymentOrder::factory()->create(['status' => PaymentOrder::STATUS_PAID, 'paid_at' => $paidAt, 'meta' => $meta]);
+
+    $mk(['tier_mismatch' => true, 'tier_mismatch_live_tier' => 'tutor'], now()->subHours(2));
+    $mk(['tier_mismatch' => true], now()->subHours(23));
+    $mk(['tier_mismatch' => true], now()->subHours(30));
+    $mk(['tier_mismatch' => false], now()->subHours(1));
+    $mk(['offer_double_discount' => true], now()->subHours(1));
+
+    expect(app(BillingReportService::class)->webhookErrorsLast24Hours()['tier_mismatches'])->toBe(2);
+
+    $this->actingAs($this->admin);
+    Livewire::test(WebhookErrorsWidget::class)->assertSee('Tier mismatches');
 });

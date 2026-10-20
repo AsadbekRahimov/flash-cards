@@ -282,6 +282,10 @@ Filters: status, provider, plan, subject, and *Live status* (live = trialing / a
   the log has `billing.org_tier_mismatch` and the audit log an entry `subscription.tier_mismatch`. Look at such
   orders (Billing → **Payment orders**, the order's meta): decide with the owner whether the paid month is for the
   live tier (nothing to do) or the ordered one (Grant Pro with the right tier, or a refund).
+  In the **Payment orders** table such an order has a red **Tier mismatch** badge ("tier mismatch (live: tutor)"),
+  there is a **Tier mismatch** filter, and the dashboard tile **Tier mismatches** (Payment webhook errors, last
+  24 h) counts the ones paid in the last day. In the center's `/org` Billing page the buttons for any tier other than
+  the live one are disabled with the hint "contact us"; renewing the current tier works as usual.
 - **Revoke** (row button, live subscriptions only): ends the subscription now; **Reason** required, audit
   `subscription.revoked`. The learner loses Pro within seconds (the cached plan is dropped at once).
 - A subscription that ran out of time is closed automatically by the hourly job `subscriptions:expire`.

@@ -3,6 +3,7 @@
     $history = $this->history();
     $price = $this->selectedPrice($page);
     $selected = collect($page->tiers)->firstWhere('key', $this->tier);
+    $blocked = $selected !== null && ! $selected['online_allowed'];
 @endphp
 
 <x-filament-panels::page>
@@ -105,12 +106,16 @@
                     <p class="mb-3 text-sm text-warning-600 dark:text-warning-400">{{ __('org.billing.downgrade_warning', ['seated' => $page->seats->seated, 'limit' => $selected['seats']]) }}</p>
                 @endif
 
+                @if ($blocked)
+                    <p class="mb-3 text-sm text-warning-600 dark:text-warning-400" data-tier-change-requires-support>{{ __('org.billing.errors.tier_change_requires_support') }}</p>
+                @endif
+
                 @if ($page->providers === [])
                     <p class="text-sm text-gray-600 dark:text-gray-300">{{ __('org.billing.no_providers') }}</p>
                 @else
                     <div class="flex flex-wrap gap-3">
                         @foreach ($page->providers as $provider)
-                            <x-filament::button wire:click="pay('{{ $provider }}')" wire:loading.attr="disabled">
+                            <x-filament::button wire:click="pay('{{ $provider }}')" wire:loading.attr="disabled" :disabled="$blocked" :title="$blocked ? __('org.billing.errors.tier_change_requires_support') : null">
                                 {{ __('org.billing.pay_with', ['provider' => __('billing.provider.'.$provider)]) }}
                             </x-filament::button>
                         @endforeach

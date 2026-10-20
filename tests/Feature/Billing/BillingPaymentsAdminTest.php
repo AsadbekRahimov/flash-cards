@@ -188,6 +188,26 @@ it('shows the offer markers of an order as badges and filters the double discoun
     Livewire::test(ViewPaymentOrder::class, ['record' => $double->id])->assertForbidden();
 });
 
+it('shows the tier mismatch of an order as a badge with the live tier and filters it (admin only)', function (): void {
+    $mismatch = PaymentOrder::factory()->create(['status' => PaymentOrder::STATUS_PAID, 'meta' => ['tier_mismatch' => true, 'tier_mismatch_live_tier' => 'center_m']]);
+    $plain = PaymentOrder::factory()->create(['status' => PaymentOrder::STATUS_PAID, 'meta' => []]);
+
+    $this->actingAs($this->admin);
+
+    Livewire::test(ListPaymentOrders::class)
+        ->assertCanSeeTableRecords([$mismatch, $plain])
+        ->assertSee('tier mismatch (live: center_m)')
+        ->filterTable('tier_mismatch')
+        ->assertCanSeeTableRecords([$mismatch])
+        ->assertCanNotSeeTableRecords([$plain]);
+
+    Livewire::test(ViewPaymentOrder::class, ['record' => $mismatch->id])->assertSee('tier mismatch (live: center_m)');
+
+    $this->actingAs($this->teacher);
+    Livewire::test(ListPaymentOrders::class)->assertForbidden();
+    Livewire::test(ViewPaymentOrder::class, ['record' => $mismatch->id])->assertForbidden();
+});
+
 // --- refund -----------------------------------------------------------------
 
 it('refunds a Stars payment from the table: needs a note, calls the provider once, audits, ends the subscription', function (): void {

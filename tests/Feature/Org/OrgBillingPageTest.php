@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Organizations\Enums\OrganizationRole;
+use App\Domain\Organizations\Services\OrgBillingService;
 use App\Filament\Org\Pages\Billing;
 use App\Filament\Org\Widgets\OrgSeatsWidget;
 use App\Mail\OrgInvoiceRequestMail;
@@ -247,4 +248,40 @@ it('sends a guest from the invoice to the cabinet login', function (): void {
     $order = PaymentOrder::factory()->forOrganization($this->org, 'tutor')->create();
 
     $this->get("/org/bright/invoice/{$order->id}")->assertRedirect('/org/login');
+});
+
+// --- tier change is manual while the subscription is live (2B.8) -----------------------------------
+
+it('disables the pay buttons for another tier while a subscription is live, keeps the current tier renewable', function (): void {
+    Subscription::factory()->forOrganization($this->org)->create(['provider' => 'payme', 'tier' => 'tutor', 'seats_limit' => 2, 'current_period_ends_at' => now()->addDays(10)]);
+    pbEnter($this->owner, $this->org);
+
+    $tiers = collect(app(OrgBillingService::class)->page($this->owner, $this->org)->tiers)->keyBy('key');
+    expect($tiers['tutor']['online_allowed'])->toBeTrue()
+        ->and($tiers['center_m']['online_allowed'])->toBeFalse()
+        ->and($tiers['center_l']['online_allowed'])->toBeFalse();
+
+    Livewire::test(Billing::class)
+        ->assertSet('tier', 'tutor')
+        ->assertDontSeeHtml('data-tier-change-requires-support')
+        ->assertDontSeeHtml('disabled="disabled"')
+        ->set('tier', 'center_m')
+        ->assertSeeHtml('data-tier-change-requires-support')
+        ->assertSee(__('org.billing.errors.tier_change_requires_support'))
+        ->assertSeeHtml('disabled')
+        ->call('pay', 'payme')
+        ->assertNotified(__('org.billing.errors.tier_change_requires_support'));
+
+    expect(PaymentOrder::query()->count())->toBe(0);
+});
+
+it('offers every priced tier when there is no live subscription', function (): void {
+    pbEnter($this->owner, $this->org);
+
+    $tiers = collect(app(OrgBillingService::class)->page($this->owner, $this->org)->tiers)->keyBy('key');
+    expect($tiers['tutor']['online_allowed'])->toBeTrue()
+        ->and($tiers['center_m']['online_allowed'])->toBeTrue()
+        ->and($tiers['center_l']['online_allowed'])->toBeFalse();
+
+    Livewire::test(Billing::class)->set('tier', 'center_m')->assertDontSeeHtml('data-tier-change-requires-support');
 });

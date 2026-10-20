@@ -66,6 +66,8 @@ class PaymentOrderResource extends Resource
                     ->state(fn (PaymentOrder $record): ?string => self::flag($record, 'paid_after_cancel', 'paid after cancel')),
                 TextEntry::make('offer_double_discount')->label('Double discount')->badge()->color('danger')->placeholder('—')
                     ->state(fn (PaymentOrder $record): ?string => self::flag($record, 'offer_double_discount', 'double discount')),
+                TextEntry::make('tier_mismatch')->label('Tier mismatch')->badge()->color('danger')->placeholder('—')
+                    ->state(fn (PaymentOrder $record): ?string => self::tierMismatch($record)),
             ]),
             Section::make('Meta (secrets masked)')->collapsed()->schema([
                 TextEntry::make('meta')->hiddenLabel()->state(fn (PaymentOrder $record) => BillingDisplay::payload($record->meta))->html(),
@@ -96,6 +98,8 @@ class PaymentOrderResource extends Resource
                     ->state(fn (PaymentOrder $record): ?string => self::flag($record, 'paid_after_cancel', 'paid after cancel')),
                 Tables\Columns\TextColumn::make('offer_double_discount')->label('Double discount')->badge()->color('danger')->placeholder('—')
                     ->state(fn (PaymentOrder $record): ?string => self::flag($record, 'offer_double_discount', 'double discount')),
+                Tables\Columns\TextColumn::make('tier_mismatch')->label('Tier mismatch')->badge()->color('danger')->placeholder('—')
+                    ->state(fn (PaymentOrder $record): ?string => self::tierMismatch($record)),
                 Tables\Columns\TextColumn::make('created_via')->badge()->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('expires_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('paid_at')->dateTime()->placeholder('—')->sortable()->toggleable(),
@@ -109,6 +113,9 @@ class PaymentOrderResource extends Resource
                 Tables\Filters\Filter::make('offer_double_discount')
                     ->label('Double discount')
                     ->query(fn (Builder $query): Builder => $query->where('meta->offer_double_discount', true)),
+                Tables\Filters\Filter::make('tier_mismatch')
+                    ->label('Tier mismatch')
+                    ->query(fn (Builder $query): Builder => $query->where('meta->tier_mismatch', true)),
             ])
             ->actions([Actions\ViewAction::make()])
             ->defaultSort('id', 'desc');
@@ -129,6 +136,18 @@ class PaymentOrderResource extends Resource
         $reason = $order->meta['canceled_reason'] ?? null;
 
         return is_string($reason) ? $reason : null;
+    }
+
+    /** `meta.tier_mismatch` (docs/13 "Реализация 2B.8"): "tier mismatch (live: tutor)". */
+    private static function tierMismatch(PaymentOrder $order): ?string
+    {
+        if (self::flag($order, 'tier_mismatch', 'tier mismatch') === null) {
+            return null;
+        }
+
+        $live = $order->meta['tier_mismatch_live_tier'] ?? null;
+
+        return is_string($live) ? "tier mismatch (live: {$live})" : 'tier mismatch';
     }
 
     private static function flag(PaymentOrder $order, string $key, string $label): ?string

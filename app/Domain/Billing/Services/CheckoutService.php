@@ -196,7 +196,7 @@ final class CheckoutService
             throw CheckoutException::conflict($live->provider);
         }
 
-        if ($live !== null && $tier !== null && $this->changesLiveTier($live, $tier, $now)) {
+        if ($live !== null && $tier !== null && self::changesLiveTier($live, $tier, $now)) {
             throw CheckoutException::tierChangeRequiresSupport((string) $live->tier, $tier);
         }
 
@@ -427,7 +427,7 @@ final class CheckoutService
      * A live row without a tier (an old grant) and a row whose period has already run out (not yet
      * swept by `subscriptions:expire`) have nothing to protect.
      */
-    private function changesLiveTier(Subscription $live, string $tier, CarbonImmutable $now): bool
+    public static function changesLiveTier(Subscription $live, string $tier, CarbonImmutable $now): bool
     {
         return $live->tier !== null
             && $live->tier !== $tier

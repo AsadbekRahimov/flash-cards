@@ -94,12 +94,14 @@ final class OrgBillingService
             }
 
             $limit = OrgTiers::seats($key);
+            $purchasable = $prices !== [];
             $tiers[] = [
                 'key' => $key,
                 'seats' => $limit,
                 'prices' => $prices,
-                'purchasable' => $prices !== [],
+                'purchasable' => $purchasable,
                 'below_seated' => $limit !== null && $limit < $seats->seated,
+                'online_allowed' => $purchasable && ($subscription === null || ! CheckoutService::changesLiveTier($subscription, $key, $now)),
             ];
         }
 
