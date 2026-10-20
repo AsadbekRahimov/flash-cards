@@ -5,9 +5,11 @@ declare(strict_types=1);
 use App\Http\Controllers\Api\Twa\AssignmentController;
 use App\Http\Controllers\Api\Twa\AuthController;
 use App\Http\Controllers\Api\Twa\BillingController;
+use App\Http\Controllers\Api\Twa\ChallengeController;
 use App\Http\Controllers\Api\Twa\CourseController;
 use App\Http\Controllers\Api\Twa\DeckController;
 use App\Http\Controllers\Api\Twa\ExamController;
+use App\Http\Controllers\Api\Twa\FriendController;
 use App\Http\Controllers\Api\Twa\LeagueController;
 use App\Http\Controllers\Api\Twa\MeController;
 use App\Http\Controllers\Api\Twa\OrganizationController;
@@ -39,6 +41,19 @@ Route::prefix('twa')->group(function (): void {
         Route::get('/assignments', AssignmentController::class)->name('twa.assignments');
         Route::get('/referrals', ReferralController::class)->name('twa.referrals');
         Route::get('/league', LeagueController::class)->name('twa.league');
+
+        // Friends and challenges (docs/13 §7.5, docs/04 A.13): reads share `twa-api`, writes have their own cap.
+        Route::get('/friends', [FriendController::class, 'index'])->name('twa.friends');
+        Route::get('/challenges', [ChallengeController::class, 'index'])->name('twa.challenges');
+        Route::middleware('throttle:twa-friends')->group(function (): void {
+            Route::post('/friends/{friendship}/accept', [FriendController::class, 'accept'])->name('twa.friends.accept');
+            Route::post('/friends/{friendship}/decline', [FriendController::class, 'decline'])->name('twa.friends.decline');
+            Route::post('/friends/{friendship}/remove', [FriendController::class, 'remove'])->name('twa.friends.remove');
+            Route::post('/challenges', [ChallengeController::class, 'store'])->name('twa.challenges.store');
+            Route::post('/challenges/{challenge}/accept', [ChallengeController::class, 'accept'])->name('twa.challenges.accept');
+            Route::post('/challenges/{challenge}/decline', [ChallengeController::class, 'decline'])->name('twa.challenges.decline');
+        });
+
         Route::post('/promo/redeem', [PromoController::class, 'redeem'])
             ->middleware('throttle:twa-promo')
             ->name('twa.promo.redeem');

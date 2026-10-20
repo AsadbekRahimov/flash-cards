@@ -12,6 +12,7 @@ use App\Domain\Learners\Services\OnboardingService;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Domain\Telegram\Services\FriendsMessenger;
 use App\Domain\Telegram\Services\OnboardingMessenger;
 use App\Domain\Telegram\Services\OrganizationMessenger;
 use App\Domain\Telegram\Services\TodayScreen;
@@ -25,7 +26,10 @@ use Carbon\CarbonImmutable;
  * starts — or, for a learner who has finished it, the "Today" screen is shown. An `org_<code>` link
  * (docs/13 §6.2) adds a "Join center X?" question: at once for a learner who has finished the
  * onboarding, after its last step otherwise; a code that cannot be used is explained and ignored.
- * A `ref_<code>` link (docs/13 §7.1) also links the referral when the learner is new.
+ * A `ref_<code>` link (docs/13 §7.1) also links the referral when the learner is new. An `f_<code>` link, or a
+ * `ref_<code>` link opened by somebody who is ALREADY a learner (docs/13 §7.5), is an invitation to be friends:
+ * "X invites you" with Accept / Decline at once for a learner who has finished the onboarding, a silent pending
+ * request (answered later in the app) for one who has not.
  */
 final class StartCommandHandler implements UpdateHandler
 {
@@ -38,6 +42,7 @@ final class StartCommandHandler implements UpdateHandler
         private readonly TodayScreen $today,
         private readonly OrganizationMessenger $organizations,
         private readonly ReferralService $referrals,
+        private readonly FriendsMessenger $friends,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -109,7 +114,17 @@ final class StartCommandHandler implements UpdateHandler
             $this->referrals->link($learner, $referralCode, CarbonImmutable::now());
         }
 
+        // "Be my friend" (docs/13 §7.5): `f_<code>`, or the referral link of someone who was already here.
+        $friendCode = $payload->friendCode() ?? ($learner->wasRecentlyCreated ? null : $referralCode);
+
         if ($learner->onboarding_state === OnboardingService::DONE) {
+            if ($friendCode !== null) {
+                // The invitation is why they came: the question replaces "Today".
+                $this->friends->offer($learner, $chatId, $friendCode);
+
+                return;
+            }
+
             if ($payload->kind === StartPayloadKind::Org && $payload->value !== null) {
                 // The invite link is why they came: the question replaces "Today".
                 $this->organizations->offer($learner, $chatId, $payload->value);
@@ -122,6 +137,10 @@ final class StartCommandHandler implements UpdateHandler
             $this->messenger->sendCourseLink($learner, $chatId, $payload);
 
             return;
+        }
+
+        if ($friendCode !== null) {
+            $this->friends->rememberInvite($learner, $friendCode);
         }
 
         // A code that cannot be used is explained now and not remembered for the end of the onboarding.

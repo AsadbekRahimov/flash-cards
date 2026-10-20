@@ -766,6 +766,37 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 
 **Правила:** строки пишет только `LeagueService` (docs/13 §2.4). Размещение — после commit транзакции оценки (`DailyStatsService` → `DB::afterCommit` на первой оценке локального дня), блокирует только `league_groups` (`FOR UPDATE SKIP LOCKED`, при отсутствии свободной группы — advisory-lock `(week, tier)` + ожидающий `FOR UPDATE`, затем новая группа); `learners` не блокируется, двух learner'ов в одной транзакции нет. Очки недели: `Σ reviews_count×1 + correct_count×1 + new_words_count×2 + (goal_met_at IS NOT NULL ? 10 : 0)` по `learner_daily_stats.date ∈ [starts_on, ends_on]` (веса — `config('leagues.points')`), один агрегирующий запрос на группу, кэш `league:standings:{group}` 60 с. `learners.meta.leagues_opt_out = true` — learner не размещается (настройки TWA).
 
+### 2.37 `friendships` — друзья *(2C.5, docs/13 §1.5, §7.5)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| learner_id | bigint FK → learners, ON DELETE CASCADE | **меньший** id пары |
+| friend_id | bigint FK → learners, ON DELETE CASCADE | **больший** id пары |
+| status | string(10) | `pending` / `accepted` / `blocked`. Отклонённая, отозванная или удалённая дружба **строки не имеет** (пара может запросить снова) |
+| requested_by_learner_id | bigint FK → learners, ON DELETE CASCADE | кто пригласил; для `blocked` — кто заблокировал |
+| accepted_at | timestamp nullable | |
+| created_at, updated_at | | |
+
+**Индексы:** unique `(learner_id, friend_id)`; `(friend_id, status)`; `requested_by_learner_id`. **На PostgreSQL** CHECK `friendships_pair_order_check (learner_id < friend_id)` — A→B и B→A физически одна строка (на sqlite пару нормализует `FriendshipService::pair()`). Пишет только `FriendshipService`; блокировок learner'ов нет (docs/13 §3 п.4): каждая запись — одна инструкция по строке пары.
+
+### 2.38 `challenges` — вызовы между друзьями *(2C.5, docs/13 §1.5, §7.5)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| challenger_id, opponent_id | bigint FK → learners, ON DELETE CASCADE | кто бросил вызов / кому |
+| metric | string(12) | `reviews` (Σ `learner_daily_stats.reviews_count`) / `new_words` (Σ `new_words_count`) |
+| days | smallint | длина вызова (`config('friends.challenges.days')`, 7) |
+| status | string(10) | `pending` → `active` → `finished`; `declined`, `expired` (не принят за `pending_ttl_hours`, 72), `canceled` (дружба закончилась) |
+| open_pair | string(40) nullable **unique** | `<меньший id>:<больший id>`, пока вызов открыт (`pending`/`active`), иначе `NULL`: «один открытый вызов на пару» — факт БД |
+| starts_at, ends_at | timestamp nullable | задаются при принятии; `ends_at` — момент, когда `ends_on` закончился в поясах **обоих** игроков (позднейший) |
+| starts_on, ends_on | date nullable | диапазон локальных дат `learner_daily_stats.date` (включительно) |
+| winner_learner_id | bigint FK nullable → learners, ON DELETE SET NULL | `NULL` при ничьей |
+| scores | jsonb nullable | `{challenger: int, opponent: int}` после закрытия |
+| finished_at | timestamp nullable | закрытие / отказ / истечение / отмена |
+| created_at, updated_at | | |
+
+**Индексы:** `open_pair` unique; `(status, ends_at)` (планировщик); `(challenger_id, status)`; `(opponent_id, status)`; `winner_learner_id`. Пишет только `ChallengeService` (+ `FriendshipService` при удалении дружбы: `UPDATE … SET status='canceled', open_pair=NULL` по паре).
+
 ## 3. Порядок миграций
 
 Миграции создаём в таком порядке (порядок имеет значение из-за FK). Пока на дисках лежат исходные create-миграции
@@ -810,6 +841,7 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 36. `2026_10_22_100001_create_referrals_table` *(2C.1)*
 37. `2026_10_22_200001_add_streak_freeze_columns` — `learners.streak_freezes`, `streak_freezes_refilled_on`; `learner_daily_stats.frozen_at` *(2C.2)*
 38. `2026_10_22_300001_create_league_tables` — `league_weeks`, `league_groups`, `league_members` (одна миграция, три таблицы) *(2C.3)*
+39. `2026_10_22_500001_create_friendships_table`, `2026_10_22_500002_create_challenges_table` *(2C.5)*
 
 Индексные миграции (`add_performance_indexes`, `add_open_session_unique_indexes`) и `create_exam_*`, `create_notifications_log_table`,
 `create_product_events_table` переведены на `learner_id` на месте; `add_open_session_unique_indexes` дополнительно создаёт

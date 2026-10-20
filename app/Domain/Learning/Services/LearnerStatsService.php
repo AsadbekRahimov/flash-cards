@@ -31,6 +31,34 @@ final class LearnerStatsService
     }
 
     /**
+     * `words_learned` of many learners in one query (the same rule as {@see forLearner()}); a learner
+     * without a learned word is present with 0.
+     *
+     * @param  list<int>  $learnerIds
+     * @return array<int, int>
+     */
+    public function wordsLearnedFor(array $learnerIds): array
+    {
+        $counts = array_fill_keys($learnerIds, 0);
+        if ($learnerIds === []) {
+            return $counts;
+        }
+
+        $rows = WordRepetition::query()
+            ->whereIn('learner_id', $learnerIds)
+            ->where('repetitions', '>=', 1)
+            ->selectRaw('learner_id, count(*) as n')
+            ->groupBy('learner_id')
+            ->pluck('n', 'learner_id');
+
+        foreach ($rows as $learnerId => $n) {
+            $counts[(int) $learnerId] = (int) $n;
+        }
+
+        return $counts;
+    }
+
+    /**
      * Cards the learner should come back for right now — the number shown as `words_due_today`
      * and as `due_count` of the "Today" screen.
      */

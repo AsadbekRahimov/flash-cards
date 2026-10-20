@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 use App\Models\Assignment;
 use App\Models\AssignmentResult;
+use App\Models\Challenge;
 use App\Models\Course;
 use App\Models\ExamAnswer;
 use App\Models\ExamQuestionAttempt;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
+use App\Models\Friendship;
 use App\Models\GroupMember;
 use App\Models\LeagueGroup;
 use App\Models\LeagueMember;
@@ -79,6 +81,8 @@ $expectedTables = [
     // Phase 2 (docs/13 §1.5): referrals, leagues.
     'referrals',
     'league_weeks', 'league_groups', 'league_members',
+    // Phase 2 (docs/13 §1.5): friends and challenges.
+    'friendships', 'challenges',
 ];
 
 /**
@@ -789,6 +793,7 @@ it('rolls back and re-applies the billing migrations (2A.1) in FK order', functi
 
 it('rolls back and re-applies the learner-first migrations (1.1a + 1.1b)', function (): void {
     $newTables = [
+        'friendships', 'challenges',
         'league_members', 'league_groups', 'league_weeks',
         'referrals',
         'payments', 'provider_transactions', 'payment_orders', 'offers',
@@ -972,4 +977,53 @@ it('rolls back and re-applies the league migration (2C.3)', function (): void {
     expect(Schema::hasTable('league_weeks'))->toBeTrue()
         ->and(Schema::hasTable('league_groups'))->toBeTrue()
         ->and(Schema::hasTable('league_members'))->toBeTrue();
+});
+
+// --- 2C.5 friends and challenges (docs/13 §1.5) ----------------------------------
+
+it('keeps ONE friendships row per normalised pair and, on PostgreSQL, refuses a pair in the wrong order', function (): void {
+    [$a, $b] = [Learner::factory()->create(), Learner::factory()->create()];
+    [$low, $high] = $a->id < $b->id ? [$a, $b] : [$b, $a];
+
+    Friendship::query()->create(['learner_id' => $low->id, 'friend_id' => $high->id, 'status' => 'pending', 'requested_by_learner_id' => $low->id]);
+    expectConstraintViolation(fn () => Friendship::query()->create(['learner_id' => $low->id, 'friend_id' => $high->id, 'status' => 'accepted', 'requested_by_learner_id' => $high->id]));
+
+    if (DB::getDriverName() === 'pgsql') {
+        // A→B and B→A cannot be two rows: the reversed pair violates CHECK (learner_id < friend_id).
+        expectConstraintViolation(fn () => Friendship::query()->create(['learner_id' => $high->id, 'friend_id' => $low->id, 'status' => 'pending', 'requested_by_learner_id' => $high->id]));
+        expectConstraintViolation(fn () => Friendship::query()->create(['learner_id' => $low->id, 'friend_id' => $low->id, 'status' => 'pending', 'requested_by_learner_id' => $low->id]));
+    }
+
+    expect(Friendship::query()->count())->toBe(1);
+});
+
+it('cascades friendships and challenges with their learners', function (): void {
+    [$a, $b] = [Learner::factory()->create(), Learner::factory()->create()];
+    Friendship::factory()->between($a, $b)->create();
+    Challenge::factory()->create(['challenger_id' => $a->id, 'opponent_id' => $b->id, 'winner_learner_id' => $a->id, 'status' => 'finished']);
+
+    $a->forceDelete();
+    expect(Friendship::query()->count())->toBe(0)
+        ->and(Challenge::query()->count())->toBe(0);
+});
+
+it('allows ONE open challenge per pair through the open_pair unique index, and many closed ones', function (): void {
+    [$a, $b] = [Learner::factory()->create(), Learner::factory()->create()];
+    Challenge::factory()->create(['challenger_id' => $a->id, 'opponent_id' => $b->id, 'open_pair' => '1:2']);
+    expectConstraintViolation(fn () => Challenge::factory()->create(['challenger_id' => $b->id, 'opponent_id' => $a->id, 'open_pair' => '1:2']));
+
+    Challenge::factory()->count(3)->create(['challenger_id' => $a->id, 'opponent_id' => $b->id, 'status' => 'finished', 'open_pair' => null]);
+    expect(Challenge::query()->count())->toBe(4);
+});
+
+it('rolls back and re-applies the friends migrations (2C.5)', function (): void {
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_22_500001_create_friendships_table')])->assertSuccessful();
+    expect(Schema::hasTable('friendships'))->toBeFalse()
+        ->and(Schema::hasTable('challenges'))->toBeFalse()
+        ->and(Schema::hasTable('referrals'))->toBeTrue();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasTable('friendships'))->toBeTrue()
+        ->and(Schema::hasTable('challenges'))->toBeTrue()
+        ->and(Schema::hasColumn('challenges', 'open_pair'))->toBeTrue();
 });

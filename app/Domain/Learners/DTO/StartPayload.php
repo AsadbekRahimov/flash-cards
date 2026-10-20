@@ -20,6 +20,7 @@ use App\Domain\Learners\Enums\StartPayloadKind;
  *   src_<channel>     — campaign / blogger, `[a-z0-9_]{1,32}`
  *   c_<slug>          — course link, a lower-case course slug
  *   org_<code>        — centre invite (docs/13 §6.2)
+ *   f_<code>          — "be my friend": the inviter's `learners.referral_code` (docs/13 §7.5)
  */
 final readonly class StartPayload
 {
@@ -57,6 +58,7 @@ final readonly class StartPayload
             [StartPayloadKind::Src, '/^src_([a-z0-9_]{1,32})$/'],
             [StartPayloadKind::Course, '/^c_([a-z0-9][a-z0-9_-]{0,'.(self::COURSE_SLUG_MAX - 1).'})$/'],
             [StartPayloadKind::Org, '/^org_([A-Za-z0-9_-]{1,32})$/'],
+            [StartPayloadKind::Friend, '/^f_([A-Z0-9]{6,12})$/'],
         ];
 
         foreach ($patterns as [$kind, $pattern]) {
@@ -82,6 +84,7 @@ final readonly class StartPayload
             StartPayloadKind::Src => 'src:'.$this->value,
             StartPayloadKind::Course => 'course:'.$this->value,
             StartPayloadKind::Org => 'org',
+            StartPayloadKind::Friend => 'friend',
         };
     }
 
@@ -89,6 +92,12 @@ final readonly class StartPayload
     public function referralCode(): ?string
     {
         return $this->kind === StartPayloadKind::Ref ? $this->value : null;
+    }
+
+    /** The inviter's `referral_code` of an `f_<code>` link. */
+    public function friendCode(): ?string
+    {
+        return $this->kind === StartPayloadKind::Friend ? $this->value : null;
     }
 
     public function courseSlug(): ?string

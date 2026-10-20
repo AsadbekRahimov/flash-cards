@@ -131,6 +131,57 @@ export interface LeagueResponse {
   last_week: { starts_on: string; tier: number; tier_key: LeagueTierKey; result: LeagueResult; rank: number; points: number } | null
 }
 
+/** GET /friends (docs/04 A.13): friends, incoming / outgoing requests. `id` is the friendship id; of other people only a first name, the streak and the learned words. */
+export interface FriendItem {
+  id: number
+  first_name: string | null
+  streak: number
+  words_learned: number
+  since: string | null
+}
+
+export interface FriendRequestItem {
+  id: number
+  first_name: string | null
+  requested_at: string | null
+}
+
+export interface FriendsResponse {
+  invite_link: string | null
+  limit: number
+  friends: FriendItem[]
+  incoming: FriendRequestItem[]
+  outgoing: FriendRequestItem[]
+}
+
+/** GET /challenges, POST /challenges[/id/accept|decline] (docs/04 A.13). */
+export type ChallengeMetric = 'reviews' | 'new_words'
+export type ChallengeStatus = 'pending' | 'active' | 'finished' | 'declined' | 'expired' | 'canceled'
+
+export interface ChallengeItem {
+  id: number
+  status: ChallengeStatus
+  metric: ChallengeMetric
+  days: number
+  /** `challenger` = you proposed it; `opponent` = you were challenged. */
+  role: 'challenger' | 'opponent'
+  friend_name: string | null
+  /** null once the friendship is gone. */
+  friendship_id: number | null
+  starts_on: string | null
+  ends_on: string | null
+  created_at: string | null
+  my_score: number | null
+  their_score: number | null
+  result: 'won' | 'lost' | 'draw' | null
+}
+
+export interface ChallengesResponse {
+  days: number
+  open: ChallengeItem[]
+  finished: ChallengeItem[]
+}
+
 /** Body of PATCH /me/settings: only the fields to change; `reminder_time: null` turns the reminders off. */
 export type SettingsPatch = Partial<
   Pick<LearnerSettings, 'interface_locale' | 'timezone' | 'reminder_time' | 'daily_goal' | 'goal' | 'level' | 'leagues_opt_out'>

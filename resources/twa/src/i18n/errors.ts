@@ -61,6 +61,19 @@ export const KNOWN_ERROR_CODES = [
   'order_not_found',
   'membership_not_found',
   'membership_via_group',
+  'friendship_self',
+  'friend_unavailable',
+  'friendship_not_found',
+  'not_recipient',
+  'friend_limit',
+  'friend_limit_other',
+  'friend_blocked',
+  'challenge_not_found',
+  'not_friends',
+  'challenge_exists',
+  'challenge_invalid',
+  'not_opponent',
+  'challenge_closed',
 ] as const
 
 export type KnownErrorCode = (typeof KNOWN_ERROR_CODES)[number]
