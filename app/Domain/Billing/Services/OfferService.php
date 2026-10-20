@@ -8,6 +8,7 @@ use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Exceptions\OfferException;
+use App\Domain\Billing\Support\ProviderTransactionTimeout;
 use App\Models\AuditLog;
 use App\Models\Learner;
 use App\Models\Offer;
@@ -82,7 +83,8 @@ final class OfferService
      * B2B -> B2C bridge (docs/13 §0, §6): a learner who lost a seated place in an organization
      * gets `post_org_discount` for the first month. Null (nothing created) when the learner still
      * has Pro from ANY source — own subscription or a seat in another center (2B.7a: the discount is
-     * for someone who actually lost Pro) — or already holds an open offer of this kind.
+     * for someone who actually lost Pro) — or already holds an open offer of this kind, or has already
+     * USED one (2B.8: the discount is given once in a lifetime; a lapsed unused one may be re-issued).
      * Called after the membership transaction committed (own short transaction).
      */
     public function createPostOrgDiscount(Learner $learner, Organization $from, ?CarbonImmutable $now = null): ?Offer
@@ -98,6 +100,12 @@ final class OfferService
         }
 
         if ($this->openFor($learner, Offer::KIND_POST_ORG_DISCOUNT, $now) !== null) {
+            return null;
+        }
+
+        // Once per learner: a discount that was already used is never given again, however many times
+        // the learner joins and leaves a center (2B.8). A lapsed, never-used one is not an abuse: a new one may follow.
+        if (Offer::query()->where('learner_id', $learner->id)->where('kind', Offer::KIND_POST_ORG_DISCOUNT)->whereNotNull('redeemed_at')->exists()) {
             return null;
         }
 
@@ -180,23 +188,24 @@ final class OfferService
 
     /**
      * The provider may be mid-payment on this order: an open Payme / Click transaction younger
-     * than the provider timeout (Payme CreateTransaction -> debit -> PerformTransaction, Click
-     * Prepare -> debit -> Complete). Such an order must not be canceled under the payer's feet.
+     * than THAT provider's timeout (Payme CreateTransaction -> debit -> PerformTransaction, 12 h;
+     * Click Prepare -> debit -> Complete, `billing.providers.click.transaction_timeout_ms`), see
+     * {@see ProviderTransactionTimeout}. Such an order must not be canceled under the payer's feet.
      * Stars has no such row: its window (pre_checkout_query answered -> successful_payment) lasts
      * seconds and is covered by PaymentApplier honouring a charge on an offer-canceled order.
      */
     public function isBeingPaid(PaymentOrder $order, CarbonImmutable $now): bool
     {
+        $since = ProviderTransactionTimeout::openSince($order->provider, $now);
+
+        if ($since === null) {
+            return false;
+        }
+
         return $order->providerTransactions()
             ->where('state', ProviderTransaction::STATE_CREATED)
-            ->where('created_at_provider', '>', $this->openTransactionSince($now))
+            ->where('created_at_provider', '>', $since)
             ->exists();
-    }
-
-    /** Cut-off for "an open provider transaction still counts" (same rule as CheckoutService::expirePending). */
-    public function openTransactionSince(CarbonImmutable $now): CarbonImmutable
-    {
-        return $now->subMilliseconds((int) config('billing.providers.payme.transaction_timeout_ms', 43_200_000));
     }
 
     /**

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Domain\Billing\DTO\CheckoutLink;
+use App\Domain\Billing\Support\ProviderTransactionTimeout;
 use Carbon\CarbonImmutable;
 use Database\Factories\PaymentOrderFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -118,16 +119,30 @@ class PaymentOrder extends Model
     }
 
     /**
-     * Orders without an open provider transaction created after $openSince — i.e. nothing is being
-     * paid right now (Payme CreateTransaction / Click Prepare happened and Perform / Complete may
-     * follow); an open transaction older than the provider timeout is treated as dead (docs/13 §4.2).
+     * Orders without an open provider transaction younger than its provider's cut-off — i.e. nothing
+     * is being paid right now (Payme CreateTransaction / Click Prepare happened and Perform / Complete
+     * may follow); an open transaction older than the provider's timeout is treated as dead
+     * (docs/13 §4.2, §4.3; {@see ProviderTransactionTimeout}).
+     * A transaction of a provider without a cut-off never counts as open.
      *
      * @param  Builder<PaymentOrder>  $query
+     * @param  array<string, CarbonImmutable>  $openSinceByProvider  provider key => instant after which an open transaction still counts
      */
-    public function scopeWithoutOpenProviderTransaction(Builder $query, CarbonImmutable $openSince): void
+    public function scopeWithoutOpenProviderTransaction(Builder $query, array $openSinceByProvider): void
     {
-        $query->whereDoesntHave('providerTransactions', function (Builder $transactions) use ($openSince): void {
-            $transactions->where('state', ProviderTransaction::STATE_CREATED)->where('created_at_provider', '>', $openSince);
+        if ($openSinceByProvider === []) {
+            return;
+        }
+
+        $query->whereDoesntHave('providerTransactions', function (Builder $transactions) use ($openSinceByProvider): void {
+            $transactions->where('state', ProviderTransaction::STATE_CREATED)
+                ->where(function (Builder $open) use ($openSinceByProvider): void {
+                    foreach ($openSinceByProvider as $provider => $since) {
+                        $open->orWhere(function (Builder $of) use ($provider, $since): void {
+                            $of->where('provider', $provider)->where('created_at_provider', '>', $since);
+                        });
+                    }
+                });
         });
     }
 

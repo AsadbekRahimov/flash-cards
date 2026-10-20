@@ -415,6 +415,7 @@ return [
             'provider_not_supported' => "Bu to'lov usuli markazlar uchun mavjud emas. Payme yoki Click'ni tanlang.",
             'checkout_conflict' => "Hozir to'lov qilib bo'lmaydi: markazda avtoyangilanadigan obuna bor. Qo'llab-quvvatlashga murojaat qiling.",
             'too_many_pending' => "Markazda to'lanmagan buyurtmalar bor. Birini to'lang yoki kuting — ular o'zi yopiladi.",
+            'tier_change_requires_support' => "Tarifni o'zgartirish uchun biz bilan bog'laning: onlayn faqat joriy tarifni uzaytirish mumkin.",
             'offer_not_applicable' => "Chegirma bu xaridga qo'llanilmaydi.",
             'invalid_period' => "Bunday to'lov muddati yo'q.",
             'invalid_tier' => "Bunday tarif yo'q.",

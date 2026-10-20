@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Exceptions\CheckoutException;
 use App\Domain\Billing\Exceptions\DuplicatePaymentException;
 use App\Domain\Billing\Exceptions\ProviderUnavailableException;
 use App\Domain\Billing\Services\PaymentApplier;
+use App\Domain\Billing\Services\SubscriptionService;
 use App\Domain\Organizations\Enums\OrganizationRole;
 use App\Domain\Organizations\Exceptions\OrgBillingException;
 use App\Domain\Organizations\Services\OrganizationMembershipService;
@@ -287,7 +289,7 @@ it('credits an order once however many times the provider repeats the event', fu
         ->and(obSeatCount($this->org, 'seated'))->toBe(2);
 });
 
-it('upgrades: a bigger tier raises the limit and seats the queue; the period is extended, not reset', function (): void {
+it('upgrades through the platform: a bigger tier raises the limit and seats the queue; online, only the live tier can be renewed (2B.8)', function (): void {
     config()->set('billing.org_tiers.tutor.seats', 2);
     config()->set('billing.org_tiers.center_s.seats', 4);
     obWaitlist($this->org, 5);
@@ -296,12 +298,26 @@ it('upgrades: a bigger tier raises the limit and seats the queue; the period is 
     $applier->applyCharge($this->payme->emitCharge($this->billing->checkout($this->owner, $this->org, 'tutor', 'month', SubscriptionProvider::Payme), eventId: 'up-1'));
     expect(obSeatCount($this->org, 'seated'))->toBe(2);
 
+    // Another tier is not sold online while the subscription is live: it would re-label the prepaid period.
+    try {
+        $this->billing->checkout($this->owner, $this->org, 'center_s', 'month', SubscriptionProvider::Payme);
+        $this->fail('Expected CheckoutException');
+    } catch (CheckoutException $e) {
+        expect($e->errorCode)->toBe(CheckoutException::TIER_CHANGE_REQUIRES_SUPPORT)->and($e->httpStatus())->toBe(409);
+    }
+    expect(PaymentOrder::query()->where('status', 'pending')->count())->toBe(0);
+
+    // The platform changes the tariff by hand (grantManual), the queue is seated right after the grant ...
+    app(SubscriptionService::class)->grantManual($this->org, Plan::Pro, CarbonImmutable::now()->addDays(60), User::factory()->create(), 'upgrade agreed', tier: 'center_s');
+    expect(obSeatCount($this->org, 'seated'))->toBe(4);
+
+    // ... and the owner renews the new tier online: the period is extended, not reset.
     $applier->applyCharge($this->payme->emitCharge($this->billing->checkout($this->owner, $this->org, 'center_s', 'month', SubscriptionProvider::Payme), eventId: 'up-2'));
 
     $sub = Subscription::query()->sole();
     expect($sub->tier)->toBe('center_s')
         ->and($sub->seats_limit)->toBe(4)
-        ->and($sub->current_period_ends_at?->toIso8601String())->toBe(CarbonImmutable::now()->addDays(60)->toIso8601String())
+        ->and($sub->current_period_ends_at?->toIso8601String())->toBe(CarbonImmutable::now()->addDays(90)->toIso8601String())
         ->and(obSeatCount($this->org, 'seated'))->toBe(4)
         ->and(obSeatCount($this->org, 'waitlisted'))->toBe(1);
 });
@@ -321,8 +337,15 @@ it('a downgrade unseats nobody: the excess is shown and a newcomer waits', funct
     $tiers = collect($this->billing->page($this->owner, $this->org)->tiers)->keyBy('key');
     expect($tiers['tutor']['below_seated'])->toBeTrue()->and($tiers['center_s']['below_seated'])->toBeFalse();
 
-    // ... and paying for it changes the limit only.
-    $applier->applyCharge($this->payme->emitCharge($this->billing->checkout($this->owner, $this->org, 'tutor', 'month', SubscriptionProvider::Payme), eventId: 'dn-2'));
+    // ... online it cannot be bought while center_s is live (2B.8); the platform moves the center down by hand,
+    // and that changes the limit only.
+    try {
+        $this->billing->checkout($this->owner, $this->org, 'tutor', 'month', SubscriptionProvider::Payme);
+        $this->fail('Expected CheckoutException');
+    } catch (CheckoutException $e) {
+        expect($e->errorCode)->toBe(CheckoutException::TIER_CHANGE_REQUIRES_SUPPORT);
+    }
+    app(SubscriptionService::class)->grantManual($this->org, Plan::Pro, CarbonImmutable::now()->addDays(30), User::factory()->create(), 'downgrade agreed', tier: 'tutor');
 
     $page = $this->billing->page($this->owner, $this->org);
     expect(Subscription::query()->sole()->seats_limit)->toBe(2)

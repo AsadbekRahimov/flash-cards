@@ -269,8 +269,19 @@ Filters: status, provider, plan, subject, and *Live status* (live = trialing / a
   Send the invoice (the owner can also open a printable one from Billing → *Orders* once an online order exists;
   the seller details come from `SITE_LEGAL_*`), and after the money arrives use **Grant Pro** → *Organization* →
   **Pro until** (period end) + **Tier**. The seats limit is set from the tier and the waiting list is seated
-  automatically right after the grant. Center L is always done this way. If the center later pays online for
-  another tier, the online payment replaces the tier and extends the period from the current end.
+  automatically right after the grant. Center L is always done this way.
+- **Changing a center's tier is always manual.** While a center's subscription is live, the cabinet sells only a
+  *renewal of the current tier*; an attempt to pay for another tier online is refused with "To change the tariff,
+  contact us" (a different tier applied to the whole prepaid period would turn 12 months of Tutor + 1 month of
+  Center M into 13 months of Center M, or strip a prepaid Center M down to Tutor seats). Agree the change with the
+  owner (extra payment or a credit on the next invoice) and apply it with **Grant Pro** → *Organization* → **Tier**
+  + **Pro until**; the seats limit changes at once and the waiting list is seated.
+- **`tier_mismatch` on a payment order.** If an online order was created for one tier and paid after the tier had
+  been changed by hand (or by another payment), the money is credited and the period extended, but the tier and
+  the seats are **left as they were**: the order carries `meta.tier_mismatch = true` (with `tier_mismatch_live_tier`),
+  the log has `billing.org_tier_mismatch` and the audit log an entry `subscription.tier_mismatch`. Look at such
+  orders (Billing → **Payment orders**, the order's meta): decide with the owner whether the paid month is for the
+  live tier (nothing to do) or the ordered one (Grant Pro with the right tier, or a refund).
 - **Revoke** (row button, live subscriptions only): ends the subscription now; **Reason** required, audit
   `subscription.revoked`. The learner loses Pro within seconds (the cached plan is dropped at once).
 - A subscription that ran out of time is closed automatically by the hourly job `subscriptions:expire`.

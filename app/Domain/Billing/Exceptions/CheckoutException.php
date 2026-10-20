@@ -11,6 +11,8 @@ namespace App\Domain\Billing\Exceptions;
  *   provider_disabled       409  provider not registered or `billing.providers.<key>.enabled` is false
  *   provider_not_supported  422  provider does not serve this subscriber type / currency (Stars for an organization)
  *   checkout_conflict       409  a live auto-renewing subscription exists and another provider was chosen
+ *   tier_change_requires_support 409  an organization with a live subscription ordered a DIFFERENT tier: only a
+ *                                renewal of the current tier is sold online, a change goes through the platform
  *   too_many_pending        429  the subscriber already has `checkout.max_pending_per_subscriber` pending orders
  *   offer_not_applicable    409  the offer is redeemed / expired / someone else's / for another plan or period
  *   offer_busy              409  the offer is on a pending order that is being paid right now (open provider
@@ -27,6 +29,8 @@ final class CheckoutException extends BillingException
     public const PROVIDER_NOT_SUPPORTED = 'provider_not_supported';
 
     public const CONFLICT = 'checkout_conflict';
+
+    public const TIER_CHANGE_REQUIRES_SUPPORT = 'tier_change_requires_support';
 
     public const TOO_MANY_PENDING = 'too_many_pending';
 
@@ -56,6 +60,11 @@ final class CheckoutException extends BillingException
     public static function conflict(string $liveProvider): self
     {
         return new self(self::CONFLICT, "A live auto-renewing [{$liveProvider}] subscription exists; cancel its renewal before paying with another provider.");
+    }
+
+    public static function tierChangeRequiresSupport(string $liveTier, string $orderedTier): self
+    {
+        return new self(self::TIER_CHANGE_REQUIRES_SUPPORT, "The subscription is on tier [{$liveTier}]; tier [{$orderedTier}] cannot be bought online while it is live — contact support to change the tariff.");
     }
 
     public static function tooManyPending(int $max): self

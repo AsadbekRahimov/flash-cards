@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Billing\DTO\ChargeEvent;
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Enums\SubscriptionProvider;
+use App\Domain\Billing\Exceptions\CheckoutException;
 use App\Domain\Billing\Exceptions\DuplicatePaymentException;
 use App\Domain\Billing\Exceptions\PaymentApplyException;
 use App\Domain\Billing\Services\CheckoutService;
@@ -284,10 +285,13 @@ it('credits an organization order with its tier and drops the cache of the spons
         ->and($resolver->for($member)->source)->toBe("sponsor:organization:{$org->id}")
         ->and(ProductEvent::query()->where('name', 'payment.succeeded')->sole()->learner_id)->toBeNull();
 
-    // A tier change on the next payment moves the seats.
-    $upgrade = app(CheckoutService::class)->create($org, Plan::Pro, 'month', SubscriptionProvider::Payme, 'center_m', 'org_panel');
-    app(PaymentApplier::class)->applyCharge($this->payme->emitCharge($upgrade, eventId: 'org-pay-2'));
-    expect($sub->refresh()->tier)->toBe('center_m')->and($sub->seats_limit)->toBe(300)
+    // Another tier is not sold online while the subscription is live (2B.8, OrgTierChangeTest); a renewal
+    // of the same tier extends the period and keeps the seats.
+    expect(fn () => app(CheckoutService::class)->create($org, Plan::Pro, 'month', SubscriptionProvider::Payme, 'center_m', 'org_panel'))
+        ->toThrow(CheckoutException::class, 'contact support');
+    $renewal = app(CheckoutService::class)->create($org, Plan::Pro, 'month', SubscriptionProvider::Payme, 'center_s', 'org_panel');
+    app(PaymentApplier::class)->applyCharge($this->payme->emitCharge($renewal, eventId: 'org-pay-2'));
+    expect($sub->refresh()->tier)->toBe('center_s')->and($sub->seats_limit)->toBe(100)
         ->and($sub->current_period_ends_at?->toIso8601String())->toBe(CarbonImmutable::now()->addDays(60)->toIso8601String());
 });
 

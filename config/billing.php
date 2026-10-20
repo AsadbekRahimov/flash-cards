@@ -109,6 +109,9 @@ return [
             'secret_key' => (string) env('CLICK_SECRET_KEY', ''),
             'checkout_url' => (string) env('CLICK_CHECKOUT_URL', 'https://my.click.uz/services/pay'),
             'ip_allowlist' => (string) env('CLICK_IP_ALLOWLIST', ''),
+            // An open Prepare older than this is treated as dead (Prepare -> Complete takes seconds; the margin
+            // covers Click's retries of Complete): it no longer holds an offer or keeps an expired order payable.
+            'transaction_timeout_ms' => (int) env('CLICK_TRANSACTION_TIMEOUT_MS', 1_800_000),
         ],
     ],
 

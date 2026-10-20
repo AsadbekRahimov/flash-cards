@@ -73,6 +73,9 @@ final class SubscriptionService
 
     public const ACTION_ENDED = 'subscription.ended';
 
+    /** A paid organization order whose tier differs from the live one: the tier was kept, the platform must look (2B.8). */
+    public const ACTION_TIER_MISMATCH = 'subscription.tier_mismatch';
+
     /** `meta.renewal_reminders`: list of "<daysLeft>@<period end ISO>" markers already raised. */
     public const META_RENEWAL_REMINDERS = 'renewal_reminders';
 
@@ -204,7 +207,11 @@ final class SubscriptionService
      *                 a payment never shortens Pro; status -> active (back from past_due /
      *                 canceled when Stars renews); provider = the provider of the last payment.
      *                 A perpetual grant keeps its NULL end (nothing to extend; the ledger still
-     *                 records the money and a warning is logged).
+     *                 records the money and a warning is logged). For an organization the order's tier
+     *                 is applied ONLY when it equals the live tier (or the live row has no tier / its
+     *                 period has run out); otherwise the tier and seats stay, the order gets
+     *                 `meta.tier_mismatch = true`, `billing.org_tier_mismatch` is logged and audited
+     *                 (`subscription.tier_mismatch`) — docs/13 §6.5, 2B.8.
      *
      * `provider_ref` holds the last charge id; for Stars the charge id of the *first* payment of
      * the subscription (the one `editUserStarSubscription` needs) is kept in `meta.stars.charge_id`.
@@ -266,12 +273,16 @@ final class SubscriptionService
                 $ends = $proposed->greaterThan($currentEnd) ? $proposed : $currentEnd;
             }
 
+            $orderedTier = $subscriber instanceof Organization ? $order->tier : null;
+            $tierMismatch = $orderedTier !== null && $this->tierMismatch($live, $orderedTier, $now);
+
             $meta = $live->meta;
             $meta['history'][] = [
                 'at' => $now->toIso8601String(),
                 'action' => $kind,
                 'payment_order_id' => $order->id,
                 'from' => $this->snapshot($live),
+                ...($tierMismatch ? ['tier_mismatch' => ['ordered' => $orderedTier, 'kept' => $live->tier]] : []),
             ];
             if ($e->provider === SubscriptionProvider::TelegramStars && $e->providerChargeId !== null
                 && (! $e->isRenewal || ! isset($meta['stars']['charge_id']))) {
@@ -290,13 +301,17 @@ final class SubscriptionService
                 'meta' => $meta,
             ];
 
-            if ($subscriber instanceof Organization && $order->tier !== null) {
-                $attributes['tier'] = $order->tier;
-                $attributes['seats_limit'] = OrgTiers::seats($order->tier);
+            if ($orderedTier !== null && ! $tierMismatch) {
+                $attributes['tier'] = $orderedTier;
+                $attributes['seats_limit'] = OrgTiers::seats($orderedTier);
             }
 
             $live->fill($attributes)->save();
             $subscription = $live;
+
+            if ($tierMismatch && $orderedTier !== null) {
+                $this->flagTierMismatch($live, $order, $orderedTier, $e, $now);
+            }
         }
 
         $this->events->record(
@@ -692,6 +707,52 @@ final class SubscriptionService
         $this->forgetAfterCommit($subscription);
 
         return $subscription;
+    }
+
+    /**
+     * docs/13 §6.5 (2B.8): a paid organization order may only RENEW the tier of a live subscription.
+     * The order carries the tier it was created for; when another tier is live by the time the money
+     * arrives (a manual grant or another payment got in between — CheckoutService refuses such an
+     * order up front, this is the race), the tier and the seats are NOT touched: a tier change applied
+     * to the whole prepaid period would be an upgrade or a downgrade of months that were paid at
+     * another price. Nothing to protect when the live row has no tier or its period has already run out.
+     */
+    private function tierMismatch(Subscription $live, string $orderedTier, CarbonImmutable $now): bool
+    {
+        return $live->tier !== null
+            && $live->tier !== $orderedTier
+            && SubscriptionLiveness::isLive($live, $now);
+    }
+
+    /**
+     * The money is taken and the period was extended, but the tier stayed: mark the order
+     * (`meta.tier_mismatch`), log and audit so the platform settles it by hand (ADMIN_GUIDE).
+     * The order row is locked by PaymentApplier, which saves `meta` again after this call.
+     */
+    private function flagTierMismatch(Subscription $live, PaymentOrder $order, string $orderedTier, ChargeEvent $e, CarbonImmutable $now): void
+    {
+        $context = [
+            'subscription_id' => $live->id,
+            'payment_order_id' => $order->id,
+            'organization_id' => $live->subscriber_id,
+            'ordered_tier' => $orderedTier,
+            'live_tier' => $live->tier,
+            'provider' => $e->provider->value,
+            'provider_event_id' => $e->providerEventId,
+        ];
+
+        $order->fill(['meta' => [...$order->meta, 'tier_mismatch' => true, 'tier_mismatch_live_tier' => $live->tier]])->save();
+
+        Log::warning('billing.org_tier_mismatch', $context);
+
+        AuditLog::create([
+            'user_id' => null,
+            'action' => self::ACTION_TIER_MISMATCH,
+            'entity_type' => Subscription::class,
+            'entity_id' => $live->id,
+            'ip' => null,
+            'meta' => [...$context, 'at' => $now->toIso8601String()],
+        ]);
     }
 
     public static function subscriberType(Learner|Organization $subscriber): string
