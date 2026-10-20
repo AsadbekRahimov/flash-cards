@@ -13,6 +13,8 @@ namespace App\Domain\Billing\Exceptions;
  *   checkout_conflict       409  a live auto-renewing subscription exists and another provider was chosen
  *   too_many_pending        429  the subscriber already has `checkout.max_pending_per_subscriber` pending orders
  *   offer_not_applicable    409  the offer is redeemed / expired / someone else's / for another plan or period
+ *   offer_busy              409  the offer is on a pending order that is being paid right now (open provider
+ *                                transaction), or a parallel checkout keeps moving it — retry in a moment
  *   invalid_period          422  period is not one of `billing.periods`
  *   invalid_tier            422  organization checkout without a sellable tier
  */
@@ -29,6 +31,8 @@ final class CheckoutException extends BillingException
     public const TOO_MANY_PENDING = 'too_many_pending';
 
     public const OFFER_NOT_APPLICABLE = 'offer_not_applicable';
+
+    public const OFFER_BUSY = 'offer_busy';
 
     public const INVALID_PERIOD = 'invalid_period';
 
@@ -62,6 +66,11 @@ final class CheckoutException extends BillingException
     public static function offerNotApplicable(): self
     {
         return new self(self::OFFER_NOT_APPLICABLE, 'The offer cannot be applied to this purchase.');
+    }
+
+    public static function offerBusy(): self
+    {
+        return new self(self::OFFER_BUSY, 'The offer is on an order that is being paid right now; finish that payment or try again shortly.');
     }
 
     public static function invalidPeriod(string $period): self

@@ -17,9 +17,11 @@ use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Enums\SubscriptionStatus;
 use App\Domain\Billing\Exceptions\BillingException;
+use App\Domain\Billing\Exceptions\CheckoutException;
 use App\Domain\Billing\Exceptions\PromoCodeException;
 use App\Domain\Billing\Providers\Click\ClickMerchantService;
 use App\Domain\Billing\Providers\Payme\PaymeRpcService;
+use App\Domain\Billing\Services\CheckoutService;
 use App\Domain\Billing\Services\NewWordQuota;
 use App\Domain\Billing\Services\PaymentApplier;
 use App\Domain\Billing\Services\PromoCodeService;
@@ -32,6 +34,7 @@ use App\Domain\Organizations\Services\OrganizationMembershipService;
 use App\Models\Course;
 use App\Models\Learner;
 use App\Models\Lesson;
+use App\Models\Offer;
 use App\Models\Organization;
 use App\Models\OrganizationInvite;
 use App\Models\OrganizationMember;
@@ -50,6 +53,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Support\Facades\DB;
 use Tests\Support\ClickFixtures;
+use Tests\Support\FakeBillingProvider;
 use Tests\Support\ForkSafe;
 use Tests\Support\PaymeFixtures;
 
@@ -854,4 +858,180 @@ it('does not deadlock when a Click Complete and a manual grant hit the same lear
         ->and(Subscription::query()->whereIn('status', SubscriptionStatus::liveValues())->count())->toBe(1)
         ->and(Payment::query()->where('status', 'succeeded')->count())->toBe(1)
         ->and(Subscription::query()->sole()->id)->toBe($results[1]['result']);
+});
+
+/*
+ * 2B.7a (docs/13 "Реализация 2B.7a"): an open offer is held by one pending order at a time. The
+ * checkout locks the holder rows BEFORE the subject (same direction as the applier: order ->
+ * subject -> ... -> offer) and retries when a parallel checkout slipped a new holder in between.
+ */
+
+/** A learner with a 30 % month offer and both fake providers enabled (inherited by the forked children). */
+function billingDiscountedLearner(): array
+{
+    $learner = Learner::factory()->create();
+    $offer = Offer::factory()->create(['learner_id' => $learner->id, 'discount_pct' => 30, 'period' => 'month']);
+    FakeBillingProvider::register(SubscriptionProvider::TelegramStars);
+    FakeBillingProvider::register(SubscriptionProvider::Payme);
+
+    return [$learner, $offer];
+}
+
+it('keeps a single holder of the offer when two discounted checkouts of one learner run at once', function (): void {
+    [$learner, $offer] = billingDiscountedLearner();
+
+    $results = billingRunInParallel(array_map(fn (SubscriptionProvider $provider) => function () use ($learner, $provider): int {
+        // Sleep between the subject lock and the INSERT: the other checkout has already looked for
+        // holders (none) and is waiting on the learner row — it must notice the new holder and retry.
+        PaymentOrder::creating(static function (): void {
+            usleep(200_000);
+        });
+
+        return app(CheckoutService::class)->create($learner, Plan::Pro, 'month', $provider, null, 'twa')->id;
+    }, [SubscriptionProvider::TelegramStars, SubscriptionProvider::Payme]));
+
+    expect(billingCodes($results))->toBe(['ok', 'ok']);
+
+    $orders = PaymentOrder::query()->where('offer_id', $offer->id)->orderBy('id')->get();
+    $pending = $orders->where('status', 'pending');
+    $moved = $orders->where('status', 'canceled');
+
+    // Mutation check: without the holder lock + retry both would stay pending and both could be paid with the discount.
+    expect($orders)->toHaveCount(2)
+        ->and($pending)->toHaveCount(1)
+        ->and($moved)->toHaveCount(1)
+        ->and($moved->first()?->meta['canceled_reason'])->toBe(PaymentOrder::CANCEL_REASON_OFFER_MOVED)
+        ->and($moved->first()?->meta['offer_moved_to_order_id'])->toBe($pending->first()?->id)
+        ->and($offer->refresh()->redeemed_at)->toBeNull();
+});
+
+/**
+ * A discounted checkout racing the payment of the current holder; $paymentFirst delays the
+ * checkout so the applier takes the holder row first, otherwise the checkout moves the hold first.
+ */
+function billingOfferCheckoutVsPayment(bool $paymentFirst): void
+{
+    [$learner, $offer] = billingDiscountedLearner();
+    $holder = app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::Payme, null, 'twa');
+    expect($holder->offer_id)->toBe($offer->id);
+
+    $results = billingRunInParallel([
+        function () use ($holder, $paymentFirst): int {
+            if (! $paymentFirst) {
+                usleep(100_000);
+            }
+            Payment::creating(static function (): void {
+                usleep(150_000);
+            });
+
+            return app(PaymentApplier::class)->applyCharge(new ChargeEvent(
+                provider: SubscriptionProvider::Payme,
+                providerEventId: 'holder-paid-'.$holder->id,
+                providerChargeId: 'holder-paid-'.$holder->id,
+                orderToken: $holder->token,
+                amount: $holder->amount,
+                currency: $holder->currency,
+                isRenewal: false,
+                periodEndsAt: null,
+                occurredAt: CarbonImmutable::now(),
+            ))->id;
+        },
+        function () use ($learner, $paymentFirst): int {
+            if ($paymentFirst) {
+                usleep(100_000);
+            }
+            PaymentOrder::creating(static function (): void {
+                usleep(150_000);
+            });
+
+            return app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::TelegramStars, null, 'twa')->id;
+        },
+    ]);
+
+    // Payment first: the checkout waits on the holder row, finds it paid and the offer used up.
+    // Checkout first: the hold moves, the in-flight charge on the canceled holder is honoured, and
+    // the new holder is released after the commit. Both end with the offer used once, by the holder.
+    expect(billingCodes($results))->toBe($paymentFirst ? [CheckoutException::OFFER_NOT_APPLICABLE, 'ok'] : ['ok', 'ok'])
+        ->and($results[0]['ok'])->toBeTrue()
+        ->and(Payment::query()->where('status', 'succeeded')->count())->toBe(1)
+        ->and(Subscription::query()->count())->toBe(1)
+        ->and($holder->refresh()->status)->toBe('paid')
+        ->and($offer->refresh()->payment_order_id)->toBe($holder->id)
+        ->and(PaymentOrder::query()->where('offer_id', $offer->id)->where('status', 'pending')->count())->toBe(0);
+
+    if ($paymentFirst) {
+        expect(PaymentOrder::query()->where('offer_id', $offer->id)->count())->toBe(1)
+            ->and($holder->meta['paid_after_cancel'] ?? false)->toBeFalse();
+    } else {
+        $released = PaymentOrder::query()->findOrFail($results[1]['result']);
+        expect($released->status)->toBe('canceled')
+            ->and($released->meta['canceled_reason'])->toBe(PaymentOrder::CANCEL_REASON_OFFER_REDEEMED)
+            ->and($released->meta['offer_redeemed_by_order_id'])->toBe($holder->id)
+            ->and($released->provider_ref)->not->toBeNull() // the checkout's post-commit write kept the release
+            ->and($holder->meta['canceled_reason'])->toBe(PaymentOrder::CANCEL_REASON_OFFER_MOVED)
+            ->and($holder->meta['paid_after_cancel'] ?? false)->toBeTrue();
+    }
+}
+
+it('uses the offer exactly once when the payment of the holder beats a discounted checkout', function (): void {
+    billingOfferCheckoutVsPayment(paymentFirst: true);
+});
+
+it('uses the offer exactly once when a discounted checkout beats the payment of the holder', function (): void {
+    billingOfferCheckoutVsPayment(paymentFirst: false);
+});
+
+/** Payme CreateTransaction (ProviderTransactionService::open) racing a discounted checkout that would move the hold. */
+function billingOfferCheckoutVsOpenTransaction(bool $providerFirst): void
+{
+    [$learner, $offer] = billingDiscountedLearner();
+    $holder = app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::Payme, null, 'twa');
+
+    $results = billingRunInParallel([
+        function () use ($holder, $providerFirst): int {
+            if (! $providerFirst) {
+                usleep(100_000);
+            }
+            ProviderTransaction::creating(static function (): void {
+                usleep(150_000);
+            });
+
+            return app(ProviderTransactionService::class)->open(SubscriptionProvider::Payme, 'payme-tx-offer-'.$holder->id, $holder->token, $holder->amount, null, [])->id;
+        },
+        function () use ($learner, $providerFirst): int {
+            if ($providerFirst) {
+                usleep(100_000);
+            }
+            PaymentOrder::creating(static function (): void {
+                usleep(150_000);
+            });
+
+            return app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::TelegramStars, null, 'twa')->id;
+        },
+    ]);
+
+    $holder->refresh();
+    if ($providerFirst) {
+        // CreateTransaction won: the holder stays pending and payable, the checkout was refused — the
+        // money that Payme is about to take can only land on an order that still carries the discount.
+        expect(billingCodes($results))->toBe([CheckoutException::OFFER_BUSY, 'ok'])
+            ->and($holder->status)->toBe('pending')
+            ->and(ProviderTransaction::query()->where('payment_order_id', $holder->id)->count())->toBe(1)
+            ->and(PaymentOrder::query()->where('offer_id', $offer->id)->count())->toBe(1);
+    } else {
+        // The checkout won: the holder is canceled (offer_moved) and Payme cannot open a transaction on it.
+        expect(billingCodes($results))->toBe(['ok', 'order_not_payable'])
+            ->and($holder->status)->toBe('canceled')
+            ->and($holder->meta['canceled_reason'])->toBe(PaymentOrder::CANCEL_REASON_OFFER_MOVED)
+            ->and(ProviderTransaction::query()->count())->toBe(0)
+            ->and(PaymentOrder::query()->where('offer_id', $offer->id)->where('status', 'pending')->count())->toBe(1);
+    }
+}
+
+it('refuses to move the discount once Payme opened a transaction on the holder (offer_busy)', function (): void {
+    billingOfferCheckoutVsOpenTransaction(providerFirst: true);
+});
+
+it('refuses Payme a transaction on a holder whose discount has just moved (order_not_payable)', function (): void {
+    billingOfferCheckoutVsOpenTransaction(providerFirst: false);
 });

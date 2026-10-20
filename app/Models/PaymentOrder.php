@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Domain\Billing\DTO\CheckoutLink;
 use Carbon\CarbonImmutable;
 use Database\Factories\PaymentOrderFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -52,6 +53,17 @@ class PaymentOrder extends Model
 
     public const STATUS_FAILED = 'failed';
 
+    /**
+     * `meta.canceled_reason` values written by offer bookkeeping (docs/13 "Реализация 2B.7a"): the order was
+     * closed by US, not by the payer or the provider, because its discount moved to a newer order
+     * (`offer_moved`) or was used up by another order (`offer_redeemed`). A charge the provider still
+     * delivers for such an order is honoured by PaymentApplier — the pre-checks refuse it, but money that
+     * was already taken must never be lost.
+     */
+    public const CANCEL_REASON_OFFER_MOVED = 'offer_moved';
+
+    public const CANCEL_REASON_OFFER_REDEEMED = 'offer_redeemed';
+
     /** @var list<string> */
     protected $fillable = [
         'token',
@@ -96,6 +108,27 @@ class PaymentOrder extends Model
     public function isPayableAt(CarbonImmutable $now): bool
     {
         return $this->isPending() && $this->expires_at->greaterThan($now);
+    }
+
+    /** Canceled by offer bookkeeping (see CANCEL_REASON_OFFER_*), not by the payer / provider / admin. */
+    public function canceledForOffer(): bool
+    {
+        return $this->status === self::STATUS_CANCELED
+            && in_array($this->meta['canceled_reason'] ?? null, [self::CANCEL_REASON_OFFER_MOVED, self::CANCEL_REASON_OFFER_REDEEMED], true);
+    }
+
+    /**
+     * Orders without an open provider transaction created after $openSince — i.e. nothing is being
+     * paid right now (Payme CreateTransaction / Click Prepare happened and Perform / Complete may
+     * follow); an open transaction older than the provider timeout is treated as dead (docs/13 §4.2).
+     *
+     * @param  Builder<PaymentOrder>  $query
+     */
+    public function scopeWithoutOpenProviderTransaction(Builder $query, CarbonImmutable $openSince): void
+    {
+        $query->whereDoesntHave('providerTransactions', function (Builder $transactions) use ($openSince): void {
+            $transactions->where('state', ProviderTransaction::STATE_CREATED)->where('created_at_provider', '>', $openSince);
+        });
     }
 
     /** The checkout link stored by CheckoutService::create (provider_ref + meta.checkout), if any. */

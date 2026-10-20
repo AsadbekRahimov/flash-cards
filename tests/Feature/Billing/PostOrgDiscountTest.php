@@ -9,6 +9,7 @@ use App\Domain\Billing\Providers\Payme\PaymeRpcException;
 use App\Domain\Billing\Providers\Payme\PaymeRpcService;
 use App\Domain\Billing\Services\BillingProviderRegistry;
 use App\Domain\Billing\Services\CheckoutService;
+use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Billing\Services\PaymentApplier;
 use App\Domain\Organizations\Events\OrganizationMemberLeft;
 use App\Domain\Organizations\Services\OrganizationMembershipService;
@@ -160,6 +161,28 @@ it('removal by an administrator also loses the seat', function (): void {
     app(OrganizationMembershipService::class)->leave($learner, $org, 'removed', User::factory()->create());
 
     expect(pdOffers($learner))->toBe(1)->and($this->tg->sent)->toHaveCount(1);
+});
+
+it('does not offer a discount while the learner keeps Pro through a seat in another center, and does once that seat is lost too', function (): void {
+    $a = pdCenter('Center A');
+    $b = pdCenter('Center B');
+    $learner = pdSeated($a);
+    app(OrganizationMembershipService::class)->joinByAdmin($learner, $b, User::factory()->create());
+    $this->tg->sent = [];
+
+    // A warm entitlement cache must not matter: the offer decision reads the live state.
+    expect(app(EntitlementResolver::class)->for($learner)->plan)->toBe(Plan::Pro);
+
+    pdLeave($learner, $a);
+    expect(pdOffers($learner))->toBe(0)
+        ->and($this->tg->sent)->toBe([])
+        ->and(app(EntitlementResolver::class)->for($learner)->source)->toBe('sponsor:organization:'.$b->id);
+
+    // Losing the last seat is what loses Pro: the offer comes from that center.
+    pdLeave($learner, $b);
+    expect(pdOffers($learner))->toBe(1)
+        ->and(Offer::query()->where('learner_id', $learner->id)->sole()->source_organization_id)->toBe($b->id)
+        ->and($this->tg->sent)->toHaveCount(1);
 });
 
 it('keeps the offer but sends no DM to a blocked learner or a closed DM', function (string $column): void {

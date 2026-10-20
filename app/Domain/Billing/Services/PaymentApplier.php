@@ -46,6 +46,12 @@ use Illuminate\Support\Facades\Log;
  * Events that fit no credit (dead order, other provider, amount / currency mismatch) are
  * COMMITTED as `payments.status = failed` — the money may be with us and support must see it —
  * and the subscription is not touched; the domain exception is thrown after the commit.
+ *
+ * Exception to "dead order": an order canceled by offer bookkeeping (`PaymentOrder::canceledForOffer()`,
+ * docs/13 "Реализация 2B.7a") is still credited in full — the pre-checks refuse its token, so a charge
+ * that arrives anyway was already in flight at the provider and the money is taken. If the offer was
+ * meanwhile used up by another order, the second discount is logged (`billing.offer_double_discount`,
+ * `payment_orders.meta.offer_double_discount`) rather than the payment being lost.
  */
 final class PaymentApplier
 {
@@ -53,6 +59,7 @@ final class PaymentApplier
 
     public function __construct(
         private readonly SubscriptionService $subscriptions,
+        private readonly OfferService $offers,
         private readonly ProductEventRecorder $events,
     ) {}
 
@@ -96,7 +103,9 @@ final class PaymentApplier
                     return [$this->failed($order, $e, $kind, 'provider_mismatch'), PaymentApplyException::orderMismatch("order provider is {$order->provider}")];
                 }
 
-                if (in_array($order->status, [PaymentOrder::STATUS_EXPIRED, PaymentOrder::STATUS_CANCELED, PaymentOrder::STATUS_FAILED], true)) {
+                $honouredAfterCancel = $order->canceledForOffer() && ! $e->isRenewal;
+
+                if (! $honouredAfterCancel && in_array($order->status, [PaymentOrder::STATUS_EXPIRED, PaymentOrder::STATUS_CANCELED, PaymentOrder::STATUS_FAILED], true)) {
                     return [$this->failed($order, $e, $kind, 'order_'.$order->status), PaymentApplyException::orderExpired($order->status)];
                 }
 
@@ -132,23 +141,31 @@ final class PaymentApplier
                     'period_ends_at' => $subscription->current_period_ends_at,
                 ]);
 
+                $meta = $order->meta;
+                if ($honouredAfterCancel) {
+                    $meta['paid_after_cancel'] = true;
+                    Log::warning('billing.offer_canceled_order_paid', ['payment_order_id' => $order->id, 'offer_id' => $order->offer_id, 'canceled_reason' => $meta['canceled_reason'] ?? null, 'provider' => $e->provider->value, 'provider_event_id' => $e->providerEventId]);
+                }
+
+                if ($order->offer_id !== null && ! $this->redeemOffer($order, $subject, $now)) {
+                    $meta['offer_double_discount'] = true;
+                }
+
                 $order->fill([
                     'status' => PaymentOrder::STATUS_PAID,
                     'paid_at' => $order->paid_at ?? $now,
                     'subscription_id' => $subscription->id,
+                    'meta' => $meta,
                 ])->save();
 
                 if ($order->offer_id !== null) {
-                    $redeemed = Offer::query()->whereKey($order->offer_id)->whereNull('redeemed_at')
-                        ->update(['redeemed_at' => $now, 'payment_order_id' => $order->id, 'updated_at' => $now]);
-
-                    if ($redeemed > 0) {
-                        $this->events->record(
-                            ProductEventName::OfferRedeemed,
-                            ['offer_id' => $order->offer_id, 'payment_order_id' => $order->id, 'amount' => $order->amount, 'list_amount' => $order->list_amount, 'currency' => $order->currency],
-                            learner: $subject instanceof Learner ? $subject : null,
-                        );
-                    }
+                    // Any other pending holder of the offer (only possible after an in-flight charge on a
+                    // moved order) loses the discount — own transaction, after this one commits (docs/13 §3 rule 1).
+                    $offerId = $order->offer_id;
+                    $orderId = $order->id;
+                    DB::afterCommit(function () use ($offerId, $orderId, $now): void {
+                        $this->offers->releaseHolders($offerId, $orderId, $now);
+                    });
                 }
 
                 $this->events->record(
@@ -330,6 +347,50 @@ final class PaymentApplier
         } catch (UniqueConstraintViolationException) {
             throw $this->duplicateOrConflict($e->provider, $e->providerEventId);
         }
+    }
+
+    /**
+     * Marks the order's offer used by this order (lock order: ... subscriptions -> offers). False when
+     * another order already used it up: the discount was given twice (an in-flight charge on an
+     * offer-canceled order) — logged, the payment itself is still credited.
+     */
+    private function redeemOffer(PaymentOrder $order, Learner|Organization $subject, CarbonImmutable $now): bool
+    {
+        /** @var Offer|null $offer */
+        $offer = Offer::query()->whereKey($order->offer_id)->lockForUpdate()->first();
+
+        if ($offer === null) {
+            return true;
+        }
+
+        if ($offer->redeemed_at !== null) {
+            if ($offer->payment_order_id === $order->id) {
+                return true;
+            }
+
+            Log::error('billing.offer_double_discount', [
+                'offer_id' => $offer->id,
+                'payment_order_id' => $order->id,
+                'redeemed_by_order_id' => $offer->payment_order_id,
+                'amount' => $order->amount,
+                'list_amount' => $order->list_amount,
+                'currency' => $order->currency,
+                'subscriber_type' => $order->subscriber_type,
+                'subscriber_id' => $order->subscriber_id,
+            ]);
+
+            return false;
+        }
+
+        $offer->forceFill(['redeemed_at' => $now, 'payment_order_id' => $order->id])->save();
+
+        $this->events->record(
+            ProductEventName::OfferRedeemed,
+            ['offer_id' => $offer->id, 'payment_order_id' => $order->id, 'amount' => $order->amount, 'list_amount' => $order->list_amount, 'currency' => $order->currency],
+            learner: $subject instanceof Learner ? $subject : null,
+        );
+
+        return true;
     }
 
     private function existing(SubscriptionProvider $provider, string $providerEventId): ?Payment
