@@ -65,6 +65,14 @@ class PaymentOrder extends Model
 
     public const CANCEL_REASON_OFFER_REDEEMED = 'offer_redeemed';
 
+    /**
+     * `meta.canceled_reason` of an organization order closed by a payment that set another tier on the
+     * organization's subscription (docs/13 "Реализация 2B.8", OrganizationOrderGuard::cancelCompeting): paying
+     * it later would only extend the period at the live tier. Honoured by PaymentApplier like the offer
+     * reasons (the money may already be taken) — such a late payment is then flagged `tier_mismatch`.
+     */
+    public const CANCEL_REASON_TIER_CHANGED = 'tier_changed';
+
     /** @var list<string> */
     protected $fillable = [
         'token',
@@ -116,6 +124,39 @@ class PaymentOrder extends Model
     {
         return $this->status === self::STATUS_CANCELED
             && in_array($this->meta['canceled_reason'] ?? null, [self::CANCEL_REASON_OFFER_MOVED, self::CANCEL_REASON_OFFER_REDEEMED], true);
+    }
+
+    /**
+     * Canceled by OUR bookkeeping (offer moved / redeemed, organization tier changed) rather than by the
+     * payer, the provider or an admin: the pre-checks refuse the token, but a charge that was already in
+     * flight at the provider is still credited by PaymentApplier — money that was taken is never lost.
+     */
+    public function canceledBySystem(): bool
+    {
+        return $this->canceledForOffer()
+            || ($this->status === self::STATUS_CANCELED && ($this->meta['canceled_reason'] ?? null) === self::CANCEL_REASON_TIER_CHANGED);
+    }
+
+    /**
+     * The provider may be mid-payment on this order: an open (`state = 1`) Payme / Click transaction younger
+     * than THAT provider's timeout (Payme CreateTransaction -> debit -> PerformTransaction, 12 h; Click
+     * Prepare -> debit -> Complete, `transaction_timeout_ms`), see {@see ProviderTransactionTimeout}. Such an
+     * order must not be canceled under the payer's feet. Stars has no such row: its window (pre_checkout_query
+     * answered -> successful_payment) lasts seconds and is covered by PaymentApplier honouring a charge on a
+     * system-canceled order. Uncached query — call it after the row is locked.
+     */
+    public function isBeingPaidAt(CarbonImmutable $now): bool
+    {
+        $since = ProviderTransactionTimeout::openSince($this->provider, $now);
+
+        if ($since === null) {
+            return false;
+        }
+
+        return $this->providerTransactions()
+            ->where('state', ProviderTransaction::STATE_CREATED)
+            ->where('created_at_provider', '>', $since)
+            ->exists();
     }
 
     /**

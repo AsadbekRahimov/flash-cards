@@ -9,6 +9,7 @@ use App\Domain\Billing\Exceptions\ProviderTransactionException;
 use App\Models\PaymentOrder;
 use App\Models\ProviderTransaction;
 use Carbon\CarbonImmutable;
+use Closure;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 
@@ -27,6 +28,10 @@ final class ProviderTransactionService
      *                           (its transactions time out, docs/13 §4.2); Click passes false: a payer who
      *                           retries gets a new `click_trans_id` and Click never times a Prepare out,
      *                           so a stale open one must not hold the order (docs/13 §4.3, 2A.5)
+     * @param  (Closure(PaymentOrder, CarbonImmutable): (string|null))|null  $guard  OrganizationOrderGuard::refusal, see below
+     *
+     * `$guard` is an extra refusal evaluated under the order lock, after the payability checks; a
+     * non-null reason refuses with `order_not_payable` carrying that reason (`$e->reason`).
      *
      * @throws ProviderTransactionException order_not_found | order_not_payable | amount_mismatch | order_busy
      */
@@ -39,11 +44,12 @@ final class ProviderTransactionService
         array $raw,
         ?CarbonImmutable $now = null,
         bool $exclusive = true,
+        ?Closure $guard = null,
     ): ProviderTransaction {
         $now ??= CarbonImmutable::now();
 
         try {
-            return DB::transaction(function () use ($provider, $providerTransactionId, $orderToken, $amount, $providerTime, $raw, $now, $exclusive): ProviderTransaction {
+            return DB::transaction(function () use ($provider, $providerTransactionId, $orderToken, $amount, $providerTime, $raw, $now, $exclusive, $guard): ProviderTransaction {
                 /** @var PaymentOrder|null $order */
                 $order = PaymentOrder::query()->where('token', $orderToken)->lockForUpdate()->first();
 
@@ -68,6 +74,11 @@ final class ProviderTransactionService
 
                 if ($amount !== $order->amount) {
                     throw ProviderTransactionException::amountMismatch($order->amount, $amount);
+                }
+
+                $refusal = $guard === null ? null : $guard($order, $now);
+                if ($refusal !== null) {
+                    throw ProviderTransactionException::orderNotPayable($refusal);
                 }
 
                 if ($exclusive) {

@@ -282,6 +282,10 @@ Filters: status, provider, plan, subject, and *Live status* (live = trialing / a
   the log has `billing.org_tier_mismatch` and the audit log an entry `subscription.tier_mismatch`. Look at such
   orders (Billing → **Payment orders**, the order's meta): decide with the owner whether the paid month is for the
   live tier (nothing to do) or the ordered one (Grant Pro with the right tier, or a refund).
+  Such orders are rare by construction: a Payme / Click payment on an organization order whose tier is not the live
+  one is refused before the money is taken (Payme `-31053`, Click `-9`), and a payment that sets or keeps a tier
+  cancels the center's other pending orders of another tier (*Canceled reason* `tier_changed`, see below) — only
+  a payment that was already in flight at the provider gets through.
   In the **Payment orders** table such an order has a red **Tier mismatch** badge ("tier mismatch (live: tutor)"),
   there is a **Tier mismatch** filter, and the dashboard tile **Tier mismatches** (Payment webhook errors, last
   24 h) counts the ones paid in the last day. In the center's `/org` Billing page the buttons for any tier other than
@@ -304,7 +308,8 @@ Three read-only screens (nothing can be created, edited or deleted there):
   expiry, who created it (`twa`, `bot`, `org_panel`, `admin`). Pending orders expire by themselves after
   `BILLING_ORDER_TTL_MINUTES` (job `billing:expire-orders`). Offer bookkeeping badges (columns, also on the order page):
   *Canceled reason* `offer_moved` (the learner's discount moved to a newer order) / `offer_redeemed` (the discount was
-  used by another payment) — both are normal and harmless; *Paid after cancel* — a payment that was already in flight
+  used by another payment) / `tier_changed` (a center's order of one tier was closed because a payment set another
+  tier on its subscription; the meta carries `tier_changed_by_order_id` and `tier_changed_to`) — all normal and harmless; *Paid after cancel* — a payment that was already in flight
   reached such a canceled order and was credited in full (the money is never lost); **Double discount** (red) — that
   late payment came after the discount had been used by another order, so the learner got the discount twice. Filter
   **Double discount** lists them. What to do: nothing is required to keep the customer — the subscription is already
@@ -380,8 +385,9 @@ only by a **paid** order (an expired or canceled order leaves it available until
 
 Every **active member of an active linked group** now has Pro (source "sponsor" in `/me`); after unlinking, leaving the
 group, suspending the organization or the end of the subscription they are back on Free (their progress stays).
-**Status: Suspended** switches the sponsorship off without deleting anything; every status change is written to the
-audit log (`organization.status_changed`). An organization with a live subscription or linked groups cannot be
+**Status: Suspended** switches the sponsorship off without deleting anything; a suspended center cannot pay online
+either — its pending orders are refused at Payme (`-31054`) and Click (`-9`) until the status is back to Active; every
+status change is written to the audit log (`organization.status_changed`). An organization with a live subscription or linked groups cannot be
 deleted (the Delete button explains why): revoke the subscription and unlink the groups, or just suspend it.
 Changes apply within seconds.
 

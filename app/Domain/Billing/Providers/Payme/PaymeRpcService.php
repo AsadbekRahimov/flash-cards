@@ -11,6 +11,7 @@ use App\Domain\Billing\Exceptions\DuplicatePaymentException;
 use App\Domain\Billing\Exceptions\PaymentApplyException;
 use App\Domain\Billing\Exceptions\ProviderTransactionException;
 use App\Domain\Billing\Services\CheckoutService;
+use App\Domain\Billing\Services\OrganizationOrderGuard;
 use App\Domain\Billing\Services\PaymentApplier;
 use App\Domain\Billing\Services\ProviderTransactionService;
 use App\Models\Payment;
@@ -68,6 +69,7 @@ final class PaymeRpcService
         private readonly ProviderTransactionService $transactions,
         private readonly PaymentApplier $applier,
         private readonly CheckoutService $checkout,
+        private readonly OrganizationOrderGuard $organizations,
     ) {}
 
     /**
@@ -112,7 +114,8 @@ final class PaymeRpcService
 
     /**
      * `{amount, account.order_id}` -> `{allow: true[, detail]}`: the order exists, is payable
-     * through Payme, the amount matches and no other open transaction holds it.
+     * through Payme (for an organization: its tier is still the one to sell and the organization is
+     * active — -31053 / -31054, 2B.8), the amount matches and no other open transaction holds it.
      *
      * @param  array<string, mixed>  $params
      * @return array<string, mixed>
@@ -127,6 +130,11 @@ final class PaymeRpcService
 
         if ($amount !== $order->amount) {
             throw PaymeRpcException::wrongAmount();
+        }
+
+        $refusal = $this->organizations->refusal($order, $now);
+        if ($refusal !== null) {
+            throw PaymeRpcException::forRefusal($refusal);
         }
 
         $this->cancelTimedOutOpenTransaction($order, $now, self::METHOD_CHECK_PERFORM);
@@ -149,8 +157,8 @@ final class PaymeRpcService
     /**
      * `{id, time, amount, account}` -> `{create_time, transaction, state: 1}`. A known `id` is
      * answered from its row (state 1: the same result; anything else: -31008); a new one re-runs
-     * the CheckPerformTransaction checks under the order lock (ProviderTransactionService::open)
-     * and refuses a `time` older than the transaction timeout.
+     * the CheckPerformTransaction checks under the order lock (ProviderTransactionService::open,
+     * the organization guard included) and refuses a `time` older than the transaction timeout.
      *
      * @param  array<string, mixed>  $params
      * @return array<string, mixed>
@@ -183,13 +191,14 @@ final class PaymeRpcService
                 $time,
                 self::raw(self::METHOD_CREATE, $params),
                 $now,
+                guard: $this->organizations->refusal(...),
             );
         } catch (ProviderTransactionException $e) {
             throw match ($e->errorCode) {
                 ProviderTransactionException::ORDER_NOT_FOUND => PaymeRpcException::orderNotFound(),
                 ProviderTransactionException::AMOUNT_MISMATCH => PaymeRpcException::wrongAmount(),
                 ProviderTransactionException::ORDER_BUSY => PaymeRpcException::orderBusy(self::busyTransactionId($e)),
-                default => PaymeRpcException::orderNotPayable($e->getMessage()),
+                default => PaymeRpcException::forRefusal($e->reason ?? $e->getMessage()),
             };
         }
 
