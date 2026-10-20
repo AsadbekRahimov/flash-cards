@@ -892,6 +892,39 @@ private function formatLeaderboard(ExamSession $session): string
 
 Исходящие вызовы (вне транзакций БД): `createInvoiceLink` (`CheckoutService::create`, после commit заказа), `editUserStarSubscription(user_id, charge_id первого списания = subscriptions.meta.stars.charge_id, is_canceled)` (`/pro` → `pro1:cancel|resume`, `POST /billing/subscription/cancel|resume` — до изменения подписки; отказ Telegram → `provider_unavailable`, подписка не меняется), `refundStarPayment(user_id, charge_id)` (Filament **Payments → Refund**), `getStarTransactions` (`billing:reconcile-stars`, ежедневно: расхождения с `payments` → `billing.reconcile_missing`, `billing.reconcile_missing_refund`). Тексты — `lang/{ru,uz}/billing.php`, ключи `billing.stars.*`.
 
+## Часть D — Вебхуки платёжных провайдеров (docs/13 §4)
+
+Общее: без сессии/cookies/CSRF (как `/telegram/webhook`), `throttle:billing-webhook` 120/мин per IP, необязательный allowlist IP `BillingIpAllowlist:<provider>` (`PAYME_IP_ALLOWLIST` / `CLICK_IP_ALLOWLIST`, CSV, пусто = выключен; чужой IP → 403 до аутентификации), тело ≤ 64 КБ. Сумма заказа — только серверная (`payment_orders.amount`); провайдер знает лишь `token` заказа.
+
+### D.1 Payme — `POST /billing/webhook/payme` (JSON-RPC 2.0, задача 2A.4)
+
+Один URL для всех методов Merchant API. Аутентификация — `Authorization: Basic base64("Paycom:" + ключ)`, `hash_equals` с `PAYME_KEY` и, если задан, `PAYME_TEST_KEY` (песочница и прод различаются ключом). Ответ **всегда** `{jsonrpc: "2.0", id: <из запроса>, result | error}`; `error = {code, message: {ru, uz, en}, data?}`. HTTP 200 на любую протокольную ошибку; HTTP 500 + `-32400` только при сбое инфраструктуры (Payme повторит).
+
+| Код | Когда |
+|---|---|
+| `-32504` | нет/неверный Basic (тело не разбирается) |
+| `-32700` / `-32600` / `-32601` | не JSON / неверная форма `params` или тело > 64 КБ / неизвестный метод (`SetFiscalData`, `ChangePassword`) |
+| `-31001` | `amount` ≠ `payment_orders.amount` (или не целое) |
+| `-31003` | транзакция с таким `id` не найдена (Perform / Cancel / Check) |
+| `-31007` | `CancelTransaction` после perform вне окна `PAYME_CANCEL_AFTER_PERFORM_DAYS` |
+| `-31008` | состояние не позволяет: perform отменённой/просроченной (12 ч → state −1, reason 4), повторный Create с тем же `id` в state ≠ 1, Create с `time` старше 12 ч, заказ умер после Create |
+| `-31050` / `-31051` / `-31052` (`data: order_id`) | заказ не найден / не `pending`, истёк, не Payme / другая открытая транзакция уже держит заказ |
+
+| Метод | Делает | `result` |
+|---|---|---|
+| `CheckPerformTransaction {amount, account.order_id}` | заказ по `token`, проверки выше; просроченная чужая открытая транзакция закрывается (reason 4) | `{allow: true, detail?}` — `detail` (`receipt_type: 0, items[]` с ИКПУ) только при `PAYME_FISCAL_IKPU` |
+| `CreateTransaction {id, time, amount, account}` | `ProviderTransactionService::open` под блокировкой заказа → state 1; повтор с тем же `id` → тот же ответ | `{create_time: <time>, transaction: "<наш id>", state: 1}` |
+| `PerformTransaction {id}` | заказ FOR UPDATE → транзакция FOR UPDATE → `PaymentApplier::applyCharge` (`provider_event_id = <id>:perform`) → state 2; повтор → тот же `perform_time` | `{transaction, perform_time, state: 2}` |
+| `CancelTransaction {id, reason}` | state 1 → −1 (заказ **остаётся `pending`**, можно платить снова); state 2 → `applyRefund` (`<id>:cancel`, подписка `expired`, если возвращён текущий период) → −2; повтор → сохранённый `cancel_time` | `{transaction, cancel_time, state}` |
+| `CheckTransaction {id}` | только чтение | `{create_time, perform_time, cancel_time, transaction, state, reason}` (0 / `null`, пока события нет) |
+| `GetStatement {from, to}` | все Payme-транзакции с `time ∈ [from, to]` | `{transactions: [{id, time, amount, account: {order_id}, create_time, perform_time, cancel_time, transaction, state, reason, receivers: null}]}` |
+
+Checkout-ссылка (`PaymeProvider::createCheckout`, `checkout.kind = redirect`): `{PAYME_CHECKOUT_URL}/base64("m=<merchant>;ac.order_id=<token>;a=<тийины>;l=<ru|uz>;c=<APP_URL>/billing/return?order=<token>&lang=<l>")`. Страница возврата **`GET /billing/return?order=<token>&lang=<ru|uz>`** — публичная статическая страница статуса заказа (`paid` / `pending` / `expired` / `canceled` / неизвестно) с кнопкой в бот; `throttle:billing-return` 30/мин, `Cache-Control: no-store`, `noindex`, язык — `lang` → локаль заказа → `Accept-Language`. Деньги зачитываются только через `PerformTransaction`; возврат из кабинета Payme приходит как `CancelTransaction` по выполненной транзакции. Фикстуры запросов — `tests/Fixtures/billing/payme/`.
+
+### D.2 Click — `POST /billing/webhook/click/prepare`, `/complete` (задача 2A.5)
+
+Проектируется в docs/13 §4.3; заполняется в 2A.5.
+
 ## Часть C — Примеры полного цикла
 
 ### C.1 Happy path тренировки (E2E)

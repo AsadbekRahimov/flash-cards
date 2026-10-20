@@ -64,6 +64,14 @@ public function handle(Request $r, string $secret): Response
 }
 ```
 
+### 2a. Вебхуки платёжных провайдеров (docs/13 §4, §10)
+
+Маршруты `/billing/webhook/*` — без сессии/cookies/CSRF (как `/telegram/webhook`), `throttle:billing-webhook` 120/мин per IP, тело ≤ 64 КБ, необязательный allowlist IP (`BillingIpAllowlist:<provider>`, адреса — из кабинета провайдера; чужой IP → 403 до аутентификации).
+
+- **Payme (2A.4)** — `POST /billing/webhook/payme`: `Authorization: Basic base64("Paycom:" + ключ)`, пароль сравнивается `hash_equals` с `PAYME_KEY` и `PAYME_TEST_KEY` (оба сравнения выполняются всегда; пустой ключ не совпадает ни с чем). Неверно → **HTTP 200 + JSON-RPC `-32504`**, тело запроса при этом не разбирается. Сумма берётся из `payment_orders` (несовпадение → `-31001`, ничего не пишется); транзакция идентифицируется `params.id` Payme, заказ — `account.order_id` = непредсказуемый `token`. Идемпотентность: `(provider, provider_transaction_id)` unique + `payments (provider, provider_event_id)` (`<id>:perform`, `<id>:cancel`) + блокировка строки заказа — повтор любого метода возвращает первый ответ, параллельная доставка сериализуется (`BillingConcurrencyTest`). Сбой инфраструктуры → HTTP 500 (`-32400`) без частичной записи.
+- Страница `GET /billing/return?order=<token>` показывает только статус заказа (без сумм, имён, подписки), `no-store`, `noindex`, 30/мин per IP: токен — capability плательщика, по нему нельзя ничего изменить.
+- Click (2A.5) — подпись `md5` `sign_string` + `service_id`, см. docs/13 §4.3.
+
 ## 3. TWA initData — HMAC валидация
 
 Согласно [Telegram Web Apps Docs](https://core.telegram.org/bots/webapps#validating-data-received-via-the-web-app):
@@ -180,7 +188,9 @@ public function denial(Learner $learner, TrainingSession $s): ?string   // null 
 | Отказы `TwaAuth` (нет/битый/просроченный токен, learner не найден/заблокирован) | 60/min per IP (`TWA_UNAUTHORIZED_PER_MINUTE`) | `TwaAuth` стоит перед throttle, поэтому у отказов свой лимит; выше — 429 `rate_limited`. Успешные запросы не считаются и не блокируются |
 | Остальные `/api/twa/*` | 60/min per learner | ключ rate limiter'а — `learner_id` из JWT |
 | Filament login | 5/15min per IP + per email | Против brute-force |
-| Webhook | не ограничиваем (но валидация по secret обязательна) | |
+| Webhook Telegram | не ограничиваем (но валидация по secret обязательна) | |
+| `POST /billing/webhook/*` (Payme, Click) | 120/min per IP (`throttle:billing-webhook`) + allowlist IP по желанию | Провайдер повторяет вызов при не-200; тело ≤ 64 КБ |
+| `GET /billing/return` | 30/min per IP (`throttle:billing-return`) | Публичная страница статуса заказа по токену |
 
 Реализация через `Route::middleware('throttle:...')`. `TwaAuth` стоит в списке приоритетов middleware **перед** `ThrottleRequests` (`bootstrap/app.php`), иначе лимитеры не видели бы `learner_id` и считали всех по IP.
 
@@ -264,6 +274,8 @@ public function denial(Learner $learner, TrainingSession $s): ?string   // null 
   `/telegram/webhook/{secret}`, `Bearer …`, `secret=`/`token=`/`init_data=`. Применяется в трёх местах:
   (1) Monolog-процессор `RedactingLogProcessor` (tap `RedactSecretsInLogs` на каждом канале в `config/logging.php`) —
   `message`, `context`, `extra`, исключения в context заменяются замаскированным текстом без аргументов вызовов;
+  с 2A.4 — также литералы `PAYME_KEY` / `PAYME_TEST_KEY` / `CLICK_SECRET_KEY`, `Basic <base64>` (заголовок Payme) и ключ/пара `sign_string` (Click);
+  `provider_transactions.raw` хранится без заголовков (`{method, params}`), в админке `PayloadMasker` маскирует `order_id`, `*key*`, `sign*`;
   (2) границей Telegram-клиента: `IrazasyedTelegramClient` бросает `TelegramApiException` с замаскированным
   сообщением и без `previous` — поэтому токена нет и в `failed_jobs.exception`; (3) Sentry (`SentryScrubber`,
   включая `before_send_log`). Подробности — DEVOPS_GUIDE §15.1a. Новый канал логов обязан получить тот же `tap`.
@@ -284,6 +296,8 @@ public function denial(Learner $learner, TrainingSession $s): ?string   // null 
 - [ ] Webhook без `X-Telegram-Bot-Api-Secret-Token` — 403.
 - [ ] Webhook с правильным secret, но из левого IP (опция) — 403.
 - [ ] 2FA для админа работает, recovery codes работают, нельзя отключить без пароля.
+- [ ] Payme: вебхук без/с чужим Basic — HTTP 200 + `-32504`; `PerformTransaction` дважды и параллельно — один `payments`; `CreateTransaction` с другой суммой — `-31001`; просроченная транзакция — `-31008`, state −1 reason 4; IP вне `PAYME_IP_ALLOWLIST` (если задан) — 403; `grep -E "Basic |PAYME_" storage/logs/laravel.log` пуст.
+- [ ] Чужой `GET /billing/return?order=<случайный токен>` — нейтральная страница без данных заказа.
 
 ## 15. Инциденты (playbook)
 

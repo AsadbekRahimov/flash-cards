@@ -671,11 +671,12 @@ Reference: docs/13_PHASE2_DESIGN.md §4, §10; admin side: ADMIN_GUIDE "Billing"
 (`BILLING_PAYWALL_MODE=coming_soon`, every `*_ENABLED=false`): deploying the code changes nothing for learners until
 you switch a provider on.
 
-> **Status.** The ledger, checkout API, admin screens, the `billing:expire-orders` job (2A.1, 2A.2, 2A.7) and the
+> **Status.** The ledger, checkout API, admin screens, the `billing:expire-orders` job (2A.1, 2A.2, 2A.7), the
 > **Telegram Stars adapter** (2A.3: invoices, `pre_checkout_query`, `successful_payment` / `refunded_payment`,
-> cancel / resume, admin refund, `billing:reconcile-stars`) exist. Payme and Click adapters and their webhook URLs
-> are added by 2A.4 and 2A.5: every URL and check below marked **(2A.4)** / **(2A.5)** works only after that task
-> is deployed. The `PAYME_*` / `CLICK_*` variables can be filled in beforehand.
+> cancel / resume, admin refund, `billing:reconcile-stars`) and the **Payme adapter** (2A.4: checkout link, the
+> JSON-RPC webhook with all six Merchant API methods, the `/billing/return` page) exist. The Click adapter and its
+> webhook URLs are added by 2A.5: every URL and check below marked **(2A.5)** works only after that task is deployed.
+> The `CLICK_*` variables can be filled in beforehand.
 
 ### 17.1 Environment
 
@@ -688,7 +689,8 @@ you switch a provider on.
 | `PAYME_KEY` | **production** merchant key (secret) |
 | `PAYME_TEST_KEY` | key of the **test** cabinet (secret); the webhook accepts both, so sandbox and prod differ by key. Leave empty in production once testing is done |
 | `PAYME_CHECKOUT_URL` | `https://checkout.paycom.uz` (sandbox: `https://checkout.test.paycom.uz`) |
-| `PAYME_IP_ALLOWLIST` | comma-separated IPs/CIDRs of Payme's callers from the cabinet; empty = off |
+| `PAYME_IP_ALLOWLIST` | comma-separated IPs/CIDRs of Payme's callers from the cabinet; empty = off (a caller outside the list gets 403 before authentication) |
+| `PAYME_CANCEL_AFTER_PERFORM_DAYS` | days after a payment during which Payme may still cancel (= refund) it through `CancelTransaction`; empty = always. Beyond the window the webhook answers `-31007` and the refund has to be agreed with Payme support |
 | `PAYME_FISCAL_IKPU`, `PAYME_FISCAL_PACKAGE_CODE`, `PAYME_FISCAL_VAT_PERCENT` | fiscal receipt data (the owner / accountant provides the IKPU code) |
 | `CLICK_ENABLED`, `CLICK_MERCHANT_ID`, `CLICK_SERVICE_ID`, `CLICK_MERCHANT_USER_ID` | from the Click merchant cabinet |
 | `CLICK_SECRET_KEY` | secret key of the service (secret) |
@@ -711,11 +713,11 @@ Nginx must pass them to Laravel like `/telegram/webhook`; do **not** put them be
 | Provider | URL | Appears in | Authentication |
 |---|---|---|---|
 | Telegram Stars | the existing `/telegram/webhook/{secret}` — **no new URL and nothing to register in a cabinet**; `allowed_updates` must include `pre_checkout_query`, which `php artisan telegram:set-webhook` now sets — re-run it once after deploying 2A.3 (check with `getWebhookInfo`) | done (2A.3) | `TELEGRAM_URL_SECRET` + `X-Telegram-Bot-Api-Secret-Token`; the `pre_checkout_query` is answered synchronously in that request |
-| Payme | `https://<domain>/billing/webhook/payme` (one URL for all JSON-RPC methods) | 2A.4 | `Authorization: Basic base64("Paycom:" + key)`, `hash_equals` with `PAYME_KEY` / `PAYME_TEST_KEY` |
+| Payme | `https://<domain>/billing/webhook/payme` (one URL for all JSON-RPC methods: CheckPerformTransaction, CreateTransaction, PerformTransaction, CancelTransaction, CheckTransaction, GetStatement). In the Payme business cabinet: **Настройки кассы → Endpoint** = this URL, login `Paycom`, password = the cabinet's key (`PAYME_KEY`, test cabinet: `PAYME_TEST_KEY`). The return page `https://<domain>/billing/return` needs no registration (it is passed inside the checkout link) | done (2A.4) | `Authorization: Basic base64("Paycom:" + key)`, `hash_equals` with `PAYME_KEY` / `PAYME_TEST_KEY`; wrong key → HTTP 200 + `-32504` |
 | Click Prepare | `https://<domain>/billing/webhook/click/prepare` | 2A.5 | md5 `sign_string` with `CLICK_SECRET_KEY` |
 | Click Complete | `https://<domain>/billing/webhook/click/complete` | 2A.5 | same |
 
-These URLs are the design of docs/13 §4 and may be corrected by 2A.3–2A.5 when they check the providers' documentation:
+The Click URLs are the design of docs/13 §4.3 and may be corrected by 2A.5 when it checks Click's documentation:
 the task that implements a provider is the final word, and updates this table.
 
 Payme answers errors with HTTP 200 and a JSON-RPC error (`-32504` for a wrong key) — a 200 in the access log is not a
@@ -724,10 +726,17 @@ sign of success; read the body or the payment screens. If the provider publishes
 
 ### 17.3 Sandbox first
 
-1. **Payme.** Create a test merchant in the Payme test cabinet; put its id in `PAYME_MERCHANT_ID` and the test key in
-   `PAYME_TEST_KEY`, set `PAYME_CHECKOUT_URL=https://checkout.test.paycom.uz`, register the webhook URL for the test
-   cabinet, run the cabinet's check scenarios (CheckPerformTransaction, Create, Perform, Cancel before / after
-   perform, CheckTransaction, GetStatement). Only then switch to the production merchant id, key and checkout URL.
+1. **Payme.** Create a test merchant in the Payme test cabinet (test.paycom.uz); put its id in `PAYME_MERCHANT_ID` and
+   the test key in `PAYME_TEST_KEY`, set `PAYME_CHECKOUT_URL=https://checkout.test.paycom.uz`, `PAYME_ENABLED=true`,
+   register the webhook URL (17.2) for the test cabinet, then run the cabinet's **Merchant API test** scenarios:
+   CheckPerformTransaction (right / wrong amount, unknown order), CreateTransaction (new, repeated, second id on a
+   busy order, expired `time`), PerformTransaction (once, twice, after timeout), CancelTransaction (before / after
+   perform), CheckTransaction, GetStatement. Expected answers are listed in docs/04 D.1; the points where our reading
+   of the protocol must be confirmed are in docs/13 §15 p. 2 (`-31052` for a busy order, the checkout-link format,
+   the `detail` receipt shape). Then make one real test payment from `/pro` → Payme page → `/billing/return` shows
+   "Оплата получена", **Payments** has a `succeeded` row, the subscription is `active`; cancel it from the test
+   cabinet and check the `refund` row and the `expired` subscription. Only then switch to the production merchant id,
+   `PAYME_KEY` and `https://checkout.paycom.uz`, and clear `PAYME_TEST_KEY`.
 2. **Click.** Use the test service (test `service_id`, `merchant_id`, secret) and the Click test flow; complete a
    payment and a cancel from the cabinet.
 3. **Stars.** Run the whole flow with a real account on a **small price** (e.g. `BILLING_PRICE_PRO_MONTH_XTR=1` on a
@@ -752,9 +761,11 @@ sign of success; read the body or the payment screens. If the provider publishes
    get 403 on `/admin/payments` and must not see the Billing group.
 4. The checkout catalog (`GET /api/twa/billing/catalog` with a valid TWA token): `items` and `providers` list exactly the
    providers you enabled and nothing else.
-5. Provider webhooks **(2A.4–2A.5)**: from the provider's cabinet send a test call; a wrong key / signature must be
-   rejected (Payme body `-32504`, Click `-1`), a right one answered; make one sandbox payment end to end and see the
-   `succeeded` row in **Payments**, the order `paid` and the subscription in **Subscriptions**.
+5. Provider webhooks (Payme now, Click after 2A.5): from the provider's cabinet send a test call; a wrong key /
+   signature must be rejected (Payme body `-32504`, Click `-1`), a right one answered; make one sandbox payment end
+   to end and see the `succeeded` row in **Payments**, the order `paid` and the subscription in **Subscriptions**.
+   `curl -s -X POST https://<domain>/billing/webhook/payme -d '{}'` must return HTTP 200 with `"code":-32504`
+   (no key) — a 404/419/5xx means the route, CSRF exclusion or nginx is wrong.
 6. After the first payments, look for error lines in `storage/logs/laravel.log` (`grep 'billing\.' storage/logs/laravel.log`):
    no `billing.amount_mismatch`, `billing.payment_orphan` or `billing.admin_refund_unrecorded` (see 17.5).
 7. Check that no secret ended up in the logs: `grep -E "PAYME_|CLICK_SECRET|sign_string|Authorization: Basic" storage/logs/laravel.log` prints nothing.
@@ -772,7 +783,10 @@ sign of success; read the body or the payment screens. If the provider publishes
 | `billing.admin_refund_unrecorded` (error log) | an admin refund returned the money at the provider but the ledger write failed; fix the cause, then record it with "returned by hand" |
 | `billing.admin_refund_provider_failed` (error log) | the provider refused / was down for an admin refund; nothing was changed |
 | Pending orders keep growing | `billing:expire-orders` is not running: the scheduler is down (see 11) |
-| 5xx on `/billing/webhook/*` (2A.4/2A.5) | the provider retries and may cancel the transaction; page the on-call |
+| 5xx on `/billing/webhook/*` | the provider retries and may cancel the transaction; page the on-call. Payme gets HTTP 500 + `-32400` only on an infrastructure failure (`billing.payme.rpc_failed` in the log) |
+| `billing.payme.auth_failed` (warning log) | a call with a missing / wrong Basic key: after a key rotation check `PAYME_KEY` / `PAYME_TEST_KEY`; a burst from unknown IPs = someone probing the webhook (consider `PAYME_IP_ALLOWLIST`) |
+| `billing.payme.perform_refused` (warning log) | Payme asked to perform a transaction whose order is no longer payable (closed by an operator / expired): the transaction stays open until Payme cancels it; nothing is credited |
+| `billing.payme.refund_unrecorded` (error log) | Payme canceled a performed transaction but the ledger had no charge to refund (or it was already refunded by hand): the state is −2, compare **Payments** with the Payme cabinet |
 
 Refunds, grants and revokes are in the `audit_logs` table (`payment.refunded`, `subscription.granted`,
 `subscription.revoked`, with the actor, IP and reason).

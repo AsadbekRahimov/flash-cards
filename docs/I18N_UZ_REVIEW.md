@@ -707,6 +707,26 @@
 | `billing.stars.paid_unresolved` | To'lov qabul qilindi, lekin uni avtomatik hisobga olib bo'lmadi. Biz aniqlab, Pro ni yoqamiz yoki Stars ni qaytaramiz. Tezlashtirish uchun qo'llab-quvvatlash xizmatiga yozing: /paysupport. | Оплата получена, но автоматически зачесть её не удалось. Мы разберёмся и включим Pro или вернём Stars. Чтобы ускорить — напишите в поддержку: /paysupport. |
 | `billing.stars.refunded` | :amount qaytarildi. Agar bu to'lov bilan joriy Pro davri to'langan bo'lsa, u yakunlandi. | Возврат :amount выполнен. Если этим платежом был оплачен текущий период Pro, он завершён. |
 
+### Payme и страница возврата `/billing/return` (`lang/uz/billing.php`, ключи `billing.payme.*`, `billing.return.*`, задача 2A.4)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `billing.payme.receipt_item` | LexiFlow Pro — :period | LexiFlow Pro — :period |
+| `billing.return.title` | To'lov holati | Статус оплаты |
+| `billing.return.open_bot` | LexiFlow'ga qaytish | Вернуться в LexiFlow |
+| `billing.return.note` | Bu sahifani yopish mumkin: to'lov holati botda va ilovada ko'rinadi. | Эту страницу можно закрыть: статус оплаты виден в боте и в приложении. |
+| `billing.return.support` | To'lov bo'yicha savollar: | Вопросы по оплате: |
+| `billing.return.paid.heading` | To'lov qabul qilindi | Оплата получена |
+| `billing.return.paid.text` | LexiFlow Pro yoqildi. Botga qayting yoki ilovani oching — kirish allaqachon ishlaydi. | LexiFlow Pro активирован. Вернитесь в бот или откройте приложение — доступ уже работает. |
+| `billing.return.pending.heading` | To'lov tasdiqlanishini kutmoqdamiz | Ждём подтверждение оплаты |
+| `billing.return.pending.text` | To'lov qayta ishlanmoqda. Odatda bu bir daqiqadan kam vaqt oladi; Payme to'lovni tasdiqlashi bilan Pro avtomatik yoqiladi. | Платёж обрабатывается. Обычно это занимает меньше минуты; Pro включится автоматически, как только Payme подтвердит оплату. |
+| `billing.return.expired.heading` | Hisob muddati o'tdi | Срок счёта истёк |
+| `billing.return.expired.text` | Bu hisob endi amal qilmaydi. Botda /pro buyrug'ini oching va yangisini yarating — muddati o'tgan hisob bo'yicha pul yechilmaydi. | Этот счёт больше не действует. Откройте /pro в боте и создайте новый — деньги по истёкшему счёту не списываются. |
+| `billing.return.canceled.heading` | Hisob bekor qilindi | Счёт отменён |
+| `billing.return.canceled.text` | Bu hisob bekor qilingan. Kerak bo'lsa, botda /pro buyrug'i bilan yangisini yarating. | Этот счёт отменён. Если нужно, создайте новый командой /pro в боте. |
+| `billing.return.unknown.heading` | To'lov holati noma'lum | Статус оплаты неизвестен |
+| `billing.return.unknown.text` | Bunday hisobni topa olmadik. Holatni botda /pro buyrug'i bilan tekshiring yoki qo'llab-quvvatlash xizmatiga yozing. | Мы не нашли такой счёт. Проверьте статус в боте командой /pro или напишите в поддержку. |
+
 ## Фаза 2 · задача 2A.2 (оплата: бот `/pro`, `/paysupport`, TWA paywall и «Подписка») — на проверку носителю
 
 > Проверить: «obuna» / «avtoyangilash» (автопродление), «to'lash» (оплата), «hisob» (счёт), «chegirma» (скидка), «oferta», «pulni qaytarish» (возврат); суммы подставляются как «150 ⭐» и «29 000 so'm».
