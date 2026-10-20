@@ -159,4 +159,13 @@ return [
         'mode' => env('BILLING_PAYWALL_MODE', 'coming_soon'),
         'contact' => env('BILLING_SUPPORT_CONTACT', ''),
     ],
+
+    /**
+     * "Request an invoice" in the `/org` cabinet (docs/13 §6.5): the owner's request goes by e-mail
+     * to this address (the platform owner / a superadmin); empty = `site.legal.email`; both empty =
+     * the button is hidden.
+     */
+    'invoice' => [
+        'request_email' => env('BILLING_INVOICE_REQUEST_EMAIL', ''),
+    ],
 ];

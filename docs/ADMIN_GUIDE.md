@@ -263,6 +263,14 @@ Filters: status, provider, plan, subject, and *Live status* (live = trialing / a
   the audit log. This is how the Center L tier (not sold online) and a paid-by-invoice center are activated. Leave it
   empty to grant without a seat limit (the previous behaviour). A tier on a Learner grant is ignored. The table also
   has *Tier* and *Seats* columns.
+- **Manual activation of a center (invoice flow).** A center owner presses *Request an invoice* in the `/org`
+  cabinet (Billing): you get an e-mail "Invoice request from center …" (to `BILLING_INVOICE_REQUEST_EMAIL`, else
+  `SITE_LEGAL_EMAIL`; *Reply-To* is the owner's address; the request is audited as `organization.invoice_requested`).
+  Send the invoice (the owner can also open a printable one from Billing → *Orders* once an online order exists;
+  the seller details come from `SITE_LEGAL_*`), and after the money arrives use **Grant Pro** → *Organization* →
+  **Pro until** (period end) + **Tier**. The seats limit is set from the tier and the waiting list is seated
+  automatically right after the grant. Center L is always done this way. If the center later pays online for
+  another tier, the online payment replaces the tier and extends the period from the current end.
 - **Revoke** (row button, live subscriptions only): ends the subscription now; **Reason** required, audit
   `subscription.revoked`. The learner loses Pro within seconds (the cached plan is dropped at once).
 - A subscription that ran out of time is closed automatically by the hourly job `subscriptions:expire`.

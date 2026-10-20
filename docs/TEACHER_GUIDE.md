@@ -167,7 +167,7 @@ invitation letter, and you only ever see your own center.
 | **Teachers** | invite by email, assign groups, change role, resend the invitation, remove (the last owner cannot be removed) | — |
 | **Assignments** | all groups of the center: set a lesson with a deadline, see who finished, close | your groups only |
 | **Reports** | activity of the whole center, per group and per learner; CSV download | the same, for your groups only |
-| **Billing** | tariff, subscription status, seats (payment arrives in a later update) | — |
+| **Billing** | tariff and subscription, seats, payment, invoice, history (see *Payment* below) | — |
 | **Center settings** | name, contact, timezone, cabinet language | — |
 
 The cabinet speaks the language set in **Center settings** (Russian or Uzbek).
@@ -206,3 +206,29 @@ freed or the tariff is raised. Nobody is blocked from learning — a waiting lea
 Staff whose Telegram ID is linked can send `/org` to the bot in a private chat: it answers with every
 center you belong to, your role, the seats (owners) and the number of learners active in the last 7 days,
 plus the link to the cabinet.
+
+### Payment (owners)
+
+**Billing** is visible to owners only; a teacher gets "403" if they open the address by hand.
+
+1. At the top you see the current tariff, the status, the date paid until, the seats (taken / limit) and
+   how many learners wait for a seat.
+2. Choose a **tariff** and a **period**. The list shows the seats and the price of every tariff
+   (Tutor 30, Center S 100, Center M 300; Center L is agreed individually — the platform activates it).
+3. Press **Pay with Payme** or **Pay with Click** (a button appears only for the methods that are switched on):
+   you are taken to the provider's payment page. After the payment the subscription is extended by the
+   period (30 days per month paid) and the tariff takes effect immediately — learners from the waiting
+   list get seats in the order they joined. If nothing is paid within 24 hours the order closes by itself.
+4. Pay by bank transfer instead: **Request an invoice** sends your choice (tariff, period, comment) to the
+   platform administrator, who replies by email and activates the tariff after the payment. The same button
+   is how you ask for Center L.
+5. **Orders** lists every order with its status; **Invoice** opens a printable page (Ctrl+P, "Save as PDF")
+   with the platform's requisites, the number, the date and the amount in sums. **Payments** lists what was
+   actually charged or refunded.
+
+Moving to a **smaller** tariff never removes anyone: learners who already hold a seat keep it, even if there
+are now more of them than the limit ("Over the limit: 5 of 2 seats" on Billing and on the Dashboard); new
+learners wait until seats free up or you raise the tariff again.
+
+You get an email (and a Telegram message, if your Telegram ID is linked) 3 days and 1 day before the paid
+period ends. After the end the center's learners return to the free plan; no data is deleted.
