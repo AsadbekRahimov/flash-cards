@@ -20,6 +20,7 @@ use App\Models\Organization;
 use App\Models\TelegramGroup;
 use App\Observers\OrganizationObserver;
 use App\Observers\TelegramGroupObserver;
+use App\Policies\Org\OrgPolicyResolver;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
@@ -98,6 +99,9 @@ class AppServiceProvider extends ServiceProvider
         // organization's status (docs/12 §5.2).
         TelegramGroup::observe(TelegramGroupObserver::class);
         Organization::observe(OrganizationObserver::class);
+
+        // `/org` cabinet: tenant-aware policies replace the platform ones while that panel is served (docs/13 §6.3).
+        OrgPolicyResolver::register();
 
         RateLimiter::for('login', function (Request $request): Limit {
             $email = (string) $request->input('email', '');
