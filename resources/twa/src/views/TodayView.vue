@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import GoalRing from '@/components/GoalRing.vue'
+import LapsedBanner from '@/components/LapsedBanner.vue'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import { useAuthStore } from '@/stores/auth'
@@ -102,6 +103,7 @@ onBeforeUnmount(() => training.clearOpenError())
         </span>
       </header>
 
+      <LapsedBanner v-if="data.entitlement.plan === 'free'" @renew="router.push({ name: 'billing' })" />
       <p v-if="status === 'error'" class="text-sm text-red-600" data-testid="reload-error">{{ loadError }}</p>
       <p v-if="!data.onboarding_completed" class="card text-sm" data-testid="onboarding-hint">
         {{ t('today.onboarding_hint') }}

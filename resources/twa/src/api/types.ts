@@ -89,6 +89,17 @@ export interface Entitlement {
    * Absent in the entitlement of `/today` and in the auth answer.
    */
   renewal?: Renewal | null
+  /**
+   * "Pro ended" (docs/04 A.2, `/me` only): the learner is on Free and their own paid subscription expired
+   * lately; null = nothing to offer. Absent in the entitlement of `/today` and in the auth answer.
+   */
+  lapsed?: Lapsed | null
+}
+
+export interface Lapsed {
+  provider: string
+  /** ISO 8601 moment the subscription expired; also the key of the local "dismissed" mark. */
+  ended_at: string
 }
 
 export interface Renewal {

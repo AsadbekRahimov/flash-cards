@@ -174,6 +174,10 @@ export const ru = {
   'billing.renew': 'Продлить Pro',
   'billing.unavailable': 'Оплата скоро откроется.',
   'billing.sum': 'сум',
+  'lapsed.title': 'Pro закончился',
+  'lapsed.text': 'Подписка закончилась {date}. Продлите, чтобы новые слова снова были без дневного лимита.',
+  'lapsed.renew': 'Продлить Pro',
+  'lapsed.dismiss': 'Скрыть',
 
   // ---- course catalog ----
   'catalog.title': 'Курсы',

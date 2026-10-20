@@ -96,4 +96,22 @@ return [
         'UZS' => ":amount so'm",
     ],
 
+    // Renewal reminders (docs/13 §4.4): DM to a learner / an organization's owner, e-mail to owners.
+    'renewal' => [
+        'dm' => '{1} LexiFlow Pro ertaga tugaydi (:date).|[2,*] LexiFlow Pro :count kundan keyin tugaydi (:date).',
+        'org_dm' => '{1} «:organization» markazining obunasi ertaga tugaydi (:date).|[2,*] «:organization» markazining obunasi :count kundan keyin tugaydi (:date).',
+        'hint' => 'Yangi so\'zlar kunlik limit bilan cheklanib qolmasligi uchun oldindan yangilang.',
+        'hint_canceled' => 'Avtoyangilash o\'chirilgan, shuning uchun Pro o\'zi yangilanmaydi. Cheklovsiz imkoniyatni yo\'qotmaslik uchun oldindan yangilang.',
+        'org_hint' => 'Obuna tugagach, markaz ishtirokchilarida yana Free tarifi bo\'ladi.',
+        'button' => "Pro'ni uzaytirish",
+        'mail' => [
+            'subject' => '{1} «:organization» markazining obunasi ertaga tugaydi|[2,*] «:organization» markazining obunasi :count kundan keyin tugaydi',
+            'greeting' => 'Assalomu alaykum!',
+            'body' => '{1} «:organization» markazining LexiFlow Pro obunasi ertaga tugaydi (:date).|[2,*] «:organization» markazining LexiFlow Pro obunasi :count kundan keyin tugaydi (:date).',
+            'keep' => 'Markaz o\'quvchilari Pro ni yo\'qotmasligi uchun obunani oldindan yangilang. Tugagach, ularda yana Free tarifi bo\'ladi.',
+            'action' => 'Markaz kabinetini ochish',
+            'contact' => 'To\'lov bo\'yicha savollar: :contact',
+        ],
+    ],
+
 ];

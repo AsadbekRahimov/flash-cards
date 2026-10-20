@@ -7,11 +7,12 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { useTrainingStore } from '@/stores/training'
-import type { TodayResponse } from '@/api/types'
+import { settingsFixture } from '@/api/__tests__/settingsFixture'
+import type { MeResponse, TodayResponse } from '@/api/types'
 
 const state = vi.hoisted(() => ({ ensure: vi.fn() }))
 
-vi.mock('@/api', () => ({ api: { today: { get: vi.fn() }, training: { open: vi.fn() } } }))
+vi.mock('@/api', () => ({ api: { today: { get: vi.fn() }, training: { open: vi.fn() }, me: { get: vi.fn() } } }))
 
 vi.mock('@/stores/auth', () => ({
   useAuthStore: () => ({ ensure: state.ensure }),
@@ -43,6 +44,7 @@ const makeRouter = () =>
       { path: '/courses', name: 'courses', component: { template: '<div />' } },
       { path: '/decks', name: 'decks', component: { template: '<div />' } },
       { path: '/settings', name: 'settings', component: { template: '<div />' } },
+      { path: '/billing', name: 'billing', component: { template: '<div />' } },
       { path: '/training/:sessionId(\\d+)', name: 'training', component: { template: '<div />' } },
     ],
   })
@@ -62,6 +64,11 @@ describe('TodayView', () => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
     state.ensure.mockResolvedValue(undefined)
+    // The "Pro ended" banner asks /me for a Free learner; by default nothing lapsed.
+    vi.mocked(api.me.get).mockResolvedValue({
+      entitlement: { plan: 'free', source: 'free', until: null, new_words_per_day: 20, renewal: null, lapsed: null },
+      paywall: { mode: 'coming_soon', contact: null },
+    } as never)
   })
   afterEach(() => setLocale('ru'))
 
@@ -122,6 +129,44 @@ describe('TodayView', () => {
 
     expect(text(w, 'plan-badge')).toBe('Free')
     expect(w.find('[data-testid=paywall-open]').exists()).toBe(true)
+  })
+
+  describe('"Pro ended" banner (2A.6)', () => {
+    const lapsedMe = (lapsed: boolean): MeResponse => ({
+      learner: { id: 1, first_name: 'A', username: null, locale: 'ru', onboarding_completed: true },
+      groups: [],
+      stats: { words_learned: 0, words_due_today: 0 },
+      entitlement: {
+        plan: 'free', source: 'free', until: null, new_words_per_day: 20, renewal: null,
+        lapsed: lapsed ? { provider: 'payme', ended_at: '2026-10-18T09:30:00+00:00' } : null,
+      },
+      paywall: { mode: 'purchase', contact: null },
+      settings: settingsFixture(),
+    })
+
+    beforeEach(() => window.localStorage.clear())
+
+    it('offers renewal to a Free learner whose Pro lapsed and leads to the subscription screen', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(lapsedMe(true))
+      const w = await render()
+
+      expect(text(w, 'lapsed-title')).toBe('Pro закончился')
+
+      await w.router.push('/today')
+      await w.get('[data-testid=lapsed-renew]').trigger('click')
+      await flushPromises()
+      expect(w.router.currentRoute.value.name).toBe('billing')
+    })
+
+    it('shows nothing when nothing lapsed, and does not even ask /me of a Pro learner', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(lapsedMe(false))
+      expect((await render()).find('[data-testid=lapsed-banner]').exists()).toBe(false)
+
+      vi.mocked(api.me.get).mockClear()
+      setActivePinia(createPinia())
+      await render(today({ entitlement: { plan: 'pro', source: 'subscription', until: null } }))
+      expect(api.me.get).not.toHaveBeenCalled()
+    })
   })
 
   it('opens the daily review and goes to the training screen', async () => {

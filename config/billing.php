@@ -113,6 +113,8 @@ return [
         'max_pending_per_subscriber' => 3,
         // Days before the period end a non-renewing live subscription is reminded (one reminder per day value).
         'renewal_reminder_days' => [3, 1],
+        // How long (days) after Pro expired `/me.entitlement.lapsed` offers "Pro ended — renew" (0 = off).
+        'lapsed_banner_days' => 14,
     ],
 
     /** Personal offers (docs/13 §1.2 `offers`): the B2B -> B2C discount for a learner who lost a seat. */

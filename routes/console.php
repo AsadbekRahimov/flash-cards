@@ -43,6 +43,13 @@ Schedule::command('billing:expire-orders')
     ->everyFifteenMinutes()
     ->withoutOverlapping();
 
+// Renewal reminders (docs/13 §4.4): 3 and 1 day before a non-renewing period ends. 06:00 UTC = 11:00
+// in Tashkent. Idempotent: the markers live in `subscriptions.meta.renewal_reminders`, so a re-run
+// (or a second scheduler) raises nothing twice.
+Schedule::command('subscriptions:remind-expiring')
+    ->dailyAt('06:00')
+    ->withoutOverlapping();
+
 // Repair path of the group -> organization membership hook (docs/13 §2.3): any learner in a
 // group of an organization without a membership row gets one (joined_via = group). Idempotent.
 Schedule::command('organizations:sync-members')

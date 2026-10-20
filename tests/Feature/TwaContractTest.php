@@ -121,7 +121,7 @@ it('GET /me keeps its exact JSON shape', function (): void {
             'learner' => ['id', 'first_name', 'username', 'locale', 'onboarding_completed'],
             'groups' => [['id', 'title']],
             'stats' => ['words_learned', 'words_due_today'],
-            'entitlement' => ['plan', 'source', 'until', 'new_words_per_day', 'renewal'],
+            'entitlement' => ['plan', 'source', 'until', 'new_words_per_day', 'renewal', 'lapsed'],
             'paywall' => ['mode', 'contact'],
             'settings' => [
                 'interface_locale', 'timezone', 'reminder_time', 'daily_goal', 'goal', 'level', 'timezone_change_available_at', 'active_course',
@@ -188,7 +188,7 @@ it('GET /me reports the Free entitlement and a paywall without contact while BIL
     $this->withHeaders(contractHeaders($s['learner']))
         ->getJson('/api/twa/me')
         ->assertOk()
-        ->assertJsonPath('entitlement', ['plan' => 'free', 'source' => 'free', 'until' => null, 'new_words_per_day' => 20, 'renewal' => null])
+        ->assertJsonPath('entitlement', ['plan' => 'free', 'source' => 'free', 'until' => null, 'new_words_per_day' => 20, 'renewal' => null, 'lapsed' => null])
         ->assertJsonPath('paywall', ['mode' => 'coming_soon', 'contact' => null]);
 });
 
@@ -297,7 +297,7 @@ it('GET /me and the cancel / resume answers carry entitlement.renewal for a payi
         'learner' => ['id', 'first_name', 'username', 'locale', 'onboarding_completed'],
         'groups' => [['id', 'title']],
         'stats' => ['words_learned', 'words_due_today'],
-        'entitlement' => ['plan', 'source', 'until', 'new_words_per_day', 'renewal' => CONTRACT_RENEWAL],
+        'entitlement' => ['plan', 'source', 'until', 'new_words_per_day', 'renewal' => CONTRACT_RENEWAL, 'lapsed'],
         'paywall' => ['mode', 'contact'],
         'settings' => [
             'interface_locale', 'timezone', 'reminder_time', 'daily_goal', 'goal', 'level', 'timezone_change_available_at', 'active_course',
