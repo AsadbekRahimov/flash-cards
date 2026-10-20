@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Api\Twa\AssignmentController;
 use App\Http\Controllers\Api\Twa\AuthController;
 use App\Http\Controllers\Api\Twa\BillingController;
 use App\Http\Controllers\Api\Twa\CourseController;
@@ -32,6 +33,7 @@ Route::prefix('twa')->group(function (): void {
             ->middleware('throttle:twa-organizations')
             ->name('twa.me.organizations.leave');
         Route::get('/today', TodayController::class)->name('twa.today');
+        Route::get('/assignments', AssignmentController::class)->name('twa.assignments');
         Route::post('/promo/redeem', [PromoController::class, 'redeem'])
             ->middleware('throttle:twa-promo')
             ->name('twa.promo.redeem');

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Billing\BillingReturnController;
+use App\Http\Controllers\Billing\ClickWebhookController;
 use App\Http\Controllers\Billing\PaymeWebhookController;
 use App\Http\Controllers\PublicSiteController;
 use App\Http\Controllers\ReadinessController;
@@ -53,6 +54,14 @@ Route::withoutMiddleware([EncryptCookies::class, AddQueuedCookiesToResponse::cla
         Route::post('/webhook/payme', PaymeWebhookController::class)
             ->middleware(['throttle:billing-webhook', BillingIpAllowlist::class.':payme'])
             ->name('billing.webhook.payme');
+
+        // Click (docs/13 §4.3): two form-encoded calls, signed with CLICK_SECRET_KEY (md5 sign_string, checked in the service).
+        Route::post('/webhook/click/prepare', [ClickWebhookController::class, 'prepare'])
+            ->middleware(['throttle:billing-webhook', BillingIpAllowlist::class.':click'])
+            ->name('billing.webhook.click.prepare');
+        Route::post('/webhook/click/complete', [ClickWebhookController::class, 'complete'])
+            ->middleware(['throttle:billing-webhook', BillingIpAllowlist::class.':click'])
+            ->name('billing.webhook.click.complete');
 
         // Where Payme / Click send the payer back: a static status page by order token (no secrets, no session).
         Route::get('/return', BillingReturnController::class)

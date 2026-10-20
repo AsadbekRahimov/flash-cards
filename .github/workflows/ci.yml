@@ -35,9 +35,13 @@ jobs:
               run: composer audit --no-interaction
 
             - name: Pint (code style)
+              # Runs even when `composer audit` fails, so a new advisory does not hide style/type errors.
+              if: ${{ !cancelled() }}
               run: ./vendor/bin/pint --test
 
             - name: PHPStan (larastan)
+              # Runs even when `composer audit` fails, so a new advisory does not hide style/type errors.
+              if: ${{ !cancelled() }}
               run: ./vendor/bin/phpstan analyse --no-progress --memory-limit=1G
 
     test:

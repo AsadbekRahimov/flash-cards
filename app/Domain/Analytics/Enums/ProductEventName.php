@@ -27,6 +27,10 @@ enum ProductEventName: string
     case OrgMemberLeft = 'org.member_left';
     /** A waitlisted member got a seat (FIFO after a leave or a tariff upgrade). */
     case OrgMemberSeated = 'org.member_seated';
+    /** A center set a lesson for a group (props: assignment_id, lesson_id, organization_id — docs/13 §1.4). */
+    case AssignmentCreated = 'assignment.created';
+    /** A learner reached the threshold of an assignment, once per (assignment, learner) (props: assignment_id, late). */
+    case AssignmentCompleted = 'assignment.completed';
     case SubscriptionGranted = 'subscription.granted';
     case SubscriptionExpired = 'subscription.expired';
     /** Auto-renewal stopped by the user; Pro stays until the period end (docs/13 §2.1). */

@@ -165,11 +165,34 @@ invitation letter, and you only ever see your own center.
 | **Groups** | **Link group** by chat id — the bot must already be in the group and *you* must be its creator or administrator (the cabinet checks this with Telegram); **Unlink** | your groups only |
 | **Invitations** | create codes (label, uses, expiry), copy the `t.me/<bot>?start=org_<code>` link, deactivate | — |
 | **Teachers** | invite by email, assign groups, change role, resend the invitation, remove (the last owner cannot be removed) | — |
-| **Assignments**, **Reports** | coming in the next updates | coming in the next updates |
+| **Assignments** | all groups of the center: set a lesson with a deadline, see who finished, close | your groups only |
+| **Reports** | activity of the whole center, per group and per learner; CSV download | the same, for your groups only |
 | **Billing** | tariff and subscription, seats, payment, invoice, history (see *Payment* below) | — |
 | **Center settings** | name, contact, timezone, cabinet language | — |
 
 The cabinet speaks the language set in **Center settings** (Russian or Uzbek).
+
+### Assignments
+
+An assignment is *one lesson of the group's course with a deadline*.
+
+1. **Assignments → Create assignment.** Pick the group (only groups of your center that have a course are listed), then the lesson (lessons of that group's course only), the deadline, and optionally a title (empty means the lesson title) and the completion threshold (default 100 % of the lesson's words).
+2. The bot posts **one message to the group chat** with an **Open lesson** button; the learners start the lesson straight from it. They also see the assignment in the **Today** screen of the mini app, with their own progress. The bot sends **one reminder to the group** about 24 hours before the deadline (nobody gets personal messages).
+3. **Progress** is the share of the lesson's active words the learner has answered correctly at least once. It is recounted every 30 minutes and whenever you open the assignment report. The list shows *N of M finished* (learners still in the group); the report shows each learner's progress and whether they finished, finished late or have not started. Only this aggregate is shown — never the learner's personal sessions or answers.
+4. After the deadline an assignment stays open: late completions are still counted and marked **finished late**. **Close** ends it by hand (the final progress stays in the report; a closed assignment cannot be reopened); an assignment overdue for 14 days is closed automatically.
+
+A teacher sees and creates assignments only for their own groups; the owner for all groups of the center.
+
+### Reports
+
+**Reports** shows how the learners practised over a period, as two tables: a summary **per group** and a list **per learner**.
+
+- **Filters.** *Group* (only the groups you can see; empty means all), *Period*: the last 7 days, the last 30 days, or your own dates (from / to, both days included, at most 366 days). Days are counted in the center's time zone (**Center settings**).
+- **Columns per learner.** *Reviews* and *new words* (sums over the period), *days active* (days with at least one review or new word), *days the daily goal was met*, the *current streak* (0 if the learner skipped yesterday), *assignments done / total* and *last seen*. The group table adds the number of learners and how many of them were active.
+- **Assignments.** Counted are the center's assignments whose **deadline falls in the chosen period**, for learners who are still in the assignment's group; "done" means the learner reached the completion threshold (late completions count). The numbers are the last saved snapshot (refreshed every 30 minutes and when an assignment report is opened).
+- **CSV.** **Download CSV (learners)** and **Download CSV (groups)** export exactly what the tables show for the current filters. The file is UTF-8 with a BOM, fields are separated by `;` (opens correctly in Excel with Russian / Uzbek regional settings), the headers are in the cabinet's language. Telegram IDs are not exported.
+- **Who sees what.** The owner sees the whole center; a teacher only the learners and groups of their own groups. Learners of other centers never appear.
+- **Privacy.** The report contains only daily totals and assignment results. A learner's individual sessions and answers are never shown to staff.
 
 ### Seats, in one paragraph
 

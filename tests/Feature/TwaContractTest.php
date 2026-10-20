@@ -19,11 +19,13 @@ use App\Domain\Twa\Services\InitDataValidator;
 use App\Domain\Twa\Services\JwtService;
 use App\Http\Resources\ApiErrorResource;
 use App\Http\Resources\Twa\ExamQuestionResource;
+use App\Models\Assignment;
 use App\Models\Course;
 use App\Models\ExamAnswer;
 use App\Models\ExamSession;
 use App\Models\Learner;
 use App\Models\Lesson;
+use App\Models\Organization;
 use App\Models\Stage;
 use App\Models\Subscription;
 use App\Models\TelegramGroup;
@@ -671,4 +673,34 @@ it('ExamQuestionResource exposes only the allow-listed fields of the personalize
     // ... and the resource drops it.
     expect(array_keys($payload))->toBe(CONTRACT_EXAM_QUESTION)
         ->and($payload['seconds_left'])->toBe(7);
+});
+
+it('GET /assignments keeps its exact JSON shape (docs/04 A.9)', function (): void {
+    $lesson = Lesson::factory()->for(Stage::factory()->for(Course::factory()->published())->create(['number' => 2]))->create(['number' => 3]);
+    $org = Organization::factory()->create();
+    $group = TelegramGroup::factory()->create(['organization_id' => $org->id, 'course_id' => $lesson->stage?->course_id]);
+    $learner = Learner::factory()->memberOf($group)->create();
+    Assignment::factory()->create(['organization_id' => $org->id, 'telegram_group_id' => $group->id, 'lesson_id' => $lesson->id]);
+
+    $response = $this->withHeaders(contractHeaders($learner))
+        ->getJson('/api/twa/assignments')
+        ->assertOk()
+        ->assertExactJsonStructure([
+            'assignments' => [[
+                'id', 'title', 'group', 'lesson_id', 'stage', 'lesson', 'due_at', 'overdue',
+                'progress_pct', 'completed', 'completed_at', 'late',
+            ]],
+        ]);
+
+    expect($response->json('assignments.0.lesson_id'))->toBe($lesson->id)
+        ->and($response->json('assignments.0.stage'))->toBe(2)
+        ->and($response->json('assignments.0.lesson'))->toBe(3)
+        ->and($response->json('assignments.0.overdue'))->toBeFalse()
+        ->and($response->json('assignments.0.progress_pct'))->toBe(0)
+        ->and($response->json('assignments.0.completed'))->toBeFalse()
+        ->and($response->json('assignments.0.completed_at'))->toBeNull()
+        ->and($response->json('assignments.0.late'))->toBeFalse();
+
+    $bare = Learner::factory()->create();
+    $this->withHeaders(contractHeaders($bare))->getJson('/api/twa/assignments')->assertOk()->assertExactJson(['assignments' => []]);
 });

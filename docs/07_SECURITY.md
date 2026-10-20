@@ -70,7 +70,7 @@ public function handle(Request $r, string $secret): Response
 
 - **Payme (2A.4)** — `POST /billing/webhook/payme`: `Authorization: Basic base64("Paycom:" + ключ)`, пароль сравнивается `hash_equals` с `PAYME_KEY` и `PAYME_TEST_KEY` (оба сравнения выполняются всегда; пустой ключ не совпадает ни с чем). Неверно → **HTTP 200 + JSON-RPC `-32504`**, тело запроса при этом не разбирается. Сумма берётся из `payment_orders` (несовпадение → `-31001`, ничего не пишется); транзакция идентифицируется `params.id` Payme, заказ — `account.order_id` = непредсказуемый `token`. Идемпотентность: `(provider, provider_transaction_id)` unique + `payments (provider, provider_event_id)` (`<id>:perform`, `<id>:cancel`) + блокировка строки заказа — повтор любого метода возвращает первый ответ, параллельная доставка сериализуется (`BillingConcurrencyTest`). Сбой инфраструктуры → HTTP 500 (`-32400`) без частичной записи.
 - Страница `GET /billing/return?order=<token>` показывает только статус заказа (без сумм, имён, подписки), `no-store`, `noindex`, 30/мин per IP: токен — capability плательщика, по нему нельзя ничего изменить.
-- Click (2A.5) — подпись `md5` `sign_string` + `service_id`, см. docs/13 §4.3.
+- **Click (2A.5)** — `POST /billing/webhook/click/prepare|complete` (form-encoded): `sign_string = md5(click_trans_id + service_id + CLICK_SECRET_KEY + merchant_trans_id [+ merchant_prepare_id] + amount + action + sign_time)`; digest считается с нашими `CLICK_SERVICE_ID`/`CLICK_SECRET_KEY` и сравнивается `hash_equals` (как и `service_id`; пустой секрет не совпадает ни с чем). Неверно → **HTTP 200 + `error: -1`**, в БД ничего не пишется; `sign_string` и секрет не попадают ни в `provider_transactions.raw`, ни в логи (`SecretRedactor`). Сумма — строка UZS, переводится в тийины строковой арифметикой и сверяется с `payment_orders.amount` (≠ → `-2`); заказ — по непредсказуемому `merchant_trans_id` = `token`; чужой провайдер/нет заказа → `-5` без деталей. Идемпотентность: `(click, click_trans_id)` unique + `payments (click, <click_trans_id>:complete)` + блокировка строки заказа — повторный Complete отвечает как первый, параллельные сериализуются (`BillingConcurrencyTest`). Сбой инфраструктуры → HTTP 500 (`-7`) без частичной записи. См. docs/13 §4.3, docs/04 D.2.
 
 ## 3. TWA initData — HMAC валидация
 
@@ -302,6 +302,7 @@ public function denial(Learner $learner, TrainingSession $s): ?string   // null 
 - [ ] Webhook с правильным secret, но из левого IP (опция) — 403.
 - [ ] 2FA для админа работает, recovery codes работают, нельзя отключить без пароля.
 - [ ] Payme: вебхук без/с чужим Basic — HTTP 200 + `-32504`; `PerformTransaction` дважды и параллельно — один `payments`; `CreateTransaction` с другой суммой — `-31001`; просроченная транзакция — `-31008`, state −1 reason 4; IP вне `PAYME_IP_ALLOWLIST` (если задан) — 403; `grep -E "Basic |PAYME_" storage/logs/laravel.log` пуст.
+- [ ] Click: Prepare/Complete с неверной `sign_string` или чужим `service_id` — HTTP 200 + `-1`, в БД ничего; Complete дважды и параллельно — один `payments`; Prepare с другой суммой — `-2`; Complete без Prepare — `-6`; IP вне `CLICK_IP_ALLOWLIST` (если задан) — 403; `grep -E "CLICK_SECRET|sign_string=" storage/logs/laravel.log` пуст.
 - [ ] Чужой `GET /billing/return?order=<случайный токен>` — нейтральная страница без данных заказа.
 
 ## 15. Инциденты (playbook)

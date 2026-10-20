@@ -299,8 +299,10 @@ it('describes the catalog: priced items per enabled provider, the open offer and
 it('keeps the provider registry honest: unknown providers are not registered, enabled() follows config', function (): void {
     $registry = app(BillingProviderRegistry::class);
 
-    expect($registry->has(SubscriptionProvider::Click))->toBeFalse()
+    // Click is registered by AppServiceProvider (2A.5) but sellable only when CLICK_ENABLED=true; grants are never providers.
+    expect($registry->has(SubscriptionProvider::Click))->toBeTrue()
         ->and($registry->isEnabled(SubscriptionProvider::Click))->toBeFalse()
+        ->and($registry->has(SubscriptionProvider::Reward))->toBeFalse()
         ->and($registry->enabled())->toBe([SubscriptionProvider::TelegramStars, SubscriptionProvider::Payme])
         ->and($registry->for(SubscriptionProvider::Payme))->toBe($this->payme);
 
@@ -309,7 +311,7 @@ it('keeps the provider registry honest: unknown providers are not registered, en
         ->and($registry->has(SubscriptionProvider::TelegramStars))->toBeTrue();
 
     try {
-        $registry->for(SubscriptionProvider::Click);
+        $registry->for(SubscriptionProvider::Reward);
         $this->fail('expected ProviderCapabilityException');
     } catch (ProviderCapabilityException $e) {
         expect($e->errorCode)->toBe(ProviderCapabilityException::NOT_REGISTERED)->and($e->httpStatus())->toBe(409);

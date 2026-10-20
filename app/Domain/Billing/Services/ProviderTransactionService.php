@@ -23,6 +23,10 @@ final class ProviderTransactionService
 {
     /**
      * @param  array<string, mixed>  $raw  the provider's request after secrets were redacted
+     * @param  bool  $exclusive  refuse (`order_busy`) while another transaction of the order is open — Payme
+     *                           (its transactions time out, docs/13 §4.2); Click passes false: a payer who
+     *                           retries gets a new `click_trans_id` and Click never times a Prepare out,
+     *                           so a stale open one must not hold the order (docs/13 §4.3, 2A.5)
      *
      * @throws ProviderTransactionException order_not_found | order_not_payable | amount_mismatch | order_busy
      */
@@ -34,11 +38,12 @@ final class ProviderTransactionService
         ?int $providerTime,
         array $raw,
         ?CarbonImmutable $now = null,
+        bool $exclusive = true,
     ): ProviderTransaction {
         $now ??= CarbonImmutable::now();
 
         try {
-            return DB::transaction(function () use ($provider, $providerTransactionId, $orderToken, $amount, $providerTime, $raw, $now): ProviderTransaction {
+            return DB::transaction(function () use ($provider, $providerTransactionId, $orderToken, $amount, $providerTime, $raw, $now, $exclusive): ProviderTransaction {
                 /** @var PaymentOrder|null $order */
                 $order = PaymentOrder::query()->where('token', $orderToken)->lockForUpdate()->first();
 
@@ -65,15 +70,17 @@ final class ProviderTransactionService
                     throw ProviderTransactionException::amountMismatch($order->amount, $amount);
                 }
 
-                /** @var ProviderTransaction|null $open */
-                $open = ProviderTransaction::query()
-                    ->where('payment_order_id', $order->id)
-                    ->where('state', ProviderTransaction::STATE_CREATED)
-                    ->lockForUpdate()
-                    ->first();
+                if ($exclusive) {
+                    /** @var ProviderTransaction|null $open */
+                    $open = ProviderTransaction::query()
+                        ->where('payment_order_id', $order->id)
+                        ->where('state', ProviderTransaction::STATE_CREATED)
+                        ->lockForUpdate()
+                        ->first();
 
-                if ($open !== null) {
-                    throw ProviderTransactionException::orderBusy($open->provider_transaction_id);
+                    if ($open !== null) {
+                        throw ProviderTransactionException::orderBusy($open->provider_transaction_id);
+                    }
                 }
 
                 $transaction = new ProviderTransaction([

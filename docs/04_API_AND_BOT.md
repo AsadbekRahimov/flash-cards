@@ -519,6 +519,19 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 (идемпотентно). Ответ — строка курса в формате элемента `GET /courses` (`is_active = true`, актуальный `progress`).
 Недоступный курс — `404 course_not_found`, активный курс не меняется.
 
+### A.9 `GET /api/twa/assignments` — задания центра (docs/13 §1.4, Фаза 2 / 2B.4)
+Блок «Задания центра» на экране «Сегодня». Серверная сторона — `AssignmentService::forLearner` (общий лимит `twa-api`). Возвращает **активные** задания групп, где learner — активный участник (и организация активна), не больше `organizations.assignments.twa_limit` (20), ближайший срок первым; прогресс — **только самого learner'а**, пересчитывается в момент запроса (по его `word_repetitions`, без ожидания `assignments:refresh`). Чужие группы, закрытые задания, прогресс одногруппников не отдаются. Нет заданий — `{"assignments": []}`.
+```json
+{ "assignments": [
+  { "id": 7, "title": "Food", "group": "Group A", "lesson_id": 41, "stage": 2, "lesson": 4,
+    "due_at": "2026-10-25T13:00:00+00:00", "overdue": false,
+    "progress_pct": 40, "completed": false, "completed_at": null, "late": false }
+] }
+```
+`title` — название задания (по умолчанию название урока, иначе «Урок N»); `lesson_id` — то, что принимает `POST /training/sessions {mode: "lesson", lesson_id, source: "assignment"}` (`source = assignment` теперь допустим; тренировка идёт обычным путём, без отдельного режима); `overdue` — срок прошёл, а задание ещё открыто (опоздавшие выполнения учитываются до закрытия); `late` — выполнено после `due_at`. `progress_pct` = доля активных слов урока с `word_repetitions.repetitions >= 1`; `completed` — достигнут порог задания (`completion_threshold`).
+
+**Ссылка из группы.** Объявление в чате — одно сообщение с `web_app`-кнопкой `/twa/?from=assignment&lesson=<id>`: TWA убирает метку из URL и открывает сессию урока (`source = assignment`); доступ к уроку перепроверяет сервер обычными правилами. Ошибка открытия остаётся на экране «Сегодня».
+
 ### A.10 Свои колоды learner'а (docs/13 §8.1, Фаза 2 / 2D.1)
 
 Все маршруты — под `TwaAuth` и `throttle:twa-api`; изменяющие — ещё `throttle:twa-decks` (30/мин на learner'а), импорт слов —
@@ -932,7 +945,28 @@ Checkout-ссылка (`PaymeProvider::createCheckout`, `checkout.kind = redirec
 
 ### D.2 Click — `POST /billing/webhook/click/prepare`, `/complete` (задача 2A.5)
 
-Проектируется в docs/13 §4.3; заполняется в 2A.5.
+Два form-encoded (`application/x-www-form-urlencoded`) вызова Click; читается только тело формы (JSON-тело / query-string → `-8`). Поля: `click_trans_id`, `service_id`, `click_paydoc_id`, `merchant_trans_id` (= `payment_orders.token`), `merchant_prepare_id` (только Complete), `amount` (UZS строкой, «29000.00»), `action` (0 / 1), `error`, `error_note`, `sign_time` (`YYYY-MM-DD HH:mm:ss`), `sign_string`. Подпись: Prepare `md5(click_trans_id + service_id + SECRET_KEY + merchant_trans_id + amount + action + sign_time)`, Complete `md5(click_trans_id + service_id + SECRET_KEY + merchant_trans_id + merchant_prepare_id + amount + action + sign_time)`; digest считается с **нашими** `CLICK_SERVICE_ID` и `CLICK_SECRET_KEY` и сравнивается `hash_equals` (чужой `service_id` → `-1`). Ответ **всегда** HTTP 200 JSON `{click_trans_id, merchant_trans_id, merchant_prepare_id | merchant_confirm_id, error, error_note}`; HTTP 500 + `-7` только при сбое инфраструктуры (Click повторит).
+
+| `error` | Когда |
+|---|---|
+| `0` | успех |
+| `-1` | `sign_string` не сходится / `service_id` не наш / `sign_string` не md5 |
+| `-2` | `amount` ≠ `payment_orders.amount` (Prepare) или ≠ prepared (Complete), либо не десятичная строка с ≤ 2 знаками |
+| `-3` | `action` не того эндпоинта |
+| `-4` | заказ уже `paid` (новый Prepare; Complete второй транзакции после оплаты первой; `error<0` по выполненной транзакции) |
+| `-5` | `merchant_trans_id` не найден или заказ другого провайдера |
+| `-6` | Complete без Prepare: неизвестный `click_trans_id`, чужой `merchant_prepare_id` или `merchant_trans_id` не того заказа |
+| `-7` | не смогли записать (HTTP 500) |
+| `-8` | нет/битый обязательный параметр, тело > 64 КБ |
+| `-9` | транзакция отменена: Complete с `error<0`, заказ `expired`/`canceled`/`failed` или за `expires_at`, Prepare/Complete по отменённой транзакции |
+
+| Вызов | Что делает | Ответ |
+|---|---|---|
+| Prepare (`action=0`) | подпись → заказ по токену → `paid`/закрыт/сумма → `ProviderTransactionService::open(click, click_trans_id, exclusive: false)` state 1; повтор того же `click_trans_id` → та же строка; другой `click_trans_id` на тот же заказ — допустим | `merchant_prepare_id = provider_transactions.id` |
+| Complete (`action=1`, `error=0`) | заказ FOR UPDATE → транзакция FOR UPDATE → `PaymentApplier::applyCharge` (`provider_event_id = <click_trans_id>:complete`, `provider_charge_id = click_trans_id`) → state 2; повтор → тот же ответ (`error: 0`, константа `REPEATED_COMPLETE_ERROR`) | `merchant_confirm_id = payments.id` |
+| Complete (`error<0`) | state −1 (`cancel_reason = error`), заказ `pending` → `canceled`; повтор → −9; по выполненной → −4, ничего не откатывается | `error: -9` |
+
+Checkout-ссылка (`ClickProvider::createCheckout`, `checkout.kind = redirect`): `{CLICK_CHECKOUT_URL}?service_id=&merchant_id=&amount=<UZS, два знака>&transaction_param=<token>&return_url=<APP_URL>/billing/return?order=<token>&lang=<ru|uz>[&merchant_user_id=]`. Страница возврата — та же, что у Payme (D.1). Уведомлений о возвратах у Click нет: возврат делается в кабинете Click и отмечается админом (**Payments → Refund**, «returned by hand», `provider_event_id = admin-refund:<payment id>`). Фикстуры форм — `tests/Fixtures/billing/click/`.
 
 ## Часть C — Примеры полного цикла
 

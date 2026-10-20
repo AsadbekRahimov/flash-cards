@@ -52,6 +52,15 @@ export const uz: Translations = {
   'today.course.next': 'Keyingi dars',
   'today.course.completed': "Kursdagi barcha so'zlar ko'rsatildi",
   'today.course.none': "Yangi so'zlarni o'rganish uchun kursni tanlang",
+  'assignments.title': 'Markaz vazifalari',
+  'assignments.lesson': '{stage}-bosqich, {lesson}-dars',
+  'assignments.due': 'Muddat: {date}',
+  'assignments.overdue': "Muddat o'tgan: {date}",
+  'assignments.progress': "Dars so'zlarining {pct}% i o'tildi",
+  'assignments.start': 'Boshlash',
+  'assignments.continue': 'Davom etish',
+  'assignments.done': 'Bajarilgan',
+  'assignments.done_late': 'Kechikib bajarilgan',
   'today.onboarding_hint': 'Sozlashni yakunlang: botga /start yuboring',
 
   // ---- flashcard ----

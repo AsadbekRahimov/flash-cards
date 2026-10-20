@@ -13,8 +13,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 /**
- * `GET /billing/return?order=<token>&lang=<ru|uz>` — where Payme (and later Click) send the payer
- * back after the checkout page (docs/13 §4.2). A static status page: the order's status by its
+ * `GET /billing/return?order=<token>&lang=<ru|uz>` — where Payme and Click send the payer
+ * back after the checkout page (docs/13 §4.2, §4.3). A static status page: the order's status by its
  * token (the capability the payer was given), a line of explanation and a button back to the bot.
  * No session, no cookies, nothing personal: an unknown or missing token shows a neutral text.
  */

@@ -20,7 +20,7 @@ final class OpenTrainingSessionRequest extends FormRequest
         return [
             'mode' => ['required', 'string', Rule::in([TrainingSession::MODE_LESSON, TrainingSession::MODE_DAILY_REVIEW])],
             'lesson_id' => ['nullable', 'integer', 'min:1'],
-            'source' => ['nullable', 'string', Rule::in(['self', 'picker', 'reminder', 'onboarding'])],
+            'source' => ['nullable', 'string', Rule::in(['self', 'picker', 'reminder', 'onboarding', 'assignment'])],
         ];
     }
 

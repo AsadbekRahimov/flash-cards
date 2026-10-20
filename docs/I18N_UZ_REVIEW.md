@@ -1048,8 +1048,6 @@
 | `org.settings.fields.locale` | Kabinet tili | Язык кабинета |
 | `org.profile.fields.telegram_user_id` | Mening Telegram ID m | Мой Telegram ID |
 | `org.profile.fields.telegram_user_id_help` | Telegram akkauntingizning raqamli ID si (bot uni /stats bo'yicha ko'rsatadi). Guruhlardagi o'qituvchi buyruqlari va guruhlarni bog'lash uchun kerak. | Числовой ID вашего аккаунта Telegram (бот показывает его по /stats). Нужен для команд учителя в группах и привязки групп. |
-| `org.stubs.assignments` | Guruhlar uchun vazifalar kabinetning keyingi yangilanishida paydo bo'ladi. | Задания для групп появятся в следующем обновлении кабинета. |
-| `org.stubs.reports` | O'quvchilar faolligi hisoboti kabinetning keyingi yangilanishida paydo bo'ladi. | Отчёт об активности учеников появится в следующем обновлении кабинета. |
 | `org.billing.current.heading` | Joriy obuna | Текущая подписка |
 | `org.billing.rows.tier` | Tarif | Тариф |
 | `org.billing.rows.status` | Obuna holati | Статус подписки |
@@ -1193,3 +1191,126 @@
 | `org.bot.line_teacher` | :name — :role<br>7 kunda faollar: :active<br>:url | :name — :role<br>Активных за 7 дней: :active<br>:url |
 | `org.bot.seats_unlimited` | cheklovsiz | без лимита |
 | `org.bot.seats_none` | obuna yo'q | нет подписки |
+
+## Фаза 2 · задача 2B.4 (задания центра) — на проверку носителю
+
+> Проверить: «vazifa» (задание), «muddat» (срок), «bosqich» (этап), «dars» (урок), «bajarilgan» (выполнено), «kechikib bajarilgan» (с опозданием), «e'lon» (объявление в группе). Подстановки: `:title`, `:stage`, `:lesson`, `:due`, `:number`, `:done`, `:total`; в TWA — `{stage}`, `{lesson}`, `{date}`, `{pct}`.
+
+### Сообщения бота в группу и кабинет (`lang/uz/assignments.php`, `lang/uz/org.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `assignments.announce` | 📚 Yangi vazifa: :title<br>:stage-bosqich, :lesson-dars · muddat: :due<br><br>Uni ilovada bajaring: quyidagi tugmani bosing. | 📚 Новое задание: :title<br>Этап :stage, урок :lesson · срок до :due<br><br>Выполните его в приложении: нажмите кнопку ниже. |
+| `assignments.remind` | ⏰ Eslatma: «:title» vazifasini :due gacha bajaring.<br>:stage-bosqich, :lesson-dars | ⏰ Напоминание: задание «:title» нужно выполнить до :due.<br>Этап :stage, урок :lesson |
+| `assignments.open_button` | Darsni ochish | Открыть урок |
+| `assignments.lesson_fallback` | :number-dars | Урок :number |
+| `org.assignments.singular` | Vazifa | Задание |
+| `org.assignments.plural` | Vazifalar | Задания |
+| `org.assignments.columns.group` | Guruh | Группа |
+| `org.assignments.columns.lesson` | Dars | Урок |
+| `org.assignments.columns.title` | Nomi | Название |
+| `org.assignments.columns.due_at` | Muddat | Срок |
+| `org.assignments.columns.status` | Holati | Статус |
+| `org.assignments.columns.progress` | Bajarganlar | Выполнили |
+| `org.assignments.columns.threshold` | Chegara | Порог |
+| `org.assignments.columns.created_at` | Yaratilgan | Создано |
+| `org.assignments.columns.learner` | O'quvchi | Ученик |
+| `org.assignments.columns.progress_pct` | Jarayon | Прогресс |
+| `org.assignments.columns.completed_at` | Bajarilgan | Выполнено |
+| `org.assignments.columns.result` | Natija | Результат |
+| `org.assignments.status.active` | Faol | Активно |
+| `org.assignments.status.overdue` | Muddat o'tgan | Срок прошёл |
+| `org.assignments.status.closed` | Yopilgan | Закрыто |
+| `org.assignments.result.done` | Bajarilgan | Выполнено |
+| `org.assignments.result.late` | Kechikib bajarilgan | Выполнено с опозданием |
+| `org.assignments.result.in_progress` | Jarayonda | В процессе |
+| `org.assignments.result.not_started` | Boshlanmagan | Не начато |
+| `org.assignments.lesson_option` | :stage-bosqich, :lesson-dars: :title | Этап :stage, урок :lesson: :title |
+| `org.assignments.progress_of` | :total dan :done | :done из :total |
+| `org.assignments.actions.create` | Vazifa yaratish | Создать задание |
+| `org.assignments.actions.close` | Yopish | Закрыть |
+| `org.assignments.actions.close_confirm` | Yopilgan vazifani qayta ochib bo'lmaydi. Yakuniy natija hisobotda saqlanadi. | Закрытое задание нельзя открыть снова. Итоговый прогресс сохранится в отчёте. |
+| `org.assignments.fields.group` | Guruh | Группа |
+| `org.assignments.fields.group_help` | Faqat kursi tanlangan markaz guruhlari. | Только группы центра с выбранным курсом. |
+| `org.assignments.fields.lesson` | Dars | Урок |
+| `org.assignments.fields.lesson_help` | Tanlangan guruh kursining darslari. | Уроки курса выбранной группы. |
+| `org.assignments.fields.title` | Nomi | Название |
+| `org.assignments.fields.title_help` | Bo'sh qoldirilsa — dars nomi. O'quvchilarga va guruhda ko'rsatiladi. | Пусто — название урока. Показывается ученикам и в группе. |
+| `org.assignments.fields.due_at` | Bajarish muddati | Срок выполнения |
+| `org.assignments.fields.threshold` | Bajarilish chegarasi, % | Порог выполнения, % |
+| `org.assignments.fields.threshold_help` | Vazifa bajarilgan hisoblanishi uchun dars so'zlarining qancha qismi kamida bir marta o'tilgan bo'lishi kerak. | Какая доля слов урока должна быть пройдена хотя бы раз, чтобы задание считалось выполненным. |
+| `org.assignments.results.heading` | O'quvchilar natijalari | Результаты учеников |
+| `org.assignments.results.privacy` | Faqat shu dars so'zlari bo'yicha jarayon ko'rsatiladi; o'quvchilarning shaxsiy mashg'ulotlari ochilmaydi. | Показан только прогресс по словам этого урока; личные сессии учеников не раскрываются. |
+| `org.assignments.errors.foreign_group` | Bu guruh markazga tegishli emas. | Эта группа не принадлежит центру. |
+| `org.assignments.errors.group_without_course` | Guruhga kurs tanlanmagan — dars berish uchun guruh kursini tanlang. | У группы не выбран курс — выберите курс группы, чтобы задавать уроки. |
+| `org.assignments.errors.lesson_not_in_course` | Bu dars guruh kursiga kirmaydi. | Этот урок не входит в курс группы. |
+| `org.assignments.errors.invalid_due` | Muddat kelajakda bo'lishi kerak. | Срок должен быть в будущем. |
+| `org.assignments.errors.invalid_threshold` | Chegara 1 dan 100 gacha bo'lishi kerak. | Порог должен быть от 1 до 100. |
+| `org.assignments.notifications.created` | Vazifa yaratildi. E'lon guruhga yuboriladi. | Задание создано. Объявление уйдёт в группу. |
+| `org.assignments.notifications.closed` | Vazifa yopildi. | Задание закрыто. |
+
+### TWA, блок «Задания центра» на экране «Сегодня» (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `assignments.title` | Markaz vazifalari | Задания центра |
+| `assignments.lesson` | {stage}-bosqich, {lesson}-dars | Этап {stage}, урок {lesson} |
+| `assignments.due` | Muddat: {date} | Срок: {date} |
+| `assignments.overdue` | Muddat o'tgan: {date} | Срок прошёл: {date} |
+| `assignments.progress` | Dars so'zlarining {pct}% i o'tildi | Пройдено {pct}% слов урока |
+| `assignments.start` | Boshlash | Начать |
+| `assignments.continue` | Davom etish | Продолжить |
+| `assignments.done` | Bajarilgan | Выполнено |
+| `assignments.done_late` | Kechikib bajarilgan | Выполнено с опозданием |
+
+## Фаза 2 · задача 2B.5 (отчёт об активности центра) — на проверку носителю
+
+> Проверить: «hisobot» (отчёт), «davr» (период), «faol kunlar» (дни активности), «takrorlashlar» (повторения), «ketma-ket kunlar» (серия дней), «vazifa» (задание — как в 2B.4). Строка `org.stubs.reports` удалена (заглушка заменена экраном). `org.reports.csv.*` — заголовки CSV-файла (открывается в Excel, разделитель `;`); `:from`, `:to`, `:days` — подстановки.
+
+### Отчёт (`lang/uz/org.php`, блок `reports`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `org.reports.filters.group` | Guruh | Группа |
+| `org.reports.filters.all_groups` | Barcha guruhlar | Все группы |
+| `org.reports.filters.period` | Davr | Период |
+| `org.reports.filters.period_7` | 7 kun | 7 дней |
+| `org.reports.filters.period_30` | 30 kun | 30 дней |
+| `org.reports.filters.period_custom` | O'z davrim | Свой период |
+| `org.reports.filters.from` | Dan | С |
+| `org.reports.filters.to` | Gacha | По |
+| `org.reports.period_label` | Davr: :from — :to (shu kunlar ham kiradi) | Период: :from — :to (включительно) |
+| `org.reports.errors.invalid_range` | To'g'ri davrni kiriting: "Dan" sanasi "Gacha" sanasidan keyin bo'lmasligi kerak. | Укажите корректный период: дата «С» не позже даты «По». |
+| `org.reports.errors.range_too_long` | Davr :days kundan uzun bo'lishi mumkin emas. | Период не может быть длиннее :days дней. |
+| `org.reports.learners.heading` | O'quvchilar | Ученики |
+| `org.reports.learners.empty` | Hisobot uchun o'quvchilar yo'q. | Нет учеников для отчёта. |
+| `org.reports.groups.heading` | Guruhlar | Группы |
+| `org.reports.groups.empty` | Hisobot uchun guruhlar yo'q. | Нет групп для отчёта. |
+| `org.reports.columns.learner` | O'quvchi | Ученик |
+| `org.reports.columns.reviews` | Takrorlashlar | Повторений |
+| `org.reports.columns.new_words` | Yangi so'zlar | Новых слов |
+| `org.reports.columns.days_active` | Faol kunlar | Дней активности |
+| `org.reports.columns.goal_met_days` | Maqsad bajarilgan kunlar | Дней с выполненной целью |
+| `org.reports.columns.streak` | Ketma-ket kunlar | Серия дней |
+| `org.reports.columns.assignments` | Vazifalar (bajarilgan / jami) | Задания (выполнено / всего) |
+| `org.reports.columns.last_seen` | Oxirgi faollik | Был в сети |
+| `org.reports.columns.group` | Guruh | Группа |
+| `org.reports.columns.learners` | O'quvchilar soni | Учеников |
+| `org.reports.columns.active_learners` | Faollar | Активных |
+| `org.reports.actions.csv_learners` | CSV yuklab olish (o'quvchilar) | Скачать CSV (ученики) |
+| `org.reports.actions.csv_groups` | CSV yuklab olish (guruhlar) | Скачать CSV (группы) |
+| `org.reports.csv.learner` | O'quvchi | Ученик |
+| `org.reports.csv.username` | Username | Username |
+| `org.reports.csv.reviews` | Takrorlashlar | Повторений |
+| `org.reports.csv.new_words` | Yangi so'zlar | Новых слов |
+| `org.reports.csv.days_active` | Faol kunlar | Дней активности |
+| `org.reports.csv.goal_met_days` | Maqsad bajarilgan kunlar | Дней с выполненной целью |
+| `org.reports.csv.streak` | Ketma-ket kunlar | Серия дней |
+| `org.reports.csv.assignments_done` | Bajarilgan vazifalar | Заданий выполнено |
+| `org.reports.csv.assignments_total` | Jami vazifalar | Заданий всего |
+| `org.reports.csv.last_seen` | Oxirgi faollik | Был в сети |
+| `org.reports.csv.group` | Guruh | Группа |
+| `org.reports.csv.learners` | O'quvchilar soni | Учеников |
+| `org.reports.csv.active_learners` | Faol o'quvchilar | Активных учеников |
+| `org.reports.privacy` | Hisobotda faqat kunlik yakunlar (takrorlashlar, yangi so'zlar, faol kunlar) va vazifa natijalari bor; o'quvchilarning shaxsiy mashg'ulotlari ko'rsatilmaydi. | В отчёте только суточные итоги (повторения, новые слова, дни активности) и результаты заданий; личные сессии учеников не раскрываются. |
+| `org.reports.never` | hech qachon | никогда |
