@@ -51,6 +51,7 @@ class AppServiceProvider extends ServiceProvider
             return new TelegramMessageRateLimiter(
                 maxMessages: max(1, (int) config('telegram.outbound_rate_limit.max_messages', 20)),
                 windowSeconds: max(1, (int) config('telegram.outbound_rate_limit.window_seconds', 60)),
+                globalPerSecond: max(0, (int) config('telegram.outbound.global_per_second', 25)),
             );
         });
 

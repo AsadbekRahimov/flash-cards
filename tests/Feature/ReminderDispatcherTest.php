@@ -304,3 +304,34 @@ it('is scheduled every fifteen minutes without overlapping, and the daily repeti
 
     expect($events->first(fn ($e): bool => str_contains((string) $e->command, 'repetitions:notify')))->toBeNull();
 });
+
+it('claims no more than send_rate x 840 per run and leaves the rest due for the next run', function (): void {
+    config(['learning.reminders.send_rate_per_second' => 1]); // cap = 840
+    $now = rdUtc('2026-10-18 14:05:00');
+    Learner::factory()->count(842)->create([
+        'timezone' => 'Asia/Tashkent',
+        'reminder_time' => '19:00',
+        'next_reminder_at' => rdUtc('2026-10-18 14:00:00'),
+    ]);
+
+    $first = app(ReminderDispatcher::class)->dispatchDue($now);
+
+    expect($first->claimed)->toBe(840)
+        ->and($first->queued)->toBe(840)
+        ->and($first->capped)->toBeTrue()
+        ->and(Learner::query()->where('next_reminder_at', '<=', $now->format('Y-m-d H:i:s'))->count())->toBe(2);
+
+    // The next run (still within max_delay_minutes) takes what was left.
+    $second = app(ReminderDispatcher::class)->dispatchDue($now->addMinutes(15));
+
+    expect($second->claimed)->toBe(2)
+        ->and($second->capped)->toBeFalse();
+});
+
+it('does not report a cap when everything fits', function (): void {
+    rdLearner('2026-10-18 14:00:00');
+
+    $report = app(ReminderDispatcher::class)->dispatchDue(rdUtc('2026-10-18 14:05:00'));
+
+    expect($report->queued)->toBe(1)->and($report->capped)->toBeFalse();
+});

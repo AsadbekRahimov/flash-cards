@@ -36,6 +36,10 @@ final class DispatchReminders extends Command
             $report->backfilled,
         ));
 
+        if ($report->capped) {
+            $this->warn('Reminders: per-run cap reached, the remaining due learners are left for the next run.');
+        }
+
         return self::SUCCESS;
     }
 }

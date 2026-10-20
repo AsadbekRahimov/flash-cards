@@ -416,7 +416,7 @@ Add (using the absolute path to PHP — find yours with `which php`):
 This runs every minute. Laravel's scheduler internally dispatches:
 - `ops:scheduler-heartbeat` — every minute (liveness marker read by `/health/ready`).
 - `exams:close-expired` — every minute (closes timed-out exam sessions).
-- `reminders:dispatch` — every 15 minutes (personal reminders by the learner's local time; a learner is claimed by a conditional UPDATE, so overlapping runs are safe; `withoutOverlapping(10)` — the mutex expires after 10 minutes — and `runInBackground`). Its jobs go to the `default` queue, spread at `REMINDERS_SEND_RATE_PER_SECOND` (25/s) over at most 14 minutes.
+- `reminders:dispatch` — every 15 minutes (personal reminders by the learner's local time; a learner is claimed by a conditional UPDATE, so overlapping runs are safe; `withoutOverlapping(10)` — the mutex expires after 10 minutes — and `runInBackground`). Its jobs go to the `default` queue, spread at `REMINDERS_SEND_RATE_PER_SECOND` (25/s) over at most 14 minutes. A run queues at most rate x 840 jobs (`capped` -> a warning line; the rest stays due for the next run). Every background Telegram send also takes a slot of `TELEGRAM_OUTBOUND_GLOBAL_PER_SECOND` (queued jobs release themselves when none is free; `assignments:refresh` waits up to 2 s per post and postpones the rest to the next run).
 - `model:prune` — daily at 03:00 (`product_events` and `notifications_log`, 400 days by default).
 - `training:close-expired` — every 15 minutes (expired personal / stale group training sessions).
 - `subscriptions:expire` — hourly (time-based subscription transitions).
@@ -879,4 +879,5 @@ chmod 600 .env
 | `REMINDERS_MAX_DELAY_MINUTES` | optional | `120` (>= 15) |
 | `REMINDERS_BATCH_SIZE` / `REMINDERS_BACKFILL_LIMIT` | optional | `200` / `10000` |
 | `REMINDERS_SEND_RATE_PER_SECOND` | optional | `25` (>= 1; Telegram allows about 30/s per bot) |
+| `TELEGRAM_OUTBOUND_GLOBAL_PER_SECOND` | optional | `25` (bot-wide ceiling of background sends per second — reminders, assignment posts, renewal reminders, DMs of centers/offers, leaderboards; Bot API allows ~30/s per bot, the rest is for replies to updates; `0` = off). A job without a free slot is put back for 1-5 s; keep the Redis cache (the counter `telegram:outbound:global:{sec}` is shared by all workers) |
 | `PRODUCT_EVENTS_RETENTION_DAYS` / `NOTIFICATIONS_LOG_RETENTION_DAYS` | optional | `400` / `400` |

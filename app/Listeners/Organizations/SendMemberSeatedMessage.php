@@ -6,6 +6,7 @@ namespace App\Listeners\Organizations;
 
 use App\Domain\Organizations\Events\OrganizationMemberSeated;
 use App\Domain\Telegram\Services\OrganizationMessenger;
+use App\Jobs\Middleware\ThrottleTelegramOutbound;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
@@ -20,9 +21,24 @@ final class SendMemberSeatedMessage implements ShouldQueue
 
     public bool $afterCommit = true;
 
-    public int $tries = 3;
+    // Released jobs (no global Telegram slot) use up attempts: bounded by retryUntil, real failures by maxExceptions.
+    public int $tries = 0;
+
+    public int $maxExceptions = 3;
 
     public function __construct(private readonly OrganizationMessenger $messenger) {}
+
+    /** @return list<object> */
+    public function middleware(): array
+    {
+        return [new ThrottleTelegramOutbound];
+    }
+
+    /** Fixed when the listener is queued. */
+    public function retryUntil(): \DateTimeInterface
+    {
+        return now()->addHours(6);
+    }
 
     /** @return list<int> */
     public function backoff(): array

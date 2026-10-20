@@ -7,6 +7,7 @@ namespace App\Jobs;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Services\IrazasyedTelegramClient;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
+use App\Jobs\Middleware\ThrottleTelegramOutbound;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
@@ -15,7 +16,10 @@ final class SendTelegramMessageJob implements ShouldQueue
 {
     use Queueable;
 
-    public int $tries = 25;
+    // Per-chat and global releases use up attempts; real failures stay capped.
+    public int $tries = 0;
+
+    public int $maxExceptions = 5;
 
     /**
      * @param  array<string, mixed>|null  $replyMarkup
@@ -26,6 +30,12 @@ final class SendTelegramMessageJob implements ShouldQueue
         public readonly ?string $parseMode = null,
         public readonly ?array $replyMarkup = null,
     ) {}
+
+    /** @return list<object> */
+    public function middleware(): array
+    {
+        return [new ThrottleTelegramOutbound];
+    }
 
     public function handle(
         IrazasyedTelegramClient $telegram,

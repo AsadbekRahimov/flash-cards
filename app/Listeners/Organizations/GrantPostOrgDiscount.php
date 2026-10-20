@@ -7,6 +7,7 @@ namespace App\Listeners\Organizations;
 use App\Domain\Billing\Services\OfferService;
 use App\Domain\Organizations\Events\OrganizationMemberLeft;
 use App\Domain\Telegram\Services\OfferMessenger;
+use App\Jobs\Middleware\ThrottleTelegramOutbound;
 use App\Models\Learner;
 use App\Models\Organization;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -25,12 +26,27 @@ final class GrantPostOrgDiscount implements ShouldQueue
 
     public bool $afterCommit = true;
 
-    public int $tries = 3;
+    // Released jobs (no global Telegram slot) use up attempts: bounded by retryUntil, real failures by maxExceptions.
+    public int $tries = 0;
+
+    public int $maxExceptions = 3;
 
     public function __construct(
         private readonly OfferService $offers,
         private readonly OfferMessenger $messenger,
     ) {}
+
+    /** @return list<object> */
+    public function middleware(): array
+    {
+        return [new ThrottleTelegramOutbound];
+    }
+
+    /** Fixed when the listener is queued. */
+    public function retryUntil(): \DateTimeInterface
+    {
+        return now()->addHours(6);
+    }
 
     /** @return list<int> */
     public function backoff(): array

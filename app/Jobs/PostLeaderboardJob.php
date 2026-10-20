@@ -9,6 +9,7 @@ use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Learning\Services\LeaderboardBuilder;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Jobs\Middleware\ThrottleTelegramOutbound;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
 use App\Models\Learner;
@@ -36,9 +37,18 @@ final class PostLeaderboardJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public int $tries = 3;
+    // Released jobs (no global Telegram slot) use up attempts; real failures stay capped at 3.
+    public int $tries = 0;
+
+    public int $maxExceptions = 3;
 
     public function __construct(public readonly int $examSessionId) {}
+
+    /** @return list<object> */
+    public function middleware(): array
+    {
+        return [new ThrottleTelegramOutbound];
+    }
 
     public function handle(
         TelegramClient $telegram,

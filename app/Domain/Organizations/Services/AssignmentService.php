@@ -12,6 +12,7 @@ use App\Domain\Organizations\Exceptions\AssignmentException;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
 use App\Jobs\AnnounceAssignmentJob;
 use App\Models\Assignment;
 use App\Models\AssignmentResult;
@@ -52,10 +53,14 @@ final class AssignmentService
 
     private const CHUNK = 500;
 
+    /** True once a post found no global Telegram slot in this run: the rest waits for the next `assignments:refresh`. */
+    private bool $slotDenied = false;
+
     public function __construct(
         private readonly TelegramClient $telegram,
         private readonly ProductEventRecorder $events,
         private readonly LocaleResolver $locales,
+        private readonly TelegramMessageRateLimiter $outbound,
     ) {}
 
     /**
@@ -197,11 +202,13 @@ final class AssignmentService
 
     /**
      * The one-time post to the group chat with a web_app button into the lesson. Returns false when
-     * it was already announced (or is closed), or when Telegram refused.
+     * it was already announced (or is closed), when Telegram refused, or when the bot-wide send budget
+     * had no free slot (nothing is claimed then; `assignments:refresh` tries again). `$reserveSlot` is
+     * false for the queued job: its middleware has already taken the slot.
      */
-    public function announce(Assignment $assignment, ?CarbonImmutable $now = null): bool
+    public function announce(Assignment $assignment, ?CarbonImmutable $now = null, bool $reserveSlot = true): bool
     {
-        return $this->post($assignment, 'announced_at', 'announce', $now ?? CarbonImmutable::now());
+        return $this->post($assignment, 'announced_at', 'announce', $now ?? CarbonImmutable::now(), $reserveSlot);
     }
 
     /**
@@ -214,6 +221,7 @@ final class AssignmentService
     {
         $now ??= CarbonImmutable::now();
         $posted = 0;
+        $this->slotDenied = false;
 
         Assignment::query()
             ->where('status', Assignment::STATUS_ACTIVE)
@@ -222,10 +230,16 @@ final class AssignmentService
             ->whereNull('announced_at')
             ->where('due_at', '>', $now)
             ->orderBy('id')
-            ->each(function (Assignment $assignment) use ($now, &$posted): void {
+            ->each(function (Assignment $assignment) use ($now, &$posted): ?bool {
+                if ($this->slotDenied) {
+                    return false;
+                }
+
                 if ($this->failures($assignment, 'announced_at') < $this->maxAttempts() && $this->announce($assignment, $now)) {
                     $posted++;
                 }
+
+                return null;
             });
 
         return $posted;
@@ -243,6 +257,7 @@ final class AssignmentService
     {
         $now ??= CarbonImmutable::now();
         $posted = 0;
+        $this->slotDenied = false;
 
         Assignment::query()
             ->where('status', Assignment::STATUS_ACTIVE)
@@ -252,9 +267,13 @@ final class AssignmentService
             ->where('due_at', '>', $now)
             ->where('due_at', '<=', $now->addHours($this->remindBeforeHours()))
             ->orderBy('id')
-            ->each(function (Assignment $assignment) use ($now, &$posted): void {
+            ->each(function (Assignment $assignment) use ($now, &$posted): ?bool {
+                if ($this->slotDenied) {
+                    return false;
+                }
+
                 if ($this->failures($assignment, 'reminded_at') >= $this->maxAttempts()) {
-                    return;
+                    return null;
                 }
 
                 $tooSoon = $assignment->announced_at !== null
@@ -263,12 +282,14 @@ final class AssignmentService
                 if ($tooSoon) {
                     Assignment::query()->whereKey($assignment->id)->whereNull('reminded_at')->update(['reminded_at' => $now]);
 
-                    return;
+                    return null;
                 }
 
                 if ($this->post($assignment, 'reminded_at', 'remind', $now)) {
                     $posted++;
                 }
+
+                return null;
             });
 
         return $posted;
@@ -583,8 +604,15 @@ final class AssignmentService
      * @param  'announced_at'|'reminded_at'  $column
      * @param  'announce'|'remind'  $kind
      */
-    private function post(Assignment $assignment, string $column, string $kind, CarbonImmutable $now): bool
+    private function post(Assignment $assignment, string $column, string $kind, CarbonImmutable $now, bool $reserveSlot = true): bool
     {
+        // Before the claim, so a denied slot loses nothing: the row stays unclaimed for the next run.
+        if ($reserveSlot && ! $this->outbound->awaitGlobal(max(0, (int) config('telegram.outbound.sync_wait_ms', 2000)))) {
+            $this->slotDenied = true;
+
+            return false;
+        }
+
         $claimed = Assignment::query()
             ->whereKey($assignment->id)
             ->where('status', Assignment::STATUS_ACTIVE)

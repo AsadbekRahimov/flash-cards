@@ -116,7 +116,8 @@ return [
         /**
          * Outgoing reminders per second (Telegram: ~30 messages/s per bot). The dispatcher
          * delays the n-th job of a run by floor(n / rate) seconds, at most 14 minutes
-         * (the claim is already made, so what does not fit goes out at the same 14 minutes).
+         * and a run claims at most rate × 840 learners (the rest stays due for the next run).
+         * All background sends also share the bot-wide `telegram.outbound.global_per_second` budget.
          * Read as at least 1.
          */
         'send_rate_per_second' => (int) env('REMINDERS_SEND_RATE_PER_SECOND', 25),

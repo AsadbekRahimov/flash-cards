@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 use App\Domain\Organizations\Services\AssignmentService;
+use App\Jobs\Middleware\ThrottleTelegramOutbound;
 use App\Models\Assignment;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -23,16 +24,27 @@ final class AnnounceAssignmentJob implements ShouldQueue
     use InteractsWithQueue;
     use Queueable;
 
-    public int $tries = 1;
+    // No retries after a failure (maxExceptions = 1), but a release for lack of a global Telegram slot
+    // uses up an attempt, so attempts themselves are unlimited.
+    public int $tries = 0;
+
+    public int $maxExceptions = 1;
 
     public function __construct(public readonly int $assignmentId) {}
+
+    /** @return list<object> */
+    public function middleware(): array
+    {
+        return [new ThrottleTelegramOutbound];
+    }
 
     public function handle(AssignmentService $assignments): void
     {
         $assignment = Assignment::query()->find($this->assignmentId);
 
         if ($assignment !== null) {
-            $assignments->announce($assignment);
+            // The slot is taken by the middleware.
+            $assignments->announce($assignment, reserveSlot: false);
         }
     }
 }

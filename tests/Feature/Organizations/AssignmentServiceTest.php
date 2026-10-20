@@ -6,6 +6,7 @@ use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Organizations\Exceptions\AssignmentException;
 use App\Domain\Organizations\Services\AssignmentService;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
 use App\Jobs\AnnounceAssignmentJob;
 use App\Models\Assignment;
 use App\Models\AssignmentResult;
@@ -392,4 +393,61 @@ it('the announce job posts once even when delivered twice', function (): void {
     (new AnnounceAssignmentJob($assignment->id))->handle($this->service);
 
     expect($this->tg->sent)->toHaveCount(1);
+});
+
+it('leaves the announcement unclaimed when the bot-wide send budget has no free slot, and posts it on the next run', function (): void {
+    config(['telegram.outbound.sync_wait_ms' => 100]); // the clock is frozen: waiting longer only lets a real Redis TTL expire
+    $this->app->instance(TelegramMessageRateLimiter::class, new TelegramMessageRateLimiter(globalPerSecond: 1));
+    $service = $this->app->make(AssignmentService::class);
+    $this->travelTo(now()->startOfSecond()->addMilliseconds(1)); // frozen: the whole test is one wall-clock second
+
+    $first = asgMake($this);
+    $second = asgMake($this);
+
+    expect($service->announcePending())->toBe(1)
+        ->and($this->tg->sent)->toHaveCount(1);
+
+    // The second assignment found no slot: not claimed, no failure counted.
+    $left = Assignment::query()->whereNull('announced_at')->sole();
+    expect($left->meta['announced_at_failures'] ?? 0)->toBe(0);
+
+    $this->travel(2)->seconds();
+
+    expect($service->announcePending())->toBe(1)
+        ->and($this->tg->sent)->toHaveCount(2)
+        ->and($first->fresh()->announced_at)->not->toBeNull()
+        ->and($second->fresh()->announced_at)->not->toBeNull();
+});
+
+it('does not claim the 24-hour reminder without a free slot and stops the run after the first denial', function (): void {
+    config(['telegram.outbound.sync_wait_ms' => 100]); // the clock is frozen: waiting longer only lets a real Redis TTL expire
+    $this->app->instance(TelegramMessageRateLimiter::class, new TelegramMessageRateLimiter(globalPerSecond: 1));
+    $service = $this->app->make(AssignmentService::class);
+    $now = CarbonImmutable::parse('2026-11-01 10:00:00');
+    $this->travelTo($now);
+
+    $a = asgMake($this, ['due_at' => $now->addHours(20), 'announced_at' => $now->subDays(3)]);
+    $b = asgMake($this, ['due_at' => $now->addHours(21), 'announced_at' => $now->subDays(3)]);
+
+    expect($service->remindDue($now))->toBe(1)
+        ->and($this->tg->sent)->toHaveCount(1)
+        ->and($b->fresh()->reminded_at)->toBeNull();
+
+    $this->travel(2)->seconds();
+
+    expect($service->remindDue($now))->toBe(1)
+        ->and($b->fresh()->reminded_at)->not->toBeNull();
+});
+
+it('takes no second slot when the queued job announces (its middleware has already reserved one)', function (): void {
+    $limiter = new TelegramMessageRateLimiter(globalPerSecond: 1);
+    $this->app->instance(TelegramMessageRateLimiter::class, $limiter);
+    $assignment = asgMake($this);
+
+    expect($limiter->reserveGlobal())->toBeTrue(); // the middleware's slot: the budget of this second is spent
+
+    (new AnnounceAssignmentJob($assignment->id))->handle($this->app->make(AssignmentService::class));
+
+    expect($this->tg->sent)->toHaveCount(1)
+        ->and($assignment->fresh()->announced_at)->not->toBeNull();
 });
