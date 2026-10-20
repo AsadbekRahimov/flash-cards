@@ -22,7 +22,7 @@ trait RunsDmWithoutRetryOnSyncQueue
         try {
             $send();
         } catch (TelegramApiException $e) {
-            if (! property_exists($this, 'job') || ! $this->job instanceof SyncJob) {
+            if (! $this->job instanceof SyncJob) {
                 throw $e;
             }
 

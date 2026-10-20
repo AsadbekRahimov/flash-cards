@@ -440,13 +440,16 @@ final class AssignmentService
             return 0;
         }
 
-        /** @var list<int> $wordIds */
-        $wordIds ??= Word::query()
-            ->where('lesson_id', $assignment->lesson_id)
-            ->where('is_active', true)
-            ->pluck('id')
-            ->map(static fn ($id): int => (int) $id)
-            ->all();
+        if ($wordIds === null) {
+            /** @var list<int> $wordIds */
+            $wordIds = Word::query()
+                ->where('lesson_id', $assignment->lesson_id)
+                ->where('is_active', true)
+                ->pluck('id')
+                ->map(static fn ($id): int => (int) $id)
+                ->values()
+                ->all();
+        }
 
         $total = count($wordIds);
         $needed = $total === 0 ? 0 : max(1, (int) ceil($total * $assignment->completion_threshold / 100));

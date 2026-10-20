@@ -309,7 +309,7 @@ final class SubscriptionService
             $live->fill($attributes)->save();
             $subscription = $live;
 
-            if ($tierMismatch && $orderedTier !== null) {
+            if ($tierMismatch) {
                 $this->flagTierMismatch($live, $order, $orderedTier, $e, $now);
             }
         }
