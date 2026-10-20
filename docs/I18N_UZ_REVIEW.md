@@ -1050,17 +1050,110 @@
 | `org.profile.fields.telegram_user_id_help` | Telegram akkauntingizning raqamli ID si (bot uni /stats bo'yicha ko'rsatadi). Guruhlardagi o'qituvchi buyruqlari va guruhlarni bog'lash uchun kerak. | Числовой ID вашего аккаунта Telegram (бот показывает его по /stats). Нужен для команд учителя в группах и привязки групп. |
 | `org.stubs.assignments` | Guruhlar uchun vazifalar kabinetning keyingi yangilanishida paydo bo'ladi. | Задания для групп появятся в следующем обновлении кабинета. |
 | `org.stubs.reports` | O'quvchilar faolligi hisoboti kabinetning keyingi yangilanishida paydo bo'ladi. | Отчёт об активности учеников появится в следующем обновлении кабинета. |
-| `org.stubs.billing` | Tarif tanlash va to'lov keyingi yangilanishda paydo bo'ladi. Hozircha tarifni platforma administratori faollashtiradi. | Выбор тарифа и оплата появятся в следующем обновлении. Пока тариф активирует администратор платформы. |
+| `org.billing.current.heading` | Joriy obuna | Текущая подписка |
 | `org.billing.rows.tier` | Tarif | Тариф |
 | `org.billing.rows.status` | Obuna holati | Статус подписки |
 | `org.billing.rows.ends_at` | To'langan muddat | Оплачено до |
 | `org.billing.rows.seats` | O'rinlar (band / limit) | Места (занято / лимит) |
 | `org.billing.rows.waitlisted` | O'rin kutayotganlar | В ожидании места |
 | `org.billing.none` | yo'q | нет |
+| `org.billing.perpetual` | muddatsiz | бессрочно |
 | `org.billing.status.trialing` | Sinov davri | Пробный период |
 | `org.billing.status.active` | Faol | Активна |
 | `org.billing.status.past_due` | To'lov kutilmoqda | Ожидает оплаты |
 | `org.billing.status.canceled` | Bekor qilingan (davr oxirigacha) | Отменена (до конца периода) |
+| `org.billing.tiers.tutor.name` | Repetitor | Репетитор |
+| `org.billing.tiers.center_s.name` | Markaz S | Центр S |
+| `org.billing.tiers.center_m.name` | Markaz M | Центр M |
+| `org.billing.tiers.center_l.name` | Markaz L | Центр L |
+| `org.billing.seats_count` | o'rinlar: :count | мест: :count |
+| `org.billing.seats_unlimited` | o'rinlar cheklanmagan | без лимита мест |
+| `org.billing.over_limit` | Limitdan oshib ketdi: :limit o'rindan :seated tasi band (:over taga ko'p). Hech kim chiqarilmadi — tarifni oshirguningizcha yoki joy bo'shaguncha yangi o'quvchilar navbatda turadi. | Превышение лимита: занято :seated из :limit мест (на :over больше). Никто не снят — новые ученики будут в очереди, пока вы не повысите тариф или места не освободятся. |
+| `org.billing.not_sponsoring` | Faol obuna yo'q — markaz o'quvchilarida Pro yo'q. Quyida tarifni tanlang. | Нет активной подписки — ученики центра без Pro. Выберите тариф ниже. |
+| `org.billing.waitlist_hint` | O'rin navbatida: :count. Tarifni oshiring — ularga Pro avtomatik yoqiladi. | В очереди на место: :count. Повысьте тариф — они получат Pro автоматически. |
+| `org.billing.choose.heading` | Tarif va to'lov | Тариф и оплата |
+| `org.billing.choose.description` | To'lov obunani tanlangan muddatga uzaytiradi. Tarif almashishi to'lovdan so'ng darhol kuchga kiradi. | Оплата продлевает подписку на выбранный срок. Смена тарифа вступает в силу сразу после оплаты. |
+| `org.billing.choose.tier` | Tarif | Тариф |
+| `org.billing.choose.period` | Muddat | Срок |
+| `org.billing.by_request` | kelishuv asosida (platforma administratori ulaydi) | по договорённости (подключает администратор платформы) |
+| `org.billing.below_seated` | hozir bandidan (:seated) kam | меньше, чем занято сейчас (:seated) |
+| `org.billing.not_purchasable` | Bu tarif yoki muddatni onlayn to'lab bo'lmaydi. Hisob so'rang — biz siz bilan bog'lanamiz. | Этот тариф или срок нельзя оплатить онлайн. Запросите счёт — мы свяжемся с вами. |
+| `org.billing.to_pay` | To'lov summasi: :amount | К оплате: :amount |
+| `org.billing.downgrade_warning` | Hozir :seated ta o'rin band, tarifda esa :limit ta. Hech kim chiqarilmaydi, lekin joy bo'shaguncha yangi o'quvchilar kutib turadi. | Сейчас занято :seated мест, а в тарифе их :limit. Никто не будет снят, но новые ученики будут ждать, пока места не освободятся. |
+| `org.billing.no_providers` | Onlayn to'lov hozir mavjud emas. Quyida hisob so'rang. | Онлайн-оплата сейчас недоступна. Запросите счёт ниже. |
+| `org.billing.pay_with` | :provider orqali to'lash | Оплатить через :provider |
+| `org.billing.invoice.heading` | Hisob so'rash | Запросить счёт |
+| `org.billing.invoice.description` | Naqd pulsiz to'lov uchun: so'rovni platforma administratoriga yuboramiz, u hisob yuboradi va to'lovdan so'ng tarifni ulaydi. | Для безналичной оплаты: отправим запрос администратору платформы, он вышлет счёт и подключит тариф после оплаты. |
+| `org.billing.invoice.comment` | Izoh (ixtiyoriy) | Комментарий (необязательно) |
+| `org.billing.invoice.button` | Hisob so'rash | Запросить счёт |
+| `org.billing.notifications.invoice_requested` | So'rov yuborildi. Biz siz bilan email orqali bog'lanamiz. | Запрос отправлен. Мы свяжемся с вами по email. |
+| `org.billing.history.orders` | Buyurtmalar | Заказы |
+| `org.billing.history.payments` | To'lovlar | Платежи |
+| `org.billing.history.empty` | Hozircha bo'sh. | Пока пусто. |
+| `org.billing.history.number` | Raqam | Номер |
+| `org.billing.history.date` | Sana | Дата |
+| `org.billing.history.amount` | Summa | Сумма |
+| `org.billing.history.provider` | Usul | Способ |
+| `org.billing.history.status` | Holat | Статус |
+| `org.billing.history.invoice` | Hisob | Счёт |
+| `org.billing.history.kind` | Turi | Тип |
+| `org.billing.history.period_end` | To'langan muddat | Оплачено до |
+| `org.billing.order_status.pending` | To'lov kutilmoqda | Ожидает оплаты |
+| `org.billing.order_status.paid` | To'langan | Оплачен |
+| `org.billing.order_status.canceled` | Bekor qilingan | Отменён |
+| `org.billing.order_status.expired` | Muddati o'tgan | Истёк |
+| `org.billing.order_status.failed` | Xatolik | Ошибка |
+| `org.billing.payment_kind.charge` | To'lov | Оплата |
+| `org.billing.payment_kind.renewal` | Uzaytirish | Продление |
+| `org.billing.payment_kind.refund` | Qaytarish | Возврат |
+| `org.billing.payment_status.succeeded` | O'tkazilgan | Проведён |
+| `org.billing.payment_status.refunded` | Qaytarilgan | Возвращён |
+| `org.billing.payment_status.failed` | O'tkazilmagan | Не проведён |
+| `org.billing.errors.price_not_configured` | Bu to'lov varianti hozircha mavjud emas. | Этот вариант оплаты пока недоступен. |
+| `org.billing.errors.provider_disabled` | Bu to'lov usuli hozir mavjud emas. | Этот способ оплаты сейчас недоступен. |
+| `org.billing.errors.provider_not_supported` | Bu to'lov usuli markazlar uchun mavjud emas. Payme yoki Click'ni tanlang. | Этот способ оплаты недоступен для центров. Выберите Payme или Click. |
+| `org.billing.errors.checkout_conflict` | Hozir to'lov qilib bo'lmaydi: markazda avtoyangilanadigan obuna bor. Qo'llab-quvvatlashga murojaat qiling. | Оплата сейчас невозможна: у центра есть подписка с автопродлением. Обратитесь в поддержку. |
+| `org.billing.errors.too_many_pending` | Markazda to'lanmagan buyurtmalar bor. Birini to'lang yoki kuting — ular o'zi yopiladi. | У центра уже есть неоплаченные заказы. Оплатите один из них или подождите — они закроются сами. |
+| `org.billing.errors.offer_not_applicable` | Chegirma bu xaridga qo'llanilmaydi. | Скидка к этой покупке не применяется. |
+| `org.billing.errors.invalid_period` | Bunday to'lov muddati yo'q. | Такого срока оплаты нет. |
+| `org.billing.errors.invalid_tier` | Bunday tarif yo'q. | Такого тарифа нет. |
+| `org.billing.errors.provider_unavailable` | To'lov xizmati javob bermayapti. Bir necha daqiqadan keyin urinib ko'ring. | Платёжный сервис не отвечает. Попробуйте через несколько минут. |
+| `org.billing.errors.not_owner` | To'lov faqat markaz egasiga ochiq. | Оплата доступна только владельцу центра. |
+| `org.billing.errors.tier_not_purchasable` | Bu tarifni onlayn to'lab bo'lmaydi. Hisob so'rang. | Этот тариф нельзя оплатить онлайн. Запросите счёт. |
+| `org.billing.errors.invoice_not_found` | Buyurtma topilmadi. | Заказ не найден. |
+| `org.billing.errors.invoice_not_configured` | Hisob so'rash hozir mavjud emas. Qo'llab-quvvatlashga yozing. | Запрос счёта сейчас недоступен. Напишите в поддержку. |
+| `org.billing.errors.invoice_request_throttled` | Bunday so'rov allaqachon yuborilgan. Bir necha daqiqa kuting. | Такой запрос уже отправлен. Подождите несколько минут. |
+| `org.billing.errors.unknown` | Amalni bajarib bo'lmadi. Keyinroq urinib ko'ring. | Не удалось выполнить действие. Попробуйте позже. |
+| `org.invoice.title` | Hisob :number | Счёт :number |
+| `org.invoice.heading` | To'lov uchun hisob № :number | Счёт на оплату № :number |
+| `org.invoice.date` | Sana | Дата |
+| `org.invoice.status.pending` | to'lov kutilmoqda | ожидает оплаты |
+| `org.invoice.status.paid` | to'langan | оплачен |
+| `org.invoice.status.canceled` | bekor qilingan | отменён |
+| `org.invoice.status.expired` | muddati o'tgan | истёк |
+| `org.invoice.status.failed` | xatolik | ошибка |
+| `org.invoice.seller` | Ijrochi | Исполнитель |
+| `org.invoice.seller_empty` | Ijrochi rekvizitlari platforma administratori tomonidan ko'rsatiladi. | Реквизиты исполнителя будут указаны администратором платформы. |
+| `org.invoice.seller_fields.name` | Nomi | Наименование |
+| `org.invoice.seller_fields.inn` | STIR | ИНН |
+| `org.invoice.seller_fields.address` | Manzil | Адрес |
+| `org.invoice.seller_fields.bank` | Bank | Банк |
+| `org.invoice.seller_fields.bank_account` | Hisob raqami | Расчётный счёт |
+| `org.invoice.seller_fields.mfo` | MFO | МФО |
+| `org.invoice.seller_fields.phone` | Telefon | Телефон |
+| `org.invoice.seller_fields.email` | Email | Email |
+| `org.invoice.payer` | To'lovchi | Плательщик |
+| `org.invoice.payer_fields.name` | Nomi | Наименование |
+| `org.invoice.payer_fields.email` | Email | Email |
+| `org.invoice.payer_fields.phone` | Telefon | Телефон |
+| `org.invoice.payer_fields.telegram` | Telegram | Telegram |
+| `org.invoice.item` | Xizmat nomi | Наименование услуги |
+| `org.invoice.sum` | Summa | Сумма |
+| `org.invoice.service` | Markaz uchun LexiFlow Pro'ga kirish — «:tier» tarifi | Доступ к LexiFlow Pro для центра — тариф «:tier» |
+| `org.invoice.period` | muddat: :days kun | срок: :days дн. |
+| `org.invoice.total` | Jami to'lov | Итого к оплате |
+| `org.invoice.note` | To'lov markaz obunasini ko'rsatilgan muddatga uzaytiradi. Summa so'mda ko'rsatilgan. | Оплата продлевает подписку центра на указанный срок. Сумма указана в сумах. |
+| `org.invoice.print_hint` | Chop etish yoki PDF saqlash uchun Ctrl+P (⌘P) bosing. | Чтобы распечатать или сохранить в PDF, нажмите Ctrl+P (⌘P). |
 | `org.dashboard.seats` | O'rinlar | Места |
 | `org.dashboard.seats_over_limit` | Limit oshib ketgan: tarifni oshiring | Превышение лимита: повысьте тариф |
 | `org.dashboard.seats_free` | Bo'sh: :count | Свободно: :count |
@@ -1085,6 +1178,15 @@
 | `org.mail.invitation.existing_account` | Odatdagi parolingiz bilan kiring — markaz kabinetda allaqachon mavjud. | Войдите с вашим обычным паролем — центр уже доступен в кабинете. |
 | `org.mail.invitation.button_open` | Kabinetni ochish | Открыть кабинет |
 | `org.mail.invitation.ignore` | Agar bu xatni kutmagan bo'lsangiz, shunchaki e'tiborsiz qoldiring. | Если вы не ждали этого письма, просто проигнорируйте его. |
+| `org.mail.invoice_request.subject` | «:organization» markazidan hisob so'rovi | Запрос счёта от центра «:organization» |
+| `org.mail.invoice_request.heading` | Hisob so'rovi: «:organization» | Запрос счёта: «:organization» |
+| `org.mail.invoice_request.intro` | :user «:organization» markazi uchun hisob yozishni so'ramoqda (kabinet: /org/:slug). | :user просит выставить счёт для центра «:organization» (кабинет: /org/:slug). |
+| `org.mail.invoice_request.tier` | Tarif | Тариф |
+| `org.mail.invoice_request.period` | Muddat | Срок |
+| `org.mail.invoice_request.amount` | Summa | Сумма |
+| `org.mail.invoice_request.amount_none` | kelishuv asosida | по договорённости |
+| `org.mail.invoice_request.comment` | Izoh | Комментарий |
+| `org.mail.invoice_request.next` | Ushbu xatga javob bering (Reply-To — markaz egasining manzili), hisob yuboring va to'lovdan so'ng tarifni adminkada ulang: «Obunalar» → «Berish», tarifni tanlang. | Ответьте на это письмо (Reply-To — адрес владельца центра), выставьте счёт и после оплаты подключите тариф в админке: «Подписки» → «Выдать» с тарифом. |
 | `org.bot.not_staff` | /org buyrug'i o'quv markazlari xodimlari uchun. Telegramingiz hech bir kabinetga bog'lanmagan: kabinet profilida Telegram ID ni ko'rsating. | Команда /org — для сотрудников учебных центров. Ваш Telegram не привязан ни к одному кабинету: укажите свой Telegram ID в профиле кабинета. |
 | `org.bot.header` | Sizning markazlaringiz: | Ваши центры: |
 | `org.bot.line` | :name — :role<br>O'rinlar: :seats · 7 kunda faollar: :active<br>:url | :name — :role<br>Места: :seats · активных за 7 дней: :active<br>:url |
