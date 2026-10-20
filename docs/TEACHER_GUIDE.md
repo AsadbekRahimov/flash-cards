@@ -165,11 +165,23 @@ invitation letter, and you only ever see your own center.
 | **Groups** | **Link group** by chat id — the bot must already be in the group and *you* must be its creator or administrator (the cabinet checks this with Telegram); **Unlink** | your groups only |
 | **Invitations** | create codes (label, uses, expiry), copy the `t.me/<bot>?start=org_<code>` link, deactivate | — |
 | **Teachers** | invite by email, assign groups, change role, resend the invitation, remove (the last owner cannot be removed) | — |
-| **Assignments**, **Reports** | coming in the next updates | coming in the next updates |
+| **Assignments** | all groups of the center: set a lesson with a deadline, see who finished, close | your groups only |
+| **Reports** | coming in the next update | coming in the next update |
 | **Billing** | tariff, subscription status, seats (payment arrives in a later update) | — |
 | **Center settings** | name, contact, timezone, cabinet language | — |
 
 The cabinet speaks the language set in **Center settings** (Russian or Uzbek).
+
+### Assignments
+
+An assignment is *one lesson of the group's course with a deadline*.
+
+1. **Assignments → Create assignment.** Pick the group (only groups of your center that have a course are listed), then the lesson (lessons of that group's course only), the deadline, and optionally a title (empty means the lesson title) and the completion threshold (default 100 % of the lesson's words).
+2. The bot posts **one message to the group chat** with an **Open lesson** button; the learners start the lesson straight from it. They also see the assignment in the **Today** screen of the mini app, with their own progress. The bot sends **one reminder to the group** about 24 hours before the deadline (nobody gets personal messages).
+3. **Progress** is the share of the lesson's active words the learner has answered correctly at least once. It is recounted every 30 minutes and whenever you open the assignment report. The list shows *N of M finished* (learners still in the group); the report shows each learner's progress and whether they finished, finished late or have not started. Only this aggregate is shown — never the learner's personal sessions or answers.
+4. After the deadline an assignment stays open: late completions are still counted and marked **finished late**. **Close** ends it by hand (the final progress stays in the report; a closed assignment cannot be reopened); an assignment overdue for 14 days is closed automatically.
+
+A teacher sees and creates assignments only for their own groups; the owner for all groups of the center.
 
 ### Seats, in one paragraph
 

@@ -189,7 +189,7 @@ export interface Quota {
 export type TrainingMode = 'group_lesson' | 'lesson' | 'daily_review'
 
 /** Where a personal session was opened from (stored for analytics). */
-export type SessionSource = 'self' | 'picker' | 'reminder' | 'onboarding'
+export type SessionSource = 'self' | 'picker' | 'reminder' | 'onboarding' | 'assignment'
 
 export interface TrainingStartResponse {
   session_id: number
@@ -263,6 +263,31 @@ export interface TodayResponse {
   open_session_id: number | null
   entitlement: Pick<Entitlement, 'plan' | 'source' | 'until'>
   onboarding_completed: boolean
+}
+
+/** One assignment of the learner's center (GET /assignments, docs/04 A.9): only the learner's own progress. */
+export interface AssignmentItem {
+  id: number
+  title: string
+  group: string
+  /** What `POST /training/sessions {mode: 'lesson'}` takes. */
+  lesson_id: number
+  stage: number
+  lesson: number
+  /** ISO 8601 with offset. */
+  due_at: string
+  /** The due date has passed, the assignment is still open (late work counts). */
+  overdue: boolean
+  progress_pct: number
+  completed: boolean
+  completed_at: string | null
+  /** Completed after the due date. */
+  late: boolean
+}
+
+/** Answer of GET /assignments. */
+export interface AssignmentsResponse {
+  assignments: AssignmentItem[]
 }
 
 /**

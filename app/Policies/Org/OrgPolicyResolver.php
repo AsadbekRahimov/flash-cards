@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Policies\Org;
 
+use App\Models\Assignment;
+use App\Models\AssignmentResult;
 use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\OrganizationInvite;
@@ -42,6 +44,8 @@ final class OrgPolicyResolver
         OrganizationInvite::class => OrgOrganizationInvitePolicy::class,
         OrganizationUser::class => OrgOrganizationUserPolicy::class,
         Learner::class => OrgLearnerPolicy::class,
+        Assignment::class => OrgAssignmentPolicy::class,
+        AssignmentResult::class => OrgAssignmentResultPolicy::class,
     ];
 
     public static function register(): void

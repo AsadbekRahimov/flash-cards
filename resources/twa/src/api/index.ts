@@ -1,6 +1,7 @@
 import { createApiClient } from './client'
 import { useAuthStore } from '@/stores/auth'
 import type {
+  AssignmentsResponse,
   AuthContext,
   AuthResponse,
   BillingCatalog,
@@ -65,6 +66,9 @@ export const api = {
   },
   today: {
     get: () => client().get<TodayResponse>('/today'),
+  },
+  assignments: {
+    list: () => client().get<AssignmentsResponse>('/assignments'),
   },
   organizations: {
     list: () => client().get<OrganizationsResponse>('/me/organizations'),

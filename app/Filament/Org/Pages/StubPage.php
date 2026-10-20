@@ -7,7 +7,7 @@ namespace App\Filament\Org\Pages;
 use Filament\Pages\Page;
 
 /**
- * Placeholder screen of the cabinet until its task lands (docs/13 §11: Assignments 2B.4, Reports
+ * Placeholder screen of the cabinet until its task lands (docs/13 §11: Reports
  * 2B.5, Billing 2B.6). Shows a short notice and, optionally, a few facts (`rows()`).
  */
 abstract class StubPage extends Page
