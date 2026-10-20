@@ -130,14 +130,7 @@ return [
         'post_org_discount' => ['pct' => (int) env('BILLING_POST_ORG_DISCOUNT_PCT', 30), 'valid_days' => 14, 'period' => 'month'],
     ],
 
-    /** Referral rewards (docs/13 §2.4, task 2C.1 reads them; listed here so the money rules stay in one file). */
-    'referrals' => [
-        'reward_days' => 7,
-        'activation' => ['days' => 3, 'reviews_per_day' => 10, 'window_days' => 14],
-        'max_rewards_per_30d' => 10,
-        'max_rewards_lifetime' => 50,
-        'flag_links_per_day' => 20,
-    ],
+    // Referral rewards (docs/13 §2.4, 2C.1) live in config/referrals.php (env-backed).
 
     /**
      * Promo codes (docs/12 §8). Every failed redemption is a `promo.rejected`

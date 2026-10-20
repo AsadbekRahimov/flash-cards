@@ -8,6 +8,7 @@ use App\Domain\Telegram\Handlers\ChatMemberHandler;
 use App\Domain\Telegram\Handlers\CloseExamHandler;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
 use App\Domain\Telegram\Handlers\HelpCommandHandler;
+use App\Domain\Telegram\Handlers\InviteCommandHandler;
 use App\Domain\Telegram\Handlers\LearnerDmHandler;
 use App\Domain\Telegram\Handlers\MyChatMemberHandler;
 use App\Domain\Telegram\Handlers\NewMembersHandler;
@@ -53,6 +54,7 @@ final class TelegramDispatcher
         StatsCommandHandler $stats,
         PromoCommandHandler $promo,
         ProCommandHandler $pro,
+        InviteCommandHandler $invite,
         PaySupportCommandHandler $paySupport,
         OrgCommandHandler $org,
         HelpCommandHandler $help,
@@ -81,6 +83,7 @@ final class TelegramDispatcher
             $stats,
             $promo,
             $pro,
+            $invite,
             $paySupport,
             $org,
             $start,

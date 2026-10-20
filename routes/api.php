@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\Twa\ExamController;
 use App\Http\Controllers\Api\Twa\MeController;
 use App\Http\Controllers\Api\Twa\OrganizationController;
 use App\Http\Controllers\Api\Twa\PromoController;
+use App\Http\Controllers\Api\Twa\ReferralController;
 use App\Http\Controllers\Api\Twa\SettingsController;
 use App\Http\Controllers\Api\Twa\TodayController;
 use App\Http\Controllers\Api\Twa\TrainingController;
@@ -34,6 +35,7 @@ Route::prefix('twa')->group(function (): void {
             ->name('twa.me.organizations.leave');
         Route::get('/today', TodayController::class)->name('twa.today');
         Route::get('/assignments', AssignmentController::class)->name('twa.assignments');
+        Route::get('/referrals', ReferralController::class)->name('twa.referrals');
         Route::post('/promo/redeem', [PromoController::class, 'redeem'])
             ->middleware('throttle:twa-promo')
             ->name('twa.promo.redeem');

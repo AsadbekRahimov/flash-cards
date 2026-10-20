@@ -27,6 +27,7 @@ use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\Offer;
 use App\Models\Organization;
+use App\Models\Referral;
 use App\Models\Stage;
 use App\Models\Subscription;
 use App\Models\TelegramGroup;
@@ -723,4 +724,26 @@ it('GET /assignments keeps its exact JSON shape (docs/04 A.9)', function (): voi
 
     $bare = Learner::factory()->create();
     $this->withHeaders(contractHeaders($bare))->getJson('/api/twa/assignments')->assertOk()->assertExactJson(['assignments' => []]);
+});
+
+it('GET /referrals keeps its exact JSON shape (docs/04 A.12)', function (): void {
+    config(['telegram.bot_username' => 'LexiFlowBot']);
+    $learner = Learner::factory()->create();
+    $friend = Learner::factory()->create(['first_name' => 'Bek']);
+    Referral::factory()->create(['referrer_learner_id' => $learner->id, 'referee_learner_id' => $friend->id]);
+
+    $response = $this->withHeaders(contractHeaders($learner))
+        ->getJson('/api/twa/referrals')
+        ->assertOk()
+        ->assertExactJsonStructure([
+            'code', 'link', 'reward_days',
+            'activation' => ['days', 'reviews_per_day', 'window_days'],
+            'counts' => ['invited', 'activated', 'rewarded'],
+            'referrals' => [['first_name', 'status', 'linked_at']],
+        ]);
+
+    expect($response->json('code'))->toMatch('/^[A-Z2-9]{8}$/')
+        ->and($response->json('link'))->toBe('https://t.me/LexiFlowBot?start=ref_'.$response->json('code'))
+        ->and($response->json('referrals.0.first_name'))->toBe('Bek')
+        ->and($response->json('referrals.0.status'))->toBe('pending');
 });

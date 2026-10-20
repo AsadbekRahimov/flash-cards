@@ -25,6 +25,7 @@ use App\Models\ProductEvent;
 use App\Models\PromoCode;
 use App\Models\PromoRedemption;
 use App\Models\ProviderTransaction;
+use App\Models\Referral;
 use App\Models\Stage;
 use App\Models\Subscription;
 use App\Models\TelegramGroup;
@@ -72,6 +73,8 @@ $expectedTables = [
     'organization_users', 'organization_invites', 'organization_members',
     // Phase 2 (docs/13 §1.4): assignments of a center.
     'assignments', 'assignment_results',
+    // Phase 2 (docs/13 §1.5): referrals.
+    'referrals',
 ];
 
 /**
@@ -782,6 +785,7 @@ it('rolls back and re-applies the billing migrations (2A.1) in FK order', functi
 
 it('rolls back and re-applies the learner-first migrations (1.1a + 1.1b)', function (): void {
     $newTables = [
+        'referrals',
         'payments', 'provider_transactions', 'payment_orders', 'offers',
         'promo_redemptions', 'promo_codes', 'subscriptions', 'learner_daily_stats',
         'word_translations', 'group_members', 'learners', 'courses', 'organizations',
@@ -881,4 +885,40 @@ it('adds the streak freeze columns (2C.2) and rolls them back', function (): voi
     $this->artisan('migrate')->assertSuccessful();
     expect(Schema::hasColumns('learners', ['streak_freezes', 'streak_freezes_refilled_on']))->toBeTrue()
         ->and(Schema::hasColumn('learner_daily_stats', 'frozen_at'))->toBeTrue();
+});
+
+// --- 2C.1 referrals (docs/13 §1.5) ----------------------------------------------
+
+it('keeps one referral per invited learner and one referral code per learner', function (): void {
+    $friend = Learner::factory()->create();
+    Referral::factory()->create(['referee_learner_id' => $friend->id]);
+    expectConstraintViolation(fn () => Referral::factory()->create(['referee_learner_id' => $friend->id]));
+
+    Learner::factory()->create(['referral_code' => 'ABCDEFGH']);
+    expectConstraintViolation(fn () => Learner::factory()->create(['referral_code' => 'ABCDEFGH']));
+    // NULL codes do not collide (generated lazily).
+    Learner::factory()->count(2)->create(['referral_code' => null]);
+
+    $indexes = array_column(Schema::getIndexes('referrals'), 'columns');
+    expect($indexes)->toContain(['referrer_learner_id', 'status', 'linked_at']);
+});
+
+it('cascades referrals with either learner', function (): void {
+    $inviter = Learner::factory()->create();
+    $friend = Learner::factory()->create();
+    Referral::factory()->create(['referrer_learner_id' => $inviter->id, 'referee_learner_id' => $friend->id]);
+    Referral::factory()->create(['referrer_learner_id' => $friend->id]);
+
+    $friend->forceDelete();
+    expect(Referral::query()->count())->toBe(0);
+});
+
+it('rolls back and re-applies the referrals migration (2C.1)', function (): void {
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_22_100001_create_referrals_table')])->assertSuccessful();
+    expect(Schema::hasTable('referrals'))->toBeFalse()
+        ->and(Schema::hasTable('assignment_results'))->toBeTrue();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasTable('referrals'))->toBeTrue()
+        ->and(Schema::hasColumn('learners', 'referral_code'))->toBeTrue();
 });

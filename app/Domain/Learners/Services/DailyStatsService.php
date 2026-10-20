@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Learners\Services;
 
+use App\Domain\Engagement\Services\ReferralService;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
 use Carbon\CarbonImmutable;
@@ -41,6 +42,7 @@ class DailyStatsService
     public function __construct(
         private readonly LearnerClock $clock,
         private readonly StreakService $streaks,
+        private readonly ReferralService $referrals,
     ) {}
 
     /**
@@ -73,6 +75,12 @@ class DailyStatsService
 
         if ($goalJustMet) {
             $this->streaks->onGoalMet($learner, $today);
+        }
+
+        // Referral activation (docs/13 §7.1) looks at committed day rows: the moment this day crosses the
+        // "active day" threshold, re-evaluate a pending referral of the learner — after commit, never inside.
+        if ($reviews === max(1, (int) config('referrals.activation.reviews_per_day'))) {
+            DB::afterCommit(fn () => $this->referrals->evaluate($learner, $now));
         }
 
         return $row;

@@ -216,7 +216,8 @@ of their own groups, with name / username and the learning metrics of their grou
 onboarding state, subscriptions or events).
 
 **List (admin).** Columns: name, @username, Telegram ID, **Plan** (`Free`, `Pro` — own subscription,
-`Pro (sponsored)` — through an organization), blocked, onboarded, last seen.
+`Pro (sponsored)` — through an organization), blocked, onboarded, **Referrals** (how many learners this one
+invited, rejected ones excluded), last seen.
 
 - **Search** (box above the table): by name, by @username (`@anna` and `anna` both work, partial match) or by
   **Telegram ID** (exact: type the whole number, `12345` does not find `123456789`).
@@ -237,6 +238,16 @@ captioned *Free* / *Pro* / *Pro (sponsored)* as in the list, then the organizati
   no personal data by design (no promo codes, no message text). The login event `twa.authenticated` is hidden
   (it is written on every TWA open); pick it in the *Event* filter to see it, or pick any other name to narrow the list.
 - *Last 14 days* — daily stats: reviews, correct answers, new words, time, whether the daily goal was met.
+- *Referrals* — the learners this one invited ("Invite a friend", docs/13 §7.1): the invited learner (link to
+  their page), the state (`pending` — came, not active yet; `activated` — studied 3 days × 10 cards within
+  14 days; `rewarded` — both got 7 days of Pro; `rejected` with the reason: `self`, `existing_learner`,
+  `referrer_capped` — the inviter already collected 10 rewards in 30 days / 50 in total, `flagged`), the
+  **Flagged** mark and the dates. A referral is flagged automatically when the inviter collected 20 or more
+  links within 24 hours (a farm is likely); its reward waits. Two row buttons for a flagged row, both written
+  to the audit log: **Clear flag** (`referral.unflagged`) — the referral is genuine, an activated one is
+  rewarded at once; **Reject** (`referral.rejected`) — no reward will ever be granted. The numbers come from
+  `config/referrals.php` (`REFERRALS_*` in `.env`). The invite link needs `TELEGRAM_BOT_USERNAME`; without
+  it the learners only see their code.
 
 ---
 

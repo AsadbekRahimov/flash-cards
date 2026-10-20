@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Handlers;
 
+use App\Domain\Engagement\Services\ReferralService;
 use App\Domain\Learners\DTO\StartPayload;
 use App\Domain\Learners\Enums\StartPayloadKind;
 use App\Domain\Learners\Services\LearnerRegistrar;
@@ -16,6 +17,7 @@ use App\Domain\Telegram\Services\OrganizationMessenger;
 use App\Domain\Telegram\Services\TodayScreen;
 use App\Domain\Telegram\Support\DmLearnerResolver;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 
 /**
  * `/start [payload]` in a DM (docs/12 §7.1). A linked teacher gets the greeting as before; anyone
@@ -23,6 +25,7 @@ use App\Models\User;
  * starts — or, for a learner who has finished it, the "Today" screen is shown. An `org_<code>` link
  * (docs/13 §6.2) adds a "Join center X?" question: at once for a learner who has finished the
  * onboarding, after its last step otherwise; a code that cannot be used is explained and ignored.
+ * A `ref_<code>` link (docs/13 §7.1) also links the referral when the learner is new.
  */
 final class StartCommandHandler implements UpdateHandler
 {
@@ -34,6 +37,7 @@ final class StartCommandHandler implements UpdateHandler
         private readonly OnboardingMessenger $messenger,
         private readonly TodayScreen $today,
         private readonly OrganizationMessenger $organizations,
+        private readonly ReferralService $referrals,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -97,6 +101,13 @@ final class StartCommandHandler implements UpdateHandler
 
         $payload = StartPayload::parse($this->payloadFrom((string) ($message['text'] ?? '')));
         $this->registrar->attributeAcquisition($learner, $payload);
+
+        // The referral itself (docs/13 §7.1): only a learner CREATED by this /start can be somebody's
+        // referral; the service records a rejected row for anybody else and a repeat is harmless.
+        $referralCode = $payload->referralCode();
+        if ($referralCode !== null) {
+            $this->referrals->link($learner, $referralCode, CarbonImmutable::now());
+        }
 
         if ($learner->onboarding_state === OnboardingService::DONE) {
             if ($payload->kind === StartPayloadKind::Org && $payload->value !== null) {

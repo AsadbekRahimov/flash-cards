@@ -203,13 +203,13 @@ it('observes a new person without marking them as seen, and does not bump last_s
 
 it('attributes the first deep link to a learner without a source and updates the instance', function (): void {
     $registrar = app(LearnerRegistrar::class);
-    $referrer = Learner::factory()->create();
+    $referrer = Learner::factory()->create(['referral_code' => 'REF234']);
     $learner = $registrar->fromTelegramUser(['id' => 4101, 'first_name' => 'A']);
 
-    expect($registrar->attributeAcquisition($learner, StartPayload::parse('ref_'.$referrer->id)))->toBeTrue()
+    expect($registrar->attributeAcquisition($learner, StartPayload::parse('ref_REF234')))->toBeTrue()
         ->and($learner->acquisition_source)->toBe('ref')
         ->and($learner->referrer_learner_id)->toBe($referrer->id)
-        ->and($learner->start_payload)->toBe('ref_'.$referrer->id)
+        ->and($learner->start_payload)->toBe('ref_REF234')
         ->and($learner->isDirty())->toBeFalse()
         ->and($learner->fresh()->acquisition_source)->toBe('ref');
 });
@@ -219,7 +219,7 @@ it('does not overwrite an existing source, payload or referrer', function (): vo
     $learner = $registrar->fromTelegramUser(['id' => 4102, 'first_name' => 'A'], 'src:old', 'src_old');
 
     expect($registrar->attributeAcquisition($learner, StartPayload::parse('src_new')))->toBeFalse()
-        ->and($registrar->attributeAcquisition($learner, StartPayload::parse('ref_'.Learner::factory()->create()->id)))->toBeFalse();
+        ->and($registrar->attributeAcquisition($learner, StartPayload::parse('ref_'.Learner::factory()->create(['referral_code' => 'OTHER2'])->referral_code)))->toBeFalse();
 
     $learner->refresh();
     expect($learner->acquisition_source)->toBe('src:old')
@@ -242,10 +242,11 @@ it('loses the race quietly when another request attributed the learner first', f
 it('ignores an empty payload, a self-referral and an unknown referrer', function (): void {
     $registrar = app(LearnerRegistrar::class);
     $learner = $registrar->fromTelegramUser(['id' => 4104, 'first_name' => 'A']);
+    $learner->forceFill(['referral_code' => 'SELF23'])->save();
 
     expect($registrar->attributeAcquisition($learner, StartPayload::none()))->toBeFalse()
-        ->and($registrar->attributeAcquisition($learner, StartPayload::parse('ref_'.$learner->id)))->toBeFalse()
-        ->and($registrar->attributeAcquisition($learner, StartPayload::parse('ref_987654321')))->toBeFalse()
+        ->and($registrar->attributeAcquisition($learner, StartPayload::parse('ref_SELF23')))->toBeFalse()
+        ->and($registrar->attributeAcquisition($learner, StartPayload::parse('ref_NOBODY')))->toBeFalse()
         ->and($learner->fresh()->acquisition_source)->toBeNull();
 });
 

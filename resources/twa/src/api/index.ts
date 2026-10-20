@@ -26,6 +26,7 @@ import type {
   OrganizationsResponse,
   OpenSessionRequest,
   Quality,
+  ReferralsResponse,
   ReviewResponse,
   SessionSummary,
   SettingsPatch,
@@ -69,6 +70,9 @@ export const api = {
   },
   assignments: {
     list: () => client().get<AssignmentsResponse>('/assignments'),
+  },
+  referrals: {
+    get: () => client().get<ReferralsResponse>('/referrals'),
   },
   organizations: {
     list: () => client().get<OrganizationsResponse>('/me/organizations'),

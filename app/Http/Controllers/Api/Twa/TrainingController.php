@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api\Twa;
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Engagement\Services\ReferralService;
 use App\Domain\Learners\Services\TodayService;
 use App\Domain\Learning\Exceptions\ReviewSubmissionException;
 use App\Domain\Learning\Exceptions\TrainingSessionException;
@@ -33,6 +34,7 @@ final class TrainingController
         private readonly TrainingSessionPolicy $policy,
         private readonly ProductEventRecorder $events,
         private readonly TodayService $today,
+        private readonly ReferralService $referrals,
     ) {}
 
     /**
@@ -128,6 +130,10 @@ final class TrainingController
                 ],
                 learner: $learner,
             );
+
+            // A pending referral of this learner (docs/13 §7.1): activated once they have studied enough.
+            // After the session's own transaction, never inside it.
+            $this->referrals->evaluate($learner, CarbonImmutable::now());
         }
 
         return (new SessionSummaryResource(['summary' => $summary, 'progress' => $this->today->progress($learner)]))->response();

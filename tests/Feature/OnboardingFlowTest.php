@@ -14,6 +14,7 @@ use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Models\Course;
 use App\Models\Learner;
 use App\Models\ProductEvent;
+use App\Models\Referral;
 use App\Models\User;
 use App\Models\Word;
 use App\Models\WordRepetition;
@@ -495,17 +496,26 @@ it('refuses /settings changes in the service until the onboarding is finished', 
 
 // --- /start payloads -------------------------------------------------------
 
-it('records a ref_ payload with the referrer and keeps the onboarding ordinary', function (): void {
-    $referrer = Learner::factory()->create();
+it('records a ref_ payload with the referrer, links the referral and keeps the onboarding ordinary', function (): void {
+    $referrer = Learner::factory()->create(['referral_code' => 'REFAB2']);
 
-    onbSend(7020, '/start ref_'.$referrer->id);
+    onbSend(7020, '/start ref_REFAB2');
 
     $learner = onbLearner(7020);
     expect($learner->acquisition_source)->toBe('ref')
-        ->and($learner->start_payload)->toBe('ref_'.$referrer->id)
+        ->and($learner->start_payload)->toBe('ref_REFAB2')
         ->and($learner->referrer_learner_id)->toBe($referrer->id)
         ->and($learner->onboarding_state)->toBe('locale')
         ->and(ProductEvent::query()->where('name', 'onboarding.started')->firstOrFail()->props)->toBe(['source_kind' => 'ref']);
+
+    $referral = Referral::query()->where('referee_learner_id', $learner->id)->sole();
+    expect($referral->referrer_learner_id)->toBe($referrer->id)
+        ->and($referral->status)->toBe('pending')
+        ->and($referral->flagged_at)->toBeNull();
+
+    // A repeated /start with the same (or another) code changes nothing.
+    onbSend(7020, '/start ref_REFAB2');
+    expect(Referral::query()->count())->toBe(1);
 });
 
 it('records src_ and org_ payloads', function (): void {
@@ -557,9 +567,10 @@ it('records nothing for an invalid payload and runs the ordinary onboarding', fu
         ->and($this->tg->sent)->toHaveCount(1);
 })->with([
     'unknown prefix' => ['promo_xyz'],
-    'ref with letters' => ['ref_abc'],
-    'ref with zero' => ['ref_0'],
-    'ref too long' => ['ref_1234567890123456'],
+    'ref numeric id (Phase 1 shape)' => ['ref_42'],
+    'ref lower case' => ['ref_abc234'],
+    'ref too short' => ['ref_ABC23'],
+    'ref too long' => ['ref_ABCDEFGHJK234'],
     'src in upper case' => ['src_Blogger'],
     'src too long' => ['src_'.str_repeat('a', 33)],
     'course in upper case' => ['c_English'],
@@ -571,30 +582,34 @@ it('records nothing for an invalid payload and runs the ordinary onboarding', fu
 ]);
 
 it('ignores a ref_ payload pointing at an unknown or deleted learner', function (): void {
-    $deleted = Learner::factory()->create();
+    $deleted = Learner::factory()->create(['referral_code' => 'GONE23']);
     $deleted->delete();
 
-    onbSend(7026, '/start ref_99999999');
-    onbSend(7027, '/start ref_'.$deleted->id);
+    onbSend(7026, '/start ref_NOSUCH');
+    onbSend(7027, '/start ref_GONE23');
 
     expect(onbLearner(7026)->acquisition_source)->toBeNull()
         ->and(onbLearner(7027)->acquisition_source)->toBeNull()
-        ->and(onbLearner(7027)->referrer_learner_id)->toBeNull();
+        ->and(onbLearner(7027)->referrer_learner_id)->toBeNull()
+        ->and(Referral::query()->count())->toBe(0)
+        ->and(ProductEvent::query()->where('name', 'referral.rejected')->count())->toBe(2);
 });
 
-it('ignores self-referral', function (): void {
+it('ignores self-referral and records the rejected referral', function (): void {
     $learner = app(LearnerRegistrar::class)->fromTelegramUser(['id' => 7028, 'first_name' => 'Self']);
+    $learner->forceFill(['referral_code' => 'SELF23'])->save();
 
-    onbSend(7028, '/start ref_'.$learner->id);
+    onbSend(7028, '/start ref_SELF23');
 
     $learner->refresh();
     expect($learner->acquisition_source)->toBeNull()
         ->and($learner->referrer_learner_id)->toBeNull()
-        ->and($learner->start_payload)->toBeNull();
+        ->and($learner->start_payload)->toBeNull()
+        ->and(Referral::query()->where('referee_learner_id', $learner->id)->sole()->reject_reason)->toBe('self');
 });
 
 it('attributes first touch to a learner created earlier without a source, and never overwrites it', function (): void {
-    $referrer = Learner::factory()->create();
+    $referrer = Learner::factory()->create(['referral_code' => 'LATER23']);
     // Created by /auth in the TWA: no source.
     app(LearnerRegistrar::class)->fromTelegramUser(['id' => 7029, 'first_name' => 'Early']);
 
@@ -602,19 +617,21 @@ it('attributes first touch to a learner created earlier without a source, and ne
     expect(onbLearner(7029)->acquisition_source)->toBe('src:first')
         ->and(onbLearner(7029)->start_payload)->toBe('src_first');
 
-    // A later link does not overwrite it, and neither does it set a referrer.
-    onbSend(7029, '/start ref_'.$referrer->id);
+    // A later link does not overwrite it, and neither does it set a referrer; the learner existed
+    // before that /start, so the referral is rejected (docs/13 §7.1).
+    onbSend(7029, '/start ref_LATER23');
     $learner = onbLearner(7029);
     expect($learner->acquisition_source)->toBe('src:first')
         ->and($learner->start_payload)->toBe('src_first')
-        ->and($learner->referrer_learner_id)->toBeNull();
+        ->and($learner->referrer_learner_id)->toBeNull()
+        ->and(Referral::query()->where('referee_learner_id', $learner->id)->sole()->reject_reason)->toBe('existing_learner');
 });
 
 it('does not overwrite the source of a learner who came from a group', function (): void {
-    $referrer = Learner::factory()->create();
+    Learner::factory()->create(['referral_code' => 'GROUP23']);
     app(LearnerRegistrar::class)->observeTelegramUser(['id' => 7030, 'first_name' => 'Grp'], 'group');
 
-    onbSend(7030, '/start ref_'.$referrer->id);
+    onbSend(7030, '/start ref_GROUP23');
 
     $learner = onbLearner(7030);
     expect($learner->acquisition_source)->toBe('group')
@@ -930,10 +947,10 @@ it('writes nothing about a blocked learner who follows a deep link', function ()
 });
 
 it('does not take a blocked learner as a referrer', function (): void {
-    $referrer = Learner::factory()->create(['blocked_at' => now()]);
+    Learner::factory()->create(['blocked_at' => now(), 'referral_code' => 'BLOCK23']);
     $learner = Learner::factory()->create(['acquisition_source' => null]);
 
-    $recorded = app(LearnerRegistrar::class)->attributeAcquisition($learner, StartPayload::parse('ref_'.$referrer->id));
+    $recorded = app(LearnerRegistrar::class)->attributeAcquisition($learner, StartPayload::parse('ref_BLOCK23'));
 
     expect($recorded)->toBeFalse()
         ->and($learner->fresh()->acquisition_source)->toBeNull()
@@ -945,7 +962,7 @@ it('reports the kind of the accepted attribution in onboarding.started', functio
 
     expect(ProductEvent::query()->where('name', 'onboarding.started')->firstOrFail()->props)->toBe(['source_kind' => $kind]);
 })->with([
-    'unknown referrer is rejected' => ['ref_999998', 'direct'],
+    'unknown referrer is rejected' => ['ref_NOBODY', 'direct'],
     'invalid payload' => ['ref_abc', 'direct'],
     'campaign' => ['src_blog', 'src'],
     'course' => ['c_english-a1', 'course'],
@@ -953,9 +970,9 @@ it('reports the kind of the accepted attribution in onboarding.started', functio
 ]);
 
 it('reports direct when the learner refers themself', function (): void {
-    $learner = Learner::factory()->create(['telegram_user_id' => 7087, 'onboarding_state' => 'new']);
+    $learner = Learner::factory()->create(['telegram_user_id' => 7087, 'onboarding_state' => 'new', 'referral_code' => 'MINE23']);
 
-    onbSend(7087, '/start ref_'.$learner->id);
+    onbSend(7087, '/start ref_MINE23');
 
     expect(ProductEvent::query()->where('name', 'onboarding.started')->firstOrFail()->props)->toBe(['source_kind' => 'direct']);
 });

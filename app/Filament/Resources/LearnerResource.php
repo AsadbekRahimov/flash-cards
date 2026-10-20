@@ -8,6 +8,7 @@ use App\Domain\Administration\Services\PanelDataScope;
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Billing\Support\PaidSubscriptionQuery;
+use App\Domain\Engagement\Enums\ReferralStatus;
 use App\Domain\Learners\Services\LearnerModerationService;
 use App\Domain\Learners\Services\OnboardingService;
 use App\Filament\Resources\LearnerResource\Pages;
@@ -132,6 +133,13 @@ class LearnerResource extends Resource
                     ->boolean()
                     ->trueColor('danger')
                     ->falseColor('gray')
+                    ->visible($isAdmin),
+                // Invited learners (docs/13 §7.1): all non-rejected referrals; the flagged ones are in the Referrals tab.
+                Tables\Columns\TextColumn::make('referrals_count')
+                    ->label('Referrals')
+                    ->counts(['referrals' => fn (Builder $q): Builder => $q->where('status', '<>', ReferralStatus::Rejected->value)])
+                    ->sortable()
+                    ->toggleable()
                     ->visible($isAdmin),
                 Tables\Columns\TextColumn::make('last_seen_at')->dateTime()->sortable()->toggleable()->visible($isAdmin),
                 Tables\Columns\TextColumn::make('created_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true)->visible($isAdmin),
@@ -277,6 +285,7 @@ class LearnerResource extends Resource
         return [
             RelationManagers\SubscriptionsRelationManager::class,
             RelationManagers\OffersRelationManager::class,
+            RelationManagers\ReferralsRelationManager::class,
             RelationManagers\ProductEventsRelationManager::class,
             RelationManagers\DailyStatsRelationManager::class,
         ];
