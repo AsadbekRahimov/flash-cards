@@ -31,7 +31,8 @@ return new class extends Migration
             $table->string('currency', 8);
             $table->foreignId('offer_id')->nullable()->constrained('offers')->nullOnDelete();
             $table->string('status', 12)->default('pending');
-            $table->string('provider_ref', 191)->nullable();
+            // The checkout URL / invoice link (not a transaction id); a Payme link carries base64 params and is ~250 chars (2A.4).
+            $table->string('provider_ref', 2048)->nullable();
             $table->timestamp('expires_at');
             $table->timestamp('paid_at')->nullable();
             $table->foreignId('subscription_id')->nullable()->constrained('subscriptions')->nullOnDelete();

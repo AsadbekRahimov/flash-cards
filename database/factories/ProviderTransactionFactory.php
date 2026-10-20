@@ -25,6 +25,8 @@ class ProviderTransactionFactory extends Factory
             'created_at_provider' => now(),
             'performed_at' => null,
             'canceled_at' => null,
+            'perform_time' => null,
+            'cancel_time' => null,
             'cancel_reason' => null,
             'raw' => [],
             'history' => [],
@@ -33,6 +35,11 @@ class ProviderTransactionFactory extends Factory
 
     public function performed(): static
     {
-        return $this->state(fn (): array => ['state' => ProviderTransaction::STATE_PERFORMED, 'performed_at' => now()]);
+        return $this->state(fn (): array => ['state' => ProviderTransaction::STATE_PERFORMED, 'performed_at' => now(), 'perform_time' => (int) now()->getTimestampMs()]);
+    }
+
+    public function canceled(int $reason = 3): static
+    {
+        return $this->state(fn (): array => ['state' => ProviderTransaction::STATE_CANCELED, 'canceled_at' => now(), 'cancel_time' => (int) now()->getTimestampMs(), 'cancel_reason' => $reason]);
     }
 }

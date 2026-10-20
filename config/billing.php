@@ -89,7 +89,12 @@ return [
             'test_key' => (string) env('PAYME_TEST_KEY', ''),
             'checkout_url' => (string) env('PAYME_CHECKOUT_URL', 'https://checkout.paycom.uz'),
             'ip_allowlist' => (string) env('PAYME_IP_ALLOWLIST', ''),
+            // An unpaid Payme transaction lives 12 h; after that it is canceled with reason 4 (docs/13 §4.2).
             'transaction_timeout_ms' => 43_200_000,
+            // Days after PerformTransaction during which Payme may still cancel (= refund) it; empty = always
+            // (the owner's refund policy, docs/13 §12 q.7). Beyond the window CancelTransaction is answered -31007.
+            'cancel_after_perform_days' => env('PAYME_CANCEL_AFTER_PERFORM_DAYS'),
+            // Fiscal receipt lines of CheckPerformTransaction (`detail.items[]`); sent only when `ikpu` is set.
             'fiscal' => [
                 'ikpu' => (string) env('PAYME_FISCAL_IKPU', ''),
                 'package_code' => (string) env('PAYME_FISCAL_PACKAGE_CODE', ''),

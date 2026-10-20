@@ -18,6 +18,7 @@ use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Enums\SubscriptionStatus;
 use App\Domain\Billing\Exceptions\BillingException;
 use App\Domain\Billing\Exceptions\PromoCodeException;
+use App\Domain\Billing\Providers\Payme\PaymeRpcService;
 use App\Domain\Billing\Services\NewWordQuota;
 use App\Domain\Billing\Services\PaymentApplier;
 use App\Domain\Billing\Services\PromoCodeService;
@@ -47,6 +48,7 @@ use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Support\Facades\DB;
+use Tests\Support\PaymeFixtures;
 
 $onPostgres = (getenv('DB_CONNECTION') ?: 'sqlite') === 'pgsql';
 
@@ -613,4 +615,117 @@ it('does not deadlock when an invite join and a manual grant hit the same organi
         ->and(OrganizationMember::query()->where('learner_id', $waiting->id)->sole()->seat_state)->toBe('seated')
         ->and(OrganizationMember::query()->where('organization_id', $org2->id)->where('seat_state', 'seated')->count())->toBe(3)
         ->and(Subscription::query()->whereIn('status', SubscriptionStatus::liveValues())->where('subscriber_id', $org2->id)->count())->toBe(1);
+});
+
+/*
+ * 2A.4 (docs/13 §3 rule 6, §4.2): Payme's state changes serialize on the order row, so two
+ * PerformTransaction deliveries credit once and answer alike; Perform vs Cancel end in one of the
+ * two consistent states; Perform vs a manual grant on the same learner cannot deadlock.
+ */
+
+/** A Payme order with an open (state 1) transaction, as CreateTransaction leaves it. */
+function billingOpenPaymeOrder(?Learner $learner = null): PaymentOrder
+{
+    $order = PaymentOrder::factory()->payme()->create($learner === null ? [] : ['subscriber_id' => $learner->id]);
+    $response = app(PaymeRpcService::class)->handle(PaymeFixtures::for('CreateTransaction', $order));
+    if (! isset($response['result'])) {
+        throw new RuntimeException('CreateTransaction failed: '.json_encode($response));
+    }
+
+    return $order;
+}
+
+it('credits exactly one payment when two PerformTransaction calls for the same Payme transaction arrive together, answering both alike', function (): void {
+    $order = billingOpenPaymeOrder();
+
+    $results = billingRunInParallel(array_fill(0, 2, function () use ($order): array {
+        // Pause between the state check and the ledger insert: without the order lock both would charge.
+        Payment::creating(static function (): void {
+            usleep(200_000);
+        });
+
+        return app(PaymeRpcService::class)->handle(PaymeFixtures::for('PerformTransaction', $order));
+    }));
+
+    expect(billingCodes($results))->toBe(['ok', 'ok'])
+        ->and($results[0]['result']['result']['state'] ?? null)->toBe(2)
+        ->and($results[0]['result']['result'])->toBe($results[1]['result']['result'])
+        ->and(Payment::query()->count())->toBe(1)
+        ->and(Payment::query()->sole()->status)->toBe('succeeded')
+        ->and(Subscription::query()->count())->toBe(1)
+        ->and(ProviderTransaction::query()->sole()->state)->toBe(2)
+        ->and($order->refresh()->status)->toBe('paid');
+});
+
+it('ends in one consistent state when PerformTransaction and CancelTransaction race on the same Payme transaction', function (): void {
+    $order = billingOpenPaymeOrder();
+
+    $results = billingRunInParallel([
+        function () use ($order): array {
+            Payment::creating(static function (): void {
+                usleep(200_000);
+            });
+
+            return app(PaymeRpcService::class)->handle(PaymeFixtures::for('PerformTransaction', $order));
+        },
+        function () use ($order): array {
+            usleep(50_000);
+
+            return app(PaymeRpcService::class)->handle(PaymeFixtures::for('CancelTransaction', $order, ['reason' => 3]));
+        },
+    ]);
+
+    expect(billingCodes($results))->toBe(['ok', 'ok']);
+    $tx = ProviderTransaction::query()->sole();
+
+    if ($tx->state === -2) {
+        // Perform won, then the cancel refunded it.
+        expect($results[0]['result']['result']['state'])->toBe(2)
+            ->and($results[1]['result']['result']['state'])->toBe(-2)
+            ->and(Payment::query()->where('kind', 'charge')->where('status', 'refunded')->count())->toBe(1)
+            ->and(Payment::query()->where('kind', 'refund')->count())->toBe(1)
+            ->and(Subscription::query()->sole()->status)->toBe('expired');
+    } else {
+        // Cancel won: the perform was refused, nothing was charged.
+        expect($tx->state)->toBe(-1)
+            ->and($results[0]['result']['error']['code'])->toBe(-31008)
+            ->and($results[1]['result']['result']['state'])->toBe(-1)
+            ->and(Payment::query()->count())->toBe(0)
+            ->and(Subscription::query()->count())->toBe(0)
+            ->and($order->refresh()->status)->toBe('pending');
+    }
+});
+
+it('does not deadlock when a Payme PerformTransaction and a manual grant hit the same learner', function (): void {
+    $learner = Learner::factory()->create();
+    $admin = User::factory()->create();
+    $order = billingOpenPaymeOrder($learner);
+    $signal = billingSignalFile();
+
+    $results = billingRunInParallel([
+        function () use ($order, $signal): array {
+            // Holds order + transaction + learner + subscription, pauses after the subscription write while the
+            // grant waits on the learner row, then inserts payments / events and commits.
+            Subscription::created(static function () use ($signal): void {
+                billingWaitForFile($signal);
+                usleep(500_000);
+            });
+
+            return app(PaymeRpcService::class)->handle(PaymeFixtures::for('PerformTransaction', $order));
+        },
+        function () use ($learner, $admin, $signal): int {
+            usleep(150_000); // let the perform take its locks first
+            touch($signal);
+
+            return app(SubscriptionService::class)->grantManual($learner, Plan::Pro, CarbonImmutable::now()->addDays(90), $admin, 'race')->id;
+        },
+    ]);
+    billingRemoveSignalFile($signal);
+
+    expect(billingCodes($results))->toBe(['ok', 'ok'])
+        ->and($results[0]['result']['result']['state'])->toBe(2)
+        ->and(Subscription::query()->count())->toBe(1)
+        ->and(Subscription::query()->whereIn('status', SubscriptionStatus::liveValues())->count())->toBe(1)
+        ->and(Payment::query()->where('status', 'succeeded')->count())->toBe(1)
+        ->and(Subscription::query()->sole()->id)->toBe($results[1]['result']);
 });

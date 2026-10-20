@@ -26,6 +26,8 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at_provider
  * @property Carbon|null $performed_at
  * @property Carbon|null $canceled_at
+ * @property int|null $perform_time
+ * @property int|null $cancel_time
  * @property int|null $cancel_reason
  * @property array<string, mixed> $raw
  * @property list<array<string, mixed>> $history
@@ -54,6 +56,8 @@ class ProviderTransaction extends Model
         'created_at_provider',
         'performed_at',
         'canceled_at',
+        'perform_time',
+        'cancel_time',
         'cancel_reason',
         'raw',
         'history',
@@ -70,15 +74,45 @@ class ProviderTransaction extends Model
             'created_at_provider' => 'datetime',
             'performed_at' => 'datetime',
             'canceled_at' => 'datetime',
+            'perform_time' => 'integer',
+            'cancel_time' => 'integer',
             'cancel_reason' => 'integer',
             'raw' => 'array',
             'history' => 'array',
         ];
     }
 
+    /** Payme cancel reasons (docs/13 §4.2): 4 = canceled by timeout (the transaction outlived `transaction_timeout_ms`). */
+    public const REASON_TIMEOUT = 4;
+
     public function isOpen(): bool
     {
         return $this->state === self::STATE_CREATED;
+    }
+
+    public function isPerformed(): bool
+    {
+        return $this->state === self::STATE_PERFORMED;
+    }
+
+    public function isCanceled(): bool
+    {
+        return $this->state === self::STATE_CANCELED || $this->state === self::STATE_CANCELED_AFTER_PERFORM;
+    }
+
+    /**
+     * An open transaction whose provider `time` is older than `$timeoutMs` at `$now` (Payme: 12 h);
+     * the provider adapter then cancels it with {@see REASON_TIMEOUT}.
+     */
+    public function isTimedOutAt(CarbonImmutable $now, int $timeoutMs): bool
+    {
+        if (! $this->isOpen()) {
+            return false;
+        }
+
+        $createdMs = $this->provider_time ?? $this->created_at_provider?->getTimestampMs() ?? $this->created_at?->getTimestampMs() ?? $now->getTimestampMs();
+
+        return $now->getTimestampMs() - $createdMs > $timeoutMs;
     }
 
     /** Appends a webhook journal entry (`history`) without saving. */

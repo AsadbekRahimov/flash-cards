@@ -11,9 +11,10 @@ use Throwable;
  * Single place that knows how secrets look inside free text and structured data:
  * Telegram bot token (`bot<id>:<token>` in API URLs), the configured literal
  * secrets (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_URL_SECRET`, `TELEGRAM_HEADER_SECRET`,
- * `TWA_JWT_SECRET`), the `/telegram/webhook/{secret}` URL segment, Bearer
- * tokens, `secret=`/`init_data=`/`token=` query pairs and password/2FA JSON
- * fields.
+ * `TWA_JWT_SECRET`, the payment provider keys `PAYME_KEY` / `PAYME_TEST_KEY` /
+ * `CLICK_SECRET_KEY`), the `/telegram/webhook/{secret}` URL segment, Bearer and
+ * Basic credentials, `secret=`/`init_data=`/`token=` query pairs, Click's
+ * `sign_string` and password/2FA JSON fields (docs/13 §10).
  *
  * Used by every sink that can see exception messages: the Sentry hooks
  * ({@see SentryScrubber}), the Monolog processor ({@see RedactingLogProcessor},
@@ -34,6 +35,7 @@ final class SecretRedactor
         'init_data',
         'initdata',
         'signature',
+        'sign_string',
     ];
 
     /**
@@ -62,8 +64,10 @@ final class SecretRedactor
             '#(?<![A-Za-z0-9])\d{6,}:[A-Za-z0-9_-]{30,}#' => self::REDACTED,
             // Authorization: Bearer ...
             '#Bearer\s+[A-Za-z0-9._~+/=-]+#i' => 'Bearer '.self::REDACTED,
-            // ?secret=... / init_data=... / token=...
-            '#\b(secret|init_?data|token|hash|signature)=[^&\s"\']+#i' => '$1='.self::REDACTED,
+            // Authorization: Basic base64(login:key) — Payme's merchant key travels like this
+            '#Basic\s+[A-Za-z0-9+/=]{8,}#' => 'Basic '.self::REDACTED,
+            // ?secret=... / init_data=... / token=... / sign_string=... (Click)
+            '#\b(secret|init_?data|token|hash|sign(?:ature|_string)?)=[^&\s"\']+#i' => '$1='.self::REDACTED,
             // JSON strings (Livewire `snapshot` / `updates`, possibly double-encoded):
             // "password":"…", "code":"…", "recovery_code":"…"
             '#(\\\\*"(?:[a-z_]*password[a-z_]*|code|recovery_code|one_time_password)\\\\*"\s*:\s*)(?:(\\\\*)".*?(?<!\\\\)\\2"|[^,}\]\s"\\\\]+)#i' => '$1$2"'.self::REDACTED.'$2"',
@@ -170,6 +174,9 @@ final class SecretRedactor
             config('telegram.url_secret'),
             config('telegram.header_secret'),
             config('twa.jwt.secret'),
+            config('billing.providers.payme.key'),
+            config('billing.providers.payme.test_key'),
+            config('billing.providers.click.secret_key'),
         ];
 
         $secrets = [];

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Domain\Billing\Providers\Payme\PaymeAuth;
+use App\Domain\Billing\Providers\PaymeProvider;
 use App\Domain\Billing\Providers\TelegramStarsProvider;
 use App\Domain\Billing\Services\BillingProviderRegistry;
 use App\Domain\Billing\Services\NewWordQuota;
@@ -61,9 +63,13 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(BillingProviderRegistry::class, function (): BillingProviderRegistry {
             $registry = new BillingProviderRegistry;
             $registry->register($this->app->make(TelegramStarsProvider::class));
+            $registry->register($this->app->make(PaymeProvider::class));
 
             return $registry;
         });
+
+        // Keys are read per request (not a singleton): a rotated PAYME_KEY / PAYME_TEST_KEY applies at once in tests and after config:cache.
+        $this->app->bind(PaymeAuth::class, static fn (): PaymeAuth => PaymeAuth::fromConfig());
 
         $this->app->singleton(LearningPolicy::class, function (): LearningPolicy {
             /** @var array<string, mixed> $config */
@@ -194,6 +200,16 @@ class AppServiceProvider extends ServiceProvider
                 Limit::perMinute(10)->by('twa-checkout|learner|'.($ctx['learner_id'] ?? $request->ip())),
                 Limit::perMinute(120)->by('twa-checkout|ip|'.$request->ip()),
             ];
+        });
+
+        // Payment provider webhooks (docs/13 §4): 120/min per caller IP; the provider retries on 429 like on any non-200.
+        RateLimiter::for('billing-webhook', function (Request $request): Limit {
+            return Limit::perMinute(120)->by('billing-webhook|ip|'.$request->ip());
+        });
+
+        // The public return page after a Payme / Click checkout: read-only, by order token.
+        RateLimiter::for('billing-return', function (Request $request): Limit {
+            return Limit::perMinute(30)->by('billing-return|ip|'.$request->ip());
         });
 
         RateLimiter::for('twa-organizations', function (Request $request): Limit {

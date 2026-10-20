@@ -23,10 +23,15 @@ return new class extends Migration
             // Payme: 1 created, 2 performed, -1 canceled before perform, -2 canceled after; Click: 1 prepared, 2 completed, -1 canceled.
             $table->smallInteger('state');
             $table->unsignedBigInteger('amount');
+            // Payme `params.time` (ms): the `create_time` we echo back; Click: Prepare `sign_time` is not stored here.
             $table->unsignedBigInteger('provider_time')->nullable();
             $table->timestamp('created_at_provider')->nullable();
             $table->timestamp('performed_at')->nullable();
             $table->timestamp('canceled_at')->nullable();
+            // Payme `perform_time` / `cancel_time` in ms (2A.4): what PerformTransaction / CancelTransaction answered the
+            // first time and must answer again on a repeat; `timestamp` columns lose the milliseconds.
+            $table->unsignedBigInteger('perform_time')->nullable();
+            $table->unsignedBigInteger('cancel_time')->nullable();
             $table->smallInteger('cancel_reason')->nullable();
             $table->jsonb('raw')->default('{}');
             $table->jsonb('history')->default('[]');

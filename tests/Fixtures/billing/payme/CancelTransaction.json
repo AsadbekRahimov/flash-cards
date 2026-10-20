@@ -1,0 +1,9 @@
+{
+    "jsonrpc": "2.0",
+    "id": 4,
+    "method": "CancelTransaction",
+    "params": {
+        "id": "68f4d8a0b1c2d3e4f5a6b7c8",
+        "reason": 3
+    }
+}
