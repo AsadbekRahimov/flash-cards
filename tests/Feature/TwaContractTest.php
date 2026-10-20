@@ -23,7 +23,11 @@ use App\Models\Assignment;
 use App\Models\Course;
 use App\Models\ExamAnswer;
 use App\Models\ExamSession;
+use App\Models\LeagueGroup;
+use App\Models\LeagueMember;
+use App\Models\LeagueWeek;
 use App\Models\Learner;
+use App\Models\LearnerDailyStats;
 use App\Models\Lesson;
 use App\Models\Offer;
 use App\Models\Organization;
@@ -128,7 +132,7 @@ it('GET /me keeps its exact JSON shape', function (): void {
             'entitlement' => ['plan', 'source', 'until', 'new_words_per_day', 'renewal', 'lapsed'],
             'paywall' => ['mode', 'contact'],
             'settings' => [
-                'interface_locale', 'timezone', 'reminder_time', 'daily_goal', 'goal', 'level', 'timezone_change_available_at', 'active_course',
+                'interface_locale', 'timezone', 'reminder_time', 'daily_goal', 'goal', 'level', 'leagues_opt_out', 'timezone_change_available_at', 'active_course',
                 'options' => [
                     'locales' => ['*' => ['id', 'label']],
                     'timezones' => ['*' => ['id', 'label']],
@@ -165,6 +169,7 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
             'open_session_id',
             'entitlement' => ['plan', 'source', 'until'],
             'onboarding_completed',
+            'league',
         ]);
 
     expect($response->json('due_count'))->toBeInt()
@@ -179,7 +184,7 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
         ->assertOk()
         ->assertExactJsonStructure([
             'due_count', 'new_words_remaining', 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK,
-            'active_course', 'open_session_id', 'entitlement' => ['plan', 'source', 'until'], 'onboarding_completed',
+            'active_course', 'open_session_id', 'entitlement' => ['plan', 'source', 'until'], 'onboarding_completed', 'league',
         ])
         ->assertJsonPath('active_course', null)
         ->assertJsonPath('open_session_id', null);
@@ -323,7 +328,7 @@ it('GET /me and the cancel / resume answers carry entitlement.renewal for a payi
         'entitlement' => ['plan', 'source', 'until', 'new_words_per_day', 'renewal' => CONTRACT_RENEWAL, 'lapsed'],
         'paywall' => ['mode', 'contact'],
         'settings' => [
-            'interface_locale', 'timezone', 'reminder_time', 'daily_goal', 'goal', 'level', 'timezone_change_available_at', 'active_course',
+            'interface_locale', 'timezone', 'reminder_time', 'daily_goal', 'goal', 'level', 'leagues_opt_out', 'timezone_change_available_at', 'active_course',
             'options' => ['locales' => ['*' => ['id', 'label']], 'timezones' => ['*' => ['id', 'label']], 'reminder_times', 'daily_goals'],
         ],
     ];
@@ -746,4 +751,46 @@ it('GET /referrals keeps its exact JSON shape (docs/04 A.12)', function (): void
         ->and($response->json('link'))->toBe('https://t.me/LexiFlowBot?start=ref_'.$response->json('code'))
         ->and($response->json('referrals.0.first_name'))->toBe('Bek')
         ->and($response->json('referrals.0.status'))->toBe('pending');
+});
+
+it('GET /league keeps its exact JSON shape (docs/04 A.13)', function (): void {
+    config(['leagues.timezone' => 'Asia/Tashkent']);
+    $this->travelTo(CarbonImmutable::parse('2026-10-21 05:00:00', 'UTC'));
+    $learner = Learner::factory()->create(['first_name' => 'Me']);
+    $closed = LeagueWeek::factory()->startingOn('2026-10-12')->closed()->create();
+    LeagueMember::factory()->closed('promoted', 1, 90)->create([
+        'league_group_id' => LeagueGroup::factory()->create(['league_week_id' => $closed->id, 'tier' => 0])->id,
+        'learner_id' => $learner->id,
+    ]);
+    $week = LeagueWeek::factory()->startingOn('2026-10-19')->create();
+    $group = LeagueGroup::factory()->create(['league_week_id' => $week->id, 'tier' => 1]);
+    LeagueMember::factory()->create(['league_group_id' => $group->id, 'learner_id' => $learner->id]);
+    LeagueMember::factory()->create(['league_group_id' => $group->id]);
+    LearnerDailyStats::factory()->create(['learner_id' => $learner->id, 'date' => '2026-10-20', 'reviews_count' => 4, 'correct_count' => 3]);
+
+    $response = $this->withHeaders(contractHeaders($learner))
+        ->getJson('/api/twa/league')
+        ->assertOk()
+        ->assertExactJsonStructure([
+            'enabled', 'opted_out',
+            'week' => ['starts_on', 'ends_on', 'closes_at'],
+            'rules' => ['capacity', 'promote', 'demote', 'tiers'],
+            'membership' => [
+                'tier', 'tier_key', 'rank', 'points', 'members_count', 'zone', 'points_to_promote', 'points_to_safety',
+                'standings' => ['*' => ['rank', 'name', 'points', 'is_me']],
+            ],
+            'last_week' => ['starts_on', 'tier', 'tier_key', 'result', 'rank', 'points'],
+        ]);
+
+    expect($response->json('membership.points'))->toBe(7)
+        ->and($response->json('membership.standings.0'))->toBe(['rank' => 1, 'name' => 'Me', 'points' => 7, 'is_me' => true])
+        ->and($response->json('last_week.result'))->toBe('promoted');
+
+    $bare = Learner::factory()->create();
+    $this->withHeaders(contractHeaders($bare))
+        ->getJson('/api/twa/league')
+        ->assertOk()
+        ->assertExactJsonStructure(['enabled', 'opted_out', 'week' => ['starts_on', 'ends_on', 'closes_at'], 'rules' => ['capacity', 'promote', 'demote', 'tiers'], 'membership', 'last_week'])
+        ->assertJsonPath('membership', null)
+        ->assertJsonPath('last_week', null);
 });

@@ -44,6 +44,8 @@ export interface LearnerSettings {
   daily_goal: number
   goal: string | null
   level: string | null
+  /** Leagues (docs/13 §7.3): true = the learner is not placed in weekly groups. */
+  leagues_opt_out: boolean
   /** ISO 8601 UTC: the time zone may be changed again from then on (once in 24 h); null = now. */
   timezone_change_available_at: string | null
   active_course: { slug: string; title: string } | null
@@ -90,9 +92,46 @@ export interface ReferralsResponse {
   referrals: ReferralItem[]
 }
 
+/** GET /league (docs/04 A.13): the learner's group of the week. */
+export type LeagueTierKey = 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond' | string
+export type LeagueResult = 'promoted' | 'stayed' | 'demoted'
+export type LeagueZone = 'promotion' | 'safe' | 'demotion'
+
+export interface LeagueStandingItem {
+  rank: number
+  /** First name of the member; null = no name to show. Nothing else of other people is sent. */
+  name: string | null
+  points: number
+  is_me: boolean
+}
+
+export interface LeagueMembership {
+  tier: number
+  tier_key: LeagueTierKey
+  rank: number
+  points: number
+  members_count: number
+  zone: LeagueZone
+  /** Points missing to enter the promotion zone; null when already there or the tier cannot promote. */
+  points_to_promote: number | null
+  /** Points missing to leave the demotion zone; null when not in it or the tier cannot demote. */
+  points_to_safety: number | null
+  standings: LeagueStandingItem[]
+}
+
+export interface LeagueResponse {
+  enabled: boolean
+  opted_out: boolean
+  /** `closes_at`: ISO 8601 UTC instant of the next Monday 00:00 in the league time zone. */
+  week: { starts_on: string; ends_on: string; closes_at: string }
+  rules: { capacity: number; promote: number; demote: number; tiers: LeagueTierKey[] }
+  membership: LeagueMembership | null
+  last_week: { starts_on: string; tier: number; tier_key: LeagueTierKey; result: LeagueResult; rank: number; points: number } | null
+}
+
 /** Body of PATCH /me/settings: only the fields to change; `reminder_time: null` turns the reminders off. */
 export type SettingsPatch = Partial<
-  Pick<LearnerSettings, 'interface_locale' | 'timezone' | 'reminder_time' | 'daily_goal' | 'goal' | 'level'>
+  Pick<LearnerSettings, 'interface_locale' | 'timezone' | 'reminder_time' | 'daily_goal' | 'goal' | 'level' | 'leagues_opt_out'>
 >
 
 /** `source`: 'free' | 'subscription' | 'sponsor:organization:<id>'; `until`: ISO 8601, null = no end. */
@@ -290,6 +329,16 @@ export interface TodayResponse {
   open_session_id: number | null
   entitlement: Pick<Entitlement, 'plan' | 'source' | 'until'>
   onboarding_completed: boolean
+  /** The learner's place in this week's league group (docs/13 §7.3); null while not placed. */
+  league: TodayLeague | null
+}
+
+export interface TodayLeague {
+  tier: number
+  tier_key: LeagueTierKey
+  rank: number
+  points: number
+  members_count: number
 }
 
 /** One assignment of the learner's center (GET /assignments, docs/04 A.9): only the learner's own progress. */

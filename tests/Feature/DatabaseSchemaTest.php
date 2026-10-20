@@ -10,6 +10,9 @@ use App\Models\ExamQuestionAttempt;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
 use App\Models\GroupMember;
+use App\Models\LeagueGroup;
+use App\Models\LeagueMember;
+use App\Models\LeagueWeek;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
 use App\Models\Lesson;
@@ -73,8 +76,9 @@ $expectedTables = [
     'organization_users', 'organization_invites', 'organization_members',
     // Phase 2 (docs/13 §1.4): assignments of a center.
     'assignments', 'assignment_results',
-    // Phase 2 (docs/13 §1.5): referrals.
+    // Phase 2 (docs/13 §1.5): referrals, leagues.
     'referrals',
+    'league_weeks', 'league_groups', 'league_members',
 ];
 
 /**
@@ -785,6 +789,7 @@ it('rolls back and re-applies the billing migrations (2A.1) in FK order', functi
 
 it('rolls back and re-applies the learner-first migrations (1.1a + 1.1b)', function (): void {
     $newTables = [
+        'league_members', 'league_groups', 'league_weeks',
         'referrals',
         'payments', 'provider_transactions', 'payment_orders', 'offers',
         'promo_redemptions', 'promo_codes', 'subscriptions', 'learner_daily_stats',
@@ -921,4 +926,50 @@ it('rolls back and re-applies the referrals migration (2C.1)', function (): void
     $this->artisan('migrate')->assertSuccessful();
     expect(Schema::hasTable('referrals'))->toBeTrue()
         ->and(Schema::hasColumn('learners', 'referral_code'))->toBeTrue();
+});
+
+// --- 2C.3 leagues (docs/13 §1.5) ------------------------------------------------
+
+it('keeps one league week per Monday and one membership per learner and week', function (): void {
+    LeagueWeek::factory()->startingOn('2026-10-19')->create();
+    expectConstraintViolation(fn () => LeagueWeek::factory()->startingOn('2026-10-19')->create());
+
+    $week = LeagueWeek::factory()->startingOn('2026-10-12')->create();
+    $a = LeagueGroup::factory()->create(['league_week_id' => $week->id, 'tier' => 0]);
+    $b = LeagueGroup::factory()->create(['league_week_id' => $week->id, 'tier' => 0]);
+    $learner = Learner::factory()->create();
+    LeagueMember::factory()->create(['league_group_id' => $a->id, 'learner_id' => $learner->id]);
+    expectConstraintViolation(fn () => LeagueMember::factory()->create(['league_group_id' => $b->id, 'learner_id' => $learner->id]));
+
+    expect(array_column(Schema::getIndexes('league_groups'), 'columns'))->toContain(['league_week_id', 'tier', 'members_count'])
+        ->and(array_column(Schema::getIndexes('league_members'), 'columns'))->toContain(['league_group_id'])
+        ->and(array_column(Schema::getIndexes('league_members'), 'columns'))->toContain(['learner_id', 'league_week_id']);
+});
+
+it('cascades league groups and members with the week, and members with the learner', function (): void {
+    $week = LeagueWeek::factory()->create();
+    $group = LeagueGroup::factory()->create(['league_week_id' => $week->id]);
+    $learner = Learner::factory()->create();
+    LeagueMember::factory()->create(['league_group_id' => $group->id, 'learner_id' => $learner->id]);
+    LeagueMember::factory()->create(['league_group_id' => $group->id]);
+
+    $learner->forceDelete();
+    expect(LeagueMember::query()->count())->toBe(1);
+
+    $week->delete();
+    expect(LeagueGroup::query()->count())->toBe(0)
+        ->and(LeagueMember::query()->count())->toBe(0);
+});
+
+it('rolls back and re-applies the league migration (2C.3)', function (): void {
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_22_300001_create_league_tables')])->assertSuccessful();
+    expect(Schema::hasTable('league_weeks'))->toBeFalse()
+        ->and(Schema::hasTable('league_groups'))->toBeFalse()
+        ->and(Schema::hasTable('league_members'))->toBeFalse()
+        ->and(Schema::hasTable('referrals'))->toBeTrue();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasTable('league_weeks'))->toBeTrue()
+        ->and(Schema::hasTable('league_groups'))->toBeTrue()
+        ->and(Schema::hasTable('league_members'))->toBeTrue();
 });

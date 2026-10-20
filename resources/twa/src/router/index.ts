@@ -76,6 +76,11 @@ const routes: RouteRecordRaw[] = [
     name: 'referrals',
     component: () => import('@/views/ReferralsView.vue'),
   },
+  {
+    path: '/league',
+    name: 'league',
+    component: () => import('@/views/LeagueView.vue'),
+  },
   // Catch-all -> landing. Telegram sometimes appends junk query params.
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]

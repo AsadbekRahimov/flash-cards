@@ -29,6 +29,8 @@ final class UpdateSettingsRequest extends FormRequest
             'daily_goal' => ['sometimes', 'integer:strict', Rule::in($settings->dailyGoals())],
             'goal' => ['sometimes', 'string', Rule::in(OnboardingService::GOALS)],
             'level' => ['sometimes', 'string', Rule::in(OnboardingService::LEVELS)],
+            // Leagues (docs/13 §7.3): a JSON boolean only — no "1" / "on".
+            'leagues_opt_out' => ['sometimes', 'boolean:strict'],
         ];
     }
 }

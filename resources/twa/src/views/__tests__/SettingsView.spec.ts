@@ -116,6 +116,18 @@ describe('SettingsView', () => {
     expect(w.find('[data-testid=saved]').exists()).toBe(false)
   })
 
+  it('shows the league participation and lets the learner opt back in', async () => {
+    const w = await render(settingsFixture({ leagues_opt_out: true }))
+    expect(value(w, 'leagues-select')).toBe('off')
+    expect(labels(w, 'leagues-select')).toEqual(['Участвую в недельных лигах', 'Не участвую в лигах'])
+
+    vi.mocked(api.me.updateSettings).mockResolvedValue(me(settingsFixture({ leagues_opt_out: false })))
+    await choose(w, 'leagues-select', 'on')
+
+    expect(vi.mocked(api.me.updateSettings).mock.calls).toEqual([[{ leagues_opt_out: false }]])
+    expect(value(w, 'leagues-select')).toBe('on')
+  })
+
   it('shows reminders as off when there is no reminder time', async () => {
     const w = await render(settingsFixture({ reminder_time: null }))
 
@@ -157,6 +169,7 @@ describe('SettingsView', () => {
     ['reminder-select', '13:00', { reminder_time: '13:00' }],
     ['reminder-select', '', { reminder_time: null }],
     ['goal-select', '40', { daily_goal: 40 }],
+    ['leagues-select', 'off', { leagues_opt_out: true }],
   ] satisfies [string, string, SettingsPatch][])('saves a change of %s to %s', async (id, newValue, patch) => {
     const w = await render()
     vi.mocked(api.me.updateSettings).mockResolvedValue(me(settingsFixture(patch)))

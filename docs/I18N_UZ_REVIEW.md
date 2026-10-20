@@ -1389,3 +1389,61 @@
 | `today.streak.frozen_yesterday` | Kechagi kun muzlatildi — seriya saqlandi | Вчерашний день заморожен — серия сохранена |
 | `today.streak.freeze_teaser` | ❄️ Seriyani muzlatish — Pro'da | ❄️ Заморозки серии — в Pro |
 | `paywall.lead_streak_freeze` | Seriyani muzlatish — Pro'da: o'tkazib yuborilgan kun seriyani uzmaydi, 2 tagacha muzlatish, har hafta +1. | Заморозка серии — в Pro: пропущенный день не обрывает серию, до 2 заморозок, +1 каждую неделю. |
+
+## Фаза 2 · задача 2C.3 (лиги) — на проверку носителю
+
+> Проверить: названия лиг (Bronza / Kumush / Oltin / Platina / Olmos), «ko'tarilish zonasi» (зона повышения), «tushish zonasi» (зона понижения), «xavfsiz zona», форму «{members} tadan {rank}-o'rin» (N-е место из M) и «{count} ochko».
+
+### Бот, ЛС с итогами недели (`lang/uz/leagues.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `leagues.tiers.bronze` | Bronza | Бронза |
+| `leagues.tiers.silver` | Kumush | Серебро |
+| `leagues.tiers.gold` | Oltin | Золото |
+| `leagues.tiers.platinum` | Platina | Платина |
+| `leagues.tiers.diamond` | Olmos | Алмаз |
+| `leagues.result.promoted` | 🏆 «:tier» ligasida hafta yakuni: siz :points ochko bilan :rank-o'rinni egalladingiz va «:next_tier» ligasiga o'tdingiz! Tabriklaymiz! | 🏆 Итоги недели в лиге «:tier»: вы заняли :rank-е место с :points очками и переходите в лигу «:next_tier»! Поздравляем! |
+| `leagues.result.stayed` | 🏅 «:tier» ligasida hafta yakuni: siz :points ochko bilan :rank-o'rinni egalladingiz va «:tier» ligasida qolasiz. Bu hafta — yuqoriroq! | 🏅 Итоги недели в лиге «:tier»: вы заняли :rank-е место с :points очками и остаётесь в лиге «:tier». На этой неделе — выше! |
+| `leagues.result.demoted` | 📉 «:tier» ligasida hafta yakuni: :rank-o'rin, :points ochko — bu hafta siz «:next_tier» ligasidasiz. Kuniga bir-ikki mashg'ulot sizni yana yuqoriga qaytaradi. | 📉 Итоги недели в лиге «:tier»: :rank-е место, :points очков — на этой неделе вы в лиге «:next_tier». Пара тренировок в день вернут вас наверх. |
+| `leagues.open_button` | Ligani ochish | Открыть лигу |
+
+### TWA, экран «Лига», строка на «Сегодня», настройки (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `league.open` | Liga | Лига |
+| `league.title` | Liga | Лига |
+| `league.tier.bronze` | Bronza | Бронза |
+| `league.tier.silver` | Kumush | Серебро |
+| `league.tier.gold` | Oltin | Золото |
+| `league.tier.platinum` | Platina | Платина |
+| `league.tier.diamond` | Olmos | Алмаз |
+| `league.points` | {count} ochko | {count} очко / очка / очков |
+| `league.today.line` | 🏆 {tier} · {members} tadan {rank}-o'rin · {points} | 🏆 {tier} · {rank}-е место из {members} · {points} |
+| `league.today.join` | 🏆 Liga: bu hafta qo'shilish uchun kartochkalarni takrorlang | 🏆 Лига: повторите карточки, чтобы вступить на этой неделе |
+| `league.week` | Hafta {from} – {to} | Неделя {from} – {to} |
+| `league.closes` | Yakunlar — dushanba 00:00 da ({zone}) | Итоги — в понедельник в 00:00 ({zone}) |
+| `league.rules` | Guruhlar {capacity} kishigacha. Top-{promote} yuqoriga ko'tariladi, oxirgi {demote} tasi pastga tushadi. Ochkolar: takrorlashlar, to'g'ri javoblar, yangi so'zlar (×2), bajarilgan kunlik maqsad (+10). | Группы до {capacity} человек. Топ-{promote} переходят выше, последние {demote} — ниже. Очки: повторения, верные ответы, новые слова (×2), выполненная цель дня (+10). |
+| `league.disabled` | Ligalar hozir o'chirilgan. | Лиги сейчас выключены. |
+| `league.opted_out` | Siz ligalardan chiqdingiz. Ularni sozlamalarda qayta yoqish mumkin. | Вы вышли из лиг. Включить их снова можно в настройках. |
+| `league.not_placed` | Bu hafta siz hali guruhda emassiz: bir nechta kartochkani takrorlang — va siz ligadasiz. | На этой неделе вы ещё не в группе: повторите несколько карточек — и вы в лиге. |
+| `league.my_place` | {members} tadan {rank}-o'rin | {rank}-е место из {members} |
+| `league.zone.promotion` | ⬆️ Siz ko'tarilish zonasidasiz | ⬆️ Вы в зоне повышения |
+| `league.zone.safe` | Siz xavfsiz zonadasiz | Вы в безопасной зоне |
+| `league.zone.demotion` | ⬇️ Siz tushish zonasidasiz | ⬇️ Вы в зоне понижения |
+| `league.to_promote` | Ko'tarilish zonasigacha: {points} | До зоны повышения: {points} |
+| `league.to_safety` | Xavfsiz zonagacha: {points} | До безопасной зоны: {points} |
+| `league.top_tier` | Bu eng yuqori liga — shunday davom eting! | Это высшая лига — так держать! |
+| `league.standings` | Guruh jadvali | Таблица группы |
+| `league.anonymous` | O'quvchi | Ученик |
+| `league.you` | siz | вы |
+| `league.last_week` | O'tgan hafta | Прошлая неделя |
+| `league.last.promoted` | {tier}: {rank}-o'rin, {points} — ko'tarilish! | {tier}: {rank}-е место, {points} — повышение! |
+| `league.last.stayed` | {tier}: {rank}-o'rin, {points} — ligada qoldingiz | {tier}: {rank}-е место, {points} — остались в лиге |
+| `league.last.demoted` | {tier}: {rank}-o'rin, {points} — tushish | {tier}: {rank}-е место, {points} — понижение |
+| `league.settings.open` | Sozlamalar | Настройки |
+| `settings.leagues` | Ligalar | Лиги |
+| `settings.leagues.on` | Haftalik ligalarda qatnashaman | Участвую в недельных лигах |
+| `settings.leagues.off` | Ligalarda qatnashmayman | Не участвую в лигах |
+| `settings.leagues.hint` | Ligadan chiqish keyingi joylashtirishdan boshlab amal qiladi; joriy hafta saqlanib qoladi. | Выход из лиги действует со следующего размещения; текущая неделя остаётся. |

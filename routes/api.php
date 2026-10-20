@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Twa\BillingController;
 use App\Http\Controllers\Api\Twa\CourseController;
 use App\Http\Controllers\Api\Twa\DeckController;
 use App\Http\Controllers\Api\Twa\ExamController;
+use App\Http\Controllers\Api\Twa\LeagueController;
 use App\Http\Controllers\Api\Twa\MeController;
 use App\Http\Controllers\Api\Twa\OrganizationController;
 use App\Http\Controllers\Api\Twa\PromoController;
@@ -36,6 +37,7 @@ Route::prefix('twa')->group(function (): void {
         Route::get('/today', TodayController::class)->name('twa.today');
         Route::get('/assignments', AssignmentController::class)->name('twa.assignments');
         Route::get('/referrals', ReferralController::class)->name('twa.referrals');
+        Route::get('/league', LeagueController::class)->name('twa.league');
         Route::post('/promo/redeem', [PromoController::class, 'redeem'])
             ->middleware('throttle:twa-promo')
             ->name('twa.promo.redeem');

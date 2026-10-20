@@ -61,4 +61,7 @@ enum ProductEventName: string
     case StreakExtended = 'streak.extended';
     /** A missed local day was held by a streak freeze (props: date, freezes_left — docs/13 §7.2). */
     case StreakFrozen = 'streak.frozen';
+    /** Leagues (docs/13 §7.3): a learner joined a group of the week / a week was closed (no learner). */
+    case LeaguePlaced = 'league.placed';
+    case LeagueWeekClosed = 'league.week_closed';
 }

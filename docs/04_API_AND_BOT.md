@@ -706,6 +706,32 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 ```
 `link` — `null`, пока `TELEGRAM_BOT_USERNAME` не задан (клиент показывает код и подсказку `/start ref_<code>`). `counts.invited` — все не-`rejected` рефералы, `activated` — `activated` + `rewarded`, `rewarded` — `rewarded`. `referrals` — до 50 последних не-`rejected` (новые первыми): **только** `first_name` приглашённого (может быть `null`), `status` (`pending` / `activated` / `rewarded`) и `linked_at`; никаких id, username, прогресса. TWA: экран `/referrals` («Пригласить друга» с «Сегодня»), кнопка «Поделиться» → `useTelegram().shareUrl` (`openTelegramLink('https://t.me/share/url?…')`), «Скопировать ссылку» → clipboard.
 
+### A.13 `GET /api/twa/league` — лиги (docs/13 §1.5, §7.3, Фаза 2 / 2C.3)
+`LeagueService::overview` (docs/13 §2.4). Только чтение: в группу learner попадает автоматически при первой оценке локального дня (после commit транзакции оценки), если не отключил лиги в настройках. Общий лимит `twa-api`; `LeagueResource`.
+
+```json
+{
+  "enabled": true,
+  "opted_out": false,
+  "week": { "starts_on": "2026-10-19", "ends_on": "2026-10-25", "closes_at": "2026-10-25T19:00:00+00:00" },
+  "rules": { "capacity": 30, "promote": 5, "demote": 5, "tiers": ["bronze", "silver", "gold", "platinum", "diamond"] },
+  "membership": {
+    "tier": 1, "tier_key": "silver", "rank": 3, "points": 41, "members_count": 28,
+    "zone": "safe", "points_to_promote": 10, "points_to_safety": null,
+    "standings": [
+      { "rank": 1, "name": "Dilnoza", "points": 90, "is_me": false },
+      { "rank": 3, "name": "Aziz", "points": 41, "is_me": true }
+    ]
+  },
+  "last_week": { "starts_on": "2026-10-12", "tier": 0, "tier_key": "bronze", "result": "promoted", "rank": 2, "points": 120 }
+}
+```
+`week` — текущая неделя в `LEAGUES_TIMEZONE` (`closes_at` — UTC-момент ближайшего понедельника 00:00). `membership` — `null`, пока learner не размещён на этой неделе (нет оценок, opt-out, лиги выключены). `zone`: `promotion` (топ-`promote`), `demotion` (низ-`demote`, только если tier > 0), иначе `safe`; `points_to_promote` — сколько очков не хватает до зоны повышения (`null` — уже там или высший tier), `points_to_safety` — сколько не хватает, чтобы выйти из зоны понижения (`null` — не в ней). `standings` — вся группа (≤ 30), по убыванию очков, ничьи — по более раннему размещению: **только** `name` (имя, может быть `null`), `points`, `rank`, `is_me`; никаких id, username, Telegram-данных. `last_week` — последняя закрытая неделя learner'а (или `null`). Очки считаются из `learner_daily_stats` (кэш 60 с на группу), поэтому отстают от оценок не больше чем на минуту.
+
+`GET /today` += `league: {tier, tier_key, rank, points, members_count} | null` — строка «Лига» на «Сегодня». `PATCH /me/settings` += `leagues_opt_out: bool` (только JSON-boolean; `settings.leagues_opt_out` в ответе) — `true` = не размещать (текущее членство остаётся до конца недели; возврат действует с первой оценки следующего локального дня).
+
+**Итоги недели** — ЛС `leagues.result.{promoted|stayed|demoted}` (`lang/*/leagues.php`) с web_app-кнопкой «Открыть лигу» → `/twa/league`; очередь `SendLeagueResultJob` (глобальный лимит исходящих B.7/2R.3, `tries = 0`, `maxExceptions = 3`, `retryUntil` +`LEAGUES_NOTIFY_TTL_HOURS`), не больше одного сообщения на learner'а и закрытую неделю (`notifications_log.type = league_result` пишется до вызова Telegram); 403 → `dm_blocked_at`.
+
 ## Часть B — Telegram Bot
 
 ### B.1 Webhook

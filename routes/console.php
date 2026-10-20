@@ -62,6 +62,14 @@ Schedule::command('assignments:refresh')
     ->everyThirtyMinutes()
     ->withoutOverlapping(20);
 
+// League weeks (docs/13 §7.3): Monday 00:05 in the league time zone closes the week that just
+// ended (final standings, promotions, result DMs through the global send budget). Runs daily so
+// a missed Monday is caught up the next night; idempotent by `league_weeks.status`.
+Schedule::command('leagues:close-week')
+    ->dailyAt('00:05')
+    ->timezone((string) config('leagues.timezone', 'Asia/Tashkent'))
+    ->withoutOverlapping(30);
+
 // Telegram's Stars ledger vs ours for the last 2 days (docs/13 §4.4): read-only, logs
 // `billing.reconcile_missing*`; exits early while Stars is disabled.
 Schedule::command('billing:reconcile-stars')

@@ -27,6 +27,7 @@ import type {
   OpenSessionRequest,
   Quality,
   ReferralsResponse,
+  LeagueResponse,
   ReviewResponse,
   SessionSummary,
   SettingsPatch,
@@ -73,6 +74,9 @@ export const api = {
   },
   referrals: {
     get: () => client().get<ReferralsResponse>('/referrals'),
+  },
+  league: {
+    get: () => client().get<LeagueResponse>('/league'),
   },
   organizations: {
     list: () => client().get<OrganizationsResponse>('/me/organizations'),

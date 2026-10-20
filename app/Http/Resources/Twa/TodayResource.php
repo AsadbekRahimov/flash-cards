@@ -27,7 +27,8 @@ final class TodayResource extends TwaResource
      *   }|null,
      *   open_session_id: int|null,
      *   entitlement: array{plan: string, source: string, until: string|null},
-     *   onboarding_completed: bool
+     *   onboarding_completed: bool,
+     *   league: array{tier: int, tier_key: string, rank: int, points: int, members_count: int}|null
      * }
      */
     public function toArray(Request $request): array
@@ -60,6 +61,7 @@ final class TodayResource extends TwaResource
                 'until' => $summary->entitlement->until?->toIso8601String(),
             ],
             'onboarding_completed' => $summary->onboardingCompleted,
+            'league' => $summary->league?->toArray(),
         ];
     }
 }

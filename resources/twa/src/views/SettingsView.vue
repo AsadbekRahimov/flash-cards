@@ -61,6 +61,10 @@ const onReminder = (e: Event) =>
 const onGoal = (e: Event) =>
   change(e, { daily_goal: Number((e.target as HTMLSelectElement).value) }, () => String(data.value?.daily_goal ?? ''))
 
+// 'on' = takes part (opt_out false), 'off' = opted out.
+const onLeagues = (e: Event) =>
+  change(e, { leagues_opt_out: (e.target as HTMLSelectElement).value === 'off' }, () => (data.value?.leagues_opt_out ? 'off' : 'on'))
+
 onMounted(() => {
   hideBack = showBackButton(() => void router.push({ name: 'today' }))
   void load()
@@ -120,6 +124,15 @@ onBeforeUnmount(() => {
         <select class="w-full rounded-xl px-3 py-3" :value="data.daily_goal" :disabled="saving" data-testid="goal-select" @change="onGoal">
           <option v-for="goal in data.options.daily_goals" :key="goal" :value="goal">{{ tn('settings.daily_goal.option', goal) }}</option>
         </select>
+      </label>
+
+      <label class="card block space-y-2">
+        <span class="font-semibold">{{ t('settings.leagues') }}</span>
+        <select class="w-full rounded-xl px-3 py-3" :value="data.leagues_opt_out ? 'off' : 'on'" :disabled="saving" data-testid="leagues-select" @change="onLeagues">
+          <option value="on">{{ t('settings.leagues.on') }}</option>
+          <option value="off">{{ t('settings.leagues.off') }}</option>
+        </select>
+        <span class="block text-xs text-tg-hint">{{ t('settings.leagues.hint') }}</span>
       </label>
 
       <div class="card space-y-3" data-testid="course-card">

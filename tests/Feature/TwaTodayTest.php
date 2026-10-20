@@ -94,6 +94,7 @@ it('is empty for a fresh learner: zero goal progress, no streak, no course, the 
         'open_session_id' => null,
         'entitlement' => ['plan' => 'free', 'source' => 'free', 'until' => null],
         'onboarding_completed' => false,
+        'league' => null,
     ]);
 });
 
