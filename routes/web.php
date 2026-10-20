@@ -2,10 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Billing\BillingReturnController;
+use App\Http\Controllers\Billing\PaymeWebhookController;
 use App\Http\Controllers\PublicSiteController;
 use App\Http\Controllers\ReadinessController;
 use App\Http\Controllers\Telegram\WebhookController;
 use App\Http\Controllers\TwoFactorController;
+use App\Http\Middleware\BillingIpAllowlist;
 use App\Http\Middleware\StaticPageCsp;
 use App\Http\Middleware\TelegramIpAllowlist;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -41,6 +44,21 @@ Route::post('/telegram/webhook/{secret}', WebhookController::class)
     ->middleware(TelegramIpAllowlist::class)
     ->where('secret', '[A-Za-z0-9\-_]{16,128}')
     ->name('telegram.webhook');
+
+// Payment providers (docs/13 §4, docs/07 §2a): stateless like the Telegram webhook — no session / cookies / CSRF;
+// authenticated by the provider's own scheme inside the controller; throttled per IP; optional caller allowlist.
+Route::withoutMiddleware([EncryptCookies::class, AddQueuedCookiesToResponse::class, StartSession::class, ShareErrorsFromSession::class, VerifyCsrfToken::class])
+    ->prefix('billing')
+    ->group(function (): void {
+        Route::post('/webhook/payme', PaymeWebhookController::class)
+            ->middleware(['throttle:billing-webhook', BillingIpAllowlist::class.':payme'])
+            ->name('billing.webhook.payme');
+
+        // Where Payme / Click send the payer back: a static status page by order token (no secrets, no session).
+        Route::get('/return', BillingReturnController::class)
+            ->middleware(['throttle:billing-return', StaticPageCsp::class])
+            ->name('billing.return');
+    });
 
 // Shared by `/admin` (guard `web`) and the `/org` cabinet (guard `org`): the first guard that is
 // logged in becomes the request's default, so Auth::user() is the right account in the controller.

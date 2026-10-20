@@ -600,7 +600,7 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 | currency | string(8) | `UZS` / `XTR` |
 | offer_id | bigint nullable FK → offers, ON DELETE SET NULL | |
 | status | string(12) default `pending` | `pending` → `paid` / `canceled` / `expired` / `failed`; Stars-подписка остаётся `paid` как якорь продлений |
-| provider_ref | string(191) nullable | ссылка на оплату (не id транзакции); вид ссылки — `meta.checkout.kind` |
+| provider_ref | string(2048) nullable | ссылка на оплату (не id транзакции); вид ссылки — `meta.checkout.kind`; 2A.4: 191 не вмещал Payme-ссылку с base64-параметрами |
 | expires_at | timestamp NOT NULL | `now + checkout.order_ttl_minutes` |
 | paid_at | timestamp nullable | первая успешная оплата |
 | subscription_id | bigint nullable FK → subscriptions, ON DELETE SET NULL | |
@@ -609,7 +609,7 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 
 **Индексы:** `token` unique; `(subscriber_type, subscriber_id, status)`; `(status, expires_at)`; `subscription_id`; `offer_id`.
 
-### 2.28 `provider_transactions` — состояние транзакции провайдера *(2A.1)*
+### 2.28 `provider_transactions` — состояние транзакции провайдера *(2A.1, +`perform_time`/`cancel_time` в 2A.4)*
 | Колонка | Тип | Описание |
 |---------|-----|----------|
 | id | bigint PK | для Click — `merchant_prepare_id` |
@@ -620,8 +620,9 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 | amount | bigint | как пришло от провайдера (сверяется с заказом) |
 | provider_time | bigint nullable | Payme `params.time` (мс) |
 | created_at_provider, performed_at, canceled_at | timestamp nullable | |
-| cancel_reason | smallint nullable | |
-| raw | jsonb | последний запрос без секретов |
+| perform_time, cancel_time | bigint nullable | Payme `perform_time` / `cancel_time` в мс (2A.4): первый ответ, который повторяется на ретрай; `timestamp` терял бы миллисекунды |
+| cancel_reason | smallint nullable | Payme reason 1–5, 10 (4 = таймаут) |
+| raw | jsonb | последний запрос без секретов (`{method, params}`) |
 | history | jsonb | `[{method, at, state_from, state_to}]` |
 
 **Индексы:** `(provider, provider_transaction_id)` unique; `payment_order_id`; `(provider, state, created_at_provider)`.

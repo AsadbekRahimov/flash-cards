@@ -17,8 +17,10 @@ use App\Models\Learner;
 use App\Models\Offer;
 use App\Models\Organization;
 use App\Models\PaymentOrder;
+use App\Models\ProviderTransaction;
 use App\Models\Subscription;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -253,10 +255,16 @@ final class CheckoutService
     public function expirePending(?CarbonImmutable $now = null): int
     {
         $now ??= CarbonImmutable::now();
+        // A provider transaction that is still open and younger than the provider's own timeout (Payme: 12 h)
+        // keeps its order payable: the money may already be on its way to PerformTransaction (docs/13 §4.2).
+        $openSince = $now->subMilliseconds((int) config('billing.providers.payme.transaction_timeout_ms', 43_200_000));
 
         return PaymentOrder::query()
             ->where('status', PaymentOrder::STATUS_PENDING)
             ->where('expires_at', '<=', $now)
+            ->whereDoesntHave('providerTransactions', function (Builder $transactions) use ($openSince): void {
+                $transactions->where('state', ProviderTransaction::STATE_CREATED)->where('created_at_provider', '>', $openSince);
+            })
             ->update(['status' => PaymentOrder::STATUS_EXPIRED, 'updated_at' => $now]);
     }
 

@@ -1,0 +1,11 @@
+{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "CheckPerformTransaction",
+    "params": {
+        "amount": 2900000,
+        "account": {
+            "order_id": "ORDERTOKENPLACEHOLDER0000000000"
+        }
+    }
+}

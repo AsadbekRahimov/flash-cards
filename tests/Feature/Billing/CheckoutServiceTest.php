@@ -16,6 +16,7 @@ use App\Models\Organization;
 use App\Models\Payment;
 use App\Models\PaymentOrder;
 use App\Models\ProductEvent;
+use App\Models\ProviderTransaction;
 use App\Models\Subscription;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -156,6 +157,27 @@ it('limits pending orders per subscriber (429) and does not count expired ones',
         ->and(PaymentOrder::query()->where('status', 'expired')->count())->toBe(3)
         ->and($service->expirePending())->toBe(0);
     expect($service->create($learner, Plan::Pro, 'month', SubscriptionProvider::TelegramStars, null, 'twa')->status)->toBe('pending');
+});
+
+it('does not expire an order whose Payme transaction is still open and within the provider timeout, and expires it once that transaction is stale', function (): void {
+    $service = app(CheckoutService::class);
+    $live = PaymentOrder::factory()->payme()->create(['expires_at' => CarbonImmutable::now()->subMinute()]);
+    ProviderTransaction::factory()->create(['payment_order_id' => $live->id, 'provider_time' => CarbonImmutable::now()->subHours(2)->getTimestampMs(), 'created_at_provider' => CarbonImmutable::now()->subHours(2)]);
+    $stale = PaymentOrder::factory()->payme()->create(['expires_at' => CarbonImmutable::now()->subMinute()]);
+    ProviderTransaction::factory()->create(['payment_order_id' => $stale->id, 'provider_time' => CarbonImmutable::now()->subHours(13)->getTimestampMs(), 'created_at_provider' => CarbonImmutable::now()->subHours(13)]);
+    $closed = PaymentOrder::factory()->payme()->create(['expires_at' => CarbonImmutable::now()->subMinute()]);
+    ProviderTransaction::factory()->canceled()->create(['payment_order_id' => $closed->id, 'created_at_provider' => CarbonImmutable::now()->subMinutes(5)]);
+    $plain = PaymentOrder::factory()->payme()->create(['expires_at' => CarbonImmutable::now()->subMinute()]);
+
+    expect($service->expirePending())->toBe(3)
+        ->and($live->refresh()->status)->toBe('pending')
+        ->and($stale->refresh()->status)->toBe('expired')
+        ->and($closed->refresh()->status)->toBe('expired')
+        ->and($plain->refresh()->status)->toBe('expired');
+
+    // Twelve hours later the open transaction is stale too (Payme would cancel it with reason 4): the order expires.
+    CarbonImmutable::setTestNow(CarbonImmutable::now()->addHours(11));
+    expect($service->expirePending())->toBe(1)->and($live->refresh()->status)->toBe('expired');
 });
 
 it('refuses another provider while a Stars subscription still renews, allows it once canceled, and allows Stars on top of a paid period', function (): void {

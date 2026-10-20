@@ -114,4 +114,36 @@ return [
         ],
     ],
 
+    // Payme (docs/13 §4.2): the fiscal receipt line of CheckPerformTransaction and the return page `/billing/return`.
+    'payme' => [
+        'receipt_item' => 'LexiFlow Pro — :period',
+    ],
+
+    'return' => [
+        'title' => "To'lov holati",
+        'open_bot' => "LexiFlow'ga qaytish",
+        'note' => "Bu sahifani yopish mumkin: to'lov holati botda va ilovada ko'rinadi.",
+        'support' => "To'lov bo'yicha savollar:",
+        'paid' => [
+            'heading' => "To'lov qabul qilindi",
+            'text' => 'LexiFlow Pro yoqildi. Botga qayting yoki ilovani oching — kirish allaqachon ishlaydi.',
+        ],
+        'pending' => [
+            'heading' => "To'lov tasdiqlanishini kutmoqdamiz",
+            'text' => "To'lov qayta ishlanmoqda. Odatda bu bir daqiqadan kam vaqt oladi; Payme to'lovni tasdiqlashi bilan Pro avtomatik yoqiladi.",
+        ],
+        'expired' => [
+            'heading' => "Hisob muddati o'tdi",
+            'text' => "Bu hisob endi amal qilmaydi. Botda /pro buyrug'ini oching va yangisini yarating — muddati o'tgan hisob bo'yicha pul yechilmaydi.",
+        ],
+        'canceled' => [
+            'heading' => 'Hisob bekor qilindi',
+            'text' => "Bu hisob bekor qilingan. Kerak bo'lsa, botda /pro buyrug'i bilan yangisini yarating.",
+        ],
+        'unknown' => [
+            'heading' => "To'lov holati noma'lum",
+            'text' => "Bunday hisobni topa olmadik. Holatni botda /pro buyrug'i bilan tekshiring yoki qo'llab-quvvatlash xizmatiga yozing.",
+        ],
+    ],
+
 ];
