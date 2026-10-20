@@ -8,7 +8,7 @@ import { useOrganizationsStore } from '@/stores/organizations'
 import { useTelegram } from '@/composables/useTelegram'
 import { errorMessage } from '@/i18n/errors'
 import { useI18n } from '@/i18n'
-import type { SettingsPatch } from '@/api/types'
+import type { ExerciseSettings, SettingsPatch } from '@/api/types'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -77,6 +77,15 @@ const onGoal = (e: Event) =>
 // 'on' = takes part (opt_out false), 'off' = opted out.
 const onLeagues = (e: Event) =>
   change(e, { leagues_opt_out: (e.target as HTMLSelectElement).value === 'off' }, () => (data.value?.leagues_opt_out ? 'off' : 'on'))
+
+/** The exercise types of the settings screen, in display order (docs/13 §8.2); flash is always on. */
+const EXERCISE_KEYS: (keyof ExerciseSettings)[] = ['reverse', 'audio', 'spelling', 'gap_fill']
+
+/** A toggle saves at once; when the save is refused the box goes back to the value the server has. */
+async function onExercise(key: keyof ExerciseSettings, event: Event): Promise<void> {
+  const box = event.target as HTMLInputElement
+  if (!(await settings.update({ exercises: { [key]: box.checked } }))) box.checked = data.value?.exercises[key] ?? true
+}
 
 onMounted(() => {
   hideBack = showBackButton(() => void router.push({ name: 'today' }))
@@ -159,6 +168,22 @@ onBeforeUnmount(() => {
         </select>
         <span class="block text-xs text-tg-hint">{{ t('settings.leagues.hint') }}</span>
       </label>
+
+      <div class="card space-y-3" data-testid="exercises-card">
+        <span class="font-semibold">{{ t('settings.exercises') }}</span>
+        <label v-for="key in EXERCISE_KEYS" :key="key" class="flex items-center gap-3">
+          <input
+            type="checkbox"
+            class="h-5 w-5"
+            :checked="data.exercises[key]"
+            :disabled="saving"
+            :data-testid="`exercise-${key}`"
+            @change="onExercise(key, $event)"
+          />
+          <span>{{ t(`settings.exercises.${key}`) }}</span>
+        </label>
+        <span class="block text-xs text-tg-hint">{{ t('settings.exercises.hint') }}</span>
+      </div>
 
       <div class="card space-y-3" data-testid="course-card">
         <div>

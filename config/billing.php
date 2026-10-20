@@ -40,7 +40,7 @@ return [
         'pro' => [
             'rank' => 1,
             'limits' => ['new_words_per_day' => null],
-            'features' => ['courses.public', 'training.daily', 'training.lesson', 'stats.detailed', 'streak.freeze'],
+            'features' => ['courses.public', 'training.daily', 'training.lesson', 'stats.detailed', 'streak.freeze', 'exercise.spelling', 'exercise.gap_fill'],
         ],
     ],
 

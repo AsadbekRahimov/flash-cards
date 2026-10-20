@@ -6,6 +6,7 @@ namespace App\Http\Requests\Twa;
 
 use App\Domain\Learners\Services\LearnerSettingsService;
 use App\Domain\Learners\Services\OnboardingService;
+use App\Domain\Learning\DTO\LearnerExerciseSettings;
 use App\Domain\Localization\Services\LocaleResolver;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -31,6 +32,9 @@ final class UpdateSettingsRequest extends FormRequest
             'level' => ['sometimes', 'string', Rule::in(OnboardingService::LEVELS)],
             // Leagues (docs/13 §7.3): a JSON boolean only — no "1" / "on".
             'leagues_opt_out' => ['sometimes', 'boolean:strict'],
+            // A partial object: only the exercise types given change (docs/13 §8.2).
+            'exercises' => ['sometimes', Rule::array(LearnerExerciseSettings::KEYS)],
+            'exercises.*' => ['boolean:strict'],
         ];
     }
 }

@@ -160,6 +160,7 @@
 | `reminder_time` | `HH:MM`, минуты кратны 15 (`00/15/30/45`); `null` — выключить напоминания |
 | `daily_goal` | целое (не строка) из `config('learners.daily_goal_options')`: 10 / 20 / 40 |
 | `goal`, `level` | как в онбординге: `general`/`ielts`/`sat`/`school`; `A1`..`B2` |
+| `exercises` | объект `{reverse, audio, spelling, gap_fill}` со строгими булевыми (2D.2, docs/13 §8.2); **частичный** — меняются только переданные ключи; другие ключи / не-булевы → 422. Хранится в `learners.meta.exercises`; flash выключить нельзя. В ответе `settings.exercises` — всегда все четыре ключа (по умолчанию `true`). Выключенный тип селектор не выдаёт; `spelling`/`gap_fill` у Free и так не выдаются (Pro-features) — настройка хранится и действует после покупки |
 
 Невалидное значение — `422` (стандартный ответ валидации Laravel), ничего не меняется. Активный курс меняется отдельно — `POST /me/course` (A.5a).
 **Часовой пояс меняется не чаще раза в 24 ч** (docs/12 §5.3): новое значение, отличное от текущего, раньше срока → `422` в общем конверте ошибок
@@ -245,7 +246,7 @@ Learner присоединяется к открытой тренировке. �
   "mode": "group_lesson",    // group_lesson | lesson | daily_review
   "lesson": { "stage": 4, "lesson": 8, "title": "Resilience" } | null,   // null для daily_review
   "total_words": 25,         // lesson/group_lesson: активные слова урока; daily_review: learners.daily_goal
-  "card": { "word_id": 1001, "word": "Resilient", "translation": "Устойчивый", "translation_fallback": false, "example": null, "transcription": null, "audio_url": null, "card_kind": "new", "serve_token": null } | null,
+  "card": { "word_id": 1001, "word": "Resilient", "translation": "Устойчивый", "translation_fallback": false, "example": null, "transcription": null, "audio_url": null, "card_kind": "new", "serve_token": null, "prompt": { "type": "flash", "front": "Resilient", "masked_example": null, "options": null, "answer_length": null } } | null,
   "progress": { "done": 0, "total": 25 },
   "done_reason": null,       // см. ниже; не null ровно когда card = null
   "quota": { "new_words_remaining": 19 }   // см. «Квота новых слов» ниже; null = безлимит (Pro)
@@ -270,8 +271,16 @@ Learner присоединяется к открытой тренировке. �
     "translation_fallback": false, // true — перевод на русском, потому что на язык сессии его ещё нет (клиент показывает пометку)
     "example": "She is a resilient girl.",
     "transcription": "rɪˈzɪl.i.ənt",
+    "audio_url": "https://…/storage/audio/3f….mp3", // предсгенерированный mp3 слова (1.2c / 2R.4) или null → клиент идёт в Web Speech / GET /tts
     "card_kind": "due",     // due | new | learning (минутные learning steps, см. docs/06 §4)
-    "serve_token": null     // string для карточки, выданной досрочно (learn-ahead) — вернуть в POST /review
+    "serve_token": null,    // string для карточки, выданной досрочно (learn-ahead) — вернуть в POST /review
+    "prompt": {             // упражнение этой выдачи (2D.2, docs/13 §2.5, docs/06 §4.3)
+      "type": "reverse",    // flash | reverse | audio | spelling | gap_fill
+      "front": "Устойчивый",// flash: слово; reverse/spelling/gap_fill: перевод; audio: "" (слово только на слух)
+      "masked_example": null, // gap_fill: пример с формой слова, заменённой на "____"
+      "options": ["Brittle", "Resilient", "Fragile", "Tender"], // reverse: 4 английских слова; audio: 4 перевода; иначе null
+      "answer_length": null // spelling/gap_fill: длина ожидаемого текста
+    }
   },
   "progress": { "done": 7, "total": 25 },
   "done_reason": null,       // null, пока есть card; иначе причина, см. ниже
@@ -323,6 +332,15 @@ learning, learn-ahead) квотой не ограничиваются: посл�
 (`word_translations.ru` → `words.translation`) и `translation_fallback = true`; для русского языка флаг всегда `false`
 (docs/12 §1.7, docs/03 §2.21).
 
+**Упражнения (`card.prompt`, 2D.2).** `prompt.type` решает экран и способ оценки: `flash` (слово → перевод, learner оценивает сам),
+`reverse` (перевод → 4 английских слова) и `audio` (слово на слух → 4 перевода) **оцениваются на клиенте** — правильный ответ есть в `card.word` /
+`card.translation`, клиент шлёт `quality` (TWA: верно → 4, неверно → 2); `spelling` (перевод → ввод слова) и `gap_fill` (пример с пропуском → ввод формы)
+**оцениваются сервером** — клиент шлёт `answer`. Тип выбирает `ExerciseSelector` **детерминированно** по (state, repetitions, word_id, план, настройки,
+режим сессии) — docs/06 §4.3; два подряд `/next` для одной выдачи дают одинаковый `prompt` (варианты и их порядок — от хэша). `spelling`/`gap_fill` — только
+Pro (`exercise.spelling`, `exercise.gap_fill`) и только с `repetitions ≥ 3` на каждом третьем проходе; Free и `group_lesson` их не получают никогда
+(`group_lesson` — только `flash`/`reverse`). `reverse`/`audio` без трёх дистракторов (крошечная колода) приходят как `flash`. `audio_url` — то же, что в `prompt`
+(в `prompt` не дублируется): предсгенерированный mp3 (`words.audio_path` совпадает с текущим хэшем текста), иначе `null`.
+
 При отсутствии карточек — `{ "card": null, "progress": { ... } }` и клиент показывает экран «готово».
 Пока в уроке есть карточки в learning steps, сервер отдаёт их досрочно (learn-ahead), а не `null`.
 Такая карточка приходит с одноразовым `serve_token` (docs/06 §4–5.2): клиент хранит его вместе с
@@ -331,15 +349,20 @@ learning, learn-ahead) квотой не ограничиваются: посл�
 #### `POST /api/twa/training/sessions/{session_id}/review`
 Оценка карточки.
 
-**Request:**
+**Request** — ровно одно из `quality` / `answer` (2D.2):
 ```json
 {
   "word_id": 1001,
-  "quality": 2,             // 0..5; TWA шлёт 2=Трудно (Again), 4=Средне (Good), 5=Легко (Easy); 3 = Hard-pass
+  "quality": 2,             // flash/reverse/audio: 0..5; TWA шлёт 2=Трудно (Again), 4=Средне (Good), 5=Легко (Easy); 3 = Hard-pass
+  "answer": "resiliant",    // spelling/gap_fill: текст learner'а (≤ 200 символов; пустой/null = «не знаю», оценивается как ошибка); quality при этом запрещён
   "time_spent_ms": 4300,
   "serve_token": null       // optional, <= 64 символов: card.serve_token выданной карточки (обязателен для learn-ahead)
 }
 ```
+Ключ `answer` в теле (даже `null`) переключает запрос в режим ответа: `quality` тогда `prohibited`, без `answer` — `quality` `required` (422 валидации).
+Сервер **пересчитывает** упражнение карточки по тем же входам, что и `/next` (ничего не хранит, docs/13 §8.2), и для `spelling`/`gap_fill` ставит `quality`
+сам (`SpellingGrader`, docs/06 §4.3): точное совпадение → 5, в допуске → 4, иначе 1. В `training_reviews` пишутся `exercise` (всегда) и `answer_text`
+(обрезка до 100 символов; `''` — пустой ответ, `null` — оценка клиентом).
 
 **Response:**
 ```json
@@ -347,6 +370,7 @@ learning, learn-ahead) квотой не ограничиваются: посл�
   "next_review_at": "2026-04-22T14:00:00Z",
   "new_interval_days": 3,    // 0, пока карточка в минутных learning steps
   "easiness_factor": 2.45,
+  "graded": { "quality": 4, "correct": true, "expected": "resilient" } | null, // вердикт сервера по answer; null при quality
   "card": { ... } | null,    // следующая карточка (как в /next)
   "progress": { "done": 7, "total": 25 },
   "done_reason": null,
@@ -358,6 +382,9 @@ learning, learn-ahead) квотой не ограничиваются: посл�
 карточка ещё не due, а `serve_token` отсутствует, устарел или чужой — docs/06 §5.2; клиенту следует
 перезапросить `GET /next`), 422 `out_of_scope` (слово вне scope сессии: в `group_lesson`/`lesson` — слово другого урока,
 в любом режиме — неактивное слово `words.is_active = false`; бывш. `wrong_lesson`), 410 `session_closed`.
+Упражнения (422, после проверок выше, ничего не записано): `quality_not_accepted` — карточка `spelling`/`gap_fill`, нужен `answer`;
+`answer_not_accepted` — карточка `flash`/`reverse`/`audio`, нужен `quality`; `exercise_pro_required` — `answer` от плана без `exercise.spelling`/`exercise.gap_fill`
+(**paywall-reason**: у Free письменных упражнений нет). TWA на все три перезапрашивает `GET /next` (сервер отдаст карточку с актуальным упражнением).
 
 ### A.4 Exam mode
 

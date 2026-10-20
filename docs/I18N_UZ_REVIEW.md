@@ -1496,6 +1496,8 @@
 | `friends.challenge.errors.not_friends` | Musobaqani faqat do'stga tashlash mumkin. | Вызов можно бросить только другу. |
 | `friends.challenge.errors.generic` | Bajarib bo'lmadi. Keyinroq urinib ko'ring. | Не получилось. Попробуйте позже. |
 
+## Фаза 2 · задача 2D.2 (типы упражнений) — на проверку носителю
+
 ### TWA (`resources/twa/src/i18n/uz.ts`)
 
 | Ключ | uz | ru |
@@ -1560,3 +1562,26 @@
 | `error.code.challenge_invalid` | Bunday musobaqani yaratib bo'lmaydi. | Такой вызов создать нельзя. |
 | `error.code.not_opponent` | Musobaqaga faqat unga yo'llangan kishi javob bera oladi. | Ответить на вызов может только тот, кому он адресован. |
 | `error.code.challenge_closed` | Bu musobaqa endi amal qilmaydi. | Этот вызов больше не действует. |
+
+| `exercise.reverse.title` | So'zni tanlang | Выберите слово |
+| `exercise.audio.title` | Nimani eshitdingiz? | Что вы услышали? |
+| `exercise.audio.play` | Yana eshitish | Прослушать ещё раз |
+| `exercise.spelling.title` | So'zni inglizcha yozing | Напишите слово по-английски |
+| `exercise.gap_fill.title` | Bo'sh joyni to'ldiring | Заполните пропуск |
+| `exercise.input.placeholder` | Javobingiz | Ваш ответ |
+| `exercise.answer_length` | Harflar: {count} | Букв: {count} |
+| `exercise.check` | Tekshirish | Проверить |
+| `exercise.skip` | Bilmayman | Не знаю |
+| `exercise.verdict.correct` | To'g'ri! | Верно! |
+| `exercise.verdict.close` | Deyarli! To'g'risi: {expected} | Почти! Правильно: {expected} |
+| `exercise.verdict.wrong` | Noto'g'ri. To'g'risi: {expected} | Неверно. Правильно: {expected} |
+| `exercise.continue` | Keyingisi | Дальше |
+| `settings.exercises` | Mashqlar | Упражнения |
+| `settings.exercises.hint` | «So'z → tarjima» kartochkalari doim yoqilgan. Yozish va bo'sh joy — Pro'da. | Карточки «слово → перевод» включены всегда. Написание и пропуск — в Pro. |
+| `settings.exercises.reverse` | Tarjima → so'z (4 variant) | Перевод → слово (4 варианта) |
+| `settings.exercises.audio` | Eshitib (4 variant) | На слух (4 варианта) |
+| `settings.exercises.spelling` | So'zni yozish | Написание слова |
+| `settings.exercises.gap_fill` | Misoldagi bo'sh joy | Пропуск в примере |
+| `error.code.answer_not_accepted` | Bu kartochka ekranda baholanadi. Ekranni yangilang. | Эта карточка оценивается на экране. Обновите экран. |
+| `error.code.quality_not_accepted` | Bu kartochkani server tekshiradi. Ekranni yangilang. | Эту карточку проверяет сервер. Обновите экран. |
+| `error.code.exercise_pro_required` | Yozma mashqlar Pro'da mavjud. | Письменные упражнения доступны в Pro. |

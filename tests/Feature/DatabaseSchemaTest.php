@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Learning\Enums\ExerciseType;
 use App\Models\Assignment;
 use App\Models\AssignmentResult;
 use App\Models\Challenge;
@@ -895,6 +896,28 @@ it('adds the streak freeze columns (2C.2) and rolls them back', function (): voi
     $this->artisan('migrate')->assertSuccessful();
     expect(Schema::hasColumns('learners', ['streak_freezes', 'streak_freezes_refilled_on']))->toBeTrue()
         ->and(Schema::hasColumn('learner_daily_stats', 'frozen_at'))->toBeTrue();
+});
+
+// --- 2D.2 exercises (docs/13 §1.6) ----------------------------------------------
+
+it('adds the exercise / scheduler columns of training_reviews (2D.2) and rolls them back', function (): void {
+    expect(Schema::hasColumns('training_reviews', ['exercise', 'answer_text', 'scheduler', 'interval_before_days']))->toBeTrue();
+
+    $review = TrainingReview::factory()->create();
+    expect($review->fresh()?->exercise)->toBe(ExerciseType::Flash)
+        ->and($review->fresh()?->answer_text)->toBeNull()
+        ->and($review->fresh()?->scheduler)->toBe('sm2')
+        ->and($review->fresh()?->interval_before_days)->toBeNull();
+
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_23_200001_add_exercise_columns_to_training_reviews_table')])->assertSuccessful();
+    expect(Schema::hasColumn('training_reviews', 'exercise'))->toBeFalse()
+        ->and(Schema::hasColumn('training_reviews', 'answer_text'))->toBeFalse()
+        ->and(Schema::hasColumn('training_reviews', 'scheduler'))->toBeFalse()
+        ->and(Schema::hasColumn('training_reviews', 'interval_before_days'))->toBeFalse()
+        ->and(Schema::hasTable('training_reviews'))->toBeTrue();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasColumns('training_reviews', ['exercise', 'answer_text', 'scheduler', 'interval_before_days']))->toBeTrue();
 });
 
 // --- 2C.1 referrals (docs/13 §1.5) ----------------------------------------------

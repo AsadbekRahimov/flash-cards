@@ -20,11 +20,18 @@ final class ReviewResultResource extends TwaResource
     public function toArray(Request $request): array
     {
         $rep = $this->resource->repetition;
+        $verdict = $this->resource->verdict;
 
         return [
             'next_review_at' => $rep->next_review_at->toIso8601String(),
             'new_interval_days' => (int) $rep->interval_days,
             'easiness_factor' => (float) $rep->easiness_factor,
+            // The server's grade of a typed answer (spelling / gap-fill); null when the client graded.
+            'graded' => $verdict === null ? null : [
+                'quality' => $verdict->quality,
+                'correct' => $verdict->isCorrect(),
+                'expected' => $verdict->normalizedExpected,
+            ],
             ...(new TrainingNextResource($this->resource->next))->toArray($request),
         ];
     }

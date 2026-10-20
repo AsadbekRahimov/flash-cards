@@ -221,6 +221,10 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 | learner_id | bigint FK → learners, ON DELETE CASCADE |
 | word_id | bigint FK |
 | quality | smallint (0..5) |
+| exercise | varchar(12) default `'flash'` — `flash` / `reverse` / `audio` / `spelling` / `gap_fill` (2D.2, docs/13 §2.5) |
+| answer_text | varchar(100) nullable — ответ learner'а в `spelling`/`gap_fill`, обрезка до 100; `null` при оценке клиентом (2D.2) |
+| scheduler | varchar(8) default `'sm2'` — `sm2` / `fsrs`, кто применил оценку (2D.3; колонка добавлена в 2D.2) |
+| interval_before_days | smallint nullable — `word_repetitions.interval_days` до этой оценки (метрики 2D.4) |
 | time_spent_ms | int |
 | created_at | timestamp |
 

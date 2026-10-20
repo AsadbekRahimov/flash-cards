@@ -180,22 +180,38 @@ final class TrainingController
             return $this->unauthorizedLearner();
         }
 
+        // `quality` (flash / reverse / audio) or `answer` (spelling / gap-fill), never both (docs/04 A.3).
+        // An `answer` key that is present but empty ("" → null) is an empty answer, graded as wrong.
+        $typed = $request->has('answer');
+
         $validated = $request->validate([
             'word_id' => ['required', 'integer'],
-            'quality' => ['required', 'integer', 'min:0', 'max:5'],
+            'quality' => $typed ? ['prohibited'] : ['required', 'integer', 'min:0', 'max:5'],
+            'answer' => $typed ? ['nullable', 'string', 'max:200'] : ['prohibited'],
             'time_spent_ms' => ['required', 'integer', 'min:0', 'max:600000'],
             'serve_token' => ['nullable', 'string', 'max:64'],
         ]);
 
+        $serveToken = isset($validated['serve_token']) ? (string) $validated['serve_token'] : null;
+
         try {
-            $outcome = $this->flow->review(
-                $session,
-                $learner,
-                (int) $validated['word_id'],
-                (int) $validated['quality'],
-                (int) $validated['time_spent_ms'],
-                isset($validated['serve_token']) ? (string) $validated['serve_token'] : null,
-            );
+            $outcome = $typed
+                ? $this->flow->answer(
+                    $session,
+                    $learner,
+                    (int) $validated['word_id'],
+                    isset($validated['answer']) ? (string) $validated['answer'] : '',
+                    (int) $validated['time_spent_ms'],
+                    $serveToken,
+                )
+                : $this->flow->review(
+                    $session,
+                    $learner,
+                    (int) $validated['word_id'],
+                    (int) $validated['quality'],
+                    (int) $validated['time_spent_ms'],
+                    $serveToken,
+                );
         } catch (ReviewSubmissionException $e) {
             return ApiErrorResource::respond($e->status, $e->errorCode, $e->getMessage());
         }
