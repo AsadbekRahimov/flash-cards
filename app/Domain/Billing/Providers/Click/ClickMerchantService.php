@@ -10,6 +10,7 @@ use App\Domain\Billing\Exceptions\DuplicatePaymentException;
 use App\Domain\Billing\Exceptions\PaymentApplyException;
 use App\Domain\Billing\Exceptions\ProviderTransactionException;
 use App\Domain\Billing\Services\CheckoutService;
+use App\Domain\Billing\Services\OrganizationOrderGuard;
 use App\Domain\Billing\Services\PaymentApplier;
 use App\Domain\Billing\Services\ProviderTransactionService;
 use App\Models\Payment;
@@ -36,7 +37,10 @@ use Illuminate\Support\Facades\Log;
  * Order statuses map to Click codes as: paid -> -4; expired / canceled / failed (or past
  * `expires_at`) -> -9 "transaction canceled" (the order was closed on our side, the payer needs a
  * new one); a token that matches nothing, or an order of another provider -> -5 (nothing is
- * revealed about other providers' orders).
+ * revealed about other providers' orders). An organization order that may not be paid any more
+ * (its tier is no longer the live one, or the organization is suspended — OrganizationOrderGuard,
+ * 2B.8) is -9 as well: the order exists but is closed to payment on our side, the owner needs a
+ * new one; -5 would deny its existence and -7 would make Click retry.
  */
 final class ClickMerchantService
 {
@@ -59,11 +63,13 @@ final class ClickMerchantService
         private readonly PaymentApplier $applier,
         private readonly CheckoutService $checkout,
         private readonly ClickSignature $signature,
+        private readonly OrganizationOrderGuard $organizations,
     ) {}
 
     /**
-     * Prepare (`action = 0`): signature -> order by `merchant_trans_id` -> payable? -> amount ->
-     * open the transaction (state 1). Answer `merchant_prepare_id` = `provider_transactions.id`.
+     * Prepare (`action = 0`): signature -> order by `merchant_trans_id` -> payable? (organization guard
+     * included, re-checked under the order lock) -> amount -> open the transaction (state 1). Answer
+     * `merchant_prepare_id` = `provider_transactions.id`.
      *
      * @param  array<array-key, mixed>  $input  the decoded form
      * @return array<string, mixed>
@@ -93,6 +99,7 @@ final class ClickMerchantService
                     self::raw(self::METHOD_PREPARE, $request),
                     $now,
                     exclusive: false,
+                    guard: $this->organizations->refusal(...),
                 );
             } catch (ProviderTransactionException $e) {
                 throw match ($e->errorCode) {
@@ -389,12 +396,12 @@ final class ClickMerchantService
 
     private function assertPayable(PaymentOrder $order, CarbonImmutable $now): void
     {
-        if (! $order->isPayableAt($now)) {
+        if (! $order->isPayableAt($now) || $this->organizations->refusal($order, $now) !== null) {
             throw $this->refusalFor($order, $now);
         }
     }
 
-    /** The Click code for an order that cannot be paid (-4 paid, -9 closed / expired). */
+    /** The Click code for an order that cannot be paid (-4 paid, -9 closed / expired / refused for the organization). */
     private function refusalFor(PaymentOrder $order, CarbonImmutable $now): ClickException
     {
         if ($order->status === PaymentOrder::STATUS_PAID) {
@@ -402,7 +409,11 @@ final class ClickMerchantService
         }
 
         if ($order->isPayableAt($now)) {
-            return ClickException::updateFailed('order became payable again');
+            $refusal = $this->organizations->refusal($order, $now);
+
+            return $refusal === null
+                ? ClickException::updateFailed('order became payable again')
+                : ClickException::transactionCanceled($refusal);
         }
 
         return ClickException::transactionCanceled($order->isPending() ? 'order expired' : "order is {$order->status}");

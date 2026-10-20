@@ -130,7 +130,7 @@ class PaymentOrderResource extends Resource
         ];
     }
 
-    /** `meta.canceled_reason` (offer bookkeeping, docs/13 "Реализация 2B.7a"), for canceled orders only. */
+    /** `meta.canceled_reason` (offer bookkeeping, docs/13 "Реализация 2B.7a"; `tier_changed`, "Реализация 2B.8"), for canceled orders only. */
     private static function canceledReason(PaymentOrder $order): ?string
     {
         $reason = $order->meta['canceled_reason'] ?? null;

@@ -20,9 +20,11 @@ use App\Domain\Billing\Exceptions\BillingException;
 use App\Domain\Billing\Exceptions\CheckoutException;
 use App\Domain\Billing\Exceptions\PromoCodeException;
 use App\Domain\Billing\Providers\Click\ClickMerchantService;
+use App\Domain\Billing\Providers\Payme\PaymeRpcException;
 use App\Domain\Billing\Providers\Payme\PaymeRpcService;
 use App\Domain\Billing\Services\CheckoutService;
 use App\Domain\Billing\Services\NewWordQuota;
+use App\Domain\Billing\Services\OrganizationOrderGuard;
 use App\Domain\Billing\Services\PaymentApplier;
 use App\Domain\Billing\Services\PromoCodeService;
 use App\Domain\Billing\Services\ProviderTransactionService;
@@ -1034,4 +1036,126 @@ it('refuses to move the discount once Payme opened a transaction on the holder (
 
 it('refuses Payme a transaction on a holder whose discount has just moved (order_not_payable)', function (): void {
     billingOfferCheckoutVsOpenTransaction(providerFirst: false);
+});
+
+/*
+ * 2B.8 (docs/13 §6.5, OrganizationOrderGuard): a Center M payment races a Payme CreateTransaction on a
+ * Tutor order of the same center. Either the Create is refused (the sweep closed the order first, or the
+ * guard saw the new live tier) and the order is canceled with no transaction on it, or the Create won
+ * and the order stays pending with its open transaction — its Perform is credited into `tier_mismatch`.
+ * Never: an open transaction on a canceled order (money taken, order dead).
+ */
+
+/** @return array{Organization, PaymentOrder, PaymentOrder} the center, its Center M order and its Tutor order (both Payme) */
+function billingCenterWithTwoTiers(): array
+{
+    $org = Organization::factory()->create();
+    $centerM = PaymentOrder::factory()->forOrganization($org, 'center_m')->create(['amount' => 84_900_000, 'list_amount' => 84_900_000]);
+    $tutor = PaymentOrder::factory()->forOrganization($org, 'tutor')->create(['amount' => 12_900_000, 'list_amount' => 12_900_000]);
+
+    return [$org, $centerM, $tutor];
+}
+
+function billingOrgPaymentVsCreateTransaction(bool $paymentFirst): void
+{
+    [$org, $centerM, $tutor] = billingCenterWithTwoTiers();
+
+    $results = billingRunInParallel([
+        function () use ($centerM, $paymentFirst): int {
+            if (! $paymentFirst) {
+                usleep(100_000);
+                // Holds order + organization + subscription for a while after the subscription write, so the
+                // Create that is running meanwhile sees no live tier yet (the window the sweep must close).
+                Subscription::created(static function (): void {
+                    usleep(150_000);
+                });
+            }
+
+            $event = new ChargeEvent(
+                provider: SubscriptionProvider::Payme,
+                providerEventId: 'race-center-m:perform',
+                providerChargeId: 'race-center-m',
+                orderToken: $centerM->token,
+                amount: $centerM->amount,
+                currency: $centerM->currency,
+                isRenewal: false,
+                periodEndsAt: null,
+                occurredAt: CarbonImmutable::now(),
+            );
+
+            return app(PaymentApplier::class)->applyCharge($event)->id;
+        },
+        function () use ($tutor, $paymentFirst): array {
+            if ($paymentFirst) {
+                usleep(200_000);
+            }
+            ProviderTransaction::creating(static function (): void {
+                usleep(150_000);
+            });
+
+            return app(PaymeRpcService::class)->handle(PaymeFixtures::for('CreateTransaction', $tutor, [], 'race-tutor-create'));
+        },
+    ]);
+
+    expect(billingCodes($results))->toBe(['ok', 'ok'])
+        ->and(Payment::query()->where('status', 'succeeded')->count())->toBe(1)
+        ->and($centerM->refresh()->status)->toBe('paid')
+        ->and(Subscription::query()->sole()->tier)->toBe('center_m');
+
+    $tutor->refresh();
+    $create = $results[1]['result'];
+    $openOnTutor = ProviderTransaction::query()->where('payment_order_id', $tutor->id)->where('state', ProviderTransaction::STATE_CREATED)->count();
+
+    if (isset($create['result'])) {
+        // The Create won: the order is still payable and the sweep left it alone because of the open transaction.
+        expect($create['result']['state'])->toBe(1)
+            ->and($tutor->status)->toBe('pending')
+            ->and($openOnTutor)->toBe(1);
+
+        // Its Perform is the money already taken: credited, Center M kept, flagged for the platform.
+        $perform = app(PaymeRpcService::class)->handle(PaymeFixtures::for('PerformTransaction', $tutor, [], 'race-tutor-create'));
+        expect($perform['result']['state'] ?? null)->toBe(2)
+            ->and($tutor->refresh()->status)->toBe('paid')
+            ->and($tutor->meta['tier_mismatch'])->toBeTrue()
+            ->and(Subscription::query()->sole()->tier)->toBe('center_m');
+    } else {
+        // The payment won: the order was swept (-31051 "canceled") or the guard saw the live tier (-31053).
+        expect($create['error']['code'])->toBeIn([PaymeRpcException::ORDER_NOT_PAYABLE, PaymeRpcException::TIER_CHANGED])
+            ->and($openOnTutor)->toBe(0)
+            ->and($tutor->status)->toBeIn(['pending', 'canceled']);
+        if ($tutor->status === 'canceled') {
+            expect($tutor->meta['canceled_reason'])->toBe(PaymentOrder::CANCEL_REASON_TIER_CHANGED);
+        }
+    }
+
+    // In no outcome is there an open transaction on a canceled order.
+    expect(ProviderTransaction::query()->where('state', ProviderTransaction::STATE_CREATED)->whereHas('paymentOrder', fn ($q) => $q->where('status', 'canceled'))->count())->toBe(0);
+}
+
+it('refuses or honours a Payme CreateTransaction on a Tutor order that races the Center M payment of the same center (payment first)', function (): void {
+    billingOrgPaymentVsCreateTransaction(paymentFirst: true);
+});
+
+it('refuses or honours a Payme CreateTransaction on a Tutor order that races the Center M payment of the same center (Create first)', function (): void {
+    billingOrgPaymentVsCreateTransaction(paymentFirst: false);
+});
+
+it('cancels each competing order exactly once when two sweeps of the same center overlap', function (): void {
+    $org = Organization::factory()->create();
+    $paid = PaymentOrder::factory()->forOrganization($org, 'center_m')->paid()->create();
+    foreach (range(1, 4) as $_) {
+        PaymentOrder::factory()->forOrganization($org, 'tutor')->create();
+    }
+
+    $results = billingRunInParallel(array_fill(0, 2, function () use ($org, $paid): int {
+        PaymentOrder::saving(static function (): void {
+            usleep(100_000);
+        });
+
+        return app(OrganizationOrderGuard::class)->cancelCompeting($org->id, 'center_m', $paid->id);
+    }));
+
+    expect(billingCodes($results))->toBe(['ok', 'ok'])
+        ->and(collect($results)->sum('result'))->toBe(4)
+        ->and(PaymentOrder::query()->where('status', 'canceled')->count())->toBe(4);
 });

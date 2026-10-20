@@ -47,11 +47,17 @@ use Illuminate\Support\Facades\Log;
  * COMMITTED as `payments.status = failed` — the money may be with us and support must see it —
  * and the subscription is not touched; the domain exception is thrown after the commit.
  *
- * Exception to "dead order": an order canceled by offer bookkeeping (`PaymentOrder::canceledForOffer()`,
- * docs/13 "Реализация 2B.7a") is still credited in full — the pre-checks refuse its token, so a charge
- * that arrives anyway was already in flight at the provider and the money is taken. If the offer was
- * meanwhile used up by another order, the second discount is logged (`billing.offer_double_discount`,
- * `payment_orders.meta.offer_double_discount`) rather than the payment being lost.
+ * Exception to "dead order": an order canceled by OUR bookkeeping (`PaymentOrder::canceledBySystem()`:
+ * offer moved / redeemed — docs/13 "Реализация 2B.7a"; organization tier changed — "Реализация 2B.8")
+ * is still credited in full — the pre-checks refuse its token, so a charge that arrives anyway was
+ * already in flight at the provider and the money is taken. If the offer was meanwhile used up by
+ * another order, the second discount is logged (`billing.offer_double_discount`,
+ * `payment_orders.meta.offer_double_discount`) rather than the payment being lost; a late payment of a
+ * `tier_changed` order lands in SubscriptionService's `tier_mismatch` backstop.
+ *
+ * After an organization payment commits with a tier on the subscription, the organization's other
+ * pending orders of another tier are canceled (`OrganizationOrderGuard::cancelCompeting`, own
+ * transaction, docs/13 §3 rule 1) — they could only ever be paid into a `tier_mismatch`.
  */
 final class PaymentApplier
 {
@@ -60,6 +66,7 @@ final class PaymentApplier
     public function __construct(
         private readonly SubscriptionService $subscriptions,
         private readonly OfferService $offers,
+        private readonly OrganizationOrderGuard $organizations,
         private readonly ProductEventRecorder $events,
     ) {}
 
@@ -103,7 +110,7 @@ final class PaymentApplier
                     return [$this->failed($order, $e, $kind, 'provider_mismatch'), PaymentApplyException::orderMismatch("order provider is {$order->provider}")];
                 }
 
-                $honouredAfterCancel = $order->canceledForOffer() && ! $e->isRenewal;
+                $honouredAfterCancel = $order->canceledBySystem() && ! $e->isRenewal;
 
                 if (! $honouredAfterCancel && in_array($order->status, [PaymentOrder::STATUS_EXPIRED, PaymentOrder::STATUS_CANCELED, PaymentOrder::STATUS_FAILED], true)) {
                     return [$this->failed($order, $e, $kind, 'order_'.$order->status), PaymentApplyException::orderExpired($order->status)];
@@ -144,7 +151,10 @@ final class PaymentApplier
                 $meta = $order->meta;
                 if ($honouredAfterCancel) {
                     $meta['paid_after_cancel'] = true;
-                    Log::warning('billing.offer_canceled_order_paid', ['payment_order_id' => $order->id, 'offer_id' => $order->offer_id, 'canceled_reason' => $meta['canceled_reason'] ?? null, 'provider' => $e->provider->value, 'provider_event_id' => $e->providerEventId]);
+                    Log::warning(
+                        $order->canceledForOffer() ? 'billing.offer_canceled_order_paid' : 'billing.canceled_order_paid',
+                        ['payment_order_id' => $order->id, 'offer_id' => $order->offer_id, 'canceled_reason' => $meta['canceled_reason'] ?? null, 'provider' => $e->provider->value, 'provider_event_id' => $e->providerEventId],
+                    );
                 }
 
                 if ($order->offer_id !== null && ! $this->redeemOffer($order, $subject, $now)) {
@@ -165,6 +175,17 @@ final class PaymentApplier
                     $orderId = $order->id;
                     DB::afterCommit(function () use ($offerId, $orderId, $now): void {
                         $this->offers->releaseHolders($offerId, $orderId, $now);
+                    });
+                }
+
+                if ($subject instanceof Organization && $subscription->tier !== null) {
+                    // The organization's other pending orders of another tier could only be paid into a
+                    // tier_mismatch now — closed after this commits, own transaction (docs/13 §3 rule 1).
+                    $organizationId = $subject->id;
+                    $liveTier = $subscription->tier;
+                    $orderId = $order->id;
+                    DB::afterCommit(function () use ($organizationId, $liveTier, $orderId, $now): void {
+                        $this->organizations->cancelCompeting($organizationId, $liveTier, $orderId, $now);
                     });
                 }
 

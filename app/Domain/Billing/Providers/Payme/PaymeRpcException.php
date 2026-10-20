@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Billing\Providers\Payme;
 
+use App\Domain\Billing\Services\OrganizationOrderGuard;
 use RuntimeException;
 
 /**
@@ -24,6 +25,8 @@ use RuntimeException;
  *   -31050  order not found         `account.order_id` matches no order              (data: order_id)
  *   -31051  order not payable       the order is paid / canceled / expired / not a Payme order (data: order_id)
  *   -31052  order busy              another open transaction already holds the order   (data: order_id)
+ *   -31053  tier changed            an organization order of a tier other than the live one (data: order_id)
+ *   -31054  organization suspended  the order's organization is not active               (data: order_id)
  */
 final class PaymeRpcException extends RuntimeException
 {
@@ -51,6 +54,10 @@ final class PaymeRpcException extends RuntimeException
 
     public const ORDER_BUSY = -31052;
 
+    public const TIER_CHANGED = -31053;
+
+    public const ORGANIZATION_SUSPENDED = -31054;
+
     /** The `account` field our checkout link carries (`ac.order_id`), reported in `error.data`. */
     public const ACCOUNT_FIELD = 'order_id';
 
@@ -68,6 +75,8 @@ final class PaymeRpcException extends RuntimeException
         self::ORDER_NOT_FOUND => ['ru' => 'Заказ не найден.', 'uz' => 'Buyurtma topilmadi.', 'en' => 'Order not found.'],
         self::ORDER_NOT_PAYABLE => ['ru' => 'Заказ уже оплачен, отменён или просрочен.', 'uz' => "Buyurtma allaqachon to'langan, bekor qilingan yoki muddati o'tgan.", 'en' => 'The order is already paid, canceled or expired.'],
         self::ORDER_BUSY => ['ru' => 'По этому заказу уже есть ожидающая оплаты транзакция.', 'uz' => "Bu buyurtma bo'yicha to'lov kutayotgan tranzaksiya mavjud.", 'en' => 'Another transaction is already pending for this order.'],
+        self::TIER_CHANGED => ['ru' => 'Тариф центра изменился. Создайте новый заказ в кабинете.', 'uz' => "Markaz tarifi o'zgardi. Kabinetda yangi buyurtma yarating.", 'en' => 'The center\'s tariff has changed. Create a new order in the cabinet.'],
+        self::ORGANIZATION_SUSPENDED => ['ru' => 'Центр приостановлен. Обратитесь в поддержку.', 'uz' => "Markaz to'xtatilgan. Qo'llab-quvvatlash xizmatiga murojaat qiling.", 'en' => 'The center is suspended. Contact support.'],
     ];
 
     public function __construct(
@@ -136,6 +145,26 @@ final class PaymeRpcException extends RuntimeException
     public static function orderBusy(string $otherTransactionId): self
     {
         return new self(self::ORDER_BUSY, self::ACCOUNT_FIELD, $otherTransactionId);
+    }
+
+    public static function tierChanged(): self
+    {
+        return new self(self::TIER_CHANGED, self::ACCOUNT_FIELD);
+    }
+
+    public static function organizationSuspended(): self
+    {
+        return new self(self::ORGANIZATION_SUSPENDED, self::ACCOUNT_FIELD);
+    }
+
+    /** The account error for an OrganizationOrderGuard refusal; `order_not_payable` for anything else. */
+    public static function forRefusal(string $reason): self
+    {
+        return match ($reason) {
+            OrganizationOrderGuard::REFUSAL_TIER_CHANGED => self::tierChanged(),
+            OrganizationOrderGuard::REFUSAL_ORGANIZATION_SUSPENDED => self::organizationSuspended(),
+            default => self::orderNotPayable($reason),
+        };
     }
 
     /**

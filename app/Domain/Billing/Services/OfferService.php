@@ -8,13 +8,11 @@ use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Exceptions\OfferException;
-use App\Domain\Billing\Support\ProviderTransactionTimeout;
 use App\Models\AuditLog;
 use App\Models\Learner;
 use App\Models\Offer;
 use App\Models\Organization;
 use App\Models\PaymentOrder;
-use App\Models\ProviderTransaction;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
@@ -187,25 +185,12 @@ final class OfferService
     }
 
     /**
-     * The provider may be mid-payment on this order: an open Payme / Click transaction younger
-     * than THAT provider's timeout (Payme CreateTransaction -> debit -> PerformTransaction, 12 h;
-     * Click Prepare -> debit -> Complete, `billing.providers.click.transaction_timeout_ms`), see
-     * {@see ProviderTransactionTimeout}. Such an order must not be canceled under the payer's feet.
-     * Stars has no such row: its window (pre_checkout_query answered -> successful_payment) lasts
-     * seconds and is covered by PaymentApplier honouring a charge on an offer-canceled order.
+     * The provider may be mid-payment on this order ({@see PaymentOrder::isBeingPaidAt}): an open Payme /
+     * Click transaction younger than that provider's timeout. Such a holder is never canceled.
      */
     public function isBeingPaid(PaymentOrder $order, CarbonImmutable $now): bool
     {
-        $since = ProviderTransactionTimeout::openSince($order->provider, $now);
-
-        if ($since === null) {
-            return false;
-        }
-
-        return $order->providerTransactions()
-            ->where('state', ProviderTransaction::STATE_CREATED)
-            ->where('created_at_provider', '>', $since)
-            ->exists();
+        return $order->isBeingPaidAt($now);
     }
 
     /**
