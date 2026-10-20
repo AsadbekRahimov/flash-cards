@@ -18,7 +18,8 @@
         @endforeach
     </ul>
 
-    <a class="link" href="/admin">{{ __('twofactor.recovery.to_admin', [], $locale) }}</a>
+    @php($continueUrl = $continueUrl ?? '/admin')
+    <a class="link" href="{{ $continueUrl }}">{{ str_contains($continueUrl, '/org') ? __('twofactor.recovery.to_org', [], $locale) : __('twofactor.recovery.to_admin', [], $locale) }}</a>
 </div>
 </body>
 </html>

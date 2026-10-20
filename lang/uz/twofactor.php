@@ -28,6 +28,7 @@ return [
         'intro' => "Har bir kod :emphasis amal qiladi. Telefoningizni yo'qotsangiz, ulardan foydalaning. Kodlarni parollar menejerida saqlang.",
         'intro_emphasis' => 'faqat bir marta',
         'to_admin' => "→ Admin panelga o'tish",
+        'to_org' => "→ Markaz kabinetiga o'tish",
     ],
 
     'errors' => [

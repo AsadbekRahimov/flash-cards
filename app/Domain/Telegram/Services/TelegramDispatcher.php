@@ -13,6 +13,7 @@ use App\Domain\Telegram\Handlers\MyChatMemberHandler;
 use App\Domain\Telegram\Handlers\NewMembersHandler;
 use App\Domain\Telegram\Handlers\OnboardingCallbackHandler;
 use App\Domain\Telegram\Handlers\OrganizationCallbackHandler;
+use App\Domain\Telegram\Handlers\OrgCommandHandler;
 use App\Domain\Telegram\Handlers\PaySupportCommandHandler;
 use App\Domain\Telegram\Handlers\ProCallbackHandler;
 use App\Domain\Telegram\Handlers\ProCommandHandler;
@@ -53,6 +54,7 @@ final class TelegramDispatcher
         PromoCommandHandler $promo,
         ProCommandHandler $pro,
         PaySupportCommandHandler $paySupport,
+        OrgCommandHandler $org,
         HelpCommandHandler $help,
         MyChatMemberHandler $myChatMember,
         NewMembersHandler $newMembers,
@@ -80,6 +82,7 @@ final class TelegramDispatcher
             $promo,
             $pro,
             $paySupport,
+            $org,
             $start,
             $today,
             $settings,

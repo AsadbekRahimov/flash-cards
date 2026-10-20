@@ -84,7 +84,7 @@ final class TwoFactorController extends Controller
         ])->save();
 
         $request->session()->forget('2fa.pending_secret');
-        $request->session()->put('2fa.passed_at', now()->timestamp);
+        $this->markPassed($request, $user);
         $request->session()->put('2fa.show_recovery_codes', true);
 
         return redirect()->route('2fa.recovery-codes');
@@ -101,13 +101,15 @@ final class TwoFactorController extends Controller
 
         if ($request->session()->pull('2fa.show_recovery_codes') !== true) {
             return $request->session()->has('2fa.passed_at')
-                ? redirect('/admin')
+                ? redirect()->intended('/admin')
                 : redirect()->route('2fa.challenge');
         }
 
         return view('2fa.recovery-codes', [
             'codes' => (array) $user->two_factor_recovery_codes,
             'locale' => $this->locales->forTeacher(),
+            // Where the person came from: `/org/...` for cabinet staff (RequireOrgTwoFactor stores it), `/admin` otherwise.
+            'continueUrl' => (string) $request->session()->get('url.intended', '/admin'),
         ]);
     }
 
@@ -127,17 +129,28 @@ final class TwoFactorController extends Controller
         $code = trim($data['code']);
 
         if (strlen($code) === 6 && $this->g2fa->verifyKey((string) $user->two_factor_secret, $code)) {
-            $request->session()->put('2fa.passed_at', now()->timestamp);
+            $this->markPassed($request, $user);
 
             return redirect()->intended('/admin');
         }
 
         if ($this->recoveryCodeService->consume($user, $code)) {
-            $request->session()->put('2fa.passed_at', now()->timestamp);
+            $this->markPassed($request, $user);
 
             return redirect()->intended('/admin');
         }
 
         return back()->withErrors(['code' => __('twofactor.errors.invalid_code_or_recovery', [], $this->locales->forTeacher())]);
+    }
+
+    /**
+     * The session mark both panels' middleware read. `2fa.user_id` binds it to the account that
+     * passed: the session is shared by the `web` and `org` guards, so `/org` must not accept a mark
+     * left by another account logged in through `/admin` (RequireOrgTwoFactor checks it).
+     */
+    private function markPassed(Request $request, User $user): void
+    {
+        $request->session()->put('2fa.passed_at', now()->timestamp);
+        $request->session()->put('2fa.user_id', $user->id);
     }
 }
