@@ -22,7 +22,7 @@ const today = (overrides: Partial<TodayResponse> = {}): TodayResponse => ({
   due_count: 23,
   new_words_remaining: null,
   goal: { target: 20, done: 8, met: false },
-  streak: { current: 5, best: 12, met_today: false, at_risk: true },
+  streak: { current: 5, best: 12, met_today: false, at_risk: true, freezes: 0, frozen_yesterday: false },
   active_course: {
     id: 3,
     slug: 'english-a1',
@@ -119,14 +119,46 @@ describe('TodayView', () => {
   })
 
   it('shows a safe streak after the goal, and an invitation when there is none', async () => {
-    const safe = await render(today({ streak: { current: 6, best: 6, met_today: true, at_risk: false } }))
+    const safe = await render(today({ streak: { current: 6, best: 6, met_today: true, at_risk: false, freezes: 0, frozen_yesterday: false } }))
     expect(text(safe, 'streak-safe')).toBe('На сегодня серия продлена')
     expect(safe.find('[data-testid=streak-at-risk]').exists()).toBe(false)
     expect(safe.find('[data-testid=streak-best]').exists()).toBe(false)
 
-    const none = await render(today({ streak: { current: 0, best: 3, met_today: false, at_risk: false } }))
+    const none = await render(today({ streak: { current: 0, best: 3, met_today: false, at_risk: false, freezes: 0, frozen_yesterday: false } }))
     expect(text(none, 'streak-none')).toBe('Выполните цель дня, чтобы начать серию')
     expect(none.find('[data-testid=streak-at-risk]').exists()).toBe(false)
+  })
+
+  it('shows a Pro learner the streak freezes in stock and that yesterday was frozen', async () => {
+    const pro = { plan: 'pro', source: 'subscription', until: null } as const
+    const two = await render(today({ entitlement: pro, streak: { current: 5, best: 12, met_today: false, at_risk: true, freezes: 2, frozen_yesterday: false } }))
+    expect(text(two, 'streak-freezes')).toBe('❄️ 2 заморозки')
+    expect(two.find('[data-testid=streak-frozen]').exists()).toBe(false)
+    expect(two.find('[data-testid=streak-freeze-teaser]').exists()).toBe(false)
+
+    const frozen = await render(today({ entitlement: pro, streak: { current: 5, best: 12, met_today: false, at_risk: true, freezes: 1, frozen_yesterday: true } }))
+    expect(text(frozen, 'streak-freezes')).toBe('❄️ 1 заморозка')
+    expect(text(frozen, 'streak-frozen')).toBe('Вчерашний день заморожен — серия сохранена')
+    expect(text(frozen, 'streak-at-risk')).toBe('Серия под угрозой: выполните цель до полуночи')
+
+    const none = await render(today({ entitlement: pro, streak: { current: 5, best: 12, met_today: true, at_risk: false, freezes: 0, frozen_yesterday: false } }))
+    expect(text(none, 'streak-freezes')).toBe('❄️ Заморозок нет — новая в понедельник')
+  })
+
+  it('offers a Free learner the streak-freeze teaser that opens the paywall with its own lead', async () => {
+    const w = await render()
+    expect(w.find('[data-testid=streak-freezes]').exists()).toBe(false)
+    expect(text(w, 'streak-freeze-teaser')).toBe('❄️ Заморозки серии — в Pro')
+
+    await w.get('[data-testid=streak-freeze-teaser]').trigger('click')
+    await flushPromises()
+    expect(w.get('[data-testid=paywall-lead]').text()).toContain('Заморозка серии — в Pro')
+
+    // The review card still opens the sheet with its own reason.
+    await w.get('[data-testid=paywall-close]').trigger('click')
+    await w.get('[data-testid=paywall-open]').trigger('click')
+    await flushPromises()
+    expect(w.get('[data-testid=paywall-lead]').text()).not.toContain('Заморозка серии')
   })
 
   it('shows the due count with the right Russian form and an empty state', async () => {

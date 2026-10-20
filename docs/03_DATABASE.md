@@ -392,7 +392,9 @@ Append-only журнал для продуктовой аналитики (не 
 | start_payload | string(64) nullable | сырой payload `/start` |
 | referrer_learner_id | bigint nullable FK → learners, ON DELETE SET NULL | реферер (только фиксируется) |
 | streak_current, streak_best | smallint default 0 | |
-| streak_last_date | date nullable | локальная дата, когда дневная цель выполнялась последний раз |
+| streak_last_date | date nullable | последний **удержанный** локальный день серии: дневная цель выполнена или день заморожен (`learner_daily_stats.frozen_at`, 2C.2) |
+| streak_freezes | smallint default 0 | инвентарь заморозок серии (Pro, docs/13 §7.2): ≤ `config('learners.streak_freeze.max')` (2); тратится `StreakFreezeService::tryFreeze` условным `UPDATE … WHERE streak_freezes > 0` *(2C.2)* |
+| streak_freezes_refilled_on | date nullable | понедельник локальной недели, за которую пополнение уже выдано (или отмечено при полном инвентаре) *(2C.2)* |
 | last_seen_at | timestamp nullable | |
 | blocked_at | timestamp nullable | бан платформой |
 | deleted_at | timestamp nullable | `SoftDeletes` |
@@ -509,6 +511,7 @@ Append-only журнал для продуктовой аналитики (не 
 | correct_count | int default 0 | `quality >= 3` |
 | time_spent_ms | bigint default 0 | |
 | goal_met_at | timestamp nullable | момент первого достижения `reviews_count >= learners.daily_goal`; ставится один раз под `FOR UPDATE` строки; источник истины для streak (`learners.streak_*` — проекция, обновляемая после commit) |
+| frozen_at | timestamp nullable | день закрыт заморозкой серии (`goal_met_at` остаётся `NULL`; строка со счётчиками 0 создаётся, если её не было); ставится один раз условным `UPDATE … WHERE frozen_at IS NULL AND goal_met_at IS NULL` вне транзакции оценки — docs/06 §6a *(2C.2)* |
 | created_at, updated_at | | |
 
 **Индексы:** `(learner_id, date)` unique.
@@ -742,6 +745,8 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 32. `2026_10_21_000001_create_organization_users_table` *(2B.1)*
 33. `2026_10_21_000002_create_organization_invites_table` *(2B.1; до `organization_members` из-за FK `invite_id`)*
 34. `2026_10_21_000003_create_organization_members_table` *(2B.1)*
+35. `2026_10_21_000004_create_assignments_table`, `2026_10_21_000005_create_assignment_results_table` *(2B.4)*
+36. `2026_10_22_200001_add_streak_freeze_columns` — `learners.streak_freezes`, `streak_freezes_refilled_on`; `learner_daily_stats.frozen_at` *(2C.2)*
 
 Индексные миграции (`add_performance_indexes`, `add_open_session_unique_indexes`) и `create_exam_*`, `create_notifications_log_table`,
 `create_product_events_table` переведены на `learner_id` на месте; `add_open_session_unique_indexes` дополнительно создаёт

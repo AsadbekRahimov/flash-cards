@@ -7,6 +7,7 @@ namespace App\Domain\Learners\Services;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Billing\Services\NewWordQuota;
 use App\Domain\Content\Services\CourseCatalogService;
+use App\Domain\Engagement\Services\StreakFreezeService;
 use App\Domain\Learners\DTO\DailyGoal;
 use App\Domain\Learners\DTO\DailyProgress;
 use App\Domain\Learners\DTO\TodayCourse;
@@ -25,7 +26,8 @@ use Illuminate\Database\Eloquent\Builder;
  * StreakService); here they are only put together for the learner's local day.
  *
  * Not strictly read-only: {@see StreakService::current()} may repair a lagging `learners.streak_*`
- * projection with a single `UPDATE learners`. So `summary()` / `progress()` must not be called
+ * projection with a single `UPDATE learners` or spend a streak freeze, and `summary()` refills the
+ * weekly freeze (StreakFreezeService). So `summary()` / `progress()` must not be called
  * inside a transaction that holds `training_sessions` / `word_repetitions` / `learner_daily_stats`
  * (it would add `learners` after them — the lock order docs/12 §3.1 forbids).
  */
@@ -39,11 +41,16 @@ final class TodayService
         private readonly CourseCatalogService $catalog,
         private readonly EntitlementResolver $entitlements,
         private readonly NewWordQuota $quota,
+        private readonly StreakFreezeService $freezes,
     ) {}
 
     public function summary(Learner $learner, ?CarbonImmutable $now = null): TodaySummary
     {
         $now ??= CarbonImmutable::now();
+
+        // The weekly freeze is handed out lazily here (docs/13 §7.2), before the streak is read:
+        // a freeze refilled on Monday can hold Sunday in the same read.
+        $this->freezes->refill($learner, $this->clock->today($learner, $now), $now);
 
         return new TodaySummary(
             dueCount: $this->stats->dueCount($learner, $now),
@@ -71,7 +78,7 @@ final class TodayService
                 done: $stats->reviews_count ?? 0,
                 met: $stats?->goal_met_at !== null,
             ),
-            $this->streaks->current($learner, $today, $stats),
+            $this->streaks->current($learner, $today, $stats, $now),
         );
     }
 

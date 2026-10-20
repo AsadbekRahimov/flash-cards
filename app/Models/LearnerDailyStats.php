@@ -19,6 +19,7 @@ use Illuminate\Support\Carbon;
  * @property int $correct_count
  * @property int $time_spent_ms
  * @property Carbon|null $goal_met_at
+ * @property Carbon|null $frozen_at
  */
 class LearnerDailyStats extends Model
 {
@@ -36,6 +37,7 @@ class LearnerDailyStats extends Model
         'correct_count',
         'time_spent_ms',
         'goal_met_at',
+        'frozen_at',
     ];
 
     /** @return array<string, string> */
@@ -48,6 +50,7 @@ class LearnerDailyStats extends Model
             'correct_count' => 'integer',
             'time_spent_ms' => 'integer',
             'goal_met_at' => 'datetime',
+            'frozen_at' => 'datetime',
         ];
     }
 

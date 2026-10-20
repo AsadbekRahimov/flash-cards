@@ -38,6 +38,13 @@ export const uz: Translations = {
   'today.streak.at_risk': 'Seriya xavf ostida: maqsadni yarim tungacha bajaring',
   'today.streak.safe': 'Bugungi kun uchun seriya uzaytirildi',
   'today.streak.best': 'Rekord: {best}',
+  'today.streak.freezes': {
+    one: '❄️ {count} ta muzlatish',
+    other: '❄️ {count} ta muzlatish',
+  },
+  'today.streak.freezes_none': "❄️ Muzlatish yo'q — yangisi dushanba kuni",
+  'today.streak.frozen_yesterday': 'Kechagi kun muzlatildi — seriya saqlandi',
+  'today.streak.freeze_teaser': "❄️ Seriyani muzlatish — Pro'da",
   'today.review.title': 'Takrorlash',
   'today.review.due': {
     one: "Takrorlash uchun {count} ta so'z",
@@ -129,6 +136,7 @@ export const uz: Translations = {
   'paywall.open': 'Pro haqida bilib oling',
   'paywall.review': "So'zlarni takrorlash",
   'paywall.lead_decks': "Free tarifida to'plamlar limiti: 50 tagacha so'zli 1 ta to'plam. Pro'da 2000 tadan so'zli 20 tagacha to'plam.",
+  'paywall.lead_streak_freeze': "Seriyani muzlatish — Pro'da: o'tkazib yuborilgan kun seriyani uzmaydi, 2 tagacha muzlatish, har hafta +1.",
 
   // ---- purchase (paywall mode purchase, subscription screen; docs/13 §5) ----
   'paywall.title_purchase': 'LexiFlow Pro',

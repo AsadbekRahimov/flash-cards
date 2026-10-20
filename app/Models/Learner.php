@@ -37,6 +37,8 @@ use Illuminate\Support\Carbon;
  * @property int $streak_current
  * @property int $streak_best
  * @property Carbon|null $streak_last_date
+ * @property int $streak_freezes
+ * @property Carbon|null $streak_freezes_refilled_on
  * @property Carbon|null $last_seen_at
  * @property Carbon|null $blocked_at
  * @property array<string, mixed> $meta
@@ -72,6 +74,8 @@ class Learner extends Model
         'streak_current',
         'streak_best',
         'streak_last_date',
+        'streak_freezes',
+        'streak_freezes_refilled_on',
         'last_seen_at',
         'blocked_at',
         'meta',
@@ -90,6 +94,8 @@ class Learner extends Model
             'streak_current' => 'integer',
             'streak_best' => 'integer',
             'streak_last_date' => 'date',
+            'streak_freezes' => 'integer',
+            'streak_freezes_refilled_on' => 'date',
             'last_seen_at' => 'datetime',
             'blocked_at' => 'datetime',
             'meta' => 'array',

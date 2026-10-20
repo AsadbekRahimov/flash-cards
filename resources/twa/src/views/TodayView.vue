@@ -5,7 +5,7 @@ import { storeToRefs } from 'pinia'
 import AssignmentsBlock from '@/components/AssignmentsBlock.vue'
 import GoalRing from '@/components/GoalRing.vue'
 import LapsedBanner from '@/components/LapsedBanner.vue'
-import PaywallSheet from '@/components/PaywallSheet.vue'
+import PaywallSheet, { type PaywallReason } from '@/components/PaywallSheet.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import { useAssignmentsStore } from '@/stores/assignments'
 import { useAuthStore } from '@/stores/auth'
@@ -69,6 +69,13 @@ function learnNext(lessonId: number): Promise<void> {
 }
 
 const paywallOpen = ref(false)
+/** Why the sheet was opened: the review card ('quota' / 'info') or the streak-freeze teaser (docs/13 §7.2). */
+const paywallReason = ref<PaywallReason>('info')
+
+function openPaywall(reason: PaywallReason): void {
+  paywallReason.value = reason
+  paywallOpen.value = true
+}
 
 /** "Repeat words" in the paywall: close the sheet (a failure shows on this screen) and start the review. */
 async function onPaywallReview(): Promise<void> {
@@ -153,6 +160,19 @@ onBeforeUnmount(() => training.clearOpenError())
           <div v-if="streak.best > streak.current" class="text-xs text-tg-hint" data-testid="streak-best">
             {{ t('today.streak.best', { best: tn('today.streak.days', streak.best) }) }}
           </div>
+          <div v-if="streak.frozen_yesterday" class="text-sm" data-testid="streak-frozen">{{ t('today.streak.frozen_yesterday') }}</div>
+          <div v-if="data.entitlement.plan === 'pro'" class="text-xs text-tg-hint" data-testid="streak-freezes">
+            {{ streak.freezes > 0 ? tn('today.streak.freezes', streak.freezes) : t('today.streak.freezes_none') }}
+          </div>
+          <button
+            v-else
+            type="button"
+            class="text-xs text-tg-link underline text-left"
+            data-testid="streak-freeze-teaser"
+            @click="openPaywall('streak_freeze')"
+          >
+            {{ t('today.streak.freeze_teaser') }}
+          </button>
         </div>
       </div>
 
@@ -169,7 +189,7 @@ onBeforeUnmount(() => training.clearOpenError())
           type="button"
           class="text-tg-link underline text-sm"
           data-testid="paywall-open"
-          @click="paywallOpen = true"
+          @click="openPaywall(data.new_words_remaining === 0 ? 'quota' : 'info')"
         >
           {{ t('paywall.open') }}
         </button>
@@ -225,7 +245,7 @@ onBeforeUnmount(() => training.clearOpenError())
 
     <PaywallSheet
       v-if="paywallOpen"
-      :reason="data?.new_words_remaining === 0 ? 'quota' : 'info'"
+      :reason="paywallReason"
       @close="paywallOpen = false"
       @review="onPaywallReview"
     />

@@ -48,6 +48,15 @@ export const ru = {
   'today.streak.at_risk': 'Серия под угрозой: выполните цель до полуночи',
   'today.streak.safe': 'На сегодня серия продлена',
   'today.streak.best': 'Рекорд: {best}',
+  'today.streak.freezes': {
+    one: '❄️ {count} заморозка',
+    few: '❄️ {count} заморозки',
+    many: '❄️ {count} заморозок',
+    other: '❄️ {count} заморозки',
+  },
+  'today.streak.freezes_none': '❄️ Заморозок нет — новая в понедельник',
+  'today.streak.frozen_yesterday': 'Вчерашний день заморожен — серия сохранена',
+  'today.streak.freeze_teaser': '❄️ Заморозки серии — в Pro',
   'today.review.title': 'Повторение',
   'today.review.due': {
     one: '{count} слово к повторению',
@@ -145,6 +154,7 @@ export const ru = {
   'paywall.open': 'Узнать о Pro',
   'paywall.review': 'Повторить слова',
   'paywall.lead_decks': 'Лимит колод тарифа Free: 1 колода до 50 слов. В Pro — до 20 колод по 2000 слов.',
+  'paywall.lead_streak_freeze': 'Заморозка серии — в Pro: пропущенный день не обрывает серию, до 2 заморозок, +1 каждую неделю.',
 
   // ---- purchase (paywall mode purchase, subscription screen; docs/13 §5) ----
   'paywall.title_purchase': 'LexiFlow Pro',

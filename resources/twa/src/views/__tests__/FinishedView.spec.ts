@@ -40,7 +40,7 @@ const summary = (overrides: Partial<SessionSummary> = {}): SessionSummary => ({
   correct: 4,
   new_words: 1,
   goal: { target: 20, done: 12, met: false },
-  streak: { current: 3, best: 7, met_today: false, at_risk: true },
+  streak: { current: 3, best: 7, met_today: false, at_risk: true, freezes: 0, frozen_yesterday: false },
   ...overrides,
 })
 
@@ -188,7 +188,7 @@ describe('FinishedView', () => {
     it('celebrates a met goal and drops the risk line', () => {
       useTrainingStore().summary = summary({
         goal: { target: 20, done: 21, met: true },
-        streak: { current: 1, best: 1, met_today: true, at_risk: false },
+        streak: { current: 1, best: 1, met_today: true, at_risk: false, freezes: 0, frozen_yesterday: false },
       })
       const w = render(5, 1)
 
@@ -198,7 +198,7 @@ describe('FinishedView', () => {
     })
 
     it('has no streak line while the series is zero', () => {
-      useTrainingStore().summary = summary({ streak: { current: 0, best: 0, met_today: false, at_risk: false } })
+      useTrainingStore().summary = summary({ streak: { current: 0, best: 0, met_today: false, at_risk: false, freezes: 0, frozen_yesterday: false } })
 
       expect(render(5, 1).find('[data-testid=streak]').exists()).toBe(false)
     })

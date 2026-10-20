@@ -8,6 +8,8 @@ import { useTodayStore } from '@/stores/today'
 import { useI18n } from '@/i18n'
 import type { BillingPeriod, BillingProviderKey, MeResponse } from '@/api/types'
 
+export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze'
+
 /**
  * Paywall (docs/12 §5.4, docs/13 §5).
  *
@@ -21,7 +23,8 @@ import type { BillingPeriod, BillingProviderKey, MeResponse } from '@/api/types'
  * failed to load, keeps the `coming_soon` copy.
  *
  * `reason = 'quota'` is the end of today's new words; `'decks'` is a refused deck / deck-word limit
- * (docs/04 A.10); `'info'` is the learner opening it from the Today screen. A promo code that works or a
+ * (docs/04 A.10); `'streak_freeze'` is the Free teaser of streak freezes (docs/13 §7.2); `'info'` is the
+ * learner opening it from the Today screen. A promo code that works or a
  * confirmed payment refreshes `/me` (billing store) and `/today`.
  *
  * "Repeat words" (shown when the Today store knows of due cards) emits `review`: reviews are never
@@ -30,7 +33,7 @@ import type { BillingPeriod, BillingProviderKey, MeResponse } from '@/api/types'
  * a11y (minimal): the focus moves into the dialog on open and returns to the opener on close;
  * Escape closes it.
  */
-const props = withDefaults(defineProps<{ reason?: 'quota' | 'info' | 'decks' }>(), { reason: 'info' })
+const props = withDefaults(defineProps<{ reason?: PaywallReason }>(), { reason: 'info' })
 const emit = defineEmits<{ close: []; redeemed: [me: MeResponse]; review: [] }>()
 
 const { t, locale } = useI18n()
@@ -152,6 +155,9 @@ onBeforeUnmount(() => {
         </p>
         <p v-else-if="props.reason === 'decks'" class="text-center" data-testid="paywall-lead">
           {{ t('paywall.lead_decks') }} {{ purchaseMode ? t('paywall.lead_purchase') : t('paywall.soon') }}
+        </p>
+        <p v-else-if="props.reason === 'streak_freeze'" class="text-center" data-testid="paywall-lead">
+          {{ t('paywall.lead_streak_freeze') }} {{ purchaseMode ? t('paywall.lead_purchase') : t('paywall.soon') }}
         </p>
         <p v-else class="text-center" data-testid="paywall-lead">{{ purchaseMode ? t('paywall.lead_purchase') : t('paywall.soon') }}</p>
 

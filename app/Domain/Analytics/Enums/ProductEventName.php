@@ -51,4 +51,6 @@ enum ProductEventName: string
     case PromoRejected = 'promo.rejected';
     case DailyGoalMet = 'daily_goal.met';
     case StreakExtended = 'streak.extended';
+    /** A missed local day was held by a streak freeze (props: date, freezes_left — docs/13 §7.2). */
+    case StreakFrozen = 'streak.frozen';
 }
