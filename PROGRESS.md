@@ -44,9 +44,11 @@
 | 2C.5 | Друзья и вызовы (`friendships`, `challenges`, `f_<code>`, экран «Друзья») | coder | 🔄 |
 | 2D.1 | Свои колоды: `LearnerDeckService`, `DeckImportParser` (список/CSV), API `/decks*`, TWA `MyDecksView`/`DeckEditView`; лимиты `config/decks.php` (Free 1×50, Pro 20×2000); участие в `daily_review` и квоте. Хвосты: uz-тексты на проверку носителем; PG-теста параллельных импортов нет | coder | ✅ |
 | 2D.2 | Типы упражнений (reverse/audio/spelling/gap-fill) + `audio_url` (закрывает 2R.4) | architect | 🔄 |
-| 2D.3–2D.5 | FSRS A/B, симулятор IELTS/SAT, ревью | см. docs/13 §11 | ⏳ |
+| 2D.3 | FSRS A/B (после 2D.2) | architect | ⏳ |
+| 2D.5 | Ревью волны C | reviewer | ⏳ |
 | 2R.3 | Глобальный лимит исходящих Telegram: `reserveGlobal` (Redis Lua `INCR`+`EXPIRE`, 25/с), middleware `ThrottleTelegramOutbound` (нет слота → release 1–5 с; `tries=0` + `maxExceptions`) на напоминаниях, продлениях, заданиях, лидерборде, ЛС центров/офферов; `assignments:refresh` ждёт слот до 2 с до клейма; `ReminderDispatcher` ставит ≤ send_rate×840 за запуск. Ответы на входящие апдейты не лимитируются | coder | ✅ |
-| 2R.7 | Отмена ошибочной смены часового пояса (10 мин, снимок `local_day_carry`) | coder | 🔄 |
+| 2R.7 | Отмена смены часового пояса: снимок `meta.timezone_change_undo`, `revertTimezone` (10 мин, без штрафа 24 ч, окно квоты как без смены), `POST /me/settings/timezone/revert`, кнопка с таймером в TWA, «Отменить» в боте `/settings`; заморозки не пополняются повторно | coder | ✅ |
+| 2D.4 | Симулятор IELTS/SAT (Pro) | architect | 🔄 |
 | 2R.8 | Staging 0.7 (restore, ZAP, k6, Lighthouse) — владелец/DevOps | — | ⏳ |
 
 ## Sprint 14 — Фаза 1 «Публичный B2C MVP» ✅ (2026-10-18 — 2026-10-19; 1.9 ждёт контент владельца)
