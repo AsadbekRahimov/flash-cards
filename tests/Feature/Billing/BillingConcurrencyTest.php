@@ -95,6 +95,10 @@ function billingRunInParallel(array $tasks): array
         if ($pid === 0) {
             $outcome = [];
             try {
+                // Same for a persistent cache store (CI: Redis): a socket shared with the
+                // parent and siblings interleaves replies. Drop it so each child dials its own.
+                app('redis')->purge();
+
                 $deadline = microtime(true) + 10;
                 while (! file_exists($go) && microtime(true) < $deadline) {
                     usleep(500);
