@@ -16,6 +16,7 @@ use Illuminate\Queue\InteractsWithQueue;
 final class SendMemberSeatedMessage implements ShouldQueue
 {
     use InteractsWithQueue;
+    use RunsDmWithoutRetryOnSyncQueue;
 
     public bool $afterCommit = true;
 
@@ -31,6 +32,6 @@ final class SendMemberSeatedMessage implements ShouldQueue
 
     public function handle(OrganizationMemberSeated $event): void
     {
-        $this->messenger->notifySeated($event->memberId);
+        $this->sendDm(fn () => $this->messenger->notifySeated($event->memberId));
     }
 }

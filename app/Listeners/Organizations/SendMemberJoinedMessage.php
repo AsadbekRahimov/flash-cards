@@ -17,6 +17,7 @@ use Illuminate\Queue\InteractsWithQueue;
 final class SendMemberJoinedMessage implements ShouldQueue
 {
     use InteractsWithQueue;
+    use RunsDmWithoutRetryOnSyncQueue;
 
     public bool $afterCommit = true;
 
@@ -32,6 +33,6 @@ final class SendMemberJoinedMessage implements ShouldQueue
 
     public function handle(OrganizationMemberJoined $event): void
     {
-        $this->messenger->notifyJoined($event->memberId);
+        $this->sendDm(fn () => $this->messenger->notifyJoined($event->memberId));
     }
 }

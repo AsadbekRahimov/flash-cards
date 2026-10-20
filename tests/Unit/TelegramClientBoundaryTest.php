@@ -14,6 +14,9 @@ use Telegram\Bot\TelegramRequest;
 use Telegram\Bot\TelegramResponse;
 
 it('binds the Telegram client contract to the irazasyed adapter', function (): void {
+    // The base TestCase swaps in a fake; this is the production wiring.
+    $this->refreshApplication();
+
     expect(app(TelegramClient::class))
         ->toBeInstanceOf(IrazasyedTelegramClient::class)
         ->toBe(app(IrazasyedTelegramClient::class));

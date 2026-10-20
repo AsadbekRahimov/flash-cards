@@ -21,6 +21,7 @@ use Illuminate\Queue\InteractsWithQueue;
 final class GrantPostOrgDiscount implements ShouldQueue
 {
     use InteractsWithQueue;
+    use RunsDmWithoutRetryOnSyncQueue;
 
     public bool $afterCommit = true;
 
@@ -55,7 +56,7 @@ final class GrantPostOrgDiscount implements ShouldQueue
             ?? $this->offers->unannouncedPostOrgDiscount($learner, $organization);
 
         if ($offer !== null) {
-            $this->messenger->notifyPostOrgDiscount($offer);
+            $this->sendDm(fn () => $this->messenger->notifyPostOrgDiscount($offer));
         }
     }
 }
