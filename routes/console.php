@@ -56,6 +56,12 @@ Schedule::command('organizations:sync-members')
     ->hourly()
     ->withoutOverlapping();
 
+// Assignment snapshots + group reminders 24 h before the deadline (docs/13 §1.4). Idempotent:
+// the one-time posts are claimed by conditional UPDATEs (`announced_at` / `reminded_at`).
+Schedule::command('assignments:refresh')
+    ->everyThirtyMinutes()
+    ->withoutOverlapping(20);
+
 // Telegram's Stars ledger vs ours for the last 2 days (docs/13 §4.4): read-only, logs
 // `billing.reconcile_missing*`; exits early while Stars is disabled.
 Schedule::command('billing:reconcile-stars')

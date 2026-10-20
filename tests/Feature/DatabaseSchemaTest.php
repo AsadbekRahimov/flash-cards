@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Models\Assignment;
+use App\Models\AssignmentResult;
 use App\Models\Course;
 use App\Models\ExamAnswer;
 use App\Models\ExamQuestionAttempt;
@@ -54,6 +56,8 @@ $expectedTables = [
     'offers', 'payment_orders', 'provider_transactions', 'payments',
     // Phase 2 (docs/13 §1.3): organizations — staff, invites, members / seats.
     'organization_users', 'organization_invites', 'organization_members',
+    // Phase 2 (docs/13 §1.4): assignments of a center.
+    'assignments', 'assignment_results',
 ];
 
 /**
@@ -660,8 +664,8 @@ it('has partial unique index subscriptions_one_live_per_subscriber', function ()
 it('rolls back and re-applies the organization migrations (2B.1) in FK order', function (): void {
     $tables = ['organization_members', 'organization_invites', 'organization_users'];
 
-    // The three 2B.1 files are the last ones: members -> invites (FK invite_id) -> users.
-    $this->artisan('migrate:rollback', ['--step' => 3])->assertSuccessful();
+    // The two 2B.4 assignment files are the last ones, then the three 2B.1 files: members -> invites (FK invite_id) -> users.
+    $this->artisan('migrate:rollback', ['--step' => 5])->assertSuccessful();
     foreach ($tables as $table) {
         expect(Schema::hasTable($table))->toBeFalse("Table {$table} survived rollback");
     }
@@ -736,8 +740,8 @@ it('cascades and nulls the organization foreign keys as designed (docs/13 §1.3)
 it('rolls back and re-applies the billing migrations (2A.1) in FK order', function (): void {
     $tables = ['payments', 'provider_transactions', 'payment_orders', 'offers'];
 
-    // 7 steps: the three 2B.1 organization files sit on top of the four 2A.1 billing files.
-    $this->artisan('migrate:rollback', ['--step' => 7])->assertSuccessful();
+    // 9 steps: the two 2B.4 and the three 2B.1 files sit on top of the four 2A.1 billing files.
+    $this->artisan('migrate:rollback', ['--step' => 9])->assertSuccessful();
     foreach ($tables as $table) {
         expect(Schema::hasTable($table))->toBeFalse("Table {$table} survived rollback");
     }
@@ -816,4 +820,32 @@ it('drops the learner-first indexes on rollback of the open-session migration', 
         $migration->up();
         expect(DB::selectOne("SELECT 1 AS x FROM pg_constraint WHERE conname = 'training_sessions_mode_shape_check'"))->not->toBeNull();
     }
+});
+
+it('rolls back and re-applies the assignment migrations (2B.4) in FK order', function (): void {
+    $this->artisan('migrate:rollback', ['--step' => 2])->assertSuccessful();
+    expect(Schema::hasTable('assignment_results'))->toBeFalse()
+        ->and(Schema::hasTable('assignments'))->toBeFalse()
+        ->and(Schema::hasTable('organization_members'))->toBeTrue();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasColumns('assignments', ['organization_id', 'telegram_group_id', 'lesson_id', 'due_at', 'announced_at', 'reminded_at', 'status', 'completion_threshold', 'meta']))->toBeTrue()
+        ->and(Schema::hasColumns('assignment_results', ['assignment_id', 'learner_id', 'progress_pct', 'completed_at', 'computed_at']))->toBeTrue();
+});
+
+it('enforces assignment_results (assignment_id, learner_id) unique, cascades the results and restricts lesson deletion', function (): void {
+    $assignment = Assignment::factory()->create();
+    $learner = Learner::factory()->create();
+
+    AssignmentResult::factory()->create(['assignment_id' => $assignment->id, 'learner_id' => $learner->id]);
+    expectConstraintViolation(fn () => AssignmentResult::factory()->create(['assignment_id' => $assignment->id, 'learner_id' => $learner->id]));
+
+    // A lesson with assignments cannot be deleted (RESTRICT) — on sqlite only with FK enforcement on.
+    if (DB::getDriverName() === 'pgsql') {
+        expectConstraintViolation(fn () => DB::table('lessons')->where('id', $assignment->lesson_id)->delete());
+    }
+
+    $assignment->group()->delete();
+    expect(Assignment::query()->count())->toBe(0)
+        ->and(AssignmentResult::query()->count())->toBe(0);
 });

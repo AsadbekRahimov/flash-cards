@@ -2,10 +2,12 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import AssignmentsBlock from '@/components/AssignmentsBlock.vue'
 import GoalRing from '@/components/GoalRing.vue'
 import LapsedBanner from '@/components/LapsedBanner.vue'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
+import { useAssignmentsStore } from '@/stores/assignments'
 import { useAuthStore } from '@/stores/auth'
 import { useTodayStore } from '@/stores/today'
 import { useTrainingStore } from '@/stores/training'
@@ -19,6 +21,7 @@ const route = useRoute()
 const auth = useAuthStore()
 const today = useTodayStore()
 const training = useTrainingStore()
+const assignments = useAssignmentsStore()
 const { data, status, errorMessage: loadError } = storeToRefs(today)
 const { opening, openError } = storeToRefs(training)
 
@@ -31,12 +34,23 @@ async function load(): Promise<void> {
     return
   }
   await today.load()
+  // The center's assignments are secondary: loaded alongside, never blocking or breaking Today.
+  void assignments.load()
 
   // Opened from a reminder (`/twa/?from=reminder`, docs/12 §7.5): go straight into the daily
   // review. The marker is dropped from the URL first so a reload or "back" does not reopen it.
   if (route.query.from === 'reminder' && today.data !== null) {
     await router.replace({ name: 'today', query: {} })
     await openSession({ mode: 'daily_review', source: 'reminder' })
+    return
+  }
+
+  // Opened from the group announcement (`/twa/?from=assignment&lesson=<id>`, docs/13 §2.3): start the
+  // lesson through the usual session path (the server re-checks access to the lesson).
+  const lessonId = Number(route.query.lesson)
+  if (route.query.from === 'assignment' && Number.isInteger(lessonId) && lessonId > 0 && today.data !== null) {
+    await router.replace({ name: 'today', query: {} })
+    await openSession({ mode: 'lesson', lesson_id: lessonId, source: 'assignment' })
   }
 }
 
@@ -47,6 +61,8 @@ async function openSession(body: OpenSessionRequest): Promise<void> {
 }
 
 const review = (): Promise<void> => openSession({ mode: 'daily_review', source: 'self' })
+
+const openAssignment = (lessonId: number): Promise<void> => openSession({ mode: 'lesson', lesson_id: lessonId, source: 'assignment' })
 
 function learnNext(lessonId: number): Promise<void> {
   return openSession({ mode: 'lesson', lesson_id: lessonId, source: 'self' })
@@ -61,6 +77,7 @@ async function onPaywallReview(): Promise<void> {
 }
 
 const goalLeft = computed(() => (data.value ? Math.max(0, data.value.goal.target - data.value.goal.done) : 0))
+const assignmentItems = computed(() => assignments.items)
 const streak = computed(() => data.value?.streak ?? null)
 const lessonLabel = computed(() => {
   const lesson = data.value?.active_course?.next_lesson
@@ -160,6 +177,8 @@ onBeforeUnmount(() => training.clearOpenError())
           {{ data.open_session_id !== null ? t('today.review.continue') : t('today.review.start') }}
         </button>
       </div>
+
+      <AssignmentsBlock v-if="assignmentItems.length > 0" :items="assignmentItems" :busy="opening" @open="openAssignment" />
 
       <div class="card space-y-3" data-testid="course-card">
         <template v-if="data.active_course">

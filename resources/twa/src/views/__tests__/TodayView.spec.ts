@@ -8,11 +8,11 @@ import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { useTrainingStore } from '@/stores/training'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
-import type { MeResponse, TodayResponse } from '@/api/types'
+import type { AssignmentItem, MeResponse, TodayResponse } from '@/api/types'
 
 const state = vi.hoisted(() => ({ ensure: vi.fn() }))
 
-vi.mock('@/api', () => ({ api: { today: { get: vi.fn() }, training: { open: vi.fn() }, me: { get: vi.fn() } } }))
+vi.mock('@/api', () => ({ api: { today: { get: vi.fn() }, assignments: { list: vi.fn() }, training: { open: vi.fn() }, me: { get: vi.fn() } } }))
 
 vi.mock('@/stores/auth', () => ({
   useAuthStore: () => ({ ensure: state.ensure }),
@@ -33,6 +33,22 @@ const today = (overrides: Partial<TodayResponse> = {}): TodayResponse => ({
   open_session_id: null,
   entitlement: { plan: 'free', source: 'free', until: null },
   onboarding_completed: true,
+  ...overrides,
+})
+
+const assignment = (overrides: Partial<AssignmentItem> = {}): AssignmentItem => ({
+  id: 7,
+  title: 'Food',
+  group: 'Group A',
+  lesson_id: 41,
+  stage: 2,
+  lesson: 4,
+  due_at: '2026-10-25T13:00:00+00:00',
+  overdue: false,
+  progress_pct: 40,
+  completed: false,
+  completed_at: null,
+  late: false,
   ...overrides,
 })
 
@@ -64,6 +80,7 @@ describe('TodayView', () => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
     state.ensure.mockResolvedValue(undefined)
+    vi.mocked(api.assignments.list).mockResolvedValue({ assignments: [] })
     // The "Pro ended" banner asks /me for a Free learner; by default nothing lapsed.
     vi.mocked(api.me.get).mockResolvedValue({
       entitlement: { plan: 'free', source: 'free', until: null, new_words_per_day: 20, renewal: null, lapsed: null },
@@ -230,6 +247,81 @@ describe('TodayView', () => {
       expect(api.training.open).not.toHaveBeenCalled()
       expect(other.router.currentRoute.value.name).toBe('today')
       expect(other.router.currentRoute.value.query.from).toBe('today')
+    })
+  })
+
+  describe('assignments of the center', () => {
+    it('shows no block without assignments', async () => {
+      const w = await render()
+
+      expect(w.find('[data-testid=assignments-card]').exists()).toBe(false)
+    })
+
+    it('lists the assignments with the learner\'s own progress and starts the lesson as an assignment session', async () => {
+      vi.mocked(api.assignments.list).mockResolvedValue({
+        assignments: [assignment(), assignment({ id: 8, title: 'Done', lesson_id: 42, progress_pct: 100, completed: true, late: true })],
+      })
+      vi.mocked(api.training.open).mockResolvedValue({ session_id: 55, mode: 'lesson', lesson: null, total_words: 10 })
+
+      const w = await render()
+
+      expect(w.findAll('[data-testid=assignment]')).toHaveLength(2)
+      expect(w.findAll('[data-testid=assignment-title]')[0].text()).toBe('Food')
+      expect(w.findAll('[data-testid=assignment-progress]')[0].text()).toBe('Пройдено 40% слов урока')
+      expect(w.findAll('[data-testid=assignment-done]')[0].text()).toBe('Выполнено с опозданием')
+      // A completed assignment has no button.
+      expect(w.findAll('[data-testid=assignment-btn]')).toHaveLength(1)
+
+      await w.get('[data-testid=assignment-btn]').trigger('click')
+      await flushPromises()
+
+      expect(api.training.open).toHaveBeenCalledWith({ mode: 'lesson', lesson_id: 41, source: 'assignment' })
+      expect(w.router.currentRoute.value.name).toBe('training')
+    })
+
+    it('marks an overdue open assignment', async () => {
+      vi.mocked(api.assignments.list).mockResolvedValue({ assignments: [assignment({ overdue: true })] })
+
+      const w = await render()
+
+      expect(text(w, 'assignment-due')).toContain('Срок прошёл')
+    })
+
+    it('keeps Today working when the assignments cannot be loaded', async () => {
+      vi.mocked(api.assignments.list).mockRejectedValue(new ApiClientError('server', 500, 'server_error', 'boom'))
+
+      const w = await render()
+
+      expect(w.find('[data-testid=assignments-card]').exists()).toBe(false)
+      expect(text(w, 'goal-text')).toBe('8 из 20')
+    })
+
+    it('opens the lesson right away from the group announcement (?from=assignment&lesson=41) and drops the marker', async () => {
+      vi.mocked(api.today.get).mockResolvedValue(today())
+      vi.mocked(api.training.open).mockResolvedValue({ session_id: 56, mode: 'lesson', lesson: null, total_words: 10 })
+      const router = makeRouter()
+      await router.push('/today?from=assignment&lesson=41')
+      await router.isReady()
+      mount(TodayView, { global: { plugins: [router] } })
+      await flushPromises()
+
+      expect(api.training.open).toHaveBeenCalledWith({ mode: 'lesson', lesson_id: 41, source: 'assignment' })
+      expect(router.currentRoute.value.name).toBe('training')
+      router.back()
+      await flushPromises()
+      expect(router.currentRoute.value.query.from).toBeUndefined()
+    })
+
+    it('ignores a broken lesson id in the announcement link', async () => {
+      vi.mocked(api.today.get).mockResolvedValue(today())
+      const router = makeRouter()
+      await router.push('/today?from=assignment&lesson=abc')
+      await router.isReady()
+      mount(TodayView, { global: { plugins: [router] } })
+      await flushPromises()
+
+      expect(api.training.open).not.toHaveBeenCalled()
+      expect(router.currentRoute.value.name).toBe('today')
     })
   })
 

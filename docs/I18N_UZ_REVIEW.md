@@ -1048,7 +1048,6 @@
 | `org.settings.fields.locale` | Kabinet tili | Язык кабинета |
 | `org.profile.fields.telegram_user_id` | Mening Telegram ID m | Мой Telegram ID |
 | `org.profile.fields.telegram_user_id_help` | Telegram akkauntingizning raqamli ID si (bot uni /stats bo'yicha ko'rsatadi). Guruhlardagi o'qituvchi buyruqlari va guruhlarni bog'lash uchun kerak. | Числовой ID вашего аккаунта Telegram (бот показывает его по /stats). Нужен для команд учителя в группах и привязки групп. |
-| `org.stubs.assignments` | Guruhlar uchun vazifalar kabinetning keyingi yangilanishida paydo bo'ladi. | Задания для групп появятся в следующем обновлении кабинета. |
 | `org.stubs.reports` | O'quvchilar faolligi hisoboti kabinetning keyingi yangilanishida paydo bo'ladi. | Отчёт об активности учеников появится в следующем обновлении кабинета. |
 | `org.stubs.billing` | Tarif tanlash va to'lov keyingi yangilanishda paydo bo'ladi. Hozircha tarifni platforma administratori faollashtiradi. | Выбор тарифа и оплата появятся в следующем обновлении. Пока тариф активирует администратор платформы. |
 | `org.billing.rows.tier` | Tarif | Тариф |
@@ -1091,3 +1090,74 @@
 | `org.bot.line_teacher` | :name — :role<br>7 kunda faollar: :active<br>:url | :name — :role<br>Активных за 7 дней: :active<br>:url |
 | `org.bot.seats_unlimited` | cheklovsiz | без лимита |
 | `org.bot.seats_none` | obuna yo'q | нет подписки |
+
+## Фаза 2 · задача 2B.4 (задания центра) — на проверку носителю
+
+> Проверить: «vazifa» (задание), «muddat» (срок), «bosqich» (этап), «dars» (урок), «bajarilgan» (выполнено), «kechikib bajarilgan» (с опозданием), «e'lon» (объявление в группе). Подстановки: `:title`, `:stage`, `:lesson`, `:due`, `:number`, `:done`, `:total`; в TWA — `{stage}`, `{lesson}`, `{date}`, `{pct}`.
+
+### Сообщения бота в группу и кабинет (`lang/uz/assignments.php`, `lang/uz/org.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `assignments.announce` | 📚 Yangi vazifa: :title<br>:stage-bosqich, :lesson-dars · muddat: :due<br><br>Uni ilovada bajaring: quyidagi tugmani bosing. | 📚 Новое задание: :title<br>Этап :stage, урок :lesson · срок до :due<br><br>Выполните его в приложении: нажмите кнопку ниже. |
+| `assignments.remind` | ⏰ Eslatma: «:title» vazifasini :due gacha bajaring.<br>:stage-bosqich, :lesson-dars | ⏰ Напоминание: задание «:title» нужно выполнить до :due.<br>Этап :stage, урок :lesson |
+| `assignments.open_button` | Darsni ochish | Открыть урок |
+| `assignments.lesson_fallback` | :number-dars | Урок :number |
+| `org.assignments.singular` | Vazifa | Задание |
+| `org.assignments.plural` | Vazifalar | Задания |
+| `org.assignments.columns.group` | Guruh | Группа |
+| `org.assignments.columns.lesson` | Dars | Урок |
+| `org.assignments.columns.title` | Nomi | Название |
+| `org.assignments.columns.due_at` | Muddat | Срок |
+| `org.assignments.columns.status` | Holati | Статус |
+| `org.assignments.columns.progress` | Bajarganlar | Выполнили |
+| `org.assignments.columns.threshold` | Chegara | Порог |
+| `org.assignments.columns.created_at` | Yaratilgan | Создано |
+| `org.assignments.columns.learner` | O'quvchi | Ученик |
+| `org.assignments.columns.progress_pct` | Jarayon | Прогресс |
+| `org.assignments.columns.completed_at` | Bajarilgan | Выполнено |
+| `org.assignments.columns.result` | Natija | Результат |
+| `org.assignments.status.active` | Faol | Активно |
+| `org.assignments.status.overdue` | Muddat o'tgan | Срок прошёл |
+| `org.assignments.status.closed` | Yopilgan | Закрыто |
+| `org.assignments.result.done` | Bajarilgan | Выполнено |
+| `org.assignments.result.late` | Kechikib bajarilgan | Выполнено с опозданием |
+| `org.assignments.result.in_progress` | Jarayonda | В процессе |
+| `org.assignments.result.not_started` | Boshlanmagan | Не начато |
+| `org.assignments.lesson_option` | :stage-bosqich, :lesson-dars: :title | Этап :stage, урок :lesson: :title |
+| `org.assignments.progress_of` | :total dan :done | :done из :total |
+| `org.assignments.actions.create` | Vazifa yaratish | Создать задание |
+| `org.assignments.actions.close` | Yopish | Закрыть |
+| `org.assignments.actions.close_confirm` | Yopilgan vazifani qayta ochib bo'lmaydi. Yakuniy natija hisobotda saqlanadi. | Закрытое задание нельзя открыть снова. Итоговый прогресс сохранится в отчёте. |
+| `org.assignments.fields.group` | Guruh | Группа |
+| `org.assignments.fields.group_help` | Faqat kursi tanlangan markaz guruhlari. | Только группы центра с выбранным курсом. |
+| `org.assignments.fields.lesson` | Dars | Урок |
+| `org.assignments.fields.lesson_help` | Tanlangan guruh kursining darslari. | Уроки курса выбранной группы. |
+| `org.assignments.fields.title` | Nomi | Название |
+| `org.assignments.fields.title_help` | Bo'sh qoldirilsa — dars nomi. O'quvchilarga va guruhda ko'rsatiladi. | Пусто — название урока. Показывается ученикам и в группе. |
+| `org.assignments.fields.due_at` | Bajarish muddati | Срок выполнения |
+| `org.assignments.fields.threshold` | Bajarilish chegarasi, % | Порог выполнения, % |
+| `org.assignments.fields.threshold_help` | Vazifa bajarilgan hisoblanishi uchun dars so'zlarining qancha qismi kamida bir marta o'tilgan bo'lishi kerak. | Какая доля слов урока должна быть пройдена хотя бы раз, чтобы задание считалось выполненным. |
+| `org.assignments.results.heading` | O'quvchilar natijalari | Результаты учеников |
+| `org.assignments.results.privacy` | Faqat shu dars so'zlari bo'yicha jarayon ko'rsatiladi; o'quvchilarning shaxsiy mashg'ulotlari ochilmaydi. | Показан только прогресс по словам этого урока; личные сессии учеников не раскрываются. |
+| `org.assignments.errors.foreign_group` | Bu guruh markazga tegishli emas. | Эта группа не принадлежит центру. |
+| `org.assignments.errors.group_without_course` | Guruhga kurs tanlanmagan — dars berish uchun guruh kursini tanlang. | У группы не выбран курс — выберите курс группы, чтобы задавать уроки. |
+| `org.assignments.errors.lesson_not_in_course` | Bu dars guruh kursiga kirmaydi. | Этот урок не входит в курс группы. |
+| `org.assignments.errors.invalid_due` | Muddat kelajakda bo'lishi kerak. | Срок должен быть в будущем. |
+| `org.assignments.errors.invalid_threshold` | Chegara 1 dan 100 gacha bo'lishi kerak. | Порог должен быть от 1 до 100. |
+| `org.assignments.notifications.created` | Vazifa yaratildi. E'lon guruhga yuboriladi. | Задание создано. Объявление уйдёт в группу. |
+| `org.assignments.notifications.closed` | Vazifa yopildi. | Задание закрыто. |
+
+### TWA, блок «Задания центра» на экране «Сегодня» (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `assignments.title` | Markaz vazifalari | Задания центра |
+| `assignments.lesson` | {stage}-bosqich, {lesson}-dars | Этап {stage}, урок {lesson} |
+| `assignments.due` | Muddat: {date} | Срок: {date} |
+| `assignments.overdue` | Muddat o'tgan: {date} | Срок прошёл: {date} |
+| `assignments.progress` | Dars so'zlarining {pct}% i o'tildi | Пройдено {pct}% слов урока |
+| `assignments.start` | Boshlash | Начать |
+| `assignments.continue` | Davom etish | Продолжить |
+| `assignments.done` | Bajarilgan | Выполнено |
+| `assignments.done_late` | Kechikib bajarilgan | Выполнено с опозданием |

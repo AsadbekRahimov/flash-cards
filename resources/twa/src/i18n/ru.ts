@@ -64,6 +64,15 @@ export const ru = {
   'today.course.next': 'Следующий урок',
   'today.course.completed': 'Все слова курса уже показаны',
   'today.course.none': 'Выберите курс, чтобы учить новые слова',
+  'assignments.title': 'Задания центра',
+  'assignments.lesson': 'Этап {stage}, урок {lesson}',
+  'assignments.due': 'Срок: {date}',
+  'assignments.overdue': 'Срок прошёл: {date}',
+  'assignments.progress': 'Пройдено {pct}% слов урока',
+  'assignments.start': 'Начать',
+  'assignments.continue': 'Продолжить',
+  'assignments.done': 'Выполнено',
+  'assignments.done_late': 'Выполнено с опозданием',
   'today.onboarding_hint': 'Завершите настройку: отправьте боту /start',
 
   // ---- flashcard ----

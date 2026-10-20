@@ -519,6 +519,19 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 (идемпотентно). Ответ — строка курса в формате элемента `GET /courses` (`is_active = true`, актуальный `progress`).
 Недоступный курс — `404 course_not_found`, активный курс не меняется.
 
+### A.9 `GET /api/twa/assignments` — задания центра (docs/13 §1.4, Фаза 2 / 2B.4)
+Блок «Задания центра» на экране «Сегодня». Серверная сторона — `AssignmentService::forLearner` (общий лимит `twa-api`). Возвращает **активные** задания групп, где learner — активный участник (и организация активна), не больше `organizations.assignments.twa_limit` (20), ближайший срок первым; прогресс — **только самого learner'а**, пересчитывается в момент запроса (по его `word_repetitions`, без ожидания `assignments:refresh`). Чужие группы, закрытые задания, прогресс одногруппников не отдаются. Нет заданий — `{"assignments": []}`.
+```json
+{ "assignments": [
+  { "id": 7, "title": "Food", "group": "Group A", "lesson_id": 41, "stage": 2, "lesson": 4,
+    "due_at": "2026-10-25T13:00:00+00:00", "overdue": false,
+    "progress_pct": 40, "completed": false, "completed_at": null, "late": false }
+] }
+```
+`title` — название задания (по умолчанию название урока, иначе «Урок N»); `lesson_id` — то, что принимает `POST /training/sessions {mode: "lesson", lesson_id, source: "assignment"}` (`source = assignment` теперь допустим; тренировка идёт обычным путём, без отдельного режима); `overdue` — срок прошёл, а задание ещё открыто (опоздавшие выполнения учитываются до закрытия); `late` — выполнено после `due_at`. `progress_pct` = доля активных слов урока с `word_repetitions.repetitions >= 1`; `completed` — достигнут порог задания (`completion_threshold`).
+
+**Ссылка из группы.** Объявление в чате — одно сообщение с `web_app`-кнопкой `/twa/?from=assignment&lesson=<id>`: TWA убирает метку из URL и открывает сессию урока (`source = assignment`); доступ к уроку перепроверяет сервер обычными правилами. Ошибка открытия остаётся на экране «Сегодня».
+
 ### A.10 Свои колоды learner'а (docs/13 §8.1, Фаза 2 / 2D.1)
 
 Все маршруты — под `TwaAuth` и `throttle:twa-api`; изменяющие — ещё `throttle:twa-decks` (30/мин на learner'а), импорт слов —
