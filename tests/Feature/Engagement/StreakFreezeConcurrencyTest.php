@@ -11,6 +11,7 @@ declare(strict_types=1);
  */
 
 use App\Domain\Analytics\Enums\ProductEventName;
+use App\Domain\Engagement\Services\StreakFreezeService;
 use App\Domain\Learners\Services\StreakService;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
@@ -160,4 +161,34 @@ it('spends exactly one freeze when a read races the after-commit callback of tod
         ->and(LearnerDailyStats::query()->where('learner_id', $learner->id)->whereNotNull('frozen_at')->count())->toBe(1)
         ->and(ProductEvent::query()->where('name', ProductEventName::StreakFrozen->value)->count())->toBe(1)
         ->and(ProductEvent::query()->where('name', ProductEventName::DailyGoalMet->value)->count())->toBe(1);
+});
+
+it('spends exactly as many freezes as days were frozen when two multi-day freezes overlap', function (): void {
+    $learner = Learner::factory()->create([
+        'timezone' => 'Asia/Tashkent',
+        'streak_current' => 3,
+        'streak_best' => 3,
+        'streak_last_date' => '2026-10-15',
+        'streak_freezes' => 3,
+    ]);
+    Subscription::factory()->create(['subscriber_id' => $learner->id]);
+    $now = CarbonImmutable::parse('2026-10-18 05:00:00', 'UTC');
+
+    // The tails [D-2, D-1] and [D-1] overlap on D-1: whoever gets there first wins, the other is rolled back whole.
+    $results = freezeRunInParallel([
+        fn (): bool => app(StreakFreezeService::class)->tryFreezeMany(Learner::query()->findOrFail($learner->id), ['2026-10-16', '2026-10-17'], $now),
+        fn (): bool => app(StreakFreezeService::class)->tryFreezeMany(Learner::query()->findOrFail($learner->id), ['2026-10-17'], $now),
+    ]);
+
+    $errors = array_column(array_filter($results, fn (array $r): bool => ! $r['ok']), 'error');
+    expect($errors)->toBe([]);
+
+    $frozen = LearnerDailyStats::query()->where('learner_id', $learner->id)->whereNotNull('frozen_at')->count();
+    $stored = Learner::query()->findOrFail($learner->id);
+
+    expect(array_values(array_filter(array_column($results, 'result'))))->toHaveCount(1) // exactly one caller won
+        ->and($frozen)->toBeIn([1, 2])
+        ->and($stored->streak_freezes)->toBe(3 - $frozen) // every freeze spent has a frozen day, and vice versa
+        ->and(LearnerDailyStats::query()->where('learner_id', $learner->id)->where('date', '2026-10-17')->whereNotNull('frozen_at')->count())->toBe(1)
+        ->and(ProductEvent::query()->where('name', ProductEventName::StreakFrozen->value)->count())->toBe($frozen);
 });

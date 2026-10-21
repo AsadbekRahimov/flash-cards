@@ -297,6 +297,17 @@ it('freezes yesterday when the projection lags behind a met day before it (lost 
         ->and(freezeStored($learner))->toMatchArray(['freezes' => 0, 'current' => 3, 'last' => '2026-10-17']);
 });
 
+it('freezes the whole tail after a met day whose callback was lost, counting the met day but not the frozen ones', function (): void {
+    $learner = freezeLearner(2, '2026-10-14', 2);
+    freezeFact($learner, '2026-10-15', true); // met, never projected; the 16th and the 17th missed
+
+    expect(freezeState($learner))->toMatchArray(['current' => 3, 'freezes' => 0, 'frozen_yesterday' => true])
+        ->and(freezeStored($learner))->toMatchArray(['freezes' => 0, 'current' => 3, 'last' => '2026-10-17'])
+        ->and(frozenRow($learner, '2026-10-16'))->not->toBeNull()
+        ->and(frozenRow($learner, '2026-10-17'))->not->toBeNull()
+        ->and(frozenEvents($learner))->toHaveCount(2);
+});
+
 it('covers two consecutive missed days with two freezes, one per day, then breaks', function (): void {
     $learner = freezeLearner(5, '2026-10-16', 2);
 

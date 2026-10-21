@@ -6,6 +6,8 @@ use App\Domain\Engagement\Services\ChallengeService;
 use App\Domain\Engagement\Services\FriendshipService;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Handlers\OnboardingCallbackHandler;
+use App\Domain\Telegram\Services\FriendsMessenger;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Jobs\AnnounceAssignmentJob;
 use App\Jobs\PostLeaderboardJob;
@@ -529,7 +531,7 @@ it('does not announce a state that no longer holds', function (): void {
 it('offers the pending friend link once even when the callback is handled twice, and a failed organization offer does not block it', function (): void {
     frInviter(9001, 'NEWFRND2');
     $me = Learner::factory()->create(['telegram_user_id' => 9120, 'first_name' => 'Ali', 'interface_locale' => 'ru', 'meta' => ['pending_friend_invite' => 'NEWFRND2'], 'onboarding_state' => 'done']);
-    $messenger = app(\App\Domain\Telegram\Services\FriendsMessenger::class);
+    $messenger = app(FriendsMessenger::class);
 
     $messenger->offerPending($me, 9120);
     $messenger->offerPending(Learner::query()->findOrFail($me->id), 9120); // the second tap: nothing left to offer
@@ -542,7 +544,7 @@ it('offers the pending friend link once even when the callback is handled twice,
     $sent = count($this->tg->sent);
     $this->tg->failSends = 1; // the organization offer (an unknown code is explained by a message) is the first send and fails
 
-    $handler = app(\App\Domain\Telegram\Handlers\OnboardingCallbackHandler::class);
+    $handler = app(OnboardingCallbackHandler::class);
     (new ReflectionMethod($handler, 'offerPending'))->invoke($handler, $other, 9121);
 
     expect(collect(array_slice($this->tg->sent, $sent))->filter(fn (array $m): bool => str_contains($m['text'], 'ссылку-приглашение'))->count())->toBe(1);

@@ -69,12 +69,7 @@ final class AchievementCardRenderer
 
     private function disk(): FilesystemAdapter
     {
-        $disk = Storage::disk((string) config('achievements.disk', 'public'));
-        if (! $disk instanceof FilesystemAdapter) {
-            throw new RuntimeException('The achievements disk must be a filesystem adapter.');
-        }
-
-        return $disk;
+        return Storage::disk((string) config('achievements.disk', 'public'));
     }
 
     private function store(FilesystemAdapter $disk, string $relative, string $png): void
