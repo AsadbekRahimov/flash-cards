@@ -737,7 +737,7 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 | referrer_learner_id | bigint FK → learners, ON DELETE CASCADE | пригласивший |
 | referee_learner_id | bigint FK → learners, ON DELETE CASCADE, **unique** | приглашённый — один реферал на learner'а, повторный `/start` ничего не меняет |
 | status | string(12) | `pending` → `activated` → `rewarded`; `rejected` |
-| reject_reason | string(24) nullable | `self` (своя ссылка), `existing_learner` (learner существовал до этого `/start`), `referrer_capped` (лимит наград пригласившего), `flagged` (отклонён админом) |
+| reject_reason | string(24) nullable | `self` (своя ссылка), `existing_learner` (learner существовал до этого `/start`), `referrer_capped` (исторический: до 2C.6 лимит наград пригласившего отклонял реферал; теперь лимит лишь пропускает награду пригласившего — `meta.rewards.referrer.skipped = referrer_capped`, статус `rewarded`), `flagged` (отклонён админом) |
 | linked_at | timestamp NOT NULL | момент `/start ref_<code>` |
 | activated_at | timestamp nullable | правило активации выполнено (`config('referrals.activation')`: ≥ 3 локальных дня с `learner_daily_stats.reviews_count ≥ 10` в окне 14 дней от локального дня привязки) |
 | rewarded_at | timestamp nullable | клейм награды (`activated → rewarded`); сами гранты — по `meta.rewards` |
