@@ -38,7 +38,7 @@ it('answers with the code, the link, the counts and the invited first names', fu
         ->and($response->json('link'))->toBe("https://t.me/LexiFlowBot?start=ref_{$code}")
         ->and($response->json('reward_days'))->toBe(7)
         ->and($response->json('activation'))->toBe(['days' => 3, 'reviews_per_day' => 10, 'window_days' => 14])
-        ->and($response->json('counts'))->toBe(['invited' => 1, 'activated' => 1, 'rewarded' => 0])
+        ->and($response->json('counts'))->toBe(['invited' => 1, 'activated' => 1, 'rewarded' => 0, 'capped' => 0])
         ->and($response->json('referrals'))->toHaveCount(1)
         ->and($response->json('referrals.0.first_name'))->toBe('Dilnoza')
         ->and($response->json('referrals.0.status'))->toBe('activated')

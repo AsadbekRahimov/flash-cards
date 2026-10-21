@@ -92,7 +92,7 @@ export interface ReferralsResponse {
   link: string | null
   reward_days: number
   activation: { days: number; reviews_per_day: number; window_days: number }
-  counts: { invited: number; activated: number; rewarded: number }
+  counts: { invited: number; activated: number; rewarded: number; capped: number }
   referrals: ReferralItem[]
 }
 

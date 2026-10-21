@@ -36,7 +36,7 @@ const response = (overrides: Partial<ReferralsResponse> = {}): ReferralsResponse
   link: 'https://t.me/LexiFlowBot?start=ref_ABCD2345',
   reward_days: 7,
   activation: { days: 3, reviews_per_day: 10, window_days: 14 },
-  counts: { invited: 3, activated: 2, rewarded: 1 },
+  counts: { invited: 3, activated: 2, rewarded: 1, capped: 0 },
   referrals: [
     { first_name: 'Dilnoza', status: 'rewarded', linked_at: '2026-10-20T10:00:00+00:00' },
     { first_name: null, status: 'activated', linked_at: '2026-10-21T10:00:00+00:00' },
@@ -120,12 +120,21 @@ describe('ReferralsView', () => {
   })
 
   it('shows the code and an explanation while the bot username is not configured', async () => {
-    const { wrapper } = await render(response({ link: null, referrals: [], counts: { invited: 0, activated: 0, rewarded: 0 } }))
+    const { wrapper } = await render(response({ link: null, referrals: [], counts: { invited: 0, activated: 0, rewarded: 0, capped: 0 } }))
 
     expect(wrapper.get('[data-testid=code]').text()).toBe('ABCD2345')
     expect(wrapper.get('[data-testid=no-link]').text()).toContain('/start ref_ABCD2345')
     expect(wrapper.find('[data-testid=share-btn]').exists()).toBe(false)
     expect(wrapper.get('[data-testid=list-empty]').text()).toBe('Пока никто не пришёл по вашей ссылке.')
+  })
+
+  it('explains the reached reward limit only when some referrals were capped', async () => {
+    const plain = await render()
+    expect(plain.wrapper.find('[data-testid=capped-hint]').exists()).toBe(false)
+
+    const { wrapper } = await render(response({ counts: { invited: 3, activated: 3, rewarded: 1, capped: 2 } }))
+    expect(wrapper.get('[data-testid=capped-hint]').text()).toContain('Лимит наград достигнут')
+    expect(wrapper.get('[data-testid=capped-hint]').text()).toContain('2')
   })
 
   it('links to the friends screen', async () => {

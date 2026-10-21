@@ -18,7 +18,7 @@ use Illuminate\Http\Request;
 final class ReferralsResource extends TwaResource
 {
     /**
-     * @return array{code: string, link: string|null, reward_days: int, activation: array{days: int, reviews_per_day: int, window_days: int}, counts: array{invited: int, activated: int, rewarded: int}, referrals: list<array{first_name: string|null, status: string, linked_at: string}>}
+     * @return array{code: string, link: string|null, reward_days: int, activation: array{days: int, reviews_per_day: int, window_days: int}, counts: array{invited: int, activated: int, rewarded: int, capped: int}, referrals: list<array{first_name: string|null, status: string, linked_at: string}>}
      */
     public function toArray(Request $request): array
     {
@@ -35,6 +35,7 @@ final class ReferralsResource extends TwaResource
                 'invited' => $this->resource->invited,
                 'activated' => $this->resource->activated,
                 'rewarded' => $this->resource->rewarded,
+                'capped' => $this->resource->capped,
             ],
             'referrals' => array_values($this->resource->referrals
                 ->map(static fn (Referral $referral): array => [

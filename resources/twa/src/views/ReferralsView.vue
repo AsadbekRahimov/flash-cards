@@ -131,6 +131,9 @@ onBeforeUnmount(() => {
           <div class="text-xs text-tg-hint">{{ t('referrals.counts.rewarded') }}</div>
         </div>
       </div>
+      <p v-if="data.counts.capped > 0" class="text-xs text-tg-hint" data-testid="capped-hint">
+        {{ t('referrals.counts.capped', { count: data.counts.capped }) }}
+      </p>
 
       <div class="card space-y-2">
         <div class="font-semibold">{{ t('referrals.list.title') }}</div>

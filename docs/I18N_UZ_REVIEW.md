@@ -1381,6 +1381,7 @@
 | `referrals.counts.invited` | Kelganlar | Пришли |
 | `referrals.counts.activated` | Shug'ullanayotganlar | Занимаются |
 | `referrals.counts.rewarded` | Mukofotlanganlar | Награждены |
+| `referrals.counts.capped` | Mukofot limiti tugadi: yana {count} ta taklif uchun sizga Pro berilmadi, do'stlaringiz o'z mukofotini oldi. | Лимит наград достигнут: за ещё {count} приглашённых вам Pro не начислено, друзья свою награду получили. |
 | `referrals.list.title` | Taklif qilinganlar | Приглашённые |
 | `referrals.list.empty` | Havolangiz orqali hali hech kim kelmadi. | Пока никто не пришёл по вашей ссылке. |
 | `referrals.list.anonymous` | Do'st | Друг |
