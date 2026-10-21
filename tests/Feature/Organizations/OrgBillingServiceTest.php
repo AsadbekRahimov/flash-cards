@@ -89,7 +89,7 @@ it('shows the owner the tariffs with UZS prices; a tier without a price is not p
 
     expect(array_column($page->tiers, 'key'))->toBe(['tutor', 'center_s', 'center_m', 'center_l'])
         ->and($byKey['center_s']['seats'])->toBe(100)
-        ->and($byKey['center_s']['prices'])->toBe(['month' => 34_900_000])
+        ->and($byKey['center_s']['prices'])->toBe(['month' => 34_900_000, 'year' => 34_900_000 * 12])
         ->and($byKey['center_s']['purchasable'])->toBeTrue()
         ->and($byKey['center_l']['purchasable'])->toBeFalse()
         ->and($byKey['center_l']['prices'])->toBe([])
@@ -175,7 +175,7 @@ it('refuses Stars for an organization with 422, whether Stars is on or off, and 
 })->with([true, false]);
 
 it('does not sell a tier without a price (center_l) or a period it has no price for; unknown tier / period are 422', function (): void {
-    foreach ([['center_l', 'month'], ['tutor', 'year']] as [$tier, $period]) {
+    foreach ([['center_l', 'month'], ['center_l', 'year']] as [$tier, $period]) {
         try {
             $this->billing->checkout($this->owner, $this->org, $tier, $period, SubscriptionProvider::Payme);
             $this->fail("{$tier}/{$period} must not be sold.");

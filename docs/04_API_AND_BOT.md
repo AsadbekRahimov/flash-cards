@@ -686,7 +686,7 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 Событие `promo.redeemed` пишется сервисом; запись в `audit_logs` не делается (действие самого learner'а). Каждый отказ (любой код ошибки выше) — событие `promo.rejected {reason, promo_code_id|null, code_length}` без самого кода; серия отказов одного learner'а — предупреждение в логе (docs/12 §8). Неизвестный ключ плана в данных — `plan_unknown` (422, `PlanException`).
 
 ### A.8 `/api/twa/billing/*` — покупка и автопродление (docs/13 §5, Фаза 2 / 2A.2)
-Только для собственной подписки learner'а (центры платят через кабинет, docs/13 §6.5). Серверная сторона — `LearnerBillingService` поверх `CheckoutService` / `SubscriptionService` (сумма и валюта выбираются
+Только для собственной подписки learner'а (центры платят через кабинет `/org`, docs/13 §6.5; их период `month`/`year` и цена года — `OrgTiers::price`, docs/13 «Реализация 2B.9», в этом API их нет). Серверная сторона — `LearnerBillingService` поверх `CheckoutService` / `SubscriptionService` (сумма и валюта выбираются
 сервером по `config('billing.prices')` и открытому offer, клиент их не присылает). Ошибки — `ApiErrorResource`, клиент показывает свой текст по `error.code`.
 
 | Метод | Путь | Что делает |

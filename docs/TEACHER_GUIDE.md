@@ -215,9 +215,11 @@ plus the link to the cabinet.
    how many learners wait for a seat.
 2. Choose a **tariff** and a **period**. The list shows the seats and the price of every tariff
    (Tutor 30, Center S 100, Center M 300; Center L is agreed individually — the platform activates it).
+   The period is **1 month** or **1 year**; when the year is cheaper than twelve months, the page shows how much
+   you save. A year paid on top of a running period is added to its end.
 3. Press **Pay with Payme** or **Pay with Click** (a button appears only for the methods that are switched on):
    you are taken to the provider's payment page. After the payment the subscription is extended by the
-   period (30 days per month paid) and the tariff takes effect immediately — learners from the waiting
+   period (30 days per month paid, 365 per year paid) and the tariff takes effect immediately — learners from the waiting
    list get seats in the order they joined. If nothing is paid within 24 hours the order closes by itself.
 4. Pay by bank transfer instead: **Request an invoice** sends your choice (tariff, period, comment) to the
    platform administrator, who replies by email and activates the tariff after the payment. The same button

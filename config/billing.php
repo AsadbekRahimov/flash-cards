@@ -13,6 +13,11 @@ declare(strict_types=1);
 | (BILLING_PRICE_*): 0 / missing = not for sale.
 */
 
+/** Explicit organization year price (tiyin) from env, or no `year` key (the price is then derived from the month). */
+$orgYear = static fn (string $env): array => is_numeric(env($env)) && (int) env($env) > 0
+    ? ['year' => ['UZS' => (int) env($env)]]
+    : [];
+
 return [
     /** TTL (seconds) of the per-learner entitlement cache ("entitlement:learner:{id}"). */
     'cache_ttl' => (int) env('BILLING_CACHE_TTL', 300),
@@ -60,16 +65,22 @@ return [
     'periods' => ['month' => 30, 'year' => 365],
 
     /**
-     * Organization tiers (docs/13 §0, §6): `subscriptions.plan` stays `pro` (what the learners
-     * get), `tier` sets the seats and the price. `seats` null = unlimited; an empty `prices`
+     * Organization tiers (docs/13 §0, §6, "Реализация 2B.9"): `subscriptions.plan` stays `pro` (what the
+     * learners get), `tier` sets the seats and the price. `seats` null = unlimited; an empty `prices`
      * = manual activation by a superadmin only. Stars are not offered to organizations.
+     * Only the `month` price is configured: the `year` price is derived from it as
+     * month x 12 x (1 - `org_year_discount_percent` / 100), rounded to whole sums (OrgTiers::price),
+     * unless an explicit BILLING_PRICE_<TIER>_YEAR_UZS is set (then it wins; tiyin like the others).
      */
     'org_tiers' => [
-        'tutor' => ['seats' => 30, 'prices' => ['month' => ['UZS' => (int) env('BILLING_PRICE_TUTOR_MONTH_UZS', 12_900_000)]]],
-        'center_s' => ['seats' => 100, 'prices' => ['month' => ['UZS' => (int) env('BILLING_PRICE_CENTER_S_MONTH_UZS', 34_900_000)]]],
-        'center_m' => ['seats' => 300, 'prices' => ['month' => ['UZS' => (int) env('BILLING_PRICE_CENTER_M_MONTH_UZS', 84_900_000)]]],
+        'tutor' => ['seats' => 30, 'prices' => ['month' => ['UZS' => (int) env('BILLING_PRICE_TUTOR_MONTH_UZS', 12_900_000)]] + $orgYear('BILLING_PRICE_TUTOR_YEAR_UZS')],
+        'center_s' => ['seats' => 100, 'prices' => ['month' => ['UZS' => (int) env('BILLING_PRICE_CENTER_S_MONTH_UZS', 34_900_000)]] + $orgYear('BILLING_PRICE_CENTER_S_YEAR_UZS')],
+        'center_m' => ['seats' => 300, 'prices' => ['month' => ['UZS' => (int) env('BILLING_PRICE_CENTER_M_MONTH_UZS', 84_900_000)]] + $orgYear('BILLING_PRICE_CENTER_M_YEAR_UZS')],
         'center_l' => ['seats' => null, 'prices' => []],
     ],
+
+    /** Discount (0..100 %) of the organization year versus 12 months; 0 = no discount yet (docs/13 §12 q.1). */
+    'org_year_discount_percent' => max(0, min(100, (int) env('BILLING_ORG_YEAR_DISCOUNT_PERCENT', 0))),
 
     /**
      * Payment providers (docs/13 §4). `enabled` makes a registered adapter sellable; keys and

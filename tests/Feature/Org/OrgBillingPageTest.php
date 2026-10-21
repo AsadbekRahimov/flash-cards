@@ -286,3 +286,53 @@ it('offers every priced tier when there is no live subscription', function (): v
 
     Livewire::test(Billing::class)->set('tier', 'center_m')->assertDontSeeHtml('data-tier-change-requires-support');
 });
+
+// --- year (docs/13 "Реализация 2B.9") ---------------------------------------------------------------
+
+it('offers the year next to the month with its price in the tariff list', function (): void {
+    config()->set('billing.org_year_discount_percent', 20);
+    pbAs($this->owner);
+
+    $this->get('/org/bright/billing')->assertOk()
+        ->assertSee('1 год')
+        ->assertSee('3 350 400 сум / 1 год', false);
+});
+
+it('shows the price of the year and the saving versus twelve months once the year is selected', function (): void {
+    config()->set('billing.org_year_discount_percent', 20);
+    pbEnter($this->owner, $this->org);
+
+    Livewire::test(Billing::class)
+        ->set('tier', 'center_s')
+        ->set('period', 'month')
+        ->assertDontSee('Экономия по сравнению')
+        ->set('period', 'year')
+        ->assertSee('К оплате: 3 350 400 сум')
+        ->assertSee('Экономия по сравнению с 12 месяцами: 837 600 сум');
+});
+
+it('shows no saving line while the year has no discount', function (): void {
+    pbEnter($this->owner, $this->org);
+
+    Livewire::test(Billing::class)->set('tier', 'center_s')->set('period', 'year')
+        ->assertSee('К оплате: 4 188 000 сум')
+        ->assertDontSee('Экономия по сравнению');
+});
+
+it('opens a year order through Payme from the page', function (): void {
+    config()->set('billing.org_year_discount_percent', 20);
+    pbEnter($this->owner, $this->org);
+
+    $component = Livewire::test(Billing::class)->set('tier', 'center_s')->set('period', 'year')->call('pay', 'payme');
+
+    $order = PaymentOrder::query()->sole();
+    $component->assertRedirect("https://pay.test/{$order->token}");
+    expect($order->period)->toBe('year')->and($order->amount)->toBe(335_040_000);
+});
+
+it('prints the period of the order on the invoice', function (): void {
+    $order = PaymentOrder::factory()->forOrganization($this->org, 'center_s')->create(['period' => 'year', 'amount' => 418_800_000, 'list_amount' => 418_800_000]);
+    pbAs($this->owner);
+
+    $this->get("/org/bright/invoice/{$order->id}")->assertOk()->assertSee('срок: 1 год (365 дн.)');
+});

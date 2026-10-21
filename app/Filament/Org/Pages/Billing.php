@@ -6,6 +6,7 @@ namespace App\Filament\Org\Pages;
 
 use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Exceptions\BillingException;
+use App\Domain\Billing\Support\OrgTiers;
 use App\Domain\Billing\Support\PriceFormatter;
 use App\Domain\Organizations\DTO\OrgBillingPage;
 use App\Domain\Organizations\Exceptions\OrgBillingException;
@@ -107,6 +108,18 @@ class Billing extends Page
         }
 
         return null;
+    }
+
+    /** What the selected year saves versus 12 months of the tier (minor units); null for a month or when nothing is saved. */
+    public function selectedSavings(): ?int
+    {
+        if ($this->period !== 'year') {
+            return null;
+        }
+
+        $savings = OrgTiers::yearSavings($this->tier, OrgBillingService::CURRENCY);
+
+        return $savings > 0 ? $savings : null;
     }
 
     public function priceLabel(int $minorUnits, string $currency = 'UZS'): string

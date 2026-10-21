@@ -77,7 +77,7 @@
                     {{ __('org.invoice.service', ['tier' => __('org.billing.tiers.'.$invoice->tier.'.name')]) }}<br>
                     <span class="muted">
                         {{ $invoice->seats === null ? __('org.billing.seats_unlimited') : __('org.billing.seats_count', ['count' => $invoice->seats]) }}
-                        · {{ __('org.invoice.period', ['days' => $invoice->periodDays]) }}
+                        · {{ __('org.invoice.period', ['period' => __('billing.period.'.$invoice->period), 'days' => $invoice->periodDays]) }}
                     </span>
                 </td>
                 <td class="num">{{ PriceFormatter::format($invoice->amount, $invoice->currency, $locale) }}</td>

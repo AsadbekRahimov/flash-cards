@@ -1092,6 +1092,7 @@
 | `org.billing.below_seated` | hozir bandidan (:seated) kam | меньше, чем занято сейчас (:seated) |
 | `org.billing.not_purchasable` | Bu tarif yoki muddatni onlayn to'lab bo'lmaydi. Hisob so'rang — biz siz bilan bog'lanamiz. | Этот тариф или срок нельзя оплатить онлайн. Запросите счёт — мы свяжемся с вами. |
 | `org.billing.to_pay` | To'lov summasi: :amount | К оплате: :amount |
+| `org.billing.year_savings` | 12 oylik to'lovga nisbatan tejash: :amount | Экономия по сравнению с 12 месяцами: :amount |
 | `org.billing.downgrade_warning` | Hozir :seated ta o'rin band, tarifda esa :limit ta. Hech kim chiqarilmaydi, lekin joy bo'shaguncha yangi o'quvchilar kutib turadi. | Сейчас занято :seated мест, а в тарифе их :limit. Никто не будет снят, но новые ученики будут ждать, пока места не освободятся. |
 | `org.billing.no_providers` | Onlayn to'lov hozir mavjud emas. Quyida hisob so'rang. | Онлайн-оплата сейчас недоступна. Запросите счёт ниже. |
 | `org.billing.pay_with` | :provider orqali to'lash | Оплатить через :provider |
@@ -1165,7 +1166,7 @@
 | `org.invoice.item` | Xizmat nomi | Наименование услуги |
 | `org.invoice.sum` | Summa | Сумма |
 | `org.invoice.service` | Markaz uchun LexiFlow Pro'ga kirish — «:tier» tarifi | Доступ к LexiFlow Pro для центра — тариф «:tier» |
-| `org.invoice.period` | muddat: :days kun | срок: :days дн. |
+| `org.invoice.period` | muddat: :period (:days kun) | срок: :period (:days дн.) |
 | `org.invoice.total` | Jami to'lov | Итого к оплате |
 | `org.invoice.note` | To'lov markaz obunasini ko'rsatilgan muddatga uzaytiradi. Summa so'mda ko'rsatilgan. | Оплата продлевает подписку центра на указанный срок. Сумма указана в сумах. |
 | `org.invoice.print_hint` | Chop etish yoki PDF saqlash uchun Ctrl+P (⌘P) bosing. | Чтобы распечатать или сохранить в PDF, нажмите Ctrl+P (⌘P). |
