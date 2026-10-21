@@ -54,6 +54,9 @@ final class ReferralService
 
     public const SKIPPED_LEARNER_MISSING = 'learner_missing';
 
+    /** The inviter had reached `max_rewards_*`: their side gets nothing, the invited learner's reward is unaffected. */
+    public const SKIPPED_REFERRER_CAPPED = 'referrer_capped';
+
     /** The learner was deleted (soft) or blocked by an administrator by the time the reward is granted. */
     public const SKIPPED_LEARNER_DELETED = 'learner_deleted';
 
@@ -244,8 +247,9 @@ final class ReferralService
      * The reward, idempotent: the claim `activated` → `rewarded` (under the inviter's referral rows,
      * which also serializes the cap check), then one transaction per side. A side already present in
      * `meta.rewards` is skipped, so a job retry after a partial failure grants only the missing one.
-     * A flagged referral is left as it is until an admin clears the flag; a capped inviter's referral
-     * becomes `rejected {referrer_capped}` — the friend keeps nothing to claim either (one rule for both).
+     * A flagged referral is left as it is until an admin clears the flag; for a capped inviter the
+     * referral is still `rewarded` but their side is closed `skipped: referrer_capped` — the cap limits only
+     * the inviter's reward, the invited learner always gets theirs.
      */
     public function reward(Referral $referral, CarbonImmutable $now): void
     {
@@ -467,30 +471,27 @@ final class ReferralService
         }
 
         $since = $now->subDays(30);
-        $rewarded = $rows->filter(static fn (Referral $r): bool => $r->status === ReferralStatus::Rewarded->value);
+        // A referral whose inviter side was skipped by the cap took no reward from the inviter: it takes no slot either.
+        $rewarded = $rows->filter(static fn (Referral $r): bool => $r->status === ReferralStatus::Rewarded->value
+            && ($r->rewardOf(Referral::SIDE_REFERRER)['skipped'] ?? null) !== self::SKIPPED_REFERRER_CAPPED);
         $lifetime = $rewarded->count();
         $recent = $rewarded->filter(static fn (Referral $r): bool => $r->rewarded_at !== null && $r->rewarded_at->greaterThanOrEqualTo($since))->count();
 
-        if ($lifetime >= max(0, (int) config('referrals.max_rewards_lifetime'))
-            || $recent >= max(0, (int) config('referrals.max_rewards_per_30d'))
-        ) {
-            $row->forceFill([
-                'status' => ReferralStatus::Rejected->value,
-                'reject_reason' => ReferralRejectReason::ReferrerCapped->value,
-            ])->save();
-            $this->events->record(
-                ProductEventName::ReferralRejected,
-                ['reason' => ReferralRejectReason::ReferrerCapped->value, 'referral_id' => $row->id, 'referrer_learner_id' => $row->referrer_learner_id],
-                learner: $row->referee,
-            );
-
-            return 'capped';
-        }
+        // The cap limits ONLY the inviter's reward (owner's decision, docs/13 §12): the invited learner is
+        // rewarded anyway. The inviter side is closed up front, so grantSide() leaves it alone.
+        $capped = $lifetime >= max(0, (int) config('referrals.max_rewards_lifetime'))
+            || $recent >= max(0, (int) config('referrals.max_rewards_per_30d'));
 
         $row->forceFill([
             'status' => ReferralStatus::Rewarded->value,
             'rewarded_at' => $now,
-            'meta' => [...$row->meta, 'rewards' => [], 'reward_subscription_ids' => []],
+            'meta' => [
+                ...$row->meta,
+                'rewards' => $capped
+                    ? [Referral::SIDE_REFERRER => ['subscription_id' => null, 'skipped' => self::SKIPPED_REFERRER_CAPPED]]
+                    : [],
+                'reward_subscription_ids' => [],
+            ],
         ])->save();
 
         return self::CLAIM_CLAIMED;

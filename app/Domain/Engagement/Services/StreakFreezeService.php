@@ -80,53 +80,73 @@ final class StreakFreezeService
      */
     public function tryFreeze(Learner $learner, string $missedLocalDate, CarbonImmutable $now): bool
     {
-        if (! $this->enabled($learner, $now)) {
+        return $this->tryFreezeMany($learner, [$missedLocalDate], $now);
+    }
+
+    /**
+     * All-or-nothing: spends one freeze per missed local day (`Y-m-d`) of `$missedLocalDates` in ONE
+     * transaction — N missed days need N freezes in stock, otherwise nothing is spent and the series
+     * is left to burn (owner's rule, docs/13 §2.4 "2C.6"). Returns true when THIS call froze every
+     * date; false when the learner has no feature / not enough freezes, or any date is already frozen
+     * or was actually met (everything is rolled back, so a retry or a concurrent caller never
+     * double-spends). Same lock order and constraints as {@see tryFreeze()}.
+     *
+     * @param  list<string>  $missedLocalDates
+     */
+    public function tryFreezeMany(Learner $learner, array $missedLocalDates, CarbonImmutable $now): bool
+    {
+        $count = count($missedLocalDates);
+
+        if ($count === 0 || ! $this->enabled($learner, $now)) {
             return false;
         }
 
         // The passed model may be older than the request; a cheap read avoids a pointless transaction.
         $stored = (int) (Learner::withTrashed()->whereKey($learner->id)->value('streak_freezes') ?? 0);
         $this->syncFreezes($learner, $stored);
-        if ($stored <= 0) {
+        if ($stored < $count) {
             return false;
         }
 
-        $date = $this->storedDate($missedLocalDate);
         $left = null;
 
         try {
-            DB::transaction(function () use ($learner, $date, $now, &$left): void {
+            DB::transaction(function () use ($learner, $missedLocalDates, $count, $now, &$left): void {
                 $spent = Learner::withTrashed()
                     ->whereKey($learner->id)
-                    ->where('streak_freezes', '>', 0)
-                    ->decrement('streak_freezes');
+                    ->where('streak_freezes', '>=', $count)
+                    ->decrement('streak_freezes', $count);
 
                 if ($spent !== 1) {
                     throw new FreezeNotApplied;
                 }
 
-                LearnerDailyStats::query()->insertOrIgnore([
-                    'learner_id' => $learner->id,
-                    'date' => $date,
-                    'reviews_count' => 0,
-                    'new_words_count' => 0,
-                    'correct_count' => 0,
-                    'time_spent_ms' => 0,
-                    'goal_met_at' => null,
-                    'frozen_at' => null,
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ]);
+                foreach ($missedLocalDates as $missedLocalDate) {
+                    $date = $this->storedDate($missedLocalDate);
 
-                $claimed = LearnerDailyStats::query()
-                    ->where('learner_id', $learner->id)
-                    ->where('date', $date)
-                    ->whereNull('frozen_at')
-                    ->whereNull('goal_met_at')
-                    ->update(['frozen_at' => $now, 'updated_at' => $now]);
+                    LearnerDailyStats::query()->insertOrIgnore([
+                        'learner_id' => $learner->id,
+                        'date' => $date,
+                        'reviews_count' => 0,
+                        'new_words_count' => 0,
+                        'correct_count' => 0,
+                        'time_spent_ms' => 0,
+                        'goal_met_at' => null,
+                        'frozen_at' => null,
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ]);
 
-                if ($claimed !== 1) {
-                    throw new FreezeNotApplied; // already frozen (a concurrent caller) or actually met: give the freeze back
+                    $claimed = LearnerDailyStats::query()
+                        ->where('learner_id', $learner->id)
+                        ->where('date', $date)
+                        ->whereNull('frozen_at')
+                        ->whereNull('goal_met_at')
+                        ->update(['frozen_at' => $now, 'updated_at' => $now]);
+
+                    if ($claimed !== 1) {
+                        throw new FreezeNotApplied; // already frozen (a concurrent caller) or actually met: give the freezes back
+                    }
                 }
 
                 $left = (int) (Learner::withTrashed()->whereKey($learner->id)->value('streak_freezes') ?? 0);
@@ -138,7 +158,11 @@ final class StreakFreezeService
         }
 
         $this->syncFreezes($learner, (int) $left);
-        $this->events->record(ProductEventName::StreakFrozen, ['date' => $missedLocalDate, 'freezes_left' => (int) $left], learner: $learner);
+
+        $remaining = (int) $left;
+        foreach ($missedLocalDates as $index => $missedLocalDate) {
+            $this->events->record(ProductEventName::StreakFrozen, ['date' => $missedLocalDate, 'freezes_left' => $remaining + $count - $index - 1], learner: $learner);
+        }
 
         return true;
     }

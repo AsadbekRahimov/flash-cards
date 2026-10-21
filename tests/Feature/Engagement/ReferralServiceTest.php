@@ -407,7 +407,7 @@ it('does not reward a pending or rejected referral', function (): void {
         ->and(Subscription::query()->count())->toBe(0);
 });
 
-it('rejects the reward of a capped inviter: 30-day cap', function (): void {
+it('rewards the referee but not a capped inviter: 30-day cap', function (): void {
     config(['referrals.max_rewards_per_30d' => 2, 'referrals.max_rewards_lifetime' => 50]);
     $inviter = refInviter();
     $now = refNow('2026-10-25 09:00:00');
@@ -421,11 +421,20 @@ it('rejects the reward of a capped inviter: 30-day cap', function (): void {
 
     refService()->reward($referral, $now);
 
+    // Owner's rule (2C.6): the cap limits only the inviter's reward — the invited learner always gets theirs.
     $fresh = $referral->fresh();
-    expect($fresh?->status)->toBe('rejected')
-        ->and($fresh?->reject_reason)->toBe('referrer_capped')
-        ->and(Subscription::query()->count())->toBe(0)
-        ->and(ProductEvent::query()->where('name', 'referral.rejected')->where('props->reason', 'referrer_capped')->count())->toBe(1);
+    expect($fresh?->status)->toBe('rewarded')
+        ->and($fresh?->reject_reason)->toBeNull()
+        ->and($fresh?->rewardOf('referrer'))->toBe(['subscription_id' => null, 'skipped' => 'referrer_capped'])
+        ->and($fresh?->rewardOf('referee')['subscription_id'] ?? null)->not->toBeNull()
+        ->and(Subscription::query()->where('subscriber_id', $referral->referee_learner_id)->count())->toBe(1)
+        ->and(Subscription::query()->where('subscriber_id', $inviter->id)->count())->toBe(0)
+        ->and(ProductEvent::query()->where('name', 'referral.rejected')->count())->toBe(0)
+        ->and(ProductEvent::query()->where('name', 'referral.rewarded')->where('props->referrer_skipped', 'referrer_capped')->count())->toBe(1);
+
+    // Idempotent: a repeated reward grants nothing more.
+    refService()->reward($referral, $now);
+    expect(Subscription::query()->count())->toBe(1);
 });
 
 it('allows the reward right below the 30-day cap and refuses at the lifetime cap', function (): void {
@@ -445,8 +454,16 @@ it('allows the reward right below the 30-day cap and refuses at the lifetime cap
     $capped = refPending($inviter, 9308);
     $capped->forceFill(['status' => 'activated', 'activated_at' => $now])->save();
     refService()->reward($capped, $now->addDays(40));
-    expect($capped->fresh()?->status)->toBe('rejected')
-        ->and($capped->fresh()?->reject_reason)->toBe('referrer_capped');
+    expect($capped->fresh()?->status)->toBe('rewarded')
+        ->and($capped->fresh()?->rewardOf('referrer')['skipped'] ?? null)->toBe('referrer_capped')
+        ->and($capped->fresh()?->rewardOf('referee')['subscription_id'] ?? null)->not->toBeNull();
+
+    // A cap-skipped referral takes no slot from the inviter: it is not counted as a reward of theirs.
+    config(['referrals.max_rewards_lifetime' => 4]);
+    $next = refPending($inviter, 9310);
+    $next->forceFill(['status' => 'activated', 'activated_at' => $now])->save();
+    refService()->reward($next, $now->addDays(80));
+    expect($next->fresh()?->rewardOf('referrer')['subscription_id'] ?? null)->not->toBeNull();
 });
 
 it('parks the reward of a flagged referral until an admin clears the flag, which is audited', function (): void {

@@ -143,7 +143,7 @@ it('rewards each side exactly once when two reward jobs run at the same instant'
         ->and(ProductEvent::query()->where('name', 'subscription.granted')->count())->toBe(2);
 });
 
-it('serializes the inviter cap: two referrals of one inviter rewarded at once with one slot left — one rewarded, one capped', function (): void {
+it('serializes the inviter cap: two referrals of one inviter rewarded at once with one slot left — both invited get theirs, only one inviter reward', function (): void {
     config(['referrals.max_rewards_per_30d' => 1, 'referrals.max_rewards_lifetime' => 50]);
     $inviter = Learner::factory()->create();
     $a = referralActivated($inviter);
@@ -157,11 +157,10 @@ it('serializes the inviter cap: two referrals of one inviter rewarded at once wi
     }, [$a, $b]));
 
     // Without the lock on the inviter's rows both would count 0 rewarded and both would be rewarded.
-    expect(collect($results)->pluck('result')->sort()->values()->all())->toBe(['rejected', 'rewarded'])
-        ->and(Referral::query()->where('status', 'rewarded')->count())->toBe(1)
-        ->and(Referral::query()->where('reject_reason', 'referrer_capped')->count())->toBe(1)
+    expect(collect($results)->pluck('result')->sort()->values()->all())->toBe(['rewarded', 'rewarded'])
+        ->and(Referral::query()->get()->filter(fn (Referral $r): bool => ($r->rewardOf('referrer')['skipped'] ?? null) === 'referrer_capped')->count())->toBe(1)
         ->and(Subscription::query()->where('subscriber_id', $inviter->id)->count())->toBe(1)
-        ->and(Subscription::query()->count())->toBe(2);
+        ->and(Subscription::query()->count())->toBe(3);
 });
 
 it('gives one code to a learner asked twice at the same instant', function (): void {

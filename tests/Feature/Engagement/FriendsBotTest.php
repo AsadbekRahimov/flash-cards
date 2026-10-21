@@ -237,7 +237,17 @@ it('keeps ref_<code> of a NEW learner a plain referral: no friendship, ordinary 
         ->and($this->tg->sent[0]['text'])->not->toContain('в друзья');
 });
 
-it('writes nothing for f_<code> of a NEW learner: no consent yet, the onboarding goes on undisturbed', function (): void {
+/** The five onboarding steps from the first one to `done` (Russian). */
+function frOnboard(int $tgId): void
+{
+    frTap($tgId, 'onb1:locale:ru', 1);
+    frTap($tgId, 'onb1:goal:general', 2);
+    frTap($tgId, 'onb1:level:A1', 3);
+    frTap($tgId, 'onb1:timezone:Asia/Tashkent', 4);
+    frTap($tgId, 'onb1:reminder:1900', 5);
+}
+
+it('writes no friendship for f_<code> of a NEW learner before the onboarding is done: only the pending code is remembered', function (): void {
     frInviter(9001, 'NEWFRND2');
 
     frSend(9112, '/start f_NEWFRND2');
@@ -245,10 +255,80 @@ it('writes nothing for f_<code> of a NEW learner: no consent yet, the onboarding
     $me = Learner::query()->where('telegram_user_id', 9112)->firstOrFail();
     expect($me->acquisition_source)->toBe('friend')
         ->and($me->start_payload)->toBe('f_NEWFRND2')
+        ->and($me->meta['pending_friend_invite'])->toBe('NEWFRND2')
         ->and($me->referrer_learner_id)->toBeNull()
         ->and(Referral::query()->count())->toBe(0)
         ->and(Friendship::query()->count())->toBe(0)
         ->and($this->tg->sent[0]['text'])->not->toContain('в друзья');
+});
+
+it('offers the friendship with an "Add to friends" button once the onboarding ends, and sends the request on the tap (the inviter answers)', function (): void {
+    $inviter = frInviter(9001, 'NEWFRND2');
+    frSend(9112, '/start f_NEWFRND2');
+    $me = Learner::query()->where('telegram_user_id', 9112)->firstOrFail();
+
+    frOnboard(9112);
+
+    $offer = end($this->tg->sent);
+    expect($offer['text'])->toContain('Dilnoza')
+        ->and($offer['markup']['inline_keyboard'][0][0]['text'])->toBe('Добавить в друзья')
+        ->and($offer['markup']['inline_keyboard'][0][0]['callback_data'])->toBe('fr1:snd:NEWFRND2')
+        ->and(Friendship::query()->count())->toBe(0)
+        ->and($me->fresh()?->meta)->not->toHaveKey('pending_friend_invite'); // offered once
+
+    frTap(9112, 'fr1:snd:NEWFRND2', 200);
+
+    $row = Friendship::query()->sole();
+    expect($row->status)->toBe('pending')
+        ->and($row->requested_by_learner_id)->toBe($me->id)
+        ->and($row->learner_id + $row->friend_id)->toBe($me->id + $inviter->id);
+
+    frTap(9001, "fr1:acc:{$row->id}");
+    expect($row->fresh()?->status)->toBe('accepted');
+});
+
+it('does not offer again after the offer, and not at all when nothing was remembered', function (): void {
+    frInviter(9001, 'NEWFRND2');
+    frSend(9112, '/start f_NEWFRND2');
+    frOnboard(9112);
+    $sent = count($this->tg->sent);
+
+    frSend(9112, '/start'); // finished learner: "Today", no second offer
+    $texts = array_slice(array_column($this->tg->sent, 'text'), $sent);
+    expect(collect($texts)->filter(fn (string $t): bool => str_contains($t, 'ссылку-приглашение'))->count())->toBe(0);
+
+    frSend(9113, '/start');
+    frOnboard(9113);
+    expect(collect(array_column($this->tg->sent, 'text'))->filter(fn (string $t): bool => str_contains($t, 'ссылку-приглашение'))->count())->toBe(1);
+});
+
+it('explains an unknown, own, blocked or already-friend pending link after the onboarding instead of offering it, and writes nothing', function (): void {
+    $inviter = frInviter(9001, 'GOODCODE2');
+    frSend(9114, '/start f_NOSUCH234');
+    frOnboard(9114);
+    expect(end($this->tg->sent)['text'])->toBe(__('friends.errors.invalid_link', [], 'ru'))
+        ->and(Friendship::query()->count())->toBe(0);
+
+    // Their own code: told so (the same text as for an opened own link), nothing written.
+    $own = Learner::factory()->create(['telegram_user_id' => 9117, 'first_name' => 'Ali', 'interface_locale' => 'ru', 'referral_code' => 'OWNCODE22', 'meta' => ['pending_friend_invite' => 'OWNCODE22'], 'onboarding_state' => 'reminder']);
+    frTap(9117, 'onb1:reminder:1900', 5);
+    expect(end($this->tg->sent)['text'])->toBe(__('friends.errors.friendship_self', [], 'ru'))
+        ->and(Friendship::query()->count())->toBe(0);
+
+    // Blocked by the inviter before the onboarding ended: the stranger is not told why.
+    $blocked = Learner::factory()->create(['telegram_user_id' => 9115, 'first_name' => 'Ali', 'interface_locale' => 'ru', 'meta' => ['pending_friend_invite' => 'GOODCODE2'], 'onboarding_state' => 'reminder']);
+    app(FriendshipService::class)->block($inviter, $blocked);
+    frTap(9115, 'onb1:reminder:1900', 5);
+    expect(end($this->tg->sent)['text'])->not->toContain('Dilnoza')
+        ->and(Friendship::query()->where('status', 'pending')->count())->toBe(0);
+
+    // Already friends: told so, no new row.
+    $friend = Learner::factory()->create(['telegram_user_id' => 9116, 'first_name' => 'Ali', 'interface_locale' => 'ru', 'meta' => ['pending_friend_invite' => 'GOODCODE2'], 'onboarding_state' => 'reminder']);
+    $row = app(FriendshipService::class)->request($friend, $inviter);
+    app(FriendshipService::class)->accept($inviter, $row->id);
+    frTap(9116, 'onb1:reminder:1900', 5);
+    expect(end($this->tg->sent)['text'])->toContain('уже друзья')
+        ->and(Friendship::query()->where('status', 'accepted')->count())->toBe(1);
 });
 
 it('explains an own link, an unknown code and a blocked pair, and writes nothing', function (): void {

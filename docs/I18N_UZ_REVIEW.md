@@ -1496,6 +1496,7 @@
 | `friends.anonymous` | Tanishingiz | Ваш знакомый |
 | `friends.offer.text` | :name'ning taklif havolasini ochdingiz. :name'ga do'stlik so'rovini yuboraylikmi?\n\nDo'stlar bir-birining seriyasini va o'rganilgan so'zlar sonini ko'radi va musobaqa tashlashi mumkin: hafta davomida kim ko'proq takrorlaydi. | Вы открыли ссылку-приглашение от :name. Отправить :name запрос в друзья?\n\nДрузья видят серию и число выученных слов друг друга и могут бросать вызовы: кто больше повторит за неделю. |
 | `friends.offer.send` | So'rov yuborish | Отправить запрос |
+| `friends.offer.add` | Do'stlarga qo'shish | Добавить в друзья |
 | `friends.offer.skip` | Hozir emas | Не сейчас |
 | `friends.incoming.text` | :name sizni LexiFlow'da do'st sifatida qo'shmoqchi. | :name хочет добавить вас в друзья в LexiFlow. |
 | `friends.incoming.accept` | Qabul qilish | Принять |
