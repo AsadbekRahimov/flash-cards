@@ -17,7 +17,7 @@ final class LessonPolicy
     /** The content of a learner's private deck is for admins only (docs/13 §8.1). */
     public function view(User $user, Lesson $lesson): bool
     {
-        return $this->viewAny($user) && ($user->hasRole('admin') || ! $lesson->stage->course->isLearnerOwned());
+        return $this->viewAny($user) && ($user->hasRole('admin') || $lesson->stage?->course?->isLearnerOwned() !== true);
     }
 
     public function create(User $user): bool
