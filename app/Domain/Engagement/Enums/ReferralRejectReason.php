@@ -11,7 +11,7 @@ enum ReferralRejectReason: string
     case SelfReferral = 'self';
     /** The learner existed before this `/start`: only new learners are referrals (first-touch stays). */
     case ExistingLearner = 'existing_learner';
-    /** The inviter reached `max_rewards_per_30d` / `max_rewards_lifetime` when the reward was due. */
+    /** Legacy (before 2C.6): the inviter had reached the reward cap. Now only the inviter's side is skipped; no new rows get this reason. */
     case ReferrerCapped = 'referrer_capped';
     /** An admin refused a flagged referral. */
     case Flagged = 'flagged';

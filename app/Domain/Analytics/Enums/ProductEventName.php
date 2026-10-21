@@ -57,9 +57,9 @@ enum ProductEventName: string
     case ReferralLinked = 'referral.linked';
     /** The invited learner studied enough (props: referral_id, active_days). */
     case ReferralActivated = 'referral.activated';
-    /** Both sides were granted (or skipped: perpetual Pro) their reward (props: referral_id, days, referee_skipped, referrer_skipped). */
+    /** Both sides were granted (or skipped: perpetual Pro) their reward (props: referral_id, days, referee_skipped, referrer_skipped — `referrer_capped` when the inviter's cap was reached). */
     case ReferralRewarded = 'referral.rewarded';
-    /** A referral was refused (props: reason — self / existing_learner / unknown_code / referrer_capped / flagged). */
+    /** A referral was refused (props: reason — self / existing_learner / unknown_code / flagged; legacy referrer_capped). */
     case ReferralRejected = 'referral.rejected';
     case DailyGoalMet = 'daily_goal.met';
     case StreakExtended = 'streak.extended';
