@@ -550,6 +550,13 @@ final class PaymentApplier
      */
     private function takeRefundedPeriodOff(Payment $charge, Subscription $subscription, ?User $by, CarbonImmutable $now): bool
     {
+        // A perpetual manual grant sits on the same row as an old payment: the refund gives the money back, the grant stays.
+        if ($subscription->provider === SubscriptionProvider::Manual->value || $subscription->current_period_ends_at === null) {
+            Log::info('billing.refund_keeps_grant', ['payment_id' => $charge->id, 'subscription_id' => $subscription->id, 'provider' => $subscription->provider]);
+
+            return false;
+        }
+
         $seconds = $charge->period_starts_at !== null && $charge->period_ends_at !== null
             ? max(0, CarbonImmutable::instance($charge->period_ends_at)->getTimestamp() - CarbonImmutable::instance($charge->period_starts_at)->getTimestamp())
             : null;

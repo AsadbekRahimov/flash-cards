@@ -291,6 +291,13 @@ final class SubscriptionService
                 ...($tierMismatch ? ['tier_mismatch' => ['ordered' => $orderedTier, 'kept' => $live->tier]] : []),
             ];
             $doubleStars = $this->isSecondStarsSubscription($live, $order, $e, $now);
+            // Telegram will charge this row again (status active / past_due, a recurring payment) — liveness aside.
+            $telegramRenews = AutoRenewal::renews($live)
+                && in_array($live->status, [SubscriptionStatus::Active->value, SubscriptionStatus::PastDue->value], true);
+            // A Payme / Click payment that was already in flight when the Stars subscription started: the period is extended,
+            // but the row stays the Stars one, otherwise the learner could not cancel the Telegram renewal any more.
+            $overlapping = $telegramRenews && $e->provider !== SubscriptionProvider::TelegramStars;
+
             if ($doubleStars && $e->providerChargeId !== null) {
                 // Both Telegram subscriptions are remembered (cancel stops both); the first stays `charge_id`.
                 $stars = is_array($meta['stars'] ?? null) ? $meta['stars'] : [];
@@ -299,16 +306,36 @@ final class SubscriptionService
                 $meta['stars'] = $stars;
             } elseif ($e->provider === SubscriptionProvider::TelegramStars && $e->providerChargeId !== null
                 && (! $e->isRenewal || ! isset($meta['stars']['charge_id']))
-                // A one-off payment (year) on top of a running Telegram subscription must not forget its charge id.
-                && ! (($meta['stars']['recurring'] ?? false) === true && ! $this->isRecurringStars($order, $e))) {
-                $meta['stars'] = ['charge_id' => ($e->isRenewal ? $this->firstStarsChargeId($order) : null) ?? $e->providerChargeId, 'recurring' => $this->isRecurringStars($order, $e)];
+                // A one-off payment (year) on top of a Telegram subscription that still renews must not forget its charge id.
+                // Over a canceled one it replaces the handle: the row no longer renews, so it must not look like it does.
+                && ! ($telegramRenews && ! $this->isRecurringStars($order, $e))) {
+                $previous = $meta['stars']['charge_id'] ?? null;
+                $newCharge = ($e->isRenewal ? $this->firstStarsChargeId($order) : null) ?? $e->providerChargeId;
+                $meta['stars'] = [
+                    'charge_id' => $newCharge,
+                    'recurring' => $this->isRecurringStars($order, $e),
+                    ...(is_string($previous) && $previous !== '' && $previous !== $newCharge ? ['previous_charge_id' => $previous] : []),
+                ];
+            }
+
+            if ($overlapping) {
+                $overlaps = is_array($meta['overlapping_payments'] ?? null) ? array_values($meta['overlapping_payments']) : [];
+                $overlaps[] = [
+                    'at' => $now->toIso8601String(),
+                    'provider' => $e->provider->value,
+                    'payment_order_id' => $order->id,
+                    'provider_event_id' => $e->providerEventId,
+                ];
+                $meta['overlapping_payments'] = $overlaps;
             }
 
             $attributes = [
                 'plan' => $plan->outranks(Plan::fromKey($live->plan)) ? $plan->value : $live->plan,
                 'status' => SubscriptionStatus::Active->value,
-                'provider' => $e->provider->value,
-                'provider_ref' => $e->providerChargeId ?? $live->provider_ref,
+                ...($overlapping ? [] : [
+                    'provider' => $e->provider->value,
+                    'provider_ref' => $e->providerChargeId ?? $live->provider_ref,
+                ]),
                 'current_period_ends_at' => $live->current_period_ends_at === null ? null : $ends,
                 'grace_until' => null,
                 'canceled_at' => null,
@@ -331,6 +358,15 @@ final class SubscriptionService
             if ($doubleStars) {
                 $this->flagStarsDoubleSubscription($live, $order, $e);
             }
+
+            if ($overlapping) {
+                Log::warning('billing.overlapping_payment_on_stars', [
+                    'subscription_id' => $live->id,
+                    'payment_order_id' => $order->id,
+                    'provider' => $e->provider->value,
+                    'provider_event_id' => $e->providerEventId,
+                ]);
+            }
         }
 
         $this->events->record(
@@ -350,9 +386,11 @@ final class SubscriptionService
      * provider; the caller has already asked the provider to stop (`cancelAutoRenew`) OUTSIDE
      * this transaction (docs/13 §3 rule 2, §4.1).
      *
+     * `$by = null`: the system stopped the renewal (the Stars of the payment were returned) — no audit, event `by = system`.
+     *
      * @throws SubscriptionException not_cancelable
      */
-    public function cancel(Subscription $subscription, Learner|User $by, ?string $ip = null, ?CarbonImmutable $now = null): Subscription
+    public function cancel(Subscription $subscription, Learner|User|null $by, ?string $ip = null, ?CarbonImmutable $now = null): Subscription
     {
         $now ??= CarbonImmutable::now();
 
@@ -392,7 +430,7 @@ final class SubscriptionService
 
             $this->events->record(
                 ProductEventName::SubscriptionCanceled,
-                ['plan' => $locked->plan, 'provider' => $locked->provider, 'subscriber_type' => $locked->subscriber_type, 'by' => $by instanceof User ? 'admin' : 'learner'],
+                ['plan' => $locked->plan, 'provider' => $locked->provider, 'subscriber_type' => $locked->subscriber_type, 'by' => $by instanceof User ? 'admin' : ($by === null ? 'system' : 'learner')],
                 learner: $this->learnerOf($locked),
                 user: $by instanceof User ? $by : null,
             );
@@ -670,6 +708,11 @@ final class SubscriptionService
             array_filter(SubscriptionProvider::cases(), static fn (SubscriptionProvider $p): bool => ! $p->isPaid()),
         ));
 
+        $autoRenewing = array_values(array_map(
+            static fn (SubscriptionProvider $p): string => $p->value,
+            array_filter(SubscriptionProvider::cases(), static fn (SubscriptionProvider $p): bool => $p->isAutoRenewing()),
+        ));
+
         $ids = Subscription::query()
             ->whereIn('status', SubscriptionStatus::liveValues())
             ->whereIn('plan', PaidSubscriptionQuery::paidPlans())
@@ -677,7 +720,13 @@ final class SubscriptionService
             ->whereNotNull('current_period_ends_at')
             ->where('current_period_ends_at', '>', $now)
             ->where('current_period_ends_at', '<=', $now->addDays(max($days)))
-            // Whether a Stars row renews depends on `meta.stars.recurring` (a one-off year does not): RenewalReminderSender::stillDue decides.
+            // A running Telegram subscription (not canceled, `meta.stars.recurring = true`) renews by itself: no lock for it.
+            // A one-off year (`false`) and a legacy row without the flag stay: RenewalReminderSender::stillDue decides.
+            ->where(fn (Builder $q) => $q
+                ->where('status', SubscriptionStatus::Canceled->value)
+                ->orWhereNotIn('provider', $autoRenewing)
+                ->orWhereNull('meta->stars->recurring')
+                ->orWhere('meta->stars->recurring', false))
             ->orderBy('id')
             ->pluck('id');
 
@@ -861,10 +910,22 @@ final class SubscriptionService
 
     /**
      * The charge id `editUserStarSubscription` needs for the subscription that paid this order: the first payment's —
-     * from the subscription row it created, else from the ledger. Null when neither knows it.
+     * from the ledger of the order, else from the subscription row it created. Null when neither knows it.
      */
     private function firstStarsChargeId(PaymentOrder $order): ?string
     {
+        // The order's own first payment first: with a double subscription the order's `subscription_id` is the row of the OTHER one.
+        $chargeId = Payment::query()
+            ->where('payment_order_id', $order->id)
+            ->where('kind', Payment::KIND_CHARGE)
+            ->whereIn('status', [Payment::STATUS_SUCCEEDED, Payment::STATUS_REFUNDED])
+            ->orderBy('id')
+            ->value('provider_charge_id');
+
+        if (is_string($chargeId) && $chargeId !== '') {
+            return $chargeId;
+        }
+
         if ($order->subscription_id !== null) {
             $chargeId = Subscription::query()->whereKey($order->subscription_id)->first(['id', 'meta'])?->meta['stars']['charge_id'] ?? null;
 
@@ -873,14 +934,7 @@ final class SubscriptionService
             }
         }
 
-        $chargeId = Payment::query()
-            ->where('payment_order_id', $order->id)
-            ->where('kind', Payment::KIND_CHARGE)
-            ->whereIn('status', [Payment::STATUS_SUCCEEDED, Payment::STATUS_REFUNDED])
-            ->orderBy('id')
-            ->value('provider_charge_id');
-
-        return is_string($chargeId) && $chargeId !== '' ? $chargeId : null;
+        return null;
     }
 
     public static function subscriberType(Learner|Organization $subscriber): string

@@ -162,11 +162,16 @@ final class PaidSubscriptionQuery
                             ->orWhere(fn (Builder $fixed): Builder => $fixed
                                 ->where(fn (Builder $noGrace): Builder => $noGrace
                                     ->where('subscriptions.status', $canceled)
-                                    ->orWhereNotIn('subscriptions.provider', $withGrace))
+                                    ->orWhereNotIn('subscriptions.provider', $withGrace)
+                                    // A one-off Stars year does not renew either (AutoRenewal::renews).
+                                    ->orWhere('subscriptions.meta->stars->recurring', false))
                                 ->where('subscriptions.current_period_ends_at', '>', $at))
                             ->orWhere(fn (Builder $renewing): Builder => $renewing
                                 ->where('subscriptions.status', '<>', $canceled)
                                 ->whereIn('subscriptions.provider', $withGrace)
+                                ->where(fn (Builder $flag): Builder => $flag
+                                    ->whereNull('subscriptions.meta->stars->recurring')
+                                    ->orWhere('subscriptions.meta->stars->recurring', '<>', false))
                                 ->where('subscriptions.current_period_ends_at', '>', $graceEdge));
                     });
             })

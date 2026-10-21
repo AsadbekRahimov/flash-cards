@@ -6,7 +6,6 @@ namespace App\Domain\Billing\Services;
 
 use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Support\AutoRenewal;
-use App\Models\Learner;
 use App\Models\Payment;
 use App\Models\Subscription;
 use App\Models\User;
@@ -90,16 +89,11 @@ final class StarsRenewalStopper
         }
 
         // Telegram no longer renews: mirror it. A row the refund has already ended (or any other state) has nothing to cancel.
-        /** @var Learner|null $learner */
-        $learner = $by === null ? Learner::withTrashed()->find($subscription->subscriber_id) : null;
-        $actor = $by ?? $learner;
-
-        if ($actor !== null) {
-            try {
-                $this->subscriptions->cancel($subscription, $actor, $ip, $now);
-            } catch (Throwable) {
-                // Not `active` any more: nothing to cancel locally.
-            }
+        // Without an admin the system did it (not the learner): no audit entry, event `by = system`.
+        try {
+            $this->subscriptions->cancel($subscription, $by, $ip, $now);
+        } catch (Throwable) {
+            // Not `active` any more: nothing to cancel locally.
         }
     }
 }

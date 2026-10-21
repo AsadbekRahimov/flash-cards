@@ -69,6 +69,9 @@ final class FakeTelegramClient implements TelegramClient
     /** When true, every Stars method (invoice link, subscription edit, refund, transactions) throws like a Bot API outage. */
     public bool $failStars = false;
 
+    /** When set, editUserStarSubscription for exactly this charge id throws like a Bot API refusal. */
+    public ?string $failStarsOn = null;
+
     /** Called on every Stars method before it is recorded: a test hooks it to assert on the moment of the call (e.g. no open transaction). */
     public ?Closure $onStarsCall = null;
 
@@ -140,6 +143,9 @@ final class FakeTelegramClient implements TelegramClient
     public function editUserStarSubscription(int $userId, string $telegramPaymentChargeId, bool $isCanceled): void
     {
         $this->starsCall('editUserStarSubscription');
+        if ($this->failStarsOn !== null && $this->failStarsOn === $telegramPaymentChargeId) {
+            throw new TelegramApiException('Bad Request');
+        }
         $this->starSubscriptionEdits[] = ['user_id' => $userId, 'charge_id' => $telegramPaymentChargeId, 'is_canceled' => $isCanceled];
     }
 
