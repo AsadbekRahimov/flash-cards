@@ -6,6 +6,7 @@ namespace App\Domain\Billing\Support;
 
 use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Enums\SubscriptionStatus;
+use App\Models\PaymentOrder;
 use App\Models\Subscription;
 use Carbon\CarbonImmutable;
 
@@ -18,9 +19,35 @@ use Carbon\CarbonImmutable;
  */
 final class AutoRenewal
 {
+    /**
+     * The provider is going to charge this row again: an auto-renewing provider AND a recurring payment. A one-off
+     * Stars invoice (the year) leaves a `telegram_stars` row that never renews — `meta.stars.recurring = false`.
+     * A row without the flag (written before it existed) follows the period of its latest paid order: `month` renews.
+     */
+    public static function renews(Subscription $subscription): bool
+    {
+        if (! (SubscriptionProvider::tryFrom($subscription->provider)?->isAutoRenewing() ?? false)) {
+            return false;
+        }
+
+        $stars = $subscription->meta['stars'] ?? null;
+
+        if (is_array($stars) && array_key_exists('recurring', $stars)) {
+            return (bool) $stars['recurring'];
+        }
+
+        $period = PaymentOrder::query()
+            ->where('subscription_id', $subscription->id)
+            ->where('status', PaymentOrder::STATUS_PAID)
+            ->orderByDesc('id')
+            ->value('period');
+
+        return $period === null || $period === 'month';
+    }
+
     public static function isRunning(Subscription $subscription, CarbonImmutable $now): bool
     {
-        return (SubscriptionProvider::tryFrom($subscription->provider)?->isAutoRenewing() ?? false)
+        return self::renews($subscription)
             && in_array($subscription->status, [SubscriptionStatus::Active->value, SubscriptionStatus::PastDue->value], true)
             && SubscriptionLiveness::isLive($subscription, $now);
     }

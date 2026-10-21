@@ -12,6 +12,7 @@ use App\Domain\Billing\Enums\SubscriptionStatus;
 use App\Domain\Billing\Exceptions\BillingException;
 use App\Domain\Billing\Exceptions\ProviderUnavailableException;
 use App\Domain\Billing\Exceptions\SubscriptionException;
+use App\Domain\Billing\Support\AutoRenewal;
 use App\Domain\Billing\Support\PaidSubscriptionQuery;
 use App\Models\Learner;
 use App\Models\PaymentOrder;
@@ -121,7 +122,7 @@ final class LearnerBillingService
 
         $provider = SubscriptionProvider::tryFrom($live->provider);
 
-        if ($live->status !== SubscriptionStatus::Active->value || $provider === null || ! $provider->isAutoRenewing()) {
+        if ($live->status !== SubscriptionStatus::Active->value || $provider === null || ! AutoRenewal::renews($live)) {
             throw SubscriptionException::notCancelable($live->id, "status is {$live->status}, provider {$live->provider}");
         }
 
@@ -144,7 +145,7 @@ final class LearnerBillingService
 
         $provider = SubscriptionProvider::tryFrom($live->provider);
 
-        if ($live->status !== SubscriptionStatus::Canceled->value || $provider === null || ! $provider->isAutoRenewing()) {
+        if ($live->status !== SubscriptionStatus::Canceled->value || $provider === null || ! AutoRenewal::renews($live)) {
             throw SubscriptionException::notResumable($live->id, "status is {$live->status}, provider {$live->provider}");
         }
 

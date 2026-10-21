@@ -238,7 +238,7 @@ final class SubscriptionService
             if ($e->provider === SubscriptionProvider::TelegramStars && $e->providerChargeId !== null) {
                 // A renewal after the row has run out starts a new row, but Telegram's subscription is still the
                 // one of the FIRST payment: `editUserStarSubscription` needs that charge id, not this renewal's.
-                $meta['stars'] = ['charge_id' => ($e->isRenewal ? $this->firstStarsChargeId($order) : null) ?? $e->providerChargeId];
+                $meta['stars'] = ['charge_id' => ($e->isRenewal ? $this->firstStarsChargeId($order) : null) ?? $e->providerChargeId, 'recurring' => $this->isRecurringStars($order, $e)];
             }
 
             $attributes = [
@@ -298,8 +298,10 @@ final class SubscriptionService
                 $stars['duplicate_charge_ids'] = array_values(array_unique([...$duplicates, $e->providerChargeId]));
                 $meta['stars'] = $stars;
             } elseif ($e->provider === SubscriptionProvider::TelegramStars && $e->providerChargeId !== null
-                && (! $e->isRenewal || ! isset($meta['stars']['charge_id']))) {
-                $meta['stars'] = ['charge_id' => ($e->isRenewal ? $this->firstStarsChargeId($order) : null) ?? $e->providerChargeId];
+                && (! $e->isRenewal || ! isset($meta['stars']['charge_id']))
+                // A one-off payment (year) on top of a running Telegram subscription must not forget its charge id.
+                && ! (($meta['stars']['recurring'] ?? false) === true && ! $this->isRecurringStars($order, $e))) {
+                $meta['stars'] = ['charge_id' => ($e->isRenewal ? $this->firstStarsChargeId($order) : null) ?? $e->providerChargeId, 'recurring' => $this->isRecurringStars($order, $e)];
             }
 
             $attributes = [
@@ -365,7 +367,7 @@ final class SubscriptionService
                 throw SubscriptionException::notCancelable($locked->id, "status is {$locked->status}");
             }
 
-            if (! (SubscriptionProvider::tryFrom($locked->provider)?->isAutoRenewing() ?? false)) {
+            if (! AutoRenewal::renews($locked)) {
                 throw SubscriptionException::notCancelable($locked->id, "provider {$locked->provider} does not renew");
             }
 
@@ -663,10 +665,6 @@ final class SubscriptionService
             return 0;
         }
 
-        $autoRenewing = array_values(array_map(
-            static fn (SubscriptionProvider $p): string => $p->value,
-            array_filter(SubscriptionProvider::cases(), static fn (SubscriptionProvider $p): bool => $p->isAutoRenewing()),
-        ));
         $grants = array_values(array_map(
             static fn (SubscriptionProvider $p): string => $p->value,
             array_filter(SubscriptionProvider::cases(), static fn (SubscriptionProvider $p): bool => ! $p->isPaid()),
@@ -679,9 +677,7 @@ final class SubscriptionService
             ->whereNotNull('current_period_ends_at')
             ->where('current_period_ends_at', '>', $now)
             ->where('current_period_ends_at', '<=', $now->addDays(max($days)))
-            ->where(fn (Builder $q) => $q
-                ->where('status', SubscriptionStatus::Canceled->value)
-                ->orWhereNotIn('provider', $autoRenewing))
+            // Whether a Stars row renews depends on `meta.stars.recurring` (a one-off year does not): RenewalReminderSender::stillDue decides.
             ->orderBy('id')
             ->pluck('id');
 
@@ -818,6 +814,15 @@ final class SubscriptionService
             'ip' => null,
             'meta' => [...$context, 'at' => $now->toIso8601String()],
         ]);
+    }
+
+    /**
+     * Whether a Stars payment belongs to a Telegram subscription (`subscription_period`, the month) rather than a one-off
+     * invoice (the year): Telegram marks the first and every renewal payment `is_recurring`; the order period is the fallback.
+     */
+    private function isRecurringStars(PaymentOrder $order, ChargeEvent $e): bool
+    {
+        return $e->isRenewal || ($e->raw['is_recurring'] ?? false) === true || $order->period === 'month';
     }
 
     /**
@@ -1009,6 +1014,11 @@ final class SubscriptionService
             $s = $this->lockForTransition($id);
 
             if ($s === null || $s->current_period_ends_at === null || ! SubscriptionLiveness::isLive($s, $now)) {
+                return false;
+            }
+
+            // The candidate query cannot tell a one-off Stars year from a Stars subscription (`meta.stars.recurring`).
+            if ($s->status !== SubscriptionStatus::Canceled->value && AutoRenewal::renews($s)) {
                 return false;
             }
 
