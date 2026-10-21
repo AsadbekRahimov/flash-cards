@@ -17,7 +17,7 @@ jobs:
               uses: shivammathur/setup-php@v2
               with:
                   php-version: '8.3'
-                  extensions: mbstring, intl, bcmath, pdo_pgsql, redis, zip
+                  extensions: mbstring, intl, bcmath, pdo_pgsql, redis, zip, gd
                   coverage: none
                   tools: composer:v2
 
@@ -92,7 +92,7 @@ jobs:
               uses: shivammathur/setup-php@v2
               with:
                   php-version: '8.3'
-                  extensions: mbstring, intl, bcmath, pdo_pgsql, redis, zip
+                  extensions: mbstring, intl, bcmath, pdo_pgsql, redis, zip, gd
                   coverage: none
                   tools: composer:v2
 

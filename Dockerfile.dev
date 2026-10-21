@@ -12,11 +12,12 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
     PHP_IDE_CONFIG="serverName=lexiflow"
 
 RUN apk add --no-cache \
-        bash git curl icu-dev oniguruma-dev libzip-dev libpng-dev \
+        bash git curl icu-dev oniguruma-dev libzip-dev libpng-dev freetype-dev \
         postgresql-dev linux-headers autoconf g++ make \
         nodejs npm shadow su-exec less vim \
+    && docker-php-ext-configure gd --with-freetype \
     && docker-php-ext-install -j"$(nproc)" \
-        pdo pdo_pgsql bcmath intl mbstring opcache pcntl zip \
+        pdo pdo_pgsql bcmath intl mbstring opcache pcntl zip gd \
     && pecl install redis xdebug \
     && docker-php-ext-enable redis xdebug \
     && apk del autoconf g++ make linux-headers \
