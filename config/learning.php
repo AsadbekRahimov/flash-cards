@@ -80,6 +80,24 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Personal mock exams — IELTS / SAT vocabulary simulator (docs/13 §8.4, Pro)
+    |--------------------------------------------------------------------------
+    */
+    'mock_exam' => [
+        /** Courses whose `exam_tag` offers a mock. */
+        'exam_tags' => ['ielts', 'sat'],
+        /** Questions per mock: random active words of the course, seeded by the session id. */
+        'questions' => (int) env('MOCK_EXAM_QUESTIONS', 40),
+        /** Whole-exam time limit (seconds); there is no per-question limit. */
+        'seconds' => (int) env('MOCK_EXAM_SECONDS', 1200),
+        /** The percentile compares with closed mocks of the same course over this many days. */
+        'percentile_days' => (int) env('MOCK_EXAM_PERCENTILE_DAYS', 90),
+        /** Cache TTL (seconds) of the per-course distribution the percentile is read from. */
+        'percentile_cache_ttl' => (int) env('MOCK_EXAM_PERCENTILE_CACHE_TTL', 3600),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Personal reminders (docs/06 §6, docs/12 §7.5)
     |--------------------------------------------------------------------------
     |

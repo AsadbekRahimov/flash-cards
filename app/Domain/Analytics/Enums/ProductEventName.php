@@ -17,6 +17,10 @@ enum ProductEventName: string
     case ExamStarted = 'exam.started';
     case ExamClosed = 'exam.closed';
     case ExamLeaderboardPosted = 'exam.leaderboard_posted';
+    /** A learner opened a personal IELTS / SAT mock (props: exam_session_id, course_id, exam_tag, questions — docs/13 §8.4). */
+    case ExamMockStarted = 'exam.mock_started';
+    /** A personal mock was finalized (props: exam_session_id, course_id, percent, percentile, answered, reason — finished / expired). */
+    case ExamMockFinished = 'exam.mock_finished';
     case ReminderSent = 'reminder.sent';
     case ReminderFailed = 'reminder.failed';
     case GroupBotAdded = 'group.bot_added';

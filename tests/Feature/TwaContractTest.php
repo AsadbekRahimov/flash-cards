@@ -11,6 +11,7 @@ declare(strict_types=1);
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Services\CheckoutService;
+use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Billing\Services\PaymentApplier;
 use App\Domain\Learning\DTO\ServedExamQuestion;
 use App\Domain\Learning\Enums\RepetitionState;
@@ -584,6 +585,44 @@ it('ApiErrorResource builds the envelope without a data wrapper', function (): v
 });
 
 // --- exam -----------------------------------------------------------------
+
+it('POST /courses/{slug}/mock-exam and the mock /result keep their exact JSON shapes', function (): void {
+    CarbonImmutable::setTestNow('2026-10-20 10:00:00');
+    $learner = Learner::factory()->onboarded()->create();
+    Subscription::factory()->create(['subscriber_id' => $learner->id]);
+    app(EntitlementResolver::class)->forget($learner);
+    $course = Course::factory()->published()->create(['exam_tag' => 'ielts']);
+    $lesson = Lesson::factory()->for(Stage::factory()->create(['course_id' => $course->id]))->create();
+    foreach (range(1, 6) as $i) {
+        Word::factory()->for($lesson)->create(['word' => "mock{$i}", 'translation' => "мок {$i}"]);
+    }
+
+    $opened = $this->withHeaders(contractHeaders($learner))
+        ->postJson("/api/twa/courses/{$course->slug}/mock-exam")
+        ->assertCreated()
+        ->assertExactJsonStructure(['session_id', 'mode', 'course_id', 'started_at', 'ends_at', 'total_questions', 'seconds', 'resumed']);
+
+    foreach ([...CONTRACT_FORBIDDEN_EXAM_KEYS, 'order_secret', '"questions"'] as $key) {
+        expect($opened->getContent())->not->toContain($key);
+    }
+    expect($opened->json('mode'))->toBe('personal_mock')
+        ->and($opened->json('resumed'))->toBeFalse()
+        ->and($opened->json('seconds'))->toBe(1200);
+
+    $sessionId = (int) $opened->json('session_id');
+    CarbonImmutable::setTestNow('2026-10-20 10:21:00');
+
+    $this->withHeaders(contractHeaders($learner))
+        ->getJson("/api/twa/exam/sessions/{$sessionId}/result")
+        ->assertOk()
+        ->assertExactJsonStructure(['mode', 'correct', 'total', 'answered', 'percent', 'percentile', 'attempts', 'course_id'])
+        ->assertJsonPath('mode', 'personal_mock');
+
+    $this->withHeaders(contractHeaders(Learner::factory()->create()))
+        ->getJson("/api/twa/exam/sessions/{$sessionId}/result")
+        ->assertForbidden()
+        ->assertExactJsonStructure(['error' => ['code', 'message']]);
+});
 
 it('POST /exam/join keeps its exact JSON shape and hides the answer key', function (): void {
     $s = contractExam();

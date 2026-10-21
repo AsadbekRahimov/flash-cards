@@ -922,3 +922,68 @@ it('rolls back and re-applies the referrals migration (2C.1)', function (): void
     expect(Schema::hasTable('referrals'))->toBeTrue()
         ->and(Schema::hasColumn('learners', 'referral_code'))->toBeTrue();
 });
+
+// --- 2D.4 personal mocks (docs/13 §1.6) -----------------------------------------
+
+it('generalizes exam_sessions for personal mocks: one open mock per learner, mode shape, rollback', function (): void {
+    expect(Schema::hasColumns('exam_sessions', ['learner_id', 'mode', 'course_id']))->toBeTrue();
+
+    $learner = Learner::factory()->create();
+    $course = Course::factory()->published()->create(['exam_tag' => 'ielts']);
+
+    ExamSession::factory()->personalMock($learner, $course)->create();
+    expectConstraintViolation(fn () => ExamSession::factory()->personalMock($learner, $course)->create());
+    // A closed mock does not block a new one; another learner is independent.
+    ExamSession::factory()->personalMock($learner, $course)->closed()->create();
+    ExamSession::factory()->personalMock(null, $course)->create();
+    expect(ExamSession::query()->where('mode', 'personal_mock')->count())->toBe(3);
+
+    // Group exams keep their own invariant (one open per group) next to NULL-group mocks.
+    $group = TelegramGroup::factory()->create();
+    ExamSession::factory()->create(['telegram_group_id' => $group->id]);
+    expectConstraintViolation(fn () => ExamSession::factory()->create(['telegram_group_id' => $group->id]));
+    ExamSession::factory()->closed()->create(['telegram_group_id' => $group->id]);
+
+    if (DB::getDriverName() === 'pgsql') {
+        expectConstraintViolation(fn () => ExamSession::factory()->personalMock($learner, $course)->closed()->create(['course_id' => null]));
+        expectConstraintViolation(fn () => ExamSession::factory()->personalMock($learner, $course)->closed()->create(['learner_id' => null]));
+        expectConstraintViolation(fn () => ExamSession::factory()->closed()->create(['telegram_group_id' => null]));
+        expectConstraintViolation(fn () => ExamSession::factory()->closed()->create(['lesson_id' => null]));
+        expectConstraintViolation(fn () => ExamSession::factory()->closed()->create(['started_by_user_id' => null]));
+    }
+
+    // Cascades: the mock goes with its learner and with its course.
+    $gone = ExamSession::factory()->personalMock(null, $course)->closed()->create();
+    $gone->learner?->forceDelete();
+    expect(ExamSession::query()->whereKey($gone->id)->exists())->toBeFalse();
+    $course->delete();
+    expect(ExamSession::query()->where('mode', 'personal_mock')->count())->toBe(0);
+
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_23_400001_generalize_exam_sessions_for_personal_mock')])->assertSuccessful();
+    expect(Schema::hasColumn('exam_sessions', 'learner_id'))->toBeFalse()
+        ->and(Schema::hasColumn('exam_sessions', 'mode'))->toBeFalse()
+        ->and(Schema::hasColumn('exam_sessions', 'course_id'))->toBeFalse()
+        ->and(Schema::hasTable('exam_sessions'))->toBeTrue();
+
+    // The group invariant survived the rollback (sqlite rebuilds the table). Raw rows: the factory
+    // now fills the dropped columns.
+    $group2 = TelegramGroup::factory()->create();
+    $lesson = Lesson::factory()->create();
+    $teacher = User::factory()->create();
+    $groupExam = fn (string $status): array => [
+        'telegram_group_id' => $group2->id,
+        'lesson_id' => $lesson->id,
+        'started_by_user_id' => $teacher->id,
+        'status' => $status,
+        'started_at' => now(),
+        'ends_at' => now()->addHour(),
+        'config' => '{}',
+    ];
+    DB::table('exam_sessions')->insert($groupExam('open'));
+    expectConstraintViolation(fn () => DB::table('exam_sessions')->insert($groupExam('open')));
+    DB::table('exam_sessions')->insert($groupExam('closed'));
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasColumns('exam_sessions', ['learner_id', 'mode', 'course_id']))->toBeTrue();
+    ExamSession::factory()->personalMock()->create();
+});

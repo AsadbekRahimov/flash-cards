@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Twa\CourseController;
 use App\Http\Controllers\Api\Twa\DeckController;
 use App\Http\Controllers\Api\Twa\ExamController;
 use App\Http\Controllers\Api\Twa\MeController;
+use App\Http\Controllers\Api\Twa\MockExamController;
 use App\Http\Controllers\Api\Twa\OrganizationController;
 use App\Http\Controllers\Api\Twa\PromoController;
 use App\Http\Controllers\Api\Twa\ReferralController;
@@ -55,6 +56,10 @@ Route::prefix('twa')->group(function (): void {
         Route::get('/courses', [CourseController::class, 'index'])->name('twa.courses.index');
         Route::get('/courses/{slug}', [CourseController::class, 'show'])->name('twa.courses.show');
         Route::post('/me/course', [CourseController::class, 'select'])->name('twa.me.course');
+        // IELTS / SAT mock of a course (Pro, docs/04 A.4a); played on the exam routes below.
+        Route::post('/courses/{slug}/mock-exam', [MockExamController::class, 'open'])
+            ->middleware('throttle:twa-session-create')
+            ->name('twa.courses.mock-exam');
 
         // Learner decks (docs/04 A.10): reads share `twa-api`; writes and imports have their own caps.
         Route::get('/decks', [DeckController::class, 'index'])->name('twa.decks.index');

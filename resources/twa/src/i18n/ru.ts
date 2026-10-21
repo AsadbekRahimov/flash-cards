@@ -104,6 +104,8 @@ export const ru = {
 
   // ---- exam ----
   'exam.closed_title': '🔒 Экзамен завершён учителем',
+  'exam.mock_header': 'Пробный тест',
+  'exam.mock_closed_title': '⏱ Время вышло',
 
   // ---- exam result ----
   'result.title': 'Итоги экзамена',
@@ -111,6 +113,17 @@ export const ru = {
   'result.rank': 'Место {rank} из {total}',
   'result.pending': 'Результаты ещё считаются…',
   'result.top': 'Топ участников',
+  'result.mock_title': 'Итоги пробного теста',
+  'result.mock_score': '{correct} из {total} · {percent}%',
+  'result.mock_unanswered': 'Без ответа: {count}',
+  'result.mock_percentile': 'Лучше или наравне с {percentile}% результатов по этому курсу за 90 дней',
+  'result.mock_first': 'Первый результат по этому курсу за 90 дней — сравнить пока не с чем',
+  'result.mock_attempts': 'Попыток в сравнении: {count}',
+  'result.mock_again': 'К курсам',
+
+  // ---- course: mock exam (Pro) ----
+  'course.mock_exam': 'Пробный тест',
+  'course.mock_exam_hint': '{count} слов курса · {minutes} мин · результат в процентах и сравнение с другими',
 
   // ---- finished (training) ----
   'finished.title': 'Отлично!',
@@ -155,6 +168,7 @@ export const ru = {
   'paywall.review': 'Повторить слова',
   'paywall.lead_decks': 'Лимит колод тарифа Free: 1 колода до 50 слов. В Pro — до 20 колод по 2000 слов.',
   'paywall.lead_streak_freeze': 'Заморозка серии — в Pro: пропущенный день не обрывает серию, до 2 заморозок, +1 каждую неделю.',
+  'paywall.lead_exam_simulator': 'Пробные тесты IELTS и SAT — в Pro: 40 слов курса за 20 минут, результат в процентах и сравнение с другими.',
 
   // ---- purchase (paywall mode purchase, subscription screen; docs/13 §5) ----
   'paywall.title_purchase': 'LexiFlow Pro',
@@ -368,6 +382,10 @@ export const ru = {
   'error.code.card_not_started': 'Эта карточка ещё не показывалась. Обновите экран.',
   'error.code.card_not_due': 'Эта карточка уже повторена, её время ещё не пришло.',
   'error.code.exam_still_open': 'Экзамен ещё идёт, результаты появятся после его завершения.',
+  'error.code.exam_simulator_pro_required': 'Пробные тесты доступны в Pro.',
+  'error.code.course_not_exam': 'У этого курса нет пробного теста.',
+  'error.code.not_enough_words': 'В курсе пока слишком мало слов для теста.',
+  'error.code.not_enough_distractors': 'В курсе не хватает слов для вариантов ответа.',
   'error.code.tts_unavailable': 'Озвучка сейчас недоступна.',
   'error.code.promo_not_found': 'Промокод не найден. Проверьте, нет ли опечатки.',
   'error.code.promo_expired': 'Срок действия промокода истёк.',

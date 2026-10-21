@@ -16,10 +16,11 @@ import type {
   DeckImportFormat,
   DeckImportResult,
   DecksResponse,
+  AnyExamResultResponse,
   ExamAnswerResponse,
   ExamJoinResponse,
   ExamQuestionResponse,
-  ExamResultResponse,
+  MockExamOpenResponse,
   MeResponse,
   NextCardResponse,
   OrderStatusResponse,
@@ -149,6 +150,9 @@ export const api = {
       },
     ) => client().post<ExamAnswerResponse>(`/exam/sessions/${sessionId}/answer`, body),
     result: (sessionId: number) =>
-      client().get<ExamResultResponse>(`/exam/sessions/${sessionId}/result`),
+      client().get<AnyExamResultResponse>(`/exam/sessions/${sessionId}/result`),
+    /** IELTS / SAT mock of a course (Pro; 403 `exam_simulator_pro_required` is the paywall). */
+    openMock: (slug: string) =>
+      client().post<MockExamOpenResponse>(`/courses/${encodeURIComponent(slug)}/mock-exam`),
   },
 }

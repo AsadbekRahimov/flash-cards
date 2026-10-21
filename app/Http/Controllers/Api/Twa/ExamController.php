@@ -6,11 +6,13 @@ namespace App\Http\Controllers\Api\Twa;
 
 use App\Domain\Learning\Exceptions\ExamParticipationException;
 use App\Domain\Learning\Services\ExamFlowService;
+use App\Domain\Learning\Services\MockExamService;
 use App\Http\Resources\ApiErrorResource;
 use App\Http\Resources\Twa\ExamAnswerResource;
 use App\Http\Resources\Twa\ExamJoinResource;
 use App\Http\Resources\Twa\ExamQuestionResource;
 use App\Http\Resources\Twa\ExamResultResource;
+use App\Http\Resources\Twa\MockExamResultResource;
 use App\Models\ExamSession;
 use App\Models\Learner;
 use App\Policies\ExamSessionPolicy;
@@ -22,6 +24,7 @@ final class ExamController
     public function __construct(
         private readonly ExamSessionPolicy $policy,
         private readonly ExamFlowService $flow,
+        private readonly MockExamService $mocks,
     ) {}
 
     public function join(Request $request, int $sessionId): JsonResponse
@@ -99,6 +102,20 @@ final class ExamController
         }
         if (! $learner instanceof Learner) {
             return $this->unauthorizedLearner();
+        }
+
+        // A personal mock closes itself: time over or every question answered (docs/13 §8.4).
+        if ($session->isPersonalMock()) {
+            $session = $this->mocks->finalizeIfDue($session);
+            if (! $this->policy->canViewResult($learner, $session)) {
+                return ApiErrorResource::respond(
+                    409,
+                    'exam_still_open',
+                    'Results are available only after the exam is closed.',
+                );
+            }
+
+            return (new MockExamResultResource($this->mocks->result($session)))->response();
         }
 
         if (! $this->policy->canViewResult($learner, $session)) {

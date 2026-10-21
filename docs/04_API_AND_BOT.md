@@ -466,6 +466,51 @@ learning, learn-ahead) квотой не ограничиваются: посл�
 }
 ```
 
+### A.4a Пробный тест IELTS / SAT — персональный mock (docs/13 §8.4, Фаза 2 / 2D.4, Pro)
+
+Сессия `exam_sessions` с `mode = personal_mock`, `learner_id`, `course_id` (группы, урока и учителя нет). Строится
+`MockExamService::open` из **случайных активных слов курса** (seed = id сессии: один и тот же набор у одной сессии,
+разный у разных), по умолчанию 40 вопросов за 20 минут (`config('learning.mock_exam')`). Играется на тех же
+маршрутах `/exam/sessions/{id}/*`, что и групповой экзамен (персональный порядок, `ExamQuestionPersonalizer`), но
+**таймер один на весь тест**: `seconds_per_question` в `join` равен всему лимиту, клиент не показывает
+покарточный отсчёт. Доступ — **только владелец** (`ExamSessionPolicy`: иначе 403 `forbidden`).
+
+#### `POST /api/twa/courses/{slug}/mock-exam`
+Открывает mock курса или возвращает уже открытый (у learner'а не больше одного открытого mock'а — любого курса).
+`throttle:twa-session-create`.
+
+**Response 201** (новый) / **200** (возвращён открытый, `resumed: true`):
+```json
+{
+  "session_id": 91, "mode": "personal_mock", "course_id": 5,
+  "started_at": "2026-10-20T10:00:00+00:00", "ends_at": "2026-10-20T10:20:00+00:00",
+  "total_questions": 40, "seconds": 1200, "resumed": false
+}
+```
+
+Ошибки: 403 `exam_simulator_pro_required` (Free — TWA показывает paywall `reason: exam_simulator`), 404 `course_not_found`
+(нет / не опубликован / недоступен learner'у), 422 `course_not_exam` (`exam_tag ∉ {ielts, sat}`), 422 `not_enough_words`
+(< 4 активных слов), 422 `not_enough_distractors`. Просроченный открытый mock при новом `open` финализируется и заменяется.
+
+#### `GET /api/twa/exam/sessions/{session_id}/result` для `personal_mock`
+Сервер **сам закрывает** mock при этом запросе, когда отвечены все вопросы или вышло время (а брошенные — `exams:close-expired`);
+пока тест идёт и вопросы остались — 409 `exam_still_open`, как у группового. После `ends_at` `answer`/`question`
+отвечают 410 `session_closed`.
+```json
+{
+  "mode": "personal_mock", "correct": 30, "total": 40, "answered": 38,
+  "percent": 75, "percentile": 82, "attempts": 9, "course_id": 5
+}
+```
+`percent` — верных от **всех** вопросов (неотвеченный = неверный); `percentile` — доля (0..100) закрытых mock'ов
+**этого курса за 90 дней** с процентом ≤ моего, включая мой (одинокая попытка → 100); `attempts` — размер этой выборки.
+Распределение по курсу кэшируется на 1 час и сбрасывается при каждой финализации mock'а курса. Mock без единого ответа
+закрывается без строки `exam_results` и в чужие выборки не попадает. Форма ответа для группового экзамена не изменилась:
+клиент различает по `mode`.
+
+События: `exam.mock_started {exam_session_id, course_id, exam_tag, questions}`,
+`exam.mock_finished {exam_session_id, course_id, percent, percentile, answered, reason: finished | expired}` (один раз).
+
 ### A.5 TTS fallback
 `GET /api/twa/tts?word=resilient&voice=en-US-AriaNeural`
 Возвращает `audio/mpeg`. Cache-friendly: `Cache-Control: public, max-age=2592000`.

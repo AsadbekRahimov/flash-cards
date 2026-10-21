@@ -8,7 +8,7 @@ import { useTodayStore } from '@/stores/today'
 import { useI18n } from '@/i18n'
 import type { BillingPeriod, BillingProviderKey, MeResponse } from '@/api/types'
 
-export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze'
+export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam_simulator'
 
 /**
  * Paywall (docs/12 §5.4, docs/13 §5).
@@ -23,8 +23,8 @@ export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze'
  * failed to load, keeps the `coming_soon` copy.
  *
  * `reason = 'quota'` is the end of today's new words; `'decks'` is a refused deck / deck-word limit
- * (docs/04 A.10); `'streak_freeze'` is the Free teaser of streak freezes (docs/13 §7.2); `'info'` is the
- * learner opening it from the Today screen. A promo code that works or a
+ * (docs/04 A.10); `'streak_freeze'` is the Free teaser of streak freezes (docs/13 §7.2); `'exam_simulator'`
+ * is a refused IELTS / SAT mock (docs/13 §8.4); `'info'` is the learner opening it from the Today screen. A promo code that works or a
  * confirmed payment refreshes `/me` (billing store) and `/today`.
  *
  * "Repeat words" (shown when the Today store knows of due cards) emits `review`: reviews are never
@@ -158,6 +158,9 @@ onBeforeUnmount(() => {
         </p>
         <p v-else-if="props.reason === 'streak_freeze'" class="text-center" data-testid="paywall-lead">
           {{ t('paywall.lead_streak_freeze') }} {{ purchaseMode ? t('paywall.lead_purchase') : t('paywall.soon') }}
+        </p>
+        <p v-else-if="props.reason === 'exam_simulator'" class="text-center" data-testid="paywall-lead">
+          {{ t('paywall.lead_exam_simulator') }} {{ purchaseMode ? t('paywall.lead_purchase') : t('paywall.soon') }}
         </p>
         <p v-else class="text-center" data-testid="paywall-lead">{{ purchaseMode ? t('paywall.lead_purchase') : t('paywall.soon') }}</p>
 

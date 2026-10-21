@@ -90,6 +90,8 @@ export const uz: Translations = {
 
   // ---- exam ----
   'exam.closed_title': "🔒 Imtihon o'qituvchi tomonidan yakunlandi",
+  'exam.mock_header': 'Sinov testi',
+  'exam.mock_closed_title': '⏱ Vaqt tugadi',
 
   // ---- exam result ----
   'result.title': 'Imtihon natijalari',
@@ -97,6 +99,17 @@ export const uz: Translations = {
   'result.rank': "{total} ishtirokchi ichida {rank}-o'rin",
   'result.pending': 'Natijalar hali hisoblanmoqda…',
   'result.top': 'Eng yaxshi ishtirokchilar',
+  'result.mock_title': 'Sinov testi natijalari',
+  'result.mock_score': '{total} tadan {correct} ta · {percent}%',
+  'result.mock_unanswered': 'Javobsiz: {count}',
+  'result.mock_percentile': "So'nggi 90 kundagi ushbu kurs natijalarining {percentile}% idan yaxshi yoki teng",
+  'result.mock_first': "So'nggi 90 kunda ushbu kurs bo'yicha birinchi natija — hozircha solishtirish uchun natija yo'q",
+  'result.mock_attempts': 'Solishtirilgan urinishlar: {count}',
+  'result.mock_again': 'Kurslarga',
+
+  // ---- course: mock exam (Pro) ----
+  'course.mock_exam': 'Sinov testi',
+  'course.mock_exam_hint': "Kursdan {count} ta so'z · {minutes} daqiqa · natija foizda va boshqalar bilan taqqoslash",
 
   // ---- finished (training) ----
   'finished.title': 'Ajoyib!',
@@ -137,6 +150,7 @@ export const uz: Translations = {
   'paywall.review': "So'zlarni takrorlash",
   'paywall.lead_decks': "Free tarifida to'plamlar limiti: 50 tagacha so'zli 1 ta to'plam. Pro'da 2000 tadan so'zli 20 tagacha to'plam.",
   'paywall.lead_streak_freeze': "Seriyani muzlatish — Pro'da: o'tkazib yuborilgan kun seriyani uzmaydi, 2 tagacha muzlatish, har hafta +1.",
+  'paywall.lead_exam_simulator': "IELTS va SAT sinov testlari — Pro'da: 20 daqiqada kursdan 40 ta so'z, natija foizda va boshqalar bilan taqqoslash.",
 
   // ---- purchase (paywall mode purchase, subscription screen; docs/13 §5) ----
   'paywall.title_purchase': 'LexiFlow Pro',
@@ -327,6 +341,10 @@ export const uz: Translations = {
   'error.code.card_not_started': "Bu kartochka hali ko'rsatilmagan. Ekranni yangilang.",
   'error.code.card_not_due': 'Bu kartochka allaqachon takrorlangan, vaqti hali kelmadi.',
   'error.code.exam_still_open': 'Imtihon hali davom etmoqda, natijalar tugagandan keyin chiqadi.',
+  'error.code.exam_simulator_pro_required': "Sinov testlari Pro'da mavjud.",
+  'error.code.course_not_exam': "Bu kursda sinov testi yo'q.",
+  'error.code.not_enough_words': "Kursda test uchun hozircha so'zlar juda kam.",
+  'error.code.not_enough_distractors': "Kursda javob variantlari uchun so'zlar yetarli emas.",
   'error.code.tts_unavailable': 'Ovozli talaffuz hozircha mavjud emas.',
   'error.code.promo_not_found': 'Promokod topilmadi. Xato yozilmaganini tekshiring.',
   'error.code.promo_expired': 'Promokodning amal qilish muddati tugagan.',

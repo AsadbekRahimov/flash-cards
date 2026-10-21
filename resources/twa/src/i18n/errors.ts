@@ -61,6 +61,10 @@ export const KNOWN_ERROR_CODES = [
   'order_not_found',
   'membership_not_found',
   'membership_via_group',
+  'exam_simulator_pro_required',
+  'course_not_exam',
+  'not_enough_words',
+  'not_enough_distractors',
 ] as const
 
 export type KnownErrorCode = (typeof KNOWN_ERROR_CODES)[number]

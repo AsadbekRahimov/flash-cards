@@ -1394,3 +1394,28 @@
 | `today.streak.frozen_yesterday` | Kechagi kun muzlatildi — seriya saqlandi | Вчерашний день заморожен — серия сохранена |
 | `today.streak.freeze_teaser` | ❄️ Seriyani muzlatish — Pro'da | ❄️ Заморозки серии — в Pro |
 | `paywall.lead_streak_freeze` | Seriyani muzlatish — Pro'da: o'tkazib yuborilgan kun seriyani uzmaydi, 2 tagacha muzlatish, har hafta +1. | Заморозка серии — в Pro: пропущенный день не обрывает серию, до 2 заморозок, +1 каждую неделю. |
+
+## Фаза 2 · задача 2D.4 (пробный тест IELTS / SAT, Pro) — на проверку носителю
+
+> Проверить: «Sinov testi» (пробный тест; альтернатива «Mashq imtihoni»), формулировку процентиля «… natijalarining {percentile}% idan yaxshi yoki teng» и «Javobsiz» (без ответа).
+
+### TWA, страница курса, экран экзамена/результата, paywall (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `exam.mock_header` | Sinov testi | Пробный тест |
+| `exam.mock_closed_title` | ⏱ Vaqt tugadi | ⏱ Время вышло |
+| `result.mock_title` | Sinov testi natijalari | Итоги пробного теста |
+| `result.mock_score` | {total} tadan {correct} ta · {percent}% | {correct} из {total} · {percent}% |
+| `result.mock_unanswered` | Javobsiz: {count} | Без ответа: {count} |
+| `result.mock_percentile` | So'nggi 90 kundagi ushbu kurs natijalarining {percentile}% idan yaxshi yoki teng | Лучше или наравне с {percentile}% результатов по этому курсу за 90 дней |
+| `result.mock_first` | So'nggi 90 kunda ushbu kurs bo'yicha birinchi natija — hozircha solishtirish uchun natija yo'q | Первый результат по этому курсу за 90 дней — сравнить пока не с чем |
+| `result.mock_attempts` | Solishtirilgan urinishlar: {count} | Попыток в сравнении: {count} |
+| `result.mock_again` | Kurslarga | К курсам |
+| `course.mock_exam` | Sinov testi | Пробный тест |
+| `course.mock_exam_hint` | Kursdan {count} ta so'z · {minutes} daqiqa · natija foizda va boshqalar bilan taqqoslash | {count} слов курса · {minutes} мин · результат в процентах и сравнение с другими |
+| `paywall.lead_exam_simulator` | IELTS va SAT sinov testlari — Pro'da: 20 daqiqada kursdan 40 ta so'z, natija foizda va boshqalar bilan taqqoslash. | Пробные тесты IELTS и SAT — в Pro: 40 слов курса за 20 минут, результат в процентах и сравнение с другими. |
+| `error.code.exam_simulator_pro_required` | Sinov testlari Pro'da mavjud. | Пробные тесты доступны в Pro. |
+| `error.code.course_not_exam` | Bu kursda sinov testi yo'q. | У этого курса нет пробного теста. |
+| `error.code.not_enough_words` | Kursda test uchun hozircha so'zlar juda kam. | В курсе пока слишком мало слов для теста. |
+| `error.code.not_enough_distractors` | Kursda javob variantlari uchun so'zlar yetarli emas. | В курсе не хватает слов для вариантов ответа. |

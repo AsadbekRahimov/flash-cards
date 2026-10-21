@@ -233,9 +233,12 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 | Колонка | Тип |
 |---------|-----|
 | id | bigint PK |
-| telegram_group_id | bigint FK |
-| lesson_id | bigint FK |
-| started_by_user_id | bigint FK |
+| telegram_group_id | bigint FK nullable | — группа (`group_exam`); у `personal_mock` NULL |
+| lesson_id | bigint FK nullable | — урок (`group_exam`); у `personal_mock` NULL (слова берутся из курса) |
+| started_by_user_id | bigint FK nullable | — учитель (`group_exam`); у `personal_mock` NULL |
+| learner_id | bigint FK nullable cascade | — владелец `personal_mock` (2D.4, docs/13 §1.6) |
+| mode | varchar(16) default 'group_exam' | — `group_exam` / `personal_mock` |
+| course_id | bigint FK nullable cascade | — курс `personal_mock` (процентиль считается по курсу) |
 | status | enum('open','closed') default 'open' |
 | started_at | timestamp |
 | ends_at | timestamp |
@@ -262,11 +265,20 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 `config.questions`. Перестановка — биекция, поэтому unique `(exam_session_id, learner_id, word_id)` в
 `exam_answers` по-прежнему защищает от повторного ответа на слово.
 
+`config` у `personal_mock` (пишется `MockExamService::open`): те же ключи плюс `seconds` (лимит всего теста);
+`seconds_per_question = seconds` — таймер один на весь тест; `locale` — локаль learner'а.
+
 **Индексы:** `status`, `ends_at` (для scheduler).
 Дополнительно для нагрузки:
 - `(status, ends_at)` — закрытие истёкших экзаменов одним range scan.
 - `(telegram_group_id, status, started_at)` — поиск открытого/последнего экзамена группы.
 - `(telegram_group_id) WHERE status = 'open'` unique — не более одного открытого экзамена в группе, включая параллельные команды.
+- `(learner_id) WHERE status = 'open' AND mode = 'personal_mock'` unique (`exam_sessions_one_open_mock_per_learner`) — не
+  более одного открытого mock'а у learner'а (2D.4).
+- `(learner_id, status, started_at)`, `(course_id, mode, closed_at)` — открытый mock learner'а и выборка процентиля по курсу.
+- PG CHECK `exam_sessions_mode_shape_check`: `group_exam` ⇒ `telegram_group_id`, `lesson_id`, `started_by_user_id` NOT NULL;
+  `personal_mock` ⇒ `learner_id`, `course_id` NOT NULL (миграция `2026_10_23_400001_generalize_exam_sessions_for_personal_mock`;
+  на sqlite таблица перестраивается, partial-индекс группы пересоздаётся явно).
 
 ### 2.12 `exam_answers`
 | Колонка | Тип |
@@ -300,6 +312,9 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 | answered_at | timestamp nullable |
 
 **Ограничение:** `(exam_session_id, learner_id, question_index)` unique. Повторный `GET question` не перезапускает таймер.
+
+У `personal_mock` — ровно одна строка на сессию (`learner_id` = владелец, `rank = 1`), `total_count` = число вопросов
+теста, а не число ответов; пишется `MockExamService::finalize` только если был хотя бы один ответ.
 
 ### 2.13 `exam_results` (materialized-style snapshot)
 Заполняется при закрытии экзамена. Денормализация для быстрого лидерборда.

@@ -1,14 +1,21 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted } from 'vue'
+import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import PaywallSheet from '@/components/PaywallSheet.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import { courseMeta } from '@/composables/courseLabels'
 import { useAuthStore } from '@/stores/auth'
 import { useCoursesStore } from '@/stores/courses'
+import { useExamStore } from '@/stores/exam'
 import { useTrainingStore } from '@/stores/training'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
+
+/** Courses with an IELTS / SAT mock (docs/13 §8.4); the server refuses the others anyway. */
+const MOCK_EXAM_TAGS = ['ielts', 'sat']
+const MOCK_EXAM_WORDS = 40
+const MOCK_EXAM_MINUTES = 20
 
 const props = defineProps<{ slug: string }>()
 
@@ -16,11 +23,19 @@ const router = useRouter()
 const auth = useAuthStore()
 const catalog = useCoursesStore()
 const training = useTrainingStore()
+const exam = useExamStore()
 const { showBackButton } = useTelegram()
 const { t } = useI18n()
 
 const { detail, detailStatus: status, selecting, errorMessage } = storeToRefs(catalog)
 const { opening, openError } = storeToRefs(training)
+const { openingMock, mockPaywall, mockError } = storeToRefs(exam)
+
+const offersMock = computed((): boolean => detail.value !== null && detail.value.exam_tag !== null && MOCK_EXAM_TAGS.includes(detail.value.exam_tag))
+const mockHint = computed((): string => t('course.mock_exam_hint', {
+  count: Math.min(MOCK_EXAM_WORDS, detail.value?.words_count ?? MOCK_EXAM_WORDS),
+  minutes: MOCK_EXAM_MINUTES,
+}))
 
 let hideBack: (() => void) | null = null
 
@@ -38,6 +53,12 @@ async function learn(lessonId: number): Promise<void> {
   if (sessionId !== null) await router.push({ name: 'training', params: { sessionId } })
 }
 
+/** Pro: opens (or resumes) the mock and goes to the exam screen; Free: the paywall sheet. */
+async function mockExam(): Promise<void> {
+  const sessionId = await exam.openMock(props.slug)
+  if (sessionId !== null) await router.push({ name: 'exam', params: { sessionId }, query: { mode: 'mock' } })
+}
+
 onMounted(() => {
   hideBack = showBackButton(() => void router.push({ name: 'courses' }))
   void load()
@@ -46,6 +67,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   hideBack?.()
   training.clearOpenError()
+  exam.clearMockError()
 })
 </script>
 
@@ -99,6 +121,20 @@ onBeforeUnmount(() => {
         </button>
       </header>
 
+      <section v-if="offersMock" class="card space-y-2" data-testid="mock-exam">
+        <p class="text-xs text-tg-hint" data-testid="mock-exam-hint">{{ mockHint }}</p>
+        <p v-if="mockError" class="text-sm text-red-600" data-testid="mock-exam-error">{{ mockError }}</p>
+        <button
+          type="button"
+          class="btn btn-secondary w-full"
+          :disabled="openingMock"
+          data-testid="mock-exam-btn"
+          @click="mockExam()"
+        >
+          🏁 {{ t('course.mock_exam') }}
+        </button>
+      </section>
+
       <p v-if="detail.stages.length === 0" class="text-center text-tg-hint" data-testid="no-lessons">
         {{ t('course.no_lessons') }}
       </p>
@@ -139,5 +175,7 @@ onBeforeUnmount(() => {
         </ul>
       </section>
     </div>
+
+    <PaywallSheet v-if="mockPaywall" reason="exam_simulator" @close="exam.dismissMockPaywall()" />
   </section>
 </template>

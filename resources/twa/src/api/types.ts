@@ -423,6 +423,40 @@ export interface ExamResultResponse {
   leaderboard: ExamLeaderboardEntry[]
 }
 
+export type ExamMode = 'group_exam' | 'personal_mock'
+
+/** POST /courses/{slug}/mock-exam (docs/04 A.4a): the learner's IELTS / SAT mock, new (201) or the open one (200). */
+export interface MockExamOpenResponse {
+  session_id: number
+  mode: ExamMode
+  course_id: number | null
+  started_at: string | null
+  ends_at: string | null
+  total_questions: number
+  /** Whole-exam time limit; a mock has no per-question timer. */
+  seconds: number
+  resumed: boolean
+}
+
+/** GET /exam/sessions/{id}/result of a `personal_mock` session: percent + percentile instead of a leaderboard. */
+export interface MockExamResultResponse {
+  mode: 'personal_mock'
+  correct: number
+  total: number
+  answered: number
+  percent: number
+  /** Share of closed mocks of the course over 90 days at or below this percent; null while open. */
+  percentile: number | null
+  attempts: number
+  course_id: number | null
+}
+
+export type AnyExamResultResponse = ExamResultResponse | MockExamResultResponse
+
+export function isMockExamResult(result: AnyExamResultResponse): result is MockExamResultResponse {
+  return 'mode' in result && result.mode === 'personal_mock'
+}
+
 // ---------------- Course catalog ----------------
 
 export interface Progress {

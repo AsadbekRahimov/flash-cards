@@ -498,3 +498,83 @@ it('does not load foreign courses while the own course supplies enough answer-la
         }
     }
 });
+
+// --- forWords (personal mocks, docs/13 §8.4) ------------------------------------
+
+/** @return array{course: Course, words: list<Word>} */
+function seedCourseForWords(int $words, bool $withForeign = false): array
+{
+    $course = Course::factory()->published()->create(['exam_tag' => 'ielts']);
+    $stage = Stage::factory()->create(['course_id' => $course->id]);
+    $lessonA = Lesson::factory()->for($stage)->create();
+    $lessonB = Lesson::factory()->for($stage)->create();
+
+    $list = [];
+    foreach (range(0, $words - 1) as $i) {
+        $list[] = Word::factory()->for($i % 2 === 0 ? $lessonA : $lessonB)->create([
+            'word' => "cw{$i}",
+            'translation' => "course translation {$i}",
+            'is_active' => true,
+        ]);
+    }
+    Word::factory()->for($lessonA)->create(['word' => 'inactive', 'translation' => 'inactive translation', 'is_active' => false]);
+
+    if ($withForeign) {
+        $foreign = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->for(Stage::factory()->create(['course_id' => $foreign->id]))->create();
+        foreach (range(0, 9) as $i) {
+            Word::factory()->for($lesson)->create(['word' => "fw{$i}", 'translation' => "foreign translation {$i}"]);
+        }
+    }
+
+    return ['course' => $course, 'words' => $list];
+}
+
+it('forWords builds one question per given word, in the given order, from the words of the course', function (): void {
+    ['course' => $course, 'words' => $words] = seedCourseForWords(12);
+    $chosen = [$words[5], $words[0], $words[9], $words[2]];
+
+    $questions = app(ExamQuestionBuilder::class)->forWords($chosen, $course, 'ru');
+
+    expect(array_column($questions, 'word_id'))->toBe(array_map(fn (Word $w): int => (int) $w->id, $chosen));
+    foreach ($questions as $q) {
+        assertWellFormedQuestion($q);
+        expect(count($q['options']))->toBe(4);
+        foreach ($q['options'] as $option) {
+            expect($option)->toStartWith('course translation')
+                ->and($option)->not->toBe('inactive translation');
+        }
+    }
+});
+
+it('forWords borrows public platform courses only when the course itself is too small', function (): void {
+    ['course' => $small, 'words' => $words] = seedCourseForWords(2, withForeign: true);
+    $questions = app(ExamQuestionBuilder::class)->forWords($words, $small, 'ru');
+
+    expect($questions)->toHaveCount(2);
+    foreach ($questions as $q) {
+        assertWellFormedQuestion($q);
+        // The one other course word comes first, the public course fills the remaining two slots.
+        expect(count($q['options']))->toBe(4)
+            ->and(count(array_filter($q['options'], fn (string $o): bool => str_starts_with($o, 'course translation'))))->toBe(2)
+            ->and(count(array_filter($q['options'], fn (string $o): bool => str_starts_with($o, 'foreign translation'))))->toBe(2);
+    }
+
+    ['course' => $big, 'words' => $bigWords] = seedCourseForWords(50);
+    foreach (app(ExamQuestionBuilder::class)->forWords(array_slice($bigWords, 0, 10), $big, 'ru') as $q) {
+        foreach ($q['options'] as $option) {
+            expect($option)->not->toStartWith('foreign translation');
+        }
+    }
+});
+
+it('forWords returns nothing for an empty list and throws when a word has no distractor at all', function (): void {
+    $course = Course::factory()->published()->create(['exam_tag' => 'sat']);
+    $lesson = Lesson::factory()->for(Stage::factory()->create(['course_id' => $course->id]))->create();
+    $only = Word::factory()->for($lesson)->create(['word' => 'alone', 'translation' => 'один']);
+
+    $builder = app(ExamQuestionBuilder::class);
+    expect($builder->forWords([], $course, 'ru'))->toBe([]);
+    expect(fn () => $builder->forWords([$only], $course, 'ru'))
+        ->toThrow(ExamSessionException::class);
+});
