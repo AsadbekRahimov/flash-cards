@@ -11,9 +11,11 @@ use App\Domain\Learners\DTO\StreakState;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 /**
  * Daily-goal streak of a learner (docs/12 §7.4, freezes: docs/06 §6a, docs/13 §7.2).
@@ -84,7 +86,13 @@ class StreakService
         $date = $localDate->toDateString();
 
         DB::afterCommit(function () use ($learner, $date): void {
-            $this->apply($learner, $date);
+            // A failure must not stop the hooks registered after this one (referrals, league, achievements);
+            // a projection that did not happen is repaired on read from the committed day row ({@see current()}).
+            try {
+                $this->apply($learner, $date);
+            } catch (Throwable $e) {
+                report($e);
+            }
         });
     }
 
@@ -248,7 +256,7 @@ class StreakService
     {
         return LearnerDailyStats::query()
             ->where('learner_id', $learnerId)
-            ->where(fn ($q) => $q->whereNotNull('goal_met_at')->orWhereNotNull('frozen_at'))
+            ->where(fn (Builder $q) => $q->whereNotNull('goal_met_at')->orWhereNotNull('frozen_at'))
             ->where('date', '>=', $this->storedDate($from))
             ->where('date', '<=', $this->storedDate($through))
             ->orderBy('date')
@@ -361,7 +369,7 @@ class StreakService
         $row = LearnerDailyStats::query()
             ->where('learner_id', $learnerId)
             ->where('date', $this->storedDate($date))
-            ->where(fn ($q) => $q->whereNotNull('goal_met_at')->orWhereNotNull('frozen_at'))
+            ->where(fn (Builder $q) => $q->whereNotNull('goal_met_at')->orWhereNotNull('frozen_at'))
             ->first(['id', 'learner_id', 'date', 'goal_met_at', 'frozen_at']);
 
         return $row;
@@ -378,7 +386,7 @@ class StreakService
 
         $rows = LearnerDailyStats::query()
             ->where('learner_id', $learnerId)
-            ->where(fn ($q) => $q->whereNotNull('goal_met_at')->orWhereNotNull('frozen_at'))
+            ->where(fn (Builder $q) => $q->whereNotNull('goal_met_at')->orWhereNotNull('frozen_at'))
             ->where('date', '<=', $this->storedDate($endDate))
             ->where('date', '>', $this->storedDate($end->subDays(self::MAX_REBUILD_DAYS)->toDateString()))
             ->orderByDesc('date')

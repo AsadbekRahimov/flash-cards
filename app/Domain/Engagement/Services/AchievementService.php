@@ -99,12 +99,21 @@ class AchievementService
         return $unlocked;
     }
 
-    /** The first graded card ever (a plain conditional insert: nothing is read beforehand). */
+    /**
+     * The first graded card ever. Called on every new card, so a cheap indexed existence check comes first;
+     * the conditional insert still settles a race between two first cards.
+     */
     public function onFirstReview(Learner $learner, CarbonImmutable $now): ?Achievement
     {
-        return $this->enabled() && $learner->blocked_at === null
-            ? $this->unlock($learner, AchievementKey::FirstSession, $now)
-            : null;
+        if (! $this->enabled() || $learner->blocked_at !== null) {
+            return null;
+        }
+
+        if (Achievement::query()->where('learner_id', $learner->id)->where('key', AchievementKey::FirstSession->value)->exists()) {
+            return null;
+        }
+
+        return $this->unlock($learner, AchievementKey::FirstSession, $now);
     }
 
     /** A friendship became accepted: both sides get their first friend. */

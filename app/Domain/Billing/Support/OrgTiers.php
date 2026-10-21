@@ -68,9 +68,10 @@ final class OrgTiers
         return $month === null || $year === null ? 0 : max(0, $month * 12 - $year);
     }
 
+    /** The only place that bounds the discount: 0..99 (100 is clamped to 99, the year is never free). */
     private static function yearFromMonth(int $month): int
     {
-        $discount = max(0, min(100, (int) config('billing.org_year_discount_percent', 0)));
+        $discount = max(0, min(99, (int) config('billing.org_year_discount_percent', 0)));
         $year = (int) (round($month * 12 * (100 - $discount) / 100 / 100) * 100);
 
         return max(100, $year);
