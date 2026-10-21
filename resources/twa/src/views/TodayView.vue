@@ -13,6 +13,7 @@ import { useTodayStore } from '@/stores/today'
 import { useTrainingStore } from '@/stores/training'
 import { errorMessage } from '@/i18n/errors'
 import { useI18n } from '@/i18n'
+import type { StringKey } from '@/i18n/ru'
 import type { OpenSessionRequest } from '@/api/types'
 
 const { t, tn } = useI18n()
@@ -81,6 +82,18 @@ function openPaywall(reason: PaywallReason): void {
 async function onPaywallReview(): Promise<void> {
   paywallOpen.value = false
   await review()
+}
+
+/** The i18n key of a tier; an unknown key (a renamed tier on the server) falls back to the lowest one. */
+function tierKey(key: string): StringKey {
+  const known: Record<string, StringKey> = {
+    bronze: 'league.tier.bronze',
+    silver: 'league.tier.silver',
+    gold: 'league.tier.gold',
+    platinum: 'league.tier.platinum',
+    diamond: 'league.tier.diamond',
+  }
+  return known[key] ?? 'league.tier.bronze'
 }
 
 const goalLeft = computed(() => (data.value ? Math.max(0, data.value.goal.target - data.value.goal.done) : 0))
@@ -199,6 +212,13 @@ onBeforeUnmount(() => training.clearOpenError())
       </div>
 
       <AssignmentsBlock v-if="assignmentItems.length > 0" :items="assignmentItems" :busy="opening" @open="openAssignment" />
+
+      <RouterLink :to="{ name: 'league' }" class="card block text-sm" data-testid="league-line">
+        <template v-if="data.league">
+          {{ t('league.today.line', { tier: t(tierKey(data.league.tier_key)), rank: data.league.rank, members: data.league.members_count, points: tn('league.points', data.league.points) }) }}
+        </template>
+        <template v-else>{{ t('league.today.join') }}</template>
+      </RouterLink>
 
       <div class="card space-y-3" data-testid="course-card">
         <template v-if="data.active_course">

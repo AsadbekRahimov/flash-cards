@@ -2,14 +2,20 @@
 
 declare(strict_types=1);
 
+use App\Domain\Learning\Enums\ExerciseType;
 use App\Models\Assignment;
 use App\Models\AssignmentResult;
+use App\Models\Challenge;
 use App\Models\Course;
 use App\Models\ExamAnswer;
 use App\Models\ExamQuestionAttempt;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
+use App\Models\Friendship;
 use App\Models\GroupMember;
+use App\Models\LeagueGroup;
+use App\Models\LeagueMember;
+use App\Models\LeagueWeek;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
 use App\Models\Lesson;
@@ -73,8 +79,11 @@ $expectedTables = [
     'organization_users', 'organization_invites', 'organization_members',
     // Phase 2 (docs/13 §1.4): assignments of a center.
     'assignments', 'assignment_results',
-    // Phase 2 (docs/13 §1.5): referrals.
+    // Phase 2 (docs/13 §1.5): referrals, leagues.
     'referrals',
+    'league_weeks', 'league_groups', 'league_members',
+    // Phase 2 (docs/13 §1.5): friends and challenges.
+    'friendships', 'challenges',
 ];
 
 /**
@@ -785,6 +794,8 @@ it('rolls back and re-applies the billing migrations (2A.1) in FK order', functi
 
 it('rolls back and re-applies the learner-first migrations (1.1a + 1.1b)', function (): void {
     $newTables = [
+        'friendships', 'challenges',
+        'league_members', 'league_groups', 'league_weeks',
         'referrals',
         'payments', 'provider_transactions', 'payment_orders', 'offers',
         'promo_redemptions', 'promo_codes', 'subscriptions', 'learner_daily_stats',
@@ -887,6 +898,28 @@ it('adds the streak freeze columns (2C.2) and rolls them back', function (): voi
         ->and(Schema::hasColumn('learner_daily_stats', 'frozen_at'))->toBeTrue();
 });
 
+// --- 2D.2 exercises (docs/13 §1.6) ----------------------------------------------
+
+it('adds the exercise / scheduler columns of training_reviews (2D.2) and rolls them back', function (): void {
+    expect(Schema::hasColumns('training_reviews', ['exercise', 'answer_text', 'scheduler', 'interval_before_days']))->toBeTrue();
+
+    $review = TrainingReview::factory()->create();
+    expect($review->fresh()?->exercise)->toBe(ExerciseType::Flash)
+        ->and($review->fresh()?->answer_text)->toBeNull()
+        ->and($review->fresh()?->scheduler)->toBe('sm2')
+        ->and($review->fresh()?->interval_before_days)->toBeNull();
+
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_23_200001_add_exercise_columns_to_training_reviews_table')])->assertSuccessful();
+    expect(Schema::hasColumn('training_reviews', 'exercise'))->toBeFalse()
+        ->and(Schema::hasColumn('training_reviews', 'answer_text'))->toBeFalse()
+        ->and(Schema::hasColumn('training_reviews', 'scheduler'))->toBeFalse()
+        ->and(Schema::hasColumn('training_reviews', 'interval_before_days'))->toBeFalse()
+        ->and(Schema::hasTable('training_reviews'))->toBeTrue();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasColumns('training_reviews', ['exercise', 'answer_text', 'scheduler', 'interval_before_days']))->toBeTrue();
+});
+
 // --- 2C.1 referrals (docs/13 §1.5) ----------------------------------------------
 
 it('keeps one referral per invited learner and one referral code per learner', function (): void {
@@ -986,4 +1019,99 @@ it('generalizes exam_sessions for personal mocks: one open mock per learner, mod
     $this->artisan('migrate')->assertSuccessful();
     expect(Schema::hasColumns('exam_sessions', ['learner_id', 'mode', 'course_id']))->toBeTrue();
     ExamSession::factory()->personalMock()->create();
+});
+
+// --- 2C.3 leagues (docs/13 §1.5) ------------------------------------------------
+
+it('keeps one league week per Monday and one membership per learner and week', function (): void {
+    LeagueWeek::factory()->startingOn('2026-10-19')->create();
+    expectConstraintViolation(fn () => LeagueWeek::factory()->startingOn('2026-10-19')->create());
+
+    $week = LeagueWeek::factory()->startingOn('2026-10-12')->create();
+    $a = LeagueGroup::factory()->create(['league_week_id' => $week->id, 'tier' => 0]);
+    $b = LeagueGroup::factory()->create(['league_week_id' => $week->id, 'tier' => 0]);
+    $learner = Learner::factory()->create();
+    LeagueMember::factory()->create(['league_group_id' => $a->id, 'learner_id' => $learner->id]);
+    expectConstraintViolation(fn () => LeagueMember::factory()->create(['league_group_id' => $b->id, 'learner_id' => $learner->id]));
+
+    expect(array_column(Schema::getIndexes('league_groups'), 'columns'))->toContain(['league_week_id', 'tier', 'members_count'])
+        ->and(array_column(Schema::getIndexes('league_members'), 'columns'))->toContain(['league_group_id'])
+        ->and(array_column(Schema::getIndexes('league_members'), 'columns'))->toContain(['learner_id', 'league_week_id']);
+});
+
+it('cascades league groups and members with the week, and members with the learner', function (): void {
+    $week = LeagueWeek::factory()->create();
+    $group = LeagueGroup::factory()->create(['league_week_id' => $week->id]);
+    $learner = Learner::factory()->create();
+    LeagueMember::factory()->create(['league_group_id' => $group->id, 'learner_id' => $learner->id]);
+    LeagueMember::factory()->create(['league_group_id' => $group->id]);
+
+    $learner->forceDelete();
+    expect(LeagueMember::query()->count())->toBe(1);
+
+    $week->delete();
+    expect(LeagueGroup::query()->count())->toBe(0)
+        ->and(LeagueMember::query()->count())->toBe(0);
+});
+
+it('rolls back and re-applies the league migration (2C.3)', function (): void {
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_22_300001_create_league_tables')])->assertSuccessful();
+    expect(Schema::hasTable('league_weeks'))->toBeFalse()
+        ->and(Schema::hasTable('league_groups'))->toBeFalse()
+        ->and(Schema::hasTable('league_members'))->toBeFalse()
+        ->and(Schema::hasTable('referrals'))->toBeTrue();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasTable('league_weeks'))->toBeTrue()
+        ->and(Schema::hasTable('league_groups'))->toBeTrue()
+        ->and(Schema::hasTable('league_members'))->toBeTrue();
+});
+
+// --- 2C.5 friends and challenges (docs/13 §1.5) ----------------------------------
+
+it('keeps ONE friendships row per normalised pair and, on PostgreSQL, refuses a pair in the wrong order', function (): void {
+    [$a, $b] = [Learner::factory()->create(), Learner::factory()->create()];
+    [$low, $high] = $a->id < $b->id ? [$a, $b] : [$b, $a];
+
+    Friendship::query()->create(['learner_id' => $low->id, 'friend_id' => $high->id, 'status' => 'pending', 'requested_by_learner_id' => $low->id]);
+    expectConstraintViolation(fn () => Friendship::query()->create(['learner_id' => $low->id, 'friend_id' => $high->id, 'status' => 'accepted', 'requested_by_learner_id' => $high->id]));
+
+    if (DB::getDriverName() === 'pgsql') {
+        // A→B and B→A cannot be two rows: the reversed pair violates CHECK (learner_id < friend_id).
+        expectConstraintViolation(fn () => Friendship::query()->create(['learner_id' => $high->id, 'friend_id' => $low->id, 'status' => 'pending', 'requested_by_learner_id' => $high->id]));
+        expectConstraintViolation(fn () => Friendship::query()->create(['learner_id' => $low->id, 'friend_id' => $low->id, 'status' => 'pending', 'requested_by_learner_id' => $low->id]));
+    }
+
+    expect(Friendship::query()->count())->toBe(1);
+});
+
+it('cascades friendships and challenges with their learners', function (): void {
+    [$a, $b] = [Learner::factory()->create(), Learner::factory()->create()];
+    Friendship::factory()->between($a, $b)->create();
+    Challenge::factory()->create(['challenger_id' => $a->id, 'opponent_id' => $b->id, 'winner_learner_id' => $a->id, 'status' => 'finished']);
+
+    $a->forceDelete();
+    expect(Friendship::query()->count())->toBe(0)
+        ->and(Challenge::query()->count())->toBe(0);
+});
+
+it('allows ONE open challenge per pair through the open_pair unique index, and many closed ones', function (): void {
+    [$a, $b] = [Learner::factory()->create(), Learner::factory()->create()];
+    Challenge::factory()->create(['challenger_id' => $a->id, 'opponent_id' => $b->id, 'open_pair' => '1:2']);
+    expectConstraintViolation(fn () => Challenge::factory()->create(['challenger_id' => $b->id, 'opponent_id' => $a->id, 'open_pair' => '1:2']));
+
+    Challenge::factory()->count(3)->create(['challenger_id' => $a->id, 'opponent_id' => $b->id, 'status' => 'finished', 'open_pair' => null]);
+    expect(Challenge::query()->count())->toBe(4);
+});
+
+it('rolls back and re-applies the friends migrations (2C.5)', function (): void {
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_22_500001_create_friendships_table')])->assertSuccessful();
+    expect(Schema::hasTable('friendships'))->toBeFalse()
+        ->and(Schema::hasTable('challenges'))->toBeFalse()
+        ->and(Schema::hasTable('referrals'))->toBeTrue();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasTable('friendships'))->toBeTrue()
+        ->and(Schema::hasTable('challenges'))->toBeTrue()
+        ->and(Schema::hasColumn('challenges', 'open_pair'))->toBeTrue();
 });

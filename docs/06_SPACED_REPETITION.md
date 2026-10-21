@@ -216,6 +216,36 @@ review-карточку** (то есть после того, как слово 
 активные слова урока / все активные слова урока (`LearningCache::lessonWordCount`); daily-scope — оценок в этой сессии /
 `learners.daily_goal` (точнее «сделано сегодня» появится с `learner_daily_stats` в 1.3b).
 
+### 4.3 Типы упражнений и серверная оценка (2D.2, docs/13 §2.5)
+
+Карточка выдаётся с упражнением (`TrainingStep.prompt`, `card.prompt` в API — docs/04 A.3). Тип выбирает
+`App\Domain\Learning\Services\ExerciseSelector::select(rep, word, entitlement, settings, sessionMode)` — **чистая
+функция без состояния**, поэтому `POST /review` пересчитывает его по тем же входам, а не хранит «ожидаемый тип»
+(`repetitions`/`state` меняются только после принятой оценки, а повторно оценить одну выдачу нельзя — §5.2):
+
+| Условие | Тип |
+|---|---|
+| `state ∈ {new, learning, relearning}` или `repetitions < 2` | `flash` |
+| `group_lesson` | `flash` / `reverse` (ротация ниже; `audio` в классе не выдаётся) |
+| Pro + настройка + `repetitions ≥ 3` и `repetitions % 3 = 0` | `gap_fill`, если `GapFillBuilder` нашёл форму слова в `example`; иначе `spelling` (если включён); иначе — ротация |
+| иначе | ротация `flash` / `reverse` / `audio` (из включённых в `learners.meta.exercises`): индекс `crc32("{repetitions}:{word_id}") mod n` |
+
+`ExerciseType::serverGraded()` — `spelling`, `gap_fill`; `feature()` — `exercise.spelling` / `exercise.gap_fill` (Pro, `config/billing.php`).
+`ExercisePromptBuilder` собирает экран: для `reverse` — 4 английских слова, для `audio` — 4 перевода; дистракторы — активные слова того же
+урока → того же курса → опубликованных публичных курсов платформы (приватные курсы центров и колоды никогда не попадают), выбор и порядок —
+по хэшу `(seed = crc32(repetitions:word_id), id/текст)`, то есть стабильны между двумя `/next` одной выдачи; при < 3 дистракторах карточка приходит как `flash`.
+
+**Серверная оценка** (`SpellingGrader::grade(expected, answer)`): оба текста нормализуются (trim, NFKC при наличии intl, нижний регистр,
+`’ ‘ ʼ ´ \`` → `'`, пробелы схлопываются), расстояние — OSA (Дамерау–Левенштейн с соседними транспозициями, каждая правка = 1);
+допуск по длине **ожидаемого** текста: ≤ 4 → 0, 5–8 → 1, ≥ 9 → 2; совпадение → `quality = 5`, в допуске → `4`, иначе `1` (lapse: карточка
+уходит в relearning). Для `gap_fill` ожидаемый текст — **форма из примера** (`walked`, а не `walk`). `GapFillBuilder` маскирует первое вхождение
+целого слова без учёта регистра: `word`, `+s`, `+es`, `+ed`, `+d`, `+ing`, `y→ies/ied`, `e→ing`; не нашёл → `null` (селектор берёт spelling/ротацию).
+
+В `training_reviews` каждая оценка несёт `exercise` (всегда) и `answer_text` (ответ learner'а, обрезка 100; `''` — пустой ответ; `null` — оценка
+клиентом), плюс `interval_before_days`. SM-2 сам не меняется: сервер лишь подставляет `quality` в `SpacedRepetitionEngine::applyReview`.
+`reverse`/`audio` оцениваются клиентом (верно → 4, неверно → 2) и приходят как обычный `quality`. Ошибки — docs/04 A.3 (`quality_not_accepted`,
+`answer_not_accepted`, `exercise_pro_required`).
+
 ## 5. Приём оценки (`ReviewSubmissionService::submit`)
 
 ### 5.1 Порядок проверок

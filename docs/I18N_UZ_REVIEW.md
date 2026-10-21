@@ -1419,3 +1419,194 @@
 | `error.code.course_not_exam` | Bu kursda sinov testi yo'q. | У этого курса нет пробного теста. |
 | `error.code.not_enough_words` | Kursda test uchun hozircha so'zlar juda kam. | В курсе пока слишком мало слов для теста. |
 | `error.code.not_enough_distractors` | Kursda javob variantlari uchun so'zlar yetarli emas. | В курсе не хватает слов для вариантов ответа. |
+
+## Фаза 2 · задача 2C.3 (лиги) — на проверку носителю
+
+> Проверить: названия лиг (Bronza / Kumush / Oltin / Platina / Olmos), «ko'tarilish zonasi» (зона повышения), «tushish zonasi» (зона понижения), «xavfsiz zona», форму «{members} tadan {rank}-o'rin» (N-е место из M) и «{count} ochko».
+
+### Бот, ЛС с итогами недели (`lang/uz/leagues.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `leagues.tiers.bronze` | Bronza | Бронза |
+| `leagues.tiers.silver` | Kumush | Серебро |
+| `leagues.tiers.gold` | Oltin | Золото |
+| `leagues.tiers.platinum` | Platina | Платина |
+| `leagues.tiers.diamond` | Olmos | Алмаз |
+| `leagues.result.promoted` | 🏆 «:tier» ligasida hafta yakuni: siz :points ochko bilan :rank-o'rinni egalladingiz va «:next_tier» ligasiga o'tdingiz! Tabriklaymiz! | 🏆 Итоги недели в лиге «:tier»: вы заняли :rank-е место с :points очками и переходите в лигу «:next_tier»! Поздравляем! |
+| `leagues.result.stayed` | 🏅 «:tier» ligasida hafta yakuni: siz :points ochko bilan :rank-o'rinni egalladingiz va «:tier» ligasida qolasiz. Bu hafta — yuqoriroq! | 🏅 Итоги недели в лиге «:tier»: вы заняли :rank-е место с :points очками и остаётесь в лиге «:tier». На этой неделе — выше! |
+| `leagues.result.demoted` | 📉 «:tier» ligasida hafta yakuni: :rank-o'rin, :points ochko — bu hafta siz «:next_tier» ligasidasiz. Kuniga bir-ikki mashg'ulot sizni yana yuqoriga qaytaradi. | 📉 Итоги недели в лиге «:tier»: :rank-е место, :points очков — на этой неделе вы в лиге «:next_tier». Пара тренировок в день вернут вас наверх. |
+| `leagues.open_button` | Ligani ochish | Открыть лигу |
+
+### TWA, экран «Лига», строка на «Сегодня», настройки (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `league.open` | Liga | Лига |
+| `league.title` | Liga | Лига |
+| `league.tier.bronze` | Bronza | Бронза |
+| `league.tier.silver` | Kumush | Серебро |
+| `league.tier.gold` | Oltin | Золото |
+| `league.tier.platinum` | Platina | Платина |
+| `league.tier.diamond` | Olmos | Алмаз |
+| `league.points` | {count} ochko | {count} очко / очка / очков |
+| `league.today.line` | 🏆 {tier} · {members} tadan {rank}-o'rin · {points} | 🏆 {tier} · {rank}-е место из {members} · {points} |
+| `league.today.join` | 🏆 Liga: bu hafta qo'shilish uchun kartochkalarni takrorlang | 🏆 Лига: повторите карточки, чтобы вступить на этой неделе |
+| `league.week` | Hafta {from} – {to} | Неделя {from} – {to} |
+| `league.closes` | Yakunlar — dushanba 00:00 da ({zone}) | Итоги — в понедельник в 00:00 ({zone}) |
+| `league.rules` | Guruhlar {capacity} kishigacha. Top-{promote} yuqoriga ko'tariladi, oxirgi {demote} tasi pastga tushadi. Ochkolar: takrorlashlar, to'g'ri javoblar, yangi so'zlar (×2), bajarilgan kunlik maqsad (+10). | Группы до {capacity} человек. Топ-{promote} переходят выше, последние {demote} — ниже. Очки: повторения, верные ответы, новые слова (×2), выполненная цель дня (+10). |
+| `league.disabled` | Ligalar hozir o'chirilgan. | Лиги сейчас выключены. |
+| `league.opted_out` | Siz ligalardan chiqdingiz. Ularni sozlamalarda qayta yoqish mumkin. | Вы вышли из лиг. Включить их снова можно в настройках. |
+| `league.not_placed` | Bu hafta siz hali guruhda emassiz: bir nechta kartochkani takrorlang — va siz ligadasiz. | На этой неделе вы ещё не в группе: повторите несколько карточек — и вы в лиге. |
+| `league.my_place` | {members} tadan {rank}-o'rin | {rank}-е место из {members} |
+| `league.zone.promotion` | ⬆️ Siz ko'tarilish zonasidasiz | ⬆️ Вы в зоне повышения |
+| `league.zone.safe` | Siz xavfsiz zonadasiz | Вы в безопасной зоне |
+| `league.zone.demotion` | ⬇️ Siz tushish zonasidasiz | ⬇️ Вы в зоне понижения |
+| `league.to_promote` | Ko'tarilish zonasigacha: {points} | До зоны повышения: {points} |
+| `league.to_safety` | Xavfsiz zonagacha: {points} | До безопасной зоны: {points} |
+| `league.top_tier` | Bu eng yuqori liga — shunday davom eting! | Это высшая лига — так держать! |
+| `league.standings` | Guruh jadvali | Таблица группы |
+| `league.anonymous` | O'quvchi | Ученик |
+| `league.you` | siz | вы |
+| `league.last_week` | O'tgan hafta | Прошлая неделя |
+| `league.last.promoted` | {tier}: {rank}-o'rin, {points} — ko'tarilish! | {tier}: {rank}-е место, {points} — повышение! |
+| `league.last.stayed` | {tier}: {rank}-o'rin, {points} — ligada qoldingiz | {tier}: {rank}-е место, {points} — остались в лиге |
+| `league.last.demoted` | {tier}: {rank}-o'rin, {points} — tushish | {tier}: {rank}-е место, {points} — понижение |
+| `league.settings.open` | Sozlamalar | Настройки |
+| `settings.leagues` | Ligalar | Лиги |
+| `settings.leagues.on` | Haftalik ligalarda qatnashaman | Участвую в недельных лигах |
+| `settings.leagues.off` | Ligalarda qatnashmayman | Не участвую в лигах |
+| `settings.leagues.hint` | Ligadan chiqish keyingi joylashtirishdan boshlab amal qiladi; joriy hafta saqlanib qoladi. | Выход из лиги действует со следующего размещения; текущая неделя остаётся. |
+
+## Фаза 2 · задача 2C.5 (друзья и вызовы) — на проверку носителю
+
+> Проверить: «do'st» (друг), «musobaqa» (вызов/соревнование), «taklif» (приглашение), «qabul qilish / rad etish» (принять / отклонить), «seriya» (серия), «durang» (ничья), «g'alaba / mag'lubiyat» (победа / поражение).
+
+### Бот (`lang/uz/friends.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `friends.anonymous` | Tanishingiz | Ваш знакомый |
+| `friends.offer.text` | :name sizni LexiFlow'da do'st bo'lishga taklif qilmoqda.\n\nDo'stlar bir-birining seriyasini va o'rganilgan so'zlar sonini ko'radi va musobaqa tashlashi mumkin: hafta davomida kim ko'proq takrorlaydi. | :name приглашает вас в друзья в LexiFlow.\n\nДрузья видят серию и число выученных слов друг друга и могут бросать вызовы: кто больше повторит за неделю. |
+| `friends.offer.accept` | Qabul qilish | Принять |
+| `friends.offer.decline` | Rad etish | Отклонить |
+| `friends.accepted` | Tayyor: endi siz va :name do'stsiz. Do'stlar ro'yxati LexiFlow ilovasida. | Готово: вы с :name теперь друзья. Список друзей — в приложении LexiFlow. |
+| `friends.declined` | Xo'p, taklif rad etildi. | Хорошо, приглашение отклонено. |
+| `friends.already` | Siz va :name allaqachon do'stsiz. | Вы с :name уже друзья. |
+| `friends.errors.invalid_link` | Havola yaroqsiz yoki eskirgan. | Ссылка недействительна или устарела. |
+| `friends.errors.friendship_self` | Bu sizning o'z havolangiz. Uni do'stingizga yuboring. | Это ваша собственная ссылка. Отправьте её другу. |
+| `friends.errors.friend_unavailable` | Bu havola mavjud emas. | Эта ссылка недоступна. |
+| `friends.errors.friend_blocked` | Bu havola mavjud emas. | Эта ссылка недоступна. |
+| `friends.errors.friendship_not_found` | Bu taklif endi amal qilmaydi. | Это приглашение больше не действует. |
+| `friends.errors.not_recipient` | Taklifga faqat taklif qilingan kishi javob bera oladi. | Ответить на приглашение может только тот, кого пригласили. |
+| `friends.errors.friend_limit` | Sizda do'stlar soni allaqachon maksimal. | У вас уже максимальное число друзей. |
+| `friends.errors.friend_limit_other` | Do'stingizda do'stlar soni allaqachon maksimal. | У вашего друга уже максимальное число друзей. |
+| `friends.errors.generic` | Bajarib bo'lmadi. Keyinroq urinib ko'ring. | Не получилось. Попробуйте позже. |
+| `friends.metric.reviews` | ko'proq kartochka takrorlaydi | больше повторит карточек |
+| `friends.metric.new_words` | ko'proq yangi so'z o'rganadi | выучит больше новых слов |
+| `friends.dm.friend_accepted` | :name taklifingizni qabul qildi: endi siz do'stsiz! | :name принял(а) ваше приглашение: теперь вы друзья! |
+| `friends.dm.challenge_proposed` | :name sizga musobaqa tashlamoqda: :days kun ichida kim :metric? Qabul qilsangiz, musobaqa ertaga boshlanadi. | :name бросает вам вызов: кто :metric за :days дн.? Если примете, вызов начнётся завтра. |
+| `friends.dm.challenge_accepted` | :name musobaqangizni qabul qildi! Boshlanishi — :starts, tugashi — :ends. | :name принял(а) ваш вызов! Старт — :starts, финиш — :ends. |
+| `friends.dm.challenge_won` | :name bilan musobaqa yakunlandi: siz g'olibsiz! Hisob :mine : :theirs. | Вызов с :name завершён: вы победили! Счёт :mine : :theirs. |
+| `friends.dm.challenge_lost` | :name bilan musobaqa yakunlandi: :name g'alaba qozondi. Hisob :mine : :theirs. Qayta bellashuv — ilovada! | Вызов с :name завершён: победил(а) :name. Счёт :mine : :theirs. Реванш — в приложении! |
+| `friends.dm.challenge_draw` | :name bilan musobaqa durang bilan tugadi: :mine : :theirs. | Вызов с :name завершён вничью: :mine : :theirs. |
+| `friends.dm.button` | LexiFlow ilovasini ochish | Открыть LexiFlow |
+| `friends.challenge.accept` | Musobaqani qabul qilish | Принять вызов |
+| `friends.challenge.decline` | Rad etish | Отклонить |
+| `friends.challenge.accepted` | Musobaqa qabul qilindi! Boshlanishi — :starts, tugashi — :ends. | Вызов принят! Старт — :starts, финиш — :ends. |
+| `friends.challenge.declined` | Xo'p, musobaqa rad etildi. | Хорошо, вызов отклонён. |
+| `friends.challenge.errors.challenge_not_found` | Bu musobaqa endi amal qilmaydi. | Этот вызов больше не действует. |
+| `friends.challenge.errors.challenge_closed` | Bu musobaqa endi amal qilmaydi. | Этот вызов больше не действует. |
+| `friends.challenge.errors.not_opponent` | Musobaqaga faqat unga yo'llangan kishi javob bera oladi. | Ответить на вызов может только тот, кому он адресован. |
+| `friends.challenge.errors.not_friends` | Musobaqani faqat do'stga tashlash mumkin. | Вызов можно бросить только другу. |
+| `friends.challenge.errors.generic` | Bajarib bo'lmadi. Keyinroq urinib ko'ring. | Не получилось. Попробуйте позже. |
+
+## Фаза 2 · задача 2D.2 (типы упражнений) — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `friends.open` | Do'stlar | Друзья |
+| `friends.title` | Do'stlar | Друзья |
+| `friends.invite.title` | Do'stlikka taklif qilish | Пригласить в друзья |
+| `friends.invite.hint` | Do'stingiz havolani botda ochib, do'stlikni tasdiqlaydi. Do'stlar bir-birining seriyasini va o'rganilgan so'zlar sonini ko'radi va musobaqa tashlashi mumkin. | Друг откроет ссылку в боте и подтвердит дружбу. Друзья видят серию и число выученных слов друг друга и могут бросать вызовы. |
+| `friends.invite.share` | Havolani ulashish | Поделиться ссылкой |
+| `friends.invite.copy` | Havolani nusxalash | Скопировать ссылку |
+| `friends.invite.copied` | Nusxalandi | Скопировано |
+| `friends.invite.share_text` | LexiFlow'da do'st bo'laylik: seriyalarni solishtirib, musobaqa o'tkazamiz! | Давай дружить в LexiFlow: сравним серии и устроим вызов! |
+| `friends.invite.no_link` | Administrator bot nomini ko'rsatgach, havola paydo bo'ladi. | Ссылка появится, когда администратор укажет имя бота. |
+| `friends.incoming.title` | Kiruvchi takliflar | Входящие приглашения |
+| `friends.incoming.accept` | Qabul qilish | Принять |
+| `friends.incoming.decline` | Rad etish | Отклонить |
+| `friends.outgoing.title` | Javob kutilmoqda | Ждут ответа |
+| `friends.outgoing.cancel` | Bekor qilish | Отменить |
+| `friends.list.title` | Mening do'stlarim | Мои друзья |
+| `friends.list.empty` | Hozircha do'stlar yo'q. Havolani tanishingizga yuboring. | Пока нет друзей. Отправьте ссылку знакомому. |
+| `friends.list.count` | {count} / {limit} | {count} из {limit} |
+| `friends.list.anonymous` | Do'st | Друг |
+| `friends.list.streak` | seriya {n} kun | серия {n} дн. |
+| `friends.list.words` | o'rganilgan so'zlar: {n} | слов выучено: {n} |
+| `friends.list.remove` | Do'stlikdan chiqarish | Удалить из друзей |
+| `friends.list.remove_confirm` | {name} do'stlikdan chiqarilsinmi? Shu do'st bilan tugallanmagan musobaqa bekor qilinadi. | Удалить {name} из друзей? Незавершённый вызов с этим другом отменится. |
+| `friends.list.remove_yes` | Ha, chiqarish | Да, удалить |
+| `friends.list.remove_no` | Bekor qilish | Отмена |
+| `friends.challenge.title` | Musobaqalar | Вызовы |
+| `friends.challenge.new` | Musobaqa tashlash | Бросить вызов |
+| `friends.challenge.pick` | {days} kunda kim ko'proq? | Кто больше за {days} дн.? |
+| `friends.challenge.metric.reviews` | Ko'proq kartochka takrorlaydi | Повторит карточек |
+| `friends.challenge.metric.new_words` | Ko'proq yangi so'z o'rganadi | Выучит новых слов |
+| `friends.challenge.cancel` | Bekor qilish | Отмена |
+| `friends.challenge.empty` | Hozircha musobaqalar yo'q. | Вызовов пока нет. |
+| `friends.challenge.finished_title` | Yakunlanganlar | Завершённые |
+| `friends.challenge.with` | {name} bilan | с {name} |
+| `friends.challenge.score` | {mine} : {theirs} | {mine} : {theirs} |
+| `friends.challenge.period` | {from} — {to} | {from} — {to} |
+| `friends.challenge.accept` | Musobaqani qabul qilish | Принять вызов |
+| `friends.challenge.decline` | Rad etish | Отклонить |
+| `friends.challenge.status.pending_sent` | do'st javobini kutyapmiz | ждём ответа друга |
+| `friends.challenge.status.pending_received` | sizga musobaqa tashlandi | вам бросили вызов |
+| `friends.challenge.status.active` | davom etmoqda | идёт |
+| `friends.challenge.status.finished` | yakunlandi | завершён |
+| `friends.challenge.status.declined` | rad etildi | отклонён |
+| `friends.challenge.status.expired` | vaqtida qabul qilinmadi | не принят вовремя |
+| `friends.challenge.status.canceled` | bekor qilindi | отменён |
+| `friends.challenge.result.won` | g'alaba | победа |
+| `friends.challenge.result.lost` | mag'lubiyat | поражение |
+| `friends.challenge.result.draw` | durang | ничья |
+| `error.code.friendship_self` | O'zingiz bilan do'st bo'lib bo'lmaydi. | Нельзя дружить с самим собой. |
+| `error.code.friend_unavailable` | Bu foydalanuvchi mavjud emas. | Этот пользователь недоступен. |
+| `error.code.friendship_not_found` | Bu taklif yoki do'stlik endi amal qilmaydi. | Это приглашение или дружба больше не действует. |
+| `error.code.not_recipient` | Taklifga faqat taklif qilingan kishi javob bera oladi. | Ответить на приглашение может только тот, кого пригласили. |
+| `error.code.friend_limit` | Sizda do'stlar soni allaqachon maksimal. | У вас уже максимальное число друзей. |
+| `error.code.friend_limit_other` | Do'stingizda do'stlar soni allaqachon maksimal. | У вашего друга уже максимальное число друзей. |
+| `error.code.friend_blocked` | Bu foydalanuvchi mavjud emas. | Этот пользователь недоступен. |
+| `error.code.challenge_not_found` | Bu musobaqa endi amal qilmaydi. | Этот вызов больше не действует. |
+| `error.code.not_friends` | Musobaqani faqat do'stga tashlash mumkin. | Вызов можно бросить только другу. |
+| `error.code.challenge_exists` | Bu do'st bilan tugallanmagan musobaqa bor. | С этим другом уже есть незавершённый вызов. |
+| `error.code.challenge_invalid` | Bunday musobaqani yaratib bo'lmaydi. | Такой вызов создать нельзя. |
+| `error.code.not_opponent` | Musobaqaga faqat unga yo'llangan kishi javob bera oladi. | Ответить на вызов может только тот, кому он адресован. |
+| `error.code.challenge_closed` | Bu musobaqa endi amal qilmaydi. | Этот вызов больше не действует. |
+
+| `exercise.reverse.title` | So'zni tanlang | Выберите слово |
+| `exercise.audio.title` | Nimani eshitdingiz? | Что вы услышали? |
+| `exercise.audio.play` | Yana eshitish | Прослушать ещё раз |
+| `exercise.spelling.title` | So'zni inglizcha yozing | Напишите слово по-английски |
+| `exercise.gap_fill.title` | Bo'sh joyni to'ldiring | Заполните пропуск |
+| `exercise.input.placeholder` | Javobingiz | Ваш ответ |
+| `exercise.answer_length` | Harflar: {count} | Букв: {count} |
+| `exercise.check` | Tekshirish | Проверить |
+| `exercise.skip` | Bilmayman | Не знаю |
+| `exercise.verdict.correct` | To'g'ri! | Верно! |
+| `exercise.verdict.close` | Deyarli! To'g'risi: {expected} | Почти! Правильно: {expected} |
+| `exercise.verdict.wrong` | Noto'g'ri. To'g'risi: {expected} | Неверно. Правильно: {expected} |
+| `exercise.continue` | Keyingisi | Дальше |
+| `settings.exercises` | Mashqlar | Упражнения |
+| `settings.exercises.hint` | «So'z → tarjima» kartochkalari doim yoqilgan. Yozish va bo'sh joy — Pro'da. | Карточки «слово → перевод» включены всегда. Написание и пропуск — в Pro. |
+| `settings.exercises.reverse` | Tarjima → so'z (4 variant) | Перевод → слово (4 варианта) |
+| `settings.exercises.audio` | Eshitib (4 variant) | На слух (4 варианта) |
+| `settings.exercises.spelling` | So'zni yozish | Написание слова |
+| `settings.exercises.gap_fill` | Misoldagi bo'sh joy | Пропуск в примере |
+| `error.code.answer_not_accepted` | Bu kartochka ekranda baholanadi. Ekranni yangilang. | Эта карточка оценивается на экране. Обновите экран. |
+| `error.code.quality_not_accepted` | Bu kartochkani server tekshiradi. Ekranni yangilang. | Эту карточку проверяет сервер. Обновите экран. |
+| `error.code.exercise_pro_required` | Yozma mashqlar Pro'da mavjud. | Письменные упражнения доступны в Pro. |

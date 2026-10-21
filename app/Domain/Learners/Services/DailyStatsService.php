@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Domain\Learners\Services;
 
+use App\Domain\Engagement\Services\LeagueService;
 use App\Domain\Engagement\Services\ReferralService;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
+use Throwable;
 
 /**
  * Per-local-day aggregates of a learner (`learner_daily_stats`, docs/12 §1.6, §3.1, §7.4).
@@ -43,6 +45,7 @@ class DailyStatsService
         private readonly LearnerClock $clock,
         private readonly StreakService $streaks,
         private readonly ReferralService $referrals,
+        private readonly LeagueService $leagues,
     ) {}
 
     /**
@@ -81,6 +84,19 @@ class DailyStatsService
         // "active day" threshold, re-evaluate a pending referral of the learner — after commit, never inside.
         if ($reviews === max(1, (int) config('referrals.activation.reviews_per_day'))) {
             DB::afterCommit(fn () => $this->referrals->evaluate($learner, $now));
+        }
+
+        // League placement (docs/13 §7.3): the first grade of a local day is the cheapest moment to
+        // make sure the learner sits in this week's group (an indexed lookup; a no-op once placed).
+        // After commit, never inside — and never a failed grade: a league error is only reported.
+        if ($reviews === 1) {
+            DB::afterCommit(function () use ($learner, $now): void {
+                try {
+                    $this->leagues->place($learner, $now);
+                } catch (Throwable $e) {
+                    report($e);
+                }
+            });
         }
 
         return $row;

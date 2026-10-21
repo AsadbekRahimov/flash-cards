@@ -221,6 +221,10 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 | learner_id | bigint FK → learners, ON DELETE CASCADE |
 | word_id | bigint FK |
 | quality | smallint (0..5) |
+| exercise | varchar(12) default `'flash'` — `flash` / `reverse` / `audio` / `spelling` / `gap_fill` (2D.2, docs/13 §2.5) |
+| answer_text | varchar(100) nullable — ответ learner'а в `spelling`/`gap_fill`, обрезка до 100; `null` при оценке клиентом (2D.2) |
+| scheduler | varchar(8) default `'sm2'` — `sm2` / `fsrs`, кто применил оценку (2D.3; колонка добавлена в 2D.2) |
+| interval_before_days | smallint nullable — `word_repetitions.interval_days` до этой оценки (метрики 2D.4) |
 | time_spent_ms | int |
 | created_at | timestamp |
 
@@ -740,6 +744,78 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 
 **Правила:** строки пишет только `ReferralService` (docs/13 §2.4). Порядок блокировок пути награды: `referrals` (FOR UPDATE, строки пригласившего по `id`) → `learners` (FOR UPDATE внутри `SubscriptionService::grantReward`) → `subscriptions`; два learner'а в одной транзакции не блокируются никогда; в транзакцию оценки ничего не добавляется (`evaluate` — после commit).
 
+### 2.34 `league_weeks` — неделя лиг *(2C.3, docs/13 §1.5, §7.3)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| starts_on | date **unique** | понедельник недели в `config('leagues.timezone')` (`Asia/Tashkent`) — одна граница для всех |
+| ends_on | date | воскресенье |
+| status | string(10) default `open` | `open` → `closing` (внутри транзакции закрытия) → `closed` |
+| closed_at | timestamp nullable | момент закрытия (`LeagueService::closeWeek`) |
+| created_at, updated_at | | |
+
+Строка создаётся при первом размещении недели (`currentWeek`, `firstOrCreate` через savepoint — гонка создателей безопасна). Закрытие — `leagues:close-week` (ежедневно 00:05 tz лиг; реально работает в понедельник).
+
+### 2.35 `league_groups` — группа одного tier'а внутри недели *(2C.3)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| league_week_id | bigint FK → league_weeks, ON DELETE CASCADE | |
+| tier | smallint | 0 Bronze … 4 Diamond (`config('leagues.tiers')`) |
+| capacity | smallint default 30 | `LEAGUES_GROUP_CAPACITY` на момент создания группы |
+| members_count | smallint default 0 | число мест занято; меняется только под блокировкой строки в `LeagueService::place` |
+| created_at, updated_at | | |
+
+**Индексы:** `(league_week_id, tier, members_count)` — выбор группы с местом.
+
+### 2.36 `league_members` — место learner'а в группе недели *(2C.3)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| league_group_id | bigint FK → league_groups, ON DELETE CASCADE | |
+| league_week_id | bigint FK → league_weeks, ON DELETE CASCADE | денормализация для уникальности «один раз в неделю» |
+| learner_id | bigint FK → learners, ON DELETE CASCADE | |
+| tier_before | smallint | tier недели (= `league_groups.tier`): результат прошлой закрытой недели learner'а или 0 |
+| final_points | int nullable | очки на момент закрытия (до закрытия очки **не хранятся** — считаются из `learner_daily_stats`, §2.22) |
+| final_rank | smallint nullable | место в группе на момент закрытия (ничьи — по более раннему размещению, `id`) |
+| result | string(10) nullable | `promoted` / `stayed` / `demoted`; пишется один раз при закрытии |
+| created_at, updated_at | | |
+
+**Индексы:** unique `(league_week_id, learner_id)`; `(league_group_id)`; `(learner_id, league_week_id)` — последний закрытый результат learner'а (tier следующего размещения).
+
+**Правила:** строки пишет только `LeagueService` (docs/13 §2.4). Размещение — после commit транзакции оценки (`DailyStatsService` → `DB::afterCommit` на первой оценке локального дня), блокирует только `league_groups` (`FOR UPDATE SKIP LOCKED`, при отсутствии свободной группы — advisory-lock `(week, tier)` + ожидающий `FOR UPDATE`, затем новая группа); `learners` не блокируется, двух learner'ов в одной транзакции нет. Очки недели: `Σ reviews_count×1 + correct_count×1 + new_words_count×2 + (goal_met_at IS NOT NULL ? 10 : 0)` по `learner_daily_stats.date ∈ [starts_on, ends_on]` (веса — `config('leagues.points')`), один агрегирующий запрос на группу, кэш `league:standings:{group}` 60 с. `learners.meta.leagues_opt_out = true` — learner не размещается (настройки TWA).
+
+### 2.37 `friendships` — друзья *(2C.5, docs/13 §1.5, §7.5)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| learner_id | bigint FK → learners, ON DELETE CASCADE | **меньший** id пары |
+| friend_id | bigint FK → learners, ON DELETE CASCADE | **больший** id пары |
+| status | string(10) | `pending` / `accepted` / `blocked`. Отклонённая, отозванная или удалённая дружба **строки не имеет** (пара может запросить снова) |
+| requested_by_learner_id | bigint FK → learners, ON DELETE CASCADE | кто пригласил; для `blocked` — кто заблокировал |
+| accepted_at | timestamp nullable | |
+| created_at, updated_at | | |
+
+**Индексы:** unique `(learner_id, friend_id)`; `(friend_id, status)`; `requested_by_learner_id`. **На PostgreSQL** CHECK `friendships_pair_order_check (learner_id < friend_id)` — A→B и B→A физически одна строка (на sqlite пару нормализует `FriendshipService::pair()`). Пишет только `FriendshipService`; блокировок learner'ов нет (docs/13 §3 п.4): каждая запись — одна инструкция по строке пары.
+
+### 2.38 `challenges` — вызовы между друзьями *(2C.5, docs/13 §1.5, §7.5)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| challenger_id, opponent_id | bigint FK → learners, ON DELETE CASCADE | кто бросил вызов / кому |
+| metric | string(12) | `reviews` (Σ `learner_daily_stats.reviews_count`) / `new_words` (Σ `new_words_count`) |
+| days | smallint | длина вызова (`config('friends.challenges.days')`, 7) |
+| status | string(10) | `pending` → `active` → `finished`; `declined`, `expired` (не принят за `pending_ttl_hours`, 72), `canceled` (дружба закончилась) |
+| open_pair | string(40) nullable **unique** | `<меньший id>:<больший id>`, пока вызов открыт (`pending`/`active`), иначе `NULL`: «один открытый вызов на пару» — факт БД |
+| starts_at, ends_at | timestamp nullable | задаются при принятии; `ends_at` — момент, когда `ends_on` закончился в поясах **обоих** игроков (позднейший) |
+| starts_on, ends_on | date nullable | диапазон локальных дат `learner_daily_stats.date` (включительно) |
+| winner_learner_id | bigint FK nullable → learners, ON DELETE SET NULL | `NULL` при ничьей |
+| scores | jsonb nullable | `{challenger: int, opponent: int}` после закрытия |
+| finished_at | timestamp nullable | закрытие / отказ / истечение / отмена |
+| created_at, updated_at | | |
+
+**Индексы:** `open_pair` unique; `(status, ends_at)` (планировщик); `(challenger_id, status)`; `(opponent_id, status)`; `winner_learner_id`. Пишет только `ChallengeService` (+ `FriendshipService` при удалении дружбы: `UPDATE … SET status='canceled', open_pair=NULL` по паре).
+
 ## 3. Порядок миграций
 
 Миграции создаём в таком порядке (порядок имеет значение из-за FK). Пока на дисках лежат исходные create-миграции
@@ -783,6 +859,8 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 35. `2026_10_21_000004_create_assignments_table`, `2026_10_21_000005_create_assignment_results_table` *(2B.4)*
 36. `2026_10_22_100001_create_referrals_table` *(2C.1)*
 37. `2026_10_22_200001_add_streak_freeze_columns` — `learners.streak_freezes`, `streak_freezes_refilled_on`; `learner_daily_stats.frozen_at` *(2C.2)*
+38. `2026_10_22_300001_create_league_tables` — `league_weeks`, `league_groups`, `league_members` (одна миграция, три таблицы) *(2C.3)*
+39. `2026_10_22_500001_create_friendships_table`, `2026_10_22_500002_create_challenges_table` *(2C.5)*
 
 Индексные миграции (`add_performance_indexes`, `add_open_session_unique_indexes`) и `create_exam_*`, `create_notifications_log_table`,
 `create_product_events_table` переведены на `learner_id` на месте; `add_open_session_unique_indexes` дополнительно создаёт

@@ -7,6 +7,7 @@ namespace App\Providers\Filament;
 use App\Filament\Widgets\ActivityChartWidget;
 use App\Filament\Widgets\ExamsLast30DaysWidget;
 use App\Filament\Widgets\HardestWordsTableWidget;
+use App\Filament\Widgets\LeagueGroupsTableWidget;
 use App\Filament\Widgets\OnboardingFunnelWidget;
 use App\Filament\Widgets\OrganizationSeatsTableWidget;
 use App\Filament\Widgets\PlatformSubscriptionsWidget;
@@ -58,6 +59,7 @@ class AdminPanelProvider extends PanelProvider
                 PlatformSubscriptionsWidget::class,
                 OnboardingFunnelWidget::class,
                 OrganizationSeatsTableWidget::class,
+                LeagueGroupsTableWidget::class,
                 RevenueLast30DaysWidget::class,
                 WebhookErrorsWidget::class,
             ])

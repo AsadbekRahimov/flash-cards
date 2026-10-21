@@ -28,6 +28,11 @@ import type {
   OpenSessionRequest,
   Quality,
   ReferralsResponse,
+  LeagueResponse,
+  FriendsResponse,
+  ChallengesResponse,
+  ChallengeItem,
+  ChallengeMetric,
   ReviewResponse,
   SessionSummary,
   SettingsPatch,
@@ -75,6 +80,24 @@ export const api = {
   },
   referrals: {
     get: () => client().get<ReferralsResponse>('/referrals'),
+  },
+  league: {
+    get: () => client().get<LeagueResponse>('/league'),
+  },
+  friends: {
+    get: () => client().get<FriendsResponse>('/friends'),
+    /** Each action answers with the refreshed list. */
+    accept: (id: number) => client().post<FriendsResponse>(`/friends/${id}/accept`),
+    decline: (id: number) => client().post<FriendsResponse>(`/friends/${id}/decline`),
+    remove: (id: number) => client().post<FriendsResponse>(`/friends/${id}/remove`),
+  },
+  challenges: {
+    list: () => client().get<ChallengesResponse>('/challenges'),
+    /** To a friend, addressed by the friendship id. */
+    propose: (friendshipId: number, metric: ChallengeMetric) =>
+      client().post<ChallengeItem>('/challenges', { friendship_id: friendshipId, metric }),
+    accept: (id: number) => client().post<ChallengeItem>(`/challenges/${id}/accept`),
+    decline: (id: number) => client().post<ChallengeItem>(`/challenges/${id}/decline`),
   },
   organizations: {
     list: () => client().get<OrganizationsResponse>('/me/organizations'),
@@ -131,6 +154,20 @@ export const api = {
       client().post<ReviewResponse>(`/training/sessions/${sessionId}/review`, {
         word_id: wordId,
         quality,
+        time_spent_ms: timeSpentMs,
+        serve_token: serveToken,
+      }),
+    /** A typed answer to a server-graded card (spelling / gap_fill): the server sets the quality. */
+    answer: (
+      sessionId: number,
+      wordId: number,
+      answer: string,
+      timeSpentMs: number,
+      serveToken: string | null = null,
+    ) =>
+      client().post<ReviewResponse>(`/training/sessions/${sessionId}/review`, {
+        word_id: wordId,
+        answer,
         time_spent_ms: timeSpentMs,
         serve_token: serveToken,
       }),

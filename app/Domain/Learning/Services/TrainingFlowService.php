@@ -6,9 +6,12 @@ namespace App\Domain\Learning\Services;
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Billing\Services\EntitlementResolver;
+use App\Domain\Content\Services\WordAudioService;
 use App\Domain\Content\Services\WordTranslationResolver;
 use App\Domain\Learners\Services\LearnerClock;
 use App\Domain\Learning\Contracts\NewCardBudgetResolver;
+use App\Domain\Learning\DTO\LearnerExerciseSettings;
 use App\Domain\Learning\DTO\ReviewOutcome;
 use App\Domain\Learning\DTO\TrainingStart;
 use App\Domain\Learning\DTO\TrainingStep;
@@ -53,6 +56,10 @@ final class TrainingFlowService
         private readonly NewCardBudgetResolver $budgets,
         private readonly LearnerClock $clock,
         private readonly ProductEventRecorder $events,
+        private readonly EntitlementResolver $entitlements,
+        private readonly ExerciseSelector $selector,
+        private readonly ExercisePromptBuilder $prompts,
+        private readonly WordAudioService $audio,
     ) {}
 
     /**
@@ -123,6 +130,28 @@ final class TrainingFlowService
             return TrainingStep::done($reason, $progress, $remaining);
         }
 
+        $locale = $this->localeFor($session, $learner);
+        $translation = $this->translations->resolve($pick->word, $locale);
+        $audioUrl = $this->audio->urlFor($pick->word);
+
+        // The exercise of this serve (docs/13 §2.5): recomputed from the same inputs by
+        // ReviewSubmissionService when the grade comes back — nothing is stored.
+        $exercise = $this->selector->select(
+            $pick->repetition,
+            $pick->word,
+            $this->entitlements->for($learner, $now),
+            LearnerExerciseSettings::fromLearner($learner),
+            $session->mode,
+        );
+        $prompt = $this->prompts->build(
+            $exercise,
+            $pick->word,
+            $translation,
+            $locale,
+            $audioUrl,
+            crc32($pick->repetition->repetitions.':'.$pick->word->id),
+        );
+
         return new TrainingStep(
             $pick->word,
             $pick->kind,
@@ -130,8 +159,10 @@ final class TrainingFlowService
             // Only learn-ahead cards carry a ticket (docs/04): a card served ahead earlier and
             // due now is a plain due card; submit() accepts it without a token.
             $pick->ahead ? $pick->repetition->served_ahead_token : null,
-            $this->translations->resolve($pick->word, $this->localeFor($session, $learner)),
+            $translation,
             newWordsRemaining: $remaining,
+            prompt: $prompt,
+            audioUrl: $audioUrl,
         );
     }
 
@@ -193,5 +224,24 @@ final class TrainingFlowService
         $repetition = $this->reviews->submit($session, $learner, $wordId, $quality, $timeSpentMs, $serveToken);
 
         return new ReviewOutcome($repetition, $this->nextStep($session, $learner));
+    }
+
+    /**
+     * A typed answer to a server-graded exercise (spelling / gap-fill, docs/13 §8.2): the server
+     * grades it and the outcome carries the verdict next to the following card.
+     *
+     * @throws ReviewSubmissionException
+     */
+    public function answer(
+        TrainingSession $session,
+        Learner $learner,
+        int $wordId,
+        string $answer,
+        int $timeSpentMs,
+        ?string $serveToken = null,
+    ): ReviewOutcome {
+        $accepted = $this->reviews->submitAnswer($session, $learner, $wordId, $answer, $timeSpentMs, $serveToken);
+
+        return new ReviewOutcome($accepted->repetition, $this->nextStep($session, $learner), $accepted->verdict);
     }
 }

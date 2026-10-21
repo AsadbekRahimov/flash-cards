@@ -44,11 +44,15 @@ export interface LearnerSettings {
   daily_goal: number
   goal: string | null
   level: string | null
+  /** Leagues (docs/13 §7.3): true = the learner is not placed in weekly groups. */
+  leagues_opt_out: boolean
   /** ISO 8601 UTC: the time zone may be changed again from then on (once in 24 h); null = now. */
   timezone_change_available_at: string | null
   /** until when the last change of the zone can be taken back (10 minutes); null = it cannot */
   timezone_undo_available_until: string | null
   active_course: { slug: string; title: string } | null
+  /** Exercise types the learner has switched on (docs/13 §8.2); flash cards are always on. */
+  exercises: ExerciseSettings
   options: {
     locales: SettingsChoice[]
     timezones: SettingsChoice[]
@@ -92,10 +96,107 @@ export interface ReferralsResponse {
   referrals: ReferralItem[]
 }
 
+/** GET /league (docs/04 A.13): the learner's group of the week. */
+export type LeagueTierKey = 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond' | string
+export type LeagueResult = 'promoted' | 'stayed' | 'demoted'
+export type LeagueZone = 'promotion' | 'safe' | 'demotion'
+
+export interface LeagueStandingItem {
+  rank: number
+  /** First name of the member; null = no name to show. Nothing else of other people is sent. */
+  name: string | null
+  points: number
+  is_me: boolean
+}
+
+export interface LeagueMembership {
+  tier: number
+  tier_key: LeagueTierKey
+  rank: number
+  points: number
+  members_count: number
+  zone: LeagueZone
+  /** Points missing to enter the promotion zone; null when already there or the tier cannot promote. */
+  points_to_promote: number | null
+  /** Points missing to leave the demotion zone; null when not in it or the tier cannot demote. */
+  points_to_safety: number | null
+  standings: LeagueStandingItem[]
+}
+
+export interface LeagueResponse {
+  enabled: boolean
+  opted_out: boolean
+  /** `closes_at`: ISO 8601 UTC instant of the next Monday 00:00 in the league time zone. */
+  week: { starts_on: string; ends_on: string; closes_at: string }
+  rules: { capacity: number; promote: number; demote: number; tiers: LeagueTierKey[] }
+  membership: LeagueMembership | null
+  last_week: { starts_on: string; tier: number; tier_key: LeagueTierKey; result: LeagueResult; rank: number; points: number } | null
+}
+
+/** GET /friends (docs/04 A.13): friends, incoming / outgoing requests. `id` is the friendship id; of other people only a first name, the streak and the learned words. */
+export interface FriendItem {
+  id: number
+  first_name: string | null
+  streak: number
+  words_learned: number
+  since: string | null
+}
+
+export interface FriendRequestItem {
+  id: number
+  first_name: string | null
+  requested_at: string | null
+}
+
+export interface FriendsResponse {
+  invite_link: string | null
+  limit: number
+  friends: FriendItem[]
+  incoming: FriendRequestItem[]
+  outgoing: FriendRequestItem[]
+}
+
+/** GET /challenges, POST /challenges[/id/accept|decline] (docs/04 A.13). */
+export type ChallengeMetric = 'reviews' | 'new_words'
+export type ChallengeStatus = 'pending' | 'active' | 'finished' | 'declined' | 'expired' | 'canceled'
+
+export interface ChallengeItem {
+  id: number
+  status: ChallengeStatus
+  metric: ChallengeMetric
+  days: number
+  /** `challenger` = you proposed it; `opponent` = you were challenged. */
+  role: 'challenger' | 'opponent'
+  friend_name: string | null
+  /** null once the friendship is gone. */
+  friendship_id: number | null
+  starts_on: string | null
+  ends_on: string | null
+  created_at: string | null
+  my_score: number | null
+  their_score: number | null
+  result: 'won' | 'lost' | 'draw' | null
+}
+
+export interface ChallengesResponse {
+  days: number
+  open: ChallengeItem[]
+  finished: ChallengeItem[]
+}
+
+export interface ExerciseSettings {
+  reverse: boolean
+  audio: boolean
+  /** Pro feature: typed answers are served only with `exercise.spelling`. */
+  spelling: boolean
+  /** Pro feature. */
+  gap_fill: boolean
+}
+
 /** Body of PATCH /me/settings: only the fields to change; `reminder_time: null` turns the reminders off. */
 export type SettingsPatch = Partial<
-  Pick<LearnerSettings, 'interface_locale' | 'timezone' | 'reminder_time' | 'daily_goal' | 'goal' | 'level'>
->
+  Pick<LearnerSettings, 'interface_locale' | 'timezone' | 'reminder_time' | 'daily_goal' | 'goal' | 'level' | 'leagues_opt_out'>
+> & { exercises?: Partial<ExerciseSettings> }
 
 /** `source`: 'free' | 'subscription' | 'sponsor:organization:<id>'; `until`: ISO 8601, null = no end. */
 export interface Entitlement {
@@ -292,6 +393,16 @@ export interface TodayResponse {
   open_session_id: number | null
   entitlement: Pick<Entitlement, 'plan' | 'source' | 'until'>
   onboarding_completed: boolean
+  /** The learner's place in this week's league group (docs/13 §7.3); null while not placed. */
+  league: TodayLeague | null
+}
+
+export interface TodayLeague {
+  tier: number
+  tier_key: LeagueTierKey
+  rank: number
+  points: number
+  members_count: number
 }
 
 /** One assignment of the learner's center (GET /assignments, docs/04 A.9): only the learner's own progress. */
@@ -326,6 +437,24 @@ export interface AssignmentsResponse {
  */
 export type CardKind = 'due' | 'new' | 'learning'
 
+/**
+ * How the card is presented and who grades it (docs/13 §2.5, docs/04 A.3):
+ * flash / reverse / audio → POST /review {quality}; spelling / gap_fill → POST /review {answer}.
+ */
+export type ExerciseType = 'flash' | 'reverse' | 'audio' | 'spelling' | 'gap_fill'
+
+export interface ExercisePrompt {
+  type: ExerciseType
+  /** reverse / spelling / gap_fill: the translation; flash: the word; audio: '' (the word is only heard). */
+  front: string
+  /** gap_fill: the example with the word's form replaced by `____`. */
+  masked_example: string | null
+  /** reverse: four English words; audio: four translations (the right one among them). */
+  options: string[] | null
+  /** spelling / gap_fill: length of the expected text. */
+  answer_length: number | null
+}
+
 export interface Card {
   word_id: number
   word: string
@@ -347,6 +476,8 @@ export interface Card {
    * `serve_token` in POST /review for that card, otherwise 409 `card_not_due`.
    */
   serve_token: string | null
+  /** The exercise of this serve; absent/null = flash (older servers). */
+  prompt?: ExercisePrompt | null
 }
 
 export interface NextCardResponse {
@@ -365,10 +496,21 @@ export interface NextCardResponse {
  */
 export type Quality = 2 | 4 | 5
 
+/** The server's grade of a typed answer (spelling / gap_fill). */
+export interface Graded {
+  /** 5 exact, 4 within the tolerance, 1 wrong. */
+  quality: number
+  correct: boolean
+  /** The normalized right answer, to show after a miss. */
+  expected: string
+}
+
 export interface ReviewResponse {
   next_review_at: string | null
   new_interval_days: number
   easiness_factor: number
+  /** null when the client graded (quality was sent). */
+  graded?: Graded | null
   card?: Card | null
   progress?: { done: number; total: number }
   done_reason?: DoneReason | null

@@ -33,6 +33,7 @@ const today = (overrides: Partial<TodayResponse> = {}): TodayResponse => ({
   open_session_id: null,
   entitlement: { plan: 'free', source: 'free', until: null },
   onboarding_completed: true,
+  league: null,
   ...overrides,
 })
 
@@ -62,6 +63,7 @@ const makeRouter = () =>
       { path: '/settings', name: 'settings', component: { template: '<div />' } },
       { path: '/billing', name: 'billing', component: { template: '<div />' } },
       { path: '/referrals', name: 'referrals', component: { template: '<div />' } },
+      { path: '/league', name: 'league', component: { template: '<div />' } },
       { path: '/training/:sessionId(\\d+)', name: 'training', component: { template: '<div />' } },
     ],
   })
@@ -89,6 +91,15 @@ describe('TodayView', () => {
     } as never)
   })
   afterEach(() => setLocale('ru'))
+
+  it('shows the league line: the place of the week, or an invitation to study, linking to the league screen', async () => {
+    const placed = await render(today({ league: { tier: 1, tier_key: 'silver', rank: 3, points: 41, members_count: 28 } }))
+    expect(text(placed, 'league-line')).toBe('🏆 Серебро · 3-е место из 28 · 41 очко')
+    expect(placed.get('[data-testid=league-line]').attributes('href')).toBe('/league')
+
+    const bare = await render(today({ league: null }))
+    expect(text(bare, 'league-line')).toBe('🏆 Лига: повторите карточки, чтобы вступить на этой неделе')
+  })
 
   it('shows the goal as a ring with done / target and what is left', async () => {
     const w = await render()

@@ -5,15 +5,21 @@ import { errorMessage } from '@/i18n/errors'
 import type {
   Card,
   DoneReason,
+  ExerciseType,
+  Graded,
   LessonHeader,
   OpenSessionRequest,
   Quality,
+  ReviewResponse,
   SessionSummary,
   TrainingMode,
   TrainingStartResponse,
 } from '@/api/types'
 
 type Progress = { done: number; total: number }
+
+/** 422 codes meaning "the server expects the other kind of grade for this card" (docs/04 A.3). */
+const EXERCISE_MISMATCH_CODES = ['answer_not_accepted', 'quality_not_accepted', 'exercise_pro_required']
 
 /**
  * A daily review may go past its goal (`done` = grades in the session, `total` = daily goal),
@@ -29,6 +35,7 @@ export type TrainingStatus =
   | 'loading'       // GET /next in flight
   | 'ready'         // card visible, waiting for learner input
   | 'submitting'    // POST /review in flight
+  | 'verdict'       // a typed answer was graded by the server; the next card waits in `deferred`
   | 'finished'      // card === null after /next
   | 'closed'        // 410 Gone from server
   | 'error'
@@ -63,6 +70,10 @@ interface TrainingState {
   lastIntervalDays: number
   status: TrainingStatus
   errorMessage: string
+  /** The server's grade of the last typed answer (spelling / gap_fill), shown before the next card. */
+  verdict: Graded | null
+  /** The answer of the review that came with the verdict: applied by `continueAfterVerdict()`. */
+  deferred: { card: Card | null; doneReason: DoneReason | null } | null
 }
 
 export const useTrainingStore = defineStore('training', {
@@ -85,9 +96,14 @@ export const useTrainingStore = defineStore('training', {
     lastIntervalDays: 0,
     status: 'idle',
     errorMessage: '',
+    verdict: null,
+    deferred: null,
   }),
 
   getters: {
+    /** The exercise the current card is served with; a card without `prompt` (older server) is a flash card. */
+    exercise: (s): ExerciseType => s.card?.prompt?.type ?? 'flash',
+
     /**
      * Request to open the same kind of session again after a 410, or null when this run did not
      * open the current session itself (then there is nothing to restart: the screen just closes).
@@ -168,7 +184,26 @@ export const useTrainingStore = defineStore('training', {
       if (this.status === 'ready') this.showTranslation = true
     },
 
+    /** A self-graded (flash) or client-graded (reverse / audio) card. */
     async submitReview(quality: Quality): Promise<void> {
+      await this.submit((sessionId, wordId, timeSpent, serveToken) =>
+        api.training.review(sessionId, wordId, quality, timeSpent, serveToken),
+      )
+    },
+
+    /**
+     * A typed answer (spelling / gap_fill): the server grades it. The answer's next card is held back
+     * until the learner has seen the verdict (`continueAfterVerdict()`).
+     */
+    async submitAnswer(answer: string): Promise<void> {
+      await this.submit((sessionId, wordId, timeSpent, serveToken) =>
+        api.training.answer(sessionId, wordId, answer, timeSpent, serveToken),
+      )
+    },
+
+    async submit(
+      send: (sessionId: number, wordId: number, timeSpent: number, serveToken: string | null) => Promise<ReviewResponse>,
+    ): Promise<void> {
       if (this.sessionId === null || this.card === null || this.status !== 'ready') return
       const wordId = this.card.word_id
       // Learn-ahead ticket of *this* serve; the server rejects a replay without it.
@@ -176,12 +211,19 @@ export const useTrainingStore = defineStore('training', {
       const timeSpent = Math.max(0, Date.now() - this.cardShownAt)
       this.status = 'submitting'
       try {
-        const res = await api.training.review(this.sessionId, wordId, quality, timeSpent, serveToken)
+        const res = await send(this.sessionId, wordId, timeSpent, serveToken)
         this.reviewedCount += 1
         this.lastIntervalDays = res.new_interval_days
         if (res.progress) this.progress = clampProgress(res.progress)
         if ('card' in res) {
-          this.doneReason = res.done_reason ?? null
+          const doneReason = res.done_reason ?? null
+          if (res.graded) {
+            this.verdict = res.graded
+            this.deferred = { card: res.card ?? null, doneReason }
+            this.status = 'verdict'
+            return
+          }
+          this.doneReason = doneReason
           this.applyCard(res.card ?? null)
           return
         }
@@ -190,12 +232,32 @@ export const useTrainingStore = defineStore('training', {
         // The server already consumed/re-issued this serve (rare race or network replay):
         // the grade was not counted, so silently fetch the actual card. Once per submit —
         // loadNext() never re-submits, and its own failure goes through the usual error path.
+        // The same for an exercise the server no longer agrees with (the plan changed mid-session,
+        // an older card on screen): the fresh card carries the exercise the server expects.
         if (err instanceof ApiClientError && err.kind === 'conflict' && err.code === 'card_not_due') {
+          await this.loadNext()
+          return
+        }
+        if (err instanceof ApiClientError && EXERCISE_MISMATCH_CODES.includes(err.code)) {
           await this.loadNext()
           return
         }
         this.handleApiError(err)
       }
+    },
+
+    /** The learner has seen the verdict: show what the review answered with. */
+    continueAfterVerdict(): void {
+      if (this.status !== 'verdict') return
+      const deferred = this.deferred
+      this.verdict = null
+      this.deferred = null
+      if (deferred === null) {
+        void this.loadNext()
+        return
+      }
+      this.doneReason = deferred.doneReason
+      this.applyCard(deferred.card)
     },
 
     /**
@@ -226,6 +288,8 @@ export const useTrainingStore = defineStore('training', {
       this.reviewedCount = 0
       this.lastIntervalDays = 0
       this.errorMessage = ''
+      this.verdict = null
+      this.deferred = null
     },
 
     applyCard(card: Card | null): void {

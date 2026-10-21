@@ -7,6 +7,7 @@ namespace App\Domain\Learners\Services;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Billing\Services\NewWordQuota;
 use App\Domain\Content\Services\CourseCatalogService;
+use App\Domain\Engagement\Services\LeagueService;
 use App\Domain\Engagement\Services\StreakFreezeService;
 use App\Domain\Learners\DTO\DailyGoal;
 use App\Domain\Learners\DTO\DailyProgress;
@@ -42,6 +43,7 @@ final class TodayService
         private readonly EntitlementResolver $entitlements,
         private readonly NewWordQuota $quota,
         private readonly StreakFreezeService $freezes,
+        private readonly LeagueService $leagues,
     ) {}
 
     public function summary(Learner $learner, ?CarbonImmutable $now = null): TodaySummary
@@ -60,6 +62,7 @@ final class TodayService
             openSessionId: $this->openDailySessionId($learner, $now),
             entitlement: $this->entitlements->for($learner, $now),
             onboardingCompleted: $learner->onboarding_state === 'done',
+            league: $this->leagues->todayLine($learner, $now),
         );
     }
 

@@ -65,4 +65,19 @@ enum ProductEventName: string
     case StreakExtended = 'streak.extended';
     /** A missed local day was held by a streak freeze (props: date, freezes_left — docs/13 §7.2). */
     case StreakFrozen = 'streak.frozen';
+    /** Leagues (docs/13 §7.3): a learner joined a group of the week / a week was closed (no learner). */
+    case LeaguePlaced = 'league.placed';
+    case LeagueWeekClosed = 'league.week_closed';
+    /** A friend request was created (props: friendship_id — docs/13 §7.5); actor = the requester. */
+    case FriendRequested = 'friend.requested';
+    /** A friend request was accepted (props: friendship_id); actor = the acceptor. */
+    case FriendAccepted = 'friend.accepted';
+    /** A friendship ended (props: friendship_id, how — removed / declined / canceled / unblocked / blocked); actor = who ended it. */
+    case FriendRemoved = 'friend.removed';
+    /** A challenge was proposed to a friend (props: challenge_id, metric, days). */
+    case ChallengeProposed = 'challenge.proposed';
+    /** The friend accepted the challenge (props: challenge_id, metric, starts_on). */
+    case ChallengeAccepted = 'challenge.accepted';
+    /** A challenge was closed by its scores (props: challenge_id, metric, result — challenger / opponent / draw); actor = the challenger. */
+    case ChallengeFinished = 'challenge.finished';
 }

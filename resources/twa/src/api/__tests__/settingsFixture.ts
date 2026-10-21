@@ -9,9 +9,11 @@ export function settingsFixture(overrides: Partial<LearnerSettings> = {}): Learn
     daily_goal: 20,
     goal: null,
     level: null,
+    leagues_opt_out: false,
     timezone_change_available_at: null,
     timezone_undo_available_until: null,
     active_course: null,
+    exercises: { reverse: true, audio: true, spelling: true, gap_fill: true },
     options: {
       locales: [
         { id: 'ru', label: '🇷🇺 Русский' },

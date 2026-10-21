@@ -31,6 +31,12 @@ Schedule::command('training:close-expired')
     ->everyFifteenMinutes()
     ->withoutOverlapping();
 
+// Friend challenges (docs/13 §7.5): active ones past `ends_at` are scored from learner_daily_stats and finished,
+// unanswered pending ones expire. Idempotent: the claim is a conditional UPDATE, so a repeated run raises nothing twice.
+Schedule::command('challenges:close-due')
+    ->everyFifteenMinutes()
+    ->withoutOverlapping();
+
 // Time-based subscription transitions (period end -> past_due / expired),
 // docs/12 §5.6. Idempotent: every row is re-checked under lockForUpdate.
 Schedule::command('subscriptions:expire')
@@ -61,6 +67,14 @@ Schedule::command('organizations:sync-members')
 Schedule::command('assignments:refresh')
     ->everyThirtyMinutes()
     ->withoutOverlapping(20);
+
+// League weeks (docs/13 §7.3): Monday 00:05 in the league time zone closes the week that just
+// ended (final standings, promotions, result DMs through the global send budget). Runs daily so
+// a missed Monday is caught up the next night; idempotent by `league_weeks.status`.
+Schedule::command('leagues:close-week')
+    ->dailyAt('00:05')
+    ->timezone((string) config('leagues.timezone', 'Asia/Tashkent'))
+    ->withoutOverlapping(30);
 
 // Telegram's Stars ledger vs ours for the last 2 days (docs/13 §4.4): read-only, logs
 // `billing.reconcile_missing*`; exits early while Stars is disabled.
