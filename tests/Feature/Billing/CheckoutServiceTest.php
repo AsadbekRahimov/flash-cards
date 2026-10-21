@@ -130,8 +130,9 @@ it('rejects what cannot be sold: bad period, disabled or missing provider, unsup
     expect($e->errorCode)->toBe(CheckoutException::INVALID_TIER);
     $e = checkoutFailure(fn () => $service->create($org, Plan::Pro, 'month', SubscriptionProvider::Payme, 'center_l', 'org_panel'));
     expect($e->errorCode)->toBe(CheckoutException::PRICE_NOT_CONFIGURED); // manual activation only
-    $e = checkoutFailure(fn () => $service->create($org, Plan::Pro, 'year', SubscriptionProvider::Payme, 'tutor', 'org_panel'));
-    expect($e->errorCode)->toBe(CheckoutException::PRICE_NOT_CONFIGURED); // tiers are monthly
+    $e = checkoutFailure(fn () => $service->create($org, Plan::Pro, 'year', SubscriptionProvider::Payme, 'center_l', 'org_panel'));
+    expect($e->errorCode)->toBe(CheckoutException::PRICE_NOT_CONFIGURED); // manual activation only, year too
+    expect($service->create($org, Plan::Pro, 'year', SubscriptionProvider::Payme, 'tutor', 'org_panel')->amount)->toBe(12_900_000 * 12); // year derived from the month (2B.9)
 
     $tutor = $service->create($org, Plan::Pro, 'month', SubscriptionProvider::Payme, 'tutor', 'org_panel');
     expect($tutor->amount)->toBe(12_900_000)->and($tutor->tier)->toBe('tutor')->and($tutor->meta)->toBe([
@@ -290,7 +291,7 @@ it('describes the catalog: priced items per enabled provider, the open offer and
     // Organizations: tiers x periods in UZS only (Stars does not serve them); center_l has no price.
     $catalog = $service->catalog($org, $now);
     expect($catalog->providers)->toBe(['payme'])
-        ->and(array_column($catalog->items, 'tier'))->toBe(['tutor', 'center_s', 'center_m'])
+        ->and(array_column($catalog->items, 'tier'))->toBe(['tutor', 'tutor', 'center_s', 'center_s', 'center_m', 'center_m'])
         ->and($catalog->items[0])->toBe(['plan' => 'pro', 'tier' => 'tutor', 'period' => 'month', 'prices' => ['UZS' => 12_900_000], 'list_prices' => ['UZS' => 12_900_000]]);
 
     // Nothing enabled -> empty catalog (paywall falls back to coming_soon).

@@ -102,6 +102,10 @@
                     {{ __('org.billing.to_pay', ['amount' => $this->priceLabel($price)]) }}
                 </p>
 
+                @if (($savings = $this->selectedSavings()) !== null)
+                    <p class="mb-3 text-sm text-success-600 dark:text-success-400" data-year-savings="{{ $savings }}">{{ __('org.billing.year_savings', ['amount' => $this->priceLabel($savings)]) }}</p>
+                @endif
+
                 @if ($selected !== null && $selected['below_seated'])
                     <p class="mb-3 text-sm text-warning-600 dark:text-warning-400">{{ __('org.billing.downgrade_warning', ['seated' => $page->seats->seated, 'limit' => $selected['seats']]) }}</p>
                 @endif

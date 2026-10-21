@@ -702,6 +702,7 @@ you switch a provider on.
 | `CLICK_IP_ALLOWLIST` | as for Payme; the Click server addresses are published in the Click cabinet / docs |
 | `CLICK_TRANSACTION_TIMEOUT_MS` | 1800000 (30 min). An open Click *Prepare* older than this is treated as dead: it no longer keeps an expired order payable or holds a learner's discount. Prepare → Complete normally takes seconds; raise it only if Click support confirms longer retries. Payme's equivalent is fixed at 12 h (Payme cancels its own transaction after that) |
 | `BILLING_PRICE_*` | prices in minor units (UZS in tiyin = sum x 100; XTR whole Stars); `0` = not for sale in that currency (see `.env.example`) |
+| `BILLING_ORG_YEAR_DISCOUNT_PERCENT` | discount of the centers' annual payment vs 12 months (default `0`); explicit `BILLING_PRICE_<TIER>_YEAR_UZS` overrides it |
 | `BILLING_ORDER_TTL_MINUTES` | 1440; Payme / Click refuse an expired order |
 | `BILLING_SUPPORT_CONTACT` | shown in the paywall and by `/paysupport` |
 | `BILLING_INVOICE_REQUEST_EMAIL` | where the cabinet's "Request an invoice" e-mail goes (empty = `SITE_LEGAL_EMAIL`; both empty = the button is hidden) |
@@ -876,6 +877,7 @@ chmod 600 .env
 | `PAYME_IP_ALLOWLIST` / `CLICK_IP_ALLOWLIST` | optional | comma-separated IPs/CIDRs; empty = off |
 | `CLICK_TRANSACTION_TIMEOUT_MS` | optional | `1800000` (30 min): an older open Click Prepare no longer holds an order / offer (17.1) |
 | `BILLING_PRICE_*` / `BILLING_ORDER_TTL_MINUTES` | when selling | prices in minor units / `1440` (17.1) |
+| `BILLING_ORG_YEAR_DISCOUNT_PERCENT` | optional | `0`; center **year** price = tariff month price x 12 x (1 - N %), rounded to whole sums. `BILLING_PRICE_{TUTOR,CENTER_S,CENTER_M}_YEAR_UZS` (tiyin) set an explicit year price instead (wins over the discount) |
 | `REMINDERS_DUE_THRESHOLD` | optional | `1` |
 | `REMINDERS_MIN_INTERVAL_HOURS` | optional | `2` (floor between two reminders, >= 1; the main rule is one per local day) |
 | `REMINDERS_MAX_DELAY_MINUTES` | optional | `120` (>= 15) |
