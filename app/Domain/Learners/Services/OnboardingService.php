@@ -129,58 +129,42 @@ final class OnboardingService
         return $this->current($learner);
     }
 
-    /** The invite code of an `org_<code>` link waiting for the end of the onboarding, if any. */
-    public function pendingOrganizationInvite(Learner $learner): ?string
+    /**
+     * Takes the invite code of an `org_<code>` link waiting for the end of the onboarding: reads and forgets it under
+     * a lock, so a double callback offers it once and a failed send does not keep it stuck.
+     */
+    public function pullPendingOrgInvite(Learner $learner): ?string
     {
-        $code = ($learner->meta ?? [])[self::PENDING_ORG_INVITE] ?? null;
-
-        return is_string($code) && $code !== '' ? $code : null;
+        return $this->pull($learner, self::PENDING_ORG_INVITE);
     }
 
-    /** Forgets the pending invite once it has been offered (or turned out to be unusable). */
-    public function clearPendingOrganizationInvite(Learner $learner): void
+    /** Takes the owner's code of an `f_<code>` link waiting for the end of the onboarding (same contract). */
+    public function pullPendingFriendInvite(Learner $learner): ?string
     {
-        DB::transaction(function () use ($learner): void {
-            $fresh = $this->lock($learner);
-            $meta = $fresh->meta;
+        return $this->pull($learner, self::PENDING_FRIEND_INVITE);
+    }
 
-            if (! array_key_exists(self::PENDING_ORG_INVITE, $meta)) {
-                return;
+    private function pull(Learner $learner, string $key): ?string
+    {
+        $code = DB::transaction(function () use ($learner, $key): mixed {
+            $fresh = $this->lock($learner);
+            $meta = $fresh->meta ?? [];
+
+            if (! array_key_exists($key, $meta)) {
+                return null;
             }
 
-            unset($meta[self::PENDING_ORG_INVITE]);
+            $code = $meta[$key];
+            unset($meta[$key]);
             $fresh->meta = $meta;
             $fresh->save();
+
+            return $code;
         });
 
         $learner->refresh();
-    }
-
-    /** The owner's code of an `f_<code>` link waiting for the end of the onboarding, if any. */
-    public function pendingFriendInvite(Learner $learner): ?string
-    {
-        $code = ($learner->meta ?? [])[self::PENDING_FRIEND_INVITE] ?? null;
 
         return is_string($code) && $code !== '' ? $code : null;
-    }
-
-    /** Forgets the pending friend link once it has been offered. */
-    public function clearPendingFriendInvite(Learner $learner): void
-    {
-        DB::transaction(function () use ($learner): void {
-            $fresh = $this->lock($learner);
-            $meta = $fresh->meta;
-
-            if (! array_key_exists(self::PENDING_FRIEND_INVITE, $meta)) {
-                return;
-            }
-
-            unset($meta[self::PENDING_FRIEND_INVITE]);
-            $fresh->meta = $meta;
-            $fresh->save();
-        });
-
-        $learner->refresh();
     }
 
     /** The step the learner has to answer now (`done` when finished; `new` counts as the first step). */

@@ -525,3 +525,25 @@ it('does not announce a state that no longer holds', function (): void {
 
     expect($this->tg->sent)->toHaveCount(0);
 });
+
+it('offers the pending friend link once even when the callback is handled twice, and a failed organization offer does not block it', function (): void {
+    frInviter(9001, 'NEWFRND2');
+    $me = Learner::factory()->create(['telegram_user_id' => 9120, 'first_name' => 'Ali', 'interface_locale' => 'ru', 'meta' => ['pending_friend_invite' => 'NEWFRND2'], 'onboarding_state' => 'done']);
+    $messenger = app(\App\Domain\Telegram\Services\FriendsMessenger::class);
+
+    $messenger->offerPending($me, 9120);
+    $messenger->offerPending(Learner::query()->findOrFail($me->id), 9120); // the second tap: nothing left to offer
+
+    expect(collect($this->tg->sent)->filter(fn (array $m): bool => str_contains($m['text'], 'ссылку-приглашение'))->count())->toBe(1)
+        ->and($me->fresh()?->meta)->not->toHaveKey('pending_friend_invite');
+
+    // The code is pulled before sending: a failed send does not keep it stuck, and the other offer still goes.
+    $other = Learner::factory()->create(['telegram_user_id' => 9121, 'first_name' => 'Ali', 'interface_locale' => 'ru', 'meta' => ['pending_org_invite' => 'BOOM', 'pending_friend_invite' => 'NEWFRND2'], 'onboarding_state' => 'reminder']);
+    $sent = count($this->tg->sent);
+    $this->tg->failSends = 1; // the organization offer (an unknown code is explained by a message) is the first send and fails
+
+    $handler = app(\App\Domain\Telegram\Handlers\OnboardingCallbackHandler::class);
+    (new ReflectionMethod($handler, 'offerPending'))->invoke($handler, $other, 9121);
+
+    expect(collect(array_slice($this->tg->sent, $sent))->filter(fn (array $m): bool => str_contains($m['text'], 'ссылку-приглашение'))->count())->toBe(1);
+});
