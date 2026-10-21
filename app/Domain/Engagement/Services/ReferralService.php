@@ -274,21 +274,25 @@ final class ReferralService
      * dispatch, the job exhausted its tries, an exception after the commit — leaves a referral that is
      * `activated`, or `rewarded` with a side still missing. Re-queues the job for those that have waited
      * `$olderThanMinutes` (a fresh one is still in flight). Flagged referrals wait for an admin. Safe to
-     * repeat: the reward is idempotent by the data ({@see reward()}).
+     * repeat: the reward is idempotent by the data ({@see reward()}). Only rows activated / rewarded within
+     * `referrals.recover_window_days` are looked at, so the sweep stays an index range scan; a row stuck for
+     * longer is left for a manual look.
      *
      * @return int jobs queued
      */
     public function recoverStuck(CarbonImmutable $now, int $olderThanMinutes = 10, int $limit = 500): int
     {
         $before = $now->subMinutes(max(1, $olderThanMinutes));
+        $since = $now->subDays(max(1, (int) config('referrals.recover_window_days', 14)));
 
         /** @var Collection<int, Referral> $stuck */
         $stuck = Referral::query()
             ->whereNull('flagged_at')
-            ->where(function (Builder $q) use ($before): void {
-                $q->where(fn (Builder $a) => $a->where('status', ReferralStatus::Activated->value)->where('activated_at', '<', $before))
+            ->where(function (Builder $q) use ($before, $since): void {
+                $q->where(fn (Builder $a) => $a->where('status', ReferralStatus::Activated->value)->where('activated_at', '<', $before)->where('activated_at', '>=', $since))
                     ->orWhere(fn (Builder $r) => $r->where('status', ReferralStatus::Rewarded->value)
                         ->where('rewarded_at', '<', $before)
+                        ->where('rewarded_at', '>=', $since)
                         ->where(fn (Builder $m) => $m->whereNull('meta->rewards->'.Referral::SIDE_REFEREE)->orWhereNull('meta->rewards->'.Referral::SIDE_REFERRER)));
             })
             ->orderBy('id')

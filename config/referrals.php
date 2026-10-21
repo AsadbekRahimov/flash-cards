@@ -43,6 +43,9 @@ return [
      */
     'flag_links_per_day' => (int) env('REFERRALS_FLAG_LINKS_PER_DAY', 20),
 
+    /** `referrals:recover` looks only at referrals activated / rewarded within this many days (keeps the sweep an index scan). */
+    'recover_window_days' => (int) env('REFERRALS_RECOVER_WINDOW_DAYS', 14),
+
     /** Length of a generated `learners.referral_code` (alphabet without 0/O/1/I; the column is varchar(12)). */
     'code_length' => 8,
 ];
