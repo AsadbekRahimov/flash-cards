@@ -54,6 +54,7 @@
 | 2R.7 | Отмена смены часового пояса: снимок `meta.timezone_change_undo`, `revertTimezone` (10 мин, без штрафа 24 ч, окно квоты как без смены), `POST /me/settings/timezone/revert`, кнопка с таймером в TWA, «Отменить» в боте `/settings`; заморозки не пополняются повторно | coder | ✅ |
 | 2D.4 | Симулятор IELTS/SAT (Pro): `exam_sessions` обобщена (`mode=personal_mock`), одна открытая на learner'а, 40 вопросов/20 мин, перцентиль за 90 дней, вход со страницы курса с `exam_tag`, paywall для Free. Доведено координатором после лимита модели | architect | ✅ |
 | 2R.8 | Staging 0.7 (restore, ZAP, k6, Lighthouse) — владелец/DevOps | — | ⏳ |
+| 2R.9 | Закрытие фазы: итоговое ревью стыков всей Фазы 2 (entitlement, порядок блокировок, изоляция центров, исходящие Telegram, i18n, миграции, API) + чек-лист приёмки на staging и в песочницах `docs/STAGING_PHASE2_CHECKLIST.md` | reviewer + coder | 🔄 |
 
 ## Sprint 14 — Фаза 1 «Публичный B2C MVP» ✅ (2026-10-18 — 2026-10-19; 1.9 ждёт контент владельца)
 
