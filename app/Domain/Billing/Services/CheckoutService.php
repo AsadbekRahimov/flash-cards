@@ -57,6 +57,9 @@ final class CheckoutService
     /** Attempts of the order transaction when a parallel checkout keeps inserting a new holder of the offer. */
     private const MAX_ATTEMPTS = 3;
 
+    /** A pending Stars order is swept this many days after `expires_at` ("Реализация 2A.8"). */
+    public const STARS_SWEEP_GRACE_DAYS = 7;
+
     public function __construct(
         private readonly BillingProviderRegistry $providers,
         private readonly OfferService $offers,
@@ -341,9 +344,11 @@ final class CheckoutService
      * `expired`. A single UPDATE, no subject locks (docs/13 §3 rule 1); an order that a webhook
      * is applying at the same instant is row-locked by the applier and re-read after this UPDATE.
      *
-     * Stars orders are NOT swept ("Реализация 2A.8", H7): their deadline is enforced by the pre_checkout guard
+     * Stars orders are swept late ("Реализация 2A.8", H7): their deadline is enforced by the pre_checkout guard
      * (`order_expired`), and the window between an answered pre_checkout and `successful_payment` must never
      * find the order already `expired` — the same order also carries every later renewal of the subscription.
+     * Only a pending one older than `expires_at` + {@see self::STARS_SWEEP_GRACE_DAYS} days is closed: pre_checkout has
+     * refused it since `expires_at`, so no payment can still be in flight (and PaymentApplier credits one anyway).
      */
     public function expirePending(?CarbonImmutable $now = null): int
     {
@@ -352,11 +357,17 @@ final class CheckoutService
         // A provider transaction that is still open and younger than ITS provider's timeout (Payme: 12 h,
         // Click: `transaction_timeout_ms`) keeps its order payable: the money may already be on its way to
         // PerformTransaction / Complete (docs/13 §4.2, §4.3).
-        return PaymentOrder::query()
+        $swept = PaymentOrder::query()
             ->where('status', PaymentOrder::STATUS_PENDING)
             ->where('expires_at', '<=', $now)
             ->where('provider', '!=', SubscriptionProvider::TelegramStars->value)
             ->withoutOpenProviderTransaction(ProviderTransactionTimeout::openSinceByProvider($now))
+            ->update(['status' => PaymentOrder::STATUS_EXPIRED, 'updated_at' => $now]);
+
+        return $swept + PaymentOrder::query()
+            ->where('status', PaymentOrder::STATUS_PENDING)
+            ->where('provider', SubscriptionProvider::TelegramStars->value)
+            ->where('expires_at', '<=', $now->subDays(self::STARS_SWEEP_GRACE_DAYS))
             ->update(['status' => PaymentOrder::STATUS_EXPIRED, 'updated_at' => $now]);
     }
 
@@ -381,7 +392,7 @@ final class CheckoutService
     public static function summarize(Subscription $live, CarbonImmutable $now): array
     {
         $provider = SubscriptionProvider::tryFrom($live->provider);
-        $autoRenewing = $provider?->isAutoRenewing() ?? false;
+        $autoRenewing = $provider !== null && AutoRenewal::renews($live);
         $ends = $live->current_period_ends_at === null ? null : CarbonImmutable::instance($live->current_period_ends_at);
 
         return [
