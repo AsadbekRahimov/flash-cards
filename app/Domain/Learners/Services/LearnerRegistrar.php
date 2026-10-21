@@ -6,6 +6,7 @@ namespace App\Domain\Learners\Services;
 
 use App\Domain\Learners\DTO\StartPayload;
 use App\Domain\Learners\Enums\StartPayloadKind;
+use App\Domain\Learning\Services\SchedulerResolver;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Learner;
 use Carbon\CarbonImmutable;
@@ -34,6 +35,7 @@ final class LearnerRegistrar
     public function __construct(
         private readonly LocaleResolver $locales,
         private readonly LearnerClock $clock,
+        private readonly SchedulerResolver $schedulers,
     ) {}
 
     /**
@@ -180,6 +182,9 @@ final class LearnerRegistrar
                 // recomputes this when the zone or the time is chosen.
                 'next_reminder_at' => $this->firstReminderAt($timezone, $reminderTime),
                 'onboarding_state' => 'new',
+                // The SRS A/B bucket is fixed here, once (docs/13 §8.3): a stable hash of the Telegram id
+                // against `learning.fsrs.rollout_percent`; a later change of the percentage never moves anyone.
+                'scheduler' => $this->schedulers->bucketFor($telegramUserId),
                 'acquisition_source' => $source,
                 'start_payload' => $startPayload,
                 'last_seen_at' => $selfInitiated ? now() : null,

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Learning\Enums\ExerciseType;
+use App\Domain\Learning\Enums\SchedulerKind;
 use App\Models\Assignment;
 use App\Models\AssignmentResult;
 use App\Models\Challenge;
@@ -918,6 +919,38 @@ it('adds the exercise / scheduler columns of training_reviews (2D.2) and rolls t
 
     $this->artisan('migrate')->assertSuccessful();
     expect(Schema::hasColumns('training_reviews', ['exercise', 'answer_text', 'scheduler', 'interval_before_days']))->toBeTrue();
+});
+
+// --- 2D.3 FSRS A/B (docs/13 §1.5, §1.6) ------------------------------------------
+
+it('adds learners.scheduler and the FSRS columns of word_repetitions (2D.3) and rolls them back', function (): void {
+    expect(Schema::hasColumn('learners', 'scheduler'))->toBeTrue()
+        ->and(Schema::hasColumns('word_repetitions', ['stability', 'difficulty', 'scheduler', 'scheduled_days']))->toBeTrue();
+
+    $learner = Learner::factory()->create(['scheduler' => null]);
+    $rep = WordRepetition::factory()->create(['learner_id' => $learner->id]);
+    expect($learner->fresh()?->scheduler)->toBeNull()
+        ->and($rep->fresh()?->stability)->toBeNull()
+        ->and($rep->fresh()?->difficulty)->toBeNull()
+        ->and($rep->fresh()?->scheduler)->toBe(SchedulerKind::Sm2)
+        ->and($rep->fresh()?->scheduled_days)->toBeNull();
+
+    $rep->update(['stability' => 12345.1234, 'difficulty' => 9.8765, 'scheduler' => SchedulerKind::Fsrs, 'scheduled_days' => 12345]);
+    expect($rep->fresh()?->stability)->toEqualWithDelta(12345.1234, 1e-6)
+        ->and($rep->fresh()?->difficulty)->toEqualWithDelta(9.8765, 1e-6)
+        ->and($rep->fresh()?->scheduler)->toBe(SchedulerKind::Fsrs);
+
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_23_300001_add_scheduler_to_learners_table')])->assertSuccessful();
+    expect(Schema::hasColumn('learners', 'scheduler'))->toBeFalse()
+        ->and(Schema::hasColumn('word_repetitions', 'stability'))->toBeFalse()
+        ->and(Schema::hasColumn('word_repetitions', 'difficulty'))->toBeFalse()
+        ->and(Schema::hasColumn('word_repetitions', 'scheduler'))->toBeFalse()
+        ->and(Schema::hasColumn('word_repetitions', 'scheduled_days'))->toBeFalse()
+        ->and(Schema::hasTable('word_repetitions'))->toBeTrue();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasColumn('learners', 'scheduler'))->toBeTrue()
+        ->and(Schema::hasColumns('word_repetitions', ['stability', 'difficulty', 'scheduler', 'scheduled_days']))->toBeTrue();
 });
 
 // --- 2C.1 referrals (docs/13 §1.5) ----------------------------------------------

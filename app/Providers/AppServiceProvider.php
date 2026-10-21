@@ -12,6 +12,7 @@ use App\Domain\Billing\Providers\TelegramStarsProvider;
 use App\Domain\Billing\Services\BillingProviderRegistry;
 use App\Domain\Billing\Services\NewWordQuota;
 use App\Domain\Learning\Contracts\NewCardBudgetResolver;
+use App\Domain\Learning\Support\FsrsParameters;
 use App\Domain\Learning\Support\LearningPolicy;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
@@ -84,6 +85,13 @@ class AppServiceProvider extends ServiceProvider
             return LearningPolicy::fromConfig($config);
         });
 
+        $this->app->singleton(FsrsParameters::class, function (): FsrsParameters {
+            /** @var array<string, mixed> $config */
+            $config = (array) config('learning.fsrs', []);
+
+            return FsrsParameters::fromConfig($config);
+        });
+
         $this->app->singleton(JwtService::class, function (): JwtService {
             return new JwtService(
                 secret: (string) config('twa.jwt.secret'),
@@ -107,6 +115,7 @@ class AppServiceProvider extends ServiceProvider
         // entrypoint and the health check fail at deploy time rather than the
         // first learner request silently ending sessions early (docs/06 §3.1).
         $this->app->make(LearningPolicy::class);
+        $this->app->make(FsrsParameters::class);
 
         // `subscriptions.subscriber_type` stores 'learner' / 'organization' (docs/12 §1.9).
         Relation::morphMap(['learner' => Learner::class, 'organization' => Organization::class]);

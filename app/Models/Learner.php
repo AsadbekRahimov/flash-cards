@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Domain\Learning\Enums\SchedulerKind;
 use Database\Factories\LearnerFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -41,6 +42,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $streak_last_date
  * @property int $streak_freezes
  * @property Carbon|null $streak_freezes_refilled_on
+ * @property SchedulerKind|null $scheduler A/B bucket of the SRS algorithm (docs/13 §8.3); NULL = config default
  * @property Carbon|null $last_seen_at
  * @property Carbon|null $blocked_at
  * @property array<string, mixed> $meta
@@ -79,6 +81,7 @@ class Learner extends Model
         'streak_last_date',
         'streak_freezes',
         'streak_freezes_refilled_on',
+        'scheduler',
         'last_seen_at',
         'blocked_at',
         'meta',
@@ -99,6 +102,7 @@ class Learner extends Model
             'streak_last_date' => 'date',
             'streak_freezes' => 'integer',
             'streak_freezes_refilled_on' => 'date',
+            'scheduler' => SchedulerKind::class,
             'last_seen_at' => 'datetime',
             'blocked_at' => 'datetime',
             'meta' => 'array',

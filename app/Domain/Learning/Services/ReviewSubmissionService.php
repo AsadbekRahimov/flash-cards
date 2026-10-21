@@ -30,7 +30,7 @@ use Illuminate\Support\Facades\DB;
  * Checks, in order (docs/06 §5.1): session open (410 `session_closed`) → the
  * repetition row exists (409 `card_not_started`) → the word is inside the
  * session's TrainingScope (422 `out_of_scope`) → the card may be graded now
- * (409 `card_not_due`). Then SM-2 is applied, the grade is logged in
+ * (409 `card_not_due`). Then the learner's scheduler (SM-2 or FSRS, SchedulerResolver) is applied, the grade is logged in
  * `training_reviews` and the day's aggregate is updated through
  * DailyStatsService::recordReview — all in ONE transaction, so a failure in any
  * step leaves no partial state.
@@ -58,7 +58,7 @@ final class ReviewSubmissionService
     public const ANSWER_MAX_LENGTH = 100;
 
     public function __construct(
-        private readonly SpacedRepetitionEngine $engine,
+        private readonly SchedulerResolver $schedulers,
         private readonly LearningPolicy $policy,
         private readonly DailyStatsService $dailyStats,
         private readonly EntitlementResolver $entitlements,
@@ -121,6 +121,8 @@ final class ReviewSubmissionService
         $now ??= CarbonImmutable::now();
         $entitlement = $this->entitlements->for($learner, $now);
         $settings = LearnerExerciseSettings::fromLearner($learner);
+        // The learner's arm of the SRS A/B (docs/13 §8.3) — decided from the row already in hand, outside the transaction.
+        $scheduler = $this->schedulers->for($learner);
 
         /** @var ConnectionInterface $db */
         $db = DB::connection();
@@ -136,6 +138,7 @@ final class ReviewSubmissionService
             $now,
             $entitlement,
             $settings,
+            $scheduler,
         ): AcceptedReview {
             /** @var TrainingSession|null $lockedSession */
             $lockedSession = TrainingSession::query()
@@ -203,7 +206,7 @@ final class ReviewSubmissionService
             $isNewCard = $repetition->state === RepetitionState::New;
             $intervalBefore = (int) $repetition->interval_days;
 
-            $this->engine->applyReview($repetition, (int) $quality, $now);
+            $scheduler->schedule($repetition, (int) $quality, $now);
 
             TrainingReview::query()->create([
                 'training_session_id' => $session->id,
@@ -212,6 +215,7 @@ final class ReviewSubmissionService
                 'quality' => $quality,
                 'exercise' => $exercise,
                 'answer_text' => $answer === null ? null : mb_substr($answer, 0, self::ANSWER_MAX_LENGTH),
+                'scheduler' => $scheduler->key()->value,
                 'interval_before_days' => $intervalBefore,
                 'time_spent_ms' => $timeSpentMs,
                 'created_at' => $now,
