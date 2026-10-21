@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
+use App\Domain\Administration\Services\PanelDataScope;
 use App\Filament\Resources\StageResource\Pages;
 use App\Filament\Resources\StageResource\RelationManagers\LessonsRelationManager;
 use App\Models\Course;
@@ -16,6 +17,7 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Validation\Rules\Unique;
 
 class StageResource extends Resource
@@ -27,6 +29,16 @@ class StageResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = 'Content';
 
     protected static ?int $navigationSort = 10;
+
+    /**
+     * Teachers do not see the content of learners' private decks.
+     *
+     * @return Builder<Stage>
+     */
+    public static function getEloquentQuery(): Builder
+    {
+        return app(PanelDataScope::class)->stages();
+    }
 
     public static function form(Schema $schema): Schema
     {
