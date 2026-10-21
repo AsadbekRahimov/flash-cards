@@ -17,8 +17,8 @@
 
 Реализация: `app/Domain/Learning/Services/SpacedRepetitionEngine.php`, параметры —
 `config/learning.php` → `App\Domain\Learning\Support\LearningPolicy`. Схема —
-`docs/03_DATABASE.md` §2.8. Миграция на FSRS (docs/11 §4.1) добавит реализацию алгоритма
-рядом, не меняя контракт `applyReview(WordRepetition, int $quality, CarbonImmutable $now)`.
+`docs/03_DATABASE.md` §2.8. FSRS (docs/11 §4.1) реализован рядом как A/B (§9), контракт
+`applyReview(WordRepetition, int $quality, CarbonImmutable $now)` не менялся.
 
 ## 2. Маппинг оценок студента
 
@@ -437,16 +437,99 @@ learner'а (`learners.reminder_time` в `learners.timezone`; `NULL` = выклю
 - **Leech-кандидаты** — `lapses >= 5`.
 - **Heatmap активности** — количество `training_reviews` на студента по дням недели.
 
-## 9. Будущие улучшения (не MVP)
+## 9. FSRS-5 как A/B с SM-2 (2D.3, docs/13 §2.5, §8.3)
+
+FSRS (Free Spaced Repetition Scheduler) работает **рядом** с SM-2 за интерфейсом
+`App\Domain\Learning\Contracts\SchedulerAlgorithm` (`key()`, `schedule(WordRepetition, int $quality, CarbonImmutable $now)`);
+реализации: `Sm2Scheduler` (тонкая обёртка над `SpacedRepetitionEngine::applyReview`, поведение SM-2 не менялось ни на бит)
+и `FsrsScheduler`. Алгоритм learner'а выбирает `SchedulerResolver::for($learner)`: `learners.scheduler`, а при `NULL` —
+`config('learning.algorithm')`. `ReviewSubmissionService` применяет его внутри той же транзакции оценки (§5) и пишет
+выбранный ключ в `training_reviews.scheduler`.
+
+### 9.1 Бакет A/B
+
+`learners.scheduler` (`sm2` / `fsrs`) ставится **один раз**, когда `LearnerRegistrar` создаёт learner'а:
+`crc32(telegram_user_id) % 100 < FSRS_ROLLOUT_PERCENT` → `fsrs`, иначе `sm2`. `rollout_percent` по умолчанию **0** (никто),
+`100` — все новые. Хэш стабилен: один и тот же Telegram id при одном проценте всегда попадает в один бакет;
+изменение процента **не двигает** существующих learner'ов (только новых). Единственный способ перенести существующего —
+переключение администратором (§9.5). Откат: `FSRS_ROLLOUT_PERCENT=0` и `UPDATE learners SET scheduler = 'sm2'`
+(колонки SM-2 FSRS не портит, §9.4).
+
+### 9.2 Общая машина минутных шагов
+
+Карточки `new` / `learning` / `relearning` ведёт **общая** `LearningStepMachine` (те же `learning_steps`,
+`relearning_steps`, `graduating_interval_days`, `easy_interval_days`, §3.2, §3.4) для обоих алгоритмов. FSRS считает только
+интервал карточек в `review`. Поэтому «первое повторение» после выпуска всегда 1 (или 4 при Easy) день, как в SM-2;
+различие A/B — в интервалах после него. Провал карточки `review` в FSRS: `repetitions = 0`, `interval_days = 0`,
+`lapses += 1`, `is_hard = true`, relearning-шаги общей машины.
+
+### 9.3 Формулы (FSRS-5)
+
+Маппинг `quality` → rating: **0..2 → 1 Again**, **3 → 2 Hard**, **4 → 3 Good**, **5 → 4 Easy**
+(кнопки UI дают 2 / 4 / 5, q=3 — для API).
+
+```
+R(t, S)   = (1 + FACTOR · t / S) ^ DECAY                   DECAY = −0.5, FACTOR = 19/81;  t — дни с прошлого ответа (дробные)
+D0(G)     = w4 − e^(w5 · (G − 1)) + 1                      начальная сложность, S0(G) = w[G − 1]
+D'        = D + (−w6 · (G − 3)) · (10 − D) / 9             линейное демпфирование
+D''       = w7 · D0(4) + (1 − w7) · D'                     возврат к среднему, зажим 1..10
+успех     S' = S · (e^w8 · (11 − D) · S^(−w9) · (e^(w10 · (1 − R)) − 1) · [w15 при Hard] · [w16 при Easy] + 1)
+провал    S' = min(S, w11 · D^(−w12) · ((S + 1)^w13 − 1) · e^(w14 · (1 − R)))
+интервал  I(r, S) = S / FACTOR · (r ^ (1 / DECAY) − 1)     округление, минимум 1, максимум max_interval_days; I(0.9, S) = S
+```
+
+`S'` считается по сложности **до** обновления (как fsrs-rs / ts-fsrs). Веса `w17`, `w18` (повторы в тот же день)
+не используются: повторы в тот же день у нас — минутные шаги. Стабильность зажата в `0.01..36500`, сложность — в `1..10`.
+Cap `LEARNING_MAX_INTERVAL_DAYS` (§3.1) режет только `interval_days` / `next_review_at`; `stability` хранится реальная.
+
+**Параметры** (`config/learning.php` → `fsrs.*`, класс `FsrsParameters` проверяет их при старте, как `LearningPolicy`):
+`FSRS_ROLLOUT_PERCENT` (0..100, по умолчанию 0), `FSRS_DESIRED_RETENTION` (0 < r < 1, по умолчанию **0.9**),
+`FSRS_WEIGHTS` — 19 чисел через запятую. По умолчанию — официальные веса FSRS-5 по умолчанию
+(open-spaced-repetition: fsrs-rs `DEFAULT_PARAMETERS` / ts-fsrs `default_w` / fsrs4anki wiki «The Algorithm»):
+`0.40255, 1.18385, 3.173, 15.69105, 7.1949, 0.5345, 1.4604, 0.0046, 1.54575, 0.1192, 1.01925, 1.9395, 0.11, 0.29605, 2.2698, 0.2315, 2.9898, 0.51655, 0.6621`.
+Оптимизация весов на данных LexiFlow — отдельная будущая работа (нужно 100k+ ответов, docs/08).
+
+### 9.4 Память карточки и инициализация из SM-2
+
+Колонки `word_repetitions`: `stability` (дни), `difficulty` (1..10), `scheduler` (кто писал строку последним),
+`scheduled_days` (интервал, назначенный FSRS, для метрик; 0 при провале). FSRS пишет `interval_days`,
+`next_review_at`, `repetitions`, `lapses`, `is_hard` так же, как SM-2, и **никогда не меняет `easiness_factor`**.
+
+- Свежая карточка, выпущенная под FSRS: `stability = S0(G)`, `difficulty = D0(G)` оценки выпуска.
+- Карточка, которую до этого вела SM-2 (первое FSRS-повторение или переключение learner'а):
+  `stability = max(1, interval_days)`, `difficulty = clamp(1..10, 5 + (2.5 − EF) · 4 / 1.2)` (EF 2.5 → 5, 1.3 → 9, 3.7 → 1).
+- Карточка, провалённая под SM-2 и доученная под FSRS, стартует с того же SM-2-посева; провалённая под FSRS
+  сохраняет послепровальную память.
+
+Эталонная последовательность (юнит-тест `FsrsSchedulerTest`): новая карточка, Good, Good (выпуск, S = 3.173, D = 5.2824) →
+через 1 день Good: S = 5.8691, интервал 6 → через 6 дней Easy: S = 47.6568, интервал 48 → через 48 дней Hard: S = 70.5796, интервал 71 →
+через 71 день Again: S = 5.1445 (< 70.58), D = 6.8642.
+
+### 9.5 Переключение администратором
+
+Filament → Learners → кнопка **SRS algorithm** (только admin; `SchedulerSwitchService::switchTo`) в одной транзакции
+с `FOR UPDATE` на learner'е: пишет `learners.scheduler`, запись аудита `learner.scheduler_changed`
+(`meta {from, to, initialized_cards}`; повторное переключение на тот же алгоритм ничего не пишет) и, при переходе
+на FSRS, инициализирует память выпущенных (`review`) карточек без неё по формуле §9.4 (порциями по 500).
+Переход обратно на SM-2 ни одну карточку не трогает. Порядок блокировок: `learners`, затем `word_repetitions`
+(как у `CardPicker`, §4.2).
+
+### 9.6 Метрики A/B
+
+Виджет «SM-2 vs FSRS» (Filament, только admin; `SchedulerMetricsService`, окно **28 дней**), по `training_reviews.scheduler`:
+pass-rate «созревших» карточек `review` (`interval_before_days >= 1`, `quality >= 3`); повторений на выученное слово
+(оценки в окне / различные карточки с `repetitions >= 1`); удержание D7 по бакету `learners.scheduler`
+(созданные 28..7 дней назад и оценившие карточку через 7+ дней после регистрации).
+
+## 10. Будущие улучшения (не MVP)
 
 - Учёт времени ответа (`time_spent_ms`): если ответил «легко» за 10 секунд — подозрительно, сбавить EF прирост.
 - Четвёртая кнопка «С трудом» (q=3) — если будет запрос; API уже поддерживает.
-- FSRS (Free Spaced Repetition Scheduler) — интерфейс алгоритма поверх `applyReview`,
-  поля `stability`/`difficulty` в `word_repetitions`, флаг алгоритма для A/B (docs/11 §4.1).
+- Оптимизация весов FSRS на данных LexiFlow (когда накопится 100k+ ответов) и переход на FSRS по умолчанию по итогам A/B (§9).
 - Leech-detection: `lapses >= N` → пометить, показать учителю.
 - Fuzzing интервалов: к `next_review_at` добавлять случайный ±10%, чтобы не возникало «стен» в один день.
 
-## 10. Канонические источники
+## 11. Канонические источники
 - Оригинальный пейпер SM-2: `https://super-memory.com/english/ol/sm2.htm`
 - Anki (learning steps, learn ahead, relearning): `https://docs.ankiweb.net/deck-options.html`
-- FSRS для сравнения: `https://github.com/open-spaced-repetition/fsrs4anki`
+- FSRS для сравнения: `https://github.com/open-spaced-repetition/fsrs4anki` (wiki «The Algorithm»), `https://github.com/open-spaced-repetition/fsrs-rs`, `https://github.com/open-spaced-repetition/ts-fsrs`

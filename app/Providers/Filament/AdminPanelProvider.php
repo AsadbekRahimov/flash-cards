@@ -11,6 +11,7 @@ use App\Filament\Widgets\OnboardingFunnelWidget;
 use App\Filament\Widgets\OrganizationSeatsTableWidget;
 use App\Filament\Widgets\PlatformSubscriptionsWidget;
 use App\Filament\Widgets\RevenueLast30DaysWidget;
+use App\Filament\Widgets\SchedulerComparisonWidget;
 use App\Filament\Widgets\TopLearnersTableWidget;
 use App\Filament\Widgets\TotalLearnersWidget;
 use App\Filament\Widgets\WebhookErrorsWidget;
@@ -57,6 +58,7 @@ class AdminPanelProvider extends PanelProvider
                 HardestWordsTableWidget::class,
                 PlatformSubscriptionsWidget::class,
                 OnboardingFunnelWidget::class,
+                SchedulerComparisonWidget::class,
                 OrganizationSeatsTableWidget::class,
                 RevenueLast30DaysWidget::class,
                 WebhookErrorsWidget::class,

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Domain\Learning\Enums\RepetitionState;
+use App\Domain\Learning\Enums\SchedulerKind;
 use Carbon\CarbonImmutable;
 use Database\Factories\WordRepetitionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -28,6 +29,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $lapses
  * @property CarbonImmutable|null $served_ahead_at
  * @property string|null $served_ahead_token
+ * @property float|null $stability FSRS memory stability, days (docs/06 §9); NULL until scheduled by FSRS
+ * @property float|null $difficulty FSRS difficulty 1..10; NULL until scheduled by FSRS
+ * @property SchedulerKind $scheduler the algorithm that wrote the row last
+ * @property int|null $scheduled_days the interval FSRS assigned (0 on a lapse)
  * @property array<mixed>|null $meta
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
@@ -54,6 +59,10 @@ class WordRepetition extends Model
         'lapses',
         'served_ahead_at',
         'served_ahead_token',
+        'stability',
+        'difficulty',
+        'scheduler',
+        'scheduled_days',
         'meta',
     ];
 
@@ -72,6 +81,10 @@ class WordRepetition extends Model
             'learning_step' => 'integer',
             'lapses' => 'integer',
             'served_ahead_at' => 'immutable_datetime',
+            'stability' => 'float',
+            'difficulty' => 'float',
+            'scheduler' => SchedulerKind::class,
+            'scheduled_days' => 'integer',
             'meta' => 'array',
         ];
     }

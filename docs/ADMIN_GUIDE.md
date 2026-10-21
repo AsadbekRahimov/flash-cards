@@ -228,6 +228,14 @@ invited, rejected ones excluded), last seen.
   `401 learner_blocked` (the TWA is closed to them) and review reminders stop; progress is kept. Every change is written to the audit log
   (`learner.blocked` / `learner.unblocked`). Unblocking restores access at once.
 
+- **SRS algorithm** (row button, admin only): switches one learner between **SM-2** and **FSRS-5**. The choice
+  is made automatically when a learner is created (`FSRS_ROLLOUT_PERCENT` in `.env`: the share of *new* learners
+  that gets FSRS, `0` by default = nobody; changing it never moves existing learners). Switching to FSRS seeds the
+  memory of the learner's graduated cards from their SM-2 state; switching back to SM-2 changes no card. Every real
+  change is written to the audit log (`learner.scheduler_changed`: from, to, number of initialised cards). The learner page
+  shows the current algorithm ("(default)" = no own bucket, the platform default applies). Rollback of the whole
+  experiment: `FSRS_ROLLOUT_PERCENT=0` and `UPDATE learners SET scheduler = 'sm2'`.
+
 **Learner page (admin).** Besides the profile it shows the onboarding state and the **effective plan** (source:
 captioned *Free* / *Pro* / *Pro (sponsored)* as in the list, then the organization #N for sponsored Pro and until when), and three read-only tabs:
 
@@ -416,6 +424,7 @@ Changes apply within seconds.
 | Pro subscriptions | **admin only** | *Pro learners* — learners whose effective plan is Pro right now (own or sponsored, each counted once), with the split "own subscriptions / sponsoring organizations"; *Pro ending in 7 days* — own and organization subscriptions whose paid access ends within a week (for an auto-renewing provider: the end of the grace period) |
 | Onboarding funnel — 7 days | **admin only** | Learners who started onboarding in the last 7 days (`onboarding.started`), how many of them have completed it (`onboarding.completed`) and the conversion %. Distinct learners; a learner who started earlier and finished this week is not in the cohort |
 | Organizations — members / seats | **admin only** | Per organization: active groups, **members** (distinct learners with an active membership in an active group of the organization; deleted learners are not counted), **seats** (`seats_limit` of the organization's live subscription; empty when none was set) and whether it is sponsoring Pro |
+| SM-2 vs FSRS — 28 days | **admin only** | The SRS A/B, one figure per algorithm (`SM-2 / FSRS`, from `training_reviews.scheduler`): *pass rate of due cards* (graduated cards answered 3+ out of 5), *reviews per graduated word* (fewer at the same pass rate means FSRS is more efficient), *D7 retention by bucket* (learners who signed up 28–7 days ago and still studied 7+ days after signing up). `—` = no data yet; with `FSRS_ROLLOUT_PERCENT=0` and no manual switches the FSRS side stays empty |
 | Revenue, last 30 days | **admin only** | One figure per currency, **UZS and XTR are never added together**. *Revenue* = the charges and renewals of the last 30 days (by payment time) that are still `succeeded`, i.e. gross minus the `refunded` ones; the line below shows the number of payments, the gross and the refunded amount. Failed events and the `refund` bookkeeping rows are not counted; a charge older than 30 days that is refunded today does not change this figure |
 | Payment webhook errors, last 24 h | **admin only** | *Failed payments* — ledger rows recorded as `failed` in the last 24 hours (by provider); *Canceled provider transactions* — Payme / Click transactions canceled in that time (a customer closing the page also cancels, so only a spike matters). Any failed payment deserves a look: open **Payments → Status: failed**. *Double discounts* — orders paid in the last 24 hours with the red **Double discount** badge (**Payment orders → filter Double discount**); normally 0 |
 

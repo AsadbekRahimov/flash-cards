@@ -11,12 +11,16 @@ use App\Domain\Billing\Support\PaidSubscriptionQuery;
 use App\Domain\Engagement\Enums\ReferralStatus;
 use App\Domain\Learners\Services\LearnerModerationService;
 use App\Domain\Learners\Services\OnboardingService;
+use App\Domain\Learning\Enums\SchedulerKind;
+use App\Domain\Learning\Services\SchedulerResolver;
+use App\Domain\Learning\Services\SchedulerSwitchService;
 use App\Filament\Resources\LearnerResource\Pages;
 use App\Filament\Resources\LearnerResource\RelationManagers;
 use App\Models\Learner;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Filament\Actions;
+use Filament\Forms\Components\Select;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
@@ -75,6 +79,10 @@ class LearnerResource extends Resource
                         .($entitlement->isSponsored() ? ', organization #'.substr($entitlement->source, strlen('sponsor:organization:')) : '')
                         .($entitlement->until !== null ? ', until '.$entitlement->until->toDateTimeString() : '');
                 })
+                ->visible($isAdmin),
+            TextEntry::make('scheduler')
+                ->label('SRS algorithm')
+                ->state(fn (Learner $record): string => self::schedulerLabel($record))
                 ->visible($isAdmin),
             TextEntry::make('repetitions_count')->label('Cards started')->visible($isAdmin),
             TextEntry::make('training_reviews_count')->label('Training reviews'),
@@ -198,6 +206,34 @@ class LearnerResource extends Resource
                             ? $moderation->block($record, $actor, request()->ip())
                             : $moderation->unblock($record, $actor, request()->ip());
                     }),
+                // The SRS A/B arm (docs/13 §8.3): admin only, audited (`learner.scheduler_changed`).
+                Actions\Action::make('switchScheduler')
+                    ->icon('heroicon-o-arrows-right-left')
+                    ->label('SRS algorithm')
+                    ->visible($isAdmin)
+                    ->authorize('update')
+                    ->schema([
+                        Select::make('scheduler')
+                            ->label('Algorithm')
+                            ->options(array_combine(
+                                array_map(fn (SchedulerKind $k): string => $k->value, SchedulerKind::cases()),
+                                array_map(fn (SchedulerKind $k): string => $k->label(), SchedulerKind::cases()),
+                            ))
+                            ->default(fn (Learner $record): string => app(SchedulerResolver::class)->kindFor($record)->value)
+                            ->required()
+                            ->native(false),
+                    ])
+                    ->modalDescription('Switching to FSRS seeds the memory of the graduated cards from their SM-2 state; switching back to SM-2 changes no card.')
+                    ->action(function (Learner $record, array $data): void {
+                        /** @var User $actor */
+                        $actor = Auth::user();
+                        $to = SchedulerKind::tryFrom((string) ($data['scheduler'] ?? ''));
+                        if ($to === null) {
+                            return;
+                        }
+
+                        app(SchedulerSwitchService::class)->switchTo($record, $to, $actor, request()->ip());
+                    }),
                 Actions\ViewAction::make(),
             ])
             ->defaultSort('first_name');
@@ -277,6 +313,14 @@ class LearnerResource extends Resource
     public static function planLabel(Plan $plan, bool $sponsored): string
     {
         return ucfirst($plan->value).($sponsored && $plan !== Plan::Free ? ' (sponsored)' : '');
+    }
+
+    /** "SM-2" / "FSRS-5", with "(default)" when the learner has no bucket of their own. */
+    public static function schedulerLabel(Learner $record): string
+    {
+        $kind = app(SchedulerResolver::class)->kindFor($record);
+
+        return $kind->label().($record->scheduler === null ? ' (default)' : '');
     }
 
     /** @return array<int, class-string> */
