@@ -37,10 +37,10 @@ final class SchedulerSwitchService
     public function switchTo(Learner $learner, SchedulerKind $to, User $actor, ?string $ip = null): bool
     {
         return DB::transaction(function () use ($learner, $to, $actor, $ip): bool {
-            /** @var Learner|null $current */
             $lock = Learner::query()->whereKey($learner->id);
             // `FOR NO KEY UPDATE` on PG: the FK checks of concurrent inserts (reviews, repetitions) only take
             // `FOR KEY SHARE`, which does not conflict with it (a plain FOR UPDATE would deadlock with them).
+            /** @var Learner|null $current */
             $current = (DB::connection()->getDriverName() === 'pgsql' ? $lock->lock('for no key update') : $lock->lockForUpdate())->first();
 
             if ($current === null) {
