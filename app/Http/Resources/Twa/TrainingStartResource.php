@@ -28,7 +28,7 @@ final class TrainingStartResource extends TwaResource
             'lesson' => $lesson === null ? null : [
                 'stage' => $lesson->stage?->number,
                 'lesson' => $lesson->number,
-                'title' => $lesson->title,
+                'title' => $this->resource->lessonTitle,
             ],
             'total_words' => $this->resource->totalWords,
             ...(new TrainingNextResource($this->resource->step))->toArray($request),

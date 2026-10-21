@@ -17,6 +17,7 @@ use App\Domain\Twa\Services\JwtService;
 use App\Models\Course;
 use App\Models\Learner;
 use App\Models\Lesson;
+use App\Models\Stage;
 use App\Models\Subscription;
 use App\Models\TrainingSession;
 use App\Models\Word;
@@ -748,4 +749,35 @@ it('throttles renames after 30 writes a minute', function (): void {
         dkCall($this, $learner, 'PATCH', "/decks/{$slug}", ['title' => "Имя {$i}"])->assertOk();
     }
     dkCall($this, $learner, 'PATCH', "/decks/{$slug}", ['title' => 'Имя'])->assertStatus(429);
+});
+
+it('shows the own-deck technical titles in the learner locale in /today and the lesson start', function (): void {
+    $owner = dkLearner(['interface_locale' => 'uz']);
+    $slug = dkCreate($this, $owner);
+    dkImport($this, $owner, $slug, dkList(3))->assertOk();
+    $lesson = Lesson::query()->whereHas('stage', fn ($q) => $q->where('course_id', dkDeck($slug)->id))->firstOrFail();
+    expect($lesson->title)->toBe('Часть 1');
+    $owner->forceFill(['active_course_id' => dkDeck($slug)->id])->save();
+
+    dkCall($this, $owner, 'GET', '/today')->assertOk()->assertJsonPath('active_course.next_lesson.title', '1-qism');
+    dkCall($this, $owner, 'POST', '/training/sessions', ['mode' => 'lesson', 'lesson_id' => $lesson->id])
+        ->assertOk()->assertJsonPath('lesson.title', '1-qism');
+
+    $ru = dkLearner(['interface_locale' => 'ru']);
+    $ruSlug = dkCreate($this, $ru);
+    dkImport($this, $ru, $ruSlug, dkList(3))->assertOk();
+    $ru->forceFill(['active_course_id' => dkDeck($ruSlug)->id])->save();
+    dkCall($this, $ru, 'GET', '/today')->assertJsonPath('active_course.next_lesson.title', 'Часть 1');
+});
+
+it('keeps the own title of a regular course for an uz learner', function (): void {
+    $course = Course::factory()->published()->create();
+    $stage = Stage::factory()->create(['course_id' => $course->id, 'number' => 1]);
+    $lesson = Lesson::factory()->create(['stage_id' => $stage->id, 'number' => 1, 'title' => 'Basics']);
+    Word::factory()->count(2)->for($lesson)->create();
+    $learner = dkLearner(['interface_locale' => 'uz', 'active_course_id' => $course->id]);
+
+    dkCall($this, $learner, 'GET', '/today')->assertOk()->assertJsonPath('active_course.next_lesson.title', 'Basics');
+    dkCall($this, $learner, 'POST', '/training/sessions', ['mode' => 'lesson', 'lesson_id' => $lesson->id])
+        ->assertOk()->assertJsonPath('lesson.title', 'Basics');
 });
