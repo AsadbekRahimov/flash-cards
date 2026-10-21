@@ -9,11 +9,13 @@ use App\Domain\Billing\Events\SubscriptionRenewalDue;
 use App\Domain\Billing\Exceptions\SubscriptionException;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Billing\Services\SubscriptionService;
+use App\Domain\Billing\Support\AutoRenewal;
 use App\Domain\Organizations\Services\OrganizationMembershipService;
 use App\Models\AuditLog;
 use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\ProductEvent;
+use App\Models\PromoCode;
 use App\Models\Subscription;
 use App\Models\TelegramGroup;
 use App\Models\User;
@@ -271,6 +273,11 @@ it('grants an organization a tier: seats_limit comes from config, an unknown tie
     $sub = $service->grantManual($org, Plan::Pro, null, subscriptionAdmin(), 'bigger', tier: 'center_l');
     expect($sub->tier)->toBe('center_l')->and($sub->seats_limit)->toBeNull();
 
+    $sub = $service->grantManual($org, Plan::Pro, null, subscriptionAdmin(), 'agreed seats', tier: 'center_l', seatsLimit: 750);
+    expect($sub->seats_limit)->toBe(750)->and($service->grantManual($org, Plan::Pro, null, subscriptionAdmin(), 'fixed', tier: 'center_s', seatsLimit: 750)->seats_limit)->toBe(100);
+    $sub = $service->grantManual($org, Plan::Pro, null, subscriptionAdmin(), 'back', tier: 'center_l');
+    expect($sub->seats_limit)->toBeNull();
+
     $sub = $service->grantManual($org, Plan::Pro, null, subscriptionAdmin(), 'no tier given');
     expect($sub->tier)->toBe('center_l'); // untouched when no tier is passed
 
@@ -409,11 +416,14 @@ it('grants reward days: a new reward subscription, or an extension of the live o
         ->and($sub->current_period_ends_at?->toIso8601String())->toBe($now->addDays(7)->toIso8601String())
         ->and(app(EntitlementResolver::class)->for($learner)->plan)->toBe(Plan::Pro);
 
-    // Extension from the current end; the row keeps its original provider (history records the reward).
-    $sub->update(['provider' => 'payme', 'status' => 'canceled']);
+    // Extension from the current end; the row keeps its original provider (history records the reward)
+    // and its canceled status (it lives on to the end of the extended period).
+    $canceledAt = $now->subDay();
+    $sub->update(['provider' => 'payme', 'status' => 'canceled', 'canceled_at' => $canceledAt]);
     $again = DB::transaction(fn () => $service->grantReward($learner, 7, 'referral:43', $now));
     expect($again->id)->toBe($sub->id)
-        ->and($again->status)->toBe('active')
+        ->and($again->status)->toBe('canceled')
+        ->and($again->canceled_at?->toIso8601String())->toBe($canceledAt->toIso8601String())
         ->and($again->provider)->toBe('payme')
         ->and($again->current_period_ends_at?->toIso8601String())->toBe($now->addDays(14)->toIso8601String())
         ->and($again->meta['history'][0]['action'])->toBe('reward')
@@ -564,4 +574,54 @@ it('exposes the live subscription of a subscriber for display', function (): voi
     $live = Subscription::factory()->create(['subscriber_id' => $learner->id]);
 
     expect($service->liveFor($learner)?->id)->toBe($live->id);
+});
+
+it('keeps a canceled Stars subscription canceled when a reward extends it; resume works on the old charge', function (): void {
+    Event::fake([SubscriptionRenewalDue::class]);
+    config()->set('billing.checkout.renewal_reminder_days', [3]);
+    $learner = Learner::factory()->create();
+    $service = app(SubscriptionService::class);
+    $now = CarbonImmutable::now();
+    $sub = subscriptionStarsLive($learner, 2);
+    $sub->update(['meta' => ['stars' => ['charge_id' => 'chg_first', 'recurring' => true]]]);
+    $service->cancel($sub, $learner);
+    $canceledAt = $sub->refresh()->canceled_at;
+
+    $granted = DB::transaction(fn () => $service->grantReward($learner, 10, 'referral:77', $now));
+
+    expect($granted->id)->toBe($sub->id)
+        ->and($granted->status)->toBe('canceled')
+        ->and($granted->canceled_at?->toIso8601String())->toBe($canceledAt?->toIso8601String())
+        ->and($granted->current_period_ends_at?->toIso8601String())->toBe($now->addDays(12)->toIso8601String())
+        ->and($granted->meta['stars']['recurring'])->toBeTrue()
+        ->and(AutoRenewal::isRunning($granted, $now))->toBeFalse()
+        ->and(AutoRenewal::forLearner($learner->id, $now))->toBeNull()
+        ->and(app(EntitlementResolver::class)->for($learner)->plan)->toBe(Plan::Pro);
+
+    // A promo works the same way (shared body).
+    $promo = PromoCode::factory()->create(['plan' => 'pro', 'duration_days' => 5]);
+    $viaPromo = DB::transaction(fn () => $service->grantFromPromo($learner, $promo, $now));
+    expect($viaPromo->status)->toBe('canceled')
+        ->and($viaPromo->current_period_ends_at?->toIso8601String())->toBe($now->addDays(17)->toIso8601String());
+
+    // No grace after the period: a canceled row is judged by the bare end.
+    $granted->update(['current_period_ends_at' => $now->addDays(2)]);
+    expect($service->remindExpiring($now))->toBe(1);
+    Event::assertDispatched(SubscriptionRenewalDue::class, fn (SubscriptionRenewalDue $e): bool => $e->subscriptionId === $sub->id && $e->daysLeft === 3);
+
+    $granted->update(['current_period_ends_at' => $now->subMinute()]);
+    $service->expireDue($now);
+    expect($sub->refresh()->status)->toBe('expired')->and($sub->grace_until)->toBeNull();
+
+    // Resume of a canceled Stars row that was extended: active + recurring again (Telegram charges by the old charge).
+    $other = Learner::factory()->create();
+    $second = subscriptionStarsLive($other, 2);
+    $second->update(['meta' => ['stars' => ['charge_id' => 'chg_first', 'recurring' => true]]]);
+    $service->cancel($second, $other);
+    DB::transaction(fn () => $service->grantReward($other, 10, 'referral:78', $now));
+    $resumed = $service->resume($second, $other);
+    expect($resumed->status)->toBe('active')
+        ->and($resumed->canceled_at)->toBeNull()
+        ->and($resumed->current_period_ends_at?->toIso8601String())->toBe($now->addDays(12)->toIso8601String())
+        ->and(AutoRenewal::isRunning($resumed, $now))->toBeTrue();
 });

@@ -11,6 +11,7 @@ declare(strict_types=1);
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Services\CheckoutService;
+use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Billing\Services\PaymentApplier;
 use App\Domain\Learning\DTO\ServedExamQuestion;
 use App\Domain\Learning\Enums\RepetitionState;
@@ -19,11 +20,21 @@ use App\Domain\Twa\Services\InitDataValidator;
 use App\Domain\Twa\Services\JwtService;
 use App\Http\Resources\ApiErrorResource;
 use App\Http\Resources\Twa\ExamQuestionResource;
+use App\Models\Assignment;
+use App\Models\Challenge;
 use App\Models\Course;
 use App\Models\ExamAnswer;
 use App\Models\ExamSession;
+use App\Models\Friendship;
+use App\Models\LeagueGroup;
+use App\Models\LeagueMember;
+use App\Models\LeagueWeek;
 use App\Models\Learner;
+use App\Models\LearnerDailyStats;
 use App\Models\Lesson;
+use App\Models\Offer;
+use App\Models\Organization;
+use App\Models\Referral;
 use App\Models\Stage;
 use App\Models\Subscription;
 use App\Models\TelegramGroup;
@@ -41,8 +52,9 @@ uses(RefreshDatabase::class);
 
 const CONTRACT_PROGRESS = ['done', 'total'];
 const CONTRACT_GOAL = ['target', 'done', 'met'];
-const CONTRACT_STREAK = ['current', 'best', 'met_today', 'at_risk'];
-const CONTRACT_CARD = ['word_id', 'word', 'translation', 'translation_fallback', 'example', 'transcription', 'audio_url', 'card_kind', 'serve_token'];
+const CONTRACT_STREAK = ['current', 'best', 'met_today', 'at_risk', 'freezes', 'frozen_yesterday'];
+const CONTRACT_PROMPT = ['type', 'front', 'masked_example', 'options', 'answer_length'];
+const CONTRACT_CARD = ['word_id', 'word', 'translation', 'translation_fallback', 'example', 'transcription', 'audio_url', 'card_kind', 'serve_token', 'prompt' => CONTRACT_PROMPT];
 const CONTRACT_EXAM_QUESTION = ['question_index', 'word_id', 'word', 'options', 'seconds_left'];
 const CONTRACT_FORBIDDEN_EXAM_KEYS = ['correct_index', 'correct_translation', 'canonical_index'];
 
@@ -124,7 +136,8 @@ it('GET /me keeps its exact JSON shape', function (): void {
             'entitlement' => ['plan', 'source', 'until', 'new_words_per_day', 'renewal', 'lapsed'],
             'paywall' => ['mode', 'contact'],
             'settings' => [
-                'interface_locale', 'timezone', 'reminder_time', 'daily_goal', 'goal', 'level', 'timezone_change_available_at', 'active_course',
+                'interface_locale', 'timezone', 'reminder_time', 'daily_goal', 'goal', 'level', 'leagues_opt_out', 'timezone_change_available_at', 'timezone_undo_available_until', 'active_course',
+                'exercises' => ['reverse', 'audio', 'spelling', 'gap_fill'],
                 'options' => [
                     'locales' => ['*' => ['id', 'label']],
                     'timezones' => ['*' => ['id', 'label']],
@@ -161,6 +174,7 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
             'open_session_id',
             'entitlement' => ['plan', 'source', 'until'],
             'onboarding_completed',
+            'league',
         ]);
 
     expect($response->json('due_count'))->toBeInt()
@@ -175,7 +189,7 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
         ->assertOk()
         ->assertExactJsonStructure([
             'due_count', 'new_words_remaining', 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK,
-            'active_course', 'open_session_id', 'entitlement' => ['plan', 'source', 'until'], 'onboarding_completed',
+            'active_course', 'open_session_id', 'entitlement' => ['plan', 'source', 'until'], 'onboarding_completed', 'league',
         ])
         ->assertJsonPath('active_course', null)
         ->assertJsonPath('open_session_id', null);
@@ -245,7 +259,7 @@ it('GET /me counts due graduated cards and abandoned (re)learning cards as due t
 
 // --- billing (docs/04 A.8) -------------------------------------------------
 
-const CONTRACT_SUBSCRIPTION_SUMMARY = ['status', 'provider', 'plan', 'ends_at', 'auto_renew', 'can_cancel', 'can_resume'];
+const CONTRACT_SUBSCRIPTION_SUMMARY = ['status', 'provider', 'plan', 'ends_at', 'auto_renew', 'can_cancel', 'can_resume', 'perpetual'];
 const CONTRACT_RENEWAL = ['auto', 'provider', 'ends_at', 'reminder_sent'];
 
 it('GET /billing/catalog keeps its exact JSON shape', function (): void {
@@ -263,6 +277,25 @@ it('GET /billing/catalog keeps its exact JSON shape', function (): void {
         ]);
 });
 
+it('GET /billing/catalog carries the open offer with its period and the discounted prices', function (): void {
+    FakeBillingProvider::register(SubscriptionProvider::TelegramStars);
+    $s = contractTraining();
+    Offer::factory()->create(['learner_id' => $s['learner']->id, 'discount_pct' => 30, 'period' => 'month']);
+
+    $this->withHeaders(contractHeaders($s['learner']))
+        ->getJson('/api/twa/billing/catalog')
+        ->assertOk()
+        ->assertExactJsonStructure([
+            'items' => ['*' => ['plan', 'tier', 'period', 'prices' => ['XTR'], 'list_prices' => ['XTR']]],
+            'providers',
+            'offer' => ['kind', 'discount_pct', 'period', 'expires_at'],
+            'subscription',
+        ])
+        ->assertJsonPath('offer.period', 'month')
+        ->assertJsonPath('items.0.prices.XTR', 105)
+        ->assertJsonPath('items.0.list_prices.XTR', 150);
+});
+
 it('POST /billing/checkout and GET /billing/orders/{token} keep their exact JSON shape; paid orders carry the subscription summary', function (): void {
     $stars = FakeBillingProvider::register(SubscriptionProvider::TelegramStars);
     $s = contractTraining();
@@ -276,7 +309,7 @@ it('POST /billing/checkout and GET /billing/orders/{token} keep their exact JSON
     $this->withHeaders(contractHeaders($s['learner']))
         ->getJson("/api/twa/billing/orders/{$token}")
         ->assertOk()
-        ->assertExactJsonStructure(['status', 'paid_at', 'subscription']);
+        ->assertExactJsonStructure(['status', 'paid_at', 'reason', 'replaced_by', 'subscription']);
 
     $order = app(CheckoutService::class)->findByToken($token);
     app(PaymentApplier::class)->applyCharge($stars->emitCharge($order));
@@ -284,7 +317,7 @@ it('POST /billing/checkout and GET /billing/orders/{token} keep their exact JSON
     $this->withHeaders(contractHeaders($s['learner']))
         ->getJson("/api/twa/billing/orders/{$token}")
         ->assertOk()
-        ->assertExactJsonStructure(['status', 'paid_at', 'subscription' => CONTRACT_SUBSCRIPTION_SUMMARY]);
+        ->assertExactJsonStructure(['status', 'paid_at', 'reason', 'replaced_by', 'subscription' => CONTRACT_SUBSCRIPTION_SUMMARY]);
 });
 
 it('GET /me and the cancel / resume answers carry entitlement.renewal for a paying learner', function (): void {
@@ -300,7 +333,8 @@ it('GET /me and the cancel / resume answers carry entitlement.renewal for a payi
         'entitlement' => ['plan', 'source', 'until', 'new_words_per_day', 'renewal' => CONTRACT_RENEWAL, 'lapsed'],
         'paywall' => ['mode', 'contact'],
         'settings' => [
-            'interface_locale', 'timezone', 'reminder_time', 'daily_goal', 'goal', 'level', 'timezone_change_available_at', 'active_course',
+            'interface_locale', 'timezone', 'reminder_time', 'daily_goal', 'goal', 'level', 'leagues_opt_out', 'timezone_change_available_at', 'timezone_undo_available_until', 'active_course',
+            'exercises' => ['reverse', 'audio', 'spelling', 'gap_fill'],
             'options' => ['locales' => ['*' => ['id', 'label']], 'timezones' => ['*' => ['id', 'label']], 'reminder_times', 'daily_goals'],
         ],
     ];
@@ -521,6 +555,7 @@ it('POST /training/review keeps its exact JSON shape', function (): void {
             'next_review_at',
             'new_interval_days',
             'easiness_factor',
+            'graded',
             'card' => CONTRACT_CARD,
             'progress' => CONTRACT_PROGRESS,
             'done_reason',
@@ -561,6 +596,44 @@ it('ApiErrorResource builds the envelope without a data wrapper', function (): v
 });
 
 // --- exam -----------------------------------------------------------------
+
+it('POST /courses/{slug}/mock-exam and the mock /result keep their exact JSON shapes', function (): void {
+    CarbonImmutable::setTestNow('2026-10-20 10:00:00');
+    $learner = Learner::factory()->onboarded()->create();
+    Subscription::factory()->create(['subscriber_id' => $learner->id]);
+    app(EntitlementResolver::class)->forget($learner);
+    $course = Course::factory()->published()->create(['exam_tag' => 'ielts']);
+    $lesson = Lesson::factory()->for(Stage::factory()->create(['course_id' => $course->id]))->create();
+    foreach (range(1, 6) as $i) {
+        Word::factory()->for($lesson)->create(['word' => "mock{$i}", 'translation' => "мок {$i}"]);
+    }
+
+    $opened = $this->withHeaders(contractHeaders($learner))
+        ->postJson("/api/twa/courses/{$course->slug}/mock-exam")
+        ->assertCreated()
+        ->assertExactJsonStructure(['session_id', 'mode', 'course_id', 'started_at', 'ends_at', 'total_questions', 'seconds', 'resumed']);
+
+    foreach ([...CONTRACT_FORBIDDEN_EXAM_KEYS, 'order_secret', '"questions"'] as $key) {
+        expect($opened->getContent())->not->toContain($key);
+    }
+    expect($opened->json('mode'))->toBe('personal_mock')
+        ->and($opened->json('resumed'))->toBeFalse()
+        ->and($opened->json('seconds'))->toBe(1200);
+
+    $sessionId = (int) $opened->json('session_id');
+    CarbonImmutable::setTestNow('2026-10-20 10:21:00');
+
+    $this->withHeaders(contractHeaders($learner))
+        ->getJson("/api/twa/exam/sessions/{$sessionId}/result")
+        ->assertOk()
+        ->assertExactJsonStructure(['mode', 'correct', 'total', 'answered', 'percent', 'percentile', 'attempts', 'course_id'])
+        ->assertJsonPath('mode', 'personal_mock');
+
+    $this->withHeaders(contractHeaders(Learner::factory()->create()))
+        ->getJson("/api/twa/exam/sessions/{$sessionId}/result")
+        ->assertForbidden()
+        ->assertExactJsonStructure(['error' => ['code', 'message']]);
+});
 
 it('POST /exam/join keeps its exact JSON shape and hides the answer key', function (): void {
     $s = contractExam();
@@ -671,4 +744,142 @@ it('ExamQuestionResource exposes only the allow-listed fields of the personalize
     // ... and the resource drops it.
     expect(array_keys($payload))->toBe(CONTRACT_EXAM_QUESTION)
         ->and($payload['seconds_left'])->toBe(7);
+});
+
+it('GET /assignments keeps its exact JSON shape (docs/04 A.9)', function (): void {
+    $lesson = Lesson::factory()->for(Stage::factory()->for(Course::factory()->published())->create(['number' => 2]))->create(['number' => 3]);
+    $org = Organization::factory()->create();
+    $group = TelegramGroup::factory()->create(['organization_id' => $org->id, 'course_id' => $lesson->stage?->course_id]);
+    $learner = Learner::factory()->memberOf($group)->create();
+    Assignment::factory()->create(['organization_id' => $org->id, 'telegram_group_id' => $group->id, 'lesson_id' => $lesson->id]);
+
+    $response = $this->withHeaders(contractHeaders($learner))
+        ->getJson('/api/twa/assignments')
+        ->assertOk()
+        ->assertExactJsonStructure([
+            'assignments' => [[
+                'id', 'title', 'group', 'lesson_id', 'stage', 'lesson', 'due_at', 'overdue',
+                'progress_pct', 'completed', 'completed_at', 'late',
+            ]],
+        ]);
+
+    expect($response->json('assignments.0.lesson_id'))->toBe($lesson->id)
+        ->and($response->json('assignments.0.stage'))->toBe(2)
+        ->and($response->json('assignments.0.lesson'))->toBe(3)
+        ->and($response->json('assignments.0.overdue'))->toBeFalse()
+        ->and($response->json('assignments.0.progress_pct'))->toBe(0)
+        ->and($response->json('assignments.0.completed'))->toBeFalse()
+        ->and($response->json('assignments.0.completed_at'))->toBeNull()
+        ->and($response->json('assignments.0.late'))->toBeFalse();
+
+    $bare = Learner::factory()->create();
+    $this->withHeaders(contractHeaders($bare))->getJson('/api/twa/assignments')->assertOk()->assertExactJson(['assignments' => []]);
+});
+
+it('GET /referrals keeps its exact JSON shape (docs/04 A.12)', function (): void {
+    config(['telegram.bot_username' => 'LexiFlowBot']);
+    $learner = Learner::factory()->create();
+    $friend = Learner::factory()->create(['first_name' => 'Bek']);
+    Referral::factory()->create(['referrer_learner_id' => $learner->id, 'referee_learner_id' => $friend->id]);
+
+    $response = $this->withHeaders(contractHeaders($learner))
+        ->getJson('/api/twa/referrals')
+        ->assertOk()
+        ->assertExactJsonStructure([
+            'code', 'link', 'reward_days',
+            'activation' => ['days', 'reviews_per_day', 'window_days'],
+            'counts' => ['invited', 'activated', 'rewarded', 'capped'],
+            'referrals' => [['first_name', 'status', 'linked_at']],
+        ]);
+
+    expect($response->json('code'))->toMatch('/^[A-Z2-9]{8}$/')
+        ->and($response->json('link'))->toBe('https://t.me/LexiFlowBot?start=ref_'.$response->json('code'))
+        ->and($response->json('referrals.0.first_name'))->toBe('Bek')
+        ->and($response->json('referrals.0.status'))->toBe('pending');
+});
+
+it('GET /league keeps its exact JSON shape (docs/04 A.13)', function (): void {
+    config(['leagues.timezone' => 'Asia/Tashkent']);
+    $this->travelTo(CarbonImmutable::parse('2026-10-21 05:00:00', 'UTC'));
+    $learner = Learner::factory()->create(['first_name' => 'Me']);
+    $closed = LeagueWeek::factory()->startingOn('2026-10-12')->closed()->create();
+    LeagueMember::factory()->closed('promoted', 1, 90)->create([
+        'league_group_id' => LeagueGroup::factory()->create(['league_week_id' => $closed->id, 'tier' => 0])->id,
+        'learner_id' => $learner->id,
+    ]);
+    $week = LeagueWeek::factory()->startingOn('2026-10-19')->create();
+    $group = LeagueGroup::factory()->create(['league_week_id' => $week->id, 'tier' => 1]);
+    LeagueMember::factory()->create(['league_group_id' => $group->id, 'learner_id' => $learner->id]);
+    LeagueMember::factory()->create(['league_group_id' => $group->id]);
+    LearnerDailyStats::factory()->create(['learner_id' => $learner->id, 'date' => '2026-10-20', 'reviews_count' => 4, 'correct_count' => 3]);
+
+    $response = $this->withHeaders(contractHeaders($learner))
+        ->getJson('/api/twa/league')
+        ->assertOk()
+        ->assertExactJsonStructure([
+            'enabled', 'opted_out',
+            'week' => ['starts_on', 'ends_on', 'closes_at'],
+            'rules' => ['capacity', 'promote', 'demote', 'tiers'],
+            'membership' => [
+                'tier', 'tier_key', 'rank', 'points', 'members_count', 'zone', 'points_to_promote', 'points_to_safety',
+                'standings' => ['*' => ['rank', 'name', 'points', 'is_me']],
+            ],
+            'last_week' => ['starts_on', 'tier', 'tier_key', 'result', 'rank', 'points'],
+        ]);
+
+    expect($response->json('membership.points'))->toBe(7)
+        ->and($response->json('membership.standings.0'))->toBe(['rank' => 1, 'name' => 'Me', 'points' => 7, 'is_me' => true])
+        ->and($response->json('last_week.result'))->toBe('promoted');
+
+    $bare = Learner::factory()->create();
+    $this->withHeaders(contractHeaders($bare))
+        ->getJson('/api/twa/league')
+        ->assertOk()
+        ->assertExactJsonStructure(['enabled', 'opted_out', 'week' => ['starts_on', 'ends_on', 'closes_at'], 'rules' => ['capacity', 'promote', 'demote', 'tiers'], 'membership', 'last_week'])
+        ->assertJsonPath('membership', null)
+        ->assertJsonPath('last_week', null);
+});
+
+it('GET /friends keeps its exact JSON shape (docs/04 A.13)', function (): void {
+    config(['telegram.bot_username' => 'LexiFlowBot']);
+    $me = Learner::factory()->create(['referral_code' => 'CONTRACT']);
+    $friend = Learner::factory()->create(['first_name' => 'Bek']);
+    $asker = Learner::factory()->create(['first_name' => 'Ana']);
+    Friendship::factory()->between($me, $friend)->create();
+    Friendship::factory()->pending()->between($asker, $me, $asker)->create();
+    Friendship::factory()->pending()->between($me, Learner::factory()->create(), $me)->create();
+
+    $this->withHeaders(contractHeaders($me))
+        ->getJson('/api/twa/friends')
+        ->assertOk()
+        ->assertExactJsonStructure([
+            'invite_link', 'limit',
+            'friends' => [['id', 'first_name', 'streak', 'words_learned', 'since']],
+            'incoming' => [['id', 'first_name', 'requested_at']],
+            'outgoing' => [['id', 'first_name', 'requested_at']],
+        ])
+        ->assertJsonPath('invite_link', 'https://t.me/LexiFlowBot?start=f_CONTRACT');
+});
+
+it('GET /challenges and the challenge actions keep their exact JSON shape (docs/04 A.13)', function (): void {
+    $me = Learner::factory()->create();
+    $friend = Learner::factory()->create();
+    $row = Friendship::factory()->between($me, $friend)->create();
+    Challenge::factory()->create(['challenger_id' => $friend->id, 'opponent_id' => $me->id, 'status' => 'finished', 'scores' => ['challenger' => 3, 'opponent' => 5], 'winner_learner_id' => $me->id]);
+    $entry = ['id', 'status', 'metric', 'days', 'role', 'friend_name', 'friendship_id', 'starts_on', 'ends_on', 'created_at', 'my_score', 'their_score', 'result'];
+
+    $this->withHeaders(contractHeaders($me))->getJson('/api/twa/challenges')
+        ->assertOk()
+        ->assertExactJsonStructure(['days', 'open', 'finished' => [$entry]])
+        ->assertJsonPath('finished.0.result', 'won')
+        ->assertJsonPath('finished.0.my_score', 5)
+        ->assertJsonPath('finished.0.their_score', 3);
+
+    $this->withHeaders(contractHeaders($me))->postJson('/api/twa/challenges', ['friendship_id' => $row->id, 'metric' => 'reviews'])
+        ->assertCreated()
+        ->assertExactJsonStructure($entry);
+
+    $this->withHeaders(contractHeaders($me))->postJson('/api/twa/challenges', ['friendship_id' => $row->id, 'metric' => 'reviews'])
+        ->assertStatus(409)
+        ->assertExactJsonStructure(['error' => ['code', 'message']]);
 });

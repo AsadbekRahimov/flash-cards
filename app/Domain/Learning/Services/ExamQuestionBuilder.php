@@ -7,6 +7,7 @@ namespace App\Domain\Learning\Services;
 use App\Domain\Content\DTO\ResolvedTranslation;
 use App\Domain\Content\Services\WordTranslationResolver;
 use App\Domain\Learning\Exceptions\ExamSessionException;
+use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Word;
 use Illuminate\Database\Eloquent\Builder;
@@ -51,6 +52,11 @@ use Illuminate\Database\Eloquent\Builder;
  * teacher gets a clear message instead of a broken exam.
  *
  * The returned array is persisted verbatim into `exam_sessions.config.questions`.
+ *
+ * {@see self::forWords()} builds the same questions for an explicit word list of a
+ * COURSE (personal mocks, docs/13 §8.4): the layers are then the other active
+ * words of the course, the listed words themselves, and the public platform
+ * courses as the last resort.
  */
 final class ExamQuestionBuilder
 {
@@ -92,6 +98,38 @@ final class ExamQuestionBuilder
         }
 
         $layers = $this->loadDistractorLayers($lesson, count($words), $locale);
+        $correct = $this->translations->resolveMany($words, $locale);
+
+        $questions = [];
+        foreach ($words as $word) {
+            $questions[] = $this->buildQuestion($word, $correct[(int) $word->id], $layers);
+        }
+
+        return $questions;
+    }
+
+    /**
+     * Questions for the given active words of `$course`, in the given order (the caller
+     * decides the sampling — e.g. a seeded shuffle). Words of other courses are refused.
+     *
+     * @param  list<Word>  $words
+     * @return list<array{
+     *   word_id: int,
+     *   word: string,
+     *   correct_translation: string,
+     *   options: list<string>
+     * }>
+     *
+     * @throws ExamSessionException when some word has no real distractor at all
+     */
+    public function forWords(array $words, Course $course, string $locale): array
+    {
+        if ($words === []) {
+            return [];
+        }
+
+        $ids = array_map(static fn (Word $word): int => (int) $word->id, $words);
+        $layers = $this->loadCourseLayers($course, $ids, $locale);
         $correct = $this->translations->resolveMany($words, $locale);
 
         $questions = [];
@@ -191,6 +229,42 @@ final class ExamQuestionBuilder
             );
 
         return [$sameStage, $sameCourse, $sameLesson, $foreign];
+    }
+
+    /**
+     * Candidate pools for a word list of a course: other active words of the course first,
+     * the listed words themselves next, public platform courses only when the course cannot
+     * supply enough unique candidates in the answer language.
+     *
+     * @param  list<int>  $wordIds
+     * @return list<list<array{translation:string, part_of_speech:string|null, locale:string}>>
+     */
+    private function loadCourseLayers(Course $course, array $wordIds, string $locale): array
+    {
+        $needed = max(40, count($wordIds) * 6);
+
+        $inCourse = fn (): Builder => Word::query()
+            ->where('is_active', true)
+            ->whereHas('lesson.stage', fn ($q) => $q->where('course_id', $course->id));
+
+        $otherWords = $this->candidates($inCourse()->whereNotIn('id', $wordIds), $needed, $locale);
+        $ownWords = $this->candidates($inCourse()->whereIn('id', $wordIds), count($wordIds), $locale);
+
+        $foreign = $this->uniqueInLocale(array_merge($otherWords, $ownWords), $locale) >= $needed
+            ? []
+            : $this->candidates(
+                Word::query()
+                    ->where('is_active', true)
+                    ->whereHas('lesson.stage.course', fn ($q) => $q
+                        ->where('courses.id', '!=', $course->id)
+                        ->where('status', 'published')
+                        ->where('visibility', 'public')
+                        ->where('owner_type', 'platform')),
+                $needed,
+                $locale,
+            );
+
+        return [$otherWords, $ownWords, $foreign];
     }
 
     /**

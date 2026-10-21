@@ -5,14 +5,18 @@ declare(strict_types=1);
 use App\Filament\Widgets\ActivityChartWidget;
 use App\Filament\Widgets\ExamsLast30DaysWidget;
 use App\Filament\Widgets\HardestWordsTableWidget;
+use App\Filament\Widgets\LeagueGroupsTableWidget;
 use App\Filament\Widgets\TopLearnersTableWidget;
 use App\Filament\Widgets\TotalLearnersWidget;
+use App\Models\LeagueGroup;
+use App\Models\LeagueWeek;
 use App\Models\Learner;
 use App\Models\TelegramGroup;
 use App\Models\TrainingReview;
 use App\Models\TrainingSession;
 use App\Models\User;
 use App\Models\Word;
+use Carbon\CarbonImmutable;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
@@ -112,4 +116,30 @@ it('scopes the widgets of a teacher to group sessions of their own groups', func
         ->assertCanNotSeeTableRecords([$personalWord, $foreignWord]);
 
     Livewire::test(TotalLearnersWidget::class)->assertOk()->assertSee('2');
+});
+
+it('lists the groups of the current league week with members and capacity for an admin', function (): void {
+    config(['leagues.timezone' => 'Asia/Tashkent']);
+    $this->travelTo(CarbonImmutable::parse('2026-10-21 05:00:00', 'UTC'));
+    $week = LeagueWeek::factory()->startingOn('2026-10-19')->create();
+    $gold = LeagueGroup::factory()->create(['league_week_id' => $week->id, 'tier' => 2, 'members_count' => 30, 'capacity' => 30]);
+    $bronze = LeagueGroup::factory()->create(['league_week_id' => $week->id, 'tier' => 0, 'members_count' => 7]);
+    $lastWeek = LeagueGroup::factory()->create(['league_week_id' => LeagueWeek::factory()->startingOn('2026-10-12')->closed()->create()->id]);
+
+    Livewire::test(LeagueGroupsTableWidget::class)
+        ->assertOk()
+        ->assertCanSeeTableRecords([$gold, $bronze])
+        ->assertCanNotSeeTableRecords([$lastWeek])
+        ->assertSee('Leagues — week 2026-10-19 – 2026-10-25 (open): 2 groups, 37 members')
+        ->assertSee('Gold (2)')
+        ->assertSee('30 / 30')
+        ->assertSee('7 / 30');
+
+    expect(LeagueGroupsTableWidget::canView())->toBeTrue();
+});
+
+it('shows an empty league widget before the first placement of the week', function (): void {
+    Livewire::test(LeagueGroupsTableWidget::class)
+        ->assertOk()
+        ->assertSee('Leagues — current week: no groups yet');
 });

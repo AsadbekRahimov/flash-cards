@@ -48,13 +48,14 @@ final class BillingController
     /** GET /api/twa/billing/orders/{token} */
     public function order(Request $request, string $token): JsonResponse
     {
-        $order = $this->billing->orderFor($this->learner($request), $token);
+        $learner = $this->learner($request);
+        $order = $this->billing->orderFor($learner, $token);
 
         if ($order === null) {
             return ApiErrorResource::respond(404, 'order_not_found', 'Order not found.');
         }
 
-        return (new OrderStatusResource($order))->response();
+        return (new OrderStatusResource($order, $this->billing->replacementFor($learner, $order)?->token))->response();
     }
 
     /** POST /api/twa/billing/subscription/cancel — answers with the refreshed profile. */

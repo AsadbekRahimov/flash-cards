@@ -3,12 +3,14 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import LapsedBanner from '@/components/LapsedBanner.vue'
 import PaywallSheet from '@/components/PaywallSheet.vue'
+import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice } from '@/composables/billingFormat'
 import { useAuthStore } from '@/stores/auth'
 import { useBillingStore } from '@/stores/billing'
 import { useTelegram } from '@/composables/useTelegram'
 import { errorMessage } from '@/i18n/errors'
 import { useI18n } from '@/i18n'
 import type { StringKey } from '@/i18n/ru'
+import type { BillingProviderKey } from '@/api/types'
 
 /**
  * "Subscription" (docs/13 §5): the plan and its end, the auto-renewal of a Stars subscription with
@@ -39,6 +41,32 @@ function formatDate(iso: string): string {
 const untilText = computed(() => {
   const until = renewal.value?.ends_at ?? entitlement.value?.until ?? null
   return until ? t('billing.until', { date: formatDate(until) }) : t('billing.forever')
+})
+
+const offer = computed(() => billing.catalog?.offer ?? null)
+
+interface OfferPrice {
+  provider: BillingProviderKey
+  price: string
+  listPrice: string
+}
+
+/** The discounted price next to the struck-out list price, per provider, for the period the offer covers. */
+const offerPrices = computed<OfferPrice[]>(() => {
+  const current = offer.value
+  const items = billing.catalog?.items ?? []
+  const item = current ? (items.find((i) => i.period === current.period) ?? items[0]) : undefined
+  if (!item) return []
+
+  const result: OfferPrice[] = []
+  for (const provider of PROVIDER_ORDER) {
+    const currency = PROVIDER_CURRENCY[provider]
+    const price = item.prices[currency]
+    const list = item.list_prices[currency]
+    if (!billing.catalog?.providers.includes(provider) || price === undefined || list === undefined || list <= price) continue
+    result.push({ provider, price: formatPrice(price, currency, locale.value), listPrice: formatPrice(list, currency, locale.value) })
+  }
+  return result
 })
 
 const PROVIDER_LABELS: Record<string, StringKey> = {
@@ -139,8 +167,16 @@ onBeforeUnmount(() => {
         <p v-if="billing.actionError" class="text-red-600 text-sm" role="alert" data-testid="renewal-error">{{ billing.actionError }}</p>
       </div>
 
+      <div v-if="offer && billing.canPurchase && !subscription?.auto_renew && !subscription?.perpetual" class="card space-y-1" data-testid="offer-card">
+        <p class="font-semibold" data-testid="offer-text">{{ t('billing.offer', { pct: offer.discount_pct, date: formatDate(offer.expires_at) }) }}</p>
+        <p v-for="p in offerPrices" :key="p.provider" class="text-sm" :data-testid="`offer-price-${p.provider}`">
+          {{ t(`billing.provider.${p.provider}`) }}: <strong>{{ p.price }}</strong>
+          <s class="ml-1 text-tg-hint" data-testid="offer-list-price">{{ p.listPrice }}</s>
+        </p>
+      </div>
+
       <button
-        v-if="billing.canPurchase && !subscription?.auto_renew"
+        v-if="billing.canPurchase && !subscription?.auto_renew && !subscription?.perpetual"
         type="button"
         class="btn btn-primary w-full"
         data-testid="buy"

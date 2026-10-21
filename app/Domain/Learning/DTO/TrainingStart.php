@@ -11,6 +11,7 @@ final readonly class TrainingStart
 {
     /**
      * @param  Lesson|null  $lesson  null for `daily_review` (the scope spans every lesson)
+     * @param  string|null  $lessonTitle  the title the learner reads (a own-deck lesson is localized, DeckTitles)
      * @param  int  $totalWords  lesson scope: active words of the lesson; daily scope: the learner's daily_goal
      */
     public function __construct(
@@ -18,5 +19,6 @@ final readonly class TrainingStart
         public ?Lesson $lesson,
         public int $totalWords,
         public TrainingStep $step,
+        public ?string $lessonTitle = null,
     ) {}
 }

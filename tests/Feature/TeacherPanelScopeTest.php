@@ -8,14 +8,19 @@ use App\Filament\Resources\LearnerResource;
 use App\Filament\Resources\StageResource;
 use App\Filament\Resources\TelegramGroupResource;
 use App\Filament\Resources\UserResource;
+use App\Filament\Resources\WordResource\Pages\ListWords;
 use App\Models\AuditLog;
+use App\Models\Course;
 use App\Models\ExamSession;
 use App\Models\GroupMember;
 use App\Models\Learner;
+use App\Models\Lesson;
+use App\Models\Stage;
 use App\Models\TelegramGroup;
 use App\Models\TrainingReview;
 use App\Models\TrainingSession;
 use App\Models\User;
+use App\Models\Word;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -352,4 +357,49 @@ it('keeps GroupMember rows out of other teachers\' reach when a learner changes 
     GroupMember::factory()->create(['telegram_group_id' => $groupB->id, 'learner_id' => $learner->id]);
 
     expect(app(PanelDataScope::class)->learners()->count())->toBe(0);
+});
+
+it('hides stages, lessons and words of learners\' private decks from teachers, but not from admins', function (): void {
+    $teacher = panelTeacher();
+    $admin = panelAdmin();
+    $owner = Learner::factory()->create();
+
+    $platformWord = Word::factory()->create();
+    $platformLesson = $platformWord->lesson;
+    $platformStage = $platformLesson->stage;
+
+    $deck = Course::factory()->deckOf($owner->id)->create();
+    $deckStage = Stage::factory()->create(['course_id' => $deck->id]);
+    $deckLesson = Lesson::factory()->create(['stage_id' => $deckStage->id]);
+    $deckWord = Word::factory()->create(['lesson_id' => $deckLesson->id]);
+
+    $this->actingAs($teacher);
+    $scope = app(PanelDataScope::class);
+    expect($scope->stages()->pluck('stages.id')->all())->toBe([$platformStage->id])
+        ->and($scope->lessons()->pluck('lessons.id')->all())->toBe([$platformLesson->id])
+        ->and($scope->words()->pluck('words.id')->all())->toBe([$platformWord->id])
+        ->and($teacher->can('view', $deckWord))->toBeFalse()
+        ->and($teacher->can('view', $deckLesson))->toBeFalse()
+        ->and($teacher->can('view', $deckStage))->toBeFalse()
+        ->and($teacher->can('update', $deckWord))->toBeFalse()
+        ->and($teacher->can('view', $platformWord))->toBeTrue()
+        ->and($teacher->can('view', $platformLesson))->toBeTrue()
+        ->and($teacher->can('view', $platformStage))->toBeTrue();
+
+    // A direct URL of a private deck's record: not found for the teacher (the query is scoped).
+    expect($this->get("/admin/words/{$deckWord->id}/edit")->status())->toBeIn([403, 404])
+        ->and($this->get("/admin/lessons/{$deckLesson->id}/edit")->status())->toBeIn([403, 404])
+        ->and($this->get("/admin/stages/{$deckStage->id}/edit")->status())->toBeIn([403, 404]);
+    Livewire::test(ListWords::class)
+        ->assertCanSeeTableRecords([$platformWord])
+        ->assertCanNotSeeTableRecords([$deckWord]);
+
+    $this->actingAs($admin);
+    $adminScope = app(PanelDataScope::class);
+    expect($adminScope->stages()->count())->toBe(2)
+        ->and($adminScope->lessons()->count())->toBe(2)
+        ->and($adminScope->words()->count())->toBe(2)
+        ->and($admin->can('view', $deckWord))->toBeTrue()
+        ->and($admin->can('view', $deckStage))->toBeTrue();
+    Livewire::test(ListWords::class)->assertCanSeeTableRecords([$platformWord, $deckWord]);
 });

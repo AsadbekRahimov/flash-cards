@@ -416,12 +416,18 @@ Add (using the absolute path to PHP — find yours with `which php`):
 This runs every minute. Laravel's scheduler internally dispatches:
 - `ops:scheduler-heartbeat` — every minute (liveness marker read by `/health/ready`).
 - `exams:close-expired` — every minute (closes timed-out exam sessions).
-- `reminders:dispatch` — every 15 minutes (personal reminders by the learner's local time; a learner is claimed by a conditional UPDATE, so overlapping runs are safe; `withoutOverlapping(10)` — the mutex expires after 10 minutes — and `runInBackground`). Its jobs go to the `default` queue, spread at `REMINDERS_SEND_RATE_PER_SECOND` (25/s) over at most 14 minutes.
+- `reminders:dispatch` — every 15 minutes (personal reminders by the learner's local time; a learner is claimed by a conditional UPDATE, so overlapping runs are safe; `withoutOverlapping(10)` — the mutex expires after 10 minutes — and `runInBackground`). Its jobs go to the `default` queue, spread at `REMINDERS_SEND_RATE_PER_SECOND` (25/s) over at most 14 minutes. A run queues at most rate x 840 jobs (`capped` -> a warning line; the rest stays due for the next run). Every background Telegram send also takes a slot of `TELEGRAM_OUTBOUND_GLOBAL_PER_SECOND` (queued jobs release themselves when none is free; `assignments:refresh` waits up to 2 s per post and postpones the rest to the next run).
 - `model:prune` — daily at 03:00 (`product_events` and `notifications_log`, 400 days by default).
 - `training:close-expired` — every 15 minutes (expired personal / stale group training sessions).
 - `subscriptions:expire` — hourly (time-based subscription transitions).
 - `billing:expire-orders` — every 15 minutes (pending payment orders past `BILLING_ORDER_TTL_MINUTES` become `expired`).
 - `subscriptions:remind-expiring` — daily at 06:00 UTC (renewal reminders 3 and 1 day before a Payme/Click period or a canceled Stars period ends; queues `RenewalReminderJob`, so a queue worker must run; organization owners are e-mailed — the `MAIL_*` settings must be real in production, `MAIL_MAILER=log` only logs them).
+- `challenges:close-due` — every 15 minutes (friend challenges past `ends_at` are scored from `learner_daily_stats` and finished, unanswered pending ones expire; idempotent by a conditional UPDATE; `withoutOverlapping`).
+- `organizations:sync-members` — hourly (repair path of the group -> organization membership hook: a learner in a group of an organization without a membership row gets one; idempotent).
+- `assignments:refresh` — every 30 minutes (assignment snapshots and the group reminder 24 h before a deadline; one-time posts are claimed by conditional UPDATEs; `withoutOverlapping(20)` + `runInBackground`; posts go through the global Telegram send budget, so a queue worker must run).
+- `leagues:close-week` — daily at 00:05 in `LEAGUES_TIMEZONE` (default `Asia/Tashkent`; on Monday it closes the week that just ended: final standings, promotions, result DMs; the other days it is a no-op or catches up a missed Monday; idempotent by `league_weeks.status`; `withoutOverlapping(30)` + `runInBackground`).
+- `referrals:recover` — every 30 minutes (re-queues `RewardReferralJob` for referrals left `activated` or half-rewarded after a lost job; looks only at rows younger than `REFERRALS_RECOVER_WINDOW_DAYS`; `withoutOverlapping(20)` + `runInBackground`).
+- `billing:reconcile-stars` — daily at 04:30 (Telegram's Stars ledger of the last 2 days vs `payments`; read-only, logs `billing.reconcile_missing*`; exits at once while Stars is disabled).
 - `backup:clean` — daily at 01:00.
 - `backup:run` — daily at 01:30.
 - `backup:monitor` — daily at 02:00.
@@ -675,9 +681,9 @@ you switch a provider on.
 > **Status.** The ledger, checkout API, admin screens, the `billing:expire-orders` job (2A.1, 2A.2, 2A.7), the
 > **Telegram Stars adapter** (2A.3: invoices, `pre_checkout_query`, `successful_payment` / `refunded_payment`,
 > cancel / resume, admin refund, `billing:reconcile-stars`) and the **Payme adapter** (2A.4: checkout link, the
-> JSON-RPC webhook with all six Merchant API methods, the `/billing/return` page) exist. The Click adapter and its
-> webhook URLs are added by 2A.5: every URL and check below marked **(2A.5)** works only after that task is deployed.
-> The `CLICK_*` variables can be filled in beforehand.
+> JSON-RPC webhook with all six Merchant API methods, the `/billing/return` page) and the **Click adapter** (2A.5:
+> checkout link, the Prepare / Complete webhooks, manual refund record) exist. Every provider stays off until its
+> `*_ENABLED=true`.
 
 ### 17.1 Environment
 
@@ -686,19 +692,27 @@ you switch a provider on.
 | `BILLING_PAYWALL_MODE` | `coming_soon` → `purchase` once at least one provider is enabled **and** prices are set. With an empty catalog the API silently falls back to `coming_soon` |
 | `BILLING_STARS_ENABLED` | `true` makes the Stars adapter sellable. No separate key or URL: Stars use the bot token and the bot webhook |
 | `BILLING_STARS_MAX_SUBSCRIPTION_PRICE` | Telegram's cap for a Stars *subscription* price (10000); a month above it is not sold |
+| `BILLING_STARS_SUBSCRIBE_WINDOW_DAYS` | A Stars *subscription* (month) is sold on top of a prepaid period only when that period ends within this many days (7); Payme / Click and the Stars year are not limited |
 | `PAYME_ENABLED`, `PAYME_MERCHANT_ID` | merchant id from the Payme business cabinet |
 | `PAYME_KEY` | **production** merchant key (secret) |
 | `PAYME_TEST_KEY` | key of the **test** cabinet (secret); the webhook accepts both, so sandbox and prod differ by key. Leave empty in production once testing is done |
+| `PAYME_ALLOW_TEST_KEY` | default `false`: with `APP_ENV=production` the test key is REFUSED (`-32504`) even if `PAYME_TEST_KEY` is set. Set `true` only for go-live checks on the production host, then switch it off |
 | `PAYME_CHECKOUT_URL` | `https://checkout.paycom.uz` (sandbox: `https://checkout.test.paycom.uz`) |
 | `PAYME_IP_ALLOWLIST` | comma-separated IPs/CIDRs of Payme's callers from the cabinet; empty = off (a caller outside the list gets 403 before authentication) |
 | `PAYME_CANCEL_AFTER_PERFORM_DAYS` | days after a payment during which Payme may still cancel (= refund) it through `CancelTransaction`; empty = always. Beyond the window the webhook answers `-31007` and the refund has to be agreed with Payme support |
 | `PAYME_FISCAL_IKPU`, `PAYME_FISCAL_PACKAGE_CODE`, `PAYME_FISCAL_VAT_PERCENT` | fiscal receipt data (the owner / accountant provides the IKPU code) |
-| `CLICK_ENABLED`, `CLICK_MERCHANT_ID`, `CLICK_SERVICE_ID`, `CLICK_MERCHANT_USER_ID` | from the Click merchant cabinet |
-| `CLICK_SECRET_KEY` | secret key of the service (secret) |
-| `CLICK_CHECKOUT_URL`, `CLICK_IP_ALLOWLIST` | as for Payme |
+| `CLICK_ENABLED`, `CLICK_MERCHANT_ID`, `CLICK_SERVICE_ID` | from the Click merchant cabinet (**Settings → Services**); `CLICK_SERVICE_ID` is also part of the webhook signature, so it must be the id of the service whose secret is in `CLICK_SECRET_KEY` |
+| `CLICK_MERCHANT_USER_ID` | optional; when set it is appended to the checkout link as `merchant_user_id` |
+| `CLICK_SECRET_KEY` | secret key of the service (secret); the only key the Prepare / Complete signature uses |
+| `CLICK_CHECKOUT_URL` | `https://my.click.uz/services/pay` (the test flow uses the same page with the test service) |
+| `CLICK_IP_ALLOWLIST` | as for Payme; the Click server addresses are published in the Click cabinet / docs |
+| `CLICK_TRANSACTION_TIMEOUT_MS` | 1800000 (30 min). An open Click *Prepare* older than this is treated as dead: it no longer keeps an expired order payable or holds a learner's discount. Prepare → Complete normally takes seconds; raise it only if Click support confirms longer retries. Payme's equivalent is fixed at 12 h (Payme cancels its own transaction after that) |
 | `BILLING_PRICE_*` | prices in minor units (UZS in tiyin = sum x 100; XTR whole Stars); `0` = not for sale in that currency (see `.env.example`) |
+| `BILLING_ORG_YEAR_DISCOUNT_PERCENT` | discount of the centers' annual payment vs 12 months (default `17`; `0` = no discount); explicit `BILLING_PRICE_<TIER>_YEAR_UZS` overrides it |
 | `BILLING_ORDER_TTL_MINUTES` | 1440; Payme / Click refuse an expired order |
 | `BILLING_SUPPORT_CONTACT` | shown in the paywall and by `/paysupport` |
+| `BILLING_INVOICE_REQUEST_EMAIL` | where the cabinet's "Request an invoice" e-mail goes (empty = `SITE_LEGAL_EMAIL`; both empty = the button is hidden) |
+| `SITE_LEGAL_NAME`, `_INN`, `_ADDRESS`, `_BANK`, `_BANK_ACCOUNT`, `_MFO`, `_PHONE`, `_EMAIL` | seller requisites printed on a center's invoice (`config/site.php`, from the owner / accountant); empty fields are not printed |
 
 `PAYME_KEY`, `PAYME_TEST_KEY` and `CLICK_SECRET_KEY` are secrets: only in `.env` (never in git, chat or tickets),
 `chmod 640`. The admin panel masks key-like fields of stored webhook payloads and the order token, and the log redactor
@@ -715,15 +729,15 @@ Nginx must pass them to Laravel like `/telegram/webhook`; do **not** put them be
 |---|---|---|---|
 | Telegram Stars | the existing `/telegram/webhook/{secret}` — **no new URL and nothing to register in a cabinet**; `allowed_updates` must include `pre_checkout_query`, which `php artisan telegram:set-webhook` now sets — re-run it once after deploying 2A.3 (check with `getWebhookInfo`) | done (2A.3) | `TELEGRAM_URL_SECRET` + `X-Telegram-Bot-Api-Secret-Token`; the `pre_checkout_query` is answered synchronously in that request |
 | Payme | `https://<domain>/billing/webhook/payme` (one URL for all JSON-RPC methods: CheckPerformTransaction, CreateTransaction, PerformTransaction, CancelTransaction, CheckTransaction, GetStatement). In the Payme business cabinet: **Настройки кассы → Endpoint** = this URL, login `Paycom`, password = the cabinet's key (`PAYME_KEY`, test cabinet: `PAYME_TEST_KEY`). The return page `https://<domain>/billing/return` needs no registration (it is passed inside the checkout link) | done (2A.4) | `Authorization: Basic base64("Paycom:" + key)`, `hash_equals` with `PAYME_KEY` / `PAYME_TEST_KEY`; wrong key → HTTP 200 + `-32504` |
-| Click Prepare | `https://<domain>/billing/webhook/click/prepare` | 2A.5 | md5 `sign_string` with `CLICK_SECRET_KEY` |
-| Click Complete | `https://<domain>/billing/webhook/click/complete` | 2A.5 | same |
+| Click Prepare | `https://<domain>/billing/webhook/click/prepare` — in the Click merchant cabinet, service settings: **Prepare URL** | done (2A.5) | form-encoded; `sign_string = md5(click_trans_id + service_id + CLICK_SECRET_KEY + merchant_trans_id + amount + action + sign_time)`, `hash_equals`; wrong → HTTP 200 + `"error":-1` |
+| Click Complete | `https://<domain>/billing/webhook/click/complete` — **Complete URL** of the same service | done (2A.5) | same, with `merchant_prepare_id` after `merchant_trans_id` |
 
-The Click URLs are the design of docs/13 §4.3 and may be corrected by 2A.5 when it checks Click's documentation:
-the task that implements a provider is the final word, and updates this table.
+Click (like Payme) answers errors with HTTP 200 and a negative `error` in the body; the return page is passed inside
+the checkout link (`return_url`) and needs no registration.
 
 Payme answers errors with HTTP 200 and a JSON-RPC error (`-32504` for a wrong key) — a 200 in the access log is not a
 sign of success; read the body or the payment screens. If the provider publishes caller IPs, put them in
-`*_IP_ALLOWLIST` (behind a reverse proxy make sure the real client IP reaches Laravel: trusted proxies).
+`*_IP_ALLOWLIST` (behind a reverse proxy, CDN or load balancer make sure the real client IP reaches Laravel: configure trusted proxies in `bootstrap/app.php` — otherwise the allowlist and every per-IP throttle (`billing-webhook`, `twa-*`) see the proxy address and break).
 
 ### 17.3 Sandbox first
 
@@ -738,8 +752,17 @@ sign of success; read the body or the payment screens. If the provider publishes
    "Оплата получена", **Payments** has a `succeeded` row, the subscription is `active`; cancel it from the test
    cabinet and check the `refund` row and the `expired` subscription. Only then switch to the production merchant id,
    `PAYME_KEY` and `https://checkout.paycom.uz`, and clear `PAYME_TEST_KEY`.
-2. **Click.** Use the test service (test `service_id`, `merchant_id`, secret) and the Click test flow; complete a
-   payment and a cancel from the cabinet.
+2. **Click.** In the Click merchant cabinet create / use the **test service** (its `service_id`, `merchant_id` and
+   secret go to `CLICK_SERVICE_ID`, `CLICK_MERCHANT_ID`, `CLICK_SECRET_KEY`), register the Prepare / Complete URLs
+   (17.2), set `CLICK_ENABLED=true`. Run the cabinet's test calls if it offers them, then a real test payment from
+   `/pro` → Click page → `/billing/return` shows "Оплата получена", **Payments** has a `succeeded` row
+   (`provider_event_id = <click_trans_id>:complete`), **Provider transactions** shows the row in state 2, the
+   subscription is `active`. Then a **failed** payment (wrong OTP / cancel on the Click page): the transaction must
+   end in state −1 while the order stays `pending` until its TTL (Click sends Complete with `error < 0`; another prepared transaction of the same order may still succeed — docs/13 «Реализация 2A.5», review 2A.8 B). Compare what you see with
+   docs/13 §15 p. 3 (Complete signature with `merchant_prepare_id`, repeated Complete → `0`, `error < 0` behaviour,
+   `amount` format) — each of those is a one-line switch in the code if Click's sandbox disagrees. Refunds: Click has
+   no refund webhook — return the money in the Click cabinet and record it in **Payments → Refund** (ADMIN_GUIDE).
+   Only then switch to the production service id / secret.
 3. **Stars.** Run the whole flow with a real account on a **small price** (e.g. `BILLING_PRICE_PRO_MONTH_XTR=1` on a
    staging bot): `/pro` → invoice (subscription, 30 days) and a yearly one-off invoice, `pre_checkout_query` answered
    (try a wrong account: must be refused with a text), `successful_payment` → the bot replies "Pro until …" and
@@ -750,6 +773,8 @@ sign of success; read the body or the payment screens. If the provider publishes
    names differ, only `TelegramStarsProvider::parseSuccessfulPayment` / `parseRefundedPayment` change.
 4. Production switch: real keys, real prices, `*_ENABLED=true`, `BILLING_PAYWALL_MODE=purchase`, `config:cache`,
    restart workers. Keep one provider enabled at first.
+
+Full acceptance checklist of Phase 2 on staging and in the provider sandboxes (env, scheduler, Stars / Payme / Click, centers, restore / ZAP / k6 / Lighthouse): `docs/STAGING_PHASE2_CHECKLIST.md`.
 
 ### 17.4 After every deploy of billing code
 
@@ -762,11 +787,13 @@ sign of success; read the body or the payment screens. If the provider publishes
    get 403 on `/admin/payments` and must not see the Billing group.
 4. The checkout catalog (`GET /api/twa/billing/catalog` with a valid TWA token): `items` and `providers` list exactly the
    providers you enabled and nothing else.
-5. Provider webhooks (Payme now, Click after 2A.5): from the provider's cabinet send a test call; a wrong key /
+5. Provider webhooks (Payme, Click): from the provider's cabinet send a test call; a wrong key /
    signature must be rejected (Payme body `-32504`, Click `-1`), a right one answered; make one sandbox payment end
    to end and see the `succeeded` row in **Payments**, the order `paid` and the subscription in **Subscriptions**.
    `curl -s -X POST https://<domain>/billing/webhook/payme -d '{}'` must return HTTP 200 with `"code":-32504`
-   (no key) — a 404/419/5xx means the route, CSRF exclusion or nginx is wrong.
+   (no key) — a 404/419/5xx means the route, CSRF exclusion or nginx is wrong. Likewise
+   `curl -s -X POST https://<domain>/billing/webhook/click/prepare -d 'action=0'` must return HTTP 200 with `"error":-8`
+   (missing parameters) and a fully formed but unsigned form `"error":-1`.
 6. After the first payments, look for error lines in `storage/logs/laravel.log` (`grep 'billing\.' storage/logs/laravel.log`):
    no `billing.amount_mismatch`, `billing.payment_orphan` or `billing.admin_refund_unrecorded` (see 17.5).
 7. Check that no secret ended up in the logs: `grep -E "PAYME_|CLICK_SECRET|sign_string|Authorization: Basic" storage/logs/laravel.log` prints nothing.
@@ -784,10 +811,14 @@ sign of success; read the body or the payment screens. If the provider publishes
 | `billing.admin_refund_unrecorded` (error log) | an admin refund returned the money at the provider but the ledger write failed; fix the cause, then record it with "returned by hand" |
 | `billing.admin_refund_provider_failed` (error log) | the provider refused / was down for an admin refund; nothing was changed |
 | Pending orders keep growing | `billing:expire-orders` is not running: the scheduler is down (see 11) |
-| 5xx on `/billing/webhook/*` | the provider retries and may cancel the transaction; page the on-call. Payme gets HTTP 500 + `-32400` only on an infrastructure failure (`billing.payme.rpc_failed` in the log) |
+| 5xx on `/billing/webhook/*` | the provider retries and may cancel the transaction; page the on-call. Payme gets HTTP 500 + `-32400`, Click HTTP 500 + `-7`, only on an infrastructure failure (`billing.payme.rpc_failed` / `billing.click.webhook_failed` in the log) |
 | `billing.payme.auth_failed` (warning log) | a call with a missing / wrong Basic key: after a key rotation check `PAYME_KEY` / `PAYME_TEST_KEY`; a burst from unknown IPs = someone probing the webhook (consider `PAYME_IP_ALLOWLIST`) |
 | `billing.payme.perform_refused` (warning log) | Payme asked to perform a transaction whose order is no longer payable (closed by an operator / expired): the transaction stays open until Payme cancels it; nothing is credited |
 | `billing.payme.refund_unrecorded` (error log) | Payme canceled a performed transaction but the ledger had no charge to refund (or it was already refunded by hand): the state is −2, compare **Payments** with the Payme cabinet |
+| `billing.click.sign_failed` (warning log) | a Prepare / Complete with a wrong `sign_string` or a foreign `service_id`: after a key rotation check `CLICK_SECRET_KEY` / `CLICK_SERVICE_ID`; a burst from unknown IPs = someone probing the webhook (consider `CLICK_IP_ALLOWLIST`) |
+| `billing.click.complete_refused` (warning log) | Click completed a payment whose order was no longer payable (expired / closed, or already paid by another Click transaction): a `failed` ledger row exists, Click got `-9` / `-4` and should reverse the charge; if the payer was charged, refund in the Click cabinet or grant Pro by hand |
+| `billing.click.cancel_after_complete` (warning log) | Click reported `error < 0` for a transaction we had already credited: nothing was undone; compare with the Click cabinet, refund by hand if Click really reversed it |
+| `billing.click.webhook_failed` (error log) | an infrastructure failure inside a Click call (HTTP 500 + `-7`, Click retries) |
 
 Refunds, grants and revokes are in the `audit_logs` table (`payment.refunded`, `subscription.granted`,
 `subscription.revoked`, with the actor, IP and reason).
@@ -852,10 +883,43 @@ chmod 600 .env
 | `PAYME_MERCHANT_ID` / `PAYME_KEY` / `PAYME_TEST_KEY` | when Payme is on | secrets from the Payme cabinet (17.1) |
 | `CLICK_MERCHANT_ID` / `CLICK_SERVICE_ID` / `CLICK_MERCHANT_USER_ID` / `CLICK_SECRET_KEY` | when Click is on | from the Click cabinet; the key is a secret (17.1) |
 | `PAYME_IP_ALLOWLIST` / `CLICK_IP_ALLOWLIST` | optional | comma-separated IPs/CIDRs; empty = off |
+| `CLICK_TRANSACTION_TIMEOUT_MS` | optional | `1800000` (30 min): an older open Click Prepare no longer holds an order / offer (17.1) |
 | `BILLING_PRICE_*` / `BILLING_ORDER_TTL_MINUTES` | when selling | prices in minor units / `1440` (17.1) |
+| `BILLING_ORG_YEAR_DISCOUNT_PERCENT` | optional | `17`; center **year** price = tariff month price x 12 x (1 - N %), rounded to whole sums. `BILLING_PRICE_{TUTOR,CENTER_S,CENTER_M}_YEAR_UZS` (tiyin) set an explicit year price instead (wins over the discount) |
 | `REMINDERS_DUE_THRESHOLD` | optional | `1` |
 | `REMINDERS_MIN_INTERVAL_HOURS` | optional | `2` (floor between two reminders, >= 1; the main rule is one per local day) |
 | `REMINDERS_MAX_DELAY_MINUTES` | optional | `120` (>= 15) |
 | `REMINDERS_BATCH_SIZE` / `REMINDERS_BACKFILL_LIMIT` | optional | `200` / `10000` |
 | `REMINDERS_SEND_RATE_PER_SECOND` | optional | `25` (>= 1; Telegram allows about 30/s per bot) |
+| `TELEGRAM_OUTBOUND_GLOBAL_PER_SECOND` | optional | `25` (bot-wide ceiling of background sends per second — reminders, assignment posts, renewal reminders, DMs of centers/offers, leaderboards; Bot API allows ~30/s per bot, the rest is for replies to updates; `0` = off). A job without a free slot is put back for 1-5 s; keep the Redis cache (the counter `telegram:outbound:global:{sec}` is shared by all workers) |
 | `PRODUCT_EVENTS_RETENTION_DAYS` / `NOTIFICATIONS_LOG_RETENTION_DAYS` | optional | `400` / `400` |
+
+### Phase 2 variables
+
+All optional; the defaults are the production values (`.env.example` lists them). Changing a value needs `php artisan config:cache` + a worker restart (section 14).
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `ACHIEVEMENTS_ENABLED` | `true` | Achievements (badges, share cards). `false` = nothing new is awarded |
+| `ORGANIZATIONS_INVITE_BURST_PER_DAY` | `50` | Joins through ONE organization invite code within 24 h above which a warning is logged (logged, not blocked) |
+| `BILLING_POST_ORG_DISCOUNT_PCT` | `30` | Personal discount (%, clamped to 1-90) on the first Pro month offered to a learner who lost a seat in an organization; valid 14 days |
+| `BILLING_ORG_YEAR_DISCOUNT_PERCENT` | `17` | Discount of a center's annual payment vs 12 months (`0` = none); an explicit `BILLING_PRICE_<TIER>_YEAR_UZS` wins |
+| `FSRS_ROLLOUT_PERCENT` | `0` | Share (0-100) of NEW learners put into the FSRS bucket of the A/B at registration (`crc32(telegram_user_id) % 100 < N`, stored in `learners.scheduler`); `0` = everyone on SM-2. A later change never moves already registered learners |
+| `FSRS_DESIRED_RETENTION` | `0.9` | FSRS target retention, strictly between 0 and 1 (higher = shorter intervals) |
+| `FSRS_WEIGHTS` | built-in 19 weights | Comma-separated FSRS parameters; change only with fitted values |
+| `LEAGUES_ENABLED` | `true` | Weekly leagues on/off |
+| `LEAGUES_TIMEZONE` | `Asia/Tashkent` | Time zone of the week boundary (Monday 00:05 closing job, `leagues:close-week`) |
+| `LEAGUES_GROUP_CAPACITY` | `30` | Learners per league group |
+| `LEAGUES_PROMOTE` / `LEAGUES_DEMOTE` | `5` / `5` | Top / bottom N of a group moving up / down a tier at the weekly close |
+| `LEAGUES_POINTS_REVIEW` / `_CORRECT` / `_NEW_WORD` / `_GOAL_MET` | `1` / `1` / `2` / `10` | Points per review / correct answer / new word / daily goal met (computed from `learner_daily_stats`) |
+| `LEAGUES_STANDINGS_CACHE_SECONDS` | `60` | Cache of the standings table |
+| `LEAGUES_NOTIFY_TTL_HOURS` | `12` | A result DM that could not be sent within this time is dropped |
+| `LEARNERS_STREAK_FREEZE_MAX` | `2` | Streak freezes a Pro learner can hold (+1 per week) |
+| `MOCK_EXAM_QUESTIONS` / `MOCK_EXAM_SECONDS` | `40` / `1200` | Questions and time limit of the IELTS/SAT vocabulary simulator |
+| `MOCK_EXAM_PERCENTILE_DAYS` / `MOCK_EXAM_PERCENTILE_CACHE_TTL` | `90` / `3600` | Window (days) of other results for the percentile / its cache (seconds) |
+| `REFERRALS_REWARD_DAYS` | `7` | Pro days each side gets |
+| `REFERRALS_ACTIVATION_DAYS` / `_REVIEWS_PER_DAY` / `_WINDOW_DAYS` | `3` / `10` / `14` | Activation: this many days with at least N reviews within the window |
+| `REFERRALS_MAX_REWARDS_PER_30D` / `REFERRALS_MAX_REWARDS_LIFETIME` | `10` / `50` | Rewards one inviter can collect per rolling 30 days / in total (beyond: the invited learner is still rewarded) |
+| `REFERRALS_INVITEE_REWARDS_PER_30D` | `20` | Invited learners of one inviter that get a reward per rolling 30 days |
+| `REFERRALS_FLAG_LINKS_PER_DAY` | `20` | Links of one inviter within 24 h at which the next one is flagged (reward waits for an admin) |
+| `REFERRALS_RECOVER_WINDOW_DAYS` | `14` | `referrals:recover` looks only at referrals activated / rewarded within this many days |

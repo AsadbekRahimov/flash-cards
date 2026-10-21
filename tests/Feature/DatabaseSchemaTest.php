@@ -2,12 +2,22 @@
 
 declare(strict_types=1);
 
+use App\Domain\Learning\Enums\ExerciseType;
+use App\Domain\Learning\Enums\SchedulerKind;
+use App\Models\Achievement;
+use App\Models\Assignment;
+use App\Models\AssignmentResult;
+use App\Models\Challenge;
 use App\Models\Course;
 use App\Models\ExamAnswer;
 use App\Models\ExamQuestionAttempt;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
+use App\Models\Friendship;
 use App\Models\GroupMember;
+use App\Models\LeagueGroup;
+use App\Models\LeagueMember;
+use App\Models\LeagueWeek;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
 use App\Models\Lesson;
@@ -23,6 +33,7 @@ use App\Models\ProductEvent;
 use App\Models\PromoCode;
 use App\Models\PromoRedemption;
 use App\Models\ProviderTransaction;
+use App\Models\Referral;
 use App\Models\Stage;
 use App\Models\Subscription;
 use App\Models\TelegramGroup;
@@ -39,6 +50,20 @@ use Illuminate\Support\Facades\Schema;
 
 uses(RefreshDatabase::class);
 
+/**
+ * `migrate:rollback --step` counts from the newest migration: the number of files from `$firstFile`
+ * (inclusive, by name) to the end of `database/migrations`, so a migration added on top later does
+ * not shift which files a rollback test reaches.
+ */
+function migrationStepsBackTo(string $firstFile): int
+{
+    $files = glob(database_path('migrations/*.php')) ?: [];
+    $names = array_map(fn (string $f): string => basename($f, '.php'), $files);
+    sort($names);
+
+    return count(array_filter($names, fn (string $n): bool => $n >= $firstFile));
+}
+
 $expectedTables = [
     'users', 'password_reset_tokens', 'sessions',
     'telegram_groups', 'teacher_groups', 'learners', 'group_members',
@@ -54,6 +79,15 @@ $expectedTables = [
     'offers', 'payment_orders', 'provider_transactions', 'payments',
     // Phase 2 (docs/13 §1.3): organizations — staff, invites, members / seats.
     'organization_users', 'organization_invites', 'organization_members',
+    // Phase 2 (docs/13 §1.4): assignments of a center.
+    'assignments', 'assignment_results',
+    // Phase 2 (docs/13 §1.5): referrals, leagues.
+    'referrals',
+    'league_weeks', 'league_groups', 'league_members',
+    // Phase 2 (docs/13 §1.5): friends and challenges.
+    'friendships', 'challenges',
+    // Phase 2 (docs/13 §1.5): achievements.
+    'achievements',
 ];
 
 /**
@@ -660,8 +694,8 @@ it('has partial unique index subscriptions_one_live_per_subscriber', function ()
 it('rolls back and re-applies the organization migrations (2B.1) in FK order', function (): void {
     $tables = ['organization_members', 'organization_invites', 'organization_users'];
 
-    // The three 2B.1 files are the last ones: members -> invites (FK invite_id) -> users.
-    $this->artisan('migrate:rollback', ['--step' => 3])->assertSuccessful();
+    // Everything from the first 2B.1 file up: the three 2B.1 files (members -> invites (FK invite_id) -> users) and what came later.
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_21_000001_create_organization_users_table')])->assertSuccessful();
     foreach ($tables as $table) {
         expect(Schema::hasTable($table))->toBeFalse("Table {$table} survived rollback");
     }
@@ -736,8 +770,8 @@ it('cascades and nulls the organization foreign keys as designed (docs/13 §1.3)
 it('rolls back and re-applies the billing migrations (2A.1) in FK order', function (): void {
     $tables = ['payments', 'provider_transactions', 'payment_orders', 'offers'];
 
-    // 7 steps: the three 2B.1 organization files sit on top of the four 2A.1 billing files.
-    $this->artisan('migrate:rollback', ['--step' => 7])->assertSuccessful();
+    // Everything from the first 2A.1 billing file up (the 2B.1 / 2B.4 / 2C files sit on top of the four billing files).
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_20_000001_create_offers_table')])->assertSuccessful();
     foreach ($tables as $table) {
         expect(Schema::hasTable($table))->toBeFalse("Table {$table} survived rollback");
     }
@@ -764,6 +798,10 @@ it('rolls back and re-applies the billing migrations (2A.1) in FK order', functi
 
 it('rolls back and re-applies the learner-first migrations (1.1a + 1.1b)', function (): void {
     $newTables = [
+        'achievements',
+        'friendships', 'challenges',
+        'league_members', 'league_groups', 'league_weeks',
+        'referrals',
         'payments', 'provider_transactions', 'payment_orders', 'offers',
         'promo_redemptions', 'promo_codes', 'subscriptions', 'learner_daily_stats',
         'word_translations', 'group_members', 'learners', 'courses', 'organizations',
@@ -816,4 +854,346 @@ it('drops the learner-first indexes on rollback of the open-session migration', 
         $migration->up();
         expect(DB::selectOne("SELECT 1 AS x FROM pg_constraint WHERE conname = 'training_sessions_mode_shape_check'"))->not->toBeNull();
     }
+});
+
+it('rolls back and re-applies the assignment migrations (2B.4) in FK order', function (): void {
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_21_000004_create_assignments_table')])->assertSuccessful();
+    expect(Schema::hasTable('assignment_results'))->toBeFalse()
+        ->and(Schema::hasTable('assignments'))->toBeFalse()
+        ->and(Schema::hasTable('organization_members'))->toBeTrue();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasColumns('assignments', ['organization_id', 'telegram_group_id', 'lesson_id', 'due_at', 'announced_at', 'reminded_at', 'status', 'completion_threshold', 'meta']))->toBeTrue()
+        ->and(Schema::hasColumns('assignment_results', ['assignment_id', 'learner_id', 'progress_pct', 'completed_at', 'computed_at']))->toBeTrue();
+});
+
+it('enforces assignment_results (assignment_id, learner_id) unique, cascades the results and restricts lesson deletion', function (): void {
+    $assignment = Assignment::factory()->create();
+    $learner = Learner::factory()->create();
+
+    AssignmentResult::factory()->create(['assignment_id' => $assignment->id, 'learner_id' => $learner->id]);
+    expectConstraintViolation(fn () => AssignmentResult::factory()->create(['assignment_id' => $assignment->id, 'learner_id' => $learner->id]));
+
+    // A lesson with assignments cannot be deleted (RESTRICT) — on sqlite only with FK enforcement on.
+    if (DB::getDriverName() === 'pgsql') {
+        expectConstraintViolation(fn () => DB::table('lessons')->where('id', $assignment->lesson_id)->delete());
+    }
+
+    $assignment->group()->delete();
+    expect(Assignment::query()->count())->toBe(0)
+        ->and(AssignmentResult::query()->count())->toBe(0);
+});
+
+it('adds the streak freeze columns (2C.2) and rolls them back', function (): void {
+    expect(Schema::hasColumns('learners', ['streak_freezes', 'streak_freezes_refilled_on']))->toBeTrue()
+        ->and(Schema::hasColumn('learner_daily_stats', 'frozen_at'))->toBeTrue();
+
+    $learner = Learner::factory()->create();
+    expect($learner->fresh()?->streak_freezes)->toBe(0)
+        ->and($learner->fresh()?->streak_freezes_refilled_on)->toBeNull();
+
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_22_200001_add_streak_freeze_columns')])->assertSuccessful();
+    expect(Schema::hasColumn('learners', 'streak_freezes'))->toBeFalse()
+        ->and(Schema::hasColumn('learners', 'streak_freezes_refilled_on'))->toBeFalse()
+        ->and(Schema::hasColumn('learner_daily_stats', 'frozen_at'))->toBeFalse()
+        ->and(Schema::hasTable('learners'))->toBeTrue();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasColumns('learners', ['streak_freezes', 'streak_freezes_refilled_on']))->toBeTrue()
+        ->and(Schema::hasColumn('learner_daily_stats', 'frozen_at'))->toBeTrue();
+});
+
+// --- 2D.2 exercises (docs/13 §1.6) ----------------------------------------------
+
+it('adds the exercise / scheduler columns of training_reviews (2D.2) and rolls them back', function (): void {
+    expect(Schema::hasColumns('training_reviews', ['exercise', 'answer_text', 'scheduler', 'interval_before_days']))->toBeTrue();
+
+    $review = TrainingReview::factory()->create();
+    expect($review->fresh()?->exercise)->toBe(ExerciseType::Flash)
+        ->and($review->fresh()?->answer_text)->toBeNull()
+        ->and($review->fresh()?->scheduler)->toBe('sm2')
+        ->and($review->fresh()?->interval_before_days)->toBeNull();
+
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_23_200001_add_exercise_columns_to_training_reviews_table')])->assertSuccessful();
+    expect(Schema::hasColumn('training_reviews', 'exercise'))->toBeFalse()
+        ->and(Schema::hasColumn('training_reviews', 'answer_text'))->toBeFalse()
+        ->and(Schema::hasColumn('training_reviews', 'scheduler'))->toBeFalse()
+        ->and(Schema::hasColumn('training_reviews', 'interval_before_days'))->toBeFalse()
+        ->and(Schema::hasTable('training_reviews'))->toBeTrue();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasColumns('training_reviews', ['exercise', 'answer_text', 'scheduler', 'interval_before_days']))->toBeTrue();
+});
+
+// --- 2D.3 FSRS A/B (docs/13 §1.5, §1.6) ------------------------------------------
+
+it('adds learners.scheduler and the FSRS columns of word_repetitions (2D.3) and rolls them back', function (): void {
+    expect(Schema::hasColumn('learners', 'scheduler'))->toBeTrue()
+        ->and(Schema::hasColumns('word_repetitions', ['stability', 'difficulty', 'scheduler', 'scheduled_days']))->toBeTrue();
+
+    $learner = Learner::factory()->create(['scheduler' => null]);
+    $rep = WordRepetition::factory()->create(['learner_id' => $learner->id]);
+    expect($learner->fresh()?->scheduler)->toBeNull()
+        ->and($rep->fresh()?->stability)->toBeNull()
+        ->and($rep->fresh()?->difficulty)->toBeNull()
+        ->and($rep->fresh()?->scheduler)->toBe(SchedulerKind::Sm2)
+        ->and($rep->fresh()?->scheduled_days)->toBeNull();
+
+    $rep->update(['stability' => 12345.1234, 'difficulty' => 9.8765, 'scheduler' => SchedulerKind::Fsrs, 'scheduled_days' => 12345]);
+    expect($rep->fresh()?->stability)->toEqualWithDelta(12345.1234, 1e-6)
+        ->and($rep->fresh()?->difficulty)->toEqualWithDelta(9.8765, 1e-6)
+        ->and($rep->fresh()?->scheduler)->toBe(SchedulerKind::Fsrs);
+
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_23_300001_add_scheduler_to_learners_table')])->assertSuccessful();
+    expect(Schema::hasColumn('learners', 'scheduler'))->toBeFalse()
+        ->and(Schema::hasColumn('word_repetitions', 'stability'))->toBeFalse()
+        ->and(Schema::hasColumn('word_repetitions', 'difficulty'))->toBeFalse()
+        ->and(Schema::hasColumn('word_repetitions', 'scheduler'))->toBeFalse()
+        ->and(Schema::hasColumn('word_repetitions', 'scheduled_days'))->toBeFalse()
+        ->and(Schema::hasTable('word_repetitions'))->toBeTrue();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasColumn('learners', 'scheduler'))->toBeTrue()
+        ->and(Schema::hasColumns('word_repetitions', ['stability', 'difficulty', 'scheduler', 'scheduled_days']))->toBeTrue();
+});
+
+// --- 2C.1 referrals (docs/13 §1.5) ----------------------------------------------
+
+it('keeps one referral per invited learner and one referral code per learner', function (): void {
+    $friend = Learner::factory()->create();
+    Referral::factory()->create(['referee_learner_id' => $friend->id]);
+    expectConstraintViolation(fn () => Referral::factory()->create(['referee_learner_id' => $friend->id]));
+
+    Learner::factory()->create(['referral_code' => 'ABCDEFGH']);
+    expectConstraintViolation(fn () => Learner::factory()->create(['referral_code' => 'ABCDEFGH']));
+    // NULL codes do not collide (generated lazily).
+    Learner::factory()->count(2)->create(['referral_code' => null]);
+
+    $indexes = array_column(Schema::getIndexes('referrals'), 'columns');
+    expect($indexes)->toContain(['referrer_learner_id', 'status', 'linked_at'])
+        ->toContain(['status', 'activated_at'])
+        ->toContain(['status', 'rewarded_at']);
+});
+
+it('rolls back and re-applies the referral recovery indexes (2R.10)', function (): void {
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_23_500001_add_recovery_indexes_to_referrals_table')])->assertSuccessful();
+    expect(array_column(Schema::getIndexes('referrals'), 'columns'))->not->toContain(['status', 'activated_at'])
+        ->and(Schema::hasTable('referrals'))->toBeTrue();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(array_column(Schema::getIndexes('referrals'), 'columns'))->toContain(['status', 'rewarded_at']);
+});
+
+it('cascades referrals with either learner', function (): void {
+    $inviter = Learner::factory()->create();
+    $friend = Learner::factory()->create();
+    Referral::factory()->create(['referrer_learner_id' => $inviter->id, 'referee_learner_id' => $friend->id]);
+    Referral::factory()->create(['referrer_learner_id' => $friend->id]);
+
+    $friend->forceDelete();
+    expect(Referral::query()->count())->toBe(0);
+});
+
+it('rolls back and re-applies the referrals migration (2C.1)', function (): void {
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_22_100001_create_referrals_table')])->assertSuccessful();
+    expect(Schema::hasTable('referrals'))->toBeFalse()
+        ->and(Schema::hasTable('assignment_results'))->toBeTrue();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasTable('referrals'))->toBeTrue()
+        ->and(Schema::hasColumn('learners', 'referral_code'))->toBeTrue();
+});
+
+// --- 2D.4 personal mocks (docs/13 §1.6) -----------------------------------------
+
+it('generalizes exam_sessions for personal mocks: one open mock per learner, mode shape, rollback', function (): void {
+    expect(Schema::hasColumns('exam_sessions', ['learner_id', 'mode', 'course_id']))->toBeTrue();
+
+    $learner = Learner::factory()->create();
+    $course = Course::factory()->published()->create(['exam_tag' => 'ielts']);
+
+    ExamSession::factory()->personalMock($learner, $course)->create();
+    expectConstraintViolation(fn () => ExamSession::factory()->personalMock($learner, $course)->create());
+    // A closed mock does not block a new one; another learner is independent.
+    ExamSession::factory()->personalMock($learner, $course)->closed()->create();
+    ExamSession::factory()->personalMock(null, $course)->create();
+    expect(ExamSession::query()->where('mode', 'personal_mock')->count())->toBe(3);
+
+    // Group exams keep their own invariant (one open per group) next to NULL-group mocks.
+    $group = TelegramGroup::factory()->create();
+    ExamSession::factory()->create(['telegram_group_id' => $group->id]);
+    expectConstraintViolation(fn () => ExamSession::factory()->create(['telegram_group_id' => $group->id]));
+    ExamSession::factory()->closed()->create(['telegram_group_id' => $group->id]);
+
+    if (DB::getDriverName() === 'pgsql') {
+        expectConstraintViolation(fn () => ExamSession::factory()->personalMock($learner, $course)->closed()->create(['course_id' => null]));
+        expectConstraintViolation(fn () => ExamSession::factory()->personalMock($learner, $course)->closed()->create(['learner_id' => null]));
+        expectConstraintViolation(fn () => ExamSession::factory()->closed()->create(['telegram_group_id' => null]));
+        expectConstraintViolation(fn () => ExamSession::factory()->closed()->create(['lesson_id' => null]));
+        expectConstraintViolation(fn () => ExamSession::factory()->closed()->create(['started_by_user_id' => null]));
+    }
+
+    // Cascades: the mock goes with its learner and with its course.
+    $gone = ExamSession::factory()->personalMock(null, $course)->closed()->create();
+    $gone->learner?->forceDelete();
+    expect(ExamSession::query()->whereKey($gone->id)->exists())->toBeFalse();
+    $course->delete();
+    expect(ExamSession::query()->where('mode', 'personal_mock')->count())->toBe(0);
+
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_23_400001_generalize_exam_sessions_for_personal_mock')])->assertSuccessful();
+    expect(Schema::hasColumn('exam_sessions', 'learner_id'))->toBeFalse()
+        ->and(Schema::hasColumn('exam_sessions', 'mode'))->toBeFalse()
+        ->and(Schema::hasColumn('exam_sessions', 'course_id'))->toBeFalse()
+        ->and(Schema::hasTable('exam_sessions'))->toBeTrue();
+
+    // The group invariant survived the rollback (sqlite rebuilds the table). Raw rows: the factory
+    // now fills the dropped columns.
+    $group2 = TelegramGroup::factory()->create();
+    $lesson = Lesson::factory()->create();
+    $teacher = User::factory()->create();
+    $groupExam = fn (string $status): array => [
+        'telegram_group_id' => $group2->id,
+        'lesson_id' => $lesson->id,
+        'started_by_user_id' => $teacher->id,
+        'status' => $status,
+        'started_at' => now(),
+        'ends_at' => now()->addHour(),
+        'config' => '{}',
+    ];
+    DB::table('exam_sessions')->insert($groupExam('open'));
+    expectConstraintViolation(fn () => DB::table('exam_sessions')->insert($groupExam('open')));
+    DB::table('exam_sessions')->insert($groupExam('closed'));
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasColumns('exam_sessions', ['learner_id', 'mode', 'course_id']))->toBeTrue();
+    ExamSession::factory()->personalMock()->create();
+});
+
+// --- 2C.3 leagues (docs/13 §1.5) ------------------------------------------------
+
+it('keeps one league week per Monday and one membership per learner and week', function (): void {
+    LeagueWeek::factory()->startingOn('2026-10-19')->create();
+    expectConstraintViolation(fn () => LeagueWeek::factory()->startingOn('2026-10-19')->create());
+
+    $week = LeagueWeek::factory()->startingOn('2026-10-12')->create();
+    $a = LeagueGroup::factory()->create(['league_week_id' => $week->id, 'tier' => 0]);
+    $b = LeagueGroup::factory()->create(['league_week_id' => $week->id, 'tier' => 0]);
+    $learner = Learner::factory()->create();
+    LeagueMember::factory()->create(['league_group_id' => $a->id, 'learner_id' => $learner->id]);
+    expectConstraintViolation(fn () => LeagueMember::factory()->create(['league_group_id' => $b->id, 'learner_id' => $learner->id]));
+
+    expect(array_column(Schema::getIndexes('league_groups'), 'columns'))->toContain(['league_week_id', 'tier', 'members_count'])
+        ->and(array_column(Schema::getIndexes('league_members'), 'columns'))->toContain(['league_group_id'])
+        ->and(array_column(Schema::getIndexes('league_members'), 'columns'))->toContain(['learner_id', 'league_week_id']);
+});
+
+it('cascades league groups and members with the week, and members with the learner', function (): void {
+    $week = LeagueWeek::factory()->create();
+    $group = LeagueGroup::factory()->create(['league_week_id' => $week->id]);
+    $learner = Learner::factory()->create();
+    LeagueMember::factory()->create(['league_group_id' => $group->id, 'learner_id' => $learner->id]);
+    LeagueMember::factory()->create(['league_group_id' => $group->id]);
+
+    $learner->forceDelete();
+    expect(LeagueMember::query()->count())->toBe(1);
+
+    $week->delete();
+    expect(LeagueGroup::query()->count())->toBe(0)
+        ->and(LeagueMember::query()->count())->toBe(0);
+});
+
+it('rolls back and re-applies the league migration (2C.3)', function (): void {
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_22_300001_create_league_tables')])->assertSuccessful();
+    expect(Schema::hasTable('league_weeks'))->toBeFalse()
+        ->and(Schema::hasTable('league_groups'))->toBeFalse()
+        ->and(Schema::hasTable('league_members'))->toBeFalse()
+        ->and(Schema::hasTable('referrals'))->toBeTrue();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasTable('league_weeks'))->toBeTrue()
+        ->and(Schema::hasTable('league_groups'))->toBeTrue()
+        ->and(Schema::hasTable('league_members'))->toBeTrue();
+});
+
+// --- 2C.5 friends and challenges (docs/13 §1.5) ----------------------------------
+
+it('keeps ONE friendships row per normalised pair and, on PostgreSQL, refuses a pair in the wrong order', function (): void {
+    [$a, $b] = [Learner::factory()->create(), Learner::factory()->create()];
+    [$low, $high] = $a->id < $b->id ? [$a, $b] : [$b, $a];
+
+    Friendship::query()->create(['learner_id' => $low->id, 'friend_id' => $high->id, 'status' => 'pending', 'requested_by_learner_id' => $low->id]);
+    expectConstraintViolation(fn () => Friendship::query()->create(['learner_id' => $low->id, 'friend_id' => $high->id, 'status' => 'accepted', 'requested_by_learner_id' => $high->id]));
+
+    if (DB::getDriverName() === 'pgsql') {
+        // A→B and B→A cannot be two rows: the reversed pair violates CHECK (learner_id < friend_id).
+        expectConstraintViolation(fn () => Friendship::query()->create(['learner_id' => $high->id, 'friend_id' => $low->id, 'status' => 'pending', 'requested_by_learner_id' => $high->id]));
+        expectConstraintViolation(fn () => Friendship::query()->create(['learner_id' => $low->id, 'friend_id' => $low->id, 'status' => 'pending', 'requested_by_learner_id' => $low->id]));
+    }
+
+    expect(Friendship::query()->count())->toBe(1);
+});
+
+it('cascades friendships and challenges with their learners', function (): void {
+    [$a, $b] = [Learner::factory()->create(), Learner::factory()->create()];
+    Friendship::factory()->between($a, $b)->create();
+    Challenge::factory()->create(['challenger_id' => $a->id, 'opponent_id' => $b->id, 'winner_learner_id' => $a->id, 'status' => 'finished']);
+
+    $a->forceDelete();
+    expect(Friendship::query()->count())->toBe(0)
+        ->and(Challenge::query()->count())->toBe(0);
+});
+
+it('allows ONE open challenge per pair through the open_pair unique index, and many closed ones', function (): void {
+    [$a, $b] = [Learner::factory()->create(), Learner::factory()->create()];
+    Challenge::factory()->create(['challenger_id' => $a->id, 'opponent_id' => $b->id, 'open_pair' => '1:2']);
+    expectConstraintViolation(fn () => Challenge::factory()->create(['challenger_id' => $b->id, 'opponent_id' => $a->id, 'open_pair' => '1:2']));
+
+    Challenge::factory()->count(3)->create(['challenger_id' => $a->id, 'opponent_id' => $b->id, 'status' => 'finished', 'open_pair' => null]);
+    expect(Challenge::query()->count())->toBe(4);
+});
+
+it('rolls back and re-applies the friends migrations (2C.5)', function (): void {
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_22_500001_create_friendships_table')])->assertSuccessful();
+    expect(Schema::hasTable('friendships'))->toBeFalse()
+        ->and(Schema::hasTable('challenges'))->toBeFalse()
+        ->and(Schema::hasTable('referrals'))->toBeTrue();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasTable('friendships'))->toBeTrue()
+        ->and(Schema::hasTable('challenges'))->toBeTrue()
+        ->and(Schema::hasColumn('challenges', 'open_pair'))->toBeTrue();
+});
+
+// --- 2C.4 achievements (docs/13 §1.5) --------------------------------------------
+
+it('keeps ONE achievements row per (learner, key): the unique index makes a key unlock once', function (): void {
+    [$a, $b] = [Learner::factory()->create(), Learner::factory()->create()];
+    Achievement::factory()->create(['learner_id' => $a->id, 'key' => 'streak_7']);
+
+    expectConstraintViolation(fn () => Achievement::factory()->create(['learner_id' => $a->id, 'key' => 'streak_7']));
+    // The conditional insert of AchievementService just does not insert.
+    expect(Achievement::query()->insertOrIgnore(['learner_id' => $a->id, 'key' => 'streak_7', 'unlocked_at' => now()]))->toBe(0);
+
+    Achievement::factory()->create(['learner_id' => $a->id, 'key' => 'streak_30']);
+    Achievement::factory()->create(['learner_id' => $b->id, 'key' => 'streak_7']);
+    expect(Achievement::query()->count())->toBe(3);
+});
+
+it('cascades achievements with their learner', function (): void {
+    $learner = Learner::factory()->create();
+    Achievement::factory()->create(['learner_id' => $learner->id]);
+
+    $learner->forceDelete();
+
+    expect(Achievement::query()->count())->toBe(0);
+});
+
+it('rolls back and re-applies the achievements migration (2C.4)', function (): void {
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_22_000003_create_achievements_table')])->assertSuccessful();
+    expect(Schema::hasTable('achievements'))->toBeFalse()
+        ->and(Schema::hasTable('learners'))->toBeTrue();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasTable('achievements'))->toBeTrue()
+        ->and(Schema::hasColumns('achievements', ['learner_id', 'key', 'unlocked_at', 'shared_at', 'meta']))->toBeTrue();
 });

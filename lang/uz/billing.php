@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 return [
 
+    /* DM after leaving a center (docs/13 §6.5): the discounted buy buttons of /pro follow the text. */
+    'offer_dm' => [
+        'text' => "Siz «:organization» markazidan chiqdingiz. Shaxsiy LexiFlow Pro birinchi oyga :pct% chegirma bilan — :date gacha.\nTo'lov usulini tanlang:",
+        'text_generic' => "Markazdagi joyingiz tugadi. Shaxsiy LexiFlow Pro birinchi oyga :pct% chegirma bilan — :date gacha.\nTo'lov usulini tanlang:",
+    ],
+
     'pro' => [
         'blocked' => "Akkauntga kirish cheklangan. Qo'llab-quvvatlash xizmatiga murojaat qiling.",
         'rate_limited' => "Juda ko'p urinish. Bir daqiqa kutib, qayta urinib ko'ring.",
@@ -29,9 +35,12 @@ return [
             'price_not_configured' => "Bu to'lov varianti hozircha mavjud emas.",
             'provider_disabled' => "Bu to'lov usuli hozir mavjud emas. Boshqasini tanlang.",
             'provider_not_supported' => "Bu to'lov usuli siz uchun mavjud emas.",
-            'checkout_conflict' => "Sizda Telegram Stars avtoyangilash yoqilgan. Boshqa usulda to'lashdan oldin uni /pro orqali o'chiring.",
+            'checkout_conflict' => "Sizda Telegram Stars avtoyangilash yoqilgan. Yangi to'lovdan oldin uni /pro orqali o'chiring.",
+            'already_perpetual' => "Sizda LexiFlow Pro muddatsiz faol — hech narsa to'lash shart emas.",
+            'subscribe_too_early' => "Pro allaqachon uzoq muddatga to'langan. Stars obunasini oxirgi kunlarda rasmiylashtirish mumkin; hozircha bir yillik bir martalik to'lovni tanlang.",
             'too_many_pending' => "Sizda to'lanmagan hisoblar bor. Ulardan birini to'lang yoki kuting — ular o'zi yopiladi.",
             'offer_not_applicable' => "Chegirma bu xaridga qo'llanilmaydi.",
+            'offer_busy' => "Chegirmali oldingi to'lov hali qayta ishlanmoqda — bir daqiqadan so'ng urinib ko'ring.",
             'invalid_period' => "Bunday to'lov varianti yo'q.",
             'invalid_tier' => "Bunday to'lov varianti yo'q.",
             'not_cancelable' => "Hozir o'chiriladigan avtoyangilash yo'q.",
@@ -70,6 +79,7 @@ return [
             'order_expired' => 'Hisob muddati tugagan. /pro ni oching va yangisini yarating.',
             'amount_mismatch' => 'Hisob summasi buyurtma bilan mos kelmaydi. /pro ni oching va yangisini yarating.',
             'provider_disabled' => "Telegram Stars orqali to'lov hozir mavjud emas. /pro da boshqa usulni tanlang.",
+            'already_subscribed' => "Sizda Telegram Stars avtoyangilash allaqachon yoqilgan — ikkinchi hisob kerak emas. /pro ni oching: u yerda uni o'chirish mumkin.",
             'unavailable' => "Xizmat vaqtincha ishlamayapti. Bir daqiqadan keyin urinib ko'ring.",
         ],
         'paid' => "To'lov qabul qilindi! LexiFlow Pro :date gacha faol.",
@@ -130,7 +140,7 @@ return [
         ],
         'pending' => [
             'heading' => "To'lov tasdiqlanishini kutmoqdamiz",
-            'text' => "To'lov qayta ishlanmoqda. Odatda bu bir daqiqadan kam vaqt oladi; Payme to'lovni tasdiqlashi bilan Pro avtomatik yoqiladi.",
+            'text' => "To'lov qayta ishlanmoqda. Odatda bu bir daqiqadan kam vaqt oladi; to'lov tizimi to'lovni tasdiqlashi bilan Pro avtomatik yoqiladi.",
         ],
         'expired' => [
             'heading' => "Hisob muddati o'tdi",

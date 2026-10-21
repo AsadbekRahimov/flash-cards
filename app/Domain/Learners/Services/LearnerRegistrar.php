@@ -6,6 +6,7 @@ namespace App\Domain\Learners\Services;
 
 use App\Domain\Learners\DTO\StartPayload;
 use App\Domain\Learners\Enums\StartPayloadKind;
+use App\Domain\Learning\Services\SchedulerResolver;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Learner;
 use Carbon\CarbonImmutable;
@@ -34,6 +35,7 @@ final class LearnerRegistrar
     public function __construct(
         private readonly LocaleResolver $locales,
         private readonly LearnerClock $clock,
+        private readonly SchedulerResolver $schedulers,
     ) {}
 
     /**
@@ -72,9 +74,10 @@ final class LearnerRegistrar
      * `acquisition_source` is still empty — a learner created earlier without a source (e.g. via
      * `/auth`) gets the source of their first deep link; one that already has a source (`group`,
      * an earlier link) keeps it, together with `start_payload` / `referrer_learner_id`. A
-     * `ref_` link to the learner themself or to an unknown / deleted / blocked learner is ignored
-     * entirely, so a later valid link can still attribute. The write is a conditional UPDATE,
-     * so two parallel `/start` updates cannot overwrite each other.
+     * `ref_<code>` link with the learner's own code or an unknown / deleted / blocked inviter is
+     * ignored entirely, so a later valid link can still attribute. The write is a conditional UPDATE,
+     * so two parallel `/start` updates cannot overwrite each other. The `referrals` row itself
+     * (reward machinery, docs/13 §7.1) is ReferralService::link's business, not attribution.
      *
      * Deliberately separate from {@see self::fromTelegramUser()}: it is the only place that
      * attributes after the learner exists, and the other paths keep their behaviour.
@@ -91,13 +94,14 @@ final class LearnerRegistrar
         $values = ['acquisition_source' => $source];
 
         if ($payload->kind === StartPayloadKind::Ref) {
-            $referrerId = (int) $payload->referrerId();
-            if ($referrerId === $learner->id
-                || ! Learner::query()->whereKey($referrerId)->whereNull('blocked_at')->exists()
-            ) {
+            $referrerId = Learner::query()
+                ->where('referral_code', (string) $payload->referralCode())
+                ->whereNull('blocked_at')
+                ->value('id');
+            if ($referrerId === null || (int) $referrerId === $learner->id) {
                 return false;
             }
-            $values['referrer_learner_id'] = $referrerId;
+            $values['referrer_learner_id'] = (int) $referrerId;
         }
 
         if ($learner->start_payload === null) {
@@ -178,6 +182,9 @@ final class LearnerRegistrar
                 // recomputes this when the zone or the time is chosen.
                 'next_reminder_at' => $this->firstReminderAt($timezone, $reminderTime),
                 'onboarding_state' => 'new',
+                // The SRS A/B bucket is fixed here, once (docs/13 §8.3): a stable hash of the Telegram id
+                // against `learning.fsrs.rollout_percent`; a later change of the percentage never moves anyone.
+                'scheduler' => $this->schedulers->bucketFor($telegramUserId),
                 'acquisition_source' => $source,
                 'start_payload' => $startPayload,
                 'last_seen_at' => $selfInitiated ? now() : null,

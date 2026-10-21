@@ -64,6 +64,41 @@ return [
      */
     'max_interval_days' => (int) env('LEARNING_MAX_INTERVAL_DAYS', 3650),
 
+    /*
+    |--------------------------------------------------------------------------
+    | FSRS-5 as an A/B alternative to SM-2 (docs/06 §9, docs/13 §8.3)
+    |--------------------------------------------------------------------------
+    |
+    | `learners.scheduler` is fixed when the learner is created: the bucket
+    | `crc32(telegram_user_id) % 100 < rollout_percent` gets `fsrs`, everyone
+    | else `sm2`. Changing the percentage never moves an existing learner
+    | (an admin can switch one learner in Filament, with an audit record).
+    | Rollback: FSRS_ROLLOUT_PERCENT=0 and `UPDATE learners SET scheduler = 'sm2'`;
+    | the SM-2 columns are kept intact by FSRS (it writes interval_days /
+    | next_review_at too and never touches easiness_factor).
+    */
+    'fsrs' => [
+        /** Share (0..100) of NEW learners that gets the FSRS bucket. 0 — nobody (default). */
+        'rollout_percent' => (int) env('FSRS_ROLLOUT_PERCENT', 0),
+
+        /** Target probability of recall at the moment the card comes due (0 < r < 1). */
+        'desired_retention' => (float) env('FSRS_DESIRED_RETENTION', 0.9),
+
+        /**
+         * FSRS-5 default parameters w[0..18] (comma-separated in env to override).
+         * Source: open-spaced-repetition, FSRS-5 defaults — fsrs-rs `DEFAULT_PARAMETERS`
+         * (v1.x, 2024-09) / ts-fsrs 4.x `default_w` / fsrs4anki wiki "The Algorithm" (FSRS-5):
+         *   w0..w3   initial stability for Again / Hard / Good / Easy
+         *   w4, w5   initial difficulty
+         *   w6, w7   difficulty delta and mean reversion
+         *   w8..w10  stability after a successful review
+         *   w11..w14 stability after a lapse
+         *   w15, w16 Hard / Easy multipliers
+         *   w17, w18 same-day (short-term) reviews — unused here: minute steps are shared with SM-2
+         */
+        'weights' => env('FSRS_WEIGHTS', '0.40255,1.18385,3.173,15.69105,7.1949,0.5345,1.4604,0.0046,1.54575,0.1192,1.01925,1.9395,0.11,0.29605,2.2698,0.2315,2.9898,0.51655,0.6621'),
+    ],
+
     /**
      * Personal sessions (`lesson`, `daily_review`) expire this many hours after
      * they were opened: `expires_at = started_at + ttl`, and `training:close-expired`
@@ -77,6 +112,24 @@ return [
      * re-open the lesson (`/start_training` is idempotent).
      */
     'group_session_ttl_hours' => (int) env('LEARNING_GROUP_SESSION_TTL_HOURS', 24),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Personal mock exams — IELTS / SAT vocabulary simulator (docs/13 §8.4, Pro)
+    |--------------------------------------------------------------------------
+    */
+    'mock_exam' => [
+        /** Courses whose `exam_tag` offers a mock. */
+        'exam_tags' => ['ielts', 'sat'],
+        /** Questions per mock: random active words of the course, seeded by the session id. */
+        'questions' => (int) env('MOCK_EXAM_QUESTIONS', 40),
+        /** Whole-exam time limit (seconds); there is no per-question limit. */
+        'seconds' => (int) env('MOCK_EXAM_SECONDS', 1200),
+        /** The percentile compares with closed mocks of the same course over this many days. */
+        'percentile_days' => (int) env('MOCK_EXAM_PERCENTILE_DAYS', 90),
+        /** Cache TTL (seconds) of the per-course distribution the percentile is read from. */
+        'percentile_cache_ttl' => (int) env('MOCK_EXAM_PERCENTILE_CACHE_TTL', 3600),
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -116,7 +169,8 @@ return [
         /**
          * Outgoing reminders per second (Telegram: ~30 messages/s per bot). The dispatcher
          * delays the n-th job of a run by floor(n / rate) seconds, at most 14 minutes
-         * (the claim is already made, so what does not fit goes out at the same 14 minutes).
+         * and a run claims at most rate × 840 learners (the rest stays due for the next run).
+         * All background sends also share the bot-wide `telegram.outbound.global_per_second` budget.
          * Read as at least 1.
          */
         'send_rate_per_second' => (int) env('REMINDERS_SEND_RATE_PER_SECOND', 25),

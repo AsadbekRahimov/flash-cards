@@ -17,9 +17,14 @@ use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Enums\SubscriptionStatus;
 use App\Domain\Billing\Exceptions\BillingException;
+use App\Domain\Billing\Exceptions\CheckoutException;
 use App\Domain\Billing\Exceptions\PromoCodeException;
+use App\Domain\Billing\Providers\Click\ClickMerchantService;
+use App\Domain\Billing\Providers\Payme\PaymeRpcException;
 use App\Domain\Billing\Providers\Payme\PaymeRpcService;
+use App\Domain\Billing\Services\CheckoutService;
 use App\Domain\Billing\Services\NewWordQuota;
+use App\Domain\Billing\Services\OrganizationOrderGuard;
 use App\Domain\Billing\Services\PaymentApplier;
 use App\Domain\Billing\Services\PromoCodeService;
 use App\Domain\Billing\Services\ProviderTransactionService;
@@ -31,6 +36,7 @@ use App\Domain\Organizations\Services\OrganizationMembershipService;
 use App\Models\Course;
 use App\Models\Learner;
 use App\Models\Lesson;
+use App\Models\Offer;
 use App\Models\Organization;
 use App\Models\OrganizationInvite;
 use App\Models\OrganizationMember;
@@ -48,6 +54,9 @@ use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Support\Facades\DB;
+use Tests\Support\ClickFixtures;
+use Tests\Support\FakeBillingProvider;
+use Tests\Support\ForkSafe;
 use Tests\Support\PaymeFixtures;
 
 $onPostgres = (getenv('DB_CONNECTION') ?: 'sqlite') === 'pgsql';
@@ -77,7 +86,7 @@ afterEach(function (): void {
 function billingRunInParallel(array $tasks): array
 {
     // The children must not inherit (and later close) the parent's socket.
-    DB::disconnect();
+    ForkSafe::releaseConnections();
 
     $dir = sys_get_temp_dir().'/lexiflow-race-'.getmypid().'-'.bin2hex(random_bytes(4));
     mkdir($dir, 0700, true);
@@ -93,6 +102,10 @@ function billingRunInParallel(array $tasks): array
         if ($pid === 0) {
             $outcome = [];
             try {
+                // Same for a persistent cache store (CI: Redis): a socket shared with the
+                // parent and siblings interleaves replies. Drop it so each child dials its own.
+                ForkSafe::releaseConnections();
+
                 $deadline = microtime(true) + 10;
                 while (! file_exists($go) && microtime(true) < $deadline) {
                     usleep(500);
@@ -728,4 +741,423 @@ it('does not deadlock when a Payme PerformTransaction and a manual grant hit the
         ->and(Subscription::query()->whereIn('status', SubscriptionStatus::liveValues())->count())->toBe(1)
         ->and(Payment::query()->where('status', 'succeeded')->count())->toBe(1)
         ->and(Subscription::query()->sole()->id)->toBe($results[1]['result']);
+});
+
+/*
+ * 2A.5 (docs/13 §3 rule 6, §4.3): Click's Complete serializes on the order row like Payme's Perform,
+ * so two deliveries credit once and answer alike; Complete vs Complete(error < 0) end in one of the
+ * two consistent states; Complete vs a manual grant on the same learner cannot deadlock.
+ */
+
+/** A Click order with a prepared (state 1) transaction; returns [order, merchant_prepare_id]. */
+function billingPreparedClickOrder(?Learner $learner = null): array
+{
+    ClickFixtures::configure();
+    $order = PaymentOrder::factory()->click()->create($learner === null ? [] : ['subscriber_id' => $learner->id]);
+    $response = app(ClickMerchantService::class)->prepare(ClickFixtures::prepare($order));
+    if ($response['error'] !== 0) {
+        throw new RuntimeException('Prepare failed: '.json_encode($response));
+    }
+
+    return [$order, (int) $response['merchant_prepare_id']];
+}
+
+it('credits exactly one payment when two Click Complete calls for the same transaction arrive together, answering both alike', function (): void {
+    [$order, $prepareId] = billingPreparedClickOrder();
+    $form = ClickFixtures::complete($order, $prepareId);
+
+    $results = billingRunInParallel(array_fill(0, 2, function () use ($form): array {
+        // Pause between the state check and the ledger insert: without the order lock both would charge.
+        Payment::creating(static function (): void {
+            usleep(200_000);
+        });
+
+        return app(ClickMerchantService::class)->complete($form);
+    }));
+
+    expect(billingCodes($results))->toBe(['ok', 'ok'])
+        ->and($results[0]['result']['error'] ?? null)->toBe(0)
+        ->and($results[0]['result'])->toBe($results[1]['result'])
+        ->and($results[0]['result']['merchant_confirm_id'])->toBe(Payment::query()->sole()->id)
+        ->and(Payment::query()->count())->toBe(1)
+        ->and(Payment::query()->sole()->status)->toBe('succeeded')
+        ->and(Subscription::query()->count())->toBe(1)
+        ->and(ProviderTransaction::query()->sole()->state)->toBe(2)
+        ->and($order->refresh()->status)->toBe('paid');
+});
+
+it('ends in one consistent state when a Click Complete and a Complete with error < 0 race on the same transaction', function (): void {
+    [$order, $prepareId] = billingPreparedClickOrder();
+    $success = ClickFixtures::complete($order, $prepareId);
+    $failure = ClickFixtures::complete($order, $prepareId, ['error' => '-5017']);
+
+    $results = billingRunInParallel([
+        function () use ($success): array {
+            Payment::creating(static function (): void {
+                usleep(200_000);
+            });
+
+            return app(ClickMerchantService::class)->complete($success);
+        },
+        function () use ($failure): array {
+            usleep(50_000);
+
+            return app(ClickMerchantService::class)->complete($failure);
+        },
+    ]);
+
+    expect(billingCodes($results))->toBe(['ok', 'ok']);
+    $tx = ProviderTransaction::query()->sole();
+
+    if ($tx->state === 2) {
+        // The success won: the later cancel is refused with -4 and nothing is undone.
+        expect($results[0]['result']['error'])->toBe(0)
+            ->and($results[1]['result']['error'])->toBe(-4)
+            ->and(Payment::query()->where('status', 'succeeded')->count())->toBe(1)
+            ->and(Subscription::query()->count())->toBe(1)
+            ->and($order->refresh()->status)->toBe('paid');
+    } else {
+        // The cancel won: the success is refused with -9, nothing was charged, the order is canceled.
+        expect($tx->state)->toBe(-1)
+            ->and($results[0]['result']['error'])->toBe(-9)
+            ->and($results[1]['result']['error'])->toBe(-9)
+            ->and(Payment::query()->count())->toBe(0)
+            ->and(Subscription::query()->count())->toBe(0)
+            ->and($order->refresh()->status)->toBe('canceled');
+    }
+});
+
+it('does not deadlock when a Click Complete and a manual grant hit the same learner', function (): void {
+    $learner = Learner::factory()->create();
+    $admin = User::factory()->create();
+    [$order, $prepareId] = billingPreparedClickOrder($learner);
+    $form = ClickFixtures::complete($order, $prepareId);
+    $signal = billingSignalFile();
+
+    $results = billingRunInParallel([
+        function () use ($form, $signal): array {
+            // Holds order + transaction + learner + subscription, pauses after the subscription write while the
+            // grant waits on the learner row, then inserts payments / events and commits.
+            Subscription::created(static function () use ($signal): void {
+                billingWaitForFile($signal);
+                usleep(500_000);
+            });
+
+            return app(ClickMerchantService::class)->complete($form);
+        },
+        function () use ($learner, $admin, $signal): int {
+            usleep(150_000); // let the complete take its locks first
+            touch($signal);
+
+            return app(SubscriptionService::class)->grantManual($learner, Plan::Pro, CarbonImmutable::now()->addDays(90), $admin, 'race')->id;
+        },
+    ]);
+    billingRemoveSignalFile($signal);
+
+    expect(billingCodes($results))->toBe(['ok', 'ok'])
+        ->and($results[0]['result']['error'])->toBe(0)
+        ->and(Subscription::query()->count())->toBe(1)
+        ->and(Subscription::query()->whereIn('status', SubscriptionStatus::liveValues())->count())->toBe(1)
+        ->and(Payment::query()->where('status', 'succeeded')->count())->toBe(1)
+        ->and(Subscription::query()->sole()->id)->toBe($results[1]['result']);
+});
+
+/*
+ * 2B.7a (docs/13 "Реализация 2B.7a"): an open offer is held by one pending order at a time. The
+ * checkout locks the holder rows BEFORE the subject (same direction as the applier: order ->
+ * subject -> ... -> offer) and retries when a parallel checkout slipped a new holder in between.
+ */
+
+/** A learner with a 30 % month offer and both fake providers enabled (inherited by the forked children). */
+function billingDiscountedLearner(): array
+{
+    $learner = Learner::factory()->create();
+    $offer = Offer::factory()->create(['learner_id' => $learner->id, 'discount_pct' => 30, 'period' => 'month']);
+    FakeBillingProvider::register(SubscriptionProvider::TelegramStars);
+    FakeBillingProvider::register(SubscriptionProvider::Payme);
+
+    return [$learner, $offer];
+}
+
+it('keeps a single holder of the offer when two discounted checkouts of one learner run at once', function (): void {
+    [$learner, $offer] = billingDiscountedLearner();
+
+    $results = billingRunInParallel(array_map(fn (SubscriptionProvider $provider) => function () use ($learner, $provider): int {
+        // Sleep between the subject lock and the INSERT: the other checkout has already looked for
+        // holders (none) and is waiting on the learner row — it must notice the new holder and retry.
+        PaymentOrder::creating(static function (): void {
+            usleep(200_000);
+        });
+
+        return app(CheckoutService::class)->create($learner, Plan::Pro, 'month', $provider, null, 'twa')->id;
+    }, [SubscriptionProvider::TelegramStars, SubscriptionProvider::Payme]));
+
+    expect(billingCodes($results))->toBe(['ok', 'ok']);
+
+    $orders = PaymentOrder::query()->where('offer_id', $offer->id)->orderBy('id')->get();
+    $pending = $orders->where('status', 'pending');
+    $moved = $orders->where('status', 'canceled');
+
+    // Mutation check: without the holder lock + retry both would stay pending and both could be paid with the discount.
+    expect($orders)->toHaveCount(2)
+        ->and($pending)->toHaveCount(1)
+        ->and($moved)->toHaveCount(1)
+        ->and($moved->first()?->meta['canceled_reason'])->toBe(PaymentOrder::CANCEL_REASON_OFFER_MOVED)
+        ->and($moved->first()?->meta['offer_moved_to_order_id'])->toBe($pending->first()?->id)
+        ->and($offer->refresh()->redeemed_at)->toBeNull();
+});
+
+/**
+ * A discounted checkout racing the payment of the current holder; $paymentFirst delays the
+ * checkout so the applier takes the holder row first, otherwise the checkout moves the hold first.
+ */
+function billingOfferCheckoutVsPayment(bool $paymentFirst): void
+{
+    [$learner, $offer] = billingDiscountedLearner();
+    $holder = app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::Payme, null, 'twa');
+    expect($holder->offer_id)->toBe($offer->id);
+
+    $results = billingRunInParallel([
+        function () use ($holder, $paymentFirst): int {
+            if (! $paymentFirst) {
+                usleep(100_000);
+            }
+            Payment::creating(static function (): void {
+                usleep(150_000);
+            });
+
+            return app(PaymentApplier::class)->applyCharge(new ChargeEvent(
+                provider: SubscriptionProvider::Payme,
+                providerEventId: 'holder-paid-'.$holder->id,
+                providerChargeId: 'holder-paid-'.$holder->id,
+                orderToken: $holder->token,
+                amount: $holder->amount,
+                currency: $holder->currency,
+                isRenewal: false,
+                periodEndsAt: null,
+                occurredAt: CarbonImmutable::now(),
+            ))->id;
+        },
+        function () use ($learner, $paymentFirst): int {
+            if ($paymentFirst) {
+                usleep(100_000);
+            }
+            PaymentOrder::creating(static function (): void {
+                usleep(150_000);
+            });
+
+            // Payme, not Stars: a Stars subscription on top of the 30 days the holder has just paid is refused
+            // (subscribe_too_early, "Реализация 2A.8") before the offer is even looked at.
+            return app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::Payme, null, 'twa')->id;
+        },
+    ]);
+
+    // Payment first: the checkout waits on the holder row, finds it paid and the offer used up.
+    // Checkout first: the hold moves, the in-flight charge on the canceled holder is honoured, and
+    // the new holder is released after the commit. Both end with the offer used once, by the holder.
+    expect(billingCodes($results))->toBe($paymentFirst ? [CheckoutException::OFFER_NOT_APPLICABLE, 'ok'] : ['ok', 'ok'])
+        ->and($results[0]['ok'])->toBeTrue()
+        ->and(Payment::query()->where('status', 'succeeded')->count())->toBe(1)
+        ->and(Subscription::query()->count())->toBe(1)
+        ->and($holder->refresh()->status)->toBe('paid')
+        ->and($offer->refresh()->payment_order_id)->toBe($holder->id)
+        ->and(PaymentOrder::query()->where('offer_id', $offer->id)->where('status', 'pending')->count())->toBe(0);
+
+    if ($paymentFirst) {
+        expect(PaymentOrder::query()->where('offer_id', $offer->id)->count())->toBe(1)
+            ->and($holder->meta['paid_after_cancel'] ?? false)->toBeFalse();
+    } else {
+        $released = PaymentOrder::query()->findOrFail($results[1]['result']);
+        expect($released->status)->toBe('canceled')
+            ->and($released->meta['canceled_reason'])->toBe(PaymentOrder::CANCEL_REASON_OFFER_REDEEMED)
+            ->and($released->meta['offer_redeemed_by_order_id'])->toBe($holder->id)
+            ->and($released->provider_ref)->not->toBeNull() // the checkout's post-commit write kept the release
+            ->and($holder->meta['canceled_reason'])->toBe(PaymentOrder::CANCEL_REASON_OFFER_MOVED)
+            ->and($holder->meta['paid_after_cancel'] ?? false)->toBeTrue();
+    }
+}
+
+it('uses the offer exactly once when the payment of the holder beats a discounted checkout', function (): void {
+    billingOfferCheckoutVsPayment(paymentFirst: true);
+});
+
+it('uses the offer exactly once when a discounted checkout beats the payment of the holder', function (): void {
+    billingOfferCheckoutVsPayment(paymentFirst: false);
+});
+
+/** Payme CreateTransaction (ProviderTransactionService::open) racing a discounted checkout that would move the hold. */
+function billingOfferCheckoutVsOpenTransaction(bool $providerFirst): void
+{
+    [$learner, $offer] = billingDiscountedLearner();
+    $holder = app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::Payme, null, 'twa');
+
+    $results = billingRunInParallel([
+        function () use ($holder, $providerFirst): int {
+            if (! $providerFirst) {
+                usleep(100_000);
+            }
+            ProviderTransaction::creating(static function (): void {
+                usleep(150_000);
+            });
+
+            return app(ProviderTransactionService::class)->open(SubscriptionProvider::Payme, 'payme-tx-offer-'.$holder->id, $holder->token, $holder->amount, null, [])->id;
+        },
+        function () use ($learner, $providerFirst): int {
+            if ($providerFirst) {
+                usleep(100_000);
+            }
+            PaymentOrder::creating(static function (): void {
+                usleep(150_000);
+            });
+
+            return app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::TelegramStars, null, 'twa')->id;
+        },
+    ]);
+
+    $holder->refresh();
+    if ($providerFirst) {
+        // CreateTransaction won: the holder stays pending and payable, the checkout was refused — the
+        // money that Payme is about to take can only land on an order that still carries the discount.
+        expect(billingCodes($results))->toBe([CheckoutException::OFFER_BUSY, 'ok'])
+            ->and($holder->status)->toBe('pending')
+            ->and(ProviderTransaction::query()->where('payment_order_id', $holder->id)->count())->toBe(1)
+            ->and(PaymentOrder::query()->where('offer_id', $offer->id)->count())->toBe(1);
+    } else {
+        // The checkout won: the holder is canceled (offer_moved) and Payme cannot open a transaction on it.
+        expect(billingCodes($results))->toBe(['ok', 'order_not_payable'])
+            ->and($holder->status)->toBe('canceled')
+            ->and($holder->meta['canceled_reason'])->toBe(PaymentOrder::CANCEL_REASON_OFFER_MOVED)
+            ->and(ProviderTransaction::query()->count())->toBe(0)
+            ->and(PaymentOrder::query()->where('offer_id', $offer->id)->where('status', 'pending')->count())->toBe(1);
+    }
+}
+
+it('refuses to move the discount once Payme opened a transaction on the holder (offer_busy)', function (): void {
+    billingOfferCheckoutVsOpenTransaction(providerFirst: true);
+});
+
+it('refuses Payme a transaction on a holder whose discount has just moved (order_not_payable)', function (): void {
+    billingOfferCheckoutVsOpenTransaction(providerFirst: false);
+});
+
+/*
+ * 2B.8 (docs/13 §6.5, OrganizationOrderGuard): a Center M payment races a Payme CreateTransaction on a
+ * Tutor order of the same center. Either the Create is refused (the sweep closed the order first, or the
+ * guard saw the new live tier) and the order is canceled with no transaction on it, or the Create won
+ * and the order stays pending with its open transaction — its Perform is credited into `tier_mismatch`.
+ * Never: an open transaction on a canceled order (money taken, order dead).
+ */
+
+/** @return array{Organization, PaymentOrder, PaymentOrder} the center, its Center M order and its Tutor order (both Payme) */
+function billingCenterWithTwoTiers(): array
+{
+    $org = Organization::factory()->create();
+    $centerM = PaymentOrder::factory()->forOrganization($org, 'center_m')->create(['amount' => 84_900_000, 'list_amount' => 84_900_000]);
+    $tutor = PaymentOrder::factory()->forOrganization($org, 'tutor')->create(['amount' => 12_900_000, 'list_amount' => 12_900_000]);
+
+    return [$org, $centerM, $tutor];
+}
+
+function billingOrgPaymentVsCreateTransaction(bool $paymentFirst): void
+{
+    [$org, $centerM, $tutor] = billingCenterWithTwoTiers();
+
+    $results = billingRunInParallel([
+        function () use ($centerM, $paymentFirst): int {
+            if (! $paymentFirst) {
+                usleep(100_000);
+                // Holds order + organization + subscription for a while after the subscription write, so the
+                // Create that is running meanwhile sees no live tier yet (the window the sweep must close).
+                Subscription::created(static function (): void {
+                    usleep(150_000);
+                });
+            }
+
+            $event = new ChargeEvent(
+                provider: SubscriptionProvider::Payme,
+                providerEventId: 'race-center-m:perform',
+                providerChargeId: 'race-center-m',
+                orderToken: $centerM->token,
+                amount: $centerM->amount,
+                currency: $centerM->currency,
+                isRenewal: false,
+                periodEndsAt: null,
+                occurredAt: CarbonImmutable::now(),
+            );
+
+            return app(PaymentApplier::class)->applyCharge($event)->id;
+        },
+        function () use ($tutor, $paymentFirst): array {
+            if ($paymentFirst) {
+                usleep(200_000);
+            }
+            ProviderTransaction::creating(static function (): void {
+                usleep(150_000);
+            });
+
+            return app(PaymeRpcService::class)->handle(PaymeFixtures::for('CreateTransaction', $tutor, [], 'race-tutor-create'));
+        },
+    ]);
+
+    expect(billingCodes($results))->toBe(['ok', 'ok'])
+        ->and(Payment::query()->where('status', 'succeeded')->count())->toBe(1)
+        ->and($centerM->refresh()->status)->toBe('paid')
+        ->and(Subscription::query()->sole()->tier)->toBe('center_m');
+
+    $tutor->refresh();
+    $create = $results[1]['result'];
+    $openOnTutor = ProviderTransaction::query()->where('payment_order_id', $tutor->id)->where('state', ProviderTransaction::STATE_CREATED)->count();
+
+    if (isset($create['result'])) {
+        // The Create won: the order is still payable and the sweep left it alone because of the open transaction.
+        expect($create['result']['state'])->toBe(1)
+            ->and($tutor->status)->toBe('pending')
+            ->and($openOnTutor)->toBe(1);
+
+        // Its Perform is the money already taken: credited, Center M kept, flagged for the platform.
+        $perform = app(PaymeRpcService::class)->handle(PaymeFixtures::for('PerformTransaction', $tutor, [], 'race-tutor-create'));
+        expect($perform['result']['state'] ?? null)->toBe(2)
+            ->and($tutor->refresh()->status)->toBe('paid')
+            ->and($tutor->meta['tier_mismatch'])->toBeTrue()
+            ->and(Subscription::query()->sole()->tier)->toBe('center_m');
+    } else {
+        // The payment won: the order was swept (-31051 "canceled") or the guard saw the live tier (-31053).
+        expect($create['error']['code'])->toBeIn([PaymeRpcException::ORDER_NOT_PAYABLE, PaymeRpcException::TIER_CHANGED])
+            ->and($openOnTutor)->toBe(0)
+            ->and($tutor->status)->toBeIn(['pending', 'canceled']);
+        if ($tutor->status === 'canceled') {
+            expect($tutor->meta['canceled_reason'])->toBe(PaymentOrder::CANCEL_REASON_TIER_CHANGED);
+        }
+    }
+
+    // In no outcome is there an open transaction on a canceled order.
+    expect(ProviderTransaction::query()->where('state', ProviderTransaction::STATE_CREATED)->whereHas('paymentOrder', fn ($q) => $q->where('status', 'canceled'))->count())->toBe(0);
+}
+
+it('refuses or honours a Payme CreateTransaction on a Tutor order that races the Center M payment of the same center (payment first)', function (): void {
+    billingOrgPaymentVsCreateTransaction(paymentFirst: true);
+});
+
+it('refuses or honours a Payme CreateTransaction on a Tutor order that races the Center M payment of the same center (Create first)', function (): void {
+    billingOrgPaymentVsCreateTransaction(paymentFirst: false);
+});
+
+it('cancels each competing order exactly once when two sweeps of the same center overlap', function (): void {
+    $org = Organization::factory()->create();
+    $paid = PaymentOrder::factory()->forOrganization($org, 'center_m')->paid()->create();
+    foreach (range(1, 4) as $_) {
+        PaymentOrder::factory()->forOrganization($org, 'tutor')->create();
+    }
+
+    $results = billingRunInParallel(array_fill(0, 2, function () use ($org, $paid): int {
+        PaymentOrder::saving(static function (): void {
+            usleep(100_000);
+        });
+
+        return app(OrganizationOrderGuard::class)->cancelCompeting($org->id, 'center_m', $paid->id);
+    }));
+
+    expect(billingCodes($results))->toBe(['ok', 'ok'])
+        ->and(collect($results)->sum('result'))->toBe(4)
+        ->and(PaymentOrder::query()->where('status', 'canceled')->count())->toBe(4);
 });

@@ -14,19 +14,31 @@ it('parses the supported deep-link prefixes', function (string $raw, StartPayloa
         ->and($payload->acquisitionSource())->toBe($source)
         ->and($payload->isEmpty())->toBeFalse();
 })->with([
-    'ref' => ['ref_42', StartPayloadKind::Ref, '42', 'ref'],
+    'ref' => ['ref_ABC234', StartPayloadKind::Ref, 'ABC234', 'ref'],
+    'ref longest' => ['ref_ABCDEFGHJK23', StartPayloadKind::Ref, 'ABCDEFGHJK23', 'ref'],
     'src' => ['src_tg_channel_1', StartPayloadKind::Src, 'tg_channel_1', 'src:tg_channel_1'],
     'course' => ['c_english-a1', StartPayloadKind::Course, 'english-a1', 'course:english-a1'],
     'course with underscore' => ['c_ielts_academic', StartPayloadKind::Course, 'ielts_academic', 'course:ielts_academic'],
     'org' => ['org_Center-7', StartPayloadKind::Org, 'Center-7', 'org'],
+    'friend' => ['f_ABC234', StartPayloadKind::Friend, 'ABC234', 'friend'],
 ]);
 
 it('exposes the typed parts', function (): void {
-    expect(StartPayload::parse('ref_42')->referrerId())->toBe(42)
-        ->and(StartPayload::parse('ref_42')->courseSlug())->toBeNull()
+    expect(StartPayload::parse('ref_ABC234')->referralCode())->toBe('ABC234')
+        ->and(StartPayload::parse('ref_ABC234')->courseSlug())->toBeNull()
         ->and(StartPayload::parse('c_english-a1')->courseSlug())->toBe('english-a1')
-        ->and(StartPayload::parse('c_english-a1')->referrerId())->toBeNull();
+        ->and(StartPayload::parse('c_english-a1')->referralCode())->toBeNull();
 });
+
+it('exposes the friend code of an f_ link only', function (): void {
+    expect(StartPayload::parse('f_ABC234')->friendCode())->toBe('ABC234')
+        ->and(StartPayload::parse('f_ABC234')->referralCode())->toBeNull()
+        ->and(StartPayload::parse('ref_ABC234')->friendCode())->toBeNull();
+});
+
+it('rejects malformed f_ payloads', function (string $raw): void {
+    expect(StartPayload::parse($raw)->isEmpty())->toBeTrue();
+})->with(['lower case' => ['f_abc234'], 'too short' => ['f_ABC23'], 'too long' => ['f_ABCDEFGHJK234'], 'empty' => ['f_'], 'foreign' => ['f_ABC-234']]);
 
 it('trims the payload', function (): void {
     expect(StartPayload::parse("  src_abc \n")->raw)->toBe('src_abc');
@@ -51,7 +63,7 @@ it('turns anything else into an empty payload', function (?string $raw): void {
         ->and($payload->raw)->toBeNull()
         ->and($payload->value)->toBeNull()
         ->and($payload->acquisitionSource())->toBeNull()
-        ->and($payload->referrerId())->toBeNull()
+        ->and($payload->referralCode())->toBeNull()
         ->and($payload->courseSlug())->toBeNull();
 })->with([
     'null' => [null],
@@ -59,9 +71,12 @@ it('turns anything else into an empty payload', function (?string $raw): void {
     'blank' => ['   '],
     'unknown prefix' => ['hello'],
     'prefix only' => ['ref_'],
-    'ref letters' => ['ref_abc'],
-    'ref leading zero' => ['ref_007'],
-    'ref too many digits' => ['ref_1234567890123456'],
+    // Phase 1 `ref_<learner id>` is gone (docs/13 §7.1): ids are guessable; only a referral code counts.
+    'ref numeric id' => ['ref_42'],
+    'ref lower case' => ['ref_abc234'],
+    'ref too short' => ['ref_ABC23'],
+    'ref too long' => ['ref_ABCDEFGHJK234'],
+    'ref with dash' => ['ref_ABC-234'],
     'src upper case' => ['src_Blog'],
     'src dash' => ['src_a-b'],
     'course upper case' => ['c_Eng'],

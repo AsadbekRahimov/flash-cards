@@ -38,6 +38,7 @@ use Illuminate\Support\Str;
  */
 final class LearnerDeckService
 {
+    /** Technical title stored in the DB; the TWA shows `decks.*` lang keys in the learner's locale (CourseCatalogService). */
     public const STAGE_TITLE = 'Моя колода';
 
     public function __construct(

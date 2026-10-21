@@ -9,6 +9,7 @@ use App\Filament\Org\Pages\OrgProfile;
 use App\Filament\Org\Pages\OrgSettings;
 use App\Filament\Org\Widgets\OrgActivityWidget;
 use App\Filament\Org\Widgets\OrgSeatsWidget;
+use App\Http\Controllers\Org\OrgInvoiceController;
 use App\Http\Middleware\RequireOrgTwoFactor;
 use App\Http\Middleware\SetOrgLocale;
 use App\Models\Organization;
@@ -25,6 +26,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Route;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 /**
@@ -62,6 +64,10 @@ class OrgPanelProvider extends PanelProvider
             ])
             ->tenant(Organization::class, slugAttribute: 'slug', ownershipRelationship: 'organization')
             ->tenantProfile(OrgSettings::class)
+            ->authenticatedTenantRoutes(function (): void {
+                // Printable invoice of an order — owner only, behind the tenant middleware (docs/13 §6.5).
+                Route::get('/invoice/{order}', OrgInvoiceController::class)->whereNumber('order')->name('invoice');
+            })
             ->discoverResources(in: app_path('Filament/Org/Resources'), for: 'App\\Filament\\Org\\Resources')
             ->discoverPages(in: app_path('Filament/Org/Pages'), for: 'App\\Filament\\Org\\Pages')
             ->pages([

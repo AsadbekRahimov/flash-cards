@@ -8,6 +8,7 @@ use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Learning\Services\ExamSessionService;
 use App\Domain\Learning\Services\LeaderboardBuilder;
+use App\Domain\Learning\Services\MockExamService;
 use App\Jobs\PostLeaderboardJob;
 use App\Models\ExamSession;
 use Carbon\CarbonImmutable;
@@ -18,6 +19,8 @@ use Illuminate\Support\Facades\DB;
 /**
  * Closes every exam session whose `ends_at` is in the past,
  * builds its leaderboard and queues the group announcement.
+ * Abandoned personal mocks (docs/13 §8.4) are finalized by `MockExamService`
+ * instead: no leaderboard, no group message.
  *
  * Intended to be scheduled `everyMinute()->withoutOverlapping()`.
  *
@@ -36,13 +39,28 @@ final class CloseExpiredExams extends Command
         ExamSessionService $service,
         LeaderboardBuilder $leaderboard,
         ProductEventRecorder $events,
+        MockExamService $mocks,
     ): int {
         $grace = max(0, (int) $this->option('grace'));
         $cutoff = CarbonImmutable::now()->subSeconds($grace);
 
+        /** @var Collection<int, ExamSession> $expiredMocks */
+        $expiredMocks = ExamSession::query()
+            ->where('status', 'open')
+            ->where('mode', ExamSession::MODE_PERSONAL_MOCK)
+            ->where('ends_at', '<=', $cutoff)
+            ->get();
+
+        foreach ($expiredMocks as $mock) {
+            if ($mocks->finalize($mock, 'expired')->status === 'closed') {
+                $this->info("Finalized mock #{$mock->id}");
+            }
+        }
+
         /** @var Collection<int, ExamSession> $expired */
         $expired = ExamSession::query()
             ->where('status', 'open')
+            ->where('mode', ExamSession::MODE_GROUP_EXAM)
             ->where('ends_at', '<=', $cutoff)
             ->get();
 

@@ -47,7 +47,7 @@ const catalog = (overrides: Partial<BillingCatalog> = {}): BillingCatalog => ({
   ...overrides,
 })
 
-const order = (status: OrderStatusResponse['status']): OrderStatusResponse => ({ status, paid_at: null, subscription: null })
+const order = (status: OrderStatusResponse['status']): OrderStatusResponse => ({ status, paid_at: null, reason: null, replaced_by: null, subscription: null })
 
 async function render(props: { reason?: 'quota' | 'info' | 'decks' } = {}) {
   const wrapper = mount(PaywallSheet, { props })
@@ -104,7 +104,7 @@ describe('PaywallSheet in purchase mode', () => {
     vi.mocked(api.billing.catalog).mockResolvedValue(catalog({
       items: [{ plan: 'pro', tier: null, period: 'month', prices: { XTR: 105 }, list_prices: { XTR: 150 } }],
       providers: ['telegram_stars'],
-      offer: { kind: 'post_org_discount', discount_pct: 30, expires_at: '2026-11-02T12:00:00+00:00' },
+      offer: { kind: 'post_org_discount', discount_pct: 30, period: 'month', expires_at: '2026-11-02T12:00:00+00:00' },
     }))
     const w = await render()
 
@@ -186,14 +186,59 @@ describe('PaywallSheet in purchase mode', () => {
     expect(w.get('[data-testid=pay-payme]').attributes('disabled')).toBeUndefined()
   })
 
+  it('explains offer_busy at checkout in Russian and in Uzbek', async () => {
+    vi.mocked(api.billing.checkout).mockRejectedValue(new ApiClientError('conflict', 409, 'offer_busy', 'English'))
+    const w = await render()
+
+    await w.get('[data-testid=pay-payme]').trigger('click')
+    await flushPromises()
+    expect(w.get('[data-testid=purchase-error]').text()).toBe('Предыдущая оплата со скидкой ещё обрабатывается — попробуйте через минуту.')
+
+    setLocale('uz')
+    await w.get('[data-testid=pay-payme]').trigger('click')
+    await flushPromises()
+    expect(w.get('[data-testid=purchase-error]').text()).toBe("Chegirmali oldingi to'lov hali qayta ishlanmoqda — bir daqiqadan so'ng urinib ko'ring.")
+  })
+
+  it('shows a replaced order as information, not as an error, and follows the new order', async () => {
+    vi.useFakeTimers()
+    vi.mocked(api.billing.checkout).mockResolvedValue({
+      order: { id: 1, token: 'old', status: 'pending', amount: 1, currency: 'UZS', expires_at: '2026-10-20T00:00:00+00:00' },
+      checkout: { url: 'https://my.click.uz/pay', kind: 'redirect' },
+    })
+    vi.mocked(api.billing.order)
+      .mockResolvedValueOnce({ ...order('canceled'), reason: 'replaced', replaced_by: 'new' })
+      .mockResolvedValue(order('pending'))
+    const w = await render()
+
+    await w.get('[data-testid=pay-click]').trigger('click')
+    await vi.advanceTimersByTimeAsync(0)
+    await flushPromises()
+
+    expect(w.find('[data-testid=purchase-error]').exists()).toBe(false)
+    expect(w.get('[data-testid=purchase-notice]').text()).toBe('Заказ заменён новым — ждём оплату по нему.')
+    await vi.advanceTimersByTimeAsync(POLL_INTERVAL_MS)
+    expect(api.billing.order).toHaveBeenLastCalledWith('new')
+  })
+
   it('does not sell while the Stars auto-renewal is running', async () => {
     vi.mocked(api.billing.catalog).mockResolvedValue(catalog({
-      subscription: { status: 'active', provider: 'telegram_stars', plan: 'pro', ends_at: '2026-12-01T00:00:00+00:00', auto_renew: true, can_cancel: true, can_resume: false },
+      subscription: { status: 'active', provider: 'telegram_stars', plan: 'pro', ends_at: '2026-12-01T00:00:00+00:00', auto_renew: true, can_cancel: true, can_resume: false, perpetual: false },
     }))
     const w = await render()
 
     expect(w.find('[data-testid=pay-telegram_stars]').exists()).toBe(false)
     expect(w.get('[data-testid=purchase-renewing]').text()).toContain('Автопродление Stars включено')
+  })
+
+  it('does not sell on top of a perpetual Pro', async () => {
+    vi.mocked(api.billing.catalog).mockResolvedValue(catalog({
+      subscription: { status: 'active', provider: 'manual', plan: 'pro', ends_at: null, auto_renew: false, can_cancel: false, can_resume: false, perpetual: true },
+    }))
+    const w = await render()
+
+    expect(w.find('[data-testid=pay-telegram_stars]').exists()).toBe(false)
+    expect(w.get('[data-testid=purchase-perpetual]').text()).toContain('без ограничения по сроку')
   })
 
   it('explains the exhausted quota with the purchase lead', async () => {

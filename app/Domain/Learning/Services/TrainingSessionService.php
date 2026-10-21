@@ -7,7 +7,9 @@ namespace App\Domain\Learning\Services;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Learning\DTO\SessionSummary;
 use App\Domain\Learning\Exceptions\TrainingSessionException;
+use App\Models\Assignment;
 use App\Models\Course;
+use App\Models\GroupMember;
 use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\TelegramGroup;
@@ -297,9 +299,67 @@ final class TrainingSessionService
         $lesson->loadMissing('stage.course');
 
         $course = $lesson->stage?->course;
-        if ($course === null || ! $this->catalog->isAvailable($course, $learner)) {
+        if ($course === null) {
             throw TrainingSessionException::lessonNotAvailable((int) $lesson->id);
         }
+
+        if ($this->catalog->isAvailable($course, $learner)) {
+            return;
+        }
+
+        // A published private course of a center is open to the learners of the group it was
+        // assigned to — only for the lessons set as a live assignment, nothing else of the course.
+        if ($learner !== null && $course->status === 'published' && $course->owner_type !== 'learner' && $this->isAssignedTo($lesson, $learner)) {
+            return;
+        }
+
+        throw TrainingSessionException::lessonNotAvailable((int) $lesson->id);
+    }
+
+    /**
+     * A running lesson session of a center's private course is re-checked on every step: after the
+     * learner left the group or the assignment closed, the session is closed (`expired`) instead of
+     * living to its TTL. Other sessions are not re-checked.
+     *
+     * @return bool false when the session was closed because the lesson is no longer available
+     */
+    public function ensureStillAvailable(TrainingSession $session, Learner $learner): bool
+    {
+        if ($session->mode !== TrainingSession::MODE_LESSON || $session->lesson_id === null) {
+            return true;
+        }
+
+        $lesson = Lesson::query()->with('stage.course')->find($session->lesson_id);
+        $course = $lesson?->stage?->course;
+
+        if ($lesson === null || $course === null || $course->visibility !== 'private' || $course->owner_type === 'learner') {
+            return true;
+        }
+
+        try {
+            $this->assertLessonAvailable($lesson, $learner);
+        } catch (TrainingSessionException) {
+            $this->finish($session, TrainingSession::DONE_EXPIRED);
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /** An active assignment of this lesson in a group of an active center where the learner is an active member. */
+    private function isAssignedTo(Lesson $lesson, Learner $learner): bool
+    {
+        return Assignment::query()
+            ->where('lesson_id', $lesson->id)
+            ->where('status', Assignment::STATUS_ACTIVE)
+            ->ofActiveOrganization()
+            ->inLinkedGroup()
+            ->whereIn('telegram_group_id', GroupMember::query()
+                ->select('telegram_group_id')
+                ->where('learner_id', $learner->id)
+                ->where('status', 'active'))
+            ->exists();
     }
 
     /**

@@ -7,6 +7,7 @@ namespace App\Domain\Billing\Providers;
 use App\Domain\Billing\DTO\PreCheckoutVerdict;
 use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Services\BillingProviderRegistry;
+use App\Domain\Billing\Support\AutoRenewal;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\PaymentOrder;
 use Carbon\CarbonImmutable;
@@ -26,6 +27,8 @@ use Illuminate\Support\Facades\Log;
  *   order_expired       `expires_at` passed (the scheduler may not have flipped the status yet)
  *   amount_mismatch     `total_amount` / `currency` differ from the order
  *   provider_disabled   Stars switched off in config between checkout and payment
+ *   already_subscribed  the learner's Stars subscription renews (a second one would double-charge them) — the only
+ *                       second read, made after every other check has passed ("Реализация 2A.8")
  */
 final class StarsPreCheckoutGuard
 {
@@ -42,6 +45,8 @@ final class StarsPreCheckoutGuard
     public const REASON_AMOUNT_MISMATCH = 'amount_mismatch';
 
     public const REASON_PROVIDER_DISABLED = 'provider_disabled';
+
+    public const REASON_ALREADY_SUBSCRIBED = 'already_subscribed';
 
     public function __construct(
         private readonly BillingProviderRegistry $providers,
@@ -71,6 +76,7 @@ final class StarsPreCheckoutGuard
             ->where('payment_orders.subscriber_type', 'learner')
             ->first([
                 'payment_orders.id',
+                'payment_orders.subscriber_id as learner_id',
                 'payment_orders.provider',
                 'payment_orders.status',
                 'payment_orders.amount',
@@ -114,6 +120,10 @@ final class StarsPreCheckoutGuard
 
         if (! $this->providers->isEnabled(SubscriptionProvider::TelegramStars)) {
             return $this->refuse(self::REASON_PROVIDER_DISABLED, $locale, $orderId, $fromId);
+        }
+
+        if (AutoRenewal::forLearner((int) $row->learner_id, $now) !== null) {
+            return $this->refuse(self::REASON_ALREADY_SUBSCRIBED, $locale, $orderId, $fromId);
         }
 
         return PreCheckoutVerdict::ok($orderId);

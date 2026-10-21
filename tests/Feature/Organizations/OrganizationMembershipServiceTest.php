@@ -11,6 +11,7 @@ use App\Domain\Organizations\Events\OrganizationMemberLeft;
 use App\Domain\Organizations\Events\OrganizationMemberSeated;
 use App\Domain\Organizations\Exceptions\OrganizationMembershipException;
 use App\Domain\Organizations\Services\OrganizationMembershipService;
+use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Models\AuditLog;
 use App\Models\Learner;
 use App\Models\Organization;
@@ -25,6 +26,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
+use Tests\Support\FakeTelegramClient;
 
 uses(RefreshDatabase::class);
 
@@ -554,4 +556,30 @@ it('exposes the active membership of a learner', function (): void {
     expect(omsService()->activeMembership($learner, $org)?->id)->toBe($member->id);
     omsService()->leave($learner, $org);
     expect(omsService()->activeMembership($learner, $org))->toBeNull();
+});
+
+it('does not let a Telegram outage break a join: the DM fails on the sync queue, the membership stays', function (): void {
+    $tg = new FakeTelegramClient;
+    $tg->failSends = 5;
+    $this->app->instance(TelegramClient::class, $tg);
+    Log::spy();
+
+    $org = omsOrganization();
+    $learner = Learner::factory()->create();
+
+    $member = omsService()->joinByInvite($learner, omsInvite($org)->code);
+
+    expect($member->isActive())->toBeTrue()
+        ->and($tg->sent)->toBe([])
+        ->and(OrganizationMember::query()->where('learner_id', $learner->id)->count())->toBe(1);
+    Log::shouldHaveReceived('warning')->with('telegram.organization_dm_failed', Mockery::type('array'))->once();
+});
+
+it('delivers the join DM through the fake client by default', function (): void {
+    $tg = new FakeTelegramClient;
+    $this->app->instance(TelegramClient::class, $tg);
+
+    omsService()->joinByInvite(Learner::factory()->create(), omsInvite(omsOrganization())->code);
+
+    expect($tg->sent)->toHaveCount(1);
 });

@@ -1,6 +1,8 @@
 import { createApiClient } from './client'
 import { useAuthStore } from '@/stores/auth'
 import type {
+  AchievementsResponse,
+  AssignmentsResponse,
   AuthContext,
   AuthResponse,
   BillingCatalog,
@@ -15,16 +17,23 @@ import type {
   DeckImportFormat,
   DeckImportResult,
   DecksResponse,
+  AnyExamResultResponse,
   ExamAnswerResponse,
   ExamJoinResponse,
   ExamQuestionResponse,
-  ExamResultResponse,
+  MockExamOpenResponse,
   MeResponse,
   NextCardResponse,
   OrderStatusResponse,
   OrganizationsResponse,
   OpenSessionRequest,
   Quality,
+  ReferralsResponse,
+  LeagueResponse,
+  FriendsResponse,
+  ChallengesResponse,
+  ChallengeItem,
+  ChallengeMetric,
   ReviewResponse,
   SessionSummary,
   SettingsPatch,
@@ -62,9 +71,39 @@ export const api = {
   me: {
     get: () => client().get<MeResponse>('/me'),
     updateSettings: (patch: SettingsPatch) => client().patch<MeResponse>('/me/settings', { ...patch }),
+    revertTimezone: () => client().post<MeResponse>('/me/settings/timezone/revert'),
   },
   today: {
     get: () => client().get<TodayResponse>('/today'),
+  },
+  assignments: {
+    list: () => client().get<AssignmentsResponse>('/assignments'),
+  },
+  referrals: {
+    get: () => client().get<ReferralsResponse>('/referrals'),
+  },
+  league: {
+    get: () => client().get<LeagueResponse>('/league'),
+  },
+  achievements: {
+    list: () => client().get<AchievementsResponse>('/achievements'),
+    /** The learner opened the share dialog of an unlocked key; answers with the refreshed list. */
+    shared: (key: string) => client().post<AchievementsResponse>(`/achievements/${encodeURIComponent(key)}/shared`),
+  },
+  friends: {
+    get: () => client().get<FriendsResponse>('/friends'),
+    /** Each action answers with the refreshed list. */
+    accept: (id: number) => client().post<FriendsResponse>(`/friends/${id}/accept`),
+    decline: (id: number) => client().post<FriendsResponse>(`/friends/${id}/decline`),
+    remove: (id: number) => client().post<FriendsResponse>(`/friends/${id}/remove`),
+  },
+  challenges: {
+    list: () => client().get<ChallengesResponse>('/challenges'),
+    /** To a friend, addressed by the friendship id. */
+    propose: (friendshipId: number, metric: ChallengeMetric) =>
+      client().post<ChallengeItem>('/challenges', { friendship_id: friendshipId, metric }),
+    accept: (id: number) => client().post<ChallengeItem>(`/challenges/${id}/accept`),
+    decline: (id: number) => client().post<ChallengeItem>(`/challenges/${id}/decline`),
   },
   organizations: {
     list: () => client().get<OrganizationsResponse>('/me/organizations'),
@@ -124,6 +163,20 @@ export const api = {
         time_spent_ms: timeSpentMs,
         serve_token: serveToken,
       }),
+    /** A typed answer to a server-graded card (spelling / gap_fill): the server sets the quality. */
+    answer: (
+      sessionId: number,
+      wordId: number,
+      answer: string,
+      timeSpentMs: number,
+      serveToken: string | null = null,
+    ) =>
+      client().post<ReviewResponse>(`/training/sessions/${sessionId}/review`, {
+        word_id: wordId,
+        answer,
+        time_spent_ms: timeSpentMs,
+        serve_token: serveToken,
+      }),
   },
   exam: {
     join: (sessionId: number) =>
@@ -140,6 +193,9 @@ export const api = {
       },
     ) => client().post<ExamAnswerResponse>(`/exam/sessions/${sessionId}/answer`, body),
     result: (sessionId: number) =>
-      client().get<ExamResultResponse>(`/exam/sessions/${sessionId}/result`),
+      client().get<AnyExamResultResponse>(`/exam/sessions/${sessionId}/result`),
+    /** IELTS / SAT mock of a course (Pro; 403 `exam_simulator_pro_required` is the paywall). */
+    openMock: (slug: string) =>
+      client().post<MockExamOpenResponse>(`/courses/${encodeURIComponent(slug)}/mock-exam`),
   },
 }

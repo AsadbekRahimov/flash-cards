@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Billing\Services;
 
 use App\Models\Payment;
+use App\Models\PaymentOrder;
 use App\Models\ProviderTransaction;
 use Carbon\CarbonImmutable;
 
@@ -54,9 +55,15 @@ final class BillingReportService
     /**
      * Webhook trouble of the last 24 hours: ledger rows recorded as `failed` (money that fits no
      * credit: amount mismatch, dead order, orphan renewal) and provider transactions canceled in
-     * the window (Payme -1 / -2, Click -1).
+     * the window (Payme -1 / -2, Click -1), and orders paid in the window with the offer's discount
+     * already used by another order (`meta.offer_double_discount`, docs/13 "Реализация 2B.7a"), and orders
+     * paid in the window for a tier other than the live one (`meta.tier_mismatch`, 2B.8), and orders paid in the
+     * window that opened a second Telegram Stars subscription next to a running one
+     * (`meta.stars_double_subscription`, "Реализация 2A.8").
+     * The JSON key is filtered in SQL (`where('meta->offer_double_discount', true)`: json_extract on
+     * SQLite, jsonb on PostgreSQL), never in PHP.
      *
-     * @return array{failed_payments: int, failed_by_provider: array<string, int>, canceled_transactions: int}
+     * @return array{failed_payments: int, failed_by_provider: array<string, int>, canceled_transactions: int, double_discounts: int, tier_mismatches: int, stars_double_subscriptions: int}
      */
     public function webhookErrorsLast24Hours(?CarbonImmutable $now = null): array
     {
@@ -78,6 +85,18 @@ final class BillingReportService
             'canceled_transactions' => ProviderTransaction::query()
                 ->whereIn('state', [ProviderTransaction::STATE_CANCELED, ProviderTransaction::STATE_CANCELED_AFTER_PERFORM])
                 ->where('canceled_at', '>=', $since)
+                ->count(),
+            'double_discounts' => PaymentOrder::query()
+                ->where('meta->offer_double_discount', true)
+                ->where('paid_at', '>=', $since)
+                ->count(),
+            'tier_mismatches' => PaymentOrder::query()
+                ->where('meta->tier_mismatch', true)
+                ->where('paid_at', '>=', $since)
+                ->count(),
+            'stars_double_subscriptions' => PaymentOrder::query()
+                ->where('meta->stars_double_subscription', true)
+                ->where('paid_at', '>=', $since)
                 ->count(),
         ];
     }

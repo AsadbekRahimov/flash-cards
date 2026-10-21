@@ -2,15 +2,18 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import AssignmentsBlock from '@/components/AssignmentsBlock.vue'
 import GoalRing from '@/components/GoalRing.vue'
 import LapsedBanner from '@/components/LapsedBanner.vue'
-import PaywallSheet from '@/components/PaywallSheet.vue'
+import PaywallSheet, { type PaywallReason } from '@/components/PaywallSheet.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
+import { useAssignmentsStore } from '@/stores/assignments'
 import { useAuthStore } from '@/stores/auth'
 import { useTodayStore } from '@/stores/today'
 import { useTrainingStore } from '@/stores/training'
 import { errorMessage } from '@/i18n/errors'
 import { useI18n } from '@/i18n'
+import type { StringKey } from '@/i18n/ru'
 import type { OpenSessionRequest } from '@/api/types'
 
 const { t, tn } = useI18n()
@@ -19,6 +22,7 @@ const route = useRoute()
 const auth = useAuthStore()
 const today = useTodayStore()
 const training = useTrainingStore()
+const assignments = useAssignmentsStore()
 const { data, status, errorMessage: loadError } = storeToRefs(today)
 const { opening, openError } = storeToRefs(training)
 
@@ -31,12 +35,23 @@ async function load(): Promise<void> {
     return
   }
   await today.load()
+  // The center's assignments are secondary: loaded alongside, never blocking or breaking Today.
+  void assignments.load()
 
   // Opened from a reminder (`/twa/?from=reminder`, docs/12 §7.5): go straight into the daily
   // review. The marker is dropped from the URL first so a reload or "back" does not reopen it.
   if (route.query.from === 'reminder' && today.data !== null) {
     await router.replace({ name: 'today', query: {} })
     await openSession({ mode: 'daily_review', source: 'reminder' })
+    return
+  }
+
+  // Opened from the group announcement (`/twa/?from=assignment&lesson=<id>`, docs/13 §2.3): start the
+  // lesson through the usual session path (the server re-checks access to the lesson).
+  const lessonId = Number(route.query.lesson)
+  if (route.query.from === 'assignment' && Number.isInteger(lessonId) && lessonId > 0 && today.data !== null) {
+    await router.replace({ name: 'today', query: {} })
+    await openSession({ mode: 'lesson', lesson_id: lessonId, source: 'assignment' })
   }
 }
 
@@ -48,11 +63,20 @@ async function openSession(body: OpenSessionRequest): Promise<void> {
 
 const review = (): Promise<void> => openSession({ mode: 'daily_review', source: 'self' })
 
+const openAssignment = (lessonId: number): Promise<void> => openSession({ mode: 'lesson', lesson_id: lessonId, source: 'assignment' })
+
 function learnNext(lessonId: number): Promise<void> {
   return openSession({ mode: 'lesson', lesson_id: lessonId, source: 'self' })
 }
 
 const paywallOpen = ref(false)
+/** Why the sheet was opened: the review card ('quota' / 'info') or the streak-freeze teaser (docs/13 §7.2). */
+const paywallReason = ref<PaywallReason>('info')
+
+function openPaywall(reason: PaywallReason): void {
+  paywallReason.value = reason
+  paywallOpen.value = true
+}
 
 /** "Repeat words" in the paywall: close the sheet (a failure shows on this screen) and start the review. */
 async function onPaywallReview(): Promise<void> {
@@ -60,7 +84,20 @@ async function onPaywallReview(): Promise<void> {
   await review()
 }
 
+/** The i18n key of a tier; an unknown key (a renamed tier on the server) falls back to the lowest one. */
+function tierKey(key: string): StringKey {
+  const known: Record<string, StringKey> = {
+    bronze: 'league.tier.bronze',
+    silver: 'league.tier.silver',
+    gold: 'league.tier.gold',
+    platinum: 'league.tier.platinum',
+    diamond: 'league.tier.diamond',
+  }
+  return known[key] ?? 'league.tier.bronze'
+}
+
 const goalLeft = computed(() => (data.value ? Math.max(0, data.value.goal.target - data.value.goal.done) : 0))
+const assignmentItems = computed(() => assignments.items)
 const streak = computed(() => data.value?.streak ?? null)
 const lessonLabel = computed(() => {
   const lesson = data.value?.active_course?.next_lesson
@@ -136,6 +173,19 @@ onBeforeUnmount(() => training.clearOpenError())
           <div v-if="streak.best > streak.current" class="text-xs text-tg-hint" data-testid="streak-best">
             {{ t('today.streak.best', { best: tn('today.streak.days', streak.best) }) }}
           </div>
+          <div v-if="streak.frozen_yesterday" class="text-sm" data-testid="streak-frozen">{{ t('today.streak.frozen_yesterday') }}</div>
+          <div v-if="data.entitlement.plan === 'pro'" class="text-xs text-tg-hint" data-testid="streak-freezes">
+            {{ streak.freezes > 0 ? tn('today.streak.freezes', streak.freezes) : t('today.streak.freezes_none') }}
+          </div>
+          <button
+            v-else
+            type="button"
+            class="text-xs text-tg-link underline text-left"
+            data-testid="streak-freeze-teaser"
+            @click="openPaywall('streak_freeze')"
+          >
+            {{ t('today.streak.freeze_teaser') }}
+          </button>
         </div>
       </div>
 
@@ -152,7 +202,7 @@ onBeforeUnmount(() => training.clearOpenError())
           type="button"
           class="text-tg-link underline text-sm"
           data-testid="paywall-open"
-          @click="paywallOpen = true"
+          @click="openPaywall(data.new_words_remaining === 0 ? 'quota' : 'info')"
         >
           {{ t('paywall.open') }}
         </button>
@@ -160,6 +210,15 @@ onBeforeUnmount(() => training.clearOpenError())
           {{ data.open_session_id !== null ? t('today.review.continue') : t('today.review.start') }}
         </button>
       </div>
+
+      <AssignmentsBlock v-if="assignmentItems.length > 0" :items="assignmentItems" :busy="opening" @open="openAssignment" />
+
+      <RouterLink :to="{ name: 'league' }" class="card block text-sm" data-testid="league-line">
+        <template v-if="data.league">
+          {{ t('league.today.line', { tier: t(tierKey(data.league.tier_key)), rank: data.league.rank, members: data.league.members_count, points: tn('league.points', data.league.points) }) }}
+        </template>
+        <template v-else>{{ t('league.today.join') }}</template>
+      </RouterLink>
 
       <div class="card space-y-3" data-testid="course-card">
         <template v-if="data.active_course">
@@ -199,6 +258,12 @@ onBeforeUnmount(() => training.clearOpenError())
       <RouterLink :to="{ name: 'decks' }" class="btn btn-secondary w-full" data-testid="decks-link">
         {{ t('decks.open') }}
       </RouterLink>
+      <RouterLink :to="{ name: 'referrals' }" class="btn btn-secondary w-full" data-testid="referrals-link">
+        🎁 {{ t('referrals.open') }}
+      </RouterLink>
+      <RouterLink :to="{ name: 'achievements' }" class="btn btn-secondary w-full" data-testid="achievements-link">
+        🏅 {{ t('achievements.open') }}
+      </RouterLink>
       <RouterLink :to="{ name: 'settings' }" class="btn btn-secondary w-full" data-testid="settings-link">
         ⚙️ {{ t('settings.title') }}
       </RouterLink>
@@ -206,7 +271,7 @@ onBeforeUnmount(() => training.clearOpenError())
 
     <PaywallSheet
       v-if="paywallOpen"
-      :reason="data?.new_words_remaining === 0 ? 'quota' : 'info'"
+      :reason="paywallReason"
       @close="paywallOpen = false"
       @review="onPaywallReview"
     />

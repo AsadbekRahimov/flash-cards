@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Handlers;
 
+use App\Domain\Engagement\Services\ReferralService;
 use App\Domain\Learners\DTO\StartPayload;
 use App\Domain\Learners\Enums\StartPayloadKind;
 use App\Domain\Learners\Services\LearnerRegistrar;
@@ -11,11 +12,13 @@ use App\Domain\Learners\Services\OnboardingService;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Domain\Telegram\Services\FriendsMessenger;
 use App\Domain\Telegram\Services\OnboardingMessenger;
 use App\Domain\Telegram\Services\OrganizationMessenger;
 use App\Domain\Telegram\Services\TodayScreen;
 use App\Domain\Telegram\Support\DmLearnerResolver;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 
 /**
  * `/start [payload]` in a DM (docs/12 §7.1). A linked teacher gets the greeting as before; anyone
@@ -23,6 +26,10 @@ use App\Models\User;
  * starts — or, for a learner who has finished it, the "Today" screen is shown. An `org_<code>` link
  * (docs/13 §6.2) adds a "Join center X?" question: at once for a learner who has finished the
  * onboarding, after its last step otherwise; a code that cannot be used is explained and ignored.
+ * A `ref_<code>` link (docs/13 §7.1) also links the referral when the learner is new. An `f_<code>` link, or a
+ * `ref_<code>` link opened by somebody who is ALREADY a learner (docs/13 §7.5), is an invitation to be friends:
+ * "X invites you" with Accept / Decline at once for a learner who has finished the onboarding, a silent pending
+ * question after the last step (the code is remembered) for one who has not.
  */
 final class StartCommandHandler implements UpdateHandler
 {
@@ -34,6 +41,8 @@ final class StartCommandHandler implements UpdateHandler
         private readonly OnboardingMessenger $messenger,
         private readonly TodayScreen $today,
         private readonly OrganizationMessenger $organizations,
+        private readonly ReferralService $referrals,
+        private readonly FriendsMessenger $friends,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -98,7 +107,24 @@ final class StartCommandHandler implements UpdateHandler
         $payload = StartPayload::parse($this->payloadFrom((string) ($message['text'] ?? '')));
         $this->registrar->attributeAcquisition($learner, $payload);
 
+        // The referral itself (docs/13 §7.1): only a learner CREATED by this /start can be somebody's
+        // referral; the service records a rejected row for anybody else and a repeat is harmless.
+        $referralCode = $payload->referralCode();
+        if ($referralCode !== null) {
+            $this->referrals->link($learner, $referralCode, CarbonImmutable::now());
+        }
+
+        // "Be my friend" (docs/13 §7.5): only an `f_<code>` link; a `ref_<code>` link never offers a friendship.
+        $friendCode = $payload->friendCode();
+
         if ($learner->onboarding_state === OnboardingService::DONE) {
+            if ($friendCode !== null) {
+                // The invitation is why they came: the question replaces "Today".
+                $this->friends->offer($learner, $chatId, $friendCode);
+
+                return;
+            }
+
             if ($payload->kind === StartPayloadKind::Org && $payload->value !== null) {
                 // The invite link is why they came: the question replaces "Today".
                 $this->organizations->offer($learner, $chatId, $payload->value);
@@ -112,6 +138,9 @@ final class StartCommandHandler implements UpdateHandler
 
             return;
         }
+
+        // `f_<code>` of somebody still in the onboarding writes no friendship (no consent yet); OnboardingService::start
+        // remembers the code and FriendsMessenger::offerPending asks "Add to friends?" after the last step.
 
         // A code that cannot be used is explained now and not remembered for the end of the onboarding.
         if (! $this->organizations->acceptsPayload($learner, $chatId, $payload)) {

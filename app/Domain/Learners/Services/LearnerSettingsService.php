@@ -7,8 +7,11 @@ namespace App\Domain\Learners\Services;
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Content\Services\CourseCatalogService;
+use App\Domain\Engagement\Services\LeagueService;
 use App\Domain\Learners\Exceptions\InvalidSettingException;
 use App\Domain\Learners\Exceptions\TimezoneChangeTooSoonException;
+use App\Domain\Learners\Exceptions\TimezoneRevertUnavailableException;
+use App\Domain\Learning\DTO\LearnerExerciseSettings;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Learner;
 use Carbon\CarbonImmutable;
@@ -34,7 +37,11 @@ use Throwable;
  *                        `Asia/Calcutta`), stored as given;
  *  - `reminder_time`     `HH:MM` on a {@see REMINDER_STEP_MINUTES}-minute step, or `null` = reminders off;
  *  - `daily_goal`        one of `config('learners.daily_goal_options')` (10 / 20 / 40);
- *  - `goal`, `level`     the onboarding whitelists.
+ *  - `goal`, `level`     the onboarding whitelists;
+ *  - `leagues_opt_out`   bool, kept in `learners.meta` (docs/13 §7.3): `true` = not placed in league groups any more.
+ *  - `exercises`         `{reverse, audio, spelling, gap_fill}` booleans (a partial object: only the keys
+ *                        given change), stored in `learners.meta.exercises` (docs/13 §8.2); flash cards
+ *                        cannot be switched off.
  * Values are checked here again whatever the caller validated: strict types, no coercion.
  *
  * `update()` locks the learner row, writes everything in one transaction and recomputes
@@ -52,6 +59,11 @@ use Throwable;
  * not subject to either rule — unless a zone change through the settings already happened (or its
  * carried day is still running): then the onboarding's zone step calls {@see update()} too.
  *
+ * A change of the zone can be taken back within {@see TIMEZONE_UNDO_MINUTES} ({@see revertTimezone()}):
+ * the change saves what it replaced in `meta.timezone_change_undo` (the previous zone, the moment of the
+ * change and the previous `timezone_changed_at` / `local_day_carry`), and the undo puts exactly that back —
+ * no 24 h penalty and no later quota window than without the change. A newer change overwrites the snapshot.
+ *
  * Lowering `daily_goal` to or below what is already done today completes today's goal at once
  * ({@see DailyStatsService::reconcileGoal()}) — in its own transaction AFTER the `learners` one has
  * committed, so `learners` and `learner_daily_stats` are never locked together (docs/06 §4.2; the
@@ -65,8 +77,11 @@ use Throwable;
  *   daily_goal: int,
  *   goal: string|null,
  *   level: string|null,
+ *   leagues_opt_out: bool,
  *   timezone_change_available_at: string|null,
+ *   timezone_undo_available_until: string|null,
  *   active_course: array{slug: string, title: string}|null,
+ *   exercises: array{reverse: bool, audio: bool, spelling: bool, gap_fill: bool},
  *   options: array{
  *     locales: list<array{id: string, label: string}>,
  *     timezones: list<array{id: string, label: string}>,
@@ -87,6 +102,12 @@ final class LearnerSettingsService
 
     /** `learners.meta` key: UTC instant of the last accepted change of `timezone` (not set by the onboarding). */
     public const TIMEZONE_CHANGED_AT_META = 'timezone_changed_at';
+
+    /** How long after a change of `timezone` it can be taken back (docs/13 §9, 2R.7). */
+    public const TIMEZONE_UNDO_MINUTES = 10;
+
+    /** `learners.meta` key: what {@see revertTimezone()} needs — `{timezone, changed_at, previous_changed_at, previous_day_carry}`. */
+    public const TIMEZONE_UNDO_META = 'timezone_change_undo';
 
     /** `learners.meta` key: the learner picked the interface language (settings / onboarding) — Telegram's `language_code` stops deciding it. */
     public const LOCALE_CHOSEN = 'locale_chosen';
@@ -121,11 +142,32 @@ final class LearnerSettingsService
             /** @var Learner $fresh */
             $fresh = (DB::connection()->getDriverName() === 'pgsql' ? $lock->lock('for no key update') : $lock->lockForUpdate())->firstOrFail();
 
+            $exercises = null;
+            if (is_array($values['exercises'] ?? null)) {
+                /** @var array<string, bool> $patch */
+                $patch = $values['exercises'];
+                $current = LearnerExerciseSettings::fromLearner($fresh)->toArray();
+                $exercises = [...$current, ...$patch];
+                if ($exercises !== $current) {
+                    $changed[] = 'exercises';
+                }
+                unset($values['exercises']);
+            }
+
             foreach ($values as $field => $value) {
-                $current = $field === 'reminder_time' ? $this->shortTime($fresh->reminder_time) : $fresh->getAttribute($field);
+                $current = match ($field) {
+                    'reminder_time' => $this->shortTime($fresh->reminder_time),
+                    'leagues_opt_out' => (bool) (($fresh->meta ?? [])[LeagueService::OPT_OUT_META] ?? false),
+                    default => $fresh->getAttribute($field),
+                };
                 if ($current !== $value) {
                     $changed[] = $field;
                 }
+            }
+
+            if (array_key_exists('leagues_opt_out', $values)) {
+                $fresh->meta = [...($fresh->meta ?? []), LeagueService::OPT_OUT_META => (bool) $values['leagues_opt_out']];
+                unset($values['leagues_opt_out']);
             }
 
             if (in_array('timezone', $changed, true)) {
@@ -133,6 +175,9 @@ final class LearnerSettingsService
             }
 
             $fresh->fill($values);
+            if ($exercises !== null) {
+                $fresh->meta = [...$fresh->meta, LearnerExerciseSettings::META_KEY => $exercises];
+            }
             if (array_key_exists('interface_locale', $values)) {
                 $fresh->meta = [...$fresh->meta, self::LOCALE_CHOSEN => true];
             }
@@ -193,8 +238,11 @@ final class LearnerSettingsService
             'daily_goal' => $learner->daily_goal,
             'goal' => $learner->goal,
             'level' => $learner->level,
+            'leagues_opt_out' => (bool) (($learner->meta ?? [])[LeagueService::OPT_OUT_META] ?? false),
             'timezone_change_available_at' => $this->timezoneChangeAvailableAt($learner)?->utc()->toIso8601String(),
+            'timezone_undo_available_until' => $this->timezoneUndoAvailableUntil($learner)?->toIso8601String(),
             'active_course' => $this->activeCourse($learner, $locale),
+            'exercises' => LearnerExerciseSettings::fromLearner($learner)->toArray(),
             'options' => [
                 'locales' => array_map(
                     fn (string $id): array => ['id' => $id, 'label' => (string) config('localization.names.'.$id, $id)],
@@ -265,6 +313,95 @@ final class LearnerSettingsService
         return $now->isBefore($availableAt) ? $availableAt : null;
     }
 
+    /**
+     * Takes back the last change of `timezone` if it is at most {@see TIMEZONE_UNDO_MINUTES} old: the previous
+     * zone, `timezone_changed_at` and `local_day_carry` come back exactly as they were (a mark that did not
+     * exist is removed), so the learner pays no 24 h wait and the quota window is the one there would be
+     * without the change. The snapshot is consumed: a second undo is refused. `streak_freezes*` are not
+     * touched — a refill is tied to the week, which only moves forward.
+     *
+     * @throws TimezoneRevertUnavailableException no change to take back, or the 10 minutes have passed
+     */
+    public function revertTimezone(Learner $learner): Learner
+    {
+        DB::transaction(function () use ($learner): void {
+            $lock = Learner::query()->whereKey($learner->id);
+            /** @var Learner $fresh */
+            $fresh = (DB::connection()->getDriverName() === 'pgsql' ? $lock->lock('for no key update') : $lock->lockForUpdate())->firstOrFail();
+
+            $undo = $this->timezoneUndo($fresh);
+            $now = CarbonImmutable::now();
+            if ($undo === null || ! $now->isBefore($undo['changed_at']->addMinutes(self::TIMEZONE_UNDO_MINUTES))) {
+                throw new TimezoneRevertUnavailableException;
+            }
+
+            $meta = $fresh->meta ?? [];
+            unset($meta[self::TIMEZONE_UNDO_META], $meta[self::TIMEZONE_CHANGED_AT_META], $meta[LearnerClock::DAY_CARRY_META]);
+            if ($undo['previous_changed_at'] !== null) {
+                $meta[self::TIMEZONE_CHANGED_AT_META] = $undo['previous_changed_at'];
+            }
+            if ($undo['previous_day_carry'] !== null) {
+                $meta[LearnerClock::DAY_CARRY_META] = $undo['previous_day_carry'];
+            }
+
+            $fresh->timezone = $undo['timezone'];
+            $fresh->meta = $meta;
+            $this->scheduleReminder($fresh);
+            $fresh->save();
+        });
+
+        $learner->refresh();
+        $this->events->record(ProductEventName::SettingsChanged, ['fields' => 'timezone'], learner: $learner);
+
+        return $learner;
+    }
+
+    /** Until when the last change of `timezone` can be taken back; `null` = it cannot (never changed, or too late). */
+    public function timezoneUndoAvailableUntil(Learner $learner, ?CarbonImmutable $now = null): ?CarbonImmutable
+    {
+        $undo = $this->timezoneUndo($learner);
+        if ($undo === null) {
+            return null;
+        }
+
+        $until = $undo['changed_at']->addMinutes(self::TIMEZONE_UNDO_MINUTES);
+
+        return ($now ?? CarbonImmutable::now())->isBefore($until) ? $until : null;
+    }
+
+    /**
+     * The well-formed undo snapshot of `learners.meta`, or null.
+     *
+     * @return array{timezone: string, changed_at: CarbonImmutable, previous_changed_at: string|null, previous_day_carry: array<mixed>|null}|null
+     */
+    private function timezoneUndo(Learner $learner): ?array
+    {
+        $raw = ($learner->meta ?? [])[self::TIMEZONE_UNDO_META] ?? null;
+        if (! is_array($raw) || ! is_string($raw['timezone'] ?? null) || ! is_string($raw['changed_at'] ?? null)
+            || ! in_array($raw['timezone'], $this->knownTimezones(), true)) {
+            return null;
+        }
+
+        $previousChangedAt = $raw['previous_changed_at'] ?? null;
+        $previousCarry = $raw['previous_day_carry'] ?? null;
+        if (($previousChangedAt !== null && ! is_string($previousChangedAt)) || ($previousCarry !== null && ! is_array($previousCarry))) {
+            return null;
+        }
+
+        try {
+            $changedAt = CarbonImmutable::parse($raw['changed_at'])->utc();
+        } catch (Throwable) {
+            return null;
+        }
+
+        return [
+            'timezone' => $raw['timezone'],
+            'changed_at' => $changedAt,
+            'previous_changed_at' => $previousChangedAt,
+            'previous_day_carry' => $previousCarry,
+        ];
+    }
+
     /** `HH:MM` of a stored `time` (PostgreSQL returns `HH:MM:SS`); `null` stays `null`. */
     public function shortTime(?string $time): ?string
     {
@@ -292,7 +429,7 @@ final class LearnerSettingsService
 
     /**
      * @param  array<string, mixed>  $changes
-     * @return array<string, int|string|null>
+     * @return array<string, int|string|bool|array<string, bool>|null>
      */
     private function normalize(array $changes): array
     {
@@ -300,17 +437,36 @@ final class LearnerSettingsService
 
         foreach ($changes as $field => $value) {
             $values[$field] = match ($field) {
+                'exercises' => is_array($value) ? $this->normalizeExercises($value) : throw InvalidSettingException::invalid($field),
                 'interface_locale' => is_string($value) && $this->locales->isSupported($value) ? $value : throw InvalidSettingException::invalid($field),
                 'timezone' => is_string($value) && in_array($value, $this->knownTimezones(), true) ? $value : throw InvalidSettingException::invalid($field),
                 'reminder_time' => $value === null || (is_string($value) && $this->isReminderTime($value)) ? $value : throw InvalidSettingException::invalid($field),
                 'daily_goal' => is_int($value) && in_array($value, $this->dailyGoals(), true) ? $value : throw InvalidSettingException::invalid($field),
                 'goal' => is_string($value) && in_array($value, OnboardingService::GOALS, true) ? $value : throw InvalidSettingException::invalid($field),
                 'level' => is_string($value) && in_array($value, OnboardingService::LEVELS, true) ? $value : throw InvalidSettingException::invalid($field),
+                'leagues_opt_out' => is_bool($value) ? $value : throw InvalidSettingException::invalid($field),
                 default => throw InvalidSettingException::unknown((string) $field),
             };
         }
 
         return $values;
+    }
+
+    /**
+     * @param  array<mixed>  $value
+     * @return array<string, bool>
+     */
+    private function normalizeExercises(array $value): array
+    {
+        $exercises = [];
+        foreach ($value as $key => $enabled) {
+            if (! is_string($key) || ! in_array($key, LearnerExerciseSettings::KEYS, true) || ! is_bool($enabled)) {
+                throw InvalidSettingException::invalid('exercises');
+            }
+            $exercises[$key] = $enabled;
+        }
+
+        return $exercises;
     }
 
     private function isReminderTime(string $value): bool
@@ -332,8 +488,20 @@ final class LearnerSettingsService
             throw new TimezoneChangeTooSoonException($availableAt);
         }
 
+        $before = $fresh->meta ?? [];
+        $undo = [
+            'timezone' => $fresh->timezone,
+            'changed_at' => $now->utc()->toIso8601String(),
+            'previous_changed_at' => $before[self::TIMEZONE_CHANGED_AT_META] ?? null,
+            'previous_day_carry' => $before[LearnerClock::DAY_CARRY_META] ?? null,
+        ];
+
         $this->clock->carryDayAcrossTimezoneChange($fresh, $now);
-        $fresh->meta = [...($fresh->meta ?? []), self::TIMEZONE_CHANGED_AT_META => $now->utc()->toIso8601String()];
+        $fresh->meta = [
+            ...($fresh->meta ?? []),
+            self::TIMEZONE_CHANGED_AT_META => $now->utc()->toIso8601String(),
+            self::TIMEZONE_UNDO_META => $undo,
+        ];
     }
 
     /**

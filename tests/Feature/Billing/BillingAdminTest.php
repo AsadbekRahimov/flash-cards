@@ -151,6 +151,21 @@ it('grants a perpetual Pro to an organization', function (): void {
         ->and(AuditLog::query()->where('action', 'subscription.granted')->count())->toBe(1);
 });
 
+it('grants center_l with an explicit number of seats; a fixed-seat tier keeps its seats', function (): void {
+    $org = Organization::factory()->create();
+    $this->actingAs($this->admin);
+
+    Livewire::test(ListSubscriptions::class)
+        ->callAction('grantPro', ['subscriber_type' => 'organization', 'organization_id' => $org->id, 'tier' => 'center_l', 'seats_limit' => 750, 'perpetual' => true, 'note' => 'Contract #99'])
+        ->assertHasNoActionErrors();
+    expect(Subscription::query()->sole()->seats_limit)->toBe(750);
+
+    Livewire::test(ListSubscriptions::class)
+        ->callAction('grantPro', ['subscriber_type' => 'organization', 'organization_id' => $org->id, 'tier' => 'center_s', 'seats_limit' => 750, 'perpetual' => true, 'note' => 'Downgrade'])
+        ->assertHasNoActionErrors();
+    expect(Subscription::query()->sole()->seats_limit)->toBe(100);
+});
+
 it('requires a reason, an existing subject and a future end date', function (): void {
     $learner = Learner::factory()->create();
     $this->actingAs($this->admin);

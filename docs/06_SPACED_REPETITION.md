@@ -17,8 +17,8 @@
 
 Реализация: `app/Domain/Learning/Services/SpacedRepetitionEngine.php`, параметры —
 `config/learning.php` → `App\Domain\Learning\Support\LearningPolicy`. Схема —
-`docs/03_DATABASE.md` §2.8. Миграция на FSRS (docs/11 §4.1) добавит реализацию алгоритма
-рядом, не меняя контракт `applyReview(WordRepetition, int $quality, CarbonImmutable $now)`.
+`docs/03_DATABASE.md` §2.8. FSRS (docs/11 §4.1) реализован рядом как A/B (§9), контракт
+`applyReview(WordRepetition, int $quality, CarbonImmutable $now)` не менялся.
 
 ## 2. Маппинг оценок студента
 
@@ -216,6 +216,36 @@ review-карточку** (то есть после того, как слово 
 активные слова урока / все активные слова урока (`LearningCache::lessonWordCount`); daily-scope — оценок в этой сессии /
 `learners.daily_goal` (точнее «сделано сегодня» появится с `learner_daily_stats` в 1.3b).
 
+### 4.3 Типы упражнений и серверная оценка (2D.2, docs/13 §2.5)
+
+Карточка выдаётся с упражнением (`TrainingStep.prompt`, `card.prompt` в API — docs/04 A.3). Тип выбирает
+`App\Domain\Learning\Services\ExerciseSelector::select(rep, word, entitlement, settings, sessionMode)` — **чистая
+функция без состояния**, поэтому `POST /review` пересчитывает его по тем же входам, а не хранит «ожидаемый тип»
+(`repetitions`/`state` меняются только после принятой оценки, а повторно оценить одну выдачу нельзя — §5.2):
+
+| Условие | Тип |
+|---|---|
+| `state ∈ {new, learning, relearning}` или `repetitions < 2` | `flash` |
+| `group_lesson` | `flash` / `reverse` (ротация ниже; `audio` в классе не выдаётся) |
+| Pro + настройка + `repetitions ≥ 3` и `repetitions % 3 = 0` | `gap_fill`, если `GapFillBuilder` нашёл форму слова в `example`; иначе `spelling` (если включён); иначе — ротация |
+| иначе | ротация `flash` / `reverse` / `audio` (из включённых в `learners.meta.exercises`): индекс `crc32("{repetitions}:{word_id}") mod n` |
+
+`ExerciseType::serverGraded()` — `spelling`, `gap_fill`; `feature()` — `exercise.spelling` / `exercise.gap_fill` (Pro, `config/billing.php`).
+`ExercisePromptBuilder` собирает экран: для `reverse` — 4 английских слова, для `audio` — 4 перевода; дистракторы — активные слова того же
+урока → того же курса → опубликованных публичных курсов платформы (приватные курсы центров и колоды никогда не попадают), выбор и порядок —
+по хэшу `(seed = crc32(repetitions:word_id), id/текст)`, то есть стабильны между двумя `/next` одной выдачи; при < 3 дистракторах карточка приходит как `flash`.
+
+**Серверная оценка** (`SpellingGrader::grade(expected, answer)`): оба текста нормализуются (trim, NFKC при наличии intl, нижний регистр,
+`’ ‘ ʼ ´ \`` → `'`, пробелы схлопываются), расстояние — OSA (Дамерау–Левенштейн с соседними транспозициями, каждая правка = 1);
+допуск по длине **ожидаемого** текста: ≤ 4 → 0, 5–8 → 1, ≥ 9 → 2; совпадение → `quality = 5`, в допуске → `4`, иначе `1` (lapse: карточка
+уходит в relearning). Для `gap_fill` ожидаемый текст — **форма из примера** (`walked`, а не `walk`). `GapFillBuilder` маскирует первое вхождение
+целого слова без учёта регистра: `word`, `+s`, `+es`, `+ed`, `+d`, `+ing`, `y→ies/ied`, `e→ing`; не нашёл → `null` (селектор берёт spelling/ротацию).
+
+В `training_reviews` каждая оценка несёт `exercise` (всегда) и `answer_text` (ответ learner'а, обрезка 100; `''` — пустой ответ; `null` — оценка
+клиентом), плюс `interval_before_days`. SM-2 сам не меняется: сервер лишь подставляет `quality` в `SpacedRepetitionEngine::applyReview`.
+`reverse`/`audio` оцениваются клиентом (верно → 4, неверно → 2) и приходят как обычный `quality`. Ошибки — docs/04 A.3 (`quality_not_accepted`,
+`answer_not_accepted`, `exercise_pro_required`).
+
 ## 5. Приём оценки (`ReviewSubmissionService::submit`)
 
 ### 5.1 Порядок проверок
@@ -320,6 +350,43 @@ learner'а (`learners.reminder_time` в `learners.timezone`; `NULL` = выклю
 был «завтра») в `relearning`. По правилу выше они снова попадают в напоминания через
 `abandoned_after_hours` после своего `next_review_at`; слова не теряются.
 
+## 6a. Заморозка серии (streak freeze, Pro) — 2C.2
+
+Правила streak — docs/12 §7.4; здесь — что меняет заморозка (docs/13 §2.4, §7.2). Код: `App\Domain\Engagement\Services\StreakFreezeService`
+(инвентарь и факт), `StreakService` (когда замораживать и как считать).
+
+- **Удержанный день.** Локальный день удержан, если `learner_daily_stats.goal_met_at IS NOT NULL` **или** `frozen_at IS NOT NULL`.
+  `learners.streak_last_date` — последний удержанный день (не только «цель выполнена»). Серия = число дней с выполненной
+  целью в непрерывной цепочке удержанных дней: замороженный день **не обрывает** цепочку и **не прибавляет** к `streak_current`
+  (`+0`, `best` не меняется); пересчёт по фактам (`factRunEndingOn`) идёт по той же цепочке — замороженные дни «мосты», не очки.
+- **Когда тратится.** Только у learner'а с фичей `streak.freeze` (Pro, личный или спонсорский; `config('learners.streak_freeze.max') = 0`
+  выключает для всех) и при пропуске **N дней подряд, если заморозок ≥ N** (решение владельца, 2C.6): тратится N, по одной на
+  каждый пропущенный локальный день, серия сохраняется. Заморозок **меньше N** — серия сгорает, **ни одна не тратится**
+  (всё или ничего); больше `max` (2) дней — тоже сгорает. Сгорание фиксируется сразу (2C.8): при обнаружении
+  `streak_current = 0` пишется в БД, и пополнение заморозок позже серию **не** восстанавливает (из 0 заморозка не тратится). Повторное чтение/повторный зачёт цели те же дни уже видят удержанными
+  и ничего не тратят.
+  Триггеры: чтение `StreakService::current()` (экран «Сегодня», `/finish`, напоминания) и зачёт сегодняшней цели
+  `apply(today)` из `afterCommit`-колбэка. Отставшая проекция (потерян колбэк за `today − 2`) сначала чинится по факту, потом замораживается.
+- **Как тратится** (`tryFreeze(Learner, 'Y-m-d', now): bool` — обёртка над `tryFreezeMany(Learner, list<'Y-m-d'>, now): bool`, своя короткая транзакция, **никогда** внутри транзакции оценки):
+  `UPDATE learners SET streak_freezes = streak_freezes − N WHERE id = ? AND streak_freezes >= N` (N = число пропущенных дней) (берёт строку `learners` первой —
+  тот же первый замок, что у пикера, порядок §4.2 сохранён) → `INSERT … ON CONFLICT DO NOTHING` строки `(learner, вчера)` со
+  счётчиками 0 → `UPDATE learner_daily_stats SET frozen_at = now WHERE … AND frozen_at IS NULL AND goal_met_at IS NULL`
+  (affected ≠ 1 → откат, заморозка возвращается). Поэтому две параллельные `current()` тратят ровно одну заморозку
+  (`StreakFreezeConcurrencyTest`, PG), а заморозка без факта невозможна. Затем `StreakService` продвигает проекцию
+  (`streak_last_date = вчера`, `streak_current` без изменений, событий `daily_goal.met`/`streak.extended` нет) и пишется событие
+  `streak.frozen {date, freezes_left}`. Цель, выполненная «задним числом» на уже замороженную дату (переезд на запад), ставит
+  `goal_met_at` в ту же строку — день считается выполненным, заморозка потрачена зря; принимаем.
+- **Пополнение** (`refill(Learner, today)`, лениво в `TodayService::summary`, после «закрепления» сгорания чтением `current()`): +1 за локальную неделю (понедельник —
+  `startOfWeek` локального дня learner'а), до `max` (2). Неделя помечается её понедельником в `streak_freezes_refilled_on`
+  **и при полном инвентаре** — потраченная во вторник заморозка не возвращается в среду; первое открытие экрана в четверг
+  даёт пополнение этой недели. Смена часового пояса сдвигает «сегодня» максимум на день: та же или более ранняя неделя
+  пополнения не даёт (`refilled_on < понедельник` ложно), более поздняя — одна честная. Free: ни пополнения, ни траты;
+  `/today.streak.freezes = 0`; остаток после окончания Pro хранится и оживает с новым Pro.
+- **Смена пояса и заморозка.** Дата замораживается не больше одного раза (`frozen_at` под уникальностью `(learner_id, date)`);
+  переезд на запад снова открывает замороженный день как «сегодня» (`met_today = true`, второй траты нет), переезд на восток
+  может открыть следующий день раньше — та же «мелкая аномалия», что у самого streak (docs/12 §7.4), ограниченная
+  интервалом смены пояса (`LearnerSettingsService`).
+
 ## 7. Тестирование
 
 - `tests/Unit/SpacedRepetitionEngineTest.php` — формула EF для 0..5 как раньше; q=4 не меняет EF;
@@ -354,6 +421,13 @@ learner'а (`learners.reminder_time` в `learners.timezone`; `NULL` = выклю
   граница дня, смена пояса на запад/восток, запрет зачёта «вчера» после уже зачтённого «сегодня», best, события,
   починка проекции из строки «сегодня», пересчёт серии по фактам при потерянном колбэке «вчера» (в т.ч. порядок
   колбэков вокруг полуночи), глубина 400 дней, `current()` чинит «вчера» и не пишет без факта.
+- `tests/Feature/Engagement/StreakFreezeTest.php` (§6a) — трата при пропуске N дней подряд только если заморозок ≥ N (2C.6: по одной на день, иначе ничего не тратится; 0 пропусков — нет), только Pro,
+  нет заморозок → обнуление, один раз на дату при повторных чтениях, возврат при фактически выполненной цели, заморозка из
+  `afterCommit` после зачёта цели (внутри транзакции оценки ничего не меняется — тест на порядок), пересчёт по фактам с
+  «мостами», починка потерянного замороженного «вчера» без зачёта, два дня подряд двумя заморозками, пополнение по неделям
+  (повтор/полный инвентарь/смена пояса — без второго), запад/восток без второй траты, `GET /today`, `max = 0`.
+  `StreakFreezeConcurrencyTest.php` (PG, fork) — 4 параллельных `current()` → `streak_freezes −1`, одна строка `frozen_at`,
+  одно событие; `apply(today)` ∥ `current()` → одна трата, серия 4.
 - `tests/Unit/TrainingScopeTest.php` — `TrainingScope`, `NewCardBudget`, инвариант `mode_shape`.
 - TWA `FlashCard.spec.ts` — кнопки шлют 2 / 4 / 5, метка «Закрепление» для `learning`;
   `stores/__tests__/training.spec.ts` — `serve_token` карточки уходит в `POST /review`.
@@ -365,16 +439,99 @@ learner'а (`learners.reminder_time` в `learners.timezone`; `NULL` = выклю
 - **Leech-кандидаты** — `lapses >= 5`.
 - **Heatmap активности** — количество `training_reviews` на студента по дням недели.
 
-## 9. Будущие улучшения (не MVP)
+## 9. FSRS-5 как A/B с SM-2 (2D.3, docs/13 §2.5, §8.3)
+
+FSRS (Free Spaced Repetition Scheduler) работает **рядом** с SM-2 за интерфейсом
+`App\Domain\Learning\Contracts\SchedulerAlgorithm` (`key()`, `schedule(WordRepetition, int $quality, CarbonImmutable $now)`);
+реализации: `Sm2Scheduler` (тонкая обёртка над `SpacedRepetitionEngine::applyReview`, поведение SM-2 не менялось ни на бит)
+и `FsrsScheduler`. Алгоритм learner'а выбирает `SchedulerResolver::for($learner)`: `learners.scheduler`, а при `NULL` —
+`config('learning.algorithm')`. `ReviewSubmissionService` применяет его внутри той же транзакции оценки (§5) и пишет
+выбранный ключ в `training_reviews.scheduler`.
+
+### 9.1 Бакет A/B
+
+`learners.scheduler` (`sm2` / `fsrs`) ставится **один раз**, когда `LearnerRegistrar` создаёт learner'а:
+`crc32(telegram_user_id) % 100 < FSRS_ROLLOUT_PERCENT` → `fsrs`, иначе `sm2`. `rollout_percent` по умолчанию **0** (никто),
+`100` — все новые. Хэш стабилен: один и тот же Telegram id при одном проценте всегда попадает в один бакет;
+изменение процента **не двигает** существующих learner'ов (только новых). Единственный способ перенести существующего —
+переключение администратором (§9.5). Откат: `FSRS_ROLLOUT_PERCENT=0` и `UPDATE learners SET scheduler = 'sm2'`
+(колонки SM-2 FSRS не портит, §9.4).
+
+### 9.2 Общая машина минутных шагов
+
+Карточки `new` / `learning` / `relearning` ведёт **общая** `LearningStepMachine` (те же `learning_steps`,
+`relearning_steps`, `graduating_interval_days`, `easy_interval_days`, §3.2, §3.4) для обоих алгоритмов. FSRS считает только
+интервал карточек в `review`. Поэтому «первое повторение» после выпуска всегда 1 (или 4 при Easy) день, как в SM-2;
+различие A/B — в интервалах после него. Провал карточки `review` в FSRS: `repetitions = 0`, `interval_days = 0`,
+`lapses += 1`, `is_hard = true`, relearning-шаги общей машины.
+
+### 9.3 Формулы (FSRS-5)
+
+Маппинг `quality` → rating: **0..2 → 1 Again**, **3 → 2 Hard**, **4 → 3 Good**, **5 → 4 Easy**
+(кнопки UI дают 2 / 4 / 5, q=3 — для API).
+
+```
+R(t, S)   = (1 + FACTOR · t / S) ^ DECAY                   DECAY = −0.5, FACTOR = 19/81;  t — дни с прошлого ответа (дробные)
+D0(G)     = w4 − e^(w5 · (G − 1)) + 1                      начальная сложность, S0(G) = w[G − 1]
+D'        = D + (−w6 · (G − 3)) · (10 − D) / 9             линейное демпфирование
+D''       = w7 · D0(4) + (1 − w7) · D'                     возврат к среднему, зажим 1..10
+успех     S' = S · (e^w8 · (11 − D) · S^(−w9) · (e^(w10 · (1 − R)) − 1) · [w15 при Hard] · [w16 при Easy] + 1)
+провал    S' = min(S, w11 · D^(−w12) · ((S + 1)^w13 − 1) · e^(w14 · (1 − R)))
+интервал  I(r, S) = S / FACTOR · (r ^ (1 / DECAY) − 1)     округление, минимум 1, максимум max_interval_days; I(0.9, S) = S
+```
+
+`S'` считается по сложности **до** обновления (как fsrs-rs / ts-fsrs). Веса `w17`, `w18` (повторы в тот же день)
+не используются: повторы в тот же день у нас — минутные шаги. Стабильность зажата в `0.01..36500`, сложность — в `1..10`.
+Cap `LEARNING_MAX_INTERVAL_DAYS` (§3.1) режет только `interval_days` / `next_review_at`; `stability` хранится реальная.
+
+**Параметры** (`config/learning.php` → `fsrs.*`, класс `FsrsParameters` проверяет их при старте, как `LearningPolicy`):
+`FSRS_ROLLOUT_PERCENT` (0..100, по умолчанию 0), `FSRS_DESIRED_RETENTION` (0 < r < 1, по умолчанию **0.9**),
+`FSRS_WEIGHTS` — 19 чисел через запятую. По умолчанию — официальные веса FSRS-5 по умолчанию
+(open-spaced-repetition: fsrs-rs `DEFAULT_PARAMETERS` / ts-fsrs `default_w` / fsrs4anki wiki «The Algorithm»):
+`0.40255, 1.18385, 3.173, 15.69105, 7.1949, 0.5345, 1.4604, 0.0046, 1.54575, 0.1192, 1.01925, 1.9395, 0.11, 0.29605, 2.2698, 0.2315, 2.9898, 0.51655, 0.6621`.
+Оптимизация весов на данных LexiFlow — отдельная будущая работа (нужно 100k+ ответов, docs/08).
+
+### 9.4 Память карточки и инициализация из SM-2
+
+Колонки `word_repetitions`: `stability` (дни), `difficulty` (1..10), `scheduler` (кто писал строку последним),
+`scheduled_days` (интервал, назначенный FSRS, для метрик; 0 при провале). FSRS пишет `interval_days`,
+`next_review_at`, `repetitions`, `lapses`, `is_hard` так же, как SM-2, и **никогда не меняет `easiness_factor`**.
+
+- Свежая карточка, выпущенная под FSRS: `stability = S0(G)`, `difficulty = D0(G)` оценки выпуска.
+- Карточка, которую до этого вела SM-2 (первое FSRS-повторение или переключение learner'а):
+  `stability = max(1, interval_days)`, `difficulty = clamp(1..10, 5 + (2.5 − EF) · 4 / 1.2)` (EF 2.5 → 5, 1.3 → 9, 3.7 → 1).
+- Карточка, провалённая под SM-2 и доученная под FSRS, стартует с того же SM-2-посева; провалённая под FSRS
+  сохраняет послепровальную память.
+
+Эталонная последовательность (юнит-тест `FsrsSchedulerTest`): новая карточка, Good, Good (выпуск, S = 3.173, D = 5.2824) →
+через 1 день Good: S = 5.8691, интервал 6 → через 6 дней Easy: S = 47.6568, интервал 48 → через 48 дней Hard: S = 70.5796, интервал 71 →
+через 71 день Again: S = 5.1445 (< 70.58), D = 6.8642.
+
+### 9.5 Переключение администратором
+
+Filament → Learners → кнопка **SRS algorithm** (только admin; `SchedulerSwitchService::switchTo`) в одной транзакции
+с `FOR UPDATE` на learner'е: пишет `learners.scheduler`, запись аудита `learner.scheduler_changed`
+(`meta {from, to, initialized_cards}`; повторное переключение на тот же алгоритм ничего не пишет) и, при переходе
+на FSRS, инициализирует память выпущенных (`review`) карточек без неё по формуле §9.4 (порциями по 500).
+Переход обратно на SM-2 ни одну карточку не трогает. Порядок блокировок: `learners`, затем `word_repetitions`
+(как у `CardPicker`, §4.2).
+
+### 9.6 Метрики A/B
+
+Виджет «SM-2 vs FSRS» (Filament, только admin; `SchedulerMetricsService`, окно **28 дней**), по `training_reviews.scheduler`:
+pass-rate «созревших» карточек `review` (`interval_before_days >= 1`, `quality >= 3`); повторений на выученное слово
+(оценки в окне / различные карточки с `repetitions >= 1`); удержание D7 по бакету `learners.scheduler`
+(созданные 28..7 дней назад и оценившие карточку через 7+ дней после регистрации).
+
+## 10. Будущие улучшения (не MVP)
 
 - Учёт времени ответа (`time_spent_ms`): если ответил «легко» за 10 секунд — подозрительно, сбавить EF прирост.
 - Четвёртая кнопка «С трудом» (q=3) — если будет запрос; API уже поддерживает.
-- FSRS (Free Spaced Repetition Scheduler) — интерфейс алгоритма поверх `applyReview`,
-  поля `stability`/`difficulty` в `word_repetitions`, флаг алгоритма для A/B (docs/11 §4.1).
+- Оптимизация весов FSRS на данных LexiFlow (когда накопится 100k+ ответов) и переход на FSRS по умолчанию по итогам A/B (§9).
 - Leech-detection: `lapses >= N` → пометить, показать учителю.
 - Fuzzing интервалов: к `next_review_at` добавлять случайный ±10%, чтобы не возникало «стен» в один день.
 
-## 10. Канонические источники
+## 11. Канонические источники
 - Оригинальный пейпер SM-2: `https://super-memory.com/english/ol/sm2.htm`
 - Anki (learning steps, learn ahead, relearning): `https://docs.ankiweb.net/deck-options.html`
-- FSRS для сравнения: `https://github.com/open-spaced-repetition/fsrs4anki`
+- FSRS для сравнения: `https://github.com/open-spaced-repetition/fsrs4anki` (wiki «The Algorithm»), `https://github.com/open-spaced-repetition/fsrs-rs`, `https://github.com/open-spaced-repetition/ts-fsrs`

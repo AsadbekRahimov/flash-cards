@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api\Twa;
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Engagement\Services\ReferralService;
 use App\Domain\Learners\Services\TodayService;
 use App\Domain\Learning\Exceptions\ReviewSubmissionException;
 use App\Domain\Learning\Exceptions\TrainingSessionException;
@@ -33,6 +34,7 @@ final class TrainingController
         private readonly TrainingSessionPolicy $policy,
         private readonly ProductEventRecorder $events,
         private readonly TodayService $today,
+        private readonly ReferralService $referrals,
     ) {}
 
     /**
@@ -128,6 +130,10 @@ final class TrainingController
                 ],
                 learner: $learner,
             );
+
+            // A pending referral of this learner (docs/13 §7.1): activated once they have studied enough.
+            // After the session's own transaction, never inside it.
+            $this->referrals->evaluate($learner, CarbonImmutable::now());
         }
 
         return (new SessionSummaryResource(['summary' => $summary, 'progress' => $this->today->progress($learner)]))->response();
@@ -174,22 +180,38 @@ final class TrainingController
             return $this->unauthorizedLearner();
         }
 
+        // `quality` (flash / reverse / audio) or `answer` (spelling / gap-fill), never both (docs/04 A.3).
+        // An `answer` key that is present but empty ("" → null) is an empty answer, graded as wrong.
+        $typed = $request->has('answer');
+
         $validated = $request->validate([
             'word_id' => ['required', 'integer'],
-            'quality' => ['required', 'integer', 'min:0', 'max:5'],
+            'quality' => $typed ? ['prohibited'] : ['required', 'integer', 'min:0', 'max:5'],
+            'answer' => $typed ? ['nullable', 'string', 'max:200'] : ['prohibited'],
             'time_spent_ms' => ['required', 'integer', 'min:0', 'max:600000'],
             'serve_token' => ['nullable', 'string', 'max:64'],
         ]);
 
+        $serveToken = isset($validated['serve_token']) ? (string) $validated['serve_token'] : null;
+
         try {
-            $outcome = $this->flow->review(
-                $session,
-                $learner,
-                (int) $validated['word_id'],
-                (int) $validated['quality'],
-                (int) $validated['time_spent_ms'],
-                isset($validated['serve_token']) ? (string) $validated['serve_token'] : null,
-            );
+            $outcome = $typed
+                ? $this->flow->answer(
+                    $session,
+                    $learner,
+                    (int) $validated['word_id'],
+                    isset($validated['answer']) ? (string) $validated['answer'] : '',
+                    (int) $validated['time_spent_ms'],
+                    $serveToken,
+                )
+                : $this->flow->review(
+                    $session,
+                    $learner,
+                    (int) $validated['word_id'],
+                    (int) $validated['quality'],
+                    (int) $validated['time_spent_ms'],
+                    $serveToken,
+                );
         } catch (ReviewSubmissionException $e) {
             return ApiErrorResource::respond($e->status, $e->errorCode, $e->getMessage());
         }
@@ -200,6 +222,11 @@ final class TrainingController
     private function lessonNotFound(): JsonResponse
     {
         return ApiErrorResource::respond(404, 'lesson_not_found', 'Training lesson not found.');
+    }
+
+    private function lessonNotAvailable(): JsonResponse
+    {
+        return ApiErrorResource::respond(404, 'lesson_not_available', 'This lesson is no longer available.');
     }
 
     private function unauthorizedLearner(): JsonResponse
@@ -229,6 +256,11 @@ final class TrainingController
 
         if (! $session->isLiveAt(CarbonImmutable::now())) {
             return [null, ApiErrorResource::respond(410, 'session_closed', 'This training session is closed.')];
+        }
+
+        // A center's private lesson stops opening once the assignment or the membership is gone.
+        if (! $this->sessions->ensureStillAvailable($session, $learner)) {
+            return [null, $this->lessonNotAvailable()];
         }
 
         return [$learner, $session];

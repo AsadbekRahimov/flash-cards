@@ -216,7 +216,8 @@ of their own groups, with name / username and the learning metrics of their grou
 onboarding state, subscriptions or events).
 
 **List (admin).** Columns: name, @username, Telegram ID, **Plan** (`Free`, `Pro` — own subscription,
-`Pro (sponsored)` — through an organization), blocked, onboarded, last seen.
+`Pro (sponsored)` — through an organization), blocked, onboarded, **Referrals** (how many learners this one
+invited, rejected ones excluded), last seen.
 
 - **Search** (box above the table): by name, by @username (`@anna` and `anna` both work, partial match) or by
   **Telegram ID** (exact: type the whole number, `12345` does not find `123456789`).
@@ -226,6 +227,14 @@ onboarding state, subscriptions or events).
 - **Block / Unblock** (row button, confirmation required): the learner's next TWA request answers
   `401 learner_blocked` (the TWA is closed to them) and review reminders stop; progress is kept. Every change is written to the audit log
   (`learner.blocked` / `learner.unblocked`). Unblocking restores access at once.
+
+- **SRS algorithm** (row button, admin only): switches one learner between **SM-2** and **FSRS-5**. The choice
+  is made automatically when a learner is created (`FSRS_ROLLOUT_PERCENT` in `.env`: the share of *new* learners
+  that gets FSRS, `0` by default = nobody; changing it never moves existing learners). Switching to FSRS seeds the
+  memory of the learner's graduated cards from their SM-2 state; switching back to SM-2 changes no card. Every real
+  change is written to the audit log (`learner.scheduler_changed`: from, to, number of initialised cards). The learner page
+  shows the current algorithm ("(default)" = no own bucket, the platform default applies). Rollback of the whole
+  experiment: `FSRS_ROLLOUT_PERCENT=0` and `UPDATE learners SET scheduler = 'sm2'`.
 
 **Learner page (admin).** Besides the profile it shows the onboarding state and the **effective plan** (source:
 captioned *Free* / *Pro* / *Pro (sponsored)* as in the list, then the organization #N for sponsored Pro and until when), and three read-only tabs:
@@ -237,6 +246,16 @@ captioned *Free* / *Pro* / *Pro (sponsored)* as in the list, then the organizati
   no personal data by design (no promo codes, no message text). The login event `twa.authenticated` is hidden
   (it is written on every TWA open); pick it in the *Event* filter to see it, or pick any other name to narrow the list.
 - *Last 14 days* — daily stats: reviews, correct answers, new words, time, whether the daily goal was met.
+- *Referrals* — the learners this one invited ("Invite a friend", docs/13 §7.1): the invited learner (link to
+  their page), the state (`pending` — came, not active yet; `activated` — studied 3 days × 10 cards within
+  14 days; `rewarded` — both got 7 days of Pro; `rejected` with the reason: `self`, `existing_learner`,
+  `referrer_capped` — legacy rows only, `flagged`; an inviter who already collected 10 rewards in 30 days / 50 in total gets no further reward, but the invited learner is still rewarded: the row stays `rewarded`), the
+  **Flagged** mark and the dates. A referral is flagged automatically when the inviter collected 20 or more
+  links within 24 hours (a farm is likely); its reward waits. Two row buttons for a flagged row, both written
+  to the audit log: **Clear flag** (`referral.unflagged`) — the referral is genuine, an activated one is
+  rewarded at once; **Reject** (`referral.rejected`) — no reward will ever be granted. The numbers come from
+  `config/referrals.php` (`REFERRALS_*` in `.env`). The invite link needs `TELEGRAM_BOT_USERNAME`; without
+  it the learners only see their code.
 
 ---
 
@@ -258,11 +277,52 @@ Filters: status, provider, plan, subject, and *Live status* (live = trialing / a
   or an *Organization* — and either switch on **No end date** or set **Pro until**. The **Reason** is required and
   is stored in the audit log (`subscription.granted`). If the subject already has a live subscription it is
   extended / replaced in place (no second subscription is created).
+  If the learner has a **Stars subscription with auto-renewal**, the form warns that Telegram keeps charging them and
+  that a manual grant replaces the row (the renewal can no longer be canceled from LexiFlow): ask the learner to turn
+  the renewal off in /pro first, then tick **I understand: grant anyway**. If the date is earlier than the end of a
+  period the learner has already paid for, the **Pro until** hint says it will shorten the paid period.
   For an *Organization* you can also pick the **Tier** (Tutor 30 seats, Center S 100, Center M 300, Center L
   unlimited — the table is `billing.org_tiers`): it sets the subscription's tier and **seats limit** and is written to
   the audit log. This is how the Center L tier (not sold online) and a paid-by-invoice center are activated. Leave it
   empty to grant without a seat limit (the previous behaviour). A tier on a Learner grant is ignored. The table also
   has *Tier* and *Seats* columns.
+- **Manual activation of a center (invoice flow).** A center owner presses *Request an invoice* in the `/org`
+  cabinet (Billing): you get an e-mail "Invoice request from center …" (to `BILLING_INVOICE_REQUEST_EMAIL`, else
+  `SITE_LEGAL_EMAIL`; *Reply-To* is the owner's address; the request is audited as `organization.invoice_requested`).
+  Send the invoice (the owner can also open a printable one from Billing → *Orders* once an online order exists;
+  the seller details come from `SITE_LEGAL_*`), and after the money arrives use **Grant Pro** → *Organization* →
+  **Pro until** (period end) + **Tier**. The seats limit is set from the tier and the waiting list is seated
+  automatically right after the grant. Center L is always done this way.
+- **Annual payment of centers.** The cabinet sells **1 month** or **1 year** (Payme / Click). The year price is the
+  tariff's month price x 12 minus `BILLING_ORG_YEAR_DISCOUNT_PERCENT` (default 17; `0` = no discount), rounded to whole sums; `BILLING_PRICE_<TIER>_YEAR_UZS` sets an explicit price instead. A year is added
+  to the end of the live period (365 days); a refund takes back exactly the year it paid; renewal reminders work as
+  for a month. A changed discount affects new orders only: an open order keeps its amount. A tier cannot be changed
+  online during a year either (below).
+- **Changing a center's tier is always manual.** While a center's subscription is live, the cabinet sells only a
+  *renewal of the current tier*; an attempt to pay for another tier online is refused with "To change the tariff,
+  contact us" (a different tier applied to the whole prepaid period would turn 12 months of Tutor + 1 month of
+  Center M into 13 months of Center M, or strip a prepaid Center M down to Tutor seats). Agree the change with the
+  owner (extra payment or a credit on the next invoice) and apply it with **Grant Pro** → *Organization* → **Tier**
+  + **Pro until**; the seats limit changes at once and the waiting list is seated.
+- **`tier_mismatch` on a payment order.** If an online order was created for one tier and paid after the tier had
+  been changed by hand (or by another payment), the money is credited and the period extended, but the tier and
+  the seats are **left as they were**: the order carries `meta.tier_mismatch = true` (with `tier_mismatch_live_tier`),
+  the log has `billing.org_tier_mismatch` and the audit log an entry `subscription.tier_mismatch`. Look at such
+  orders (Billing → **Payment orders**, the order's meta): decide with the owner whether the paid month is for the
+  live tier (nothing to do) or the ordered one (Grant Pro with the right tier, or a refund).
+  Such orders are rare by construction: a Payme / Click payment on an organization order whose tier is not the live
+  one is refused before the money is taken (Payme `-31053`, Click `-9`), and a payment that sets or keeps a tier
+  cancels the center's other pending orders of another tier (*Canceled reason* `tier_changed`, see below) — only
+  a payment that was already in flight at the provider gets through.
+  In the **Payment orders** table such an order has a red **Tier mismatch** badge ("tier mismatch (live: tutor)"),
+  there is a **Tier mismatch** filter, and the dashboard tile **Tier mismatches** (Payment webhook errors, last
+  24 h) counts the ones paid in the last day. In the center's `/org` Billing page the buttons for any tier other than
+  the live one are disabled with the hint "contact us"; renewing the current tier works as usual.
+- **Promo / referral days on top of a Stars subscription.** Days of a promo code or a referral reward are added to
+  the end of the live subscription of the learner. If it is a **running Stars auto-renewal**, those days only insure
+  against a failed charge and are **not carried over**: the next Telegram renewal sets the end from Telegram's own
+  period, so the extra days are absorbed. If the Stars subscription is already **canceled**, the days extend it and it
+  **stays canceled** (live until the extended end, no grace, reminders work); the learner can still resume it in /pro.
 - **Revoke** (row button, live subscriptions only): ends the subscription now; **Reason** required, audit
   `subscription.revoked`. The learner loses Pro within seconds (the cached plan is dropped at once).
 - A subscription that ran out of time is closed automatically by the hourly job `subscriptions:expire`.
@@ -279,7 +339,23 @@ Three read-only screens (nothing can be created, edited or deleted there):
 - **Payment orders** — the intent to buy and the only source of the amount: subject, tier (organizations), period,
   provider, amount after discount and list price, status (`pending` → `paid` / `canceled` / `expired` / `failed`),
   expiry, who created it (`twa`, `bot`, `org_panel`, `admin`). Pending orders expire by themselves after
-  `BILLING_ORDER_TTL_MINUTES` (job `billing:expire-orders`).
+  `BILLING_ORDER_TTL_MINUTES` (job `billing:expire-orders`). Offer bookkeeping badges (columns, also on the order page):
+  *Canceled reason* `offer_moved` (the learner's discount moved to a newer order) / `offer_redeemed` (the discount was
+  used by another payment) / `tier_changed` (a center's order of one tier was closed because a payment set another
+  tier on its subscription; the meta carries `tier_changed_by_order_id` and `tier_changed_to`) — all normal and harmless; *Paid after cancel* — a payment that was already in flight
+  reached such a canceled order and was credited in full (the money is never lost); **Double discount** (red) — that
+  late payment came after the discount had been used by another order, so the learner got the discount twice. Filter
+  **Double discount** lists them. What to do: nothing is required to keep the customer — the subscription is already
+  valid; if the second discount is not acceptable, agree on a correction with the owner (the case is rare: it needs two
+  payments to be confirmed within seconds). Look at the matching offer (**Learners → Offers**) for the first order.
+- A red **Double Stars subscription** badge (filter of the same name) marks an order of a learner who already had a
+  running Stars subscription when this one was paid — the second invoice was already open at the payment screen. The
+  money is credited (Pro is extended) and both Telegram subscriptions are remembered; **nothing is canceled
+  automatically**. What to do: ask the learner whether they want the second one refunded (**Payments → Refund** on that
+  payment), and note that **Cancel auto-renewal** (the learner in /pro) stops both subscriptions at Telegram. The dashboard
+  tile **Double Stars subscriptions** counts such orders of the last 24 hours; normally 0. A pending Stars *month* order is
+  also closed by us (*Canceled reason* `already_subscribed`) when the learner's Stars subscription starts; Stars orders
+  are no longer expired by the scheduler (their deadline is checked when the learner pays).
 - **Provider transactions** — Payme / Click transaction state (created → performed / canceled, cancel reason) and the
   journal of webhook calls (`history`).
 
@@ -296,11 +372,15 @@ the payment, the amount, whether the subscription was ended, your IP).
 
 1. **Telegram Stars** — the money is returned through the Bot API (`refundStarPayment`) when the Stars adapter is
    deployed (task 2A.3); then the refund is recorded.
-2. **Payme / Click** (and Stars while the adapter is not deployed) cannot be refunded from the panel. First return the
-   money in the provider's cabinet. Then press **Refund** again, switch on **"The money was already returned by hand in
-   the provider's cabinet"** and give the reason: only the local record is made. Without the switch the panel refuses
-   ("Return it in the provider's cabinet…") and changes nothing. Do not switch it on if the money has not really been
+2. **Payme / Click** cannot be refunded from the panel. First return the money in the provider's cabinet. Then press
+   **Refund**, switch on **"The money was already returned by hand in the provider's cabinet"** (it is never on by
+   default: you assert it yourself) and give the reason: only the local record is made. Without the switch the panel
+   refuses ("Return it in the provider's cabinet…") and changes nothing. Do not switch it on if the money has not really been
    returned.
+   - *Payme*: a refund made in the Payme cabinet normally reaches us by itself (Payme calls `CancelTransaction`) and
+     appears as a `refund` row without your help; record it by hand only if it did not arrive.
+   - *Click*: Click sends **no** refund notification, so every Click refund is recorded this way: refund in the Click
+     cabinet (by the `click_trans_id` shown as *Charge id*), then **Refund → returned by hand** here.
 3. Recording the refund marks the charge `refunded`, adds a `refund` row, and **ends the subscription now** if this
    payment paid for the period that is running (the learner is back on Free within seconds). A refund of an older,
    already used period only marks the ledger.
@@ -324,6 +404,17 @@ the limits / validity / *Active* / note too (`promo.updated`, with the old and n
 - The learner enters the code in the TWA ("Have a promo code?" on the finish screen) or sends `/promo CODE` to the
   bot in a private chat. A learner who already has Pro with an end date gets the days added to it.
 
+### Offers (personal discounts)
+A learner who **loses a seated place** in a center (left, or removed) and has no personal Pro gets a one-time offer
+**30 % off the first month, 14 days** (`BILLING_POST_ORG_DISCOUNT_PCT`) and a bot message with the pay buttons. Waitlisted
+members and learners who already pay get nothing. The discount is applied to the order on the server; the offer is used up
+only by a **paid** order (an expired or canceled order leaves it available until its own deadline).
+
+- **Learners → open a learner → Offers** (admin only): kind, discount, state (*open / redeemed / expired*), deadline, the
+  center it came from and the order that used it. Read-only.
+- **Annul** on an open offer makes it expire at once (use it when the discount was given by mistake). It is written to the
+  audit log (`offer.annulled`). A used or expired offer has no button.
+
 ### Organizations (sponsored Pro for a learning center)
 1. **Billing → Organizations → New**: name, slug (Latin, cannot be changed), time zone, language.
 2. Open the organization → **Groups** table → **Link group** and pick the Telegram group (only groups that belong
@@ -335,8 +426,9 @@ the limits / validity / *Active* / note too (`promo.updated`, with the old and n
 
 Every **active member of an active linked group** now has Pro (source "sponsor" in `/me`); after unlinking, leaving the
 group, suspending the organization or the end of the subscription they are back on Free (their progress stays).
-**Status: Suspended** switches the sponsorship off without deleting anything; every status change is written to the
-audit log (`organization.status_changed`). An organization with a live subscription or linked groups cannot be
+**Status: Suspended** switches the sponsorship off without deleting anything; a suspended center cannot pay online
+either — its pending orders are refused at Payme (`-31054`) and Click (`-9`) until the status is back to Active; every
+status change is written to the audit log (`organization.status_changed`). An organization with a live subscription or linked groups cannot be
 deleted (the Delete button explains why): revoke the subscription and unlink the groups, or just suspend it.
 Changes apply within seconds.
 
@@ -354,8 +446,9 @@ Changes apply within seconds.
 | Pro subscriptions | **admin only** | *Pro learners* — learners whose effective plan is Pro right now (own or sponsored, each counted once), with the split "own subscriptions / sponsoring organizations"; *Pro ending in 7 days* — own and organization subscriptions whose paid access ends within a week (for an auto-renewing provider: the end of the grace period) |
 | Onboarding funnel — 7 days | **admin only** | Learners who started onboarding in the last 7 days (`onboarding.started`), how many of them have completed it (`onboarding.completed`) and the conversion %. Distinct learners; a learner who started earlier and finished this week is not in the cohort |
 | Organizations — members / seats | **admin only** | Per organization: active groups, **members** (distinct learners with an active membership in an active group of the organization; deleted learners are not counted), **seats** (`seats_limit` of the organization's live subscription; empty when none was set) and whether it is sponsoring Pro |
+| SM-2 vs FSRS — 28 days | **admin only** | The SRS A/B, one figure per algorithm (`SM-2 / FSRS`, from `training_reviews.scheduler`): *pass rate of due cards* (graduated cards answered 3+ out of 5), *reviews per graduated word* (fewer at the same pass rate means FSRS is more efficient), *D7 retention by bucket* (learners who signed up 28–7 days ago and still studied 7+ days after signing up). `—` = no data yet; with `FSRS_ROLLOUT_PERCENT=0` and no manual switches the FSRS side stays empty |
 | Revenue, last 30 days | **admin only** | One figure per currency, **UZS and XTR are never added together**. *Revenue* = the charges and renewals of the last 30 days (by payment time) that are still `succeeded`, i.e. gross minus the `refunded` ones; the line below shows the number of payments, the gross and the refunded amount. Failed events and the `refund` bookkeeping rows are not counted; a charge older than 30 days that is refunded today does not change this figure |
-| Payment webhook errors, last 24 h | **admin only** | *Failed payments* — ledger rows recorded as `failed` in the last 24 hours (by provider); *Canceled provider transactions* — Payme / Click transactions canceled in that time (a customer closing the page also cancels, so only a spike matters). Any failed payment deserves a look: open **Payments → Status: failed** |
+| Payment webhook errors, last 24 h | **admin only** | *Failed payments* — ledger rows recorded as `failed` in the last 24 hours (by provider); *Canceled provider transactions* — Payme / Click transactions canceled in that time (a customer closing the page also cancels, so only a spike matters). Any failed payment deserves a look: open **Payments → Status: failed**. *Double discounts* — orders paid in the last 24 hours with the red **Double discount** badge (**Payment orders → filter Double discount**); normally 0. *Double Stars subscriptions* — orders paid in the last 24 hours with the red **Double Stars subscription** badge (**Payment orders → filter Double Stars subscription**); normally 0 |
 
 The *admin only* widgets show platform-wide data: a teacher never sees them (they are not on the dashboard and
 cannot be opened directly; an inactive admin gets the same). The seat limit is informational in

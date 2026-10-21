@@ -133,6 +133,23 @@ it('redacts the payment provider keys, Basic credentials and sign_string (docs/1
     expect(SecretRedactor::redact('plain text'))->toBe('plain text');
 });
 
+it('redacts CLICK_SECRET_KEY and the Click sign_string in text, arrays and exception messages (2A.5)', function (): void {
+    config(['billing.providers.click.secret_key' => 'click-live-secret-9f8e7d6c5b4a']);
+    $digest = md5('1234567890'.'12345'.'click-live-secret-9f8e7d6c5b4a'.'tok'.'29000.00'.'0'.'2026-10-19 12:00:00');
+
+    $text = "Click sign check failed: expected md5(1234567890 12345 click-live-secret-9f8e7d6c5b4a tok) sign_string={$digest}&amount=29000.00";
+    $out = SecretRedactor::redact($text);
+    expect($out)->not->toContain('click-live-secret')
+        ->and($out)->not->toContain($digest)
+        ->and($out)->toContain('sign_string=[redacted]&amount=29000.00');
+
+    $form = SecretRedactor::redactArray(['click_trans_id' => '1234567890', 'merchant_trans_id' => 'tok', 'amount' => '29000.00', 'sign_string' => $digest, 'secret_key' => 'click-live-secret-9f8e7d6c5b4a']);
+    expect($form)->toBe(['click_trans_id' => '1234567890', 'merchant_trans_id' => 'tok', 'amount' => '29000.00', 'sign_string' => '[redacted]', 'secret_key' => '[redacted]']);
+
+    $described = SecretRedactor::describeThrowable(new RuntimeException('key click-live-secret-9f8e7d6c5b4a leaked'));
+    expect($described)->not->toContain('click-live-secret')->and($described)->toContain('[redacted]');
+});
+
 it('keeps SentryScrubber::scrubString on the shared redactor', function (): void {
     expect(SentryScrubber::scrubString('x '.REDACTION_TOKEN))->toBe(SecretRedactor::redact('x '.REDACTION_TOKEN))
         ->and(SentryScrubber::scrubString('x '.REDACTION_TOKEN))->not->toContain('AAEhBP');

@@ -60,6 +60,16 @@ class PaymentOrderResource extends Resource
                 TextEntry::make('expires_at')->dateTime(),
                 TextEntry::make('paid_at')->dateTime()->placeholder('—'),
                 TextEntry::make('subscription_id')->label('Subscription #')->placeholder('—'),
+                TextEntry::make('canceled_reason')->label('Canceled reason')->badge()->color('gray')->placeholder('—')
+                    ->state(fn (PaymentOrder $record): ?string => self::canceledReason($record)),
+                TextEntry::make('paid_after_cancel')->label('Paid after cancel')->badge()->color('warning')->placeholder('—')
+                    ->state(fn (PaymentOrder $record): ?string => self::flag($record, 'paid_after_cancel', 'paid after cancel')),
+                TextEntry::make('offer_double_discount')->label('Double discount')->badge()->color('danger')->placeholder('—')
+                    ->state(fn (PaymentOrder $record): ?string => self::flag($record, 'offer_double_discount', 'double discount')),
+                TextEntry::make('tier_mismatch')->label('Tier mismatch')->badge()->color('danger')->placeholder('—')
+                    ->state(fn (PaymentOrder $record): ?string => self::tierMismatch($record)),
+                TextEntry::make('stars_double_subscription')->label('Double Stars subscription')->badge()->color('danger')->placeholder('—')
+                    ->state(fn (PaymentOrder $record): ?string => self::flag($record, 'stars_double_subscription', 'double subscription')),
             ]),
             Section::make('Meta (secrets masked)')->collapsed()->schema([
                 TextEntry::make('meta')->hiddenLabel()->state(fn (PaymentOrder $record) => BillingDisplay::payload($record->meta))->html(),
@@ -84,6 +94,16 @@ class PaymentOrderResource extends Resource
                     ->label('Amount')
                     ->state(fn (PaymentOrder $record): string => PriceFormatter::plain($record->amount, $record->currency)),
                 Tables\Columns\TextColumn::make('status')->badge()->color(fn (string $state): string => self::statusColor($state))->sortable(),
+                Tables\Columns\TextColumn::make('canceled_reason')->label('Canceled reason')->badge()->color('gray')->placeholder('—')->toggleable()
+                    ->state(fn (PaymentOrder $record): ?string => self::canceledReason($record)),
+                Tables\Columns\TextColumn::make('paid_after_cancel')->label('Paid after cancel')->badge()->color('warning')->placeholder('—')->toggleable()
+                    ->state(fn (PaymentOrder $record): ?string => self::flag($record, 'paid_after_cancel', 'paid after cancel')),
+                Tables\Columns\TextColumn::make('offer_double_discount')->label('Double discount')->badge()->color('danger')->placeholder('—')
+                    ->state(fn (PaymentOrder $record): ?string => self::flag($record, 'offer_double_discount', 'double discount')),
+                Tables\Columns\TextColumn::make('tier_mismatch')->label('Tier mismatch')->badge()->color('danger')->placeholder('—')
+                    ->state(fn (PaymentOrder $record): ?string => self::tierMismatch($record)),
+                Tables\Columns\TextColumn::make('stars_double_subscription')->label('Double Stars subscription')->badge()->color('danger')->placeholder('—')
+                    ->state(fn (PaymentOrder $record): ?string => self::flag($record, 'stars_double_subscription', 'double subscription')),
                 Tables\Columns\TextColumn::make('created_via')->badge()->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('expires_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('paid_at')->dateTime()->placeholder('—')->sortable()->toggleable(),
@@ -94,6 +114,15 @@ class PaymentOrderResource extends Resource
                 Tables\Filters\SelectFilter::make('currency')->options(['UZS' => 'UZS', 'XTR' => 'XTR']),
                 Tables\Filters\SelectFilter::make('subscriber_type')->label('Subject')->options(['learner' => 'Learner', 'organization' => 'Organization']),
                 Tables\Filters\SelectFilter::make('tier')->options(BillingDisplay::options(...OrgTiers::keys())),
+                Tables\Filters\Filter::make('offer_double_discount')
+                    ->label('Double discount')
+                    ->query(fn (Builder $query): Builder => $query->where('meta->offer_double_discount', true)),
+                Tables\Filters\Filter::make('tier_mismatch')
+                    ->label('Tier mismatch')
+                    ->query(fn (Builder $query): Builder => $query->where('meta->tier_mismatch', true)),
+                Tables\Filters\Filter::make('stars_double_subscription')
+                    ->label('Double Stars subscription')
+                    ->query(fn (Builder $query): Builder => $query->where('meta->stars_double_subscription', true)),
             ])
             ->actions([Actions\ViewAction::make()])
             ->defaultSort('id', 'desc');
@@ -106,6 +135,31 @@ class PaymentOrderResource extends Resource
             'index' => Pages\ListPaymentOrders::route('/'),
             'view' => Pages\ViewPaymentOrder::route('/{record}'),
         ];
+    }
+
+    /** `meta.canceled_reason` (offer bookkeeping, docs/13 "Реализация 2B.7a"; `tier_changed`, "Реализация 2B.8"), for canceled orders only. */
+    private static function canceledReason(PaymentOrder $order): ?string
+    {
+        $reason = $order->meta['canceled_reason'] ?? null;
+
+        return is_string($reason) ? $reason : null;
+    }
+
+    /** `meta.tier_mismatch` (docs/13 "Реализация 2B.8"): "tier mismatch (live: tutor)". */
+    private static function tierMismatch(PaymentOrder $order): ?string
+    {
+        if (self::flag($order, 'tier_mismatch', 'tier mismatch') === null) {
+            return null;
+        }
+
+        $live = $order->meta['tier_mismatch_live_tier'] ?? null;
+
+        return is_string($live) ? "tier mismatch (live: {$live})" : 'tier mismatch';
+    }
+
+    private static function flag(PaymentOrder $order, string $key, string $label): ?string
+    {
+        return ($order->meta[$key] ?? false) === true ? $label : null;
     }
 
     private static function statusColor(string $state): string

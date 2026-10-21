@@ -17,7 +17,10 @@ use App\Models\Payment;
 use App\Models\PaymentOrder;
 use App\Models\Subscription;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
+use Throwable;
 
 /**
  * Telegram Stars (docs/13 §2.2, §4.1): the only auto-renewing provider. Learners only, currency
@@ -28,7 +31,8 @@ use InvalidArgumentException;
  *   parse*           the single place that knows the shape of `successful_payment` /
  *                    `refunded_payment` (field names: docs/13 §15 — verify on the staging bot).
  *   cancel / resume  editUserStarSubscription with the charge id of the subscription's FIRST
- *                    payment (`subscriptions.meta.stars.charge_id`).
+ *                    payment (`subscriptions.meta.stars.charge_id`) — and of every extra Telegram subscription
+ *                    that was paid on top (`meta.stars.duplicate_charge_ids`, "Реализация 2A.8").
  *   refund           refundStarPayment for one charge.
  *
  * Every Bot API call goes through TelegramClient and is made OUTSIDE a database transaction by
@@ -162,11 +166,28 @@ final class TelegramStarsProvider implements BillingProvider
 
     public function cancelAutoRenew(Subscription $subscription): void
     {
-        [$userId, $chargeId] = $this->subscriptionHandle($subscription, 'cancelAutoRenew');
+        [$userId, $chargeId, $duplicates] = $this->subscriptionHandle($subscription, 'cancelAutoRenew');
 
+        // The main subscription first: its failure is the caller's failure. A duplicate (a second Telegram subscription
+        // paid by mistake) that cannot be stopped now stays in `duplicate_charge_ids` for the next try.
         $this->telegram->editUserStarSubscription($userId, $chargeId, isCanceled: true);
+
+        $stopped = [];
+        foreach ($duplicates as $duplicate) {
+            try {
+                $this->telegram->editUserStarSubscription($userId, $duplicate, isCanceled: true);
+                $stopped[] = $duplicate;
+            } catch (Throwable $e) {
+                Log::warning('billing.stars.duplicate_cancel_failed', ['subscription_id' => $subscription->id, 'charge_id' => $duplicate, 'error' => $e::class]);
+            }
+        }
+
+        if ($stopped !== []) {
+            $this->markDuplicatesCanceled($subscription, $stopped);
+        }
     }
 
+    /** Resume turns back on only the main subscription: a duplicate that was stopped stays stopped for good. */
     public function resumeAutoRenew(Subscription $subscription): void
     {
         [$userId, $chargeId] = $this->subscriptionHandle($subscription, 'resumeAutoRenew');
@@ -194,9 +215,10 @@ final class TelegramStarsProvider implements BillingProvider
     }
 
     /**
-     * The learner's Telegram id and the subscription's charge id for editUserStarSubscription.
+     * The learner's Telegram id, the charge id of the Telegram subscription behind the row for editUserStarSubscription
+     * (the first payment's) and the charge ids of its duplicates.
      *
-     * @return array{int, string}
+     * @return array{int, string, list<string>}
      */
     private function subscriptionHandle(Subscription $subscription, string $capability): array
     {
@@ -214,7 +236,43 @@ final class TelegramStarsProvider implements BillingProvider
             throw ProviderCapabilityException::unsupported($this->key(), "{$capability} without a Telegram user");
         }
 
-        return [$userId, $chargeId];
+        $duplicates = [];
+        $listed = $subscription->meta['stars']['duplicate_charge_ids'] ?? [];
+        foreach (is_array($listed) ? $listed : [] as $duplicate) {
+            if (is_string($duplicate) && $duplicate !== '' && $duplicate !== $chargeId && ! in_array($duplicate, $duplicates, true)) {
+                $duplicates[] = $duplicate;
+            }
+        }
+
+        return [$userId, $chargeId, $duplicates];
+    }
+
+    /**
+     * @param  non-empty-list<string>  $stopped  duplicates Telegram has just stopped
+     */
+    private function markDuplicatesCanceled(Subscription $subscription, array $stopped): void
+    {
+        // A short transaction of its own (outside the caller's, docs/13 §3 rule 2) on a fresh copy of the row.
+        DB::transaction(function () use ($subscription, $stopped): void {
+            /** @var Subscription|null $fresh */
+            $fresh = Subscription::query()->whereKey($subscription->id)->lockForUpdate()->first();
+
+            if ($fresh === null) {
+                return;
+            }
+
+            $meta = $fresh->meta;
+            $stars = is_array($meta['stars'] ?? null) ? $meta['stars'] : [];
+            $remaining = is_array($stars['duplicate_charge_ids'] ?? null) ? $stars['duplicate_charge_ids'] : [];
+            $already = is_array($stars['canceled_duplicate_charge_ids'] ?? null) ? $stars['canceled_duplicate_charge_ids'] : [];
+
+            $stars['duplicate_charge_ids'] = array_values(array_diff($remaining, $stopped));
+            $stars['canceled_duplicate_charge_ids'] = array_values(array_unique([...$already, ...$stopped]));
+            $meta['stars'] = $stars;
+
+            $fresh->forceFill(['meta' => $meta])->save();
+            $subscription->setRawAttributes($fresh->getAttributes(), true);
+        });
     }
 
     private function telegramUserId(int $learnerId): ?int

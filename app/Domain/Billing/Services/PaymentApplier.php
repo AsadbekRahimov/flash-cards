@@ -46,6 +46,22 @@ use Illuminate\Support\Facades\Log;
  * Events that fit no credit (dead order, other provider, amount / currency mismatch) are
  * COMMITTED as `payments.status = failed` — the money may be with us and support must see it —
  * and the subscription is not touched; the domain exception is thrown after the commit.
+ *
+ * Exception to "dead order": an order canceled by OUR bookkeeping (`PaymentOrder::canceledBySystem()`:
+ * offer moved / redeemed — docs/13 "Реализация 2B.7a"; organization tier changed — "Реализация 2B.8")
+ * is still credited in full — the pre-checks refuse its token, so a charge that arrives anyway was
+ * already in flight at the provider and the money is taken. If the offer was meanwhile used up by
+ * another order, the second discount is logged (`billing.offer_double_discount`,
+ * `payment_orders.meta.offer_double_discount`) rather than the payment being lost; a late payment of a
+ * `tier_changed` order lands in SubscriptionService's `tier_mismatch` backstop.
+ *
+ * Stars ("Реализация 2A.8"): a first payment on an `expired` / `canceled` order is credited (pre_checkout had passed;
+ * `paid_after_cancel`), a renewal is credited whatever the order status is once the order has a payment of its own, and after
+ * the first payment of a subscription the learner's other pending Stars month orders are canceled (`already_subscribed`).
+ *
+ * After an organization payment commits with a tier on the subscription, the organization's other
+ * pending orders of another tier are canceled (`OrganizationOrderGuard::cancelCompeting`, own
+ * transaction, docs/13 §3 rule 1) — they could only ever be paid into a `tier_mismatch`.
  */
 final class PaymentApplier
 {
@@ -53,6 +69,8 @@ final class PaymentApplier
 
     public function __construct(
         private readonly SubscriptionService $subscriptions,
+        private readonly OfferService $offers,
+        private readonly OrganizationOrderGuard $organizations,
         private readonly ProductEventRecorder $events,
     ) {}
 
@@ -96,7 +114,10 @@ final class PaymentApplier
                     return [$this->failed($order, $e, $kind, 'provider_mismatch'), PaymentApplyException::orderMismatch("order provider is {$order->provider}")];
                 }
 
-                if (in_array($order->status, [PaymentOrder::STATUS_EXPIRED, PaymentOrder::STATUS_CANCELED, PaymentOrder::STATUS_FAILED], true)) {
+                $honouredAfterCancel = ($order->canceledBySystem() && ! $e->isRenewal) || $this->starsFirstPaymentOnClosedOrder($order, $e);
+
+                if (! $honouredAfterCancel && in_array($order->status, [PaymentOrder::STATUS_EXPIRED, PaymentOrder::STATUS_CANCELED, PaymentOrder::STATUS_FAILED], true)
+                    && ! $this->starsRenewalOfPaidOrder($order, $e)) {
                     return [$this->failed($order, $e, $kind, 'order_'.$order->status), PaymentApplyException::orderExpired($order->status)];
                 }
 
@@ -132,15 +153,55 @@ final class PaymentApplier
                     'period_ends_at' => $subscription->current_period_ends_at,
                 ]);
 
+                $meta = $order->meta;
+                if ($honouredAfterCancel) {
+                    $meta['paid_after_cancel'] = true;
+                    Log::warning(
+                        $order->canceledForOffer() ? 'billing.offer_canceled_order_paid' : 'billing.canceled_order_paid',
+                        ['payment_order_id' => $order->id, 'offer_id' => $order->offer_id, 'order_status' => $order->status, 'canceled_reason' => $meta['canceled_reason'] ?? null, 'provider' => $e->provider->value, 'provider_event_id' => $e->providerEventId],
+                    );
+                }
+
+                if ($order->offer_id !== null && ! $this->redeemOffer($order, $subject, $now)) {
+                    $meta['offer_double_discount'] = true;
+                }
+
                 $order->fill([
                     'status' => PaymentOrder::STATUS_PAID,
                     'paid_at' => $order->paid_at ?? $now,
                     'subscription_id' => $subscription->id,
+                    'meta' => $meta,
                 ])->save();
 
                 if ($order->offer_id !== null) {
-                    Offer::query()->whereKey($order->offer_id)->whereNull('redeemed_at')
-                        ->update(['redeemed_at' => $now, 'payment_order_id' => $order->id, 'updated_at' => $now]);
+                    // Any other pending holder of the offer (only possible after an in-flight charge on a
+                    // moved order) loses the discount — own transaction, after this one commits (docs/13 §3 rule 1).
+                    $offerId = $order->offer_id;
+                    $orderId = $order->id;
+                    DB::afterCommit(function () use ($offerId, $orderId, $now): void {
+                        $this->offers->releaseHolders($offerId, $orderId, $now);
+                    });
+                }
+
+                if ($subject instanceof Organization && $subscription->tier !== null) {
+                    // The organization's other pending orders of another tier could only be paid into a
+                    // tier_mismatch now — closed after this commits, own transaction (docs/13 §3 rule 1).
+                    $organizationId = $subject->id;
+                    $liveTier = $subscription->tier;
+                    $orderId = $order->id;
+                    DB::afterCommit(function () use ($organizationId, $liveTier, $orderId, $now): void {
+                        $this->organizations->cancelCompeting($organizationId, $liveTier, $orderId, $now);
+                    });
+                }
+
+                if ($subject instanceof Learner && $e->provider === SubscriptionProvider::TelegramStars && ! $e->isRenewal && $order->period === 'month') {
+                    // The first charge of a Stars subscription: the learner's other pending Stars month orders
+                    // would open a second Telegram subscription — closed after this commits (docs/13 §3 rule 1).
+                    $learnerId = $subject->id;
+                    $orderId = $order->id;
+                    DB::afterCommit(function () use ($learnerId, $orderId, $now): void {
+                        $this->organizations->cancelCompetingStarsSubscriptions($learnerId, $orderId, $now);
+                    });
                 }
 
                 $this->events->record(
@@ -219,12 +280,7 @@ final class PaymentApplier
                 $endedNow = false;
 
                 if ($subscription !== null && $this->refundCoversCurrentPeriod($charge, $subscription, $now)) {
-                    try {
-                        $this->subscriptions->endNow($subscription, 'refund', $by, $now);
-                        $endedNow = true;
-                    } catch (SubscriptionException) {
-                        // Already expired: nothing to end.
-                    }
+                    $endedNow = $this->takeRefundedPeriodOff($charge, $subscription, $by, $now);
                 }
 
                 $charge->fill(['status' => Payment::STATUS_REFUNDED])->save();
@@ -324,6 +380,79 @@ final class PaymentApplier
         }
     }
 
+    /**
+     * A first Stars payment reaches an order that is already `expired` / `canceled` ("Реализация 2A.8", H7): pre_checkout
+     * is answered by StarsPreCheckoutGuard BEFORE the money is taken, so a `successful_payment` that arrives is a charge
+     * Telegram already completed — the scheduler or a competing payment closed the order in the seconds in between. The
+     * money is credited (`paid_after_cancel`); a `failed` order never had a link, so it stays dead.
+     */
+    private function starsFirstPaymentOnClosedOrder(PaymentOrder $order, ChargeEvent $e): bool
+    {
+        return $e->provider === SubscriptionProvider::TelegramStars
+            && ! $e->isRenewal
+            && in_array($order->status, [PaymentOrder::STATUS_EXPIRED, PaymentOrder::STATUS_CANCELED], true);
+    }
+
+    /**
+     * A Stars renewal charges the subscription, not the order: it is credited whatever status the order has now, as
+     * long as the order has a payment of its own (the subscription Telegram keeps charging). An order that never
+     * received money is no subscription anyone could renew.
+     */
+    private function starsRenewalOfPaidOrder(PaymentOrder $order, ChargeEvent $e): bool
+    {
+        return $e->provider === SubscriptionProvider::TelegramStars
+            && $e->isRenewal
+            && Payment::query()
+                ->where('payment_order_id', $order->id)
+                ->whereIn('kind', [Payment::KIND_CHARGE, Payment::KIND_RENEWAL])
+                ->whereIn('status', [Payment::STATUS_SUCCEEDED, Payment::STATUS_REFUNDED])
+                ->exists();
+    }
+
+    /**
+     * Marks the order's offer used by this order (lock order: ... subscriptions -> offers). False when
+     * another order already used it up: the discount was given twice (an in-flight charge on an
+     * offer-canceled order) — logged, the payment itself is still credited.
+     */
+    private function redeemOffer(PaymentOrder $order, Learner|Organization $subject, CarbonImmutable $now): bool
+    {
+        /** @var Offer|null $offer */
+        $offer = Offer::query()->whereKey($order->offer_id)->lockForUpdate()->first();
+
+        if ($offer === null) {
+            return true;
+        }
+
+        if ($offer->redeemed_at !== null) {
+            if ($offer->payment_order_id === $order->id) {
+                return true;
+            }
+
+            Log::error('billing.offer_double_discount', [
+                'offer_id' => $offer->id,
+                'payment_order_id' => $order->id,
+                'redeemed_by_order_id' => $offer->payment_order_id,
+                'amount' => $order->amount,
+                'list_amount' => $order->list_amount,
+                'currency' => $order->currency,
+                'subscriber_type' => $order->subscriber_type,
+                'subscriber_id' => $order->subscriber_id,
+            ]);
+
+            return false;
+        }
+
+        $offer->forceFill(['redeemed_at' => $now, 'payment_order_id' => $order->id])->save();
+
+        $this->events->record(
+            ProductEventName::OfferRedeemed,
+            ['offer_id' => $offer->id, 'payment_order_id' => $order->id, 'amount' => $order->amount, 'list_amount' => $order->list_amount, 'currency' => $order->currency],
+            learner: $subject instanceof Learner ? $subject : null,
+        );
+
+        return true;
+    }
+
     private function existing(SubscriptionProvider $provider, string $providerEventId): ?Payment
     {
         /** @var Payment|null $payment */
@@ -411,6 +540,33 @@ final class PaymentApplier
         $end = CarbonImmutable::instance($live->current_period_ends_at);
 
         return $end->greaterThan($now) ? $end : $now;
+    }
+
+    /**
+     * A refund removes the days the charge paid for: `current_period_ends_at` moves back by
+     * `period_ends_at - period_starts_at` of the charge, so refunding one of several consecutive
+     * periods keeps the others. The subscription ends only when the new end is not after `$now`
+     * (or the charge has no period to subtract). True when it ended.
+     */
+    private function takeRefundedPeriodOff(Payment $charge, Subscription $subscription, ?User $by, CarbonImmutable $now): bool
+    {
+        // A perpetual manual grant sits on the same row as an old payment: the refund gives the money back, the grant stays.
+        if ($subscription->provider === SubscriptionProvider::Manual->value || $subscription->current_period_ends_at === null) {
+            Log::info('billing.refund_keeps_grant', ['payment_id' => $charge->id, 'subscription_id' => $subscription->id, 'provider' => $subscription->provider]);
+
+            return false;
+        }
+
+        $seconds = $charge->period_starts_at !== null && $charge->period_ends_at !== null
+            ? max(0, CarbonImmutable::instance($charge->period_ends_at)->getTimestamp() - CarbonImmutable::instance($charge->period_starts_at)->getTimestamp())
+            : null;
+
+        try {
+            return $this->subscriptions->shortenPeriod($subscription, $seconds, 'refund', $by, $now);
+        } catch (SubscriptionException) {
+            // Already expired: nothing to end.
+            return false;
+        }
     }
 
     /** The refunded charge paid (part of) the period the subscription is in right now. */

@@ -21,11 +21,12 @@ const today = (overrides: Partial<TodayResponse> = {}): TodayResponse => ({
   due_count: 3,
   new_words_remaining: 12,
   goal: { target: 20, done: 8, met: false },
-  streak: { current: 0, best: 0, met_today: false, at_risk: false },
+  streak: { current: 0, best: 0, met_today: false, at_risk: false, freezes: 0, frozen_yesterday: false },
   active_course: null,
   open_session_id: null,
   entitlement: { plan: 'free', source: 'free', until: null },
   onboarding_completed: true,
+  league: null,
   ...overrides,
 })
 
@@ -47,6 +48,9 @@ async function render(response: TodayResponse) {
       { path: '/courses', name: 'courses', component: { template: '<div />' } },
       { path: '/decks', name: 'decks', component: { template: '<div />' } },
       { path: '/settings', name: 'settings', component: { template: '<div />' } },
+      { path: '/referrals', name: 'referrals', component: { template: '<div />' } },
+      { path: '/achievements', name: 'achievements', component: { template: '<div />' } },
+      { path: '/league', name: 'league', component: { template: '<div />' } },
       { path: '/training/:sessionId(\\d+)', name: 'training', component: { template: '<div />' } },
     ],
   })

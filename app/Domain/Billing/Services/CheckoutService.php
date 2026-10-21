@@ -11,16 +11,16 @@ use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Enums\SubscriptionStatus;
 use App\Domain\Billing\Exceptions\CheckoutException;
+use App\Domain\Billing\Support\AutoRenewal;
 use App\Domain\Billing\Support\OrgTiers;
+use App\Domain\Billing\Support\ProviderTransactionTimeout;
 use App\Domain\Billing\Support\SubscriptionLiveness;
 use App\Models\Learner;
 use App\Models\Offer;
 use App\Models\Organization;
 use App\Models\PaymentOrder;
-use App\Models\ProviderTransaction;
 use App\Models\Subscription;
 use Carbon\CarbonImmutable;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -32,9 +32,17 @@ use Throwable;
  * pending `payment_orders` row in a short transaction and only then — outside any transaction —
  * asks the provider for the payment link (docs/13 §3 rule 2).
  *
- * Lock order inside `create()`: subject row -> (read subscriptions) -> INSERT payment_orders.
- * No existing `payment_orders` row is ever locked here, so a webhook holding an order and
- * waiting for the subject cannot form a cycle with a checkout.
+ * Lock order inside `create()` (docs/13 §3): [pending orders holding the offer FOR UPDATE] ->
+ * subject row -> (read subscriptions) -> [offers FOR UPDATE] -> INSERT payment_orders. The holder
+ * rows are locked BEFORE the subject, in the same direction as PaymentApplier (order -> subject ->
+ * ... -> offer), so a webhook holding an order and waiting for the subject cannot form a cycle with
+ * a checkout. A holder that appears between the holder lock and the subject lock (a parallel
+ * checkout of the same learner) is detected under the subject lock and the attempt is retried.
+ *
+ * Offer reservation (docs/13 "Реализация 2B.7a"): a discounted checkout cancels the previous
+ * pending holder of the offer (`meta.canceled_reason = offer_moved`) — its token dies at every
+ * provider pre-check (Stars pre_checkout, Payme CheckPerform/Create, Click Prepare) — unless the
+ * provider is mid-payment on it (open transaction), in which case `offer_busy` is thrown.
  */
 final class CheckoutService
 {
@@ -45,6 +53,12 @@ final class CheckoutService
     public const VIA_ORG_PANEL = 'org_panel';
 
     public const VIA_ADMIN = 'admin';
+
+    /** Attempts of the order transaction when a parallel checkout keeps inserting a new holder of the offer. */
+    private const MAX_ATTEMPTS = 3;
+
+    /** A pending Stars order is swept this many days after `expires_at` ("Реализация 2A.8"). */
+    public const STARS_SWEEP_GRACE_DAYS = 7;
 
     public function __construct(
         private readonly BillingProviderRegistry $providers,
@@ -59,7 +73,7 @@ final class CheckoutService
      * @param  string  $via  `twa` | `bot` | `org_panel` | `admin`
      * @param  Offer|null  $offer  explicit offer; null = the learner's best applicable open offer, if any
      *
-     * @throws CheckoutException price_not_configured | provider_disabled | provider_not_supported | checkout_conflict | too_many_pending | offer_not_applicable | invalid_period | invalid_tier
+     * @throws CheckoutException price_not_configured | provider_disabled | provider_not_supported | checkout_conflict | tier_change_requires_support | too_many_pending | offer_not_applicable | offer_busy | invalid_period | invalid_tier
      */
     public function create(
         Learner|Organization $subscriber,
@@ -114,66 +128,144 @@ final class CheckoutService
         $maxPending = max(1, (int) config('billing.checkout.max_pending_per_subscriber', 3));
         $ttl = max(1, (int) config('billing.checkout.order_ttl_minutes', 1440));
 
-        $order = DB::transaction(function () use ($subscriber, $subscriberType, $plan, $tier, $period, $provider, $currency, $amount, $listAmount, $offer, $via, $now, $maxPending, $ttl): PaymentOrder {
-            $this->lockSubject($subscriber);
+        $order = null;
+        for ($attempt = 1; $attempt <= self::MAX_ATTEMPTS && $order === null; $attempt++) {
+            $order = DB::transaction(function () use ($subscriber, $subscriberType, $plan, $tier, $period, $provider, $currency, $amount, $listAmount, $offer, $via, $now, $maxPending, $ttl): ?PaymentOrder {
+                return $this->insertOrder($subscriber, $subscriberType, $plan, $tier, $period, $provider, $currency, $amount, $listAmount, $offer, $via, $now, $maxPending, $ttl);
+            });
+        }
 
-            $live = $this->subscriptions->liveFor($subscriber);
-            if ($live !== null && $this->isRenewingElsewhere($live, $provider, $now)) {
-                throw CheckoutException::conflict($live->provider);
-            }
-
-            $pending = PaymentOrder::query()
-                ->where('subscriber_type', $subscriberType)
-                ->where('subscriber_id', $subscriber->id)
-                ->where('status', PaymentOrder::STATUS_PENDING)
-                ->where('expires_at', '>', $now)
-                ->count();
-
-            if ($pending >= $maxPending) {
-                throw CheckoutException::tooManyPending($maxPending);
-            }
-
-            $order = PaymentOrder::query()->create([
-                'token' => Str::random(32),
-                'subscriber_type' => $subscriberType,
-                'subscriber_id' => $subscriber->id,
-                'plan' => $plan->value,
-                'tier' => $tier,
-                'period' => $period,
-                'provider' => $provider->value,
-                'amount' => $amount,
-                'list_amount' => $listAmount,
-                'currency' => $currency,
-                'offer_id' => $offer?->id,
-                'status' => PaymentOrder::STATUS_PENDING,
-                'expires_at' => $now->addMinutes($ttl),
-                'created_via' => $via,
-                'meta' => $subscriber instanceof Learner ? ['learner_locale' => $subscriber->interface_locale] : [],
-            ]);
-
-            $this->events->record(
-                ProductEventName::CheckoutStarted,
-                ['payment_order_id' => $order->id, 'plan' => $plan->value, 'tier' => $tier, 'period' => $period, 'provider' => $provider->value, 'currency' => $currency, 'amount' => $amount, 'discount_pct' => $offer?->discount_pct, 'via' => $via, 'subscriber_type' => $subscriberType],
-                learner: $subscriber instanceof Learner ? $subscriber : null,
-            );
-
-            return $order;
-        });
+        if ($order === null) {
+            // A parallel checkout of this learner kept moving the offer under us: give up, the client retries.
+            throw CheckoutException::offerBusy();
+        }
 
         try {
             $link = $this->providers->for($provider)->createCheckout($order);
         } catch (Throwable $e) {
             // The provider call is outside the transaction: a failure must not leave a payable order behind.
-            $order->fill(['status' => PaymentOrder::STATUS_FAILED, 'meta' => [...$order->meta, 'checkout_error' => $e::class]])->save();
+            $order->refresh()->fill(['status' => PaymentOrder::STATUS_FAILED, 'meta' => [...$order->meta, 'checkout_error' => $e::class]])->save();
             Log::error('billing.checkout_failed', ['payment_order_id' => $order->id, 'provider' => $provider->value, 'exception' => $e::class, 'error' => Str::limit($e->getMessage(), 200)]);
 
             throw $e;
         }
 
-        $order->fill([
-            'provider_ref' => $link->url,
-            'meta' => [...$order->meta, 'checkout' => ['kind' => $link->kind, 'expires_at' => $link->expiresAt->toIso8601String()]],
-        ])->save();
+        // Between the commit and here the order may have been released by a payment on the previous holder
+        // (OfferService::releaseHolders) or closed by a competing payment — its reason must survive: re-read
+        // under the row lock (a short transaction on `payment_orders` only, docs/13 §3 rule 1) and merge.
+        DB::transaction(function () use ($order, $link): void {
+            /** @var PaymentOrder $locked */
+            $locked = PaymentOrder::query()->whereKey($order->id)->lockForUpdate()->firstOrFail();
+            $locked->fill([
+                'provider_ref' => $link->url,
+                'meta' => [...$locked->meta, 'checkout' => ['kind' => $link->kind, 'expires_at' => $link->expiresAt->toIso8601String()]],
+            ])->save();
+            $order->setRawAttributes($locked->getAttributes(), true);
+        });
+
+        return $order;
+    }
+
+    /**
+     * One attempt of the order transaction (see the class docblock for the lock order). Returns
+     * null when a holder of the offer appeared between the holder lock and the subject lock —
+     * the caller retries and locks it too.
+     *
+     * @throws CheckoutException checkout_conflict | tier_change_requires_support | too_many_pending | offer_not_applicable | offer_busy
+     */
+    private function insertOrder(
+        Learner|Organization $subscriber,
+        string $subscriberType,
+        Plan $plan,
+        ?string $tier,
+        string $period,
+        SubscriptionProvider $provider,
+        string $currency,
+        int $amount,
+        int $listAmount,
+        ?Offer $offer,
+        string $via,
+        CarbonImmutable $now,
+        int $maxPending,
+        int $ttl,
+    ): ?PaymentOrder {
+        // 1. The pending orders that hold this offer — before the subject (docs/13 §3).
+        $holders = $offer === null ? (new PaymentOrder)->newCollection() : $this->offers->lockHolders($offer);
+        $holderIds = array_values(array_map(static fn (PaymentOrder $holder): int => $holder->id, $holders->all()));
+
+        // 2. The subject.
+        $this->lockSubject($subscriber);
+
+        if ($offer !== null && $this->offers->holderIds($offer) !== $holderIds) {
+            // A checkout that committed while we waited for the subject inserted a holder we did not lock.
+            return null;
+        }
+
+        $live = $this->subscriptions->liveFor($subscriber);
+        if ($live !== null) {
+            $this->assertCanBuyOver($live, $subscriber, $provider, $period, $now);
+        }
+
+        if ($live !== null && $tier !== null && self::changesLiveTier($live, $tier, $now)) {
+            throw CheckoutException::tierChangeRequiresSupport((string) $live->tier, $tier);
+        }
+
+        // The holders are about to be canceled: they do not count against the pending limit.
+        $pending = PaymentOrder::query()
+            ->where('subscriber_type', $subscriberType)
+            ->where('subscriber_id', $subscriber->id)
+            ->where('status', PaymentOrder::STATUS_PENDING)
+            ->where('expires_at', '>', $now)
+            ->whereKeyNot($holderIds)
+            ->count();
+
+        if ($pending >= $maxPending) {
+            throw CheckoutException::tooManyPending($maxPending);
+        }
+
+        if ($offer !== null) {
+            // 3. The offer row: still open now that every holder is locked (a holder paid while we
+            // waited has redeemed it); no holder is mid-payment at the provider.
+            /** @var Offer|null $locked */
+            $locked = Offer::query()->whereKey($offer->id)->lockForUpdate()->first();
+            if ($locked === null || ! $locked->isOpenAt($now)) {
+                throw CheckoutException::offerNotApplicable();
+            }
+
+            foreach ($holders as $holder) {
+                if ($this->offers->isBeingPaid($holder, $now)) {
+                    throw CheckoutException::offerBusy();
+                }
+            }
+        }
+
+        $order = PaymentOrder::query()->create([
+            'token' => Str::random(32),
+            'subscriber_type' => $subscriberType,
+            'subscriber_id' => $subscriber->id,
+            'plan' => $plan->value,
+            'tier' => $tier,
+            'period' => $period,
+            'provider' => $provider->value,
+            'amount' => $amount,
+            'list_amount' => $listAmount,
+            'currency' => $currency,
+            'offer_id' => $offer?->id,
+            'status' => PaymentOrder::STATUS_PENDING,
+            'expires_at' => $now->addMinutes($ttl),
+            'created_via' => $via,
+            'meta' => $subscriber instanceof Learner ? ['learner_locale' => $subscriber->interface_locale] : [],
+        ]);
+
+        // The discount moved: the previous holders are closed (their tokens are refused by every
+        // provider pre-check from now on; a charge already in flight is still honoured — PaymentApplier).
+        $this->offers->cancelHolders($holders, PaymentOrder::CANCEL_REASON_OFFER_MOVED, ['offer_moved_to_order_id' => $order->id], $now);
+
+        $this->events->record(
+            ProductEventName::CheckoutStarted,
+            ['payment_order_id' => $order->id, 'plan' => $plan->value, 'tier' => $tier, 'period' => $period, 'provider' => $provider->value, 'currency' => $currency, 'amount' => $amount, 'discount_pct' => $offer?->discount_pct, 'via' => $via, 'subscriber_type' => $subscriberType],
+            learner: $subscriber instanceof Learner ? $subscriber : null,
+        );
 
         return $order;
     }
@@ -242,7 +334,7 @@ final class CheckoutService
         return new BillingCatalog(
             items: $items,
             providers: $providerKeys,
-            offer: $offer === null ? null : ['kind' => $offer->kind, 'discount_pct' => $offer->discount_pct, 'expires_at' => CarbonImmutable::instance($offer->expires_at)->toIso8601String()],
+            offer: $offer === null ? null : ['kind' => $offer->kind, 'discount_pct' => $offer->discount_pct, 'period' => $offer->period, 'expires_at' => CarbonImmutable::instance($offer->expires_at)->toIso8601String()],
             subscription: $live === null ? null : self::summarize($live, $now),
         );
     }
@@ -251,20 +343,31 @@ final class CheckoutService
      * Scheduler (`billing:expire-orders`, every 15 min): pending orders past `expires_at` become
      * `expired`. A single UPDATE, no subject locks (docs/13 §3 rule 1); an order that a webhook
      * is applying at the same instant is row-locked by the applier and re-read after this UPDATE.
+     *
+     * Stars orders are swept late ("Реализация 2A.8", H7): their deadline is enforced by the pre_checkout guard
+     * (`order_expired`), and the window between an answered pre_checkout and `successful_payment` must never
+     * find the order already `expired` — the same order also carries every later renewal of the subscription.
+     * Only a pending one older than `expires_at` + {@see self::STARS_SWEEP_GRACE_DAYS} days is closed: pre_checkout has
+     * refused it since `expires_at`, so no payment can still be in flight (and PaymentApplier credits one anyway).
      */
     public function expirePending(?CarbonImmutable $now = null): int
     {
         $now ??= CarbonImmutable::now();
-        // A provider transaction that is still open and younger than the provider's own timeout (Payme: 12 h)
-        // keeps its order payable: the money may already be on its way to PerformTransaction (docs/13 §4.2).
-        $openSince = $now->subMilliseconds((int) config('billing.providers.payme.transaction_timeout_ms', 43_200_000));
 
-        return PaymentOrder::query()
+        // A provider transaction that is still open and younger than ITS provider's timeout (Payme: 12 h,
+        // Click: `transaction_timeout_ms`) keeps its order payable: the money may already be on its way to
+        // PerformTransaction / Complete (docs/13 §4.2, §4.3).
+        $swept = PaymentOrder::query()
             ->where('status', PaymentOrder::STATUS_PENDING)
             ->where('expires_at', '<=', $now)
-            ->whereDoesntHave('providerTransactions', function (Builder $transactions) use ($openSince): void {
-                $transactions->where('state', ProviderTransaction::STATE_CREATED)->where('created_at_provider', '>', $openSince);
-            })
+            ->where('provider', '!=', SubscriptionProvider::TelegramStars->value)
+            ->withoutOpenProviderTransaction(ProviderTransactionTimeout::openSinceByProvider($now))
+            ->update(['status' => PaymentOrder::STATUS_EXPIRED, 'updated_at' => $now]);
+
+        return $swept + PaymentOrder::query()
+            ->where('status', PaymentOrder::STATUS_PENDING)
+            ->where('provider', SubscriptionProvider::TelegramStars->value)
+            ->where('expires_at', '<=', $now->subDays(self::STARS_SWEEP_GRACE_DAYS))
             ->update(['status' => PaymentOrder::STATUS_EXPIRED, 'updated_at' => $now]);
     }
 
@@ -284,12 +387,12 @@ final class CheckoutService
     /**
      * Live-subscription summary for the catalog and `/me.entitlement.renewal`.
      *
-     * @return array{status: string, provider: string, plan: string, ends_at: string|null, auto_renew: bool, can_cancel: bool, can_resume: bool}
+     * @return array{status: string, provider: string, plan: string, ends_at: string|null, auto_renew: bool, can_cancel: bool, can_resume: bool, perpetual: bool}
      */
     public static function summarize(Subscription $live, CarbonImmutable $now): array
     {
         $provider = SubscriptionProvider::tryFrom($live->provider);
-        $autoRenewing = $provider?->isAutoRenewing() ?? false;
+        $autoRenewing = $provider !== null && AutoRenewal::renews($live);
         $ends = $live->current_period_ends_at === null ? null : CarbonImmutable::instance($live->current_period_ends_at);
 
         return [
@@ -300,6 +403,8 @@ final class CheckoutService
             'auto_renew' => $autoRenewing && $live->status === SubscriptionStatus::Active->value,
             'can_cancel' => $autoRenewing && $live->status === SubscriptionStatus::Active->value,
             'can_resume' => $live->status === SubscriptionStatus::Canceled->value && ($ends === null || $ends->greaterThan($now)),
+            // Pro without an end date: nothing to buy (checkout answers `already_perpetual`), the screens hide the buy buttons.
+            'perpetual' => $ends === null && SubscriptionLiveness::isLive($live, $now),
         ];
     }
 
@@ -325,17 +430,52 @@ final class CheckoutService
     }
 
     /**
-     * docs/13 §4.4: while a Stars subscription is live and still renewing, paying a period with
-     * another provider would give two sources of renewal — refused until the renewal is canceled.
+     * What a live subscription forbids buying on top of it (docs/13 §4.4, "Реализация 2A.8"):
+     *
+     *   - a renewing Stars subscription (`active` / `past_due`) forbids EVERY new order, the same provider
+     *     included: Payme / Click on top would leave Telegram charging with no way to stop it, a second Stars
+     *     month would open a second Telegram subscription (`checkout_conflict`);
+     *   - a learner's perpetual grant leaves nothing to buy (`already_perpetual`);
+     *   - a Stars subscription (month) on top of a prepaid period that ends later than
+     *     `billing.stars.subscribe_window_days` from now is refused (`subscribe_too_early`): Telegram's first charge
+     *     starts its own 30 days at once. Payme / Click and a Stars year extend from the end and stay allowed.
+     *
+     * @throws CheckoutException checkout_conflict | already_perpetual | subscribe_too_early
      */
-    private function isRenewingElsewhere(Subscription $live, SubscriptionProvider $chosen, CarbonImmutable $now): bool
+    private function assertCanBuyOver(Subscription $live, Learner|Organization $subscriber, SubscriptionProvider $provider, string $period, CarbonImmutable $now): void
     {
-        $liveProvider = SubscriptionProvider::tryFrom($live->provider);
+        if (AutoRenewal::isRunning($live, $now)) {
+            throw CheckoutException::conflict($live->provider);
+        }
 
-        return $liveProvider !== null
-            && $liveProvider !== $chosen
-            && $liveProvider->isAutoRenewing()
-            && $live->status === SubscriptionStatus::Active->value
+        if (! ($subscriber instanceof Learner) || ! SubscriptionLiveness::isLive($live, $now)) {
+            return;
+        }
+
+        if ($live->current_period_ends_at === null) {
+            throw CheckoutException::alreadyPerpetual();
+        }
+
+        $ends = CarbonImmutable::instance($live->current_period_ends_at);
+        $window = max(0, (int) config('billing.stars.subscribe_window_days', 7));
+
+        if ($provider === SubscriptionProvider::TelegramStars && $period === 'month' && $ends->greaterThan($now->addDays($window))) {
+            throw CheckoutException::subscribeTooEarly($ends, $window);
+        }
+    }
+
+    /**
+     * docs/13 §6.5 (2B.8): while an organization's subscription is live, an online order may only
+     * RENEW its tier — a different tier would re-label the whole prepaid period (12 months of Tutor
+     * + 1 month of Center M would become 13 months of Center M; a prepaid Center M + 1 month of Tutor
+     * would lose 270 seats at once). A change of tariff goes through the platform (`grantManual`).
+     * A live row without a tier (an old grant) and a row whose period has already run out (not yet
+     * swept by `subscriptions:expire`) have nothing to protect.
+     */
+    public static function changesLiveTier(Subscription $live, string $tier, CarbonImmutable $now): bool
+    {
+        return $live->tier !== null
+            && $live->tier !== $tier
             && SubscriptionLiveness::isLive($live, $now);
     }
 

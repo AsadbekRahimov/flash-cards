@@ -4,16 +4,22 @@ declare(strict_types=1);
 
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
+use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Services\IrazasyedTelegramClient;
 use App\Domain\Telegram\Services\TelegramKeyboardFactory;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
 use GuzzleHttp\Psr7\Response;
 use Telegram\Bot\Api;
+use Telegram\Bot\Exceptions\TelegramResponseException;
+use Telegram\Bot\FileUpload\InputFile;
 use Telegram\Bot\Objects\Message as MessageObject;
 use Telegram\Bot\TelegramRequest;
 use Telegram\Bot\TelegramResponse;
 
 it('binds the Telegram client contract to the irazasyed adapter', function (): void {
+    // The base TestCase swaps in a fake; this is the production wiring.
+    $this->refreshApplication();
+
     expect(app(TelegramClient::class))
         ->toBeInstanceOf(IrazasyedTelegramClient::class)
         ->toBe(app(IrazasyedTelegramClient::class));
@@ -222,4 +228,48 @@ it('hides the SDK failure of a Stars call behind TelegramApiException without th
     } catch (TelegramApiException $e) {
         expect($e->getMessage())->not->toContain('AAAAAAAA')->and($e->getPrevious())->toBeNull();
     }
+});
+
+it('uploads a local file as a photo with a caption and a keyboard, and maps a 403 to TelegramForbiddenException', function (): void {
+    $file = tempnam(sys_get_temp_dir(), 'card').'.png';
+    file_put_contents($file, "\x89PNG\r\n\x1a\nfake");
+
+    $sdk = new class extends Api
+    {
+        /** @var list<array<string, mixed>> */
+        public array $photos = [];
+
+        public bool $forbid = false;
+
+        public function __construct()
+        {
+            parent::__construct('test-token');
+        }
+
+        /** @param array<string, mixed> $params */
+        public function sendPhoto(array $params): MessageObject
+        {
+            if ($this->forbid) {
+                throw new TelegramResponseException(new TelegramResponse(new TelegramRequest('t', 'POST', 'sendPhoto'), new Response(403, [], '{"ok":false,"error_code":403,"description":"Forbidden: bot was blocked by the user"}')));
+            }
+            $this->photos[] = $params;
+
+            return new MessageObject([]);
+        }
+    };
+
+    $client = new IrazasyedTelegramClient($sdk, new TelegramKeyboardFactory, new TelegramMessageRateLimiter);
+    $client->sendPhoto(555, $file, 'Caption', ['inline_keyboard' => [[['text' => 'Share', 'url' => 'https://t.me/share/url?url=x']]]]);
+
+    expect($sdk->photos)->toHaveCount(1)
+        ->and($sdk->photos[0]['chat_id'])->toBe(555)
+        ->and($sdk->photos[0]['caption'])->toBe('Caption')
+        ->and($sdk->photos[0]['photo'])->toBeInstanceOf(InputFile::class)
+        ->and($sdk->photos[0]['reply_markup'])->toBe('{"inline_keyboard":[[{"text":"Share","url":"https://t.me/share/url?url=x"}]]}');
+
+    $sdk->forbid = true;
+    expect(fn () => $client->sendPhoto(555, $file))->toThrow(TelegramForbiddenException::class);
+
+    expect(fn () => $client->sendPhoto(555, $file.'.missing'))->toThrow(TelegramApiException::class, 'not readable');
+    unlink($file);
 });

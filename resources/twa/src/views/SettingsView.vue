@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
@@ -8,7 +8,7 @@ import { useOrganizationsStore } from '@/stores/organizations'
 import { useTelegram } from '@/composables/useTelegram'
 import { errorMessage } from '@/i18n/errors'
 import { useI18n } from '@/i18n'
-import type { SettingsPatch } from '@/api/types'
+import type { ExerciseSettings, SettingsPatch } from '@/api/types'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -21,6 +21,19 @@ const { data, status, saving, saved, errorMessage: message, timezoneLockMessage 
 
 // "My centers": the membership whose "Leave" waits for the confirmation tap (null = none).
 const confirmingId = ref<number | null>(null)
+
+// The "undo" of a time zone change: counts down to `timezone_undo_available_until`.
+const nowMs = ref(Date.now())
+let tick: ReturnType<typeof setInterval> | null = null
+
+const undoLeft = computed((): string | null => {
+  const iso = data.value?.timezone_undo_available_until
+  const left = iso ? new Date(iso).getTime() - nowMs.value : Number.NaN
+  if (!(left > 0)) return null
+
+  const seconds = Math.ceil(left / 1000)
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`
+})
 
 let hideBack: (() => void) | null = null
 
@@ -61,12 +74,27 @@ const onReminder = (e: Event) =>
 const onGoal = (e: Event) =>
   change(e, { daily_goal: Number((e.target as HTMLSelectElement).value) }, () => String(data.value?.daily_goal ?? ''))
 
+// 'on' = takes part (opt_out false), 'off' = opted out.
+const onLeagues = (e: Event) =>
+  change(e, { leagues_opt_out: (e.target as HTMLSelectElement).value === 'off' }, () => (data.value?.leagues_opt_out ? 'off' : 'on'))
+
+/** The exercise types of the settings screen, in display order (docs/13 §8.2); flash is always on. */
+const EXERCISE_KEYS: (keyof ExerciseSettings)[] = ['reverse', 'audio', 'spelling', 'gap_fill']
+
+/** A toggle saves at once; when the save is refused the box goes back to the value the server has. */
+async function onExercise(key: keyof ExerciseSettings, event: Event): Promise<void> {
+  const box = event.target as HTMLInputElement
+  if (!(await settings.update({ exercises: { [key]: box.checked } }))) box.checked = data.value?.exercises[key] ?? true
+}
+
 onMounted(() => {
   hideBack = showBackButton(() => void router.push({ name: 'today' }))
+  tick = setInterval(() => (nowMs.value = Date.now()), 1000)
   void load()
 })
 
 onBeforeUnmount(() => {
+  if (tick !== null) clearInterval(tick)
   hideBack?.()
 })
 </script>
@@ -104,6 +132,16 @@ onBeforeUnmount(() => {
           <option v-for="option in data.options.timezones" :key="option.id" :value="option.id">{{ option.label }}</option>
         </select>
         <span v-if="timezoneLockMessage" class="block text-xs text-tg-hint" data-testid="timezone-locked">{{ timezoneLockMessage }}</span>
+        <button
+          v-if="undoLeft !== null"
+          type="button"
+          class="btn btn-secondary w-full"
+          :disabled="saving"
+          data-testid="timezone-undo"
+          @click.prevent="settings.revertTimezone()"
+        >
+          {{ t('settings.timezone.undo', { time: undoLeft }) }}
+        </button>
       </label>
 
       <label class="card block space-y-2">
@@ -121,6 +159,31 @@ onBeforeUnmount(() => {
           <option v-for="goal in data.options.daily_goals" :key="goal" :value="goal">{{ tn('settings.daily_goal.option', goal) }}</option>
         </select>
       </label>
+
+      <label class="card block space-y-2">
+        <span class="font-semibold">{{ t('settings.leagues') }}</span>
+        <select class="w-full rounded-xl px-3 py-3" :value="data.leagues_opt_out ? 'off' : 'on'" :disabled="saving" data-testid="leagues-select" @change="onLeagues">
+          <option value="on">{{ t('settings.leagues.on') }}</option>
+          <option value="off">{{ t('settings.leagues.off') }}</option>
+        </select>
+        <span class="block text-xs text-tg-hint">{{ t('settings.leagues.hint') }}</span>
+      </label>
+
+      <div class="card space-y-3" data-testid="exercises-card">
+        <span class="font-semibold">{{ t('settings.exercises') }}</span>
+        <label v-for="key in EXERCISE_KEYS" :key="key" class="flex items-center gap-3">
+          <input
+            type="checkbox"
+            class="h-5 w-5"
+            :checked="data.exercises[key]"
+            :disabled="saving"
+            :data-testid="`exercise-${key}`"
+            @change="onExercise(key, $event)"
+          />
+          <span>{{ t(`settings.exercises.${key}`) }}</span>
+        </label>
+        <span class="block text-xs text-tg-hint">{{ t('settings.exercises.hint') }}</span>
+      </div>
 
       <div class="card space-y-3" data-testid="course-card">
         <div>

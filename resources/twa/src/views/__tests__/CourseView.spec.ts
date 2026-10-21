@@ -8,6 +8,7 @@ import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { useTrainingStore } from '@/stores/training'
 import type { Course, CourseDetail } from '@/api/types'
+import { settingsFixture } from '@/api/__tests__/settingsFixture'
 
 vi.mock('@/api', () => ({
   api: {
@@ -19,6 +20,13 @@ vi.mock('@/api', () => ({
     training: {
       open: vi.fn(),
     },
+    exam: {
+      openMock: vi.fn(),
+    },
+    // The paywall sheet (a refused mock) reads /me, the promo form and /today.
+    me: { get: vi.fn() },
+    promo: { redeem: vi.fn() },
+    today: { get: vi.fn() },
   },
 }))
 
@@ -60,6 +68,7 @@ async function render(slug = 'english-a1') {
     routes: [
       { path: '/courses', name: 'courses', component: { template: '<div />' } },
       { path: '/training/:sessionId(\\d+)', name: 'training', component: { template: '<div />' } },
+      { path: '/exam/:sessionId(\\d+)', name: 'exam', component: { template: '<div />' } },
     ],
   })
   const wrapper = mount(CourseView, { props: { slug }, global: { plugins: [router] } })
@@ -207,6 +216,86 @@ describe('CourseView', () => {
     expect(wrapper.find('[data-testid=title]').exists()).toBe(false)
   })
 
+  // --- IELTS / SAT mock (task 2D.4, docs/13 §8.4) ---------------------------------
+
+  it('offers the mock exam only on IELTS / SAT courses', async () => {
+    vi.mocked(api.courses.get).mockResolvedValue(detail({ exam_tag: 'ielts', words_count: 120 }))
+    const { wrapper } = await render()
+    expect(wrapper.get('[data-testid=mock-exam-btn]').text()).toContain('Пробный тест')
+    expect(wrapper.get('[data-testid=mock-exam-hint]').text()).toBe('40 слов курса · 20 мин · результат в процентах и сравнение с другими')
+
+    vi.mocked(api.courses.get).mockResolvedValue(detail({ exam_tag: 'sat', words_count: 12 }))
+    const sat = await render()
+    expect(sat.wrapper.find('[data-testid=mock-exam-btn]').exists()).toBe(true)
+    expect(sat.wrapper.get('[data-testid=mock-exam-hint]').text()).toContain('12 слов курса')
+
+    for (const tag of [null, 'general', 'school']) {
+      vi.mocked(api.courses.get).mockResolvedValue(detail({ exam_tag: tag }))
+      const other = await render()
+      expect(other.wrapper.find('[data-testid=mock-exam]').exists()).toBe(false)
+    }
+  })
+
+  it('opens the mock for a Pro learner and goes to the exam screen in mock mode', async () => {
+    vi.mocked(api.courses.get).mockResolvedValue(detail({ exam_tag: 'ielts' }))
+    vi.mocked(api.exam.openMock).mockResolvedValue({
+      session_id: 91, mode: 'personal_mock', course_id: 5, started_at: '2026-10-20T10:00:00Z',
+      ends_at: '2026-10-20T10:20:00Z', total_questions: 40, seconds: 1200, resumed: false,
+    })
+
+    const { wrapper, router } = await render()
+    await wrapper.get('[data-testid=mock-exam-btn]').trigger('click')
+    await flushPromises()
+
+    expect(api.exam.openMock).toHaveBeenCalledWith('english-a1')
+    expect(router.currentRoute.value.name).toBe('exam')
+    expect(router.currentRoute.value.params.sessionId).toBe('91')
+    expect(router.currentRoute.value.query.mode).toBe('mock')
+    expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+  })
+
+  it('shows the paywall with the simulator reason when the server refuses a Free learner', async () => {
+    vi.mocked(api.courses.get).mockResolvedValue(detail({ exam_tag: 'sat' }))
+    vi.mocked(api.exam.openMock).mockRejectedValue(
+      new ApiClientError('forbidden', 403, 'exam_simulator_pro_required', 'Mock exams are a Pro feature.'),
+    )
+    vi.mocked(api.me.get).mockResolvedValue({
+      learner: { id: 1, first_name: 'A', username: null, locale: 'ru', onboarding_completed: true },
+      groups: [],
+      stats: { words_learned: 0, words_due_today: 0 },
+      entitlement: { plan: 'free', source: 'free', until: null, new_words_per_day: 20 },
+      paywall: { mode: 'coming_soon', contact: null },
+      settings: settingsFixture(),
+    })
+
+    const { wrapper, router } = await render()
+    await router.push('/courses')
+    await wrapper.get('[data-testid=mock-exam-btn]').trigger('click')
+    await flushPromises()
+
+    expect(router.currentRoute.value.name).toBe('courses')
+    expect(wrapper.get('[data-testid=paywall-lead]').text()).toContain('Пробные тесты IELTS и SAT — в Pro')
+    expect(wrapper.find('[data-testid=mock-exam-error]').exists()).toBe(false)
+
+    await wrapper.get('[data-testid=paywall-close]').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+  })
+
+  it('explains any other refusal of the mock on the course screen', async () => {
+    vi.mocked(api.courses.get).mockResolvedValue(detail({ exam_tag: 'ielts' }))
+    vi.mocked(api.exam.openMock).mockRejectedValue(
+      new ApiClientError('validation', 422, 'not_enough_words', 'Too few words.'),
+    )
+
+    const { wrapper } = await render()
+    await wrapper.get('[data-testid=mock-exam-btn]').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.get('[data-testid=mock-exam-error]').text()).toBe('В курсе пока слишком мало слов для теста.')
+    expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+  })
+
   it('renders Uzbek texts', async () => {
     setLocale('uz')
     vi.mocked(api.courses.get).mockResolvedValue(detail())
@@ -218,5 +307,9 @@ describe('CourseView', () => {
     expect(wrapper.get('[data-testid=progress-text]').text()).toBe("5 tadan 2 tasi o'rganildi")
     expect(wrapper.get('[data-testid=choose-btn]').text()).toBe('Tanlash')
     expect(wrapper.get('[data-testid=lesson-11]').get('[data-testid=learn-btn]').text()).toBe("O'rganish")
+
+    vi.mocked(api.courses.get).mockResolvedValue(detail({ exam_tag: 'ielts' }))
+    const mock = await render()
+    expect(mock.wrapper.get('[data-testid=mock-exam-btn]').text()).toContain('Sinov testi')
   })
 })

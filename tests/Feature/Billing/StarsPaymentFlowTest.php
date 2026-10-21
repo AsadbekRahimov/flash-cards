@@ -2,13 +2,16 @@
 
 declare(strict_types=1);
 
+use App\Domain\Billing\DTO\RefundEvent;
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Enums\SubscriptionProvider;
+use App\Domain\Billing\Exceptions\PaymentApplyException;
 use App\Domain\Billing\Exceptions\PaymentRefundException;
 use App\Domain\Billing\Exceptions\ProviderUnavailableException;
 use App\Domain\Billing\Services\CheckoutService;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Billing\Services\LearnerBillingService;
+use App\Domain\Billing\Services\PaymentApplier;
 use App\Domain\Billing\Services\PaymentRefundService;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\TelegramDispatcher;
@@ -224,7 +227,7 @@ it('records money for an unknown order as an orphan failed row for the payer and
     Log::shouldHaveReceived('error')->withArgs(fn (string $m, array $ctx): bool => $m === 'billing.payment_orphan' && $ctx['reason'] === 'order_not_found_and_unknown_learner')->once();
 });
 
-it('keeps the subscription untouched on an expired order or a wrong amount: failed row, support text, no retry', function (): void {
+it('keeps the subscription untouched on a failed order or a wrong amount: failed row, support text, no retry', function (): void {
     Log::spy();
     $order = starsOrder($this->learner);
     $dispatcher = app(TelegramDispatcher::class);
@@ -236,9 +239,10 @@ it('keeps the subscription untouched on an expired order or a wrong amount: fail
         ->and($this->telegram->sent)->toHaveCount(1)
         ->and($this->telegram->sent[0]['text'])->toContain('/paysupport');
 
-    $order->update(['status' => 'expired']);
+    // A `failed` order never had a link; an `expired` / `canceled` one IS credited ("Реализация 2A.8", PaymentReviewFixesTest).
+    $order->update(['status' => 'failed']);
     $dispatcher->dispatch(starsPaidUpdate($order, 'ch_late', $this->learner->telegram_user_id, updateId: 2));
-    expect(Payment::query()->where('provider_event_id', 'ch_late')->sole()->raw['failure_reason'])->toBe('order_expired')
+    expect(Payment::query()->where('provider_event_id', 'ch_late')->sole()->raw['failure_reason'])->toBe('order_failed')
         ->and(Subscription::query()->count())->toBe(0)
         ->and($this->telegram->sent)->toHaveCount(2)
         ->and(app(EntitlementResolver::class)->for($this->learner)->plan)->toBe(Plan::Free);
@@ -380,11 +384,35 @@ it('refunds from the admin panel through refundStarPayment, called outside any t
         ->assertHasNoTableActionErrors();
 
     expect($this->telegram->starRefunds)->toBe([['user_id' => $this->learner->telegram_user_id, 'charge_id' => 'ch_first']])
-        ->and($observed)->toBe([['refundStarPayment', 0, 0, 'succeeded']])
+        // The renewal is stopped right after the money is back (still before the ledger changes), also outside a transaction.
+        ->and($observed)->toBe([['refundStarPayment', 0, 0, 'succeeded'], ['editUserStarSubscription', 0, 0, 'succeeded']])
+        ->and($this->telegram->starSubscriptionEdits)->toBe([['user_id' => $this->learner->telegram_user_id, 'charge_id' => 'ch_first', 'is_canceled' => true]])
         ->and($charge->refresh()->status)->toBe('refunded')
         ->and(Payment::query()->where('kind', 'refund')->sole()->provider_event_id)->toBe('admin-refund:'.$charge->id)
         ->and(Subscription::query()->sole()->status)->toBe('expired')
         ->and(AuditLog::query()->where('action', 'payment.refunded')->sole()->meta['note'])->toBe('Customer request');
+});
+
+it('audits the admin refund when the provider echo (refunded_payment) recorded the refund first', function (): void {
+    $this->seed(RolePermissionSeeder::class);
+    $admin = User::factory()->create(['is_active' => true]);
+    $admin->assignRole('admin');
+    $order = starsOrder($this->learner);
+    app(TelegramDispatcher::class)->dispatch(starsPaidUpdate($order, 'ch_first', $this->learner->telegram_user_id));
+    $charge = Payment::query()->sole();
+    // The echo lands while the provider call is in flight.
+    $this->telegram->onStarsCall = function () use ($charge): void {
+        app(PaymentApplier::class)->applyRefund(new RefundEvent(SubscriptionProvider::TelegramStars, 'echo-1', 'ch_first', $charge->amount, $charge->currency, CarbonImmutable::now(), ['source' => 'echo']));
+    };
+
+    expect(fn () => app(PaymentRefundService::class)->refund($charge, $admin, 'ticket 42', ip: '10.0.0.1'))->toThrow(PaymentApplyException::class);
+
+    $audit = AuditLog::query()->where('action', 'payment.refunded')->sole();
+    expect($audit->user_id)->toBe($admin->id)
+        ->and($audit->entity_id)->toBe($charge->id)
+        ->and($audit->meta['note'])->toBe('ticket 42')
+        ->and($audit->ip)->toBe('10.0.0.1')
+        ->and(Payment::query()->where('kind', 'refund')->count())->toBe(1);
 });
 
 it('does not touch the ledger when Telegram refuses the admin refund', function (): void {
@@ -434,6 +462,51 @@ it('reconciles Telegram Stars transactions against the ledger: alerts on a missi
     Log::shouldNotHaveReceived('error', fn (string $m, array $ctx): bool => ($ctx['transaction_id'] ?? null) === 'ch_first' || ($ctx['transaction_id'] ?? null) === 'tx_refund_ok');
     expect($this->telegram->starTransactionPages)->toBe([['offset' => 0, 'limit' => 100]])
         ->and(Payment::query()->count())->toBe(2); // read-only
+});
+
+it('does not stop at the first transaction older than the cut-off: an oldest-first and a shuffled list reconcile the same', function (array $order): void {
+    Log::spy();
+    $now = CarbonImmutable::now()->getTimestamp();
+    $other = Learner::factory()->create();
+    $rows = [
+        'old' => ['id' => 'ch_old', 'amount' => 150, 'date' => $now - 9 * 86_400, 'source' => ['type' => 'user', 'user' => ['id' => $other->telegram_user_id]]],
+        'missing' => ['id' => 'ch_missing', 'amount' => 150, 'date' => $now - 300, 'source' => ['type' => 'user', 'user' => ['id' => $other->telegram_user_id]]],
+        'other' => ['id' => 'w1', 'amount' => 1, 'date' => $now - 600, 'receiver' => ['type' => 'fragment']],
+    ];
+    $this->telegram->starTransactions = array_map(fn (string $k): array => $rows[$k], $order);
+
+    $this->artisan('billing:reconcile-stars', ['--days' => 2])
+        ->expectsOutputToContain('2 transactions checked')
+        ->assertExitCode(1);
+
+    Log::shouldHaveReceived('error')->withArgs(fn (string $m, array $ctx): bool => $m === 'billing.reconcile_missing' && $ctx['transaction_id'] === 'ch_missing')->once();
+})->with([
+    'oldest first' => [['old', 'other', 'missing']],
+    'old in the middle' => [['other', 'old', 'missing']],
+    'newest first' => [['missing', 'other', 'old']],
+]);
+
+it('reads on past a full page of old transactions and fails when Telegram lists nothing for the period while the ledger has Stars payments', function (): void {
+    Log::spy();
+    $now = CarbonImmutable::now()->getTimestamp();
+    $page = [];
+    for ($i = 0; $i < 100; $i++) {
+        $page[] = ['id' => "old{$i}", 'amount' => 1, 'date' => $now - 30 * 86_400, 'receiver' => ['type' => 'fragment']];
+    }
+    $other = Learner::factory()->create();
+    $this->telegram->starTransactions = [...$page, ['id' => 'ch_late', 'amount' => 150, 'date' => $now - 10, 'source' => ['type' => 'user', 'user' => ['id' => $other->telegram_user_id]]]];
+
+    $this->artisan('billing:reconcile-stars')->expectsOutputToContain('1 transactions checked over 2 page(s); 1 charge(s)')->assertExitCode(1);
+
+    // Nothing in the window from Telegram, but we recorded a successful Stars payment.
+    Payment::factory()->create(['provider' => 'telegram_stars', 'kind' => 'charge', 'status' => 'succeeded', 'occurred_at' => CarbonImmutable::now()->subHour()]);
+    $this->telegram->starTransactions = [];
+    $this->artisan('billing:reconcile-stars')->expectsOutputToContain('the comparison is void')->assertExitCode(1);
+    Log::shouldHaveReceived('error')->withArgs(fn (string $m, array $ctx): bool => $m === 'billing.reconcile_empty' && $ctx['ledger_payments'] === 1)->once();
+
+    // No payments of ours in the window and an empty list: fine.
+    Payment::query()->delete();
+    $this->artisan('billing:reconcile-stars')->assertExitCode(0);
 });
 
 it('pages through getStarTransactions until the cut-off, exits 0 when everything matches and does nothing while Stars is off', function (): void {

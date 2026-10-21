@@ -12,6 +12,7 @@ use App\Domain\Learning\Support\LearningPolicy;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
 use App\Jobs\SendLearnerReminderJob;
 use App\Models\Learner;
 use App\Models\NotificationLog;
@@ -19,6 +20,7 @@ use App\Models\ProductEvent;
 use App\Models\Word;
 use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
+use Illuminate\Contracts\Queue\Job as QueueJobContract;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
@@ -419,7 +421,9 @@ it('serialises the claimed instant into the job', function (): void {
 
     expect($restored->learnerId)->toBe(5)
         ->and($restored->scheduledFor->utc()->toDateTimeString())->toBe('2026-10-18 14:00:00')
-        ->and($job->tries)->toBe(3);
+        // Attempts are unlimited (a release for lack of a global Telegram slot uses one up); real exceptions are capped.
+        ->and($job->tries)->toBe(0)
+        ->and($job->maxExceptions)->toBe(3);
 });
 
 // --- which cards count as due (DueRepetitionCriteria, docs/06 §6) ----------------------------
@@ -560,4 +564,41 @@ it('prunes notifications_log rows older than the configured retention, daily wit
 
     $prune = collect(Schedule::events())->first(fn ($e): bool => str_contains((string) $e->command, 'model:prune'));
     expect((string) $prune?->command)->toContain(NotificationLog::class);
+});
+
+// --- bot-wide send budget (docs/13 §9, 2R.3) ----------------------------------------------
+
+it('keeps a claimed reminder intact while the job waits for a Telegram slot, then sends it exactly once', function (): void {
+    $this->app->instance(TelegramMessageRateLimiter::class, new TelegramMessageRateLimiter(globalPerSecond: 1));
+    $learner = rmLearner();
+    rmDue($learner, 2);
+
+    $worker = function () use ($learner): bool {
+        $queueJob = Mockery::mock(QueueJobContract::class);
+        $released = false;
+        $queueJob->shouldReceive('release')->andReturnUsing(function () use (&$released): void {
+            $released = true;
+        });
+        $job = new SendLearnerReminderJob($learner->id, CarbonImmutable::parse('2026-10-18 14:00:00', 'UTC'));
+        $job->job = $queueJob;
+
+        foreach ($job->middleware() as $middleware) {
+            $middleware->handle($job, fn () => $job->handle(app(ReminderSender::class)));
+        }
+
+        return $released;
+    };
+
+    // Another sender took this second's only slot.
+    expect(app(TelegramMessageRateLimiter::class)->reserveGlobal())->toBeTrue()
+        ->and($worker())->toBeTrue()
+        ->and($this->tg->sent)->toBe([])
+        ->and(NotificationLog::query()->count())->toBe(0)
+        ->and($learner->fresh()?->dm_blocked_at)->toBeNull();
+
+    $this->travel(2)->seconds();
+
+    expect($worker())->toBeFalse()
+        ->and($this->tg->sent)->toHaveCount(1)
+        ->and(NotificationLog::query()->count())->toBe(1);
 });

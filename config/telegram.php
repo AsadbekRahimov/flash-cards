@@ -18,6 +18,15 @@ return [
         'window_seconds' => 60,
     ],
 
+    // Bot-wide ceiling of background sends (reminders, assignments, DMs of centers/offers, leaderboards)
+    // per second: Bot API allows ~30 msg/s per bot, the rest is left for replies to updates. 0 = off. docs/13 §9 (2R.3).
+    'outbound' => [
+        'global_per_second' => (int) env('TELEGRAM_OUTBOUND_GLOBAL_PER_SECOND', 25),
+
+        // How long a console command (assignments:refresh) waits for a free slot before it postpones the send.
+        'sync_wait_ms' => 2000,
+    ],
+
     // Incoming updates per sender (docs/12 §8): over the limit they are dropped without a reply.
     'inbound_rate_limit' => [
         'max_messages' => (int) env('TELEGRAM_INBOUND_MAX_PER_MINUTE', 30),

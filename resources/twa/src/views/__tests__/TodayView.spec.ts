@@ -8,11 +8,11 @@ import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { useTrainingStore } from '@/stores/training'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
-import type { MeResponse, TodayResponse } from '@/api/types'
+import type { AssignmentItem, MeResponse, TodayResponse } from '@/api/types'
 
 const state = vi.hoisted(() => ({ ensure: vi.fn() }))
 
-vi.mock('@/api', () => ({ api: { today: { get: vi.fn() }, training: { open: vi.fn() }, me: { get: vi.fn() } } }))
+vi.mock('@/api', () => ({ api: { today: { get: vi.fn() }, assignments: { list: vi.fn() }, training: { open: vi.fn() }, me: { get: vi.fn() } } }))
 
 vi.mock('@/stores/auth', () => ({
   useAuthStore: () => ({ ensure: state.ensure }),
@@ -22,7 +22,7 @@ const today = (overrides: Partial<TodayResponse> = {}): TodayResponse => ({
   due_count: 23,
   new_words_remaining: null,
   goal: { target: 20, done: 8, met: false },
-  streak: { current: 5, best: 12, met_today: false, at_risk: true },
+  streak: { current: 5, best: 12, met_today: false, at_risk: true, freezes: 0, frozen_yesterday: false },
   active_course: {
     id: 3,
     slug: 'english-a1',
@@ -33,6 +33,23 @@ const today = (overrides: Partial<TodayResponse> = {}): TodayResponse => ({
   open_session_id: null,
   entitlement: { plan: 'free', source: 'free', until: null },
   onboarding_completed: true,
+  league: null,
+  ...overrides,
+})
+
+const assignment = (overrides: Partial<AssignmentItem> = {}): AssignmentItem => ({
+  id: 7,
+  title: 'Food',
+  group: 'Group A',
+  lesson_id: 41,
+  stage: 2,
+  lesson: 4,
+  due_at: '2026-10-25T13:00:00+00:00',
+  overdue: false,
+  progress_pct: 40,
+  completed: false,
+  completed_at: null,
+  late: false,
   ...overrides,
 })
 
@@ -45,6 +62,9 @@ const makeRouter = () =>
       { path: '/decks', name: 'decks', component: { template: '<div />' } },
       { path: '/settings', name: 'settings', component: { template: '<div />' } },
       { path: '/billing', name: 'billing', component: { template: '<div />' } },
+      { path: '/referrals', name: 'referrals', component: { template: '<div />' } },
+      { path: '/achievements', name: 'achievements', component: { template: '<div />' } },
+      { path: '/league', name: 'league', component: { template: '<div />' } },
       { path: '/training/:sessionId(\\d+)', name: 'training', component: { template: '<div />' } },
     ],
   })
@@ -64,6 +84,7 @@ describe('TodayView', () => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
     state.ensure.mockResolvedValue(undefined)
+    vi.mocked(api.assignments.list).mockResolvedValue({ assignments: [] })
     // The "Pro ended" banner asks /me for a Free learner; by default nothing lapsed.
     vi.mocked(api.me.get).mockResolvedValue({
       entitlement: { plan: 'free', source: 'free', until: null, new_words_per_day: 20, renewal: null, lapsed: null },
@@ -71,6 +92,15 @@ describe('TodayView', () => {
     } as never)
   })
   afterEach(() => setLocale('ru'))
+
+  it('shows the league line: the place of the week, or an invitation to study, linking to the league screen', async () => {
+    const placed = await render(today({ league: { tier: 1, tier_key: 'silver', rank: 3, points: 41, members_count: 28 } }))
+    expect(text(placed, 'league-line')).toBe('🏆 Серебро · 3-е место из 28 · 41 очко')
+    expect(placed.get('[data-testid=league-line]').attributes('href')).toBe('/league')
+
+    const bare = await render(today({ league: null }))
+    expect(text(bare, 'league-line')).toBe('🏆 Лига: повторите карточки, чтобы вступить на этой неделе')
+  })
 
   it('shows the goal as a ring with done / target and what is left', async () => {
     const w = await render()
@@ -102,14 +132,46 @@ describe('TodayView', () => {
   })
 
   it('shows a safe streak after the goal, and an invitation when there is none', async () => {
-    const safe = await render(today({ streak: { current: 6, best: 6, met_today: true, at_risk: false } }))
+    const safe = await render(today({ streak: { current: 6, best: 6, met_today: true, at_risk: false, freezes: 0, frozen_yesterday: false } }))
     expect(text(safe, 'streak-safe')).toBe('На сегодня серия продлена')
     expect(safe.find('[data-testid=streak-at-risk]').exists()).toBe(false)
     expect(safe.find('[data-testid=streak-best]').exists()).toBe(false)
 
-    const none = await render(today({ streak: { current: 0, best: 3, met_today: false, at_risk: false } }))
+    const none = await render(today({ streak: { current: 0, best: 3, met_today: false, at_risk: false, freezes: 0, frozen_yesterday: false } }))
     expect(text(none, 'streak-none')).toBe('Выполните цель дня, чтобы начать серию')
     expect(none.find('[data-testid=streak-at-risk]').exists()).toBe(false)
+  })
+
+  it('shows a Pro learner the streak freezes in stock and that yesterday was frozen', async () => {
+    const pro = { plan: 'pro', source: 'subscription', until: null } as const
+    const two = await render(today({ entitlement: pro, streak: { current: 5, best: 12, met_today: false, at_risk: true, freezes: 2, frozen_yesterday: false } }))
+    expect(text(two, 'streak-freezes')).toBe('❄️ 2 заморозки')
+    expect(two.find('[data-testid=streak-frozen]').exists()).toBe(false)
+    expect(two.find('[data-testid=streak-freeze-teaser]').exists()).toBe(false)
+
+    const frozen = await render(today({ entitlement: pro, streak: { current: 5, best: 12, met_today: false, at_risk: true, freezes: 1, frozen_yesterday: true } }))
+    expect(text(frozen, 'streak-freezes')).toBe('❄️ 1 заморозка')
+    expect(text(frozen, 'streak-frozen')).toBe('Вчерашний день заморожен — серия сохранена')
+    expect(text(frozen, 'streak-at-risk')).toBe('Серия под угрозой: выполните цель до полуночи')
+
+    const none = await render(today({ entitlement: pro, streak: { current: 5, best: 12, met_today: true, at_risk: false, freezes: 0, frozen_yesterday: false } }))
+    expect(text(none, 'streak-freezes')).toBe('❄️ Заморозок нет — новая в понедельник')
+  })
+
+  it('offers a Free learner the streak-freeze teaser that opens the paywall with its own lead', async () => {
+    const w = await render()
+    expect(w.find('[data-testid=streak-freezes]').exists()).toBe(false)
+    expect(text(w, 'streak-freeze-teaser')).toBe('❄️ Заморозки серии — в Pro')
+
+    await w.get('[data-testid=streak-freeze-teaser]').trigger('click')
+    await flushPromises()
+    expect(w.get('[data-testid=paywall-lead]').text()).toContain('Заморозка серии — в Pro')
+
+    // The review card still opens the sheet with its own reason.
+    await w.get('[data-testid=paywall-close]').trigger('click')
+    await w.get('[data-testid=paywall-open]').trigger('click')
+    await flushPromises()
+    expect(w.get('[data-testid=paywall-lead]').text()).not.toContain('Заморозка серии')
   })
 
   it('shows the due count with the right Russian form and an empty state', async () => {
@@ -233,6 +295,81 @@ describe('TodayView', () => {
     })
   })
 
+  describe('assignments of the center', () => {
+    it('shows no block without assignments', async () => {
+      const w = await render()
+
+      expect(w.find('[data-testid=assignments-card]').exists()).toBe(false)
+    })
+
+    it('lists the assignments with the learner\'s own progress and starts the lesson as an assignment session', async () => {
+      vi.mocked(api.assignments.list).mockResolvedValue({
+        assignments: [assignment(), assignment({ id: 8, title: 'Done', lesson_id: 42, progress_pct: 100, completed: true, late: true })],
+      })
+      vi.mocked(api.training.open).mockResolvedValue({ session_id: 55, mode: 'lesson', lesson: null, total_words: 10 })
+
+      const w = await render()
+
+      expect(w.findAll('[data-testid=assignment]')).toHaveLength(2)
+      expect(w.findAll('[data-testid=assignment-title]')[0].text()).toBe('Food')
+      expect(w.findAll('[data-testid=assignment-progress]')[0].text()).toBe('Пройдено 40% слов урока')
+      expect(w.findAll('[data-testid=assignment-done]')[0].text()).toBe('Выполнено с опозданием')
+      // A completed assignment has no button.
+      expect(w.findAll('[data-testid=assignment-btn]')).toHaveLength(1)
+
+      await w.get('[data-testid=assignment-btn]').trigger('click')
+      await flushPromises()
+
+      expect(api.training.open).toHaveBeenCalledWith({ mode: 'lesson', lesson_id: 41, source: 'assignment' })
+      expect(w.router.currentRoute.value.name).toBe('training')
+    })
+
+    it('marks an overdue open assignment', async () => {
+      vi.mocked(api.assignments.list).mockResolvedValue({ assignments: [assignment({ overdue: true })] })
+
+      const w = await render()
+
+      expect(text(w, 'assignment-due')).toContain('Срок прошёл')
+    })
+
+    it('keeps Today working when the assignments cannot be loaded', async () => {
+      vi.mocked(api.assignments.list).mockRejectedValue(new ApiClientError('server', 500, 'server_error', 'boom'))
+
+      const w = await render()
+
+      expect(w.find('[data-testid=assignments-card]').exists()).toBe(false)
+      expect(text(w, 'goal-text')).toBe('8 из 20')
+    })
+
+    it('opens the lesson right away from the group announcement (?from=assignment&lesson=41) and drops the marker', async () => {
+      vi.mocked(api.today.get).mockResolvedValue(today())
+      vi.mocked(api.training.open).mockResolvedValue({ session_id: 56, mode: 'lesson', lesson: null, total_words: 10 })
+      const router = makeRouter()
+      await router.push('/today?from=assignment&lesson=41')
+      await router.isReady()
+      mount(TodayView, { global: { plugins: [router] } })
+      await flushPromises()
+
+      expect(api.training.open).toHaveBeenCalledWith({ mode: 'lesson', lesson_id: 41, source: 'assignment' })
+      expect(router.currentRoute.value.name).toBe('training')
+      router.back()
+      await flushPromises()
+      expect(router.currentRoute.value.query.from).toBeUndefined()
+    })
+
+    it('ignores a broken lesson id in the announcement link', async () => {
+      vi.mocked(api.today.get).mockResolvedValue(today())
+      const router = makeRouter()
+      await router.push('/today?from=assignment&lesson=abc')
+      await router.isReady()
+      mount(TodayView, { global: { plugins: [router] } })
+      await flushPromises()
+
+      expect(api.training.open).not.toHaveBeenCalled()
+      expect(router.currentRoute.value.name).toBe('today')
+    })
+  })
+
   it('offers to continue an open daily review', async () => {
     const w = await render(today({ open_session_id: 918 }))
 
@@ -314,6 +451,20 @@ describe('TodayView', () => {
 
     expect(link.attributes('href')).toBe('/settings')
     expect(link.text()).toContain('Настройки')
+  })
+
+  it('links to "Invite a friend"', async () => {
+    const link = (await render()).get('[data-testid=referrals-link]')
+
+    expect(link.attributes('href')).toBe('/referrals')
+    expect(link.text()).toContain('Пригласить друга')
+  })
+
+  it('links to the achievements', async () => {
+    const link = (await render()).get('[data-testid=achievements-link]')
+
+    expect(link.attributes('href')).toBe('/achievements')
+    expect(link.text()).toContain('Достижения')
   })
 
   it('badges the plan', async () => {

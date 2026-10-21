@@ -62,6 +62,20 @@ export function useTelegram() {
     } catch { /* ignore */ }
   }
 
+  /** Opens a `t.me/...` link inside Telegram (a share dialog, a bot); outside Telegram it opens a tab. */
+  function openTelegramLink(url: string): void {
+    try {
+      if (webApp?.openTelegramLink) webApp.openTelegramLink(url)
+      else if (typeof window !== 'undefined') window.open(url, '_blank', 'noopener')
+    } catch { /* ignore */ }
+  }
+
+  /** Telegram's "share" dialog for a link with a prefilled message (`t.me/share/url`). */
+  function shareUrl(url: string, text: string): void {
+    const params = new URLSearchParams({ url, text })
+    openTelegramLink(`https://t.me/share/url?${params.toString()}`)
+  }
+
   function showBackButton(handler: () => void): () => void {
     try {
       webApp?.BackButton?.show()
@@ -86,6 +100,8 @@ export function useTelegram() {
     notificationHaptic,
     openInvoice,
     openLink,
+    openTelegramLink,
+    shareUrl,
     showBackButton,
   }
 }

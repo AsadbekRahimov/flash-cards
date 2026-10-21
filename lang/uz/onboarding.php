@@ -73,6 +73,9 @@ return [
         'menu' => "Nimani o'zgartirmoqchisiz?",
         'saved' => 'Saqlandi.',
         'timezone_too_soon' => "Vaqt mintaqasini kuniga bir martadan ko'p o'zgartirib bo'lmaydi. Keyingi o'zgartirish — :when dan keyin (joriy vaqtingiz bo'yicha).",
+        'timezone_undo' => 'Bekor qilish',
+        'timezone_reverted' => 'Vaqt mintaqasi qaytarildi.',
+        'timezone_revert_unavailable' => "Vaqt mintaqasi o'zgarishini endi bekor qilib bo'lmaydi: 10 daqiqadan ko'proq o'tdi yoki u allaqachon bekor qilingan.",
         'buttons' => [
             'locale' => 'Til',
             'goal' => 'Maqsad',

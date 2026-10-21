@@ -20,6 +20,7 @@ use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Support\Facades\DB;
+use Tests\Support\ForkSafe;
 
 /*
  * Real races: several OS processes, each with its own PostgreSQL connection, hit the
@@ -58,7 +59,7 @@ afterEach(function (): void {
 function runConcurrently(array $tasks): array
 {
     // The parent must not share its socket with the children: close it before forking.
-    DB::disconnect();
+    ForkSafe::releaseConnections();
 
     $dir = sys_get_temp_dir().'/lexiflow-race-'.bin2hex(random_bytes(4));
     mkdir($dir, 0700, true);
@@ -74,6 +75,7 @@ function runConcurrently(array $tasks): array
         if ($pid === 0) {
             $out = ['ok' => false, 'error' => 'no result'];
             try {
+                ForkSafe::releaseConnections();
                 DB::reconnect();
                 while (microtime(true) < $startAt) {
                     usleep(500);

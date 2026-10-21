@@ -44,9 +44,15 @@ export interface LearnerSettings {
   daily_goal: number
   goal: string | null
   level: string | null
+  /** Leagues (docs/13 §7.3): true = the learner is not placed in weekly groups. */
+  leagues_opt_out: boolean
   /** ISO 8601 UTC: the time zone may be changed again from then on (once in 24 h); null = now. */
   timezone_change_available_at: string | null
+  /** until when the last change of the zone can be taken back (10 minutes); null = it cannot */
+  timezone_undo_available_until: string | null
   active_course: { slug: string; title: string } | null
+  /** Exercise types the learner has switched on (docs/13 §8.2); flash cards are always on. */
+  exercises: ExerciseSettings
   options: {
     locales: SettingsChoice[]
     timezones: SettingsChoice[]
@@ -72,10 +78,149 @@ export interface OrganizationsResponse {
   organizations: OrganizationMembership[]
 }
 
+/** GET /referrals (docs/04 A.12): "Invite a friend". `link` is null while the bot username is not configured. */
+export type ReferralStatus = 'pending' | 'activated' | 'rewarded'
+
+export interface ReferralItem {
+  first_name: string | null
+  status: ReferralStatus
+  linked_at: string
+}
+
+export interface ReferralsResponse {
+  code: string
+  link: string | null
+  reward_days: number
+  activation: { days: number; reviews_per_day: number; window_days: number }
+  counts: { invited: number; activated: number; rewarded: number; capped: number }
+  referrals: ReferralItem[]
+}
+
+/** GET /league (docs/04 A.13): the learner's group of the week. */
+export type LeagueTierKey = 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond' | string
+export type LeagueResult = 'promoted' | 'stayed' | 'demoted'
+export type LeagueZone = 'promotion' | 'safe' | 'demotion'
+
+export interface LeagueStandingItem {
+  rank: number
+  /** First name of the member; null = no name to show. Nothing else of other people is sent. */
+  name: string | null
+  points: number
+  is_me: boolean
+}
+
+export interface LeagueMembership {
+  tier: number
+  tier_key: LeagueTierKey
+  rank: number
+  points: number
+  members_count: number
+  zone: LeagueZone
+  /** Points missing to enter the promotion zone; null when already there or the tier cannot promote. */
+  points_to_promote: number | null
+  /** Points missing to leave the demotion zone; null when not in it or the tier cannot demote. */
+  points_to_safety: number | null
+  standings: LeagueStandingItem[]
+}
+
+export interface LeagueResponse {
+  enabled: boolean
+  opted_out: boolean
+  /** `closes_at`: ISO 8601 UTC instant of the next Monday 00:00 in the league time zone. */
+  week: { starts_on: string; ends_on: string; closes_at: string }
+  rules: { capacity: number; promote: number; demote: number; tiers: LeagueTierKey[] }
+  membership: LeagueMembership | null
+  last_week: { starts_on: string; tier: number; tier_key: LeagueTierKey; result: LeagueResult; rank: number; points: number } | null
+}
+
+/** GET /achievements (docs/04 A.15): the whole catalog; `title` / `description` / `share_text` are in the request language. */
+export interface AchievementItem {
+  /** `first_session`, `streak_7`, `words_100`, `league_top1`, … */
+  key: string
+  title: string
+  description: string
+  /** ISO 8601; null = still locked. */
+  unlocked_at: string | null
+  /** ISO 8601; set once the learner opened the share dialog. */
+  shared_at: string | null
+  /** Progress towards the threshold of a counting key (`current` is capped at `target`); null for one-off keys. */
+  progress: { current: number; target: number } | null
+  /** Prefilled message of the share dialog; null while locked. */
+  share_text: string | null
+}
+
+export interface AchievementsResponse {
+  unlocked_count: number
+  total: number
+  /** The learner's invite link the share carries; null while the bot username is not configured (no share button). */
+  share_link: string | null
+  items: AchievementItem[]
+}
+
+/** GET /friends (docs/04 A.13): friends, incoming / outgoing requests. `id` is the friendship id; of other people only a first name, the streak and the learned words. */
+export interface FriendItem {
+  id: number
+  first_name: string | null
+  streak: number
+  words_learned: number
+  since: string | null
+}
+
+export interface FriendRequestItem {
+  id: number
+  first_name: string | null
+  requested_at: string | null
+}
+
+export interface FriendsResponse {
+  invite_link: string | null
+  limit: number
+  friends: FriendItem[]
+  incoming: FriendRequestItem[]
+  outgoing: FriendRequestItem[]
+}
+
+/** GET /challenges, POST /challenges[/id/accept|decline] (docs/04 A.13). */
+export type ChallengeMetric = 'reviews' | 'new_words'
+export type ChallengeStatus = 'pending' | 'active' | 'finished' | 'declined' | 'expired' | 'canceled'
+
+export interface ChallengeItem {
+  id: number
+  status: ChallengeStatus
+  metric: ChallengeMetric
+  days: number
+  /** `challenger` = you proposed it; `opponent` = you were challenged. */
+  role: 'challenger' | 'opponent'
+  friend_name: string | null
+  /** null once the friendship is gone. */
+  friendship_id: number | null
+  starts_on: string | null
+  ends_on: string | null
+  created_at: string | null
+  my_score: number | null
+  their_score: number | null
+  result: 'won' | 'lost' | 'draw' | null
+}
+
+export interface ChallengesResponse {
+  days: number
+  open: ChallengeItem[]
+  finished: ChallengeItem[]
+}
+
+export interface ExerciseSettings {
+  reverse: boolean
+  audio: boolean
+  /** Pro feature: typed answers are served only with `exercise.spelling`. */
+  spelling: boolean
+  /** Pro feature. */
+  gap_fill: boolean
+}
+
 /** Body of PATCH /me/settings: only the fields to change; `reminder_time: null` turns the reminders off. */
 export type SettingsPatch = Partial<
-  Pick<LearnerSettings, 'interface_locale' | 'timezone' | 'reminder_time' | 'daily_goal' | 'goal' | 'level'>
->
+  Pick<LearnerSettings, 'interface_locale' | 'timezone' | 'reminder_time' | 'daily_goal' | 'goal' | 'level' | 'leagues_opt_out'>
+> & { exercises?: Partial<ExerciseSettings> }
 
 /** `source`: 'free' | 'subscription' | 'sponsor:organization:<id>'; `until`: ISO 8601, null = no end. */
 export interface Entitlement {
@@ -139,13 +284,16 @@ export interface SubscriptionSummary {
   auto_renew: boolean
   can_cancel: boolean
   can_resume: boolean
+  /** Pro without an end date (a manual grant): nothing to buy, the server answers `already_perpetual`. */
+  perpetual: boolean
 }
 
 export interface BillingCatalog {
   /** Empty = nothing to sell. */
   items: CatalogItem[]
   providers: BillingProviderKey[]
-  offer: { kind: string; discount_pct: number; expires_at: string } | null
+  /** `period` null = the offer covers any period; the rows of `items` already carry the discounted `prices`. */
+  offer: { kind: string; discount_pct: number; period: BillingPeriod | null; expires_at: string } | null
   subscription: SubscriptionSummary | null
 }
 
@@ -160,6 +308,10 @@ export type OrderStatus = 'pending' | 'paid' | 'canceled' | 'expired' | 'failed'
 export interface OrderStatusResponse {
   status: OrderStatus
   paid_at: string | null
+  /** `replaced`: canceled because the offer's discount moved to a newer order / was used up — not a failure. */
+  reason: 'replaced' | null
+  /** Token (never an id) of the order that took over, when known. */
+  replaced_by: string | null
   subscription: SubscriptionSummary | null
 }
 
@@ -189,7 +341,7 @@ export interface Quota {
 export type TrainingMode = 'group_lesson' | 'lesson' | 'daily_review'
 
 /** Where a personal session was opened from (stored for analytics). */
-export type SessionSource = 'self' | 'picker' | 'reminder' | 'onboarding'
+export type SessionSource = 'self' | 'picker' | 'reminder' | 'onboarding' | 'assignment'
 
 export interface TrainingStartResponse {
   session_id: number
@@ -224,6 +376,10 @@ export interface Streak {
   met_today: boolean
   /** The series ends unless the goal is met before local midnight. */
   at_risk: boolean
+  /** Streak freezes the learner can spend (Pro feature; 0 on Free — docs/13 §7.2). */
+  freezes: number
+  /** Yesterday was missed and held by a freeze. */
+  frozen_yesterday: boolean
 }
 
 /** Answer of POST /training/sessions/{id}/finish. `goal` / `streak`: state of the whole day, not of the session. */
@@ -263,6 +419,41 @@ export interface TodayResponse {
   open_session_id: number | null
   entitlement: Pick<Entitlement, 'plan' | 'source' | 'until'>
   onboarding_completed: boolean
+  /** The learner's place in this week's league group (docs/13 §7.3); null while not placed. */
+  league: TodayLeague | null
+}
+
+export interface TodayLeague {
+  tier: number
+  tier_key: LeagueTierKey
+  rank: number
+  points: number
+  members_count: number
+}
+
+/** One assignment of the learner's center (GET /assignments, docs/04 A.9): only the learner's own progress. */
+export interface AssignmentItem {
+  id: number
+  title: string
+  group: string
+  /** What `POST /training/sessions {mode: 'lesson'}` takes. */
+  lesson_id: number
+  stage: number
+  lesson: number
+  /** ISO 8601 with offset. */
+  due_at: string
+  /** The due date has passed, the assignment is still open (late work counts). */
+  overdue: boolean
+  progress_pct: number
+  completed: boolean
+  completed_at: string | null
+  /** Completed after the due date. */
+  late: boolean
+}
+
+/** Answer of GET /assignments. */
+export interface AssignmentsResponse {
+  assignments: AssignmentItem[]
 }
 
 /**
@@ -271,6 +462,24 @@ export interface TodayResponse {
  * learning — inside minute-based learning/relearning steps (returns in the same session)
  */
 export type CardKind = 'due' | 'new' | 'learning'
+
+/**
+ * How the card is presented and who grades it (docs/13 §2.5, docs/04 A.3):
+ * flash / reverse / audio → POST /review {quality}; spelling / gap_fill → POST /review {answer}.
+ */
+export type ExerciseType = 'flash' | 'reverse' | 'audio' | 'spelling' | 'gap_fill'
+
+export interface ExercisePrompt {
+  type: ExerciseType
+  /** reverse / spelling / gap_fill: the translation; flash: the word; audio: '' (the word is only heard). */
+  front: string
+  /** gap_fill: the example with the word's form replaced by `____`. */
+  masked_example: string | null
+  /** reverse: four English words; audio: four translations (the right one among them). */
+  options: string[] | null
+  /** spelling / gap_fill: length of the expected text. */
+  answer_length: number | null
+}
 
 export interface Card {
   word_id: number
@@ -293,6 +502,8 @@ export interface Card {
    * `serve_token` in POST /review for that card, otherwise 409 `card_not_due`.
    */
   serve_token: string | null
+  /** The exercise of this serve; absent/null = flash (older servers). */
+  prompt?: ExercisePrompt | null
 }
 
 export interface NextCardResponse {
@@ -311,10 +522,21 @@ export interface NextCardResponse {
  */
 export type Quality = 2 | 4 | 5
 
+/** The server's grade of a typed answer (spelling / gap_fill). */
+export interface Graded {
+  /** 5 exact, 4 within the tolerance, 1 wrong. */
+  quality: number
+  correct: boolean
+  /** The normalized right answer, to show after a miss. */
+  expected: string
+}
+
 export interface ReviewResponse {
   next_review_at: string | null
   new_interval_days: number
   easiness_factor: number
+  /** null when the client graded (quality was sent). */
+  graded?: Graded | null
   card?: Card | null
   progress?: { done: number; total: number }
   done_reason?: DoneReason | null
@@ -367,6 +589,40 @@ export interface ExamResultResponse {
   rank: number | null
   total_participants: number
   leaderboard: ExamLeaderboardEntry[]
+}
+
+export type ExamMode = 'group_exam' | 'personal_mock'
+
+/** POST /courses/{slug}/mock-exam (docs/04 A.4a): the learner's IELTS / SAT mock, new (201) or the open one (200). */
+export interface MockExamOpenResponse {
+  session_id: number
+  mode: ExamMode
+  course_id: number | null
+  started_at: string | null
+  ends_at: string | null
+  total_questions: number
+  /** Whole-exam time limit; a mock has no per-question timer. */
+  seconds: number
+  resumed: boolean
+}
+
+/** GET /exam/sessions/{id}/result of a `personal_mock` session: percent + percentile instead of a leaderboard. */
+export interface MockExamResultResponse {
+  mode: 'personal_mock'
+  correct: number
+  total: number
+  answered: number
+  percent: number
+  /** Share of closed mocks of the course over 90 days at or below this percent; null while open. */
+  percentile: number | null
+  attempts: number
+  course_id: number | null
+}
+
+export type AnyExamResultResponse = ExamResultResponse | MockExamResultResponse
+
+export function isMockExamResult(result: AnyExamResultResponse): result is MockExamResultResponse {
+  return 'mode' in result && result.mode === 'personal_mock'
 }
 
 // ---------------- Course catalog ----------------

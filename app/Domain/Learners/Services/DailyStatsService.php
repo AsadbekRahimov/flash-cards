@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace App\Domain\Learners\Services;
 
+use App\Domain\Engagement\Services\AchievementService;
+use App\Domain\Engagement\Services\LeagueService;
+use App\Domain\Engagement\Services\ReferralService;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
+use Throwable;
 
 /**
  * Per-local-day aggregates of a learner (`learner_daily_stats`, docs/12 §1.6, §3.1, §7.4).
@@ -41,6 +45,9 @@ class DailyStatsService
     public function __construct(
         private readonly LearnerClock $clock,
         private readonly StreakService $streaks,
+        private readonly ReferralService $referrals,
+        private readonly LeagueService $leagues,
+        private readonly AchievementService $achievements,
     ) {}
 
     /**
@@ -73,6 +80,48 @@ class DailyStatsService
 
         if ($goalJustMet) {
             $this->streaks->onGoalMet($learner, $today);
+        }
+
+        // Referral activation (docs/13 §7.1) looks at committed day rows: the moment this day crosses the
+        // "active day" threshold, re-evaluate a pending referral of the learner — after commit, never inside.
+        if ($reviews === max(1, (int) config('referrals.activation.reviews_per_day'))) {
+            DB::afterCommit(function () use ($learner, $now): void {
+                try {
+                    $this->referrals->evaluate($learner, $now);
+                } catch (Throwable $e) {
+                    report($e);
+                }
+            });
+        }
+
+        // League placement (docs/13 §7.3): the first grade of a local day is the cheapest moment to
+        // make sure the learner sits in this week's group (an indexed lookup; a no-op once placed).
+        // After commit, never inside — and never a failed grade: a league error is only reported.
+        if ($reviews === 1) {
+            DB::afterCommit(function () use ($learner, $now): void {
+                try {
+                    $this->leagues->place($learner, $now);
+                } catch (Throwable $e) {
+                    report($e);
+                }
+            });
+        }
+
+        // Achievements (docs/13 §7.4), after commit and never a failed grade. The very first graded card
+        // unlocks `first_session` (one conditional insert); the counting keys (streak, learned words) are
+        // looked at once a day, when the goal is met — the streak projection is committed by its own
+        // earlier hook by then.
+        if ($isNewCard || $goalJustMet) {
+            DB::afterCommit(function () use ($learner, $now, $goalJustMet): void {
+                try {
+                    $this->achievements->onFirstReview($learner, $now);
+                    if ($goalJustMet) {
+                        $this->achievements->evaluate($learner, $now);
+                    }
+                } catch (Throwable $e) {
+                    report($e);
+                }
+            });
         }
 
         return $row;

@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Domain\Learning\Services\ExamQuestionPersonalizer;
+use App\Models\Course;
 use App\Models\ExamSession;
+use App\Models\Learner;
 use App\Models\Lesson;
+use App\Models\Stage;
 use App\Models\TelegramGroup;
 use App\Models\User;
 use App\Models\Word;
@@ -22,6 +25,9 @@ class ExamSessionFactory extends Factory
             'telegram_group_id' => TelegramGroup::factory(),
             'lesson_id' => Lesson::factory(),
             'started_by_user_id' => User::factory(),
+            'learner_id' => null,
+            'mode' => ExamSession::MODE_GROUP_EXAM,
+            'course_id' => null,
             'status' => 'open',
             'started_at' => now(),
             'ends_at' => now()->addHour(),
@@ -32,17 +38,47 @@ class ExamSessionFactory extends Factory
     }
 
     /**
+     * A learner's own IELTS / SAT mock (docs/13 §8.4): no group, lesson or teacher; one
+     * 20-minute timer (`seconds_per_question` = the whole exam). The course is a published
+     * platform course tagged `ielts` unless given.
+     */
+    public function personalMock(Learner|int|null $learner = null, Course|int|null $course = null): static
+    {
+        return $this->state(fn (): array => [
+            'mode' => ExamSession::MODE_PERSONAL_MOCK,
+            'telegram_group_id' => null,
+            'lesson_id' => null,
+            'started_by_user_id' => null,
+            'learner_id' => $learner instanceof Learner ? $learner->id : ($learner ?? Learner::factory()),
+            'course_id' => $course instanceof Course
+                ? $course->id
+                : ($course ?? Course::factory()->published()->state(['exam_tag' => 'ielts'])),
+            'ends_at' => now()->addMinutes(20),
+            'config' => array_merge(
+                self::config(self::placeholderQuestions(4)),
+                ['seconds' => 1200, 'seconds_per_question' => 1200, 'duration_minutes' => 20],
+            ),
+        ]);
+    }
+
+    /**
      * Gives the session `$n` answerable questions in the canonical
      * `config.questions` format (what `ExamQuestionBuilder` stores): real
-     * `words` rows are created in the session's lesson, `word_id` points at
-     * them, and `options` holds the correct translation plus three distractors.
+     * `words` rows are created in the session's lesson (for a personal mock —
+     * in a lesson of its course), `word_id` points at them, and `options` holds
+     * the correct translation plus three distractors.
      * Runs on `make()`, so it touches the database even without `create()`.
      */
     public function withQuestions(int $n): static
     {
         return $this->afterMaking(function (ExamSession $session) use ($n): void {
+            $lessonId = $session->lesson_id;
+            if ($lessonId === null) {
+                $lessonId = Lesson::factory()->for(Stage::factory()->create(['course_id' => $session->course_id]))->create()->id;
+            }
+
             $questions = [];
-            foreach (Word::factory()->count($n)->create(['lesson_id' => $session->lesson_id]) as $i => $word) {
+            foreach (Word::factory()->count($n)->create(['lesson_id' => $lessonId]) as $i => $word) {
                 $questions[] = self::question((int) $word->id, $word->word, $word->translation, $i);
             }
 

@@ -136,15 +136,21 @@ it('refuses when Stars were switched off after the checkout', function (): void 
     expect($verdict->ok)->toBeFalse()->and($verdict->reason)->toBe('provider_disabled');
 });
 
-it('reads one row and writes nothing', function (): void {
+it('reads one row to refuse and one more (the learner\'s Stars subscription) to approve, and writes nothing', function (): void {
     DB::enableQueryLog();
 
-    app(StarsPreCheckoutGuard::class)->check(preCheckoutQuery($this->order, $this->learner->telegram_user_id));
+    app(StarsPreCheckoutGuard::class)->check(preCheckoutQuery($this->order, $this->learner->telegram_user_id, amount: 1));
+    $refused = DB::getQueryLog();
 
-    $queries = DB::getQueryLog();
+    DB::flushQueryLog();
+    app(StarsPreCheckoutGuard::class)->check(preCheckoutQuery($this->order, $this->learner->telegram_user_id));
+    $approved = DB::getQueryLog();
     DB::disableQueryLog();
-    expect($queries)->toHaveCount(1)
-        ->and(strtolower((string) $queries[0]['query']))->toStartWith('select');
+
+    expect($refused)->toHaveCount(1)
+        ->and($approved)->toHaveCount(2)
+        ->and(strtolower((string) $approved[0]['query']))->toStartWith('select')
+        ->and(strtolower((string) $approved[1]['query']))->toStartWith('select');
 });
 
 // --- the synchronous webhook branch ------------------------------------------------------------

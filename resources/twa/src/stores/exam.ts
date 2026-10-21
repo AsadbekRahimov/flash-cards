@@ -2,11 +2,17 @@ import { defineStore } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { errorMessage } from '@/i18n/errors'
-import type {
-  ExamAnswerResponse,
-  ExamLeaderboardEntry,
-  ExamQuestionResponse,
+import {
+  isMockExamResult,
+  type ExamAnswerResponse,
+  type ExamLeaderboardEntry,
+  type ExamMode,
+  type ExamQuestionResponse,
+  type MockExamResultResponse,
 } from '@/api/types'
+
+/** The 403 of `POST /courses/{slug}/mock-exam` for a Free learner: show the paywall, not an error. */
+const MOCK_PAYWALL_CODE = 'exam_simulator_pro_required'
 
 export type ExamStatus =
   | 'idle'
@@ -21,6 +27,8 @@ export type ExamStatus =
 
 export interface ExamStoreState {
   sessionId: number | null
+  /** `personal_mock` (docs/13 §8.4): one timer for the whole exam, percent + percentile at the end. */
+  mode: ExamMode
   endsAt: number | null               // epoch ms
   totalQuestions: number
   secondsPerQuestion: number
@@ -40,11 +48,20 @@ export interface ExamStoreState {
   finalRank: number | null
   totalParticipants: number
   leaderboard: ExamLeaderboardEntry[]
+  /** Result of a personal mock (null for group exams). */
+  mockResult: MockExamResultResponse | null
+
+  // Opening a personal mock from the course screen
+  openingMock: boolean
+  /** The server refused the mock with the Pro paywall reason. */
+  mockPaywall: boolean
+  mockError: string
 }
 
 export const useExamStore = defineStore('exam', {
   state: (): ExamStoreState => ({
     sessionId: null,
+    mode: 'group_exam',
     endsAt: null,
     totalQuestions: 0,
     secondsPerQuestion: 10,
@@ -63,6 +80,11 @@ export const useExamStore = defineStore('exam', {
     finalRank: null,
     totalParticipants: 0,
     leaderboard: [],
+    mockResult: null,
+
+    openingMock: false,
+    mockPaywall: false,
+    mockError: '',
   }),
 
   getters: {
@@ -70,11 +92,46 @@ export const useExamStore = defineStore('exam', {
       if (s.endsAt === null) return 0
       return Math.max(0, Math.floor((s.endsAt - Date.now()) / 1000))
     },
+    isMock: (s): boolean => s.mode === 'personal_mock',
   },
 
   actions: {
-    async join(sessionId: number): Promise<void> {
+    /**
+     * Opens (or resumes) the learner's mock of a course; returns the session id to navigate to,
+     * null when refused: `mockPaywall` for a Free learner, `mockError` for anything else.
+     */
+    async openMock(slug: string): Promise<number | null> {
+      if (this.openingMock) return null
+      this.openingMock = true
+      this.mockPaywall = false
+      this.mockError = ''
+      try {
+        const res = await api.exam.openMock(slug)
+        return res.session_id
+      } catch (err) {
+        if (err instanceof ApiClientError && err.code === MOCK_PAYWALL_CODE) {
+          this.mockPaywall = true
+        } else {
+          this.mockError = errorMessage(err, 'exam')
+        }
+        return null
+      } finally {
+        this.openingMock = false
+      }
+    },
+
+    dismissMockPaywall(): void {
+      this.mockPaywall = false
+    },
+
+    clearMockError(): void {
+      this.mockError = ''
+      this.mockPaywall = false
+    },
+
+    async join(sessionId: number, mode: ExamMode = 'group_exam'): Promise<void> {
       this.resetForSession(sessionId)
+      this.mode = mode
       this.status = 'joining'
       try {
         const res = await api.exam.join(sessionId)
@@ -165,6 +222,15 @@ export const useExamStore = defineStore('exam', {
       if (this.sessionId === null) return
       try {
         const res = await api.exam.result(this.sessionId)
+        if (isMockExamResult(res)) {
+          this.mode = 'personal_mock'
+          this.mockResult = res
+          this.finalScore = res.correct
+          this.finalRank = null
+          this.totalParticipants = res.attempts
+          this.leaderboard = []
+          return
+        }
         this.finalScore = res.learner_score
         this.finalRank = res.rank
         this.totalParticipants = res.total_participants
@@ -180,6 +246,7 @@ export const useExamStore = defineStore('exam', {
 
     resetForSession(sessionId: number): void {
       this.sessionId = sessionId
+      this.mode = 'group_exam'
       this.endsAt = null
       this.totalQuestions = 0
       this.secondsPerQuestion = 10
@@ -194,6 +261,7 @@ export const useExamStore = defineStore('exam', {
       this.finalRank = null
       this.totalParticipants = 0
       this.leaderboard = []
+      this.mockResult = null
     },
 
     applyQuestion(question: ExamQuestionResponse): void {

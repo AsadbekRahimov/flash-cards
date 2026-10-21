@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import QuizOption from '@/components/QuizOption.vue'
 import { useAuthStore } from '@/stores/auth'
@@ -12,8 +12,13 @@ import { useTimer } from '@/composables/useTimer'
 const props = defineProps<{ sessionId: number }>()
 
 const router = useRouter()
+const route = useRoute()
 const auth = useAuthStore()
 const exam = useExamStore()
+
+// A personal IELTS / SAT mock (docs/13 §8.4) is reached from the course screen with `?mode=mock`:
+// one timer for the whole exam, no per-question countdown, and its own "time is over" screen.
+const isMock = computed((): boolean => route.query.mode === 'mock' || exam.mode === 'personal_mock')
 const { close, showBackButton, haptic, notificationHaptic } = useTelegram()
 const { t } = useI18n()
 
@@ -74,7 +79,7 @@ onMounted(async () => {
   hideBack = showBackButton(() => close())
   try {
     await auth.ensure({ type: 'exam', sessionId: props.sessionId })
-    await exam.join(props.sessionId)
+    await exam.join(props.sessionId, route.query.mode === 'mock' ? 'personal_mock' : 'group_exam')
   } catch (err) {
     // join() handles its own errors; this is an auth failure.
     exam.handleApiError(err)
@@ -86,9 +91,9 @@ onBeforeUnmount(() => {
   if (feedbackTimeout) clearTimeout(feedbackTimeout)
 })
 
-// Restart per-question timer whenever a fresh question arrives.
+// Restart per-question timer whenever a fresh question arrives (a mock has only the overall timer).
 watch(currentQuestion, (q) => {
-  if (q !== null && status.value === 'answering') {
+  if (q !== null && status.value === 'answering' && !isMock.value) {
     questionTimer.start(Math.min(secondsPerQuestion.value, q.seconds_left))
   }
 })
@@ -134,7 +139,8 @@ function onRetry(): void {
       <div class="text-sm text-tg-hint" data-testid="progress">
         {{ Math.min(currentIndex + 1, totalQuestions) }} / {{ totalQuestions }}
       </div>
-      <div class="text-sm font-semibold" data-testid="score">★ {{ totalScore }}</div>
+      <div v-if="isMock" class="text-sm font-semibold" data-testid="mock-header">{{ t('exam.mock_header') }}</div>
+      <div v-else class="text-sm font-semibold" data-testid="score">★ {{ totalScore }}</div>
     </header>
 
     <div v-if="status === 'joining' || status === 'loading'"
@@ -147,9 +153,17 @@ function onRetry(): void {
          class="flex-1 flex items-center justify-center text-center"
          data-testid="closed">
       <div class="space-y-4">
-        <p class="text-lg font-semibold">{{ t('exam.closed_title') }}</p>
-        <p class="text-tg-hint">{{ errorMessage }}</p>
-        <button class="btn btn-primary" data-testid="close-btn" @click="close()">{{ t('common.close') }}</button>
+        <p class="text-lg font-semibold">{{ isMock ? t('exam.mock_closed_title') : t('exam.closed_title') }}</p>
+        <p v-if="!isMock" class="text-tg-hint">{{ errorMessage }}</p>
+        <button
+          v-if="isMock"
+          class="btn btn-primary"
+          data-testid="mock-results-btn"
+          @click="router.replace({ name: 'exam-result', params: { sessionId: props.sessionId } })"
+        >
+          {{ t('result.mock_title') }}
+        </button>
+        <button v-else class="btn btn-primary" data-testid="close-btn" @click="close()">{{ t('common.close') }}</button>
       </div>
     </div>
 
@@ -164,8 +178,8 @@ function onRetry(): void {
     </div>
 
     <div v-else-if="currentQuestion" class="flex flex-col gap-5 flex-1">
-      <!-- Per-question timer bar -->
-      <div class="h-2 rounded-full overflow-hidden bg-tg-secondary-bg">
+      <!-- Per-question timer bar (group exams only: a mock has one timer for the whole test) -->
+      <div v-if="!isMock" class="h-2 rounded-full overflow-hidden bg-tg-secondary-bg">
         <div
           class="h-full transition-[width] duration-1000 ease-linear"
           :class="questionTimer.remaining.value <= 3 ? 'bg-red-500' : 'bg-tg-button'"

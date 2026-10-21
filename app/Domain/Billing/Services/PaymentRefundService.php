@@ -10,6 +10,7 @@ use App\Domain\Billing\Exceptions\DuplicatePaymentException;
 use App\Domain\Billing\Exceptions\PaymentApplyException;
 use App\Domain\Billing\Exceptions\PaymentRefundException;
 use App\Domain\Billing\Exceptions\ProviderCapabilityException;
+use App\Models\AuditLog;
 use App\Models\Payment;
 use App\Models\User;
 use Carbon\CarbonImmutable;
@@ -31,6 +32,9 @@ use Throwable;
  *      a second click or a second admin lands on the ledger's unique key / `already_refunded`
  *      and never produces a second refund row.
  *
+ * After a Stars refund the Telegram subscription is stopped as well ({@see StarsRenewalStopper}); a failure there is
+ * logged and does not undo the refund.
+ *
  * If step 3 fails after step 2 succeeded the money is already back while the ledger is not: it
  * is logged as an error (`billing.admin_refund_unrecorded`) and the retry must use `returnedByHand`.
  */
@@ -41,6 +45,7 @@ final class PaymentRefundService
     public function __construct(
         private readonly BillingProviderRegistry $providers,
         private readonly PaymentApplier $applier,
+        private readonly StarsRenewalStopper $renewals,
     ) {}
 
     /**
@@ -72,7 +77,11 @@ final class PaymentRefundService
         }
 
         if (! $returnedByHand) {
+            // The subscription behind a Stars charge keeps renewing after its money is back: read it before the
+            // ledger changes, stop it right after the provider has returned the money (outside any transaction).
+            $running = $provider === SubscriptionProvider::TelegramStars ? $this->renewals->runningFor($chargeId, $now) : null;
             $this->refundAtProvider($provider, $payment);
+            $this->renewals->stop($running, $by, $ip, $now);
         }
 
         $event = new RefundEvent(
@@ -97,8 +106,34 @@ final class PaymentRefundService
                 Log::error('billing.admin_refund_unrecorded', ['payment_id' => $payment->id, 'provider' => $payment->provider, 'by_user_id' => $by->id, 'error' => $e::class]);
             }
 
+            // The provider call succeeded and the provider's own echo (`refunded_payment`) recorded the
+            // refund first: the ledger is right, but the admin's action must still leave its audit trail.
+            if (! $returnedByHand && $alreadyRefunded) {
+                $this->auditEchoWon($payment, $by, $note, $ip);
+            }
+
             throw $e;
         }
+    }
+
+    private function auditEchoWon(Payment $payment, User $by, string $note, ?string $ip): void
+    {
+        AuditLog::create([
+            'user_id' => $by->id,
+            'action' => PaymentApplier::ACTION_REFUNDED,
+            'entity_type' => Payment::class,
+            'entity_id' => $payment->id,
+            'ip' => $ip,
+            'meta' => [
+                'subscriber_type' => $payment->subscriber_type,
+                'subscriber_id' => $payment->subscriber_id,
+                'provider' => $payment->provider,
+                'amount' => $payment->amount,
+                'currency' => $payment->currency,
+                'note' => $note,
+                'recorded_by' => 'provider_echo',
+            ],
+        ]);
     }
 
     private function refundAtProvider(SubscriptionProvider $provider, Payment $payment): void

@@ -24,6 +24,16 @@ return [
     'daily_goal_options' => [10, 20, 40],
 
     /**
+     * Streak freeze (docs/13 §2.4, §7.2; docs/06 §6a): a Pro learner (feature `streak.freeze` in
+     * config/billing.php) keeps up to `max` freezes; one is added per local week (Monday) on the
+     * first read of the Today screen, and one is spent automatically when exactly one local day
+     * was missed. 0 = no freezes at all.
+     */
+    'streak_freeze' => [
+        'max' => (int) env('LEARNERS_STREAK_FREEZE_MAX', 2),
+    ],
+
+    /**
      * Time zones offered in the onboarding / `/settings` picker (IANA ids, the default first;
      * each needs a `onboarding.options.timezone.<city>` string in lang/{ru,uz}). Only ids that
      * are also valid for PHP (`DateTimeZone::listIdentifiers()`) are ever accepted.

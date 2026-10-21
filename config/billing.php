@@ -13,6 +13,11 @@ declare(strict_types=1);
 | (BILLING_PRICE_*): 0 / missing = not for sale.
 */
 
+/** Explicit organization year price (tiyin) from env, or no `year` key (the price is then derived from the month). */
+$orgYear = static fn (string $env): array => is_numeric(env($env)) && (int) env($env) > 0
+    ? ['year' => ['UZS' => (int) env($env)]]
+    : [];
+
 return [
     /** TTL (seconds) of the per-learner entitlement cache ("entitlement:learner:{id}"). */
     'cache_ttl' => (int) env('BILLING_CACHE_TTL', 300),
@@ -40,7 +45,7 @@ return [
         'pro' => [
             'rank' => 1,
             'limits' => ['new_words_per_day' => null],
-            'features' => ['courses.public', 'training.daily', 'training.lesson', 'stats.detailed', 'streak.freeze'],
+            'features' => ['courses.public', 'training.daily', 'training.lesson', 'stats.detailed', 'streak.freeze', 'exam.simulator', 'exercise.spelling', 'exercise.gap_fill'],
         ],
     ],
 
@@ -60,16 +65,22 @@ return [
     'periods' => ['month' => 30, 'year' => 365],
 
     /**
-     * Organization tiers (docs/13 §0, §6): `subscriptions.plan` stays `pro` (what the learners
-     * get), `tier` sets the seats and the price. `seats` null = unlimited; an empty `prices`
+     * Organization tiers (docs/13 §0, §6, "Реализация 2B.9"): `subscriptions.plan` stays `pro` (what the
+     * learners get), `tier` sets the seats and the price. `seats` null = unlimited; an empty `prices`
      * = manual activation by a superadmin only. Stars are not offered to organizations.
+     * Only the `month` price is configured: the `year` price is derived from it as
+     * month x 12 x (1 - `org_year_discount_percent` / 100), rounded to whole sums (OrgTiers::price),
+     * unless an explicit BILLING_PRICE_<TIER>_YEAR_UZS is set (then it wins; tiyin like the others).
      */
     'org_tiers' => [
-        'tutor' => ['seats' => 30, 'prices' => ['month' => ['UZS' => (int) env('BILLING_PRICE_TUTOR_MONTH_UZS', 12_900_000)]]],
-        'center_s' => ['seats' => 100, 'prices' => ['month' => ['UZS' => (int) env('BILLING_PRICE_CENTER_S_MONTH_UZS', 34_900_000)]]],
-        'center_m' => ['seats' => 300, 'prices' => ['month' => ['UZS' => (int) env('BILLING_PRICE_CENTER_M_MONTH_UZS', 84_900_000)]]],
+        'tutor' => ['seats' => 30, 'prices' => ['month' => ['UZS' => (int) env('BILLING_PRICE_TUTOR_MONTH_UZS', 12_900_000)]] + $orgYear('BILLING_PRICE_TUTOR_YEAR_UZS')],
+        'center_s' => ['seats' => 100, 'prices' => ['month' => ['UZS' => (int) env('BILLING_PRICE_CENTER_S_MONTH_UZS', 34_900_000)]] + $orgYear('BILLING_PRICE_CENTER_S_YEAR_UZS')],
+        'center_m' => ['seats' => 300, 'prices' => ['month' => ['UZS' => (int) env('BILLING_PRICE_CENTER_M_MONTH_UZS', 84_900_000)]] + $orgYear('BILLING_PRICE_CENTER_M_YEAR_UZS')],
         'center_l' => ['seats' => null, 'prices' => []],
     ],
+
+    /** Discount (%) of the organization year versus 12 months; default 17 (owner's decision, docs/13 §12 q.1); 0 = no discount. Bounded to 0..99 in OrgTiers. */
+    'org_year_discount_percent' => (int) env('BILLING_ORG_YEAR_DISCOUNT_PERCENT', 17),
 
     /**
      * Payment providers (docs/13 §4). `enabled` makes a registered adapter sellable; keys and
@@ -87,6 +98,8 @@ return [
             'merchant_id' => (string) env('PAYME_MERCHANT_ID', ''),
             'key' => (string) env('PAYME_KEY', ''),
             'test_key' => (string) env('PAYME_TEST_KEY', ''),
+            // The test key is refused in `production` unless this is set explicitly (go-live checks on the prod host).
+            'allow_test_key' => (bool) env('PAYME_ALLOW_TEST_KEY', false),
             'checkout_url' => (string) env('PAYME_CHECKOUT_URL', 'https://checkout.paycom.uz'),
             'ip_allowlist' => (string) env('PAYME_IP_ALLOWLIST', ''),
             // An unpaid Payme transaction lives 12 h; after that it is canceled with reason 4 (docs/13 §4.2).
@@ -109,7 +122,17 @@ return [
             'secret_key' => (string) env('CLICK_SECRET_KEY', ''),
             'checkout_url' => (string) env('CLICK_CHECKOUT_URL', 'https://my.click.uz/services/pay'),
             'ip_allowlist' => (string) env('CLICK_IP_ALLOWLIST', ''),
+            // An open Prepare older than this is treated as dead (Prepare -> Complete takes seconds; the margin
+            // covers Click's retries of Complete): it no longer holds an offer or keeps an expired order payable.
+            'transaction_timeout_ms' => (int) env('CLICK_TRANSACTION_TIMEOUT_MS', 1_800_000),
         ],
+    ],
+
+    /** Stars subscription rules (docs/13 §4.1, "Реализация 2A.8"). */
+    'stars' => [
+        // A Stars subscription (month) is sold on top of a live prepaid period only when that period ends within
+        // this many days: Telegram's first charge starts its own 30 days at once, so the rest would be wasted.
+        'subscribe_window_days' => (int) env('BILLING_STARS_SUBSCRIBE_WINDOW_DAYS', 7),
     ],
 
     /** Checkout rules (docs/13 §2.1, §4.4). */
@@ -127,14 +150,7 @@ return [
         'post_org_discount' => ['pct' => (int) env('BILLING_POST_ORG_DISCOUNT_PCT', 30), 'valid_days' => 14, 'period' => 'month'],
     ],
 
-    /** Referral rewards (docs/13 §2.4, task 2C.1 reads them; listed here so the money rules stay in one file). */
-    'referrals' => [
-        'reward_days' => 7,
-        'activation' => ['days' => 3, 'reviews_per_day' => 10, 'window_days' => 14],
-        'max_rewards_per_30d' => 10,
-        'max_rewards_lifetime' => 50,
-        'flag_links_per_day' => 20,
-    ],
+    // Referral rewards (docs/13 §2.4, 2C.1) live in config/referrals.php (env-backed).
 
     /**
      * Promo codes (docs/12 §8). Every failed redemption is a `promo.rejected`
@@ -158,5 +174,14 @@ return [
     'paywall' => [
         'mode' => env('BILLING_PAYWALL_MODE', 'coming_soon'),
         'contact' => env('BILLING_SUPPORT_CONTACT', ''),
+    ],
+
+    /**
+     * "Request an invoice" in the `/org` cabinet (docs/13 §6.5): the owner's request goes by e-mail
+     * to this address (the platform owner / a superadmin); empty = `site.legal.email`; both empty =
+     * the button is hidden.
+     */
+    'invoice' => [
+        'request_email' => env('BILLING_INVOICE_REQUEST_EMAIL', ''),
     ],
 ];

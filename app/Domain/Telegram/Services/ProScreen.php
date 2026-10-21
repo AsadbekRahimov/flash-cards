@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Services;
 
+use App\Domain\Billing\DTO\BillingCatalog;
 use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Services\CheckoutService;
 use App\Domain\Billing\Services\EntitlementResolver;
@@ -70,33 +71,15 @@ final class ProScreen
             if ($paywall['contact'] !== null) {
                 $lines[] = __('billing.pro.contact', ['contact' => $paywall['contact']], $locale);
             }
-        } elseif ($subscription === null || ! $subscription['auto_renew']) {
+        } elseif ($subscription === null || ! ($subscription['auto_renew'] || $subscription['perpetual'])) {
             // A live auto-renewal is stopped before paying again: a second payment would double-charge.
+            // A perpetual grant has nothing to buy (checkout answers already_perpetual).
             $lines[] = '';
             $lines[] = __('billing.pro.choose', [], $locale);
 
-            foreach ($catalog->items as $item) {
-                $period = __("billing.period.{$item['period']}", [], $locale);
-                $prices = [];
-
-                foreach ($catalog->providers as $key) {
-                    $provider = SubscriptionProvider::tryFrom($key);
-                    $currency = $provider?->currency();
-
-                    if ($provider === null || $currency === null || ! isset($item['prices'][$currency])) {
-                        continue;
-                    }
-
-                    $price = PriceFormatter::format($item['prices'][$currency], $currency, $locale);
-                    $prices[$currency] = $price;
-                    $rows[] = [[
-                        'text' => __('billing.pro.buy_button', ['provider' => __("billing.provider.{$key}", [], $locale), 'period' => $period, 'price' => $price], $locale),
-                        'callback_data' => self::PREFIX.':buy:'.$item['period'].':'.$key,
-                    ]];
-                }
-
-                $lines[] = __('billing.pro.price_line', ['period' => $period, 'prices' => implode(' / ', $prices)], $locale);
-            }
+            ['lines' => $priceLines, 'rows' => $buyRows] = $this->priceOptions($catalog, $locale);
+            array_push($lines, ...$priceLines);
+            array_push($rows, ...$buyRows);
 
             if ($catalog->offer !== null) {
                 $lines[] = __('billing.pro.offer', ['pct' => $catalog->offer['discount_pct'], 'date' => $this->date(CarbonImmutable::parse($catalog->offer['expires_at']), $learner)], $locale);
@@ -113,6 +96,59 @@ final class ProScreen
             'text' => implode("\n", $lines),
             'markup' => $rows === [] ? null : ['inline_keyboard' => $rows],
         ];
+    }
+
+    /**
+     * The buy buttons of `/pro` for a learner, without the status text (no entitlement lookup): what the
+     * post-organization offer DM carries. Empty while nothing is for sale, a live auto-renewal runs or Pro is perpetual.
+     *
+     * @return list<list<array{text: string, callback_data: string}>>
+     */
+    public function buyRows(Learner $learner): array
+    {
+        $catalog = $this->checkout->catalog($learner);
+
+        if ($this->entitlements->paywall()['mode'] !== 'purchase' || $catalog->isEmpty() || ($catalog->subscription !== null && ($catalog->subscription['auto_renew'] || $catalog->subscription['perpetual']))) {
+            return [];
+        }
+
+        return $this->priceOptions($catalog, $this->locales->forLearner($learner))['rows'];
+    }
+
+    /**
+     * One price line and one button per (provider, period) of the catalog.
+     *
+     * @return array{lines: list<string>, rows: list<list<array{text: string, callback_data: string}>>}
+     */
+    private function priceOptions(BillingCatalog $catalog, string $locale): array
+    {
+        $lines = [];
+        $rows = [];
+
+        foreach ($catalog->items as $item) {
+            $period = __("billing.period.{$item['period']}", [], $locale);
+            $prices = [];
+
+            foreach ($catalog->providers as $key) {
+                $provider = SubscriptionProvider::tryFrom($key);
+                $currency = $provider?->currency();
+
+                if ($provider === null || $currency === null || ! isset($item['prices'][$currency])) {
+                    continue;
+                }
+
+                $price = PriceFormatter::format($item['prices'][$currency], $currency, $locale);
+                $prices[$currency] = $price;
+                $rows[] = [[
+                    'text' => __('billing.pro.buy_button', ['provider' => __("billing.provider.{$key}", [], $locale), 'period' => $period, 'price' => $price], $locale),
+                    'callback_data' => self::PREFIX.':buy:'.$item['period'].':'.$key,
+                ]];
+            }
+
+            $lines[] = __('billing.pro.price_line', ['period' => $period, 'prices' => implode(' / ', $prices)], $locale);
+        }
+
+        return ['lines' => $lines, 'rows' => $rows];
     }
 
     public function date(CarbonImmutable $moment, Learner $learner): string

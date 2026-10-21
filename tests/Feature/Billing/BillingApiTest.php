@@ -11,6 +11,7 @@ use App\Domain\Twa\Services\JwtService;
 use App\Models\Learner;
 use App\Models\Offer;
 use App\Models\PaymentOrder;
+use App\Models\ProviderTransaction;
 use App\Models\Subscription;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Scheduling\Schedule;
@@ -119,7 +120,7 @@ it('checkout creates a pending order, the charge makes /me show Pro with its ren
     $this->withHeaders(billingHeaders($learner))
         ->getJson("/api/twa/billing/orders/{$token}")
         ->assertOk()
-        ->assertExactJsonStructure(['status', 'paid_at', 'subscription'])
+        ->assertExactJsonStructure(['status', 'paid_at', 'reason', 'replaced_by', 'subscription'])
         ->assertJsonPath('status', 'pending')
         ->assertJsonPath('paid_at', null)
         ->assertJsonPath('subscription', null);
@@ -253,6 +254,89 @@ it('maps checkout failures to their status and stable code', function (array $bo
     ],
 ]);
 
+/** A learner whose open offer sits on a Payme order that the provider is paying right now. */
+function busyOfferLearner(): array
+{
+    $learner = Learner::factory()->create();
+    Offer::factory()->create(['learner_id' => $learner->id, 'discount_pct' => 30, 'period' => 'month']);
+    $holder = app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::Payme, null, 'twa');
+    ProviderTransaction::factory()->create(['payment_order_id' => $holder->id, 'amount' => $holder->amount]);
+
+    return [$learner, $holder];
+}
+
+it('answers 409 offer_busy while the discounted order is being paid, and changes no order', function (): void {
+    [$learner, $holder] = busyOfferLearner();
+    $before = PaymentOrder::query()->orderBy('id')->get(['id', 'status', 'meta', 'offer_id'])->toArray();
+
+    $this->withHeaders(billingHeaders($learner))
+        ->postJson('/api/twa/billing/checkout', ['plan' => 'pro', 'period' => 'month', 'provider' => 'telegram_stars'])
+        ->assertStatus(409)
+        ->assertJsonPath('error.code', 'offer_busy');
+
+    expect(PaymentOrder::query()->orderBy('id')->get(['id', 'status', 'meta', 'offer_id'])->toArray())->toBe($before)
+        ->and($holder->refresh()->status)->toBe(PaymentOrder::STATUS_PENDING);
+});
+
+it('reports an order replaced by a newer one as canceled / replaced with the new token, never an id', function (): void {
+    $learner = Learner::factory()->create();
+    Offer::factory()->create(['learner_id' => $learner->id, 'discount_pct' => 30, 'period' => 'month']);
+    $old = app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::Payme, null, 'twa');
+    $new = app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::TelegramStars, null, 'twa');
+
+    $response = $this->withHeaders(billingHeaders($learner))
+        ->getJson("/api/twa/billing/orders/{$old->token}")
+        ->assertOk()
+        ->assertExactJsonStructure(['status', 'paid_at', 'reason', 'replaced_by', 'subscription'])
+        ->assertJsonPath('status', 'canceled')
+        ->assertJsonPath('reason', 'replaced')
+        ->assertJsonPath('replaced_by', $new->token);
+
+    expect($response->getContent())->not->toContain('offer_moved');
+
+    $this->withHeaders(billingHeaders($learner))
+        ->getJson("/api/twa/billing/orders/{$new->token}")
+        ->assertJsonPath('status', 'pending')
+        ->assertJsonPath('reason', null)
+        ->assertJsonPath('replaced_by', null);
+});
+
+it('does not reveal the successor when it is not the learner\'s own order, and ignores other cancellations', function (): void {
+    $learner = Learner::factory()->create();
+    $stranger = Learner::factory()->create();
+    $foreign = app(CheckoutService::class)->create($stranger, Plan::Pro, 'month', SubscriptionProvider::TelegramStars, null, 'twa');
+    $old = app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::Payme, null, 'twa');
+    $old->update(['status' => PaymentOrder::STATUS_CANCELED, 'meta' => [...$old->meta, 'canceled_reason' => 'offer_moved', 'offer_moved_to_order_id' => $foreign->id]]);
+
+    $this->withHeaders(billingHeaders($learner))
+        ->getJson("/api/twa/billing/orders/{$old->token}")
+        ->assertJsonPath('reason', 'replaced')
+        ->assertJsonPath('replaced_by', null);
+
+    $plain = app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::TelegramStars, null, 'twa');
+    $plain->update(['status' => PaymentOrder::STATUS_CANCELED]);
+
+    $this->withHeaders(billingHeaders($learner))
+        ->getJson("/api/twa/billing/orders/{$plain->token}")
+        ->assertJsonPath('status', 'canceled')
+        ->assertJsonPath('reason', null)
+        ->assertJsonPath('replaced_by', null);
+});
+
+it('points a redeemed-offer cancellation to the order that used the offer up', function (): void {
+    $learner = Learner::factory()->create();
+    $offer = Offer::factory()->create(['learner_id' => $learner->id, 'discount_pct' => 30, 'period' => 'month']);
+    $old = app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::Payme, null, 'twa');
+    $paid = PaymentOrder::factory()->create(['subscriber_type' => 'learner', 'subscriber_id' => $learner->id, 'status' => PaymentOrder::STATUS_PAID]);
+    $offer->update(['payment_order_id' => $paid->id, 'redeemed_at' => now()]);
+    $old->update(['status' => PaymentOrder::STATUS_CANCELED, 'meta' => [...$old->meta, 'canceled_reason' => 'offer_redeemed']]);
+
+    $this->withHeaders(billingHeaders($learner))
+        ->getJson("/api/twa/billing/orders/{$old->token}")
+        ->assertJsonPath('reason', 'replaced')
+        ->assertJsonPath('replaced_by', $paid->token);
+});
+
 it('validates the checkout body', function (array $body, string $field): void {
     $this->withHeaders(billingHeaders(Learner::factory()->create()))
         ->postJson('/api/twa/billing/checkout', $body)
@@ -286,6 +370,19 @@ it('answers 502 provider_unavailable and fails the order when the provider canno
         ->assertJsonPath('error.code', 'provider_unavailable');
 
     expect(PaymentOrder::query()->sole()->status)->toBe('failed');
+});
+
+it('throttles cancel / resume of auto-renewal together: the 7th request in a minute is 429, per learner', function (): void {
+    $learner = Learner::factory()->create();
+
+    foreach (range(1, 3) as $_) {
+        $this->withHeaders(billingHeaders($learner))->postJson('/api/twa/billing/subscription/cancel')->assertStatus(409);
+        $this->withHeaders(billingHeaders($learner))->postJson('/api/twa/billing/subscription/resume')->assertStatus(409);
+    }
+
+    $this->withHeaders(billingHeaders($learner))->postJson('/api/twa/billing/subscription/cancel')->assertStatus(429);
+    $this->withHeaders(billingHeaders($learner))->postJson('/api/twa/billing/subscription/resume')->assertStatus(429);
+    $this->withHeaders(billingHeaders(Learner::factory()->create()))->postJson('/api/twa/billing/subscription/cancel')->assertStatus(409);
 });
 
 it('throttles checkout: the 11th request in a minute is 429', function (): void {
@@ -440,15 +537,19 @@ it('is coming_soon when the providers are bound but no price is set', function (
 
 it('runs billing:expire-orders and has it scheduled every 15 minutes', function (): void {
     $learner = Learner::factory()->create();
-    $stale = app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::TelegramStars, null, 'twa');
+    $stale = app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::Payme, null, 'twa');
     $stale->update(['expires_at' => CarbonImmutable::now()->subMinute()]);
-    $fresh = app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::TelegramStars, null, 'twa');
+    $fresh = app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::Payme, null, 'twa');
+    // A Stars order is never swept: its deadline is checked by pre_checkout ("Реализация 2A.8").
+    $stars = app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::TelegramStars, null, 'twa');
+    $stars->update(['expires_at' => CarbonImmutable::now()->subMinute()]);
 
     Artisan::call('billing:expire-orders');
 
     expect(Artisan::output())->toContain('Orders expired: 1')
         ->and($stale->refresh()->status)->toBe('expired')
-        ->and($fresh->refresh()->status)->toBe('pending');
+        ->and($fresh->refresh()->status)->toBe('pending')
+        ->and($stars->refresh()->status)->toBe('pending');
 
     $events = collect(app(Schedule::class)->events())
         ->filter(fn ($event): bool => str_contains((string) $event->command, 'billing:expire-orders'));

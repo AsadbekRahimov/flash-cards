@@ -75,13 +75,13 @@ it('reports at_risk on the day after the last credited one and met_today once cr
     $fresh = Learner::query()->findOrFail($learner->id);
 
     $sameDay = $streaks->current($fresh, localDay($learner, '2026-10-18'));
-    expect($sameDay->toArray())->toBe(['current' => 1, 'best' => 1, 'met_today' => true, 'at_risk' => false]);
+    expect($sameDay->toArray())->toBe(['current' => 1, 'best' => 1, 'met_today' => true, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false]);
 
     $nextDay = $streaks->current($fresh, localDay($learner, '2026-10-19'));
-    expect($nextDay->toArray())->toBe(['current' => 1, 'best' => 1, 'met_today' => false, 'at_risk' => true]);
+    expect($nextDay->toArray())->toBe(['current' => 1, 'best' => 1, 'met_today' => false, 'at_risk' => true, 'freezes' => 0, 'frozen_yesterday' => false]);
 
     $dayAfter = $streaks->current($fresh, localDay($learner, '2026-10-20'));
-    expect($dayAfter->toArray())->toBe(['current' => 0, 'best' => 1, 'met_today' => false, 'at_risk' => false]);
+    expect($dayAfter->toArray())->toBe(['current' => 0, 'best' => 1, 'met_today' => false, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false]);
 });
 
 it('credits a day only once however many times the goal is "met" on it', function (): void {
@@ -210,14 +210,14 @@ it('repairs a goal met today that was never projected onto learners when current
 
     $state = app(StreakService::class)->current($learner, localDay($learner, '2026-10-18'), $todayStats);
 
-    expect($state->toArray())->toBe(['current' => 4, 'best' => 4, 'met_today' => true, 'at_risk' => false])
+    expect($state->toArray())->toBe(['current' => 4, 'best' => 4, 'met_today' => true, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false])
         ->and(storedStreak($learner))->toBe([4, 4, '2026-10-18']);
 
     // Without the row nothing is repaired or written.
     $other = streakLearner();
     $other->forceFill(['streak_current' => 3, 'streak_best' => 3, 'streak_last_date' => '2026-10-17'])->save();
     $state = app(StreakService::class)->current($other, localDay($other, '2026-10-18'));
-    expect($state->toArray())->toBe(['current' => 3, 'best' => 3, 'met_today' => false, 'at_risk' => true])
+    expect($state->toArray())->toBe(['current' => 3, 'best' => 3, 'met_today' => false, 'at_risk' => true, 'freezes' => 0, 'frozen_yesterday' => false])
         ->and(storedStreak($other))->toBe([3, 3, '2026-10-17']);
 });
 
@@ -225,7 +225,7 @@ it('returns zeros for a learner who never met a goal', function (): void {
     $learner = streakLearner();
 
     expect(app(StreakService::class)->current($learner, localDay($learner, '2026-10-18'))->toArray())
-        ->toBe(['current' => 0, 'best' => 0, 'met_today' => false, 'at_risk' => false]);
+        ->toBe(['current' => 0, 'best' => 0, 'met_today' => false, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false]);
 });
 
 /** Facts as the review transaction leaves them: one `goal_met_at` row per local day, no `learners` projection. */
@@ -316,11 +316,11 @@ it('keeps yesterday\'s credit on read when its callback was lost: current() repa
 
     $state = app(StreakService::class)->current($learner, localDay($learner, '2026-10-18'));
 
-    expect($state->toArray())->toBe(['current' => 4, 'best' => 4, 'met_today' => false, 'at_risk' => true])
+    expect($state->toArray())->toBe(['current' => 4, 'best' => 4, 'met_today' => false, 'at_risk' => true, 'freezes' => 0, 'frozen_yesterday' => false])
         ->and(storedStreak($learner))->toBe([4, 4, '2026-10-17']);
 });
 
-it('current() does not touch learners when there is no fact for yesterday', function (): void {
+it('current() burns the series with one UPDATE of streak_current only when there is no fact for yesterday', function (): void {
     $learner = streakLearner();
     $learner->forceFill(['streak_current' => 3, 'streak_best' => 3, 'streak_last_date' => '2026-10-16'])->save();
     goalFacts($learner, ['2026-10-16']);
@@ -330,9 +330,9 @@ it('current() does not touch learners when there is no fact for yesterday', func
     $writes = collect(DB::getQueryLog())->filter(fn (array $q): bool => str_starts_with(strtolower($q['query']), 'update'));
     DB::disableQueryLog();
 
-    expect($state->toArray())->toBe(['current' => 0, 'best' => 3, 'met_today' => false, 'at_risk' => false])
-        ->and($writes)->toHaveCount(0)
-        ->and(storedStreak($learner))->toBe([3, 3, '2026-10-16']);
+    expect($state->toArray())->toBe(['current' => 0, 'best' => 3, 'met_today' => false, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false])
+        ->and($writes)->toHaveCount(1)
+        ->and(storedStreak($learner))->toBe([0, 3, '2026-10-16']);
 });
 
 it('current() repairs a never-projected yesterday for a learner whose very first credit was lost', function (): void {
@@ -341,5 +341,5 @@ it('current() repairs a never-projected yesterday for a learner whose very first
 
     $state = app(StreakService::class)->current($learner, localDay($learner, '2026-10-18'));
 
-    expect($state->toArray())->toBe(['current' => 1, 'best' => 1, 'met_today' => false, 'at_risk' => true]);
+    expect($state->toArray())->toBe(['current' => 1, 'best' => 1, 'met_today' => false, 'at_risk' => true, 'freezes' => 0, 'frozen_yesterday' => false]);
 });

@@ -44,6 +44,18 @@ class WebhookErrorsWidget extends StatsOverviewWidget
                 ->description('Payme / Click')
                 ->color($errors['canceled_transactions'] > 0 ? 'warning' : 'gray')
                 ->icon('heroicon-o-x-circle'),
+            Stat::make('Double discounts', (string) $errors['double_discounts'])
+                ->description('Offer discount paid twice (filter on Payment orders)')
+                ->color($errors['double_discounts'] > 0 ? 'danger' : 'success')
+                ->icon('heroicon-o-receipt-percent'),
+            Stat::make('Tier mismatches', (string) $errors['tier_mismatches'])
+                ->description('Paid for a tier other than the live one (filter on Payment orders)')
+                ->color($errors['tier_mismatches'] > 0 ? 'danger' : 'success')
+                ->icon('heroicon-o-arrows-right-left'),
+            Stat::make('Double Stars subscriptions', (string) $errors['stars_double_subscriptions'])
+                ->description('Second Telegram subscription paid next to a running one: cancel one, refund if asked (filter on Payment orders)')
+                ->color($errors['stars_double_subscriptions'] > 0 ? 'danger' : 'success')
+                ->icon('heroicon-o-square-2-stack'),
         ];
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 use App\Domain\Billing\Services\RenewalReminderSender;
+use App\Jobs\Middleware\ThrottleTelegramOutbound;
 use App\Listeners\Billing\QueueRenewalReminder;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -20,7 +21,11 @@ final class RenewalReminderJob implements ShouldQueue
 {
     use Queueable;
 
-    public int $tries = 3;
+    // Released jobs (no global Telegram slot) use up attempts: bounded by the period end instead
+    // (see retryUntil), real exceptions by maxExceptions.
+    public int $tries = 0;
+
+    public int $maxExceptions = 3;
 
     public int $backoff = 60;
 
@@ -29,6 +34,17 @@ final class RenewalReminderJob implements ShouldQueue
         public readonly int $daysLeft,
         public readonly CarbonImmutable $endsAt,
     ) {}
+
+    /** @return list<object> */
+    public function middleware(): array
+    {
+        return [new ThrottleTelegramOutbound];
+    }
+
+    public function retryUntil(): \DateTimeInterface
+    {
+        return $this->endsAt;
+    }
 
     public function handle(RenewalReminderSender $sender): void
     {

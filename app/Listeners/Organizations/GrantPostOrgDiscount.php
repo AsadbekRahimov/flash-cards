@@ -1,0 +1,78 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Listeners\Organizations;
+
+use App\Domain\Billing\Services\OfferService;
+use App\Domain\Organizations\Events\OrganizationMemberLeft;
+use App\Domain\Telegram\Services\OfferMessenger;
+use App\Jobs\Middleware\ThrottleTelegramOutbound;
+use App\Models\Learner;
+use App\Models\Organization;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
+
+/**
+ * B2B -> B2C bridge (docs/13 §6.5): a learner who lost a SEATED place gets the one-time `post_org_discount`
+ * and a DM about it. Waitlisted members lost nothing. Queued after commit; the offer service creates at most one
+ * open offer (a repeated event creates none), and a retry after a failed DM finds the offer again and finishes
+ * the message — the DM itself is sent once per offer. Auto-discovered (`app/Listeners`).
+ */
+final class GrantPostOrgDiscount implements ShouldQueue
+{
+    use InteractsWithQueue;
+    use RunsDmWithoutRetryOnSyncQueue;
+
+    public bool $afterCommit = true;
+
+    // Released jobs (no global Telegram slot) use up attempts: bounded by retryUntil, real failures by maxExceptions.
+    public int $tries = 0;
+
+    public int $maxExceptions = 3;
+
+    public function __construct(
+        private readonly OfferService $offers,
+        private readonly OfferMessenger $messenger,
+    ) {}
+
+    /** @return list<object> */
+    public function middleware(): array
+    {
+        return [new ThrottleTelegramOutbound];
+    }
+
+    /** Fixed when the listener is queued. */
+    public function retryUntil(): \DateTimeInterface
+    {
+        return now()->addHours(6);
+    }
+
+    /** @return list<int> */
+    public function backoff(): array
+    {
+        return [30, 120];
+    }
+
+    public function handle(OrganizationMemberLeft $event): void
+    {
+        if (! $event->wasSeated) {
+            return;
+        }
+
+        // A soft-deleted learner / a deleted center: nothing to offer.
+        $learner = Learner::query()->find($event->learnerId);
+        $organization = Organization::query()->find($event->organizationId);
+
+        if ($learner === null || $organization === null) {
+            return;
+        }
+
+        $offer = $this->offers->createPostOrgDiscount($learner, $organization)
+            ?? $this->offers->unannouncedPostOrgDiscount($learner, $organization);
+
+        if ($offer !== null) {
+            $this->sendDm(fn () => $this->messenger->notifyPostOrgDiscount($offer));
+        }
+    }
+}

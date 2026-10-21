@@ -149,7 +149,9 @@ final class PaidSubscriptionQuery
         // Every live status except past_due is judged by the period end; past_due by `grace_until`
         // (the same split as SubscriptionLiveness). The lists come from the enum. `canceled` is
         // judged by the bare period end whatever the provider: the renewal was stopped, there is
-        // no grace to wait for (docs/13 §2.1).
+        // no grace to wait for (docs/13 §2.1). A row without `meta.stars.recurring` (written before the flag existed;
+        // PaymentApplier always writes it now, there is no such row in production) counts as renewing here, while
+        // AutoRenewal::renews() follows the period of its paid order — the two differ only for such a legacy year row.
         $byPeriod = array_values(array_diff(SubscriptionStatus::liveValues(), [SubscriptionStatus::PastDue->value]));
         $canceled = SubscriptionStatus::Canceled->value;
 
@@ -162,11 +164,16 @@ final class PaidSubscriptionQuery
                             ->orWhere(fn (Builder $fixed): Builder => $fixed
                                 ->where(fn (Builder $noGrace): Builder => $noGrace
                                     ->where('subscriptions.status', $canceled)
-                                    ->orWhereNotIn('subscriptions.provider', $withGrace))
+                                    ->orWhereNotIn('subscriptions.provider', $withGrace)
+                                    // A one-off Stars year does not renew either (AutoRenewal::renews).
+                                    ->orWhere('subscriptions.meta->stars->recurring', false))
                                 ->where('subscriptions.current_period_ends_at', '>', $at))
                             ->orWhere(fn (Builder $renewing): Builder => $renewing
                                 ->where('subscriptions.status', '<>', $canceled)
                                 ->whereIn('subscriptions.provider', $withGrace)
+                                ->where(fn (Builder $flag): Builder => $flag
+                                    ->whereNull('subscriptions.meta->stars->recurring')
+                                    ->orWhere('subscriptions.meta->stars->recurring', '<>', false))
                                 ->where('subscriptions.current_period_ends_at', '>', $graceEdge));
                     });
             })

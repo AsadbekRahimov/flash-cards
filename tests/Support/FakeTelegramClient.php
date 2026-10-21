@@ -17,6 +17,9 @@ final class FakeTelegramClient implements TelegramClient
     /** @var list<array{chat_id:int|string, text:string, button:string|null, url:string|null, markup:array<string, mixed>|null}> */
     public array $sent = [];
 
+    /** @var list<array{chat_id:int|string, path:string, caption:string|null, markup:array<string, mixed>|null, size:int}> */
+    public array $photos = [];
+
     /** @var list<string> */
     public array $answered = [];
 
@@ -31,6 +34,9 @@ final class FakeTelegramClient implements TelegramClient
 
     /** The next N sendMessage / sendWebAppButton calls throw like a Bot API outage (a retried job then succeeds). */
     public int $failSends = 0;
+
+    /** When true, a failing send looks like a network error (no Bot API answer) instead of a 4xx refusal. */
+    public bool $failSendsAsTransport = false;
 
     /** What getChatMemberStatus answers (the bot's own status in the group for the admin check). */
     public string $chatMemberStatus = 'administrator';
@@ -66,6 +72,9 @@ final class FakeTelegramClient implements TelegramClient
     /** When true, every Stars method (invoice link, subscription edit, refund, transactions) throws like a Bot API outage. */
     public bool $failStars = false;
 
+    /** When set, editUserStarSubscription for exactly this charge id throws like a Bot API refusal. */
+    public ?string $failStarsOn = null;
+
     /** Called on every Stars method before it is recorded: a test hooks it to assert on the moment of the call (e.g. no open transaction). */
     public ?Closure $onStarsCall = null;
 
@@ -79,6 +88,19 @@ final class FakeTelegramClient implements TelegramClient
     {
         $this->failNextSend();
         $this->sent[] = ['chat_id' => $chatId, 'text' => $text, 'button' => $buttonText, 'url' => $url, 'markup' => null];
+    }
+
+    public function sendPhoto(int|string $chatId, string $photoPath, ?string $caption = null, ?array $replyMarkup = null): void
+    {
+        $this->failNextSend();
+        $this->photos[] = [
+            'chat_id' => $chatId,
+            'path' => $photoPath,
+            'caption' => $caption,
+            'markup' => $replyMarkup,
+            // The file may be a temporary one: keep what a test needs to assert on while it still exists.
+            'size' => is_file($photoPath) ? (int) filesize($photoPath) : -1,
+        ];
     }
 
     public function answerCallbackQuery(string $callbackQueryId): void
@@ -137,6 +159,9 @@ final class FakeTelegramClient implements TelegramClient
     public function editUserStarSubscription(int $userId, string $telegramPaymentChargeId, bool $isCanceled): void
     {
         $this->starsCall('editUserStarSubscription');
+        if ($this->failStarsOn !== null && $this->failStarsOn === $telegramPaymentChargeId) {
+            throw new TelegramApiException('Bad Request');
+        }
         $this->starSubscriptionEdits[] = ['user_id' => $userId, 'charge_id' => $telegramPaymentChargeId, 'is_canceled' => $isCanceled];
     }
 
@@ -170,7 +195,9 @@ final class FakeTelegramClient implements TelegramClient
         if ($this->failSends > 0) {
             $this->failSends--;
 
-            throw new TelegramApiException('Bad Gateway');
+            throw $this->failSendsAsTransport
+                ? new TelegramApiException('cURL error 28: Operation timed out')
+                : TelegramApiException::apiError('Forbidden: bot was kicked from the group chat', 403);
         }
     }
 

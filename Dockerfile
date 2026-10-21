@@ -20,6 +20,7 @@ RUN npm run build
 FROM php:8.3-fpm-alpine AS app
 
 ARG UID=1000
+ARG PHPREDIS_VERSION=6.2.0
 ARG GID=1000
 
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
@@ -27,10 +28,13 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
 
 RUN apk add --no-cache \
         bash curl icu-dev libzip-dev oniguruma-dev postgresql-dev postgresql-client \
+        freetype-dev libpng-dev \
         linux-headers autoconf g++ make \
+    && docker-php-ext-configure gd --with-freetype \
     && docker-php-ext-install -j"$(nproc)" \
-        pdo pdo_pgsql bcmath intl mbstring opcache pcntl zip \
-    && pecl install redis \
+        pdo pdo_pgsql bcmath intl mbstring opcache pcntl zip gd \
+    # PECL occasionally answers "No releases available": retry before failing the build.
+    && for attempt in 1 2 3 4; do pecl install -f redis-${PHPREDIS_VERSION} && break; [ "$attempt" = 4 ] && exit 1; sleep $((attempt * 15)); done \
     && docker-php-ext-enable redis \
     && apk del autoconf g++ make linux-headers \
     && rm -rf /tmp/* /var/cache/apk/*

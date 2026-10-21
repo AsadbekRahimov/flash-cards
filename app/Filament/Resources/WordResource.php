@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
+use App\Domain\Administration\Services\PanelDataScope;
 use App\Filament\Resources\WordResource\Pages;
 use App\Filament\Resources\WordResource\RelationManagers\WordTranslationsRelationManager;
 use App\Models\Word;
@@ -14,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Word screen: the host of the per-language translations (WordTranslationsRelationManager).
@@ -33,6 +35,16 @@ class WordResource extends Resource
     public static function canCreate(): bool
     {
         return false;
+    }
+
+    /**
+     * Teachers do not see the content of learners' private decks.
+     *
+     * @return Builder<Word>
+     */
+    public static function getEloquentQuery(): Builder
+    {
+        return app(PanelDataScope::class)->words();
     }
 
     public static function form(Schema $schema): Schema

@@ -40,7 +40,7 @@ final class CourseCatalogService
 
     private const PUBLISHED_CACHE_TTL = 600;
 
-    public function __construct(private readonly LocaleResolver $locales) {}
+    public function __construct(private readonly LocaleResolver $locales, private readonly DeckTitles $deckTitles) {}
 
     /**
      * The platform course that receives demo content and imports without an
@@ -360,10 +360,10 @@ final class CourseCatalogService
         foreach ($rows as $row) {
             $lessons[] = new LessonProgress(
                 (int) $row->stage_number,
-                (string) $row->stage_title,
+                $this->deckTitles->stage($course, $learner, (string) $row->stage_title),
                 (int) $row->lesson_id,
                 (int) $row->lesson_number,
-                $row->lesson_title === null ? null : (string) $row->lesson_title,
+                $this->deckTitles->lesson($course, $learner, (int) $row->lesson_number, $row->lesson_title === null ? null : (string) $row->lesson_title),
                 new LearnerProgress((int) $row->done, (int) $row->total),
             );
         }

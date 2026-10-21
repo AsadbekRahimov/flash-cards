@@ -6,6 +6,7 @@ namespace App\Domain\Billing\Services;
 
 use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Enums\SubscriptionStatus;
+use App\Domain\Billing\Support\AutoRenewal;
 use App\Domain\Billing\Support\SubscriptionLiveness;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Organizations\Enums\OrganizationRole;
@@ -96,7 +97,7 @@ final class RenewalReminderSender
             && $period !== null
             && CarbonImmutable::instance($period)->equalTo($endsAt)
             && SubscriptionLiveness::isLive($subscription, $now)
-            && ($subscription->status === SubscriptionStatus::Canceled->value || ! $provider->isAutoRenewing());
+            && ($subscription->status === SubscriptionStatus::Canceled->value || ! AutoRenewal::renews($subscription));
     }
 
     private function learnerDm(Learner $learner, Subscription $subscription, int $daysLeft, CarbonImmutable $endsAt, string $key): bool

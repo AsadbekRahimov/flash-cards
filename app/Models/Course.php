@@ -95,6 +95,12 @@ class Course extends Model
         });
     }
 
+    /** A learner's own private deck (docs/13 §8.1). */
+    public function isLearnerOwned(): bool
+    {
+        return $this->owner_type === 'learner';
+    }
+
     /** @return HasMany<Stage, $this> */
     public function stages(): HasMany
     {

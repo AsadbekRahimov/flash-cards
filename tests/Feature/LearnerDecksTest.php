@@ -17,6 +17,7 @@ use App\Domain\Twa\Services\JwtService;
 use App\Models\Course;
 use App\Models\Learner;
 use App\Models\Lesson;
+use App\Models\Stage;
 use App\Models\Subscription;
 use App\Models\TrainingSession;
 use App\Models\Word;
@@ -327,6 +328,25 @@ it('splits a deck into lessons of 50 words, "Часть N", in order', function 
     expect($lessons->pluck('number')->all())->toBe([1, 2, 3])
         ->and($lessons->pluck('title')->all())->toBe(['Часть 1', 'Часть 2', 'Часть 3'])
         ->and($lessons->pluck('words_count')->all())->toBe([50, 50, 30]);
+});
+
+it('shows the stage and the parts of a deck in the interface language of the learner', function (): void {
+    $uz = dkPro(dkLearner(['interface_locale' => 'uz']));
+    $ru = dkPro(dkLearner(['interface_locale' => 'ru']));
+    foreach ([$uz, $ru] as $learner) {
+        $slug = dkCreate($this, $learner);
+        dkImport($this, $learner, $slug, dkList(60))->assertOk();
+        $detail = dkCall($this, $learner, 'GET', "/courses/{$slug}")->assertOk();
+
+        if ($learner->is($uz)) {
+            $detail->assertJsonPath('stages.0.title', "Mening lug'atim")
+                ->assertJsonPath('stages.0.lessons.0.title', '1-qism')
+                ->assertJsonPath('stages.0.lessons.1.title', '2-qism');
+        } else {
+            $detail->assertJsonPath('stages.0.title', 'Моя колода')
+                ->assertJsonPath('stages.0.lessons.1.title', 'Часть 2');
+        }
+    }
 });
 
 it('revives a removed word with the new translation', function (): void {
@@ -729,4 +749,35 @@ it('throttles renames after 30 writes a minute', function (): void {
         dkCall($this, $learner, 'PATCH', "/decks/{$slug}", ['title' => "Имя {$i}"])->assertOk();
     }
     dkCall($this, $learner, 'PATCH', "/decks/{$slug}", ['title' => 'Имя'])->assertStatus(429);
+});
+
+it('shows the own-deck technical titles in the learner locale in /today and the lesson start', function (): void {
+    $owner = dkLearner(['interface_locale' => 'uz']);
+    $slug = dkCreate($this, $owner);
+    dkImport($this, $owner, $slug, dkList(3))->assertOk();
+    $lesson = Lesson::query()->whereHas('stage', fn ($q) => $q->where('course_id', dkDeck($slug)->id))->firstOrFail();
+    expect($lesson->title)->toBe('Часть 1');
+    $owner->forceFill(['active_course_id' => dkDeck($slug)->id])->save();
+
+    dkCall($this, $owner, 'GET', '/today')->assertOk()->assertJsonPath('active_course.next_lesson.title', '1-qism');
+    dkCall($this, $owner, 'POST', '/training/sessions', ['mode' => 'lesson', 'lesson_id' => $lesson->id])
+        ->assertOk()->assertJsonPath('lesson.title', '1-qism');
+
+    $ru = dkLearner(['interface_locale' => 'ru']);
+    $ruSlug = dkCreate($this, $ru);
+    dkImport($this, $ru, $ruSlug, dkList(3))->assertOk();
+    $ru->forceFill(['active_course_id' => dkDeck($ruSlug)->id])->save();
+    dkCall($this, $ru, 'GET', '/today')->assertJsonPath('active_course.next_lesson.title', 'Часть 1');
+});
+
+it('keeps the own title of a regular course for an uz learner', function (): void {
+    $course = Course::factory()->published()->create();
+    $stage = Stage::factory()->create(['course_id' => $course->id, 'number' => 1]);
+    $lesson = Lesson::factory()->create(['stage_id' => $stage->id, 'number' => 1, 'title' => 'Basics']);
+    Word::factory()->count(2)->for($lesson)->create();
+    $learner = dkLearner(['interface_locale' => 'uz', 'active_course_id' => $course->id]);
+
+    dkCall($this, $learner, 'GET', '/today')->assertOk()->assertJsonPath('active_course.next_lesson.title', 'Basics');
+    dkCall($this, $learner, 'POST', '/training/sessions', ['mode' => 'lesson', 'lesson_id' => $lesson->id])
+        ->assertOk()->assertJsonPath('lesson.title', 'Basics');
 });

@@ -20,7 +20,7 @@ final class SessionSummaryResource extends TwaResource
      * @return array{
      *   reviewed: int, correct: int, new_words: int,
      *   goal: array{target: int, done: int, met: bool},
-     *   streak: array{current: int, best: int, met_today: bool, at_risk: bool}
+     *   streak: array{current: int, best: int, met_today: bool, at_risk: bool, freezes: int, frozen_yesterday: bool}
      * }
      */
     public function toArray(Request $request): array

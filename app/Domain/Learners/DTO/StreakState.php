@@ -14,15 +14,19 @@ final readonly class StreakState
      * @param  int  $best  longest series ever
      * @param  bool  $metToday  today's goal is already met (the series cannot break today)
      * @param  bool  $atRisk  `current > 0 && !metToday` — the series ends unless the goal is met before local midnight
+     * @param  int  $freezes  streak freezes the learner can spend (0 without the Pro feature — docs/13 §7.2)
+     * @param  bool  $frozenYesterday  yesterday was missed and held by a freeze (`learner_daily_stats.frozen_at`)
      */
     public function __construct(
         public int $current,
         public int $best,
         public bool $metToday,
         public bool $atRisk,
+        public int $freezes = 0,
+        public bool $frozenYesterday = false,
     ) {}
 
-    /** @return array{current: int, best: int, met_today: bool, at_risk: bool} */
+    /** @return array{current: int, best: int, met_today: bool, at_risk: bool, freezes: int, frozen_yesterday: bool} */
     public function toArray(): array
     {
         return [
@@ -30,6 +34,8 @@ final readonly class StreakState
             'best' => $this->best,
             'met_today' => $this->metToday,
             'at_risk' => $this->atRisk,
+            'freezes' => $this->freezes,
+            'frozen_yesterday' => $this->frozenYesterday,
         ];
     }
 }

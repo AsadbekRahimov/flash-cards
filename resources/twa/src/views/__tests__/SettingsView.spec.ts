@@ -13,7 +13,7 @@ import type { LearnerSettings, MeResponse, OrganizationMembership, SettingsPatch
 const state = vi.hoisted(() => ({ ensure: vi.fn(), back: undefined as undefined | (() => void), hideBack: vi.fn() }))
 
 vi.mock('@/api', () => ({
-  api: { me: { get: vi.fn(), updateSettings: vi.fn() }, organizations: { list: vi.fn(), leave: vi.fn() } },
+  api: { me: { get: vi.fn(), updateSettings: vi.fn(), revertTimezone: vi.fn() }, organizations: { list: vi.fn(), leave: vi.fn() } },
 }))
 
 vi.mock('@/stores/auth', () => {
@@ -116,6 +116,18 @@ describe('SettingsView', () => {
     expect(w.find('[data-testid=saved]').exists()).toBe(false)
   })
 
+  it('shows the league participation and lets the learner opt back in', async () => {
+    const w = await render(settingsFixture({ leagues_opt_out: true }))
+    expect(value(w, 'leagues-select')).toBe('off')
+    expect(labels(w, 'leagues-select')).toEqual(['Участвую в недельных лигах', 'Не участвую в лигах'])
+
+    vi.mocked(api.me.updateSettings).mockResolvedValue(me(settingsFixture({ leagues_opt_out: false })))
+    await choose(w, 'leagues-select', 'on')
+
+    expect(vi.mocked(api.me.updateSettings).mock.calls).toEqual([[{ leagues_opt_out: false }]])
+    expect(value(w, 'leagues-select')).toBe('on')
+  })
+
   it('shows reminders as off when there is no reminder time', async () => {
     const w = await render(settingsFixture({ reminder_time: null }))
 
@@ -157,6 +169,7 @@ describe('SettingsView', () => {
     ['reminder-select', '13:00', { reminder_time: '13:00' }],
     ['reminder-select', '', { reminder_time: null }],
     ['goal-select', '40', { daily_goal: 40 }],
+    ['leagues-select', 'off', { leagues_opt_out: true }],
   ] satisfies [string, string, SettingsPatch][])('saves a change of %s to %s', async (id, newValue, patch) => {
     const w = await render()
     vi.mocked(api.me.updateSettings).mockResolvedValue(me(settingsFixture(patch)))
@@ -417,4 +430,65 @@ describe('SettingsView', () => {
     })
   })
 
+
+  describe('undo of a time zone change (10 minutes)', () => {
+    afterEach(() => vi.useRealTimers())
+
+    const undoable = (timezone = 'Europe/Moscow') => settingsFixture({ timezone, timezone_undo_available_until: '2026-10-19T12:10:00+00:00' })
+
+    it('shows no button without an undo mark or after its time', async () => {
+      vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-10-19T12:10:00Z') })
+
+      expect((await render(settingsFixture())).find('[data-testid=timezone-undo]').exists()).toBe(false)
+      expect((await render(undoable())).find('[data-testid=timezone-undo]').exists()).toBe(false)
+    })
+
+    it('shows a button with the time left, counting down', async () => {
+      vi.useFakeTimers({ now: new Date('2026-10-19T12:05:30Z') })
+      const w = await render(undoable())
+
+      expect(w.get('[data-testid=timezone-undo]').text()).toBe('Отменить смену пояса (4:30)')
+
+      await vi.advanceTimersByTimeAsync(31_000)
+      expect(w.get('[data-testid=timezone-undo]').text()).toBe('Отменить смену пояса (3:59)')
+
+      await vi.advanceTimersByTimeAsync(240_000)
+      expect(w.find('[data-testid=timezone-undo]').exists()).toBe(false)
+    })
+
+    it('is in Uzbek for an Uzbek learner', async () => {
+      vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-10-19T12:05:00Z') })
+      const w = await render({ ...undoable(), interface_locale: 'uz' })
+
+      expect(w.get('[data-testid=timezone-undo]').text()).toBe("Mintaqa o'zgarishini bekor qilish (5:00)")
+    })
+
+    it('reverts through the API and takes the server settings (the zone is back, the button gone)', async () => {
+      vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-10-19T12:05:00Z') })
+      const w = await render(undoable())
+      vi.mocked(api.me.revertTimezone).mockResolvedValue(me(settingsFixture({ timezone: 'Asia/Tashkent' })))
+
+      await w.get('[data-testid=timezone-undo]').trigger('click')
+      await flushPromises()
+
+      expect(api.me.revertTimezone).toHaveBeenCalledTimes(1)
+      expect(value(w, 'timezone-select')).toBe('Asia/Tashkent')
+      expect(w.find('[data-testid=timezone-undo]').exists()).toBe(false)
+      expect(w.find('[data-testid=saved]').exists()).toBe(true)
+    })
+
+    it('on 422 timezone_revert_unavailable reloads the settings, drops the button and says why', async () => {
+      vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-10-19T12:05:00Z') })
+      const w = await render(undoable())
+      vi.mocked(api.me.revertTimezone).mockRejectedValue(new ApiClientError('validation', 422, 'timezone_revert_unavailable', 'x'))
+      vi.mocked(api.me.get).mockResolvedValue(me(settingsFixture({ timezone: 'Europe/Moscow' })))
+
+      await w.get('[data-testid=timezone-undo]').trigger('click')
+      await flushPromises()
+
+      expect(w.find('[data-testid=timezone-undo]').exists()).toBe(false)
+      expect(w.get('[data-testid=settings-error]').text()).toContain('Отменить смену часового пояса уже нельзя')
+      expect(value(w, 'timezone-select')).toBe('Europe/Moscow')
+    })
+  })
 })

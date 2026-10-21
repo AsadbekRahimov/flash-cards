@@ -100,6 +100,9 @@ it('REGRESSION (review 1.4b): hourly zone hopping through PATCH /me/settings yie
     for ($h = 0; $h < 24; $h++) {
         $now = CarbonImmutable::parse('2026-10-19 00:05:00', 'UTC')->addHours($h);
         CarbonImmutable::setTestNow($now);
+        // Carbon moved by an hour, but a persistent cache store (CI: Redis) keeps the per-minute throttle
+        // counters by wall-clock TTL: end the elapsed hour for them (the quota itself lives in the DB).
+        Cache::flush();
 
         $statuses[] = $this->withHeaders($headers())->patchJson('/api/twa/me/settings', ['timezone' => tzqZoneAtMidnight($now)])->status();
 

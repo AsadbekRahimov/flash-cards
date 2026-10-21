@@ -8,6 +8,8 @@ import { useTodayStore } from '@/stores/today'
 import { useI18n } from '@/i18n'
 import type { BillingPeriod, BillingProviderKey, MeResponse } from '@/api/types'
 
+export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam_simulator'
+
 /**
  * Paywall (docs/12 §5.4, docs/13 §5).
  *
@@ -21,7 +23,8 @@ import type { BillingPeriod, BillingProviderKey, MeResponse } from '@/api/types'
  * failed to load, keeps the `coming_soon` copy.
  *
  * `reason = 'quota'` is the end of today's new words; `'decks'` is a refused deck / deck-word limit
- * (docs/04 A.10); `'info'` is the learner opening it from the Today screen. A promo code that works or a
+ * (docs/04 A.10); `'streak_freeze'` is the Free teaser of streak freezes (docs/13 §7.2); `'exam_simulator'`
+ * is a refused IELTS / SAT mock (docs/13 §8.4); `'info'` is the learner opening it from the Today screen. A promo code that works or a
  * confirmed payment refreshes `/me` (billing store) and `/today`.
  *
  * "Repeat words" (shown when the Today store knows of due cards) emits `review`: reviews are never
@@ -30,7 +33,7 @@ import type { BillingPeriod, BillingProviderKey, MeResponse } from '@/api/types'
  * a11y (minimal): the focus moves into the dialog on open and returns to the opener on close;
  * Escape closes it.
  */
-const props = withDefaults(defineProps<{ reason?: 'quota' | 'info' | 'decks' }>(), { reason: 'info' })
+const props = withDefaults(defineProps<{ reason?: PaywallReason }>(), { reason: 'info' })
 const emit = defineEmits<{ close: []; redeemed: [me: MeResponse]; review: [] }>()
 
 const { t, locale } = useI18n()
@@ -58,6 +61,8 @@ const item = computed(() => billing.catalog?.items.find((i) => i.period === peri
 const offer = computed(() => billing.catalog?.offer ?? null)
 /** Stars renew by themselves: paying again would charge twice (the server refuses with checkout_conflict). */
 const renewing = computed(() => billing.catalog?.subscription?.auto_renew === true)
+/** A perpetual grant leaves nothing to buy (the server refuses with already_perpetual). */
+const perpetual = computed(() => billing.catalog?.subscription?.perpetual === true)
 
 interface PayOption {
   provider: BillingProviderKey
@@ -153,6 +158,12 @@ onBeforeUnmount(() => {
         <p v-else-if="props.reason === 'decks'" class="text-center" data-testid="paywall-lead">
           {{ t('paywall.lead_decks') }} {{ purchaseMode ? t('paywall.lead_purchase') : t('paywall.soon') }}
         </p>
+        <p v-else-if="props.reason === 'streak_freeze'" class="text-center" data-testid="paywall-lead">
+          {{ t('paywall.lead_streak_freeze') }} {{ purchaseMode ? t('paywall.lead_purchase') : t('paywall.soon') }}
+        </p>
+        <p v-else-if="props.reason === 'exam_simulator'" class="text-center" data-testid="paywall-lead">
+          {{ t('paywall.lead_exam_simulator') }} {{ purchaseMode ? t('paywall.lead_purchase') : t('paywall.soon') }}
+        </p>
         <p v-else class="text-center" data-testid="paywall-lead">{{ purchaseMode ? t('paywall.lead_purchase') : t('paywall.soon') }}</p>
 
         <p class="text-sm text-tg-hint text-center" data-testid="paywall-free">
@@ -184,6 +195,8 @@ onBeforeUnmount(() => {
 
         <p v-if="renewing" class="text-sm text-center text-tg-hint" data-testid="purchase-renewing">{{ t('billing.auto_renew_running') }}</p>
 
+        <p v-else-if="perpetual" class="text-sm text-center text-tg-hint" data-testid="purchase-perpetual">{{ t('billing.perpetual') }}</p>
+
         <div v-else class="space-y-2">
           <button
             v-for="option in options"
@@ -199,11 +212,17 @@ onBeforeUnmount(() => {
           </button>
         </div>
 
+        <p v-if="billing.purchase.status === 'awaiting' && billing.purchase.notice" class="text-sm text-center text-tg-hint" role="status" data-testid="purchase-notice">
+          {{ billing.purchase.notice }}
+        </p>
         <p v-if="billing.purchase.status === 'starting'" class="text-sm text-center text-tg-hint" role="status" data-testid="purchase-starting">
           {{ t('billing.starting') }}
         </p>
         <p v-else-if="billing.purchase.status === 'awaiting'" class="text-sm text-center text-tg-hint" role="status" data-testid="purchase-awaiting">
           {{ t('billing.awaiting') }}
+        </p>
+        <p v-else-if="billing.purchase.status === 'replaced'" class="text-sm text-center text-tg-hint" role="status" data-testid="purchase-replaced">
+          {{ billing.purchase.notice }}
         </p>
         <div v-else-if="billing.purchase.status === 'timeout'" class="space-y-2 text-center" data-testid="purchase-timeout">
           <p class="text-sm text-tg-hint">{{ t('billing.timeout') }}</p>

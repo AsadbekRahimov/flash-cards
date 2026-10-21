@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Learners\Services;
 
 use App\Domain\Learners\DTO\ReminderDispatchReport;
+use App\Jobs\Middleware\ThrottleTelegramOutbound;
 use App\Jobs\SendLearnerReminderJob;
 use App\Models\Learner;
 use Carbon\CarbonImmutable;
@@ -34,6 +35,10 @@ use InvalidArgumentException;
  *    sent (the time of day is wrong by then) — the pointer still moves;
  *  - spread: the n-th job of a run is delayed by floor(n / send_rate_per_second) seconds
  *    (at most 14 minutes, see {@see delaySeconds()}) and goes to the `default` queue;
+ *  - cap: a run claims no more than `send_rate × 14 min` jobs that it queues ({@see runCap()}); the
+ *    rest stays due (pointer untouched) and is picked up by the next run, `max_delay_minutes` drops
+ *    those that waited too long. Together with the bot-wide send budget the jobs also take
+ *    ({@see ThrottleTelegramOutbound}) a peak cannot grow an unbounded backlog;
  *  - the job holds the second idempotency level (`notifications_log`, see
  *    {@see ReminderSender}).
  *
@@ -61,10 +66,19 @@ final class ReminderDispatcher
         $this->reminderable()
             ->whereNotNull('next_reminder_at')
             ->where('next_reminder_at', '<=', $now->format('Y-m-d H:i:s'))
-            ->chunkById($this->batchSize(), function (Collection $learners) use ($now, $report): void {
+            ->chunkById($this->batchSize(), function (Collection $learners) use ($now, $report): bool {
                 foreach ($learners as $learner) {
+                    // Before the claim: what is not claimed stays due for the next run.
+                    if ($report->queued >= $this->runCap()) {
+                        $report->capped = true;
+
+                        return false;
+                    }
+
                     $this->claim($learner, $now, $report);
                 }
+
+                return true;
             });
 
         return $report;
@@ -167,12 +181,17 @@ final class ReminderDispatcher
      * Start delay of the job number `$position` (0-based) of this run: at most
      * `send_rate_per_second` jobs start in any second, so a 19:00 peak does not hit
      * Telegram's limit at once. Capped at 14 minutes (< the 15-minute cadence and the
-     * minimum `max_delay_minutes`); the claim is already made, so a peak larger than
-     * rate * 840 learners per run is sent at the 14th minute rather than dropped.
+     * minimum `max_delay_minutes`); a run queues at most {@see runCap()} jobs, so the cap is never exceeded.
      */
     public function delaySeconds(int $position): int
     {
         return min(self::MAX_SPREAD_SECONDS, intdiv(max(0, $position), $this->sendRate()));
+    }
+
+    /** Most jobs one run queues: what the send rate can deliver within the 14-minute spread. */
+    public function runCap(): int
+    {
+        return $this->sendRate() * self::MAX_SPREAD_SECONDS;
     }
 
     /** `null` when reminders are off for this learner or the stored time is unusable. */

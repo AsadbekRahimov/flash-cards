@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Observers;
 
 use App\Domain\Billing\Services\EntitlementResolver;
+use App\Domain\Organizations\Services\GroupAssignmentCloser;
 use App\Domain\Organizations\Services\OrganizationMembershipService;
 use App\Models\TelegramGroup;
 use Illuminate\Support\Facades\DB;
@@ -25,6 +26,7 @@ final class TelegramGroupObserver
     public function __construct(
         private readonly EntitlementResolver $entitlements,
         private readonly OrganizationMembershipService $organizations,
+        private readonly GroupAssignmentCloser $assignments,
     ) {}
 
     public function updated(TelegramGroup $group): void
@@ -39,6 +41,11 @@ final class TelegramGroupObserver
             $previous = $group->getOriginal('organization_id');
             $previous = $previous === null ? null : (int) $previous;
             $learnerIds = $this->activeLearnerIds($group);
+
+            // In the same transaction as the change: the old center must lose the group's assignments at once.
+            if ($previous !== null) {
+                $this->assignments->closeForGroup($group->id, $previous);
+            }
 
             DB::afterCommit(function () use ($group, $previous, $learnerIds): void {
                 $this->guard('organizations.group_relink_failed', $group, function () use ($group, $previous, $learnerIds): void {

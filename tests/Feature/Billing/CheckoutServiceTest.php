@@ -124,14 +124,16 @@ it('rejects what cannot be sold: bad period, disabled or missing provider, unsup
     expect($service->create($learner, Plan::Pro, 'year', SubscriptionProvider::TelegramStars, null, 'twa')->amount)->toBe(1300);
 
     // Organization tiers.
+    config()->set('billing.org_year_discount_percent', 0); // the default is 17 (2C.8); this case checks the plain x12
     $e = checkoutFailure(fn () => $service->create($org, Plan::Pro, 'month', SubscriptionProvider::Payme, null, 'org_panel'));
     expect($e->errorCode)->toBe(CheckoutException::INVALID_TIER)->and($e->httpStatus())->toBe(422);
     $e = checkoutFailure(fn () => $service->create($org, Plan::Pro, 'month', SubscriptionProvider::Payme, 'platinum', 'org_panel'));
     expect($e->errorCode)->toBe(CheckoutException::INVALID_TIER);
     $e = checkoutFailure(fn () => $service->create($org, Plan::Pro, 'month', SubscriptionProvider::Payme, 'center_l', 'org_panel'));
     expect($e->errorCode)->toBe(CheckoutException::PRICE_NOT_CONFIGURED); // manual activation only
-    $e = checkoutFailure(fn () => $service->create($org, Plan::Pro, 'year', SubscriptionProvider::Payme, 'tutor', 'org_panel'));
-    expect($e->errorCode)->toBe(CheckoutException::PRICE_NOT_CONFIGURED); // tiers are monthly
+    $e = checkoutFailure(fn () => $service->create($org, Plan::Pro, 'year', SubscriptionProvider::Payme, 'center_l', 'org_panel'));
+    expect($e->errorCode)->toBe(CheckoutException::PRICE_NOT_CONFIGURED); // manual activation only, year too
+    expect($service->create($org, Plan::Pro, 'year', SubscriptionProvider::Payme, 'tutor', 'org_panel')->amount)->toBe(12_900_000 * 12); // year derived from the month (2B.9)
 
     $tutor = $service->create($org, Plan::Pro, 'month', SubscriptionProvider::Payme, 'tutor', 'org_panel');
     expect($tutor->amount)->toBe(12_900_000)->and($tutor->tier)->toBe('tutor')->and($tutor->meta)->toBe([
@@ -144,7 +146,7 @@ it('limits pending orders per subscriber (429) and does not count expired ones',
     $service = app(CheckoutService::class);
 
     foreach (range(1, 3) as $_) {
-        $service->create($learner, Plan::Pro, 'month', SubscriptionProvider::TelegramStars, null, 'twa');
+        $service->create($learner, Plan::Pro, 'month', SubscriptionProvider::Payme, null, 'twa');
     }
 
     $e = checkoutFailure(fn () => $service->create($learner, Plan::Pro, 'month', SubscriptionProvider::Payme, null, 'twa'));
@@ -180,7 +182,7 @@ it('does not expire an order whose Payme transaction is still open and within th
     expect($service->expirePending())->toBe(1)->and($live->refresh()->status)->toBe('expired');
 });
 
-it('refuses another provider while a Stars subscription still renews, allows it once canceled, and allows Stars on top of a paid period', function (): void {
+it('refuses any order while a Stars subscription still renews, allows it once canceled, and allows Stars on top of a paid period only near its end', function (): void {
     $learner = Learner::factory()->create();
     $service = app(CheckoutService::class);
     $stars = Subscription::factory()->create(['subscriber_id' => $learner->id, 'provider' => 'telegram_stars', 'current_period_ends_at' => CarbonImmutable::now()->addDays(20)]);
@@ -189,16 +191,21 @@ it('refuses another provider while a Stars subscription still renews, allows it 
     expect($e->errorCode)->toBe(CheckoutException::CONFLICT)->and($e->httpStatus())->toBe(409)
         ->and(PaymentOrder::query()->count())->toBe(0);
 
-    // Stars again (e.g. a year invoice) is fine.
-    expect($service->create($learner, Plan::Pro, 'year', SubscriptionProvider::TelegramStars, null, 'twa')->status)->toBe('pending');
+    // Stars again is refused as well: a second order would open a second Telegram subscription ("Реализация 2A.8").
+    $e = checkoutFailure(fn () => $service->create($learner, Plan::Pro, 'year', SubscriptionProvider::TelegramStars, null, 'twa'));
+    expect($e->errorCode)->toBe(CheckoutException::CONFLICT);
 
     // Canceled auto-renewal: Payme may extend.
     $stars->update(['status' => 'canceled', 'canceled_at' => CarbonImmutable::now()]);
     expect($service->create($learner, Plan::Pro, 'month', SubscriptionProvider::Payme, null, 'twa')->status)->toBe('pending');
 
-    // Payme period live, Stars subscription on top: allowed (the end becomes max, docs/13 §4.4).
-    $stars->update(['status' => 'active', 'canceled_at' => null, 'provider' => 'payme']);
+    // Payme period live: a Stars subscription on top is allowed in the last days (the end becomes max, docs/13 §4.4) ...
+    $stars->update(['status' => 'active', 'canceled_at' => null, 'provider' => 'payme', 'current_period_ends_at' => CarbonImmutable::now()->addDays(5)]);
     expect($service->create($learner, Plan::Pro, 'month', SubscriptionProvider::TelegramStars, null, 'twa')->status)->toBe('pending');
+
+    // ... and refused while the prepaid period is longer than the window (subscribe_too_early).
+    $stars->update(['current_period_ends_at' => CarbonImmutable::now()->addDays(20)]);
+    expect(checkoutFailure(fn () => $service->create($learner, Plan::Pro, 'month', SubscriptionProvider::TelegramStars, null, 'twa'))->errorCode)->toBe(CheckoutException::SUBSCRIBE_TOO_EARLY);
 });
 
 it('applies the best open offer automatically, validates an explicit one, and never applies a used, expired or foreign offer', function (): void {
@@ -270,12 +277,12 @@ it('describes the catalog: priced items per enabled provider, the open offer and
     expect($catalog->items[0]['prices'])->toBe(['XTR' => 105, 'UZS' => 2_030_000])
         ->and($catalog->items[0]['list_prices'])->toBe(['XTR' => 150, 'UZS' => 2_900_000])
         ->and($catalog->items[1]['prices'])->toBe(['XTR' => 1300, 'UZS' => 24_900_000])
-        ->and($catalog->offer)->toBe(['kind' => 'post_org_discount', 'discount_pct' => 30, 'expires_at' => CarbonImmutable::instance($offer->expires_at)->toIso8601String()]);
+        ->and($catalog->offer)->toBe(['kind' => 'post_org_discount', 'discount_pct' => 30, 'period' => 'month', 'expires_at' => CarbonImmutable::instance($offer->expires_at)->toIso8601String()]);
 
     // A live Stars subscription: auto-renewing, can be canceled; once canceled it can be resumed; ends_at is the liveness end.
     $sub = Subscription::factory()->create(['subscriber_id' => $learner->id, 'provider' => 'telegram_stars', 'current_period_ends_at' => $now->addDays(20)]);
     expect($service->catalog($learner, $now)->subscription)->toBe([
-        'status' => 'active', 'provider' => 'telegram_stars', 'plan' => 'pro', 'ends_at' => $now->addDays(23)->toIso8601String(), 'auto_renew' => true, 'can_cancel' => true, 'can_resume' => false,
+        'status' => 'active', 'provider' => 'telegram_stars', 'plan' => 'pro', 'ends_at' => $now->addDays(23)->toIso8601String(), 'auto_renew' => true, 'can_cancel' => true, 'can_resume' => false, 'perpetual' => false,
     ]);
     $sub->update(['status' => 'canceled', 'canceled_at' => $now]);
     expect($service->catalog($learner, $now)->subscription)->toMatchArray(['status' => 'canceled', 'ends_at' => $now->addDays(20)->toIso8601String(), 'auto_renew' => false, 'can_cancel' => false, 'can_resume' => true]);
@@ -285,7 +292,7 @@ it('describes the catalog: priced items per enabled provider, the open offer and
     // Organizations: tiers x periods in UZS only (Stars does not serve them); center_l has no price.
     $catalog = $service->catalog($org, $now);
     expect($catalog->providers)->toBe(['payme'])
-        ->and(array_column($catalog->items, 'tier'))->toBe(['tutor', 'center_s', 'center_m'])
+        ->and(array_column($catalog->items, 'tier'))->toBe(['tutor', 'tutor', 'center_s', 'center_s', 'center_m', 'center_m'])
         ->and($catalog->items[0])->toBe(['plan' => 'pro', 'tier' => 'tutor', 'period' => 'month', 'prices' => ['UZS' => 12_900_000], 'list_prices' => ['UZS' => 12_900_000]]);
 
     // Nothing enabled -> empty catalog (paywall falls back to coming_soon).
@@ -299,8 +306,10 @@ it('describes the catalog: priced items per enabled provider, the open offer and
 it('keeps the provider registry honest: unknown providers are not registered, enabled() follows config', function (): void {
     $registry = app(BillingProviderRegistry::class);
 
-    expect($registry->has(SubscriptionProvider::Click))->toBeFalse()
+    // Click is registered by AppServiceProvider (2A.5) but sellable only when CLICK_ENABLED=true; grants are never providers.
+    expect($registry->has(SubscriptionProvider::Click))->toBeTrue()
         ->and($registry->isEnabled(SubscriptionProvider::Click))->toBeFalse()
+        ->and($registry->has(SubscriptionProvider::Reward))->toBeFalse()
         ->and($registry->enabled())->toBe([SubscriptionProvider::TelegramStars, SubscriptionProvider::Payme])
         ->and($registry->for(SubscriptionProvider::Payme))->toBe($this->payme);
 
@@ -309,7 +318,7 @@ it('keeps the provider registry honest: unknown providers are not registered, en
         ->and($registry->has(SubscriptionProvider::TelegramStars))->toBeTrue();
 
     try {
-        $registry->for(SubscriptionProvider::Click);
+        $registry->for(SubscriptionProvider::Reward);
         $this->fail('expected ProviderCapabilityException');
     } catch (ProviderCapabilityException $e) {
         expect($e->errorCode)->toBe(ProviderCapabilityException::NOT_REGISTERED)->and($e->httpStatus())->toBe(409);

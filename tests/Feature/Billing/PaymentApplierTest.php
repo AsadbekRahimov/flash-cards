@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Billing\DTO\ChargeEvent;
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Enums\SubscriptionProvider;
+use App\Domain\Billing\Exceptions\CheckoutException;
 use App\Domain\Billing\Exceptions\DuplicatePaymentException;
 use App\Domain\Billing\Exceptions\PaymentApplyException;
 use App\Domain\Billing\Services\CheckoutService;
@@ -169,13 +170,14 @@ it('extends a live subscription from max(current end, now) and keeps the later e
 
     // Stars subscription on top of the Payme period: Telegram says it expires in 30 days, our period
     // runs 40 -> keep 40 (docs/13 §4.4 "конец = max").
-    $applier->applyCharge($this->stars->emitCharge(applierOrder($learner, $this->stars), eventId: 's1', periodEndsAt: $now->addDays(30)));
+    // (Orders come from the factory: the checkout rules of "Реализация 2A.8" would refuse a Stars subscription 40 days before the end.)
+    $applier->applyCharge($this->stars->emitCharge(PaymentOrder::factory()->create(['subscriber_id' => $learner->id]), eventId: 's1', periodEndsAt: $now->addDays(30)));
     expect($live->refresh()->current_period_ends_at?->toIso8601String())->toBe($now->addDays(40)->toIso8601String())
         ->and($live->provider)->toBe('telegram_stars')
         ->and($live->meta['stars']['charge_id'])->toBe('s1');
 
     // A provider end later than ours wins.
-    $applier->applyCharge($this->stars->emitCharge(applierOrder($learner, $this->stars), eventId: 's2', periodEndsAt: $now->addDays(70)));
+    $applier->applyCharge($this->stars->emitCharge(PaymentOrder::factory()->create(['subscriber_id' => $learner->id]), eventId: 's2', periodEndsAt: $now->addDays(70)));
     expect($live->refresh()->current_period_ends_at?->toIso8601String())->toBe($now->addDays(70)->toIso8601String());
 
     // Period already over (scheduler late): the new period starts now, not at the old end.
@@ -223,8 +225,8 @@ it('refuses a non-renewal charge on a paid order and any charge on a dead or for
         ->and(Payment::query()->where('provider_event_id', 'again')->sole()->status)->toBe('failed')
         ->and(Payment::query()->where('provider_event_id', 'again')->sole()->raw['failure_reason'])->toBe('order_already_paid');
 
-    $expired = PaymentOrder::factory()->expired()->create(['subscriber_id' => $learner->id]);
-    $e = applierFailure(fn () => $applier->applyCharge($this->stars->emitCharge($expired, eventId: 'late')));
+    $expired = PaymentOrder::factory()->payme()->expired()->create(['subscriber_id' => $learner->id]);
+    $e = applierFailure(fn () => $applier->applyCharge($this->payme->emitCharge($expired, eventId: 'late')));
     expect($e->errorCode)->toBe(PaymentApplyException::ORDER_EXPIRED)->and($e->httpStatus())->toBe(410)
         ->and(Payment::query()->where('provider_event_id', 'late')->sole()->raw['failure_reason'])->toBe('order_expired');
 
@@ -256,9 +258,10 @@ it('redeems the applied offer exactly once', function (): void {
     expect($offer->refresh()->redeemed_at?->toIso8601String())->toBe(CarbonImmutable::now()->toIso8601String())
         ->and($offer->payment_order_id)->toBe($order->id);
 
-    // The next order is full price: the offer is gone.
-    $next = applierOrder($learner, $this->stars);
-    expect($next->offer_id)->toBeNull()->and($next->amount)->toBe(150);
+    // The next order is full price: the offer is gone (the Stars renewal that just started would block any order).
+    Subscription::query()->update(['status' => 'canceled', 'canceled_at' => CarbonImmutable::now()]);
+    $next = applierOrder($learner, $this->payme);
+    expect($next->offer_id)->toBeNull()->and($next->amount)->toBe(2_900_000);
 });
 
 it('credits an organization order with its tier and drops the cache of the sponsored members', function (): void {
@@ -284,10 +287,13 @@ it('credits an organization order with its tier and drops the cache of the spons
         ->and($resolver->for($member)->source)->toBe("sponsor:organization:{$org->id}")
         ->and(ProductEvent::query()->where('name', 'payment.succeeded')->sole()->learner_id)->toBeNull();
 
-    // A tier change on the next payment moves the seats.
-    $upgrade = app(CheckoutService::class)->create($org, Plan::Pro, 'month', SubscriptionProvider::Payme, 'center_m', 'org_panel');
-    app(PaymentApplier::class)->applyCharge($this->payme->emitCharge($upgrade, eventId: 'org-pay-2'));
-    expect($sub->refresh()->tier)->toBe('center_m')->and($sub->seats_limit)->toBe(300)
+    // Another tier is not sold online while the subscription is live (2B.8, OrgTierChangeTest); a renewal
+    // of the same tier extends the period and keeps the seats.
+    expect(fn () => app(CheckoutService::class)->create($org, Plan::Pro, 'month', SubscriptionProvider::Payme, 'center_m', 'org_panel'))
+        ->toThrow(CheckoutException::class, 'contact support');
+    $renewal = app(CheckoutService::class)->create($org, Plan::Pro, 'month', SubscriptionProvider::Payme, 'center_s', 'org_panel');
+    app(PaymentApplier::class)->applyCharge($this->payme->emitCharge($renewal, eventId: 'org-pay-2'));
+    expect($sub->refresh()->tier)->toBe('center_s')->and($sub->seats_limit)->toBe(100)
         ->and($sub->current_period_ends_at?->toIso8601String())->toBe(CarbonImmutable::now()->addDays(60)->toIso8601String());
 });
 
@@ -351,6 +357,36 @@ it('refunds a past period without touching the running subscription, and a provi
         ->and($sub->current_period_ends_at?->toIso8601String())->toBe($now->addDays(20)->toIso8601String())
         ->and(AuditLog::query()->count())->toBe(0)
         ->and(ProductEvent::query()->where('name', 'payment.refunded')->sole()->props['subscription_ended'])->toBeFalse();
+});
+
+it('H4: refunding one of two consecutive paid months keeps the other — the second leaves the first, the first moves the end back a month', function (): void {
+    $learner = Learner::factory()->create();
+    $applier = app(PaymentApplier::class);
+    $now = CarbonImmutable::now();
+    $first = $applier->applyCharge($this->payme->emitCharge(applierOrder($learner, $this->payme), eventId: 'm1'));
+    $second = $applier->applyCharge($this->payme->emitCharge(applierOrder($learner, $this->payme), eventId: 'm2'));
+    $sub = Subscription::query()->sole();
+    expect($sub->current_period_ends_at?->toIso8601String())->toBe($now->addDays(60)->toIso8601String());
+
+    $refund = $applier->applyRefund($this->payme->emitRefund($second, eventId: 'm2:cancel'));
+
+    expect($sub->refresh()->status)->toBe('active')
+        ->and($sub->current_period_ends_at?->toIso8601String())->toBe($now->addDays(30)->toIso8601String())
+        ->and($sub->meta['history'][array_key_last($sub->meta['history'])]['action'])->toBe('shortened')
+        ->and(ProductEvent::query()->where('name', 'payment.refunded')->sole()->props['subscription_ended'])->toBeFalse()
+        ->and(app(EntitlementResolver::class)->for($learner)->plan)->toBe(Plan::Pro);
+
+    // Refunding the remaining (first) month empties the subscription: the new end is now.
+    $applier->applyRefund($this->payme->emitRefund($first, eventId: 'm1:cancel'));
+    expect($sub->refresh()->status)->toBe('expired')->and(app(EntitlementResolver::class)->for($learner)->plan)->toBe(Plan::Free);
+
+    // Other order: the FIRST of two months refunded — the end moves a month back, the subscription lives.
+    $other = Learner::factory()->create();
+    $a = $applier->applyCharge($this->payme->emitCharge(applierOrder($other, $this->payme), eventId: 'n1'));
+    $applier->applyCharge($this->payme->emitCharge(applierOrder($other, $this->payme), eventId: 'n2'));
+    $applier->applyRefund($this->payme->emitRefund($a, eventId: 'n1:cancel'));
+    $otherSub = Subscription::query()->where('subscriber_id', $other->id)->sole();
+    expect($otherSub->status)->toBe('active')->and($otherSub->current_period_ends_at?->toIso8601String())->toBe($now->addDays(30)->toIso8601String());
 });
 
 it('records an orphan charge (order lost, subscriber known) as failed, once', function (): void {

@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Domain\Billing\Providers\Click\ClickSignature;
+use App\Domain\Billing\Providers\ClickProvider;
 use App\Domain\Billing\Providers\Payme\PaymeAuth;
 use App\Domain\Billing\Providers\PaymeProvider;
 use App\Domain\Billing\Providers\TelegramStarsProvider;
 use App\Domain\Billing\Services\BillingProviderRegistry;
 use App\Domain\Billing\Services\NewWordQuota;
 use App\Domain\Learning\Contracts\NewCardBudgetResolver;
+use App\Domain\Learning\Support\FsrsParameters;
 use App\Domain\Learning\Support\LearningPolicy;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
@@ -49,6 +52,7 @@ class AppServiceProvider extends ServiceProvider
             return new TelegramMessageRateLimiter(
                 maxMessages: max(1, (int) config('telegram.outbound_rate_limit.max_messages', 20)),
                 windowSeconds: max(1, (int) config('telegram.outbound_rate_limit.window_seconds', 60)),
+                globalPerSecond: max(0, (int) config('telegram.outbound.global_per_second', 25)),
             );
         });
 
@@ -65,18 +69,27 @@ class AppServiceProvider extends ServiceProvider
             $registry = new BillingProviderRegistry;
             $registry->register($this->app->make(TelegramStarsProvider::class));
             $registry->register($this->app->make(PaymeProvider::class));
+            $registry->register($this->app->make(ClickProvider::class));
 
             return $registry;
         });
 
         // Keys are read per request (not a singleton): a rotated PAYME_KEY / PAYME_TEST_KEY applies at once in tests and after config:cache.
         $this->app->bind(PaymeAuth::class, static fn (): PaymeAuth => PaymeAuth::fromConfig());
+        $this->app->bind(ClickSignature::class, static fn (): ClickSignature => ClickSignature::fromConfig());
 
         $this->app->singleton(LearningPolicy::class, function (): LearningPolicy {
             /** @var array<string, mixed> $config */
             $config = (array) config('learning', []);
 
             return LearningPolicy::fromConfig($config);
+        });
+
+        $this->app->singleton(FsrsParameters::class, function (): FsrsParameters {
+            /** @var array<string, mixed> $config */
+            $config = (array) config('learning.fsrs', []);
+
+            return FsrsParameters::fromConfig($config);
         });
 
         $this->app->singleton(JwtService::class, function (): JwtService {
@@ -102,6 +115,7 @@ class AppServiceProvider extends ServiceProvider
         // entrypoint and the health check fail at deploy time rather than the
         // first learner request silently ending sessions early (docs/06 §3.1).
         $this->app->make(LearningPolicy::class);
+        $this->app->make(FsrsParameters::class);
 
         // `subscriptions.subscriber_type` stores 'learner' / 'organization' (docs/12 §1.9).
         Relation::morphMap(['learner' => Learner::class, 'organization' => Organization::class]);
@@ -206,6 +220,15 @@ class AppServiceProvider extends ServiceProvider
             ];
         });
 
+        // Cancel / resume of auto-renewal (a provider call each for Stars): 6/min per learner, shared by both.
+        RateLimiter::for('twa-subscription', function (Request $request): Limit {
+            /** @var array{learner_id:int}|null $ctx */
+            $ctx = $request->attributes->get('twa');
+            $key = $ctx['learner_id'] ?? $request->ip();
+
+            return Limit::perMinute(6)->by('twa-subscription|'.$key);
+        });
+
         // Payment provider webhooks (docs/13 §4): 120/min per caller IP; the provider retries on 429 like on any non-200.
         RateLimiter::for('billing-webhook', function (Request $request): Limit {
             return Limit::perMinute(120)->by('billing-webhook|ip|'.$request->ip());
@@ -222,6 +245,15 @@ class AppServiceProvider extends ServiceProvider
             $key = $ctx['learner_id'] ?? $request->ip();
 
             return Limit::perMinute(10)->by('twa-organizations|'.$key);
+        });
+
+        // Friend requests, answers and challenges (docs/13 §7.5): a few taps a minute are normal, a script is not.
+        RateLimiter::for('twa-friends', function (Request $request): Limit {
+            /** @var array{learner_id:int}|null $ctx */
+            $ctx = $request->attributes->get('twa');
+            $key = $ctx['learner_id'] ?? $request->ip();
+
+            return Limit::perMinute(30)->by('twa-friends|'.$key);
         });
 
         RateLimiter::for('twa-tts', function (Request $request): Limit {

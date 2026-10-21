@@ -13,9 +13,12 @@ use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
- * @property int $telegram_group_id
+ * @property int|null $telegram_group_id
  * @property int|null $lesson_id
  * @property int|null $started_by_user_id
+ * @property int|null $learner_id
+ * @property string $mode
+ * @property int|null $course_id
  * @property string $status
  * @property Carbon|null $started_at
  * @property Carbon|null $ends_at
@@ -28,11 +31,20 @@ class ExamSession extends Model
     /** @use HasFactory<ExamSessionFactory> */
     use HasFactory;
 
+    /** A teacher's exam in a Telegram group (Phase 1). */
+    public const MODE_GROUP_EXAM = 'group_exam';
+
+    /** A learner's own timed mock of an IELTS / SAT course (docs/13 §8.4). */
+    public const MODE_PERSONAL_MOCK = 'personal_mock';
+
     /** @var list<string> */
     protected $fillable = [
         'telegram_group_id',
         'lesson_id',
         'started_by_user_id',
+        'learner_id',
+        'mode',
+        'course_id',
         'status',
         'started_at',
         'ends_at',
@@ -76,6 +88,31 @@ class ExamSession extends Model
     public function startedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'started_by_user_id');
+    }
+
+    /**
+     * Owner of a `personal_mock` session; null for group exams.
+     *
+     * @return BelongsTo<Learner, $this>
+     */
+    public function learner(): BelongsTo
+    {
+        return $this->belongsTo(Learner::class);
+    }
+
+    /**
+     * Course of a `personal_mock` session; null for group exams.
+     *
+     * @return BelongsTo<Course, $this>
+     */
+    public function course(): BelongsTo
+    {
+        return $this->belongsTo(Course::class);
+    }
+
+    public function isPersonalMock(): bool
+    {
+        return $this->mode === self::MODE_PERSONAL_MOCK;
     }
 
     /** @return HasMany<ExamAnswer, $this> */

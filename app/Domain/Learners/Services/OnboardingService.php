@@ -65,6 +65,9 @@ final class OnboardingService
     /** `learners.meta` key: the invite code of an `org_<code>` link, offered once the onboarding is done (docs/13 §6.2). */
     private const PENDING_ORG_INVITE = 'pending_org_invite';
 
+    /** `learners.meta` key: the owner's code of an `f_<code>` link, offered as "Add to friends" once the onboarding is done (docs/13 §7.5). */
+    private const PENDING_FRIEND_INVITE = 'pending_friend_invite';
+
     public function __construct(
         private readonly LocaleResolver $locales,
         private readonly CourseCatalogService $catalog,
@@ -77,7 +80,8 @@ final class OnboardingService
      * `/start` of a learner who has not finished the onboarding: `new` moves to the first step
      * (`onboarding.started`); a learner in the middle of it just gets their current step again.
      * A `c_<slug>` payload is remembered and picks the active course when the onboarding ends;
-     * an `org_<code>` payload is remembered too and offered as "Join center X?" after the last step.
+     * an `org_<code>` payload is remembered too and offered as "Join center X?" after the last step;
+     * so is an `f_<code>` payload ("Add X to friends?").
      */
     public function start(Learner $learner, StartPayload $payload): OnboardingStep
     {
@@ -102,6 +106,11 @@ final class OnboardingService
                 $fresh->meta = [...$fresh->meta, self::PENDING_ORG_INVITE => OrganizationInviteService::normalizeCode($payload->value)];
             }
 
+            if ($payload->friendCode() !== null) {
+                // Only an address, no consent yet: nothing is written to `friendships` before the learner agrees.
+                $fresh->meta = [...$fresh->meta, self::PENDING_FRIEND_INVITE => $payload->friendCode()];
+            }
+
             $fresh->save();
         });
 
@@ -120,31 +129,42 @@ final class OnboardingService
         return $this->current($learner);
     }
 
-    /** The invite code of an `org_<code>` link waiting for the end of the onboarding, if any. */
-    public function pendingOrganizationInvite(Learner $learner): ?string
+    /**
+     * Takes the invite code of an `org_<code>` link waiting for the end of the onboarding: reads and forgets it under
+     * a lock, so a double callback offers it once and a failed send does not keep it stuck.
+     */
+    public function pullPendingOrgInvite(Learner $learner): ?string
     {
-        $code = ($learner->meta ?? [])[self::PENDING_ORG_INVITE] ?? null;
-
-        return is_string($code) && $code !== '' ? $code : null;
+        return $this->pull($learner, self::PENDING_ORG_INVITE);
     }
 
-    /** Forgets the pending invite once it has been offered (or turned out to be unusable). */
-    public function clearPendingOrganizationInvite(Learner $learner): void
+    /** Takes the owner's code of an `f_<code>` link waiting for the end of the onboarding (same contract). */
+    public function pullPendingFriendInvite(Learner $learner): ?string
     {
-        DB::transaction(function () use ($learner): void {
-            $fresh = $this->lock($learner);
-            $meta = $fresh->meta;
+        return $this->pull($learner, self::PENDING_FRIEND_INVITE);
+    }
 
-            if (! array_key_exists(self::PENDING_ORG_INVITE, $meta)) {
-                return;
+    private function pull(Learner $learner, string $key): ?string
+    {
+        $code = DB::transaction(function () use ($learner, $key): mixed {
+            $fresh = $this->lock($learner);
+            $meta = $fresh->meta ?? [];
+
+            if (! array_key_exists($key, $meta)) {
+                return null;
             }
 
-            unset($meta[self::PENDING_ORG_INVITE]);
+            $code = $meta[$key];
+            unset($meta[$key]);
             $fresh->meta = $meta;
             $fresh->save();
+
+            return $code;
         });
 
         $learner->refresh();
+
+        return is_string($code) && $code !== '' ? $code : null;
     }
 
     /** The step the learner has to answer now (`done` when finished; `new` counts as the first step). */

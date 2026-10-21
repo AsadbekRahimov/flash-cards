@@ -6,6 +6,7 @@ namespace App\Domain\Organizations\Services;
 
 use App\Domain\Organizations\Enums\MemberStatus;
 use App\Domain\Organizations\Enums\OrganizationRole;
+use App\Models\Assignment;
 use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\OrganizationInvite;
@@ -155,6 +156,42 @@ final class OrgTenantScope
         $query = OrganizationUser::query()->where('organization_users.organization_id', $organization->id);
 
         return $this->isOwner($user, $organization) ? $query : $query->whereKey([]);
+    }
+
+    /**
+     * Assignments of the organization visible to the user: owner — all; teacher — only those of
+     * their own groups (a group is theirs through `teacher_groups`).
+     *
+     * @return Builder<Assignment>
+     */
+    public function assignments(User $user, Organization $organization): Builder
+    {
+        $query = Assignment::query()->where('assignments.organization_id', $organization->id)->inLinkedGroup();
+
+        return match ($this->role($user, $organization)) {
+            OrganizationRole::Owner => $query,
+            OrganizationRole::Teacher => $query->whereIn('assignments.telegram_group_id', $this->teacherGroupIds($user, $organization)),
+            null => $query->whereKey([]),
+        };
+    }
+
+    /** Whether the user may see this assignment (same rule as assignments()). */
+    public function canSeeAssignment(User $user, Organization $organization, Assignment $assignment): bool
+    {
+        if ($assignment->organization_id !== $organization->id) {
+            return false;
+        }
+
+        // The group may have been unlinked / moved to another center since: then it is not ours anymore.
+        if (! TelegramGroup::query()->withoutGlobalScopes()->whereKey($assignment->telegram_group_id)->where('organization_id', $organization->id)->exists()) {
+            return false;
+        }
+
+        return match ($this->role($user, $organization)) {
+            OrganizationRole::Owner => true,
+            OrganizationRole::Teacher => in_array($assignment->telegram_group_id, $this->teacherGroupIds($user, $organization), true),
+            null => false,
+        };
     }
 
     /** Whether the user may see this group (same rule as groups()). */

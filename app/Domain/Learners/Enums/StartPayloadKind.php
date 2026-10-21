@@ -12,4 +12,5 @@ enum StartPayloadKind: string
     case Src = 'src';
     case Course = 'course';
     case Org = 'org';
+    case Friend = 'friend';
 }

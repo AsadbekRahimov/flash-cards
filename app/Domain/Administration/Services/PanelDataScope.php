@@ -6,10 +6,13 @@ namespace App\Domain\Administration\Services;
 
 use App\Models\ExamSession;
 use App\Models\Learner;
+use App\Models\Lesson;
+use App\Models\Stage;
 use App\Models\TelegramGroup;
 use App\Models\TrainingReview;
 use App\Models\TrainingSession;
 use App\Models\User;
+use App\Models\Word;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
@@ -133,6 +136,41 @@ final class PanelDataScope
     public function trainingReviews(): Builder
     {
         return TrainingReview::query()->whereIn('training_session_id', $this->trainingSessionIds());
+    }
+
+    /**
+     * Stages of the courses a panel user may read: an admin sees all, a teacher none of the private decks
+     * of learners (`owner_type = learner`, docs/13 §8.1) — those are the learner's own content.
+     *
+     * @return Builder<Stage>
+     */
+    public function stages(): Builder
+    {
+        $query = Stage::query();
+
+        return $this->isAdmin()
+            ? $query
+            : $query->whereHas('course', fn (Builder $course): Builder => $course->where('courses.owner_type', '!=', 'learner'));
+    }
+
+    /** @return Builder<Lesson> */
+    public function lessons(): Builder
+    {
+        $query = Lesson::query();
+
+        return $this->isAdmin()
+            ? $query
+            : $query->whereHas('stage.course', fn (Builder $course): Builder => $course->where('courses.owner_type', '!=', 'learner'));
+    }
+
+    /** @return Builder<Word> */
+    public function words(): Builder
+    {
+        $query = Word::query();
+
+        return $this->isAdmin()
+            ? $query
+            : $query->whereHas('lesson.stage.course', fn (Builder $course): Builder => $course->where('courses.owner_type', '!=', 'learner'));
     }
 
     private function user(): ?User

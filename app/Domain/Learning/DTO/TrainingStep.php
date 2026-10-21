@@ -25,6 +25,8 @@ final readonly class TrainingStep
      * @param  DoneReason|null  $doneReason  why there is no card; set exactly when $word is null
      * @param  int|null  $newWordsRemaining  new cards the learner may still get today after this step
      *                                       (Free quota, docs/12 §5.3); null = unlimited
+     * @param  ExercisePrompt|null  $prompt  the exercise the card is served with (docs/13 §2.5); null exactly when $word is null
+     * @param  string|null  $audioUrl  pre-generated mp3 of the word (task 1.2c); null → the client falls back to /tts
      */
     public function __construct(
         public ?Word $word,
@@ -34,6 +36,8 @@ final readonly class TrainingStep
         public ?ResolvedTranslation $translation = null,
         public ?DoneReason $doneReason = null,
         public ?int $newWordsRemaining = null,
+        public ?ExercisePrompt $prompt = null,
+        public ?string $audioUrl = null,
     ) {}
 
     /**

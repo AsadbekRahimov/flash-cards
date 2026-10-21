@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
+use App\Domain\Administration\Services\PanelDataScope;
 use App\Filament\Resources\LessonResource\Pages;
 use App\Filament\Resources\LessonResource\RelationManagers\WordsRelationManager;
 use App\Models\Lesson;
@@ -14,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class LessonResource extends Resource
 {
@@ -24,6 +26,16 @@ class LessonResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = 'Content';
 
     protected static ?int $navigationSort = 20;
+
+    /**
+     * Teachers do not see the content of learners' private decks.
+     *
+     * @return Builder<Lesson>
+     */
+    public static function getEloquentQuery(): Builder
+    {
+        return app(PanelDataScope::class)->lessons();
+    }
 
     public static function form(Schema $schema): Schema
     {

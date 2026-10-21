@@ -48,7 +48,7 @@ final class PaymeWebhookController extends Controller
         }
 
         try {
-            return response()->json($rpc->handle($decoded));
+            return response()->json($rpc->handle($decoded, mode: $mode));
         } catch (Throwable $e) {
             report($e);
             Log::error('billing.payme.rpc_failed', ['method' => is_string($decoded['method'] ?? null) ? $decoded['method'] : null, 'exception' => $e::class, 'mode' => $mode]);
