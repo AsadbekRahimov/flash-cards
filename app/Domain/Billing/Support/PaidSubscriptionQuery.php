@@ -149,7 +149,9 @@ final class PaidSubscriptionQuery
         // Every live status except past_due is judged by the period end; past_due by `grace_until`
         // (the same split as SubscriptionLiveness). The lists come from the enum. `canceled` is
         // judged by the bare period end whatever the provider: the renewal was stopped, there is
-        // no grace to wait for (docs/13 §2.1).
+        // no grace to wait for (docs/13 §2.1). A row without `meta.stars.recurring` (written before the flag existed;
+        // PaymentApplier always writes it now, there is no such row in production) counts as renewing here, while
+        // AutoRenewal::renews() follows the period of its paid order — the two differ only for such a legacy year row.
         $byPeriod = array_values(array_diff(SubscriptionStatus::liveValues(), [SubscriptionStatus::PastDue->value]));
         $canceled = SubscriptionStatus::Canceled->value;
 
