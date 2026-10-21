@@ -301,6 +301,17 @@ export const uz: Translations = {
   'orgs.leave.yes': 'Ha, tark etaman',
   'orgs.leave.no': 'Bekor qilish',
 
+  // ---- achievements (docs/13 §7.4) ----
+  'achievements.open': 'Yutuqlar',
+  'achievements.title': 'Yutuqlar',
+  'achievements.summary': '{total} tadan {unlocked} tasi olindi',
+  'achievements.locked': 'Hali olinmagan',
+  'achievements.unlocked_on': '{date} da olindi',
+  'achievements.progress': '{target} tadan {current} tasi',
+  'achievements.share': 'Ulashish',
+  'achievements.shared': 'Siz allaqachon ulashgansiz',
+  'achievements.empty_hint': "Har kuni mashq qiling — yutuqlar o'zi paydo bo'ladi.",
+
   // ---- leagues (docs/13 §7.3) ----
   'league.open': 'Liga',
   'league.title': 'Liga',

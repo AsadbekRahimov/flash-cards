@@ -323,6 +323,17 @@ export const ru = {
   'orgs.leave.yes': 'Да, покинуть',
   'orgs.leave.no': 'Отмена',
 
+  // ---- achievements (docs/13 §7.4) ----
+  'achievements.open': 'Достижения',
+  'achievements.title': 'Достижения',
+  'achievements.summary': 'Получено {unlocked} из {total}',
+  'achievements.locked': 'Ещё не получено',
+  'achievements.unlocked_on': 'Получено {date}',
+  'achievements.progress': '{current} из {target}',
+  'achievements.share': 'Поделиться',
+  'achievements.shared': 'Вы уже поделились',
+  'achievements.empty_hint': 'Занимайтесь каждый день — достижения появятся сами.',
+
   // ---- leagues (docs/13 §7.3) ----
   'league.open': 'Лига',
   'league.title': 'Лига',
