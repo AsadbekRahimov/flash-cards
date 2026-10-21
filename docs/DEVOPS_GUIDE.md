@@ -12,6 +12,7 @@ This guide covers deploying LexiFlow Pro on a **bare server** that already has:
 - Redis
 
 > If you prefer Docker, see `docker-compose.prod.yml` and `deploy.sh` in the project root.
+> Step-by-step guide in Russian for a fresh VPS (installing PHP, PostgreSQL, Redis, Nginx from scratch): `docs/VPS_DEPLOY_GUIDE_RU.md`.
 
 ## 0. Docker deployment
 
@@ -266,7 +267,7 @@ server {
     # *.js location, and never compressed (BREACH). PHP-FPM is called directly:
     # `gzip off` inside a try_files location would be lost on the internal
     # redirect to `location ~ \.php$`.
-    location ~ ^/(?:admin(?:/|$)|2fa(?:/|$)|livewire-) {
+    location ~ ^/(?:admin(?:/|$)|org(?:/|$)|2fa(?:/|$)|livewire-) {
         gzip off;
         fastcgi_pass unix:/run/php/php8.2-fpm.sock;
         include fastcgi_params;
@@ -309,7 +310,7 @@ The Docker configs (`docker/nginx/prod.conf`, `docker/nginx/default.conf`) and t
 | TWA static (`/twa/`) | `npm run build` runs `resources/twa/scripts/precompress.mjs` (built-in `node:zlib`, gzip level 9) and writes `file.gz` next to every `.js .css .html .svg .json .webmanifest .txt` of at least 512 bytes (only if smaller). nginx serves them with `gzip_static on`, no CPU per request. Files without `.gz` fall back to on-the-fly gzip. Run `npm run precompress --prefix resources/twa` to redo it by hand. |
 | API / other dynamic responses | on-the-fly `gzip`, level 6, `gzip_min_length 512`; types: JS, JSON, `manifest+json`, XML, wasm, SVG, CSS, text, `font/ttf`, `font/otf`. |
 | Not compressed | `woff2`, `mp3` (TTS audio, `/api/twa/tts` and `/storage/audio/`), `png/jpg/webp` — already compressed. |
-| `/admin`, `/2fa`, `/livewire-*` | `gzip off` (BREACH: pages carry CSRF tokens and reflect input). The traffic is negligible. |
+| `/admin`, `/org`, `/2fa`, `/livewire-*` | `gzip off` (BREACH: pages carry CSRF tokens and reflect input). The traffic is negligible. |
 | Brotli | not enabled (no module in `nginx:alpine`); a possible later step. |
 
 Why admin paths are separate `location` blocks with their own `fastcgi_pass`: `gzip off` inside `location /admin { try_files ... /index.php; }` does not help — `try_files` makes an internal redirect to `/index.php`, and the response is then produced by `location ~ \.php$`, where gzip is on. Therefore these paths go straight to PHP-FPM with `SCRIPT_FILENAME`/`SCRIPT_NAME`/`DOCUMENT_URI` pointing at `index.php` (the same values the internal redirect would give). If you change the fastcgi params in `location ~ \.php$`, mirror the change in that block. Filament's static files live in `/css/filament`, `/js/filament`, `/fonts/filament` (not under `/admin`) and stay compressed.
