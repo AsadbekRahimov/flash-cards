@@ -1624,3 +1624,50 @@
 | `error.code.answer_not_accepted` | Bu kartochka ekranda baholanadi. Ekranni yangilang. | Эта карточка оценивается на экране. Обновите экран. |
 | `error.code.quality_not_accepted` | Bu kartochkani server tekshiradi. Ekranni yangilang. | Эту карточку проверяет сервер. Обновите экран. |
 | `error.code.exercise_pro_required` | Yozma mashqlar Pro'da mavjud. | Письменные упражнения доступны в Pro. |
+
+## Фаза 2 · задача 2C.4 (достижения и шеринг) — на проверку носителю
+
+> Проверить: «yutuq» (достижение), «seriya» (серия), «liga g'olibi» (победитель лиги), «ulashish» (поделиться); тексты попадают и на PNG-карточку (шрифт Noto Sans), поэтому лучше короче: заголовок — одна-две строки, описание — до ~45 знаков.
+
+### Бот и карточка (`lang/uz/achievements.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `achievements.items.first_session.title` | Birinchi qadam | Первый шаг |
+| `achievements.items.first_session.description` | Birinchi baholangan kartochka | Первая оценённая карточка |
+| `achievements.items.streak_7.title` | 7 kunlik seriya | Серия 7 дней |
+| `achievements.items.streak_7.description` | Bir hafta tanaffussiz mashq | Неделя занятий без пропусков |
+| `achievements.items.streak_30.title` | 30 kunlik seriya | Серия 30 дней |
+| `achievements.items.streak_30.description` | Bir oy tanaffussiz mashq | Месяц занятий без пропусков |
+| `achievements.items.streak_100.title` | 100 kunlik seriya | Серия 100 дней |
+| `achievements.items.streak_100.description` | Ketma-ket yuz kun — mustahkam odat | Сто дней подряд — железная привычка |
+| `achievements.items.words_100.title` | 100 ta so'z | 100 слов |
+| `achievements.items.words_100.description` | 100 ta so'z o'rganildi | Выучено 100 слов |
+| `achievements.items.words_500.title` | 500 ta so'z | 500 слов |
+| `achievements.items.words_500.description` | 500 ta so'z o'rganildi | Выучено 500 слов |
+| `achievements.items.words_1000.title` | 1000 ta so'z | 1000 слов |
+| `achievements.items.words_1000.description` | 1000 ta so'z o'rganildi | Выучено 1000 слов |
+| `achievements.items.league_top1.title` | Liga g'olibi | Победитель лиги |
+| `achievements.items.league_top1.description` | Haftada liga guruhida birinchi o'rin | Первое место в группе лиги за неделю |
+| `achievements.items.first_friend.title` | Birinchi do'st | Первый друг |
+| `achievements.items.first_friend.description` | LexiFlow'da birinchi do'st paydo bo'ldi | Появился первый друг в LexiFlow |
+| `achievements.card.brand` | LexiFlow | LexiFlow |
+| `achievements.card.tagline` | Telegramda ingliz tilini o'rganamiz | Учим английский в Telegram |
+| `achievements.caption` | 🏆 Yangi yutuq: :title<br>:description<br><br>Do'stlaringiz bilan ulashing — bu xabarni uzating yoki pastdagi tugmani bosing. | 🏆 Новое достижение: :title<br>:description<br><br>Поделитесь им с друзьями — перешлите это сообщение или нажмите кнопку ниже. |
+| `achievements.caption_no_link` | 🏆 Yangi yutuq: :title<br>:description<br><br>Maqtanish uchun bu xabarni do'stlaringizga uzating. | 🏆 Новое достижение: :title<br>:description<br><br>Перешлите это сообщение друзьям, чтобы похвастаться. |
+| `achievements.share_button` | Ulashish | Поделиться |
+| `achievements.share_text` | Men LexiFlow'da «:title» yutug'ini oldim! Telegramda ingliz tilini o'rganamiz. | Я получил(а) достижение «:title» в LexiFlow! Учим английский в Telegram. |
+
+### TWA, экран «Достижения» (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `achievements.open` | Yutuqlar | Достижения |
+| `achievements.title` | Yutuqlar | Достижения |
+| `achievements.summary` | {total} tadan {unlocked} tasi olindi | Получено {unlocked} из {total} |
+| `achievements.locked` | Hali olinmagan | Ещё не получено |
+| `achievements.unlocked_on` | {date} da olindi | Получено {date} |
+| `achievements.progress` | {target} tadan {current} tasi | {current} из {target} |
+| `achievements.share` | Ulashish | Поделиться |
+| `achievements.shared` | Siz allaqachon ulashgansiz | Вы уже поделились |
+| `achievements.empty_hint` | Har kuni mashq qiling — yutuqlar o'zi paydo bo'ladi. | Занимайтесь каждый день — достижения появятся сами. |

@@ -49,6 +49,8 @@ beforeEach(function (): void {
             $this->log[] = ['chat_id' => $chatId, 'text' => $text, 'button' => $buttonText, 'markup' => null, 'parse_mode' => $parseMode];
         }
 
+        public function sendPhoto(int|string $chatId, string $photoPath, ?string $caption = null, ?array $replyMarkup = null): void {}
+
         public function answerCallbackQuery(string $callbackQueryId): void {}
 
         public function editMessageReplyMarkup(int|string $chatId, int $messageId, ?array $replyMarkup = null): void {}

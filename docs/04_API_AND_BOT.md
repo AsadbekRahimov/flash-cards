@@ -834,6 +834,26 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 - `POST /api/twa/challenges` `{friendship_id, metric: reviews|new_words}` → **201** `Challenge` (`pending`); друг адресуется id дружбы, не learner'а. Ошибки: **403** `not_friends`, **409** `challenge_exists` (один открытый вызов на пару), **422** (валидация), **404** чужая дружба.
 - `POST /challenges/{id}/accept` — принять (только адресат: **403** `not_opponent`; `active` повторно — без изменений; закрытый/просроченный — **409** `challenge_closed`); `POST /challenges/{id}/decline` — отклонить.
 
+### A.15 Достижения (docs/13 §1.5, §7.4, Фаза 2 / 2C.4)
+`AchievementService::overview` / `markShared`; ответы — `AchievementsResource`. Общий лимит `twa-api`.
+
+**`GET /api/twa/achievements`** — весь каталог в порядке показа (и ответ `POST …/shared` — обновлённый список):
+```json
+{
+  "unlocked_count": 2, "total": 9,
+  "share_link": "https://t.me/LexiFlowBot?start=ref_K7PM3Q2A",
+  "items": [
+    { "key": "first_session", "title": "Первый шаг", "description": "Первая оценённая карточка",
+      "unlocked_at": "2026-10-21T05:00:00+00:00", "shared_at": null, "progress": null,
+      "share_text": "Я получил(а) достижение «Первый шаг» в LexiFlow! Учим английский в Telegram." },
+    { "key": "words_100", "title": "100 слов", "description": "Выучено 100 слов",
+      "unlocked_at": null, "shared_at": null, "progress": { "current": 40, "target": 100 }, "share_text": null }
+  ]
+}
+```
+`title` / `description` / `share_text` — на языке запроса (`lang/{ru,uz}/achievements.php`). `progress` — только у счётных ключей (`streak_*` по лучшей серии, `words_*` по словам с `repetitions ≥ 1`), `current` не больше `target`; у разовых — `null`. `share_text` — только у полученных. `share_link` — `t.me/<bot>?start=ref_<code>` (тот же код, что у рефералки); `null`, пока не задан `TELEGRAM_BOT_USERNAME` — клиент прячет кнопку «Поделиться».
+- `POST /api/twa/achievements/{key}/shared` — learner открыл диалог «Поделиться» (`useTelegram().shareUrl`): ставит `shared_at` один раз (+ событие `achievement.shared`), повтор — без изменений. **404** `achievement_not_found` — ключ неизвестен, не получен или чужой.
+
 ## Часть B — Telegram Bot
 
 ### B.1 Webhook

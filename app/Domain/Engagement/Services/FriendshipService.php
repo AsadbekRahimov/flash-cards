@@ -23,6 +23,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 /**
  * Friends (docs/13 §1.5, §2.4, §7.5).
@@ -54,6 +55,7 @@ final class FriendshipService
         private readonly LearnerClock $clock,
         private readonly LearnerStatsService $stats,
         private readonly ReferralService $referrals,
+        private readonly AchievementService $achievements,
     ) {}
 
     /**
@@ -199,6 +201,13 @@ final class FriendshipService
 
         $this->events->record(ProductEventName::FriendAccepted, ['friendship_id' => $friendship->id], learner: $by);
         SendFriendDmJob::send(FriendDmKind::FriendAccepted, $friendship->id);
+
+        // Both sides get `first_friend` (docs/13 §7.4); a failure never undoes the friendship.
+        try {
+            $this->achievements->onFriendshipAccepted($friendship, $now);
+        } catch (Throwable $e) {
+            report($e);
+        }
 
         return $friendship;
     }

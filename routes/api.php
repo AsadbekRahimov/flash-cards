@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Api\Twa\AchievementController;
 use App\Http\Controllers\Api\Twa\AssignmentController;
 use App\Http\Controllers\Api\Twa\AuthController;
 use App\Http\Controllers\Api\Twa\BillingController;
@@ -42,6 +43,12 @@ Route::prefix('twa')->group(function (): void {
         Route::get('/assignments', AssignmentController::class)->name('twa.assignments');
         Route::get('/referrals', ReferralController::class)->name('twa.referrals');
         Route::get('/league', LeagueController::class)->name('twa.league');
+
+        // Achievements (docs/13 §7.4, docs/04 A.13).
+        Route::get('/achievements', [AchievementController::class, 'index'])->name('twa.achievements');
+        Route::post('/achievements/{key}/shared', [AchievementController::class, 'shared'])
+            ->where('key', '[a-z0-9_]{1,32}')
+            ->name('twa.achievements.shared');
 
         // Friends and challenges (docs/13 §7.5, docs/04 A.13): reads share `twa-api`, writes have their own cap.
         Route::get('/friends', [FriendController::class, 'index'])->name('twa.friends');

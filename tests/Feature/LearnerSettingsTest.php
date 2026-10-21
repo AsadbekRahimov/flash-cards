@@ -9,6 +9,7 @@ declare(strict_types=1);
  */
 
 use App\Domain\Analytics\Enums\ProductEventName;
+use App\Domain\Engagement\Services\AchievementService;
 use App\Domain\Engagement\Services\LeagueService;
 use App\Domain\Engagement\Services\ReferralService;
 use App\Domain\Learners\Exceptions\InvalidSettingException;
@@ -704,7 +705,7 @@ it('GET /me runs the same number of queries for a small course and a big one', f
 
 it('does not turn a failed goal reconcile into a 500: the settings are already saved', function (): void {
     Exceptions::fake();
-    $this->app->instance(DailyStatsService::class, new class(app(LearnerClock::class), app(StreakService::class), app(ReferralService::class), app(LeagueService::class)) extends DailyStatsService
+    $this->app->instance(DailyStatsService::class, new class(app(LearnerClock::class), app(StreakService::class), app(ReferralService::class), app(LeagueService::class), app(AchievementService::class)) extends DailyStatsService
     {
         public function reconcileGoal(Learner $learner, ?CarbonImmutable $now = null): bool
         {

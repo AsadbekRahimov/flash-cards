@@ -82,6 +82,11 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/LeagueView.vue'),
   },
   {
+    path: '/achievements',
+    name: 'achievements',
+    component: () => import('@/views/AchievementsView.vue'),
+  },
+  {
     path: '/friends',
     name: 'friends',
     component: () => import('@/views/FriendsView.vue'),

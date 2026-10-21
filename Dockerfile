@@ -27,9 +27,11 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
 
 RUN apk add --no-cache \
         bash curl icu-dev libzip-dev oniguruma-dev postgresql-dev postgresql-client \
+        freetype-dev libpng-dev \
         linux-headers autoconf g++ make \
+    && docker-php-ext-configure gd --with-freetype \
     && docker-php-ext-install -j"$(nproc)" \
-        pdo pdo_pgsql bcmath intl mbstring opcache pcntl zip \
+        pdo pdo_pgsql bcmath intl mbstring opcache pcntl zip gd \
     && pecl install redis \
     && docker-php-ext-enable redis \
     && apk del autoconf g++ make linux-headers \

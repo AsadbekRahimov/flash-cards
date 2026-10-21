@@ -17,6 +17,9 @@ final class FakeTelegramClient implements TelegramClient
     /** @var list<array{chat_id:int|string, text:string, button:string|null, url:string|null, markup:array<string, mixed>|null}> */
     public array $sent = [];
 
+    /** @var list<array{chat_id:int|string, path:string, caption:string|null, markup:array<string, mixed>|null, size:int}> */
+    public array $photos = [];
+
     /** @var list<string> */
     public array $answered = [];
 
@@ -85,6 +88,19 @@ final class FakeTelegramClient implements TelegramClient
     {
         $this->failNextSend();
         $this->sent[] = ['chat_id' => $chatId, 'text' => $text, 'button' => $buttonText, 'url' => $url, 'markup' => null];
+    }
+
+    public function sendPhoto(int|string $chatId, string $photoPath, ?string $caption = null, ?array $replyMarkup = null): void
+    {
+        $this->failNextSend();
+        $this->photos[] = [
+            'chat_id' => $chatId,
+            'path' => $photoPath,
+            'caption' => $caption,
+            'markup' => $replyMarkup,
+            // The file may be a temporary one: keep what a test needs to assert on while it still exists.
+            'size' => is_file($photoPath) ? (int) filesize($photoPath) : -1,
+        ];
     }
 
     public function answerCallbackQuery(string $callbackQueryId): void

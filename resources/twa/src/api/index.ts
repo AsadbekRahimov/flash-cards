@@ -1,6 +1,7 @@
 import { createApiClient } from './client'
 import { useAuthStore } from '@/stores/auth'
 import type {
+  AchievementsResponse,
   AssignmentsResponse,
   AuthContext,
   AuthResponse,
@@ -83,6 +84,11 @@ export const api = {
   },
   league: {
     get: () => client().get<LeagueResponse>('/league'),
+  },
+  achievements: {
+    list: () => client().get<AchievementsResponse>('/achievements'),
+    /** The learner opened the share dialog of an unlocked key; answers with the refreshed list. */
+    shared: (key: string) => client().post<AchievementsResponse>(`/achievements/${encodeURIComponent(key)}/shared`),
   },
   friends: {
     get: () => client().get<FriendsResponse>('/friends'),

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Learners\Services;
 
+use App\Domain\Engagement\Services\AchievementService;
 use App\Domain\Engagement\Services\LeagueService;
 use App\Domain\Engagement\Services\ReferralService;
 use App\Models\Learner;
@@ -46,6 +47,7 @@ class DailyStatsService
         private readonly StreakService $streaks,
         private readonly ReferralService $referrals,
         private readonly LeagueService $leagues,
+        private readonly AchievementService $achievements,
     ) {}
 
     /**
@@ -99,6 +101,23 @@ class DailyStatsService
             DB::afterCommit(function () use ($learner, $now): void {
                 try {
                     $this->leagues->place($learner, $now);
+                } catch (Throwable $e) {
+                    report($e);
+                }
+            });
+        }
+
+        // Achievements (docs/13 §7.4), after commit and never a failed grade. The very first graded card
+        // unlocks `first_session` (one conditional insert); the counting keys (streak, learned words) are
+        // looked at once a day, when the goal is met — the streak projection is committed by its own
+        // earlier hook by then.
+        if ($isNewCard || $goalJustMet) {
+            DB::afterCommit(function () use ($learner, $now, $goalJustMet): void {
+                try {
+                    $this->achievements->onFirstReview($learner, $now);
+                    if ($goalJustMet) {
+                        $this->achievements->evaluate($learner, $now);
+                    }
                 } catch (Throwable $e) {
                     report($e);
                 }

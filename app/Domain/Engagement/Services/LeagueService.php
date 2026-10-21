@@ -64,7 +64,10 @@ final class LeagueService
 
     public const CACHE_PREFIX = 'league:standings:';
 
-    public function __construct(private readonly ProductEventRecorder $events) {}
+    public function __construct(
+        private readonly ProductEventRecorder $events,
+        private readonly AchievementService $achievements,
+    ) {}
 
     public function enabled(): bool
     {
@@ -355,6 +358,14 @@ final class LeagueService
 
         foreach ($this->reachableMemberIds($memberIds) as $memberId) {
             SendLeagueResultJob::dispatch($memberId);
+        }
+
+        // The winners of the groups get `league_top1` (docs/13 §7.4) — after the commit, once per learner
+        // (the unique key), and a failure here never undoes the closed week.
+        try {
+            $this->achievements->onLeagueWeekClosed($memberIds, $now);
+        } catch (Throwable $e) {
+            report($e);
         }
 
         return true;

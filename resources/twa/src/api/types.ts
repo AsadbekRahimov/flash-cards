@@ -133,6 +133,30 @@ export interface LeagueResponse {
   last_week: { starts_on: string; tier: number; tier_key: LeagueTierKey; result: LeagueResult; rank: number; points: number } | null
 }
 
+/** GET /achievements (docs/04 A.15): the whole catalog; `title` / `description` / `share_text` are in the request language. */
+export interface AchievementItem {
+  /** `first_session`, `streak_7`, `words_100`, `league_top1`, … */
+  key: string
+  title: string
+  description: string
+  /** ISO 8601; null = still locked. */
+  unlocked_at: string | null
+  /** ISO 8601; set once the learner opened the share dialog. */
+  shared_at: string | null
+  /** Progress towards the threshold of a counting key (`current` is capped at `target`); null for one-off keys. */
+  progress: { current: number; target: number } | null
+  /** Prefilled message of the share dialog; null while locked. */
+  share_text: string | null
+}
+
+export interface AchievementsResponse {
+  unlocked_count: number
+  total: number
+  /** The learner's invite link the share carries; null while the bot username is not configured (no share button). */
+  share_link: string | null
+  items: AchievementItem[]
+}
+
 /** GET /friends (docs/04 A.13): friends, incoming / outgoing requests. `id` is the friendship id; of other people only a first name, the streak and the learned words. */
 export interface FriendItem {
   id: number
