@@ -65,6 +65,9 @@ final class PaymeRpcService
 
     private const MAX_TRANSACTION_ID_LENGTH = 64;
 
+    /** Which key authenticated the request being handled (PaymeAuth::MODE_*); stored with every row it writes. */
+    private string $mode = PaymeAuth::MODE_LIVE;
+
     public function __construct(
         private readonly ProviderTransactionService $transactions,
         private readonly PaymentApplier $applier,
@@ -78,8 +81,9 @@ final class PaymeRpcService
      * @param  array<array-key, mixed>  $rpc  the decoded request body
      * @return array{jsonrpc: string, id: mixed, result?: array<string, mixed>, error?: array<string, mixed>}
      */
-    public function handle(array $rpc, ?CarbonImmutable $now = null): array
+    public function handle(array $rpc, ?CarbonImmutable $now = null, string $mode = PaymeAuth::MODE_LIVE): array
     {
+        $this->mode = $mode;
         $now ??= CarbonImmutable::now();
         $id = $rpc['id'] ?? null;
         $id = is_int($id) || is_string($id) ? $id : null;
@@ -189,7 +193,7 @@ final class PaymeRpcService
                 $token,
                 $amount,
                 $time,
-                self::raw(self::METHOD_CREATE, $params),
+                $this->raw(self::METHOD_CREATE, $params),
                 $now,
                 guard: $this->organizations->refusal(...),
             );
@@ -246,7 +250,7 @@ final class PaymeRpcService
                 'state' => ProviderTransaction::STATE_PERFORMED,
                 'performed_at' => $now,
                 'perform_time' => $now->getTimestampMs(),
-                'raw' => self::raw(self::METHOD_PERFORM, $params),
+                'raw' => $this->raw(self::METHOD_PERFORM, $params),
             ]);
             $transaction->pushHistory(self::METHOD_PERFORM, ProviderTransaction::STATE_CREATED, ProviderTransaction::STATE_PERFORMED, $now);
             $transaction->save();
@@ -295,7 +299,7 @@ final class PaymeRpcService
                 $this->applyRefund($order, $transaction, $reason, $now);
             }
 
-            $this->cancel($transaction, $reason, self::METHOD_CANCEL, $now, self::raw(self::METHOD_CANCEL, $params));
+            $this->cancel($transaction, $reason, self::METHOD_CANCEL, $now, $this->raw(self::METHOD_CANCEL, $params));
 
             return [$this->cancelResult($transaction), null];
         });
@@ -428,6 +432,7 @@ final class PaymeRpcService
             occurredAt: $now,
             raw: [
                 'source' => 'payme.PerformTransaction',
+                'mode' => $this->mode,
                 'transaction_id' => $transaction->provider_transaction_id,
                 'create_time' => $transaction->provider_time,
                 'perform_time' => $now->getTimestampMs(),
@@ -471,6 +476,7 @@ final class PaymeRpcService
             occurredAt: $now,
             raw: [
                 'source' => 'payme.CancelTransaction',
+                'mode' => $this->mode,
                 'transaction_id' => $transaction->provider_transaction_id,
                 'reason' => $reason,
                 'cancel_time' => $now->getTimestampMs(),
@@ -619,14 +625,14 @@ final class PaymeRpcService
     }
 
     /**
-     * The request as stored in `provider_transactions.raw`: method and params only, never headers.
+     * The request as stored in `provider_transactions.raw`: method, params and the key mode (live / test), never headers.
      *
      * @param  array<string, mixed>  $params
      * @return array<string, mixed>
      */
-    private static function raw(string $method, array $params): array
+    private function raw(string $method, array $params): array
     {
-        return ['method' => $method, 'params' => $params];
+        return ['method' => $method, 'params' => $params, 'mode' => $this->mode];
     }
 
     /** @param array<string, mixed> $params */

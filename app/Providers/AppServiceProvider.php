@@ -220,6 +220,15 @@ class AppServiceProvider extends ServiceProvider
             ];
         });
 
+        // Cancel / resume of auto-renewal (a provider call each for Stars): 6/min per learner, shared by both.
+        RateLimiter::for('twa-subscription', function (Request $request): Limit {
+            /** @var array{learner_id:int}|null $ctx */
+            $ctx = $request->attributes->get('twa');
+            $key = $ctx['learner_id'] ?? $request->ip();
+
+            return Limit::perMinute(6)->by('twa-subscription|'.$key);
+        });
+
         // Payment provider webhooks (docs/13 §4): 120/min per caller IP; the provider retries on 429 like on any non-200.
         RateLimiter::for('billing-webhook', function (Request $request): Limit {
             return Limit::perMinute(120)->by('billing-webhook|ip|'.$request->ip());

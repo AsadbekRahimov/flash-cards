@@ -87,6 +87,8 @@ return [
             'merchant_id' => (string) env('PAYME_MERCHANT_ID', ''),
             'key' => (string) env('PAYME_KEY', ''),
             'test_key' => (string) env('PAYME_TEST_KEY', ''),
+            // The test key is refused in `production` unless this is set explicitly (go-live checks on the prod host).
+            'allow_test_key' => (bool) env('PAYME_ALLOW_TEST_KEY', false),
             'checkout_url' => (string) env('PAYME_CHECKOUT_URL', 'https://checkout.paycom.uz'),
             'ip_allowlist' => (string) env('PAYME_IP_ALLOWLIST', ''),
             // An unpaid Payme transaction lives 12 h; after that it is canceled with reason 4 (docs/13 §4.2).

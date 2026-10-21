@@ -299,7 +299,7 @@ it('answers -6 to a Complete without Prepare, with a wrong merchant_prepare_id o
         ->and($order->refresh()->status)->toBe('pending');
 });
 
-it('cancels on a Complete with error < 0: state -1 with the Click code, the order canceled, answer -9; repeats answer -9; Prepare on it answers -9', function (): void {
+it('cancels only the transaction on a Complete with error < 0: state -1 with the Click code, the order stays pending, answer -9; repeats answer -9; the same click_trans_id stays -9', function (): void {
     Log::spy();
     $order = PaymentOrder::factory()->click()->create();
     $prepareId = clickPrepared($order);
@@ -316,7 +316,7 @@ it('cancels on a Complete with error < 0: state -1 with the Click code, the orde
         ->and($transaction->cancel_time)->toBe(CarbonImmutable::now()->getTimestampMs())
         ->and($transaction->raw['params']['error_note'])->toBe('Insufficient funds')
         ->and($transaction->history)->toHaveCount(2)
-        ->and($order->refresh()->status)->toBe('canceled')
+        ->and($order->refresh()->status)->toBe('pending')
         ->and(Payment::query()->count())->toBe(0)
         ->and(Subscription::query()->count())->toBe(0);
     Log::shouldHaveReceived('info')->with('billing.click.canceled', Mockery::type('array'))->once();
@@ -327,10 +327,28 @@ it('cancels on a Complete with error < 0: state -1 with the Click code, the orde
         ->and(Payment::query()->count())->toBe(0)
         ->and(ProviderTransaction::query()->sole()->cancel_reason)->toBe(-5017);
 
-    // The same click_trans_id prepared again, and a new one for the canceled order: -9.
+    // The same click_trans_id prepared again: -9; a new attempt on the still-pending order is allowed.
     expect(clickService()->prepare(ClickFixtures::prepare($order))['error'])->toBe(-9)
-        ->and(clickService()->prepare(ClickFixtures::prepare($order, clickTransId: '777'))['error'])->toBe(-9)
-        ->and(ProviderTransaction::query()->count())->toBe(1);
+        ->and(clickService()->prepare(ClickFixtures::prepare($order, clickTransId: '777'))['error'])->toBe(0)
+        ->and(ProviderTransaction::query()->count())->toBe(2);
+});
+
+it('H3: a failed attempt (Complete error < 0 on 111) does not close the order — the successful Complete on 222 is credited', function (): void {
+    $order = PaymentOrder::factory()->click()->create();
+    $first = clickPrepared($order, '111');
+    $second = clickPrepared($order, '222');
+
+    expect(clickService()->complete(ClickFixtures::complete($order, $first, ['error' => '-5017'], clickTransId: '111'))['error'])->toBe(-9)
+        ->and($order->refresh()->status)->toBe('pending');
+
+    $response = clickService()->complete(ClickFixtures::complete($order, $second, clickTransId: '222'));
+
+    expect($response['error'])->toBe(0)
+        ->and($response['merchant_confirm_id'])->toBe(Payment::query()->sole()->id)
+        ->and(Payment::query()->where('status', 'failed')->count())->toBe(0)
+        ->and($order->refresh()->status)->toBe('paid')
+        ->and(ProviderTransaction::query()->where('provider_transaction_id', '111')->sole()->state)->toBe(-1)
+        ->and(ProviderTransaction::query()->where('provider_transaction_id', '222')->sole()->state)->toBe(2);
 });
 
 it('does not undo a completed transaction when Click later reports error < 0: answers -4 and keeps the payment', function (): void {

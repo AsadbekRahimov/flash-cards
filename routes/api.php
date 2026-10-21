@@ -66,8 +66,10 @@ Route::prefix('twa')->group(function (): void {
                 ->middleware('throttle:twa-checkout')
                 ->name('twa.billing.checkout');
             Route::get('/orders/{token}', [BillingController::class, 'order'])->name('twa.billing.order');
-            Route::post('/subscription/cancel', [BillingController::class, 'cancel'])->name('twa.billing.cancel');
-            Route::post('/subscription/resume', [BillingController::class, 'resume'])->name('twa.billing.resume');
+            Route::middleware('throttle:twa-subscription')->group(function (): void {
+                Route::post('/subscription/cancel', [BillingController::class, 'cancel'])->name('twa.billing.cancel');
+                Route::post('/subscription/resume', [BillingController::class, 'resume'])->name('twa.billing.resume');
+            });
         });
 
         Route::get('/courses', [CourseController::class, 'index'])->name('twa.courses.index');

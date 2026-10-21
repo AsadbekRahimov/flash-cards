@@ -271,6 +271,11 @@ it('grants an organization a tier: seats_limit comes from config, an unknown tie
     $sub = $service->grantManual($org, Plan::Pro, null, subscriptionAdmin(), 'bigger', tier: 'center_l');
     expect($sub->tier)->toBe('center_l')->and($sub->seats_limit)->toBeNull();
 
+    $sub = $service->grantManual($org, Plan::Pro, null, subscriptionAdmin(), 'agreed seats', tier: 'center_l', seatsLimit: 750);
+    expect($sub->seats_limit)->toBe(750)->and($service->grantManual($org, Plan::Pro, null, subscriptionAdmin(), 'fixed', tier: 'center_s', seatsLimit: 750)->seats_limit)->toBe(100);
+    $sub = $service->grantManual($org, Plan::Pro, null, subscriptionAdmin(), 'back', tier: 'center_l');
+    expect($sub->seats_limit)->toBeNull();
+
     $sub = $service->grantManual($org, Plan::Pro, null, subscriptionAdmin(), 'no tier given');
     expect($sub->tier)->toBe('center_l'); // untouched when no tier is passed
 

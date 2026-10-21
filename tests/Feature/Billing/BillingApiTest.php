@@ -372,6 +372,19 @@ it('answers 502 provider_unavailable and fails the order when the provider canno
     expect(PaymentOrder::query()->sole()->status)->toBe('failed');
 });
 
+it('throttles cancel / resume of auto-renewal together: the 7th request in a minute is 429, per learner', function (): void {
+    $learner = Learner::factory()->create();
+
+    foreach (range(1, 3) as $_) {
+        $this->withHeaders(billingHeaders($learner))->postJson('/api/twa/billing/subscription/cancel')->assertStatus(409);
+        $this->withHeaders(billingHeaders($learner))->postJson('/api/twa/billing/subscription/resume')->assertStatus(409);
+    }
+
+    $this->withHeaders(billingHeaders($learner))->postJson('/api/twa/billing/subscription/cancel')->assertStatus(429);
+    $this->withHeaders(billingHeaders($learner))->postJson('/api/twa/billing/subscription/resume')->assertStatus(429);
+    $this->withHeaders(billingHeaders(Learner::factory()->create()))->postJson('/api/twa/billing/subscription/cancel')->assertStatus(409);
+});
+
 it('throttles checkout: the 11th request in a minute is 429', function (): void {
     $learner = Learner::factory()->create();
 

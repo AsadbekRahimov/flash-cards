@@ -9,6 +9,9 @@ namespace App\Domain\Billing\Providers\Payme;
  * The key is compared with `hash_equals` against the production key and, when set, the test
  * cabinet's key (sandbox and production share one webhook URL and differ by key). A wrong or
  * missing header is answered by the controller with HTTP 200 + JSON-RPC `-32504`.
+ *
+ * In `production` the test key is refused (a leaked sandbox key must not credit real subscriptions)
+ * unless `PAYME_ALLOW_TEST_KEY=true` says so explicitly (docs/13 §4.2).
  */
 final class PaymeAuth
 {
@@ -21,6 +24,7 @@ final class PaymeAuth
     public function __construct(
         private readonly string $key,
         private readonly string $testKey = '',
+        private readonly bool $allowTestKey = true,
     ) {}
 
     public static function fromConfig(): self
@@ -28,6 +32,7 @@ final class PaymeAuth
         return new self(
             (string) config('billing.providers.payme.key', ''),
             (string) config('billing.providers.payme.test_key', ''),
+            ! app()->environment('production') || (bool) config('billing.providers.payme.allow_test_key', false),
         );
     }
 
@@ -43,7 +48,7 @@ final class PaymeAuth
         }
 
         $live = $this->key !== '' && hash_equals($this->key, $password);
-        $test = $this->testKey !== '' && hash_equals($this->testKey, $password);
+        $test = $this->allowTestKey && $this->testKey !== '' && hash_equals($this->testKey, $password);
 
         return match (true) {
             $live => self::MODE_LIVE,

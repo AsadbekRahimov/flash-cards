@@ -97,6 +97,35 @@ it('accepts the production key and the test key, and nothing when no key is conf
     paymePost(PaymeFixtures::for('CheckPerformTransaction', $order), PaymeFixtures::basic(''))->assertOk()->assertJsonPath('error.code', -32504);
 });
 
+it('refuses the test key in production unless PAYME_ALLOW_TEST_KEY is set, and still accepts the live key', function (): void {
+    $order = PaymentOrder::factory()->payme()->create();
+    app()->detectEnvironment(static fn (): string => 'production');
+
+    paymePost(PaymeFixtures::for('CheckPerformTransaction', $order), PaymeFixtures::basic(PAYME_TEST_KEY))->assertOk()->assertJsonPath('error.code', -32504);
+    paymePost(PaymeFixtures::for('CheckPerformTransaction', $order), PaymeFixtures::basic(PAYME_LIVE_KEY))->assertOk()->assertJsonPath('result.allow', true);
+
+    config()->set('billing.providers.payme.allow_test_key', true);
+    paymePost(PaymeFixtures::for('CheckPerformTransaction', $order), PaymeFixtures::basic(PAYME_TEST_KEY))->assertOk()->assertJsonPath('result.allow', true);
+});
+
+it('records which key (live / test) drove each transaction and payment', function (): void {
+    $live = PaymentOrder::factory()->payme()->create();
+    $test = PaymentOrder::factory()->payme()->create();
+
+    foreach ([[$live, PAYME_LIVE_KEY, 'a1'], [$test, PAYME_TEST_KEY, 'b1']] as [$order, $key, $id]) {
+        $auth = PaymeFixtures::basic($key);
+        paymePost(PaymeFixtures::for('CreateTransaction', $order, transactionId: $id), $auth)->assertOk()->assertJsonMissingPath('error');
+        paymePost(PaymeFixtures::for('PerformTransaction', $order, transactionId: $id), $auth)->assertOk()->assertJsonMissingPath('error');
+    }
+
+    $liveTx = ProviderTransaction::query()->where('provider_transaction_id', 'a1')->sole();
+    $testTx = ProviderTransaction::query()->where('provider_transaction_id', 'b1')->sole();
+    expect($liveTx->raw['mode'])->toBe('live')
+        ->and($testTx->raw['mode'])->toBe('test')
+        ->and(Payment::query()->where('provider_charge_id', 'a1')->sole()->raw['mode'])->toBe('live')
+        ->and(Payment::query()->where('provider_charge_id', 'b1')->sole()->raw['mode'])->toBe('test');
+});
+
 it('tells the live key from the test key with hash_equals semantics', function (): void {
     $auth = new PaymeAuth(PAYME_LIVE_KEY, PAYME_TEST_KEY);
 
