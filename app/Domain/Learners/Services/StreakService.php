@@ -131,13 +131,16 @@ class StreakService
         $yesterdayRow = $this->heldRow($learner->id, $yesterday);
         $frozenYesterday = $yesterdayRow?->frozen_at !== null;
         $freezesAvailable = $this->freezes->available($learner, $now);
+        $mayHaveRaced = false;
 
         if ($todayStats?->goal_met_at !== null && ($last === null || $last < $todayDate)) {
+            $mayHaveRaced = true;
             $this->apply($learner, $todayDate, $now);
             if ($yesterdayRow === null && $freezesAvailable > 0) {
                 $frozenYesterday = $this->heldRow($learner->id, $yesterday)?->frozen_at !== null; // apply() may have frozen it
             }
         } elseif ($last === null || $last < $yesterday) {
+            $mayHaveRaced = true;
             if ($yesterdayRow !== null) {
                 // The projection missed yesterday (callback lost) — without this fact the series would read as 0.
                 $this->project($learner, $yesterday, $yesterdayRow->goal_met_at !== null, $now);
@@ -146,8 +149,9 @@ class StreakService
             }
         }
 
-        if ($frozenYesterday && $freezesAvailable > 0) {
-            // The freeze that holds yesterday may have been spent by a concurrent request after this model was loaded.
+        if ($mayHaveRaced || ($frozenYesterday && $freezesAvailable > 0)) {
+            // A freeze (or a burn) may have been done by a concurrent request after this model was loaded —
+            // also when we lost the race and our own attempt did nothing: report what is stored now.
             $this->freezes->refresh($learner);
         }
 
@@ -189,7 +193,11 @@ class StreakService
 
         $tail = $this->unheldTail($learner->id, $last, $yesterday);
         if ($tail === []) {
-            return false; // nothing missed
+            // Nothing left to freeze: yesterday became held after the projection above (a concurrent caller
+            // froze it a moment ago, or its callback landed) — project it too, or this model stays behind.
+            $this->projectHeldRows($learner, $last, $yesterday, $now);
+
+            return $this->heldRow($learner->id, $yesterday)?->frozen_at !== null;
         }
 
         if ($tail === null || count($tail) > $this->freezes->available($learner, $now)) {
@@ -233,6 +241,15 @@ class StreakService
 
         if ($affected === 1) {
             $learner->forceFill(['streak_current' => 0])->syncOriginalAttributes(['streak_current']);
+
+            return;
+        }
+
+        // Lost to a concurrent projection / burn: take over what is stored instead of keeping a stale view.
+        /** @var Learner|null $fresh */
+        $fresh = Learner::withTrashed()->find($learner->id, ['id', 'streak_current', 'streak_best', 'streak_last_date']);
+        if ($fresh !== null) {
+            $this->syncModel($learner, (int) $fresh->streak_current, (int) $fresh->streak_best, $fresh->streak_last_date?->toDateString() ?? $last);
         }
     }
 
