@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Telegram\Contracts;
 
 use App\Domain\Telegram\Exceptions\TelegramApiException;
+use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 
 interface TelegramClient
 {
@@ -24,6 +25,22 @@ interface TelegramClient
         string $buttonText,
         string $url,
         ?string $parseMode = null,
+    ): void;
+
+    /**
+     * Sends a local PNG / JPEG file as a photo with an optional caption (docs/13 §7.4). Sent at once:
+     * callers (queued DM jobs) take a slot of the bot-wide budget themselves.
+     *
+     * @param  array<string, mixed>|null  $replyMarkup
+     *
+     * @throws TelegramForbiddenException when the recipient cannot be reached (blocked bot / no dialog)
+     * @throws TelegramApiException on any other failed Bot API call (or an unreadable file)
+     */
+    public function sendPhoto(
+        int|string $chatId,
+        string $photoPath,
+        ?string $caption = null,
+        ?array $replyMarkup = null,
     ): void;
 
     public function answerCallbackQuery(string $callbackQueryId): void;

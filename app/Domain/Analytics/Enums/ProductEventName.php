@@ -80,4 +80,8 @@ enum ProductEventName: string
     case ChallengeAccepted = 'challenge.accepted';
     /** A challenge was closed by its scores (props: challenge_id, metric, result — challenger / opponent / draw); actor = the challenger. */
     case ChallengeFinished = 'challenge.finished';
+    /** An achievement was unlocked, once per (learner, key) (props: key — docs/13 §7.4). */
+    case AchievementUnlocked = 'achievement.unlocked';
+    /** The learner shared an achievement from the TWA, once per (learner, key) (props: key). */
+    case AchievementShared = 'achievement.shared';
 }

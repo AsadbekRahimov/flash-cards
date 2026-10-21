@@ -12,6 +12,7 @@ use Closure;
 use Exception;
 use Telegram\Bot\Api;
 use Telegram\Bot\Exceptions\TelegramResponseException;
+use Telegram\Bot\FileUpload\InputFile;
 
 class IrazasyedTelegramClient implements TelegramClient
 {
@@ -89,6 +90,35 @@ class IrazasyedTelegramClient implements TelegramClient
             parseMode: $parseMode,
             replyMarkup: $this->keyboards->webAppButton($buttonText, $url),
         );
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $replyMarkup
+     */
+    public function sendPhoto(
+        int|string $chatId,
+        string $photoPath,
+        ?string $caption = null,
+        ?array $replyMarkup = null,
+    ): void {
+        if (! is_file($photoPath) || ! is_readable($photoPath)) {
+            throw new TelegramApiException('Telegram API request failed (sendPhoto): the photo file is not readable');
+        }
+
+        $params = [
+            'chat_id' => $chatId,
+            'photo' => InputFile::create($photoPath, basename($photoPath)),
+        ];
+
+        if ($caption !== null) {
+            $params['caption'] = $caption;
+        }
+
+        if ($replyMarkup !== null) {
+            $params['reply_markup'] = json_encode($replyMarkup, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+        }
+
+        $this->call(fn () => $this->api->sendPhoto($params), mapForbidden: true);
     }
 
     public function answerCallbackQuery(string $callbackQueryId): void

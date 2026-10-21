@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Learning\Enums\ExerciseType;
 use App\Domain\Learning\Enums\SchedulerKind;
+use App\Models\Achievement;
 use App\Models\Assignment;
 use App\Models\AssignmentResult;
 use App\Models\Challenge;
@@ -85,6 +86,8 @@ $expectedTables = [
     'league_weeks', 'league_groups', 'league_members',
     // Phase 2 (docs/13 §1.5): friends and challenges.
     'friendships', 'challenges',
+    // Phase 2 (docs/13 §1.5): achievements.
+    'achievements',
 ];
 
 /**
@@ -795,6 +798,7 @@ it('rolls back and re-applies the billing migrations (2A.1) in FK order', functi
 
 it('rolls back and re-applies the learner-first migrations (1.1a + 1.1b)', function (): void {
     $newTables = [
+        'achievements',
         'friendships', 'challenges',
         'league_members', 'league_groups', 'league_weeks',
         'referrals',
@@ -1147,4 +1151,38 @@ it('rolls back and re-applies the friends migrations (2C.5)', function (): void 
     expect(Schema::hasTable('friendships'))->toBeTrue()
         ->and(Schema::hasTable('challenges'))->toBeTrue()
         ->and(Schema::hasColumn('challenges', 'open_pair'))->toBeTrue();
+});
+
+// --- 2C.4 achievements (docs/13 §1.5) --------------------------------------------
+
+it('keeps ONE achievements row per (learner, key): the unique index makes a key unlock once', function (): void {
+    [$a, $b] = [Learner::factory()->create(), Learner::factory()->create()];
+    Achievement::factory()->create(['learner_id' => $a->id, 'key' => 'streak_7']);
+
+    expectConstraintViolation(fn () => Achievement::factory()->create(['learner_id' => $a->id, 'key' => 'streak_7']));
+    // The conditional insert of AchievementService just does not insert.
+    expect(Achievement::query()->insertOrIgnore(['learner_id' => $a->id, 'key' => 'streak_7', 'unlocked_at' => now()]))->toBe(0);
+
+    Achievement::factory()->create(['learner_id' => $a->id, 'key' => 'streak_30']);
+    Achievement::factory()->create(['learner_id' => $b->id, 'key' => 'streak_7']);
+    expect(Achievement::query()->count())->toBe(3);
+});
+
+it('cascades achievements with their learner', function (): void {
+    $learner = Learner::factory()->create();
+    Achievement::factory()->create(['learner_id' => $learner->id]);
+
+    $learner->forceDelete();
+
+    expect(Achievement::query()->count())->toBe(0);
+});
+
+it('rolls back and re-applies the achievements migration (2C.4)', function (): void {
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_22_000003_create_achievements_table')])->assertSuccessful();
+    expect(Schema::hasTable('achievements'))->toBeFalse()
+        ->and(Schema::hasTable('learners'))->toBeTrue();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasTable('achievements'))->toBeTrue()
+        ->and(Schema::hasColumns('achievements', ['learner_id', 'key', 'unlocked_at', 'shared_at', 'meta']))->toBeTrue();
 });
