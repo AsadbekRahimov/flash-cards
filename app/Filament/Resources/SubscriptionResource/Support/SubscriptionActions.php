@@ -74,6 +74,13 @@ final class SubscriptionActions
                     ->placeholder('No tier (seats not limited)')
                     ->helperText('Sets the organization\'s tier and seats limit from the tariff table.')
                     ->visible(fn (callable $get): bool => $get('subscriber_type') === 'organization'),
+                Forms\Components\TextInput::make('seats_limit')
+                    ->label('Seats')
+                    ->numeric()
+                    ->integer()
+                    ->minValue(1)
+                    ->helperText('For a tier without fixed seats (by agreement). Empty = not limited.')
+                    ->visible(fn (callable $get): bool => $get('subscriber_type') === 'organization' && filled($get('tier')) && OrgTiers::exists((string) $get('tier')) && OrgTiers::seats((string) $get('tier')) === null),
                 Forms\Components\Toggle::make('perpetual')
                     ->label('No end date')
                     ->live(),
@@ -113,7 +120,7 @@ final class SubscriptionActions
                 try {
                     $tier = $data['subscriber_type'] === 'organization' && filled($data['tier'] ?? null) ? (string) $data['tier'] : null;
 
-                    app(SubscriptionService::class)->grantManual($subscriber, Plan::Pro, $until, $user, (string) $data['note'], request()->ip(), tier: $tier);
+                    app(SubscriptionService::class)->grantManual($subscriber, Plan::Pro, $until, $user, (string) $data['note'], request()->ip(), tier: $tier, seatsLimit: $tier !== null && filled($data['seats_limit'] ?? null) ? (int) $data['seats_limit'] : null);
                 } catch (SubscriptionException $e) {
                     self::failed($e);
 

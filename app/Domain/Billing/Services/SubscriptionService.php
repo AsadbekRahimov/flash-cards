@@ -96,6 +96,7 @@ final class SubscriptionService
      * @param  CarbonImmutable|null  $until  end of the grant; null = perpetual
      * @param  string  $note  reason (stored on the row and in the audit record)
      * @param  string|null  $tier  organization tariff (docs/13 §6.1): sets `tier` and `seats_limit` from config; ignored for learners
+     * @param  int|null  $seatsLimit  seats for a tier WITHOUT fixed seats (center_l, "by agreement"); null = by tariff; ignored when the tariff fixes the seats
      *
      * @throws SubscriptionException plan_not_grantable | until_in_past | subscriber_not_found | tier_unknown
      */
@@ -108,6 +109,7 @@ final class SubscriptionService
         ?string $ip = null,
         ?CarbonImmutable $now = null,
         ?string $tier = null,
+        ?int $seatsLimit = null,
     ): Subscription {
         $now ??= CarbonImmutable::now();
 
@@ -124,7 +126,7 @@ final class SubscriptionService
             throw SubscriptionException::tierUnknown($tier);
         }
 
-        return DB::transaction(function () use ($subscriber, $plan, $until, $by, $note, $ip, $now, $tier): Subscription {
+        return DB::transaction(function () use ($subscriber, $plan, $until, $by, $note, $ip, $now, $tier, $seatsLimit): Subscription {
             $this->lockSubscriber($subscriber);
 
             $live = $this->lockedLive($subscriber);
@@ -145,7 +147,7 @@ final class SubscriptionService
 
             if ($tier !== null) {
                 $attributes['tier'] = $tier;
-                $attributes['seats_limit'] = OrgTiers::seats($tier);
+                $attributes['seats_limit'] = OrgTiers::seats($tier) ?? ($seatsLimit === null ? null : max(1, $seatsLimit));
             }
 
             if ($live === null) {
@@ -502,6 +504,54 @@ final class SubscriptionService
             $subscription->setRawAttributes($locked->getAttributes(), true);
 
             return $locked;
+        });
+    }
+
+    /**
+     * Takes `$seconds` off (null = the whole period, i.e. end now) the paid period of a live subscription (a refund of one of several paid
+     * periods: the refunded days are removed, the rest stays). When the new end is not after `$now`
+     * (or the subscription has no end to shorten, or `$seconds` is null) the subscription ends now like {@see endNow()}.
+     * Returns true when it ended, false when it was only shortened.
+     *
+     * Lock order: subject row -> subscription (the caller may already hold both).
+     *
+     * @throws SubscriptionException subscription_not_live
+     */
+    public function shortenPeriod(Subscription $subscription, ?int $seconds, string $reason, ?User $by = null, ?CarbonImmutable $now = null): bool
+    {
+        $now ??= CarbonImmutable::now();
+
+        return DB::transaction(function () use ($subscription, $seconds, $reason, $by, $now): bool {
+            $locked = $this->lockForTransition($subscription->id);
+
+            if ($locked === null || ! SubscriptionStatus::from($locked->status)->isLive()) {
+                throw SubscriptionException::notLive($subscription->id);
+            }
+
+            $end = $seconds === null || $locked->current_period_ends_at === null ? null : CarbonImmutable::instance($locked->current_period_ends_at)->subSeconds(max(0, $seconds));
+
+            if ($end === null || $end->lessThanOrEqualTo($now)) {
+                $this->endNow($locked, $reason, $by, $now);
+                $subscription->setRawAttributes($locked->getAttributes(), true);
+
+                return true;
+            }
+
+            $meta = $locked->meta;
+            $meta['history'][] = [
+                'at' => $now->toIso8601String(),
+                'action' => 'shortened',
+                'reason' => $reason,
+                'from' => $this->snapshot($locked),
+                'by_user_id' => $by?->id,
+            ];
+
+            $locked->fill(['current_period_ends_at' => $end, 'meta' => $meta])->save();
+
+            $this->forgetAfterCommit($locked);
+            $subscription->setRawAttributes($locked->getAttributes(), true);
+
+            return false;
         });
     }
 

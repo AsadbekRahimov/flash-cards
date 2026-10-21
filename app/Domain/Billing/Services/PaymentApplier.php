@@ -280,12 +280,7 @@ final class PaymentApplier
                 $endedNow = false;
 
                 if ($subscription !== null && $this->refundCoversCurrentPeriod($charge, $subscription, $now)) {
-                    try {
-                        $this->subscriptions->endNow($subscription, 'refund', $by, $now);
-                        $endedNow = true;
-                    } catch (SubscriptionException) {
-                        // Already expired: nothing to end.
-                    }
+                    $endedNow = $this->takeRefundedPeriodOff($charge, $subscription, $by, $now);
                 }
 
                 $charge->fill(['status' => Payment::STATUS_REFUNDED])->save();
@@ -545,6 +540,26 @@ final class PaymentApplier
         $end = CarbonImmutable::instance($live->current_period_ends_at);
 
         return $end->greaterThan($now) ? $end : $now;
+    }
+
+    /**
+     * A refund removes the days the charge paid for: `current_period_ends_at` moves back by
+     * `period_ends_at - period_starts_at` of the charge, so refunding one of several consecutive
+     * periods keeps the others. The subscription ends only when the new end is not after `$now`
+     * (or the charge has no period to subtract). True when it ended.
+     */
+    private function takeRefundedPeriodOff(Payment $charge, Subscription $subscription, ?User $by, CarbonImmutable $now): bool
+    {
+        $seconds = $charge->period_starts_at !== null && $charge->period_ends_at !== null
+            ? max(0, CarbonImmutable::instance($charge->period_ends_at)->getTimestamp() - CarbonImmutable::instance($charge->period_starts_at)->getTimestamp())
+            : null;
+
+        try {
+            return $this->subscriptions->shortenPeriod($subscription, $seconds, 'refund', $by, $now);
+        } catch (SubscriptionException) {
+            // Already expired: nothing to end.
+            return false;
+        }
     }
 
     /** The refunded charge paid (part of) the period the subscription is in right now. */

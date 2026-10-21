@@ -359,6 +359,36 @@ it('refunds a past period without touching the running subscription, and a provi
         ->and(ProductEvent::query()->where('name', 'payment.refunded')->sole()->props['subscription_ended'])->toBeFalse();
 });
 
+it('H4: refunding one of two consecutive paid months keeps the other — the second leaves the first, the first moves the end back a month', function (): void {
+    $learner = Learner::factory()->create();
+    $applier = app(PaymentApplier::class);
+    $now = CarbonImmutable::now();
+    $first = $applier->applyCharge($this->payme->emitCharge(applierOrder($learner, $this->payme), eventId: 'm1'));
+    $second = $applier->applyCharge($this->payme->emitCharge(applierOrder($learner, $this->payme), eventId: 'm2'));
+    $sub = Subscription::query()->sole();
+    expect($sub->current_period_ends_at?->toIso8601String())->toBe($now->addDays(60)->toIso8601String());
+
+    $refund = $applier->applyRefund($this->payme->emitRefund($second, eventId: 'm2:cancel'));
+
+    expect($sub->refresh()->status)->toBe('active')
+        ->and($sub->current_period_ends_at?->toIso8601String())->toBe($now->addDays(30)->toIso8601String())
+        ->and($sub->meta['history'][array_key_last($sub->meta['history'])]['action'])->toBe('shortened')
+        ->and(ProductEvent::query()->where('name', 'payment.refunded')->sole()->props['subscription_ended'])->toBeFalse()
+        ->and(app(EntitlementResolver::class)->for($learner)->plan)->toBe(Plan::Pro);
+
+    // Refunding the remaining (first) month empties the subscription: the new end is now.
+    $applier->applyRefund($this->payme->emitRefund($first, eventId: 'm1:cancel'));
+    expect($sub->refresh()->status)->toBe('expired')->and(app(EntitlementResolver::class)->for($learner)->plan)->toBe(Plan::Free);
+
+    // Other order: the FIRST of two months refunded — the end moves a month back, the subscription lives.
+    $other = Learner::factory()->create();
+    $a = $applier->applyCharge($this->payme->emitCharge(applierOrder($other, $this->payme), eventId: 'n1'));
+    $applier->applyCharge($this->payme->emitCharge(applierOrder($other, $this->payme), eventId: 'n2'));
+    $applier->applyRefund($this->payme->emitRefund($a, eventId: 'n1:cancel'));
+    $otherSub = Subscription::query()->where('subscriber_id', $other->id)->sole();
+    expect($otherSub->status)->toBe('active')->and($otherSub->current_period_ends_at?->toIso8601String())->toBe($now->addDays(30)->toIso8601String());
+});
+
 it('records an orphan charge (order lost, subscriber known) as failed, once', function (): void {
     $learner = Learner::factory()->create();
     $event = new ChargeEvent(SubscriptionProvider::TelegramStars, 'orphan-1', 'orphan-1', 'gone', 150, 'XTR', true, CarbonImmutable::now()->addDays(30), CarbonImmutable::now());

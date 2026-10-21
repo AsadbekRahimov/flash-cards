@@ -690,6 +690,7 @@ you switch a provider on.
 | `PAYME_ENABLED`, `PAYME_MERCHANT_ID` | merchant id from the Payme business cabinet |
 | `PAYME_KEY` | **production** merchant key (secret) |
 | `PAYME_TEST_KEY` | key of the **test** cabinet (secret); the webhook accepts both, so sandbox and prod differ by key. Leave empty in production once testing is done |
+| `PAYME_ALLOW_TEST_KEY` | default `false`: with `APP_ENV=production` the test key is REFUSED (`-32504`) even if `PAYME_TEST_KEY` is set. Set `true` only for go-live checks on the production host, then switch it off |
 | `PAYME_CHECKOUT_URL` | `https://checkout.paycom.uz` (sandbox: `https://checkout.test.paycom.uz`) |
 | `PAYME_IP_ALLOWLIST` | comma-separated IPs/CIDRs of Payme's callers from the cabinet; empty = off (a caller outside the list gets 403 before authentication) |
 | `PAYME_CANCEL_AFTER_PERFORM_DAYS` | days after a payment during which Payme may still cancel (= refund) it through `CancelTransaction`; empty = always. Beyond the window the webhook answers `-31007` and the refund has to be agreed with Payme support |
@@ -729,7 +730,7 @@ the checkout link (`return_url`) and needs no registration.
 
 Payme answers errors with HTTP 200 and a JSON-RPC error (`-32504` for a wrong key) — a 200 in the access log is not a
 sign of success; read the body or the payment screens. If the provider publishes caller IPs, put them in
-`*_IP_ALLOWLIST` (behind a reverse proxy make sure the real client IP reaches Laravel: trusted proxies).
+`*_IP_ALLOWLIST` (behind a reverse proxy, CDN or load balancer make sure the real client IP reaches Laravel: configure trusted proxies in `bootstrap/app.php` — otherwise the allowlist and every per-IP throttle (`billing-webhook`, `twa-*`) see the proxy address and break).
 
 ### 17.3 Sandbox first
 

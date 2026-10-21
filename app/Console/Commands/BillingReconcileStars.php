@@ -12,7 +12,7 @@ use Illuminate\Console\Command;
 
 /**
  * Daily (docs/13 §4.4): Telegram's Stars transactions of the last N days vs `payments`. Read-only,
- * alerts through the log (`billing.reconcile_missing`, `billing.reconcile_missing_refund`); a
+ * alerts through the log (`billing.reconcile_missing`, `billing.reconcile_missing_refund`, `billing.reconcile_empty`); a
  * non-zero exit when something is missing so the cron mail / monitor notices.
  */
 final class BillingReconcileStars extends Command
@@ -48,6 +48,10 @@ final class BillingReconcileStars extends Command
             $report['refunds_missing'],
         ));
 
-        return $report['charges_missing'] + $report['refunds_missing'] > 0 ? self::FAILURE : self::SUCCESS;
+        if ($report['ledger_without_telegram'] > 0) {
+            $this->error(sprintf('Telegram returned no transactions for the period, but the ledger has %d successful Stars payment(s): the comparison is void.', $report['ledger_without_telegram']));
+        }
+
+        return $report['charges_missing'] + $report['refunds_missing'] + $report['ledger_without_telegram'] > 0 ? self::FAILURE : self::SUCCESS;
     }
 }

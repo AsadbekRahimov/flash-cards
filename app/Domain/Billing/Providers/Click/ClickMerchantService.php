@@ -128,7 +128,7 @@ final class ClickMerchantService
 
     /**
      * Complete (`action = 1`): signature (with `merchant_prepare_id`) -> the prepared transaction ->
-     * `error < 0` from Click: state -1, the order `canceled`, answer -9; otherwise
+     * `error < 0` from Click: state -1 of this transaction only (the order stays pending), answer -9; otherwise
      * PaymentApplier::applyCharge inside the same transaction -> state 2, answer
      * `merchant_confirm_id` = `payments.id`. Repeats answer from the stored state.
      *
@@ -253,7 +253,9 @@ final class ClickMerchantService
 
     /**
      * Click reports a failed / canceled payment (`error < 0`): an open transaction becomes -1 with
-     * the Click code as `cancel_reason` and a still-pending order is `canceled` (docs/13 §4.3).
+     * the Click code as `cancel_reason`. The ORDER is not touched: one failed attempt (a payer's
+     * insufficient funds) must not close it while another prepared transaction of the same order may
+     * still complete, as in Payme; it stays pending until its TTL (docs/13 §4.3).
      * A canceled one answers -9 again; a completed one is NOT undone (the money was credited; a
      * refund goes through the admin panel) and answers -4.
      */
@@ -275,10 +277,6 @@ final class ClickMerchantService
             ]);
             $transaction->pushHistory(self::METHOD_COMPLETE, ProviderTransaction::STATE_CREATED, ProviderTransaction::STATE_CANCELED, $now);
             $transaction->save();
-
-            if ($order->isPending()) {
-                $order->fill(['status' => PaymentOrder::STATUS_CANCELED])->save();
-            }
 
             Log::info('billing.click.canceled', ['provider_transaction_id' => $transaction->id, 'payment_order_id' => $order->id, 'click_error' => $request->error, 'click_error_note' => $request->errorNote]);
         }

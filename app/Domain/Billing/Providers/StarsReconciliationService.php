@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * `billing:reconcile-stars` (docs/13 §4.1, §4.4): compares Telegram's own Stars ledger
- * (`getStarTransactions`, newest first) with `payments` for the last N days and ALERTS on
+ * (`getStarTransactions`) with `payments` for the last N days and ALERTS on
  * differences — it never writes, so a repeated or overlapping run is harmless.
  *
  *   incoming transaction (source.type = user, i.e. a learner paid)  ->  a `payments` row with
@@ -30,19 +30,23 @@ final class StarsReconciliationService
 {
     public const PAGE_SIZE = 100;
 
-    /** Pages are read until a transaction older than the cut-off appears, but never more than this many. */
+    /**
+     * Pages are read until an empty (or short) page, never more than this many. The order of the
+     * answer is NOT assumed: every transaction is filtered by its own date, one older than the
+     * cut-off does not end the loop.
+     */
     public const MAX_PAGES = 50;
 
     public function __construct(private readonly TelegramClient $telegram) {}
 
     /**
-     * @return array{checked: int, charges_missing: int, refunds_missing: int, pages: int}
+     * @return array{checked: int, charges_missing: int, refunds_missing: int, pages: int, ledger_without_telegram: int}
      */
     public function reconcile(int $lookbackDays = 2, ?CarbonImmutable $now = null): array
     {
         $now ??= CarbonImmutable::now();
         $cutoff = $now->subDays(max(1, $lookbackDays));
-        $report = ['checked' => 0, 'charges_missing' => 0, 'refunds_missing' => 0, 'pages' => 0];
+        $report = ['checked' => 0, 'charges_missing' => 0, 'refunds_missing' => 0, 'pages' => 0, 'ledger_without_telegram' => 0];
 
         for ($page = 0; $page < self::MAX_PAGES; $page++) {
             $transactions = $this->telegram->getStarTransactions($page * self::PAGE_SIZE, self::PAGE_SIZE);
@@ -52,14 +56,10 @@ final class StarsReconciliationService
                 break;
             }
 
-            $reachedCutoff = false;
-
             foreach ($transactions as $transaction) {
                 $date = is_numeric($transaction['date'] ?? null) ? CarbonImmutable::createFromTimestampUTC((int) $transaction['date']) : null;
 
                 if ($date === null || $date->lessThan($cutoff)) {
-                    $reachedCutoff = true;
-
                     continue;
                 }
 
@@ -74,8 +74,28 @@ final class StarsReconciliationService
                 }
             }
 
-            if ($reachedCutoff || count($transactions) < self::PAGE_SIZE) {
+            if (count($transactions) < self::PAGE_SIZE) {
                 break;
+            }
+
+            if ($page === self::MAX_PAGES - 1) {
+                Log::warning('billing.reconcile_truncated', ['pages' => $report['pages'], 'page_size' => self::PAGE_SIZE]);
+            }
+        }
+
+        // We took money in the window but Telegram's list shows nothing at all: the list itself is
+        // broken (format change, wrong bot, paging) — the comparison above proved nothing.
+        if ($report['checked'] === 0) {
+            $ours = Payment::query()
+                ->where('provider', SubscriptionProvider::TelegramStars->value)
+                ->whereIn('kind', [Payment::KIND_CHARGE, Payment::KIND_RENEWAL])
+                ->where('status', Payment::STATUS_SUCCEEDED)
+                ->where('occurred_at', '>=', $cutoff)
+                ->count();
+
+            if ($ours > 0) {
+                $report['ledger_without_telegram'] = $ours;
+                Log::error('billing.reconcile_empty', ['provider' => 'telegram_stars', 'ledger_payments' => $ours, 'since' => $cutoff->toIso8601String(), 'pages' => $report['pages']]);
             }
         }
 

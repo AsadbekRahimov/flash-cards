@@ -141,7 +141,7 @@ it('creates a transaction once and answers a repeated CreateTransaction with the
         ->and($tx->payment_order_id)->toBe($order->id)
         ->and($tx->amount)->toBe($order->amount)
         ->and($tx->provider_time)->toBe($time)
-        ->and($tx->raw)->toBe(['method' => 'CreateTransaction', 'params' => ['id' => PaymeFixtures::TRANSACTION_ID, 'time' => $time, 'amount' => $order->amount, 'account' => ['order_id' => $order->token]]])
+        ->and($tx->raw)->toEqual(['method' => 'CreateTransaction', 'params' => ['id' => PaymeFixtures::TRANSACTION_ID, 'time' => $time, 'amount' => $order->amount, 'account' => ['order_id' => $order->token]], 'mode' => 'live'])
         ->and($tx->history)->toHaveCount(1);
 
     // Same id again (Payme retried): the same answer, still one row, no new history entry.

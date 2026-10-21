@@ -307,13 +307,13 @@ final class OfferService
     }
 
     /**
-     * Discounted amount in minor units: round(list x (100 - pct) / 100), never below the
+     * Discounted amount in minor units: intdiv(list x (100 - pct) + 50, 100) (integer half-up, no float), never below the
      * currency's smallest chargeable amount.
      */
     public function apply(Offer $offer, int $listAmount, string $currency): int
     {
         $pct = max(0, min(100, $offer->discount_pct));
-        $discounted = (int) round($listAmount * (100 - $pct) / 100);
+        $discounted = intdiv($listAmount * (100 - $pct) + 50, 100);
 
         return max(self::MIN_AMOUNT[$currency] ?? 1, $discounted);
     }

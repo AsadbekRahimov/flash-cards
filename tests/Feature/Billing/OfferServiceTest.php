@@ -101,7 +101,16 @@ it('applies a discount with rounding and a floor of one Star / one sum', functio
         ->and($service->apply($thirty, 145, 'XTR'))->toBe(102) // 101.5 -> 102
         ->and($service->apply($ninety, 5, 'XTR'))->toBe(1)      // 0.5 -> floor 1
         ->and($service->apply($ninety, 500, 'UZS'))->toBe(100)  // 50 tiyin -> floor 100
-        ->and($service->apply(Offer::factory()->make(['discount_pct' => 0]), 150, 'XTR'))->toBe(150);
+        ->and($service->apply(Offer::factory()->make(['discount_pct' => 0]), 150, 'XTR'))->toBe(150)
+        // Integer half-up at the boundaries (the amounts of PostOrgDiscountTest), no float involved.
+        ->and($service->apply($thirty, 155, 'XTR'))->toBe(109)                  // 108.5 -> 109
+        ->and($service->apply($thirty, 2_900_001, 'UZS'))->toBe(2_030_001)      // 2 030 000.7 -> 2 030 001
+        ->and($service->apply($thirty, 1, 'XTR'))->toBe(1)                       // 0.7 -> 1
+        ->and($service->apply($thirty, 2, 'XTR'))->toBe(1)                       // 1.4 -> 1
+        ->and($service->apply($thirty, 3, 'XTR'))->toBe(2)                       // 2.1 -> 2
+        ->and($service->apply($thirty, 5, 'XTR'))->toBe(4)                       // 3.5 -> 4
+        ->and($service->apply(Offer::factory()->make(['discount_pct' => 100]), 150, 'XTR'))->toBe(1)
+        ->and($service->apply($thirty, 9_000_000_000_001, 'UZS'))->toBe(6_300_000_000_001); // 6 300 000 000 000.7
 });
 
 it('picks the applicable offer: open, covering plan and period, largest discount first', function (): void {
