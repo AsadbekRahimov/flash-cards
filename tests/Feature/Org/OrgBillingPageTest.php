@@ -312,6 +312,7 @@ it('shows the price of the year and the saving versus twelve months once the yea
 });
 
 it('shows no saving line while the year has no discount', function (): void {
+    config()->set('billing.org_year_discount_percent', 0);
     pbEnter($this->owner, $this->org);
 
     Livewire::test(Billing::class)->set('tier', 'center_s')->set('period', 'year')

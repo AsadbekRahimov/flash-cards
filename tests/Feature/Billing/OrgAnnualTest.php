@@ -181,3 +181,7 @@ it('reminds the center about the end of a paid year like about a month', functio
     expect($service->remindExpiring(CarbonImmutable::now()->addDays(300)))->toBe(0)
         ->and($service->remindExpiring(CarbonImmutable::now()->addDays(363)))->toBe(1);
 });
+
+it('takes 17 percent off the year by default (owner\'s decision, 2C.8)', function (): void {
+    expect((require config_path('billing.php'))['org_year_discount_percent'])->toBe(17);
+});

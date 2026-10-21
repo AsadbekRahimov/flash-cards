@@ -294,8 +294,7 @@ Filters: status, provider, plan, subject, and *Live status* (live = trialing / a
   **Pro until** (period end) + **Tier**. The seats limit is set from the tier and the waiting list is seated
   automatically right after the grant. Center L is always done this way.
 - **Annual payment of centers.** The cabinet sells **1 month** or **1 year** (Payme / Click). The year price is the
-  tariff's month price x 12 minus `BILLING_ORG_YEAR_DISCOUNT_PERCENT` (default 0 = no discount; set it when the owner
-  decides), rounded to whole sums; `BILLING_PRICE_<TIER>_YEAR_UZS` sets an explicit price instead. A year is added
+  tariff's month price x 12 minus `BILLING_ORG_YEAR_DISCOUNT_PERCENT` (default 17; `0` = no discount), rounded to whole sums; `BILLING_PRICE_<TIER>_YEAR_UZS` sets an explicit price instead. A year is added
   to the end of the live period (365 days); a refund takes back exactly the year it paid; renewal reminders work as
   for a month. A changed discount affects new orders only: an open order keeps its amount. A tier cannot be changed
   online during a year either (below).

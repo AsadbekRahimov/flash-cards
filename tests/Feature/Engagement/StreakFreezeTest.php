@@ -7,6 +7,7 @@ use App\Domain\Engagement\Services\StreakFreezeService;
 use App\Domain\Learners\Services\DailyStatsService;
 use App\Domain\Learners\Services\LearnerClock;
 use App\Domain\Learners\Services\StreakService;
+use App\Domain\Learners\Services\TodayService;
 use App\Domain\Twa\Services\JwtService;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
@@ -143,7 +144,7 @@ it('spends one freeze per missed day when N days in a row were missed and N free
 it('burns the series and spends nothing when fewer freezes than missed days are in stock', function (): void {
     $short = freezeLearner(3, '2026-10-15', 1);
     expect(freezeState($short))->toMatchArray(['current' => 0, 'best' => 3, 'freezes' => 1, 'frozen_yesterday' => false])
-        ->and(freezeStored($short))->toMatchArray(['freezes' => 1, 'last' => '2026-10-15'])
+        ->and(freezeStored($short))->toMatchArray(['freezes' => 1, 'current' => 0, 'last' => '2026-10-15'])
         ->and(LearnerDailyStats::query()->whereNotNull('frozen_at')->count())->toBe(0);
 
     $none = freezeLearner(3, '2026-10-15', 0);
@@ -395,10 +396,18 @@ it('GET /today refills on Monday, reports the inventory and the frozen yesterday
     CarbonImmutable::setTestNow('2026-10-19 05:00:00'); // Tashkent: Monday the 19th, 10:00
     $headers = fn (Learner $l): array => ['Authorization' => 'Bearer '.app(JwtService::class)->issue($l->id)['token']];
 
-    $pro = freezeLearner(4, '2026-10-17', 0); // Saturday held, Sunday missed
+    $pro = freezeLearner(4, '2026-10-17', 1); // Saturday held, Sunday missed, one freeze in stock
+    Learner::query()->whereKey($pro->id)->update(['streak_freezes_refilled_on' => '2026-10-12']);
     $this->withHeaders($headers($pro))->getJson('/api/twa/today')->assertOk()
-        ->assertJsonPath('streak', ['current' => 4, 'best' => 4, 'met_today' => false, 'at_risk' => true, 'freezes' => 0, 'frozen_yesterday' => true]);
-    expect(freezeStored($pro))->toMatchArray(['freezes' => 0, 'refilled_on' => '2026-10-19', 'last' => '2026-10-18']);
+        ->assertJsonPath('streak', ['current' => 4, 'best' => 4, 'met_today' => false, 'at_risk' => true, 'freezes' => 1, 'frozen_yesterday' => true]);
+    expect(freezeStored($pro))->toMatchArray(['freezes' => 1, 'refilled_on' => '2026-10-19', 'last' => '2026-10-18']);
+
+    // No freeze in stock when the screen is read: the series is burnt, the Monday refill does not bring it back.
+    $burnt = freezeLearner(4, '2026-10-17', 0);
+    $this->withHeaders($headers($burnt))->getJson('/api/twa/today')->assertOk()
+        ->assertJsonPath('streak.current', 0)
+        ->assertJsonPath('streak.freezes', 1);
+    expect(freezeStored($burnt))->toMatchArray(['freezes' => 1, 'current' => 0, 'refilled_on' => '2026-10-19']);
 
     $free = freezeLearner(4, '2026-10-17', 1, pro: false);
     $this->withHeaders($headers($free))->getJson('/api/twa/today')->assertOk()
@@ -415,4 +424,60 @@ it('switches freezes off for everyone when the configured maximum is 0', functio
     expect(freezeState($learner))->toMatchArray(['current' => 0, 'freezes' => 0, 'frozen_yesterday' => false])
         ->and(app(StreakFreezeService::class)->refill($learner, CarbonImmutable::parse('2026-10-19', 'Asia/Tashkent')))->toBeFalse()
         ->and(freezeStored($learner)['freezes'])->toBe(2);
+});
+
+it('burns an uncoverable gap for good: stored as 0, a later refill does not restore it and spends nothing', function (): void {
+    $learner = freezeLearner(3, '2026-10-15', 1); // 16th and 17th missed, one freeze
+    $now = CarbonImmutable::parse(FREEZE_NOW, 'UTC');
+
+    expect(freezeState($learner))->toMatchArray(['current' => 0, 'best' => 3, 'freezes' => 1])
+        ->and(freezeStored($learner))->toMatchArray(['current' => 0, 'freezes' => 1, 'last' => '2026-10-15']);
+
+    // The Monday-style refill arrives afterwards: the series is already gone.
+    $fresh = Learner::query()->findOrFail($learner->id);
+    expect(app(StreakFreezeService::class)->refill($fresh, app(LearnerClock::class)->today($fresh, $now), $now))->toBeTrue();
+
+    expect(freezeState($fresh))->toMatchArray(['current' => 0, 'best' => 3, 'freezes' => 2, 'frozen_yesterday' => false])
+        ->and(freezeStored($fresh))->toMatchArray(['current' => 0, 'freezes' => 2])
+        ->and(LearnerDailyStats::query()->whereNotNull('frozen_at')->count())->toBe(0)
+        ->and(frozenEvents($fresh))->toHaveCount(0);
+});
+
+it('does not use freezes for a burnt series when the goal is met later: it restarts at 1', function (): void {
+    $learner = freezeLearner(3, '2026-10-15', 1);
+    $now = CarbonImmutable::parse(FREEZE_NOW, 'UTC');
+
+    freezeState($learner); // burns
+    Learner::query()->whereKey($learner->id)->update(['streak_freezes' => 2]);
+
+    $fresh = Learner::query()->findOrFail($learner->id);
+    expect(app(StreakService::class)->apply($fresh, '2026-10-18', $now))->toBeTrue()
+        ->and(freezeStored($fresh))->toMatchArray(['current' => 1, 'freezes' => 2, 'last' => '2026-10-18'])
+        ->and(LearnerDailyStats::query()->whereNotNull('frozen_at')->count())->toBe(0);
+});
+
+it('burns the series of a Free learner and of a Pro learner without freezes in the database too', function (): void {
+    $free = freezeLearner(3, '2026-10-16', 2, pro: false);
+    $none = freezeLearner(3, '2026-10-16', 0);
+
+    freezeState($free);
+    freezeState($none);
+
+    expect(freezeStored($free))->toMatchArray(['current' => 0, 'freezes' => 2])
+        ->and(freezeStored($none))->toMatchArray(['current' => 0, 'freezes' => 0])
+        ->and(Learner::query()->findOrFail($none->id)->streak_best)->toBe(3);
+});
+
+it('GET /today does not let the Monday refill save a series that the stock could not cover when it was read', function (): void {
+    CarbonImmutable::setTestNow('2026-10-19 05:00:00'); // Monday the 19th
+    $now = CarbonImmutable::now();
+
+    $learner = freezeLearner(4, '2026-10-16', 1); // 17th and 18th missed; the refill would make it 2
+    Learner::query()->whereKey($learner->id)->update(['streak_freezes_refilled_on' => '2026-10-12']);
+
+    $progress = app(TodayService::class)->summary($learner->fresh(), $now)->progress;
+
+    expect($progress->streak->current)->toBe(0)
+        ->and(freezeStored($learner))->toMatchArray(['current' => 0, 'freezes' => 2, 'refilled_on' => '2026-10-19'])
+        ->and(LearnerDailyStats::query()->whereNotNull('frozen_at')->count())->toBe(0);
 });

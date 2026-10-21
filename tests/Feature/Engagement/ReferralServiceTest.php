@@ -36,6 +36,7 @@ beforeEach(function (): void {
         'referrals.activation' => ['days' => 3, 'reviews_per_day' => 10, 'window_days' => 14],
         'referrals.max_rewards_per_30d' => 10,
         'referrals.max_rewards_lifetime' => 50,
+        'referrals.max_invitee_rewards_per_30d' => 20,
         'referrals.flag_links_per_day' => 20,
     ]);
 });
@@ -435,6 +436,52 @@ it('rewards the referee but not a capped inviter: 30-day cap', function (): void
     // Idempotent: a repeated reward grants nothing more.
     refService()->reward($referral, $now);
     expect(Subscription::query()->count())->toBe(1);
+});
+
+it('leaves the 21st invited learner of one inviter within 30 days without a reward, and rewards again on day 31', function (): void {
+    config(['referrals.max_rewards_per_30d' => 1000, 'referrals.max_rewards_lifetime' => 1000]);
+    $inviter = refInviter();
+    $now = refNow('2026-10-25 09:00:00');
+    foreach (range(1, 20) as $i) {
+        Referral::factory()->rewarded($now->subDays($i % 29 + 1))->create(['referrer_learner_id' => $inviter->id]);
+    }
+    // Older than 30 days: outside the window.
+    Referral::factory()->rewarded($now->subDays(31))->create(['referrer_learner_id' => $inviter->id]);
+
+    $referral = refPending($inviter, 9320);
+    $referral->forceFill(['status' => 'activated', 'activated_at' => $now])->save();
+    refService()->reward($referral, $now);
+
+    $fresh = $referral->fresh();
+    expect($fresh?->status)->toBe('rewarded')
+        ->and($fresh?->reject_reason)->toBeNull()
+        ->and($fresh?->rewardOf('referee'))->toBe(['subscription_id' => null, 'skipped' => 'invitee_capped'])
+        ->and($fresh?->rewardOf('referrer')['subscription_id'] ?? null)->not->toBeNull()
+        ->and($fresh?->fullyRewarded())->toBeTrue()
+        ->and(Subscription::query()->where('subscriber_id', $referral->referee_learner_id)->count())->toBe(0)
+        ->and(Subscription::query()->where('subscriber_id', $inviter->id)->count())->toBe(1)
+        ->and(ProductEvent::query()->where('name', 'referral.rewarded')->where('props->referee_skipped', 'invitee_capped')->count())->toBe(1);
+
+    // A capped invitee took no slot, and the window slides: 31 days later the oldest rewards are out.
+    $later = refPending($inviter, 9321);
+    $later->forceFill(['status' => 'activated', 'activated_at' => $now])->save();
+    refService()->reward($later, $now->addDays(31));
+    expect($later->fresh()?->rewardOf('referee')['subscription_id'] ?? null)->not->toBeNull();
+});
+
+it('closes both sides when the inviter is over both caps, and still marks the referral rewarded', function (): void {
+    config(['referrals.max_rewards_per_30d' => 0, 'referrals.max_invitee_rewards_per_30d' => 0]);
+    $inviter = refInviter();
+    $referral = refPending($inviter, 9322);
+    $referral->forceFill(['status' => 'activated', 'activated_at' => refNow()])->save();
+
+    refService()->reward($referral, refNow());
+
+    $fresh = $referral->fresh();
+    expect($fresh?->status)->toBe('rewarded')
+        ->and($fresh?->rewardOf('referee')['skipped'] ?? null)->toBe('invitee_capped')
+        ->and($fresh?->rewardOf('referrer')['skipped'] ?? null)->toBe('referrer_capped')
+        ->and(Subscription::query()->count())->toBe(0);
 });
 
 it('allows the reward right below the 30-day cap and refuses at the lifetime cap', function (): void {

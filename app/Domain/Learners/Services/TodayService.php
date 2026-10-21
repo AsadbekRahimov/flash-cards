@@ -19,6 +19,7 @@ use App\Models\Course;
 use App\Models\Learner;
 use App\Models\TrainingSession;
 use Carbon\CarbonImmutable;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -50,9 +51,15 @@ final class TodayService
     {
         $now ??= CarbonImmutable::now();
 
-        // The weekly freeze is handed out lazily here (docs/13 §7.2), before the streak is read:
-        // a freeze refilled on Monday can hold Sunday in the same read.
-        $this->freezes->refill($learner, $this->clock->today($learner, $now), $now);
+        // The weekly freeze is handed out lazily here (docs/13 §7.2), after the streak was settled (below).
+        $today = $this->clock->today($learner, $now);
+        $weekStart = $today->startOfWeek(CarbonInterface::MONDAY)->toDateString();
+        if ($learner->streak_freezes_refilled_on === null || $learner->streak_freezes_refilled_on->toDateString() < $weekStart) {
+            // A series that the stock could not cover BEFORE this refill is already burnt (docs/13 §12 q.16):
+            // settle it first, so the freeze handed out below cannot save it retroactively.
+            $this->streaks->current($learner, $today, $this->dailyStats->today($learner, $now), $now);
+        }
+        $this->freezes->refill($learner, $today, $now);
 
         return new TodaySummary(
             dueCount: $this->stats->dueCount($learner, $now),

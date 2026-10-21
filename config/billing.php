@@ -79,8 +79,8 @@ return [
         'center_l' => ['seats' => null, 'prices' => []],
     ],
 
-    /** Discount (%) of the organization year versus 12 months; 0 = no discount yet (docs/13 §12 q.1). Bounded to 0..99 in OrgTiers. */
-    'org_year_discount_percent' => (int) env('BILLING_ORG_YEAR_DISCOUNT_PERCENT', 0),
+    /** Discount (%) of the organization year versus 12 months; default 17 (owner's decision, docs/13 §12 q.1); 0 = no discount. Bounded to 0..99 in OrgTiers. */
+    'org_year_discount_percent' => (int) env('BILLING_ORG_YEAR_DISCOUNT_PERCENT', 17),
 
     /**
      * Payment providers (docs/13 §4). `enabled` makes a registered adapter sellable; keys and
