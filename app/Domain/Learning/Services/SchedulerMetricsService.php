@@ -115,15 +115,19 @@ final class SchedulerMetricsService
         $cohortEnd = $now->subDays(self::RETENTION_DAY);
         $default = $this->resolver->defaultKind()->value;
 
-        $out = [];
+        /** @var array<string, int> $cohort */
+        $cohort = [];
+        /** @var array<string, int> $retained */
+        $retained = [];
         foreach (SchedulerKind::cases() as $kind) {
-            $out[$kind->value] = ['cohort' => 0, 'retained' => 0];
+            $cohort[$kind->value] = 0;
+            $retained[$kind->value] = 0;
         }
 
         Learner::query()
             ->whereBetween('created_at', [$since, $cohortEnd])
             ->select(['id', 'created_at', 'scheduler'])
-            ->chunkById(1000, function ($learners) use (&$out, $default): void {
+            ->chunkById(1000, function ($learners) use (&$cohort, &$retained, $default): void {
                 /** @var array<int, CarbonImmutable> $createdAt */
                 $createdAt = [];
                 /** @var array<int, string> $bucket */
@@ -131,8 +135,8 @@ final class SchedulerMetricsService
                 /** @var Learner $learner */
                 foreach ($learners as $learner) {
                     $createdAt[$learner->id] = CarbonImmutable::instance($learner->created_at ?? CarbonImmutable::now());
-                    $bucket[$learner->id] = $learner->scheduler?->value ?? $default;
-                    $out[$bucket[$learner->id]]['cohort']++;
+                    $bucket[$learner->id] = $learner->scheduler instanceof SchedulerKind ? $learner->scheduler->value : $default;
+                    $cohort[$bucket[$learner->id]] = ($cohort[$bucket[$learner->id]] ?? 0) + 1;
                 }
 
                 $lastReview = DB::table('training_reviews')
@@ -146,10 +150,15 @@ final class SchedulerMetricsService
                     $learnerId = (int) $row->learner_id;
                     $lastAt = CarbonImmutable::parse((string) $row->last_at);
                     if (! $lastAt->lessThan($createdAt[$learnerId]->addDays(self::RETENTION_DAY))) {
-                        $out[$bucket[$learnerId]]['retained']++;
+                        $retained[$bucket[$learnerId]] = ($retained[$bucket[$learnerId]] ?? 0) + 1;
                     }
                 }
             });
+
+        $out = [];
+        foreach ($cohort as $kind => $count) {
+            $out[$kind] = ['cohort' => $count, 'retained' => $retained[$kind] ?? 0];
+        }
 
         return $out;
     }

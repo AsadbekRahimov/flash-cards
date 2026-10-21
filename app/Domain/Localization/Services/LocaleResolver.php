@@ -6,6 +6,7 @@ namespace App\Domain\Localization\Services;
 
 use App\Models\Learner;
 use App\Models\TelegramGroup;
+use App\Models\TrainingSession;
 
 /**
  * Decides which interface language (ru / uz) a bot message is written in.
@@ -105,6 +106,22 @@ final class LocaleResolver
         return is_string($locale) && $this->isSupported($locale)
             ? $locale
             : $this->default();
+    }
+
+    /**
+     * Language of a training card: the group's locale in a group session (the whole class sees the same
+     * language), the learner's own one in a personal session.
+     */
+    public function forTrainingSession(TrainingSession $session, Learner $learner): string
+    {
+        if ($session->mode === TrainingSession::MODE_GROUP_LESSON) {
+            $session->loadMissing('group');
+            if ($session->group !== null) {
+                return $this->forGroup($session->group);
+            }
+        }
+
+        return $this->forLearner($learner);
     }
 
     public function forTeacher(): string

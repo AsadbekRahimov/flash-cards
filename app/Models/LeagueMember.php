@@ -73,7 +73,11 @@ class LeagueMember extends Model
         return $this->belongsTo(LeagueWeek::class, 'league_week_id');
     }
 
-    /** The learner (null while soft-deleted). @return BelongsTo<Learner, $this> */
+    /**
+     * The learner (null while soft-deleted).
+     *
+     * @return BelongsTo<Learner, $this>
+     */
     public function learner(): BelongsTo
     {
         return $this->belongsTo(Learner::class);

@@ -130,7 +130,7 @@ final class TrainingFlowService
             return TrainingStep::done($reason, $progress, $remaining);
         }
 
-        $locale = $this->localeFor($session, $learner);
+        $locale = $this->locales->forTrainingSession($session, $learner);
         $translation = $this->translations->resolve($pick->word, $locale);
         $audioUrl = $this->audio->urlFor($pick->word);
 
@@ -164,22 +164,6 @@ final class TrainingFlowService
             prompt: $prompt,
             audioUrl: $audioUrl,
         );
-    }
-
-    /**
-     * Language of the card translation: the group's locale in a group session (the whole class
-     * sees the same language), the learner's own interface language in a personal one.
-     */
-    private function localeFor(TrainingSession $session, Learner $learner): string
-    {
-        if ($session->mode === TrainingSession::MODE_GROUP_LESSON) {
-            $session->loadMissing('group');
-            if ($session->group !== null) {
-                return $this->locales->forGroup($session->group);
-            }
-        }
-
-        return $this->locales->forLearner($learner);
     }
 
     private function dailyGoal(Learner $learner): int

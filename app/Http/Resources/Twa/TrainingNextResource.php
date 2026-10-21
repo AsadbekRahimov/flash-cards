@@ -29,18 +29,21 @@ final class TrainingNextResource extends TwaResource
         $word = $this->resource->word;
         $translation = $this->resource->translation;
         $prompt = $this->resource->prompt ?? ($word === null ? null : ExercisePrompt::flash($word->word, $this->resource->audioUrl));
+        // Spelling / gap-fill: the typed word is the answer — the card must not carry it (nor its example, transcription
+        // or audio). The right answer comes back in `graded.expected` of POST /review (docs/04 A.3).
+        $hidden = $prompt !== null && $prompt->type->serverGraded();
 
         return [
             'card' => $word !== null ? [
                 'word_id' => (int) $word->id,
-                'word' => $word->word,
+                'word' => $hidden ? '' : $word->word,
                 'translation' => $translation->text ?? $word->translation,
                 // true: the text is the ru fallback because the session's language has no translation yet.
                 'translation_fallback' => $translation->isFallback ?? false,
-                'example' => $word->example,
-                'transcription' => $word->transcription,
+                'example' => $hidden ? null : $word->example,
+                'transcription' => $hidden ? null : $word->transcription,
                 // Pre-generated mp3 (task 1.2c); null -> the client falls back to Web Speech / GET /tts.
-                'audio_url' => $this->resource->audioUrl,
+                'audio_url' => $hidden ? null : $this->resource->audioUrl,
                 'card_kind' => (string) $this->resource->kind,
                 // Learn-ahead ticket: must be echoed as `serve_token` in POST /review (docs/06 §5.2).
                 'serve_token' => $this->resource->serveToken,

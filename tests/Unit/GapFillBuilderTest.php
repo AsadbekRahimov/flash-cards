@@ -51,9 +51,9 @@ it('masks whole words only, never a substring', function (): void {
         ->and($this->builder->build(gapWord('art', 'He is smart.')))->toBeNull();
 });
 
-it('masks only the first occurrence', function (): void {
-    $gap = $this->builder->build(gapWord('run', 'Run, run, run!'));
-    expect($gap?->masked)->toBe('____, run, run!')->and($gap?->expected)->toBe('Run');
+it('masks every occurrence; the first one is what has to be typed', function (): void {
+    $gap = $this->builder->build(gapWord('run', 'Run, run fast!'));
+    expect($gap?->masked)->toBe('____, ____ fast!')->and($gap?->expected)->toBe('Run');
 });
 
 it('handles multi-word entries and apostrophes', function (): void {

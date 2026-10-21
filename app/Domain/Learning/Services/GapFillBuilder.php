@@ -10,9 +10,9 @@ use App\Models\Word;
 /**
  * Masks the word in its example for the gap-fill exercise (docs/13 §2.5, docs/06 §4.3).
  *
- * The first occurrence of the word or one of its regular forms — `+s`, `+es`, `+ed`, `+d`, `+ing`,
+ * Every occurrence of the word or one of its regular forms — `+s`, `+es`, `+ed`, `+d`, `+ing`,
  * `y → ies / ied`, `e → ing` — is matched as a whole word, case-insensitively, and replaced by
- * {@see MASK}; the matched form (as written in the example) is what the learner has to type.
+ * {@see MASK}; the first matched form (as written in the example) is what the learner has to type.
  * No example, or the word not in it (irregular form, a paraphrase) → null, and the selector
  * falls back to another exercise. Pure: the same word always gives the same mask.
  */
@@ -33,15 +33,17 @@ final class GapFillBuilder
         usort($forms, static fn (string $a, string $b): int => strlen($b) <=> strlen($a));
 
         $pattern = '/(?<![\p{L}\p{N}])(?:'.implode('|', $forms).')(?![\p{L}\p{N}])/iu';
-        if (preg_match($pattern, $example, $m, PREG_OFFSET_CAPTURE) !== 1) {
+        $expected = null;
+        $masked = preg_replace_callback($pattern, static function (array $m) use (&$expected): string {
+            $expected ??= $m[0];
+
+            return self::MASK;
+        }, $example);
+        if ($masked === null || $expected === null) {
             return null;
         }
 
-        /** @var array{0: string, 1: int} $hit */
-        $hit = $m[0];
-        $masked = substr($example, 0, $hit[1]).self::MASK.substr($example, $hit[1] + strlen($hit[0]));
-
-        return new GapFill($masked, $hit[0]);
+        return new GapFill($masked, $expected);
     }
 
     /**

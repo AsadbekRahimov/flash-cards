@@ -15,6 +15,7 @@ use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Learning\Exceptions\ReviewSubmissionException;
 use App\Domain\Learning\Support\LearningPolicy;
 use App\Domain\Learning\Support\TrainingScope;
+use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Learner;
 use App\Models\TrainingReview;
 use App\Models\TrainingSession;
@@ -65,6 +66,8 @@ final class ReviewSubmissionService
         private readonly ExerciseSelector $selector,
         private readonly SpellingGrader $grader,
         private readonly GapFillBuilder $gapFill,
+        private readonly ExercisePromptBuilder $prompts,
+        private readonly LocaleResolver $locales,
     ) {}
 
     /**
@@ -188,7 +191,13 @@ final class ReviewSubmissionService
             }
 
             // The exercise this serve was shown with — from the still ungraded row (docs/13 §8.2).
-            $exercise = $this->selector->select($repetition, $word, $entitlement, $settings, $lockedSession->mode);
+            // A reverse / audio pick without enough distractors was shown as flash — record what the client saw.
+            $exercise = $this->prompts->effectiveType(
+                $this->selector->select($repetition, $word, $entitlement, $settings, $lockedSession->mode),
+                $word,
+                $this->locales->forTrainingSession($lockedSession, $learner),
+                crc32($repetition->repetitions.':'.$word->id),
+            );
             $verdict = null;
 
             if ($answer !== null) {

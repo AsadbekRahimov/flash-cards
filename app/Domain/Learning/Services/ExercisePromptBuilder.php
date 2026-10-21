@@ -37,6 +37,25 @@ final class ExercisePromptBuilder
         private readonly GapFillBuilder $gapFill,
     ) {}
 
+    /**
+     * The type the card is actually shown with: reverse / audio without enough distractors (and a gap-fill
+     * whose example lost the word) fall back to flash. `POST /review` records this, not the selector's pick.
+     */
+    public function effectiveType(ExerciseType $type, Word $word, string $locale, int $seed): ExerciseType
+    {
+        return match ($type) {
+            ExerciseType::Reverse, ExerciseType::Audio => count($this->distractors(
+                $type,
+                $word,
+                $type === ExerciseType::Reverse ? trim($word->word) : trim($this->translations->resolve($word, $locale)->text),
+                $locale,
+                $seed,
+            )) < self::OPTIONS - 1 ? ExerciseType::Flash : $type,
+            ExerciseType::GapFill => $this->gapFill->build($word) === null ? ExerciseType::Flash : $type,
+            default => $type,
+        };
+    }
+
     public function build(
         ExerciseType $type,
         Word $word,
@@ -98,7 +117,7 @@ final class ExercisePromptBuilder
             $type,
             $type === ExerciseType::Reverse ? $translation->text : '',
             $audioUrl,
-            options: array_values($options),
+            options: $options,
         );
     }
 

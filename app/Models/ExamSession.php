@@ -90,13 +90,21 @@ class ExamSession extends Model
         return $this->belongsTo(User::class, 'started_by_user_id');
     }
 
-    /** Owner of a `personal_mock` session; null for group exams. @return BelongsTo<Learner, $this> */
+    /**
+     * Owner of a `personal_mock` session; null for group exams.
+     *
+     * @return BelongsTo<Learner, $this>
+     */
     public function learner(): BelongsTo
     {
         return $this->belongsTo(Learner::class);
     }
 
-    /** Course of a `personal_mock` session; null for group exams. @return BelongsTo<Course, $this> */
+    /**
+     * Course of a `personal_mock` session; null for group exams.
+     *
+     * @return BelongsTo<Course, $this>
+     */
     public function course(): BelongsTo
     {
         return $this->belongsTo(Course::class);

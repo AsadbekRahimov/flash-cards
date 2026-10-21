@@ -253,6 +253,8 @@ Learner присоединяется к открытой тренировке. �
 }
 ```
 
+Для `prompt.type` = `spelling` / `gap_fill` карточка не содержит ответа: `word` = `""`, `example`, `transcription`, `audio_url` = `null` (правильный ответ — в `graded.expected` ответа `/review`).
+
 `card` / `progress` / `done_reason` / `quota` — первая карточка, прогресс, причина «карточек нет» и квота в том же формате, что у `/next`.
 Если у урока сессии нет (удалён) — 404 `lesson_not_found`.
 

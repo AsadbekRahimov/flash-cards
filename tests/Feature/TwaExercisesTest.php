@@ -275,6 +275,11 @@ it('serves spelling to Pro on the third pass, refuses quality and grades the typ
     $url = "/api/twa/training/sessions/{$s['session']->id}";
 
     $card = $this->withHeaders($headers)->getJson("{$url}/next")->assertOk()->json('card');
+    // The typed word is the answer: the card must not carry it, its example, transcription or audio.
+    expect($card['word'])->toBe('')
+        ->and($card['example'])->toBeNull()
+        ->and($card['transcription'])->toBeNull()
+        ->and($card['audio_url'])->toBeNull();
     expect($card['prompt'])->toBe([
         'type' => 'spelling',
         'front' => $card['translation'],
@@ -346,6 +351,10 @@ it('serves gap_fill when the example carries the word and grades the form in the
     $url = "/api/twa/training/sessions/{$s['session']->id}";
 
     $card = $this->withHeaders($headers)->getJson("{$url}/next")->json('card');
+    expect($card['word'])->toBe('')
+        ->and($card['example'])->toBeNull()
+        ->and($card['transcription'])->toBeNull()
+        ->and($card['audio_url'])->toBeNull();
     expect($card['prompt']['type'])->toBe('gap_fill')
         ->and($card['prompt']['masked_example'])->toBe('They ____ home late.')
         ->and($card['prompt']['answer_length'])->toBe(6)
@@ -460,4 +469,36 @@ it('does not serve a switched-off exercise', function (): void {
 
     $card = $this->withHeaders(exHeaders($s['learner']))->getJson("/api/twa/training/sessions/{$s['session']->id}/next")->json('card');
     expect($card['prompt']['type'])->toBeIn(['flash', 'reverse', 'audio']);
+});
+
+it('records the flash the client was shown when a reverse / audio pick ran short of distractors', function (): void {
+    $s = exScenario(2, 2);
+    $word = $s['words'][0];
+    $repetition = WordRepetition::query()->where('word_id', $word->id)->sole();
+
+    // A pass count for which the selector picks reverse or audio for this word.
+    $picked = null;
+    for ($r = 2; $r < 80 && $picked === null; $r++) {
+        $repetition->repetitions = $r;
+        $type = app(ExerciseSelector::class)->select($repetition, $word, Entitlement::free(), new LearnerExerciseSettings, 'lesson');
+        if (in_array($type, [ExerciseType::Reverse, ExerciseType::Audio], true)) {
+            $picked = $r;
+        }
+    }
+    expect($picked)->not->toBeNull();
+    WordRepetition::query()->whereKey($repetition->id)->update(['repetitions' => $picked]);
+    // The other word is due later, so this one is served.
+    WordRepetition::query()->where('word_id', $s['words'][1]->id)->update(['next_review_at' => now()->addDay()]);
+
+    $headers = exHeaders($s['learner']);
+    $url = "/api/twa/training/sessions/{$s['session']->id}";
+    $card = $this->withHeaders($headers)->getJson("{$url}/next")->assertOk()->json('card');
+    expect($card['word_id'])->toBe($word->id)
+        ->and($card['prompt']['type'])->toBe('flash');
+
+    $this->withHeaders($headers)
+        ->postJson("{$url}/review", ['word_id' => $word->id, 'quality' => 4, 'time_spent_ms' => 100])
+        ->assertOk();
+
+    expect(TrainingReview::query()->sole()->exercise)->toBe(ExerciseType::Flash);
 });

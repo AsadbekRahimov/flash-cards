@@ -63,7 +63,7 @@ final class LeagueResource extends TwaResource
                 'zone' => $membership->zone,
                 'points_to_promote' => $membership->pointsToPromote,
                 'points_to_safety' => $membership->pointsToSafety,
-                'standings' => array_values(array_map(
+                'standings' => array_map(
                     fn (LeagueStanding $s): array => [
                         'rank' => $s->rank,
                         'name' => $s->name,
@@ -71,7 +71,7 @@ final class LeagueResource extends TwaResource
                         'is_me' => $s->learnerId === $this->learnerId($request),
                     ],
                     $membership->standings,
-                )),
+                ),
             ],
             'last_week' => $last === null || $lastWeek === null || $last->result === null ? null : [
                 'starts_on' => $lastWeek->starts_on->toDateString(),

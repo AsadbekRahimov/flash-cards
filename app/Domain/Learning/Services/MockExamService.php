@@ -376,7 +376,7 @@ final class MockExamService
 
         usort($ids, static fn (int $a, int $b): int => strcmp($keys[$a], $keys[$b]) ?: ($a <=> $b));
 
-        return array_values($ids);
+        return $ids;
     }
 
     /**
