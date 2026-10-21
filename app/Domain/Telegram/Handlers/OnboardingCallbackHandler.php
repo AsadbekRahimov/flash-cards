@@ -10,6 +10,7 @@ use App\Domain\Learners\Exceptions\TimezoneRevertUnavailableException;
 use App\Domain\Learners\Services\LearnerSettingsService;
 use App\Domain\Learners\Services\OnboardingService;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Domain\Telegram\Services\FriendsMessenger;
 use App\Domain\Telegram\Services\OnboardingMessenger;
 use App\Domain\Telegram\Services\OrganizationMessenger;
 use App\Domain\Telegram\Support\CallbackAcknowledger;
@@ -45,6 +46,7 @@ final class OnboardingCallbackHandler implements UpdateHandler
         private readonly LearnerSettingsService $settings,
         private readonly OnboardingMessenger $messenger,
         private readonly OrganizationMessenger $organizations,
+        private readonly FriendsMessenger $friends,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -112,6 +114,8 @@ final class OnboardingCallbackHandler implements UpdateHandler
                 if ($next->isDone()) {
                     // The center of an `org_<code>` link opened before the onboarding (docs/13 §6.2).
                     $this->organizations->offerPending($learner, $chatId);
+                    // The `f_<code>` link opened before the onboarding (docs/13 §7.5).
+                    $this->friends->offerPending($learner, $chatId);
                 }
 
                 return;
@@ -177,6 +181,7 @@ final class OnboardingCallbackHandler implements UpdateHandler
 
             if ($step->isDone()) {
                 $this->organizations->offerPending($learner, $chatId);
+                $this->friends->offerPending($learner, $chatId);
             }
         }
     }

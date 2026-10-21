@@ -10,6 +10,7 @@ return [
     'offer' => [
         'text' => ":name'ning taklif havolasini ochdingiz. :name'ga do'stlik so'rovini yuboraylikmi?\n\nDo'stlar bir-birining seriyasini va o'rganilgan so'zlar sonini ko'radi va musobaqa tashlashi mumkin: hafta davomida kim ko'proq takrorlaydi.",
         'send' => "So'rov yuborish",
+        'add' => "Do'stlarga qo'shish",
         'skip' => 'Hozir emas',
     ],
 

@@ -11,6 +11,7 @@ use App\Domain\Engagement\Exceptions\ChallengeException;
 use App\Domain\Engagement\Exceptions\FriendshipException;
 use App\Domain\Engagement\Services\ChallengeService;
 use App\Domain\Engagement\Services\FriendshipService;
+use App\Domain\Learners\Services\OnboardingService;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
@@ -36,6 +37,9 @@ use Illuminate\Support\Facades\Log;
  *   fr1:cacc:<id> / fr1:cdec:<id>  — challenge (`<id>` = challenges.id): accept / decline.
  * Nothing in it is trusted: the services look the id up among the sender's OWN rows only.
  *
+ * A link opened BEFORE the onboarding is remembered (`learners.meta.pending_friend_invite`) and offered the same
+ * way, with an "Add to friends" button, right after the last step ({@see offerPending()}).
+ *
  * Consent: a public link is only an address. Opening it writes NOTHING; the opener is asked and, on "send",
  * `request(opener → inviter)` is created — the link owner then accepts or declines it himself (a DM with
  * buttons, and "Incoming" in the app). A `ref_<code>` link offers no friendship at all.
@@ -53,10 +57,14 @@ final class FriendsMessenger
         private readonly ChallengeService $challenges,
         private readonly OnboardingMessenger $onboardingMessenger,
         private readonly DmLearnerResolver $dm,
+        private readonly OnboardingService $onboarding,
     ) {}
 
-    /** `/start f_<code>` of a learner who has finished the onboarding: asks "send X a friend request?". Writes nothing. */
-    public function offer(Learner $learner, int|string $chatId, string $code): void
+    /**
+     * `/start f_<code>` of a learner who has finished the onboarding (or, with `$afterOnboarding`, the link
+     * remembered from before it): asks "send X a friend request?". Writes nothing.
+     */
+    public function offer(Learner $learner, int|string $chatId, string $code, bool $afterOnboarding = false): void
     {
         $locale = $this->locales->forLearner($learner);
         $inviter = $this->friendships->ownerOfCode($code);
@@ -79,7 +87,7 @@ final class FriendsMessenger
                 $chatId,
                 __('friends.offer.text', ['name' => $name], $locale),
                 replyMarkup: ['inline_keyboard' => [[
-                    ['text' => __('friends.offer.send', [], $locale), 'callback_data' => self::PREFIX.':snd:'.$code],
+                    ['text' => __($afterOnboarding ? 'friends.offer.add' : 'friends.offer.send', [], $locale), 'callback_data' => self::PREFIX.':snd:'.$code],
                     ['text' => __('friends.offer.skip', [], $locale), 'callback_data' => self::PREFIX.':no:'.$code],
                 ]]],
             );
@@ -98,6 +106,18 @@ final class FriendsMessenger
             // The link owner has already asked this learner: the pending request is answered right here.
             $this->telegram->sendMessage($chatId, __('friends.incoming.text', ['name' => $name], $locale), replyMarkup: $this->answerKeyboard($existing->id, $locale));
         }
+    }
+
+    /** The end of the onboarding: offers the friendship of the remembered `f_<code>` link, once. */
+    public function offerPending(Learner $learner, int|string $chatId): void
+    {
+        $code = $this->onboarding->pendingFriendInvite($learner);
+        if ($code === null) {
+            return;
+        }
+
+        $this->offer($learner, $chatId, $code, afterOnboarding: true);
+        $this->onboarding->clearPendingFriendInvite($learner);
     }
 
     /** "Send": `request(learner → owner of the code)`; the owner is told and answers it himself. */

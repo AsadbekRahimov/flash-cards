@@ -29,7 +29,7 @@ use Carbon\CarbonImmutable;
  * A `ref_<code>` link (docs/13 §7.1) also links the referral when the learner is new. An `f_<code>` link, or a
  * `ref_<code>` link opened by somebody who is ALREADY a learner (docs/13 §7.5), is an invitation to be friends:
  * "X invites you" with Accept / Decline at once for a learner who has finished the onboarding, a silent pending
- * request (answered later in the app) for one who has not.
+ * question after the last step (the code is remembered) for one who has not.
  */
 final class StartCommandHandler implements UpdateHandler
 {
@@ -139,7 +139,8 @@ final class StartCommandHandler implements UpdateHandler
             return;
         }
 
-        // `f_<code>` of somebody still in the onboarding writes nothing (no consent yet); the link stays in `start_payload`.
+        // `f_<code>` of somebody still in the onboarding writes no friendship (no consent yet); OnboardingService::start
+        // remembers the code and FriendsMessenger::offerPending asks "Add to friends?" after the last step.
 
         // A code that cannot be used is explained now and not remembered for the end of the onboarding.
         if (! $this->organizations->acceptsPayload($learner, $chatId, $payload)) {
