@@ -754,7 +754,7 @@ final class SubscriptionService
      * Promo redemption: `now + duration_days` of the code's plan. An existing
      * live personal subscription with an end date is extended by the duration
      * (from its end or from now, whichever is later) and re-activated if it was
-     * in grace or canceled; a perpetual one cannot be extended (promo_not_applicable).
+     * in grace (a canceled one stays canceled until the extended end); a perpetual one cannot be extended (promo_not_applicable).
      * Must run inside the caller's transaction (PromoCodeService holds the promo
      * row lock); locks the learner row itself.
      *
@@ -950,7 +950,7 @@ final class SubscriptionService
 
     /**
      * Shared body of grantFromPromo / grantReward: a new active row, or the live row extended
-     * from max(its end, now) by $days and re-activated.
+     * from max(its end, now) by $days and re-activated (a canceled row stays canceled).
      *
      * @param  array<string, mixed>  $historyExtra
      */
@@ -992,12 +992,16 @@ final class SubscriptionService
             'from' => $this->snapshot($live),
         ];
 
+        // A canceled row stays canceled (it lives to the end of the extended period): re-activating it would
+        // mark a Stars subscription as auto-renewing again although it is canceled in Telegram.
+        $canceled = $live->status === SubscriptionStatus::Canceled->value;
+
         $live->fill([
             'plan' => $plan->outranks(Plan::fromKey($live->plan)) ? $plan->value : $live->plan,
-            'status' => SubscriptionStatus::Active->value,
+            'status' => $canceled ? SubscriptionStatus::Canceled->value : SubscriptionStatus::Active->value,
             'current_period_ends_at' => $from->addDays($days),
             'grace_until' => null,
-            'canceled_at' => null,
+            'canceled_at' => $canceled ? $live->canceled_at : null,
             'meta' => $meta,
         ])->save();
 
