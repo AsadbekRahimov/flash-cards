@@ -11,6 +11,7 @@ use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Tests\Support\FakeTelegramClient;
 use Tests\Support\OfflineTelegramApi;
 
@@ -29,6 +30,9 @@ abstract class TestCase extends BaseTestCase
         Cache::flush();
 
         Http::preventStrayRequests();
+
+        // Nothing a test renders or saves (achievement cards on a sync queue, audio) may land on the real public disk.
+        Storage::fake('public');
 
         // No test talks to the real Bot API (CI has internet, a fictitious token answers 404): the contract is
         // a recording fake, the concrete adapter an SDK that throws. A test that checks sending rebinds its own.

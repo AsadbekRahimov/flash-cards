@@ -390,6 +390,7 @@ export const ru = {
   'referrals.counts.invited': 'Пришли',
   'referrals.counts.activated': 'Занимаются',
   'referrals.counts.rewarded': 'Награждены',
+  'referrals.counts.capped': 'Лимит наград достигнут: за ещё {count} приглашённых вам Pro не начислено, друзья свою награду получили.',
   'referrals.list.title': 'Приглашённые',
   'referrals.list.empty': 'Пока никто не пришёл по вашей ссылке.',
   'referrals.list.anonymous': 'Друг',

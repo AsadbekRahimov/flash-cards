@@ -69,12 +69,7 @@ final class AchievementCardRenderer
 
     private function disk(): FilesystemAdapter
     {
-        $disk = Storage::disk((string) config('achievements.disk', 'public'));
-        if (! $disk instanceof FilesystemAdapter) {
-            throw new RuntimeException('The achievements disk must be a filesystem adapter.');
-        }
-
-        return $disk;
+        return Storage::disk((string) config('achievements.disk', 'public'));
     }
 
     private function store(FilesystemAdapter $disk, string $relative, string $png): void
@@ -112,7 +107,7 @@ final class AchievementCardRenderer
             throw new RuntimeException('Could not create the card image.');
         }
 
-        [$top, $bottom] = self::PALETTES[$key->family()];
+        [$top, $bottom] = self::PALETTES[$key->family()] ?? self::PALETTES['streak'];
         for ($y = 0; $y < $size; $y++) {
             $t = $y / ($size - 1);
             $line = $this->color($image, (int) round($top[0] + ($bottom[0] - $top[0]) * $t), (int) round($top[1] + ($bottom[1] - $top[1]) * $t), (int) round($top[2] + ($bottom[2] - $top[2]) * $t));

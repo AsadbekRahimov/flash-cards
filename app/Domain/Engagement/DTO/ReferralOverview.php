@@ -14,7 +14,9 @@ use Illuminate\Database\Eloquent\Collection;
  */
 final readonly class ReferralOverview
 {
-    /** @param Collection<int, Referral> $referrals non-rejected, newest first, `referee` loaded */
+    /** @param int $rewarded referrals that gave the inviter their reward
+     * @param int $capped rewarded referrals whose inviter side was closed by the reward limit (not counted in `rewarded`)
+     * @param Collection<int, Referral> $referrals non-rejected, newest first, `referee` loaded */
     public function __construct(
         public string $code,
         public ?string $link,
@@ -25,6 +27,7 @@ final readonly class ReferralOverview
         public int $invited,
         public int $activated,
         public int $rewarded,
+        public int $capped,
         public Collection $referrals,
     ) {}
 }

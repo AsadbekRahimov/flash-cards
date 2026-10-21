@@ -182,8 +182,15 @@ describe('ExercisePromptBuilder', function (): void {
             ->and($reverse->options)->toHaveCount(4)
             ->and($reverse->options)->toContain($word->word)
             ->and(array_unique(array_map('mb_strtolower', (array) $reverse->options)))->toHaveCount(4)
-            ->and($builder->build(ExerciseType::Reverse, $word, $translation, 'ru', null, 42)->options)->toBe($reverse->options)
-            ->and($builder->build(ExerciseType::Reverse, $word, $translation, 'ru', null, 43)->options)->not->toBe($reverse->options);
+            ->and($builder->build(ExerciseType::Reverse, $word, $translation, 'ru', null, 42)->options)->toBe($reverse->options);
+
+        // The order is a hash of (seed, candidate): one other seed may happen to give the same order (1 in 120 with
+        // four options of five words, and the ids that go into the hash differ per run), so look at a range of seeds.
+        $others = array_map(
+            static fn (int $seed): array => (array) $builder->build(ExerciseType::Reverse, $word, $translation, 'ru', null, $seed)->options,
+            range(43, 72),
+        );
+        expect(array_filter($others, static fn (array $options): bool => $options !== $reverse->options))->not->toBeEmpty();
 
         $audio = $builder->build(ExerciseType::Audio, $word, $translation, 'ru', 'https://x.test/a.mp3', 42);
         expect($audio->type)->toBe(ExerciseType::Audio)

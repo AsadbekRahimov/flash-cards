@@ -538,7 +538,24 @@ it('builds the inviter overview: code, link, counts and the invited names only',
         ->and($overview->invited)->toBe(3)
         ->and($overview->activated)->toBe(2)
         ->and($overview->rewarded)->toBe(1)
+        ->and($overview->capped)->toBe(0)
         ->and($overview->referrals->pluck('referee_learner_id')->all())->toBe([$c->id, $b->id, $a->id]);
+});
+
+it('does not count a referral whose inviter side was closed by the cap as rewarded: it is counted apart', function (): void {
+    $inviter = Learner::factory()->create();
+    $code = refService()->codeFor($inviter);
+    $paid = refService()->link(refNewLearner(9411), $code, refNow());
+    $capped = refService()->link(refNewLearner(9412), $code, refNow()->addMinute());
+    $paid?->forceFill(['status' => 'rewarded', 'activated_at' => refNow(), 'rewarded_at' => refNow(), 'meta' => ['rewards' => ['referrer' => ['subscription_id' => 1, 'skipped' => null]]]])->save();
+    $capped?->forceFill(['status' => 'rewarded', 'activated_at' => refNow(), 'rewarded_at' => refNow(), 'meta' => ['rewards' => ['referrer' => ['subscription_id' => null, 'skipped' => 'referrer_capped']]]])->save();
+
+    $overview = refService()->overview($inviter);
+
+    expect($overview->invited)->toBe(2)
+        ->and($overview->activated)->toBe(2)
+        ->and($overview->rewarded)->toBe(1)
+        ->and($overview->capped)->toBe(1);
 });
 
 // --- deleted / blocked sides ---------------------------------------------------

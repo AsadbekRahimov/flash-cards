@@ -55,6 +55,18 @@ it('derives the year price from the month: x12 without a discount, minus the con
     expect(OrgTiers::price('center_s', 'year', 'UZS') % 100)->toBe(0);
 });
 
+it('bounds the discount to 0..99 in one place: 100 and more count as 99, a negative one as 0', function (): void {
+    config()->set('billing.org_year_discount_percent', 100);
+    expect(OrgTiers::price('center_s', 'year', 'UZS'))->toBe(4_188_000)
+        ->and(OrgTiers::price('center_s', 'year', 'UZS'))->toBe((int) (round(34_900_000 * 12 * 1 / 100 / 100) * 100));
+
+    config()->set('billing.org_year_discount_percent', 250);
+    expect(OrgTiers::price('center_s', 'year', 'UZS'))->toBe(4_188_000);
+
+    config()->set('billing.org_year_discount_percent', -5);
+    expect(OrgTiers::price('center_s', 'year', 'UZS'))->toBe(34_900_000 * 12);
+});
+
 it('prefers an explicit year price and sells no year for a tier without a month price', function (): void {
     config()->set('billing.org_tiers.center_s.prices.year', ['UZS' => 300_000_000]);
 

@@ -49,7 +49,7 @@ final class AchievementsResource extends TwaResource
                 'progress' => $e->progressCurrent === null || $e->progressTarget === null
                     ? null
                     : ['current' => $e->progressCurrent, 'target' => $e->progressTarget],
-                'share_text' => $e->unlocked() ? __('achievements.share_text', ['title' => $e->key->title($locale)], $locale) : null,
+                'share_text' => $e->unlocked() ? (string) __('achievements.share_text', ['title' => $e->key->title($locale)], $locale) : null,
             ], $entries),
         ];
     }

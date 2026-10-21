@@ -111,13 +111,12 @@ final class FriendsMessenger
     /** The end of the onboarding: offers the friendship of the remembered `f_<code>` link, once. */
     public function offerPending(Learner $learner, int|string $chatId): void
     {
-        $code = $this->onboarding->pendingFriendInvite($learner);
+        $code = $this->onboarding->pullPendingFriendInvite($learner);
         if ($code === null) {
             return;
         }
 
         $this->offer($learner, $chatId, $code, afterOnboarding: true);
-        $this->onboarding->clearPendingFriendInvite($learner);
     }
 
     /** "Send": `request(learner → owner of the code)`; the owner is told and answers it himself. */

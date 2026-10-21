@@ -788,7 +788,7 @@ it('GET /referrals keeps its exact JSON shape (docs/04 A.12)', function (): void
         ->assertExactJsonStructure([
             'code', 'link', 'reward_days',
             'activation' => ['days', 'reviews_per_day', 'window_days'],
-            'counts' => ['invited', 'activated', 'rewarded'],
+            'counts' => ['invited', 'activated', 'rewarded', 'capped'],
             'referrals' => [['first_name', 'status', 'linked_at']],
         ]);
 

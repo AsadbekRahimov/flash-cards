@@ -16,6 +16,7 @@ use App\Domain\Telegram\Services\OrganizationMessenger;
 use App\Domain\Telegram\Support\CallbackAcknowledger;
 use App\Domain\Telegram\Support\DmLearnerResolver;
 use App\Models\Learner;
+use Throwable;
 
 /**
  * Buttons of the onboarding (`onb1:<step>:<value>`) and of `/settings` (`set1:<step>[:<value>]`).
@@ -112,10 +113,7 @@ final class OnboardingCallbackHandler implements UpdateHandler
                 $this->messenger->sendStep($learner, $chatId, $next);
 
                 if ($next->isDone()) {
-                    // The center of an `org_<code>` link opened before the onboarding (docs/13 §6.2).
-                    $this->organizations->offerPending($learner, $chatId);
-                    // The `f_<code>` link opened before the onboarding (docs/13 §7.5).
-                    $this->friends->offerPending($learner, $chatId);
+                    $this->offerPending($learner, $chatId);
                 }
 
                 return;
@@ -180,9 +178,26 @@ final class OnboardingCallbackHandler implements UpdateHandler
             $this->messenger->sendStep($learner, $chatId, $step);
 
             if ($step->isDone()) {
-                $this->organizations->offerPending($learner, $chatId);
-                $this->friends->offerPending($learner, $chatId);
+                $this->offerPending($learner, $chatId);
             }
+        }
+    }
+
+    /** Each offer on its own: a failure of one does not swallow the other (the codes are already pulled). */
+    private function offerPending(Learner $learner, int $chatId): void
+    {
+        // The center of an `org_<code>` link opened before the onboarding (docs/13 §6.2).
+        try {
+            $this->organizations->offerPending($learner, $chatId);
+        } catch (Throwable $e) {
+            report($e);
+        }
+
+        // The `f_<code>` link opened before the onboarding (docs/13 §7.5).
+        try {
+            $this->friends->offerPending($learner, $chatId);
+        } catch (Throwable $e) {
+            report($e);
         }
     }
 }

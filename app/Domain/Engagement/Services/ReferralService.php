@@ -390,8 +390,16 @@ final class ReferralService
             ->map(static fn (mixed $n): int => (int) $n)
             ->all();
 
-        $rewarded = $byStatus[ReferralStatus::Rewarded->value] ?? 0;
-        $activated = ($byStatus[ReferralStatus::Activated->value] ?? 0) + $rewarded;
+        // Rewarded for the invited learner, but the inviter's own side was closed by the cap: not "rewarded" for them.
+        $capped = Referral::query()
+            ->where('referrer_learner_id', $learner->id)
+            ->where('status', ReferralStatus::Rewarded->value)
+            ->where('meta->rewards->'.Referral::SIDE_REFERRER.'->skipped', self::SKIPPED_REFERRER_CAPPED)
+            ->count();
+
+        $closed = $byStatus[ReferralStatus::Rewarded->value] ?? 0;
+        $rewarded = max(0, $closed - $capped);
+        $activated = ($byStatus[ReferralStatus::Activated->value] ?? 0) + $closed;
         $invited = $activated + ($byStatus[ReferralStatus::Pending->value] ?? 0);
 
         return new ReferralOverview(
@@ -404,6 +412,7 @@ final class ReferralService
             invited: $invited,
             activated: $activated,
             rewarded: $rewarded,
+            capped: $capped,
             referrals: $rows,
         );
     }

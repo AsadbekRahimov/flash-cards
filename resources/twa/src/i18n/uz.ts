@@ -366,6 +366,7 @@ export const uz: Translations = {
   'referrals.counts.invited': 'Kelganlar',
   'referrals.counts.activated': "Shug'ullanayotganlar",
   'referrals.counts.rewarded': 'Mukofotlanganlar',
+  'referrals.counts.capped': "Mukofot limiti tugadi: yana {count} ta taklif uchun sizga Pro berilmadi, do'stlaringiz o'z mukofotini oldi.",
   'referrals.list.title': 'Taklif qilinganlar',
   'referrals.list.empty': "Havolangiz orqali hali hech kim kelmadi.",
   'referrals.list.anonymous': "Do'st",

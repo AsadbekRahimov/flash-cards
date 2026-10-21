@@ -123,6 +123,18 @@ it('leaves the marker after an ambiguous failure so that a retry does not duplic
         ->and(NotificationLog::query()->where('type', 'achievement')->count())->toBe(1);
 });
 
+it('does not send the card again on a retry after an ambiguous (non-403) failure', function (): void {
+    $achievement = Achievement::factory()->create();
+    $this->tg->failSends = 1; // a Bot API refusal that is not a 403: it is unknown whether the photo arrived
+
+    expect(fn () => sendAch($achievement))->toThrow(TelegramApiException::class);
+
+    $this->tg->failSends = 0;
+    expect(sendAch($achievement))->toBe('skipped')
+        ->and($this->tg->photos)->toHaveCount(0)
+        ->and(NotificationLog::query()->where('type', 'achievement')->count())->toBe(1);
+});
+
 it('is dispatched by the unlock once and runs through the bot-wide send budget', function (): void {
     $job = new SendAchievementJob(1);
 

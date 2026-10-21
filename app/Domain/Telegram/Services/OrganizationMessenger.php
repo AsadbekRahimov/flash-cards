@@ -90,13 +90,12 @@ final class OrganizationMessenger
     /** The end of the onboarding: offers the center of the remembered `org_<code>` link, once. */
     public function offerPending(Learner $learner, int|string $chatId): void
     {
-        $code = $this->onboarding->pendingOrganizationInvite($learner);
+        $code = $this->onboarding->pullPendingOrgInvite($learner);
         if ($code === null) {
             return;
         }
 
         $this->offer($learner, $chatId, $code);
-        $this->onboarding->clearPendingOrganizationInvite($learner);
     }
 
     /** "Join" tapped: joins (idempotent); the DM comes from OrganizationMemberJoined. */
