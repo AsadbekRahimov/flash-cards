@@ -752,7 +752,7 @@ sign of success; read the body or the payment screens. If the provider publishes
    `/pro` → Click page → `/billing/return` shows "Оплата получена", **Payments** has a `succeeded` row
    (`provider_event_id = <click_trans_id>:complete`), **Provider transactions** shows the row in state 2, the
    subscription is `active`. Then a **failed** payment (wrong OTP / cancel on the Click page): the transaction must
-   end in state −1 and the order `canceled` (Click sends Complete with `error < 0`). Compare what you see with
+   end in state −1 while the order stays `pending` until its TTL (Click sends Complete with `error < 0`; another prepared transaction of the same order may still succeed — docs/13 «Реализация 2A.5», review 2A.8 B). Compare what you see with
    docs/13 §15 p. 3 (Complete signature with `merchant_prepare_id`, repeated Complete → `0`, `error < 0` behaviour,
    `amount` format) — each of those is a one-line switch in the code if Click's sandbox disagrees. Refunds: Click has
    no refund webhook — return the money in the Click cabinet and record it in **Payments → Refund** (ADMIN_GUIDE).
@@ -767,6 +767,8 @@ sign of success; read the body or the payment screens. If the provider publishes
    names differ, only `TelegramStarsProvider::parseSuccessfulPayment` / `parseRefundedPayment` change.
 4. Production switch: real keys, real prices, `*_ENABLED=true`, `BILLING_PAYWALL_MODE=purchase`, `config:cache`,
    restart workers. Keep one provider enabled at first.
+
+Full acceptance checklist of Phase 2 on staging and in the provider sandboxes (env, scheduler, Stars / Payme / Click, centers, restore / ZAP / k6 / Lighthouse): `docs/STAGING_PHASE2_CHECKLIST.md`.
 
 ### 17.4 After every deploy of billing code
 
