@@ -7,6 +7,7 @@ namespace App\Domain\Learning\Services;
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Billing\Services\EntitlementResolver;
+use App\Domain\Content\Services\DeckTitles;
 use App\Domain\Content\Services\WordAudioService;
 use App\Domain\Content\Services\WordTranslationResolver;
 use App\Domain\Learners\Services\LearnerClock;
@@ -60,6 +61,7 @@ final class TrainingFlowService
         private readonly ExerciseSelector $selector,
         private readonly ExercisePromptBuilder $prompts,
         private readonly WordAudioService $audio,
+        private readonly DeckTitles $deckTitles,
     ) {}
 
     /**
@@ -73,7 +75,7 @@ final class TrainingFlowService
             return new TrainingStart($session, null, $goal, $this->nextStep($session, $learner, $goal));
         }
 
-        $session->loadMissing('lesson.stage');
+        $session->loadMissing('lesson.stage.course');
 
         $lesson = $session->lesson;
         if ($lesson === null) {
@@ -87,6 +89,7 @@ final class TrainingFlowService
             $lesson,
             $totalWords,
             $this->nextStep($session, $learner, $totalWords),
+            $this->deckTitles->forLesson($lesson, $learner),
         );
     }
 

@@ -7,6 +7,7 @@ namespace App\Domain\Learners\Services;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Billing\Services\NewWordQuota;
 use App\Domain\Content\Services\CourseCatalogService;
+use App\Domain\Content\Services\DeckTitles;
 use App\Domain\Engagement\Services\LeagueService;
 use App\Domain\Engagement\Services\StreakFreezeService;
 use App\Domain\Learners\DTO\DailyGoal;
@@ -45,6 +46,7 @@ final class TodayService
         private readonly NewWordQuota $quota,
         private readonly StreakFreezeService $freezes,
         private readonly LeagueService $leagues,
+        private readonly DeckTitles $deckTitles,
     ) {}
 
     public function summary(Learner $learner, ?CarbonImmutable $now = null): TodaySummary
@@ -118,7 +120,7 @@ final class TodayService
                 $lesson->id,
                 $lesson->stage?->number,
                 $lesson->number,
-                $lesson->title,
+                $this->deckTitles->lesson($course, $learner, $lesson->number, $lesson->title),
             ),
         );
     }
