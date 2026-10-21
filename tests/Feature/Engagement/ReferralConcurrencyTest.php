@@ -178,8 +178,8 @@ it('serializes the invitee cap: two referrals of one inviter rewarded at once wi
 
     expect(collect($results)->pluck('result')->sort()->values()->all())->toBe(['rewarded', 'rewarded'])
         ->and(Referral::query()->get()->filter(fn (Referral $r): bool => ($r->rewardOf('referee')['skipped'] ?? null) === 'invitee_capped')->count())->toBe(1)
-        ->and(Subscription::query()->where('subscriber_id', $inviter->id)->count())->toBe(2)
-        ->and(Subscription::query()->count())->toBe(3);
+        ->and(Subscription::query()->where('subscriber_id', $inviter->id)->count())->toBe(1) // both inviter rewards extend one Pro
+        ->and(Subscription::query()->whereIn('subscriber_id', [$a->referee_learner_id, $b->referee_learner_id])->count())->toBe(1);
 });
 
 it('gives one code to a learner asked twice at the same instant', function (): void {
