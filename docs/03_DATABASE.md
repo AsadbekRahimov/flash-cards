@@ -487,7 +487,7 @@ Append-only журнал для продуктовой аналитики (не 
 **Колоды learner'а** (Фаза 2, 2D.1, `LearnerDeckService`): `owner_type = learner`, `owner_id = learners.id`, `source = learner`,
 `visibility = private`, `status = published` сразу (без модерации и публикационного гейта), `slug = deck-<learner_id>-<случайный суффикс>`,
 `title = {ru, uz}` (одно и то же название в обеих локалях). Содержимое — обычные `stages` / `lessons` / `words`: один stage
-«Моя колода» (`number = 1`), уроки «Часть N» по 50 слов. `private` доступен **только** владельцу
+«Моя колода» (`number = 1`), уроки «Часть N» по 50 слов — в БД технические русские заголовки, а в TWA (`CourseCatalogService::lessonsWithProgress` → `CourseDetailResource`) для `owner_type = learner` заголовки выводятся локализованными (`lang/*/decks.php`: `decks.stage`, `decks.part`) по языку интерфейса learner'а. `private` доступен **только** владельцу
 (`CourseCatalogService::isAvailable($course, $learner)` / `Course::availableTo($learnerId)`); для всех остальных — как несуществующий.
 Лимиты колод — `config/decks.php` (Free 1 колода × 50 слов, Pro 20 × 2000; считаются неархивные колоды и активные слова).
 «Удаление» колоды = `courses.status = archived` + `words.is_active = false` у её слов (правило §8.1: строки не удаляем),

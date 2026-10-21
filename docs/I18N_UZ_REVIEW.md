@@ -1672,3 +1672,14 @@
 | `achievements.share` | Ulashish | Поделиться |
 | `achievements.shared` | Siz allaqachon ulashgansiz | Вы уже поделились |
 | `achievements.empty_hint` | Har kuni mashq qiling — yutuqlar o'zi paydo bo'ladi. | Занимайтесь каждый день — достижения появятся сами. |
+
+## Фаза 2 · задача 2R.10 (заголовки своей колоды) — на проверку носителю
+
+> Проверить: «Mening lug'atim» (Моя колода; альтернативы «Mening to'plamim», «Mening kartochkalarim»), «:n-qism» (Часть :n).
+
+### TWA, страница своей колоды (`lang/uz/decks.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `decks.stage` | Mening lug'atim | Моя колода |
+| `decks.part` | :n-qism | Часть :n |
