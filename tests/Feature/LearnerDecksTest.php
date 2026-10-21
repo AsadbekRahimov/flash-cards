@@ -329,6 +329,25 @@ it('splits a deck into lessons of 50 words, "Часть N", in order', function 
         ->and($lessons->pluck('words_count')->all())->toBe([50, 50, 30]);
 });
 
+it('shows the stage and the parts of a deck in the interface language of the learner', function (): void {
+    $uz = dkPro(dkLearner(['interface_locale' => 'uz']));
+    $ru = dkPro(dkLearner(['interface_locale' => 'ru']));
+    foreach ([$uz, $ru] as $learner) {
+        $slug = dkCreate($this, $learner);
+        dkImport($this, $learner, $slug, dkList(60))->assertOk();
+        $detail = dkCall($this, $learner, 'GET', "/courses/{$slug}")->assertOk();
+
+        if ($learner->is($uz)) {
+            $detail->assertJsonPath('stages.0.title', "Mening lug'atim")
+                ->assertJsonPath('stages.0.lessons.0.title', '1-qism')
+                ->assertJsonPath('stages.0.lessons.1.title', '2-qism');
+        } else {
+            $detail->assertJsonPath('stages.0.title', 'Моя колода')
+                ->assertJsonPath('stages.0.lessons.1.title', 'Часть 2');
+        }
+    }
+});
+
 it('revives a removed word with the new translation', function (): void {
     $learner = dkLearner();
     $slug = dkCreate($this, $learner);

@@ -970,7 +970,18 @@ it('keeps one referral per invited learner and one referral code per learner', f
     Learner::factory()->count(2)->create(['referral_code' => null]);
 
     $indexes = array_column(Schema::getIndexes('referrals'), 'columns');
-    expect($indexes)->toContain(['referrer_learner_id', 'status', 'linked_at']);
+    expect($indexes)->toContain(['referrer_learner_id', 'status', 'linked_at'])
+        ->toContain(['status', 'activated_at'])
+        ->toContain(['status', 'rewarded_at']);
+});
+
+it('rolls back and re-applies the referral recovery indexes (2R.10)', function (): void {
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_23_500001_add_recovery_indexes_to_referrals_table')])->assertSuccessful();
+    expect(array_column(Schema::getIndexes('referrals'), 'columns'))->not->toContain(['status', 'activated_at'])
+        ->and(Schema::hasTable('referrals'))->toBeTrue();
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(array_column(Schema::getIndexes('referrals'), 'columns'))->toContain(['status', 'rewarded_at']);
 });
 
 it('cascades referrals with either learner', function (): void {

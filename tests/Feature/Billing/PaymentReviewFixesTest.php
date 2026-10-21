@@ -470,3 +470,33 @@ it('has a grantManual that is unchanged: it replaces a renewing Stars subscripti
 
     expect($grant->provider)->toBe('manual')->and(Subscription::query()->count())->toBe(1);
 });
+
+it('a reward on top of a canceled Stars subscription keeps it canceled: a Payme purchase is not blocked', function (): void {
+    prfPay(prfOrder($this->learner), 'ch_first');
+    $sub = Subscription::query()->sole();
+    app(SubscriptionService::class)->cancel($sub, $this->learner);
+
+    DB::transaction(fn () => app(SubscriptionService::class)->grantReward($this->learner, 7, 'referral:1', CarbonImmutable::now()));
+
+    expect($sub->refresh()->status)->toBe('canceled')
+        ->and($sub->current_period_ends_at?->toIso8601String())->toBe(CarbonImmutable::now()->addDays(37)->toIso8601String());
+
+    $order = prfOrder($this->learner, SubscriptionProvider::Payme);
+    expect($order->status)->toBe('pending');
+});
+
+it('reward days on top of a RUNNING Stars subscription do not carry over: the next renewal sets the end from Telegram (documented, docs/13 Спорное)', function (): void {
+    prfPay(prfOrder($this->learner), 'ch_first', periodEndsAt: CarbonImmutable::now()->addDays(30));
+    $sub = Subscription::query()->sole();
+    $originalEnd = CarbonImmutable::now()->addDays(30);
+
+    DB::transaction(fn () => app(SubscriptionService::class)->grantReward($this->learner, 7, 'referral:2', CarbonImmutable::now()));
+    expect($sub->refresh()->status)->toBe('active')
+        ->and($sub->current_period_ends_at?->toIso8601String())->toBe($originalEnd->addDays(7)->toIso8601String());
+
+    CarbonImmutable::setTestNow($originalEnd);
+    prfPay(PaymentOrder::query()->sole(), 'ch_second', renewal: true, periodEndsAt: $originalEnd->addDays(30));
+
+    // 30 days from the original end, NOT +7 on top: the reward insured the first period only.
+    expect($sub->refresh()->current_period_ends_at?->toIso8601String())->toBe($originalEnd->addDays(30)->toIso8601String());
+});

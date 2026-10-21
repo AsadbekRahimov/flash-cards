@@ -36,11 +36,12 @@ class ReferralFactory extends Factory
         ]);
     }
 
-    /** Both sides granted; `rewarded_at` defaults to now (pass one for "30 days ago" cases). */
+    /** Both sides granted; `linked_at`/`rewarded_at` default to now (pass one for "30 days ago" cases). */
     public function rewarded(?\DateTimeInterface $at = null): static
     {
         return $this->state(fn (): array => [
             'status' => ReferralStatus::Rewarded->value,
+            'linked_at' => $at ?? now(),
             'activated_at' => $at ?? now(),
             'rewarded_at' => $at ?? now(),
             'meta' => [

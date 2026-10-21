@@ -66,7 +66,8 @@ Schedule::command('organizations:sync-members')
 // the one-time posts are claimed by conditional UPDATEs (`announced_at` / `reminded_at`).
 Schedule::command('assignments:refresh')
     ->everyThirtyMinutes()
-    ->withoutOverlapping(20);
+    ->withoutOverlapping(20)
+    ->runInBackground();
 
 // League weeks (docs/13 §7.3): Monday 00:05 in the league time zone closes the week that just
 // ended (final standings, promotions, result DMs through the global send budget). Runs daily so
@@ -74,13 +75,15 @@ Schedule::command('assignments:refresh')
 Schedule::command('leagues:close-week')
     ->dailyAt('00:05')
     ->timezone((string) config('leagues.timezone', 'Asia/Tashkent'))
-    ->withoutOverlapping(30);
+    ->withoutOverlapping(30)
+    ->runInBackground();
 
 // Referral rewards (docs/13 §7.1): re-queues the reward job of a referral that is `activated`, or
 // `rewarded` with a side still missing, after a lost / failed job. Idempotent by the data.
 Schedule::command('referrals:recover')
     ->everyThirtyMinutes()
-    ->withoutOverlapping(20);
+    ->withoutOverlapping(20)
+    ->runInBackground();
 
 // Telegram's Stars ledger vs ours for the last 2 days (docs/13 §4.4): read-only, logs
 // `billing.reconcile_missing*`; exits early while Stars is disabled.

@@ -422,6 +422,12 @@ This runs every minute. Laravel's scheduler internally dispatches:
 - `subscriptions:expire` — hourly (time-based subscription transitions).
 - `billing:expire-orders` — every 15 minutes (pending payment orders past `BILLING_ORDER_TTL_MINUTES` become `expired`).
 - `subscriptions:remind-expiring` — daily at 06:00 UTC (renewal reminders 3 and 1 day before a Payme/Click period or a canceled Stars period ends; queues `RenewalReminderJob`, so a queue worker must run; organization owners are e-mailed — the `MAIL_*` settings must be real in production, `MAIL_MAILER=log` only logs them).
+- `challenges:close-due` — every 15 minutes (friend challenges past `ends_at` are scored from `learner_daily_stats` and finished, unanswered pending ones expire; idempotent by a conditional UPDATE; `withoutOverlapping`).
+- `organizations:sync-members` — hourly (repair path of the group -> organization membership hook: a learner in a group of an organization without a membership row gets one; idempotent).
+- `assignments:refresh` — every 30 minutes (assignment snapshots and the group reminder 24 h before a deadline; one-time posts are claimed by conditional UPDATEs; `withoutOverlapping(20)` + `runInBackground`; posts go through the global Telegram send budget, so a queue worker must run).
+- `leagues:close-week` — daily at 00:05 in `LEAGUES_TIMEZONE` (default `Asia/Tashkent`; on Monday it closes the week that just ended: final standings, promotions, result DMs; the other days it is a no-op or catches up a missed Monday; idempotent by `league_weeks.status`; `withoutOverlapping(30)` + `runInBackground`).
+- `referrals:recover` — every 30 minutes (re-queues `RewardReferralJob` for referrals left `activated` or half-rewarded after a lost job; looks only at rows younger than `REFERRALS_RECOVER_WINDOW_DAYS`; `withoutOverlapping(20)` + `runInBackground`).
+- `billing:reconcile-stars` — daily at 04:30 (Telegram's Stars ledger of the last 2 days vs `payments`; read-only, logs `billing.reconcile_missing*`; exits at once while Stars is disabled).
 - `backup:clean` — daily at 01:00.
 - `backup:run` — daily at 01:30.
 - `backup:monitor` — daily at 02:00.
@@ -887,3 +893,33 @@ chmod 600 .env
 | `REMINDERS_SEND_RATE_PER_SECOND` | optional | `25` (>= 1; Telegram allows about 30/s per bot) |
 | `TELEGRAM_OUTBOUND_GLOBAL_PER_SECOND` | optional | `25` (bot-wide ceiling of background sends per second — reminders, assignment posts, renewal reminders, DMs of centers/offers, leaderboards; Bot API allows ~30/s per bot, the rest is for replies to updates; `0` = off). A job without a free slot is put back for 1-5 s; keep the Redis cache (the counter `telegram:outbound:global:{sec}` is shared by all workers) |
 | `PRODUCT_EVENTS_RETENTION_DAYS` / `NOTIFICATIONS_LOG_RETENTION_DAYS` | optional | `400` / `400` |
+
+### Phase 2 variables
+
+All optional; the defaults are the production values (`.env.example` lists them). Changing a value needs `php artisan config:cache` + a worker restart (section 14).
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `ACHIEVEMENTS_ENABLED` | `true` | Achievements (badges, share cards). `false` = nothing new is awarded |
+| `ORGANIZATIONS_INVITE_BURST_PER_DAY` | `50` | Joins through ONE organization invite code within 24 h above which a warning is logged (logged, not blocked) |
+| `BILLING_POST_ORG_DISCOUNT_PCT` | `30` | Personal discount (%, clamped to 1-90) on the first Pro month offered to a learner who lost a seat in an organization; valid 14 days |
+| `BILLING_ORG_YEAR_DISCOUNT_PERCENT` | `17` | Discount of a center's annual payment vs 12 months (`0` = none); an explicit `BILLING_PRICE_<TIER>_YEAR_UZS` wins |
+| `FSRS_ROLLOUT_PERCENT` | `0` | Share (0-100) of NEW learners put into the FSRS bucket of the A/B at registration (`crc32(telegram_user_id) % 100 < N`, stored in `learners.scheduler`); `0` = everyone on SM-2. A later change never moves already registered learners |
+| `FSRS_DESIRED_RETENTION` | `0.9` | FSRS target retention, strictly between 0 and 1 (higher = shorter intervals) |
+| `FSRS_WEIGHTS` | built-in 19 weights | Comma-separated FSRS parameters; change only with fitted values |
+| `LEAGUES_ENABLED` | `true` | Weekly leagues on/off |
+| `LEAGUES_TIMEZONE` | `Asia/Tashkent` | Time zone of the week boundary (Monday 00:05 closing job, `leagues:close-week`) |
+| `LEAGUES_GROUP_CAPACITY` | `30` | Learners per league group |
+| `LEAGUES_PROMOTE` / `LEAGUES_DEMOTE` | `5` / `5` | Top / bottom N of a group moving up / down a tier at the weekly close |
+| `LEAGUES_POINTS_REVIEW` / `_CORRECT` / `_NEW_WORD` / `_GOAL_MET` | `1` / `1` / `2` / `10` | Points per review / correct answer / new word / daily goal met (computed from `learner_daily_stats`) |
+| `LEAGUES_STANDINGS_CACHE_SECONDS` | `60` | Cache of the standings table |
+| `LEAGUES_NOTIFY_TTL_HOURS` | `12` | A result DM that could not be sent within this time is dropped |
+| `LEARNERS_STREAK_FREEZE_MAX` | `2` | Streak freezes a Pro learner can hold (+1 per week) |
+| `MOCK_EXAM_QUESTIONS` / `MOCK_EXAM_SECONDS` | `40` / `1200` | Questions and time limit of the IELTS/SAT vocabulary simulator |
+| `MOCK_EXAM_PERCENTILE_DAYS` / `MOCK_EXAM_PERCENTILE_CACHE_TTL` | `90` / `3600` | Window (days) of other results for the percentile / its cache (seconds) |
+| `REFERRALS_REWARD_DAYS` | `7` | Pro days each side gets |
+| `REFERRALS_ACTIVATION_DAYS` / `_REVIEWS_PER_DAY` / `_WINDOW_DAYS` | `3` / `10` / `14` | Activation: this many days with at least N reviews within the window |
+| `REFERRALS_MAX_REWARDS_PER_30D` / `REFERRALS_MAX_REWARDS_LIFETIME` | `10` / `50` | Rewards one inviter can collect per rolling 30 days / in total (beyond: the invited learner is still rewarded) |
+| `REFERRALS_INVITEE_REWARDS_PER_30D` | `20` | Invited learners of one inviter that get a reward per rolling 30 days |
+| `REFERRALS_FLAG_LINKS_PER_DAY` | `20` | Links of one inviter within 24 h at which the next one is flagged (reward waits for an admin) |
+| `REFERRALS_RECOVER_WINDOW_DAYS` | `14` | `referrals:recover` looks only at referrals activated / rewarded within this many days |

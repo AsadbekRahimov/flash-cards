@@ -653,6 +653,19 @@ it('re-queues the reward job of referrals left activated or half-rewarded, and n
     expect($queued)->toBe(collect([$activated->id, $half->id, $noRewards->id])->sort()->values()->all());
 });
 
+it('recovers only rows within the recovery window: a stuck row older than it is left alone', function (): void {
+    Queue::fake();
+    config(['referrals.recover_window_days' => 14]);
+    $now = refNow();
+
+    $fresh = Referral::factory()->create(['status' => 'activated', 'activated_at' => $now->subDays(13)]);
+    Referral::factory()->create(['status' => 'activated', 'activated_at' => $now->subDays(15)]);
+    Referral::factory()->rewarded($now->subDays(20))->create(['meta' => []]);
+
+    expect(refService()->recoverStuck($now))->toBe(1);
+    expect(Queue::pushed(RewardReferralJob::class)->map(fn (RewardReferralJob $j): int => $j->referralId)->all())->toBe([$fresh->id]);
+});
+
 it('recovers a lost job end to end from the scheduler command, and a second run finds nothing', function (): void {
     $inviter = refInviter();
     $referral = refPending($inviter, 9703);

@@ -318,6 +318,11 @@ Filters: status, provider, plan, subject, and *Live status* (live = trialing / a
   there is a **Tier mismatch** filter, and the dashboard tile **Tier mismatches** (Payment webhook errors, last
   24 h) counts the ones paid in the last day. In the center's `/org` Billing page the buttons for any tier other than
   the live one are disabled with the hint "contact us"; renewing the current tier works as usual.
+- **Promo / referral days on top of a Stars subscription.** Days of a promo code or a referral reward are added to
+  the end of the live subscription of the learner. If it is a **running Stars auto-renewal**, those days only insure
+  against a failed charge and are **not carried over**: the next Telegram renewal sets the end from Telegram's own
+  period, so the extra days are absorbed. If the Stars subscription is already **canceled**, the days extend it and it
+  **stays canceled** (live until the extended end, no grace, reminders work); the learner can still resume it in /pro.
 - **Revoke** (row button, live subscriptions only): ends the subscription now; **Reason** required, audit
   `subscription.revoked`. The learner loses Pro within seconds (the cached plan is dropped at once).
 - A subscription that ran out of time is closed automatically by the hourly job `subscriptions:expire`.

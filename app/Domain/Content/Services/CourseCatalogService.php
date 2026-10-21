@@ -356,14 +356,17 @@ final class CourseCatalogService
             ->selectRaw('stages.number as stage_number, stages.title as stage_title, lessons.id as lesson_id, lessons.number as lesson_number, lessons.title as lesson_title, COUNT(words.id) as total, COUNT(word_repetitions.id) as done')
             ->get();
 
+        // A learner's own deck keeps technical titles in the DB (LearnerDeckService); the learner reads them in their locale.
+        $locale = $course->isLearnerOwned() ? $this->locales->forLearner($learner) : null;
+
         $lessons = [];
         foreach ($rows as $row) {
             $lessons[] = new LessonProgress(
                 (int) $row->stage_number,
-                (string) $row->stage_title,
+                $locale !== null ? __('decks.stage', [], $locale) : (string) $row->stage_title,
                 (int) $row->lesson_id,
                 (int) $row->lesson_number,
-                $row->lesson_title === null ? null : (string) $row->lesson_title,
+                $locale !== null ? __('decks.part', ['n' => (int) $row->lesson_number], $locale) : ($row->lesson_title === null ? null : (string) $row->lesson_title),
                 new LearnerProgress((int) $row->done, (int) $row->total),
             );
         }
