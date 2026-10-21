@@ -66,7 +66,14 @@ final class SubscriptionLiveness
 
     public static function providerHasGrace(Subscription $subscription): bool
     {
-        return SubscriptionProvider::tryFrom($subscription->provider)?->hasGrace() ?? false;
+        // Grace is for a charge that is late; a one-off Stars year (no renewal) has nothing to wait for.
+        $provider = SubscriptionProvider::tryFrom($subscription->provider);
+
+        if ($provider === SubscriptionProvider::TelegramStars) {
+            return AutoRenewal::renews($subscription);
+        }
+
+        return $provider?->hasGrace() ?? false;
     }
 
     public static function graceDays(): int
