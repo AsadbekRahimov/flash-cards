@@ -11,7 +11,7 @@ use App\Domain\Telegram\Support\CallbackAcknowledger;
 use App\Domain\Telegram\Support\DmLearnerResolver;
 
 /**
- * Buttons about friends (`fr1:…`, see {@see FriendsMessenger}): accept / decline a friend invite and a challenge.
+ * Buttons about friends (`fr1:…`, see {@see FriendsMessenger}): send / skip the friend request of an `f_<code>` link, accept / decline a friend request and a challenge.
  *
  * `callback_data` is not signed, so it is matched strictly and nothing in it is trusted: the id is looked up
  * by the services among the sender's OWN friendships / challenges (someone else's id is "no longer valid",
@@ -20,7 +20,8 @@ use App\Domain\Telegram\Support\DmLearnerResolver;
  */
 final class FriendsCallbackHandler implements UpdateHandler
 {
-    private const FORMAT = '~^fr1:(acc|dec|cacc|cdec):([0-9]{1,18})$~';
+    // Argument: a row id (`acc` / `dec` / `cacc` / `cdec`: digits) or a referral code (`snd` / `no`: [A-Z0-9]{6,12}).
+    private const FORMAT = '~^fr1:(acc|dec|cacc|cdec|snd|no):([A-Z0-9]{1,18})$~';
 
     public function __construct(
         private readonly CallbackAcknowledger $acknowledger,
@@ -60,14 +61,30 @@ final class FriendsCallbackHandler implements UpdateHandler
             return;
         }
 
+        $action = $m[1];
+        $arg = $m[2];
+        $byCode = $action === 'snd' || $action === 'no';
+        if ($byCode ? preg_match('~^[A-Z0-9]{6,12}$~', $arg) !== 1 : ! ctype_digit($arg)) {
+            return;
+        }
+
         $learner = $this->learners->resolve(is_array($cq['from'] ?? null) ? $cq['from'] : []);
         if ($learner === null || $learner->blocked_at !== null || $learner->onboarding_state !== OnboardingService::DONE) {
             return;
         }
 
-        $id = (int) $m[2];
+        if ($byCode) {
+            match ($action) {
+                'snd' => $this->messenger->sendRequest($learner, $fromId, $messageId, $arg),
+                default => $this->messenger->skipRequest($learner, $fromId, $messageId),
+            };
 
-        match ($m[1]) {
+            return;
+        }
+
+        $id = (int) $arg;
+
+        match ($action) {
             'acc' => $this->messenger->acceptFriend($learner, $fromId, $messageId, $id),
             'dec' => $this->messenger->declineFriend($learner, $fromId, $messageId, $id),
             'cacc' => $this->messenger->acceptChallenge($learner, $fromId, $messageId, $id),

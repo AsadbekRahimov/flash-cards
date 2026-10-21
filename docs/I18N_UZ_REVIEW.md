@@ -1487,9 +1487,15 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `friends.anonymous` | Tanishingiz | Ваш знакомый |
-| `friends.offer.text` | :name sizni LexiFlow'da do'st bo'lishga taklif qilmoqda.\n\nDo'stlar bir-birining seriyasini va o'rganilgan so'zlar sonini ko'radi va musobaqa tashlashi mumkin: hafta davomida kim ko'proq takrorlaydi. | :name приглашает вас в друзья в LexiFlow.\n\nДрузья видят серию и число выученных слов друг друга и могут бросать вызовы: кто больше повторит за неделю. |
-| `friends.offer.accept` | Qabul qilish | Принять |
-| `friends.offer.decline` | Rad etish | Отклонить |
+| `friends.offer.text` | :name'ning taklif havolasini ochdingiz. :name'ga do'stlik so'rovini yuboraylikmi?\n\nDo'stlar bir-birining seriyasini va o'rganilgan so'zlar sonini ko'radi va musobaqa tashlashi mumkin: hafta davomida kim ko'proq takrorlaydi. | Вы открыли ссылку-приглашение от :name. Отправить :name запрос в друзья?\n\nДрузья видят серию и число выученных слов друг друга и могут бросать вызовы: кто больше повторит за неделю. |
+| `friends.offer.send` | So'rov yuborish | Отправить запрос |
+| `friends.offer.skip` | Hozir emas | Не сейчас |
+| `friends.incoming.text` | :name sizni LexiFlow'da do'st sifatida qo'shmoqchi. | :name хочет добавить вас в друзья в LexiFlow. |
+| `friends.incoming.accept` | Qabul qilish | Принять |
+| `friends.incoming.decline` | Rad etish | Отклонить |
+| `friends.request_sent` | So'rov yuborildi: :name. Qabul qilishsa, xabar beramiz. | Запрос отправлен: :name. Мы сообщим, когда его примут. |
+| `friends.already_sent` | Siz :name'ga allaqachon so'rov yuborgansiz — javob kutilmoqda. | Вы уже отправили запрос :name — ждём ответа. |
+| `friends.skipped` | Xo'p, so'rov yuborilmadi. | Хорошо, запрос не отправлен. |
 | `friends.accepted` | Tayyor: endi siz va :name do'stsiz. Do'stlar ro'yxati LexiFlow ilovasida. | Готово: вы с :name теперь друзья. Список друзей — в приложении LexiFlow. |
 | `friends.declined` | Xo'p, taklif rad etildi. | Хорошо, приглашение отклонено. |
 | `friends.already` | Siz va :name allaqachon do'stsiz. | Вы с :name уже друзья. |

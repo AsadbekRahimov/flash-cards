@@ -91,6 +91,7 @@ flowchart LR
   - `billing:expire-orders` — каждые 15 минут, `withoutOverlapping`: `pending`-заказы оплаты с `expires_at <= now` → `expired` одним UPDATE без блокировок субъекта (docs/13 §4.4).
   - `subscriptions:remind-expiring` — ежедневно 06:00 UTC, `withoutOverlapping`: события `SubscriptionRenewalDue` за 3 и 1 день до конца неавтопродляемого периода → `RenewalReminderJob` (ЛС learner'у; письмо + ЛС владельцам организации); повтор запуска безопасен (маркеры в `subscriptions.meta.renewal_reminders`).
   - `leagues:close-week` — ежедневно 00:05 в `LEAGUES_TIMEZONE` (`Asia/Tashkent`), `withoutOverlapping`: закрывает недели лиг, закончившиеся раньше текущей (по факту — понедельник; остальные запуски догоняют пропуск): финальные очки/места/повышения в одной транзакции под блокировкой строки недели, затем ЛС итогов через `SendLeagueResultJob` (глобальный лимит исходящих 2R.3). Идемпотентно по `league_weeks.status` (docs/13 §7.3).
+  - `referrals:recover` — каждые 30 минут, `withoutOverlapping`: ставит `RewardReferralJob` для рефералов `activated` (без flagged) и `rewarded` с недовыданной стороной старше 10 минут — восстановление после потерянного/упавшего job'а; идемпотентно по данным (`referrals.meta.rewards`, docs/13 §7.1).
   - `billing:reconcile-stars` — ежедневно 04:30 UTC: `getStarTransactions` за 2 дня против `payments`, только чтение и алерты в лог (`billing.reconcile_missing*`); ничего не делает, пока Stars выключен (docs/13 §4.4).
   - `analytics:refresh-materialized-views` — ночью.
 

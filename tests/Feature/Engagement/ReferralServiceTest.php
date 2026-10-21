@@ -15,9 +15,12 @@ use App\Models\Referral;
 use App\Models\Subscription;
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Schema;
 
 /*
  * ReferralService (docs/13 §1.5, §2.4, §7.1): codes, linking, activation, the reward and its
@@ -519,4 +522,82 @@ it('builds the inviter overview: code, link, counts and the invited names only',
         ->and($overview->activated)->toBe(2)
         ->and($overview->rewarded)->toBe(1)
         ->and($overview->referrals->pluck('referee_learner_id')->all())->toBe([$c->id, $b->id, $a->id]);
+});
+
+// --- deleted / blocked sides ---------------------------------------------------
+
+it('grants no Pro to a deleted or an administrator-blocked side and records why; the other side is rewarded', function (): void {
+    $inviter = refInviter();
+    $referral = refPending($inviter, 9701);
+    $referral->forceFill(['status' => 'activated', 'activated_at' => refNow()])->save();
+    $referral->referee?->delete(); // soft delete
+    $inviter->forceFill(['blocked_at' => refNow()])->save();
+
+    refService()->reward($referral, refNow());
+
+    $fresh = $referral->fresh();
+    expect($fresh?->status)->toBe('rewarded')
+        ->and($fresh?->rewardOf('referee'))->toBe(['subscription_id' => null, 'skipped' => 'learner_deleted'])
+        ->and($fresh?->rewardOf('referrer'))->toBe(['subscription_id' => null, 'skipped' => 'learner_blocked'])
+        ->and($fresh?->fullyRewarded())->toBeTrue()
+        ->and(Subscription::query()->where('provider', 'reward')->count())->toBe(0);
+
+    // A normal pair next to it still gets Pro.
+    $other = refPending(refInviter('INVITE3'), 9702);
+    $other->forceFill(['status' => 'activated', 'activated_at' => refNow()])->save();
+    refService()->reward($other, refNow());
+    expect(Subscription::query()->where('provider', 'reward')->count())->toBe(2);
+});
+
+// --- recovery sweep ------------------------------------------------------------
+
+it('re-queues the reward job of referrals left activated or half-rewarded, and nothing else', function (): void {
+    Queue::fake();
+    $now = refNow();
+    $old = $now->subMinutes(30);
+
+    $activated = Referral::factory()->create(['status' => 'activated', 'activated_at' => $old]);
+    $half = Referral::factory()->rewarded($old)->create(['meta' => ['rewards' => [Referral::SIDE_REFEREE => ['subscription_id' => null, 'skipped' => 'perpetual']]]]);
+    $noRewards = Referral::factory()->rewarded($old)->create(['meta' => []]);
+    // Not to be touched: fresh (in flight), flagged, fully rewarded, pending, rejected.
+    Referral::factory()->create(['status' => 'activated', 'activated_at' => $now->subMinute()]);
+    Referral::factory()->flagged()->create(['status' => 'activated', 'activated_at' => $old]);
+    Referral::factory()->rewarded($old)->create();
+    Referral::factory()->create(['status' => 'pending']);
+    Referral::factory()->create(['status' => 'rejected', 'reject_reason' => 'self']);
+
+    expect(refService()->recoverStuck($now))->toBe(3);
+
+    $queued = Queue::pushed(RewardReferralJob::class)->map(fn (RewardReferralJob $j): int => $j->referralId)->sort()->values()->all();
+    expect($queued)->toBe(collect([$activated->id, $half->id, $noRewards->id])->sort()->values()->all());
+});
+
+it('recovers a lost job end to end from the scheduler command, and a second run finds nothing', function (): void {
+    $inviter = refInviter();
+    $referral = refPending($inviter, 9703);
+    $referral->forceFill(['status' => 'activated', 'activated_at' => now()->subHour()])->save();
+
+    $this->artisan('referrals:recover')->expectsOutput('Referral reward jobs queued: 1')->assertSuccessful();
+
+    // The queue is sync in tests: the reward has been granted by the job.
+    expect($referral->fresh()?->status)->toBe('rewarded')
+        ->and($referral->fresh()?->fullyRewarded())->toBeTrue();
+    $this->artisan('referrals:recover')->expectsOutput('Referral reward jobs queued: 0')->assertSuccessful();
+});
+
+// --- the after-commit hook -----------------------------------------------------
+
+it('does not fail the grade when the referral evaluation throws after commit', function (): void {
+    config(['referrals.activation.reviews_per_day' => 1]);
+    // No `referrals` table: the evaluation query fails after the commit.
+    Schema::drop('referrals');
+    Exceptions::fake();
+    $learner = Learner::factory()->create(['timezone' => 'Asia/Tashkent']);
+
+    $row = DB::transaction(fn () => app(DailyStatsService::class)->recordReview($learner, 4, 500, false, refNow()));
+
+    // The grade itself is committed and returned; the error is only reported. (No further queries here:
+    // on PostgreSQL the failed statement aborted the test's outer transaction.)
+    expect($row->reviews_count)->toBe(1);
+    Exceptions::assertReported(QueryException::class);
 });

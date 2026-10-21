@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Engagement\Services;
 
+use App\Domain\Engagement\Enums\LeagueResult;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
@@ -72,7 +73,7 @@ final class LeagueResultSender
         try {
             $this->telegram->sendWebAppButton(
                 chatId: $learner->telegram_user_id,
-                text: $this->text($member, $group->tier, $locale),
+                text: $this->text($member, $group->tier, $result, $locale),
                 buttonText: __('leagues.open_button', [], $locale),
                 url: rtrim((string) config('twa.base_url'), '/').self::TWA_PATH,
             );
@@ -87,12 +88,11 @@ final class LeagueResultSender
         return 'sent';
     }
 
-    private function text(LeagueMember $member, int $tier, string $locale): string
+    private function text(LeagueMember $member, int $tier, LeagueResult $result, string $locale): string
     {
-        $result = $member->result();
         $nextTier = max(0, min($this->leagues->topTier(), $member->tierAfter()));
 
-        return __('leagues.result.'.($result?->value ?? 'stayed'), [
+        return __('leagues.result.'.$result->value, [
             'tier' => __('leagues.tiers.'.$this->leagues->tierKey($tier), [], $locale),
             'next_tier' => __('leagues.tiers.'.$this->leagues->tierKey($nextTier), [], $locale),
             'rank' => (int) $member->final_rank,

@@ -114,8 +114,8 @@ final class StartCommandHandler implements UpdateHandler
             $this->referrals->link($learner, $referralCode, CarbonImmutable::now());
         }
 
-        // "Be my friend" (docs/13 §7.5): `f_<code>`, or the referral link of someone who was already here.
-        $friendCode = $payload->friendCode() ?? ($learner->wasRecentlyCreated ? null : $referralCode);
+        // "Be my friend" (docs/13 §7.5): only an `f_<code>` link; a `ref_<code>` link never offers a friendship.
+        $friendCode = $payload->friendCode();
 
         if ($learner->onboarding_state === OnboardingService::DONE) {
             if ($friendCode !== null) {
@@ -139,9 +139,7 @@ final class StartCommandHandler implements UpdateHandler
             return;
         }
 
-        if ($friendCode !== null) {
-            $this->friends->rememberInvite($learner, $friendCode);
-        }
+        // `f_<code>` of somebody still in the onboarding writes nothing (no consent yet); the link stays in `start_payload`.
 
         // A code that cannot be used is explained now and not remembered for the end of the onboarding.
         if (! $this->organizations->acceptsPayload($learner, $chatId, $payload)) {

@@ -7,11 +7,16 @@ use App\Domain\Engagement\Services\FriendshipService;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Services\TelegramDispatcher;
+use App\Jobs\AnnounceAssignmentJob;
+use App\Jobs\PostLeaderboardJob;
 use App\Jobs\SendFriendDmJob;
+use App\Jobs\SendLearnerReminderJob;
+use App\Jobs\SendTelegramMessageJob;
 use App\Models\Challenge;
 use App\Models\Friendship;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
+use App\Models\NotificationLog;
 use App\Models\Referral;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -67,152 +72,183 @@ function frTexts(): array
     return array_column(test()->tg->sent, 'text');
 }
 
-it('offers a friendship on /start f_<code> to a learner and records the inviter\'s pending request', function (): void {
-    $inviter = frInviter();
+it('asks on /start f_<code> and writes NOTHING until the learner agrees', function (): void {
+    frInviter();
     $me = frOnboarded(9101);
 
     frSend(9101, '/start f_FRIEND23');
 
-    $row = Friendship::query()->sole();
-    expect($row->status)->toBe('pending')
-        ->and($row->requested_by_learner_id)->toBe($inviter->id)
+    expect(Friendship::query()->count())->toBe(0)
         ->and($this->tg->sent)->toHaveCount(1)
-        ->and($this->tg->sent[0]['text'])->toContain('Dilnoza приглашает вас в друзья')
-        ->and($this->tg->lastCallbackData())->toBe(["fr1:acc:{$row->id}", "fr1:dec:{$row->id}"])
+        ->and($this->tg->sent[0]['text'])->toContain('Отправить Dilnoza запрос в друзья?')
+        ->and($this->tg->lastCallbackData())->toBe(['fr1:snd:FRIEND23', 'fr1:no:FRIEND23'])
         ->and(Referral::query()->count())->toBe(0);
 
-    // A repeated /start is the same row and the same question.
+    // A repeated /start asks again and still writes nothing.
     frSend(9101, '/start f_FRIEND23');
-    expect(Friendship::query()->count())->toBe(1)->and($this->tg->sent)->toHaveCount(2);
-    // First touch is attributed as for any payload (the inviter's pending request is not a referral).
+    expect(Friendship::query()->count())->toBe(0)->and($this->tg->sent)->toHaveCount(2);
+    // First touch is attributed as for any payload.
     expect($me->fresh()?->acquisition_source)->toBe('friend')->and($me->fresh()?->referrer_learner_id)->toBeNull();
 });
 
-it('accepts on the button: friends, the keyboard is cleared, the inviter is told in their language', function (): void {
+it('sends the request on agreement: opener -> inviter, the inviter is DMed with buttons and answers it himself', function (): void {
     $inviter = frInviter();
     $inviter->forceFill(['interface_locale' => 'uz'])->save();
     $me = frOnboarded(9102);
     frSend(9102, '/start f_FRIEND23');
+
+    frTap(9102, 'fr1:snd:FRIEND23', 55);
+
     $row = Friendship::query()->sole();
-
-    frTap(9102, "fr1:acc:{$row->id}", 55);
-
-    expect($row->fresh()?->status)->toBe('accepted')
+    expect($row->status)->toBe('pending')
+        ->and($row->requested_by_learner_id)->toBe($me->id)
         ->and($this->tg->edits)->toHaveCount(1)
-        ->and($this->tg->edits[0]['message_id'])->toBe(55)
-        ->and($this->tg->sent)->toHaveCount(3);
-
-    // The queue is sync: the inviter's DM goes out inside the service call, before the reply to the tapper.
+        ->and($this->tg->edits[0]['message_id'])->toBe(55);
     $toInviter = array_values(array_filter($this->tg->sent, fn (array $m): bool => $m['chat_id'] === 9001));
-    $toMe = array_values(array_filter($this->tg->sent, fn (array $m): bool => $m['chat_id'] === 9102 && str_contains($m['text'], 'теперь друзья')));
     expect($toInviter)->toHaveCount(1)
-        ->and($toInviter[0]['text'])->toBe("Ali taklifingizni qabul qildi: endi siz do'stsiz!")
-        ->and($toMe)->toHaveCount(1);
+        ->and($toInviter[0]['text'])->toBe("Ali sizni LexiFlow'da do'st sifatida qo'shmoqchi.")
+        ->and($toInviter[0]['markup']['inline_keyboard'][0][0]['callback_data'])->toBe("fr1:acc:{$row->id}")
+        ->and(end($this->tg->sent)['text'])->toContain('Запрос отправлен');
 
-    // Tapping again is harmless: still one friendship, no second DM to the inviter.
-    frTap(9102, "fr1:acc:{$row->id}", 55);
+    // Tapping "send" again: the same row, no second DM to the inviter.
+    frTap(9102, 'fr1:snd:FRIEND23', 55);
     expect(Friendship::query()->count())->toBe(1)
         ->and(array_values(array_filter($this->tg->sent, fn (array $m): bool => $m['chat_id'] === 9001)))->toHaveCount(1);
+
+    // The opener cannot accept their own request; the inviter can.
+    frTap(9102, "fr1:acc:{$row->id}");
+    expect($row->fresh()?->status)->toBe('pending');
+    frTap(9001, "fr1:acc:{$row->id}");
+    expect($row->fresh()?->status)->toBe('accepted');
+    $toMe = array_values(array_filter($this->tg->sent, fn (array $m): bool => $m['chat_id'] === 9102 && str_contains($m['text'], 'принял(а) ваше приглашение')));
+    expect($toMe)->toHaveCount(1);
 
     // And /start of the same link now says so.
     frSend(9102, '/start f_FRIEND23');
     expect(end($this->tg->sent)['text'])->toContain('уже друзья');
 });
 
-it('declines on the button: the request is gone and may be sent again', function (): void {
+it('does nothing when the learner answers "not now"', function (): void {
     frInviter();
     frOnboarded(9103);
     frSend(9103, '/start f_FRIEND23');
+
+    frTap(9103, 'fr1:no:FRIEND23', 60);
+
+    expect(Friendship::query()->count())->toBe(0)
+        ->and($this->tg->edits)->toHaveCount(1)
+        ->and(end($this->tg->sent)['text'])->toBe('Хорошо, запрос не отправлен.');
+});
+
+it('lets the inviter decline: the request is gone and may be sent again', function (): void {
+    frInviter();
+    frOnboarded(9104);
+    frSend(9104, '/start f_FRIEND23');
+    frTap(9104, 'fr1:snd:FRIEND23');
     $row = Friendship::query()->sole();
 
-    frTap(9103, "fr1:dec:{$row->id}");
+    frTap(9001, "fr1:dec:{$row->id}");
 
     expect(Friendship::query()->count())->toBe(0)
         ->and(end($this->tg->sent)['text'])->toContain('отклонено');
 
-    frSend(9103, '/start f_FRIEND23');
+    frTap(9104, 'fr1:snd:FRIEND23');
     expect(Friendship::query()->sole()->status)->toBe('pending');
 });
 
-it('does not let anybody answer someone else\'s invitation', function (): void {
+it('shows the existing inbound request when the inviter had already asked this learner, and says so for the other states', function (): void {
     $inviter = frInviter();
-    frOnboarded(9104);
-    frSend(9104, '/start f_FRIEND23');
+    $me = frOnboarded(9105);
+    $row = Friendship::factory()->pending()->between($inviter, $me, $inviter)->create();
+
+    frSend(9105, '/start f_FRIEND23');
+    expect($this->tg->sent[0]['text'])->toContain('Dilnoza хочет добавить вас в друзья')
+        ->and($this->tg->lastCallbackData())->toBe(["fr1:acc:{$row->id}", "fr1:dec:{$row->id}"]);
+
+    $row->forceFill(['requested_by_learner_id' => $me->id])->save();
+    frSend(9105, '/start f_FRIEND23');
+    expect(end($this->tg->sent)['text'])->toBe('Вы уже отправили запрос Dilnoza — ждём ответа.');
+});
+
+it('does not let anybody answer someone else\'s request', function (): void {
+    $inviter = frInviter();
+    $me = frOnboarded(9106);
+    frSend(9106, '/start f_FRIEND23');
+    frTap(9106, 'fr1:snd:FRIEND23');
     $row = Friendship::query()->sole();
-    frOnboarded(9105); // a stranger who got hold of the callback data
+    frOnboarded(9107); // a stranger who got hold of the callback data
     $before = count($this->tg->sent);
 
-    frTap(9105, "fr1:acc:{$row->id}");
-    frTap(9001, "fr1:acc:{$row->id}"); // the inviter cannot accept their own request
+    frTap(9107, "fr1:acc:{$row->id}");
+    frTap(9106, "fr1:acc:{$row->id}"); // the sender cannot accept their own request
 
     expect($row->fresh()?->status)->toBe('pending')
         ->and(array_slice(frTexts(), $before))->toBe([
             'Это приглашение больше не действует.',
             'Ответить на приглашение может только тот, кого пригласили.',
         ]);
-    expect($inviter->fresh()?->id)->toBe($inviter->id);
+    expect($inviter->fresh()?->id)->toBe($inviter->id)->and($me->fresh()?->id)->toBe($me->id);
 });
 
 it('ignores malformed, foreign-chat and unfinished-onboarding taps', function (): void {
     frInviter();
-    frOnboarded(9106);
-    frSend(9106, '/start f_FRIEND23');
-    $row = Friendship::query()->sole();
+    frOnboarded(9108);
+    $row = Friendship::factory()->pending()->between(Learner::query()->where('telegram_user_id', 9001)->firstOrFail(), Learner::query()->where('telegram_user_id', 9108)->firstOrFail(), Learner::query()->where('telegram_user_id', 9001)->firstOrFail())->create();
     $sent = count($this->tg->sent);
 
-    frTap(9106, 'fr1:acc:abc');
-    frTap(9106, "fr1:acc:{$row->id};DROP");
-    frTap(9106, "fr1:zzz:{$row->id}");
-    frTap(9106, "fr1:acc:{$row->id}", chatType: 'group');
-    frTap(9106, "fr1:acc:{$row->id}", chatId: 1234);
-    Learner::factory()->create(['telegram_user_id' => 9107, 'onboarding_state' => 'goal']);
-    frTap(9107, "fr1:acc:{$row->id}");
+    frTap(9108, 'fr1:acc:abc');
+    frTap(9108, "fr1:acc:{$row->id};DROP");
+    frTap(9108, "fr1:zzz:{$row->id}");
+    frTap(9108, 'fr1:snd:123'); // not a referral code
+    frTap(9108, "fr1:acc:{$row->id}", chatType: 'group');
+    frTap(9108, "fr1:acc:{$row->id}", chatId: 1234);
+    frTap(9108, 'fr1:snd:FRIEND23', chatType: 'group');
+    Learner::factory()->create(['telegram_user_id' => 9109, 'onboarding_state' => 'goal']);
+    frTap(9109, "fr1:acc:{$row->id}");
+    frTap(9109, 'fr1:snd:FRIEND23');
 
     expect($row->fresh()?->status)->toBe('pending')
+        ->and(Friendship::query()->count())->toBe(1)
         ->and($this->tg->sent)->toHaveCount($sent);
 });
 
-it('turns ref_<code> of an EXISTING learner into a friend offer, while the referral stays rejected', function (): void {
-    $inviter = frInviter(9001, 'REFFRND2');
-    $me = frOnboarded(9108);
+it('offers NO friendship on ref_<code> of an existing learner: the referral stays rejected, the learner gets "Today"', function (): void {
+    frInviter(9001, 'REFFRND2');
+    $me = frOnboarded(9110);
 
-    frSend(9108, '/start ref_REFFRND2');
+    frSend(9110, '/start ref_REFFRND2');
 
     $referral = Referral::query()->sole();
     expect($referral->status)->toBe('rejected')
         ->and($referral->reject_reason)->toBe('existing_learner')
         ->and($referral->referee_learner_id)->toBe($me->id)
-        ->and(Friendship::query()->sole()->requested_by_learner_id)->toBe($inviter->id)
-        ->and($this->tg->sent[0]['text'])->toContain('приглашает вас в друзья');
+        ->and(Friendship::query()->count())->toBe(0)
+        ->and(implode("\n", frTexts()))->not->toContain('в друзья')
+        ->and(array_filter($this->tg->sent, fn (array $m): bool => str_contains((string) json_encode($m['markup'] ?? []), 'fr1:')))->toBeEmpty();
 });
 
 it('keeps ref_<code> of a NEW learner a plain referral: no friendship, ordinary onboarding', function (): void {
     frInviter(9001, 'REFNEW23');
 
-    frSend(9109, '/start ref_REFNEW23');
+    frSend(9111, '/start ref_REFNEW23');
 
     expect(Referral::query()->sole()->status)->toBe('pending')
         ->and(Friendship::query()->count())->toBe(0)
         ->and($this->tg->sent[0]['text'])->not->toContain('в друзья');
 });
 
-it('remembers f_<code> of a NEW learner as a pending request for the app and goes on with the onboarding', function (): void {
-    $inviter = frInviter(9001, 'NEWFRND2');
+it('writes nothing for f_<code> of a NEW learner: no consent yet, the onboarding goes on undisturbed', function (): void {
+    frInviter(9001, 'NEWFRND2');
 
-    frSend(9110, '/start f_NEWFRND2');
+    frSend(9112, '/start f_NEWFRND2');
 
-    $me = Learner::query()->where('telegram_user_id', 9110)->firstOrFail();
-    $row = Friendship::query()->sole();
+    $me = Learner::query()->where('telegram_user_id', 9112)->firstOrFail();
     expect($me->acquisition_source)->toBe('friend')
         ->and($me->start_payload)->toBe('f_NEWFRND2')
         ->and($me->referrer_learner_id)->toBeNull()
         ->and(Referral::query()->count())->toBe(0)
-        ->and($row->status)->toBe('pending')
-        ->and($row->requested_by_learner_id)->toBe($inviter->id)
+        ->and(Friendship::query()->count())->toBe(0)
         ->and($this->tg->sent[0]['text'])->not->toContain('в друзья');
-
-    $overview = app(FriendshipService::class)->overview($me);
-    expect($overview->incoming)->toHaveCount(1);
 });
 
 it('explains an own link, an unknown code and a blocked pair, and writes nothing', function (): void {
@@ -239,8 +275,8 @@ it('speaks Uzbek in the offer', function (): void {
 
     frSend(9113, '/start f_FRIEND23');
 
-    expect($this->tg->sent[0]['text'])->toContain("Dilnoza sizni LexiFlow'da do'st bo'lishga taklif qilmoqda")
-        ->and($this->tg->sent[0]['markup']['inline_keyboard'][0][0]['text'])->toBe('Qabul qilish');
+    expect($this->tg->sent[0]['text'])->toContain("Dilnoza'ga do'stlik so'rovini yuboraylikmi?")
+        ->and($this->tg->sent[0]['markup']['inline_keyboard'][0][0]['text'])->toBe("So'rov yuborish");
 });
 
 // --- challenges: the DMs and their buttons ------------------------------------------------------
@@ -343,6 +379,59 @@ it('marks the DM as closed when Telegram answers 403', function (): void {
     SendFriendDmJob::dispatchSync('challenge_proposed', $c->id);
 
     expect($b->fresh()?->dm_blocked_at)->not->toBeNull();
+});
+
+it('does not repeat a DM that was already delivered when its job runs again', function (): void {
+    [$a, $b] = frFriends();
+    $c = Challenge::factory()->create(['challenger_id' => $a->id, 'opponent_id' => $b->id, 'open_pair' => 'x']);
+    $friendship = Friendship::query()->sole(); // accepted: "friend_accepted" goes to the requester
+    $friendship->forceFill(['requested_by_learner_id' => $a->id])->save();
+
+    foreach (range(1, 3) as $_) {
+        SendFriendDmJob::dispatchSync('challenge_proposed', $c->id);
+        SendFriendDmJob::dispatchSync('friend_accepted', $friendship->id);
+    }
+
+    expect($this->tg->sent)->toHaveCount(2)
+        ->and(NotificationLog::query()->where('type', 'friend_dm')->count())->toBe(2);
+
+    // A finished challenge: each side once, independently.
+    $c->forceFill(['status' => 'finished', 'scores' => ['challenger' => 3, 'opponent' => 1], 'winner_learner_id' => $a->id])->save();
+    $this->tg->sent = [];
+    foreach (range(1, 2) as $_) {
+        SendFriendDmJob::dispatchSync('challenge_finished', $c->id, 'challenger');
+        SendFriendDmJob::dispatchSync('challenge_finished', $c->id, 'opponent');
+    }
+    expect($this->tg->sent)->toHaveCount(2);
+});
+
+it('lets a DM be retried after a 403 (nothing was delivered) and keeps the marker after other failures', function (): void {
+    [$a, $b] = frFriends();
+    $c = Challenge::factory()->create(['challenger_id' => $a->id, 'opponent_id' => $b->id, 'open_pair' => 'x']);
+    $mock = Mockery::mock(TelegramClient::class);
+    $mock->shouldReceive('sendMessage')->once()->andThrow(new TelegramForbiddenException(TelegramForbiddenException::REASON_BOT_BLOCKED));
+    $this->app->instance(TelegramClient::class, $mock);
+
+    SendFriendDmJob::dispatchSync('challenge_proposed', $c->id);
+
+    expect(NotificationLog::query()->where('type', 'friend_dm')->count())->toBe(0);
+});
+
+it('gives every job that waits for the bot-wide budget a finite retry window', function (): void {
+    $jobs = [
+        new SendFriendDmJob('friend_accepted', 1),
+        new SendTelegramMessageJob(1, 'x'),
+        new SendLearnerReminderJob(1, CarbonImmutable::now()),
+        new AnnounceAssignmentJob(1),
+        new PostLeaderboardJob(1),
+    ];
+
+    foreach ($jobs as $job) {
+        expect($job->tries)->toBe(0)
+            ->and(method_exists($job, 'retryUntil'))->toBeTrue()
+            ->and($job->retryUntil()->getTimestamp())->toBeGreaterThan(time())
+            ->and($job->retryUntil()->getTimestamp())->toBeLessThanOrEqual(time() + 6 * 3600 + 5);
+    }
 });
 
 it('does not announce a state that no longer holds', function (): void {

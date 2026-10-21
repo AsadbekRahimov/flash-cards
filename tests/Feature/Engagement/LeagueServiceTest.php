@@ -139,7 +139,7 @@ it('takes the tier of the next week from the last closed result, bounded to the 
         'league_group_id' => LeagueGroup::factory()->create(['league_week_id' => $closedWeek->id, 'tier' => 4])->id,
         'learner_id' => $stayedTop->id,
     ]);
-    // An open (not yet closed) membership of an earlier week decides nothing.
+    // A membership of an earlier week that nobody closed yet is closed by the placement itself (see below).
     $pending = Learner::factory()->create();
     LeagueMember::factory()->create([
         'league_group_id' => LeagueGroup::factory()->create(['league_week_id' => LeagueWeek::factory()->startingOn('2026-10-05')->create()->id, 'tier' => 3])->id,
@@ -149,8 +149,8 @@ it('takes the tier of the next week from the last closed result, bounded to the 
     expect(lgService()->place($promoted, lgNow())?->tier_before)->toBe(3)
         ->and(lgService()->place($demoted, lgNow())?->tier_before)->toBe(0)
         ->and(lgService()->place($stayedTop, lgNow())?->tier_before)->toBe(4)
-        ->and(lgService()->place($pending, lgNow())?->tier_before)->toBe(0)
-        ->and(LeagueGroup::query()->where('league_week_id', '<>', $closedWeek->id)->whereNotIn('league_week_id', [LeagueWeek::query()->where('starts_on', '<', '2026-10-12')->value('id') ?? 0])->pluck('tier')->sort()->values()->all())->toBe([0, 3, 4]);
+        ->and(lgService()->place($pending, lgNow())?->tier_before)->toBe(4) // alone in tier 3: rank 1, promoted
+        ->and(LeagueGroup::query()->where('league_week_id', lgService()->findWeek(lgNow())?->id)->pluck('tier')->sort()->values()->all())->toBe([0, 3, 4]); // the 'pending' one shares the top-tier group
 });
 
 it('is placed by the first grade of a day after the review transaction commits — never inside it', function (): void {
@@ -394,4 +394,41 @@ it('places a learner next week by the result of the closed one', function (): vo
         ->and(lgService()->place($learners[0][5], lgNow())?->tier_before)->toBe(0) // tier 0 cannot fall
         ->and(lgService()->place($learners[4][0], lgNow())?->tier_before)->toBe(4) // top tier cannot rise
         ->and(lgService()->overview($learners[2][0], lgNow())->lastResult?->result)->toBe('promoted');
+});
+
+it('closes the weeks that ended but were not closed yet before it places, so last week\'s result decides the tier', function (): void {
+    Queue::fake();
+    // Monday 00:03 in Tashkent: leagues:close-week (00:05) has not run — or was missed.
+    $monday = lgNow('2026-10-18 19:03:00');
+    $this->travelTo($monday);
+    ['week' => $week, 'learners' => $learners] = lgWeekToClose();
+    expect($week->fresh()?->status)->not->toBe('closed');
+
+    $member = lgService()->place($learners[2][0], $monday); // first grade of the week; rank 1 of tier 2
+
+    expect($member?->tier_before)->toBe(3)
+        ->and($week->fresh()?->status)->toBe('closed')
+        ->and($week->fresh()?->closed_at?->utc()->toDateTimeString())->toBe('2026-10-18 19:03:00');
+    Queue::assertPushed(SendLeagueResultJob::class, 18);
+
+    // The demoted one is placed one tier lower, and the late scheduler run changes and sends nothing.
+    expect(lgService()->place($learners[2][5], $monday)?->tier_before)->toBe(1);
+    $this->artisan('leagues:close-week')->expectsOutput('League weeks closed: 0')->assertSuccessful();
+    Queue::assertPushed(SendLeagueResultJob::class, 18);
+    expect(ProductEvent::query()->where('name', ProductEventName::LeagueWeekClosed->value)->count())->toBe(1);
+});
+
+it('queues no result DM for a banned, DM-closed, opted-out or deleted member', function (): void {
+    Queue::fake();
+    ['week' => $week, 'learners' => $learners] = lgWeekToClose();
+    $learners[0][0]->forceFill(['blocked_at' => now()])->save();
+    $learners[0][1]->forceFill(['dm_blocked_at' => now()])->save();
+    $learners[0][2]->forceFill(['meta' => [LeagueService::OPT_OUT_META => true]])->save();
+    $learners[0][3]->delete();
+
+    lgService()->closeWeek($week, lgNow('2026-10-18 19:05:00'));
+
+    Queue::assertPushed(SendLeagueResultJob::class, 14);
+    // Their results are still written.
+    expect(LeagueMember::query()->where('league_week_id', $week->id)->whereNull('result')->count())->toBe(0);
 });

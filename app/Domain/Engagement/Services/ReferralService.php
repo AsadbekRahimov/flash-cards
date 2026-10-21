@@ -18,6 +18,7 @@ use App\Models\LearnerDailyStats;
 use App\Models\Referral;
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
@@ -52,6 +53,11 @@ final class ReferralService
     public const SKIPPED_PERPETUAL = 'perpetual';
 
     public const SKIPPED_LEARNER_MISSING = 'learner_missing';
+
+    /** The learner was deleted (soft) or blocked by an administrator by the time the reward is granted. */
+    public const SKIPPED_LEARNER_DELETED = 'learner_deleted';
+
+    public const SKIPPED_LEARNER_BLOCKED = 'learner_blocked';
 
     /** `referral.rejected` reason for a link whose code belongs to nobody (no row: there is no inviter to reference). */
     public const REASON_UNKNOWN_CODE = 'unknown_code';
@@ -254,6 +260,44 @@ final class ReferralService
         }
 
         $referral->refresh();
+    }
+
+    /**
+     * Recovery sweep (scheduler): a lost or failed {@see RewardReferralJob} — the queue was down at the
+     * dispatch, the job exhausted its tries, an exception after the commit — leaves a referral that is
+     * `activated`, or `rewarded` with a side still missing. Re-queues the job for those that have waited
+     * `$olderThanMinutes` (a fresh one is still in flight). Flagged referrals wait for an admin. Safe to
+     * repeat: the reward is idempotent by the data ({@see reward()}).
+     *
+     * @return int jobs queued
+     */
+    public function recoverStuck(CarbonImmutable $now, int $olderThanMinutes = 10, int $limit = 500): int
+    {
+        $before = $now->subMinutes(max(1, $olderThanMinutes));
+
+        /** @var Collection<int, Referral> $stuck */
+        $stuck = Referral::query()
+            ->whereNull('flagged_at')
+            ->where(function (Builder $q) use ($before): void {
+                $q->where(fn (Builder $a) => $a->where('status', ReferralStatus::Activated->value)->where('activated_at', '<', $before))
+                    ->orWhere(fn (Builder $r) => $r->where('status', ReferralStatus::Rewarded->value)
+                        ->where('rewarded_at', '<', $before)
+                        ->where(fn (Builder $m) => $m->whereNull('meta->rewards->'.Referral::SIDE_REFEREE)->orWhereNull('meta->rewards->'.Referral::SIDE_REFERRER)));
+            })
+            ->orderBy('id')
+            ->limit(max(1, $limit))
+            ->get();
+
+        $queued = 0;
+        foreach ($stuck as $referral) {
+            if ($referral->status === ReferralStatus::Rewarded->value && $referral->fullyRewarded()) {
+                continue;
+            }
+            RewardReferralJob::dispatch($referral->id);
+            $queued++;
+        }
+
+        return $queued;
     }
 
     /**
@@ -468,8 +512,17 @@ final class ReferralService
         /** @var Learner|null $learner */
         $learner = Learner::withTrashed()->find($learnerId);
 
-        if ($learner === null) {
-            $entry = ['subscription_id' => null, 'skipped' => self::SKIPPED_LEARNER_MISSING];
+        // Pro is not granted to somebody who is gone or banned; the side is closed with the reason, so a
+        // retry or the recovery sweep does not come back to it.
+        $skipped = match (true) {
+            $learner === null => self::SKIPPED_LEARNER_MISSING,
+            $learner->trashed() => self::SKIPPED_LEARNER_DELETED,
+            $learner->blocked_at !== null => self::SKIPPED_LEARNER_BLOCKED,
+            default => null,
+        };
+
+        if ($learner === null || $skipped !== null) {
+            $entry = ['subscription_id' => null, 'skipped' => $skipped];
         } else {
             $subscription = $this->subscriptions->grantReward($learner, $days, 'referral:'.$row->id, $now);
             $entry = $subscription->current_period_ends_at === null

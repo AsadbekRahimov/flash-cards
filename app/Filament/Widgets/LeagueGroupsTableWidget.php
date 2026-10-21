@@ -40,7 +40,7 @@ class LeagueGroupsTableWidget extends TableWidget
             ->heading($this->headingFor($week, $leagues))
             ->query(
                 LeagueGroup::query()
-                    ->where('league_week_id', $week?->id ?? 0)
+                    ->where('league_week_id', $week === null ? 0 : $week->id)
                     ->orderByDesc('tier')
                     ->orderBy('id'),
             )

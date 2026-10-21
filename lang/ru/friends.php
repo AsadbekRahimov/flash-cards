@@ -6,13 +6,23 @@ return [
 
     'anonymous' => 'Ваш знакомый',
 
-    // `/start f_<code>` (or `ref_<code>` of someone who is already a learner), docs/13 §7.5.
+    // `/start f_<code>`, docs/13 §7.5: the link owner is only an address, the opener is asked first.
     'offer' => [
-        'text' => ":name приглашает вас в друзья в LexiFlow.\n\nДрузья видят серию и число выученных слов друг друга и могут бросать вызовы: кто больше повторит за неделю.",
+        'text' => "Вы открыли ссылку-приглашение от :name. Отправить :name запрос в друзья?\n\nДрузья видят серию и число выученных слов друг друга и могут бросать вызовы: кто больше повторит за неделю.",
+        'send' => 'Отправить запрос',
+        'skip' => 'Не сейчас',
+    ],
+
+    // A request addressed to the learner (a DM, or a pending request met by /start f_<code>).
+    'incoming' => [
+        'text' => ':name хочет добавить вас в друзья в LexiFlow.',
         'accept' => 'Принять',
         'decline' => 'Отклонить',
     ],
 
+    'request_sent' => 'Запрос отправлен: :name. Мы сообщим, когда его примут.',
+    'already_sent' => 'Вы уже отправили запрос :name — ждём ответа.',
+    'skipped' => 'Хорошо, запрос не отправлен.',
     'accepted' => 'Готово: вы с :name теперь друзья. Список друзей — в приложении LexiFlow.',
     'declined' => 'Хорошо, приглашение отклонено.',
     'already' => 'Вы с :name уже друзья.',

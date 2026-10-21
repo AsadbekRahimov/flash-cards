@@ -153,6 +153,7 @@ final class FriendshipService
         }
 
         $this->events->record(ProductEventName::FriendRequested, ['friendship_id' => $friendship->id], learner: $from);
+        SendFriendDmJob::send(FriendDmKind::FriendRequested, $friendship->id);
 
         return $friendship;
     }
@@ -348,7 +349,11 @@ final class FriendshipService
         );
     }
 
-    /** Accepted friendships of the learner and the pending requests THEY sent: what counts against `friends.max`. */
+    /**
+     * Accepted friendships of the learner and the pending requests THEY sent: what counts against `friends.max`.
+     * Requests addressed TO the learner do not count: anybody can send one, so they must not be able to fill
+     * the recipient's limit (the recipient's limit is checked when they accept).
+     */
     private function occupied(int $learnerId): int
     {
         return $this->involving($learnerId)

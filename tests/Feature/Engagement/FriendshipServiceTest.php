@@ -51,6 +51,7 @@ it('keeps ONE row per pair: A asks B and B asks A are the same normalised row', 
     expect($again->id)->toBe($first->id)
         ->and(Friendship::query()->count())->toBe(1)
         ->and(friendEvents('friend.requested'))->toBe(1);
+    Queue::assertPushed(SendFriendDmJob::class, 1); // the repeat sends no second "X wants to be your friend"
 });
 
 it('accepts when the two requests meet (A asks B, then B asks A)', function (): void {
@@ -62,7 +63,8 @@ it('accepts when the two requests meet (A asks B, then B asks A)', function (): 
     expect($met->status)->toBe('accepted')
         ->and($met->accepted_at)->not->toBeNull()
         ->and(Friendship::query()->count())->toBe(1);
-    Queue::assertPushed(SendFriendDmJob::class, 1);
+    Queue::assertPushed(SendFriendDmJob::class, fn (SendFriendDmJob $j): bool => $j->kind === 'friend_requested');
+    expect(Queue::pushed(SendFriendDmJob::class)->filter(fn (SendFriendDmJob $j): bool => $j->kind === 'friend_accepted'))->toHaveCount(1);
 });
 
 it('refuses to befriend yourself and a blocked learner', function (): void {
@@ -106,7 +108,9 @@ it('lets only the asked side accept, once, and raises one event and one DM', fun
         ->and($repeat->status)->toBe('accepted')
         ->and(friendEvents('friend.accepted'))->toBe(1)
         ->and(friendsSvc()->areFriends($a, $b))->toBeTrue();
-    Queue::assertPushed(SendFriendDmJob::class, 1);
+    // One DM to the asked side when the request was made, one to the asker when it was accepted — no more.
+    $kinds = Queue::pushed(SendFriendDmJob::class)->map(fn (SendFriendDmJob $j): string => $j->kind)->sort()->values()->all();
+    expect($kinds)->toBe(['friend_accepted', 'friend_requested']);
 });
 
 it('deletes a declined request, so the pair may ask again', function (): void {
@@ -269,4 +273,20 @@ it('builds the invite link from the learner code, null without the bot username'
 
     config(['telegram.bot_username' => '']);
     expect(friendsSvc()->inviteLink($me))->toBeNull();
+});
+
+it('does not count the requests ADDRESSED to a learner against their limit', function (): void {
+    config(['friends.max' => 2]);
+    $owner = Learner::factory()->create();
+
+    // Three strangers ask the owner (more than the limit): all of them pile up in the owner's inbox...
+    foreach (Learner::factory()->count(3)->create() as $stranger) {
+        friendsSvc()->request($stranger, $owner);
+    }
+    expect(friendsSvc()->overview($owner)->incoming)->toHaveCount(3);
+
+    // ...yet the owner can still send their own requests and make friends.
+    $first = friendsSvc()->request($owner, Learner::factory()->create());
+    $second = friendsSvc()->request($owner, Learner::factory()->create());
+    expect($first->status)->toBe('pending')->and($second->status)->toBe('pending');
 });

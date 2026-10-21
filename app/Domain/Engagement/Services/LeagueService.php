@@ -50,6 +50,10 @@ use Throwable;
  *                 (two schedulers, a retry) changes nothing and sends nothing twice. The result DMs
  *                 are queued after the commit ({@see SendLeagueResultJob}, bot-wide send budget).
  *
+ * Known scale limit: `closeWeek` closes ALL groups of the week in one transaction under the week row
+ * lock (consistent, idempotent, simple). At tens of thousands of members it becomes a long transaction;
+ * splitting by group is the way out if the week ever takes more than a few seconds.
+ *
  * Nothing here runs inside the review transaction: `place` is called by DailyStatsService in a
  * `DB::afterCommit` hook and locks only `league_*` rows (docs/13 §3 rule 5). Two learners are
  * never locked in one transaction (nothing of `learners` is locked at all).
@@ -140,6 +144,10 @@ final class LeagueService
         if ($existing !== null) {
             return $existing;
         }
+
+        // The tier comes from the last CLOSED week: a week that ended but was not closed yet (the
+        // 00:05 run has not happened, or was missed) is closed first, so its promotion / demotion counts.
+        $this->closeDue($now);
 
         $tier = $this->tierFor($learner);
         $capacity = max(1, (int) config('leagues.capacity', 30));
@@ -345,11 +353,36 @@ final class LeagueService
             'members' => count($memberIds),
         ]);
 
-        foreach ($memberIds as $memberId) {
+        foreach ($this->reachableMemberIds($memberIds) as $memberId) {
             SendLeagueResultJob::dispatch($memberId);
         }
 
         return true;
+    }
+
+    /**
+     * Members whose result DM is worth queueing: not banned, DM not closed, not opted out (the sender
+     * checks again at send time).
+     *
+     * @param  list<int>  $memberIds
+     * @return list<int>
+     */
+    private function reachableMemberIds(array $memberIds): array
+    {
+        $reachable = [];
+        foreach (array_chunk($memberIds, 500) as $chunk) {
+            /** @var EloquentCollection<int, LeagueMember> $members */
+            $members = LeagueMember::query()->with('learner')->whereIn('id', $chunk)->get();
+            foreach ($members as $member) {
+                $learner = $member->learner;
+                if ($learner !== null && $learner->blocked_at === null && $learner->dm_blocked_at === null && ! $this->isOptedOut($learner)) {
+                    $reachable[] = $member->id;
+                }
+            }
+        }
+        sort($reachable);
+
+        return $reachable;
     }
 
     /**

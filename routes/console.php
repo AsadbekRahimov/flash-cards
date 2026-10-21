@@ -76,6 +76,12 @@ Schedule::command('leagues:close-week')
     ->timezone((string) config('leagues.timezone', 'Asia/Tashkent'))
     ->withoutOverlapping(30);
 
+// Referral rewards (docs/13 §7.1): re-queues the reward job of a referral that is `activated`, or
+// `rewarded` with a side still missing, after a lost / failed job. Idempotent by the data.
+Schedule::command('referrals:recover')
+    ->everyThirtyMinutes()
+    ->withoutOverlapping(20);
+
 // Telegram's Stars ledger vs ours for the last 2 days (docs/13 §4.4): read-only, logs
 // `billing.reconcile_missing*`; exits early while Stars is disabled.
 Schedule::command('billing:reconcile-stars')
