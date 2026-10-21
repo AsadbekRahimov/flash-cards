@@ -124,15 +124,55 @@ it('does not spend a freeze when no day was missed', function (): void {
     expect(LearnerDailyStats::query()->whereNotNull('frozen_at')->count())->toBe(0);
 });
 
-it('never freezes a gap of two or more days: the series is zeroed and the inventory kept', function (): void {
-    $two = freezeLearner(3, '2026-10-15', 2);
-    expect(freezeState($two))->toMatchArray(['current' => 0, 'best' => 3, 'freezes' => 2, 'frozen_yesterday' => false])
-        ->and(freezeStored($two))->toMatchArray(['freezes' => 2, 'last' => '2026-10-15']);
+it('spends one freeze per missed day when N days in a row were missed and N freezes are in stock', function (): void {
+    $learner = freezeLearner(3, '2026-10-15', 2); // 16th and 17th missed
 
+    expect(freezeState($learner))->toMatchArray(['current' => 3, 'freezes' => 0, 'frozen_yesterday' => true])
+        ->and(freezeStored($learner))->toMatchArray(['freezes' => 0, 'current' => 3, 'last' => '2026-10-17'])
+        ->and(frozenRow($learner, '2026-10-16'))->not->toBeNull()
+        ->and(frozenRow($learner, '2026-10-17'))->not->toBeNull()
+        ->and(frozenEvents($learner))->toHaveCount(2);
+
+    // Idempotent: a second read or a retried freeze spends nothing more.
+    freezeState($learner);
+    expect(freezeStored($learner)['freezes'])->toBe(0)
+        ->and(frozenEvents($learner))->toHaveCount(2)
+        ->and(app(StreakFreezeService::class)->tryFreezeMany($learner, ['2026-10-16', '2026-10-17'], CarbonImmutable::parse(FREEZE_NOW, 'UTC')))->toBeFalse();
+});
+
+it('burns the series and spends nothing when fewer freezes than missed days are in stock', function (): void {
+    $short = freezeLearner(3, '2026-10-15', 1);
+    expect(freezeState($short))->toMatchArray(['current' => 0, 'best' => 3, 'freezes' => 1, 'frozen_yesterday' => false])
+        ->and(freezeStored($short))->toMatchArray(['freezes' => 1, 'last' => '2026-10-15'])
+        ->and(LearnerDailyStats::query()->whereNotNull('frozen_at')->count())->toBe(0);
+
+    $none = freezeLearner(3, '2026-10-15', 0);
+    expect(freezeState($none)['current'])->toBe(0);
+
+    // More missed days than the inventory can ever hold (max 2).
     $many = freezeLearner(9, '2026-09-01', 2);
     expect(freezeState($many)['current'])->toBe(0)
         ->and(freezeStored($many)['freezes'])->toBe(2)
-        ->and(LearnerDailyStats::query()->whereNotNull('frozen_at')->count())->toBe(0);
+        ->and(LearnerDailyStats::query()->where('learner_id', $many->id)->whereNotNull('frozen_at')->count())->toBe(0);
+
+    $three = freezeLearner(3, '2026-10-14', 2); // 15th, 16th, 17th missed: three days, two freezes
+    expect(freezeState($three)['current'])->toBe(0)
+        ->and(freezeStored($three)['freezes'])->toBe(2);
+});
+
+it('freezes all missed days after commit when today\'s goal closes an N-day gap, or restarts at 1 when they do not suffice', function (): void {
+    $now = CarbonImmutable::parse(FREEZE_NOW, 'UTC');
+
+    $enough = freezeLearner(3, '2026-10-15', 2);
+    expect(app(StreakService::class)->apply($enough, '2026-10-18', $now))->toBeTrue()
+        ->and(freezeStored($enough))->toMatchArray(['freezes' => 0, 'current' => 4, 'last' => '2026-10-18'])
+        ->and(frozenRow($enough, '2026-10-16'))->not->toBeNull()
+        ->and(frozenRow($enough, '2026-10-17'))->not->toBeNull();
+
+    $short = freezeLearner(3, '2026-10-15', 1);
+    expect(app(StreakService::class)->apply($short, '2026-10-18', $now))->toBeTrue()
+        ->and(freezeStored($short))->toMatchArray(['freezes' => 1, 'current' => 1, 'last' => '2026-10-18'])
+        ->and(LearnerDailyStats::query()->where('learner_id', $short->id)->whereNotNull('frozen_at')->count())->toBe(0);
 });
 
 it('does nothing for a Free learner: no freeze, zero shown, the stored inventory untouched', function (): void {

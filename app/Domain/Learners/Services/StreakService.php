@@ -11,6 +11,7 @@ use App\Domain\Learners\DTO\StreakState;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -116,7 +117,6 @@ class StreakService
         $now ??= CarbonImmutable::now();
         $todayDate = $today->toDateString();
         $yesterday = $today->subDay()->toDateString();
-        $dayBefore = $today->subDays(2)->toDateString();
         $last = $learner->streak_last_date?->toDateString();
 
         $yesterdayRow = $this->heldRow($learner->id, $yesterday);
@@ -132,7 +132,7 @@ class StreakService
             if ($yesterdayRow !== null) {
                 // The projection missed yesterday (callback lost) — without this fact the series would read as 0.
                 $this->project($learner, $yesterday, $yesterdayRow->goal_met_at !== null, $now);
-            } elseif ($last !== null && $freezesAvailable > 0 && $this->freezeYesterday($learner, $yesterday, $dayBefore, $last, $now)) {
+            } elseif ($last !== null && $freezesAvailable > 0 && $this->freezeMissed($learner, $yesterday, $last, $now)) {
                 $frozenYesterday = true;
             }
         }
@@ -159,37 +159,100 @@ class StreakService
     }
 
     /**
-     * On read: yesterday is not held and the projection ends before it. Freezes yesterday when the
-     * last held day is exactly the day before — by the projection, or by the facts when the
-     * projection lags behind them (that day's callback was lost: it is projected first).
+     * On read: yesterday is not held and the projection ends before it. First brings the projection up to
+     * the facts (held days the callbacks of which were lost), then freezes the whole run of missed days up
+     * to yesterday — one freeze each, all or none ({@see unheldTail()}) — and projects them. Returns true
+     * when yesterday ends up frozen (by this call or a concurrent one).
      */
-    private function freezeYesterday(Learner $learner, string $yesterday, string $dayBefore, string $last, CarbonImmutable $now): bool
+    private function freezeMissed(Learner $learner, string $yesterday, string $last, CarbonImmutable $now): bool
     {
-        if ($last < $dayBefore) {
-            $row = $this->heldRow($learner->id, $dayBefore);
-            if ($row === null) {
-                return false; // two or more days missed: nothing to freeze
-            }
-            $this->project($learner, $dayBefore, $row->goal_met_at !== null, $now);
-            if ($learner->streak_last_date?->toDateString() !== $dayBefore) {
-                return false;
-            }
+        $this->projectHeldRows($learner, $last, $yesterday, $now);
+
+        $last = $learner->streak_last_date?->toDateString();
+        if ($last === null) {
+            return false;
         }
 
-        if (! $this->freezes->tryFreeze($learner, $yesterday, $now)) {
-            // A concurrent reader may have frozen it a moment ago: then it is a fact like any other.
-            $row = $this->heldRow($learner->id, $yesterday);
-            if ($row === null) {
-                return false;
-            }
-            $this->project($learner, $yesterday, $row->goal_met_at !== null, $now);
-
-            return $row->frozen_at !== null;
+        $tail = $this->unheldTail($learner->id, $last, $yesterday);
+        if ($tail === null || $tail === []) {
+            return false; // more missed days than freezes can ever cover (or nothing missed): the series burns
         }
 
-        $this->project($learner, $yesterday, false, $now);
+        $this->freezes->tryFreezeMany($learner, $tail, $now); // false: too few freezes, or a concurrent caller got there first
 
-        return true;
+        // Whatever is held now (our freezes, or a concurrent caller's) is a fact like any other.
+        $this->projectHeldRows($learner, $last, $yesterday, $now);
+
+        return $this->heldRow($learner->id, $yesterday)?->frozen_at !== null;
+    }
+
+    /**
+     * Projects the held days (goal met or frozen) after `$last` up to `$through`, oldest first. Looks back
+     * at most as far as freezes can reach (the older gap cannot be bridged anyway).
+     */
+    private function projectHeldRows(Learner $learner, string $last, string $through, CarbonImmutable $now): void
+    {
+        $from = $this->windowStart($last, $through);
+
+        foreach ($this->heldRowsBetween($learner->id, $from, $through) as $row) {
+            $this->project($learner, $row->date->toDateString(), $row->goal_met_at !== null, $now);
+        }
+    }
+
+    /**
+     * The run of days that are NOT held and end on `$through`, oldest first, when it can be covered:
+     * it starts right after the last held day (`$last` by the projection, or a held fact above it) and is
+     * no longer than the freeze maximum. `[]` — `$through` itself is held or beyond `$last`; `null` — the
+     * run is longer than any inventory can cover, so there is nothing to freeze.
+     *
+     * @return list<string>|null
+     */
+    private function unheldTail(int $learnerId, string $last, string $through): ?array
+    {
+        if ($last >= $through) {
+            return [];
+        }
+
+        $from = $this->windowStart($last, $through);
+        $held = [];
+        foreach ($this->heldRowsBetween($learnerId, $from, $through) as $row) {
+            $held[$row->date->toDateString()] = true;
+        }
+
+        $tail = [];
+        for ($day = CarbonImmutable::parse($through); $day->toDateString() >= $from; $day = $day->subDay()) {
+            if (isset($held[$day->toDateString()])) {
+                break;
+            }
+            array_unshift($tail, $day->toDateString());
+        }
+
+        return count($tail) > $this->freezes->max() ? null : $tail;
+    }
+
+    /** First day worth looking at: the day after `$last`, but not farther back than the freeze maximum reaches. */
+    private function windowStart(string $last, string $through): string
+    {
+        $reach = CarbonImmutable::parse($through)->subDays($this->freezes->max())->toDateString();
+        $afterLast = CarbonImmutable::parse($last)->addDay()->toDateString();
+
+        return max($afterLast, $reach);
+    }
+
+    /**
+     * Held rows (goal met or frozen) with `$from <= date <= $through`, oldest first.
+     *
+     * @return Collection<int, LearnerDailyStats>
+     */
+    private function heldRowsBetween(int $learnerId, string $from, string $through): Collection
+    {
+        return LearnerDailyStats::query()
+            ->where('learner_id', $learnerId)
+            ->where(fn ($q) => $q->whereNotNull('goal_met_at')->orWhereNotNull('frozen_at'))
+            ->where('date', '>=', $this->storedDate($from))
+            ->where('date', '<=', $this->storedDate($through))
+            ->orderBy('date')
+            ->get(['id', 'learner_id', 'date', 'goal_met_at', 'frozen_at']);
     }
 
     /**
@@ -261,32 +324,34 @@ class StreakService
     }
 
     /**
-     * Before a met day `d` is projected with a gap: freezes `d - 1` when it is not held and the
-     * last held day is `d - 2` (by the projection, or by the facts when the projection lags).
-     * Returns true when the projection's own series (`last = d - 2`) now continues through a held
-     * `d - 1` — frozen here or a moment earlier by a concurrent caller — so the caller counts on
-     * from `streak_current` instead of rebuilding (a projection older than the facts' retention
-     * has nothing to rebuild from). With a lagging projection the rebuild that follows sees the
-     * frozen day as a bridge.
+     * Before a met day `d` is projected with a gap: freezes the days missed since the last held day
+     * (`$previous` = `d - 1` and as many days before it as are unheld), one freeze each, all or none —
+     * with too few freezes nothing is spent and the series restarts. Returns true when the projection's
+     * own series (`last`) now continues through held days that are ALL frozen — by us or a moment earlier
+     * by a concurrent caller — so the caller counts on from `streak_current` instead of rebuilding (a
+     * projection older than the facts' retention has nothing to rebuild from). With a lagging projection
+     * the rebuild that follows sees the frozen days as bridges.
      */
     private function freezeGapBefore(Learner $learner, string $previous, string $last, CarbonImmutable $now): bool
     {
-        $dayBefore = CarbonImmutable::parse($previous)->subDay()->toDateString();
-
-        if ($last !== $dayBefore && ($last > $dayBefore || $this->heldRow($learner->id, $dayBefore) === null)) {
+        $gap = (int) CarbonImmutable::parse($last)->diffInDays(CarbonImmutable::parse($previous));
+        if ($gap < 1 || $gap > self::MAX_REBUILD_DAYS) {
             return false;
         }
 
-        $row = $this->heldRow($learner->id, $previous);
-        if ($row === null) {
-            if ($this->freezes->tryFreeze($learner, $previous, $now)) {
-                return $last === $dayBefore;
-            }
-            $row = $this->heldRow($learner->id, $previous); // a concurrent caller may have frozen it a moment ago
+        $tail = $this->unheldTail($learner->id, $last, $previous);
+        if ($tail === null) {
+            return false;
         }
 
-        // A met `d - 1` (its callback was lost) must be counted by the rebuild; only a frozen one bridges.
-        return $row !== null && $row->goal_met_at === null && $last === $dayBefore;
+        if ($tail !== []) {
+            $this->freezes->tryFreezeMany($learner, $tail, $now); // false: too few freezes, or a concurrent caller froze them a moment ago
+        }
+
+        // A met day (its callback was lost) must be counted by the rebuild; only frozen days bridge.
+        $rows = $this->heldRowsBetween($learner->id, CarbonImmutable::parse($last)->addDay()->toDateString(), $previous);
+
+        return $rows->count() === $gap && $rows->every(fn (LearnerDailyStats $row): bool => $row->goal_met_at === null);
     }
 
     /** The row of a held local day (goal met or frozen), or null when the day is not held. */
