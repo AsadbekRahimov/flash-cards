@@ -183,7 +183,7 @@ describe('billing store: catalog and purchase', () => {
     await billing.buy('month', 'payme')
 
     expect(billing.purchase.status).toBe('failed')
-    expect(billing.purchase.error).toBe('У вас включено автопродление Stars. Отключите его в «Подписке», прежде чем платить другим способом.')
+    expect(billing.purchase.error).toBe('У вас включено автопродление Stars. Отключите его в «Подписке», прежде чем оформлять новую оплату.')
 
     setLocale('uz')
     vi.mocked(api.billing.checkout).mockRejectedValue(new ApiClientError('rate_limited', 429, 'too_many_pending', 'English'))

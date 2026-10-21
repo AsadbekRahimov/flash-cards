@@ -259,7 +259,7 @@ it('GET /me counts due graduated cards and abandoned (re)learning cards as due t
 
 // --- billing (docs/04 A.8) -------------------------------------------------
 
-const CONTRACT_SUBSCRIPTION_SUMMARY = ['status', 'provider', 'plan', 'ends_at', 'auto_renew', 'can_cancel', 'can_resume'];
+const CONTRACT_SUBSCRIPTION_SUMMARY = ['status', 'provider', 'plan', 'ends_at', 'auto_renew', 'can_cancel', 'can_resume', 'perpetual'];
 const CONTRACT_RENEWAL = ['auto', 'provider', 'ends_at', 'reminder_sent'];
 
 it('GET /billing/catalog keeps its exact JSON shape', function (): void {

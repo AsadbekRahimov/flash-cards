@@ -686,6 +686,7 @@ you switch a provider on.
 | `BILLING_PAYWALL_MODE` | `coming_soon` → `purchase` once at least one provider is enabled **and** prices are set. With an empty catalog the API silently falls back to `coming_soon` |
 | `BILLING_STARS_ENABLED` | `true` makes the Stars adapter sellable. No separate key or URL: Stars use the bot token and the bot webhook |
 | `BILLING_STARS_MAX_SUBSCRIPTION_PRICE` | Telegram's cap for a Stars *subscription* price (10000); a month above it is not sold |
+| `BILLING_STARS_SUBSCRIBE_WINDOW_DAYS` | A Stars *subscription* (month) is sold on top of a prepaid period only when that period ends within this many days (7); Payme / Click and the Stars year are not limited |
 | `PAYME_ENABLED`, `PAYME_MERCHANT_ID` | merchant id from the Payme business cabinet |
 | `PAYME_KEY` | **production** merchant key (secret) |
 | `PAYME_TEST_KEY` | key of the **test** cabinet (secret); the webhook accepts both, so sandbox and prod differ by key. Leave empty in production once testing is done |

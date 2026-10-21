@@ -299,27 +299,28 @@ it('checks the webhook against the discounted order amount and redeems the offer
         ->and($offer->payment_order_id)->toBe($order->id)
         ->and(ProductEvent::query()->where('name', 'offer.redeemed')->count())->toBe(1);
 
-    // Used up: the next order is at the list price.
-    $next = app(CheckoutService::class)->create($learner->refresh(), Plan::Pro, 'month', SubscriptionProvider::TelegramStars, null, 'twa');
-    expect($next->offer_id)->toBeNull()->and($next->amount)->toBe(150);
+    // Used up: the next order is at the list price (the Stars renewal that just started would block any order).
+    Subscription::query()->update(['status' => 'canceled', 'canceled_at' => CarbonImmutable::now()]);
+    $next = app(CheckoutService::class)->create($learner->refresh(), Plan::Pro, 'month', SubscriptionProvider::Payme, null, 'twa');
+    expect($next->offer_id)->toBeNull()->and($next->amount)->toBe(2_900_000);
 });
 
 it('leaves the offer open when its order expires, is canceled, or is paid too late, until the offer\'s own deadline', function (): void {
     $learner = Learner::factory()->create();
     $offer = pdOfferFor($learner);
-    $order = app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::TelegramStars, null, 'twa');
+    $order = app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::Payme, null, 'twa');
 
     CarbonImmutable::setTestNow(CarbonImmutable::now()->addDay()->addMinute());
     expect(app(CheckoutService::class)->expirePending())->toBe(1);
 
-    $late = fn () => app(PaymentApplier::class)->applyCharge($this->stars->emitCharge($order));
+    $late = fn () => app(PaymentApplier::class)->applyCharge($this->payme->emitCharge($order));
     expect($late)->toThrow(PaymentApplyException::class);
 
     expect($offer->refresh()->redeemed_at)->toBeNull()
         ->and($offer->payment_order_id)->toBeNull();
 
-    $again = app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::TelegramStars, null, 'twa');
-    expect($again->offer_id)->toBe($offer->id)->and($again->amount)->toBe(105);
+    $again = app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::Payme, null, 'twa');
+    expect($again->offer_id)->toBe($offer->id)->and($again->amount)->toBe(2_030_000);
 
     $again->forceFill(['status' => PaymentOrder::STATUS_CANCELED])->save();
     expect($offer->refresh()->redeemed_at)->toBeNull()

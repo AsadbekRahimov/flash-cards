@@ -277,6 +277,10 @@ Filters: status, provider, plan, subject, and *Live status* (live = trialing / a
   or an *Organization* — and either switch on **No end date** or set **Pro until**. The **Reason** is required and
   is stored in the audit log (`subscription.granted`). If the subject already has a live subscription it is
   extended / replaced in place (no second subscription is created).
+  If the learner has a **Stars subscription with auto-renewal**, the form warns that Telegram keeps charging them and
+  that a manual grant replaces the row (the renewal can no longer be canceled from LexiFlow): ask the learner to turn
+  the renewal off in /pro first, then tick **I understand: grant anyway**. If the date is earlier than the end of a
+  period the learner has already paid for, the **Pro until** hint says it will shorten the paid period.
   For an *Organization* you can also pick the **Tier** (Tutor 30 seats, Center S 100, Center M 300, Center L
   unlimited — the table is `billing.org_tiers`): it sets the subscription's tier and **seats limit** and is written to
   the audit log. This is how the Center L tier (not sold online) and a paid-by-invoice center are activated. Leave it
@@ -334,6 +338,14 @@ Three read-only screens (nothing can be created, edited or deleted there):
   **Double discount** lists them. What to do: nothing is required to keep the customer — the subscription is already
   valid; if the second discount is not acceptable, agree on a correction with the owner (the case is rare: it needs two
   payments to be confirmed within seconds). Look at the matching offer (**Learners → Offers**) for the first order.
+- A red **Double Stars subscription** badge (filter of the same name) marks an order of a learner who already had a
+  running Stars subscription when this one was paid — the second invoice was already open at the payment screen. The
+  money is credited (Pro is extended) and both Telegram subscriptions are remembered; **nothing is canceled
+  automatically**. What to do: ask the learner whether they want the second one refunded (**Payments → Refund** on that
+  payment), and note that **Cancel auto-renewal** (the learner in /pro) stops both subscriptions at Telegram. The dashboard
+  tile **Double Stars subscriptions** counts such orders of the last 24 hours; normally 0. A pending Stars *month* order is
+  also closed by us (*Canceled reason* `already_subscribed`) when the learner's Stars subscription starts; Stars orders
+  are no longer expired by the scheduler (their deadline is checked when the learner pays).
 - **Provider transactions** — Payme / Click transaction state (created → performed / canceled, cancel reason) and the
   journal of webhook calls (`history`).
 
@@ -426,7 +438,7 @@ Changes apply within seconds.
 | Organizations — members / seats | **admin only** | Per organization: active groups, **members** (distinct learners with an active membership in an active group of the organization; deleted learners are not counted), **seats** (`seats_limit` of the organization's live subscription; empty when none was set) and whether it is sponsoring Pro |
 | SM-2 vs FSRS — 28 days | **admin only** | The SRS A/B, one figure per algorithm (`SM-2 / FSRS`, from `training_reviews.scheduler`): *pass rate of due cards* (graduated cards answered 3+ out of 5), *reviews per graduated word* (fewer at the same pass rate means FSRS is more efficient), *D7 retention by bucket* (learners who signed up 28–7 days ago and still studied 7+ days after signing up). `—` = no data yet; with `FSRS_ROLLOUT_PERCENT=0` and no manual switches the FSRS side stays empty |
 | Revenue, last 30 days | **admin only** | One figure per currency, **UZS and XTR are never added together**. *Revenue* = the charges and renewals of the last 30 days (by payment time) that are still `succeeded`, i.e. gross minus the `refunded` ones; the line below shows the number of payments, the gross and the refunded amount. Failed events and the `refund` bookkeeping rows are not counted; a charge older than 30 days that is refunded today does not change this figure |
-| Payment webhook errors, last 24 h | **admin only** | *Failed payments* — ledger rows recorded as `failed` in the last 24 hours (by provider); *Canceled provider transactions* — Payme / Click transactions canceled in that time (a customer closing the page also cancels, so only a spike matters). Any failed payment deserves a look: open **Payments → Status: failed**. *Double discounts* — orders paid in the last 24 hours with the red **Double discount** badge (**Payment orders → filter Double discount**); normally 0 |
+| Payment webhook errors, last 24 h | **admin only** | *Failed payments* — ledger rows recorded as `failed` in the last 24 hours (by provider); *Canceled provider transactions* — Payme / Click transactions canceled in that time (a customer closing the page also cancels, so only a spike matters). Any failed payment deserves a look: open **Payments → Status: failed**. *Double discounts* — orders paid in the last 24 hours with the red **Double discount** badge (**Payment orders → filter Double discount**); normally 0. *Double Stars subscriptions* — orders paid in the last 24 hours with the red **Double Stars subscription** badge (**Payment orders → filter Double Stars subscription**); normally 0 |
 
 The *admin only* widgets show platform-wide data: a teacher never sees them (they are not on the dashboard and
 cannot be opened directly; an inactive admin gets the same). The seat limit is informational in

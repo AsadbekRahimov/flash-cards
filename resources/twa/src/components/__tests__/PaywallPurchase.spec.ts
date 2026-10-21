@@ -223,12 +223,22 @@ describe('PaywallSheet in purchase mode', () => {
 
   it('does not sell while the Stars auto-renewal is running', async () => {
     vi.mocked(api.billing.catalog).mockResolvedValue(catalog({
-      subscription: { status: 'active', provider: 'telegram_stars', plan: 'pro', ends_at: '2026-12-01T00:00:00+00:00', auto_renew: true, can_cancel: true, can_resume: false },
+      subscription: { status: 'active', provider: 'telegram_stars', plan: 'pro', ends_at: '2026-12-01T00:00:00+00:00', auto_renew: true, can_cancel: true, can_resume: false, perpetual: false },
     }))
     const w = await render()
 
     expect(w.find('[data-testid=pay-telegram_stars]').exists()).toBe(false)
     expect(w.get('[data-testid=purchase-renewing]').text()).toContain('Автопродление Stars включено')
+  })
+
+  it('does not sell on top of a perpetual Pro', async () => {
+    vi.mocked(api.billing.catalog).mockResolvedValue(catalog({
+      subscription: { status: 'active', provider: 'manual', plan: 'pro', ends_at: null, auto_renew: false, can_cancel: false, can_resume: false, perpetual: true },
+    }))
+    const w = await render()
+
+    expect(w.find('[data-testid=pay-telegram_stars]').exists()).toBe(false)
+    expect(w.get('[data-testid=purchase-perpetual]').text()).toContain('без ограничения по сроку')
   })
 
   it('explains the exhausted quota with the purchase lead', async () => {

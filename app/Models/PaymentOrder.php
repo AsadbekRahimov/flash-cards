@@ -73,6 +73,14 @@ class PaymentOrder extends Model
      */
     public const CANCEL_REASON_TIER_CHANGED = 'tier_changed';
 
+    /**
+     * `meta.canceled_reason` of a pending Stars `month` order closed by the first payment of the learner's Stars
+     * subscription (OrganizationOrderGuard::cancelCompetingStarsSubscriptions, "Реализация 2A.8"): a second Telegram
+     * subscription would double-charge them. Honoured like the other system reasons — an invoice already past
+     * pre_checkout still pays, and that payment is flagged `stars_double_subscription`.
+     */
+    public const CANCEL_REASON_ALREADY_SUBSCRIBED = 'already_subscribed';
+
     /** @var list<string> */
     protected $fillable = [
         'token',
@@ -127,14 +135,14 @@ class PaymentOrder extends Model
     }
 
     /**
-     * Canceled by OUR bookkeeping (offer moved / redeemed, organization tier changed) rather than by the
+     * Canceled by OUR bookkeeping (offer moved / redeemed, organization tier changed, Stars already subscribed) rather than by the
      * payer, the provider or an admin: the pre-checks refuse the token, but a charge that was already in
      * flight at the provider is still credited by PaymentApplier — money that was taken is never lost.
      */
     public function canceledBySystem(): bool
     {
         return $this->canceledForOffer()
-            || ($this->status === self::STATUS_CANCELED && ($this->meta['canceled_reason'] ?? null) === self::CANCEL_REASON_TIER_CHANGED);
+            || ($this->status === self::STATUS_CANCELED && in_array($this->meta['canceled_reason'] ?? null, [self::CANCEL_REASON_TIER_CHANGED, self::CANCEL_REASON_ALREADY_SUBSCRIBED], true));
     }
 
     /**

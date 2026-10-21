@@ -68,6 +68,8 @@ class PaymentOrderResource extends Resource
                     ->state(fn (PaymentOrder $record): ?string => self::flag($record, 'offer_double_discount', 'double discount')),
                 TextEntry::make('tier_mismatch')->label('Tier mismatch')->badge()->color('danger')->placeholder('—')
                     ->state(fn (PaymentOrder $record): ?string => self::tierMismatch($record)),
+                TextEntry::make('stars_double_subscription')->label('Double Stars subscription')->badge()->color('danger')->placeholder('—')
+                    ->state(fn (PaymentOrder $record): ?string => self::flag($record, 'stars_double_subscription', 'double subscription')),
             ]),
             Section::make('Meta (secrets masked)')->collapsed()->schema([
                 TextEntry::make('meta')->hiddenLabel()->state(fn (PaymentOrder $record) => BillingDisplay::payload($record->meta))->html(),
@@ -100,6 +102,8 @@ class PaymentOrderResource extends Resource
                     ->state(fn (PaymentOrder $record): ?string => self::flag($record, 'offer_double_discount', 'double discount')),
                 Tables\Columns\TextColumn::make('tier_mismatch')->label('Tier mismatch')->badge()->color('danger')->placeholder('—')
                     ->state(fn (PaymentOrder $record): ?string => self::tierMismatch($record)),
+                Tables\Columns\TextColumn::make('stars_double_subscription')->label('Double Stars subscription')->badge()->color('danger')->placeholder('—')
+                    ->state(fn (PaymentOrder $record): ?string => self::flag($record, 'stars_double_subscription', 'double subscription')),
                 Tables\Columns\TextColumn::make('created_via')->badge()->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('expires_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('paid_at')->dateTime()->placeholder('—')->sortable()->toggleable(),
@@ -116,6 +120,9 @@ class PaymentOrderResource extends Resource
                 Tables\Filters\Filter::make('tier_mismatch')
                     ->label('Tier mismatch')
                     ->query(fn (Builder $query): Builder => $query->where('meta->tier_mismatch', true)),
+                Tables\Filters\Filter::make('stars_double_subscription')
+                    ->label('Double Stars subscription')
+                    ->query(fn (Builder $query): Builder => $query->where('meta->stars_double_subscription', true)),
             ])
             ->actions([Actions\ViewAction::make()])
             ->defaultSort('id', 'desc');

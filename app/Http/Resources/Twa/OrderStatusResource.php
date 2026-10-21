@@ -32,7 +32,7 @@ final class OrderStatusResource extends TwaResource
      *   paid_at: string|null,
      *   reason: string|null,
      *   replaced_by: string|null,
-     *   subscription: array{status: string, provider: string, plan: string, ends_at: string|null, auto_renew: bool, can_cancel: bool, can_resume: bool}|null
+     *   subscription: array{status: string, provider: string, plan: string, ends_at: string|null, auto_renew: bool, can_cancel: bool, can_resume: bool, perpetual: bool}|null
      * }
      */
     public function toArray(Request $request): array

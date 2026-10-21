@@ -8,6 +8,7 @@ use App\Domain\Billing\Exceptions\DuplicatePaymentException;
 use App\Domain\Billing\Exceptions\PaymentApplyException;
 use App\Domain\Billing\Providers\TelegramStarsProvider;
 use App\Domain\Billing\Services\PaymentApplier;
+use App\Domain\Billing\Services\StarsRenewalStopper;
 use App\Domain\Billing\Support\PriceFormatter;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
@@ -24,7 +25,8 @@ use InvalidArgumentException;
  * `refunded`, a `refund` row is written, the subscription ends now when the refunded charge paid
  * the running period. A charge the admin already refunded (`already_refunded`) and a re-delivered
  * update (`DuplicatePaymentException`) are acknowledged silently; a charge we never recorded is
- * an error log for support. Other failures propagate so the job retries.
+ * an error log for support. Other failures propagate so the job retries. A subscription that was still renewing
+ * is stopped at Telegram afterwards ({@see StarsRenewalStopper}, "Реализация 2A.8").
  */
 final class RefundedPaymentHandler implements UpdateHandler
 {
@@ -32,6 +34,7 @@ final class RefundedPaymentHandler implements UpdateHandler
         private readonly TelegramClient $telegram,
         private readonly TelegramStarsProvider $stars,
         private readonly PaymentApplier $applier,
+        private readonly StarsRenewalStopper $renewals,
         private readonly LocaleResolver $locales,
     ) {}
 
@@ -61,6 +64,9 @@ final class RefundedPaymentHandler implements UpdateHandler
             return;
         }
 
+        // Ending the subscription hides whether it still renewed: ask before the refund is applied.
+        $running = $this->renewals->runningFor($event->refundedProviderChargeId);
+
         try {
             $refund = $this->applier->applyRefund($event);
         } catch (DuplicatePaymentException) {
@@ -75,6 +81,9 @@ final class RefundedPaymentHandler implements UpdateHandler
 
             return;
         }
+
+        // Telegram returned the Stars but keeps charging the subscription: stop it (a failure is logged, the refund stands).
+        $this->renewals->stop($running);
 
         if ($chatId === 0) {
             return;

@@ -51,7 +51,7 @@ const me = ({ plan = 'free', source, until = null, renewal = null, mode = 'purch
 })
 
 const summary = (overrides: Partial<SubscriptionSummary> = {}): SubscriptionSummary => ({
-  status: 'active', provider: 'telegram_stars', plan: 'pro', ends_at: '2026-12-01T00:00:00+00:00', auto_renew: true, can_cancel: true, can_resume: false, ...overrides,
+  status: 'active', provider: 'telegram_stars', plan: 'pro', ends_at: '2026-12-01T00:00:00+00:00', auto_renew: true, can_cancel: true, can_resume: false, perpetual: false, ...overrides,
 })
 
 const catalog = (subscription: SubscriptionSummary | null = null, items = true): BillingCatalog => ({
@@ -178,6 +178,16 @@ describe('BillingView', () => {
     expect(wrapper.find('[data-testid=renewal-card]').exists()).toBe(false)
     expect(wrapper.get('[data-testid=plan-provider]').text()).toBe('Оплата: Payme.')
     expect(wrapper.get('[data-testid=buy]').text()).toBe('Продлить Pro')
+  })
+
+  it('shows no buy button for a perpetual Pro grant', async () => {
+    const { wrapper } = await render(
+      me({ plan: 'pro', until: null }),
+      catalog(summary({ provider: 'manual', ends_at: null, auto_renew: false, can_cancel: false, can_resume: false, perpetual: true })),
+    )
+
+    expect(wrapper.find('[data-testid=buy]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=renewal-card]').exists()).toBe(false)
   })
 
   it('says Pro comes from the center when it is sponsored', async () => {

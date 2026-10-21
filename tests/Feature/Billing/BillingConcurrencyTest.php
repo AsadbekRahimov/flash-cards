@@ -946,7 +946,9 @@ function billingOfferCheckoutVsPayment(bool $paymentFirst): void
                 usleep(150_000);
             });
 
-            return app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::TelegramStars, null, 'twa')->id;
+            // Payme, not Stars: a Stars subscription on top of the 30 days the holder has just paid is refused
+            // (subscribe_too_early, "Реализация 2A.8") before the offer is even looked at.
+            return app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::Payme, null, 'twa')->id;
         },
     ]);
 

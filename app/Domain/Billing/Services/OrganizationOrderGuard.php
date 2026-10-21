@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Billing\Services;
 
+use App\Domain\Billing\Enums\SubscriptionProvider;
+use App\Domain\Billing\Support\AutoRenewal;
 use App\Models\Organization;
 use App\Models\PaymentOrder;
 use Carbon\CarbonImmutable;
@@ -28,6 +30,10 @@ use Illuminate\Support\Facades\Log;
  *                     `meta.canceled_reason = tier_changed`, unless the provider is mid-payment on it
  *                     (open transaction younger than the provider's timeout — {@see PaymentOrder::isBeingPaidAt}).
  *
+ * Learner orders get one refusal of their own (`already_subscribed`, "Реализация 2A.8"): an order created
+ * before the learner subscribed with Stars (or in a parallel checkout) must not be paid by Payme / Click on top
+ * of a Stars subscription that keeps charging — the provider could not be told to stop it afterwards.
+ *
  * The `tier_mismatch` flag stays as the backstop for what slips through both (a Perform / Complete that
  * was already in flight): the money is credited, the tier is kept, the platform looks at the order.
  */
@@ -37,21 +43,27 @@ final class OrganizationOrderGuard
 
     public const REFUSAL_ORGANIZATION_SUSPENDED = 'organization_suspended';
 
+    /** A learner's order while their Stars subscription still renews (docs/13 "Реализация 2A.8"). */
+    public const REFUSAL_ALREADY_SUBSCRIBED = 'already_subscribed';
+
     public function __construct(
         private readonly SubscriptionService $subscriptions,
     ) {}
 
     /**
-     * Why a provider must not open a payment on this order right now, or null when it may. Only
-     * organization orders are ever refused; a learner's order always passes. Plain reads — call it
-     * outside a transaction (pre-check) or under the order lock (`ProviderTransactionService::open`).
+     * Why a provider must not open a payment on this order right now, or null when it may: an organization
+     * order whose tier / status no longer fits, a learner order while their Stars subscription renews.
+     * Plain reads — call it outside a transaction (pre-check) or under the order lock
+     * (`ProviderTransactionService::open`).
      *
      * @return self::REFUSAL_*|null
      */
     public function refusal(PaymentOrder $order, CarbonImmutable $now): ?string
     {
         if ($order->subscriber_type !== 'organization') {
-            return null;
+            return $order->subscriber_type === 'learner' && AutoRenewal::forLearner($order->subscriber_id, $now) !== null
+                ? self::REFUSAL_ALREADY_SUBSCRIBED
+                : null;
         }
 
         /** @var Organization|null $organization */
@@ -72,6 +84,55 @@ final class OrganizationOrderGuard
         }
 
         return null;
+    }
+
+    /**
+     * After the first payment of a learner's Stars subscription: closes the learner's other pending Stars `month`
+     * orders (`meta.canceled_reason = already_subscribed`) — paying one of them would open a second Telegram
+     * subscription. Their tokens die at every pre-check anyway; this keeps the order list and the pending
+     * limit honest. A charge already in flight on such an order is still credited (and flagged) by PaymentApplier.
+     * Locks `payment_orders` only.
+     *
+     * @return int how many orders were canceled
+     */
+    public function cancelCompetingStarsSubscriptions(int $learnerId, int $paidOrderId, ?CarbonImmutable $now = null): int
+    {
+        $now ??= CarbonImmutable::now();
+
+        return DB::transaction(function () use ($learnerId, $paidOrderId, $now): int {
+            /** @var Collection<int, PaymentOrder> $competing */
+            $competing = PaymentOrder::query()
+                ->where('subscriber_type', 'learner')
+                ->where('subscriber_id', $learnerId)
+                ->where('provider', SubscriptionProvider::TelegramStars->value)
+                ->where('period', 'month')
+                ->where('status', PaymentOrder::STATUS_PENDING)
+                ->whereKeyNot($paidOrderId)
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get();
+
+            foreach ($competing as $order) {
+                $order->fill([
+                    'status' => PaymentOrder::STATUS_CANCELED,
+                    'meta' => [
+                        ...$order->meta,
+                        'canceled_reason' => PaymentOrder::CANCEL_REASON_ALREADY_SUBSCRIBED,
+                        'canceled_at' => $now->toIso8601String(),
+                        'already_subscribed_by_order_id' => $paidOrderId,
+                    ],
+                ])->save();
+
+                Log::info('billing.stars_order_canceled', [
+                    'payment_order_id' => $order->id,
+                    'learner_id' => $learnerId,
+                    'paid_order_id' => $paidOrderId,
+                    'reason' => PaymentOrder::CANCEL_REASON_ALREADY_SUBSCRIBED,
+                ]);
+            }
+
+            return $competing->count();
+        });
     }
 
     /**

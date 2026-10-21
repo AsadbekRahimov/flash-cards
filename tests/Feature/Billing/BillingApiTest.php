@@ -524,15 +524,19 @@ it('is coming_soon when the providers are bound but no price is set', function (
 
 it('runs billing:expire-orders and has it scheduled every 15 minutes', function (): void {
     $learner = Learner::factory()->create();
-    $stale = app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::TelegramStars, null, 'twa');
+    $stale = app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::Payme, null, 'twa');
     $stale->update(['expires_at' => CarbonImmutable::now()->subMinute()]);
-    $fresh = app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::TelegramStars, null, 'twa');
+    $fresh = app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::Payme, null, 'twa');
+    // A Stars order is never swept: its deadline is checked by pre_checkout ("Реализация 2A.8").
+    $stars = app(CheckoutService::class)->create($learner, Plan::Pro, 'month', SubscriptionProvider::TelegramStars, null, 'twa');
+    $stars->update(['expires_at' => CarbonImmutable::now()->subMinute()]);
 
     Artisan::call('billing:expire-orders');
 
     expect(Artisan::output())->toContain('Orders expired: 1')
         ->and($stale->refresh()->status)->toBe('expired')
-        ->and($fresh->refresh()->status)->toBe('pending');
+        ->and($fresh->refresh()->status)->toBe('pending')
+        ->and($stars->refresh()->status)->toBe('pending');
 
     $events = collect(app(Schedule::class)->events())
         ->filter(fn ($event): bool => str_contains((string) $event->command, 'billing:expire-orders'));

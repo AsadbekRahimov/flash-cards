@@ -206,8 +206,9 @@ it('honours a charge that was already in flight on a moved order: credited in fu
     Log::shouldHaveReceived('warning')->with('billing.offer_canceled_order_paid', Mockery::on(fn (array $ctx): bool => $ctx['payment_order_id'] === $a->id))->once();
     Log::shouldNotHaveReceived('error');
 
-    // Used up: the next checkout is at the list price.
-    expect(orCheckout($learner->refresh(), SubscriptionProvider::TelegramStars)->offer_id)->toBeNull();
+    // Used up: the next checkout is at the list price (the Stars renewal that just started would block any order).
+    Subscription::query()->update(['status' => 'canceled', 'canceled_at' => CarbonImmutable::now()]);
+    expect(orCheckout($learner->refresh(), SubscriptionProvider::Payme)->offer_id)->toBeNull();
 });
 
 it('credits a second in-flight charge on a released holder in full and records the double discount instead of losing the money', function (): void {
@@ -242,11 +243,11 @@ it('still refuses a charge on an order canceled for any other reason and a renew
     $learner = orLearner();
     $moved = orCheckout($learner, SubscriptionProvider::TelegramStars);
     orCheckout($learner, SubscriptionProvider::Payme);
-    $byProvider = PaymentOrder::factory()->create(['subscriber_id' => $learner->id, 'status' => PaymentOrder::STATUS_CANCELED]);
+    $byProvider = PaymentOrder::factory()->payme()->create(['subscriber_id' => $learner->id, 'status' => PaymentOrder::STATUS_CANCELED]);
 
     $renewal = fn () => app(PaymentApplier::class)->applyCharge($this->stars->emitCharge($moved, renewal: true, eventId: 'renewal'));
     expect($renewal)->toThrow(PaymentApplyException::class);
-    $other = fn () => app(PaymentApplier::class)->applyCharge($this->stars->emitCharge($byProvider, eventId: 'other'));
+    $other = fn () => app(PaymentApplier::class)->applyCharge($this->payme->emitCharge($byProvider, eventId: 'other'));
     expect($other)->toThrow(PaymentApplyException::class);
 
     expect(Payment::query()->where('status', Payment::STATUS_FAILED)->count())->toBe(2)
@@ -263,8 +264,8 @@ it('does not start a discounted order once the holder got paid: an explicit offe
     $e = orCheckoutFailure(fn () => orCheckout($learner, SubscriptionProvider::TelegramStars, $offer->refresh()));
     expect($e->errorCode)->toBe(CheckoutException::OFFER_NOT_APPLICABLE);
 
-    $next = orCheckout($learner, SubscriptionProvider::TelegramStars);
-    expect($next->offer_id)->toBeNull()->and($next->amount)->toBe(150)
+    $next = orCheckout($learner, SubscriptionProvider::Payme);
+    expect($next->offer_id)->toBeNull()->and($next->amount)->toBe(2_900_000)
         ->and($holder->refresh()->status)->toBe(PaymentOrder::STATUS_PAID);
 });
 

@@ -13,6 +13,7 @@ use App\Domain\Billing\Enums\SubscriptionStatus;
 use App\Domain\Billing\Events\SubscriptionRenewalDue;
 use App\Domain\Billing\Exceptions\PromoCodeException;
 use App\Domain\Billing\Exceptions\SubscriptionException;
+use App\Domain\Billing\Support\AutoRenewal;
 use App\Domain\Billing\Support\OrgTiers;
 use App\Domain\Billing\Support\PaidSubscriptionQuery;
 use App\Domain\Billing\Support\SubscriptionLiveness;
@@ -20,6 +21,7 @@ use App\Domain\Organizations\Services\OrganizationMembershipService;
 use App\Models\AuditLog;
 use App\Models\Learner;
 use App\Models\Organization;
+use App\Models\Payment;
 use App\Models\PaymentOrder;
 use App\Models\PromoCode;
 use App\Models\Subscription;
@@ -232,7 +234,9 @@ final class SubscriptionService
                 'payment_order_id' => $order->id,
             ]]];
             if ($e->provider === SubscriptionProvider::TelegramStars && $e->providerChargeId !== null) {
-                $meta['stars'] = ['charge_id' => $e->providerChargeId];
+                // A renewal after the row has run out starts a new row, but Telegram's subscription is still the
+                // one of the FIRST payment: `editUserStarSubscription` needs that charge id, not this renewal's.
+                $meta['stars'] = ['charge_id' => ($e->isRenewal ? $this->firstStarsChargeId($order) : null) ?? $e->providerChargeId];
             }
 
             $attributes = [
@@ -284,9 +288,16 @@ final class SubscriptionService
                 'from' => $this->snapshot($live),
                 ...($tierMismatch ? ['tier_mismatch' => ['ordered' => $orderedTier, 'kept' => $live->tier]] : []),
             ];
-            if ($e->provider === SubscriptionProvider::TelegramStars && $e->providerChargeId !== null
+            $doubleStars = $this->isSecondStarsSubscription($live, $order, $e, $now);
+            if ($doubleStars && $e->providerChargeId !== null) {
+                // Both Telegram subscriptions are remembered (cancel stops both); the first stays `charge_id`.
+                $stars = is_array($meta['stars'] ?? null) ? $meta['stars'] : [];
+                $duplicates = is_array($stars['duplicate_charge_ids'] ?? null) ? array_values($stars['duplicate_charge_ids']) : [];
+                $stars['duplicate_charge_ids'] = array_values(array_unique([...$duplicates, $e->providerChargeId]));
+                $meta['stars'] = $stars;
+            } elseif ($e->provider === SubscriptionProvider::TelegramStars && $e->providerChargeId !== null
                 && (! $e->isRenewal || ! isset($meta['stars']['charge_id']))) {
-                $meta['stars'] = ['charge_id' => $e->providerChargeId];
+                $meta['stars'] = ['charge_id' => ($e->isRenewal ? $this->firstStarsChargeId($order) : null) ?? $e->providerChargeId];
             }
 
             $attributes = [
@@ -311,6 +322,10 @@ final class SubscriptionService
 
             if ($tierMismatch) {
                 $this->flagTierMismatch($live, $order, $orderedTier, $e, $now);
+            }
+
+            if ($doubleStars) {
+                $this->flagStarsDoubleSubscription($live, $order, $e);
             }
         }
 
@@ -753,6 +768,64 @@ final class SubscriptionService
             'ip' => null,
             'meta' => [...$context, 'at' => $now->toIso8601String()],
         ]);
+    }
+
+    /**
+     * The first payment of a Stars subscription (month) while another Stars subscription of the learner still renews and
+     * the charge id differs: Telegram now charges the learner twice per period ("Реализация 2A.8", H1). Reachable only
+     * by an invoice that was already past pre_checkout when the first one was paid.
+     */
+    private function isSecondStarsSubscription(Subscription $live, PaymentOrder $order, ChargeEvent $e, CarbonImmutable $now): bool
+    {
+        return $e->provider === SubscriptionProvider::TelegramStars
+            && ! $e->isRenewal
+            && $order->period === 'month'
+            && $e->providerChargeId !== null
+            && AutoRenewal::isRunning($live, $now)
+            && ($live->meta['stars']['charge_id'] ?? null) !== $e->providerChargeId;
+    }
+
+    /**
+     * The money is credited (it is taken), the platform must look: cancel the extra Telegram subscription and, if the
+     * learner wants it, refund its first charge. The order gets `meta.stars_double_subscription` (admin badge / filter,
+     * dashboard tile); nothing is canceled automatically. The order row is locked by PaymentApplier, which saves `meta` again.
+     */
+    private function flagStarsDoubleSubscription(Subscription $live, PaymentOrder $order, ChargeEvent $e): void
+    {
+        $order->fill(['meta' => [...$order->meta, 'stars_double_subscription' => true]])->save();
+
+        Log::error('billing.stars.double_subscription', [
+            'subscription_id' => $live->id,
+            'payment_order_id' => $order->id,
+            'learner_id' => $live->subscriber_id,
+            'charge_id' => $e->providerChargeId,
+            'existing_charge_id' => $live->meta['stars']['charge_id'] ?? null,
+            'provider_event_id' => $e->providerEventId,
+        ]);
+    }
+
+    /**
+     * The charge id `editUserStarSubscription` needs for the subscription that paid this order: the first payment's —
+     * from the subscription row it created, else from the ledger. Null when neither knows it.
+     */
+    private function firstStarsChargeId(PaymentOrder $order): ?string
+    {
+        if ($order->subscription_id !== null) {
+            $chargeId = Subscription::query()->whereKey($order->subscription_id)->first(['id', 'meta'])?->meta['stars']['charge_id'] ?? null;
+
+            if (is_string($chargeId) && $chargeId !== '') {
+                return $chargeId;
+            }
+        }
+
+        $chargeId = Payment::query()
+            ->where('payment_order_id', $order->id)
+            ->where('kind', Payment::KIND_CHARGE)
+            ->whereIn('status', [Payment::STATUS_SUCCEEDED, Payment::STATUS_REFUNDED])
+            ->orderBy('id')
+            ->value('provider_charge_id');
+
+        return is_string($chargeId) && $chargeId !== '' ? $chargeId : null;
     }
 
     public static function subscriberType(Learner|Organization $subscriber): string

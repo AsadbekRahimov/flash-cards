@@ -156,7 +156,7 @@ it('explains a refused purchase by its error code', function (string $data, stri
         fn ($l, $t) => $t->stars->failCheckoutWith = new RuntimeException('down'),
     ],
     'auto-renewal blocks another provider' => [
-        'pro1:buy:month:payme', 'У вас включено автопродление Telegram Stars. Отключите его в /pro, прежде чем платить другим способом.',
+        'pro1:buy:month:payme', 'У вас включено автопродление Telegram Stars. Отключите его в /pro, прежде чем оформлять новую оплату.',
         function (Learner $l, $t): void {
             $order = app(CheckoutService::class)->create($l, Plan::Pro, 'month', SubscriptionProvider::TelegramStars, null, 'twa');
             app(PaymentApplier::class)->applyCharge($t->stars->emitCharge($order));

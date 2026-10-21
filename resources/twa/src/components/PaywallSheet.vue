@@ -61,6 +61,8 @@ const item = computed(() => billing.catalog?.items.find((i) => i.period === peri
 const offer = computed(() => billing.catalog?.offer ?? null)
 /** Stars renew by themselves: paying again would charge twice (the server refuses with checkout_conflict). */
 const renewing = computed(() => billing.catalog?.subscription?.auto_renew === true)
+/** A perpetual grant leaves nothing to buy (the server refuses with already_perpetual). */
+const perpetual = computed(() => billing.catalog?.subscription?.perpetual === true)
 
 interface PayOption {
   provider: BillingProviderKey
@@ -192,6 +194,8 @@ onBeforeUnmount(() => {
         </div>
 
         <p v-if="renewing" class="text-sm text-center text-tg-hint" data-testid="purchase-renewing">{{ t('billing.auto_renew_running') }}</p>
+
+        <p v-else-if="perpetual" class="text-sm text-center text-tg-hint" data-testid="purchase-perpetual">{{ t('billing.perpetual') }}</p>
 
         <div v-else class="space-y-2">
           <button

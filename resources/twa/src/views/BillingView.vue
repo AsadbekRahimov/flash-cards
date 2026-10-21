@@ -167,7 +167,7 @@ onBeforeUnmount(() => {
         <p v-if="billing.actionError" class="text-red-600 text-sm" role="alert" data-testid="renewal-error">{{ billing.actionError }}</p>
       </div>
 
-      <div v-if="offer && billing.canPurchase && !subscription?.auto_renew" class="card space-y-1" data-testid="offer-card">
+      <div v-if="offer && billing.canPurchase && !subscription?.auto_renew && !subscription?.perpetual" class="card space-y-1" data-testid="offer-card">
         <p class="font-semibold" data-testid="offer-text">{{ t('billing.offer', { pct: offer.discount_pct, date: formatDate(offer.expires_at) }) }}</p>
         <p v-for="p in offerPrices" :key="p.provider" class="text-sm" :data-testid="`offer-price-${p.provider}`">
           {{ t(`billing.provider.${p.provider}`) }}: <strong>{{ p.price }}</strong>
@@ -176,7 +176,7 @@ onBeforeUnmount(() => {
       </div>
 
       <button
-        v-if="billing.canPurchase && !subscription?.auto_renew"
+        v-if="billing.canPurchase && !subscription?.auto_renew && !subscription?.perpetual"
         type="button"
         class="btn btn-primary w-full"
         data-testid="buy"

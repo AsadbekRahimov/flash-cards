@@ -170,13 +170,14 @@ it('extends a live subscription from max(current end, now) and keeps the later e
 
     // Stars subscription on top of the Payme period: Telegram says it expires in 30 days, our period
     // runs 40 -> keep 40 (docs/13 §4.4 "конец = max").
-    $applier->applyCharge($this->stars->emitCharge(applierOrder($learner, $this->stars), eventId: 's1', periodEndsAt: $now->addDays(30)));
+    // (Orders come from the factory: the checkout rules of "Реализация 2A.8" would refuse a Stars subscription 40 days before the end.)
+    $applier->applyCharge($this->stars->emitCharge(PaymentOrder::factory()->create(['subscriber_id' => $learner->id]), eventId: 's1', periodEndsAt: $now->addDays(30)));
     expect($live->refresh()->current_period_ends_at?->toIso8601String())->toBe($now->addDays(40)->toIso8601String())
         ->and($live->provider)->toBe('telegram_stars')
         ->and($live->meta['stars']['charge_id'])->toBe('s1');
 
     // A provider end later than ours wins.
-    $applier->applyCharge($this->stars->emitCharge(applierOrder($learner, $this->stars), eventId: 's2', periodEndsAt: $now->addDays(70)));
+    $applier->applyCharge($this->stars->emitCharge(PaymentOrder::factory()->create(['subscriber_id' => $learner->id]), eventId: 's2', periodEndsAt: $now->addDays(70)));
     expect($live->refresh()->current_period_ends_at?->toIso8601String())->toBe($now->addDays(70)->toIso8601String());
 
     // Period already over (scheduler late): the new period starts now, not at the old end.
@@ -224,8 +225,8 @@ it('refuses a non-renewal charge on a paid order and any charge on a dead or for
         ->and(Payment::query()->where('provider_event_id', 'again')->sole()->status)->toBe('failed')
         ->and(Payment::query()->where('provider_event_id', 'again')->sole()->raw['failure_reason'])->toBe('order_already_paid');
 
-    $expired = PaymentOrder::factory()->expired()->create(['subscriber_id' => $learner->id]);
-    $e = applierFailure(fn () => $applier->applyCharge($this->stars->emitCharge($expired, eventId: 'late')));
+    $expired = PaymentOrder::factory()->payme()->expired()->create(['subscriber_id' => $learner->id]);
+    $e = applierFailure(fn () => $applier->applyCharge($this->payme->emitCharge($expired, eventId: 'late')));
     expect($e->errorCode)->toBe(PaymentApplyException::ORDER_EXPIRED)->and($e->httpStatus())->toBe(410)
         ->and(Payment::query()->where('provider_event_id', 'late')->sole()->raw['failure_reason'])->toBe('order_expired');
 
@@ -257,9 +258,10 @@ it('redeems the applied offer exactly once', function (): void {
     expect($offer->refresh()->redeemed_at?->toIso8601String())->toBe(CarbonImmutable::now()->toIso8601String())
         ->and($offer->payment_order_id)->toBe($order->id);
 
-    // The next order is full price: the offer is gone.
-    $next = applierOrder($learner, $this->stars);
-    expect($next->offer_id)->toBeNull()->and($next->amount)->toBe(150);
+    // The next order is full price: the offer is gone (the Stars renewal that just started would block any order).
+    Subscription::query()->update(['status' => 'canceled', 'canceled_at' => CarbonImmutable::now()]);
+    $next = applierOrder($learner, $this->payme);
+    expect($next->offer_id)->toBeNull()->and($next->amount)->toBe(2_900_000);
 });
 
 it('credits an organization order with its tier and drops the cache of the sponsored members', function (): void {

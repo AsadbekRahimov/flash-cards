@@ -18,7 +18,7 @@ final readonly class BillingCatalog
      * @param  list<array{plan: string, tier: string|null, period: string, prices: array<string, int>, list_prices: array<string, int>}>  $items
      * @param  list<string>  $providers  enabled provider keys usable by this subscriber
      * @param  array{kind: string, discount_pct: int, period: string|null, expires_at: string}|null  $offer
-     * @param  array{status: string, provider: string, plan: string, ends_at: string|null, auto_renew: bool, can_cancel: bool, can_resume: bool}|null  $subscription
+     * @param  array{status: string, provider: string, plan: string, ends_at: string|null, auto_renew: bool, can_cancel: bool, can_resume: bool, perpetual: bool}|null  $subscription
      */
     public function __construct(
         public array $items,

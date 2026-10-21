@@ -116,6 +116,7 @@ it('counts failed payments and canceled provider transactions of the last 24 hou
         'canceled_transactions' => 2,
         'double_discounts' => 0,
         'tier_mismatches' => 0,
+        'stars_double_subscriptions' => 0,
     ]);
 
     $this->actingAs($this->admin);

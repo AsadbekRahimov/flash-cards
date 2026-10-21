@@ -31,6 +31,9 @@ use Throwable;
  *      a second click or a second admin lands on the ledger's unique key / `already_refunded`
  *      and never produces a second refund row.
  *
+ * After a Stars refund the Telegram subscription is stopped as well ({@see StarsRenewalStopper}); a failure there is
+ * logged and does not undo the refund.
+ *
  * If step 3 fails after step 2 succeeded the money is already back while the ledger is not: it
  * is logged as an error (`billing.admin_refund_unrecorded`) and the retry must use `returnedByHand`.
  */
@@ -41,6 +44,7 @@ final class PaymentRefundService
     public function __construct(
         private readonly BillingProviderRegistry $providers,
         private readonly PaymentApplier $applier,
+        private readonly StarsRenewalStopper $renewals,
     ) {}
 
     /**
@@ -72,7 +76,11 @@ final class PaymentRefundService
         }
 
         if (! $returnedByHand) {
+            // The subscription behind a Stars charge keeps renewing after its money is back: read it before the
+            // ledger changes, stop it right after the provider has returned the money (outside any transaction).
+            $running = $provider === SubscriptionProvider::TelegramStars ? $this->renewals->runningFor($chargeId, $now) : null;
             $this->refundAtProvider($provider, $payment);
+            $this->renewals->stop($running, $by, $ip, $now);
         }
 
         $event = new RefundEvent(

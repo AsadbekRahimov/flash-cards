@@ -71,8 +71,9 @@ final class ProScreen
             if ($paywall['contact'] !== null) {
                 $lines[] = __('billing.pro.contact', ['contact' => $paywall['contact']], $locale);
             }
-        } elseif ($subscription === null || ! $subscription['auto_renew']) {
+        } elseif ($subscription === null || ! ($subscription['auto_renew'] || $subscription['perpetual'])) {
             // A live auto-renewal is stopped before paying again: a second payment would double-charge.
+            // A perpetual grant has nothing to buy (checkout answers already_perpetual).
             $lines[] = '';
             $lines[] = __('billing.pro.choose', [], $locale);
 
@@ -99,7 +100,7 @@ final class ProScreen
 
     /**
      * The buy buttons of `/pro` for a learner, without the status text (no entitlement lookup): what the
-     * post-organization offer DM carries. Empty while nothing is for sale or a live auto-renewal runs.
+     * post-organization offer DM carries. Empty while nothing is for sale, a live auto-renewal runs or Pro is perpetual.
      *
      * @return list<list<array{text: string, callback_data: string}>>
      */
@@ -107,7 +108,7 @@ final class ProScreen
     {
         $catalog = $this->checkout->catalog($learner);
 
-        if ($this->entitlements->paywall()['mode'] !== 'purchase' || $catalog->isEmpty() || ($catalog->subscription !== null && $catalog->subscription['auto_renew'])) {
+        if ($this->entitlements->paywall()['mode'] !== 'purchase' || $catalog->isEmpty() || ($catalog->subscription !== null && ($catalog->subscription['auto_renew'] || $catalog->subscription['perpetual']))) {
             return [];
         }
 

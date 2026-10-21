@@ -11,6 +11,7 @@ use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Enums\SubscriptionStatus;
 use App\Domain\Billing\Exceptions\CheckoutException;
+use App\Domain\Billing\Support\AutoRenewal;
 use App\Domain\Billing\Support\OrgTiers;
 use App\Domain\Billing\Support\ProviderTransactionTimeout;
 use App\Domain\Billing\Support\SubscriptionLiveness;
@@ -146,12 +147,18 @@ final class CheckoutService
             throw $e;
         }
 
-        // Re-read before writing `meta`: between the commit and here the order may have been released
-        // by a payment on the previous holder (OfferService::releaseHolders) — its reason must survive.
-        $order->refresh()->fill([
-            'provider_ref' => $link->url,
-            'meta' => [...$order->meta, 'checkout' => ['kind' => $link->kind, 'expires_at' => $link->expiresAt->toIso8601String()]],
-        ])->save();
+        // Between the commit and here the order may have been released by a payment on the previous holder
+        // (OfferService::releaseHolders) or closed by a competing payment — its reason must survive: re-read
+        // under the row lock (a short transaction on `payment_orders` only, docs/13 §3 rule 1) and merge.
+        DB::transaction(function () use ($order, $link): void {
+            /** @var PaymentOrder $locked */
+            $locked = PaymentOrder::query()->whereKey($order->id)->lockForUpdate()->firstOrFail();
+            $locked->fill([
+                'provider_ref' => $link->url,
+                'meta' => [...$locked->meta, 'checkout' => ['kind' => $link->kind, 'expires_at' => $link->expiresAt->toIso8601String()]],
+            ])->save();
+            $order->setRawAttributes($locked->getAttributes(), true);
+        });
 
         return $order;
     }
@@ -192,8 +199,8 @@ final class CheckoutService
         }
 
         $live = $this->subscriptions->liveFor($subscriber);
-        if ($live !== null && $this->isRenewingElsewhere($live, $provider, $now)) {
-            throw CheckoutException::conflict($live->provider);
+        if ($live !== null) {
+            $this->assertCanBuyOver($live, $subscriber, $provider, $period, $now);
         }
 
         if ($live !== null && $tier !== null && self::changesLiveTier($live, $tier, $now)) {
@@ -333,6 +340,10 @@ final class CheckoutService
      * Scheduler (`billing:expire-orders`, every 15 min): pending orders past `expires_at` become
      * `expired`. A single UPDATE, no subject locks (docs/13 §3 rule 1); an order that a webhook
      * is applying at the same instant is row-locked by the applier and re-read after this UPDATE.
+     *
+     * Stars orders are NOT swept ("Реализация 2A.8", H7): their deadline is enforced by the pre_checkout guard
+     * (`order_expired`), and the window between an answered pre_checkout and `successful_payment` must never
+     * find the order already `expired` — the same order also carries every later renewal of the subscription.
      */
     public function expirePending(?CarbonImmutable $now = null): int
     {
@@ -344,6 +355,7 @@ final class CheckoutService
         return PaymentOrder::query()
             ->where('status', PaymentOrder::STATUS_PENDING)
             ->where('expires_at', '<=', $now)
+            ->where('provider', '!=', SubscriptionProvider::TelegramStars->value)
             ->withoutOpenProviderTransaction(ProviderTransactionTimeout::openSinceByProvider($now))
             ->update(['status' => PaymentOrder::STATUS_EXPIRED, 'updated_at' => $now]);
     }
@@ -364,7 +376,7 @@ final class CheckoutService
     /**
      * Live-subscription summary for the catalog and `/me.entitlement.renewal`.
      *
-     * @return array{status: string, provider: string, plan: string, ends_at: string|null, auto_renew: bool, can_cancel: bool, can_resume: bool}
+     * @return array{status: string, provider: string, plan: string, ends_at: string|null, auto_renew: bool, can_cancel: bool, can_resume: bool, perpetual: bool}
      */
     public static function summarize(Subscription $live, CarbonImmutable $now): array
     {
@@ -380,6 +392,8 @@ final class CheckoutService
             'auto_renew' => $autoRenewing && $live->status === SubscriptionStatus::Active->value,
             'can_cancel' => $autoRenewing && $live->status === SubscriptionStatus::Active->value,
             'can_resume' => $live->status === SubscriptionStatus::Canceled->value && ($ends === null || $ends->greaterThan($now)),
+            // Pro without an end date: nothing to buy (checkout answers `already_perpetual`), the screens hide the buy buttons.
+            'perpetual' => $ends === null && SubscriptionLiveness::isLive($live, $now),
         ];
     }
 
@@ -405,18 +419,38 @@ final class CheckoutService
     }
 
     /**
-     * docs/13 §4.4: while a Stars subscription is live and still renewing, paying a period with
-     * another provider would give two sources of renewal — refused until the renewal is canceled.
+     * What a live subscription forbids buying on top of it (docs/13 §4.4, "Реализация 2A.8"):
+     *
+     *   - a renewing Stars subscription (`active` / `past_due`) forbids EVERY new order, the same provider
+     *     included: Payme / Click on top would leave Telegram charging with no way to stop it, a second Stars
+     *     month would open a second Telegram subscription (`checkout_conflict`);
+     *   - a learner's perpetual grant leaves nothing to buy (`already_perpetual`);
+     *   - a Stars subscription (month) on top of a prepaid period that ends later than
+     *     `billing.stars.subscribe_window_days` from now is refused (`subscribe_too_early`): Telegram's first charge
+     *     starts its own 30 days at once. Payme / Click and a Stars year extend from the end and stay allowed.
+     *
+     * @throws CheckoutException checkout_conflict | already_perpetual | subscribe_too_early
      */
-    private function isRenewingElsewhere(Subscription $live, SubscriptionProvider $chosen, CarbonImmutable $now): bool
+    private function assertCanBuyOver(Subscription $live, Learner|Organization $subscriber, SubscriptionProvider $provider, string $period, CarbonImmutable $now): void
     {
-        $liveProvider = SubscriptionProvider::tryFrom($live->provider);
+        if (AutoRenewal::isRunning($live, $now)) {
+            throw CheckoutException::conflict($live->provider);
+        }
 
-        return $liveProvider !== null
-            && $liveProvider !== $chosen
-            && $liveProvider->isAutoRenewing()
-            && $live->status === SubscriptionStatus::Active->value
-            && SubscriptionLiveness::isLive($live, $now);
+        if (! ($subscriber instanceof Learner) || ! SubscriptionLiveness::isLive($live, $now)) {
+            return;
+        }
+
+        if ($live->current_period_ends_at === null) {
+            throw CheckoutException::alreadyPerpetual();
+        }
+
+        $ends = CarbonImmutable::instance($live->current_period_ends_at);
+        $window = max(0, (int) config('billing.stars.subscribe_window_days', 7));
+
+        if ($provider === SubscriptionProvider::TelegramStars && $period === 'month' && $ends->greaterThan($now->addDays($window))) {
+            throw CheckoutException::subscribeTooEarly($ends, $window);
+        }
     }
 
     /**

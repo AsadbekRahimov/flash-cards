@@ -8,7 +8,9 @@ use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Enums\SubscriptionStatus;
 use App\Domain\Billing\Exceptions\SubscriptionException;
 use App\Domain\Billing\Services\SubscriptionService;
+use App\Domain\Billing\Support\AutoRenewal;
 use App\Domain\Billing\Support\OrgTiers;
+use App\Domain\Billing\Support\SubscriptionLiveness;
 use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\Subscription;
@@ -17,6 +19,7 @@ use Carbon\CarbonImmutable;
 use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Text;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -48,8 +51,17 @@ final class SubscriptionActions
                     ->getSearchResultsUsing(fn (string $search): array => self::searchLearners($search))
                     ->getOptionLabelUsing(fn (mixed $value): ?string => ($learner = Learner::query()->whereKey($value)->first()) instanceof Learner ? self::learnerLabel($learner) : null)
                     ->helperText('Search by name, @username or Telegram ID.')
+                    ->live()
                     ->visible(fn (callable $get): bool => $get('subscriber_type') === 'learner')
                     ->required(fn (callable $get): bool => $get('subscriber_type') === 'learner'),
+                Text::make('A Stars subscription with auto-renewal is active for this learner: Telegram keeps charging them every 30 days, and a manual grant replaces the subscription row, so the renewal can no longer be canceled from LexiFlow. Ask the learner to cancel the renewal in /pro first.')
+                    ->color('warning')
+                    ->visible(fn (callable $get): bool => self::runningStars($get) !== null),
+                Forms\Components\Checkbox::make('confirm_stars_autorenew')
+                    ->label('I understand: grant anyway')
+                    ->accepted()
+                    ->visible(fn (callable $get): bool => self::runningStars($get) !== null)
+                    ->validationMessages(['accepted' => 'Confirm that you want to grant over an auto-renewing Stars subscription.']),
                 Forms\Components\Select::make('organization_id')
                     ->label('Organization')
                     ->options(fn (): array => Organization::query()->orderBy('name')->pluck('name', 'id')->all())
@@ -68,7 +80,8 @@ final class SubscriptionActions
                 Forms\Components\DateTimePicker::make('until')
                     ->label('Pro until')
                     ->timezone(config('learners.default_timezone'))
-                    ->helperText('Time zone: '.config('learners.default_timezone').'.')
+                    ->live()
+                    ->helperText(fn (callable $get): string => 'Time zone: '.config('learners.default_timezone').'.'.self::shortenWarning($get))
                     // Validated as typed (local wall-clock time), so "now" is expressed in the same zone.
                     ->minDate(fn () => now()->setTimezone(config('learners.default_timezone')))
                     ->visible(fn (callable $get): bool => ! $get('perpetual'))
@@ -140,6 +153,47 @@ final class SubscriptionActions
 
                 Notification::make()->title('Subscription revoked')->success()->send();
             });
+    }
+
+    /** The learner picked in the form, when their Stars subscription still renews (Telegram keeps charging). */
+    private static function runningStars(callable $get): ?Subscription
+    {
+        $learnerId = $get('learner_id');
+
+        if ($get('subscriber_type') !== 'learner' || ! is_numeric($learnerId)) {
+            return null;
+        }
+
+        return AutoRenewal::forLearner((int) $learnerId, CarbonImmutable::now());
+    }
+
+    /** Text to append to the "Pro until" hint when the date is earlier than the end of the period the learner already paid for. */
+    private static function shortenWarning(callable $get): string
+    {
+        $learnerId = $get('learner_id');
+        $until = $get('until');
+
+        if ($get('subscriber_type') !== 'learner' || ! is_numeric($learnerId) || ! is_string($until) || $until === '') {
+            return '';
+        }
+
+        $now = CarbonImmutable::now();
+
+        /** @var Subscription|null $live */
+        $live = Subscription::query()
+            ->where('subscriber_type', 'learner')
+            ->where('subscriber_id', (int) $learnerId)
+            ->whereIn('status', SubscriptionStatus::liveValues())
+            ->orderBy('id')
+            ->first();
+
+        $paidUntil = $live !== null && SubscriptionLiveness::isLive($live, $now) ? $live->current_period_ends_at : null;
+
+        if ($paidUntil === null || ! CarbonImmutable::parse($until)->lessThan(CarbonImmutable::instance($paidUntil))) {
+            return '';
+        }
+
+        return ' Warning: the learner has already paid until '.CarbonImmutable::instance($paidUntil)->setTimezone((string) config('learners.default_timezone'))->format('Y-m-d H:i').'; an earlier date will shorten the paid period.';
     }
 
     /** @return array<string, string> tier key => "Center s · 100 seats" */

@@ -115,6 +115,13 @@ return [
         ],
     ],
 
+    /** Stars subscription rules (docs/13 §4.1, "Реализация 2A.8"). */
+    'stars' => [
+        // A Stars subscription (month) is sold on top of a live prepaid period only when that period ends within
+        // this many days: Telegram's first charge starts its own 30 days at once, so the rest would be wasted.
+        'subscribe_window_days' => (int) env('BILLING_STARS_SUBSCRIBE_WINDOW_DAYS', 7),
+    ],
+
     /** Checkout rules (docs/13 §2.1, §4.4). */
     'checkout' => [
         'order_ttl_minutes' => (int) env('BILLING_ORDER_TTL_MINUTES', 1440),

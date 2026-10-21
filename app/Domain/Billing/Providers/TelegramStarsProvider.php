@@ -28,7 +28,8 @@ use InvalidArgumentException;
  *   parse*           the single place that knows the shape of `successful_payment` /
  *                    `refunded_payment` (field names: docs/13 §15 — verify on the staging bot).
  *   cancel / resume  editUserStarSubscription with the charge id of the subscription's FIRST
- *                    payment (`subscriptions.meta.stars.charge_id`).
+ *                    payment (`subscriptions.meta.stars.charge_id`) — and of every extra Telegram subscription
+ *                    that was paid on top (`meta.stars.duplicate_charge_ids`, "Реализация 2A.8").
  *   refund           refundStarPayment for one charge.
  *
  * Every Bot API call goes through TelegramClient and is made OUTSIDE a database transaction by
@@ -162,16 +163,20 @@ final class TelegramStarsProvider implements BillingProvider
 
     public function cancelAutoRenew(Subscription $subscription): void
     {
-        [$userId, $chargeId] = $this->subscriptionHandle($subscription, 'cancelAutoRenew');
+        [$userId, $chargeIds] = $this->subscriptionHandle($subscription, 'cancelAutoRenew');
 
-        $this->telegram->editUserStarSubscription($userId, $chargeId, isCanceled: true);
+        foreach ($chargeIds as $chargeId) {
+            $this->telegram->editUserStarSubscription($userId, $chargeId, isCanceled: true);
+        }
     }
 
     public function resumeAutoRenew(Subscription $subscription): void
     {
-        [$userId, $chargeId] = $this->subscriptionHandle($subscription, 'resumeAutoRenew');
+        [$userId, $chargeIds] = $this->subscriptionHandle($subscription, 'resumeAutoRenew');
 
-        $this->telegram->editUserStarSubscription($userId, $chargeId, isCanceled: false);
+        foreach ($chargeIds as $chargeId) {
+            $this->telegram->editUserStarSubscription($userId, $chargeId, isCanceled: false);
+        }
     }
 
     public function refund(Payment $payment): void
@@ -194,9 +199,10 @@ final class TelegramStarsProvider implements BillingProvider
     }
 
     /**
-     * The learner's Telegram id and the subscription's charge id for editUserStarSubscription.
+     * The learner's Telegram id and the charge ids of the Telegram subscriptions behind the row for
+     * editUserStarSubscription (the first payment's, then the duplicates').
      *
-     * @return array{int, string}
+     * @return array{int, non-empty-list<string>}
      */
     private function subscriptionHandle(Subscription $subscription, string $capability): array
     {
@@ -214,7 +220,15 @@ final class TelegramStarsProvider implements BillingProvider
             throw ProviderCapabilityException::unsupported($this->key(), "{$capability} without a Telegram user");
         }
 
-        return [$userId, $chargeId];
+        $chargeIds = [$chargeId];
+        $duplicates = $subscription->meta['stars']['duplicate_charge_ids'] ?? [];
+        foreach (is_array($duplicates) ? $duplicates : [] as $duplicate) {
+            if (is_string($duplicate) && $duplicate !== '' && ! in_array($duplicate, $chargeIds, true)) {
+                $chargeIds[] = $duplicate;
+            }
+        }
+
+        return [$userId, $chargeIds];
     }
 
     private function telegramUserId(int $learnerId): ?int

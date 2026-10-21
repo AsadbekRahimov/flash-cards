@@ -52,6 +52,10 @@ class WebhookErrorsWidget extends StatsOverviewWidget
                 ->description('Paid for a tier other than the live one (filter on Payment orders)')
                 ->color($errors['tier_mismatches'] > 0 ? 'danger' : 'success')
                 ->icon('heroicon-o-arrows-right-left'),
+            Stat::make('Double Stars subscriptions', (string) $errors['stars_double_subscriptions'])
+                ->description('Second Telegram subscription paid next to a running one: cancel one, refund if asked (filter on Payment orders)')
+                ->color($errors['stars_double_subscriptions'] > 0 ? 'danger' : 'success')
+                ->icon('heroicon-o-square-2-stack'),
         ];
     }
 }

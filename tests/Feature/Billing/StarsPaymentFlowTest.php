@@ -224,7 +224,7 @@ it('records money for an unknown order as an orphan failed row for the payer and
     Log::shouldHaveReceived('error')->withArgs(fn (string $m, array $ctx): bool => $m === 'billing.payment_orphan' && $ctx['reason'] === 'order_not_found_and_unknown_learner')->once();
 });
 
-it('keeps the subscription untouched on an expired order or a wrong amount: failed row, support text, no retry', function (): void {
+it('keeps the subscription untouched on a failed order or a wrong amount: failed row, support text, no retry', function (): void {
     Log::spy();
     $order = starsOrder($this->learner);
     $dispatcher = app(TelegramDispatcher::class);
@@ -236,9 +236,10 @@ it('keeps the subscription untouched on an expired order or a wrong amount: fail
         ->and($this->telegram->sent)->toHaveCount(1)
         ->and($this->telegram->sent[0]['text'])->toContain('/paysupport');
 
-    $order->update(['status' => 'expired']);
+    // A `failed` order never had a link; an `expired` / `canceled` one IS credited ("Реализация 2A.8", PaymentReviewFixesTest).
+    $order->update(['status' => 'failed']);
     $dispatcher->dispatch(starsPaidUpdate($order, 'ch_late', $this->learner->telegram_user_id, updateId: 2));
-    expect(Payment::query()->where('provider_event_id', 'ch_late')->sole()->raw['failure_reason'])->toBe('order_expired')
+    expect(Payment::query()->where('provider_event_id', 'ch_late')->sole()->raw['failure_reason'])->toBe('order_failed')
         ->and(Subscription::query()->count())->toBe(0)
         ->and($this->telegram->sent)->toHaveCount(2)
         ->and(app(EntitlementResolver::class)->for($this->learner)->plan)->toBe(Plan::Free);
@@ -380,7 +381,9 @@ it('refunds from the admin panel through refundStarPayment, called outside any t
         ->assertHasNoTableActionErrors();
 
     expect($this->telegram->starRefunds)->toBe([['user_id' => $this->learner->telegram_user_id, 'charge_id' => 'ch_first']])
-        ->and($observed)->toBe([['refundStarPayment', 0, 0, 'succeeded']])
+        // The renewal is stopped right after the money is back (still before the ledger changes), also outside a transaction.
+        ->and($observed)->toBe([['refundStarPayment', 0, 0, 'succeeded'], ['editUserStarSubscription', 0, 0, 'succeeded']])
+        ->and($this->telegram->starSubscriptionEdits)->toBe([['user_id' => $this->learner->telegram_user_id, 'charge_id' => 'ch_first', 'is_canceled' => true]])
         ->and($charge->refresh()->status)->toBe('refunded')
         ->and(Payment::query()->where('kind', 'refund')->sole()->provider_event_id)->toBe('admin-refund:'.$charge->id)
         ->and(Subscription::query()->sole()->status)->toBe('expired')

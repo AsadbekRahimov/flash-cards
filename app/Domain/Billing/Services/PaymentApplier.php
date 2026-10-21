@@ -55,6 +55,10 @@ use Illuminate\Support\Facades\Log;
  * `payment_orders.meta.offer_double_discount`) rather than the payment being lost; a late payment of a
  * `tier_changed` order lands in SubscriptionService's `tier_mismatch` backstop.
  *
+ * Stars ("Реализация 2A.8"): a first payment on an `expired` / `canceled` order is credited (pre_checkout had passed;
+ * `paid_after_cancel`), a renewal is credited whatever the order status is once the order has a payment of its own, and after
+ * the first payment of a subscription the learner's other pending Stars month orders are canceled (`already_subscribed`).
+ *
  * After an organization payment commits with a tier on the subscription, the organization's other
  * pending orders of another tier are canceled (`OrganizationOrderGuard::cancelCompeting`, own
  * transaction, docs/13 §3 rule 1) — they could only ever be paid into a `tier_mismatch`.
@@ -110,9 +114,10 @@ final class PaymentApplier
                     return [$this->failed($order, $e, $kind, 'provider_mismatch'), PaymentApplyException::orderMismatch("order provider is {$order->provider}")];
                 }
 
-                $honouredAfterCancel = $order->canceledBySystem() && ! $e->isRenewal;
+                $honouredAfterCancel = ($order->canceledBySystem() && ! $e->isRenewal) || $this->starsFirstPaymentOnClosedOrder($order, $e);
 
-                if (! $honouredAfterCancel && in_array($order->status, [PaymentOrder::STATUS_EXPIRED, PaymentOrder::STATUS_CANCELED, PaymentOrder::STATUS_FAILED], true)) {
+                if (! $honouredAfterCancel && in_array($order->status, [PaymentOrder::STATUS_EXPIRED, PaymentOrder::STATUS_CANCELED, PaymentOrder::STATUS_FAILED], true)
+                    && ! $this->starsRenewalOfPaidOrder($order, $e)) {
                     return [$this->failed($order, $e, $kind, 'order_'.$order->status), PaymentApplyException::orderExpired($order->status)];
                 }
 
@@ -153,7 +158,7 @@ final class PaymentApplier
                     $meta['paid_after_cancel'] = true;
                     Log::warning(
                         $order->canceledForOffer() ? 'billing.offer_canceled_order_paid' : 'billing.canceled_order_paid',
-                        ['payment_order_id' => $order->id, 'offer_id' => $order->offer_id, 'canceled_reason' => $meta['canceled_reason'] ?? null, 'provider' => $e->provider->value, 'provider_event_id' => $e->providerEventId],
+                        ['payment_order_id' => $order->id, 'offer_id' => $order->offer_id, 'order_status' => $order->status, 'canceled_reason' => $meta['canceled_reason'] ?? null, 'provider' => $e->provider->value, 'provider_event_id' => $e->providerEventId],
                     );
                 }
 
@@ -186,6 +191,16 @@ final class PaymentApplier
                     $orderId = $order->id;
                     DB::afterCommit(function () use ($organizationId, $liveTier, $orderId, $now): void {
                         $this->organizations->cancelCompeting($organizationId, $liveTier, $orderId, $now);
+                    });
+                }
+
+                if ($subject instanceof Learner && $e->provider === SubscriptionProvider::TelegramStars && ! $e->isRenewal && $order->period === 'month') {
+                    // The first charge of a Stars subscription: the learner's other pending Stars month orders
+                    // would open a second Telegram subscription — closed after this commits (docs/13 §3 rule 1).
+                    $learnerId = $subject->id;
+                    $orderId = $order->id;
+                    DB::afterCommit(function () use ($learnerId, $orderId, $now): void {
+                        $this->organizations->cancelCompetingStarsSubscriptions($learnerId, $orderId, $now);
                     });
                 }
 
@@ -368,6 +383,35 @@ final class PaymentApplier
         } catch (UniqueConstraintViolationException) {
             throw $this->duplicateOrConflict($e->provider, $e->providerEventId);
         }
+    }
+
+    /**
+     * A first Stars payment reaches an order that is already `expired` / `canceled` ("Реализация 2A.8", H7): pre_checkout
+     * is answered by StarsPreCheckoutGuard BEFORE the money is taken, so a `successful_payment` that arrives is a charge
+     * Telegram already completed — the scheduler or a competing payment closed the order in the seconds in between. The
+     * money is credited (`paid_after_cancel`); a `failed` order never had a link, so it stays dead.
+     */
+    private function starsFirstPaymentOnClosedOrder(PaymentOrder $order, ChargeEvent $e): bool
+    {
+        return $e->provider === SubscriptionProvider::TelegramStars
+            && ! $e->isRenewal
+            && in_array($order->status, [PaymentOrder::STATUS_EXPIRED, PaymentOrder::STATUS_CANCELED], true);
+    }
+
+    /**
+     * A Stars renewal charges the subscription, not the order: it is credited whatever status the order has now, as
+     * long as the order has a payment of its own (the subscription Telegram keeps charging). An order that never
+     * received money is no subscription anyone could renew.
+     */
+    private function starsRenewalOfPaidOrder(PaymentOrder $order, ChargeEvent $e): bool
+    {
+        return $e->provider === SubscriptionProvider::TelegramStars
+            && $e->isRenewal
+            && Payment::query()
+                ->where('payment_order_id', $order->id)
+                ->whereIn('kind', [Payment::KIND_CHARGE, Payment::KIND_RENEWAL])
+                ->whereIn('status', [Payment::STATUS_SUCCEEDED, Payment::STATUS_REFUNDED])
+                ->exists();
     }
 
     /**

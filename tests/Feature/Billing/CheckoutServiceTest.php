@@ -144,7 +144,7 @@ it('limits pending orders per subscriber (429) and does not count expired ones',
     $service = app(CheckoutService::class);
 
     foreach (range(1, 3) as $_) {
-        $service->create($learner, Plan::Pro, 'month', SubscriptionProvider::TelegramStars, null, 'twa');
+        $service->create($learner, Plan::Pro, 'month', SubscriptionProvider::Payme, null, 'twa');
     }
 
     $e = checkoutFailure(fn () => $service->create($learner, Plan::Pro, 'month', SubscriptionProvider::Payme, null, 'twa'));
@@ -180,7 +180,7 @@ it('does not expire an order whose Payme transaction is still open and within th
     expect($service->expirePending())->toBe(1)->and($live->refresh()->status)->toBe('expired');
 });
 
-it('refuses another provider while a Stars subscription still renews, allows it once canceled, and allows Stars on top of a paid period', function (): void {
+it('refuses any order while a Stars subscription still renews, allows it once canceled, and allows Stars on top of a paid period only near its end', function (): void {
     $learner = Learner::factory()->create();
     $service = app(CheckoutService::class);
     $stars = Subscription::factory()->create(['subscriber_id' => $learner->id, 'provider' => 'telegram_stars', 'current_period_ends_at' => CarbonImmutable::now()->addDays(20)]);
@@ -189,16 +189,21 @@ it('refuses another provider while a Stars subscription still renews, allows it 
     expect($e->errorCode)->toBe(CheckoutException::CONFLICT)->and($e->httpStatus())->toBe(409)
         ->and(PaymentOrder::query()->count())->toBe(0);
 
-    // Stars again (e.g. a year invoice) is fine.
-    expect($service->create($learner, Plan::Pro, 'year', SubscriptionProvider::TelegramStars, null, 'twa')->status)->toBe('pending');
+    // Stars again is refused as well: a second order would open a second Telegram subscription ("Реализация 2A.8").
+    $e = checkoutFailure(fn () => $service->create($learner, Plan::Pro, 'year', SubscriptionProvider::TelegramStars, null, 'twa'));
+    expect($e->errorCode)->toBe(CheckoutException::CONFLICT);
 
     // Canceled auto-renewal: Payme may extend.
     $stars->update(['status' => 'canceled', 'canceled_at' => CarbonImmutable::now()]);
     expect($service->create($learner, Plan::Pro, 'month', SubscriptionProvider::Payme, null, 'twa')->status)->toBe('pending');
 
-    // Payme period live, Stars subscription on top: allowed (the end becomes max, docs/13 §4.4).
-    $stars->update(['status' => 'active', 'canceled_at' => null, 'provider' => 'payme']);
+    // Payme period live: a Stars subscription on top is allowed in the last days (the end becomes max, docs/13 §4.4) ...
+    $stars->update(['status' => 'active', 'canceled_at' => null, 'provider' => 'payme', 'current_period_ends_at' => CarbonImmutable::now()->addDays(5)]);
     expect($service->create($learner, Plan::Pro, 'month', SubscriptionProvider::TelegramStars, null, 'twa')->status)->toBe('pending');
+
+    // ... and refused while the prepaid period is longer than the window (subscribe_too_early).
+    $stars->update(['current_period_ends_at' => CarbonImmutable::now()->addDays(20)]);
+    expect(checkoutFailure(fn () => $service->create($learner, Plan::Pro, 'month', SubscriptionProvider::TelegramStars, null, 'twa'))->errorCode)->toBe(CheckoutException::SUBSCRIBE_TOO_EARLY);
 });
 
 it('applies the best open offer automatically, validates an explicit one, and never applies a used, expired or foreign offer', function (): void {
@@ -275,7 +280,7 @@ it('describes the catalog: priced items per enabled provider, the open offer and
     // A live Stars subscription: auto-renewing, can be canceled; once canceled it can be resumed; ends_at is the liveness end.
     $sub = Subscription::factory()->create(['subscriber_id' => $learner->id, 'provider' => 'telegram_stars', 'current_period_ends_at' => $now->addDays(20)]);
     expect($service->catalog($learner, $now)->subscription)->toBe([
-        'status' => 'active', 'provider' => 'telegram_stars', 'plan' => 'pro', 'ends_at' => $now->addDays(23)->toIso8601String(), 'auto_renew' => true, 'can_cancel' => true, 'can_resume' => false,
+        'status' => 'active', 'provider' => 'telegram_stars', 'plan' => 'pro', 'ends_at' => $now->addDays(23)->toIso8601String(), 'auto_renew' => true, 'can_cancel' => true, 'can_resume' => false, 'perpetual' => false,
     ]);
     $sub->update(['status' => 'canceled', 'canceled_at' => $now]);
     expect($service->catalog($learner, $now)->subscription)->toMatchArray(['status' => 'canceled', 'ends_at' => $now->addDays(20)->toIso8601String(), 'auto_renew' => false, 'can_cancel' => false, 'can_resume' => true]);

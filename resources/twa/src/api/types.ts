@@ -260,6 +260,8 @@ export interface SubscriptionSummary {
   auto_renew: boolean
   can_cancel: boolean
   can_resume: boolean
+  /** Pro without an end date (a manual grant): nothing to buy, the server answers `already_perpetual`. */
+  perpetual: boolean
 }
 
 export interface BillingCatalog {
