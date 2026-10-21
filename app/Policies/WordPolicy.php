@@ -17,7 +17,7 @@ final class WordPolicy
     /** The content of a learner's private deck is for admins only (docs/13 §8.1). */
     public function view(User $user, Word $word): bool
     {
-        return $this->viewAny($user) && ($user->hasRole('admin') || ! $word->lesson->stage->course->isLearnerOwned());
+        return $this->viewAny($user) && ($user->hasRole('admin') || $word->lesson?->stage?->course?->isLearnerOwned() !== true);
     }
 
     public function create(User $user): bool
