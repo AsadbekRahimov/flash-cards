@@ -163,6 +163,25 @@ it('serializes the inviter cap: two referrals of one inviter rewarded at once wi
         ->and(Subscription::query()->count())->toBe(3);
 });
 
+it('serializes the invitee cap: two referrals of one inviter rewarded at once with one slot left — one invited learner without a reward', function (): void {
+    config(['referrals.max_invitee_rewards_per_30d' => 1, 'referrals.max_rewards_per_30d' => 50, 'referrals.max_rewards_lifetime' => 50]);
+    $inviter = Learner::factory()->create();
+    $a = referralActivated($inviter);
+    $b = referralActivated($inviter);
+
+    $results = referralRunInParallel(array_map(fn (Referral $r) => function () use ($r): string {
+        referralHoldAfterWrite();
+        app(ReferralService::class)->reward(Referral::query()->findOrFail($r->id), CarbonImmutable::now());
+
+        return (string) Referral::query()->findOrFail($r->id)->status;
+    }, [$a, $b]));
+
+    expect(collect($results)->pluck('result')->sort()->values()->all())->toBe(['rewarded', 'rewarded'])
+        ->and(Referral::query()->get()->filter(fn (Referral $r): bool => ($r->rewardOf('referee')['skipped'] ?? null) === 'invitee_capped')->count())->toBe(1)
+        ->and(Subscription::query()->where('subscriber_id', $inviter->id)->count())->toBe(2)
+        ->and(Subscription::query()->count())->toBe(3);
+});
+
 it('gives one code to a learner asked twice at the same instant', function (): void {
     $learner = Learner::factory()->create();
 

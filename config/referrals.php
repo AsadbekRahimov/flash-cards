@@ -32,6 +32,12 @@ return [
     'max_rewards_lifetime' => (int) env('REFERRALS_MAX_REWARDS_LIFETIME', 50),
 
     /**
+     * Rewarded invited learners of one inviter in a rolling 30 days (owner's decision, docs/13 §12 q.17); the next
+     * invited learner is activated and `rewarded` but gets no Pro (`meta.rewards.referee.skipped = invitee_capped`).
+     */
+    'max_invitee_rewards_per_30d' => (int) env('REFERRALS_INVITEE_REWARDS_PER_30D', 20),
+
+    /**
      * Links of one inviter within 24 hours at which the NEXT link is flagged (`flagged_at`): its reward
      * waits until an admin clears the flag (Filament, learner page → Referrals).
      */

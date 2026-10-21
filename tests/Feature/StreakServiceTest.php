@@ -320,7 +320,7 @@ it('keeps yesterday\'s credit on read when its callback was lost: current() repa
         ->and(storedStreak($learner))->toBe([4, 4, '2026-10-17']);
 });
 
-it('current() does not touch learners when there is no fact for yesterday', function (): void {
+it('current() burns the series with one UPDATE of streak_current only when there is no fact for yesterday', function (): void {
     $learner = streakLearner();
     $learner->forceFill(['streak_current' => 3, 'streak_best' => 3, 'streak_last_date' => '2026-10-16'])->save();
     goalFacts($learner, ['2026-10-16']);
@@ -331,8 +331,8 @@ it('current() does not touch learners when there is no fact for yesterday', func
     DB::disableQueryLog();
 
     expect($state->toArray())->toBe(['current' => 0, 'best' => 3, 'met_today' => false, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false])
-        ->and($writes)->toHaveCount(0)
-        ->and(storedStreak($learner))->toBe([3, 3, '2026-10-16']);
+        ->and($writes)->toHaveCount(1)
+        ->and(storedStreak($learner))->toBe([0, 3, '2026-10-16']);
 });
 
 it('current() repairs a never-projected yesterday for a learner whose very first credit was lost', function (): void {

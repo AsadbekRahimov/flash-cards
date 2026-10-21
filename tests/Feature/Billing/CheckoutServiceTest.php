@@ -124,6 +124,7 @@ it('rejects what cannot be sold: bad period, disabled or missing provider, unsup
     expect($service->create($learner, Plan::Pro, 'year', SubscriptionProvider::TelegramStars, null, 'twa')->amount)->toBe(1300);
 
     // Organization tiers.
+    config()->set('billing.org_year_discount_percent', 0); // the default is 17 (2C.8); this case checks the plain x12
     $e = checkoutFailure(fn () => $service->create($org, Plan::Pro, 'month', SubscriptionProvider::Payme, null, 'org_panel'));
     expect($e->errorCode)->toBe(CheckoutException::INVALID_TIER)->and($e->httpStatus())->toBe(422);
     $e = checkoutFailure(fn () => $service->create($org, Plan::Pro, 'month', SubscriptionProvider::Payme, 'platinum', 'org_panel'));

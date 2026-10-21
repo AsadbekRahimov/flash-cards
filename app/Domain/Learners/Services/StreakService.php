@@ -41,8 +41,9 @@ use Throwable;
  *    ({@see current()}) or when today's goal is met ({@see apply()}) — and the series goes on;
  *    a gap of two or more days is never frozen. The inventory and the fact are
  *    StreakFreezeService's; the projection then advances `last` to the frozen day;
- *  - reading ({@see current()}) zeroes the series lazily when `last < today - 1` and yesterday
- *    is neither held nor freezable; no nightly job. If yesterday is held (its callback was lost),
+ *  - reading ({@see current()}) burns the series when `last < today - 1` and yesterday is neither held
+ *    nor coverable by the freezes in stock at that moment (owner's rule, docs/13 §12 q.16): `streak_current`
+ *    is stored as 0 and a freeze refilled later neither restores it nor is spent on it; no nightly job. If yesterday is held (its callback was lost),
  *    `current()` projects it first — so it is **not** a pure read: it may issue the same
  *    single-statement `UPDATE learners` as {@see apply()} (and the freeze transaction) and must
  *    not be called inside a transaction holding `training_sessions` / `word_repetitions` /
@@ -140,7 +141,7 @@ class StreakService
             if ($yesterdayRow !== null) {
                 // The projection missed yesterday (callback lost) — without this fact the series would read as 0.
                 $this->project($learner, $yesterday, $yesterdayRow->goal_met_at !== null, $now);
-            } elseif ($last !== null && $freezesAvailable > 0 && $this->freezeMissed($learner, $yesterday, $last, $now)) {
+            } elseif ($last !== null && $this->freezeMissed($learner, $yesterday, $last, $now)) {
                 $frozenYesterday = true;
             }
         }
@@ -169,8 +170,9 @@ class StreakService
     /**
      * On read: yesterday is not held and the projection ends before it. First brings the projection up to
      * the facts (held days the callbacks of which were lost), then freezes the whole run of missed days up
-     * to yesterday — one freeze each, all or none ({@see unheldTail()}) — and projects them. Returns true
-     * when yesterday ends up frozen (by this call or a concurrent one).
+     * to yesterday — one freeze each, all or none ({@see unheldTail()}) — and projects them. A gap the stock
+     * cannot cover (or any gap for a learner without the feature) burns the series for good ({@see burn()}).
+     * Returns true when yesterday ends up frozen (by this call or a concurrent one).
      */
     private function freezeMissed(Learner $learner, string $yesterday, string $last, CarbonImmutable $now): bool
     {
@@ -181,9 +183,19 @@ class StreakService
             return false;
         }
 
+        if ((int) $learner->streak_current <= 0) {
+            return false; // already burnt (or nothing to save): a freeze spent now would hold nothing
+        }
+
         $tail = $this->unheldTail($learner->id, $last, $yesterday);
-        if ($tail === null || $tail === []) {
-            return false; // more missed days than freezes can ever cover (or nothing missed): the series burns
+        if ($tail === []) {
+            return false; // nothing missed
+        }
+
+        if ($tail === null || count($tail) > $this->freezes->available($learner, $now)) {
+            $this->burn($learner, $last); // not coverable by what is in stock NOW: later refills do not bring it back
+
+            return false;
         }
 
         $this->freezes->tryFreezeMany($learner, $tail, $now); // false: too few freezes, or a concurrent caller got there first
@@ -191,7 +203,37 @@ class StreakService
         // Whatever is held now (our freezes, or a concurrent caller's) is a fact like any other.
         $this->projectHeldRows($learner, $last, $yesterday, $now);
 
-        return $this->heldRow($learner->id, $yesterday)?->frozen_at !== null;
+        if ($this->heldRow($learner->id, $yesterday)?->frozen_at !== null) {
+            return true;
+        }
+
+        $this->burn($learner, $learner->streak_last_date?->toDateString() ?? $last);
+
+        return false;
+    }
+
+    /**
+     * Owner's rule (docs/13 §12 q.16): a series whose gap the stock cannot cover is gone the moment this is
+     * noticed — `streak_current = 0` is stored (`streak_best` and `streak_last_date` stay), and since
+     * {@see freezeMissed()} / {@see project()} never freeze for a series of 0, a freeze refilled later neither
+     * restores it nor is spent on it. Optimistic single-statement UPDATE like {@see project()}: no extra lock,
+     * and a concurrent projection that moved `streak_last_date` wins.
+     */
+    private function burn(Learner $learner, string $last): void
+    {
+        if ((int) $learner->streak_current <= 0) {
+            return;
+        }
+
+        $affected = Learner::withTrashed()
+            ->whereKey($learner->id)
+            ->where('streak_last_date', (string) $learner->fromDateTime($last))
+            ->where('streak_current', '>', 0)
+            ->update(['streak_current' => 0]);
+
+        if ($affected === 1) {
+            $learner->forceFill(['streak_current' => 0])->syncOriginalAttributes(['streak_current']);
+        }
     }
 
     /**
@@ -289,7 +331,7 @@ class StreakService
             $previous = CarbonImmutable::parse($date)->subDay()->toDateString();
             $bridged = false;
 
-            if ($goalMet && $last !== null && $last !== $previous && ! $freezeTried) {
+            if ($goalMet && $last !== null && $last !== $previous && $fresh->streak_current > 0 && ! $freezeTried) {
                 // Goal met today after exactly one missed day (yesterday): a freeze keeps the series.
                 $freezeTried = true;
                 $bridged = $this->freezeGapBefore($learner, $previous, $last, $now);

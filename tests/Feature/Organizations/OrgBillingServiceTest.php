@@ -83,6 +83,7 @@ function obSeatCount(Organization $organization, string $state): int
 it('shows the owner the tariffs with UZS prices; a tier without a price is not purchasable', function (): void {
     config()->set('billing.invoice.request_email', '');
     config()->set('site.legal.email', '');
+    config()->set('billing.org_year_discount_percent', 0);
 
     $page = $this->billing->page($this->owner, $this->org);
     $byKey = collect($page->tiers)->keyBy('key');
