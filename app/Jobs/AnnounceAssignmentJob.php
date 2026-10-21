@@ -7,6 +7,8 @@ namespace App\Jobs;
 use App\Domain\Organizations\Services\AssignmentService;
 use App\Jobs\Middleware\ThrottleTelegramOutbound;
 use App\Models\Assignment;
+use Carbon\CarbonImmutable;
+use DateTimeInterface;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -36,6 +38,12 @@ final class AnnounceAssignmentJob implements ShouldQueue
     public function middleware(): array
     {
         return [new ThrottleTelegramOutbound];
+    }
+
+    /** A post that found no Telegram slot for 2 hours is left to `assignments:refresh` (bounded attempts). */
+    public function retryUntil(): DateTimeInterface
+    {
+        return CarbonImmutable::now()->addHours(2);
     }
 
     public function handle(AssignmentService $assignments): void

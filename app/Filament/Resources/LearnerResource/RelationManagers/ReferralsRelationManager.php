@@ -48,7 +48,11 @@ class ReferralsRelationManager extends RelationManager
             ->columns([
                 Tables\Columns\TextColumn::make('referee_name')
                     ->label('Invited learner')
-                    ->state(fn (Referral $record): string => trim(($record->referee?->first_name ?? '').' '.($record->referee?->last_name ?? '')))
+                    ->state(function (Referral $record): string {
+                        $referee = $record->referee;
+
+                        return $referee === null ? '' : trim(($referee->first_name ?? '').' '.($referee->last_name ?? ''));
+                    })
                     ->placeholder('—')
                     ->url(fn (Referral $record): ?string => $record->referee !== null
                         ? LearnerResource::getUrl('view', ['record' => $record->referee_learner_id])

@@ -8,6 +8,7 @@ use App\Domain\Learners\Services\ReminderDispatcher;
 use App\Domain\Learners\Services\ReminderSender;
 use App\Jobs\Middleware\ThrottleTelegramOutbound;
 use Carbon\CarbonImmutable;
+use DateTimeInterface;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
@@ -43,6 +44,12 @@ final class SendLearnerReminderJob implements ShouldQueue
     public function middleware(): array
     {
         return [new ThrottleTelegramOutbound];
+    }
+
+    /** The sender drops a reminder later than `max_delay_minutes` after its slot anyway: stop retrying then. */
+    public function retryUntil(): DateTimeInterface
+    {
+        return $this->scheduledFor->addMinutes(max(15, (int) config('learning.reminders.max_delay_minutes', 120)));
     }
 
     public function handle(ReminderSender $sender): void

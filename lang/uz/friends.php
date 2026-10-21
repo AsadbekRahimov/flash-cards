@@ -6,13 +6,23 @@ return [
 
     'anonymous' => 'Tanishingiz',
 
-    // `/start f_<code>` (or `ref_<code>` of someone who is already a learner), docs/13 §7.5.
+    // `/start f_<code>`, docs/13 §7.5: the link owner is only an address, the opener is asked first.
     'offer' => [
-        'text' => ":name sizni LexiFlow'da do'st bo'lishga taklif qilmoqda.\n\nDo'stlar bir-birining seriyasini va o'rganilgan so'zlar sonini ko'radi va musobaqa tashlashi mumkin: hafta davomida kim ko'proq takrorlaydi.",
+        'text' => ":name'ning taklif havolasini ochdingiz. :name'ga do'stlik so'rovini yuboraylikmi?\n\nDo'stlar bir-birining seriyasini va o'rganilgan so'zlar sonini ko'radi va musobaqa tashlashi mumkin: hafta davomida kim ko'proq takrorlaydi.",
+        'send' => "So'rov yuborish",
+        'skip' => 'Hozir emas',
+    ],
+
+    // A request addressed to the learner (a DM, or a pending request met by /start f_<code>).
+    'incoming' => [
+        'text' => ":name sizni LexiFlow'da do'st sifatida qo'shmoqchi.",
         'accept' => 'Qabul qilish',
         'decline' => 'Rad etish',
     ],
 
+    'request_sent' => "So'rov yuborildi: :name. Qabul qilishsa, xabar beramiz.",
+    'already_sent' => "Siz :name'ga allaqachon so'rov yuborgansiz — javob kutilmoqda.",
+    'skipped' => "Xo'p, so'rov yuborilmadi.",
     'accepted' => "Tayyor: endi siz va :name do'stsiz. Do'stlar ro'yxati LexiFlow ilovasida.",
     'declined' => 'Xo\'p, taklif rad etildi.',
     'already' => "Siz va :name allaqachon do'stsiz.",

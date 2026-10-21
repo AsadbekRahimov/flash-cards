@@ -14,6 +14,8 @@ use App\Models\ExamResult;
 use App\Models\ExamSession;
 use App\Models\Learner;
 use App\Models\Lesson;
+use Carbon\CarbonImmutable;
+use DateTimeInterface;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -48,6 +50,12 @@ final class PostLeaderboardJob implements ShouldQueue
     public function middleware(): array
     {
         return [new ThrottleTelegramOutbound];
+    }
+
+    /** A final leaderboard is worth posting late, but not a day later: 6 hours of waiting for a slot / failures at most. */
+    public function retryUntil(): DateTimeInterface
+    {
+        return CarbonImmutable::now()->addHours(6);
     }
 
     public function handle(

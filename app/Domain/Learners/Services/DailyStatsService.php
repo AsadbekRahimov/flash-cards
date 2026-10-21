@@ -83,7 +83,13 @@ class DailyStatsService
         // Referral activation (docs/13 §7.1) looks at committed day rows: the moment this day crosses the
         // "active day" threshold, re-evaluate a pending referral of the learner — after commit, never inside.
         if ($reviews === max(1, (int) config('referrals.activation.reviews_per_day'))) {
-            DB::afterCommit(fn () => $this->referrals->evaluate($learner, $now));
+            DB::afterCommit(function () use ($learner, $now): void {
+                try {
+                    $this->referrals->evaluate($learner, $now);
+                } catch (Throwable $e) {
+                    report($e);
+                }
+            });
         }
 
         // League placement (docs/13 §7.3): the first grade of a local day is the cheapest moment to

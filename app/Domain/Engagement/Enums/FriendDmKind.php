@@ -7,6 +7,8 @@ namespace App\Domain\Engagement\Enums;
 /** Which background DM of the friends feature a `SendFriendDmJob` carries (the id is a friendship / challenge id). */
 enum FriendDmKind: string
 {
+    /** To the asked side, with Accept / Decline buttons: "X wants to be your friend" (friendship id). */
+    case FriendRequested = 'friend_requested';
     /** To the side that asked: "X accepted your friend request" (friendship id). */
     case FriendAccepted = 'friend_accepted';
     /** To the challenged friend, with Accept / Decline buttons (challenge id). */

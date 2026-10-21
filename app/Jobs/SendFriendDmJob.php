@@ -7,6 +7,8 @@ namespace App\Jobs;
 use App\Domain\Engagement\Enums\FriendDmKind;
 use App\Domain\Telegram\Services\FriendsMessenger;
 use App\Jobs\Middleware\ThrottleTelegramOutbound;
+use Carbon\CarbonImmutable;
+use DateTimeInterface;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
@@ -46,9 +48,9 @@ final class SendFriendDmJob implements ShouldQueue
         return [new ThrottleTelegramOutbound];
     }
 
-    public function retryUntil(): \DateTimeInterface
+    public function retryUntil(): DateTimeInterface
     {
-        return now()->addHours(6);
+        return CarbonImmutable::now()->addHours(6);
     }
 
     public function handle(FriendsMessenger $messenger): void
