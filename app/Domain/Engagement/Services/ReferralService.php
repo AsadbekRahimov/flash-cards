@@ -598,6 +598,7 @@ final class ReferralService
             ->where('referrer_learner_id', $referrerId)
             ->where('status', '<>', ReferralStatus::Rejected->value)
             ->where('linked_at', '>=', $now->subDay())
+            ->where('linked_at', '<=', $now)
             ->count() >= $threshold;
     }
 
