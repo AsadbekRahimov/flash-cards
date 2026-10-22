@@ -156,4 +156,11 @@ return [
         ],
     ],
 
+    // Admin dashboard revenue widget: cash flow by event date, cohort net kept apart.
+    'report' => [
+        'heading' => 'Выручка за 30 дней',
+        'net_cash' => 'Чистое движение денег :currency',
+        'description' => 'Платежи: :charges, брутто :gross · возвраты (по дате возврата): :refund_count, :refunds · когортный нетто (платежи периода за вычетом их возвратов): :cohort',
+    ],
+
 ];
