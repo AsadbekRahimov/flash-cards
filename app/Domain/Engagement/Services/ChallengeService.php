@@ -47,6 +47,9 @@ final class ChallengeService
 
     private const FINISHED_LIMIT = 20;
 
+    /** A finished challenge without `dms_dispatched_at` older than this is re-queued by `recoverUnnotified`. */
+    private const RECOVER_AFTER_MINUTES = 10;
+
     public function __construct(
         private readonly FriendshipService $friendships,
         private readonly LearnerClock $clock,
@@ -192,7 +195,7 @@ final class ChallengeService
 
     /**
      * Closes an active challenge whose period is over: scores from `learner_daily_stats`, the winner (none
-     * on a draw), the event and the two DMs — once, by whoever wins the conditional UPDATE. Not due yet, or
+     * on a draw), the event and the two DMs — once, by whoever wins the conditional UPDATE (`recoverUnnotified` re-queues DMs lost after it). Not due yet, or
      * not active → returned unchanged.
      */
     public function close(Challenge $challenge, ?CarbonImmutable $now = null): Challenge
@@ -249,10 +252,47 @@ final class ChallengeService
             ],
             learner: Learner::query()->find($challenge->challenger_id),
         );
+        $this->dispatchFinishedDms($challenge, $now);
+
+        return $challenge;
+    }
+
+    /**
+     * Scheduler: re-queues the result DMs of finished challenges whose dispatch never completed (a crash
+     * between the `finished` claim and the queue, `dms_dispatched_at` still null) once they are older than
+     * `RECOVER_AFTER_MINUTES`. At-least-once here, at-most-once there: the job writes its `notifications_log`
+     * key before sending, so a repeated dispatch never sends a second DM.
+     *
+     * @return int challenges whose DMs were queued
+     */
+    public function recoverUnnotified(?CarbonImmutable $now = null): int
+    {
+        $now ??= CarbonImmutable::now();
+        $queued = 0;
+
+        Challenge::query()
+            ->where('status', ChallengeStatus::Finished->value)
+            ->whereNull('dms_dispatched_at')
+            ->where('finished_at', '<=', $now->subMinutes(self::RECOVER_AFTER_MINUTES))
+            ->orderBy('id')
+            ->each(function (Challenge $challenge) use ($now, &$queued): void {
+                $this->dispatchFinishedDms($challenge, $now);
+                $queued++;
+            });
+
+        return $queued;
+    }
+
+    /** Queues both result DMs, then marks the challenge (conditional UPDATE) so recovery skips it. */
+    private function dispatchFinishedDms(Challenge $challenge, CarbonImmutable $now): void
+    {
         SendFriendDmJob::send(FriendDmKind::ChallengeFinished, $challenge->id, 'challenger');
         SendFriendDmJob::send(FriendDmKind::ChallengeFinished, $challenge->id, 'opponent');
 
-        return $challenge;
+        Challenge::query()
+            ->whereKey($challenge->id)
+            ->whereNull('dms_dispatched_at')
+            ->update(['dms_dispatched_at' => $now]);
     }
 
     /**

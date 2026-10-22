@@ -24,7 +24,9 @@ final class CloseDueChallenges extends Command
     {
         $changed = $challenges->closeDue();
 
-        $this->info("Challenges closed or expired: {$changed}");
+        $recovered = $challenges->recoverUnnotified();
+
+        $this->info("Challenges closed or expired: {$changed}; result DMs re-queued: {$recovered}");
 
         return self::SUCCESS;
     }

@@ -30,6 +30,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $winner_learner_id
  * @property array{challenger?: int, opponent?: int}|null $scores
  * @property Carbon|null $finished_at
+ * @property Carbon|null $dms_dispatched_at when the result DMs were queued (null: not yet / lost, `recoverUnnotified` re-queues)
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Learner|null $challenger
@@ -55,6 +56,7 @@ class Challenge extends Model
         'winner_learner_id',
         'scores',
         'finished_at',
+        'dms_dispatched_at',
     ];
 
     /** @return array<string, string> */
@@ -71,6 +73,7 @@ class Challenge extends Model
             'winner_learner_id' => 'integer',
             'scores' => 'array',
             'finished_at' => 'datetime',
+            'dms_dispatched_at' => 'datetime',
         ];
     }
 
