@@ -220,6 +220,24 @@ final class TrainingSessionService
     }
 
     /**
+     * Withdraws an open group session that nobody could reach (its Mini App button was not delivered):
+     * closes it as `cancelled`, without a summary. Idempotent; personal sessions are not touched.
+     */
+    public function cancelUndelivered(TrainingSession $session, ?CarbonImmutable $now = null): void
+    {
+        TrainingSession::query()
+            ->whereKey($session->id)
+            ->where('mode', TrainingSession::MODE_GROUP_LESSON)
+            ->where('status', 'open')
+            ->update([
+                'status' => 'closed',
+                'ended_at' => $now ?? CarbonImmutable::now(),
+                'done_reason' => TrainingSession::DONE_CANCELLED,
+                'updated_at' => $now ?? CarbonImmutable::now(),
+            ]);
+    }
+
+    /**
      * Scheduler (`training:close-expired`, every 15 min): closes personal sessions whose
      * `expires_at` has passed and group sessions older than `group_session_ttl_hours`.
      * `ended_at` is the moment of closing: grades were accepted until then.

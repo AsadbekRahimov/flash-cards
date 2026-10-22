@@ -9,6 +9,7 @@ use App\Domain\Telegram\Services\IrazasyedTelegramClient;
 use App\Domain\Telegram\Services\TelegramKeyboardFactory;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
 use GuzzleHttp\Psr7\Response;
+use Illuminate\Support\Facades\Log;
 use Telegram\Bot\Api;
 use Telegram\Bot\Exceptions\TelegramResponseException;
 use Telegram\Bot\FileUpload\InputFile;
@@ -70,7 +71,7 @@ it('uses telegram bot sdk when sending a WebApp button', function (): void {
     );
 
     $client->sendWebAppButton(
-        chatId: -1001,
+        chatId: 1001,
         text: 'Training started',
         buttonText: 'Open',
         url: 'https://twa.test/twa/training/123',
@@ -78,11 +79,85 @@ it('uses telegram bot sdk when sending a WebApp button', function (): void {
     );
 
     expect($sdk->sentMessages)->toBe([[
-        'chat_id' => -1001,
+        'chat_id' => 1001,
         'text' => 'Training started',
         'parse_mode' => 'HTML',
         'reply_markup' => '{"inline_keyboard":[[{"text":"Open","web_app":{"url":"https://twa.test/twa/training/123"}}]]}',
     ]]);
+});
+
+function recordingSdk(): Api
+{
+    return new class extends Api
+    {
+        /** @var list<array<string, mixed>> */
+        public array $sentMessages = [];
+
+        public function __construct()
+        {
+            parent::__construct('test-token');
+        }
+
+        /** @param array<string, mixed> $params */
+        public function sendMessage(array $params): MessageObject
+        {
+            $this->sentMessages[] = $params;
+
+            return new MessageObject([]);
+        }
+    };
+}
+
+it('sends a t.me URL button instead of web_app to group chats (web_app is private-chat only)', function (int|string $chatId): void {
+    config(['twa.base_url' => 'https://twa.test', 'telegram.bot_username' => '@lexi_bot', 'telegram.mini_app_short_name' => '']);
+    $sdk = recordingSdk();
+    $client = new IrazasyedTelegramClient($sdk, new TelegramKeyboardFactory, new TelegramMessageRateLimiter);
+
+    $client->sendWebAppButton($chatId, 'Exam', 'Open', 'https://twa.test/twa/exam/7');
+
+    $markup = json_decode((string) $sdk->sentMessages[0]['reply_markup'], true);
+    $button = $markup['inline_keyboard'][0][0];
+
+    expect($button)->not->toHaveKey('web_app')
+        ->and($button['text'])->toBe('Open')
+        ->and($button['url'])->toBe('https://t.me/lexi_bot?startapp='.rtrim(strtr(base64_encode('/exam/7'), '+/', '-_'), '='));
+})->with([-1001234567890, '-1001234567890', '@my_channel']);
+
+it('uses the Mini App short name in the group link and keeps the query string in start_param', function (): void {
+    config(['twa.base_url' => 'https://twa.test', 'telegram.bot_username' => 'lexi_bot', 'telegram.mini_app_short_name' => 'app']);
+    $sdk = recordingSdk();
+    $client = new IrazasyedTelegramClient($sdk, new TelegramKeyboardFactory, new TelegramMessageRateLimiter);
+
+    $client->sendWebAppButton(-5, 'Hw', 'Open', 'https://twa.test/twa/?from=assignment&lesson=12');
+
+    $url = json_decode((string) $sdk->sentMessages[0]['reply_markup'], true)['inline_keyboard'][0][0]['url'];
+    expect($url)->toStartWith('https://t.me/lexi_bot/app?startapp=');
+
+    parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
+    expect($query['startapp'])->toMatch('/^[A-Za-z0-9_-]+$/')
+        ->and(base64_decode(strtr((string) $query['startapp'], '-_', '+/')))->toBe('/?from=assignment&lesson=12');
+});
+
+it('keeps web_app for private chats given as a numeric string', function (): void {
+    $sdk = recordingSdk();
+    $client = new IrazasyedTelegramClient($sdk, new TelegramKeyboardFactory, new TelegramMessageRateLimiter);
+
+    $client->sendWebAppButton('555', 'Hi', 'Open', 'https://twa.test/twa/');
+
+    expect((string) $sdk->sentMessages[0]['reply_markup'])->toContain('"web_app"');
+});
+
+it('falls back to a plain URL button on the TWA page when the bot username is not configured', function (): void {
+    config(['twa.base_url' => 'https://twa.test', 'telegram.bot_username' => '']);
+    Log::spy();
+    $sdk = recordingSdk();
+    $client = new IrazasyedTelegramClient($sdk, new TelegramKeyboardFactory, new TelegramMessageRateLimiter);
+
+    $client->sendWebAppButton(-9, 'Exam', 'Open', 'https://twa.test/twa/exam/7');
+
+    $button = json_decode((string) $sdk->sentMessages[0]['reply_markup'], true)['inline_keyboard'][0][0];
+    expect($button)->toBe(['text' => 'Open', 'url' => 'https://twa.test/twa/exam/7']);
+    Log::shouldHaveReceived('warning')->once();
 });
 
 it('removes or replaces the inline keyboard of a sent message through the SDK', function (): void {

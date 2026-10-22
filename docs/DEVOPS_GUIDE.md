@@ -127,6 +127,8 @@ QUEUE_CONNECTION=redis
 TELEGRAM_QUEUE=high
 
 TELEGRAM_BOT_TOKEN=your_bot_token_from_BotFather
+TELEGRAM_BOT_USERNAME=YourBot   # without @; required: group chats get Mini App direct links t.me/<bot>?startapp=...
+TELEGRAM_MINI_APP_SHORT_NAME=   # /newapp short name; empty = Main Mini App (BotFather -> Configure Mini App -> https://yourdomain.com/twa/)
 TELEGRAM_URL_SECRET=    # openssl rand -hex 24
 TELEGRAM_HEADER_SECRET= # openssl rand -hex 24
 TELEGRAM_WEBHOOK_URL=https://yourdomain.com
