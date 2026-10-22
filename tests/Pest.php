@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 use Tests\TestCase;
 
+// Fixed before any test file is loaded, so top-level date code does not depend on the host's TZ.
+date_default_timezone_set('UTC');
+
 uses(TestCase::class)->in('Feature');
 uses(TestCase::class)->in('Unit');
 

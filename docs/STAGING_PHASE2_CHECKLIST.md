@@ -37,7 +37,7 @@
 Список — всё, что добавлено в `.env.example` после коммита `12a881e` (`git diff 12a881e HEAD -- .env.example`).
 «Обяз.» — нужна для проверяемой функции; «Опц.» — есть рабочий дефолт. Секреты — только в `.env` (`chmod 600`/`640`), не в git,
 чате и тикетах (`docs/DEVOPS_GUIDE.md` §17.1). После правки `.env`: `php artisan config:cache` и рестарт воркеров
-(`supervisorctl restart lexiflow-worker:*` или `docker compose -f docker-compose.prod.yml restart queue scheduler app`).
+(`supervisorctl restart lexiflow-worker:*` или `docker compose -f docker-compose.prod.yml restart queue-high queue-default scheduler app`).
 
 **Telegram / обучение**
 

@@ -2,11 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Domain\Operations\Services\QueueHeartbeat;
 use App\Domain\Operations\Services\SchedulerHeartbeat;
+use App\Jobs\QueueHeartbeatJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Schedule;
 
 uses(RefreshDatabase::class);
@@ -108,4 +111,63 @@ it('ignores a garbage heartbeat value', function (): void {
     Cache::put(SchedulerHeartbeat::CACHE_KEY, 'not-a-timestamp', 60);
 
     expect(app(SchedulerHeartbeat::class)->lastBeatAt())->toBeNull();
+});
+
+describe('queue worker heartbeat', function (): void {
+    beforeEach(function (): void {
+        // A non-sync driver, so the worker heartbeat applies; the backlog check reads the `jobs` table.
+        Config::set('queue.default', 'database');
+        Config::set('operations.readiness.heartbeat_queues', ['high', 'low']);
+        app(SchedulerHeartbeat::class)->beat();
+    });
+
+    it('is not ready until every monitored queue has a heartbeat', function (): void {
+        app(QueueHeartbeat::class)->beat('high');
+
+        $this->getJson('/health/ready')->assertStatus(503)->assertJsonPath('checks.queue', 'fail');
+    });
+
+    it('is ready when all heartbeats are fresh', function (): void {
+        app(QueueHeartbeat::class)->beat('high');
+        app(QueueHeartbeat::class)->beat('low');
+
+        $this->getJson('/health/ready')->assertOk()->assertJsonPath('checks.queue', 'ok');
+    });
+
+    it('fails when a heartbeat is older than the limit', function (): void {
+        app(QueueHeartbeat::class)->beat('high');
+        app(QueueHeartbeat::class)->beat('low');
+        $this->travel(6)->minutes();
+        app(SchedulerHeartbeat::class)->beat();
+        app(QueueHeartbeat::class)->beat('high');
+
+        $this->getJson('/health/ready')->assertStatus(503)->assertJsonPath('checks.queue', 'fail');
+    });
+
+    it('ignores heartbeats for the sync driver', function (): void {
+        Config::set('queue.default', 'sync');
+
+        $this->getJson('/health/ready')->assertOk()->assertJsonPath('checks.queue', 'ok');
+    });
+
+    it('records the heartbeat only when the job runs', function (): void {
+        expect(app(QueueHeartbeat::class)->lastBeatAt('low'))->toBeNull();
+
+        (new QueueHeartbeatJob('low'))->handle(app(QueueHeartbeat::class));
+
+        expect(app(QueueHeartbeat::class)->lastBeatAt('low'))->not->toBeNull()
+            ->and(app(QueueHeartbeat::class)->lastBeatAt('high'))->toBeNull();
+    });
+
+    it('schedules a heartbeat job per monitored queue every minute', function (): void {
+        Queue::fake();
+
+        $event = collect(Schedule::events())->first(fn ($e): bool => $e->description === 'ops:queue-heartbeat');
+        expect($event)->not->toBeNull()->and($event->expression)->toBe('* * * * *');
+
+        $event->run(app());
+
+        Queue::assertPushedOn('high', QueueHeartbeatJob::class);
+        Queue::assertPushedOn('low', QueueHeartbeatJob::class);
+    });
 });

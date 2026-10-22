@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Operations\Services\SchedulerHeartbeat;
+use App\Jobs\QueueHeartbeatJob;
 use App\Models\NotificationLog;
 use App\Models\ProductEvent;
 use Illuminate\Foundation\Inspiring;
@@ -16,6 +17,18 @@ Artisan::command('inspire', function () {
 // Liveness marker for GET /health/ready: stale heartbeat (> 3 min) = scheduler is down.
 Schedule::call(fn () => app(SchedulerHeartbeat::class)->beat())
     ->name('ops:scheduler-heartbeat')
+    ->everyMinute();
+
+// Worker liveness for GET /health/ready: a tiny job per monitored queue; it only writes the
+// heartbeat when a worker really consumes that queue (operations.readiness.heartbeat_queues).
+Schedule::call(function (): void {
+    foreach ((array) config('operations.readiness.heartbeat_queues', []) as $queue) {
+        if (is_string($queue) && $queue !== '') {
+            QueueHeartbeatJob::dispatch($queue);
+        }
+    }
+})
+    ->name('ops:queue-heartbeat')
     ->everyMinute();
 
 // Close exams whose `ends_at` passed more than a minute ago and post the
