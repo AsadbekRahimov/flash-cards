@@ -139,6 +139,10 @@ jobs:
             - name: Audit root frontend dependencies
               run: npm audit --omit=dev --audit-level=high
 
+            - name: Audit root frontend dev dependencies
+              # Separate from the prod audit above: fails on high/critical in build tooling too.
+              run: npm audit --audit-level=high
+
             - name: Build Laravel assets
               run: npm run build
 
@@ -147,6 +151,11 @@ jobs:
 
             - name: Audit TWA dependencies
               run: npm audit --prefix resources/twa --omit=dev --audit-level=high
+
+            - name: Audit TWA dev dependencies
+              # Tailwind 3 pulls braces (high, no fixed 3.x release); only Tailwind 4 clears it, so warn-only for now.
+              continue-on-error: true
+              run: npm audit --prefix resources/twa --audit-level=high
 
             - name: Test TWA
               run: npm test --prefix resources/twa
