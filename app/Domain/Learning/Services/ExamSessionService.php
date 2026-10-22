@@ -38,6 +38,7 @@ final class ExamSessionService
         private readonly ExamQuestionBuilder $questionBuilder,
         private readonly CourseCatalogService $catalog,
         private readonly LocaleResolver $locales,
+        private readonly TeacherAuthority $authority,
     ) {}
 
     /**
@@ -184,9 +185,6 @@ final class ExamSessionService
 
     private function userTeachesGroup(User $user, TelegramGroup $group): bool
     {
-        return DB::table('teacher_groups')
-            ->where('user_id', $user->id)
-            ->where('telegram_group_id', $group->id)
-            ->exists();
+        return $this->authority->canTeach($user, $group);
     }
 }
