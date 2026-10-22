@@ -5,6 +5,29 @@
 ## Sprint 3 — Filament Admin ✅ (2FA отложен до Sprint 10)
 ## Sprint 4 — Import & Content ✅
 
+## Sprint 16 — Исправления по аудиту 2026-10-22 ✅ код (2026-10-22; основание — `docs/AUDIT_2026-10-22_RU.md`)
+
+| # | Находка | Что сделано | Статус |
+|---|---------|-------------|--------|
+| F01 | `web_app`-кнопки в группах | В группах URL-кнопка на Mini App direct link `t.me/<bot>[/<short>]?startapp=<base64url(path)>` (`MiniAppLinks`), TWA открывает путь из `start_param` (с query); объявление групповой сессии шлётся немедленно, при гарантированном отказе Telegram сессия отменяется (`GroupSessionAnnouncer`); readiness в prod требует `TELEGRAM_BOT_USERNAME` | ✅ код, ⏳ ручная проверка в supergroup |
+| F02 | Неактивный учитель управляет ботом | `TeacherAuthority::canTeach` (активен + `teacher_groups`) во всех путях бота, включая показ выбора урока | ✅ |
+| F03/F06 | 2FA: чужая отметка, неоднозначный guard | Отметки/pending secret/recovery по `guard`+`user_id` (`TwoFactorSession`), явный `?guard=web|org`, `session()->regenerate()` после проверки | ✅ |
+| F04 | Нет лимита попыток 2FA | 5/мин и 20/час на пользователя, 20/мин на IP → 429; атомарная защита от повтора TOTP-шага (`Cache::add`); лог неудач | ✅ |
+| F05 | CI проверяет одно, деплоится другое | `deploy.sh <sha>`: только движение вперёд, `--rollback` явно; `concurrency: production-deploy`; smoke `/health/ready` + ассеты; раздел «Откат» | ✅ |
+| F07 | Уязвимые dev-зависимости | vite 7, vitest 4, happy-dom 20; root audit 0; TWA: 7 (только Tailwind 3, build-time) — ждёт решения о Tailwind 4; dev-audit в CI | ⚠️ частично |
+| F08 | Время выполнения задания по последнему повтору | Первый успешный ответ по `training_reviews` (fallback — старая оценка) | ✅ |
+| §4.1 | Demo seeders в prod | Только local/testing или `APP_DEMO_SEED=true` | ✅ |
+| §4.3–4.4 | Один воркер, readiness очереди | `queue-high` и `queue-default`; heartbeat-job в high/low, readiness по возрасту heartbeat | ✅ |
+| §4.5 | Гонка построения результатов экзамена | `lockForUpdate` сессии в `LeaderboardBuilder` + PG-тест | ✅ |
+| §4.6 | Потеря DM при закрытии челленджа | `challenges.dms_dispatched_at` + досылка в `challenges:close-due` | ✅ |
+| §4.7 | Параллельные 401 в TWA | single-flight refresh JWT | ✅ |
+| §4.8 | Смысл «Revenue last 30 days» | `cashFlowLast30Days` (gross / refunds по дате возврата / net), когортный показатель переименован | ✅ |
+| §4.10 | Заголовки статической TWA | nosniff, Referrer-Policy, CSP с `frame-ancestors` Telegram | ✅ код, ⏳ `nginx -t` на сервере |
+| §4.9 | Крупные сервисы | Не делалось сознательно: дробить по одному сценарию отдельной задачей | ⏸ |
+| §6 | Документация и окружение тестов | Порядок актуальности документов (`docs/00_README.md`), пометки в 01/02/08; UTC в phpunit/Pest | ✅ |
+
+Проверки: pint ✅; Pest sqlite 2689 passed / 20 skipped; Pest PostgreSQL+Redis 2743 passed; TWA type-check + 514 тестов + build ✅; PHPStan — CI. Ревью reviewer'а: блокирующие и желательные находки исправлены.
+
 ## Sprint 15 — Фаза 2 «Деньги, центры, рост, обучение» ✅ код (2026-10-19 — 2026-10-21; приёмка на staging и в песочницах провайдеров — 2R.8, `docs/STAGING_PHASE2_CHECKLIST.md`)
 
 Основание: `docs/11` §10 (Фаза 2); проект — `docs/13_PHASE2_DESIGN.md`. Порядок: волна A (оплата 2A + центры 2B) → волна B (рост/удержание 2C) → волна C (обучение 2D); хвосты Фазы 1 — 2R. Цены — в конфиге (`BILLING_PRICE_*`), ждут решения владельца (docs/13 §12). Детали протоколов Stars/Payme/Click сверить с официальной документацией перед 2A.3–2A.5 (docs/13 §15).
