@@ -14,7 +14,7 @@
 | F03/F06 | 2FA: чужая отметка, неоднозначный guard | Отметки/pending secret/recovery по `guard`+`user_id` (`TwoFactorSession`), явный `?guard=web|org`, `session()->regenerate()` после проверки | ✅ |
 | F04 | Нет лимита попыток 2FA | 5/мин и 20/час на пользователя, 20/мин на IP → 429; атомарная защита от повтора TOTP-шага (`Cache::add`); лог неудач | ✅ |
 | F05 | CI проверяет одно, деплоится другое | `deploy.sh <sha>`: только движение вперёд, `--rollback` явно; `concurrency: production-deploy`; smoke `/health/ready` + ассеты; раздел «Откат» | ✅ |
-| F07 | Уязвимые dev-зависимости | vite 7, vitest 4, happy-dom 20; root audit 0; TWA: 7 (только Tailwind 3, build-time) — ждёт решения о Tailwind 4; dev-audit в CI | ⚠️ частично |
+| F07 | Уязвимые dev-зависимости | vite 7, vitest 4, happy-dom 20, TWA на Tailwind 4 (`@tailwindcss/vite`, одобрено владельцем); npm audit root и TWA — 0; dev-audit в CI блокирующий. Риск: Tailwind 4 требует Chrome 111+/Safari 16.4+ (старые Android WebView), docs/05 | ✅ код, ⏳ визуальная проверка TWA |
 | F08 | Время выполнения задания по последнему повтору | Первый успешный ответ по `training_reviews` (fallback — старая оценка) | ✅ |
 | §4.1 | Demo seeders в prod | Только local/testing или `APP_DEMO_SEED=true` | ✅ |
 | §4.3–4.4 | Один воркер, readiness очереди | `queue-high` и `queue-default`; heartbeat-job в high/low, readiness по возрасту heartbeat | ✅ |
