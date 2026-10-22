@@ -291,3 +291,80 @@ it('does not open a session when invoked in a private chat (handled by StartComm
 
     expect(TrainingSession::query()->count())->toBe(0);
 });
+
+it('cancels a freshly opened training session when Telegram refuses the button (command)', function (): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => -5005, 'status' => 'active']);
+    $teacher = User::factory()->create(['telegram_user_id' => 600]);
+    attachTeacher($teacher, $group);
+    $stage = Stage::factory()->inDefaultCourse()->create(['number' => 1]);
+    Lesson::factory()->for($stage)->create(['number' => 1]);
+
+    $this->api->shouldReceive('sendWebAppButton')->once()
+        ->andThrow(TelegramApiException::apiError('Bad Request: BUTTON_URL_INVALID'));
+    $this->api->shouldReceive('sendMessage')->once()
+        ->with(-5005, Mockery::pattern('/тренировка отменена/u'));
+
+    app(TelegramDispatcher::class)->dispatch([
+        'message' => [
+            'chat' => ['id' => -5005, 'type' => 'supergroup'],
+            'from' => ['id' => 600],
+            'text' => '/start_training 1 1',
+        ],
+    ]);
+
+    $session = TrainingSession::query()->sole();
+    expect($session->status)->toBe('closed')
+        ->and($session->done_reason)->toBe(TrainingSession::DONE_CANCELLED);
+});
+
+it('cancels a freshly opened training session when Telegram refuses the button (picker callback)', function (): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => -5006, 'status' => 'active']);
+    $teacher = User::factory()->create(['telegram_user_id' => 601]);
+    attachTeacher($teacher, $group);
+    $stage = Stage::factory()->inDefaultCourse()->create(['number' => 1]);
+    Lesson::factory()->for($stage)->create(['number' => 1]);
+
+    $this->api->shouldReceive('answerCallbackQuery')->once();
+    $this->api->shouldReceive('sendWebAppButton')->once()
+        ->andThrow(TelegramApiException::apiError('Bad Request: BUTTON_URL_INVALID'));
+    $this->api->shouldReceive('sendMessage')->once();
+
+    app(TelegramDispatcher::class)->dispatch([
+        'callback_query' => [
+            'id' => 'cq-1',
+            'from' => ['id' => 601],
+            'data' => StartTrainingHandler::CALLBACK_PREFIX.'1:1',
+            'message' => ['chat' => ['id' => -5006, 'type' => 'supergroup']],
+        ],
+    ]);
+
+    expect(TrainingSession::query()->sole()->done_reason)->toBe(TrainingSession::DONE_CANCELLED);
+});
+
+it('does not cancel an already announced training session on a refused repeat, nor on a transport failure', function (): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => -5007, 'status' => 'active']);
+    $teacher = User::factory()->create(['telegram_user_id' => 602]);
+    attachTeacher($teacher, $group);
+    $stage = Stage::factory()->inDefaultCourse()->create(['number' => 1]);
+    Lesson::factory()->for($stage)->create(['number' => 1]);
+    $update = ['message' => [
+        'chat' => ['id' => -5007, 'type' => 'supergroup'],
+        'from' => ['id' => 602],
+        'text' => '/start_training 1 1',
+    ]];
+
+    $this->api->shouldReceive('sendWebAppButton')->once();
+    app(TelegramDispatcher::class)->dispatch($update);
+
+    $this->api->shouldReceive('sendWebAppButton')->once()
+        ->andThrow(TelegramApiException::apiError('Bad Request: nope'));
+    $this->api->shouldReceive('sendMessage')->once();
+    app(TelegramDispatcher::class)->dispatch($update);
+
+    expect(TrainingSession::query()->where('status', 'open')->count())->toBe(1);
+
+    $this->api->shouldReceive('sendWebAppButton')->once()->andThrow(new TelegramApiException('timeout'));
+    app(TelegramDispatcher::class)->dispatch($update);
+
+    expect(TrainingSession::query()->where('status', 'open')->count())->toBe(1);
+});

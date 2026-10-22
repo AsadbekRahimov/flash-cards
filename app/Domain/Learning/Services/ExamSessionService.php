@@ -164,6 +164,15 @@ final class ExamSessionService
     }
 
     /**
+     * Withdraws an exam nobody could reach (its Mini App button was not delivered) so the command can be
+     * repeated: closes it with no results (no answers exist yet). Idempotent.
+     */
+    public function cancelUndelivered(ExamSession $session, ?CarbonImmutable $now = null): void
+    {
+        $this->close($session, $now);
+    }
+
+    /**
      * @throws ExamSessionException
      */
     public function closeOpenForGroup(TelegramGroup $group, ?CarbonImmutable $now = null): ExamSession

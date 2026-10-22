@@ -20,4 +20,21 @@ final class TelegramKeyboardFactory
             ]],
         ];
     }
+
+    /**
+     * Plain URL button: the only kind of button a Mini App link can be in a group chat.
+     *
+     * @return array{inline_keyboard:list<list<array{text:string,url:string}>>}
+     */
+    public function urlButton(string $text, string $url): array
+    {
+        return [
+            'inline_keyboard' => [[
+                [
+                    'text' => $text,
+                    'url' => $url,
+                ],
+            ]],
+        ];
+    }
 }

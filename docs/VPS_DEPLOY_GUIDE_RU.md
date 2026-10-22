@@ -448,7 +448,8 @@ SESSION_SAME_SITE=lax
 
 # --- Telegram ---
 TELEGRAM_BOT_TOKEN=123456:ABC...            # от @BotFather
-TELEGRAM_BOT_USERNAME=LexiFlowBot           # без @; без него нет ссылок-приглашений, рефералки, «Поделиться»
+TELEGRAM_BOT_USERNAME=LexiFlowBot           # без @; ОБЯЗАТЕЛЬНО: без него нет ссылок-приглашений, рефералки, «Поделиться» и кнопок мини-приложения в группах (§15)
+TELEGRAM_MINI_APP_SHORT_NAME=               # short name из BotFather /newapp; пусто = Main Mini App бота (§15)
 TELEGRAM_URL_SECRET=...                     # сгенерировано выше
 TELEGRAM_HEADER_SECRET=...                  # сгенерировано выше
 TELEGRAM_WEBHOOK_URL=https://lexiflow.uz
@@ -762,8 +763,18 @@ curl -s "https://api.telegram.org/bot<ТОКЕН>/getWebhookInfo" | python3 -m j
 
 В **@BotFather**:
 1. `/setmenubutton` (или Bot Settings → Menu Button) — URL мини-приложения: `https://lexiflow.uz/twa/`.
-2. `/setdomain` — ваш домен (для Telegram Login, если понадобится).
-3. Если бот работает в группах учебных центров — `/setjoingroups` → Enable; в группе бота делают **администратором**
+2. **Мини-приложение для групповых чатов (обязательно).** Telegram разрешает кнопку `web_app` только в личном чате с ботом,
+   поэтому в группах (`/start_training`, `/start_exam`, задания) бот присылает обычную кнопку-ссылку
+   `https://t.me/<бот>?startapp=…` (прямая ссылка на мини-приложение; нужный экран передаётся в `start_param`). Для неё:
+   - `TELEGRAM_BOT_USERNAME` в `.env` (без `@`) — обязателен; без него кнопка в группе откроет голую страницу в браузере.
+   - Настройте **Main Mini App**: `/mybots` → ваш бот → Bot Settings → Configure Mini App → Enable Mini App →
+     Main App URL: `https://lexiflow.uz/twa/` (со слэшем на конце). Тогда ссылка `t.me/<бот>?startapp=…` работает как есть.
+   - Либо создайте отдельное Mini App командой `/newapp` (URL `https://lexiflow.uz/twa/`), а его short name пропишите
+     в `TELEGRAM_MINI_APP_SHORT_NAME` — ссылки станут `t.me/<бот>/<short_name>?startapp=…`.
+   - После изменения `.env`: `php artisan config:cache`.
+   Проверка: в тестовой группе выполните `/start_training 1 1` и нажмите кнопку — должно открыться мини-приложение на экране тренировки.
+3. `/setdomain` — ваш домен (для Telegram Login, если понадобится).
+4. Если бот работает в группах учебных центров — `/setjoingroups` → Enable; в группе бота делают **администратором**
    (иначе он не видит участников; приложение само пришлёт предупреждение в группу).
 
 ---
