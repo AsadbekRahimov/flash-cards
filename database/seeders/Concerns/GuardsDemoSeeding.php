@@ -16,7 +16,9 @@ trait GuardsDemoSeeding
             return true;
         }
 
-        if (isset($this->command)) {
+        // Seeder::$command is documented non-null but stays unset when a seeder is run without
+        // `db:seed` (e.g. app(DatabaseSeeder::class)->run() in tests).
+        if (isset($this->command)) { // @phpstan-ignore isset.property
             $this->command->warn(static::class.' skipped: demo seeders are disabled outside local/testing (set APP_DEMO_SEED=true to force).');
         }
 
