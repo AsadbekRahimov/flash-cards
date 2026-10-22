@@ -19,6 +19,8 @@ use App\Models\Stage;
 use App\Models\TelegramGroup;
 use App\Models\User;
 use App\Models\Word;
+use App\Models\TrainingReview;
+use App\Models\TrainingSession;
 use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Scheduling\Schedule;
@@ -450,4 +452,54 @@ it('takes no second slot when the queued job announces (its middleware has alrea
 
     expect($this->tg->sent)->toHaveCount(1)
         ->and($assignment->fresh()->announced_at)->not->toBeNull();
+});
+
+it('takes the completion moment from the first passing review in the journal, not from later repeats', function (): void {
+    $now = CarbonImmutable::now();
+    $assignment = asgMake($this, ['due_at' => $now->addDay()]);
+    $session = TrainingSession::factory()->create(['learner_id' => $this->learner->id]);
+
+    foreach ($this->words as $word) {
+        // Passed 2 hours after the assignment (before the deadline) ...
+        TrainingReview::factory()->create([
+            'training_session_id' => $session->id, 'learner_id' => $this->learner->id, 'word_id' => $word->id,
+            'quality' => 4, 'created_at' => $now->addHours(2),
+        ]);
+        // ... repeated after the deadline, before the snapshot was recomputed.
+        TrainingReview::factory()->create([
+            'training_session_id' => $session->id, 'learner_id' => $this->learner->id, 'word_id' => $word->id,
+            'quality' => 5, 'created_at' => $now->addDays(2),
+        ]);
+        asgGrade($this->learner, $word, at: $now->addDays(2));
+    }
+
+    $this->service->refreshResults($assignment, $now->addDays(3));
+
+    $row = AssignmentResult::query()->sole();
+    expect($row->completed_at->getTimestamp())->toBe($now->addHours(2)->getTimestamp())
+        ->and($row->isLate())->toBeFalse();
+    expect(ProductEvent::query()->where('name', ProductEventName::AssignmentCompleted->value)->sole()->props['late'])->toBeFalse();
+});
+
+it('marks a late completion as late when the journal itself shows the threshold passed after the deadline', function (): void {
+    $now = CarbonImmutable::now();
+    $assignment = asgMake($this, ['due_at' => $now->addDay()]);
+    $session = TrainingSession::factory()->create(['learner_id' => $this->learner->id]);
+
+    foreach ($this->words as $word) {
+        // A failed grade before the deadline does not count; the first pass is after it.
+        TrainingReview::factory()->create([
+            'training_session_id' => $session->id, 'learner_id' => $this->learner->id, 'word_id' => $word->id,
+            'quality' => 1, 'created_at' => $now->addHours(2),
+        ]);
+        TrainingReview::factory()->create([
+            'training_session_id' => $session->id, 'learner_id' => $this->learner->id, 'word_id' => $word->id,
+            'quality' => 4, 'created_at' => $now->addDays(2),
+        ]);
+        asgGrade($this->learner, $word, at: $now->addDays(2));
+    }
+
+    $this->service->refreshResults($assignment, $now->addDays(3));
+
+    expect(AssignmentResult::query()->sole()->isLate())->toBeTrue();
 });

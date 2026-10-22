@@ -6,6 +6,7 @@ namespace App\Domain\Organizations\Services;
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Learning\Services\SpacedRepetitionEngine;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Organizations\DTO\LearnerAssignment;
 use App\Domain\Organizations\Exceptions\AssignmentException;
@@ -23,6 +24,7 @@ use App\Models\Lesson;
 use App\Models\Organization;
 use App\Models\Stage;
 use App\Models\TelegramGroup;
+use App\Models\TrainingReview;
 use App\Models\User;
 use App\Models\Word;
 use App\Models\WordRepetition;
@@ -558,21 +560,40 @@ final class AssignmentService
     }
 
     /**
-     * When the threshold was first reached: the `needed`-th earliest last review among the
-     * learner's repeated words of the lesson, kept between the creation of the assignment and now.
-     * (`word_repetitions` keeps only the LAST review time; this is the closest honest estimate and
-     * never later than the refresh itself.)
+     * When the threshold was first reached: the `needed`-th earliest FIRST accepted passing grade
+     * (`quality >= PASS_QUALITY`) among the learner's currently repeated words of the lesson, read
+     * from the `training_reviews` journal (one aggregating query), so repeating words after the
+     * deadline cannot push the moment past it. A word with no passing journal row (legacy data)
+     * falls back to its `word_repetitions` last review time — a later, i.e. conservative, estimate.
+     * The result is kept between the creation of the assignment and now.
      *
      * @param  list<int>  $wordIds
      */
     private function completionMoment(Assignment $assignment, int $learnerId, array $wordIds, int $needed, CarbonImmutable $now): CarbonImmutable
     {
-        $times = WordRepetition::query()
+        /** @var array<int, int> $repeated word_id => fallback timestamp */
+        $repeated = WordRepetition::query()
             ->where('learner_id', $learnerId)
             ->whereIn('word_id', $wordIds)
             ->where('repetitions', '>=', 1)
-            ->get(['last_reviewed_at', 'updated_at'])
-            ->map(static fn (WordRepetition $r): int => ($r->last_reviewed_at ?? $r->updated_at ?? $now)->getTimestamp())
+            ->get(['word_id', 'last_reviewed_at', 'updated_at'])
+            ->mapWithKeys(static fn (WordRepetition $r): array => [$r->word_id => ($r->last_reviewed_at ?? $r->updated_at ?? $now)->getTimestamp()])
+            ->all();
+
+        $first = $repeated === [] ? collect() : TrainingReview::query()
+            ->selectRaw('word_id, MIN(created_at) as first_at')
+            ->where('learner_id', $learnerId)
+            ->whereIn('word_id', array_keys($repeated))
+            ->where('quality', '>=', SpacedRepetitionEngine::PASS_QUALITY)
+            ->groupBy('word_id')
+            ->pluck('first_at', 'word_id');
+
+        $times = collect($repeated)
+            ->map(static function (int $fallback, int $wordId) use ($first): int {
+                $firstAt = $first->get($wordId);
+
+                return is_string($firstAt) ? CarbonImmutable::parse($firstAt)->getTimestamp() : $fallback;
+            })
             ->sort()
             ->values();
 
