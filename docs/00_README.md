@@ -20,7 +20,19 @@
 | 12 | [Phase 1 Design](./12_PHASE1_DESIGN.md) | Проект Фазы 1: схема learners/курсов/подписок, миграция `students` → `learners`, домены и контракты сервисов, entitlement и Free-лимит, онбординг, безопасность, нарезка на задачи |
 | 13 | [Phase 2 Design](./13_PHASE2_DESIGN.md) | Проект Фазы 2: оплата (Telegram Stars, Payme, Click, `payment_orders`/`payments`, идемпотентность, порядок блокировок), тарифы и места центров, кабинет `/org`, задания и отчёты, рефералка/лиги/streak freeze, упражнения, FSRS, симулятор; нарезка 2A/2B/2C/2D/2R и вопросы владельцу |
 | —  | [Uzbek strings review](./I18N_UZ_REVIEW.md) | Все узбекские строки бота и TWA рядом с русскими — для проверки носителем |
+| —  | [Аудит 2026-10-22](./AUDIT_2026-10-22_RU.md) | Независимый аудит кода, безопасности и логики; статус исправлений — в PROGRESS.md |
+| —  | [VPS deploy (RU)](./VPS_DEPLOY_GUIDE_RU.md) | Запуск на VPS с нуля: PHP, PostgreSQL, Redis, nginx, supervisor, cron |
 | —  | [Local Dev (Docker)](./LOCAL_DEV_DOCKER.md) | Локальный запуск через Docker для macOS / Windows, ngrok для Telegram, Claude Code в Docker |
+
+## ⚖️ Порядок актуальности документов
+
+Документы писались в несколько фаз, и ранние формулировки местами расходятся с кодом. При противоречии верен источник выше по списку:
+
+1. **Код и тесты** + текущий контракт: `03_DATABASE`, `04_API_AND_BOT`, `05_TWA`, `07_SECURITY`, `DEVOPS_GUIDE`, `VPS_DEPLOY_GUIDE_RU`.
+2. **Принятые решения фаз**: `13_PHASE2_DESIGN` (разделы «Реализация …»), затем `12_PHASE1_DESIGN`, затем `11_SYSTEM_ANALYSIS_AND_SAAS_STRATEGY`.
+3. **Исторические документы MVP**: `01_PRD`, `02_ARCHITECTURE` (кроме ADR-8/ADR-11), `08_ROADMAP`, `09_AI_AGENTS_GUIDE`. В них остались `students` (заменено на learner-first: `learners` + `group_members`), PHP 8.2 (требуется **8.3**), `nutgram` (используется **`irazasyed/telegram-bot-sdk`** через адаптер `TelegramClient`), MySQL как вариант (поддерживается только **PostgreSQL 16**).
+
+Статусы в `PROGRESS.md`: «✅ код» = реализовано и автотесты зелёные; ручная приёмка на staging и разрешение на production отмечаются отдельно (см. `STAGING_PHASE2_CHECKLIST.md`). Аудит от 2026-10-22 и статус исправлений — `AUDIT_2026-10-22_RU.md` и `PROGRESS.md`.
 
 ## 🎯 Краткое описание
 
@@ -34,11 +46,11 @@
 
 ## 🛠️ Технический стек (сводка)
 
-- **Backend:** PHP 8.2+, Laravel 12
+- **Backend:** PHP 8.3, Laravel 12
 - **Admin:** Filament 5
-- **Database:** PostgreSQL 16 (или MySQL 8.0)
+- **Database:** PostgreSQL 16
 - **Cache/Queue:** Redis 7
-- **Bot:** Telegram Bot API (SDK: `irazasyed/telegram-bot-sdk` или `nutgram/nutgram`)
+- **Bot:** Telegram Bot API (SDK: `irazasyed/telegram-bot-sdk` за адаптером `TelegramClient`)
 - **TWA Frontend:** Vue 3 + Vite + TailwindCSS (внутри Laravel через Inertia или как SPA)
 - **TTS:** Web Speech API (primary), edge-tts как fallback через Python микросервис
 - **Deploy:** Docker Compose, Nginx, Supervisor для воркеров

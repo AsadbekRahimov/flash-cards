@@ -47,7 +47,7 @@ function orgStaff(Organization $organization, OrganizationRole $role, bool $twoF
 /** @return array<string, mixed> */
 function orgPassed(User $user): array
 {
-    return ['2fa.passed_at' => now()->timestamp, '2fa.user_id' => $user->id];
+    return ['2fa.org.passed_at' => now()->timestamp, '2fa.org.user_id' => $user->id];
 }
 
 it('redirects guests to the cabinet login', function (): void {
@@ -80,7 +80,7 @@ it('sends an owner without 2FA to the setup page and remembers where to return',
 
     $this->actingAs($owner, 'org')
         ->get('/org/'.$organization->slug.'/members')
-        ->assertRedirect(route('2fa.setup'))
+        ->assertRedirect(route('2fa.setup', ['guard' => 'org']))
         ->assertSessionHas('url.intended', url('/org/'.$organization->slug.'/members'));
 });
 
@@ -89,12 +89,12 @@ it('challenges an owner with 2FA enabled until the mark of THIS user is in the s
     $owner = orgStaff($organization, OrganizationRole::Owner, twoFactor: true);
     $other = User::factory()->create();
 
-    $this->actingAs($owner, 'org')->get('/org/'.$organization->slug)->assertRedirect(route('2fa.challenge'));
+    $this->actingAs($owner, 'org')->get('/org/'.$organization->slug)->assertRedirect(route('2fa.challenge', ['guard' => 'org']));
 
     // A mark left by another account (shared session, logged in through /admin) does not count.
-    $this->actingAs($owner, 'org')->withSession(['2fa.passed_at' => now()->timestamp, '2fa.user_id' => $other->id])
+    $this->actingAs($owner, 'org')->withSession(['2fa.org.passed_at' => now()->timestamp, '2fa.org.user_id' => $other->id])
         ->get('/org/'.$organization->slug)
-        ->assertRedirect(route('2fa.challenge'));
+        ->assertRedirect(route('2fa.challenge', ['guard' => 'org']));
 
     $this->actingAs($owner, 'org')->withSession(orgPassed($owner))
         ->get('/org/'.$organization->slug)
@@ -105,14 +105,14 @@ it('lets the 2FA challenge return the owner to the cabinet URL', function (): vo
     $organization = Organization::factory()->create();
     $owner = orgStaff($organization, OrganizationRole::Owner, twoFactor: true);
 
-    $this->actingAs($owner, 'org')->get('/org/'.$organization->slug.'/groups')->assertRedirect(route('2fa.challenge'));
+    $this->actingAs($owner, 'org')->get('/org/'.$organization->slug.'/groups')->assertRedirect(route('2fa.challenge', ['guard' => 'org']));
 
     $code = app(Google2FA::class)->getCurrentOtp((string) $owner->two_factor_secret);
 
     $this->actingAs($owner, 'org')
-        ->post(route('2fa.verify'), ['code' => $code])
+        ->post(route('2fa.verify', ['guard' => 'org']), ['code' => $code])
         ->assertRedirect(url('/org/'.$organization->slug.'/groups'))
-        ->assertSessionHas('2fa.user_id', $owner->id);
+        ->assertSessionHas('2fa.org.user_id', $owner->id);
 
     $this->get('/org/'.$organization->slug.'/groups')->assertOk();
 });
@@ -124,7 +124,7 @@ it('lets a teacher in without 2FA, but challenges a teacher who enabled it', fun
     $this->actingAs($plain, 'org')->get('/org/'.$organization->slug)->assertOk();
 
     $secured = orgStaff($organization, OrganizationRole::Teacher, twoFactor: true);
-    $this->actingAs($secured, 'org')->get('/org/'.$organization->slug)->assertRedirect(route('2fa.challenge'));
+    $this->actingAs($secured, 'org')->get('/org/'.$organization->slug)->assertRedirect(route('2fa.challenge', ['guard' => 'org']));
     $this->actingAs($secured, 'org')->withSession(orgPassed($secured))->get('/org/'.$organization->slug)->assertOk();
 });
 

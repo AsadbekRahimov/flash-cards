@@ -282,3 +282,43 @@ it('shows live scores for an active challenge and the result for a finished one'
         ->and($done->finished[0]->result)->toBe('lost')
         ->and(chSvc()->overview($a)->finished[0]->result)->toBe('won');
 });
+
+it('marks the result DMs as dispatched on close, and recovery leaves such a challenge alone', function (): void {
+    [$a, $b] = chFriends();
+    $c = chSvc()->propose($a, $b, 'reviews', now: chNow());
+    chSvc()->accept($b, $c->id, chNow());
+    chSvc()->close($c->fresh() ?? $c, chNow('2026-11-01 00:00:00'));
+
+    expect(Challenge::query()->findOrFail($c->id)->dms_dispatched_at)->not->toBeNull()
+        ->and(chSvc()->recoverUnnotified(chNow('2026-11-02 00:00:00')))->toBe(0);
+    Queue::assertPushed(SendFriendDmJob::class, fn (SendFriendDmJob $j): bool => $j->kind === 'challenge_finished', 2);
+});
+
+it('re-queues the result DMs lost between the finished claim and the queue, once', function (): void {
+    [$a, $b] = chFriends();
+    $c = chSvc()->propose($a, $b, 'reviews', now: chNow());
+    chSvc()->accept($b, $c->id, chNow());
+    chSvc()->close($c->fresh() ?? $c, chNow('2026-11-01 00:00:00'));
+
+    // The process died after the claim: finished, but nothing queued and no mark.
+    Challenge::query()->whereKey($c->id)->update(['dms_dispatched_at' => null]);
+    Queue::fake();
+
+    // Too fresh to judge: the original run may still be dispatching.
+    expect(chSvc()->recoverUnnotified(chNow('2026-11-01 00:05:00')))->toBe(0);
+    Queue::assertNothingPushed();
+
+    expect(chSvc()->recoverUnnotified(chNow('2026-11-01 00:20:00')))->toBe(1);
+    Queue::assertPushed(SendFriendDmJob::class, fn (SendFriendDmJob $j): bool => $j->kind === 'challenge_finished' && $j->id === $c->id, 2);
+
+    expect(chSvc()->recoverUnnotified(chNow('2026-11-01 01:00:00')))->toBe(0);
+    Queue::assertPushed(SendFriendDmJob::class, 2);
+});
+
+it('does not recover expired or declined challenges', function (): void {
+    [$a, $b] = chFriends();
+    $c = chSvc()->propose($a, $b, 'reviews', now: chNow());
+    Challenge::query()->whereKey($c->id)->update(['status' => 'expired', 'open_pair' => null, 'finished_at' => chNow()]);
+
+    expect(chSvc()->recoverUnnotified(chNow('2026-11-05 00:00:00')))->toBe(0);
+});

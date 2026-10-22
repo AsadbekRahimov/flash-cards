@@ -34,6 +34,7 @@ return [
     'errors' => [
         'invalid_code' => "Kod noto'g'ri. Qayta urinib ko'ring.",
         'invalid_code_or_recovery' => "Kod yoki tiklash kodi noto'g'ri.",
+        'too_many_attempts' => "Juda ko'p urinish. :seconds soniyadan keyin qayta urinib ko'ring.",
     ],
 
 ];

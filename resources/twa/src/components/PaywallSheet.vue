@@ -136,7 +136,7 @@ onBeforeUnmount(() => {
 <template>
   <div class="fixed inset-0 z-50 flex items-end justify-center bg-black/40" data-testid="paywall-backdrop" @click.self="emit('close')">
     <section
-      class="w-full max-w-xl rounded-t-3xl p-5 space-y-4 max-h-[90vh] overflow-y-auto outline-none"
+      class="w-full max-w-xl rounded-t-3xl p-5 space-y-4 max-h-[90vh] overflow-y-auto outline-hidden"
       style="background: var(--tg-bg)"
       ref="sheet"
       tabindex="-1"

@@ -10,8 +10,10 @@ declare(strict_types=1);
  */
 
 use App\Domain\Billing\Services\EntitlementResolver;
+use App\Domain\Learning\Services\LeaderboardBuilder;
 use App\Domain\Learning\Services\MockExamService;
 use App\Models\Course;
+use App\Models\ExamAnswer;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
 use App\Models\Learner;
@@ -19,6 +21,7 @@ use App\Models\Lesson;
 use App\Models\ProductEvent;
 use App\Models\Stage;
 use App\Models\Subscription;
+use App\Models\TelegramGroup;
 use App\Models\Word;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Support\Facades\Cache;
@@ -152,4 +155,37 @@ it('finalizes a mock once when several requests race for it', function (): void 
         ->and(array_unique(array_column($results, 'result')))->toBe(['closed'])
         ->and(ExamResult::query()->where('exam_session_id', $sessionId)->count())->toBe(0)
         ->and(ProductEvent::query()->where('name', 'exam.mock_finished')->count())->toBe(1);
+});
+
+it('rebuilds the leaderboard without duplicates when several builds race for one exam', function (): void {
+    $group = TelegramGroup::factory()->create(['status' => 'active']);
+    $lesson = Lesson::factory()->for(Stage::factory()->create())->create();
+    $session = ExamSession::factory()->withQuestions(4)->create([
+        'telegram_group_id' => $group->id,
+        'lesson_id' => $lesson->id,
+        'status' => 'closed',
+        'started_at' => now()->subMinutes(5),
+        'ends_at' => now()->subMinute(),
+    ]);
+    $word = Word::factory()->for($lesson)->create();
+    $sessionId = (int) $session->id;
+
+    foreach (range(1, 5) as $i) {
+        $learner = Learner::factory()->memberOf($group)->create();
+        ExamAnswer::query()->insert([
+            'exam_session_id' => $sessionId, 'learner_id' => $learner->id, 'word_id' => $word->id,
+            'selected_translation' => 'x', 'is_correct' => true, 'score' => 10 * $i,
+            'time_spent_ms' => 1000, 'answered_at' => now(),
+        ]);
+    }
+
+    $results = mockRaceRun(array_fill(0, 4, function () use ($sessionId): int {
+        return app(LeaderboardBuilder::class)->build(ExamSession::query()->findOrFail($sessionId))->count();
+    }));
+
+    $errors = array_column(array_filter($results, fn (array $r): bool => ! $r['ok']), 'error');
+    expect($errors)->toBe([])
+        ->and(array_unique(array_column($results, 'result')))->toBe([5])
+        ->and(ExamResult::query()->where('exam_session_id', $sessionId)->count())->toBe(5)
+        ->and(ExamResult::query()->where('exam_session_id', $sessionId)->pluck('rank')->sort()->values()->all())->toBe([1, 2, 3, 4, 5]);
 });

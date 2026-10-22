@@ -8,10 +8,12 @@ use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Learning\Exceptions\TrainingSessionException;
+use App\Domain\Learning\Services\TeacherAuthority;
 use App\Domain\Learning\Services\TrainingSessionService;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Domain\Telegram\Services\GroupSessionAnnouncer;
 use App\Models\Lesson;
 use App\Models\TelegramGroup;
 use App\Models\TrainingSession;
@@ -42,7 +44,9 @@ final class StartTrainingHandler implements UpdateHandler
         private readonly TrainingSessionService $trainingService,
         private readonly ProductEventRecorder $events,
         private readonly LocaleResolver $locales,
+        private readonly GroupSessionAnnouncer $announcer,
         private readonly CourseCatalogService $catalog,
+        private readonly TeacherAuthority $authority,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -97,6 +101,13 @@ final class StartTrainingHandler implements UpdateHandler
         $args = $this->parseArgs($text);
 
         if ($args === null) {
+            // The picker is a menu of actions: show it to the group's teachers only.
+            if (! $this->authority->canTeach($teacher, $group)) {
+                $this->telegram->sendMessage($chatId, __('errors.training.not_teacher', [], $locale));
+
+                return;
+            }
+
             $this->sendLessonPicker($chatId, $group, $locale);
 
             return;
@@ -187,13 +198,19 @@ final class StartTrainingHandler implements UpdateHandler
     private function postWebAppButton(int $chatId, TrainingSession $session, int $stage, int $lesson, string $locale): void
     {
         $base = rtrim((string) config('twa.base_url'), '/');
-        $url = "{$base}/twa/training/{$session->id}";
 
-        $this->telegram->sendWebAppButton(
+        $this->announcer->announce(
             chatId: $chatId,
             text: __('training.started', ['stage' => $stage, 'lesson' => $lesson], $locale),
             buttonText: __('training.open_button', [], $locale),
-            url: $url,
+            url: "{$base}/twa/training/{$session->id}",
+            failureText: __('errors.training.not_delivered', [], $locale),
+            // A reused session was already announced earlier: only a freshly created one is withdrawn.
+            cancel: function () use ($session): void {
+                if ($session->wasRecentlyCreated) {
+                    $this->trainingService->cancelUndelivered($session);
+                }
+            },
         );
     }
 }

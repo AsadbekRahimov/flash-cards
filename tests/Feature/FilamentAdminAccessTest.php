@@ -22,7 +22,7 @@ it('allows admin users to reach /admin when 2FA is confirmed', function (): void
     $admin->assignRole('admin');
 
     $this->actingAs($admin)
-        ->withSession(['2fa.passed_at' => now()->timestamp])
+        ->withSession(['2fa.web.passed_at' => now()->timestamp, '2fa.web.user_id' => auth()->id()])
         ->get('/admin')
         ->assertOk();
 });

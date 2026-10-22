@@ -41,6 +41,9 @@ final class FakeTelegramClient implements TelegramClient
     /** What getChatMemberStatus answers (the bot's own status in the group for the admin check). */
     public string $chatMemberStatus = 'administrator';
 
+    /** @var list<int|string> chats that got a web-app button with `immediate: true` (never deferred) */
+    public array $immediateButtons = [];
+
     /** When true, getChatMemberStatus throws like a Bot API outage / 4xx. */
     public bool $failChatMember = false;
 
@@ -84,10 +87,13 @@ final class FakeTelegramClient implements TelegramClient
         $this->sent[] = ['chat_id' => $chatId, 'text' => $text, 'button' => null, 'url' => null, 'markup' => $replyMarkup];
     }
 
-    public function sendWebAppButton(int|string $chatId, string $text, string $buttonText, string $url, ?string $parseMode = null): void
+    public function sendWebAppButton(int|string $chatId, string $text, string $buttonText, string $url, ?string $parseMode = null, bool $immediate = false): void
     {
         $this->failNextSend();
         $this->sent[] = ['chat_id' => $chatId, 'text' => $text, 'button' => $buttonText, 'url' => $url, 'markup' => null];
+        if ($immediate) {
+            $this->immediateButtons[] = $chatId;
+        }
     }
 
     public function sendPhoto(int|string $chatId, string $photoPath, ?string $caption = null, ?array $replyMarkup = null): void

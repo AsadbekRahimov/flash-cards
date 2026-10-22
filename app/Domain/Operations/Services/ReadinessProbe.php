@@ -24,6 +24,7 @@ final class ReadinessProbe
         private readonly RedisFactory $redis,
         private readonly QueueManager $queues,
         private readonly SchedulerHeartbeat $heartbeat,
+        private readonly QueueHeartbeat $queueHeartbeat,
     ) {}
 
     public function run(): ReadinessReport
@@ -35,6 +36,11 @@ final class ReadinessProbe
         $redisConnections = $this->redisConnections();
         if ($redisConnections !== []) {
             $checks['redis'] = $this->guard('redis', fn (): bool => $this->checkRedis($redisConnections));
+        }
+
+        // A group-chat Mini App link cannot be built without the bot username: production must have it.
+        if (app()->isProduction()) {
+            $checks['config'] = $this->guard('config', $this->checkConfig(...));
         }
 
         $checks['scheduler'] = $this->guard('scheduler', $this->checkScheduler(...));
@@ -89,6 +95,11 @@ final class ReadinessProbe
         return true;
     }
 
+    private function checkConfig(): bool
+    {
+        return trim((string) config('telegram.bot_username')) !== '';
+    }
+
     private function checkScheduler(): bool
     {
         $lastBeat = $this->heartbeat->lastBeatAt();
@@ -112,6 +123,37 @@ final class ReadinessProbe
 
         foreach ($queues as $queue) {
             if ($this->queues->size($queue) > $threshold) {
+                return false;
+            }
+        }
+
+        return $this->checkWorkerHeartbeats();
+    }
+
+    /**
+     * A worker must have processed the heartbeat job of each monitored queue recently.
+     * Not applicable to sync/null drivers: there is no worker process to watch.
+     */
+    private function checkWorkerHeartbeats(): bool
+    {
+        $connection = (string) config('queue.default');
+        if (in_array(config("queue.connections.{$connection}.driver"), ['sync', 'null'], true)) {
+            return true;
+        }
+
+        $maxAge = max(1, (int) config('operations.readiness.queue_heartbeat_max_age_seconds', 300));
+        $oldest = CarbonImmutable::now()->subSeconds($maxAge);
+
+        $queues = array_filter(
+            (array) config('operations.readiness.heartbeat_queues', []),
+            'is_string',
+        );
+
+        foreach ($queues as $queue) {
+            $lastBeat = $this->queueHeartbeat->lastBeatAt($queue);
+            if ($lastBeat === null || $lastBeat->lessThan($oldest)) {
+                Log::warning('readiness.queue_heartbeat_stale', ['queue' => $queue]);
+
                 return false;
             }
         }

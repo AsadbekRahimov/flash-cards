@@ -25,7 +25,22 @@ chmod 600 .env
 bash deploy.sh
 ```
 
-The script uses `git pull --ff-only`, builds `app` and `nginx`, obtains the initial Let's Encrypt certificate when needed, runs migrations before switching containers, and performs an HTTPS `/up` smoke check. Certificate renewal runs in the `certbot` service; nginx reloads certificates periodically. CI deployment requires the `SSH_PRIVATE_KEY` secret.
+Скрипт принимает SHA коммита: `bash deploy.sh <sha>` (или переменная `DEPLOY_SHA`). Он делает `git fetch origin`, `git checkout --detach <sha>` и **до сборки** проверяет, что `git rev-parse HEAD` равен запрошенному SHA, иначе завершается с кодом 1. CI передаёт `${{ github.sha }}`, поэтому выкатывается ровно тот коммит, который прошёл проверки, а не то, на что `master` указывает к моменту деплоя; job `deploy` идёт с `concurrency: production-deploy` (без отмены уже идущего деплоя). Деплой по SHA разрешён только вперёд (`git merge-base --is-ancestor HEAD <sha>`), назад — только с `--rollback`. Без SHA скрипт делает `git fetch origin && git checkout --detach origin/${DEPLOY_BRANCH:-master}` (не `git pull`, который ломается в detached HEAD после отката) и печатает предупреждение. Образы в registry не публикуются: собираются на сервере из этого SHA.
+
+Дальше: сборка `app` и `nginx`, первичный сертификат Let's Encrypt при необходимости, миграции до переключения контейнеров, запуск стека и smoke-проверка: `/up`, затем ожидание `/health/ready` (до ~5 минут: нужны пульсы планировщика и воркеров), затем `/twa/index.html` и `/build/manifest.json`. Любой провал = `exit 1` с сообщением и подсказкой про откат. Сертификат обновляет сервис `certbot`; nginx периодически перечитывает сертификаты. Для CI нужен секрет `SSH_PRIVATE_KEY`.
+
+Воркеры очереди в `docker-compose.prod.yml` разделены: `queue-high` (`--queue=high`) и `queue-default` (`--queue=default,low`), `scheduler` отдельно.
+
+### Откат
+
+Откатываем код на предыдущий проверенный SHA (смотрите `git log` или предыдущий успешный запуск Actions):
+
+```bash
+cd /var/www/lexiflow
+bash deploy.sh --rollback <prev_sha>   # или ROLLBACK=1 bash deploy.sh <prev_sha>
+```
+
+Без `--rollback` обычный деплой по SHA идёт только вперёд: если `HEAD` не является предком указанного SHA (например, запуск Actions для старого коммита закончился позже нового), скрипт печатает «SHA ... older than the current HEAD: skipping» и завершается с кодом 0. Флаг `--rollback` пропускает эту проверку. Скрипт заново чекаутит коммит, пересобирает образы, перезапускает стек и прогоняет те же smoke-проверки. Миграции автоматически **не** откатываются, поэтому каждая миграция должна быть обратно совместимой со старым кодом (expand/contract): в релизе N только добавляем (столбцы nullable/с default, новые таблицы, индексы), в релизе N+1 или позже, когда старый код уже не нужен, удаляем/переименовываем. Миграции с `--skip-migrate` для отката не нужны, но и не мешают. Если откат невозможен из-за уже применённой несовместимой миграции — чините вперёд новой миграцией, а не `migrate:rollback` в продакшене.
 
 ---
 
@@ -112,6 +127,8 @@ QUEUE_CONNECTION=redis
 TELEGRAM_QUEUE=high
 
 TELEGRAM_BOT_TOKEN=your_bot_token_from_BotFather
+TELEGRAM_BOT_USERNAME=YourBot   # without @; required: group chats get Mini App direct links t.me/<bot>?startapp=...
+TELEGRAM_MINI_APP_SHORT_NAME=   # /newapp short name; empty = Main Mini App (BotFather -> Configure Mini App -> https://yourdomain.com/twa/)
 TELEGRAM_URL_SECRET=    # openssl rand -hex 24
 TELEGRAM_HEADER_SECRET= # openssl rand -hex 24
 TELEGRAM_WEBHOOK_URL=https://yourdomain.com
@@ -239,13 +256,36 @@ server {
 
     # TWA SPA: serve the compiled Vue app with SPA fallback
     location /twa/ {
-        gzip_static on;   # use the *.gz files created by `npm run build`
+        # Headers of the static SPA (Laravel SecurityHeaders does not run for files nginx serves itself).
+        # CSP: scripts only from self + telegram.org (telegram-web-app.js), API on the same origin,
+        # word audio from /storage/audio on the same origin (media-src), no external images/fonts.
+        # frame-ancestors is deliberately NOT 'self': Telegram Web (web.telegram.org) embeds the Mini App
+        # in an iframe, 'self' would blank it. Native clients use a WebView and ignore frame-ancestors.
+        # add_header in a nested location replaces every inherited one, so each block repeats them all.
+        gzip_static on;   # serve the *.gz files created by `npm run build` (precompress.mjs); others get on-the-fly gzip
+
         try_files $uri $uri/ /twa/index.html;
-        location ~* /twa/assets/ {
-            add_header Cache-Control "public, max-age=31536000, immutable";
-        }
+
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self' https://telegram.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob: data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors https://web.telegram.org https://*.telegram.org" always;
+        add_header Strict-Transport-Security "max-age=15552000; includeSubDomains" always;
+
+        # index.html must always be re-fetched to pick up new asset hashes.
         location = /twa/index.html {
             add_header Cache-Control "no-cache, no-store, must-revalidate";
+            add_header X-Content-Type-Options "nosniff" always;
+            add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+            add_header Content-Security-Policy "default-src 'self'; script-src 'self' https://telegram.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob: data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors https://web.telegram.org https://*.telegram.org" always;
+            add_header Strict-Transport-Security "max-age=15552000; includeSubDomains" always;
+        }
+        # Hashed assets can be cached forever.
+        location ~ ^/twa/assets/ {
+            add_header Cache-Control "public, max-age=31536000, immutable";
+            add_header X-Content-Type-Options "nosniff" always;
+            add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+            add_header Content-Security-Policy "default-src 'self'; script-src 'self' https://telegram.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob: data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors https://web.telegram.org https://*.telegram.org" always;
+            add_header Strict-Transport-Security "max-age=15552000; includeSubDomains" always;
         }
     }
 
@@ -344,24 +384,43 @@ certbot renew --dry-run
 Create `/etc/supervisor/conf.d/lexiflow.conf`:
 
 ```ini
-[program:lexiflow-worker]
+[program:lexiflow-worker-high]
 process_name=%(program_name)s_%(process_num)02d
 ; Use the absolute path to the PHP binary (find yours with `which php`).
 ; Avoids issues when www-data has a minimal PATH.
-command=/usr/bin/php /var/www/lexiflow/artisan queue:work redis --queue=high,default,low --tries=3 --timeout=120 --sleep=1 --max-time=3600
+command=/usr/bin/php /var/www/lexiflow/artisan queue:work redis --queue=high --tries=3 --timeout=120 --sleep=1 --max-time=3600
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+numprocs=1
+redirect_stderr=true
+stdout_logfile=/var/www/lexiflow/storage/logs/worker-high.log
+stdout_logfile_maxbytes=10MB
+stdout_logfile_backups=3
+user=www-data
+
+[program:lexiflow-worker-default]
+process_name=%(program_name)s_%(process_num)02d
+command=/usr/bin/php /var/www/lexiflow/artisan queue:work redis --queue=default,low --tries=3 --timeout=120 --sleep=1 --max-time=3600
 autostart=true
 autorestart=true
 stopasgroup=true
 killasgroup=true
 numprocs=2
 redirect_stderr=true
-stdout_logfile=/var/www/lexiflow/storage/logs/worker.log
+stdout_logfile=/var/www/lexiflow/storage/logs/worker-default.log
 stdout_logfile_maxbytes=10MB
 stdout_logfile_backups=3
 user=www-data
+
+[group:lexiflow-worker]
+programs=lexiflow-worker-high,lexiflow-worker-default
 ```
 
-Pre-generated word audio (`PregenerateWordAudioJob`, see below) runs on the `low` queue, which the `--queue=high,default,low` list above already includes (the Docker `queue` service uses the same list). The job retries 5 times with backoff 30s / 2m / 10m / 30m.
+Два пула: `high` (ответы бота, платежи) не стоит в очереди за bulk-задачами `default`/`low`. Группа `lexiflow-worker` сохраняет команды `supervisorctl ... lexiflow-worker:*`.
+
+Pre-generated word audio (`PregenerateWordAudioJob`, see below) runs on the `low` queue, served by `lexiflow-worker-default` (`--queue=default,low`; in Docker the `queue-default` service). The job retries 5 times with backoff 30s / 2m / 10m / 30m.
 
 For bigger classes, increase `numprocs` before adding app containers. With Redis queue and the current DB indexes, 2-3 workers are enough for roughly 300 active students/day unless Telegram API latency dominates.
 
@@ -388,7 +447,7 @@ php artisan audio:pregenerate <course-slug> --force  # re-synthesize existing fi
 
 - Files: `storage/app/public/audio/{sha1(text|voice|version)}.mp3` (public disk), `words.audio_path` holds the relative path. Same text in several words/courses = one file. Writes are atomic: the body goes to `audio/.tmp/{name}.{random}` and is renamed onto the final name; an empty or truncated file counts as "not generated" and is rebuilt. Changing `TTS_VOICE` or `TTS_AUDIO_VERSION` produces new file names on its own, so run the command **without** `--force` after that (`--force` is only for replacing the contents of files that already exist, e.g. a bad batch); old files stay on disk (delete `storage/app/public/audio` and re-run the command to clean up). Editing a word's English text in the admin panel clears its `audio_path` and queues a new job.
 - The `tts` container must be reachable from the queue worker. If it is down, jobs retry and then land in `failed_jobs` (`php artisan queue:retry all` when it is back); the rest of the batch is not affected, learners just keep getting Web Speech / live `/api/twa/tts` (503 `tts_unavailable` when the TTS service is down or unreachable).
-- Serving: nginx `location ^~ /storage/audio/` (see `docker/nginx/*.conf`) reads `storage/app/public/audio` directly and denies dotfiles (`.tmp/`). In `docker-compose.prod.yml` the audio lives in its own named volume `app_audio`, mounted at `/var/www/html/storage/app/public/audio` in `app`, `queue` and `scheduler` (read-write) and **only** that volume, read-only, in `nginx`: logs, sessions and other `storage/` contents are not visible to nginx. `php artisan storage:link` is not required for the audio, but the card `audio_url` is built from `APP_URL` + `/storage/...`, so `APP_URL` must be the public https origin.
+- Serving: nginx `location ^~ /storage/audio/` (see `docker/nginx/*.conf`) reads `storage/app/public/audio` directly and denies dotfiles (`.tmp/`). In `docker-compose.prod.yml` the audio lives in its own named volume `app_audio`, mounted at `/var/www/html/storage/app/public/audio` in `app`, `queue-high`, `queue-default` and `scheduler` (read-write) and **only** that volume, read-only, in `nginx`: logs, sessions and other `storage/` contents are not visible to nginx. `php artisan storage:link` is not required for the audio, but the card `audio_url` is built from `APP_URL` + `/storage/...`, so `APP_URL` must be the public https origin.
 - Deploying this volume layout onto an existing install (audio already generated into `app_storage`): the first `docker compose -f docker-compose.prod.yml up -d` creates an empty `app_audio`, so existing mp3 files are not served until you copy them over (or just re-run `audio:pregenerate`, which re-creates them; until then learners get the live `/api/twa/tts`). To keep them (the old files are in the `app_storage` volume under `app/public/audio/`, which the new mount shadows, so copy from a throw-away container; if `app_audio` does not exist yet, `docker volume create <project>_app_audio` first):
 
   ```bash
@@ -458,7 +517,7 @@ curl "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getWebhookInfo"
 Run these checks after every deployment:
 
 ```bash
-# 1. Laravel health check + dependency readiness (DB, Redis, scheduler, queues)
+# 1. Laravel health check + dependency readiness (DB, Redis, scheduler, queue workers)
 curl -sf https://yourdomain.com/up && echo "OK"
 curl -sf https://yourdomain.com/health/ready && echo "READY"
 
@@ -498,7 +557,7 @@ cd /var/www/lexiflow
 
 # Pull latest code
 git fetch origin
-git pull origin master
+git checkout --detach origin/master   # не git pull: после отката HEAD detached
 
 # Install new dependencies (if composer.json changed)
 composer install --no-dev --optimize-autoloader --no-interaction
@@ -517,7 +576,7 @@ php artisan route:cache
 php artisan view:cache
 php artisan event:cache
 
-# Restart queue workers to pick up new code
+# Restart queue workers to pick up new code (both pools: lexiflow-worker-high / -default)
 supervisorctl restart lexiflow-worker:*
 
 # Reload nginx
@@ -621,7 +680,7 @@ an external uptime monitor (UptimeRobot / Better Stack / GlitchTip uptime) and f
 | `db` | `select 1` throws |
 | `redis` | `PING` fails (only reported if cache or queue use the `redis` driver) |
 | `scheduler` | no scheduler heartbeat for more than 3 minutes (`READINESS_HEARTBEAT_MAX_AGE`, seconds) |
-| `queue` | backlog of the `high` (`TELEGRAM_QUEUE`) or `default` queue exceeds `READINESS_QUEUE_MAX_SIZE` (1000) |
+| `queue` | backlog of the `high` (`TELEGRAM_QUEUE`) or `default` queue exceeds `READINESS_QUEUE_MAX_SIZE` (1000), **or** the worker heartbeat of `high` / `low` is missing or older than 5 minutes (`READINESS_QUEUE_HEARTBEAT_MAX_AGE`, seconds; not checked with the `sync`/`null` driver) |
 
 Response: `200 {"status":"ok","checks":{"db":"ok",...}}` or `503 {"status":"fail","checks":{"db":"fail",...}}`.
 Only `ok`/`fail` is returned; error details, hosts and versions are written to the application log
@@ -629,6 +688,8 @@ Only `ok`/`fail` is returned; error details, hosts and versions are written to t
 
 The scheduler heartbeat is written by a scheduled callback (`ops:scheduler-heartbeat`, every minute, see
 `routes/console.php`) into the cache. After the very first deploy the check turns green within a minute.
+
+Worker heartbeat: every minute the scheduler dispatches `QueueHeartbeatJob` to the `high` and `low` queues (`operations.readiness.heartbeat_queues`; unique per queue, so a dead worker does not accumulate jobs). A worker that really consumes the queue writes `queue:heartbeat:{queue}` to the cache; a stale value means workers are stopped or the queue is stuck behind a backlog. The age of the oldest ready job is deliberately not measured: the heartbeat job sits at the tail of the queue, so a long backlog already shows up as a stale heartbeat, and reading Redis payloads would add driver-specific code.
 
 ### 15.3 What to monitor and alert on
 
@@ -875,6 +936,7 @@ chmod 600 .env
 | `SENTRY_SEND_DEFAULT_PII` | keep | `false` |
 | `READINESS_HEARTBEAT_MAX_AGE` | optional | `180` (seconds) |
 | `READINESS_QUEUE_MAX_SIZE` | optional | `1000` |
+| `READINESS_QUEUE_HEARTBEAT_MAX_AGE` | optional | `300` |
 | `REDIS_QUEUE_RETRY_AFTER` | recommended | `180` (must be above the workers' `--timeout`, 120) |
 | `LEARNERS_DEFAULT_TIMEZONE` / `LEARNERS_DEFAULT_REMINDER_TIME` / `LEARNERS_DEFAULT_DAILY_GOAL` | optional | `Asia/Tashkent` / `19:00` / `20` |
 | `LEARNING_SESSION_TTL_HOURS` / `LEARNING_GROUP_SESSION_TTL_HOURS` | optional | `12` / `24` |

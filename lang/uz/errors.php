@@ -14,6 +14,7 @@ return [
     'training' => [
         'not_teacher' => "Mashg'ulotni faqat shu guruhning o'qituvchisi boshlay oladi.",
         'failed' => "Mashg'ulotni boshlab bo'lmadi.",
+        'not_delivered' => "Tugmani guruhga yuborib bo'lmadi: mashg'ulot bekor qilindi. Bot guruhda ekanini va yoza olishini tekshiring, so'ng buyruqni takrorlang.",
     ],
 
     'exam' => [
@@ -23,6 +24,7 @@ return [
         'already_open' => 'Guruhda imtihon allaqachon davom etmoqda. Uni /close_exam orqali yakunlang.',
         'invalid_duration' => "Imtihon davomiyligi 1 daqiqadan 30 daqiqagacha bo'lishi kerak.",
         'failed' => "Imtihonni boshlab bo'lmadi.",
+        'not_delivered' => "Tugmani guruhga yuborib bo'lmadi: imtihon bekor qilindi. Bot guruhda ekanini va yoza olishini tekshiring, so'ng buyruqni takrorlang.",
         'close_not_teacher' => "Imtihonni faqat shu guruhning o'qituvchisi yopishi mumkin.",
         'no_open_exam' => "Hozir guruhda ochiq imtihon yo'q.",
         'close_failed' => "Imtihonni yopib bo'lmadi.",

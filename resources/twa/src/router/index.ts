@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import { installStartParamRedirect } from './startParam'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -99,5 +100,8 @@ const router = createRouter({
   history: createWebHistory('/twa/'),
   routes,
 })
+
+// Direct links from group chats (`t.me/bot?startapp=…`) carry the target screen in `start_param`.
+installStartParamRedirect(router)
 
 export default router

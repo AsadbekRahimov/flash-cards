@@ -18,6 +18,12 @@ return [
     'name' => env('APP_NAME', 'Laravel'),
 
     /*
+     | Demo seeders (admin@local / known password, fake data) run only in local/testing
+     | unless this is true. Keep false on any shared / production environment.
+     */
+    'demo_seed' => (bool) env('APP_DEMO_SEED', false),
+
+    /*
     |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------

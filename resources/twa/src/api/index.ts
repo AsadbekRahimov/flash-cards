@@ -53,7 +53,14 @@ function client() {
   clientInstance = createApiClient({
     getToken: () => auth.token,
     onUnauthorized: async () => {
-      await auth.login().catch(() => {})
+      try {
+        await auth.login()
+      } catch {
+        // Drop the dead token so the next call starts a fresh login.
+        auth.token = ''
+        auth.expiresAt = 0
+        return ''
+      }
       return auth.token
     },
   })

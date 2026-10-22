@@ -9,13 +9,13 @@ use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Learning\Exceptions\ExamSessionException;
 use App\Domain\Learning\Services\ExamSessionService;
 use App\Domain\Learning\Services\LeaderboardBuilder;
+use App\Domain\Learning\Services\TeacherAuthority;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
 use App\Jobs\PostLeaderboardJob;
 use App\Models\TelegramGroup;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Handles `/close_exam` in a group — a teacher manually finalizes the
@@ -29,6 +29,7 @@ final class CloseExamHandler implements UpdateHandler
         private readonly LeaderboardBuilder $leaderboard,
         private readonly ProductEventRecorder $events,
         private readonly LocaleResolver $locales,
+        private readonly TeacherAuthority $authority,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -79,12 +80,7 @@ final class CloseExamHandler implements UpdateHandler
             return;
         }
 
-        $teaches = DB::table('teacher_groups')
-            ->where('user_id', $teacher->id)
-            ->where('telegram_group_id', $group->id)
-            ->exists();
-
-        if (! $teaches) {
+        if (! $this->authority->canTeach($teacher, $group)) {
             $this->telegram->sendMessage($chatId, __('errors.exam.close_not_teacher', [], $locale));
 
             return;

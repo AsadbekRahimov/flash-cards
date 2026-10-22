@@ -44,6 +44,9 @@ class TrainingSession extends Model
     /** `done_reason`: closed by the scheduler (`expires_at` / group TTL) or superseded on re-open. */
     public const DONE_EXPIRED = 'expired';
 
+    /** `done_reason`: a group session withdrawn because its Mini App button could not be delivered. */
+    public const DONE_CANCELLED = 'cancelled';
+
     /** @var list<string> */
     protected $fillable = [
         'telegram_group_id',

@@ -37,7 +37,10 @@ use LogicException;
  */
 final class TrainingSessionService
 {
-    public function __construct(private readonly CourseCatalogService $catalog) {}
+    public function __construct(
+        private readonly CourseCatalogService $catalog,
+        private readonly TeacherAuthority $authority,
+    ) {}
 
     /**
      * Teacher command `/start_training <stage> <lesson>`: the numbers are resolved inside the
@@ -214,6 +217,24 @@ final class TrainingSessionService
 
             return $this->summarise($locked, $wasOpen);
         });
+    }
+
+    /**
+     * Withdraws an open group session that nobody could reach (its Mini App button was not delivered):
+     * closes it as `cancelled`, without a summary. Idempotent; personal sessions are not touched.
+     */
+    public function cancelUndelivered(TrainingSession $session, ?CarbonImmutable $now = null): void
+    {
+        TrainingSession::query()
+            ->whereKey($session->id)
+            ->where('mode', TrainingSession::MODE_GROUP_LESSON)
+            ->where('status', 'open')
+            ->update([
+                'status' => 'closed',
+                'ended_at' => $now ?? CarbonImmutable::now(),
+                'done_reason' => TrainingSession::DONE_CANCELLED,
+                'updated_at' => $now ?? CarbonImmutable::now(),
+            ]);
     }
 
     /**
@@ -495,9 +516,6 @@ final class TrainingSessionService
 
     private function userTeachesGroup(User $user, TelegramGroup $group): bool
     {
-        return DB::table('teacher_groups')
-            ->where('user_id', $user->id)
-            ->where('telegram_group_id', $group->id)
-            ->exists();
+        return $this->authority->canTeach($user, $group);
     }
 }

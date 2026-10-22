@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Learning\Exceptions\ExamSessionException;
 use App\Domain\Learning\Services\ExamSessionService;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Models\ExamSession;
 use App\Models\Lesson;
@@ -262,4 +263,48 @@ it('counts only active words towards the exam minimum', function (): void {
     // The handler's text carries no number: pin the counted value (3 live words, not 9 rows) on the service.
     expect(fn () => app(ExamSessionService::class)->open($group, 1, 1, 10, $teacher))
         ->toThrow(ExamSessionException::class, 'Lesson has only 3 words');
+});
+
+it('cancels the freshly opened exam when Telegram refuses the button, so /start_exam can be repeated', function (): void {
+    seedLessonWithWords();
+    $update = [
+        'message' => [
+            'chat' => ['id' => -1001, 'type' => 'supergroup'],
+            'from' => ['id' => 777],
+            'text' => '/start_exam 1 1 2',
+        ],
+    ];
+
+    $this->api->shouldReceive('sendWebAppButton')->once()
+        ->andThrow(TelegramApiException::apiError('Bad Request: BUTTON_URL_INVALID'));
+    $this->api->shouldReceive('sendMessage')->once()
+        ->with(-1001, Mockery::pattern('/экзамен отменён/u'));
+
+    app(TelegramDispatcher::class)->dispatch($update);
+
+    expect(ExamSession::query()->where('status', 'open')->count())->toBe(0)
+        ->and(ExamSession::query()->sole()->status)->toBe('closed');
+
+    // The retry opens a new exam instead of answering "already open".
+    $this->api->shouldReceive('sendWebAppButton')->once();
+    app(TelegramDispatcher::class)->dispatch($update);
+
+    expect(ExamSession::query()->where('status', 'open')->count())->toBe(1);
+});
+
+it('keeps the exam open when the button delivery is uncertain (transport failure)', function (): void {
+    seedLessonWithWords();
+
+    $this->api->shouldReceive('sendWebAppButton')->once()->andThrow(new TelegramApiException('cURL error 28: timeout'));
+    $this->api->shouldReceive('sendMessage')->never();
+
+    app(TelegramDispatcher::class)->dispatch([
+        'message' => [
+            'chat' => ['id' => -1001, 'type' => 'supergroup'],
+            'from' => ['id' => 777],
+            'text' => '/start_exam 1 1 2',
+        ],
+    ]);
+
+    expect(ExamSession::query()->where('status', 'open')->count())->toBe(1);
 });

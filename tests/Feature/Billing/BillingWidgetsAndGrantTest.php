@@ -53,7 +53,7 @@ function ledgerRow(string $currency, int $amount, array $attributes = []): Payme
 
 // --- revenue ------------------------------------------------------------------
 
-it('counts revenue of 30 days per currency as succeeded charges minus refunded ones', function (): void {
+it('counts COHORT revenue of 30 days per currency as succeeded charges minus refunded ones', function (): void {
     // UZS (tiyin): 29 000 + 249 000 sum succeeded (one is a renewal-like second charge), 29 000 sum refunded.
     ledgerRow('UZS', 2_900_000);
     ledgerRow('UZS', 24_900_000, ['kind' => Payment::KIND_RENEWAL]);
@@ -68,19 +68,46 @@ it('counts revenue of 30 days per currency as succeeded charges minus refunded o
     ledgerRow('XTR', 777, ['occurred_at' => now()->subDays(31)]);
     ledgerRow('UZS', 5_500_000, ['occurred_at' => now()->subDays(31)]);
 
-    expect(app(BillingReportService::class)->revenueLast30Days())->toBe([
+    expect(app(BillingReportService::class)->cohortRevenueLast30Days())->toBe([
         'UZS' => ['gross' => 30_700_000, 'refunded' => 2_900_000, 'net' => 27_800_000, 'count' => 3],
         'XTR' => ['gross' => 1_450, 'refunded' => 1_300, 'net' => 150, 'count' => 2],
     ]);
 
+    app()->setLocale('en');
     $this->actingAs($this->admin);
     Livewire::test(RevenueLast30DaysWidget::class)
-        ->assertSee('Revenue UZS')
-        ->assertSee('278 000 UZS')
-        ->assertSee('Revenue XTR')
-        ->assertSee('150 XTR')
-        ->assertSee('refunded 1 300 XTR')
-        ->assertSee('refunded 29 000 UZS');
+        ->assertSee('Net cash movement UZS')
+        ->assertSee('Net cash movement XTR')
+        ->assertSee('refunds (by refund date): 1, 1 300 XTR')
+        ->assertSee('refunds (by refund date): 1, 29 000 UZS')
+        ->assertSee('cohort net (this period&#039;s charges less their refunds): 150 XTR', false)
+        ->assertSee('278 000 UZS');
+});
+
+it('reports cash flow by event date: a refund today for a purchase 40 days ago is in refunds and net cash, not in the cohort', function (): void {
+    // Old purchase (outside the window), refunded today: the charge row flips to refunded, a refund row is booked now.
+    $old = ledgerRow('UZS', 5_000_000, ['occurred_at' => now()->subDays(40), 'status' => Payment::STATUS_REFUNDED]);
+    ledgerRow('UZS', 5_000_000, ['kind' => Payment::KIND_REFUND, 'occurred_at' => now(), 'refunded_payment_id' => $old->id]);
+    // A recent purchase, not refunded; and Stars kept apart.
+    ledgerRow('UZS', 2_000_000);
+    ledgerRow('XTR', 300);
+    // Failed events and refund rows older than the window do not count.
+    ledgerRow('UZS', 9_900_000, ['status' => Payment::STATUS_FAILED]);
+    ledgerRow('UZS', 1_000_000, ['kind' => Payment::KIND_REFUND, 'occurred_at' => now()->subDays(45)]);
+
+    $report = app(BillingReportService::class);
+
+    expect($report->cashFlowLast30Days())->toBe([
+        'UZS' => ['gross' => 2_000_000, 'refunds' => 5_000_000, 'net' => -3_000_000, 'charge_count' => 1, 'refund_count' => 1],
+        'XTR' => ['gross' => 300, 'refunds' => 0, 'net' => 300, 'charge_count' => 1, 'refund_count' => 0],
+    ])->and($report->cohortRevenueLast30Days())->toBe([
+        'UZS' => ['gross' => 2_000_000, 'refunded' => 0, 'net' => 2_000_000, 'count' => 1],
+        'XTR' => ['gross' => 300, 'refunded' => 0, 'net' => 300, 'count' => 1],
+    ]);
+
+    app()->setLocale('en');
+    $this->actingAs($this->admin);
+    Livewire::test(RevenueLast30DaysWidget::class)->assertSee('-30 000 UZS')->assertSee('300 XTR');
 });
 
 it('shows zero revenue in both currencies when there are no payments', function (): void {
@@ -93,7 +120,7 @@ it('keeps the window boundary: a charge exactly 30 days old still counts, 30 day
     ledgerRow('XTR', 100, ['occurred_at' => now()->subDays(30)]);
     ledgerRow('XTR', 200, ['occurred_at' => now()->subDays(30)->subSecond()]);
 
-    expect(app(BillingReportService::class)->revenueLast30Days()['XTR']['net'])->toBe(100);
+    expect(app(BillingReportService::class)->cohortRevenueLast30Days()['XTR']['net'])->toBe(100);
 });
 
 // --- webhook errors --------------------------------------------------------------

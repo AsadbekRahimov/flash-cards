@@ -10,11 +10,14 @@ use App\Models\Lesson;
 use App\Models\Stage;
 use App\Models\Word;
 use App\Models\WordTranslation;
+use Database\Seeders\Concerns\GuardsDemoSeeding;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class DemoContentSeeder extends Seeder
 {
+    use GuardsDemoSeeding;
+
     /** @var array<int, array<int, array<int, array{word:string,translation:string,pos:string}>>> */
     private const CONTENT = [
         1 => [ // Stage 1 — Beginner
@@ -157,6 +160,10 @@ class DemoContentSeeder extends Seeder
 
     public function run(): void
     {
+        if (! $this->demoSeedingAllowed()) {
+            return;
+        }
+
         DB::transaction(function (): void {
             $course = app(CourseCatalogService::class)->defaultCourse();
 

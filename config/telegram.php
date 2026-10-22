@@ -6,6 +6,10 @@ return [
     'bot_token' => env('TELEGRAM_BOT_TOKEN', ''),
     'bot_username' => env('TELEGRAM_BOT_USERNAME', ''),
 
+    // Short name of a Mini App created in BotFather (/newapp). Empty = the bot's Main Mini App.
+    // Group chats cannot show `web_app` buttons, so they get `https://t.me/{bot}[/{short_name}]?startapp=...`.
+    'mini_app_short_name' => env('TELEGRAM_MINI_APP_SHORT_NAME', ''),
+
     'url_secret' => env('TELEGRAM_URL_SECRET', ''),
     'header_secret' => env('TELEGRAM_HEADER_SECRET', ''),
 

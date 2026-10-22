@@ -7,6 +7,7 @@ use App\Models\Course;
 use App\Models\Learner;
 use App\Models\Stage;
 use App\Models\TelegramGroup;
+use App\Models\User;
 use App\Models\Word;
 use App\Models\WordRepetition;
 use App\Models\WordTranslation;
@@ -15,6 +16,7 @@ use Database\Seeders\DemoContentSeeder;
 use Database\Seeders\DemoGroupSeeder;
 use Database\Seeders\DemoRepetitionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
 
@@ -81,4 +83,23 @@ it('seeds demo repetitions as lessons the groups already taught, so a Free demo 
     // Running the seeder again keeps the history in the past (idempotent, deterministic).
     $this->seed(DemoRepetitionsSeeder::class);
     expect(WordRepetition::query()->where('created_at', '>', now()->subDays(8))->count())->toBe(0);
+});
+
+it('skips demo seeders (no admin@local) outside local/testing but still seeds roles', function (): void {
+    app()->detectEnvironment(fn (): string => 'production');
+    config(['app.demo_seed' => false]);
+
+    app(DatabaseSeeder::class)->run();
+
+    expect(User::query()->where('email', 'admin@local')->exists())->toBeFalse()
+        ->and(Role::query()->where('name', 'admin')->exists())->toBeTrue();
+});
+
+it('runs demo seeders in production only with APP_DEMO_SEED=true', function (): void {
+    app()->detectEnvironment(fn (): string => 'production');
+    config(['app.demo_seed' => true]);
+
+    app(DatabaseSeeder::class)->run();
+
+    expect(User::query()->where('email', 'admin@local')->exists())->toBeTrue();
 });

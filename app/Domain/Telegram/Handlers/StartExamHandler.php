@@ -11,6 +11,7 @@ use App\Domain\Learning\Services\ExamSessionService;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Domain\Telegram\Services\GroupSessionAnnouncer;
 use App\Models\ExamSession;
 use App\Models\TelegramGroup;
 use App\Models\User;
@@ -27,6 +28,7 @@ final class StartExamHandler implements UpdateHandler
         private readonly ExamSessionService $exams,
         private readonly ProductEventRecorder $events,
         private readonly LocaleResolver $locales,
+        private readonly GroupSessionAnnouncer $announcer,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -145,13 +147,14 @@ final class StartExamHandler implements UpdateHandler
         string $locale,
     ): void {
         $base = rtrim((string) config('twa.base_url'), '/');
-        $url = "{$base}/twa/exam/{$session->id}";
 
-        $this->telegram->sendWebAppButton(
+        $this->announcer->announce(
             chatId: $chatId,
             text: __('exam.started', ['stage' => $stage, 'lesson' => $lesson, 'minutes' => $minutes], $locale),
             buttonText: __('exam.open_button', [], $locale),
-            url: $url,
+            url: "{$base}/twa/exam/{$session->id}",
+            failureText: __('errors.exam.not_delivered', [], $locale),
+            cancel: fn () => $this->exams->cancelUndelivered($session),
             parseMode: 'HTML',
         );
     }

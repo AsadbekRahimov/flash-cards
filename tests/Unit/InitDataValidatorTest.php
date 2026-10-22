@@ -117,3 +117,16 @@ it('preserves special characters inside the user JSON during signing and validat
         ->and($result['user']['first_name'])->toBe('Алёна')
         ->and($result['user']['username'])->toBe('user.with.dots');
 });
+
+it('accepts initData of a direct link: start_param is part of the signed data', function (): void {
+    $startParam = 'L3RyYWluaW5nLzE1';
+    $initData = buildInitData(['start_param' => $startParam, 'chat_type' => 'supergroup', 'chat_instance' => '-123456']);
+
+    $result = (new InitDataValidator(BOT_TOKEN))->validate($initData);
+
+    expect($result['raw']['start_param'])->toBe($startParam);
+
+    // ...and it cannot be swapped after signing.
+    $tampered = str_replace($startParam, 'L2V4YW0vMQ', $initData);
+    expect(fn () => (new InitDataValidator(BOT_TOKEN))->validate($tampered))->toThrow(InvalidInitDataException::class);
+});

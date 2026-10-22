@@ -1,12 +1,13 @@
 import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
+import tailwindcss from '@tailwindcss/vite'
 import { fileURLToPath, URL } from 'node:url'
 
 // Vite config for the LexiFlow Telegram Web App.
 // Output is emitted to ../../public/twa so Nginx can serve it from /twa/
 // with SPA fallback (see docker/nginx/default.conf).
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [vue(), tailwindcss()],
   base: '/twa/',
   build: {
     outDir: fileURLToPath(new URL('../../public/twa', import.meta.url)),

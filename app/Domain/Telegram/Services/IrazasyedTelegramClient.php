@@ -10,6 +10,7 @@ use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Jobs\SendTelegramMessageJob;
 use Closure;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Telegram\Bot\Api;
 use Telegram\Bot\Exceptions\TelegramResponseException;
 use Telegram\Bot\FileUpload\InputFile;
@@ -23,6 +24,7 @@ class IrazasyedTelegramClient implements TelegramClient
         private readonly Api $api,
         private readonly TelegramKeyboardFactory $keyboards,
         private readonly TelegramMessageRateLimiter $rateLimiter,
+        private readonly MiniAppLinks $miniApp = new MiniAppLinks,
     ) {}
 
     /**
@@ -77,19 +79,39 @@ class IrazasyedTelegramClient implements TelegramClient
         $this->call(fn () => $this->api->sendMessage($params), mapForbidden: true);
     }
 
+    /**
+     * `web_app` buttons are allowed by the Bot API only in a private chat; anywhere else (groups,
+     * supergroups, channels) the button is a plain URL to the Mini App direct link.
+     */
     public function sendWebAppButton(
         int|string $chatId,
         string $text,
         string $buttonText,
         string $url,
         ?string $parseMode = null,
+        bool $immediate = false,
     ): void {
-        $this->sendMessage(
-            chatId: $chatId,
-            text: $text,
-            parseMode: $parseMode,
-            replyMarkup: $this->keyboards->webAppButton($buttonText, $url),
-        );
+        $replyMarkup = $this->miniApp->isPrivateChat($chatId)
+            ? $this->keyboards->webAppButton($buttonText, $url)
+            : $this->keyboards->urlButton($buttonText, $this->groupLink($url));
+
+        // `$immediate`: the caller must see the Bot API refusal itself, not a deferred queue job's.
+        $immediate
+            ? $this->sendImmediately($chatId, $text, $parseMode, $replyMarkup)
+            : $this->sendMessage($chatId, $text, $parseMode, $replyMarkup);
+    }
+
+    private function groupLink(string $twaUrl): string
+    {
+        $link = $this->miniApp->forPath($twaUrl);
+        if ($link !== null) {
+            return $link;
+        }
+
+        // No TELEGRAM_BOT_USERNAME (or an URL outside the TWA): the plain page still opens in a browser.
+        Log::warning('telegram.mini_app_link_unavailable', ['reason' => 'bot_username_missing_or_url_not_in_twa']);
+
+        return $twaUrl;
     }
 
     /**

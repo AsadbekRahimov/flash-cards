@@ -228,7 +228,7 @@ it('shows an admin the full learner card', function (): void {
     $learner = Learner::factory()->memberOf($group)->create(['first_name' => 'Zinaida', 'telegram_user_id' => 424242424]);
 
     $this->actingAs(panelAdmin())
-        ->withSession(['2fa.passed_at' => now()->timestamp])
+        ->withSession(['2fa.web.passed_at' => now()->timestamp, '2fa.web.user_id' => auth()->id()])
         ->get(LearnerResource::getUrl('view', ['record' => $learner]))
         ->assertOk()
         ->assertSee('424242424')
@@ -240,7 +240,7 @@ it('lets only an admin block and unblock a learner, with an audit trail', functi
     $learner = Learner::factory()->memberOf($group)->create();
 
     $admin = panelAdmin();
-    $this->actingAs($admin)->withSession(['2fa.passed_at' => now()->timestamp]);
+    $this->actingAs($admin)->withSession(['2fa.web.passed_at' => now()->timestamp, '2fa.web.user_id' => auth()->id()]);
 
     Livewire::test(LearnerResource\Pages\ListLearners::class)
         ->callTableAction('toggleBlocked', $learner);
@@ -312,7 +312,7 @@ it('filters the learner table by group through active membership', function (): 
     $inB = Learner::factory()->memberOf($groupB)->create();
     $leftA = Learner::factory()->memberOf($groupA, 'left')->create();
 
-    $this->actingAs($admin)->withSession(['2fa.passed_at' => now()->timestamp]);
+    $this->actingAs($admin)->withSession(['2fa.web.passed_at' => now()->timestamp, '2fa.web.user_id' => auth()->id()]);
 
     Livewire::test(LearnerResource\Pages\ListLearners::class)
         ->filterTable('telegram_group_id', $groupA->id)
@@ -325,7 +325,7 @@ it('counts active members per group in the group table', function (): void {
     Learner::factory()->count(2)->memberOf($group)->create();
     Learner::factory()->memberOf($group, 'left')->create();
 
-    $this->actingAs(panelAdmin())->withSession(['2fa.passed_at' => now()->timestamp]);
+    $this->actingAs(panelAdmin())->withSession(['2fa.web.passed_at' => now()->timestamp, '2fa.web.user_id' => auth()->id()]);
 
     expect(TelegramGroupResource::getEloquentQuery()->withCount([
         'members' => fn ($q) => $q->where('status', 'active'),

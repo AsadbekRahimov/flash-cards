@@ -11,13 +11,20 @@ use App\Models\TrainingSession;
 use App\Models\Word;
 use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
+use Database\Seeders\Concerns\GuardsDemoSeeding;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class DemoRepetitionsSeeder extends Seeder
 {
+    use GuardsDemoSeeding;
+
     public function run(): void
     {
+        if (! $this->demoSeedingAllowed()) {
+            return;
+        }
+
         $group = TelegramGroup::where('chat_id', -1001234567890)->firstOrFail();
         $learners = Learner::query()
             ->whereHas('memberships', fn ($q) => $q->where('telegram_group_id', $group->id)->where('status', 'active'))

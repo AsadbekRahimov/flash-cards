@@ -15,6 +15,12 @@ return [
         // Queues whose backlog is checked, and the max allowed size of each.
         'queues' => [(string) env('TELEGRAM_QUEUE', 'high'), 'default'],
         'queue_max_size' => (int) env('READINESS_QUEUE_MAX_SIZE', 1000),
+
+        // Queues that must show a worker heartbeat (QueueHeartbeatJob, every minute) no older than
+        // the limit below. `low` shares a worker with `default`, `high` has its own (docs: worker split).
+        // Skipped for sync/null queue drivers (no worker exists there).
+        'heartbeat_queues' => [(string) env('TELEGRAM_QUEUE', 'high'), 'low'],
+        'queue_heartbeat_max_age_seconds' => (int) env('READINESS_QUEUE_HEARTBEAT_MAX_AGE', 300),
     ],
 
     /*

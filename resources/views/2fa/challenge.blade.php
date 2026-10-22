@@ -11,7 +11,7 @@
     <h1>{{ __('twofactor.challenge.heading', [], $locale) }}</h1>
     <p>{{ __('twofactor.challenge.intro', [], $locale) }}</p>
 
-    <form method="POST" action="{{ route('2fa.verify') }}">
+    <form method="POST" action="{{ route('2fa.verify', ['guard' => $guard]) }}">
         @csrf
         <label for="code">{{ __('twofactor.challenge.code_label', [], $locale) }}</label>
         <input id="code" type="text" name="code" inputmode="text" autocomplete="one-time-code" required autofocus>

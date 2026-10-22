@@ -7,12 +7,19 @@ namespace Database\Seeders;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Models\TelegramGroup;
 use App\Models\User;
+use Database\Seeders\Concerns\GuardsDemoSeeding;
 use Illuminate\Database\Seeder;
 
 class DemoGroupSeeder extends Seeder
 {
+    use GuardsDemoSeeding;
+
     public function run(): void
     {
+        if (! $this->demoSeedingAllowed()) {
+            return;
+        }
+
         // Needs DemoContentSeeder to have run first (see DatabaseSeeder).
         $courseId = app(CourseCatalogService::class)->defaultCourse()->id;
 
