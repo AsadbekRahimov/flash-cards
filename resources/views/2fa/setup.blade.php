@@ -16,7 +16,7 @@
     <p><small>{{ __('twofactor.setup.manual_key', [], $locale) }}</small></p>
     <div class="mono">{{ $secret }}</div>
 
-    <form method="POST" action="{{ route('2fa.confirm') }}">
+    <form method="POST" action="{{ route('2fa.confirm', ['guard' => $guard]) }}">
         @csrf
         <label for="code">{{ __('twofactor.setup.code_label', [], $locale) }}</label>
         <input id="code" type="text" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required autofocus>

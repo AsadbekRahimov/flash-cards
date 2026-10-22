@@ -34,6 +34,7 @@ return [
     'errors' => [
         'invalid_code' => 'Неверный код. Попробуйте ещё раз.',
         'invalid_code_or_recovery' => 'Неверный код или recovery-код.',
+        'too_many_attempts' => 'Слишком много попыток. Повторите через :seconds с.',
     ],
 
 ];

@@ -215,7 +215,7 @@ public function denial(Learner $learner, TrainingSession $s): ?string   // null 
 ## 8. Защита админки Filament
 
 - **2FA обязательна для роли admin.** Можно использовать `pxlrbt/filament-google-2fa` или кастомно через `pragmarx/google2fa-laravel`.
-- **Панель `/org` (кабинет центра):** тот же кастомный TOTP-поток (`/2fa/*`, маршруты под `auth:web,org`), обязателен для владельцев центров (`RequireOrgTwoFactor`), для учителей центра — опционально. Сессия у guard'ов общая, поэтому метка `2fa.passed_at` дополнена `2fa.user_id` — кабинет принимает только метку своего пользователя. Сброс пароля / приглашение персонала — broker `org` (токен 24 ч, одноразовый, хранится хэшем).
+- **Панель `/org` (кабинет центра):** тот же кастомный TOTP-поток (`/2fa/*`, маршруты под `auth:web,org`), обязателен для владельцев центров (`RequireOrgTwoFactor`), для учителей центра — опционально. Сессия у guard'ов общая, поэтому все отметки хранятся по guard'у (`2fa.{web|org}.passed_at|user_id|pending_secret|show_recovery_codes`) и привязаны к user_id — панель принимает только отметку своего пользователя в своём guard'е; контроллер выбирает guard явно (`?guard=web|org`) и берёт пользователя из него. Лимиты: 5 неверных попыток/мин на аккаунт+guard и 20/мин на IP (429 + `Retry-After`, `Log::warning`), успех сбрасывает счётчик аккаунта; повтор уже принятого TOTP-шага отклоняется (`verifyKeyNewer`, кэш 3 мин). Сброс пароля / приглашение персонала — broker `org` (токен 24 ч, одноразовый, хранится хэшем).
 - **IP allowlist** для `/admin` — опционально, если языковой центр работает из офиса. Middleware с list из env.
 - **Auditing:** `owen-it/laravel-auditing` на критичные модели (`User`, `TelegramGroup`, `Word`) + своя `audit_logs` для доменных событий.
 - **Session security:**

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Domain\Administration\Services\TwoFactorSession;
 use App\Models\User;
 use Closure;
 use Filament\Facades\Filament;
@@ -18,7 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
  * Differences from RequireTwoFactor of `/admin`: the user comes from the panel's own guard
  * (`org`), the redirect remembers where to come back to (`redirect()->guest()` stores the intended
  * URL, which TwoFactorController's `intended('/admin')` then honours), and the session mark must
- * have been set by THIS user (`2fa.user_id`): the session is shared between guards, so a mark
+ * have been set by THIS user (`2fa.org.user_id`): the session is shared between guards, so a mark
  * left by a different account logged in through `/admin` must not count here.
  */
 final class RequireOrgTwoFactor
@@ -33,14 +34,12 @@ final class RequireOrgTwoFactor
 
         if (! $user->hasTwoFactorEnabled()) {
             return $user->ownsAnyOrganization()
-                ? redirect()->guest(route('2fa.setup'))
+                ? redirect()->guest(route('2fa.setup', ['guard' => 'org']))
                 : $next($request);
         }
 
-        $session = $request->session();
-
-        if ($session->get('2fa.passed_at') === null || (int) $session->get('2fa.user_id', 0) !== $user->id) {
-            return redirect()->guest(route('2fa.challenge'));
+        if (! TwoFactorSession::hasPassed($request->session(), 'org', $user->id)) {
+            return redirect()->guest(route('2fa.challenge', ['guard' => 'org']));
         }
 
         return $next($request);

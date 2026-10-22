@@ -54,7 +54,7 @@ function pbStaff(Organization $organization, OrganizationRole $role): User
 /** An HTTP request as this staff user (guard `org`, 2FA passed). */
 function pbAs(User $user): void
 {
-    test()->actingAs($user, 'org')->withSession(['2fa.passed_at' => now()->timestamp, '2fa.user_id' => $user->id]);
+    test()->actingAs($user, 'org')->withSession(['2fa.org.passed_at' => now()->timestamp, '2fa.org.user_id' => $user->id]);
 }
 
 /** Puts a Livewire test into the cabinet of $tenant as $user, as the panel middleware would. */
@@ -63,8 +63,8 @@ function pbEnter(User $user, Organization $tenant): void
     Filament::setCurrentPanel(Filament::getPanel('org'));
     Filament::bootCurrentPanel();
     test()->actingAs($user, 'org');
-    Session::put('2fa.passed_at', now()->timestamp);
-    Session::put('2fa.user_id', $user->id);
+    Session::put('2fa.org.passed_at', now()->timestamp);
+    Session::put('2fa.org.user_id', $user->id);
     Filament::setTenant($tenant, isQuiet: true);
 }
 

@@ -115,7 +115,7 @@ it('hides the old center\'s assignment from its owner after the group moved, eve
     expect($scope->assignments($this->ownerA, $this->a)->count())->toBe(0)
         ->and($scope->canSeeAssignment($this->ownerA, $this->a, $this->assignment->fresh()))->toBeFalse();
 
-    $this->actingAs($this->ownerA, 'org')->withSession(['2fa.passed_at' => now()->timestamp, '2fa.user_id' => $this->ownerA->id]);
+    $this->actingAs($this->ownerA, 'org')->withSession(['2fa.org.passed_at' => now()->timestamp, '2fa.org.user_id' => $this->ownerA->id]);
     $this->get("/org/center-a/assignments/{$this->assignment->id}")->assertNotFound();
 });
 

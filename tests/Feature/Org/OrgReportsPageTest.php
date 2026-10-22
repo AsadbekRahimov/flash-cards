@@ -75,8 +75,8 @@ function rpEnter(User $user, Organization $tenant): void
     Filament::setCurrentPanel(Filament::getPanel('org'));
     Filament::bootCurrentPanel();
     test()->actingAs($user, 'org');
-    Session::put('2fa.passed_at', now()->timestamp);
-    Session::put('2fa.user_id', $user->id);
+    Session::put('2fa.org.passed_at', now()->timestamp);
+    Session::put('2fa.org.user_id', $user->id);
     Filament::setTenant($tenant, isQuiet: true);
     app()->setLocale($tenant->locale);
 }
@@ -203,11 +203,11 @@ it('speaks the center language in the CSV headers (uz)', function (): void {
 });
 
 it('answers 404 for the reports of another organization and 200 for both roles in their own', function (): void {
-    $this->actingAs($this->ownerA, 'org')->withSession(['2fa.passed_at' => now()->timestamp, '2fa.user_id' => $this->ownerA->id]);
+    $this->actingAs($this->ownerA, 'org')->withSession(['2fa.org.passed_at' => now()->timestamp, '2fa.org.user_id' => $this->ownerA->id]);
     $this->get('/org/center-a/reports')->assertOk();
     $this->get('/org/center-b/reports')->assertNotFound();
 
-    $this->actingAs($this->teacherA, 'org')->withSession(['2fa.passed_at' => now()->timestamp, '2fa.user_id' => $this->teacherA->id]);
+    $this->actingAs($this->teacherA, 'org')->withSession(['2fa.org.passed_at' => now()->timestamp, '2fa.org.user_id' => $this->teacherA->id]);
     $this->get('/org/center-a/reports')->assertOk();
     $this->get('/org/center-b/reports')->assertNotFound();
 });
