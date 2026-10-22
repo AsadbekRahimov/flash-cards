@@ -1,6 +1,29 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@source "../index.html";
+
+@theme {
+  --color-tg-bg: var(--tg-bg);
+  --color-tg-text: var(--tg-text);
+  --color-tg-hint: var(--tg-hint);
+  --color-tg-link: var(--tg-link);
+  --color-tg-button: var(--tg-button);
+  --color-tg-button-text: var(--tg-button-text);
+  --color-tg-secondary-bg: var(--tg-secondary-bg);
+
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Tailwind 4 defaults border/divide colour to currentColor; keep the v3 look (gray-200). */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
 
 :root {
   --tg-bg: #ffffff;
@@ -38,7 +61,7 @@ body {
     color: var(--tg-text);
   }
   .card {
-    @apply rounded-2xl shadow-sm p-5;
+    @apply rounded-2xl shadow-xs p-5;
     background: var(--tg-secondary-bg);
   }
 }
