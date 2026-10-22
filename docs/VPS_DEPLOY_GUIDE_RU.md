@@ -586,6 +586,12 @@ sudo chmod +x /etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh
 
 ### 12.3 Полная конфигурация
 
+Для `/twa/` nginx сам ставит `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin` и CSP
+(Laravel `SecurityHeaders` не выполняется для файлов, которые отдаёт nginx). `frame-ancestors` намеренно **не** `'self'`:
+Telegram Web (`web.telegram.org`) открывает мини-приложение в iframe, `'self'` его заблокирует. `add_header` во вложенном
+`location` отменяет унаследованные заголовки, поэтому они повторены в каждом блоке. CSP разрешает скрипты только со своего
+домена и `https://telegram.org` (`telegram-web-app.js`); если добавите внешние картинки/шрифты/аналитику — расширьте CSP.
+
 Замените содержимое `/etc/nginx/sites-available/lexiflow`:
 
 ```nginx
@@ -632,13 +638,36 @@ server {
 
     # Мини-приложение Telegram (Vue SPA)
     location /twa/ {
-        gzip_static on;                       # отдаёт *.gz, созданные npm run build
+        # Headers of the static SPA (Laravel SecurityHeaders does not run for files nginx serves itself).
+        # CSP: scripts only from self + telegram.org (telegram-web-app.js), API on the same origin,
+        # word audio from /storage/audio on the same origin (media-src), no external images/fonts.
+        # frame-ancestors is deliberately NOT 'self': Telegram Web (web.telegram.org) embeds the Mini App
+        # in an iframe, 'self' would blank it. Native clients use a WebView and ignore frame-ancestors.
+        # add_header in a nested location replaces every inherited one, so each block repeats them all.
+        gzip_static on;   # serve the *.gz files created by `npm run build` (precompress.mjs); others get on-the-fly gzip
+
         try_files $uri $uri/ /twa/index.html;
-        location ~* /twa/assets/ {
-            add_header Cache-Control "public, max-age=31536000, immutable";
-        }
+
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self' https://telegram.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob: data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors https://web.telegram.org https://*.telegram.org" always;
+        add_header Strict-Transport-Security "max-age=15552000; includeSubDomains" always;
+
+        # index.html must always be re-fetched to pick up new asset hashes.
         location = /twa/index.html {
             add_header Cache-Control "no-cache, no-store, must-revalidate";
+            add_header X-Content-Type-Options "nosniff" always;
+            add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+            add_header Content-Security-Policy "default-src 'self'; script-src 'self' https://telegram.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob: data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors https://web.telegram.org https://*.telegram.org" always;
+            add_header Strict-Transport-Security "max-age=15552000; includeSubDomains" always;
+        }
+        # Hashed assets can be cached forever.
+        location ~ ^/twa/assets/ {
+            add_header Cache-Control "public, max-age=31536000, immutable";
+            add_header X-Content-Type-Options "nosniff" always;
+            add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+            add_header Content-Security-Policy "default-src 'self'; script-src 'self' https://telegram.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob: data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors https://web.telegram.org https://*.telegram.org" always;
+            add_header Strict-Transport-Security "max-age=15552000; includeSubDomains" always;
         }
     }
 
@@ -697,10 +726,30 @@ curl -I https://lexiflow.uz/up        # HTTP/2 200
 sudo nano /etc/supervisor/conf.d/lexiflow.conf
 ```
 
+Два пула воркеров: `high` (ответы бота, платежи) никогда не ждёт за тяжёлыми задачами из `default`/`low`
+(рассылки, пре-генерация аудио). Программы объединены в группу `lexiflow-worker`, поэтому
+`supervisorctl restart lexiflow-worker:*` по-прежнему перезапускает всех.
+
 ```ini
-[program:lexiflow-worker]
+[program:lexiflow-worker-high]
 process_name=%(program_name)s_%(process_num)02d
-command=/usr/bin/php /var/www/lexiflow/artisan queue:work redis --queue=high,default,low --tries=3 --timeout=120 --sleep=1 --max-time=3600
+command=/usr/bin/php /var/www/lexiflow/artisan queue:work redis --queue=high --tries=3 --timeout=120 --sleep=1 --max-time=3600
+directory=/var/www/lexiflow
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+numprocs=1
+redirect_stderr=true
+stdout_logfile=/var/www/lexiflow/storage/logs/worker-high.log
+stdout_logfile_maxbytes=10MB
+stdout_logfile_backups=3
+stopwaitsecs=130
+user=www-data
+
+[program:lexiflow-worker-default]
+process_name=%(program_name)s_%(process_num)02d
+command=/usr/bin/php /var/www/lexiflow/artisan queue:work redis --queue=default,low --tries=3 --timeout=120 --sleep=1 --max-time=3600
 directory=/var/www/lexiflow
 autostart=true
 autorestart=true
@@ -708,20 +757,32 @@ stopasgroup=true
 killasgroup=true
 numprocs=2
 redirect_stderr=true
-stdout_logfile=/var/www/lexiflow/storage/logs/worker.log
+stdout_logfile=/var/www/lexiflow/storage/logs/worker-default.log
 stdout_logfile_maxbytes=10MB
 stdout_logfile_backups=3
 stopwaitsecs=130
 user=www-data
+
+[group:lexiflow-worker]
+programs=lexiflow-worker-high,lexiflow-worker-default
 ```
 
 ```bash
 sudo supervisorctl reread
 sudo supervisorctl update
-sudo supervisorctl status          # lexiflow-worker_00 RUNNING, lexiflow-worker_01 RUNNING
+sudo supervisorctl status          # lexiflow-worker:lexiflow-worker-high_00 и lexiflow-worker:lexiflow-worker-default_00/_01 RUNNING
 ```
 
-2–3 воркеров хватает примерно на 300 активных учеников в день; при росте увеличьте `numprocs`.
+> Обновляетесь со старой единой программой `lexiflow-worker`: замените её блок на два блока выше и группу,
+> затем `reread` + `update` (старые процессы будут остановлены, новые запущены).
+
+Очередь проверяется в `/health/ready` двумя способами: размер очередей `high`/`default` и «пульс воркеров» —
+планировщик раз в минуту кладёт крошечное задание в очереди `high` и `low`, а воркер при выполнении пишет в кэш
+`queue:heartbeat:{очередь}`. Пульс старше 5 минут (`READINESS_QUEUE_HEARTBEAT_MAX_AGE`) = `queue: fail`
+(воркеры стоят или очередь забита). Возраст самой старой задачи не измеряется: пульс уже ловит эту ситуацию
+(задание-пульс стоит в конце очереди), а чтение payload'ов из Redis усложняло бы проверку.
+
+2–3 воркеров хватает примерно на 300 активных учеников в день; при росте увеличьте `numprocs` (сначала `lexiflow-worker-default`).
 
 ---
 
@@ -777,7 +838,9 @@ curl -sf https://lexiflow.uz/up && echo OK                    # приложен
 curl -s  https://lexiflow.uz/health/ready                     # БД, Redis, планировщик, очередь
 curl -sI https://lexiflow.uz/admin | head -1                  # админка отвечает
 php artisan migrate:status | tail -5                          # все миграции Ran
-sudo supervisorctl status                                     # воркеры RUNNING
+sudo supervisorctl status                                     # воркеры RUNNING (high + default)
+curl -sI https://lexiflow.uz/twa/index.html | head -5         # 200 + nosniff / CSP
+curl -sf https://lexiflow.uz/build/manifest.json >/dev/null && echo OK
 php artisan about --only=environment                          # production, debug OFF
 
 # Сжатие: статика TWA отдаётся в gzip, админка — без сжатия (пустой вывод)
@@ -792,7 +855,8 @@ curl -sI -H 'Accept-Encoding: gzip' https://lexiflow.uz/admin/login | grep -i co
 3. Войдите в `https://lexiflow.uz/admin`, настройте 2FA, импортируйте/опубликуйте курс.
 4. `/health/ready` через ~2 минуты после запуска cron должен показывать живой планировщик.
 
-> `/health/ready` вернёт «не готов», пока cron не отработал хотя бы раз (маркер планировщика) и пока нет воркеров.
+> `/health/ready` вернёт «не готов», пока cron не отработал хотя бы раз (маркер планировщика) и пока воркеры не обработали
+> первое задание-пульс (около минуты после запуска планировщика и воркеров).
 
 ---
 
@@ -842,6 +906,23 @@ chmod +x update.sh
 
 **Только вперёд:** после первого боевого релиза схема меняется только новыми миграциями.
 Никогда не запускайте в продакшене `migrate:fresh`, `migrate:rollback` и `db:seed` без `--class`.
+
+### 17.1 Откат
+
+Откатываем **код**, а не схему БД: на предыдущий проверенный коммит.
+
+```bash
+cd /var/www/lexiflow
+git fetch origin
+git checkout --detach <prev_sha>     # SHA предыдущего успешного релиза (git log, вкладка Actions)
+# затем ту же последовательность update.sh (composer/npm/кэши/воркеры)
+```
+
+Для Docker-деплоя: `bash deploy.sh <prev_sha>` (то же, что делает CI с `${{ github.sha }}`; скрипт проверяет, что
+`HEAD == <prev_sha>`, пересобирает образы и повторяет smoke-проверки). Миграции при откате не откатываются, поэтому они
+обязаны быть обратно совместимыми (expand/contract): сначала добавляем столбец/таблицу (старый код их не трогает),
+и только в одном из следующих релизов — удаляем ставшее ненужным. Деструктивные миграции (drop/rename) вместе с кодом,
+который перестал их использовать, в один релиз не кладём.
 
 ---
 

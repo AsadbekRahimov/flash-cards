@@ -4,7 +4,7 @@
 #   - No host bind-mount of the app source — image ships pre-baked code.
 #   - Postgres/Redis ports are NOT exposed to host.
 #   - nginx serves HTTPS via Let's Encrypt, renewed by certbot sidecar.
-#   - Dedicated queue worker container (separate from php-fpm).
+#   - Dedicated queue worker containers: queue-high and queue-default (separate from php-fpm).
 #   - All services restart unless explicitly stopped.
 #
 # Required env vars (populate via .env on the host, chmod 600):
@@ -37,9 +37,10 @@ services:
             # Pre-generated word audio (docs/12 task 1.2c): its own volume, shared read-only with nginx.
             - app_audio:/var/www/html/storage/app/public/audio
 
-    queue:
+    # Two worker pools: `high` (Telegram replies, payments) is never stuck behind bulk work on default/low.
+    queue-high:
         image: lexiflow/app:${IMAGE_TAG:-latest}
-        container_name: lexiflow-queue
+        container_name: lexiflow-queue-high
         restart: unless-stopped
         depends_on:
             app:
@@ -50,7 +51,22 @@ services:
         volumes:
             - app_storage:/var/www/html/storage
             - app_audio:/var/www/html/storage/app/public/audio
-        command: ["php", "artisan", "queue:work", "redis", "--queue=high,default,low", "--sleep=1", "--tries=3", "--timeout=120", "--max-time=3600"]
+        command: ["php", "artisan", "queue:work", "redis", "--queue=high", "--sleep=1", "--tries=3", "--timeout=120", "--max-time=3600"]
+
+    queue-default:
+        image: lexiflow/app:${IMAGE_TAG:-latest}
+        container_name: lexiflow-queue-default
+        restart: unless-stopped
+        depends_on:
+            app:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+        env_file: .env
+        volumes:
+            - app_storage:/var/www/html/storage
+            - app_audio:/var/www/html/storage/app/public/audio
+        command: ["php", "artisan", "queue:work", "redis", "--queue=default,low", "--sleep=1", "--tries=3", "--timeout=120", "--max-time=3600"]
 
     scheduler:
         image: lexiflow/app:${IMAGE_TAG:-latest}

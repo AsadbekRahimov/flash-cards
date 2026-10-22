@@ -179,11 +179,19 @@ jobs:
         needs: build
         if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
         environment: LexiFlow
+        # Two quick merges must not deploy at the same time; the second waits instead of cancelling the first.
+        concurrency:
+            group: production-deploy
+            cancel-in-progress: false
         steps:
             - name: Deploy via SSH
+              env:
+                  DEPLOY_SHA: ${{ github.sha }}
               uses: appleboy/ssh-action@v1.0.3
               with:
                   host: ${{ secrets.SSH_HOST }}
                   username: ${{ secrets.SSH_USER }}
                   key: ${{ secrets.SSH_PRIVATE_KEY }}
-                  script: cd /var/www/lexiflow && bash deploy.sh
+                  # Deploy exactly the commit that passed CI, not whatever master points to by now.
+                  envs: DEPLOY_SHA
+                  script: cd /var/www/lexiflow && bash deploy.sh "$DEPLOY_SHA"
