@@ -883,7 +883,7 @@ cd /var/www/lexiflow
 php artisan down --retry=15 || true
 
 git fetch origin
-git pull --ff-only origin master
+git checkout --detach origin/master   # не git pull: после отката (§17.1) HEAD в detached-состоянии
 
 composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
@@ -929,7 +929,7 @@ git checkout --detach <prev_sha>     # SHA предыдущего успешно
 # затем ту же последовательность update.sh (composer/npm/кэши/воркеры)
 ```
 
-Для Docker-деплоя: `bash deploy.sh <prev_sha>` (то же, что делает CI с `${{ github.sha }}`; скрипт проверяет, что
+Для Docker-деплоя: `bash deploy.sh --rollback <prev_sha>` (обычный `bash deploy.sh <sha>`, как у CI с `${{ github.sha }}`, идёт только вперёд и для SHA старее текущего `HEAD` пропускается с кодом 0; `--rollback` снимает это ограничение; скрипт проверяет, что
 `HEAD == <prev_sha>`, пересобирает образы и повторяет smoke-проверки). Миграции при откате не откатываются, поэтому они
 обязаны быть обратно совместимыми (expand/contract): сначала добавляем столбец/таблицу (старый код их не трогает),
 и только в одном из следующих релизов — удаляем ставшее ненужным. Деструктивные миграции (drop/rename) вместе с кодом,

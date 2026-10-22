@@ -274,7 +274,8 @@ final class ChallengeService
             ->where('status', ChallengeStatus::Finished->value)
             ->whereNull('dms_dispatched_at')
             ->where('finished_at', '<=', $now->subMinutes(self::RECOVER_AFTER_MINUTES))
-            ->orderBy('id')
+            // lazyById: keyset pages by id, so rows the loop itself updates (dms_dispatched_at) do not shift the pages.
+            ->lazyById()
             ->each(function (Challenge $challenge) use ($now, &$queued): void {
                 $this->dispatchFinishedDms($challenge, $now);
                 $queued++;
@@ -309,7 +310,7 @@ final class ChallengeService
         Challenge::query()
             ->where('status', ChallengeStatus::Active->value)
             ->where('ends_at', '<=', $now)
-            ->orderBy('id')
+            ->lazyById()
             ->each(function (Challenge $challenge) use ($now, &$changed): void {
                 if ($this->close($challenge, $now)->status === ChallengeStatus::Finished->value) {
                     $changed++;

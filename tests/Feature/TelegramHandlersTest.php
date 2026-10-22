@@ -510,6 +510,7 @@ it('sends a seven-day stats report to a teacher in DM', function (): void {
             string $buttonText,
             string $url,
             ?string $parseMode = null,
+            bool $immediate = false,
         ): void {
             $this->messages[] = ['chat_id' => $chatId, 'text' => $text];
         }

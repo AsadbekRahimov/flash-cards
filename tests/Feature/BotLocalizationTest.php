@@ -44,7 +44,7 @@ beforeEach(function (): void {
             $this->log[] = ['chat_id' => $chatId, 'text' => $text, 'button' => null, 'markup' => $replyMarkup, 'parse_mode' => $parseMode];
         }
 
-        public function sendWebAppButton(int|string $chatId, string $text, string $buttonText, string $url, ?string $parseMode = null): void
+        public function sendWebAppButton(int|string $chatId, string $text, string $buttonText, string $url, ?string $parseMode = null, bool $immediate = false): void
         {
             $this->log[] = ['chat_id' => $chatId, 'text' => $text, 'button' => $buttonText, 'markup' => null, 'parse_mode' => $parseMode];
         }

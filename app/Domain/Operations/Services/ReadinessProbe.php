@@ -38,6 +38,11 @@ final class ReadinessProbe
             $checks['redis'] = $this->guard('redis', fn (): bool => $this->checkRedis($redisConnections));
         }
 
+        // A group-chat Mini App link cannot be built without the bot username: production must have it.
+        if (app()->isProduction()) {
+            $checks['config'] = $this->guard('config', $this->checkConfig(...));
+        }
+
         $checks['scheduler'] = $this->guard('scheduler', $this->checkScheduler(...));
         $checks['queue'] = $this->guard('queue', $this->checkQueue(...));
 
@@ -88,6 +93,11 @@ final class ReadinessProbe
         }
 
         return true;
+    }
+
+    private function checkConfig(): bool
+    {
+        return trim((string) config('telegram.bot_username')) !== '';
     }
 
     private function checkScheduler(): bool

@@ -25,6 +25,7 @@ interface TelegramClient
         string $buttonText,
         string $url,
         ?string $parseMode = null,
+        bool $immediate = false,
     ): void;
 
     /**

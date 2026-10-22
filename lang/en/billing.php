@@ -2,7 +2,8 @@
 
 declare(strict_types=1);
 
-// Only the admin-panel report; every other billing string falls back to the default locale.
+// Only the admin-panel report (`report.*`); every other billing string is missing here and falls back to
+// `app.fallback_locale` (ru).
 return [
 
     // Admin dashboard revenue widget: cash flow by event date, cohort net kept apart.

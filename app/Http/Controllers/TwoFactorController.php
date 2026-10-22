@@ -186,6 +186,8 @@ final class TwoFactorController extends Controller
             || $this->recoveryCodeService->consume($user, $code)
         ) {
             $this->attempts->recordSuccess($guard, $user);
+            // New session id after the privilege step-up (fixation); the data, incl. 2fa.* marks, is kept.
+            $request->session()->regenerate();
             TwoFactorSession::markPassed($request->session(), $guard, $user->id);
 
             return redirect()->intended($this->home($guard));
@@ -210,12 +212,16 @@ final class TwoFactorController extends Controller
                 fn (string $g): bool => Auth::guard($g)->check(),
             ));
 
-            abort_unless(count($active) === 1, 422, 'The 2FA guard must be specified.');
+            if (count($active) !== 1) {
+                abort(422, 'The 2FA guard must be specified.');
+            }
 
             return $active[0];
         }
 
-        abort_unless(is_string($guard) && in_array($guard, TwoFactorSession::GUARDS, true), 404);
+        if (! is_string($guard) || ! in_array($guard, TwoFactorSession::GUARDS, true)) {
+            abort(404);
+        }
 
         return $guard;
     }

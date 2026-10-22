@@ -8,6 +8,7 @@ use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Learning\Exceptions\TrainingSessionException;
+use App\Domain\Learning\Services\TeacherAuthority;
 use App\Domain\Learning\Services\TrainingSessionService;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
@@ -45,6 +46,7 @@ final class StartTrainingHandler implements UpdateHandler
         private readonly LocaleResolver $locales,
         private readonly GroupSessionAnnouncer $announcer,
         private readonly CourseCatalogService $catalog,
+        private readonly TeacherAuthority $authority,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -99,6 +101,13 @@ final class StartTrainingHandler implements UpdateHandler
         $args = $this->parseArgs($text);
 
         if ($args === null) {
+            // The picker is a menu of actions: show it to the group's teachers only.
+            if (! $this->authority->canTeach($teacher, $group)) {
+                $this->telegram->sendMessage($chatId, __('errors.training.not_teacher', [], $locale));
+
+                return;
+            }
+
             $this->sendLessonPicker($chatId, $group, $locale);
 
             return;

@@ -8,8 +8,10 @@ use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Services\IrazasyedTelegramClient;
 use App\Domain\Telegram\Services\TelegramKeyboardFactory;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
+use App\Jobs\SendTelegramMessageJob;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Queue;
 use Telegram\Bot\Api;
 use Telegram\Bot\Exceptions\TelegramResponseException;
 use Telegram\Bot\FileUpload\InputFile;
@@ -347,4 +349,20 @@ it('uploads a local file as a photo with a caption and a keyboard, and maps a 40
 
     expect(fn () => $client->sendPhoto(555, $file.'.missing'))->toThrow(TelegramApiException::class, 'not readable');
     unlink($file);
+});
+
+it('sends a web-app button at once with `immediate`, even when the chat is over its rate limit', function (): void {
+    Queue::fake();
+    $sdk = recordingSdk();
+    $limiter = new TelegramMessageRateLimiter(maxMessages: 1);
+    $limiter->reserve(-77);
+    $client = new IrazasyedTelegramClient($sdk, new TelegramKeyboardFactory, $limiter);
+
+    // Not immediate: deferred to the queue, the caller never sees a Bot API refusal.
+    $client->sendWebAppButton(-77, 'Exam', 'Open', 'https://twa.test/twa/exam/7');
+    expect($sdk->sentMessages)->toBe([]);
+    Queue::assertPushed(SendTelegramMessageJob::class);
+
+    $client->sendWebAppButton(-77, 'Exam', 'Open', 'https://twa.test/twa/exam/7', immediate: true);
+    expect($sdk->sentMessages)->toHaveCount(1);
 });

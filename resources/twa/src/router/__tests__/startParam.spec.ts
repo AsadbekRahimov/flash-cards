@@ -53,6 +53,12 @@ describe('resolveStartTarget', () => {
     expect(resolveStartTarget(makeRouter(), b64url('/exam/7'))).toBe('/exam/7')
   })
 
+  it('keeps a landing link only when it has a query', () => {
+    const router = makeRouter()
+    expect(resolveStartTarget(router, b64url('/'))).toBeNull()
+    expect(resolveStartTarget(router, b64url('/?from=assignment&lesson=7'))).toBe('/?from=assignment&lesson=7')
+  })
+
   it('ignores garbage, foreign hosts and unknown routes (catch-all)', () => {
     const router = makeRouter()
     expect(resolveStartTarget(router, 'zzz')).toBeNull()
@@ -73,6 +79,15 @@ describe('installStartParamRedirect', () => {
 
     await router.push('/')
     expect(router.currentRoute.value.fullPath).toBe('/')
+  })
+
+  it('keeps the query of a landing link (assignment launch) on the way to the landing view', async () => {
+    const router = makeRouter()
+    installStartParamRedirect(router, () => b64url('/?from=assignment&lesson=7'))
+
+    await router.push('/')
+    expect(router.currentRoute.value.name).toBe('landing')
+    expect(router.currentRoute.value.query).toEqual({ from: 'assignment', lesson: '7' })
   })
 
   it('does nothing without a param or with a bad one', async () => {

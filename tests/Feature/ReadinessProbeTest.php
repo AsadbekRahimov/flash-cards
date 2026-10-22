@@ -14,6 +14,16 @@ use Illuminate\Support\Facades\Schedule;
 
 uses(RefreshDatabase::class);
 
+beforeEach(function (): void {
+    // Heartbeats live in the cache store, the ShouldBeUnique locks of QueueHeartbeatJob in the cache *lock*
+    // connection (redis: a separate DB, not touched by flush). With a persistent store (redis) they would
+    // outlive the test (uniqueFor = 300 s) and make the next run see a held lock and push nothing.
+    Cache::flush();
+    foreach (['high', 'low'] as $queue) {
+        Cache::lock('laravel_unique_job:'.QueueHeartbeatJob::class.':'.$queue)->forceRelease();
+    }
+});
+
 it('returns 200 with ok checks when dependencies are healthy', function (): void {
     app(SchedulerHeartbeat::class)->beat();
 
@@ -169,5 +179,30 @@ describe('queue worker heartbeat', function (): void {
 
         Queue::assertPushedOn('high', QueueHeartbeatJob::class);
         Queue::assertPushedOn('low', QueueHeartbeatJob::class);
+    });
+});
+
+describe('production config check', function (): void {
+    it('fails readiness in production when TELEGRAM_BOT_USERNAME is empty', function (): void {
+        app()->detectEnvironment(fn (): string => 'production');
+        Config::set('telegram.bot_username', '');
+        app(SchedulerHeartbeat::class)->beat();
+
+        $this->getJson('/health/ready')->assertStatus(503)->assertJsonPath('checks.config', 'fail');
+    });
+
+    it('is ready in production once the bot username is set', function (): void {
+        app()->detectEnvironment(fn (): string => 'production');
+        Config::set('telegram.bot_username', 'lexi_bot');
+        app(SchedulerHeartbeat::class)->beat();
+
+        $this->getJson('/health/ready')->assertOk()->assertJsonPath('checks.config', 'ok');
+    });
+
+    it('does not check it outside production', function (): void {
+        Config::set('telegram.bot_username', '');
+        app(SchedulerHeartbeat::class)->beat();
+
+        $this->getJson('/health/ready')->assertOk()->assertJsonMissingPath('checks.config');
     });
 });

@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Domain\Administration\Services\TwoFactorAttemptService;
 use App\Http\Middleware\RequireOrgTwoFactor;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use PragmaRX\Google2FA\Google2FA;
@@ -15,6 +17,8 @@ use PragmaRX\Google2FA\Google2FA;
 uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
+    // Limiter / TOTP-step keys live in the cache store; with a persistent store (redis) they outlive a test.
+    Cache::flush();
     $this->seed(RolePermissionSeeder::class);
 });
 
@@ -290,7 +294,7 @@ it('answers 429 on the 6th wrong code within a minute, per account', function ()
         ->assertRedirect('/admin');
 
     // after the limiter is cleared (window elapsed) the account works again
-    RateLimiter::clear('2fa:acct:web:'.$a->id);
+    RateLimiter::clear('2fa:acct:'.$a->id);
     $this->actingAs($a)->post(route('2fa.verify'), ['code' => '000000'])->assertSessionHasErrors('code');
 });
 
@@ -323,7 +327,7 @@ it('clears the account counter after a successful check', function (): void {
     }
     $this->post(route('2fa.verify'), ['code' => app(Google2FA::class)->getCurrentOtp($secret)])->assertRedirect('/admin');
 
-    expect(RateLimiter::attempts('2fa:acct:web:'.$user->id))->toBe(0);
+    expect(RateLimiter::attempts('2fa:acct:'.$user->id))->toBe(0);
 });
 
 it('rejects a replay of an already used TOTP code', function (): void {
@@ -337,6 +341,61 @@ it('rejects a replay of an already used TOTP code', function (): void {
 
     $this->post(route('2fa.verify'), ['code' => $code])->assertSessionHasErrors('code');
     expect(session('2fa.web.passed_at'))->toBeNull();
+});
+
+it('locks the account for the rest of the hour after 20 failures, even when the minute window is clear', function (): void {
+    [$user, $secret] = twoFactorUser();
+    for ($i = 0; $i < 20; $i++) {
+        RateLimiter::hit('2fa:acct-hour:'.$user->id, 3600);
+    }
+    RateLimiter::clear('2fa:acct:'.$user->id);
+
+    $response = $this->actingAs($user)
+        ->post(route('2fa.verify'), ['code' => app(Google2FA::class)->getCurrentOtp($secret)])
+        ->assertStatus(429);
+
+    expect((int) $response->headers->get('Retry-After'))->toBeGreaterThan(60);
+});
+
+it('does not reset the hourly counter on success and counts failures in it', function (): void {
+    [$user, $secret] = twoFactorUser();
+    $this->actingAs($user);
+
+    $this->post(route('2fa.verify'), ['code' => '000000']);
+    $this->post(route('2fa.verify'), ['code' => app(Google2FA::class)->getCurrentOtp($secret)])->assertRedirect('/admin');
+
+    expect((int) RateLimiter::attempts('2fa:acct-hour:'.$user->id))->toBe(1);
+});
+
+it('counts failures per account, not per guard', function (): void {
+    [$user] = twoFactorUser();
+    $this->actingAs($user)->post(route('2fa.verify'), ['code' => '000000']);
+
+    expect((int) RateLimiter::attempts('2fa:acct:'.$user->id))->toBe(1);
+});
+
+it('claims a TOTP step atomically: a step already taken by another request is a replay', function (): void {
+    [$user, $secret] = twoFactorUser();
+    $g2fa = app(Google2FA::class);
+    $code = $g2fa->getCurrentOtp($secret);
+    $step = $g2fa->verifyKeyNewer($secret, $code, 0);
+
+    // A concurrent request claimed the step, but has not yet stored last_step.
+    Cache::add("2fa:step:{$user->id}:{$step}", 1, 180);
+
+    expect(app(TwoFactorAttemptService::class)->verifyTotp('web', $user, $secret, $code))->toBeFalse();
+});
+
+it('keeps the 2FA mark after the session id is regenerated on verify', function (): void {
+    [$user, $secret] = twoFactorUser();
+    $this->actingAs($user)->withSession(['x' => 1]);
+    $old = session()->getId();
+
+    $this->post(route('2fa.verify'), ['code' => app(Google2FA::class)->getCurrentOtp($secret)])->assertRedirect('/admin');
+
+    expect(session()->getId())->not->toBe($old)
+        ->and(session('2fa.web.passed_at'))->toBeInt()
+        ->and(session('x'))->toBe(1);
 });
 
 it('logs failed attempts with user, guard and ip', function (): void {
