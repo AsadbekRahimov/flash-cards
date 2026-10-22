@@ -8,6 +8,7 @@ use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Learners\Services\GroupMembershipService;
 use App\Models\Learner;
 use App\Models\TelegramGroup;
+use Database\Seeders\Concerns\GuardsDemoSeeding;
 use Illuminate\Database\Seeder;
 
 /**
@@ -17,6 +18,8 @@ use Illuminate\Database\Seeder;
  */
 class DemoLearnersSeeder extends Seeder
 {
+    use GuardsDemoSeeding;
+
     /** @var list<array{telegram_user_id:int,first_name:string,last_name:?string,username:?string}> */
     private const LEARNERS = [
         ['telegram_user_id' => 200_000_001, 'first_name' => 'Alice', 'last_name' => 'Johnson', 'username' => 'alice_j'],
@@ -28,6 +31,10 @@ class DemoLearnersSeeder extends Seeder
 
     public function run(): void
     {
+        if (! $this->demoSeedingAllowed()) {
+            return;
+        }
+
         $memberships = app(GroupMembershipService::class);
 
         $group = TelegramGroup::where('chat_id', -1001234567890)->firstOrFail();

@@ -37,7 +37,10 @@ use LogicException;
  */
 final class TrainingSessionService
 {
-    public function __construct(private readonly CourseCatalogService $catalog) {}
+    public function __construct(
+        private readonly CourseCatalogService $catalog,
+        private readonly TeacherAuthority $authority,
+    ) {}
 
     /**
      * Teacher command `/start_training <stage> <lesson>`: the numbers are resolved inside the
@@ -495,9 +498,6 @@ final class TrainingSessionService
 
     private function userTeachesGroup(User $user, TelegramGroup $group): bool
     {
-        return DB::table('teacher_groups')
-            ->where('user_id', $user->id)
-            ->where('telegram_group_id', $group->id)
-            ->exists();
+        return $this->authority->canTeach($user, $group);
     }
 }

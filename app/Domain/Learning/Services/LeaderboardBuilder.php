@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\DB;
  *   3. On further tie — lower total time spent wins.
  *   4. Remaining ties share the same rank (competition ranking: 1, 2, 2, 4).
  *
- * Idempotent: wipes any pre-existing results for the session and rebuilds.
+ * Idempotent: wipes any pre-existing results for the session and rebuilds, under a row lock on the session.
  */
 final class LeaderboardBuilder
 {
@@ -31,6 +31,10 @@ final class LeaderboardBuilder
     public function build(ExamSession $session): Collection
     {
         $results = DB::transaction(function () use ($session): Collection {
+            // Serialize concurrent builds (close, result API, job) on the session row: the second
+            // one waits, then rebuilds from the same answers — no interleaved delete/insert.
+            ExamSession::query()->whereKey($session->id)->lockForUpdate()->first();
+
             ExamResult::query()->where('exam_session_id', $session->id)->delete();
 
             /** @var Collection<int, object{learner_id: int|string, total_score: int|string|null, correct_count: int|string|null, total_count: int|string, time_spent_ms: int|string|null}> $rows */

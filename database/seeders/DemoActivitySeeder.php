@@ -13,6 +13,7 @@ use App\Models\TelegramGroup;
 use App\Models\TrainingReview;
 use App\Models\TrainingSession;
 use App\Models\User;
+use Database\Seeders\Concerns\GuardsDemoSeeding;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -26,8 +27,14 @@ use Illuminate\Support\Facades\DB;
  */
 class DemoActivitySeeder extends Seeder
 {
+    use GuardsDemoSeeding;
+
     public function run(): void
     {
+        if (! $this->demoSeedingAllowed()) {
+            return;
+        }
+
         $group = TelegramGroup::where('chat_id', -1001234567890)->first();
 
         if ($group === null) {
