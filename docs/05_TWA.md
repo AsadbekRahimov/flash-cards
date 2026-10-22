@@ -7,11 +7,13 @@
 - **State:** Pinia.
 - **Routing:** Vue Router (history mode внутри TWA).
 - **HTTP:** ofetch или axios.
-- **UI:** TailwindCSS 3 + локальные компоненты (без тяжёлой UI-либы, чтобы размер bundle был маленьким).
+- **UI:** TailwindCSS 4 (`@tailwindcss/vite`, конфиг в `src/style.css`: `@theme`, токены `--tg-*`) + локальные компоненты (без тяжёлой UI-либы, чтобы размер bundle был маленьким).
 - **Telegram SDK:** `@twa-dev/sdk`.
 - **Icon set:** `@heroicons/vue`.
 
 Размер цели: первый бандл ≤ 180 KB gzip.
+
+**Совместимость WebView (Tailwind 4):** CSS использует cascade layers, `@property`, `color-mix()`; официально поддерживаются Safari 16.4+, Chrome 111+, Firefox 128+. В проекте нет `browserslist` (JS-таргет `es2020`), CSS-фолбэков для старых WebView нет: на Android с System WebView < 111 (старые устройства без обновления WebView) стили могут отображаться некорректно/пропасть. Риск принят владельцем; при росте жалоб — вернуться на Tailwind 3.4 или добавить проверку версии WebView.
 
 ### Структура
 ```

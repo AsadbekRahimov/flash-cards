@@ -153,8 +153,6 @@ jobs:
               run: npm audit --prefix resources/twa --omit=dev --audit-level=high
 
             - name: Audit TWA dev dependencies
-              # Tailwind 3 pulls braces (high, no fixed 3.x release); only Tailwind 4 clears it, so warn-only for now.
-              continue-on-error: true
               run: npm audit --prefix resources/twa --audit-level=high
 
             - name: Test TWA
