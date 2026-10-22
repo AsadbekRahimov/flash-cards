@@ -216,6 +216,27 @@ it('is idempotent: second invocation reuses the open session', function (): void
     expect(TrainingSession::query()->where('status', 'open')->count())->toBe(1);
 });
 
+it('does not show the lesson picker to a user who does not teach the group', function (): void {
+    TelegramGroup::factory()->create(['chat_id' => -4010, 'status' => 'active']);
+    User::factory()->create(['telegram_user_id' => 556]);
+    $stage = Stage::factory()->inDefaultCourse()->create(['number' => 1]);
+    Lesson::factory()->for($stage)->create(['number' => 1]);
+
+    $this->api->shouldReceive('sendMessage')
+        ->once()
+        ->withArgs(fn (int $chatId, string $text, ?string $parseMode = null, ?array $replyMarkup = null): bool => $chatId === -4010
+            && $replyMarkup === null
+            && str_contains($text, 'учитель'));
+
+    app(TelegramDispatcher::class)->dispatch([
+        'message' => [
+            'chat' => ['id' => -4010, 'type' => 'supergroup'],
+            'from' => ['id' => 556],
+            'text' => '/start_training',
+        ],
+    ]);
+});
+
 it('rejects users that do not teach the group', function (): void {
     TelegramGroup::factory()->create(['chat_id' => -4004, 'status' => 'active']);
     $otherUser = User::factory()->create(['telegram_user_id' => 555]);

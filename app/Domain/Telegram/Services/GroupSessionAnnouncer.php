@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Log;
  * nobody can see the session: `$cancel` withdraws it and the teacher gets `$failureText`, so a retry of
  * the command works (an exam would otherwise stay `open` and answer `already_open`). A transport
  * failure (timeout, 5xx) may have been delivered: the session is kept and the failure is logged.
+ * The button is sent immediately, never through the deferred rate-limit queue: a refusal of a queued
+ * message would be invisible here and the session would stay `open`.
  */
 final class GroupSessionAnnouncer
 {
@@ -42,6 +44,7 @@ final class GroupSessionAnnouncer
                 buttonText: $buttonText,
                 url: $url,
                 parseMode: $parseMode,
+                immediate: true,
             );
 
             return true;

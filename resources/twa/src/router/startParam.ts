@@ -38,8 +38,9 @@ export function resolveStartTarget(router: Router, param: string | null | undefi
 
   const resolved = router.resolve(path)
   if (resolved.matched.length === 0 || resolved.matched.some((record) => record.redirect !== undefined)) return null
-  // The landing view is where we are anyway.
-  if (resolved.name === 'landing') return null
+  // The landing view is where we are anyway, unless the link carries a query (`/?from=assignment&lesson=7`):
+  // it has to survive, LandingView forwards it to Today.
+  if (resolved.name === 'landing' && Object.keys(resolved.query).length === 0) return null
 
   return resolved.fullPath
 }
@@ -73,6 +74,11 @@ export function installStartParamRedirect(router: Router, read: () => string | n
 
     const target = resolveStartTarget(router, read())
 
-    return target === null ? true : { path: target, replace: true }
+    if (target === null) return true
+
+    // Resolve to keep the query separate from the path (a `?` inside `path` would be encoded).
+    const { path, query, hash } = router.resolve(target)
+
+    return { path, query, hash, replace: true }
   })
 }

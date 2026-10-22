@@ -1,17 +1,23 @@
 #!/usr/bin/env bash
 # Reproducible production deploy for LexiFlow Pro.
-# Usage: ./deploy.sh [--skip-migrate] [<commit-sha>]
+# Usage: ./deploy.sh [--skip-migrate] [--rollback] [<commit-sha>]
 #   <commit-sha> (or env DEPLOY_SHA) pins the deploy to exactly that commit (CI passes the SHA it
-#   tested). Without it the script falls back to `git pull --ff-only` and warns.
-#   Rollback: ./deploy.sh <previous-sha> (see docs/DEVOPS_GUIDE.md, "Откат").
+#   tested). A regular deploy only moves forward: a SHA that is not a descendant of the current HEAD
+#   (e.g. an older CI run finishing after a newer one) is skipped with exit 0.
+#   Without a SHA the script checks out the tip of origin/$DEPLOY_BRANCH (default master) detached, with a warning.
+#   Rollback: ./deploy.sh --rollback <previous-sha> (or ROLLBACK=1), the only way to go backwards
+#   (see docs/DEVOPS_GUIDE.md, "Откат").
 
 set -euo pipefail
 
 SKIP_MIGRATE=0
 DEPLOY_SHA="${DEPLOY_SHA:-}"
+DEPLOY_BRANCH="${DEPLOY_BRANCH:-master}"
+ROLLBACK="${ROLLBACK:-0}"
 for arg in "$@"; do
     case "$arg" in
         --skip-migrate) SKIP_MIGRATE=1 ;;
+        --rollback) ROLLBACK=1 ;;
         -*) echo "Unknown flag: $arg" >&2; exit 1 ;;
         *) DEPLOY_SHA="$arg" ;;
     esac
@@ -27,15 +33,21 @@ COMPOSE="docker compose -f docker-compose.prod.yml --env-file .env"
 if [ -n "$DEPLOY_SHA" ]; then
     echo "==> Checking out the exact commit ${DEPLOY_SHA}"
     git fetch origin
+    if [ "$ROLLBACK" != "1" ] && git cat-file -e "${DEPLOY_SHA}^{commit}" 2>/dev/null \
+        && ! git merge-base --is-ancestor HEAD "$DEPLOY_SHA"; then
+        echo "SHA ${DEPLOY_SHA} is older than (or diverged from) the current HEAD $(git rev-parse --short HEAD): skipping. Use --rollback to go back deliberately."
+        exit 0
+    fi
     git checkout --detach "$DEPLOY_SHA"
     if [ "$(git rev-parse HEAD)" != "$(git rev-parse "${DEPLOY_SHA}^{commit}")" ]; then
         echo "ERROR: HEAD ($(git rev-parse HEAD)) is not the requested commit ${DEPLOY_SHA}; aborting before build" >&2
         exit 1
     fi
 else
-    echo "WARNING: no commit SHA given (argument or DEPLOY_SHA): deploying the latest tip with git pull --ff-only," >&2
+    echo "WARNING: no commit SHA given (argument or DEPLOY_SHA): deploying the tip of origin/${DEPLOY_BRANCH}," >&2
     echo "         which may not be the commit that passed CI." >&2
-    git pull --ff-only
+    git fetch origin
+    git checkout --detach "origin/${DEPLOY_BRANCH}"
 fi
 
 echo "==> Building immutable application and nginx images"
@@ -70,7 +82,7 @@ CURL="curl --fail --silent --show-error --retry 10 --retry-delay 2 --retry-all-e
 
 smoke_fail() {
     echo "ERROR: smoke check failed: $1" >&2
-    echo "       Roll back: ./deploy.sh <previous-sha>  (see docs/DEVOPS_GUIDE.md, \"Откат\"; migrations must be backward compatible)" >&2
+    echo "       Roll back: ./deploy.sh --rollback <previous-sha>  (see docs/DEVOPS_GUIDE.md, \"Откат\"; migrations must be backward compatible)" >&2
     exit 1
 }
 

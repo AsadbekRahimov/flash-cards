@@ -16,7 +16,9 @@ trait GuardsDemoSeeding
             return true;
         }
 
-        $this->command?->warn(static::class.' skipped: demo seeders are disabled outside local/testing (set APP_DEMO_SEED=true to force).');
+        if (isset($this->command)) {
+            $this->command->warn(static::class.' skipped: demo seeders are disabled outside local/testing (set APP_DEMO_SEED=true to force).');
+        }
 
         return false;
     }

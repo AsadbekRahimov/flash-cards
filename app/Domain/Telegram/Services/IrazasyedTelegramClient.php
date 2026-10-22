@@ -89,15 +89,16 @@ class IrazasyedTelegramClient implements TelegramClient
         string $buttonText,
         string $url,
         ?string $parseMode = null,
+        bool $immediate = false,
     ): void {
-        $this->sendMessage(
-            chatId: $chatId,
-            text: $text,
-            parseMode: $parseMode,
-            replyMarkup: $this->miniApp->isPrivateChat($chatId)
-                ? $this->keyboards->webAppButton($buttonText, $url)
-                : $this->keyboards->urlButton($buttonText, $this->groupLink($url)),
-        );
+        $replyMarkup = $this->miniApp->isPrivateChat($chatId)
+            ? $this->keyboards->webAppButton($buttonText, $url)
+            : $this->keyboards->urlButton($buttonText, $this->groupLink($url));
+
+        // `$immediate`: the caller must see the Bot API refusal itself, not a deferred queue job's.
+        $immediate
+            ? $this->sendImmediately($chatId, $text, $parseMode, $replyMarkup)
+            : $this->sendMessage($chatId, $text, $parseMode, $replyMarkup);
     }
 
     private function groupLink(string $twaUrl): string

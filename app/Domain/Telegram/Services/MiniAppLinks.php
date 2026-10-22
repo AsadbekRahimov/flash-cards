@@ -25,7 +25,7 @@ final class MiniAppLinks
             return $chatId > 0;
         }
 
-        return ctype_digit($chatId) && $chatId !== '' && (int) $chatId > 0;
+        return ctype_digit($chatId) && (int) $chatId > 0;
     }
 
     /**
