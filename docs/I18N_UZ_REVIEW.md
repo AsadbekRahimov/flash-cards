@@ -736,6 +736,14 @@
 | `billing.return.open_bot` | LexiFlow'ga qaytish | Вернуться в LexiFlow |
 | `billing.return.note` | Bu sahifani yopish mumkin: to'lov holati botda va ilovada ko'rinadi. | Эту страницу можно закрыть: статус оплаты виден в боте и в приложении. |
 | `billing.return.support` | To'lov bo'yicha savollar: | Вопросы по оплате: |
+
+### Отчёт по выручке в админ-панели (`lang/uz/billing.php`, ключи `billing.report.*`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `billing.report.heading` | So'nggi 30 kun tushumi | Выручка за 30 дней |
+| `billing.report.net_cash` | Pul harakatining sof natijasi :currency | Чистое движение денег :currency |
+| `billing.report.description` | To'lovlar: :charges, brutto :gross · qaytarishlar (qaytarilgan sana bo'yicha): :refund_count, :refunds · kogorta netto (davr to'lovlari ulardan qaytarilganini ayirib): :cohort | Платежи: :charges, брутто :gross · возвраты (по дате возврата): :refund_count, :refunds · когортный нетто (платежи периода за вычетом их возвратов): :cohort |
 | `billing.return.paid.heading` | To'lov qabul qilindi | Оплата получена |
 | `billing.return.paid.text` | LexiFlow Pro yoqildi. Botga qayting yoki ilovani oching — kirish allaqachon ishlaydi. | LexiFlow Pro активирован. Вернитесь в бот или откройте приложение — доступ уже работает. |
 | `billing.return.pending.heading` | To'lov tasdiqlanishini kutmoqdamiz | Ждём подтверждение оплаты |

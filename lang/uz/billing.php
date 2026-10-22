@@ -156,4 +156,11 @@ return [
         ],
     ],
 
+    // Admin dashboard revenue widget: cash flow by event date, cohort net kept apart.
+    'report' => [
+        'heading' => "So'nggi 30 kun tushumi",
+        'net_cash' => 'Pul harakatining sof natijasi :currency',
+        'description' => "To'lovlar: :charges, brutto :gross · qaytarishlar (qaytarilgan sana bo'yicha): :refund_count, :refunds · kogorta netto (davr to'lovlari ulardan qaytarilganini ayirib): :cohort",
+    ],
+
 ];
