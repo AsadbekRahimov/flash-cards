@@ -1,5 +1,7 @@
 # 02. Architecture — LexiFlow Pro
 
+> ⚠️ **Документ MVP; актуальны ADR-8/ADR-11 и всё, что согласуется с docs/12–13.** Актуальность — см. `00_README.md` «Порядок актуальности документов»: `students` → `learners`/`group_members`, PHP 8.3, бот на `irazasyed/telegram-bot-sdk`, только PostgreSQL. Текущий статус работ — `PROGRESS.md`.
+
 ## 1. Высокоуровневая архитектура
 
 ```mermaid
@@ -333,7 +335,7 @@ SENTRY_LARAVEL_DSN=
 |---|---------|---------|
 | ADR-1 | Монолит, не микросервисы | Маленькая команда, связанный домен |
 | ADR-2 | PostgreSQL, не MySQL | JSONB, оконные функции для аналитики |
-| ADR-3 | nutgram для бота | Лучший DX для Laravel-разработчика |
+| ADR-3 | ~~nutgram для бота~~ → **`irazasyed/telegram-bot-sdk` за адаптером `TelegramClient`** (заменено) | Изначально — DX; фактически выбран irazasyed, вся работа с API идёт через контракт `App\Domain\Telegram\Contracts\TelegramClient`, что позволяет сменить SDK без правки доменов |
 | ADR-4 | Vue 3 для TWA, не React | Простота + лёгкая сборка для single-page flow |
 | ADR-5 | JWT для TWA, не session | Stateless, проще масштабировать |
 | ADR-6 | Web Speech API primary, edge-tts fallback | Нулевая стоимость на базовом сценарии |
