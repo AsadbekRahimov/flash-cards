@@ -468,7 +468,7 @@ it('shows the subscriptions, the last 50 events and 14 days of stats on a learne
         ->assertCanSeeTableRecords([$recent])
         ->assertCanNotSeeTableRecords([$stale, $foreignStat]);
 
-    $this->withSession(['2fa.passed_at' => now()->timestamp])
+    $this->withSession(['2fa.web.passed_at' => now()->timestamp, '2fa.web.user_id' => auth()->id()])
         ->get(LearnerResource::getUrl('view', ['record' => $learner]))
         ->assertOk()
         ->assertSee('Subscriptions')

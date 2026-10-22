@@ -87,8 +87,8 @@ function isoEnter(User $user, Organization $tenant): void
     Filament::setCurrentPanel(Filament::getPanel('org'));
     Filament::bootCurrentPanel();
     test()->actingAs($user, 'org');
-    Session::put('2fa.passed_at', now()->timestamp);
-    Session::put('2fa.user_id', $user->id);
+    Session::put('2fa.org.passed_at', now()->timestamp);
+    Session::put('2fa.org.user_id', $user->id);
     Filament::setTenant($tenant, isQuiet: true);
 }
 
@@ -110,7 +110,7 @@ it('lists only the tenant records in every resource of the owner', function (): 
 });
 
 it('answers 404 to a direct URL of a record of the other organization', function (): void {
-    $this->actingAs($this->ownerA, 'org')->withSession(['2fa.passed_at' => now()->timestamp, '2fa.user_id' => $this->ownerA->id]);
+    $this->actingAs($this->ownerA, 'org')->withSession(['2fa.org.passed_at' => now()->timestamp, '2fa.org.user_id' => $this->ownerA->id]);
 
     $this->get("/org/center-a/members/{$this->memberA1->id}")->assertOk();
     $this->get("/org/center-a/members/{$this->memberB->id}")->assertNotFound();

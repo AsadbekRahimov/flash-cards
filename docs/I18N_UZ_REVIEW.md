@@ -68,6 +68,7 @@
 | `twofactor.recovery.to_admin` | → Admin panelga o'tish | → Перейти в админку |
 | `twofactor.errors.invalid_code` | Kod noto'g'ri. Qayta urinib ko'ring. | Неверный код. Попробуйте ещё раз. |
 | `twofactor.errors.invalid_code_or_recovery` | Kod yoki tiklash kodi noto'g'ri. | Неверный код или recovery-код. |
+| `twofactor.errors.too_many_attempts` | Juda ko'p urinish. :seconds soniyadan keyin qayta urinib ko'ring. | Слишком много попыток. Повторите через :seconds с. |
 
 ## Публичный сайт: лендинг, оферта, политика (`lang/uz/landing.php`, `lang/uz/legal.php`)
 

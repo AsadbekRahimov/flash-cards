@@ -37,7 +37,8 @@ beforeEach(function (): void {
     $admin->assignRole('admin');
 
     Auth::login($admin);
-    Session::put('2fa.passed_at', now()->timestamp);
+    Session::put('2fa.web.passed_at', now()->timestamp);
+    Session::put('2fa.web.user_id', $admin->id);
 });
 
 it('renders all dashboard widgets without livewire errors', function (): void {
