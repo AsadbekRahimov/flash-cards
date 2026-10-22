@@ -35,9 +35,23 @@ export interface ClientOptions {
   /**
    * Called when the server returns 401. If the returned promise resolves
    * with a fresh token, the request is retried once. If it rejects or
-   * resolves with '', the original 401 is propagated.
+   * resolves with '', the original 401 is propagated. Concurrent 401s share
+   * one call (single-flight). On failure the implementation clears the stored token.
    */
   onUnauthorized: () => Promise<string>
+}
+
+/** The refresh in flight, shared by every request that got a 401 meanwhile. */
+let refreshing: Promise<string> | null = null
+
+function refreshToken(refresh: () => Promise<string>): Promise<string> {
+  if (!refreshing) {
+    const p: Promise<string> = refresh().finally(() => {
+      if (refreshing === p) refreshing = null
+    })
+    refreshing = p
+  }
+  return refreshing
 }
 
 export function createApiClient(opts: ClientOptions) {
@@ -57,10 +71,8 @@ export function createApiClient(opts: ClientOptions) {
     // The server picks the language of validation/error texts: by the learner when authenticated,
     // by this header on /auth.
     const headers: Record<string, string> = { Accept: 'application/json', 'Accept-Language': getLocale() }
-    if (withAuth) {
-      const token = opts.getToken()
-      if (token) headers.Authorization = `Bearer ${token}`
-    }
+    const sentToken = withAuth ? opts.getToken() : ''
+    if (sentToken) headers.Authorization = `Bearer ${sentToken}`
 
     try {
       return await ofetch<T>(path, {
@@ -73,7 +85,11 @@ export function createApiClient(opts: ClientOptions) {
     } catch (err) {
       const apiErr = mapError(err)
       if (apiErr.kind === 'unauthorized' && withAuth && !init._retry) {
-        const fresh = await opts.onUnauthorized().catch(() => '')
+        // Someone has already refreshed the token while this request was in flight: just retry with it.
+        const current = opts.getToken()
+        const fresh = current && current !== sentToken
+          ? current
+          : await refreshToken(opts.onUnauthorized).catch(() => '')
         if (fresh) {
           return request<T>(path, { ...init, _retry: true })
         }
