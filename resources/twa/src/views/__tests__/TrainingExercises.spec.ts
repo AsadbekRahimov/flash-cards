@@ -117,6 +117,78 @@ describe('TrainingView — exercises', () => {
     expect(wrapper.find('[data-testid=flashcard]').exists()).toBe(true)
   })
 
+  it('a wrong reverse pick stays on screen until "Next", then sends quality 2 (N6)', async () => {
+    vi.useFakeTimers()
+    vi.mocked(api.training.review).mockResolvedValue({
+      next_review_at: null,
+      new_interval_days: 0,
+      easiness_factor: 2.5,
+      graded: null,
+      card: card(null, { word_id: 8 }),
+      progress: { done: 1, total: 3 },
+    })
+    const { wrapper } = await render(card(prompts.reverse))
+
+    await wrapper.get('[data-testid=option-0]').trigger('click')
+    expect(wrapper.get('[data-testid=option-0]').attributes('data-state')).toBe('incorrect')
+    expect(wrapper.get('[data-testid=option-1]').attributes('data-state')).toBe('reveal')
+
+    // However long the learner reads the right answer, the card stays.
+    vi.advanceTimersByTime(CHOICE_FEEDBACK_MS * 30)
+    await flushPromises()
+    expect(api.training.review).not.toHaveBeenCalled()
+    expect(wrapper.find('[data-testid=reverse-card]').exists()).toBe(true)
+
+    const next = wrapper.get('[data-testid=continue-btn]')
+    expect(next.text()).toBe('Дальше')
+    await next.trigger('click')
+    await flushPromises()
+
+    expect(api.training.review).toHaveBeenCalledTimes(1)
+    expect(api.training.review).toHaveBeenCalledWith(1, 7, 2, expect.any(Number), null)
+    expect(wrapper.find('[data-testid=flashcard]').exists()).toBe(true)
+  })
+
+  it('a wrong audio pick waits for "Next" as well', async () => {
+    vi.mocked(api.training.review).mockResolvedValue({
+      next_review_at: null,
+      new_interval_days: 0,
+      easiness_factor: 2.5,
+      graded: null,
+      card: card(null, { word_id: 8 }),
+      progress: { done: 1, total: 3 },
+    })
+    const { wrapper } = await render(card(prompts.audio))
+
+    await wrapper.get('[data-testid=option-0]').trigger('click')
+    await flushPromises()
+    expect(api.training.review).not.toHaveBeenCalled()
+
+    await wrapper.get('[data-testid=continue-btn]').trigger('click')
+    await flushPromises()
+    expect(api.training.review).toHaveBeenCalledWith(1, 7, 2, expect.any(Number), null)
+  })
+
+  it('"Next" after a wrong pick is pressed once: the grade is sent once', async () => {
+    vi.mocked(api.training.review).mockResolvedValue({
+      next_review_at: null,
+      new_interval_days: 0,
+      easiness_factor: 2.5,
+      graded: null,
+      card: card(null, { word_id: 8 }),
+      progress: { done: 1, total: 3 },
+    })
+    const { wrapper } = await render(card(prompts.reverse))
+    await wrapper.get('[data-testid=option-3]').trigger('click')
+
+    const next = wrapper.get('[data-testid=continue-btn]')
+    await next.trigger('click')
+    await next.trigger('click')
+    await flushPromises()
+
+    expect(api.training.review).toHaveBeenCalledTimes(1)
+  })
+
   it('a typed answer shows the verdict, then "Next" reveals the card the review answered with', async () => {
     vi.mocked(api.training.answer).mockResolvedValue({
       next_review_at: null,

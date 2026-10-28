@@ -141,7 +141,7 @@ export const ru = {
   'training.restart': 'Начать заново',
 
   // ---- exercises (docs/13 §2.5) ----
-  'exercise.reverse.title': 'Выберите слово',
+  'exercise.reverse.title': 'Выберите английское слово',
   'exercise.audio.title': 'Что вы услышали?',
   'exercise.audio.play': 'Прослушать ещё раз',
   'exercise.spelling.title': 'Напишите слово по-английски',
@@ -154,6 +154,7 @@ export const ru = {
   'exercise.verdict.close': 'Почти! Правильно: {expected}',
   'exercise.verdict.wrong': 'Неверно. Правильно: {expected}',
   'exercise.continue': 'Дальше',
+  'exercise.audio.replay_hint': 'Нажмите, чтобы послушать ещё раз',
 
   // ---- exam ----
   'exam.closed_title': '🔒 Экзамен завершён учителем',

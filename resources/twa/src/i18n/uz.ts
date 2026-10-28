@@ -125,7 +125,7 @@ export const uz: Translations = {
   'training.restart': 'Qaytadan boshlash',
 
   // ---- exercises (docs/13 §2.5) ----
-  'exercise.reverse.title': "So'zni tanlang",
+  'exercise.reverse.title': "Inglizcha so'zni tanlang",
   'exercise.audio.title': 'Nimani eshitdingiz?',
   'exercise.audio.play': 'Yana eshitish',
   'exercise.spelling.title': "So'zni inglizcha yozing",
@@ -138,6 +138,7 @@ export const uz: Translations = {
   'exercise.verdict.close': "Deyarli! To'g'risi: {expected}",
   'exercise.verdict.wrong': "Noto'g'ri. To'g'risi: {expected}",
   'exercise.continue': 'Keyingisi',
+  'exercise.audio.replay_hint': 'Yana tinglash uchun bosing',
 
   // ---- exam ----
   'exam.closed_title': "🔒 Imtihon o'qituvchi tomonidan yakunlandi",

@@ -1614,7 +1614,7 @@
 | `error.code.not_opponent` | Musobaqaga faqat unga yo'llangan kishi javob bera oladi. | Ответить на вызов может только тот, кому он адресован. |
 | `error.code.challenge_closed` | Bu musobaqa endi amal qilmaydi. | Этот вызов больше не действует. |
 
-| `exercise.reverse.title` | So'zni tanlang | Выберите слово |
+| `exercise.reverse.title` | Inglizcha so'zni tanlang | Выберите английское слово |
 | `exercise.audio.title` | Nimani eshitdingiz? | Что вы услышали? |
 | `exercise.audio.play` | Yana eshitish | Прослушать ещё раз |
 | `exercise.spelling.title` | So'zni inglizcha yozing | Напишите слово по-английски |
@@ -1733,3 +1733,14 @@
 | `benefits.decks` | 2000 tadan so'zli 20 tagacha o'z to'plamlaringiz | До 20 своих колод по 2000 слов |
 | `benefits.freezes` | Seriyani muzlatish: o'tkazib yuborilgan kun seriyani uzmaydi | Заморозки серии: пропуск дня не обрывает серию |
 | `benefits.mock_exams` | IELTS va SAT sinov testlari | Пробные тесты IELTS и SAT |
+
+## Редизайн 2026-10-28 · 17.3 тренировка и экзамен — на проверку носителю
+
+> Проверить: оценки карточки «Eslay olmadim» / «Esladim» / «Oson» (термины по docs/14 §8: Не помню · Помню · Легко) и подписи под ними — что произойдёт с карточкой дальше; «{stage}-modul · {lesson}-dars» в шапке занятия; заголовки вердикта «To'g'ri!» / «Deyarli!» / «Noto'g'ri» и подпись «To'g'ri javob» (теперь правильный ответ показывается отдельной строкой, а не внутри заголовка); подсказка к кнопке прослушивания.
+> Изменённые в этом разделе экранов ключи (`exercise.reverse.title`) обновлены в своих прежних строках выше; без эмодзи в заголовках «закрыто» — замок и часы теперь иконки.
+
+### TWA, тренировка: оценки карточки, упражнения, вердикт (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `exercise.audio.replay_hint` | Yana tinglash uchun bosing | Нажмите, чтобы послушать ещё раз |
