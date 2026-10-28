@@ -413,13 +413,11 @@ export const uz: Translations = {
   'referrals.status.rewarded': 'Pro olindi',
 
   // ---- friends and challenges (docs/13 §7.5) ----
-  'friends.open': "Do'stlar",
+  'friends.open': "Do'stlar va musobaqalar",
   'friends.title': "Do'stlar",
   'friends.invite.title': "Do'stlikka taklif qilish",
   'friends.invite.hint': "Do'stingiz havolani botda ochib, do'stlikni tasdiqlaydi. Do'stlar bir-birining seriyasini va o'rganilgan so'zlar sonini ko'radi va musobaqa tashlashi mumkin.",
   'friends.invite.share': 'Havolani ulashish',
-  'friends.invite.copy': 'Havolani nusxalash',
-  'friends.invite.copied': 'Nusxalandi',
   'friends.invite.share_text': "LexiFlow'da do'st bo'laylik: seriyalarni solishtirib, musobaqa o'tkazamiz!",
   'friends.invite.no_link': "Administrator bot nomini ko'rsatgach, havola paydo bo'ladi.",
   'friends.incoming.title': 'Kiruvchi takliflar',
@@ -431,8 +429,6 @@ export const uz: Translations = {
   'friends.list.empty': "Hozircha do'stlar yo'q. Havolani tanishingizga yuboring.",
   'friends.list.count': '{count} / {limit}',
   'friends.list.anonymous': "Do'st",
-  'friends.list.streak': 'seriya {n} kun',
-  'friends.list.words': "o'rganilgan so'zlar: {n}",
   'friends.list.remove': "Do'stlikdan chiqarish",
   'friends.list.remove_confirm': "{name} do'stlikdan chiqarilsinmi? Shu do'st bilan tugallanmagan musobaqa bekor qilinadi.",
   'friends.list.remove_yes': "Ha, chiqarish",
@@ -460,6 +456,12 @@ export const uz: Translations = {
   'friends.challenge.result.won': "g'alaba",
   'friends.challenge.result.lost': "mag'lubiyat",
   'friends.challenge.result.draw': 'durang',
+  'friends.copy': 'Nusxalash',
+  'friends.list.subtitle': '🔥 {streak} · {words}',
+  'friends.list.words': {
+    one: "{count} ta so'z",
+    other: "{count} ta so'z",
+  },
 
   // ---- errors (by kind / context) ----
   'error.closed.training': "Bu mashg'ulot allaqachon yopilgan: u yakunlangan yoki sessiya vaqti tugagan.",

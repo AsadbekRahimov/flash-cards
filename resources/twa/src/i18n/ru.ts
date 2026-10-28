@@ -439,13 +439,11 @@ export const ru = {
   'referrals.status.rewarded': 'Pro получен',
 
   // ---- friends and challenges (docs/13 §7.5) ----
-  'friends.open': 'Друзья',
+  'friends.open': 'Друзья и вызовы',
   'friends.title': 'Друзья',
   'friends.invite.title': 'Пригласить в друзья',
   'friends.invite.hint': 'Друг откроет ссылку в боте и подтвердит дружбу. Друзья видят серию и число выученных слов друг друга и могут бросать вызовы.',
   'friends.invite.share': 'Поделиться ссылкой',
-  'friends.invite.copy': 'Скопировать ссылку',
-  'friends.invite.copied': 'Скопировано',
   'friends.invite.share_text': 'Давай дружить в LexiFlow: сравним серии и устроим вызов!',
   'friends.invite.no_link': 'Ссылка появится, когда администратор укажет имя бота.',
   'friends.incoming.title': 'Входящие приглашения',
@@ -457,8 +455,6 @@ export const ru = {
   'friends.list.empty': 'Пока нет друзей. Отправьте ссылку знакомому.',
   'friends.list.count': '{count} из {limit}',
   'friends.list.anonymous': 'Друг',
-  'friends.list.streak': 'серия {n} дн.',
-  'friends.list.words': 'слов выучено: {n}',
   'friends.list.remove': 'Удалить из друзей',
   'friends.list.remove_confirm': 'Удалить {name} из друзей? Незавершённый вызов с этим другом отменится.',
   'friends.list.remove_yes': 'Да, удалить',
@@ -486,6 +482,14 @@ export const ru = {
   'friends.challenge.result.won': 'победа',
   'friends.challenge.result.lost': 'поражение',
   'friends.challenge.result.draw': 'ничья',
+  'friends.copy': 'Скопировать',
+  'friends.list.subtitle': '🔥 {streak} · {words}',
+  'friends.list.words': {
+    one: '{count} слово',
+    few: '{count} слова',
+    many: '{count} слов',
+    other: '{count} слова',
+  },
 
   // ---- errors (by kind / context) ----
   'error.closed.training': 'Эта тренировка уже закрыта: она завершена или время сессии истекло.',

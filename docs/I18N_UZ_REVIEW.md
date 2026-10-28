@@ -1553,13 +1553,11 @@
 
 | Ключ | uz | ru |
 |---|---|---|
-| `friends.open` | Do'stlar | Друзья |
+| `friends.open` | Do'stlar va musobaqalar | Друзья и вызовы |
 | `friends.title` | Do'stlar | Друзья |
 | `friends.invite.title` | Do'stlikka taklif qilish | Пригласить в друзья |
 | `friends.invite.hint` | Do'stingiz havolani botda ochib, do'stlikni tasdiqlaydi. Do'stlar bir-birining seriyasini va o'rganilgan so'zlar sonini ko'radi va musobaqa tashlashi mumkin. | Друг откроет ссылку в боте и подтвердит дружбу. Друзья видят серию и число выученных слов друг друга и могут бросать вызовы. |
 | `friends.invite.share` | Havolani ulashish | Поделиться ссылкой |
-| `friends.invite.copy` | Havolani nusxalash | Скопировать ссылку |
-| `friends.invite.copied` | Nusxalandi | Скопировано |
 | `friends.invite.share_text` | LexiFlow'da do'st bo'laylik: seriyalarni solishtirib, musobaqa o'tkazamiz! | Давай дружить в LexiFlow: сравним серии и устроим вызов! |
 | `friends.invite.no_link` | Administrator bot nomini ko'rsatgach, havola paydo bo'ladi. | Ссылка появится, когда администратор укажет имя бота. |
 | `friends.incoming.title` | Kiruvchi takliflar | Входящие приглашения |
@@ -1571,8 +1569,7 @@
 | `friends.list.empty` | Hozircha do'stlar yo'q. Havolani tanishingizga yuboring. | Пока нет друзей. Отправьте ссылку знакомому. |
 | `friends.list.count` | {count} / {limit} | {count} из {limit} |
 | `friends.list.anonymous` | Do'st | Друг |
-| `friends.list.streak` | seriya {n} kun | серия {n} дн. |
-| `friends.list.words` | o'rganilgan so'zlar: {n} | слов выучено: {n} |
+| `friends.list.words` | {count} ta so'z | {count} слово / слова / слов |
 | `friends.list.remove` | Do'stlikdan chiqarish | Удалить из друзей |
 | `friends.list.remove_confirm` | {name} do'stlikdan chiqarilsinmi? Shu do'st bilan tugallanmagan musobaqa bekor qilinadi. | Удалить {name} из друзей? Незавершённый вызов с этим другом отменится. |
 | `friends.list.remove_yes` | Ha, chiqarish | Да, удалить |
@@ -1744,3 +1741,10 @@
 |---|---|---|
 | `league.rating_title` | Reyting | Рейтинг |
 | `league.rules_title` | Ligalar qanday ishlaydi | Как работают лиги |
+
+### TWA, вкладка «Рейтинг»: друзья (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `friends.copy` | Nusxalash | Скопировать |
+| `friends.list.subtitle` | 🔥 {streak} · {words} | 🔥 {streak} · {words} |
