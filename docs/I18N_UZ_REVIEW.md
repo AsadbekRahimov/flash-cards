@@ -165,7 +165,7 @@
 | `common.loading` | Yuklanmoqda… | Загрузка… |
 | `common.retry` | Qayta urinish | Повторить |
 | `common.error_title` | Xatolik | Ошибка |
-| `landing.outside_telegram` | Bu sahifa faqat Telegram Web App ichida ishlaydi. O'qituvchidan mashg'ulot havolasini guruhga yuborishini so'rang. | Эта страница работает только внутри Telegram Web App. Попросите учителя прислать ссылку-тренировку в группу. |
+| `landing.outside_telegram` | Bu sahifa faqat Telegram Web App ichida ishlaydi. O'qituvchidan trening havolasini guruhga yuborishini so'rang. | Эта страница работает только внутри Telegram Web App. Попросите учителя прислать ссылку-тренировку в группу. |
 | `card.kind.new` | Yangi so'z | Новое слово |
 | `card.kind.learning` | Mustahkamlash | Закрепление |
 | `card.kind.due` | Takrorlash | Повторение |
@@ -216,7 +216,7 @@
 | `error.code.course_not_found` | Kurs topilmadi yoki mavjud emas. | Курс не найден или недоступен. |
 | `error.code.timezone_change_too_soon` | Vaqt mintaqasini kuniga bir martadan ko'p o'zgartirib bo'lmaydi. | Часовой пояс можно менять не чаще раза в сутки. |
 | `error.code.timezone_revert_unavailable` | Vaqt mintaqasi o'zgarishini endi bekor qilib bo'lmaydi: 10 daqiqadan ko'proq o'tdi yoki u allaqachon bekor qilingan. | Отменить смену часового пояса уже нельзя: прошло больше 10 минут или она уже отменена. |
-| `error.closed.training` | O'qituvchi mashg'ulotni yakunladi. | Учитель завершил тренировку. |
+| `error.closed.training` | Bu mashg'ulot allaqachon yopilgan: u yakunlangan yoki sessiya vaqti tugagan. | Эта тренировка уже закрыта: она завершена или время сессии истекло. |
 | `error.closed.exam` | Imtihon o'qituvchi tomonidan yakunlandi. | Экзамен был завершён учителем. |
 | `error.forbidden.training` | Sizda bu mashg'ulotga kirish huquqi yo'q. | У вас нет доступа к этой тренировке. |
 | `error.forbidden.exam` | Sizda bu imtihonga kirish huquqi yo'q. | У вас нет доступа к этому экзамену. |
@@ -1976,3 +1976,18 @@
 |---|---|---|
 | `paywall.title_renew` | Pro'ni uzaytirish | Продлить Pro |
 | `paywall.lead_renew` | To'lov joriy Pro muddatiga qo'shiladi ({date} gacha). | Оплата добавит срок к текущему Pro (до {date}). |
+
+### TWA: групповая тренировка — «trening», как в боте (`resources/twa/src/i18n/uz.ts`)
+
+> Бот (17.13) называет «trening» тренировку, которую учитель запускает в группе, а «mashg'ulot» — только занятие ученика из `/today`. В приложении проверены
+> четыре строки со словом «mashg'ulot» (в ru там «тренировка»). Изменена одна: `landing.outside_telegram` — просьба прислать **учителя** ссылку на групповую
+> тренировку («ссылка-тренировка»), значение исправлено в строке выше. Остальные три не менялись, потому что экран тренировки один и для групповой, и для
+> личной сессии ученика (урок, ежедневное занятие), и слово в них относится к обеим: `training.closed_title` и `error.closed.training` показываются при 410 для
+> любой сессии (групповая, которую закрыли или она истекла, и личная, закончившаяся в другой вкладке); `error.forbidden.training` сервер отдаёт только для
+> чужой личной сессии и заблокированного ученика (для группы у отказов свои тексты — `error.code.not_a_member`, `error.code.group_inactive`). Если носитель
+> решит, что общие строки должны говорить «trening», это три значения в одном проходе; строка `error.closed.training` в таблице выше также приведена к
+> тексту приложения (в документе стояла старая формулировка «O'qituvchi mashg'ulotni yakunladi»).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `landing.outside_telegram` | Bu sahifa faqat Telegram Web App ichida ishlaydi. O'qituvchidan trening havolasini guruhga yuborishini so'rang. | Эта страница работает только внутри Telegram Web App. Попросите учителя прислать ссылку-тренировку в группу. |

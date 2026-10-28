@@ -52,7 +52,7 @@ export const uz: Translations = {
 
   // ---- landing ----
   'landing.outside_telegram':
-    "Bu sahifa faqat Telegram Web App ichida ishlaydi. O'qituvchidan mashg'ulot havolasini guruhga yuborishini so'rang.",
+    "Bu sahifa faqat Telegram Web App ichida ishlaydi. O'qituvchidan trening havolasini guruhga yuborishini so'rang.",
 
   // ---- today ----
   'today.title': 'Bugun',
