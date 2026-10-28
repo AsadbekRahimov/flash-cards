@@ -650,13 +650,12 @@
 | `decks.open` | Mening to'plamlarim | Мои колоды |
 | `decks.intro` | O'z to'plamingizni yarating va so'zlarni ro'yxat yoki CSV orqali qo'shing. To'plamni faqat siz ko'rasiz. | Создайте свою колоду и добавьте слова списком или из CSV. Колоду видите только вы. |
 | `decks.empty` | Sizda hali to'plamlar yo'q. | У вас пока нет колод. |
-| `decks.limit` | To'plamlar: {max} tadan {used} tasi. Bitta to'plamda {words} tagacha so'z. | Колод: {used} из {max}. В одной колоде — до {words} слов. |
+| `decks.limit` | To'plamlar: {max} tadan {used} tasi · to'plamda {words} tagacha so'z | Колод: {used} из {max} · до {words} слов в колоде |
 | `decks.new.placeholder` | To'plam nomi | Название колоды |
-| `decks.new.submit` | To'plam yaratish | Создать колоду |
+| `decks.new.submit` | Yaratish | Создать |
 | `decks.edit.back` | To'plamlarga | К колодам |
 | `decks.edit.rename` | Nomi | Название |
 | `decks.edit.save` | Saqlash | Сохранить |
-| `decks.edit.words` | So'zlar | Слова |
 | `decks.edit.no_words` | To'plamda hali so'zlar yo'q. | В колоде пока нет слов. |
 | `decks.edit.remove_word` | Olib tashlash | Убрать |
 | `decks.edit.import` | So'zlar qo'shish | Добавить слова |
@@ -1733,3 +1732,17 @@
 | `benefits.decks` | 2000 tadan so'zli 20 tagacha o'z to'plamlaringiz | До 20 своих колод по 2000 слов |
 | `benefits.freezes` | Seriyani muzlatish: o'tkazib yuborilgan kun seriyani uzmaydi | Заморозки серии: пропуск дня не обрывает серию |
 | `benefits.mock_exams` | IELTS va SAT sinov testlari | Пробные тесты IELTS и SAT |
+
+## Редизайн 2026-10-28 · 17.4 курсы и колоды — на проверку носителю
+
+> Проверить: «Asosiy qilish» / «Asosiy to'plam» (сделать основной / основная колода — термины docs/14 §8).
+> Значения изменены в строках таблицы «Фаза 2 · задача 2D.1 (свои колоды)» выше: `decks.limit`, `decks.new.submit`. Ключ `decks.edit.words` удалён (заменён на `decks.words_title`).
+
+### TWA, «Мои колоды» и экран колоды (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `decks.choose` | Asosiy qilish | Сделать основной |
+| `decks.active` | Asosiy to'plam | Основная колода |
+| `decks.words_title` | So'zlar ({count}) | Слова ({count}) |
+| `decks.edit.format.label` | Format | Формат |
