@@ -1889,8 +1889,8 @@
 
 ## Редизайн 2026-10-28 · 17-11b — на проверку носителю
 
-> Проверить: «Pro» без «Free» в пейволе у платящего ученика, лимиты колод (`50 tagacha so'zli 1 ta to'plam`), «предел тарифа Pro» (`decks.limit_pro.*`), предупреждение о неудавшемся списании Stars (`billing.grace`), подсказки у кнопок-иконок («So'zni olib tashlash: {word}»).
-> Изменённые значения старых ключей исправлены в исходных строках выше; здесь — только новые ключи.
+> Проверить: пейвол без слов про «Free» у платящего ученика; склонение в лимитах колод (`paywall.lead_decks`: «{words}li {decks}» даёт «50 tagacha so'zli 1 ta to'plam» — `decks.words_up_to`, `decks.count`); «это предел вашего тарифа Pro» и что делать (`decks.limit_pro.*`); предупреждение о неудавшемся списании Stars (`billing.grace`, `billing.grace_until`); подписи кнопок-значков с названием объекта («So'zni olib tashlash: {word}», «Musobaqa tashlash: {name}», «Do'stlikdan chiqarish: {name}»); «Pro uchun navbatda» и пояснение к нему; сообщение, когда не удалось скопировать (`common.copy_failed`).
+> Изменённые значения старых ключей (`paywall.free` — теперь с формами числа, `paywall.lead_decks` — числа берутся из лимитов тарифа, `course.mock_exam_hint` и `course.lesson_words` — с формами числа, `decks.edit.remove_word`, `friends.list.remove`, `friends.challenge.new` — с названием объекта, `orgs.waitlisted`, `settings.leagues.hint` — простыми словами) исправлены в исходных строках выше; здесь — только новые ключи.
 
 ### TWA: пейвол, колоды, подписка, настройки, друзья (`resources/twa/src/i18n/uz.ts`)
 
