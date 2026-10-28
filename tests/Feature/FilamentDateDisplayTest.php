@@ -185,6 +185,34 @@ it('names the paid-until date of "Выдать Pro" as dd.mm.yyyy hh:mm in the t
         ->assertMountedActionModalDontSee('2026-11-27');
 });
 
+it('warns in "Выдать Pro" only when the typed moment is really before the paid one, in the zone of the picker whichever it is', function (string $zone, string $typed, bool $warns): void {
+    dd_admin();
+    config(['learners.default_timezone' => $zone]);
+    $learner = Learner::factory()->create();
+    // 12:00 UTC: 17:00 in Tashkent (UTC+5), 07:00 in New York (UTC-5 in November), 12:00 in UTC.
+    Subscription::factory()->create(['subscriber_id' => $learner->id, 'subscriber_type' => 'learner', 'plan' => 'pro', 'status' => 'active', 'provider' => 'payme', 'current_period_ends_at' => '2026-11-27 12:00:00']);
+
+    // setActionData is what the browser sends: the clock time of the picker, in the zone of the picker.
+    $dialog = Livewire::test(ListSubscriptions::class)
+        ->mountAction('grantPro')
+        ->setActionData(['subscriber_type' => 'learner', 'learner_id' => $learner->id, 'perpetual' => false, 'until' => $typed]);
+
+    $warns
+        ? $dialog->assertMountedActionModalSee('сократит оплаченный период')
+        : $dialog->assertMountedActionModalDontSee('сократит оплаченный период');
+})->with([
+    'Tashkent, a minute before the paid moment (16:59 = 11:59 UTC)' => ['Asia/Tashkent', '2026-11-27 16:59:00', true],
+    'Tashkent, the very paid moment (17:00 = 12:00 UTC)' => ['Asia/Tashkent', '2026-11-27 17:00:00', false],
+    'Tashkent, a minute after (17:01 = 12:01 UTC)' => ['Asia/Tashkent', '2026-11-27 17:01:00', false],
+    'Tashkent, the clock of UTC typed by mistake (12:00 = 07:00 UTC)' => ['Asia/Tashkent', '2026-11-27 12:00:00', true],
+    'New York, a minute before (06:59 = 11:59 UTC)' => ['America/New_York', '2026-11-27 06:59:00', true],
+    'New York, the very paid moment (07:00 = 12:00 UTC)' => ['America/New_York', '2026-11-27 07:00:00', false],
+    'New York, a minute after (07:01 = 12:01 UTC)' => ['America/New_York', '2026-11-27 07:01:00', false],
+    'New York, the clock of UTC typed by mistake (12:00 = 17:00 UTC)' => ['America/New_York', '2026-11-27 12:00:00', false],
+    'UTC, a minute before' => ['UTC', '2026-11-27 11:59:00', true],
+    'UTC, the very paid moment' => ['UTC', '2026-11-27 12:00:00', false],
+]);
+
 it('writes the week of the league widget as dd.mm.yyyy', function (): void {
     dd_admin();
     config(['leagues.timezone' => 'Asia/Tashkent']);

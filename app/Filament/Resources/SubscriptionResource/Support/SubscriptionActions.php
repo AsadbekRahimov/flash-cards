@@ -184,6 +184,9 @@ final class SubscriptionActions
     private static function shortenWarning(callable $get): string
     {
         $learnerId = $get('learner_id');
+        // `$get()` gives the state AFTER the casts of the field (DateTimeStateCast::get): the clock time typed in the zone of the
+        // picker (`learners.default_timezone`) is already converted to the zone of the app. So it is parsed in the app zone below;
+        // parsing it in the zone of the picker would shift it a second time (FilamentDateDisplayTest pins the boundary in three zones).
         $until = $get('until');
 
         if ($get('subscriber_type') !== 'learner' || ! is_numeric($learnerId) || ! is_string($until) || $until === '') {
