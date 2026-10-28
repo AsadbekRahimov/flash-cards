@@ -125,7 +125,7 @@
 | `landing.pricing.centers.name` | O'quv markazlari uchun | Для учебных центров |
 | `landing.pricing.centers.tagline` | Oyiga bir marta qat'iy to'lov | Фиксированная оплата раз в месяц |
 | `landing.pricing.centers.features.0` | Markaz oyiga bir marta qat'iy summa to'laydi | Центр платит фиксированную сумму раз в месяц |
-| `landing.pricing.centers.features.1` | Markaz o'quvchilari markazda ekan, to'liq Pro oladi | Все студенты центра получают полный Pro, пока состоят в центре |
+| `landing.pricing.centers.features.1` | Markaz o'quvchilari markazda ekan, tarifdagi o'rinlar doirasida Pro oladi | Студенты центра получают Pro в пределах мест тарифа, пока состоят в центре |
 | `landing.pricing.centers.features.2` | Telegramdagi guruhlar, o'qituvchilar uchun mashg'ulot va imtihonlar | Группы в Telegram, тренировки и экзамены для учителей |
 | `landing.pricing.centers.contact` | Markazni ulash: | Подключить центр: |
 | `landing.footer.tagline` | LexiFlow - Telegramda ingliz tili. | LexiFlow — английский в Telegram. |
@@ -1900,3 +1900,18 @@
 | `landing.limits.free_new_words_unlimited` | yangi so'zlar uchun kunlik limitsiz | новые слова без дневного лимита |
 | `landing.limits.pro_new_words` | Yangi so'zlar uchun kunlik limitsiz | Без дневного лимита новых слов |
 | `landing.limits.decks` | {1} Shaxsiy to'plam: :deck_words tagacha so'z\|[2,*] Shaxsiy to'plamlar: :deck_words tadan so'zli :decks tagacha to'plam | {1} Своя колода до :deck_words слов\|[2,*] Свои колоды: до :decks колод по :deck_words слов |
+
+## Редизайн 2026-10-28 · 17.13 — на проверку носителю
+
+> Исправления по ревью админки, бота и лендинга. Изменённые значения прежних ключей уже обновлены в таблицах выше; здесь они собраны ещё раз,
+> чтобы носителю не искать их по документу. Новых ключей в 17.13 нет.
+
+### Лендинг, карточка «Для учебных центров» (`lang/uz/landing.php`)
+
+> Раньше карточка обещала «Все студенты центра получают полный Pro» — это неверно: Pro получают ученики в пределах мест тарифа, сверх лимита они
+> ждут в очереди и остаются на Free. Проверить: «tarifdagi o'rinlar doirasida» (в пределах мест тарифа) — «o'rin» так же называется место в кабинете
+> центра (`org.seats_count`: «o'rinlar: :count»); «Markaz o'quvchilari markazda ekan» (пока состоят в центре) оставлено из прежней строки.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `landing.pricing.centers.features.1` | Markaz o'quvchilari markazda ekan, tarifdagi o'rinlar doirasida Pro oladi | Студенты центра получают Pro в пределах мест тарифа, пока состоят в центре |

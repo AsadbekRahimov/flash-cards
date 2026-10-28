@@ -113,7 +113,7 @@ return [
             'tagline' => 'Oyiga bir marta qat\'iy to\'lov',
             'features' => [
                 'Markaz oyiga bir marta qat\'iy summa to\'laydi',
-                'Markaz o\'quvchilari markazda ekan, to\'liq Pro oladi',
+                'Markaz o\'quvchilari markazda ekan, tarifdagi o\'rinlar doirasida Pro oladi',
                 'Telegramdagi guruhlar, o\'qituvchilar uchun mashg\'ulot va imtihonlar',
             ],
             'contact' => 'Markazni ulash:',
