@@ -21,16 +21,25 @@ Default credentials (change immediately after first login):
 
 On subsequent logins you will be asked for a 6-digit TOTP code. If you lose your phone, enter a recovery code (each code is single-use).
 
+### Panel language
+The panel is in Russian (all captions are in `lang/ru/admin.php`). This guide names menu items and buttons in English and
+gives the Russian caption in brackets, for example **Content → Stages** (Контент → Модули). Terms: Course = Курс,
+Stage = Модуль, Lesson = Урок, Word = Слово, Learner = Ученик, User (staff) = Сотрудник (roles: admin = Администратор,
+teacher = Учитель), Telegram group = Telegram-группа, Exam session = Экзамен, Organization = Учебный центр,
+Subscription = Подписка, Payment = Платёж, Payment order = Заказ, Provider transaction = Транзакция провайдера,
+Promo code = Промокод. Navigation groups: Content = Контент, Learning = Обучение, Administration = Администрирование,
+Billing = Оплата.
+
 ---
 
 ## User Management
 
-Navigate to **Users** in the left sidebar.
+Navigate to **Users** (Сотрудники) in the left sidebar.
 
 ### Create a teacher account
-1. Click **New User**.
+1. Click **New User** (Создать сотрудника).
 2. Fill in name, email, password, `telegram_user_id` (the teacher's Telegram numeric ID).
-3. Set **Active** = true.
+3. Set **Active** (Активен) = true.
 4. Assign the role **teacher**.
 5. Save.
 
@@ -41,13 +50,13 @@ Navigate to **Users** in the left sidebar.
 2. In the **Teacher Groups** relation tab, add the relevant groups.
 
 ### Deactivate a user
-Set **Active** = false. The user cannot log into the admin panel and the bot ignores their commands.
+Set **Active** (Активен) = false. The user cannot log into the admin panel and the bot ignores their commands.
 
 ---
 
 ## Telegram Group Management
 
-Navigate to **Telegram Groups**.
+Navigate to **Telegram Groups** (Telegram-группы).
 
 New groups appear here automatically with status `pending` when the bot is added to them.
 
@@ -59,7 +68,7 @@ New groups appear here automatically with status `pending` when the bot is added
 
 ### Activate a group
 1. Open the group record.
-2. Set **Status** = `active`.
+2. Set **Status** (Статус) = `active` (Активна).
 3. Link at least one teacher via the **Teacher Groups** tab.
 4. Save.
 
@@ -71,8 +80,8 @@ Open the group record and pick **Course** (empty = the `default` course). The te
 
 ### Set the bot language of a group
 The bot writes to the group (command replies, lesson buttons, exam leaderboard) in Russian by default.
-To switch a group to Uzbek (Latin), open the group record, set **Bot language** = `O'zbekcha` and save
-(**Default** = Russian). The choice is stored in the group's `meta.locale` and survives the bot being
+To switch a group to Uzbek (Latin), open the group record, set **Bot language** (Язык бота) = `O'zbekcha` and save
+(**Default** (По умолчанию) = Russian). The choice is stored in the group's `meta.locale` and survives the bot being
 removed and re-added. Personal messages (e.g. review reminders) follow each learner's interface language
 (`learners.interface_locale`; for a new learner it starts from the Telegram language: `uz*` → Uzbek, anything else → Russian).
 The Web App follows the learner's Telegram language.
@@ -83,18 +92,18 @@ translations on cards in a group training session; personal sessions use the lea
 
 ## Content Management
 
-Navigate to **Content → Courses / Stages / Lessons / Words**.
+Navigate to **Content → Courses / Stages / Lessons / Words** (Контент → Курсы / Модули / Уроки / Слова).
 
 Content hierarchy: **Course → Module (stage) → Lesson → Word**. Stage numbers are unique *within a course*.
 The platform course `default` (created by the seeder or by the first import) receives everything that does
 not name a course.
 
 ### Courses (admins only)
-**Content → Courses** lists the catalog. A course has a unique `slug` (Latin lowercase, digits, dashes;
+**Content → Courses** (Контент → Курсы) lists the catalog. A course has a unique `slug` (Latin lowercase, digits, dashes;
 it cannot be changed after creation), a **title in every language** (RU and UZ are both required),
 an optional description, level (A1–C2), goal (General / School / IELTS / SAT), visibility
 (`public` — in the catalog, `unlisted` — by link or group, `private`) and a position in the catalog.
-The **Modules (stages)** table on the course page adds and edits the modules of the course; lessons and
+The **Modules (stages)** table (Модули курса) on the course page adds and edits the modules of the course; lessons and
 words are edited on the stage / lesson screens.
 
 **Status.** The status is never typed into the form — it moves with the buttons on the course page (and in the
@@ -102,10 +111,10 @@ list), each move is written to the audit log (`course.status_changed`):
 
 | From | Button | To |
 |---|---|---|
-| `draft` | Send to review | `review` |
-| `review` | Publish / Back to draft | `published` / `draft` |
-| `published` | Archive | `archived` |
-| `archived` | Back to draft | `draft` |
+| `draft` | Send to review (Отправить на проверку) | `review` |
+| `review` | Publish (Опубликовать) / Back to draft (Вернуть в черновик) | `published` / `draft` |
+| `published` | Archive (Архивировать) | `archived` |
+| `archived` | Back to draft (Вернуть в черновик) | `draft` |
 
 The `default` course cannot be archived (it serves every group that has no course of its own). Archived courses are not
 offered in the group **Course** select.
@@ -120,10 +129,10 @@ text and a small note *"No translation in your language yet — Russian shown"*.
 
 ### Translations
 Every word has a Russian text (the **Translation** field, also stored as the `ru` translation) and optional
-translations into other interface languages. To edit them: **Content → Words** (or the **Translations** button
+translations into other interface languages. To edit them: **Content → Words** (Контент → Слова; or the **Translations** (Переводы) button
 next to a word on the lesson screen) → open the word → **Translations** table:
-- **Create** adds a language (one row per language and word); **Edit** changes the text. A changed text becomes
-  a `manual` translation and loses its *Reviewed* mark; **Mark reviewed** is for the native-speaker check.
+- **Create** (Добавить перевод) adds a language (one row per language and word); **Edit** changes the text. A changed text becomes
+  a `manual` translation and loses its *Reviewed* mark; **Mark reviewed** (Отметить проверенным) is for the native-speaker check.
 - Editing the `ru` row also updates the word's main Translation, and editing the main Translation on the
   lesson screen updates the `ru` row, so the two never differ.
 - Cards and exams use the translation of the session language and fall back to Russian (see Courses above).
@@ -134,11 +143,11 @@ Exam wrong options come from the same lesson / stage first, then other stages of
 course has too few words from published, non-private courses — never from draft, review, archived or private courses.
 
 ### Importing a lesson via JSON (recommended)
-**Admins only.** In this phase content belongs to the platform: the **Import Lesson** page is hidden from
+**Admins only.** In this phase content belongs to the platform: the **Import Lesson** (Импорт урока) page is hidden from
 teachers (direct link → *403*), and the importer itself refuses any user who is not an active admin
 (nothing is written). Seeders and artisan commands run without a user and are allowed only in the console.
-1. Go to **Import Lesson** in the left sidebar.
-2. Click **Download sample** to get the JSON template.
+1. Go to **Import Lesson** (Импорт урока) in the left sidebar.
+2. Click **Download sample** (Скачать пример) to get the JSON template.
 3. Prepare your JSON file following the rich admin schema:
 ```json
 {
@@ -186,7 +195,7 @@ The original PRD schema is also supported for compatibility (`course` may be add
   ]
 }
 ```
-4. Upload the file and click **Import**.
+4. Upload the file and click **Import** (Импортировать).
 5. Review the report: `added / updated / skipped / translations new+updated / errors`.
 
 ### Import rules
@@ -211,12 +220,12 @@ Open any Stage → Lesson → click on a word to edit its translation, example, 
 
 ## Learners
 
-Navigate to **Administration → Learners**. An admin sees every learner; a teacher sees only the active members
+Navigate to **Administration → Learners** (Администрирование → Ученики). An admin sees every learner; a teacher sees only the active members
 of their own groups, with name / username and the learning metrics of their groups (no Telegram ID, plan,
 onboarding state, subscriptions or events).
 
 **List (admin).** Columns: name, @username, Telegram ID, **Plan** (`Free`, `Pro` — own subscription,
-`Pro (sponsored)` — through an organization), blocked, onboarded, **Referrals** (how many learners this one
+`Pro (sponsored)`, shown as `Pro (от центра)` — through an organization), blocked, onboarded, **Referrals** (how many learners this one
 invited, rejected ones excluded), last seen.
 
 - **Search** (box above the table): by name, by @username (`@anna` and `anna` both work, partial match) or by
@@ -224,11 +233,11 @@ invited, rejected ones excluded), last seen.
 - **Filters:** *Group*; *Plan* — Free / Pro (own **or** sponsored; the rule is the same as in the bot and the TWA:
   a subscription counts until its end, an auto-renewing provider gets the grace days, a suspended organization or a
   member who left sponsors nothing); *Onboarding* — Done / Not done.
-- **Block / Unblock** (row button, confirmation required): the learner's next TWA request answers
+- **Block / Unblock** (Заблокировать / Разблокировать; row button, confirmation required): the learner's next TWA request answers
   `401 learner_blocked` (the TWA is closed to them) and review reminders stop; progress is kept. Every change is written to the audit log
   (`learner.blocked` / `learner.unblocked`). Unblocking restores access at once.
 
-- **SRS algorithm** (row button, admin only): switches one learner between **SM-2** and **FSRS-5**. The choice
+- **SRS algorithm** (Алгоритм повторений; row button, admin only): switches one learner between **SM-2** and **FSRS-5**. The choice
   is made automatically when a learner is created (`FSRS_ROLLOUT_PERCENT` in `.env`: the share of *new* learners
   that gets FSRS, `0` by default = nobody; changing it never moves existing learners). Switching to FSRS seeds the
   memory of the learner's graduated cards from their SM-2 state; switching back to SM-2 changes no card. Every real
@@ -237,10 +246,10 @@ invited, rejected ones excluded), last seen.
   experiment: `FSRS_ROLLOUT_PERCENT=0` and `UPDATE learners SET scheduler = 'sm2'`.
 
 **Learner page (admin).** Besides the profile it shows the onboarding state and the **effective plan** (source:
-captioned *Free* / *Pro* / *Pro (sponsored)* as in the list, then the organization #N for sponsored Pro and until when), and three read-only tabs:
+captioned *Free* / *Pro* / *Pro (от центра)* (sponsored) as in the list, then the organization #N for sponsored Pro and until when), and three read-only tabs:
 
 - *Subscriptions* — the learner's own subscriptions (plan, status, provider, until, reason). The button
-  **Open in Subscriptions** opens the Billing screen filtered to this learner, where Grant Pro / Revoke live.
+  **Open in Subscriptions** (Открыть в разделе «Подписки») opens the Billing screen filtered to this learner, where Grant Pro / Revoke live.
   Sponsored Pro is a subscription of the organization and is not listed here.
 - *Recent events* — the last 50 product events of the learner (time, name, properties). The properties contain
   no personal data by design (no promo codes, no message text). The login event `twa.authenticated` is hidden
@@ -252,8 +261,8 @@ captioned *Free* / *Pro* / *Pro (sponsored)* as in the list, then the organizati
   `referrer_capped` — legacy rows only, `flagged`; an inviter who already collected 10 rewards in 30 days / 50 in total gets no further reward, but the invited learner is still rewarded: the row stays `rewarded`), the
   **Flagged** mark and the dates. A referral is flagged automatically when the inviter collected 20 or more
   links within 24 hours (a farm is likely); its reward waits. Two row buttons for a flagged row, both written
-  to the audit log: **Clear flag** (`referral.unflagged`) — the referral is genuine, an activated one is
-  rewarded at once; **Reject** (`referral.rejected`) — no reward will ever be granted. The numbers come from
+  to the audit log: **Clear flag** (Снять пометку; `referral.unflagged`) — the referral is genuine, an activated one is
+  rewarded at once; **Reject** (Отклонить; `referral.rejected`) — no reward will ever be granted. The numbers come from
   `config/referrals.php` (`REFERRALS_*` in `.env`). The invite link needs `TELEGRAM_BOT_USERNAME`; without
   it the learners only see their code.
 
@@ -262,7 +271,7 @@ captioned *Free* / *Pro* / *Pro (sponsored)* as in the list, then the organizati
 ## Billing: subscriptions, payments, promo codes, organizations
 
 Navigate to **Billing → Subscriptions / Promo codes / Organizations / Payments / Payment orders / Provider
-transactions**. These screens are for **admins only** (teachers do not see them; an inactive admin does not either).
+transactions** (Оплата → Подписки / Промокоды / Учебные центры / Платежи / Заказы / Транзакции провайдеров). These screens are for **admins only** (teachers do not see them; an inactive admin does not either).
 Free learners get 20 new words a day; **Pro** removes the limit. Pro comes from a subscription of the learner, or from
 the subscription of an **organization** whose group the learner is an active member of (sponsored Pro). Online payment
 (Telegram Stars, Payme, Click) is switched on per provider by DevOps (see DEVOPS_GUIDE §17); until a provider is enabled
@@ -273,13 +282,13 @@ The table shows every subscription: subject (learner or organization), plan, sta
 by an admin, `promo` — from a promo code), start, **Until** (empty = no end), who granted it and the reason.
 Filters: status, provider, plan, subject, and *Live status* (live = trialing / active / past due).
 
-- **Grant Pro** (button above the table): pick the subject — a *Learner* (search by name, @username or Telegram ID)
+- **Grant Pro** (Выдать Pro; button above the table): pick the subject — a *Learner* (search by name, @username or Telegram ID)
   or an *Organization* — and either switch on **No end date** or set **Pro until**. The **Reason** is required and
   is stored in the audit log (`subscription.granted`). If the subject already has a live subscription it is
   extended / replaced in place (no second subscription is created).
   If the learner has a **Stars subscription with auto-renewal**, the form warns that Telegram keeps charging them and
   that a manual grant replaces the row (the renewal can no longer be canceled from LexiFlow): ask the learner to turn
-  the renewal off in /pro first, then tick **I understand: grant anyway**. If the date is earlier than the end of a
+  the renewal off in /pro first, then tick **I understand: grant anyway** (Понимаю, всё равно выдать). If the date is earlier than the end of a
   period the learner has already paid for, the **Pro until** hint says it will shorten the paid period.
   For an *Organization* you can also pick the **Tier** (Tutor 30 seats, Center S 100, Center M 300, Center L
   unlimited — the table is `billing.org_tiers`): it sets the subscription's tier and **seats limit** and is written to
@@ -308,7 +317,7 @@ Filters: status, provider, plan, subject, and *Live status* (live = trialing / a
   been changed by hand (or by another payment), the money is credited and the period extended, but the tier and
   the seats are **left as they were**: the order carries `meta.tier_mismatch = true` (with `tier_mismatch_live_tier`),
   the log has `billing.org_tier_mismatch` and the audit log an entry `subscription.tier_mismatch`. Look at such
-  orders (Billing → **Payment orders**, the order's meta): decide with the owner whether the paid month is for the
+  orders (Billing → **Payment orders** (Оплата → Заказы), the order's meta): decide with the owner whether the paid month is for the
   live tier (nothing to do) or the ordered one (Grant Pro with the right tier, or a refund).
   Such orders are rare by construction: a Payme / Click payment on an organization order whose tier is not the live
   one is refused before the money is taken (Payme `-31053`, Click `-9`), and a payment that sets or keeps a tier
@@ -323,7 +332,7 @@ Filters: status, provider, plan, subject, and *Live status* (live = trialing / a
   against a failed charge and are **not carried over**: the next Telegram renewal sets the end from Telegram's own
   period, so the extra days are absorbed. If the Stars subscription is already **canceled**, the days extend it and it
   **stays canceled** (live until the extended end, no grace, reminders work); the learner can still resume it in /pro.
-- **Revoke** (row button, live subscriptions only): ends the subscription now; **Reason** required, audit
+- **Revoke** (Отозвать; row button, live subscriptions only): ends the subscription now; **Reason** required, audit
   `subscription.revoked`. The learner loses Pro within seconds (the cached plan is dropped at once).
 - A subscription that ran out of time is closed automatically by the hourly job `subscriptions:expire`.
 
@@ -366,7 +375,7 @@ token is shown shortened (`AbCd…wXyZ`) and the payment link of an order is not
 is masked, look at the provider's cabinet.
 
 #### Refund
-Open **Payments** and use **Refund** on a `succeeded` charge or renewal (row button or the button on the payment page).
+Open **Payments** (Платежи) and use **Refund** (Вернуть деньги) on a `succeeded` charge or renewal (row button or the button on the payment page).
 Only an admin can; the **Reason** is required and is written to the audit log (`payment.refunded`, with the reason,
 the payment, the amount, whether the subscription was ended, your IP).
 
@@ -392,7 +401,7 @@ If the provider returned the money but the panel then reported an error, do not 
 back) and tell DevOps (log `billing.admin_refund_unrecorded`).
 
 ### Promo codes
-**Billing → Promo codes → New**. The code is suggested automatically (10 characters); you may type your own —
+**Billing → Promo codes → New** (Оплата → Промокоды → Создать промокод). The code is suggested automatically (10 characters); you may type your own —
 spaces and dashes are ignored and the code is stored in upper case (`summer-2026` → `SUMMER2026`), 6–32 Latin
 letters / digits, unique. Set the **plan**, **duration (days)**, optional **max redemptions** and **valid until**,
 and a note (who the code is for). *Valid until* (like *Pro until* in Grant Pro) is entered in local time
@@ -416,13 +425,13 @@ only by a **paid** order (an expired or canceled order leaves it available until
   audit log (`offer.annulled`). A used or expired offer has no button.
 
 ### Organizations (sponsored Pro for a learning center)
-1. **Billing → Organizations → New**: name, slug (Latin, cannot be changed), time zone, language.
-2. Open the organization → **Groups** table → **Link group** and pick the Telegram group (only groups that belong
+1. **Billing → Organizations → New** (Оплата → Учебные центры → Создать учебный центр): name, slug (Latin, cannot be changed), time zone, language.
+2. Open the organization → **Groups** table → **Link group** (Привязать группу) and pick the Telegram group (only groups that belong
    to no organization are offered). **Unlink** takes it away again. Both are written to the audit log
    (`organization.linked_group` / `organization.unlinked_group`).
    Make the bot an **administrator** of the group: then Telegram reports every leave / removal; without admin rights
    only the service message "left the group" arrives, which can be missed (a member who left may keep sponsored Pro).
-3. **Billing → Subscriptions → Grant Pro** with the *Organization* subject (pick the **Tier** to set its seat limit).
+3. **Billing → Subscriptions → Grant Pro** (Оплата → Подписки → Выдать Pro) with the *Organization* subject (pick the **Tier** to set its seat limit).
 
 Every **active member of an active linked group** now has Pro (source "sponsor" in `/me`); after unlinking, leaving the
 group, suspending the organization or the end of the subscription they are back on Free (their progress stays).
@@ -438,17 +447,17 @@ Changes apply within seconds.
 
 | Widget | Who sees it | What it shows |
 |---|---|---|
-| Total Learners | admin, teacher | Learners visible to you (admin: all; teacher: active members of your groups) and how many were active in the last 7 days (`last_seen_at`) |
-| Exams Last 30 Days | admin, teacher | Number of exam sessions in the past month |
-| Activity Chart | admin, teacher | Daily active learners (line chart) |
-| Top Learners | admin, teacher | Top 10 learners by reviews in group trainings (last 30 days; a learner's personal practice is never counted for teachers) |
-| Hardest Words | admin, teacher | Top 20 words with lowest accuracy |
-| Pro subscriptions | **admin only** | *Pro learners* — learners whose effective plan is Pro right now (own or sponsored, each counted once), with the split "own subscriptions / sponsoring organizations"; *Pro ending in 7 days* — own and organization subscriptions whose paid access ends within a week (for an auto-renewing provider: the end of the grace period) |
-| Onboarding funnel — 7 days | **admin only** | Learners who started onboarding in the last 7 days (`onboarding.started`), how many of them have completed it (`onboarding.completed`) and the conversion %. Distinct learners; a learner who started earlier and finished this week is not in the cohort |
-| Organizations — members / seats | **admin only** | Per organization: active groups, **members** (distinct learners with an active membership in an active group of the organization; deleted learners are not counted), **seats** (`seats_limit` of the organization's live subscription; empty when none was set) and whether it is sponsoring Pro |
-| SM-2 vs FSRS — 28 days | **admin only** | The SRS A/B, one figure per algorithm (`SM-2 / FSRS`, from `training_reviews.scheduler`): *pass rate of due cards* (graduated cards answered 3+ out of 5), *reviews per graduated word* (fewer at the same pass rate means FSRS is more efficient), *D7 retention by bucket* (learners who signed up 28–7 days ago and still studied 7+ days after signing up). `—` = no data yet; with `FSRS_ROLLOUT_PERCENT=0` and no manual switches the FSRS side stays empty |
-| Revenue, last 30 days | **admin only** | One figure per currency, **UZS and XTR are never added together**. *Revenue* = the charges and renewals of the last 30 days (by payment time) that are still `succeeded`, i.e. gross minus the `refunded` ones; the line below shows the number of payments, the gross and the refunded amount. Failed events and the `refund` bookkeeping rows are not counted; a charge older than 30 days that is refunded today does not change this figure |
-| Payment webhook errors, last 24 h | **admin only** | *Failed payments* — ledger rows recorded as `failed` in the last 24 hours (by provider); *Canceled provider transactions* — Payme / Click transactions canceled in that time (a customer closing the page also cancels, so only a spike matters). Any failed payment deserves a look: open **Payments → Status: failed**. *Double discounts* — orders paid in the last 24 hours with the red **Double discount** badge (**Payment orders → filter Double discount**); normally 0. *Double Stars subscriptions* — orders paid in the last 24 hours with the red **Double Stars subscription** badge (**Payment orders → filter Double Stars subscription**); normally 0 |
+| Total Learners (Всего учеников) | admin, teacher | Learners visible to you (admin: all; teacher: active members of your groups) and how many were active in the last 7 days (`last_seen_at`) |
+| Exams Last 30 Days (Экзаменов за 30 дней) | admin, teacher | Number of exam sessions in the past month |
+| Activity Chart (Активность тренировок за 30 дней) | admin, teacher | Daily active learners (line chart) |
+| Top Learners (Лучшие ученики за 30 дней) | admin, teacher | Top 10 learners by reviews in group trainings (last 30 days; a learner's personal practice is never counted for teachers) |
+| Hardest Words (Самые трудные слова за 30 дней) | admin, teacher | Top 20 words with lowest accuracy |
+| Pro subscriptions (Подписки Pro) | **admin only** | *Pro learners* — learners whose effective plan is Pro right now (own or sponsored, each counted once), with the split "own subscriptions / sponsoring organizations"; *Pro ending in 7 days* — own and organization subscriptions whose paid access ends within a week (for an auto-renewing provider: the end of the grace period) |
+| Onboarding funnel — 7 days (Первичная настройка — 7 дней) | **admin only** | Learners who started onboarding in the last 7 days (`onboarding.started`), how many of them have completed it (`onboarding.completed`) and the conversion %. Distinct learners; a learner who started earlier and finished this week is not in the cohort |
+| Organizations — members / seats (Учебные центры — места и очередь) | **admin only** | Per organization: active groups, **members** (distinct learners with an active membership in an active group of the organization; deleted learners are not counted), **seats** (`seats_limit` of the organization's live subscription; empty when none was set) and whether it is sponsoring Pro |
+| SM-2 vs FSRS — 28 days (SM-2 и FSRS за последние 28 дней) | **admin only** | The SRS A/B, one figure per algorithm (`SM-2 / FSRS`, from `training_reviews.scheduler`): *pass rate of due cards* (graduated cards answered 3+ out of 5), *reviews per graduated word* (fewer at the same pass rate means FSRS is more efficient), *D7 retention by bucket* (learners who signed up 28–7 days ago and still studied 7+ days after signing up). `—` = no data yet; with `FSRS_ROLLOUT_PERCENT=0` and no manual switches the FSRS side stays empty |
+| Revenue, last 30 days (Выручка за 30 дней) | **admin only** | One figure per currency, **UZS and XTR are never added together**. *Revenue* = the charges and renewals of the last 30 days (by payment time) that are still `succeeded`, i.e. gross minus the `refunded` ones; the line below shows the number of payments, the gross and the refunded amount. Failed events and the `refund` bookkeeping rows are not counted; a charge older than 30 days that is refunded today does not change this figure |
+| Payment webhook errors, last 24 h (Ошибки вебхуков оплаты за 24 часа) | **admin only** | *Failed payments* — ledger rows recorded as `failed` in the last 24 hours (by provider); *Canceled provider transactions* — Payme / Click transactions canceled in that time (a customer closing the page also cancels, so only a spike matters). Any failed payment deserves a look: open **Payments → Status: failed**. *Double discounts* — orders paid in the last 24 hours with the red **Double discount** badge (**Payment orders → filter Double discount**); normally 0. *Double Stars subscriptions* — orders paid in the last 24 hours with the red **Double Stars subscription** badge (**Payment orders → filter Double Stars subscription**); normally 0 |
 
 The *admin only* widgets show platform-wide data: a teacher never sees them (they are not on the dashboard and
 cannot be opened directly; an inactive admin gets the same). The seat limit is informational in
@@ -464,7 +473,7 @@ up. The funnel reads `product_events` through the `(name, occurred_at)` index; e
 
 ## Exam Logs
 
-Open **Learning → Exam Logs** to see every exam session, its group, lesson, status, dates, participant count, and answer count. Open a session for two read-only drilldowns:
+Open **Learning → Exam Logs** (Обучение → Экзамены) to see every exam session, its group, lesson, status, dates, participant count, and answer count. Open a session for two read-only drilldowns:
 
 - **Learner results** — score, correct/answered totals, total response time, and rank.
 - **Per-word answers** — learner, word, selected and correct translations, correctness, score, and server-measured response time.
@@ -546,7 +555,7 @@ The requested stage/lesson hasn't been imported yet — or it exists in a differ
 for the stage number in the **course of the group** (group record → Course; empty = the `default` course).
 
 **A learner says they paid but have no Pro.**
-Open **Billing → Payments** and search by the charge id (from the receipt / Telegram) or filter by the learner's subject.
+Open **Billing → Payments** (Оплата → Платежи) and search by the charge id (from the receipt / Telegram) or filter by the learner's subject.
 `succeeded` + an active subscription (**Subscriptions**) means access is there (ask the learner to reopen the app; the
 plan cache is dropped on payment). A `failed` row means the money arrived but could not be credited (see the raw payload
 and **Payment orders** for the reason: expired order, amount mismatch): fix it by granting Pro (**Grant Pro**) or refund

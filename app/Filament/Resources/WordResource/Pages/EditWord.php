@@ -14,6 +14,11 @@ class EditWord extends EditRecord
 {
     protected static string $resource = WordResource::class;
 
+    public function getTitle(): string
+    {
+        return __('admin.words.titles.edit');
+    }
+
     /** The ru text lives in `words.translation` and in the ru translation row: keep them equal. */
     protected function afterSave(): void
     {

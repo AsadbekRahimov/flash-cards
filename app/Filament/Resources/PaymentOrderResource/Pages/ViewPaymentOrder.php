@@ -10,4 +10,9 @@ use Filament\Resources\Pages\ViewRecord;
 class ViewPaymentOrder extends ViewRecord
 {
     protected static string $resource = PaymentOrderResource::class;
+
+    public function getTitle(): string
+    {
+        return __('admin.orders.titles.view');
+    }
 }

@@ -6,6 +6,7 @@ namespace App\Filament\Widgets;
 
 use App\Domain\Billing\Services\BillingReportService;
 use App\Filament\Concerns\RequiresActiveAdmin;
+use App\Filament\Resources\Support\AdminLabels;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
@@ -24,7 +25,10 @@ class WebhookErrorsWidget extends StatsOverviewWidget
 
     protected static ?int $sort = 10;
 
-    protected ?string $heading = 'Payment webhook errors, last 24 h';
+    protected function getHeading(): string
+    {
+        return __('admin.widgets.webhook_errors.heading');
+    }
 
     /** @return array<int, Stat> */
     protected function getStats(): array
@@ -32,28 +36,28 @@ class WebhookErrorsWidget extends StatsOverviewWidget
         $errors = app(BillingReportService::class)->webhookErrorsLast24Hours();
 
         $byProvider = collect($errors['failed_by_provider'])
-            ->map(fn (int $count, string $provider): string => "{$provider}: {$count}")
+            ->map(fn (int $count, string $provider): string => AdminLabels::value('common.provider', $provider).": {$count}")
             ->implode(', ');
 
         return [
-            Stat::make('Failed payments', (string) $errors['failed_payments'])
-                ->description($byProvider !== '' ? $byProvider : 'None')
+            Stat::make(__('admin.widgets.webhook_errors.failed_payments'), (string) $errors['failed_payments'])
+                ->description($byProvider !== '' ? $byProvider : __('admin.widgets.webhook_errors.none'))
                 ->color($errors['failed_payments'] > 0 ? 'danger' : 'success')
                 ->icon('heroicon-o-exclamation-triangle'),
-            Stat::make('Canceled provider transactions', (string) $errors['canceled_transactions'])
-                ->description('Payme / Click')
+            Stat::make(__('admin.widgets.webhook_errors.canceled_transactions'), (string) $errors['canceled_transactions'])
+                ->description(__('admin.widgets.webhook_errors.canceled_transactions_help'))
                 ->color($errors['canceled_transactions'] > 0 ? 'warning' : 'gray')
                 ->icon('heroicon-o-x-circle'),
-            Stat::make('Double discounts', (string) $errors['double_discounts'])
-                ->description('Offer discount paid twice (filter on Payment orders)')
+            Stat::make(__('admin.widgets.webhook_errors.double_discounts'), (string) $errors['double_discounts'])
+                ->description(__('admin.widgets.webhook_errors.double_discounts_help'))
                 ->color($errors['double_discounts'] > 0 ? 'danger' : 'success')
                 ->icon('heroicon-o-receipt-percent'),
-            Stat::make('Tier mismatches', (string) $errors['tier_mismatches'])
-                ->description('Paid for a tier other than the live one (filter on Payment orders)')
+            Stat::make(__('admin.widgets.webhook_errors.tier_mismatches'), (string) $errors['tier_mismatches'])
+                ->description(__('admin.widgets.webhook_errors.tier_mismatches_help'))
                 ->color($errors['tier_mismatches'] > 0 ? 'danger' : 'success')
                 ->icon('heroicon-o-arrows-right-left'),
-            Stat::make('Double Stars subscriptions', (string) $errors['stars_double_subscriptions'])
-                ->description('Second Telegram subscription paid next to a running one: cancel one, refund if asked (filter on Payment orders)')
+            Stat::make(__('admin.widgets.webhook_errors.stars_double'), (string) $errors['stars_double_subscriptions'])
+                ->description(__('admin.widgets.webhook_errors.stars_double_help'))
                 ->color($errors['stars_double_subscriptions'] > 0 ? 'danger' : 'success')
                 ->icon('heroicon-o-square-2-stack'),
         ];

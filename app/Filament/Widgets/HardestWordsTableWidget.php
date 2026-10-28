@@ -14,11 +14,14 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
 
 class HardestWordsTableWidget extends TableWidget
 {
-    protected static ?string $heading = 'Hardest words — last 30 days';
-
     protected static ?int $sort = 5;
 
     protected int|string|array $columnSpan = 'full';
+
+    protected function getTableHeading(): string
+    {
+        return __('admin.widgets.hardest_words.heading');
+    }
 
     public function table(Table $table): Table
     {
@@ -57,15 +60,16 @@ class HardestWordsTableWidget extends TableWidget
                     ->limit(10),
             )
             ->columns([
-                Tables\Columns\TextColumn::make('word')->weight('bold'),
-                Tables\Columns\TextColumn::make('translation')->limit(40),
-                Tables\Columns\TextColumn::make('attempts')->badge(),
+                Tables\Columns\TextColumn::make('word')->label(__('admin.widgets.hardest_words.word'))->weight('bold'),
+                Tables\Columns\TextColumn::make('translation')->label(__('admin.widgets.hardest_words.translation'))->limit(40),
+                Tables\Columns\TextColumn::make('attempts')->label(__('admin.widgets.hardest_words.attempts'))->badge(),
                 Tables\Columns\TextColumn::make('hard_ratio')
-                    ->label('Hard ratio')
+                    ->label(__('admin.widgets.hardest_words.hard_ratio'))
                     ->formatStateUsing(fn ($state): string => $state === null ? '—' : number_format((float) $state * 100, 0).'%')
                     ->badge()
                     ->color('danger'),
             ])
+            ->emptyStateHeading(__('admin.widgets.hardest_words.empty'))
             ->paginated(false);
     }
 }

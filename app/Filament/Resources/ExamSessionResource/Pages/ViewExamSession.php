@@ -10,4 +10,9 @@ use Filament\Resources\Pages\ViewRecord;
 class ViewExamSession extends ViewRecord
 {
     protected static string $resource = ExamSessionResource::class;
+
+    public function getTitle(): string
+    {
+        return __('admin.exams.titles.view');
+    }
 }

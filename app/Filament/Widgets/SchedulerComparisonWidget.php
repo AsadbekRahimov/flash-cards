@@ -28,7 +28,10 @@ class SchedulerComparisonWidget extends StatsOverviewWidget
 
     protected static ?int $sort = 7;
 
-    protected ?string $heading = 'SM-2 vs FSRS, last 28 days';
+    protected function getHeading(): string
+    {
+        return __('admin.widgets.scheduler_comparison.heading');
+    }
 
     /** @return array<int, Stat> */
     protected function getStats(): array
@@ -40,16 +43,16 @@ class SchedulerComparisonWidget extends StatsOverviewWidget
         $fsrs = $metrics[SchedulerKind::Fsrs->value];
 
         return [
-            Stat::make('Pass rate of due cards', self::pair(self::percent($sm2->passRate()), self::percent($fsrs->passRate())))
-                ->description(self::pair("{$sm2->duePasses} / {$sm2->dueReviews}", "{$fsrs->duePasses} / {$fsrs->dueReviews}").' due review cards')
+            Stat::make(__('admin.widgets.scheduler_comparison.pass_rate'), self::pair(self::percent($sm2->passRate()), self::percent($fsrs->passRate())))
+                ->description(__('admin.widgets.scheduler_comparison.pass_rate_help', ['pair' => self::pair("{$sm2->duePasses} / {$sm2->dueReviews}", "{$fsrs->duePasses} / {$fsrs->dueReviews}")]))
                 ->icon('heroicon-o-check-circle')
                 ->color('primary'),
-            Stat::make('Reviews per graduated word', self::pair(self::ratio($sm2->reviewsPerGraduatedWord()), self::ratio($fsrs->reviewsPerGraduatedWord())))
-                ->description(self::pair("{$sm2->reviews} / {$sm2->graduatedWords}", "{$fsrs->reviews} / {$fsrs->graduatedWords}").' reviews / words')
+            Stat::make(__('admin.widgets.scheduler_comparison.reviews_per_word'), self::pair(self::ratio($sm2->reviewsPerGraduatedWord()), self::ratio($fsrs->reviewsPerGraduatedWord())))
+                ->description(__('admin.widgets.scheduler_comparison.reviews_per_word_help', ['pair' => self::pair("{$sm2->reviews} / {$sm2->graduatedWords}", "{$fsrs->reviews} / {$fsrs->graduatedWords}")]))
                 ->icon('heroicon-o-arrow-path')
                 ->color('primary'),
-            Stat::make('D7 retention by bucket', self::pair(self::percent($sm2->retentionD7()), self::percent($fsrs->retentionD7())))
-                ->description(self::pair("{$sm2->retainedD7} / {$sm2->cohortLearners}", "{$fsrs->retainedD7} / {$fsrs->cohortLearners}").' learners signed up 28–7 days ago')
+            Stat::make(__('admin.widgets.scheduler_comparison.retention'), self::pair(self::percent($sm2->retentionD7()), self::percent($fsrs->retentionD7())))
+                ->description(__('admin.widgets.scheduler_comparison.retention_help', ['pair' => self::pair("{$sm2->retainedD7} / {$sm2->cohortLearners}", "{$fsrs->retainedD7} / {$fsrs->cohortLearners}")]))
                 ->icon('heroicon-o-user-group')
                 ->color('primary'),
         ];

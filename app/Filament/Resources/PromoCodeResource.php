@@ -7,6 +7,7 @@ namespace App\Filament\Resources;
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Services\PromoCodeService;
 use App\Filament\Resources\PromoCodeResource\Pages;
+use App\Filament\Resources\Support\AdminLabels;
 use App\Models\PromoCode;
 use Closure;
 use Filament\Actions;
@@ -28,24 +29,43 @@ class PromoCodeResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-ticket';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Billing';
-
     protected static ?int $navigationSort = 20;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('admin.nav.billing');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.promo_codes.nav');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('admin.promo_codes.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('admin.promo_codes.plural');
+    }
 
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
             Forms\Components\TextInput::make('code')
+                ->label(__('admin.promo_codes.fields.code'))
                 ->required()
                 ->default(fn (): string => app(PromoCodeService::class)->generateCode())
-                ->helperText('6–32 Latin letters or digits; spaces and dashes are dropped. Cannot be changed after creation.')
+                ->helperText(__('admin.promo_codes.fields.code_help'))
                 ->disabledOn('edit')
                 ->rules([
                     fn (?PromoCode $record): Closure => function (string $attribute, mixed $value, Closure $fail) use ($record): void {
                         $normalized = PromoCodeService::normalize((string) $value);
 
                         if (preg_match('/\A[A-Z0-9]{6,32}\z/', $normalized) !== 1) {
-                            $fail('The code must be 6–32 Latin letters or digits (spaces and dashes are ignored).');
+                            $fail(__('admin.promo_codes.fields.code_invalid'));
 
                             return;
                         }
@@ -56,16 +76,17 @@ class PromoCodeResource extends Resource
                             ->exists();
 
                         if ($taken) {
-                            $fail('This code already exists.');
+                            $fail(__('admin.promo_codes.fields.code_taken'));
                         }
                     },
                 ]),
             Forms\Components\Select::make('plan')
+                ->label(__('admin.promo_codes.fields.plan'))
                 ->options(self::grantablePlans())
                 ->default(Plan::Pro->value)
                 ->required(),
             Forms\Components\TextInput::make('duration_days')
-                ->label('Duration (days)')
+                ->label(__('admin.promo_codes.fields.duration_days'))
                 ->numeric()
                 ->integer()
                 ->minValue(1)
@@ -73,19 +94,19 @@ class PromoCodeResource extends Resource
                 ->default(30)
                 ->required(),
             Forms\Components\TextInput::make('max_redemptions')
-                ->label('Max redemptions')
+                ->label(__('admin.promo_codes.fields.max_redemptions'))
                 ->numeric()
                 ->integer()
                 ->minValue(1)
-                ->helperText('Empty = unlimited. One learner can redeem a code only once either way.'),
+                ->helperText(__('admin.promo_codes.fields.max_redemptions_help')),
             Forms\Components\DateTimePicker::make('expires_at')
-                ->label('Valid until')
+                ->label(__('admin.promo_codes.fields.expires_at'))
                 ->timezone(config('learners.default_timezone'))
-                ->helperText('Empty = no expiry date. Time zone: '.config('learners.default_timezone').'.'),
-            Forms\Components\Toggle::make('is_active')->label('Active')->default(true),
-            Forms\Components\Textarea::make('note')->rows(2)->maxLength(500)->columnSpanFull(),
+                ->helperText(__('admin.promo_codes.fields.expires_at_help', ['tz' => config('learners.default_timezone')])),
+            Forms\Components\Toggle::make('is_active')->label(__('admin.promo_codes.fields.is_active'))->default(true),
+            Forms\Components\Textarea::make('note')->label(__('admin.promo_codes.fields.note'))->rows(2)->maxLength(500)->columnSpanFull(),
             Forms\Components\TextInput::make('redemptions_count')
-                ->label('Redeemed')
+                ->label(__('admin.promo_codes.fields.redemptions_count'))
                 ->disabled()
                 ->dehydrated(false)
                 ->visibleOn('edit'),
@@ -96,22 +117,26 @@ class PromoCodeResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('code')->searchable()->copyable()->fontFamily('mono')->sortable(),
-                Tables\Columns\TextColumn::make('plan')->badge(),
-                Tables\Columns\TextColumn::make('duration_days')->label('Days')->sortable(),
+                Tables\Columns\TextColumn::make('code')->label(__('admin.promo_codes.fields.code'))->searchable()->copyable()->fontFamily('mono')->sortable(),
+                Tables\Columns\TextColumn::make('plan')
+                    ->label(__('admin.promo_codes.fields.plan'))
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => AdminLabels::value('common.plan', $state)),
+                Tables\Columns\TextColumn::make('duration_days')->label(__('admin.promo_codes.columns.days'))->sortable(),
                 Tables\Columns\TextColumn::make('redemptions_count')
-                    ->label('Redeemed')
+                    ->label(__('admin.promo_codes.fields.redemptions_count'))
                     ->formatStateUsing(fn (PromoCode $record): string => $record->redemptions_count.' / '.($record->max_redemptions ?? '∞'))
                     ->sortable(),
-                Tables\Columns\TextColumn::make('expires_at')->dateTime()->placeholder('—')->sortable(),
-                Tables\Columns\IconColumn::make('is_active')->label('Active')->boolean(),
-                Tables\Columns\TextColumn::make('createdBy.name')->label('Created by')->placeholder('—')->toggleable(),
-                Tables\Columns\TextColumn::make('note')->limit(40)->placeholder('—')->toggleable(),
-                Tables\Columns\TextColumn::make('created_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('expires_at')->label(__('admin.promo_codes.fields.expires_at'))->dateTime()->placeholder('—')->sortable(),
+                Tables\Columns\IconColumn::make('is_active')->label(__('admin.promo_codes.fields.is_active'))->boolean(),
+                Tables\Columns\TextColumn::make('createdBy.name')->label(__('admin.promo_codes.columns.created_by'))->placeholder('—')->toggleable(),
+                Tables\Columns\TextColumn::make('note')->label(__('admin.promo_codes.fields.note'))->limit(40)->placeholder('—')->toggleable(),
+                Tables\Columns\TextColumn::make('created_at')->label(__('admin.promo_codes.columns.created_at'))->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\TernaryFilter::make('is_active')->label('Active'),
+                Tables\Filters\TernaryFilter::make('is_active')->label(__('admin.promo_codes.fields.is_active')),
             ])
+            ->emptyStateHeading(__('admin.promo_codes.empty'))
             ->actions([
                 Actions\EditAction::make(),
                 Actions\DeleteAction::make(),
@@ -135,7 +160,7 @@ class PromoCodeResource extends Resource
         $plans = [];
         foreach (Plan::cases() as $plan) {
             if ($plan->rank() > Plan::Free->rank()) {
-                $plans[$plan->value] = ucfirst($plan->value);
+                $plans[$plan->value] = AdminLabels::value('common.plan', $plan->value);
             }
         }
 

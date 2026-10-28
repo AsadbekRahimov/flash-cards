@@ -112,7 +112,7 @@ This immediately closes the open exam, builds the final leaderboard, and posts i
 
 1. Open your browser and go to `/admin`.
 2. Log in with your teacher credentials.
-3. Open **Learning → Exam Logs** to see sessions, student results, and the per-word breakdown for your assigned groups.
+3. Open **Learning → Exam Logs** (Обучение → Экзамены) to see sessions, student results, and the per-word breakdown for your assigned groups. The panel is in Russian; other menu items you may see: **Content** (Контент: Модули, Уроки, Слова), **Administration** (Администрирование: Ученики, Telegram-группы).
 
 > Note: Teachers can only see their own groups. The admin decides which groups you are linked to.
 

@@ -318,7 +318,7 @@ it('hides the scheduler switch from teachers and refuses it when called directly
 it('shows the comparison widget to an active admin only', function (): void {
     $this->actingAs(abAdmin());
     expect(SchedulerComparisonWidget::canView())->toBeTrue();
-    Livewire::test(SchedulerComparisonWidget::class)->assertOk()->assertSee('SM-2 vs FSRS');
+    Livewire::test(SchedulerComparisonWidget::class)->assertOk()->assertSee('SM-2 и FSRS');
 
     $teacher = User::factory()->create(['is_active' => true]);
     $teacher->assignRole('teacher');

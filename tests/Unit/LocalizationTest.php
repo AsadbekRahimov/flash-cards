@@ -82,12 +82,29 @@ it('falls back to a supported locale when config is broken', function (): void {
 
 // --- translation files ----------------------------------------------------
 
-/** @return array<string, string> dotted key => string, for one locale */
-function loadLangFiles(string $locale): array
+/**
+ * Translation groups that exist in ru only, on purpose: the admin panel `/admin` is Russian (docs/14 §7), uz and every
+ * other locale get it through the ru fallback (AdminPanelLocalizationTest).
+ *
+ * @return list<string>
+ */
+function ruOnlyLangGroups(): array
+{
+    return ['admin'];
+}
+
+/**
+ * @param  bool  $bilingual  leave out the ru-only groups: what ru and uz must have in common
+ * @return array<string, string> dotted key => string, for one locale
+ */
+function loadLangFiles(string $locale, bool $bilingual = false): array
 {
     $result = [];
     foreach (glob(lang_path($locale.'/*.php')) ?: [] as $file) {
         $group = basename($file, '.php');
+        if ($bilingual && in_array($group, ruOnlyLangGroups(), true)) {
+            continue;
+        }
         foreach (Arr::dot(require $file) as $key => $value) {
             $result["{$group}.{$key}"] = (string) $value;
         }
@@ -107,15 +124,22 @@ function placeholders(string $text): array
 }
 
 it('has the same translation keys in ru and uz', function (): void {
-    $ru = loadLangFiles('ru');
+    $ru = loadLangFiles('ru', bilingual: true);
     $uz = loadLangFiles('uz');
 
     expect($ru)->not->toBeEmpty()
         ->and(array_keys($uz))->toEqualCanonicalizing(array_keys($ru));
 });
 
+it('keeps the ru-only groups out of uz', function (): void {
+    foreach (ruOnlyLangGroups() as $group) {
+        expect(file_exists(lang_path("ru/{$group}.php")))->toBeTrue()
+            ->and(file_exists(lang_path("uz/{$group}.php")))->toBeFalse();
+    }
+});
+
 it('uses the same placeholders in ru and uz', function (): void {
-    $ru = loadLangFiles('ru');
+    $ru = loadLangFiles('ru', bilingual: true);
     $uz = loadLangFiles('uz');
 
     foreach ($ru as $key => $text) {

@@ -21,7 +21,10 @@ class PlatformSubscriptionsWidget extends StatsOverviewWidget
 
     protected static ?int $sort = 6;
 
-    protected ?string $heading = 'Pro subscriptions';
+    protected function getHeading(): string
+    {
+        return __('admin.widgets.platform_subscriptions.heading');
+    }
 
     /** @return array<int, Stat> */
     protected function getStats(): array
@@ -29,12 +32,12 @@ class PlatformSubscriptionsWidget extends StatsOverviewWidget
         $stats = app(PlatformStatsService::class)->subscriptions();
 
         return [
-            Stat::make('Pro learners', (string) $stats['pro_learners'])
-                ->description("{$stats['personal']} own, {$stats['organizations']} sponsoring organizations")
+            Stat::make(__('admin.widgets.platform_subscriptions.pro_learners'), (string) $stats['pro_learners'])
+                ->description(__('admin.widgets.platform_subscriptions.pro_learners_help', ['personal' => $stats['personal'], 'organizations' => $stats['organizations']]))
                 ->color($stats['pro_learners'] > 0 ? 'success' : 'gray')
                 ->icon('heroicon-o-star'),
-            Stat::make('Pro ending in 7 days', (string) $stats['expiring'])
-                ->description('Own and organization subscriptions')
+            Stat::make(__('admin.widgets.platform_subscriptions.expiring'), (string) $stats['expiring'])
+                ->description(__('admin.widgets.platform_subscriptions.expiring_help'))
                 ->color($stats['expiring'] > 0 ? 'warning' : 'gray')
                 ->icon('heroicon-o-clock'),
         ];

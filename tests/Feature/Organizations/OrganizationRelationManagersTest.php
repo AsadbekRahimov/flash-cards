@@ -137,7 +137,7 @@ it('creates an invite through the service for this organization', function (): v
             'expires_at' => now()->addDays(10)->format('Y-m-d H:i:s'),
         ])
         ->assertHasNoTableActionErrors()
-        ->assertNotified('Invite created');
+        ->assertNotified('Приглашение создано');
 
     $invite = OrganizationInvite::query()->sole();
     expect($invite->organization_id)->toBe($org->id)
@@ -195,7 +195,7 @@ it('deactivates an invite: the code stops working, members stay', function (): v
     orgRm(InvitesRelationManager::class, $org)
         ->assertTableActionVisible('deactivateInvite', $invite)
         ->callTableAction('deactivateInvite', $invite)
-        ->assertNotified('Invite deactivated');
+        ->assertNotified('Приглашение отключено');
 
     expect($invite->refresh()->is_active)->toBeFalse()
         ->and(OrganizationMember::query()->where('learner_id', $member->id)->value('status'))->toBe('active');
@@ -245,7 +245,7 @@ it('removes a member: the seat goes to the first waiting one, the action is audi
 
     orgRm(MembersRelationManager::class, $org)
         ->callTableAction('removeMember', $member)
-        ->assertNotified('Member removed');
+        ->assertNotified('Ученик удалён из центра');
 
     expect($member->refresh()->status)->toBe('removed')
         ->and($member->seat_state)->toBe('none')
@@ -268,9 +268,9 @@ it('adds a learner by an administrator: seated while there are seats, waiting af
 
     orgRm(MembersRelationManager::class, $org)
         ->callTableAction('addMember', data: ['learner_id' => $first->id])
-        ->assertNotified('Learner added and seated')
+        ->assertNotified('Ученик добавлен и получил место')
         ->callTableAction('addMember', data: ['learner_id' => $second->id])
-        ->assertNotified('Learner added to the waiting list');
+        ->assertNotified('Ученик добавлен в очередь на место');
 
     $a = OrganizationMember::query()->where('learner_id', $first->id)->sole();
     $b = OrganizationMember::query()->where('learner_id', $second->id)->sole();
@@ -289,11 +289,11 @@ it('does not add a member twice and does not add to a suspended organization', f
 
     orgRm(MembersRelationManager::class, $org)
         ->callTableAction('addMember', data: ['learner_id' => $learner->id])
-        ->assertNotified('Already a member');
+        ->assertNotified('Уже состоит в центре');
 
     orgRm(MembersRelationManager::class, $suspended)
         ->callTableAction('addMember', data: ['learner_id' => $stranger->id])
-        ->assertNotified('Learner not added');
+        ->assertNotified('Ученик не добавлен');
 
     expect(OrganizationMember::query()->where('organization_id', $org->id)->count())->toBe(1)
         ->and(OrganizationMember::query()->where('organization_id', $suspended->id)->count())->toBe(0);

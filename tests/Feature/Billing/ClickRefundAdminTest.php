@@ -68,7 +68,7 @@ it('records a Click refund only as "returned by hand": note required, audited wi
     Livewire::test(ListPayments::class)
         ->callTableAction('refund', $charge, ['note' => 'Customer asked', 'returned_by_hand' => false])
         ->assertHasNoTableActionErrors()
-        ->assertNotified('Not refunded');
+        ->assertNotified('Возврат не выполнен');
     expect(Payment::query()->where('kind', 'refund')->count())->toBe(0)
         ->and($charge->refresh()->status)->toBe('succeeded')
         ->and(Subscription::query()->sole()->status)->toBe('active');
@@ -77,7 +77,7 @@ it('records a Click refund only as "returned by hand": note required, audited wi
     $component = Livewire::test(ListPayments::class)
         ->callTableAction('refund', $charge, ['note' => 'Returned in Click cabinet, ticket #7', 'returned_by_hand' => true])
         ->assertHasNoTableActionErrors()
-        ->assertNotified('Payment refunded');
+        ->assertNotified('Платёж возвращён');
 
     $refund = Payment::query()->where('kind', 'refund')->sole();
     expect($refund->provider)->toBe('click')
@@ -123,7 +123,7 @@ it('never pre-selects "returned by hand" for a Click payment: the admin must swi
     Livewire::test(ViewPayment::class, ['record' => $charge->id])
         ->callAction('refund', ['note' => 'Returned in Click cabinet'])
         ->assertHasNoActionErrors()
-        ->assertNotified('Not refunded');
+        ->assertNotified('Возврат не выполнен');
     expect($charge->refresh()->status)->toBe('succeeded')
         ->and(Payment::query()->where('kind', 'refund')->count())->toBe(0);
 
@@ -131,7 +131,7 @@ it('never pre-selects "returned by hand" for a Click payment: the admin must swi
     Livewire::test(ViewPayment::class, ['record' => $charge->id])
         ->callAction('refund', ['note' => 'Returned in Click cabinet', 'returned_by_hand' => true])
         ->assertHasNoActionErrors()
-        ->assertNotified('Payment refunded');
+        ->assertNotified('Платёж возвращён');
 
     expect($charge->refresh()->status)->toBe('refunded')
         ->and(Payment::query()->where('kind', 'refund')->sole()->raw['returned_by_hand'])->toBeTrue();

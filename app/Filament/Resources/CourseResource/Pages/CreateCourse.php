@@ -11,6 +11,11 @@ class CreateCourse extends CreateRecord
 {
     protected static string $resource = CourseResource::class;
 
+    public function getTitle(): string
+    {
+        return __('admin.courses.titles.create');
+    }
+
     /**
      * A course always starts as a draft owned by the platform (organization courses: Phase 2).
      *
