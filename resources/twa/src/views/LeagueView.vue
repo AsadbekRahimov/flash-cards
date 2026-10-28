@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { RouterLink } from 'vue-router'
 import InitialAvatar from '@/components/InitialAvatar.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
@@ -54,6 +55,9 @@ const LAST_WEEK: Record<LeagueResult, { label: StringKey; icon: IconName; tile: 
 }
 
 const tierName = (key: string): string => t(tierLabelKey(key))
+
+/** The chip of my zone ("safe" while there is no membership: the card is not drawn then). */
+const zoneView = computed(() => ZONES[membership.value?.zone ?? 'safe'])
 
 /** The top league has nowhere to be promoted to, the lowest one nowhere to be demoted to (LeagueService). */
 const canPromote = computed(() => {
@@ -167,9 +171,9 @@ onMounted(() => {
           </div>
 
           <div class="mt-3 flex flex-col items-start gap-2">
-            <span class="chip" :class="ZONES[membership.zone].chip" data-testid="zone">
-              <AppIcon v-if="ZONES[membership.zone].icon" :name="ZONES[membership.zone].icon!" :size="14" />
-              {{ t(ZONES[membership.zone].label) }}
+            <span class="chip" :class="zoneView.chip" data-testid="zone">
+              <AppIcon v-if="zoneView.icon" :name="zoneView.icon" :size="14" />
+              {{ t(zoneView.label) }}
             </span>
             <p v-if="membership.points_to_promote !== null" class="text-[15px] leading-5 text-tg-subtitle" data-testid="to-promote">
               {{ t('league.to_promote', { points: tn('league.points', membership.points_to_promote) }) }}
