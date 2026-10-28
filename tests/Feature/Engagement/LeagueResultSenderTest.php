@@ -14,6 +14,7 @@ use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
+use App\Jobs\SendLeagueResultJob;
 use App\Jobs\SendLeagueResultsJob;
 use App\Models\LeagueGroup;
 use App\Models\LeagueMember;
@@ -322,4 +323,79 @@ it('still runs a remainder that is inside the deadline', function (): void {
         ->and(DB::table('failed_jobs')->count())->toBe(0)
         ->and(DB::table('jobs')->count())->toBe(1)
         ->and(DB::table('jobs')->value('payload'))->toContain('"retryUntil":'.$notAfter.',');
+});
+
+// --- the deprecated one-member job (a release in flight) ----------------------------------------------
+
+/** The job exactly as the release before the batches serialized it. */
+function lrLegacyPayload(int $memberId): string
+{
+    return sprintf('O:28:"App\Jobs\SendLeagueResultJob":1:{s:8:"memberId";i:%d;}', $memberId);
+}
+
+/** A row of the `jobs` table as the release before the batches queued it. */
+function lrQueueLegacyJob(string $uuid, int $memberId, int $deadline): void
+{
+    DB::table('jobs')->insert([
+        'queue' => 'default',
+        'payload' => json_encode([
+            'uuid' => $uuid,
+            'displayName' => 'App\Jobs\SendLeagueResultJob',
+            'job' => 'Illuminate\Queue\CallQueuedHandler@call',
+            'maxTries' => 0,
+            'maxExceptions' => 3,
+            'failOnTimeout' => false,
+            'backoff' => '60',
+            'timeout' => null,
+            'retryUntil' => $deadline,
+            'data' => ['commandName' => 'App\Jobs\SendLeagueResultJob', 'command' => lrLegacyPayload($memberId)],
+        ], JSON_THROW_ON_ERROR),
+        'attempts' => 0,
+        'reserved_at' => null,
+        'available_at' => now()->getTimestamp(),
+        'created_at' => now()->getTimestamp(),
+    ]);
+}
+
+it('still runs a one-member job of the old format and never doubles a DM, whoever else sends the member', function (): void {
+    [$a, $b] = array_slice(lrThree(), 0, 2);
+
+    $old = unserialize(lrLegacyPayload($a->id));
+    expect($old)->toBeInstanceOf(SendLeagueResultJob::class)
+        ->and($old->memberId)->toBe($a->id)
+        ->and(serialize(new SendLeagueResultJob($a->id)))->toBe(lrLegacyPayload($a->id));
+
+    $old->handle(app(LeagueResultSender::class));
+    expect(array_column($this->tg->sent, 'chat_id'))->toBe([777_001]);
+
+    // A retry of the same job, and a batch of the new kind that holds the same member: only the new member goes out.
+    $old->handle(app(LeagueResultSender::class));
+    expect(app(LeagueResultSender::class)->sendBatch([$a->id, $b->id], 30))->toBe(['sent' => 1, 'skipped' => 1, 'forbidden' => 0, 'failed' => 0, 'remaining' => []])
+        ->and(array_column($this->tg->sent, 'chat_id'))->toBe([777_001, 777_002])
+        ->and(NotificationLog::query()->where('type', 'league_result')->count())->toBe(2);
+});
+
+it('runs a queued one-member payload of the old format in the worker, through the send budget', function (): void {
+    config(['queue.default' => 'database', 'telegram.outbound.sync_wait_ms' => 0]);
+    [$a, $b] = array_slice(lrThree(), 0, 2);
+    $deadline = now()->addHours(12)->getTimestamp();
+
+    lrQueueLegacyJob('b7f0a8de-0c43-4a35-8f0c-6f1d7a6a1c01', $a->id, $deadline);
+    Artisan::call('queue:work', ['connection' => 'database', '--once' => true, '--sleep' => 0]);
+
+    expect($this->tg->sent)->toHaveCount(1)
+        ->and(DB::table('jobs')->count())->toBe(0)
+        ->and(DB::table('failed_jobs')->count())->toBe(0)
+        ->and(NotificationLog::query()->where('type', 'league_result')->count())->toBe(1);
+
+    // The slot of the bot-wide budget is taken by the job's middleware: with none left it is put back, nothing is sent.
+    $limiter = new TelegramMessageRateLimiter(globalPerSecond: 1);
+    $this->app->instance(TelegramMessageRateLimiter::class, $limiter);
+    $limiter->reserveGlobal();
+    lrQueueLegacyJob('b7f0a8de-0c43-4a35-8f0c-6f1d7a6a1c02', $b->id, $deadline);
+    Artisan::call('queue:work', ['connection' => 'database', '--once' => true, '--sleep' => 0]);
+
+    expect($this->tg->sent)->toHaveCount(1)
+        ->and(DB::table('jobs')->count())->toBe(1)
+        ->and(DB::table('failed_jobs')->count())->toBe(0);
 });
