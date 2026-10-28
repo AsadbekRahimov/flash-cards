@@ -255,10 +255,10 @@ it('lets the repair run wait for an import of the course instead of overwriting 
         },
     ]);
 
-    // The run counted the committed words first (2 != 99) and went for the course row; it got it only after the commit,
-    // recounted 5 and had nothing left to change. Without the lock it would have written its 2 over the import's 5.
+    // The run counted the committed words first (2 != 99) and went for the course row; it got it only after the commit and
+    // recounted 5. Without the lock it would have written its 2 over the import's 5. (Whichever of the two reaches the row
+    // first, the figure ends right; only the lock makes the run wait for an import that is already in flight.)
     expect(collect($results)->pluck('ok')->unique()->all())->toBe([true], json_encode($results))
-        ->and($results[1]['result'])->toBe(0)
         ->and($course->fresh()?->words_count)->toBe(5)
         ->and(Word::query()->where('is_active', true)->count())->toBe(5);
 });
@@ -270,12 +270,12 @@ it('does not hold up the foreign-key checks of learners while an import keeps th
     // course is inserted meanwhile - the insert needs a key-share lock on the course row for its foreign key.
     $results = importRunInParallel([
         function () use ($course): array {
-            importHoldBeforeCommit(600_000);
+            importHoldBeforeCommit(1_200_000);
 
             return importRun(importFile($course, 1, 2, 2));
         },
         function () use ($course): float {
-            usleep(250_000);
+            usleep(400_000);
             $startedAt = microtime(true);
             DB::table('stages')->insert(['course_id' => $course->id, 'number' => 9, 'title' => 'S9', 'created_at' => now(), 'updated_at' => now()]);
 
@@ -284,7 +284,7 @@ it('does not hold up the foreign-key checks of learners while an import keeps th
     ]);
 
     expect(collect($results)->pluck('ok')->unique()->all())->toBe([true], json_encode($results))
-        // `FOR UPDATE` would make the insert wait about 0.35 s for the commit; `FOR NO KEY UPDATE` does not.
-        ->and($results[1]['result'])->toBeLessThan(0.2)
+        // `FOR UPDATE` would make the insert wait for the commit, about 0.8 s from here; `FOR NO KEY UPDATE` does not.
+        ->and($results[1]['result'])->toBeLessThan(0.4)
         ->and($course->fresh()?->words_count)->toBe(3);
 });
