@@ -12,7 +12,7 @@ import { useBillingStore } from '@/stores/billing'
 import { useTodayStore } from '@/stores/today'
 import { useI18n } from '@/i18n'
 import type { StringKey } from '@/i18n/ru'
-import type { BillingPeriod, BillingProviderKey, MeResponse } from '@/api/types'
+import type { BillingPeriod, BillingProviderKey, DeckLimits, MeResponse } from '@/api/types'
 
 export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam_simulator'
 
@@ -30,20 +30,25 @@ export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam
  * non-empty catalog): anything else, including a catalog that failed to load, keeps the `coming_soon` copy.
  *
  * `reason = 'quota'` is the end of today's new words; `'decks'` is a refused deck / deck-word limit
- * (docs/04 A.10); `'streak_freeze'` is the Free teaser of streak freezes (docs/13 §7.2); `'exam_simulator'`
- * is a refused IELTS / SAT mock (docs/13 §8.4); `'info'` is the learner opening it from the Today screen. A promo code that works or a
- * confirmed payment refreshes `/me` (billing store) and `/today`.
+ * (docs/04 A.10; `deckLimits` are the numbers of `GET /decks`, the lead quotes them); `'streak_freeze'` is the Free
+ * teaser of streak freezes (docs/13 §7.2); `'exam_simulator'` is a refused IELTS / SAT mock (docs/13 §8.4); `'info'` is
+ * the learner opening it from the Today screen or from "Renew Pro". A promo code that works or a confirmed payment
+ * refreshes `/me` (billing store) and `/today`.
+ *
+ * What the sheet says follows the plan from `/me`: the line "you are on Free: N new words a day" is for Free only (Pro
+ * has `new_words_per_day: null` = no limit, which is not "unknown").
  *
  * "Repeat words" (shown when the Today store knows of due cards) emits `review`: reviews are never
- * limited on Free, so the quota wall is not a dead end. The parent opens the daily_review session.
+ * limited on Free, so the quota wall is not a dead end. The parent opens the daily_review session
+ * (`useReviewFromPaywall`, the same for every screen that shows the sheet).
  *
  * a11y (minimal): the focus moves into the dialog on open and returns to the opener on close;
  * Escape closes it.
  */
-const props = withDefaults(defineProps<{ reason?: PaywallReason }>(), { reason: 'info' })
+const props = withDefaults(defineProps<{ reason?: PaywallReason; deckLimits?: DeckLimits | null }>(), { reason: 'info', deckLimits: null })
 const emit = defineEmits<{ close: []; redeemed: [me: MeResponse]; review: [] }>()
 
-const { t, locale } = useI18n()
+const { t, tn, locale } = useI18n()
 const billing = useBillingStore()
 const today = useTodayStore()
 
@@ -53,7 +58,14 @@ let opener: HTMLElement | null = null
 
 const dueCount = computed(() => today.data?.due_count ?? 0)
 
-const limit = computed(() => billing.entitlement?.new_words_per_day ?? null)
+const isPro = computed(() => billing.entitlement?.plan === 'pro')
+
+/** What Free gives; nothing for Pro. The generic line is for a plan that is not known (`/me` has not come). */
+const freeLine = computed((): string => {
+  if (isPro.value) return ''
+  const limit = billing.entitlement?.new_words_per_day ?? null
+  return limit !== null ? tn('paywall.free', limit) : t('paywall.free_generic')
+})
 const contact = computed(() => supportContactLink(billing.paywall?.contact))
 
 const purchaseMode = computed(() => billing.canPurchase)
@@ -61,18 +73,27 @@ const paid = computed(() => billing.purchase.status === 'paid')
 const done = computed(() => redeemed.value || paid.value)
 const busy = computed(() => billing.purchase.status === 'starting' || billing.purchase.status === 'awaiting')
 
-/** What the reason adds before the sales pitch (none for `info`). */
+/** What the reason adds before the sales pitch (none for `info`; `decks` quotes the limits, see `reasonLead`). */
 const REASON_LEADS: Partial<Record<PaywallReason, StringKey>> = {
   quota: 'paywall.lead_quota',
-  decks: 'paywall.lead_decks',
   streak_freeze: 'paywall.lead_streak_freeze',
   exam_simulator: 'paywall.lead_exam_simulator',
 }
 
+const reasonLead = computed((): string => {
+  if (props.reason === 'decks') {
+    const limits = props.deckLimits
+    return limits
+      ? t('paywall.lead_decks', { decks: tn('decks.count', limits.decks), words: tn('decks.words_up_to', limits.deck_words) })
+      : t('paywall.lead_decks_generic')
+  }
+  const key = REASON_LEADS[props.reason]
+  return key ? t(key) : ''
+})
+
 const lead = computed(() => {
   const pitch = purchaseMode.value ? t('paywall.lead_purchase') : t('paywall.soon')
-  const reason = REASON_LEADS[props.reason]
-  return reason ? `${t(reason)} ${pitch}` : pitch
+  return reasonLead.value ? `${reasonLead.value} ${pitch}` : pitch
 })
 
 const periods = computed<BillingPeriod[]>(() => (billing.catalog?.items ?? []).map((item) => item.period))
@@ -209,9 +230,7 @@ onBeforeUnmount(() => {
           <template v-if="!done">
             <p class="text-[15px] leading-5" data-testid="paywall-lead">{{ lead }}</p>
 
-            <p class="text-[13px] leading-[18px] text-tg-hint" data-testid="paywall-free">
-              {{ limit !== null ? t('paywall.free', { count: limit }) : t('paywall.free_generic') }}
-            </p>
+            <p v-if="freeLine" class="text-[13px] leading-[18px] text-tg-hint" data-testid="paywall-free">{{ freeLine }}</p>
           </template>
         </header>
 

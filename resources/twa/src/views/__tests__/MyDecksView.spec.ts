@@ -8,7 +8,9 @@ import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { useToast } from '@/composables/useToast'
 import { useTodayStore } from '@/stores/today'
-import type { Course, Deck, DecksResponse } from '@/api/types'
+import { useDecksStore } from '@/stores/decks'
+import type { Course, Deck, DecksResponse, MeResponse } from '@/api/types'
+import { settingsFixture } from '@/api/__tests__/settingsFixture'
 
 const tg = vi.hoisted(() => ({ showBack: vi.fn(), hideBack: vi.fn() }))
 
@@ -41,6 +43,15 @@ const deck = (overrides: Partial<Deck> = {}): Deck => ({
 const response = (decks: Deck[] = [deck()], used = decks.length): DecksResponse => ({
   decks,
   limits: { decks: 1, deck_words: 50, used_decks: used },
+})
+
+const me = (plan: 'free' | 'pro'): MeResponse => ({
+  learner: { id: 1, first_name: 'A', username: null, locale: 'ru', onboarding_completed: true },
+  groups: [],
+  stats: { words_learned: 0, words_due_today: 0 },
+  entitlement: { plan, source: plan === 'pro' ? 'subscription' : 'free', until: null, new_words_per_day: plan === 'pro' ? null : 20 },
+  paywall: { mode: 'coming_soon', contact: null },
+  settings: settingsFixture(),
 })
 
 const selected = (overrides: Partial<Course> = {}): Course => ({
@@ -82,6 +93,7 @@ describe('MyDecksView', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
+    vi.mocked(api.me.get).mockResolvedValue(null as never) // the plan is not known unless a test says so
     useToast().hide()
   })
   afterEach(() => {
@@ -182,6 +194,102 @@ describe('MyDecksView', () => {
 
       await wrapper.get('[data-testid=paywall-close]').trigger('click')
       expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+    })
+  })
+
+  describe('the deck limit', () => {
+    const refuse = () => vi.mocked(api.decks.create).mockRejectedValue(new ApiClientError('validation', 422, 'deck_limit_reached', 'x'))
+
+    async function submit(wrapper: Awaited<ReturnType<typeof render>>['wrapper']) {
+      await wrapper.get('[data-testid=title-input]').setValue('Вторая')
+      await wrapper.get('[data-testid=create-form]').trigger('submit')
+      await flushPromises()
+    }
+
+    it('quotes the limits of the server in the paywall of a Free learner, not fixed numbers', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(me('free'))
+      refuse()
+      const { wrapper } = await render({ decks: [deck()], limits: { decks: 3, deck_words: 101, used_decks: 3 } })
+
+      await submit(wrapper)
+
+      expect(wrapper.get('[data-testid=paywall-lead]').text()).toContain('Лимит колод тарифа Free: 3 колоды до 101 слова.')
+      expect(wrapper.get('[data-testid=paywall-free]').text()).toContain('Сейчас у вас тариф Free')
+      expect(wrapper.find('[data-testid=pro-limit]').exists()).toBe(false)
+    })
+
+    it('does not open the paywall for a Pro learner: this is the limit of their plan, and here is what to do', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(me('pro'))
+      refuse()
+      const { wrapper } = await render({ decks: [deck()], limits: { decks: 20, deck_words: 2000, used_decks: 20 } })
+
+      await submit(wrapper)
+
+      expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      const notice = wrapper.get('[data-testid=pro-limit]')
+      expect(notice.text()).toBe(
+        'Это предел вашего тарифа Pro: 20 колод. Чтобы создать новую колоду, удалите ненужную — слова уйдут в архив, а прогресс сохранится.',
+      )
+      expect(notice.attributes('role')).toBe('status')
+      expect(notice.classes()).toContain('text-warning-ink')
+      expect(wrapper.find('[data-testid=write-error]').exists()).toBe(false) // one message, not two
+      expect(wrapper.text()).not.toContain('тариф Free')
+    })
+
+    it('takes the numbers of a Pro learner from the answer of GET /decks, even when the list on screen was loaded before', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(me('pro'))
+      refuse()
+      const { wrapper } = await render({ decks: [deck()], limits: { decks: 1, deck_words: 50, used_decks: 1 } })
+      vi.mocked(api.decks.list).mockResolvedValue({ decks: [deck()], limits: { decks: 20, deck_words: 2000, used_decks: 20 } })
+
+      await submit(wrapper)
+
+      expect(wrapper.get('[data-testid=pro-limit]').text()).toContain('20 колод')
+    })
+
+    it('shows the general refusal of the server when a Pro learner has no numbers to quote', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(me('pro'))
+      refuse()
+      const { wrapper } = await render()
+      useDecksStore().limits = null // the list carried none (an old server)
+      vi.mocked(api.decks.list).mockRejectedValue(new ApiClientError('network', 0, 'unknown', 'x'))
+
+      await submit(wrapper)
+
+      expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=pro-limit]').exists()).toBe(false)
+      expect(wrapper.get('[data-testid=write-error]').text()).toBe('Достигнут лимит колод вашего тарифа.')
+    })
+
+    it('explains it in Uzbek to a Pro learner', async () => {
+      setLocale('uz')
+      vi.mocked(api.me.get).mockResolvedValue(me('pro'))
+      refuse()
+      const { wrapper } = await render({ decks: [deck()], limits: { decks: 20, deck_words: 2000, used_decks: 20 } })
+
+      await submit(wrapper)
+
+      expect(wrapper.get('[data-testid=pro-limit]').text()).toContain("Bu Pro tarifingizdagi chegara: 20 ta to'plam.")
+    })
+
+    it('does not open a refusal that was left over from the other deck screen', async () => {
+      useDecksStore().$patch({ limitReached: true, limitKind: 'deck_words' })
+
+      const { wrapper } = await render()
+
+      expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      expect(useDecksStore().limitReached).toBe(false)
+    })
+
+    it('drops the refusal when the learner leaves the screen', async () => {
+      refuse()
+      const { wrapper } = await render()
+      await submit(wrapper)
+      expect(wrapper.find('[data-testid=paywall]').exists()).toBe(true)
+
+      wrapper.unmount()
+
+      expect(useDecksStore().limitReached).toBe(false)
     })
   })
 

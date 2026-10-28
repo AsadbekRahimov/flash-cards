@@ -211,13 +211,17 @@ export const uz: Translations = {
   'paywall.title': 'Pro tez orada',
   'paywall.lead_quota': "Bugungi yangi so'zlar limiti tugadi — takrorlash cheklovsiz.",
   'paywall.soon': 'Pro tez orada ochiladi.',
-  'paywall.free': "Hozir sizda Free tarif: kuniga {count} ta yangi so'z, takrorlash cheklovsiz.",
+  'paywall.free': {
+    one: "Hozir sizda Free tarif: kuniga {count} ta yangi so'z, takrorlash cheklovsiz.",
+    other: "Hozir sizda Free tarif: kuniga {count} ta yangi so'z, takrorlash cheklovsiz.",
+  },
   'paywall.free_generic': "Hozir sizda Free tarif: yangi so'zlar kunlik limit bilan cheklangan, takrorlash cheklovsiz.",
   'paywall.contact': "Markazda o'qiysizmi? Markaz administratoridan LexiFlow Pro'ni ulashni so'rang:",
   'paywall.dismiss': 'Tushunarli',
   'paywall.open': 'Pro haqida bilib oling',
   'paywall.review': "So'zlarni takrorlash",
-  'paywall.lead_decks': "Free tarifida to'plamlar limiti: 50 tagacha so'zli 1 ta to'plam. Pro'da 2000 tadan so'zli 20 tagacha to'plam.",
+  'paywall.lead_decks': "Free tarifida to'plamlar limiti: {words}li {decks}. Pro'da 2000 tadan so'zli 20 tagacha to'plam.",
+  'paywall.lead_decks_generic': "Siz Free tarifidagi to'plamlar limitiga yetdingiz. Pro'da 2000 tadan so'zli 20 tagacha to'plam.",
   'paywall.lead_streak_freeze': "Seriyani muzlatish — Pro'da: o'tkazib yuborilgan kun seriyani uzmaydi, 2 tagacha muzlatish, har hafta +1.",
   'paywall.lead_exam_simulator': "IELTS va SAT sinov testlari — Pro'da: 20 daqiqada kursdan 40 ta so'z, natija foizda va boshqalar bilan taqqoslash.",
 
@@ -331,6 +335,16 @@ export const uz: Translations = {
   'decks.active': "Asosiy to'plam",
   'decks.words_title': "So'zlar ({count})",
   'decks.edit.format.label': 'Format',
+  'decks.count': {
+    one: "{count} ta to'plam",
+    other: "{count} ta to'plam",
+  },
+  'decks.words_up_to': {
+    one: "{count} tagacha so'z",
+    other: "{count} tagacha so'z",
+  },
+  'decks.limit_pro.decks': "Bu Pro tarifingizdagi chegara: {decks}. Yangi to'plam yaratish uchun keraksizini o'chiring — so'zlar arxivga o'tadi, natijangiz saqlanadi.",
+  'decks.limit_pro.words': "Bu Pro tarifingizdagi chegara: to'plamda {words}. Hech narsa qo'shilmadi — keraksiz so'zlarni olib tashlang yoki ro'yxatning bir qismini boshqa to'plamga qo'shing.",
 
   // ---- settings ----
   'settings.title': 'Sozlamalar',

@@ -7,8 +7,10 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { useToast } from '@/composables/useToast'
+import { useDecksStore } from '@/stores/decks'
 import { useTodayStore } from '@/stores/today'
-import type { Course, DeckDetail, DeckImportResult } from '@/api/types'
+import type { Course, DeckDetail, DeckImportResult, DeckLimits, MeResponse } from '@/api/types'
+import { settingsFixture } from '@/api/__tests__/settingsFixture'
 
 const tg = vi.hoisted(() => ({
   handler: null as (() => void) | null,
@@ -20,7 +22,7 @@ const tg = vi.hoisted(() => ({
 vi.mock('@/api', () => ({
   api: {
     me: { get: vi.fn().mockResolvedValue(null) },
-    decks: { get: vi.fn(), rename: vi.fn(), remove: vi.fn(), addWords: vi.fn(), removeWord: vi.fn() },
+    decks: { get: vi.fn(), list: vi.fn(), rename: vi.fn(), remove: vi.fn(), addWords: vi.fn(), removeWord: vi.fn() },
     courses: { select: vi.fn() },
     training: { open: vi.fn() },
   },
@@ -46,6 +48,18 @@ const detail = (overrides: Partial<DeckDetail> = {}): DeckDetail => ({
   ],
   ...overrides,
 })
+
+const me = (plan: 'free' | 'pro'): MeResponse => ({
+  learner: { id: 1, first_name: 'A', username: null, locale: 'ru', onboarding_completed: true },
+  groups: [],
+  stats: { words_learned: 0, words_due_today: 0 },
+  entitlement: { plan, source: plan === 'pro' ? 'subscription' : 'free', until: null, new_words_per_day: plan === 'pro' ? null : 20 },
+  paywall: { mode: 'coming_soon', contact: null },
+  settings: settingsFixture(),
+})
+
+const FREE_LIMITS: DeckLimits = { decks: 1, deck_words: 50, used_decks: 1 }
+const PRO_LIMITS: DeckLimits = { decks: 20, deck_words: 2000, used_decks: 3 }
 
 const importResult = (overrides: Partial<DeckImportResult> = {}): DeckImportResult => ({
   added: 2,
@@ -79,6 +93,7 @@ describe('DeckEditView', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
+    vi.mocked(api.me.get).mockResolvedValue(null as never) // the plan is not known unless a test says so
     useToast().hide()
     tg.handler = null
     tg.showBack.mockImplementation((handler: () => void) => {
@@ -393,6 +408,77 @@ describe('DeckEditView', () => {
       expect(wrapper.find('[data-testid=paywall]').exists()).toBe(true)
       expect((wrapper.get('[data-testid=text-input]').element as HTMLTextAreaElement).value).toBe('plum — слива')
       expect(wrapper.find('[data-testid=report]').exists()).toBe(false)
+    })
+
+    describe('the word limit', () => {
+      async function addTooMany(limits: DeckLimits) {
+        vi.mocked(api.decks.list).mockResolvedValue({ decks: [], limits })
+        vi.mocked(api.decks.addWords).mockRejectedValue(new ApiClientError('validation', 422, 'deck_words_limit_reached', 'x'))
+        const context = await render()
+        await context.wrapper.get('[data-testid=text-input]').setValue('plum — слива')
+        await context.wrapper.get('[data-testid=add-btn]').trigger('click')
+        await flushPromises()
+        return context
+      }
+
+      it('quotes the Free limits of GET /decks in the paywall, even for a deck opened from a link (no list was loaded)', async () => {
+        vi.mocked(api.me.get).mockResolvedValue(me('free'))
+
+        const { wrapper } = await addTooMany(FREE_LIMITS)
+
+        expect(wrapper.get('[data-testid=paywall-lead]').text()).toContain('Лимит колод тарифа Free: 1 колода до 50 слов.')
+        expect(wrapper.find('[data-testid=pro-limit]').exists()).toBe(false)
+      })
+
+      it('does not open the paywall for a Pro learner: it explains the size of a deck, under the button they pressed', async () => {
+        vi.mocked(api.me.get).mockResolvedValue(me('pro'))
+
+        const { wrapper } = await addTooMany(PRO_LIMITS)
+
+        expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+        const notice = wrapper.get('[data-testid=import] [data-testid=pro-limit]')
+        expect(notice.text()).toBe(
+          'Это предел вашего тарифа Pro: до 2000 слов в колоде. Ничего не добавлено — уберите ненужные слова или добавьте часть списка в другую колоду.',
+        )
+        expect(notice.attributes('role')).toBe('status')
+        expect(wrapper.find('[data-testid=write-error]').exists()).toBe(false) // one message, not two
+        expect(wrapper.text()).not.toContain('тариф Free')
+        expect((wrapper.get('[data-testid=text-input]').element as HTMLTextAreaElement).value).toBe('plum — слива')
+      })
+
+      it('shows the general refusal of the server to a Pro learner when there are no numbers to quote', async () => {
+        vi.mocked(api.me.get).mockResolvedValue(me('pro'))
+        vi.mocked(api.decks.list).mockRejectedValue(new ApiClientError('network', 0, 'unknown', 'x'))
+        vi.mocked(api.decks.addWords).mockRejectedValue(new ApiClientError('validation', 422, 'deck_words_limit_reached', 'x'))
+        const { wrapper } = await render()
+
+        await wrapper.get('[data-testid=text-input]').setValue('plum — слива')
+        await wrapper.get('[data-testid=add-btn]').trigger('click')
+        await flushPromises()
+
+        expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+        expect(wrapper.find('[data-testid=pro-limit]').exists()).toBe(false)
+        expect(wrapper.get('[data-testid=write-error]').text()).toBe('Достигнут лимит слов в колоде вашего тарифа. Ничего не добавлено.')
+      })
+
+      it('explains it in Uzbek to a Pro learner', async () => {
+        setLocale('uz')
+        vi.mocked(api.me.get).mockResolvedValue(me('pro'))
+
+        const { wrapper } = await addTooMany(PRO_LIMITS)
+
+        expect(wrapper.get('[data-testid=pro-limit]').text()).toContain("to'plamda 2000 tagacha so'z")
+      })
+
+      it('drops the refusal when the learner leaves with the paywall open: it must not pop up on "My decks"', async () => {
+        const { wrapper } = await addTooMany(FREE_LIMITS)
+        expect(wrapper.find('[data-testid=paywall]').exists()).toBe(true)
+
+        wrapper.unmount()
+
+        expect(useDecksStore().limitReached).toBe(false)
+        expect(useDecksStore().limitKind).toBeNull()
+      })
     })
 
     describe('"Повторить слова" in the paywall', () => {

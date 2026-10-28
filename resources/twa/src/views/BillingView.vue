@@ -29,7 +29,7 @@ import type { BillingProviderKey, MeResponse } from '@/api/types'
  */
 const auth = useAuthStore()
 const billing = useBillingStore()
-const { t, locale } = useI18n()
+const { t, tn, locale } = useI18n()
 
 useBackButton({ name: 'profile' })
 
@@ -180,7 +180,7 @@ onMounted(() => {
               class="text-[15px] leading-5 text-tg-subtitle"
               data-testid="plan-free"
             >
-              {{ t('paywall.free', { count: entitlement.new_words_per_day }) }}
+              {{ tn('profile.plan.free', entitlement.new_words_per_day) }}
             </p>
           </div>
         </div>

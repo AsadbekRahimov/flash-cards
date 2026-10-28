@@ -44,13 +44,15 @@ interface Setup {
   renewal?: Renewal | null
   mode?: 'coming_soon' | 'purchase'
   contact?: string | null
+  /** New words a day of a Free learner. */
+  limit?: number
 }
 
-const me = ({ plan = 'free', source, until = null, renewal = null, mode = 'purchase', contact = null }: Setup = {}): MeResponse => ({
+const me = ({ plan = 'free', source, until = null, renewal = null, mode = 'purchase', contact = null, limit = 20 }: Setup = {}): MeResponse => ({
   learner: { id: 1, first_name: 'A', username: null, locale: 'ru', onboarding_completed: true },
   groups: [],
   stats: { words_learned: 0, words_due_today: 0 },
-  entitlement: { plan, source: source ?? (plan === 'pro' ? 'subscription' : 'free'), until, new_words_per_day: plan === 'pro' ? null : 20, renewal },
+  entitlement: { plan, source: source ?? (plan === 'pro' ? 'subscription' : 'free'), until, new_words_per_day: plan === 'pro' ? null : limit, renewal },
   paywall: { mode, contact },
   settings: settingsFixture(),
 })
@@ -122,6 +124,23 @@ describe('BillingView', () => {
       expect(wrapper.get('[data-testid=plan-free]').text()).toContain('20 новых слов в день')
       expect(wrapper.find('[data-testid=plan-until]').exists()).toBe(false)
       expect(wrapper.find('[data-testid=renewal-card]').exists()).toBe(false)
+    })
+
+    it.each([
+      [1, 'Бесплатный тариф: 1 новое слово в день'],
+      [2, 'Бесплатный тариф: 2 новых слова в день'],
+      [5, 'Бесплатный тариф: 5 новых слов в день'],
+    ])('inflects the word for a limit of %i', async (limit, text) => {
+      const { wrapper } = await render(me({ limit }), catalog())
+
+      expect(wrapper.get('[data-testid=plan-free]').text()).toBe(text)
+    })
+
+    it('says the limit of Free in Uzbek', async () => {
+      setLocale('uz')
+      const { wrapper } = await render(me({ limit: 1 }), catalog())
+
+      expect(wrapper.get('[data-testid=plan-free]').text()).toBe("Bepul tarif: kuniga 1 ta yangi so'z")
     })
 
     it('has a purple tile with the sparkles icon', async () => {
@@ -241,6 +260,23 @@ describe('BillingView', () => {
       expect(wrapper.find('[data-testid=renewal-card]').exists()).toBe(false)
       expect(wrapper.get('[data-testid=plan-provider]').text()).toBe('Оплата: Payme.')
       expect(wrapper.get('[data-testid=buy]').text()).toBe('Продлить Pro')
+    })
+
+    it('renews for a Pro learner without telling them in the sheet that they are on Free', async () => {
+      const ends = '2026-11-20T00:00:00+00:00'
+      const { wrapper } = await render(
+        me({ plan: 'pro', until: ends, renewal: { auto: false, provider: 'payme', ends_at: ends, reminder_sent: false } }),
+        catalog(summary({ provider: 'payme', ends_at: ends, auto_renew: false, can_cancel: false, can_resume: false })),
+      )
+      expect(wrapper.get('[data-testid=buy]').text()).toBe('Продлить Pro')
+
+      await wrapper.get('[data-testid=buy]').trigger('click')
+      await flushPromises()
+
+      expect(wrapper.find('[data-testid=paywall]').exists()).toBe(true)
+      expect(wrapper.find('[data-testid=paywall-free]').exists()).toBe(false)
+      expect(wrapper.get('[data-testid=paywall]').text()).not.toContain('тариф Free')
+      expect(wrapper.find('[data-testid=pay-telegram_stars]').exists()).toBe(true) // the sheet still sells the renewal
     })
 
     it('shows "Pro ended" to a Free learner whose subscription lapsed: the banner and the button both say renew', async () => {

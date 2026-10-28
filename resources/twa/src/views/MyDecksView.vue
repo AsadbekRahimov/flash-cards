@@ -12,6 +12,7 @@ import PageHeader from '@/components/ui/PageHeader.vue'
 import SegmentedNav from '@/components/ui/SegmentedNav.vue'
 import { catalogTabs, progressPercent, progressText } from '@/composables/courseLabels'
 import { useBackButton } from '@/composables/useBackButton'
+import { useDeckLimit } from '@/composables/useDeckLimit'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useAuthStore } from '@/stores/auth'
 import { useDecksStore } from '@/stores/decks'
@@ -19,20 +20,22 @@ import { useI18n } from '@/i18n'
 
 /**
  * "My decks" (docs/04 A.10, docs/14 §6.5): the second screen of the Courses tab. The learner's own decks, their
- * plan limits and a form for a new one. A write refused by a plan limit opens the paywall sheet; the deck itself
- * is edited in DeckEditView. A tab root: no system "Back" button.
+ * plan limits and a form for a new one. A write refused by a plan limit opens the paywall sheet for a Free learner and
+ * explains the limit to a Pro one (`useDeckLimit`); the deck itself is edited in DeckEditView. A tab root: no system
+ * "Back" button.
  */
 const router = useRouter()
 const auth = useAuthStore()
 const store = useDecksStore()
 const { t, tn } = useI18n()
 
-const { decks, limits, listStatus: status, busy, errorMessage, limitReached } = storeToRefs(store)
+const { decks, limits, listStatus: status, busy, errorMessage } = storeToRefs(store)
 
 const tabs = computed(catalogTabs)
 const title = ref('')
 
 useBackButton(null)
+const { paywall, proNotice } = useDeckLimit()
 const { reviewFromPaywall } = useReviewFromPaywall(() => store.dismissLimit(), { toastErrors: true })
 
 async function load(): Promise<void> {
@@ -92,7 +95,8 @@ onMounted(() => {
         </p>
       </div>
 
-      <InlineAlert v-if="errorMessage" tone="danger" :message="errorMessage" data-testid="write-error" />
+      <InlineAlert v-if="proNotice" tone="warning" :message="proNotice" data-testid="pro-limit" />
+      <InlineAlert v-else-if="errorMessage" tone="danger" :message="errorMessage" data-testid="write-error" />
 
       <EmptyState v-if="decks.length === 0" icon="rectangle-stack" :text="t('decks.empty')" />
 
@@ -145,6 +149,6 @@ onMounted(() => {
       </article>
     </div>
 
-    <PaywallSheet v-if="limitReached" reason="decks" @close="store.dismissLimit()" @review="reviewFromPaywall" />
+    <PaywallSheet v-if="paywall" reason="decks" :deck-limits="limits" @close="store.dismissLimit()" @review="reviewFromPaywall" />
   </div>
 </template>

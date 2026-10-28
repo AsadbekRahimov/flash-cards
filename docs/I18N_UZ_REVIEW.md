@@ -273,7 +273,10 @@
 | `paywall.title` | Pro tez orada | Pro скоро |
 | `paywall.lead_quota` | Bugungi yangi so'zlar limiti tugadi — takrorlash cheklovsiz. | Лимит новых слов на сегодня исчерпан — повторения доступны без ограничений. |
 | `paywall.soon` | Pro tez orada ochiladi. | Pro скоро откроется. |
-| `paywall.free` | Hozir sizda Free tarif: kuniga {count} ta yangi so'z, takrorlash cheklovsiz. | Сейчас у вас тариф Free: {count} новых слов в день, повторения — без лимита. |
+| `paywall.free.one` | Hozir sizda Free tarif: kuniga {count} ta yangi so'z, takrorlash cheklovsiz. | Сейчас у вас тариф Free: {count} новое слово в день, повторения — без лимита. |
+| `paywall.free.few` | _(в uz этой формы нет — используется `other`)_ | Сейчас у вас тариф Free: {count} новых слова в день, повторения — без лимита. |
+| `paywall.free.many` | _(в uz этой формы нет — используется `other`)_ | Сейчас у вас тариф Free: {count} новых слов в день, повторения — без лимита. |
+| `paywall.free.other` | Hozir sizda Free tarif: kuniga {count} ta yangi so'z, takrorlash cheklovsiz. | Сейчас у вас тариф Free: {count} новых слова в день, повторения — без лимита. |
 | `paywall.free_generic` | Hozir sizda Free tarif: yangi so'zlar kunlik limit bilan cheklangan, takrorlash cheklovsiz. | Сейчас у вас тариф Free: новые слова ограничены дневным лимитом, повторения — без лимита. |
 | `paywall.contact` | Markazda o'qiysizmi? Markaz administratoridan LexiFlow Pro'ni ulashni so'rang: | Учитесь в центре? Попросите администратора центра подключить LexiFlow Pro: |
 | `paywall.dismiss` | Tushunarli | Понятно |
@@ -662,7 +665,7 @@
 | `decks.reason.duplicate` | takror | повтор |
 | `decks.reason.over_limit` | qatorlar limitidan ortiq | сверх лимита строк |
 | `decks.error.too_large` | Matn juda katta: 256 KB dan oshmasligi kerak. | Текст слишком большой: не больше 256 КБ. |
-| `paywall.lead_decks` | Free tarifida to'plamlar limiti: 50 tagacha so'zli 1 ta to'plam. Pro'da 2000 tadan so'zli 20 tagacha to'plam. | Лимит колод тарифа Free: 1 колода до 50 слов. В Pro — до 20 колод по 2000 слов. |
+| `paywall.lead_decks` | Free tarifida to'plamlar limiti: {words}li {decks}. Pro'da 2000 tadan so'zli 20 tagacha to'plam. | Лимит колод тарифа Free: {decks} {words}. В Pro — до 20 колод по 2000 слов. |
 | `error.closed.decks` | To'plam endi mavjud emas. | Колода больше недоступна. |
 | `error.forbidden.decks` | Sizda to'plamlarga kirish huquqi yo'q. | У вас нет доступа к колодам. |
 | `error.code.deck_not_found` | To'plam topilmadi. | Колода не найдена. |
@@ -1877,3 +1880,24 @@
 | `commands.group.start_exam` | Imtihonni boshlash | Запустить экзамен |
 | `commands.group.close_exam` | Imtihonni yakunlash | Завершить экзамен |
 | `commands.group.help` | Yordam | Справка |
+
+## Редизайн 2026-10-28 · 17-11b — на проверку носителю
+
+> Проверить: «Pro» без «Free» в пейволе у платящего ученика, лимиты колод (`50 tagacha so'zli 1 ta to'plam`), «предел тарифа Pro» (`decks.limit_pro.*`), предупреждение о неудавшемся списании Stars (`billing.grace`), подсказки у кнопок-иконок («So'zni olib tashlash: {word}»).
+> Изменённые значения старых ключей исправлены в исходных строках выше; здесь — только новые ключи.
+
+### TWA: пейвол, колоды, подписка, настройки, друзья (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `paywall.lead_decks_generic` | Siz Free tarifidagi to'plamlar limitiga yetdingiz. Pro'da 2000 tadan so'zli 20 tagacha to'plam. | Вы достигли лимита колод тарифа Free. В Pro — до 20 колод по 2000 слов. |
+| `decks.count.one` | {count} ta to'plam | {count} колода |
+| `decks.count.few` | _(в uz этой формы нет — используется `other`)_ | {count} колоды |
+| `decks.count.many` | _(в uz этой формы нет — используется `other`)_ | {count} колод |
+| `decks.count.other` | {count} ta to'plam | {count} колоды |
+| `decks.words_up_to.one` | {count} tagacha so'z | до {count} слова |
+| `decks.words_up_to.few` | _(в uz этой формы нет — используется `other`)_ | до {count} слов |
+| `decks.words_up_to.many` | _(в uz этой формы нет — используется `other`)_ | до {count} слов |
+| `decks.words_up_to.other` | {count} tagacha so'z | до {count} слова |
+| `decks.limit_pro.decks` | Bu Pro tarifingizdagi chegara: {decks}. Yangi to'plam yaratish uchun keraksizini o'chiring — so'zlar arxivga o'tadi, natijangiz saqlanadi. | Это предел вашего тарифа Pro: {decks}. Чтобы создать новую колоду, удалите ненужную — слова уйдут в архив, а прогресс сохранится. |
+| `decks.limit_pro.words` | Bu Pro tarifingizdagi chegara: to'plamda {words}. Hech narsa qo'shilmadi — keraksiz so'zlarni olib tashlang yoki ro'yxatning bir qismini boshqa to'plamga qo'shing. | Это предел вашего тарифа Pro: {words} в колоде. Ничего не добавлено — уберите ненужные слова или добавьте часть списка в другую колоду. |

@@ -11,6 +11,7 @@ import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import SegmentedControl from '@/components/ui/SegmentedControl.vue'
 import { useBackButton } from '@/composables/useBackButton'
+import { useDeckLimit } from '@/composables/useDeckLimit'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useAuthStore } from '@/stores/auth'
 import { useDecksStore } from '@/stores/decks'
@@ -20,7 +21,8 @@ import type { DeckImportFormat } from '@/api/types'
 /**
  * One deck (docs/04 A.10, docs/14 §6.5): rename, choosing the deck as the main one, adding words as a list or CSV
  * (the server cleans the text and reports the lines it dropped), the word list with "remove" and "deleting" the deck
- * (the server archives it, the progress stays). "Back" is the system button (-> my decks).
+ * (the server archives it, the progress stays). "Back" is the system button (-> my decks). Words over the plan's size of
+ * a deck open the paywall for a Free learner and are explained to a Pro one (`useDeckLimit`).
  */
 const MAX_BYTES = 256 * 1024
 
@@ -31,7 +33,7 @@ const auth = useAuthStore()
 const store = useDecksStore()
 const { t } = useI18n()
 
-const { detail, detailStatus: status, busy, errorMessage, limitReached, lastImport } = storeToRefs(store)
+const { detail, detailStatus: status, busy, errorMessage, limits, lastImport } = storeToRefs(store)
 
 const title = ref('')
 const format = ref<DeckImportFormat>('list')
@@ -40,6 +42,7 @@ const sizeError = ref('')
 const confirmDelete = ref(false)
 
 useBackButton({ name: 'decks' })
+const { paywall, proNotice } = useDeckLimit()
 const { reviewFromPaywall } = useReviewFromPaywall(() => store.dismissLimit(), { toastErrors: true })
 
 const formatOptions = computed(() => [
@@ -148,7 +151,8 @@ onMounted(() => {
         {{ t('decks.choose') }}
       </button>
 
-      <InlineAlert v-if="errorMessage" tone="danger" :message="errorMessage" class="mt-4" data-testid="write-error" />
+      <!-- The refusal of a Pro learner is under the import button instead (below): that is where the learner looks. -->
+      <InlineAlert v-if="errorMessage && !proNotice" tone="danger" :message="errorMessage" class="mt-4" data-testid="write-error" />
 
       <section class="card mt-4 space-y-3" data-testid="import">
         <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('decks.edit.import') }}</h2>
@@ -172,6 +176,7 @@ onMounted(() => {
         />
 
         <InlineAlert v-if="sizeError" tone="danger" :message="sizeError" data-testid="size-error" />
+        <InlineAlert v-if="proNotice" tone="warning" :message="proNotice" data-testid="pro-limit" />
 
         <button
           type="button"
@@ -262,6 +267,6 @@ onMounted(() => {
       </div>
     </template>
 
-    <PaywallSheet v-if="limitReached" reason="decks" @close="store.dismissLimit()" @review="reviewFromPaywall" />
+    <PaywallSheet v-if="paywall" reason="decks" :deck-limits="limits" @close="store.dismissLimit()" @review="reviewFromPaywall" />
   </div>
 </template>
