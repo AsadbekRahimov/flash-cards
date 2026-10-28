@@ -385,7 +385,7 @@ it('labels the plan of a learner: Pro, Pro (sponsored) or Free', function (): vo
 
     Livewire::test(ListLearners::class)
         ->assertTableColumnStateSet('plan', 'Pro', $personal)
-        ->assertTableColumnStateSet('plan', 'Pro (sponsored)', $sponsored)
+        ->assertTableColumnStateSet('plan', 'Pro (от центра)', $sponsored)
         ->assertTableColumnStateSet('plan', 'Free', $free);
 });
 
@@ -471,9 +471,9 @@ it('shows the subscriptions, the last 50 events and 14 days of stats on a learne
     $this->withSession(['2fa.web.passed_at' => now()->timestamp, '2fa.web.user_id' => auth()->id()])
         ->get(LearnerResource::getUrl('view', ['record' => $learner]))
         ->assertOk()
-        ->assertSee('Subscriptions')
-        ->assertSee('Recent events')
-        ->assertSee('Last 14 days');
+        ->assertSee('Подписки')
+        ->assertSee('Последние события')
+        ->assertSee('Последние 14 дней');
 });
 
 it('offers the learner page to a teacher without the platform tabs and without Telegram ID or plan', function (): void {
@@ -486,9 +486,9 @@ it('offers the learner page to a teacher without the platform tabs and without T
     $this->actingAs($teacher)->get(LearnerResource::getUrl('view', ['record' => $learner]))
         ->assertOk()
         ->assertDontSee('777888999')
-        ->assertDontSee('Recent events')
-        ->assertDontSee('Last 14 days')
-        ->assertDontSee('Subscriptions');
+        ->assertDontSee('Последние события')
+        ->assertDontSee('Последние 14 дней')
+        ->assertDontSee('Подписки');
 
     $props = ['ownerRecord' => $learner, 'pageClass' => ViewLearner::class];
     foreach ([SubscriptionsRelationManager::class, ProductEventsRelationManager::class, DailyStatsRelationManager::class] as $manager) {
@@ -524,15 +524,15 @@ it('captions the plan the same way in the list column and on the learner page', 
 
     expect(LearnerResource::planLabel(Plan::Free, false))->toBe('Free')
         ->and(LearnerResource::planLabel(Plan::Pro, false))->toBe('Pro')
-        ->and(LearnerResource::planLabel(Plan::Pro, true))->toBe('Pro (sponsored)')
+        ->and(LearnerResource::planLabel(Plan::Pro, true))->toBe('Pro (от центра)')
         ->and(LearnerResource::planLabel(Plan::Free, true))->toBe('Free');
 
-    foreach ([[$personal, 'Pro'], [$sponsored, 'Pro (sponsored)'], [$free, 'Free']] as [$learner, $label]) {
+    foreach ([[$personal, 'Pro'], [$sponsored, 'Pro (от центра)'], [$free, 'Free']] as [$learner, $label]) {
         Livewire::test(ListLearners::class)->assertTableColumnStateSet('plan', $label, $learner);
         Livewire::test(ViewLearner::class, ['record' => $learner->getKey()])->assertSeeText($label);
     }
-    Livewire::test(ViewLearner::class, ['record' => $sponsored->getKey()])->assertSeeText('Pro (sponsored), organization #'.$org->id);
-    Livewire::test(ViewLearner::class, ['record' => $personal->getKey()])->assertDontSeeText('sponsored');
+    Livewire::test(ViewLearner::class, ['record' => $sponsored->getKey()])->assertSeeText('Pro (от центра), учебный центр #'.$org->id);
+    Livewire::test(ViewLearner::class, ['record' => $personal->getKey()])->assertDontSeeText('от центра');
 });
 
 it('hides twa.authenticated in the recent events until it is picked in the filter, and filters by event name', function (): void {

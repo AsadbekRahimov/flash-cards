@@ -12,6 +12,11 @@ class EditTelegramGroup extends EditRecord
 {
     protected static string $resource = TelegramGroupResource::class;
 
+    public function getTitle(): string
+    {
+        return __('admin.telegram_groups.titles.edit');
+    }
+
     /**
      * The bot language lives in `meta['locale']`. It is edited through a
      * dedicated select, so lift it out of the free-form meta key/value editor.

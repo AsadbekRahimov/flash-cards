@@ -7,6 +7,7 @@ namespace App\Filament\Resources\LearnerResource\RelationManagers;
 use App\Domain\Billing\Exceptions\BillingException;
 use App\Domain\Billing\Services\OfferService;
 use App\Filament\Concerns\RequiresActiveAdmin;
+use App\Filament\Resources\Support\AdminLabels;
 use App\Models\Offer;
 use App\Models\User;
 use Carbon\CarbonImmutable;
@@ -27,7 +28,10 @@ class OffersRelationManager extends RelationManager
 
     protected static string $relationship = 'offers';
 
-    protected static ?string $title = 'Offers';
+    public static function getTitle(Model $ownerRecord, string $pageClass): string
+    {
+        return __('admin.learners.offers.title');
+    }
 
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
@@ -42,29 +46,44 @@ class OffersRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->modelLabel(__('admin.learners.offers.singular'))
+            ->pluralModelLabel(__('admin.learners.offers.plural'))
+            ->emptyStateHeading(__('admin.learners.offers.empty'))
             ->columns([
-                Tables\Columns\TextColumn::make('kind')->badge(),
-                Tables\Columns\TextColumn::make('discount_pct')->label('Discount')->suffix(' %'),
-                Tables\Columns\TextColumn::make('plan')->badge()->placeholder('any'),
-                Tables\Columns\TextColumn::make('period')->placeholder('any'),
+                Tables\Columns\TextColumn::make('kind')
+                    ->label(__('admin.learners.offers.columns.kind'))
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => AdminLabels::value('learners.offers.kind', $state)),
+                Tables\Columns\TextColumn::make('discount_pct')->label(__('admin.learners.offers.columns.discount_pct'))->suffix(' %'),
+                Tables\Columns\TextColumn::make('plan')
+                    ->label(__('admin.learners.offers.columns.plan'))
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => AdminLabels::value('common.plan', $state))
+                    ->placeholder(__('admin.learners.offers.any')),
+                Tables\Columns\TextColumn::make('period')
+                    ->label(__('admin.learners.offers.columns.period'))
+                    ->formatStateUsing(fn (?string $state): string => AdminLabels::value('common.period', $state))
+                    ->placeholder(__('admin.learners.offers.any')),
                 Tables\Columns\TextColumn::make('state')
+                    ->label(__('admin.learners.offers.columns.state'))
                     ->badge()
                     ->state(fn (Offer $record): string => self::state($record))
+                    ->formatStateUsing(fn (string $state): string => AdminLabels::value('learners.offers.state', $state))
                     ->color(fn (string $state): string => $state === 'open' ? 'success' : 'gray'),
-                Tables\Columns\TextColumn::make('expires_at')->dateTime(),
-                Tables\Columns\TextColumn::make('redeemed_at')->dateTime()->placeholder('—'),
-                Tables\Columns\TextColumn::make('sourceOrganization.name')->label('Center')->placeholder('—'),
-                Tables\Columns\TextColumn::make('payment_order_id')->label('Order')->placeholder('—'),
+                Tables\Columns\TextColumn::make('expires_at')->label(__('admin.learners.offers.columns.expires_at'))->dateTime(),
+                Tables\Columns\TextColumn::make('redeemed_at')->label(__('admin.learners.offers.columns.redeemed_at'))->dateTime()->placeholder('—'),
+                Tables\Columns\TextColumn::make('sourceOrganization.name')->label(__('admin.learners.offers.columns.center'))->placeholder('—'),
+                Tables\Columns\TextColumn::make('payment_order_id')->label(__('admin.learners.offers.columns.order'))->placeholder('—'),
             ])
             ->actions([
                 Action::make('annul')
-                    ->label('Annul')
+                    ->label(__('admin.learners.offers.actions.annul'))
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
                     ->visible(fn (Offer $record): bool => $record->isOpenAt(CarbonImmutable::now()))
                     ->requiresConfirmation()
-                    ->modalHeading('Annul this offer')
-                    ->modalDescription('The learner loses the discount at once. The action is written to the audit log.')
+                    ->modalHeading(__('admin.learners.offers.actions.annul_heading'))
+                    ->modalDescription(__('admin.learners.offers.actions.annul_help'))
                     ->action(function (Offer $record): void {
                         $user = auth()->user();
                         if (! $user instanceof User) {
@@ -74,12 +93,12 @@ class OffersRelationManager extends RelationManager
                         try {
                             app(OfferService::class)->annul($record, $user, request()->ip());
                         } catch (BillingException $e) {
-                            Notification::make()->title('Not annulled')->body($e->getMessage())->danger()->send();
+                            Notification::make()->title(__('admin.learners.offers.notifications.failed'))->body($e->getMessage())->danger()->send();
 
                             return;
                         }
 
-                        Notification::make()->title('Offer annulled')->success()->send();
+                        Notification::make()->title(__('admin.learners.offers.notifications.annulled'))->success()->send();
                     }),
             ])
             ->paginated(false)

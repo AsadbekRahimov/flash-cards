@@ -26,7 +26,10 @@ class ProductEventsRelationManager extends RelationManager
 
     protected static string $relationship = 'productEvents';
 
-    protected static ?string $title = 'Recent events';
+    public static function getTitle(Model $ownerRecord, string $pageClass): string
+    {
+        return __('admin.learners.events.title');
+    }
 
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
@@ -41,6 +44,9 @@ class ProductEventsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->modelLabel(__('admin.learners.events.singular'))
+            ->pluralModelLabel(__('admin.learners.events.plural'))
+            ->emptyStateHeading(__('admin.learners.events.empty'))
             ->modifyQueryUsing(fn (Builder $query): Builder => $query
                 ->select(['id', 'name', 'learner_id', 'props', 'occurred_at'])
                 ->reorder()
@@ -48,9 +54,11 @@ class ProductEventsRelationManager extends RelationManager
                 ->orderByDesc('id')
                 ->limit(self::LIMIT))
             ->columns([
-                Tables\Columns\TextColumn::make('occurred_at')->label('When')->dateTime(),
-                Tables\Columns\TextColumn::make('name')->badge(),
+                Tables\Columns\TextColumn::make('occurred_at')->label(__('admin.learners.events.columns.occurred_at'))->dateTime(),
+                // The event name is a technical identifier (`course.selected`), shown as it is stored.
+                Tables\Columns\TextColumn::make('name')->label(__('admin.learners.events.columns.name'))->badge(),
                 Tables\Columns\TextColumn::make('props')
+                    ->label(__('admin.learners.events.columns.props'))
                     ->state(fn (ProductEvent $record): string => $record->props === [] ? '—' : (string) json_encode($record->props, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES))
                     ->limit(80)
                     ->wrap(),
@@ -60,8 +68,8 @@ class ProductEventsRelationManager extends RelationManager
                 // the 50: hidden unless that very event is picked. The value comes from the client, so it
                 // is checked against the known names.
                 Tables\Filters\SelectFilter::make('name')
-                    ->label('Event')
-                    ->placeholder('All except '.ProductEventName::TwaAuthenticated->value)
+                    ->label(__('admin.learners.events.columns.name'))
+                    ->placeholder(__('admin.learners.events.all_except', ['event' => ProductEventName::TwaAuthenticated->value]))
                     ->options(array_column(ProductEventName::cases(), 'value', 'value'))
                     ->query(function (Builder $query, array $data): Builder {
                         $name = ProductEventName::tryFrom((string) ($data['value'] ?? ''));

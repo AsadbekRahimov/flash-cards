@@ -8,6 +8,7 @@ use App\Domain\Administration\Services\PanelDataScope;
 use App\Filament\Resources\ExamSessionResource\Pages;
 use App\Filament\Resources\ExamSessionResource\RelationManagers\AnswersRelationManager;
 use App\Filament\Resources\ExamSessionResource\RelationManagers\ResultsRelationManager;
+use App\Filament\Resources\Support\AdminLabels;
 use App\Models\ExamSession;
 use Filament\Actions;
 use Filament\Infolists\Components\TextEntry;
@@ -24,11 +25,27 @@ class ExamSessionResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-check';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Learning';
-
-    protected static ?string $navigationLabel = 'Exam Logs';
-
     protected static ?int $navigationSort = 10;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('admin.nav.learning');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.exams.nav');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('admin.exams.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('admin.exams.plural');
+    }
 
     public static function canCreate(): bool
     {
@@ -38,17 +55,20 @@ class ExamSessionResource extends Resource
     public static function infolist(Schema $schema): Schema
     {
         return $schema->components([
-            TextEntry::make('group.title')->label('Group'),
+            TextEntry::make('group.title')->label(__('admin.exams.fields.group')),
             TextEntry::make('lesson_label')
-                ->label('Lesson')
+                ->label(__('admin.exams.fields.lesson'))
                 ->state(fn (ExamSession $record): string => self::lessonLabel($record)),
-            TextEntry::make('status')->badge(),
-            TextEntry::make('startedBy.name')->label('Started by')->placeholder('—'),
-            TextEntry::make('started_at')->dateTime(),
-            TextEntry::make('ends_at')->dateTime()->placeholder('—'),
-            TextEntry::make('closed_at')->dateTime()->placeholder('—'),
-            TextEntry::make('results_count')->label('Participants'),
-            TextEntry::make('answers_count')->label('Answers'),
+            TextEntry::make('status')
+                ->label(__('admin.exams.fields.status'))
+                ->badge()
+                ->formatStateUsing(fn (string $state): string => AdminLabels::value('exams.status', $state)),
+            TextEntry::make('startedBy.name')->label(__('admin.exams.fields.started_by'))->placeholder('—'),
+            TextEntry::make('started_at')->label(__('admin.exams.fields.started_at'))->dateTime(),
+            TextEntry::make('ends_at')->label(__('admin.exams.fields.ends_at'))->dateTime()->placeholder('—'),
+            TextEntry::make('closed_at')->label(__('admin.exams.fields.closed_at'))->dateTime()->placeholder('—'),
+            TextEntry::make('results_count')->label(__('admin.exams.fields.participants')),
+            TextEntry::make('answers_count')->label(__('admin.exams.fields.answers')),
         ]);
     }
 
@@ -57,26 +77,30 @@ class ExamSessionResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('group.title')
-                    ->label('Group')
+                    ->label(__('admin.exams.fields.group'))
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('lesson.number')
-                    ->label('Lesson')
+                    ->label(__('admin.exams.fields.lesson'))
                     ->formatStateUsing(fn (ExamSession $record): string => self::lessonLabel($record)),
                 Tables\Columns\TextColumn::make('status')
+                    ->label(__('admin.exams.fields.status'))
                     ->badge()
+                    ->formatStateUsing(fn (string $state): string => AdminLabels::value('exams.status', $state))
                     ->color(fn (string $state): string => $state === 'open' ? 'warning' : 'success'),
                 Tables\Columns\TextColumn::make('results_count')
-                    ->label('Participants')
+                    ->label(__('admin.exams.fields.participants'))
                     ->sortable(),
                 Tables\Columns\TextColumn::make('answers_count')
-                    ->label('Answers')
+                    ->label(__('admin.exams.fields.answers'))
                     ->sortable()
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('started_at')
+                    ->label(__('admin.exams.fields.started_at'))
                     ->dateTime()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('ends_at')
+                    ->label(__('admin.exams.fields.ends_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(),
@@ -88,10 +112,12 @@ class ExamSessionResource extends Resource
                         ->orderBy('title')
                         ->pluck('title', 'id')
                         ->all())
-                    ->label('Group'),
+                    ->label(__('admin.exams.fields.group')),
                 Tables\Filters\SelectFilter::make('status')
-                    ->options(['open' => 'Open', 'closed' => 'Closed']),
+                    ->label(__('admin.exams.fields.status'))
+                    ->options(AdminLabels::options('exams.status', ['open', 'closed'])),
             ])
+            ->emptyStateHeading(__('admin.exams.empty'))
             ->actions([
                 Actions\ViewAction::make(),
             ])
@@ -131,7 +157,7 @@ class ExamSessionResource extends Resource
         $lesson = $session->lesson?->number;
 
         return $stage !== null && $lesson !== null
-            ? "Stage {$stage} · Lesson {$lesson}"
+            ? __('admin.exams.lesson_label', ['stage' => $stage, 'lesson' => $lesson])
             : '—';
     }
 }

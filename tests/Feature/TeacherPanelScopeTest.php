@@ -220,7 +220,7 @@ it('shows a teacher only name and username of a learner, never the Telegram ID o
         ->assertSee('Own English')
         ->assertDontSee('424242424')
         ->assertDontSee('Secret Other Class')
-        ->assertDontSee('Cards started');
+        ->assertDontSee('Начато карточек');
 });
 
 it('shows an admin the full learner card', function (): void {
@@ -232,7 +232,7 @@ it('shows an admin the full learner card', function (): void {
         ->get(LearnerResource::getUrl('view', ['record' => $learner]))
         ->assertOk()
         ->assertSee('424242424')
-        ->assertSee('Cards started');
+        ->assertSee('Начато карточек');
 });
 
 it('lets only an admin block and unblock a learner, with an audit trail', function (): void {

@@ -16,6 +16,7 @@ use App\Domain\Learning\Services\SchedulerResolver;
 use App\Domain\Learning\Services\SchedulerSwitchService;
 use App\Filament\Resources\LearnerResource\Pages;
 use App\Filament\Resources\LearnerResource\RelationManagers;
+use App\Filament\Resources\Support\AdminLabels;
 use App\Models\Learner;
 use App\Models\User;
 use Carbon\CarbonImmutable;
@@ -43,9 +44,27 @@ class LearnerResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-academic-cap';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Administration';
-
     protected static ?int $navigationSort = 30;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('admin.nav.administration');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.learners.nav');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('admin.learners.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('admin.learners.plural');
+    }
 
     public static function canCreate(): bool
     {
@@ -57,36 +76,38 @@ class LearnerResource extends Resource
         $isAdmin = fn (): bool => app(PanelDataScope::class)->isAdmin();
 
         return $schema->components([
-            TextEntry::make('first_name')->label('First name')->placeholder('—'),
-            TextEntry::make('last_name')->label('Last name')->placeholder('—'),
-            TextEntry::make('username')->prefix('@')->placeholder('—'),
-            TextEntry::make('telegram_user_id')->label('Telegram ID')->visible($isAdmin),
+            TextEntry::make('first_name')->label(__('admin.learners.fields.first_name'))->placeholder('—'),
+            TextEntry::make('last_name')->label(__('admin.learners.fields.last_name'))->placeholder('—'),
+            TextEntry::make('username')->label(__('admin.learners.fields.username'))->prefix('@')->placeholder('—'),
+            TextEntry::make('telegram_user_id')->label(__('admin.learners.fields.telegram_id'))->visible($isAdmin),
             TextEntry::make('groups_list')
-                ->label('Groups')
+                ->label(__('admin.learners.fields.groups'))
                 ->state(fn (Learner $record): string => self::groupTitles($record)),
-            TextEntry::make('last_seen_at')->dateTime()->placeholder('Never')->visible($isAdmin),
-            TextEntry::make('blocked_at')->dateTime()->placeholder('—')->visible($isAdmin),
+            TextEntry::make('last_seen_at')->label(__('admin.learners.fields.last_seen_at'))->dateTime()->placeholder(__('admin.learners.fields.never'))->visible($isAdmin),
+            TextEntry::make('blocked_at')->label(__('admin.learners.fields.blocked_at'))->dateTime()->placeholder('—')->visible($isAdmin),
             TextEntry::make('onboarding_state')
-                ->label('Onboarding')
-                ->formatStateUsing(fn (string $state): string => $state === OnboardingService::DONE ? 'Done' : 'In progress ('.$state.')')
+                ->label(__('admin.learners.fields.onboarding'))
+                ->formatStateUsing(fn (string $state): string => $state === OnboardingService::DONE
+                    ? __('admin.learners.onboarding.done')
+                    : __('admin.learners.onboarding.in_progress', ['step' => AdminLabels::value('learners.onboarding.step', $state)]))
                 ->visible($isAdmin),
             TextEntry::make('effective_plan')
-                ->label('Plan')
+                ->label(__('admin.learners.fields.plan'))
                 ->state(function (Learner $record): string {
                     $entitlement = app(EntitlementResolver::class)->resolve($record);
 
                     return self::planLabel($entitlement->plan, $entitlement->isSponsored())
-                        .($entitlement->isSponsored() ? ', organization #'.substr($entitlement->source, strlen('sponsor:organization:')) : '')
-                        .($entitlement->until !== null ? ', until '.$entitlement->until->toDateTimeString() : '');
+                        .($entitlement->isSponsored() ? ', '.__('admin.learners.plan_center', ['id' => substr($entitlement->source, strlen('sponsor:organization:'))]) : '')
+                        .($entitlement->until !== null ? ', '.__('admin.learners.plan_until', ['date' => $entitlement->until->toDateTimeString()]) : '');
                 })
                 ->visible($isAdmin),
             TextEntry::make('scheduler')
-                ->label('SRS algorithm')
+                ->label(__('admin.learners.fields.scheduler'))
                 ->state(fn (Learner $record): string => self::schedulerLabel($record))
                 ->visible($isAdmin),
-            TextEntry::make('repetitions_count')->label('Cards started')->visible($isAdmin),
-            TextEntry::make('training_reviews_count')->label('Training reviews'),
-            TextEntry::make('exam_answers_count')->label('Exam answers'),
+            TextEntry::make('repetitions_count')->label(__('admin.learners.fields.repetitions_count'))->visible($isAdmin),
+            TextEntry::make('training_reviews_count')->label(__('admin.learners.fields.training_reviews_count')),
+            TextEntry::make('exam_answers_count')->label(__('admin.learners.fields.exam_answers_count')),
         ]);
     }
 
@@ -99,9 +120,10 @@ class LearnerResource extends Resource
                 Tables\Columns\TextColumn::make('first_name')
                     ->formatStateUsing(fn (Learner $record): string => trim(($record->first_name ?? '').' '.($record->last_name ?? '')))
                     ->placeholder('—')
-                    ->label('Name')
+                    ->label(__('admin.learners.fields.name'))
                     ->searchable(['first_name', 'last_name']),
                 Tables\Columns\TextColumn::make('username')
+                    ->label(__('admin.learners.fields.username'))
                     ->prefix('@')
                     ->placeholder('—')
                     // "@name" and "name" both match; the leading @ is not part of the stored username.
@@ -109,7 +131,7 @@ class LearnerResource extends Resource
                 // Searching by Telegram ID is exact (the number is an identity: never a partial match) and admin-only,
                 // also here, because a hidden column still takes part in the table search.
                 Tables\Columns\TextColumn::make('telegram_user_id')
-                    ->label('TG ID')
+                    ->label(__('admin.learners.fields.telegram_id'))
                     ->copyable()
                     ->toggleable()
                     ->visible($isAdmin)
@@ -117,7 +139,7 @@ class LearnerResource extends Resource
                         ? $query->where('learners.telegram_user_id', (int) trim($search))
                         : $query->whereNull('learners.id')),
                 Tables\Columns\TextColumn::make('plan')
-                    ->label('Plan')
+                    ->label(__('admin.learners.fields.plan'))
                     ->badge()
                     ->state(fn (Learner $record): string => match (true) {
                         $record->getAttribute('personal_pro_id') !== null => self::planLabel(Plan::Pro, sponsored: false),
@@ -127,16 +149,16 @@ class LearnerResource extends Resource
                     ->color(fn (string $state): string => $state === self::planLabel(Plan::Free, sponsored: false) ? 'gray' : 'success')
                     ->visible($isAdmin),
                 Tables\Columns\IconColumn::make('onboarded')
-                    ->label('Onboarded')
+                    ->label(__('admin.learners.fields.onboarded'))
                     ->state(fn (Learner $record): bool => $record->onboarding_state === OnboardingService::DONE)
                     ->boolean()
                     ->toggleable()
                     ->visible($isAdmin),
                 Tables\Columns\TextColumn::make('groups_list')
-                    ->label('Groups')
+                    ->label(__('admin.learners.fields.groups'))
                     ->state(fn (Learner $record): string => self::groupTitles($record)),
                 Tables\Columns\IconColumn::make('blocked')
-                    ->label('Blocked')
+                    ->label(__('admin.learners.fields.blocked'))
                     ->state(fn (Learner $record): bool => $record->blocked_at !== null)
                     ->boolean()
                     ->trueColor('danger')
@@ -144,13 +166,13 @@ class LearnerResource extends Resource
                     ->visible($isAdmin),
                 // Invited learners (docs/13 §7.1): all non-rejected referrals; the flagged ones are in the Referrals tab.
                 Tables\Columns\TextColumn::make('referrals_count')
-                    ->label('Referrals')
+                    ->label(__('admin.learners.fields.referrals_count'))
                     ->counts(['referrals' => fn (Builder $q): Builder => $q->where('status', '<>', ReferralStatus::Rejected->value)])
                     ->sortable()
                     ->toggleable()
                     ->visible($isAdmin),
-                Tables\Columns\TextColumn::make('last_seen_at')->dateTime()->sortable()->toggleable()->visible($isAdmin),
-                Tables\Columns\TextColumn::make('created_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true)->visible($isAdmin),
+                Tables\Columns\TextColumn::make('last_seen_at')->label(__('admin.learners.fields.last_seen_at'))->dateTime()->sortable()->toggleable()->visible($isAdmin),
+                Tables\Columns\TextColumn::make('created_at')->label(__('admin.learners.fields.created_at'))->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true)->visible($isAdmin),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('telegram_group_id')
@@ -169,19 +191,22 @@ class LearnerResource extends Resource
                                 ->whereIn('telegram_group_id', app(PanelDataScope::class)->groups()->select('telegram_groups.id'))
                                 ->where('status', 'active'),
                         ))
-                    ->label('Group'),
+                    ->label(__('admin.learners.filters.group')),
                 // Platform filters: admin only. `visible()` hides the control; the query closures re-check the
                 // role because the filter state comes from the client.
                 Tables\Filters\SelectFilter::make('plan')
-                    ->label('Plan')
-                    ->options(['free' => 'Free', 'pro' => 'Pro (own or sponsored)'])
+                    ->label(__('admin.learners.filters.plan'))
+                    ->options([
+                        'free' => AdminLabels::value('common.plan', 'free'),
+                        'pro' => __('admin.learners.filters.plan_pro'),
+                    ])
                     ->query(fn (Builder $query, array $data): Builder => self::filterByPlan($query, $data['value'] ?? null))
                     ->visible($isAdmin),
                 Tables\Filters\TernaryFilter::make('onboarded')
-                    ->label('Onboarding')
-                    ->placeholder('All')
-                    ->trueLabel('Done')
-                    ->falseLabel('Not done')
+                    ->label(__('admin.learners.filters.onboarding'))
+                    ->placeholder(__('admin.common.all'))
+                    ->trueLabel(__('admin.learners.filters.onboarding_done'))
+                    ->falseLabel(__('admin.learners.filters.onboarding_not_done'))
                     ->queries(
                         true: fn (Builder $query): Builder => app(PanelDataScope::class)->isAdmin() ? $query->where('onboarding_state', OnboardingService::DONE) : $query,
                         false: fn (Builder $query): Builder => app(PanelDataScope::class)->isAdmin() ? $query->where('onboarding_state', '<>', OnboardingService::DONE) : $query,
@@ -189,10 +214,11 @@ class LearnerResource extends Resource
                     )
                     ->visible($isAdmin),
             ])
+            ->emptyStateHeading(__('admin.learners.empty'))
             ->actions([
                 Actions\Action::make('toggleBlocked')
                     ->icon('heroicon-o-no-symbol')
-                    ->label(fn (Learner $record): string => $record->blocked_at !== null ? 'Unblock' : 'Block')
+                    ->label(fn (Learner $record): string => $record->blocked_at !== null ? __('admin.learners.actions.unblock') : __('admin.learners.actions.block'))
                     ->color(fn (Learner $record): string => $record->blocked_at !== null ? 'success' : 'danger')
                     ->visible($isAdmin)
                     ->authorize('update')
@@ -209,12 +235,12 @@ class LearnerResource extends Resource
                 // The SRS A/B arm (docs/13 §8.3): admin only, audited (`learner.scheduler_changed`).
                 Actions\Action::make('switchScheduler')
                     ->icon('heroicon-o-arrows-right-left')
-                    ->label('SRS algorithm')
+                    ->label(__('admin.learners.actions.scheduler'))
                     ->visible($isAdmin)
                     ->authorize('update')
                     ->schema([
                         Select::make('scheduler')
-                            ->label('Algorithm')
+                            ->label(__('admin.learners.actions.scheduler_field'))
                             ->options(array_combine(
                                 array_map(fn (SchedulerKind $k): string => $k->value, SchedulerKind::cases()),
                                 array_map(fn (SchedulerKind $k): string => $k->label(), SchedulerKind::cases()),
@@ -223,7 +249,7 @@ class LearnerResource extends Resource
                             ->required()
                             ->native(false),
                     ])
-                    ->modalDescription('Switching to FSRS seeds the memory of the graduated cards from their SM-2 state; switching back to SM-2 changes no card.')
+                    ->modalDescription(__('admin.learners.actions.scheduler_help'))
                     ->action(function (Learner $record, array $data): void {
                         /** @var User $actor */
                         $actor = Auth::user();
@@ -309,18 +335,19 @@ class LearnerResource extends Resource
             ->orWhereIn('learners.id', PaidSubscriptionQuery::sponsoredLearnerIds($now));
     }
 
-    /** The one plan caption of the platform view (list column and learner page): "Free", "Pro", "Pro (sponsored)". */
+    /** The one plan caption of the platform view (list column and learner page): "Free", "Pro", "Pro (от центра)". */
     public static function planLabel(Plan $plan, bool $sponsored): string
     {
-        return ucfirst($plan->value).($sponsored && $plan !== Plan::Free ? ' (sponsored)' : '');
+        return AdminLabels::value('common.plan', $plan->value)
+            .($sponsored && $plan !== Plan::Free ? ' '.__('admin.learners.plan_sponsored') : '');
     }
 
-    /** "SM-2" / "FSRS-5", with "(default)" when the learner has no bucket of their own. */
+    /** "SM-2" / "FSRS-5", with "(по умолчанию)" when the learner has no bucket of their own. */
     public static function schedulerLabel(Learner $record): string
     {
         $kind = app(SchedulerResolver::class)->kindFor($record);
 
-        return $kind->label().($record->scheduler === null ? ' (default)' : '');
+        return $kind->label().($record->scheduler === null ? ' '.__('admin.learners.scheduler_default') : '');
     }
 
     /** @return array<int, class-string> */
