@@ -45,7 +45,7 @@ return [
         'pro' => [
             'rank' => 1,
             'limits' => ['new_words_per_day' => null],
-            'features' => ['courses.public', 'training.daily', 'training.lesson', 'stats.detailed', 'streak.freeze', 'exam.simulator', 'exercise.spelling', 'exercise.gap_fill'],
+            'features' => ['courses.public', 'training.daily', 'training.lesson', 'streak.freeze', 'exam.simulator', 'exercise.spelling', 'exercise.gap_fill'],
         ],
     ],
 
