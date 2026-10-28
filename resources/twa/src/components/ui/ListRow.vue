@@ -28,7 +28,7 @@ import type { IconName } from './icons'
  *
  * @example
  * <ListRow :to="{ name: 'billing' }" icon="credit-card" tile="purple" :title="t('billing.title')" value="Pro" data-testid="row-billing" />
- * <ListRow :title="t('friends.list.remove')" danger @click="askConfirm" />
+ * <ListRow :title="t('friends.list.remove', { name })" danger @click="askConfirm" />
  */
 const props = withDefaults(
   defineProps<{
