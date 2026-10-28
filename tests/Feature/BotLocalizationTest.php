@@ -220,11 +220,38 @@ it('answers private /help by the sender language code', function (?string $langu
 
     expect($this->api->log[0]['text'])->toContain($needle);
 })->with([
-    'uz' => ['uz', "ingliz tilini o'rganish yordamchisi"],
-    'uz-UZ' => ['uz-UZ', "ingliz tilini o'rganish yordamchisi"],
-    'ru' => ['ru', 'помощник для изучения английского'],
-    'en -> default' => ['en', 'помощник для изучения английского'],
-    'missing -> default' => [null, 'помощник для изучения английского'],
+    'uz' => ['uz', "Telegramda inglizcha so'zlar"],
+    'uz-UZ' => ['uz-UZ', "Telegramda inglizcha so'zlar"],
+    'ru' => ['ru', 'английские слова в Telegram'],
+    'en -> default' => ['en', 'английские слова в Telegram'],
+    'missing -> default' => [null, 'английские слова в Telegram'],
+]);
+
+it('lists the learner commands first and the teacher ones after them in the private /help', function (string $languageCode, string $teacherHeading): void {
+    locDispatch(['chat' => ['id' => 43, 'type' => 'private'], 'from' => ['id' => 43, 'language_code' => $languageCode], 'text' => '/help']);
+
+    [$learnerPart, $teacherPart] = explode($teacherHeading, $this->api->log[0]['text'], 2);
+
+    expect($learnerPart)->toContain('«LexiFlow»')->toContain('/today')->toContain('/settings')->toContain('/invite')
+        ->toContain('/pro —')->toContain('/promo')->toContain('/paysupport')
+        ->not->toContain('/start_training')->not->toContain('/stats')
+        ->and($teacherPart)->toContain('/start_training')->toContain('/start_exam')->toContain('/close_exam')->toContain('/stats')
+        // Plain text: it goes out without a parse mode, so there is no markup in it.
+        ->and($this->api->log[0]['parse_mode'])->toBeNull();
+})->with([
+    'ru' => ['ru', 'Для учителей:'],
+    'uz' => ['uz', "O'qituvchilar uchun:"],
+]);
+
+it('names LexiFlow without the word "Bot" in the group /help', function (string $locale, string $firstLine): void {
+    locGroup(-5020, ['locale' => $locale]);
+
+    locDispatch(['chat' => ['id' => -5020, 'type' => 'supergroup'], 'from' => ['id' => 1], 'text' => '/help']);
+
+    expect(explode("\n", $this->api->log[0]['text'])[0])->toBe($firstLine);
+})->with([
+    'ru' => ['ru', 'LexiFlow в группе.'],
+    'uz' => ['uz', 'LexiFlow guruhda.'],
 ]);
 
 it('greets a linked teacher in the default language regardless of Telegram language', function (): void {

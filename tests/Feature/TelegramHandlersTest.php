@@ -399,7 +399,7 @@ it('responds to /help in an active whitelisted group', function (): void {
 
     $this->api->shouldReceive('sendMessage')
         ->once()
-        ->with(-5001, Mockery::pattern('/LexiFlow Bot в группе/u'));
+        ->with(-5001, Mockery::pattern('/^LexiFlow в группе\./u'));
 
     app(TelegramDispatcher::class)->dispatch([
         'message' => [
