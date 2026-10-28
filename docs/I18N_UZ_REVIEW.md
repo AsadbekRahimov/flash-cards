@@ -1694,3 +1694,42 @@
 |---|---|---|
 | `decks.stage` | Mening lug'atim | Моя колода |
 | `decks.part` | :n-qism | Часть :n |
+
+## Редизайн 2026-10-28 · 17.1 основа TWA (навигация, профиль) — на проверку носителю
+
+> Проверить: названия вкладок «Asosiy» (Главная), «Reyting» (Рейтинг); «Bepul tarif» (бесплатный тариф; в старых строках — «Free tarif»); порядок слов в «Pro {date} gacha» / «Pro muddatsiz» / «Markaz bergan Pro»; «musobaqa» (вызов); тексты списка возможностей Pro (`benefits.*`).
+
+### TWA, общие подписи, нижняя навигация, экран «Профиль», возможности Pro (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `common.cancel` | Bekor qilish | Отмена |
+| `common.next` | Keyingisi | Дальше |
+| `common.copied` | Nusxalandi | Скопировано |
+| `common.saved` | Saqlandi | Сохранено |
+| `nav.today` | Asosiy | Главная |
+| `nav.courses` | Kurslar | Курсы |
+| `nav.rating` | Reyting | Рейтинг |
+| `nav.profile` | Profil | Профиль |
+| `profile.anonymous` | O'quvchi | Ученик |
+| `profile.chip.free` | Free | Free |
+| `profile.chip.pro` | Pro | Pro |
+| `profile.plan.pro_until` | Pro {date} gacha | Pro до {date} |
+| `profile.plan.pro_forever` | Pro muddatsiz | Pro без срока |
+| `profile.plan.pro_center` | Markaz bergan Pro | Pro от центра |
+| `profile.plan.free.one` | Bepul tarif: kuniga {count} ta yangi so'z | Бесплатный тариф: {count} новое слово в день |
+| `profile.plan.free.few` | _(в uz этой формы нет — используется `other`)_ | Бесплатный тариф: {count} новых слова в день |
+| `profile.plan.free.many` | _(в uz этой формы нет — используется `other`)_ | Бесплатный тариф: {count} новых слов в день |
+| `profile.plan.free.other` | Bepul tarif: kuniga {count} ta yangi so'z | Бесплатный тариф: {count} новых слова в день |
+| `profile.plan.free_plain` | Bepul tarif | Бесплатный тариф |
+| `profile.pro.title` | Kunlik limitsiz o'rganing | Учитесь без дневного лимита |
+| `profile.pro.text` | Cheklovsiz yangi so'zlar, o'z to'plamlaringiz, IELTS va SAT sinov testlari, seriyani muzlatish. | Новые слова без ограничений, свои колоды, пробные тесты IELTS и SAT, заморозки серии. |
+| `profile.pro.more` | Pro haqida batafsil | Подробнее о Pro |
+| `profile.friends` | Do'stlar va musobaqalar | Друзья и вызовы |
+| `profile.referrals.hint` | Sizga va do'stingizga — bepul Pro | Вам и другу — Pro бесплатно |
+| `profile.support` | Yordam kerakmi? Yozing: | Нужна помощь? Напишите: |
+| `benefits.new_words` | Yangi so'zlar kunlik limitsiz | Новые слова без дневного лимита |
+| `benefits.exercises` | So'zni yozish va misollardagi bo'sh joylar | Написание слова и пропуски в примерах |
+| `benefits.decks` | 2000 tadan so'zli 20 tagacha o'z to'plamlaringiz | До 20 своих колод по 2000 слов |
+| `benefits.freezes` | Seriyani muzlatish: o'tkazib yuborilgan kun seriyani uzmaydi | Заморозки серии: пропуск дня не обрывает серию |
+| `benefits.mock_exams` | IELTS va SAT sinov testlari | Пробные тесты IELTS и SAT |

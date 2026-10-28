@@ -19,6 +19,44 @@ export const ru = {
   'common.loading': 'Загрузка…',
   'common.retry': 'Повторить',
   'common.error_title': 'Ошибка',
+  'common.cancel': 'Отмена',
+  'common.next': 'Дальше',
+  'common.copied': 'Скопировано',
+  'common.saved': 'Сохранено',
+
+  // ---- nav ----
+  'nav.today': 'Главная',
+  'nav.courses': 'Курсы',
+  'nav.rating': 'Рейтинг',
+  'nav.profile': 'Профиль',
+
+  // ---- profile ----
+  'profile.anonymous': 'Ученик',
+  'profile.chip.free': 'Free',
+  'profile.chip.pro': 'Pro',
+  'profile.plan.pro_until': 'Pro до {date}',
+  'profile.plan.pro_forever': 'Pro без срока',
+  'profile.plan.pro_center': 'Pro от центра',
+  'profile.plan.free': {
+    one: 'Бесплатный тариф: {count} новое слово в день',
+    few: 'Бесплатный тариф: {count} новых слова в день',
+    many: 'Бесплатный тариф: {count} новых слов в день',
+    other: 'Бесплатный тариф: {count} новых слова в день',
+  },
+  'profile.plan.free_plain': 'Бесплатный тариф',
+  'profile.pro.title': 'Учитесь без дневного лимита',
+  'profile.pro.text': 'Новые слова без ограничений, свои колоды, пробные тесты IELTS и SAT, заморозки серии.',
+  'profile.pro.more': 'Подробнее о Pro',
+  'profile.friends': 'Друзья и вызовы',
+  'profile.referrals.hint': 'Вам и другу — Pro бесплатно',
+  'profile.support': 'Нужна помощь? Напишите:',
+
+  // ---- benefits ----
+  'benefits.new_words': 'Новые слова без дневного лимита',
+  'benefits.exercises': 'Написание слова и пропуски в примерах',
+  'benefits.decks': 'До 20 своих колод по 2000 слов',
+  'benefits.freezes': 'Заморозки серии: пропуск дня не обрывает серию',
+  'benefits.mock_exams': 'Пробные тесты IELTS и SAT',
 
   // ---- landing ----
   'landing.outside_telegram':

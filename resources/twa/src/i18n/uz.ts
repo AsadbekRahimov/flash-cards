@@ -13,6 +13,42 @@ export const uz: Translations = {
   'common.loading': 'Yuklanmoqda…',
   'common.retry': 'Qayta urinish',
   'common.error_title': 'Xatolik',
+  'common.cancel': 'Bekor qilish',
+  'common.next': 'Keyingisi',
+  'common.copied': 'Nusxalandi',
+  'common.saved': 'Saqlandi',
+
+  // ---- nav ----
+  'nav.today': 'Asosiy',
+  'nav.courses': 'Kurslar',
+  'nav.rating': 'Reyting',
+  'nav.profile': 'Profil',
+
+  // ---- profile ----
+  'profile.anonymous': "O'quvchi",
+  'profile.chip.free': 'Free',
+  'profile.chip.pro': 'Pro',
+  'profile.plan.pro_until': 'Pro {date} gacha',
+  'profile.plan.pro_forever': 'Pro muddatsiz',
+  'profile.plan.pro_center': 'Markaz bergan Pro',
+  'profile.plan.free': {
+    one: "Bepul tarif: kuniga {count} ta yangi so'z",
+    other: "Bepul tarif: kuniga {count} ta yangi so'z",
+  },
+  'profile.plan.free_plain': 'Bepul tarif',
+  'profile.pro.title': "Kunlik limitsiz o'rganing",
+  'profile.pro.text': "Cheklovsiz yangi so'zlar, o'z to'plamlaringiz, IELTS va SAT sinov testlari, seriyani muzlatish.",
+  'profile.pro.more': 'Pro haqida batafsil',
+  'profile.friends': "Do'stlar va musobaqalar",
+  'profile.referrals.hint': "Sizga va do'stingizga — bepul Pro",
+  'profile.support': 'Yordam kerakmi? Yozing:',
+
+  // ---- benefits ----
+  'benefits.new_words': "Yangi so'zlar kunlik limitsiz",
+  'benefits.exercises': "So'zni yozish va misollardagi bo'sh joylar",
+  'benefits.decks': "2000 tadan so'zli 20 tagacha o'z to'plamlaringiz",
+  'benefits.freezes': "Seriyani muzlatish: o'tkazib yuborilgan kun seriyani uzmaydi",
+  'benefits.mock_exams': 'IELTS va SAT sinov testlari',
 
   // ---- landing ----
   'landing.outside_telegram':
