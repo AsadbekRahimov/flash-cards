@@ -16,12 +16,13 @@ export interface SegmentOption {
  * - `v-model` (`modelValue`) — the selected `value`; a click emits `update:modelValue` (not for the selected one).
  * - `options` — `{ value, label, testid? }[]`.
  * - `disabled` — the whole control is inactive (e.g. while saving).
- * - `ariaLabel` — what the control sets, for screen readers (required: the options alone do not say it).
+ * - `ariaLabel` — what the control sets, for screen readers (required: the options alone do not say it). Written
+ *   camelCase in a template (`:ariaLabel`): `vue-tsc` does not match `:aria-label` to this prop and reports it missing.
  *
  * Markup: `role="radiogroup"` with one `role="radio"` button per option (`aria-checked`).
  *
  * @example
- * <SegmentedControl v-model="period" :options="[{ value: 'month', label: t('billing.period.month') }, …]" :aria-label="t('billing.title')" />
+ * <SegmentedControl v-model="period" :options="[{ value: 'month', label: t('billing.period.month') }, …]" :ariaLabel="t('billing.title')" />
  */
 const props = defineProps<{
   modelValue: string | number
