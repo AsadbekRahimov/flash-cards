@@ -230,7 +230,7 @@ onMounted(() => {
           <button
             type="button"
             class="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-full text-danger active:bg-danger-soft disabled:opacity-50"
-            :aria-label="t('decks.edit.remove_word')"
+            :aria-label="t('decks.edit.remove_word', { word: word.word })"
             :disabled="busy"
             data-testid="remove-word"
             @click="store.removeWord(slug, word.id)"

@@ -323,12 +323,30 @@ describe('FriendsView', () => {
       const row = wrapper.get('[data-testid=friend-row]')
       const challengeBtn = row.get('[data-testid=challenge-btn]')
       const removeBtn = row.get('[data-testid=remove-btn]')
-      expect(challengeBtn.attributes('aria-label')).toBe('Бросить вызов')
-      expect(removeBtn.attributes('aria-label')).toBe('Удалить из друзей')
+      expect(challengeBtn.attributes('aria-label')).toBe('Бросить вызов: Dilnoza')
+      expect(removeBtn.attributes('aria-label')).toBe('Удалить из друзей: Dilnoza')
       expect(challengeBtn.find('svg').exists()).toBe(true)
       expect(removeBtn.find('svg').exists()).toBe(true)
       expect(challengeBtn.text()).toBe('')
       expect(removeBtn.text()).toBe('')
+    })
+
+    it('names the icon buttons of every row after the friend: the rows are told apart', async () => {
+      const { wrapper } = await render()
+
+      const names = (id: string) => wrapper.findAll(`[data-testid=${id}]`).map((b) => b.attributes('aria-label'))
+
+      expect(names('challenge-btn')).toEqual(['Бросить вызов: Dilnoza', 'Бросить вызов: Друг'])
+      expect(names('remove-btn')).toEqual(['Удалить из друзей: Dilnoza', 'Удалить из друзей: Друг'])
+    })
+
+    it('names them in Uzbek too', async () => {
+      setLocale('uz')
+      const { wrapper } = await render()
+
+      const row = wrapper.get('[data-testid=friend-row]')
+      expect(row.get('[data-testid=challenge-btn]').attributes('aria-label')).toBe('Musobaqa tashlash: Dilnoza')
+      expect(row.get('[data-testid=remove-btn]').attributes('aria-label')).toBe("Do'stlikdan chiqarish: Dilnoza")
     })
 
     it('removes a friend only after the confirmation, then reloads the challenges', async () => {

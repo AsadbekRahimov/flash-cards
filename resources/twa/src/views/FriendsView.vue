@@ -300,7 +300,7 @@ onMounted(() => {
                 v-if="!withOpenChallenge.has(friend.id)"
                 type="button"
                 class="btn btn-tinted size-11 min-h-11 rounded-full p-0"
-                :aria-label="t('friends.challenge.new')"
+                :aria-label="t('friends.challenge.new', { name: personName(friend) })"
                 data-testid="challenge-btn"
                 @click="picking = friend.id"
               >
@@ -309,7 +309,7 @@ onMounted(() => {
               <button
                 type="button"
                 class="btn btn-plain size-11 min-h-11 rounded-full p-0 text-tg-hint"
-                :aria-label="t('friends.list.remove')"
+                :aria-label="t('friends.list.remove', { name: personName(friend) })"
                 data-testid="remove-btn"
                 @click="removing = friend.id"
               >

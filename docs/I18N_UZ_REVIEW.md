@@ -645,7 +645,7 @@
 | `decks.edit.rename` | Nomi | Название |
 | `decks.edit.save` | Saqlash | Сохранить |
 | `decks.edit.no_words` | To'plamda hali so'zlar yo'q. | В колоде пока нет слов. |
-| `decks.edit.remove_word` | Olib tashlash | Убрать |
+| `decks.edit.remove_word` | So'zni olib tashlash: {word} | Убрать слово: {word} |
 | `decks.edit.import` | So'zlar qo'shish | Добавить слова |
 | `decks.edit.format.list` | Ro'yxat | Списком |
 | `decks.edit.format.csv` | CSV | CSV |
@@ -1545,12 +1545,12 @@
 | `friends.list.count` | {count} / {limit} | {count} из {limit} |
 | `friends.list.anonymous` | Do'st | Друг |
 | `friends.list.words` | {count} ta so'z | {count} слово / слова / слов |
-| `friends.list.remove` | Do'stlikdan chiqarish | Удалить из друзей |
+| `friends.list.remove` | Do'stlikdan chiqarish: {name} | Удалить из друзей: {name} |
 | `friends.list.remove_confirm` | {name} do'stlikdan chiqarilsinmi? Shu do'st bilan tugallanmagan musobaqa bekor qilinadi. | Удалить {name} из друзей? Незавершённый вызов с этим другом отменится. |
 | `friends.list.remove_yes` | Ha, chiqarish | Да, удалить |
 | `friends.list.remove_no` | Bekor qilish | Отмена |
 | `friends.challenge.title` | Musobaqalar | Вызовы |
-| `friends.challenge.new` | Musobaqa tashlash | Бросить вызов |
+| `friends.challenge.new` | Musobaqa tashlash: {name} | Бросить вызов: {name} |
 | `friends.challenge.pick` | {days} kunda kim ko'proq? | Кто больше за {days} дн.? |
 | `friends.challenge.metric.reviews` | Ko'proq kartochka takrorlaydi | Повторит карточек |
 | `friends.challenge.metric.new_words` | Ko'proq yangi so'z o'rganadi | Выучит новых слов |

@@ -136,7 +136,7 @@ describe('DeckEditView', () => {
       const { wrapper } = await render()
 
       const button = wrapper.get('[data-testid=word-1] [data-testid=remove-word]')
-      expect(button.attributes('aria-label')).toBe('Убрать')
+      expect(button.attributes('aria-label')).toBe('Убрать слово: apple')
       expect(button.text()).toBe('')
       expect(button.find('svg').exists()).toBe(true)
 
@@ -147,6 +147,15 @@ describe('DeckEditView', () => {
       expect(wrapper.find('[data-testid=word-1]').exists()).toBe(false)
       expect(wrapper.find('[data-testid=word-2]').exists()).toBe(true)
       expect(wrapper.get('[data-testid=words] .section-label').text()).toBe('Слова (1)')
+    })
+
+    it('names every remove button after its word: a screen reader hears which row it is on', async () => {
+      const { wrapper } = await render()
+
+      const names = wrapper.findAll('[data-testid=remove-word]').map((b) => b.attributes('aria-label'))
+
+      expect(names).toEqual(['Убрать слово: apple', 'Убрать слово: pear'])
+      expect(new Set(names).size).toBe(names.length)
     })
 
     it('shows an empty-deck hint under "Слова (0)"', async () => {
@@ -653,7 +662,7 @@ describe('DeckEditView', () => {
     expect(wrapper.get('[data-testid=choose-btn]').text()).toBe('Asosiy qilish')
     expect(wrapper.get('[data-testid=words] .section-label').text()).toBe("So'zlar (2)")
     expect(wrapper.get('[data-testid=import] [role=radiogroup]').attributes('aria-label')).toBe('Format')
-    expect(wrapper.get('[data-testid=remove-word]').attributes('aria-label')).toBe('Olib tashlash')
+    expect(wrapper.get('[data-testid=remove-word]').attributes('aria-label')).toBe("So'zni olib tashlash: apple")
   })
 
   it('renders the main deck chip in Uzbek', async () => {
