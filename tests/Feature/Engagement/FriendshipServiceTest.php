@@ -316,6 +316,7 @@ function friendsRepetitionReads(Closure $fn): array
 }
 
 it('shows the friends\' learned words from a ten-minute cache and counts in the database only the friends it has not got', function (): void {
+    config(['cache.default' => 'array']); // time travel moves the clock of the array store; a Redis server expires keys in real time
     $me = Learner::factory()->create();
     [$anna, $bek] = [Learner::factory()->create(['first_name' => 'Anna']), Learner::factory()->create(['first_name' => 'Bek'])];
     foreach ([$anna, $bek] as $friend) {

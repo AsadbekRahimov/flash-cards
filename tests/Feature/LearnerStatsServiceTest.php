@@ -67,6 +67,7 @@ it('counts in the database only the learners that missed the cache, in one query
 });
 
 it('lags up to ten minutes behind, while the exact count never does', function (): void {
+    config(['cache.default' => 'array']); // time travel moves the clock of the array store; a Redis server expires keys in real time
     $stats = app(LearnerStatsService::class);
     $friend = Learner::factory()->create();
     lsLearned($friend, 2);
