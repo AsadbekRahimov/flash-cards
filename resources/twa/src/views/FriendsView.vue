@@ -197,7 +197,7 @@ onMounted(() => {
           <div class="flex w-full gap-2">
             <button
               type="button"
-              class="btn btn-primary btn-sm flex-1"
+              class="btn btn-tinted btn-sm flex-1"
               data-testid="accept-btn"
               :disabled="store.isBusy(`f${request.id}`)"
               @click="answerFriend('accept', request.id)"
@@ -339,7 +339,7 @@ onMounted(() => {
               <div v-if="c.status === 'pending' && c.role === 'opponent'" class="flex w-full gap-2">
                 <button
                   type="button"
-                  class="btn btn-primary btn-sm flex-1"
+                  class="btn btn-tinted btn-sm flex-1"
                   data-testid="challenge-accept"
                   :disabled="store.isBusy(`c${c.id}`)"
                   @click="store.answerChallenge('accept', c.id)"

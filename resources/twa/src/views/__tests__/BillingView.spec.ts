@@ -360,7 +360,38 @@ describe('BillingView', () => {
       const resume = wrapper.get('[data-testid=resume-renewal]')
       expect(resume.text()).toBe('Включить автопродление')
       expect(resume.classes()).toEqual(expect.arrayContaining(['btn-primary', 'btn-block']))
-      expect(wrapper.get('[data-testid=buy]').text()).toBe('Продлить Pro')
+      const buy = wrapper.get('[data-testid=buy]')
+      expect(buy.text()).toBe('Продлить Pro')
+      // One main action on the screen: "Resume" is it, paying again is the other way.
+      expect(buy.classes()).toEqual(expect.arrayContaining(['btn-tinted', 'btn-lg', 'btn-block']))
+      expect(buy.classes()).not.toContain('btn-primary')
+      expect(wrapper.findAll('.btn-primary')).toHaveLength(1)
+    })
+
+    it('has one primary button whatever the plan: «Buy», «Renew» or «Resume»', async () => {
+      const free = await render(me(), catalog())
+      expect(free.wrapper.findAll('.btn-primary').map((b) => b.attributes('data-testid'))).toEqual(['buy'])
+
+      setActivePinia(createPinia())
+      const payme = await render(
+        me({ plan: 'pro', until: '2026-11-20T00:00:00+00:00', renewal: { auto: false, provider: 'payme', ends_at: '2026-11-20T00:00:00+00:00', reminder_sent: false } }),
+        catalog(summary({ provider: 'payme', auto_renew: false, can_cancel: false, can_resume: false })),
+      )
+      expect(payme.wrapper.findAll('.btn-primary').map((b) => b.attributes('data-testid'))).toEqual(['buy'])
+
+      setActivePinia(createPinia())
+      const running = await render(me({ plan: 'pro', until: renewing.ends_at, renewal: renewing }), catalog(summary()))
+      expect(running.wrapper.findAll('.btn-primary')).toHaveLength(0) // cancel is secondary, nothing to buy
+    })
+
+    it('keeps the promo field tinted: «Activate» is not the main action of the screen', async () => {
+      const { wrapper } = await render(me(), catalog())
+
+      await wrapper.get('[data-testid=promo-toggle]').trigger('click')
+
+      const submit = wrapper.get('[data-testid=promo-submit]')
+      expect(submit.classes()).toContain('btn-tinted')
+      expect(wrapper.findAll('.btn-primary').map((b) => b.attributes('data-testid'))).toEqual(['buy'])
     })
 
     it('resumes the renewal', async () => {

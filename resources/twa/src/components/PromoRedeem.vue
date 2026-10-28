@@ -72,7 +72,7 @@ async function submit(): Promise<void> {
         :placeholder="t('promo.placeholder')"
         data-testid="promo-input"
       />
-      <button type="submit" class="btn btn-primary shrink-0" :disabled="busy || code.trim() === ''" data-testid="promo-submit">
+      <button type="submit" class="btn btn-tinted shrink-0" :disabled="busy || code.trim() === ''" data-testid="promo-submit">
         {{ t('promo.submit') }}
       </button>
     </form>

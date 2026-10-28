@@ -235,12 +235,13 @@ describe('FriendsView', () => {
   })
 
   describe('requests', () => {
-    it('accepts an incoming request with a primary button and shows the refreshed list', async () => {
+    it('accepts an incoming request with a tinted button (the one primary button of the screen is «Share») and shows the refreshed list', async () => {
       const { wrapper } = await render()
       vi.mocked(api.friends.accept).mockResolvedValue(friendsResponse({ incoming: [] }))
 
       const accept = wrapper.get('[data-testid=accept-btn]')
-      expect(accept.classes()).toEqual(expect.arrayContaining(['btn-primary', 'btn-sm']))
+      expect(accept.classes()).toEqual(expect.arrayContaining(['btn-tinted', 'btn-sm']))
+      expect(accept.classes()).not.toContain('btn-primary')
       await accept.trigger('click')
       await flushPromises()
 
@@ -259,6 +260,14 @@ describe('FriendsView', () => {
 
       expect(api.friends.decline).toHaveBeenCalledWith(21)
       expect(wrapper.find('[data-testid=incoming]').exists()).toBe(false)
+    })
+
+    it('has one primary button on the whole screen even with a request and a challenge to answer: «Share»', async () => {
+      const { wrapper } = await render(friendsResponse(), challengesResponse({ open: [pending({ role: 'opponent' })] }))
+
+      expect(wrapper.find('[data-testid=accept-btn]').exists()).toBe(true)
+      expect(wrapper.find('[data-testid=challenge-accept]').exists()).toBe(true)
+      expect(wrapper.findAll('.btn-primary').map((b) => b.attributes('data-testid'))).toEqual(['share-btn'])
     })
 
     it('shows an initial avatar and the name of a request', async () => {
@@ -448,7 +457,8 @@ describe('FriendsView', () => {
       vi.mocked(api.challenges.list).mockResolvedValue(challengesResponse({ open: [challenge({ role: 'opponent' })] }))
 
       expect(text(wrapper, 'challenge-status')).toBe('вам бросили вызов')
-      expect(wrapper.get('[data-testid=challenge-accept]').classes()).toEqual(expect.arrayContaining(['btn-primary', 'btn-sm']))
+      expect(wrapper.get('[data-testid=challenge-accept]').classes()).toEqual(expect.arrayContaining(['btn-tinted', 'btn-sm']))
+      expect(wrapper.get('[data-testid=challenge-accept]').classes()).not.toContain('btn-primary')
       expect(wrapper.get('[data-testid=challenge-decline]').classes()).toEqual(expect.arrayContaining(['btn-secondary', 'btn-sm']))
 
       await wrapper.get('[data-testid=challenge-accept]').trigger('click')

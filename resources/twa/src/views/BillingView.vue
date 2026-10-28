@@ -251,7 +251,15 @@ onMounted(() => {
         </div>
       </section>
 
-      <button v-if="canBuy" type="button" class="btn btn-primary btn-lg btn-block" data-testid="buy" @click="paywallOpen = true">
+      <!-- The one primary button is "Resume" while it is on the screen (a canceled Stars renewal): paying again is the other way. -->
+      <button
+        v-if="canBuy"
+        type="button"
+        class="btn btn-lg btn-block"
+        :class="subscription?.can_resume ? 'btn-tinted' : 'btn-primary'"
+        data-testid="buy"
+        @click="paywallOpen = true"
+      >
         {{ isPro || lapsed ? t('billing.renew') : t('billing.buy') }}
       </button>
       <p
