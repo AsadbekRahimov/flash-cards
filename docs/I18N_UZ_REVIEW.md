@@ -1911,3 +1911,4 @@
 | `billing.grace_until` | Pro {date} gacha amal qiladi. | Pro действует до {date} |
 | `decks.choose_empty_hint` | Asosiy qilish uchun to'plamga kamida bitta so'z qo'shing. | Добавьте в колоду хотя бы одно слово, чтобы сделать её основной. |
 | `orgs.waitlisted_hint` | Markazda hozircha bo'sh joy yo'q. Joy bo'shaganda markaz bergan Pro yoqiladi. | В центре пока нет свободных мест. Pro от центра включится, когда место освободится. |
+| `common.copy_failed` | Nusxalab bo'lmadi. Havolani belgilab, qo'lda nusxalang. | Не удалось скопировать. Выделите ссылку и скопируйте вручную. |

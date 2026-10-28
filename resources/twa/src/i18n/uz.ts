@@ -15,6 +15,7 @@ export const uz: Translations = {
   'common.error_title': 'Xatolik',
   'common.copied': 'Nusxalandi',
   'common.saved': 'Saqlandi',
+  'common.copy_failed': "Nusxalab bo'lmadi. Havolani belgilab, qo'lda nusxalang.",
 
   // ---- nav ----
   'nav.today': 'Asosiy',

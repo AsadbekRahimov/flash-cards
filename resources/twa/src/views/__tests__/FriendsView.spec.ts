@@ -105,6 +105,11 @@ function setClipboard(value: unknown): void {
   Object.defineProperty(navigator, 'clipboard', { value, configurable: true })
 }
 
+/** The old way of copying (a selected field): what the browser answers to `execCommand('copy')`. */
+function setExecCommand(result: boolean | undefined): void {
+  Object.defineProperty(document, 'execCommand', { value: result === undefined ? undefined : () => result, configurable: true, writable: true })
+}
+
 describe('FriendsView', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
@@ -213,15 +218,28 @@ describe('FriendsView', () => {
       expect(text(wrapper, 'copy-btn')).toBe('Скопировать')
     })
 
-    it('stays silent when the clipboard refuses: the link is on the screen anyway', async () => {
-      setClipboard({ writeText: vi.fn().mockRejectedValue(new Error('NotAllowedError')) })
+    it('copies the old way and says "Скопировано" when the clipboard API is missing', async () => {
+      setClipboard(undefined)
+      setExecCommand(true)
       const { wrapper } = await render()
 
       await wrapper.get('[data-testid=copy-btn]').trigger('click')
       await flushPromises()
 
-      expect(useToast().toast.value).toBeNull()
+      expect(useToast().toast.value?.text).toBe('Скопировано')
+    })
+
+    it('tells that it could not copy when nothing works, and the link is on the screen to select and copy by hand', async () => {
+      setClipboard({ writeText: vi.fn().mockRejectedValue(new Error('NotAllowedError')) })
+      setExecCommand(false)
+      const { wrapper } = await render()
+
+      await wrapper.get('[data-testid=copy-btn]').trigger('click')
+      await flushPromises()
+
+      expect(useToast().toast.value?.text).toBe('Не удалось скопировать. Выделите ссылку и скопируйте вручную.')
       expect(wrapper.get('[data-testid=link]').text()).toBe(LINK)
+      expect(wrapper.get('[data-testid=link]').classes()).toContain('select-all')
     })
 
     it('explains a missing link instead of the share buttons', async () => {

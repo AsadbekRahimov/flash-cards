@@ -21,6 +21,7 @@ export const ru = {
   'common.error_title': 'Ошибка',
   'common.copied': 'Скопировано',
   'common.saved': 'Сохранено',
+  'common.copy_failed': 'Не удалось скопировать. Выделите ссылку и скопируйте вручную.',
 
   // ---- nav ----
   'nav.today': 'Главная',
