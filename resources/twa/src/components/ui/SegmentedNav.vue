@@ -18,20 +18,24 @@ import { RouterLink } from 'vue-router'
  * Each item is a link; the one whose route matches the current route is highlighted and gets `aria-current="page"`.
  *
  * - `items` — `{ to, label, testid? }[]`.
+ * - `ariaLabel` — the name of the `<nav>` landmark (the tab bar is another one), required. Written camelCase in a
+ *   template (`:ariaLabel`), like the one of `SegmentedControl`.
  *
- * @example <SegmentedNav :items="[{ to: { name: 'courses' }, label: t('catalog.title') }, { to: { name: 'decks' }, label: t('decks.title') }]" />
+ * Every link keeps its look but has a touch area of at least 44 px (`.tap-target`, docs/14 §3).
+ *
+ * @example <SegmentedNav :items="[{ to: { name: 'courses' }, label: t('catalog.title') }, { to: { name: 'decks' }, label: t('decks.title') }]" :ariaLabel="t('catalog.title')" />
  */
-defineProps<{ items: SegmentedNavItem[] }>()
+defineProps<{ items: SegmentedNavItem[]; ariaLabel: string }>()
 </script>
 
 <template>
-  <nav class="flex gap-0.5 rounded-[10px] bg-fill p-0.5 shadow-[inset_0_0_0_1px_var(--app-hairline)]">
+  <nav :aria-label="ariaLabel" class="flex gap-0.5 rounded-[10px] bg-fill p-0.5 shadow-[inset_0_0_0_1px_var(--app-hairline)]">
     <RouterLink v-for="(item, index) in items" :key="index" v-slot="{ href, navigate, isActive }" :to="item.to" custom>
       <a
         :href="href"
         :aria-current="isActive ? 'page' : undefined"
         :data-testid="item.testid"
-        class="flex min-h-9 min-w-0 flex-1 items-center justify-center rounded-lg px-3 text-center text-sm leading-5 transition-colors duration-150"
+        class="tap-target flex min-h-9 min-w-0 flex-1 items-center justify-center rounded-lg px-3 text-center text-sm leading-5 transition-colors duration-150"
         :class="
           isActive
             ? 'bg-surface font-semibold text-tg-text shadow-[0_1px_3px_rgb(0_0_0/0.12),0_0_0_1px_var(--app-hairline)]'

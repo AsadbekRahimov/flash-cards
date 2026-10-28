@@ -74,6 +74,14 @@ describe('SegmentedControl', () => {
     expect(w.findAll('[role=radio]')[2]?.attributes('data-testid')).toBeUndefined()
   })
 
+  it('keeps the look of a 36 px segment and takes the press on 44 px (tap-target)', () => {
+    const w = mountControl()
+
+    for (const radio of w.findAll('[role=radio]')) {
+      expect(radio.classes()).toEqual(expect.arrayContaining(['tap-target', 'min-h-9']))
+    }
+  })
+
   it('highlights the selected segment', () => {
     const w = mountControl({ modelValue: 30 })
 

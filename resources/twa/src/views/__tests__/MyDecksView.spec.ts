@@ -122,6 +122,12 @@ describe('MyDecksView', () => {
       )
     })
 
+    it('names the switch as a navigation landmark of its own, besides the tab bar', async () => {
+      const { wrapper } = await render()
+
+      expect(wrapper.get('nav').attributes('aria-label')).toBe('Курсы')
+    })
+
     it('goes to the courses from the switch', async () => {
       const { wrapper, router } = await render()
 
