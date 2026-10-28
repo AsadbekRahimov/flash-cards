@@ -195,7 +195,6 @@
 | `finished.next_in_days.many` | _(в uz этой формы нет — используется `other`)_ | Через {count} дней |
 | `finished.next_in_days.other` | {count} kundan keyin | Через {count} дня |
 | `catalog.title` | Kurslar | Курсы |
-| `catalog.open` | Kurslar katalogi | Каталог курсов |
 | `catalog.empty` | Hozircha kurslar yo'q. Keyinroq qaytib ko'ring. | Курсов пока нет. Загляните позже. |
 | `catalog.choose` | Asosiy qilish | Сделать основным |
 | `catalog.active` | Asosiy kurs | Основной курс |
@@ -1446,7 +1445,6 @@
 
 | Ключ | uz | ru |
 |---|---|---|
-| `league.open` | Liga | Лига |
 | `league.title` | Liga | Лига |
 | `league.tier.bronze` | Bronza | Бронза |
 | `league.tier.silver` | Kumush | Серебро |
@@ -1683,8 +1681,6 @@
 
 | Ключ | uz | ru |
 |---|---|---|
-| `common.cancel` | Bekor qilish | Отмена |
-| `common.next` | Keyingisi | Дальше |
 | `common.copied` | Nusxalandi | Скопировано |
 | `common.saved` | Saqlandi | Сохранено |
 | `nav.today` | Asosiy | Главная |

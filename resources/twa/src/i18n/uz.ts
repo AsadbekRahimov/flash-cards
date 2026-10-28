@@ -13,8 +13,6 @@ export const uz: Translations = {
   'common.loading': 'Yuklanmoqda…',
   'common.retry': 'Qayta urinish',
   'common.error_title': 'Xatolik',
-  'common.cancel': 'Bekor qilish',
-  'common.next': 'Keyingisi',
   'common.copied': 'Nusxalandi',
   'common.saved': 'Saqlandi',
 
@@ -276,7 +274,6 @@ export const uz: Translations = {
 
   // ---- course catalog ----
   'catalog.title': 'Kurslar',
-  'catalog.open': 'Kurslar katalogi',
   'catalog.empty': "Hozircha kurslar yo'q. Keyinroq qaytib ko'ring.",
   'catalog.choose': 'Asosiy qilish',
   'catalog.active': 'Asosiy kurs',
@@ -381,7 +378,6 @@ export const uz: Translations = {
   'achievements.empty_hint': "Har kuni mashq qiling — yutuqlar o'zi paydo bo'ladi.",
 
   // ---- leagues (docs/13 §7.3) ----
-  'league.open': 'Liga',
   'league.title': 'Liga',
   'league.tier.bronze': 'Bronza',
   'league.tier.silver': 'Kumush',

@@ -19,8 +19,6 @@ export const ru = {
   'common.loading': 'Загрузка…',
   'common.retry': 'Повторить',
   'common.error_title': 'Ошибка',
-  'common.cancel': 'Отмена',
-  'common.next': 'Дальше',
   'common.copied': 'Скопировано',
   'common.saved': 'Сохранено',
 
@@ -296,7 +294,6 @@ export const ru = {
 
   // ---- course catalog ----
   'catalog.title': 'Курсы',
-  'catalog.open': 'Каталог курсов',
   'catalog.empty': 'Курсов пока нет. Загляните позже.',
   'catalog.choose': 'Сделать основным',
   'catalog.active': 'Основной курс',
@@ -403,7 +400,6 @@ export const ru = {
   'achievements.empty_hint': 'Занимайтесь каждый день — достижения появятся сами.',
 
   // ---- leagues (docs/13 §7.3) ----
-  'league.open': 'Лига',
   'league.title': 'Лига',
   'league.tier.bronze': 'Бронза',
   'league.tier.silver': 'Серебро',
