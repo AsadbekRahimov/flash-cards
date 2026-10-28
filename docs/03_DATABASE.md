@@ -515,9 +515,12 @@ Append-only журнал для продуктовой аналитики (не 
 (`GET /courses`, колоды, `active_course` на «Сегодня») берётся из него, слова каталога при открытии не считаются
 (`done` — запросом по строкам `word_repetitions` самого learner'а). Поэтому любой путь, меняющий активные слова
 (импорт, колоды learner'а, правка слова в админке), обязан вызвать `recount` и `LearningCache::forgetLesson`;
-текущие пути перечислены в `WordChangePathsTest` и `WordTranslationsAdminTest`.
+текущие пути перечислены в `WordChangePathsTest` и `WordTranslationsAdminTest`. Ремонт расхождений (дамп, ручной SQL, релиз, меняющий правило) —
+`php artisan courses:recount-words` (17.12): `CoursePublisher::recount` для каждого курса, **включая колоды learner'ов и архивные**
+(пишет только тех, у кого число неверно), и сброс `LearningCache::forgetLesson` по всем урокам; идемпотентна, выводит, сколько курсов
+изменила; `deploy.sh` вызывает её после миграций (DEVOPS_GUIDE §14.2).
 **Писатели одного курса идут по очереди через его строку** (17.12): `VocabularyImporter` первым выражением своей транзакции берёт строку
-курса (`FOR NO KEY UPDATE` на PostgreSQL), как `LearnerDeckService` (`addWords` / `removeWord` / `archive`) и `CoursePublisher::transition`
+курса (`CoursePublisher::lockForWriting`, `FOR NO KEY UPDATE` на PostgreSQL; её же берёт ремонт), как `LearnerDeckService` (`addWords` / `removeWord` / `archive`) и `CoursePublisher::transition`
 берут её `FOR UPDATE`. Без этого два параллельных импорта в один курс считали активные слова из снимков без чужих незакоммиченных строк,
 и позднейший commit оставлял `words_count` без слов раннего импорта; двойная отправка одного файла в существующий урок падала на unique
 `(lesson_id, word)`. Порядок замков единый (курс — первым, уроки и слова — после), цикла нет; правки слов в админке идут одиночными

@@ -27,7 +27,7 @@ bash deploy.sh
 
 Скрипт принимает SHA коммита: `bash deploy.sh <sha>` (или переменная `DEPLOY_SHA`). Он делает `git fetch origin`, `git checkout --detach <sha>` и **до сборки** проверяет, что `git rev-parse HEAD` равен запрошенному SHA, иначе завершается с кодом 1. CI передаёт `${{ github.sha }}`, поэтому выкатывается ровно тот коммит, который прошёл проверки, а не то, на что `master` указывает к моменту деплоя; job `deploy` идёт с `concurrency: production-deploy` (без отмены уже идущего деплоя). Деплой по SHA разрешён только вперёд (`git merge-base --is-ancestor HEAD <sha>`), назад — только с `--rollback`. Без SHA скрипт делает `git fetch origin && git checkout --detach origin/${DEPLOY_BRANCH:-master}` (не `git pull`, который ломается в detached HEAD после отката) и печатает предупреждение. Образы в registry не публикуются: собираются на сервере из этого SHA.
 
-Дальше: сборка `app` и `nginx`, первичный сертификат Let's Encrypt при необходимости, миграции до переключения контейнеров, запуск стека и smoke-проверка: `/up`, затем ожидание `/health/ready` (до ~5 минут: нужны пульсы планировщика и воркеров), затем `/twa/index.html` и `/build/manifest.json`. Любой провал = `exit 1` с сообщением и подсказкой про откат. Сертификат обновляет сервис `certbot`; nginx периодически перечитывает сертификаты. Для CI нужен секрет `SSH_PRIVATE_KEY`.
+Дальше: сборка `app` и `nginx`, первичный сертификат Let's Encrypt при необходимости, миграции до переключения контейнеров, затем `php artisan courses:recount-words` (счётчики слов курсов, см. §14.2; не при `--rollback`, сбой только предупреждает), запуск стека и smoke-проверка: `/up`, затем ожидание `/health/ready` (до ~5 минут: нужны пульсы планировщика и воркеров), затем `/twa/index.html` и `/build/manifest.json`. Любой провал = `exit 1` с сообщением и подсказкой про откат. Сертификат обновляет сервис `certbot`; nginx периодически перечитывает сертификаты. Для CI нужен секрет `SSH_PRIVATE_KEY`.
 
 Воркеры очереди в `docker-compose.prod.yml` разделены: `queue-high` (`--queue=high`) и `queue-default` (`--queue=default,low`), `scheduler` отдельно.
 
@@ -576,6 +576,9 @@ composer install --no-dev --optimize-autoloader --no-interaction
 # Run new migrations
 php artisan migrate --force
 
+# Bring courses.words_count (the `total` of GET /courses) in line with the active words: idempotent and fast (§14.2)
+php artisan courses:recount-words
+
 # Rebuild frontend (if resources/twa/ changed)
 # Use plain `npm ci` — vite/vue-tsc are devDependencies needed for the build.
 cd resources/twa && npm ci && npm run build && cd ../..
@@ -617,6 +620,32 @@ Reminders by the learner's local time replace the old daily `repetitions:notify`
 3. **Clean up the old queue.** The removed `SendReviewReminderJob` may still sit in the Redis queues or in `failed_jobs`: let the workers drain the queue (`php artisan queue:work --stop-when-empty`, or check `redis-cli -n 2 llen queues:default`) and then `php artisan queue:flush` to drop the old failed jobs. A queued old job would fail with a missing class, harmlessly, but would pollute `failed_jobs` alerts.
 4. **Queue visibility timeout.** `REDIS_QUEUE_RETRY_AFTER` must be above the workers' `--timeout` (120 in `docker-compose.prod.yml` and in the supervisor unit); the default and `.env.example` now say 180. A lower value hands a long-running job to a second worker while the first is still running it.
 5. After the first evening check `reminders:dispatch` output (`claimed / queued / skipped stale / repaired / backfilled`) and `failed_jobs`; a peak of N learners takes about N / 25 seconds to leave (at most 14 minutes).
+
+### 14.2 `courses:recount-words` — the word counters of the courses
+
+`courses.words_count` is the number of ACTIVE words of a course and the `total` of the progress in `GET /courses` (the
+catalog no longer counts the words of all courses on each open, docs/03 §6). Every path that changes words keeps it up
+to date (import, the decks of learners, a word switched off in the admin panel); the command is the repair for a figure
+that drifted anyway — a restored dump, hand-made SQL, a release that changes the rule — and `deploy.sh` runs it after the
+migrations (not on `--rollback`: the older code has no such command; a failure only prints a warning with the command).
+
+```bash
+php artisan courses:recount-words
+# course #5 (ielts-core): 480 -> 478
+# Courses checked: 14, changed: 1; lesson caches dropped: 312
+```
+
+- **Every course**: platform, centers', and the decks of learners (they are courses), archived ones too. For each it counts the
+  active words (`CoursePublisher::countActiveWords`); only a course whose figure differs is rewritten through
+  `CoursePublisher::recount()` (so `updated_at` of the courses does not move on every deploy and the cached catalog is dropped
+  only when something changed). The output lists up to 20 corrected courses (`from -> to`) and the totals.
+- **Lesson caches**: the cached active-word count of every lesson (`lesson:{id}:word_count`) is dropped, so the next step of a
+  lesson session counts afresh.
+- **Idempotent**: the second run reports `changed: 0` and writes nothing. It is not in the scheduler; run it after a deploy that
+  needs it, after restoring a database, or by hand when a catalog total looks wrong.
+- **Safe on a live system**: a course that needs a correction is recounted in a short transaction that takes the course row first
+  (the same lock the importer, the decks and the publication take), so a run that meets an import waits for its commit instead of
+  overwriting the counter with a count that misses the import.
 
 ---
 

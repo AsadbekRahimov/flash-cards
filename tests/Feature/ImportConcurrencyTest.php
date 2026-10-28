@@ -13,6 +13,7 @@ declare(strict_types=1);
  */
 
 use App\Domain\Content\Services\CoursePublisher;
+use App\Domain\Content\Services\LessonContentRefresher;
 use App\Domain\Content\Services\VocabularyImporter;
 use App\Models\AuditLog;
 use App\Models\Course;
@@ -234,6 +235,32 @@ it('does not deadlock imports of a course with its publication moves, whichever 
         ->and($course->fresh()?->status)->toBe(CoursePublisher::ARCHIVED)
         ->and(Word::query()->where('is_active', true)->count())->toBe(9)
         ->and($course->fresh()?->words_count)->toBe(9);
+});
+
+it('lets the repair run wait for an import of the course instead of overwriting its figure with a stale count', function (): void {
+    ['course' => $course] = Fx::course([1 => [1 => 2]]);
+    DB::table('courses')->where('id', $course->id)->update(['words_count' => 99]); // drifted: the run has work to do here
+
+    $results = importRunInParallel([
+        function () use ($course): array {
+            importHoldBeforeCommit(500_000);
+
+            return importRun(importFile($course, 1, 2, 3));
+        },
+        function (): int {
+            // The import has written its words and its figure by now, and holds them uncommitted.
+            usleep(250_000);
+
+            return app(LessonContentRefresher::class)->refreshAll()->changed();
+        },
+    ]);
+
+    // The run counted the committed words first (2 != 99) and went for the course row; it got it only after the commit,
+    // recounted 5 and had nothing left to change. Without the lock it would have written its 2 over the import's 5.
+    expect(collect($results)->pluck('ok')->unique()->all())->toBe([true], json_encode($results))
+        ->and($results[1]['result'])->toBe(0)
+        ->and($course->fresh()?->words_count)->toBe(5)
+        ->and(Word::query()->where('is_active', true)->count())->toBe(5);
 });
 
 it('does not hold up the foreign-key checks of learners while an import keeps the course row', function (): void {
