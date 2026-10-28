@@ -149,6 +149,22 @@ it('returns the lesson with its stage loaded', function (): void {
         ->and($lesson?->getAttributes())->toHaveKeys(['id', 'stage_id', 'number', 'title']);
 });
 
+it('returns the same lesson and stage models a plain find would, with nothing of the join left in their attributes', function (): void {
+    ['course' => $course, 'lessons' => $lessons] = Fx::course([4 => [7 => 1]]);
+
+    $lesson = app(CourseCatalogService::class)->nextLessonWithNewWords($course, Learner::factory()->create());
+    $plain = Lesson::query()->with('stage')->findOrFail($lessons['4.7']->id);
+
+    // The stage comes from the columns of the joined row: if `stages` ever gets a column, this fails until the select follows.
+    expect($lesson?->getAttributes())->toBe($plain->getAttributes())
+        ->and($lesson?->stage?->getAttributes())->toBe($plain->stage?->getAttributes())
+        ->and($lesson?->stage?->exists)->toBeTrue()
+        ->and($lesson?->stage?->is($plain->stage))->toBeTrue()
+        ->and(array_keys($lesson?->stage?->getAttributes() ?? []))->toBe(['id', 'course_id', 'number', 'title', 'description', 'created_at', 'updated_at'])
+        ->and($lesson?->stage?->getDirty())->toBe([])
+        ->and($lesson?->isDirty())->toBeFalse();
+});
+
 it('answers exactly like the original query on random courses and progress', function (): void {
     $mismatches = [];
     $answers = [];
@@ -190,7 +206,7 @@ it('answers exactly like the original query on random courses and progress', fun
         ->and(count(array_unique($answers)))->toBeGreaterThanOrEqual(4);
 });
 
-it('runs two statements however many lessons the course has or cards the learner holds', function (): void {
+it('runs ONE statement however many lessons the course has or cards the learner holds', function (): void {
     // Worst case for the lookup: every lesson but the last one is used up, so the answer is the last lesson.
     $run = function (int $lessons, bool $usedUp): array {
         ['course' => $course, 'words' => $words] = Fx::course([1 => array_fill(1, $lessons, 3)]);
@@ -211,11 +227,11 @@ it('runs two statements however many lessons the course has or cards the learner
     [$smallAnswer, $small] = $run(3, false);
     [$bigAnswer, $big] = $run(40, true);
 
-    // Before the rewrite it was the same two statements; what changed is the cost of the first one (below).
+    // The lesson and its stage come from one row: no second statement for `stages`.
     expect($smallAnswer)->toBe('1.1')
         ->and($bigAnswer)->toBe('1.40')
-        ->and($small)->toHaveCount(2)
-        ->and($big)->toHaveCount(2);
+        ->and($small)->toHaveCount(1)
+        ->and($big)->toHaveCount(1);
 
     // ONE statement over the words of the course: no correlated EXISTS per lesson any more.
     expect(QueryLog::matching($big, '/^select .* from ["`]lessons["`] inner join ["`]stages["`] .* inner join ["`]words["`] .* not exists \(select \* from ["`]word_repetitions["`]/s'))->toHaveCount(1)
