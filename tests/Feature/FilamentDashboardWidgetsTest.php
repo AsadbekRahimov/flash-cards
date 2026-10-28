@@ -131,7 +131,8 @@ it('lists the groups of the current league week with members and capacity for an
         ->assertOk()
         ->assertCanSeeTableRecords([$gold, $bronze])
         ->assertCanNotSeeTableRecords([$lastWeek])
-        ->assertSee('Лиги — неделя 2026-10-19 – 2026-10-25 (идёт): групп — 2, участников — 37')
+        ->assertSee('Лиги — неделя 19.10.2026 – 25.10.2026 (идёт): групп — 2, участников — 37')
+        ->assertDontSee('2026-10-19')
         ->assertSee('Золото (2)')
         ->assertSee('30 / 30')
         ->assertSee('7 / 30');

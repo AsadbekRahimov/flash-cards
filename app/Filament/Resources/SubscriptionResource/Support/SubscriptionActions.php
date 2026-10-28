@@ -11,6 +11,7 @@ use App\Domain\Billing\Services\SubscriptionService;
 use App\Domain\Billing\Support\AutoRenewal;
 use App\Domain\Billing\Support\OrgTiers;
 use App\Domain\Billing\Support\SubscriptionLiveness;
+use App\Filament\Resources\Support\AdminDates;
 use App\Filament\Resources\Support\AdminErrors;
 use App\Filament\Resources\Support\AdminLabels;
 use App\Models\Learner;
@@ -205,7 +206,8 @@ final class SubscriptionActions
             return '';
         }
 
-        return __('admin.subscriptions.grant.until_warning', ['date' => CarbonImmutable::instance($paidUntil)->setTimezone((string) config('learners.default_timezone'))->format('Y-m-d H:i')]);
+        // In the zone of the date picker above, whose help line names it.
+        return __('admin.subscriptions.grant.until_warning', ['date' => AdminDates::dateTime($paidUntil, (string) config('learners.default_timezone'))]);
     }
 
     /** @return array<string, string> tier key => "Центр S · мест: 100" */

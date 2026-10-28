@@ -16,6 +16,7 @@ use App\Domain\Learning\Services\SchedulerResolver;
 use App\Domain\Learning\Services\SchedulerSwitchService;
 use App\Filament\Resources\LearnerResource\Pages;
 use App\Filament\Resources\LearnerResource\RelationManagers;
+use App\Filament\Resources\Support\AdminDates;
 use App\Filament\Resources\Support\AdminLabels;
 use App\Models\Learner;
 use App\Models\User;
@@ -98,7 +99,7 @@ class LearnerResource extends Resource
 
                     return self::planLabel($entitlement->plan, $entitlement->isSponsored())
                         .($entitlement->isSponsored() ? ', '.__('admin.learners.plan_center', ['id' => substr($entitlement->source, strlen('sponsor:organization:'))]) : '')
-                        .($entitlement->until !== null ? ', '.__('admin.learners.plan_until', ['date' => $entitlement->until->toDateTimeString()]) : '');
+                        .($entitlement->until !== null ? ', '.__('admin.learners.plan_until', ['date' => AdminDates::dateTime($entitlement->until)]) : '');
                 })
                 ->visible($isAdmin),
             TextEntry::make('scheduler')
