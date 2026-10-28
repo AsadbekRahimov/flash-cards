@@ -306,6 +306,12 @@ export const ru = {
   'billing.offer_chip': '−{pct}%',
   'billing.grace': 'Telegram не смог списать Stars за продление. Пополните баланс Stars — Telegram повторит списание.',
   'billing.grace_until': 'Pro действует до {date}',
+  'billing.plan.free_limit': {
+    one: '{count} новое слово в день, повторения без ограничений',
+    few: '{count} новых слова в день, повторения без ограничений',
+    many: '{count} новых слов в день, повторения без ограничений',
+    other: '{count} новых слова в день, повторения без ограничений',
+  },
 
   // ---- course catalog ----
   'catalog.title': 'Курсы',

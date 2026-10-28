@@ -282,6 +282,10 @@ export const uz: Translations = {
   'billing.offer_chip': '−{pct}%',
   'billing.grace': "Telegram yangilash uchun Stars'ni yecha olmadi. Stars balansini to'ldiring — Telegram yechishni qayta urinib ko'radi.",
   'billing.grace_until': 'Pro {date} gacha amal qiladi.',
+  'billing.plan.free_limit': {
+    one: "Kuniga {count} ta yangi so'z, takrorlash cheklovsiz",
+    other: "Kuniga {count} ta yangi so'z, takrorlash cheklovsiz",
+  },
 
   // ---- course catalog ----
   'catalog.title': 'Kurslar',

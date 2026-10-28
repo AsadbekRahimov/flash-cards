@@ -1947,3 +1947,19 @@
 | `decks.choose_empty_hint` | Asosiy qilish uchun to'plamga kamida bitta so'z qo'shing. | Добавьте в колоду хотя бы одно слово, чтобы сделать её основной. |
 | `orgs.waitlisted_hint` | Markazda hozircha bo'sh joy yo'q. Joy bo'shaganda markaz bergan Pro yoqiladi. | В центре пока нет свободных мест. Pro от центра включится, когда место освободится. |
 | `common.copy_failed` | Nusxalab bo'lmadi. Havolani belgilab, qo'lda nusxalang. | Не удалось скопировать. Выделите ссылку и скопируйте вручную. |
+
+## Редизайн 2026-10-28 · 17.14-T — на проверку носителю
+
+> Финальная полировка приложения: экран «Подписка» у Free, пейвол у Pro и согласование слова «trening» с ботом (ниже — по подразделам).
+
+### TWA: «Подписка» у Free — строка под заголовком (`resources/twa/src/i18n/uz.ts`)
+
+> Заголовок карточки уже говорит «Bepul tarif» (бесплатный тариф), поэтому строка под ним больше не повторяет название тарифа, а говорит, что он
+> даёт. Раньше она читалась «Bepul tarif: kuniga 20 ta yangi so'z» (`profile.plan.free` — эта строка остаётся в «Профиле», где названия тарифа рядом нет).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `billing.plan.free_limit.one` | Kuniga {count} ta yangi so'z, takrorlash cheklovsiz | {count} новое слово в день, повторения без ограничений |
+| `billing.plan.free_limit.few` | _(в uz этой формы нет — используется `other`)_ | {count} новых слова в день, повторения без ограничений |
+| `billing.plan.free_limit.many` | _(в uz этой формы нет — используется `other`)_ | {count} новых слов в день, повторения без ограничений |
+| `billing.plan.free_limit.other` | Kuniga {count} ta yangi so'z, takrorlash cheklovsiz | {count} новых слова в день, повторения без ограничений |
