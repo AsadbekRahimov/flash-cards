@@ -393,13 +393,11 @@ export const uz: Translations = {
   // ---- referrals: invite a friend (docs/13 §7.1) ----
   'referrals.open': "Do'stni taklif qilish",
   'referrals.title': "Do'stni taklif qilish",
-  'referrals.rule': "Do'stingiz {window} kun ichida {days} kun shug'ullansa (kuniga {reviews} ta kartochkadan), ikkalangiz ham {reward} kunlik Pro olasiz.",
   'referrals.link_label': 'Sizning havolangiz',
   'referrals.code_label': 'Sizning kodingiz',
   'referrals.no_link': "Havola administrator bot nomini ko'rsatgach paydo bo'ladi. Hozircha do'stingizga kodni yuboring: u botda /start ref_{code} deb yozadi.",
   'referrals.share': 'Ulashish',
   'referrals.copy': 'Havolani nusxalash',
-  'referrals.copied': 'Nusxalandi',
   'referrals.share_text': "LexiFlow'da ingliz tilini o'rganyapman — qo'shiling, Pro'ni birga olamiz!",
   'referrals.counts.invited': 'Kelganlar',
   'referrals.counts.activated': "Shug'ullanayotganlar",
@@ -411,6 +409,10 @@ export const uz: Translations = {
   'referrals.status.pending': 'hali faol emas',
   'referrals.status.activated': "shug'ullanmoqda",
   'referrals.status.rewarded': 'Pro olindi',
+  'referrals.hero': "Sizga va do'stingizga — {reward} kunlik Pro",
+  'referrals.step1': "Do'stingizga havolani yuboring",
+  'referrals.step2': "Do'stingiz {window} kun ichida {days} kun shug'ullanadi (kuniga {reviews} ta kartochkadan)",
+  'referrals.step3': 'Ikkalangiz ham {reward} kunlik Pro olasiz',
 
   // ---- friends and challenges (docs/13 §7.5) ----
   'friends.open': "Do'stlar va musobaqalar",

@@ -1381,13 +1381,11 @@
 |---|---|---|
 | `referrals.open` | Do'stni taklif qilish | Пригласить друга |
 | `referrals.title` | Do'stni taklif qilish | Пригласить друга |
-| `referrals.rule` | Do'stingiz {window} kun ichida {days} kun shug'ullansa (kuniga {reviews} ta kartochkadan), ikkalangiz ham {reward} kunlik Pro olasiz. | Когда друг позанимается {days} дн. (от {reviews} карточек в день) в течение {window} дней, вы оба получите {reward} дн. Pro. |
 | `referrals.link_label` | Sizning havolangiz | Ваша ссылка |
 | `referrals.code_label` | Sizning kodingiz | Ваш код |
 | `referrals.no_link` | Havola administrator bot nomini ko'rsatgach paydo bo'ladi. Hozircha do'stingizga kodni yuboring: u botda /start ref_{code} deb yozadi. | Ссылка появится, когда администратор укажет имя бота. Пока отправьте другу код: он вводит /start ref_{code} в боте. |
 | `referrals.share` | Ulashish | Поделиться |
 | `referrals.copy` | Havolani nusxalash | Скопировать ссылку |
-| `referrals.copied` | Nusxalandi | Скопировано |
 | `referrals.share_text` | LexiFlow'da ingliz tilini o'rganyapman — qo'shiling, Pro'ni birga olamiz! | Учу английский в LexiFlow — присоединяйся, получим Pro вместе! |
 | `referrals.counts.invited` | Kelganlar | Пришли |
 | `referrals.counts.activated` | Shug'ullanayotganlar | Занимаются |
@@ -1748,3 +1746,12 @@
 |---|---|---|
 | `friends.copy` | Nusxalash | Скопировать |
 | `friends.list.subtitle` | 🔥 {streak} · {words} | 🔥 {streak} · {words} |
+
+### TWA, «Пригласить друга»: герой и три шага (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `referrals.hero` | Sizga va do'stingizga — {reward} kunlik Pro | Вам и другу — {reward} дн. Pro |
+| `referrals.step1` | Do'stingizga havolani yuboring | Отправьте другу ссылку |
+| `referrals.step2` | Do'stingiz {window} kun ichida {days} kun shug'ullanadi (kuniga {reviews} ta kartochkadan) | Друг занимается {days} дн. (от {reviews} карточек в день) в течение {window} дней |
+| `referrals.step3` | Ikkalangiz ham {reward} kunlik Pro olasiz | Вы оба получаете {reward} дн. Pro |

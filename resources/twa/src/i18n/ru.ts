@@ -419,13 +419,11 @@ export const ru = {
   // ---- referrals: invite a friend (docs/13 §7.1) ----
   'referrals.open': 'Пригласить друга',
   'referrals.title': 'Пригласить друга',
-  'referrals.rule': 'Когда друг позанимается {days} дн. (от {reviews} карточек в день) в течение {window} дней, вы оба получите {reward} дн. Pro.',
   'referrals.link_label': 'Ваша ссылка',
   'referrals.code_label': 'Ваш код',
   'referrals.no_link': 'Ссылка появится, когда администратор укажет имя бота. Пока отправьте другу код: он вводит /start ref_{code} в боте.',
   'referrals.share': 'Поделиться',
   'referrals.copy': 'Скопировать ссылку',
-  'referrals.copied': 'Скопировано',
   'referrals.share_text': 'Учу английский в LexiFlow — присоединяйся, получим Pro вместе!',
   'referrals.counts.invited': 'Пришли',
   'referrals.counts.activated': 'Занимаются',
@@ -437,6 +435,10 @@ export const ru = {
   'referrals.status.pending': 'ещё не активен',
   'referrals.status.activated': 'занимается',
   'referrals.status.rewarded': 'Pro получен',
+  'referrals.hero': 'Вам и другу — {reward} дн. Pro',
+  'referrals.step1': 'Отправьте другу ссылку',
+  'referrals.step2': 'Друг занимается {days} дн. (от {reviews} карточек в день) в течение {window} дней',
+  'referrals.step3': 'Вы оба получаете {reward} дн. Pro',
 
   // ---- friends and challenges (docs/13 §7.5) ----
   'friends.open': 'Друзья и вызовы',
