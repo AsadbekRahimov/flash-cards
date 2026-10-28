@@ -1,40 +1,64 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onMounted, ref } from 'vue'
+import InitialAvatar from '@/components/InitialAvatar.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
+import EmptyState from '@/components/ui/EmptyState.vue'
+import ErrorState from '@/components/ui/ErrorState.vue'
+import ListGroup from '@/components/ui/ListGroup.vue'
+import ListRow from '@/components/ui/ListRow.vue'
+import LoadingState from '@/components/ui/LoadingState.vue'
+import PageHeader from '@/components/ui/PageHeader.vue'
+import { formatDate } from '@/composables/format'
+import { useBackButton } from '@/composables/useBackButton'
+import { useCopyToClipboard } from '@/composables/useCopyToClipboard'
+import { useTelegram } from '@/composables/useTelegram'
 import { useAuthStore } from '@/stores/auth'
 import { useReferralsStore } from '@/stores/referrals'
-import { useTelegram } from '@/composables/useTelegram'
 import { errorMessage } from '@/i18n/errors'
 import { useI18n } from '@/i18n'
 import type { StringKey } from '@/i18n/ru'
 import type { ReferralStatus } from '@/api/types'
 
 /**
- * "Invite a friend" (docs/13 §7.1, docs/04 A.12): the learner's invite link with Telegram's share
- * dialog, the rule and the reward, the counts and the invited learners (first names only).
+ * "Invite a friend" (docs/13 §7.1, docs/14 §6.7, docs/04 A.12): the reward and the three steps of the rule, the
+ * learner's invite link with Telegram's share dialog, the counts and the invited learners (first names only).
+ * Back -> Profile; the way to the friends and challenges is the row at the bottom.
  */
-const router = useRouter()
 const auth = useAuthStore()
 const referrals = useReferralsStore()
-const { showBackButton, shareUrl, haptic } = useTelegram()
+const { shareUrl, haptic } = useTelegram()
+const { copy } = useCopyToClipboard()
 const { t, locale } = useI18n()
 
+useBackButton({ name: 'profile' })
+
 const failed = ref('')
-const copied = ref(false)
-let hideBack: (() => void) | null = null
 
 const data = computed(() => referrals.data)
 const message = computed(() => failed.value || referrals.errorMessage)
 
-const STATUS_LABELS: Record<ReferralStatus, StringKey> = {
-  pending: 'referrals.status.pending',
-  activated: 'referrals.status.activated',
-  rewarded: 'referrals.status.rewarded',
+/** 1. send the link, 2. the friend studies, 3. both get Pro: the old one-sentence rule, split in the order of events. */
+const steps = computed<string[]>(() => {
+  const d = data.value
+  if (!d) return []
+  return [
+    t('referrals.step1'),
+    t('referrals.step2', { days: d.activation.days, reviews: d.activation.reviews_per_day, window: d.activation.window_days }),
+    t('referrals.step3', { reward: d.reward_days }),
+  ]
+})
+
+const STATUSES: Record<ReferralStatus, { label: StringKey; chip: string }> = {
+  pending: { label: 'referrals.status.pending', chip: 'chip-neutral' },
+  activated: { label: 'referrals.status.activated', chip: 'chip-accent' },
+  rewarded: { label: 'referrals.status.rewarded', chip: 'chip-success' },
 }
 
-function formatDate(iso: string): string {
-  return new Intl.DateTimeFormat(locale.value, { day: 'numeric', month: 'short' }).format(new Date(iso))
-}
+const COUNTS: { key: 'invited' | 'activated' | 'rewarded'; label: StringKey }[] = [
+  { key: 'invited', label: 'referrals.counts.invited' },
+  { key: 'activated', label: 'referrals.counts.activated' },
+  { key: 'rewarded', label: 'referrals.counts.rewarded' },
+]
 
 function share(): void {
   if (!data.value?.link) return
@@ -42,15 +66,9 @@ function share(): void {
   shareUrl(data.value.link, t('referrals.share_text'))
 }
 
-async function copy(): Promise<void> {
+async function copyLink(): Promise<void> {
   if (!data.value?.link) return
-  try {
-    await navigator.clipboard.writeText(data.value.link)
-    copied.value = true
-    setTimeout(() => { copied.value = false }, 2000)
-  } catch {
-    /* clipboard unavailable: the link is visible on the screen anyway */
-  }
+  await copy(data.value.link)
 }
 
 async function load(): Promise<void> {
@@ -65,86 +83,92 @@ async function load(): Promise<void> {
 }
 
 onMounted(() => {
-  hideBack = showBackButton(() => void router.push({ name: 'today' }))
   void load()
-})
-
-onBeforeUnmount(() => {
-  hideBack?.()
 })
 </script>
 
 <template>
-  <section class="flex-1 flex flex-col p-4 max-w-xl mx-auto w-full">
-    <h1 class="text-xl font-bold mb-4">🎁 {{ t('referrals.title') }}</h1>
+  <div class="page" data-testid="referrals-view">
+    <PageHeader :title="t('referrals.title')" />
 
-    <RouterLink :to="{ name: 'friends' }" class="btn btn-secondary w-full mb-3" data-testid="friends-link">
-      👥 {{ t('friends.open') }}
-    </RouterLink>
+    <LoadingState v-if="!data && !message" />
 
-    <div v-if="!data && !message" class="flex-1 flex items-center justify-center" data-testid="spinner">
-      <p class="text-tg-hint">{{ t('common.loading') }}</p>
-    </div>
-
-    <div v-else-if="!data" class="flex-1 flex items-center justify-center text-center" data-testid="error">
-      <div class="space-y-4">
-        <p class="text-lg font-semibold">⚠️ {{ t('common.error_title') }}</p>
-        <p class="text-tg-hint">{{ message }}</p>
-        <button class="btn btn-primary" data-testid="retry-btn" @click="load()">{{ t('common.retry') }}</button>
-      </div>
-    </div>
+    <ErrorState v-else-if="!data" :message="message" @retry="load" />
 
     <div v-else class="space-y-3">
-      <p class="card text-sm" data-testid="rule">
-        {{ t('referrals.rule', { days: data.activation.days, reviews: data.activation.reviews_per_day, window: data.activation.window_days, reward: data.reward_days }) }}
-      </p>
+      <section class="card" data-testid="hero">
+        <div class="flex items-center gap-3">
+          <span class="icon-tile tile-pink size-12 rounded-2xl"><AppIcon name="gift" :size="26" /></span>
+          <h2 class="min-w-0 flex-1 text-xl leading-6 font-bold" data-testid="hero-title">
+            {{ t('referrals.hero', { reward: data.reward_days }) }}
+          </h2>
+        </div>
 
-      <div class="card space-y-3">
+        <ol class="mt-4 space-y-3" data-testid="rule">
+          <li v-for="(step, index) in steps" :key="index" class="flex items-start gap-3">
+            <span
+              class="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent-soft text-[13px] leading-none font-semibold text-accent"
+              aria-hidden="true"
+            >
+              {{ index + 1 }}
+            </span>
+            <span class="text-[15px] leading-6">{{ step }}</span>
+          </li>
+        </ol>
+
         <template v-if="data.link">
-          <div class="text-xs text-tg-hint">{{ t('referrals.link_label') }}</div>
-          <div class="font-mono text-sm break-all" data-testid="link">{{ data.link }}</div>
-          <button type="button" class="btn btn-primary w-full" data-testid="share-btn" @click="share">
-            {{ t('referrals.share') }}
-          </button>
-          <button type="button" class="btn btn-secondary w-full" data-testid="copy-btn" @click="copy">
-            {{ copied ? '✓ ' + t('referrals.copied') : t('referrals.copy') }}
-          </button>
+          <p class="mt-4 text-[13px] leading-[18px] text-tg-hint">{{ t('referrals.link_label') }}</p>
+          <!-- Read-only field: the link wraps by characters and is selected with one tap, so it can be copied by hand too. -->
+          <div class="field mt-1.5 font-mono text-[13px] leading-[18px] break-all select-all" data-testid="link">{{ data.link }}</div>
+          <div class="mt-3 space-y-2">
+            <button type="button" class="btn btn-primary btn-block" data-testid="share-btn" @click="share">
+              {{ t('referrals.share') }}
+            </button>
+            <button type="button" class="btn btn-tinted btn-block" data-testid="copy-btn" @click="copyLink">
+              {{ t('referrals.copy') }}
+            </button>
+          </div>
         </template>
         <template v-else>
-          <div class="text-xs text-tg-hint">{{ t('referrals.code_label') }}</div>
-          <div class="font-mono text-lg" data-testid="code">{{ data.code }}</div>
-          <p class="text-sm text-tg-hint" data-testid="no-link">{{ t('referrals.no_link', { code: data.code }) }}</p>
+          <p class="mt-4 text-[13px] leading-[18px] text-tg-hint">{{ t('referrals.code_label') }}</p>
+          <div class="field mt-1.5 font-mono text-lg select-all" data-testid="code">{{ data.code }}</div>
+          <p class="mt-3 text-[15px] leading-5 text-tg-subtitle" data-testid="no-link">{{ t('referrals.no_link', { code: data.code }) }}</p>
         </template>
-      </div>
+      </section>
 
-      <div class="card grid grid-cols-3 text-center" data-testid="counts">
-        <div>
-          <div class="text-2xl font-bold" data-testid="count-invited">{{ data.counts.invited }}</div>
-          <div class="text-xs text-tg-hint">{{ t('referrals.counts.invited') }}</div>
-        </div>
-        <div>
-          <div class="text-2xl font-bold" data-testid="count-activated">{{ data.counts.activated }}</div>
-          <div class="text-xs text-tg-hint">{{ t('referrals.counts.activated') }}</div>
-        </div>
-        <div>
-          <div class="text-2xl font-bold" data-testid="count-rewarded">{{ data.counts.rewarded }}</div>
-          <div class="text-xs text-tg-hint">{{ t('referrals.counts.rewarded') }}</div>
+      <div class="grid grid-cols-3 gap-2" data-testid="counts">
+        <div v-for="count in COUNTS" :key="count.key" class="card flex flex-col items-center px-1.5 py-3 text-center">
+          <div class="text-2xl leading-8 font-bold tabular-nums" :data-testid="`count-${count.key}`">{{ data.counts[count.key] }}</div>
+          <div class="mt-0.5 text-xs leading-4 break-words text-tg-hint">{{ t(count.label) }}</div>
         </div>
       </div>
-      <p v-if="data.counts.capped > 0" class="text-xs text-tg-hint" data-testid="capped-hint">
+      <p v-if="data.counts.capped > 0" class="px-4 text-[13px] leading-[18px] text-tg-hint" data-testid="capped-hint">
         {{ t('referrals.counts.capped', { count: data.counts.capped }) }}
       </p>
 
-      <div class="card space-y-2">
-        <div class="font-semibold">{{ t('referrals.list.title') }}</div>
-        <p v-if="data.referrals.length === 0" class="text-sm text-tg-hint" data-testid="list-empty">{{ t('referrals.list.empty') }}</p>
-        <ul v-else class="divide-y" data-testid="list">
-          <li v-for="(item, index) in data.referrals" :key="index" class="flex items-center justify-between py-2 text-sm" data-testid="referral-row">
-            <span>{{ item.first_name || t('referrals.list.anonymous') }}</span>
-            <span class="text-tg-hint">{{ t(STATUS_LABELS[item.status]) }} · {{ formatDate(item.linked_at) }}</span>
-          </li>
-        </ul>
-      </div>
+      <ListGroup :header="t('referrals.list.title')" :data-testid="data.referrals.length > 0 ? 'list' : undefined">
+        <EmptyState v-if="data.referrals.length === 0" icon="user-plus" :text="t('referrals.list.empty')" data-testid="list-empty" />
+        <ListRow
+          v-for="(item, index) in data.referrals"
+          :key="index"
+          :title="item.first_name || t('referrals.list.anonymous')"
+          :subtitle="formatDate(item.linked_at, 'dayMonthShort', locale)"
+          data-testid="referral-row"
+        >
+          <template #leading>
+            <InitialAvatar :name="item.first_name || t('referrals.list.anonymous')" size="sm" />
+          </template>
+          <template #trailing>
+            <span class="chip shrink-0" :class="STATUSES[item.status].chip" data-testid="referral-status">
+              {{ t(STATUSES[item.status].label) }}
+            </span>
+          </template>
+        </ListRow>
+      </ListGroup>
+
+      <ListGroup>
+        <ListRow :to="{ name: 'friends' }" icon="users" tile="blue" :title="t('friends.open')" data-testid="friends-link" />
+      </ListGroup>
     </div>
-  </section>
+  </div>
 </template>

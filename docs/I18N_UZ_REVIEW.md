@@ -1368,13 +1368,11 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `referrals.title` | Do'stni taklif qilish | Пригласить друга |
-| `referrals.rule` | Do'stingiz {window} kun ichida {days} kun shug'ullansa (kuniga {reviews} ta kartochkadan), ikkalangiz ham {reward} kunlik Pro olasiz. | Когда друг позанимается {days} дн. (от {reviews} карточек в день) в течение {window} дней, вы оба получите {reward} дн. Pro. |
 | `referrals.link_label` | Sizning havolangiz | Ваша ссылка |
 | `referrals.code_label` | Sizning kodingiz | Ваш код |
 | `referrals.no_link` | Havola administrator bot nomini ko'rsatgach paydo bo'ladi. Hozircha do'stingizga kodni yuboring: u botda /start ref_{code} deb yozadi. | Ссылка появится, когда администратор укажет имя бота. Пока отправьте другу код: он вводит /start ref_{code} в боте. |
 | `referrals.share` | Ulashish | Поделиться |
 | `referrals.copy` | Havolani nusxalash | Скопировать ссылку |
-| `referrals.copied` | Nusxalandi | Скопировано |
 | `referrals.share_text` | LexiFlow'da ingliz tilini o'rganyapman — qo'shiling, Pro'ni birga olamiz! | Учу английский в LexiFlow — присоединяйся, получим Pro вместе! |
 | `referrals.counts.invited` | Kelganlar | Пришли |
 | `referrals.counts.activated` | Shug'ullanayotganlar | Занимаются |
@@ -1457,15 +1455,15 @@
 | `league.tier.diamond` | Olmos | Алмаз |
 | `league.points` | {count} ochko | {count} очко / очка / очков |
 | `league.week` | Hafta {from} – {to} | Неделя {from} – {to} |
-| `league.closes` | Yakunlar — dushanba 00:00 da ({zone}) | Итоги — в понедельник в 00:00 ({zone}) |
+| `league.closes` | Hafta yakuni — {when} | Итоги недели — {when} |
 | `league.rules` | Guruhlar {capacity} kishigacha. Top-{promote} yuqoriga ko'tariladi, oxirgi {demote} tasi pastga tushadi. Ochkolar: takrorlashlar, to'g'ri javoblar, yangi so'zlar (×2), bajarilgan kunlik maqsad (+10). | Группы до {capacity} человек. Топ-{promote} переходят выше, последние {demote} — ниже. Очки: повторения, верные ответы, новые слова (×2), выполненная цель дня (+10). |
 | `league.disabled` | Ligalar hozir o'chirilgan. | Лиги сейчас выключены. |
 | `league.opted_out` | Siz ligalardan chiqdingiz. Ularni sozlamalarda qayta yoqish mumkin. | Вы вышли из лиг. Включить их снова можно в настройках. |
 | `league.not_placed` | Bu hafta siz hali guruhda emassiz: bir nechta kartochkani takrorlang — va siz ligadasiz. | На этой неделе вы ещё не в группе: повторите несколько карточек — и вы в лиге. |
 | `league.my_place` | {members} tadan {rank}-o'rin | {rank}-е место из {members} |
-| `league.zone.promotion` | ⬆️ Siz ko'tarilish zonasidasiz | ⬆️ Вы в зоне повышения |
-| `league.zone.safe` | Siz xavfsiz zonadasiz | Вы в безопасной зоне |
-| `league.zone.demotion` | ⬇️ Siz tushish zonasidasiz | ⬇️ Вы в зоне понижения |
+| `league.zone.promotion` | Ko'tarilish zonasi | Зона повышения |
+| `league.zone.safe` | Xavfsiz zona | Безопасная зона |
+| `league.zone.demotion` | Tushish zonasi | Зона понижения |
 | `league.to_promote` | Ko'tarilish zonasigacha: {points} | До зоны повышения: {points} |
 | `league.to_safety` | Xavfsiz zonagacha: {points} | До безопасной зоны: {points} |
 | `league.top_tier` | Bu eng yuqori liga — shunday davom eting! | Это высшая лига — так держать! |
@@ -1477,6 +1475,11 @@
 | `league.last.stayed` | {tier}: {rank}-o'rin, {points} — ligada qoldingiz | {tier}: {rank}-е место, {points} — остались в лиге |
 | `league.last.demoted` | {tier}: {rank}-o'rin, {points} — tushish | {tier}: {rank}-е место, {points} — понижение |
 | `league.settings.open` | Sozlamalar | Настройки |
+
+| `league.settings.open` | Liga sozlamalari | Настройки лиг |
+| `settings.leagues` | Ligalar | Лиги |
+| `settings.leagues.on` | Haftalik ligalarda qatnashaman | Участвую в недельных лигах |
+| `settings.leagues.off` | Ligalarda qatnashmayman | Не участвую в лигах |
 | `settings.leagues.hint` | Ligadan chiqish keyingi joylashtirishdan boshlab amal qiladi; joriy hafta saqlanib qoladi. | Выход из лиги действует со следующего размещения; текущая неделя остаётся. |
 
 ## Фаза 2 · задача 2C.5 (друзья и вызовы) — на проверку носителю
@@ -1535,13 +1538,11 @@
 
 | Ключ | uz | ru |
 |---|---|---|
-| `friends.open` | Do'stlar | Друзья |
+| `friends.open` | Do'stlar va musobaqalar | Друзья и вызовы |
 | `friends.title` | Do'stlar | Друзья |
 | `friends.invite.title` | Do'stlikka taklif qilish | Пригласить в друзья |
 | `friends.invite.hint` | Do'stingiz havolani botda ochib, do'stlikni tasdiqlaydi. Do'stlar bir-birining seriyasini va o'rganilgan so'zlar sonini ko'radi va musobaqa tashlashi mumkin. | Друг откроет ссылку в боте и подтвердит дружбу. Друзья видят серию и число выученных слов друг друга и могут бросать вызовы. |
 | `friends.invite.share` | Havolani ulashish | Поделиться ссылкой |
-| `friends.invite.copy` | Havolani nusxalash | Скопировать ссылку |
-| `friends.invite.copied` | Nusxalandi | Скопировано |
 | `friends.invite.share_text` | LexiFlow'da do'st bo'laylik: seriyalarni solishtirib, musobaqa o'tkazamiz! | Давай дружить в LexiFlow: сравним серии и устроим вызов! |
 | `friends.invite.no_link` | Administrator bot nomini ko'rsatgach, havola paydo bo'ladi. | Ссылка появится, когда администратор укажет имя бота. |
 | `friends.incoming.title` | Kiruvchi takliflar | Входящие приглашения |
@@ -1553,8 +1554,7 @@
 | `friends.list.empty` | Hozircha do'stlar yo'q. Havolani tanishingizga yuboring. | Пока нет друзей. Отправьте ссылку знакомому. |
 | `friends.list.count` | {count} / {limit} | {count} из {limit} |
 | `friends.list.anonymous` | Do'st | Друг |
-| `friends.list.streak` | seriya {n} kun | серия {n} дн. |
-| `friends.list.words` | o'rganilgan so'zlar: {n} | слов выучено: {n} |
+| `friends.list.words` | {count} ta so'z | {count} слово / слова / слов |
 | `friends.list.remove` | Do'stlikdan chiqarish | Удалить из друзей |
 | `friends.list.remove_confirm` | {name} do'stlikdan chiqarilsinmi? Shu do'st bilan tugallanmagan musobaqa bekor qilinadi. | Удалить {name} из друзей? Незавершённый вызов с этим другом отменится. |
 | `friends.list.remove_yes` | Ha, chiqarish | Да, удалить |
@@ -1833,3 +1833,30 @@
 | `settings.reminder.time` | Eslatma vaqti | Время напоминания |
 | `settings.exercises.always` | «So'z → tarjima» kartochkalari doim yoqilgan | Карточки «слово → перевод» включены всегда |
 | `settings.leagues.toggle` | Haftalik ligalarda qatnashish | Участвовать в недельных лигах |
+
+## Редизайн 2026-10-28 · 17.6 рейтинг и профиль — на проверку носителю
+
+> Проверить: «Hafta yakuni — {when}» (Итоги недели — пн 00:00; день недели и время подставляются с устройства по правилам языка, например «Dush, 00:00»); «Ko'tarilish zonasi» / «Xavfsiz zona» / «Tushish zonasi» (чипы зоны); «Reyting» (заголовок вкладки; как `nav.rating`); «Ligalar qanday ishlaydi» (заголовок раскрывающихся правил).
+
+### TWA, вкладка «Рейтинг»: лига (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `league.rating_title` | Reyting | Рейтинг |
+| `league.rules_title` | Ligalar qanday ishlaydi | Как работают лиги |
+
+### TWA, вкладка «Рейтинг»: друзья (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `friends.copy` | Nusxalash | Скопировать |
+| `friends.list.subtitle` | 🔥 {streak} · {words} | 🔥 {streak} · {words} |
+
+### TWA, «Пригласить друга»: герой и три шага (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `referrals.hero` | Sizga va do'stingizga — {reward} kunlik Pro | Вам и другу — {reward} дн. Pro |
+| `referrals.step1` | Do'stingizga havolani yuboring | Отправьте другу ссылку |
+| `referrals.step2` | Do'stingiz {window} kun ichida {days} kun shug'ullanadi (kuniga {reviews} ta kartochkadan) | Друг занимается {days} дн. (от {reviews} карточек в день) в течение {window} дней |
+| `referrals.step3` | Ikkalangiz ham {reward} kunlik Pro olasiz | Вы оба получаете {reward} дн. Pro |
