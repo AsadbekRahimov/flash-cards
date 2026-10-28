@@ -830,7 +830,7 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
   "starts_on": "2026-10-23", "ends_on": "2026-10-29", "created_at": "2026-10-22T10:00:00+00:00",
   "my_score": 14, "their_score": 9, "result": null }
 ```
-`role` — `challenger`/`opponent`; `my_score`/`their_score` — живые у `active`, итоговые у `finished`, иначе `null`; `result` — `won`/`lost`/`draw` у `finished`; `friendship_id` — `null`, если дружбы уже нет.
+`role` — `challenger`/`opponent`; `my_score`/`their_score` — живые у `active` (один запрос к `learner_daily_stats` на весь список: строки обеих сторон за `min(starts_on)..max(ends_on)`, суммы по периоду каждого вызова считаются в PHP), итоговые у `finished`, иначе `null`; `result` — `won`/`lost`/`draw` у `finished`; `friendship_id` — `null`, если дружбы уже нет.
 - `POST /api/twa/challenges` `{friendship_id, metric: reviews|new_words}` → **201** `Challenge` (`pending`); друг адресуется id дружбы, не learner'а. Ошибки: **403** `not_friends`, **409** `challenge_exists` (один открытый вызов на пару), **422** (валидация), **404** чужая дружба.
 - `POST /challenges/{id}/accept` — принять (только адресат: **403** `not_opponent`; `active` повторно — без изменений; закрытый/просроченный — **409** `challenge_closed`); `POST /challenges/{id}/decline` — отклонить.
 
