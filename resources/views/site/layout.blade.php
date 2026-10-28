@@ -1,6 +1,6 @@
 @php
     $title = $title ?? __('landing.meta.title', [], $locale);
-    $description = $description ?? __('landing.meta.description', [], $locale);
+    $description = $description ?? __('landing.meta.description', ['free' => $limits['free']], $locale);
     $noindex = $noindex ?? false;
     $canonical = $links->pageUrl($page, $locale);
 @endphp

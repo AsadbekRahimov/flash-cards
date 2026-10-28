@@ -349,7 +349,11 @@ final class ChallengeService
         return $this->entries($viewer, [$challenge])[0];
     }
 
-    /** The viewer's open challenges (newest first) and the latest finished ones. */
+    /**
+     * The viewer's open challenges (newest first) and the latest finished ones. Both lists go through ONE
+     * {@see entries()} pass (the names, the friendships and the live scores are read once for the two of them);
+     * the entries come back in the order of the challenges given, so the lists are cut off by the count of `$open`.
+     */
     public function overview(Learner $viewer): ChallengesOverview
     {
         /** @var list<Challenge> $open */
@@ -357,9 +361,11 @@ final class ChallengeService
         /** @var list<Challenge> $finished */
         $finished = $this->involving($viewer->id)->where('status', ChallengeStatus::Finished->value)->orderByDesc('id')->limit(self::FINISHED_LIMIT)->get()->values()->all();
 
+        $entries = $this->entries($viewer, [...$open, ...$finished]);
+
         return new ChallengesOverview(
-            open: $this->entries($viewer, $open),
-            finished: $this->entries($viewer, $finished),
+            open: array_slice($entries, 0, count($open)),
+            finished: array_slice($entries, count($open)),
             days: max(1, (int) config('friends.challenges.days')),
         );
     }

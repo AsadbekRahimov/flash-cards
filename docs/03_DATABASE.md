@@ -188,7 +188,11 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 **Индексы:**
 - `(learner_id, word_id)` unique — **один прогресс по слову на человека**, независимо от числа его групп.
 - `(learner_id, next_review_at)` — для «что показывать».
-- `(learner_id) WHERE is_hard = true` — partial index `word_repetitions_learner_is_hard_idx`.
+- ~~`(learner_id) WHERE is_hard = true`~~ (`word_repetitions_learner_is_hard_idx`) — **удалён** миграцией `2026_10_28_200001_drop_word_repetitions_learner_is_hard_idx`:
+  partial index обслуживает только запрос с `WHERE is_hard = true`, а такого запроса в коде нет — `is_hard` стоит лишь в `ORDER BY` пикера
+  (его обслуживает `word_repetitions_next_card_idx`) и читается по `(learner_id, word_id)` в `ExamAnswerService`. EXPLAIN на 90 000 строк
+  (30 learner'ов, 12 % `is_hard`) по всем путям кода и `idx_scan = 0` за весь прогон тестов на PostgreSQL; индекс только удорожал записи
+  `POST /review` по трудным карточкам. Если когда-нибудь понадобится выборка «трудные слова learner'а» — вернуть вместе с этим запросом.
 - `(learner_id, is_hard DESC, next_review_at, id)` (`word_repetitions_next_card_idx`) — hot path выбора следующей карточки:
   ровно порядок `CardPicker::pickNext` шаг 1 (`WHERE learner_id = ? AND next_review_at <= now ORDER BY is_hard DESC, next_review_at, id LIMIT 1`,
   docs/06 §4.2), поэтому due-карточка — первая подходящая запись индекса, а не top-N sort по всем просроченным (1500 просроченных:
@@ -901,6 +905,10 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
     миграция идёт вне транзакции мигратора (`$withinTransaction = false`); внутри чужой транзакции (тесты) — обычные `CREATE/DROP INDEX`.
     Перед каждой сборкой `DROP INDEX IF EXISTS` — повторный запуск после прерванной сборки убирает INVALID-индекс *(perf 2026-10-28, P2-3 / P2-9)*
 45. `2026_10_28_100001_add_closed_at_to_league_groups_table` — `league_groups.closed_at` + штамп групп уже закрытых недель значением `league_weeks.closed_at` *(P1-2, docs/13 §7.3)*
+46. `2026_10_28_200001_drop_word_repetitions_learner_is_hard_idx` — убирает неиспользуемый partial index `word_repetitions_learner_is_hard_idx`
+    `(learner_id) WHERE is_hard = true` (см. §2.8). Как и 44: на PostgreSQL `DROP INDEX CONCURRENTLY IF EXISTS` вне транзакции мигратора
+    (`$withinTransaction = false`), внутри чужой транзакции (тесты) — обычный `DROP INDEX IF EXISTS`; индекс есть и в sqlite, там тот же обычный `DROP`.
+    `down()` пересоздаёт его ровно в исходном виде *(17.10)*
 
 Индексные миграции (`add_performance_indexes`, `add_open_session_unique_indexes`) и `create_exam_*`, `create_notifications_log_table`,
 `create_product_events_table` переведены на `learner_id` на месте; `add_open_session_unique_indexes` дополнительно создаёт

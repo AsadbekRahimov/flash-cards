@@ -88,10 +88,6 @@ export const useExamStore = defineStore('exam', {
   }),
 
   getters: {
-    overallSecondsLeft: (s): number => {
-      if (s.endsAt === null) return 0
-      return Math.max(0, Math.floor((s.endsAt - Date.now()) / 1000))
-    },
     isMock: (s): boolean => s.mode === 'personal_mock',
   },
 

@@ -805,9 +805,16 @@ it('answers a finished learner with a short menu', function (): void {
     onbSend(7052, 'salom');
 
     expect($this->tg->sent)->toHaveCount(1)
-        ->and($this->tg->sent[0]['text'])->toContain('/today')->toContain('/settings')
+        ->and($this->tg->sent[0]['text'])->toContain("/today — bugungi mashg'ulot")->toContain('/settings')
         ->and($this->tg->sent[0]['url'])->toBe('https://twa.test/twa/?from=menu');
 });
+
+it('calls /today the same in the short menu, in /help and in the "/" menu of the bot (docs/14 §8: "занятие")', function (string $locale): void {
+    $term = mb_strtolower(__('commands.private.today', [], $locale));
+
+    expect(__('onboarding.menu.text', [], $locale))->toContain("/today — {$term}")
+        ->and(__('bot.help.private', [], $locale))->toContain("/today — {$term}");
+})->with(['ru', 'uz']);
 
 it('keeps /help, /promo and group commands away from the catch-all', function (): void {
     // /help: the command's own answer, listing the learner commands; no learner, no onboarding.

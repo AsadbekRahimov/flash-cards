@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Billing\Enums\Plan;
+use App\Domain\Site\Services\LandingPricing;
 use Illuminate\Support\Arr;
 
 /*
@@ -34,12 +35,12 @@ it('gates every Pro feature the copy names behind the plan config', function ():
 });
 
 it('lists the five real Pro features on the landing', function (string $locale): void {
-    $features = __('landing.pricing.pro.features', [], $locale);
+    // The ticks as the landing shows them: the limits in them are filled in from config (LandingPricing::limits()).
+    $features = (new LandingPricing)->limits($locale)['proFeatures'];
 
-    expect($features)->toBeArray()->toHaveCount(5)
+    expect($features)->toHaveCount(5)
         ->and(array_unique($features))->toHaveCount(5);
 
-    // The deck limits in the copy follow config/decks.php: change the limits, update the strings.
     expect(implode("\n", $features))
         ->toContain('IELTS')
         ->toContain('SAT')
