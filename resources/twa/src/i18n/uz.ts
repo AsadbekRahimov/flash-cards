@@ -114,9 +114,13 @@ export const uz: Translations = {
   'card.reveal': "Tarjimani ko'rsatish",
   'card.translation_fallback': "Mashg'ulot tilida tarjima hali yo'q",
   'card.grade_group': 'Baho',
-  'card.grade.hard': 'Qiyin',
-  'card.grade.medium': "O'rtacha",
+  'card.grade.hard': 'Eslay olmadim',
+  'card.grade.medium': 'Esladim',
   'card.grade.easy': 'Oson',
+  'card.grade.hard_hint': 'bugun takrorlaymiz',
+  'card.grade.medium_hint': "jadval bo'yicha",
+  'card.grade.easy_hint': "kamroq ko'rsatamiz",
+  'card.grade_prompt': "So'zni qanchalik yaxshi eslaysiz?",
 
   // ---- training ----
   'training.lesson_header': 'Stage {stage} · Lesson {lesson}',
@@ -135,10 +139,11 @@ export const uz: Translations = {
   'exercise.check': 'Tekshirish',
   'exercise.skip': 'Bilmayman',
   'exercise.verdict.correct': "To'g'ri!",
-  'exercise.verdict.close': "Deyarli! To'g'risi: {expected}",
-  'exercise.verdict.wrong': "Noto'g'ri. To'g'risi: {expected}",
+  'exercise.verdict.close': 'Deyarli!',
+  'exercise.verdict.wrong': "Noto'g'ri",
   'exercise.continue': 'Keyingisi',
   'exercise.audio.replay_hint': 'Yana tinglash uchun bosing',
+  'exercise.verdict.expected': "To'g'ri javob",
 
   // ---- exam ----
   'exam.closed_title': "🔒 Imtihon o'qituvchi tomonidan yakunlandi",

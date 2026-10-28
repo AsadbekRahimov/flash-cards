@@ -42,9 +42,9 @@ describe('resolveLocale', () => {
 
 describe('t', () => {
   it('returns the string for the active locale', () => {
-    expect(t('card.grade.hard')).toBe('Трудно')
+    expect(t('card.grade.hard')).toBe('Не помню')
     setLocale('uz')
-    expect(t('card.grade.hard')).toBe('Qiyin')
+    expect(t('card.grade.hard')).toBe('Eslay olmadim')
   })
 
   it('substitutes {name} params and leaves unknown placeholders intact', () => {

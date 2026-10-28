@@ -25,16 +25,17 @@ const answerLength = computed((): number | null => props.card.prompt?.answer_len
 </script>
 
 <template>
-  <article class="card flex flex-col gap-4" data-testid="spelling-card">
-    <header class="text-sm text-tg-hint">{{ t('exercise.spelling.title') }}</header>
-
-    <div class="text-center py-4">
-      <h2 class="text-3xl font-bold break-words" data-testid="front">{{ front }}</h2>
-      <p v-if="card.translation_fallback" class="text-tg-hint text-xs mt-1" data-testid="translation-fallback">
-        {{ t('card.translation_fallback') }}
-      </p>
+  <div class="flex flex-1 flex-col" data-testid="spelling-card">
+    <div class="flex flex-1 flex-col px-4 pt-4 pb-4">
+      <article class="card flex flex-col items-center gap-3 px-5 py-6 text-center">
+        <p class="text-[15px] leading-5 font-medium text-tg-subtitle">{{ t('exercise.spelling.title') }}</p>
+        <h2 class="text-3xl leading-9 font-bold break-words" data-testid="front">{{ front }}</h2>
+        <p v-if="card.translation_fallback" class="text-[13px] leading-[18px] text-tg-hint" data-testid="translation-fallback">
+          {{ t('card.translation_fallback') }}
+        </p>
+      </article>
     </div>
 
     <AnswerInput :answer-length="answerLength" :disabled="disabled" @answer="emit('answer', $event)" />
-  </article>
+  </div>
 </template>

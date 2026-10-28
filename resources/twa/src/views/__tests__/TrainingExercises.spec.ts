@@ -207,7 +207,8 @@ describe('TrainingView — exercises', () => {
     expect(api.training.answer).toHaveBeenCalledWith(1, 7, 'walks', expect.any(Number), null)
     const verdict = wrapper.get('[data-testid=answer-verdict]')
     expect(verdict.attributes('data-kind')).toBe('wrong')
-    expect(verdict.get('[data-testid=verdict-text]').text()).toBe('Неверно. Правильно: walked')
+    expect(verdict.get('[data-testid=verdict-text]').text()).toBe('Неверно')
+    expect(verdict.get('[data-testid=expected]').text()).toBe('walked')
     expect(verdict.get('[data-testid=own-answer]').text()).toBe('walks')
     expect(wrapper.find('[data-testid=reverse-card]').exists()).toBe(false)
 

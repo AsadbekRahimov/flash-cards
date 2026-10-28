@@ -130,9 +130,13 @@ export const ru = {
   'card.reveal': 'Показать перевод',
   'card.translation_fallback': 'Перевода на язык занятия пока нет',
   'card.grade_group': 'Оценка',
-  'card.grade.hard': 'Трудно',
-  'card.grade.medium': 'Средне',
+  'card.grade.hard': 'Не помню',
+  'card.grade.medium': 'Помню',
   'card.grade.easy': 'Легко',
+  'card.grade.hard_hint': 'повторим сегодня',
+  'card.grade.medium_hint': 'по расписанию',
+  'card.grade.easy_hint': 'покажем реже',
+  'card.grade_prompt': 'Насколько хорошо вы помните слово?',
 
   // ---- training ----
   'training.lesson_header': 'Stage {stage} · Lesson {lesson}',
@@ -151,10 +155,11 @@ export const ru = {
   'exercise.check': 'Проверить',
   'exercise.skip': 'Не знаю',
   'exercise.verdict.correct': 'Верно!',
-  'exercise.verdict.close': 'Почти! Правильно: {expected}',
-  'exercise.verdict.wrong': 'Неверно. Правильно: {expected}',
+  'exercise.verdict.close': 'Почти!',
+  'exercise.verdict.wrong': 'Неверно',
   'exercise.continue': 'Дальше',
   'exercise.audio.replay_hint': 'Нажмите, чтобы послушать ещё раз',
+  'exercise.verdict.expected': 'Правильный ответ',
 
   // ---- exam ----
   'exam.closed_title': '🔒 Экзамен завершён учителем',

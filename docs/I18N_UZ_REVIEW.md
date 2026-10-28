@@ -172,8 +172,8 @@
 | `card.reveal` | Tarjimani ko'rsatish | Показать перевод |
 | `card.translation_fallback` | Mashg'ulot tilida tarjima hali yo'q | Перевода на язык занятия пока нет |
 | `card.grade_group` | Baho | Оценка |
-| `card.grade.hard` | Qiyin | Трудно |
-| `card.grade.medium` | O'rtacha | Средне |
+| `card.grade.hard` | Eslay olmadim | Не помню |
+| `card.grade.medium` | Esladim | Помню |
 | `card.grade.easy` | Oson | Легко |
 | `training.lesson_header` | Stage {stage} · Lesson {lesson} | Stage {stage} · Lesson {lesson} |
 | `training.closed_title` | 🔒 Mashg'ulot o'qituvchi tomonidan yakunlandi | 🔒 Тренировка завершена учителем |
@@ -1624,8 +1624,8 @@
 | `exercise.check` | Tekshirish | Проверить |
 | `exercise.skip` | Bilmayman | Не знаю |
 | `exercise.verdict.correct` | To'g'ri! | Верно! |
-| `exercise.verdict.close` | Deyarli! To'g'risi: {expected} | Почти! Правильно: {expected} |
-| `exercise.verdict.wrong` | Noto'g'ri. To'g'risi: {expected} | Неверно. Правильно: {expected} |
+| `exercise.verdict.close` | Deyarli! | Почти! |
+| `exercise.verdict.wrong` | Noto'g'ri | Неверно |
 | `exercise.continue` | Keyingisi | Дальше |
 | `settings.exercises` | Mashqlar | Упражнения |
 | `settings.exercises.hint` | «So'z → tarjima» kartochkalari doim yoqilgan. Yozish va bo'sh joy — Pro'da. | Карточки «слово → перевод» включены всегда. Написание и пропуск — в Pro. |
@@ -1737,10 +1737,15 @@
 ## Редизайн 2026-10-28 · 17.3 тренировка и экзамен — на проверку носителю
 
 > Проверить: оценки карточки «Eslay olmadim» / «Esladim» / «Oson» (термины по docs/14 §8: Не помню · Помню · Легко) и подписи под ними — что произойдёт с карточкой дальше; «{stage}-modul · {lesson}-dars» в шапке занятия; заголовки вердикта «To'g'ri!» / «Deyarli!» / «Noto'g'ri» и подпись «To'g'ri javob» (теперь правильный ответ показывается отдельной строкой, а не внутри заголовка); подсказка к кнопке прослушивания.
-> Изменённые в этом разделе экранов ключи (`exercise.reverse.title`) обновлены в своих прежних строках выше; без эмодзи в заголовках «закрыто» — замок и часы теперь иконки.
+> Изменённые в этом разделе экранов ключи (`card.grade.hard`, `card.grade.medium`, `exercise.reverse.title`, `exercise.verdict.close`, `exercise.verdict.wrong`) обновлены в своих прежних строках выше; без эмодзи в заголовках «закрыто» — замок и часы теперь иконки.
 
 ### TWA, тренировка: оценки карточки, упражнения, вердикт (`resources/twa/src/i18n/uz.ts`)
 
 | Ключ | uz | ru |
 |---|---|---|
+| `card.grade.hard_hint` | bugun takrorlaymiz | повторим сегодня |
+| `card.grade.medium_hint` | jadval bo'yicha | по расписанию |
+| `card.grade.easy_hint` | kamroq ko'rsatamiz | покажем реже |
+| `card.grade_prompt` | So'zni qanchalik yaxshi eslaysiz? | Насколько хорошо вы помните слово? |
 | `exercise.audio.replay_hint` | Yana tinglash uchun bosing | Нажмите, чтобы послушать ещё раз |
+| `exercise.verdict.expected` | To'g'ri javob | Правильный ответ |

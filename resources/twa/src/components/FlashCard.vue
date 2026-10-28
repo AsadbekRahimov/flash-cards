@@ -1,10 +1,18 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Card, Quality } from '@/api/types'
+import StickyActions from '@/components/StickyActions.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
 import { useTts } from '@/composables/useTts'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
 
+/**
+ * The flash card (docs/14 §6.2): the card with the word in the middle of the screen, the actions in the sticky
+ * block below. Before the reveal there is one button, "Show translation"; after it the learner grades how well he
+ * remembered the word. The grades are 2 / 4 / 5 (Again / Good / Easy, docs/06 §2) under the labels "I don't remember" /
+ * "I remember" / "Easy", each with a hint of what happens next.
+ */
 const props = defineProps<{
   card: Card
   showTranslation: boolean
@@ -20,16 +28,23 @@ const { speak } = useTts()
 const { haptic, selectionHaptic } = useTelegram()
 const { t } = useI18n()
 
-const kindLabel = computed(() => {
+const kind = computed(() => {
   switch (props.card.card_kind) {
     case 'new':
-      return t('card.kind.new')
+      return { label: t('card.kind.new'), chip: 'chip-accent' }
     case 'learning':
-      return t('card.kind.learning')
+      return { label: t('card.kind.learning'), chip: 'chip-warning' }
     default:
-      return t('card.kind.due')
+      return { label: t('card.kind.due'), chip: 'chip-neutral' }
   }
 })
+
+/** The three grades, left to right; the colours are the soft tokens of the design system. */
+const grades = computed(() => [
+  { quality: 2 as const, testid: 'grade-hard', label: t('card.grade.hard'), hint: t('card.grade.hard_hint'), tone: 'btn-danger' },
+  { quality: 4 as const, testid: 'grade-medium', label: t('card.grade.medium'), hint: t('card.grade.medium_hint'), tone: 'btn-tinted' },
+  { quality: 5 as const, testid: 'grade-easy', label: t('card.grade.easy'), hint: t('card.grade.easy_hint'), tone: 'bg-success-soft text-success-ink' },
+])
 
 function onSpeak(): void {
   selectionHaptic()
@@ -49,85 +64,78 @@ function onGrade(q: Quality): void {
 </script>
 
 <template>
-  <article class="card flex flex-col gap-4" data-testid="flashcard">
-    <header class="flex items-center justify-between text-sm text-tg-hint">
-      <span>{{ kindLabel }}</span>
-      <button
-        type="button"
-        class="text-tg-link text-xl"
-        :aria-label="t('card.speak')"
-        @click="onSpeak"
-      >
-        🔊
-      </button>
-    </header>
+  <div class="flex flex-1 flex-col" data-testid="flashcard">
+    <div class="flex flex-1 flex-col justify-center px-4 py-4">
+      <article class="card flex flex-col gap-4 px-5 py-5">
+        <header class="flex items-center justify-between">
+          <span class="chip" :class="kind.chip" data-testid="card-kind">{{ kind.label }}</span>
+          <button
+            type="button"
+            class="btn btn-tinted size-11 min-h-0 shrink-0 rounded-full p-0"
+            :aria-label="t('card.speak')"
+            data-testid="speak-btn"
+            @click="onSpeak"
+          >
+            <AppIcon name="speaker-wave" :size="22" />
+          </button>
+        </header>
 
-    <div class="text-center py-4">
-      <h2 class="text-4xl font-bold break-words" data-testid="word">{{ card.word }}</h2>
-      <p v-if="card.transcription" class="text-tg-hint mt-2 text-lg" data-testid="transcription">
-        {{ card.transcription }}
-      </p>
+        <div class="px-1 py-3 text-center">
+          <h2 class="text-4xl leading-10 font-bold break-words" data-testid="word">{{ card.word }}</h2>
+          <p v-if="card.transcription" class="mt-1.5 text-[17px] leading-[22px] text-tg-hint" data-testid="transcription">
+            {{ card.transcription }}
+          </p>
+        </div>
+
+        <template v-if="showTranslation">
+          <hr class="border-hairline" />
+          <div class="px-1 pb-1 text-center">
+            <p class="text-2xl leading-8 font-semibold break-words" data-testid="translation">{{ card.translation }}</p>
+            <p
+              v-if="card.translation_fallback"
+              class="mt-1 text-[13px] leading-[18px] text-tg-hint"
+              data-testid="translation-fallback"
+            >
+              {{ t('card.translation_fallback') }}
+            </p>
+            <p v-if="card.example" class="mt-3 text-base leading-[22px] text-tg-subtitle italic" data-testid="example">
+              {{ card.example }}
+            </p>
+          </div>
+        </template>
+      </article>
     </div>
 
-    <div v-if="!showTranslation" class="mt-auto">
+    <StickyActions>
       <button
+        v-if="!showTranslation"
         type="button"
-        class="btn btn-primary w-full text-lg"
+        class="btn btn-primary btn-lg btn-block"
         data-testid="reveal-btn"
         :disabled="disabled"
         @click="onReveal"
       >
         {{ t('card.reveal') }}
       </button>
-    </div>
 
-    <div v-else class="flex flex-col gap-4 mt-2">
-      <div class="text-center">
-        <p class="text-2xl font-semibold" data-testid="translation">{{ card.translation }}</p>
-        <p
-          v-if="card.translation_fallback"
-          class="text-tg-hint text-xs mt-1"
-          data-testid="translation-fallback"
-        >
-          {{ t('card.translation_fallback') }}
-        </p>
-        <p v-if="card.example" class="text-tg-hint italic mt-2" data-testid="example">
-          {{ card.example }}
-        </p>
-      </div>
-
-      <div class="grid grid-cols-3 gap-2" role="group" :aria-label="t('card.grade_group')">
-        <button
-          type="button"
-          class="btn btn-secondary flex-col py-4"
-          data-testid="grade-hard"
-          :disabled="disabled"
-          @click="onGrade(2)"
-        >
-          <span class="text-2xl">😰</span>
-          <span class="text-xs mt-1">{{ t('card.grade.hard') }}</span>
-        </button>
-        <button
-          type="button"
-          class="btn btn-secondary flex-col py-4"
-          data-testid="grade-medium"
-          :disabled="disabled"
-          @click="onGrade(4)"
-        >
-          <span class="text-2xl">🙂</span>
-          <span class="text-xs mt-1">{{ t('card.grade.medium') }}</span>
-        </button>
-        <button
-          type="button"
-          class="btn btn-secondary flex-col py-4"
-          data-testid="grade-easy"
-          :disabled="disabled"
-          @click="onGrade(5)"
-        >
-          <span class="text-2xl">😎</span>
-          <span class="text-xs mt-1">{{ t('card.grade.easy') }}</span>
-        </button>
-      </div>
-    </div>
-  </article>
+      <template v-else>
+        <p class="text-center text-[15px] leading-5 text-tg-subtitle" data-testid="grade-prompt">{{ t('card.grade_prompt') }}</p>
+        <div class="grid grid-cols-3 gap-2" role="group" :aria-label="t('card.grade_group')">
+          <button
+            v-for="grade in grades"
+            :key="grade.quality"
+            type="button"
+            class="btn min-h-[72px] flex-col gap-0.5 px-1 py-2.5"
+            :class="grade.tone"
+            :data-testid="grade.testid"
+            :disabled="disabled"
+            @click="onGrade(grade.quality)"
+          >
+            <span class="text-[15px] leading-5 font-semibold">{{ grade.label }}</span>
+            <span class="text-xs leading-4 font-normal opacity-80">{{ grade.hint }}</span>
+          </button>
+        </div>
+      </template>
+    </StickyActions>
+  </div>
 </template>
