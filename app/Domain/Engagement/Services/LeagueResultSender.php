@@ -7,8 +7,10 @@ namespace App\Domain\Engagement\Services;
 use App\Domain\Engagement\Enums\LeagueResult;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
-use App\Jobs\SendLeagueResultJob;
+use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
+use App\Jobs\SendLeagueResultsJob;
 use App\Models\LeagueMember;
 use App\Models\Learner;
 use App\Models\NotificationLog;
@@ -17,14 +19,14 @@ use DateTimeInterface;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Sends the week result of one league member in a DM (docs/13 §7.3) — the body of
- * {@see SendLeagueResultJob}, kept here so it can be exercised directly.
+ * Sends the week result of league members in DMs (docs/13 §7.3) — the body of {@see SendLeagueResultsJob},
+ * kept here so it can be exercised directly.
  *
- * Quietly ends when the member / learner is gone, the week is not closed yet, the learner is
- * banned, opted out meanwhile, or DMs are blocked. At most once: a `notifications_log` row of
- * type `league_result` is written BEFORE the Telegram call (as ReminderSender does), so a retry
- * after an ambiguous error (timeout, 5xx) only skips; a 403 / `chat not found` deletes the row,
- * sets `dm_blocked_at` and ends the job without a retry.
+ * {@see send()} quietly ends when the member / learner is gone, the week is not closed yet, the learner is
+ * banned, opted out meanwhile, or DMs are blocked. At most once: a `notifications_log` row of type
+ * `league_result` is written BEFORE the Telegram call (as ReminderSender does), so a retry after an
+ * ambiguous error (timeout, 5xx) only skips; a 403 / `chat not found` deletes the row, sets `dm_blocked_at`
+ * and ends without a retry. {@see sendBatch()} runs it for a batch under the bot-wide send budget.
  */
 final class LeagueResultSender
 {
@@ -36,6 +38,7 @@ final class LeagueResultSender
         private readonly TelegramClient $telegram,
         private readonly LocaleResolver $locales,
         private readonly LeagueService $leagues,
+        private readonly TelegramMessageRateLimiter $outbound,
     ) {}
 
     /** @return 'sent'|'forbidden'|'skipped' */
@@ -86,6 +89,49 @@ final class LeagueResultSender
         }
 
         return 'sent';
+    }
+
+    /**
+     * {@see send()} for a batch, in order. Every message first takes a slot of the bot-wide send budget
+     * ({@see TelegramMessageRateLimiter::awaitGlobal()}, `telegram.outbound.sync_wait_ms` at most); a Bot API
+     * failure of ONE member (`TelegramApiException`: transport error, 5xx, an odd 4xx) is reported and the
+     * batch goes on — its log row stays, so the retry of the old one-member job and this loop lose that DM
+     * alike rather than doubling it. Anything else (the database away) propagates and fails the job.
+     *
+     * Stops early — and returns the members not reached yet as `remaining` — when no slot came within the wait
+     * or `$budgetSeconds` are spent; the caller queues them again.
+     *
+     * @param  list<int>  $memberIds
+     * @return array{sent: int, skipped: int, forbidden: int, failed: int, remaining: list<int>}
+     */
+    public function sendBatch(array $memberIds, int $budgetSeconds, ?CarbonImmutable $now = null): array
+    {
+        $deadline = hrtime(true) + max(0, $budgetSeconds) * 1_000_000_000;
+        $maxWaitMs = max(0, (int) config('telegram.outbound.sync_wait_ms', 2000));
+        $outcome = ['sent' => 0, 'skipped' => 0, 'forbidden' => 0, 'failed' => 0, 'remaining' => []];
+
+        foreach ($memberIds as $i => $memberId) {
+            if ($i > 0 && hrtime(true) >= $deadline) {
+                $outcome['remaining'] = array_slice($memberIds, $i);
+
+                break;
+            }
+
+            if (! $this->outbound->awaitGlobal($maxWaitMs)) {
+                $outcome['remaining'] = array_slice($memberIds, $i);
+
+                break;
+            }
+
+            try {
+                $outcome[$this->send($memberId, $now)]++;
+            } catch (TelegramApiException $e) {
+                $outcome['failed']++;
+                report($e);
+            }
+        }
+
+        return $outcome;
     }
 
     private function text(LeagueMember $member, int $tier, LeagueResult $result, string $locale): string

@@ -1,26 +1,33 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import PromoRedeem from '@/components/PromoRedeem.vue'
-import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice } from '@/composables/billingFormat'
+import AppIcon from '@/components/ui/AppIcon.vue'
+import InlineAlert from '@/components/ui/InlineAlert.vue'
+import ProBenefits from '@/components/ui/ProBenefits.vue'
+import SegmentedControl, { type SegmentOption } from '@/components/ui/SegmentedControl.vue'
+import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice, yearSavingPct } from '@/composables/billingFormat'
+import { formatDate } from '@/composables/format'
 import { supportContactLink } from '@/composables/supportContact'
 import { useBillingStore } from '@/stores/billing'
 import { useTodayStore } from '@/stores/today'
 import { useI18n } from '@/i18n'
+import type { StringKey } from '@/i18n/ru'
 import type { BillingPeriod, BillingProviderKey, MeResponse } from '@/api/types'
 
 export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam_simulator'
 
 /**
- * Paywall (docs/12 §5.4, docs/13 §5).
+ * Paywall (docs/12 §5.4, docs/13 §5, docs/14 §6.6): a bottom sheet with a grabber and a close button, the
+ * sparkles icon, the title, the reason, what Free gives and what Pro gives (`ProBenefits compact`).
  *
  * Mode `coming_soon` (Phase 1): "Pro is coming", what Free gives, a promo code field and — only when
  * the owner configured one — the support contact for centers.
  *
- * Mode `purchase` (the server reports it only while something is for sale, see `/me`): the period, the
- * prices from `GET /billing/catalog` and one pay button per provider — Stars opens the Telegram invoice,
- * Payme / Click the payment page — then the order is polled until the webhook has paid it. The switch is
- * `billing.canPurchase` (mode `purchase` AND a non-empty catalog): anything else, including a catalog that
- * failed to load, keeps the `coming_soon` copy.
+ * Mode `purchase` (the server reports it only while something is for sale, see `/me`): the offer chip, the period
+ * (`SegmentedControl`, the year says how much it saves), the prices from `GET /billing/catalog` and one pay button per
+ * provider — the first is the primary one — then the order is polled until the webhook has paid it. Stars opens the
+ * Telegram invoice, Payme / Click the payment page. The switch is `billing.canPurchase` (mode `purchase` AND a
+ * non-empty catalog): anything else, including a catalog that failed to load, keeps the `coming_soon` copy.
  *
  * `reason = 'quota'` is the end of today's new words; `'decks'` is a refused deck / deck-word limit
  * (docs/04 A.10); `'streak_freeze'` is the Free teaser of streak freezes (docs/13 §7.2); `'exam_simulator'`
@@ -54,6 +61,20 @@ const paid = computed(() => billing.purchase.status === 'paid')
 const done = computed(() => redeemed.value || paid.value)
 const busy = computed(() => billing.purchase.status === 'starting' || billing.purchase.status === 'awaiting')
 
+/** What the reason adds before the sales pitch (none for `info`). */
+const REASON_LEADS: Partial<Record<PaywallReason, StringKey>> = {
+  quota: 'paywall.lead_quota',
+  decks: 'paywall.lead_decks',
+  streak_freeze: 'paywall.lead_streak_freeze',
+  exam_simulator: 'paywall.lead_exam_simulator',
+}
+
+const lead = computed(() => {
+  const pitch = purchaseMode.value ? t('paywall.lead_purchase') : t('paywall.soon')
+  const reason = REASON_LEADS[props.reason]
+  return reason ? `${t(reason)} ${pitch}` : pitch
+})
+
 const periods = computed<BillingPeriod[]>(() => (billing.catalog?.items ?? []).map((item) => item.period))
 const chosenPeriod = ref<BillingPeriod | null>(null)
 const period = computed<BillingPeriod | null>(() => chosenPeriod.value ?? periods.value[0] ?? null)
@@ -63,6 +84,21 @@ const offer = computed(() => billing.catalog?.offer ?? null)
 const renewing = computed(() => billing.catalog?.subscription?.auto_renew === true)
 /** A perpetual grant leaves nothing to buy (the server refuses with already_perpetual). */
 const perpetual = computed(() => billing.catalog?.subscription?.perpetual === true)
+
+const periodOptions = computed<SegmentOption[]>(() => {
+  const saving = yearSavingPct(billing.catalog?.items ?? [])
+
+  return periods.value.map((p) => ({
+    value: p,
+    label: p === 'year' && saving !== null ? t('billing.period.year_save', { pct: saving }) : t(`billing.period.${p}`),
+    testid: `period-${p}`,
+  }))
+})
+
+function choosePeriod(value: string | number): void {
+  const found = periods.value.find((p) => p === value)
+  if (found) chosenPeriod.value = found
+}
 
 interface PayOption {
   provider: BillingProviderKey
@@ -91,13 +127,15 @@ const options = computed<PayOption[]>(() => {
   return result
 })
 
-function formatDate(iso: string): string {
-  return new Intl.DateTimeFormat(locale.value, { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(iso))
-}
+const offerText = computed(() =>
+  offer.value
+    ? t('billing.offer', { pct: offer.value.discount_pct, date: formatDate(offer.value.expires_at, 'dayMonthYear', locale.value) })
+    : '',
+)
 
 const paidMessage = computed(() => {
   const until = billing.entitlement?.until
-  return until ? t('billing.paid_until', { date: formatDate(until) }) : t('billing.paid_forever')
+  return until ? t('billing.paid_until', { date: formatDate(until, 'dayMonthYear', locale.value) }) : t('billing.paid_forever')
 })
 
 function pay(provider: BillingProviderKey): void {
@@ -135,134 +173,181 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="fixed inset-0 z-50 flex items-end justify-center bg-black/40" data-testid="paywall-backdrop" @click.self="emit('close')">
+    <!-- The backdrop above is a neutral scrim: the theme has no token for it, and black dims both the light and the dark page. -->
     <section
-      class="w-full max-w-xl rounded-t-3xl p-5 space-y-4 max-h-[90vh] overflow-y-auto outline-hidden"
-      style="background: var(--tg-bg)"
       ref="sheet"
+      class="sheet relative flex max-h-[90dvh] flex-col overflow-hidden outline-hidden"
       tabindex="-1"
       role="dialog"
       aria-modal="true"
       :aria-label="purchaseMode ? t('paywall.title_purchase') : t('paywall.title')"
       data-testid="paywall"
     >
-      <h2 class="text-xl font-bold text-center" data-testid="paywall-title">
-        {{ done ? 'Pro' : purchaseMode ? t('paywall.title_purchase') : t('paywall.title') }}
-      </h2>
-
-      <p v-if="paid" class="font-semibold text-center" data-testid="paywall-paid">{{ paidMessage }}</p>
-
-      <template v-if="!done">
-        <p v-if="props.reason === 'quota'" class="text-center" data-testid="paywall-lead">
-          {{ t('paywall.lead_quota') }} {{ purchaseMode ? t('paywall.lead_purchase') : t('paywall.soon') }}
-        </p>
-        <p v-else-if="props.reason === 'decks'" class="text-center" data-testid="paywall-lead">
-          {{ t('paywall.lead_decks') }} {{ purchaseMode ? t('paywall.lead_purchase') : t('paywall.soon') }}
-        </p>
-        <p v-else-if="props.reason === 'streak_freeze'" class="text-center" data-testid="paywall-lead">
-          {{ t('paywall.lead_streak_freeze') }} {{ purchaseMode ? t('paywall.lead_purchase') : t('paywall.soon') }}
-        </p>
-        <p v-else-if="props.reason === 'exam_simulator'" class="text-center" data-testid="paywall-lead">
-          {{ t('paywall.lead_exam_simulator') }} {{ purchaseMode ? t('paywall.lead_purchase') : t('paywall.soon') }}
-        </p>
-        <p v-else class="text-center" data-testid="paywall-lead">{{ purchaseMode ? t('paywall.lead_purchase') : t('paywall.soon') }}</p>
-
-        <p class="text-sm text-tg-hint text-center" data-testid="paywall-free">
-          {{ limit !== null ? t('paywall.free', { count: limit }) : t('paywall.free_generic') }}
-        </p>
-      </template>
-
-      <section v-if="purchaseMode && !done" class="space-y-3" data-testid="purchase">
-        <p v-if="offer" class="text-sm text-center font-semibold" data-testid="purchase-offer">
-          {{ t('billing.offer', { pct: offer.discount_pct, date: formatDate(offer.expires_at) }) }}
-        </p>
-
-        <div v-if="periods.length > 1" class="flex gap-2" role="tablist">
-          <button
-            v-for="p in periods"
-            :key="p"
-            type="button"
-            role="tab"
-            class="btn flex-1"
-            :class="p === period ? 'btn-primary' : 'btn-secondary'"
-            :aria-selected="p === period"
-            :disabled="busy"
-            :data-testid="`period-${p}`"
-            @click="chosenPeriod = p"
-          >
-            {{ t(`billing.period.${p}`) }}
-          </button>
-        </div>
-
-        <p v-if="renewing" class="text-sm text-center text-tg-hint" data-testid="purchase-renewing">{{ t('billing.auto_renew_running') }}</p>
-
-        <p v-else-if="perpetual" class="text-sm text-center text-tg-hint" data-testid="purchase-perpetual">{{ t('billing.perpetual') }}</p>
-
-        <div v-else class="space-y-2">
-          <button
-            v-for="option in options"
-            :key="option.provider"
-            type="button"
-            class="btn btn-primary w-full"
-            :disabled="busy"
-            :data-testid="`pay-${option.provider}`"
-            @click="pay(option.provider)"
-          >
-            {{ t('billing.pay_with', { provider: t(`billing.provider.${option.provider}`), price: option.price }) }}
-            <s v-if="option.listPrice" class="ml-1 opacity-70" data-testid="list-price">{{ option.listPrice }}</s>
-          </button>
-        </div>
-
-        <p v-if="billing.purchase.status === 'awaiting' && billing.purchase.notice" class="text-sm text-center text-tg-hint" role="status" data-testid="purchase-notice">
-          {{ billing.purchase.notice }}
-        </p>
-        <p v-if="billing.purchase.status === 'starting'" class="text-sm text-center text-tg-hint" role="status" data-testid="purchase-starting">
-          {{ t('billing.starting') }}
-        </p>
-        <p v-else-if="billing.purchase.status === 'awaiting'" class="text-sm text-center text-tg-hint" role="status" data-testid="purchase-awaiting">
-          {{ t('billing.awaiting') }}
-        </p>
-        <p v-else-if="billing.purchase.status === 'replaced'" class="text-sm text-center text-tg-hint" role="status" data-testid="purchase-replaced">
-          {{ billing.purchase.notice }}
-        </p>
-        <div v-else-if="billing.purchase.status === 'timeout'" class="space-y-2 text-center" data-testid="purchase-timeout">
-          <p class="text-sm text-tg-hint">{{ t('billing.timeout') }}</p>
-          <button type="button" class="btn btn-secondary w-full" data-testid="purchase-check" @click="billing.waitForPayment()">
-            {{ t('billing.check_again') }}
-          </button>
-        </div>
-        <p v-else-if="billing.purchase.status === 'failed'" class="text-red-600 text-sm text-center" role="alert" data-testid="purchase-error">
-          {{ billing.purchase.error }}
-        </p>
-      </section>
-
+      <!-- A 44 px target around a 32 px circle; outside the scrolling part, so it stays in reach. -->
       <button
-        v-if="!done && dueCount > 0"
         type="button"
-        class="btn btn-primary w-full"
-        data-testid="paywall-review"
-        @click="emit('review')"
+        class="absolute top-1.5 right-1.5 z-10 flex size-11 items-center justify-center text-tg-hint"
+        :aria-label="t('common.close')"
+        data-testid="paywall-x"
+        @click="emit('close')"
       >
-        {{ t('paywall.review') }}
+        <span class="flex size-8 items-center justify-center rounded-full bg-fill"><AppIcon name="x-mark" :size="18" /></span>
       </button>
 
-      <PromoRedeem @redeemed="onRedeemed" />
+      <div class="-mx-4 min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-4">
+        <header class="flex flex-col items-center gap-2 text-center">
+          <span class="flex size-14 items-center justify-center rounded-full bg-accent-soft text-accent">
+            <AppIcon name="sparkles" solid :size="28" />
+          </span>
 
-      <p v-if="contact && !done" class="text-sm text-center" data-testid="paywall-contact">
-        {{ t('paywall.contact') }}
-        <a
-          v-if="contact.href"
-          :href="contact.href"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="text-tg-link underline break-all"
-          data-testid="paywall-contact-link"
-        >{{ contact.label }}</a>
-        <span v-else class="font-semibold break-all" data-testid="paywall-contact-text">{{ contact.label }}</span>
-      </p>
+          <h2 class="text-[22px] leading-7 font-bold" data-testid="paywall-title">
+            {{ done ? 'Pro' : purchaseMode ? t('paywall.title_purchase') : t('paywall.title') }}
+          </h2>
 
-      <button type="button" class="btn btn-secondary w-full" data-testid="paywall-close" @click="emit('close')">
-        {{ t('paywall.dismiss') }}
-      </button>
+          <InlineAlert v-if="paid" tone="success" :message="paidMessage" class="w-full" data-testid="paywall-paid" />
+
+          <template v-if="!done">
+            <p class="text-[15px] leading-5" data-testid="paywall-lead">{{ lead }}</p>
+
+            <p class="text-[13px] leading-[18px] text-tg-hint" data-testid="paywall-free">
+              {{ limit !== null ? t('paywall.free', { count: limit }) : t('paywall.free_generic') }}
+            </p>
+          </template>
+        </header>
+
+        <div v-if="!done" class="rounded-xl bg-fill px-3.5 py-3">
+          <ProBenefits compact />
+        </div>
+
+        <section v-if="purchaseMode && !done" class="space-y-3" data-testid="purchase">
+          <p v-if="offer" class="flex justify-center">
+            <span class="chip chip-warning h-auto py-1 text-center whitespace-normal" data-testid="purchase-offer">{{ offerText }}</span>
+          </p>
+
+          <SegmentedControl
+            v-if="periodOptions.length > 1"
+            :model-value="period ?? ''"
+            :options="periodOptions"
+            :disabled="busy"
+            :ariaLabel="t('billing.period.label')"
+            @update:model-value="choosePeriod"
+          />
+
+          <p v-if="renewing" class="flex items-start gap-2 text-sm leading-5 text-tg-subtitle" data-testid="purchase-renewing">
+            <AppIcon name="arrow-path" :size="18" class="mt-px text-accent" />
+            <span>{{ t('billing.auto_renew_running') }}</span>
+          </p>
+
+          <p v-else-if="perpetual" class="flex items-start gap-2 text-sm leading-5 text-tg-subtitle" data-testid="purchase-perpetual">
+            <AppIcon name="check-circle" solid :size="18" class="mt-px text-success" />
+            <span>{{ t('billing.perpetual') }}</span>
+          </p>
+
+          <div v-else class="space-y-2">
+            <p class="text-[13px] leading-[18px] text-tg-hint" data-testid="pay-method">{{ t('billing.pay_method') }}</p>
+
+            <button
+              v-for="(option, index) in options"
+              :key="option.provider"
+              type="button"
+              class="btn btn-block justify-between"
+              :class="index === 0 ? 'btn-primary' : 'btn-secondary'"
+              :disabled="busy"
+              :aria-label="t('billing.pay_with', { provider: t(`billing.provider.${option.provider}`), price: option.price })"
+              :data-testid="`pay-${option.provider}`"
+              @click="pay(option.provider)"
+            >
+              <span>{{ t(`billing.provider.${option.provider}`) }}</span>
+              <span class="flex items-baseline gap-2">
+                <span>{{ option.price }}</span>
+                <s v-if="option.listPrice" class="text-sm font-normal opacity-70" data-testid="list-price">{{ option.listPrice }}</s>
+              </span>
+            </button>
+          </div>
+
+          <p
+            v-if="billing.purchase.status === 'awaiting' && billing.purchase.notice"
+            class="flex items-start gap-2 text-sm leading-5 text-tg-subtitle"
+            role="status"
+            data-testid="purchase-notice"
+          >
+            <AppIcon name="information-circle" :size="18" class="mt-px" />
+            <span>{{ billing.purchase.notice }}</span>
+          </p>
+          <p
+            v-if="billing.purchase.status === 'starting'"
+            class="flex items-start gap-2 text-sm leading-5 text-tg-subtitle"
+            role="status"
+            data-testid="purchase-starting"
+          >
+            <AppIcon name="arrow-path" :size="18" class="mt-px animate-spin motion-reduce:animate-none" />
+            <span>{{ t('billing.starting') }}</span>
+          </p>
+          <p
+            v-else-if="billing.purchase.status === 'awaiting'"
+            class="flex items-start gap-2 text-sm leading-5 text-tg-subtitle"
+            role="status"
+            data-testid="purchase-awaiting"
+          >
+            <AppIcon name="clock" :size="18" class="mt-px" />
+            <span>{{ t('billing.awaiting') }}</span>
+          </p>
+          <p
+            v-else-if="billing.purchase.status === 'replaced'"
+            class="flex items-start gap-2 text-sm leading-5 text-tg-subtitle"
+            role="status"
+            data-testid="purchase-replaced"
+          >
+            <AppIcon name="information-circle" :size="18" class="mt-px" />
+            <span>{{ billing.purchase.notice }}</span>
+          </p>
+          <div v-else-if="billing.purchase.status === 'timeout'" class="space-y-2" data-testid="purchase-timeout">
+            <p class="flex items-start gap-2 text-sm leading-5 text-tg-subtitle">
+              <AppIcon name="clock" :size="18" class="mt-px text-warning-ink" />
+              <span>{{ t('billing.timeout') }}</span>
+            </p>
+            <button type="button" class="btn btn-tinted btn-block" data-testid="purchase-check" @click="billing.waitForPayment()">
+              {{ t('billing.check_again') }}
+            </button>
+          </div>
+          <InlineAlert
+            v-else-if="billing.purchase.status === 'failed'"
+            tone="danger"
+            :message="billing.purchase.error"
+            data-testid="purchase-error"
+          />
+        </section>
+
+        <button
+          v-if="!done && dueCount > 0"
+          type="button"
+          class="btn btn-block"
+          :class="purchaseMode ? 'btn-tinted' : 'btn-primary'"
+          data-testid="paywall-review"
+          @click="emit('review')"
+        >
+          {{ t('paywall.review') }}
+        </button>
+
+        <PromoRedeem @redeemed="onRedeemed" />
+
+        <p v-if="contact && !done" class="text-center text-[13px] leading-[18px] text-tg-hint" data-testid="paywall-contact">
+          {{ t('paywall.contact') }}
+          <a
+            v-if="contact.href"
+            :href="contact.href"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="break-words text-tg-link underline"
+            data-testid="paywall-contact-link"
+          >{{ contact.label }}</a>
+          <span v-else class="font-semibold break-words" data-testid="paywall-contact-text">{{ contact.label }}</span>
+        </p>
+
+        <button type="button" class="btn btn-plain btn-block" data-testid="paywall-close" @click="emit('close')">
+          {{ t('paywall.dismiss') }}
+        </button>
+      </div>
     </section>
   </div>
 </template>

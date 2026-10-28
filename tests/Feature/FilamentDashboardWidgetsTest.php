@@ -67,9 +67,9 @@ it('counts the total and the recently active learners of the platform for an adm
     Learner::factory()->create(['last_seen_at' => null]);
 
     Livewire::test(TotalLearnersWidget::class)
-        ->assertSee('Total learners')
+        ->assertSee('Всего учеников')
         ->assertSee('3')
-        ->assertSee('Active last 7 days');
+        ->assertSee('Активны за 7 дней');
 });
 
 it('scopes the widgets of a teacher to group sessions of their own groups', function (): void {
@@ -131,8 +131,8 @@ it('lists the groups of the current league week with members and capacity for an
         ->assertOk()
         ->assertCanSeeTableRecords([$gold, $bronze])
         ->assertCanNotSeeTableRecords([$lastWeek])
-        ->assertSee('Leagues — week 2026-10-19 – 2026-10-25 (open): 2 groups, 37 members')
-        ->assertSee('Gold (2)')
+        ->assertSee('Лиги — неделя 2026-10-19 – 2026-10-25 (идёт): групп — 2, участников — 37')
+        ->assertSee('Золото (2)')
         ->assertSee('30 / 30')
         ->assertSee('7 / 30');
 
@@ -142,5 +142,5 @@ it('lists the groups of the current league week with members and capacity for an
 it('shows an empty league widget before the first placement of the week', function (): void {
     Livewire::test(LeagueGroupsTableWidget::class)
         ->assertOk()
-        ->assertSee('Leagues — current week: no groups yet');
+        ->assertSee('Лиги — текущая неделя: групп пока нет');
 });

@@ -23,11 +23,11 @@ class ExamsLast30DaysWidget extends StatsOverviewWidget
         $open = (clone $exams)->where('status', 'open')->count();
 
         return [
-            Stat::make('Exams last 30 days', (string) $total)
-                ->description("{$closed} closed")
+            Stat::make(__('admin.widgets.exams_30d.total'), (string) $total)
+                ->description(__('admin.widgets.exams_30d.closed', ['count' => $closed]))
                 ->color('primary')
                 ->icon('heroicon-o-trophy'),
-            Stat::make('Open exams now', (string) $open)
+            Stat::make(__('admin.widgets.exams_30d.open'), (string) $open)
                 ->color($open > 0 ? 'warning' : 'gray')
                 ->icon('heroicon-o-clock'),
         ];

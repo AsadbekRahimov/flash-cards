@@ -23,9 +23,27 @@ class LessonResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-book-open';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Content';
-
     protected static ?int $navigationSort = 20;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('admin.nav.content');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.lessons.nav');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('admin.lessons.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('admin.lessons.plural');
+    }
 
     /**
      * Teachers do not see the content of learners' private decks.
@@ -41,13 +59,14 @@ class LessonResource extends Resource
     {
         return $schema->components([
             Forms\Components\Select::make('stage_id')
+                ->label(__('admin.lessons.fields.stage'))
                 ->relationship('stage', 'title')
                 ->required()
                 ->searchable()
                 // Moving a lesson to a stage of another course would leave words_count stale.
                 ->disabledOn('edit'),
-            Forms\Components\TextInput::make('number')->numeric()->required(),
-            Forms\Components\TextInput::make('title')->maxLength(255),
+            Forms\Components\TextInput::make('number')->label(__('admin.lessons.fields.number'))->numeric()->required(),
+            Forms\Components\TextInput::make('title')->label(__('admin.lessons.fields.title'))->maxLength(255),
         ]);
     }
 
@@ -55,16 +74,17 @@ class LessonResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('stage.title')->label('Stage')->sortable(),
-                Tables\Columns\TextColumn::make('number')->sortable(),
-                Tables\Columns\TextColumn::make('title')->searchable(),
-                Tables\Columns\TextColumn::make('words_count')->counts('words')->label('Words'),
+                Tables\Columns\TextColumn::make('stage.title')->label(__('admin.lessons.fields.stage'))->sortable(),
+                Tables\Columns\TextColumn::make('number')->label(__('admin.lessons.fields.number'))->sortable(),
+                Tables\Columns\TextColumn::make('title')->label(__('admin.lessons.fields.title'))->searchable(),
+                Tables\Columns\TextColumn::make('words_count')->counts('words')->label(__('admin.lessons.columns.words_count')),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('stage_id')
                     ->relationship('stage', 'title')
-                    ->label('Stage'),
+                    ->label(__('admin.lessons.filters.stage')),
             ])
+            ->emptyStateHeading(__('admin.lessons.empty'))
             ->actions([
                 Actions\EditAction::make(),
             ])

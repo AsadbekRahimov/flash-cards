@@ -18,6 +18,7 @@ use App\Domain\Learners\DTO\TodaySummary;
 use App\Domain\Learning\Services\LearnerStatsService;
 use App\Models\Course;
 use App\Models\Learner;
+use App\Models\LearnerDailyStats;
 use App\Models\TrainingSession;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
@@ -53,20 +54,16 @@ final class TodayService
     {
         $now ??= CarbonImmutable::now();
 
-        // The weekly freeze is handed out lazily here (docs/13 §7.2), after the streak was settled (below).
         $today = $this->clock->today($learner, $now);
-        $weekStart = $today->startOfWeek(CarbonInterface::MONDAY)->toDateString();
-        if ($learner->streak_freezes_refilled_on === null || $learner->streak_freezes_refilled_on->toDateString() < $weekStart) {
-            // A series that the stock could not cover BEFORE this refill is already burnt (docs/13 §12 q.16):
-            // settle it first, so the freeze handed out below cannot save it retroactively.
-            $this->streaks->current($learner, $today, $this->dailyStats->today($learner, $now), $now);
-        }
-        $this->freezes->refill($learner, $today, $now);
+        // Today's row is read once for the whole screen: the settle of the weekly freeze and the goal / streak block share it.
+        $stats = $this->dailyStats->today($learner, $now);
+
+        $this->handOutWeeklyFreeze($learner, $today, $stats, $now);
 
         return new TodaySummary(
             dueCount: $this->stats->dueCount($learner, $now),
             newWordsRemaining: $this->quota->remaining($learner, $now),
-            progress: $this->progress($learner, $now),
+            progress: $this->progressOn($learner, $today, $stats, $now),
             activeCourse: $this->activeCourse($learner),
             openSessionId: $this->openDailySessionId($learner, $now),
             entitlement: $this->entitlements->for($learner, $now),
@@ -81,9 +78,11 @@ final class TodayService
      */
     public function progress(Learner $learner, ?CarbonImmutable $now = null): DailyProgress
     {
-        $today = $this->clock->today($learner, $now);
-        $stats = $this->dailyStats->today($learner, $now);
+        return $this->progressOn($learner, $this->clock->today($learner, $now), $this->dailyStats->today($learner, $now), $now);
+    }
 
+    private function progressOn(Learner $learner, CarbonImmutable $today, ?LearnerDailyStats $stats, ?CarbonImmutable $now): DailyProgress
+    {
         return new DailyProgress(
             new DailyGoal(
                 target: max(1, $learner->daily_goal),
@@ -92,6 +91,29 @@ final class TodayService
             ),
             $this->streaks->current($learner, $today, $stats, $now),
         );
+    }
+
+    /**
+     * The weekly freeze is handed out lazily here (docs/13 §7.2), once per local week, and only to a plan that
+     * has freezes: for any other learner refill() does nothing, so there is nothing to settle ahead of it either
+     * (the goal / streak block settles the series, once). `streak_freezes_refilled_on` only ever moves forward, so
+     * a model that already shows this week cannot be behind the database and no statement is spent on it.
+     */
+    private function handOutWeeklyFreeze(Learner $learner, CarbonImmutable $today, ?LearnerDailyStats $stats, CarbonImmutable $now): void
+    {
+        if (! $this->freezes->enabled($learner, $now)) {
+            return;
+        }
+
+        $weekStart = $today->startOfWeek(CarbonInterface::MONDAY)->toDateString();
+        if ($learner->streak_freezes_refilled_on !== null && $learner->streak_freezes_refilled_on->toDateString() >= $weekStart) {
+            return;
+        }
+
+        // A series that the stock could not cover BEFORE this refill is already burnt (docs/13 §12 q.16):
+        // settle it first, so the freeze handed out below cannot save it retroactively.
+        $this->streaks->current($learner, $today, $stats, $now);
+        $this->freezes->refill($learner, $today, $now);
     }
 
     /** Null when the learner has no active course, or it is no longer available (CourseCatalogService::isAvailable). */

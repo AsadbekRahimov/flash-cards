@@ -44,7 +44,12 @@ final class DueRepetitionCriteria
         $now ??= CarbonImmutable::now();
         $abandonedBefore = $now->subHours($this->policy->abandonedAfterHours);
 
-        $query->whereHas('word', fn (Builder $word) => $word->where('is_active', true));
+        // Inactive words are excluded with an anti-join (`NOT EXISTS … is_active = false`) rather than
+        // `whereHas('word', is_active = true)`. The two are equivalent — every row has exactly one word
+        // (`word_id` NOT NULL, FK ON DELETE CASCADE) and `words.is_active` is NOT NULL — but the anti-join is
+        // served from the small partial index `words_inactive_idx` instead of a scan of all active words
+        // (docs/03 §2.7), which matters for the counters `/today`, `/me` and the reminder job run per learner.
+        $query->whereDoesntHave('word', fn (Builder $word) => $word->where('is_active', false));
 
         return $query->where(function (Builder $q) use ($now, $abandonedBefore): void {
             $q->where(function (Builder $graduated) use ($now): void {

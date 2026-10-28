@@ -9,38 +9,45 @@ use App\Models\ExamSession;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class AnswersRelationManager extends RelationManager
 {
     protected static string $relationship = 'answers';
 
-    protected static ?string $title = 'Per-word answers';
+    public static function getTitle(Model $ownerRecord, string $pageClass): string
+    {
+        return __('admin.exams.answers.title');
+    }
 
     public function table(Table $table): Table
     {
         return $table
+            ->modelLabel(__('admin.exams.answers.singular'))
+            ->pluralModelLabel(__('admin.exams.answers.plural'))
+            ->emptyStateHeading(__('admin.exams.answers.empty'))
             ->columns([
                 Tables\Columns\TextColumn::make('learner.first_name')
-                    ->label('Learner')
+                    ->label(__('admin.exams.answers.columns.learner'))
                     ->formatStateUsing(fn (ExamAnswer $record): string => trim(
                         ($record->learner->first_name ?? '—').' '.($record->learner->last_name ?? ''),
                     ))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('word.word')
-                    ->label('Word')
+                    ->label(__('admin.exams.answers.columns.word'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('selected_translation')
-                    ->label('Selected')
-                    ->placeholder('Timeout')
+                    ->label(__('admin.exams.answers.columns.selected'))
+                    ->placeholder(__('admin.exams.answers.timeout'))
                     ->wrap(),
                 Tables\Columns\TextColumn::make('correct_translation')
-                    ->label('Correct')
+                    ->label(__('admin.exams.answers.columns.correct'))
                     ->state(fn (ExamAnswer $record): string => $this->correctTranslation($record))
                     ->wrap(),
-                Tables\Columns\IconColumn::make('is_correct')->boolean()->label('Correct?'),
-                Tables\Columns\TextColumn::make('score')->sortable(),
-                Tables\Columns\TextColumn::make('time_spent_ms')->label('Time, ms')->sortable(),
-                Tables\Columns\TextColumn::make('answered_at')->dateTime()->sortable(),
+                Tables\Columns\IconColumn::make('is_correct')->boolean()->label(__('admin.exams.answers.columns.is_correct')),
+                Tables\Columns\TextColumn::make('score')->label(__('admin.exams.answers.columns.score'))->sortable(),
+                Tables\Columns\TextColumn::make('time_spent_ms')->label(__('admin.exams.answers.columns.time_spent_ms'))->sortable(),
+                Tables\Columns\TextColumn::make('answered_at')->label(__('admin.exams.answers.columns.answered_at'))->dateTime()->sortable(),
             ])
             ->defaultSort('answered_at');
     }

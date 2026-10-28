@@ -6,6 +6,7 @@ namespace App\Filament\Widgets;
 
 use App\Domain\Billing\Support\PaidSubscriptionQuery;
 use App\Filament\Concerns\RequiresActiveAdmin;
+use App\Filament\Resources\Support\AdminLabels;
 use App\Models\Organization;
 use App\Models\Subscription;
 use Carbon\CarbonImmutable;
@@ -30,11 +31,14 @@ class OrganizationSeatsTableWidget extends TableWidget
         return self::isActiveAdmin();
     }
 
-    protected static ?string $heading = 'Organizations — seats / waiting';
-
     protected static ?int $sort = 8;
 
     protected int|string|array $columnSpan = 'full';
+
+    protected function getTableHeading(): string
+    {
+        return __('admin.widgets.organization_seats.heading');
+    }
 
     public function table(Table $table): Table
     {
@@ -70,26 +74,35 @@ class OrganizationSeatsTableWidget extends TableWidget
                     ->orderBy('name'),
             )
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
+                Tables\Columns\TextColumn::make('name')->label(__('admin.widgets.organization_seats.name')),
                 Tables\Columns\TextColumn::make('status')
+                    ->label(__('admin.widgets.organization_seats.status'))
                     ->badge()
+                    ->formatStateUsing(fn (string $state): string => AdminLabels::value('organizations.status', $state))
                     ->color(fn (string $state): string => $state === 'active' ? 'success' : 'gray'),
-                Tables\Columns\TextColumn::make('active_groups_count')->label('Active groups'),
+                Tables\Columns\TextColumn::make('active_groups_count')->label(__('admin.widgets.organization_seats.active_groups')),
                 Tables\Columns\TextColumn::make('members_count')
-                    ->label('Seated')
+                    ->label(__('admin.widgets.organization_seats.seated'))
                     ->color(fn (Organization $record): ?string => self::overLimit($record) ? 'danger' : null)
-                    ->description(fn (Organization $record): ?string => self::overLimit($record) ? 'excess over the limit' : null),
+                    ->description(function (Organization $record): ?string {
+                        if (! self::overLimit($record)) {
+                            return null;
+                        }
+
+                        return __('admin.widgets.organization_seats.excess');
+                    }),
                 Tables\Columns\TextColumn::make('waitlisted_count')
-                    ->label('Waiting')
+                    ->label(__('admin.widgets.organization_seats.waiting'))
                     ->color(fn (int|string|null $state): ?string => (int) $state > 0 ? 'warning' : null),
                 Tables\Columns\TextColumn::make('seats_limit')
-                    ->label('Seats')
+                    ->label(__('admin.widgets.organization_seats.seats'))
                     ->placeholder('—'),
                 Tables\Columns\IconColumn::make('sponsoring')
-                    ->label('Sponsoring Pro')
+                    ->label(__('admin.widgets.organization_seats.sponsoring'))
                     ->state(fn (Organization $record): bool => $record->getAttribute('sponsor_subscription_id') !== null && $record->status === 'active')
                     ->boolean(),
             ])
+            ->emptyStateHeading(__('admin.widgets.organization_seats.empty'))
             ->paginated([10, 25]);
     }
 

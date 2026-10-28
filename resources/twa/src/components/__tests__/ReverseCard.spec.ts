@@ -32,12 +32,17 @@ describe('ReverseCard', () => {
     speak.mockClear()
   })
 
-  it('shows the translation and the four options, not the word', () => {
+  it('shows the translation and the four options under the card, not the word', () => {
     const w = mount(ReverseCard, { props: { card } })
     expect(w.get('[data-testid=front]').text()).toBe('Устойчивый')
+    expect(w.text()).toContain('Выберите английское слово')
     expect(w.findAll('button[data-testid^=option-]')).toHaveLength(4)
     expect(w.text()).not.toContain('Resilient')
     expect(w.find('[data-testid=example]').exists()).toBe(false)
+    expect(w.find('[data-testid=continue-btn]').exists()).toBe(false)
+    // The options are outside the question card (docs/14 §6.2).
+    expect(w.get('article').find('[data-testid=option-0]').exists()).toBe(false)
+    expect(w.get('[data-testid=option-0]').classes()).toContain('option')
   })
 
   it('marks the right pick (case-insensitively), speaks the word and emits quality 4 after the pause', async () => {
@@ -49,20 +54,42 @@ describe('ReverseCard', () => {
     expect(speak).toHaveBeenCalledWith('Resilient', 'en-US', 'https://x.test/a.mp3')
     expect(w.get('[data-testid=example]').text()).toBe('She is a resilient girl.')
     expect(w.emitted('grade')).toBeUndefined()
+    // A right pick moves on by itself: there is nothing to press.
+    expect(w.find('[data-testid=continue-btn]').exists()).toBe(false)
 
     vi.advanceTimersByTime(CHOICE_FEEDBACK_MS)
     expect(w.emitted('grade')).toEqual([[4]])
   })
 
-  it('marks a wrong pick, reveals the right one and emits quality 2', async () => {
+  it('a wrong pick reveals the right option and the example and waits for "Next" (N6)', async () => {
     const w = mount(ReverseCard, { props: { card } })
     await w.get('[data-testid=option-2]').trigger('click')
 
     expect(w.get('[data-testid=option-2]').attributes('data-state')).toBe('incorrect')
     expect(w.get('[data-testid=option-1]').attributes('data-state')).toBe('reveal')
+    expect(w.get('[data-testid=example]').text()).toBe('She is a resilient girl.')
     expect(speak).not.toHaveBeenCalled()
 
-    vi.advanceTimersByTime(CHOICE_FEEDBACK_MS)
+    // Reading takes as long as it takes: nothing is sent by itself.
+    vi.advanceTimersByTime(CHOICE_FEEDBACK_MS * 30)
+    expect(w.emitted('grade')).toBeUndefined()
+
+    const next = w.get('[data-testid=continue-btn]')
+    expect(next.text()).toBe('Дальше')
+    expect(next.classes()).toEqual(expect.arrayContaining(['btn', 'btn-primary', 'btn-lg']))
+    await next.trigger('click')
+    expect(w.emitted('grade')).toEqual([[2]])
+    expect(w.find('[data-testid=continue-btn]').exists()).toBe(false)
+  })
+
+  it('"Next" sends the grade once, however often it is pressed', async () => {
+    const w = mount(ReverseCard, { props: { card } })
+    await w.get('[data-testid=option-0]').trigger('click')
+
+    const next = w.get('[data-testid=continue-btn]')
+    await next.trigger('click')
+    await next.trigger('click')
+
     expect(w.emitted('grade')).toEqual([[2]])
   })
 
@@ -70,17 +97,39 @@ describe('ReverseCard', () => {
     const w = mount(ReverseCard, { props: { card } })
     await w.get('[data-testid=option-2]').trigger('click')
     await w.get('[data-testid=option-1]').trigger('click')
+    expect(w.get('[data-testid=option-2]').attributes('data-state')).toBe('incorrect')
+    expect(w.get('[data-testid=option-1]').attributes('data-state')).toBe('reveal')
     vi.advanceTimersByTime(CHOICE_FEEDBACK_MS)
+    await w.get('[data-testid=continue-btn]').trigger('click')
     expect(w.emitted('grade')).toEqual([[2]])
 
     const d = mount(ReverseCard, { props: { card, disabled: true } })
     await d.get('[data-testid=option-1]').trigger('click')
     vi.advanceTimersByTime(CHOICE_FEEDBACK_MS)
     expect(d.emitted('grade')).toBeUndefined()
+    expect(d.find('[data-testid=continue-btn]').exists()).toBe(false)
   })
 
-  it('renders in Uzbek', () => {
+  it('disables "Next" while the grade of the card is on its way to the server', async () => {
+    const w = mount(ReverseCard, { props: { card } })
+    await w.get('[data-testid=option-2]').trigger('click')
+    expect(w.get('[data-testid=continue-btn]').attributes('disabled')).toBeUndefined()
+
+    await w.setProps({ disabled: true })
+    expect(w.get('[data-testid=continue-btn]').attributes('disabled')).toBeDefined()
+  })
+
+  it('notes that the translation is a fallback only when the server says so', () => {
+    expect(mount(ReverseCard, { props: { card } }).find('[data-testid=translation-fallback]').exists()).toBe(false)
+    const w = mount(ReverseCard, { props: { card: { ...card, translation_fallback: true } } })
+    expect(w.get('[data-testid=translation-fallback]').text()).toBe('Перевода на язык занятия пока нет')
+  })
+
+  it('renders in Uzbek', async () => {
     setLocale('uz')
-    expect(mount(ReverseCard, { props: { card } }).text()).toContain("So'zni tanlang")
+    const w = mount(ReverseCard, { props: { card } })
+    expect(w.text()).toContain("Inglizcha so'zni tanlang")
+    await w.get('[data-testid=option-0]').trigger('click')
+    expect(w.get('[data-testid=continue-btn]').text()).toBe('Keyingisi')
   })
 })

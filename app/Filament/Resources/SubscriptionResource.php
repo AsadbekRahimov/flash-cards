@@ -8,6 +8,7 @@ use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Enums\SubscriptionStatus;
 use App\Filament\Resources\SubscriptionResource\Pages;
 use App\Filament\Resources\SubscriptionResource\Support\SubscriptionActions;
+use App\Filament\Resources\Support\AdminLabels;
 use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\Subscription;
@@ -28,9 +29,27 @@ class SubscriptionResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-credit-card';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Billing';
-
     protected static ?int $navigationSort = 10;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('admin.nav.billing');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.subscriptions.nav');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('admin.subscriptions.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('admin.subscriptions.plural');
+    }
 
     public static function canCreate(): bool
     {
@@ -43,57 +62,90 @@ class SubscriptionResource extends Resource
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['subscriber', 'grantedBy']))
             ->columns([
                 Tables\Columns\TextColumn::make('subscriber_type')
-                    ->label('Subject')
+                    ->label(__('admin.subscriptions.fields.subscriber_type'))
                     ->badge()
+                    ->formatStateUsing(fn (string $state): string => AdminLabels::value('common.subscriber_type', $state))
                     ->color(fn (string $state): string => $state === 'organization' ? 'info' : 'gray')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('subscriber_label')
-                    ->label('Name')
+                    ->label(__('admin.subscriptions.fields.name'))
                     ->state(fn (Subscription $record): string => self::subscriberLabel($record)),
-                Tables\Columns\TextColumn::make('plan')->badge()->sortable(),
-                Tables\Columns\TextColumn::make('tier')->badge()->placeholder('—')->sortable()->toggleable(),
-                Tables\Columns\TextColumn::make('seats_limit')->label('Seats')->placeholder('—')->toggleable(),
-                Tables\Columns\TextColumn::make('status')
+                Tables\Columns\TextColumn::make('plan')
+                    ->label(__('admin.subscriptions.fields.plan'))
                     ->badge()
+                    ->formatStateUsing(fn (string $state): string => AdminLabels::value('common.plan', $state))
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('tier')
+                    ->label(__('admin.subscriptions.fields.tier'))
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => AdminLabels::value('common.tier', $state))
+                    ->placeholder('—')
+                    ->sortable()
+                    ->toggleable(),
+                Tables\Columns\TextColumn::make('seats_limit')->label(__('admin.subscriptions.fields.seats_limit'))->placeholder('—')->toggleable(),
+                Tables\Columns\TextColumn::make('status')
+                    ->label(__('admin.subscriptions.fields.status'))
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => AdminLabels::value('common.subscription_status', $state))
                     ->color(fn (string $state): string => match ($state) {
                         'active', 'trialing' => 'success',
                         'past_due' => 'warning',
                         default => 'gray',
                     })
                     ->sortable(),
-                Tables\Columns\TextColumn::make('provider')->badge()->sortable(),
-                Tables\Columns\TextColumn::make('starts_at')->dateTime()->sortable()->toggleable(),
-                Tables\Columns\TextColumn::make('current_period_ends_at')
-                    ->label('Until')
-                    ->dateTime()
-                    ->placeholder('No end')
+                Tables\Columns\TextColumn::make('provider')
+                    ->label(__('admin.subscriptions.fields.provider'))
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => AdminLabels::value('common.provider', $state))
                     ->sortable(),
-                Tables\Columns\TextColumn::make('grantedBy.name')->label('Granted by')->placeholder('—')->toggleable(),
-                Tables\Columns\TextColumn::make('note')->limit(40)->placeholder('—')->tooltip(fn (Subscription $record): ?string => $record->note)->toggleable(),
+                Tables\Columns\TextColumn::make('starts_at')->label(__('admin.subscriptions.fields.starts_at'))->dateTime()->sortable()->toggleable(),
+                Tables\Columns\TextColumn::make('current_period_ends_at')
+                    ->label(__('admin.subscriptions.fields.ends_at'))
+                    ->dateTime()
+                    ->placeholder(__('admin.subscriptions.fields.no_end'))
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('grantedBy.name')->label(__('admin.subscriptions.fields.granted_by'))->placeholder('—')->toggleable(),
+                Tables\Columns\TextColumn::make('note')->label(__('admin.subscriptions.fields.note'))->limit(40)->placeholder('—')->tooltip(fn (Subscription $record): ?string => $record->note)->toggleable(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('status')->options(self::options(array_column(SubscriptionStatus::cases(), 'value'))),
-                Tables\Filters\SelectFilter::make('provider')->options(self::options(array_column(SubscriptionProvider::cases(), 'value'))),
-                Tables\Filters\SelectFilter::make('plan')->options(self::options(array_keys((array) config('billing.plans')))),
-                Tables\Filters\SelectFilter::make('subscriber_type')->label('Subject')->options(['learner' => 'Learner', 'organization' => 'Organization']),
+                Tables\Filters\SelectFilter::make('status')
+                    ->label(__('admin.subscriptions.fields.status'))
+                    ->options(AdminLabels::options('common.subscription_status', array_column(SubscriptionStatus::cases(), 'value'))),
+                Tables\Filters\SelectFilter::make('provider')
+                    ->label(__('admin.subscriptions.fields.provider'))
+                    ->options(AdminLabels::options('common.provider', array_column(SubscriptionProvider::cases(), 'value'))),
+                Tables\Filters\SelectFilter::make('plan')
+                    ->label(__('admin.subscriptions.fields.plan'))
+                    ->options(AdminLabels::options('common.plan', array_keys((array) config('billing.plans')))),
+                Tables\Filters\SelectFilter::make('subscriber_type')
+                    ->label(__('admin.subscriptions.fields.subscriber_type'))
+                    ->options(AdminLabels::options('common.subscriber_type', ['learner', 'organization'])),
                 // Target of the "Subscriptions" link on a learner's page: ?filters[learner][learner_id]=<id>.
                 Tables\Filters\Filter::make('learner')
-                    ->schema([Forms\Components\TextInput::make('learner_id')->label('Learner ID')->numeric()->minValue(1)])
+                    ->label(__('admin.subscriptions.filters.learner'))
+                    ->schema([Forms\Components\TextInput::make('learner_id')->label(__('admin.subscriptions.filters.learner_id'))->numeric()->minValue(1)])
                     ->query(fn (Builder $query, array $data): Builder => filled($data['learner_id'] ?? null)
                         ? $query->where('subscriber_type', 'learner')->where('subscriber_id', (int) $data['learner_id'])
                         : $query)
-                    ->indicateUsing(fn (array $data): ?string => filled($data['learner_id'] ?? null) ? 'Learner #'.$data['learner_id'] : null),
+                    ->indicateUsing(function (array $data): ?string {
+                        if (blank($data['learner_id'] ?? null)) {
+                            return null;
+                        }
+
+                        return __('admin.subscriptions.filters.learner_indicator', ['id' => $data['learner_id']]);
+                    }),
                 Tables\Filters\TernaryFilter::make('live')
-                    ->label('Live status')
-                    ->placeholder('All')
-                    ->trueLabel('Live (trialing / active / past due)')
-                    ->falseLabel('Ended (canceled / expired)')
+                    ->label(__('admin.subscriptions.filters.live'))
+                    ->placeholder(__('admin.common.all'))
+                    ->trueLabel(__('admin.subscriptions.filters.live_true'))
+                    ->falseLabel(__('admin.subscriptions.filters.live_false'))
                     ->queries(
                         true: fn (Builder $query): Builder => $query->whereIn('status', SubscriptionStatus::liveValues()),
                         false: fn (Builder $query): Builder => $query->whereNotIn('status', SubscriptionStatus::liveValues()),
                         blank: fn (Builder $query): Builder => $query,
                     ),
             ])
+            ->emptyStateHeading(__('admin.subscriptions.empty'))
             ->actions([SubscriptionActions::revoke()])
             ->defaultSort('id', 'desc');
     }
@@ -121,15 +173,6 @@ class SubscriptionResource extends Resource
             return $subscriber->name.' #'.$subscriber->id;
         }
 
-        return '#'.$record->subscriber_id.' (deleted)';
-    }
-
-    /**
-     * @param  list<string>  $values
-     * @return array<string, string>
-     */
-    private static function options(array $values): array
-    {
-        return array_combine($values, array_map(ucfirst(...), str_replace('_', ' ', $values)));
+        return '#'.$record->subscriber_id.' '.__('admin.common.deleted');
     }
 }

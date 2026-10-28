@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
 import { errorMessage } from '@/i18n/errors'
+import { useBillingStore } from '@/stores/billing'
 import type { OrganizationMembership } from '@/api/types'
 
 export type OrganizationsStatus = 'idle' | 'loading' | 'ready' | 'error'
@@ -40,7 +41,8 @@ export const useOrganizationsStore = defineStore('organizations', {
     /**
      * Leaves a center; the server's refreshed list replaces the data. When it is refused (somebody else's or an
      * already ended membership, a `group` one) `errorMessage` says why and the list is taken again, so the screen
-     * matches the server.
+     * matches the server. Once left, the plan may have changed (the center's Pro is gone), so the billing store
+     * forgets how fresh its `/me` was and the next screen asks again.
      *
      * @returns whether the center was left
      */
@@ -51,6 +53,7 @@ export const useOrganizationsStore = defineStore('organizations', {
       this.errorMessage = ''
       try {
         this.items = (await api.organizations.leave(membershipId)).organizations
+        useBillingStore().invalidate()
         return true
       } catch (err) {
         const message = errorMessage(err, 'settings')

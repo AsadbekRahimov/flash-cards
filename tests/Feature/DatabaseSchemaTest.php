@@ -43,6 +43,7 @@ use App\Models\User;
 use App\Models\Word;
 use App\Models\WordRepetition;
 use App\Models\WordTranslation;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -311,7 +312,8 @@ it('stores the generalised training_sessions columns (mode, source, course, expi
 
 it('creates the renamed learner indexes and none of the student ones', function (): void {
     $expected = [
-        'word_repetitions' => ['word_repetitions_learner_hard_due_idx', 'word_repetitions_due_learners_idx', 'word_repetitions_learner_is_hard_idx'],
+        'word_repetitions' => ['word_repetitions_next_card_idx', 'word_repetitions_due_learners_idx'],
+        'words' => ['words_inactive_idx'],
         'training_reviews' => ['training_reviews_created_learner_idx', 'training_reviews_session_learner_idx'],
         'exam_answers' => ['exam_answers_session_learner_word_unique', 'exam_answers_answered_learner_idx'],
         'exam_results' => ['exam_results_session_learner_unique'],
@@ -332,6 +334,9 @@ it('creates the renamed learner indexes and none of the student ones', function 
             expect($name)->not->toContain('student');
         }
     }
+
+    // Dropped as unused (2026_10_28_200001): no query filters by is_hard, so a partial index on it could never be read.
+    expect(array_column(Schema::getIndexes('word_repetitions'), 'name'))->not->toContain('word_repetitions_learner_is_hard_idx');
 });
 
 it('has the CHECK constraint on the shape of training_sessions by mode', function (): void {
@@ -349,13 +354,21 @@ it('has the CHECK constraint on the shape of training_sessions by mode', functio
     DB::table('training_sessions')->insert([...$base, 'mode' => 'daily_review', 'learner_id' => $learner->id]);
 })->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'The CHECK constraint is PostgreSQL-only; the personal-session service (task 1.3a) will duplicate the shape invariant.');
 
-it('has partial index on word_repetitions for is_hard', function (): void {
+it('has no partial index on word_repetitions for is_hard: nothing filters by it, only CardPicker orders by it', function (): void {
     $exists = DB::selectOne(
         "SELECT 1 AS x FROM pg_indexes
          WHERE tablename = 'word_repetitions'
            AND indexname = 'word_repetitions_learner_is_hard_idx'",
     );
-    expect($exists)->not->toBeNull();
+    expect($exists)->toBeNull();
+
+    // The order of CardPicker is served by the next-card index instead.
+    $nextCard = DB::selectOne(
+        "SELECT 1 AS x FROM pg_indexes
+         WHERE tablename = 'word_repetitions'
+           AND indexname = 'word_repetitions_next_card_idx'",
+    );
+    expect($nextCard)->not->toBeNull();
 })->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'pg_indexes catalog is PostgreSQL-only.');
 
 it('has composite index (learner_id, next_review_at)', function (): void {
@@ -366,6 +379,78 @@ it('has composite index (learner_id, next_review_at)', function (): void {
     );
     expect($row)->not->toBeNull();
 })->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'pg_indexes catalog is PostgreSQL-only.');
+
+// --- hot-path indexes of the picker and of dueCount (docs/03 §2.7, §2.8; perf report 2026-10-28 P2-3 / P2-9) ---
+
+it('has the next-card index in the exact order of CardPicker and the partial index of inactive words, and no stale predecessor', function (): void {
+    $defs = DB::table('pg_indexes')
+        ->whereIn('tablename', ['word_repetitions', 'words'])
+        ->pluck('indexdef', 'indexname');
+
+    expect($defs->get('word_repetitions_next_card_idx'))
+        ->toContain('(learner_id, is_hard DESC, next_review_at, id)')
+        ->and($defs->get('words_inactive_idx'))
+        ->toContain('ON public.words USING btree (id) WHERE (is_active = false)')
+        ->and($defs->has('word_repetitions_learner_hard_due_idx'))->toBeFalse();
+
+    // Both are plain valid btree indexes (a CONCURRENTLY build that failed would leave an INVALID one).
+    $invalid = DB::table('pg_index')
+        ->join('pg_class', 'pg_class.oid', '=', 'pg_index.indexrelid')
+        ->whereIn('pg_class.relname', ['word_repetitions_next_card_idx', 'words_inactive_idx'])
+        ->where('pg_index.indisvalid', false)
+        ->count();
+    expect($invalid)->toBe(0);
+})->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'pg_indexes catalog is PostgreSQL-only.');
+
+it('restores the old hard-due index on rollback of the next-card index migration and swaps it back on re-run', function (): void {
+    $migration = require database_path('migrations/2026_10_28_000001_add_next_card_and_inactive_words_indexes.php');
+    $names = fn (string $table): array => array_column(Schema::getIndexes($table), 'name');
+
+    $migration->down();
+    expect($names('word_repetitions'))->toContain('word_repetitions_learner_hard_due_idx')
+        ->and($names('word_repetitions'))->not->toContain('word_repetitions_next_card_idx')
+        ->and($names('words'))->not->toContain('words_inactive_idx');
+
+    $migration->up();
+    expect($names('word_repetitions'))->toContain('word_repetitions_next_card_idx')
+        ->and($names('word_repetitions'))->not->toContain('word_repetitions_learner_hard_due_idx')
+        ->and($names('words'))->toContain('words_inactive_idx');
+
+    // Running `up()` twice (a retry after an interrupted deploy) is harmless.
+    $migration->up();
+    expect(array_count_values($names('word_repetitions'))['word_repetitions_next_card_idx'])->toBe(1)
+        ->and(array_count_values($names('words'))['words_inactive_idx'])->toBe(1);
+});
+
+it('rebuilds the dropped is_hard partial index exactly as it was on rollback and drops it again on re-run', function (): void {
+    $migration = require database_path('migrations/2026_10_28_200001_drop_word_repetitions_learner_is_hard_idx.php');
+    $name = 'word_repetitions_learner_is_hard_idx';
+    $copies = fn (): int => count(array_filter(Schema::getIndexes('word_repetitions'), fn (array $index): bool => $index['name'] === $name));
+    $definition = fn (): ?string => DB::getDriverName() === 'pgsql'
+        ? DB::table('pg_indexes')->where('indexname', $name)->value('indexdef')
+        : DB::table('sqlite_master')->where('type', 'index')->where('name', $name)->value('sql');
+
+    expect($copies())->toBe(0);
+
+    // down(): back to the original — a partial index on learner_id for is_hard = true.
+    $migration->down();
+    expect($copies())->toBe(1)
+        ->and(array_column(Schema::getIndexes('word_repetitions'), 'columns', 'name')[$name])->toBe(['learner_id']);
+    expect((string) $definition())->toMatch(DB::getDriverName() === 'pgsql'
+        ? '/USING btree \(learner_id\) WHERE \(is_hard = true\)$/'
+        : '/ON word_repetitions \(learner_id\)\s+WHERE is_hard = true$/');
+
+    $migration->up();
+    expect($copies())->toBe(0);
+
+    // A retry after an interrupted deploy is harmless in either direction.
+    $migration->up();
+    $migration->down();
+    $migration->down();
+    expect($copies())->toBe(1);
+    $migration->up();
+    expect($copies())->toBe(0);
+});
 
 it('runs migrate:fresh --seed and produces demo data', function (): void {
     $this->artisan('migrate:fresh', ['--seed' => true])->assertSuccessful();
@@ -1113,6 +1198,24 @@ it('rolls back and re-applies the league migration (2C.3)', function (): void {
     expect(Schema::hasTable('league_weeks'))->toBeTrue()
         ->and(Schema::hasTable('league_groups'))->toBeTrue()
         ->and(Schema::hasTable('league_members'))->toBeTrue();
+});
+
+it('adds league_groups.closed_at, stamps the groups of already closed weeks on migrate, and rolls back (P1-2)', function (): void {
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_28_100001_add_closed_at_to_league_groups_table')])->assertSuccessful();
+    expect(Schema::hasColumn('league_groups', 'closed_at'))->toBeFalse()
+        ->and(Schema::hasTable('league_groups'))->toBeTrue();
+
+    // Rows written by the whole-week close of 2C.3: a closed week whose groups know nothing of the stamp.
+    $closedAt = CarbonImmutable::parse('2026-10-18 19:05:00', 'UTC');
+    $closed = LeagueWeek::factory()->startingOn('2026-10-12')->create(['status' => 'closed', 'closed_at' => $closedAt]);
+    $open = LeagueWeek::factory()->startingOn('2026-10-19')->create();
+    $stamped = LeagueGroup::factory()->create(['league_week_id' => $closed->id]);
+    $live = LeagueGroup::factory()->create(['league_week_id' => $open->id]);
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasColumn('league_groups', 'closed_at'))->toBeTrue()
+        ->and($stamped->fresh()?->closed_at?->utc()->toDateTimeString())->toBe('2026-10-18 19:05:00')
+        ->and($live->fresh()?->closed_at)->toBeNull();
 });
 
 // --- 2C.5 friends and challenges (docs/13 §1.5) ----------------------------------

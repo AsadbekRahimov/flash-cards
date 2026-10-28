@@ -152,7 +152,9 @@ erDiagram
 | is_active | boolean default true | слово не удаляем, а деактивируем; учитывается в `courses.words_count` и в проверке публикации курса |
 | meta | jsonb default '{}' | |
 
-**Индексы:** `(lesson_id, word)` unique, `lesson_id`, `word` (для поиска).
+**Индексы:** `(lesson_id, word)` unique, `lesson_id`, `word` (для поиска); `(id) WHERE is_active = false` — partial
+`words_inactive_idx`: под анти-join `DueRepetitionCriteria` (`NOT EXISTS (… words.is_active = false)`, docs/06 §6) —
+выведенных слов мало, и хэш их id строится с пары страниц индекса вместо seq scan всех активных слов.
 
 ### 2.8 `word_repetitions` — состояние SM-2 для пары (learner, слово)
 | Колонка | Тип | Описание |
@@ -186,8 +188,17 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 **Индексы:**
 - `(learner_id, word_id)` unique — **один прогресс по слову на человека**, независимо от числа его групп.
 - `(learner_id, next_review_at)` — для «что показывать».
-- `(learner_id) WHERE is_hard = true` — partial index `word_repetitions_learner_is_hard_idx`.
-- `(learner_id, is_hard, next_review_at)` (`word_repetitions_learner_hard_due_idx`) — hot path для выбора следующей карточки с приоритетом hard.
+- ~~`(learner_id) WHERE is_hard = true`~~ (`word_repetitions_learner_is_hard_idx`) — **удалён** миграцией `2026_10_28_200001_drop_word_repetitions_learner_is_hard_idx`:
+  partial index обслуживает только запрос с `WHERE is_hard = true`, а такого запроса в коде нет — `is_hard` стоит лишь в `ORDER BY` пикера
+  (его обслуживает `word_repetitions_next_card_idx`) и читается по `(learner_id, word_id)` в `ExamAnswerService`. EXPLAIN на 90 000 строк
+  (30 learner'ов, 12 % `is_hard`) по всем путям кода и `idx_scan = 0` за весь прогон тестов на PostgreSQL; индекс только удорожал записи
+  `POST /review` по трудным карточкам. Если когда-нибудь понадобится выборка «трудные слова learner'а» — вернуть вместе с этим запросом.
+- `(learner_id, is_hard DESC, next_review_at, id)` (`word_repetitions_next_card_idx`) — hot path выбора следующей карточки:
+  ровно порядок `CardPicker::pickNext` шаг 1 (`WHERE learner_id = ? AND next_review_at <= now ORDER BY is_hard DESC, next_review_at, id LIMIT 1`,
+  docs/06 §4.2), поэтому due-карточка — первая подходящая запись индекса, а не top-N sort по всем просроченным (1500 просроченных:
+  5977 буферов / 2,8 мс → 7 буферов / 0,05 мс). Заменил `(learner_id, is_hard, next_review_at)` (`word_repetitions_learner_hard_due_idx`):
+  по `is_hard` сортирует только пикер, остальным запросам хватает индексов по `learner_id` / `(learner_id, next_review_at)`.
+  В sqlite создаётся так же (`DESC` поддерживается).
 - `(next_review_at, learner_id)` (`word_repetitions_due_learners_idx`) — batch scan learner'ов, которым пора напомнить о повторении.
 - `(learner_id, created_at)` — квота новых слов за локальный день (docs/12 §5.3).
 
@@ -500,7 +511,11 @@ Append-only журнал для продуктовой аналитики (не 
 поддерживаемых локалей (сейчас `uz` + `ru`) не менее чем у `config('content.publish_translation_threshold')`
 (0.95) активных слов. Проверка — только при новой публикации: уже опубликованный курс не пересматривается,
 контент без `uz` показывается с ru-fallback и пометкой. `words_count` — число активных слов курса,
-пересчитывается `CoursePublisher::recount` после импорта. Курс `default` создаётся `CourseCatalogService::defaultCourse()`
+пересчитывается `CoursePublisher::recount` после импорта. Это **читаемое** значение: `total` прогресса в каталоге
+(`GET /courses`, колоды, `active_course` на «Сегодня») берётся из него, слова каталога при открытии не считаются
+(`done` — запросом по строкам `word_repetitions` самого learner'а). Поэтому любой путь, меняющий активные слова
+(импорт, колоды learner'а, правка слова в админке), обязан вызвать `recount` и `LearningCache::forgetLesson`;
+текущие пути перечислены в `WordChangePathsTest` и `WordTranslationsAdminTest`. Курс `default` создаётся `CourseCatalogService::defaultCourse()`
 (сидер, первый импорт без `course`) сразу в статусе `published`; группа с `telegram_groups.course_id = NULL` работает в нём.
 
 ### 2.21 `word_translations` — переводы слов по локалям
@@ -755,11 +770,11 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 | id | bigint PK | |
 | starts_on | date **unique** | понедельник недели в `config('leagues.timezone')` (`Asia/Tashkent`) — одна граница для всех |
 | ends_on | date | воскресенье |
-| status | string(10) default `open` | `open` → `closing` (внутри транзакции закрытия) → `closed` |
-| closed_at | timestamp nullable | момент закрытия (`LeagueService::closeWeek`) |
+| status | string(10) default `open` | `open` → `closing` (барьер: с этого момента в неделю никого не размещают; группы финализируются по одной транзакции) → `closed` (все группы проштампованы) |
+| closed_at | timestamp nullable | момент шага `closing → closed` (`LeagueService::closeWeek`); ЛС итогов считаются «этой недели» по `notifications_log.sent_at >= closed_at` |
 | created_at, updated_at | | |
 
-Строка создаётся при первом размещении недели (`currentWeek`, `firstOrCreate` через savepoint — гонка создателей безопасна). Закрытие — `leagues:close-week` (ежедневно 00:05 tz лиг; реально работает в понедельник).
+Строка создаётся при первом размещении недели (`currentWeek`, `firstOrCreate` через savepoint — гонка создателей безопасна). Закрытие — `leagues:close-week` (ежедневно 00:00 tz лиг + страховочный 00:05 на том же мьютексе; реально работает в понедельник). Размещение держит строку недели `FOR SHARE` на время взятия места: UPDATE статуса закрывателя ждёт идущие размещения, а неделю в `closing` / `closed` размещение пропускает (docs/13 §7.3, P1-2).
 
 ### 2.35 `league_groups` — группа одного tier'а внутри недели *(2C.3)*
 | Колонка | Тип | Описание |
@@ -769,9 +784,10 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 | tier | smallint | 0 Bronze … 4 Diamond (`config('leagues.tiers')`) |
 | capacity | smallint default 30 | `LEAGUES_GROUP_CAPACITY` на момент создания группы |
 | members_count | smallint default 0 | число мест занято; меняется только под блокировкой строки в `LeagueService::place` |
+| closed_at | timestamp nullable | штамп финализации группы (`LeagueService::closeGroup`, P1-2): `final_*` всех её участников записаны одним UPDATE; `NOT NULL` ⇔ standings читаются из `final_*`, место в группе больше не выдаётся. Ставится закрытием недели (по группе в транзакции) или размещением участника в следующую неделю, которому вердикт нужен раньше закрытия |
 | created_at, updated_at | | |
 
-**Индексы:** `(league_week_id, tier, members_count)` — выбор группы с местом.
+**Индексы:** `(league_week_id, tier, members_count)` — выбор группы с местом; он же (по префиксу `league_week_id`) — выбор групп недели без штампа при закрытии.
 
 ### 2.36 `league_members` — место learner'а в группе недели *(2C.3)*
 | Колонка | Тип | Описание |
@@ -783,12 +799,12 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 | tier_before | smallint | tier недели (= `league_groups.tier`): результат прошлой закрытой недели learner'а или 0 |
 | final_points | int nullable | очки на момент закрытия (до закрытия очки **не хранятся** — считаются из `learner_daily_stats`, §2.22) |
 | final_rank | smallint nullable | место в группе на момент закрытия (ничьи — по более раннему размещению, `id`) |
-| result | string(10) nullable | `promoted` / `stayed` / `demoted`; пишется один раз при закрытии |
+| result | string(10) nullable | `promoted` / `stayed` / `demoted`; пишется один раз при финализации группы — вместе с `final_*` всех участников группы одним `UPDATE … FROM (VALUES …)` (sqlite — `CASE`) |
 | created_at, updated_at | | |
 
-**Индексы:** unique `(league_week_id, learner_id)`; `(league_group_id)`; `(learner_id, league_week_id)` — последний закрытый результат learner'а (tier следующего размещения).
+**Индексы:** unique `(league_week_id, learner_id)`; `(league_group_id)`; `(learner_id, league_week_id)` — членства learner'а (последнее по дате недели через join `league_weeks` — tier следующего размещения).
 
-**Правила:** строки пишет только `LeagueService` (docs/13 §2.4). Размещение — после commit транзакции оценки (`DailyStatsService` → `DB::afterCommit` на первой оценке локального дня), блокирует только `league_groups` (`FOR UPDATE SKIP LOCKED`, при отсутствии свободной группы — advisory-lock `(week, tier)` + ожидающий `FOR UPDATE`, затем новая группа); `learners` не блокируется, двух learner'ов в одной транзакции нет. Очки недели: `Σ reviews_count×1 + correct_count×1 + new_words_count×2 + (goal_met_at IS NOT NULL ? 10 : 0)` по `learner_daily_stats.date ∈ [starts_on, ends_on]` (веса — `config('leagues.points')`), один агрегирующий запрос на группу, кэш `league:standings:{group}` 60 с. `learners.meta.leagues_opt_out = true` — learner не размещается (настройки TWA).
+**Правила:** строки пишет только `LeagueService` (docs/13 §2.4). Размещение — после commit транзакции оценки (`DailyStatsService` → `DB::afterCommit` на первой оценке локального дня), блокирует строку `league_weeks` `FOR SHARE` (барьер закрытия) и затем `league_groups` (`FOR UPDATE SKIP LOCKED`, при отсутствии свободной группы — advisory-lock `(week, tier)` + ожидающий `FOR UPDATE`, затем новая группа; финализированные группы `closed_at IS NOT NULL` не рассматриваются); `learners` не блокируется, двух learner'ов в одной транзакции нет. Закрыватель держит либо строку недели (`FOR UPDATE`, миллисекунды), либо одну строку группы — никогда обе. Очки недели: `Σ reviews_count×1 + correct_count×1 + new_words_count×2 + (goal_met_at IS NOT NULL ? 10 : 0)` по `learner_daily_stats.date ∈ [starts_on, ends_on]` (веса — `config('leagues.points')`), один агрегирующий запрос на группу, кэш `league:standings:{group}` 60 с. `learners.meta.leagues_opt_out = true` — learner не размещается (настройки TWA).
 
 ### 2.37 `friendships` — друзья *(2C.5, docs/13 §1.5, §7.5)*
 | Колонка | Тип | Описание |
@@ -883,6 +899,16 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 41. `2026_10_23_200001_add_exercise_columns_to_training_reviews_table` — `training_reviews.exercise`, `answer_text`, `scheduler`, `interval_before_days` *(2D.2)*
 42. `2026_10_23_300001_add_scheduler_to_learners_table` — `learners.scheduler`; `2026_10_23_300002_add_fsrs_columns_to_word_repetitions_table` — `stability`, `difficulty`, `scheduler`, `scheduled_days` *(2D.3; отдельные forward-миграции с `down()`, а не правка на месте)*
 43. `2026_10_23_400001_generalize_exam_sessions_for_personal_mock` — `exam_sessions.mode`, `learner_id`, `course_id` *(2D.4)*
+44. `2026_10_28_000001_add_next_card_and_inactive_words_indexes` — `word_repetitions_next_card_idx (learner_id, is_hard DESC, next_review_at, id)`
+    вместо `word_repetitions_learner_hard_due_idx`; partial `words_inactive_idx` на `words (id) WHERE is_active = false`. На PostgreSQL индексы
+    строятся и удаляются `CONCURRENTLY` (без SHARE-блокировки `word_repetitions` на время сборки — её пишет каждый `POST /review`), поэтому
+    миграция идёт вне транзакции мигратора (`$withinTransaction = false`); внутри чужой транзакции (тесты) — обычные `CREATE/DROP INDEX`.
+    Перед каждой сборкой `DROP INDEX IF EXISTS` — повторный запуск после прерванной сборки убирает INVALID-индекс *(perf 2026-10-28, P2-3 / P2-9)*
+45. `2026_10_28_100001_add_closed_at_to_league_groups_table` — `league_groups.closed_at` + штамп групп уже закрытых недель значением `league_weeks.closed_at` *(P1-2, docs/13 §7.3)*
+46. `2026_10_28_200001_drop_word_repetitions_learner_is_hard_idx` — убирает неиспользуемый partial index `word_repetitions_learner_is_hard_idx`
+    `(learner_id) WHERE is_hard = true` (см. §2.8). Как и 44: на PostgreSQL `DROP INDEX CONCURRENTLY IF EXISTS` вне транзакции мигратора
+    (`$withinTransaction = false`), внутри чужой транзакции (тесты) — обычный `DROP INDEX IF EXISTS`; индекс есть и в sqlite, там тот же обычный `DROP`.
+    `down()` пересоздаёт его ровно в исходном виде *(17.10)*
 
 Индексные миграции (`add_performance_indexes`, `add_open_session_unique_indexes`) и `create_exam_*`, `create_notifications_log_table`,
 `create_product_events_table` переведены на `learner_id` на месте; `add_open_session_unique_indexes` дополнительно создаёт
@@ -911,7 +937,7 @@ FROM word_repetitions wr
 JOIN words w ON w.id = wr.word_id
 WHERE wr.learner_id = :learner_id
   AND wr.next_review_at <= NOW()
-ORDER BY wr.is_hard DESC, wr.next_review_at ASC
+ORDER BY wr.is_hard DESC, wr.next_review_at ASC, wr.id ASC   -- порядок индекса word_repetitions_next_card_idx
 LIMIT 30;
 ```
 

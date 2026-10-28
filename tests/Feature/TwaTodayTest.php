@@ -8,6 +8,7 @@ declare(strict_types=1);
  * The JSON shape itself is pinned in TwaContractTest.
  */
 
+use App\Domain\Content\Services\CoursePublisher;
 use App\Domain\Learners\Services\TodayService;
 use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Twa\Services\JwtService;
@@ -44,12 +45,15 @@ function todayCourse(int $lessons = 2, int $words = 3, array $course = []): Coll
     $course = Course::factory()->published()->create($course);
     $stage = Stage::factory()->create(['course_id' => $course->id, 'number' => 1]);
 
-    return collect(range(1, $lessons))->map(function (int $number) use ($stage, $words): Lesson {
+    $created = collect(range(1, $lessons))->map(function (int $number) use ($stage, $words): Lesson {
         $lesson = Lesson::factory()->create(['stage_id' => $stage->id, 'number' => $number, 'title' => "Lesson {$number}"]);
         Word::factory()->count($words)->for($lesson)->create();
 
         return $lesson;
     });
+    app(CoursePublisher::class)->recount($course); // the screen reads the course counter, as after any import
+
+    return $created;
 }
 
 /** Opens a daily review for the learner and grades `$count` cards (quality 4) over HTTP. Returns the session id. */

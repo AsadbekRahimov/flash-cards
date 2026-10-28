@@ -85,6 +85,8 @@ docker compose -f docker-compose.prod.yml exec -T app php artisan tinker
 
 # 4. Webhook в Telegram
 docker compose -f docker-compose.prod.yml exec -T app php artisan telegram:set-webhook
+# Меню команд по «/» (ru/uz) и постоянная кнопка «LexiFlow» с мини-приложением (нужен https в TWA_BASE_URL); можно повторять
+docker compose -f docker-compose.prod.yml exec -T app php artisan telegram:setup-bot
 ```
 
 ### Последующие deploy'и

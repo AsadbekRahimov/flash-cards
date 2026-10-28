@@ -16,6 +16,6 @@ class ListCourses extends ListRecords
     /** @return array<int, Action> */
     protected function getHeaderActions(): array
     {
-        return [Actions\CreateAction::make()];
+        return [Actions\CreateAction::make()->label(__('admin.courses.actions.create'))];
     }
 }

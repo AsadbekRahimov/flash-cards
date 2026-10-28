@@ -4,6 +4,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import LapsedBanner from '../LapsedBanner.vue'
 import { api } from '@/api'
 import { setLocale } from '@/i18n'
+import { ICONS } from '@/components/ui/icons'
 import { useBillingStore } from '@/stores/billing'
 import type { Lapsed, MeResponse } from '@/api/types'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
@@ -55,6 +56,24 @@ describe('LapsedBanner', () => {
 
     expect(w.get('[data-testid=lapsed-title]').text()).toBe('Pro tugadi')
     expect(w.get('[data-testid=lapsed-renew]').text()).toBe("Pro'ni uzaytirish")
+    expect(w.get('[data-testid=lapsed-text]').text()).toMatch(/^Obuna 18-oktabr kuni tugadi\./)
+  })
+
+  it('is a warning card: a clock tile, a tinted renew button (the screen keeps one primary) and an icon-only dismiss button named "Hide"', async () => {
+    const w = await render(me(lapsed()))
+
+    const tile = w.get('.icon-tile')
+    expect(tile.classes()).toContain('bg-warning')
+    expect(tile.get('path').attributes('d')).toBe(ICONS.clock.outline[0]?.d)
+
+    const renew = w.get('[data-testid=lapsed-renew]')
+    expect(renew.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-block']))
+    expect(renew.classes()).not.toContain('btn-primary')
+
+    const dismiss = w.get('[data-testid=lapsed-dismiss]')
+    expect(dismiss.attributes('aria-label')).toBe('Скрыть')
+    expect(dismiss.text()).toBe('')
+    expect(dismiss.get('path').attributes('d')).toBe(ICONS['x-mark'].outline[0]?.d)
   })
 
   it('stays hidden when nothing lapsed or Pro is in force', async () => {
@@ -65,6 +84,7 @@ describe('LapsedBanner', () => {
   it('hides a stale store until /me has answered', async () => {
     const billing = useBillingStore()
     billing.apply(me(lapsed()))
+    billing.invalidate() // the stored answer is old (a fresh one is trusted, see below)
     // The learner has renewed since: /me no longer reports a lapse.
     vi.mocked(api.me.get).mockResolvedValue(me(null, 'pro'))
 
@@ -72,6 +92,17 @@ describe('LapsedBanner', () => {
     expect(w.find('[data-testid=lapsed-banner]').exists()).toBe(false)
     await flushPromises()
     expect(w.find('[data-testid=lapsed-banner]').exists()).toBe(false)
+  })
+
+  it('shows a lapse from a store that is fresh without asking /me again', async () => {
+    const billing = useBillingStore()
+    billing.apply(me(lapsed()))
+
+    const w = mount(LapsedBanner)
+    await flushPromises()
+
+    expect(api.me.get).not.toHaveBeenCalled()
+    expect(w.find('[data-testid=lapsed-banner]').exists()).toBe(true)
   })
 
   it('does not call /me again when the screen has preloaded it', async () => {

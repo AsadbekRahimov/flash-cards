@@ -113,6 +113,23 @@ describe('billing store: catalog and purchase', () => {
     expect(api.today.get).toHaveBeenCalled()
   })
 
+  it('asks /me again after a confirmed payment even though it was loaded a moment ago', async () => {
+    tg.openInvoice.mockResolvedValue('paid')
+    vi.mocked(api.billing.checkout).mockResolvedValue(created('invoice_link'))
+    vi.mocked(api.billing.order).mockResolvedValue(order('paid'))
+    const billing = useBillingStore()
+    billing.apply(me('free')) // fresh for the next 30 s: a plain load() would not ask
+    expect(billing.entitlement?.plan).toBe('free')
+
+    const done = billing.buy('month', 'telegram_stars')
+    await vi.advanceTimersByTimeAsync(0)
+    await done
+
+    expect(billing.purchase.status).toBe('paid')
+    expect(api.me.get).toHaveBeenCalledTimes(1)
+    expect(billing.entitlement?.plan).toBe('pro')
+  })
+
   it('does not take the invoice callback for a confirmation: even `paid` waits for the order', async () => {
     tg.openInvoice.mockResolvedValue('paid')
     vi.mocked(api.billing.checkout).mockResolvedValue(created())
@@ -290,6 +307,17 @@ describe('billing store: catalog and purchase', () => {
     expect(billing.entitlement?.renewal?.auto).toBe(true)
     expect(billing.acting).toBe(false)
     expect(billing.actionError).toBe('')
+  })
+
+  it('counts the answer of cancel / resume as a fresh /me', async () => {
+    vi.mocked(api.billing.cancel).mockResolvedValue(me('pro'))
+    const billing = useBillingStore()
+
+    await billing.cancelRenewal()
+    await billing.load()
+
+    expect(api.me.get).not.toHaveBeenCalled()
+    expect(billing.entitlement?.plan).toBe('pro')
   })
 
   it('shows why cancel was refused and keeps the state', async () => {

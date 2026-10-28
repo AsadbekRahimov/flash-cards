@@ -5,6 +5,7 @@ import App from './App.vue'
 import router from './router'
 import { initLocale } from './i18n'
 import { useTelegram } from './composables/useTelegram'
+import { initTelegramTheme } from './composables/telegramTheme'
 import './style.css'
 
 // Initialize Telegram Web App. If opened outside Telegram these are no-ops
@@ -12,31 +13,12 @@ import './style.css'
 try {
   WebApp.ready()
   WebApp.expand()
-  applyTelegramTheme()
 } catch {
   // running outside Telegram (dev, Playwright) — ignore
 }
 
-/**
- * Copy Telegram theme colors into CSS variables so Tailwind `tg-*`
- * utilities and component classes pick them up automatically.
- */
-function applyTelegramTheme(): void {
-  const params = WebApp.themeParams
-  const root = document.documentElement
-  const map: Record<string, string | undefined> = {
-    '--tg-bg': params.bg_color,
-    '--tg-text': params.text_color,
-    '--tg-hint': params.hint_color,
-    '--tg-link': params.link_color,
-    '--tg-button': params.button_color,
-    '--tg-button-text': params.button_text_color,
-    '--tg-secondary-bg': params.secondary_bg_color,
-  }
-  for (const [name, value] of Object.entries(map)) {
-    if (value) root.style.setProperty(name, value)
-  }
-}
+// Theme parameters -> CSS variables, <html data-theme>, header colour; follows `themeChanged` (docs/14 §4.1).
+initTelegramTheme()
 
 // Interface language follows Telegram's language_code (uz* -> uz, otherwise ru).
 initLocale(useTelegram().languageCode())

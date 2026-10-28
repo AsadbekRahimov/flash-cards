@@ -149,7 +149,9 @@ class StreakService
             }
         }
 
-        if ($mayHaveRaced || ($frozenYesterday && $freezesAvailable > 0)) {
+        // Only the stock of a plan WITH freezes is ever shown or spent (available() is 0 without the feature,
+        // whatever is stored), so for any other learner re-reading `streak_freezes` would report nothing.
+        if (($mayHaveRaced || ($frozenYesterday && $freezesAvailable > 0)) && $this->freezes->enabled($learner, $now)) {
             // A freeze (or a burn) may have been done by a concurrent request after this model was loaded —
             // also when we lost the race and our own attempt did nothing: report what is stored now.
             $this->freezes->refresh($learner);

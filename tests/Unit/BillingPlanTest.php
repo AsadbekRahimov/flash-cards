@@ -17,7 +17,7 @@ it('ranks plans and reads limits and features from config/billing.php', function
         ->and(Plan::Free->newWordsPerDay())->toBe(20)
         ->and(Plan::Pro->newWordsPerDay())->toBeNull()
         ->and(Plan::Free->features())->toBe(['courses.public', 'training.daily', 'training.lesson'])
-        ->and(Plan::Pro->features())->toContain('stats.detailed');
+        ->and(Plan::Pro->features())->toBe(['courses.public', 'training.daily', 'training.lesson', 'streak.freeze', 'exam.simulator', 'exercise.spelling', 'exercise.gap_fill']);
 
     config()->set('billing.plans.free.limits.new_words_per_day', -5);
     expect(Plan::Free->newWordsPerDay())->toBe(0);

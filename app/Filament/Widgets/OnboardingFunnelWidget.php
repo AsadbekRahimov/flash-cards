@@ -21,7 +21,10 @@ class OnboardingFunnelWidget extends StatsOverviewWidget
 
     protected static ?int $sort = 7;
 
-    protected ?string $heading = 'Onboarding funnel — 7 days';
+    protected function getHeading(): string
+    {
+        return __('admin.widgets.onboarding_funnel.heading');
+    }
 
     /** @return array<int, Stat> */
     protected function getStats(): array
@@ -29,13 +32,13 @@ class OnboardingFunnelWidget extends StatsOverviewWidget
         $funnel = app(PlatformStatsService::class)->onboardingFunnel();
 
         return [
-            Stat::make('Started onboarding', (string) $funnel['started'])
+            Stat::make(__('admin.widgets.onboarding_funnel.started'), (string) $funnel['started'])
                 ->icon('heroicon-o-play'),
-            Stat::make('Completed', (string) $funnel['completed'])
-                ->description('Of those who started in the last 7 days')
+            Stat::make(__('admin.widgets.onboarding_funnel.completed'), (string) $funnel['completed'])
+                ->description(__('admin.widgets.onboarding_funnel.completed_help'))
                 ->color($funnel['completed'] > 0 ? 'success' : 'gray')
                 ->icon('heroicon-o-check-circle'),
-            Stat::make('Conversion', $funnel['conversion'] === null ? '—' : $funnel['conversion'].'%')
+            Stat::make(__('admin.widgets.onboarding_funnel.conversion'), $funnel['conversion'] === null ? '—' : $funnel['conversion'].'%')
                 ->icon('heroicon-o-funnel'),
         ];
     }

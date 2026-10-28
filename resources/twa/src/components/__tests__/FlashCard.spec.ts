@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import FlashCard from '../FlashCard.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
 import type { Card } from '@/api/types'
 import { setLocale } from '@/i18n'
 
@@ -45,12 +46,34 @@ describe('FlashCard', () => {
     expect(speak).toHaveBeenCalledWith('Resilient', 'en-US', undefined)
   })
 
+  it('has a round speaker button next to the type chip', () => {
+    const w = mount(FlashCard, { props: { card, showTranslation: false } })
+    const speaker = w.get('[data-testid=speak-btn]')
+
+    expect(speaker.attributes('aria-label')).toBe('Произнести')
+    expect(speaker.classes()).toEqual(expect.arrayContaining(['btn-tinted', 'rounded-full']))
+    expect(speaker.findComponent(AppIcon).props('name')).toBe('speaker-wave')
+    expect(w.get('header').find('[data-testid=card-kind]').exists()).toBe(true)
+  })
+
   it('shows the word, transcription and hides translation by default', () => {
     const w = mount(FlashCard, { props: { card, showTranslation: false } })
     expect(w.get('[data-testid=word]').text()).toBe('Resilient')
     expect(w.get('[data-testid=transcription]').text()).toBe('rɪˈzɪl.i.ənt')
     expect(w.find('[data-testid=translation]').exists()).toBe(false)
     expect(w.find('[data-testid=reveal-btn]').exists()).toBe(true)
+    // Before the reveal the only action is "Show translation": no question, no grades.
+    expect(w.find('[data-testid=grade-prompt]').exists()).toBe(false)
+    expect(w.find('[data-testid=grade-hard]').exists()).toBe(false)
+  })
+
+  it('has one big primary button before the reveal, in the sticky block', () => {
+    const w = mount(FlashCard, { props: { card, showTranslation: false } })
+    const reveal = w.get('[data-testid=reveal-btn]')
+
+    expect(reveal.text()).toBe('Показать перевод')
+    expect(reveal.classes()).toEqual(expect.arrayContaining(['btn', 'btn-primary', 'btn-lg', 'btn-block']))
+    expect(w.get('[data-testid=actions]').find('[data-testid=reveal-btn]').exists()).toBe(true)
   })
 
   it('emits reveal when "Show translation" is clicked', async () => {
@@ -66,6 +89,36 @@ describe('FlashCard', () => {
     expect(w.find('[data-testid=grade-hard]').exists()).toBe(true)
     expect(w.find('[data-testid=grade-medium]').exists()).toBe(true)
     expect(w.find('[data-testid=grade-easy]').exists()).toBe(true)
+    expect(w.find('[data-testid=reveal-btn]').exists()).toBe(false)
+  })
+
+  it('asks how well the word is remembered and labels the grades with what happens next', () => {
+    const w = mount(FlashCard, { props: { card, showTranslation: true } })
+
+    expect(w.get('[data-testid=grade-prompt]').text()).toBe('Насколько хорошо вы помните слово?')
+    const group = w.get('[role=group]')
+    expect(group.attributes('aria-label')).toBe('Оценка')
+    expect(group.findAll('button')).toHaveLength(3)
+
+    expect(w.get('[data-testid=grade-hard]').text()).toBe('Не помнюповторим сегодня')
+    expect(w.get('[data-testid=grade-medium]').text()).toBe('Помнюпо расписанию')
+    expect(w.get('[data-testid=grade-easy]').text()).toBe('Легкопокажем реже')
+    // "Hard" used to mean "failed": the old labels are gone.
+    expect(w.text()).not.toContain('Трудно')
+    expect(w.text()).not.toContain('Средне')
+  })
+
+  it('colours the grades danger / accent / success, without emoji', () => {
+    const w = mount(FlashCard, { props: { card, showTranslation: true } })
+
+    expect(w.get('[data-testid=grade-hard]').classes()).toContain('btn-danger')
+    expect(w.get('[data-testid=grade-medium]').classes()).toContain('btn-tinted')
+    expect(w.get('[data-testid=grade-easy]').classes()).toEqual(
+      expect.arrayContaining(['bg-success-soft', 'text-success-ink']),
+    )
+    for (const id of ['grade-hard', 'grade-medium', 'grade-easy']) {
+      expect(w.get(`[data-testid=${id}]`).text()).not.toMatch(/\p{Extended_Pictographic}/u)
+    }
   })
 
   it('notes that the translation is a Russian fallback only when the server says so', () => {
@@ -105,14 +158,18 @@ describe('FlashCard', () => {
     expect(events?.[2]).toEqual([5])
   })
 
-  it('labels learning-step cards distinctly from new and due cards', () => {
-    expect(mount(FlashCard, { props: { card, showTranslation: false } }).text()).toContain('Новое слово')
-    expect(
-      mount(FlashCard, { props: { card: { ...card, card_kind: 'learning' }, showTranslation: false } }).text(),
-    ).toContain('Закрепление')
-    expect(
-      mount(FlashCard, { props: { card: { ...card, card_kind: 'due' }, showTranslation: false } }).text(),
-    ).toContain('Повторение')
+  it('labels the card by its kind: new (accent), learning-step (warning), due (neutral)', () => {
+    const chip = (card_kind: Card['card_kind']) => {
+      const w = mount(FlashCard, { props: { card: { ...card, card_kind }, showTranslation: false } })
+      return { text: w.get('[data-testid=card-kind]').text(), classes: w.get('[data-testid=card-kind]').classes() }
+    }
+
+    expect(chip('new')).toMatchObject({ text: 'Новое слово' })
+    expect(chip('new').classes).toEqual(expect.arrayContaining(['chip', 'chip-accent']))
+    expect(chip('learning')).toMatchObject({ text: 'Закрепление' })
+    expect(chip('learning').classes).toEqual(expect.arrayContaining(['chip', 'chip-warning']))
+    expect(chip('due')).toMatchObject({ text: 'Повторение' })
+    expect(chip('due').classes).toEqual(expect.arrayContaining(['chip', 'chip-neutral']))
   })
 
   it('does not emit grade when disabled', async () => {
@@ -136,8 +193,12 @@ describe('FlashCard', () => {
     expect(hidden.get('[data-testid=reveal-btn]').text()).toBe("Tarjimani ko'rsatish")
 
     const revealed = mount(FlashCard, { props: { card, showTranslation: true } })
-    expect(revealed.get('[data-testid=grade-hard]').text()).toContain('Qiyin')
-    expect(revealed.get('[data-testid=grade-medium]').text()).toContain("O'rtacha")
+    expect(revealed.get('[data-testid=grade-prompt]').text()).toBe("So'zni qanchalik yaxshi eslaysiz?")
+    expect(revealed.get('[data-testid=grade-hard]').text()).toContain('Eslay olmadim')
+    expect(revealed.get('[data-testid=grade-hard]').text()).toContain('bugun takrorlaymiz')
+    expect(revealed.get('[data-testid=grade-medium]').text()).toContain('Esladim')
+    expect(revealed.get('[data-testid=grade-medium]').text()).toContain("jadval bo'yicha")
     expect(revealed.get('[data-testid=grade-easy]').text()).toContain('Oson')
+    expect(revealed.get('[data-testid=grade-easy]').text()).toContain("kamroq ko'rsatamiz")
   })
 })

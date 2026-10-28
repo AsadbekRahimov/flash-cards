@@ -95,6 +95,21 @@ class Course extends Model
         });
     }
 
+    /**
+     * THE whitelist of foreign courses whose words may serve as distractors (training exercises, exam
+     * questions): published, `public` (not unlisted, not private) and owned by the platform itself.
+     * Draft / review / archived courses and the courses of organizations and learners never leak in.
+     * Not an availability rule: a learner may open an unlisted course, yet its words are not borrowed.
+     *
+     * @param  Builder<Course>  $query
+     */
+    public function scopePublicPlatform(Builder $query): void
+    {
+        $query->where('courses.status', 'published')
+            ->where('courses.visibility', 'public')
+            ->where('courses.owner_type', 'platform');
+    }
+
     /** A learner's own private deck (docs/13 §8.1). */
     public function isLearnerOwned(): bool
     {

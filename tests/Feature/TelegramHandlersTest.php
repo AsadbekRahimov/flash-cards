@@ -399,7 +399,7 @@ it('responds to /help in an active whitelisted group', function (): void {
 
     $this->api->shouldReceive('sendMessage')
         ->once()
-        ->with(-5001, Mockery::pattern('/LexiFlow Bot в группе/u'));
+        ->with(-5001, Mockery::pattern('/^LexiFlow в группе\./u'));
 
     app(TelegramDispatcher::class)->dispatch([
         'message' => [
@@ -550,6 +550,16 @@ it('sends a seven-day stats report to a teacher in DM', function (): void {
         public function getStarTransactions(int $offset = 0, int $limit = 100): array
         {
             return [];
+        }
+
+        public function setMyCommands(array $commands, array $scope, ?string $languageCode = null): bool
+        {
+            return true;
+        }
+
+        public function setChatMenuButton(array $menuButton): bool
+        {
+            return true;
         }
     };
 

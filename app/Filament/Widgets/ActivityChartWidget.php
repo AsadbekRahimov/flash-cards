@@ -10,9 +10,12 @@ use Illuminate\Support\Carbon;
 
 class ActivityChartWidget extends ChartWidget
 {
-    protected ?string $heading = 'Training activity — last 30 days';
-
     protected static ?int $sort = 3;
+
+    public function getHeading(): string
+    {
+        return __('admin.widgets.activity_chart.heading');
+    }
 
     /** @return array{datasets: array<int, array<string, mixed>>, labels: array<int, string>} */
     protected function getData(): array
@@ -33,13 +36,13 @@ class ActivityChartWidget extends ChartWidget
         for ($i = 0; $i < 30; $i++) {
             $date = $since->copy()->addDays($i);
             $key = $date->toDateString();
-            $labels[] = $date->format('M d');
+            $labels[] = $date->translatedFormat('j M');
             $values[] = $counts[$key] ?? 0;
         }
 
         return [
             'datasets' => [[
-                'label' => 'Reviews',
+                'label' => __('admin.widgets.activity_chart.dataset'),
                 'data' => $values,
                 'borderColor' => '#f59e0b',
                 'backgroundColor' => 'rgba(245, 158, 11, 0.15)',

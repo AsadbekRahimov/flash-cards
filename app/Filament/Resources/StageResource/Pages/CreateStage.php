@@ -10,4 +10,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateStage extends CreateRecord
 {
     protected static string $resource = StageResource::class;
+
+    public function getTitle(): string
+    {
+        return __('admin.stages.titles.create');
+    }
 }

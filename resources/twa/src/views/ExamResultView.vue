@@ -2,18 +2,29 @@
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import StickyActions from '@/components/StickyActions.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
+import InlineAlert from '@/components/ui/InlineAlert.vue'
+import ListGroup from '@/components/ui/ListGroup.vue'
+import ListRow from '@/components/ui/ListRow.vue'
+import { formatNumber } from '@/composables/format'
 import { useAuthStore } from '@/stores/auth'
 import { useExamStore } from '@/stores/exam'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
 
+/**
+ * The result of an exam (docs/14 §6.4): a flag, the title, the card with the learner's result and — for a group exam —
+ * the leaderboard as a grouped list; a personal mock shows the percent and the comparison instead. The buttons are in the
+ * sticky block at the bottom.
+ */
 const props = defineProps<{ sessionId: number }>()
 
 const router = useRouter()
 const auth = useAuthStore()
 const exam = useExamStore()
 const { close, notificationHaptic } = useTelegram()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const { finalScore, finalRank, totalParticipants, leaderboard, errorMessage, mockResult } = storeToRefs(exam)
 
@@ -38,86 +49,97 @@ onMounted(async () => {
   }
 })
 
-function medal(rank: number): string {
-  return rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}.`
+/** The podium gets medals (content, not an icon of a control); the rest of the table gets the plain place. */
+function place(rank: number): string {
+  return rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : String(rank)
 }
 </script>
 
 <template>
-  <section class="flex-1 flex items-center justify-center p-4 w-full">
-    <div class="max-w-sm w-full space-y-5 text-center">
-      <div class="text-5xl">🏁</div>
-      <h1 class="text-2xl font-bold" data-testid="result-title">{{ isMock ? t('result.mock_title') : t('result.title') }}</h1>
+  <section
+    class="mx-auto flex w-full max-w-xl flex-1 flex-col"
+    style="min-height: var(--tg-viewport-stable-height, 100dvh)"
+    data-testid="exam-result-view"
+  >
+    <div class="flex flex-1 flex-col items-center gap-4 px-4 pt-8 pb-4 text-center">
+      <span class="flex size-[72px] shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent">
+        <AppIcon name="flag" solid :size="36" />
+      </span>
+      <h1 class="text-[22px] leading-7 font-bold" data-testid="result-title">
+        {{ isMock ? t('result.mock_title') : t('result.title') }}
+      </h1>
 
-      <div v-if="errorMessage" class="card text-left" data-testid="result-error">
-        <p class="text-sm text-tg-hint">{{ errorMessage }}</p>
-      </div>
+      <InlineAlert v-if="errorMessage" tone="danger" :message="errorMessage" class="w-full" data-testid="result-error" />
 
-      <div v-if="isMock && mockResult" class="card" data-testid="mock-result">
-        <div class="text-sm text-tg-hint">{{ t('result.your_score') }}</div>
-        <div class="text-3xl font-bold mt-1" data-testid="mock-percent">{{ mockResult.percent }}%</div>
-        <div class="text-sm text-tg-hint mt-1" data-testid="mock-score">
+      <section v-if="isMock && mockResult" class="card w-full px-5 py-6" data-testid="mock-result">
+        <p class="text-[15px] leading-5 text-tg-subtitle">{{ t('result.your_score') }}</p>
+        <p class="mt-1 text-5xl leading-[52px] font-bold tabular-nums" data-testid="mock-percent">{{ mockResult.percent }}%</p>
+        <p class="mt-1 text-[15px] leading-5 text-tg-subtitle" data-testid="mock-score">
           {{ t('result.mock_score', { correct: mockResult.correct, total: mockResult.total, percent: mockResult.percent }) }}
-        </div>
-        <div v-if="unanswered > 0" class="text-sm text-tg-hint" data-testid="mock-unanswered">
+        </p>
+        <p v-if="unanswered > 0" class="mt-1 text-[15px] leading-5 text-warning-ink" data-testid="mock-unanswered">
           {{ t('result.mock_unanswered', { count: unanswered }) }}
-        </div>
-        <div class="text-sm mt-3" data-testid="mock-percentile">
+        </p>
+        <hr class="my-4 border-hairline" />
+        <p class="text-[15px] leading-5" data-testid="mock-percentile">
           <template v-if="mockResult.percentile !== null && mockResult.attempts > 1">
             {{ t('result.mock_percentile', { percentile: mockResult.percentile }) }}
           </template>
           <template v-else>
             {{ t('result.mock_first') }}
           </template>
-        </div>
-        <div v-if="mockResult.attempts > 1" class="text-xs text-tg-hint mt-1" data-testid="mock-attempts">
+        </p>
+        <p v-if="mockResult.attempts > 1" class="mt-1 text-[13px] leading-[18px] text-tg-hint" data-testid="mock-attempts">
           {{ t('result.mock_attempts', { count: mockResult.attempts }) }}
-        </div>
-      </div>
+        </p>
+      </section>
 
-      <div v-else class="card">
-        <div class="text-sm text-tg-hint">{{ t('result.your_score') }}</div>
-        <div class="text-3xl font-bold mt-1" data-testid="final-score">{{ finalScore }} ★</div>
-        <div class="text-sm text-tg-hint mt-1" data-testid="final-rank">
+      <section v-else class="card w-full px-5 py-6" data-testid="exam-result">
+        <p class="text-[15px] leading-5 text-tg-subtitle">{{ t('result.your_score') }}</p>
+        <p class="mt-1 flex items-center justify-center gap-2 text-5xl leading-[52px] font-bold tabular-nums">
+          <span data-testid="final-score">{{ formatNumber(finalScore, locale) }}</span>
+          <AppIcon name="star" solid :size="32" class="text-warning" />
+        </p>
+        <span class="chip chip-accent mt-3" data-testid="final-rank">
           <template v-if="finalRank !== null">
             {{ t('result.rank', { rank: finalRank, total: totalParticipants }) }}
           </template>
           <template v-else>
             {{ t('result.pending') }}
           </template>
-        </div>
-      </div>
+        </span>
+      </section>
 
-      <div v-if="!isMock && leaderboard.length > 0" class="card text-left" data-testid="leaderboard">
-        <div class="text-sm text-tg-hint mb-2">{{ t('result.top') }}</div>
-        <ul class="space-y-1">
-          <li
-            v-for="row in leaderboard"
-            :key="row.rank"
-            class="flex justify-between items-center"
-            :data-testid="`leader-${row.rank}`"
-          >
-            <span>
-              <span class="mr-2">{{ medal(row.rank) }}</span>
-              <span class="font-medium">{{ row.name }}</span>
+      <ListGroup v-if="!isMock && leaderboard.length > 0" class="w-full text-left" :header="t('result.top')" data-testid="leaderboard">
+        <ListRow v-for="row in leaderboard" :key="row.rank" :title="row.name" :data-testid="`leader-${row.rank}`">
+          <template #leading>
+            <span
+              class="w-[30px] shrink-0 text-center"
+              :class="row.rank <= 3 ? 'text-2xl leading-7' : 'text-base leading-[22px] font-medium text-tg-hint tabular-nums'"
+            >
+              {{ place(row.rank) }}
             </span>
-            <span class="font-semibold">{{ row.score }}</span>
-          </li>
-        </ul>
-      </div>
+          </template>
+          <template #trailing>
+            <span class="shrink-0 text-base font-semibold tabular-nums">{{ formatNumber(row.score, locale) }}</span>
+          </template>
+        </ListRow>
+      </ListGroup>
+    </div>
 
+    <StickyActions>
       <button
         v-if="isMock"
-        class="btn btn-secondary w-full"
+        type="button"
+        class="btn btn-tinted btn-lg btn-block"
         data-testid="mock-courses-btn"
         @click="router.push({ name: 'courses' })"
       >
         {{ t('result.mock_again') }}
       </button>
-
-      <button class="btn btn-primary w-full" data-testid="close-btn" @click="close()">
+      <button type="button" class="btn btn-primary btn-lg btn-block" data-testid="close-btn" @click="close()">
         {{ t('common.close') }}
       </button>
-    </div>
+    </StickyActions>
   </section>
 </template>

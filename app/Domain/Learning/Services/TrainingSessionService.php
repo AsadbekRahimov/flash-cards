@@ -342,6 +342,10 @@ final class TrainingSessionService
      * learner left the group or the assignment closed, the session is closed (`expired`) instead of
      * living to its TTL. Other sessions are not re-checked.
      *
+     * This runs on EVERY /start, /next and /review of a lesson session, and nearly always the answer is
+     * "nothing to judge" - so that costs one query (lesson -> stage -> course joined, nothing loaded);
+     * the lesson and its course are read only for the rare private course of a center.
+     *
      * @return bool false when the session was closed because the lesson is no longer available
      */
     public function ensureStillAvailable(TrainingSession $session, Learner $learner): bool
@@ -350,10 +354,12 @@ final class TrainingSessionService
             return true;
         }
 
-        $lesson = Lesson::query()->with('stage.course')->find($session->lesson_id);
-        $course = $lesson?->stage?->course;
+        if (! $this->isInCentersPrivateCourse((int) $session->lesson_id)) {
+            return true;
+        }
 
-        if ($lesson === null || $course === null || $course->visibility !== 'private' || $course->owner_type === 'learner') {
+        $lesson = Lesson::query()->with('stage.course')->find($session->lesson_id);
+        if ($lesson === null) {
             return true;
         }
 
@@ -366,6 +372,21 @@ final class TrainingSessionService
         }
 
         return true;
+    }
+
+    /**
+     * The lesson is in a private course that is NOT a learner's own deck - the only kind whose running
+     * sessions ensureStillAvailable() judges again. A missing lesson / stage / course is "no".
+     */
+    private function isInCentersPrivateCourse(int $lessonId): bool
+    {
+        return DB::table('lessons')
+            ->join('stages', 'stages.id', '=', 'lessons.stage_id')
+            ->join('courses', 'courses.id', '=', 'stages.course_id')
+            ->where('lessons.id', $lessonId)
+            ->where('courses.visibility', 'private')
+            ->where('courses.owner_type', '!=', 'learner')
+            ->exists();
     }
 
     /** An active assignment of this lesson in a group of an active center where the learner is an active member. */

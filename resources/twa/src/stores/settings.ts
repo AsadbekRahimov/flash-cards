@@ -13,8 +13,6 @@ interface SettingsState {
   status: SettingsStatus
   /** a PATCH is in flight: the screen disables its controls, changes are applied one at a time */
   saving: boolean
-  /** the last change was saved (shown until the next change or reload) */
-  saved: boolean
   errorMessage: string
 }
 
@@ -37,7 +35,6 @@ export const useSettingsStore = defineStore('settings', {
     data: null,
     status: 'idle',
     saving: false,
-    saved: false,
     errorMessage: '',
   }),
 
@@ -62,7 +59,6 @@ export const useSettingsStore = defineStore('settings', {
     async load(): Promise<void> {
       this.status = this.data === null ? 'loading' : this.status
       this.errorMessage = ''
-      this.saved = false
       try {
         this.apply((await api.me.get()).settings)
         this.status = 'ready'
@@ -83,11 +79,9 @@ export const useSettingsStore = defineStore('settings', {
       if (this.saving) return false
 
       this.saving = true
-      this.saved = false
       this.errorMessage = ''
       try {
         this.apply((await api.me.updateSettings(patch)).settings)
-        this.saved = true
         return true
       } catch (err) {
         if (err instanceof ApiClientError && err.code === 'timezone_change_too_soon') {
@@ -114,11 +108,9 @@ export const useSettingsStore = defineStore('settings', {
       if (this.saving) return false
 
       this.saving = true
-      this.saved = false
       this.errorMessage = ''
       try {
         this.apply((await api.me.revertTimezone()).settings)
-        this.saved = true
         return true
       } catch (err) {
         if (err instanceof ApiClientError && err.code === 'timezone_revert_unavailable') await this.reloadQuietly()

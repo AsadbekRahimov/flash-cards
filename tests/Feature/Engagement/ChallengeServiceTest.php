@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Engagement\Exceptions\ChallengeException;
 use App\Domain\Engagement\Services\ChallengeService;
+use App\Domain\Engagement\Services\FriendshipService;
 use App\Jobs\SendFriendDmJob;
 use App\Models\Challenge;
 use App\Models\Friendship;
@@ -12,6 +13,7 @@ use App\Models\LearnerDailyStats;
 use App\Models\ProductEvent;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 
 /*
@@ -321,4 +323,148 @@ it('does not recover expired or declined challenges', function (): void {
     Challenge::query()->whereKey($c->id)->update(['status' => 'expired', 'open_pair' => null, 'finished_at' => chNow()]);
 
     expect(chSvc()->recoverUnnotified(chNow('2026-11-05 00:00:00')))->toBe(0);
+});
+
+/** An active challenge `$challenger` -> `$opponent` over the local dates `$from`..`$to`, ends_at long after (nothing is due yet). */
+function chActive(Learner $challenger, Learner $opponent, string $metric, string $from, string $to): Challenge
+{
+    [$low, $high] = FriendshipService::pair($challenger->id, $opponent->id);
+
+    return Challenge::factory()->active($from)->create([
+        'challenger_id' => $challenger->id,
+        'opponent_id' => $opponent->id,
+        'metric' => $metric,
+        'days' => (int) CarbonImmutable::parse($from)->diffInDays(CarbonImmutable::parse($to)) + 1,
+        'ends_on' => $to,
+        'ends_at' => '2026-12-31 00:00:00',
+        'open_pair' => "{$low}:{$high}",
+    ]);
+}
+
+it('sums every active challenge over its own period and metric, and gets the same numbers as the closing sums', function (): void {
+    $me = Learner::factory()->create(['timezone' => 'Asia/Tashkent']);
+    [$a, $b, $c, $d] = [Learner::factory()->create(), Learner::factory()->create(), Learner::factory()->create(), Learner::factory()->create()];
+    $nobody = Learner::factory()->create(); // a side without a single stats row
+    foreach ([$a, $b, $c, $d, $nobody] as $friend) {
+        Friendship::factory()->between($me, $friend)->create();
+    }
+
+    // Every learner has a row for 18..31 Oct with numbers that differ per learner, day and column.
+    /** @var array<int, array<string, array{reviews_count: int, new_words_count: int}>> $stats */
+    $stats = [];
+    foreach ([$me, $a, $b, $c, $d] as $i => $learner) {
+        foreach (range(18, 31) as $day) {
+            $date = sprintf('2026-10-%02d', $day);
+            $stats[$learner->id][$date] = ['reviews_count' => ($day * 3 + $i * 5) % 17 + 1, 'new_words_count' => ($day + $i * 2) % 5 + 1];
+            LearnerDailyStats::factory()->create(['learner_id' => $learner->id, 'date' => $date] + $stats[$learner->id][$date]);
+        }
+    }
+    $expected = fn (Learner $l, string $from, string $to, string $column): int => array_sum(array_map(
+        static fn (array $day): int => $day[$column],
+        array_filter($stats[$l->id] ?? [], static fn (string $date): bool => $date >= $from && $date <= $to, ARRAY_FILTER_USE_KEY),
+    ));
+
+    // Different periods (3, 7 and 1 days; the viewer on either side), both metrics, borders inside the stats rows.
+    $c1 = chActive($me, $a, 'reviews', '2026-10-23', '2026-10-25');
+    $c2 = chActive($me, $b, 'new_words', '2026-10-24', '2026-10-30');
+    $c3 = chActive($c, $me, 'reviews', '2026-10-20', '2026-10-26');
+    $c4 = chActive($me, $nobody, 'new_words', '2026-10-27', '2026-10-27');
+    $c5 = chActive($d, $me, 'new_words', '2026-10-18', '2026-10-31');
+    // Not scored from the stats: a pending one (no period yet) and a finished one (its stored result).
+    $pending = Challenge::factory()->create(['challenger_id' => $me->id, 'opponent_id' => Learner::factory()->create()->id, 'open_pair' => 'p:p']);
+    $finished = Challenge::factory()->create([
+        'challenger_id' => $me->id, 'opponent_id' => $a->id, 'status' => 'finished', 'scores' => ['challenger' => 7, 'opponent' => 9],
+        'winner_learner_id' => $a->id, 'starts_on' => '2026-10-01', 'ends_on' => '2026-10-07',
+    ]);
+
+    $overview = chSvc()->overview($me);
+
+    $byId = [];
+    foreach ($overview->open as $entry) {
+        $byId[$entry->id] = $entry;
+    }
+    expect($overview->open)->toHaveCount(6);
+    foreach ([[$c1, 'reviews_count'], [$c2, 'new_words_count'], [$c3, 'reviews_count'], [$c4, 'new_words_count'], [$c5, 'new_words_count']] as [$challenge, $column]) {
+        $from = $challenge->starts_on?->toDateString() ?? '';
+        $to = $challenge->ends_on?->toDateString() ?? '';
+        $challengerScore = $expected($challenge->challenger()->firstOrFail(), $from, $to, $column);
+        $opponentScore = $expected($challenge->opponent()->firstOrFail(), $from, $to, $column);
+        $iAmChallenger = $challenge->challenger_id === $me->id;
+
+        expect($byId[$challenge->id]->myScore)->toBe($iAmChallenger ? $challengerScore : $opponentScore)
+            ->and($byId[$challenge->id]->theirScore)->toBe($iAmChallenger ? $opponentScore : $challengerScore);
+    }
+    // Spot values worked out by hand, so the oracle above is not the only witness: me 23..25 Oct reviews.
+    expect($byId[$c1->id]->myScore)->toBe($expected($me, '2026-10-23', '2026-10-25', 'reviews_count'))
+        ->and($byId[$c4->id]->theirScore)->toBe(0)
+        ->and($byId[$c4->id]->myScore)->toBe($stats[$me->id]['2026-10-27']['new_words_count'])
+        ->and($byId[$pending->id]->myScore)->toBeNull()
+        ->and($byId[$pending->id]->theirScore)->toBeNull();
+    $done = $overview->finished[0];
+    expect($done->id)->toBe($finished->id)->and($done->myScore)->toBe(7)->and($done->theirScore)->toBe(9)->and($done->result)->toBe('lost');
+
+    // Closing sums every challenge on its own (ChallengeService::score), so after the periods end the final scores must
+    // be the numbers the screen showed while they ran.
+    foreach ([$c1, $c2, $c3, $c4, $c5] as $challenge) {
+        $closed = chSvc()->close($challenge->fresh() ?? $challenge, CarbonImmutable::parse('2027-01-02 00:00:00', 'UTC'));
+        $entry = $byId[$challenge->id];
+        $iAmChallenger = $challenge->challenger_id === $me->id;
+
+        expect($closed->status)->toBe('finished')
+            ->and(ksorted((array) $closed->scores))->toBe(['challenger' => $iAmChallenger ? $entry->myScore : $entry->theirScore, 'opponent' => $iAmChallenger ? $entry->theirScore : $entry->myScore]);
+    }
+});
+
+it('reads the stats, the names and the friendships once for the open AND the finished lists: the query count does not grow with them', function (): void {
+    $count = function (int $challenges): array {
+        $me = Learner::factory()->create(['timezone' => 'Asia/Tashkent']);
+        foreach (range(1, $challenges) as $i) {
+            $friend = Learner::factory()->create();
+            Friendship::factory()->between($me, $friend)->create();
+            chActive($i % 2 === 0 ? $friend : $me, $i % 2 === 0 ? $me : $friend, $i % 3 === 0 ? 'new_words' : 'reviews', '2026-10-2'.($i % 5), '2026-10-29');
+            chStats($friend, '2026-10-26', reviews: $i, newWords: 1);
+            // The same friend in the second list (the finished ones are scored from their stored result).
+            Challenge::factory()->create(['challenger_id' => $me->id, 'opponent_id' => $friend->id, 'status' => 'finished', 'scores' => ['challenger' => 3, 'opponent' => 1], 'winner_learner_id' => $me->id]);
+        }
+        chStats($me, '2026-10-26', reviews: 5, newWords: 2);
+
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+        $overview = chSvc()->overview($me);
+        $log = array_column(DB::getQueryLog(), 'query');
+        DB::disableQueryLog();
+
+        expect($overview->open)->toHaveCount($challenges)
+            ->and($overview->finished)->toHaveCount($challenges);
+
+        $reads = static fn (string $table): int => count(array_filter($log, static fn (string $q): bool => preg_match('/\bfrom\s+[`"]?'.$table.'[`"]?(\s|$)/i', $q) === 1));
+
+        return [count($log), $reads('learner_daily_stats'), $reads('learners'), $reads('friendships')];
+    };
+
+    [$one, $oneStats, $oneNames, $oneFriendships] = $count(1);
+    [$many, $manyStats, $manyNames, $manyFriendships] = $count(20);
+
+    // Two selects of the lists (open, finished), then ONE read of the names, of the friendships and of the stats for both.
+    expect($one)->toBe(5)
+        ->and($many)->toBe(5)
+        ->and([$oneStats, $oneNames, $oneFriendships])->toBe([1, 1, 1])
+        ->and([$manyStats, $manyNames, $manyFriendships])->toBe([1, 1, 1]);
+});
+
+it('does not read learner_daily_stats at all when no challenge is active', function (): void {
+    [$a, $b] = chFriends();
+    $c = chSvc()->propose($a, $b, 'reviews', now: chNow()); // pending
+    chSvc()->decline($b, $c->id);
+    chSvc()->propose($b, $a, 'reviews', now: chNow()); // pending again
+
+    DB::flushQueryLog();
+    DB::enableQueryLog();
+    $overview = chSvc()->overview($a);
+    $log = array_column(DB::getQueryLog(), 'query');
+    DB::disableQueryLog();
+
+    expect($overview->open)->toHaveCount(1)
+        ->and($overview->open[0]->myScore)->toBeNull()
+        ->and(array_filter($log, static fn (string $q): bool => str_contains($q, 'learner_daily_stats')))->toBe([]);
 });

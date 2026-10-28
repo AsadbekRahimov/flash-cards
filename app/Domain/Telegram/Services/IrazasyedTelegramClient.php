@@ -258,6 +258,38 @@ class IrazasyedTelegramClient implements TelegramClient
     }
 
     /**
+     * @param  list<array{command: string, description: string}>  $commands
+     * @param  array<string, mixed>  $scope
+     */
+    public function setMyCommands(array $commands, array $scope, ?string $languageCode = null): bool
+    {
+        // `post()` sends a form and json-encodes `reply_markup` only: the Bot API objects are encoded here.
+        return (bool) $this->call(function () use ($commands, $scope, $languageCode): mixed {
+            $params = [
+                'commands' => json_encode($commands, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
+                'scope' => json_encode($scope, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
+            ];
+
+            if ($languageCode !== null) {
+                $params['language_code'] = $languageCode;
+            }
+
+            return $this->api->post('setMyCommands', $params)->getResult();
+        });
+    }
+
+    /**
+     * @param  array<string, mixed>  $menuButton
+     */
+    public function setChatMenuButton(array $menuButton): bool
+    {
+        // No `chat_id`: the default button of every private chat.
+        return (bool) $this->call(fn (): mixed => $this->api->post('setChatMenuButton', [
+            'menu_button' => json_encode($menuButton, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
+        ])->getResult());
+    }
+
+    /**
      * Single exit point for SDK calls: nothing from the SDK/Guzzle leaves this
      * class, because their messages contain the bot token (see
      * {@see TelegramApiException}).

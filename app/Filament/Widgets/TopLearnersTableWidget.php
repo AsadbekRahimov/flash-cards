@@ -13,11 +13,14 @@ use Illuminate\Database\Eloquent\Builder;
 
 class TopLearnersTableWidget extends TableWidget
 {
-    protected static ?string $heading = 'Top learners — last 30 days';
-
     protected static ?int $sort = 4;
 
     protected int|string|array $columnSpan = 'full';
+
+    protected function getTableHeading(): string
+    {
+        return __('admin.widgets.top_learners.heading');
+    }
 
     public function table(Table $table): Table
     {
@@ -45,12 +48,13 @@ class TopLearnersTableWidget extends TableWidget
             ->columns([
                 Tables\Columns\TextColumn::make('first_name')
                     ->formatStateUsing(fn (Learner $r): string => trim(($r->first_name ?? '—').' '.($r->last_name ?? '')))
-                    ->label('Learner'),
+                    ->label(__('admin.widgets.top_learners.learner')),
                 Tables\Columns\TextColumn::make('groups_list')
-                    ->label('Groups')
+                    ->label(__('admin.widgets.top_learners.groups'))
                     ->state(fn (Learner $r): string => $r->groups->pluck('title')->implode(', ')),
-                Tables\Columns\TextColumn::make('reviews_count')->label('Reviews')->badge()->color('success'),
+                Tables\Columns\TextColumn::make('reviews_count')->label(__('admin.widgets.top_learners.reviews'))->badge()->color('success'),
             ])
+            ->emptyStateHeading(__('admin.widgets.top_learners.empty'))
             ->paginated(false);
     }
 }

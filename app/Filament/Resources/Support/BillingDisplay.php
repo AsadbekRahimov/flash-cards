@@ -26,18 +26,12 @@ final class BillingDisplay
             return $subscriber->name.' #'.$subscriber->id;
         }
 
-        return ucfirst($type).' #'.$id.' (deleted)';
+        return AdminLabels::value('common.subscriber_type', $type).' #'.$id.' '.__('admin.common.deleted');
     }
 
     /** A masked payload as a preformatted block (HTML-escaped; secrets never reach the page). */
     public static function payload(mixed $payload): HtmlString
     {
         return new HtmlString('<pre style="white-space: pre-wrap; word-break: break-word; font-size: 0.8rem;">'.e(PayloadMasker::json($payload)).'</pre>');
-    }
-
-    /** @return array<string, string> */
-    public static function options(string ...$values): array
-    {
-        return array_combine($values, array_map(static fn (string $v): string => ucfirst(str_replace('_', ' ', $v)), $values));
     }
 }

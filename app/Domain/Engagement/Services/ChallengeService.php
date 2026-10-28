@@ -349,7 +349,11 @@ final class ChallengeService
         return $this->entries($viewer, [$challenge])[0];
     }
 
-    /** The viewer's open challenges (newest first) and the latest finished ones. */
+    /**
+     * The viewer's open challenges (newest first) and the latest finished ones. Both lists go through ONE
+     * {@see entries()} pass (the names, the friendships and the live scores are read once for the two of them);
+     * the entries come back in the order of the challenges given, so the lists are cut off by the count of `$open`.
+     */
     public function overview(Learner $viewer): ChallengesOverview
     {
         /** @var list<Challenge> $open */
@@ -357,9 +361,11 @@ final class ChallengeService
         /** @var list<Challenge> $finished */
         $finished = $this->involving($viewer->id)->where('status', ChallengeStatus::Finished->value)->orderByDesc('id')->limit(self::FINISHED_LIMIT)->get()->values()->all();
 
+        $entries = $this->entries($viewer, [...$open, ...$finished]);
+
         return new ChallengesOverview(
-            open: $this->entries($viewer, $open),
-            finished: $this->entries($viewer, $finished),
+            open: array_slice($entries, 0, count($open)),
+            finished: array_slice($entries, count($open)),
             days: max(1, (int) config('friends.challenges.days')),
         );
     }
@@ -387,10 +393,12 @@ final class ChallengeService
             $friendshipIds[$row->otherId($viewer->id)] = $row->id;
         }
 
+        $live = $this->liveScores($challenges);
+
         $entries = [];
         foreach ($challenges as $c) {
             $isChallenger = $c->challenger_id === $viewer->id;
-            $scores = $this->scoresOf($c);
+            $scores = $this->scoresOf($c, $live);
             $mine = $scores === null ? null : ($isChallenger ? $scores[0] : $scores[1]);
             $theirs = $scores === null ? null : ($isChallenger ? $scores[1] : $scores[0]);
 
@@ -420,33 +428,95 @@ final class ChallengeService
     }
 
     /**
-     * (challenger, opponent) scores: final for a finished challenge, live for an active one, null otherwise.
+     * (challenger, opponent) scores: final for a finished challenge, live (`$live`, {@see liveScores()}) for an
+     * active one, null otherwise.
      *
+     * @param  array<int, array{0: int, 1: int}>  $live
      * @return array{0: int, 1: int}|null
      */
-    private function scoresOf(Challenge $c): ?array
+    private function scoresOf(Challenge $c, array $live): ?array
     {
         $final = $c->scores;
         if ($c->status === ChallengeStatus::Finished->value && is_array($final)) {
             return [(int) ($final['challenger'] ?? 0), (int) ($final['opponent'] ?? 0)];
         }
 
-        $startsOn = $c->starts_on;
-        $endsOn = $c->ends_on;
-        if ($c->status === ChallengeStatus::Active->value && $startsOn !== null && $endsOn !== null) {
-            $from = $startsOn->toDateString();
-            $to = $endsOn->toDateString();
+        return $live[$c->id] ?? null;
+    }
 
-            return [
-                $this->score($c->challenger_id, $c->metric(), $from, $to),
-                $this->score($c->opponent_id, $c->metric(), $from, $to),
+    /**
+     * Live scores of the ACTIVE challenges among `$challenges`, from ONE query however many there are (not two sums
+     * per challenge): the daily stats of every side over the widest period, `min(starts_on)..max(ends_on)`, summed in
+     * PHP over each challenge's own period — the same inclusive local-date range and metric column as {@see score()}.
+     *
+     * @param  list<Challenge>  $challenges
+     * @return array<int, array{0: int, 1: int}> challenge id => (challenger, opponent)
+     */
+    private function liveScores(array $challenges): array
+    {
+        /** @var list<array{0: Challenge, 1: string, 2: string}> $active a challenge, the first and the last local date of its period */
+        $active = [];
+        foreach ($challenges as $c) {
+            if ($c->status === ChallengeStatus::Active->value && $c->starts_on !== null && $c->ends_on !== null) {
+                $active[] = [$c, $c->starts_on->toDateString(), $c->ends_on->toDateString()];
+            }
+        }
+        if ($active === []) {
+            return [];
+        }
+
+        $sides = [];
+        foreach ($active as [$c]) {
+            $sides[$c->challenger_id] = true;
+            $sides[$c->opponent_id] = true;
+        }
+        $columns = array_map(static fn (ChallengeMetric $metric): string => $metric->column(), ChallengeMetric::cases());
+
+        $rows = LearnerDailyStats::query()
+            ->whereIn('learner_id', array_keys($sides))
+            ->where('date', '>=', self::storedDate(min(array_column($active, 1))))
+            ->where('date', '<=', self::storedDate(max(array_column($active, 2))))
+            ->toBase()
+            ->get(['learner_id', 'date', ...$columns]);
+
+        /** @var array<int, array<string, array<string, int>>> $days learner id => local date (`Y-m-d`) => column => value */
+        $days = [];
+        foreach ($rows as $row) {
+            $day = [];
+            foreach ($columns as $column) {
+                $day[$column] = (int) $row->{$column};
+            }
+            $days[(int) $row->learner_id][substr((string) $row->date, 0, 10)] = $day;
+        }
+
+        $scores = [];
+        foreach ($active as [$c, $from, $to]) {
+            $column = $c->metric()->column();
+            $scores[$c->id] = [
+                self::sumOver($days[$c->challenger_id] ?? [], $column, $from, $to),
+                self::sumOver($days[$c->opponent_id] ?? [], $column, $from, $to),
             ];
         }
 
-        return null;
+        return $scores;
     }
 
-    /** `SUM(<metric column>)` of the learner's daily stats over the local dates `$from`..`$to` (inclusive). */
+    /**
+     * @param  array<string, array<string, int>>  $days  local date (`Y-m-d`) => column => value
+     */
+    private static function sumOver(array $days, string $column, string $from, string $to): int
+    {
+        $sum = 0;
+        foreach ($days as $date => $values) {
+            if ($date >= $from && $date <= $to) {
+                $sum += $values[$column] ?? 0;
+            }
+        }
+
+        return $sum;
+    }
+
+    /** `SUM(<metric column>)` of the learner's daily stats over the local dates `$from`..`$to` (inclusive), for {@see close()}. */
     private function score(int $learnerId, ChallengeMetric $metric, string $from, string $to): int
     {
         return (int) LearnerDailyStats::query()

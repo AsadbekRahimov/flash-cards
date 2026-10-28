@@ -10,4 +10,9 @@ use Filament\Resources\Pages\ViewRecord;
 class ViewProviderTransaction extends ViewRecord
 {
     protected static string $resource = ProviderTransactionResource::class;
+
+    public function getTitle(): string
+    {
+        return __('admin.provider_transactions.titles.view');
+    }
 }

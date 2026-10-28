@@ -40,11 +40,22 @@ interface BillingState {
   /** Cancel / resume in flight. */
   acting: boolean
   actionError: string
+  /**
+   * When `entitlement` / `paywall` were last taken from the server (`Date.now()`); null = never, or the last
+   * request failed / the plan may have changed since (`invalidate()`), so the next `load()` has to ask.
+   */
+  loadedAt: number | null
 }
 
 /** The payment is confirmed by a webhook, so the TWA asks again: not more often than every 3 s, for 2 minutes. */
 export const POLL_INTERVAL_MS = 3000
 export const POLL_ATTEMPTS = 40
+
+/**
+ * `/me` younger than this is taken from the store: the Today banner, the Profile tab, the Subscription screen and
+ * the paywall all ask for it, and the plan changes rarely (and every change goes through `apply()` / `load({ force })`).
+ */
+export const ME_FRESH_MS = 30_000
 
 const idlePurchase = (): PurchaseState => ({ status: 'idle', orderToken: null, error: '', notice: '' })
 
@@ -55,6 +66,11 @@ const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve,
  * (loaded when a paywall is about to be shown, refreshed from the answer of a promo redemption or of
  * cancel / resume), the catalog, and `buy()` — checkout → Telegram invoice / payment page → polling of
  * the order until the webhook has turned it `paid`.
+ *
+ * `/me` is kept for `ME_FRESH_MS`: `load()` does not ask again while the data is that young, so opening the
+ * Profile tab, the Subscription screen and a paywall one after another costs one request. `load({ force: true })`
+ * always asks (the Subscription screen on open, a confirmed payment); `invalidate()` makes the next `load()` ask
+ * (the learner left a center, so the plan may have changed).
  */
 export const useBillingStore = defineStore('billing', {
   state: (): BillingState => ({
@@ -66,6 +82,7 @@ export const useBillingStore = defineStore('billing', {
     purchase: idlePurchase(),
     acting: false,
     actionError: '',
+    loadedAt: null,
   }),
 
   getters: {
@@ -74,23 +91,37 @@ export const useBillingStore = defineStore('billing', {
   },
 
   actions: {
-    /** Best effort: the paywall still works without it (no support contact, no numeric limit). */
-    async load(): Promise<void> {
+    /**
+     * Best effort: the paywall still works without it (no support contact, no numeric limit).
+     * Without `force` nothing is requested while the stored data is younger than `ME_FRESH_MS` and the last request
+     * did not fail; a request already in flight is not repeated either way.
+     */
+    async load({ force = false }: { force?: boolean } = {}): Promise<void> {
       if (this.loading) return
+      if (!force && this.loadedAt !== null && Date.now() - this.loadedAt < ME_FRESH_MS) return
+
       this.loading = true
       try {
         this.apply(await api.me.get())
       } catch (err) {
-        // keep whatever we had, but leave a trace for debugging
+        // keep whatever we had (a screen can still show it), but never call it fresh: the next load() asks again
+        this.loadedAt = null
         console.warn('billing: failed to load /me', err)
       } finally {
         this.loading = false
       }
     },
 
+    /** Takes a `/me` (or an answer that carries the same `entitlement` / `paywall`) and marks the data fresh. */
     apply(me: Pick<MeResponse, 'entitlement' | 'paywall'>): void {
       this.entitlement = me.entitlement
       this.paywall = me.paywall
+      this.loadedAt = Date.now()
+    },
+
+    /** The plan may have changed behind our back (e.g. the learner left a center): the next `load()` asks the server. */
+    invalidate(): void {
+      this.loadedAt = null
     },
 
     /** Best effort, like `load()`: without a catalog the sheet keeps showing "coming soon". */
@@ -220,7 +251,7 @@ export const useBillingStore = defineStore('billing', {
     async onPaid(): Promise<void> {
       this.purchase.status = 'paid'
       this.loading = false // a /me request still in flight predates the payment; ask again
-      await Promise.all([this.load(), this.loadCatalog()])
+      await Promise.all([this.load({ force: true }), this.loadCatalog()])
       // The numbers on the Today screen (quota, plan badge) change with the plan.
       void useTodayStore().load()
     },

@@ -2,11 +2,18 @@
 import { computed, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import PaywallSheet from '@/components/PaywallSheet.vue'
-import PromoRedeem from '@/components/PromoRedeem.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
+import InlineAlert from '@/components/ui/InlineAlert.vue'
 import { useTrainingStore } from '@/stores/training'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
 
+/**
+ * "Session finished" (docs/14 §6.3): an immersive screen (no tab bar) that ends a personal or group session.
+ * The numbers of a personal session (cards, share of right answers, new words) and the goal and streak of the day
+ * come with the server summary (`training.summary`); a group session has none, so it says only how many cards were
+ * reviewed. The buttons at the bottom lead out: "Home" (the one primary button) and "Close".
+ */
 const props = defineProps<{
   reviewed: number
   nextInDays: number
@@ -22,8 +29,9 @@ const router = useRouter()
 const training = useTrainingStore()
 
 // Goal and streak of the day come with the server summary of a personal session (absent for group sessions).
-const goal = computed(() => training.summary?.goal ?? null)
-const streak = computed(() => training.summary?.streak ?? null)
+const summary = computed(() => training.summary)
+const goal = computed(() => summary.value?.goal ?? null)
+const streak = computed(() => summary.value?.streak ?? null)
 
 const nextLabel = computed(() =>
   props.nextInDays <= 0 ? t('finished.next_today') : tn('finished.next_in_days', props.nextInDays),
@@ -34,8 +42,25 @@ const reasonLabel = computed(() => {
   return reason ? t(`finished.reason.${reason}`) : null
 })
 
+/** An empty session that a reason already explains ("nothing is due") has no numbers worth showing. */
+const hasNumbers = computed(() => (summary.value?.reviewed ?? props.reviewed) > 0 || reasonLabel.value === null)
+
+/** Share of right answers, whole percent; «—» while nothing was answered. */
+const correctPercent = computed(() => {
+  const current = summary.value
+  return current !== null && current.reviewed > 0 ? `${Math.round((current.correct / current.reviewed) * 100)}%` : '—'
+})
+
+const goalPercent = computed(() => {
+  const current = goal.value
+  if (current === null) return 0
+  if (current.met) return 100
+  return current.target > 0 ? Math.min(100, Math.round((current.done / current.target) * 100)) : 0
+})
+
 // The end of today's new words is the moment to say what Free gives and what Pro will (docs/12 §5.4).
-const paywallOpen = ref(props.reason === 'new_quota_exhausted')
+const quotaExhausted = computed(() => props.reason === 'new_quota_exhausted')
+const paywallOpen = ref(quotaExhausted.value)
 
 /** "Repeat words" in the paywall: closes it and starts a daily review; a failure is shown on this screen. */
 async function reviewFromPaywall(): Promise<void> {
@@ -48,45 +73,100 @@ notificationHaptic('success')
 </script>
 
 <template>
-  <section class="flex-1 flex items-center justify-center p-6 text-center">
-    <div class="max-w-sm space-y-5">
-      <div class="text-6xl">🎉</div>
-      <h1 class="text-2xl font-bold">{{ t('finished.title') }}</h1>
-      <p v-if="reasonLabel" class="text-tg-hint" data-testid="reason">{{ reasonLabel }}</p>
-      <p v-if="reviewed > 0 || !reasonLabel" class="text-tg-hint" data-testid="reviewed">{{ tn('finished.reviewed', reviewed) }}</p>
-      <div class="card">
-        <div class="text-sm text-tg-hint">{{ t('finished.next_label') }}</div>
-        <div class="text-lg font-semibold mt-1" data-testid="next-label">{{ nextLabel }}</div>
+  <div class="page" data-testid="finished-view">
+    <div class="flex flex-1 flex-col justify-center gap-5 py-4">
+      <header class="text-center">
+        <span
+          class="mx-auto flex size-20 items-center justify-center rounded-full bg-success-soft text-success"
+          data-testid="finished-icon"
+        >
+          <AppIcon name="check-circle" solid :size="48" />
+        </span>
+        <h1 class="mt-4 text-[28px] leading-[34px] font-bold tracking-tight">{{ t('finished.title') }}</h1>
+        <p v-if="reasonLabel" class="mt-1 text-[15px] leading-5 text-tg-subtitle" data-testid="reason">{{ reasonLabel }}</p>
+      </header>
+
+      <div v-if="summary && hasNumbers" class="grid grid-cols-3 gap-2" data-testid="stats">
+        <div class="card px-2 py-3 text-center">
+          <p class="text-2xl leading-8 font-bold" data-testid="stat-reviewed">{{ summary.reviewed }}</p>
+          <p class="mt-0.5 text-[13px] leading-[18px] text-tg-hint">{{ t('finished.stats.cards') }}</p>
+        </div>
+        <div class="card px-2 py-3 text-center">
+          <p class="text-2xl leading-8 font-bold" data-testid="stat-correct">{{ correctPercent }}</p>
+          <p class="mt-0.5 text-[13px] leading-[18px] text-tg-hint">{{ t('finished.stats.correct') }}</p>
+        </div>
+        <div class="card px-2 py-3 text-center">
+          <p class="text-2xl leading-8 font-bold" data-testid="stat-new">{{ summary.new_words }}</p>
+          <p class="mt-0.5 text-[13px] leading-[18px] text-tg-hint">{{ t('finished.stats.new') }}</p>
+        </div>
       </div>
-      <div v-if="goal" class="card space-y-1" data-testid="goal">
-        <div class="text-lg font-semibold" data-testid="goal-text">
-          {{ goal.met ? t('finished.goal_met') : t('finished.goal', { done: goal.done, target: goal.target }) }}
-        </div>
-        <div v-if="streak && streak.current > 0" class="text-sm" data-testid="streak">
-          🔥 {{ tn('today.streak.days', streak.current) }}
-        </div>
-        <div v-if="streak?.at_risk" class="text-sm text-red-600" data-testid="streak-at-risk">
-          {{ t('today.streak.at_risk') }}
-        </div>
-      </div>
-      <PromoRedeem v-if="reason !== 'new_quota_exhausted'" />
-      <button
-        v-else
-        type="button"
-        class="text-tg-link underline w-full text-center"
-        data-testid="paywall-open"
-        @click="paywallOpen = true"
+      <p
+        v-else-if="!summary && hasNumbers"
+        class="card text-center text-[17px] leading-[22px] font-semibold"
+        data-testid="reviewed"
       >
-        {{ t('paywall.open') }}
-      </button>
-      <p v-if="training.openError" class="text-sm text-red-600" data-testid="open-error">{{ training.openError }}</p>
-      <RouterLink :to="{ name: 'today' }" class="btn btn-primary w-full" data-testid="home-btn">
+        {{ tn('finished.reviewed', reviewed) }}
+      </p>
+
+      <section v-if="goal" class="card" data-testid="goal">
+        <div class="flex items-center justify-between gap-3">
+          <p
+            class="text-[17px] leading-[22px] font-semibold"
+            :class="{ 'text-success-ink': goal.met }"
+            data-testid="goal-text"
+          >
+            {{ goal.met ? t('finished.goal_met') : t('finished.goal', { done: goal.done, target: goal.target }) }}
+          </p>
+          <AppIcon v-if="goal.met" name="check-circle" solid :size="22" class="shrink-0 text-success" />
+        </div>
+        <div
+          class="progress mt-3"
+          :class="{ 'progress-success': goal.met }"
+          role="progressbar"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          :aria-valuenow="goalPercent"
+          :aria-label="t('today.goal.title')"
+        >
+          <div class="progress-fill" :style="{ width: `${goalPercent}%` }" />
+        </div>
+
+        <div v-if="streak && (streak.current > 0 || streak.at_risk)" class="mt-3 flex items-start gap-3 border-t pt-3">
+          <span class="icon-tile tile-orange"><AppIcon name="fire" solid :size="18" /></span>
+          <div class="min-w-0 flex-1">
+            <p v-if="streak.current > 0" class="text-[15px] leading-[30px] font-semibold" data-testid="streak">
+              {{ tn('today.streak.in_row', streak.current) }}
+            </p>
+            <p v-if="streak.at_risk" class="text-[15px] leading-5 text-warning-ink" data-testid="streak-at-risk">
+              {{ t('today.streak.at_risk') }}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card flex items-center gap-3">
+        <span class="icon-tile tile-blue"><AppIcon name="clock" :size="18" /></span>
+        <div>
+          <p class="text-[13px] leading-[18px] text-tg-hint">{{ t('finished.next_label') }}</p>
+          <p class="text-[17px] leading-[22px] font-semibold" data-testid="next-label">{{ nextLabel }}</p>
+        </div>
+      </section>
+    </div>
+
+    <div class="space-y-2 pt-4">
+      <InlineAlert v-if="training.openError" tone="danger" :message="training.openError" data-testid="open-error" />
+
+      <RouterLink :to="{ name: 'today' }" class="btn btn-primary btn-lg btn-block" data-testid="home-btn">
         {{ t('finished.home') }}
       </RouterLink>
-      <button class="btn btn-secondary w-full" data-testid="close-btn" @click="close()">
+      <button v-if="quotaExhausted" type="button" class="btn btn-tinted btn-block" data-testid="paywall-open" @click="paywallOpen = true">
+        {{ t('paywall.open') }}
+      </button>
+      <button type="button" class="btn btn-plain btn-block" data-testid="close-btn" @click="close()">
         {{ t('common.close') }}
       </button>
     </div>
+
     <PaywallSheet v-if="paywallOpen" reason="quota" @close="paywallOpen = false" @review="reviewFromPaywall" />
-  </section>
+  </div>
 </template>

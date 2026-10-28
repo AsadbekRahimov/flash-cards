@@ -1,9 +1,12 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
 import { errorMessage } from '@/i18n/errors'
-import type { Course, CourseDetail } from '@/api/types'
+import type { Course, CourseDetail, CourseLesson } from '@/api/types'
 
 export type CatalogStatus = 'idle' | 'loading' | 'ready' | 'error'
+
+/** A lesson of the open course with the number of its module: lesson numbers restart in every module. */
+export type LessonInModule = CourseLesson & { stage: number }
 
 interface CoursesState {
   courses: Course[]
@@ -30,6 +33,27 @@ export const useCoursesStore = defineStore('courses', {
     selecting: null,
     errorMessage: '',
   }),
+
+  getters: {
+    /**
+     * The first lesson of the open course that still has words to learn, in the order of the modules and of
+     * the lessons in them: the target of "Continue: module M, lesson N" (`stage` is the module's number, `number`
+     * the lesson's own). An empty lesson (no words) is never the target.
+     */
+    nextLesson: (s): LessonInModule | null => {
+      for (const stage of s.detail?.stages ?? []) {
+        const lesson = stage.lessons.find((l) => l.progress.done < l.progress.total)
+        if (lesson) return { ...lesson, stage: stage.number }
+      }
+      return null
+    },
+
+    /** The open course has lessons with words and every one of them is learned (a course without lessons is not "done"). */
+    allLessonsDone: (s): boolean => {
+      const lessons = (s.detail?.stages ?? []).flatMap((stage) => stage.lessons).filter((l) => l.progress.total > 0)
+      return lessons.length > 0 && lessons.every((l) => l.progress.done >= l.progress.total)
+    },
+  },
 
   actions: {
     async load(): Promise<void> {

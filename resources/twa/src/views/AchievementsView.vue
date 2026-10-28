@@ -1,25 +1,31 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onMounted, ref } from 'vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
+import ErrorState from '@/components/ui/ErrorState.vue'
+import LoadingState from '@/components/ui/LoadingState.vue'
+import PageHeader from '@/components/ui/PageHeader.vue'
+import { formatDate } from '@/composables/format'
+import { useBackButton } from '@/composables/useBackButton'
+import { useTelegram } from '@/composables/useTelegram'
 import { useAuthStore } from '@/stores/auth'
 import { useAchievementsStore } from '@/stores/achievements'
-import { useTelegram } from '@/composables/useTelegram'
 import { errorMessage } from '@/i18n/errors'
 import { useI18n } from '@/i18n'
 import type { AchievementItem } from '@/api/types'
 
 /**
- * Achievements (docs/13 §7.4, docs/04 A.15): what is unlocked (with the date and a share button that opens
- * Telegram's share dialog with the learner's invite link) and the progress towards what is still locked.
+ * Achievements (docs/13 §7.4, docs/14 §6.7, docs/04 A.15): what is unlocked (with the date and a share button that
+ * opens Telegram's share dialog with the learner's invite link) and the progress towards what is still locked, as a
+ * grid of two columns under a summary with a progress bar. Back -> Profile.
  */
-const router = useRouter()
 const auth = useAuthStore()
 const achievements = useAchievementsStore()
-const { showBackButton, shareUrl, haptic } = useTelegram()
+const { shareUrl, haptic } = useTelegram()
 const { t, locale } = useI18n()
 
+useBackButton({ name: 'profile' })
+
 const failed = ref('')
-let hideBack: (() => void) | null = null
 
 const data = computed(() => achievements.data)
 const message = computed(() => failed.value || achievements.errorMessage)
@@ -33,8 +39,14 @@ const items = computed<AchievementItem[]>(() => {
   return [...unlocked, ...all.filter((item) => item.unlocked_at === null)]
 })
 
-function formatDate(iso: string): string {
-  return new Intl.DateTimeFormat(locale.value, { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(iso))
+const summaryPercent = computed(() => {
+  const total = data.value?.total ?? 0
+  return total <= 0 ? 0 : Math.min(100, Math.round(((data.value?.unlocked_count ?? 0) / total) * 100))
+})
+
+/** "25 Oct 2026" with no-break spaces: in a narrow card the line breaks before the date, not inside it. */
+function unlockedDate(iso: string): string {
+  return formatDate(iso, 'dayMonthShortYear', locale.value).replace(/\s+/g, '\u00a0')
 }
 
 function percent(item: AchievementItem): number {
@@ -62,82 +74,95 @@ async function load(): Promise<void> {
 }
 
 onMounted(() => {
-  hideBack = showBackButton(() => void router.push({ name: 'today' }))
   void load()
-})
-
-onBeforeUnmount(() => {
-  hideBack?.()
 })
 </script>
 
 <template>
-  <section class="flex-1 flex flex-col p-4 max-w-xl mx-auto w-full">
-    <h1 class="text-xl font-bold mb-1">🏅 {{ t('achievements.title') }}</h1>
+  <div class="page" data-testid="achievements-view">
+    <PageHeader :title="t('achievements.title')" />
 
-    <div v-if="!data && !message" class="flex-1 flex items-center justify-center" data-testid="spinner">
-      <p class="text-tg-hint">{{ t('common.loading') }}</p>
-    </div>
+    <LoadingState v-if="!data && !message" />
 
-    <div v-else-if="!data" class="flex-1 flex items-center justify-center text-center" data-testid="error">
-      <div class="space-y-4">
-        <p class="text-lg font-semibold">⚠️ {{ t('common.error_title') }}</p>
-        <p class="text-tg-hint">{{ message }}</p>
-        <button class="btn btn-primary" data-testid="retry-btn" @click="load()">{{ t('common.retry') }}</button>
-      </div>
-    </div>
+    <ErrorState v-else-if="!data" :message="message" @retry="load" />
 
     <div v-else class="space-y-3">
-      <p class="text-sm text-tg-hint" data-testid="summary">
-        {{ t('achievements.summary', { unlocked: data.unlocked_count, total: data.total }) }}
-      </p>
-      <p v-if="data.unlocked_count === 0" class="text-sm text-tg-hint" data-testid="empty-hint">
-        {{ t('achievements.empty_hint') }}
-      </p>
+      <section class="card" data-testid="summary-card">
+        <p class="text-[17px] leading-[22px] font-semibold" data-testid="summary">
+          {{ t('achievements.summary', { unlocked: data.unlocked_count, total: data.total }) }}
+        </p>
+        <div
+          class="progress mt-3"
+          role="progressbar"
+          :aria-valuenow="summaryPercent"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        >
+          <div class="progress-fill" :style="{ width: `${summaryPercent}%` }" data-testid="summary-bar" />
+        </div>
+        <p v-if="data.unlocked_count === 0" class="mt-3 text-[15px] leading-5 text-tg-subtitle" data-testid="empty-hint">
+          {{ t('achievements.empty_hint') }}
+        </p>
+      </section>
 
-      <ul class="space-y-3" data-testid="list">
+      <ul class="grid grid-cols-2 gap-3" data-testid="list">
         <li
           v-for="item in items"
           :key="item.key"
-          class="card space-y-2"
-          :class="{ 'opacity-70': item.unlocked_at === null }"
+          class="card flex flex-col p-3.5"
           :data-testid="`item-${item.key}`"
           :data-unlocked="item.unlocked_at !== null"
         >
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <div class="font-semibold">{{ item.unlocked_at !== null ? '🏅' : '🔒' }} {{ item.title }}</div>
-              <div class="text-sm text-tg-hint">{{ item.description }}</div>
-            </div>
+          <span
+            class="flex size-11 shrink-0 items-center justify-center rounded-xl"
+            :class="item.unlocked_at !== null ? 'bg-warning-soft text-warning-ink' : 'bg-fill text-tg-hint'"
+            data-testid="item-tile"
+          >
+            <AppIcon :name="item.unlocked_at !== null ? 'trophy' : 'lock-closed'" :solid="item.unlocked_at !== null" :size="24" />
+          </span>
+
+          <h2 class="mt-3 line-clamp-2 text-[15px] leading-5 font-semibold" data-testid="item-title">{{ item.title }}</h2>
+          <p class="mt-0.5 line-clamp-3 text-[13px] leading-[18px] text-tg-subtitle" data-testid="item-description">{{ item.description }}</p>
+
+          <div class="mt-auto pt-3">
+            <template v-if="item.unlocked_at !== null">
+              <p class="text-xs leading-4 text-tg-hint" data-testid="unlocked-on">
+                {{ t('achievements.unlocked_on', { date: unlockedDate(item.unlocked_at) }) }}
+              </p>
+              <button
+                v-if="data.share_link"
+                type="button"
+                class="btn btn-tinted btn-sm btn-block mt-2"
+                data-testid="share-btn"
+                @click="share(item)"
+              >
+                {{ t('achievements.share') }}
+              </button>
+              <p v-if="item.shared_at" class="mt-2 flex items-start gap-1 text-xs leading-4 text-tg-hint" data-testid="shared">
+                <AppIcon name="check" :size="14" class="mt-px" />
+                <span>{{ t('achievements.shared') }}</span>
+              </p>
+            </template>
+
+            <template v-else-if="item.progress">
+              <div
+                class="progress h-1.5"
+                role="progressbar"
+                :aria-valuenow="percent(item)"
+                aria-valuemin="0"
+                aria-valuemax="100"
+              >
+                <div class="progress-fill" :style="{ width: `${percent(item)}%` }" data-testid="bar" />
+              </div>
+              <p class="mt-1.5 text-xs leading-4 text-tg-hint" data-testid="progress">
+                {{ t('achievements.progress', { current: item.progress.current, target: item.progress.target }) }}
+              </p>
+            </template>
+
+            <p v-else class="text-xs leading-4 text-tg-hint" data-testid="locked">{{ t('achievements.locked') }}</p>
           </div>
-
-          <template v-if="item.unlocked_at !== null">
-            <div class="text-xs text-tg-hint" data-testid="unlocked-on">
-              {{ t('achievements.unlocked_on', { date: formatDate(item.unlocked_at) }) }}
-            </div>
-            <button
-              v-if="data.share_link"
-              type="button"
-              class="btn btn-secondary w-full"
-              data-testid="share-btn"
-              @click="share(item)"
-            >
-              {{ t('achievements.share') }}
-            </button>
-            <div v-if="item.shared_at" class="text-xs text-tg-hint" data-testid="shared">✓ {{ t('achievements.shared') }}</div>
-          </template>
-
-          <template v-else-if="item.progress">
-            <div class="h-2 rounded-full bg-black/10 overflow-hidden" role="progressbar" :aria-valuenow="percent(item)" aria-valuemin="0" aria-valuemax="100">
-              <div class="h-full bg-tg-button" :style="{ width: percent(item) + '%' }" data-testid="bar" />
-            </div>
-            <div class="text-xs text-tg-hint" data-testid="progress">
-              {{ t('achievements.progress', { current: item.progress.current, target: item.progress.target }) }}
-            </div>
-          </template>
-          <div v-else class="text-xs text-tg-hint" data-testid="locked">{{ t('achievements.locked') }}</div>
         </li>
       </ul>
     </div>
-  </section>
+  </div>
 </template>

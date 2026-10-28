@@ -2,13 +2,23 @@
 import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import ClosedState from '@/components/ClosedState.vue'
 import QuizOption from '@/components/QuizOption.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
+import ErrorState from '@/components/ui/ErrorState.vue'
+import LoadingState from '@/components/ui/LoadingState.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useExamStore } from '@/stores/exam'
+import { useBackButton } from '@/composables/useBackButton'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
 import { useTimer } from '@/composables/useTimer'
 
+/**
+ * The exam screen (docs/14 §6.4), group exam and personal mock: an immersive column without the tab bar. The header
+ * holds the countdown of the whole exam, the question counter and the score (a mock has the "Mock test" chip instead);
+ * under it a group exam shows the bar of the time left for the question, then the word in a card and the four options.
+ */
 const props = defineProps<{ sessionId: number }>()
 
 const router = useRouter()
@@ -19,7 +29,7 @@ const exam = useExamStore()
 // A personal IELTS / SAT mock (docs/13 §8.4) is reached from the course screen with `?mode=mock`:
 // one timer for the whole exam, no per-question countdown, and its own "time is over" screen.
 const isMock = computed((): boolean => route.query.mode === 'mock' || exam.mode === 'personal_mock')
-const { close, showBackButton, haptic, notificationHaptic } = useTelegram()
+const { close, haptic, notificationHaptic } = useTelegram()
 const { t } = useI18n()
 
 const {
@@ -56,6 +66,16 @@ const overallLabel = computed((): string => {
   return `${mm}:${ss}`
 })
 
+/** The last half minute of the exam: the countdown chip turns red. */
+const overallLow = computed((): boolean => overallTimer.remaining.value < 30)
+
+/** The last seconds of the question: its bar turns red. */
+const questionLow = computed((): boolean => questionTimer.remaining.value <= 3)
+
+const questionBarWidth = computed((): string =>
+  `${Math.max(0, (questionTimer.remaining.value / Math.max(1, secondsPerQuestion.value)) * 100)}%`,
+)
+
 const isInteractive = computed((): boolean => status.value === 'answering')
 
 function optionState(index: number): 'idle' | 'selected' | 'correct' | 'incorrect' | 'reveal' {
@@ -72,11 +92,12 @@ function optionState(index: number): 'idle' | 'selected' | 'correct' | 'incorrec
   return 'idle'
 }
 
-let hideBack: (() => void) | null = null
+// "Back" closes the Mini App: an exam is not left halfway for a tab (docs/14 §5.3).
+useBackButton(() => close())
+
 let feedbackTimeout: ReturnType<typeof setTimeout> | null = null
 
 onMounted(async () => {
-  hideBack = showBackButton(() => close())
   try {
     await auth.ensure({ type: 'exam', sessionId: props.sessionId })
     await exam.join(props.sessionId, route.query.mode === 'mock' ? 'personal_mock' : 'group_exam')
@@ -87,7 +108,6 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
-  hideBack?.()
   if (feedbackTimeout) clearTimeout(feedbackTimeout)
 })
 
@@ -133,66 +153,80 @@ function onRetry(): void {
 </script>
 
 <template>
-  <section class="flex-1 flex flex-col p-4 max-w-xl mx-auto w-full">
-    <header class="flex items-center justify-between mb-4">
-      <div class="text-sm font-mono" data-testid="overall-timer">⏱ {{ overallLabel }}</div>
-      <div class="text-sm text-tg-hint" data-testid="progress">
-        {{ Math.min(currentIndex + 1, totalQuestions) }} / {{ totalQuestions }}
+  <section
+    class="mx-auto flex w-full max-w-xl flex-1 flex-col"
+    style="min-height: var(--tg-viewport-stable-height, 100dvh)"
+    data-testid="exam-view"
+  >
+    <header
+      v-if="totalQuestions > 0 && status !== 'closed'"
+      class="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 pt-3"
+    >
+      <div class="flex justify-start">
+        <span
+          v-if="exam.endsAt !== null"
+          class="chip tabular-nums"
+          :class="overallLow ? 'chip-danger' : 'chip-neutral'"
+          data-testid="overall-timer"
+        >
+          <AppIcon name="clock" :size="14" />{{ overallLabel }}
+        </span>
       </div>
-      <div v-if="isMock" class="text-sm font-semibold" data-testid="mock-header">{{ t('exam.mock_header') }}</div>
-      <div v-else class="text-sm font-semibold" data-testid="score">★ {{ totalScore }}</div>
+      <span class="text-[15px] leading-5 font-medium text-tg-subtitle tabular-nums" data-testid="progress">
+        {{ Math.min(currentIndex + 1, totalQuestions) }} / {{ totalQuestions }}
+      </span>
+      <div class="flex justify-end">
+        <span v-if="isMock" class="chip chip-accent" data-testid="mock-header">{{ t('exam.mock_header') }}</span>
+        <span v-else class="chip chip-warning tabular-nums" data-testid="score">
+          <AppIcon name="star" solid :size="14" />{{ totalScore }}
+        </span>
+      </div>
     </header>
 
-    <div v-if="status === 'joining' || status === 'loading'"
-         class="flex-1 flex items-center justify-center"
-         data-testid="spinner">
-      <p class="text-tg-hint">{{ t('common.loading') }}</p>
-    </div>
+    <LoadingState v-if="status === 'joining' || status === 'loading'" variant="center" />
 
-    <div v-else-if="status === 'closed'"
-         class="flex-1 flex items-center justify-center text-center"
-         data-testid="closed">
-      <div class="space-y-4">
-        <p class="text-lg font-semibold">{{ isMock ? t('exam.mock_closed_title') : t('exam.closed_title') }}</p>
-        <p v-if="!isMock" class="text-tg-hint">{{ errorMessage }}</p>
-        <button
-          v-if="isMock"
-          class="btn btn-primary"
-          data-testid="mock-results-btn"
-          @click="router.replace({ name: 'exam-result', params: { sessionId: props.sessionId } })"
-        >
-          {{ t('result.mock_title') }}
-        </button>
-        <button v-else class="btn btn-primary" data-testid="close-btn" @click="close()">{{ t('common.close') }}</button>
-      </div>
-    </div>
+    <ClosedState
+      v-else-if="status === 'closed'"
+      :icon="isMock ? 'clock' : 'lock-closed'"
+      :title="isMock ? t('exam.mock_closed_title') : t('exam.closed_title')"
+      :text="isMock ? undefined : errorMessage"
+    >
+      <button
+        v-if="isMock"
+        type="button"
+        class="btn btn-primary btn-block"
+        data-testid="mock-results-btn"
+        @click="router.replace({ name: 'exam-result', params: { sessionId: props.sessionId } })"
+      >
+        {{ t('result.mock_title') }}
+      </button>
+      <button v-else type="button" class="btn btn-primary btn-block" data-testid="close-btn" @click="close()">
+        {{ t('common.close') }}
+      </button>
+    </ClosedState>
 
-    <div v-else-if="status === 'error'"
-         class="flex-1 flex items-center justify-center text-center"
-         data-testid="error">
-      <div class="space-y-4">
-        <p class="text-lg font-semibold">⚠️ {{ t('common.error_title') }}</p>
-        <p class="text-tg-hint">{{ errorMessage }}</p>
-        <button class="btn btn-primary" data-testid="retry-btn" @click="onRetry">{{ t('common.retry') }}</button>
-      </div>
-    </div>
+    <ErrorState v-else-if="status === 'error'" :message="errorMessage" @retry="onRetry" />
 
-    <div v-else-if="currentQuestion" class="flex flex-col gap-5 flex-1">
-      <!-- Per-question timer bar (group exams only: a mock has one timer for the whole test) -->
-      <div v-if="!isMock" class="h-2 rounded-full overflow-hidden bg-tg-secondary-bg">
+    <div
+      v-else-if="currentQuestion"
+      class="flex flex-1 flex-col gap-4 px-4 pt-3"
+      style="padding-bottom: calc(1.5rem + var(--app-safe-b))"
+    >
+      <!-- The time left for the question (group exams only: a mock has one timer for the whole test). -->
+      <div v-if="!isMock" class="progress" aria-hidden="true">
         <div
-          class="h-full transition-[width] duration-1000 ease-linear"
-          :class="questionTimer.remaining.value <= 3 ? 'bg-red-500' : 'bg-tg-button'"
-          :style="{ width: `${Math.max(0, (questionTimer.remaining.value / Math.max(1, secondsPerQuestion)) * 100)}%` }"
+          class="progress-fill duration-1000 ease-linear"
+          :class="{ 'bg-danger': questionLow }"
+          :style="{ width: questionBarWidth }"
           data-testid="question-timer"
         ></div>
       </div>
 
-      <div class="text-center py-6">
-        <h2 class="text-4xl font-bold break-words" data-testid="word">{{ currentQuestion.word }}</h2>
-      </div>
+      <article class="card px-5 py-8 text-center">
+        <h2 class="text-4xl leading-10 font-bold break-words" data-testid="word">{{ currentQuestion.word }}</h2>
+      </article>
 
-      <div class="flex flex-col gap-3">
+      <div class="flex flex-col gap-2.5">
         <QuizOption
           v-for="(label, i) in currentQuestion.options"
           :key="i"

@@ -102,21 +102,23 @@ final class CourseCatalogService
      *
      * Not used by the picker (it selects new words with one query); kept for task 1.3b
      * (`TodayService`: `active_course.next_lesson`).
+     *
+     * One anti-join at the level of WORDS (never-served active words of the course, `LIMIT 1` in study
+     * order) instead of a correlated `EXISTS` per lesson: the lookup is one pass over the words of the
+     * course and the learner's rows, not lessons × the learner's cards.
      */
     public function nextLessonWithNewWords(Course $course, Learner $learner): ?Lesson
     {
         return Lesson::query()
             ->select('lessons.*')
             ->join('stages', 'stages.id', '=', 'lessons.stage_id')
+            ->join('words', 'words.lesson_id', '=', 'lessons.id')
             ->where('stages.course_id', $course->id)
-            ->whereExists(fn (QueryBuilder $q): QueryBuilder => $q
-                ->from('words')
-                ->whereColumn('words.lesson_id', 'lessons.id')
-                ->where('words.is_active', true)
-                ->whereNotExists(fn (QueryBuilder $seen): QueryBuilder => $seen
-                    ->from('word_repetitions')
-                    ->whereColumn('word_repetitions.word_id', 'words.id')
-                    ->where('word_repetitions.learner_id', $learner->id)))
+            ->where('words.is_active', true)
+            ->whereNotExists(fn (QueryBuilder $seen): QueryBuilder => $seen
+                ->from('word_repetitions')
+                ->whereColumn('word_repetitions.word_id', 'words.id')
+                ->where('word_repetitions.learner_id', $learner->id))
             ->orderBy('stages.number')
             ->orderBy('lessons.number')
             ->with('stage')
@@ -257,7 +259,11 @@ final class CourseCatalogService
             }
         }
 
-        $progress = $this->courseProgress($learner, array_map(fn (CatalogCourse $c): int => $c->id, $courses));
+        $totals = [];
+        foreach ($courses as $course) {
+            $totals[$course->id] = $course->wordsCount;
+        }
+        $progress = $this->courseProgress($learner, $totals);
 
         return array_map(
             fn (CatalogCourse $course): CourseListing => new CourseListing(
@@ -289,7 +295,11 @@ final class CourseCatalogService
         }
 
         $locale = $this->locales->forLearner($learner);
-        $progress = $this->courseProgress($learner, array_map(fn (Course $c): int => $c->id, $list));
+        $totals = [];
+        foreach ($list as $course) {
+            $totals[$course->id] = $course->words_count;
+        }
+        $progress = $this->courseProgress($learner, $totals);
 
         return array_map(
             fn (Course $course): CourseListing => new CourseListing(
@@ -306,7 +316,7 @@ final class CourseCatalogService
     {
         return new CourseListing(
             $this->present($course, $this->locales->forLearner($learner)),
-            $this->courseProgress($learner, [$course->id])[$course->id] ?? new LearnerProgress(0, 0),
+            $this->courseProgress($learner, [$course->id => $course->words_count])[$course->id] ?? new LearnerProgress(0, 0),
             $learner->active_course_id === $course->id,
         );
     }
@@ -372,34 +382,41 @@ final class CourseCatalogService
     }
 
     /**
-     * Active-word progress per course in a single aggregate query.
+     * Active-word progress per course. `total` is the course's own counter of active words
+     * (`courses.words_count`, kept by {@see CoursePublisher::recount()} on every path that changes words):
+     * the catalog no longer counts the words of all its courses on each open (docs/03 §6). `done` is
+     * counted from the LEARNER's rows alone — their answered cards (`repetitions >= 1`) of active words,
+     * grouped by course — in one query whose size follows what the learner has studied, not the catalog.
      *
-     * @param  list<int>  $courseIds
-     * @return array<int, LearnerProgress> course_id => progress (a course without words is absent)
+     * @param  array<int, int>  $totals  course_id => active words of the course
+     * @return array<int, LearnerProgress> course_id => progress, one entry for each course given
      */
-    private function courseProgress(Learner $learner, array $courseIds): array
+    private function courseProgress(Learner $learner, array $totals): array
     {
-        if ($courseIds === []) {
+        if ($totals === []) {
             return [];
         }
 
-        $rows = DB::table('words')
+        $rows = DB::table('word_repetitions')
+            ->join('words', 'words.id', '=', 'word_repetitions.word_id')
             ->join('lessons', 'lessons.id', '=', 'words.lesson_id')
             ->join('stages', 'stages.id', '=', 'lessons.stage_id')
-            ->leftJoin('word_repetitions', function (JoinClause $join) use ($learner): void {
-                $join->on('word_repetitions.word_id', '=', 'words.id')
-                    ->where('word_repetitions.learner_id', '=', $learner->id)
-                    ->where('word_repetitions.repetitions', '>=', 1);
-            })
+            ->where('word_repetitions.learner_id', $learner->id)
+            ->where('word_repetitions.repetitions', '>=', 1)
             ->where('words.is_active', true)
-            ->whereIn('stages.course_id', $courseIds)
+            ->whereIn('stages.course_id', array_keys($totals))
             ->groupBy('stages.course_id')
-            ->selectRaw('stages.course_id as course_id, COUNT(words.id) as total, COUNT(word_repetitions.id) as done')
+            ->selectRaw('stages.course_id as course_id, COUNT(*) as done')
             ->get();
 
-        $progress = [];
+        $done = [];
         foreach ($rows as $row) {
-            $progress[(int) $row->course_id] = new LearnerProgress((int) $row->done, (int) $row->total);
+            $done[(int) $row->course_id] = (int) $row->done;
+        }
+
+        $progress = [];
+        foreach ($totals as $courseId => $total) {
+            $progress[$courseId] = new LearnerProgress($done[$courseId] ?? 0, $total);
         }
 
         return $progress;

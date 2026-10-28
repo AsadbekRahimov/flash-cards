@@ -3,6 +3,7 @@
 @source "../index.html";
 
 @theme {
+  /* Telegram theme parameters (docs/14 §4.1); filled in by composables/telegramTheme.ts. */
   --color-tg-bg: var(--tg-bg);
   --color-tg-text: var(--tg-text);
   --color-tg-hint: var(--tg-hint);
@@ -10,58 +11,442 @@
   --color-tg-button: var(--tg-button);
   --color-tg-button-text: var(--tg-button-text);
   --color-tg-secondary-bg: var(--tg-secondary-bg);
+  --color-tg-section-bg: var(--tg-section-bg);
+  --color-tg-accent: var(--tg-accent);
+  --color-tg-destructive: var(--tg-destructive);
+  --color-tg-subtitle: var(--tg-subtitle);
+  --color-tg-section-header: var(--tg-section-header);
+  --color-tg-separator: var(--tg-separator);
+  --color-tg-bottom-bar-bg: var(--tg-bottom-bar-bg);
+
+  /* Semantic colours of the app: `bg-page`, `bg-surface`, `bg-fill`, `text-accent`, `bg-danger-soft`, `text-success-ink`, ... */
+  --color-page: var(--app-page);
+  --color-surface: var(--app-surface);
+  --color-fill: var(--app-fill);
+  --color-hairline: var(--app-hairline);
+  --color-track: var(--app-track);
+  --color-accent: var(--app-accent);
+  --color-success: var(--app-success);
+  --color-warning: var(--app-warning);
+  --color-danger: var(--app-danger);
+  --color-accent-soft: var(--app-accent-soft);
+  --color-success-soft: var(--app-success-soft);
+  --color-warning-soft: var(--app-warning-soft);
+  --color-danger-soft: var(--app-danger-soft);
+  --color-success-ink: var(--app-success-ink);
+  --color-warning-ink: var(--app-warning-ink);
+  --color-danger-ink: var(--app-danger-ink);
 
   --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* Tailwind 4 defaults border/divide colour to currentColor; keep the v3 look (gray-200). */
 @layer base {
+  /* Tailwind 4 defaults border/divide colour to currentColor; the app default is the theme hairline. */
   *,
   ::after,
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-gray-200, currentColor);
+    border-color: var(--app-hairline);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--app-accent);
+    outline-offset: 2px;
   }
 }
 
 :root {
+  /*
+   * Telegram theme parameters. Fallbacks for a client that does not send a parameter; main.ts sets the real
+   * values inline on <html> (and removes them again when a parameter is missing).
+   */
   --tg-bg: #ffffff;
   --tg-text: #000000;
-  --tg-hint: #999999;
+  --tg-hint: #8e8e93;
   --tg-link: #2481cc;
   --tg-button: #2481cc;
   --tg-button-text: #ffffff;
-  --tg-secondary-bg: #f1f1f1;
+  --tg-secondary-bg: #efeff4;
+  --tg-section-bg: var(--tg-bg);
+  --tg-accent: var(--tg-link);
+  --tg-destructive: #e53935;
+  --tg-subtitle: var(--tg-hint);
+  --tg-section-header: var(--tg-hint);
+  --tg-separator: color-mix(in srgb, var(--tg-hint) 30%, transparent);
+  --tg-bottom-bar-bg: var(--tg-section-bg);
+
+  /* Semantic tokens: the only colours components use. */
+  --app-page: var(--tg-secondary-bg); /* page background */
+  --app-surface: var(--tg-section-bg); /* cards, lists, sheets */
+  --app-fill: var(--tg-secondary-bg); /* controls INSIDE a surface: fields, secondary buttons, segments */
+  --app-hairline: color-mix(in srgb, var(--tg-text) 7%, transparent);
+  --app-accent: var(--tg-button);
+  --app-success: #31b545;
+  --app-warning: #f59e0b;
+  --app-danger: var(--tg-destructive);
+  --app-accent-soft: color-mix(in srgb, var(--app-accent) 14%, transparent);
+  --app-success-soft: color-mix(in srgb, var(--app-success) 16%, transparent);
+  --app-warning-soft: color-mix(in srgb, var(--app-warning) 18%, transparent);
+  --app-danger-soft: color-mix(in srgb, var(--app-danger) 14%, transparent);
+  /* "Ink" = text on a soft background: mixed with the theme text colour, so it reads in both light and dark. */
+  --app-success-ink: color-mix(in srgb, var(--app-success) 72%, var(--tg-text));
+  --app-warning-ink: color-mix(in srgb, var(--app-warning) 72%, var(--tg-text));
+  --app-danger-ink: color-mix(in srgb, var(--app-danger) 85%, var(--tg-text));
+  --app-track: color-mix(in srgb, var(--tg-hint) 24%, transparent); /* progress tracks, switches */
+
+  /* Icon tiles: the same in both themes, the icon is white. */
+  --tile-blue: #3b82f6;
+  --tile-orange: #f97316;
+  --tile-green: #22c55e;
+  --tile-purple: #8b5cf6;
+  --tile-red: #ef4444;
+  --tile-teal: #14b8a6;
+  --tile-yellow: #eab308;
+  --tile-pink: #ec4899;
+  --tile-gray: #8e8e93;
+
+  /* Height of the tab bar without the home-indicator inset. */
+  --app-tabbar-h: 56px;
+  /* Bottom inset the content still has to clear itself; the shell zeroes it while the tab bar covers it (.with-tabbar). */
+  --app-safe-b: env(safe-area-inset-bottom, 0px);
+
+  color-scheme: light;
 }
 
-html, body, #app {
-  height: 100%;
+/* <html data-theme> follows Telegram's colorScheme: native controls (select list, scrollbars) pick the dark palette. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+/*
+ * No `height` here: it made <body> a scroll container (docs/14 D9). The page keeps at least the viewport height
+ * through a flex column (a percentage min-height of <body> would resolve against an auto-height <html> to 0).
+ * `overflow-x: clip` (unlike `hidden`) creates no scroll container, so `position: sticky` keeps working; it is set
+ * on all three because a wide child would otherwise make a mobile WebView zoom the whole page out.
+ */
+html,
+body,
+#app {
+  min-height: 100%;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
-  background: var(--tg-bg);
+  overflow-x: clip;
+}
+
+html {
+  background: var(--app-page);
   color: var(--tg-text);
 }
 
 body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--app-page);
+  color: var(--tg-text);
+  font-size: 16px;
+  line-height: 22px;
   -webkit-tap-highlight-color: transparent;
 }
 
+#app {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+}
+
 @layer components {
+  /* ---- layout ---- */
+
+  /* Screen content column; the bottom clearance (tab bar / home indicator) comes from the shell (App.vue). */
+  .page {
+    @apply mx-auto flex w-full max-w-xl flex-1 flex-col px-4 pt-2;
+    padding-bottom: calc(1.5rem + var(--app-safe-b));
+  }
+
+  /* App shell while the tab bar is on screen: content clears the bar; the toast sits above it. */
+  .with-tabbar {
+    --app-safe-b: 0px;
+    padding-bottom: calc(var(--app-tabbar-h) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .card {
+    @apply rounded-2xl p-4;
+    background: var(--app-surface);
+    box-shadow: 0 0 0 1px var(--app-hairline);
+  }
+
+  .section-label {
+    @apply mt-5 mb-1.5 px-4 text-[13px] leading-[18px] font-medium tracking-wide uppercase;
+    color: var(--tg-section-header);
+  }
+
+  /* ---- buttons ---- */
+
   .btn {
-    @apply inline-flex items-center justify-center rounded-xl px-4 py-3 font-semibold transition-colors duration-150 active:scale-[0.98];
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-base leading-snug font-semibold transition-[background-color,color,transform,opacity] duration-150 select-none active:scale-[0.98] disabled:opacity-50;
   }
   .btn-primary {
-    background: var(--tg-button);
+    background: var(--app-accent);
     color: var(--tg-button-text);
   }
+  /* Secondary action anywhere (page or card). */
+  .btn-tinted {
+    background: var(--app-accent-soft);
+    color: var(--app-accent);
+  }
+  /* Neutral button INSIDE a surface (e.g. "Cancel"); on the bare page it has the page colour — use btn-tinted there. */
   .btn-secondary {
-    background: var(--tg-secondary-bg);
+    background: var(--app-fill);
     color: var(--tg-text);
   }
-  .card {
-    @apply rounded-2xl shadow-xs p-5;
-    background: var(--tg-secondary-bg);
+  .btn-plain {
+    background: transparent;
+    color: var(--app-accent);
+  }
+  .btn-danger {
+    background: var(--app-danger-soft);
+    color: var(--app-danger-ink);
+  }
+  .btn-lg {
+    @apply min-h-14 text-[17px] leading-[22px];
+  }
+  .btn-sm {
+    @apply min-h-9 rounded-lg px-3 py-1.5 text-sm;
+  }
+  .btn-block {
+    @apply flex w-full;
+  }
+
+  /* ---- fields ---- */
+
+  /* Input / select / textarea inside a surface (card, list row). */
+  .field {
+    @apply block w-full rounded-xl px-3.5 py-3 text-base disabled:opacity-50;
+    background-color: var(--app-fill);
+    color: var(--tg-text);
+    border: 1px solid transparent;
+  }
+  .field::placeholder {
+    color: var(--tg-hint);
+  }
+  .field:focus,
+  .field:focus-visible {
+    outline: none;
+    border-color: var(--app-accent);
+    box-shadow: 0 0 0 3px var(--app-accent-soft);
+  }
+  textarea.field {
+    @apply min-h-24 resize-y;
+  }
+  /* The chevron is a data-URI image, so it cannot follow the theme: iOS system grey reads on light and dark. */
+  select.field {
+    appearance: none;
+    padding-right: 2.5rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m19.5 8.25-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.875rem center;
+    background-size: 1rem;
+  }
+  /* A field placed straight on the page (not inside a surface). */
+  .field-surface {
+    background-color: var(--app-surface);
+    border-color: var(--app-hairline);
+  }
+  /* The value on the right of a list row: no box, accent colour (use together with .field). */
+  .field.field-inline {
+    @apply w-auto rounded-none py-0 pr-0 pl-2 text-right;
+    min-height: 0;
+    background-color: transparent;
+    border-color: transparent;
+    color: var(--app-accent);
+    text-align-last: right;
+  }
+  .field.field-inline:focus,
+  .field.field-inline:focus-visible {
+    box-shadow: none;
+    border-color: transparent;
+  }
+  select.field.field-inline {
+    padding-right: 1.5rem;
+    background-position: right 0 center;
+  }
+
+  /* ---- answer option ---- */
+
+  /* Answer button on the page (outside a card). Icons of the correct/incorrect states are drawn by the component. */
+  .option {
+    @apply flex min-h-14 w-full items-center gap-3 rounded-xl px-4 py-2 text-left text-base font-medium transition-colors duration-150 active:scale-[0.99];
+    background-color: var(--app-surface);
+    box-shadow: inset 0 0 0 1px var(--app-hairline);
+    color: var(--tg-text);
+  }
+  .option[data-state='selected'] {
+    background-image: linear-gradient(var(--app-accent-soft), var(--app-accent-soft));
+    box-shadow: inset 0 0 0 2px var(--app-accent);
+  }
+  .option[data-state='correct'] {
+    background-image: linear-gradient(var(--app-success-soft), var(--app-success-soft));
+    box-shadow: inset 0 0 0 2px var(--app-success);
+    color: var(--app-success-ink);
+  }
+  .option[data-state='incorrect'] {
+    background-image: linear-gradient(var(--app-danger-soft), var(--app-danger-soft));
+    box-shadow: inset 0 0 0 2px var(--app-danger);
+    color: var(--app-danger-ink);
+  }
+  /* The right answer shown after a mistake. */
+  .option[data-state='reveal'] {
+    box-shadow: none;
+    outline: 2px dashed var(--app-success);
+    outline-offset: -2px;
+    color: var(--app-success-ink);
+  }
+
+  /* ---- chips ---- */
+
+  .chip {
+    @apply inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-xs font-semibold whitespace-nowrap;
+    background: var(--app-track);
+    color: color-mix(in srgb, var(--tg-text) 70%, transparent);
+  }
+  .chip-neutral {
+    background: var(--app-track);
+    color: color-mix(in srgb, var(--tg-text) 70%, transparent);
+  }
+  .chip-accent {
+    background: var(--app-accent-soft);
+    color: var(--app-accent);
+  }
+  .chip-success {
+    background: var(--app-success-soft);
+    color: var(--app-success-ink);
+  }
+  .chip-warning {
+    background: var(--app-warning-soft);
+    color: var(--app-warning-ink);
+  }
+  .chip-danger {
+    background: var(--app-danger-soft);
+    color: var(--app-danger-ink);
+  }
+
+  /* ---- progress ---- */
+
+  .progress {
+    @apply h-2 w-full overflow-hidden rounded-full;
+    background: var(--app-track);
+  }
+  .progress-fill {
+    @apply h-full rounded-full transition-[width] duration-300;
+    background: var(--app-accent);
+  }
+  /* On the track (.progress.progress-success) or on the fill itself. */
+  .progress.progress-success > .progress-fill,
+  .progress-fill.progress-success {
+    background: var(--app-success);
+  }
+
+  /* ---- grouped list ---- */
+
+  .list {
+    @apply overflow-hidden rounded-2xl;
+    background: var(--app-surface);
+    box-shadow: 0 0 0 1px var(--app-hairline);
+  }
+  .list-row {
+    @apply relative flex min-h-[52px] w-full items-center gap-3 px-4 py-2.5 text-left text-base;
+    color: var(--tg-text);
+  }
+  /* Separator between rows; a row with an icon starts it after the icon (56px). */
+  .list-row + .list-row::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 1rem;
+    height: 1px;
+    background: var(--tg-separator);
+  }
+  .list-row + .list-row.list-row-icon::before {
+    left: 3.5rem;
+  }
+  a.list-row:active,
+  button.list-row:active {
+    background: var(--app-fill);
+  }
+  .list-row:focus-visible {
+    outline-offset: -2px;
+  }
+
+  .icon-tile {
+    @apply inline-flex size-[30px] shrink-0 items-center justify-center rounded-[9px] text-white;
+    background: var(--tile-gray);
+  }
+  .tile-blue {
+    background: var(--tile-blue);
+  }
+  .tile-orange {
+    background: var(--tile-orange);
+  }
+  .tile-green {
+    background: var(--tile-green);
+  }
+  .tile-purple {
+    background: var(--tile-purple);
+  }
+  .tile-red {
+    background: var(--tile-red);
+  }
+  .tile-teal {
+    background: var(--tile-teal);
+  }
+  .tile-yellow {
+    background: var(--tile-yellow);
+  }
+  .tile-pink {
+    background: var(--tile-pink);
+  }
+  .tile-gray {
+    background: var(--tile-gray);
+  }
+
+  /* ---- states and overlays ---- */
+
+  /* The track colour, not the fill: a fill-coloured block is barely visible on a card in the light theme. */
+  .skeleton {
+    @apply animate-pulse rounded-lg motion-reduce:animate-none;
+    background: var(--app-track);
+  }
+
+  /* Bottom sheet: the grabber is the ::before. */
+  .sheet {
+    @apply w-full max-w-xl rounded-t-[20px] px-4 pt-3;
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+    background: var(--app-surface);
+    box-shadow: 0 -8px 32px rgb(0 0 0 / 0.18);
+  }
+  .sheet::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 5px;
+    margin: 0 auto 12px;
+    border-radius: 3px;
+    background: var(--app-track);
+  }
+
+  /* Short message above the tab bar (AppToast); inverted colours so it reads on any page. */
+  .toast {
+    @apply pointer-events-none fixed inset-x-0 z-50 mx-auto w-max max-w-[calc(100%-2rem)] rounded-full px-4 py-2.5 text-center text-sm font-medium;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    background: color-mix(in srgb, var(--tg-text) 88%, transparent);
+    color: var(--tg-bg);
+    box-shadow: 0 4px 16px rgb(0 0 0 / 0.2);
+  }
+  .with-tabbar .toast {
+    bottom: calc(12px + var(--app-tabbar-h) + env(safe-area-inset-bottom, 0px));
   }
 }

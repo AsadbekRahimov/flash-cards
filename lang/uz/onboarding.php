@@ -66,7 +66,7 @@ return [
     ],
 
     'menu' => [
-        'text' => "Keyingi qadam?\n/today — bugungi takrorlashlar\n/settings — sozlamalar\n/promo KOD — Pro uchun promokod\n/help — yordam",
+        'text' => "Keyingi qadam?\n/today — bugungi mashg'ulot\n/settings — sozlamalar\n/promo KOD — Pro uchun promokod\n/help — yordam",
     ],
 
     'settings' => [

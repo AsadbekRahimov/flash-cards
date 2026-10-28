@@ -26,9 +26,27 @@ class StageResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-squares-2x2';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Content';
-
     protected static ?int $navigationSort = 10;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('admin.nav.content');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.stages.nav');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('admin.stages.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('admin.stages.plural');
+    }
 
     /**
      * Teachers do not see the content of learners' private decks.
@@ -44,7 +62,7 @@ class StageResource extends Resource
     {
         return $schema->components([
             Forms\Components\Select::make('course_id')
-                ->label('Course')
+                ->label(__('admin.stages.fields.course'))
                 ->relationship('course', 'slug')
                 ->default(fn (): ?int => Course::query()
                     ->where('slug', (string) config('content.default_course_slug'))
@@ -55,6 +73,7 @@ class StageResource extends Resource
                 // Moving a stage to another course would leave both courses' words_count stale.
                 ->disabledOn('edit'),
             Forms\Components\TextInput::make('number')
+                ->label(__('admin.stages.fields.number'))
                 ->numeric()
                 ->required()
                 // Stage numbers are unique within a course, not globally.
@@ -62,8 +81,8 @@ class StageResource extends Resource
                     ignoreRecord: true,
                     modifyRuleUsing: fn (Unique $rule, Get $get): Unique => $rule->where('course_id', $get('course_id')),
                 ),
-            Forms\Components\TextInput::make('title')->required()->maxLength(255),
-            Forms\Components\Textarea::make('description')->rows(3)->columnSpanFull(),
+            Forms\Components\TextInput::make('title')->label(__('admin.stages.fields.title'))->required()->maxLength(255),
+            Forms\Components\Textarea::make('description')->label(__('admin.stages.fields.description'))->rows(3)->columnSpanFull(),
         ]);
     }
 
@@ -71,12 +90,13 @@ class StageResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('course.slug')->label('Course')->sortable(),
-                Tables\Columns\TextColumn::make('number')->sortable(),
-                Tables\Columns\TextColumn::make('title')->searchable(),
-                Tables\Columns\TextColumn::make('lessons_count')->counts('lessons')->label('Lessons'),
-                Tables\Columns\TextColumn::make('created_at')->dateTime()->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('course.slug')->label(__('admin.stages.fields.course'))->sortable(),
+                Tables\Columns\TextColumn::make('number')->label(__('admin.stages.fields.number'))->sortable(),
+                Tables\Columns\TextColumn::make('title')->label(__('admin.stages.fields.title'))->searchable(),
+                Tables\Columns\TextColumn::make('lessons_count')->counts('lessons')->label(__('admin.stages.columns.lessons_count')),
+                Tables\Columns\TextColumn::make('created_at')->label(__('admin.stages.columns.created_at'))->dateTime()->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->emptyStateHeading(__('admin.stages.empty'))
             ->actions([
                 Actions\EditAction::make(),
             ])

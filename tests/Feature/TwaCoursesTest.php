@@ -10,6 +10,7 @@ declare(strict_types=1);
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Content\Services\CoursePublisher;
+use App\Domain\Content\Services\LessonContentRefresher;
 use App\Domain\Twa\Services\JwtService;
 use App\Models\Course;
 use App\Models\Learner;
@@ -50,6 +51,11 @@ function catalogCourse(array $attributes = [], array $lessonWords = [3, 2]): arr
         $lesson = Lesson::factory()->for($stage)->create();
         Word::factory()->count($count)->for($lesson)->create(['is_active' => true]);
         $lessons[] = $lesson;
+    }
+
+    // The catalog reads the course counter (as after any import / deck change); a test that sets it itself keeps its value.
+    if (! array_key_exists('words_count', $attributes)) {
+        app(CoursePublisher::class)->recount($course);
     }
 
     return ['course' => $course, 'lessons' => $lessons];
@@ -160,8 +166,10 @@ it('counts learned active words per course and ignores inactive words', function
 
     learnWord($learner, $words[0]);
     learnWord($learner, $words[1]);
-    // A word that was learned and then deactivated no longer counts, neither as total nor as done.
+    // A word that was learned and then deactivated no longer counts, neither as total nor as done
+    // (switched off the way the admin panel does it: the course counter follows).
     $words[1]->update(['is_active' => false]);
+    app(LessonContentRefresher::class)->wordChanged($words[1]);
     // Seen but not learned yet (repetitions = 0): not "done".
     learnWord($learner, $words[2], repetitions: 0);
     // Another learner's progress is not ours.
@@ -210,11 +218,13 @@ it('computes the catalog progress in a constant number of queries', function ():
     DB::flushQueryLog();
     DB::enableQueryLog();
     $this->withHeaders($headers)->getJson('/api/twa/courses')->assertOk();
-    $queries = collect(DB::getQueryLog())->pluck('query')
-        ->filter(fn (string $sql): bool => str_contains($sql, 'from "words"') || str_contains($sql, 'from `words`'));
+    $queries = collect(DB::getQueryLog())->pluck('query');
     DB::disableQueryLog();
 
-    expect($queries)->toHaveCount(1);
+    // One statement from the learner's own rows; the words of the catalog are not scanned (the total is the
+    // course counter) — see CatalogProgressTest for the full query budget.
+    expect($queries->filter(fn (string $sql): bool => str_contains($sql, 'word_repetitions')))->toHaveCount(1)
+        ->and($queries->filter(fn (string $sql): bool => str_contains($sql, 'from "words"') || str_contains($sql, 'from `words`')))->toHaveCount(0);
 });
 
 // --- GET /courses/{slug} ---------------------------------------------------

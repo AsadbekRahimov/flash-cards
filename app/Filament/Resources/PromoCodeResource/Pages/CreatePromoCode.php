@@ -14,6 +14,11 @@ class CreatePromoCode extends CreateRecord
 {
     protected static string $resource = PromoCodeResource::class;
 
+    public function getTitle(): string
+    {
+        return __('admin.promo_codes.titles.create');
+    }
+
     /**
      * Creation (normalized code, creator, audit record) is PromoCodeAdminService's job.
      *
