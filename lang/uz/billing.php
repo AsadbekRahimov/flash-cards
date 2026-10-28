@@ -68,8 +68,8 @@ return [
             // Telegram limits: title ≤ 32, label ≤ 32, description ≤ 255 characters.
             'title' => 'LexiFlow Pro — :period',
             'label' => 'LexiFlow Pro, :period',
-            'description_month' => "LexiFlow Pro obunasi: yangi so'zlar cheklovsiz, batafsil statistika. Har 30 kunda avtomatik yangilanadi; /pro buyrug'i orqali o'chirish mumkin.",
-            'description_year' => "LexiFlow Pro 1 yilga (365 kun): yangi so'zlar cheklovsiz, batafsil statistika. Bir martalik to'lov, avtoyangilashsiz.",
+            'description_month' => "LexiFlow Pro obunasi: yangi so'zlar cheklovsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Har 30 kunda avtomatik yangilanadi; /pro buyrug'i orqali o'chirish mumkin.",
+            'description_year' => "LexiFlow Pro 1 yilga (365 kun): yangi so'zlar cheklovsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Bir martalik to'lov, avtoyangilashsiz.",
         ],
         'precheckout' => [
             'order_not_found' => 'Hisob topilmadi. /pro ni oching va yangisini yarating.',

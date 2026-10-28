@@ -60,11 +60,13 @@ return [
         'pro' => [
             'name' => 'Pro',
             'tagline' => 'Ko\'proq istaganlar uchun',
+            // Only what the code really gates behind Pro (config/billing.php features, config/decks.php limits).
             'features' => [
                 'Yangi so\'zlar uchun kunlik limitsiz',
-                'Mashqlarning ko\'proq turlari',
-                'Mashq testlari',
-                'Batafsil statistika',
+                'Mashqlar: «So\'zni yozish» va «Misoldagi bo\'sh joy»',
+                'Shaxsiy to\'plamlar: 2000 tadan so\'zli 20 tagacha to\'plam',
+                'Seriyani muzlatish: o\'tkazib yuborilgan kun seriyani uzmaydi',
+                'IELTS va SAT sinov testlari',
             ],
             'note' => 'Pro tarkibi va narxlari hozircha aniqlanmoqda.',
         ],
