@@ -19,7 +19,7 @@ import { useCoursesStore } from '@/stores/courses'
 import { useExamStore } from '@/stores/exam'
 import { useTrainingStore } from '@/stores/training'
 import { useI18n } from '@/i18n'
-import type { CourseLesson } from '@/api/types'
+import type { CourseLesson, CourseStage } from '@/api/types'
 
 /**
  * One course (docs/14 §6.5): the heading with the progress, the main action ("Continue: module M, lesson N" in the
@@ -65,6 +65,17 @@ function lessonState(lesson: CourseLesson): LessonState {
   const { done, total } = lesson.progress
   if (total > 0 && done >= total) return 'done'
   return done > 0 ? 'started' : 'new'
+}
+
+/** The own name of a module; null for a module without one (`title: null`, or a blank one that an old row may hold). */
+function stageTitle(stage: CourseStage): string | null {
+  const title = stage.title?.trim()
+  return title ? title : null
+}
+
+/** "Education"; a module without a name of its own is just "Module 1" - the number, in the language of the reader. */
+function stageHeading(stage: CourseStage): string {
+  return stageTitle(stage) ?? t('course.module', { number: stage.number })
 }
 
 /** "Lesson 1 · University"; a lesson without a title is just "Lesson 1". */
@@ -209,8 +220,9 @@ onBeforeUnmount(() => {
 
       <section v-for="stage in detail.stages" :key="stage.number" class="mt-6" :data-testid="`stage-${stage.number}`">
         <div class="flex items-center justify-between gap-3">
-          <h2 class="min-w-0 text-[17px] leading-[22px] font-semibold break-words">{{ stage.title }}</h2>
-          <span class="chip chip-neutral shrink-0">{{ t('course.module', { number: stage.number }) }}</span>
+          <h2 class="min-w-0 text-[17px] leading-[22px] font-semibold break-words">{{ stageHeading(stage) }}</h2>
+          <!-- The number is the heading itself for a module without a name: no second "Модуль N" next to it. -->
+          <span v-if="stageTitle(stage) !== null" class="chip chip-neutral shrink-0">{{ t('course.module', { number: stage.number }) }}</span>
         </div>
         <div
           class="progress mt-2 h-1"
@@ -218,7 +230,7 @@ onBeforeUnmount(() => {
           aria-valuemin="0"
           aria-valuemax="100"
           :aria-valuenow="progressPercent(stage.progress)"
-          :aria-label="stage.title"
+          :aria-label="stageHeading(stage)"
           data-testid="progress-bar"
         >
           <div class="progress-fill" :style="{ width: `${progressPercent(stage.progress)}%` }" data-testid="progress-fill" />
