@@ -8,6 +8,7 @@ use App\Domain\Content\DTO\ResolvedTranslation;
 use App\Domain\Content\Services\WordTranslationResolver;
 use App\Domain\Learning\DTO\ExercisePrompt;
 use App\Domain\Learning\Enums\ExerciseType;
+use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Stage;
 use App\Models\Word;
@@ -17,8 +18,9 @@ use Illuminate\Database\Eloquent\Builder;
  * Turns the selected {@see ExerciseType} into what the client shows (docs/13 §2.5, docs/04 A.3).
  *
  * Reverse / audio need {@see OPTIONS} choices: the right one plus real distractors — active words
- * of the same lesson, then of the same course, then of published public platform courses (the
- * same whitelist as the exam builder; private courses of centers and learners never leak in).
+ * of the same lesson, then of the same course, then of published public platform courses
+ * ({@see Course::scopePublicPlatform()}, the same whitelist as the exam builder; private courses
+ * of centers and learners never leak in).
  * Distractors and their order are chosen by a hash of (seed, candidate), so two `/next` calls for
  * the same serve show the same screen. When there are not enough distractors the card falls back
  * to a flash prompt — the type in the prompt is what the client must follow.
@@ -198,12 +200,9 @@ final class ExercisePromptBuilder
         }
 
         yield $this->pool($word)
-            ->whereIn('lesson_id', Lesson::query()->select('lessons.id')
-                ->join('stages', 'stages.id', '=', 'lessons.stage_id')
-                ->join('courses', 'courses.id', '=', 'stages.course_id')
-                ->where('courses.status', 'published')
-                ->where('courses.visibility', 'public')
-                ->where('courses.owner_type', 'platform'));
+            ->whereIn('lesson_id', Lesson::query()->select('id')
+                ->whereIn('stage_id', Stage::query()->select('id')
+                    ->whereIn('course_id', Course::query()->select('id')->publicPlatform())));
     }
 
     /**

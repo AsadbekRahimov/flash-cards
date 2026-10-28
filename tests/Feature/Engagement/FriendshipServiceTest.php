@@ -12,6 +12,7 @@ use App\Models\ProductEvent;
 use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 
 /*
@@ -289,4 +290,98 @@ it('does not count the requests ADDRESSED to a learner against their limit', fun
     $first = friendsSvc()->request($owner, Learner::factory()->create());
     $second = friendsSvc()->request($owner, Learner::factory()->create());
     expect($first->status)->toBe('pending')->and($second->status)->toBe('pending');
+});
+
+/** @return array<string, int> the learned words the overview shows, by first name */
+function friendsWords(Learner $viewer): array
+{
+    $words = [];
+    foreach (friendsSvc()->overview($viewer)->friends as $entry) {
+        $words[(string) $entry->firstName] = $entry->wordsLearned;
+    }
+
+    return $words;
+}
+
+/** @return list<array{query: string, bindings: list<mixed>}> the queries `$fn` ran against word_repetitions */
+function friendsRepetitionReads(Closure $fn): array
+{
+    DB::flushQueryLog();
+    DB::enableQueryLog();
+    $fn();
+    $log = DB::getQueryLog();
+    DB::disableQueryLog();
+
+    return array_values(array_filter($log, static fn (array $q): bool => str_contains($q['query'], 'word_repetitions')));
+}
+
+it('shows the friends\' learned words from a ten-minute cache and counts in the database only the friends it has not got', function (): void {
+    config(['cache.default' => 'array']); // time travel moves the clock of the array store; a Redis server expires keys in real time
+    $me = Learner::factory()->create();
+    [$anna, $bek] = [Learner::factory()->create(['first_name' => 'Anna']), Learner::factory()->create(['first_name' => 'Bek'])];
+    foreach ([$anna, $bek] as $friend) {
+        Friendship::factory()->between($me, $friend)->create();
+    }
+    WordRepetition::factory()->count(2)->create(['learner_id' => $anna->id, 'repetitions' => 1]);
+    WordRepetition::factory()->count(5)->create(['learner_id' => $bek->id, 'repetitions' => 3]);
+
+    $first = [];
+    $reads = friendsRepetitionReads(function () use ($me, &$first): void {
+        $first = friendsWords($me);
+    });
+    expect($first)->toEqual(['Anna' => 2, 'Bek' => 5])
+        ->and($reads)->toHaveCount(1)
+        ->and($reads[0]['bindings'])->toContain($anna->id, $bek->id);
+
+    // Anna learns three more words: the overview, now served from the cache, does not touch the table...
+    WordRepetition::factory()->count(3)->create(['learner_id' => $anna->id, 'repetitions' => 1]);
+    $cached = [];
+    $reads = friendsRepetitionReads(function () use ($me, &$cached): void {
+        $cached = friendsWords($me);
+    });
+    expect($cached)->toEqual(['Anna' => 2, 'Bek' => 5])->and($reads)->toBe([]);
+
+    // ...a NEW friend is the only one it counts...
+    $cara = Learner::factory()->create(['first_name' => 'Cara']);
+    Friendship::factory()->between($me, $cara)->create();
+    WordRepetition::factory()->create(['learner_id' => $cara->id, 'repetitions' => 1]);
+    $withCara = [];
+    $reads = friendsRepetitionReads(function () use ($me, &$withCara): void {
+        $withCara = friendsWords($me);
+    });
+    expect($withCara)->toEqual(['Anna' => 2, 'Bek' => 5, 'Cara' => 1])
+        ->and($reads)->toHaveCount(1)
+        ->and($reads[0]['bindings'])->toBe([$cara->id, 1]);
+
+    // ...and ten minutes later everybody is current.
+    $this->travel(11)->minutes();
+    expect(friendsWords($me))->toEqual(['Anna' => 5, 'Bek' => 5, 'Cara' => 1]);
+});
+
+it('counts learned words only for accepted friends, not for the people who merely asked', function (): void {
+    $me = Learner::factory()->create();
+    [$friend, $asker, $asked, $blocked] = [Learner::factory()->create(['first_name' => 'Friend']), Learner::factory()->create(), Learner::factory()->create(), Learner::factory()->create()];
+    Friendship::factory()->between($me, $friend)->create();
+    Friendship::factory()->pending()->between($asker, $me, $asker)->create();
+    Friendship::factory()->pending()->between($me, $asked, $me)->create();
+    Friendship::factory()->between($me, $blocked)->blocked()->create();
+    foreach ([$friend, $asker, $asked, $blocked] as $learner) {
+        WordRepetition::factory()->count(2)->create(['learner_id' => $learner->id, 'repetitions' => 1]);
+    }
+
+    $overview = null;
+    $reads = friendsRepetitionReads(function () use ($me, &$overview): void {
+        $overview = friendsSvc()->overview($me);
+    });
+
+    expect($reads)->toHaveCount(1)
+        ->and($reads[0]['bindings'])->toBe([$friend->id, 1])
+        ->and($overview?->friends)->toHaveCount(1)
+        ->and($overview?->friends[0]->wordsLearned)->toBe(2)
+        ->and($overview?->incoming)->toHaveCount(1)
+        ->and($overview?->outgoing)->toHaveCount(1);
+
+    // Nobody to count (only requests): the table is not read at all.
+    Friendship::query()->where('status', 'accepted')->delete();
+    expect(friendsRepetitionReads(fn () => friendsSvc()->overview($me)))->toBe([]);
 });

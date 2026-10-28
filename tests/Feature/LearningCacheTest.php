@@ -74,3 +74,40 @@ it('caches exam leaderboards until the exam cache is cleared', function (): void
 
     expect($cache->examLeaderboard($session)['total_participants'])->toBe(2);
 });
+
+it('caches words learned per learner and hands only the learners without an entry to the loader', function (): void {
+    $calls = [];
+    $load = function (array $ids) use (&$calls): array {
+        $calls[] = $ids;
+
+        // Learner 3 has no learned word: the loader leaves them out, they count as 0.
+        return array_intersect_key([1 => 10, 2 => 20, 4 => 40], array_flip($ids));
+    };
+    $cache = app(LearningCache::class);
+
+    expect($cache->wordsLearned([1, 2, 3], $load))->toBe([1 => 10, 2 => 20, 3 => 0])
+        ->and($cache->wordsLearned([3, 4, 1, 3], $load))->toBe([3 => 0, 4 => 40, 1 => 10]) // the order of the request, no duplicates
+        ->and($cache->wordsLearned([1, 2, 3, 4], $load))->toBe([1 => 10, 2 => 20, 3 => 0, 4 => 40])
+        ->and($cache->wordsLearned([], $load))->toBe([])
+        ->and($calls)->toBe([[1, 2, 3], [4]]); // a 0 is an entry too: learner 3 is not asked again
+});
+
+it('keeps a words learned entry under stats:words_learned:{id} for ten minutes', function (): void {
+    app(LearningCache::class)->wordsLearned([7], fn (array $ids): array => [7 => 12]);
+
+    expect((int) Cache::get('stats:words_learned:7'))->toBe(12);
+
+    $this->travel(599)->seconds();
+    expect(Cache::has('stats:words_learned:7'))->toBeTrue();
+
+    $this->travel(2)->seconds();
+    expect(Cache::has('stats:words_learned:7'))->toBeFalse();
+
+    $reloaded = [];
+    app(LearningCache::class)->wordsLearned([7], function (array $ids) use (&$reloaded): array {
+        $reloaded = $ids;
+
+        return [7 => 15];
+    });
+    expect($reloaded)->toBe([7])->and((int) Cache::get('stats:words_learned:7'))->toBe(15);
+});

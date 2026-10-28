@@ -821,7 +821,7 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
   "outgoing": [{ "id": 31, "first_name": "Sam", "requested_at": "2026-10-22T11:00:00+00:00" }]
 }
 ```
-`invite_link` — `null`, пока не задан `TELEGRAM_BOT_USERNAME`. О другом человеке уходят только имя, `streak` (хранимая серия друга; 0, если последний удержанный день старше «вчера» по поясу друга — без записи в чужой профиль) и `words_learned` (слова с `repetitions ≥ 1`); ни id, ни username, ни пояс.
+`invite_link` — `null`, пока не задан `TELEGRAM_BOT_USERNAME`. О другом человеке уходят только имя, `streak` (хранимая серия друга; 0, если последний удержанный день старше «вчера» по поясу друга — без записи в чужой профиль) и `words_learned` (слова с `repetitions ≥ 1`; только у принятых друзей и **до 10 минут давности** — кэш `stats:words_learned:{id}`, в БД считаются лишь друзья без записи в кэше, одним запросом); ни id, ни username, ни пояс.
 - `POST /friends/{id}/accept` — принять входящий (идемпотентно; лимит `friends.max` проверяется у обеих сторон: **409** `friend_limit` / `friend_limit_other`; приглашавший сам принять не может: **403** `not_recipient`); `POST …/decline` — отклонить входящий (строка удаляется); `POST …/remove` — удалить из друзей / отозвать свой запрос / снять свою блокировку (открытые вызовы пары → `canceled`).
 
 **`GET /api/twa/challenges`** → `{ "days": 7, "open": [Challenge], "finished": [Challenge] }` (`open` — `pending`/`active`, `finished` — последние 20). `Challenge` (то же — ответ остальных вызовов):
@@ -830,7 +830,7 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
   "starts_on": "2026-10-23", "ends_on": "2026-10-29", "created_at": "2026-10-22T10:00:00+00:00",
   "my_score": 14, "their_score": 9, "result": null }
 ```
-`role` — `challenger`/`opponent`; `my_score`/`their_score` — живые у `active`, итоговые у `finished`, иначе `null`; `result` — `won`/`lost`/`draw` у `finished`; `friendship_id` — `null`, если дружбы уже нет.
+`role` — `challenger`/`opponent`; `my_score`/`their_score` — живые у `active` (один запрос к `learner_daily_stats` на весь список: строки обеих сторон за `min(starts_on)..max(ends_on)`, суммы по периоду каждого вызова считаются в PHP), итоговые у `finished`, иначе `null`; `result` — `won`/`lost`/`draw` у `finished`; `friendship_id` — `null`, если дружбы уже нет.
 - `POST /api/twa/challenges` `{friendship_id, metric: reviews|new_words}` → **201** `Challenge` (`pending`); друг адресуется id дружбы, не learner'а. Ошибки: **403** `not_friends`, **409** `challenge_exists` (один открытый вызов на пару), **422** (валидация), **404** чужая дружба.
 - `POST /challenges/{id}/accept` — принять (только адресат: **403** `not_opponent`; `active` повторно — без изменений; закрытый/просроченный — **409** `challenge_closed`); `POST /challenges/{id}/decline` — отклонить.
 

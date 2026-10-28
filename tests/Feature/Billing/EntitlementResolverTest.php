@@ -66,7 +66,7 @@ it('resolves Free with the configured limit and features when nothing is live', 
         ->and($e->newWordsPerDay)->toBe(20)
         ->and($e->isUnlimited())->toBeFalse()
         ->and($e->can('training.daily'))->toBeTrue()
-        ->and($e->can('stats.detailed'))->toBeFalse();
+        ->and($e->can('exam.simulator'))->toBeFalse();
 });
 
 it('reads the Free limit from config/billing.php only', function (): void {
@@ -87,7 +87,7 @@ it('resolves Pro from a live personal subscription with its end date', function 
         ->and($e->until?->toIso8601String())->toBe(CarbonImmutable::now()->addDays(10)->toIso8601String())
         ->and($e->newWordsPerDay)->toBeNull()
         ->and($e->isUnlimited())->toBeTrue()
-        ->and($e->can('stats.detailed'))->toBeTrue();
+        ->and($e->can('exam.simulator'))->toBeTrue();
 });
 
 it('resolves Pro sponsored by an organization through a seat (organization_members: active, seated)', function (): void {

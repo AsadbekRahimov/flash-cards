@@ -601,7 +601,7 @@ return [
     'grace_days' => (int) env('BILLING_GRACE_DAYS', 3),
     'plans' => [
         'free' => ['rank' => 0, 'limits' => ['new_words_per_day' => (int) env('BILLING_FREE_NEW_WORDS_PER_DAY', 20)], 'features' => ['courses.public', 'training.daily', 'training.lesson']],
-        'pro'  => ['rank' => 1, 'limits' => ['new_words_per_day' => null], 'features' => ['courses.public', 'training.daily', 'training.lesson', 'stats.detailed', 'streak.freeze' /* Фаза 2 */]],
+        'pro'  => ['rank' => 1, 'limits' => ['new_words_per_day' => null], 'features' => ['courses.public', 'training.daily', 'training.lesson', 'streak.freeze' /* Фаза 2 */]],
     ],
     'prices' => [ /* заполняется при подключении оплаты: ['pro' => ['month' => ['XTR' => …, 'UZS' => …], 'year' => […]]] */ ],
     'promo' => ['rejections_alert' => ['threshold' => (int) env('BILLING_PROMO_REJECTIONS_ALERT_THRESHOLD', 5), 'window' => (int) env('BILLING_PROMO_REJECTIONS_ALERT_WINDOW', 600)]], // §8; threshold 0 — алерт выключен
