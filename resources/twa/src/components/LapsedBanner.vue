@@ -75,7 +75,8 @@ onMounted(async () => {
         <AppIcon name="x-mark" :size="20" />
       </button>
     </div>
-    <button type="button" class="btn btn-primary btn-block" data-testid="lapsed-renew" @click="emit('renew')">
+    <!-- Tinted, not primary: the screens around it (Home, Subscription) have their own one primary button. -->
+    <button type="button" class="btn btn-tinted btn-block" data-testid="lapsed-renew" @click="emit('renew')">
       {{ t('lapsed.renew') }}
     </button>
   </section>

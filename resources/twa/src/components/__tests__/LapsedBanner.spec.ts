@@ -59,14 +59,16 @@ describe('LapsedBanner', () => {
     expect(w.get('[data-testid=lapsed-text]').text()).toMatch(/^Obuna 18-oktabr kuni tugadi\./)
   })
 
-  it('is a warning card: a clock tile, a primary renew button and an icon-only dismiss button named "Hide"', async () => {
+  it('is a warning card: a clock tile, a tinted renew button (the screen keeps one primary) and an icon-only dismiss button named "Hide"', async () => {
     const w = await render(me(lapsed()))
 
     const tile = w.get('.icon-tile')
     expect(tile.classes()).toContain('bg-warning')
     expect(tile.get('path').attributes('d')).toBe(ICONS.clock.outline[0]?.d)
 
-    expect(w.get('[data-testid=lapsed-renew]').classes()).toEqual(expect.arrayContaining(['btn', 'btn-primary']))
+    const renew = w.get('[data-testid=lapsed-renew]')
+    expect(renew.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-block']))
+    expect(renew.classes()).not.toContain('btn-primary')
 
     const dismiss = w.get('[data-testid=lapsed-dismiss]')
     expect(dismiss.attributes('aria-label')).toBe('Скрыть')
