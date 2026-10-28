@@ -212,7 +212,7 @@ it('tells an API answer from a transport failure', function (): void {
 
 // --- #7 the learner list is cheap and does not write on every call ---------------------------------
 
-it('recounts only stale snapshots and its query count does not grow with the assignments', function (): void {
+it('writes nothing on a warm call and its query count does not grow with the assignments', function (): void {
     foreach (range(1, 2) as $i) {
         Assignment::factory()->create(['organization_id' => $this->a->id, 'telegram_group_id' => $this->group->id, 'lesson_id' => $this->lesson->id, 'due_at' => now()->addDays($i + 1)]);
     }
@@ -243,7 +243,7 @@ it('recounts only stale snapshots and its query count does not grow with the ass
 
     expect($count())->toBe($before);
 
-    // A snapshot older than the stale window is recounted.
+    // The progress is counted live: a new repetition shows at once (and is written, once).
     WordRepetition::factory()->create(['learner_id' => $this->learnerA->id, 'word_id' => $this->words[1]->id, 'repetitions' => 1]);
     $items = $this->service->forLearner($this->learnerA, CarbonImmutable::now()->addMinutes(11));
 
