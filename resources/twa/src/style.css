@@ -33,6 +33,7 @@
   --color-success-soft: var(--app-success-soft);
   --color-warning-soft: var(--app-warning-soft);
   --color-danger-soft: var(--app-danger-soft);
+  --color-accent-ink: var(--app-accent-ink);
   --color-success-ink: var(--app-success-ink);
   --color-warning-ink: var(--app-warning-ink);
   --color-danger-ink: var(--app-danger-ink);
@@ -89,11 +90,16 @@
   --app-success-soft: color-mix(in srgb, var(--app-success) 16%, transparent);
   --app-warning-soft: color-mix(in srgb, var(--app-warning) 18%, transparent);
   --app-danger-soft: color-mix(in srgb, var(--app-danger) 14%, transparent);
-  /* "Ink" = text on a soft background: mixed with the theme text colour, so it reads in both light and dark. */
-  --app-success-ink: color-mix(in srgb, var(--app-success) 72%, var(--tg-text));
-  /* Amber is a light hue: it takes the larger share of the text colour to reach 4.5:1 on white and on warning-soft in the light iOS and Android themes. */
-  --app-warning-ink: color-mix(in srgb, var(--app-warning) 50%, var(--tg-text));
-  --app-danger-ink: color-mix(in srgb, var(--app-danger) 85%, var(--tg-text));
+  /*
+   * "Ink" = text on a soft background: the colour mixed with the theme text colour, so it reads in both light and dark.
+   * Each share is the largest one that keeps 4.5:1 on the soft background of its colour, over a card and over the bare
+   * page, in every built-in Telegram theme (iOS, Android, Desktop, Web; light and dark; docs/14 §4.1, guarded by
+   * designSystem.spec.ts). The lightest hues set the bound: the Android light button blue (#50a8eb) and amber.
+   */
+  --app-accent-ink: color-mix(in srgb, var(--app-accent) 50%, var(--tg-text));
+  --app-success-ink: color-mix(in srgb, var(--app-success) 50%, var(--tg-text));
+  --app-warning-ink: color-mix(in srgb, var(--app-warning) 45%, var(--tg-text));
+  --app-danger-ink: color-mix(in srgb, var(--app-danger) 60%, var(--tg-text));
   --app-track: color-mix(in srgb, var(--tg-hint) 24%, transparent); /* progress tracks, switches */
 
   /* Icon tiles: the same in both themes, the icon is white. */
@@ -193,10 +199,10 @@ body {
     background: var(--app-accent);
     color: var(--tg-button-text);
   }
-  /* Secondary action anywhere (page or card). */
+  /* Secondary action anywhere (page or card). The text is the ink, not the bare accent: that was 2.0-3.4:1 on its own soft fill in the light themes. */
   .btn-tinted {
     background: var(--app-accent-soft);
-    color: var(--app-accent);
+    color: var(--app-accent-ink);
   }
   /* Neutral button INSIDE a surface (e.g. "Cancel"); on the bare page it has the page colour — use btn-tinted there. */
   .btn-secondary {
@@ -349,7 +355,7 @@ body {
   }
   .chip-accent {
     background: var(--app-accent-soft);
-    color: var(--app-accent);
+    color: var(--app-accent-ink);
   }
   .chip-success {
     background: var(--app-success-soft);

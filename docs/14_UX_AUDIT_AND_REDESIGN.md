@@ -142,20 +142,44 @@ Telegram-параметры (заполняются в `main.ts` из `WebApp.th
 --app-success-soft: color-mix(in srgb, var(--app-success) 16%, transparent);
 --app-warning-soft: color-mix(in srgb, var(--app-warning) 18%, transparent);
 --app-danger-soft:  color-mix(in srgb, var(--app-danger) 14%, transparent);
-/* «Чернила» для текста на мягком фоне: смешиваем с цветом текста темы → контраст и в светлой, и в тёмной теме */
---app-success-ink: color-mix(in srgb, var(--app-success) 72%, var(--tg-text));
---app-warning-ink: color-mix(in srgb, var(--app-warning) 50%, var(--tg-text));  /* янтарь светлый: при 72 % на светлых темах было 3,1–4,0 */
---app-danger-ink:  color-mix(in srgb, var(--app-danger) 85%, var(--tg-text));
+/* «Чернила» для текста на мягком фоне: цвет, смешанный с цветом текста темы → контраст и в светлой, и в тёмной теме.
+   Доля цвета — наибольшая, при которой контраст ≥ 4,5:1 на мягком фоне своего цвета во всех встроенных темах (таблица ниже) */
+--app-accent-ink:  color-mix(in srgb, var(--app-accent)  50%, var(--tg-text));  /* текст на accent-soft: .btn-tinted, .chip-accent */
+--app-success-ink: color-mix(in srgb, var(--app-success) 50%, var(--tg-text));
+--app-warning-ink: color-mix(in srgb, var(--app-warning) 45%, var(--tg-text));  /* янтарь — самый светлый цвет */
+--app-danger-ink:  color-mix(in srgb, var(--app-danger)  60%, var(--tg-text));
 --app-track: color-mix(in srgb, var(--tg-hint) 24%, transparent);   /* дорожки прогресса */
 /* Цвета плиток-иконок (одинаковы в обеих темах, белая иконка) */
 --tile-blue:#3b82f6; --tile-orange:#f97316; --tile-green:#22c55e; --tile-purple:#8b5cf6; --tile-red:#ef4444;
 --tile-teal:#14b8a6; --tile-yellow:#eab308; --tile-pink:#ec4899; --tile-gray:#8e8e93;
 ```
 
-Контраст «чернил» проверен расчётом по WCAG (обычный текст — не меньше 4,5:1) для стандартных тем Telegram: iOS светлая и тёмная,
-Android светлая. `warning-ink` (доля янтарного 50 %): на белой поверхности ≥ 5,5, на `warning-soft` ≥ 4,8 (при 72 % было 4,0 / 3,5 на iOS и
-3,5 / 3,1 на Android; тёмная тема стала лучше, 8,0 → 9,5). Подсказки под оценками флеш-карты («повторим сегодня»…) — 12 px, поэтому без
-`opacity`: цвет кнопки пополам с цветом текста темы, ≥ 4,8:1 на фоне каждой из трёх кнопок во всех трёх темах.
+**Контраст текста на мягком фоне (17.14-T).** `.btn-tinted` и `.chip-accent` брали голый акцент на `accent-soft`: на светлых темах это
+3,35 (iOS) и 2,28 (Android) на карточке и ещё ниже на голой странице; `chip-success` и `btn-danger` на iOS — 3,5–4,2. Теперь у каждого
+мягкого цвета есть свои «чернила» (`accent-ink`, `success-ink`, `warning-ink`, `danger-ink`), и они стоят во всех таких парах:
+`.btn-tinted`, `.chip-*`, `.btn-danger`, оценки флеш-карты, варианты ответа, `InlineAlert`. Порог — WCAG 4,5:1 для обычного текста.
+Расчёт сверен замером `getComputedStyle` в браузере для восьми встроенных тем Telegram — iOS светлая и тёмная, Android светлая и тёмная,
+Desktop светлая и «ночная синяя», Web светлая, Web / Desktop тёмная — на мягком фоне поверх карточки (`section_bg_color`) и поверх голой
+страницы (`secondary_bg_color`: она темнее, поэтому хуже). Минимум из двух фонов, было → стало:
+
+| Текст на мягком фоне | Web светлая | Web / Desktop тёмная | iOS светлая | iOS тёмная | Android светлая | Android тёмная | Desktop светлая | Desktop ночная |
+|---|---|---|---|---|---|---|---|---|
+| `btn-tinted`, `chip-accent` | 2,61 → 7,43 | 3,61 → 7,43 | 2,96 → 7,82 | 3,37 → 6,50 | 2,03 → 4,89 | 3,39 → 6,95 | 2,11 → 6,48 | 3,09 → 6,02 |
+| `chip-success`, «Легко» | 3,83 → 6,52 | 6,14 → 7,66 | 3,69 → 6,28 | 5,34 → 6,66 | 3,27 → 4,91 | 5,74 → 7,17 | 3,74 → 6,37 | 5,09 → 6,23 |
+| `btn-danger`, `chip-danger`, «Не помню» | 4,18 → 6,80 | 5,05 → 6,67 | 3,46 → 5,86 | 4,01 → 5,54 | 4,61 → 6,33 | 4,84 → 6,46 | 4,17 → 6,74 | 3,59 → 4,94 |
+| `chip-warning`, `InlineAlert` warning | 5,71 → 6,56 | 7,75 → 8,06 | 5,50 → 6,32 | 6,74 → 7,01 | 4,31 → 4,81 | 7,38 → 7,67 | 5,58 → 6,41 | 6,43 → 6,66 |
+
+Худшая пара из всех: 2,03 → 4,81. Границу задают самые светлые цвета — синий кнопки в светлой теме Android (`#50a8eb`) и янтарь, поэтому
+в светлых iOS и Web запас больше нужного (7–9): доля цвета одна на все темы, а «чернила» тем темнее, чем светлее цвет. Тёмные темы стали
+лучше, не хуже: «чернила» там светлее (худший минимум 3,09 → 4,94), оттенок цвета сохраняется. Подсказки под оценками флеш-карты
+(«повторим сегодня»…) — 12 px, поэтому без `opacity`: цвет кнопки (теперь её «чернила») пополам с цветом текста темы, ≥ 7,5:1 на фоне каждой
+из трёх кнопок во всех восьми темах. Таблицу воспроизводит `designSystem.spec.ts`: он читает доли из `style.css`, считает по формуле WCAG
+для этих тем и падает, если пара ушла ниже 4,5; новая тема — одна строка в тесте.
+
+**Цвета самой темы Telegram не трогаем.** Белый текст на кнопке (`button_text_color` на `button_color`, это родной цвет MainButton:
+2,58 на Android светлой … 4,02 на iOS светлой), `hint_color` — родной цвет второстепенного текста Telegram (на карточке 2,38 на Android
+светлой … 6,93 на Web тёмной), акцент на голой странице (`btn-plain`, ссылки: 2,26 … 4,92) — всё это выглядит так же и в самом Telegram, и
+подмена разошла бы приложение с ним. Чиним только производные токены приложения: `*-soft` и `*-ink`.
 
 Все токены пробрасываются в Tailwind через `@theme` (`--color-page`, `--color-surface`, `--color-fill`, `--color-accent`,
 `--color-success`, `--color-warning`, `--color-danger`, `--color-*-soft`, `--color-*-ink`, `--color-hairline`, `--color-track`,
@@ -183,7 +207,7 @@ Android светлая. `warning-ink` (доля янтарного 50 %): на �
 - `.card` — `--app-surface`, `rounded-2xl` (16), `p-4`, `box-shadow: 0 0 0 1px var(--app-hairline)`.
 - `.section-label` — подпись группы, `px-4 mb-1.5 mt-5`.
 - Кнопки: `.btn` (min-h 48, `rounded-xl`, 16px semibold, `active:scale-[.98]`, `disabled:opacity-50`, `focus-visible` кольцо accent) +
-  варианты: `.btn-primary` (accent / button-text), `.btn-tinted` (accent-soft / accent — **вторичное действие где угодно**),
+  варианты: `.btn-primary` (accent / button-text), `.btn-tinted` (accent-soft / accent-ink — **вторичное действие где угодно**),
   `.btn-secondary` (fill / text — нейтральное внутри surface, напр. «Отмена»), `.btn-plain` (без фона, accent — третичное),
   `.btn-danger` (danger-soft / danger-ink); размеры `.btn-lg` (min-h 56, 17px), `.btn-sm` (min-h 36, 14px, `rounded-lg`;
   область нажатия ≥ 44 px — невидимый слой `::after`), `.btn-block`.
@@ -198,7 +222,7 @@ Android светлая. `warning-ink` (доля янтарного 50 %): на �
 - `.option` — вариант ответа (на странице, вне карточки): surface + hairline, `rounded-xl`, min-h 56, 16px medium; состояния
   `data-state`: `selected` (рамка accent 2px, accent-soft), `correct` (success-soft, рамка success, success-ink, иконка ✓),
   `incorrect` (danger-soft, рамка danger, danger-ink, иконка ✕), `reveal` (рамка success пунктиром, success-ink).
-- `.chip` (`h-6 px-2.5 rounded-full text-xs font-semibold`) + `.chip-accent|success|warning|danger|neutral`.
+- `.chip` (`h-6 px-2.5 rounded-full text-xs font-semibold`) + `.chip-accent|success|warning|danger|neutral` (текст — «чернила» своего цвета, §4.1).
 - `.progress` / `.progress-fill` (дорожка `--app-track`, заливка accent; `.progress-success`).
 - `.list` (surface, `rounded-2xl`, hairline, `overflow-hidden`) / `.list-row` (min-h 52, `px-4 py-2.5`, разделитель между
   строками — `--tg-separator`, с отступом слева 56 px при иконке).
