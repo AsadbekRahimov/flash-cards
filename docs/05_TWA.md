@@ -9,7 +9,8 @@
 - **HTTP:** ofetch или axios.
 - **UI:** TailwindCSS 4 (`@tailwindcss/vite`, конфиг в `src/style.css`: `@theme`, токены `--tg-*`) + локальные компоненты (без тяжёлой UI-либы, чтобы размер bundle был маленьким).
 - **Telegram SDK:** `@twa-dev/sdk`.
-- **Icon set:** `@heroicons/vue`.
+- **Icons:** Heroicons 2.2 (MIT), **вендорные** — пути SVG лежат в `src/components/ui/icons.ts` (50 иконок, outline + solid; лицензия в шапке файла), рисует их `AppIcon`; npm-пакета иконок нет. Файл собирается в отдельный чанк `icons` (`vite.config.ts`), чтобы он кешировался между релизами.
+- **Дизайн-система:** токены, CSS-компоненты (`.page`, `.card`, `.btn-*`, `.field`, `.list`, …) и UI-компоненты `components/ui/*` — `docs/14_UX_AUDIT_AND_REDESIGN.md` §4; API компонентов описан в JSDoc каждого файла.
 
 Размер цели: первый бандл ≤ 180 KB gzip.
 
@@ -41,6 +42,10 @@ resources/twa/
 │   │   └── errors.ts        # error.code -> локализованный текст
 │   ├── composables/
 │   │   ├── useTelegram.ts   # обёртка над @twa-dev/sdk
+│   │   ├── telegramTheme.ts # themeParams -> CSS-переменные, data-theme, цвет шапки (§8)
+│   │   ├── useBackButton.ts # системная «Назад» Telegram: показ/скрытие + переход (§8)
+│   │   ├── useToast.ts      # короткие уведомления («Сохранено»), рисует AppToast
+│   │   ├── format.ts        # formatDate(iso, style, locale) / formatNumber с кешем Intl
 │   │   ├── useTts.ts
 │   │   └── useTimer.ts
 │   ├── views/
@@ -50,6 +55,9 @@ resources/twa/
 │   │   ├── ExamView.vue
 │   │   └── ResultView.vue
 │   └── components/
+│       ├── ui/              # общие UI-компоненты (docs/14 §4.4): AppIcon + icons.ts, PageHeader, LoadingState,
+│       │                    #   ErrorState, EmptyState, ListGroup/ListRow, SegmentedControl/SegmentedNav,
+│       │                    #   ToggleSwitch, TabBar, AppToast, ProBenefits
 │       ├── FlashCard.vue
 │       ├── QuizOption.vue
 │       ├── Leaderboard.vue
@@ -78,16 +86,23 @@ app.mount('#app')
 
 ## 3. Маршруты
 
-| Path | View | Описание |
-|------|------|----------|
-| `/` | LandingView | Без контекста сессии внутри Telegram сразу переходит (`replace`, с query) на `/today`; вне Telegram показывает подсказку. |
-| `/today` | TodayView | Главный экран learner'а (1.3b): цель дня (кольцо), streak, «Повторить» (`daily_review`), активный курс и «Следующий урок», каталог, бейдж Free/Pro. Данные — `GET /today` (docs/04 A.2a), стор `today`. |
-| `/finished` | FinishedView | Итог сессии; цель и streak дня из `finish`-summary (стор `training.summary`), кнопка «На главную» → `/today`; при `done_reason = new_quota_exhausted` открывает `PaywallSheet` (docs/04 A.3, 1.4b). |
-| `/training/:sessionId` | TrainingView | Flashcards. |
-| `/exam/:sessionId` | ExamView | Экзамен с таймером. |
-| `/exam/:sessionId/result` | ResultView | Итоги + лидерборд. |
+| Path | View | Вкладка (`meta.tab`) | Описание |
+|------|------|------|----------|
+| `/` | LandingView | — | Без контекста сессии внутри Telegram сразу переходит (`replace`, с query) на `/today`; вне Telegram показывает подсказку. |
+| `/today` | TodayView | `today` | Главный экран learner'а (1.3b): цель дня (кольцо), streak, «Повторить» (`daily_review`), активный курс и «Следующий урок», каталог, бейдж Free/Pro. Данные — `GET /today` (docs/04 A.2a), стор `today`. |
+| `/courses`, `/courses/:slug` | CoursesView, CourseView | `courses` | Каталог курсов и экран курса. |
+| `/decks`, `/decks/:slug` | MyDecksView, DeckEditView | `courses` | Свои колоды и редактор колоды. |
+| `/league`, `/friends` | LeagueView, FriendsView | `rating` | Недельная лига; друзья и вызовы. |
+| `/profile` | ProfileView | `profile` | Профиль (корень вкладки): имя, тариф Free/Pro, вход в достижения, приглашения, друзей, подписку и настройки, контакт поддержки. Данные — `GET /me` (стор `billing`) и имя из стора `auth`; новых эндпоинтов нет. |
+| `/achievements`, `/referrals`, `/billing`, `/settings` | AchievementsView, ReferralsView, BillingView, SettingsView | `profile` | Экраны, в которые ведёт «Профиль». |
+| `/finished` | FinishedView | — | Итог сессии; цель и streak дня из `finish`-summary (стор `training.summary`), кнопка «На главную» → `/today`; при `done_reason = new_quota_exhausted` открывает `PaywallSheet` (docs/04 A.3, 1.4b). |
+| `/training/:sessionId` | TrainingView | — | Flashcards. |
+| `/exam/:sessionId` | ExamView | — | Экзамен с таймером. |
+| `/exam/:sessionId/result` | ResultView | — | Итоги + лидерборд. |
 
 Определяем режим по параметрам query из ссылки, которую бот прислал.
+
+**Нижняя навигация.** `meta.tab` (`today` | `courses` | `rating` | `profile`, тип `TabId` в `router/index.ts`) указывает, к какой вкладке относится экран. `App.vue` показывает `TabBar` только для маршрутов с `meta.tab` и отодвигает под него содержимое; активная вкладка — по `route.meta.tab`, поэтому внутренние экраны (курс, настройки) оставляют свою вкладку подсвеченной. «Погружение» (`/training/*`, `/finished`, `/exam/*`, лендинг) идёт без таб-бара. Состав вкладок — docs/14 §5.1.
 
 ## 4. Аутентификация
 
@@ -248,16 +263,14 @@ export function useTts() {
 ## 8. Интеграция с Telegram UI
 
 - `WebApp.MainButton` — не используем (UX хуже, чем свои кнопки, в рамках карточек).
-- `WebApp.BackButton` — показываем в `ExamView` и `TrainingView`, по клику → `WebApp.close()` с confirmation, если есть прогресс.
-- `WebApp.themeParams` — применяем как CSS variables для светлой/тёмной темы:
+- **Тема.** `composables/telegramTheme.ts` (`initTelegramTheme()` в `main.ts`) копирует **все** параметры `WebApp.themeParams`, которые нужны дизайну, в CSS-переменные на `<html>`; соответствие «параметр → переменная → фолбэк» — docs/14 §4.1 (14 параметров: `bg_color`, `text_color`, `hint_color`, `link_color`, `button_color`, `button_text_color`, `secondary_bg_color`, `section_bg_color`, `accent_text_color`, `destructive_text_color`, `subtitle_text_color`, `section_header_text_color`, `section_separator_color`, `bottom_bar_bg_color`). Параметр, которого клиент не прислал, **удаляется** (`removeProperty`) — срабатывает фолбэк из `style.css`. Компоненты используют только семантические токены `--app-*` (`page`, `surface`, `fill`, `accent`, …), а не `--tg-*` напрямую:
   ```css
-  :root {
-    --tg-bg: var(--tg-theme-bg-color, #fff);
-    --tg-text: var(--tg-theme-text-color, #000);
-    --tg-button: var(--tg-theme-button-color, #3390ec);
-  }
+  :root { --tg-bg: #fff; --app-page: var(--tg-secondary-bg); /* … */ }
   ```
-- `WebApp.HapticFeedback.impactOccurred('light')` — лёгкий хаптик на нажатие оценок.
+- **Смена темы на лету.** Подписка `WebApp.onEvent('themeChanged', …)` применяет тему заново; `document.documentElement.dataset.theme = WebApp.colorScheme` (`light`/`dark`) — для `color-scheme` нативных контролов.
+- **Цвет шапки и фона окна.** При `WebApp.isVersionAtLeast('6.1')` вызываются `setHeaderColor('secondary_bg_color')` и `setBackgroundColor('secondary_bg_color')` — шапка Telegram сливается с фоном страницы. Всё в `try/catch`: вне Telegram — no-op.
+- **Кнопка «Назад»** (`composables/useBackButton.ts`, правило — docs/14 §5.3): `useBackButton(target)` вызывается в `setup()` экрана; `target` — место назначения (`{ name: 'courses' }`), функция или `null`. Корни вкладок (`today`, `courses`, `decks`, `league`, `friends`, `profile`) — `null`: кнопка скрыта. Внутренние экраны ведут на корень своей вкладки (`course → courses`, `deck → decks`, `settings|billing|achievements|referrals → profile`). Тренировка личной сессии (`lesson`, `daily_review`) возвращает на `/today`, групповая (`group_lesson`) закрывает Mini App; экзамен — закрытие. Текстовых ссылок «← К курсам» нет. Обработчик снимается при уходе с экрана. Экраны переводятся на `useBackButton` по мере редизайна (docs/14 §10); до этого часть из них ещё вызывает `useTelegram().showBackButton` сама.
+- `WebApp.HapticFeedback.impactOccurred('light')` — лёгкий хаптик на нажатие оценок; `selectionChanged()` — при переключении вкладок.
 
 ## 8a. Локализация (i18n)
 
