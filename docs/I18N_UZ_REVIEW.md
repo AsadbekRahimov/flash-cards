@@ -33,9 +33,9 @@
 | `errors.exam.invalid_duration` | Imtihon davomiyligi 1 daqiqadan 30 daqiqagacha bo'lishi kerak. | Длительность экзамена должна быть от 1 до 30 минут. |
 | `errors.exam.failed` | Imtihonni boshlab bo'lmadi. | Не удалось запустить экзамен. |
 | `errors.exam.not_delivered` | Tugmani guruhga yuborib bo'lmadi: imtihon bekor qilindi. Bot guruhda ekanini va yoza olishini tekshiring, so'ng buyruqni takrorlang. | Не удалось отправить кнопку в группу: экзамен отменён. Проверьте, что бот в группе и может писать, и повторите команду. |
-| `errors.exam.close_not_teacher` | Imtihonni faqat shu guruhning o'qituvchisi yopishi mumkin. | Только учитель этой группы может закрыть экзамен. |
+| `errors.exam.close_not_teacher` | Imtihonni faqat shu guruhning o'qituvchisi yakunlashi mumkin. | Только учитель этой группы может завершить экзамен. |
 | `errors.exam.no_open_exam` | Hozir guruhda ochiq imtihon yo'q. | Сейчас в группе нет открытого экзамена. |
-| `errors.exam.close_failed` | Imtihonni yopib bo'lmadi. | Не удалось закрыть экзамен. |
+| `errors.exam.close_failed` | Imtihonni yakunlab bo'lmadi. | Не удалось завершить экзамен. |
 | `exam.started` | 🏁 <b>Imtihon boshlandi!</b><br>:stage-modul · :lesson-dars · <b>:minutes daq</b><br>Qo'shilish uchun tugmani bosing. | 🏁 <b>Экзамен запущен!</b><br>Модуль :stage · Урок :lesson · <b>:minutes мин</b><br>Нажмите кнопку, чтобы присоединиться. |
 | `exam.open_button` | 🏁 Imtihonni ochish | 🏁 Открыть экзамен |
 | `exam.leaderboard.title` | 🏁 <b>Imtihon natijalari</b><br>Dars :lesson | 🏁 <b>Итоги экзамена</b><br>Урок :lesson |
@@ -1968,7 +1968,8 @@
 
 > Меню «/» и справка в личном чате называли `/close_exam` «Imtihonni yakunlash» (завершить экзамен), справка в группе — «imtihonni yopish»
 > (закрыть экзамен): одна команда выглядела как две. Теперь везде «yakunlash». Сообщения об отказе (`errors.exam.close_not_teacher`,
-> `errors.exam.close_failed`: «yopishi», «yopib bo'lmadi») не менялись.
+> `errors.exam.close_failed`) тоже говорили «yopishi» / «yopib bo'lmadi» (закрыть) — в 17.14-S они приведены к тому же глаголу
+> («yakunlashi mumkin», «yakunlab bo'lmadi»; ru «завершить»), строки в таблице `errors.exam.*` выше изменены на месте. Проверить: «yakunlab bo'lmadi».
 
 | Ключ | uz | ru |
 |---|---|---|
