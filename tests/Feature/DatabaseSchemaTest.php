@@ -311,7 +311,8 @@ it('stores the generalised training_sessions columns (mode, source, course, expi
 
 it('creates the renamed learner indexes and none of the student ones', function (): void {
     $expected = [
-        'word_repetitions' => ['word_repetitions_learner_hard_due_idx', 'word_repetitions_due_learners_idx', 'word_repetitions_learner_is_hard_idx'],
+        'word_repetitions' => ['word_repetitions_next_card_idx', 'word_repetitions_due_learners_idx', 'word_repetitions_learner_is_hard_idx'],
+        'words' => ['words_inactive_idx'],
         'training_reviews' => ['training_reviews_created_learner_idx', 'training_reviews_session_learner_idx'],
         'exam_answers' => ['exam_answers_session_learner_word_unique', 'exam_answers_answered_learner_idx'],
         'exam_results' => ['exam_results_session_learner_unique'],
@@ -366,6 +367,48 @@ it('has composite index (learner_id, next_review_at)', function (): void {
     );
     expect($row)->not->toBeNull();
 })->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'pg_indexes catalog is PostgreSQL-only.');
+
+// --- hot-path indexes of the picker and of dueCount (docs/03 §2.7, §2.8; perf report 2026-10-28 P2-3 / P2-9) ---
+
+it('has the next-card index in the exact order of CardPicker and the partial index of inactive words, and no stale predecessor', function (): void {
+    $defs = DB::table('pg_indexes')
+        ->whereIn('tablename', ['word_repetitions', 'words'])
+        ->pluck('indexdef', 'indexname');
+
+    expect($defs->get('word_repetitions_next_card_idx'))
+        ->toContain('(learner_id, is_hard DESC, next_review_at, id)')
+        ->and($defs->get('words_inactive_idx'))
+        ->toContain('ON public.words USING btree (id) WHERE (is_active = false)')
+        ->and($defs->has('word_repetitions_learner_hard_due_idx'))->toBeFalse();
+
+    // Both are plain valid btree indexes (a CONCURRENTLY build that failed would leave an INVALID one).
+    $invalid = DB::table('pg_index')
+        ->join('pg_class', 'pg_class.oid', '=', 'pg_index.indexrelid')
+        ->whereIn('pg_class.relname', ['word_repetitions_next_card_idx', 'words_inactive_idx'])
+        ->where('pg_index.indisvalid', false)
+        ->count();
+    expect($invalid)->toBe(0);
+})->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'pg_indexes catalog is PostgreSQL-only.');
+
+it('restores the old hard-due index on rollback of the next-card index migration and swaps it back on re-run', function (): void {
+    $migration = require database_path('migrations/2026_10_28_000001_add_next_card_and_inactive_words_indexes.php');
+    $names = fn (string $table): array => array_column(Schema::getIndexes($table), 'name');
+
+    $migration->down();
+    expect($names('word_repetitions'))->toContain('word_repetitions_learner_hard_due_idx')
+        ->and($names('word_repetitions'))->not->toContain('word_repetitions_next_card_idx')
+        ->and($names('words'))->not->toContain('words_inactive_idx');
+
+    $migration->up();
+    expect($names('word_repetitions'))->toContain('word_repetitions_next_card_idx')
+        ->and($names('word_repetitions'))->not->toContain('word_repetitions_learner_hard_due_idx')
+        ->and($names('words'))->toContain('words_inactive_idx');
+
+    // Running `up()` twice (a retry after an interrupted deploy) is harmless.
+    $migration->up();
+    expect(array_count_values($names('word_repetitions'))['word_repetitions_next_card_idx'])->toBe(1)
+        ->and(array_count_values($names('words'))['words_inactive_idx'])->toBe(1);
+});
 
 it('runs migrate:fresh --seed and produces demo data', function (): void {
     $this->artisan('migrate:fresh', ['--seed' => true])->assertSuccessful();
