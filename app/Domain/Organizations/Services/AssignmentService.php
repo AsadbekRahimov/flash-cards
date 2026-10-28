@@ -8,6 +8,7 @@ use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Learning\Services\SpacedRepetitionEngine;
 use App\Domain\Localization\Services\LocaleResolver;
+use App\Domain\Organizations\DTO\AssignmentProgress;
 use App\Domain\Organizations\DTO\LearnerAssignment;
 use App\Domain\Organizations\Exceptions\AssignmentException;
 use App\Domain\Telegram\Contracts\TelegramClient;
@@ -24,7 +25,6 @@ use App\Models\Lesson;
 use App\Models\Organization;
 use App\Models\Stage;
 use App\Models\TelegramGroup;
-use App\Models\TrainingReview;
 use App\Models\User;
 use App\Models\Word;
 use App\Models\WordRepetition;
@@ -40,9 +40,11 @@ use Throwable;
  * Assignments of a center (docs/13 §1.4, §2.3 "Реализация 2B.4"): set a lesson of the group's
  * course for a group, tell the group once, remind once, and keep a progress snapshot per learner.
  *
- *  - Progress = learner's `word_repetitions.repetitions >= 1` over the ACTIVE words of the lesson;
- *    `completed_at` is the moment the threshold was first reached, set once by a conditional
- *    UPDATE (a repeated or parallel refresh changes nothing and raises no second event).
+ *  - Progress = learner's `word_repetitions.repetitions >= 1` over the ACTIVE words of the lesson,
+ *    counted by grouped queries (per lesson × learner) and written by ONE upsert per batch, never
+ *    row by row (`writeSnapshots`); `completed_at` is the moment the threshold was first reached, set
+ *    once by a conditional UPDATE (a repeated or parallel refresh changes nothing and raises no
+ *    second event). The learner's own list (`forLearner`) counts live and writes only what changed.
  *  - Nothing here holds a lock across a Telegram call: the one-time posts (`announced_at`,
  *    `reminded_at`) are CLAIMED by a conditional UPDATE first and sent afterwards; a definite
  *    Telegram refusal releases the claim (retried by `assignments:refresh`, a few times), an
@@ -382,7 +384,12 @@ final class AssignmentService
 
     /**
      * Active assignments of the groups the learner is active in (organization active), with the
-     * learner's OWN progress recounted now — "Today" must not lag 30 minutes behind a session.
+     * learner's OWN progress counted live — "Today" must not lag behind a session — in a fixed
+     * number of queries whatever the number of assignments: one grouped count over the lessons of
+     * all of them, one read of the snapshot rows, and ONE upsert of just the rows the count changed
+     * (a warm call writes nothing at all). A threshold reached for the first time is claimed here
+     * exactly like in the group refresh (`writeSnapshots`), so the two paths cannot raise
+     * `assignment.completed` twice between them.
      *
      * @return list<LearnerAssignment> due soonest first
      */
@@ -404,210 +411,322 @@ final class AssignmentService
             ->limit((int) config('organizations.assignments.twa_limit', 20))
             ->get();
 
-        // Only snapshots older than `stale_after_minutes` are recounted (a read path must not write
-        // on every call), and the lessons' words are loaded once for all of them.
-        // A snapshot is also stale once the learner reviewed something after it was taken.
-        $threshold = $now->subMinutes((int) config('organizations.assignments.stale_after_minutes', 10));
-        $lastActivity = WordRepetition::query()->where('learner_id', $learner->id)->max('updated_at');
-        $lastActivity = $lastActivity === null ? null : CarbonImmutable::parse((string) $lastActivity);
-
-        $fresh = AssignmentResult::query()
-            ->where('learner_id', $learner->id)
-            ->whereIn('assignment_id', $assignments->modelKeys())
-            ->where('computed_at', '>', $threshold)
-            ->when($lastActivity !== null, static fn ($query) => $query->where('computed_at', '>=', $lastActivity))
-            ->pluck('assignment_id')
-            ->map(static fn ($id): int => (int) $id)
-            ->all();
-        $stale = $assignments->reject(static fn (Assignment $a): bool => in_array($a->id, $fresh, true));
-
-        if ($stale->isNotEmpty()) {
-            /** @var array<int, list<int>> $wordsByLesson */
-            $wordsByLesson = [];
-
-            foreach (Word::query()->whereIn('lesson_id', $stale->pluck('lesson_id')->unique()->all())->where('is_active', true)->get(['id', 'lesson_id']) as $word) {
-                $wordsByLesson[(int) $word->lesson_id][] = (int) $word->id;
-            }
-
-            foreach ($stale as $assignment) {
-                $this->compute($assignment, [$learner->id], $now, $wordsByLesson[$assignment->lesson_id] ?? []);
-            }
+        if ($assignments->isEmpty()) {
+            return [];
         }
 
-        /** @var Collection<int, AssignmentResult> $results */
-        $results = AssignmentResult::query()
-            ->where('learner_id', $learner->id)
-            ->whereIn('assignment_id', $assignments->modelKeys())
-            ->get()
-            ->keyBy('assignment_id');
+        /** @var list<int> $lessonIds */
+        $lessonIds = $assignments->pluck('lesson_id')->unique()->values()->all();
+        $totals = $this->activeWordTotals($lessonIds);
+        $repeated = $this->repeatedCounts($lessonIds, [$learner->id]);
+        $existing = $this->snapshots($assignments->modelKeys(), [$learner->id]);
 
-        return array_values($assignments
-            ->map(static fn (Assignment $assignment): LearnerAssignment => new LearnerAssignment(
+        /** @var list<AssignmentProgress> $rows */
+        $rows = $assignments
+            ->map(fn (Assignment $assignment): AssignmentProgress => $this->progressOf(
                 $assignment,
-                $results->get($assignment->id)->progress_pct ?? 0,
-                $results->get($assignment->id)?->completed_at,
+                $learner->id,
+                $totals[$assignment->lesson_id] ?? 0,
+                $repeated[$assignment->lesson_id][$learner->id] ?? 0,
             ))
-            ->all());
+            ->values()
+            ->all();
+
+        $changed = array_values(array_filter(
+            $rows,
+            fn (AssignmentProgress $row): bool => $this->needsWrite($row, $existing->get($row->key())),
+        ));
+
+        if ($changed !== []) {
+            $this->writeSnapshots($changed, $existing, $now, [$learner->id => $learner]);
+            // Re-read rather than guess: a parallel claim may have won the `completed_at` of a row.
+            $existing = $this->snapshots($assignments->modelKeys(), [$learner->id]);
+        }
+
+        return array_map(
+            static fn (AssignmentProgress $row): LearnerAssignment => new LearnerAssignment(
+                $row->assignment,
+                $row->progressPct,
+                $existing->get($row->key())?->completed_at,
+            ),
+            $rows,
+        );
     }
 
     /**
-     * Progress of the given learners (all active members of the group) on one assignment.
+     * Snapshot of the given learners (one chunk of the group's active members) on one assignment:
+     * two aggregate queries, one read of the rows, one upsert, plus a claim per threshold reached.
+     * Every row is written — the group refresh re-stamps `computed_at`, the report's "as of".
      *
      * @param  list<int>  $learnerIds
-     * @param  list<int>|null  $wordIds  active words of the lesson when the caller already has them
      * @return int learners that reached the threshold for the first time in this call
      */
-    private function compute(Assignment $assignment, array $learnerIds, CarbonImmutable $now, ?array $wordIds = null): int
+    private function compute(Assignment $assignment, array $learnerIds, CarbonImmutable $now): int
     {
         if ($learnerIds === []) {
             return 0;
         }
 
-        if ($wordIds === null) {
-            /** @var list<int> $wordIds */
-            $wordIds = Word::query()
-                ->where('lesson_id', $assignment->lesson_id)
-                ->where('is_active', true)
-                ->pluck('id')
-                ->map(static fn ($id): int => (int) $id)
-                ->values()
-                ->all();
-        }
+        $total = $this->activeWordTotals([$assignment->lesson_id])[$assignment->lesson_id] ?? 0;
+        $repeated = $total === 0 ? [] : ($this->repeatedCounts([$assignment->lesson_id], $learnerIds)[$assignment->lesson_id] ?? []);
+        $existing = $this->snapshots([$assignment->id], $learnerIds);
 
-        $total = count($wordIds);
+        $rows = array_map(
+            fn (int $learnerId): AssignmentProgress => $this->progressOf($assignment, $learnerId, $total, $repeated[$learnerId] ?? 0),
+            $learnerIds,
+        );
+
+        return $this->writeSnapshots($rows, $existing, $now);
+    }
+
+    /**
+     * The snapshot rule (docs/13 §1.4): percent of the lesson's ACTIVE words the learner has
+     * `repetitions >= 1` on; the threshold takes `ceil(total × threshold%)` words, at least one.
+     * A lesson without active words never completes.
+     */
+    private function progressOf(Assignment $assignment, int $learnerId, int $total, int $repeated): AssignmentProgress
+    {
         $needed = $total === 0 ? 0 : max(1, (int) ceil($total * $assignment->completion_threshold / 100));
 
-        /** @var array<int, int> $repeated */
-        $repeated = $total === 0 ? [] : WordRepetition::query()
-            ->selectRaw('learner_id, count(*) as repeated')
-            ->whereIn('word_id', $wordIds)
-            ->whereIn('learner_id', $learnerIds)
-            ->where('repetitions', '>=', 1)
-            ->groupBy('learner_id')
-            ->pluck('repeated', 'learner_id')
-            ->map(static fn ($count): int => (int) $count)
-            ->all();
+        return new AssignmentProgress(
+            $assignment,
+            $learnerId,
+            $total === 0 ? 0 : min(100, intdiv($repeated * 100, $total)),
+            $needed > 0 && $repeated >= $needed,
+            $needed,
+        );
+    }
 
-        $existing = AssignmentResult::query()
-            ->where('assignment_id', $assignment->id)
-            ->whereIn('learner_id', $learnerIds)
-            ->get()
-            ->keyBy('learner_id');
+    /**
+     * Whether a counted row differs from its stored snapshot: no row yet, another percent, or a
+     * reached threshold without a claim (a writer that died between the upsert and the claim is
+     * made up for here).
+     */
+    private function needsWrite(AssignmentProgress $row, ?AssignmentResult $current): bool
+    {
+        return $current === null
+            || $current->progress_pct !== $row->progressPct
+            || ($row->reached && $current->completed_at === null);
+    }
 
-        $completed = 0;
-        $untouched = [];
-
-        foreach ($learnerIds as $learnerId) {
-            $count = $repeated[$learnerId] ?? 0;
-            $pct = $total === 0 ? 0 : min(100, intdiv($count * 100, $total));
-            $reached = $needed > 0 && $count >= $needed;
-            $row = $existing->get($learnerId);
-
-            if ($row === null) {
-                $moment = $reached ? $this->completionMoment($assignment, $learnerId, $wordIds, $needed, $now) : null;
-                $inserted = AssignmentResult::query()->insertOrIgnore([
-                    'assignment_id' => $assignment->id,
-                    'learner_id' => $learnerId,
-                    'progress_pct' => $pct,
-                    'completed_at' => $moment,
-                    'computed_at' => $now,
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ]);
-
-                if ($inserted === 1) {
-                    if ($moment !== null) {
-                        $completed++;
-                        $this->recordCompleted($assignment, $learnerId, $moment);
-                    }
-
-                    continue;
-                }
-
-                // A parallel refresh inserted the row between our read and the insert.
-                $row = AssignmentResult::query()->where('assignment_id', $assignment->id)->where('learner_id', $learnerId)->first();
-
-                if ($row === null) {
-                    continue;
-                }
-            }
-
-            if ($row->progress_pct !== $pct) {
-                $row->forceFill(['progress_pct' => $pct, 'computed_at' => $now])->save();
-            } else {
-                $untouched[] = $row->id;
-            }
-
-            if ($reached && $row->completed_at === null) {
-                $moment = $this->completionMoment($assignment, $learnerId, $wordIds, $needed, $now);
-                $claimed = AssignmentResult::query()
-                    ->whereKey($row->id)
-                    ->whereNull('completed_at')
-                    ->update(['completed_at' => $moment, 'updated_at' => $now]);
-
-                if ($claimed === 1) {
-                    $completed++;
-                    $this->recordCompleted($assignment, $learnerId, $moment);
-                }
-            }
+    /**
+     * Writes the rows in ONE upsert by `(assignment_id, learner_id)` that never touches
+     * `completed_at`, then claims every threshold reached for the first time by a conditional
+     * `UPDATE … WHERE completed_at IS NULL` — the single place that decides who raises
+     * `assignment.completed`: of two parallel writers (a learner's GET, `assignments:refresh`, the
+     * report opening, `close`) exactly one wins that UPDATE, the other changes nothing and raises
+     * nothing. No transaction spans the two steps on purpose (nothing is held across the journal
+     * read): a process dying in between leaves the percent without a claim, which the next count
+     * sees as `needsWrite` and completes.
+     *
+     * @param  list<AssignmentProgress>  $rows
+     * @param  Collection<string, AssignmentResult>  $existing  the rows read before the count, by `AssignmentProgress::key()`
+     * @param  array<int, Learner>  $learners  instances the caller already has (for the event)
+     * @return int learners that reached the threshold for the first time in this call
+     */
+    private function writeSnapshots(array $rows, Collection $existing, CarbonImmutable $now, array $learners = []): int
+    {
+        if ($rows === []) {
+            return 0;
         }
 
-        if ($untouched !== []) {
-            AssignmentResult::query()->whereKey($untouched)->update(['computed_at' => $now]);
+        AssignmentResult::query()->upsert(
+            array_map(static fn (AssignmentProgress $row): array => [
+                'assignment_id' => $row->assignment->id,
+                'learner_id' => $row->learnerId,
+                'progress_pct' => $row->progressPct,
+                'computed_at' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ], $rows),
+            ['assignment_id', 'learner_id'],
+            ['progress_pct', 'computed_at', 'updated_at'],
+        );
+
+        $pending = array_values(array_filter(
+            $rows,
+            static fn (AssignmentProgress $row): bool => $row->reached && $existing->get($row->key())?->completed_at === null,
+        ));
+
+        if ($pending === []) {
+            return 0;
+        }
+
+        $moments = $this->completionMoments($pending, $now);
+        $completed = 0;
+
+        foreach ($pending as $row) {
+            $moment = $moments[$row->key()] ?? $now;
+            $claimed = AssignmentResult::query()
+                ->where('assignment_id', $row->assignment->id)
+                ->where('learner_id', $row->learnerId)
+                ->whereNull('completed_at')
+                ->update(['completed_at' => $moment, 'updated_at' => $now]);
+
+            if ($claimed === 1) {
+                $completed++;
+                $this->recordCompleted($row->assignment, $learners[$row->learnerId] ?? Learner::query()->find($row->learnerId), $moment);
+            }
         }
 
         return $completed;
     }
 
     /**
-     * When the threshold was first reached: the `needed`-th earliest FIRST accepted passing grade
-     * (`quality >= PASS_QUALITY`) among the learner's currently repeated words of the lesson, read
-     * from the `training_reviews` journal (one aggregating query), so repeating words after the
-     * deadline cannot push the moment past it. A word with no passing journal row (legacy data)
-     * falls back to its `word_repetitions` last review time — a later, i.e. conservative, estimate.
-     * The result is kept between the creation of the assignment and now.
+     * The stored snapshot rows of the given assignments × learners, one query.
      *
-     * @param  list<int>  $wordIds
+     * @param  array<int, mixed>  $assignmentIds
+     * @param  list<int>  $learnerIds
+     * @return Collection<string, AssignmentResult> by `AssignmentProgress::key()`
      */
-    private function completionMoment(Assignment $assignment, int $learnerId, array $wordIds, int $needed, CarbonImmutable $now): CarbonImmutable
+    private function snapshots(array $assignmentIds, array $learnerIds): Collection
     {
-        /** @var array<int, int> $repeated word_id => fallback timestamp */
-        $repeated = WordRepetition::query()
-            ->where('learner_id', $learnerId)
-            ->whereIn('word_id', $wordIds)
-            ->where('repetitions', '>=', 1)
-            ->get(['word_id', 'last_reviewed_at', 'updated_at'])
-            ->mapWithKeys(static fn (WordRepetition $r): array => [$r->word_id => ($r->last_reviewed_at ?? $r->updated_at ?? $now)->getTimestamp()])
-            ->all();
+        /** @var Collection<string, AssignmentResult> $rows */
+        $rows = AssignmentResult::query()
+            ->whereIn('assignment_id', $assignmentIds)
+            ->whereIn('learner_id', $learnerIds)
+            ->get()
+            ->keyBy(static fn (AssignmentResult $row): string => $row->assignment_id.':'.$row->learner_id);
 
-        $first = $repeated === [] ? collect() : TrainingReview::query()
-            ->selectRaw('word_id, MIN(created_at) as first_at')
-            ->where('learner_id', $learnerId)
-            ->whereIn('word_id', array_keys($repeated))
-            ->where('quality', '>=', SpacedRepetitionEngine::PASS_QUALITY)
-            ->groupBy('word_id')
-            ->pluck('first_at', 'word_id');
-
-        $times = collect($repeated)
-            ->map(static function (int $fallback, int $wordId) use ($first): int {
-                $firstAt = $first->get($wordId);
-
-                return is_string($firstAt) ? CarbonImmutable::parse($firstAt)->getTimestamp() : $fallback;
-            })
-            ->sort()
-            ->values();
-
-        $at = $times->get($needed - 1);
-        $moment = $at === null ? $now : CarbonImmutable::createFromTimestamp($at);
-        $created = CarbonImmutable::instance($assignment->created_at ?? $now);
-
-        return $moment->lt($created) ? $created : ($moment->gt($now) ? $now : $moment);
+        return $rows;
     }
 
-    private function recordCompleted(Assignment $assignment, int $learnerId, CarbonImmutable $moment): void
+    /**
+     * Number of ACTIVE words per lesson, one grouped query.
+     *
+     * @param  list<int>  $lessonIds
+     * @return array<int, int> lesson_id => total
+     */
+    private function activeWordTotals(array $lessonIds): array
     {
-        $learner = Learner::query()->find($learnerId);
+        if ($lessonIds === []) {
+            return [];
+        }
 
+        /** @var array<int, int> $totals */
+        $totals = Word::query()
+            ->selectRaw('lesson_id, count(*) as total')
+            ->whereIn('lesson_id', $lessonIds)
+            ->where('is_active', true)
+            ->groupBy('lesson_id')
+            ->pluck('total', 'lesson_id')
+            ->mapWithKeys(static fn ($total, $lessonId): array => [(int) $lessonId => (int) $total])
+            ->all();
+
+        return $totals;
+    }
+
+    /**
+     * Words with `repetitions >= 1` among the ACTIVE words of each lesson, per learner — one
+     * grouped query for any number of lessons × learners (the unique `(learner_id, word_id)` index
+     * of `word_repetitions` serves the join).
+     *
+     * @param  list<int>  $lessonIds
+     * @param  list<int>  $learnerIds
+     * @return array<int, array<int, int>> lesson_id => [learner_id => repeated words]
+     */
+    private function repeatedCounts(array $lessonIds, array $learnerIds): array
+    {
+        if ($lessonIds === [] || $learnerIds === []) {
+            return [];
+        }
+
+        $counts = [];
+        $rows = DB::table('word_repetitions')
+            ->join('words', 'words.id', '=', 'word_repetitions.word_id')
+            ->selectRaw('words.lesson_id, word_repetitions.learner_id, count(*) as repeated')
+            ->whereIn('word_repetitions.learner_id', $learnerIds)
+            ->where('word_repetitions.repetitions', '>=', 1)
+            ->where('words.is_active', true)
+            ->whereIn('words.lesson_id', $lessonIds)
+            ->groupBy('words.lesson_id', 'word_repetitions.learner_id')
+            ->get();
+
+        foreach ($rows as $row) {
+            $counts[(int) $row->lesson_id][(int) $row->learner_id] = (int) $row->repeated;
+        }
+
+        return $counts;
+    }
+
+    /**
+     * When each threshold was first reached (docs/AUDIT F08): the `needed`-th earliest FIRST
+     * accepted passing grade (`quality >= PASS_QUALITY`) among the learner's currently repeated
+     * ACTIVE words of the lesson, read from the `training_reviews` journal, so repeating words after
+     * the deadline cannot push the moment past it. A word with no passing journal row (legacy data)
+     * falls back to its `word_repetitions` last review time — a later, i.e. conservative, estimate.
+     * Each moment is kept between the creation of its assignment and now.
+     *
+     * Two queries for the whole batch, whatever its size: callers pass either the rows of one
+     * assignment (many learners) or of one learner (many assignments), so the learners × lessons
+     * read here is exactly the rows asked for.
+     *
+     * @param  list<AssignmentProgress>  $rows
+     * @return array<string, CarbonImmutable> by `AssignmentProgress::key()`
+     */
+    private function completionMoments(array $rows, CarbonImmutable $now): array
+    {
+        if ($rows === []) {
+            return [];
+        }
+
+        /** @var list<int> $learnerIds */
+        $learnerIds = array_values(array_unique(array_map(static fn (AssignmentProgress $row): int => $row->learnerId, $rows)));
+        /** @var list<int> $lessonIds */
+        $lessonIds = array_values(array_unique(array_map(static fn (AssignmentProgress $row): int => $row->assignment->lesson_id, $rows)));
+
+        /** @var array<int, array<int, array<int, int>>> $fallbacks learner_id => lesson_id => word_id => last review timestamp */
+        $fallbacks = [];
+
+        foreach (WordRepetition::query()
+            ->join('words', 'words.id', '=', 'word_repetitions.word_id')
+            ->whereIn('word_repetitions.learner_id', $learnerIds)
+            ->where('word_repetitions.repetitions', '>=', 1)
+            ->where('words.is_active', true)
+            ->whereIn('words.lesson_id', $lessonIds)
+            ->get(['word_repetitions.learner_id', 'word_repetitions.word_id', 'words.lesson_id', 'word_repetitions.last_reviewed_at', 'word_repetitions.updated_at']) as $r) {
+            $fallbacks[(int) $r->learner_id][(int) $r->getAttribute('lesson_id')][(int) $r->word_id] = ($r->last_reviewed_at ?? $r->updated_at ?? $now)->getTimestamp();
+        }
+
+        /** @var array<int, array<int, int>> $first learner_id => word_id => first passing review timestamp */
+        $first = [];
+
+        if ($fallbacks !== []) {
+            foreach (DB::table('training_reviews')
+                ->join('words', 'words.id', '=', 'training_reviews.word_id')
+                ->selectRaw('training_reviews.learner_id, training_reviews.word_id, MIN(training_reviews.created_at) as first_at')
+                ->whereIn('training_reviews.learner_id', $learnerIds)
+                ->whereIn('words.lesson_id', $lessonIds)
+                ->where('words.is_active', true)
+                ->where('training_reviews.quality', '>=', SpacedRepetitionEngine::PASS_QUALITY)
+                ->groupBy('training_reviews.learner_id', 'training_reviews.word_id')
+                ->get() as $row) {
+                if (is_string($row->first_at)) {
+                    $first[(int) $row->learner_id][(int) $row->word_id] = CarbonImmutable::parse($row->first_at)->getTimestamp();
+                }
+            }
+        }
+
+        $moments = [];
+
+        foreach ($rows as $row) {
+            $times = collect($fallbacks[$row->learnerId][$row->assignment->lesson_id] ?? [])
+                ->map(static fn (int $fallback, int $wordId): int => $first[$row->learnerId][$wordId] ?? $fallback)
+                ->sort()
+                ->values();
+
+            $at = $times->get($row->needed - 1);
+            $moment = $at === null ? $now : CarbonImmutable::createFromTimestamp($at);
+            $created = CarbonImmutable::instance($row->assignment->created_at ?? $now);
+
+            $moments[$row->key()] = $moment->lt($created) ? $created : ($moment->gt($now) ? $now : $moment);
+        }
+
+        return $moments;
+    }
+
+    private function recordCompleted(Assignment $assignment, ?Learner $learner, CarbonImmutable $moment): void
+    {
         $this->events->record(
             ProductEventName::AssignmentCompleted,
             ['assignment_id' => $assignment->id, 'late' => $moment->gt($assignment->due_at)],
