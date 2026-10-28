@@ -88,7 +88,7 @@ final class AdminErrors
             $replacements[$name] = match (true) {
                 is_array($value) => implode(', ', array_map(static fn (mixed $item): string => is_scalar($item) ? (string) $item : '', $value)),
                 // 79,5 and 95 (not 95,0): the decimal comma of Russian text.
-                is_float($value) => rtrim(rtrim(number_format($value, 1, ',', ''), '0'), ','),
+                is_float($value) => AdminNumbers::decimal($value, 1, trimZeros: true),
                 is_scalar($value) => (string) $value,
                 default => '',
             };
