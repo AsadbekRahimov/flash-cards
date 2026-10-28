@@ -71,7 +71,7 @@ export const uz: Translations = {
     other: '{count} kun',
   },
   'today.streak.none': 'Seriyani boshlash uchun kunlik maqsadni bajaring',
-  'today.streak.at_risk': 'Seriya xavf ostida: maqsadni yarim tungacha bajaring',
+  'today.streak.at_risk': "Seriyani yo'qotmaslik uchun maqsadni yarim tungacha bajaring",
   'today.streak.safe': 'Bugungi kun uchun seriya uzaytirildi',
   'today.streak.best': 'Rekord: {best}',
   'today.streak.freezes': {
@@ -81,20 +81,19 @@ export const uz: Translations = {
   'today.streak.freezes_none': "❄️ Muzlatish yo'q — yangisi dushanba kuni",
   'today.streak.frozen_yesterday': 'Kechagi kun muzlatildi — seriya saqlandi',
   'today.streak.freeze_teaser': "❄️ Seriyani muzlatish — Pro'da",
-  'today.review.title': 'Takrorlash',
   'today.review.due': {
     one: "Takrorlash uchun {count} ta so'z",
     other: "Takrorlash uchun {count} ta so'z",
   },
   'today.review.none': "Hozircha takrorlaydigan narsa yo'q",
-  'today.review.start': 'Takrorlash',
-  'today.review.continue': 'Davom etish',
-  'today.new.remaining': "Bugun yana {count} ta yangi so'z o'rganish mumkin",
-  'today.new.exhausted': "Bugungi yangi so'zlar limiti tugadi",
-  'today.course.title': 'Kurs',
+  'today.review.start': "Mashg'ulotni boshlash",
+  'today.review.continue': "Mashg'ulotni davom ettirish",
+  'today.new.remaining': "Bugun uchun yangi so'zlar: {count} ta",
+  'today.new.exhausted': "Bugungi yangi so'zlar tugadi",
+  'today.course.title': 'Mening kursim',
   'today.course.next': 'Keyingi dars',
   'today.course.completed': "Kursdagi barcha so'zlar ko'rsatildi",
-  'today.course.none': "Yangi so'zlarni o'rganish uchun kursni tanlang",
+  'today.course.none': 'Asosiy kurs tanlanmagan',
   'assignments.title': 'Markaz vazifalari',
   'assignments.lesson': '{stage}-modul, {lesson}-dars',
   'assignments.due': '{date} gacha',
@@ -104,7 +103,21 @@ export const uz: Translations = {
   'assignments.continue': 'Davom etish',
   'assignments.done': 'Bajarilgan',
   'assignments.done_late': 'Kechikib bajarilgan',
-  'today.onboarding_hint': 'Sozlashni yakunlang: botga /start yuboring',
+  'today.onboarding_hint': 'Sozlashni yakunlash uchun botga /start yuboring',
+  'today.greeting': 'Salom, {name}!',
+  'today.session.hint': "Avval takrorlash, keyin kursingizdagi yangi so'zlar",
+  'today.new.unlimited': "Yangi so'zlar — cheklovsiz",
+  'today.new.no_course': "Yangi so'zlarni o'rganish uchun kursni tanlang",
+  'today.streak.in_row': {
+    one: '{count} kun ketma-ket',
+    other: '{count} kun ketma-ket',
+  },
+  'today.course.learn': "Darsni o'rganish",
+  'today.course.choose': 'Kursni tanlash',
+  'today.league.title': 'Liga · {tier}',
+  'today.league.subtitle': "{members} tadan {rank}-o'rin · {points}",
+  'today.league.join_title': 'Haftalik liga',
+  'today.league.join_subtitle': 'Guruhga kirish uchun kartochkalarni takrorlang',
 
   // ---- flashcard ----
   'card.kind.new': "Yangi so'z",
@@ -271,7 +284,6 @@ export const uz: Translations = {
 
   // ---- learner decks ----
   'decks.title': "Mening to'plamlarim",
-  'decks.open': "Mening to'plamlarim",
   'decks.intro': "O'z to'plamingizni yarating va so'zlarni ro'yxat yoki CSV orqali qo'shing. To'plamni faqat siz ko'rasiz.",
   'decks.empty': "Sizda hali to'plamlar yo'q.",
   'decks.limit': "To'plamlar: {max} tadan {used} tasi. Bitta to'plamda {words} tagacha so'z.",
@@ -338,7 +350,6 @@ export const uz: Translations = {
   'orgs.leave.no': 'Bekor qilish',
 
   // ---- achievements (docs/13 §7.4) ----
-  'achievements.open': 'Yutuqlar',
   'achievements.title': 'Yutuqlar',
   'achievements.summary': '{total} tadan {unlocked} tasi olindi',
   'achievements.locked': 'Hali olinmagan',
@@ -360,8 +371,6 @@ export const uz: Translations = {
     one: '{count} ochko',
     other: '{count} ochko',
   },
-  'league.today.line': "🏆 {tier} · {members} tadan {rank}-o'rin · {points}",
-  'league.today.join': "🏆 Liga: bu hafta qo'shilish uchun kartochkalarni takrorlang",
   'league.week': 'Hafta {from} – {to}',
   'league.closes': 'Yakunlar — dushanba 00:00 da ({zone})',
   'league.rules': "Guruhlar {capacity} kishigacha. Top-{promote} yuqoriga ko'tariladi, oxirgi {demote} tasi pastga tushadi. Ochkolar: takrorlashlar, to'g'ri javoblar, yangi so'zlar (×2), bajarilgan kunlik maqsad (+10).",
@@ -389,7 +398,6 @@ export const uz: Translations = {
   'settings.leagues.hint': "Ligadan chiqish keyingi joylashtirishdan boshlab amal qiladi; joriy hafta saqlanib qoladi.",
 
   // ---- referrals: invite a friend (docs/13 §7.1) ----
-  'referrals.open': "Do'stni taklif qilish",
   'referrals.title': "Do'stni taklif qilish",
   'referrals.rule': "Do'stingiz {window} kun ichida {days} kun shug'ullansa (kuniga {reviews} ta kartochkadan), ikkalangiz ham {reward} kunlik Pro olasiz.",
   'referrals.link_label': 'Sizning havolangiz',

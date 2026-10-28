@@ -392,24 +392,23 @@
 | `today.streak.days.many` | _(в uz этой формы нет — используется `other`)_ | {count} дней |
 | `today.streak.days.other` | {count} kun | {count} дня |
 | `today.streak.none` | Seriyani boshlash uchun kunlik maqsadni bajaring | Выполните цель дня, чтобы начать серию |
-| `today.streak.at_risk` | Seriya xavf ostida: maqsadni yarim tungacha bajaring | Серия под угрозой: выполните цель до полуночи |
+| `today.streak.at_risk` | Seriyani yo'qotmaslik uchun maqsadni yarim tungacha bajaring | Выполните цель до полуночи, чтобы не потерять серию |
 | `today.streak.safe` | Bugungi kun uchun seriya uzaytirildi | На сегодня серия продлена |
 | `today.streak.best` | Rekord: {best} | Рекорд: {best} |
-| `today.review.title` | Takrorlash | Повторение |
 | `today.review.due.one` | Takrorlash uchun {count} ta so'z | {count} слово к повторению |
 | `today.review.due.few` | _(в uz этой формы нет — используется `other`)_ | {count} слова к повторению |
 | `today.review.due.many` | _(в uz этой формы нет — используется `other`)_ | {count} слов к повторению |
 | `today.review.due.other` | Takrorlash uchun {count} ta so'z | {count} слова к повторению |
 | `today.review.none` | Hozircha takrorlaydigan narsa yo'q | Повторять пока нечего |
-| `today.review.start` | Takrorlash | Повторить |
-| `today.review.continue` | Davom etish | Продолжить |
-| `today.new.remaining` | Bugun yana {count} ta yangi so'z o'rganish mumkin | Новых слов на сегодня осталось: {count} |
-| `today.new.exhausted` | Bugungi yangi so'zlar limiti tugadi | Лимит новых слов на сегодня исчерпан |
-| `today.course.title` | Kurs | Курс |
+| `today.review.start` | Mashg'ulotni boshlash | Начать занятие |
+| `today.review.continue` | Mashg'ulotni davom ettirish | Продолжить занятие |
+| `today.new.remaining` | Bugun uchun yangi so'zlar: {count} ta | Новых слов на сегодня: {count} |
+| `today.new.exhausted` | Bugungi yangi so'zlar tugadi | Новые слова на сегодня закончились |
+| `today.course.title` | Mening kursim | Мой курс |
 | `today.course.next` | Keyingi dars | Следующий урок |
 | `today.course.completed` | Kursdagi barcha so'zlar ko'rsatildi | Все слова курса уже показаны |
-| `today.course.none` | Yangi so'zlarni o'rganish uchun kursni tanlang | Выберите курс, чтобы учить новые слова |
-| `today.onboarding_hint` | Sozlashni yakunlang: botga /start yuboring | Завершите настройку: отправьте боту /start |
+| `today.course.none` | Asosiy kurs tanlanmagan | Основной курс не выбран |
+| `today.onboarding_hint` | Sozlashni yakunlash uchun botga /start yuboring | Чтобы завершить настройку, отправьте боту /start |
 | `finished.home` | Bosh sahifaga | На главную |
 | `finished.goal` | Kunlik maqsad: {target} tadan {done} tasi | Цель дня: {done} из {target} |
 | `finished.goal_met` | Kunlik maqsad bajarildi! | Цель дня выполнена! |
@@ -647,7 +646,6 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `decks.title` | Mening to'plamlarim | Мои колоды |
-| `decks.open` | Mening to'plamlarim | Мои колоды |
 | `decks.intro` | O'z to'plamingizni yarating va so'zlarni ro'yxat yoki CSV orqali qo'shing. To'plamni faqat siz ko'rasiz. | Создайте свою колоду и добавьте слова списком или из CSV. Колоду видите только вы. |
 | `decks.empty` | Sizda hali to'plamlar yo'q. | У вас пока нет колод. |
 | `decks.limit` | To'plamlar: {max} tadan {used} tasi. Bitta to'plamda {words} tagacha so'z. | Колод: {used} из {max}. В одной колоде — до {words} слов. |
@@ -1379,7 +1377,6 @@
 
 | Ключ | uz | ru |
 |---|---|---|
-| `referrals.open` | Do'stni taklif qilish | Пригласить друга |
 | `referrals.title` | Do'stni taklif qilish | Пригласить друга |
 | `referrals.rule` | Do'stingiz {window} kun ichida {days} kun shug'ullansa (kuniga {reviews} ta kartochkadan), ikkalangiz ham {reward} kunlik Pro olasiz. | Когда друг позанимается {days} дн. (от {reviews} карточек в день) в течение {window} дней, вы оба получите {reward} дн. Pro. |
 | `referrals.link_label` | Sizning havolangiz | Ваша ссылка |
@@ -1469,8 +1466,6 @@
 | `league.tier.platinum` | Platina | Платина |
 | `league.tier.diamond` | Olmos | Алмаз |
 | `league.points` | {count} ochko | {count} очко / очка / очков |
-| `league.today.line` | 🏆 {tier} · {members} tadan {rank}-o'rin · {points} | 🏆 {tier} · {rank}-е место из {members} · {points} |
-| `league.today.join` | 🏆 Liga: bu hafta qo'shilish uchun kartochkalarni takrorlang | 🏆 Лига: повторите карточки, чтобы вступить на этой неделе |
 | `league.week` | Hafta {from} – {to} | Неделя {from} – {to} |
 | `league.closes` | Yakunlar — dushanba 00:00 da ({zone}) | Итоги — в понедельник в 00:00 ({zone}) |
 | `league.rules` | Guruhlar {capacity} kishigacha. Top-{promote} yuqoriga ko'tariladi, oxirgi {demote} tasi pastga tushadi. Ochkolar: takrorlashlar, to'g'ri javoblar, yangi so'zlar (×2), bajarilgan kunlik maqsad (+10). | Группы до {capacity} человек. Топ-{promote} переходят выше, последние {demote} — ниже. Очки: повторения, верные ответы, новые слова (×2), выполненная цель дня (+10). |
@@ -1674,7 +1669,6 @@
 
 | Ключ | uz | ru |
 |---|---|---|
-| `achievements.open` | Yutuqlar | Достижения |
 | `achievements.title` | Yutuqlar | Достижения |
 | `achievements.summary` | {total} tadan {unlocked} tasi olindi | Получено {unlocked} из {total} |
 | `achievements.locked` | Hali olinmagan | Ещё не получено |
@@ -1733,3 +1727,27 @@
 | `benefits.decks` | 2000 tadan so'zli 20 tagacha o'z to'plamlaringiz | До 20 своих колод по 2000 слов |
 | `benefits.freezes` | Seriyani muzlatish: o'tkazib yuborilgan kun seriyani uzmaydi | Заморозки серии: пропуск дня не обрывает серию |
 | `benefits.mock_exams` | IELTS va SAT sinov testlari | Пробные тесты IELTS и SAT |
+
+## Редизайн 2026-10-28 · 17.2 Главная и итог — на проверку носителю
+
+> Проверить: «Salom, {name}!» (приветствие на «Главной»); «Mashg'ulotni boshlash» / «Mashg'ulotni davom ettirish» (начать / продолжить занятие, «mashg'ulot» — по словарю docs/14 §8); «kun ketma-ket» (дней подряд); «Haftalik liga» (лига недели); «Asosiy kurs tanlanmagan» (основной курс не выбран); порядок слов в «{members} tadan {rank}-o'rin».
+> Изменённые ключи («Главная», задания центра: `today.streak.at_risk`, `today.review.start`, `today.review.continue`, `today.new.remaining`, `today.new.exhausted`, `today.course.title`, `today.course.none`, `today.onboarding_hint`, `assignments.lesson`, `assignments.due`) обновлены в своих старых таблицах выше; удалены `today.review.title`, `league.today.line`, `league.today.join`, `decks.open`, `referrals.open`, `achievements.open`.
+
+### TWA, экран «Главная» (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `today.greeting` | Salom, {name}! | Привет, {name}! |
+| `today.session.hint` | Avval takrorlash, keyin kursingizdagi yangi so'zlar | Сначала повторение, потом новые слова из вашего курса |
+| `today.new.unlimited` | Yangi so'zlar — cheklovsiz | Новые слова — без ограничений |
+| `today.new.no_course` | Yangi so'zlarni o'rganish uchun kursni tanlang | Выберите курс, чтобы учить новые слова |
+| `today.streak.in_row.one` | {count} kun ketma-ket | {count} день подряд |
+| `today.streak.in_row.few` | _(в uz этой формы нет — используется `other`)_ | {count} дня подряд |
+| `today.streak.in_row.many` | _(в uz этой формы нет — используется `other`)_ | {count} дней подряд |
+| `today.streak.in_row.other` | {count} kun ketma-ket | {count} дня подряд |
+| `today.course.learn` | Darsni o'rganish | Учить урок |
+| `today.course.choose` | Kursni tanlash | Выбрать курс |
+| `today.league.title` | Liga · {tier} | Лига · {tier} |
+| `today.league.subtitle` | {members} tadan {rank}-o'rin · {points} | {rank}-е место из {members} · {points} |
+| `today.league.join_title` | Haftalik liga | Лига недели |
+| `today.league.join_subtitle` | Guruhga kirish uchun kartochkalarni takrorlang | Повторите карточки, чтобы попасть в группу |

@@ -182,7 +182,7 @@ describe('FinishedView', () => {
 
       expect(w.get('[data-testid=goal-text]').text()).toBe('Цель дня: 12 из 20')
       expect(w.get('[data-testid=streak]').text()).toContain('3 дня')
-      expect(w.get('[data-testid=streak-at-risk]').text()).toBe('Серия под угрозой: выполните цель до полуночи')
+      expect(w.get('[data-testid=streak-at-risk]').text()).toBe('Выполните цель до полуночи, чтобы не потерять серию')
     })
 
     it('celebrates a met goal and drops the risk line', () => {
