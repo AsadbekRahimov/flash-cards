@@ -39,6 +39,36 @@ describe('PromoRedeem', () => {
     expect(w.get('[data-testid=promo-toggle]').text()).toBe('Есть промокод?')
   })
 
+  it('collapsed is a plain button, expanded is a field and a primary button side by side', async () => {
+    const w = mount(PromoRedeem)
+    const toggle = w.get('[data-testid=promo-toggle]')
+    expect(toggle.element.tagName).toBe('BUTTON')
+    expect(toggle.classes()).toEqual(expect.arrayContaining(['btn', 'btn-plain']))
+
+    await toggle.trigger('click')
+
+    expect(w.find('[data-testid=promo-toggle]').exists()).toBe(false)
+    const input = w.get('[data-testid=promo-input]')
+    expect(input.classes()).toEqual(expect.arrayContaining(['field', 'uppercase']))
+    expect(input.attributes('autocapitalize')).toBe('characters')
+    expect(input.attributes('aria-label')).toBe('Промокод')
+    expect(input.attributes('placeholder')).toBe('Промокод')
+    const submit = w.get('[data-testid=promo-submit]')
+    expect(submit.classes()).toEqual(expect.arrayContaining(['btn', 'btn-primary']))
+    expect(submit.text()).toBe('Активировать')
+    expect(w.get('form').classes()).toContain('flex')
+  })
+
+  it('puts the cursor into the field when it opens', async () => {
+    const w = mount(PromoRedeem, { attachTo: document.body })
+
+    await w.get('[data-testid=promo-toggle]').trigger('click')
+    await flushPromises()
+
+    expect(document.activeElement).toBe(w.get('[data-testid=promo-input]').element)
+    w.unmount()
+  })
+
   it('sends the trimmed code and shows the end of the new plan', async () => {
     vi.mocked(api.promo.redeem).mockResolvedValue(me('2026-12-31T12:00:00+00:00'))
 
@@ -47,6 +77,20 @@ describe('PromoRedeem', () => {
     expect(api.promo.redeem).toHaveBeenCalledWith('ab-12')
     expect(w.get('[data-testid=promo-success]').text()).toMatch(/^Pro активен до .*2026/)
     expect(w.find('[data-testid=promo-input]').exists()).toBe(false)
+  })
+
+  it('shows the success with a check icon, the end date in the interface language', async () => {
+    vi.mocked(api.promo.redeem).mockResolvedValue(me('2026-12-31T12:00:00+00:00'))
+
+    const w = await submit('AB-12')
+
+    const success = w.get('[data-testid=promo-success]')
+    expect(success.text()).toBe('Pro активен до 31 декабря 2026 г.') // the date ends with a period of its own
+    expect(success.find('svg').exists()).toBe(true)
+    expect(success.get('svg').classes()).toContain('text-success')
+    expect(success.attributes('role')).toBe('status')
+    expect(w.find('[data-testid=promo-toggle]').exists()).toBe(false)
+    expect(w.find('[data-testid=promo-error]').exists()).toBe(false)
   })
 
   it('tells the parent which plan was redeemed', async () => {

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
-import PaywallSheet from '../PaywallSheet.vue'
+import PaywallSheet, { type PaywallReason } from '../PaywallSheet.vue'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
@@ -31,7 +31,7 @@ function me(overrides: { plan?: 'free' | 'pro'; contact?: string | null; limit?:
   }
 }
 
-async function render(response: MeResponse = me(), props: { reason?: 'quota' | 'info' | 'decks' } = {}) {
+async function render(response: MeResponse = me(), props: { reason?: PaywallReason } = {}) {
   vi.mocked(api.me.get).mockResolvedValue(response)
   const wrapper = mount(PaywallSheet, { props })
   await flushPromises()
@@ -105,6 +105,8 @@ describe('PaywallSheet', () => {
       expect(link.attributes('href')).toBe(href)
       expect(link.text()).toBe(contact)
       expect(link.attributes('rel')).toContain('noopener')
+      expect(link.classes()).toContain('break-words')
+      expect(link.classes()).not.toContain('break-all')
     })
 
     it('shows an unrecognised contact as plain text without a link', async () => {
@@ -123,6 +125,57 @@ describe('PaywallSheet', () => {
       const html = await render(me({ contact: '<img src=x onerror=alert(1)>' }))
       expect(html.find('img').exists()).toBe(false)
       expect(html.get('[data-testid=paywall-contact-text]').text()).toBe('<img src=x onerror=alert(1)>')
+    })
+  })
+
+  describe('the sheet', () => {
+    it('shows the sparkles icon, the title and the reason in a header, and what Pro gives (compact) while Pro is not on sale', async () => {
+      const w = await render(me(), { reason: 'quota' })
+
+      const header = w.get('[data-testid=paywall] header')
+      expect(header.find('svg').exists()).toBe(true)
+      expect(header.get('[data-testid=paywall-title]').text()).toBe('Pro скоро')
+      expect(header.get('[data-testid=paywall-lead]').text()).toContain('Лимит новых слов на сегодня исчерпан')
+      expect(header.get('[data-testid=paywall-free]').text()).toContain('20 новых слов в день')
+      expect(w.findAll('[data-testid=benefit]').map((b) => b.text())).toEqual([
+        'Новые слова без дневного лимита',
+        'Написание слова и пропуски в примерах',
+        'До 20 своих колод по 2000 слов',
+        'Заморозки серии: пропуск дня не обрывает серию',
+        'Пробные тесты IELTS и SAT',
+      ])
+    })
+
+    it('has a close button with a name', async () => {
+      const w = await render()
+
+      const x = w.get('[data-testid=paywall-x]')
+      expect(x.element.tagName).toBe('BUTTON')
+      expect(x.attributes('type')).toBe('button')
+      expect(x.attributes('aria-label')).toBe('Закрыть')
+
+      await x.trigger('click')
+      expect(w.emitted('close')).toHaveLength(1)
+    })
+
+    it('has no purchase block while nothing is for sale', async () => {
+      const w = await render()
+
+      expect(w.find('[data-testid=purchase]').exists()).toBe(false)
+      expect(w.find('[data-testid=pay-method]').exists()).toBe(false)
+      expect(w.find('[role=radiogroup]').exists()).toBe(false)
+    })
+
+    it('does not promise what is not there: the honest lead of every reason, in both languages', async () => {
+      for (const locale of ['ru', 'uz'] as const) {
+        for (const reason of ['info', 'quota', 'decks', 'streak_freeze', 'exam_simulator'] as const) {
+          setActivePinia(createPinia())
+          setLocale(locale)
+          const w = await render(me(), { reason })
+
+          expect(w.text().toLowerCase(), `${locale}/${reason}`).not.toMatch(/статистик|statistik/)
+        }
+      }
     })
   })
 
@@ -157,6 +210,7 @@ describe('PaywallSheet', () => {
       expect(w.find('[data-testid=paywall-lead]').exists()).toBe(false)
       expect(w.find('[data-testid=paywall-free]').exists()).toBe(false)
       expect(w.find('[data-testid=paywall-contact]').exists()).toBe(false)
+      expect(w.find('[data-testid=pro-benefits]').exists()).toBe(false)
     })
 
     it('keeps the sheet and shows the error for a rejected code, without refreshing anything', async () => {
@@ -205,6 +259,7 @@ describe('PaywallSheet', () => {
       const w = await render(me(), { reason: 'quota' })
 
       expect(w.get('[data-testid=paywall-review]').text()).toBe('Повторить слова')
+      expect(w.get('[data-testid=paywall-review]').classes()).toEqual(expect.arrayContaining(['btn', 'btn-primary', 'btn-block']))
       await w.get('[data-testid=paywall-review]').trigger('click')
 
       expect(w.emitted('review')).toHaveLength(1)

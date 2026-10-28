@@ -274,7 +274,7 @@
 | `promo.toggle` | Promokodingiz bormi? | Есть промокод? |
 | `promo.placeholder` | Promokod | Промокод |
 | `promo.submit` | Faollashtirish | Активировать |
-| `promo.success_until` | Pro {date} gacha faol. | Pro активен до {date}. |
+| `promo.success_until` | Pro {date} gacha faol. | Pro активен до {date} |
 | `promo.success_forever` | Pro muddatsiz faol. | Pro активен без ограничения по сроку. |
 | `paywall.title` | Pro tez orada | Pro скоро |
 | `paywall.lead_quota` | Bugungi yangi so'zlar limiti tugadi — takrorlash cheklovsiz. | Лимит новых слов на сегодня исчерпан — повторения доступны без ограничений. |
@@ -819,19 +819,19 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `paywall.title_purchase` | LexiFlow Pro | LexiFlow Pro |
-| `paywall.lead_purchase` | Yangi so'zlar kunlik limitsiz, to'plamlar va batafsil statistika. | Новые слова без дневного лимита, колоды и подробная статистика. |
+| `paywall.lead_purchase` | Yangi so'zlar kunlik limitsiz, so'zni yozish mashqlari, o'z to'plamlaringiz, seriyani muzlatish va sinov testlari. | Новые слова без дневного лимита, упражнения на написание, свои колоды, заморозки серии и пробные тесты. |
 | `billing.title` | Obuna | Подписка |
 | `billing.open` | Pro obunasi | Подписка Pro |
 | `billing.period.month` | Oy | Месяц |
 | `billing.period.year` | Yil | Год |
 | `billing.pay_with` | To'lash: {provider} · {price} | Оплатить: {provider} · {price} |
-| `billing.provider.telegram_stars` | ⭐ Stars | ⭐ Stars |
+| `billing.provider.telegram_stars` | Telegram Stars | Telegram Stars |
 | `billing.provider.payme` | Payme | Payme |
 | `billing.provider.click` | Click | Click |
 | `billing.provider.manual` | qo'lda berilgan | выдан вручную |
 | `billing.provider.promo` | promokod | промокод |
 | `billing.provider.reward` | mukofot | награда |
-| `billing.offer` | Birinchi to'lovga {pct}% chegirma — {date} gacha. | Скидка {pct}% на первый платёж — до {date}. |
+| `billing.offer` | Birinchi to'lovga {pct}% chegirma — {date} gacha. | Скидка {pct}% на первый платёж — до {date} |
 | `billing.starting` | Hisob yaratilmoqda… | Создаём счёт… |
 | `billing.awaiting` | To'lov tasdig'i kutilmoqda… | Ждём подтверждение оплаты… |
 | `billing.timeout` | Tasdiq hali kelmadi. Agar to'lagan bo'lsangiz, Pro bir necha daqiqada yoqiladi. | Подтверждение ещё не пришло. Если вы уже оплатили, Pro включится в течение нескольких минут. |
@@ -839,14 +839,14 @@
 | `billing.order_replaced` | Buyurtma yangi buyurtma bilan almashtirildi. | Заказ заменён новым заказом. |
 | `billing.order_replaced_follow` | Buyurtma yangisi bilan almashtirildi — u bo'yicha to'lovni kutamiz. | Заказ заменён новым — ждём оплату по нему. |
 | `billing.payment_failed` | To'lov o'tmadi yoki hisob yopilgan. Qayta urinib ko'ring. | Платёж не прошёл или счёт закрыт. Попробуйте ещё раз. |
-| `billing.paid_until` | Rahmat! Pro {date} gacha faol. | Спасибо! Pro активен до {date}. |
+| `billing.paid_until` | Rahmat! Pro {date} gacha faol. | Спасибо! Pro активен до {date} |
 | `billing.paid_forever` | Rahmat! Pro faol. | Спасибо! Pro активен. |
-| `billing.auto_renew_running` | Stars avtoyangilash yoqilgan — hech narsa to'lash shart emas. Obunani «Sozlamalar → Pro obunasi» bo'limida boshqarish mumkin. | Автопродление Stars включено — оплачивать ничего не нужно. Управлять подпиской можно в «Настройки → Подписка Pro». |
+| `billing.auto_renew_running` | Stars avtoyangilash yoqilgan — hech narsa to'lash shart emas. Obunani «Profil → Obuna» bo'limida boshqarish mumkin. | Автопродление Stars включено — оплачивать ничего не нужно. Управлять подпиской можно в разделе «Профиль → Подписка». |
 | `billing.perpetual` | Sizda Pro muddatsiz faol — hech narsa to'lash shart emas. | У вас Pro без ограничения по сроку — оплачивать ничего не нужно. |
-| `billing.plan.free` | Free tarif | Тариф Free |
+| `billing.plan.free` | Bepul tarif | Бесплатный тариф |
 | `billing.plan.pro` | LexiFlow Pro | LexiFlow Pro |
 | `billing.sponsored` | Pro'ni markazingiz ulagan. | Pro подключён вашим центром. |
-| `billing.until` | {date} gacha amal qiladi. | Действует до {date}. |
+| `billing.until` | {date} gacha amal qiladi. | Действует до {date} |
 | `billing.forever` | Muddatsiz. | Без ограничения по сроку. |
 | `billing.provider_line` | To'lov: {provider}. | Оплата: {provider}. |
 | `billing.auto_on` | Avtoyangilash yoqilgan: keyingi davr uchun to'lovni Telegram o'zi yechib oladi. | Автопродление включено: следующий период Telegram спишет сам. |
@@ -1733,3 +1733,20 @@
 | `benefits.decks` | 2000 tadan so'zli 20 tagacha o'z to'plamlaringiz | До 20 своих колод по 2000 слов |
 | `benefits.freezes` | Seriyani muzlatish: o'tkazib yuborilgan kun seriyani uzmaydi | Заморозки серии: пропуск дня не обрывает серию |
 | `benefits.mock_exams` | IELTS va SAT sinov testlari | Пробные тесты IELTS и SAT |
+
+## Редизайн 2026-10-28 · 17.5 настройки и подписка — на проверку носителю
+
+> Проверить: «Telegram Stars» (способ оплаты; звезда ⭐ стоит только в цене); «Bepul tarif» (бесплатный тариф); «Yil · −{pct}%» (годовой период с выгодой); «To'lov usuli» и «To'lov muddati» (способ и срок оплаты); «Pro nima beradi» и «Sizning imkoniyatlaringiz» (заголовки списка возможностей Pro); «so'zni yozish mashqlari» в тексте о Pro.
+> Изменённые значения старых ключей (`paywall.lead_purchase`, `billing.provider.telegram_stars`, `billing.auto_renew_running`, `billing.plan.free`, `promo.success_until`, `billing.offer`, `billing.paid_until`, `billing.until`) исправлены в исходных строках выше; здесь — только новые ключи.
+
+### TWA, подписка и пейвол (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `billing.promo_title` | Promokod | Промокод |
+| `billing.benefits_title` | Pro nima beradi | Что даёт Pro |
+| `billing.benefits_title_pro` | Sizning imkoniyatlaringiz | Ваши возможности |
+| `billing.period.year_save` | Yil · −{pct}% | Год · −{pct}% |
+| `billing.period.label` | To'lov muddati | Срок оплаты |
+| `billing.pay_method` | To'lov usuli | Способ оплаты |
+| `billing.offer_chip` | −{pct}% | −{pct}% |

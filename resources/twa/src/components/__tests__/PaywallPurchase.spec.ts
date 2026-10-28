@@ -5,7 +5,8 @@ import PaywallSheet from '../PaywallSheet.vue'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
-import { POLL_INTERVAL_MS } from '@/stores/billing'
+import { POLL_ATTEMPTS, POLL_INTERVAL_MS } from '@/stores/billing'
+import { useTodayStore } from '@/stores/today'
 import type { BillingCatalog, MeResponse, OrderStatusResponse } from '@/api/types'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 
@@ -58,6 +59,12 @@ async function render(props: { reason?: 'quota' | 'info' | 'decks' } = {}) {
 /** NBSP / narrow NBSP of Intl grouping become plain spaces. */
 const plain = (text: string) => text.replace(/[\s  ]+/g, ' ').trim()
 
+type Wrapper = Awaited<ReturnType<typeof render>>
+
+/** A pay button reads «provider ... price [crossed-out list price]»: its parts, left to right. */
+const payName = (w: Wrapper, provider: string) => plain(w.get(`[data-testid=pay-${provider}] > span:first-child`).text())
+const payPrice = (w: Wrapper, provider: string) => plain(w.get(`[data-testid=pay-${provider}] > span:last-child > span`).text())
+
 describe('PaywallSheet in purchase mode', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
@@ -71,15 +78,56 @@ describe('PaywallSheet in purchase mode', () => {
     setLocale('ru')
   })
 
-  it('shows the prices of the first period and a pay button per provider', async () => {
+  it('shows the prices of the first period and a pay button per provider: the name on the left, the price on the right', async () => {
     const w = await render()
 
     expect(w.get('[data-testid=paywall-title]').text()).toBe('LexiFlow Pro')
-    expect(w.get('[data-testid=paywall-lead]').text()).toBe('Новые слова без дневного лимита, колоды и подробная статистика.')
-    expect(plain(w.get('[data-testid=pay-telegram_stars]').text())).toBe('Оплатить: ⭐ Stars · 150 ⭐')
-    expect(plain(w.get('[data-testid=pay-payme]').text())).toBe('Оплатить: Payme · 29 000 сум')
-    expect(plain(w.get('[data-testid=pay-click]').text())).toBe('Оплатить: Click · 29 000 сум')
+    expect(w.get('[data-testid=paywall-lead]').text()).toBe(
+      'Новые слова без дневного лимита, упражнения на написание, свои колоды, заморозки серии и пробные тесты.',
+    )
+    expect([payName(w, 'telegram_stars'), payPrice(w, 'telegram_stars')]).toEqual(['Telegram Stars', '150 ⭐'])
+    expect([payName(w, 'payme'), payPrice(w, 'payme')]).toEqual(['Payme', '29 000 сум'])
+    expect([payName(w, 'click'), payPrice(w, 'click')]).toEqual(['Click', '29 000 сум'])
     expect(w.find('[data-testid=list-price]').exists()).toBe(false)
+  })
+
+  it('names the provider without a star: the star is already in the Stars price', async () => {
+    const w = await render()
+
+    expect(payName(w, 'telegram_stars')).toBe('Telegram Stars')
+    expect(payName(w, 'telegram_stars')).not.toContain('⭐')
+  })
+
+  it('makes only the first pay button primary, the others are secondary', async () => {
+    const w = await render()
+
+    const classes = (provider: string) => w.get(`[data-testid=pay-${provider}]`).classes()
+    expect(classes('telegram_stars')).toEqual(expect.arrayContaining(['btn', 'btn-primary', 'btn-block']))
+    expect(classes('payme')).toContain('btn-secondary')
+    expect(classes('payme')).not.toContain('btn-primary')
+    expect(classes('click')).toContain('btn-secondary')
+    expect(w.get('[data-testid=paywall]').findAll('.btn-primary')).toHaveLength(1)
+  })
+
+  it('makes the first offered provider the primary one even when Stars are not offered', async () => {
+    vi.mocked(api.billing.catalog).mockResolvedValue(catalog({ providers: ['payme', 'click'] }))
+    const w = await render()
+
+    expect(w.get('[data-testid=pay-payme]').classes()).toContain('btn-primary')
+    expect(w.get('[data-testid=pay-click]').classes()).toContain('btn-secondary')
+  })
+
+  it('says what the button does for a screen reader', async () => {
+    const w = await render()
+
+    expect(plain(w.get('[data-testid=pay-payme]').attributes('aria-label') ?? '')).toBe('Оплатить: Payme · 29 000 сум')
+  })
+
+  it('lists what Pro gives and names the way to pay above the buttons', async () => {
+    const w = await render()
+
+    expect(w.findAll('[data-testid=benefit]')).toHaveLength(5)
+    expect(w.get('[data-testid=pay-method]').text()).toBe('Способ оплаты')
   })
 
   it('switches the period and the prices with it', async () => {
@@ -87,8 +135,84 @@ describe('PaywallSheet in purchase mode', () => {
 
     await w.get('[data-testid=period-year]').trigger('click')
 
-    expect(plain(w.get('[data-testid=pay-telegram_stars]').text())).toBe('Оплатить: ⭐ Stars · 1 300 ⭐')
-    expect(plain(w.get('[data-testid=pay-payme]').text())).toBe('Оплатить: Payme · 249 000 сум')
+    expect(payPrice(w, 'telegram_stars')).toBe('1 300 ⭐')
+    expect(payPrice(w, 'payme')).toBe('249 000 сум')
+    expect(w.get('[data-testid=period-year]').attributes('aria-checked')).toBe('true')
+    expect(w.get('[data-testid=period-month]').attributes('aria-checked')).toBe('false')
+
+    await w.get('[data-testid=period-month]').trigger('click')
+    expect(payPrice(w, 'payme')).toBe('29 000 сум')
+  })
+
+  describe('the period switch', () => {
+    it('says how much the year saves, from the prices of one currency (sums first)', async () => {
+      const w = await render()
+
+      // 1 − 249 000 / (12 × 29 000) = 28 %
+      expect(w.get('[data-testid=period-month]').text()).toBe('Месяц')
+      expect(w.get('[data-testid=period-year]').text()).toBe('Год · −28%')
+    })
+
+    it('reads Stars when there are no sum prices', async () => {
+      vi.mocked(api.billing.catalog).mockResolvedValue(catalog({
+        items: [
+          { plan: 'pro', tier: null, period: 'month', prices: { XTR: 100 }, list_prices: { XTR: 100 } },
+          { plan: 'pro', tier: null, period: 'year', prices: { XTR: 900 }, list_prices: { XTR: 900 } },
+        ],
+        providers: ['telegram_stars'],
+      }))
+      const w = await render()
+
+      expect(w.get('[data-testid=period-year]').text()).toBe('Год · −25%') // 1 − 900 / 1200
+    })
+
+    it('shows a plain «Year» when it saves nothing', async () => {
+      vi.mocked(api.billing.catalog).mockResolvedValue(catalog({
+        items: [
+          { plan: 'pro', tier: null, period: 'month', prices: { XTR: 100 }, list_prices: { XTR: 100 } },
+          { plan: 'pro', tier: null, period: 'year', prices: { XTR: 1200 }, list_prices: { XTR: 1200 } },
+        ],
+        providers: ['telegram_stars'],
+      }))
+      const w = await render()
+
+      expect(w.get('[data-testid=period-year]').text()).toBe('Год')
+    })
+
+    it('does not count a one-time discount of the month as a saving of the year', async () => {
+      vi.mocked(api.billing.catalog).mockResolvedValue(catalog({
+        items: [
+          { plan: 'pro', tier: null, period: 'month', prices: { XTR: 105 }, list_prices: { XTR: 150 } },
+          { plan: 'pro', tier: null, period: 'year', prices: { XTR: 1300 }, list_prices: { XTR: 1300 } },
+        ],
+        providers: ['telegram_stars'],
+        offer: { kind: 'post_org_discount', discount_pct: 30, period: 'month', expires_at: '2026-11-02T12:00:00+00:00' },
+      }))
+      const w = await render()
+
+      expect(w.get('[data-testid=period-year]').text()).toBe('Год · −28%') // 1 − 1300 / (12 × 150), not 12 × 105
+    })
+
+    it('is a labelled group of two radios that is disabled while an order is being paid', async () => {
+      vi.useFakeTimers()
+      vi.mocked(api.billing.checkout).mockResolvedValue({
+        order: { id: 1, token: 'tok', status: 'pending', amount: 1, currency: 'UZS', expires_at: '2026-10-20T00:00:00+00:00' },
+        checkout: { url: 'https://my.click.uz/pay', kind: 'redirect' },
+      })
+      vi.mocked(api.billing.order).mockResolvedValue(order('pending'))
+      const w = await render()
+
+      expect(w.get('[role=radiogroup]').attributes('aria-label')).toBe('Срок оплаты')
+      expect(w.findAll('[role=radio]')).toHaveLength(2)
+      expect(w.get('[data-testid=period-month]').attributes('disabled')).toBeUndefined()
+
+      await w.get('[data-testid=pay-click]').trigger('click')
+      await vi.advanceTimersByTimeAsync(0)
+      await flushPromises()
+
+      expect(w.get('[data-testid=period-month]').attributes('disabled')).toBeDefined()
+      expect(w.get('[data-testid=period-year]').attributes('disabled')).toBeDefined()
+    })
   })
 
   it('offers only the providers the server lists, with a price in their currency', async () => {
@@ -109,8 +233,10 @@ describe('PaywallSheet in purchase mode', () => {
     const w = await render()
 
     expect(w.get('[data-testid=purchase-offer]').text()).toContain('Скидка 30% на первый платёж')
-    expect(plain(w.get('[data-testid=pay-telegram_stars]').text())).toContain('105 ⭐')
+    expect(w.get('[data-testid=purchase-offer]').classes()).toContain('chip-warning')
+    expect(payPrice(w, 'telegram_stars')).toBe('105 ⭐')
     expect(w.get('[data-testid=list-price]').text()).toBe('150 ⭐')
+    expect(w.get('[data-testid=list-price]').element.tagName).toBe('S')
     expect(w.find('[data-testid=period-month]').exists()).toBe(false) // a single period needs no tabs
   })
 
@@ -182,8 +308,89 @@ describe('PaywallSheet in purchase mode', () => {
     await w.get('[data-testid=pay-payme]').trigger('click')
     await flushPromises()
 
-    expect(w.get('[data-testid=purchase-error]').text()).toBe('Этот способ оплаты сейчас недоступен. Выберите другой.')
+    const error = w.get('[data-testid=purchase-error]')
+    expect(error.text()).toBe('Этот способ оплаты сейчас недоступен. Выберите другой.')
+    expect(error.attributes('role')).toBe('alert')
+    expect(error.classes()).toContain('text-danger-ink')
+    expect(error.find('svg').exists()).toBe(true)
     expect(w.get('[data-testid=pay-payme]').attributes('disabled')).toBeUndefined()
+  })
+
+  describe('status lines', () => {
+    const redirect = {
+      order: { id: 1, token: 'tok', status: 'pending', amount: 1, currency: 'UZS', expires_at: '2026-10-20T00:00:00+00:00' },
+      checkout: { url: 'https://my.click.uz/pay', kind: 'redirect' },
+    } as const
+
+    it('shows the creation of the invoice as a status line with a spinning icon', async () => {
+      vi.mocked(api.billing.checkout).mockReturnValue(new Promise(() => {}))
+      const w = await render()
+
+      await w.get('[data-testid=pay-click]').trigger('click')
+      await flushPromises()
+
+      const line = w.get('[data-testid=purchase-starting]')
+      expect(line.text()).toBe('Создаём счёт…')
+      expect(line.attributes('role')).toBe('status')
+      expect(line.get('svg').classes()).toContain('animate-spin')
+      expect(w.get('[data-testid=pay-click]').attributes('disabled')).toBeDefined()
+    })
+
+    it('shows the wait for the confirmation with a clock', async () => {
+      vi.useFakeTimers()
+      vi.mocked(api.billing.checkout).mockResolvedValue(redirect)
+      vi.mocked(api.billing.order).mockResolvedValue(order('pending'))
+      const w = await render()
+
+      await w.get('[data-testid=pay-click]').trigger('click')
+      await vi.advanceTimersByTimeAsync(0)
+      await flushPromises()
+
+      const line = w.get('[data-testid=purchase-awaiting]')
+      expect(line.attributes('role')).toBe('status')
+      expect(line.find('svg').exists()).toBe(true)
+    })
+
+    it('says the order was replaced with an info icon and keeps the pay buttons', async () => {
+      vi.mocked(api.billing.checkout).mockResolvedValue(redirect)
+      vi.mocked(api.billing.order).mockResolvedValue({ ...order('canceled'), reason: 'replaced', replaced_by: null })
+      const w = await render()
+
+      await w.get('[data-testid=pay-click]').trigger('click')
+      await flushPromises()
+
+      const line = w.get('[data-testid=purchase-replaced]')
+      expect(line.text()).toBe('Заказ заменён новым заказом.')
+      expect(line.find('svg').exists()).toBe(true)
+      expect(w.get('[data-testid=pay-click]').attributes('disabled')).toBeUndefined()
+    })
+
+    it('after two minutes of waiting offers to check again with a tinted button, and finishes when the order is paid', async () => {
+      vi.useFakeTimers()
+      vi.mocked(api.billing.checkout).mockResolvedValue(redirect)
+      vi.mocked(api.billing.order).mockResolvedValue(order('pending'))
+      const w = await render()
+
+      await w.get('[data-testid=pay-click]').trigger('click')
+      await vi.advanceTimersByTimeAsync(POLL_INTERVAL_MS * POLL_ATTEMPTS)
+      await flushPromises()
+
+      const timeout = w.get('[data-testid=purchase-timeout]')
+      expect(timeout.text()).toContain('Подтверждение ещё не пришло')
+      expect(timeout.find('svg').exists()).toBe(true)
+      const check = w.get('[data-testid=purchase-check]')
+      expect(check.text()).toBe('Проверить ещё раз')
+      expect(check.classes()).toEqual(expect.arrayContaining(['btn-tinted', 'btn-block']))
+
+      vi.mocked(api.billing.order).mockResolvedValue(order('paid'))
+      vi.mocked(api.me.get).mockResolvedValue(me('purchase', 'pro'))
+      await check.trigger('click')
+      await vi.advanceTimersByTimeAsync(0)
+      await flushPromises()
+
+      expect(w.find('[data-testid=purchase-timeout]').exists()).toBe(false)
+      expect(w.get('[data-testid=paywall-paid]').text()).toMatch(/^Спасибо! Pro активен до .*2026/)
+    })
   })
 
   it('explains offer_busy at checkout in Russian and in Uzbek', async () => {
@@ -228,7 +435,10 @@ describe('PaywallSheet in purchase mode', () => {
     const w = await render()
 
     expect(w.find('[data-testid=pay-telegram_stars]').exists()).toBe(false)
+    expect(w.find('[data-testid=pay-method]').exists()).toBe(false)
     expect(w.get('[data-testid=purchase-renewing]').text()).toContain('Автопродление Stars включено')
+    expect(w.get('[data-testid=purchase-renewing]').text()).toContain('«Профиль → Подписка»')
+    expect(w.get('[data-testid=purchase-renewing]').find('svg').exists()).toBe(true)
   })
 
   it('does not sell on top of a perpetual Pro', async () => {
@@ -238,15 +448,101 @@ describe('PaywallSheet in purchase mode', () => {
     const w = await render()
 
     expect(w.find('[data-testid=pay-telegram_stars]').exists()).toBe(false)
+    expect(w.find('[data-testid=pay-method]').exists()).toBe(false)
     expect(w.get('[data-testid=purchase-perpetual]').text()).toContain('без ограничения по сроку')
+    expect(w.get('[data-testid=purchase-perpetual]').find('svg').exists()).toBe(true)
   })
 
   it('explains the exhausted quota with the purchase lead', async () => {
     const w = await render({ reason: 'quota' })
 
     expect(w.get('[data-testid=paywall-lead]').text()).toBe(
-      'Лимит новых слов на сегодня исчерпан — повторения доступны без ограничений. Новые слова без дневного лимита, колоды и подробная статистика.',
+      'Лимит новых слов на сегодня исчерпан — повторения доступны без ограничений. Новые слова без дневного лимита, упражнения на написание, свои колоды, заморозки серии и пробные тесты.',
     )
+  })
+
+  it('promises nothing that does not exist: no «statistics» in either language', async () => {
+    for (const locale of ['ru', 'uz'] as const) {
+      setActivePinia(createPinia())
+      setLocale(locale)
+      const w = await render({ reason: 'quota' })
+
+      expect(w.text().toLowerCase(), locale).not.toMatch(/статистик|statistik/)
+    }
+  })
+
+  describe('repeat words', () => {
+    it('is a tinted button next to the pay buttons, so the purchase stays the one primary action', async () => {
+      useTodayStore().data = { due_count: 5 } as never
+      const w = await render({ reason: 'quota' })
+
+      const review = w.get('[data-testid=paywall-review]')
+      expect(review.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-block']))
+      expect(review.classes()).not.toContain('btn-primary')
+    })
+
+    it('is the primary action while nothing is for sale yet', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(me('coming_soon'))
+      useTodayStore().data = { due_count: 5 } as never
+      const w = await render({ reason: 'quota' })
+
+      expect(w.get('[data-testid=paywall-review]').classes()).toContain('btn-primary')
+    })
+  })
+
+  describe('layout', () => {
+    it('has a grabber sheet with a close button that has a name, besides the «Understood» button', async () => {
+      const w = await render()
+
+      const sheet = w.get('[data-testid=paywall]')
+      expect(sheet.classes()).toContain('sheet')
+      expect(sheet.attributes('role')).toBe('dialog')
+
+      const x = w.get('[data-testid=paywall-x]')
+      expect(x.attributes('aria-label')).toBe('Закрыть')
+      expect(x.find('svg').exists()).toBe(true)
+      expect(w.get('[data-testid=paywall-close]').text()).toBe('Понятно')
+      expect(w.get('[data-testid=paywall-close]').classes()).toContain('btn-plain')
+
+      await x.trigger('click')
+      expect(w.emitted('close')).toHaveLength(1)
+    })
+
+    it('shows the benefits of Pro in a compact list while there is something to read, and not once Pro is on', async () => {
+      const w = await render()
+      expect(w.find('[data-testid=pro-benefits]').exists()).toBe(true)
+
+      vi.useFakeTimers()
+      tg.openInvoice.mockResolvedValue('paid')
+      vi.mocked(api.billing.checkout).mockResolvedValue({
+        order: { id: 1, token: 'tok', status: 'pending', amount: 150, currency: 'XTR', expires_at: '2026-10-20T00:00:00+00:00' },
+        checkout: { url: 'https://t.me/$inv', kind: 'invoice_link' },
+      })
+      vi.mocked(api.billing.order).mockResolvedValue(order('paid'))
+      vi.mocked(api.me.get).mockResolvedValue(me('purchase', 'pro'))
+      await w.get('[data-testid=pay-telegram_stars]').trigger('click')
+      await vi.advanceTimersByTimeAsync(0)
+      await flushPromises()
+
+      expect(w.find('[data-testid=pro-benefits]').exists()).toBe(false)
+      expect(w.get('[data-testid=paywall-paid]').find('svg').exists()).toBe(true)
+    })
+
+    it('lets a long support contact wrap by words, not by letters', async () => {
+      vi.mocked(api.me.get).mockResolvedValue({ ...me(), paywall: { mode: 'purchase', contact: 'https://lexiflow.uz/support/centers/tashkent' } })
+      const w = await render()
+
+      const link = w.get('[data-testid=paywall-contact-link]')
+      expect(link.classes()).toContain('break-words')
+      expect(link.classes()).not.toContain('break-all')
+    })
+
+    it('keeps the contact for centers under the pay buttons', async () => {
+      const w = await render()
+
+      expect(w.get('[data-testid=paywall-contact]').text()).toContain('Учитесь в центре?')
+      expect(w.get('[data-testid=paywall-contact-link]').attributes('href')).toBe('https://t.me/lexiflow_support')
+    })
   })
 
   it('speaks Uzbek', async () => {
@@ -254,8 +550,12 @@ describe('PaywallSheet in purchase mode', () => {
     const w = await render()
 
     expect(w.get('[data-testid=paywall-title]').text()).toBe('LexiFlow Pro')
-    expect(plain(w.get('[data-testid=pay-payme]').text())).toBe("To'lash: Payme · 29 000 so'm")
-    expect(w.get('[data-testid=period-year]').text()).toBe('Yil')
+    expect([payName(w, 'payme'), payPrice(w, 'payme')]).toEqual(['Payme', "29 000 so'm"])
+    expect(plain(w.get('[data-testid=pay-payme]').attributes('aria-label') ?? '')).toBe("To'lash: Payme · 29 000 so'm")
+    expect(payName(w, 'telegram_stars')).toBe('Telegram Stars')
+    expect(w.get('[data-testid=period-year]').text()).toBe('Yil · −28%')
+    expect(w.get('[data-testid=pay-method]').text()).toBe("To'lov usuli")
+    expect(w.get('[role=radiogroup]').attributes('aria-label')).toBe("To'lov muddati")
   })
 
   it('falls back to coming soon when the server says coming_soon, without asking for the catalog', async () => {
