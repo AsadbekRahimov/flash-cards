@@ -7,6 +7,8 @@ use App\Models\Challenge;
 use App\Models\Friendship;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
+use App\Models\Word;
+use App\Models\WordRepetition;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
@@ -53,6 +55,48 @@ it('lists friends with streak and words, the incoming and outgoing requests, and
         ->and($response->json('incoming.0.first_name'))->toBe('Bek')
         ->and($response->json('outgoing.0.first_name'))->toBe('Sam')
         ->and($response->getContent())->not->toContain('dil_secret');
+});
+
+it('lists any number of friends in the same number of queries, and reads no learned words while they are cached', function (): void {
+    $list = function (int $friends): array {
+        $me = Learner::factory()->create(['referral_code' => 'MYCODE'.$friends]); // else the first GET writes the code (one more query)
+        $words = Word::factory()->count(3)->create();
+        foreach (range(1, $friends) as $i) {
+            $friend = Learner::factory()->create(['first_name' => "Friend {$i}"]);
+            Friendship::factory()->between($me, $friend)->create();
+            foreach ($words->take(1 + $i % 3) as $word) { // Friend N has learned 1 + N % 3 words
+                WordRepetition::factory()->create(['learner_id' => $friend->id, 'word_id' => $word->id, 'repetitions' => 1]);
+            }
+        }
+        $get = function () use ($me): array {
+            DB::flushQueryLog();
+            DB::enableQueryLog();
+            $response = $this->withHeaders(tfHeaders($me))->getJson('/api/twa/friends')->assertOk();
+            $queries = array_column(DB::getQueryLog(), 'query');
+            DB::disableQueryLog();
+
+            return [
+                count($queries),
+                count(array_filter($queries, static fn (string $q): bool => str_contains($q, 'word_repetitions'))),
+                array_column($response->json('friends'), 'words_learned', 'first_name'),
+            ];
+        };
+
+        return [$get(), $get()];
+    };
+
+    [[$coldOne, $coldOneReads, $coldOneWords], [$warmOne, $warmOneReads, $warmOneWords]] = $list(1);
+    [[$coldMany, $coldManyReads, $coldManyWords], [$warmMany, $warmManyReads, $warmManyWords]] = $list(20);
+
+    expect($coldMany)->toBe($coldOne)
+        ->and($warmMany)->toBe($warmOne)
+        ->and($warmOne)->toBe($coldOne - 1)
+        ->and([$coldOneReads, $coldManyReads])->toBe([1, 1])  // ONE count for all the friends that missed
+        ->and([$warmOneReads, $warmManyReads])->toBe([0, 0])  // none once they are cached
+        ->and($coldOneWords)->toBe(['Friend 1' => 2])
+        ->and($warmOneWords)->toBe($coldOneWords)
+        ->and($coldManyWords)->toEqual(array_combine(array_map(static fn (int $i): string => "Friend {$i}", range(1, 20)), array_map(static fn (int $i): int => 1 + $i % 3, range(1, 20))))
+        ->and($warmManyWords)->toBe($coldManyWords);
 });
 
 it('requires a learner token', function (): void {

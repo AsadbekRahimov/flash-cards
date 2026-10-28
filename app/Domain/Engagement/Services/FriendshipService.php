@@ -46,7 +46,8 @@ use Throwable;
  *
  * What a friend sees of a learner: the first name, the streak and the number of learned words. The streak
  * is read-only here (the friend's `streak_current`, zero once the last held day is older than the friend's
- * yesterday) — never StreakService::current(), which may write to somebody else's learner row.
+ * yesterday) — never StreakService::current(), which may write to somebody else's learner row. The number of
+ * learned words is a few minutes old (a per-learner cache, {@see LearnerStatsService::cachedWordsLearnedFor()}).
  */
 final class FriendshipService
 {
@@ -329,7 +330,17 @@ final class FriendshipService
 
         $otherIds = array_values(array_unique(array_map(static fn (Friendship $f): int => $f->otherId($learner->id), $rows)));
         $others = Learner::query()->whereIn('id', $otherIds)->get()->keyBy('id');
-        $words = $this->stats->wordsLearnedFor(array_values($others->keys()->map(static fn (mixed $id): int => (int) $id)->all()));
+
+        // Learned words are shown for friends only (not for the people who merely asked), and a few minutes
+        // old is fine: they come from the per-learner cache, the database counts only the learners that missed it.
+        $friendIds = [];
+        foreach ($rows as $row) {
+            $otherId = $row->otherId($learner->id);
+            if ($row->status === FriendshipStatus::Accepted->value && $others->has($otherId)) {
+                $friendIds[] = $otherId;
+            }
+        }
+        $words = $this->stats->cachedWordsLearnedFor($friendIds);
 
         $friends = [];
         $incoming = [];

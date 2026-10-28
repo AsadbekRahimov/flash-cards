@@ -12,7 +12,10 @@ use Carbon\CarbonImmutable;
 
 final class LearnerStatsService
 {
-    public function __construct(private readonly DueRepetitionCriteria $due) {}
+    public function __construct(
+        private readonly DueRepetitionCriteria $due,
+        private readonly LearningCache $cache,
+    ) {}
 
     /**
      * `words_due_today` uses the same rule as review reminders
@@ -31,7 +34,7 @@ final class LearnerStatsService
     }
 
     /**
-     * `words_learned` of many learners in one query (the same rule as {@see forLearner()}); a learner
+     * The EXACT `words_learned` of many learners in one query (the same rule as {@see forLearner()}); a learner
      * without a learned word is present with 0.
      *
      * @param  list<int>  $learnerIds
@@ -56,6 +59,20 @@ final class LearnerStatsService
         }
 
         return $counts;
+    }
+
+    /**
+     * {@see wordsLearnedFor()} for OTHER learners (the friends screen), up to {@see LearningCache::wordsLearned()}'s TTL
+     * old: cached per learner, and only the learners that missed are counted — in one query. The numbers lag, so
+     * the learner's own figures and anything that decides something (achievements) keep using the exact
+     * {@see wordsLearnedFor()}.
+     *
+     * @param  list<int>  $learnerIds
+     * @return array<int, int> every requested id is present (0 for a learner without a learned word)
+     */
+    public function cachedWordsLearnedFor(array $learnerIds): array
+    {
+        return $this->cache->wordsLearned($learnerIds, $this->wordsLearnedFor(...));
     }
 
     /**
