@@ -4,24 +4,26 @@ declare(strict_types=1);
 
 /*
  * The week-result DM (docs/13 §7.3): text per result and language, the TWA button, at most once
- * per learner and closed week, DM-blocked learners, Telegram 403, and the bot-wide send budget
- * (ThrottleTelegramOutbound releases the job without running it when no slot is free).
+ * per learner and closed week, DM-blocked learners, Telegram 403, and the batch job that sends
+ * many members in a row under the bot-wide send budget (one slot per message, the rest handed to
+ * a fresh job when the budget or the time is up).
  */
 
 use App\Domain\Engagement\Services\LeagueResultSender;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
-use App\Jobs\Middleware\ThrottleTelegramOutbound;
-use App\Jobs\SendLeagueResultJob;
+use App\Jobs\SendLeagueResultsJob;
 use App\Models\LeagueGroup;
 use App\Models\LeagueMember;
 use App\Models\LeagueWeek;
 use App\Models\Learner;
 use App\Models\NotificationLog;
 use Carbon\CarbonImmutable;
-use Illuminate\Contracts\Queue\Job as QueueJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Exceptions;
+use Illuminate\Support\Facades\Queue;
 use Tests\Support\FakeTelegramClient;
 
 uses(RefreshDatabase::class);
@@ -41,7 +43,7 @@ function lrMember(Learner $learner, int $tier, string $result, int $rank = 2, in
         ['starts_on' => (new LeagueWeek)->fromDateTime('2026-10-12')],
         ['ends_on' => '2026-10-18', 'status' => 'closed', 'closed_at' => CarbonImmutable::parse('2026-10-18 19:05:00', 'UTC')],
     );
-    $group = LeagueGroup::factory()->create(['league_week_id' => $week->id, 'tier' => $tier]);
+    $group = LeagueGroup::factory()->create(['league_week_id' => $week->id, 'tier' => $tier, 'closed_at' => $week->closed_at]);
 
     return LeagueMember::factory()->closed($result, $rank, $points)->create(['league_group_id' => $group->id, 'learner_id' => $learner->id]);
 }
@@ -49,6 +51,12 @@ function lrMember(Learner $learner, int $tier, string $result, int $rank = 2, in
 function lrSend(LeagueMember $member): string
 {
     return app(LeagueResultSender::class)->send($member->id);
+}
+
+/** @return list<LeagueMember> three closed members of one week */
+function lrThree(): array
+{
+    return array_map(fn (int $i): LeagueMember => lrMember(Learner::factory()->create(['telegram_user_id' => 777_000 + $i]), 0, 'stayed'), [1, 2, 3]);
 }
 
 it('tells a promoted learner the place, the points and the next league, with the TWA button', function (): void {
@@ -121,38 +129,100 @@ it('marks the DM blocked on a Telegram 403 and keeps no log row', function (): v
         ->and(NotificationLog::query()->count())->toBe(0);
 });
 
-it('runs through the job with the bot-wide send budget: no slot → released, nothing sent', function (): void {
-    $learner = Learner::factory()->create();
-    $member = lrMember($learner, 0, 'stayed');
+// --- batches ---------------------------------------------------------------------------------
+
+it('sends a batch in order and reports what happened; a second pass skips everybody', function (): void {
+    [$a, $b, $c] = lrThree();
+    $ids = [$a->id, $b->id, $c->id];
+
+    expect(app(LeagueResultSender::class)->sendBatch($ids, 30))->toBe(['sent' => 3, 'skipped' => 0, 'forbidden' => 0, 'failed' => 0, 'remaining' => []])
+        ->and(array_column($this->tg->sent, 'chat_id'))->toBe([777_001, 777_002, 777_003])
+        ->and(NotificationLog::query()->where('type', 'league_result')->count())->toBe(3);
+
+    expect(app(LeagueResultSender::class)->sendBatch($ids, 30))->toBe(['sent' => 0, 'skipped' => 3, 'forbidden' => 0, 'failed' => 0, 'remaining' => []])
+        ->and($this->tg->sent)->toHaveCount(3);
+});
+
+it('goes on after a Bot API failure or a 403 of one member and keeps the failed one\'s marker, so nobody is doubled later', function (): void {
+    Exceptions::fake();
+    [$a, $b, $c] = lrThree();
+    $b->learner?->forceFill(['telegram_user_id' => 777_999])->save();
+    $this->tg->failSends = 1; // the first send of the batch fails like an outage
+
+    $outcome = app(LeagueResultSender::class)->sendBatch([$a->id, $b->id, $c->id], 30);
+
+    expect($outcome)->toBe(['sent' => 2, 'skipped' => 0, 'forbidden' => 0, 'failed' => 1, 'remaining' => []])
+        ->and(array_column($this->tg->sent, 'chat_id'))->toBe([777_999, 777_003])
+        ->and(NotificationLog::query()->where('type', 'league_result')->count())->toBe(3); // the failed one's row stays: no second attempt
+    Exceptions::assertReported(TelegramApiException::class);
+
+    // A retry of the batch sends nothing more.
+    expect(app(LeagueResultSender::class)->sendBatch([$a->id, $b->id, $c->id], 30)['skipped'])->toBe(3)
+        ->and($this->tg->sent)->toHaveCount(2);
+
+    // A 403 in the middle of a batch: forbidden, DM closed, the batch goes on.
+    $telegram = Mockery::mock(TelegramClient::class);
+    $telegram->shouldReceive('sendWebAppButton')->once()->andThrow(new TelegramForbiddenException(TelegramForbiddenException::REASON_BOT_BLOCKED));
+    $telegram->shouldReceive('sendWebAppButton')->once();
+    $this->app->instance(TelegramClient::class, $telegram);
+    $this->travelTo(CarbonImmutable::parse('2026-10-25 19:10:00', 'UTC'));
+    $next = LeagueWeek::factory()->startingOn('2026-10-19')->closed()->create(['closed_at' => CarbonImmutable::parse('2026-10-25 19:05:00', 'UTC')]);
+    $d = lrMember(Learner::factory()->create(), 0, 'stayed', week: $next);
+    $e = lrMember(Learner::factory()->create(), 0, 'stayed', week: $next);
+
+    expect(app(LeagueResultSender::class)->sendBatch([$d->id, $e->id], 30))->toBe(['sent' => 1, 'skipped' => 0, 'forbidden' => 1, 'failed' => 0, 'remaining' => []])
+        ->and($d->learner?->fresh()?->dm_blocked_at)->not->toBeNull();
+});
+
+it('stops when no slot of the bot-wide budget comes and hands the rest back; the job queues them again with a short delay', function (): void {
+    Queue::fake();
+    config(['telegram.outbound.sync_wait_ms' => 0]);
+    [$a, $b, $c] = lrThree();
     $limiter = new TelegramMessageRateLimiter(globalPerSecond: 1);
+    $this->app->instance(TelegramMessageRateLimiter::class, $limiter);
     $limiter->reserveGlobal(); // the only slot of this second is gone
-    $middleware = new ThrottleTelegramOutbound($limiter);
 
-    $queueJob = Mockery::mock(QueueJob::class);
-    $queueJob->shouldReceive('release')->once()->with(Mockery::on(fn (int $d): bool => $d >= 1 && $d <= 5));
-    $job = new SendLeagueResultJob($member->id);
-    $job->job = $queueJob;
-    $run = fn (SendLeagueResultJob $j): string => (string) app(LeagueResultSender::class)->send($j->memberId);
-
-    expect($middleware->handle($job, $run))->toBeNull()
+    expect(app(LeagueResultSender::class)->sendBatch([$a->id, $b->id, $c->id], 30))->toBe(['sent' => 0, 'skipped' => 0, 'forbidden' => 0, 'failed' => 0, 'remaining' => [$a->id, $b->id, $c->id]])
         ->and($this->tg->sent)->toBe([])
         ->and(NotificationLog::query()->count())->toBe(0);
 
-    $this->travel(1)->seconds();
-    expect($middleware->handle($job, $run))->toBe('sent')
-        ->and($this->tg->sent)->toHaveCount(1);
+    // Through the job: nothing sent, the same three members in a fresh job, delayed 1-5 s.
+    $job = new SendLeagueResultsJob([$a->id, $b->id, $c->id]);
+    $job->handle(app(LeagueResultSender::class), $limiter);
+    Queue::assertPushed(SendLeagueResultsJob::class, function (SendLeagueResultsJob $pushed) use ($a, $b, $c): bool {
+        return $pushed->memberIds === [$a->id, $b->id, $c->id] && is_int($pushed->delay) && $pushed->delay >= 1 && $pushed->delay <= 5;
+    });
 
-    expect($job->tries)->toBe(0)
-        ->and($job->maxExceptions)->toBeGreaterThanOrEqual(1)
-        ->and($job->retryUntil()->getTimestamp())->toBe(now()->addHours(12)->getTimestamp())
-        ->and(array_map(fn (object $m): string => $m::class, $job->middleware()))->toContain(ThrottleTelegramOutbound::class);
+    // The next second has a slot again: one message goes out, the budget is gone, two come back.
+    $this->travel(1)->seconds();
+    expect(app(LeagueResultSender::class)->sendBatch([$a->id, $b->id, $c->id], 30))->toBe(['sent' => 1, 'skipped' => 0, 'forbidden' => 0, 'failed' => 0, 'remaining' => [$b->id, $c->id]])
+        ->and($this->tg->sent)->toHaveCount(1);
 });
 
-it('is executed from the queue after a close with the real sender', function (): void {
-    $learner = Learner::factory()->create();
-    $member = lrMember($learner, 0, 'stayed');
+it('hands the rest to a fresh job when the time budget is spent — at least one message per job', function (): void {
+    Queue::fake();
+    [$a, $b, $c] = lrThree();
 
-    SendLeagueResultJob::dispatchSync($member->id);
+    expect(app(LeagueResultSender::class)->sendBatch([$a->id, $b->id, $c->id], 0))->toBe(['sent' => 1, 'skipped' => 0, 'forbidden' => 0, 'failed' => 0, 'remaining' => [$b->id, $c->id]]);
 
-    expect($this->tg->sent)->toHaveCount(1);
+    // A zero budget = one attempt per job: $a is skipped (already sent) and the rest is handed on; the next job sends $b.
+    config(['leagues.notify_batch_seconds' => 0]);
+    (new SendLeagueResultsJob([$a->id, $b->id, $c->id]))->handle(app(LeagueResultSender::class), app(TelegramMessageRateLimiter::class));
+    Queue::assertPushed(SendLeagueResultsJob::class, fn (SendLeagueResultsJob $pushed): bool => $pushed->memberIds === [$b->id, $c->id]);
+    (new SendLeagueResultsJob([$b->id, $c->id]))->handle(app(LeagueResultSender::class), app(TelegramMessageRateLimiter::class));
+    Queue::assertPushed(SendLeagueResultsJob::class, fn (SendLeagueResultsJob $pushed): bool => $pushed->memberIds === [$c->id]);
+    expect($this->tg->sent)->toHaveCount(2);
+});
+
+it('is executed from the queue after a close with the real sender, and is bounded like the other senders', function (): void {
+    [$a, $b] = array_slice(lrThree(), 0, 2);
+
+    SendLeagueResultsJob::dispatchSync([$a->id, $b->id]);
+
+    $job = new SendLeagueResultsJob([$a->id]);
+    expect($this->tg->sent)->toHaveCount(2)
+        ->and($job->tries)->toBe(0)
+        ->and($job->maxExceptions)->toBeGreaterThanOrEqual(1)
+        ->and($job->retryUntil()->getTimestamp())->toBe(now()->addHours(12)->getTimestamp())
+        ->and(method_exists($job, 'middleware'))->toBeFalse(); // one slot per MESSAGE inside the batch, not one per job
 });
