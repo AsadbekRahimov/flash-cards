@@ -135,6 +135,8 @@ final class VocabularyImporter
         }
 
         $lesson = DB::transaction(function () use ($data, $words, $course, $report, $by, $auditContext): Lesson {
+            $this->lockCourse($course);
+
             $stage = Stage::updateOrCreate(
                 ['course_id' => $course->id, 'number' => $data['stage']['number']],
                 array_filter([
@@ -222,6 +224,30 @@ final class VocabularyImporter
         DB::afterCommit(fn () => $this->cache->forgetLesson($lesson));
 
         return $report;
+    }
+
+    /**
+     * First statement of the import transaction: the course row is locked until the import commits, so the
+     * writers of one course take turns. Without it two imports into the same course count the active words
+     * from snapshots that lack each other's uncommitted rows, and the later commit leaves a `courses.words_count`
+     * that misses the earlier import's words (the importer, unlike the decks, did not lock); a double submit of
+     * one file makes the second import insert the words the first one has not committed yet and fail on the
+     * unique `(lesson_id, word)` instead of finding them and skipping.
+     *
+     * It is the row the decks (LearnerDeckService) and the publication (CoursePublisher::transition) lock too,
+     * and in all three the FIRST lock of the transaction (the importer only reads the course before it); the
+     * lessons and words written afterwards are not held by anyone who then waits for the course - the word edits
+     * of the admin panel run in autocommit, one statement at a time (a panel with `databaseTransactions()` would
+     * turn them into word-then-course, the opposite order) - so no cycle can form. `FOR NO KEY UPDATE` on
+     * PostgreSQL, as in CardPicker: it conflicts with their `FOR UPDATE`, with itself and with the `UPDATE courses`
+     * of `recount`, but not with the `FOR KEY SHARE` of a foreign-key check, so learners opening a session of the
+     * course or choosing it as their active one are not held up for the length of the import (with `FOR UPDATE`
+     * they would be). SQLite has no row locks and a single writer.
+     */
+    private function lockCourse(Course $course): void
+    {
+        $lock = Course::query()->whereKey($course->id);
+        (DB::connection()->getDriverName() === 'pgsql' ? $lock->lock('for no key update') : $lock->lockForUpdate())->first();
     }
 
     /** What is wrong with a file `json_decode` refused: the few mistakes a person can fix; anything else is `other`. */

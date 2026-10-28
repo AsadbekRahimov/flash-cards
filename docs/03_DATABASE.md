@@ -515,7 +515,17 @@ Append-only журнал для продуктовой аналитики (не 
 (`GET /courses`, колоды, `active_course` на «Сегодня») берётся из него, слова каталога при открытии не считаются
 (`done` — запросом по строкам `word_repetitions` самого learner'а). Поэтому любой путь, меняющий активные слова
 (импорт, колоды learner'а, правка слова в админке), обязан вызвать `recount` и `LearningCache::forgetLesson`;
-текущие пути перечислены в `WordChangePathsTest` и `WordTranslationsAdminTest`. Курс `default` создаётся `CourseCatalogService::defaultCourse()`
+текущие пути перечислены в `WordChangePathsTest` и `WordTranslationsAdminTest`.
+**Писатели одного курса идут по очереди через его строку** (17.12): `VocabularyImporter` первым выражением своей транзакции берёт строку
+курса (`FOR NO KEY UPDATE` на PostgreSQL), как `LearnerDeckService` (`addWords` / `removeWord` / `archive`) и `CoursePublisher::transition`
+берут её `FOR UPDATE`. Без этого два параллельных импорта в один курс считали активные слова из снимков без чужих незакоммиченных строк,
+и позднейший commit оставлял `words_count` без слов раннего импорта; двойная отправка одного файла в существующий урок падала на unique
+`(lesson_id, word)`. Порядок замков единый (курс — первым, уроки и слова — после), цикла нет; правки слов в админке идут одиночными
+выражениями без транзакции панели (`databaseTransactions()` не включён, это закреплено `CourseWriterLocksTest`). Слабее `FOR UPDATE`
+выбран намеренно: он не конфликтует с `FOR KEY SHARE` проверки внешнего ключа, поэтому вставки `training_sessions.course_id`,
+`learners.active_course_id` и `stages` не ждут конца импорта (замер на PG 16: при удержании строки курса 3 с вставка в `stages` ждала остаток
+удержания, 2,0 с, а при `FOR NO KEY UPDATE` — 0,05 с). Гонки проверены на
+PostgreSQL в `ImportConcurrencyTest` (pcntl). Курс `default` создаётся `CourseCatalogService::defaultCourse()`
 (сидер, первый импорт без `course`) сразу в статусе `published`; группа с `telegram_groups.course_id = NULL` работает в нём.
 
 ### 2.21 `word_translations` — переводы слов по локалям
