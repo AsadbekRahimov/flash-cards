@@ -47,6 +47,15 @@ describe('TabBar', () => {
     expect(w.findAll('a').map((a) => a.attributes('data-testid'))).toEqual(['tab-today', 'tab-courses', 'tab-rating', 'tab-profile'])
   })
 
+  it('names its landmark, so a screen reader can tell it from the other navigation of the screen', async () => {
+    const { w } = await mountBar('/today')
+    expect(w.attributes('aria-label')).toBe('Разделы')
+
+    setLocale('uz')
+    const { w: uz } = await mountBar('/today')
+    expect(uz.attributes('aria-label')).toBe("Bo'limlar")
+  })
+
   it('marks the tab of the current route: accent colour, aria-current, solid icon', async () => {
     const { w } = await mountBar('/league')
 

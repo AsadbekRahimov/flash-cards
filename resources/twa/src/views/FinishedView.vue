@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
@@ -70,6 +70,11 @@ async function reviewFromPaywall(): Promise<void> {
 }
 
 notificationHaptic('success')
+
+// A failed "Repeat words" is shown here only: Today (where "Home" leads) shows the same `openError` for its own button.
+onBeforeUnmount(() => {
+  training.clearOpenError()
+})
 </script>
 
 <template>

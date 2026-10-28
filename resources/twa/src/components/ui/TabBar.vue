@@ -13,7 +13,8 @@ import type { TabId } from '@/router'
  *
  * No props. The active tab is `route.meta.tab` (set per route in `router/index.ts`), so inner screens
  * (a course, the settings) keep their tab highlighted. The active tab gets the solid icon, the accent colour and
- * `aria-current="page"`. Switching to another tab gives a selection haptic.
+ * `aria-current="page"`. Switching to another tab gives a selection haptic. The navigation landmark is named
+ * (`aria-label`, "Sections"): a screen reader lists it next to the other `nav` of the screen (the Courses | Decks switch).
  *
  * Fixed to the bottom: `--app-tabbar-h` + the home-indicator inset high, a translucent bar background with blur
  * and a hairline on top. App.vue shows it only for routes that have `meta.tab` and pads the content under it.
@@ -46,6 +47,7 @@ function onSelect(tab: Tab): void {
 <template>
   <nav
     role="navigation"
+    :aria-label="t('nav.label')"
     class="fixed inset-x-0 bottom-0 z-40 border-t bg-[color-mix(in_srgb,var(--tg-bottom-bar-bg)_88%,transparent)] pb-[env(safe-area-inset-bottom,0px)] backdrop-blur-xl"
     data-testid="tab-bar"
   >

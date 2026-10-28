@@ -61,7 +61,7 @@ describe('AudioCard', () => {
     expect(speak).toHaveBeenCalledWith('Resilient', 'en-US', 'https://x.test/a.mp3')
   })
 
-  it('a right pick reveals the word, grades 4 after the pause and has no button to press', async () => {
+  it('a right pick reveals the word, grades 4 at once, moves on after the pause and has no button to press', async () => {
     const w = mount(AudioCard, { props: { card } })
     await w.get('[data-testid=option-2]').trigger('click')
 
@@ -70,13 +70,16 @@ describe('AudioCard', () => {
     expect(w.find('[data-testid=replay-hint]').exists()).toBe(false)
     expect(w.get('[data-testid=option-2]').attributes('data-state')).toBe('correct')
     expect(w.find('[data-testid=continue-btn]').exists()).toBe(false)
-    expect(w.emitted('grade')).toBeUndefined()
+    // The grade is final at the pick: it goes now, not after the pause.
+    expect(w.emitted('grade')).toEqual([[4]])
+    expect(w.emitted('advance')).toBeUndefined()
 
     vi.advanceTimersByTime(CHOICE_FEEDBACK_MS)
+    expect(w.emitted('advance')).toHaveLength(1)
     expect(w.emitted('grade')).toEqual([[4]])
   })
 
-  it('a wrong pick reveals the right translation, the word and the example, and waits for "Next" (N6)', async () => {
+  it('a wrong pick grades 2 at once, reveals the right translation, the word and the example, and waits for "Next" (N6)', async () => {
     const w = mount(AudioCard, { props: { card } })
     await w.get('[data-testid=option-0]').trigger('click')
 
@@ -84,14 +87,36 @@ describe('AudioCard', () => {
     expect(w.get('[data-testid=option-2]').attributes('data-state')).toBe('reveal')
     expect(w.get('[data-testid=word]').text()).toBe('Resilient')
     expect(w.get('[data-testid=example]').text()).toBe('She is a resilient girl.')
+    expect(w.emitted('grade')).toEqual([[2]])
 
     vi.advanceTimersByTime(CHOICE_FEEDBACK_MS * 30)
-    expect(w.emitted('grade')).toBeUndefined()
+    expect(w.emitted('advance')).toBeUndefined()
 
     const next = w.get('[data-testid=continue-btn]')
     expect(next.text()).toBe('Дальше')
     await next.trigger('click')
     await next.trigger('click')
+    expect(w.emitted('advance')).toHaveLength(1)
+    // "Next" only moves on: the grade has gone at the pick and is not sent a second time.
+    expect(w.emitted('grade')).toEqual([[2]])
+  })
+
+  it('lets "Next" be pressed while the grade is on its way, then waits for the server', async () => {
+    const w = mount(AudioCard, { props: { card } })
+    await w.get('[data-testid=option-0]').trigger('click')
+    await w.setProps({ disabled: true })
+    const next = w.get('[data-testid=continue-btn]')
+    expect(next.attributes('disabled')).toBeUndefined()
+    expect(w.find('[data-testid=continue-waiting]').exists()).toBe(false)
+
+    await next.trigger('click')
+    expect(w.emitted('advance')).toHaveLength(1)
+    expect(w.get('[data-testid=continue-btn]').attributes('disabled')).toBeDefined()
+    expect(w.get('[data-testid=continue-btn]').attributes('aria-busy')).toBe('true')
+    expect(w.find('[data-testid=continue-waiting]').exists()).toBe(true)
+
+    await w.get('[data-testid=continue-btn]').trigger('click')
+    expect(w.emitted('advance')).toHaveLength(1)
     expect(w.emitted('grade')).toEqual([[2]])
   })
 
@@ -101,6 +126,7 @@ describe('AudioCard', () => {
 
     expect(w.get('[data-testid=option-0]').attributes('data-state')).toBe('idle')
     expect(w.find('[data-testid=continue-btn]').exists()).toBe(false)
+    expect(w.emitted('grade')).toBeUndefined()
   })
 
   it('renders in Uzbek', async () => {

@@ -121,6 +121,26 @@ describe('TodayView', () => {
       expect(w.get('header p').text()).toBe('среда, 28 октября')
     })
 
+    it('puts the date in the time zone of the learner when /today names it: the day of the goal below is counted there', async () => {
+      vi.useFakeTimers({ toFake: ['Date'] })
+      // 01:30 on the 29th in Tashkent, 09:30 on the 28th in Pago Pago: whatever the device zone is, one of them differs from it.
+      vi.setSystemTime(new Date('2026-10-28T20:30:00Z'))
+
+      const tashkent = await render(today({ timezone: 'Asia/Tashkent' }))
+      expect(tashkent.get('header p').text()).toBe('четверг, 29 октября')
+
+      const samoa = await render(today({ timezone: 'Pacific/Pago_Pago' }))
+      expect(samoa.get('header p').text()).toBe('среда, 28 октября')
+    })
+
+    it('keeps the date of the device when /today names no zone, or one the browser does not know', async () => {
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date(2026, 9, 28, 12, 0, 0))
+
+      expect((await render(today())).get('header p').text()).toBe('среда, 28 октября')
+      expect((await render(today({ timezone: 'Mars/Olympus' }))).get('header p').text()).toBe('среда, 28 октября')
+    })
+
     it('says "Today" when the learner has no name', async () => {
       state.learner = { first_name: null }
       expect((await render()).get('h1').text()).toBe('Сегодня')
@@ -658,6 +678,12 @@ describe('TodayView', () => {
 
     it('falls back to the lowest tier for a tier this app does not know', async () => {
       const w = await render(today({ league: { tier: 9, tier_key: 'mythic' as never, rank: 1, points: 5, members_count: 30 } }))
+
+      expect(text(w, 'league-line')).toContain('Лига · Бронза')
+    })
+
+    it.each(['constructor', '__proto__', 'toString'])('takes the name of a tier from the shared table only: «%s» is the lowest tier', async (key) => {
+      const w = await render(today({ league: { tier: 9, tier_key: key as never, rank: 1, points: 5, members_count: 30 } }))
 
       expect(text(w, 'league-line')).toContain('Лига · Бронза')
     })

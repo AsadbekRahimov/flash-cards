@@ -91,7 +91,8 @@
   --app-danger-soft: color-mix(in srgb, var(--app-danger) 14%, transparent);
   /* "Ink" = text on a soft background: mixed with the theme text colour, so it reads in both light and dark. */
   --app-success-ink: color-mix(in srgb, var(--app-success) 72%, var(--tg-text));
-  --app-warning-ink: color-mix(in srgb, var(--app-warning) 72%, var(--tg-text));
+  /* Amber is a light hue: it takes the larger share of the text colour to reach 4.5:1 on white and on warning-soft in the light iOS and Android themes. */
+  --app-warning-ink: color-mix(in srgb, var(--app-warning) 50%, var(--tg-text));
   --app-danger-ink: color-mix(in srgb, var(--app-danger) 85%, var(--tg-text));
   --app-track: color-mix(in srgb, var(--tg-hint) 24%, transparent); /* progress tracks, switches */
 
