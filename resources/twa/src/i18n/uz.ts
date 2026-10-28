@@ -123,18 +123,23 @@ export const uz: Translations = {
   'card.reveal': "Tarjimani ko'rsatish",
   'card.translation_fallback': "Mashg'ulot tilida tarjima hali yo'q",
   'card.grade_group': 'Baho',
-  'card.grade.hard': 'Qiyin',
-  'card.grade.medium': "O'rtacha",
+  'card.grade.hard': 'Eslay olmadim',
+  'card.grade.medium': 'Esladim',
   'card.grade.easy': 'Oson',
+  'card.grade.hard_hint': 'bugun takrorlaymiz',
+  'card.grade.medium_hint': "jadval bo'yicha",
+  'card.grade.easy_hint': "kamroq ko'rsatamiz",
+  'card.grade_prompt': "So'zni qanchalik yaxshi eslaysiz?",
 
   // ---- training ----
-  'training.lesson_header': 'Stage {stage} · Lesson {lesson}',
+  'training.lesson_header': '{stage}-modul · {lesson}-dars',
   'training.daily_header': 'Takrorlash',
-  'training.closed_title': "🔒 Mashg'ulot yakunlandi",
+  'training.closed_title': "Mashg'ulot yakunlandi",
   'training.restart': 'Qaytadan boshlash',
+  'training.lesson_header_no_stage': '{lesson}-dars',
 
   // ---- exercises (docs/13 §2.5) ----
-  'exercise.reverse.title': "So'zni tanlang",
+  'exercise.reverse.title': "Inglizcha so'zni tanlang",
   'exercise.audio.title': 'Nimani eshitdingiz?',
   'exercise.audio.play': 'Yana eshitish',
   'exercise.spelling.title': "So'zni inglizcha yozing",
@@ -144,14 +149,16 @@ export const uz: Translations = {
   'exercise.check': 'Tekshirish',
   'exercise.skip': 'Bilmayman',
   'exercise.verdict.correct': "To'g'ri!",
-  'exercise.verdict.close': "Deyarli! To'g'risi: {expected}",
-  'exercise.verdict.wrong': "Noto'g'ri. To'g'risi: {expected}",
+  'exercise.verdict.close': 'Deyarli!',
+  'exercise.verdict.wrong': "Noto'g'ri",
   'exercise.continue': 'Keyingisi',
+  'exercise.audio.replay_hint': 'Yana tinglash uchun bosing',
+  'exercise.verdict.expected': "To'g'ri javob",
 
   // ---- exam ----
-  'exam.closed_title': "🔒 Imtihon o'qituvchi tomonidan yakunlandi",
+  'exam.closed_title': "Imtihon o'qituvchi tomonidan yakunlandi",
   'exam.mock_header': 'Sinov testi',
-  'exam.mock_closed_title': '⏱ Vaqt tugadi',
+  'exam.mock_closed_title': 'Vaqt tugadi',
 
   // ---- exam result ----
   'result.title': 'Imtihon natijalari',

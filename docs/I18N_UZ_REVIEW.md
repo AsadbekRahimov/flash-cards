@@ -172,14 +172,14 @@
 | `card.reveal` | Tarjimani ko'rsatish | Показать перевод |
 | `card.translation_fallback` | Mashg'ulot tilida tarjima hali yo'q | Перевода на язык занятия пока нет |
 | `card.grade_group` | Baho | Оценка |
-| `card.grade.hard` | Qiyin | Трудно |
-| `card.grade.medium` | O'rtacha | Средне |
+| `card.grade.hard` | Eslay olmadim | Не помню |
+| `card.grade.medium` | Esladim | Помню |
 | `card.grade.easy` | Oson | Легко |
-| `training.lesson_header` | Stage {stage} · Lesson {lesson} | Stage {stage} · Lesson {lesson} |
-| `training.closed_title` | 🔒 Mashg'ulot o'qituvchi tomonidan yakunlandi | 🔒 Тренировка завершена учителем |
-| `exam.closed_title` | 🔒 Imtihon o'qituvchi tomonidan yakunlandi | 🔒 Экзамен завершён учителем |
+| `training.lesson_header` | {stage}-modul · {lesson}-dars | Модуль {stage} · Урок {lesson} |
+| `training.closed_title` | Mashg'ulot yakunlandi | Тренировка завершена |
+| `exam.closed_title` | Imtihon o'qituvchi tomonidan yakunlandi | Экзамен завершён учителем |
 | `result.title` | Imtihon natijalari | Итоги экзамена |
-| `result.your_score` | Sizning natijangiz | Твой результат |
+| `result.your_score` | Sizning natijangiz | Ваш результат |
 | `result.rank` | {total} ishtirokchi ichida {rank}-o'rin | Место {rank} из {total} |
 | `result.pending` | Natijalar hali hisoblanmoqda… | Результаты ещё считаются… |
 | `result.top` | Eng yaxshi ishtirokchilar | Топ участников |
@@ -1408,7 +1408,7 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `exam.mock_header` | Sinov testi | Пробный тест |
-| `exam.mock_closed_title` | ⏱ Vaqt tugadi | ⏱ Время вышло |
+| `exam.mock_closed_title` | Vaqt tugadi | Время вышло |
 | `result.mock_title` | Sinov testi natijalari | Итоги пробного теста |
 | `result.mock_score` | {total} tadan {correct} ta · {percent}% | {correct} из {total} · {percent}% |
 | `result.mock_unanswered` | Javobsiz: {count} | Без ответа: {count} |
@@ -1596,7 +1596,7 @@
 | `error.code.not_opponent` | Musobaqaga faqat unga yo'llangan kishi javob bera oladi. | Ответить на вызов может только тот, кому он адресован. |
 | `error.code.challenge_closed` | Bu musobaqa endi amal qilmaydi. | Этот вызов больше не действует. |
 
-| `exercise.reverse.title` | So'zni tanlang | Выберите слово |
+| `exercise.reverse.title` | Inglizcha so'zni tanlang | Выберите английское слово |
 | `exercise.audio.title` | Nimani eshitdingiz? | Что вы услышали? |
 | `exercise.audio.play` | Yana eshitish | Прослушать ещё раз |
 | `exercise.spelling.title` | So'zni inglizcha yozing | Напишите слово по-английски |
@@ -1606,8 +1606,8 @@
 | `exercise.check` | Tekshirish | Проверить |
 | `exercise.skip` | Bilmayman | Не знаю |
 | `exercise.verdict.correct` | To'g'ri! | Верно! |
-| `exercise.verdict.close` | Deyarli! To'g'risi: {expected} | Почти! Правильно: {expected} |
-| `exercise.verdict.wrong` | Noto'g'ri. To'g'risi: {expected} | Неверно. Правильно: {expected} |
+| `exercise.verdict.close` | Deyarli! | Почти! |
+| `exercise.verdict.wrong` | Noto'g'ri | Неверно |
 | `exercise.continue` | Keyingisi | Дальше |
 | `settings.exercises` | Mashqlar | Упражнения |
 | `settings.exercises.reverse` | Tarjima → so'z | Перевод → слово |
@@ -1860,3 +1860,20 @@
 | `referrals.step1` | Do'stingizga havolani yuboring | Отправьте другу ссылку |
 | `referrals.step2` | Do'stingiz {window} kun ichida {days} kun shug'ullanadi (kuniga {reviews} ta kartochkadan) | Друг занимается {days} дн. (от {reviews} карточек в день) в течение {window} дней |
 | `referrals.step3` | Ikkalangiz ham {reward} kunlik Pro olasiz | Вы оба получаете {reward} дн. Pro |
+
+## Редизайн 2026-10-28 · 17.3 тренировка и экзамен — на проверку носителю
+
+> Проверить: оценки карточки «Eslay olmadim» / «Esladim» / «Oson» (термины по docs/14 §8: Не помню · Помню · Легко) и подписи под ними — что произойдёт с карточкой дальше; «{stage}-modul · {lesson}-dars» в шапке занятия; заголовки вердикта «To'g'ri!» / «Deyarli!» / «Noto'g'ri» и подпись «To'g'ri javob» (теперь правильный ответ показывается отдельной строкой, а не внутри заголовка); подсказка к кнопке прослушивания.
+> Изменённые в этом разделе экранов ключи (`card.grade.hard`, `card.grade.medium`, `training.lesson_header`, `training.closed_title`, `exam.closed_title`, `exam.mock_closed_title`, `result.your_score`, `exercise.reverse.title`, `exercise.verdict.close`, `exercise.verdict.wrong`) обновлены в своих прежних строках выше; без эмодзи в заголовках «закрыто» — замок и часы теперь иконки.
+
+### TWA, тренировка: оценки карточки, упражнения, вердикт (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `card.grade.hard_hint` | bugun takrorlaymiz | повторим сегодня |
+| `card.grade.medium_hint` | jadval bo'yicha | по расписанию |
+| `card.grade.easy_hint` | kamroq ko'rsatamiz | покажем реже |
+| `card.grade_prompt` | So'zni qanchalik yaxshi eslaysiz? | Насколько хорошо вы помните слово? |
+| `training.lesson_header_no_stage` | {lesson}-dars | Урок {lesson} |
+| `exercise.audio.replay_hint` | Yana tinglash uchun bosing | Нажмите, чтобы послушать ещё раз |
+| `exercise.verdict.expected` | To'g'ri javob | Правильный ответ |

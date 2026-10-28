@@ -117,6 +117,108 @@ describe('TrainingView — exercises', () => {
     expect(wrapper.find('[data-testid=flashcard]').exists()).toBe(true)
   })
 
+  it('a wrong reverse pick stays on screen until "Next", then sends quality 2 (N6)', async () => {
+    vi.useFakeTimers()
+    vi.mocked(api.training.review).mockResolvedValue({
+      next_review_at: null,
+      new_interval_days: 0,
+      easiness_factor: 2.5,
+      graded: null,
+      card: card(null, { word_id: 8 }),
+      progress: { done: 1, total: 3 },
+    })
+    const { wrapper } = await render(card(prompts.reverse))
+
+    await wrapper.get('[data-testid=option-0]').trigger('click')
+    expect(wrapper.get('[data-testid=option-0]').attributes('data-state')).toBe('incorrect')
+    expect(wrapper.get('[data-testid=option-1]').attributes('data-state')).toBe('reveal')
+
+    // However long the learner reads the right answer, the card stays.
+    vi.advanceTimersByTime(CHOICE_FEEDBACK_MS * 30)
+    await flushPromises()
+    expect(api.training.review).not.toHaveBeenCalled()
+    expect(wrapper.find('[data-testid=reverse-card]').exists()).toBe(true)
+
+    const next = wrapper.get('[data-testid=continue-btn]')
+    expect(next.text()).toBe('Дальше')
+    await next.trigger('click')
+    await flushPromises()
+
+    expect(api.training.review).toHaveBeenCalledTimes(1)
+    expect(api.training.review).toHaveBeenCalledWith(1, 7, 2, expect.any(Number), null)
+    expect(wrapper.find('[data-testid=flashcard]').exists()).toBe(true)
+  })
+
+  it('a wrong audio pick waits for "Next" as well', async () => {
+    vi.mocked(api.training.review).mockResolvedValue({
+      next_review_at: null,
+      new_interval_days: 0,
+      easiness_factor: 2.5,
+      graded: null,
+      card: card(null, { word_id: 8 }),
+      progress: { done: 1, total: 3 },
+    })
+    const { wrapper } = await render(card(prompts.audio))
+
+    await wrapper.get('[data-testid=option-0]').trigger('click')
+    await flushPromises()
+    expect(api.training.review).not.toHaveBeenCalled()
+
+    await wrapper.get('[data-testid=continue-btn]').trigger('click')
+    await flushPromises()
+    expect(api.training.review).toHaveBeenCalledWith(1, 7, 2, expect.any(Number), null)
+  })
+
+  it('"Next" after a wrong pick is pressed once: the grade is sent once', async () => {
+    vi.mocked(api.training.review).mockResolvedValue({
+      next_review_at: null,
+      new_interval_days: 0,
+      easiness_factor: 2.5,
+      graded: null,
+      card: card(null, { word_id: 8 }),
+      progress: { done: 1, total: 3 },
+    })
+    const { wrapper } = await render(card(prompts.reverse))
+    await wrapper.get('[data-testid=option-3]').trigger('click')
+
+    const next = wrapper.get('[data-testid=continue-btn]')
+    await next.trigger('click')
+    await next.trigger('click')
+    await flushPromises()
+
+    expect(api.training.review).toHaveBeenCalledTimes(1)
+  })
+
+  it('the same word served again at once starts a fresh exercise, not the answered one', async () => {
+    // A failed learning card is the only one left: the server serves it ahead, with a new ticket.
+    vi.mocked(api.training.review).mockResolvedValue({
+      next_review_at: null,
+      new_interval_days: 0,
+      easiness_factor: 2.5,
+      graded: null,
+      card: card(prompts.reverse, { serve_token: 'ticket-2', card_kind: 'learning' }),
+      progress: { done: 1, total: 3 },
+    })
+    const { wrapper } = await render(card(prompts.reverse))
+    await wrapper.get('[data-testid=option-2]').trigger('click')
+    expect(wrapper.get('[data-testid=option-2]').attributes('data-state')).toBe('incorrect')
+
+    await wrapper.get('[data-testid=continue-btn]').trigger('click')
+    await flushPromises()
+
+    // Same word_id, new serve: every option is open for a new pick again, and there is nothing left to confirm.
+    expect(useTrainingStore().card?.word_id).toBe(7)
+    for (const i of [0, 1, 2, 3]) {
+      expect(wrapper.get(`[data-testid=option-${i}]`).attributes('data-state')).toBe('idle')
+      expect(wrapper.get(`[data-testid=option-${i}]`).attributes('disabled')).toBeUndefined()
+    }
+    expect(wrapper.find('[data-testid=continue-btn]').exists()).toBe(false)
+
+    vi.mocked(api.training.review).mockClear()
+    await wrapper.get('[data-testid=option-1]').trigger('click')
+    expect(wrapper.get('[data-testid=option-1]').attributes('data-state')).toBe('correct')
+  })
+
   it('a typed answer shows the verdict, then "Next" reveals the card the review answered with', async () => {
     vi.mocked(api.training.answer).mockResolvedValue({
       next_review_at: null,
@@ -135,7 +237,8 @@ describe('TrainingView — exercises', () => {
     expect(api.training.answer).toHaveBeenCalledWith(1, 7, 'walks', expect.any(Number), null)
     const verdict = wrapper.get('[data-testid=answer-verdict]')
     expect(verdict.attributes('data-kind')).toBe('wrong')
-    expect(verdict.get('[data-testid=verdict-text]').text()).toBe('Неверно. Правильно: walked')
+    expect(verdict.get('[data-testid=verdict-text]').text()).toBe('Неверно')
+    expect(verdict.get('[data-testid=expected]').text()).toBe('walked')
     expect(verdict.get('[data-testid=own-answer]').text()).toBe('walks')
     expect(wrapper.find('[data-testid=reverse-card]').exists()).toBe(false)
 

@@ -1,33 +1,23 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
+import type { OptionState } from '@/composables/useChoice'
 
-type State = 'idle' | 'selected' | 'correct' | 'incorrect' | 'reveal'
-
+/**
+ * One answer of a four-choice question (training and exam): the `.option` button of the design system, placed on the
+ * page under the question card (docs/14 §4.3). `state` goes to `data-state` and decides the colours: `selected` is the
+ * pick waiting for the server, `correct` / `incorrect` show the verdict on the picked option (with a check / a cross on the
+ * right), `reveal` marks the right answer after a miss. A disabled option that has no state yet is dimmed.
+ */
 const props = defineProps<{
   label: string
   index: number
-  state: State
+  state: OptionState
   disabled?: boolean
 }>()
 
 const emit = defineEmits<{
   (e: 'pick', index: number): void
 }>()
-
-const classes = computed((): string => {
-  switch (props.state) {
-    case 'correct':
-      return 'bg-green-500 text-white border-green-600'
-    case 'incorrect':
-      return 'bg-red-500 text-white border-red-600'
-    case 'reveal':
-      return 'bg-green-100 text-green-900 border-green-400'
-    case 'selected':
-      return 'bg-tg-button text-tg-button-text border-transparent'
-    default:
-      return 'bg-tg-secondary-bg text-tg-text border-transparent'
-  }
-})
 
 function onClick(): void {
   if (props.disabled) return
@@ -38,13 +28,15 @@ function onClick(): void {
 <template>
   <button
     type="button"
-    class="w-full text-left rounded-xl px-4 py-3 border-2 transition-colors duration-150 active:scale-[0.98] disabled:opacity-60"
-    :class="classes"
+    class="option"
+    :class="{ 'opacity-60': disabled && state === 'idle' }"
     :disabled="disabled"
     :data-testid="`option-${index}`"
     :data-state="state"
     @click="onClick"
   >
-    <span class="text-base font-medium">{{ label }}</span>
+    <span class="min-w-0 flex-1 break-words">{{ label }}</span>
+    <AppIcon v-if="state === 'correct'" name="check" :size="22" />
+    <AppIcon v-else-if="state === 'incorrect'" name="x-mark" :size="22" />
   </button>
 </template>

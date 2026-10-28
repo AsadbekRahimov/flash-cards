@@ -515,9 +515,9 @@ export interface NextCardResponse {
 
 /**
  * Grade sent to POST /review (server accepts 0..5).
- *   2 — Трудно / Again: failed, card restarts learning steps
- *   4 — Средне / Good:  passed, EF unchanged
- *   5 — Легко  / Easy:  passed, EF +0.10 (skips remaining learning steps)
+ *   2 — «Не помню» / Again: failed, card restarts learning steps
+ *   4 — «Помню»    / Good:  passed, EF unchanged
+ *   5 — «Легко»    / Easy:  passed, EF +0.10 (skips remaining learning steps)
  * 3 ("Hard" pass, EF -0.14) is valid for the API but has no button in v1.
  */
 export type Quality = 2 | 4 | 5
