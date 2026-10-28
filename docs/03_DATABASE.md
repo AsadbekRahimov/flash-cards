@@ -199,7 +199,18 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
   5977 буферов / 2,8 мс → 7 буферов / 0,05 мс). Заменил `(learner_id, is_hard, next_review_at)` (`word_repetitions_learner_hard_due_idx`):
   по `is_hard` сортирует только пикер, остальным запросам хватает индексов по `learner_id` / `(learner_id, next_review_at)`.
   В sqlite создаётся так же (`DESC` поддерживается).
-- `(next_review_at, learner_id)` (`word_repetitions_due_learners_idx`) — batch scan learner'ов, которым пора напомнить о повторении.
+- ~~`(next_review_at, learner_id)`~~ (`word_repetitions_due_learners_idx`) — **удалён** миграцией `2026_10_28_300001_drop_word_repetitions_due_learners_idx`
+  (17.12). Задумывался под «batch scan learner'ов, которым пора напомнить о повторении», но этот скан — `learners.next_reminder_at`
+  (`learners_next_reminder_at_idx`, `ReminderDispatcher`), а запроса к `word_repetitions` с фильтром по `next_review_at` **без** learner'а в приложении нет:
+  три запроса с этим фильтром (due-выбор и learn-ahead в `CardPicker`, `dueCount` для `/today`, `/me` и напоминаний) содержат `learner_id = ?` и обслуживаются
+  `word_repetitions_next_card_idx` и `(learner_id, next_review_at)`; в `app/`, командах, виджетах Filament и отчётах других нет (`DueRepetitionCriteria`
+  вызывается только из `LearnerStatsService::dueCount`). Замер на PostgreSQL 16, 900 000 строк (300 learner'ов × 3000 слов): EXPLAIN (ANALYZE, BUFFERS) всех
+  реальных путей (`/me`, `/today`, `/courses`, `/league`, `/friends`, `/achievements`, `/assignments`, daily- и lesson-сессия с оценками, `CardPicker`,
+  `LearnerStatsService`, каталог, поиск `is_hard` в экзамене, список learner'ов Filament — 36 разных запросов) и generic-планы 163 запросов, которые тестовый
+  набор шлёт в таблицу, не содержат его ни в одном плане, `idx_scan = 0` за прогон реальных путей, а планы трёх запросов без индекса те же
+  (1,98 / 0,058 / 0,064 мс с индексом, 2,19 / 0,050 / 0,068 мс без). Индекс стоил 36 МБ на этом объёме и запись в него при каждой оценке (`POST /review`
+  двигает `next_review_at`). Единственное, что он ускорял бы, — запрос по **всем** learner'ам («у кого карточка наступит в ближайшие 15 минут»: 0,05 мс
+  против 21 мс без него, `count(*)` «сколько всего просрочено»: 37 против 98 мс), но такого запроса нет; кто его добавит, вернёт индекс в том же изменении.
 - `(learner_id, created_at)` — квота новых слов за локальный день (docs/12 §5.3).
 
 ### 2.9 `training_sessions`
@@ -930,6 +941,9 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
     `(learner_id) WHERE is_hard = true` (см. §2.8). Как и 44: на PostgreSQL `DROP INDEX CONCURRENTLY IF EXISTS` вне транзакции мигратора
     (`$withinTransaction = false`), внутри чужой транзакции (тесты) — обычный `DROP INDEX IF EXISTS`; индекс есть и в sqlite, там тот же обычный `DROP`.
     `down()` пересоздаёт его ровно в исходном виде *(17.10)*
+47. `2026_10_28_300001_drop_word_repetitions_due_learners_idx` — убирает неиспользуемый индекс `word_repetitions_due_learners_idx (next_review_at, learner_id)`
+    (см. §2.8): запроса по `next_review_at` без learner'а нет. Как 44 и 46: `DROP INDEX CONCURRENTLY IF EXISTS` на PostgreSQL вне транзакции мигратора,
+    обычный `DROP` внутри чужой транзакции и в sqlite; `down()` пересоздаёт индекс ровно в исходном виде *(17.12)*
 
 Индексные миграции (`add_performance_indexes`, `add_open_session_unique_indexes`) и `create_exam_*`, `create_notifications_log_table`,
 `create_product_events_table` переведены на `learner_id` на месте; `add_open_session_unique_indexes` дополнительно создаёт
