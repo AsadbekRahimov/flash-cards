@@ -844,9 +844,6 @@
 | `lapsed.text` | Obuna {date} kuni tugadi. Yangi so'zlar yana kunlik limitsiz bo'lishi uchun uzaytiring. | Подписка закончилась {date}. Продлите, чтобы новые слова снова были без дневного лимита. |
 | `lapsed.renew` | Pro'ni uzaytirish | Продлить Pro |
 | `lapsed.dismiss` | Yopish | Скрыть |
-| `error.code.invalid_init_data` | Telegram sessiyasini tasdiqlab bo'lmadi. Ilovani qaytadan oching. | Не удалось подтвердить Telegram-сессию. Откройте приложение заново. |
-| `error.code.invalid_token` | Sessiya eskirgan. Ilovani qaytadan oching. | Сессия устарела. Откройте приложение заново. |
-| `error.code.invalid_mode` | Noma'lum mashg'ulot rejimi. | Неизвестный режим тренировки. |
 | `error.code.price_not_configured` | Bu to'lov varianti hozircha mavjud emas. | Этот вариант оплаты пока недоступен. |
 | `error.code.provider_disabled` | Bu to'lov usuli hozir mavjud emas. Boshqasini tanlang. | Этот способ оплаты сейчас недоступен. Выберите другой. |
 | `error.code.provider_not_supported` | Bu to'lov usuli siz uchun mavjud emas. | Этот способ оплаты вам недоступен. |
@@ -1468,8 +1465,6 @@
 | `league.last.promoted` | {tier}: {rank}-o'rin, {points} — ko'tarilish! | {tier}: {rank}-е место, {points} — повышение! |
 | `league.last.stayed` | {tier}: {rank}-o'rin, {points} — ligada qoldingiz | {tier}: {rank}-е место, {points} — остались в лиге |
 | `league.last.demoted` | {tier}: {rank}-o'rin, {points} — tushish | {tier}: {rank}-е место, {points} — понижение |
-| `league.settings.open` | Sozlamalar | Настройки |
-
 | `league.settings.open` | Liga sozlamalari | Настройки лиг |
 | `settings.leagues.hint` | Ligadan chiqish keyingi joylashtirishdan boshlab amal qiladi; joriy hafta saqlanib qoladi. | Выход из лиги действует со следующего размещения; текущая неделя остаётся. |
 
@@ -1537,8 +1532,6 @@
 | `friends.invite.share_text` | LexiFlow'da do'st bo'laylik: seriyalarni solishtirib, musobaqa o'tkazamiz! | Давай дружить в LexiFlow: сравним серии и устроим вызов! |
 | `friends.invite.no_link` | Administrator bot nomini ko'rsatgach, havola paydo bo'ladi. | Ссылка появится, когда администратор укажет имя бота. |
 | `friends.incoming.title` | Kiruvchi takliflar | Входящие приглашения |
-| `friends.incoming.accept` | Qabul qilish | Принять |
-| `friends.incoming.decline` | Rad etish | Отклонить |
 | `friends.outgoing.title` | Javob kutilmoqda | Ждут ответа |
 | `friends.outgoing.cancel` | Bekor qilish | Отменить |
 | `friends.list.title` | Mening do'stlarim | Мои друзья |
@@ -1561,8 +1554,6 @@
 | `friends.challenge.with` | {name} bilan | с {name} |
 | `friends.challenge.score` | {mine} : {theirs} | {mine} : {theirs} |
 | `friends.challenge.period` | {from} — {to} | {from} — {to} |
-| `friends.challenge.accept` | Musobaqani qabul qilish | Принять вызов |
-| `friends.challenge.decline` | Rad etish | Отклонить |
 | `friends.challenge.status.pending_sent` | do'st javobini kutyapmiz | ждём ответа друга |
 | `friends.challenge.status.pending_received` | sizga musobaqa tashlandi | вам бросили вызов |
 | `friends.challenge.status.active` | davom etmoqda | идёт |
