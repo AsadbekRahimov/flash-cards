@@ -23,7 +23,7 @@ return [
         'group' => "LexiFlow guruhda.\n\nO'qituvchi buyruqlari:\n".
             "/start_training — mashg'ulotni boshlash\n".
             "/start_exam — imtihonni boshlash\n".
-            "/close_exam — imtihonni yopish\n".
+            "/close_exam — imtihonni yakunlash\n".
             "/stats — bot bilan shaxsiy chatda hisobot\n".
             '/help — ushbu yordam',
     ],

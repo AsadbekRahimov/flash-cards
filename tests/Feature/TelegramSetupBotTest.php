@@ -200,6 +200,17 @@ it('hands Telegram valid lists: command names, description lengths, no duplicate
     }
 });
 
+it('words the teacher commands the same in the menu and in the /help of the group, and /close_exam in both /help texts', function (string $locale): void {
+    $help = ['private' => __('bot.help.private', [], $locale), 'group' => __('bot.help.group', [], $locale)];
+
+    // «Завершить экзамен» in the menu, «закрыть экзамен» in the group /help made one command look like two.
+    foreach (['start_training', 'start_exam', 'close_exam'] as $command) {
+        expect($help['group'])->toContain("/{$command} — ".mb_strtolower(__("commands.group.{$command}", [], $locale)));
+    }
+
+    expect($help['private'])->toContain('/close_exam — '.mb_strtolower(__('commands.group.close_exam', [], $locale)));
+})->with(['ru', 'uz']);
+
 it('keeps the menu and /help in step: every menu command is described in the /help of the same chat type', function (string $locale): void {
     $help = ['private' => __('bot.help.private', [], $locale), 'group' => __('bot.help.group', [], $locale)];
 
