@@ -121,26 +121,38 @@ describe('BillingView', () => {
       expect(wrapper.get('[data-testid=plan-name]').text()).toBe('Бесплатный тариф')
       expect(wrapper.get('[data-testid=plan-chip]').text()).toBe('Free')
       expect(wrapper.get('[data-testid=plan-chip]').classes()).toContain('chip-neutral')
-      expect(wrapper.get('[data-testid=plan-free]').text()).toContain('20 новых слов в день')
+      expect(wrapper.get('[data-testid=plan-free]').text()).toBe('20 новых слов в день, повторения без ограничений')
       expect(wrapper.find('[data-testid=plan-until]').exists()).toBe(false)
       expect(wrapper.find('[data-testid=renewal-card]').exists()).toBe(false)
     })
 
+    it('names the plan once: the line under the title says what it gives, without the name of the plan again', async () => {
+      const { wrapper } = await render(me(), catalog())
+
+      const card = wrapper.get('[data-testid=plan-card]')
+      expect(card.text().match(/Бесплатный тариф/g)).toHaveLength(1)
+      expect(wrapper.get('[data-testid=plan-free]').text()).not.toContain('тариф')
+    })
+
     it.each([
-      [1, 'Бесплатный тариф: 1 новое слово в день'],
-      [2, 'Бесплатный тариф: 2 новых слова в день'],
-      [5, 'Бесплатный тариф: 5 новых слов в день'],
+      [1, '1 новое слово в день, повторения без ограничений'],
+      [2, '2 новых слова в день, повторения без ограничений'],
+      [5, '5 новых слов в день, повторения без ограничений'],
+      [11, '11 новых слов в день, повторения без ограничений'],
+      [21, '21 новое слово в день, повторения без ограничений'],
     ])('inflects the word for a limit of %i', async (limit, text) => {
       const { wrapper } = await render(me({ limit }), catalog())
 
       expect(wrapper.get('[data-testid=plan-free]').text()).toBe(text)
     })
 
-    it('says the limit of Free in Uzbek', async () => {
+    it('says the limit of Free in Uzbek, and names the plan once there too', async () => {
       setLocale('uz')
       const { wrapper } = await render(me({ limit: 1 }), catalog())
 
-      expect(wrapper.get('[data-testid=plan-free]').text()).toBe("Bepul tarif: kuniga 1 ta yangi so'z")
+      expect(wrapper.get('[data-testid=plan-name]').text()).toBe('Bepul tarif')
+      expect(wrapper.get('[data-testid=plan-free]').text()).toBe("Kuniga 1 ta yangi so'z, takrorlash cheklovsiz")
+      expect(wrapper.get('[data-testid=plan-card]').text().match(/Bepul tarif/g)).toHaveLength(1)
     })
 
     it('has a purple tile with the sparkles icon', async () => {

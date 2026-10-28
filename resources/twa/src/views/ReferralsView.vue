@@ -107,7 +107,7 @@ onMounted(() => {
         <ol class="mt-4 space-y-3" data-testid="rule">
           <li v-for="(step, index) in steps" :key="index" class="flex items-start gap-3">
             <span
-              class="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent-soft text-[13px] leading-none font-semibold text-accent"
+              class="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent-soft text-[13px] leading-none font-semibold text-accent-ink"
               aria-hidden="true"
             >
               {{ index + 1 }}

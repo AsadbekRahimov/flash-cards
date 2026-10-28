@@ -165,7 +165,7 @@
 | `common.loading` | Yuklanmoqda… | Загрузка… |
 | `common.retry` | Qayta urinish | Повторить |
 | `common.error_title` | Xatolik | Ошибка |
-| `landing.outside_telegram` | Bu sahifa faqat Telegram Web App ichida ishlaydi. O'qituvchidan mashg'ulot havolasini guruhga yuborishini so'rang. | Эта страница работает только внутри Telegram Web App. Попросите учителя прислать ссылку-тренировку в группу. |
+| `landing.outside_telegram` | Bu sahifa faqat Telegram Web App ichida ishlaydi. O'qituvchidan trening havolasini guruhga yuborishini so'rang. | Эта страница работает только внутри Telegram Web App. Попросите учителя прислать ссылку-тренировку в группу. |
 | `card.kind.new` | Yangi so'z | Новое слово |
 | `card.kind.learning` | Mustahkamlash | Закрепление |
 | `card.kind.due` | Takrorlash | Повторение |
@@ -216,7 +216,7 @@
 | `error.code.course_not_found` | Kurs topilmadi yoki mavjud emas. | Курс не найден или недоступен. |
 | `error.code.timezone_change_too_soon` | Vaqt mintaqasini kuniga bir martadan ko'p o'zgartirib bo'lmaydi. | Часовой пояс можно менять не чаще раза в сутки. |
 | `error.code.timezone_revert_unavailable` | Vaqt mintaqasi o'zgarishini endi bekor qilib bo'lmaydi: 10 daqiqadan ko'proq o'tdi yoki u allaqachon bekor qilingan. | Отменить смену часового пояса уже нельзя: прошло больше 10 минут или она уже отменена. |
-| `error.closed.training` | O'qituvchi mashg'ulotni yakunladi. | Учитель завершил тренировку. |
+| `error.closed.training` | Bu mashg'ulot allaqachon yopilgan: u yakunlangan yoki sessiya vaqti tugagan. | Эта тренировка уже закрыта: она завершена или время сессии истекло. |
 | `error.closed.exam` | Imtihon o'qituvchi tomonidan yakunlandi. | Экзамен был завершён учителем. |
 | `error.forbidden.training` | Sizda bu mashg'ulotga kirish huquqi yo'q. | У вас нет доступа к этой тренировке. |
 | `error.forbidden.exam` | Sizda bu imtihonga kirish huquqi yo'q. | У вас нет доступа к этому экзамену. |
@@ -853,7 +853,7 @@
 | `error.code.provider_not_supported` | Bu to'lov usuli siz uchun mavjud emas. | Этот способ оплаты вам недоступен. |
 | `error.code.checkout_conflict` | Sizda Stars avtoyangilash yoqilgan. Yangi to'lovdan oldin uni «Obuna» bo'limida o'chiring. | У вас включено автопродление Stars. Отключите его в «Подписке», прежде чем оформлять новую оплату. |
 | `error.code.already_perpetual` | Sizda Pro muddatsiz faol — hech narsa to'lash shart emas. | У вас уже есть Pro без ограничения по сроку — оплачивать ничего не нужно. |
-| `error.code.subscribe_too_early` | Pro allaqachon uzoq muddatga to'langan. Stars obunasini oxirgi kunlarda rasmiylashtirish mumkin; hozircha bir yillik bir martalik to'lovni tanlang. | Pro уже оплачен на длительный срок. Подписку Stars можно оформить ближе к окончанию; пока выберите разовую оплату на год. |
+| `error.code.subscribe_too_early` | Pro allaqachon uzoq muddatga to'langan, shuning uchun Stars orqali bir oylik to'lovni hozircha rasmiylashtirib bo'lmaydi — buni muddat tugashiga yaqin qilish mumkin. «Yil» muddatini tanlang yoki Payme yoki Click orqali to'lang: yangi muddat joriy muddatga qo'shiladi. | Pro уже оплачен надолго, поэтому оплату Stars на месяц пока оформить нельзя — это можно сделать ближе к окончанию срока. Выберите «Год» или оплату через Payme или Click: срок добавится к текущему. |
 | `error.code.too_many_pending` | Sizda to'lanmagan hisoblar bor. Ulardan birini to'lang yoki kuting — ular o'zi yopiladi. | У вас уже есть неоплаченные счета. Оплатите один из них или подождите — они закроются сами. |
 | `error.code.offer_not_applicable` | Chegirma bu xaridga qo'llanilmaydi. | Скидка к этой покупке не применяется. |
 | `error.code.offer_busy` | Chegirmali oldingi to'lov hali qayta ishlanmoqda — bir daqiqadan so'ng urinib ko'ring. | Предыдущая оплата со скидкой ещё обрабатывается — попробуйте через минуту. |
@@ -1996,3 +1996,48 @@
 | `errors.training.failed` | Treningni boshlab bo'lmadi. | Не удалось запустить тренировку. |
 | `errors.training.not_delivered` | Tugmani guruhga yuborib bo'lmadi: trening bekor qilindi. Bot guruhda ekanini va yoza olishini tekshiring, so'ng buyruqni takrorlang. | Не удалось отправить кнопку в группу: тренировка отменена. Проверьте, что бот в группе и может писать, и повторите команду. |
 | `landing.pricing.centers.features.2` | Telegramdagi guruhlar, o'qituvchilar uchun trening va imtihonlar | Группы в Telegram, тренировки и экзамены для учителей |
+
+## Редизайн 2026-10-28 · 17.14-T — на проверку носителю
+
+> Финальная полировка приложения: экран «Подписка» у Free, пейвол у Pro и согласование слова «trening» с ботом (ниже — по подразделам).
+
+### TWA: «Подписка» у Free — строка под заголовком (`resources/twa/src/i18n/uz.ts`)
+
+> Заголовок карточки уже говорит «Bepul tarif» (бесплатный тариф), поэтому строка под ним больше не повторяет название тарифа, а говорит, что он
+> даёт. Раньше она читалась «Bepul tarif: kuniga 20 ta yangi so'z» (`profile.plan.free` — эта строка остаётся в «Профиле», где названия тарифа рядом нет).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `billing.plan.free_limit.one` | Kuniga {count} ta yangi so'z, takrorlash cheklovsiz | {count} новое слово в день, повторения без ограничений |
+| `billing.plan.free_limit.few` | _(в uz этой формы нет — используется `other`)_ | {count} новых слова в день, повторения без ограничений |
+| `billing.plan.free_limit.many` | _(в uz этой формы нет — используется `other`)_ | {count} новых слов в день, повторения без ограничений |
+| `billing.plan.free_limit.other` | Kuniga {count} ta yangi so'z, takrorlash cheklovsiz | {count} новых слова в день, повторения без ограничений |
+
+### TWA: пейвол для Pro-ученика (`resources/twa/src/i18n/uz.ts`)
+
+> Кнопка «Продлить Pro» в «Подписке» открывает тот же лист, что и «Узнать о Pro» у Free; Pro-ученику он больше не продаёт Pro: свой заголовок («Pro'ni
+> uzaytirish» — как кнопка `billing.renew`) и лид о том, что делает оплата: срок добавляется к концу уже оплаченного (Payme, Click и Stars на год так и
+> работают). Строка «Markazda o'qiysizmi?» (`paywall.contact`) у Pro не показывается. Проверить: «To'lov joriy Pro muddatiga qo'shiladi ({date} gacha)» и
+> новый текст отказа `error.code.subscribe_too_early` (его значение исправлено в строке выше, в таблице ошибок TWA): он говорит, что Stars на месяц пока
+> нельзя, когда это можно и что выбрать сейчас («Yil» — подпись периода «Год»; Payme или Click). Бот (`billing.pro.errors.subscribe_too_early`) не менялся.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `paywall.title_renew` | Pro'ni uzaytirish | Продлить Pro |
+| `paywall.lead_renew` | To'lov joriy Pro muddatiga qo'shiladi ({date} gacha). | Оплата добавит срок к текущему Pro (до {date}). |
+
+### TWA: групповая тренировка — «trening», как в боте (`resources/twa/src/i18n/uz.ts`)
+
+> Бот (17.13) называет «trening» тренировку, которую учитель запускает в группе, а «mashg'ulot» — только занятие ученика из `/today`. В приложении проверены
+> четыре строки со словом «mashg'ulot» (в ru там «тренировка»). Изменена одна: `landing.outside_telegram` — просьба прислать **учителя** ссылку на групповую
+> тренировку («ссылка-тренировка»), значение исправлено в строке выше. Остальные три не менялись, потому что экран тренировки один и для групповой, и для
+> личной сессии ученика (урок, ежедневное занятие), и слово в них относится к обеим: `training.closed_title` и `error.closed.training` показываются при 410 для
+> любой сессии (групповая, которую закрыли или она истекла, и личная, закончившаяся в другой вкладке); `error.forbidden.training` сервер отдаёт только для
+> чужой личной сессии и заблокированного ученика (для группы у отказов свои тексты — `error.code.not_a_member`, `error.code.group_inactive`). Если носитель
+> решит, что общие строки о закрытой сессии должны говорить «trening», это два значения в одном проходе (`training.closed_title`, `error.closed.training`);
+> `error.forbidden.training` останется «mashg'ulot»: оно о личной сессии. Строка `error.closed.training` в таблице выше приведена к тексту приложения (в документе
+> стояла старая формулировка «O'qituvchi mashg'ulotni yakunladi»).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `landing.outside_telegram` | Bu sahifa faqat Telegram Web App ichida ishlaydi. O'qituvchidan trening havolasini guruhga yuborishini so'rang. | Эта страница работает только внутри Telegram Web App. Попросите учителя прислать ссылку-тренировку в группу. |

@@ -137,7 +137,8 @@ describe('ReferralsView', () => {
       const circles = wrapper.findAll('[data-testid=rule] li > span:first-child')
       expect(circles.map((c) => c.text())).toEqual(['1', '2', '3'])
       for (const circle of circles) {
-        expect(circle.classes()).toEqual(expect.arrayContaining(['rounded-full', 'bg-accent-soft', 'text-accent']))
+        // the number is text on the soft accent: it takes the ink of the accent, not the bare accent (docs/14 §4.1)
+        expect(circle.classes()).toEqual(expect.arrayContaining(['rounded-full', 'bg-accent-soft', 'text-accent-ink']))
         expect(circle.attributes('aria-hidden')).toBe('true')
       }
     })

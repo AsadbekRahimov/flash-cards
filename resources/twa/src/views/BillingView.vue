@@ -193,7 +193,7 @@ onMounted(() => {
               class="text-[15px] leading-5 text-tg-subtitle"
               data-testid="plan-free"
             >
-              {{ tn('profile.plan.free', entitlement.new_words_per_day) }}
+              {{ tn('billing.plan.free_limit', entitlement.new_words_per_day) }}
             </p>
           </div>
         </div>
