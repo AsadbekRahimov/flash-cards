@@ -122,6 +122,11 @@ final class AdminErrors
             $context['locales'] = array_map(static fn (mixed $locale): string => mb_strtoupper(is_scalar($locale) ? (string) $locale : ''), $context['locales']);
         }
 
+        // «из 1 слова», «из 22 слов»: the noun agrees with the number behind «из». The text is Russian whatever locale the request has.
+        if (isset($context['total']) && is_int($context['total'])) {
+            $context['words'] = trans_choice('admin.common.words_of', $context['total'], [], 'ru');
+        }
+
         return $context;
     }
 

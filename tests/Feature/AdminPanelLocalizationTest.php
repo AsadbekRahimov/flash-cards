@@ -72,6 +72,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
@@ -643,6 +644,15 @@ it('captions every onboarding state of a learner in Russian, also "new" that a l
     expect(LearnerResource::onboardingLabel('new'))->toBe('Не начата')
         ->and(LearnerResource::onboardingLabel('goal'))->toBe('В процессе (шаг: цель)')
         ->and(LearnerResource::onboardingLabel('done'))->toBe('Пройдена');
+});
+
+it('keeps "основной курс" for the course a learner picked: the course that serves the groups is "курс по умолчанию"', function (): void {
+    // docs/14 §8: «основной курс» is the active course of a learner; the platform's course for groups without one is the default course.
+    $wrong = array_filter(Arr::dot(require lang_path('ru/admin.php')), fn (mixed $text): bool => is_string($text) && preg_match('/основн\w* курс/ui', $text) === 1);
+
+    expect($wrong)->toBe([])
+        ->and(__('admin.courses.errors.default_course_protected'))->toStartWith('Курс по умолчанию обслуживает')
+        ->and(__('admin.pages.import_lesson.file_help'))->toContain('в курс по умолчанию');
 });
 
 it('shows the badges of payment orders in Russian', function (): void {

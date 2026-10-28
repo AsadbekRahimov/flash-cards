@@ -348,6 +348,25 @@ it('writes a fraction with a decimal comma and drops a zero one', function (): v
         ->toBe('Переводы (RU, UZ) есть только для 5 из 10 слов (50%), а нужно не меньше 95%.');
 });
 
+it('agrees the noun after «из» with the number of words: из 1 слова, из 21 слова, из 22 слов', function (int $total, string $words, string $locale): void {
+    // The text is Russian whatever the locale of the request: English would pick "слова" for 21 and "слов" for 1.
+    app()->setLocale($locale);
+
+    expect(AdminErrors::for('courses', CoursePublishException::translationsBelowThreshold(0, $total, 0.95, ['uz'])))
+        ->toBe("Переводы (UZ) есть только для 0 из {$total} {$words} (0%), а нужно не меньше 95%.");
+})->with([
+    'one' => [1, 'слова'],
+    'two' => [2, 'слов'],
+    'four' => [4, 'слов'],
+    'five' => [5, 'слов'],
+    'eleven' => [11, 'слов'],
+    'twenty one' => [21, 'слова'],
+    'twenty two' => [22, 'слов'],
+    'a hundred and eleven' => [111, 'слов'],
+    'a hundred and twenty one' => [121, 'слова'],
+    'two hundred' => [200, 'слов'],
+])->with(['ru', 'en']);
+
 it('picks the sentence of the cause of a refusal and falls back to the general one', function (): void {
     expect(AdminErrors::for('payments', PaymentRefundException::notRefundable('x', PaymentRefundException::CAUSE_STATE)))
         ->toBe('Вернуть можно только проведённую оплату или продление.')
