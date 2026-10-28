@@ -114,7 +114,7 @@ return [
             'features' => [
                 'Markaz oyiga bir marta qat\'iy summa to\'laydi',
                 'Markaz o\'quvchilari markazda ekan, tarifdagi o\'rinlar doirasida Pro oladi',
-                'Telegramdagi guruhlar, o\'qituvchilar uchun mashg\'ulot va imtihonlar',
+                'Telegramdagi guruhlar, o\'qituvchilar uchun trening va imtihonlar',
             ],
             'contact' => 'Markazni ulash:',
         ],

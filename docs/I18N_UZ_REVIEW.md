@@ -14,8 +14,8 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `bot.start.greeting` | Salom, :name! Siz LexiFlow o'qituvchisi sifatida tizimga kirdingiz. Guruhdagi buyruqlar: /help | Привет, :name! Вы авторизованы как учитель LexiFlow. Команды в группе: /help |
-| `bot.help.private` | LexiFlow — Telegramda inglizcha so'zlar: ovozli kartochkalar va aqlli takrorlash.<br><br>Qanday shug'ullanish kerak:<br>• Xabar yozish maydonining chap tomonidagi «LexiFlow» tugmasi yoki /today — bugungi mashg'ulot<br>• /settings — til, maqsad, daraja, vaqt mintaqasi, eslatmalar<br>• /invite — do'stingizni taklif qiling va birgalikda Pro oling<br>• /pro — Pro obuna, /promo KOD — promokod<br>• /paysupport — to'lov bo'yicha savollar<br><br>O'qituvchilar uchun:<br>• Botni guruhga qo'shing va administrator qiling, so'ng LexiFlow administratoridan guruhni faollashtirishni so'rang.<br>• Guruhda: /start_training — mashg'ulot, /start_exam — imtihon, /close_exam — imtihonni yakunlash.<br>• /stats — 7 kunlik hisobotingiz (shu yerda, shaxsiy chatda). | LexiFlow — английские слова в Telegram: карточки с озвучкой и умные повторения.<br><br>Как заниматься:<br>• Кнопка «LexiFlow» слева от поля ввода или /today — занятие на сегодня<br>• /settings — язык, цель, уровень, часовой пояс, напоминания<br>• /invite — пригласить друга и вместе получить Pro<br>• /pro — подписка Pro, /promo КОД — промокод<br>• /paysupport — вопросы по оплате<br><br>Для учителей:<br>• Добавьте бота в группу и сделайте его администратором, затем попросите администратора LexiFlow активировать группу.<br>• В группе: /start_training — тренировка, /start_exam — экзамен, /close_exam — завершить экзамен.<br>• /stats — ваш отчёт за 7 дней (здесь, в личном чате). |
-| `bot.help.group` | LexiFlow guruhda.<br><br>O'qituvchi buyruqlari:<br>/start_training — mashg'ulotni boshlash<br>/start_exam — imtihonni boshlash<br>/close_exam — imtihonni yakunlash<br>/stats — bot bilan shaxsiy chatda hisobot<br>/help — ushbu yordam | LexiFlow в группе.<br><br>Команды учителя:<br>/start_training — запустить тренировку<br>/start_exam — запустить экзамен<br>/close_exam — завершить экзамен<br>/stats — личный отчёт в чате с ботом<br>/help — эта справка |
+| `bot.help.private` | LexiFlow — Telegramda inglizcha so'zlar: ovozli kartochkalar va aqlli takrorlash.<br><br>Qanday shug'ullanish kerak:<br>• Xabar yozish maydonining chap tomonidagi «LexiFlow» tugmasi yoki /today — bugungi mashg'ulot<br>• /settings — til, maqsad, daraja, vaqt mintaqasi, eslatmalar<br>• /invite — do'stingizni taklif qiling va birgalikda Pro oling<br>• /pro — Pro obuna, /promo KOD — promokod<br>• /paysupport — to'lov bo'yicha savollar<br><br>O'qituvchilar uchun:<br>• Botni guruhga qo'shing va administrator qiling, so'ng LexiFlow administratoridan guruhni faollashtirishni so'rang.<br>• Guruhda: /start_training — trening, /start_exam — imtihon, /close_exam — imtihonni yakunlash.<br>• /stats — 7 kunlik hisobotingiz (shu yerda, shaxsiy chatda). | LexiFlow — английские слова в Telegram: карточки с озвучкой и умные повторения.<br><br>Как заниматься:<br>• Кнопка «LexiFlow» слева от поля ввода или /today — занятие на сегодня<br>• /settings — язык, цель, уровень, часовой пояс, напоминания<br>• /invite — пригласить друга и вместе получить Pro<br>• /pro — подписка Pro, /promo КОД — промокод<br>• /paysupport — вопросы по оплате<br><br>Для учителей:<br>• Добавьте бота в группу и сделайте его администратором, затем попросите администратора LexiFlow активировать группу.<br>• В группе: /start_training — тренировка, /start_exam — экзамен, /close_exam — завершить экзамен.<br>• /stats — ваш отчёт за 7 дней (здесь, в личном чате). |
+| `bot.help.group` | LexiFlow guruhda.<br><br>O'qituvchi buyruqlari:<br>/start_training — treningni boshlash<br>/start_exam — imtihonni boshlash<br>/close_exam — imtihonni yakunlash<br>/stats — bot bilan shaxsiy chatda hisobot<br>/help — ushbu yordam | LexiFlow в группе.<br><br>Команды учителя:<br>/start_training — запустить тренировку<br>/start_exam — запустить экзамен<br>/close_exam — завершить экзамен<br>/stats — личный отчёт в чате с ботом<br>/help — эта справка |
 | `bot.group.bot_not_admin` | ⚠️ Botni guruh administratori qiling. Aks holda bot xabarlarni va a'zolarning chiqib ketishini ko'rmaydi, LexiFlow to'liq ishlamaydi. Guruh → Boshqarish → Administratorlar → Administrator qo'shish. | ⚠️ Сделайте бота администратором группы. Без этого он не видит сообщения и выход участников, и LexiFlow работает не полностью. Группа → Управление → Администраторы → Добавить администратора. |
 | `bot.stats.not_linked` | Bu Telegram akkaunt LexiFlow o'qituvchisiga biriktirilmagan.<br>Sizning Telegram ID'ngiz: :id | Этот Telegram-аккаунт не привязан к учителю LexiFlow.<br>Ваш Telegram ID: :id |
 | `errors.teacher_not_linked` | Sizning Telegram akkauntingiz o'qituvchiga biriktirilmagan. | Ваш Telegram-аккаунт не привязан к учителю. |
@@ -23,9 +23,9 @@
 | `errors.group_inactive` | Guruh faollashtirilmagan. Administratordan uni /admin orqali faollashtirishini so'rang. | Группа не активирована. Попросите админа активировать её в /admin. |
 | `errors.stage_not_found` | Ko'rsatilgan modul topilmadi. | Указанный модуль не найден. |
 | `errors.lesson_not_found` | Dars topilmadi. | Урок не найден. |
-| `errors.training.not_teacher` | Mashg'ulotni faqat shu guruhning o'qituvchisi boshlay oladi. | Только учитель этой группы может запускать тренировку. |
-| `errors.training.failed` | Mashg'ulotni boshlab bo'lmadi. | Не удалось запустить тренировку. |
-| `errors.training.not_delivered` | Tugmani guruhga yuborib bo'lmadi: mashg'ulot bekor qilindi. Bot guruhda ekanini va yoza olishini tekshiring, so'ng buyruqni takrorlang. | Не удалось отправить кнопку в группу: тренировка отменена. Проверьте, что бот в группе и может писать, и повторите команду. |
+| `errors.training.not_teacher` | Treningni faqat shu guruhning o'qituvchisi boshlay oladi. | Только учитель этой группы может запускать тренировку. |
+| `errors.training.failed` | Treningni boshlab bo'lmadi. | Не удалось запустить тренировку. |
+| `errors.training.not_delivered` | Tugmani guruhga yuborib bo'lmadi: trening bekor qilindi. Bot guruhda ekanini va yoza olishini tekshiring, so'ng buyruqni takrorlang. | Не удалось отправить кнопку в группу: тренировка отменена. Проверьте, что бот в группе и может писать, и повторите команду. |
 | `errors.exam.not_teacher` | Imtihonni faqat shu guruhning o'qituvchisi boshlay oladi. | Только учитель этой группы может запускать экзамен. |
 | `errors.exam.not_enough_words` | Darsda imtihon uchun so'zlar yetarli emas. | В уроке недостаточно слов для экзамена. |
 | `errors.exam.not_enough_distractors` | Javob variantlari uchun so'zlar yetarli emas: darsga yoki shu modulning boshqa darslariga ko'proq so'z qo'shing. | Не хватает слов для вариантов ответа: добавьте больше слов в урок или в другие уроки этого модуля. |
@@ -49,11 +49,11 @@
 | `stats.reviews` | Kartochkalarni takrorlashlar: :count | Повторений карточек: :count |
 | `stats.exams` | Boshlangan imtihonlar: :count | Экзаменов запущено: :count |
 | `stats.accuracy` | Imtihonlardagi aniqlik: :percent% | Точность экзаменов: :percent% |
-| `training.picker.prompt` | Mashg'ulot uchun darsni tanlang: | Выберите урок для тренировки: |
+| `training.picker.prompt` | Trening uchun darsni tanlang: | Выберите урок для тренировки: |
 | `training.picker.empty` | Tizimda hozircha darslar yo'q. Administratordan kontent yuklashini so'rang. | В системе пока нет уроков. Попросите администратора загрузить контент. |
 | `training.picker.button` | :stage-modul · :lesson-dars | Модуль :stage · Урок :lesson |
-| `training.started` | 📚 Mashg'ulot boshlandi: :stage-modul, :lesson-dars. Boshlash uchun tugmani bosing. | 📚 Тренировка запущена: модуль :stage, урок :lesson. Нажмите кнопку, чтобы начать. |
-| `training.open_button` | 🎯 Mashg'ulotni ochish | 🎯 Открыть тренировку |
+| `training.started` | 📚 Trening boshlandi: :stage-modul, :lesson-dars. Boshlash uchun tugmani bosing. | 📚 Тренировка запущена: модуль :stage, урок :lesson. Нажмите кнопку, чтобы начать. |
+| `training.open_button` | 🎯 Treningni ochish | 🎯 Открыть тренировку |
 | `twofactor.confirm_button` | Tasdiqlash | Подтвердить |
 | `twofactor.setup.title` | 2FA sozlash | Настройка 2FA |
 | `twofactor.setup.heading` | Ikki bosqichli autentifikatsiyani yoqing | Включите двухфакторную аутентификацию |
@@ -126,7 +126,7 @@
 | `landing.pricing.centers.tagline` | Oyiga bir marta qat'iy to'lov | Фиксированная оплата раз в месяц |
 | `landing.pricing.centers.features.0` | Markaz oyiga bir marta qat'iy summa to'laydi | Центр платит фиксированную сумму раз в месяц |
 | `landing.pricing.centers.features.1` | Markaz o'quvchilari markazda ekan, tarifdagi o'rinlar doirasida Pro oladi | Студенты центра получают Pro в пределах мест тарифа, пока состоят в центре |
-| `landing.pricing.centers.features.2` | Telegramdagi guruhlar, o'qituvchilar uchun mashg'ulot va imtihonlar | Группы в Telegram, тренировки и экзамены для учителей |
+| `landing.pricing.centers.features.2` | Telegramdagi guruhlar, o'qituvchilar uchun trening va imtihonlar | Группы в Telegram, тренировки и экзамены для учителей |
 | `landing.pricing.centers.contact` | Markazni ulash: | Подключить центр: |
 | `landing.footer.tagline` | LexiFlow - Telegramda ingliz tili. | LexiFlow — английский в Telegram. |
 | `landing.footer.contact` | Qo'llab-quvvatlash: | Поддержка: |
@@ -1874,7 +1874,7 @@
 | `commands.private.pro` | Pro obuna | Подписка Pro |
 | `commands.private.promo` | Promokodni faollashtirish | Активировать промокод |
 | `commands.private.help` | Yordam | Справка |
-| `commands.group.start_training` | Mashg'ulotni boshlash | Запустить тренировку |
+| `commands.group.start_training` | Treningni boshlash | Запустить тренировку |
 | `commands.group.start_exam` | Imtihonni boshlash | Запустить экзамен |
 | `commands.group.close_exam` | Imtihonni yakunlash | Завершить экзамен |
 | `commands.group.help` | Yordam | Справка |
@@ -1904,7 +1904,8 @@
 ## Редизайн 2026-10-28 · 17.13 — на проверку носителю
 
 > Исправления по ревью админки, бота и лендинга. Изменённые значения прежних ключей уже обновлены в таблицах выше; здесь они собраны ещё раз,
-> чтобы носителю не искать их по документу. Новых ключей в 17.13 нет.
+> чтобы носителю не искать их по документу. Новых ключей в 17.13 нет. Проверить три вещи: карточку центра на лендинге, слово «yakunlash» для
+> `/close_exam` и слово «trening» для групповой тренировки.
 
 ### Лендинг, карточка «Для учебных центров» (`lang/uz/landing.php`)
 
@@ -1915,3 +1916,36 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `landing.pricing.centers.features.1` | Markaz o'quvchilari markazda ekan, tarifdagi o'rinlar doirasida Pro oladi | Студенты центра получают Pro в пределах мест тарифа, пока состоят в центре |
+
+### Справка бота в группе: «завершить экзамен» (`lang/uz/bot.php`)
+
+> Меню «/» и справка в личном чате называли `/close_exam` «Imtihonni yakunlash» (завершить экзамен), справка в группе — «imtihonni yopish»
+> (закрыть экзамен): одна команда выглядела как две. Теперь везде «yakunlash». Сообщения об отказе (`errors.exam.close_not_teacher`,
+> `errors.exam.close_failed`: «yopishi», «yopib bo'lmadi») не менялись.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `bot.help.group` | LexiFlow guruhda.<br><br>O'qituvchi buyruqlari:<br>/start_training — treningni boshlash<br>/start_exam — imtihonni boshlash<br>/close_exam — imtihonni yakunlash<br>/stats — bot bilan shaxsiy chatda hisobot<br>/help — ushbu yordam | LexiFlow в группе.<br><br>Команды учителя:<br>/start_training — запустить тренировку<br>/start_exam — запустить экзамен<br>/close_exam — завершить экзамен<br>/stats — личный отчёт в чате с ботом<br>/help — эта справка |
+
+### Групповая тренировка — «trening», а «mashg'ulot» — занятие из `/today` (`lang/uz/bot.php`, `commands.php`, `training.php`, `errors.php`, `landing.php`)
+
+> В одной справке `/help` слово «mashg'ulot» означало и занятие на сегодня (`/today — bugungi mashg'ulot`, docs/14 §8), и тренировку группы
+> (`/start_training — mashg'ulot`). Теперь тренировка, которую учитель запускает командой `/start_training`, — «trening» во всех строках её пути:
+> подсказка в меню «/», справка, выбор урока, сообщение в группе, кнопка, отказы и карточка центра на лендинге. «Mashg'ulot» остаётся за занятием
+> ученика (`/today`, «Mashg'ulotni boshlash» в приложении). Проверить: естественно ли «trening» (заимствованное слово) в этом значении; если нет —
+> вариант «guruh mashg'uloti» (групповое занятие), тогда заменить его во всех строках ниже одним проходом.
+> Приложение (`resources/twa/src/i18n/uz.ts`) в этой задаче не менялось: там «mashg'ulot» стоит и для занятия, и для групповой тренировки
+> (`landing.outside_telegram`, `training.closed_title`, `error.closed.training`, `error.forbidden.training`) — решить после проверки носителем.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `bot.help.private` (строка «Для учителей») | • Guruhda: /start_training — trening, /start_exam — imtihon, /close_exam — imtihonni yakunlash. | • В группе: /start_training — тренировка, /start_exam — экзамен, /close_exam — завершить экзамен. |
+| `bot.help.group` (строка `/start_training`) | /start_training — treningni boshlash | /start_training — запустить тренировку |
+| `commands.group.start_training` | Treningni boshlash | Запустить тренировку |
+| `training.picker.prompt` | Trening uchun darsni tanlang: | Выберите урок для тренировки: |
+| `training.started` | 📚 Trening boshlandi: :stage-modul, :lesson-dars. Boshlash uchun tugmani bosing. | 📚 Тренировка запущена: модуль :stage, урок :lesson. Нажмите кнопку, чтобы начать. |
+| `training.open_button` | 🎯 Treningni ochish | 🎯 Открыть тренировку |
+| `errors.training.not_teacher` | Treningni faqat shu guruhning o'qituvchisi boshlay oladi. | Только учитель этой группы может запускать тренировку. |
+| `errors.training.failed` | Treningni boshlab bo'lmadi. | Не удалось запустить тренировку. |
+| `errors.training.not_delivered` | Tugmani guruhga yuborib bo'lmadi: trening bekor qilindi. Bot guruhda ekanini va yoza olishini tekshiring, so'ng buyruqni takrorlang. | Не удалось отправить кнопку в группу: тренировка отменена. Проверьте, что бот в группе и может писать, и повторите команду. |
+| `landing.pricing.centers.features.2` | Telegramdagi guruhlar, o'qituvchilar uchun trening va imtihonlar | Группы в Telegram, тренировки и экзамены для учителей |

@@ -211,6 +211,21 @@ it('words the teacher commands the same in the menu and in the /help of the grou
     expect($help['private'])->toContain('/close_exam — '.mb_strtolower(__('commands.group.close_exam', [], $locale)));
 })->with(['ru', 'uz']);
 
+it('calls the group training «trening» in uz: «mashg\'ulot» of the same /help is the daily session of /today', function (): void {
+    $help = __('bot.help.private', [], 'uz');
+
+    // One word for both made "/today — bugungi mashg'ulot" and "/start_training — mashg'ulot" read like the same thing.
+    expect($help)->toContain("/today — bugungi mashg'ulot")
+        ->and($help)->toContain('/start_training — trening,')
+        ->and(__('bot.help.group', [], 'uz'))->toContain('/start_training — treningni boshlash')
+        ->and(__('commands.group.start_training', [], 'uz'))->toBe('Treningni boshlash');
+
+    // The whole flow of /start_training speaks the same way: the menu, the lesson picker, the message in the group, the refusals.
+    foreach (['commands.group.start_training', 'training.picker.prompt', 'training.started', 'training.open_button', 'errors.training.not_teacher', 'errors.training.failed', 'errors.training.not_delivered', 'landing.pricing.centers.features.2'] as $key) {
+        expect(mb_strtolower(__($key, [], 'uz')))->toContain('trening')->not->toContain("mashg'ulot");
+    }
+});
+
 it('keeps the menu and /help in step: every menu command is described in the /help of the same chat type', function (string $locale): void {
     $help = ['private' => __('bot.help.private', [], $locale), 'group' => __('bot.help.group', [], $locale)];
 

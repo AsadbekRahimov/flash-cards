@@ -19,7 +19,7 @@ return [
     ],
 
     'group' => [
-        'start_training' => "Mashg'ulotni boshlash",
+        'start_training' => 'Treningni boshlash',
         'start_exam' => 'Imtihonni boshlash',
         'close_exam' => 'Imtihonni yakunlash',
         'help' => 'Yordam',

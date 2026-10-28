@@ -18,10 +18,10 @@ return [
             "• /paysupport — to'lov bo'yicha savollar\n\n".
             "O'qituvchilar uchun:\n".
             "• Botni guruhga qo'shing va administrator qiling, so'ng LexiFlow administratoridan guruhni faollashtirishni so'rang.\n".
-            "• Guruhda: /start_training — mashg'ulot, /start_exam — imtihon, /close_exam — imtihonni yakunlash.\n".
+            "• Guruhda: /start_training — trening, /start_exam — imtihon, /close_exam — imtihonni yakunlash.\n".
             '• /stats — 7 kunlik hisobotingiz (shu yerda, shaxsiy chatda).',
         'group' => "LexiFlow guruhda.\n\nO'qituvchi buyruqlari:\n".
-            "/start_training — mashg'ulotni boshlash\n".
+            "/start_training — treningni boshlash\n".
             "/start_exam — imtihonni boshlash\n".
             "/close_exam — imtihonni yakunlash\n".
             "/stats — bot bilan shaxsiy chatda hisobot\n".
