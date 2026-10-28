@@ -20,6 +20,11 @@ export default defineConfig({
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash][extname]',
+        manualChunks(id) {
+          // The vendored icon paths (~11 KB gzip) almost never change: a chunk of their own stays in the browser
+          // cache across releases instead of being re-downloaded inside the entry chunk each time.
+          return id.replace(/\\/g, '/').endsWith('/src/components/ui/icons.ts') ? 'icons' : undefined
+        },
       },
     },
   },
