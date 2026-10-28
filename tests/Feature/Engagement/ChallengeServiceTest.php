@@ -415,7 +415,7 @@ it('sums every active challenge over its own period and metric, and gets the sam
     }
 });
 
-it('reads learner_daily_stats once for all active challenges: the query count does not grow with them', function (): void {
+it('reads the stats, the names and the friendships once for the open AND the finished lists: the query count does not grow with them', function (): void {
     $count = function (int $challenges): array {
         $me = Learner::factory()->create(['timezone' => 'Asia/Tashkent']);
         foreach (range(1, $challenges) as $i) {
@@ -423,26 +423,33 @@ it('reads learner_daily_stats once for all active challenges: the query count do
             Friendship::factory()->between($me, $friend)->create();
             chActive($i % 2 === 0 ? $friend : $me, $i % 2 === 0 ? $me : $friend, $i % 3 === 0 ? 'new_words' : 'reviews', '2026-10-2'.($i % 5), '2026-10-29');
             chStats($friend, '2026-10-26', reviews: $i, newWords: 1);
+            // The same friend in the second list (the finished ones are scored from their stored result).
+            Challenge::factory()->create(['challenger_id' => $me->id, 'opponent_id' => $friend->id, 'status' => 'finished', 'scores' => ['challenger' => 3, 'opponent' => 1], 'winner_learner_id' => $me->id]);
         }
         chStats($me, '2026-10-26', reviews: 5, newWords: 2);
 
         DB::flushQueryLog();
         DB::enableQueryLog();
-        $open = chSvc()->overview($me)->open;
+        $overview = chSvc()->overview($me);
         $log = array_column(DB::getQueryLog(), 'query');
         DB::disableQueryLog();
 
-        expect($open)->toHaveCount($challenges);
+        expect($overview->open)->toHaveCount($challenges)
+            ->and($overview->finished)->toHaveCount($challenges);
 
-        return [count($log), count(array_filter($log, static fn (string $q): bool => str_contains($q, 'learner_daily_stats')))];
+        $reads = static fn (string $table): int => count(array_filter($log, static fn (string $q): bool => preg_match('/\bfrom\s+[`"]?'.$table.'[`"]?(\s|$)/i', $q) === 1));
+
+        return [count($log), $reads('learner_daily_stats'), $reads('learners'), $reads('friendships')];
     };
 
-    [$one, $oneStatsReads] = $count(1);
-    [$many, $manyStatsReads] = $count(20);
+    [$one, $oneStats, $oneNames, $oneFriendships] = $count(1);
+    [$many, $manyStats, $manyNames, $manyFriendships] = $count(20);
 
-    expect($many)->toBe($one)
-        ->and($oneStatsReads)->toBe(1)
-        ->and($manyStatsReads)->toBe(1);
+    // Two selects of the lists (open, finished), then ONE read of the names, of the friendships and of the stats for both.
+    expect($one)->toBe(5)
+        ->and($many)->toBe(5)
+        ->and([$oneStats, $oneNames, $oneFriendships])->toBe([1, 1, 1])
+        ->and([$manyStats, $manyNames, $manyFriendships])->toBe([1, 1, 1]);
 });
 
 it('does not read learner_daily_stats at all when no challenge is active', function (): void {
