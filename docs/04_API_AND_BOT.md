@@ -901,7 +901,24 @@ public function __invoke(Request $request, string $secret)
 | `/invite` | ЛС | любой learner | «Пригласить друга» (docs/13 §7.1, 2C.1): ссылка `https://t.me/<bot>?start=ref_<referral_code>` (код генерируется лениво `ReferralService::codeFor`; пока `TELEGRAM_BOT_USERNAME` пуст — только код), правило («друг позанимается 3 дня от 10 карточек — оба получите 7 дней Pro», числа из `config/referrals.php`), счётчики «пришли / занимаются / награждены» и inline-кнопка «Поделиться ссылкой» (`https://t.me/share/url?url=…&text=…`). Язык learner'а (`referrals.*`). Заблокированному — `referrals.blocked`; учителю и в группе — ничего. |
 | `/paysupport` | ЛС, активная группа | любой | Требование Telegram для оплаты Stars: контакт платёжной поддержки (`BILLING_SUPPORT_CONTACT`; «не указан», если пуст), ссылка на публичную оферту (правила возврата) и подсказка про `/pro`. Язык: learner'а, иначе Telegram-язык отправителя / язык группы. В неактивной группе — молчание (Group Lock). |
 | `/start f_<code>` | ЛС | любой learner | Приглашение в друзья (docs/13 §7.5, 2C.5), **с согласием открывшего**: ссылка ничего не пишет, бот спрашивает «Отправить X запрос в друзья?» + кнопки (`fr1:snd:<code>` / `fr1:no:<code>`); по «Отправить» создаётся `request(открывший → владелец)`, владельцу уходит ЛС с кнопками принять/отклонить (`fr1:acc:<id>` / `fr1:dec:<id>`), запрос виден и во «Входящих» TWA. Уже друзья / уже отправлено / блок — короткое сообщение; если владелец сам уже запрашивал открывшего — показывается этот входящий запрос. **`ref_<code>` дружбу не предлагает** (существующий learner: реферал `rejected {existing_learner}` + «Сегодня»). Не прошедшему онбординг ничего не записывается. |
-| `/help` | любой | любая | Список доступных команд для роли (в ЛС — в том числе `/today`, `/settings`, `/stats`, `/promo`, `/pro`, `/invite`, `/paysupport`). |
+| `/help` | любой | любая | Справка простым текстом (без HTML), `bot.help.*`. В ЛС **сначала ученик** — «Как заниматься»: кнопка «LexiFlow» слева от поля ввода и `/today`, `/settings`, `/invite`, `/pro` и `/promo`, `/paysupport`; затем «Для учителей»: бот в группе администратором, `/start_training`, `/start_exam`, `/close_exam`, `/stats`. В группе — команды учителя. |
+
+**Меню команд и кнопка Mini App: `telegram:setup-bot`** (docs/14 §7). Бот сам не регистрирует свои команды, поэтому без этого шага
+по «/» Telegram ничего не подсказывает, а в личном чате нет постоянной кнопки приложения. Команда вызывает Bot API (контракт
+`TelegramClient::setMyCommands` / `setChatMenuButton`, набор данных — `BotMenuBuilder`):
+
+- `setMyCommands` для `all_private_chats` (`today`, `settings`, `invite`, `pro`, `promo`, `help`) и `all_group_chats`
+  (`start_training`, `start_exam`, `close_exam`, `help`) — по два вызова на каждый scope: без `language_code` (язык по умолчанию,
+  ru; его видят все, у кого нет списка на своём языке) и с `language_code = uz`. Описания — `lang/{ru,uz}/commands.php`
+  (`commands.private.*`, `commands.group.*`; 1–256 знаков). `/start`, `/stats` и `/paysupport` в меню не входят.
+- `setChatMenuButton` без `chat_id` — кнопка по умолчанию для всех личных чатов:
+  `{"type":"web_app","text":"LexiFlow","web_app":{"url":"{TWA_BASE_URL}/twa/"}}`. Именно «LexiFlow» названа кнопка в `/help`.
+  Telegram принимает `web_app` только с https: при другом `TWA_BASE_URL` (в том числе пустом) команда печатает предупреждение,
+  пропускает кнопку и всё равно ставит списки команд (код выхода 0).
+- Ошибка Bot API — строка `… not set: <причина>` и код выхода `FAILURE`; остальные вызовы всё равно выполняются.
+
+Команда идемпотентна: запускается после `telegram:set-webhook` при первичной настройке и повторяется после деплоя, который меняет
+набор команд или их описания (README «Первичный setup на сервере», docs/VPS_DEPLOY_GUIDE_RU.md §15, docs/DEVOPS_GUIDE.md §12).
 
 #### Онбординг и `/settings`: шаги и `callback_data`
 
@@ -941,7 +958,7 @@ URL TWA: `https://lexiflow.example.com/twa/training/123` (для экзамен�
 
 ### B.4a Язык сообщений бота (i18n)
 
-Все тексты бота, напоминаний и лидерборда лежат в `lang/{ru,uz}/*.php` (`bot`, `errors`, `training`, `exam`, `reminders`, `stats`, `twofactor`, `onboarding`) и выводятся через `__()` / `trans_choice()` с **явным** параметром `$locale` — глобальная локаль процесса не меняется (воркеры очередей долгоживущие). Поддерживаемые языки и дефолт — `config/localization.php` (`ru`, `uz`; дефолт и fallback `ru`). Выбор языка — `App\Domain\Localization\Services\LocaleResolver`:
+Все тексты бота, напоминаний и лидерборда лежат в `lang/{ru,uz}/*.php` (`bot`, `commands`, `errors`, `training`, `exam`, `reminders`, `stats`, `twofactor`, `onboarding`) и выводятся через `__()` / `trans_choice()` с **явным** параметром `$locale` — глобальная локаль процесса не меняется (воркеры очередей долгоживущие). Поддерживаемые языки и дефолт — `config/localization.php` (`ru`, `uz`; дефолт и fallback `ru`). Выбор языка — `App\Domain\Localization\Services\LocaleResolver`:
 
 | Кому сообщение | Откуда язык |
 |----------------|-------------|
@@ -952,7 +969,9 @@ URL TWA: `https://lexiflow.example.com/twa/training/123` (для экзамен�
 
 Числительные: ru — `trans_choice` с формами «слово | слова | слов» (1 / 2–4 / 5+, с учётом 11–14, 21, 22…); uz — без согласования («5 ta so'z»). HTML-сообщения (лидерборд) по-прежнему экранируют пользовательские данные (`htmlspecialchars`) — переводы содержат только статичную разметку. Язык группы задаётся в Filament (**Telegram Groups → Edit → Bot language**) и сохраняется при повторном добавлении бота в группу. Не переводятся: `message` в JSON-ответах TWA API (клиент локализует по `error.code`), логи, имена команд.
 
-Новая строка бота = ключ в `lang/ru/*.php` **и** `lang/uz/*.php` (тест `LocalizationTest` сверяет наборы ключей и плейсхолдеров и запрещает кириллицу в PHP-коде `app/Domain/Telegram` и `app/Jobs`).
+Новая строка бота = ключ в `lang/ru/*.php` **и** `lang/uz/*.php` (тест `LocalizationTest` сверяет наборы ключей и плейсхолдеров и запрещает кириллицу в PHP-коде `app/Domain/Telegram` и `app/Jobs`); каждая новая узбекская строка попадает и в `docs/I18N_UZ_REVIEW.md` (тест `UzReviewDocTest`).
+
+Термины в текстах для учеников и учителей — словарь docs/14 §8: этап курса — «модуль» (uz «modul»), урок — «урок» (uz «dars»); порядок в uz — `:stage-modul, :lesson-dars` (`1-modul, 2-dars`). Слов `Stage`, `Lesson`, «Этап», «bosqich» в этих текстах нет.
 
 ### B.5 События бота (не команды)
 

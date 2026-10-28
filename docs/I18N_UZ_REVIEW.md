@@ -14,21 +14,21 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `bot.start.greeting` | Salom, :name! Siz LexiFlow o'qituvchisi sifatida tizimga kirdingiz. Guruhdagi buyruqlar: /help | Привет, :name! Вы авторизованы как учитель LexiFlow. Команды в группе: /help |
-| `bot.help.private` | LexiFlow — ingliz tilini o'rganish yordamchisi.<br><br>O'qituvchilar uchun: botni guruhga qo'shing, administrator uni faollashtiradi.<br>Guruhdagi mavjud buyruqlar: /start_training, /start_exam, /close_exam, /help<br>Shaxsiy hisobot: /stats | LexiFlow — помощник для изучения английского.<br><br>Для учителей: добавьте бота в группу, админ активирует её.<br>Доступные команды в группе: /start_training, /start_exam, /close_exam, /help<br>Личный отчёт: /stats |
-| `bot.help.group` | LexiFlow Bot guruhda.<br><br>O'qituvchi buyruqlari:<br>/start_training — mashg'ulotni boshlash<br>/start_exam — imtihonni boshlash<br>/close_exam — imtihonni yopish<br>/stats — bot bilan shaxsiy chatda hisobot<br>/help — ushbu yordam | LexiFlow Bot в группе.<br><br>Команды учителя:<br>/start_training — запустить тренировку<br>/start_exam — запустить экзамен<br>/close_exam — закрыть экзамен<br>/stats — личный отчёт в чате с ботом<br>/help — эта справка |
+| `bot.help.private` | LexiFlow — Telegramda inglizcha so'zlar: ovozli kartochkalar va aqlli takrorlash.<br><br>Qanday shug'ullanish kerak:<br>• Xabar yozish maydonining chap tomonidagi «LexiFlow» tugmasi yoki /today — bugungi mashg'ulot<br>• /settings — til, maqsad, daraja, vaqt mintaqasi, eslatmalar<br>• /invite — do'stingizni taklif qiling va birgalikda Pro oling<br>• /pro — Pro obuna, /promo KOD — promokod<br>• /paysupport — to'lov bo'yicha savollar<br><br>O'qituvchilar uchun:<br>• Botni guruhga qo'shing va administrator qiling, so'ng LexiFlow administratoridan guruhni faollashtirishni so'rang.<br>• Guruhda: /start_training — mashg'ulot, /start_exam — imtihon, /close_exam — imtihonni yakunlash.<br>• /stats — 7 kunlik hisobotingiz (shu yerda, shaxsiy chatda). | LexiFlow — английские слова в Telegram: карточки с озвучкой и умные повторения.<br><br>Как заниматься:<br>• Кнопка «LexiFlow» слева от поля ввода или /today — занятие на сегодня<br>• /settings — язык, цель, уровень, часовой пояс, напоминания<br>• /invite — пригласить друга и вместе получить Pro<br>• /pro — подписка Pro, /promo КОД — промокод<br>• /paysupport — вопросы по оплате<br><br>Для учителей:<br>• Добавьте бота в группу и сделайте его администратором, затем попросите администратора LexiFlow активировать группу.<br>• В группе: /start_training — тренировка, /start_exam — экзамен, /close_exam — завершить экзамен.<br>• /stats — ваш отчёт за 7 дней (здесь, в личном чате). |
+| `bot.help.group` | LexiFlow guruhda.<br><br>O'qituvchi buyruqlari:<br>/start_training — mashg'ulotni boshlash<br>/start_exam — imtihonni boshlash<br>/close_exam — imtihonni yopish<br>/stats — bot bilan shaxsiy chatda hisobot<br>/help — ushbu yordam | LexiFlow в группе.<br><br>Команды учителя:<br>/start_training — запустить тренировку<br>/start_exam — запустить экзамен<br>/close_exam — закрыть экзамен<br>/stats — личный отчёт в чате с ботом<br>/help — эта справка |
 | `bot.group.bot_not_admin` | ⚠️ Botni guruh administratori qiling. Aks holda bot xabarlarni va a'zolarning chiqib ketishini ko'rmaydi, LexiFlow to'liq ishlamaydi. Guruh → Boshqarish → Administratorlar → Administrator qo'shish. | ⚠️ Сделайте бота администратором группы. Без этого он не видит сообщения и выход участников, и LexiFlow работает не полностью. Группа → Управление → Администраторы → Добавить администратора. |
 | `bot.stats.not_linked` | Bu Telegram akkaunt LexiFlow o'qituvchisiga biriktirilmagan.<br>Sizning Telegram ID'ngiz: :id | Этот Telegram-аккаунт не привязан к учителю LexiFlow.<br>Ваш Telegram ID: :id |
 | `errors.teacher_not_linked` | Sizning Telegram akkauntingiz o'qituvchiga biriktirilmagan. | Ваш Telegram-аккаунт не привязан к учителю. |
 | `errors.teacher_not_linked_ask_admin` | Sizning Telegram akkauntingiz o'qituvchiga biriktirilmagan. Administratordan sizni qo'shishini so'rang. | Ваш Telegram-аккаунт не привязан к учителю. Попросите админа добавить вас. |
 | `errors.group_inactive` | Guruh faollashtirilmagan. Administratordan uni /admin orqali faollashtirishini so'rang. | Группа не активирована. Попросите админа активировать её в /admin. |
-| `errors.stage_not_found` | Ko'rsatilgan stage topilmadi. | Указанный stage не найден. |
+| `errors.stage_not_found` | Ko'rsatilgan modul topilmadi. | Указанный модуль не найден. |
 | `errors.lesson_not_found` | Dars topilmadi. | Урок не найден. |
 | `errors.training.not_teacher` | Mashg'ulotni faqat shu guruhning o'qituvchisi boshlay oladi. | Только учитель этой группы может запускать тренировку. |
 | `errors.training.failed` | Mashg'ulotni boshlab bo'lmadi. | Не удалось запустить тренировку. |
 | `errors.training.not_delivered` | Tugmani guruhga yuborib bo'lmadi: mashg'ulot bekor qilindi. Bot guruhda ekanini va yoza olishini tekshiring, so'ng buyruqni takrorlang. | Не удалось отправить кнопку в группу: тренировка отменена. Проверьте, что бот в группе и может писать, и повторите команду. |
 | `errors.exam.not_teacher` | Imtihonni faqat shu guruhning o'qituvchisi boshlay oladi. | Только учитель этой группы может запускать экзамен. |
 | `errors.exam.not_enough_words` | Darsda imtihon uchun so'zlar yetarli emas. | В уроке недостаточно слов для экзамена. |
-| `errors.exam.not_enough_distractors` | Javob variantlari uchun so'zlar yetarli emas: darsga yoki shu stage'ning boshqa darslariga ko'proq so'z qo'shing. | Не хватает слов для вариантов ответа: добавьте больше слов в урок или в другие уроки этого stage. |
+| `errors.exam.not_enough_distractors` | Javob variantlari uchun so'zlar yetarli emas: darsga yoki shu modulning boshqa darslariga ko'proq so'z qo'shing. | Не хватает слов для вариантов ответа: добавьте больше слов в урок или в другие уроки этого модуля. |
 | `errors.exam.already_open` | Guruhda imtihon allaqachon davom etmoqda. Uni /close_exam orqali yakunlang. | В группе уже идёт экзамен. Завершите его через /close_exam. |
 | `errors.exam.invalid_duration` | Imtihon davomiyligi 1 daqiqadan 30 daqiqagacha bo'lishi kerak. | Длительность экзамена должна быть от 1 до 30 минут. |
 | `errors.exam.failed` | Imtihonni boshlab bo'lmadi. | Не удалось запустить экзамен. |
@@ -36,7 +36,7 @@
 | `errors.exam.close_not_teacher` | Imtihonni faqat shu guruhning o'qituvchisi yopishi mumkin. | Только учитель этой группы может закрыть экзамен. |
 | `errors.exam.no_open_exam` | Hozir guruhda ochiq imtihon yo'q. | Сейчас в группе нет открытого экзамена. |
 | `errors.exam.close_failed` | Imtihonni yopib bo'lmadi. | Не удалось закрыть экзамен. |
-| `exam.started` | 🏁 <b>Imtihon boshlandi!</b><br>Stage :stage · Lesson :lesson · <b>:minutes daq</b><br>Qo'shilish uchun tugmani bosing. | 🏁 <b>Экзамен запущен!</b><br>Stage :stage · Lesson :lesson · <b>:minutes мин</b><br>Нажмите кнопку, чтобы присоединиться. |
+| `exam.started` | 🏁 <b>Imtihon boshlandi!</b><br>:stage-modul · :lesson-dars · <b>:minutes daq</b><br>Qo'shilish uchun tugmani bosing. | 🏁 <b>Экзамен запущен!</b><br>Модуль :stage · Урок :lesson · <b>:minutes мин</b><br>Нажмите кнопку, чтобы присоединиться. |
 | `exam.open_button` | 🏁 Imtihonni ochish | 🏁 Открыть экзамен |
 | `exam.leaderboard.title` | 🏁 <b>Imtihon natijalari</b><br>Dars :lesson | 🏁 <b>Итоги экзамена</b><br>Урок :lesson |
 | `exam.leaderboard.nobody` | Hech kim javob bermadi 😅 | Никто не ответил 😅 |
@@ -51,8 +51,8 @@
 | `stats.accuracy` | Imtihonlardagi aniqlik: :percent% | Точность экзаменов: :percent% |
 | `training.picker.prompt` | Mashg'ulot uchun darsni tanlang: | Выберите урок для тренировки: |
 | `training.picker.empty` | Tizimda hozircha darslar yo'q. Administratordan kontent yuklashini so'rang. | В системе пока нет уроков. Попросите администратора загрузить контент. |
-| `training.picker.button` | Stage :stage / Lesson :lesson | Stage :stage / Lesson :lesson |
-| `training.started` | 📚 Stage :stage / Lesson :lesson mashg'uloti boshlandi! Boshlash uchun tugmani bosing. | 📚 Тренировка Stage :stage / Lesson :lesson запущена! Нажмите кнопку, чтобы начать. |
+| `training.picker.button` | :stage-modul · :lesson-dars | Модуль :stage · Урок :lesson |
+| `training.started` | 📚 Mashg'ulot boshlandi: :stage-modul, :lesson-dars. Boshlash uchun tugmani bosing. | 📚 Тренировка запущена: модуль :stage, урок :lesson. Нажмите кнопку, чтобы начать. |
 | `training.open_button` | 🎯 Mashg'ulotni ochish | 🎯 Открыть тренировку |
 | `twofactor.confirm_button` | Tasdiqlash | Подтвердить |
 | `twofactor.setup.title` | 2FA sozlash | Настройка 2FA |
@@ -1211,14 +1211,14 @@
 
 ## Фаза 2 · задача 2B.4 (задания центра) — на проверку носителю
 
-> Проверить: «vazifa» (задание), «muddat» (срок), «bosqich» (этап), «dars» (урок), «bajarilgan» (выполнено), «kechikib bajarilgan» (с опозданием), «e'lon» (объявление в группе). Подстановки: `:title`, `:stage`, `:lesson`, `:due`, `:number`, `:done`, `:total`; в TWA — `{stage}`, `{lesson}`, `{date}`, `{pct}`.
+> Проверить: «vazifa» (задание), «muddat» (срок), «modul» (модуль), «dars» (урок), «bajarilgan» (выполнено), «kechikib bajarilgan» (с опозданием), «e'lon» (объявление в группе). Подстановки: `:title`, `:stage`, `:lesson`, `:due`, `:number`, `:done`, `:total`; в TWA — `{stage}`, `{lesson}`, `{date}`, `{pct}`.
 
 ### Сообщения бота в группу и кабинет (`lang/uz/assignments.php`, `lang/uz/org.php`)
 
 | Ключ | uz | ru |
 |---|---|---|
-| `assignments.announce` | 📚 Yangi vazifa: :title<br>:stage-bosqich, :lesson-dars · muddat: :due<br><br>Uni ilovada bajaring: quyidagi tugmani bosing. | 📚 Новое задание: :title<br>Этап :stage, урок :lesson · срок до :due<br><br>Выполните его в приложении: нажмите кнопку ниже. |
-| `assignments.remind` | ⏰ Eslatma: «:title» vazifasini :due gacha bajaring.<br>:stage-bosqich, :lesson-dars | ⏰ Напоминание: задание «:title» нужно выполнить до :due.<br>Этап :stage, урок :lesson |
+| `assignments.announce` | 📚 Yangi vazifa: :title<br>:stage-modul, :lesson-dars · muddat: :due<br><br>Uni ilovada bajaring: quyidagi tugmani bosing. | 📚 Новое задание: :title<br>Модуль :stage, урок :lesson · срок до :due<br><br>Выполните его в приложении: нажмите кнопку ниже. |
+| `assignments.remind` | ⏰ Eslatma: «:title» vazifasini :due gacha bajaring.<br>:stage-modul, :lesson-dars | ⏰ Напоминание: задание «:title» нужно выполнить до :due.<br>Модуль :stage, урок :lesson |
 | `assignments.open_button` | Darsni ochish | Открыть урок |
 | `assignments.lesson_fallback` | :number-dars | Урок :number |
 | `org.assignments.singular` | Vazifa | Задание |
@@ -1242,7 +1242,7 @@
 | `org.assignments.result.late` | Kechikib bajarilgan | Выполнено с опозданием |
 | `org.assignments.result.in_progress` | Jarayonda | В процессе |
 | `org.assignments.result.not_started` | Boshlanmagan | Не начато |
-| `org.assignments.lesson_option` | :stage-bosqich, :lesson-dars: :title | Этап :stage, урок :lesson: :title |
+| `org.assignments.lesson_option` | :stage-modul, :lesson-dars: :title | Модуль :stage, урок :lesson: :title |
 | `org.assignments.progress_of` | :total dan :done | :done из :total |
 | `org.assignments.actions.create` | Vazifa yaratish | Создать задание |
 | `org.assignments.actions.close` | Yopish | Закрыть |
@@ -1877,3 +1877,23 @@
 | `training.lesson_header_no_stage` | {lesson}-dars | Урок {lesson} |
 | `exercise.audio.replay_hint` | Yana tinglash uchun bosing | Нажмите, чтобы послушать ещё раз |
 | `exercise.verdict.expected` | To'g'ri javob | Правильный ответ |
+
+## Редизайн 2026-10-28 · бот (меню команд, справка, термин «модуль») — на проверку носителю
+
+> Проверить: единый термин для этапа курса — «modul» (в строках «1-modul · 2-dars»: «:stage-modul, :lesson-dars»; раньше было «Stage» и «bosqich») и «dars» (урок). В справке `/help`: «Qanday shug'ullanish kerak» (как заниматься), «Xabar yozish maydonining chap tomonidagi «LexiFlow» tugmasi» (кнопка «LexiFlow» слева от поля ввода), «birgalikda Pro oling» (вместе получите Pro), «Pro obuna» (подписка Pro), «O'qituvchilar uchun» (для учителей). Описания команд в меню «/» — короткие подписи до 256 знаков: «Bugungi mashg'ulot» (занятие на сегодня), «Do'stni taklif qilish», «Promokodni faollashtirish», «Imtihonni yakunlash» (завершить экзамен).
+> Изменённые значения старых ключей (`bot.help.private`, `bot.help.group`, `training.picker.button`, `training.started`, `exam.started`, `errors.stage_not_found`, `errors.exam.not_enough_distractors`, `assignments.announce`, `assignments.remind`, `org.assignments.lesson_option`) исправлены в исходных строках выше; здесь — только новые ключи.
+
+### Меню команд бота — список по «/» в Telegram (`lang/uz/commands.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `commands.private.today` | Bugungi mashg'ulot | Занятие на сегодня |
+| `commands.private.settings` | Sozlamalar | Настройки |
+| `commands.private.invite` | Do'stni taklif qilish | Пригласить друга |
+| `commands.private.pro` | Pro obuna | Подписка Pro |
+| `commands.private.promo` | Promokodni faollashtirish | Активировать промокод |
+| `commands.private.help` | Yordam | Справка |
+| `commands.group.start_training` | Mashg'ulotni boshlash | Запустить тренировку |
+| `commands.group.start_exam` | Imtihonni boshlash | Запустить экзамен |
+| `commands.group.close_exam` | Imtihonni yakunlash | Завершить экзамен |
+| `commands.group.help` | Yordam | Справка |

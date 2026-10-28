@@ -232,7 +232,7 @@ return [
             'in_progress' => 'В процессе',
             'not_started' => 'Не начато',
         ],
-        'lesson_option' => 'Этап :stage, урок :lesson: :title',
+        'lesson_option' => 'Модуль :stage, урок :lesson: :title',
         'progress_of' => ':done из :total',
         'actions' => [
             'create' => 'Создать задание',

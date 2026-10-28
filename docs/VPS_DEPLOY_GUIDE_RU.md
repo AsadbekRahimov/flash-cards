@@ -822,8 +822,18 @@ curl -s "https://api.telegram.org/bot<ТОКЕН>/getWebhookInfo" | python3 -m j
 > Команда регистрирует типы апдейтов `message, my_chat_member, chat_member, callback_query, pre_checkout_query`.
 > Перезапускайте её после деплоев, которые добавляют новый тип (например, оплата Stars требует `pre_checkout_query`).
 
+Меню бота — список команд по «/» (русский и узбекский) и постоянная кнопка «LexiFlow», открывающая мини-приложение:
+
+```bash
+php artisan telegram:setup-bot
+```
+
+Кнопка ведёт на `{TWA_BASE_URL}/twa/`; Telegram принимает только https, при другом адресе команда предупредит и пропустит кнопку
+(список команд всё равно будет установлен). Команду безопасно повторять — запускайте и после деплоев, которые меняют команды бота.
+
 В **@BotFather**:
-1. `/setmenubutton` (или Bot Settings → Menu Button) — URL мини-приложения: `https://lexiflow.uz/twa/`.
+1. Кнопку меню с мини-приложением задавать здесь (`/setmenubutton`) не нужно: её ставит `telegram:setup-bot` (если кнопка уже
+   настроена в BotFather, команда заменит её на «LexiFlow» → `https://lexiflow.uz/twa/`).
 2. **Мини-приложение для групповых чатов (обязательно).** Telegram разрешает кнопку `web_app` только в личном чате с ботом,
    поэтому в группах (`/start_training`, `/start_exam`, задания) бот присылает обычную кнопку-ссылку
    `https://t.me/<бот>?startapp=…` (прямая ссылка на мини-приложение; нужный экран передаётся в `start_param`). Для неё:
@@ -902,6 +912,8 @@ php artisan event:cache
 sudo systemctl reload php8.3-fpm                 # сбросить OPcache (validate_timestamps=0)
 sudo supervisorctl restart lexiflow-worker:*     # воркеры держат старый код в памяти
 php artisan telegram:set-webhook                 # безопасно повторять
+# Меню команд и кнопка «LexiFlow»; безопасно повторять. Сбой не должен оставить сайт в режиме обслуживания (set -e).
+php artisan telegram:setup-bot || echo "WARN: telegram:setup-bot не отработал — запустите его вручную"
 
 php artisan up
 curl -sf https://lexiflow.uz/up && echo "Deploy OK"
@@ -1008,7 +1020,7 @@ sudo -u www-data php artisan backup:list
 - [ ] Nginx + сертификат Let's Encrypt, автопродление проверено
 - [ ] Supervisor: воркеры RUNNING
 - [ ] Cron `schedule:run` для `www-data`
-- [ ] `telegram:set-webhook`, кнопка меню в BotFather → `/twa/`
+- [ ] `telegram:set-webhook`, `telegram:setup-bot` (меню команд по «/» и кнопка «LexiFlow» → `/twa/`)
 - [ ] Smoke test (§16) пройден, бот отвечает на `/start`
 - [ ] Бэкапы уходят во внешнее хранилище, восстановление проверено
 - [ ] Перед включением оплаты — песочницы Payme/Click и тест Stars (`docs/STAGING_PHASE2_CHECKLIST.md`)

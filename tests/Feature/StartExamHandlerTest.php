@@ -62,6 +62,7 @@ it('opens an exam session via /start_exam and posts WebApp button', function ():
         ->withArgs(function (int $chatId, string $text, string $buttonText, string $url, ?string $parseMode): bool {
             return $chatId === -1001
                 && str_contains($text, 'Экзамен запущен')
+                && str_contains($text, 'Модуль 1 · Урок 1 · <b>2 мин</b>')
                 && $buttonText === '🏁 Открыть экзамен'
                 && str_starts_with($url, 'https://twa.test/twa/exam/')
                 && $parseMode === 'HTML';

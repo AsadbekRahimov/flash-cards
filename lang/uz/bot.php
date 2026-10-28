@@ -9,17 +9,18 @@ return [
     ],
 
     'help' => [
-        'private' => "LexiFlow — ingliz tilini o'rganish yordamchisi.\n\n".
-            "O'qituvchilar uchun: botni guruhga qo'shing, administrator uni faollashtiradi.\n".
-            "Guruhdagi mavjud buyruqlar: /start_training, /start_exam, /close_exam, /help\n".
-            "Shaxsiy hisobot: /stats\n".
-            "Bugungi takrorlashlar: /today\n".
-            "Sozlamalar (til, maqsad, daraja, vaqt mintaqasi, eslatmalar): /settings\n".
-            "Pro uchun promokod: /promo KOD\n".
-            "Pro'ni rasmiylashtirish va avtoyangilash: /pro\n".
-            "Do'stni taklif qilib Pro olish: /invite\n".
-            "To'lov bo'yicha savollar: /paysupport",
-        'group' => "LexiFlow Bot guruhda.\n\nO'qituvchi buyruqlari:\n".
+        'private' => "LexiFlow — Telegramda inglizcha so'zlar: ovozli kartochkalar va aqlli takrorlash.\n\n".
+            "Qanday shug'ullanish kerak:\n".
+            "• Xabar yozish maydonining chap tomonidagi «LexiFlow» tugmasi yoki /today — bugungi mashg'ulot\n".
+            "• /settings — til, maqsad, daraja, vaqt mintaqasi, eslatmalar\n".
+            "• /invite — do'stingizni taklif qiling va birgalikda Pro oling\n".
+            "• /pro — Pro obuna, /promo KOD — promokod\n".
+            "• /paysupport — to'lov bo'yicha savollar\n\n".
+            "O'qituvchilar uchun:\n".
+            "• Botni guruhga qo'shing va administrator qiling, so'ng LexiFlow administratoridan guruhni faollashtirishni so'rang.\n".
+            "• Guruhda: /start_training — mashg'ulot, /start_exam — imtihon, /close_exam — imtihonni yakunlash.\n".
+            '• /stats — 7 kunlik hisobotingiz (shu yerda, shaxsiy chatda).',
+        'group' => "LexiFlow guruhda.\n\nO'qituvchi buyruqlari:\n".
             "/start_training — mashg'ulotni boshlash\n".
             "/start_exam — imtihonni boshlash\n".
             "/close_exam — imtihonni yopish\n".

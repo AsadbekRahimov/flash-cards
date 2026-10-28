@@ -81,6 +81,18 @@ final class FakeTelegramClient implements TelegramClient
     /** Called on every Stars method before it is recorded: a test hooks it to assert on the moment of the call (e.g. no open transaction). */
     public ?Closure $onStarsCall = null;
 
+    /** @var list<array{commands:list<array{command:string, description:string}>, scope:array<string, mixed>, language_code:string|null}> */
+    public array $myCommands = [];
+
+    /** @var list<array<string, mixed>> */
+    public array $menuButtons = [];
+
+    /** When true, setMyCommands throws like a Bot API refusal. */
+    public bool $failMyCommands = false;
+
+    /** When true, setChatMenuButton throws like a Bot API refusal. */
+    public bool $failMenuButton = false;
+
     public function sendMessage(int|string $chatId, string $text, ?string $parseMode = null, ?array $replyMarkup = null): void
     {
         $this->failNextSend();
@@ -183,6 +195,28 @@ final class FakeTelegramClient implements TelegramClient
         $this->starTransactionPages[] = ['offset' => $offset, 'limit' => $limit];
 
         return array_values(array_slice($this->starTransactions, $offset, $limit));
+    }
+
+    public function setMyCommands(array $commands, array $scope, ?string $languageCode = null): bool
+    {
+        if ($this->failMyCommands) {
+            throw new TelegramApiException('Bad Request: invalid commands');
+        }
+
+        $this->myCommands[] = ['commands' => $commands, 'scope' => $scope, 'language_code' => $languageCode];
+
+        return true;
+    }
+
+    public function setChatMenuButton(array $menuButton): bool
+    {
+        if ($this->failMenuButton) {
+            throw new TelegramApiException('Bad Request: invalid menu button');
+        }
+
+        $this->menuButtons[] = $menuButton;
+
+        return true;
     }
 
     private function starsCall(string $method): void

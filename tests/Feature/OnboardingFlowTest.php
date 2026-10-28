@@ -837,7 +837,7 @@ it('keeps /help, /promo and group commands away from the catch-all', function ()
 it('names the learner commands in the Uzbek help too', function (): void {
     onbSend(7056, '/help', ['language_code' => 'uz']);
 
-    expect($this->tg->sent[0]['text'])->toContain('/today')->toContain('/settings')->toContain('Sozlamalar');
+    expect($this->tg->sent[0]['text'])->toContain('/today')->toContain('/settings')->toContain('/invite')->toContain("Qanday shug'ullanish kerak");
 });
 
 it('ignores service messages in the DM instead of starting or repeating the onboarding', function (array $service): void {

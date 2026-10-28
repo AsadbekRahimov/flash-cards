@@ -7,10 +7,10 @@ return [
     'picker' => [
         'prompt' => "Mashg'ulot uchun darsni tanlang:",
         'empty' => "Tizimda hozircha darslar yo'q. Administratordan kontent yuklashini so'rang.",
-        'button' => 'Stage :stage / Lesson :lesson',
+        'button' => ':stage-modul · :lesson-dars',
     ],
 
-    'started' => "📚 Stage :stage / Lesson :lesson mashg'uloti boshlandi! Boshlash uchun tugmani bosing.",
+    'started' => "📚 Mashg'ulot boshlandi: :stage-modul, :lesson-dars. Boshlash uchun tugmani bosing.",
     'open_button' => "🎯 Mashg'ulotni ochish",
 
 ];

@@ -510,6 +510,17 @@ To verify:
 curl "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getWebhookInfo"
 ```
 
+Then set the bot menu: the command list behind "/" (Russian and Uzbek, private chats and groups) and the permanent
+"LexiFlow" button that opens the Mini App:
+
+```bash
+php artisan telegram:setup-bot
+```
+
+The button points to `${TWA_BASE_URL}/twa/`. Telegram accepts only https URLs, so with any other `TWA_BASE_URL` the command
+warns, skips the button and still sets the command lists. A Bot API error is printed and the exit code is non-zero. The command
+is idempotent: re-run it after a deploy that changes the bot's commands or their descriptions (`lang/{ru,uz}/commands.php`).
+
 ---
 
 ## 13. Smoke Test
