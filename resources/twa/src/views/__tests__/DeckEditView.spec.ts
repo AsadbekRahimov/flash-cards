@@ -6,6 +6,8 @@ import DeckEditView from '../DeckEditView.vue'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
+import { useToast } from '@/composables/useToast'
+import { useTodayStore } from '@/stores/today'
 import type { Course, DeckDetail, DeckImportResult } from '@/api/types'
 
 const tg = vi.hoisted(() => ({
@@ -20,6 +22,7 @@ vi.mock('@/api', () => ({
     me: { get: vi.fn().mockResolvedValue(null) },
     decks: { get: vi.fn(), rename: vi.fn(), remove: vi.fn(), addWords: vi.fn(), removeWord: vi.fn() },
     courses: { select: vi.fn() },
+    training: { open: vi.fn() },
   },
 }))
 
@@ -63,6 +66,7 @@ async function render(data: DeckDetail = detail()) {
     routes: [
       { path: '/decks', name: 'decks', component: { template: '<div />' } },
       { path: '/decks/:slug', name: 'deck', component: DeckEditView, props: true },
+      { path: '/training/:sessionId(\\d+)', name: 'training', component: { template: '<div />' } },
     ],
   })
   await router.push('/decks/deck-1-abc')
@@ -75,13 +79,17 @@ describe('DeckEditView', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
+    useToast().hide()
     tg.handler = null
     tg.showBack.mockImplementation((handler: () => void) => {
       tg.handler = handler
       return tg.release
     })
   })
-  afterEach(() => setLocale('ru'))
+  afterEach(() => {
+    useToast().hide()
+    setLocale('ru')
+  })
 
   describe('heading and word list', () => {
     it('shows the deck title as the heading and the words with their translations', async () => {
@@ -385,6 +393,45 @@ describe('DeckEditView', () => {
       expect(wrapper.find('[data-testid=paywall]').exists()).toBe(true)
       expect((wrapper.get('[data-testid=text-input]').element as HTMLTextAreaElement).value).toBe('plum — слива')
       expect(wrapper.find('[data-testid=report]').exists()).toBe(false)
+    })
+
+    describe('"Повторить слова" in the paywall', () => {
+      /** The word limit refuses the import while the Home tab knows of due cards: the sheet offers the review. */
+      async function openPaywall() {
+        useTodayStore().data = { due_count: 12 } as never
+        vi.mocked(api.decks.addWords).mockRejectedValue(new ApiClientError('validation', 422, 'deck_words_limit_reached', 'x'))
+        const context = await render()
+        await context.wrapper.get('[data-testid=text-input]').setValue('plum — слива')
+        await context.wrapper.get('[data-testid=add-btn]').trigger('click')
+        await flushPromises()
+        return context
+      }
+
+      it('starts the daily review: the sheet closes and the training screen opens', async () => {
+        vi.mocked(api.training.open).mockResolvedValue({ session_id: 62, mode: 'daily_review', lesson: null, total_words: 5 } as never)
+        const { wrapper, router } = await openPaywall()
+        expect(wrapper.get('[data-testid=paywall-review]').text()).toBe('Повторить слова')
+
+        await wrapper.get('[data-testid=paywall-review]').trigger('click')
+        await flushPromises()
+
+        expect(api.training.open).toHaveBeenCalledWith({ mode: 'daily_review', source: 'self' })
+        expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+        expect(router.currentRoute.value.name).toBe('training')
+        expect(router.currentRoute.value.params.sessionId).toBe('62')
+      })
+
+      it('tells in a toast why the review did not open and stays on the deck, with the typed text', async () => {
+        vi.mocked(api.training.open).mockRejectedValue(new ApiClientError('network', 0, 'unknown', 'x'))
+        const { wrapper, router } = await openPaywall()
+
+        await wrapper.get('[data-testid=paywall-review]').trigger('click')
+        await flushPromises()
+
+        expect(router.currentRoute.value.name).toBe('deck')
+        expect(useToast().toast.value?.text).toBe('Нет связи с сервером. Попробуйте ещё раз.')
+        expect((wrapper.get('[data-testid=text-input]').element as HTMLTextAreaElement).value).toBe('plum — слива')
+      })
     })
 
     it('explains an import with no usable line', async () => {

@@ -6,6 +6,7 @@ import CourseView from '../CourseView.vue'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
+import { useTodayStore } from '@/stores/today'
 import { useTrainingStore } from '@/stores/training'
 import type { Course, CourseDetail, CourseLesson, CourseStage } from '@/api/types'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
@@ -639,6 +640,55 @@ describe('CourseView', () => {
       await wrapper.get('[data-testid=paywall-close]').trigger('click')
       await flushPromises()
       expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+    })
+
+    describe('"Повторить слова" in the paywall', () => {
+      /** A Free learner is refused the mock while the Home tab knows of due cards: the sheet offers the review. */
+      async function openPaywall() {
+        useTodayStore().data = { due_count: 12 } as never
+        vi.mocked(api.courses.get).mockResolvedValue(detail({ exam_tag: 'sat' }))
+        vi.mocked(api.exam.openMock).mockRejectedValue(
+          new ApiClientError('forbidden', 403, 'exam_simulator_pro_required', 'Mock exams are a Pro feature.'),
+        )
+        vi.mocked(api.me.get).mockResolvedValue({
+          learner: { id: 1, first_name: 'A', username: null, locale: 'ru', onboarding_completed: true },
+          groups: [],
+          stats: { words_learned: 0, words_due_today: 0 },
+          entitlement: { plan: 'free', source: 'free', until: null, new_words_per_day: 20 },
+          paywall: { mode: 'coming_soon', contact: null },
+          settings: settingsFixture(),
+        })
+        const context = await render()
+        await context.router.push('/courses')
+        await context.wrapper.get('[data-testid=mock-exam-btn]').trigger('click')
+        await flushPromises()
+        return context
+      }
+
+      it('starts the daily review: the sheet closes and the training screen opens', async () => {
+        vi.mocked(api.training.open).mockResolvedValue({ session_id: 64, mode: 'daily_review', lesson: null, total_words: 5 } as never)
+        const { wrapper, router } = await openPaywall()
+        expect(wrapper.get('[data-testid=paywall-review]').text()).toBe('Повторить слова')
+
+        await wrapper.get('[data-testid=paywall-review]').trigger('click')
+        await flushPromises()
+
+        expect(api.training.open).toHaveBeenCalledWith({ mode: 'daily_review', source: 'self' })
+        expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+        expect(router.currentRoute.value.name).toBe('training')
+        expect(router.currentRoute.value.params.sessionId).toBe('64')
+      })
+
+      it('tells why the review did not open, as for any other session of this screen, and stays on the course', async () => {
+        vi.mocked(api.training.open).mockRejectedValue(new ApiClientError('network', 0, 'unknown', 'x'))
+        const { wrapper, router } = await openPaywall()
+
+        await wrapper.get('[data-testid=paywall-review]').trigger('click')
+        await flushPromises()
+
+        expect(router.currentRoute.value.name).toBe('courses')
+        expect(wrapper.get('[data-testid=open-error]').text()).toBe('Нет связи с сервером. Попробуйте ещё раз.')
+      })
     })
 
     it('explains any other refusal of the mock in an alert on the card', async () => {

@@ -6,7 +6,9 @@ import BillingView from '../BillingView.vue'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
+import { useToast } from '@/composables/useToast'
 import { useBillingStore } from '@/stores/billing'
+import { useTodayStore } from '@/stores/today'
 import type { BillingCatalog, MeResponse, Renewal, SubscriptionSummary } from '@/api/types'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 
@@ -18,6 +20,7 @@ vi.mock('@/api', () => ({
     promo: { redeem: vi.fn() },
     today: { get: vi.fn() },
     billing: { catalog: vi.fn(), checkout: vi.fn(), order: vi.fn(), cancel: vi.fn(), resume: vi.fn() },
+    training: { open: vi.fn() },
   },
 }))
 
@@ -76,6 +79,7 @@ const makeRouter = () =>
     routes: [
       { path: '/profile', name: 'profile', component: { template: '<div />' } },
       { path: '/billing', name: 'billing', component: BillingView },
+      { path: '/training/:sessionId(\\d+)', name: 'training', component: { template: '<div />' } },
     ],
   })
 
@@ -100,8 +104,12 @@ describe('BillingView', () => {
     state.back = undefined
     state.ensure.mockResolvedValue(undefined)
     vi.mocked(api.today.get).mockResolvedValue({} as never)
+    useToast().hide()
   })
-  afterEach(() => setLocale('ru'))
+  afterEach(() => {
+    useToast().hide()
+    setLocale('ru')
+  })
 
   describe('the plan card', () => {
     it('shows a Free learner the plan, the Free chip and what Free gives', async () => {
@@ -247,6 +255,43 @@ describe('BillingView', () => {
       await wrapper.get('[data-testid=lapsed-renew]').trigger('click')
       await flushPromises()
       expect(wrapper.find('[data-testid=paywall]').exists()).toBe(true)
+    })
+
+    describe('"Повторить слова" in the paywall', () => {
+      /** The learner opens the purchase sheet while the Home tab knows of due cards: it offers the review. */
+      async function openPaywall() {
+        useTodayStore().data = { due_count: 12 } as never
+        const context = await render(me(), catalog())
+        await context.wrapper.get('[data-testid=buy]').trigger('click')
+        await flushPromises()
+        return context
+      }
+
+      it('starts the daily review: the sheet closes and the training screen opens', async () => {
+        vi.mocked(api.training.open).mockResolvedValue({ session_id: 63, mode: 'daily_review', lesson: null, total_words: 5 } as never)
+        const { wrapper, router } = await openPaywall()
+        expect(wrapper.get('[data-testid=paywall-review]').text()).toBe('Повторить слова')
+
+        await wrapper.get('[data-testid=paywall-review]').trigger('click')
+        await flushPromises()
+
+        expect(api.training.open).toHaveBeenCalledWith({ mode: 'daily_review', source: 'self' })
+        expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+        expect(router.currentRoute.value.name).toBe('training')
+        expect(router.currentRoute.value.params.sessionId).toBe('63')
+      })
+
+      it('tells in a toast why the review did not open and stays on the subscription', async () => {
+        vi.mocked(api.training.open).mockRejectedValue(new ApiClientError('network', 0, 'unknown', 'x'))
+        const { wrapper, router } = await openPaywall()
+
+        await wrapper.get('[data-testid=paywall-review]').trigger('click')
+        await flushPromises()
+
+        expect(router.currentRoute.value.name).toBe('billing')
+        expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+        expect(useToast().toast.value?.text).toBe('Нет связи с сервером. Попробуйте ещё раз.')
+      })
     })
 
     it('has no banner without a lapse and none for a Pro learner', async () => {

@@ -12,6 +12,7 @@ import PageHeader from '@/components/ui/PageHeader.vue'
 import SegmentedNav from '@/components/ui/SegmentedNav.vue'
 import { catalogTabs, progressPercent, progressText } from '@/composables/courseLabels'
 import { useBackButton } from '@/composables/useBackButton'
+import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useAuthStore } from '@/stores/auth'
 import { useDecksStore } from '@/stores/decks'
 import { useI18n } from '@/i18n'
@@ -32,6 +33,7 @@ const tabs = computed(catalogTabs)
 const title = ref('')
 
 useBackButton(null)
+const { reviewFromPaywall } = useReviewFromPaywall(() => store.dismissLimit(), { toastErrors: true })
 
 async function load(): Promise<void> {
   try {
@@ -143,6 +145,6 @@ onMounted(() => {
       </article>
     </div>
 
-    <PaywallSheet v-if="limitReached" reason="decks" @close="store.dismissLimit()" />
+    <PaywallSheet v-if="limitReached" reason="decks" @close="store.dismissLimit()" @review="reviewFromPaywall" />
   </div>
 </template>

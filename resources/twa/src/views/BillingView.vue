@@ -13,6 +13,7 @@ import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice } from '@/composables/bi
 import { formatDate } from '@/composables/format'
 import { supportContactLink } from '@/composables/supportContact'
 import { useBackButton } from '@/composables/useBackButton'
+import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useAuthStore } from '@/stores/auth'
 import { useBillingStore } from '@/stores/billing'
 import { errorMessage } from '@/i18n/errors'
@@ -112,6 +113,14 @@ const providerText = computed(() => {
 function onLapsedRenew(): void {
   if (billing.canPurchase) paywallOpen.value = true
 }
+
+/** "Repeat words" in the paywall sheet: it closes and the daily review starts (a failure is a toast). */
+const { reviewFromPaywall } = useReviewFromPaywall(
+  () => {
+    paywallOpen.value = false
+  },
+  { toastErrors: true },
+)
 
 /** A promo code changes the plan: take the answer (`apply` also makes `/me` fresh), and the catalog says what can still be bought. */
 function onRedeemed(me: MeResponse): void {
@@ -264,6 +273,6 @@ onMounted(() => {
       </p>
     </div>
 
-    <PaywallSheet v-if="paywallOpen" @close="paywallOpen = false" />
+    <PaywallSheet v-if="paywallOpen" @close="paywallOpen = false" @review="reviewFromPaywall" />
   </div>
 </template>

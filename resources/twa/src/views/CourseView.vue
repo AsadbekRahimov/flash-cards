@@ -12,6 +12,7 @@ import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import { courseChips, progressPercent, progressText } from '@/composables/courseLabels'
 import { useBackButton } from '@/composables/useBackButton'
+import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useAuthStore } from '@/stores/auth'
 import { useCoursesStore } from '@/stores/courses'
 import { useExamStore } from '@/stores/exam'
@@ -85,6 +86,9 @@ async function learn(lessonId: number): Promise<void> {
   const sessionId = await training.open({ mode: 'lesson', lesson_id: lessonId, source: 'picker' })
   if (sessionId !== null) await router.push({ name: 'training', params: { sessionId } })
 }
+
+/** "Repeat words" in the paywall sheet: the sheet closes and the daily review starts (the refusal of the mock is Free's). */
+const { reviewFromPaywall } = useReviewFromPaywall(() => exam.dismissMockPaywall())
 
 /** Pro: opens (or resumes) the mock and goes to the exam screen; Free: the paywall sheet. */
 async function mockExam(): Promise<void> {
@@ -245,6 +249,6 @@ onBeforeUnmount(() => {
       </section>
     </template>
 
-    <PaywallSheet v-if="mockPaywall" reason="exam_simulator" @close="exam.dismissMockPaywall()" />
+    <PaywallSheet v-if="mockPaywall" reason="exam_simulator" @close="exam.dismissMockPaywall()" @review="reviewFromPaywall" />
   </div>
 </template>

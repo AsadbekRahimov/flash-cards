@@ -6,6 +6,8 @@ import MyDecksView from '../MyDecksView.vue'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
+import { useToast } from '@/composables/useToast'
+import { useTodayStore } from '@/stores/today'
 import type { Course, Deck, DecksResponse } from '@/api/types'
 
 const tg = vi.hoisted(() => ({ showBack: vi.fn(), hideBack: vi.fn() }))
@@ -15,6 +17,7 @@ vi.mock('@/api', () => ({
     me: { get: vi.fn().mockResolvedValue(null) },
     decks: { list: vi.fn(), create: vi.fn() },
     courses: { select: vi.fn() },
+    training: { open: vi.fn() },
   },
 }))
 
@@ -61,6 +64,7 @@ function makeRouter() {
       { path: '/courses', name: 'courses', component: stub },
       { path: '/decks', name: 'decks', component: stub },
       { path: '/decks/:slug', name: 'deck', component: stub },
+      { path: '/training/:sessionId(\\d+)', name: 'training', component: stub },
     ],
   })
 }
@@ -78,8 +82,12 @@ describe('MyDecksView', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
+    useToast().hide()
   })
-  afterEach(() => setLocale('ru'))
+  afterEach(() => {
+    useToast().hide()
+    setLocale('ru')
+  })
 
   describe('heading and switch', () => {
     it('has the large "Курсы" heading, the switch with "Мои колоды" active and the intro', async () => {
@@ -174,6 +182,44 @@ describe('MyDecksView', () => {
 
       await wrapper.get('[data-testid=paywall-close]').trigger('click')
       expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+    })
+  })
+
+  describe('"Повторить слова" in the paywall', () => {
+    /** The deck limit refuses a new deck while the Home tab knows of due cards: the sheet offers the review. */
+    async function openPaywall() {
+      useTodayStore().data = { due_count: 12 } as never
+      vi.mocked(api.decks.create).mockRejectedValue(new ApiClientError('validation', 422, 'deck_limit_reached', 'x'))
+      const context = await render()
+      await context.wrapper.get('[data-testid=title-input]').setValue('Вторая')
+      await context.wrapper.get('[data-testid=create-form]').trigger('submit')
+      await flushPromises()
+      return context
+    }
+
+    it('starts the daily review: the sheet closes and the training screen opens', async () => {
+      vi.mocked(api.training.open).mockResolvedValue({ session_id: 61, mode: 'daily_review', lesson: null, total_words: 5 } as never)
+      const { wrapper, router } = await openPaywall()
+      expect(wrapper.get('[data-testid=paywall-review]').text()).toBe('Повторить слова')
+
+      await wrapper.get('[data-testid=paywall-review]').trigger('click')
+      await flushPromises()
+
+      expect(api.training.open).toHaveBeenCalledWith({ mode: 'daily_review', source: 'self' })
+      expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      expect(router.currentRoute.value.name).toBe('training')
+      expect(router.currentRoute.value.params.sessionId).toBe('61')
+    })
+
+    it('tells in a toast why the review did not open and stays on the decks', async () => {
+      vi.mocked(api.training.open).mockRejectedValue(new ApiClientError('network', 0, 'unknown', 'x'))
+      const { wrapper, router } = await openPaywall()
+
+      await wrapper.get('[data-testid=paywall-review]').trigger('click')
+      await flushPromises()
+
+      expect(router.currentRoute.value.name).toBe('decks')
+      expect(useToast().toast.value?.text).toBe('Нет связи с сервером. Попробуйте ещё раз.')
     })
   })
 

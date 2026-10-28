@@ -11,6 +11,7 @@ import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import SegmentedControl from '@/components/ui/SegmentedControl.vue'
 import { useBackButton } from '@/composables/useBackButton'
+import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useAuthStore } from '@/stores/auth'
 import { useDecksStore } from '@/stores/decks'
 import { useI18n } from '@/i18n'
@@ -39,6 +40,7 @@ const sizeError = ref('')
 const confirmDelete = ref(false)
 
 useBackButton({ name: 'decks' })
+const { reviewFromPaywall } = useReviewFromPaywall(() => store.dismissLimit(), { toastErrors: true })
 
 const formatOptions = computed(() => [
   { value: 'list', label: t('decks.edit.format.list'), testid: 'format-list' },
@@ -260,6 +262,6 @@ onMounted(() => {
       </div>
     </template>
 
-    <PaywallSheet v-if="limitReached" reason="decks" @close="store.dismissLimit()" />
+    <PaywallSheet v-if="limitReached" reason="decks" @close="store.dismissLimit()" @review="reviewFromPaywall" />
   </div>
 </template>
