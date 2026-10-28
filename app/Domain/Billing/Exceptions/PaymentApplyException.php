@@ -42,12 +42,12 @@ final class PaymentApplyException extends BillingException
 
     public static function paymentNotFound(string $chargeId): self
     {
-        return new self(self::PAYMENT_NOT_FOUND, "No succeeded payment with provider charge id [{$chargeId}].");
+        return new self(self::PAYMENT_NOT_FOUND, "No succeeded payment with provider charge id [{$chargeId}].", ['charge' => $chargeId]);
     }
 
     public static function alreadyRefunded(int $paymentId): self
     {
-        return new self(self::ALREADY_REFUNDED, "Payment #{$paymentId} is already refunded.");
+        return new self(self::ALREADY_REFUNDED, "Payment #{$paymentId} is already refunded.", ['id' => $paymentId]);
     }
 
     public function httpStatus(): int

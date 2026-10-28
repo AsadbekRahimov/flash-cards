@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Domain\Administration\Services;
 
+use App\Domain\Administration\Exceptions\OrganizationGroupLinkException;
 use App\Models\AuditLog;
 use App\Models\Organization;
 use App\Models\TelegramGroup;
 use App\Models\User;
-use DomainException;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -28,7 +28,7 @@ final class OrganizationGroupLinker
     public const ACTION_UNLINKED = 'organization.unlinked_group';
 
     /**
-     * @throws DomainException the group already belongs to another organization (unlink it there first)
+     * @throws OrganizationGroupLinkException the group already belongs to another organization (unlink it there first)
      */
     public function link(Organization $organization, TelegramGroup $group, User $by, ?string $ip = null): void
     {
@@ -41,7 +41,7 @@ final class OrganizationGroupLinker
             }
 
             if ($current->organization_id !== null) {
-                throw new DomainException('The group already belongs to another organization.');
+                throw OrganizationGroupLinkException::groupTaken();
             }
 
             $current->organization_id = $organization->id;

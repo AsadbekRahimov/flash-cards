@@ -11,6 +11,7 @@ use App\Domain\Billing\Services\SubscriptionService;
 use App\Domain\Billing\Support\AutoRenewal;
 use App\Domain\Billing\Support\OrgTiers;
 use App\Domain\Billing\Support\SubscriptionLiveness;
+use App\Filament\Resources\Support\AdminErrors;
 use App\Filament\Resources\Support\AdminLabels;
 use App\Models\Learner;
 use App\Models\Organization;
@@ -225,7 +226,7 @@ final class SubscriptionActions
 
     private static function failed(SubscriptionException $e): void
     {
-        Notification::make()->title(__('admin.subscriptions.notifications.failed'))->body($e->getMessage())->danger()->persistent()->send();
+        Notification::make()->title(__('admin.subscriptions.notifications.failed'))->body(AdminErrors::for('subscriptions', $e))->danger()->persistent()->send();
     }
 
     /** @return array<int, string> */

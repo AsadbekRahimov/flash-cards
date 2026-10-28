@@ -33,7 +33,7 @@ final class SubscriptionException extends BillingException
 
     public static function planNotGrantable(string $plan): self
     {
-        return new self(self::PLAN_NOT_GRANTABLE, "Plan [{$plan}] cannot be granted as a subscription.");
+        return new self(self::PLAN_NOT_GRANTABLE, "Plan [{$plan}] cannot be granted as a subscription.", ['plan' => $plan]);
     }
 
     public static function untilInPast(): self
@@ -43,27 +43,27 @@ final class SubscriptionException extends BillingException
 
     public static function subscriberNotFound(string $type, int $id): self
     {
-        return new self(self::SUBSCRIBER_NOT_FOUND, "Subscriber {$type}#{$id} does not exist.");
+        return new self(self::SUBSCRIBER_NOT_FOUND, "Subscriber {$type}#{$id} does not exist.", ['type' => $type, 'id' => $id]);
     }
 
     public static function notLive(int $subscriptionId): self
     {
-        return new self(self::NOT_LIVE, "Subscription #{$subscriptionId} is not live and cannot be revoked.");
+        return new self(self::NOT_LIVE, "Subscription #{$subscriptionId} is not live and cannot be revoked.", ['id' => $subscriptionId]);
     }
 
     public static function notCancelable(int $subscriptionId, string $why): self
     {
-        return new self(self::NOT_CANCELABLE, "Subscription #{$subscriptionId} cannot be canceled: {$why}.");
+        return new self(self::NOT_CANCELABLE, "Subscription #{$subscriptionId} cannot be canceled: {$why}.", ['id' => $subscriptionId]);
     }
 
     public static function notResumable(int $subscriptionId, string $why): self
     {
-        return new self(self::NOT_RESUMABLE, "Subscription #{$subscriptionId} cannot be resumed: {$why}.");
+        return new self(self::NOT_RESUMABLE, "Subscription #{$subscriptionId} cannot be resumed: {$why}.", ['id' => $subscriptionId]);
     }
 
     public static function tierUnknown(string $tier): self
     {
-        return new self(self::TIER_UNKNOWN, "Unknown organization tier [{$tier}].");
+        return new self(self::TIER_UNKNOWN, "Unknown organization tier [{$tier}].", ['tier' => $tier]);
     }
 
     public function httpStatus(): int
