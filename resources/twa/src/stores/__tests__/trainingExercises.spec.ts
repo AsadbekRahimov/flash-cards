@@ -150,6 +150,38 @@ describe('training store — exercises', () => {
     expect(store.verdict).toBeNull()
   })
 
+  it('counts every card the server serves, the same word again included', async () => {
+    const store = await startWith(card({}))
+    expect(store.serveSeq).toBe(1)
+
+    // A failed learning card served ahead at once: the same word_id, a new serve.
+    vi.mocked(api.training.review).mockResolvedValue(reviewed({ card: card({ serve_token: 'ticket-2', card_kind: 'learning' }) }))
+    await store.submitReview(2)
+    expect(store.card?.word_id).toBe(7)
+    expect(store.serveSeq).toBe(2)
+
+    // The card of a verdict counts when the learner moves on to it, not when the review answers.
+    const typed = await startWith(spelling)
+    const before = typed.serveSeq
+    vi.mocked(api.training.answer).mockResolvedValue(
+      reviewed({ graded: { quality: 5, correct: true, expected: 'resilient' }, card: card({ word_id: 9 }) }),
+    )
+    await typed.submitAnswer('resilient')
+    expect(typed.serveSeq).toBe(before)
+    typed.continueAfterVerdict()
+    expect(typed.serveSeq).toBe(before + 1)
+  })
+
+  it('does not count the end of the session as a serve', async () => {
+    const store = await startWith(card({}))
+    vi.mocked(api.training.review).mockResolvedValue(reviewed({ card: null, done_reason: 'lesson_complete' }))
+
+    await store.submitReview(4)
+
+    expect(store.status).toBe('finished')
+    expect(store.serveSeq).toBe(1)
+  })
+
   it('resets the verdict with the session', async () => {
     const store = await startWith(spelling)
     vi.mocked(api.training.answer).mockResolvedValueOnce(reviewed({ graded: { quality: 5, correct: true, expected: 'resilient' } }))

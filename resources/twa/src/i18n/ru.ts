@@ -139,10 +139,11 @@ export const ru = {
   'card.grade_prompt': 'Насколько хорошо вы помните слово?',
 
   // ---- training ----
-  'training.lesson_header': 'Stage {stage} · Lesson {lesson}',
+  'training.lesson_header': 'Модуль {stage} · Урок {lesson}',
   'training.daily_header': 'Повторение',
-  'training.closed_title': '🔒 Тренировка завершена',
+  'training.closed_title': 'Тренировка завершена',
   'training.restart': 'Начать заново',
+  'training.lesson_header_no_stage': 'Урок {lesson}',
 
   // ---- exercises (docs/13 §2.5) ----
   'exercise.reverse.title': 'Выберите английское слово',

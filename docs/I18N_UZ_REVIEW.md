@@ -175,8 +175,8 @@
 | `card.grade.hard` | Eslay olmadim | Не помню |
 | `card.grade.medium` | Esladim | Помню |
 | `card.grade.easy` | Oson | Легко |
-| `training.lesson_header` | Stage {stage} · Lesson {lesson} | Stage {stage} · Lesson {lesson} |
-| `training.closed_title` | 🔒 Mashg'ulot o'qituvchi tomonidan yakunlandi | 🔒 Тренировка завершена учителем |
+| `training.lesson_header` | {stage}-modul · {lesson}-dars | Модуль {stage} · Урок {lesson} |
+| `training.closed_title` | Mashg'ulot yakunlandi | Тренировка завершена |
 | `exam.closed_title` | 🔒 Imtihon o'qituvchi tomonidan yakunlandi | 🔒 Экзамен завершён учителем |
 | `result.title` | Imtihon natijalari | Итоги экзамена |
 | `result.your_score` | Sizning natijangiz | Твой результат |
@@ -1737,7 +1737,7 @@
 ## Редизайн 2026-10-28 · 17.3 тренировка и экзамен — на проверку носителю
 
 > Проверить: оценки карточки «Eslay olmadim» / «Esladim» / «Oson» (термины по docs/14 §8: Не помню · Помню · Легко) и подписи под ними — что произойдёт с карточкой дальше; «{stage}-modul · {lesson}-dars» в шапке занятия; заголовки вердикта «To'g'ri!» / «Deyarli!» / «Noto'g'ri» и подпись «To'g'ri javob» (теперь правильный ответ показывается отдельной строкой, а не внутри заголовка); подсказка к кнопке прослушивания.
-> Изменённые в этом разделе экранов ключи (`card.grade.hard`, `card.grade.medium`, `exercise.reverse.title`, `exercise.verdict.close`, `exercise.verdict.wrong`) обновлены в своих прежних строках выше; без эмодзи в заголовках «закрыто» — замок и часы теперь иконки.
+> Изменённые в этом разделе экранов ключи (`card.grade.hard`, `card.grade.medium`, `training.lesson_header`, `training.closed_title`, `exercise.reverse.title`, `exercise.verdict.close`, `exercise.verdict.wrong`) обновлены в своих прежних строках выше; без эмодзи в заголовках «закрыто» — замок и часы теперь иконки.
 
 ### TWA, тренировка: оценки карточки, упражнения, вердикт (`resources/twa/src/i18n/uz.ts`)
 
@@ -1747,5 +1747,6 @@
 | `card.grade.medium_hint` | jadval bo'yicha | по расписанию |
 | `card.grade.easy_hint` | kamroq ko'rsatamiz | покажем реже |
 | `card.grade_prompt` | So'zni qanchalik yaxshi eslaysiz? | Насколько хорошо вы помните слово? |
+| `training.lesson_header_no_stage` | {lesson}-dars | Урок {lesson} |
 | `exercise.audio.replay_hint` | Yana tinglash uchun bosing | Нажмите, чтобы послушать ещё раз |
 | `exercise.verdict.expected` | To'g'ri javob | Правильный ответ |

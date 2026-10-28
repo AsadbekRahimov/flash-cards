@@ -46,6 +46,12 @@ interface TrainingState {
   lesson: LessonHeader | null
   totalWords: number
   card: Card | null
+  /**
+   * Grows with every card the server serves. The same word can come back at once (a failed learning card is served
+   * ahead when nothing else is left), so the screen keys the exercise by this number, not by `word_id`: a new serve
+   * is always a fresh component, with no pick left over from the previous one.
+   */
+  serveSeq: number
   showTranslation: boolean
   cardShownAt: number       // epoch ms of when the card was rendered
   progress: Progress
@@ -83,6 +89,7 @@ export const useTrainingStore = defineStore('training', {
     lesson: null,
     totalWords: 0,
     card: null,
+    serveSeq: 0,
     showTranslation: false,
     cardShownAt: 0,
     progress: { done: 0, total: 0 },
@@ -301,6 +308,7 @@ export const useTrainingStore = defineStore('training', {
       }
 
       this.card = card
+      this.serveSeq += 1
       this.cardShownAt = Date.now()
       this.status = 'ready'
     },

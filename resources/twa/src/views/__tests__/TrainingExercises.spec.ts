@@ -189,6 +189,36 @@ describe('TrainingView — exercises', () => {
     expect(api.training.review).toHaveBeenCalledTimes(1)
   })
 
+  it('the same word served again at once starts a fresh exercise, not the answered one', async () => {
+    // A failed learning card is the only one left: the server serves it ahead, with a new ticket.
+    vi.mocked(api.training.review).mockResolvedValue({
+      next_review_at: null,
+      new_interval_days: 0,
+      easiness_factor: 2.5,
+      graded: null,
+      card: card(prompts.reverse, { serve_token: 'ticket-2', card_kind: 'learning' }),
+      progress: { done: 1, total: 3 },
+    })
+    const { wrapper } = await render(card(prompts.reverse))
+    await wrapper.get('[data-testid=option-2]').trigger('click')
+    expect(wrapper.get('[data-testid=option-2]').attributes('data-state')).toBe('incorrect')
+
+    await wrapper.get('[data-testid=continue-btn]').trigger('click')
+    await flushPromises()
+
+    // Same word_id, new serve: every option is open for a new pick again, and there is nothing left to confirm.
+    expect(useTrainingStore().card?.word_id).toBe(7)
+    for (const i of [0, 1, 2, 3]) {
+      expect(wrapper.get(`[data-testid=option-${i}]`).attributes('data-state')).toBe('idle')
+      expect(wrapper.get(`[data-testid=option-${i}]`).attributes('disabled')).toBeUndefined()
+    }
+    expect(wrapper.find('[data-testid=continue-btn]').exists()).toBe(false)
+
+    vi.mocked(api.training.review).mockClear()
+    await wrapper.get('[data-testid=option-1]').trigger('click')
+    expect(wrapper.get('[data-testid=option-1]').attributes('data-state')).toBe('correct')
+  })
+
   it('a typed answer shows the verdict, then "Next" reveals the card the review answered with', async () => {
     vi.mocked(api.training.answer).mockResolvedValue({
       next_review_at: null,

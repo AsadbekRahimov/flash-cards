@@ -123,10 +123,11 @@ export const uz: Translations = {
   'card.grade_prompt': "So'zni qanchalik yaxshi eslaysiz?",
 
   // ---- training ----
-  'training.lesson_header': 'Stage {stage} · Lesson {lesson}',
+  'training.lesson_header': '{stage}-modul · {lesson}-dars',
   'training.daily_header': 'Takrorlash',
-  'training.closed_title': "🔒 Mashg'ulot yakunlandi",
+  'training.closed_title': "Mashg'ulot yakunlandi",
   'training.restart': 'Qaytadan boshlash',
+  'training.lesson_header_no_stage': '{lesson}-dars',
 
   // ---- exercises (docs/13 §2.5) ----
   'exercise.reverse.title': "Inglizcha so'zni tanlang",
