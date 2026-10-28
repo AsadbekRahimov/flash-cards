@@ -291,7 +291,7 @@ export const uz: Translations = {
   'course.learn': "O'rganish",
   'course.no_lessons': "Kursda hali darslar yo'q.",
   'catalog.hint': "Kunlik mashg'ulot uchun yangi so'zlar asosiy kursdan olinadi",
-  'course.continue': 'Davom etish: {number}-dars',
+  'course.continue': 'Davom etish: {stage}-modul, {number}-dars',
   'course.all_done': 'Kursning barcha darslari tugallandi',
   'course.choose_hint': "Kunlik mashg'ulotdagi yangi so'zlar shu kursdan bo'ladi",
   'course.lesson_words': "{total} ta so'zdan {done} tasi",

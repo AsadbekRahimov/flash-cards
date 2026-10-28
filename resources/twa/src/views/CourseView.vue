@@ -20,8 +20,8 @@ import { useI18n } from '@/i18n'
 import type { CourseLesson } from '@/api/types'
 
 /**
- * One course (docs/14 §6.5): the heading with the progress, the main action ("Continue: lesson N" in the main
- * course, "Make main" in any other), the IELTS / SAT mock for Pro, and the modules with their lessons and
+ * One course (docs/14 §6.5): the heading with the progress, the main action ("Continue: module M, lesson N" in the
+ * main course, "Make main" in any other), the IELTS / SAT mock for Pro, and the modules with their lessons and
  * statuses. "Back" is the system button (-> the catalog).
  */
 
@@ -151,7 +151,7 @@ onBeforeUnmount(() => {
           data-testid="continue-btn"
           @click="learn(nextLesson.id)"
         >
-          {{ t('course.continue', { number: nextLesson.number }) }}
+          {{ t('course.continue', { stage: nextLesson.stage, number: nextLesson.number }) }}
         </button>
         <p
           v-else-if="allLessonsDone"

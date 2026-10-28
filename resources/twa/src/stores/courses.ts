@@ -5,6 +5,9 @@ import type { Course, CourseDetail, CourseLesson } from '@/api/types'
 
 export type CatalogStatus = 'idle' | 'loading' | 'ready' | 'error'
 
+/** A lesson of the open course with the number of its module: lesson numbers restart in every module. */
+export type LessonInModule = CourseLesson & { stage: number }
+
 interface CoursesState {
   courses: Course[]
   detail: CourseDetail | null
@@ -34,12 +37,13 @@ export const useCoursesStore = defineStore('courses', {
   getters: {
     /**
      * The first lesson of the open course that still has words to learn, in the order of the modules and of
-     * the lessons in them: the target of "Continue: lesson N". An empty lesson (no words) is never the target.
+     * the lessons in them: the target of "Continue: module M, lesson N" (`stage` is the module's number, `number`
+     * the lesson's own). An empty lesson (no words) is never the target.
      */
-    nextLesson: (s): CourseLesson | null => {
+    nextLesson: (s): LessonInModule | null => {
       for (const stage of s.detail?.stages ?? []) {
         const lesson = stage.lessons.find((l) => l.progress.done < l.progress.total)
-        if (lesson) return lesson
+        if (lesson) return { ...lesson, stage: stage.number }
       }
       return null
     },

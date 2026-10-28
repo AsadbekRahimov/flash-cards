@@ -158,6 +158,17 @@ describe('courses store — next lesson ("Continue: lesson N")', () => {
     expect(store.allLessonsDone).toBe(false)
   })
 
+  it('carries the number of its module, because the lesson numbers restart in every module', () => {
+    const store = storeWith([
+      stage(1, [lesson(11, 1, 3, 3), lesson(12, 2, 3, 3)]),
+      stage(2, [lesson(21, 1, 3, 3), lesson(22, 2, 0, 3)]),
+    ])
+
+    expect(store.nextLesson).toMatchObject({ id: 22, stage: 2, number: 2 })
+    // The lesson of the course itself is not touched.
+    expect(store.detail?.stages[1]?.lessons[1]).not.toHaveProperty('stage')
+  })
+
   it('goes through the modules in order', () => {
     const store = storeWith([
       stage(1, [lesson(11, 1, 3, 3), lesson(12, 2, 3, 3)]),

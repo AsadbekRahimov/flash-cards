@@ -313,7 +313,7 @@ export const ru = {
   'course.learn': 'Учить',
   'course.no_lessons': 'В курсе пока нет уроков.',
   'catalog.hint': 'Новые слова для ежедневного занятия берутся из основного курса',
-  'course.continue': 'Продолжить: урок {number}',
+  'course.continue': 'Продолжить: модуль {stage}, урок {number}',
   'course.all_done': 'Все уроки курса пройдены',
   'course.choose_hint': 'Новые слова в ежедневном занятии будут из этого курса',
   'course.lesson_words': '{done} из {total} слов',

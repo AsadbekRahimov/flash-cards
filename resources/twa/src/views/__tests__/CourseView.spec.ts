@@ -208,7 +208,7 @@ describe('CourseView', () => {
       const badge = wrapper.get('[data-testid=active-badge]')
       expect(badge.text()).toBe('Основной курс')
       expect(badge.classes()).toEqual(expect.arrayContaining(['chip', 'chip-success']))
-      expect(wrapper.get('[data-testid=continue-btn]').text()).toBe('Продолжить: урок 1')
+      expect(wrapper.get('[data-testid=continue-btn]').text()).toBe('Продолжить: модуль 1, урок 1')
     })
 
     it('disables the button while the selection is in flight', async () => {
@@ -241,7 +241,7 @@ describe('CourseView', () => {
   })
 
   describe('main action in the main course', () => {
-    it('shows the chip and "Продолжить: урок N" for the first unfinished lesson', async () => {
+    it('shows the chip and "Продолжить: модуль M, урок N" for the first unfinished lesson', async () => {
       vi.mocked(api.courses.get).mockResolvedValue(detail({
         is_active: true,
         stages: [stage(1, [lesson(11, 1, 3, 3, 'Greetings'), lesson(12, 2, 1, 4, 'Food'), lesson(13, 3, 0, 4)])],
@@ -251,7 +251,7 @@ describe('CourseView', () => {
 
       expect(wrapper.get('[data-testid=active-badge]').text()).toBe('Основной курс')
       const next = wrapper.get('[data-testid=continue-btn]')
-      expect(next.text()).toBe('Продолжить: урок 2')
+      expect(next.text()).toBe('Продолжить: модуль 1, урок 2')
       expect(next.classes()).toEqual(expect.arrayContaining(['btn', 'btn-primary', 'btn-lg', 'btn-block']))
       expect(wrapper.find('[data-testid=choose-btn]').exists()).toBe(false)
       expect(wrapper.find('[data-testid=choose-hint]').exists()).toBe(false)
@@ -286,8 +286,8 @@ describe('CourseView', () => {
 
       const { wrapper } = await render()
 
-      // The number is the lesson's own (it restarts in every module), the target is lesson 22.
-      expect(wrapper.get('[data-testid=continue-btn]').text()).toBe('Продолжить: урок 2')
+      // The lesson number restarts in every module, so the label names the module too: the target is lesson 22.
+      expect(wrapper.get('[data-testid=continue-btn]').text()).toBe('Продолжить: модуль 2, урок 2')
       await wrapper.get('[data-testid=continue-btn]').trigger('click')
       await flushPromises()
       expect(api.training.open).toHaveBeenCalledWith({ mode: 'lesson', lesson_id: 22, source: 'picker' })
@@ -677,7 +677,7 @@ describe('CourseView', () => {
     expect(main.wrapper.get('[data-testid=mock-exam]').get('h2').text()).toBe('Sinov testi')
     expect(main.wrapper.get('[data-testid=mock-exam-btn]').text()).toBe('Testni boshlash')
     expect(main.wrapper.get('[data-testid=active-badge]').text()).toBe('Asosiy kurs')
-    expect(main.wrapper.get('[data-testid=continue-btn]').text()).toBe('Davom etish: 1-dars')
+    expect(main.wrapper.get('[data-testid=continue-btn]').text()).toBe('Davom etish: 1-modul, 1-dars')
 
     vi.mocked(api.courses.get).mockResolvedValue(detail({
       is_active: true,

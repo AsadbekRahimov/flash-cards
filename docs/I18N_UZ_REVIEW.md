@@ -1762,7 +1762,7 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `catalog.hint` | Kunlik mashg'ulot uchun yangi so'zlar asosiy kursdan olinadi | Новые слова для ежедневного занятия берутся из основного курса |
-| `course.continue` | Davom etish: {number}-dars | Продолжить: урок {number} |
+| `course.continue` | Davom etish: {stage}-modul, {number}-dars | Продолжить: модуль {stage}, урок {number} |
 | `course.all_done` | Kursning barcha darslari tugallandi | Все уроки курса пройдены |
 | `course.choose_hint` | Kunlik mashg'ulotdagi yangi so'zlar shu kursdan bo'ladi | Новые слова в ежедневном занятии будут из этого курса |
 | `course.lesson_words` | {total} ta so'zdan {done} tasi | {done} из {total} слов |
