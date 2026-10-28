@@ -312,7 +312,7 @@ describe('TodayView', () => {
 
       expect(w.findAll('[data-testid=assignment]')).toHaveLength(2)
       expect(w.findAll('[data-testid=assignment-title]')[0].text()).toBe('Food')
-      expect(w.findAll('[data-testid=assignment-progress]')[0].text()).toBe('Пройдено 40% слов урока')
+      expect(w.findAll('[data-testid=assignment-progress]')[0].text()).toBe('40%')
       expect(w.findAll('[data-testid=assignment-done]')[0].text()).toBe('Выполнено с опозданием')
       // A completed assignment has no button.
       expect(w.findAll('[data-testid=assignment-btn]')).toHaveLength(1)

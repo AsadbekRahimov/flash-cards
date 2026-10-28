@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
+import { formatDate } from '@/composables/format'
 import { useBillingStore } from '@/stores/billing'
 import { useI18n } from '@/i18n'
 
@@ -33,11 +35,7 @@ const dismissedAt = ref(readDismissed())
 const lapsed = computed(() => (billing.entitlement?.plan === 'free' ? (billing.entitlement.lapsed ?? null) : null))
 const visible = computed(() => ready.value && lapsed.value !== null && lapsed.value.ended_at !== dismissedAt.value)
 
-const dateText = computed(() =>
-  lapsed.value
-    ? new Intl.DateTimeFormat(locale.value, { day: 'numeric', month: 'long' }).format(new Date(lapsed.value.ended_at))
-    : '',
-)
+const dateText = computed(() => (lapsed.value ? formatDate(lapsed.value.ended_at, 'dayMonth', locale.value) : ''))
 
 function dismiss(): void {
   if (!lapsed.value) return
@@ -57,18 +55,28 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div v-if="visible" class="card space-y-3" role="status" data-testid="lapsed-banner">
-    <div class="flex items-start justify-between gap-3">
-      <div class="space-y-1">
-        <p class="font-semibold" data-testid="lapsed-title">{{ t('lapsed.title') }}</p>
-        <p class="text-sm text-tg-hint" data-testid="lapsed-text">{{ t('lapsed.text', { date: dateText }) }}</p>
+  <section v-if="visible" class="card space-y-3" role="status" data-testid="lapsed-banner">
+    <div class="flex items-start gap-3">
+      <span class="icon-tile size-10 rounded-xl bg-warning"><AppIcon name="clock" :size="22" /></span>
+      <div class="min-w-0 flex-1">
+        <p class="text-[17px] leading-[22px] font-semibold" data-testid="lapsed-title">{{ t('lapsed.title') }}</p>
+        <p class="mt-0.5 text-[15px] leading-5 text-tg-subtitle" data-testid="lapsed-text">
+          {{ t('lapsed.text', { date: dateText }) }}
+        </p>
       </div>
-      <button type="button" class="text-tg-hint text-lg leading-none" :aria-label="t('lapsed.dismiss')" data-testid="lapsed-dismiss" @click="dismiss()">
-        ×
+      <!-- 44 px target; the negative margins keep the glyph in the corner of the card padding. -->
+      <button
+        type="button"
+        class="-mt-3 -mr-3 flex size-11 shrink-0 items-center justify-center rounded-full text-tg-hint active:bg-track"
+        :aria-label="t('lapsed.dismiss')"
+        data-testid="lapsed-dismiss"
+        @click="dismiss()"
+      >
+        <AppIcon name="x-mark" :size="20" />
       </button>
     </div>
-    <button type="button" class="btn btn-primary w-full" data-testid="lapsed-renew" @click="emit('renew')">
+    <button type="button" class="btn btn-primary btn-block" data-testid="lapsed-renew" @click="emit('renew')">
       {{ t('lapsed.renew') }}
     </button>
-  </div>
+  </section>
 </template>

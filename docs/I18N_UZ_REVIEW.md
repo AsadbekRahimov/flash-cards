@@ -1286,8 +1286,8 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `assignments.title` | Markaz vazifalari | Задания центра |
-| `assignments.lesson` | {stage}-bosqich, {lesson}-dars | Этап {stage}, урок {lesson} |
-| `assignments.due` | Muddat: {date} | Срок: {date} |
+| `assignments.lesson` | {stage}-modul, {lesson}-dars | Модуль {stage}, урок {lesson} |
+| `assignments.due` | {date} gacha | до {date} |
 | `assignments.overdue` | Muddat o'tgan: {date} | Срок прошёл: {date} |
 | `assignments.progress` | Dars so'zlarining {pct}% i o'tildi | Пройдено {pct}% слов урока |
 | `assignments.start` | Boshlash | Начать |
