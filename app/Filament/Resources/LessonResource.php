@@ -8,6 +8,7 @@ use App\Domain\Administration\Services\PanelDataScope;
 use App\Filament\Resources\LessonResource\Pages;
 use App\Filament\Resources\LessonResource\RelationManagers\WordsRelationManager;
 use App\Models\Lesson;
+use App\Models\Stage;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Resources\Pages\PageRegistration;
@@ -61,6 +62,9 @@ class LessonResource extends Resource
             Forms\Components\Select::make('stage_id')
                 ->label(__('admin.lessons.fields.stage'))
                 ->relationship('stage', 'title')
+                // A module without a title is offered as "Модуль N" and found by its number: a LIKE on the title never matches NULL.
+                ->getOptionLabelFromRecordUsing(fn (Stage $record): string => StageResource::displayTitle($record))
+                ->getSearchResultsUsing(fn (string $search): array => StageResource::searchOptions($search))
                 ->required()
                 ->searchable()
                 // Moving a lesson to a stage of another course would leave words_count stale.
@@ -74,14 +78,19 @@ class LessonResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('stage.title')->label(__('admin.lessons.fields.stage'))->sortable(),
+                Tables\Columns\TextColumn::make('stage.title')
+                    ->label(__('admin.lessons.fields.stage'))
+                    ->sortable()
+                    ->default(fn (Lesson $record): string => StageResource::displayTitle($record->stage)),
                 Tables\Columns\TextColumn::make('number')->label(__('admin.lessons.fields.number'))->sortable(),
                 Tables\Columns\TextColumn::make('title')->label(__('admin.lessons.fields.title'))->searchable(),
                 Tables\Columns\TextColumn::make('words_count')->counts('words')->label(__('admin.lessons.columns.words_count')),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('stage_id')
-                    ->relationship('stage', 'title')
+                    // Only the columns the caption needs: the filter lists every module of the platform.
+                    ->relationship('stage', 'title', fn (Builder $query): Builder => $query->select(['stages.id', 'stages.number', 'stages.title'])->orderBy('stages.course_id')->orderBy('stages.number'))
+                    ->getOptionLabelFromRecordUsing(fn (Stage $record): string => StageResource::displayTitle($record))
                     ->label(__('admin.lessons.filters.stage')),
             ])
             ->emptyStateHeading(__('admin.lessons.empty'))

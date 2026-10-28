@@ -101,6 +101,10 @@ Content hierarchy: **Course → Module (stage) → Lesson → Word**. Stage numb
 The platform course `default` (created by the seeder or by the first import) receives everything that does
 not name a course.
 
+A module's **title is optional**. A module without one (the field is left empty) is shown to learners as
+**«Модуль N»** (in Uzbek **«N-modul»**) in their own language, and in the admin tables as «Модуль N» too; give it a
+title only when it is worth reading in one language for everybody (a learner who reads Uzbek sees a Russian title as it is).
+
 ### Courses (admins only)
 **Content → Courses** (Контент → Курсы) lists the catalog. A course has a unique `slug` (Latin lowercase, digits, dashes;
 it cannot be changed after creation), a **title in every language** (RU and UZ are both required),
@@ -173,6 +177,8 @@ teachers (direct link → *403*), and the importer itself refuses any user who i
   goes into the `default` course. An unknown slug rejects the whole file.
 - `translations` (optional): `ru` / `uz` texts. The Russian text may also be given as `translation` (the old
   field; if both are present they must be equal). Russian is always required. `example_translations` is optional.
+- `stage.title` (optional): the name of the module. A file without it (or with a blank one) creates a module with
+  **no name**, which learners see as «Модуль N» / «N-modul», and never changes the name an existing module already has.
 
 The old files keep working unchanged — without `course` and `translations`:
 ```json
