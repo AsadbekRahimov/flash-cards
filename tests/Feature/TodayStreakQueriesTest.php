@@ -17,6 +17,7 @@ use App\Models\Subscription;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;
+use Tests\Support\QueryLog;
 
 uses(RefreshDatabase::class);
 
@@ -138,4 +139,75 @@ it('spends a Pro learner\'s old stock on the missed day first and only then hand
 
     expect(todayStreakStored($learner))->toBe(['current' => 3, 'best' => 3, 'last' => '2026-10-20', 'freezes' => 1, 'refilled_on' => '2026-10-19'])
         ->and(LearnerDailyStats::query()->where('learner_id', $learner->id)->whereNotNull('frozen_at')->count())->toBe(1);
+});
+
+/**
+ * The statements of one GET /today. A first read warms the per-learner caches (entitlement, league week) and,
+ * for a lapsed series, burns it - what is measured is the steady state of the learner that opens the app every day.
+ *
+ * @param  (Closure(Learner): void)|null  $beforeMeasured  puts the learner back into the state under test after the warm-up
+ * @return list<string>
+ */
+function todayStreakStatements(object $test, Learner $learner, ?Closure $beforeMeasured = null): array
+{
+    todayStreakGet($test, $learner)->assertOk();
+    if ($beforeMeasured !== null) {
+        $beforeMeasured(Learner::query()->findOrFail($learner->id));
+    }
+
+    return QueryLog::during(fn () => todayStreakGet($test, $learner)->assertOk());
+}
+
+it('reads the day row, yesterday and the freeze stock once for a Free learner, whatever the series, and writes nothing', function (string $kind, int $budget): void {
+    $learner = match ($kind) {
+        'never studied' => todayStreakLearner(0, null),
+        'living series' => todayStreakLearner(3, '2026-10-20'),
+        default => todayStreakLearner(4, '2026-10-17', freezes: 2),
+    };
+
+    $queries = todayStreakStatements($this, $learner);
+
+    // Before: 15, 13 and 17 statements - the screen settled the series for a refill that Free never gets, and
+    // then read the same rows again for the goal / streak block. The `lapsed` figure is the burnt series' steady
+    // state (its range read of held days stays).
+    expect(count($queries))->toBeLessThanOrEqual($budget)
+        ->and(QueryLog::matching($queries, '/^select \* from ["`]learner_daily_stats["`] where/'))->toHaveCount(1)
+        ->and(QueryLog::matching($queries, '/^select ["`]id["`], .* from ["`]learner_daily_stats["`] where ["`]learner_id["`] = \? and ["`]date["`] = \?/'))->toHaveCount(1)
+        ->and(QueryLog::matching($queries, '/^select ["`]streak_freezes["`] from ["`]learners["`]/'))->toBe([])
+        ->and(QueryLog::matching($queries, '/^(insert|update|delete)/'))->toBe([]);
+})->with([
+    'never studied' => ['never studied', 11],
+    'living series' => ['living series', 11],
+    'lapsed series' => ['lapsed series', 12],
+]);
+
+it('writes nothing for a Pro learner whose week was handled, and shares today\'s row with the settle on the first read of the week', function (): void {
+    $handled = todayStreakLearner(3, '2026-10-20', freezes: 1, pro: true, refilledOn: '2026-10-19');
+    $steady = todayStreakStatements($this, $handled);
+
+    // Before: 12 statements, two of them UPDATEs of the week marker that matched nothing.
+    expect(count($steady))->toBeLessThanOrEqual(10)
+        ->and(QueryLog::matching($steady, '/^(insert|update|delete)/'))->toBe([])
+        ->and(QueryLog::matching($steady, '/^select \* from ["`]learner_daily_stats["`] where/'))->toHaveCount(1);
+
+    $monday = todayStreakLearner(3, '2026-10-20', freezes: 1, pro: true, refilledOn: '2026-10-12');
+    $first = todayStreakStatements($this, $monday, fn (Learner $l) => $l->forceFill(['streak_freezes' => 1, 'streak_freezes_refilled_on' => '2026-10-12'])->save());
+
+    // Before: 14 statements - today's row was read for the settle and again for the goal block.
+    expect(count($first))->toBeLessThanOrEqual(13)
+        ->and(QueryLog::matching($first, '/^select \* from ["`]learner_daily_stats["`] where/'))->toHaveCount(1)
+        ->and(QueryLog::matching($first, '/^update ["`]learners["`] set ["`]streak_freezes["`] = ["`]streak_freezes["`] \+ 1/'))->toHaveCount(1)
+        ->and(todayStreakStored($monday)['freezes'])->toBe(2);
+});
+
+it('settles a Free learner\'s series exactly once: the state is the one two reads would have left', function (): void {
+    $learner = todayStreakLearner(4, '2026-10-17', freezes: 2);
+
+    $first = todayStreakGet($this, $learner)->assertOk()->json('streak');
+    $stored = todayStreakStored($learner);
+    $second = todayStreakGet($this, $learner)->assertOk()->json('streak');
+
+    expect($first)->toBe($second)
+        ->and(todayStreakStored($learner))->toBe($stored)
+        ->and($stored)->toBe(['current' => 0, 'best' => 4, 'last' => '2026-10-17', 'freezes' => 2, 'refilled_on' => null]);
 });
