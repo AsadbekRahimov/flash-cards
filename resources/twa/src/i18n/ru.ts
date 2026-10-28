@@ -297,6 +297,8 @@ export const ru = {
   'billing.period.label': 'Срок оплаты',
   'billing.pay_method': 'Способ оплаты',
   'billing.offer_chip': '−{pct}%',
+  'billing.grace': 'Telegram не смог списать Stars за продление. Пополните баланс Stars — Telegram повторит списание.',
+  'billing.grace_until': 'Pro действует до {date}',
 
   // ---- course catalog ----
   'catalog.title': 'Курсы',

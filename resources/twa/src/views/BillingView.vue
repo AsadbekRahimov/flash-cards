@@ -9,7 +9,7 @@ import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import ProBenefits from '@/components/ui/ProBenefits.vue'
-import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice } from '@/composables/billingFormat'
+import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice, graceText, inStarsGrace } from '@/composables/billingFormat'
 import { formatDate } from '@/composables/format'
 import { supportContactLink } from '@/composables/supportContact'
 import { useBackButton } from '@/composables/useBackButton'
@@ -26,6 +26,9 @@ import type { BillingProviderKey, MeResponse } from '@/api/types'
  * with its cancel / resume buttons, the discount offer, "Buy / Renew" which opens the purchase paywall, the promo
  * code (moved here from the end-of-session screen) and the support contact. The history of payments is task 2A.7.
  * A page of the Profile tab: the system "Back" button leads to the Profile.
+ *
+ * "Buy / Renew" is there only when there is something to buy: not while the Stars renewal runs or is in grace (the
+ * server refuses a payment then — the grace gets a warning instead) and not for a perpetual grant.
  */
 const auth = useAuthStore()
 const billing = useBillingStore()
@@ -56,8 +59,12 @@ const lapsed = computed(() => !isPro.value && (entitlement.value?.lapsed ?? null
 const sponsored = computed(() => isPro.value && renewal.value === null && entitlement.value?.source.startsWith('sponsor:') === true)
 const support = computed(() => supportContactLink(billing.paywall?.contact))
 
-/** Stars renew by themselves and a perpetual grant has an end of nothing: there is nothing to buy then. */
-const canBuy = computed(() => billing.canPurchase && !subscription.value?.auto_renew && !subscription.value?.perpetual)
+/** The Stars renewal charge failed and Telegram retries it: Pro lives on, but any payment is refused (checkout_conflict). */
+const grace = computed(() => inStarsGrace(subscription.value))
+const graceMessage = computed(() => graceText(subscription.value?.ends_at ?? entitlement.value?.until ?? null, locale.value))
+
+/** Stars renew by themselves (or are in grace) and a perpetual grant has an end of nothing: there is nothing to buy then. */
+const canBuy = computed(() => billing.canPurchase && !subscription.value?.auto_renew && !subscription.value?.perpetual && !grace.value)
 
 const untilText = computed(() => {
   const until = renewal.value?.ends_at ?? entitlement.value?.until ?? null
@@ -185,6 +192,8 @@ onMounted(() => {
           </div>
         </div>
       </section>
+
+      <InlineAlert v-if="grace" tone="warning" :message="graceMessage" data-testid="grace-alert" />
 
       <section class="card space-y-3" data-testid="benefits-card">
         <h2 class="text-[17px] leading-[22px] font-semibold" data-testid="benefits-title">

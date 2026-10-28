@@ -441,6 +441,48 @@ describe('PaywallSheet in purchase mode', () => {
     expect(w.get('[data-testid=purchase-renewing]').find('svg').exists()).toBe(true)
   })
 
+  it('does not sell while a Stars renewal is in grace: the server refuses every payment, so the sheet says what to do instead', async () => {
+    vi.mocked(api.billing.catalog).mockResolvedValue(catalog({
+      subscription: { status: 'past_due', provider: 'telegram_stars', plan: 'pro', ends_at: '2026-11-03T12:00:00+00:00', auto_renew: false, can_cancel: false, can_resume: false, perpetual: false },
+    }))
+    const w = await render()
+
+    expect(w.find('[data-testid=pay-telegram_stars]').exists()).toBe(false)
+    expect(w.find('[data-testid=pay-payme]').exists()).toBe(false)
+    expect(w.find('[data-testid=pay-method]').exists()).toBe(false)
+    const grace = w.get('[data-testid=purchase-grace]')
+    expect(grace.text()).toBe(
+      'Telegram не смог списать Stars за продление. Пополните баланс Stars — Telegram повторит списание. Pro действует до 3 ноября 2026 г.',
+    )
+    expect(grace.attributes('role')).toBe('status')
+    expect(grace.classes()).toContain('text-warning-ink')
+    expect(grace.find('svg').exists()).toBe(true)
+  })
+
+  it('says the grace in Uzbek and keeps the other buttons of the sheet', async () => {
+    setLocale('uz')
+    useTodayStore().data = { due_count: 5 } as never
+    vi.mocked(api.billing.catalog).mockResolvedValue(catalog({
+      subscription: { status: 'past_due', provider: 'telegram_stars', plan: 'pro', ends_at: '2026-11-03T12:00:00+00:00', auto_renew: false, can_cancel: false, can_resume: false, perpetual: false },
+    }))
+    const w = await render()
+
+    expect(w.get('[data-testid=purchase-grace]').text()).toContain("Stars balansini to'ldiring")
+    expect(w.find('[data-testid=pay-payme]').exists()).toBe(false)
+    expect(w.find('[data-testid=paywall-review]').exists()).toBe(true) // reviews stay free of a payment
+    expect(w.find('[data-testid=paywall-close]').exists()).toBe(true)
+  })
+
+  it('still sells over a lapsed or canceled period of another provider', async () => {
+    vi.mocked(api.billing.catalog).mockResolvedValue(catalog({
+      subscription: { status: 'canceled', provider: 'telegram_stars', plan: 'pro', ends_at: '2026-12-01T00:00:00+00:00', auto_renew: false, can_cancel: false, can_resume: true, perpetual: false },
+    }))
+    const w = await render()
+
+    expect(w.find('[data-testid=purchase-grace]').exists()).toBe(false)
+    expect(w.find('[data-testid=pay-payme]').exists()).toBe(true)
+  })
+
   it('does not sell on top of a perpetual Pro', async () => {
     vi.mocked(api.billing.catalog).mockResolvedValue(catalog({
       subscription: { status: 'active', provider: 'manual', plan: 'pro', ends_at: null, auto_renew: false, can_cancel: false, can_resume: false, perpetual: true },

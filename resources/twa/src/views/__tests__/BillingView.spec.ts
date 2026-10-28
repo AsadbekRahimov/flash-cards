@@ -406,6 +406,56 @@ describe('BillingView', () => {
     })
   })
 
+  describe('a Stars renewal in grace (past_due)', () => {
+    const ends = '2026-11-03T12:00:00+00:00'
+    const graceMe = () => me({ plan: 'pro', until: ends, renewal: { auto: false, provider: 'telegram_stars', ends_at: ends, reminder_sent: true } })
+    const graceSubscription = () => summary({ status: 'past_due', ends_at: ends, auto_renew: false, can_cancel: false, can_resume: false })
+
+    it('hides the purchase the server would refuse and says what to do instead, with the date', async () => {
+      const { wrapper } = await render(graceMe(), catalog(graceSubscription()))
+
+      expect(wrapper.find('[data-testid=buy]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=unavailable]').exists()).toBe(false)
+      const alert = wrapper.get('[data-testid=grace-alert]')
+      expect(alert.text()).toBe(
+        'Telegram не смог списать Stars за продление. Пополните баланс Stars — Telegram повторит списание. Pro действует до 3 ноября 2026 г.',
+      )
+      expect(alert.attributes('role')).toBe('status')
+      expect(alert.classes()).toContain('text-warning-ink')
+    })
+
+    it('keeps the plan card, shows no cancel or resume button, and offers no discount to pay for', async () => {
+      const withOffer = { ...offerCatalog(), subscription: graceSubscription() }
+      const { wrapper } = await render(graceMe(), withOffer)
+
+      expect(wrapper.get('[data-testid=plan-chip]').text()).toBe('Pro')
+      expect(wrapper.get('[data-testid=plan-until]').text()).toBe('Действует до 3 ноября 2026 г.')
+      expect(wrapper.find('[data-testid=renewal-card]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=offer-card]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+    })
+
+    it('has one primary button at most: none here, the promo field stays', async () => {
+      const { wrapper } = await render(graceMe(), catalog(graceSubscription()))
+
+      expect(wrapper.findAll('.btn-primary')).toHaveLength(0)
+      expect(wrapper.find('[data-testid=promo-card]').exists()).toBe(true)
+    })
+
+    it('says it in Uzbek', async () => {
+      setLocale('uz')
+      const { wrapper } = await render(graceMe(), catalog(graceSubscription()))
+
+      expect(wrapper.get('[data-testid=grace-alert]').text()).toContain("Telegram yangilash uchun Stars'ni yecha olmadi.")
+    })
+
+    it('is not shown for a running renewal, which has its own card', async () => {
+      const { wrapper } = await render(me({ plan: 'pro', until: renewing.ends_at, renewal: renewing }), catalog(summary()))
+
+      expect(wrapper.find('[data-testid=grace-alert]').exists()).toBe(false)
+    })
+  })
+
   describe('the discount offer', () => {
     it('shows the discount: the chip, the offer text and the new price next to the struck-out list price per provider', async () => {
       const { wrapper } = await render(me(), offerCatalog())

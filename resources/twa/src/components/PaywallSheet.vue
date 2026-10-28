@@ -5,7 +5,7 @@ import AppIcon from '@/components/ui/AppIcon.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import ProBenefits from '@/components/ui/ProBenefits.vue'
 import SegmentedControl, { type SegmentOption } from '@/components/ui/SegmentedControl.vue'
-import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice, yearSavingPct } from '@/composables/billingFormat'
+import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice, graceText, inStarsGrace, yearSavingPct } from '@/composables/billingFormat'
 import { formatDate } from '@/composables/format'
 import { supportContactLink } from '@/composables/supportContact'
 import { useBillingStore } from '@/stores/billing'
@@ -36,7 +36,8 @@ export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam
  * refreshes `/me` (billing store) and `/today`.
  *
  * What the sheet says follows the plan from `/me`: the line "you are on Free: N new words a day" is for Free only (Pro
- * has `new_words_per_day: null` = no limit, which is not "unknown").
+ * has `new_words_per_day: null` = no limit, which is not "unknown"). A Stars subscription in grace (`past_due`) cannot
+ * be paid over — the server refuses it — so the pay buttons give way to the reason and the date.
  *
  * "Repeat words" (shown when the Today store knows of due cards) emits `review`: reviews are never
  * limited on Free, so the quota wall is not a dead end. The parent opens the daily_review session
@@ -105,6 +106,9 @@ const offer = computed(() => billing.catalog?.offer ?? null)
 const renewing = computed(() => billing.catalog?.subscription?.auto_renew === true)
 /** A perpetual grant leaves nothing to buy (the server refuses with already_perpetual). */
 const perpetual = computed(() => billing.catalog?.subscription?.perpetual === true)
+/** The renewal charge of Stars failed and Telegram retries it: any new payment is refused (checkout_conflict). */
+const grace = computed(() => inStarsGrace(billing.catalog?.subscription))
+const graceMessage = computed(() => graceText(billing.catalog?.subscription?.ends_at ?? billing.entitlement?.until ?? null, locale.value))
 
 const periodOptions = computed<SegmentOption[]>(() => {
   const saving = yearSavingPct(billing.catalog?.items ?? [])
@@ -261,6 +265,8 @@ onBeforeUnmount(() => {
             <AppIcon name="check-circle" solid :size="18" class="mt-px text-success" />
             <span>{{ t('billing.perpetual') }}</span>
           </p>
+
+          <InlineAlert v-else-if="grace" tone="warning" :message="graceMessage" data-testid="purchase-grace" />
 
           <div v-else class="space-y-2">
             <p class="text-[13px] leading-[18px] text-tg-hint" data-testid="pay-method">{{ t('billing.pay_method') }}</p>

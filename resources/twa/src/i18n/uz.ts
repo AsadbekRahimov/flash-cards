@@ -275,6 +275,8 @@ export const uz: Translations = {
   'billing.period.label': "To'lov muddati",
   'billing.pay_method': "To'lov usuli",
   'billing.offer_chip': '−{pct}%',
+  'billing.grace': "Telegram yangilash uchun Stars'ni yecha olmadi. Stars balansini to'ldiring — Telegram yechishni qayta urinib ko'radi.",
+  'billing.grace_until': 'Pro {date} gacha amal qiladi.',
 
   // ---- course catalog ----
   'catalog.title': 'Kurslar',

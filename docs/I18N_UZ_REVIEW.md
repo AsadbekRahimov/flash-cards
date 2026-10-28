@@ -1901,3 +1901,5 @@
 | `decks.words_up_to.other` | {count} tagacha so'z | до {count} слова |
 | `decks.limit_pro.decks` | Bu Pro tarifingizdagi chegara: {decks}. Yangi to'plam yaratish uchun keraksizini o'chiring — so'zlar arxivga o'tadi, natijangiz saqlanadi. | Это предел вашего тарифа Pro: {decks}. Чтобы создать новую колоду, удалите ненужную — слова уйдут в архив, а прогресс сохранится. |
 | `decks.limit_pro.words` | Bu Pro tarifingizdagi chegara: to'plamda {words}. Hech narsa qo'shilmadi — keraksiz so'zlarni olib tashlang yoki ro'yxatning bir qismini boshqa to'plamga qo'shing. | Это предел вашего тарифа Pro: {words} в колоде. Ничего не добавлено — уберите ненужные слова или добавьте часть списка в другую колоду. |
+| `billing.grace` | Telegram yangilash uchun Stars'ni yecha olmadi. Stars balansini to'ldiring — Telegram yechishni qayta urinib ko'radi. | Telegram не смог списать Stars за продление. Пополните баланс Stars — Telegram повторит списание. |
+| `billing.grace_until` | Pro {date} gacha amal qiladi. | Pro действует до {date} |

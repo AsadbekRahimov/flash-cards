@@ -1,5 +1,6 @@
+import { formatDate } from '@/composables/format'
 import { t } from '@/i18n'
-import type { BillingCurrency, BillingProviderKey, CatalogItem } from '@/api/types'
+import type { BillingCurrency, BillingProviderKey, CatalogItem, SubscriptionSummary } from '@/api/types'
 
 /** The currency each provider is paid in (docs/13 §2.1 `SubscriptionProvider::currency`). */
 export const PROVIDER_CURRENCY: Record<BillingProviderKey, BillingCurrency> = {
@@ -46,4 +47,19 @@ export function yearSavingPct(items: readonly CatalogItem[]): number | null {
   }
 
   return null
+}
+
+/**
+ * A Stars subscription whose renewal charge failed (`past_due`, docs/13 §0 grace): Telegram retries the charge by
+ * itself, Pro still works until the end of the grace period — and the server refuses every new payment meanwhile
+ * (`checkout_conflict`, there is also no `can_cancel`). The screens hide the buy buttons and say what to do instead.
+ */
+export function inStarsGrace(subscription: SubscriptionSummary | null | undefined): boolean {
+  return subscription?.status === 'past_due' && subscription.provider === 'telegram_stars'
+}
+
+/** "Telegram could not charge Stars for the renewal. Top up your Stars — Telegram will retry. Pro is valid until 3 Nov." */
+export function graceText(until: string | null, locale: string): string {
+  const reason = t('billing.grace')
+  return until ? `${reason} ${t('billing.grace_until', { date: formatDate(until, 'dayMonthYear', locale) })}` : reason
 }

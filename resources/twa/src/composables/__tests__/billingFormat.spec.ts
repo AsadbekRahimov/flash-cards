@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { setLocale } from '@/i18n'
-import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice, yearSavingPct } from '../billingFormat'
-import type { CatalogItem, Prices } from '@/api/types'
+import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice, graceText, inStarsGrace, yearSavingPct } from '../billingFormat'
+import type { CatalogItem, Prices, SubscriptionSummary } from '@/api/types'
 
 /** Intl groups digits with (narrow) no-break spaces. */
 const plain = (text: string) => text.replace(/[\s  ]+/g, ' ')
@@ -28,6 +28,42 @@ describe('billingFormat', () => {
   it('pays Stars in XTR and Payme / Click in UZS, Stars first', () => {
     expect(PROVIDER_CURRENCY).toEqual({ telegram_stars: 'XTR', payme: 'UZS', click: 'UZS' })
     expect(PROVIDER_ORDER).toEqual(['telegram_stars', 'payme', 'click'])
+  })
+
+  describe('the grace of a Stars subscription', () => {
+    const subscription = (overrides: Partial<SubscriptionSummary> = {}): SubscriptionSummary => ({
+      status: 'past_due', provider: 'telegram_stars', plan: 'pro', ends_at: '2026-11-03T12:00:00+00:00', auto_renew: false, can_cancel: false, can_resume: false, perpetual: false, ...overrides,
+    })
+
+    it('is a Stars subscription whose renewal charge failed (past_due): Telegram retries it, any new payment is refused', () => {
+      expect(inStarsGrace(subscription())).toBe(true)
+    })
+
+    it('is not any other state of Stars, nor another provider', () => {
+      expect(inStarsGrace(subscription({ status: 'active', auto_renew: true, can_cancel: true }))).toBe(false)
+      expect(inStarsGrace(subscription({ status: 'canceled', can_resume: true }))).toBe(false)
+      expect(inStarsGrace(subscription({ provider: 'payme' }))).toBe(false)
+      expect(inStarsGrace(null)).toBe(false)
+      expect(inStarsGrace(undefined)).toBe(false)
+    })
+
+    it('says why, what to do and until when Pro lasts', () => {
+      expect(graceText('2026-11-03T12:00:00+00:00', 'ru')).toBe(
+        'Telegram не смог списать Stars за продление. Пополните баланс Stars — Telegram повторит списание. Pro действует до 3 ноября 2026 г.',
+      )
+    })
+
+    it('says it in Uzbek', () => {
+      setLocale('uz')
+
+      expect(graceText('2026-11-03T12:00:00+00:00', 'uz')).toMatch(
+        /^Telegram yangilash uchun Stars'ni yecha olmadi\. Stars balansini to'ldiring — Telegram yechishni qayta urinib ko'radi\. Pro .*2026.* gacha amal qiladi\.$/,
+      )
+    })
+
+    it('leaves out the date it does not know', () => {
+      expect(graceText(null, 'ru')).toBe('Telegram не смог списать Stars за продление. Пополните баланс Stars — Telegram повторит списание.')
+    })
   })
 
   describe('yearSavingPct', () => {
