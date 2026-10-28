@@ -45,7 +45,10 @@ return [
 
     'pricing' => [
         'title' => 'Тарифы',
+        // `subtitle`, `soon` and `pro.note` are shown while Pro is not for sale (billing.paywall.mode = coming_soon);
+        // `subtitle_open`, `pro.price*` and `pro.note_open` once it is (LandingPricing).
         'subtitle' => 'Начните бесплатно. Платные возможности появятся позже — прогресс при этом сохранится.',
+        'subtitle_open' => 'Начните бесплатно. Pro — когда захочется больше.',
         'soon' => 'Скоро',
         'free' => [
             'name' => 'Free',
@@ -68,7 +71,10 @@ return [
                 'Заморозки серии: пропущенный день не обрывает серию',
                 'Пробные тесты IELTS и SAT',
             ],
+            'price' => 'от :price в месяц',
+            'price_stars' => 'или :price через Telegram Stars',
             'note' => 'Состав и цены Pro пока уточняются.',
+            'note_open' => 'Оформить Pro можно в боте командой /pro или в мини-приложении.',
         ],
         'centers' => [
             'name' => 'Для учебных центров',

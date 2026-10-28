@@ -1709,3 +1709,9 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `landing.pricing.pro.features.4` | IELTS va SAT sinov testlari | Пробные тесты IELTS и SAT |
+| `landing.pricing.subtitle_open` | Bepul boshlang. Pro - ko'proq istaganingizda. | Начните бесплатно. Pro — когда захочется больше. |
+| `landing.pricing.pro.price` | Boshlang'ich narx - oyiga :price | от :price в месяц |
+| `landing.pricing.pro.price_stars` | yoki Telegram Stars orqali :price | или :price через Telegram Stars |
+| `landing.pricing.pro.note_open` | Pro'ni botda /pro buyrug'i orqali yoki mini-ilovada rasmiylashtirishingiz mumkin. | Оформить Pro можно в боте командой /pro или в мини-приложении. |
+
+`landing.pricing.subtitle_open`, `pro.price*`, `pro.note_open` показываются, когда Pro уже продаётся (`BILLING_PAYWALL_MODE=purchase`, включён хотя бы один способ оплаты и задана цена); пока не продаётся — прежние `subtitle`, бейдж `soon` и `pro.note`. `:price` — готовая цена: «29 000 so'm» (так же, как `billing.currency.UZS`) или «150 ⭐». Проверить: «Boshlang'ich narx - oyiga …» (в ru «от … в месяц»; естественнее было бы «oyiga … dan», но падежное окончание нельзя приклеить к подставляемой цене, особенно к «⭐»), «rasmiylashtirishingiz mumkin» (можно оформить).

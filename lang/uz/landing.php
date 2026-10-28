@@ -45,7 +45,10 @@ return [
 
     'pricing' => [
         'title' => 'Tariflar',
+        // `subtitle`, `soon` and `pro.note` are shown while Pro is not for sale (billing.paywall.mode = coming_soon);
+        // `subtitle_open`, `pro.price*` and `pro.note_open` once it is (LandingPricing).
         'subtitle' => 'Bepul boshlang. Pullik imkoniyatlar keyinroq paydo bo\'ladi - bunda yutuqlaringiz saqlanib qoladi.',
+        'subtitle_open' => 'Bepul boshlang. Pro - ko\'proq istaganingizda.',
         'soon' => 'Tez orada',
         'free' => [
             'name' => 'Free',
@@ -68,7 +71,10 @@ return [
                 'Seriyani muzlatish: o\'tkazib yuborilgan kun seriyani uzmaydi',
                 'IELTS va SAT sinov testlari',
             ],
+            'price' => 'Boshlang\'ich narx - oyiga :price',
+            'price_stars' => 'yoki Telegram Stars orqali :price',
             'note' => 'Pro tarkibi va narxlari hozircha aniqlanmoqda.',
+            'note_open' => 'Pro\'ni botda /pro buyrug\'i orqali yoki mini-ilovada rasmiylashtirishingiz mumkin.',
         ],
         'centers' => [
             'name' => 'O\'quv markazlari uchun',

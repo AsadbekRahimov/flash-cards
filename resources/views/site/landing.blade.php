@@ -42,10 +42,12 @@
     </div>
 </section>
 
+{{-- $pricing (LandingPricing): while Pro is not for sale the section says "coming soon", once it is it shows the price. --}}
+@php($open = $pricing['salesOpen'])
 <section id="pricing" class="section">
     <div class="wrap">
         <h2>{{ __('landing.pricing.title', [], $locale) }}</h2>
-        <p class="muted">{{ __('landing.pricing.subtitle', [], $locale) }}</p>
+        <p class="muted">{{ __($open ? 'landing.pricing.subtitle_open' : 'landing.pricing.subtitle', [], $locale) }}</p>
         <div class="grid plans">
             <article class="card plan">
                 <h3>{{ __('landing.pricing.free.name', [], $locale) }}</h3>
@@ -57,15 +59,26 @@
                 </ul>
             </article>
 
-            <article class="card plan">
-                <h3>{{ __('landing.pricing.pro.name', [], $locale) }} <span class="badge">{{ __('landing.pricing.soon', [], $locale) }}</span></h3>
+            <article @class(['card', 'plan', 'plan-featured' => $open])>
+                <h3>
+                    {{ __('landing.pricing.pro.name', [], $locale) }}
+                    @unless ($open)
+                        <span class="badge">{{ __('landing.pricing.soon', [], $locale) }}</span>
+                    @endunless
+                </h3>
                 <p class="muted">{{ __('landing.pricing.pro.tagline', [], $locale) }}</p>
+                @if ($open && $pricing['price'] !== null)
+                    <p class="price">{{ __('landing.pricing.pro.price', ['price' => $pricing['price']], $locale) }}</p>
+                    @if ($pricing['starsPrice'] !== null)
+                        <p class="price-alt muted">{{ __('landing.pricing.pro.price_stars', ['price' => $pricing['starsPrice']], $locale) }}</p>
+                    @endif
+                @endif
                 <ul class="ticks">
                     @foreach (__('landing.pricing.pro.features', [], $locale) as $feature)
                         <li>{{ $feature }}</li>
                     @endforeach
                 </ul>
-                <p class="muted small">{{ __('landing.pricing.pro.note', [], $locale) }}</p>
+                <p class="muted small">{{ __($open ? 'landing.pricing.pro.note_open' : 'landing.pricing.pro.note', [], $locale) }}</p>
             </article>
 
             <article class="card plan">
