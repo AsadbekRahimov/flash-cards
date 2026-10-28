@@ -13,7 +13,8 @@ use App\Domain\Engagement\DTO\TodayLeague;
 use App\Domain\Engagement\Enums\LeagueResult;
 use App\Domain\Engagement\Enums\LeagueWeekStatus;
 use App\Domain\Engagement\Exceptions\LeagueAlreadyPlaced;
-use App\Jobs\SendLeagueResultJob;
+use App\Domain\Engagement\Exceptions\LeagueWeekNotOpen;
+use App\Jobs\SendLeagueResultsJob;
 use App\Models\LeagueGroup;
 use App\Models\LeagueMember;
 use App\Models\LeagueWeek;
@@ -36,27 +37,33 @@ use Throwable;
  *   currentWeek — the `league_weeks` row of the Monday–Sunday week that contains `$now` in the
  *                 league time zone (one boundary for everybody), created on first use;
  *   place       — joins the learner to a group of their tier in the current week: the tier is the
- *                 outcome of their last closed week (or 0); the group is the first one of the tier
+ *                 outcome of their last membership (or 0); the group is the first one of the tier
  *                 with a free seat, taken under `FOR UPDATE SKIP LOCKED` on PostgreSQL so parallel
  *                 placements spread over groups instead of queueing; when every group is full or
  *                 busy, creators serialise on an advisory lock and re-check with a waiting
  *                 `FOR UPDATE` before opening a new group. The unique `(week, learner)` makes a
- *                 repeated or parallel placement of one learner a no-op;
+ *                 repeated or parallel placement of one learner a no-op. A placement NEVER closes a
+ *                 week: when the learner's last group was not finalised yet (Monday before the close,
+ *                 a missed scheduler run) it finalises that one group ({@see closeGroup}) and no other;
  *   standings   — ONE aggregate query over `learner_daily_stats` for the dates of the week with
  *                 the weights of `config('leagues.points')`, cached `standings_cache_seconds`
- *                 (`league:standings:{group}`); a closed week reads the final columns instead;
- *   closeWeek   — one transaction under the week row lock: every group's final points / ranks /
- *                 results, then `status = closed`. A closed week returns at once, so a repeated run
- *                 (two schedulers, a retry) changes nothing and sends nothing twice. The result DMs
- *                 are queued after the commit ({@see SendLeagueResultJob}, bot-wide send budget).
+ *                 (`league:standings:{group}`); a finalised group reads the final columns instead;
+ *   closeGroup  — the unit of closing: one short transaction under the group row lock writes the
+ *                 final points / ranks / results of the whole group in ONE statement and stamps
+ *                 `league_groups.closed_at`; idempotent by that stamp;
+ *   closeWeek   — `open → closing` (the barrier: from then on nobody is seated in the week), every
+ *                 group not finalised yet in its own transaction, `closing → closed` under the week
+ *                 row lock, and — only in the one call that made that last step — the event, the
+ *                 result DMs in batches ({@see SendLeagueResultsJob}) and the winners' achievements.
+ *                 Resumable after a crash, nothing is written or sent twice by a second closer.
  *
- * Known scale limit: `closeWeek` closes ALL groups of the week in one transaction under the week row
- * lock (consistent, idempotent, simple). At tens of thousands of members it becomes a long transaction;
- * splitting by group is the way out if the week ever takes more than a few seconds.
- *
- * Nothing here runs inside the review transaction: `place` is called by DailyStatsService in a
- * `DB::afterCommit` hook and locks only `league_*` rows (docs/13 §3 rule 5). Two learners are
- * never locked in one transaction (nothing of `learners` is locked at all).
+ * Locks. A placement holds the week row `FOR SHARE` while it takes a seat and the group row
+ * `FOR UPDATE` (that order); the closer's barrier and final step hold the week row `FOR UPDATE`
+ * alone for milliseconds, its group steps hold one group row `FOR UPDATE` alone. So the barrier
+ * waits for in-flight placements (never the other way round for longer than one group's write),
+ * a seat is never taken in a `closing` week, and no cycle exists. Nothing here runs inside the
+ * review transaction: `place` is called by DailyStatsService in a `DB::afterCommit` hook and locks
+ * only `league_*` rows (docs/13 §3 rule 5); nothing of `learners` is locked at all.
  */
 final class LeagueService
 {
@@ -87,6 +94,12 @@ final class LeagueService
     public function weekStart(CarbonImmutable $now): CarbonImmutable
     {
         return $now->setTimezone($this->timezone())->startOfWeek(CarbonInterface::MONDAY);
+    }
+
+    /** The week ended: `$now` is in a later week (Monday 00:00 of the next week in the league zone has passed). */
+    public function hasEnded(LeagueWeek $week, CarbonImmutable $now): bool
+    {
+        return $week->starts_on->toDateString() < $this->weekStart($now)->toDateString();
     }
 
     /** The row of the current week, created when missing (a parallel creator's row is reused). */
@@ -134,7 +147,8 @@ final class LeagueService
 
     /**
      * Joins the learner to the current week (first activity of the week; after commit). Returns
-     * the membership, or null when the learner is not placed: leagues off, opted out, blocked.
+     * the membership, or null when the learner is not placed: leagues off, opted out, blocked, or
+     * the week is already being closed (a request that started before Monday 00:00).
      */
     public function place(Learner $learner, CarbonImmutable $now): ?LeagueMember
     {
@@ -148,16 +162,22 @@ final class LeagueService
             return $existing;
         }
 
-        // The tier comes from the last CLOSED week: a week that ended but was not closed yet (the
-        // 00:05 run has not happened, or was missed) is closed first, so its promotion / demotion counts.
-        $this->closeDue($now);
-
-        $tier = $this->tierFor($learner);
+        // The tier is the verdict of the learner's own last group. Closing the week is the scheduler's job and
+        // never happens here: if that one group was not finalised yet, it is — alone, in a few milliseconds.
+        $tier = $this->tierFor($learner, $week, $now);
         $capacity = max(1, (int) config('leagues.capacity', 30));
 
         try {
             /** @var LeagueMember $member */
             $member = DB::transaction(function () use ($learner, $week, $tier, $capacity, $now): LeagueMember {
+                // The barrier against the closer: the week row is held FOR SHARE for the rest of this transaction,
+                // so `open → closing` (an UPDATE, FOR NO KEY UPDATE) waits for us or happened before — never under us.
+                /** @var LeagueWeek|null $open */
+                $open = LeagueWeek::query()->whereKey($week->id)->sharedLock()->first();
+                if ($open === null || $open->status !== LeagueWeekStatus::Open->value) {
+                    throw new LeagueWeekNotOpen;
+                }
+
                 $group = $this->groupWithSeat($week, $tier, $capacity);
 
                 try {
@@ -186,6 +206,8 @@ final class LeagueService
             });
         } catch (LeagueAlreadyPlaced) {
             return $this->membership($learner, $week);
+        } catch (LeagueWeekNotOpen) {
+            return null;
         }
 
         $this->events->record(
@@ -208,7 +230,7 @@ final class LeagueService
         return $member;
     }
 
-    /** The learner's most recent closed membership (the one that decides the next tier), if any. */
+    /** The learner's most recent closed membership (result known), if any — what the overview shows as "last week". */
     public function lastResult(Learner $learner): ?LeagueMember
     {
         /** @var LeagueMember|null $member */
@@ -221,17 +243,42 @@ final class LeagueService
         return $member;
     }
 
-    /** Tier of the next placement: where the last closed week sent the learner, bounded to the configured tiers; 0 for a newcomer. */
-    public function tierFor(Learner $learner): int
+    /**
+     * Tier of a placement into `$week`: where the learner's most recent earlier membership sent them
+     * (bounded to the configured tiers); 0 for a newcomer. A skipped week does not reset the tier.
+     *
+     * When that membership's group was not finalised yet — its week ended, but the close has not reached
+     * the group (Monday right after midnight, a missed scheduler run) — the group, and only that group,
+     * is finalised here first, so the promotion / demotion is never lost and the verdict is exactly the
+     * one the week close will report. No week is closed, nothing waits for the closer longer than one
+     * group's write.
+     */
+    public function tierFor(Learner $learner, LeagueWeek $week, CarbonImmutable $now): int
     {
-        $last = $this->lastResult($learner);
+        $last = $this->lastMembershipBefore($learner, $week);
+        if ($last === null) {
+            return 0;
+        }
 
-        return $last === null ? 0 : max(0, min($this->topTier(), $last->tierAfter()));
+        if ($last->result === null) {
+            $group = $last->group;
+            if ($group !== null) {
+                $this->closeGroup($group, $now);
+                $last->refresh();
+            }
+        }
+
+        // No verdict (the group's week has not ended — only possible with hand-made rows): the tier is kept.
+        $next = $last->result === null ? $last->tier_before : $last->tierAfter();
+
+        return max(0, min($this->topTier(), $next));
     }
 
     /**
      * The standings of a group, best first (docs/13 §2.4). Cached for `standings_cache_seconds`
-     * while the week is open; a closed week's standings are its final columns (no cache needed).
+     * while the group is open; a finalised group's standings are its final columns (no cache needed).
+     * The week's status is read fresh; the group's own stamp is taken from the given instance — pass a
+     * freshly loaded group (as the overview does) to see a group finalised early in a week still open.
      *
      * @return Collection<int, LeagueStanding>
      */
@@ -242,7 +289,7 @@ final class LeagueService
             return new Collection;
         }
 
-        if ($week->isClosed()) {
+        if ($week->isClosed() || $group->isClosed()) {
             return $this->finalStandings($group);
         }
 
@@ -303,47 +350,53 @@ final class LeagueService
     }
 
     /**
-     * Closes a week: final points / ranks / results of every group, `status = closed`, then the
-     * result DMs. Idempotent by status — a closed week returns false and nothing is sent again.
-     * The whole write is one transaction under the week row lock, so a crash leaves the week
-     * open for the next run and two runs cannot interleave.
+     * Finalises one group of an ended week in its own short transaction: the group row is locked, the
+     * standings are computed once, every member's final points / rank / result are written in ONE
+     * statement, `closed_at` is stamped. Idempotent by the stamp: a group already finalised (by the week
+     * close, or by the placement of one of its members that needed the verdict early) is left as it is.
+     * A group of a week that has not ended yet is refused. Only the group row is locked, for milliseconds.
      *
-     * @return bool whether this call closed the week
+     * @return bool whether this call finalised the group
      */
-    public function closeWeek(LeagueWeek $week, CarbonImmutable $now): bool
+    public function closeGroup(LeagueGroup $group, CarbonImmutable $now): bool
     {
-        $memberIds = [];
-        $groupsClosed = 0;
-
-        $closed = DB::transaction(function () use ($week, $now, &$memberIds, &$groupsClosed): bool {
-            /** @var LeagueWeek|null $locked */
-            $locked = LeagueWeek::query()->whereKey($week->id)->lockForUpdate()->first();
+        return DB::transaction(function () use ($group, $now): bool {
+            /** @var LeagueGroup|null $locked */
+            $locked = LeagueGroup::query()->whereKey($group->id)->lockForUpdate()->first();
             if ($locked === null || $locked->isClosed()) {
                 return false;
             }
 
-            $locked->forceFill(['status' => LeagueWeekStatus::Closing->value])->save();
-
-            /** @var EloquentCollection<int, LeagueGroup> $groups */
-            $groups = LeagueGroup::query()->where('league_week_id', $locked->id)->orderBy('id')->get();
-            foreach ($groups as $group) {
-                foreach ($this->outcomes($group, $this->computeStandings($group, $locked)) as $memberId => [$standing, $result]) {
-                    LeagueMember::query()->whereKey($memberId)->update([
-                        'final_points' => $standing->points,
-                        'final_rank' => $standing->rank,
-                        'result' => $result->value,
-                        'updated_at' => $now,
-                    ]);
-                    $memberIds[] = $memberId;
-                }
-                $groupsClosed++;
+            $week = $locked->week;
+            if ($week === null || ! $this->hasEnded($week, $now)) {
+                return false;
             }
 
-            $locked->forceFill(['status' => LeagueWeekStatus::Closed->value, 'closed_at' => $now])->save();
-            $week->setRawAttributes($locked->getAttributes(), true);
+            $this->finalise($locked, $week, $now);
+            $group->setRawAttributes($locked->getAttributes(), true);
 
             return true;
         });
+    }
+
+    /**
+     * Closes an ended week — see the class comment for the steps. Idempotent and resumable: a second closer
+     * (the 00:05 safety run, a retry, a parallel command) finds the groups stamped and the week closed and
+     * writes or sends nothing; a crash leaves the week `closing` with some groups done, and the next run
+     * finishes the rest. A week that has not ended yet is refused: nothing happens, false.
+     *
+     * @return bool whether this call closed the week (made the `closing → closed` step)
+     */
+    public function closeWeek(LeagueWeek $week, CarbonImmutable $now): bool
+    {
+        if (! $this->hasEnded($week, $now) || ! $this->beginClosing($week)) {
+            return false;
+        }
+
+        do {
+            $this->closeRemainingGroups($week, $now);
+            $closed = $this->finishClosing($week, $now);
+        } while ($closed === null);
 
         if (! $closed) {
             return false;
@@ -352,48 +405,21 @@ final class LeagueService
         $this->events->record(ProductEventName::LeagueWeekClosed, [
             'week_id' => $week->id,
             'starts_on' => $week->starts_on->toDateString(),
-            'groups' => $groupsClosed,
-            'members' => count($memberIds),
+            'groups' => LeagueGroup::query()->where('league_week_id', $week->id)->count(),
+            'members' => LeagueMember::query()->where('league_week_id', $week->id)->count(),
         ]);
 
-        foreach ($this->reachableMemberIds($memberIds) as $memberId) {
-            SendLeagueResultJob::dispatch($memberId);
-        }
+        $this->queueResultMessages($week);
 
         // The winners of the groups get `league_top1` (docs/13 §7.4) — after the commit, once per learner
         // (the unique key), and a failure here never undoes the closed week.
         try {
-            $this->achievements->onLeagueWeekClosed($memberIds, $now);
+            $this->achievements->onLeagueWeekClosed($this->winnerIds($week), $now);
         } catch (Throwable $e) {
             report($e);
         }
 
         return true;
-    }
-
-    /**
-     * Members whose result DM is worth queueing: not banned, DM not closed, not opted out (the sender
-     * checks again at send time).
-     *
-     * @param  list<int>  $memberIds
-     * @return list<int>
-     */
-    private function reachableMemberIds(array $memberIds): array
-    {
-        $reachable = [];
-        foreach (array_chunk($memberIds, 500) as $chunk) {
-            /** @var EloquentCollection<int, LeagueMember> $members */
-            $members = LeagueMember::query()->with('learner')->whereIn('id', $chunk)->get();
-            foreach ($members as $member) {
-                $learner = $member->learner;
-                if ($learner !== null && $learner->blocked_at === null && $learner->dm_blocked_at === null && ! $this->isOptedOut($learner)) {
-                    $reachable[] = $member->id;
-                }
-            }
-        }
-        sort($reachable);
-
-        return $reachable;
     }
 
     /**
@@ -454,7 +480,220 @@ final class LeagueService
     }
 
     /**
-     * The group of the tier with a free seat, locked for this transaction, or a new one.
+     * The learner's most recent membership in a week that started before `$week` (by the week's date,
+     * not by row ids), with or without a verdict.
+     */
+    private function lastMembershipBefore(Learner $learner, LeagueWeek $week): ?LeagueMember
+    {
+        /** @var LeagueMember|null $member */
+        $member = LeagueMember::query()
+            ->join('league_weeks', 'league_weeks.id', '=', 'league_members.league_week_id')
+            ->where('league_members.learner_id', $learner->id)
+            ->where('league_weeks.starts_on', '<', $this->storedDate($week->starts_on->toDateString()))
+            ->orderByDesc('league_weeks.starts_on')
+            ->select('league_members.*')
+            ->first();
+
+        return $member;
+    }
+
+    /**
+     * The barrier: `open → closing` under the week row lock. From the commit on, no placement takes a seat
+     * in the week (it reads the status under `FOR SHARE`), so the set of groups and members is frozen for
+     * the rest of the close. A week already `closing` (a crashed run) passes; a closed one returns false.
+     */
+    private function beginClosing(LeagueWeek $week): bool
+    {
+        return DB::transaction(function () use ($week): bool {
+            /** @var LeagueWeek|null $locked */
+            $locked = LeagueWeek::query()->whereKey($week->id)->lockForUpdate()->first();
+            if ($locked === null || $locked->isClosed()) {
+                return false;
+            }
+
+            if ($locked->status === LeagueWeekStatus::Open->value) {
+                $locked->forceFill(['status' => LeagueWeekStatus::Closing->value])->save();
+            }
+            $week->setRawAttributes($locked->getAttributes(), true);
+
+            return true;
+        });
+    }
+
+    /**
+     * Finalises the groups of the week that are not stamped yet, one per transaction, oldest group first.
+     * A group busy with another finaliser (a parallel closer, a placement needing its verdict) is waited
+     * for and then found stamped — PostgreSQL re-checks `closed_at IS NULL` on the committed row and moves
+     * on to the next one — so two closers split the work instead of repeating it.
+     */
+    private function closeRemainingGroups(LeagueWeek $week, CarbonImmutable $now): void
+    {
+        do {
+            $done = DB::transaction(function () use ($week, $now): bool {
+                /** @var LeagueGroup|null $group */
+                $group = LeagueGroup::query()
+                    ->where('league_week_id', $week->id)
+                    ->whereNull('closed_at')
+                    ->orderBy('id')
+                    ->lockForUpdate()
+                    ->first();
+                if ($group === null) {
+                    return true;
+                }
+
+                $this->finalise($group, $week, $now);
+
+                return false;
+            });
+        } while (! $done);
+    }
+
+    /**
+     * `closing → closed` under the week row lock, once every group is stamped.
+     *
+     * @return bool|null true = closed by this call; false = somebody else closed it already; null = groups
+     *                   are still open (cannot happen behind the barrier; the caller loops anyway)
+     */
+    private function finishClosing(LeagueWeek $week, CarbonImmutable $now): ?bool
+    {
+        return DB::transaction(function () use ($week, $now): ?bool {
+            /** @var LeagueWeek|null $locked */
+            $locked = LeagueWeek::query()->whereKey($week->id)->lockForUpdate()->first();
+            if ($locked === null || $locked->isClosed()) {
+                return false;
+            }
+
+            if (LeagueGroup::query()->where('league_week_id', $week->id)->whereNull('closed_at')->exists()) {
+                return null;
+            }
+
+            $locked->forceFill(['status' => LeagueWeekStatus::Closed->value, 'closed_at' => $now])->save();
+            $week->setRawAttributes($locked->getAttributes(), true);
+
+            return true;
+        });
+    }
+
+    /**
+     * Inside the caller's transaction, with the group row locked: standings once, every member's final
+     * columns in one statement, the stamp.
+     */
+    private function finalise(LeagueGroup $group, LeagueWeek $week, CarbonImmutable $now): void
+    {
+        $this->writeOutcomes($this->outcomes($group, $this->computeStandings($group, $week)), $now);
+        $group->forceFill(['closed_at' => $now])->save();
+    }
+
+    /**
+     * Final points / rank / result of a whole group in ONE statement, bindings only. PostgreSQL:
+     * `UPDATE … FROM (VALUES …)` with typed parameters; sqlite (tests) has no typed VALUES list and
+     * gets the equivalent CASE form.
+     *
+     * @param  array<int, array{0: LeagueStanding, 1: LeagueResult}>  $outcomes  keyed by member id
+     */
+    private function writeOutcomes(array $outcomes, CarbonImmutable $now): void
+    {
+        if ($outcomes === []) {
+            return;
+        }
+
+        $stamp = (string) (new LeagueMember)->fromDateTime($now);
+
+        if (DB::connection()->getDriverName() === 'pgsql') {
+            $rows = [];
+            $bindings = [$stamp];
+            foreach ($outcomes as $memberId => [$standing, $result]) {
+                $rows[] = '(?::bigint, ?::integer, ?::smallint, ?::varchar)';
+                array_push($bindings, $memberId, $standing->points, $standing->rank, $result->value);
+            }
+
+            DB::update(
+                'update league_members as lm set final_points = v.final_points, final_rank = v.final_rank, '
+                .'result = v.final_result, updated_at = ? from (values '.implode(', ', $rows).') '
+                .'as v (member_id, final_points, final_rank, final_result) where lm.id = v.member_id',
+                $bindings,
+            );
+
+            return;
+        }
+
+        $branches = str_repeat(' when ? then ?', count($outcomes));
+        $bindings = [];
+        foreach (['points', 'rank', 'result'] as $column) {
+            foreach ($outcomes as $memberId => [$standing, $result]) {
+                array_push($bindings, $memberId, match ($column) {
+                    'points' => $standing->points,
+                    'rank' => $standing->rank,
+                    'result' => $result->value,
+                });
+            }
+        }
+        $bindings[] = $stamp;
+        $ids = array_keys($outcomes);
+        array_push($bindings, ...$ids);
+
+        DB::update(
+            'update league_members set '
+            ."final_points = case id{$branches} end, "
+            ."final_rank = case id{$branches} end, "
+            ."result = case id{$branches} end, "
+            .'updated_at = ? where id in ('.implode(', ', array_fill(0, count($ids), '?')).')',
+            $bindings,
+        );
+    }
+
+    /**
+     * Queues the result DMs of the week in batches of `notify_batch_size` members ({@see SendLeagueResultsJob}),
+     * skipping those not worth a message: banned, DM closed, opted out, deleted (the sender checks the same
+     * again at send time). One query over the week's members, no models.
+     */
+    private function queueResultMessages(LeagueWeek $week): void
+    {
+        $rows = DB::table('league_members as lm')
+            ->join('learners as l', 'l.id', '=', 'lm.learner_id')
+            ->where('lm.league_week_id', $week->id)
+            ->whereNull('l.deleted_at')
+            ->whereNull('l.blocked_at')
+            ->whereNull('l.dm_blocked_at')
+            ->orderBy('lm.id')
+            ->get(['lm.id', 'l.meta']);
+
+        $memberIds = [];
+        foreach ($rows as $row) {
+            $meta = is_string($row->meta) ? json_decode($row->meta, true) : $row->meta;
+            if (is_array($meta) && (bool) ($meta[self::OPT_OUT_META] ?? false)) {
+                continue;
+            }
+            $memberIds[] = (int) $row->id;
+        }
+
+        foreach (array_chunk($memberIds, max(1, (int) config('leagues.notify_batch_size', 100))) as $batch) {
+            SendLeagueResultsJob::dispatch($batch);
+        }
+    }
+
+    /**
+     * Members who finished first in their group with at least one point (docs/13 §7.4: a win, not an empty group).
+     *
+     * @return list<int>
+     */
+    private function winnerIds(LeagueWeek $week): array
+    {
+        /** @var list<int> $ids */
+        $ids = LeagueMember::query()
+            ->where('league_week_id', $week->id)
+            ->where('final_rank', 1)
+            ->where('final_points', '>', 0)
+            ->orderBy('id')
+            ->pluck('id')
+            ->map(static fn (mixed $id): int => (int) $id)
+            ->all();
+
+        return $ids;
+    }
+
+    /**
+     * The open group of the tier with a free seat, locked for this transaction, or a new one.
      *
      * PostgreSQL: `FOR UPDATE SKIP LOCKED` first (parallel placements take different groups, nobody
      * waits); when nothing is free or unlocked, an advisory lock per (week, tier) serialises the
@@ -468,6 +707,7 @@ final class LeagueService
         $candidates = static fn () => LeagueGroup::query()
             ->where('league_week_id', $week->id)
             ->where('tier', $tier)
+            ->whereNull('closed_at')
             ->whereColumn('members_count', '<', 'capacity')
             ->orderBy('id');
 

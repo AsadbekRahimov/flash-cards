@@ -82,11 +82,13 @@ Schedule::command('assignments:refresh')
     ->withoutOverlapping(20)
     ->runInBackground();
 
-// League weeks (docs/13 §7.3): Monday 00:05 in the league time zone closes the week that just
-// ended (final standings, promotions, result DMs through the global send budget). Runs daily so
-// a missed Monday is caught up the next night; idempotent by `league_weeks.status`.
+// League weeks (docs/13 §7.3): Monday 00:00 in the league time zone closes the week that just
+// ended (final standings group by group, promotions, result DMs in batches through the global send
+// budget); 00:05 is the safety run of the same entry — one mutex, so it is skipped while 00:00 is
+// still working and only does something when that run failed or was missed. Runs daily so a missed
+// Monday is caught up the next night; idempotent by `league_weeks.status` and `league_groups.closed_at`.
 Schedule::command('leagues:close-week')
-    ->dailyAt('00:05')
+    ->cron('0,5 0 * * *')
     ->timezone((string) config('leagues.timezone', 'Asia/Tashkent'))
     ->withoutOverlapping(30)
     ->runInBackground();

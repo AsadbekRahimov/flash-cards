@@ -43,6 +43,7 @@ use App\Models\User;
 use App\Models\Word;
 use App\Models\WordRepetition;
 use App\Models\WordTranslation;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -1156,6 +1157,24 @@ it('rolls back and re-applies the league migration (2C.3)', function (): void {
     expect(Schema::hasTable('league_weeks'))->toBeTrue()
         ->and(Schema::hasTable('league_groups'))->toBeTrue()
         ->and(Schema::hasTable('league_members'))->toBeTrue();
+});
+
+it('adds league_groups.closed_at, stamps the groups of already closed weeks on migrate, and rolls back (P1-2)', function (): void {
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_28_100001_add_closed_at_to_league_groups_table')])->assertSuccessful();
+    expect(Schema::hasColumn('league_groups', 'closed_at'))->toBeFalse()
+        ->and(Schema::hasTable('league_groups'))->toBeTrue();
+
+    // Rows written by the whole-week close of 2C.3: a closed week whose groups know nothing of the stamp.
+    $closedAt = CarbonImmutable::parse('2026-10-18 19:05:00', 'UTC');
+    $closed = LeagueWeek::factory()->startingOn('2026-10-12')->create(['status' => 'closed', 'closed_at' => $closedAt]);
+    $open = LeagueWeek::factory()->startingOn('2026-10-19')->create();
+    $stamped = LeagueGroup::factory()->create(['league_week_id' => $closed->id]);
+    $live = LeagueGroup::factory()->create(['league_week_id' => $open->id]);
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect(Schema::hasColumn('league_groups', 'closed_at'))->toBeTrue()
+        ->and($stamped->fresh()?->closed_at?->utc()->toDateTimeString())->toBe('2026-10-18 19:05:00')
+        ->and($live->fresh()?->closed_at)->toBeNull();
 });
 
 // --- 2C.5 friends and challenges (docs/13 §1.5) ----------------------------------

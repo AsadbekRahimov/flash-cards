@@ -10,8 +10,8 @@ declare(strict_types=1);
 | Weekly groups of up to `capacity` learners per tier. A learner joins the current week's group
 | of their tier on the first graded card of the week (after the review transaction commits).
 | Points are never written in the hot path: they are summed from `learner_daily_stats` for the
-| dates of the week. On Monday 00:05 (`timezone`) the week is closed: the top `promote` of every
-| group move one tier up, the bottom `demote` move one tier down.
+| dates of the week. On Monday 00:00 (`timezone`, a safety run at 00:05) the week is closed group by
+| group: the top `promote` of every group move one tier up, the bottom `demote` move one tier down.
 */
 
 return [
@@ -44,4 +44,10 @@ return [
 
     /** A week-result DM that could not be sent within this many hours (no Telegram slot, queue lag) is dropped. */
     'notify_ttl_hours' => (int) env('LEAGUES_NOTIFY_TTL_HOURS', 12),
+
+    /** Members per `SendLeagueResultsJob` (one job sends a batch of DMs, each through the bot-wide send budget). */
+    'notify_batch_size' => (int) env('LEAGUES_NOTIFY_BATCH_SIZE', 100),
+
+    /** Seconds one batch job may spend sending before it hands the rest to a fresh job (keep well below the worker --timeout). */
+    'notify_batch_seconds' => (int) env('LEAGUES_NOTIFY_BATCH_SECONDS', 30),
 ];

@@ -7,7 +7,6 @@ use App\Jobs\AnnounceAssignmentJob;
 use App\Jobs\Middleware\ThrottleTelegramOutbound;
 use App\Jobs\PostLeaderboardJob;
 use App\Jobs\RenewalReminderJob;
-use App\Jobs\SendLeagueResultJob;
 use App\Jobs\SendLearnerReminderJob;
 use App\Jobs\SendTelegramMessageJob;
 use App\Listeners\Organizations\GrantPostOrgDiscount;
@@ -178,7 +177,6 @@ it('puts the middleware on every background sender and keeps releases from exhau
         new AnnounceAssignmentJob(1),
         new PostLeaderboardJob(1),
         new SendTelegramMessageJob(1, 'x'),
-        new SendLeagueResultJob(1),
         app(SendMemberJoinedMessage::class),
         app(SendMemberSeatedMessage::class),
         app(GrantPostOrgDiscount::class),
