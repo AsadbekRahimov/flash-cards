@@ -6,7 +6,8 @@
  * - `label` — what the switch controls, for screen readers (the visible label is usually the `ListRow` title).
  * - `disabled` — inactive (e.g. while saving).
  *
- * The "on" colour is the accent. `data-testid` and other attributes go to the button.
+ * The "on" colour is the accent; the knob is the text colour of a button (`--tg-button-text`: white in every Telegram
+ * theme), the one token that is always readable on the accent. `data-testid` and other attributes go to the button.
  *
  * @example <ToggleSwitch :model-value="data.exercises.reverse" :label="t('settings.exercises.reverse')" @update:model-value="onExercise('reverse', $event)" />
  */
@@ -35,7 +36,7 @@ function toggle(): void {
     @click="toggle"
   >
     <span
-      class="pointer-events-none absolute left-0.5 size-[27px] rounded-full bg-white shadow-[0_2px_4px_rgb(0_0_0/0.25)] transition-transform duration-200"
+      class="pointer-events-none absolute left-0.5 size-[27px] rounded-full bg-tg-button-text shadow-[0_2px_4px_rgb(0_0_0/0.25)] transition-transform duration-200"
       :class="modelValue ? 'translate-x-5' : 'translate-x-0'"
     />
   </button>

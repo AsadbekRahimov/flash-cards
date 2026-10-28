@@ -28,6 +28,13 @@ describe('ToggleSwitch', () => {
     expect(w.classes()).not.toContain('bg-accent')
   })
 
+  it('draws the knob in a theme token, not in a raw white', () => {
+    const w = mount(ToggleSwitch, { props: { modelValue: true, label: 'x' } })
+
+    expect(w.get('span').classes()).toContain('bg-tg-button-text')
+    expect(w.get('span').classes()).not.toContain('bg-white')
+  })
+
   it('emits the opposite value on click', async () => {
     const on = mount(ToggleSwitch, { props: { modelValue: true, label: 'x' } })
     await on.trigger('click')
