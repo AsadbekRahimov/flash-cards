@@ -907,10 +907,17 @@ public function __invoke(Request $request, string $secret)
 по «/» Telegram ничего не подсказывает, а в личном чате нет постоянной кнопки приложения. Команда вызывает Bot API (контракт
 `TelegramClient::setMyCommands` / `setChatMenuButton`, набор данных — `BotMenuBuilder`):
 
-- `setMyCommands` для `all_private_chats` (`today`, `settings`, `invite`, `pro`, `promo`, `help`) и `all_group_chats`
-  (`start_training`, `start_exam`, `close_exam`, `help`) — по два вызова на каждый scope: без `language_code` (язык по умолчанию,
-  ru; его видят все, у кого нет списка на своём языке) и с `language_code = uz`. Описания — `lang/{ru,uz}/commands.php`
-  (`commands.private.*`, `commands.group.*`; 1–256 знаков). `/start`, `/stats` и `/paysupport` в меню не входят.
+- `setMyCommands` для трёх scope — `all_private_chats` (`today`, `settings`, `invite`, `pro`, `promo`, `help`), `all_group_chats`
+  (только `help`) и `all_chat_administrators` (`start_training`, `start_exam`, `close_exam`, `help`) — по два вызова на каждый
+  scope: без `language_code` (язык по умолчанию, ru; его видят все, у кого нет списка на своём языке) и с `language_code = uz`.
+  Описания — `lang/{ru,uz}/commands.php` (`commands.private.*`, `commands.group.*`; 1–256 знаков). `/start`, `/stats` и
+  `/paysupport` в меню не входят.
+- **Почему команды учителя — только у администраторов группы.** Меню «/» в группе видят все участники, а `/start_training`,
+  `/start_exam` и `/close_exam` ученику отвечают «аккаунт не привязан к учителю» (ответ уходит в общий чат). Telegram берёт для
+  человека первый найденный список (для администратора `all_chat_administrators` раньше `all_group_chats`), поэтому
+  администратору приходит только список администраторов, и `help` повторён в обоих списках. Учитель, не являющийся
+  администратором группы, видит в меню один `/help`; команды он набирает вручную — они работают, потому что права учителя
+  проверяет хендлер, а не меню.
 - `setChatMenuButton` без `chat_id` — кнопка по умолчанию для всех личных чатов:
   `{"type":"web_app","text":"LexiFlow","web_app":{"url":"{TWA_BASE_URL}/twa/"}}`. Именно «LexiFlow» названа кнопка в `/help`.
   Telegram принимает `web_app` только с https: при другом `TWA_BASE_URL` (в том числе пустом) команда печатает предупреждение,

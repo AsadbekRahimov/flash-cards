@@ -330,9 +330,12 @@ Telegram-параметры (заполняются в `main.ts` из `WebApp.th
 
 - Термины бота — §8. `/help` (личный чат): сначала «Как заниматься» (кнопка приложения, `/today`, `/settings`, `/invite`,
   `/pro`, `/promo`, `/paysupport`), затем «Для учителей».
-- Команда `php artisan telegram:setup-bot`: `setMyCommands` для `all_private_chats` (today, settings, invite, pro, promo, help)
-  и `all_group_chats` (start_training, start_exam, close_exam, help), ru по умолчанию + `language_code=uz`; кнопка меню
-  `web_app` «LexiFlow» → `{TWA_BASE_URL}/twa/` (только https). Описания — `lang/{ru,uz}/commands.php`.
+- Команда `php artisan telegram:setup-bot`: `setMyCommands` для `all_private_chats` (today, settings, invite, pro, promo, help),
+  `all_group_chats` (только help) и `all_chat_administrators` (start_training, start_exam, close_exam, help), ru по умолчанию +
+  `language_code=uz`; кнопка меню `web_app` «LexiFlow» → `{TWA_BASE_URL}/twa/` (только https). Описания — `lang/{ru,uz}/commands.php`.
+  Меню «/» в группе видят все участники, а команды учителя отвечают ученику «аккаунт не привязан к учителю», поэтому подсказки
+  команд учителя видят **администраторы группы**; остальные участники видят только `/help`. Учитель, не являющийся
+  администратором группы, может набрать команду вручную — она сработает (права проверяет бот, а не меню).
 - Админка `/admin`: все подписи ресурсов, полей, фильтров, виджетов, страниц — `lang/ru/admin.php`
   (Stage → «Модуль», Learner → «Ученик», Organization → «Учебный центр», группы навигации «Контент / Обучение /
   Администрирование / Оплата»). Кабинет центра `/org` уже переведён.

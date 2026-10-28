@@ -497,7 +497,9 @@ php artisan telegram:set-webhook
 php artisan telegram:setup-bot
 ```
 Sets the list of bot commands that Telegram shows after «/» (Russian and Uzbek; private chats and group chats have
-their own lists) and the permanent **«LexiFlow»** menu button that opens the Mini App at `{TWA_BASE_URL}/twa/`.
+their own lists; in a group the teacher's commands `/start_training`, `/start_exam`, `/close_exam` are shown to the group
+administrators only, every other member sees `/help`; a teacher who is not an administrator of the group types the
+command by hand) and the permanent **«LexiFlow»** menu button that opens the Mini App at `{TWA_BASE_URL}/twa/`.
 Telegram accepts the button only for an https address: with any other address the command warns and skips the button
 (the command list is still set). It is safe to repeat — run it again after a deploy that changes the bot's commands.
 Without it the «/» menu stays empty. See `docs/VPS_DEPLOY_GUIDE_RU.md` for the BotFather side (Main Mini App).
