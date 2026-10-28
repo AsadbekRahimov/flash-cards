@@ -19,16 +19,30 @@ describe('AppToast', () => {
     expect(w.find('[data-testid=toast]').exists()).toBe(false)
   })
 
-  it('shows the message of useToast().show() as a status', async () => {
+  it('has its live region in the page before any message, empty: a region that appears with its text is not announced', () => {
     const w = mount(AppToast)
+
+    const region = w.get('[data-testid=toast-region]')
+    expect(region.attributes('role')).toBe('status')
+    expect(region.text()).toBe('')
+    expect(region.find('[data-testid=toast]').exists()).toBe(false)
+  })
+
+  it('puts the message of useToast().show() into that region, the same element before and after', async () => {
+    const w = mount(AppToast)
+    const regionBefore = w.get('[data-testid=toast-region]').element
 
     useToast().show('Сохранено')
     await nextTick()
 
-    const toast = w.get('[data-testid=toast]')
+    const region = w.get('[data-testid=toast-region]')
+    expect(region.element).toBe(regionBefore)
+    const toast = region.get('[data-testid=toast]')
     expect(toast.text()).toBe('Сохранено')
-    expect(toast.attributes('role')).toBe('status')
     expect(toast.classes()).toContain('toast')
+    // One live region only: a status inside a status would be read twice.
+    expect(toast.attributes('role')).toBeUndefined()
+    expect(w.findAll('[role=status]')).toHaveLength(1)
   })
 
   it('takes the new text when another message replaces it', async () => {
@@ -54,5 +68,7 @@ describe('AppToast', () => {
     await nextTick()
 
     expect(w.find('[data-testid=toast]').exists()).toBe(false)
+    // The region stays, ready for the next message.
+    expect(w.find('[data-testid=toast-region]').exists()).toBe(true)
   })
 })

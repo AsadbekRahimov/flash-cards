@@ -27,6 +27,7 @@ export const ru = {
   'nav.courses': 'Курсы',
   'nav.rating': 'Рейтинг',
   'nav.profile': 'Профиль',
+  'nav.label': 'Разделы',
 
   // ---- profile ----
   'profile.anonymous': 'Ученик',

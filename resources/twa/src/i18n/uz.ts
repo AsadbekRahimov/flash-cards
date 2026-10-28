@@ -21,6 +21,7 @@ export const uz: Translations = {
   'nav.courses': 'Kurslar',
   'nav.rating': 'Reyting',
   'nav.profile': 'Profil',
+  'nav.label': "Bo'limlar",
 
   // ---- profile ----
   'profile.anonymous': "O'quvchi",

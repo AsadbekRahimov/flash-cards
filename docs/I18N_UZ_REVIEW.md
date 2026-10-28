@@ -1877,3 +1877,13 @@
 | `commands.group.start_exam` | Imtihonni boshlash | Запустить экзамен |
 | `commands.group.close_exam` | Imtihonni yakunlash | Завершить экзамен |
 | `commands.group.help` | Yordam | Справка |
+
+## Редизайн 2026-10-28 · 17.11-A — на проверку носителю
+
+> Проверить: название панели нижней навигации для экранных дикторов — «Bo'limlar» (разделы; читается как «Bo'limlar, navigatsiya»).
+
+### TWA, нижняя навигация (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `nav.label` | Bo'limlar | Разделы |
