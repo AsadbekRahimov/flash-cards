@@ -6,6 +6,7 @@ import CourseView from '../CourseView.vue'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
+import { useToast } from '@/composables/useToast'
 import { useTodayStore } from '@/stores/today'
 import { useTrainingStore } from '@/stores/training'
 import type { Course, CourseDetail, CourseLesson, CourseStage } from '@/api/types'
@@ -118,13 +119,17 @@ describe('CourseView', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
+    useToast().hide()
     tg.handler = null
     tg.showBack.mockImplementation((handler: () => void) => {
       tg.handler = handler
       return tg.release
     })
   })
-  afterEach(() => setLocale('ru'))
+  afterEach(() => {
+    useToast().hide()
+    setLocale('ru')
+  })
 
   describe('heading', () => {
     it('loads the course by slug and shows the title, chips, description and progress', async () => {
@@ -331,7 +336,7 @@ describe('CourseView', () => {
       expect(wrapper.get('[data-testid=learn-btn]').attributes('disabled')).toBeDefined()
     })
 
-    it('explains in an alert why a session could not be opened from "Продолжить"', async () => {
+    it('explains in a toast why a session could not be opened from "Продолжить"', async () => {
       vi.mocked(api.courses.get).mockResolvedValue(detail({ is_active: true }))
       vi.mocked(api.training.open).mockRejectedValue(
         new ApiClientError('not_found', 404, 'lesson_not_found', 'Training lesson not found.'),
@@ -341,9 +346,8 @@ describe('CourseView', () => {
       await wrapper.get('[data-testid=continue-btn]').trigger('click')
       await flushPromises()
 
-      const alert = wrapper.get('[data-testid=open-error]')
-      expect(alert.text()).toBe('Урок не найден.')
-      expect(alert.attributes('role')).toBe('alert')
+      expect(useToast().toast.value?.text).toBe('Урок не найден.')
+      expect(wrapper.find('[data-testid=open-error]').exists()).toBe(false)
     })
   })
 
@@ -452,7 +456,7 @@ describe('CourseView', () => {
       expect(wrapper.findAll('[data-testid=learn-btn]').map((b) => b.attributes('disabled') !== undefined)).toEqual([true, true])
     })
 
-    it('stays on the course and explains why a lesson could not be opened', async () => {
+    it('stays on the course and explains in a toast why a lesson could not be opened: the button is far from the top of the page', async () => {
       vi.mocked(api.courses.get).mockResolvedValue(detail())
       vi.mocked(api.training.open).mockRejectedValue(
         new ApiClientError('not_found', 404, 'lesson_not_found', 'Training lesson not found.'),
@@ -464,10 +468,12 @@ describe('CourseView', () => {
       await flushPromises()
 
       expect(router.currentRoute.value.name).toBe('courses')
-      expect(wrapper.get('[data-testid=open-error]').text()).toBe('Урок не найден.')
+      expect(useToast().toast.value?.text).toBe('Урок не найден.')
+      expect(wrapper.find('[data-testid=open-error]').exists()).toBe(false)
+      expect(wrapper.find('[role=alert]').exists()).toBe(false)
     })
 
-    it('forgets the open error when the learner leaves the screen', async () => {
+    it('tells the refusal once and leaves nothing in the training store for the next screen', async () => {
       vi.mocked(api.courses.get).mockResolvedValue(detail())
       vi.mocked(api.training.open).mockRejectedValue(
         new ApiClientError('not_found', 404, 'lesson_not_found', 'Training lesson not found.'),
@@ -476,8 +482,22 @@ describe('CourseView', () => {
       const { wrapper } = await render()
       await wrapper.get('[data-testid=lesson-11]').get('[data-testid=learn-btn]').trigger('click')
       await flushPromises()
-      expect(useTrainingStore().openError).toBe('Урок не найден.')
+      expect(useTrainingStore().openError).toBe('')
 
+      // the same refusal again is news again
+      useToast().hide()
+      await wrapper.get('[data-testid=lesson-11]').get('[data-testid=learn-btn]').trigger('click')
+      await flushPromises()
+      expect(useToast().toast.value?.text).toBe('Урок не найден.')
+
+      wrapper.unmount()
+      expect(useTrainingStore().openError).toBe('')
+    })
+
+    it('forgets an open error that was left by another screen when the learner leaves this one', async () => {
+      vi.mocked(api.courses.get).mockResolvedValue(detail())
+      const { wrapper } = await render()
+      useTrainingStore().openError = 'left over'
       wrapper.unmount()
 
       expect(useTrainingStore().openError).toBe('')
@@ -679,7 +699,7 @@ describe('CourseView', () => {
         expect(router.currentRoute.value.params.sessionId).toBe('64')
       })
 
-      it('tells why the review did not open, as for any other session of this screen, and stays on the course', async () => {
+      it('tells in a toast why the review did not open, as for any other session of this screen, and stays on the course', async () => {
         vi.mocked(api.training.open).mockRejectedValue(new ApiClientError('network', 0, 'unknown', 'x'))
         const { wrapper, router } = await openPaywall()
 
@@ -687,7 +707,7 @@ describe('CourseView', () => {
         await flushPromises()
 
         expect(router.currentRoute.value.name).toBe('courses')
-        expect(wrapper.get('[data-testid=open-error]').text()).toBe('Нет связи с сервером. Попробуйте ещё раз.')
+        expect(useToast().toast.value?.text).toBe('Нет связи с сервером. Попробуйте ещё раз.')
       })
     })
 

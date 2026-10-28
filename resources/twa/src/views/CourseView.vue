@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted } from 'vue'
+import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import PaywallSheet from '@/components/PaywallSheet.vue'
@@ -11,6 +11,7 @@ import ListGroup from '@/components/ui/ListGroup.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import { courseChips, progressPercent, progressText } from '@/composables/courseLabels'
+import { showErrorToast } from '@/composables/errorToast'
 import { useBackButton } from '@/composables/useBackButton'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useAuthStore } from '@/stores/auth'
@@ -96,6 +97,13 @@ async function mockExam(): Promise<void> {
   if (sessionId !== null) await router.push({ name: 'exam', params: { sessionId }, query: { mode: 'mock' } })
 }
 
+// "Learn" is a button of the lower modules: a refusal to open the session is a toast, not an alert at the top of a long screen.
+watch(openError, (message) => {
+  if (message === '') return
+  showErrorToast(message)
+  training.clearOpenError()
+})
+
 onMounted(() => {
   void load()
 })
@@ -143,7 +151,6 @@ onBeforeUnmount(() => {
       </div>
 
       <InlineAlert v-if="errorMessage" tone="danger" :message="errorMessage" class="mt-4" data-testid="select-error" />
-      <InlineAlert v-if="openError" tone="danger" :message="openError" class="mt-4" data-testid="open-error" />
 
       <!-- The one primary button of the screen: continue in the main course, make the course main otherwise. -->
       <template v-if="detail.is_active">

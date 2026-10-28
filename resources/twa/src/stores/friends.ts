@@ -10,7 +10,7 @@ interface FriendsState {
   challenges: ChallengesResponse | null
   status: FriendsStatus
   errorMessage: string
-  /** The failure of the last action (accept, decline, remove, challenge…), shown above the lists. */
+  /** The failure of the last action (accept, decline, remove, challenge…); the screen shows it as a toast and clears it. */
   actionError: string
   /** Ids of the friendships / challenges an action is running for: their buttons are disabled. */
   busy: string[]
@@ -30,6 +30,10 @@ export const useFriendsStore = defineStore('friends', {
   actions: {
     isBusy(key: string): boolean {
       return this.busy.includes(key)
+    },
+
+    clearActionError(): void {
+      this.actionError = ''
     },
 
     async load(): Promise<void> {

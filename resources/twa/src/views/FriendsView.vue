@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import InitialAvatar from '@/components/InitialAvatar.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
-import InlineAlert from '@/components/ui/InlineAlert.vue'
 import ListGroup from '@/components/ui/ListGroup.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import SegmentedNav from '@/components/ui/SegmentedNav.vue'
+import { showErrorToast } from '@/composables/errorToast'
 import { formatDate } from '@/composables/format'
 import { useBackButton } from '@/composables/useBackButton'
 import { useCopyToClipboard } from '@/composables/useCopyToClipboard'
@@ -24,6 +24,7 @@ import type { ChallengeItem, ChallengeMetric, ChallengeStatus, FriendItem, Frien
  * "Rating" tab, the Friends pane (docs/13 §7.5, docs/14 §6.7, docs/04 A.13): the invite link (`f_<code>`) with
  * Telegram's share dialog, incoming and outgoing requests, the friends with their streak and learned words,
  * challenges ("who repeats more") and their state. A tab root (the other pane is League): no system "Back" button.
+ * A refused action (accept, decline, remove, challenge) is a toast: the buttons are all over a long screen.
  */
 const auth = useAuthStore()
 const store = useFriendsStore()
@@ -43,6 +44,16 @@ const challenges = computed(() => store.challenges)
 const message = computed(() => failed.value || store.errorMessage)
 const openChallenges = computed(() => challenges.value?.open ?? [])
 const finishedChallenges = computed(() => challenges.value?.finished ?? [])
+
+// The buttons of the lists are all over a long screen: a refused action is told in a toast, where the learner looks.
+watch(
+  () => store.actionError,
+  (text) => {
+    if (text === '') return
+    showErrorToast(text)
+    store.clearActionError()
+  },
+)
 
 const ratingTabs = computed(() => [
   { to: { name: 'league' }, label: t('league.title'), testid: 'seg-league' },
@@ -162,8 +173,6 @@ onMounted(() => {
     <ErrorState v-else-if="!friends" :message="message" @retry="load" />
 
     <div v-else class="space-y-3">
-      <InlineAlert v-if="store.actionError" tone="danger" :message="store.actionError" data-testid="action-error" />
-
       <section class="card" data-testid="invite">
         <div class="flex items-start gap-3">
           <span class="icon-tile tile-blue size-11 rounded-xl"><AppIcon name="user-plus" :size="22" /></span>

@@ -7,6 +7,7 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { useToast } from '@/composables/useToast'
 import { setLocale } from '@/i18n'
+import { useFriendsStore } from '@/stores/friends'
 import type { ChallengeItem, ChallengesResponse, FriendsResponse } from '@/api/types'
 
 const state = vi.hoisted(() => ({
@@ -528,19 +529,45 @@ describe('FriendsView', () => {
     })
   })
 
-  it('shows the localized error of a refused action in a red notice and reloads what is true now', async () => {
-    const { wrapper } = await render()
-    vi.mocked(api.friends.accept).mockRejectedValue(new ApiClientError('conflict', 409, 'friend_limit', 'x'))
-    vi.mocked(api.friends.get).mockResolvedValue(friendsResponse({ incoming: [] }))
+  describe('a refused action', () => {
+    it('is told in a localized toast, not in an alert at the top of the long page, and what is true now is reloaded', async () => {
+      const { wrapper } = await render()
+      vi.mocked(api.friends.accept).mockRejectedValue(new ApiClientError('conflict', 409, 'friend_limit', 'x'))
+      vi.mocked(api.friends.get).mockResolvedValue(friendsResponse({ incoming: [] }))
 
-    await wrapper.get('[data-testid=accept-btn]').trigger('click')
-    await flushPromises()
+      await wrapper.get('[data-testid=accept-btn]').trigger('click')
+      await flushPromises()
 
-    const alert = wrapper.get('[data-testid=action-error]')
-    expect(alert.text()).toBe('У вас уже максимальное число друзей.')
-    expect(alert.attributes('role')).toBe('alert')
-    expect(alert.classes()).toContain('text-danger-ink')
-    expect(wrapper.find('[data-testid=incoming]').exists()).toBe(false)
+      expect(useToast().toast.value?.text).toBe('У вас уже максимальное число друзей.')
+      expect(wrapper.find('[data-testid=action-error]').exists()).toBe(false)
+      expect(wrapper.find('[role=alert]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=incoming]').exists()).toBe(false)
+    })
+
+    it('is told for a challenge too, and the same refusal again is news again', async () => {
+      const incoming = pending({ role: 'opponent' })
+      const { wrapper } = await render(friendsResponse(), challengesResponse({ open: [incoming] }))
+      vi.mocked(api.challenges.accept).mockRejectedValue(new ApiClientError('conflict', 409, 'friend_limit', 'x'))
+
+      await wrapper.get('[data-testid=challenge-accept]').trigger('click')
+      await flushPromises()
+      expect(useToast().toast.value?.text).toBe('У вас уже максимальное число друзей.')
+
+      useToast().hide()
+      await wrapper.get('[data-testid=challenge-accept]').trigger('click')
+      await flushPromises()
+      expect(useToast().toast.value?.text).toBe('У вас уже максимальное число друзей.')
+    })
+
+    it('leaves nothing in the store once it is told', async () => {
+      const { wrapper } = await render()
+      vi.mocked(api.friends.accept).mockRejectedValue(new ApiClientError('conflict', 409, 'friend_limit', 'x'))
+
+      await wrapper.get('[data-testid=accept-btn]').trigger('click')
+      await flushPromises()
+
+      expect(useFriendsStore().actionError).toBe('')
+    })
   })
 
   it('speaks Uzbek', async () => {
