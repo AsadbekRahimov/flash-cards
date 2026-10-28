@@ -55,7 +55,7 @@ class StagesRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('title')->label(__('admin.stages.fields.title'))->searchable(),
                 Tables\Columns\TextColumn::make('lessons_count')->counts('lessons')->label(__('admin.stages.columns.lessons_count')),
             ])
-            ->headerActions([Actions\CreateAction::make()->label(__('admin.stages.actions.create'))])
+            ->headerActions([Actions\CreateAction::make()->label(__('admin.stages.actions.create'))->modalHeading(__('admin.stages.actions.create'))])
             ->actions([
                 Actions\Action::make('lessons')
                     ->label(__('admin.stages.actions.lessons'))

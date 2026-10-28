@@ -16,6 +16,7 @@ use App\Domain\Learning\Services\SchedulerResolver;
 use App\Domain\Learning\Services\SchedulerSwitchService;
 use App\Filament\Resources\LearnerResource\Pages;
 use App\Filament\Resources\LearnerResource\RelationManagers;
+use App\Filament\Resources\Support\AdminDates;
 use App\Filament\Resources\Support\AdminLabels;
 use App\Models\Learner;
 use App\Models\User;
@@ -87,9 +88,7 @@ class LearnerResource extends Resource
             TextEntry::make('blocked_at')->label(__('admin.learners.fields.blocked_at'))->dateTime()->placeholder('—')->visible($isAdmin),
             TextEntry::make('onboarding_state')
                 ->label(__('admin.learners.fields.onboarding'))
-                ->formatStateUsing(fn (string $state): string => $state === OnboardingService::DONE
-                    ? __('admin.learners.onboarding.done')
-                    : __('admin.learners.onboarding.in_progress', ['step' => AdminLabels::value('learners.onboarding.step', $state)]))
+                ->formatStateUsing(fn (string $state): string => self::onboardingLabel($state))
                 ->visible($isAdmin),
             TextEntry::make('effective_plan')
                 ->label(__('admin.learners.fields.plan'))
@@ -98,7 +97,7 @@ class LearnerResource extends Resource
 
                     return self::planLabel($entitlement->plan, $entitlement->isSponsored())
                         .($entitlement->isSponsored() ? ', '.__('admin.learners.plan_center', ['id' => substr($entitlement->source, strlen('sponsor:organization:'))]) : '')
-                        .($entitlement->until !== null ? ', '.__('admin.learners.plan_until', ['date' => $entitlement->until->toDateTimeString()]) : '');
+                        .($entitlement->until !== null ? ', '.__('admin.learners.plan_until', ['date' => AdminDates::dateTime($entitlement->until)]) : '');
                 })
                 ->visible($isAdmin),
             TextEntry::make('scheduler')
@@ -340,6 +339,19 @@ class LearnerResource extends Resource
     {
         return AdminLabels::value('common.plan', $plan->value)
             .($sponsored && $plan !== Plan::Free ? ' '.__('admin.learners.plan_sponsored') : '');
+    }
+
+    /**
+     * The caption of `learners.onboarding_state`: "Не начата" (`new`, set at registration), "В процессе (шаг: язык)" for a
+     * step of OnboardingService::STEPS, "Пройдена" (`done`). A step nobody has worded is shown by its stored name.
+     */
+    public static function onboardingLabel(string $state): string
+    {
+        return match ($state) {
+            OnboardingService::DONE => __('admin.learners.onboarding.done'),
+            'new' => __('admin.learners.onboarding.not_started'),
+            default => __('admin.learners.onboarding.in_progress', ['step' => AdminLabels::value('learners.onboarding.step', $state)]),
+        };
     }
 
     /** "SM-2" / "FSRS-5", with "(по умолчанию)" when the learner has no bucket of their own. */

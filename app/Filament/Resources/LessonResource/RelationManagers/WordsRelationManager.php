@@ -61,6 +61,7 @@ class WordsRelationManager extends RelationManager
             ->headerActions([
                 Actions\CreateAction::make()
                     ->label(__('admin.lessons.words.create'))
+                    ->modalHeading(__('admin.lessons.words.create'))
                     ->after(function (Word $record): void {
                         app(WordTranslationWriter::class)->syncDefaultFromWord($record);
                         app(LessonContentRefresher::class)->wordChanged($record);

@@ -9,7 +9,11 @@ use App\Filament\Resources\LearnerResource\Pages\ViewLearner;
 use App\Filament\Resources\LearnerResource\RelationManagers\DailyStatsRelationManager;
 use App\Filament\Resources\PaymentResource\Pages\ListPayments;
 use App\Filament\Resources\PaymentResource\Pages\ViewPayment;
+use App\Filament\Resources\SubscriptionResource\Pages\ListSubscriptions;
 use App\Filament\Resources\TelegramGroupResource\Pages\ListTelegramGroups;
+use App\Filament\Widgets\LeagueGroupsTableWidget;
+use App\Models\LeagueGroup;
+use App\Models\LeagueWeek;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
 use App\Models\Organization;
@@ -23,6 +27,7 @@ use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Schemas\Schema;
+use Filament\Support\Facades\FilamentTimezone;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Session;
 use Livewire\Livewire;
@@ -141,4 +146,52 @@ it('sets the display format of date and datetime pickers once', function (): voi
         ->and(DateTimePicker::make('moment')->displayFormat('Y')->getDisplayFormat())->toBe('Y')
         ->and(Schema::make()->getDefaultDateDisplayFormat())->toBe('d.m.Y')
         ->and(Schema::make()->getDefaultDateTimeDisplayFormat())->toBe('d.m.Y H:i');
+});
+
+// --- dates inside a sentence: the same format as the columns -----------------------------------------------
+
+it('writes the end of the plan in the learner card as dd.mm.yyyy hh:mm, not as an ISO date', function (): void {
+    dd_admin();
+    $learner = Learner::factory()->create();
+    Subscription::factory()->create(['subscriber_id' => $learner->id, 'subscriber_type' => 'learner', 'plan' => 'pro', 'status' => 'active', 'provider' => 'manual', 'current_period_ends_at' => '2026-11-27 12:00:00']);
+
+    Livewire::test(ViewLearner::class, ['record' => $learner->getKey()])
+        ->assertSee('Pro, до 27.11.2026 12:00')
+        ->assertDontSee('2026-11-27')
+        ->assertDontSee('12:00:00');
+});
+
+it('shows the end of the plan in the same time zone as the datetime columns of the panel', function (): void {
+    dd_admin();
+    FilamentTimezone::set('Asia/Tashkent');
+    $learner = Learner::factory()->create();
+    Subscription::factory()->create(['subscriber_id' => $learner->id, 'subscriber_type' => 'learner', 'plan' => 'pro', 'status' => 'active', 'provider' => 'manual', 'current_period_ends_at' => '2026-11-27 12:00:00']);
+
+    Livewire::test(ViewLearner::class, ['record' => $learner->getKey()])
+        ->assertSee('Pro, до 27.11.2026 17:00');
+});
+
+it('names the paid-until date of "Выдать Pro" as dd.mm.yyyy hh:mm in the time zone of its date picker', function (): void {
+    dd_admin();
+    config(['learners.default_timezone' => 'Asia/Tashkent']);
+    $learner = Learner::factory()->create();
+    Subscription::factory()->create(['subscriber_id' => $learner->id, 'subscriber_type' => 'learner', 'plan' => 'pro', 'status' => 'active', 'provider' => 'payme', 'current_period_ends_at' => '2026-11-27 12:00:00']);
+
+    Livewire::test(ListSubscriptions::class)
+        ->mountAction('grantPro')
+        ->setActionData(['subscriber_type' => 'learner', 'learner_id' => $learner->id, 'perpetual' => false, 'until' => '2026-11-20 10:00:00'])
+        ->assertMountedActionModalSee('Часовой пояс: Asia/Tashkent.')
+        ->assertMountedActionModalSee('ученик уже оплатил до 27.11.2026 17:00;')
+        ->assertMountedActionModalDontSee('2026-11-27');
+});
+
+it('writes the week of the league widget as dd.mm.yyyy', function (): void {
+    dd_admin();
+    config(['leagues.timezone' => 'Asia/Tashkent']);
+    $week = LeagueWeek::factory()->startingOn('2026-10-26')->create();
+    LeagueGroup::factory()->create(['league_week_id' => $week->id, 'tier' => 1, 'members_count' => 5]);
+
+    Livewire::test(LeagueGroupsTableWidget::class)
+        ->assertSee('Лиги — неделя 26.10.2026 – 01.11.2026')
+        ->assertDontSee('2026-10-26');
 });

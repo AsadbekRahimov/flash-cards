@@ -8,6 +8,7 @@ use App\Domain\Learning\DTO\SchedulerMetrics;
 use App\Domain\Learning\Enums\SchedulerKind;
 use App\Domain\Learning\Services\SchedulerMetricsService;
 use App\Filament\Concerns\RequiresActiveAdmin;
+use App\Filament\Resources\Support\AdminNumbers;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Facades\Cache;
@@ -65,11 +66,11 @@ class SchedulerComparisonWidget extends StatsOverviewWidget
 
     private static function percent(?float $value): string
     {
-        return $value === null ? '—' : number_format($value * 100, 1).'%';
+        return $value === null ? '—' : AdminNumbers::decimal($value * 100).'%';
     }
 
     private static function ratio(?float $value): string
     {
-        return $value === null ? '—' : number_format($value, 2);
+        return $value === null ? '—' : AdminNumbers::decimal($value, 2);
     }
 }

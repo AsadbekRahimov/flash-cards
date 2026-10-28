@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\LearnerResource\RelationManagers;
 
 use App\Filament\Concerns\RequiresActiveAdmin;
+use App\Filament\Resources\Support\AdminNumbers;
 use App\Models\LearnerDailyStats;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
@@ -51,7 +52,7 @@ class DailyStatsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('new_words_count')->label(__('admin.learners.daily_stats.columns.new_words_count')),
                 Tables\Columns\TextColumn::make('time_spent_ms')
                     ->label(__('admin.learners.daily_stats.columns.time'))
-                    ->state(fn (LearnerDailyStats $record): string => number_format($record->time_spent_ms / 60000, 1)),
+                    ->state(fn (LearnerDailyStats $record): string => AdminNumbers::decimal($record->time_spent_ms / 60000)),
                 Tables\Columns\IconColumn::make('goal_met_at')
                     ->label(__('admin.learners.daily_stats.columns.goal_met'))
                     ->boolean()

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\ExamSessionResource\RelationManagers;
 
+use App\Filament\Resources\Support\AdminNumbers;
 use App\Models\ExamAnswer;
 use App\Models\ExamResult;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -51,7 +52,7 @@ class ResultsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('total_count')->label(__('admin.exams.results.columns.total_count')),
                 Tables\Columns\TextColumn::make('time_spent_ms')
                     ->label(__('admin.exams.results.columns.time'))
-                    ->formatStateUsing(fn (mixed $state): string => __('admin.exams.results.seconds', ['value' => number_format((int) $state / 1000, 2)])),
+                    ->formatStateUsing(fn (mixed $state): string => __('admin.exams.results.seconds', ['value' => AdminNumbers::decimal((int) $state / 1000, 2)])),
                 Tables\Columns\TextColumn::make('rank')->label(__('admin.exams.results.columns.rank'))->sortable(),
             ])
             ->defaultSort('rank');

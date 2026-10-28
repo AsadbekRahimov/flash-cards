@@ -88,7 +88,7 @@ final class AdminErrors
             $replacements[$name] = match (true) {
                 is_array($value) => implode(', ', array_map(static fn (mixed $item): string => is_scalar($item) ? (string) $item : '', $value)),
                 // 79,5 and 95 (not 95,0): the decimal comma of Russian text.
-                is_float($value) => rtrim(rtrim(number_format($value, 1, ',', ''), '0'), ','),
+                is_float($value) => AdminNumbers::decimal($value, 1, trimZeros: true),
                 is_scalar($value) => (string) $value,
                 default => '',
             };
@@ -120,6 +120,11 @@ final class AdminErrors
 
         if (isset($context['locales']) && is_array($context['locales'])) {
             $context['locales'] = array_map(static fn (mixed $locale): string => mb_strtoupper(is_scalar($locale) ? (string) $locale : ''), $context['locales']);
+        }
+
+        // «из 1 слова», «из 22 слов»: the noun agrees with the number behind «из». The text is Russian whatever locale the request has.
+        if (isset($context['total']) && is_int($context['total'])) {
+            $context['words'] = trans_choice('admin.common.words_of', $context['total'], [], 'ru');
         }
 
         return $context;

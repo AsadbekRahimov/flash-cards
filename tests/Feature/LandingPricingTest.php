@@ -134,6 +134,18 @@ it('says "coming soon" while Pro is not for sale', function (string $url, string
     'uz' => ['/uz', 'uz'],
 ]);
 
+it('promises Pro to the students of a center within the seats of the tariff, not to all of them', function (string $url, string $locale, string $promise, string $oldPromise): void {
+    // Above the seats of the tariff a student waits in the queue and stays on Free (docs/13 §6), so "all students" is wrong.
+    $this->get($url)
+        ->assertOk()
+        ->assertSee(__('landing.pricing.centers.features.1', [], $locale))
+        ->assertSee($promise)
+        ->assertDontSee($oldPromise);
+})->with([
+    'ru' => ['/ru', 'ru', 'Студенты центра получают Pro в пределах мест тарифа', 'Все студенты центра получают полный Pro'],
+    'uz' => ['/uz', 'uz', "tarifdagi o'rinlar doirasida Pro oladi", "to'liq Pro oladi"],
+]);
+
 it('says "coming soon" in purchase mode too while nothing can be bought', function (): void {
     Config::set('billing.paywall.mode', 'purchase');
 

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Billing\Enums\Plan;
+use App\Domain\Learners\Services\OnboardingService;
 use App\Filament\Pages\ImportLesson;
 use App\Filament\Resources\CourseResource;
 use App\Filament\Resources\CourseResource\Pages\ListCourses;
@@ -10,6 +11,7 @@ use App\Filament\Resources\ExamSessionResource;
 use App\Filament\Resources\ExamSessionResource\Pages\ListExamSessions;
 use App\Filament\Resources\LearnerResource;
 use App\Filament\Resources\LearnerResource\Pages\ListLearners;
+use App\Filament\Resources\LearnerResource\Pages\ViewLearner;
 use App\Filament\Resources\LessonResource;
 use App\Filament\Resources\OrganizationResource;
 use App\Filament\Resources\OrganizationResource\Pages\EditOrganization;
@@ -21,6 +23,8 @@ use App\Filament\Resources\PaymentOrderResource\Pages\ListPaymentOrders;
 use App\Filament\Resources\PaymentResource;
 use App\Filament\Resources\PaymentResource\Pages\ListPayments;
 use App\Filament\Resources\PromoCodeResource;
+use App\Filament\Resources\PromoCodeResource\Pages\EditPromoCode;
+use App\Filament\Resources\PromoCodeResource\Pages\ListPromoCodes;
 use App\Filament\Resources\ProviderTransactionResource;
 use App\Filament\Resources\ProviderTransactionResource\Pages\ListProviderTransactions;
 use App\Filament\Resources\StageResource;
@@ -29,6 +33,7 @@ use App\Filament\Resources\SubscriptionResource\Pages\ListSubscriptions;
 use App\Filament\Resources\TelegramGroupResource;
 use App\Filament\Resources\TelegramGroupResource\Pages\ListTelegramGroups;
 use App\Filament\Resources\UserResource;
+use App\Filament\Resources\UserResource\Pages\EditUser;
 use App\Filament\Resources\UserResource\Pages\ListUsers;
 use App\Filament\Resources\WordResource;
 use App\Filament\Widgets\ActivityChartWidget;
@@ -60,13 +65,16 @@ use App\Models\Word;
 use Database\Seeders\RolePermissionSeeder;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkAction;
 use Filament\Facades\Filament;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
@@ -222,7 +230,8 @@ function loc_component_captions(object $component, string $where): array
             $add("filter[{$name}]", loc_caption(fn () => $filter->getLabel()));
             $add("filter[{$name}] placeholder", loc_caption(fn () => $filter->getPlaceholder()));
         }
-        foreach ([...$table->getFlatRecordActions(), ...$table->getHeaderActions(), ...$table->getFlatBulkActions()] as $action) {
+        // Without the keys: a row action and a bulk action are both called "delete", and spreading by name would drop the first.
+        foreach ([...array_values($table->getFlatRecordActions()), ...array_values($table->getHeaderActions()), ...array_values($table->getFlatBulkActions())] as $action) {
             $addAction($action);
         }
     }
@@ -250,6 +259,45 @@ function loc_component_captions(object $component, string $where): array
     }
 
     return $captions;
+}
+
+/**
+ * Every action of a Livewire component: page header, table rows, table header and bulk actions, groups unfolded.
+ *
+ * @return list<Action>
+ */
+function loc_component_actions(object $component): array
+{
+    $actions = [];
+    $collect = function (Action|ActionGroup $action) use (&$actions, &$collect): void {
+        if ($action instanceof ActionGroup) {
+            foreach ($action->getActions() as $inner) {
+                $collect($inner);
+            }
+
+            return;
+        }
+
+        $actions[] = $action;
+    };
+
+    if (method_exists($component, 'getCachedHeaderActions')) {
+        foreach ($component->getCachedHeaderActions() as $action) {
+            $collect($action);
+        }
+    }
+
+    if (method_exists($component, 'getTable')) {
+        /** @var Table $table */
+        $table = $component->getTable();
+
+        // Without the keys: a row action and a bulk action are both called "delete", and spreading by name would drop the first.
+        foreach ([...array_values($table->getFlatRecordActions()), ...array_values($table->getHeaderActions()), ...array_values($table->getFlatBulkActions())] as $action) {
+            $collect($action);
+        }
+    }
+
+    return $actions;
 }
 
 // --- navigation ------------------------------------------------------------------------------
@@ -394,6 +442,87 @@ it('has Russian captions in the custom dialogs of the admin actions', function (
     }
 });
 
+// --- dialogs: «Удалить сотрудника», not «Удалить Сотрудник» -------------------------------------------
+
+it('words the dialogs that delete a user, a promo code or an organization in lower case and in the accusative', function (): void {
+    $this->actingAs(loc_user());
+    $teacher = loc_user('teacher');
+    $promo = PromoCode::factory()->create();
+    $organization = Organization::factory()->create();
+
+    // Filament's own «Удалить :label» would put the label as it is named in the list: «Удалить Сотрудник».
+    $heading = static fn (Testable $component): string => (string) $component->instance()->getMountedAction()?->getModalHeading();
+
+    expect($heading(livewire(ListUsers::class)->mountTableAction('delete', $teacher)))->toBe('Удалить сотрудника')
+        ->and($heading(livewire(EditUser::class, ['record' => $teacher->getKey()])->mountAction('delete')))->toBe('Удалить сотрудника')
+        ->and((string) livewire(ListUsers::class)->instance()->getTable()->getFlatBulkActions()['delete']->getModalHeading())->toBe('Удалить выбранных сотрудников')
+        ->and($heading(livewire(ListPromoCodes::class)->mountTableAction('delete', $promo)))->toBe('Удалить промокод')
+        ->and($heading(livewire(EditPromoCode::class, ['record' => $promo->getKey()])->mountAction('delete')))->toBe('Удалить промокод')
+        ->and($heading(livewire(ListOrganizations::class)->mountTableAction('delete', $organization)))->toBe('Удалить учебный центр')
+        ->and($heading(livewire(EditOrganization::class, ['record' => $organization->getKey()])->mountAction('delete')))->toBe('Удалить учебный центр');
+});
+
+it('puts no resource label in the nominative with a capital letter into the heading of any dialog of the admin panel', function (): void {
+    $admin = loc_user();
+    $this->actingAs($admin);
+    $records = loc_records($admin);
+    $checked = [];
+    $wrong = [];
+
+    foreach (Filament::getPanel('admin')->getResources() as $resource) {
+        $record = $records[$resource];
+        $ownerPage = null;
+        $components = [];
+
+        foreach ($resource::getPages() as $name => $registration) {
+            $page = $registration->getPage();
+            $components["{$resource}/{$name}"] = Livewire::test($page, in_array($name, ['edit', 'view'], true) ? ['record' => $record->getKey()] : [])->instance();
+
+            if (in_array($name, ['edit', 'view'], true)) {
+                $ownerPage = $page;
+            }
+        }
+
+        foreach ($resource::getRelations() as $manager) {
+            $components["{$resource} tab ".class_basename($manager)] = Livewire::test($manager, ['ownerRecord' => $record, 'pageClass' => $ownerPage])->instance();
+        }
+
+        foreach ($components as $where => $component) {
+            foreach (loc_component_actions($component) as $action) {
+                // An action that goes to a page opens no dialog, so nobody reads its heading.
+                try {
+                    $navigates = $action->getUrl() !== null;
+                } catch (Throwable) {
+                    $navigates = true; // the address needs the row
+                }
+
+                $heading = $navigates ? null : loc_caption(fn () => $action->getModalHeading());
+
+                if ($heading === null) {
+                    continue;
+                }
+
+                $key = "{$where} ".($action instanceof BulkAction ? 'bulk ' : '').$action->getName();
+                $checked[$key] = $heading;
+
+                // «Удалить :label», «Создать :label», «Восстановить :label»... take the label of the list: «Сотрудник», «Урок».
+                foreach (array_filter([$action->getModelLabel(), $action->getPluralModelLabel()]) as $label) {
+                    foreach (array_unique([Str::ucfirst($label), Str::ucwords($label)]) as $capitalised) {
+                        if (mb_strpos($heading, $capitalised, 1) !== false) {
+                            $wrong[$key] = $heading;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Guards the guard: the walk reached the delete and the create dialogs (8 delete ones today), not only the custom ones.
+    expect(count(array_filter(array_keys($checked), fn (string $key): bool => str_ends_with($key, ' delete'))))->toBeGreaterThanOrEqual(8)
+        ->and($checked)->toHaveKey(StageResource::class.' tab LessonsRelationManager create')
+        ->and($wrong)->toBe([]);
+});
+
 // --- widgets ----------------------------------------------------------------------------------
 
 it('titles every dashboard widget in Russian', function (string $widget, string $russian, string $english): void {
@@ -495,6 +624,35 @@ it('captions the plan of a learner as Free, Pro or Pro (от центра)', fun
     expect(LearnerResource::planLabel(Plan::Free, false))->toBe('Free')
         ->and(LearnerResource::planLabel(Plan::Pro, false))->toBe('Pro')
         ->and(LearnerResource::planLabel(Plan::Pro, true))->toBe('Pro (от центра)');
+});
+
+it('captions every onboarding state of a learner in Russian, also "new" that a learner has until the first answer', function (): void {
+    $this->actingAs(loc_user());
+
+    // A new learner is `new` (LearnerRegistrar), then the step being answered, then `done`.
+    foreach (['new', ...OnboardingService::STEPS, OnboardingService::DONE] as $state) {
+        $caption = LearnerResource::onboardingLabel($state);
+
+        expect(loc_is_russian($caption))->toBeTrue("{$state}: {$caption}")
+            ->and($caption)->not->toContain($state);
+
+        livewire(ViewLearner::class, ['record' => Learner::factory()->create(['onboarding_state' => $state])->getKey()])
+            ->assertSee($caption)
+            ->assertDontSee("шаг: {$state}");
+    }
+
+    expect(LearnerResource::onboardingLabel('new'))->toBe('Не начата')
+        ->and(LearnerResource::onboardingLabel('goal'))->toBe('В процессе (шаг: цель)')
+        ->and(LearnerResource::onboardingLabel('done'))->toBe('Пройдена');
+});
+
+it('keeps "основной курс" for the course a learner picked: the course that serves the groups is "курс по умолчанию"', function (): void {
+    // docs/14 §8: «основной курс» is the active course of a learner; the platform's course for groups without one is the default course.
+    $wrong = array_filter(Arr::dot(require lang_path('ru/admin.php')), fn (mixed $text): bool => is_string($text) && preg_match('/основн\w* курс/ui', $text) === 1);
+
+    expect($wrong)->toBe([])
+        ->and(__('admin.courses.errors.default_course_protected'))->toStartWith('Курс по умолчанию обслуживает')
+        ->and(__('admin.pages.import_lesson.file_help'))->toContain('в курс по умолчанию');
 });
 
 it('shows the badges of payment orders in Russian', function (): void {

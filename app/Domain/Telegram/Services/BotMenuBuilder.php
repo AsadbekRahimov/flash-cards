@@ -10,6 +10,11 @@ use App\Domain\Localization\Services\LocaleResolver;
  * What Telegram shows around the bot (docs/04 B.3): the command list behind "/" for each chat type and interface
  * language, and the permanent "LexiFlow" button of private chats that opens the Mini App. Only builds the data;
  * `telegram:setup-bot` sends it. The descriptions are in lang/{ru,uz}/commands.php.
+ *
+ * The "/" menu of a group is shown to every member, so the teacher's commands are listed for the administrators of
+ * the group only (`all_chat_administrators`); everybody else sees `/help`. Telegram takes the first list it finds for
+ * a person, so an administrator gets just the administrators' list and it repeats `/help`. A teacher who is not an
+ * administrator of the group types the commands by hand.
  */
 final class BotMenuBuilder
 {
@@ -20,7 +25,8 @@ final class BotMenuBuilder
      */
     public const SCOPES = [
         'all_private_chats' => ['private', ['today', 'settings', 'invite', 'pro', 'promo', 'help']],
-        'all_group_chats' => ['group', ['start_training', 'start_exam', 'close_exam', 'help']],
+        'all_group_chats' => ['group', ['help']],
+        'all_chat_administrators' => ['group', ['start_training', 'start_exam', 'close_exam', 'help']],
     ];
 
     /** The caption of the menu button; /help tells people to look for it. */
