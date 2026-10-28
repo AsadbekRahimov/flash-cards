@@ -32,7 +32,11 @@ it('imports a lesson via the Filament page', function (): void {
     livewire(ImportLesson::class)
         ->set('data.file', $file)
         ->call('submit')
-        ->assertHasNoErrors();
+        ->assertHasNoErrors()
+        ->assertNotified('Импорт выполнен: новых — 20, обновлено — 0, пропущено — 0.')
+        ->assertSee('Отчёт о последнем импорте')
+        ->assertSee('Добавлено')
+        ->assertSee('Прервано');
 
     expect(Word::count())->toBe(20);
 });
@@ -42,7 +46,8 @@ it('does not write data on invalid JSON upload', function (): void {
 
     livewire(ImportLesson::class)
         ->set('data.file', $file)
-        ->call('submit');
+        ->call('submit')
+        ->assertNotified('Импорт не выполнен — ничего не записано.');
 
     expect(Word::count())->toBe(0);
 });

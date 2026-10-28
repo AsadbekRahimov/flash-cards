@@ -10,4 +10,9 @@ use Filament\Resources\Pages\EditRecord;
 class EditLesson extends EditRecord
 {
     protected static string $resource = LessonResource::class;
+
+    public function getTitle(): string
+    {
+        return __('admin.lessons.titles.edit');
+    }
 }

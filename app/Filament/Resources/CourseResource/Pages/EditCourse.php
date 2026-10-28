@@ -14,6 +14,11 @@ class EditCourse extends EditRecord
 {
     protected static string $resource = CourseResource::class;
 
+    public function getTitle(): string
+    {
+        return __('admin.courses.titles.edit');
+    }
+
     /** Title, description, level, visibility and order are shown in the TWA catalog (cached). */
     protected function afterSave(): void
     {

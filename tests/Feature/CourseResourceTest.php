@@ -166,7 +166,7 @@ it('publishes a course through the table actions, step by step, with an audit tr
         ->assertTableActionHidden('transition_review', $course)
         ->assertTableActionVisible('transition_published', $course)
         ->callTableAction('transition_published', $course)
-        ->assertNotified('Course is now published');
+        ->assertNotified('Курс переведён в статус «Опубликован»');
 
     $course->refresh();
     expect($course->status)->toBe('published')
@@ -185,7 +185,7 @@ it('keeps the course in review and explains why when too few words have uz', fun
 
     livewire(ListCourses::class)
         ->callTableAction('transition_published', $course)
-        ->assertNotified('Status not changed');
+        ->assertNotified('Статус не изменён');
 
     expect($course->fresh()->status)->toBe('review')
         ->and(AuditLog::query()->where('action', 'course.status_changed')->count())->toBe(0);
@@ -199,7 +199,7 @@ it('offers the same status buttons on the edit page', function (): void {
         ->assertActionVisible('transition_published')
         ->assertActionHidden('transition_review')
         ->callAction('transition_published')
-        ->assertNotified('Course is now published');
+        ->assertNotified('Курс переведён в статус «Опубликован»');
 
     expect($course->fresh()->status)->toBe('published');
 });
