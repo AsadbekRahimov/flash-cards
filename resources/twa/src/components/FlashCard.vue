@@ -11,7 +11,9 @@ import { useI18n } from '@/i18n'
  * The flash card (docs/14 §6.2): the card with the word in the middle of the screen, the actions in the sticky
  * block below. Before the reveal there is one button, "Show translation"; after it the learner grades how well he
  * remembered the word. The grades are 2 / 4 / 5 (Again / Good / Easy, docs/06 §2) under the labels "I don't remember" /
- * "I remember" / "Easy", each with a hint of what happens next.
+ * "I remember" / "Easy", each with a hint of what happens next. The hint is small (12 px), so it is not faded with
+ * `opacity` (that was 2.4-3.5:1 in the light themes): it is the colour of its button mixed half and half with the text
+ * colour of the theme, 4.8:1 and better on the soft backgrounds of the light and the dark Telegram themes (docs/14 §4.1).
  */
 const props = defineProps<{
   card: Card
@@ -132,7 +134,7 @@ function onGrade(q: Quality): void {
             @click="onGrade(grade.quality)"
           >
             <span class="text-[15px] leading-5 font-semibold">{{ grade.label }}</span>
-            <span class="text-xs leading-4 font-normal opacity-80">{{ grade.hint }}</span>
+            <span class="text-xs leading-4 font-normal text-[color-mix(in_srgb,currentColor_50%,var(--tg-text))]" data-testid="grade-hint">{{ grade.hint }}</span>
           </button>
         </div>
       </template>

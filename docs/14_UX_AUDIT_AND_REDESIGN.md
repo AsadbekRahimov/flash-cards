@@ -142,13 +142,18 @@ Telegram-параметры (заполняются в `main.ts` из `WebApp.th
 --app-danger-soft:  color-mix(in srgb, var(--app-danger) 14%, transparent);
 /* «Чернила» для текста на мягком фоне: смешиваем с цветом текста темы → контраст и в светлой, и в тёмной теме */
 --app-success-ink: color-mix(in srgb, var(--app-success) 72%, var(--tg-text));
---app-warning-ink: color-mix(in srgb, var(--app-warning) 72%, var(--tg-text));
+--app-warning-ink: color-mix(in srgb, var(--app-warning) 50%, var(--tg-text));  /* янтарь светлый: при 72 % на светлых темах было 3,1–4,0 */
 --app-danger-ink:  color-mix(in srgb, var(--app-danger) 85%, var(--tg-text));
 --app-track: color-mix(in srgb, var(--tg-hint) 24%, transparent);   /* дорожки прогресса */
 /* Цвета плиток-иконок (одинаковы в обеих темах, белая иконка) */
 --tile-blue:#3b82f6; --tile-orange:#f97316; --tile-green:#22c55e; --tile-purple:#8b5cf6; --tile-red:#ef4444;
 --tile-teal:#14b8a6; --tile-yellow:#eab308; --tile-pink:#ec4899; --tile-gray:#8e8e93;
 ```
+
+Контраст «чернил» проверен расчётом по WCAG (обычный текст — не меньше 4,5:1) для стандартных тем Telegram: iOS светлая и тёмная,
+Android светлая. `warning-ink` (доля янтарного 50 %): на белой поверхности ≥ 5,5, на `warning-soft` ≥ 4,8 (при 72 % было 4,0 / 3,5 на iOS и
+3,5 / 3,1 на Android; тёмная тема стала лучше, 8,0 → 9,5). Подсказки под оценками флеш-карты («повторим сегодня»…) — 12 px, поэтому без
+`opacity`: цвет кнопки пополам с цветом текста темы, ≥ 4,8:1 на фоне каждой из трёх кнопок во всех трёх темах.
 
 Все токены пробрасываются в Tailwind через `@theme` (`--color-page`, `--color-surface`, `--color-fill`, `--color-accent`,
 `--color-success`, `--color-warning`, `--color-danger`, `--color-*-soft`, `--color-*-ink`, `--color-hairline`, `--color-track`,
