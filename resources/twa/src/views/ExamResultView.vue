@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import InlineAlert from '@/components/ui/InlineAlert.vue'
 import ListGroup from '@/components/ui/ListGroup.vue'
 import ListRow from '@/components/ui/ListRow.vue'
 import { formatNumber } from '@/composables/format'
@@ -68,14 +69,7 @@ function place(rank: number): string {
         {{ isMock ? t('result.mock_title') : t('result.title') }}
       </h1>
 
-      <p
-        v-if="errorMessage"
-        class="w-full rounded-xl bg-danger-soft px-4 py-3 text-left text-[15px] leading-5 text-danger-ink"
-        role="alert"
-        data-testid="result-error"
-      >
-        {{ errorMessage }}
-      </p>
+      <InlineAlert v-if="errorMessage" tone="danger" :message="errorMessage" class="w-full" data-testid="result-error" />
 
       <section v-if="isMock && mockResult" class="card w-full px-5 py-6" data-testid="mock-result">
         <p class="text-[15px] leading-5 text-tg-subtitle">{{ t('result.your_score') }}</p>

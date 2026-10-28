@@ -5,6 +5,7 @@ import PaywallSheet from '@/components/PaywallSheet.vue'
 import PromoRedeem from '@/components/PromoRedeem.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
+import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import ProBenefits from '@/components/ui/ProBenefits.vue'
@@ -208,10 +209,7 @@ onMounted(() => {
         >
           {{ t('billing.resume') }}
         </button>
-        <p v-if="billing.actionError" class="flex items-start gap-2 text-sm leading-5 text-danger-ink" role="alert" data-testid="renewal-error">
-          <AppIcon name="exclamation-circle" :size="18" class="mt-px" />
-          <span>{{ billing.actionError }}</span>
-        </p>
+        <InlineAlert v-if="billing.actionError" tone="danger" :message="billing.actionError" data-testid="renewal-error" />
       </section>
 
       <section v-if="offer && canBuy" class="card space-y-3" data-testid="offer-card">

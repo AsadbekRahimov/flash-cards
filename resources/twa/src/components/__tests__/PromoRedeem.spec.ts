@@ -4,6 +4,7 @@ import PromoRedeem from '../PromoRedeem.vue'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
+import { ICONS } from '@/components/ui/icons'
 import type { MeResponse } from '@/api/types'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 
@@ -79,15 +80,15 @@ describe('PromoRedeem', () => {
     expect(w.find('[data-testid=promo-input]').exists()).toBe(false)
   })
 
-  it('shows the success with a check icon, the end date in the interface language', async () => {
+  it('shows the success as a green status message with a check icon, the end date in the interface language', async () => {
     vi.mocked(api.promo.redeem).mockResolvedValue(me('2026-12-31T12:00:00+00:00'))
 
     const w = await submit('AB-12')
 
     const success = w.get('[data-testid=promo-success]')
     expect(success.text()).toBe('Pro активен до 31 декабря 2026 г.') // the date ends with a period of its own
-    expect(success.find('svg').exists()).toBe(true)
-    expect(success.get('svg').classes()).toContain('text-success')
+    expect(success.get('path').attributes('d')).toBe(ICONS['check-circle'].outline[0]?.d)
+    expect(success.classes()).toEqual(expect.arrayContaining(['bg-success-soft', 'text-success-ink']))
     expect(success.attributes('role')).toBe('status')
     expect(w.find('[data-testid=promo-toggle]').exists()).toBe(false)
     expect(w.find('[data-testid=promo-error]').exists()).toBe(false)
@@ -122,6 +123,18 @@ describe('PromoRedeem', () => {
     expect(w.get('[data-testid=promo-error]').text()).toBe(text)
     expect(w.find('[data-testid=promo-input]').exists()).toBe(true)
     expect(w.emitted('redeemed')).toBeUndefined()
+  })
+
+  it('shows a refused code as a red alert with an icon, and the field stays', async () => {
+    vi.mocked(api.promo.redeem).mockRejectedValue(new ApiClientError('not_found', 404, 'promo_not_found', 'x'))
+
+    const w = await submit('X')
+
+    const alert = w.get('[data-testid=promo-error]')
+    expect(alert.attributes('role')).toBe('alert')
+    expect(alert.classes()).toEqual(expect.arrayContaining(['bg-danger-soft', 'text-danger-ink']))
+    expect(alert.get('path').attributes('d')).toBe(ICONS['exclamation-circle'].outline[0]?.d)
+    expect(w.find('[data-testid=promo-success]').exists()).toBe(false)
   })
 
   it('localizes to Uzbek', async () => {

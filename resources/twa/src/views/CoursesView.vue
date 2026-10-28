@@ -5,6 +5,7 @@ import { storeToRefs } from 'pinia'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
+import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import SegmentedNav from '@/components/ui/SegmentedNav.vue'
@@ -56,15 +57,7 @@ onMounted(() => {
     <EmptyState v-else-if="courses.length === 0" icon="academic-cap" :text="t('catalog.empty')" />
 
     <div v-else class="mt-4 space-y-3">
-      <p
-        v-if="errorMessage"
-        class="flex items-start gap-2 rounded-xl bg-danger-soft px-3.5 py-2.5 text-[15px] leading-5 text-danger-ink"
-        role="alert"
-        data-testid="select-error"
-      >
-        <AppIcon name="exclamation-circle" :size="20" class="mt-px" />
-        <span>{{ errorMessage }}</span>
-      </p>
+      <InlineAlert v-if="errorMessage" tone="danger" :message="errorMessage" data-testid="select-error" />
 
       <article v-for="course in courses" :key="course.slug" class="card" :data-testid="`course-${course.slug}`">
         <RouterLink

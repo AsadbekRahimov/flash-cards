@@ -2,6 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import PromoRedeem from '@/components/PromoRedeem.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import InlineAlert from '@/components/ui/InlineAlert.vue'
 import ProBenefits from '@/components/ui/ProBenefits.vue'
 import SegmentedControl, { type SegmentOption } from '@/components/ui/SegmentedControl.vue'
 import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice, yearSavingPct } from '@/composables/billingFormat'
@@ -203,10 +204,7 @@ onBeforeUnmount(() => {
             {{ done ? 'Pro' : purchaseMode ? t('paywall.title_purchase') : t('paywall.title') }}
           </h2>
 
-          <p v-if="paid" class="flex items-start gap-2 text-[15px] leading-5 font-semibold" data-testid="paywall-paid">
-            <AppIcon name="check-circle" solid :size="20" class="text-success" />
-            <span>{{ paidMessage }}</span>
-          </p>
+          <InlineAlert v-if="paid" tone="success" :message="paidMessage" class="w-full" data-testid="paywall-paid" />
 
           <template v-if="!done">
             <p class="text-[15px] leading-5" data-testid="paywall-lead">{{ lead }}</p>
@@ -312,15 +310,12 @@ onBeforeUnmount(() => {
               {{ t('billing.check_again') }}
             </button>
           </div>
-          <p
+          <InlineAlert
             v-else-if="billing.purchase.status === 'failed'"
-            class="flex items-start gap-2 text-sm leading-5 text-danger-ink"
-            role="alert"
+            tone="danger"
+            :message="billing.purchase.error"
             data-testid="purchase-error"
-          >
-            <AppIcon name="exclamation-circle" :size="18" class="mt-px" />
-            <span>{{ billing.purchase.error }}</span>
-          </p>
+          />
         </section>
 
         <button

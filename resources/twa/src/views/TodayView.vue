@@ -9,6 +9,7 @@ import PaywallSheet, { type PaywallReason } from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
+import InlineAlert from '@/components/ui/InlineAlert.vue'
 import ListGroup from '@/components/ui/ListGroup.vue'
 import ListRow from '@/components/ui/ListRow.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
@@ -161,11 +162,11 @@ const leagueRow = computed(() => {
 })
 
 // The message sits under the session button, but a failed lesson or assignment is opened from further down.
-const openErrorBox = ref<HTMLElement | null>(null)
+const openErrorBox = ref<InstanceType<typeof InlineAlert> | null>(null)
 watch(openError, async (message) => {
   if (message === '') return
   await nextTick()
-  openErrorBox.value?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' })
+  openErrorBox.value?.$el.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' })
 })
 
 onMounted(() => {
@@ -196,15 +197,7 @@ onBeforeUnmount(() => training.clearOpenError())
 
       <LapsedBanner v-if="data.entitlement.plan === 'free'" @renew="router.push({ name: 'billing' })" />
 
-      <p
-        v-if="status === 'error'"
-        class="flex items-start gap-2 px-1 text-[15px] leading-5 text-danger-ink"
-        role="alert"
-        data-testid="reload-error"
-      >
-        <AppIcon name="exclamation-circle" :size="20" class="mt-px" />
-        <span>{{ loadError }}</span>
-      </p>
+      <InlineAlert v-if="status === 'error'" tone="danger" :message="loadError" data-testid="reload-error" />
 
       <div v-if="!data.onboarding_completed" class="card flex items-start gap-3" data-testid="onboarding-hint">
         <AppIcon name="information-circle" :size="22" class="mt-px text-accent" />
@@ -277,16 +270,7 @@ onBeforeUnmount(() => training.clearOpenError())
           {{ data.open_session_id !== null ? t('today.review.continue') : t('today.review.start') }}
         </button>
 
-        <p
-          v-if="openError"
-          ref="openErrorBox"
-          class="mt-3 flex items-start gap-2 text-[15px] leading-5 text-danger-ink"
-          role="alert"
-          data-testid="open-error"
-        >
-          <AppIcon name="exclamation-circle" :size="20" class="mt-px" />
-          <span>{{ openError }}</span>
-        </p>
+        <InlineAlert v-if="openError" ref="openErrorBox" tone="danger" :message="openError" class="mt-3" data-testid="open-error" />
 
         <p class="mt-3 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="session-hint">
           {{ t('today.session.hint') }}

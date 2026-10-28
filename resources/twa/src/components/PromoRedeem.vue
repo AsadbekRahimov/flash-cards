@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { nextTick, ref } from 'vue'
-import AppIcon from '@/components/ui/AppIcon.vue'
+import InlineAlert from '@/components/ui/InlineAlert.vue'
 import { api } from '@/api'
 import { formatDate } from '@/composables/format'
 import { errorMessage } from '@/i18n/errors'
@@ -77,13 +77,7 @@ async function submit(): Promise<void> {
       </button>
     </form>
 
-    <p v-if="error" class="flex items-start gap-2 text-sm leading-5 text-danger-ink" role="alert" data-testid="promo-error">
-      <AppIcon name="exclamation-circle" :size="18" class="mt-0.5" />
-      <span>{{ error }}</span>
-    </p>
-    <p v-if="success" class="flex items-start gap-2 text-[15px] leading-5 font-semibold" role="status" data-testid="promo-success">
-      <AppIcon name="check-circle" solid :size="20" class="text-success" />
-      <span>{{ success }}</span>
-    </p>
+    <InlineAlert v-if="error" tone="danger" :message="error" data-testid="promo-error" />
+    <InlineAlert v-if="success" tone="success" :message="success" data-testid="promo-success" />
   </div>
 </template>

@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import InlineAlert from '@/components/ui/InlineAlert.vue'
 import { useTrainingStore } from '@/stores/training'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
@@ -153,15 +154,7 @@ notificationHaptic('success')
     </div>
 
     <div class="space-y-2 pt-4">
-      <p
-        v-if="training.openError"
-        class="flex items-start gap-2 px-1 text-[15px] leading-5 text-danger-ink"
-        role="alert"
-        data-testid="open-error"
-      >
-        <AppIcon name="exclamation-circle" :size="20" class="mt-px" />
-        <span>{{ training.openError }}</span>
-      </p>
+      <InlineAlert v-if="training.openError" tone="danger" :message="training.openError" data-testid="open-error" />
 
       <RouterLink :to="{ name: 'today' }" class="btn btn-primary btn-lg btn-block" data-testid="home-btn">
         {{ t('finished.home') }}

@@ -4,6 +4,7 @@ import { RouterLink } from 'vue-router'
 import InitialAvatar from '@/components/InitialAvatar.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
+import InlineAlert from '@/components/ui/InlineAlert.vue'
 import ListGroup from '@/components/ui/ListGroup.vue'
 import ListRow, { type TileColor } from '@/components/ui/ListRow.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
@@ -129,15 +130,7 @@ onMounted(() => {
     <ErrorState v-else-if="!data" :message="message" @retry="load" />
 
     <div v-else class="space-y-3">
-      <p
-        v-if="message"
-        class="flex items-start gap-2 rounded-xl bg-danger-soft px-3.5 py-3 text-[15px] leading-5 text-danger-ink"
-        role="alert"
-        data-testid="reload-error"
-      >
-        <AppIcon name="exclamation-circle" :size="20" class="mt-px" />
-        <span>{{ message }}</span>
-      </p>
+      <InlineAlert v-if="message" tone="danger" :message="message" data-testid="reload-error" />
 
       <ListGroup data-testid="week">
         <ListRow icon="calendar-days" tile="blue" :title="weekRange" :subtitle="closesLine || undefined" />

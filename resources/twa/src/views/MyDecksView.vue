@@ -6,6 +6,7 @@ import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
+import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import SegmentedNav from '@/components/ui/SegmentedNav.vue'
@@ -89,15 +90,7 @@ onMounted(() => {
         </p>
       </div>
 
-      <p
-        v-if="errorMessage"
-        class="flex items-start gap-2 rounded-xl bg-danger-soft px-3.5 py-2.5 text-[15px] leading-5 text-danger-ink"
-        role="alert"
-        data-testid="write-error"
-      >
-        <AppIcon name="exclamation-circle" :size="20" class="mt-px" />
-        <span>{{ errorMessage }}</span>
-      </p>
+      <InlineAlert v-if="errorMessage" tone="danger" :message="errorMessage" data-testid="write-error" />
 
       <EmptyState v-if="decks.length === 0" icon="rectangle-stack" :text="t('decks.empty')" />
 

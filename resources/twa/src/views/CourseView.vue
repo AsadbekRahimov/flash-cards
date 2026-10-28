@@ -6,6 +6,7 @@ import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
+import InlineAlert from '@/components/ui/InlineAlert.vue'
 import ListGroup from '@/components/ui/ListGroup.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
@@ -137,24 +138,8 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <p
-        v-if="errorMessage"
-        class="mt-4 flex items-start gap-2 rounded-xl bg-danger-soft px-3.5 py-2.5 text-[15px] leading-5 text-danger-ink"
-        role="alert"
-        data-testid="select-error"
-      >
-        <AppIcon name="exclamation-circle" :size="20" class="mt-px" />
-        <span>{{ errorMessage }}</span>
-      </p>
-      <p
-        v-if="openError"
-        class="mt-4 flex items-start gap-2 rounded-xl bg-danger-soft px-3.5 py-2.5 text-[15px] leading-5 text-danger-ink"
-        role="alert"
-        data-testid="open-error"
-      >
-        <AppIcon name="exclamation-circle" :size="20" class="mt-px" />
-        <span>{{ openError }}</span>
-      </p>
+      <InlineAlert v-if="errorMessage" tone="danger" :message="errorMessage" class="mt-4" data-testid="select-error" />
+      <InlineAlert v-if="openError" tone="danger" :message="openError" class="mt-4" data-testid="open-error" />
 
       <!-- The one primary button of the screen: continue in the main course, make the course main otherwise. -->
       <template v-if="detail.is_active">
@@ -198,15 +183,7 @@ onBeforeUnmount(() => {
             <p class="mt-0.5 text-[15px] leading-5 text-tg-subtitle" data-testid="mock-exam-hint">{{ mockHint }}</p>
           </div>
         </div>
-        <p
-          v-if="mockError"
-          class="mt-3 flex items-start gap-2 rounded-xl bg-danger-soft px-3.5 py-2.5 text-[15px] leading-5 text-danger-ink"
-          role="alert"
-          data-testid="mock-exam-error"
-        >
-          <AppIcon name="exclamation-circle" :size="20" class="mt-px" />
-          <span>{{ mockError }}</span>
-        </p>
+        <InlineAlert v-if="mockError" tone="danger" :message="mockError" class="mt-3" data-testid="mock-exam-error" />
         <button
           type="button"
           class="btn btn-tinted btn-block mt-3"

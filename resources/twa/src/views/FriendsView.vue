@@ -4,6 +4,7 @@ import InitialAvatar from '@/components/InitialAvatar.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
+import InlineAlert from '@/components/ui/InlineAlert.vue'
 import ListGroup from '@/components/ui/ListGroup.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
@@ -161,15 +162,7 @@ onMounted(() => {
     <ErrorState v-else-if="!friends" :message="message" @retry="load" />
 
     <div v-else class="space-y-3">
-      <p
-        v-if="store.actionError"
-        class="flex items-start gap-2 rounded-xl bg-danger-soft px-3.5 py-3 text-[15px] leading-5 text-danger-ink"
-        role="alert"
-        data-testid="action-error"
-      >
-        <AppIcon name="exclamation-circle" :size="20" class="mt-px" />
-        <span>{{ store.actionError }}</span>
-      </p>
+      <InlineAlert v-if="store.actionError" tone="danger" :message="store.actionError" data-testid="action-error" />
 
       <section class="card" data-testid="invite">
         <div class="flex items-start gap-3">

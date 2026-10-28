@@ -4,6 +4,7 @@ import { RouterLink } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
+import InlineAlert from '@/components/ui/InlineAlert.vue'
 import ListGroup from '@/components/ui/ListGroup.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
@@ -138,15 +139,7 @@ onBeforeUnmount(() => {
     <ErrorState v-else-if="!data" :message="message || t('error.generic')" @retry="load" />
 
     <div v-else class="space-y-4">
-      <p
-        v-if="message"
-        class="flex items-start gap-2 rounded-xl bg-danger-soft px-3.5 py-3 text-sm leading-5 text-danger-ink"
-        role="alert"
-        data-testid="settings-error"
-      >
-        <AppIcon name="exclamation-circle" :size="18" class="mt-px" />
-        <span>{{ message }}</span>
-      </p>
+      <InlineAlert v-if="message" tone="danger" :message="message" data-testid="settings-error" />
 
       <ListGroup :header="t('settings.group.learning')" :footer="t('settings.daily_goal.unit')">
         <div class="list-row flex-col items-stretch gap-2" data-testid="goal-row">
@@ -294,15 +287,12 @@ onBeforeUnmount(() => {
           </div>
         </div>
       </ListGroup>
-      <p
+      <InlineAlert
         v-if="organizations.errorMessage && organizations.items.length > 0"
-        class="flex items-start gap-2 px-4 text-[13px] leading-[18px] text-danger-ink"
-        role="alert"
+        tone="danger"
+        :message="organizations.errorMessage"
         data-testid="orgs-error"
-      >
-        <AppIcon name="exclamation-circle" :size="16" class="mt-px" />
-        <span>{{ organizations.errorMessage }}</span>
-      </p>
+      />
     </div>
   </div>
 </template>

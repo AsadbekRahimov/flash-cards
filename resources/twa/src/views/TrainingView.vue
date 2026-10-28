@@ -11,6 +11,7 @@ import ReverseCard from '@/components/ReverseCard.vue'
 import SpellingCard from '@/components/SpellingCard.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
+import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useTrainingStore } from '@/stores/training'
@@ -173,7 +174,7 @@ async function onRestart(): Promise<void> {
     data-testid="training-view"
   >
     <ClosedState v-if="status === 'closed'" icon="lock-closed" :title="t('training.closed_title')" :text="errorMessage">
-      <p v-if="openError" class="text-[13px] leading-[18px] text-danger-ink" role="alert" data-testid="open-error">{{ openError }}</p>
+      <InlineAlert v-if="openError" tone="danger" :message="openError" data-testid="open-error" />
       <button
         v-if="restartRequest"
         type="button"
