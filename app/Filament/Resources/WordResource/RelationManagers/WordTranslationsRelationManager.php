@@ -76,6 +76,7 @@ class WordTranslationsRelationManager extends RelationManager
             ->headerActions([
                 Actions\CreateAction::make()
                     ->label(__('admin.words.translations.create'))
+                    ->modalHeading(__('admin.words.translations.create'))
                     ->using(fn (array $data, RelationManager $livewire): Model => $this->write($livewire->getOwnerRecord(), $data)),
             ])
             ->actions([

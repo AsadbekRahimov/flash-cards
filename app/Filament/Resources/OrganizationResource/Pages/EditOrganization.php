@@ -25,7 +25,7 @@ class EditOrganization extends EditRecord
     /** @return array<int, Action> */
     protected function getHeaderActions(): array
     {
-        return [Actions\DeleteAction::make()->authorizationTooltip()->authorizationNotification()];
+        return [Actions\DeleteAction::make()->modalHeading(__('admin.organizations.actions.delete_heading'))->authorizationTooltip()->authorizationNotification()];
     }
 
     /**

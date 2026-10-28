@@ -126,7 +126,7 @@ class OrganizationResource extends Resource
             ->emptyStateHeading(__('admin.organizations.empty'))
             ->actions([
                 Actions\EditAction::make(),
-                Actions\DeleteAction::make()->authorizationTooltip()->authorizationNotification(),
+                Actions\DeleteAction::make()->modalHeading(__('admin.organizations.actions.delete_heading'))->authorizationTooltip()->authorizationNotification(),
             ])
             ->defaultSort('name');
     }

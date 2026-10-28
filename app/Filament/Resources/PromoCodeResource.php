@@ -139,7 +139,7 @@ class PromoCodeResource extends Resource
             ->emptyStateHeading(__('admin.promo_codes.empty'))
             ->actions([
                 Actions\EditAction::make(),
-                Actions\DeleteAction::make(),
+                Actions\DeleteAction::make()->modalHeading(__('admin.promo_codes.actions.delete_heading')),
             ])
             ->defaultSort('id', 'desc');
     }

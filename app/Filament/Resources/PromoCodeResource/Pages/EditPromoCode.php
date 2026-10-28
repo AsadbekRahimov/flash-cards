@@ -25,7 +25,7 @@ class EditPromoCode extends EditRecord
     /** @return array<int, Action> */
     protected function getHeaderActions(): array
     {
-        return [Actions\DeleteAction::make()];
+        return [Actions\DeleteAction::make()->modalHeading(__('admin.promo_codes.actions.delete_heading'))];
     }
 
     /**

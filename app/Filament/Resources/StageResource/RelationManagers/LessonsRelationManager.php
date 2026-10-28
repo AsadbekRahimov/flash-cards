@@ -42,7 +42,7 @@ class LessonsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('title')->label(__('admin.lessons.fields.title'))->searchable(),
                 Tables\Columns\TextColumn::make('words_count')->counts('words')->label(__('admin.lessons.columns.words_count')),
             ])
-            ->headerActions([Actions\CreateAction::make()->label(__('admin.lessons.actions.create'))])
+            ->headerActions([Actions\CreateAction::make()->label(__('admin.lessons.actions.create'))->modalHeading(__('admin.lessons.actions.create'))])
             ->actions([
                 Actions\EditAction::make(),
             ])

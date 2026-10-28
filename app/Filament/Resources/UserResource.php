@@ -120,7 +120,7 @@ class UserResource extends Resource
             ->emptyStateHeading(__('admin.users.empty'))
             ->actions([
                 Actions\EditAction::make(),
-                Actions\DeleteAction::make(),
+                Actions\DeleteAction::make()->modalHeading(__('admin.users.actions.delete_heading')),
             ])
             ->bulkActions([
                 Actions\BulkActionGroup::make([
