@@ -66,7 +66,7 @@ return [
     ],
 
     'menu' => [
-        'text' => "Что дальше?\n/today — повторения на сегодня\n/settings — настройки\n/promo КОД — промокод на Pro\n/help — справка",
+        'text' => "Что дальше?\n/today — занятие на сегодня\n/settings — настройки\n/promo КОД — промокод на Pro\n/help — справка",
     ],
 
     'settings' => [
