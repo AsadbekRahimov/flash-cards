@@ -65,6 +65,7 @@ describe('LapsedBanner', () => {
   it('hides a stale store until /me has answered', async () => {
     const billing = useBillingStore()
     billing.apply(me(lapsed()))
+    billing.invalidate() // the stored answer is old (a fresh one is trusted, see below)
     // The learner has renewed since: /me no longer reports a lapse.
     vi.mocked(api.me.get).mockResolvedValue(me(null, 'pro'))
 
@@ -72,6 +73,17 @@ describe('LapsedBanner', () => {
     expect(w.find('[data-testid=lapsed-banner]').exists()).toBe(false)
     await flushPromises()
     expect(w.find('[data-testid=lapsed-banner]').exists()).toBe(false)
+  })
+
+  it('shows a lapse from a store that is fresh without asking /me again', async () => {
+    const billing = useBillingStore()
+    billing.apply(me(lapsed()))
+
+    const w = mount(LapsedBanner)
+    await flushPromises()
+
+    expect(api.me.get).not.toHaveBeenCalled()
+    expect(w.find('[data-testid=lapsed-banner]').exists()).toBe(true)
   })
 
   it('does not call /me again when the screen has preloaded it', async () => {

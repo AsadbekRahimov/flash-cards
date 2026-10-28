@@ -119,6 +119,7 @@ describe('PaywallSheet', () => {
       expect(w.find('a').exists()).toBe(false)
       expect(w.get('[data-testid=paywall-contact-text]').text()).toBe('javascript:alert(1)')
 
+      setActivePinia(createPinia()) // a /me younger than 30 s is not asked again: the second sheet needs its own store
       const html = await render(me({ contact: '<img src=x onerror=alert(1)>' }))
       expect(html.find('img').exists()).toBe(false)
       expect(html.get('[data-testid=paywall-contact-text]').text()).toBe('<img src=x onerror=alert(1)>')
