@@ -1,0 +1,144 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Domain\Organizations\Enums\OrganizationRole;
+use App\Filament\Org\Pages\Reports;
+use App\Filament\Org\Resources\GroupResource\Pages\ListGroups;
+use App\Filament\Resources\LearnerResource\Pages\ViewLearner;
+use App\Filament\Resources\LearnerResource\RelationManagers\DailyStatsRelationManager;
+use App\Filament\Resources\PaymentResource\Pages\ListPayments;
+use App\Filament\Resources\PaymentResource\Pages\ViewPayment;
+use App\Filament\Resources\TelegramGroupResource\Pages\ListTelegramGroups;
+use App\Models\Learner;
+use App\Models\LearnerDailyStats;
+use App\Models\Organization;
+use App\Models\OrganizationUser;
+use App\Models\Payment;
+use App\Models\Subscription;
+use App\Models\TelegramGroup;
+use App\Models\User;
+use Database\Seeders\RolePermissionSeeder;
+use Filament\Facades\Filament;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Schemas\Schema;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Session;
+use Livewire\Livewire;
+
+uses(RefreshDatabase::class);
+
+/*
+ * Dates in both panels read «28.10.2026» and «28.10.2026 09:27», not Filament's «окт 28, 2026 09:27:19»: one default for
+ * tables, infolists and non-native date pickers, set in FilamentDefaultsProvider. A column with its own format keeps it.
+ */
+
+beforeEach(function (): void {
+    $this->seed(RolePermissionSeeder::class);
+    app()->setLocale('ru');
+    $this->travelTo('2026-10-28 09:27:19');
+});
+
+function dd_admin(): User
+{
+    $admin = User::factory()->create([
+        'is_active' => true,
+        'two_factor_secret' => 'stub',
+        'two_factor_recovery_codes' => [],
+        'two_factor_confirmed_at' => now(),
+    ]);
+    $admin->assignRole('admin');
+    test()->actingAs($admin);
+
+    return $admin;
+}
+
+function dd_org_owner(Organization $organization): User
+{
+    $owner = User::factory()->create([
+        'is_active' => true,
+        'two_factor_secret' => 'stub',
+        'two_factor_recovery_codes' => [],
+        'two_factor_confirmed_at' => now(),
+    ]);
+    OrganizationUser::factory()->create(['organization_id' => $organization->id, 'user_id' => $owner->id, 'role' => OrganizationRole::Owner->value]);
+
+    Filament::setCurrentPanel(Filament::getPanel('org'));
+    Filament::bootCurrentPanel();
+    test()->actingAs($owner, 'org');
+    Session::put('2fa.org.passed_at', now()->timestamp);
+    Session::put('2fa.org.user_id', $owner->id);
+    Filament::setTenant($organization, isQuiet: true);
+
+    return $owner;
+}
+
+it('shows a datetime column of /admin as dd.mm.yyyy hh:mm', function (): void {
+    dd_admin();
+    $group = TelegramGroup::factory()->create(['created_at' => '2026-10-28 09:27:19']);
+
+    Livewire::test(ListTelegramGroups::class)
+        ->assertTableColumnFormattedStateSet('created_at', '28.10.2026 09:27', $group);
+
+    Livewire::test(ListPayments::class)->assertSuccessful();
+});
+
+it('shows a date column of /admin as dd.mm.yyyy', function (): void {
+    dd_admin();
+    $learner = Learner::factory()->create();
+    $stats = LearnerDailyStats::factory()->create(['learner_id' => $learner->id, 'date' => '2026-10-27']);
+
+    Livewire::test(DailyStatsRelationManager::class, ['ownerRecord' => $learner, 'pageClass' => ViewLearner::class])
+        ->assertTableColumnFormattedStateSet('date', '27.10.2026', $stats);
+});
+
+it('shows the dates of a /admin infolist as dd.mm.yyyy hh:mm', function (): void {
+    dd_admin();
+    $payment = Payment::factory()->create([
+        'occurred_at' => '2026-10-28 09:27:19',
+        'period_starts_at' => '2026-10-28 09:27:19',
+        'period_ends_at' => '2026-11-27 09:27:19',
+    ]);
+
+    Livewire::test(ViewPayment::class, ['record' => $payment->getRouteKey()])
+        ->assertSee('28.10.2026 09:27')
+        ->assertSee('27.11.2026 09:27')
+        ->assertDontSee('09:27:19')
+        ->assertDontSee('окт 28, 2026');
+});
+
+it('applies the same default in /org: tables, infolists and non-native date pickers', function (): void {
+    $organization = Organization::factory()->create(['slug' => 'center-a', 'locale' => 'ru', 'timezone' => 'UTC']);
+    Subscription::factory()->forOrganization($organization)->create(['current_period_ends_at' => null, 'tier' => 'tutor', 'seats_limit' => 30]);
+    dd_org_owner($organization);
+
+    $table = Livewire::test(ListGroups::class)->instance()->getTable();
+
+    expect($table->getDefaultDateDisplayFormat())->toBe('d.m.Y')
+        ->and($table->getDefaultDateTimeDisplayFormat())->toBe('d.m.Y H:i');
+
+    // The picker of a custom report period is non-native: it shows the date in the display format, written for dayjs.
+    Livewire::test(Reports::class)
+        ->set('data.period', 'custom')
+        ->assertSeeHtml('DD.MM.YYYY');
+});
+
+it('keeps an explicit column format in /org', function (): void {
+    $organization = Organization::factory()->create(['slug' => 'center-a', 'locale' => 'ru', 'timezone' => 'UTC']);
+    Subscription::factory()->forOrganization($organization)->create(['current_period_ends_at' => null, 'tier' => 'tutor', 'seats_limit' => 30]);
+    dd_org_owner($organization);
+    $group = TelegramGroup::factory()->create(['organization_id' => $organization->id, 'status' => 'active', 'created_at' => '2026-10-28 09:27:19']);
+
+    // GroupResource asks `->date('d.m.Y')` for «since»: the global datetime default does not reach it.
+    Livewire::test(ListGroups::class)->assertTableColumnFormattedStateSet('created_at', '28.10.2026', $group);
+});
+
+it('sets the display format of date and datetime pickers once', function (): void {
+    expect(DatePicker::make('day')->getDisplayFormat())->toBe('d.m.Y')
+        ->and(DateTimePicker::make('moment')->seconds(false)->getDisplayFormat())->toBe('d.m.Y H:i')
+        ->and(DateTimePicker::make('moment')->getDisplayFormat())->toBe('d.m.Y H:i:s')
+        ->and(DateTimePicker::make('moment')->displayFormat('Y')->getDisplayFormat())->toBe('Y')
+        ->and(Schema::make()->getDefaultDateDisplayFormat())->toBe('d.m.Y')
+        ->and(Schema::make()->getDefaultDateTimeDisplayFormat())->toBe('d.m.Y H:i');
+});
