@@ -312,7 +312,7 @@ it('stores the generalised training_sessions columns (mode, source, course, expi
 
 it('creates the renamed learner indexes and none of the student ones', function (): void {
     $expected = [
-        'word_repetitions' => ['word_repetitions_next_card_idx', 'word_repetitions_due_learners_idx'],
+        'word_repetitions' => ['word_repetitions_next_card_idx'],
         'words' => ['words_inactive_idx'],
         'training_reviews' => ['training_reviews_created_learner_idx', 'training_reviews_session_learner_idx'],
         'exam_answers' => ['exam_answers_session_learner_word_unique', 'exam_answers_answered_learner_idx'],
@@ -337,6 +337,11 @@ it('creates the renamed learner indexes and none of the student ones', function 
 
     // Dropped as unused (2026_10_28_200001): no query filters by is_hard, so a partial index on it could never be read.
     expect(array_column(Schema::getIndexes('word_repetitions'), 'name'))->not->toContain('word_repetitions_learner_is_hard_idx');
+
+    // Dropped as unused (2026_10_28_300001): every query that filters word_repetitions by next_review_at also names the
+    // learner (the picker, the learn-ahead pick, dueCount), and the reminders scan learners.next_reminder_at.
+    expect(array_column(Schema::getIndexes('word_repetitions'), 'name'))->not->toContain('word_repetitions_due_learners_idx')
+        ->and(array_column(Schema::getIndexes('learners'), 'name'))->toContain('learners_next_reminder_at_idx');
 });
 
 it('has the CHECK constraint on the shape of training_sessions by mode', function (): void {
@@ -439,6 +444,37 @@ it('rebuilds the dropped is_hard partial index exactly as it was on rollback and
     expect((string) $definition())->toMatch(DB::getDriverName() === 'pgsql'
         ? '/USING btree \(learner_id\) WHERE \(is_hard = true\)$/'
         : '/ON word_repetitions \(learner_id\)\s+WHERE is_hard = true$/');
+
+    $migration->up();
+    expect($copies())->toBe(0);
+
+    // A retry after an interrupted deploy is harmless in either direction.
+    $migration->up();
+    $migration->down();
+    $migration->down();
+    expect($copies())->toBe(1);
+    $migration->up();
+    expect($copies())->toBe(0);
+});
+
+it('rebuilds the dropped due_learners index exactly as it was on rollback and drops it again on re-run', function (): void {
+    $migration = require database_path('migrations/2026_10_28_300001_drop_word_repetitions_due_learners_idx.php');
+    $name = 'word_repetitions_due_learners_idx';
+    $copies = fn (): int => count(array_filter(Schema::getIndexes('word_repetitions'), fn (array $index): bool => $index['name'] === $name));
+    $definition = fn (): ?string => DB::getDriverName() === 'pgsql'
+        ? DB::table('pg_indexes')->where('indexname', $name)->value('indexdef')
+        : DB::table('sqlite_master')->where('type', 'index')->where('name', $name)->value('sql');
+
+    expect($copies())->toBe(0);
+
+    // down(): back to the original - a plain btree on (next_review_at, learner_id), in that order.
+    $migration->down();
+    expect($copies())->toBe(1)
+        ->and(array_column(Schema::getIndexes('word_repetitions'), 'columns', 'name')[$name])->toBe(['next_review_at', 'learner_id'])
+        ->and(array_column(Schema::getIndexes('word_repetitions'), 'unique', 'name')[$name])->toBeFalse();
+    expect((string) $definition())->toMatch(DB::getDriverName() === 'pgsql'
+        ? '/USING btree \(next_review_at, learner_id\)$/'
+        : '/ON word_repetitions \(next_review_at, learner_id\)$/');
 
     $migration->up();
     expect($copies())->toBe(0);

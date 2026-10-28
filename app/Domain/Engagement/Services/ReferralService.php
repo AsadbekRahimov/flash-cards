@@ -11,6 +11,7 @@ use App\Domain\Engagement\DTO\ReferralOverview;
 use App\Domain\Engagement\Enums\ReferralRejectReason;
 use App\Domain\Engagement\Enums\ReferralStatus;
 use App\Domain\Learners\Services\LearnerClock;
+use App\Domain\Learners\Support\StoredDate;
 use App\Jobs\RewardReferralJob;
 use App\Models\AuditLog;
 use App\Models\Learner;
@@ -442,8 +443,8 @@ final class ReferralService
         $days = LearnerDailyStats::query()
             ->where('learner_id', $referee->id)
             ->where('reviews_count', '>=', $reviewsPerDay)
-            ->where('date', '>=', self::storedDate($firstDay))
-            ->where('date', '<=', self::storedDate($lastDay))
+            ->where('date', '>=', StoredDate::of($firstDay))
+            ->where('date', '<=', StoredDate::of($lastDay))
             ->orderBy('date')
             ->pluck('date')
             ->map(static fn (mixed $d): string => CarbonImmutable::parse($d)->toDateString())
@@ -621,11 +622,5 @@ final class ReferralService
                 'at' => $now->toIso8601String(),
             ],
         ]);
-    }
-
-    /** The `date` column as Eloquent stores it (sqlite compares text; see DailyStatsService). */
-    private static function storedDate(string $localDate): string
-    {
-        return (string) (new LearnerDailyStats)->fromDateTime($localDate);
     }
 }

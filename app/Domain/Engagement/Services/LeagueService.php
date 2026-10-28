@@ -14,6 +14,7 @@ use App\Domain\Engagement\Enums\LeagueResult;
 use App\Domain\Engagement\Enums\LeagueWeekStatus;
 use App\Domain\Engagement\Exceptions\LeagueAlreadyPlaced;
 use App\Domain\Engagement\Exceptions\LeagueWeekNotOpen;
+use App\Domain\Learners\Support\StoredDate;
 use App\Jobs\SendLeagueResultsJob;
 use App\Models\LeagueGroup;
 use App\Models\LeagueMember;
@@ -135,7 +136,7 @@ final class LeagueService
     public function findWeek(CarbonImmutable $now): ?LeagueWeek
     {
         /** @var LeagueWeek|null $week */
-        $week = LeagueWeek::query()->where('starts_on', $this->storedDate($this->weekStart($now)->toDateString()))->first();
+        $week = LeagueWeek::query()->where('starts_on', StoredDate::of($this->weekStart($now)->toDateString()))->first();
 
         return $week;
     }
@@ -230,14 +231,20 @@ final class LeagueService
         return $member;
     }
 
-    /** The learner's most recent closed membership (result known), if any — what the overview shows as "last week". */
+    /**
+     * The learner's most recent closed membership (result known), if any — what the overview shows as "last week".
+     * "Most recent" is by the week's date, as in {@see tierFor()}, not by row order: a week row can be created after
+     * the row of a later week.
+     */
     public function lastResult(Learner $learner): ?LeagueMember
     {
         /** @var LeagueMember|null $member */
         $member = LeagueMember::query()
-            ->where('learner_id', $learner->id)
-            ->whereNotNull('result')
-            ->orderByDesc('league_week_id')
+            ->join('league_weeks', 'league_weeks.id', '=', 'league_members.league_week_id')
+            ->where('league_members.learner_id', $learner->id)
+            ->whereNotNull('league_members.result')
+            ->orderByDesc('league_weeks.starts_on')
+            ->select('league_members.*')
             ->first();
 
         return $member;
@@ -409,7 +416,7 @@ final class LeagueService
             'members' => LeagueMember::query()->where('league_week_id', $week->id)->count(),
         ]);
 
-        $this->queueResultMessages($week);
+        $this->queueResultMessages($week, $now);
 
         // The winners of the groups get `league_top1` (docs/13 §7.4) — after the commit, once per learner
         // (the unique key), and a failure here never undoes the closed week.
@@ -435,7 +442,7 @@ final class LeagueService
         /** @var EloquentCollection<int, LeagueWeek> $due */
         $due = LeagueWeek::query()
             ->where('status', '<>', LeagueWeekStatus::Closed->value)
-            ->where('starts_on', '<', $this->storedDate($this->weekStart($now)->toDateString()))
+            ->where('starts_on', '<', StoredDate::of($this->weekStart($now)->toDateString()))
             ->orderBy('starts_on')
             ->get();
 
@@ -489,7 +496,7 @@ final class LeagueService
         $member = LeagueMember::query()
             ->join('league_weeks', 'league_weeks.id', '=', 'league_members.league_week_id')
             ->where('league_members.learner_id', $learner->id)
-            ->where('league_weeks.starts_on', '<', $this->storedDate($week->starts_on->toDateString()))
+            ->where('league_weeks.starts_on', '<', StoredDate::of($week->starts_on->toDateString()))
             ->orderByDesc('league_weeks.starts_on')
             ->select('league_members.*')
             ->first();
@@ -645,9 +652,10 @@ final class LeagueService
     /**
      * Queues the result DMs of the week in batches of `notify_batch_size` members ({@see SendLeagueResultsJob}),
      * skipping those not worth a message: banned, DM closed, opted out, deleted (the sender checks the same
-     * again at send time). One query over the week's members, no models.
+     * again at send time). One query over the week's members, no models. All batches share ONE deadline
+     * (`leagues.notify_ttl_hours` from the close), which the remainders handed on by the jobs keep.
      */
-    private function queueResultMessages(LeagueWeek $week): void
+    private function queueResultMessages(LeagueWeek $week, CarbonImmutable $closedAt): void
     {
         $rows = DB::table('league_members as lm')
             ->join('learners as l', 'l.id', '=', 'lm.learner_id')
@@ -667,8 +675,9 @@ final class LeagueService
             $memberIds[] = (int) $row->id;
         }
 
+        $notAfter = SendLeagueResultsJob::deadline($closedAt)->getTimestamp();
         foreach (array_chunk($memberIds, max(1, (int) config('leagues.notify_batch_size', 100))) as $batch) {
-            SendLeagueResultsJob::dispatch($batch);
+            SendLeagueResultsJob::dispatch($batch, $notAfter);
         }
     }
 
@@ -746,8 +755,8 @@ final class LeagueService
      */
     private function computeStandings(LeagueGroup $group, LeagueWeek $week): array
     {
-        $from = $this->storedDate($week->starts_on->toDateString());
-        $to = $this->storedDate($week->ends_on->toDateString());
+        $from = StoredDate::of($week->starts_on->toDateString());
+        $to = StoredDate::of($week->ends_on->toDateString());
         $weights = $this->weights();
 
         $rows = DB::table('league_members as lm')
@@ -889,11 +898,5 @@ final class LeagueService
             'new_word' => (int) config('leagues.points.new_word', 2),
             'goal_met' => (int) config('leagues.points.goal_met', 10),
         ];
-    }
-
-    /** A `date` column as Eloquent stores it (sqlite compares text; see DailyStatsService). */
-    private function storedDate(string $date): string
-    {
-        return (string) (new LeagueWeek)->fromDateTime($date);
     }
 }

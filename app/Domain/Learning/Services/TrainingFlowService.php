@@ -7,6 +7,7 @@ namespace App\Domain\Learning\Services;
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Billing\Services\EntitlementResolver;
+use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Content\Services\DeckTitles;
 use App\Domain\Content\Services\WordAudioService;
 use App\Domain\Content\Services\WordTranslationResolver;
@@ -62,6 +63,7 @@ final class TrainingFlowService
         private readonly ExercisePromptBuilder $prompts,
         private readonly WordAudioService $audio,
         private readonly DeckTitles $deckTitles,
+        private readonly CourseCatalogService $catalog,
     ) {}
 
     /**
@@ -75,12 +77,13 @@ final class TrainingFlowService
             return new TrainingStart($session, null, $goal, $this->nextStep($session, $learner, $goal));
         }
 
-        $session->loadMissing('lesson.stage.course');
-
-        $lesson = $session->lesson;
+        // The lesson with its stage and the access facts of its course in ONE query (not lesson, stage, course
+        // one after another): what the response shows (stage number, lesson, own-deck title) and nothing more.
+        $lesson = $this->catalog->lessonWithContext((int) $session->lesson_id);
         if ($lesson === null) {
             return null;
         }
+        $session->setRelation('lesson', $lesson);
 
         $totalWords = $this->cache->lessonWordCount((int) $lesson->id);
 

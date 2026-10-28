@@ -40,6 +40,12 @@ final class CourseCatalogService
 
     private const PUBLISHED_CACHE_TTL = 600;
 
+    /** The columns of `stages`, selected beside a lesson's under the prefix `stage__` (a join cannot return two `id`s). */
+    private const STAGE_COLUMNS = ['id', 'course_id', 'number', 'title', 'description', 'created_at', 'updated_at'];
+
+    /** The columns of `courses` a lesson row carries under `course__`: whose the course is and whether it is open. */
+    private const COURSE_COLUMNS = ['id', 'slug', 'owner_type', 'owner_id', 'visibility', 'status'];
+
     public function __construct(private readonly LocaleResolver $locales, private readonly DeckTitles $deckTitles) {}
 
     /**
@@ -105,12 +111,15 @@ final class CourseCatalogService
      *
      * One anti-join at the level of WORDS (never-served active words of the course, `LIMIT 1` in study
      * order) instead of a correlated `EXISTS` per lesson: the lookup is one pass over the words of the
-     * course and the learner's rows, not lessons × the learner's cards.
+     * course and the learner's rows, not lessons × the learner's cards. The lesson comes with its `stage`
+     * loaded from the very same row (the join is there anyway for the order), not by a second query.
      */
     public function nextLessonWithNewWords(Course $course, Learner $learner): ?Lesson
     {
-        return Lesson::query()
+        /** @var Lesson|null $lesson */
+        $lesson = Lesson::query()
             ->select('lessons.*')
+            ->addSelect(self::stageColumns())
             ->join('stages', 'stages.id', '=', 'lessons.stage_id')
             ->join('words', 'words.lesson_id', '=', 'lessons.id')
             ->where('stages.course_id', $course->id)
@@ -121,8 +130,31 @@ final class CourseCatalogService
                 ->where('word_repetitions.learner_id', $learner->id))
             ->orderBy('stages.number')
             ->orderBy('lessons.number')
-            ->with('stage')
             ->first();
+
+        return $lesson === null ? null : $this->withJoinedRelations($lesson);
+    }
+
+    /**
+     * A lesson with its stage and the course facts that decide access and titles, read in ONE query (the three
+     * joins) instead of the three of `loadMissing('stage.course')`: the lesson is a whole model, its `stage` is a
+     * whole model, and `stage.course` is a Course with the access columns only (`id, slug, owner_type, owner_id,
+     * visibility, status`) - no title / description; whoever needs the content of the course reads the course.
+     * Null when the lesson does not exist.
+     */
+    public function lessonWithContext(int $lessonId): ?Lesson
+    {
+        /** @var Lesson|null $lesson */
+        $lesson = Lesson::query()
+            ->select('lessons.*')
+            ->addSelect(self::stageColumns())
+            ->addSelect(self::courseColumns())
+            ->join('stages', 'stages.id', '=', 'lessons.stage_id')
+            ->join('courses', 'courses.id', '=', 'stages.course_id')
+            ->where('lessons.id', $lessonId)
+            ->first();
+
+        return $lesson === null ? null : $this->withJoinedRelations($lesson);
     }
 
     /**
@@ -434,6 +466,65 @@ final class CourseCatalogService
             $course->words_count,
             $course->is_featured,
         );
+    }
+
+    /** @return list<string> `stages.<column> as stage__<column>` for the select of a lesson joined with its stage */
+    private static function stageColumns(): array
+    {
+        return array_map(static fn (string $column): string => "stages.{$column} as stage__{$column}", self::STAGE_COLUMNS);
+    }
+
+    /** @return list<string> `courses.<column> as course__<column>` */
+    private static function courseColumns(): array
+    {
+        return array_map(static fn (string $column): string => "courses.{$column} as course__{$column}", self::COURSE_COLUMNS);
+    }
+
+    /**
+     * Turns the prefixed columns a lesson row carries (`stage__*`, and `course__*` when the course was joined too)
+     * into the relations `stage` and `stage.course`, and takes them out of the lesson's own attributes, so the
+     * lesson is the model a plain `Lesson::find()` would be - with its relations already loaded.
+     */
+    private function withJoinedRelations(Lesson $lesson): Lesson
+    {
+        $attributes = $lesson->getAttributes();
+        $connection = $lesson->getConnectionName();
+        $stage = $this->takePrefixed($attributes, 'stage__', self::STAGE_COLUMNS);
+        $course = $this->takePrefixed($attributes, 'course__', self::COURSE_COLUMNS);
+        $lesson->setRawAttributes($attributes, true);
+
+        if ($stage !== null) {
+            $stageModel = (new Stage)->newFromBuilder($stage, $connection);
+            if ($course !== null) {
+                $stageModel->setRelation('course', (new Course)->newFromBuilder($course, $connection));
+            }
+            $lesson->setRelation('stage', $stageModel);
+        }
+
+        return $lesson;
+    }
+
+    /**
+     * Removes the `$prefix`ed columns from `$attributes` and returns them under their own names; null when the row
+     * has none (that table was not joined).
+     *
+     * @param  array<string, mixed>  $attributes
+     * @param  list<string>  $columns
+     * @return array<string, mixed>|null
+     */
+    private function takePrefixed(array &$attributes, string $prefix, array $columns): ?array
+    {
+        if (! array_key_exists($prefix.$columns[0], $attributes)) {
+            return null;
+        }
+
+        $taken = [];
+        foreach ($columns as $column) {
+            $taken[$column] = $attributes[$prefix.$column] ?? null;
+            unset($attributes[$prefix.$column]);
+        }
+
+        return $taken;
     }
 
     /**

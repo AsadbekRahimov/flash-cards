@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Organizations\Services;
 
+use App\Domain\Learners\Support\StoredDate;
 use App\Domain\Organizations\DTO\DateRange;
 use App\Domain\Organizations\DTO\GroupActivityRow;
 use App\Domain\Organizations\DTO\LearnerActivityRow;
@@ -55,8 +56,8 @@ final class OrgActivityReport
         $stats = [];
         $statRows = LearnerDailyStats::query()
             ->whereIn('learner_id', $ids)
-            ->where('date', '>=', $this->storedDate($range->from))
-            ->where('date', '<=', $this->storedDate($range->to))
+            ->where('date', '>=', StoredDate::of($range->from))
+            ->where('date', '<=', StoredDate::of($range->to))
             ->groupBy('learner_id')
             ->select('learner_id')
             ->selectRaw('COALESCE(SUM(reviews_count), 0) AS reviews')
@@ -134,8 +135,8 @@ final class OrgActivityReport
             ->whereIn('gm.telegram_group_id', $groupIds)
             ->where('gm.status', 'active')
             ->whereIn('gm.learner_id', $scoped)
-            ->where('s.date', '>=', $this->storedDate($range->from))
-            ->where('s.date', '<=', $this->storedDate($range->to))
+            ->where('s.date', '>=', StoredDate::of($range->from))
+            ->where('s.date', '<=', StoredDate::of($range->to))
             ->groupBy('gm.telegram_group_id')
             ->select('gm.telegram_group_id as group_id')
             ->selectRaw('COALESCE(SUM(s.reviews_count), 0) AS reviews')
@@ -236,12 +237,6 @@ final class OrgActivityReport
         }
 
         return $totals;
-    }
-
-    /** The `date` column as Eloquent stores it (sqlite keeps text, so bounds must be in the same format). */
-    private function storedDate(string $localDate): string
-    {
-        return (string) (new LearnerDailyStats)->fromDateTime($localDate);
     }
 
     private function displayName(Learner $learner): string

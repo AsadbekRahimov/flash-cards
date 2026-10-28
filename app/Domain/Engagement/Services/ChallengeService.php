@@ -14,6 +14,7 @@ use App\Domain\Engagement\Enums\FriendDmKind;
 use App\Domain\Engagement\Enums\FriendshipStatus;
 use App\Domain\Engagement\Exceptions\ChallengeException;
 use App\Domain\Learners\Services\LearnerClock;
+use App\Domain\Learners\Support\StoredDate;
 use App\Jobs\SendFriendDmJob;
 use App\Models\Challenge;
 use App\Models\Friendship;
@@ -149,8 +150,8 @@ final class ChallengeService
                 'status' => ChallengeStatus::Active->value,
                 'starts_at' => $this->clock->localDateBoundsUtc($challenger, $startsOn->toDateString())->startUtc,
                 'ends_at' => $endsAt,
-                'starts_on' => self::storedDate($startsOn->toDateString()),
-                'ends_on' => self::storedDate($endsOn->toDateString()),
+                'starts_on' => StoredDate::of($startsOn->toDateString()),
+                'ends_on' => StoredDate::of($endsOn->toDateString()),
                 'updated_at' => $now,
             ]);
 
@@ -474,8 +475,8 @@ final class ChallengeService
 
         $rows = LearnerDailyStats::query()
             ->whereIn('learner_id', array_keys($sides))
-            ->where('date', '>=', self::storedDate(min(array_column($active, 1))))
-            ->where('date', '<=', self::storedDate(max(array_column($active, 2))))
+            ->where('date', '>=', StoredDate::of(min(array_column($active, 1))))
+            ->where('date', '<=', StoredDate::of(max(array_column($active, 2))))
             ->toBase()
             ->get(['learner_id', 'date', ...$columns]);
 
@@ -521,8 +522,8 @@ final class ChallengeService
     {
         return (int) LearnerDailyStats::query()
             ->where('learner_id', $learnerId)
-            ->where('date', '>=', self::storedDate($from))
-            ->where('date', '<=', self::storedDate($to))
+            ->where('date', '>=', StoredDate::of($from))
+            ->where('date', '<=', StoredDate::of($to))
             ->sum($metric->column());
     }
 
@@ -566,11 +567,5 @@ final class ChallengeService
             ->whereKey($id)
             ->where('status', $from->value)
             ->update(['status' => $to->value, 'open_pair' => null, 'finished_at' => $now, 'updated_at' => $now]);
-    }
-
-    /** What a `date` column holds for a local date: sqlite keeps `Y-m-d 00:00:00` when written through a model cast, so compare in that form. */
-    private static function storedDate(string $localDate): string
-    {
-        return (string) (new LearnerDailyStats)->fromDateTime($localDate);
     }
 }

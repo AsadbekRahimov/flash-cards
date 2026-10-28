@@ -21,8 +21,13 @@ return [
     /** One boundary for everyone: weeks run Monday–Sunday in this zone (docs/13 §7.3). */
     'timezone' => env('LEAGUES_TIMEZONE', 'Asia/Tashkent'),
 
-    /** Members per group; a new group of the tier is opened when every existing one is full. */
-    'capacity' => (int) env('LEAGUES_GROUP_CAPACITY', 30),
+    /**
+     * Members per group; a new group of the tier is opened when every existing one is full. At most 500, whatever the
+     * environment says: the final points / ranks / results of a group are written in ONE statement with 4 bound
+     * parameters per member (LeagueService::writeOutcomes) and PostgreSQL takes at most 65 535 parameters per
+     * statement (16 383 members) - a larger group would never close. A group of hundreds is no league anyway.
+     */
+    'capacity' => min(500, (int) env('LEAGUES_GROUP_CAPACITY', 30)),
 
     /** Top-N of a group promoted / bottom-N demoted at the close (tier 0 never demotes, the top tier never promotes). */
     'promote' => (int) env('LEAGUES_PROMOTE', 5),

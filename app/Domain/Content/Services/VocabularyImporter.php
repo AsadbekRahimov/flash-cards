@@ -135,6 +135,9 @@ final class VocabularyImporter
         }
 
         $lesson = DB::transaction(function () use ($data, $words, $course, $report, $by, $auditContext): Lesson {
+            // The first lock of the transaction: the writers of one course take turns (CoursePublisher::lockForWriting).
+            $this->publisher->lockForWriting($course);
+
             $stage = Stage::updateOrCreate(
                 ['course_id' => $course->id, 'number' => $data['stage']['number']],
                 array_filter([

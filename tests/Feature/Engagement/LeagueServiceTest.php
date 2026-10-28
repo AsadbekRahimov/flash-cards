@@ -105,6 +105,43 @@ it('keys the week by the Monday in the league time zone, one row per week', func
         ->and(lgService()->hasEnded($monday, lgNow('2026-10-25 18:59:59')))->toBeFalse();
 });
 
+it('caps the group capacity from the environment at 500, the size the closing statement can bind', function (): void {
+    // The final columns of a group go out in ONE statement with 4 bound parameters per member and PostgreSQL takes at
+    // most 65 535 of them: a group of 16 384 could never be closed, so no environment value gets there.
+    $capacity = function (string $env): int {
+        $key = 'LEAGUES_GROUP_CAPACITY';
+        $envBefore = $_ENV[$key] ?? null;
+        $serverBefore = $_SERVER[$key] ?? null;
+        $_ENV[$key] = $_SERVER[$key] = $env;
+
+        try {
+            /** @var array{capacity: int} $config */
+            $config = require config_path('leagues.php');
+
+            return $config['capacity'];
+        } finally {
+            if ($envBefore === null) {
+                unset($_ENV[$key]);
+            } else {
+                $_ENV[$key] = $envBefore;
+            }
+            if ($serverBefore === null) {
+                unset($_SERVER[$key]);
+            } else {
+                $_SERVER[$key] = $serverBefore;
+            }
+        }
+    };
+
+    expect($capacity('12'))->toBe(12)
+        ->and($capacity('500'))->toBe(500)
+        ->and($capacity('501'))->toBe(500)
+        ->and($capacity('16384'))->toBe(500)
+        ->and($capacity('1000000'))->toBe(500)
+        // and what the app reads after the test is what it read before
+        ->and(config('leagues.capacity'))->toBe(30);
+});
+
 // --- placement ----------------------------------------------------------------------------
 
 it('places a newcomer in tier 0 of the current week once, whatever how often it is asked', function (): void {
@@ -182,7 +219,7 @@ it('takes the tier of the next week from the last closed result, bounded to the 
         ->and(LeagueGroup::query()->where('league_week_id', lgService()->findWeek(lgNow())?->id)->pluck('tier')->sort()->values()->all())->toBe([0, 3, 4]); // the 'pending' one shares the top-tier group
 });
 
-it('takes the verdict of the latest week by date, not by row order, and keeps the tier over a skipped week', function (): void {
+it('takes the verdict of the latest week by date, not by row order, shows it as the last result, and keeps the tier over a skipped week', function (): void {
     $learner = Learner::factory()->create();
     // Rows created newest-week-first: ids would pick the wrong one.
     $later = LeagueWeek::factory()->startingOn('2026-10-12')->closed()->create();
@@ -197,6 +234,12 @@ it('takes the verdict of the latest week by date, not by row order, and keeps th
     ]);
 
     expect(lgService()->tierFor($learner, lgService()->currentWeek(lgNow()), lgNow()))->toBe(3);
+
+    // "Last week" of the overview is the same week by the same rule (its week row was created first, its date is later).
+    $last = lgService()->lastResult($learner);
+    expect($last?->league_week_id)->toBe($later->id)
+        ->and($last?->result)->toBe('promoted')
+        ->and(lgService()->overview($learner, lgNow())->lastResult?->league_week_id)->toBe($later->id);
 
     // Two weeks later, nothing in between: still the same verdict.
     $this->travelTo(lgNow('2026-11-04 05:00:00'));
@@ -421,6 +464,22 @@ it('closes a week once: final ranks and points, top-N promoted, bottom-N demoted
     $closed = lgService()->standings($groups[2], $now->addDay());
     expect($closed->map(fn ($s): array => [$s->rank, $s->points])->all())->toBe([[1, 60], [2, 50], [3, 40], [4, 30], [5, 20], [6, 10]])
         ->and(Cache::has(LeagueService::CACHE_PREFIX.$groups[2]->id))->toBeFalse();
+});
+
+it('queues every batch of the mailing with one deadline, counted from the close', function (): void {
+    Queue::fake();
+    config(['leagues.notify_batch_size' => 5, 'leagues.notify_ttl_hours' => 6]);
+    ['week' => $week] = lgWeekToClose();
+    $closedAt = lgNow('2026-10-18 19:05:00');
+
+    // The wall clock is days later than the close: the deadline follows the close, not the moment of queuing.
+    expect(lgService()->closeWeek($week, $closedAt))->toBeTrue();
+
+    $jobs = Queue::pushed(SendLeagueResultsJob::class);
+    $deadline = $closedAt->addHours(6)->getTimestamp();
+    expect($jobs)->toHaveCount(4)
+        ->and($jobs->map(fn (SendLeagueResultsJob $job): ?int => $job->notAfter)->unique()->all())->toBe([$deadline])
+        ->and($jobs->map(fn (SendLeagueResultsJob $job): int => $job->retryUntil()->getTimestamp())->unique()->all())->toBe([$deadline]);
 });
 
 it('writes the final columns of a group in ONE statement', function (): void {

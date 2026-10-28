@@ -14,6 +14,7 @@ use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
+use App\Jobs\SendLeagueResultJob;
 use App\Jobs\SendLeagueResultsJob;
 use App\Models\LeagueGroup;
 use App\Models\LeagueMember;
@@ -22,6 +23,8 @@ use App\Models\Learner;
 use App\Models\NotificationLog;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Queue;
 use Tests\Support\FakeTelegramClient;
@@ -199,6 +202,30 @@ it('stops when no slot of the bot-wide budget comes and hands the rest back; the
         ->and($this->tg->sent)->toHaveCount(1);
 });
 
+it('judges the members who need no message before it takes a slot, so they do not use up the budget', function (): void {
+    config(['telegram.outbound.sync_wait_ms' => 0]);
+    $messaged = lrMember(Learner::factory()->create(['telegram_user_id' => 777_101]), 0, 'stayed');
+    $optedOut = lrMember(Learner::factory()->create(['telegram_user_id' => 777_102, 'meta' => ['leagues_opt_out' => true]]), 0, 'stayed');
+    $banned = lrMember(Learner::factory()->create(['telegram_user_id' => 777_103, 'blocked_at' => now()]), 0, 'stayed');
+    $blocked = lrMember(Learner::factory()->create(['telegram_user_id' => 777_104, 'dm_blocked_at' => now()]), 0, 'stayed');
+    $fresh = lrMember(Learner::factory()->create(['telegram_user_id' => 777_105]), 0, 'stayed');
+    $ids = [$messaged->id, $optedOut->id, 999_999, $banned->id, $blocked->id, $fresh->id];
+    expect(lrSend($messaged))->toBe('sent'); // before the budget is limited: this member has had his DM
+
+    // ONE slot in this second. Spent on a member who is skipped anyway, the one who needs the DM would be left without.
+    $limiter = new TelegramMessageRateLimiter(globalPerSecond: 1);
+    $this->app->instance(TelegramMessageRateLimiter::class, $limiter);
+
+    expect(app(LeagueResultSender::class)->sendBatch($ids, 30))->toBe(['sent' => 1, 'skipped' => 5, 'forbidden' => 0, 'failed' => 0, 'remaining' => []])
+        ->and(array_column($this->tg->sent, 'chat_id'))->toBe([777_101, 777_105])
+        ->and($limiter->reserveGlobal())->toBeFalse(); // the single slot went to the member who got the DM
+
+    // A batch of skips alone takes no slot at all.
+    $this->travel(1)->seconds();
+    expect(app(LeagueResultSender::class)->sendBatch([$messaged->id, $optedOut->id, $fresh->id], 30))->toBe(['sent' => 0, 'skipped' => 3, 'forbidden' => 0, 'failed' => 0, 'remaining' => []])
+        ->and($limiter->reserveGlobal())->toBeTrue();
+});
+
 it('hands the rest to a fresh job when the time budget is spent — at least one message per job', function (): void {
     Queue::fake();
     [$a, $b, $c] = lrThree();
@@ -225,4 +252,174 @@ it('is executed from the queue after a close with the real sender, and is bounde
         ->and($job->maxExceptions)->toBeGreaterThanOrEqual(1)
         ->and($job->retryUntil()->getTimestamp())->toBe(now()->addHours(12)->getTimestamp())
         ->and(method_exists($job, 'middleware'))->toBeFalse(); // one slot per MESSAGE inside the batch, not one per job
+});
+
+// --- the deadline of the mailing -----------------------------------------------------------------
+
+it('hands the rest on with the deadline of the mailing, never with a fresh TTL', function (): void {
+    Queue::fake();
+    config(['telegram.outbound.sync_wait_ms' => 0]);
+    [$a, $b, $c] = lrThree();
+    $notAfter = now()->addHours(12)->getTimestamp();
+
+    $handle = function (SendLeagueResultsJob $job): void {
+        // No slot of the bot-wide budget in this second: nothing goes out, everything is handed on.
+        $limiter = new TelegramMessageRateLimiter(globalPerSecond: 1);
+        $this->app->instance(TelegramMessageRateLimiter::class, $limiter);
+        $limiter->reserveGlobal();
+        $job->handle(app(LeagueResultSender::class), $limiter);
+    };
+
+    $handle(new SendLeagueResultsJob([$a->id, $b->id, $c->id], $notAfter));
+    $remainder = Queue::pushed(SendLeagueResultsJob::class)->sole();
+    expect($remainder->memberIds)->toBe([$a->id, $b->id, $c->id])
+        ->and($remainder->notAfter)->toBe($notAfter)
+        ->and($remainder->retryUntil()->getTimestamp())->toBe($notAfter);
+
+    // Eleven hours on the remainder meets the same wall again and passes the same deadline to its own remainder:
+    // 23 hours after the mailing began it would still be alive if each dispatch started the TTL over.
+    $this->travel(11)->hours();
+    Queue::fake();
+    $handle($remainder);
+    $again = Queue::pushed(SendLeagueResultsJob::class)->sole();
+    expect($again->notAfter)->toBe($notAfter)
+        ->and($again->retryUntil()->getTimestamp())->toBe($notAfter)
+        ->and($again->retryUntil()->getTimestamp())->toBeLessThan(now()->addHours(12)->getTimestamp());
+
+    // A job built without a deadline starts the TTL now (what a hand-made dispatch gets).
+    $fresh = new SendLeagueResultsJob([$a->id]);
+    expect($fresh->notAfter)->toBeNull()
+        ->and($fresh->retryUntil()->getTimestamp())->toBe(now()->addHours(12)->getTimestamp());
+    config(['leagues.notify_ttl_hours' => 3]);
+    expect($fresh->retryUntil()->getTimestamp())->toBe(now()->addHours(3)->getTimestamp());
+});
+
+it('reads a payload queued before the deadline existed as a job without one', function (): void {
+    // Exactly what the previous build serialized: the members only.
+    $legacy = unserialize('O:29:"App\Jobs\SendLeagueResultsJob":1:{s:9:"memberIds";a:2:{i:0;i:5;i:1;i:6;}}');
+
+    expect($legacy)->toBeInstanceOf(SendLeagueResultsJob::class)
+        ->and($legacy->memberIds)->toBe([5, 6])
+        ->and($legacy->notAfter)->toBeNull()
+        ->and($legacy->retryUntil()->getTimestamp())->toBe(now()->addHours(12)->getTimestamp());
+});
+
+it('lets the worker drop a remainder that outlived the mailing, sending nothing', function (): void {
+    config(['queue.default' => 'database', 'telegram.outbound.sync_wait_ms' => 0]);
+    [$a, $b] = array_slice(lrThree(), 0, 2);
+    $notAfter = now()->addHours(12)->getTimestamp();
+
+    // Eleven hours into the mailing a batch finds no slot of the bot-wide budget and hands both members on: the
+    // remainder goes into a real queued job (the database queue; the worker below runs it).
+    $this->travel(11)->hours();
+    $limiter = new TelegramMessageRateLimiter(globalPerSecond: 1);
+    $this->app->instance(TelegramMessageRateLimiter::class, $limiter);
+    $limiter->reserveGlobal();
+    (new SendLeagueResultsJob([$a->id, $b->id], $notAfter))->handle(app(LeagueResultSender::class), $limiter);
+    expect(DB::table('jobs')->count())->toBe(1)
+        // The deadline of the mailing, not eleven hours later (a TTL restarted at the dispatch).
+        ->and(DB::table('jobs')->value('payload'))->toContain('"retryUntil":'.$notAfter.',');
+
+    // One second past the deadline the worker fails the job before handle(): nothing is sent, however free the budget is.
+    $this->travelTo(CarbonImmutable::createFromTimestamp($notAfter + 1));
+    Artisan::call('queue:work', ['connection' => 'database', '--once' => true, '--sleep' => 0]);
+
+    expect(DB::table('jobs')->count())->toBe(0)
+        ->and(DB::table('failed_jobs')->count())->toBe(1)
+        ->and($this->tg->sent)->toBe([])
+        ->and(NotificationLog::query()->count())->toBe(0);
+});
+
+it('still runs a remainder that is inside the deadline', function (): void {
+    config(['queue.default' => 'database', 'telegram.outbound.sync_wait_ms' => 0]);
+    [$a, $b] = array_slice(lrThree(), 0, 2);
+    $notAfter = now()->addHours(12)->getTimestamp();
+    $limiter = new TelegramMessageRateLimiter(globalPerSecond: 1);
+    $this->app->instance(TelegramMessageRateLimiter::class, $limiter);
+    $limiter->reserveGlobal();
+    (new SendLeagueResultsJob([$a->id, $b->id], $notAfter))->handle(app(LeagueResultSender::class), $limiter);
+
+    $this->travelTo(CarbonImmutable::createFromTimestamp($notAfter - 1));
+    Artisan::call('queue:work', ['connection' => 'database', '--once' => true, '--sleep' => 0]);
+
+    // The first member got the slot of the new second; the rest is queued again, with the same deadline.
+    expect($this->tg->sent)->toHaveCount(1)
+        ->and(DB::table('failed_jobs')->count())->toBe(0)
+        ->and(DB::table('jobs')->count())->toBe(1)
+        ->and(DB::table('jobs')->value('payload'))->toContain('"retryUntil":'.$notAfter.',');
+});
+
+// --- the deprecated one-member job (a release in flight) ----------------------------------------------
+
+/** The job exactly as the release before the batches serialized it. */
+function lrLegacyPayload(int $memberId): string
+{
+    return sprintf('O:28:"App\Jobs\SendLeagueResultJob":1:{s:8:"memberId";i:%d;}', $memberId);
+}
+
+/** A row of the `jobs` table as the release before the batches queued it. */
+function lrQueueLegacyJob(string $uuid, int $memberId, int $deadline): void
+{
+    DB::table('jobs')->insert([
+        'queue' => 'default',
+        'payload' => json_encode([
+            'uuid' => $uuid,
+            'displayName' => 'App\Jobs\SendLeagueResultJob',
+            'job' => 'Illuminate\Queue\CallQueuedHandler@call',
+            'maxTries' => 0,
+            'maxExceptions' => 3,
+            'failOnTimeout' => false,
+            'backoff' => '60',
+            'timeout' => null,
+            'retryUntil' => $deadline,
+            'data' => ['commandName' => 'App\Jobs\SendLeagueResultJob', 'command' => lrLegacyPayload($memberId)],
+        ], JSON_THROW_ON_ERROR),
+        'attempts' => 0,
+        'reserved_at' => null,
+        'available_at' => now()->getTimestamp(),
+        'created_at' => now()->getTimestamp(),
+    ]);
+}
+
+it('still runs a one-member job of the old format and never doubles a DM, whoever else sends the member', function (): void {
+    [$a, $b] = array_slice(lrThree(), 0, 2);
+
+    $old = unserialize(lrLegacyPayload($a->id));
+    expect($old)->toBeInstanceOf(SendLeagueResultJob::class)
+        ->and($old->memberId)->toBe($a->id)
+        ->and(serialize(new SendLeagueResultJob($a->id)))->toBe(lrLegacyPayload($a->id));
+
+    $old->handle(app(LeagueResultSender::class));
+    expect(array_column($this->tg->sent, 'chat_id'))->toBe([777_001]);
+
+    // A retry of the same job, and a batch of the new kind that holds the same member: only the new member goes out.
+    $old->handle(app(LeagueResultSender::class));
+    expect(app(LeagueResultSender::class)->sendBatch([$a->id, $b->id], 30))->toBe(['sent' => 1, 'skipped' => 1, 'forbidden' => 0, 'failed' => 0, 'remaining' => []])
+        ->and(array_column($this->tg->sent, 'chat_id'))->toBe([777_001, 777_002])
+        ->and(NotificationLog::query()->where('type', 'league_result')->count())->toBe(2);
+});
+
+it('runs a queued one-member payload of the old format in the worker, through the send budget', function (): void {
+    config(['queue.default' => 'database', 'telegram.outbound.sync_wait_ms' => 0]);
+    [$a, $b] = array_slice(lrThree(), 0, 2);
+    $deadline = now()->addHours(12)->getTimestamp();
+
+    lrQueueLegacyJob('b7f0a8de-0c43-4a35-8f0c-6f1d7a6a1c01', $a->id, $deadline);
+    Artisan::call('queue:work', ['connection' => 'database', '--once' => true, '--sleep' => 0]);
+
+    expect($this->tg->sent)->toHaveCount(1)
+        ->and(DB::table('jobs')->count())->toBe(0)
+        ->and(DB::table('failed_jobs')->count())->toBe(0)
+        ->and(NotificationLog::query()->where('type', 'league_result')->count())->toBe(1);
+
+    // The slot of the bot-wide budget is taken by the job's middleware: with none left it is put back, nothing is sent.
+    $limiter = new TelegramMessageRateLimiter(globalPerSecond: 1);
+    $this->app->instance(TelegramMessageRateLimiter::class, $limiter);
+    $limiter->reserveGlobal();
+    lrQueueLegacyJob('b7f0a8de-0c43-4a35-8f0c-6f1d7a6a1c02', $b->id, $deadline);
+    Artisan::call('queue:work', ['connection' => 'database', '--once' => true, '--sleep' => 0]);
+
+    expect($this->tg->sent)->toHaveCount(1)
+        ->and(DB::table('jobs')->count())->toBe(1)
+        ->and(DB::table('failed_jobs')->count())->toBe(0);
 });

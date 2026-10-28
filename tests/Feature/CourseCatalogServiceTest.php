@@ -8,6 +8,8 @@ use App\Models\Lesson;
 use App\Models\Stage;
 use App\Models\TelegramGroup;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\HotPathFixtures as Fx;
+use Tests\Support\QueryLog;
 
 uses(RefreshDatabase::class);
 
@@ -90,3 +92,36 @@ it('applies one availability rule to the predicate, the slug lookup and the quer
     'review public' => ['review', 'public', false],
     'archived unlisted' => ['archived', 'unlisted', false],
 ]);
+
+// --- a lesson with its stage and course in one statement ---------------------------------------------------
+
+it('reads a lesson with its stage and the course facts in ONE statement', function (): void {
+    ['lessons' => $lessons] = Fx::course([3 => [5 => 2]], ['owner_type' => 'learner', 'owner_id' => 77, 'visibility' => 'private', 'source' => 'learner']);
+    $id = $lessons['3.5']->id;
+    $lesson = null;
+
+    $queries = QueryLog::during(function () use (&$lesson, $id): void {
+        $lesson = app(CourseCatalogService::class)->lessonWithContext($id);
+    });
+
+    $plain = Lesson::query()->with('stage.course')->findOrFail($id);
+    expect($queries)->toHaveCount(1)
+        // The lesson and its stage are the models a plain find gives, nothing of the join is left in their attributes ...
+        ->and($lesson?->getAttributes())->toBe($plain->getAttributes())
+        ->and($lesson?->stage?->getAttributes())->toBe($plain->stage?->getAttributes())
+        ->and($lesson?->stage?->number)->toBe(3)
+        // ... and the course carries exactly the access facts, which agree with the real row.
+        ->and(array_keys($lesson?->stage?->course?->getAttributes() ?? []))->toBe(['id', 'slug', 'owner_type', 'owner_id', 'visibility', 'status'])
+        ->and($lesson?->stage?->course?->id)->toBe($plain->stage?->course?->id)
+        ->and($lesson?->stage?->course?->owner_type)->toBe('learner')
+        ->and($lesson?->stage?->course?->owner_id)->toBe(77)
+        ->and($lesson?->stage?->course?->visibility)->toBe('private')
+        ->and($lesson?->stage?->course?->isLearnerOwned())->toBeTrue()
+        ->and($lesson?->stage?->course?->exists)->toBeTrue()
+        ->and($lesson?->relationLoaded('stage'))->toBeTrue()
+        ->and($lesson?->stage?->relationLoaded('course'))->toBeTrue();
+});
+
+it('answers null for a lesson that does not exist', function (): void {
+    expect(app(CourseCatalogService::class)->lessonWithContext(999_999))->toBeNull();
+});

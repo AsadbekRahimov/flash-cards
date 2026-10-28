@@ -27,7 +27,7 @@ bash deploy.sh
 
 Скрипт принимает SHA коммита: `bash deploy.sh <sha>` (или переменная `DEPLOY_SHA`). Он делает `git fetch origin`, `git checkout --detach <sha>` и **до сборки** проверяет, что `git rev-parse HEAD` равен запрошенному SHA, иначе завершается с кодом 1. CI передаёт `${{ github.sha }}`, поэтому выкатывается ровно тот коммит, который прошёл проверки, а не то, на что `master` указывает к моменту деплоя; job `deploy` идёт с `concurrency: production-deploy` (без отмены уже идущего деплоя). Деплой по SHA разрешён только вперёд (`git merge-base --is-ancestor HEAD <sha>`), назад — только с `--rollback`. Без SHA скрипт делает `git fetch origin && git checkout --detach origin/${DEPLOY_BRANCH:-master}` (не `git pull`, который ломается в detached HEAD после отката) и печатает предупреждение. Образы в registry не публикуются: собираются на сервере из этого SHA.
 
-Дальше: сборка `app` и `nginx`, первичный сертификат Let's Encrypt при необходимости, миграции до переключения контейнеров, запуск стека и smoke-проверка: `/up`, затем ожидание `/health/ready` (до ~5 минут: нужны пульсы планировщика и воркеров), затем `/twa/index.html` и `/build/manifest.json`. Любой провал = `exit 1` с сообщением и подсказкой про откат. Сертификат обновляет сервис `certbot`; nginx периодически перечитывает сертификаты. Для CI нужен секрет `SSH_PRIVATE_KEY`.
+Дальше: сборка `app` и `nginx`, первичный сертификат Let's Encrypt при необходимости, миграции до переключения контейнеров, затем `php artisan courses:recount-words` (счётчики слов курсов, см. §14.2; не при `--rollback`, сбой только предупреждает), запуск стека и smoke-проверка: `/up`, затем ожидание `/health/ready` (до ~5 минут: нужны пульсы планировщика и воркеров), затем `/twa/index.html` и `/build/manifest.json`. Любой провал = `exit 1` с сообщением и подсказкой про откат. Сертификат обновляет сервис `certbot`; nginx периодически перечитывает сертификаты. Для CI нужен секрет `SSH_PRIVATE_KEY`.
 
 Воркеры очереди в `docker-compose.prod.yml` разделены: `queue-high` (`--queue=high`) и `queue-default` (`--queue=default,low`), `scheduler` отдельно.
 
@@ -485,7 +485,7 @@ This runs every minute. Laravel's scheduler internally dispatches:
 - `challenges:close-due` — every 15 minutes (friend challenges past `ends_at` are scored from `learner_daily_stats` and finished, unanswered pending ones expire; idempotent by a conditional UPDATE; `withoutOverlapping`).
 - `organizations:sync-members` — hourly (repair path of the group -> organization membership hook: a learner in a group of an organization without a membership row gets one; idempotent).
 - `assignments:refresh` — every 30 minutes (assignment snapshots and the group reminder 24 h before a deadline; one-time posts are claimed by conditional UPDATEs; `withoutOverlapping(20)` + `runInBackground`; posts go through the global Telegram send budget, so a queue worker must run).
-- `leagues:close-week` — daily at 00:00 in `LEAGUES_TIMEZONE` (default `Asia/Tashkent`) with a safety run at 00:05 on the same mutex (`cron 0,5 0 * * *`; on Monday it closes the week that just ended: final standings group by group, promotions, result DMs in `SendLeagueResultsJob` batches through the global send budget — a queue worker must run; the 00:05 run and the other days are a no-op or catch up a failed / missed run; idempotent and resumable by `league_weeks.status` + `league_groups.closed_at`; `withoutOverlapping(30)` + `runInBackground`). Do not deploy while the Monday mailing is still queued: queued jobs of the removed `SendLeagueResultJob` class would fail.
+- `leagues:close-week` — daily at 00:00 in `LEAGUES_TIMEZONE` (default `Asia/Tashkent`) with a safety run at 00:05 on the same mutex (`cron 0,5 0 * * *`; on Monday it closes the week that just ended: final standings group by group, promotions, result DMs in `SendLeagueResultsJob` batches through the global send budget — a queue worker must run; the 00:05 run and the other days are a no-op or catch up a failed / missed run; idempotent and resumable by `league_weeks.status` + `league_groups.closed_at`; `withoutOverlapping(30)` + `runInBackground`). The old one-member job `SendLeagueResultJob` is kept as a thin deprecated shim for ONE release: a payload of that class that is still queued while a release rolls out (the Monday mailing in flight) runs as before — one member through a slot of the send budget, at most one DM per member and week by the same `notifications_log` marker the batches use, so it never doubles a DM; nothing dispatches it any more. Remove `app/Jobs/SendLeagueResultJob.php` (and its test in `LeagueResultSenderTest`) in the release after the first one that ships the shim — an old payload dies by its own `retryUntil` (at most `LEAGUES_NOTIFY_TTL_HOURS`, 12 h) after it was queued. So there is no need to wait for the mailing queue to drain before a deploy.
 - `referrals:recover` — every 30 minutes (re-queues `RewardReferralJob` for referrals left `activated` or half-rewarded after a lost job; looks only at rows younger than `REFERRALS_RECOVER_WINDOW_DAYS`; `withoutOverlapping(20)` + `runInBackground`).
 - `billing:reconcile-stars` — daily at 04:30 (Telegram's Stars ledger of the last 2 days vs `payments`; read-only, logs `billing.reconcile_missing*`; exits at once while Stars is disabled).
 - `backup:clean` — daily at 01:00.
@@ -576,6 +576,9 @@ composer install --no-dev --optimize-autoloader --no-interaction
 # Run new migrations
 php artisan migrate --force
 
+# Bring courses.words_count (the `total` of GET /courses) in line with the active words: idempotent and fast (§14.2)
+php artisan courses:recount-words
+
 # Rebuild frontend (if resources/twa/ changed)
 # Use plain `npm ci` — vite/vue-tsc are devDependencies needed for the build.
 cd resources/twa && npm ci && npm run build && cd ../..
@@ -617,6 +620,32 @@ Reminders by the learner's local time replace the old daily `repetitions:notify`
 3. **Clean up the old queue.** The removed `SendReviewReminderJob` may still sit in the Redis queues or in `failed_jobs`: let the workers drain the queue (`php artisan queue:work --stop-when-empty`, or check `redis-cli -n 2 llen queues:default`) and then `php artisan queue:flush` to drop the old failed jobs. A queued old job would fail with a missing class, harmlessly, but would pollute `failed_jobs` alerts.
 4. **Queue visibility timeout.** `REDIS_QUEUE_RETRY_AFTER` must be above the workers' `--timeout` (120 in `docker-compose.prod.yml` and in the supervisor unit); the default and `.env.example` now say 180. A lower value hands a long-running job to a second worker while the first is still running it.
 5. After the first evening check `reminders:dispatch` output (`claimed / queued / skipped stale / repaired / backfilled`) and `failed_jobs`; a peak of N learners takes about N / 25 seconds to leave (at most 14 minutes).
+
+### 14.2 `courses:recount-words` — the word counters of the courses
+
+`courses.words_count` is the number of ACTIVE words of a course and the `total` of the progress in `GET /courses` (the
+catalog no longer counts the words of all courses on each open, docs/03 §6). Every path that changes words keeps it up
+to date (import, the decks of learners, a word switched off in the admin panel); the command is the repair for a figure
+that drifted anyway — a restored dump, hand-made SQL, a release that changes the rule — and `deploy.sh` runs it after the
+migrations (not on `--rollback`: the older code has no such command; a failure only prints a warning with the command).
+
+```bash
+php artisan courses:recount-words
+# course #5 (ielts-core): 480 -> 478
+# Courses checked: 14, changed: 1; lesson caches dropped: 312
+```
+
+- **Every course**: platform, centers', and the decks of learners (they are courses), archived ones too. For each it counts the
+  active words (`CoursePublisher::countActiveWords`); only a course whose figure differs is rewritten through
+  `CoursePublisher::recount()` (so `updated_at` of the courses does not move on every deploy and the cached catalog is dropped
+  only when something changed). The output lists up to 20 corrected courses (`from -> to`) and the totals.
+- **Lesson caches**: the cached active-word count of every lesson (`lesson:{id}:word_count`) is dropped, so the next step of a
+  lesson session counts afresh.
+- **Idempotent**: the second run reports `changed: 0` and writes nothing. It is not in the scheduler; run it after a deploy that
+  needs it, after restoring a database, or by hand when a catalog total looks wrong.
+- **Safe on a live system**: a course that needs a correction is recounted in a short transaction that takes the course row first
+  (the same lock the importer, the decks and the publication take), so a run that meets an import waits for its commit instead of
+  overwriting the counter with a count that misses the import.
 
 ---
 
@@ -984,11 +1013,11 @@ All optional; the defaults are the production values (`.env.example` lists them)
 | `FSRS_WEIGHTS` | built-in 19 weights | Comma-separated FSRS parameters; change only with fitted values |
 | `LEAGUES_ENABLED` | `true` | Weekly leagues on/off |
 | `LEAGUES_TIMEZONE` | `Asia/Tashkent` | Time zone of the week boundary (Monday 00:00 closing job + 00:05 safety run, `leagues:close-week`) |
-| `LEAGUES_GROUP_CAPACITY` | `30` | Learners per league group |
+| `LEAGUES_GROUP_CAPACITY` | `30` | Learners per league group; capped at 500 in `config/leagues.php` (the closing UPDATE of a group binds 4 parameters per member and PostgreSQL allows 65 535) |
 | `LEAGUES_PROMOTE` / `LEAGUES_DEMOTE` | `5` / `5` | Top / bottom N of a group moving up / down a tier at the weekly close |
 | `LEAGUES_POINTS_REVIEW` / `_CORRECT` / `_NEW_WORD` / `_GOAL_MET` | `1` / `1` / `2` / `10` | Points per review / correct answer / new word / daily goal met (computed from `learner_daily_stats`) |
 | `LEAGUES_STANDINGS_CACHE_SECONDS` | `60` | Cache of the standings table |
-| `LEAGUES_NOTIFY_TTL_HOURS` | `12` | A result DM that could not be sent within this time is dropped |
+| `LEAGUES_NOTIFY_TTL_HOURS` | `12` | A result DM that could not be sent within this time after the week was closed is dropped. One deadline for the whole mailing: a batch remainder handed to a new job keeps it |
 | `LEAGUES_NOTIFY_BATCH_SIZE` | `100` | Members per result-DM batch job (`SendLeagueResultsJob`) |
 | `LEAGUES_NOTIFY_BATCH_SECONDS` | `30` | Seconds one batch job may spend sending before handing the rest to a fresh job (keep well below the worker `--timeout`) |
 | `LEARNERS_STREAK_FREEZE_MAX` | `2` | Streak freezes a Pro learner can hold (+1 per week) |

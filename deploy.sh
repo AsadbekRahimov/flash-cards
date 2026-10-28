@@ -70,6 +70,15 @@ if [ "$SKIP_MIGRATE" -eq 0 ]; then
     $COMPOSE run --rm app php artisan migrate --force
 fi
 
+# courses.words_count is the `total` of GET /courses: bring it in line with the active words (idempotent and fast, it
+# writes only the courses that drifted). Not on a rollback - the older code has no such command. A failure is not
+# worth stopping the deploy for: it says how to run it by hand.
+if [ "$ROLLBACK" != "1" ]; then
+    echo "==> Recounting the words of the courses"
+    $COMPOSE run --rm app php artisan courses:recount-words \
+        || echo "WARNING: courses:recount-words failed; run it by hand: $COMPOSE exec app php artisan courses:recount-words" >&2
+fi
+
 echo "==> Starting / updating the production stack"
 $COMPOSE up -d --remove-orphans
 

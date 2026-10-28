@@ -249,6 +249,24 @@ it('describes the active course with its progress and the next lesson with new w
         ->assertJsonPath('active_course.next_lesson.lesson', 2);
 });
 
+it('finds the next lesson and its stage in one statement: no separate read of `stages` on the Today screen', function (): void {
+    $lessons = todayCourse(2, 2);
+    $learner = Learner::factory()->onboarded()->create(['active_course_id' => $lessons[0]->stage?->course_id]);
+    todayGet($this, $learner)->assertOk(); // warm the entitlement and catalog caches
+
+    $queries = [];
+    DB::listen(function ($query) use (&$queries): void {
+        $queries[] = $query->sql;
+    });
+    todayGet($this, $learner)->assertOk()->assertJsonPath('active_course.next_lesson.stage', 1);
+
+    $matching = fn (string $pattern): array => array_values(array_filter($queries, fn (string $sql): bool => preg_match($pattern, $sql) === 1));
+    // The next lesson carries its stage from the joined row ...
+    expect($matching('/["`]stages["`]\.["`]number["`] as ["`]stage__number["`]/'))->toHaveCount(1)
+        // ... and the stage is not loaded again by an eager load after it.
+        ->and($matching('/^select \* from ["`]stages["`] where ["`]stages["`]\.["`]id["`] in/'))->toBe([]);
+});
+
 it('has no next lesson once every word of the course was served, and localizes the title', function (): void {
     $lessons = todayCourse(1, 1, ['title' => ['ru' => 'Английский A1', 'uz' => 'Ingliz tili A1']]);
     $learner = Learner::factory()->create(['active_course_id' => $lessons[0]->stage?->course_id, 'interface_locale' => 'uz']);

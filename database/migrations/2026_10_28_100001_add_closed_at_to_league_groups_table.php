@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Domain\Engagement\Enums\LeagueWeekStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +13,9 @@ use Illuminate\Support\Facades\Schema;
  * in short transactions, or by the placement of one of its members into the next week that needed the
  * verdict early. Groups of weeks already closed by the previous (whole-week) code are stamped with the
  * week's `closed_at`, so "finalised ⇔ closed_at IS NOT NULL" holds for every row.
+ *
+ * The status is the literal the whole-week code wrote (`'closed'`), not the application's enum: a migration is a
+ * fixed point of the schema's history and must run the same whatever the code looks like today.
  */
 return new class extends Migration
 {
@@ -24,7 +26,7 @@ return new class extends Migration
         });
 
         $closedWeeks = DB::table('league_weeks')
-            ->where('status', LeagueWeekStatus::Closed->value)
+            ->where('status', 'closed')
             ->whereNotNull('closed_at')
             ->get(['id', 'closed_at']);
 
