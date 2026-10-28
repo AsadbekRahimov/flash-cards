@@ -110,6 +110,8 @@ app.mount('#app')
 
 **Нижняя навигация.** `meta.tab` (`today` | `courses` | `rating` | `profile`, тип `TabId` в `router/index.ts`) указывает, к какой вкладке относится экран. `App.vue` показывает `TabBar` только для маршрутов с `meta.tab` и отодвигает под него содержимое; активная вкладка — по `route.meta.tab`, поэтому внутренние экраны (курс, настройки) оставляют свою вкладку подсвеченной. «Погружение» (`/training/*`, `/finished`, `/exam/*`, лендинг) идёт без таб-бара. Состав вкладок — docs/14 §5.1.
 
+**Прокрутка.** Прокручивается вся страница (`window`), собственных контейнеров прокрутки у оболочки нет. `scrollBehavior` роутера: новый экран открывается сверху, возврат (история, `router.back()`) — на сохранённую позицию, которую применяют, когда экран снова достаточно высок (он грузит данные при монтировании; ждут не дольше секунды). Правило — docs/14 §5.3.
+
 ## 4. Аутентификация
 
 ```ts
@@ -288,7 +290,7 @@ export function useTts() {
   ```
 - **Смена темы на лету.** Подписка `WebApp.onEvent('themeChanged', …)` применяет тему заново; `document.documentElement.dataset.theme = WebApp.colorScheme` (`light`/`dark`) — для `color-scheme` нативных контролов.
 - **Цвет шапки и фона окна.** При `WebApp.isVersionAtLeast('6.1')` вызываются `setHeaderColor('secondary_bg_color')` и `setBackgroundColor('secondary_bg_color')` — шапка Telegram сливается с фоном страницы. Всё в `try/catch`: вне Telegram — no-op.
-- **Кнопка «Назад»** (`composables/useBackButton.ts`, правило — docs/14 §5.3): `useBackButton(target)` вызывается в `setup()` экрана; `target` — место назначения (`{ name: 'courses' }`), функция или `null`. Корни вкладок (`today`, `courses`, `decks`, `league`, `friends`, `profile`) — `null`: кнопка скрыта. Внутренние экраны ведут на корень своей вкладки (`course → courses`, `deck → decks`, `settings|billing|achievements|referrals → profile`). Тренировка личной сессии (`lesson`, `daily_review`) возвращает на `/today`, групповая (`group_lesson`) закрывает Mini App; экзамен — закрытие. Текстовых ссылок «← К курсам» нет. Обработчик снимается при уходе с экрана. Все экраны с системной «Назад» используют `useBackButton`; `showBackButton` из `useTelegram` вызывается только внутри него.
+- **Кнопка «Назад»** (`composables/useBackButton.ts`, правило — docs/14 §5.3): `useBackButton(target)` вызывается в `setup()` экрана; `target` — место назначения (`{ name: 'courses' }`), функция или `null`. Корни вкладок (`today`, `courses`, `decks`, `league`, `friends`, `profile`) — `null`: кнопка скрыта. Внутренние экраны ведут на корень своей вкладки (`course → courses`, `deck → decks`, `settings|billing|achievements|referrals → profile`). Тренировка личной сессии (`lesson`, `daily_review`) возвращает на `/today`, групповая (`group_lesson`) закрывает Mini App; экзамен — закрытие. Текстовых ссылок «← К курсам» нет. Если предыдущая запись истории и есть цель, переход идёт через `router.back()` (экран возвращается на ту прокрутку, на которой его оставили; история не растёт), иначе — через `router.push`. Обработчик снимается при уходе с экрана. Все экраны с системной «Назад» используют `useBackButton`; `showBackButton` из `useTelegram` вызывается только внутри него.
 - `WebApp.HapticFeedback.impactOccurred('light')` — лёгкий хаптик на нажатие оценок; `selectionChanged()` — при переключении вкладок.
 
 ## 8a. Локализация (i18n)

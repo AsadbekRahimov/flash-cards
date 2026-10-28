@@ -4,7 +4,9 @@ import { useTelegram } from '@/composables/useTelegram'
 
 /**
  * Where Telegram's system "Back" button leads (docs/14 §5.3):
- * - a route location (`{ name: 'courses' }`) — `router.push`;
+ * - a route location (`{ name: 'courses' }`) — `router.push`, or `router.back()` when the screen before this one in the
+ *   history is that very place (the usual case: the learner came from it), so the screen comes back where it was
+ *   scrolled to (`scrollBehavior`) and the history does not grow with every "Back";
  * - a function — called on press (e.g. close the Mini App, or decide by state at press time);
  * - `null` — the screen is a root (a tab or an immersive screen): the button is hidden.
  */
@@ -38,6 +40,7 @@ export function useBackButton(target: BackButtonTarget): void {
 
     release = showBackButton(() => {
       if (typeof target === 'function') target()
+      else if (router.options.history.state.back === router.resolve(target).fullPath) router.back()
       else void router.push(target)
     })
   })
