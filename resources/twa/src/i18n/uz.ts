@@ -66,10 +66,6 @@ export const uz: Translations = {
     other: '{count} ta kartochka qoldi',
   },
   'today.streak.title': 'Seriya',
-  'today.streak.days': {
-    one: '{count} kun',
-    other: '{count} kun',
-  },
   'today.streak.none': 'Seriyani boshlash uchun kunlik maqsadni bajaring',
   'today.streak.at_risk': "Seriyani yo'qotmaslik uchun maqsadni yarim tungacha bajaring",
   'today.streak.safe': 'Bugungi kun uchun seriya uzaytirildi',
@@ -194,6 +190,9 @@ export const uz: Translations = {
     one: '{count} kundan keyin',
     other: '{count} kundan keyin',
   },
+  'finished.stats.cards': 'Kartochka',
+  'finished.stats.correct': "To'g'ri",
+  'finished.stats.new': "Yangi so'z",
 
   // ---- promo code ----
   'promo.toggle': 'Promokodingiz bormi?',

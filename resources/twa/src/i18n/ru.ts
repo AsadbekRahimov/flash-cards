@@ -76,12 +76,6 @@ export const ru = {
     other: 'Осталось {count} карточки',
   },
   'today.streak.title': 'Серия',
-  'today.streak.days': {
-    one: '{count} день',
-    few: '{count} дня',
-    many: '{count} дней',
-    other: '{count} дня',
-  },
   'today.streak.none': 'Выполните цель дня, чтобы начать серию',
   'today.streak.at_risk': 'Выполните цель до полуночи, чтобы не потерять серию',
   'today.streak.safe': 'На сегодня серия продлена',
@@ -216,6 +210,9 @@ export const ru = {
     many: 'Через {count} дней',
     other: 'Через {count} дня',
   },
+  'finished.stats.cards': 'Карточек',
+  'finished.stats.correct': 'Верно',
+  'finished.stats.new': 'Новых слов',
 
   // ---- promo code ----
   'promo.toggle': 'Есть промокод?',

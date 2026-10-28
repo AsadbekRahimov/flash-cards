@@ -387,10 +387,6 @@
 | `today.goal.left.many` | _(в uz этой формы нет — используется `other`)_ | Осталось {count} карточек |
 | `today.goal.left.other` | {count} ta kartochka qoldi | Осталось {count} карточки |
 | `today.streak.title` | Seriya | Серия |
-| `today.streak.days.one` | {count} kun | {count} день |
-| `today.streak.days.few` | _(в uz этой формы нет — используется `other`)_ | {count} дня |
-| `today.streak.days.many` | _(в uz этой формы нет — используется `other`)_ | {count} дней |
-| `today.streak.days.other` | {count} kun | {count} дня |
 | `today.streak.none` | Seriyani boshlash uchun kunlik maqsadni bajaring | Выполните цель дня, чтобы начать серию |
 | `today.streak.at_risk` | Seriyani yo'qotmaslik uchun maqsadni yarim tungacha bajaring | Выполните цель до полуночи, чтобы не потерять серию |
 | `today.streak.safe` | Bugungi kun uchun seriya uzaytirildi | На сегодня серия продлена |
@@ -1731,7 +1727,8 @@
 ## Редизайн 2026-10-28 · 17.2 Главная и итог — на проверку носителю
 
 > Проверить: «Salom, {name}!» (приветствие на «Главной»); «Mashg'ulotni boshlash» / «Mashg'ulotni davom ettirish» (начать / продолжить занятие, «mashg'ulot» — по словарю docs/14 §8); «kun ketma-ket» (дней подряд); «Haftalik liga» (лига недели); «Asosiy kurs tanlanmagan» (основной курс не выбран); порядок слов в «{members} tadan {rank}-o'rin».
-> Изменённые ключи («Главная», задания центра: `today.streak.at_risk`, `today.review.start`, `today.review.continue`, `today.new.remaining`, `today.new.exhausted`, `today.course.title`, `today.course.none`, `today.onboarding_hint`, `assignments.lesson`, `assignments.due`) обновлены в своих старых таблицах выше; удалены `today.review.title`, `league.today.line`, `league.today.join`, `decks.open`, `referrals.open`, `achievements.open`.
+> Подписи плиток итога занятия («Kartochka / To'g'ri / Yangi so'z») стоят под числом, поэтому в единственном числе: «20 kartochka», «6 yangi so'z».
+> Изменённые ключи («Главная», задания центра: `today.streak.at_risk`, `today.review.start`, `today.review.continue`, `today.new.remaining`, `today.new.exhausted`, `today.course.title`, `today.course.none`, `today.onboarding_hint`, `assignments.lesson`, `assignments.due`) обновлены в своих старых таблицах выше; удалены `today.streak.days` (его место заняло `today.streak.in_row`), `today.review.title`, `league.today.line`, `league.today.join`, `decks.open`, `referrals.open`, `achievements.open`.
 
 ### TWA, экран «Главная» (`resources/twa/src/i18n/uz.ts`)
 
@@ -1751,3 +1748,11 @@
 | `today.league.subtitle` | {members} tadan {rank}-o'rin · {points} | {rank}-е место из {members} · {points} |
 | `today.league.join_title` | Haftalik liga | Лига недели |
 | `today.league.join_subtitle` | Guruhga kirish uchun kartochkalarni takrorlang | Повторите карточки, чтобы попасть в группу |
+
+### TWA, экран «Итог занятия» (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `finished.stats.cards` | Kartochka | Карточек |
+| `finished.stats.correct` | To'g'ri | Верно |
+| `finished.stats.new` | Yangi so'z | Новых слов |
