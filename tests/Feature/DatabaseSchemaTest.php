@@ -312,7 +312,7 @@ it('stores the generalised training_sessions columns (mode, source, course, expi
 
 it('creates the renamed learner indexes and none of the student ones', function (): void {
     $expected = [
-        'word_repetitions' => ['word_repetitions_next_card_idx', 'word_repetitions_due_learners_idx', 'word_repetitions_learner_is_hard_idx'],
+        'word_repetitions' => ['word_repetitions_next_card_idx', 'word_repetitions_due_learners_idx'],
         'words' => ['words_inactive_idx'],
         'training_reviews' => ['training_reviews_created_learner_idx', 'training_reviews_session_learner_idx'],
         'exam_answers' => ['exam_answers_session_learner_word_unique', 'exam_answers_answered_learner_idx'],
@@ -334,6 +334,9 @@ it('creates the renamed learner indexes and none of the student ones', function 
             expect($name)->not->toContain('student');
         }
     }
+
+    // Dropped as unused (2026_10_28_200001): no query filters by is_hard, so a partial index on it could never be read.
+    expect(array_column(Schema::getIndexes('word_repetitions'), 'name'))->not->toContain('word_repetitions_learner_is_hard_idx');
 });
 
 it('has the CHECK constraint on the shape of training_sessions by mode', function (): void {
@@ -351,13 +354,21 @@ it('has the CHECK constraint on the shape of training_sessions by mode', functio
     DB::table('training_sessions')->insert([...$base, 'mode' => 'daily_review', 'learner_id' => $learner->id]);
 })->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'The CHECK constraint is PostgreSQL-only; the personal-session service (task 1.3a) will duplicate the shape invariant.');
 
-it('has partial index on word_repetitions for is_hard', function (): void {
+it('has no partial index on word_repetitions for is_hard: nothing filters by it, only CardPicker orders by it', function (): void {
     $exists = DB::selectOne(
         "SELECT 1 AS x FROM pg_indexes
          WHERE tablename = 'word_repetitions'
            AND indexname = 'word_repetitions_learner_is_hard_idx'",
     );
-    expect($exists)->not->toBeNull();
+    expect($exists)->toBeNull();
+
+    // The order of CardPicker is served by the next-card index instead.
+    $nextCard = DB::selectOne(
+        "SELECT 1 AS x FROM pg_indexes
+         WHERE tablename = 'word_repetitions'
+           AND indexname = 'word_repetitions_next_card_idx'",
+    );
+    expect($nextCard)->not->toBeNull();
 })->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'pg_indexes catalog is PostgreSQL-only.');
 
 it('has composite index (learner_id, next_review_at)', function (): void {
@@ -409,6 +420,36 @@ it('restores the old hard-due index on rollback of the next-card index migration
     $migration->up();
     expect(array_count_values($names('word_repetitions'))['word_repetitions_next_card_idx'])->toBe(1)
         ->and(array_count_values($names('words'))['words_inactive_idx'])->toBe(1);
+});
+
+it('rebuilds the dropped is_hard partial index exactly as it was on rollback and drops it again on re-run', function (): void {
+    $migration = require database_path('migrations/2026_10_28_200001_drop_word_repetitions_learner_is_hard_idx.php');
+    $name = 'word_repetitions_learner_is_hard_idx';
+    $copies = fn (): int => count(array_filter(Schema::getIndexes('word_repetitions'), fn (array $index): bool => $index['name'] === $name));
+    $definition = fn (): ?string => DB::getDriverName() === 'pgsql'
+        ? DB::table('pg_indexes')->where('indexname', $name)->value('indexdef')
+        : DB::table('sqlite_master')->where('type', 'index')->where('name', $name)->value('sql');
+
+    expect($copies())->toBe(0);
+
+    // down(): back to the original — a partial index on learner_id for is_hard = true.
+    $migration->down();
+    expect($copies())->toBe(1)
+        ->and(array_column(Schema::getIndexes('word_repetitions'), 'columns', 'name')[$name])->toBe(['learner_id']);
+    expect((string) $definition())->toMatch(DB::getDriverName() === 'pgsql'
+        ? '/USING btree \(learner_id\) WHERE \(is_hard = true\)$/'
+        : '/ON word_repetitions \(learner_id\)\s+WHERE is_hard = true$/');
+
+    $migration->up();
+    expect($copies())->toBe(0);
+
+    // A retry after an interrupted deploy is harmless in either direction.
+    $migration->up();
+    $migration->down();
+    $migration->down();
+    expect($copies())->toBe(1);
+    $migration->up();
+    expect($copies())->toBe(0);
 });
 
 it('runs migrate:fresh --seed and produces demo data', function (): void {
