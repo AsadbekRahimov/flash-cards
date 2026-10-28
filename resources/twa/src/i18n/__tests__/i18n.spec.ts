@@ -114,6 +114,46 @@ describe('dictionaries', () => {
     }
   })
 
+  it('keeps the verdict and grade texts of the training free of placeholders: the answer and the hints have their own lines', () => {
+    const plain = [
+      'exercise.verdict.correct',
+      'exercise.verdict.close',
+      'exercise.verdict.wrong',
+      'exercise.verdict.expected',
+      'card.grade.hard',
+      'card.grade.medium',
+      'card.grade.easy',
+      'card.grade.hard_hint',
+      'card.grade.medium_hint',
+      'card.grade.easy_hint',
+      'card.grade_prompt',
+    ] as const
+    for (const key of plain) {
+      expect(ru[key], key).not.toMatch(/[{}]/)
+      expect(uz[key], key).not.toMatch(/[{}]/)
+    }
+  })
+
+  it('names the grades by what the learner remembers, never "Hard / Medium" (docs/14 §8)', () => {
+    expect([ru['card.grade.hard'], ru['card.grade.medium'], ru['card.grade.easy']]).toEqual(['Не помню', 'Помню', 'Легко'])
+    expect([uz['card.grade.hard'], uz['card.grade.medium'], uz['card.grade.easy']]).toEqual(['Eslay olmadim', 'Esladim', 'Oson'])
+  })
+
+  it('has no emoji in the titles of the closed screens: the lock and the clock are icons', () => {
+    for (const key of ['training.closed_title', 'exam.closed_title', 'exam.mock_closed_title'] as const) {
+      expect(ru[key], key).not.toMatch(/\p{Extended_Pictographic}/u)
+      expect(uz[key], key).not.toMatch(/\p{Extended_Pictographic}/u)
+    }
+  })
+
+  it('addresses the learner formally on the result screen («Ваш результат», not «Твой»)', () => {
+    expect(ru['result.your_score']).toBe('Ваш результат')
+    // `\b` knows only ASCII letters, so the word boundary is spelled out with Unicode letters.
+    const informal = /(^|[^\p{L}])[Тт]вой([^\p{L}]|$)/u
+    expect('Твой результат').toMatch(informal)
+    expect(Object.values(ru).filter((v): v is string => typeof v === 'string').filter((v) => informal.test(v))).toEqual([])
+  })
+
   it('ru plurals define one/few/many and uz plurals define one/other', () => {
     for (const key of Object.keys(ru) as (keyof typeof ru)[]) {
       const r = ru[key]

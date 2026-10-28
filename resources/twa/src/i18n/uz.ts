@@ -147,9 +147,9 @@ export const uz: Translations = {
   'exercise.verdict.expected': "To'g'ri javob",
 
   // ---- exam ----
-  'exam.closed_title': "🔒 Imtihon o'qituvchi tomonidan yakunlandi",
+  'exam.closed_title': "Imtihon o'qituvchi tomonidan yakunlandi",
   'exam.mock_header': 'Sinov testi',
-  'exam.mock_closed_title': '⏱ Vaqt tugadi',
+  'exam.mock_closed_title': 'Vaqt tugadi',
 
   // ---- exam result ----
   'result.title': 'Imtihon natijalari',

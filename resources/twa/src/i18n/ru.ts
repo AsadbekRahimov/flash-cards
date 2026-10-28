@@ -163,13 +163,13 @@ export const ru = {
   'exercise.verdict.expected': 'Правильный ответ',
 
   // ---- exam ----
-  'exam.closed_title': '🔒 Экзамен завершён учителем',
+  'exam.closed_title': 'Экзамен завершён учителем',
   'exam.mock_header': 'Пробный тест',
-  'exam.mock_closed_title': '⏱ Время вышло',
+  'exam.mock_closed_title': 'Время вышло',
 
   // ---- exam result ----
   'result.title': 'Итоги экзамена',
-  'result.your_score': 'Твой результат',
+  'result.your_score': 'Ваш результат',
   'result.rank': 'Место {rank} из {total}',
   'result.pending': 'Результаты ещё считаются…',
   'result.top': 'Топ участников',

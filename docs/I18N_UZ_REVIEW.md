@@ -177,9 +177,9 @@
 | `card.grade.easy` | Oson | Легко |
 | `training.lesson_header` | {stage}-modul · {lesson}-dars | Модуль {stage} · Урок {lesson} |
 | `training.closed_title` | Mashg'ulot yakunlandi | Тренировка завершена |
-| `exam.closed_title` | 🔒 Imtihon o'qituvchi tomonidan yakunlandi | 🔒 Экзамен завершён учителем |
+| `exam.closed_title` | Imtihon o'qituvchi tomonidan yakunlandi | Экзамен завершён учителем |
 | `result.title` | Imtihon natijalari | Итоги экзамена |
-| `result.your_score` | Sizning natijangiz | Твой результат |
+| `result.your_score` | Sizning natijangiz | Ваш результат |
 | `result.rank` | {total} ishtirokchi ichida {rank}-o'rin | Место {rank} из {total} |
 | `result.pending` | Natijalar hali hisoblanmoqda… | Результаты ещё считаются… |
 | `result.top` | Eng yaxshi ishtirokchilar | Топ участников |
@@ -1423,7 +1423,7 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `exam.mock_header` | Sinov testi | Пробный тест |
-| `exam.mock_closed_title` | ⏱ Vaqt tugadi | ⏱ Время вышло |
+| `exam.mock_closed_title` | Vaqt tugadi | Время вышло |
 | `result.mock_title` | Sinov testi natijalari | Итоги пробного теста |
 | `result.mock_score` | {total} tadan {correct} ta · {percent}% | {correct} из {total} · {percent}% |
 | `result.mock_unanswered` | Javobsiz: {count} | Без ответа: {count} |
@@ -1737,7 +1737,7 @@
 ## Редизайн 2026-10-28 · 17.3 тренировка и экзамен — на проверку носителю
 
 > Проверить: оценки карточки «Eslay olmadim» / «Esladim» / «Oson» (термины по docs/14 §8: Не помню · Помню · Легко) и подписи под ними — что произойдёт с карточкой дальше; «{stage}-modul · {lesson}-dars» в шапке занятия; заголовки вердикта «To'g'ri!» / «Deyarli!» / «Noto'g'ri» и подпись «To'g'ri javob» (теперь правильный ответ показывается отдельной строкой, а не внутри заголовка); подсказка к кнопке прослушивания.
-> Изменённые в этом разделе экранов ключи (`card.grade.hard`, `card.grade.medium`, `training.lesson_header`, `training.closed_title`, `exercise.reverse.title`, `exercise.verdict.close`, `exercise.verdict.wrong`) обновлены в своих прежних строках выше; без эмодзи в заголовках «закрыто» — замок и часы теперь иконки.
+> Изменённые в этом разделе экранов ключи (`card.grade.hard`, `card.grade.medium`, `training.lesson_header`, `training.closed_title`, `exam.closed_title`, `exam.mock_closed_title`, `result.your_score`, `exercise.reverse.title`, `exercise.verdict.close`, `exercise.verdict.wrong`) обновлены в своих прежних строках выше; без эмодзи в заголовках «закрыто» — замок и часы теперь иконки.
 
 ### TWA, тренировка: оценки карточки, упражнения, вердикт (`resources/twa/src/i18n/uz.ts`)
 
