@@ -197,8 +197,8 @@
 | `catalog.title` | Kurslar | Курсы |
 | `catalog.open` | Kurslar katalogi | Каталог курсов |
 | `catalog.empty` | Hozircha kurslar yo'q. Keyinroq qaytib ko'ring. | Курсов пока нет. Загляните позже. |
-| `catalog.choose` | Tanlash | Выбрать |
-| `catalog.active` | Faol | Активный |
+| `catalog.choose` | Asosiy qilish | Сделать основным |
+| `catalog.active` | Asosiy kurs | Основной курс |
 | `catalog.words.one` | {count} ta so'z | {count} слово |
 | `catalog.words.few` | _(в uz этой формы нет — используется `other`)_ | {count} слова |
 | `catalog.words.many` | _(в uz этой формы нет — используется `other`)_ | {count} слов |
@@ -208,7 +208,6 @@
 | `catalog.goal.school` | Maktab | Школа |
 | `catalog.goal.ielts` | IELTS | IELTS |
 | `catalog.goal.sat` | SAT | SAT |
-| `course.back` | Kurslarga | К курсам |
 | `course.module` | {number}-modul | Модуль {number} |
 | `course.lesson` | {number}-dars | Урок {number} |
 | `course.no_lessons` | Kursda hali darslar yo'q. | В курсе пока нет уроков. |
@@ -650,13 +649,12 @@
 | `decks.open` | Mening to'plamlarim | Мои колоды |
 | `decks.intro` | O'z to'plamingizni yarating va so'zlarni ro'yxat yoki CSV orqali qo'shing. To'plamni faqat siz ko'rasiz. | Создайте свою колоду и добавьте слова списком или из CSV. Колоду видите только вы. |
 | `decks.empty` | Sizda hali to'plamlar yo'q. | У вас пока нет колод. |
-| `decks.limit` | To'plamlar: {max} tadan {used} tasi. Bitta to'plamda {words} tagacha so'z. | Колод: {used} из {max}. В одной колоде — до {words} слов. |
+| `decks.limit` | To'plamlar: {max} tadan {used} tasi · to'plamda {words} tagacha so'z | Колод: {used} из {max} · до {words} слов в колоде |
 | `decks.new.placeholder` | To'plam nomi | Название колоды |
-| `decks.new.submit` | To'plam yaratish | Создать колоду |
+| `decks.new.submit` | Yaratish | Создать |
 | `decks.edit.back` | To'plamlarga | К колодам |
 | `decks.edit.rename` | Nomi | Название |
 | `decks.edit.save` | Saqlash | Сохранить |
-| `decks.edit.words` | So'zlar | Слова |
 | `decks.edit.no_words` | To'plamda hali so'zlar yo'q. | В колоде пока нет слов. |
 | `decks.edit.remove_word` | Olib tashlash | Убрать |
 | `decks.edit.import` | So'zlar qo'shish | Добавить слова |
@@ -1775,3 +1773,23 @@
 | `landing.hero.mockup.grade.easy` | Oson | Легко |
 
 Проверить: «Eslay olmadim» (не помню; кнопка узкая — в две строки допустимо), «Esladim» (помню), «Oson» (легко), «So'zni qanchalik yaxshi eslaysiz?» (обращение на «Siz»).
+
+## Редизайн 2026-10-28 · 17.4 курсы и колоды — на проверку носителю
+
+> Проверить: «Asosiy qilish» / «Asosiy kurs» / «Asosiy to'plam» (сделать основным / основной курс / основная колода — термины docs/14 §8, вместо «Tanlash» / «Faol»); «Davom etish: {number}-dars» (Продолжить: урок N); форму «{total} ta so'zdan {done} tasi» («{done} из {total} слов»); «Testni boshlash» (Начать тест).
+> Значения изменены в строках таблицы «TWA» выше: `catalog.choose`, `catalog.active`, `decks.limit`, `decks.new.submit`. Ключи `course.back` («← К курсам» убрана, «Назад» — системная кнопка Telegram) и `decks.edit.words` (заменён на `decks.words_title`) удалены.
+
+### TWA, каталог, экран курса, «Мои колоды», экран колоды (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `catalog.hint` | Kunlik mashg'ulot uchun yangi so'zlar asosiy kursdan olinadi | Новые слова для ежедневного занятия берутся из основного курса |
+| `course.continue` | Davom etish: {number}-dars | Продолжить: урок {number} |
+| `course.all_done` | Kursning barcha darslari tugallandi | Все уроки курса пройдены |
+| `course.choose_hint` | Kunlik mashg'ulotdagi yangi so'zlar shu kursdan bo'ladi | Новые слова в ежедневном занятии будут из этого курса |
+| `course.lesson_words` | {total} ta so'zdan {done} tasi | {done} из {total} слов |
+| `course.mock_exam_start` | Testni boshlash | Начать тест |
+| `decks.choose` | Asosiy qilish | Сделать основной |
+| `decks.active` | Asosiy to'plam | Основная колода |
+| `decks.words_title` | So'zlar ({count}) | Слова ({count}) |
+| `decks.edit.format.label` | Format | Формат |

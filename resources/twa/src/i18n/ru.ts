@@ -177,6 +177,7 @@ export const ru = {
   // ---- course: mock exam (Pro) ----
   'course.mock_exam': 'Пробный тест',
   'course.mock_exam_hint': '{count} слов курса · {minutes} мин · результат в процентах и сравнение с другими',
+  'course.mock_exam_start': 'Начать тест',
 
   // ---- finished (training) ----
   'finished.title': 'Отлично!',
@@ -272,8 +273,8 @@ export const ru = {
   'catalog.title': 'Курсы',
   'catalog.open': 'Каталог курсов',
   'catalog.empty': 'Курсов пока нет. Загляните позже.',
-  'catalog.choose': 'Выбрать',
-  'catalog.active': 'Активный',
+  'catalog.choose': 'Сделать основным',
+  'catalog.active': 'Основной курс',
   'catalog.words': {
     one: '{count} слово',
     few: '{count} слова',
@@ -285,24 +286,27 @@ export const ru = {
   'catalog.goal.school': 'Школа',
   'catalog.goal.ielts': 'IELTS',
   'catalog.goal.sat': 'SAT',
-  'course.back': 'К курсам',
   'course.module': 'Модуль {number}',
   'course.lesson': 'Урок {number}',
   'course.learn': 'Учить',
   'course.no_lessons': 'В курсе пока нет уроков.',
+  'catalog.hint': 'Новые слова для ежедневного занятия берутся из основного курса',
+  'course.continue': 'Продолжить: урок {number}',
+  'course.all_done': 'Все уроки курса пройдены',
+  'course.choose_hint': 'Новые слова в ежедневном занятии будут из этого курса',
+  'course.lesson_words': '{done} из {total} слов',
 
   // ---- learner decks ----
   'decks.title': 'Мои колоды',
   'decks.open': 'Мои колоды',
   'decks.intro': 'Создайте свою колоду и добавьте слова списком или из CSV. Колоду видите только вы.',
   'decks.empty': 'У вас пока нет колод.',
-  'decks.limit': 'Колод: {used} из {max}. В одной колоде — до {words} слов.',
+  'decks.limit': 'Колод: {used} из {max} · до {words} слов в колоде',
   'decks.new.placeholder': 'Название колоды',
-  'decks.new.submit': 'Создать колоду',
+  'decks.new.submit': 'Создать',
   'decks.edit.back': 'К колодам',
   'decks.edit.rename': 'Название',
   'decks.edit.save': 'Сохранить',
-  'decks.edit.words': 'Слова',
   'decks.edit.no_words': 'В колоде пока нет слов.',
   'decks.edit.remove_word': 'Убрать',
   'decks.edit.import': 'Добавить слова',
@@ -324,6 +328,10 @@ export const ru = {
   'decks.reason.duplicate': 'повтор',
   'decks.reason.over_limit': 'сверх лимита строк',
   'decks.error.too_large': 'Текст слишком большой: не больше 256 КБ.',
+  'decks.choose': 'Сделать основной',
+  'decks.active': 'Основная колода',
+  'decks.words_title': 'Слова ({count})',
+  'decks.edit.format.label': 'Формат',
 
   // ---- settings ----
   'settings.title': 'Настройки',

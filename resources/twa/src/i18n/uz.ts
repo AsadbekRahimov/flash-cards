@@ -161,6 +161,7 @@ export const uz: Translations = {
   // ---- course: mock exam (Pro) ----
   'course.mock_exam': 'Sinov testi',
   'course.mock_exam_hint': "Kursdan {count} ta so'z · {minutes} daqiqa · natija foizda va boshqalar bilan taqqoslash",
+  'course.mock_exam_start': 'Testni boshlash',
 
   // ---- finished (training) ----
   'finished.title': 'Ajoyib!',
@@ -252,8 +253,8 @@ export const uz: Translations = {
   'catalog.title': 'Kurslar',
   'catalog.open': 'Kurslar katalogi',
   'catalog.empty': "Hozircha kurslar yo'q. Keyinroq qaytib ko'ring.",
-  'catalog.choose': 'Tanlash',
-  'catalog.active': 'Faol',
+  'catalog.choose': 'Asosiy qilish',
+  'catalog.active': 'Asosiy kurs',
   'catalog.words': {
     one: "{count} ta so'z",
     other: "{count} ta so'z",
@@ -263,24 +264,27 @@ export const uz: Translations = {
   'catalog.goal.school': 'Maktab',
   'catalog.goal.ielts': 'IELTS',
   'catalog.goal.sat': 'SAT',
-  'course.back': 'Kurslarga',
   'course.module': '{number}-modul',
   'course.lesson': '{number}-dars',
   'course.learn': "O'rganish",
   'course.no_lessons': "Kursda hali darslar yo'q.",
+  'catalog.hint': "Kunlik mashg'ulot uchun yangi so'zlar asosiy kursdan olinadi",
+  'course.continue': 'Davom etish: {number}-dars',
+  'course.all_done': 'Kursning barcha darslari tugallandi',
+  'course.choose_hint': "Kunlik mashg'ulotdagi yangi so'zlar shu kursdan bo'ladi",
+  'course.lesson_words': "{total} ta so'zdan {done} tasi",
 
   // ---- learner decks ----
   'decks.title': "Mening to'plamlarim",
   'decks.open': "Mening to'plamlarim",
   'decks.intro': "O'z to'plamingizni yarating va so'zlarni ro'yxat yoki CSV orqali qo'shing. To'plamni faqat siz ko'rasiz.",
   'decks.empty': "Sizda hali to'plamlar yo'q.",
-  'decks.limit': "To'plamlar: {max} tadan {used} tasi. Bitta to'plamda {words} tagacha so'z.",
+  'decks.limit': "To'plamlar: {max} tadan {used} tasi · to'plamda {words} tagacha so'z",
   'decks.new.placeholder': "To'plam nomi",
-  'decks.new.submit': "To'plam yaratish",
+  'decks.new.submit': 'Yaratish',
   'decks.edit.back': "To'plamlarga",
   'decks.edit.rename': 'Nomi',
   'decks.edit.save': 'Saqlash',
-  'decks.edit.words': "So'zlar",
   'decks.edit.no_words': "To'plamda hali so'zlar yo'q.",
   'decks.edit.remove_word': 'Olib tashlash',
   'decks.edit.import': "So'zlar qo'shish",
@@ -302,6 +306,10 @@ export const uz: Translations = {
   'decks.reason.duplicate': 'takror',
   'decks.reason.over_limit': 'qatorlar limitidan ortiq',
   'decks.error.too_large': "Matn juda katta: 256 KB dan oshmasligi kerak.",
+  'decks.choose': 'Asosiy qilish',
+  'decks.active': "Asosiy to'plam",
+  'decks.words_title': "So'zlar ({count})",
+  'decks.edit.format.label': 'Format',
 
   // ---- settings ----
   'settings.title': 'Sozlamalar',
