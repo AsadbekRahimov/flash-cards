@@ -22,6 +22,21 @@ return [
         'cta_bot' => 'Botni ochish',
         'cta_unavailable' => 'Bot tez orada ochiladi',
         'note' => 'Bepul: kuniga 20 ta yangi so\'z, takrorlash esa cheklovsiz.',
+        // Decorative phone mock-up next to the headline: a flash card of the Mini App (docs/14 §6.2, §8 grades).
+        'mockup' => [
+            'progress' => '7 / 20',
+            'chip' => 'Yangi so\'z',
+            'word' => 'breakfast',
+            'ipa' => '/ˈbrekfəst/',
+            'translation' => 'nonushta',
+            'example' => 'I have breakfast at eight.',
+            'question' => 'So\'zni qanchalik yaxshi eslaysiz?',
+            'grade' => [
+                'forgot' => 'Eslay olmadim',
+                'remembered' => 'Esladim',
+                'easy' => 'Oson',
+            ],
+        ],
     ],
 
     'how' => [
@@ -45,7 +60,10 @@ return [
 
     'pricing' => [
         'title' => 'Tariflar',
+        // `subtitle`, `soon` and `pro.note` are shown while Pro is not for sale (billing.paywall.mode = coming_soon);
+        // `subtitle_open`, `pro.price*` and `pro.note_open` once it is (LandingPricing).
         'subtitle' => 'Bepul boshlang. Pullik imkoniyatlar keyinroq paydo bo\'ladi - bunda yutuqlaringiz saqlanib qoladi.',
+        'subtitle_open' => 'Bepul boshlang. Pro - ko\'proq istaganingizda.',
         'soon' => 'Tez orada',
         'free' => [
             'name' => 'Free',
@@ -60,13 +78,18 @@ return [
         'pro' => [
             'name' => 'Pro',
             'tagline' => 'Ko\'proq istaganlar uchun',
+            // Only what the code really gates behind Pro (config/billing.php features, config/decks.php limits).
             'features' => [
                 'Yangi so\'zlar uchun kunlik limitsiz',
-                'Mashqlarning ko\'proq turlari',
-                'Mashq testlari',
-                'Batafsil statistika',
+                'Mashqlar: «So\'zni yozish» va «Misoldagi bo\'sh joy»',
+                'Shaxsiy to\'plamlar: 2000 tadan so\'zli 20 tagacha to\'plam',
+                'Seriyani muzlatish: o\'tkazib yuborilgan kun seriyani uzmaydi',
+                'IELTS va SAT sinov testlari',
             ],
+            'price' => 'Boshlang\'ich narx - oyiga :price',
+            'price_stars' => 'yoki Telegram Stars orqali :price',
             'note' => 'Pro tarkibi va narxlari hozircha aniqlanmoqda.',
+            'note_open' => 'Pro\'ni botda /pro buyrug\'i orqali yoki mini-ilovada rasmiylashtirishingiz mumkin.',
         ],
         'centers' => [
             'name' => 'O\'quv markazlari uchun',

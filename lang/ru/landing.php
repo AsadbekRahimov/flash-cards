@@ -22,6 +22,21 @@ return [
         'cta_bot' => 'Открыть бота',
         'cta_unavailable' => 'Бот скоро откроется',
         'note' => 'Бесплатно: 20 новых слов в день, повторения — без ограничений.',
+        // Decorative phone mock-up next to the headline: a flash card of the Mini App (docs/14 §6.2, §8 grades).
+        'mockup' => [
+            'progress' => '7 / 20',
+            'chip' => 'Новое слово',
+            'word' => 'breakfast',
+            'ipa' => '/ˈbrekfəst/',
+            'translation' => 'завтрак',
+            'example' => 'I have breakfast at eight.',
+            'question' => 'Насколько хорошо вы помните слово?',
+            'grade' => [
+                'forgot' => 'Не помню',
+                'remembered' => 'Помню',
+                'easy' => 'Легко',
+            ],
+        ],
     ],
 
     'how' => [
@@ -45,7 +60,10 @@ return [
 
     'pricing' => [
         'title' => 'Тарифы',
+        // `subtitle`, `soon` and `pro.note` are shown while Pro is not for sale (billing.paywall.mode = coming_soon);
+        // `subtitle_open`, `pro.price*` and `pro.note_open` once it is (LandingPricing).
         'subtitle' => 'Начните бесплатно. Платные возможности появятся позже — прогресс при этом сохранится.',
+        'subtitle_open' => 'Начните бесплатно. Pro — когда захочется больше.',
         'soon' => 'Скоро',
         'free' => [
             'name' => 'Free',
@@ -60,13 +78,18 @@ return [
         'pro' => [
             'name' => 'Pro',
             'tagline' => 'Для тех, кто хочет больше',
+            // Only what the code really gates behind Pro (config/billing.php features, config/decks.php limits).
             'features' => [
                 'Без дневного лимита новых слов',
-                'Больше типов упражнений',
-                'Тренировочные тесты',
-                'Подробная статистика',
+                'Упражнения «Написание слова» и «Пропуск в примере»',
+                'Свои колоды: до 20 колод по 2000 слов',
+                'Заморозки серии: пропущенный день не обрывает серию',
+                'Пробные тесты IELTS и SAT',
             ],
+            'price' => 'от :price в месяц',
+            'price_stars' => 'или :price через Telegram Stars',
             'note' => 'Состав и цены Pro пока уточняются.',
+            'note_open' => 'Оформить Pro можно в боте командой /pro или в мини-приложении.',
         ],
         'centers' => [
             'name' => 'Для учебных центров',

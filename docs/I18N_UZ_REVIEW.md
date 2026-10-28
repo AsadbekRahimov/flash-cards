@@ -117,9 +117,9 @@
 | `landing.pricing.pro.name` | Pro | Pro |
 | `landing.pricing.pro.tagline` | Ko'proq istaganlar uchun | Для тех, кто хочет больше |
 | `landing.pricing.pro.features.0` | Yangi so'zlar uchun kunlik limitsiz | Без дневного лимита новых слов |
-| `landing.pricing.pro.features.1` | Mashqlarning ko'proq turlari | Больше типов упражнений |
-| `landing.pricing.pro.features.2` | Mashq testlari | Тренировочные тесты |
-| `landing.pricing.pro.features.3` | Batafsil statistika | Подробная статистика |
+| `landing.pricing.pro.features.1` | Mashqlar: «So'zni yozish» va «Misoldagi bo'sh joy» | Упражнения «Написание слова» и «Пропуск в примере» |
+| `landing.pricing.pro.features.2` | Shaxsiy to'plamlar: 2000 tadan so'zli 20 tagacha to'plam | Свои колоды: до 20 колод по 2000 слов |
+| `landing.pricing.pro.features.3` | Seriyani muzlatish: o'tkazib yuborilgan kun seriyani uzmaydi | Заморозки серии: пропущенный день не обрывает серию |
 | `landing.pricing.pro.note` | Pro tarkibi va narxlari hozircha aniqlanmoqda. | Состав и цены Pro пока уточняются. |
 | `landing.pricing.centers.name` | O'quv markazlari uchun | Для учебных центров |
 | `landing.pricing.centers.tagline` | Oyiga bir marta qat'iy to'lov | Фиксированная оплата раз в месяц |
@@ -698,8 +698,8 @@
 |---|---|---|
 | `billing.stars.invoice.title` | LexiFlow Pro — :period | LexiFlow Pro — :period |
 | `billing.stars.invoice.label` | LexiFlow Pro, :period | LexiFlow Pro, :period |
-| `billing.stars.invoice.description_month` | LexiFlow Pro obunasi: yangi so'zlar cheklovsiz, batafsil statistika. Har 30 kunda avtomatik yangilanadi; /pro buyrug'i orqali o'chirish mumkin. | Подписка LexiFlow Pro: новые слова без лимита, подробная статистика. Продлевается автоматически каждые 30 дней; отключить можно командой /pro. |
-| `billing.stars.invoice.description_year` | LexiFlow Pro 1 yilga (365 kun): yangi so'zlar cheklovsiz, batafsil statistika. Bir martalik to'lov, avtoyangilashsiz. | LexiFlow Pro на 1 год (365 дней): новые слова без лимита, подробная статистика. Разовая оплата без автопродления. |
+| `billing.stars.invoice.description_month` | LexiFlow Pro obunasi: yangi so'zlar cheklovsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Har 30 kunda avtomatik yangilanadi; /pro buyrug'i orqali o'chirish mumkin. | Подписка LexiFlow Pro: новые слова без лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Продлевается автоматически каждые 30 дней; отключить можно командой /pro. |
+| `billing.stars.invoice.description_year` | LexiFlow Pro 1 yilga (365 kun): yangi so'zlar cheklovsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Bir martalik to'lov, avtoyangilashsiz. | LexiFlow Pro на 1 год (365 дней): новые слова без лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления. |
 | `billing.stars.precheckout.order_not_found` | Hisob topilmadi. /pro ni oching va yangisini yarating. | Счёт не найден. Откройте /pro и создайте новый. |
 | `billing.stars.precheckout.foreign` | Bu hisob boshqa foydalanuvchiga yozilgan. /pro ni oching va o'zingiznikini yarating. | Этот счёт выставлен другому пользователю. Откройте /pro и создайте свой. |
 | `billing.stars.precheckout.blocked` | Akkauntga kirish cheklangan. Qo'llab-quvvatlash xizmatiga murojaat qiling: /paysupport. | Доступ к аккаунту ограничен. Обратитесь в поддержку: /paysupport. |
@@ -1733,3 +1733,45 @@
 | `benefits.decks` | 2000 tadan so'zli 20 tagacha o'z to'plamlaringiz | До 20 своих колод по 2000 слов |
 | `benefits.freezes` | Seriyani muzlatish: o'tkazib yuborilgan kun seriyani uzmaydi | Заморозки серии: пропуск дня не обрывает серию |
 | `benefits.mock_exams` | IELTS va SAT sinov testlari | Пробные тесты IELTS и SAT |
+
+## Редизайн 2026-10-28 · лендинг и описание Pro — на проверку носителю
+
+> Публичный лендинг `/uz` и описание счёта Telegram Stars. Из Pro убрана «подробная статистика» (такой функции в коде нет);
+> перечислено то, что Pro реально открывает: новые слова без дневного лимита, упражнения «So'zni yozish» и «Misoldagi bo'sh joy»,
+> свои колоды (Free — 1 колода до 50 слов, Pro — до 20 по 2000), заморозки серии, пробные тесты IELTS и SAT.
+> Названия функций те же, что в мини-приложении (`settings.exercises.*`, `paywall.lead_*`). Изменённые значения прежних ключей
+> (`landing.pricing.pro.features.1-3`, `billing.stars.invoice.description_*`) обновлены в таблицах выше; здесь — только новые ключи.
+> Telegram ограничивает `description` счёта 255 символами — длину строк проверяет тест `tests/Feature/ProCopyTest.php`.
+
+### Лендинг (`lang/uz/landing.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `landing.pricing.pro.features.4` | IELTS va SAT sinov testlari | Пробные тесты IELTS и SAT |
+| `landing.pricing.subtitle_open` | Bepul boshlang. Pro - ko'proq istaganingizda. | Начните бесплатно. Pro — когда захочется больше. |
+| `landing.pricing.pro.price` | Boshlang'ich narx - oyiga :price | от :price в месяц |
+| `landing.pricing.pro.price_stars` | yoki Telegram Stars orqali :price | или :price через Telegram Stars |
+| `landing.pricing.pro.note_open` | Pro'ni botda /pro buyrug'i orqali yoki mini-ilovada rasmiylashtirishingiz mumkin. | Оформить Pro можно в боте командой /pro или в мини-приложении. |
+
+`landing.pricing.subtitle_open`, `pro.price*`, `pro.note_open` показываются, когда Pro уже продаётся (`BILLING_PAYWALL_MODE=purchase`, включён хотя бы один способ оплаты и задана цена); пока не продаётся — прежние `subtitle`, бейдж `soon` и `pro.note`. `:price` — готовая цена: «29 000 so'm» (так же, как `billing.currency.UZS`) или «150 ⭐». Проверить: «Boshlang'ich narx - oyiga …» (в ru «от … в месяц»; естественнее было бы «oyiga … dan», но падежное окончание нельзя приклеить к подставляемой цене, особенно к «⭐»), «rasmiylashtirishingiz mumkin» (можно оформить).
+
+### Лендинг, первый экран: макет приложения (`lang/uz/landing.php`, блок `hero.mockup`)
+
+> Декоративная «картинка» (телефон, нарисованный HTML и CSS) рядом с заголовком: карточка слова мини-приложения и три кнопки оценки.
+> Оценки — по словарю docs/14 §8 («Не помню · Помню · Легко» / «Eslay olmadim · Esladim · Oson»), как в мини-приложении после редизайна.
+> `word`, `ipa`, `example`, `progress` одинаковы в обоих языках (английское слово, транскрипция, пример, счётчик «7 / 20»).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `landing.hero.mockup.progress` | 7 / 20 | 7 / 20 |
+| `landing.hero.mockup.chip` | Yangi so'z | Новое слово |
+| `landing.hero.mockup.word` | breakfast | breakfast |
+| `landing.hero.mockup.ipa` | /ˈbrekfəst/ | /ˈbrekfəst/ |
+| `landing.hero.mockup.translation` | nonushta | завтрак |
+| `landing.hero.mockup.example` | I have breakfast at eight. | I have breakfast at eight. |
+| `landing.hero.mockup.question` | So'zni qanchalik yaxshi eslaysiz? | Насколько хорошо вы помните слово? |
+| `landing.hero.mockup.grade.forgot` | Eslay olmadim | Не помню |
+| `landing.hero.mockup.grade.remembered` | Esladim | Помню |
+| `landing.hero.mockup.grade.easy` | Oson | Легко |
+
+Проверить: «Eslay olmadim» (не помню; кнопка узкая — в две строки допустимо), «Esladim» (помню), «Oson» (легко), «So'zni qanchalik yaxshi eslaysiz?» (обращение на «Siz»).
