@@ -423,6 +423,22 @@ it('closes a week once: final ranks and points, top-N promoted, bottom-N demoted
         ->and(Cache::has(LeagueService::CACHE_PREFIX.$groups[2]->id))->toBeFalse();
 });
 
+it('queues every batch of the mailing with one deadline, counted from the close', function (): void {
+    Queue::fake();
+    config(['leagues.notify_batch_size' => 5, 'leagues.notify_ttl_hours' => 6]);
+    ['week' => $week] = lgWeekToClose();
+    $closedAt = lgNow('2026-10-18 19:05:00');
+
+    // The wall clock is days later than the close: the deadline follows the close, not the moment of queuing.
+    expect(lgService()->closeWeek($week, $closedAt))->toBeTrue();
+
+    $jobs = Queue::pushed(SendLeagueResultsJob::class);
+    $deadline = $closedAt->addHours(6)->getTimestamp();
+    expect($jobs)->toHaveCount(4)
+        ->and($jobs->map(fn (SendLeagueResultsJob $job): ?int => $job->notAfter)->unique()->all())->toBe([$deadline])
+        ->and($jobs->map(fn (SendLeagueResultsJob $job): int => $job->retryUntil()->getTimestamp())->unique()->all())->toBe([$deadline]);
+});
+
 it('writes the final columns of a group in ONE statement', function (): void {
     Queue::fake();
     ['week' => $week, 'groups' => $groups] = lgWeekToClose();

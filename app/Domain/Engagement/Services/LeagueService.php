@@ -409,7 +409,7 @@ final class LeagueService
             'members' => LeagueMember::query()->where('league_week_id', $week->id)->count(),
         ]);
 
-        $this->queueResultMessages($week);
+        $this->queueResultMessages($week, $now);
 
         // The winners of the groups get `league_top1` (docs/13 §7.4) — after the commit, once per learner
         // (the unique key), and a failure here never undoes the closed week.
@@ -645,9 +645,10 @@ final class LeagueService
     /**
      * Queues the result DMs of the week in batches of `notify_batch_size` members ({@see SendLeagueResultsJob}),
      * skipping those not worth a message: banned, DM closed, opted out, deleted (the sender checks the same
-     * again at send time). One query over the week's members, no models.
+     * again at send time). One query over the week's members, no models. All batches share ONE deadline
+     * (`leagues.notify_ttl_hours` from the close), which the remainders handed on by the jobs keep.
      */
-    private function queueResultMessages(LeagueWeek $week): void
+    private function queueResultMessages(LeagueWeek $week, CarbonImmutable $closedAt): void
     {
         $rows = DB::table('league_members as lm')
             ->join('learners as l', 'l.id', '=', 'lm.learner_id')
@@ -667,8 +668,9 @@ final class LeagueService
             $memberIds[] = (int) $row->id;
         }
 
+        $notAfter = SendLeagueResultsJob::deadline($closedAt)->getTimestamp();
         foreach (array_chunk($memberIds, max(1, (int) config('leagues.notify_batch_size', 100))) as $batch) {
-            SendLeagueResultsJob::dispatch($batch);
+            SendLeagueResultsJob::dispatch($batch, $notAfter);
         }
     }
 

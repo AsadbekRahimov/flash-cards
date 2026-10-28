@@ -988,7 +988,7 @@ All optional; the defaults are the production values (`.env.example` lists them)
 | `LEAGUES_PROMOTE` / `LEAGUES_DEMOTE` | `5` / `5` | Top / bottom N of a group moving up / down a tier at the weekly close |
 | `LEAGUES_POINTS_REVIEW` / `_CORRECT` / `_NEW_WORD` / `_GOAL_MET` | `1` / `1` / `2` / `10` | Points per review / correct answer / new word / daily goal met (computed from `learner_daily_stats`) |
 | `LEAGUES_STANDINGS_CACHE_SECONDS` | `60` | Cache of the standings table |
-| `LEAGUES_NOTIFY_TTL_HOURS` | `12` | A result DM that could not be sent within this time is dropped |
+| `LEAGUES_NOTIFY_TTL_HOURS` | `12` | A result DM that could not be sent within this time after the week was closed is dropped. One deadline for the whole mailing: a batch remainder handed to a new job keeps it |
 | `LEAGUES_NOTIFY_BATCH_SIZE` | `100` | Members per result-DM batch job (`SendLeagueResultsJob`) |
 | `LEAGUES_NOTIFY_BATCH_SECONDS` | `30` | Seconds one batch job may spend sending before handing the rest to a fresh job (keep well below the worker `--timeout`) |
 | `LEARNERS_STREAK_FREEZE_MAX` | `2` | Streak freezes a Pro learner can hold (+1 per week) |

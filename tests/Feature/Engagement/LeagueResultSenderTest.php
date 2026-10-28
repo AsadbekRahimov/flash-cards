@@ -22,6 +22,8 @@ use App\Models\Learner;
 use App\Models\NotificationLog;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Queue;
 use Tests\Support\FakeTelegramClient;
@@ -225,4 +227,99 @@ it('is executed from the queue after a close with the real sender, and is bounde
         ->and($job->maxExceptions)->toBeGreaterThanOrEqual(1)
         ->and($job->retryUntil()->getTimestamp())->toBe(now()->addHours(12)->getTimestamp())
         ->and(method_exists($job, 'middleware'))->toBeFalse(); // one slot per MESSAGE inside the batch, not one per job
+});
+
+// --- the deadline of the mailing -----------------------------------------------------------------
+
+it('hands the rest on with the deadline of the mailing, never with a fresh TTL', function (): void {
+    Queue::fake();
+    config(['telegram.outbound.sync_wait_ms' => 0]);
+    [$a, $b, $c] = lrThree();
+    $notAfter = now()->addHours(12)->getTimestamp();
+
+    $handle = function (SendLeagueResultsJob $job): void {
+        // No slot of the bot-wide budget in this second: nothing goes out, everything is handed on.
+        $limiter = new TelegramMessageRateLimiter(globalPerSecond: 1);
+        $this->app->instance(TelegramMessageRateLimiter::class, $limiter);
+        $limiter->reserveGlobal();
+        $job->handle(app(LeagueResultSender::class), $limiter);
+    };
+
+    $handle(new SendLeagueResultsJob([$a->id, $b->id, $c->id], $notAfter));
+    $remainder = Queue::pushed(SendLeagueResultsJob::class)->sole();
+    expect($remainder->memberIds)->toBe([$a->id, $b->id, $c->id])
+        ->and($remainder->notAfter)->toBe($notAfter)
+        ->and($remainder->retryUntil()->getTimestamp())->toBe($notAfter);
+
+    // Eleven hours on the remainder meets the same wall again and passes the same deadline to its own remainder:
+    // 23 hours after the mailing began it would still be alive if each dispatch started the TTL over.
+    $this->travel(11)->hours();
+    Queue::fake();
+    $handle($remainder);
+    $again = Queue::pushed(SendLeagueResultsJob::class)->sole();
+    expect($again->notAfter)->toBe($notAfter)
+        ->and($again->retryUntil()->getTimestamp())->toBe($notAfter)
+        ->and($again->retryUntil()->getTimestamp())->toBeLessThan(now()->addHours(12)->getTimestamp());
+
+    // A job built without a deadline starts the TTL now (what a hand-made dispatch gets).
+    $fresh = new SendLeagueResultsJob([$a->id]);
+    expect($fresh->notAfter)->toBeNull()
+        ->and($fresh->retryUntil()->getTimestamp())->toBe(now()->addHours(12)->getTimestamp());
+    config(['leagues.notify_ttl_hours' => 3]);
+    expect($fresh->retryUntil()->getTimestamp())->toBe(now()->addHours(3)->getTimestamp());
+});
+
+it('reads a payload queued before the deadline existed as a job without one', function (): void {
+    // Exactly what the previous build serialized: the members only.
+    $legacy = unserialize('O:29:"App\Jobs\SendLeagueResultsJob":1:{s:9:"memberIds";a:2:{i:0;i:5;i:1;i:6;}}');
+
+    expect($legacy)->toBeInstanceOf(SendLeagueResultsJob::class)
+        ->and($legacy->memberIds)->toBe([5, 6])
+        ->and($legacy->notAfter)->toBeNull()
+        ->and($legacy->retryUntil()->getTimestamp())->toBe(now()->addHours(12)->getTimestamp());
+});
+
+it('lets the worker drop a remainder that outlived the mailing, sending nothing', function (): void {
+    config(['queue.default' => 'database', 'telegram.outbound.sync_wait_ms' => 0]);
+    [$a, $b] = array_slice(lrThree(), 0, 2);
+    $notAfter = now()->addHours(12)->getTimestamp();
+
+    // Eleven hours into the mailing a batch finds no slot of the bot-wide budget and hands both members on: the
+    // remainder goes into a real queued job (the database queue; the worker below runs it).
+    $this->travel(11)->hours();
+    $limiter = new TelegramMessageRateLimiter(globalPerSecond: 1);
+    $this->app->instance(TelegramMessageRateLimiter::class, $limiter);
+    $limiter->reserveGlobal();
+    (new SendLeagueResultsJob([$a->id, $b->id], $notAfter))->handle(app(LeagueResultSender::class), $limiter);
+    expect(DB::table('jobs')->count())->toBe(1)
+        // The deadline of the mailing, not eleven hours later (a TTL restarted at the dispatch).
+        ->and(DB::table('jobs')->value('payload'))->toContain('"retryUntil":'.$notAfter.',');
+
+    // One second past the deadline the worker fails the job before handle(): nothing is sent, however free the budget is.
+    $this->travelTo(CarbonImmutable::createFromTimestamp($notAfter + 1));
+    Artisan::call('queue:work', ['connection' => 'database', '--once' => true, '--sleep' => 0]);
+
+    expect(DB::table('jobs')->count())->toBe(0)
+        ->and(DB::table('failed_jobs')->count())->toBe(1)
+        ->and($this->tg->sent)->toBe([])
+        ->and(NotificationLog::query()->count())->toBe(0);
+});
+
+it('still runs a remainder that is inside the deadline', function (): void {
+    config(['queue.default' => 'database', 'telegram.outbound.sync_wait_ms' => 0]);
+    [$a, $b] = array_slice(lrThree(), 0, 2);
+    $notAfter = now()->addHours(12)->getTimestamp();
+    $limiter = new TelegramMessageRateLimiter(globalPerSecond: 1);
+    $this->app->instance(TelegramMessageRateLimiter::class, $limiter);
+    $limiter->reserveGlobal();
+    (new SendLeagueResultsJob([$a->id, $b->id], $notAfter))->handle(app(LeagueResultSender::class), $limiter);
+
+    $this->travelTo(CarbonImmutable::createFromTimestamp($notAfter - 1));
+    Artisan::call('queue:work', ['connection' => 'database', '--once' => true, '--sleep' => 0]);
+
+    // The first member got the slot of the new second; the rest is queued again, with the same deadline.
+    expect($this->tg->sent)->toHaveCount(1)
+        ->and(DB::table('failed_jobs')->count())->toBe(0)
+        ->and(DB::table('jobs')->count())->toBe(1)
+        ->and(DB::table('jobs')->value('payload'))->toContain('"retryUntil":'.$notAfter.',');
 });
