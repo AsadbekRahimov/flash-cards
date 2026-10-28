@@ -22,6 +22,21 @@ return [
         'cta_bot' => 'Botni ochish',
         'cta_unavailable' => 'Bot tez orada ochiladi',
         'note' => 'Bepul: kuniga 20 ta yangi so\'z, takrorlash esa cheklovsiz.',
+        // Decorative phone mock-up next to the headline: a flash card of the Mini App (docs/14 §6.2, §8 grades).
+        'mockup' => [
+            'progress' => '7 / 20',
+            'chip' => 'Yangi so\'z',
+            'word' => 'breakfast',
+            'ipa' => '/ˈbrekfəst/',
+            'translation' => 'nonushta',
+            'example' => 'I have breakfast at eight.',
+            'question' => 'So\'zni qanchalik yaxshi eslaysiz?',
+            'grade' => [
+                'forgot' => 'Eslay olmadim',
+                'remembered' => 'Esladim',
+                'easy' => 'Oson',
+            ],
+        ],
     ],
 
     'how' => [

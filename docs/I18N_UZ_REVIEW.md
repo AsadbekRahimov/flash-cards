@@ -1715,3 +1715,24 @@
 | `landing.pricing.pro.note_open` | Pro'ni botda /pro buyrug'i orqali yoki mini-ilovada rasmiylashtirishingiz mumkin. | Оформить Pro можно в боте командой /pro или в мини-приложении. |
 
 `landing.pricing.subtitle_open`, `pro.price*`, `pro.note_open` показываются, когда Pro уже продаётся (`BILLING_PAYWALL_MODE=purchase`, включён хотя бы один способ оплаты и задана цена); пока не продаётся — прежние `subtitle`, бейдж `soon` и `pro.note`. `:price` — готовая цена: «29 000 so'm» (так же, как `billing.currency.UZS`) или «150 ⭐». Проверить: «Boshlang'ich narx - oyiga …» (в ru «от … в месяц»; естественнее было бы «oyiga … dan», но падежное окончание нельзя приклеить к подставляемой цене, особенно к «⭐»), «rasmiylashtirishingiz mumkin» (можно оформить).
+
+### Лендинг, первый экран: макет приложения (`lang/uz/landing.php`, блок `hero.mockup`)
+
+> Декоративная «картинка» (телефон, нарисованный HTML и CSS) рядом с заголовком: карточка слова мини-приложения и три кнопки оценки.
+> Оценки — по словарю docs/14 §8 («Не помню · Помню · Легко» / «Eslay olmadim · Esladim · Oson»), как в мини-приложении после редизайна.
+> `word`, `ipa`, `example`, `progress` одинаковы в обоих языках (английское слово, транскрипция, пример, счётчик «7 / 20»).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `landing.hero.mockup.progress` | 7 / 20 | 7 / 20 |
+| `landing.hero.mockup.chip` | Yangi so'z | Новое слово |
+| `landing.hero.mockup.word` | breakfast | breakfast |
+| `landing.hero.mockup.ipa` | /ˈbrekfəst/ | /ˈbrekfəst/ |
+| `landing.hero.mockup.translation` | nonushta | завтрак |
+| `landing.hero.mockup.example` | I have breakfast at eight. | I have breakfast at eight. |
+| `landing.hero.mockup.question` | So'zni qanchalik yaxshi eslaysiz? | Насколько хорошо вы помните слово? |
+| `landing.hero.mockup.grade.forgot` | Eslay olmadim | Не помню |
+| `landing.hero.mockup.grade.remembered` | Esladim | Помню |
+| `landing.hero.mockup.grade.easy` | Oson | Легко |
+
+Проверить: «Eslay olmadim» (не помню; кнопка узкая — в две строки допустимо), «Esladim» (помню), «Oson» (легко), «So'zni qanchalik yaxshi eslaysiz?» (обращение на «Siz»).

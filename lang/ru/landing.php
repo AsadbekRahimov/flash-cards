@@ -22,6 +22,21 @@ return [
         'cta_bot' => 'Открыть бота',
         'cta_unavailable' => 'Бот скоро откроется',
         'note' => 'Бесплатно: 20 новых слов в день, повторения — без ограничений.',
+        // Decorative phone mock-up next to the headline: a flash card of the Mini App (docs/14 §6.2, §8 grades).
+        'mockup' => [
+            'progress' => '7 / 20',
+            'chip' => 'Новое слово',
+            'word' => 'breakfast',
+            'ipa' => '/ˈbrekfəst/',
+            'translation' => 'завтрак',
+            'example' => 'I have breakfast at eight.',
+            'question' => 'Насколько хорошо вы помните слово?',
+            'grade' => [
+                'forgot' => 'Не помню',
+                'remembered' => 'Помню',
+                'easy' => 'Легко',
+            ],
+        ],
     ],
 
     'how' => [
