@@ -12,6 +12,7 @@ use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Livewire;
 use Tests\Support\FakeTelegramClient;
 use Tests\Support\OfflineTelegramApi;
 
@@ -30,6 +31,11 @@ abstract class TestCase extends BaseTestCase
         Cache::flush();
 
         Http::preventStrayRequests();
+
+        // Livewire keeps "a component was rendered this request" in statics, which outlive the application of a test:
+        // a Filament page rendered by one test would get Livewire's <script> injected into every later HTML response
+        // of the same process, the script-free public pages included (see LivewireAssetLeakTest).
+        Livewire::flushState();
 
         // Nothing a test renders or saves (achievement cards on a sync queue, audio) may land on the real public disk.
         Storage::fake('public');
