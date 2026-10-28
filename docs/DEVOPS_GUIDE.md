@@ -485,7 +485,7 @@ This runs every minute. Laravel's scheduler internally dispatches:
 - `challenges:close-due` — every 15 minutes (friend challenges past `ends_at` are scored from `learner_daily_stats` and finished, unanswered pending ones expire; idempotent by a conditional UPDATE; `withoutOverlapping`).
 - `organizations:sync-members` — hourly (repair path of the group -> organization membership hook: a learner in a group of an organization without a membership row gets one; idempotent).
 - `assignments:refresh` — every 30 minutes (assignment snapshots and the group reminder 24 h before a deadline; one-time posts are claimed by conditional UPDATEs; `withoutOverlapping(20)` + `runInBackground`; posts go through the global Telegram send budget, so a queue worker must run).
-- `leagues:close-week` — daily at 00:05 in `LEAGUES_TIMEZONE` (default `Asia/Tashkent`; on Monday it closes the week that just ended: final standings, promotions, result DMs; the other days it is a no-op or catches up a missed Monday; idempotent by `league_weeks.status`; `withoutOverlapping(30)` + `runInBackground`).
+- `leagues:close-week` — daily at 00:00 in `LEAGUES_TIMEZONE` (default `Asia/Tashkent`) with a safety run at 00:05 on the same mutex (`cron 0,5 0 * * *`; on Monday it closes the week that just ended: final standings group by group, promotions, result DMs in `SendLeagueResultsJob` batches through the global send budget — a queue worker must run; the 00:05 run and the other days are a no-op or catch up a failed / missed run; idempotent and resumable by `league_weeks.status` + `league_groups.closed_at`; `withoutOverlapping(30)` + `runInBackground`). Do not deploy while the Monday mailing is still queued: queued jobs of the removed `SendLeagueResultJob` class would fail.
 - `referrals:recover` — every 30 minutes (re-queues `RewardReferralJob` for referrals left `activated` or half-rewarded after a lost job; looks only at rows younger than `REFERRALS_RECOVER_WINDOW_DAYS`; `withoutOverlapping(20)` + `runInBackground`).
 - `billing:reconcile-stars` — daily at 04:30 (Telegram's Stars ledger of the last 2 days vs `payments`; read-only, logs `billing.reconcile_missing*`; exits at once while Stars is disabled).
 - `backup:clean` — daily at 01:00.
@@ -982,12 +982,14 @@ All optional; the defaults are the production values (`.env.example` lists them)
 | `FSRS_DESIRED_RETENTION` | `0.9` | FSRS target retention, strictly between 0 and 1 (higher = shorter intervals) |
 | `FSRS_WEIGHTS` | built-in 19 weights | Comma-separated FSRS parameters; change only with fitted values |
 | `LEAGUES_ENABLED` | `true` | Weekly leagues on/off |
-| `LEAGUES_TIMEZONE` | `Asia/Tashkent` | Time zone of the week boundary (Monday 00:05 closing job, `leagues:close-week`) |
+| `LEAGUES_TIMEZONE` | `Asia/Tashkent` | Time zone of the week boundary (Monday 00:00 closing job + 00:05 safety run, `leagues:close-week`) |
 | `LEAGUES_GROUP_CAPACITY` | `30` | Learners per league group |
 | `LEAGUES_PROMOTE` / `LEAGUES_DEMOTE` | `5` / `5` | Top / bottom N of a group moving up / down a tier at the weekly close |
 | `LEAGUES_POINTS_REVIEW` / `_CORRECT` / `_NEW_WORD` / `_GOAL_MET` | `1` / `1` / `2` / `10` | Points per review / correct answer / new word / daily goal met (computed from `learner_daily_stats`) |
 | `LEAGUES_STANDINGS_CACHE_SECONDS` | `60` | Cache of the standings table |
 | `LEAGUES_NOTIFY_TTL_HOURS` | `12` | A result DM that could not be sent within this time is dropped |
+| `LEAGUES_NOTIFY_BATCH_SIZE` | `100` | Members per result-DM batch job (`SendLeagueResultsJob`) |
+| `LEAGUES_NOTIFY_BATCH_SECONDS` | `30` | Seconds one batch job may spend sending before handing the rest to a fresh job (keep well below the worker `--timeout`) |
 | `LEARNERS_STREAK_FREEZE_MAX` | `2` | Streak freezes a Pro learner can hold (+1 per week) |
 | `MOCK_EXAM_QUESTIONS` / `MOCK_EXAM_SECONDS` | `40` / `1200` | Questions and time limit of the IELTS/SAT vocabulary simulator |
 | `MOCK_EXAM_PERCENTILE_DAYS` / `MOCK_EXAM_PERCENTILE_CACHE_TTL` | `90` / `3600` | Window (days) of other results for the percentile / its cache (seconds) |

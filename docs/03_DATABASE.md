@@ -755,11 +755,11 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 | id | bigint PK | |
 | starts_on | date **unique** | понедельник недели в `config('leagues.timezone')` (`Asia/Tashkent`) — одна граница для всех |
 | ends_on | date | воскресенье |
-| status | string(10) default `open` | `open` → `closing` (внутри транзакции закрытия) → `closed` |
-| closed_at | timestamp nullable | момент закрытия (`LeagueService::closeWeek`) |
+| status | string(10) default `open` | `open` → `closing` (барьер: с этого момента в неделю никого не размещают; группы финализируются по одной транзакции) → `closed` (все группы проштампованы) |
+| closed_at | timestamp nullable | момент шага `closing → closed` (`LeagueService::closeWeek`); ЛС итогов считаются «этой недели» по `notifications_log.sent_at >= closed_at` |
 | created_at, updated_at | | |
 
-Строка создаётся при первом размещении недели (`currentWeek`, `firstOrCreate` через savepoint — гонка создателей безопасна). Закрытие — `leagues:close-week` (ежедневно 00:05 tz лиг; реально работает в понедельник).
+Строка создаётся при первом размещении недели (`currentWeek`, `firstOrCreate` через savepoint — гонка создателей безопасна). Закрытие — `leagues:close-week` (ежедневно 00:00 tz лиг + страховочный 00:05 на том же мьютексе; реально работает в понедельник). Размещение держит строку недели `FOR SHARE` на время взятия места: UPDATE статуса закрывателя ждёт идущие размещения, а неделю в `closing` / `closed` размещение пропускает (docs/13 §7.3, P1-2).
 
 ### 2.35 `league_groups` — группа одного tier'а внутри недели *(2C.3)*
 | Колонка | Тип | Описание |
@@ -769,9 +769,10 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 | tier | smallint | 0 Bronze … 4 Diamond (`config('leagues.tiers')`) |
 | capacity | smallint default 30 | `LEAGUES_GROUP_CAPACITY` на момент создания группы |
 | members_count | smallint default 0 | число мест занято; меняется только под блокировкой строки в `LeagueService::place` |
+| closed_at | timestamp nullable | штамп финализации группы (`LeagueService::closeGroup`, P1-2): `final_*` всех её участников записаны одним UPDATE; `NOT NULL` ⇔ standings читаются из `final_*`, место в группе больше не выдаётся. Ставится закрытием недели (по группе в транзакции) или размещением участника в следующую неделю, которому вердикт нужен раньше закрытия |
 | created_at, updated_at | | |
 
-**Индексы:** `(league_week_id, tier, members_count)` — выбор группы с местом.
+**Индексы:** `(league_week_id, tier, members_count)` — выбор группы с местом; он же (по префиксу `league_week_id`) — выбор групп недели без штампа при закрытии.
 
 ### 2.36 `league_members` — место learner'а в группе недели *(2C.3)*
 | Колонка | Тип | Описание |
@@ -783,12 +784,12 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 | tier_before | smallint | tier недели (= `league_groups.tier`): результат прошлой закрытой недели learner'а или 0 |
 | final_points | int nullable | очки на момент закрытия (до закрытия очки **не хранятся** — считаются из `learner_daily_stats`, §2.22) |
 | final_rank | smallint nullable | место в группе на момент закрытия (ничьи — по более раннему размещению, `id`) |
-| result | string(10) nullable | `promoted` / `stayed` / `demoted`; пишется один раз при закрытии |
+| result | string(10) nullable | `promoted` / `stayed` / `demoted`; пишется один раз при финализации группы — вместе с `final_*` всех участников группы одним `UPDATE … FROM (VALUES …)` (sqlite — `CASE`) |
 | created_at, updated_at | | |
 
-**Индексы:** unique `(league_week_id, learner_id)`; `(league_group_id)`; `(learner_id, league_week_id)` — последний закрытый результат learner'а (tier следующего размещения).
+**Индексы:** unique `(league_week_id, learner_id)`; `(league_group_id)`; `(learner_id, league_week_id)` — членства learner'а (последнее по дате недели через join `league_weeks` — tier следующего размещения).
 
-**Правила:** строки пишет только `LeagueService` (docs/13 §2.4). Размещение — после commit транзакции оценки (`DailyStatsService` → `DB::afterCommit` на первой оценке локального дня), блокирует только `league_groups` (`FOR UPDATE SKIP LOCKED`, при отсутствии свободной группы — advisory-lock `(week, tier)` + ожидающий `FOR UPDATE`, затем новая группа); `learners` не блокируется, двух learner'ов в одной транзакции нет. Очки недели: `Σ reviews_count×1 + correct_count×1 + new_words_count×2 + (goal_met_at IS NOT NULL ? 10 : 0)` по `learner_daily_stats.date ∈ [starts_on, ends_on]` (веса — `config('leagues.points')`), один агрегирующий запрос на группу, кэш `league:standings:{group}` 60 с. `learners.meta.leagues_opt_out = true` — learner не размещается (настройки TWA).
+**Правила:** строки пишет только `LeagueService` (docs/13 §2.4). Размещение — после commit транзакции оценки (`DailyStatsService` → `DB::afterCommit` на первой оценке локального дня), блокирует строку `league_weeks` `FOR SHARE` (барьер закрытия) и затем `league_groups` (`FOR UPDATE SKIP LOCKED`, при отсутствии свободной группы — advisory-lock `(week, tier)` + ожидающий `FOR UPDATE`, затем новая группа; финализированные группы `closed_at IS NOT NULL` не рассматриваются); `learners` не блокируется, двух learner'ов в одной транзакции нет. Закрыватель держит либо строку недели (`FOR UPDATE`, миллисекунды), либо одну строку группы — никогда обе. Очки недели: `Σ reviews_count×1 + correct_count×1 + new_words_count×2 + (goal_met_at IS NOT NULL ? 10 : 0)` по `learner_daily_stats.date ∈ [starts_on, ends_on]` (веса — `config('leagues.points')`), один агрегирующий запрос на группу, кэш `league:standings:{group}` 60 с. `learners.meta.leagues_opt_out = true` — learner не размещается (настройки TWA).
 
 ### 2.37 `friendships` — друзья *(2C.5, docs/13 §1.5, §7.5)*
 | Колонка | Тип | Описание |
@@ -883,6 +884,7 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 41. `2026_10_23_200001_add_exercise_columns_to_training_reviews_table` — `training_reviews.exercise`, `answer_text`, `scheduler`, `interval_before_days` *(2D.2)*
 42. `2026_10_23_300001_add_scheduler_to_learners_table` — `learners.scheduler`; `2026_10_23_300002_add_fsrs_columns_to_word_repetitions_table` — `stability`, `difficulty`, `scheduler`, `scheduled_days` *(2D.3; отдельные forward-миграции с `down()`, а не правка на месте)*
 43. `2026_10_23_400001_generalize_exam_sessions_for_personal_mock` — `exam_sessions.mode`, `learner_id`, `course_id` *(2D.4)*
+44. `2026_10_28_100001_add_closed_at_to_league_groups_table` — `league_groups.closed_at` + штамп групп уже закрытых недель значением `league_weeks.closed_at` *(P1-2, docs/13 §7.3)*
 
 Индексные миграции (`add_performance_indexes`, `add_open_session_unique_indexes`) и `create_exam_*`, `create_notifications_log_table`,
 `create_product_events_table` переведены на `learner_id` на месте; `add_open_session_unique_indexes` дополнительно создаёт
