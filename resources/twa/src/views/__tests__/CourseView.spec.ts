@@ -388,6 +388,21 @@ describe('CourseView', () => {
       expect(untitled.get('[data-testid=lesson-progress]').text()).toBe('0 из 2 слов')
     })
 
+    it.each([
+      [1, '0 из 1 слова'],
+      [2, '0 из 2 слов'],
+      [5, '0 из 5 слов'],
+      [11, '0 из 11 слов'],
+      [21, '0 из 21 слова'],
+      [22, '0 из 22 слов'],
+    ])('agrees «слов» with the size of the lesson: %i -> %s', async (total, expected) => {
+      vi.mocked(api.courses.get).mockResolvedValue(detail({ stages: [stage(1, [lesson(11, 1, 0, total)])] }))
+
+      const { wrapper } = await render()
+
+      expect(wrapper.get('[data-testid=lesson-11] [data-testid=lesson-progress]').text()).toBe(expected)
+    })
+
     it('marks the status of a lesson: learned, started, not started', async () => {
       vi.mocked(api.courses.get).mockResolvedValue(detail({
         stages: [stage(1, [lesson(11, 1, 3, 3), lesson(12, 2, 1, 3), lesson(13, 3, 0, 3), lesson(14, 4, 0, 0)])],
@@ -593,6 +608,20 @@ describe('CourseView', () => {
       }
     })
 
+    it.each([
+      [1, '1 слово курса'],
+      [3, '3 слова курса'],
+      [12, '12 слов курса'],
+      [21, '21 слово курса'],
+      [500, '40 слов курса'], // the mock takes at most 40
+    ])('agrees «слов» in the hint with the size of the test: %i words in the course -> %s', async (words, expected) => {
+      vi.mocked(api.courses.get).mockResolvedValue(detail({ exam_tag: 'sat', words_count: words }))
+
+      const { wrapper } = await render()
+
+      expect(wrapper.get('[data-testid=mock-exam-hint]').text()).toBe(`${expected} · 20 мин · результат в процентах и сравнение с другими`)
+    })
+
     it('draws the card with a purple flag tile and a tinted block button', async () => {
       vi.mocked(api.courses.get).mockResolvedValue(detail({ exam_tag: 'ielts' }))
 
@@ -737,6 +766,7 @@ describe('CourseView', () => {
     expect(wrapper.get('[data-testid=stage-1]').text()).toContain('1-modul')
     expect(wrapper.get('[data-testid=lesson-11]').text()).toContain('1-dars · Greetings')
     expect(wrapper.get('[data-testid=lesson-11] [data-testid=lesson-progress]').text()).toBe("3 ta so'zdan 2 tasi")
+    expect(wrapper.get('[data-testid=lesson-12] [data-testid=lesson-progress]').text()).toBe("3 ta so'zdan 0 tasi")
     expect(wrapper.get('[data-testid=progress-text]').text()).toBe("5 tadan 2 tasi o'rganildi")
     expect(wrapper.get('[data-testid=choose-btn]').text()).toBe('Asosiy qilish')
     expect(wrapper.get('[data-testid=choose-hint]').text()).toBe("Kunlik mashg'ulotdagi yangi so'zlar shu kursdan bo'ladi")

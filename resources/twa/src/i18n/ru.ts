@@ -190,7 +190,12 @@ export const ru = {
 
   // ---- course: mock exam (Pro) ----
   'course.mock_exam': 'Пробный тест',
-  'course.mock_exam_hint': '{count} слов курса · {minutes} мин · результат в процентах и сравнение с другими',
+  'course.mock_exam_hint': {
+    one: '{count} слово курса · {minutes} мин · результат в процентах и сравнение с другими',
+    few: '{count} слова курса · {minutes} мин · результат в процентах и сравнение с другими',
+    many: '{count} слов курса · {minutes} мин · результат в процентах и сравнение с другими',
+    other: '{count} слова курса · {minutes} мин · результат в процентах и сравнение с другими',
+  },
   'course.mock_exam_start': 'Начать тест',
 
   // ---- finished (training) ----
@@ -324,7 +329,12 @@ export const ru = {
   'course.continue': 'Продолжить: модуль {stage}, урок {number}',
   'course.all_done': 'Все уроки курса пройдены',
   'course.choose_hint': 'Новые слова в ежедневном занятии будут из этого курса',
-  'course.lesson_words': '{done} из {total} слов',
+  'course.lesson_words': {
+    one: '{done} из {total} слова',
+    few: '{done} из {total} слов',
+    many: '{done} из {total} слов',
+    other: '{done} из {total} слова',
+  },
 
   // ---- learner decks ----
   'decks.title': 'Мои колоды',

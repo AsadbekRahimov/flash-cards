@@ -1412,7 +1412,10 @@
 | `result.mock_attempts` | Solishtirilgan urinishlar: {count} | Попыток в сравнении: {count} |
 | `result.mock_again` | Kurslarga | К курсам |
 | `course.mock_exam` | Sinov testi | Пробный тест |
-| `course.mock_exam_hint` | Kursdan {count} ta so'z · {minutes} daqiqa · natija foizda va boshqalar bilan taqqoslash | {count} слов курса · {minutes} мин · результат в процентах и сравнение с другими |
+| `course.mock_exam_hint.one` | Kursdan {count} ta so'z · {minutes} daqiqa · natija foizda va boshqalar bilan taqqoslash | {count} слово курса · {minutes} мин · результат в процентах и сравнение с другими |
+| `course.mock_exam_hint.few` | _(в uz этой формы нет — используется `other`)_ | {count} слова курса · {minutes} мин · результат в процентах и сравнение с другими |
+| `course.mock_exam_hint.many` | _(в uz этой формы нет — используется `other`)_ | {count} слов курса · {minutes} мин · результат в процентах и сравнение с другими |
+| `course.mock_exam_hint.other` | Kursdan {count} ta so'z · {minutes} daqiqa · natija foizda va boshqalar bilan taqqoslash | {count} слова курса · {minutes} мин · результат в процентах и сравнение с другими |
 | `paywall.lead_exam_simulator` | IELTS va SAT sinov testlari — Pro'da: 20 daqiqada kursdan 40 ta so'z, natija foizda va boshqalar bilan taqqoslash. | Пробные тесты IELTS и SAT — в Pro: 40 слов курса за 20 минут, результат в процентах и сравнение с другими. |
 | `error.code.exam_simulator_pro_required` | Sinov testlari Pro'da mavjud. | Пробные тесты доступны в Pro. |
 | `error.code.course_not_exam` | Bu kursda sinov testi yo'q. | У этого курса нет пробного теста. |
@@ -1752,7 +1755,10 @@
 | `course.continue` | Davom etish: {stage}-modul, {number}-dars | Продолжить: модуль {stage}, урок {number} |
 | `course.all_done` | Kursning barcha darslari tugallandi | Все уроки курса пройдены |
 | `course.choose_hint` | Kunlik mashg'ulotdagi yangi so'zlar shu kursdan bo'ladi | Новые слова в ежедневном занятии будут из этого курса |
-| `course.lesson_words` | {total} ta so'zdan {done} tasi | {done} из {total} слов |
+| `course.lesson_words.one` | {total} ta so'zdan {done} tasi | {done} из {total} слова |
+| `course.lesson_words.few` | _(в uz этой формы нет — используется `other`)_ | {done} из {total} слов |
+| `course.lesson_words.many` | _(в uz этой формы нет — используется `other`)_ | {done} из {total} слов |
+| `course.lesson_words.other` | {total} ta so'zdan {done} tasi | {done} из {total} слова |
 | `course.mock_exam_start` | Testni boshlash | Начать тест |
 | `decks.choose` | Asosiy qilish | Сделать основной |
 | `decks.active` | Asosiy to'plam | Основная колода |

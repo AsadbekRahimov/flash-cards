@@ -48,7 +48,7 @@ const auth = useAuthStore()
 const catalog = useCoursesStore()
 const training = useTrainingStore()
 const exam = useExamStore()
-const { t } = useI18n()
+const { t, tn } = useI18n()
 
 const { detail, detailStatus: status, selecting, errorMessage, nextLesson, allLessonsDone } = storeToRefs(catalog)
 const { opening, openError } = storeToRefs(training)
@@ -57,10 +57,9 @@ const { openingMock, mockPaywall, mockError } = storeToRefs(exam)
 useBackButton({ name: 'courses' })
 
 const offersMock = computed((): boolean => detail.value !== null && detail.value.exam_tag !== null && MOCK_EXAM_TAGS.includes(detail.value.exam_tag))
-const mockHint = computed((): string => t('course.mock_exam_hint', {
-  count: Math.min(MOCK_EXAM_WORDS, detail.value?.words_count ?? MOCK_EXAM_WORDS),
-  minutes: MOCK_EXAM_MINUTES,
-}))
+const mockHint = computed((): string =>
+  tn('course.mock_exam_hint', Math.min(MOCK_EXAM_WORDS, detail.value?.words_count ?? MOCK_EXAM_WORDS), { minutes: MOCK_EXAM_MINUTES }),
+)
 
 function lessonState(lesson: CourseLesson): LessonState {
   const { done, total } = lesson.progress
@@ -239,7 +238,7 @@ onBeforeUnmount(() => {
             <div class="min-w-0 flex-1">
               <p class="text-base leading-[22px] break-words">{{ lessonTitle(lesson) }}</p>
               <p class="text-[13px] leading-[18px] text-tg-hint" data-testid="lesson-progress">
-                {{ t('course.lesson_words', { done: lesson.progress.done, total: lesson.progress.total }) }}
+                {{ tn('course.lesson_words', lesson.progress.total, { done: lesson.progress.done, total: lesson.progress.total }) }}
               </p>
             </div>
             <button

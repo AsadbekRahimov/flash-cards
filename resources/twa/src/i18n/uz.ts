@@ -174,7 +174,10 @@ export const uz: Translations = {
 
   // ---- course: mock exam (Pro) ----
   'course.mock_exam': 'Sinov testi',
-  'course.mock_exam_hint': "Kursdan {count} ta so'z · {minutes} daqiqa · natija foizda va boshqalar bilan taqqoslash",
+  'course.mock_exam_hint': {
+    one: "Kursdan {count} ta so'z · {minutes} daqiqa · natija foizda va boshqalar bilan taqqoslash",
+    other: "Kursdan {count} ta so'z · {minutes} daqiqa · natija foizda va boshqalar bilan taqqoslash",
+  },
   'course.mock_exam_start': 'Testni boshlash',
 
   // ---- finished (training) ----
@@ -300,7 +303,10 @@ export const uz: Translations = {
   'course.continue': 'Davom etish: {stage}-modul, {number}-dars',
   'course.all_done': 'Kursning barcha darslari tugallandi',
   'course.choose_hint': "Kunlik mashg'ulotdagi yangi so'zlar shu kursdan bo'ladi",
-  'course.lesson_words': "{total} ta so'zdan {done} tasi",
+  'course.lesson_words': {
+    one: "{total} ta so'zdan {done} tasi",
+    other: "{total} ta so'zdan {done} tasi",
+  },
 
   // ---- learner decks ----
   'decks.title': "Mening to'plamlarim",
