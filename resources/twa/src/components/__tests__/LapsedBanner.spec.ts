@@ -4,6 +4,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import LapsedBanner from '../LapsedBanner.vue'
 import { api } from '@/api'
 import { setLocale } from '@/i18n'
+import { ICONS } from '@/components/ui/icons'
 import { useBillingStore } from '@/stores/billing'
 import type { Lapsed, MeResponse } from '@/api/types'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
@@ -55,6 +56,22 @@ describe('LapsedBanner', () => {
 
     expect(w.get('[data-testid=lapsed-title]').text()).toBe('Pro tugadi')
     expect(w.get('[data-testid=lapsed-renew]').text()).toBe("Pro'ni uzaytirish")
+    expect(w.get('[data-testid=lapsed-text]').text()).toMatch(/^Obuna 18-oktabr kuni tugadi\./)
+  })
+
+  it('is a warning card: a clock tile, a primary renew button and an icon-only dismiss button named "Hide"', async () => {
+    const w = await render(me(lapsed()))
+
+    const tile = w.get('.icon-tile')
+    expect(tile.classes()).toContain('bg-warning')
+    expect(tile.get('path').attributes('d')).toBe(ICONS.clock.outline[0]?.d)
+
+    expect(w.get('[data-testid=lapsed-renew]').classes()).toEqual(expect.arrayContaining(['btn', 'btn-primary']))
+
+    const dismiss = w.get('[data-testid=lapsed-dismiss]')
+    expect(dismiss.attributes('aria-label')).toBe('Скрыть')
+    expect(dismiss.text()).toBe('')
+    expect(dismiss.get('path').attributes('d')).toBe(ICONS['x-mark'].outline[0]?.d)
   })
 
   it('stays hidden when nothing lapsed or Pro is in force', async () => {

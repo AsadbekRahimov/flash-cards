@@ -10,7 +10,13 @@ import { settingsFixture } from '@/api/__tests__/settingsFixture'
 // The paywall entry point of the Today screen (task 1.4b); the rest of the screen is in TodayView.spec.ts.
 
 vi.mock('@/api', () => ({
-  api: { today: { get: vi.fn() }, training: { open: vi.fn() }, me: { get: vi.fn() }, promo: { redeem: vi.fn() } },
+  api: {
+    today: { get: vi.fn() },
+    assignments: { list: vi.fn() },
+    training: { open: vi.fn() },
+    me: { get: vi.fn() },
+    promo: { redeem: vi.fn() },
+  },
 }))
 
 vi.mock('@/stores/auth', () => ({
@@ -30,6 +36,8 @@ const today = (overrides: Partial<TodayResponse> = {}): TodayResponse => ({
   ...overrides,
 })
 
+const course = { id: 3, slug: 'english-a1', title: 'English A1', progress: { learned: 120, total: 900 }, next_lesson: null }
+
 const me = (plan: 'free' | 'pro', contact: string | null = null): MeResponse => ({
   learner: { id: 1, first_name: 'A', username: null, locale: 'ru', onboarding_completed: true },
   groups: [],
@@ -46,10 +54,7 @@ async function render(response: TodayResponse) {
     routes: [
       { path: '/today', name: 'today', component: { template: '<div />' } },
       { path: '/courses', name: 'courses', component: { template: '<div />' } },
-      { path: '/decks', name: 'decks', component: { template: '<div />' } },
-      { path: '/settings', name: 'settings', component: { template: '<div />' } },
-      { path: '/referrals', name: 'referrals', component: { template: '<div />' } },
-      { path: '/achievements', name: 'achievements', component: { template: '<div />' } },
+      { path: '/billing', name: 'billing', component: { template: '<div />' } },
       { path: '/league', name: 'league', component: { template: '<div />' } },
       { path: '/training/:sessionId(\\d+)', name: 'training', component: { template: '<div />' } },
     ],
@@ -64,6 +69,7 @@ describe('TodayView paywall entry', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
+    vi.mocked(api.assignments.list).mockResolvedValue({ assignments: [] })
     vi.mocked(api.me.get).mockResolvedValue(me('free', '@lexiflow_help'))
   })
 
@@ -77,6 +83,15 @@ describe('TodayView paywall entry', () => {
     expect(w.get('[data-testid=paywall-lead]').text()).toBe('Pro скоро откроется.')
     expect(w.get('[data-testid=paywall-free]').text()).toContain('20 новых слов в день')
     expect(w.get('[data-testid=paywall-contact-link]').attributes('href')).toBe('https://t.me/lexiflow_help')
+  })
+
+  it('offers it as a quiet button under the session button, never as a second primary one', async () => {
+    const w = await render(today())
+
+    const open = w.get('[data-testid=paywall-open]')
+    expect(open.classes()).toEqual(expect.arrayContaining(['btn', 'btn-plain']))
+    expect(open.classes()).not.toContain('btn-primary')
+    expect(w.get('[data-testid=review-card]').find('[data-testid=paywall-open]').exists()).toBe(true)
   })
 
   it('explains the exhausted quota when there are no new words left today', async () => {
@@ -95,11 +110,12 @@ describe('TodayView paywall entry', () => {
 
   it('refreshes the screen after a promo code: plan badge and quota follow the new plan', async () => {
     vi.mocked(api.promo.redeem).mockResolvedValue(me('pro'))
-    const w = await render(today())
+    const w = await render(today({ active_course: course }))
     expect(w.get('[data-testid=plan-badge]').text()).toBe('Free')
+    expect(w.get('[data-testid=new-remaining]').text()).toBe('Новых слов на сегодня: 12')
 
     vi.mocked(api.today.get).mockResolvedValue(
-      today({ new_words_remaining: null, entitlement: { plan: 'pro', source: 'subscription', until: null } }),
+      today({ active_course: course, new_words_remaining: null, entitlement: { plan: 'pro', source: 'subscription', until: null } }),
     )
     await w.get('[data-testid=paywall-open]').trigger('click')
     await w.get('[data-testid=promo-toggle]').trigger('click')
@@ -109,7 +125,8 @@ describe('TodayView paywall entry', () => {
 
     expect(api.today.get).toHaveBeenCalledTimes(2)
     expect(w.get('[data-testid=plan-badge]').text()).toBe('Pro')
-    expect(w.find('[data-testid=new-remaining]').exists()).toBe(false)
+    // The quota line follows the plan: no limit any more.
+    expect(w.get('[data-testid=new-remaining]').text()).toBe('Новые слова — без ограничений')
     expect(w.find('[data-testid=paywall-open]').exists()).toBe(false)
   })
 
