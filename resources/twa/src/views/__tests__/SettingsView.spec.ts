@@ -151,7 +151,22 @@ describe('SettingsView', () => {
       expect(text).toContain('карточек в день')
       expect(text).toContain('Карточки «слово → перевод» включены всегда')
       expect(text).toContain('Время — по вашему часовому поясу.')
-      expect(text).toContain('Выход из лиги действует со следующего размещения')
+      expect(text).toContain('Выход из лиг действует со следующей недели')
+    })
+
+    it('explains the leagues switch in plain words: from next week, the current week stays, and it can be switched on again any time', async () => {
+      const w = await render()
+
+      const hint = w.findAll('p').map((p) => p.text()).find((text) => text.startsWith('Выход из лиг'))
+      expect(hint).toBe('Выход из лиг действует со следующей недели: текущая неделя остаётся как есть. Включить лиги обратно можно в любой момент.')
+      expect(w.text()).not.toContain('размещени') // the word of the code, not of a learner
+    })
+
+    it('says the same in Uzbek', async () => {
+      const w = await render(settingsFixture({ interface_locale: 'uz' }))
+
+      expect(w.text()).toContain("Ligalardan chiqish keyingi haftadan boshlab amal qiladi: joriy hafta o'zgarishsiz qoladi. Ligalarni istalgan vaqtda qayta yoqish mumkin.")
+      expect(w.text()).not.toContain('joylashtirish')
     })
 
     it('drops the old buttons: the course row and the Profile tab replace «Course catalog» and «Subscription»', async () => {
@@ -683,10 +698,30 @@ describe('SettingsView', () => {
       const names = w.findAll('[data-testid=org-name]').map((n) => n.text())
       const states = w.findAll('[data-testid=org-state]')
       expect(names).toEqual(['Bright Center', 'Other Center'])
-      expect(states.map((n) => n.text())).toEqual(['Pro от центра', 'В очереди'])
+      expect(states.map((n) => n.text())).toEqual(['Pro от центра', 'В очереди на Pro'])
       expect(states[0]?.classes()).toEqual(expect.arrayContaining(['chip', 'chip-success']))
       expect(states[1]?.classes()).toEqual(expect.arrayContaining(['chip', 'chip-warning']))
       expect(w.get('[data-testid=orgs-card] h2').text()).toBe('Мои центры')
+    })
+
+    it('tells a learner in the queue what it means and when Pro comes, and tells nobody else', async () => {
+      const w = await render(settingsFixture(), [
+        membership(),
+        membership({ id: 18, name: 'Other Center', seat_state: 'waitlisted' }),
+      ])
+
+      expect(w.find('[data-testid=org-17] [data-testid=org-waitlisted-hint]').exists()).toBe(false)
+      const hint = w.get('[data-testid=org-18] [data-testid=org-waitlisted-hint]')
+      expect(hint.text()).toBe('В центре пока нет свободных мест. Pro от центра включится, когда место освободится.')
+      expect(hint.classes()).toContain('text-tg-hint')
+      expect(w.findAll('[data-testid=org-waitlisted-hint]')).toHaveLength(1)
+    })
+
+    it('says it in Uzbek', async () => {
+      const w = await render(settingsFixture({ interface_locale: 'uz' }), [membership({ seat_state: 'waitlisted' })])
+
+      expect(w.get('[data-testid=org-state]').text()).toBe('Pro uchun navbatda')
+      expect(w.get('[data-testid=org-waitlisted-hint]').text()).toBe("Markazda hozircha bo'sh joy yo'q. Joy bo'shaganda markaz bergan Pro yoqiladi.")
     })
 
     it('explains a center joined through a group instead of offering to leave it', async () => {

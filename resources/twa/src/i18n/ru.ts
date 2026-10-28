@@ -415,12 +415,13 @@ export const ru = {
   // ---- settings: my centers (docs/13 §6.2) ----
   'orgs.title': 'Мои центры',
   'orgs.seated': 'Pro от центра',
-  'orgs.waitlisted': 'В очереди',
+  'orgs.waitlisted': 'В очереди на Pro',
   'orgs.via_group': 'Вы в центре через группу. Чтобы выйти, покиньте группу центра в Telegram.',
   'orgs.leave': 'Покинуть центр',
   'orgs.leave.confirm': 'Покинуть центр «{name}»? Pro от центра отключится, личная подписка (если есть) останется.',
   'orgs.leave.yes': 'Да, покинуть',
   'orgs.leave.no': 'Отмена',
+  'orgs.waitlisted_hint': 'В центре пока нет свободных мест. Pro от центра включится, когда место освободится.',
 
   // ---- achievements (docs/13 §7.4) ----
   'achievements.title': 'Достижения',
@@ -468,7 +469,7 @@ export const ru = {
   'league.settings.open': 'Настройки лиг',
   'league.rating_title': 'Рейтинг',
   'league.rules_title': 'Как работают лиги',
-  'settings.leagues.hint': 'Выход из лиги действует со следующего размещения; текущая неделя остаётся.',
+  'settings.leagues.hint': 'Выход из лиг действует со следующей недели: текущая неделя остаётся как есть. Включить лиги обратно можно в любой момент.',
 
   // ---- referrals: invite a friend (docs/13 §7.1) ----
   'referrals.title': 'Пригласить друга',

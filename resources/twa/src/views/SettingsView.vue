@@ -271,6 +271,11 @@ onBeforeUnmount(() => {
             </span>
           </div>
 
+          <!-- A queue says nothing about when it moves: tell what the chip means and what happens next. -->
+          <p v-if="org.seat_state === 'waitlisted'" class="text-[13px] leading-[18px] text-tg-hint" data-testid="org-waitlisted-hint">
+            {{ t('orgs.waitlisted_hint') }}
+          </p>
+
           <p v-if="!org.can_leave" class="text-[13px] leading-[18px] text-tg-hint" data-testid="org-via-group">{{ t('orgs.via_group') }}</p>
 
           <button

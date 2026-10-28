@@ -912,7 +912,7 @@
 |---|---|---|
 | `orgs.title` | Mening markazlarim | Мои центры |
 | `orgs.seated` | Markaz bergan Pro | Pro от центра |
-| `orgs.waitlisted` | Navbatda | В очереди |
+| `orgs.waitlisted` | Pro uchun navbatda | В очереди на Pro |
 | `orgs.via_group` | Siz markazdasiz — guruh orqali. Chiqish uchun Telegram'da markaz guruhini tark eting. | Вы в центре через группу. Чтобы выйти, покиньте группу центра в Telegram. |
 | `orgs.leave` | Markazni tark etish | Покинуть центр |
 | `orgs.leave.confirm` | «{name}» markazini tark etasizmi? Markaz bergan Pro o'chadi, shaxsiy obunangiz (agar bo'lsa) saqlanadi. | Покинуть центр «{name}»? Pro от центра отключится, личная подписка (если есть) останется. |
@@ -1472,7 +1472,7 @@
 | `league.last.stayed` | {tier}: {rank}-o'rin, {points} — ligada qoldingiz | {tier}: {rank}-е место, {points} — остались в лиге |
 | `league.last.demoted` | {tier}: {rank}-o'rin, {points} — tushish | {tier}: {rank}-е место, {points} — понижение |
 | `league.settings.open` | Liga sozlamalari | Настройки лиг |
-| `settings.leagues.hint` | Ligadan chiqish keyingi joylashtirishdan boshlab amal qiladi; joriy hafta saqlanib qoladi. | Выход из лиги действует со следующего размещения; текущая неделя остаётся. |
+| `settings.leagues.hint` | Ligalardan chiqish keyingi haftadan boshlab amal qiladi: joriy hafta o'zgarishsiz qoladi. Ligalarni istalgan vaqtda qayta yoqish mumkin. | Выход из лиг действует со следующей недели: текущая неделя остаётся как есть. Включить лиги обратно можно в любой момент. |
 
 ## Фаза 2 · задача 2C.5 (друзья и вызовы) — на проверку носителю
 
@@ -1910,3 +1910,4 @@
 | `billing.grace` | Telegram yangilash uchun Stars'ni yecha olmadi. Stars balansini to'ldiring — Telegram yechishni qayta urinib ko'radi. | Telegram не смог списать Stars за продление. Пополните баланс Stars — Telegram повторит списание. |
 | `billing.grace_until` | Pro {date} gacha amal qiladi. | Pro действует до {date} |
 | `decks.choose_empty_hint` | Asosiy qilish uchun to'plamga kamida bitta so'z qo'shing. | Добавьте в колоду хотя бы одно слово, чтобы сделать её основной. |
+| `orgs.waitlisted_hint` | Markazda hozircha bo'sh joy yo'q. Joy bo'shaganda markaz bergan Pro yoqiladi. | В центре пока нет свободных мест. Pro от центра включится, когда место освободится. |

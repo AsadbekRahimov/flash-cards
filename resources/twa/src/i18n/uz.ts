@@ -383,12 +383,13 @@ export const uz: Translations = {
   // ---- settings: my centers (docs/13 §6.2) ----
   'orgs.title': 'Mening markazlarim',
   'orgs.seated': 'Markaz bergan Pro',
-  'orgs.waitlisted': 'Navbatda',
+  'orgs.waitlisted': 'Pro uchun navbatda',
   'orgs.via_group': "Siz markazdasiz — guruh orqali. Chiqish uchun Telegram'da markaz guruhini tark eting.",
   'orgs.leave': 'Markazni tark etish',
   'orgs.leave.confirm': "«{name}» markazini tark etasizmi? Markaz bergan Pro o'chadi, shaxsiy obunangiz (agar bo'lsa) saqlanadi.",
   'orgs.leave.yes': 'Ha, tark etaman',
   'orgs.leave.no': 'Bekor qilish',
+  'orgs.waitlisted_hint': "Markazda hozircha bo'sh joy yo'q. Joy bo'shaganda markaz bergan Pro yoqiladi.",
 
   // ---- achievements (docs/13 §7.4) ----
   'achievements.title': 'Yutuqlar',
@@ -434,7 +435,7 @@ export const uz: Translations = {
   'league.settings.open': 'Liga sozlamalari',
   'league.rating_title': 'Reyting',
   'league.rules_title': 'Ligalar qanday ishlaydi',
-  'settings.leagues.hint': "Ligadan chiqish keyingi joylashtirishdan boshlab amal qiladi; joriy hafta saqlanib qoladi.",
+  'settings.leagues.hint': "Ligalardan chiqish keyingi haftadan boshlab amal qiladi: joriy hafta o'zgarishsiz qoladi. Ligalarni istalgan vaqtda qayta yoqish mumkin.",
 
   // ---- referrals: invite a friend (docs/13 §7.1) ----
   'referrals.title': "Do'stni taklif qilish",
