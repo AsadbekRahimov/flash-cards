@@ -8,6 +8,7 @@ use App\Models\Friendship;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 
 /*
@@ -146,6 +147,50 @@ it('proposes a challenge to a friend by friendship id, and lists, accepts and de
     $row2 = Friendship::factory()->between($me, $other)->create();
     $second = $this->withHeaders(tfHeaders($other))->postJson('/api/twa/challenges', ['friendship_id' => $row2->id, 'metric' => 'new_words'])->assertCreated()->json('id');
     $this->withHeaders(tfHeaders($me))->postJson("/api/twa/challenges/{$second}/decline")->assertOk()->assertJsonPath('status', 'declined');
+});
+
+it('lists the open challenges with live scores in a constant number of queries', function (): void {
+    $list = function (int $challenges): array {
+        $me = Learner::factory()->create(['timezone' => 'Asia/Tashkent']);
+        foreach (range(1, $challenges) as $i) {
+            $friend = Learner::factory()->create(['first_name' => "Friend {$i}"]);
+            Friendship::factory()->between($me, $friend)->create();
+            $metric = $i % 2 === 0 ? 'new_words' : 'reviews';
+            Challenge::factory()->active('2026-10-23')->create([
+                'challenger_id' => $me->id, 'opponent_id' => $friend->id, 'metric' => $metric, 'open_pair' => "{$me->id}:{$friend->id}",
+            ]);
+            LearnerDailyStats::factory()->create(['learner_id' => $friend->id, 'date' => '2026-10-24', 'reviews_count' => 10 + $i, 'new_words_count' => 100 + $i]);
+        }
+        LearnerDailyStats::factory()->create(['learner_id' => $me->id, 'date' => '2026-10-23', 'reviews_count' => 3, 'new_words_count' => 4]);
+        LearnerDailyStats::factory()->create(['learner_id' => $me->id, 'date' => '2026-10-29', 'reviews_count' => 5, 'new_words_count' => 6]); // the last day
+        LearnerDailyStats::factory()->create(['learner_id' => $me->id, 'date' => '2026-10-30', 'reviews_count' => 99, 'new_words_count' => 99]); // after the period (23..29)
+        LearnerDailyStats::factory()->create(['learner_id' => $me->id, 'date' => '2026-10-22', 'reviews_count' => 99, 'new_words_count' => 99]); // before it
+
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+        $response = $this->withHeaders(tfHeaders($me))->getJson('/api/twa/challenges')->assertOk();
+        $count = count(DB::getQueryLog());
+        DB::disableQueryLog();
+
+        return [$count, $response->json('open')];
+    };
+
+    [$one, $oneOpen] = $list(1);
+    [$many, $manyOpen] = $list(20);
+
+    expect($many)->toBe($one)
+        ->and($oneOpen)->toHaveCount(1)
+        ->and($oneOpen[0]['metric'])->toBe('reviews')
+        ->and($oneOpen[0]['my_score'])->toBe(8)      // 3 + 5 on the two days of the period
+        ->and($oneOpen[0]['their_score'])->toBe(11)
+        ->and($manyOpen)->toHaveCount(20);
+    // Newest first: the 20th friend is index 0 ("new_words": my 4 + 6, theirs 100 + 20).
+    expect($manyOpen[0]['friend_name'])->toBe('Friend 20')
+        ->and($manyOpen[0]['metric'])->toBe('new_words')
+        ->and($manyOpen[0]['my_score'])->toBe(10)
+        ->and($manyOpen[0]['their_score'])->toBe(120)
+        ->and($manyOpen[19]['my_score'])->toBe(8)
+        ->and($manyOpen[19]['their_score'])->toBe(11);
 });
 
 it('refuses a challenge for somebody else\'s friendship, a pending friendship and bad input', function (): void {
