@@ -1,23 +1,33 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { computed, onMounted } from 'vue'
+import { RouterLink } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import ProgressBar from '@/components/ProgressBar.vue'
-import { courseMeta } from '@/composables/courseLabels'
+import AppIcon from '@/components/ui/AppIcon.vue'
+import EmptyState from '@/components/ui/EmptyState.vue'
+import ErrorState from '@/components/ui/ErrorState.vue'
+import LoadingState from '@/components/ui/LoadingState.vue'
+import PageHeader from '@/components/ui/PageHeader.vue'
+import SegmentedNav from '@/components/ui/SegmentedNav.vue'
+import { catalogTabs, courseChips, progressPercent, progressText } from '@/composables/courseLabels'
+import { useBackButton } from '@/composables/useBackButton'
 import { useAuthStore } from '@/stores/auth'
 import { useCoursesStore } from '@/stores/courses'
-import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
 
-const router = useRouter()
+/**
+ * "Courses" tab root (docs/14 §6.5): the catalog of courses with the learner's progress. A card opens the course;
+ * its button makes the course the main one (the source of the new words of the daily session). The twin screen
+ * of the tab is "My decks" (the switch under the heading). A tab root: no system "Back" button.
+ */
 const auth = useAuthStore()
 const catalog = useCoursesStore()
-const { showBackButton } = useTelegram()
 const { t } = useI18n()
 
 const { courses, listStatus: status, selecting, errorMessage } = storeToRefs(catalog)
 
-let hideBack: (() => void) | null = null
+const tabs = computed(catalogTabs)
+
+useBackButton(null)
 
 async function load(): Promise<void> {
   try {
@@ -29,81 +39,81 @@ async function load(): Promise<void> {
 }
 
 onMounted(() => {
-  hideBack = showBackButton(() => void router.push({ name: 'landing' }))
   void load()
-})
-
-onBeforeUnmount(() => {
-  hideBack?.()
 })
 </script>
 
 <template>
-  <section class="flex-1 flex flex-col p-4 max-w-xl mx-auto w-full">
-    <h1 class="text-xl font-bold mb-4">{{ t('catalog.title') }}</h1>
+  <div class="page">
+    <PageHeader :title="t('catalog.title')" large />
+    <SegmentedNav :items="tabs" />
+    <p class="mt-2 px-4 text-[13px] leading-[18px] text-tg-hint" data-testid="hint">{{ t('catalog.hint') }}</p>
 
-    <div v-if="status === 'idle' || status === 'loading'" class="flex-1 flex items-center justify-center" data-testid="spinner">
-      <p class="text-tg-hint">{{ t('common.loading') }}</p>
-    </div>
+    <LoadingState v-if="status === 'idle' || status === 'loading'" class="mt-4" />
 
-    <div v-else-if="status === 'error'" class="flex-1 flex items-center justify-center text-center" data-testid="error">
-      <div class="space-y-4">
-        <p class="text-lg font-semibold">⚠️ {{ t('common.error_title') }}</p>
-        <p class="text-tg-hint">{{ errorMessage }}</p>
-        <button class="btn btn-primary" data-testid="retry-btn" @click="load()">{{ t('common.retry') }}</button>
-      </div>
-    </div>
+    <ErrorState v-else-if="status === 'error'" :message="errorMessage" @retry="load" />
 
-    <p v-else-if="courses.length === 0" class="flex-1 flex items-center justify-center text-center text-tg-hint" data-testid="empty">
-      {{ t('catalog.empty') }}
-    </p>
+    <EmptyState v-else-if="courses.length === 0" icon="academic-cap" :text="t('catalog.empty')" />
 
-    <div v-else class="space-y-3">
-      <p v-if="errorMessage" class="text-sm text-red-600" data-testid="select-error">{{ errorMessage }}</p>
-
-      <article
-        v-for="course in courses"
-        :key="course.slug"
-        class="card space-y-3"
-        :data-testid="`course-${course.slug}`"
+    <div v-else class="mt-4 space-y-3">
+      <p
+        v-if="errorMessage"
+        class="flex items-start gap-2 rounded-xl bg-danger-soft px-3.5 py-2.5 text-[15px] leading-5 text-danger-ink"
+        role="alert"
+        data-testid="select-error"
       >
+        <AppIcon name="exclamation-circle" :size="20" class="mt-px" />
+        <span>{{ errorMessage }}</span>
+      </p>
+
+      <article v-for="course in courses" :key="course.slug" class="card" :data-testid="`course-${course.slug}`">
         <RouterLink
           :to="{ name: 'course', params: { slug: course.slug } }"
-          class="block space-y-1"
+          class="flex items-start gap-2 active:opacity-60"
           data-testid="course-link"
         >
-          <h2 class="text-lg font-semibold">{{ course.title }}</h2>
-          <p v-if="course.description" class="text-sm text-tg-hint">{{ course.description }}</p>
-          <p class="text-xs text-tg-hint" data-testid="meta">{{ courseMeta(course) }}</p>
+          <div class="min-w-0 flex-1">
+            <h2 class="text-[17px] leading-[22px] font-semibold">{{ course.title }}</h2>
+            <div class="mt-2 flex flex-wrap gap-1.5" data-testid="meta">
+              <span v-for="chip in courseChips(course)" :key="chip.key" class="chip" :class="`chip-${chip.tone}`">{{ chip.label }}</span>
+            </div>
+            <p v-if="course.description" class="mt-2 line-clamp-2 text-[15px] leading-5 text-tg-subtitle">{{ course.description }}</p>
+          </div>
+          <AppIcon name="chevron-right" :size="16" class="mt-[3px] text-tg-hint" />
         </RouterLink>
 
-        <div class="space-y-1">
-          <ProgressBar :done="course.progress.done" :total="course.progress.total" />
-          <p class="text-xs text-tg-hint" data-testid="progress-text">
-            {{ t('catalog.progress', { done: course.progress.done, total: course.progress.total }) }}
-          </p>
+        <div class="mt-3">
+          <div
+            class="progress"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            :aria-valuenow="progressPercent(course.progress)"
+            :aria-label="progressText(course.progress)"
+            data-testid="progress-bar"
+          >
+            <div class="progress-fill" :style="{ width: `${progressPercent(course.progress)}%` }" data-testid="progress-fill" />
+          </div>
+          <p class="mt-1.5 text-[13px] leading-[18px] text-tg-hint" data-testid="progress-text">{{ progressText(course.progress) }}</p>
         </div>
 
-        <button
-          v-if="course.is_active"
-          type="button"
-          class="btn btn-secondary w-full"
-          disabled
-          data-testid="active-badge"
-        >
-          ✓ {{ t('catalog.active') }}
-        </button>
-        <button
-          v-else
-          type="button"
-          class="btn btn-primary w-full"
-          :disabled="selecting !== null"
-          data-testid="choose-btn"
-          @click="catalog.select(course.slug)"
-        >
-          {{ t('catalog.choose') }}
-        </button>
+        <div class="mt-3">
+          <span v-if="course.is_active" class="chip chip-success" data-testid="active-badge">
+            <AppIcon name="check" solid :size="14" />
+            {{ t('catalog.active') }}
+          </span>
+          <button
+            v-else
+            type="button"
+            class="btn btn-tinted btn-block"
+            :disabled="selecting !== null"
+            data-testid="choose-btn"
+            @click="catalog.select(course.slug)"
+          >
+            {{ t('catalog.choose') }}
+          </button>
+        </div>
       </article>
     </div>
-  </section>
+  </div>
 </template>

@@ -197,8 +197,8 @@
 | `catalog.title` | Kurslar | Курсы |
 | `catalog.open` | Kurslar katalogi | Каталог курсов |
 | `catalog.empty` | Hozircha kurslar yo'q. Keyinroq qaytib ko'ring. | Курсов пока нет. Загляните позже. |
-| `catalog.choose` | Tanlash | Выбрать |
-| `catalog.active` | Faol | Активный |
+| `catalog.choose` | Asosiy qilish | Сделать основным |
+| `catalog.active` | Asosiy kurs | Основной курс |
 | `catalog.words.one` | {count} ta so'z | {count} слово |
 | `catalog.words.few` | _(в uz этой формы нет — используется `other`)_ | {count} слова |
 | `catalog.words.many` | _(в uz этой формы нет — используется `other`)_ | {count} слов |
@@ -208,7 +208,6 @@
 | `catalog.goal.school` | Maktab | Школа |
 | `catalog.goal.ielts` | IELTS | IELTS |
 | `catalog.goal.sat` | SAT | SAT |
-| `course.back` | Kurslarga | К курсам |
 | `course.module` | {number}-modul | Модуль {number} |
 | `course.lesson` | {number}-dars | Урок {number} |
 | `course.no_lessons` | Kursda hali darslar yo'q. | В курсе пока нет уроков. |
@@ -1735,13 +1734,19 @@
 
 ## Редизайн 2026-10-28 · 17.4 курсы и колоды — на проверку носителю
 
-> Проверить: «Asosiy qilish» / «Asosiy to'plam» (сделать основной / основная колода — термины docs/14 §8).
-> Значения изменены в строках таблицы «Фаза 2 · задача 2D.1 (свои колоды)» выше: `decks.limit`, `decks.new.submit`. Ключ `decks.edit.words` удалён (заменён на `decks.words_title`).
+> Проверить: «Asosiy qilish» / «Asosiy kurs» / «Asosiy to'plam» (сделать основным / основной курс / основная колода — термины docs/14 §8, вместо «Tanlash» / «Faol»); «Davom etish: {number}-dars» (Продолжить: урок N); форму «{total} ta so'zdan {done} tasi» («{done} из {total} слов»); «Testni boshlash» (Начать тест).
+> Значения изменены в строках таблицы «TWA» выше: `catalog.choose`, `catalog.active`, `decks.limit`, `decks.new.submit`. Ключи `course.back` («← К курсам» убрана, «Назад» — системная кнопка Telegram) и `decks.edit.words` (заменён на `decks.words_title`) удалены.
 
-### TWA, «Мои колоды» и экран колоды (`resources/twa/src/i18n/uz.ts`)
+### TWA, каталог, экран курса, «Мои колоды», экран колоды (`resources/twa/src/i18n/uz.ts`)
 
 | Ключ | uz | ru |
 |---|---|---|
+| `catalog.hint` | Kunlik mashg'ulot uchun yangi so'zlar asosiy kursdan olinadi | Новые слова для ежедневного занятия берутся из основного курса |
+| `course.continue` | Davom etish: {number}-dars | Продолжить: урок {number} |
+| `course.all_done` | Kursning barcha darslari tugallandi | Все уроки курса пройдены |
+| `course.choose_hint` | Kunlik mashg'ulotdagi yangi so'zlar shu kursdan bo'ladi | Новые слова в ежедневном занятии будут из этого курса |
+| `course.lesson_words` | {total} ta so'zdan {done} tasi | {done} из {total} слов |
+| `course.mock_exam_start` | Testni boshlash | Начать тест |
 | `decks.choose` | Asosiy qilish | Сделать основной |
 | `decks.active` | Asosiy to'plam | Основная колода |
 | `decks.words_title` | So'zlar ({count}) | Слова ({count}) |

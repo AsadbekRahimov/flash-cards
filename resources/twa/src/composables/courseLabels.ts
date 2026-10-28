@@ -10,11 +10,32 @@ const GOAL_KEYS: Record<string, StringKey> = {
   sat: 'catalog.goal.sat',
 }
 
-/** "A1 · General English · 500 words": level and goal are left out when the course has none. */
-export function courseMeta(course: { level: string | null; exam_tag: string | null; words_count: number }): string {
-  return [course.level, goalLabel(course.exam_tag), tn('catalog.words', course.words_count)]
-    .filter((part): part is string => part !== null && part !== '')
-    .join(' · ')
+/** Goals of the exam-preparation courses: their chip is highlighted in the accent colour (docs/14 §6.5). */
+const EXAM_GOALS = ['ielts', 'sat']
+
+/** One fact about a course or a deck, drawn as a `.chip` on its card. */
+export interface CourseChip {
+  /** Which fact it states; also a stable `v-for` key. */
+  key: 'level' | 'goal' | 'words'
+  /** Already localized. */
+  label: string
+  /** The template turns it into `chip-accent` / `chip-neutral`. */
+  tone: 'neutral' | 'accent'
+}
+
+/**
+ * Chips of a course: level ("A1"), goal ("General English"; "IELTS" / "SAT" in the accent colour) and size
+ * ("900 words"). Level and goal are left out when the course has none.
+ */
+export function courseChips(course: { level: string | null; exam_tag: string | null; words_count: number }): CourseChip[] {
+  const chips: CourseChip[] = []
+  if (course.level !== null && course.level !== '') chips.push({ key: 'level', label: course.level, tone: 'neutral' })
+
+  const goal = goalLabel(course.exam_tag)
+  if (goal !== null) chips.push({ key: 'goal', label: goal, tone: EXAM_GOALS.includes(course.exam_tag ?? '') ? 'accent' : 'neutral' })
+
+  chips.push({ key: 'words', label: tn('catalog.words', course.words_count), tone: 'neutral' })
+  return chips
 }
 
 /** Localized name of a course goal (`exam_tag`); an unknown tag is shown as is. */

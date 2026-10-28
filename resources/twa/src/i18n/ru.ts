@@ -177,6 +177,7 @@ export const ru = {
   // ---- course: mock exam (Pro) ----
   'course.mock_exam': 'Пробный тест',
   'course.mock_exam_hint': '{count} слов курса · {minutes} мин · результат в процентах и сравнение с другими',
+  'course.mock_exam_start': 'Начать тест',
 
   // ---- finished (training) ----
   'finished.title': 'Отлично!',
@@ -272,8 +273,8 @@ export const ru = {
   'catalog.title': 'Курсы',
   'catalog.open': 'Каталог курсов',
   'catalog.empty': 'Курсов пока нет. Загляните позже.',
-  'catalog.choose': 'Выбрать',
-  'catalog.active': 'Активный',
+  'catalog.choose': 'Сделать основным',
+  'catalog.active': 'Основной курс',
   'catalog.words': {
     one: '{count} слово',
     few: '{count} слова',
@@ -285,11 +286,15 @@ export const ru = {
   'catalog.goal.school': 'Школа',
   'catalog.goal.ielts': 'IELTS',
   'catalog.goal.sat': 'SAT',
-  'course.back': 'К курсам',
   'course.module': 'Модуль {number}',
   'course.lesson': 'Урок {number}',
   'course.learn': 'Учить',
   'course.no_lessons': 'В курсе пока нет уроков.',
+  'catalog.hint': 'Новые слова для ежедневного занятия берутся из основного курса',
+  'course.continue': 'Продолжить: урок {number}',
+  'course.all_done': 'Все уроки курса пройдены',
+  'course.choose_hint': 'Новые слова в ежедневном занятии будут из этого курса',
+  'course.lesson_words': '{done} из {total} слов',
 
   // ---- learner decks ----
   'decks.title': 'Мои колоды',

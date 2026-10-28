@@ -161,6 +161,7 @@ export const uz: Translations = {
   // ---- course: mock exam (Pro) ----
   'course.mock_exam': 'Sinov testi',
   'course.mock_exam_hint': "Kursdan {count} ta so'z · {minutes} daqiqa · natija foizda va boshqalar bilan taqqoslash",
+  'course.mock_exam_start': 'Testni boshlash',
 
   // ---- finished (training) ----
   'finished.title': 'Ajoyib!',
@@ -252,8 +253,8 @@ export const uz: Translations = {
   'catalog.title': 'Kurslar',
   'catalog.open': 'Kurslar katalogi',
   'catalog.empty': "Hozircha kurslar yo'q. Keyinroq qaytib ko'ring.",
-  'catalog.choose': 'Tanlash',
-  'catalog.active': 'Faol',
+  'catalog.choose': 'Asosiy qilish',
+  'catalog.active': 'Asosiy kurs',
   'catalog.words': {
     one: "{count} ta so'z",
     other: "{count} ta so'z",
@@ -263,11 +264,15 @@ export const uz: Translations = {
   'catalog.goal.school': 'Maktab',
   'catalog.goal.ielts': 'IELTS',
   'catalog.goal.sat': 'SAT',
-  'course.back': 'Kurslarga',
   'course.module': '{number}-modul',
   'course.lesson': '{number}-dars',
   'course.learn': "O'rganish",
   'course.no_lessons': "Kursda hali darslar yo'q.",
+  'catalog.hint': "Kunlik mashg'ulot uchun yangi so'zlar asosiy kursdan olinadi",
+  'course.continue': 'Davom etish: {number}-dars',
+  'course.all_done': 'Kursning barcha darslari tugallandi',
+  'course.choose_hint': "Kunlik mashg'ulotdagi yangi so'zlar shu kursdan bo'ladi",
+  'course.lesson_words': "{total} ta so'zdan {done} tasi",
 
   // ---- learner decks ----
   'decks.title': "Mening to'plamlarim",
