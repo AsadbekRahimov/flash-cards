@@ -421,6 +421,12 @@ export interface TodayResponse {
   onboarding_completed: boolean
   /** The learner's place in this week's league group (docs/13 §7.3); null while not placed. */
   league: TodayLeague | null
+  /**
+   * IANA id of the learner's time zone: the day of `goal` and `streak` is counted in it, so the date of the header
+   * should be too. Not sent yet (docs/04 A.2a; the zone is only in `/me`, which Today does not ask): then the header
+   * shows the date of the device.
+   */
+  timezone?: string
 }
 
 export interface TodayLeague {
