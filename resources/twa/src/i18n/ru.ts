@@ -21,6 +21,7 @@ export const ru = {
   'common.error_title': 'Ошибка',
   'common.copied': 'Скопировано',
   'common.saved': 'Сохранено',
+  'common.copy_failed': 'Не удалось скопировать. Выделите ссылку и скопируйте вручную.',
 
   // ---- nav ----
   'nav.today': 'Главная',
@@ -191,7 +192,12 @@ export const ru = {
 
   // ---- course: mock exam (Pro) ----
   'course.mock_exam': 'Пробный тест',
-  'course.mock_exam_hint': '{count} слов курса · {minutes} мин · результат в процентах и сравнение с другими',
+  'course.mock_exam_hint': {
+    one: '{count} слово курса · {minutes} мин · результат в процентах и сравнение с другими',
+    few: '{count} слова курса · {minutes} мин · результат в процентах и сравнение с другими',
+    many: '{count} слов курса · {minutes} мин · результат в процентах и сравнение с другими',
+    other: '{count} слова курса · {minutes} мин · результат в процентах и сравнение с другими',
+  },
   'course.mock_exam_start': 'Начать тест',
 
   // ---- finished (training) ----
@@ -232,13 +238,19 @@ export const ru = {
   'paywall.title': 'Pro скоро',
   'paywall.lead_quota': 'Лимит новых слов на сегодня исчерпан — повторения доступны без ограничений.',
   'paywall.soon': 'Pro скоро откроется.',
-  'paywall.free': 'Сейчас у вас тариф Free: {count} новых слов в день, повторения — без лимита.',
+  'paywall.free': {
+    one: 'Сейчас у вас тариф Free: {count} новое слово в день, повторения — без лимита.',
+    few: 'Сейчас у вас тариф Free: {count} новых слова в день, повторения — без лимита.',
+    many: 'Сейчас у вас тариф Free: {count} новых слов в день, повторения — без лимита.',
+    other: 'Сейчас у вас тариф Free: {count} новых слова в день, повторения — без лимита.',
+  },
   'paywall.free_generic': 'Сейчас у вас тариф Free: новые слова ограничены дневным лимитом, повторения — без лимита.',
   'paywall.contact': 'Учитесь в центре? Попросите администратора центра подключить LexiFlow Pro:',
   'paywall.dismiss': 'Понятно',
   'paywall.open': 'Узнать о Pro',
   'paywall.review': 'Повторить слова',
-  'paywall.lead_decks': 'Лимит колод тарифа Free: 1 колода до 50 слов. В Pro — до 20 колод по 2000 слов.',
+  'paywall.lead_decks': 'Лимит колод тарифа Free: {decks} {words}. В Pro — до 20 колод по 2000 слов.',
+  'paywall.lead_decks_generic': 'Вы достигли лимита колод тарифа Free. В Pro — до 20 колод по 2000 слов.',
   'paywall.lead_streak_freeze': 'Заморозка серии — в Pro: пропущенный день не обрывает серию, до 2 заморозок, +1 каждую неделю.',
   'paywall.lead_exam_simulator': 'Пробные тесты IELTS и SAT — в Pro: 40 слов курса за 20 минут, результат в процентах и сравнение с другими.',
 
@@ -292,6 +304,8 @@ export const ru = {
   'billing.period.label': 'Срок оплаты',
   'billing.pay_method': 'Способ оплаты',
   'billing.offer_chip': '−{pct}%',
+  'billing.grace': 'Telegram не смог списать Stars за продление. Пополните баланс Stars — Telegram повторит списание.',
+  'billing.grace_until': 'Pro действует до {date}',
 
   // ---- course catalog ----
   'catalog.title': 'Курсы',
@@ -317,7 +331,12 @@ export const ru = {
   'course.continue': 'Продолжить: модуль {stage}, урок {number}',
   'course.all_done': 'Все уроки курса пройдены',
   'course.choose_hint': 'Новые слова в ежедневном занятии будут из этого курса',
-  'course.lesson_words': '{done} из {total} слов',
+  'course.lesson_words': {
+    one: '{done} из {total} слова',
+    few: '{done} из {total} слов',
+    many: '{done} из {total} слов',
+    other: '{done} из {total} слова',
+  },
 
   // ---- learner decks ----
   'decks.title': 'Мои колоды',
@@ -330,7 +349,7 @@ export const ru = {
   'decks.edit.rename': 'Название',
   'decks.edit.save': 'Сохранить',
   'decks.edit.no_words': 'В колоде пока нет слов.',
-  'decks.edit.remove_word': 'Убрать',
+  'decks.edit.remove_word': 'Убрать слово: {word}',
   'decks.edit.import': 'Добавить слова',
   'decks.edit.format.list': 'Списком',
   'decks.edit.format.csv': 'CSV',
@@ -354,6 +373,21 @@ export const ru = {
   'decks.active': 'Основная колода',
   'decks.words_title': 'Слова ({count})',
   'decks.edit.format.label': 'Формат',
+  'decks.count': {
+    one: '{count} колода',
+    few: '{count} колоды',
+    many: '{count} колод',
+    other: '{count} колоды',
+  },
+  'decks.words_up_to': {
+    one: 'до {count} слова',
+    few: 'до {count} слов',
+    many: 'до {count} слов',
+    other: 'до {count} слова',
+  },
+  'decks.limit_pro.decks': 'Это предел вашего тарифа Pro: {decks}. Чтобы создать новую колоду, удалите ненужную — слова уйдут в архив, а прогресс сохранится.',
+  'decks.limit_pro.words': 'Это предел вашего тарифа Pro: {words} в колоде. Ничего не добавлено — уберите ненужные слова или добавьте часть списка в другую колоду.',
+  'decks.choose_empty_hint': 'Добавьте в колоду хотя бы одно слово, чтобы сделать её основной.',
 
   // ---- settings ----
   'settings.title': 'Настройки',
@@ -383,12 +417,13 @@ export const ru = {
   // ---- settings: my centers (docs/13 §6.2) ----
   'orgs.title': 'Мои центры',
   'orgs.seated': 'Pro от центра',
-  'orgs.waitlisted': 'В очереди',
+  'orgs.waitlisted': 'В очереди на Pro',
   'orgs.via_group': 'Вы в центре через группу. Чтобы выйти, покиньте группу центра в Telegram.',
   'orgs.leave': 'Покинуть центр',
   'orgs.leave.confirm': 'Покинуть центр «{name}»? Pro от центра отключится, личная подписка (если есть) останется.',
   'orgs.leave.yes': 'Да, покинуть',
   'orgs.leave.no': 'Отмена',
+  'orgs.waitlisted_hint': 'В центре пока нет свободных мест. Pro от центра включится, когда место освободится.',
 
   // ---- achievements (docs/13 §7.4) ----
   'achievements.title': 'Достижения',
@@ -436,7 +471,7 @@ export const ru = {
   'league.settings.open': 'Настройки лиг',
   'league.rating_title': 'Рейтинг',
   'league.rules_title': 'Как работают лиги',
-  'settings.leagues.hint': 'Выход из лиги действует со следующего размещения; текущая неделя остаётся.',
+  'settings.leagues.hint': 'Выход из лиг действует со следующей недели: текущая неделя остаётся как есть. Включить лиги обратно можно в любой момент.',
 
   // ---- referrals: invite a friend (docs/13 §7.1) ----
   'referrals.title': 'Пригласить друга',
@@ -478,12 +513,12 @@ export const ru = {
   'friends.list.empty': 'Пока нет друзей. Отправьте ссылку знакомому.',
   'friends.list.count': '{count} из {limit}',
   'friends.list.anonymous': 'Друг',
-  'friends.list.remove': 'Удалить из друзей',
+  'friends.list.remove': 'Удалить из друзей: {name}',
   'friends.list.remove_confirm': 'Удалить {name} из друзей? Незавершённый вызов с этим другом отменится.',
   'friends.list.remove_yes': 'Да, удалить',
   'friends.list.remove_no': 'Отмена',
   'friends.challenge.title': 'Вызовы',
-  'friends.challenge.new': 'Бросить вызов',
+  'friends.challenge.new': 'Бросить вызов: {name}',
   'friends.challenge.pick': 'Кто больше за {days} дн.?',
   'friends.challenge.metric.reviews': 'Повторит карточек',
   'friends.challenge.metric.new_words': 'Выучит новых слов',

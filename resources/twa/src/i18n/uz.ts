@@ -15,6 +15,7 @@ export const uz: Translations = {
   'common.error_title': 'Xatolik',
   'common.copied': 'Nusxalandi',
   'common.saved': 'Saqlandi',
+  'common.copy_failed': "Nusxalab bo'lmadi. Havolani belgilab, qo'lda nusxalang.",
 
   // ---- nav ----
   'nav.today': 'Asosiy',
@@ -175,7 +176,10 @@ export const uz: Translations = {
 
   // ---- course: mock exam (Pro) ----
   'course.mock_exam': 'Sinov testi',
-  'course.mock_exam_hint': "Kursdan {count} ta so'z · {minutes} daqiqa · natija foizda va boshqalar bilan taqqoslash",
+  'course.mock_exam_hint': {
+    one: "Kursdan {count} ta so'z · {minutes} daqiqa · natija foizda va boshqalar bilan taqqoslash",
+    other: "Kursdan {count} ta so'z · {minutes} daqiqa · natija foizda va boshqalar bilan taqqoslash",
+  },
   'course.mock_exam_start': 'Testni boshlash',
 
   // ---- finished (training) ----
@@ -212,13 +216,17 @@ export const uz: Translations = {
   'paywall.title': 'Pro tez orada',
   'paywall.lead_quota': "Bugungi yangi so'zlar limiti tugadi — takrorlash cheklovsiz.",
   'paywall.soon': 'Pro tez orada ochiladi.',
-  'paywall.free': "Hozir sizda Free tarif: kuniga {count} ta yangi so'z, takrorlash cheklovsiz.",
+  'paywall.free': {
+    one: "Hozir sizda Free tarif: kuniga {count} ta yangi so'z, takrorlash cheklovsiz.",
+    other: "Hozir sizda Free tarif: kuniga {count} ta yangi so'z, takrorlash cheklovsiz.",
+  },
   'paywall.free_generic': "Hozir sizda Free tarif: yangi so'zlar kunlik limit bilan cheklangan, takrorlash cheklovsiz.",
   'paywall.contact': "Markazda o'qiysizmi? Markaz administratoridan LexiFlow Pro'ni ulashni so'rang:",
   'paywall.dismiss': 'Tushunarli',
   'paywall.open': 'Pro haqida bilib oling',
   'paywall.review': "So'zlarni takrorlash",
-  'paywall.lead_decks': "Free tarifida to'plamlar limiti: 50 tagacha so'zli 1 ta to'plam. Pro'da 2000 tadan so'zli 20 tagacha to'plam.",
+  'paywall.lead_decks': "Free tarifida to'plamlar limiti: {words}li {decks}. Pro'da 2000 tadan so'zli 20 tagacha to'plam.",
+  'paywall.lead_decks_generic': "Siz Free tarifidagi to'plamlar limitiga yetdingiz. Pro'da 2000 tadan so'zli 20 tagacha to'plam.",
   'paywall.lead_streak_freeze': "Seriyani muzlatish — Pro'da: o'tkazib yuborilgan kun seriyani uzmaydi, 2 tagacha muzlatish, har hafta +1.",
   'paywall.lead_exam_simulator': "IELTS va SAT sinov testlari — Pro'da: 20 daqiqada kursdan 40 ta so'z, natija foizda va boshqalar bilan taqqoslash.",
 
@@ -272,6 +280,8 @@ export const uz: Translations = {
   'billing.period.label': "To'lov muddati",
   'billing.pay_method': "To'lov usuli",
   'billing.offer_chip': '−{pct}%',
+  'billing.grace': "Telegram yangilash uchun Stars'ni yecha olmadi. Stars balansini to'ldiring — Telegram yechishni qayta urinib ko'radi.",
+  'billing.grace_until': 'Pro {date} gacha amal qiladi.',
 
   // ---- course catalog ----
   'catalog.title': 'Kurslar',
@@ -295,7 +305,10 @@ export const uz: Translations = {
   'course.continue': 'Davom etish: {stage}-modul, {number}-dars',
   'course.all_done': 'Kursning barcha darslari tugallandi',
   'course.choose_hint': "Kunlik mashg'ulotdagi yangi so'zlar shu kursdan bo'ladi",
-  'course.lesson_words': "{total} ta so'zdan {done} tasi",
+  'course.lesson_words': {
+    one: "{total} ta so'zdan {done} tasi",
+    other: "{total} ta so'zdan {done} tasi",
+  },
 
   // ---- learner decks ----
   'decks.title': "Mening to'plamlarim",
@@ -308,7 +321,7 @@ export const uz: Translations = {
   'decks.edit.rename': 'Nomi',
   'decks.edit.save': 'Saqlash',
   'decks.edit.no_words': "To'plamda hali so'zlar yo'q.",
-  'decks.edit.remove_word': 'Olib tashlash',
+  'decks.edit.remove_word': "So'zni olib tashlash: {word}",
   'decks.edit.import': "So'zlar qo'shish",
   'decks.edit.format.list': "Ro'yxat",
   'decks.edit.format.csv': 'CSV',
@@ -332,6 +345,17 @@ export const uz: Translations = {
   'decks.active': "Asosiy to'plam",
   'decks.words_title': "So'zlar ({count})",
   'decks.edit.format.label': 'Format',
+  'decks.count': {
+    one: "{count} ta to'plam",
+    other: "{count} ta to'plam",
+  },
+  'decks.words_up_to': {
+    one: "{count} tagacha so'z",
+    other: "{count} tagacha so'z",
+  },
+  'decks.limit_pro.decks': "Bu Pro tarifingizdagi chegara: {decks}. Yangi to'plam yaratish uchun keraksizini o'chiring — so'zlar arxivga o'tadi, natijangiz saqlanadi.",
+  'decks.limit_pro.words': "Bu Pro tarifingizdagi chegara: to'plamda {words}. Hech narsa qo'shilmadi — keraksiz so'zlarni olib tashlang yoki ro'yxatning bir qismini boshqa to'plamga qo'shing.",
+  'decks.choose_empty_hint': "Asosiy qilish uchun to'plamga kamida bitta so'z qo'shing.",
 
   // ---- settings ----
   'settings.title': 'Sozlamalar',
@@ -361,12 +385,13 @@ export const uz: Translations = {
   // ---- settings: my centers (docs/13 §6.2) ----
   'orgs.title': 'Mening markazlarim',
   'orgs.seated': 'Markaz bergan Pro',
-  'orgs.waitlisted': 'Navbatda',
+  'orgs.waitlisted': 'Pro uchun navbatda',
   'orgs.via_group': "Siz markazdasiz — guruh orqali. Chiqish uchun Telegram'da markaz guruhini tark eting.",
   'orgs.leave': 'Markazni tark etish',
   'orgs.leave.confirm': "«{name}» markazini tark etasizmi? Markaz bergan Pro o'chadi, shaxsiy obunangiz (agar bo'lsa) saqlanadi.",
   'orgs.leave.yes': 'Ha, tark etaman',
   'orgs.leave.no': 'Bekor qilish',
+  'orgs.waitlisted_hint': "Markazda hozircha bo'sh joy yo'q. Joy bo'shaganda markaz bergan Pro yoqiladi.",
 
   // ---- achievements (docs/13 §7.4) ----
   'achievements.title': 'Yutuqlar',
@@ -412,7 +437,7 @@ export const uz: Translations = {
   'league.settings.open': 'Liga sozlamalari',
   'league.rating_title': 'Reyting',
   'league.rules_title': 'Ligalar qanday ishlaydi',
-  'settings.leagues.hint': "Ligadan chiqish keyingi joylashtirishdan boshlab amal qiladi; joriy hafta saqlanib qoladi.",
+  'settings.leagues.hint': "Ligalardan chiqish keyingi haftadan boshlab amal qiladi: joriy hafta o'zgarishsiz qoladi. Ligalarni istalgan vaqtda qayta yoqish mumkin.",
 
   // ---- referrals: invite a friend (docs/13 §7.1) ----
   'referrals.title': "Do'stni taklif qilish",
@@ -454,12 +479,12 @@ export const uz: Translations = {
   'friends.list.empty': "Hozircha do'stlar yo'q. Havolani tanishingizga yuboring.",
   'friends.list.count': '{count} / {limit}',
   'friends.list.anonymous': "Do'st",
-  'friends.list.remove': "Do'stlikdan chiqarish",
+  'friends.list.remove': "Do'stlikdan chiqarish: {name}",
   'friends.list.remove_confirm': "{name} do'stlikdan chiqarilsinmi? Shu do'st bilan tugallanmagan musobaqa bekor qilinadi.",
   'friends.list.remove_yes': "Ha, chiqarish",
   'friends.list.remove_no': 'Bekor qilish',
   'friends.challenge.title': 'Musobaqalar',
-  'friends.challenge.new': 'Musobaqa tashlash',
+  'friends.challenge.new': 'Musobaqa tashlash: {name}',
   'friends.challenge.pick': '{days} kunda kim ko\'proq?',
   'friends.challenge.metric.reviews': 'Ko\'proq kartochka takrorlaydi',
   'friends.challenge.metric.new_words': 'Ko\'proq yangi so\'z o\'rganadi',

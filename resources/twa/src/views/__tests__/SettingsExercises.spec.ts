@@ -143,7 +143,7 @@ describe('SettingsView — exercises', () => {
     expect(isOn(w, 'spelling')).toBe(true)
   })
 
-  it('leaves the switch where the server has it when the save is refused, with the reason on top', async () => {
+  it('leaves the switch where the server has it when the save is refused, and tells the reason in a toast', async () => {
     const w = await render()
     vi.mocked(api.me.updateSettings).mockRejectedValue(new ApiClientError('server', 500, 'server_error', 'x'))
 
@@ -151,8 +151,10 @@ describe('SettingsView — exercises', () => {
     await flushPromises()
 
     expect(isOn(w, 'spelling')).toBe(true)
-    expect(w.get('[data-testid=settings-error]').text()).not.toBe('')
-    expect(useToast().toast.value).toBeNull()
+    const text = useToast().toast.value?.text
+    expect(text).toBeTruthy()
+    expect(text).not.toBe('Сохранено')
+    expect(w.find('[data-testid=settings-error]').exists()).toBe(false)
   })
 
   it('ignores a tap while a save is in flight', async () => {

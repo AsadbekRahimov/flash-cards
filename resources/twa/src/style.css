@@ -221,6 +221,26 @@ body {
     @apply flex w-full;
   }
 
+  /*
+   * Touch area (docs/14 §3): a control that looks smaller than a finger (a 36 px small button, a segment, a switch)
+   * keeps its look, and an invisible layer of at least 44 × 44 px centred on it takes the press. The layer is a
+   * pseudo-element of the control itself, so it is part of the control for the pointer and for nothing else.
+   */
+  .btn-sm,
+  .tap-target {
+    position: relative;
+  }
+  .btn-sm::after,
+  .tap-target::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+
   /* ---- fields ---- */
 
   /* Input / select / textarea inside a surface (card, list row). */
@@ -256,10 +276,15 @@ body {
     background-color: var(--app-surface);
     border-color: var(--app-hairline);
   }
-  /* The value on the right of a list row: no box, accent colour (use together with .field). */
+  /*
+   * The value on the right of a list row: no box, accent colour (use together with .field). It looks like a line of
+   * text (22 px) but is pressed with a finger: the box is 44 px high and pulls itself back into the row with negative
+   * margins (22 px of text + 2 × 11 px), so the row keeps its height and the touch area is the size it should be.
+   */
   .field.field-inline {
     @apply w-auto rounded-none py-0 pr-0 pl-2 text-right;
-    min-height: 0;
+    min-height: 44px;
+    margin-block: -11px;
     background-color: transparent;
     border-color: transparent;
     color: var(--app-accent);
@@ -269,6 +294,11 @@ body {
   .field.field-inline:focus-visible {
     box-shadow: none;
     border-color: transparent;
+  }
+  /* No box means no focus ring of the field: a keyboard user still has to see where the focus is. */
+  .field.field-inline:focus-visible {
+    outline: 2px solid var(--app-accent);
+    outline-offset: 2px;
   }
   select.field.field-inline {
     padding-right: 1.5rem;

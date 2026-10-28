@@ -9,10 +9,11 @@ import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import ProBenefits from '@/components/ui/ProBenefits.vue'
-import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice } from '@/composables/billingFormat'
+import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice, graceText, inStarsGrace } from '@/composables/billingFormat'
 import { formatDate } from '@/composables/format'
 import { supportContactLink } from '@/composables/supportContact'
 import { useBackButton } from '@/composables/useBackButton'
+import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useAuthStore } from '@/stores/auth'
 import { useBillingStore } from '@/stores/billing'
 import { errorMessage } from '@/i18n/errors'
@@ -25,10 +26,14 @@ import type { BillingProviderKey, MeResponse } from '@/api/types'
  * with its cancel / resume buttons, the discount offer, "Buy / Renew" which opens the purchase paywall, the promo
  * code (moved here from the end-of-session screen) and the support contact. The history of payments is task 2A.7.
  * A page of the Profile tab: the system "Back" button leads to the Profile.
+ *
+ * "Buy / Renew" is there only when there is something to buy: not while the Stars renewal runs or is in grace (the
+ * server refuses a payment then — the grace gets a warning instead), not for a perpetual grant and not for the Pro a
+ * center has switched on (the card says so).
  */
 const auth = useAuthStore()
 const billing = useBillingStore()
-const { t, locale } = useI18n()
+const { t, tn, locale } = useI18n()
 
 useBackButton({ name: 'profile' })
 
@@ -55,8 +60,17 @@ const lapsed = computed(() => !isPro.value && (entitlement.value?.lapsed ?? null
 const sponsored = computed(() => isPro.value && renewal.value === null && entitlement.value?.source.startsWith('sponsor:') === true)
 const support = computed(() => supportContactLink(billing.paywall?.contact))
 
-/** Stars renew by themselves and a perpetual grant has an end of nothing: there is nothing to buy then. */
-const canBuy = computed(() => billing.canPurchase && !subscription.value?.auto_renew && !subscription.value?.perpetual)
+/** The Stars renewal charge failed and Telegram retries it: Pro lives on, but any payment is refused (checkout_conflict). */
+const grace = computed(() => inStarsGrace(subscription.value))
+const graceMessage = computed(() => graceText(subscription.value?.ends_at ?? entitlement.value?.until ?? null, locale.value))
+
+/**
+ * Stars renew by themselves (or are in grace), a perpetual grant has an end of nothing and the Pro of a center is not
+ * the learner's to buy: there is nothing to buy then.
+ */
+const canBuy = computed(
+  () => billing.canPurchase && !subscription.value?.auto_renew && !subscription.value?.perpetual && !grace.value && !sponsored.value,
+)
 
 const untilText = computed(() => {
   const until = renewal.value?.ends_at ?? entitlement.value?.until ?? null
@@ -108,10 +122,18 @@ const providerText = computed(() => {
   return label ? t('billing.provider_line', { provider: t(label) }) : ''
 })
 
-/** The banner's "Renew" is the same action as the button below it, where there is something to buy. */
+/** The banner's "Renew" is the same action as the button below it; the banner has no button where nothing is for sale. */
 function onLapsedRenew(): void {
   if (billing.canPurchase) paywallOpen.value = true
 }
+
+/** "Repeat words" in the paywall sheet: it closes and the daily review starts (a failure is a toast). */
+const { reviewFromPaywall } = useReviewFromPaywall(
+  () => {
+    paywallOpen.value = false
+  },
+  { toastErrors: true },
+)
 
 /** A promo code changes the plan: take the answer (`apply` also makes `/me` fresh), and the catalog says what can still be bought. */
 function onRedeemed(me: MeResponse): void {
@@ -147,7 +169,7 @@ onMounted(() => {
     <LoadingState v-else-if="status === 'loading'" />
 
     <div v-else-if="entitlement" class="space-y-4">
-      <LapsedBanner v-if="!isPro" preloaded @renew="onLapsedRenew()" />
+      <LapsedBanner v-if="!isPro" preloaded :renewable="billing.canPurchase" @renew="onLapsedRenew()" />
 
       <section class="card" data-testid="plan-card">
         <div class="flex items-start gap-3">
@@ -171,11 +193,13 @@ onMounted(() => {
               class="text-[15px] leading-5 text-tg-subtitle"
               data-testid="plan-free"
             >
-              {{ t('paywall.free', { count: entitlement.new_words_per_day }) }}
+              {{ tn('profile.plan.free', entitlement.new_words_per_day) }}
             </p>
           </div>
         </div>
       </section>
+
+      <InlineAlert v-if="grace" tone="warning" :message="graceMessage" data-testid="grace-alert" />
 
       <section class="card space-y-3" data-testid="benefits-card">
         <h2 class="text-[17px] leading-[22px] font-semibold" data-testid="benefits-title">
@@ -233,7 +257,15 @@ onMounted(() => {
         </div>
       </section>
 
-      <button v-if="canBuy" type="button" class="btn btn-primary btn-lg btn-block" data-testid="buy" @click="paywallOpen = true">
+      <!-- The one primary button is "Resume" while it is on the screen (a canceled Stars renewal): paying again is the other way. -->
+      <button
+        v-if="canBuy"
+        type="button"
+        class="btn btn-lg btn-block"
+        :class="subscription?.can_resume ? 'btn-tinted' : 'btn-primary'"
+        data-testid="buy"
+        @click="paywallOpen = true"
+      >
         {{ isPro || lapsed ? t('billing.renew') : t('billing.buy') }}
       </button>
       <p
@@ -264,6 +296,6 @@ onMounted(() => {
       </p>
     </div>
 
-    <PaywallSheet v-if="paywallOpen" @close="paywallOpen = false" />
+    <PaywallSheet v-if="paywallOpen" @close="paywallOpen = false" @review="reviewFromPaywall" />
   </div>
 </template>

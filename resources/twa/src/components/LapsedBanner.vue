@@ -12,8 +12,11 @@ import { useI18n } from '@/i18n'
  *
  * `preloaded`: the screen has already loaded `/me` into the billing store (BillingView); otherwise the
  * banner asks for it once on mount and stays hidden until the answer is in, so a stale store never flashes.
+ *
+ * `renewable` (default true): there is something to buy. A screen that knows nothing is for sale (BillingView while
+ * payment is not open) sets it to false: the banner still says Pro ended, but has no "Renew" button that does nothing.
  */
-const props = defineProps<{ preloaded?: boolean }>()
+const props = withDefaults(defineProps<{ preloaded?: boolean; renewable?: boolean }>(), { preloaded: false, renewable: true })
 const emit = defineEmits<{ renew: [] }>()
 
 const DISMISSED_KEY = 'lexiflow:lapsed-dismissed'
@@ -76,7 +79,7 @@ onMounted(async () => {
       </button>
     </div>
     <!-- Tinted, not primary: the screens around it (Home, Subscription) have their own one primary button. -->
-    <button type="button" class="btn btn-tinted btn-block" data-testid="lapsed-renew" @click="emit('renew')">
+    <button v-if="renewable" type="button" class="btn btn-tinted btn-block" data-testid="lapsed-renew" @click="emit('renew')">
       {{ t('lapsed.renew') }}
     </button>
   </section>

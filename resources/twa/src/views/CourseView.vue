@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted } from 'vue'
+import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import PaywallSheet from '@/components/PaywallSheet.vue'
@@ -11,7 +11,9 @@ import ListGroup from '@/components/ui/ListGroup.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import { courseChips, progressPercent, progressText } from '@/composables/courseLabels'
+import { showErrorToast } from '@/composables/errorToast'
 import { useBackButton } from '@/composables/useBackButton'
+import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useAuthStore } from '@/stores/auth'
 import { useCoursesStore } from '@/stores/courses'
 import { useExamStore } from '@/stores/exam'
@@ -46,7 +48,7 @@ const auth = useAuthStore()
 const catalog = useCoursesStore()
 const training = useTrainingStore()
 const exam = useExamStore()
-const { t } = useI18n()
+const { t, tn } = useI18n()
 
 const { detail, detailStatus: status, selecting, errorMessage, nextLesson, allLessonsDone } = storeToRefs(catalog)
 const { opening, openError } = storeToRefs(training)
@@ -55,10 +57,9 @@ const { openingMock, mockPaywall, mockError } = storeToRefs(exam)
 useBackButton({ name: 'courses' })
 
 const offersMock = computed((): boolean => detail.value !== null && detail.value.exam_tag !== null && MOCK_EXAM_TAGS.includes(detail.value.exam_tag))
-const mockHint = computed((): string => t('course.mock_exam_hint', {
-  count: Math.min(MOCK_EXAM_WORDS, detail.value?.words_count ?? MOCK_EXAM_WORDS),
-  minutes: MOCK_EXAM_MINUTES,
-}))
+const mockHint = computed((): string =>
+  tn('course.mock_exam_hint', Math.min(MOCK_EXAM_WORDS, detail.value?.words_count ?? MOCK_EXAM_WORDS), { minutes: MOCK_EXAM_MINUTES }),
+)
 
 function lessonState(lesson: CourseLesson): LessonState {
   const { done, total } = lesson.progress
@@ -86,11 +87,21 @@ async function learn(lessonId: number): Promise<void> {
   if (sessionId !== null) await router.push({ name: 'training', params: { sessionId } })
 }
 
+/** "Repeat words" in the paywall sheet: the sheet closes and the daily review starts (the refusal of the mock is Free's). */
+const { reviewFromPaywall } = useReviewFromPaywall(() => exam.dismissMockPaywall())
+
 /** Pro: opens (or resumes) the mock and goes to the exam screen; Free: the paywall sheet. */
 async function mockExam(): Promise<void> {
   const sessionId = await exam.openMock(props.slug)
   if (sessionId !== null) await router.push({ name: 'exam', params: { sessionId }, query: { mode: 'mock' } })
 }
+
+// "Learn" is a button of the lower modules: a refusal to open the session is a toast, not an alert at the top of a long screen.
+watch(openError, (message) => {
+  if (message === '') return
+  showErrorToast(message)
+  training.clearOpenError()
+})
 
 onMounted(() => {
   void load()
@@ -139,7 +150,6 @@ onBeforeUnmount(() => {
       </div>
 
       <InlineAlert v-if="errorMessage" tone="danger" :message="errorMessage" class="mt-4" data-testid="select-error" />
-      <InlineAlert v-if="openError" tone="danger" :message="openError" class="mt-4" data-testid="open-error" />
 
       <!-- The one primary button of the screen: continue in the main course, make the course main otherwise. -->
       <template v-if="detail.is_active">
@@ -228,7 +238,7 @@ onBeforeUnmount(() => {
             <div class="min-w-0 flex-1">
               <p class="text-base leading-[22px] break-words">{{ lessonTitle(lesson) }}</p>
               <p class="text-[13px] leading-[18px] text-tg-hint" data-testid="lesson-progress">
-                {{ t('course.lesson_words', { done: lesson.progress.done, total: lesson.progress.total }) }}
+                {{ tn('course.lesson_words', lesson.progress.total, { done: lesson.progress.done, total: lesson.progress.total }) }}
               </p>
             </div>
             <button
@@ -245,6 +255,6 @@ onBeforeUnmount(() => {
       </section>
     </template>
 
-    <PaywallSheet v-if="mockPaywall" reason="exam_simulator" @close="exam.dismissMockPaywall()" />
+    <PaywallSheet v-if="mockPaywall" reason="exam_simulator" @close="exam.dismissMockPaywall()" @review="reviewFromPaywall" />
   </div>
 </template>

@@ -17,6 +17,7 @@ import PageHeader from '@/components/ui/PageHeader.vue'
 import { formatDate } from '@/composables/format'
 import { tierLabelKey } from '@/composables/leagueTiers'
 import { useBackButton } from '@/composables/useBackButton'
+import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useAssignmentsStore } from '@/stores/assignments'
 import { useAuthStore } from '@/stores/auth'
 import { useTodayStore } from '@/stores/today'
@@ -95,10 +96,9 @@ function openPaywall(reason: PaywallReason): void {
 }
 
 /** "Repeat words" in the paywall: close the sheet (a failure shows on this screen) and start the review. */
-async function onPaywallReview(): Promise<void> {
+const { reviewFromPaywall: onPaywallReview } = useReviewFromPaywall(() => {
   paywallOpen.value = false
-  await review()
-}
+})
 
 const name = computed(() => auth.learner?.first_name?.trim() ?? '')
 const greeting = computed(() => (name.value !== '' ? t('today.greeting', { name: name.value }) : t('today.title')))

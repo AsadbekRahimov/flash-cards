@@ -7,6 +7,7 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { useToast } from '@/composables/useToast'
 import { setLocale } from '@/i18n'
+import { useFriendsStore } from '@/stores/friends'
 import type { ChallengeItem, ChallengesResponse, FriendsResponse } from '@/api/types'
 
 const state = vi.hoisted(() => ({
@@ -104,6 +105,11 @@ function setClipboard(value: unknown): void {
   Object.defineProperty(navigator, 'clipboard', { value, configurable: true })
 }
 
+/** The old way of copying (a selected field): what the browser answers to `execCommand('copy')`. */
+function setExecCommand(result: boolean | undefined): void {
+  Object.defineProperty(document, 'execCommand', { value: result === undefined ? undefined : () => result, configurable: true, writable: true })
+}
+
 describe('FriendsView', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
@@ -162,6 +168,12 @@ describe('FriendsView', () => {
       expect(router.currentRoute.value.name).toBe('league')
     })
 
+    it('names the switch as a navigation landmark of its own, besides the tab bar', async () => {
+      const { wrapper } = await render()
+
+      expect(wrapper.get('nav').attributes('aria-label')).toBe('Рейтинг')
+    })
+
     it('is a tab root: no system Back button', async () => {
       await render()
 
@@ -212,15 +224,28 @@ describe('FriendsView', () => {
       expect(text(wrapper, 'copy-btn')).toBe('Скопировать')
     })
 
-    it('stays silent when the clipboard refuses: the link is on the screen anyway', async () => {
-      setClipboard({ writeText: vi.fn().mockRejectedValue(new Error('NotAllowedError')) })
+    it('copies the old way and says "Скопировано" when the clipboard API is missing', async () => {
+      setClipboard(undefined)
+      setExecCommand(true)
       const { wrapper } = await render()
 
       await wrapper.get('[data-testid=copy-btn]').trigger('click')
       await flushPromises()
 
-      expect(useToast().toast.value).toBeNull()
+      expect(useToast().toast.value?.text).toBe('Скопировано')
+    })
+
+    it('tells that it could not copy when nothing works, and the link is on the screen to select and copy by hand', async () => {
+      setClipboard({ writeText: vi.fn().mockRejectedValue(new Error('NotAllowedError')) })
+      setExecCommand(false)
+      const { wrapper } = await render()
+
+      await wrapper.get('[data-testid=copy-btn]').trigger('click')
+      await flushPromises()
+
+      expect(useToast().toast.value?.text).toBe('Не удалось скопировать. Выделите ссылку и скопируйте вручную.')
       expect(wrapper.get('[data-testid=link]').text()).toBe(LINK)
+      expect(wrapper.get('[data-testid=link]').classes()).toContain('select-all')
     })
 
     it('explains a missing link instead of the share buttons', async () => {
@@ -235,12 +260,13 @@ describe('FriendsView', () => {
   })
 
   describe('requests', () => {
-    it('accepts an incoming request with a primary button and shows the refreshed list', async () => {
+    it('accepts an incoming request with a tinted button (the one primary button of the screen is «Share») and shows the refreshed list', async () => {
       const { wrapper } = await render()
       vi.mocked(api.friends.accept).mockResolvedValue(friendsResponse({ incoming: [] }))
 
       const accept = wrapper.get('[data-testid=accept-btn]')
-      expect(accept.classes()).toEqual(expect.arrayContaining(['btn-primary', 'btn-sm']))
+      expect(accept.classes()).toEqual(expect.arrayContaining(['btn-tinted', 'btn-sm']))
+      expect(accept.classes()).not.toContain('btn-primary')
       await accept.trigger('click')
       await flushPromises()
 
@@ -259,6 +285,14 @@ describe('FriendsView', () => {
 
       expect(api.friends.decline).toHaveBeenCalledWith(21)
       expect(wrapper.find('[data-testid=incoming]').exists()).toBe(false)
+    })
+
+    it('has one primary button on the whole screen even with a request and a challenge to answer: «Share»', async () => {
+      const { wrapper } = await render(friendsResponse(), challengesResponse({ open: [pending({ role: 'opponent' })] }))
+
+      expect(wrapper.find('[data-testid=accept-btn]').exists()).toBe(true)
+      expect(wrapper.find('[data-testid=challenge-accept]').exists()).toBe(true)
+      expect(wrapper.findAll('.btn-primary').map((b) => b.attributes('data-testid'))).toEqual(['share-btn'])
     })
 
     it('shows an initial avatar and the name of a request', async () => {
@@ -313,12 +347,30 @@ describe('FriendsView', () => {
       const row = wrapper.get('[data-testid=friend-row]')
       const challengeBtn = row.get('[data-testid=challenge-btn]')
       const removeBtn = row.get('[data-testid=remove-btn]')
-      expect(challengeBtn.attributes('aria-label')).toBe('Бросить вызов')
-      expect(removeBtn.attributes('aria-label')).toBe('Удалить из друзей')
+      expect(challengeBtn.attributes('aria-label')).toBe('Бросить вызов: Dilnoza')
+      expect(removeBtn.attributes('aria-label')).toBe('Удалить из друзей: Dilnoza')
       expect(challengeBtn.find('svg').exists()).toBe(true)
       expect(removeBtn.find('svg').exists()).toBe(true)
       expect(challengeBtn.text()).toBe('')
       expect(removeBtn.text()).toBe('')
+    })
+
+    it('names the icon buttons of every row after the friend: the rows are told apart', async () => {
+      const { wrapper } = await render()
+
+      const names = (id: string) => wrapper.findAll(`[data-testid=${id}]`).map((b) => b.attributes('aria-label'))
+
+      expect(names('challenge-btn')).toEqual(['Бросить вызов: Dilnoza', 'Бросить вызов: Друг'])
+      expect(names('remove-btn')).toEqual(['Удалить из друзей: Dilnoza', 'Удалить из друзей: Друг'])
+    })
+
+    it('names them in Uzbek too', async () => {
+      setLocale('uz')
+      const { wrapper } = await render()
+
+      const row = wrapper.get('[data-testid=friend-row]')
+      expect(row.get('[data-testid=challenge-btn]').attributes('aria-label')).toBe('Musobaqa tashlash: Dilnoza')
+      expect(row.get('[data-testid=remove-btn]').attributes('aria-label')).toBe("Do'stlikdan chiqarish: Dilnoza")
     })
 
     it('removes a friend only after the confirmation, then reloads the challenges', async () => {
@@ -448,7 +500,8 @@ describe('FriendsView', () => {
       vi.mocked(api.challenges.list).mockResolvedValue(challengesResponse({ open: [challenge({ role: 'opponent' })] }))
 
       expect(text(wrapper, 'challenge-status')).toBe('вам бросили вызов')
-      expect(wrapper.get('[data-testid=challenge-accept]').classes()).toEqual(expect.arrayContaining(['btn-primary', 'btn-sm']))
+      expect(wrapper.get('[data-testid=challenge-accept]').classes()).toEqual(expect.arrayContaining(['btn-tinted', 'btn-sm']))
+      expect(wrapper.get('[data-testid=challenge-accept]').classes()).not.toContain('btn-primary')
       expect(wrapper.get('[data-testid=challenge-decline]').classes()).toEqual(expect.arrayContaining(['btn-secondary', 'btn-sm']))
 
       await wrapper.get('[data-testid=challenge-accept]').trigger('click')
@@ -518,19 +571,45 @@ describe('FriendsView', () => {
     })
   })
 
-  it('shows the localized error of a refused action in a red notice and reloads what is true now', async () => {
-    const { wrapper } = await render()
-    vi.mocked(api.friends.accept).mockRejectedValue(new ApiClientError('conflict', 409, 'friend_limit', 'x'))
-    vi.mocked(api.friends.get).mockResolvedValue(friendsResponse({ incoming: [] }))
+  describe('a refused action', () => {
+    it('is told in a localized toast, not in an alert at the top of the long page, and what is true now is reloaded', async () => {
+      const { wrapper } = await render()
+      vi.mocked(api.friends.accept).mockRejectedValue(new ApiClientError('conflict', 409, 'friend_limit', 'x'))
+      vi.mocked(api.friends.get).mockResolvedValue(friendsResponse({ incoming: [] }))
 
-    await wrapper.get('[data-testid=accept-btn]').trigger('click')
-    await flushPromises()
+      await wrapper.get('[data-testid=accept-btn]').trigger('click')
+      await flushPromises()
 
-    const alert = wrapper.get('[data-testid=action-error]')
-    expect(alert.text()).toBe('У вас уже максимальное число друзей.')
-    expect(alert.attributes('role')).toBe('alert')
-    expect(alert.classes()).toContain('text-danger-ink')
-    expect(wrapper.find('[data-testid=incoming]').exists()).toBe(false)
+      expect(useToast().toast.value?.text).toBe('У вас уже максимальное число друзей.')
+      expect(wrapper.find('[data-testid=action-error]').exists()).toBe(false)
+      expect(wrapper.find('[role=alert]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=incoming]').exists()).toBe(false)
+    })
+
+    it('is told for a challenge too, and the same refusal again is news again', async () => {
+      const incoming = pending({ role: 'opponent' })
+      const { wrapper } = await render(friendsResponse(), challengesResponse({ open: [incoming] }))
+      vi.mocked(api.challenges.accept).mockRejectedValue(new ApiClientError('conflict', 409, 'friend_limit', 'x'))
+
+      await wrapper.get('[data-testid=challenge-accept]').trigger('click')
+      await flushPromises()
+      expect(useToast().toast.value?.text).toBe('У вас уже максимальное число друзей.')
+
+      useToast().hide()
+      await wrapper.get('[data-testid=challenge-accept]').trigger('click')
+      await flushPromises()
+      expect(useToast().toast.value?.text).toBe('У вас уже максимальное число друзей.')
+    })
+
+    it('leaves nothing in the store once it is told', async () => {
+      const { wrapper } = await render()
+      vi.mocked(api.friends.accept).mockRejectedValue(new ApiClientError('conflict', 409, 'friend_limit', 'x'))
+
+      await wrapper.get('[data-testid=accept-btn]').trigger('click')
+      await flushPromises()
+
+      expect(useFriendsStore().actionError).toBe('')
+    })
   })
 
   it('speaks Uzbek', async () => {

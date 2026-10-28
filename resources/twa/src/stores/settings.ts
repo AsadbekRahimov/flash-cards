@@ -55,6 +55,11 @@ export const useSettingsStore = defineStore('settings', {
   },
 
   actions: {
+    /** The screen has told the failure of an action (a toast): forget it, so that the same failure again is news. */
+    clearError(): void {
+      this.errorMessage = ''
+    },
+
     /** Always refetches; a screen that already has data stays visible while reloading. */
     async load(): Promise<void> {
       this.status = this.data === null ? 'loading' : this.status

@@ -4,6 +4,7 @@ import { RouterLink, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import ListGroup from '@/components/ui/ListGroup.vue'
@@ -11,6 +12,8 @@ import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import SegmentedControl from '@/components/ui/SegmentedControl.vue'
 import { useBackButton } from '@/composables/useBackButton'
+import { useDeckLimit } from '@/composables/useDeckLimit'
+import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useAuthStore } from '@/stores/auth'
 import { useDecksStore } from '@/stores/decks'
 import { useI18n } from '@/i18n'
@@ -19,7 +22,8 @@ import type { DeckImportFormat } from '@/api/types'
 /**
  * One deck (docs/04 A.10, docs/14 §6.5): rename, choosing the deck as the main one, adding words as a list or CSV
  * (the server cleans the text and reports the lines it dropped), the word list with "remove" and "deleting" the deck
- * (the server archives it, the progress stays). "Back" is the system button (-> my decks).
+ * (the server archives it, the progress stays). "Back" is the system button (-> my decks). Words over the plan's size of
+ * a deck open the paywall for a Free learner and are explained to a Pro one (`useDeckLimit`).
  */
 const MAX_BYTES = 256 * 1024
 
@@ -30,7 +34,7 @@ const auth = useAuthStore()
 const store = useDecksStore()
 const { t } = useI18n()
 
-const { detail, detailStatus: status, busy, errorMessage, limitReached, lastImport } = storeToRefs(store)
+const { detail, detailStatus: status, busy, errorMessage, limits, lastImport } = storeToRefs(store)
 
 const title = ref('')
 const format = ref<DeckImportFormat>('list')
@@ -39,6 +43,8 @@ const sizeError = ref('')
 const confirmDelete = ref(false)
 
 useBackButton({ name: 'decks' })
+const { paywall, proNotice } = useDeckLimit()
+const { reviewFromPaywall } = useReviewFromPaywall(() => store.dismissLimit(), { toastErrors: true })
 
 const formatOptions = computed(() => [
   { value: 'list', label: t('decks.edit.format.list'), testid: 'format-list' },
@@ -135,18 +141,24 @@ onMounted(() => {
         <AppIcon name="check" solid :size="14" />
         {{ t('decks.active') }}
       </span>
-      <button
-        v-else
-        type="button"
-        class="btn btn-primary btn-block mt-4"
-        :disabled="busy || detail.words_count === 0"
-        data-testid="choose-btn"
-        @click="store.activate(slug)"
-      >
-        {{ t('decks.choose') }}
-      </button>
+      <template v-else>
+        <button
+          type="button"
+          class="btn btn-primary btn-block mt-4"
+          :disabled="busy || detail.words_count === 0"
+          data-testid="choose-btn"
+          @click="store.activate(slug)"
+        >
+          {{ t('decks.choose') }}
+        </button>
+        <!-- A disabled button says nothing about why: an empty deck has no words to learn. -->
+        <p v-if="detail.words_count === 0" class="mt-2 px-4 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="choose-hint">
+          {{ t('decks.choose_empty_hint') }}
+        </p>
+      </template>
 
-      <InlineAlert v-if="errorMessage" tone="danger" :message="errorMessage" class="mt-4" data-testid="write-error" />
+      <!-- The refusal of a Pro learner is under the import button instead (below): that is where the learner looks. -->
+      <InlineAlert v-if="errorMessage && !proNotice" tone="danger" :message="errorMessage" class="mt-4" data-testid="write-error" />
 
       <section class="card mt-4 space-y-3" data-testid="import">
         <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('decks.edit.import') }}</h2>
@@ -170,6 +182,7 @@ onMounted(() => {
         />
 
         <InlineAlert v-if="sizeError" tone="danger" :message="sizeError" data-testid="size-error" />
+        <InlineAlert v-if="proNotice" tone="warning" :message="proNotice" data-testid="pro-limit" />
 
         <button
           type="button"
@@ -223,7 +236,7 @@ onMounted(() => {
           <button
             type="button"
             class="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-full text-danger active:bg-danger-soft disabled:opacity-50"
-            :aria-label="t('decks.edit.remove_word')"
+            :aria-label="t('decks.edit.remove_word', { word: word.word })"
             :disabled="busy"
             data-testid="remove-word"
             @click="store.removeWord(slug, word.id)"
@@ -234,7 +247,9 @@ onMounted(() => {
       </ListGroup>
       <template v-else>
         <h2 class="section-label">{{ t('decks.words_title', { count: detail.words_count }) }}</h2>
-        <p class="card text-center text-[15px] leading-5 text-tg-hint" data-testid="no-words">{{ t('decks.edit.no_words') }}</p>
+        <div class="card p-0">
+          <EmptyState icon="rectangle-stack" :text="t('decks.edit.no_words')" data-testid="no-words" />
+        </div>
       </template>
 
       <button
@@ -260,6 +275,6 @@ onMounted(() => {
       </div>
     </template>
 
-    <PaywallSheet v-if="limitReached" reason="decks" @close="store.dismissLimit()" />
+    <PaywallSheet v-if="paywall" reason="decks" :deck-limits="limits" @close="store.dismissLimit()" @review="reviewFromPaywall" />
   </div>
 </template>

@@ -10,6 +10,7 @@ import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import SegmentedControl, { type SegmentOption } from '@/components/ui/SegmentedControl.vue'
 import ToggleSwitch from '@/components/ui/ToggleSwitch.vue'
+import { showErrorToast } from '@/composables/errorToast'
 import { useBackButton } from '@/composables/useBackButton'
 import { useToast } from '@/composables/useToast'
 import { useAuthStore } from '@/stores/auth'
@@ -22,8 +23,9 @@ import type { ExerciseSettings, SettingsPatch } from '@/api/types'
 /**
  * "Settings" (docs/14 §6.6): grouped lists in the style of Telegram settings. Learning (daily goal, main course,
  * exercises), reminders, language and region, leagues and "My centers". Every change is saved at once ("Saved" is a
- * toast); a refused change leaves the control at the value the server still has. A page of the Profile tab: the system
- * "Back" button leads to the Profile.
+ * toast); a refused change leaves the control at the value the server still has and is told in a toast too — the screen
+ * is long, an alert at its top would be out of sight when the learner changes a league or a time zone further down.
+ * A page of the Profile tab: the system "Back" button leads to the Profile.
  */
 const auth = useAuthStore()
 const settings = useSettingsStore()
@@ -57,6 +59,14 @@ function syncDraft(): void {
 }
 
 watch(data, syncDraft, { immediate: true })
+
+// A refusal of a change (or of a reload while the data is on screen) is a toast; a screen that has no data shows the
+// message in its error state instead and keeps it for the retry.
+watch(message, (text) => {
+  if (text === '' || !data.value) return
+  showErrorToast(text)
+  settings.clearError()
+})
 
 const goalOptions = computed<SegmentOption[]>(() =>
   (data.value?.options.daily_goals ?? []).map((goal) => ({ value: goal, label: String(goal), testid: `goal-${goal}` })),
@@ -139,8 +149,6 @@ onBeforeUnmount(() => {
     <ErrorState v-else-if="!data" :message="message || t('error.generic')" @retry="load" />
 
     <div v-else class="space-y-4">
-      <InlineAlert v-if="message" tone="danger" :message="message" data-testid="settings-error" />
-
       <ListGroup :header="t('settings.group.learning')" :footer="t('settings.daily_goal.unit')">
         <div class="list-row flex-col items-stretch gap-2" data-testid="goal-row">
           <span class="text-base leading-[22px]">{{ t('settings.daily_goal') }}</span>
@@ -262,6 +270,11 @@ onBeforeUnmount(() => {
               {{ org.seat_state === 'seated' ? t('orgs.seated') : t('orgs.waitlisted') }}
             </span>
           </div>
+
+          <!-- A queue says nothing about when it moves: tell what the chip means and what happens next. -->
+          <p v-if="org.seat_state === 'waitlisted'" class="text-[13px] leading-[18px] text-tg-hint" data-testid="org-waitlisted-hint">
+            {{ t('orgs.waitlisted_hint') }}
+          </p>
 
           <p v-if="!org.can_leave" class="text-[13px] leading-[18px] text-tg-hint" data-testid="org-via-group">{{ t('orgs.via_group') }}</p>
 

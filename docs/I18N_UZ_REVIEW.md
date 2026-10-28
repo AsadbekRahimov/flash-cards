@@ -274,7 +274,10 @@
 | `paywall.title` | Pro tez orada | Pro скоро |
 | `paywall.lead_quota` | Bugungi yangi so'zlar limiti tugadi — takrorlash cheklovsiz. | Лимит новых слов на сегодня исчерпан — повторения доступны без ограничений. |
 | `paywall.soon` | Pro tez orada ochiladi. | Pro скоро откроется. |
-| `paywall.free` | Hozir sizda Free tarif: kuniga {count} ta yangi so'z, takrorlash cheklovsiz. | Сейчас у вас тариф Free: {count} новых слов в день, повторения — без лимита. |
+| `paywall.free.one` | Hozir sizda Free tarif: kuniga {count} ta yangi so'z, takrorlash cheklovsiz. | Сейчас у вас тариф Free: {count} новое слово в день, повторения — без лимита. |
+| `paywall.free.few` | _(в uz этой формы нет — используется `other`)_ | Сейчас у вас тариф Free: {count} новых слова в день, повторения — без лимита. |
+| `paywall.free.many` | _(в uz этой формы нет — используется `other`)_ | Сейчас у вас тариф Free: {count} новых слов в день, повторения — без лимита. |
+| `paywall.free.other` | Hozir sizda Free tarif: kuniga {count} ta yangi so'z, takrorlash cheklovsiz. | Сейчас у вас тариф Free: {count} новых слова в день, повторения — без лимита. |
 | `paywall.free_generic` | Hozir sizda Free tarif: yangi so'zlar kunlik limit bilan cheklangan, takrorlash cheklovsiz. | Сейчас у вас тариф Free: новые слова ограничены дневным лимитом, повторения — без лимита. |
 | `paywall.contact` | Markazda o'qiysizmi? Markaz administratoridan LexiFlow Pro'ni ulashni so'rang: | Учитесь в центре? Попросите администратора центра подключить LexiFlow Pro: |
 | `paywall.dismiss` | Tushunarli | Понятно |
@@ -643,7 +646,7 @@
 | `decks.edit.rename` | Nomi | Название |
 | `decks.edit.save` | Saqlash | Сохранить |
 | `decks.edit.no_words` | To'plamda hali so'zlar yo'q. | В колоде пока нет слов. |
-| `decks.edit.remove_word` | Olib tashlash | Убрать |
+| `decks.edit.remove_word` | So'zni olib tashlash: {word} | Убрать слово: {word} |
 | `decks.edit.import` | So'zlar qo'shish | Добавить слова |
 | `decks.edit.format.list` | Ro'yxat | Списком |
 | `decks.edit.format.csv` | CSV | CSV |
@@ -663,7 +666,7 @@
 | `decks.reason.duplicate` | takror | повтор |
 | `decks.reason.over_limit` | qatorlar limitidan ortiq | сверх лимита строк |
 | `decks.error.too_large` | Matn juda katta: 256 KB dan oshmasligi kerak. | Текст слишком большой: не больше 256 КБ. |
-| `paywall.lead_decks` | Free tarifida to'plamlar limiti: 50 tagacha so'zli 1 ta to'plam. Pro'da 2000 tadan so'zli 20 tagacha to'plam. | Лимит колод тарифа Free: 1 колода до 50 слов. В Pro — до 20 колод по 2000 слов. |
+| `paywall.lead_decks` | Free tarifida to'plamlar limiti: {words}li {decks}. Pro'da 2000 tadan so'zli 20 tagacha to'plam. | Лимит колод тарифа Free: {decks} {words}. В Pro — до 20 колод по 2000 слов. |
 | `error.closed.decks` | To'plam endi mavjud emas. | Колода больше недоступна. |
 | `error.forbidden.decks` | Sizda to'plamlarga kirish huquqi yo'q. | У вас нет доступа к колодам. |
 | `error.code.deck_not_found` | To'plam topilmadi. | Колода не найдена. |
@@ -910,7 +913,7 @@
 |---|---|---|
 | `orgs.title` | Mening markazlarim | Мои центры |
 | `orgs.seated` | Markaz bergan Pro | Pro от центра |
-| `orgs.waitlisted` | Navbatda | В очереди |
+| `orgs.waitlisted` | Pro uchun navbatda | В очереди на Pro |
 | `orgs.via_group` | Siz markazdasiz — guruh orqali. Chiqish uchun Telegram'da markaz guruhini tark eting. | Вы в центре через группу. Чтобы выйти, покиньте группу центра в Telegram. |
 | `orgs.leave` | Markazni tark etish | Покинуть центр |
 | `orgs.leave.confirm` | «{name}» markazini tark etasizmi? Markaz bergan Pro o'chadi, shaxsiy obunangiz (agar bo'lsa) saqlanadi. | Покинуть центр «{name}»? Pro от центра отключится, личная подписка (если есть) останется. |
@@ -1410,7 +1413,10 @@
 | `result.mock_attempts` | Solishtirilgan urinishlar: {count} | Попыток в сравнении: {count} |
 | `result.mock_again` | Kurslarga | К курсам |
 | `course.mock_exam` | Sinov testi | Пробный тест |
-| `course.mock_exam_hint` | Kursdan {count} ta so'z · {minutes} daqiqa · natija foizda va boshqalar bilan taqqoslash | {count} слов курса · {minutes} мин · результат в процентах и сравнение с другими |
+| `course.mock_exam_hint.one` | Kursdan {count} ta so'z · {minutes} daqiqa · natija foizda va boshqalar bilan taqqoslash | {count} слово курса · {minutes} мин · результат в процентах и сравнение с другими |
+| `course.mock_exam_hint.few` | _(в uz этой формы нет — используется `other`)_ | {count} слова курса · {minutes} мин · результат в процентах и сравнение с другими |
+| `course.mock_exam_hint.many` | _(в uz этой формы нет — используется `other`)_ | {count} слов курса · {minutes} мин · результат в процентах и сравнение с другими |
+| `course.mock_exam_hint.other` | Kursdan {count} ta so'z · {minutes} daqiqa · natija foizda va boshqalar bilan taqqoslash | {count} слова курса · {minutes} мин · результат в процентах и сравнение с другими |
 | `paywall.lead_exam_simulator` | IELTS va SAT sinov testlari — Pro'da: 20 daqiqada kursdan 40 ta so'z, natija foizda va boshqalar bilan taqqoslash. | Пробные тесты IELTS и SAT — в Pro: 40 слов курса за 20 минут, результат в процентах и сравнение с другими. |
 | `error.code.exam_simulator_pro_required` | Sinov testlari Pro'da mavjud. | Пробные тесты доступны в Pro. |
 | `error.code.course_not_exam` | Bu kursda sinov testi yo'q. | У этого курса нет пробного теста. |
@@ -1467,7 +1473,7 @@
 | `league.last.stayed` | {tier}: {rank}-o'rin, {points} — ligada qoldingiz | {tier}: {rank}-е место, {points} — остались в лиге |
 | `league.last.demoted` | {tier}: {rank}-o'rin, {points} — tushish | {tier}: {rank}-е место, {points} — понижение |
 | `league.settings.open` | Liga sozlamalari | Настройки лиг |
-| `settings.leagues.hint` | Ligadan chiqish keyingi joylashtirishdan boshlab amal qiladi; joriy hafta saqlanib qoladi. | Выход из лиги действует со следующего размещения; текущая неделя остаётся. |
+| `settings.leagues.hint` | Ligalardan chiqish keyingi haftadan boshlab amal qiladi: joriy hafta o'zgarishsiz qoladi. Ligalarni istalgan vaqtda qayta yoqish mumkin. | Выход из лиг действует со следующей недели: текущая неделя остаётся как есть. Включить лиги обратно можно в любой момент. |
 
 ## Фаза 2 · задача 2C.5 (друзья и вызовы) — на проверку носителю
 
@@ -1540,12 +1546,12 @@
 | `friends.list.count` | {count} / {limit} | {count} из {limit} |
 | `friends.list.anonymous` | Do'st | Друг |
 | `friends.list.words` | {count} ta so'z | {count} слово / слова / слов |
-| `friends.list.remove` | Do'stlikdan chiqarish | Удалить из друзей |
+| `friends.list.remove` | Do'stlikdan chiqarish: {name} | Удалить из друзей: {name} |
 | `friends.list.remove_confirm` | {name} do'stlikdan chiqarilsinmi? Shu do'st bilan tugallanmagan musobaqa bekor qilinadi. | Удалить {name} из друзей? Незавершённый вызов с этим другом отменится. |
 | `friends.list.remove_yes` | Ha, chiqarish | Да, удалить |
 | `friends.list.remove_no` | Bekor qilish | Отмена |
 | `friends.challenge.title` | Musobaqalar | Вызовы |
-| `friends.challenge.new` | Musobaqa tashlash | Бросить вызов |
+| `friends.challenge.new` | Musobaqa tashlash: {name} | Бросить вызов: {name} |
 | `friends.challenge.pick` | {days} kunda kim ko'proq? | Кто больше за {days} дн.? |
 | `friends.challenge.metric.reviews` | Ko'proq kartochka takrorlaydi | Повторит карточек |
 | `friends.challenge.metric.new_words` | Ko'proq yangi so'z o'rganadi | Выучит новых слов |
@@ -1750,7 +1756,10 @@
 | `course.continue` | Davom etish: {stage}-modul, {number}-dars | Продолжить: модуль {stage}, урок {number} |
 | `course.all_done` | Kursning barcha darslari tugallandi | Все уроки курса пройдены |
 | `course.choose_hint` | Kunlik mashg'ulotdagi yangi so'zlar shu kursdan bo'ladi | Новые слова в ежедневном занятии будут из этого курса |
-| `course.lesson_words` | {total} ta so'zdan {done} tasi | {done} из {total} слов |
+| `course.lesson_words.one` | {total} ta so'zdan {done} tasi | {done} из {total} слова |
+| `course.lesson_words.few` | _(в uz этой формы нет — используется `other`)_ | {done} из {total} слов |
+| `course.lesson_words.many` | _(в uz этой формы нет — используется `other`)_ | {done} из {total} слов |
+| `course.lesson_words.other` | {total} ta so'zdan {done} tasi | {done} из {total} слова |
 | `course.mock_exam_start` | Testni boshlash | Начать тест |
 | `decks.choose` | Asosiy qilish | Сделать основной |
 | `decks.active` | Asosiy to'plam | Основная колода |
@@ -1912,3 +1921,29 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `nav.label` | Bo'limlar | Разделы |
+
+## Редизайн 2026-10-28 · 17-11b — на проверку носителю
+
+> Проверить: пейвол без слов про «Free» у платящего ученика; склонение в лимитах колод (`paywall.lead_decks`: «{words}li {decks}» даёт «50 tagacha so'zli 1 ta to'plam» — `decks.words_up_to`, `decks.count`); «это предел вашего тарифа Pro» и что делать (`decks.limit_pro.*`); предупреждение о неудавшемся списании Stars (`billing.grace`, `billing.grace_until`); подписи кнопок-значков с названием объекта («So'zni olib tashlash: {word}», «Musobaqa tashlash: {name}», «Do'stlikdan chiqarish: {name}»); «Pro uchun navbatda» и пояснение к нему; сообщение, когда не удалось скопировать (`common.copy_failed`).
+> Изменённые значения старых ключей (`paywall.free` — теперь с формами числа, `paywall.lead_decks` — числа берутся из лимитов тарифа, `course.mock_exam_hint` и `course.lesson_words` — с формами числа, `decks.edit.remove_word`, `friends.list.remove`, `friends.challenge.new` — с названием объекта, `orgs.waitlisted`, `settings.leagues.hint` — простыми словами) исправлены в исходных строках выше; здесь — только новые ключи.
+
+### TWA: пейвол, колоды, подписка, настройки, друзья (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `paywall.lead_decks_generic` | Siz Free tarifidagi to'plamlar limitiga yetdingiz. Pro'da 2000 tadan so'zli 20 tagacha to'plam. | Вы достигли лимита колод тарифа Free. В Pro — до 20 колод по 2000 слов. |
+| `decks.count.one` | {count} ta to'plam | {count} колода |
+| `decks.count.few` | _(в uz этой формы нет — используется `other`)_ | {count} колоды |
+| `decks.count.many` | _(в uz этой формы нет — используется `other`)_ | {count} колод |
+| `decks.count.other` | {count} ta to'plam | {count} колоды |
+| `decks.words_up_to.one` | {count} tagacha so'z | до {count} слова |
+| `decks.words_up_to.few` | _(в uz этой формы нет — используется `other`)_ | до {count} слов |
+| `decks.words_up_to.many` | _(в uz этой формы нет — используется `other`)_ | до {count} слов |
+| `decks.words_up_to.other` | {count} tagacha so'z | до {count} слова |
+| `decks.limit_pro.decks` | Bu Pro tarifingizdagi chegara: {decks}. Yangi to'plam yaratish uchun keraksizini o'chiring — so'zlar arxivga o'tadi, natijangiz saqlanadi. | Это предел вашего тарифа Pro: {decks}. Чтобы создать новую колоду, удалите ненужную — слова уйдут в архив, а прогресс сохранится. |
+| `decks.limit_pro.words` | Bu Pro tarifingizdagi chegara: to'plamda {words}. Hech narsa qo'shilmadi — keraksiz so'zlarni olib tashlang yoki ro'yxatning bir qismini boshqa to'plamga qo'shing. | Это предел вашего тарифа Pro: {words} в колоде. Ничего не добавлено — уберите ненужные слова или добавьте часть списка в другую колоду. |
+| `billing.grace` | Telegram yangilash uchun Stars'ni yecha olmadi. Stars balansini to'ldiring — Telegram yechishni qayta urinib ko'radi. | Telegram не смог списать Stars за продление. Пополните баланс Stars — Telegram повторит списание. |
+| `billing.grace_until` | Pro {date} gacha amal qiladi. | Pro действует до {date} |
+| `decks.choose_empty_hint` | Asosiy qilish uchun to'plamga kamida bitta so'z qo'shing. | Добавьте в колоду хотя бы одно слово, чтобы сделать её основной. |
+| `orgs.waitlisted_hint` | Markazda hozircha bo'sh joy yo'q. Joy bo'shaganda markaz bergan Pro yoqiladi. | В центре пока нет свободных мест. Pro от центра включится, когда место освободится. |
+| `common.copy_failed` | Nusxalab bo'lmadi. Havolani belgilab, qo'lda nusxalang. | Не удалось скопировать. Выделите ссылку и скопируйте вручную. |

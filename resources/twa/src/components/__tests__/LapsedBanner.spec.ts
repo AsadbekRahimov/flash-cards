@@ -24,7 +24,7 @@ const me = (lapsed: Lapsed | null, plan: 'free' | 'pro' = 'free'): MeResponse =>
 
 const lapsed = (endedAt = ENDED): Lapsed => ({ provider: 'payme', ended_at: endedAt })
 
-async function render(response: MeResponse, props: { preloaded?: boolean } = {}) {
+async function render(response: MeResponse, props: { preloaded?: boolean; renewable?: boolean } = {}) {
   vi.mocked(api.me.get).mockResolvedValue(response)
   const billing = useBillingStore()
   if (props.preloaded) billing.apply(response)
@@ -110,6 +110,22 @@ describe('LapsedBanner', () => {
 
     expect(api.me.get).not.toHaveBeenCalled()
     expect(w.find('[data-testid=lapsed-banner]').exists()).toBe(true)
+  })
+
+  it('has no «Renew» button when the screen says nothing is for sale: a button that does nothing is worse than none', async () => {
+    const w = await render(me(lapsed()), { preloaded: true, renewable: false })
+
+    expect(w.get('[data-testid=lapsed-title]').text()).toBe('Pro закончился')
+    expect(w.get('[data-testid=lapsed-text]').text()).toMatch(/^Подписка закончилась 18 октября\./)
+    expect(w.find('[data-testid=lapsed-renew]').exists()).toBe(false)
+    expect(w.find('button.btn').exists()).toBe(false)
+    expect(w.find('[data-testid=lapsed-dismiss]').exists()).toBe(true) // the learner can still put it away
+  })
+
+  it('offers «Renew» by default, as on the Home screen where the paywall opens either way', async () => {
+    const w = await render(me(lapsed()), { renewable: true })
+
+    expect(w.find('[data-testid=lapsed-renew]').exists()).toBe(true)
   })
 
   it('emits renew from the button', async () => {

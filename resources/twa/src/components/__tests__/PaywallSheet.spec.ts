@@ -6,7 +6,7 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { useTodayStore } from '@/stores/today'
-import type { MeResponse, Paywall } from '@/api/types'
+import type { DeckLimits, MeResponse, Paywall } from '@/api/types'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 
 vi.mock('@/api', () => ({
@@ -31,7 +31,7 @@ function me(overrides: { plan?: 'free' | 'pro'; contact?: string | null; limit?:
   }
 }
 
-async function render(response: MeResponse = me(), props: { reason?: PaywallReason } = {}) {
+async function render(response: MeResponse = me(), props: { reason?: PaywallReason; deckLimits?: DeckLimits | null } = {}) {
   vi.mocked(api.me.get).mockResolvedValue(response)
   const wrapper = mount(PaywallSheet, { props })
   await flushPromises()
@@ -53,12 +53,82 @@ describe('PaywallSheet', () => {
     expect(w.get('[data-testid=paywall-free]').text()).toBe('Сейчас у вас тариф Free: 20 новых слов в день, повторения — без лимита.')
   })
 
-  it('explains the deck limits when a deck write was refused', async () => {
-    const w = await render(me(), { reason: 'decks' })
+  describe('what Free gives', () => {
+    it.each([
+      [1, 'Сейчас у вас тариф Free: 1 новое слово в день, повторения — без лимита.'],
+      [2, 'Сейчас у вас тариф Free: 2 новых слова в день, повторения — без лимита.'],
+      [5, 'Сейчас у вас тариф Free: 5 новых слов в день, повторения — без лимита.'],
+      [21, 'Сейчас у вас тариф Free: 21 новое слово в день, повторения — без лимита.'],
+    ])('inflects the word for a limit of %i', async (limit, text) => {
+      const w = await render(me({ limit }))
 
-    expect(w.get('[data-testid=paywall-lead]').text()).toBe(
-      'Лимит колод тарифа Free: 1 колода до 50 слов. В Pro — до 20 колод по 2000 слов. Pro скоро откроется.',
-    )
+      expect(w.get('[data-testid=paywall-free]').text()).toBe(text)
+    })
+
+    it('inflects the Uzbek line too', async () => {
+      setLocale('uz')
+      const w = await render(me({ limit: 1 }))
+
+      expect(w.get('[data-testid=paywall-free]').text()).toBe("Hozir sizda Free tarif: kuniga 1 ta yangi so'z, takrorlash cheklovsiz.")
+    })
+
+    it('does not tell a Pro learner they are on Free: no limit is not an unknown limit', async () => {
+      const w = await render(me({ plan: 'pro', until: '2026-12-31T12:00:00+00:00' }), { reason: 'info' })
+
+      expect(w.find('[data-testid=paywall-free]').exists()).toBe(false)
+      expect(w.text()).not.toContain('Сейчас у вас тариф Free')
+      expect(w.text()).not.toContain('ограничены дневным лимитом')
+      expect(w.find('[data-testid=paywall-lead]').exists()).toBe(true)
+    })
+
+    it('says nothing about Free to a Pro learner in Uzbek either, and not on the wall of a deck', async () => {
+      setLocale('uz')
+      const w = await render(me({ plan: 'pro' }), { reason: 'decks' })
+
+      expect(w.find('[data-testid=paywall-free]').exists()).toBe(false)
+      expect(w.text()).not.toContain('Free tarif: kuniga')
+    })
+  })
+
+  describe('the wall of decks', () => {
+    it('explains the deck limits with the numbers of the plan the server applied', async () => {
+      const w = await render(me(), { reason: 'decks', deckLimits: { decks: 1, deck_words: 50, used_decks: 1 } })
+
+      expect(w.get('[data-testid=paywall-lead]').text()).toBe(
+        'Лимит колод тарифа Free: 1 колода до 50 слов. В Pro — до 20 колод по 2000 слов. Pro скоро откроется.',
+      )
+    })
+
+    it('takes the numbers from the limits, not from the text', async () => {
+      const w = await render(me(), { reason: 'decks', deckLimits: { decks: 3, deck_words: 101, used_decks: 3 } })
+
+      expect(w.get('[data-testid=paywall-lead]').text()).toBe(
+        'Лимит колод тарифа Free: 3 колоды до 101 слова. В Pro — до 20 колод по 2000 слов. Pro скоро откроется.',
+      )
+    })
+
+    it('inflects the numbers in Uzbek', async () => {
+      setLocale('uz')
+      const w = await render(me(), { reason: 'decks', deckLimits: { decks: 1, deck_words: 50, used_decks: 1 } })
+
+      expect(w.get('[data-testid=paywall-lead]').text()).toBe(
+        "Free tarifida to'plamlar limiti: 50 tagacha so'zli 1 ta to'plam. Pro'da 2000 tadan so'zli 20 tagacha to'plam. Pro tez orada ochiladi.",
+      )
+    })
+
+    it('says it generally, without numbers, when the limits are not known', async () => {
+      const w = await render(me(), { reason: 'decks' })
+
+      expect(w.get('[data-testid=paywall-lead]').text()).toBe(
+        'Вы достигли лимита колод тарифа Free. В Pro — до 20 колод по 2000 слов. Pro скоро откроется.',
+      )
+    })
+
+    it('leaves the limits out of the other reasons', async () => {
+      const w = await render(me(), { reason: 'quota', deckLimits: { decks: 3, deck_words: 101, used_decks: 3 } })
+
+      expect(w.get('[data-testid=paywall-lead]').text()).not.toContain('колод')
+    })
   })
 
   it('reads the limit from /me, not from a constant', async () => {

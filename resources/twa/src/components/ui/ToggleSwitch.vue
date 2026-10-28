@@ -8,6 +8,7 @@
  *
  * The "on" colour is the accent; the knob is the text colour of a button (`--tg-button-text`: white in every Telegram
  * theme), the one token that is always readable on the accent. `data-testid` and other attributes go to the button.
+ * The switch is 31 px high, its touch area at least 44 px (`.tap-target`, docs/14 §3).
  *
  * @example <ToggleSwitch :model-value="data.exercises.reverse" :label="t('settings.exercises.reverse')" @update:model-value="onExercise('reverse', $event)" />
  */
@@ -31,7 +32,7 @@ function toggle(): void {
     :aria-checked="modelValue"
     :aria-label="label"
     :disabled="disabled"
-    class="relative inline-flex h-[31px] w-[51px] shrink-0 items-center rounded-full transition-colors duration-200 disabled:opacity-50"
+    class="tap-target relative inline-flex h-[31px] w-[51px] shrink-0 items-center rounded-full transition-colors duration-200 disabled:opacity-50"
     :class="modelValue ? 'bg-accent' : 'bg-track'"
     @click="toggle"
   >
