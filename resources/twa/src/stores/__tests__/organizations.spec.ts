@@ -1,11 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { useOrganizationsStore } from '../organizations'
+import { useBillingStore } from '../billing'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
-import type { OrganizationMembership } from '@/api/types'
+import { settingsFixture } from '@/api/__tests__/settingsFixture'
+import type { MeResponse, OrganizationMembership } from '@/api/types'
 
-vi.mock('@/api', () => ({ api: { organizations: { list: vi.fn(), leave: vi.fn() } } }))
+vi.mock('@/api', () => ({ api: { me: { get: vi.fn() }, organizations: { list: vi.fn(), leave: vi.fn() } } }))
+
+const me = (plan: 'free' | 'pro'): MeResponse => ({
+  learner: { id: 1, first_name: 'A', username: null, locale: 'ru', onboarding_completed: true },
+  groups: [],
+  stats: { words_learned: 0, words_due_today: 0 },
+  entitlement: { plan, source: plan === 'pro' ? 'sponsor:organization:1' : 'free', until: null, new_words_per_day: plan === 'pro' ? null : 20 },
+  paywall: { mode: 'purchase', contact: null },
+  settings: settingsFixture(),
+})
 
 const membership = (id: number, overrides: Partial<OrganizationMembership> = {}): OrganizationMembership => ({
   id,
@@ -81,5 +92,33 @@ describe('organizations store', () => {
     expect(store.items.map((i) => i.id)).toEqual([2])
     expect(store.errorMessage).toBe('Вы уже не состоите в этом центре.')
     expect(store.leaving).toBe(false)
+  })
+
+  describe('the plan after leaving', () => {
+    it('makes the billing store ask /me again, since the center\'s Pro may be gone', async () => {
+      const billing = useBillingStore()
+      billing.apply(me('pro')) // fresh: a plain load() would not ask
+      vi.mocked(api.me.get).mockResolvedValue(me('free'))
+      vi.mocked(api.organizations.leave).mockResolvedValue({ organizations: [] })
+
+      expect(await useOrganizationsStore().leave(1)).toBe(true)
+      expect(billing.loadedAt).toBeNull()
+
+      await billing.load()
+      expect(api.me.get).toHaveBeenCalledTimes(1)
+      expect(billing.entitlement?.plan).toBe('free')
+    })
+
+    it('leaves the billing data alone when leaving is refused', async () => {
+      const billing = useBillingStore()
+      billing.apply(me('pro'))
+      vi.mocked(api.organizations.leave).mockRejectedValue(new ApiClientError('conflict', 409, 'membership_via_group', 'x'))
+      vi.mocked(api.organizations.list).mockResolvedValue({ organizations: [membership(1, { joined_via: 'group', can_leave: false })] })
+
+      expect(await useOrganizationsStore().leave(1)).toBe(false)
+
+      await billing.load()
+      expect(api.me.get).not.toHaveBeenCalled()
+    })
   })
 })

@@ -273,7 +273,7 @@
 | `promo.toggle` | Promokodingiz bormi? | Есть промокод? |
 | `promo.placeholder` | Promokod | Промокод |
 | `promo.submit` | Faollashtirish | Активировать |
-| `promo.success_until` | Pro {date} gacha faol. | Pro активен до {date}. |
+| `promo.success_until` | Pro {date} gacha faol. | Pro активен до {date} |
 | `promo.success_forever` | Pro muddatsiz faol. | Pro активен без ограничения по сроку. |
 | `paywall.title` | Pro tez orada | Pro скоро |
 | `paywall.lead_quota` | Bugungi yangi so'zlar limiti tugadi — takrorlash cheklovsiz. | Лимит новых слов на сегодня исчерпан — повторения доступны без ограничений. |
@@ -435,14 +435,11 @@
 | `settings.timezone` | Vaqt mintaqasi | Часовой пояс |
 | `settings.timezone.locked` | Vaqt mintaqasini kuniga bir martadan ko'p o'zgartirib bo'lmaydi. Keyingi o'zgartirish — {when}. | Часовой пояс можно менять не чаще раза в сутки. Следующая смена — {when}. |
 | `settings.timezone.undo` | Mintaqa o'zgarishini bekor qilish ({time}) | Отменить смену пояса ({time}) |
-| `settings.reminder` | Eslatmalar | Напоминания |
-| `settings.reminder.off` | Eslatmalarsiz | Без напоминаний |
+| `settings.reminder.off` | O'chirilgan | Выключены |
 | `settings.reminder.hint` | Vaqt sizning vaqt mintaqangiz bo'yicha. | Время — по вашему часовому поясу. |
 | `settings.daily_goal` | Kunlik maqsad | Цель на день |
-| `settings.daily_goal.option.one/other` | {count} ta kartochka | {count} карточка / карточки / карточек |
-| `settings.course` | Faol kurs | Активный курс |
-| `settings.course.none` | Kurs tanlanmagan | Курс не выбран |
-| `settings.saved` | Saqlandi | Сохранено |
+| `settings.course` | Asosiy kurs | Основной курс |
+| `settings.course.none` | Tanlanmagan | Не выбран |
 | `error.closed.settings` | Sozlamalar endi mavjud emas. | Настройки больше недоступны. |
 | `error.forbidden.settings` | Sizda sozlamalarga kirish huquqi yo'q. | У вас нет доступа к настройкам. |
 
@@ -811,19 +808,18 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `paywall.title_purchase` | LexiFlow Pro | LexiFlow Pro |
-| `paywall.lead_purchase` | Yangi so'zlar kunlik limitsiz, to'plamlar va batafsil statistika. | Новые слова без дневного лимита, колоды и подробная статистика. |
+| `paywall.lead_purchase` | Yangi so'zlar kunlik limitsiz, so'zni yozish mashqlari, o'z to'plamlaringiz, seriyani muzlatish va sinov testlari. | Новые слова без дневного лимита, упражнения на написание, свои колоды, заморозки серии и пробные тесты. |
 | `billing.title` | Obuna | Подписка |
-| `billing.open` | Pro obunasi | Подписка Pro |
 | `billing.period.month` | Oy | Месяц |
 | `billing.period.year` | Yil | Год |
 | `billing.pay_with` | To'lash: {provider} · {price} | Оплатить: {provider} · {price} |
-| `billing.provider.telegram_stars` | ⭐ Stars | ⭐ Stars |
+| `billing.provider.telegram_stars` | Telegram Stars | Telegram Stars |
 | `billing.provider.payme` | Payme | Payme |
 | `billing.provider.click` | Click | Click |
 | `billing.provider.manual` | qo'lda berilgan | выдан вручную |
 | `billing.provider.promo` | promokod | промокод |
 | `billing.provider.reward` | mukofot | награда |
-| `billing.offer` | Birinchi to'lovga {pct}% chegirma — {date} gacha. | Скидка {pct}% на первый платёж — до {date}. |
+| `billing.offer` | Birinchi to'lovga {pct}% chegirma — {date} gacha. | Скидка {pct}% на первый платёж — до {date} |
 | `billing.starting` | Hisob yaratilmoqda… | Создаём счёт… |
 | `billing.awaiting` | To'lov tasdig'i kutilmoqda… | Ждём подтверждение оплаты… |
 | `billing.timeout` | Tasdiq hali kelmadi. Agar to'lagan bo'lsangiz, Pro bir necha daqiqada yoqiladi. | Подтверждение ещё не пришло. Если вы уже оплатили, Pro включится в течение нескольких минут. |
@@ -831,14 +827,14 @@
 | `billing.order_replaced` | Buyurtma yangi buyurtma bilan almashtirildi. | Заказ заменён новым заказом. |
 | `billing.order_replaced_follow` | Buyurtma yangisi bilan almashtirildi — u bo'yicha to'lovni kutamiz. | Заказ заменён новым — ждём оплату по нему. |
 | `billing.payment_failed` | To'lov o'tmadi yoki hisob yopilgan. Qayta urinib ko'ring. | Платёж не прошёл или счёт закрыт. Попробуйте ещё раз. |
-| `billing.paid_until` | Rahmat! Pro {date} gacha faol. | Спасибо! Pro активен до {date}. |
+| `billing.paid_until` | Rahmat! Pro {date} gacha faol. | Спасибо! Pro активен до {date} |
 | `billing.paid_forever` | Rahmat! Pro faol. | Спасибо! Pro активен. |
-| `billing.auto_renew_running` | Stars avtoyangilash yoqilgan — hech narsa to'lash shart emas. Obunani «Sozlamalar → Pro obunasi» bo'limida boshqarish mumkin. | Автопродление Stars включено — оплачивать ничего не нужно. Управлять подпиской можно в «Настройки → Подписка Pro». |
+| `billing.auto_renew_running` | Stars avtoyangilash yoqilgan — hech narsa to'lash shart emas. Obunani «Profil → Obuna» bo'limida boshqarish mumkin. | Автопродление Stars включено — оплачивать ничего не нужно. Управлять подпиской можно в разделе «Профиль → Подписка». |
 | `billing.perpetual` | Sizda Pro muddatsiz faol — hech narsa to'lash shart emas. | У вас Pro без ограничения по сроку — оплачивать ничего не нужно. |
-| `billing.plan.free` | Free tarif | Тариф Free |
+| `billing.plan.free` | Bepul tarif | Бесплатный тариф |
 | `billing.plan.pro` | LexiFlow Pro | LexiFlow Pro |
 | `billing.sponsored` | Pro'ni markazingiz ulagan. | Pro подключён вашим центром. |
-| `billing.until` | {date} gacha amal qiladi. | Действует до {date}. |
+| `billing.until` | {date} gacha amal qiladi. | Действует до {date} |
 | `billing.forever` | Muddatsiz. | Без ограничения по сроку. |
 | `billing.provider_line` | To'lov: {provider}. | Оплата: {provider}. |
 | `billing.auto_on` | Avtoyangilash yoqilgan: keyingi davr uchun to'lovni Telegram o'zi yechib oladi. | Автопродление включено: следующий период Telegram спишет сам. |
@@ -920,8 +916,8 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `orgs.title` | Mening markazlarim | Мои центры |
-| `orgs.seated` | Markaz bergan Pro faol | Pro от центра активен |
-| `orgs.waitlisted` | Bo'sh joy yo'q — navbatdasiz | Свободных мест нет — вы в очереди |
+| `orgs.seated` | Markaz bergan Pro | Pro от центра |
+| `orgs.waitlisted` | Navbatda | В очереди |
 | `orgs.via_group` | Siz markazdasiz — guruh orqali. Chiqish uchun Telegram'da markaz guruhini tark eting. | Вы в центре через группу. Чтобы выйти, покиньте группу центра в Telegram. |
 | `orgs.leave` | Markazni tark etish | Покинуть центр |
 | `orgs.leave.confirm` | «{name}» markazini tark etasizmi? Markaz bergan Pro o'chadi, shaxsiy obunangiz (agar bo'lsa) saqlanadi. | Покинуть центр «{name}»? Pro от центра отключится, личная подписка (если есть) останется. |
@@ -1481,9 +1477,6 @@
 | `league.last.stayed` | {tier}: {rank}-o'rin, {points} — ligada qoldingiz | {tier}: {rank}-е место, {points} — остались в лиге |
 | `league.last.demoted` | {tier}: {rank}-o'rin, {points} — tushish | {tier}: {rank}-е место, {points} — понижение |
 | `league.settings.open` | Sozlamalar | Настройки |
-| `settings.leagues` | Ligalar | Лиги |
-| `settings.leagues.on` | Haftalik ligalarda qatnashaman | Участвую в недельных лигах |
-| `settings.leagues.off` | Ligalarda qatnashmayman | Не участвую в лигах |
 | `settings.leagues.hint` | Ligadan chiqish keyingi joylashtirishdan boshlab amal qiladi; joriy hafta saqlanib qoladi. | Выход из лиги действует со следующего размещения; текущая неделя остаётся. |
 
 ## Фаза 2 · задача 2C.5 (друзья и вызовы) — на проверку носителю
@@ -1617,9 +1610,8 @@
 | `exercise.verdict.wrong` | Noto'g'ri. To'g'risi: {expected} | Неверно. Правильно: {expected} |
 | `exercise.continue` | Keyingisi | Дальше |
 | `settings.exercises` | Mashqlar | Упражнения |
-| `settings.exercises.hint` | «So'z → tarjima» kartochkalari doim yoqilgan. Yozish va bo'sh joy — Pro'da. | Карточки «слово → перевод» включены всегда. Написание и пропуск — в Pro. |
-| `settings.exercises.reverse` | Tarjima → so'z (4 variant) | Перевод → слово (4 варианта) |
-| `settings.exercises.audio` | Eshitib (4 variant) | На слух (4 варианта) |
+| `settings.exercises.reverse` | Tarjima → so'z | Перевод → слово |
+| `settings.exercises.audio` | Eshitib | На слух |
 | `settings.exercises.spelling` | So'zni yozish | Написание слова |
 | `settings.exercises.gap_fill` | Misoldagi bo'sh joy | Пропуск в примере |
 | `error.code.answer_not_accepted` | Bu kartochka ekranda baholanadi. Ekranni yangilang. | Эта карточка оценивается на экране. Обновите экран. |
@@ -1816,3 +1808,28 @@
 | `finished.stats.cards` | Kartochka | Карточек |
 | `finished.stats.correct` | To'g'ri | Верно |
 | `finished.stats.new` | Yangi so'z | Новых слов |
+
+## Редизайн 2026-10-28 · 17.5 настройки и подписка — на проверку носителю
+
+> Проверить: «Telegram Stars» (способ оплаты; звезда ⭐ стоит только в цене); «Bepul tarif» (бесплатный тариф); «Yil · −{pct}%» (годовой период с выгодой); «To'lov usuli» и «To'lov muddati» (способ и срок оплаты); «Pro nima beradi» и «Sizning imkoniyatlaringiz» (заголовки списка возможностей Pro); «so'zni yozish mashqlari» в тексте о Pro; в настройках — «O'rganish» (группа «Обучение»), «Til va hudud» (язык и регион), «kuniga nechta kartochka» (подпись под выбором цели дня), «Eslatma vaqti», «O'chirilgan» (напоминания выключены), «Navbatda» (в очереди центра), «Asosiy kurs».
+> Изменённые значения старых ключей (`paywall.lead_purchase`, `billing.provider.telegram_stars`, `billing.auto_renew_running`, `billing.plan.free`, `promo.success_until`, `billing.offer`, `billing.paid_until`, `billing.until`, `settings.course`, `settings.course.none`, `settings.reminder.off`, `settings.exercises.reverse`, `settings.exercises.audio`, `orgs.seated`, `orgs.waitlisted`) исправлены в исходных строках выше, удалённые ключи (`billing.open`, `settings.reminder`, `settings.daily_goal.option`, `settings.saved`, `settings.exercises.hint`, `settings.leagues`, `settings.leagues.on`, `settings.leagues.off`) убраны из таблиц; здесь — только новые ключи.
+
+### TWA, подписка, пейвол и настройки (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `billing.promo_title` | Promokod | Промокод |
+| `billing.benefits_title` | Pro nima beradi | Что даёт Pro |
+| `billing.benefits_title_pro` | Sizning imkoniyatlaringiz | Ваши возможности |
+| `billing.period.year_save` | Yil · −{pct}% | Год · −{pct}% |
+| `billing.period.label` | To'lov muddati | Срок оплаты |
+| `billing.pay_method` | To'lov usuli | Способ оплаты |
+| `billing.offer_chip` | −{pct}% | −{pct}% |
+| `settings.group.learning` | O'rganish | Обучение |
+| `settings.group.reminders` | Eslatmalar | Напоминания |
+| `settings.group.region` | Til va hudud | Язык и регион |
+| `settings.group.leagues` | Ligalar | Лиги |
+| `settings.daily_goal.unit` | kuniga nechta kartochka | карточек в день |
+| `settings.reminder.time` | Eslatma vaqti | Время напоминания |
+| `settings.exercises.always` | «So'z → tarjima» kartochkalari doim yoqilgan | Карточки «слово → перевод» включены всегда |
+| `settings.leagues.toggle` | Haftalik ligalarda qatnashish | Участвовать в недельных лигах |

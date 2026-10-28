@@ -317,7 +317,9 @@ describe('ProfileView', () => {
     })
 
     it('shows the plan it already has without a skeleton, and refreshes it', async () => {
-      useBillingStore().apply(me({ ...PRO, until: null }))
+      const billing = useBillingStore()
+      billing.apply(me({ ...PRO, until: null }))
+      billing.invalidate() // the stored plan is older than 30 s: it is shown, and asked for again
       vi.mocked(api.me.get).mockReturnValue(new Promise<MeResponse>(() => {}))
 
       const w = await render()
@@ -325,6 +327,16 @@ describe('ProfileView', () => {
       expect(w.find('[data-testid=spinner]').exists()).toBe(false)
       expect(w.get('[data-testid=profile-plan]').text()).toBe('Pro без срока')
       expect(api.me.get).toHaveBeenCalledTimes(1)
+    })
+
+    it('does not ask /me again while the plan it has is fresh', async () => {
+      useBillingStore().apply(me({ ...PRO, until: null }))
+
+      const w = await render()
+
+      expect(api.me.get).not.toHaveBeenCalled()
+      expect(w.find('[data-testid=spinner]').exists()).toBe(false)
+      expect(w.get('[data-testid=profile-plan]').text()).toBe('Pro без срока')
     })
 
     it('shows an error with a retry when /me fails, then recovers', async () => {
