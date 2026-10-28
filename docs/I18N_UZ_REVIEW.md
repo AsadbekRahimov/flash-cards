@@ -853,7 +853,7 @@
 | `error.code.provider_not_supported` | Bu to'lov usuli siz uchun mavjud emas. | Этот способ оплаты вам недоступен. |
 | `error.code.checkout_conflict` | Sizda Stars avtoyangilash yoqilgan. Yangi to'lovdan oldin uni «Obuna» bo'limida o'chiring. | У вас включено автопродление Stars. Отключите его в «Подписке», прежде чем оформлять новую оплату. |
 | `error.code.already_perpetual` | Sizda Pro muddatsiz faol — hech narsa to'lash shart emas. | У вас уже есть Pro без ограничения по сроку — оплачивать ничего не нужно. |
-| `error.code.subscribe_too_early` | Pro allaqachon uzoq muddatga to'langan. Stars obunasini oxirgi kunlarda rasmiylashtirish mumkin; hozircha bir yillik bir martalik to'lovni tanlang. | Pro уже оплачен на длительный срок. Подписку Stars можно оформить ближе к окончанию; пока выберите разовую оплату на год. |
+| `error.code.subscribe_too_early` | Pro allaqachon uzoq muddatga to'langan, shuning uchun Stars orqali bir oylik to'lovni hozircha rasmiylashtirib bo'lmaydi — buni muddat tugashiga yaqin qilish mumkin. «Yil» muddatini tanlang yoki Payme yoki Click orqali to'lang: yangi muddat joriy muddatga qo'shiladi. | Pro уже оплачен надолго, поэтому оплату Stars на месяц пока оформить нельзя — это можно сделать ближе к окончанию срока. Выберите «Год» или оплату через Payme или Click: срок добавится к текущему. |
 | `error.code.too_many_pending` | Sizda to'lanmagan hisoblar bor. Ulardan birini to'lang yoki kuting — ular o'zi yopiladi. | У вас уже есть неоплаченные счета. Оплатите один из них или подождите — они закроются сами. |
 | `error.code.offer_not_applicable` | Chegirma bu xaridga qo'llanilmaydi. | Скидка к этой покупке не применяется. |
 | `error.code.offer_busy` | Chegirmali oldingi to'lov hali qayta ishlanmoqda — bir daqiqadan so'ng urinib ko'ring. | Предыдущая оплата со скидкой ещё обрабатывается — попробуйте через минуту. |
@@ -1963,3 +1963,16 @@
 | `billing.plan.free_limit.few` | _(в uz этой формы нет — используется `other`)_ | {count} новых слова в день, повторения без ограничений |
 | `billing.plan.free_limit.many` | _(в uz этой формы нет — используется `other`)_ | {count} новых слов в день, повторения без ограничений |
 | `billing.plan.free_limit.other` | Kuniga {count} ta yangi so'z, takrorlash cheklovsiz | {count} новых слова в день, повторения без ограничений |
+
+### TWA: пейвол для Pro-ученика (`resources/twa/src/i18n/uz.ts`)
+
+> Кнопка «Продлить Pro» в «Подписке» открывает тот же лист, что и «Узнать о Pro» у Free; Pro-ученику он больше не продаёт Pro: свой заголовок («Pro'ni
+> uzaytirish» — как кнопка `billing.renew`) и лид о том, что делает оплата: срок добавляется к концу уже оплаченного (Payme, Click и Stars на год так и
+> работают). Строка «Markazda o'qiysizmi?» (`paywall.contact`) у Pro не показывается. Проверить: «To'lov joriy Pro muddatiga qo'shiladi ({date} gacha)» и
+> новый текст отказа `error.code.subscribe_too_early` (его значение исправлено в строке выше, в таблице ошибок TWA): он говорит, что Stars на месяц пока
+> нельзя, когда это можно и что выбрать сейчас («Yil» — подпись периода «Год»; Payme или Click). Бот (`billing.pro.errors.subscribe_too_early`) не менялся.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `paywall.title_renew` | Pro'ni uzaytirish | Продлить Pro |
+| `paywall.lead_renew` | To'lov joriy Pro muddatiga qo'shiladi ({date} gacha). | Оплата добавит срок к текущему Pro (до {date}). |

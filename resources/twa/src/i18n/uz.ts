@@ -286,6 +286,8 @@ export const uz: Translations = {
     one: "Kuniga {count} ta yangi so'z, takrorlash cheklovsiz",
     other: "Kuniga {count} ta yangi so'z, takrorlash cheklovsiz",
   },
+  'paywall.title_renew': "Pro'ni uzaytirish",
+  'paywall.lead_renew': "To'lov joriy Pro muddatiga qo'shiladi ({date} gacha).",
 
   // ---- course catalog ----
   'catalog.title': 'Kurslar',
@@ -578,7 +580,8 @@ export const uz: Translations = {
   'error.code.provider_not_supported': "Bu to'lov usuli siz uchun mavjud emas.",
   'error.code.checkout_conflict': "Sizda Stars avtoyangilash yoqilgan. Yangi to'lovdan oldin uni «Obuna» bo'limida o'chiring.",
   'error.code.already_perpetual': "Sizda Pro muddatsiz faol — hech narsa to'lash shart emas.",
-  'error.code.subscribe_too_early': "Pro allaqachon uzoq muddatga to'langan. Stars obunasini oxirgi kunlarda rasmiylashtirish mumkin; hozircha bir yillik bir martalik to'lovni tanlang.",
+  'error.code.subscribe_too_early':
+    "Pro allaqachon uzoq muddatga to'langan, shuning uchun Stars orqali bir oylik to'lovni hozircha rasmiylashtirib bo'lmaydi — buni muddat tugashiga yaqin qilish mumkin. «Yil» muddatini tanlang yoki Payme yoki Click orqali to'lang: yangi muddat joriy muddatga qo'shiladi.",
   'error.code.too_many_pending': "Sizda to'lanmagan hisoblar bor. Ulardan birini to'lang yoki kuting — ular o'zi yopiladi.",
   'error.code.offer_busy': "Chegirmali oldingi to'lov hali qayta ishlanmoqda — bir daqiqadan so'ng urinib ko'ring.",
   'error.code.offer_not_applicable': "Chegirma bu xaridga qo'llanilmaydi.",

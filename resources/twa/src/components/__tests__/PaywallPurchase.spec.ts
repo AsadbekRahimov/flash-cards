@@ -550,6 +550,187 @@ describe('PaywallSheet in purchase mode', () => {
     expect(w.get('[data-testid=purchase-perpetual]').find('svg').exists()).toBe(true)
   })
 
+  // "Renew Pro" of the Subscription screen opens this sheet for a learner who is already Pro (docs/14 §6.6).
+  describe('for a Pro learner who extends', () => {
+    const paidByPayme = {
+      status: 'active', provider: 'payme', plan: 'pro', ends_at: '2026-11-20T12:00:00+00:00',
+      auto_renew: false, can_cancel: false, can_resume: false, perpetual: false,
+    } as const
+
+    beforeEach(() => {
+      vi.mocked(api.me.get).mockResolvedValue(me('purchase', 'pro'))
+      vi.mocked(api.billing.catalog).mockResolvedValue(catalog({ subscription: paidByPayme }))
+    })
+
+    it('has its own title and says what a payment does: it is added to the end of the paid period', async () => {
+      const w = await render()
+
+      expect(w.get('[data-testid=paywall-title]').text()).toBe('Продлить Pro')
+      expect(w.get('[data-testid=paywall]').attributes('aria-label')).toBe('Продлить Pro')
+      expect(w.get('[data-testid=paywall-lead]').text()).toBe('Оплата добавит срок к текущему Pro (до 20 ноября 2026 г.).')
+      // the lead is not the sales pitch of Free; the benefits of Pro and the way to pay stay as they are
+      expect(w.get('[data-testid=paywall-lead]').text()).not.toContain('заморозки серии')
+      expect(w.findAll('[data-testid=benefit]')).toHaveLength(5)
+      expect(w.get('[data-testid=pay-method]').text()).toBe('Способ оплаты')
+      expect([payName(w, 'payme'), payPrice(w, 'payme')]).toEqual(['Payme', '29 000 сум'])
+    })
+
+    it('takes the end from the own subscription, not from the Pro a center may give', async () => {
+      vi.mocked(api.me.get).mockResolvedValue({ ...me('purchase', 'pro'), entitlement: { ...me('purchase', 'pro').entitlement, until: '2027-03-01T00:00:00+00:00' } })
+      const w = await render()
+
+      expect(w.get('[data-testid=paywall-lead]').text()).toContain('до 20 ноября 2026 г.')
+      expect(w.get('[data-testid=paywall-lead]').text()).not.toContain('2027')
+    })
+
+    it('does not send the Pro learner to a center to ask for Pro: that line is for Free', async () => {
+      const w = await render()
+
+      expect(w.find('[data-testid=paywall-contact]').exists()).toBe(false)
+      expect(w.text()).not.toContain('Учитесь в центре?')
+    })
+
+    it('says it in Uzbek', async () => {
+      setLocale('uz')
+      const w = await render()
+
+      expect(w.get('[data-testid=paywall-title]').text()).toBe("Pro'ni uzaytirish")
+      expect(w.get('[data-testid=paywall-lead]').text()).toMatch(/^To'lov joriy Pro muddatiga qo'shiladi \(.*2026.*gacha\)\.$/)
+      expect(w.find('[data-testid=paywall-contact]').exists()).toBe(false)
+    })
+
+    it('says the name of the plan once the payment is through, as it always did', async () => {
+      vi.useFakeTimers()
+      tg.openInvoice.mockResolvedValue('paid')
+      vi.mocked(api.billing.checkout).mockResolvedValue({
+        order: { id: 1, token: 'tok', status: 'pending', amount: 150, currency: 'XTR', expires_at: '2026-10-20T00:00:00+00:00' },
+        checkout: { url: 'https://t.me/$inv', kind: 'invoice_link' },
+      })
+      vi.mocked(api.billing.order).mockResolvedValue(order('paid'))
+      const w = await render()
+
+      await w.get('[data-testid=pay-telegram_stars]').trigger('click')
+      await vi.advanceTimersByTimeAsync(0)
+      await flushPromises()
+
+      expect(w.get('[data-testid=paywall-title]').text()).toBe('Pro')
+      expect(w.find('[data-testid=paywall-paid]').exists()).toBe(true)
+      expect(w.find('[data-testid=paywall-lead]').exists()).toBe(false)
+    })
+
+    it('does not claim to extend what is not to be paid: the Stars renewal runs or the grant is perpetual', async () => {
+      for (const subscription of [
+        { ...paidByPayme, provider: 'telegram_stars', auto_renew: true, can_cancel: true },
+        { ...paidByPayme, provider: 'manual', ends_at: null, perpetual: true },
+      ]) {
+        setActivePinia(createPinia())
+        vi.mocked(api.billing.catalog).mockResolvedValue(catalog({ subscription }))
+        const w = await render()
+
+        expect(w.get('[data-testid=paywall-title]').text()).toBe('LexiFlow Pro')
+        expect(w.get('[data-testid=paywall-lead]').text()).not.toContain('Оплата добавит срок')
+        expect(w.find('[data-testid=pay-method]').exists()).toBe(false)
+        expect(w.find('[data-testid=paywall-contact]').exists()).toBe(false)
+      }
+    })
+
+    it('does not claim to extend a Pro that is only a center\'s: a payment would start a period of its own', async () => {
+      vi.mocked(api.me.get).mockResolvedValue({
+        ...me('purchase', 'pro'),
+        entitlement: { plan: 'pro', source: 'sponsor:organization:9', until: null, new_words_per_day: null, renewal: null },
+      })
+      vi.mocked(api.billing.catalog).mockResolvedValue(catalog({ subscription: null }))
+      const w = await render()
+
+      expect(w.get('[data-testid=paywall-title]').text()).toBe('LexiFlow Pro')
+      expect(w.get('[data-testid=paywall-lead]').text()).not.toContain('Оплата добавит срок')
+      expect(w.find('[data-testid=paywall-contact]').exists()).toBe(false)
+    })
+
+    describe('a Stars month over a period that is paid far ahead (subscribe_too_early)', () => {
+      const refused = () => new ApiClientError('conflict', 409, 'subscribe_too_early', 'Pro is already active until 2026-12-31; a Stars subscription can be started within 7 days before the end.')
+
+      it('says what is wrong and what to choose instead, in the words of the sheet', async () => {
+        vi.mocked(api.billing.checkout).mockRejectedValue(refused())
+        const w = await render()
+
+        await w.get('[data-testid=pay-telegram_stars]').trigger('click')
+        await flushPromises()
+
+        const error = w.get('[data-testid=purchase-error]')
+        expect(error.text()).toBe(
+          'Pro уже оплачен надолго, поэтому оплату Stars на месяц пока оформить нельзя — это можно сделать ближе к окончанию срока. Выберите «Год» или оплату через Payme или Click: срок добавится к текущему.',
+        )
+        expect(error.attributes('role')).toBe('alert')
+        // the words it uses are the ones on the buttons of the sheet
+        expect(w.get('[data-testid=period-year]').text()).toContain('Год')
+        expect(w.get('[data-testid=pay-payme]').text()).toContain('Payme')
+        expect(w.get('[data-testid=pay-click]').text()).toContain('Click')
+      })
+
+      it('scrolls the message into view: on a phone the sheet is taller than the screen and it starts below the fold', async () => {
+        const original = Element.prototype.scrollIntoView
+        const scroll = vi.fn()
+        Element.prototype.scrollIntoView = scroll
+        try {
+          vi.mocked(api.billing.checkout).mockRejectedValue(refused())
+          const w = await render()
+          expect(scroll).not.toHaveBeenCalled()
+
+          await w.get('[data-testid=pay-telegram_stars]').trigger('click')
+          await flushPromises()
+
+          expect(w.find('[data-testid=purchase-error]').exists()).toBe(true)
+          expect(scroll).toHaveBeenCalledTimes(1)
+          expect(scroll).toHaveBeenCalledWith({ block: 'nearest', behavior: 'smooth' })
+        } finally {
+          Element.prototype.scrollIntoView = original
+        }
+      })
+
+      it('leaves the sheet usable: the way it names (Payme) goes through', async () => {
+        vi.useFakeTimers()
+        vi.mocked(api.billing.checkout)
+          .mockRejectedValueOnce(refused())
+          .mockResolvedValue({
+            order: { id: 1, token: 'tok', status: 'pending', amount: 2_900_000, currency: 'UZS', expires_at: '2026-10-20T00:00:00+00:00' },
+            checkout: { url: 'https://payme.uz/pay', kind: 'redirect' },
+          })
+        vi.mocked(api.billing.order).mockResolvedValue(order('pending'))
+        const w = await render()
+
+        await w.get('[data-testid=pay-telegram_stars]').trigger('click')
+        await flushPromises()
+        expect(w.find('[data-testid=purchase-error]').exists()).toBe(true)
+        expect(w.get('[data-testid=pay-payme]').attributes('disabled')).toBeUndefined()
+
+        await w.get('[data-testid=pay-payme]').trigger('click')
+        await vi.advanceTimersByTimeAsync(0)
+        await flushPromises()
+
+        expect(api.billing.checkout).toHaveBeenLastCalledWith('month', 'payme')
+        expect(tg.openLink).toHaveBeenCalledWith('https://payme.uz/pay')
+        expect(w.find('[data-testid=purchase-error]').exists()).toBe(false)
+      })
+
+      it('says it in Uzbek with the labels of the Uzbek sheet', async () => {
+        setLocale('uz')
+        vi.mocked(api.billing.checkout).mockRejectedValue(refused())
+        const w = await render()
+
+        await w.get('[data-testid=pay-telegram_stars]').trigger('click')
+        await flushPromises()
+
+        const text = w.get('[data-testid=purchase-error]').text()
+        expect(text).toContain('bir oylik')
+        expect(text).toContain('«Yil»')
+        expect(w.get('[data-testid=period-year]').text()).toContain('Yil')
+        expect(text).toContain('Payme')
+        expect(text).toContain('Click')
+      })
+    })
+  })
+
   it('explains the exhausted quota with the purchase lead', async () => {
     const w = await render({ reason: 'quota' })
 

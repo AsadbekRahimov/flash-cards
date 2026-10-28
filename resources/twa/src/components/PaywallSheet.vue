@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import PromoRedeem from '@/components/PromoRedeem.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
@@ -39,9 +39,18 @@ export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam
  * has `new_words_per_day: null` = no limit, which is not "unknown"). A Stars subscription in grace (`past_due`) cannot
  * be paid over — the server refuses it — so the pay buttons give way to the reason and the date.
  *
+ * A Pro learner comes here to extend (the "Renew Pro" button of the Subscription screen), not to be sold Pro: when
+ * their own subscription has an end, the title is "Renew Pro" and the lead says what a payment does — it is added to
+ * that end (Payme / Click and a Stars year do exactly that, `CheckoutService::assertCanBuyOver`); the sales pitch and the
+ * line for students of a center ("ask your center") are for Free. A Stars month over a period that is paid far ahead is
+ * refused by the server (`subscribe_too_early`); the error text says what to choose instead.
+ *
  * "Repeat words" (shown when the Today store knows of due cards) emits `review`: reviews are never
  * limited on Free, so the quota wall is not a dead end. The parent opens the daily_review session
  * (`useReviewFromPaywall`, the same for every screen that shows the sheet).
+ *
+ * A refused purchase is shown under the pay buttons and scrolled into view: on a phone the sheet is taller than the
+ * screen and the message (it may name a way out, like `subscribe_too_early`) would start below the fold.
  *
  * a11y (minimal): the focus moves into the dialog on open and returns to the opener on close;
  * Escape closes it.
@@ -55,6 +64,7 @@ const today = useTodayStore()
 
 const redeemed = ref(false)
 const sheet = ref<HTMLElement | null>(null)
+const purchaseError = ref<InstanceType<typeof InlineAlert> | null>(null)
 let opener: HTMLElement | null = null
 
 const dueCount = computed(() => today.data?.due_count ?? 0)
@@ -93,8 +103,16 @@ const reasonLead = computed((): string => {
 })
 
 const lead = computed(() => {
+  if (extendUntil.value !== null) return t('paywall.lead_renew', { date: formatDate(extendUntil.value, 'dayMonthYear', locale.value) })
   const pitch = purchaseMode.value ? t('paywall.lead_purchase') : t('paywall.soon')
   return reasonLead.value ? `${reasonLead.value} ${pitch}` : pitch
+})
+
+/** The title of the sheet; the name of the plan once the learner is Pro (`done`). */
+const title = computed(() => {
+  if (done.value) return 'Pro'
+  if (!purchaseMode.value) return t('paywall.title')
+  return extendUntil.value !== null ? t('paywall.title_renew') : t('paywall.title_purchase')
 })
 
 const periods = computed<BillingPeriod[]>(() => (billing.catalog?.items ?? []).map((item) => item.period))
@@ -111,6 +129,14 @@ const perpetual = computed(() => billing.catalog?.subscription?.perpetual === tr
 /** The renewal charge of Stars failed and Telegram retries it: any new payment is refused (checkout_conflict). */
 const grace = computed(() => inStarsGrace(billing.catalog?.subscription))
 const graceMessage = computed(() => graceText(billing.catalog?.subscription?.ends_at ?? billing.entitlement?.until ?? null, locale.value))
+/**
+ * The end of the paid period of a Pro learner's own subscription while a payment can still be added to it: what the
+ * sheet is for then. `null` for Free, for a Pro that is only a center's and for the cases with nothing to pay (above).
+ */
+const extendUntil = computed((): string | null => {
+  if (!purchaseMode.value || !isPro.value || renewing.value || perpetual.value || grace.value) return null
+  return billing.catalog?.subscription?.ends_at ?? null
+})
 
 const periodOptions = computed<SegmentOption[]>(() => {
   const saving = yearSavingPct(billing.catalog?.items ?? [])
@@ -177,6 +203,15 @@ function onRedeemed(me: MeResponse): void {
   emit('redeemed', me)
 }
 
+watch(
+  () => billing.purchase.status,
+  async (status) => {
+    if (status !== 'failed') return
+    await nextTick()
+    purchaseError.value?.$el.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' })
+  },
+)
+
 function onKeydown(event: KeyboardEvent): void {
   if (event.key === 'Escape') emit('close')
 }
@@ -207,7 +242,7 @@ onBeforeUnmount(() => {
       tabindex="-1"
       role="dialog"
       aria-modal="true"
-      :aria-label="purchaseMode ? t('paywall.title_purchase') : t('paywall.title')"
+      :aria-label="title"
       data-testid="paywall"
     >
       <!-- A 44 px target around a 32 px circle; outside the scrolling part, so it stays in reach. -->
@@ -227,9 +262,7 @@ onBeforeUnmount(() => {
             <AppIcon name="sparkles" solid :size="28" />
           </span>
 
-          <h2 class="text-[22px] leading-7 font-bold" data-testid="paywall-title">
-            {{ done ? 'Pro' : purchaseMode ? t('paywall.title_purchase') : t('paywall.title') }}
-          </h2>
+          <h2 class="text-[22px] leading-7 font-bold" data-testid="paywall-title">{{ title }}</h2>
 
           <InlineAlert v-if="paid" tone="success" :message="paidMessage" class="w-full" data-testid="paywall-paid" />
 
@@ -339,6 +372,7 @@ onBeforeUnmount(() => {
           </div>
           <InlineAlert
             v-else-if="billing.purchase.status === 'failed'"
+            ref="purchaseError"
             tone="danger"
             :message="billing.purchase.error"
             data-testid="purchase-error"
@@ -358,7 +392,7 @@ onBeforeUnmount(() => {
 
         <PromoRedeem @redeemed="onRedeemed" />
 
-        <p v-if="contact && !done" class="text-center text-[13px] leading-[18px] text-tg-hint" data-testid="paywall-contact">
+        <p v-if="contact && !done && !isPro" class="text-center text-[13px] leading-[18px] text-tg-hint" data-testid="paywall-contact">
           {{ t('paywall.contact') }}
           <a
             v-if="contact.href"
