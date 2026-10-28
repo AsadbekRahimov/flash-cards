@@ -46,7 +46,7 @@ it('opens a training session and posts a WebApp button for the teacher', functio
         ->once()
         ->withArgs(function (int $chatId, string $text, string $buttonText, string $url, ?string $parseMode = null): bool {
             return $chatId === -1001
-                && str_contains($text, 'Stage 1')
+                && str_contains($text, 'модуль 1')
                 && $buttonText === '🎯 Открыть тренировку'
                 && str_starts_with($url, 'https://twa.test/twa/training/')
                 && $parseMode === null;
@@ -128,7 +128,7 @@ it('opens a training session via callback when a lesson is chosen from the picke
         ->once()
         ->withArgs(function (int $chatId, string $text, string $buttonText, string $url): bool {
             return $chatId === -2003
-                && str_contains($text, 'Stage 1')
+                && str_contains($text, 'модуль 1')
                 && str_starts_with($url, 'https://twa.test/twa/training/');
         });
 

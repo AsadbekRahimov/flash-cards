@@ -232,7 +232,7 @@ return [
             'in_progress' => 'Jarayonda',
             'not_started' => 'Boshlanmagan',
         ],
-        'lesson_option' => ':stage-bosqich, :lesson-dars: :title',
+        'lesson_option' => ':stage-modul, :lesson-dars: :title',
         'progress_of' => ':total dan :done',
         'actions' => [
             'create' => 'Vazifa yaratish',

@@ -149,7 +149,7 @@ it('posts the exam start message and button in uz for a uz group', function (): 
     locDispatch(['chat' => ['id' => -5002, 'type' => 'supergroup'], 'from' => ['id' => 701], 'text' => '/start_exam 1 1 5']);
 
     expect($this->api->log)->toHaveCount(1)
-        ->and($this->api->log[0]['text'])->toContain('Imtihon boshlandi')->toContain('<b>5 daq</b>')
+        ->and($this->api->log[0]['text'])->toContain('Imtihon boshlandi')->toContain('1-modul · 1-dars · <b>5 daq</b>')
         ->and($this->api->log[0]['button'])->toBe('🏁 Imtihonni ochish')
         ->and($this->api->log[0]['parse_mode'])->toBe('HTML');
 });
@@ -165,8 +165,8 @@ it('posts the training start message in uz and ru', function (string $locale, st
         ->and($this->api->log[0]['text'])->toContain($text)
         ->and($this->api->log[0]['button'])->toBe($button);
 })->with([
-    'uz' => ['uz', "Stage 1 / Lesson 1 mashg'uloti boshlandi", "🎯 Mashg'ulotni ochish"],
-    'ru' => ['ru', 'Тренировка Stage 1 / Lesson 1 запущена', '🎯 Открыть тренировку'],
+    'uz' => ['uz', "Mashg'ulot boshlandi: 1-modul, 1-dars", "🎯 Mashg'ulotni ochish"],
+    'ru' => ['ru', 'Тренировка запущена: модуль 1, урок 1', '🎯 Открыть тренировку'],
 ]);
 
 it('shows the lesson picker in the group language', function (): void {
@@ -177,7 +177,7 @@ it('shows the lesson picker in the group language', function (): void {
     locDispatch(['chat' => ['id' => -5004, 'type' => 'supergroup'], 'from' => ['id' => 703], 'text' => '/start_training']);
 
     expect($this->api->log[0]['text'])->toBe("Mashg'ulot uchun darsni tanlang:")
-        ->and($this->api->log[0]['markup']['inline_keyboard'][0][0]['text'])->toBe('Stage 1 / Lesson 1');
+        ->and($this->api->log[0]['markup']['inline_keyboard'][0][0]['text'])->toBe('1-modul · 1-dars');
 });
 
 it('translates errors for non-teachers and unknown accounts in a uz group', function (): void {
@@ -198,7 +198,7 @@ it('translates exam domain errors', function (): void {
     locDispatch(['chat' => ['id' => -5006, 'type' => 'supergroup'], 'from' => ['id' => 704], 'text' => '/start_exam 9 9 5']);
     locDispatch(['chat' => ['id' => -5006, 'type' => 'supergroup'], 'from' => ['id' => 704], 'text' => '/close_exam']);
 
-    expect($this->api->log[0]['text'])->toBe("Ko'rsatilgan stage topilmadi.")
+    expect($this->api->log[0]['text'])->toBe("Ko'rsatilgan modul topilmadi.")
         ->and($this->api->log[1]['text'])->toBe("Hozir guruhda ochiq imtihon yo'q.");
 });
 
@@ -208,7 +208,7 @@ it('keeps untranslated group in the default language for domain errors', functio
 
     locDispatch(['chat' => ['id' => -5007, 'type' => 'supergroup'], 'from' => ['id' => 705], 'text' => '/start_exam 9 9 5']);
 
-    expect($this->api->log[0]['text'])->toBe('Указанный stage не найден.');
+    expect($this->api->log[0]['text'])->toBe('Указанный модуль не найден.');
 });
 
 // --- private chats ---------------------------------------------------------
