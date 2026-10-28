@@ -347,6 +347,7 @@ return [
         ],
         'onboarding' => [
             'done' => 'Пройдена',
+            'not_started' => 'Не начата',
             'in_progress' => 'В процессе (шаг: :step)',
             'step' => [
                 'locale' => 'язык',

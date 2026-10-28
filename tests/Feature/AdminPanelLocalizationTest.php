@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Billing\Enums\Plan;
+use App\Domain\Learners\Services\OnboardingService;
 use App\Filament\Pages\ImportLesson;
 use App\Filament\Resources\CourseResource;
 use App\Filament\Resources\CourseResource\Pages\ListCourses;
@@ -10,6 +11,7 @@ use App\Filament\Resources\ExamSessionResource;
 use App\Filament\Resources\ExamSessionResource\Pages\ListExamSessions;
 use App\Filament\Resources\LearnerResource;
 use App\Filament\Resources\LearnerResource\Pages\ListLearners;
+use App\Filament\Resources\LearnerResource\Pages\ViewLearner;
 use App\Filament\Resources\LessonResource;
 use App\Filament\Resources\OrganizationResource;
 use App\Filament\Resources\OrganizationResource\Pages\EditOrganization;
@@ -621,6 +623,26 @@ it('captions the plan of a learner as Free, Pro or Pro (от центра)', fun
     expect(LearnerResource::planLabel(Plan::Free, false))->toBe('Free')
         ->and(LearnerResource::planLabel(Plan::Pro, false))->toBe('Pro')
         ->and(LearnerResource::planLabel(Plan::Pro, true))->toBe('Pro (от центра)');
+});
+
+it('captions every onboarding state of a learner in Russian, also "new" that a learner has until the first answer', function (): void {
+    $this->actingAs(loc_user());
+
+    // A new learner is `new` (LearnerRegistrar), then the step being answered, then `done`.
+    foreach (['new', ...OnboardingService::STEPS, OnboardingService::DONE] as $state) {
+        $caption = LearnerResource::onboardingLabel($state);
+
+        expect(loc_is_russian($caption))->toBeTrue("{$state}: {$caption}")
+            ->and($caption)->not->toContain($state);
+
+        livewire(ViewLearner::class, ['record' => Learner::factory()->create(['onboarding_state' => $state])->getKey()])
+            ->assertSee($caption)
+            ->assertDontSee("шаг: {$state}");
+    }
+
+    expect(LearnerResource::onboardingLabel('new'))->toBe('Не начата')
+        ->and(LearnerResource::onboardingLabel('goal'))->toBe('В процессе (шаг: цель)')
+        ->and(LearnerResource::onboardingLabel('done'))->toBe('Пройдена');
 });
 
 it('shows the badges of payment orders in Russian', function (): void {
