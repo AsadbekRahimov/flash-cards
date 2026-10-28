@@ -7,6 +7,7 @@ namespace App\Domain\Learners\Services;
 use App\Domain\Engagement\Services\AchievementService;
 use App\Domain\Engagement\Services\LeagueService;
 use App\Domain\Engagement\Services\ReferralService;
+use App\Domain\Learners\Support\StoredDate;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
 use Carbon\CarbonImmutable;
@@ -148,7 +149,7 @@ class DailyStatsService
             /** @var LearnerDailyStats|null $row */
             $row = LearnerDailyStats::query()
                 ->where('learner_id', $learner->id)
-                ->where('date', $this->storedDate($today->toDateString()))
+                ->where('date', StoredDate::of($today->toDateString()))
                 ->lockForUpdate()
                 ->first();
 
@@ -176,7 +177,7 @@ class DailyStatsService
         /** @var LearnerDailyStats|null $row */
         $row = LearnerDailyStats::query()
             ->where('learner_id', $learner->id)
-            ->where('date', $this->storedDate($localDate))
+            ->where('date', StoredDate::of($localDate))
             ->first();
 
         return $row;
@@ -184,7 +185,7 @@ class DailyStatsService
 
     private function lockedRow(int $learnerId, string $date, CarbonImmutable $now): LearnerDailyStats
     {
-        $stored = $this->storedDate($date);
+        $stored = StoredDate::of($date);
 
         LearnerDailyStats::query()->insertOrIgnore([
             'learner_id' => $learnerId,
@@ -210,16 +211,5 @@ class DailyStatsService
         }
 
         return $row;
-    }
-
-    /**
-     * The `date` column exactly as Eloquent stores a `date` cast (`Y-m-d 00:00:00`
-     * via the connection's date format). PostgreSQL normalises it to DATE either
-     * way; on sqlite the column is text, so every write and comparison must use
-     * one representation or the unique index would not see duplicates.
-     */
-    private function storedDate(string $localDate): string
-    {
-        return (string) (new LearnerDailyStats)->fromDateTime($localDate);
     }
 }

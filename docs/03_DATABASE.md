@@ -569,6 +569,14 @@ PostgreSQL в `ImportConcurrencyTest` (pcntl). Курс `default` создаёт
 
 **Индексы:** `(learner_id, date)` unique.
 
+**Представление `date` (17.12).** Eloquent пишет `date`-каст как `Y-m-d 00:00:00`. PostgreSQL приводит это к DATE в любом виде, а в sqlite колонка —
+текст, и `'2026-10-28'` ≠ `'2026-10-28 00:00:00'`: запись, равенство, границы диапазона и unique `(learner_id, date)` обязаны идти в одном
+представлении, иначе unique не увидит дубль, а диапазон потеряет граничный день. Это представление строит **одно** место —
+`App\Domain\Learners\Support\StoredDate::of('Y-m-d')` (раньше — семь приватных копий `storedDate()` в `DailyStatsService`, `StreakService`,
+`StreakFreezeService`, `ReferralService`, `ChallengeService`, `LeagueService`, `OrgActivityReport`); любой код, строящий границу или значение для
+`learner_daily_stats.date` и для `date`-колонок недель лиг и вызовов (`league_weeks`, `challenges`), берёт его оттуда. Поведение на sqlite и PostgreSQL
+закреплено `StoredDateTest`.
+
 ### 2.23 `subscriptions`
 | Колонка | Тип | Описание |
 |---------|-----|----------|

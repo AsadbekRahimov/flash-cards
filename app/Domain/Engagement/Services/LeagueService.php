@@ -14,6 +14,7 @@ use App\Domain\Engagement\Enums\LeagueResult;
 use App\Domain\Engagement\Enums\LeagueWeekStatus;
 use App\Domain\Engagement\Exceptions\LeagueAlreadyPlaced;
 use App\Domain\Engagement\Exceptions\LeagueWeekNotOpen;
+use App\Domain\Learners\Support\StoredDate;
 use App\Jobs\SendLeagueResultsJob;
 use App\Models\LeagueGroup;
 use App\Models\LeagueMember;
@@ -135,7 +136,7 @@ final class LeagueService
     public function findWeek(CarbonImmutable $now): ?LeagueWeek
     {
         /** @var LeagueWeek|null $week */
-        $week = LeagueWeek::query()->where('starts_on', $this->storedDate($this->weekStart($now)->toDateString()))->first();
+        $week = LeagueWeek::query()->where('starts_on', StoredDate::of($this->weekStart($now)->toDateString()))->first();
 
         return $week;
     }
@@ -441,7 +442,7 @@ final class LeagueService
         /** @var EloquentCollection<int, LeagueWeek> $due */
         $due = LeagueWeek::query()
             ->where('status', '<>', LeagueWeekStatus::Closed->value)
-            ->where('starts_on', '<', $this->storedDate($this->weekStart($now)->toDateString()))
+            ->where('starts_on', '<', StoredDate::of($this->weekStart($now)->toDateString()))
             ->orderBy('starts_on')
             ->get();
 
@@ -495,7 +496,7 @@ final class LeagueService
         $member = LeagueMember::query()
             ->join('league_weeks', 'league_weeks.id', '=', 'league_members.league_week_id')
             ->where('league_members.learner_id', $learner->id)
-            ->where('league_weeks.starts_on', '<', $this->storedDate($week->starts_on->toDateString()))
+            ->where('league_weeks.starts_on', '<', StoredDate::of($week->starts_on->toDateString()))
             ->orderByDesc('league_weeks.starts_on')
             ->select('league_members.*')
             ->first();
@@ -754,8 +755,8 @@ final class LeagueService
      */
     private function computeStandings(LeagueGroup $group, LeagueWeek $week): array
     {
-        $from = $this->storedDate($week->starts_on->toDateString());
-        $to = $this->storedDate($week->ends_on->toDateString());
+        $from = StoredDate::of($week->starts_on->toDateString());
+        $to = StoredDate::of($week->ends_on->toDateString());
         $weights = $this->weights();
 
         $rows = DB::table('league_members as lm')
@@ -897,11 +898,5 @@ final class LeagueService
             'new_word' => (int) config('leagues.points.new_word', 2),
             'goal_met' => (int) config('leagues.points.goal_met', 10),
         ];
-    }
-
-    /** A `date` column as Eloquent stores it (sqlite compares text; see DailyStatsService). */
-    private function storedDate(string $date): string
-    {
-        return (string) (new LeagueWeek)->fromDateTime($date);
     }
 }
