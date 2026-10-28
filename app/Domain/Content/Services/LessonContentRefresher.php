@@ -26,6 +26,13 @@ final class LessonContentRefresher
         private readonly WordAudioService $audio,
     ) {}
 
+    /**
+     * Call it AFTER the edit has been written (the panel runs the word's own UPDATE as a single statement, outside
+     * a transaction): the lesson cache is dropped and the course is recounted in a short transaction of its own that
+     * takes the course row first ({@see CoursePublisher::lockForWriting()}), like the other writers of one course
+     * (docs/13 section 3, rule 7). Without the lock the COUNT here could run while an import of the same course holds
+     * its words uncommitted and write a figure that lacks them over the import's own after its commit.
+     */
     public function wordChanged(Word $word): void
     {
         $lesson = $word->lesson()->with('stage.course')->first();
@@ -36,9 +43,17 @@ final class LessonContentRefresher
         $this->cache->forgetLesson($lesson);
 
         $course = $lesson->stage?->course;
-        if ($course !== null) {
-            $this->publisher->recount($course);
+        if ($course === null) {
+            return;
         }
+
+        DB::transaction(function () use ($course): void {
+            $locked = $this->publisher->lockForWriting($course);
+
+            if ($locked !== null) { // null: the course was deleted meanwhile
+                $this->publisher->recount($locked);
+            }
+        });
     }
 
     /** The English text of a word was edited in the admin panel: its pre-generated audio is stale. */

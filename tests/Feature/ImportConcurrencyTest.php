@@ -22,6 +22,7 @@ use App\Models\Stage;
 use App\Models\User;
 use App\Models\Word;
 use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Support\Facades\DB;
 use Tests\Support\ForkSafe;
@@ -287,4 +288,69 @@ it('does not hold up the foreign-key checks of learners while an import keeps th
         // `FOR UPDATE` would make the insert wait for the commit, about 0.8 s from here; `FOR NO KEY UPDATE` does not.
         ->and($results[1]['result'])->toBeLessThan(0.4)
         ->and($course->fresh()?->words_count)->toBe(3);
+});
+
+it('keeps courses.words_count right when a word is switched off in the admin panel while an import of the course runs', function (): void {
+    ['course' => $course, 'words' => $words] = Fx::course([1 => [1 => 2]]);
+    $victim = $words['1.1']['active'][0];
+
+    $results = importRunInParallel([
+        function () use ($course): array {
+            importHoldBeforeCommit(700_000);
+
+            return importRun(importFile($course, 1, 2, 3));
+        },
+        function () use ($victim): bool {
+            // The import has written its words and its figure by now, and holds them uncommitted.
+            usleep(300_000);
+            $word = Word::query()->findOrFail($victim);
+            // What EditWord does: the edit is one UPDATE outside a transaction, then the counters follow.
+            $word->update(['is_active' => false]);
+            app(LessonContentRefresher::class)->wordChanged($word);
+
+            return true;
+        },
+    ]);
+
+    // 2 + 3 - 1. Without the course lock the recount of the panel counts what is committed (1: the import's words are not
+    // visible yet), waits for the import's row of the course and writes its 1 over the import's figure after the commit.
+    expect(collect($results)->pluck('ok')->unique()->all())->toBe([true], json_encode($results))
+        ->and($results[0]['result']['ok'])->toBeTrue()
+        ->and(Word::query()->where('is_active', true)->count())->toBe(4)
+        ->and($course->fresh()?->words_count)->toBe(4);
+});
+
+it('lets an import wait for the recount of a word edit and end with the right figure, without a deadlock', function (): void {
+    ['course' => $course, 'words' => $words] = Fx::course([1 => [1 => 2]]);
+    $victim = $words['1.1']['active'][0];
+
+    $results = importRunInParallel([
+        function () use ($victim): bool {
+            // The recount keeps the course row after it wrote the figure, until its transaction ends.
+            DB::listen(static function (QueryExecuted $query): void {
+                if (str_starts_with($query->sql, 'update "courses"')) {
+                    usleep(700_000);
+                }
+            });
+            $word = Word::query()->findOrFail($victim);
+            $word->update(['is_active' => false]);
+            app(LessonContentRefresher::class)->wordChanged($word);
+
+            return true;
+        },
+        function () use ($course): array {
+            usleep(300_000);
+            $startedAt = microtime(true);
+            $report = importRun(importFile($course, 1, 2, 3));
+
+            return $report + ['seconds' => microtime(true) - $startedAt];
+        },
+    ]);
+
+    expect(collect($results)->pluck('ok')->unique()->all())->toBe([true], json_encode($results))
+        ->and($results[1]['result']['ok'])->toBeTrue()
+        // The import asked for the course row while the recount held it (about 0.4 s of its 0.7 s were left).
+        ->and($results[1]['result']['seconds'])->toBeGreaterThan(0.2)
+        ->and(Word::query()->where('is_active', true)->count())->toBe(4)
+        ->and($course->fresh()?->words_count)->toBe(4);
 });

@@ -9,7 +9,8 @@ use Illuminate\Http\Request;
 
 /**
  * GET /api/twa/courses/{slug}: the course with its stages ("modules") and lessons in study
- * order, each with the learner's progress over active words.
+ * order, each with the learner's progress over active words. A stage without a name of its own
+ * has `title: null`: the client shows it as "Модуль N" / "N-modul" from `number` (docs/14 §8).
  *
  * @property CourseDetail $resource
  */
@@ -27,7 +28,7 @@ final class CourseDetailResource extends TwaResource
      *   progress: array{done: int, total: int},
      *   stages: list<array{
      *     number: int,
-     *     title: string,
+     *     title: string|null,
      *     progress: array{done: int, total: int},
      *     lessons: list<array{id: int, number: int, title: string|null, progress: array{done: int, total: int}}>
      *   }>
@@ -38,7 +39,7 @@ final class CourseDetailResource extends TwaResource
         $detail = $this->resource;
         $course = $detail->course;
 
-        /** @var array<int, array{number: int, title: string, done: int, total: int, lessons: list<array{id: int, number: int, title: string|null, progress: array{done: int, total: int}}>}> $stages */
+        /** @var array<int, array{number: int, title: string|null, done: int, total: int, lessons: list<array{id: int, number: int, title: string|null, progress: array{done: int, total: int}}>}> $stages */
         $stages = [];
         foreach ($detail->lessons as $lesson) {
             $stages[$lesson->stageNumber] ??= [

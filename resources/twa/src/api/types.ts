@@ -663,7 +663,8 @@ export interface CourseLesson {
 
 export interface CourseStage {
   number: number
-  title: string
+  /** null: the module has no name of its own; it is shown as "Module N" (`course.module`) in the language of the reader. */
+  title: string | null
   progress: Progress
   lessons: CourseLesson[]
 }

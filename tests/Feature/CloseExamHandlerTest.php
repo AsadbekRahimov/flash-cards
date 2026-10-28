@@ -86,6 +86,28 @@ it('/close_exam from non-teacher is rejected', function (): void {
     expect($s['session']->fresh()->status)->toBe('open');
 });
 
+it('/close_exam refuses a non-teacher in the language of the group, with the verb of the menu: "завершить" / "yakunlash"', function (string $locale, string $expected): void {
+    $api = Mockery::mock(TelegramClient::class);
+    $api->shouldReceive('sendMessage')->once()->withArgs(fn (int $chatId, string $text): bool => $chatId === -7791 && $text === $expected);
+    $this->app->instance(TelegramClient::class, $api);
+    $s = seedOpenExam(-7791, 222);
+    $s['group']->update(['meta' => ['locale' => $locale]]);
+    User::factory()->create(['telegram_user_id' => 333]); // not attached as teacher
+
+    app(TelegramDispatcher::class)->dispatch([
+        'message' => [
+            'chat' => ['id' => -7791, 'type' => 'supergroup'],
+            'from' => ['id' => 333],
+            'text' => '/close_exam',
+        ],
+    ]);
+
+    expect($s['session']->fresh()->status)->toBe('open');
+})->with([
+    'ru' => ['ru', 'Только учитель этой группы может завершить экзамен.'],
+    'uz' => ['uz', "Imtihonni faqat shu guruhning o'qituvchisi yakunlashi mumkin."],
+]);
+
 it('/close_exam reports "no open exam" when there is none', function (): void {
     $group = TelegramGroup::factory()->create(['chat_id' => -9999, 'status' => 'active']);
     $teacher = User::factory()->create(['telegram_user_id' => 444]);

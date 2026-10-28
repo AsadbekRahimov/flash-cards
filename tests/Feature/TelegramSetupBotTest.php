@@ -211,6 +211,27 @@ it('words the teacher commands the same in the menu and in the /help of the grou
     expect($help['private'])->toContain('/close_exam — '.mb_strtolower(__('commands.group.close_exam', [], $locale)));
 })->with(['ru', 'uz']);
 
+it('ends an exam with one verb in /close_exam: the menu, both /help texts and every message of the command', function (string $locale, string $stem, string $old): void {
+    $texts = [
+        'menu' => __('commands.group.close_exam', [], $locale),
+        'help (private chat)' => __('bot.help.private', [], $locale),
+        'help (group)' => __('bot.help.group', [], $locale),
+        'already open' => __('errors.exam.already_open', [], $locale),
+        'not a teacher' => __('errors.exam.close_not_teacher', [], $locale),
+        'failed' => __('errors.exam.close_failed', [], $locale),
+    ];
+
+    // The refusals said «закрыть» / «yopish» while the menu and /help said «завершить» / «yakunlash»: one command looked like two.
+    $without = array_keys(array_filter($texts, fn (string $text): bool => ! str_contains(mb_strtolower($text), $stem)));
+    $withOld = array_keys(array_filter([$texts['menu'], $texts['already open'], $texts['not a teacher'], $texts['failed']], fn (string $text): bool => str_contains(mb_strtolower($text), $old)));
+
+    expect($without)->toBe([])
+        ->and($withOld)->toBe([]);
+})->with([
+    'ru' => ['ru', 'заверш', 'закр'],
+    'uz' => ['uz', 'yakunla', 'yop'],
+]);
+
 it('calls the group training «trening» in uz: «mashg\'ulot» of the same /help is the daily session of /today', function (): void {
     $help = __('bot.help.private', [], 'uz');
 

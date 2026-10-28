@@ -25,6 +25,7 @@ use App\Models\WordRepetition;
 use App\Models\WordTranslation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\TestResponse;
 
 uses(RefreshDatabase::class);
@@ -328,6 +329,15 @@ it('splits a deck into lessons of 50 words, "Часть N", in order', function 
     expect($lessons->pluck('number')->all())->toBe([1, 2, 3])
         ->and($lessons->pluck('title')->all())->toBe(['Часть 1', 'Часть 2', 'Часть 3'])
         ->and($lessons->pluck('words_count')->all())->toBe([50, 50, 30]);
+});
+
+it('names the stage of a deck in the interface language of the learner even if its stored title is empty', function (): void {
+    $learner = dkPro(dkLearner(['interface_locale' => 'uz']));
+    $slug = dkCreate($this, $learner);
+    dkImport($this, $learner, $slug, dkList(3))->assertOk();
+    DB::table('stages')->where('course_id', dkDeck($slug)->id)->update(['title' => null]);
+
+    dkCall($this, $learner, 'GET', "/courses/{$slug}")->assertOk()->assertJsonPath('stages.0.title', "Mening lug'atim");
 });
 
 it('shows the stage and the parts of a deck in the interface language of the learner', function (): void {

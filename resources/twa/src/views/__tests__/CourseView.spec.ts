@@ -373,6 +373,40 @@ describe('CourseView', () => {
       expect(second.find('.list').exists()).toBe(false)
     })
 
+    it('names a module without a title by its number: "Модуль N" is the heading, with no second chip and a matching bar label', async () => {
+      vi.mocked(api.courses.get).mockResolvedValue(detail({
+        stages: [
+          { ...stage(1, [lesson(11, 1, 1, 2)]), title: 'Образование' },
+          { ...stage(2, [lesson(21, 1, 0, 3)]), title: null },
+        ],
+      }))
+
+      const { wrapper } = await render()
+
+      const named = wrapper.get('[data-testid=stage-1]')
+      expect(named.get('h2').text()).toBe('Образование')
+      expect(chips(named)).toEqual([{ text: 'Модуль 1', tone: 'chip-neutral' }])
+      expect(named.get('[data-testid=progress-bar]').attributes('aria-label')).toBe('Образование')
+
+      const bare = wrapper.get('[data-testid=stage-2]')
+      expect(bare.get('h2').text()).toBe('Модуль 2')
+      expect(chips(bare)).toEqual([])
+      expect(bare.get('[data-testid=progress-bar]').attributes('aria-label')).toBe('Модуль 2')
+      expect(bare.get('[data-testid=lesson-21]').text()).toContain('Урок 1')
+      expect(wrapper.text()).not.toContain('Stage')
+      expect(wrapper.text()).not.toContain('null')
+    })
+
+    it('treats a blank title like no title', async () => {
+      vi.mocked(api.courses.get).mockResolvedValue(detail({ stages: [{ ...stage(3, []), title: '   ' }] }))
+
+      const { wrapper } = await render()
+
+      const bare = wrapper.get('[data-testid=stage-3]')
+      expect(bare.get('h2').text()).toBe('Модуль 3')
+      expect(chips(bare)).toEqual([])
+    })
+
     it('shows a lesson as "Урок N · title" with the words learned', async () => {
       vi.mocked(api.courses.get).mockResolvedValue(detail())
 
@@ -755,6 +789,18 @@ describe('CourseView', () => {
       expect(alert.attributes('role')).toBe('alert')
       expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
     })
+  })
+
+  it('names a module without a title "N-modul" in Uzbek: the server sends null, never an English "Stage N"', async () => {
+    setLocale('uz')
+    vi.mocked(api.courses.get).mockResolvedValue(detail({ stages: [{ ...stage(2, [lesson(21, 1, 0, 1)]), title: null }] }))
+
+    const { wrapper } = await render()
+
+    const bare = wrapper.get('[data-testid=stage-2]')
+    expect(bare.get('h2').text()).toBe('2-modul')
+    expect(chips(bare)).toEqual([])
+    expect(bare.get('[data-testid=progress-bar]').attributes('aria-label')).toBe('2-modul')
   })
 
   it('renders Uzbek texts', async () => {

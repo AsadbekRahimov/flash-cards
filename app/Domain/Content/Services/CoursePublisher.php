@@ -144,12 +144,14 @@ final class CoursePublisher
      * existing lesson makes the second import insert the words the first one has not committed yet and fail on
      * the unique `(lesson_id, word)` instead of finding them and skipping.
      *
-     * Taken the same way by the importer (VocabularyImporter), the repair run (LessonContentRefresher::refreshAll);
-     * the decks (LearnerDeckService) and {@see transition()} lock the row `FOR UPDATE` for the same purpose. It is
-     * the FIRST lock of each of these transactions (what they read before takes none); the lessons and words they
-     * write afterwards are not held by anyone who then waits for the course - the word edits of the admin panel run
-     * in autocommit, one statement at a time (a panel with `databaseTransactions()` would turn them into
-     * word-then-course, the opposite order; CourseWriterLocksTest pins it) - so no cycle can form.
+     * Taken the same way by the importer (VocabularyImporter), the repair run (LessonContentRefresher::refreshAll) and the
+     * recount after a word edit of the admin panel (LessonContentRefresher::wordChanged); the decks (LearnerDeckService)
+     * and {@see transition()} lock the row `FOR UPDATE` for the same purpose. It is the FIRST lock of each of these
+     * transactions (what they read before takes none); the lessons and words they write afterwards are not held by anyone
+     * who then waits for the course - the word edits of the admin panel run in autocommit, one statement at a time, and
+     * only their recount takes the course row, in a transaction of its own after the word is committed (a panel with
+     * `databaseTransactions()` would turn the two into word-then-course, the opposite order; CourseWriterLocksTest pins
+     * it) - so no cycle can form.
      *
      * `FOR NO KEY UPDATE` on PostgreSQL, as in CardPicker: it conflicts with `FOR UPDATE`, with itself and with the
      * `UPDATE courses` of `recount()`, but not with the `FOR KEY SHARE` of a foreign-key check, so learners opening

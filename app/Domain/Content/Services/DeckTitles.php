@@ -18,7 +18,11 @@ final class DeckTitles
 {
     public function __construct(private readonly LocaleResolver $locales) {}
 
-    public function stage(Course $course, Learner $learner, string $original): string
+    /**
+     * A module without a name of its own (`$original` null) stays null: the client names it by its number in the
+     * reader's language ("Модуль 3" / "3-modul", docs/14 §8). A learner's deck always has its own caption.
+     */
+    public function stage(Course $course, Learner $learner, ?string $original): ?string
     {
         $locale = $this->localeFor($course, $learner);
         if ($locale === null) {

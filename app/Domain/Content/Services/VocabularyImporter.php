@@ -138,10 +138,14 @@ final class VocabularyImporter
             // The first lock of the transaction: the writers of one course take turns (CoursePublisher::lockForWriting).
             $this->publisher->lockForWriting($course);
 
+            // A file without a stage title (or with a blank one) gives a new module NO name (NULL: readers are shown
+            // "Модуль N" / "N-modul" in their language, docs/14 §8) and leaves the name of an existing module alone.
+            $stageTitle = $data['stage']['title'] ?? null;
+
             $stage = Stage::updateOrCreate(
                 ['course_id' => $course->id, 'number' => $data['stage']['number']],
                 array_filter([
-                    'title' => $data['stage']['title'] ?? "Stage {$data['stage']['number']}",
+                    'title' => is_string($stageTitle) && trim($stageTitle) !== '' ? $stageTitle : null,
                     'description' => $data['stage']['description'] ?? null,
                 ], fn ($v): bool => $v !== null),
             );

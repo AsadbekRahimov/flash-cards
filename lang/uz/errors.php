@@ -25,9 +25,9 @@ return [
         'invalid_duration' => "Imtihon davomiyligi 1 daqiqadan 30 daqiqagacha bo'lishi kerak.",
         'failed' => "Imtihonni boshlab bo'lmadi.",
         'not_delivered' => "Tugmani guruhga yuborib bo'lmadi: imtihon bekor qilindi. Bot guruhda ekanini va yoza olishini tekshiring, so'ng buyruqni takrorlang.",
-        'close_not_teacher' => "Imtihonni faqat shu guruhning o'qituvchisi yopishi mumkin.",
+        'close_not_teacher' => "Imtihonni faqat shu guruhning o'qituvchisi yakunlashi mumkin.",
         'no_open_exam' => "Hozir guruhda ochiq imtihon yo'q.",
-        'close_failed' => "Imtihonni yopib bo'lmadi.",
+        'close_failed' => "Imtihonni yakunlab bo'lmadi.",
     ],
 
 ];
