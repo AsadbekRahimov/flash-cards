@@ -103,8 +103,8 @@ const { reviewFromPaywall: onPaywallReview } = useReviewFromPaywall(() => {
 const name = computed(() => auth.learner?.first_name?.trim() ?? '')
 const greeting = computed(() => (name.value !== '' ? t('today.greeting', { name: name.value }) : t('today.title')))
 /**
- * «среда, 28 октября»: the day the goal and the streak below are counted in, i.e. in the learner's time zone when
- * `/today` names it (the zone of the settings), else in the device's, like the rest of the app.
+ * «среда, 28 октября»: the day the goal and the streak below are counted in, i.e. in the learner's time zone that
+ * `/today` names (the zone of the settings). The device's zone is only the fallback, for a zone this browser does not know.
  */
 const dateLine = computed(() =>
   formatDate(new Date().toISOString(), 'weekdayDayMonth', locale.value, data.value?.timezone),

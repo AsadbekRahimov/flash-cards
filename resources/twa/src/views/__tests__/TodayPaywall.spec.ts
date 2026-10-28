@@ -33,6 +33,7 @@ const today = (overrides: Partial<TodayResponse> = {}): TodayResponse => ({
   entitlement: { plan: 'free', source: 'free', until: null },
   onboarding_completed: true,
   league: null,
+  timezone: 'Asia/Tashkent',
   ...overrides,
 })
 
