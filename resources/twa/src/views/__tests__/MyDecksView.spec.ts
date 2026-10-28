@@ -392,6 +392,24 @@ describe('MyDecksView', () => {
       expect(wrapper.find('[data-testid="deck-deck-1-abc"] [data-testid=choose-btn]').exists()).toBe(false)
     })
 
+    it('says why an empty deck cannot be made the main one, under its disabled button only', async () => {
+      const { wrapper } = await render(response([deck(), deck({ slug: 'empty', title: 'Пустая', words_count: 0 })], 2))
+
+      const hint = wrapper.get('[data-testid="deck-empty"] [data-testid=choose-hint]')
+      expect(hint.text()).toBe('Добавьте в колоду хотя бы одно слово, чтобы сделать её основной.')
+      expect(hint.classes()).toContain('text-tg-hint')
+      expect(wrapper.get('[data-testid="deck-empty"] [data-testid=choose-btn]').attributes('disabled')).toBeDefined()
+      expect(wrapper.findAll('[data-testid=choose-hint]')).toHaveLength(1)
+      expect(wrapper.find('[data-testid="deck-deck-1-abc"] [data-testid=choose-hint]').exists()).toBe(false)
+    })
+
+    it('gives the hint in Uzbek', async () => {
+      setLocale('uz')
+      const { wrapper } = await render(response([deck({ words_count: 0 })], 1))
+
+      expect(wrapper.get('[data-testid=choose-hint]').text()).toBe("Asosiy qilish uchun to'plamga kamida bitta so'z qo'shing.")
+    })
+
     it('disables the choose buttons while a write is in flight', async () => {
       vi.mocked(api.courses.select).mockReturnValue(new Promise(() => {}))
       const { wrapper } = await render(response([deck(), deck({ slug: 'second', title: 'Вторая' })]))

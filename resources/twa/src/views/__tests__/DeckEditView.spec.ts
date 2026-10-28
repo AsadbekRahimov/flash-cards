@@ -158,10 +158,13 @@ describe('DeckEditView', () => {
       expect(new Set(names).size).toBe(names.length)
     })
 
-    it('shows an empty-deck hint under "Слова (0)"', async () => {
+    it('shows an empty-deck state with an icon under "Слова (0)", like every other empty list', async () => {
       const { wrapper } = await render(detail({ words: [], words_count: 0 }))
 
-      expect(wrapper.get('[data-testid=no-words]').text()).toBe('В колоде пока нет слов.')
+      const empty = wrapper.get('[data-testid=no-words]')
+      expect(empty.text()).toBe('В колоде пока нет слов.')
+      expect(empty.find('svg').exists()).toBe(true)
+      expect(empty.element.parentElement?.classList.contains('card')).toBe(true)
       expect(wrapper.find('[data-testid=words]').exists()).toBe(false)
       expect(wrapper.get('.section-label').text()).toBe('Слова (0)')
     })
@@ -228,10 +231,29 @@ describe('DeckEditView', () => {
       expect(wrapper.findAll('.btn-primary')).toHaveLength(1)
     })
 
-    it('cannot choose an empty deck', async () => {
+    it('cannot choose an empty deck, and says why under the disabled button', async () => {
       const { wrapper } = await render(detail({ words: [], words_count: 0 }))
 
       expect(wrapper.get('[data-testid=choose-btn]').attributes('disabled')).toBeDefined()
+      const hint = wrapper.get('[data-testid=choose-hint]')
+      expect(hint.text()).toBe('Добавьте в колоду хотя бы одно слово, чтобы сделать её основной.')
+      expect(hint.classes()).toContain('text-tg-hint')
+    })
+
+    it('says nothing under the button of a deck that has words, nor under the chip of the main one', async () => {
+      const { wrapper } = await render()
+      expect(wrapper.get('[data-testid=choose-btn]').attributes('disabled')).toBeUndefined()
+      expect(wrapper.find('[data-testid=choose-hint]').exists()).toBe(false)
+
+      const main = await render(detail({ is_active: true, words: [], words_count: 0 }))
+      expect(main.wrapper.find('[data-testid=choose-hint]').exists()).toBe(false)
+    })
+
+    it('gives the hint in Uzbek', async () => {
+      setLocale('uz')
+      const { wrapper } = await render(detail({ words: [], words_count: 0 }))
+
+      expect(wrapper.get('[data-testid=choose-hint]').text()).toBe("Asosiy qilish uchun to'plamga kamida bitta so'z qo'shing.")
     })
 
     it('chooses the deck through the course selection and shows the chip instead of the button', async () => {

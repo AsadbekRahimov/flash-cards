@@ -1909,3 +1909,4 @@
 | `decks.limit_pro.words` | Bu Pro tarifingizdagi chegara: to'plamda {words}. Hech narsa qo'shilmadi — keraksiz so'zlarni olib tashlang yoki ro'yxatning bir qismini boshqa to'plamga qo'shing. | Это предел вашего тарифа Pro: {words} в колоде. Ничего не добавлено — уберите ненужные слова или добавьте часть списка в другую колоду. |
 | `billing.grace` | Telegram yangilash uchun Stars'ni yecha olmadi. Stars balansini to'ldiring — Telegram yechishni qayta urinib ko'radi. | Telegram не смог списать Stars за продление. Пополните баланс Stars — Telegram повторит списание. |
 | `billing.grace_until` | Pro {date} gacha amal qiladi. | Pro действует до {date} |
+| `decks.choose_empty_hint` | Asosiy qilish uchun to'plamga kamida bitta so'z qo'shing. | Добавьте в колоду хотя бы одно слово, чтобы сделать её основной. |

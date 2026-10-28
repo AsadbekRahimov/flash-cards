@@ -4,6 +4,7 @@ import { RouterLink, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import ListGroup from '@/components/ui/ListGroup.vue'
@@ -140,16 +141,21 @@ onMounted(() => {
         <AppIcon name="check" solid :size="14" />
         {{ t('decks.active') }}
       </span>
-      <button
-        v-else
-        type="button"
-        class="btn btn-primary btn-block mt-4"
-        :disabled="busy || detail.words_count === 0"
-        data-testid="choose-btn"
-        @click="store.activate(slug)"
-      >
-        {{ t('decks.choose') }}
-      </button>
+      <template v-else>
+        <button
+          type="button"
+          class="btn btn-primary btn-block mt-4"
+          :disabled="busy || detail.words_count === 0"
+          data-testid="choose-btn"
+          @click="store.activate(slug)"
+        >
+          {{ t('decks.choose') }}
+        </button>
+        <!-- A disabled button says nothing about why: an empty deck has no words to learn. -->
+        <p v-if="detail.words_count === 0" class="mt-2 px-4 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="choose-hint">
+          {{ t('decks.choose_empty_hint') }}
+        </p>
+      </template>
 
       <!-- The refusal of a Pro learner is under the import button instead (below): that is where the learner looks. -->
       <InlineAlert v-if="errorMessage && !proNotice" tone="danger" :message="errorMessage" class="mt-4" data-testid="write-error" />
@@ -241,7 +247,9 @@ onMounted(() => {
       </ListGroup>
       <template v-else>
         <h2 class="section-label">{{ t('decks.words_title', { count: detail.words_count }) }}</h2>
-        <p class="card text-center text-[15px] leading-5 text-tg-hint" data-testid="no-words">{{ t('decks.edit.no_words') }}</p>
+        <div class="card p-0">
+          <EmptyState icon="rectangle-stack" :text="t('decks.edit.no_words')" data-testid="no-words" />
+        </div>
       </template>
 
       <button

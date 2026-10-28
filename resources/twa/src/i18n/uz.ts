@@ -353,6 +353,7 @@ export const uz: Translations = {
   },
   'decks.limit_pro.decks': "Bu Pro tarifingizdagi chegara: {decks}. Yangi to'plam yaratish uchun keraksizini o'chiring — so'zlar arxivga o'tadi, natijangiz saqlanadi.",
   'decks.limit_pro.words': "Bu Pro tarifingizdagi chegara: to'plamda {words}. Hech narsa qo'shilmadi — keraksiz so'zlarni olib tashlang yoki ro'yxatning bir qismini boshqa to'plamga qo'shing.",
+  'decks.choose_empty_hint': "Asosiy qilish uchun to'plamga kamida bitta so'z qo'shing.",
 
   // ---- settings ----
   'settings.title': 'Sozlamalar',

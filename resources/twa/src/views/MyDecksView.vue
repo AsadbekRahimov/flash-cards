@@ -135,16 +135,21 @@ onMounted(() => {
             <AppIcon name="check" solid :size="14" />
             {{ t('decks.active') }}
           </span>
-          <button
-            v-else
-            type="button"
-            class="btn btn-tinted btn-block"
-            :disabled="busy || deck.words_count === 0"
-            data-testid="choose-btn"
-            @click="store.activate(deck.slug)"
-          >
-            {{ t('decks.choose') }}
-          </button>
+          <template v-else>
+            <button
+              type="button"
+              class="btn btn-tinted btn-block"
+              :disabled="busy || deck.words_count === 0"
+              data-testid="choose-btn"
+              @click="store.activate(deck.slug)"
+            >
+              {{ t('decks.choose') }}
+            </button>
+            <!-- A disabled button says nothing about why: an empty deck has no words to learn. -->
+            <p v-if="deck.words_count === 0" class="mt-1.5 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="choose-hint">
+              {{ t('decks.choose_empty_hint') }}
+            </p>
+          </template>
         </div>
       </article>
     </div>
