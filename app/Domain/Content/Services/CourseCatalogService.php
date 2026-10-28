@@ -102,21 +102,23 @@ final class CourseCatalogService
      *
      * Not used by the picker (it selects new words with one query); kept for task 1.3b
      * (`TodayService`: `active_course.next_lesson`).
+     *
+     * One anti-join at the level of WORDS (never-served active words of the course, `LIMIT 1` in study
+     * order) instead of a correlated `EXISTS` per lesson: the lookup is one pass over the words of the
+     * course and the learner's rows, not lessons × the learner's cards.
      */
     public function nextLessonWithNewWords(Course $course, Learner $learner): ?Lesson
     {
         return Lesson::query()
             ->select('lessons.*')
             ->join('stages', 'stages.id', '=', 'lessons.stage_id')
+            ->join('words', 'words.lesson_id', '=', 'lessons.id')
             ->where('stages.course_id', $course->id)
-            ->whereExists(fn (QueryBuilder $q): QueryBuilder => $q
-                ->from('words')
-                ->whereColumn('words.lesson_id', 'lessons.id')
-                ->where('words.is_active', true)
-                ->whereNotExists(fn (QueryBuilder $seen): QueryBuilder => $seen
-                    ->from('word_repetitions')
-                    ->whereColumn('word_repetitions.word_id', 'words.id')
-                    ->where('word_repetitions.learner_id', $learner->id)))
+            ->where('words.is_active', true)
+            ->whereNotExists(fn (QueryBuilder $seen): QueryBuilder => $seen
+                ->from('word_repetitions')
+                ->whereColumn('word_repetitions.word_id', 'words.id')
+                ->where('word_repetitions.learner_id', $learner->id))
             ->orderBy('stages.number')
             ->orderBy('lessons.number')
             ->with('stage')

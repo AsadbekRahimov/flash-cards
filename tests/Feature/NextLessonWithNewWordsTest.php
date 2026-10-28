@@ -20,6 +20,7 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\Support\HotPathFixtures as Fx;
+use Tests\Support\QueryLog;
 
 uses(RefreshDatabase::class);
 
@@ -213,4 +214,36 @@ it('answers exactly like the original query on random courses and progress', fun
         // The generator is not degenerate: courses that are used up, and a spread of answers.
         ->and(in_array('none', $answers, true))->toBeTrue()
         ->and(count(array_unique($answers)))->toBeGreaterThanOrEqual(4);
+});
+
+it('runs two statements however many lessons the course has or cards the learner holds', function (): void {
+    // Worst case for the lookup: every lesson but the last one is used up, so the answer is the last lesson.
+    $run = function (int $lessons, bool $usedUp): array {
+        ['course' => $course, 'words' => $words] = Fx::course([1 => array_fill(1, $lessons, 3)]);
+        $learner = Learner::factory()->create();
+        if ($usedUp) {
+            array_pop($words);
+            Fx::learn($learner, array_merge(...array_map(fn (array $lessonWords): array => $lessonWords['active'], array_values($words))));
+        }
+
+        $answer = null;
+        $queries = QueryLog::during(function () use ($course, $learner, &$answer): void {
+            $answer = nextLessonKey($course, $learner);
+        });
+
+        return [$answer, $queries];
+    };
+
+    [$smallAnswer, $small] = $run(3, false);
+    [$bigAnswer, $big] = $run(40, true);
+
+    // Before the rewrite it was the same two statements; what changed is the cost of the first one (below).
+    expect($smallAnswer)->toBe('1.1')
+        ->and($bigAnswer)->toBe('1.40')
+        ->and($small)->toHaveCount(2)
+        ->and($big)->toHaveCount(2);
+
+    // ONE statement over the words of the course: no correlated EXISTS per lesson any more.
+    expect(QueryLog::matching($big, '/^select .* from ["`]lessons["`] inner join ["`]stages["`] .* inner join ["`]words["`] .* not exists \(select \* from ["`]word_repetitions["`]/s'))->toHaveCount(1)
+        ->and(QueryLog::matching($big, '/exists \(select \* from ["`]words["`]/'))->toBe([]);
 });
