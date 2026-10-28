@@ -9,7 +9,7 @@ import AppIcon from './AppIcon.vue'
 import type { IconName } from './icons'
 
 /**
- * A message in the flow of a screen (docs/14 §3): a failed action or reload, a warning, a confirmation or a note, as
+ * A message in the flow of a screen (docs/14 §4.4): a failed action or reload, a warning, a confirmation or a note, as
  * a soft box with an icon. One look for all of them, so a refused save on the Settings screen reads like a refused
  * course choice on the Courses one.
  *
