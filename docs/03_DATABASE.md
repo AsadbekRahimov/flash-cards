@@ -795,7 +795,7 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 | id | bigint PK | |
 | league_week_id | bigint FK → league_weeks, ON DELETE CASCADE | |
 | tier | smallint | 0 Bronze … 4 Diamond (`config('leagues.tiers')`) |
-| capacity | smallint default 30 | `LEAGUES_GROUP_CAPACITY` на момент создания группы |
+| capacity | smallint default 30 | `LEAGUES_GROUP_CAPACITY` на момент создания группы (конфиг режет значение до 500: итоги группы пишутся одним UPDATE по 4 параметра на участника, а PostgreSQL принимает не больше 65 535 параметров) |
 | members_count | smallint default 0 | число мест занято; меняется только под блокировкой строки в `LeagueService::place` |
 | closed_at | timestamp nullable | штамп финализации группы (`LeagueService::closeGroup`, P1-2): `final_*` всех её участников записаны одним UPDATE; `NOT NULL` ⇔ standings читаются из `final_*`, место в группе больше не выдаётся. Ставится закрытием недели (по группе в транзакции) или размещением участника в следующую неделю, которому вердикт нужен раньше закрытия |
 | created_at, updated_at | | |

@@ -1013,7 +1013,7 @@ All optional; the defaults are the production values (`.env.example` lists them)
 | `FSRS_WEIGHTS` | built-in 19 weights | Comma-separated FSRS parameters; change only with fitted values |
 | `LEAGUES_ENABLED` | `true` | Weekly leagues on/off |
 | `LEAGUES_TIMEZONE` | `Asia/Tashkent` | Time zone of the week boundary (Monday 00:00 closing job + 00:05 safety run, `leagues:close-week`) |
-| `LEAGUES_GROUP_CAPACITY` | `30` | Learners per league group |
+| `LEAGUES_GROUP_CAPACITY` | `30` | Learners per league group; capped at 500 in `config/leagues.php` (the closing UPDATE of a group binds 4 parameters per member and PostgreSQL allows 65 535) |
 | `LEAGUES_PROMOTE` / `LEAGUES_DEMOTE` | `5` / `5` | Top / bottom N of a group moving up / down a tier at the weekly close |
 | `LEAGUES_POINTS_REVIEW` / `_CORRECT` / `_NEW_WORD` / `_GOAL_MET` | `1` / `1` / `2` / `10` | Points per review / correct answer / new word / daily goal met (computed from `learner_daily_stats`) |
 | `LEAGUES_STANDINGS_CACHE_SECONDS` | `60` | Cache of the standings table |

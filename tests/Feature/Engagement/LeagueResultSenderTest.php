@@ -202,6 +202,30 @@ it('stops when no slot of the bot-wide budget comes and hands the rest back; the
         ->and($this->tg->sent)->toHaveCount(1);
 });
 
+it('judges the members who need no message before it takes a slot, so they do not use up the budget', function (): void {
+    config(['telegram.outbound.sync_wait_ms' => 0]);
+    $messaged = lrMember(Learner::factory()->create(['telegram_user_id' => 777_101]), 0, 'stayed');
+    $optedOut = lrMember(Learner::factory()->create(['telegram_user_id' => 777_102, 'meta' => ['leagues_opt_out' => true]]), 0, 'stayed');
+    $banned = lrMember(Learner::factory()->create(['telegram_user_id' => 777_103, 'blocked_at' => now()]), 0, 'stayed');
+    $blocked = lrMember(Learner::factory()->create(['telegram_user_id' => 777_104, 'dm_blocked_at' => now()]), 0, 'stayed');
+    $fresh = lrMember(Learner::factory()->create(['telegram_user_id' => 777_105]), 0, 'stayed');
+    $ids = [$messaged->id, $optedOut->id, 999_999, $banned->id, $blocked->id, $fresh->id];
+    expect(lrSend($messaged))->toBe('sent'); // before the budget is limited: this member has had his DM
+
+    // ONE slot in this second. Spent on a member who is skipped anyway, the one who needs the DM would be left without.
+    $limiter = new TelegramMessageRateLimiter(globalPerSecond: 1);
+    $this->app->instance(TelegramMessageRateLimiter::class, $limiter);
+
+    expect(app(LeagueResultSender::class)->sendBatch($ids, 30))->toBe(['sent' => 1, 'skipped' => 5, 'forbidden' => 0, 'failed' => 0, 'remaining' => []])
+        ->and(array_column($this->tg->sent, 'chat_id'))->toBe([777_101, 777_105])
+        ->and($limiter->reserveGlobal())->toBeFalse(); // the single slot went to the member who got the DM
+
+    // A batch of skips alone takes no slot at all.
+    $this->travel(1)->seconds();
+    expect(app(LeagueResultSender::class)->sendBatch([$messaged->id, $optedOut->id, $fresh->id], 30))->toBe(['sent' => 0, 'skipped' => 3, 'forbidden' => 0, 'failed' => 0, 'remaining' => []])
+        ->and($limiter->reserveGlobal())->toBeTrue();
+});
+
 it('hands the rest to a fresh job when the time budget is spent — at least one message per job', function (): void {
     Queue::fake();
     [$a, $b, $c] = lrThree();

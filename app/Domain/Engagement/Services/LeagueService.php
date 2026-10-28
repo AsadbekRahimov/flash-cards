@@ -230,14 +230,20 @@ final class LeagueService
         return $member;
     }
 
-    /** The learner's most recent closed membership (result known), if any — what the overview shows as "last week". */
+    /**
+     * The learner's most recent closed membership (result known), if any — what the overview shows as "last week".
+     * "Most recent" is by the week's date, as in {@see tierFor()}, not by row order: a week row can be created after
+     * the row of a later week.
+     */
     public function lastResult(Learner $learner): ?LeagueMember
     {
         /** @var LeagueMember|null $member */
         $member = LeagueMember::query()
-            ->where('learner_id', $learner->id)
-            ->whereNotNull('result')
-            ->orderByDesc('league_week_id')
+            ->join('league_weeks', 'league_weeks.id', '=', 'league_members.league_week_id')
+            ->where('league_members.learner_id', $learner->id)
+            ->whereNotNull('league_members.result')
+            ->orderByDesc('league_weeks.starts_on')
+            ->select('league_members.*')
             ->first();
 
         return $member;
