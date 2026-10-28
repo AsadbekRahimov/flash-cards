@@ -1472,15 +1472,15 @@
 | `league.today.line` | 🏆 {tier} · {members} tadan {rank}-o'rin · {points} | 🏆 {tier} · {rank}-е место из {members} · {points} |
 | `league.today.join` | 🏆 Liga: bu hafta qo'shilish uchun kartochkalarni takrorlang | 🏆 Лига: повторите карточки, чтобы вступить на этой неделе |
 | `league.week` | Hafta {from} – {to} | Неделя {from} – {to} |
-| `league.closes` | Yakunlar — dushanba 00:00 da ({zone}) | Итоги — в понедельник в 00:00 ({zone}) |
+| `league.closes` | Hafta yakuni — {when} | Итоги недели — {when} |
 | `league.rules` | Guruhlar {capacity} kishigacha. Top-{promote} yuqoriga ko'tariladi, oxirgi {demote} tasi pastga tushadi. Ochkolar: takrorlashlar, to'g'ri javoblar, yangi so'zlar (×2), bajarilgan kunlik maqsad (+10). | Группы до {capacity} человек. Топ-{promote} переходят выше, последние {demote} — ниже. Очки: повторения, верные ответы, новые слова (×2), выполненная цель дня (+10). |
 | `league.disabled` | Ligalar hozir o'chirilgan. | Лиги сейчас выключены. |
 | `league.opted_out` | Siz ligalardan chiqdingiz. Ularni sozlamalarda qayta yoqish mumkin. | Вы вышли из лиг. Включить их снова можно в настройках. |
 | `league.not_placed` | Bu hafta siz hali guruhda emassiz: bir nechta kartochkani takrorlang — va siz ligadasiz. | На этой неделе вы ещё не в группе: повторите несколько карточек — и вы в лиге. |
 | `league.my_place` | {members} tadan {rank}-o'rin | {rank}-е место из {members} |
-| `league.zone.promotion` | ⬆️ Siz ko'tarilish zonasidasiz | ⬆️ Вы в зоне повышения |
-| `league.zone.safe` | Siz xavfsiz zonadasiz | Вы в безопасной зоне |
-| `league.zone.demotion` | ⬇️ Siz tushish zonasidasiz | ⬇️ Вы в зоне понижения |
+| `league.zone.promotion` | Ko'tarilish zonasi | Зона повышения |
+| `league.zone.safe` | Xavfsiz zona | Безопасная зона |
+| `league.zone.demotion` | Tushish zonasi | Зона понижения |
 | `league.to_promote` | Ko'tarilish zonasigacha: {points} | До зоны повышения: {points} |
 | `league.to_safety` | Xavfsiz zonagacha: {points} | До безопасной зоны: {points} |
 | `league.top_tier` | Bu eng yuqori liga — shunday davom eting! | Это высшая лига — так держать! |
@@ -1491,7 +1491,7 @@
 | `league.last.promoted` | {tier}: {rank}-o'rin, {points} — ko'tarilish! | {tier}: {rank}-е место, {points} — повышение! |
 | `league.last.stayed` | {tier}: {rank}-o'rin, {points} — ligada qoldingiz | {tier}: {rank}-е место, {points} — остались в лиге |
 | `league.last.demoted` | {tier}: {rank}-o'rin, {points} — tushish | {tier}: {rank}-е место, {points} — понижение |
-| `league.settings.open` | Sozlamalar | Настройки |
+| `league.settings.open` | Liga sozlamalari | Настройки лиг |
 | `settings.leagues` | Ligalar | Лиги |
 | `settings.leagues.on` | Haftalik ligalarda qatnashaman | Участвую в недельных лигах |
 | `settings.leagues.off` | Ligalarda qatnashmayman | Не участвую в лигах |
@@ -1733,3 +1733,14 @@
 | `benefits.decks` | 2000 tadan so'zli 20 tagacha o'z to'plamlaringiz | До 20 своих колод по 2000 слов |
 | `benefits.freezes` | Seriyani muzlatish: o'tkazib yuborilgan kun seriyani uzmaydi | Заморозки серии: пропуск дня не обрывает серию |
 | `benefits.mock_exams` | IELTS va SAT sinov testlari | Пробные тесты IELTS и SAT |
+
+## Редизайн 2026-10-28 · 17.6 рейтинг и профиль — на проверку носителю
+
+> Проверить: «Hafta yakuni — {when}» (Итоги недели — пн 00:00; день недели и время подставляются с устройства по правилам языка, например «Dush, 00:00»); «Ko'tarilish zonasi» / «Xavfsiz zona» / «Tushish zonasi» (чипы зоны); «Reyting» (заголовок вкладки; как `nav.rating`); «Ligalar qanday ishlaydi» (заголовок раскрывающихся правил).
+
+### TWA, вкладка «Рейтинг»: лига (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `league.rating_title` | Reyting | Рейтинг |
+| `league.rules_title` | Ligalar qanday ishlaydi | Как работают лиги |
