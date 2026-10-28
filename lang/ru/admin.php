@@ -175,7 +175,6 @@ return [
         ],
         'words' => [
             'title' => 'Слова урока',
-            'empty' => 'Слов пока нет',
             'create' => 'Добавить слово',
             'translations' => 'Переводы',
         ],
@@ -716,6 +715,7 @@ return [
             'note' => 'Заметка',
         ],
         'filters' => [
+            'learner' => 'Ученик',
             'learner_id' => 'ID ученика',
             'learner_indicator' => 'Ученик #:id',
             'live' => 'Действие',

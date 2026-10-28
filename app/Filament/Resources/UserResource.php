@@ -92,7 +92,8 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('roles.name')
                     ->badge()
                     ->separator(',')
-                    ->formatStateUsing(fn (string $state): string => AdminLabels::value('users.roles', $state))
+                    // A relation column: Filament formats the roles one by one when it renders the badges.
+                    ->formatStateUsing(fn (mixed $state): string => AdminLabels::value('users.roles', $state))
                     ->label(__('admin.users.fields.roles')),
                 Tables\Columns\TextColumn::make('telegram_user_id')
                     ->label(__('admin.users.fields.telegram_user_id'))

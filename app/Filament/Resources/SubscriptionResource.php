@@ -122,6 +122,7 @@ class SubscriptionResource extends Resource
                     ->options(AdminLabels::options('common.subscriber_type', ['learner', 'organization'])),
                 // Target of the "Subscriptions" link on a learner's page: ?filters[learner][learner_id]=<id>.
                 Tables\Filters\Filter::make('learner')
+                    ->label(__('admin.subscriptions.filters.learner'))
                     ->schema([Forms\Components\TextInput::make('learner_id')->label(__('admin.subscriptions.filters.learner_id'))->numeric()->minValue(1)])
                     ->query(fn (Builder $query, array $data): Builder => filled($data['learner_id'] ?? null)
                         ? $query->where('subscriber_type', 'learner')->where('subscriber_id', (int) $data['learner_id'])
