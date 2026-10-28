@@ -6,7 +6,8 @@ return [
 
     'meta' => [
         'title' => 'LexiFlow - Telegram orqali inglizcha so\'zlarni o\'rganing',
-        'description' => 'LexiFlow - Telegramdagi bot va mini-ilova: kartochkalar, ovozli talaffuz va aqlli takrorlash orqali inglizcha so\'zlarni o\'rganing. Bepul: kuniga 20 ta yangi so\'z.',
+        // `:free` = Free's daily allowance as a phrase (`limits.free_new_words`), from config: LandingPricing::limits().
+        'description' => 'LexiFlow - Telegramdagi bot va mini-ilova: kartochkalar, ovozli talaffuz va aqlli takrorlash orqali inglizcha so\'zlarni o\'rganing. Bepul: :free.',
     ],
 
     'nav' => [
@@ -21,7 +22,7 @@ return [
         'subtitle' => 'Ingliz tilini bevosita Telegramda o\'rganing: ovozli va misolli kartochkalar, bot esa so\'zlarni unuta boshlagan paytingizda takrorlashni eslatadi.',
         'cta_bot' => 'Botni ochish',
         'cta_unavailable' => 'Bot tez orada ochiladi',
-        'note' => 'Bepul: kuniga 20 ta yangi so\'z, takrorlash esa cheklovsiz.',
+        'note' => 'Bepul: :free, takrorlash esa cheklovsiz.',
         // Decorative phone mock-up next to the headline: a flash card of the Mini App (docs/14 §6.2, §8 grades).
         'mockup' => [
             'progress' => '7 / 20',
@@ -58,6 +59,21 @@ return [
         ],
     ],
 
+    // The limits this page quotes (`hero.mockup.progress` is a drawing, not one of them). Their numbers are read from
+    // config by LandingPricing::limits() — Free's `billing.plans.free.limits.new_words_per_day` (null = no daily
+    // limit) and `decks.limits.{free,pro}` — so none is typed in this file. A tick of a plan card that is just
+    // `:new_words` or `:decks` is replaced by the line below; a plan with nothing to say there loses the tick.
+    'limits' => [
+        // Free's daily allowance; also the `:free` of `meta.description` and `hero.note` (so it reads mid-sentence).
+        // Uzbek does not inflect nouns after numerals: a single form for any count.
+        'free_new_words' => 'kuniga :count ta yangi so\'z',
+        'free_new_words_unlimited' => 'yangi so\'zlar uchun kunlik limitsiz',
+        // Pro's first tick: only while Free has a daily limit that Pro lacks.
+        'pro_new_words' => 'Yangi so\'zlar uchun kunlik limitsiz',
+        // One deck / many (a rule of the plan: `{1}` is exactly one, 21 is many).
+        'decks' => '{1} Shaxsiy to\'plam: :deck_words tagacha so\'z|[2,*] Shaxsiy to\'plamlar: :deck_words tadan so\'zli :decks tagacha to\'plam',
+    ],
+
     'pricing' => [
         'title' => 'Tariflar',
         // `subtitle`, `soon` and `pro.note` are shown while Pro is not for sale (billing.paywall.mode = coming_soon);
@@ -70,8 +86,9 @@ return [
             'tagline' => 'Kundalik mashq uchun',
             'features' => [
                 'Ommaviy kurslar',
-                'Kuniga 20 ta yangi so\'z',
+                ':new_words',
                 'Cheklovsiz takrorlash',
+                ':decks',
                 'Bot va mini-ilova',
             ],
         ],
@@ -80,9 +97,9 @@ return [
             'tagline' => 'Ko\'proq istaganlar uchun',
             // Only what the code really gates behind Pro (config/billing.php features, config/decks.php limits).
             'features' => [
-                'Yangi so\'zlar uchun kunlik limitsiz',
+                ':new_words',
                 'Mashqlar: «So\'zni yozish» va «Misoldagi bo\'sh joy»',
-                'Shaxsiy to\'plamlar: 2000 tadan so\'zli 20 tagacha to\'plam',
+                ':decks',
                 'Seriyani muzlatish: o\'tkazib yuborilgan kun seriyani uzmaydi',
                 'IELTS va SAT sinov testlari',
             ],

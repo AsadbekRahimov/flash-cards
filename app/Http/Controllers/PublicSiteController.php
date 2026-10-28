@@ -56,6 +56,8 @@ final class PublicSiteController extends Controller
             'links' => $this->links,
             'botUrl' => $this->links->botUrl(),
             'contact' => $this->links->supportContact(),
+            // The limits every page quotes (the meta description of all three; the plan cards of the landing).
+            'limits' => $this->pricing->limits($locale),
             ...($extra === null ? [] : $extra($locale)),
         ]);
 

@@ -11,7 +11,7 @@
             @else
                 <span class="btn btn-disabled" aria-disabled="true">{{ __('landing.hero.cta_unavailable', [], $locale) }}</span>
             @endif
-            <p class="muted">{{ __('landing.hero.note', [], $locale) }}</p>
+            <p class="muted">{{ __('landing.hero.note', ['free' => $limits['free']], $locale) }}</p>
         </div>
 
         {{-- Decorative picture of the app: hidden from assistive technology, no images behind it. --}}
@@ -55,7 +55,8 @@
     </div>
 </section>
 
-{{-- $pricing (LandingPricing): while Pro is not for sale the section says "coming soon", once it is it shows the price. --}}
+{{-- $pricing (LandingPricing): while Pro is not for sale the section says "coming soon", once it is it shows the price.
+     $limits (LandingPricing): the ticks of the Free and Pro cards, with the limits from config filled in. --}}
 @php($open = $pricing['salesOpen'])
 <section id="pricing" class="section">
     <div class="wrap">
@@ -66,7 +67,7 @@
                 <h3>{{ __('landing.pricing.free.name', [], $locale) }}</h3>
                 <p class="muted">{{ __('landing.pricing.free.tagline', [], $locale) }}</p>
                 <ul class="ticks">
-                    @foreach (__('landing.pricing.free.features', [], $locale) as $feature)
+                    @foreach ($limits['freeFeatures'] as $feature)
                         <li>{{ $feature }}</li>
                     @endforeach
                 </ul>
@@ -87,7 +88,7 @@
                     @endif
                 @endif
                 <ul class="ticks">
-                    @foreach (__('landing.pricing.pro.features', [], $locale) as $feature)
+                    @foreach ($limits['proFeatures'] as $feature)
                         <li>{{ $feature }}</li>
                     @endforeach
                 </ul>

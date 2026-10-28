@@ -7,6 +7,7 @@ namespace App\Domain\Site\Services;
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Support\PriceFormatter;
+use Illuminate\Support\Str;
 
 /**
  * What the public landing may say about the Pro price. It follows the decision the TWA and the bot make
@@ -17,6 +18,9 @@ use App\Domain\Billing\Support\PriceFormatter;
  * Sales are open when `billing.paywall.mode` is `purchase` AND some Pro price is set in a currency an enabled
  * paid provider settles in (Stars: XTR; Payme / Click: UZS). Otherwise the landing keeps its "coming soon" copy,
  * exactly like the paywall of the Mini App.
+ *
+ * The same goes for the limits it quotes (Free's new words per day, the decks of both plans): {@see limits()} reads
+ * the numbers the app enforces, so the copy cannot drift from them.
  */
 final class LandingPricing
 {
@@ -43,6 +47,76 @@ final class LandingPricing
             'price' => $sum ?? $stars,
             'starsPrice' => $sum !== null ? $stars : null,
         ];
+    }
+
+    /**
+     * The limits the landing quotes, as text in `$locale`; the numbers come from config alone, the ones the app enforces:
+     * Free's new words per day (`billing.plans.free.limits.new_words_per_day`, null = no daily limit) and the decks and
+     * words per deck of Free and Pro (`decks.limits.*`).
+     *
+     * `free` is Free's daily allowance as a phrase for the middle of a sentence ("20 новых слов в день"). The ticks of
+     * the plan cards are `lang/{locale}/landing.php` `pricing.{free,pro}.features` with their `:new_words` and `:decks`
+     * ticks filled in; a tick with nothing to say is dropped: Free without a daily limit has no "N new words" and
+     * Pro then has no "no daily limit" to sell either, a plan that cannot make decks (0) has no deck line.
+     *
+     * @return array{free: string, freeFeatures: list<string>, proFeatures: list<string>}
+     */
+    public function limits(string $locale): array
+    {
+        $newWords = Plan::Free->newWordsPerDay();
+        $free = $newWords === null
+            ? $this->line('landing.limits.free_new_words_unlimited', $locale)
+            : trans_choice('landing.limits.free_new_words', $newWords, [], $locale);
+
+        return [
+            'free' => $free,
+            'freeFeatures' => $this->ticks('free', [':new_words' => Str::ucfirst($free), ':decks' => $this->decks(Plan::Free, $locale)], $locale),
+            'proFeatures' => $this->ticks('pro', [
+                ':new_words' => $newWords === null ? '' : $this->line('landing.limits.pro_new_words', $locale),
+                ':decks' => $this->decks(Plan::Pro, $locale),
+            ], $locale),
+        ];
+    }
+
+    /** "Своя колода до 50 слов" / "Свои колоды: до 20 колод по 2000 слов"; '' for a plan that cannot make decks. */
+    private function decks(Plan $plan, string $locale): string
+    {
+        // Normalised like LearnerDeckService::limits(), which enforces them.
+        $decks = max(0, (int) config("decks.limits.{$plan->value}.decks"));
+        $words = max(0, (int) config("decks.limits.{$plan->value}.deck_words"));
+
+        return $decks > 0 && $words > 0
+            ? trans_choice('landing.limits.decks', $decks, ['decks' => $decks, 'deck_words' => $words], $locale)
+            : '';
+    }
+
+    /**
+     * The ticks of a plan card: its `features` list with every tick that is just a name of `$lines` replaced by the line;
+     * an empty line drops the tick.
+     *
+     * @param  array<string, string>  $lines  `:name` of a tick => its text
+     * @return list<string>
+     */
+    private function ticks(string $plan, array $lines, string $locale): array
+    {
+        $ticks = [];
+        foreach ((array) __("landing.pricing.{$plan}.features", [], $locale) as $tick) {
+            $tick = (string) $tick;
+            $tick = $lines[$tick] ?? $tick;
+
+            if ($tick !== '') {
+                $ticks[] = $tick;
+            }
+        }
+
+        return $ticks;
+    }
+
+    private function line(string $key, string $locale): string
+    {
+        $line = __($key, [], $locale);
+
+        return is_string($line) ? $line : '';
     }
 
     /** @return list<string> currencies of the enabled paid providers (each of them serves learners) */

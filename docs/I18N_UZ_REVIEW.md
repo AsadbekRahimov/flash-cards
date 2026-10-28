@@ -79,7 +79,7 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `landing.meta.title` | LexiFlow - Telegram orqali inglizcha so'zlarni o'rganing | LexiFlow — английский слово за словом в Telegram |
-| `landing.meta.description` | LexiFlow - Telegramdagi bot va mini-ilova: kartochkalar, ovozli talaffuz va aqlli takrorlash orqali inglizcha so'zlarni o'rganing. Bepul: kuniga 20 ta yangi so'z. | LexiFlow — бот и мини-приложение в Telegram для изучения английских слов: карточки, озвучка и умные повторения. Бесплатно: 20 новых слов в день. |
+| `landing.meta.description` | LexiFlow - Telegramdagi bot va mini-ilova: kartochkalar, ovozli talaffuz va aqlli takrorlash orqali inglizcha so'zlarni o'rganing. Bepul: :free. | LexiFlow — бот и мини-приложение в Telegram для изучения английских слов: карточки, озвучка и умные повторения. Бесплатно: :free. |
 | `landing.nav.how` | Qanday ishlaydi | Как это работает |
 | `landing.nav.pricing` | Tariflar | Тарифы |
 | `landing.nav.teachers` | O'quv markazlari uchun | Для центров |
@@ -88,7 +88,7 @@
 | `landing.hero.subtitle` | Ingliz tilini bevosita Telegramda o'rganing: ovozli va misolli kartochkalar, bot esa so'zlarni unuta boshlagan paytingizda takrorlashni eslatadi. | Учите английский прямо в Telegram: карточки с озвучкой и примерами, а бот напоминает повторить слова ровно тогда, когда вы начинаете их забывать. |
 | `landing.hero.cta_bot` | Botni ochish | Открыть бота |
 | `landing.hero.cta_unavailable` | Bot tez orada ochiladi | Бот скоро откроется |
-| `landing.hero.note` | Bepul: kuniga 20 ta yangi so'z, takrorlash esa cheklovsiz. | Бесплатно: 20 новых слов в день, повторения — без ограничений. |
+| `landing.hero.note` | Bepul: :free, takrorlash esa cheklovsiz. | Бесплатно: :free, повторения — без ограничений. |
 | `landing.how.title` | Qanday ishlaydi | Как это работает |
 | `landing.how.steps.0.title` | Botni oching | Откройте бота |
 | `landing.how.steps.0.text` | Telegramda «Start» tugmasini bosing va interfeys tilini tanlang. Hech narsa o'rnatish shart emas. | Нажмите «Старт» в Telegram и выберите язык интерфейса. Ничего устанавливать не нужно. |
@@ -111,14 +111,15 @@
 | `landing.pricing.free.name` | Free | Free |
 | `landing.pricing.free.tagline` | Kundalik mashq uchun | Для ежедневной практики |
 | `landing.pricing.free.features.0` | Ommaviy kurslar | Публичные курсы |
-| `landing.pricing.free.features.1` | Kuniga 20 ta yangi so'z | 20 новых слов в день |
+| `landing.pricing.free.features.1` | :new_words | :new_words |
 | `landing.pricing.free.features.2` | Cheklovsiz takrorlash | Повторения без ограничений |
-| `landing.pricing.free.features.3` | Bot va mini-ilova | Бот и мини-приложение |
+| `landing.pricing.free.features.3` | :decks | :decks |
+| `landing.pricing.free.features.4` | Bot va mini-ilova | Бот и мини-приложение |
 | `landing.pricing.pro.name` | Pro | Pro |
 | `landing.pricing.pro.tagline` | Ko'proq istaganlar uchun | Для тех, кто хочет больше |
-| `landing.pricing.pro.features.0` | Yangi so'zlar uchun kunlik limitsiz | Без дневного лимита новых слов |
+| `landing.pricing.pro.features.0` | :new_words | :new_words |
 | `landing.pricing.pro.features.1` | Mashqlar: «So'zni yozish» va «Misoldagi bo'sh joy» | Упражнения «Написание слова» и «Пропуск в примере» |
-| `landing.pricing.pro.features.2` | Shaxsiy to'plamlar: 2000 tadan so'zli 20 tagacha to'plam | Свои колоды: до 20 колод по 2000 слов |
+| `landing.pricing.pro.features.2` | :decks | :decks |
 | `landing.pricing.pro.features.3` | Seriyani muzlatish: o'tkazib yuborilgan kun seriyani uzmaydi | Заморозки серии: пропущенный день не обрывает серию |
 | `landing.pricing.pro.note` | Pro tarkibi va narxlari hozircha aniqlanmoqda. | Состав и цены Pro пока уточняются. |
 | `landing.pricing.centers.name` | O'quv markazlari uchun | Для учебных центров |
@@ -1877,3 +1878,25 @@
 | `commands.group.start_exam` | Imtihonni boshlash | Запустить экзамен |
 | `commands.group.close_exam` | Imtihonni yakunlash | Завершить экзамен |
 | `commands.group.help` | Yordam | Справка |
+
+## Редизайн 2026-10-28 · 17.10 — на проверку носителю
+
+> Лендинг `/uz`: числа лимитов больше не вписаны в тексты, а берутся из конфига (`LandingPricing::limits()`): дневной лимит новых слов Free
+> (`billing.plans.free.limits.new_words_per_day`; пусто = без лимита) и лимиты колод Free и Pro (`decks.limits.*`). Поэтому в `meta.description`
+> и `hero.note` (обе строки выше) стоит `:free` — готовая фраза «kuniga 20 ta yangi so'z» (или «yangi so'zlar uchun kunlik limitsiz»), а пункты
+> тарифных карточек `landing.pricing.{free,pro}.features.*` со значением `:new_words` / `:decks` заменяются строками ниже; если пункту нечего
+> сказать (у Free нет дневного лимита — у Pro нет и «Yangi so'zlar uchun kunlik limitsiz»; тариф без своих колод), он не показывается.
+> Изменённые значения прежних ключей (`landing.meta.description`, `landing.hero.note`, `landing.pricing.free.features.1-4`,
+> `landing.pricing.pro.features.0` и `.2`) обновлены в таблицах выше; здесь — только новые ключи.
+> Проверить: «Shaxsiy to'plam: 50 tagacha so'z» (одна своя колода, до 50 слов — для Free) рядом с прежним «Shaxsiy to'plamlar: 2000 tadan so'zli 20 tagacha to'plam»
+> (много колод — для Pro); «kuniga … ta yangi so'z» читается и в середине фразы («Bepul: kuniga 20 ta yangi so'z, takrorlash esa cheklovsiz»), и с заглавной буквы в списке.
+> В `landing.limits.decks` две формы разделены `|`: `{1}` — ровно одна колода, `[2,*]` — две и больше.
+
+### Лендинг: лимиты из конфига (`lang/uz/landing.php`, блок `limits`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `landing.limits.free_new_words` | kuniga :count ta yangi so'z | :count новое слово в день\|:count новых слова в день\|:count новых слов в день |
+| `landing.limits.free_new_words_unlimited` | yangi so'zlar uchun kunlik limitsiz | новые слова без дневного лимита |
+| `landing.limits.pro_new_words` | Yangi so'zlar uchun kunlik limitsiz | Без дневного лимита новых слов |
+| `landing.limits.decks` | {1} Shaxsiy to'plam: :deck_words tagacha so'z\|[2,*] Shaxsiy to'plamlar: :deck_words tadan so'zli :decks tagacha to'plam | {1} Своя колода до :deck_words слов\|[2,*] Свои колоды: до :decks колод по :deck_words слов |

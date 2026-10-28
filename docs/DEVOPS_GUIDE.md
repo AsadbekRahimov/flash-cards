@@ -729,6 +729,7 @@ Product events (`product_events` table, see `docs/03_DATABASE.md`) are for produ
 | Links and CSP | `canonical` / `hreflang` / internal links are built from `APP_URL` (a forged `Host` cannot change them — set `APP_URL` to the public https origin). The pages send `script-src 'none'` (`App\Http\Middleware\StaticPageCsp`); all other CSP directives equal the app-wide policy |
 | Templates | `resources/views/site/` (`layout`, `landing`, `_legal` shared by `offer` and `privacy`) |
 | Landing texts (ru/uz) | `lang/{ru,uz}/landing.php` |
+| Numbers on the landing | not typed in the texts: `App\Domain\Site\Services\LandingPricing` reads them from config — the Pro price (`billing.paywall.mode`, `billing.prices`, enabled providers), Free's new words per day (`BILLING_FREE_NEW_WORDS_PER_DAY`; a config value of `null` = no daily limit, the page then says so) and the deck limits of both plans (`config/decks.php`). A changed value shows up within the 5 minutes of `Cache-Control` |
 | Legal texts (ru/uz) | `lang/{ru,uz}/legal.php` |
 | Styles | `public/css/site.css` (static, no build step; dark theme via `prefers-color-scheme`) |
 | Bot button | `https://t.me/<TELEGRAM_BOT_USERNAME>`; with an empty/invalid username the button is replaced by a disabled "coming soon" label |
