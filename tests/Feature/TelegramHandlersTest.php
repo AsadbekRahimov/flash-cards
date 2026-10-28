@@ -551,6 +551,16 @@ it('sends a seven-day stats report to a teacher in DM', function (): void {
         {
             return [];
         }
+
+        public function setMyCommands(array $commands, array $scope, ?string $languageCode = null): bool
+        {
+            return true;
+        }
+
+        public function setChatMenuButton(array $menuButton): bool
+        {
+            return true;
+        }
     };
 
     app()->instance(TelegramClient::class, $api);

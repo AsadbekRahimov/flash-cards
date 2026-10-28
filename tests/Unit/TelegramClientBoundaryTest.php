@@ -307,6 +307,93 @@ it('hides the SDK failure of a Stars call behind TelegramApiException without th
     }
 });
 
+it('sets the command menu and the menu button through raw Bot API calls with JSON-serialized objects', function (): void {
+    $sdk = new class extends Api
+    {
+        /** @var list<array{string, array<string, mixed>}> */
+        public array $calls = [];
+
+        public bool $answer = true;
+
+        public function __construct()
+        {
+            parent::__construct('test-token');
+        }
+
+        /** @param array<string, mixed> $params */
+        public function post(string $endpoint, array $params = [], bool $fileUpload = false): TelegramResponse
+        {
+            $this->calls[] = [$endpoint, $params];
+
+            return new TelegramResponse(
+                new TelegramRequest('test-token', 'POST', $endpoint, $params),
+                new Response(200, [], $this->answer ? '{"ok":true,"result":true}' : '{"ok":true,"result":false}'),
+            );
+        }
+    };
+
+    $client = new IrazasyedTelegramClient($sdk, new TelegramKeyboardFactory, new TelegramMessageRateLimiter);
+    $button = ['type' => 'web_app', 'text' => 'LexiFlow', 'web_app' => ['url' => 'https://twa.test/twa/']];
+
+    expect($client->setMyCommands([['command' => 'today', 'description' => 'Занятие на сегодня']], ['type' => 'all_private_chats']))->toBeTrue()
+        ->and($client->setMyCommands([['command' => 'today', 'description' => "Bugungi mashg'ulot"]], ['type' => 'all_group_chats'], 'uz'))->toBeTrue()
+        ->and($client->setChatMenuButton($button))->toBeTrue();
+
+    // The SDK form-encodes the params and json-encodes `reply_markup` only: every object travels as a JSON string,
+    // `language_code` only when there is one, and the menu button has no `chat_id` (the default for all private chats).
+    expect($sdk->calls)->toBe([
+        ['setMyCommands', [
+            'commands' => '[{"command":"today","description":"Занятие на сегодня"}]',
+            'scope' => '{"type":"all_private_chats"}',
+        ]],
+        ['setMyCommands', [
+            'commands' => '[{"command":"today","description":"Bugungi mashg\'ulot"}]',
+            'scope' => '{"type":"all_group_chats"}',
+            'language_code' => 'uz',
+        ]],
+        ['setChatMenuButton', [
+            'menu_button' => '{"type":"web_app","text":"LexiFlow","web_app":{"url":"https://twa.test/twa/"}}',
+        ]],
+    ]);
+
+    $sdk->answer = false;
+
+    expect($client->setMyCommands([['command' => 'today', 'description' => 'x']], ['type' => 'all_private_chats']))->toBeFalse()
+        ->and($client->setChatMenuButton($button))->toBeFalse();
+});
+
+it('hides the SDK failure of setMyCommands and setChatMenuButton behind TelegramApiException without the token', function (string $method): void {
+    $sdk = new class extends Api
+    {
+        public function __construct()
+        {
+            parent::__construct('123456789:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+        }
+
+        /** @param array<string, mixed> $params */
+        public function post(string $endpoint, array $params = [], bool $fileUpload = false): TelegramResponse
+        {
+            throw new TelegramResponseException(new TelegramResponse(
+                new TelegramRequest('t', 'POST', $endpoint),
+                new Response(400, [], '{"ok":false,"error_code":400,"description":"Bad Request: BOT_COMMAND_DESCRIPTION_INVALID for https://api.telegram.org/bot123456789:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/'.$endpoint.'"}'),
+            ));
+        }
+    };
+
+    $client = new IrazasyedTelegramClient($sdk, new TelegramKeyboardFactory, new TelegramMessageRateLimiter);
+
+    try {
+        $method === 'setMyCommands'
+            ? $client->setMyCommands([['command' => 'today', 'description' => 'x']], ['type' => 'all_private_chats'])
+            : $client->setChatMenuButton(['type' => 'default']);
+        $this->fail('expected TelegramApiException');
+    } catch (TelegramApiException $e) {
+        expect($e->getMessage())->toContain('BOT_COMMAND_DESCRIPTION_INVALID')->not->toContain('AAAAAAAA')
+            ->and($e->getPrevious())->toBeNull()
+            ->and($e->isApiResponse())->toBeTrue();
+    }
+})->with(['setMyCommands', 'setChatMenuButton']);
+
 it('uploads a local file as a photo with a caption and a keyboard, and maps a 403 to TelegramForbiddenException', function (): void {
     $file = tempnam(sys_get_temp_dir(), 'card').'.png';
     file_put_contents($file, "\x89PNG\r\n\x1a\nfake");

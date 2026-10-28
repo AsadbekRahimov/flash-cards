@@ -85,6 +85,16 @@ beforeEach(function (): void {
         {
             return [];
         }
+
+        public function setMyCommands(array $commands, array $scope, ?string $languageCode = null): bool
+        {
+            return true;
+        }
+
+        public function setChatMenuButton(array $menuButton): bool
+        {
+            return true;
+        }
     };
 
     $this->app->instance(TelegramClient::class, $this->api);

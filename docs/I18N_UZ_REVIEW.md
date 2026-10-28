@@ -1833,3 +1833,23 @@
 | `settings.reminder.time` | Eslatma vaqti | Время напоминания |
 | `settings.exercises.always` | «So'z → tarjima» kartochkalari doim yoqilgan | Карточки «слово → перевод» включены всегда |
 | `settings.leagues.toggle` | Haftalik ligalarda qatnashish | Участвовать в недельных лигах |
+
+## Редизайн 2026-10-28 · бот (меню команд, справка, термин «модуль») — на проверку носителю
+
+> Проверить: единый термин для этапа курса — «modul» (в строках «1-modul · 2-dars»: «:stage-modul, :lesson-dars»; раньше было «Stage» и «bosqich») и «dars» (урок). В справке `/help`: «Qanday shug'ullanish kerak» (как заниматься), «Xabar yozish maydonining chap tomonidagi «LexiFlow» tugmasi» (кнопка «LexiFlow» слева от поля ввода), «birgalikda Pro oling» (вместе получите Pro), «Pro obuna» (подписка Pro), «O'qituvchilar uchun» (для учителей). Описания команд в меню «/» — короткие подписи до 256 знаков: «Bugungi mashg'ulot» (занятие на сегодня), «Do'stni taklif qilish», «Promokodni faollashtirish», «Imtihonni yakunlash» (завершить экзамен).
+> Изменённые значения старых ключей (`bot.help.private`, `bot.help.group`, `training.picker.button`, `training.started`, `exam.started`, `errors.stage_not_found`, `errors.exam.not_enough_distractors`, `assignments.announce`, `assignments.remind`, `org.assignments.lesson_option`) исправлены в исходных строках выше; здесь — только новые ключи.
+
+### Меню команд бота — список по «/» в Telegram (`lang/uz/commands.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `commands.private.today` | Bugungi mashg'ulot | Занятие на сегодня |
+| `commands.private.settings` | Sozlamalar | Настройки |
+| `commands.private.invite` | Do'stni taklif qilish | Пригласить друга |
+| `commands.private.pro` | Pro obuna | Подписка Pro |
+| `commands.private.promo` | Promokodni faollashtirish | Активировать промокод |
+| `commands.private.help` | Yordam | Справка |
+| `commands.group.start_training` | Mashg'ulotni boshlash | Запустить тренировку |
+| `commands.group.start_exam` | Imtihonni boshlash | Запустить экзамен |
+| `commands.group.close_exam` | Imtihonni yakunlash | Завершить экзамен |
+| `commands.group.help` | Yordam | Справка |

@@ -109,4 +109,26 @@ interface TelegramClient
      * @throws TelegramApiException
      */
     public function getStarTransactions(int $offset = 0, int $limit = 100): array;
+
+    /**
+     * The list of the bot's commands Telegram shows behind "/" (`setMyCommands`) for one scope and language.
+     * `$scope` is a BotCommandScope object (`['type' => 'all_private_chats']`); without `$languageCode` the list
+     * is the default one — what users get whose language has no list of its own.
+     *
+     * @param  list<array{command: string, description: string}>  $commands
+     * @param  array<string, mixed>  $scope
+     *
+     * @throws TelegramApiException
+     */
+    public function setMyCommands(array $commands, array $scope, ?string $languageCode = null): bool;
+
+    /**
+     * The menu button of the bot's private chats (`setChatMenuButton` without `chat_id`: the default one for
+     * every private chat), e.g. `['type' => 'web_app', 'text' => 'LexiFlow', 'web_app' => ['url' => 'https://…']]`.
+     *
+     * @param  array<string, mixed>  $menuButton  a MenuButton object
+     *
+     * @throws TelegramApiException
+     */
+    public function setChatMenuButton(array $menuButton): bool;
 }
