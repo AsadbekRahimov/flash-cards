@@ -152,7 +152,9 @@ erDiagram
 | is_active | boolean default true | слово не удаляем, а деактивируем; учитывается в `courses.words_count` и в проверке публикации курса |
 | meta | jsonb default '{}' | |
 
-**Индексы:** `(lesson_id, word)` unique, `lesson_id`, `word` (для поиска).
+**Индексы:** `(lesson_id, word)` unique, `lesson_id`, `word` (для поиска); `(id) WHERE is_active = false` — partial
+`words_inactive_idx`: под анти-join `DueRepetitionCriteria` (`NOT EXISTS (… words.is_active = false)`, docs/06 §6) —
+выведенных слов мало, и хэш их id строится с пары страниц индекса вместо seq scan всех активных слов.
 
 ### 2.8 `word_repetitions` — состояние SM-2 для пары (learner, слово)
 | Колонка | Тип | Описание |
@@ -187,7 +189,12 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 - `(learner_id, word_id)` unique — **один прогресс по слову на человека**, независимо от числа его групп.
 - `(learner_id, next_review_at)` — для «что показывать».
 - `(learner_id) WHERE is_hard = true` — partial index `word_repetitions_learner_is_hard_idx`.
-- `(learner_id, is_hard, next_review_at)` (`word_repetitions_learner_hard_due_idx`) — hot path для выбора следующей карточки с приоритетом hard.
+- `(learner_id, is_hard DESC, next_review_at, id)` (`word_repetitions_next_card_idx`) — hot path выбора следующей карточки:
+  ровно порядок `CardPicker::pickNext` шаг 1 (`WHERE learner_id = ? AND next_review_at <= now ORDER BY is_hard DESC, next_review_at, id LIMIT 1`,
+  docs/06 §4.2), поэтому due-карточка — первая подходящая запись индекса, а не top-N sort по всем просроченным (1500 просроченных:
+  5977 буферов / 2,8 мс → 7 буферов / 0,05 мс). Заменил `(learner_id, is_hard, next_review_at)` (`word_repetitions_learner_hard_due_idx`):
+  по `is_hard` сортирует только пикер, остальным запросам хватает индексов по `learner_id` / `(learner_id, next_review_at)`.
+  В sqlite создаётся так же (`DESC` поддерживается).
 - `(next_review_at, learner_id)` (`word_repetitions_due_learners_idx`) — batch scan learner'ов, которым пора напомнить о повторении.
 - `(learner_id, created_at)` — квота новых слов за локальный день (docs/12 §5.3).
 
@@ -883,6 +890,11 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 41. `2026_10_23_200001_add_exercise_columns_to_training_reviews_table` — `training_reviews.exercise`, `answer_text`, `scheduler`, `interval_before_days` *(2D.2)*
 42. `2026_10_23_300001_add_scheduler_to_learners_table` — `learners.scheduler`; `2026_10_23_300002_add_fsrs_columns_to_word_repetitions_table` — `stability`, `difficulty`, `scheduler`, `scheduled_days` *(2D.3; отдельные forward-миграции с `down()`, а не правка на месте)*
 43. `2026_10_23_400001_generalize_exam_sessions_for_personal_mock` — `exam_sessions.mode`, `learner_id`, `course_id` *(2D.4)*
+44. `2026_10_28_000001_add_next_card_and_inactive_words_indexes` — `word_repetitions_next_card_idx (learner_id, is_hard DESC, next_review_at, id)`
+    вместо `word_repetitions_learner_hard_due_idx`; partial `words_inactive_idx` на `words (id) WHERE is_active = false`. На PostgreSQL индексы
+    строятся и удаляются `CONCURRENTLY` (без SHARE-блокировки `word_repetitions` на время сборки — её пишет каждый `POST /review`), поэтому
+    миграция идёт вне транзакции мигратора (`$withinTransaction = false`); внутри чужой транзакции (тесты) — обычные `CREATE/DROP INDEX`.
+    Перед каждой сборкой `DROP INDEX IF EXISTS` — повторный запуск после прерванной сборки убирает INVALID-индекс *(perf 2026-10-28, P2-3 / P2-9)*
 
 Индексные миграции (`add_performance_indexes`, `add_open_session_unique_indexes`) и `create_exam_*`, `create_notifications_log_table`,
 `create_product_events_table` переведены на `learner_id` на месте; `add_open_session_unique_indexes` дополнительно создаёт
@@ -911,7 +923,7 @@ FROM word_repetitions wr
 JOIN words w ON w.id = wr.word_id
 WHERE wr.learner_id = :learner_id
   AND wr.next_review_at <= NOW()
-ORDER BY wr.is_hard DESC, wr.next_review_at ASC
+ORDER BY wr.is_hard DESC, wr.next_review_at ASC, wr.id ASC   -- порядок индекса word_repetitions_next_card_idx
 LIMIT 30;
 ```
 
