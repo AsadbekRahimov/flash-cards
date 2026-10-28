@@ -175,3 +175,22 @@ it('has nothing to re-check for group and daily sessions, and nothing to judge f
         // ... and one lookup finds that there is no lesson to judge.
         ->and($queriesFor($orphan))->toHaveCount(1);
 });
+
+it('answers for a public, an unlisted or an own-deck course with ONE statement that loads nothing', function (string $kind): void {
+    $s = match ($kind) {
+        'public', 'archived' => availabilityScenario(),
+        'unlisted' => availabilityScenario(['visibility' => 'unlisted']),
+        default => availabilityScenario(ownDeck: true),
+    };
+    if ($kind === 'archived') {
+        $s['course']->update(['status' => 'archived']); // the running session is not judged on the status
+    }
+
+    // Before: lesson, then its stage, then its course (three statements, three models).
+    $queries = QueryLog::during(function () use ($s): void {
+        expect(app(TrainingSessionService::class)->ensureStillAvailable($s['session'], $s['learner']))->toBeTrue();
+    });
+
+    expect($queries)->toHaveCount(1)
+        ->and($queries[0])->toStartWith('select exists(');
+})->with(['public', 'unlisted', 'archived', 'own deck']);

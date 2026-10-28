@@ -20,6 +20,7 @@ use App\Models\TrainingSession;
 use App\Models\Word;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Support\HotPathFixtures as Fx;
+use Tests\Support\QueryLog;
 
 uses(RefreshDatabase::class);
 
@@ -77,4 +78,55 @@ it('follows a word that is switched off in the admin panel on the very next step
     app(LessonContentRefresher::class)->wordChanged($retired);
 
     $this->withHeaders($s['headers'])->getJson("{$base}/next")->assertOk()->assertJsonPath('progress.total', 5);
+});
+
+/**
+ * The statements of /start, /next and /review (the SECOND grade of the day: the first one also places the
+ * learner in the league and checks the first achievement) on a lesson of $words words.
+ *
+ * @return array{start: list<string>, next: list<string>, review: list<string>}
+ */
+function lessonStepStatements(object $test, int $words): array
+{
+    $s = lessonStepsScenario($words, 0);
+    $base = "/api/twa/training/sessions/{$s['session']->id}";
+    $call = fn (string $method, string $uri, array $body = []) => $test->withHeaders($s['headers'])->json($method, $base.$uri, $body)->assertOk();
+
+    $call('POST', '/start'); // warm the entitlement, the lesson count and the translation caches
+    $start = QueryLog::during(fn () => $call('POST', '/start'));
+
+    $call('GET', '/next'); // the first card is served (a row is created); asking again finds it due
+    $card = null;
+    $next = QueryLog::during(function () use ($call, &$card): void {
+        $card = $call('GET', '/next')->json('card');
+    });
+
+    $call('POST', '/review', ['word_id' => $card['word_id'], 'quality' => 5, 'time_spent_ms' => 100]);
+    $second = $call('GET', '/next')->json('card');
+    $review = QueryLog::during(fn () => $call('POST', '/review', ['word_id' => $second['word_id'], 'quality' => 5, 'time_spent_ms' => 100]));
+
+    return ['start' => $start, 'next' => $next, 'review' => $review];
+}
+
+it('costs the same statements for a lesson of 6 and of 40 words, and counts no words per step', function (): void {
+    $small = lessonStepStatements($this, 6);
+    $large = lessonStepStatements($this, 40);
+
+    // Before: start 14, next 12, review 25. The words of the lesson are counted once an hour, not on each step;
+    // the access check is one statement instead of three.
+    foreach (['start' => 12, 'next' => 9, 'review' => 22] as $step => $budget) {
+        expect(count($small[$step]))->toBeLessThanOrEqual($budget)
+            ->and(count($large[$step]))->toBe(count($small[$step]))
+            ->and(QueryLog::matching($large[$step], '/select count\(\*\) as aggregate from ["`]words["`]/'))->toBe([]);
+    }
+});
+
+it('reads lesson, stage and course once per /next and /review - in the access check - and not in the card flow', function (): void {
+    $steps = lessonStepStatements($this, 6);
+    $touching = fn (array $queries): array => QueryLog::matching($queries, '/["`](lessons|stages|courses)["`]/');
+
+    expect($touching($steps['next']))->toHaveCount(1)
+        ->and($touching($steps['review']))->toHaveCount(1)
+        // /start shows the lesson and its deck title: the check plus the lesson, its stage and its course.
+        ->and($touching($steps['start']))->toHaveCount(4);
 });
