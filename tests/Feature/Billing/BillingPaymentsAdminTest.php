@@ -117,11 +117,11 @@ it('lists payments with filters and shows the details of a payment, an order and
         ->assertCanSeeTableRecords([$stars])
         ->assertCanNotSeeTableRecords([$failed]);
 
-    Livewire::test(ViewPayment::class, ['record' => $stars->id])->assertOk()->assertSee('Zinaida @zina')->assertSee('Refund');
+    Livewire::test(ViewPayment::class, ['record' => $stars->id])->assertOk()->assertSee('Zinaida @zina')->assertSee('Вернуть деньги');
     Livewire::test(ListPaymentOrders::class)->assertCanSeeTableRecords([PaymentOrder::query()->findOrFail($stars->payment_order_id)]);
     Livewire::test(ViewPaymentOrder::class, ['record' => $stars->payment_order_id])->assertOk()->assertSee('150 XTR');
     Livewire::test(ListProviderTransactions::class)->assertCanSeeTableRecords([$transaction]);
-    Livewire::test(ViewProviderTransaction::class, ['record' => $transaction->id])->assertOk()->assertSee('PerformTransaction')->assertSee('Performed');
+    Livewire::test(ViewProviderTransaction::class, ['record' => $transaction->id])->assertOk()->assertSee('PerformTransaction')->assertSee('Проведена');
 });
 
 // --- masking ----------------------------------------------------------------
@@ -174,14 +174,14 @@ it('shows the offer markers of an order as badges and filters the double discoun
 
     Livewire::test(ListPaymentOrders::class)
         ->assertCanSeeTableRecords([$moved, $late, $double, $plain])
-        ->assertSee('offer_moved')
-        ->assertSee('paid after cancel')
-        ->assertSee('double discount')
+        ->assertSee('Скидка перенесена на другой заказ')
+        ->assertSee('оплачен после отмены')
+        ->assertSee('двойная скидка')
         ->filterTable('offer_double_discount')
         ->assertCanSeeTableRecords([$double])
         ->assertCanNotSeeTableRecords([$moved, $late, $plain]);
 
-    Livewire::test(ViewPaymentOrder::class, ['record' => $double->id])->assertSee('double discount')->assertSee('paid after cancel');
+    Livewire::test(ViewPaymentOrder::class, ['record' => $double->id])->assertSee('двойная скидка')->assertSee('оплачен после отмены');
 
     $this->actingAs($this->teacher);
     Livewire::test(ListPaymentOrders::class)->assertForbidden();
@@ -196,12 +196,12 @@ it('shows the tier mismatch of an order as a badge with the live tier and filter
 
     Livewire::test(ListPaymentOrders::class)
         ->assertCanSeeTableRecords([$mismatch, $plain])
-        ->assertSee('tier mismatch (live: center_m)')
+        ->assertSee('тариф не совпал (действует: Центр M)')
         ->filterTable('tier_mismatch')
         ->assertCanSeeTableRecords([$mismatch])
         ->assertCanNotSeeTableRecords([$plain]);
 
-    Livewire::test(ViewPaymentOrder::class, ['record' => $mismatch->id])->assertSee('tier mismatch (live: center_m)');
+    Livewire::test(ViewPaymentOrder::class, ['record' => $mismatch->id])->assertSee('тариф не совпал (действует: Центр M)');
 
     $this->actingAs($this->teacher);
     Livewire::test(ListPaymentOrders::class)->assertForbidden();

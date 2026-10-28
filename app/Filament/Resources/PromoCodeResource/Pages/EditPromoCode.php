@@ -17,6 +17,11 @@ class EditPromoCode extends EditRecord
 {
     protected static string $resource = PromoCodeResource::class;
 
+    public function getTitle(): string
+    {
+        return __('admin.promo_codes.titles.edit');
+    }
+
     /** @return array<int, Action> */
     protected function getHeaderActions(): array
     {

@@ -11,6 +11,7 @@ use App\Domain\Billing\Services\SubscriptionService;
 use App\Domain\Billing\Support\AutoRenewal;
 use App\Domain\Billing\Support\OrgTiers;
 use App\Domain\Billing\Support\SubscriptionLiveness;
+use App\Filament\Resources\Support\AdminLabels;
 use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\Subscription;
@@ -32,69 +33,72 @@ final class SubscriptionActions
     public static function grantPro(): Action
     {
         return Action::make('grantPro')
-            ->label('Grant Pro')
+            ->label(__('admin.subscriptions.actions.grant'))
             ->icon('heroicon-o-gift')
             ->color('success')
             ->authorize('create', Subscription::class)
-            ->modalHeading('Grant Pro manually')
-            ->modalDescription('Extends the subject\'s live subscription if it has one. The reason is stored in the audit log.')
+            ->modalHeading(__('admin.subscriptions.actions.grant_heading'))
+            ->modalDescription(__('admin.subscriptions.actions.grant_help'))
             ->schema([
                 Forms\Components\Select::make('subscriber_type')
-                    ->label('Subject')
-                    ->options(['learner' => 'Learner', 'organization' => 'Organization (sponsors its groups)'])
+                    ->label(__('admin.subscriptions.grant.subscriber_type'))
+                    ->options([
+                        'learner' => AdminLabels::value('common.subscriber_type', 'learner'),
+                        'organization' => __('admin.subscriptions.grant.subscriber_organization'),
+                    ])
                     ->default('learner')
                     ->required()
                     ->live(),
                 Forms\Components\Select::make('learner_id')
-                    ->label('Learner')
+                    ->label(__('admin.subscriptions.grant.learner'))
                     ->searchable()
                     ->getSearchResultsUsing(fn (string $search): array => self::searchLearners($search))
                     ->getOptionLabelUsing(fn (mixed $value): ?string => ($learner = Learner::query()->whereKey($value)->first()) instanceof Learner ? self::learnerLabel($learner) : null)
-                    ->helperText('Search by name, @username or Telegram ID.')
+                    ->helperText(__('admin.subscriptions.grant.learner_help'))
                     ->live()
                     ->visible(fn (callable $get): bool => $get('subscriber_type') === 'learner')
                     ->required(fn (callable $get): bool => $get('subscriber_type') === 'learner'),
-                Text::make('A Stars subscription with auto-renewal is active for this learner: Telegram keeps charging them every 30 days, and a manual grant replaces the subscription row, so the renewal can no longer be canceled from LexiFlow. Ask the learner to cancel the renewal in /pro first.')
+                Text::make(__('admin.subscriptions.grant.stars_warning'))
                     ->color('warning')
                     ->visible(fn (callable $get): bool => self::runningStars($get) !== null),
                 Forms\Components\Checkbox::make('confirm_stars_autorenew')
-                    ->label('I understand: grant anyway')
+                    ->label(__('admin.subscriptions.grant.stars_confirm'))
                     ->accepted()
                     ->visible(fn (callable $get): bool => self::runningStars($get) !== null)
-                    ->validationMessages(['accepted' => 'Confirm that you want to grant over an auto-renewing Stars subscription.']),
+                    ->validationMessages(['accepted' => __('admin.subscriptions.grant.stars_confirm_error')]),
                 Forms\Components\Select::make('organization_id')
-                    ->label('Organization')
+                    ->label(__('admin.subscriptions.grant.organization'))
                     ->options(fn (): array => Organization::query()->orderBy('name')->pluck('name', 'id')->all())
                     ->searchable()
                     ->visible(fn (callable $get): bool => $get('subscriber_type') === 'organization')
                     ->required(fn (callable $get): bool => $get('subscriber_type') === 'organization'),
                 Forms\Components\Select::make('tier')
-                    ->label('Tier')
+                    ->label(__('admin.subscriptions.grant.tier'))
                     ->options(fn (): array => self::tierOptions())
-                    ->placeholder('No tier (seats not limited)')
-                    ->helperText('Sets the organization\'s tier and seats limit from the tariff table.')
+                    ->placeholder(__('admin.subscriptions.grant.tier_placeholder'))
+                    ->helperText(__('admin.subscriptions.grant.tier_help'))
                     ->visible(fn (callable $get): bool => $get('subscriber_type') === 'organization'),
                 Forms\Components\TextInput::make('seats_limit')
-                    ->label('Seats')
+                    ->label(__('admin.subscriptions.grant.seats'))
                     ->numeric()
                     ->integer()
                     ->minValue(1)
-                    ->helperText('For a tier without fixed seats (by agreement). Empty = not limited.')
+                    ->helperText(__('admin.subscriptions.grant.seats_help'))
                     ->visible(fn (callable $get): bool => $get('subscriber_type') === 'organization' && filled($get('tier')) && OrgTiers::exists((string) $get('tier')) && OrgTiers::seats((string) $get('tier')) === null),
                 Forms\Components\Toggle::make('perpetual')
-                    ->label('No end date')
+                    ->label(__('admin.subscriptions.grant.perpetual'))
                     ->live(),
                 Forms\Components\DateTimePicker::make('until')
-                    ->label('Pro until')
+                    ->label(__('admin.subscriptions.grant.until'))
                     ->timezone(config('learners.default_timezone'))
                     ->live()
-                    ->helperText(fn (callable $get): string => 'Time zone: '.config('learners.default_timezone').'.'.self::shortenWarning($get))
+                    ->helperText(fn (callable $get): string => __('admin.subscriptions.grant.until_help', ['tz' => config('learners.default_timezone')]).self::shortenWarning($get))
                     // Validated as typed (local wall-clock time), so "now" is expressed in the same zone.
                     ->minDate(fn () => now()->setTimezone(config('learners.default_timezone')))
                     ->visible(fn (callable $get): bool => ! $get('perpetual'))
                     ->required(fn (callable $get): bool => ! $get('perpetual')),
                 Forms\Components\Textarea::make('note')
-                    ->label('Reason')
+                    ->label(__('admin.subscriptions.grant.note'))
                     ->required()
                     ->maxLength(500)
                     ->rows(2),
@@ -127,22 +131,22 @@ final class SubscriptionActions
                     return;
                 }
 
-                Notification::make()->title('Pro granted')->success()->send();
+                Notification::make()->title(__('admin.subscriptions.notifications.granted'))->success()->send();
             });
     }
 
     public static function revoke(): Action
     {
         return Action::make('revoke')
-            ->label('Revoke')
+            ->label(__('admin.subscriptions.actions.revoke'))
             ->icon('heroicon-o-x-circle')
             ->color('danger')
             ->visible(fn (Subscription $record): bool => in_array($record->status, SubscriptionStatus::liveValues(), true))
             ->authorize('update')
             ->requiresConfirmation()
-            ->modalDescription('The subscription ends now. The reason is stored in the audit log.')
+            ->modalDescription(__('admin.subscriptions.actions.revoke_help'))
             ->schema([
-                Forms\Components\Textarea::make('note')->label('Reason')->required()->maxLength(500)->rows(2),
+                Forms\Components\Textarea::make('note')->label(__('admin.subscriptions.actions.reason'))->required()->maxLength(500)->rows(2),
             ])
             ->action(function (Subscription $record, array $data): void {
                 $user = auth()->user();
@@ -158,7 +162,7 @@ final class SubscriptionActions
                     return;
                 }
 
-                Notification::make()->title('Subscription revoked')->success()->send();
+                Notification::make()->title(__('admin.subscriptions.notifications.revoked'))->success()->send();
             });
     }
 
@@ -200,17 +204,20 @@ final class SubscriptionActions
             return '';
         }
 
-        return ' Warning: the learner has already paid until '.CarbonImmutable::instance($paidUntil)->setTimezone((string) config('learners.default_timezone'))->format('Y-m-d H:i').'; an earlier date will shorten the paid period.';
+        return __('admin.subscriptions.grant.until_warning', ['date' => CarbonImmutable::instance($paidUntil)->setTimezone((string) config('learners.default_timezone'))->format('Y-m-d H:i')]);
     }
 
-    /** @return array<string, string> tier key => "Center s · 100 seats" */
+    /** @return array<string, string> tier key => "Центр S · мест: 100" */
     private static function tierOptions(): array
     {
         $options = [];
 
         foreach (OrgTiers::keys() as $tier) {
             $seats = OrgTiers::seats($tier);
-            $options[$tier] = ucfirst(str_replace('_', ' ', $tier)).' · '.($seats === null ? 'unlimited seats' : $seats.' seats');
+            $name = AdminLabels::value('common.tier', $tier);
+            $options[$tier] = $seats === null
+                ? __('admin.subscriptions.grant.tier_option_unlimited', ['tier' => $name])
+                : __('admin.subscriptions.grant.tier_option', ['tier' => $name, 'seats' => $seats]);
         }
 
         return $options;
@@ -218,7 +225,7 @@ final class SubscriptionActions
 
     private static function failed(SubscriptionException $e): void
     {
-        Notification::make()->title('Not done')->body($e->getMessage())->danger()->persistent()->send();
+        Notification::make()->title(__('admin.subscriptions.notifications.failed'))->body($e->getMessage())->danger()->persistent()->send();
     }
 
     /** @return array<int, string> */
@@ -248,6 +255,6 @@ final class SubscriptionActions
         $name = trim(($learner->first_name ?? '').' '.($learner->last_name ?? ''));
         $username = $learner->username !== null ? ' @'.$learner->username : '';
 
-        return trim($name.$username).' · TG '.$learner->telegram_user_id;
+        return __('admin.subscriptions.grant.learner_label', ['name' => trim($name.$username), 'id' => $learner->telegram_user_id]);
     }
 }

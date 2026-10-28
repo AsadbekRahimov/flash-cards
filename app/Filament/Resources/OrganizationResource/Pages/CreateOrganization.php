@@ -10,4 +10,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateOrganization extends CreateRecord
 {
     protected static string $resource = OrganizationResource::class;
+
+    public function getTitle(): string
+    {
+        return __('admin.organizations.titles.create');
+    }
 }

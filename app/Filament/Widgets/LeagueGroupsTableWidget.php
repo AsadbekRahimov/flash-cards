@@ -6,6 +6,7 @@ namespace App\Filament\Widgets;
 
 use App\Domain\Engagement\Services\LeagueService;
 use App\Filament\Concerns\RequiresActiveAdmin;
+use App\Filament\Resources\Support\AdminLabels;
 use App\Models\LeagueGroup;
 use App\Models\LeagueWeek;
 use Carbon\CarbonImmutable;
@@ -45,40 +46,40 @@ class LeagueGroupsTableWidget extends TableWidget
                     ->orderBy('id'),
             )
             ->columns([
-                Tables\Columns\TextColumn::make('id')->label('Group'),
+                Tables\Columns\TextColumn::make('id')->label(__('admin.widgets.league_groups.group')),
                 Tables\Columns\TextColumn::make('tier')
-                    ->label('Tier')
-                    ->formatStateUsing(fn (int $state): string => ucfirst($tiers[$state] ?? (string) $state).' ('.$state.')'),
+                    ->label(__('admin.widgets.league_groups.tier'))
+                    // Tier names are the learner-facing ones (lang/ru/leagues.php), the number is the tier index.
+                    ->formatStateUsing(fn (int $state): string => AdminLabels::from('leagues.tiers', $tiers[$state] ?? $state).' ('.$state.')'),
                 Tables\Columns\TextColumn::make('members_count')
-                    ->label('Members')
+                    ->label(__('admin.widgets.league_groups.members'))
                     ->formatStateUsing(fn (int $state, LeagueGroup $record): string => "{$state} / {$record->capacity}")
                     ->color(fn (int $state, LeagueGroup $record): ?string => $state >= $record->capacity ? 'warning' : null),
-                Tables\Columns\TextColumn::make('created_at')->label('Opened')->since(),
+                Tables\Columns\TextColumn::make('created_at')->label(__('admin.widgets.league_groups.opened'))->since(),
             ])
-            ->emptyStateHeading('No league groups this week yet')
+            ->emptyStateHeading(__('admin.widgets.league_groups.empty'))
             ->paginated([10, 25, 50]);
     }
 
     private function headingFor(?LeagueWeek $week, LeagueService $leagues): string
     {
         if (! $leagues->enabled()) {
-            return 'Leagues — disabled';
+            return __('admin.widgets.league_groups.heading_disabled');
         }
 
         if ($week === null) {
-            return 'Leagues — current week: no groups yet';
+            return __('admin.widgets.league_groups.heading_empty');
         }
 
         $groups = LeagueGroup::query()->where('league_week_id', $week->id)->count();
         $members = (int) LeagueGroup::query()->where('league_week_id', $week->id)->sum('members_count');
 
-        return sprintf(
-            'Leagues — week %s – %s (%s): %d groups, %d members',
-            $week->starts_on->toDateString(),
-            $week->ends_on->toDateString(),
-            $week->status,
-            $groups,
-            $members,
-        );
+        return __('admin.widgets.league_groups.heading', [
+            'from' => $week->starts_on->toDateString(),
+            'to' => $week->ends_on->toDateString(),
+            'status' => AdminLabels::value('widgets.league_groups.week_status', $week->status),
+            'groups' => $groups,
+            'members' => $members,
+        ]);
     }
 }

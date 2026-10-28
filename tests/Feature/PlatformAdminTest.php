@@ -114,9 +114,9 @@ it('does not render the platform widgets on the dashboard of a teacher', functio
 
     $this->actingAs($teacher)->get('/admin')
         ->assertOk()
-        ->assertDontSee('Onboarding funnel')
-        ->assertDontSee('Pro subscriptions')
-        ->assertDontSee('members / seats');
+        ->assertDontSee('Первичная настройка — 7 дней')
+        ->assertDontSee('Подписки Pro')
+        ->assertDontSee('места и очередь');
 });
 
 // --- widgets: numbers --------------------------------------------------------
@@ -129,8 +129,8 @@ it('counts platform-wide learners and 7-day activity for an admin', function ():
     $this->actingAs(pa_user('admin'));
 
     Livewire::test(TotalLearnersWidget::class)
-        ->assertSee('Total learners')
-        ->assertSee('Active last 7 days')
+        ->assertSee('Всего учеников')
+        ->assertSee('Активны за 7 дней')
         ->assertSee('3')
         ->assertSee('1');
 });
@@ -177,9 +177,9 @@ it('computes Pro subscription figures: own, sponsored, expiring; ended and suspe
 
     $this->actingAs(pa_user('admin'));
     Livewire::test(PlatformSubscriptionsWidget::class)
-        ->assertSee('Pro learners')
+        ->assertSee('Учеников с Pro')
         ->assertSee('7')
-        ->assertSee('5 own, 1 sponsoring organizations');
+        ->assertSee('Своих подписок: 5, спонсирующих центров: 1');
 });
 
 it('adds the grace period of the auto-renewing provider (Stars) before a subscription stops granting; pay-per-period and grants get none', function (): void {
@@ -211,7 +211,7 @@ it('builds the onboarding funnel as a 7-day cohort of distinct learners', functi
 
     $this->actingAs(pa_user('admin'));
     Livewire::test(OnboardingFunnelWidget::class)
-        ->assertSee('Started onboarding')
+        ->assertSee('Начали настройку')
         ->assertSee('66.7%');
 });
 

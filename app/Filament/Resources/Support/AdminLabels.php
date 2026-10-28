@@ -13,10 +13,17 @@ use Illuminate\Support\Facades\Lang;
  */
 final class AdminLabels
 {
+    /** Caption `admin.<path>.<value>`. */
     public static function value(string $path, mixed $value): string
     {
+        return self::from('admin.'.$path, $value);
+    }
+
+    /** The same for a caption that lives outside `lang/ru/admin.php` (for example the league tiers of `lang/ru/leagues.php`). */
+    public static function from(string $path, mixed $value): string
+    {
         $value = is_scalar($value) ? (string) $value : '';
-        $key = "admin.{$path}.{$value}";
+        $key = "{$path}.{$value}";
 
         if ($value !== '' && Lang::has($key)) {
             $label = Lang::get($key);

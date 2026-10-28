@@ -52,7 +52,7 @@ class RevenueLast30DaysWidget extends StatsOverviewWidget
                 'cohort' => PriceFormatter::plain($cohort[$currency]['net'] ?? 0, $currency),
             ]);
 
-            $stats[] = Stat::make(is_string($label) ? $label : "Net cash {$currency}", PriceFormatter::plain($row['net'], $currency))
+            $stats[] = Stat::make(is_string($label) ? $label : $currency, PriceFormatter::plain($row['net'], $currency))
                 ->description(is_string($description) ? $description : '')
                 ->color($row['net'] < 0 ? 'danger' : ($row['refunds'] > 0 ? 'warning' : ($row['net'] > 0 ? 'success' : 'gray')))
                 ->icon('heroicon-o-banknotes');

@@ -200,7 +200,7 @@ it('(d) credits a second Stars subscription paid anyway (in flight), flags the o
     $admin = User::factory()->create(['is_active' => true]);
     $admin->assignRole('admin');
     $this->actingAs($admin);
-    Livewire::test(WebhookErrorsWidget::class)->assertSee('Double Stars subscriptions');
+    Livewire::test(WebhookErrorsWidget::class)->assertSee('Двойные подписки Stars');
 
     // Cancel stops both Telegram subscriptions.
     app(LearnerBillingService::class)->cancelAutoRenew($this->learner);
@@ -218,7 +218,7 @@ it('(d) shows the double-subscription badge and filter on the payment orders', f
     $this->actingAs($admin);
     Livewire::test(ListPaymentOrders::class)
         ->assertCanSeeTableRecords([$flagged, $plain])
-        ->assertSee('double subscription')
+        ->assertSee('двойная подписка')
         ->filterTable('stars_double_subscription')
         ->assertCanSeeTableRecords([$flagged])
         ->assertCanNotSeeTableRecords([$plain]);
@@ -238,9 +238,9 @@ it('(e) warns in the Grant modal about a renewing Stars subscription and require
 
     Livewire::test(ListSubscriptions::class)
         ->mountAction('grantPro')
-        ->assertMountedActionModalDontSee('Stars subscription with auto-renewal')
+        ->assertMountedActionModalDontSee('подписка Telegram Stars с автопродлением')
         ->setActionData(['subscriber_type' => 'learner', 'learner_id' => $this->learner->id])
-        ->assertMountedActionModalSee('Stars subscription with auto-renewal')
+        ->assertMountedActionModalSee('подписка Telegram Stars с автопродлением')
         ->setActionData(['subscriber_type' => 'learner', 'learner_id' => $this->learner->id, 'perpetual' => true, 'note' => 'x', 'confirm_stars_autorenew' => true])
         ->callMountedAction()
         ->assertHasNoActionErrors();
@@ -262,7 +262,7 @@ it('(e) needs no confirmation when the learner has no renewing Stars subscriptio
     Livewire::test(ListSubscriptions::class)
         ->mountAction('grantPro')
         ->setActionData(['subscriber_type' => 'learner', 'learner_id' => $this->learner->id, 'perpetual' => false, 'until' => CarbonImmutable::now()->addDays(5)->toDateTimeString()])
-        ->assertMountedActionModalSee('will shorten the paid period');
+        ->assertMountedActionModalSee('сократит оплаченный период');
 });
 
 // --- 🔴2 (H7): the order "expired" between pre_checkout and successful_payment ---------------------------

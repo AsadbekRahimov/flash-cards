@@ -148,11 +148,11 @@ it('counts failed payments and canceled provider transactions of the last 24 hou
 
     $this->actingAs($this->admin);
     Livewire::test(WebhookErrorsWidget::class)
-        ->assertSee('Failed payments')
-        ->assertSee('click: 1')
-        ->assertSee('Canceled provider transactions')
-        ->assertSee('Double discounts')
-        ->assertSee('Tier mismatches');
+        ->assertSee('Неудачные платежи')
+        ->assertSee('Click: 1')
+        ->assertSee('Отменённые транзакции провайдеров')
+        ->assertSee('Двойные скидки')
+        ->assertSee('Несовпадения тарифа');
 });
 
 it('counts only the double-discount orders paid in the last 24 hours', function (): void {
@@ -168,7 +168,7 @@ it('counts only the double-discount orders paid in the last 24 hours', function 
     expect(app(BillingReportService::class)->webhookErrorsLast24Hours()['double_discounts'])->toBe(2);
 
     $this->actingAs($this->admin);
-    Livewire::test(WebhookErrorsWidget::class)->assertSee('Double discounts')->assertSeeText('2');
+    Livewire::test(WebhookErrorsWidget::class)->assertSee('Двойные скидки')->assertSeeText('2');
 });
 
 it('hides both widgets from a teacher and forbids mounting them', function (): void {
@@ -266,5 +266,5 @@ it('counts only the tier-mismatch orders paid in the last 24 hours', function ()
     expect(app(BillingReportService::class)->webhookErrorsLast24Hours()['tier_mismatches'])->toBe(2);
 
     $this->actingAs($this->admin);
-    Livewire::test(WebhookErrorsWidget::class)->assertSee('Tier mismatches');
+    Livewire::test(WebhookErrorsWidget::class)->assertSee('Несовпадения тарифа');
 });

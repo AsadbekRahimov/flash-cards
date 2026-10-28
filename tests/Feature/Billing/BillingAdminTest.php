@@ -384,7 +384,7 @@ it('does not take a group away from another organization', function (): void {
 
     Livewire::test(GroupsRelationManager::class, ['ownerRecord' => $second, 'pageClass' => OrganizationResource\Pages\EditOrganization::class])
         ->callTableAction('linkGroup', data: ['telegram_group_id' => $group->id])
-        ->assertNotified('Group not linked');
+        ->assertNotified('Группа не привязана');
 
     expect($group->fresh()?->organization_id)->toBe($first->id)
         ->and(AuditLog::query()->count())->toBe(0);

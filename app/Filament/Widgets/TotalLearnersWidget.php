@@ -20,10 +20,10 @@ class TotalLearnersWidget extends StatsOverviewWidget
         $recent = (clone $learners)->where('last_seen_at', '>=', now()->subDays(7))->count();
 
         return [
-            Stat::make('Total learners', (string) $total)
+            Stat::make(__('admin.widgets.total_learners.total'), (string) $total)
                 ->color('primary')
                 ->icon('heroicon-o-academic-cap'),
-            Stat::make('Active last 7 days', (string) $recent)
+            Stat::make(__('admin.widgets.total_learners.active_7d'), (string) $recent)
                 ->color($recent > 0 ? 'success' : 'gray')
                 ->icon('heroicon-o-bolt'),
         ];
