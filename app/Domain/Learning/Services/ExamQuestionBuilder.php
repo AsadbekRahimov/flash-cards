@@ -32,9 +32,10 @@ use Illuminate\Database\Eloquent\Builder;
  *   1. words of other lessons in the same stage;
  *   2. words of other stages of the SAME course;
  *   3. other words of the same lesson;
- *   4. words of other courses — a whitelist: only `published` + `public`
- *      courses of the platform (`owner_type = platform`); draft / review /
- *      archived / unlisted / private / organization courses never leak in.
+ *   4. words of other courses — a whitelist ({@see Course::scopePublicPlatform()}):
+ *      only `published` + `public` courses of the platform (`owner_type =
+ *      platform`); draft / review / archived / unlisted / private / organization
+ *      courses never leak in.
  *      This layer is loaded only when the own course has fewer unique
  *      candidates IN THE ANSWER LANGUAGE (`$locale`) than needed — a course
  *      full of ru-only words does not stop a uz group from borrowing uz words.
@@ -216,17 +217,7 @@ final class ExamQuestionBuilder
         // enough unique candidates in the answer language.
         $foreign = $this->uniqueInLocale(array_merge($sameStage, $sameCourse, $sameLesson), $locale) >= $needed
             ? []
-            : $this->candidates(
-                Word::query()
-                    ->where('is_active', true)
-                    ->whereHas('lesson.stage.course', fn ($q) => $q
-                        ->where('courses.id', '!=', $courseId)
-                        ->where('status', 'published')
-                        ->where('visibility', 'public')
-                        ->where('owner_type', 'platform')),
-                $needed,
-                $locale,
-            );
+            : $this->candidates($this->foreignWords((int) $courseId), $needed, $locale);
 
         return [$sameStage, $sameCourse, $sameLesson, $foreign];
     }
@@ -252,19 +243,25 @@ final class ExamQuestionBuilder
 
         $foreign = $this->uniqueInLocale(array_merge($otherWords, $ownWords), $locale) >= $needed
             ? []
-            : $this->candidates(
-                Word::query()
-                    ->where('is_active', true)
-                    ->whereHas('lesson.stage.course', fn ($q) => $q
-                        ->where('courses.id', '!=', $course->id)
-                        ->where('status', 'published')
-                        ->where('visibility', 'public')
-                        ->where('owner_type', 'platform')),
-                $needed,
-                $locale,
-            );
+            : $this->candidates($this->foreignWords($course->id), $needed, $locale);
 
         return [$otherWords, $ownWords, $foreign];
+    }
+
+    /**
+     * Active words of the foreign courses a distractor may come from ({@see Course::scopePublicPlatform()}),
+     * `$exceptCourseId` itself excluded.
+     *
+     * @return Builder<Word>
+     */
+    private function foreignWords(int $exceptCourseId): Builder
+    {
+        return Word::query()
+            ->where('is_active', true)
+            ->whereHas('lesson.stage.course', function (Builder $courses) use ($exceptCourseId): void {
+                /** @var Builder<Course> $courses */
+                $courses->where('courses.id', '!=', $exceptCourseId)->publicPlatform();
+            });
     }
 
     /**
