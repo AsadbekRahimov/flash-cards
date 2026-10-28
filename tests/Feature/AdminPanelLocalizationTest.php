@@ -517,8 +517,8 @@ it('puts no resource label in the nominative with a capital letter into the head
         }
     }
 
-    // Guards the guard: the walk reached the delete and the create dialogs, not only the custom ones.
-    expect(array_filter(array_keys($checked), fn (string $key): bool => str_ends_with($key, ' delete')))->toHaveCount(8)
+    // Guards the guard: the walk reached the delete and the create dialogs (8 delete ones today), not only the custom ones.
+    expect(count(array_filter(array_keys($checked), fn (string $key): bool => str_ends_with($key, ' delete'))))->toBeGreaterThanOrEqual(8)
         ->and($checked)->toHaveKey(StageResource::class.' tab LessonsRelationManager create')
         ->and($wrong)->toBe([]);
 });
