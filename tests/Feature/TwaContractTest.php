@@ -176,13 +176,16 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
             'entitlement' => ['plan', 'source', 'until'],
             'onboarding_completed',
             'league',
+            'timezone',
         ]);
 
     expect($response->json('due_count'))->toBeInt()
         ->and($response->json('new_words_remaining'))->toBe(20)
         ->and($response->json('open_session_id'))->toBeInt()
         ->and($response->json('onboarding_completed'))->toBeTrue()
-        ->and($response->json('entitlement'))->toBe(['plan' => 'free', 'source' => 'free', 'until' => null]);
+        ->and($response->json('entitlement'))->toBe(['plan' => 'free', 'source' => 'free', 'until' => null])
+        // the IANA id of the learner's zone: the TWA dates the header of the screen by it
+        ->and($response->json('timezone'))->toBe($learner->timezone);
 
     $bare = Learner::factory()->create();
     $this->withHeaders(contractHeaders($bare))
@@ -190,10 +193,11 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
         ->assertOk()
         ->assertExactJsonStructure([
             'due_count', 'new_words_remaining', 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK,
-            'active_course', 'open_session_id', 'entitlement' => ['plan', 'source', 'until'], 'onboarding_completed', 'league',
+            'active_course', 'open_session_id', 'entitlement' => ['plan', 'source', 'until'], 'onboarding_completed', 'league', 'timezone',
         ])
         ->assertJsonPath('active_course', null)
-        ->assertJsonPath('open_session_id', null);
+        ->assertJsonPath('open_session_id', null)
+        ->assertJsonPath('timezone', $bare->timezone);
 });
 
 it('GET /me reports the Free entitlement and a paywall without contact while BILLING_SUPPORT_CONTACT is empty', function (): void {

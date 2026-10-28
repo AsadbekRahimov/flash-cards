@@ -16,6 +16,7 @@ final readonly class TodaySummary
      * @param  int  $dueCount  cards due for review (DueRepetitionCriteria — active words only)
      * @param  int|null  $newWordsRemaining  Free quota left for the day (NewWordQuota); null = unlimited
      * @param  int|null  $openSessionId  the open, unexpired `daily_review` session to continue
+     * @param  string  $timezone  IANA id of the zone the learner's day (goal, streak) is counted in: the one LearnerClock uses
      * @param  TodayLeague|null  $league  the learner's place in this week's league group; null while not placed
      */
     public function __construct(
@@ -26,6 +27,7 @@ final readonly class TodaySummary
         public ?int $openSessionId,
         public Entitlement $entitlement,
         public bool $onboardingCompleted,
+        public string $timezone,
         public ?TodayLeague $league = null,
     ) {}
 }
