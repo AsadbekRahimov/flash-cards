@@ -241,6 +241,34 @@ describe('BillingView', () => {
       expect(api.me.get).toHaveBeenCalledTimes(1)
     })
 
+    it('does not offer «Renew Pro» on top of the Pro of a center: the card says where Pro comes from', async () => {
+      const { wrapper } = await render(me({ plan: 'pro', source: 'sponsor:organization:3', until: null }), catalog())
+
+      expect(wrapper.get('[data-testid=plan-sponsored]').text()).toBe('Pro подключён вашим центром.')
+      expect(wrapper.find('[data-testid=buy]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=unavailable]').exists()).toBe(false)
+      expect(wrapper.findAll('.btn-primary')).toHaveLength(0)
+      expect(wrapper.find('[data-testid=promo-card]').exists()).toBe(true)
+    })
+
+    it('offers no discount block to the Pro of a center either', async () => {
+      const { wrapper } = await render(me({ plan: 'pro', source: 'sponsor:organization:3', until: null }), offerCatalog())
+
+      expect(wrapper.find('[data-testid=offer-card]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=buy]').exists()).toBe(false)
+    })
+
+    it('still offers to renew to a learner who pays for Pro themself while a center also gives it', async () => {
+      const ends = '2026-11-20T00:00:00+00:00'
+      const { wrapper } = await render(
+        me({ plan: 'pro', source: 'sponsor:organization:3', until: ends, renewal: { auto: false, provider: 'payme', ends_at: ends, reminder_sent: false } }),
+        catalog(summary({ provider: 'payme', ends_at: ends, auto_renew: false, can_cancel: false, can_resume: false })),
+      )
+
+      expect(wrapper.find('[data-testid=plan-sponsored]').exists()).toBe(false)
+      expect(wrapper.get('[data-testid=buy]').text()).toBe('Продлить Pro')
+    })
+
     it('shows no buy button for a perpetual Pro grant', async () => {
       const { wrapper } = await render(
         me({ plan: 'pro', until: null }),

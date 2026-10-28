@@ -28,7 +28,8 @@ import type { BillingProviderKey, MeResponse } from '@/api/types'
  * A page of the Profile tab: the system "Back" button leads to the Profile.
  *
  * "Buy / Renew" is there only when there is something to buy: not while the Stars renewal runs or is in grace (the
- * server refuses a payment then — the grace gets a warning instead) and not for a perpetual grant.
+ * server refuses a payment then — the grace gets a warning instead), not for a perpetual grant and not for the Pro a
+ * center has switched on (the card says so).
  */
 const auth = useAuthStore()
 const billing = useBillingStore()
@@ -63,8 +64,13 @@ const support = computed(() => supportContactLink(billing.paywall?.contact))
 const grace = computed(() => inStarsGrace(subscription.value))
 const graceMessage = computed(() => graceText(subscription.value?.ends_at ?? entitlement.value?.until ?? null, locale.value))
 
-/** Stars renew by themselves (or are in grace) and a perpetual grant has an end of nothing: there is nothing to buy then. */
-const canBuy = computed(() => billing.canPurchase && !subscription.value?.auto_renew && !subscription.value?.perpetual && !grace.value)
+/**
+ * Stars renew by themselves (or are in grace), a perpetual grant has an end of nothing and the Pro of a center is not
+ * the learner's to buy: there is nothing to buy then.
+ */
+const canBuy = computed(
+  () => billing.canPurchase && !subscription.value?.auto_renew && !subscription.value?.perpetual && !grace.value && !sponsored.value,
+)
 
 const untilText = computed(() => {
   const until = renewal.value?.ends_at ?? entitlement.value?.until ?? null
