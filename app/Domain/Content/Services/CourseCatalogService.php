@@ -402,7 +402,7 @@ final class CourseCatalogService
         foreach ($rows as $row) {
             $lessons[] = new LessonProgress(
                 (int) $row->stage_number,
-                $this->deckTitles->stage($course, $learner, (string) $row->stage_title),
+                $this->deckTitles->stage($course, $learner, $row->stage_title === null ? null : (string) $row->stage_title),
                 (int) $row->lesson_id,
                 (int) $row->lesson_number,
                 $this->deckTitles->lesson($course, $learner, (int) $row->lesson_number, $row->lesson_title === null ? null : (string) $row->lesson_title),

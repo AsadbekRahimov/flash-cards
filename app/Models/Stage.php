@@ -10,6 +10,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * A module of a course. `title` is NULL when it has no name of its own: the reader is shown "Модуль N" / "N-modul"
+ * in their language (docs/14 §8) - the TWA builds it from `number`, the admin panel from StageResource::displayTitle().
+ *
+ * @property string|null $title
+ */
 class Stage extends Model
 {
     /** @use HasFactory<StageFactory> */

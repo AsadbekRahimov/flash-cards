@@ -95,6 +95,43 @@ it('sends a lesson picker when no arguments are provided', function (): void {
     expect(TrainingSession::query()->where('status', 'open')->count())->toBe(0);
 });
 
+it('names a module without a title of its own by its number, in the language of the group: picker, command, announcement', function (string $locale, string $button, string $started): void {
+    $group = TelegramGroup::factory()->create(['chat_id' => -2021, 'status' => 'active', 'meta' => ['locale' => $locale]]);
+    $teacher = User::factory()->create(['telegram_user_id' => 892]);
+    attachTeacher($teacher, $group);
+    $stage = Stage::factory()->inDefaultCourse()->untitled()->create(['number' => 3]);
+    Lesson::factory()->for($stage)->create(['number' => 2]);
+
+    // The buttons of the picker carry the numbers, never a stored title (there is none to carry).
+    $this->api->shouldReceive('sendMessage')
+        ->once()
+        ->withArgs(function (int $chatId, string $text, ?string $parseMode, ?array $replyMarkup) use ($button): bool {
+            $row = $replyMarkup['inline_keyboard'][0][0] ?? [];
+
+            return $chatId === -2021
+                && ($row['text'] ?? null) === $button
+                && ($row['callback_data'] ?? null) === StartTrainingHandler::CALLBACK_PREFIX.'3:2';
+        });
+    $this->api->shouldReceive('sendWebAppButton')
+        ->once()
+        ->withArgs(fn (int $chatId, string $text): bool => $chatId === -2021 && str_contains($text, $started) && ! str_contains($text, 'Stage'));
+
+    foreach (['/start_training', '/start_training 3 2'] as $text) {
+        app(TelegramDispatcher::class)->dispatch([
+            'message' => [
+                'chat' => ['id' => -2021, 'type' => 'supergroup'],
+                'from' => ['id' => 892],
+                'text' => $text,
+            ],
+        ]);
+    }
+
+    expect(TrainingSession::query()->where('status', 'open')->count())->toBe(1);
+})->with([
+    'ru' => ['ru', 'Модуль 3 · Урок 2', 'модуль 3, урок 2'],
+    'uz' => ['uz', '3-modul · 2-dars', '3-modul, 2-dars'],
+]);
+
 it('stays silent on the lesson picker path in a non-active group (Group Lock)', function (): void {
     // Regression: previously the no-args picker bypassed the active-group check
     // (only the service validated status), so the bot replied in pending groups.

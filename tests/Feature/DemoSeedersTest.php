@@ -36,6 +36,18 @@ it('seeds the default course with all demo stages and ru translations', function
         ->and(WordTranslation::where('locale', 'ru')->where('source', 'import')->count())->toBe(120);
 });
 
+it('seeds the demo modules without a name of their own, and a re-seed leaves a name the admin gave one', function (): void {
+    $this->seed(DemoContentSeeder::class);
+
+    // NULL, not the English "Stage 1": readers are shown "Модуль 1" / "1-modul" in their language (docs/14 §8).
+    expect(Stage::query()->orderBy('number')->pluck('title', 'number')->all())->toBe([1 => null, 2 => null]);
+
+    Stage::query()->where('number', 1)->update(['title' => 'Начальный уровень']);
+    $this->seed(DemoContentSeeder::class);
+
+    expect(Stage::query()->orderBy('number')->pluck('title', 'number')->all())->toBe([1 => 'Начальный уровень', 2 => null]);
+});
+
 it('is idempotent', function (): void {
     $this->seed(DemoContentSeeder::class);
     $this->seed(DemoContentSeeder::class);

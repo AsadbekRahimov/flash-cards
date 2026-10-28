@@ -71,6 +71,8 @@ it('imports the original PRD vocabulary schema', function (): void {
     expect(Stage::query()->where('number', 4)->exists())->toBeTrue();
     expect(Lesson::query()->where('number', 8)->exists())->toBeTrue();
     expect(Word::query()->where('word', 'resilient')->exists())->toBeTrue();
+    // The PRD form has no room for a module title: the module has no name of its own.
+    expect(Stage::query()->where('number', 4)->sole()->title)->toBeNull();
 });
 
 it('re-importing the same file updates 0 and skips 2 (no changes)', function (): void {
@@ -189,6 +191,44 @@ it('puts imported stages into the default course and reuses it', function (): vo
     expect(Course::count())->toBe(1)
         ->and(Stage::count())->toBe(2)
         ->and($course->stages()->count())->toBe(2);
+});
+
+it('gives a new module no name when the file has none: NULL, not the English "Stage N"', function (mixed $stage): void {
+    $report = app(VocabularyImporter::class)->importAsSystem(sampleJson(['stage' => $stage]));
+
+    expect($report->ok())->toBeTrue()
+        ->and(Stage::sole()->number)->toBe(3)
+        ->and(Stage::sole()->title)->toBeNull()
+        ->and(DB::table('stages')->value('title'))->toBeNull();
+})->with([
+    'no title' => [['number' => 3]],
+    'an empty title' => [['number' => 3, 'title' => '']],
+    'a blank title' => [['number' => 3, 'title' => "  \t "]],
+]);
+
+it('keeps the name of an existing module when a later file does not name it, and renames it when one does', function (): void {
+    $importer = app(VocabularyImporter::class);
+    $importer->importAsSystem(sampleJson(['stage' => ['number' => 1, 'title' => 'Основы']]));
+
+    foreach ([['number' => 1], ['number' => 1, 'title' => ''], ['number' => 1, 'title' => '   ']] as $unnamed) {
+        $importer->importAsSystem(sampleJson(['stage' => $unnamed, 'lesson' => ['number' => 2], 'words' => [['word' => 'again', 'translation' => 'снова']]]));
+
+        expect(Stage::sole()->title)->toBe('Основы');
+    }
+
+    $importer->importAsSystem(sampleJson(['stage' => ['number' => 1, 'title' => 'Образование']]));
+    expect(Stage::sole()->title)->toBe('Образование');
+});
+
+it('names a module that has no name once a file brings one', function (): void {
+    $importer = app(VocabularyImporter::class);
+    $importer->importAsSystem(sampleJson(['stage' => ['number' => 1]]));
+    expect(Stage::sole()->title)->toBeNull();
+
+    $importer->importAsSystem(sampleJson(['stage' => ['number' => 1, 'title' => 'Beginner']]));
+
+    expect(Stage::sole()->title)->toBe('Beginner')
+        ->and(Stage::count())->toBe(1);
 });
 
 it('imports into an existing default course without duplicating it', function (): void {

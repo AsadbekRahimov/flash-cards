@@ -259,6 +259,24 @@ it('returns stages with lessons in study order and per-lesson progress', functio
         ->and($json['stages'][1]['lessons'][0])->toBe(['id' => $l21->id, 'number' => 1, 'title' => null, 'progress' => ['done' => 0, 'total' => 0]]);
 });
 
+it('returns title null for a module without a name of its own, whatever the locale: the client names it by its number', function (string $locale): void {
+    $course = Course::factory()->published()->create(['slug' => 'untitled-modules']);
+    $named = Stage::factory()->create(['course_id' => $course->id, 'number' => 1, 'title' => 'Basics']);
+    $bare = Stage::factory()->untitled()->create(['course_id' => $course->id, 'number' => 2]);
+    Word::factory()->for(Lesson::factory()->for($named)->create())->create();
+    Word::factory()->for(Lesson::factory()->for($bare)->create())->create();
+    $learner = Learner::factory()->create(['interface_locale' => $locale]);
+
+    $response = $this->withHeaders(courseHeaders($learner))->getJson('/api/twa/courses/untitled-modules')->assertOk();
+
+    // The key stays in the payload (null, never "Stage 2" or an empty string), the number is what the client builds the caption from.
+    expect($response->json('stages.0.title'))->toBe('Basics')
+        ->and($response->json('stages.1'))->toHaveKeys(['number', 'title', 'progress', 'lessons'])
+        ->and($response->json('stages.1.number'))->toBe(2)
+        ->and($response->json('stages.1.title'))->toBeNull()
+        ->and($response->getContent())->not->toContain('Stage');
+})->with(['ru', 'uz']);
+
 it('opens an unlisted published course by its slug', function (): void {
     catalogCourse(['slug' => 'by-link', 'visibility' => 'unlisted']);
 

@@ -582,13 +582,17 @@ Pro (`exercise.spelling`, `exercise.gap_fill`) и только с `repetitions �
   "words_count": 500, "is_active": true, "progress": { "done": 120, "total": 500 },
   "stages": [
     {
-      "number": 1, "title": "Stage 1", "progress": { "done": 40, "total": 100 },
+      "number": 1, "title": "Образование", "progress": { "done": 40, "total": 100 },
       "lessons": [ { "id": 11, "number": 1, "title": "Greetings", "progress": { "done": 20, "total": 25 } } ]
-    }
+    },
+    { "number": 2, "title": null, "progress": { "done": 0, "total": 80 }, "lessons": [] }
   ]
 }
 ```
-Модули и уроки — в порядке изучения `(stage.number, lesson.number)`; `lessons[].title` может быть `null`.
+Модули и уроки — в порядке изучения `(stage.number, lesson.number)`; `lessons[].title` может быть `null`. **`stages[].title` — `null`,
+если у модуля нет собственного названия** (docs/03 §2.5): клиент подписывает его по `number` на языке читателя («Модуль 2» /
+«2-modul»; TWA — ключ `course.module`), а чип «Модуль N» рядом с названием показывает только у модуля с названием. Сервер
+не подставляет подпись сам — ни «Stage 2», ни пустую строку. Для колоды learner'а `title` всегда локализованное «Моя колода» / «Mening lug'atim».
 
 #### `POST /api/twa/me/course`
 Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 → иначе 422). Ставит `learners.active_course_id`

@@ -123,10 +123,18 @@ erDiagram
 | id | bigint PK |
 | course_id | bigint FK → courses, ON DELETE CASCADE, NOT NULL |
 | number | int |
-| title | string(255) |
+| title | string(255) **nullable** |
 | description | text nullable |
 
 **Индексы:** `(course_id, number)` unique — номер модуля уникален внутри курса (одинаковый `number` в разных курсах разрешён).
+
+**`title` = NULL — модуль без собственного названия** (17.14-S). Его подпись строится при показе на языке читателя: «Модуль N» /
+«N-modul» (docs/14 §8) — TWA из `number`, админка из `admin.stages.untitled`; в API `stages[].title` приходит `null`
+(docs/04 A.5a). Раньше импорт без `stage.title` и демо-сидер писали английское «Stage N», которое видел и uz-ученик; миграция
+`2026_10_28_400001_make_stages_title_nullable` сняла NOT NULL и превратила в NULL названия, равные ровно «Stage {свой number}»
+(«Stage 3» у модуля №5 и любое настоящее название остаются; `down()` возвращает «Stage N» в NULL-строки). Импорт без названия
+создаёт модуль с NULL и **не затирает** название существующего; пустая строка и пробелы — то же, что «нет названия».
+У колод learner'а название техническое («Моя колода», см. §2.20) и в API заменяется локализованным.
 
 ### 2.6 `lessons`
 | Колонка | Тип |

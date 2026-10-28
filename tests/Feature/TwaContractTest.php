@@ -411,6 +411,26 @@ it('GET /courses/{slug} keeps its exact JSON shape', function (): void {
         ]);
 });
 
+it('GET /courses/{slug} keeps the shape for a module without a name: `title` is present and null', function (): void {
+    $s = contractCourse();
+    Stage::query()->where('course_id', $s['course']->id)->update(['title' => null]);
+
+    $response = $this->withHeaders(contractHeaders($s['learner']))
+        ->getJson('/api/twa/courses/contract-course')
+        ->assertOk()
+        ->assertExactJsonStructure([
+            'slug', 'title', 'description', 'level', 'exam_tag', 'words_count', 'is_active',
+            'progress' => CONTRACT_PROGRESS,
+            'stages' => [[
+                'number', 'title', 'progress' => CONTRACT_PROGRESS,
+                'lessons' => [['id', 'number', 'title', 'progress' => CONTRACT_PROGRESS]],
+            ]],
+        ]);
+
+    expect($response->json('stages.0'))->toHaveKey('title')
+        ->and($response->json('stages.0.title'))->toBeNull();
+});
+
 it('POST /me/course keeps its exact JSON shape (a course row) and 404 error envelope', function (): void {
     $s = contractCourse();
     $headers = contractHeaders($s['learner']);
