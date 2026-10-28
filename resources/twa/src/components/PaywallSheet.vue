@@ -102,6 +102,8 @@ const chosenPeriod = ref<BillingPeriod | null>(null)
 const period = computed<BillingPeriod | null>(() => chosenPeriod.value ?? periods.value[0] ?? null)
 const item = computed(() => billing.catalog?.items.find((i) => i.period === period.value) ?? null)
 const offer = computed(() => billing.catalog?.offer ?? null)
+/** The discount belongs to one period (`period: null` = any): its chip is shown next to that period only. */
+const offerShown = computed(() => offer.value !== null && (offer.value.period === null || offer.value.period === period.value))
 /** Stars renew by themselves: paying again would charge twice (the server refuses with checkout_conflict). */
 const renewing = computed(() => billing.catalog?.subscription?.auto_renew === true)
 /** A perpetual grant leaves nothing to buy (the server refuses with already_perpetual). */
@@ -243,7 +245,7 @@ onBeforeUnmount(() => {
         </div>
 
         <section v-if="purchaseMode && !done" class="space-y-3" data-testid="purchase">
-          <p v-if="offer" class="flex justify-center">
+          <p v-if="offerShown" class="flex justify-center">
             <span class="chip chip-warning h-auto py-1 text-center whitespace-normal" data-testid="purchase-offer">{{ offerText }}</span>
           </p>
 

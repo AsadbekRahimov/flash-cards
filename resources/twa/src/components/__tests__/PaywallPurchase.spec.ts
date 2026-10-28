@@ -240,6 +240,61 @@ describe('PaywallSheet in purchase mode', () => {
     expect(w.find('[data-testid=period-month]').exists()).toBe(false) // a single period needs no tabs
   })
 
+  describe('the chip of the offer belongs to the period the offer covers', () => {
+    const withOffer = (period: 'month' | 'year' | null) => catalog({
+      items: [
+        { plan: 'pro', tier: null, period: 'month', prices: { XTR: period === 'year' ? 150 : 105 }, list_prices: { XTR: 150 } },
+        { plan: 'pro', tier: null, period: 'year', prices: { XTR: period === 'month' ? 1300 : 910 }, list_prices: { XTR: 1300 } },
+      ],
+      providers: ['telegram_stars'],
+      offer: { kind: 'post_org_discount', discount_pct: 30, period, expires_at: '2026-11-02T12:00:00+00:00' },
+    })
+
+    it('shows the chip next to the month the offer is about, and takes it away on the year', async () => {
+      vi.mocked(api.billing.catalog).mockResolvedValue(withOffer('month'))
+      const w = await render()
+
+      expect(w.get('[data-testid=purchase-offer]').text()).toContain('Скидка 30% на первый платёж')
+      expect(payPrice(w, 'telegram_stars')).toBe('105 ⭐')
+      expect(w.get('[data-testid=list-price]').text()).toBe('150 ⭐')
+
+      await w.get('[data-testid=period-year]').trigger('click')
+      expect(w.find('[data-testid=purchase-offer]').exists()).toBe(false) // a year at the list price must not wear the month's chip
+      expect(payPrice(w, 'telegram_stars')).toBe('1 300 ⭐')
+      expect(w.find('[data-testid=list-price]').exists()).toBe(false)
+
+      await w.get('[data-testid=period-month]').trigger('click')
+      expect(w.find('[data-testid=purchase-offer]').exists()).toBe(true)
+    })
+
+    it('shows it on the year only when the offer is about the year', async () => {
+      vi.mocked(api.billing.catalog).mockResolvedValue(withOffer('year'))
+      const w = await render()
+      expect(w.find('[data-testid=purchase-offer]').exists()).toBe(false) // the month is selected first
+
+      await w.get('[data-testid=period-year]').trigger('click')
+      expect(w.get('[data-testid=purchase-offer]').text()).toContain('Скидка 30%')
+      expect(payPrice(w, 'telegram_stars')).toBe('910 ⭐')
+    })
+
+    it('shows it on every period when the offer covers any of them', async () => {
+      vi.mocked(api.billing.catalog).mockResolvedValue(withOffer(null))
+      const w = await render()
+      expect(w.find('[data-testid=purchase-offer]').exists()).toBe(true)
+
+      await w.get('[data-testid=period-year]').trigger('click')
+      expect(w.find('[data-testid=purchase-offer]').exists()).toBe(true)
+    })
+
+    it('shows no chip without an offer on either period', async () => {
+      const w = await render()
+
+      expect(w.find('[data-testid=purchase-offer]').exists()).toBe(false)
+      await w.get('[data-testid=period-year]').trigger('click')
+      expect(w.find('[data-testid=purchase-offer]').exists()).toBe(false)
+    })
+  })
+
   it('pays with Stars: opens the invoice, waits for the order, then says Pro is on and refreshes /me and /today', async () => {
     vi.useFakeTimers()
     tg.openInvoice.mockResolvedValue('paid')
