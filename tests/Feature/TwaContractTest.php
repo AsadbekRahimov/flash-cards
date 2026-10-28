@@ -13,6 +13,7 @@ use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Services\CheckoutService;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Billing\Services\PaymentApplier;
+use App\Domain\Content\Services\CoursePublisher;
 use App\Domain\Learning\DTO\ServedExamQuestion;
 use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Learning\Services\ExamQuestionPersonalizer;
@@ -370,6 +371,7 @@ function contractCourse(): array
     $course = Course::factory()->published()->create(['slug' => 'contract-course', 'level' => 'A2', 'description' => ['ru' => 'Описание']]);
     $stage = Stage::factory()->create(['course_id' => $course->id]);
     Word::factory()->count(2)->for(Lesson::factory()->for($stage)->create())->create();
+    app(CoursePublisher::class)->recount($course); // the catalog reads the course counter, as after any import
 
     return ['learner' => Learner::factory()->create(), 'course' => $course];
 }

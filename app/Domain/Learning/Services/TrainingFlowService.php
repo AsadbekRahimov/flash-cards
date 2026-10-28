@@ -94,7 +94,8 @@ final class TrainingFlowService
     }
 
     /**
-     * @param  int|null  $totalWords  lesson scope: active words of the lesson (cached); daily: ignored
+     * @param  int|null  $totalWords  lesson scope: active words of the lesson, when the caller already has them
+     *                                (cached {@see LearningCache::lessonWordCount()} otherwise); daily: ignored
      */
     public function nextStep(TrainingSession $session, Learner $learner, ?int $totalWords = null): TrainingStep
     {
@@ -108,7 +109,7 @@ final class TrainingFlowService
 
         $progress = $scope->isDaily()
             ? ['done' => $reviewCount, 'total' => $this->dailyGoal($learner)]
-            : $this->picker->progress((int) $learner->id, (int) $scope->lessonId, $totalWords);
+            : $this->picker->progress((int) $learner->id, (int) $scope->lessonId, $totalWords ?? $this->cache->lessonWordCount((int) $scope->lessonId));
 
         // Group lessons are outside the Free quota (docs/12 §5.3); same lock order either way —
         // the budget is resolved before the picker's transaction.

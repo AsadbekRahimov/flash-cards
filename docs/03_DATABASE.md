@@ -507,7 +507,11 @@ Append-only журнал для продуктовой аналитики (не 
 поддерживаемых локалей (сейчас `uz` + `ru`) не менее чем у `config('content.publish_translation_threshold')`
 (0.95) активных слов. Проверка — только при новой публикации: уже опубликованный курс не пересматривается,
 контент без `uz` показывается с ru-fallback и пометкой. `words_count` — число активных слов курса,
-пересчитывается `CoursePublisher::recount` после импорта. Курс `default` создаётся `CourseCatalogService::defaultCourse()`
+пересчитывается `CoursePublisher::recount` после импорта. Это **читаемое** значение: `total` прогресса в каталоге
+(`GET /courses`, колоды, `active_course` на «Сегодня») берётся из него, слова каталога при открытии не считаются
+(`done` — запросом по строкам `word_repetitions` самого learner'а). Поэтому любой путь, меняющий активные слова
+(импорт, колоды learner'а, правка слова в админке), обязан вызвать `recount` и `LearningCache::forgetLesson`;
+текущие пути перечислены в `WordChangePathsTest` и `WordTranslationsAdminTest`. Курс `default` создаётся `CourseCatalogService::defaultCourse()`
 (сидер, первый импорт без `course`) сразу в статусе `published`; группа с `telegram_groups.course_id = NULL` работает в нём.
 
 ### 2.21 `word_translations` — переводы слов по локалям
