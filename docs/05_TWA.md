@@ -48,6 +48,10 @@ resources/twa/
 │   │   ├── telegramTheme.ts # themeParams -> CSS-переменные, data-theme, цвет шапки (§8)
 │   │   ├── useBackButton.ts # системная «Назад» Telegram: показ/скрытие + переход (§8)
 │   │   ├── useToast.ts      # короткие уведомления («Сохранено»), рисует AppToast
+│   │   ├── errorToast.ts    # showErrorToast(): отказ действия тостом на 4 с (docs/14 §3)
+│   │   ├── useReviewFromPaywall.ts # «Повторить слова» пейвола: закрыть лист → daily_review → тренировка (все экраны с PaywallSheet)
+│   │   ├── useDeckLimit.ts  # отказ по лимиту колод: Free — пейвол, Pro — «это предел вашего тарифа» (docs/14 §6.5)
+│   │   ├── useCopyToClipboard.ts # «Скопировать»: Clipboard API → выделение скрытого поля → тост об успехе / неудаче
 │   │   ├── format.ts        # formatDate(iso, style, locale) / formatNumber с кешем Intl
 │   │   ├── useTts.ts
 │   │   └── useTimer.ts
