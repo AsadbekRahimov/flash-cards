@@ -218,6 +218,24 @@ describe('errorMessage', () => {
     expect(errorMessage(err('forbidden', 403, 'forbidden'), 'exam')).toBe("Sizda bu imtihonga kirish huquqi yo'q.")
   })
 
+  it('calls the home screen by the name of its tab, in the closed / forbidden texts and on the way back to it', () => {
+    expect(t('nav.today')).toBe('Главная')
+    expect(errorMessage(err('gone', 410, 'session_closed'), 'today')).toBe('Экран «Главная» больше недоступен.')
+    expect(errorMessage(err('forbidden', 403, 'forbidden'), 'today')).toBe('У вас нет доступа к экрану «Главная».')
+
+    setLocale('uz')
+    expect(t('nav.today')).toBe('Asosiy')
+    expect(errorMessage(err('gone', 410, 'session_closed'), 'today')).toBe('Asosiy ekran endi mavjud emas.')
+    expect(errorMessage(err('forbidden', 403, 'forbidden'), 'today')).toBe("Sizda asosiy ekranga kirish huquqi yo'q.")
+    // The button back to it carries the word of the tab, not another name for the same screen.
+    expect(t('finished.home')).toBe('Asosiy sahifaga')
+    for (const text of [t('error.closed.today'), t('error.forbidden.today'), t('finished.home')]) {
+      expect(text.toLowerCase()).toContain(t('nav.today').toLowerCase())
+      expect(text).not.toContain('Bugun')
+      expect(text).not.toContain('Bosh')
+    }
+  })
+
   it('prefers the specific code over the generic 403 text (group_inactive)', () => {
     expect(errorMessage(err('forbidden', 403, 'group_inactive'), 'training')).toBe(
       'Группа не активирована. Обратитесь к учителю.',

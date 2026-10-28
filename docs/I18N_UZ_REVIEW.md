@@ -399,11 +399,11 @@
 | `today.course.completed` | Kursdagi barcha so'zlar ko'rsatildi | Все слова курса уже показаны |
 | `today.course.none` | Asosiy kurs tanlanmagan | Основной курс не выбран |
 | `today.onboarding_hint` | Sozlashni yakunlash uchun botga /start yuboring | Чтобы завершить настройку, отправьте боту /start |
-| `finished.home` | Bosh sahifaga | На главную |
+| `finished.home` | Asosiy sahifaga | На главную |
 | `finished.goal` | Kunlik maqsad: {target} tadan {done} tasi | Цель дня: {done} из {target} |
 | `finished.goal_met` | Kunlik maqsad bajarildi! | Цель дня выполнена! |
-| `error.closed.today` | Bugun ekrani endi mavjud emas. | Экран «Сегодня» больше недоступен. |
-| `error.forbidden.today` | Sizda Bugun ekraniga kirish huquqi yo'q. | У вас нет доступа к экрану «Сегодня». |
+| `error.closed.today` | Asosiy ekran endi mavjud emas. | Экран «Главная» больше недоступен. |
+| `error.forbidden.today` | Sizda asosiy ekranga kirish huquqi yo'q. | У вас нет доступа к экрану «Главная». |
 
 Удалены ключи `landing.in_telegram` и `landing.review_all`: стартовый экран в Telegram теперь сразу ведёт на «Сегодня».
 
@@ -1881,6 +1881,8 @@
 ## Редизайн 2026-10-28 · 17.11-A — на проверку носителю
 
 > Проверить: название панели нижней навигации для экранных дикторов — «Bo'limlar» (разделы; читается как «Bo'limlar, navigatsiya»).
+> Экран «Главная» (вкладка «Asosiy») теперь так и называется везде: кнопка «На главную» — «Asosiy sahifaga» (было «Bosh sahifaga»), тексты «экран больше недоступен» / «нет доступа к экрану» — «Asosiy ekran endi mavjud emas.» и «Sizda asosiy ekranga kirish huquqi yo'q.» (было «Bugun ekrani…» — «Сегодня»). Проверить, что «asosiy ekran» / «asosiy sahifa» естественно читаются рядом с названием вкладки «Asosiy».
+> Изменённые значения старых ключей (`finished.home`, `error.closed.today`, `error.forbidden.today`) исправлены в своих прежних строках выше; здесь — только новые ключи.
 
 ### TWA, нижняя навигация (`resources/twa/src/i18n/uz.ts`)
 

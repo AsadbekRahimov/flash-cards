@@ -377,7 +377,7 @@ describe('FinishedView', () => {
 
       expect(w.get('[data-testid=goal-text]').text()).toBe('Kunlik maqsad: 20 tadan 12 tasi')
       expect(w.get('[data-testid=streak]').text()).toBe('3 kun ketma-ket')
-      expect(w.get('[data-testid=home-btn]').text()).toBe('Bosh sahifaga')
+      expect(w.get('[data-testid=home-btn]').text()).toBe('Asosiy sahifaga')
     })
   })
 

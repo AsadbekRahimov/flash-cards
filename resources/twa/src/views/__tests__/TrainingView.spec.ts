@@ -144,7 +144,7 @@ describe('TrainingView — closed session', () => {
       setLocale('uz')
       const { wrapper } = await closedWhileLearning('lesson')
 
-      expect(wrapper.get('[data-testid=home-btn]').text()).toBe('Bosh sahifaga')
+      expect(wrapper.get('[data-testid=home-btn]').text()).toBe('Asosiy sahifaga')
     })
 
     it('a group lesson still closes the Mini App', async () => {
