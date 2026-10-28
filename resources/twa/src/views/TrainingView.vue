@@ -94,16 +94,21 @@ function leave(): void {
 
 useBackButton(leave)
 
+/**
+ * Set when the learner leaves the screen. Whatever comes back after that (the login, the reply to the last grade, the
+ * summary of the session) must not carry them anywhere from the screen they are on now.
+ */
+let left = false
+
 async function begin(): Promise<void> {
   try {
     await auth.ensure({ type: 'training', sessionId: props.sessionId })
+    // Left while the login was on its way: nobody would see the session start.
+    if (left) return
     await training.start(props.sessionId)
-    if (training.status === 'finished') {
-      void redirectToFinished()
-    }
   } catch (err) {
     // start() handles its own errors; this is an auth failure.
-    training.handleApiError(err)
+    if (!left) training.handleApiError(err)
   }
 }
 
@@ -115,53 +120,57 @@ onMounted(() => {
 watch(() => props.sessionId, () => void begin())
 
 onBeforeUnmount(() => {
+  left = true
   training.clearOpenError()
 })
 
-async function onGrade(q: Quality): Promise<void> {
-  await training.submitReview(q)
-  if (training.status === 'finished') {
-    await redirectToFinished()
-  }
+/**
+ * The session is over — however the store got to `finished` (the last grade, a verdict, "Next", "Retry", or a session
+ * that has no card to start with) — and the finish screen follows, once. Not the usual batched watcher: a session that
+ * is finished from its very first card goes `finished` (the last visit) -> `starting` -> `finished` within one tick, and
+ * a batched watcher would see no change. It stops with the screen, so a reply that comes back after the learner left
+ * does nothing.
+ */
+watch(
+  status,
+  (current) => {
+    if (current === 'finished') void redirectToFinished()
+  },
+  { flush: 'sync' },
+)
+
+/** A flash card: the grade is the learner's own. */
+function onGrade(q: Quality): void {
+  void training.submitReview(q)
 }
 
 /**
  * Reverse / audio: the grade goes to the server at the pick, so it is saved even if the learner leaves at once; the
  * card it answers with is held back until the learner has seen the right answer (`onChoiceAdvance`).
  */
-async function onChoiceGrade(q: Quality): Promise<void> {
-  await training.submitChoice(q)
-  if (training.status === 'finished') {
-    await redirectToFinished()
-  }
+function onChoiceGrade(q: Quality): void {
+  void training.submitChoice(q)
 }
 
 /** The pause after a right pick is over, or "Next" was pressed after a wrong one: show the held card. */
-async function onChoiceAdvance(): Promise<void> {
+function onChoiceAdvance(): void {
   training.continueAfterChoice()
-  if (training.status === 'finished') {
-    await redirectToFinished()
-  }
 }
 
 /** Spelling / gap-fill: the server grades; the verdict is shown before the next card. */
-async function onAnswer(text: string): Promise<void> {
+function onAnswer(text: string): void {
   lastAnswer.value = text
-  await training.submitAnswer(text)
-  if (training.status === 'finished') {
-    await redirectToFinished()
-  }
+  void training.submitAnswer(text)
 }
 
-async function onContinue(): Promise<void> {
+function onContinue(): void {
   training.continueAfterVerdict()
-  if (training.status === 'finished') {
-    await redirectToFinished()
-  }
 }
 
 async function redirectToFinished(): Promise<void> {
   await training.finalize()
+  // ✕ or "Back" while the summary was being asked: the session is closed on the server, but the learner is elsewhere.
+  if (left) return
   await router.replace({
     name: 'finished',
     query: {

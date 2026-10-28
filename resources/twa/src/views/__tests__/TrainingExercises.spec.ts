@@ -373,6 +373,8 @@ describe('TrainingView — exercises', () => {
       expect(right.router.currentRoute.value.query).toMatchObject({ reviewed: '3', next: '6', reason: 'lesson_complete' })
       expect(api.training.finish).toHaveBeenCalledTimes(1)
       expect(api.training.review).toHaveBeenCalledTimes(1)
+      // The finish screen replaces the training screen (this test has no RouterView to do it).
+      right.wrapper.unmount()
 
       vi.clearAllMocks()
       vi.mocked(api.training.review).mockResolvedValue(

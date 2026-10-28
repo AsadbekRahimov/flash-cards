@@ -8,7 +8,7 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { useTrainingStore } from '@/stores/training'
-import type { Card, LessonHeader, TrainingStartResponse } from '@/api/types'
+import type { Card, LessonHeader, ReviewResponse, TrainingStartResponse } from '@/api/types'
 
 vi.mock('@/api', () => ({
   api: {
@@ -24,9 +24,10 @@ vi.mock('@/api', () => ({
 
 // `backHandler` is what the system "Back" button of Telegram would call (useBackButton registers it).
 const state = vi.hoisted(() => ({ close: vi.fn(), backHandler: null as (() => void) | null }))
+const authEnsure = vi.hoisted(() => vi.fn().mockResolvedValue(undefined))
 
 vi.mock('@/stores/auth', () => ({
-  useAuthStore: () => ({ ensure: vi.fn().mockResolvedValue(undefined) }),
+  useAuthStore: () => ({ ensure: authEnsure }),
 }))
 
 vi.mock('@/composables/useTelegram', () => ({
@@ -402,5 +403,169 @@ describe('TrainingView — header and states', () => {
     expect(api.training.next).toHaveBeenCalledTimes(1)
     expect(wrapper.find('[data-testid=error]').exists()).toBe(false)
     expect(wrapper.find('[data-testid=flashcard]').exists()).toBe(true)
+  })
+})
+
+/**
+ * The training screen inside a `RouterView`, the way the app has it: leaving for another route unmounts it. (`render`
+ * above mounts the view on its own, so it stays alive after a navigation.)
+ */
+async function renderRouted(sessionId: number) {
+  const router = createRouter({
+    history: createMemoryHistory(),
+    routes: [
+      { path: '/today', name: 'today', component: { template: '<div data-testid="today" />' } },
+      {
+        path: '/training/:sessionId(\\d+)',
+        name: 'training',
+        component: TrainingView,
+        props: (route) => ({ sessionId: Number(route.params.sessionId) }),
+      },
+      { path: '/finished', name: 'finished', component: { template: '<div data-testid="finished" />' } },
+    ],
+  })
+  await router.push({ name: 'training', params: { sessionId } })
+  const wrapper = mount({ template: '<RouterView />' }, { global: { plugins: [router] }, attachTo: document.body })
+  await flushPromises()
+  return { wrapper, router }
+}
+
+describe('TrainingView — the end of the session', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+    state.backHandler = null
+  })
+
+  const lastAnswer = (overrides: Partial<ReviewResponse> = {}): ReviewResponse => ({
+    next_review_at: null,
+    new_interval_days: 3,
+    easiness_factor: 2.5,
+    graded: null,
+    card: null,
+    progress: { done: 3, total: 3 },
+    done_reason: 'nothing_due',
+    ...overrides,
+  })
+
+  /** Reveals the flash card and gives it the "I remember" grade. */
+  async function gradeFlashCard(wrapper: Awaited<ReturnType<typeof renderRouted>>['wrapper']) {
+    await wrapper.get('[data-testid=reveal-btn]').trigger('click')
+    await wrapper.get('[data-testid=grade-medium]').trigger('click')
+    await flushPromises()
+  }
+
+  it('goes to the finish screen after the last grade, asking the server to close the session once', async () => {
+    vi.mocked(api.training.start).mockResolvedValue(started(1, 'daily_review'))
+    vi.mocked(api.training.review).mockResolvedValue(lastAnswer())
+    vi.mocked(api.training.finish).mockResolvedValue({ reviewed: 3, correct: 2, new_words: 0 })
+    const { wrapper, router } = await renderRouted(1)
+
+    await gradeFlashCard(wrapper)
+
+    expect(router.currentRoute.value.name).toBe('finished')
+    expect(router.currentRoute.value.query).toMatchObject({ reviewed: '3', next: '3', reason: 'nothing_due' })
+    expect(api.training.finish).toHaveBeenCalledTimes(1)
+  })
+
+  it('"Retry" that finds the session already done goes to the finish screen instead of spinning for ever', async () => {
+    vi.mocked(api.training.start).mockResolvedValue(started(1, 'daily_review'))
+    vi.mocked(api.training.finish).mockResolvedValue({ reviewed: 3, correct: 3, new_words: 0 })
+    const { wrapper, router } = await renderRouted(1)
+    // The last grade did not reach the server: the learner sees the error and presses "Retry".
+    vi.mocked(api.training.review).mockRejectedValue(offline())
+    await gradeFlashCard(wrapper)
+    expect(wrapper.find('[data-testid=error]').exists()).toBe(true)
+    expect(router.currentRoute.value.name).toBe('training')
+
+    // ... but the server has the whole session: there is no card left.
+    vi.mocked(api.training.next).mockResolvedValue({ card: null, progress: { done: 3, total: 3 }, done_reason: 'nothing_due' })
+    await wrapper.get('[data-testid=retry-btn]').trigger('click')
+    await flushPromises()
+
+    expect(router.currentRoute.value.name).toBe('finished')
+    expect(router.currentRoute.value.query).toMatchObject({ reviewed: '3', reason: 'nothing_due' })
+    expect(api.training.finish).toHaveBeenCalledTimes(1)
+  })
+
+  it('a session with no card to start with goes to the finish screen, once', async () => {
+    vi.mocked(api.training.start).mockResolvedValue({ ...started(1, 'daily_review'), card: null, done_reason: 'nothing_due' })
+    vi.mocked(api.training.finish).mockResolvedValue({ reviewed: 0, correct: 0, new_words: 0 })
+
+    const { router } = await renderRouted(1)
+
+    expect(router.currentRoute.value.name).toBe('finished')
+    expect(router.currentRoute.value.query).toMatchObject({ reason: 'nothing_due' })
+    expect(api.training.finish).toHaveBeenCalledTimes(1)
+  })
+
+  it('the end of the last session does not hide the end of the next one, which has no card from the start either', async () => {
+    const store = useTrainingStore()
+    // What the previous session left in the store.
+    store.$patch({ status: 'finished' })
+    vi.mocked(api.training.open).mockResolvedValueOnce({ ...started(2, 'daily_review'), card: null, done_reason: 'nothing_due' })
+    await store.open({ mode: 'daily_review', source: 'self' })
+    vi.mocked(api.training.finish).mockResolvedValue({ reviewed: 0, correct: 0, new_words: 0 })
+
+    const { router } = await renderRouted(2)
+
+    expect(api.training.start).not.toHaveBeenCalled()
+    expect(router.currentRoute.value.name).toBe('finished')
+    expect(api.training.finish).toHaveBeenCalledTimes(1)
+  })
+
+  it('the last grade is still on its way when the learner leaves: the late reply does not pull them back to the finish screen', async () => {
+    vi.mocked(api.training.start).mockResolvedValue(started(1, 'daily_review'))
+    const { wrapper, router } = await renderRouted(1)
+    let release: (value: ReviewResponse) => void = () => {}
+    vi.mocked(api.training.review).mockReturnValue(new Promise((resolve) => (release = resolve)))
+    await gradeFlashCard(wrapper)
+
+    await wrapper.get('[data-testid=close-btn]').trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('today')
+    expect(wrapper.find('[data-testid=training-view]').exists()).toBe(false)
+
+    release(lastAnswer())
+    await flushPromises()
+
+    expect(router.currentRoute.value.name).toBe('today')
+    expect(wrapper.find('[data-testid=today]').exists()).toBe(true)
+  })
+
+  it('the learner leaves while the summary is being asked: the session is closed, nobody is taken anywhere', async () => {
+    vi.mocked(api.training.start).mockResolvedValue(started(1, 'daily_review'))
+    vi.mocked(api.training.review).mockResolvedValue(lastAnswer())
+    let release: (value: { reviewed: number; correct: number; new_words: number }) => void = () => {}
+    vi.mocked(api.training.finish).mockReturnValue(new Promise((resolve) => (release = resolve)))
+    const { wrapper, router } = await renderRouted(1)
+    await gradeFlashCard(wrapper)
+    // The session is over, the summary is on its way: the spinner, and the way out stays.
+    expect(api.training.finish).toHaveBeenCalledTimes(1)
+    expect(wrapper.find('[data-testid=spinner]').exists()).toBe(true)
+
+    state.backHandler?.()
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('today')
+
+    release({ reviewed: 3, correct: 3, new_words: 0 })
+    await flushPromises()
+
+    expect(router.currentRoute.value.name).toBe('today')
+    expect(api.training.finish).toHaveBeenCalledTimes(1)
+  })
+
+  it('the learner leaves while the login is on its way: the session is not started for nobody', async () => {
+    let release: () => void = () => {}
+    authEnsure.mockReturnValueOnce(new Promise<void>((resolve) => (release = resolve)))
+    const { router } = await renderRouted(1)
+
+    await router.replace({ name: 'today' })
+    await flushPromises()
+    release()
+    await flushPromises()
+
+    expect(api.training.start).not.toHaveBeenCalled()
+    expect(useTrainingStore().status).toBe('idle')
   })
 })
