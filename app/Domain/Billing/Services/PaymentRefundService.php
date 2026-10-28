@@ -68,12 +68,12 @@ final class PaymentRefundService
         }
 
         if ($provider === null || ! in_array($payment->kind, [Payment::KIND_CHARGE, Payment::KIND_RENEWAL], true) || $payment->status !== Payment::STATUS_SUCCEEDED) {
-            throw PaymentRefundException::notRefundable('only a succeeded charge or renewal can be refunded');
+            throw PaymentRefundException::notRefundable('only a succeeded charge or renewal can be refunded', PaymentRefundException::CAUSE_STATE);
         }
 
         $chargeId = $payment->provider_charge_id;
         if ($chargeId === null || $chargeId === '') {
-            throw PaymentRefundException::notRefundable('it has no provider charge id');
+            throw PaymentRefundException::notRefundable('it has no provider charge id', PaymentRefundException::CAUSE_NO_CHARGE_ID);
         }
 
         if (! $returnedByHand) {

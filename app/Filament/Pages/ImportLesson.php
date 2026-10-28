@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Pages;
 
 use App\Domain\Content\Services\VocabularyImporter;
+use App\Filament\Resources\Support\AdminErrors;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
@@ -116,7 +117,10 @@ class ImportLesson extends Page implements HasSchemas
 
         $report = $importer->import($raw, $user, ['ip' => request()->ip()]);
 
-        $this->lastReport = $report->toArray();
+        // `errors` of the report are English (logs, audit record); the page lists the same refusals in Russian.
+        $errors = array_map(AdminErrors::importIssue(...), $report->issues);
+
+        $this->lastReport = [...$report->toArray(), 'errors' => $errors];
 
         if ($report->ok()) {
             Notification::make()
@@ -132,7 +136,7 @@ class ImportLesson extends Page implements HasSchemas
         } else {
             Notification::make()
                 ->title(__('admin.pages.import_lesson.failed'))
-                ->body(implode("\n", array_slice($report->errors, 0, 5)))
+                ->body(implode("\n", array_slice($errors, 0, 5)))
                 ->danger()
                 ->persistent()
                 ->send();

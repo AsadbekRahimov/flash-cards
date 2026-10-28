@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\OrganizationResource\RelationManagers;
 
 use App\Domain\Administration\Services\OrganizationGroupLinker;
+use App\Filament\Resources\Support\AdminErrors;
 use App\Filament\Resources\Support\AdminLabels;
 use App\Models\Organization;
 use App\Models\TelegramGroup;
@@ -82,7 +83,7 @@ class GroupsRelationManager extends RelationManager
                         try {
                             app(OrganizationGroupLinker::class)->link($this->organization(), $group, $this->actor(), request()->ip());
                         } catch (DomainException $e) {
-                            Notification::make()->title(__('admin.organizations.groups.notifications.link_failed'))->body($e->getMessage())->danger()->send();
+                            Notification::make()->title(__('admin.organizations.groups.notifications.link_failed'))->body(AdminErrors::for('organizations.groups', $e))->danger()->send();
 
                             return;
                         }

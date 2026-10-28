@@ -176,7 +176,13 @@ start http://localhost:4040         # Windows
 # echo APP_URL=https://abc-123.ngrok-free.app >> .env  # обнови вручную
 docker compose exec app php artisan config:clear
 docker compose exec app php artisan telegram:set-webhook
+docker compose exec app php artisan telegram:setup-bot
 ```
+
+`telegram:setup-bot` ставит меню команд по «/» и кнопку «LexiFlow» (она открывает мини-приложение по адресу
+`{TWA_BASE_URL}/twa/`; без `TWA_BASE_URL` берётся `APP_URL`). Webhook этого не делает; команду безопасно повторять,
+в том числе после смены ngrok-URL. Telegram принимает кнопку только с https: на `http://localhost` команда
+предупредит и пропустит кнопку, список команд всё равно будет установлен.
 
 Проверь, что Telegram принял webhook:
 ```bash
@@ -190,7 +196,8 @@ curl -s "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getWebhookInfo" | jq
 ### 4.4 Гарантированно тот же URL (платно)
 
 Бесплатный ngrok меняет URL при каждом рестарте → каждый раз дёргать
-`telegram:set-webhook`. Pro-аккаунт даёт зарезервированный домен:
+`telegram:set-webhook` и `telegram:setup-bot` (кнопка «LexiFlow» ведёт на старый адрес, пока её не переставить).
+Pro-аккаунт даёт зарезервированный домен:
 
 ```yaml
 # в docker-compose.override.yml, секция ngrok → command:
@@ -305,8 +312,9 @@ Claude Code (CLI) запускается **на хосте**, а проект б
 ```
 Запусти стек с ngrok-профилем (`docker compose --profile ngrok up -d`),
 достань публичный URL из логов ngrok, обнови APP_URL в .env, вызови
-`docker compose exec app php artisan telegram:set-webhook` и покажи
-вывод `getWebhookInfo`.
+`docker compose exec app php artisan telegram:set-webhook` и
+`docker compose exec app php artisan telegram:setup-bot` (меню команд по «/» и кнопка «LexiFlow» →
+`/twa/` ставятся отдельно от webhook) и покажи вывод `getWebhookInfo`.
 ```
 
 **Прогнать пайплайн перед коммитом:**

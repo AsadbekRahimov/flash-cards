@@ -7,6 +7,7 @@ namespace App\Filament\Resources\LearnerResource\RelationManagers;
 use App\Domain\Billing\Exceptions\BillingException;
 use App\Domain\Billing\Services\OfferService;
 use App\Filament\Concerns\RequiresActiveAdmin;
+use App\Filament\Resources\Support\AdminErrors;
 use App\Filament\Resources\Support\AdminLabels;
 use App\Models\Offer;
 use App\Models\User;
@@ -93,7 +94,7 @@ class OffersRelationManager extends RelationManager
                         try {
                             app(OfferService::class)->annul($record, $user, request()->ip());
                         } catch (BillingException $e) {
-                            Notification::make()->title(__('admin.learners.offers.notifications.failed'))->body($e->getMessage())->danger()->send();
+                            Notification::make()->title(__('admin.learners.offers.notifications.failed'))->body(AdminErrors::for('learners.offers', $e))->danger()->send();
 
                             return;
                         }

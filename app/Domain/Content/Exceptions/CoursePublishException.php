@@ -6,6 +6,11 @@ namespace App\Domain\Content\Exceptions;
 
 use DomainException;
 
+/**
+ * Why a course status move was refused (CoursePublisher). The message is English, for logs; `reason` is the stable
+ * code and `context` the values the message was built from, so that the admin panel can write the same error in
+ * Russian (AdminErrors) instead of showing the English text.
+ */
 final class CoursePublishException extends DomainException
 {
     public const REASON_FORBIDDEN = 'forbidden';
@@ -24,8 +29,12 @@ final class CoursePublishException extends DomainException
 
     public const REASON_TRANSLATIONS_BELOW_THRESHOLD = 'translations_below_threshold';
 
-    public function __construct(public readonly string $reason, string $message = '')
-    {
+    /** @param  array<string, int|float|string|list<string>>  $context */
+    public function __construct(
+        public readonly string $reason,
+        string $message = '',
+        public readonly array $context = [],
+    ) {
         parent::__construct($message !== '' ? $message : $reason);
     }
 
@@ -36,12 +45,12 @@ final class CoursePublishException extends DomainException
 
     public static function unknownStatus(string $status): self
     {
-        return new self(self::REASON_UNKNOWN_STATUS, "Unknown course status '{$status}'.");
+        return new self(self::REASON_UNKNOWN_STATUS, "Unknown course status '{$status}'.", ['status' => $status]);
     }
 
     public static function invalidTransition(string $from, string $to): self
     {
-        return new self(self::REASON_INVALID_TRANSITION, "Course cannot go from '{$from}' to '{$to}'.");
+        return new self(self::REASON_INVALID_TRANSITION, "Course cannot go from '{$from}' to '{$to}'.", ['from' => $from, 'to' => $to]);
     }
 
     public static function defaultCourseProtected(): self
@@ -55,6 +64,7 @@ final class CoursePublishException extends DomainException
         return new self(
             self::REASON_TITLE_INCOMPLETE,
             'Course title is required in every supported language, missing: '.implode(', ', $locales).'.',
+            ['locales' => $locales],
         );
     }
 
@@ -81,6 +91,13 @@ final class CoursePublishException extends DomainException
                 $total > 0 ? $covered / $total * 100 : 0,
                 $threshold * 100,
             ),
+            [
+                'covered' => $covered,
+                'total' => $total,
+                'percent' => round($total > 0 ? $covered / $total * 100 : 0, 1),
+                'required' => round($threshold * 100, 1),
+                'locales' => $locales,
+            ],
         );
     }
 }
