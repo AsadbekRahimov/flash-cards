@@ -149,43 +149,17 @@ it('returns the lesson with its stage loaded', function (): void {
         ->and($lesson?->getAttributes())->toHaveKeys(['id', 'stage_id', 'number', 'title']);
 });
 
-/** A small deterministic generator (a test must not reseed the global mt_rand that Faker draws from). */
-function nextLessonRng(int $seed): Closure
-{
-    $state = $seed * 2654435761 % 2147483647;
-
-    return function (int $min, int $max) use (&$state): int {
-        $state = ($state * 1103515245 + 12345) & 0x7FFFFFFF;
-
-        return $min + (($state >> 8) % ($max - $min + 1));
-    };
-}
-
-/**
- * @param  list<int>  $items
- * @return list<int> the items in a scrambled order (Fisher-Yates driven by $rng)
- */
-function nextLessonScramble(array $items, Closure $rng): array
-{
-    for ($i = count($items) - 1; $i > 0; $i--) {
-        $j = $rng(0, $i);
-        [$items[$i], $items[$j]] = [$items[$j], $items[$i]];
-    }
-
-    return $items;
-}
-
 it('answers exactly like the original query on random courses and progress', function (): void {
     $mismatches = [];
     $answers = [];
 
     foreach (range(1, 60) as $seed) {
-        $rng = nextLessonRng($seed);
+        $rng = Fx::rng($seed);
 
         // 1-3 stages, 1-4 lessons each, 0-3 active and 0-2 inactive words per lesson, created in a scrambled order.
         $layout = [];
-        foreach (nextLessonScramble(range(1, $rng(1, 3)), $rng) as $stageNumber) {
-            foreach (nextLessonScramble(range(1, $rng(1, 4)), $rng) as $lessonNumber) {
+        foreach (Fx::scramble(range(1, $rng(1, 3)), $rng) as $stageNumber) {
+            foreach (Fx::scramble(range(1, $rng(1, 4)), $rng) as $lessonNumber) {
                 $layout[$stageNumber][$lessonNumber] = [$rng(0, 3), $rng(0, 2)];
             }
         }

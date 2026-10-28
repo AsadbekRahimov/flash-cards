@@ -9,6 +9,7 @@ use App\Models\Course;
 use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\Stage;
+use Closure;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -117,5 +118,34 @@ final class HotPathFixtures
     public static function all(array $words): array
     {
         return [...$words['active'], ...$words['inactive']];
+    }
+
+    /**
+     * A small deterministic generator for randomised equivalence tests: `$rng(min, max)` is an
+     * int in [min, max]. (A test must not reseed the global mt_rand that Faker draws from.)
+     */
+    public static function rng(int $seed): Closure
+    {
+        $state = $seed * 2654435761 % 2147483647;
+
+        return function (int $min, int $max) use (&$state): int {
+            $state = ($state * 1103515245 + 12345) & 0x7FFFFFFF;
+
+            return $min + (($state >> 8) % ($max - $min + 1));
+        };
+    }
+
+    /**
+     * @param  list<int>  $items
+     * @return list<int> the items in a scrambled order (Fisher-Yates driven by $rng)
+     */
+    public static function scramble(array $items, Closure $rng): array
+    {
+        for ($i = count($items) - 1; $i > 0; $i--) {
+            $j = $rng(0, $i);
+            [$items[$i], $items[$j]] = [$items[$j], $items[$i]];
+        }
+
+        return $items;
     }
 }
