@@ -358,6 +358,19 @@ describe('BillingView', () => {
       })
     })
 
+    it('tells a lapsed learner that Pro ended, with no «Renew» button that would do nothing, while nothing is for sale', async () => {
+      const lapsedMe = me({ mode: 'coming_soon' })
+      lapsedMe.entitlement.lapsed = { provider: 'payme', ended_at: '2026-10-18T09:30:00+00:00' }
+      window.localStorage.clear()
+      const { wrapper } = await render(lapsedMe, catalog(null, false))
+
+      expect(wrapper.get('[data-testid=lapsed-title]').text()).toBe('Pro закончился')
+      expect(wrapper.find('[data-testid=lapsed-renew]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=buy]').exists()).toBe(false)
+      expect(wrapper.get('[data-testid=unavailable]').text()).toBe('Оплата скоро откроется.')
+      expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+    })
+
     it('has no banner without a lapse and none for a Pro learner', async () => {
       window.localStorage.clear()
       const free = await render(me(), catalog())

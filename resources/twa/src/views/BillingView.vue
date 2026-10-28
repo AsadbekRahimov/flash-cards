@@ -122,7 +122,7 @@ const providerText = computed(() => {
   return label ? t('billing.provider_line', { provider: t(label) }) : ''
 })
 
-/** The banner's "Renew" is the same action as the button below it, where there is something to buy. */
+/** The banner's "Renew" is the same action as the button below it; the banner has no button where nothing is for sale. */
 function onLapsedRenew(): void {
   if (billing.canPurchase) paywallOpen.value = true
 }
@@ -169,7 +169,7 @@ onMounted(() => {
     <LoadingState v-else-if="status === 'loading'" />
 
     <div v-else-if="entitlement" class="space-y-4">
-      <LapsedBanner v-if="!isPro" preloaded @renew="onLapsedRenew()" />
+      <LapsedBanner v-if="!isPro" preloaded :renewable="billing.canPurchase" @renew="onLapsedRenew()" />
 
       <section class="card" data-testid="plan-card">
         <div class="flex items-start gap-3">
