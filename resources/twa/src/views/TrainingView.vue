@@ -125,6 +125,25 @@ async function onGrade(q: Quality): Promise<void> {
   }
 }
 
+/**
+ * Reverse / audio: the grade goes to the server at the pick, so it is saved even if the learner leaves at once; the
+ * card it answers with is held back until the learner has seen the right answer (`onChoiceAdvance`).
+ */
+async function onChoiceGrade(q: Quality): Promise<void> {
+  await training.submitChoice(q)
+  if (training.status === 'finished') {
+    await redirectToFinished()
+  }
+}
+
+/** The pause after a right pick is over, or "Next" was pressed after a wrong one: show the held card. */
+async function onChoiceAdvance(): Promise<void> {
+  training.continueAfterChoice()
+  if (training.status === 'finished') {
+    await redirectToFinished()
+  }
+}
+
 /** Spelling / gap-fill: the server grades; the verdict is shown before the next card. */
 async function onAnswer(text: string): Promise<void> {
   lastAnswer.value = text
@@ -231,8 +250,22 @@ async function onRestart(): Promise<void> {
 
       <!-- The exercise of the serve (docs/13 §2.5): `prompt.type` decides the screen; the key restarts the component per serve. -->
       <template v-else-if="card">
-        <ReverseCard v-if="exercise === 'reverse'" :key="`reverse-${serveSeq}`" :card="card" :disabled="isBusy" @grade="onGrade" />
-        <AudioCard v-else-if="exercise === 'audio'" :key="`audio-${serveSeq}`" :card="card" :disabled="isBusy" @grade="onGrade" />
+        <ReverseCard
+          v-if="exercise === 'reverse'"
+          :key="`reverse-${serveSeq}`"
+          :card="card"
+          :disabled="isBusy"
+          @grade="onChoiceGrade"
+          @advance="onChoiceAdvance"
+        />
+        <AudioCard
+          v-else-if="exercise === 'audio'"
+          :key="`audio-${serveSeq}`"
+          :card="card"
+          :disabled="isBusy"
+          @grade="onChoiceGrade"
+          @advance="onChoiceAdvance"
+        />
         <SpellingCard v-else-if="exercise === 'spelling'" :key="`spelling-${serveSeq}`" :card="card" :disabled="isBusy" @answer="onAnswer" />
         <GapFillCard v-else-if="exercise === 'gap_fill'" :key="`gap-${serveSeq}`" :card="card" :disabled="isBusy" @answer="onAnswer" />
         <FlashCard

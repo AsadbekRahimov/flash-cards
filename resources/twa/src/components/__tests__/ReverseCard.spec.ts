@@ -45,7 +45,7 @@ describe('ReverseCard', () => {
     expect(w.get('[data-testid=option-0]').classes()).toContain('option')
   })
 
-  it('marks the right pick (case-insensitively), speaks the word and emits quality 4 after the pause', async () => {
+  it('marks the right pick (case-insensitively), speaks the word, grades 4 at once and moves on after the pause', async () => {
     const w = mount(ReverseCard, { props: { card } })
     await w.get('[data-testid=option-1]').trigger('click')
 
@@ -53,15 +53,20 @@ describe('ReverseCard', () => {
     expect(w.get('[data-testid=option-0]').attributes('data-state')).toBe('idle')
     expect(speak).toHaveBeenCalledWith('Resilient', 'en-US', 'https://x.test/a.mp3')
     expect(w.get('[data-testid=example]').text()).toBe('She is a resilient girl.')
-    expect(w.emitted('grade')).toBeUndefined()
+    // The grade is final at the pick: it goes now, not after the pause.
+    expect(w.emitted('grade')).toEqual([[4]])
+    expect(w.emitted('advance')).toBeUndefined()
     // A right pick moves on by itself: there is nothing to press.
     expect(w.find('[data-testid=continue-btn]').exists()).toBe(false)
 
-    vi.advanceTimersByTime(CHOICE_FEEDBACK_MS)
+    vi.advanceTimersByTime(CHOICE_FEEDBACK_MS - 1)
+    expect(w.emitted('advance')).toBeUndefined()
+    vi.advanceTimersByTime(1)
+    expect(w.emitted('advance')).toHaveLength(1)
     expect(w.emitted('grade')).toEqual([[4]])
   })
 
-  it('a wrong pick reveals the right option and the example and waits for "Next" (N6)', async () => {
+  it('a wrong pick grades 2 at once, reveals the right option and the example and waits for "Next" (N6)', async () => {
     const w = mount(ReverseCard, { props: { card } })
     await w.get('[data-testid=option-2]').trigger('click')
 
@@ -69,20 +74,22 @@ describe('ReverseCard', () => {
     expect(w.get('[data-testid=option-1]').attributes('data-state')).toBe('reveal')
     expect(w.get('[data-testid=example]').text()).toBe('She is a resilient girl.')
     expect(speak).not.toHaveBeenCalled()
+    expect(w.emitted('grade')).toEqual([[2]])
 
-    // Reading takes as long as it takes: nothing is sent by itself.
+    // Reading takes as long as it takes: the next card does not come by itself.
     vi.advanceTimersByTime(CHOICE_FEEDBACK_MS * 30)
-    expect(w.emitted('grade')).toBeUndefined()
+    expect(w.emitted('advance')).toBeUndefined()
 
     const next = w.get('[data-testid=continue-btn]')
     expect(next.text()).toBe('Дальше')
     expect(next.classes()).toEqual(expect.arrayContaining(['btn', 'btn-primary', 'btn-lg']))
     await next.trigger('click')
+    expect(w.emitted('advance')).toHaveLength(1)
+    // "Next" only moves on: the grade has gone at the pick and is not sent a second time.
     expect(w.emitted('grade')).toEqual([[2]])
-    expect(w.find('[data-testid=continue-btn]').exists()).toBe(false)
   })
 
-  it('"Next" sends the grade once, however often it is pressed', async () => {
+  it('"Next" moves on once, however often it is pressed', async () => {
     const w = mount(ReverseCard, { props: { card } })
     await w.get('[data-testid=option-0]').trigger('click')
 
@@ -90,6 +97,7 @@ describe('ReverseCard', () => {
     await next.trigger('click')
     await next.trigger('click')
 
+    expect(w.emitted('advance')).toHaveLength(1)
     expect(w.emitted('grade')).toEqual([[2]])
   })
 
@@ -102,21 +110,35 @@ describe('ReverseCard', () => {
     vi.advanceTimersByTime(CHOICE_FEEDBACK_MS)
     await w.get('[data-testid=continue-btn]').trigger('click')
     expect(w.emitted('grade')).toEqual([[2]])
+    expect(w.emitted('advance')).toHaveLength(1)
 
     const d = mount(ReverseCard, { props: { card, disabled: true } })
     await d.get('[data-testid=option-1]').trigger('click')
     vi.advanceTimersByTime(CHOICE_FEEDBACK_MS)
     expect(d.emitted('grade')).toBeUndefined()
+    expect(d.emitted('advance')).toBeUndefined()
     expect(d.find('[data-testid=continue-btn]').exists()).toBe(false)
   })
 
-  it('disables "Next" while the grade of the card is on its way to the server', async () => {
+  it('lets "Next" be pressed while the grade is on its way, then waits for the server', async () => {
     const w = mount(ReverseCard, { props: { card } })
     await w.get('[data-testid=option-2]').trigger('click')
-    expect(w.get('[data-testid=continue-btn]').attributes('disabled')).toBeUndefined()
-
+    // The grade is in flight (the screen is busy), but "Next" has not been asked for yet.
     await w.setProps({ disabled: true })
+    const next = w.get('[data-testid=continue-btn]')
+    expect(next.attributes('disabled')).toBeUndefined()
+    expect(w.find('[data-testid=continue-waiting]').exists()).toBe(false)
+
+    await next.trigger('click')
+    expect(w.emitted('advance')).toHaveLength(1)
     expect(w.get('[data-testid=continue-btn]').attributes('disabled')).toBeDefined()
+    expect(w.get('[data-testid=continue-btn]').attributes('aria-busy')).toBe('true')
+    expect(w.find('[data-testid=continue-waiting]').exists()).toBe(true)
+
+    // A second press while waiting changes nothing.
+    await w.get('[data-testid=continue-btn]').trigger('click')
+    expect(w.emitted('advance')).toHaveLength(1)
+    expect(w.emitted('grade')).toEqual([[2]])
   })
 
   it('notes that the translation is a fallback only when the server says so', () => {
