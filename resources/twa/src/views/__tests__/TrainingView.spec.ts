@@ -113,6 +113,51 @@ describe('TrainingView — closed session', () => {
     expect(state.close).toHaveBeenCalled()
   })
 
+  describe('a personal session that closes under the learner', () => {
+    /** The session was open when the screen started, then the server closed it (410) under the next grade. */
+    async function closedWhileLearning(mode: TrainingStartResponse['mode']) {
+      vi.mocked(api.training.start).mockResolvedValue(started(1, mode))
+      const { wrapper, router } = await render(1)
+      vi.mocked(api.training.review).mockRejectedValue(gone())
+      await wrapper.get('[data-testid=reveal-btn]').trigger('click')
+      await wrapper.get('[data-testid=grade-medium]').trigger('click')
+      await flushPromises()
+      expect(wrapper.find('[data-testid=closed]').exists()).toBe(true)
+      return { wrapper, router }
+    }
+
+    it.each(['lesson', 'daily_review'] as const)('a %s session: the button leads Home, like the system "Back"', async (mode) => {
+      const { wrapper, router } = await closedWhileLearning(mode)
+
+      const home = wrapper.get('[data-testid=home-btn]')
+      expect(home.text()).toBe('На главную')
+      expect(wrapper.find('[data-testid=close-btn]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=restart-btn]').exists()).toBe(false)
+
+      await home.trigger('click')
+      await flushPromises()
+      expect(router.currentRoute.value.name).toBe('today')
+      expect(state.close).not.toHaveBeenCalled()
+    })
+
+    it('says it in Uzbek too', async () => {
+      setLocale('uz')
+      const { wrapper } = await closedWhileLearning('lesson')
+
+      expect(wrapper.get('[data-testid=home-btn]').text()).toBe('Bosh sahifaga')
+    })
+
+    it('a group lesson still closes the Mini App', async () => {
+      const { wrapper, router } = await closedWhileLearning('group_lesson')
+
+      expect(wrapper.find('[data-testid=home-btn]').exists()).toBe(false)
+      await wrapper.get('[data-testid=close-btn]').trigger('click')
+
+      expect(state.close).toHaveBeenCalledTimes(1)
+      expect(router.currentRoute.value.name).toBe('training')
+    })
+  })
+
   it('offers "start again" for a personal session this run opened and moves to the new session', async () => {
     const store = useTrainingStore()
     vi.mocked(api.training.open).mockResolvedValueOnce(started(5, 'daily_review'))

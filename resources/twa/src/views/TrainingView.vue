@@ -213,8 +213,9 @@ async function onRestart(): Promise<void> {
       >
         {{ t('training.restart') }}
       </button>
-      <button v-else type="button" class="btn btn-primary btn-block" data-testid="close-btn" @click="close()">
-        {{ t('common.close') }}
+      <!-- The same way out as ✕ and the system "Back": Home for a personal session, the end of the Mini App for a group one. -->
+      <button v-else type="button" class="btn btn-primary btn-block" :data-testid="isPersonal ? 'home-btn' : 'close-btn'" @click="leave">
+        {{ isPersonal ? t('finished.home') : t('common.close') }}
       </button>
     </ClosedState>
 
