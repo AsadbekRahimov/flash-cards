@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 use App\Domain\Content\DTO\CourseListing;
 use App\Domain\Content\Services\CourseCatalogService;
+use App\Domain\Content\Services\CoursePublisher;
 use App\Domain\Twa\Services\JwtService;
 use App\Models\Course;
 use App\Models\Learner;
@@ -21,6 +22,7 @@ use Illuminate\Database\Query\JoinClause;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\Support\HotPathFixtures as Fx;
+use Tests\Support\QueryLog;
 
 uses(RefreshDatabase::class);
 
@@ -202,4 +204,69 @@ it('agrees with the original scan on random catalogs and progress', function ():
         // Not a degenerate generator: some learners have progress, some have none.
         ->and(max($seenDone))->toBeGreaterThan(0)
         ->and(count(array_unique($seenDone)))->toBeGreaterThan(5);
+});
+
+it('takes the total from the course counter and counts only the learner\'s own rows for done', function (): void {
+    ['course' => $course, 'words' => $words] = Fx::course([1 => [1 => 3]]);
+    $learner = Learner::factory()->create();
+    Fx::learn($learner, [$words['1.1']['active'][0]]);
+
+    // The counter is what the catalog shows as "total" (docs/03 §6: no COUNT over the words on each open) ...
+    DB::table('courses')->where('id', $course->id)->update(['words_count' => 99]);
+    app(CourseCatalogService::class)->forgetPublished();
+    $listing = app(CourseCatalogService::class)->forLearner($learner)[0];
+
+    expect($listing->progress->total)->toBe(99)
+        ->and($listing->progress->done)->toBe(1)
+        ->and($listing->course->wordsCount)->toBe(99);
+
+    // ... and a recount (what every import / deck / admin change runs) puts it right.
+    app(CoursePublisher::class)->recount($course);
+
+    expect(app(CourseCatalogService::class)->forLearner($learner)[0]->progress->total)->toBe(3);
+});
+
+it('runs the same statements however many courses the catalog has or cards the learner holds', function (): void {
+    $learner = Learner::factory()->create();
+    $headers = ['Authorization' => 'Bearer '.app(JwtService::class)->issue($learner->id)['token']];
+
+    // Builds $courses courses of $lessons lessons x 5 words and gives the learner 1-4 learned cards in each lesson.
+    $fill = function (int $courses, int $lessons, int $learned, int $from) use ($learner): void {
+        foreach (range($from, $from + $courses - 1) as $position) {
+            ['words' => $words] = Fx::course([1 => array_fill(1, $lessons, 5)], ['position' => $position]);
+            foreach ($words as $lessonWords) {
+                Fx::learn($learner, array_slice($lessonWords['active'], 0, $learned));
+            }
+        }
+    };
+    $statementsOf = function () use ($headers): array {
+        $this->withHeaders($headers)->getJson('/api/twa/courses')->assertOk(); // warm the catalog cache
+
+        return QueryLog::during(fn () => $this->withHeaders($headers)->getJson('/api/twa/courses')->assertOk());
+    };
+
+    $fill(2, 2, 1, 1);
+    $small = $statementsOf();
+
+    // Ten more courses of six lessons, and a few hundred cards learned in them.
+    $fill(10, 6, 4, 3);
+    $large = $statementsOf();
+
+    // Before the rewrite: the same two statements, the second one scanning every active word of the catalog.
+    expect($small)->toHaveCount(2)
+        ->and($large)->toHaveCount(2)
+        ->and(QueryLog::matching($large, '/from ["`]words["`]/'))->toBe([])
+        ->and(QueryLog::matching($large, '/from ["`]word_repetitions["`] .*["`]word_repetitions["`]\.["`]learner_id["`] = \?/s'))->toHaveCount(1);
+});
+
+it('counts one course (a single listing, the Today screen) with one statement of the learner\'s rows', function (): void {
+    ['course' => $course, 'words' => $words] = Fx::course([1 => [1 => 3, 2 => 3]]);
+    $learner = Learner::factory()->create();
+    Fx::learn($learner, array_slice($words['1.1']['active'], 0, 2));
+
+    $statements = QueryLog::during(fn () => app(CourseCatalogService::class)->listing($course, $learner));
+
+    expect($statements)->toHaveCount(1)
+        ->and($statements[0])->toContain('word_repetitions')
+        ->and(QueryLog::matching($statements, '/from ["`]words["`]/'))->toBe([]);
 });
