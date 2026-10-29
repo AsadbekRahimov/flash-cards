@@ -664,6 +664,10 @@ export const ru = {
   // ---- practice: pairs ----
 
   // ---- practice: collocation ----
+  'practice.collocation.instruction': 'Выберите слово, которое подходит к пропуску',
+  'practice.collocation.blank': 'пропуск',
+  'practice.collocation.footnote.solo': 'Ответ проверяется сразу после нажатия.',
+  'practice.collocation.footnote.battle': 'Ответ окончательный: после нажатия его нельзя изменить.',
 
   // ---- practice: sentence ----
 

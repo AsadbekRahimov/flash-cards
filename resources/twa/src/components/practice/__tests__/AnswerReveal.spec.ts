@@ -187,6 +187,84 @@ describe('AnswerReveal — collocation', () => {
     expect(wrapper.get('[data-testid=translation]').text()).toContain('Давайте проведём встречу.')
     expect(wrapper.get('[data-testid=explanation]').text()).toContain('С meeting говорят have.')
   })
+
+  it('writes the whole collocation under "Right answer" and marks the word that goes into the blank', () => {
+    const wrapper = render(outcome({ element, answer: { option_id: 'oA1' }, verdict: 'wrong', reveal: collocation() }))
+
+    const phrase = wrapper.get('[data-testid=expected]')
+    expect(phrase.text()).toBe("Let's have a meeting on Monday.")
+    expect(phrase.attributes('lang')).toBe('en')
+    expect(wrapper.get('[data-testid=expected-fill]').text()).toBe('have')
+    expect(wrapper.get('[data-testid=expected-fill]').classes()).toEqual(expect.arrayContaining(['bg-success-soft', 'text-success-ink']))
+    expect(wrapper.get('[data-testid=answer-reveal]').text()).toContain('Правильный ответ')
+  })
+
+  it('marks a several-word collocation as one piece', () => {
+    const wrapper = render(
+      outcome({
+        element: collocationElement({ text: 'I need to ___ now.', options: [{ id: 'oA1', text: 'take a break' }, { id: 'oB2', text: 'make a break' }, { id: 'oC3', text: 'do a break' }] }),
+        answer: { option_id: 'oB2' },
+        verdict: 'wrong',
+        reveal: collocation({ correct_option_ids: ['oA1'], full_text: 'I need to take a break now.' }),
+      }),
+    )
+
+    expect(wrapper.get('[data-testid=expected]').text()).toBe('I need to take a break now.')
+    expect(wrapper.get('[data-testid=expected-fill]').text()).toBe('take a break')
+  })
+
+  it('shows the whole phrase plain when it is not the text with its blank filled (nothing to mark)', () => {
+    const wrapper = render(outcome({ element, answer: { option_id: 'oA1' }, verdict: 'wrong', reveal: collocation({ full_text: 'Another phrase.' }) }))
+
+    expect(wrapper.get('[data-testid=expected]').text()).toBe('Another phrase.')
+    expect(wrapper.find('[data-testid=expected-fill]').exists()).toBe(false)
+  })
+
+  it('names the picked and the right option in words, visible, with the first letter big', () => {
+    const wrapper = render(outcome({ element, answer: { option_id: 'oA1' }, verdict: 'wrong', reveal: collocation() }))
+
+    const picked = wrapper.get('[data-testid=reveal-caption-oA1]')
+    const right = wrapper.get('[data-testid=reveal-caption-oB2]')
+    expect(picked.text()).toBe('ваш ответ')
+    expect(right.text()).toBe('верный ответ')
+    expect(picked.classes()).not.toContain('sr-only')
+    expect(right.classes()).toContain('first-letter:uppercase')
+    expect(wrapper.find('[data-testid=reveal-caption-oC3]').exists()).toBe(false)
+  })
+
+  it('judges the pick by the verdict of the server: the picked option is right when the verdict says so', () => {
+    const right = render(outcome({ element, answer: { option_id: 'oB2' }, verdict: 'correct', reveal: collocation() }))
+    const wrong = render(outcome({ element, answer: { option_id: 'oB2' }, verdict: 'wrong', reveal: collocation() }))
+
+    expect(right.get('[data-testid=reveal-option-oB2]').attributes('data-state')).toBe('correct')
+    expect(wrong.get('[data-testid=reveal-option-oB2]').attributes('data-state')).toBe('incorrect')
+  })
+
+  it('after a hint nothing was picked: the right option is shown and no option is "yours"', () => {
+    const wrapper = render(outcome({ element, answer: { skip: true }, verdict: 'skipped', reveal: collocation() }))
+
+    expect(wrapper.get('[data-testid=reveal-option-oB2]').attributes('data-state')).toBe('reveal')
+    expect(wrapper.get('[data-testid=reveal-option-oA1]').attributes('data-state')).toBe('idle')
+    expect(wrapper.find('[data-testid=reveal-caption-oA1]').exists()).toBe(false)
+    expect(wrapper.get('[data-testid=reveal-note]').text()).toBe('Вот правильный ответ. Это считается подсказкой.')
+  })
+
+  it('has no explanation card when the task has neither a translation nor an explanation', () => {
+    const wrapper = render(outcome({ element, answer: { option_id: 'oA1' }, verdict: 'wrong', reveal: collocation({ translation: null, explanation: null }) }))
+
+    expect(wrapper.find('[data-testid=translation]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=explanation]').exists()).toBe(false)
+  })
+
+  it('speaks Uzbek', () => {
+    setLocale('uz')
+
+    const wrapper = render(outcome({ element, answer: { option_id: 'oA1' }, verdict: 'wrong', reveal: collocation() }))
+
+    expect(wrapper.get('[data-testid=reveal-caption-oA1]').text()).toBe('sizning javobingiz')
+    expect(wrapper.get('[data-testid=reveal-caption-oB2]').text()).toBe("to'g'ri javob")
+    expect(wrapper.get('[data-testid=answer-reveal]').text()).toContain("To'g'ri javob")
+  })
 })
 
 describe('AnswerReveal — end of a round of pairs', () => {
