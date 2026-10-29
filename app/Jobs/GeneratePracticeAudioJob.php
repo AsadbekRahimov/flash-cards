@@ -48,11 +48,17 @@ final class GeneratePracticeAudioJob implements ShouldQueue
         $audio->generate($version, $this->force);
     }
 
+    /**
+     * The last attempt has failed (docs/16 §10.1): the version stops waiting and becomes `failed` with the reason, so that the
+     * admin sees it and can generate it again. Between the attempts it stays `pending`.
+     */
     public function failed(Throwable $e): void
     {
         Log::warning('practice.audio_failed', [
             'version_id' => $this->versionId,
             'reason' => $e->getMessage(),
         ]);
+
+        app(PracticeAudioService::class)->markFailed($this->versionId, $e);
     }
 }
