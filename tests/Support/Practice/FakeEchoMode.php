@@ -50,6 +50,9 @@ final class FakeEchoMode implements PracticeModeHandler, ReplaceableElements
     /** `availability()` reads the words / the tasks of the scope through PracticeMaterialService, the way a real handler does. */
     public bool $readsMaterial = false;
 
+    /** Bytes of dead weight in every element of the snapshot (the size limit of docs/16 §13). */
+    public int $padding = 0;
+
     public function __construct(
         private readonly PracticeMode $mode = PracticeMode::Collocation,
         public int $candidates = 8,
@@ -218,7 +221,7 @@ final class FakeEchoMode implements PracticeModeHandler, ReplaceableElements
     /** @return list<int> */
     private function items(MaterialScope $scope): array
     {
-        $all = range(1, $this->candidates);
+        $all = $this->candidates < 1 ? [] : range(1, $this->candidates);
         if ($scope->retry === null) {
             return $all;
         }
@@ -251,6 +254,7 @@ final class FakeEchoMode implements PracticeModeHandler, ReplaceableElements
             'source' => 'phrase',
             'audio_disk' => $audio ? self::AUDIO_DISK : null,
             'audio_path' => $audio ? "clip-{$k}.mp3" : null,
+            'padding' => $this->padding > 0 ? str_repeat('x', $this->padding) : null,
         ], static fn (mixed $v): bool => $v !== null));
     }
 

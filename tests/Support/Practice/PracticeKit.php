@@ -18,6 +18,7 @@ use App\Models\Stage;
 use App\Models\Subscription;
 use App\Models\Word;
 use App\Models\WordRepetition;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 
 /**
@@ -26,6 +27,9 @@ use Illuminate\Support\Str;
  */
 final class PracticeKit
 {
+    /** Every limiter a practice route can sit behind (`twa-api` and docs/16 §7.5). */
+    public const LIMITERS = ['twa-api', 'twa-practice-open', 'twa-practice-answer', 'twa-practice-audio', 'twa-battle-invite', 'twa-battle-action', 'twa-battle-poll'];
+
     /** The practice is `off` by default (docs/16 §3.2): open it to everyone and drop the plan restriction. */
     public static function openAccess(): void
     {
@@ -56,6 +60,28 @@ final class PracticeKit
             PracticeMode::Sentence => SentenceMode::class,
             PracticeMode::Dictation => DictationMode::class,
         };
+    }
+
+    /** The key under which the throttle middleware counts a learner's hits of a named limiter: it hashes `name + key`. */
+    public static function limiterKey(string $limiter, Learner $learner): string
+    {
+        return md5($limiter.$limiter.'|'.$learner->id);
+    }
+
+    /** A test that plays more than a minute's worth of requests lifts the limits for the learner; the tests of the limits do not. */
+    public static function resetLimiters(Learner $learner): void
+    {
+        foreach (self::LIMITERS as $limiter) {
+            RateLimiter::clear(self::limiterKey($limiter, $learner));
+        }
+    }
+
+    /** Hits a limiter of the learner `$times`, the way the requests would. */
+    public static function exhaust(string $limiter, Learner $learner, int $times): void
+    {
+        for ($i = 0; $i < $times; $i++) {
+            RateLimiter::hit(self::limiterKey($limiter, $learner), 60);
+        }
     }
 
     /** A published course with one lesson (module 1, lesson 1). @return array{0: Course, 1: Lesson} */
