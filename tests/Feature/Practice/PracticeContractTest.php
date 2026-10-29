@@ -103,6 +103,53 @@ function contractAnswer(Learner $learner, array $session, array $answer): TestRe
     ]);
 }
 
+/** An answer to a NAMED element (`contractAnswer` answers the current one). @param array<string, mixed> $answer */
+function contractAnswerElement(Learner $learner, int $sessionId, string $elementId, array $answer): TestResponse
+{
+    return test()->withHeaders(PracticeKit::headers($learner))->postJson("/api/twa/practice/sessions/{$sessionId}/answer", [
+        'request_id' => (string) Str::uuid(),
+        'element_id' => $elementId,
+        'answer' => $answer,
+    ]);
+}
+
+/** A swap of a NAMED element of a dictation. */
+function contractReplace(Learner $learner, int $sessionId, string $elementId): TestResponse
+{
+    return test()->withHeaders(PracticeKit::headers($learner))->postJson("/api/twa/practice/sessions/{$sessionId}/replace", [
+        'request_id' => (string) Str::uuid(),
+        'element_id' => $elementId,
+        'reason' => 'audio_unavailable',
+    ]);
+}
+
+/**
+ * The error of a REAL request, on the wire (docs/16 §7.6, docs/04 A.6): `{"error": {"code", "message"[, "details"]}}` and
+ * nothing else at the top; `details` INSIDE `error`, only when there is something to say, with exactly the keys the document
+ * names. The TWA client reads them (`ApiClientError.details`): a key renamed here breaks a screen there.
+ *
+ * @param  list<string>|null  $keys  the keys of `details` (null: there must be no `details` at all)
+ * @return array<string, mixed> `error.details` (empty when there is none)
+ */
+function contractError(TestResponse $response, int $status, string $code, ?array $keys): array
+{
+    $response->assertStatus($status);
+    $body = $response->json();
+
+    expect(array_keys($body))->toBe(['error'])
+        ->and($body['error']['code'])->toBe($code)
+        ->and($body['error']['message'])->toBeString()->not->toBe('')
+        ->and(array_keys($body['error']))->toBe($keys === null ? ['code', 'message'] : ['code', 'message', 'details']);
+
+    if ($keys === null) {
+        return [];
+    }
+
+    expect(array_keys($body['error']['details']))->toEqualCanonicalizing($keys);
+
+    return $body['error']['details'];
+}
+
 it('GET /practice/hub keeps its exact JSON shape, for a lesson and for a whole course', function (): void {
     PracticeKit::fake(PracticeMode::Collocation);
     [$learner, $course, $lesson] = contractWorld();
@@ -305,6 +352,100 @@ it('wraps every error of the practice in the envelope, with `details` exactly wh
             expect(array_keys($body['error']['details']))->toBe($details);
         }
     }
+});
+
+it('puts `details` INSIDE `error` on the wire, with the keys of docs/16 §7.6: the refusals of opening and of reading', function (): void {
+    PracticeKit::fake(PracticeMode::Collocation, candidates: 6);
+    PracticeKit::fake(PracticeMode::Sentence, candidates: 1);
+    [$learner, $course, $lesson] = contractWorld();
+
+    // 422 practice_not_enough_material: {mode, available, required, reason, course, lesson_id}
+    expect(contractError(contractOpen($learner, $course->slug, 'sentence', ['lesson_id' => $lesson->id]), 422, 'practice_not_enough_material', ['mode', 'available', 'required', 'reason', 'course', 'lesson_id']))
+        ->toEqual(['mode' => 'sentence', 'available' => 1, 'required' => 3, 'reason' => 'no_items', 'course' => 'english-a1', 'lesson_id' => $lesson->id]);
+
+    // 409 practice_session_active: {session_id, mode, course, lesson_id, progress}
+    $session = contractOpen($learner, $course->slug, 'collocation')->assertCreated()->json();
+    $answered = contractAnswer($learner, $session, ['text' => 'nonsense'])->assertOk()->json('session');
+    expect(contractError(contractOpen($learner, $course->slug, 'collocation'), 409, 'practice_session_active', ['session_id', 'mode', 'course', 'lesson_id', 'progress']))
+        ->toEqual(['session_id' => $session['id'], 'mode' => 'collocation', 'course' => 'english-a1', 'lesson_id' => null, 'progress' => ['done' => 1, 'total' => 5]]);
+
+    // 409 practice_mode_disabled: {mode}
+    config(['practice.modes.collocation' => false]);
+    expect(contractError(contractOpen($learner, $course->slug, 'collocation'), 409, 'practice_mode_disabled', ['mode']))->toEqual(['mode' => 'collocation']);
+    config(['practice.modes.collocation' => true]);
+
+    // 410 practice_session_closed: {finish_reason}
+    CarbonImmutable::setTestNow('2026-10-31 10:00:01');
+    expect(contractError(contractAnswerElement($learner, $session['id'], $answered['current']['id'], ['skip' => true]), 410, 'practice_session_closed', ['finish_reason']))
+        ->toEqual(['finish_reason' => 'expired']);
+
+    // No `details` at all where the document has none: the key is absent, not empty.
+    contractError(test()->withHeaders(PracticeKit::headers(Learner::factory()->create()))->getJson("/api/twa/practice/sessions/{$session['id']}"), 404, 'practice_session_not_found', null);
+    contractError(contractOpen($learner, 'no-such-course', 'collocation'), 404, 'course_not_found', null);
+    contractError(contractOpen($learner, $course->slug, 'collocation', ['lesson_id' => 999999]), 404, 'lesson_not_found', null);
+    config(['practice.access' => 'off']);
+    contractError(contractOpen($learner, $course->slug, 'collocation'), 403, 'practice_unavailable', null);
+});
+
+it('puts `details` INSIDE `error` on the wire: the refusals of an answer, and `round_done` at the end of a round of pairs', function (): void {
+    PracticeKit::fake(PracticeMode::Collocation, candidates: 6);
+    PracticeKit::fake(PracticeMode::Pairs, candidates: 9);
+    [$learner, $course] = contractWorld();
+
+    $session = contractOpen($learner, $course->slug, 'collocation')->assertCreated()->json();
+    $elements = array_column(PracticeSession::query()->findOrFail($session['id'])->snapshot['elements'], 'id');
+
+    // 409 element_not_current: {current} - the element to answer now
+    expect(contractError(contractAnswerElement($learner, $session['id'], $elements[2], ['skip' => true]), 409, 'element_not_current', ['current']))
+        ->toEqual(['current' => $elements[0]]);
+
+    // 422 invalid_answer_shape: {expected}; 422 unknown_element_id: no details
+    expect(contractError(contractAnswerElement($learner, $session['id'], $elements[0], ['option' => 'x']), 422, 'invalid_answer_shape', ['expected']))
+        ->toEqual(['expected' => 'text_or_skip']);
+    contractError(contractAnswerElement($learner, $session['id'], 'eNoSuchEl00', ['skip' => true]), 422, 'unknown_element_id', null);
+
+    // 409 answer_already_accepted: {verdict}
+    contractAnswerElement($learner, $session['id'], $elements[0], ['text' => 'nonsense'])->assertOk();
+    expect(contractError(contractAnswerElement($learner, $session['id'], $elements[0], ['skip' => true]), 409, 'answer_already_accepted', ['verdict']))
+        ->toEqual(['verdict' => 'wrong']);
+
+    // Pairs: 409 pair_already_matched {left_id}; 422 invalid_answer_shape {expected: left_right}.
+    PracticeSession::query()->delete();
+    $pairs = contractOpen($learner, $course->slug, 'pairs')->assertCreated()->json();
+    $round = PracticeSession::query()->findOrFail($pairs['id'])->snapshot['elements'][0];
+    $lefts = array_column($round['left'], 'id');
+    $match = fn (string $left): TestResponse => contractAnswerElement($learner, $pairs['id'], $round['id'], ['left_id' => $left, 'right_id' => $round['pairs'][$left]]);
+
+    $match($lefts[0])->assertOk()->assertJsonPath('round_done', false);
+    expect(contractError($match($lefts[0]), 409, 'pair_already_matched', ['left_id']))->toEqual(['left_id' => $lefts[0]])
+        ->and(contractError(contractAnswerElement($learner, $pairs['id'], $round['id'], ['left_id' => $lefts[1]]), 422, 'invalid_answer_shape', ['expected']))->toEqual(['expected' => 'left_right']);
+
+    // `round_done` is false until the last word of the round is matched, true with it - and a match shows no reveal.
+    $match($lefts[1])->assertOk()->assertJsonPath('round_done', false);
+    $last = $match($lefts[2])->assertOk();
+    expect($last->json('round_done'))->toBeTrue()
+        ->and($last->json('reveal'))->toBeNull()
+        ->and($last->json('pair'))->toBe(['left_id' => $lefts[2], 'right_id' => $round['pairs'][$lefts[2]]])
+        ->and($last->json('session.progress.done'))->toBe(1);
+});
+
+it('puts `details` INSIDE `error` on the wire: replace_not_allowed names its reason - not_dictation, not_current or limit', function (): void {
+    PracticeKit::fake(PracticeMode::Collocation, candidates: 6);
+    PracticeKit::fake(PracticeMode::Dictation, candidates: 8, spares: 3);
+    [$learner, $course] = contractWorld();
+
+    $plain = contractOpen($learner, $course->slug, 'collocation')->assertCreated()->json();
+    expect(contractError(contractReplace($learner, $plain['id'], $plain['current']['id']), 409, 'replace_not_allowed', ['reason']))->toEqual(['reason' => 'not_dictation']);
+
+    PracticeSession::query()->delete();
+    $dictation = contractOpen($learner, $course->slug, 'dictation')->assertCreated()->json();
+    $elements = array_column(PracticeSession::query()->findOrFail($dictation['id'])->snapshot['elements'], 'id');
+    expect(contractError(contractReplace($learner, $dictation['id'], $elements[3]), 409, 'replace_not_allowed', ['reason']))->toEqual(['reason' => 'not_current']);
+
+    // Two swaps are allowed (`max_replacements`), the third is the limit.
+    $one = contractReplace($learner, $dictation['id'], $dictation['current']['id'])->assertOk()->json();
+    $two = contractReplace($learner, $dictation['id'], $one['current']['id'])->assertOk()->json();
+    expect(contractError(contractReplace($learner, $dictation['id'], $two['current']['id']), 409, 'replace_not_allowed', ['reason']))->toEqual(['reason' => 'limit']);
 });
 
 it('keeps the statuses of docs/16 §7.6 for the codes of the practice and of the battle', function (): void {
