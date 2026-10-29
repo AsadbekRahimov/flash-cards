@@ -17,6 +17,7 @@ use App\Domain\Practice\Exceptions\PracticeException;
 use App\Http\Resources\ApiErrorResource;
 use App\Models\Battle;
 use App\Models\Learner;
+use App\Models\PracticeItem;
 use App\Models\PracticeSession;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -299,6 +300,50 @@ it('shows no key of the snapshot in any response, at any depth, and none of its 
                 ->and(json_encode($answer->json('session'), JSON_THROW_ON_ERROR))->not->toContain($second['expected'])->not->toContain($first['expected']);
         }
     }
+
+    foreach ($seen as $body) {
+        expect(array_values(array_intersect(contractKeys($body), CONTRACT_FORBIDDEN_PRACTICE_KEYS)))->toBe([]);
+    }
+});
+
+it('keeps the contract of the collocation element on the real handler: its exact shape, no secret of the snapshot before the answer, the review only with the answer', function (): void {
+    [$learner, $course, $lesson] = contractWorld();
+    foreach (PracticeKit::words($lesson, 5, $learner) as $word) {
+        PracticeItem::factory()->collocation()->published()->forLesson($lesson)->targeting($word)->create();
+    }
+    $current = ['id', 'kind', 'text', 'options' => ['*' => ['id', 'text']]];
+    $headers = PracticeKit::headers($learner);
+    $seen = [];
+
+    $session = contractOpen($learner, $course->slug, 'collocation', ['lesson_id' => $lesson->id])->assertCreated()
+        ->assertExactJsonStructure(contractSession($current, lesson: true))->json();
+    $seen[] = $session;
+    $seen[] = $this->withHeaders($headers)->getJson("/api/twa/practice/sessions/{$session['id']}")->assertOk()->assertExactJsonStructure(contractSession($current, lesson: true))->json();
+    $seen[] = $this->withHeaders($headers)->getJson("/api/twa/practice/hub?course={$course->slug}&lesson_id={$lesson->id}")->assertOk()->json();
+
+    // Before the answer neither a key nor a word of what the snapshot knows is out: the whole phrase, the translation, the explanation.
+    $stored = PracticeSession::query()->findOrFail($session['id'])->snapshot['elements'];
+    expect($stored)->toHaveCount(5);
+    foreach ($seen as $body) {
+        $json = json_encode($body, JSON_THROW_ON_ERROR);
+        foreach ($stored as $element) {
+            expect($json)->not->toContain($element['full_text'])->not->toContain($element['translation']['ru']);
+        }
+        expect($json)->not->toContain($stored[0]['explanation']['ru']);
+    }
+
+    // The review comes with the answer - the review of the element answered, and nothing of the next one.
+    $reveal = ['correct_option_ids', 'full_text', 'translation', 'explanation'];
+    $first = collect($stored)->firstWhere('id', $session['current']['id']);
+    $answer = contractAnswer($learner, $session, ['option_id' => $first['options'][0]['id']])->assertOk()
+        ->assertExactJsonStructure(['verdict', 'first_attempt', 'reveal' => $reveal, 'pair', 'session' => contractSession($current, lesson: true)]);
+    $next = collect($stored)->firstWhere('id', $answer->json('session.current.id'));
+
+    expect($answer->json('reveal.full_text'))->toBe($first['full_text'])
+        ->and($answer->json('reveal.correct_option_ids'))->toBe($first['correct_ids'])
+        ->and($answer->json('reveal.translation'))->toBe($first['translation']['ru'])
+        ->and(json_encode($answer->json('session'), JSON_THROW_ON_ERROR))->not->toContain($next['full_text'])->not->toContain($next['translation']['ru'])->not->toContain($first['full_text']);
+    $seen[] = $answer->json('session');
 
     foreach ($seen as $body) {
         expect(array_values(array_intersect(contractKeys($body), CONTRACT_FORBIDDEN_PRACTICE_KEYS)))->toBe([]);
