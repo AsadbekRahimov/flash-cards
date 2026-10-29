@@ -61,8 +61,8 @@ describe('AppIcon', () => {
 describe('icons data', () => {
   const names = Object.keys(ICONS) as IconName[]
 
-  it('has the 50 icons of docs/14, each in both styles', () => {
-    expect(names).toHaveLength(50)
+  it('has the 50 icons of docs/14 and the 3 of the practice modes, each in both styles', () => {
+    expect(names).toHaveLength(53)
     for (const name of names) {
       expect(ICONS[name].outline.length, `${name} outline`).toBeGreaterThan(0)
       expect(ICONS[name].solid.length, `${name} solid`).toBeGreaterThan(0)

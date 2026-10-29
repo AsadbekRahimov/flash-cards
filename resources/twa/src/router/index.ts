@@ -14,6 +14,12 @@ declare module 'vue-router' {
   }
 }
 
+/** A positive whole number out of a query value (`?lesson=41`); anything else is "none". */
+function queryId(value: unknown): number | null {
+  const text = Array.isArray(value) ? value[0] : value
+  return typeof text === 'string' && /^[1-9]\d*$/.test(text) ? Number(text) : null
+}
+
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
@@ -79,6 +85,37 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/DeckEditView.vue'),
     meta: { tab: 'courses' },
     props: (route) => ({ slug: String(route.params.slug) }),
+  },
+  // Practice (docs/16 §11.1). The hub is a screen of the Courses tab; a session and a battle are immersive (no tab bar).
+  {
+    path: '/practice/:slug',
+    name: 'practice-hub',
+    component: () => import('@/views/PracticeHubView.vue'),
+    meta: { tab: 'courses' },
+    props: (route) => ({ slug: String(route.params.slug), lessonId: queryId(route.query.lesson) }),
+  },
+  {
+    path: '/practice/sessions/:id(\\d+)',
+    name: 'practice-session',
+    component: () => import('@/views/PracticeSessionView.vue'),
+    props: (route) => ({ id: Number(route.params.id) }),
+  },
+  {
+    path: '/battles/new',
+    name: 'battle-new',
+    component: () => import('@/views/BattleSetupView.vue'),
+    meta: { tab: 'rating' },
+    props: (route) => ({
+      friendshipId: queryId(route.query.friendship),
+      course: typeof route.query.course === 'string' ? route.query.course : null,
+      lessonId: queryId(route.query.lesson),
+    }),
+  },
+  {
+    path: '/battles/:id(\\d+)',
+    name: 'battle',
+    component: () => import('@/views/BattleView.vue'),
+    props: (route) => ({ id: Number(route.params.id) }),
   },
   {
     path: '/profile',

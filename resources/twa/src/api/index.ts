@@ -5,6 +5,16 @@ import type {
   AssignmentsResponse,
   AuthContext,
   AuthResponse,
+  Battle,
+  BattleAnswerRequest,
+  BattleAnswerResponse,
+  BattleAudioFailedRequest,
+  BattleAudioFailedResponse,
+  BattleInviteRequest,
+  BattleListResponse,
+  BattleOptionsResponse,
+  BattlePoll,
+  BattleRound,
   BillingCatalog,
   BillingPeriod,
   BillingProviderKey,
@@ -27,6 +37,12 @@ import type {
   OrderStatusResponse,
   OrganizationsResponse,
   OpenSessionRequest,
+  PracticeAnswerRequest,
+  PracticeAnswerResponse,
+  PracticeHubResponse,
+  PracticeOpenRequest,
+  PracticeReplaceRequest,
+  PracticeSession,
   Quality,
   ReferralsResponse,
   LeagueResponse,
@@ -204,5 +220,46 @@ export const api = {
     /** IELTS / SAT mock of a course (Pro; 403 `exam_simulator_pro_required` is the paywall). */
     openMock: (slug: string) =>
       client().post<MockExamOpenResponse>(`/courses/${encodeURIComponent(slug)}/mock-exam`),
+  },
+  practice: {
+    /** The hub of a course (or of one lesson of it): four modes, the unfinished session, the battle badge. */
+    hub: (course: string, lessonId: number | null = null) =>
+      client().get<PracticeHubResponse>('/practice/hub', { course, ...(lessonId !== null ? { lesson_id: lessonId } : {}) }),
+    /** Opens a solo session (201). 409 `practice_session_active` carries the unfinished one in `details`. */
+    open: (body: PracticeOpenRequest) => client().post<PracticeSession>('/practice/sessions', { ...body }),
+    get: (id: number) => client().get<PracticeSession>(`/practice/sessions/${id}`),
+    /** One answer; a repeat with the same `request_id` returns the first result. */
+    answer: (id: number, body: PracticeAnswerRequest) =>
+      client().post<PracticeAnswerResponse>(`/practice/sessions/${id}/answer`, { ...body }),
+    /** Swaps a dictation whose clip does not play, without a penalty (docs/16 §10.4). */
+    replace: (id: number, body: PracticeReplaceRequest) =>
+      client().post<PracticeSession>(`/practice/sessions/${id}/replace`, { ...body }),
+    /** The clip of a dictation: `audioUrl` is the `audio_url` of the element; fetched with the token, played from a blob. */
+    audioBlob: (audioUrl: string) => client().getBlob(audioUrl),
+  },
+  battles: {
+    options: (friendshipId: number, course: string, lessonId: number | null = null) =>
+      client().get<BattleOptionsResponse>('/practice/battles/options', {
+        friendship_id: friendshipId,
+        course,
+        ...(lessonId !== null ? { lesson_id: lessonId } : {}),
+      }),
+    list: () => client().get<BattleListResponse>('/practice/battles'),
+    invite: (body: BattleInviteRequest) => client().post<Battle>('/practice/battles', { ...body }),
+    get: (id: number) => client().get<Battle>(`/practice/battles/${id}`),
+    /** The heartbeat of a battle: read every two seconds while the room or the match is on screen. */
+    poll: (id: number) => client().get<BattlePoll>(`/practice/battles/${id}/poll`),
+    round: (id: number, no: number) => client().get<BattleRound>(`/practice/battles/${id}/round`, { no }),
+    accept: (id: number) => client().post<Battle>(`/practice/battles/${id}/accept`),
+    decline: (id: number) => client().post<Battle>(`/practice/battles/${id}/decline`),
+    cancel: (id: number) => client().post<Battle>(`/practice/battles/${id}/cancel`),
+    ready: (id: number) => client().post<Battle>(`/practice/battles/${id}/ready`),
+    surrender: (id: number) => client().post<Battle>(`/practice/battles/${id}/surrender`, { confirm: true }),
+    answer: (id: number, body: BattleAnswerRequest) =>
+      client().post<BattleAnswerResponse>(`/practice/battles/${id}/answer`, { ...body }),
+    audioFailed: (id: number, body: BattleAudioFailedRequest) =>
+      client().post<BattleAudioFailedResponse>(`/practice/battles/${id}/audio-failed`, { ...body }),
+    /** A clip of a dictation round (`audio_url` of the element, or one of `audio_preload` in the room). */
+    audioBlob: (audioUrl: string) => client().getBlob(audioUrl),
   },
 }
