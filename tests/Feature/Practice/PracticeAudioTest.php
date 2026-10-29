@@ -35,7 +35,7 @@ beforeEach(function (): void {
 afterEach(fn () => CarbonImmutable::setTestNow());
 
 /** @return array{0: Learner, 1: array<string, mixed>} a learner and the response body of an opened dictation session */
-function audioSession(): array
+function practiceClipSession(): array
 {
     PracticeKit::fake(PracticeMode::Dictation, candidates: 5);
     [$course] = PracticeKit::course();
@@ -47,13 +47,13 @@ function audioSession(): array
     return [$learner, $session];
 }
 
-function audioGet(Learner $learner, string $url): TestResponse
+function practiceClipGet(Learner $learner, string $url): TestResponse
 {
     return test()->withHeaders(PracticeKit::headers($learner))->get($url);
 }
 
 /** The audio path the snapshot of the session names for an element. */
-function audioPathOf(int $sessionId, string $elementId): string
+function practiceClipPath(int $sessionId, string $elementId): string
 {
     foreach (PracticeSession::query()->findOrFail($sessionId)->snapshot['elements'] as $element) {
         if ($element['id'] === $elementId) {
@@ -65,12 +65,12 @@ function audioPathOf(int $sessionId, string $elementId): string
 }
 
 it('streams the file of the element to its owner: audio/mpeg, private and no-store, with the length', function (): void {
-    [$learner, $session] = audioSession();
+    [$learner, $session] = practiceClipSession();
     $element = $session['current']['id'];
     $bytes = random_bytes(200_000);
-    Storage::disk(FakeEchoMode::AUDIO_DISK)->put(audioPathOf($session['id'], $element), $bytes);
+    Storage::disk(FakeEchoMode::AUDIO_DISK)->put(practiceClipPath($session['id'], $element), $bytes);
 
-    $response = audioGet($learner, $session['current']['audio_url'])->assertOk();
+    $response = practiceClipGet($learner, $session['current']['audio_url'])->assertOk();
 
     expect($response->headers->get('Content-Type'))->toBe('audio/mpeg')
         ->and($response->headers->get('Content-Length'))->toBe('200000')
@@ -80,7 +80,7 @@ it('streams the file of the element to its owner: audio/mpeg, private and no-sto
 });
 
 it('streams the audio of a word from the public disk when the element names that disk', function (): void {
-    [$learner, $session] = audioSession();
+    [$learner, $session] = practiceClipSession();
     $element = $session['current']['id'];
     $row = PracticeSession::query()->findOrFail($session['id']);
     $snapshot = $row->snapshot;
@@ -89,12 +89,12 @@ it('streams the audio of a word from the public disk when the element names that
     $row->update(['snapshot' => $snapshot]);
     Storage::disk('public')->put('audio/'.sha1('word').'.mp3', 'word-mp3');
 
-    expect(audioGet($learner, $session['current']['audio_url'])->assertOk()->streamedContent())->toBe('word-mp3');
+    expect(practiceClipGet($learner, $session['current']['audio_url'])->assertOk()->streamedContent())->toBe('word-mp3');
     expect($element)->toBe($snapshot['elements'][0]['id']);
 });
 
 it('never lets the path, the disk or the text of the dictation out of the server: the element carries only the URL', function (): void {
-    [, $session] = audioSession();
+    [, $session] = practiceClipSession();
 
     $json = json_encode($session['current'], JSON_THROW_ON_ERROR);
 
@@ -105,13 +105,13 @@ it('never lets the path, the disk or the text of the dictation out of the server
 });
 
 it('answers 503 practice_audio_unavailable when the file is not there or is empty, and notes it', function (): void {
-    [$learner, $session] = audioSession();
+    [$learner, $session] = practiceClipSession();
     $element = $session['current']['id'];
 
-    audioGet($learner, $session['current']['audio_url'])->assertStatus(503)->assertJsonPath('error.code', 'practice_audio_unavailable');
+    practiceClipGet($learner, $session['current']['audio_url'])->assertStatus(503)->assertJsonPath('error.code', 'practice_audio_unavailable');
 
-    Storage::disk(FakeEchoMode::AUDIO_DISK)->put(audioPathOf($session['id'], $element), '');
-    audioGet($learner, $session['current']['audio_url'])->assertStatus(503)->assertJsonPath('error.code', 'practice_audio_unavailable');
+    Storage::disk(FakeEchoMode::AUDIO_DISK)->put(practiceClipPath($session['id'], $element), '');
+    practiceClipGet($learner, $session['current']['audio_url'])->assertStatus(503)->assertJsonPath('error.code', 'practice_audio_unavailable');
 
     $event = ProductEvent::query()->where('name', 'practice.audio_failed')->orderBy('id')->firstOrFail();
     expect(ProductEvent::query()->where('name', 'practice.audio_failed')->count())->toBe(2)
@@ -119,24 +119,24 @@ it('answers 503 practice_audio_unavailable when the file is not there or is empt
         ->and($event->props)->toMatchArray(['session_id' => $session['id'], 'source' => 'phrase', 'reason' => 'file_missing', 'verified' => true]);
 
     // The learner is not stuck: the swap of the element is there (and a file that appears later plays).
-    Storage::disk(FakeEchoMode::AUDIO_DISK)->put(audioPathOf($session['id'], $element), 'now-there');
-    expect(audioGet($learner, $session['current']['audio_url'])->assertOk()->streamedContent())->toBe('now-there');
+    Storage::disk(FakeEchoMode::AUDIO_DISK)->put(practiceClipPath($session['id'], $element), 'now-there');
+    expect(practiceClipGet($learner, $session['current']['audio_url'])->assertOk()->streamedContent())->toBe('now-there');
 });
 
 it('hides the audio of somebody else\'s session, of a missing one and of an element nobody knows behind the same 404', function (): void {
-    [$learner, $session] = audioSession();
+    [$learner, $session] = practiceClipSession();
     $element = $session['current']['id'];
-    Storage::disk(FakeEchoMode::AUDIO_DISK)->put(audioPathOf($session['id'], $element), 'mp3');
+    Storage::disk(FakeEchoMode::AUDIO_DISK)->put(practiceClipPath($session['id'], $element), 'mp3');
     $stranger = Learner::factory()->create();
 
-    audioGet($stranger, "/api/twa/practice/sessions/{$session['id']}/audio/{$element}")->assertNotFound()->assertJsonPath('error.code', 'practice_session_not_found');
-    audioGet($learner, '/api/twa/practice/sessions/999999/audio/'.$element)->assertNotFound()->assertJsonPath('error.code', 'practice_session_not_found');
-    audioGet($learner, "/api/twa/practice/sessions/{$session['id']}/audio/eNoSuchEl00")->assertNotFound()->assertJsonPath('error.code', 'practice_session_not_found');
+    practiceClipGet($stranger, "/api/twa/practice/sessions/{$session['id']}/audio/{$element}")->assertNotFound()->assertJsonPath('error.code', 'practice_session_not_found');
+    practiceClipGet($learner, '/api/twa/practice/sessions/999999/audio/'.$element)->assertNotFound()->assertJsonPath('error.code', 'practice_session_not_found');
+    practiceClipGet($learner, "/api/twa/practice/sessions/{$session['id']}/audio/eNoSuchEl00")->assertNotFound()->assertJsonPath('error.code', 'practice_session_not_found');
     test()->flushHeaders()->get("/api/twa/practice/sessions/{$session['id']}/audio/{$element}")->assertUnauthorized();
 });
 
 it('has no audio for an element without it, and follows no disk but the two it knows', function (): void {
-    [$learner, $session] = audioSession();
+    [$learner, $session] = practiceClipSession();
     $element = $session['current']['id'];
     $row = PracticeSession::query()->findOrFail($session['id']);
     $snapshot = $row->snapshot;
@@ -144,11 +144,11 @@ it('has no audio for an element without it, and follows no disk but the two it k
     $snapshot['elements'][0]['audio_disk'] = 'local';
     $row->update(['snapshot' => $snapshot]);
     Storage::fake('local')->put($snapshot['elements'][0]['audio_path'], 'secret');
-    audioGet($learner, $session['current']['audio_url'])->assertNotFound();
+    practiceClipGet($learner, $session['current']['audio_url'])->assertNotFound();
 
     unset($snapshot['elements'][0]['audio_disk'], $snapshot['elements'][0]['audio_path']);
     $row->update(['snapshot' => $snapshot]);
-    audioGet($learner, "/api/twa/practice/sessions/{$session['id']}/audio/{$element}")->assertNotFound();
+    practiceClipGet($learner, "/api/twa/practice/sessions/{$session['id']}/audio/{$element}")->assertNotFound();
 
     $service = app(PracticeAudioService::class);
     expect($service->clipFor(Snapshot::fromArray($row->fresh()?->snapshot ?? []), 'eNoSuchEl00'))->toBeNull()
@@ -162,7 +162,7 @@ it('lets a finished session be listened to again until its expires_at, and not a
     $headers = PracticeKit::headers($learner);
     $session = test()->withHeaders($headers)->postJson('/api/twa/practice/sessions', ['mode' => 'dictation', 'course' => $course->slug])->assertCreated()->json();
     $first = $session['current'];
-    Storage::disk(FakeEchoMode::AUDIO_DISK)->put(audioPathOf($session['id'], $first['id']), 'mp3');
+    Storage::disk(FakeEchoMode::AUDIO_DISK)->put(practiceClipPath($session['id'], $first['id']), 'mp3');
 
     // Finish the session (a skip each).
     for ($i = 0; $i < 3; $i++) {
@@ -174,17 +174,17 @@ it('lets a finished session be listened to again until its expires_at, and not a
     }
     expect($session['status'])->toBe('finished');
 
-    audioGet($learner, $first['audio_url'])->assertOk();
+    practiceClipGet($learner, $first['audio_url'])->assertOk();
 
     CarbonImmutable::setTestNow('2026-10-31 10:00:01');
-    audioGet($learner, $first['audio_url'])->assertNotFound();
+    practiceClipGet($learner, $first['audio_url'])->assertNotFound();
 });
 
 it('costs two queries beyond the file itself: the learner and the session', function (): void {
-    [$learner, $session] = audioSession();
-    Storage::disk(FakeEchoMode::AUDIO_DISK)->put(audioPathOf($session['id'], $session['current']['id']), 'mp3');
+    [$learner, $session] = practiceClipSession();
+    Storage::disk(FakeEchoMode::AUDIO_DISK)->put(practiceClipPath($session['id'], $session['current']['id']), 'mp3');
 
-    $queries = QueryLog::during(fn () => audioGet($learner, $session['current']['audio_url'])->assertOk()->streamedContent());
+    $queries = QueryLog::during(fn () => practiceClipGet($learner, $session['current']['audio_url'])->assertOk()->streamedContent());
 
     expect($queries)->toHaveCount(2);
 });
