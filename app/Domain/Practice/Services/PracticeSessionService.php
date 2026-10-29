@@ -889,13 +889,15 @@ final class PracticeSessionService
                 continue;
             }
 
+            // A round of pairs is stored "correct" (its last match is), yet every word of its `wrong_left` is a mistake.
+            $verdict = $element->isPairsRound() ? Verdict::Wrong : ($state->verdict ?? Verdict::Wrong);
             foreach ($handler->mistakeLabel($element, $state, $session->locale) as $row) {
                 $mistakes[] = [
                     'element_id' => $element->id,
                     'kind' => $element->kind,
                     'label' => $row['label'],
                     'your_answer' => $row['your_answer'],
-                    'verdict' => ($state->verdict ?? Verdict::Wrong)->value,
+                    'verdict' => $verdict->value,
                 ];
             }
         }
