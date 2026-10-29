@@ -322,6 +322,7 @@ final class BattleReader
 { "prompt": {"ru": "Моя мама — учитель.", "uz": "Onam o'qituvchi."},
   "fragments": ["My", "mother", "is", "a", "teacher"],            // порядок автора = один из допустимых; индексы 0..n-1
   "accepted": [[0,1,2,3,4]],                                      // перестановки индексов фрагментов (строки файла → индексы при сохранении)
+  "display": "My mother is a teacher.",                           // необязательно: каноническая запись первой допустимой (регистр, пунктуация) для разбора
   "explanation": {"ru": "…", "uz": "…"} }
 // collocation
 { "text": "Let's ___ a meeting on Monday.", "options": ["have", "make", "do"], "correct": [0],
@@ -467,6 +468,7 @@ final class BattleReader
     { "id": "eK7qM2x9Ab", "kind": "sentence", "item_id": 12, "version_id": 40,
       "prompt": {"ru": "…", "uz": "…"}, "fragments": [{"id": "fQ1…", "text": "mother"}, …],   // порядок показа (перемешан)
       "accepted": ["my mother is a teacher"],                                                     // нормализованные тексты допустимых последовательностей
+      "accepted_display": ["My mother is a teacher."],                                            // для разбора (§5.3): [0] = display или собранная первая
       "explanation": {"ru": "…", "uz": "…"} },
     { "id": "eZ3…", "kind": "collocation", "text": "Let's ___ a meeting on Monday.",
       "options": [{"id": "oA…", "text": "make"}, …], "correct_ids": ["oB…"], "full_text": "Let's have a meeting on Monday.",
@@ -679,6 +681,7 @@ WHERE i.course_id = :course [AND i.lesson_id = :lesson] AND i.type = :type AND i
 | `accepted_required` / `accepted_too_many` | `sentence`: нет допустимых последовательностей / больше 6 |
 | `accepted_not_permutation` | последовательность — не перестановка **всех** фрагментов (сравнение мультимножеств нормализованных текстов) |
 | `accepted_duplicate` | две одинаковые (по нормализованному тексту) последовательности — убираются молча при сохранении, ошибка только если дубликат — единственная |
+| `display_mismatch` | `sentence`: `display` задан, но его нормализованный текст ≠ нормализованному тексту первой допустимой последовательности (разбор не должен противоречить проверке); `display` длиннее `prompt_max` — `text_too_long` |
 | `placeholder_invalid` | `collocation`: в `text` не ровно один `___` |
 | `options_count` / `options_duplicate` | не ровно 3 варианта / совпадают после нормализации |
 | `correct_invalid` / `all_options_correct` | `correct` пуст, вне `options` или содержит все 3 |
@@ -713,10 +716,13 @@ WHERE i.course_id = :course [AND i.lesson_id = :lesson] AND i.type = :type AND i
 Для каждого допустимого варианта `E` считается вердикт, берётся лучший (`correct` > `typo` > `wrong`):
 
 1. `norm(answer) === norm(E)` → `correct`;
-2. `typo`, если **все** условия: `tokens(answer)` и `tokens(E)` одной длины; ровно одна позиция `i` с разными токенами `a ≠ e`; `OSA(a, e) = 1`; `mb_strlen(e) ≥ 5` (`grading.typo_min_length`); `!InflectionGuard::sameStem(a, e)`; `e` и `a` не в `grading.protected_tokens`; ни `e`, ни `a` не содержат `n't`; ни один не состоит из цифр;
+2. `typo`, если **все** условия: `tokens(answer)` и `tokens(E)` одной длины; ровно одна позиция `i` с разными токенами `a ≠ e`; `OSA(a, e) = 1`; `mb_strlen(e) ≥ 5` (`grading.typo_min_length`); `!InflectionGuard::isInflection(a, e)`; `e` и `a` не в `grading.protected_tokens`; ни `e`, ни `a` не содержат `n't`; ни один не состоит из цифр;
 3. иначе `wrong`.
 
-`InflectionGuard::stem(t)`: по порядку снять первое подходящее — `ies→y`, `ied→y`, `ing` (если длина ≥ 6; `making→mak` и `make→mak`: стем сравнивается после снятия и конечного `e` у базы), `es`, `ed`, `d` (после гласной+согласной не трогаем: правило простое — снимаем только `ed`), `s`; затем убрать конечный `e`. `sameStem(a, e)` = `stem(a) === stem(e)`. Цель — не считать опечаткой смену формы; ложные «формы» (`cat`/`cats` — len 3 → и так wrong) безвредны.
+`InflectionGuard::isInflection(a, e)` (правка координатора: стеммер с отрезанием `es`/`ed` ошибался — `coffee`/`coffees` давали разные стемы `coffe`/`coff` и проходили как опечатка). Так как до проверки уже известно `OSA(a, e) = 1`, смена грамматической формы на одну правку бывает только на конце слова, и правило — по хвосту: пусть `x` — более короткий токен, `y` — более длинный (при равной длине — любой порядок); `true`, если
+- (а) `y === x.'s'` или `y === x.'d'` — дописана конечная `s`/`d` (`teacher/teachers`, `coffee/coffees`, `like/liked`, `live/lived`);
+- (б) длины равны, токены совпадают во всём, кроме последней буквы, и эти две последние буквы — `s` и `d` (`likes/liked`, `watches/watched`, `uses/used`).
+Иначе `false`. Строгость намеренная (docs/15 §3.4: сомнительное — ошибка): `friend`/`frien` (потеряна конечная `d`) — `wrong`; ложные «формы» безвредны — такой ответ просто не получает пометку «опечатка».
 
 Пустой ответ или `skip: true` → `skipped` (в итогах — ошибка, подсказка `+1`; разбор показан). `typo` в соло: показывается «Есть опечатка», в `correct_first` **не** считается; в баттле: 0 очков, в разборе — пометка «опечатка».
 
@@ -734,8 +740,8 @@ WHERE i.course_id = :course [AND i.lesson_id = :lesson] AND i.type = :type AND i
 | 6 | `I have fifteen apples` | `I have fifty apples` | wrong | числительные защищены (и OSA > 1) |
 | 7 | `She does not like tea` | `She does like tea` | wrong | число токенов различается (пропуск not) |
 | 8 | `I don't know` | `I dont know` | wrong | токен с `n't` защищён |
-| 9 | `He likes coffee` | `He liked coffee` | wrong | общий стем `like` — форма |
-| 10 | `teacher` | `teachers` | wrong | форма (`+s`), OSA 1 но стем общий |
+| 9 | `He likes coffee` | `He liked coffee` | wrong | форма: последние буквы `s`/`d` (правило б) |
+| 10 | `teacher` | `teachers` | wrong | форма: дописана `s` (правило а), хотя OSA 1 |
 | 11 | `I want tea` | `I wont tea` | wrong | len(want) = 4 < 5 |
 | 12 | `There is a cat` | `Their is a cat` | wrong | OSA(there, their) = 2 |
 | 13 | `I am a student` + accepted `I'm a student` | `i'm a student.` | correct | авторский вариант |
@@ -743,11 +749,14 @@ WHERE i.course_id = :course [AND i.lesson_id = :lesson] AND i.type = :type AND i
 | 15 | `See you tomorrow` | `` / `skip` | skipped | подсказка |
 | 16 | `Ice cream` | `ice-cream` | correct | дефис → пробел |
 | 17 | `It's five o'clock` | `its five oclock` | wrong | два токена различаются |
-| 18 | `We walked home` | `We walkd home` | typo | OSA 1, len 6, стем `walk` ≠ `walkd` (не форма) |
+| 18 | `We walked home` | `We walkd home` | typo | OSA 1, len 6; `walkd` — не `walked` без `s`/`d` и не замена `s`↔`d` (не форма) |
+| 19 | `I like coffee` | `I like coffees` | wrong | форма: дописана `s` (стеммер давал бы ложную «опечатку») |
+| 20 | `My friend` | `My frien` | wrong | потеряна конечная `d` — правило (а), строгость намеренная |
+| 21 | `They watched TV` | `They watches TV` | wrong | замена `d`→`s` в последней букве (правило б) |
 
 ### 5.3 Собери предложение (`SentenceGrader`)
 
-Ответ — `order: list<fragment_id>`: все id из снимка ровно по одному разу (мультимножество равно множеству фрагментов), иначе 422 `invalid_answer_shape`; неизвестный id → 422 `unknown_element_id`. Текст = `join(' ', тексты фрагментов по порядку)` → `normalize` → сравнение с каждым `accepted` (уже нормализованы при снимке). Одинаковые слова эквивалентны автоматически (сравнивается текст). `skip: true` → `skipped`. Разбор: `correct_text` (первая допустимая, в исходном регистре автора), `alternatives` (остальные), `explanation`, `your_text`.
+Ответ — `order: list<fragment_id>`: все id из снимка ровно по одному разу (мультимножество равно множеству фрагментов), иначе 422 `invalid_answer_shape`; неизвестный id → 422 `unknown_element_id`. Текст = `join(' ', тексты фрагментов по порядку)` → `normalize` → сравнение с каждым `accepted` (уже нормализованы при снимке). Одинаковые слова эквивалентны автоматически (сравнивается текст). `skip: true` → `skipped`. Разбор: `correct_text` — `display`, если задан, иначе первая допустимая последовательность (фрагменты через пробел, первая буква заглавная, точка в конце); `alternatives` — остальные допустимые в том же виде (первая буква заглавная, точка); `explanation`, `your_text` (собранная строка, первая буква заглавная). Фрагменты автор пишет в «середине предложения» (строчные, кроме `I` и имён собственных: `my`, `Monday`) — тогда любой допустимый порядок читается естественно; заглавную первую букву строки ответа TWA рисует сама (только отображение).
 
 | # | fragments | accepted | order (тексты) | Вердикт |
 |---|---|---|---|---|
@@ -1186,7 +1195,7 @@ practice_items / practice_item_versions / practice_item_words — пишет т�
 
 ### 10.2 Выдача
 
-`PracticeAudioController` (сессия и баттл): владелец/участник (иначе 404), элемент в снимке с `audio_path` (иначе 404), файл читается `Storage::disk('public')->readStream(path)` → `StreamedResponse` `audio/mpeg`, `Content-Length` из `size`, `Cache-Control: private, no-store`, `X-Content-Type-Options: nosniff`; файла нет → 503 `practice_audio_unavailable`. В баттле клипы раундов `> current_round` не отдаются, кроме статуса `room|countdown` (предзагрузка всех пяти для «готовности»). TWA (`usePracticeAudio`): при показе элемента `fetch(audio_url, {Authorization})` → `blob` → `URL.createObjectURL`; кнопка «Прослушать» играет blob (`<audio>` создаётся в обработчике нажатия — жест сохраняется на iOS); повтор — тот же blob без сети; `revokeObjectURL` при смене элемента. Web Speech для диктанта **запрещён** (нужен текст на клиенте); `useTts` в режиме диктанта не вызывается.
+`PracticeAudioController` (сессия и баттл): владелец/участник (иначе 404), элемент в снимке с `audio_path` (иначе 404), файл читается с диска элемента снимка — `Storage::disk(element.audio_disk)->readStream(element.audio_path)` (`practice_audio` у фраз, `public` у слов) → `StreamedResponse` `audio/mpeg`, `Content-Length` из `size`, `Cache-Control: private, no-store`, `X-Content-Type-Options: nosniff`; файла нет → 503 `practice_audio_unavailable`. В баттле клипы раундов `> current_round` не отдаются, кроме статуса `room|countdown` (предзагрузка всех пяти для «готовности»). TWA (`usePracticeAudio`): при показе элемента `fetch(audio_url, {Authorization})` → `blob` → `URL.createObjectURL`; кнопка «Прослушать» играет blob (`<audio>` создаётся в обработчике нажатия — жест сохраняется на iOS); повтор — тот же blob без сети; `revokeObjectURL` при смене элемента. Web Speech для диктанта **запрещён** (нужен текст на клиенте); `useTts` в режиме диктанта не вызывается.
 
 Отвергнуто: подписанный URL (`URL::temporarySignedRoute`) — лишний тип capability, который нужно прятать; `fetch` с Bearer решает ту же задачу, а blob всё равно обязателен (iOS). Публичная раздача `practice-audio/` nginx — имя файла не содержит текста, но перебор `version_id` при утечке соли дал бы доступ к библиотеке; эндпоинт дешевле.
 
@@ -1237,7 +1246,7 @@ Blob не загрузился (503/сеть) → экран показывае�
 
 ### 11.3 Компоненты
 
-`components/practice/`: `ModeCard.vue`, `PairsBoard.vue` (две колонки; выбранное слово подсвечено; верная пара — `correct` и исчезает через 400 мс; неверная — `incorrect` 600 мс + хаптик `error`; клавиатура: Tab/Enter), `SentenceBuilder.vue` (строка ответа + банк фрагментов; тап переносит; «Начать заново»; «Проверить» активна при всех фрагментах), `CollocationChoice.vue` (3 `.option`), `DictationInput.vue` (кнопка-круг «Прослушать», поле `.field-surface`, «Проверить», «Не знаю»), `AnswerReveal.vue` (общий разбор по `kind`), `PracticeSummary.vue`, `AudioTrouble.vue` (лист). `components/battle/`: `BattleRoom.vue`, `RoundTimer.vue`, `BattleReveal.vue`, `BattleResult.vue`, `OpponentStatus.vue`, `LeaveConfirm.vue` (`.sheet`: «Сдаться и выйти?» — `btn-danger` «Сдаться», `btn-secondary` «Остаться»). Компоненты режимов принимают `element` + `mode: 'solo' | 'battle'` (баттл: один окончательный ответ, пары — набор + «Проверить»).
+`components/practice/`: `ModeCard.vue`, `PairsBoard.vue` (две колонки; выбранное слово подсвечено; верная пара — `correct` и исчезает через 400 мс; неверная — `incorrect` 600 мс + хаптик `error`; клавиатура: Tab/Enter), `SentenceBuilder.vue` (строка ответа + банк фрагментов; тап переносит; «Начать заново»; «Проверить» активна при всех фрагментах; первая буква первого фрагмента в строке ответа отображается заглавной — только отображение, в ответ уходят id), `CollocationChoice.vue` (3 `.option`), `DictationInput.vue` (кнопка-круг «Прослушать», поле `.field-surface`, «Проверить», «Не знаю»), `AnswerReveal.vue` (общий разбор по `kind`), `PracticeSummary.vue`, `AudioTrouble.vue` (лист). `components/battle/`: `BattleRoom.vue`, `RoundTimer.vue`, `BattleReveal.vue`, `BattleResult.vue`, `OpponentStatus.vue`, `LeaveConfirm.vue` (`.sheet`: «Сдаться и выйти?» — `btn-danger` «Сдаться», `btn-secondary` «Остаться»). Компоненты режимов принимают `element` + `mode: 'solo' | 'battle'` (баттл: один окончательный ответ, пары — набор + «Проверить»).
 
 Назад/✕ в `BattleView`: `invited`/`room`/`countdown` → лист «Выйти из комнаты?» → `cancel` → `friends`; `playing` → `LeaveConfirm` → `surrender` → остаёмся на экране итогов; `finished|closed` → `friends` (или `course`, если пришли из хаба — по `history.state.back`).
 
@@ -1315,7 +1324,7 @@ Blob не загрузился (503/сеть) → экран показывае�
 | Файл | Сценарии |
 |---|---|
 | `tests/Unit/Practice/PracticeTextNormalizerTest` | NFKC, регистр, апострофы, дефис, пунктуация, пробелы; `tokens` |
-| `tests/Unit/Practice/DictationGraderTest` | таблица §5.2 (18 кейсов) + `InflectionGuard` (`likes/liked`, `make/making`, `cities/city`) + несколько accepted |
+| `tests/Unit/Practice/DictationGraderTest` | таблица §5.2 (21 кейс) + `InflectionGuard::isInflection` (`likes/liked`, `like/liked`, `coffee/coffees`, `uses/used`, `walked/walkd` → false, `receive/recieve` → false) + несколько accepted |
 | `tests/Unit/Practice/SentenceGraderTest` | таблица §5.3 (8 кейсов) |
 | `tests/Unit/Practice/CollocationGraderTest` | один/два верных, skip, неизвестный id |
 | `tests/Unit/Practice/PairsGraderTest` | верно/неверно, `wrong_left` фиксируется один раз, `pair_already_matched`, биекция баттла, 25×n |
@@ -1382,6 +1391,11 @@ Blob не загрузился (503/сеть) → экран показывае�
 | 18.6-T | Баттл — TWA | C ‖ 18.6b (на моках) | 18.1-T | `stores/battle.ts` полностью, `BattleSetupView`, `BattleView` + компоненты §11.3, вход из `FriendsView` (кнопка «Баттл», входящие, идёт баттл), i18n блок battle, `LeaveConfirm` | Vitest `battle.spec`, `BattleView.spec`; экраны всех статусов на фикстурах |
 | 18.7b | Входы, итоги, документы, e2e | C | всё выше | `finish.practice_entry` + кнопка в `FinishedView`; «Практика урока» в строках уроков `CourseView`; `PracticeDemoSeeder` в демо-сидах (только local/testing); обновление `docs/03` (§2.40–2.47, §3), `docs/04` (A.16 практика, A.17 баттл, A.6 `details`, B.14 ЛС баттла), `docs/05` (маршруты, сторы, composables), `docs/07` (§1 строки практики, §6 лимитеры, §14 чек-лист), `docs/I18N_UZ_REVIEW.md`; e2e-скрипт §14.4 и прогон на реальном API; `USER_GUIDE.md` раздел «Практика и баттл» | весь Pest (SQLite + PG), vue-tsc, Vitest, сборки, e2e-отчёт; ревью фичи `reviewer` |
 
+Уточнения координатора к нарезке:
+- `routes/api.php`: 18.1 добавляет маршруты практики (§7.1–7.2) и все лимитеры §7.5; блок маршрутов баттла (§7.3–7.4, включая группы вне `twa-api`) добавляет 18.6b — после слияния 18.6, параллельных правок файла нет.
+- 18.2–18.5 берут задания для тестов из фабрик моделей 18.1 (`PracticeItem`/`PracticeItemVersion` с готовым `content`), **не** реализуют `PracticeItemService` и валидацию §4.5 — это только 18.7a (никакого дублирования валидации в режимах).
+- 18.7a кладёт пилотный пакет координатора в `database/data/practice/pilot-a1-a2.json` (90 заданий, §16 п. 1) и проверяет его импорт тестом; `PracticeDemoSeeder` импортирует его с публикацией только в `local`/`testing`.
+
 Порядок: 18.1 ‖ 18.1-T → (18.2 ‖ 18.3 ‖ 18.4 ‖ 18.5 ‖ 18.7a) → 18.6 (A) → 18.6b ‖ 18.6-T → 18.7b. Один простой сценарий «открыл → ответил → итог» должен проходить уже после 18.1 + 18.1-T + 18.2 (этап 1–2 docs/15 §6).
 
 ### 15.1 Формат импорта (окончательный; `PracticeImporter`)
@@ -1402,7 +1416,7 @@ Blob не загрузился (503/сеть) → экран показывае�
   ] }
 ```
 
-Отличия от предложения координатора: **`key` обязателен** (ключ идемпотентности задаёт автор; производный от содержимого ключ ломал бы идемпотентность при правке опечатки — вместо новой версии рождалось бы новое задание); `format` обязателен и равен `lexiflow-practice/1` (иначе `format_unsupported`); `lesson` необязателен (`null`/отсутствие — задание курса), `course` обязателен (slug существующего курса, не колоды); флага публикации в файле нет — он у вызывающего (чекбокс/`--publish`). `accepted` у предложения — массивы **строк-фрагментов**, при сохранении превращаются в индексы (одинаковые фрагменты сопоставляются по порядку появления; на проверку это не влияет — сравнивается текст).
+Отличия от предложения координатора: **`key` обязателен** (ключ идемпотентности задаёт автор; производный от содержимого ключ ломал бы идемпотентность при правке опечатки — вместо новой версии рождалось бы новое задание); `format` обязателен и равен `lexiflow-practice/1` (иначе `format_unsupported`); `lesson` необязателен (`null`/отсутствие — задание курса), `course` обязателен (slug существующего курса, не колоды); флага публикации в файле нет — он у вызывающего (чекбокс/`--publish`). `accepted` у предложения — массивы **строк-фрагментов**, при сохранении превращаются в индексы (одинаковые фрагменты сопоставляются по порядку появления; на проверку это не влияет — сравнивается текст). Необязательное поле предложения `display` (строка) — каноническая запись первой допустимой последовательности с регистром и пунктуацией для разбора (`display_mismatch`, §4.5); фрагменты в файле — строчные, кроме `I` и имён собственных (§5.3). Неизвестные поля задания — ошибка `field_unknown` (опечатка в имени поля не должна молча терять текст).
 
 Правила файла: ≤ 2 МБ, 1..300 заданий, `key` уникален в файле (`key_duplicate_in_file`), `target_words` — активные слова курса по тексту без регистра (`target_word_unknown {word, position}`), остальное — §4.5. Повтор файла: задание с тем же `key` и идентичным `content`+целевыми словами → `skipped`; изменённое → новая версия (`updated`; при `--publish` — сразу `published`, прежняя `superseded`); новое → `added`; архивное → `item_archived` (восстановите в админке). Отчёт `PracticeImportReport {added, updated, skipped, published, errors[], issues[]}`; `ImportIssue`-коды с `position` (номер задания, с 1) и `key`; тексты по-русски — `admin.pages.import_practice.errors.<code>` через `AdminErrors::text('pages.import_practice', …)`. Транзакция: `CoursePublisher::lockForWriting(course)` первым, затем задания; аудит `practice.imported {course_id, report}`; job аудио — `afterCommit`. Аналог для artisan: `php artisan practice:import storage/practice/pilot-a1.json --publish`.
 
@@ -1412,7 +1426,7 @@ Blob не загрузился (503/сеть) → экран показывае�
 
 | # | Вопрос | Рекомендуемое значение (принято по умолчанию) |
 |---|---|---|
-| 1 | Какие курс/уроки — три пилотные темы A1–A2 и кто готовит ~90 заданий и uz-тексты? | Курс `default`, уроки модуля 1 (1–3); задания готовит владелец/редактор в формате §15.1, импорт черновиками, публикация после «Проверено» |
+| 1 | Какие курс/уроки — три пилотные темы A1–A2 и кто готовит ~90 заданий и uz-тексты? | Курс `default` демо-контента: «Модуль 1 · Урок 2» (время и дни недели, A1), «Модуль 1 · Урок 3» (семья, A1), «Модуль 2 · Урок 1» (работа, A2) — по 10 заданий каждого авторского типа на тему, всего 90. Пакет подготовил координатор (`database/data/practice/pilot-a1-a2.json`, формат §15.1); на проде импорт — черновиками, публикация после «Проверено»; uz-тексты — на проверку носителю (`docs/I18N_UZ_REVIEW.md`). Для другого курса пакет — образец: целевые слова и уроки должны существовать в курсе, иначе импорт отклоняется целиком |
 | 2 | Минимум сольной сессии заданий — 3 (при нехватке) или строго 5? | **3** (`practice.solo.items.min`), чтобы практика урока работала при 3–4 заданиях на урок; баттл — строго 5 |
 | 3 | Срок приглашения 5 мин и комнаты 2 мин — приемлемо для живого матча? | Да; оба в конфиге без env, меняются релизом |
 | 4 | Пояснение (`explanation`) на uz обязательно для публикации сочетаний и предложений? | **Да** (ru+uz обязательны); у диктанта пояснение необязательно |
