@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { flushPromises, mount } from '@vue/test-utils'
+import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import DeckEditView from '../DeckEditView.vue'
@@ -88,6 +88,8 @@ async function render(data: DeckDetail = detail()) {
   await flushPromises()
   return { wrapper, router }
 }
+
+enableAutoUnmount(afterEach)
 
 describe('DeckEditView', () => {
   beforeEach(() => {

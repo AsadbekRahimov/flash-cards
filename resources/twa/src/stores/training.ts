@@ -157,10 +157,14 @@ export const useTrainingStore = defineStore('training', {
       const preloaded = this.preloaded?.sessionId === sessionId ? this.preloaded.response : null
       this.preloaded = null
       this.resetForSession(sessionId)
+      const generation = this.generation
       this.status = 'starting'
       try {
-        await this.applyStart(preloaded ?? (await api.training.start(sessionId)))
+        const res = preloaded ?? (await api.training.start(sessionId))
+        if (generation !== this.generation) return
+        await this.applyStart(res)
       } catch (err) {
+        if (generation !== this.generation) return
         this.handleApiError(err)
       }
     },
@@ -186,14 +190,17 @@ export const useTrainingStore = defineStore('training', {
 
     async loadNext(): Promise<void> {
       if (this.sessionId === null) return
+      const generation = this.generation
       this.status = 'loading'
       this.showTranslation = false
       try {
         const res = await api.training.next(this.sessionId)
+        if (generation !== this.generation) return
         this.progress = clampProgress(res.progress)
         this.doneReason = res.done_reason ?? null
         this.applyCard(res.card)
       } catch (err) {
+        if (generation !== this.generation) return
         this.handleApiError(err)
       }
     },
@@ -340,9 +347,13 @@ export const useTrainingStore = defineStore('training', {
      */
     async finalize(): Promise<void> {
       if (this.sessionId === null || this.mode === null || this.mode === 'group_lesson') return
+      const generation = this.generation
       try {
-        this.summary = await api.training.finish(this.sessionId)
+        const summary = await api.training.finish(this.sessionId)
+        if (generation !== this.generation) return
+        this.summary = summary
       } catch {
+        if (generation !== this.generation) return
         this.summary = null
       }
     },

@@ -35,7 +35,7 @@ const stripComments = (code: string): string =>
     .replace(/(^|\s)\/\/.*$/gm, '$1')
 
 /** `path relative to src` -> the source without comments. */
-const sources = new Map(vueFiles(srcRoot).map((file) => [relative(srcRoot, file), stripComments(readFileSync(file, 'utf8'))]))
+const sources = new Map(vueFiles(srcRoot).map((file) => [relative(srcRoot, file).replace(/\\/g, '/'), stripComments(readFileSync(file, 'utf8'))]))
 
 describe('design system sources', () => {
   it('reads the screens and the components', () => {

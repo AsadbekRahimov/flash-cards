@@ -20,8 +20,9 @@ const state = vi.hoisted(() => ({
   backHandler: null as (() => void) | null,
 }))
 
+const authEnsure = vi.hoisted(() => vi.fn().mockResolvedValue(undefined))
 vi.mock('@/stores/auth', () => ({
-  useAuthStore: () => ({ ensure: vi.fn().mockResolvedValue(undefined) }),
+  useAuthStore: () => ({ ensure: authEnsure }),
 }))
 
 vi.mock('@/composables/useTelegram', () => ({
@@ -96,6 +97,27 @@ describe('ExamView', () => {
     mounted.splice(0).forEach((wrapper) => wrapper.unmount())
     vi.useRealTimers()
     setLocale('ru')
+  })
+
+  it('retries the join after a failed initial request instead of finishing an empty exam', async () => {
+    vi.mocked(api.exam.join).mockRejectedValueOnce(new ApiClientError('network', 0, 'unknown', 'offline'))
+    const { wrapper } = await render()
+    await wrapper.get('[data-testid=retry-btn]').trigger('click')
+    await flushPromises()
+    expect(api.exam.join).toHaveBeenCalledTimes(2)
+    expect(api.exam.result).not.toHaveBeenCalled()
+    expect(wrapper.get('[data-testid=word]').text()).toBe('environment')
+  })
+
+  it('does not join an exam after the learner leaves during authentication', async () => {
+    let release!: () => void
+    authEnsure.mockImplementationOnce(() => new Promise<void>((resolve) => { release = resolve }))
+    const { wrapper } = await render()
+    wrapper.unmount()
+    mounted.splice(mounted.indexOf(wrapper), 1)
+    release()
+    await flushPromises()
+    expect(api.exam.join).not.toHaveBeenCalled()
   })
 
   it('shows the countdown, the counter "3 / 20" and the score in the header', async () => {

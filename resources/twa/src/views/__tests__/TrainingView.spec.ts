@@ -441,11 +441,12 @@ describe('TrainingView — header and states', () => {
     // The header stays, so the learner can still leave.
     expect(wrapper.find('[data-testid=close-btn]').exists()).toBe(true)
 
-    vi.mocked(api.training.next).mockResolvedValue({ card, progress: { done: 1, total: 3 } })
+    vi.mocked(api.training.start).mockResolvedValue({ ...started(1), progress: { done: 1, total: 3 } })
     await wrapper.get('[data-testid=retry-btn]').trigger('click')
     await flushPromises()
 
-    expect(api.training.next).toHaveBeenCalledTimes(1)
+    expect(api.training.start).toHaveBeenCalledTimes(2)
+    expect(useTrainingStore().mode).toBe('lesson')
     expect(wrapper.find('[data-testid=error]').exists()).toBe(false)
     expect(wrapper.find('[data-testid=flashcard]').exists()).toBe(true)
   })
@@ -612,5 +613,41 @@ describe('TrainingView — the end of the session', () => {
 
     expect(api.training.start).not.toHaveBeenCalled()
     expect(useTrainingStore().status).toBe('idle')
+  })
+})
+
+describe('TrainingView — delayed authentication', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+    authEnsure.mockResolvedValue(undefined)
+  })
+
+  it('starts only the most recent route when two authentication requests overlap', async () => {
+    let release!: () => void
+    authEnsure.mockImplementationOnce(() => new Promise<void>((resolve) => { release = resolve }))
+    vi.mocked(api.training.start).mockResolvedValue(started(2))
+    const { wrapper, router } = await renderRouted(1)
+    await router.push({ name: 'training', params: { sessionId: 2 } })
+    await flushPromises()
+    release()
+    await flushPromises()
+    expect(api.training.start).toHaveBeenCalledTimes(1)
+    expect(api.training.start).toHaveBeenCalledWith(2)
+    wrapper.unmount()
+  })
+
+  it('retries authentication after a login failure instead of requesting a card of the previous session', async () => {
+    authEnsure.mockRejectedValueOnce(offline())
+    const store = useTrainingStore()
+    store.resetForSession(99)
+    const { wrapper } = await render(1)
+    vi.mocked(api.training.start).mockResolvedValue(started(1))
+    await wrapper.get('[data-testid=retry-btn]').trigger('click')
+    await flushPromises()
+    expect(authEnsure).toHaveBeenCalledTimes(2)
+    expect(api.training.start).toHaveBeenCalledWith(1)
+    expect(api.training.next).not.toHaveBeenCalled()
+    wrapper.unmount()
   })
 })

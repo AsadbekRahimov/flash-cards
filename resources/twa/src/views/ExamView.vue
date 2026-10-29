@@ -97,17 +97,32 @@ useBackButton(() => close())
 
 let feedbackTimeout: ReturnType<typeof setTimeout> | null = null
 
-onMounted(async () => {
+let left = false
+let beginSequence = 0
+
+async function begin(): Promise<void> {
+  const sequence = ++beginSequence
+  const sessionId = props.sessionId
   try {
-    await auth.ensure({ type: 'exam', sessionId: props.sessionId })
-    await exam.join(props.sessionId, route.query.mode === 'mock' ? 'personal_mock' : 'group_exam')
+    await auth.ensure({ type: 'exam', sessionId })
+    if (left || sequence !== beginSequence) return
+    await exam.join(sessionId, route.query.mode === 'mock' ? 'personal_mock' : 'group_exam')
   } catch (err) {
     // join() handles its own errors; this is an auth failure.
-    exam.handleApiError(err)
+    if (!left && sequence === beginSequence) exam.handleApiError(err)
   }
+}
+
+onMounted(() => void begin())
+watch(() => props.sessionId, () => {
+  questionTimer.stop()
+  overallTimer.stop()
+  if (feedbackTimeout) clearTimeout(feedbackTimeout)
+  void begin()
 })
 
 onBeforeUnmount(() => {
+  left = true
   if (feedbackTimeout) clearTimeout(feedbackTimeout)
 })
 
@@ -148,7 +163,8 @@ async function pick(optionIndex: number): Promise<void> {
 }
 
 function onRetry(): void {
-  void exam.loadQuestion(currentIndex.value)
+  if (exam.sessionId !== props.sessionId || exam.totalQuestions === 0) void begin()
+  else void exam.loadQuestion(currentIndex.value)
 }
 </script>
 

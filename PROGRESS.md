@@ -1,5 +1,11 @@
 # Progress Log
 
+## Аудит изменений после 23 октября — 2026-10-29
+
+Диапазон `bff87dc..c03ab3c`: 171 коммит, 424 файла. Исправлены гонки TWA при смене тренировки/экзамена и получении устаревших ответов, возврат экзамена к вопросам после истечения таймера, повторный вход после ошибки auth/start/join; добавлены 10 регрессионных тестов. Проверки: Pest SQLite 3113 passed / 23 skipped; Larastan level 8 — 0 ошибок; Pint passed; Vitest 1381 passed; обе сборки passed. Реальный локальный API + Edge: колода с импортом, занятие до итогов, основные экраны, ru/uz, светлая/тёмная темы и 320 px — без JS-ошибок, 5xx и горизонтального переполнения.
+
+**Обновление зависимостей согласовано и выполнено (29.10.2026):** happy-dom 21.0.4, Livewire 4.4.8, Symfony Mime 7.4.22. Повторно: Composer/npm audit — 0 advisories; Pest SQLite 3113 passed / 23 skipped; Vitest 1381 passed; Larastan level 8 — 0 ошибок; Pint и обе сборки passed; browser smoke Livewire/TWA passed. Новых пакетов и посторонних обновлений нет. PostgreSQL/Redis и реальные Telegram-клиенты этим прогоном не проверялись. Подробности и границы проверки — `docs/AUDIT_2026-10-29_RU.md`.
+
 ## Sprint 1 — Foundation ✅
 ## Sprint 2 — Database & Models ✅
 ## Sprint 3 — Filament Admin ✅ (2FA отложен до Sprint 10)

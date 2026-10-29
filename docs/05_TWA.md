@@ -3,7 +3,7 @@
 ## 1. Стек и структура
 
 - **Framework:** Vue 3 (Composition API) + `<script setup>`.
-- **Build:** Vite 5.
+- **Build:** Vite 7.
 - **State:** Pinia.
 - **Routing:** Vue Router (history mode внутри TWA).
 - **HTTP:** ofetch или axios.

@@ -26,6 +26,7 @@ export type ExamStatus =
   | 'error'
 
 export interface ExamStoreState {
+  generation: number
   sessionId: number | null
   /** `personal_mock` (docs/13 §8.4): one timer for the whole exam, percent + percentile at the end. */
   mode: ExamMode
@@ -60,6 +61,7 @@ export interface ExamStoreState {
 
 export const useExamStore = defineStore('exam', {
   state: (): ExamStoreState => ({
+    generation: 0,
     sessionId: null,
     mode: 'group_exam',
     endsAt: null,
@@ -127,10 +129,12 @@ export const useExamStore = defineStore('exam', {
 
     async join(sessionId: number, mode: ExamMode = 'group_exam'): Promise<void> {
       this.resetForSession(sessionId)
+      const generation = this.generation
       this.mode = mode
       this.status = 'joining'
       try {
         const res = await api.exam.join(sessionId)
+        if (generation !== this.generation) return
         this.endsAt = res.ends_at ? Date.parse(res.ends_at) : null
         this.totalQuestions = res.total_questions
         this.secondsPerQuestion = res.seconds_per_question
@@ -140,6 +144,7 @@ export const useExamStore = defineStore('exam', {
         }
         await this.loadQuestion(0)
       } catch (err) {
+        if (generation !== this.generation) return
         this.handleApiError(err)
       }
     },
@@ -151,6 +156,7 @@ export const useExamStore = defineStore('exam', {
         return
       }
 
+      const generation = this.generation
       this.status = 'loading'
       this.selectedIndex = null
       this.lastAnswer = null
@@ -158,11 +164,13 @@ export const useExamStore = defineStore('exam', {
 
       try {
         const q = await api.exam.question(this.sessionId, index)
+        if (generation !== this.generation) return
         this.currentIndex = index
         this.currentQuestion = q
         this.questionStartedAt = Date.now()
         this.status = 'answering'
       } catch (err) {
+        if (generation !== this.generation) return
         this.handleApiError(err)
       }
     },
@@ -176,6 +184,7 @@ export const useExamStore = defineStore('exam', {
         return
       }
 
+      const generation = this.generation
       this.selectedIndex = optionIndex
       this.status = 'submitting'
       const timeSpentMs = Math.max(0, Date.now() - this.questionStartedAt)
@@ -187,10 +196,12 @@ export const useExamStore = defineStore('exam', {
           selected_option_index: optionIndex,
           time_spent_ms: timeSpentMs,
         })
+        if (generation !== this.generation) return
         this.lastAnswer = res
         this.totalScore = res.total_score
         this.status = 'feedback'
       } catch (err) {
+        if (generation !== this.generation) return
         this.handleApiError(err)
       }
     },
@@ -210,14 +221,18 @@ export const useExamStore = defineStore('exam', {
 
     async finish(): Promise<void> {
       if (this.sessionId === null) return
+      // In-flight answers must not reopen the exam after its overall timer expires.
+      if (this.status !== 'finished') this.generation += 1
       this.status = 'finished'
       await this.loadResults()
     },
 
     async loadResults(): Promise<void> {
       if (this.sessionId === null) return
+      const generation = this.generation
       try {
         const res = await api.exam.result(this.sessionId)
+        if (generation !== this.generation) return
         if (isMockExamResult(res)) {
           this.mode = 'personal_mock'
           this.mockResult = res
@@ -232,6 +247,7 @@ export const useExamStore = defineStore('exam', {
         this.totalParticipants = res.total_participants
         this.leaderboard = res.leaderboard
       } catch (err) {
+        if (generation !== this.generation) return
         // A 409 "exam_still_open" is expected while server-side grace
         // period hasn't elapsed. Leave leaderboard empty in that case.
         if (!(err instanceof ApiClientError) || err.kind !== 'conflict') {
@@ -241,6 +257,7 @@ export const useExamStore = defineStore('exam', {
     },
 
     resetForSession(sessionId: number): void {
+      this.generation += 1
       this.sessionId = sessionId
       this.mode = 'group_exam'
       this.endsAt = null

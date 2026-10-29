@@ -99,16 +99,19 @@ useBackButton(leave)
  * summary of the session) must not carry them anywhere from the screen they are on now.
  */
 let left = false
+let beginSequence = 0
 
 async function begin(): Promise<void> {
+  const sequence = ++beginSequence
+  const sessionId = props.sessionId
   try {
-    await auth.ensure({ type: 'training', sessionId: props.sessionId })
+    await auth.ensure({ type: 'training', sessionId })
     // Left while the login was on its way: nobody would see the session start.
-    if (left) return
-    await training.start(props.sessionId)
+    if (left || sequence !== beginSequence) return
+    await training.start(sessionId)
   } catch (err) {
     // start() handles its own errors; this is an auth failure.
-    if (!left) training.handleApiError(err)
+    if (!left && sequence === beginSequence) training.handleApiError(err)
   }
 }
 
@@ -168,9 +171,10 @@ function onContinue(): void {
 }
 
 async function redirectToFinished(): Promise<void> {
+  const generation = training.generation
   await training.finalize()
   // ✕ or "Back" while the summary was being asked: the session is closed on the server, but the learner is elsewhere.
-  if (left) return
+  if (left || generation !== training.generation || training.sessionId !== props.sessionId) return
   await router.replace({
     name: 'finished',
     query: {
@@ -183,7 +187,8 @@ async function redirectToFinished(): Promise<void> {
 }
 
 function onRetry(): void {
-  void training.loadNext()
+  if (training.sessionId === props.sessionId && training.mode !== null) void training.loadNext()
+  else void begin()
 }
 
 /** A personal session ended (finished elsewhere or expired): open the same kind again. */
@@ -191,7 +196,7 @@ async function onRestart(): Promise<void> {
   const request = restartRequest.value
   if (request === null) return
   const sessionId = await training.open(request)
-  if (sessionId !== null) await router.replace({ name: 'training', params: { sessionId } })
+  if (!left && sessionId !== null) await router.replace({ name: 'training', params: { sessionId } })
 }
 </script>
 
