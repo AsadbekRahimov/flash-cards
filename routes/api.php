@@ -15,6 +15,9 @@ use App\Http\Controllers\Api\Twa\LeagueController;
 use App\Http\Controllers\Api\Twa\MeController;
 use App\Http\Controllers\Api\Twa\MockExamController;
 use App\Http\Controllers\Api\Twa\OrganizationController;
+use App\Http\Controllers\Api\Twa\PracticeAudioController;
+use App\Http\Controllers\Api\Twa\PracticeHubController;
+use App\Http\Controllers\Api\Twa\PracticeSessionController;
 use App\Http\Controllers\Api\Twa\PromoController;
 use App\Http\Controllers\Api\Twa\ReferralController;
 use App\Http\Controllers\Api\Twa\SettingsController;
@@ -127,5 +130,28 @@ Route::prefix('twa')->group(function (): void {
                 ->name('twa.exam.answer');
             Route::get('/result', [ExamController::class, 'result'])->name('twa.exam.result');
         });
+
+        // Practice (docs/16 §7.1-7.2): the hub and the solo sessions. Opening a session and answering have limiters
+        // of their own on top of `twa-api`. The routes of the battle (§7.3-7.4) come with 18.6b.
+        Route::get('/practice/hub', [PracticeHubController::class, 'show'])->name('twa.practice.hub');
+        Route::post('/practice/sessions', [PracticeSessionController::class, 'store'])
+            ->middleware('throttle:twa-practice-open')
+            ->name('twa.practice.sessions.store');
+
+        Route::prefix('practice/sessions/{session}')->whereNumber('session')->group(function (): void {
+            Route::get('/', [PracticeSessionController::class, 'show'])->name('twa.practice.sessions.show');
+            Route::middleware('throttle:twa-practice-answer')->group(function (): void {
+                Route::post('/answer', [PracticeSessionController::class, 'answer'])->name('twa.practice.sessions.answer');
+                Route::post('/replace', [PracticeSessionController::class, 'replace'])->name('twa.practice.sessions.replace');
+            });
+        });
+    });
+
+    // The audio of a practice session lives OUTSIDE `twa-api` (docs/16 §7.5): five clips are loaded at once when a room is
+    // entered, and that preloading must not eat the general budget of 60 requests a minute. It has its own limiter.
+    Route::middleware([TwaAuth::class, SetTwaLocale::class, 'throttle:twa-practice-audio'])->group(function (): void {
+        Route::get('/practice/sessions/{session}/audio/{element}', [PracticeAudioController::class, 'session'])
+            ->whereNumber('session')
+            ->name('twa.practice.sessions.audio');
     });
 });
