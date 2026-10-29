@@ -1027,7 +1027,7 @@ afterCommit: product_events (session_finished при завершении)
 | `round_not_open` / `round_closed` | 409 | `{round, phase}` |
 | (переиспользуются) `course_not_found` 404, `lesson_not_found` 404, `friendship_not_found` 404, `not_friends` 403 | | |
 
-`ApiErrorResource::respond(int $status, string $code, string $message, array $details = [])` — ключ `details` добавляется только при непустом массиве; существующие ответы не меняются. `ApiClientError` получает `details: Record<string, unknown> | null`.
+`ApiErrorResource::respond(int $status, string $code, string $message, array $details = [])` — ключ `details` добавляется **внутрь** объекта `error` (`{"error": {"code", "message", "details"}}`) только при непустом массиве; существующие ответы не меняются. `ApiClientError` получает `details: Record<string, unknown> | null`.
 
 ---
 
@@ -1205,7 +1205,7 @@ practice_items / practice_item_versions / practice_item_words — пишет т�
 
 ### 10.4 Ошибки аудио в соло
 
-Blob не загрузился (503/сеть) → экран показывает «Аудио недоступно»: «Повторить загрузку» и «Заменить задание» (`POST …/replace {reason: audio_unavailable}`): элемент помечается `replaced`, на его место встаёт следующий кандидат из `snapshot.pool` того же источника (фраза/слово; при пустом пуле — другого источника; пул пуст → элемент удаляется, `total--`, минимум 1). Лимит `max_replacements = 2` на сессию → далее 409 `replace_not_allowed {limit}` и кнопка «Сейчас без звука» → хаб. Штрафа нет: заменённый элемент не входит в `total`/`answered`. Сервер файл не перепроверяет (локальные сбои воспроизведения реальны), ограничение — лимит и событие `practice.audio_failed`.
+Blob не загрузился (503/сеть) → экран показывает «Аудио недоступно»: «Повторить загрузку» и «Заменить задание» (`POST …/replace {reason: audio_unavailable}`): элемент помечается `replaced`, на его место встаёт следующий кандидат из `snapshot.pool` того же источника (фраза/слово; при пустом пуле — другого источника; пул пуст → элемент удаляется, `total--`, минимум 1). Лимит `max_replacements = 2` на сессию → далее 409 `replace_not_allowed` (`details {reason: limit}`, §7.6) и кнопка «Сейчас без звука» → хаб. Штрафа нет: заменённый элемент не входит в `total`/`answered`. Сервер файл не перепроверяет (локальные сбои воспроизведения реальны), ограничение — лимит и событие `practice.audio_failed`.
 
 ### 10.5 Кэш-заголовки
 
