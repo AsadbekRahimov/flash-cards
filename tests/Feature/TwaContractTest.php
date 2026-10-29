@@ -58,6 +58,8 @@ const CONTRACT_PROMPT = ['type', 'front', 'masked_example', 'options', 'answer_l
 const CONTRACT_CARD = ['word_id', 'word', 'translation', 'translation_fallback', 'example', 'transcription', 'audio_url', 'card_kind', 'serve_token', 'prompt' => CONTRACT_PROMPT];
 const CONTRACT_EXAM_QUESTION = ['question_index', 'word_id', 'word', 'options', 'seconds_left'];
 const CONTRACT_FORBIDDEN_EXAM_KEYS = ['correct_index', 'correct_translation', 'canonical_index'];
+// The block `practice` of GET /me and of every answer with the refreshed profile (docs/16 §3.3).
+const CONTRACT_PRACTICE_ME = ['available', 'pro_required', 'modes', 'battle'];
 
 function contractHeaders(Learner $learner): array
 {
@@ -146,11 +148,14 @@ it('GET /me keeps its exact JSON shape', function (): void {
                     'daily_goals',
                 ],
             ],
+            'practice' => CONTRACT_PRACTICE_ME,
         ]);
 
     expect($response->json('stats'))->toBe(['words_learned' => 0, 'words_due_today' => 0])
         ->and($response->json('groups.0.id'))->toBe($s['group']->id)
-        ->and($response->json('learner.id'))->toBe($s['learner']->id);
+        ->and($response->json('learner.id'))->toBe($s['learner']->id)
+        // The block is always there; `PRACTICE_ACCESS` is `off` by default (docs/16 §3.3).
+        ->and($response->json('practice'))->toBe(['available' => false, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation'], 'battle' => true]);
 });
 
 it('GET /today keeps its exact JSON shape, with and without an active course', function (): void {
@@ -342,6 +347,7 @@ it('GET /me and the cancel / resume answers carry entitlement.renewal for a payi
             'exercises' => ['reverse', 'audio', 'spelling', 'gap_fill'],
             'options' => ['locales' => ['*' => ['id', 'label']], 'timezones' => ['*' => ['id', 'label']], 'reminder_times', 'daily_goals'],
         ],
+        'practice' => CONTRACT_PRACTICE_ME,
     ];
 
     $this->withHeaders(contractHeaders($s['learner']))->getJson('/api/twa/me')->assertOk()->assertExactJsonStructure($me);
@@ -619,6 +625,18 @@ it('ApiErrorResource builds the envelope without a data wrapper', function (): v
 
     expect($response->getStatusCode())->toBe(418)
         ->and($response->getData(true))->toBe(['error' => ['code' => 'teapot', 'message' => 'Short and stout.']]);
+});
+
+it('ApiErrorResource adds `details` to the envelope only when there are some (docs/16 §7.6)', function (): void {
+    $without = ApiErrorResource::respond(409, 'teapot', 'Short and stout.', []);
+    $with = ApiErrorResource::respond(409, 'practice_session_active', 'Busy.', ['session_id' => 7, 'progress' => ['done' => 1, 'total' => 5]]);
+
+    expect($without->getData(true))->toBe(['error' => ['code' => 'teapot', 'message' => 'Short and stout.']])
+        ->and($with->getData(true))->toBe(['error' => [
+            'code' => 'practice_session_active',
+            'message' => 'Busy.',
+            'details' => ['session_id' => 7, 'progress' => ['done' => 1, 'total' => 5]],
+        ]]);
 });
 
 // --- exam -----------------------------------------------------------------
