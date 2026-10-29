@@ -14,8 +14,8 @@ use App\Domain\Practice\Enums\PracticeMode;
 use App\Domain\Practice\Enums\Verdict;
 use App\Domain\Practice\Exceptions\PracticeException;
 use App\Domain\Practice\Services\Modes\PracticeModeHandler;
-use App\Domain\Practice\Services\PracticeMaterialService;
 use App\Domain\Practice\Services\Modes\ReplaceableElements;
+use App\Domain\Practice\Services\PracticeMaterialService;
 use App\Domain\Practice\Support\OpaqueId;
 use App\Domain\Practice\Support\PracticeTextNormalizer;
 use App\Domain\Practice\Support\SeededShuffle;
@@ -44,6 +44,12 @@ final class FakeEchoMode implements PracticeModeHandler, ReplaceableElements
     /** @var list<int> the ids of the items the last `build()` used (for the tests to look at) */
     public array $built = [];
 
+    /** The projection also shows the secrets of the element (a buggy handler): the resource must not let them out. */
+    public bool $leak = false;
+
+    /** `availability()` reads the words / the tasks of the scope through PracticeMaterialService, the way a real handler does. */
+    public bool $readsMaterial = false;
+
     public function __construct(
         private readonly PracticeMode $mode = PracticeMode::Collocation,
         public int $candidates = 8,
@@ -58,6 +64,10 @@ final class FakeEchoMode implements PracticeModeHandler, ReplaceableElements
 
     public function availability(MaterialScope $scope, ?Learner $learner, LocaleSet $locales): ModeAvailability
     {
+        if ($this->readsMaterial) {
+            $this->readMaterial($scope, $learner, $locales);
+        }
+
         $required = $this->mode === PracticeMode::Pairs
             ? max(1, (int) config('practice.solo.pairs.min_per_round'))
             : app(PracticeMaterialService::class)->minItems($scope);
@@ -88,6 +98,16 @@ final class FakeEchoMode implements PracticeModeHandler, ReplaceableElements
     }
 
     public function project(SnapshotElement $element, string $locale, ElementState $state): array
+    {
+        $projection = $this->projection($element, $state);
+
+        return $this->leak
+            ? [...$projection, 'expected' => $element->get('expected'), 'word_id' => $element->get('word_id'), 'pairs' => $element->get('pairs'), 'nested' => ['audio_path' => $element->get('audio_path'), 'item_id' => $element->get('item_id')]]
+            : $projection;
+    }
+
+    /** @return array<string, mixed> */
+    private function projection(SnapshotElement $element, ElementState $state): array
     {
         if ($element->isPairsRound()) {
             return [
@@ -180,6 +200,19 @@ final class FakeEchoMode implements PracticeModeHandler, ReplaceableElements
         $taken = [];
 
         return [$this->element((int) $candidate['item_id'], $taken), array_values($pool)];
+    }
+
+    /** What a real handler asks the material service for: the words (pairs, dictation) and the tasks of its type. */
+    private function readMaterial(MaterialScope $scope, ?Learner $learner, LocaleSet $locales): void
+    {
+        $material = app(PracticeMaterialService::class);
+
+        if ($learner !== null && ($this->mode === PracticeMode::Pairs || $this->mode === PracticeMode::Dictation)) {
+            $material->introducedWords($scope, $learner, $locales);
+        }
+        if ($this->mode->itemType() !== null) {
+            $material->eligibleItems($scope, $this->mode->itemType(), $learner);
+        }
     }
 
     /** @return list<int> */
