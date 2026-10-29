@@ -15,7 +15,7 @@ import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import { progressPercent } from '@/composables/courseLabels'
 import { showErrorToast } from '@/composables/errorToast'
-import { MODE_LOOK, lessonHeader, modeTitle } from '@/composables/practiceLabels'
+import { MODE_LOOK, lessonHeader, lessonNumber, modeTitle } from '@/composables/practiceLabels'
 import { useBackButton } from '@/composables/useBackButton'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
@@ -74,18 +74,22 @@ function closePaywall(): void {
 
 const { reviewFromPaywall } = useReviewFromPaywall(closePaywall, { toastErrors: true })
 
-/** The heading names the place: the course, or the lesson as everywhere ("Module 2 · Lesson 4 · Food"); until the hub is there, the screen. */
+/**
+ * The heading names the place: the name of the lesson ("Food"; "Module 2 · Lesson 4" when it has none) or the course;
+ * until the hub is there, the screen. Under it: what the screen is and where the lesson is.
+ */
 const title = computed((): string => {
   const current = hub.value
   if (current === null) return t('practice.hub.title')
-  return current.lesson ? lessonHeader(current.lesson) : current.course.title
+  if (current.lesson === null) return current.course.title
+  return current.lesson.title ?? lessonNumber(current.lesson)
 })
 
-/** Under it, what the screen is, and the course of a lesson. */
 const subtitle = computed((): string => {
   const current = hub.value
   if (current === null) return ''
-  return current.lesson ? `${t('practice.hub.title')} · ${current.course.title}` : t('practice.hub.title')
+  if (current.lesson === null) return t('practice.hub.title')
+  return `${t('practice.hub.title')} · ${current.lesson.title ? lessonNumber(current.lesson) : current.course.title}`
 })
 
 /** The unfinished session of the mode, when it is this very course / lesson: the card leads straight back into it. */
@@ -106,9 +110,9 @@ async function load(): Promise<void> {
     return
   }
   await practice.loadHub(props.slug, props.lessonId)
-  // The invitations and the battle that is on live in the list; it is asked for only when the hub says there is any.
+  // The invitations to me are in the list (the hub has only their number); it is asked for only when there are some.
   const state = hub.value?.battle
-  if (!left && state?.enabled && (state.incoming_count > 0 || state.active_battle_id !== null)) void battle.loadList()
+  if (!left && state?.enabled && state.incoming_count > 0) void battle.loadList()
 }
 
 function openSession(id: number): Promise<unknown> {
@@ -116,6 +120,8 @@ function openSession(id: number): Promise<unknown> {
 }
 
 async function start(mode: PracticeMode, replaceActive: boolean): Promise<void> {
+  // One session is being opened at a time; a second card pressed meanwhile must not become "the mode that was pressed".
+  if (opening.value !== null) return
   pressed.value = mode
   const id = await practice.open({ mode, course: props.slug, lesson_id: props.lessonId, source: 'hub', replace_active: replaceActive })
   if (id !== null && !left) await openSession(id)

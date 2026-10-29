@@ -84,9 +84,9 @@ async function begin(): Promise<void> {
   try {
     await auth.ensure()
     if (left || sequence !== beginSequence) return
-    await practice.start(sessionId)
+    await practice.load(sessionId)
   } catch (err) {
-    // start() handles its own errors; this is a failed login
+    // load() handles its own errors; this is a failed login
     if (!left && sequence === beginSequence) practice.handleError(err)
   }
 }

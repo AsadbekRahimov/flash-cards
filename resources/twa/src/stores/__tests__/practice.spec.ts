@@ -38,7 +38,7 @@ afterEach(() => setLocale('ru'))
 async function started(s = session()) {
   vi.mocked(api.practice.get).mockResolvedValue(s)
   const store = usePracticeStore()
-  await store.start(s.id)
+  await store.load(s.id)
   return store
 }
 
@@ -142,7 +142,7 @@ describe('practice store — opening a session', () => {
     expect(api.practice.open).toHaveBeenCalledWith(request)
     expect(store.opening).toBeNull()
 
-    await store.start(78)
+    await store.load(78)
 
     expect(api.practice.get).not.toHaveBeenCalled()
     expect(store.status).toBe('ready')
@@ -277,7 +277,7 @@ describe('practice store — entering a session', () => {
     vi.mocked(api.practice.get).mockRejectedValue(apiError('gone', 410, 'practice_session_closed', { finish_reason: 'expired' }))
     const store = usePracticeStore()
 
-    await store.start(77)
+    await store.load(77)
 
     expect(store.status).toBe('closed')
     expect(store.errorMessage).toBe('Эта практика уже завершена или её время вышло.')
@@ -287,7 +287,7 @@ describe('practice store — entering a session', () => {
     vi.mocked(api.practice.get).mockRejectedValue(apiError('not_found', 404, 'practice_session_not_found'))
     const store = usePracticeStore()
 
-    await store.start(404)
+    await store.load(404)
 
     expect(store.status).toBe('error')
     expect(store.errorMessage).toBe('Эта практика не найдена.')
@@ -297,10 +297,10 @@ describe('practice store — entering a session', () => {
     vi.mocked(api.practice.get).mockRejectedValueOnce(offline()).mockResolvedValueOnce(session())
     const store = usePracticeStore()
 
-    await store.start(77)
+    await store.load(77)
     expect(store.status).toBe('error')
 
-    await store.start(77)
+    await store.load(77)
     expect(store.status).toBe('ready')
     expect(store.errorMessage).toBe('')
   })
@@ -309,7 +309,7 @@ describe('practice store — entering a session', () => {
     const store = await started(session())
     vi.mocked(api.practice.get).mockRejectedValue(apiError('forbidden', 403, 'practice_pro_required'))
 
-    await store.start(77)
+    await store.load(77)
 
     expect(store.paywall).toBe(true)
     expect(store.status).toBe('error')
@@ -323,7 +323,7 @@ describe('practice store — entering a session', () => {
     const before = store.generation
 
     vi.mocked(api.practice.get).mockResolvedValue(session({ id: 80 }))
-    await store.start(80)
+    await store.load(80)
 
     expect(store.generation).toBe(before + 1)
     expect(store.pendingRequestId).toBeNull()
@@ -355,6 +355,21 @@ describe('practice store — answering', () => {
     expect(store.outcome?.element.id).toBe('eSent00001')
     expect(store.outcome?.reveal).toMatchObject({ correct_text: 'My mother is a teacher.' })
     expect(store.progress).toEqual({ done: 1, total: 5 })
+  })
+
+  it('keeps the verdict and the explanation of the answer for the screen, until "Next"', async () => {
+    const store = await started()
+    expect(store.verdict).toBeNull()
+    expect(store.reveal).toBeNull()
+    vi.mocked(api.practice.answer).mockResolvedValue(answerResponse({ verdict: 'wrong' }))
+
+    await store.answer({ order })
+
+    expect(store.verdict).toBe('wrong')
+    expect(store.reveal).toMatchObject({ correct_text: 'My mother is a teacher.' })
+    store.continueAfterVerdict()
+    expect(store.verdict).toBeNull()
+    expect(store.reveal).toBeNull()
   })
 
   it('the next element waits behind "Next"; the summary follows the last one', async () => {
@@ -809,6 +824,74 @@ describe('practice store — after the summary', () => {
   })
 })
 
+describe('practice store — the hub the learner comes back to', () => {
+  /** A store with the hub of the lesson read (an unfinished session `77` of pairs, 1 of 3) and the session `77` entered. */
+  async function withHub(s = session({ mode: 'pairs', progress: { done: 1, total: 3 } })) {
+    vi.mocked(api.practice.hub).mockResolvedValue(hub({ active_session: activeSession({ id: 77, progress: { done: 1, total: 3 } }) }))
+    const store = await started(s)
+    await store.loadHub('english-a1', 41)
+    return store
+  }
+
+  it('shows the session that was just opened as the one to continue', async () => {
+    vi.mocked(api.practice.hub).mockResolvedValue(hub())
+    const store = usePracticeStore()
+    await store.loadHub('english-a1', 41)
+    vi.mocked(api.practice.open).mockResolvedValue(session({ id: 90, mode: 'dictation', progress: { done: 0, total: 5 } }))
+
+    await store.open({ mode: 'dictation', course: 'english-a1', lesson_id: 41, source: 'hub' })
+
+    expect(store.hub?.active_session).toEqual({ id: 90, mode: 'dictation', course: 'english-a1', lesson_id: 41, progress: { done: 0, total: 5 } })
+  })
+
+  it('follows the progress of the session as the answers come', async () => {
+    const store = await withHub(session({ id: 77, mode: 'sentence', progress: { done: 1, total: 5 } }))
+    vi.mocked(api.practice.answer).mockResolvedValue(answerResponse({ session: session({ id: 77, progress: { done: 2, total: 5 } }) }))
+
+    await store.answer({ order: ['fW2'] })
+
+    expect(store.hub?.active_session?.progress).toEqual({ done: 2, total: 5 })
+  })
+
+  it('drops the session from the hub when it is over, so that no "Continue" is left behind', async () => {
+    const store = await withHub(session({ id: 77, mode: 'sentence', progress: { done: 4, total: 5 } }))
+    vi.mocked(api.practice.answer).mockResolvedValue(answerResponse({ session: finishedSession({ id: 77 }) }))
+
+    await store.answer({ order: ['fW2'] })
+
+    expect(store.hub?.active_session).toBeNull()
+  })
+
+  it('leaves the card of another session alone', async () => {
+    vi.mocked(api.practice.hub).mockResolvedValue(hub({ active_session: activeSession({ id: 99 }) }))
+    const store = await started(session({ id: 77 }))
+    await store.loadHub('english-a1', 41)
+    vi.mocked(api.practice.answer).mockResolvedValue(answerResponse({ session: finishedSession({ id: 77 }) }))
+
+    await store.answer({ order: ['fW2'] })
+
+    expect(store.hub?.active_session?.id).toBe(99)
+  })
+})
+
+describe('practice store — a new session from the summary', () => {
+  it('has no sheet to ask with: an unfinished session of another tab is told in a sentence', async () => {
+    const store = await started(finishedSession())
+    vi.mocked(api.practice.open).mockRejectedValue(
+      apiError('conflict', 409, 'practice_session_active', { session_id: 91, mode: 'pairs', course: 'english-a1', lesson_id: 41, progress: { done: 0, total: 3 } }),
+    )
+
+    expect(await store.retry()).toBeNull()
+    expect(store.conflict).toBeNull()
+    expect(store.openError).toBe('У вас уже есть незавершённая практика.')
+
+    store.clearOpenError()
+    expect(await store.again()).toBeNull()
+    expect(store.conflict).toBeNull()
+    expect(store.openError).toBe('У вас уже есть незавершённая практика.')
+  })
+})
+
 describe('practice store — the clip of the element', () => {
   it('is given back when another session is entered', async () => {
     const store = await started(session({ mode: 'dictation' }))
@@ -817,7 +900,7 @@ describe('practice store — the clip of the element', () => {
     const revoke = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {})
 
     vi.mocked(api.practice.get).mockResolvedValue(session({ id: 81 }))
-    await store.start(81)
+    await store.load(81)
 
     expect(revoke).toHaveBeenCalledWith('blob:clip')
     expect(store.audio).toEqual({ state: 'idle', blobUrl: null })

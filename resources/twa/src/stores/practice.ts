@@ -79,7 +79,7 @@ interface PracticeState {
   /** The retry of mistakes was refused (nothing worth repeating): "Repeat mistakes" gives way to "Again". */
   retryUnavailable: boolean
 
-  /** What `open` got back, for `start` to use instead of asking the server for the same session again. */
+  /** What `open` got back, for `load` to use instead of asking the server for the same session again. */
   preloaded: PracticeSession | null
   sessionId: number | null
   session: PracticeSession | null
@@ -129,6 +129,15 @@ function conflictFrom(details: Record<string, unknown> | null, fallback: Practic
   }
 }
 
+/** The "Continue" card of the hub for a session. */
+const activeOf = (session: PracticeSession): PracticeActiveSession => ({
+  id: session.id,
+  mode: session.mode,
+  course: session.course.slug,
+  lesson_id: session.lesson?.id ?? null,
+  progress: session.progress,
+})
+
 const isVerdict = (value: unknown): value is PracticeVerdict =>
   value === 'correct' || value === 'typo' || value === 'wrong' || value === 'skipped'
 
@@ -177,6 +186,12 @@ export const usePracticeStore = defineStore('practice', {
 
     progress: (s): Progress => s.session?.progress ?? { done: 0, total: 0 },
 
+    /** The verdict of the last answer, while it is on screen (docs/16 §11.4: `verdict` / `reveal`). */
+    verdict: (s): PracticeVerdict | null => s.outcome?.verdict ?? null,
+
+    /** The explanation that came with it. */
+    reveal: (s): PracticeReveal | null => s.outcome?.reveal ?? null,
+
     /** Where the screens lead back to: the course and the lesson of the session, else of the hub that was open. */
     scope: (s): HubScope | null =>
       s.session !== null
@@ -222,9 +237,9 @@ export const usePracticeStore = defineStore('practice', {
 
     /**
      * Opens a solo session. Returns its id for the route, or null with the reason in `conflict` (an unfinished session:
-     * the hub asks what to do), `paywall`, or `openError`. The answer is kept for `start()`.
+     * the hub asks what to do), `paywall`, or `openError`. The answer is kept for `load()`.
      */
-    async open(request: PracticeOpenRequest): Promise<number | null> {
+    async open(request: PracticeOpenRequest, { canAsk = true }: { canAsk?: boolean } = {}): Promise<number | null> {
       if (this.opening !== null) return null
       this.opening = request.mode
       this.openError = ''
@@ -234,19 +249,24 @@ export const usePracticeStore = defineStore('practice', {
         const session = await api.practice.open(request)
         this.preloaded = session
         this.retryUnavailable = false
+        // The hub the learner comes back to shows this session as the one to continue (the server has one per learner).
+        if (this.hub !== null) this.hub.active_session = activeOf(session)
         return session.id
       } catch (err) {
-        this.refuseOpen(err)
+        this.refuseOpen(err, canAsk)
         return null
       } finally {
         this.opening = null
       }
     },
 
-    /** Why a session was not opened. */
-    refuseOpen(err: unknown): void {
+    /**
+     * Why a session was not opened. An unfinished session of the learner (`practice_session_active`) becomes `conflict`
+     * for a screen that can ask what to do (`canAsk`, the hub); any other screen gets the sentence in `openError`.
+     */
+    refuseOpen(err: unknown, canAsk = true): void {
       if (err instanceof ApiClientError) {
-        if (err.code === 'practice_session_active') {
+        if (err.code === 'practice_session_active' && canAsk) {
           const conflict = conflictFrom(err.details, this.hub?.active_session ?? null)
           if (conflict !== null) {
             this.conflict = conflict
@@ -282,7 +302,7 @@ export const usePracticeStore = defineStore('practice', {
     // ------------------------------------------------------------ session
 
     /** Enters a session: the answer of the `open` that created it, or the session as the server has it. */
-    async start(sessionId: number): Promise<void> {
+    async load(sessionId: number): Promise<void> {
       const preloaded = this.preloaded?.id === sessionId ? this.preloaded : null
       this.preloaded = null
       this.resetForSession(sessionId)
@@ -319,6 +339,7 @@ export const usePracticeStore = defineStore('practice', {
       this.session = session
       this.sessionId = session.id
       this.outcome = null
+      this.syncHub(session)
       if (session.status === 'finished' || session.current === null) {
         this.status = 'finished'
         return
@@ -389,8 +410,16 @@ export const usePracticeStore = defineStore('practice', {
       }
       this.session = res.session
       this.outcome = outcome
+      this.syncHub(res.session)
       // A match of pairs inside a round: the board goes on (it reads the new `matched` / `mismatches` from the element).
       this.status = element.kind === 'pairs_round' && !outcome.roundDone ? 'ready' : 'verdict'
+    },
+
+    /** The hub the learner goes back to must not show a session that is over, or an old count, as the one to continue. */
+    syncHub(session: PracticeSession): void {
+      const active = this.hub?.active_session
+      if (this.hub === null || !active || active.id !== session.id) return
+      this.hub.active_session = session.status === 'active' ? activeOf(session) : null
     },
 
     /** The answer was not counted as given. A conflict re-reads the session; a lost reply is left for a repeat. */
@@ -511,25 +540,31 @@ export const usePracticeStore = defineStore('practice', {
     async retry(): Promise<number | null> {
       const session = this.session
       if (session === null || session.status !== 'finished') return null
-      return this.open({
-        mode: session.mode,
-        course: session.course.slug,
-        lesson_id: session.lesson?.id ?? null,
-        source: 'retry',
-        retry_of: session.id,
-      })
+      return this.open(
+        {
+          mode: session.mode,
+          course: session.course.slug,
+          lesson_id: session.lesson?.id ?? null,
+          source: 'retry',
+          retry_of: session.id,
+        },
+        { canAsk: false },
+      )
     },
 
     /** "Again": a new session of the same mode in the same place. */
     async again(): Promise<number | null> {
       const session = this.session
       if (session === null || session.status !== 'finished') return null
-      return this.open({
-        mode: session.mode,
-        course: session.course.slug,
-        lesson_id: session.lesson?.id ?? null,
-        source: 'hub',
-      })
+      return this.open(
+        {
+          mode: session.mode,
+          course: session.course.slug,
+          lesson_id: session.lesson?.id ?? null,
+          source: 'hub',
+        },
+        { canAsk: false },
+      )
     },
 
     /** The `blob:` URL of the clip is given back to the browser, the slot is empty again. */

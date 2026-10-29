@@ -34,8 +34,8 @@ describe('practice: the answer belongs to the visit that asked for it', () => {
     vi.mocked(api.practice.get).mockReturnValueOnce(old.promise).mockResolvedValueOnce(session({ id: 2 }))
     const store = usePracticeStore()
 
-    const first = store.start(1)
-    await store.start(2)
+    const first = store.load(1)
+    await store.load(2)
     old.resolve(session({ id: 1 }))
     await first
 
@@ -49,8 +49,8 @@ describe('practice: the answer belongs to the visit that asked for it', () => {
     vi.mocked(api.practice.get).mockReturnValueOnce(old.promise).mockResolvedValueOnce(session())
     const store = usePracticeStore()
 
-    const first = store.start(77)
-    await store.start(77)
+    const first = store.load(77)
+    await store.load(77)
     old.reject(offline())
     await first
 
@@ -63,8 +63,8 @@ describe('practice: the answer belongs to the visit that asked for it', () => {
     vi.mocked(api.practice.get).mockReturnValueOnce(old.promise).mockResolvedValueOnce(session({ id: 2 }))
     const store = usePracticeStore()
 
-    const first = store.start(1)
-    await store.start(2)
+    const first = store.load(1)
+    await store.load(2)
     old.reject(gone())
     await first
 
@@ -74,12 +74,12 @@ describe('practice: the answer belongs to the visit that asked for it', () => {
   it('does not put the verdict of an earlier session over the new one', async () => {
     vi.mocked(api.practice.get).mockResolvedValueOnce(session({ id: 1 })).mockResolvedValueOnce(session({ id: 2 }))
     const store = usePracticeStore()
-    await store.start(1)
+    await store.load(1)
     const old = pending<PracticeAnswerResponse>()
     vi.mocked(api.practice.answer).mockReturnValueOnce(old.promise)
 
     const answering = store.answer({ order: ['fW2'] })
-    await store.start(2)
+    await store.load(2)
     old.resolve(answerResponse({ session: session({ id: 1, progress: { done: 1, total: 5 } }) }))
     await answering
 
@@ -92,12 +92,12 @@ describe('practice: the answer belongs to the visit that asked for it', () => {
   it('does not show the failure of an earlier session’s answer in the new one', async () => {
     vi.mocked(api.practice.get).mockResolvedValueOnce(session({ id: 1 })).mockResolvedValueOnce(session({ id: 2 }))
     const store = usePracticeStore()
-    await store.start(1)
+    await store.load(1)
     const old = pending<PracticeAnswerResponse>()
     vi.mocked(api.practice.answer).mockReturnValueOnce(old.promise)
 
     const answering = store.answer({ order: ['fW2'] })
-    await store.start(2)
+    await store.load(2)
     old.reject(offline())
     await answering
 
@@ -109,12 +109,12 @@ describe('practice: the answer belongs to the visit that asked for it', () => {
   it('does not re-read an earlier session after its conflict', async () => {
     vi.mocked(api.practice.get).mockResolvedValueOnce(session({ id: 1 })).mockResolvedValueOnce(session({ id: 2 }))
     const store = usePracticeStore()
-    await store.start(1)
+    await store.load(1)
     const old = pending<PracticeAnswerResponse>()
     vi.mocked(api.practice.answer).mockReturnValueOnce(old.promise)
 
     const answering = store.answer({ order: ['fW2'] })
-    await store.start(2)
+    await store.load(2)
     old.reject(new ApiClientError('conflict', 409, 'element_not_current', 'x'))
     await answering
 
@@ -125,12 +125,12 @@ describe('practice: the answer belongs to the visit that asked for it', () => {
   it('does not apply the swap of an earlier dictation to the new session', async () => {
     vi.mocked(api.practice.get).mockResolvedValueOnce(session({ id: 1, mode: 'dictation' })).mockResolvedValueOnce(session({ id: 2 }))
     const store = usePracticeStore()
-    await store.start(1)
+    await store.load(1)
     const old = pending<PracticeSession>()
     vi.mocked(api.practice.replace).mockReturnValueOnce(old.promise)
 
     const replacing = store.replace()
-    await store.start(2)
+    await store.load(2)
     old.resolve(session({ id: 1, mode: 'dictation', current: dictationElement({ id: 'eDict00002' }) }))
 
     expect(await replacing).toBe(false)
@@ -142,7 +142,7 @@ describe('practice: a tap is one request', () => {
   it('two taps on "Check" are one answer', async () => {
     vi.mocked(api.practice.get).mockResolvedValue(session())
     const store = usePracticeStore()
-    await store.start(77)
+    await store.load(77)
     const reply = pending<PracticeAnswerResponse>()
     vi.mocked(api.practice.answer).mockReturnValue(reply.promise)
 
@@ -158,7 +158,7 @@ describe('practice: a tap is one request', () => {
   it('a tap on another option while the answer is on its way is ignored', async () => {
     vi.mocked(api.practice.get).mockResolvedValue(session({ mode: 'collocation' }))
     const store = usePracticeStore()
-    await store.start(77)
+    await store.load(77)
     const reply = pending<PracticeAnswerResponse>()
     vi.mocked(api.practice.answer).mockReturnValue(reply.promise)
 
@@ -175,7 +175,7 @@ describe('practice: a tap is one request', () => {
     vi.mocked(api.practice.get).mockResolvedValue(session())
     vi.mocked(api.practice.answer).mockResolvedValue(answerResponse())
     const store = usePracticeStore()
-    await store.start(77)
+    await store.load(77)
     await store.answer({ order: ['fW2'] })
     const seq = store.elementSeq
 
@@ -189,7 +189,7 @@ describe('practice: a tap is one request', () => {
   it('a swap and an answer do not run together', async () => {
     vi.mocked(api.practice.get).mockResolvedValue(session({ mode: 'dictation' }))
     const store = usePracticeStore()
-    await store.start(77)
+    await store.load(77)
     const swap = pending<PracticeSession>()
     vi.mocked(api.practice.replace).mockReturnValue(swap.promise)
 
@@ -267,7 +267,7 @@ describe('practice: what the screen is keyed by', () => {
     vi.mocked(api.practice.get).mockResolvedValue(session())
     vi.mocked(api.practice.answer).mockResolvedValue(answerResponse({ session: session({ current: sentenceElement({ id: 'eSent00002' }) }) }))
     const store = usePracticeStore()
-    await store.start(77)
+    await store.load(77)
     expect(store.elementSeq).toBe(1)
 
     await store.answer({ order: ['fW2'] })

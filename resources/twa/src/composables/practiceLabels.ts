@@ -1,9 +1,9 @@
 import { t } from '@/i18n'
 import type { IconName } from '@/components/ui/icons'
 import type { TileColor } from '@/components/ui/ListRow.vue'
-import type { PracticeElementKind, PracticeLessonRef, PracticeMode } from '@/api/types'
+import type { PracticeLessonRef, PracticeMode } from '@/api/types'
 
-/** The order of the cards of the hub (docs/15 §3: pairs first, the quickest to start). */
+/** The order of the cards of the hub: the order of the plan (docs/15 §6). */
 export const PRACTICE_MODE_ORDER: readonly PracticeMode[] = ['pairs', 'collocation', 'sentence', 'dictation']
 
 /** The icon tile of a mode: the same one on the hub card, in the "Continue" card and in the invitations. */
@@ -17,12 +17,12 @@ export const MODE_LOOK: Record<PracticeMode, { icon: IconName; tile: TileColor }
 /** "Find the pairs". */
 export const modeTitle = (mode: PracticeMode): string => t(`practice.mode.${mode}.title`)
 
-/** The mode an element belongs to: a round of pairs is `pairs_round`, the others are named like the mode. */
-export const modeOfKind = (kind: PracticeElementKind): PracticeMode => (kind === 'pairs_round' ? 'pairs' : kind)
+/** "Module 2 · Lesson 4": where the lesson is, without its name. */
+export const lessonNumber = (lesson: PracticeLessonRef): string => t('training.lesson_header', { stage: lesson.stage, lesson: lesson.number })
 
 /** "Module 2 · Lesson 4 · Food"; a lesson without a title is "Module 2 · Lesson 4". */
 export function lessonHeader(lesson: PracticeLessonRef): string {
-  const head = t('training.lesson_header', { stage: lesson.stage, lesson: lesson.number })
+  const head = lessonNumber(lesson)
   return lesson.title ? `${head} · ${lesson.title}` : head
 }
 

@@ -142,17 +142,25 @@ describe('PracticeHubView — the states', () => {
     wrapper.unmount()
   })
 
-  it('shows the hub: the heading names the lesson, under it "Practice" and the course', async () => {
+  it('shows the hub: the heading is the name of the lesson, under it "Practice" and where the lesson is', async () => {
     const { wrapper } = await render()
 
-    expect(wrapper.get('h1').text()).toBe('Модуль 2 · Урок 4 · Еда')
-    expect(wrapper.text()).toContain('Практика · Английский A1')
+    expect(wrapper.get('h1').text()).toBe('Еда')
+    expect(wrapper.text()).toContain('Практика · Модуль 2 · Урок 4')
     expect(wrapper.findAll('[data-testid^=mode-card-]').map((c) => c.attributes('data-testid'))).toEqual([
       'mode-card-pairs',
       'mode-card-collocation',
       'mode-card-sentence',
       'mode-card-dictation',
     ])
+    wrapper.unmount()
+  })
+
+  it('a lesson without a name is headed by its place, and the course goes under it', async () => {
+    const { wrapper } = await render({}, hub({ lesson: { id: 41, stage: 2, number: 4, title: null } }))
+
+    expect(wrapper.get('h1').text()).toBe('Модуль 2 · Урок 4')
+    expect(wrapper.text()).toContain('Практика · Английский A1')
     wrapper.unmount()
   })
 
@@ -274,6 +282,24 @@ describe('PracticeHubView — starting a session', () => {
 
     finish(session({ id: 80 }))
     await flushPromises()
+    wrapper.unmount()
+  })
+
+  it('the card pressed while another is being opened does not become the mode of "Start a new one"', async () => {
+    let refuse!: (reason: unknown) => void
+    vi.mocked(api.practice.open).mockReturnValueOnce(new Promise((_, reject) => (refuse = reject)))
+    const { wrapper } = await render()
+    await card(wrapper, 'sentence').trigger('click')
+    await card(wrapper, 'dictation').trigger('click') // the first answer has not come yet: this press changes nothing
+    expect(api.practice.open).toHaveBeenCalledTimes(1)
+
+    refuse(apiError('conflict', 409, 'practice_session_active', { session_id: 77, mode: 'pairs', course: 'english-a1', lesson_id: 41, progress: { done: 1, total: 3 } }))
+    await flushPromises()
+    vi.mocked(api.practice.open).mockResolvedValueOnce(session({ id: 83, mode: 'sentence' }))
+    await wrapper.get('[data-testid=active-replace]').trigger('click')
+    await flushPromises()
+
+    expect(vi.mocked(api.practice.open).mock.calls.map((call) => call[0].mode)).toEqual(['sentence', 'sentence'])
     wrapper.unmount()
   })
 
@@ -573,10 +599,14 @@ describe('PracticeHubView — the battle with a friend', () => {
     wrapper.unmount()
   })
 
-  it('asks for the list only when the hub says there is something in it', async () => {
+  it('asks for the list only when the hub says there are invitations (a battle that is on needs no list)', async () => {
     const quiet = await render()
     expect(api.battles.list).not.toHaveBeenCalled()
     quiet.wrapper.unmount()
+
+    const playing = await render({}, hub({ battle: { enabled: true, active_battle_id: 15, incoming_count: 0 } }))
+    expect(api.battles.list).not.toHaveBeenCalled()
+    playing.wrapper.unmount()
 
     const busy = await render({}, hub({ battle: { enabled: true, active_battle_id: null, incoming_count: 1 } }))
     expect(api.battles.list).toHaveBeenCalledTimes(1)
