@@ -214,6 +214,12 @@ export const usePracticeStore = defineStore('practice', {
       }
     },
 
+    /** The hub could not be asked for (the login failed before the request). */
+    failHub(err: unknown): void {
+      this.hubStatus = 'error'
+      this.hubError = errorMessage(err, 'practice')
+    },
+
     /**
      * Opens a solo session. Returns its id for the route, or null with the reason in `conflict` (an unfinished session:
      * the hub asks what to do), `paywall`, or `openError`. The answer is kept for `start()`.

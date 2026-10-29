@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import PaywallSheet from '@/components/PaywallSheet.vue'
@@ -15,6 +15,7 @@ import { showErrorToast } from '@/composables/errorToast'
 import { useBackButton } from '@/composables/useBackButton'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useAuthStore } from '@/stores/auth'
+import { useBillingStore } from '@/stores/billing'
 import { useCoursesStore } from '@/stores/courses'
 import { useExamStore } from '@/stores/exam'
 import { useTrainingStore } from '@/stores/training'
@@ -23,8 +24,9 @@ import type { CourseLesson, CourseStage } from '@/api/types'
 
 /**
  * One course (docs/14 §6.5): the heading with the progress, the main action ("Continue: module M, lesson N" in the
- * main course, "Make main" in any other), the IELTS / SAT mock for Pro, and the modules with their lessons and
- * statuses. "Back" is the system button (-> the catalog).
+ * main course, "Make main" in any other), "Practice" under it (the hub of the course, docs/16 §11.1; shown while
+ * `/me.practice.available`, with a Pro chip and the paywall while it is behind Pro), the IELTS / SAT mock for Pro, and
+ * the modules with their lessons and statuses. "Back" is the system button (-> the catalog).
  */
 
 /** Courses with an IELTS / SAT mock (docs/13 §8.4); the server refuses the others anyway. */
@@ -48,6 +50,7 @@ const auth = useAuthStore()
 const catalog = useCoursesStore()
 const training = useTrainingStore()
 const exam = useExamStore()
+const billing = useBillingStore()
 const { t, tn } = useI18n()
 
 const { detail, detailStatus: status, selecting, errorMessage, nextLesson, allLessonsDone } = storeToRefs(catalog)
@@ -101,6 +104,18 @@ async function learn(lessonId: number): Promise<void> {
 /** "Repeat words" in the paywall sheet: the sheet closes and the daily review starts (the refusal of the mock is Free's). */
 const { reviewFromPaywall } = useReviewFromPaywall(() => exam.dismissMockPaywall())
 
+/** Practice (docs/16 §11.1): the entry shows while `/me.practice.available`; behind Pro it opens the paywall instead. */
+const practice = computed(() => billing.practiceAccess)
+const practicePaywall = ref(false)
+const { reviewFromPaywall: reviewFromPracticePaywall } = useReviewFromPaywall(() => {
+  practicePaywall.value = false
+})
+
+function openPractice(): void {
+  if (practice.value.pro_required) practicePaywall.value = true
+  else void router.push({ name: 'practice-hub', params: { slug: props.slug } })
+}
+
 /** Pro: opens (or resumes) the mock and goes to the exam screen; Free: the paywall sheet. */
 async function mockExam(): Promise<void> {
   const sessionId = await exam.openMock(props.slug)
@@ -116,6 +131,8 @@ watch(openError, (message) => {
 
 onMounted(() => {
   void load()
+  // `/me` is kept for half a minute by the store: the Today screen or the paywall may have asked already.
+  void billing.load()
 })
 
 onBeforeUnmount(() => {
@@ -196,6 +213,16 @@ onBeforeUnmount(() => {
         <p class="mt-2 px-4 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="choose-hint">{{ t('course.choose_hint') }}</p>
       </template>
 
+      <!-- Under the main button, a secondary action: the practice of this course. -->
+      <button v-if="practice.available" type="button" class="btn btn-tinted btn-block mt-2" data-testid="practice-btn" @click="openPractice">
+        <AppIcon name="puzzle-piece" :size="20" />
+        {{ t('practice.hub.title') }}
+        <span v-if="practice.pro_required" class="chip chip-accent" data-testid="practice-pro">
+          <AppIcon name="sparkles" solid :size="12" />
+          {{ t('practice.hub.state.pro') }}
+        </span>
+      </button>
+
       <section v-if="offersMock" class="card mt-4" data-testid="mock-exam">
         <div class="flex items-start gap-3">
           <span class="icon-tile tile-purple"><AppIcon name="flag" :size="18" /></span>
@@ -268,5 +295,6 @@ onBeforeUnmount(() => {
     </template>
 
     <PaywallSheet v-if="mockPaywall" reason="exam_simulator" @close="exam.dismissMockPaywall()" @review="reviewFromPaywall" />
+    <PaywallSheet v-if="practicePaywall" reason="practice" @close="practicePaywall = false" @review="reviewFromPracticePaywall" />
   </div>
 </template>

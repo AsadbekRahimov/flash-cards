@@ -2042,3 +2042,146 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `landing.outside_telegram` | Bu sahifa faqat Telegram Web App ichida ishlaydi. O'qituvchidan trening havolasini guruhga yuborishini so'rang. | Эта страница работает только внутри Telegram Web App. Попросите учителя прислать ссылку-тренировку в группу. |
+
+## Практика и баттл 2026-10 · 18-1t — на проверку носителю
+
+> Оболочка практики и баттла в приложении (`resources/twa/src/i18n/uz.ts`, задача 18.1-T): хаб практики, сессия, итоги, звук, названия четырёх режимов,
+> тексты ошибок сервера для практики и баттла (коды `docs/16` §7.6), причина пейвола «practice». Тексты режимов (пары, сочетание, предложение, диктант) и
+> самого баттла добавят свои задачи — отдельными разделами ниже.
+>
+> Что решить носителю:
+> - **«Практика»** — `Amaliyot` (не `mashg'ulot`: так названо ежедневное занятие, `docs/14` §8).
+> - **«Баттл»** — `bellashuv`; существующие «вызовы» в разделе «Друзья» — `musobaqa` (недельное соревнование по числу карточек), смешивать не хотелось.
+> - **Режимы:** «Найди пары» — `Juftlarni toping`; «Подбери сочетание» — `So'z birikmasini tanlang` (collocation); «Собери предложение» — `Gap tuzing`;
+>   «Слушай и пиши» — `Eshiting va yozing`.
+> - **Подсказка** («Не знаю» → показан ответ) — `Yordam`; **опечатка** — `imlo xatosi` («Imloda xato bor» в вердикте).
+> - Примеры на карточках режимов (`practice.mode.*.example`) — английский текст остаётся как есть, переведены только пояснения.
+> - Длительность: «≈ 2 мин» → `≈ 2 daq.`
+
+| Ключ | uz | ru |
+|---|---|---|
+| `paywall.lead_practice` | Amaliyot — so'zlarni mustahkamlash o'yinlari va do'stlar bilan bellashuvlar — Pro'da mavjud. | Практика — игры на закрепление слов и баттлы с друзьями — доступна в Pro. |
+| `practice.hub.title` | Amaliyot | Практика |
+| `practice.hub.choose` | Rejimni tanlang | Выберите режим |
+| `practice.hub.continue` | Davom etish | Продолжить |
+| `practice.hub.estimate` | ≈ {minutes} daq. | ≈ {minutes} мин |
+| `practice.hub.state.disabled` | O'chirilgan | Выключено |
+| `practice.hub.state.not_enough` | Material kam | Мало материала |
+| `practice.hub.state.pro` | Pro | Pro |
+| `practice.hub.card.aria` | {title}. {example}. {estimate} | {title}. {example}. {estimate} |
+| `practice.hub.card.aria_pro` | {title}. Pro'da mavjud | {title}. Доступно в Pro |
+| `practice.hub.card.aria_resume` | Davom etish: {title}, {total} tadan {done} tasi bajarildi | Продолжить: {title}, выполнено {done} из {total} |
+| `practice.hub.reason.no_words` | O'rganilgan so'zlar: {available}/{required}. Darsni o'ting — rejim ochiladi. | Изучено слов: {available} из {required}. Пройдите урок, и режим откроется. |
+| `practice.hub.reason.ambiguous` | Mos so'zlar: {available}/{required}. Yangi so'zlarni o'rganing — rejim ochiladi. | Подходящих слов: {available} из {required}. Выучите новые слова, и режим откроется. |
+| `practice.hub.reason.no_items` | Topshiriqlar: {available}/{required}. Dars so'zlarini o'rganganingizdan keyin paydo bo'ladi. | Заданий: {available} из {required}. Они появятся, когда вы выучите слова урока. |
+| `practice.hub.reason.audio_pending` | Topshiriqlar uchun yozuvlar hali tayyorlanmoqda. Keyinroq qaytib keling. | Записи для заданий ещё готовятся. Загляните позже. |
+| `practice.hub.reason.no_audio_words` | So'zlaringiz uchun hozircha yozuvlar yo'q. Keyinroq qaytib keling. | Для ваших слов пока нет записей. Загляните позже. |
+| `practice.hub.reason.unknown` | Material hozircha yetarli emas. | Пока не хватает материала. |
+| `practice.hub.learn_lesson` | Darsni o'rganish | Учить урок |
+| `practice.hub.to_lessons` | Darslarga | К урокам |
+| `practice.hub.unavailable_title` | Amaliyot hozircha mavjud emas | Практика пока недоступна |
+| `practice.hub.unavailable_text` | U keyinroq ochiladi. Kurs bo'yicha odatdagidek o'qishni davom ettirishingiz mumkin. | Она откроется позже. А заниматься по курсу можно как обычно. |
+| `practice.hub.to_course` | Kursga | К курсу |
+| `practice.hub.battle.title` | 1 ga 1 bellashuv | Баттл 1 на 1 |
+| `practice.hub.battle.text` | Bir xil topshiriqlarda besh raund. Ko'proq ochko to'plagan g'olib bo'ladi. | Пять раундов на одинаковых заданиях. Побеждает тот, кто наберёт больше очков. |
+| `practice.hub.battle.play` | Do'st bilan o'ynash | Играть с другом |
+| `practice.hub.battle.invites` | Bellashuvga takliflar | Приглашения на баттл |
+| `practice.hub.battle.invited_by` | {name} sizni bellashuvga chaqiryapti | {name} зовёт вас на баттл |
+| `practice.hub.battle.resume` | Bellashuvga qaytish | Вернуться в баттл |
+| `practice.hub.battle.soon_title` | Bellashuvlar tez orada | Баттлы скоро |
+| `practice.hub.battle.soon_text` | 1 ga 1 bellashuvlarni yakunlayapmiz. Biroz keyinroq qaytib keling. | Мы доделываем баттлы 1 на 1. Загляните чуть позже. |
+| `practice.hub.friends.title` | Kim bilan o'ynaymiz? | С кем играем? |
+| `practice.hub.friends.play_with` | {name} bilan o'ynash | Играть с {name} |
+| `practice.hub.friends.empty` | Hozircha do'stlaringiz yo'q. «Reyting» bo'limida tanishingizni taklif qiling — birga o'ynaysiz. | Пока нет друзей. Позовите знакомого во вкладке «Рейтинг», и играйте вместе. |
+| `practice.hub.friends.invite` | Do'stni taklif qilish | Позвать друга |
+| `practice.hub.active.title` | Tugallanmagan amaliyot | Незавершённая практика |
+| `practice.hub.active.text` | {mode}: {total} tadan {done} tasi bajarildi. Uni davom ettiring yoki yangisini boshlang — eskisi yopiladi. | {mode}: выполнено {done} из {total}. Продолжите её или начните новую — прежняя закроется. |
+| `practice.hub.active.new` | Yangisini boshlash | Начать новую |
+| `practice.hub.active.cancel` | Bekor qilish | Отмена |
+| `practice.mode.pairs.title` | Juftlarni toping | Найди пары |
+| `practice.mode.pairs.example` | mother ↔ ona | mother ↔ мама |
+| `practice.mode.collocation.title` | So'z birikmasini tanlang | Подбери сочетание |
+| `practice.mode.collocation.example` | ___ a decision → make | ___ a decision → make |
+| `practice.mode.sentence.title` | Gap tuzing | Собери предложение |
+| `practice.mode.sentence.example` | I · usually · drink · tea | I · usually · drink · tea |
+| `practice.mode.dictation.title` | Eshiting va yozing | Слушай и пиши |
+| `practice.mode.dictation.example` | tinglaysiz — yozasiz | слышите — пишете |
+| `practice.session.progress` | {total} tadan {done} tasi bajarildi | Выполнено {done} из {total} |
+| `practice.session.retry_chip` | Xatolarni takrorlash | Повтор ошибок |
+| `practice.session.to_summary` | Natijalarga | К итогам |
+| `practice.session.closed_title` | Amaliyot yakunlandi | Практика завершена |
+| `practice.session.to_hub` | Amaliyotga qaytish | К практике |
+| `practice.session.round_done` | {rounds} raunddan {round}-raund tugadi | Раунд {round} из {rounds} пройден |
+| `practice.session.round_clean` | Xatosiz | Без ошибок |
+| `practice.session.round_mistakes` | Raunddagi xatolar: {count} | Ошибок в раунде: {count} |
+| `practice.verdict.correct` | To'g'ri! | Верно! |
+| `practice.verdict.typo` | Imloda xato bor | Есть опечатка |
+| `practice.verdict.wrong` | Tuzatish kerak | Нужно исправить |
+| `practice.verdict.skipped` | Yordam | Подсказка |
+| `practice.reveal.typo_note` | Deyarli to'g'ri, lekin so'zda imlo xatosi bor. Bu birinchi urinishda to'g'ri deb hisoblanmaydi. | Почти верно, но в слове опечатка. С первой попытки это не засчитывается. |
+| `practice.reveal.skipped_note` | Mana to'g'ri javob. Bu yordam sifatida hisoblanadi. | Вот правильный ответ. Это считается подсказкой. |
+| `practice.reveal.your_answer` | Sizning javobingiz | Ваш ответ |
+| `practice.reveal.also_correct` | Bu ham to'g'ri | Тоже верно |
+| `practice.reveal.translation` | Tarjima | Перевод |
+| `practice.reveal.explanation` | Izoh | Пояснение |
+| `practice.reveal.your_option` | sizning javobingiz | ваш ответ |
+| `practice.reveal.right_option` | to'g'ri javob | верный ответ |
+| `practice.summary.title` | Tayyor! | Готово! |
+| `practice.summary.reason.completed` | Amaliyot yakunlandi. | Практика пройдена. |
+| `practice.summary.reason.expired` | Amaliyot vaqti tugadi. Ulgurganingiz mana bular. | Время практики вышло. Вот что успели. |
+| `practice.summary.reason.replaced` | Bu amaliyot yopildi: siz yangisini boshladingiz. | Эта практика закрыта: вы начали новую. |
+| `practice.summary.stat.done` | Bajarildi | Выполнено |
+| `practice.summary.stat.rounds` | Raundlar | Раундов |
+| `practice.summary.stat.first` | Birinchi urinishda to'g'ri | Верно с первой попытки |
+| `practice.summary.stat.hints` | Yordamlar | Подсказки |
+| `practice.summary.stat.mismatches` | Xatolar | Ошибок |
+| `practice.summary.typos` | Imlo xatolari: {count} | Опечаток: {count} |
+| `practice.summary.duration` | Vaqt: {time} | Время: {time} |
+| `practice.summary.mistakes` | Nimani mashq qilish kerak | Над чем поработать |
+| `practice.summary.perfect` | Birorta ham xato yo'q. Ajoyib natija! | Ни одной ошибки. Отличная работа! |
+| `practice.summary.chip.typo` | Imlo xatosi | Опечатка |
+| `practice.summary.chip.wrong` | Xato | Ошибка |
+| `practice.summary.chip.skipped` | Yordam | Подсказка |
+| `practice.summary.retry` | Xatolarni takrorlash | Повторить ошибки |
+| `practice.summary.again` | Yana bir bor | Ещё раз |
+| `practice.summary.to_course` | Kursga | В курс |
+| `practice.audio.play` | Tinglash | Прослушать |
+| `practice.audio.loading` | Ovoz yuklanmoqda… | Загружаем звук… |
+| `practice.audio.trouble.title` | Ovoz mavjud emas | Звук недоступен |
+| `practice.audio.trouble.text` | Yozuvni yuklab bo'lmadi. Qayta yuklang yoki topshiriqni almashtiring — jarima yo'q. | Не удалось загрузить запись. Повторите загрузку или замените задание — штрафа не будет. |
+| `practice.audio.trouble.text_no_replace` | Yozuvni yuklab bo'lmadi, almashtirishlar esa tugagan. Qayta yuklang yoki ovozsiz davom eting. | Не удалось загрузить запись, а замен больше нет. Повторите загрузку или продолжите без звука. |
+| `practice.audio.retry` | Qayta yuklash | Повторить загрузку |
+| `practice.audio.replace` | Topshiriqni almashtirish | Заменить задание |
+| `practice.audio.silent` | Hozircha ovozsiz | Сейчас без звука |
+| `practice.audio.replacements_left` | Qolgan almashtirishlar: {count} | Замен осталось: {count} |
+| `error.closed.practice` | Bu amaliyot allaqachon yakunlangan yoki vaqti o'tib ketgan. | Эта практика уже завершена или её время вышло. |
+| `error.closed.battle` | Bu bellashuv allaqachon yopilgan. | Этот баттл уже закрыт. |
+| `error.forbidden.practice` | Sizda amaliyotga kirish huquqi yo'q. | У вас нет доступа к практике. |
+| `error.forbidden.battle` | Sizda bu bellashuvga kirish huquqi yo'q. | У вас нет доступа к этому баттлу. |
+| `error.code.practice_unavailable` | Amaliyot hozircha mavjud emas. | Практика сейчас недоступна. |
+| `error.code.practice_pro_required` | Amaliyot Pro'da mavjud. | Практика доступна в Pro. |
+| `error.code.practice_mode_disabled` | Bu rejim hozir o'chirilgan. Boshqasini tanlang. | Этот режим сейчас выключен. Выберите другой. |
+| `error.code.practice_not_enough_material` | Bu rejim uchun material hali kam. Yana bir nechta so'z o'rganing. | Для этого режима пока мало материала. Выучите ещё несколько слов. |
+| `error.code.practice_session_active` | Sizda tugallanmagan amaliyot bor. | У вас уже есть незавершённая практика. |
+| `error.code.practice_session_not_found` | Bu amaliyot topilmadi. | Эта практика не найдена. |
+| `error.code.practice_session_closed` | Bu amaliyot allaqachon yakunlangan. | Эта практика уже завершена. |
+| `error.code.element_not_current` | Topshiriq almashgan. Ekran yangilandi. | Задание уже сменилось. Экран обновлён. |
+| `error.code.answer_already_accepted` | Bu topshiriqqa javob allaqachon qabul qilingan. | Ответ на это задание уже принят. |
+| `error.code.pair_already_matched` | Bu juftlik allaqachon topilgan. | Эта пара уже собрана. |
+| `error.code.invalid_answer_shape` | Javobni yuborib bo'lmadi. Ekranni yangilab, qayta urinib ko'ring. | Не получилось отправить ответ. Обновите экран и попробуйте ещё раз. |
+| `error.code.unknown_element_id` | Javob bu topshiriqqa tegishli emas. Ekranni yangilang. | Ответ не относится к этому заданию. Обновите экран. |
+| `error.code.replace_not_allowed` | Topshiriqni endi almashtirib bo'lmaydi. | Заменить задание больше нельзя. |
+| `error.code.retry_not_available` | Xatolarni takrorlab bo'lmaydi: ular juda kam yoki umuman yo'q. | Повторить ошибки не получится: их слишком мало или нет совсем. |
+| `error.code.practice_audio_unavailable` | Bu topshiriq uchun ovoz hozir mavjud emas. | Запись для этого задания сейчас недоступна. |
+| `error.code.lesson_not_in_course` | Bu dars tanlangan kursga tegishli emas. | Этот урок не относится к выбранному курсу. |
+| `error.code.battle_disabled` | Bellashuvlar hozir o'chirilgan. | Баттлы сейчас выключены. |
+| `error.code.battle_busy` | Sizda faol bellashuv bor. Yangisini boshlash uchun uni tugating. | У вас уже есть активный баттл. Завершите его, чтобы начать новый. |
+| `error.code.battle_friend_no_access` | Do'stingizda amaliyotga hali ruxsat yo'q. | У вашего друга пока нет доступа к практике. |
+| `error.code.battle_material_unavailable` | Bu formatdagi bellashuv uchun material yetarli emas. Boshqa dars yoki formatni tanlang. | Для баттла в этом формате не хватает материала. Выберите другой урок или формат. |
+| `error.code.battle_not_found` | Bellashuv topilmadi. | Баттл не найден. |
+| `error.code.battle_not_recipient` | Bu taklifga faqat taklif qilingan kishi javob bera oladi. | Ответить на это приглашение может только тот, кого пригласили. |
+| `error.code.battle_not_challenger` | Taklifni faqat uni yuborgan kishi qaytarib olishi mumkin. | Отозвать приглашение может только тот, кто его отправил. |
+| `error.code.battle_closed` | Bu bellashuv allaqachon yopilgan. | Этот баттл уже закрыт. |
+| `error.code.battle_wrong_state` | Bu amal hozir mavjud emas. Ekran yangilanadi. | Сейчас это действие недоступно. Экран обновится. |
+| `error.code.round_not_open` | Bu raund hali boshlanmagan. | Этот раунд ещё не начался. |
+| `error.code.round_closed` | Raund vaqti tugadi: javob qabul qilinmadi. | Время раунда вышло: ответ не принят. |

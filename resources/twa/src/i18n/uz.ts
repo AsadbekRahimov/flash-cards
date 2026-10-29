@@ -524,7 +524,6 @@ export const uz: Translations = {
   'practice.hub.title': 'Amaliyot',
   'practice.hub.choose': 'Rejimni tanlang',
   'practice.hub.continue': 'Davom etish',
-  'practice.hub.continue_progress': '{mode} · {total} tadan {done} tasi bajarildi',
   'practice.hub.estimate': '≈ {minutes} daq.',
   'practice.hub.state.disabled': "O'chirilgan",
   'practice.hub.state.not_enough': 'Material kam',
@@ -548,8 +547,9 @@ export const uz: Translations = {
   'practice.hub.battle.play': "Do'st bilan o'ynash",
   'practice.hub.battle.invites': 'Bellashuvga takliflar',
   'practice.hub.battle.invited_by': '{name} sizni bellashuvga chaqiryapti',
-  'practice.hub.battle.active': 'Bellashuv davom etmoqda',
-  'practice.hub.battle.active_with': 'Raqib: {name}',
+  'practice.hub.battle.resume': 'Bellashuvga qaytish',
+  'practice.hub.battle.soon_title': 'Bellashuvlar tez orada',
+  'practice.hub.battle.soon_text': "1 ga 1 bellashuvlarni yakunlayapmiz. Biroz keyinroq qaytib keling.",
   'practice.hub.friends.title': "Kim bilan o'ynaymiz?",
   'practice.hub.friends.play_with': "{name} bilan o'ynash",
   'practice.hub.friends.empty': "Hozircha do'stlaringiz yo'q. «Reyting» bo'limida tanishingizni taklif qiling — birga o'ynaysiz.",
@@ -567,7 +567,7 @@ export const uz: Translations = {
   'practice.mode.sentence.title': 'Gap tuzing',
   'practice.mode.sentence.example': 'I · usually · drink · tea',
   'practice.mode.dictation.title': 'Eshiting va yozing',
-  'practice.mode.dictation.example': 'Iborani tinglaysiz — yozasiz',
+  'practice.mode.dictation.example': 'tinglaysiz — yozasiz',
 
   // ---- practice: session ----
   'practice.session.progress': '{total} tadan {done} tasi bajarildi',

@@ -562,7 +562,6 @@ export const ru = {
   'practice.hub.title': 'Практика',
   'practice.hub.choose': 'Выберите режим',
   'practice.hub.continue': 'Продолжить',
-  'practice.hub.continue_progress': '{mode} · выполнено {done} из {total}',
   'practice.hub.estimate': '≈ {minutes} мин',
   'practice.hub.state.disabled': 'Выключено',
   'practice.hub.state.not_enough': 'Мало материала',
@@ -586,8 +585,9 @@ export const ru = {
   'practice.hub.battle.play': 'Играть с другом',
   'practice.hub.battle.invites': 'Приглашения на баттл',
   'practice.hub.battle.invited_by': '{name} зовёт вас на баттл',
-  'practice.hub.battle.active': 'Идёт баттл',
-  'practice.hub.battle.active_with': 'Соперник: {name}',
+  'practice.hub.battle.resume': 'Вернуться в баттл',
+  'practice.hub.battle.soon_title': 'Баттлы скоро',
+  'practice.hub.battle.soon_text': 'Мы доделываем баттлы 1 на 1. Загляните чуть позже.',
   'practice.hub.friends.title': 'С кем играем?',
   'practice.hub.friends.play_with': 'Играть с {name}',
   'practice.hub.friends.empty': 'Пока нет друзей. Позовите знакомого во вкладке «Рейтинг», и играйте вместе.',
@@ -605,7 +605,7 @@ export const ru = {
   'practice.mode.sentence.title': 'Собери предложение',
   'practice.mode.sentence.example': 'I · usually · drink · tea',
   'practice.mode.dictation.title': 'Слушай и пиши',
-  'practice.mode.dictation.example': 'Слушаете фразу — пишете её',
+  'practice.mode.dictation.example': 'слышите — пишете',
 
   // ---- practice: session ----
   'practice.session.progress': 'Выполнено {done} из {total}',

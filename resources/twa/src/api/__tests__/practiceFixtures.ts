@@ -162,7 +162,9 @@ export const activeSession = (overrides: Partial<PracticeActiveSession> = {}): P
 })
 
 /** The hub of a lesson with the four cards available; pass `modes` to change some of them. */
-export function hub(overrides: Partial<PracticeHubResponse> & { modes?: Partial<Record<PracticeMode, Partial<PracticeModeInfo>>> | PracticeModeInfo[] } = {}): PracticeHubResponse {
+export function hub(
+  overrides: Omit<Partial<PracticeHubResponse>, 'modes'> & { modes?: Partial<Record<PracticeMode, Partial<PracticeModeInfo>>> | PracticeModeInfo[] } = {},
+): PracticeHubResponse {
   const { modes: modeOverrides, ...rest } = overrides
   const modes = Array.isArray(modeOverrides)
     ? modeOverrides
