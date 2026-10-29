@@ -21,6 +21,7 @@ import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
 import { useAuthStore } from '@/stores/auth'
 import { useBattleStore } from '@/stores/battle'
+import { useBillingStore } from '@/stores/billing'
 import { useFriendsStore } from '@/stores/friends'
 import { usePracticeStore } from '@/stores/practice'
 import { useTrainingStore } from '@/stores/training'
@@ -47,6 +48,7 @@ const router = useRouter()
 const auth = useAuthStore()
 const practice = usePracticeStore()
 const battle = useBattleStore()
+const billing = useBillingStore()
 const friends = useFriendsStore()
 const training = useTrainingStore()
 const { haptic } = useTelegram()
@@ -212,6 +214,15 @@ watch(openError, (message) => {
 })
 
 watch([() => props.slug, () => props.lessonId], () => void load())
+
+// The plan changes under the hub (Pro paid for in the sheet, a promo code): the cards behind Pro are not behind it
+// any more, so the hub is asked again. The first `/me` (the plan becomes known) is not a change.
+watch(
+  () => billing.entitlement?.plan,
+  (plan, before) => {
+    if (before !== undefined && plan !== before) void load()
+  },
+)
 
 onMounted(() => {
   void load()

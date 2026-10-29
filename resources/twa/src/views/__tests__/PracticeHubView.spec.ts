@@ -7,6 +7,7 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { showErrorToast } from '@/composables/errorToast'
+import { useBillingStore } from '@/stores/billing'
 import { activeSession, hub, session } from '@/api/__tests__/practiceFixtures'
 import type { BattleListResponse, FriendsResponse, PracticeHubResponse } from '@/api/types'
 
@@ -461,6 +462,50 @@ describe('PracticeHubView — Pro', () => {
     expect(wrapper.get('[data-testid=paywall]').attributes('data-reason')).toBe('practice')
     expect(showErrorToast).not.toHaveBeenCalled()
     wrapper.unmount()
+  })
+
+  describe('when the plan changes under the hub', () => {
+    const plan = (value: 'free' | 'pro') => ({
+      entitlement: { plan: value, source: value === 'pro' ? 'payment' : 'free', until: null, new_words_per_day: value === 'pro' ? null : 20 },
+      paywall: { mode: 'purchase' as const, contact: null },
+    })
+
+    it('asks the hub again after Pro is paid for, and the Pro chip is gone', async () => {
+      const billing = useBillingStore()
+      billing.apply(plan('free'))
+      const { wrapper } = await render({}, hub({ modes: { dictation: { state: 'pro_required' } } }))
+      expect(card(wrapper, 'dictation').text()).toContain('Pro')
+
+      vi.mocked(api.practice.hub).mockResolvedValue(hub())
+      billing.apply(plan('pro'))
+      await flushPromises()
+
+      expect(api.practice.hub).toHaveBeenCalledTimes(2)
+      expect(card(wrapper, 'dictation').text()).not.toContain('Pro')
+      wrapper.unmount()
+    })
+
+    it('does not ask again when the plan only becomes known', async () => {
+      const { wrapper } = await render()
+
+      useBillingStore().apply(plan('pro'))
+      await flushPromises()
+
+      expect(api.practice.hub).toHaveBeenCalledTimes(1)
+      wrapper.unmount()
+    })
+
+    it('does not ask again for a /me that changes nothing', async () => {
+      const billing = useBillingStore()
+      billing.apply(plan('free'))
+      const { wrapper } = await render()
+
+      billing.apply(plan('free'))
+      await flushPromises()
+
+      expect(api.practice.hub).toHaveBeenCalledTimes(1)
+      wrapper.unmount()
+    })
   })
 })
 
