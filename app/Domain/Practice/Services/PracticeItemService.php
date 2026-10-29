@@ -329,10 +329,10 @@ final class PracticeItemService
                 throw PracticeItemStateException::notArchived();
             }
 
+            $current = $locked->current_version_id === null ? null : PracticeItemVersion::query()->find($locked->current_version_id);
             $status = match (true) {
                 $locked->published_version_id !== null => PracticeItemStatus::Published,
-                $locked->current_version_id !== null
-                    && PracticeItemVersion::query()->whereKey($locked->current_version_id)->value('state') === VersionState::Reviewed->value => PracticeItemStatus::Reviewed,
+                $current?->state === VersionState::Reviewed => PracticeItemStatus::Reviewed,
                 default => PracticeItemStatus::Draft,
             };
 
