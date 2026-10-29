@@ -9,15 +9,19 @@ use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Practice\DTO\AudioClip;
 use App\Domain\Practice\DTO\AudioStream;
 use App\Domain\Practice\DTO\Snapshot;
+use App\Domain\Practice\Enums\AudioStatus;
+use App\Jobs\GeneratePracticeAudioJob;
 use App\Models\Learner;
+use App\Models\PracticeItemVersion;
 use Illuminate\Support\Facades\Storage;
 
 /**
  * The audio of an element of a snapshot (docs/16 §10): where the file is and how to hand it out. The path of a file never
  * leaves the server - a client gets only the URL of the endpoint and the id of the element.
  *
- * Task 18.1 has the reading side: {@see clipFor()} and {@see open()}. The generation of the audio of a dictation
- * (`schedule`, `generate`, `isReady`: a job after the commit) comes with 18.5.
+ * Task 18.1 has the reading side: {@see clipFor()} and {@see open()}. The writing side is split so that the authoring
+ * (18.7a) and the dictation (18.5) do not edit the same code: {@see schedule()} is final (the authoring calls it for every
+ * new dictation version), the body of the job - {@see generate()} - comes with 18.5.
  *
  * Two disks only: the one of `practice.audio.disk` (the phrases of the authors, not served by nginx) and `public` (the
  * pre-generated audio of the words). A snapshot is written by the server, yet a name of any other disk is not followed.
@@ -76,6 +80,37 @@ final class PracticeAudioService
             'reason' => 'file_missing',
             'verified' => true,
         ], learner: $learner);
+    }
+
+    /**
+     * Queues the voicing of a dictation version (docs/16 §10.1): `audio_status` becomes `pending` and
+     * {@see GeneratePracticeAudioJob} runs after the surrounding transaction commits. A version that is already `ready`
+     * is left alone unless `$force` (the admin action "generate again"). Not a dictation (`none`): nothing to do.
+     */
+    public function schedule(PracticeItemVersion $version, bool $force = false): void
+    {
+        if ($version->audio_status === AudioStatus::None || ($version->audio_status === AudioStatus::Ready && ! $force)) {
+            return;
+        }
+
+        if ($version->audio_status !== AudioStatus::Pending) {
+            PracticeItemVersion::query()->whereKey($version->id)->update(['audio_status' => AudioStatus::Pending->value, 'audio_error' => null]);
+            $version->audio_status = AudioStatus::Pending;
+            $version->audio_error = null;
+            $version->syncOriginalAttributes(['audio_status', 'audio_error']);
+        }
+
+        GeneratePracticeAudioJob::dispatch((int) $version->id, $force)->afterCommit();
+    }
+
+    /**
+     * The body of {@see GeneratePracticeAudioJob}: synthesises the text of the version into `{audio_key}.mp3` on the disk
+     * `practice.audio.disk` and sets `audio_status` (docs/16 §10.1). Task 18.5 writes it; until then the version simply
+     * stays `pending` (no exception: a sync queue in a local demo must not break the import that queued the job).
+     */
+    public function generate(PracticeItemVersion $version, bool $force = false): void
+    {
+        // 18.5: TtsFallbackService::synthesize -> atomic write -> audio_status ready | failed.
     }
 
     /** @return list<string> */
