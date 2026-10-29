@@ -36,6 +36,7 @@ export type TrainingStatus =
   | 'ready'         // card visible, waiting for learner input
   | 'submitting'    // POST /review in flight
   | 'verdict'       // a typed answer was graded by the server; the next card waits in `deferred`
+  | 'held'          // a four-choice grade is saved; the next card waits in `deferred` until the learner has seen the answer
   | 'finished'      // card === null after /next
   | 'closed'        // 410 Gone from server
   | 'error'
@@ -78,8 +79,16 @@ interface TrainingState {
   errorMessage: string
   /** The server's grade of the last typed answer (spelling / gap_fill), shown before the next card. */
   verdict: Graded | null
-  /** The answer of the review that came with the verdict: applied by `continueAfterVerdict()`. */
+  /**
+   * The answer of the review that is held back: for a typed answer until the verdict is seen (`continueAfterVerdict()`),
+   * for a four-choice card until the right answer is seen (`continueAfterChoice()`). `null` while nothing is held, and in
+   * the held state of an older server that sent no `card`: then the next card is fetched when the learner moves on.
+   */
   deferred: { card: Card | null; doneReason: DoneReason | null } | null
+  /** The learner already moved on from a four-choice card whose grade is still on its way: show the next card on arrival. */
+  advanceWhenAnswered: boolean
+  /** Counts the sessions the store has been reset for: an answer that comes back for an earlier one is dropped. */
+  generation: number
 }
 
 export const useTrainingStore = defineStore('training', {
@@ -105,6 +114,8 @@ export const useTrainingStore = defineStore('training', {
     errorMessage: '',
     verdict: null,
     deferred: null,
+    advanceWhenAnswered: false,
+    generation: 0,
   }),
 
   getters: {
@@ -191,10 +202,25 @@ export const useTrainingStore = defineStore('training', {
       if (this.status === 'ready') this.showTranslation = true
     },
 
-    /** A self-graded (flash) or client-graded (reverse / audio) card. */
+    /** A self-graded (flash) card: the card the review answers with is shown at once. */
     async submitReview(quality: Quality): Promise<void> {
-      await this.submit((sessionId, wordId, timeSpent, serveToken) =>
-        api.training.review(sessionId, wordId, quality, timeSpent, serveToken),
+      await this.submit(
+        (sessionId, wordId, timeSpent, serveToken) =>
+          api.training.review(sessionId, wordId, quality, timeSpent, serveToken),
+        false,
+      )
+    },
+
+    /**
+     * A four-choice card (reverse / audio), graded by the client. The grade is final at the pick, so it goes to the
+     * server at once — it is saved even if the learner leaves the screen right away. The card the review answers with
+     * is held back (`continueAfterChoice()`) until the learner has seen the right answer.
+     */
+    async submitChoice(quality: Quality): Promise<void> {
+      await this.submit(
+        (sessionId, wordId, timeSpent, serveToken) =>
+          api.training.review(sessionId, wordId, quality, timeSpent, serveToken),
+        true,
       )
     },
 
@@ -203,22 +229,30 @@ export const useTrainingStore = defineStore('training', {
      * until the learner has seen the verdict (`continueAfterVerdict()`).
      */
     async submitAnswer(answer: string): Promise<void> {
-      await this.submit((sessionId, wordId, timeSpent, serveToken) =>
-        api.training.answer(sessionId, wordId, answer, timeSpent, serveToken),
+      await this.submit(
+        (sessionId, wordId, timeSpent, serveToken) =>
+          api.training.answer(sessionId, wordId, answer, timeSpent, serveToken),
+        false,
       )
     },
 
+    /** @param hold keep the card of the answer back until `continueAfterChoice()` (a four-choice card) */
     async submit(
       send: (sessionId: number, wordId: number, timeSpent: number, serveToken: string | null) => Promise<ReviewResponse>,
+      hold: boolean,
     ): Promise<void> {
       if (this.sessionId === null || this.card === null || this.status !== 'ready') return
+      const generation = this.generation
       const wordId = this.card.word_id
       // Learn-ahead ticket of *this* serve; the server rejects a replay without it.
       const serveToken = this.card.serve_token ?? null
       const timeSpent = Math.max(0, Date.now() - this.cardShownAt)
+      this.advanceWhenAnswered = false
       this.status = 'submitting'
       try {
         const res = await send(this.sessionId, wordId, timeSpent, serveToken)
+        // The learner has moved on to another session while the answer was on its way: it is no use to this one.
+        if (generation !== this.generation) return
         this.reviewedCount += 1
         this.lastIntervalDays = res.new_interval_days
         if (res.progress) this.progress = clampProgress(res.progress)
@@ -230,12 +264,21 @@ export const useTrainingStore = defineStore('training', {
             this.status = 'verdict'
             return
           }
+          if (hold) {
+            this.holdAnswer({ card: res.card ?? null, doneReason })
+            return
+          }
           this.doneReason = doneReason
           this.applyCard(res.card ?? null)
           return
         }
+        if (hold) {
+          this.holdAnswer(null)
+          return
+        }
         await this.loadNext()
       } catch (err) {
+        if (generation !== this.generation) return
         // The server already consumed/re-issued this serve (rare race or network replay):
         // the grade was not counted, so silently fetch the actual card. Once per submit —
         // loadNext() never re-submits, and its own failure goes through the usual error path.
@@ -256,9 +299,32 @@ export const useTrainingStore = defineStore('training', {
     /** The learner has seen the verdict: show what the review answered with. */
     continueAfterVerdict(): void {
       if (this.status !== 'verdict') return
-      const deferred = this.deferred
       this.verdict = null
+      this.applyDeferred()
+    },
+
+    /**
+     * The learner has seen the right answer of a four-choice card (the pause after a right pick is over, or "Next" was
+     * pressed after a wrong one): show what the review answered with. If the answer has not come back yet, it is shown
+     * the moment it does. Anything else (an answer already shown, a second press) changes nothing.
+     */
+    continueAfterChoice(): void {
+      if (this.status === 'held') this.applyDeferred()
+      else if (this.status === 'submitting') this.advanceWhenAnswered = true
+    },
+
+    /** Keeps the answer of a four-choice review back, or shows it at once when the learner has already moved on. */
+    holdAnswer(deferred: TrainingState['deferred']): void {
+      this.deferred = deferred
+      this.status = 'held'
+      if (this.advanceWhenAnswered) this.applyDeferred()
+    },
+
+    /** Shows what the held review answered with: its card, or the end of the session. */
+    applyDeferred(): void {
+      const deferred = this.deferred
       this.deferred = null
+      this.advanceWhenAnswered = false
       if (deferred === null) {
         void this.loadNext()
         return
@@ -282,6 +348,7 @@ export const useTrainingStore = defineStore('training', {
     },
 
     resetForSession(sessionId: number): void {
+      this.generation += 1
       this.sessionId = sessionId
       this.mode = null
       this.doneReason = null
@@ -297,6 +364,7 @@ export const useTrainingStore = defineStore('training', {
       this.errorMessage = ''
       this.verdict = null
       this.deferred = null
+      this.advanceWhenAnswered = false
     },
 
     applyCard(card: Card | null): void {

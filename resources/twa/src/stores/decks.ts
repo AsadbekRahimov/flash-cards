@@ -6,6 +6,9 @@ import type { Deck, DeckDetail, DeckImportFormat, DeckImportResult, DeckLimits }
 
 export type DecksStatus = 'idle' | 'loading' | 'ready' | 'error'
 
+/** Which plan limit refused a write: a new deck (`decks`) or words over the size of a deck (`deck_words`). */
+export type DeckLimitKind = 'decks' | 'deck_words'
+
 interface DecksState {
   decks: Deck[]
   limits: DeckLimits | null
@@ -19,12 +22,23 @@ interface DecksState {
   /** a write is in flight: the screens disable their buttons */
   busy: boolean
   errorMessage: string
-  /** the last write was refused by a plan limit (422 deck_limit_reached / deck_words_limit_reached): show the paywall */
+  /**
+   * the last write was refused by a plan limit (422 deck_limit_reached / deck_words_limit_reached): Free sees the
+   * paywall, Pro an explanation (the screen decides by the plan). Dropped by the next write, the next load and
+   * when the learner leaves the screen, so it never greets them on another one.
+   */
   limitReached: boolean
+  /** which limit it was; null while `limitReached` is false */
+  limitKind: DeckLimitKind | null
   lastImport: DeckImportResult | null
 }
 
-const LIMIT_CODES = ['deck_limit_reached', 'deck_words_limit_reached']
+function limitKindOf(err: unknown): DeckLimitKind | null {
+  if (!(err instanceof ApiClientError)) return null
+  if (err.code === 'deck_limit_reached') return 'decks'
+  if (err.code === 'deck_words_limit_reached') return 'deck_words'
+  return null
+}
 
 export const useDecksStore = defineStore('decks', {
   state: (): DecksState => ({
@@ -38,6 +52,7 @@ export const useDecksStore = defineStore('decks', {
     busy: false,
     errorMessage: '',
     limitReached: false,
+    limitKind: null,
     lastImport: null,
   }),
 
@@ -46,6 +61,7 @@ export const useDecksStore = defineStore('decks', {
       const seq = ++this.listSeq
       this.listStatus = 'loading'
       this.errorMessage = ''
+      this.dismissLimit()
       try {
         const res = await api.decks.list()
         if (seq !== this.listSeq) return
@@ -61,6 +77,7 @@ export const useDecksStore = defineStore('decks', {
       const seq = ++this.detailSeq
       this.detailStatus = 'loading'
       this.errorMessage = ''
+      this.dismissLimit()
       this.lastImport = null
       this.detail = null
       try {
@@ -140,6 +157,20 @@ export const useDecksStore = defineStore('decks', {
 
     dismissLimit(): void {
       this.limitReached = false
+      this.limitKind = null
+    },
+
+    /**
+     * Takes the plan limits again, nothing else. A refused write calls it: the numbers the screen quotes must be
+     * those the server just applied (the plan may have changed since the list was loaded, and a deck opened from a
+     * link has no list at all). Best effort — the screen falls back to its general text without numbers.
+     */
+    async refreshLimits(): Promise<void> {
+      try {
+        this.limits = (await api.decks.list()).limits
+      } catch {
+        // keep what there is
+      }
     },
 
     /** Runs one write: one at a time, errors become `errorMessage` (and `limitReached` for plan limits). */
@@ -147,12 +178,16 @@ export const useDecksStore = defineStore('decks', {
       if (this.busy) return fallback
       this.busy = true
       this.errorMessage = ''
-      this.limitReached = false
+      this.dismissLimit()
       try {
         return await run()
       } catch (err) {
+        const kind = limitKindOf(err)
+        // The numbers the screen quotes first, then the refusal itself: one render, no text that changes under the eyes.
+        if (kind !== null) await this.refreshLimits()
         this.errorMessage = errorMessage(err, 'decks')
-        this.limitReached = err instanceof ApiClientError && LIMIT_CODES.includes(err.code)
+        this.limitKind = kind
+        this.limitReached = kind !== null
         return fallback
       } finally {
         this.busy = false

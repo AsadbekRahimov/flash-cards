@@ -6,6 +6,7 @@ namespace App\Filament\Resources\OrganizationResource\RelationManagers;
 
 use App\Domain\Organizations\Exceptions\OrganizationMembershipException;
 use App\Domain\Organizations\Services\OrganizationMembershipService;
+use App\Filament\Resources\Support\AdminErrors;
 use App\Filament\Resources\Support\AdminLabels;
 use App\Models\Learner;
 use App\Models\Organization;
@@ -123,7 +124,7 @@ class MembersRelationManager extends RelationManager
                         try {
                             $member = $service->joinByAdmin($learner, $organization, $this->actor(), request()->ip());
                         } catch (OrganizationMembershipException $e) {
-                            Notification::make()->title(__('admin.organizations.members.notifications.not_added'))->body($e->getMessage())->danger()->send();
+                            Notification::make()->title(__('admin.organizations.members.notifications.not_added'))->body(AdminErrors::for('organizations.members', $e))->danger()->send();
 
                             return;
                         }
@@ -154,7 +155,7 @@ class MembersRelationManager extends RelationManager
                         try {
                             app(OrganizationMembershipService::class)->leave($learner, $this->organization(), 'removed', $this->actor(), request()->ip());
                         } catch (OrganizationMembershipException $e) {
-                            Notification::make()->title(__('admin.organizations.members.notifications.already_removed'))->body($e->getMessage())->warning()->send();
+                            Notification::make()->title(__('admin.organizations.members.notifications.already_removed'))->body(AdminErrors::for('organizations.members', $e))->warning()->send();
 
                             return;
                         }

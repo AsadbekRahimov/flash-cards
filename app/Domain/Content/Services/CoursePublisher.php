@@ -136,10 +136,50 @@ final class CoursePublisher
         return $course->slug === (string) config('content.default_course_slug');
     }
 
+    /**
+     * Takes the row of the course until the end of the caller's transaction (call it inside one): the lock the
+     * writers of ONE course take first, so they work one after another. Without it two imports into the same
+     * course count the active words from snapshots that lack each other's uncommitted rows, and the later commit
+     * leaves a {@see recount()} figure that misses the earlier import's words; a file submitted twice into an
+     * existing lesson makes the second import insert the words the first one has not committed yet and fail on
+     * the unique `(lesson_id, word)` instead of finding them and skipping.
+     *
+     * Taken the same way by the importer (VocabularyImporter), the repair run (LessonContentRefresher::refreshAll) and the
+     * recount after a word edit of the admin panel (LessonContentRefresher::wordChanged); the decks (LearnerDeckService)
+     * and {@see transition()} lock the row `FOR UPDATE` for the same purpose. It is the FIRST lock of each of these
+     * transactions (what they read before takes none); the lessons and words they write afterwards are not held by anyone
+     * who then waits for the course - the word edits of the admin panel run in autocommit, one statement at a time, and
+     * only their recount takes the course row, in a transaction of its own after the word is committed (a panel with
+     * `databaseTransactions()` would turn the two into word-then-course, the opposite order; CourseWriterLocksTest pins
+     * it) - so no cycle can form.
+     *
+     * `FOR NO KEY UPDATE` on PostgreSQL, as in CardPicker: it conflicts with `FOR UPDATE`, with itself and with the
+     * `UPDATE courses` of `recount()`, but not with the `FOR KEY SHARE` of a foreign-key check, so learners opening
+     * a session of the course or choosing it as their active one are not held up for the length of an import (with
+     * `FOR UPDATE` they would be). SQLite has no row locks and a single writer.
+     *
+     * @return Course|null the locked row as it is now; null when the course is gone
+     */
+    public function lockForWriting(Course $course): ?Course
+    {
+        $lock = Course::query()->whereKey($course->id);
+
+        /** @var Course|null $locked */
+        $locked = (DB::connection()->getDriverName() === 'pgsql' ? $lock->lock('for no key update') : $lock->lockForUpdate())->first();
+
+        return $locked;
+    }
+
+    /** Active words of the course as they are now: THE definition behind the denormalised `courses.words_count`. */
+    public function countActiveWords(Course $course): int
+    {
+        return $this->courseWords($course)->count();
+    }
+
     /** Recomputes the denormalised `courses.words_count` (active words). */
     public function recount(Course $course): void
     {
-        $count = $this->courseWords($course)->count();
+        $count = $this->countActiveWords($course);
 
         Course::query()->whereKey($course->id)->update(['words_count' => $count]);
         $course->words_count = $count;

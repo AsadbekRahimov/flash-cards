@@ -19,7 +19,8 @@ export interface SegmentOption {
  * - `ariaLabel` — what the control sets, for screen readers (required: the options alone do not say it). Written
  *   camelCase in a template (`:ariaLabel`): `vue-tsc` does not match `:aria-label` to this prop and reports it missing.
  *
- * Markup: `role="radiogroup"` with one `role="radio"` button per option (`aria-checked`).
+ * Markup: `role="radiogroup"` with one `role="radio"` button per option (`aria-checked`). A segment is 36 px high, its
+ * touch area at least 44 px (`.tap-target`, docs/14 §3): the look stays, the area around it is pressable too.
  *
  * @example
  * <SegmentedControl v-model="period" :options="[{ value: 'month', label: t('billing.period.month') }, …]" :ariaLabel="t('billing.title')" />
@@ -53,7 +54,7 @@ function select(value: string | number): void {
       :aria-checked="option.value === modelValue"
       :disabled="disabled"
       :data-testid="option.testid"
-      class="min-h-9 min-w-0 flex-1 rounded-lg px-3 text-sm leading-5 transition-colors duration-150"
+      class="tap-target min-h-9 min-w-0 flex-1 rounded-lg px-3 text-sm leading-5 transition-colors duration-150"
       :class="
         option.value === modelValue
           ? 'bg-surface font-semibold text-tg-text shadow-[0_1px_3px_rgb(0_0_0/0.12),0_0_0_1px_var(--app-hairline)]'

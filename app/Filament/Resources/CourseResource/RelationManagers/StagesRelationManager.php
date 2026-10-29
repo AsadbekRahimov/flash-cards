@@ -39,7 +39,7 @@ class StagesRelationManager extends RelationManager
                     ignoreRecord: true,
                     modifyRuleUsing: fn (Unique $rule): Unique => $rule->where('course_id', $this->getOwnerRecord()->getKey()),
                 ),
-            Forms\Components\TextInput::make('title')->label(__('admin.stages.fields.title'))->required()->maxLength(255),
+            StageResource::titleField(),
             Forms\Components\Textarea::make('description')->label(__('admin.stages.fields.description'))->rows(3)->columnSpanFull(),
         ]);
     }
@@ -47,15 +47,19 @@ class StagesRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->recordTitle(fn (Stage $record): string => StageResource::displayTitle($record))
             ->modelLabel(mb_strtolower(__('admin.stages.singular')))
             ->pluralModelLabel(__('admin.stages.plural'))
             ->emptyStateHeading(__('admin.stages.empty'))
             ->columns([
                 Tables\Columns\TextColumn::make('number')->label(__('admin.stages.fields.number'))->sortable(),
-                Tables\Columns\TextColumn::make('title')->label(__('admin.stages.fields.title'))->searchable(),
+                Tables\Columns\TextColumn::make('title')
+                    ->label(__('admin.stages.fields.title'))
+                    ->searchable()
+                    ->default(fn (Stage $record): string => StageResource::displayTitle($record)),
                 Tables\Columns\TextColumn::make('lessons_count')->counts('lessons')->label(__('admin.stages.columns.lessons_count')),
             ])
-            ->headerActions([Actions\CreateAction::make()->label(__('admin.stages.actions.create'))])
+            ->headerActions([Actions\CreateAction::make()->label(__('admin.stages.actions.create'))->modalHeading(__('admin.stages.actions.create'))])
             ->actions([
                 Actions\Action::make('lessons')
                     ->label(__('admin.stages.actions.lessons'))

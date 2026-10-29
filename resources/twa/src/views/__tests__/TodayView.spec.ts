@@ -46,6 +46,7 @@ const today = (overrides: Partial<TodayResponse> = {}): TodayResponse => ({
   entitlement: { plan: 'free', source: 'free', until: null },
   onboarding_completed: true,
   league: null,
+  timezone: 'Asia/Tashkent',
   ...overrides,
 })
 
@@ -110,15 +111,54 @@ describe('TodayView', () => {
   })
 
   describe('header', () => {
-    it('greets the learner by name with the date of the device under it', async () => {
+    it('greets the learner by name with the date under it', async () => {
       vi.useFakeTimers({ toFake: ['Date'] })
-      vi.setSystemTime(new Date(2026, 9, 28, 12, 0, 0))
+      vi.setSystemTime(new Date('2026-10-28T07:00:00Z')) // noon in Tashkent, the zone of the fixture
       state.learner = { first_name: ' Асадбек ' }
 
       const w = await render()
 
       expect(w.get('h1').text()).toBe('Привет, Асадбек!')
       expect(w.get('header p').text()).toBe('среда, 28 октября')
+    })
+
+    describe('the date under the greeting', () => {
+      it('is the date in the time zone of the learner that /today names: the day of the goal below is counted there', async () => {
+        vi.useFakeTimers({ toFake: ['Date'] })
+        // 01:30 on the 29th in Tashkent, 09:30 on the 28th in Pago Pago: whatever the device zone is, one of them differs from it.
+        vi.setSystemTime(new Date('2026-10-28T20:30:00Z'))
+
+        const tashkent = await render(today({ timezone: 'Asia/Tashkent' }))
+        expect(tashkent.get('header p').text()).toBe('четверг, 29 октября')
+
+        const samoa = await render(today({ timezone: 'Pacific/Pago_Pago' }))
+        expect(samoa.get('header p').text()).toBe('среда, 28 октября')
+      })
+
+      it('is already the next day for a learner in Tashkent at 20:30 UTC, while a device in UTC is still on the 28th', async () => {
+        const deviceZone = process.env.TZ
+        process.env.TZ = 'UTC' // the device
+        try {
+          vi.useFakeTimers({ toFake: ['Date'] })
+          vi.setSystemTime(new Date('2026-10-28T20:30:00Z'))
+          expect(new Date().getDate()).toBe(28) // the device's own day: the 29th below can only come from the learner's zone
+
+          const w = await render(today({ timezone: 'Asia/Tashkent' }))
+
+          expect(w.get('header p').text()).toBe('четверг, 29 октября')
+        } finally {
+          if (deviceZone === undefined) delete process.env.TZ
+          else process.env.TZ = deviceZone
+        }
+      })
+
+      it('keeps the date of the device when the browser does not know the zone, or an older server sent none', async () => {
+        vi.useFakeTimers({ toFake: ['Date'] })
+        vi.setSystemTime(new Date(2026, 9, 28, 12, 0, 0))
+
+        expect((await render(today({ timezone: 'Mars/Olympus' }))).get('header p').text()).toBe('среда, 28 октября')
+        expect((await render(today({ timezone: undefined as unknown as string }))).get('header p').text()).toBe('среда, 28 октября')
+      })
     })
 
     it('says "Today" when the learner has no name', async () => {
@@ -662,6 +702,12 @@ describe('TodayView', () => {
       expect(text(w, 'league-line')).toContain('Лига · Бронза')
     })
 
+    it.each(['constructor', '__proto__', 'toString'])('takes the name of a tier from the shared table only: «%s» is the lowest tier', async (key) => {
+      const w = await render(today({ league: { tier: 9, tier_key: key as never, rank: 1, points: 5, members_count: 30 } }))
+
+      expect(text(w, 'league-line')).toContain('Лига · Бронза')
+    })
+
     it('invites the learner to the league while they are not placed', async () => {
       const row = (await render(today({ league: null }))).get('[data-testid=league-line]')
 
@@ -715,7 +761,7 @@ describe('TodayView', () => {
 
   it('renders in Uzbek', async () => {
     vi.useFakeTimers({ toFake: ['Date'] })
-    vi.setSystemTime(new Date(2026, 9, 28, 12, 0, 0))
+    vi.setSystemTime(new Date('2026-10-28T07:00:00Z')) // noon in Tashkent
     setLocale('uz')
     state.learner = { first_name: 'Asadbek' }
     vi.mocked(api.assignments.list).mockResolvedValue({ assignments: [assignment()] })

@@ -1,242 +1,309 @@
-# LexiFlow Pro — Teacher Guide
+# LexiFlow Pro — руководство учителя
 
-This guide covers everything a teacher needs to run training sessions and exams with LexiFlow Pro.
+Здесь всё, что нужно учителю: как запустить тренировку и экзамен в Telegram-группе, где смотреть результаты и как
+работать в кабинете учебного центра. Слова везде одни и те же: курс делится на **модули**, модуль — на **уроки**,
+в уроке — **слова**. Ученики занимаются в мини-приложении LexiFlow, которое открывается кнопкой из Telegram.
 
----
-
-## Prerequisites
-
-1. Your Telegram account's `telegram_user_id` must be saved in the system by the administrator.
-2. You must be linked to at least one **active** group in the admin panel.
-3. The LexiFlow bot must be a member of that Telegram group.
-
-> **Content is managed by platform administrators.** In this phase a teacher cannot import lessons, edit
-> courses or words, or open the **Import Lesson** page (it answers *403*). If a lesson or stage you need is
-> missing, ask the administrator to import it.
+Если вы просто ведёте занятия — читайте разделы 1–7. Если вы владелец или учитель учебного центра и работаете в
+кабинете `/org` — смотрите раздел 8.
 
 ---
 
-## Bot Commands Reference
+## 1. Что должно быть готово заранее
 
-All commands are typed directly into the **group chat** where the bot is active (unless noted).
+Бот выполняет ваши команды, только когда готово всё из списка. Часть шагов делает администратор платформы — просто
+попросите его.
 
-| Command | Context | Description |
+1. **У вас есть активный аккаунт учителя, и в нём записан ваш Telegram ID.**
+   Свой ID узнайте сами: откройте личный чат с ботом и отправьте `/stats`. Пока аккаунт не привязан, бот ответит
+   «Этот Telegram-аккаунт не привязан к учителю LexiFlow» и покажет «Ваш Telegram ID». Перешлите этот номер администратору.
+2. **Бот добавлен в вашу Telegram-группу и назначен её администратором**
+   (группа → «Управление» → «Администраторы» → «Добавить администратора»). Без прав администратора бот не видит, кто
+   вошёл в группу и кто вышел, и LexiFlow работает не полностью. Если бот не администратор, он сам напишет об этом в группе.
+3. **Группа активирована.** Новая группа появляется в панели в статусе «Ожидает активации», и пока она не станет
+   «Активна», бот в этой группе **молчит**. Активирует группу администратор платформы.
+4. **Вы назначены учителем этой группы.** Это делает администратор (в кабинете учебного центра — владелец центра).
+5. **У группы выбран курс.** Номера модулей и уроков в командах берутся из курса группы. Если курс не выбран, берётся курс по умолчанию.
+6. **Ученики — участники группы.** Тренировку и экзамен группы открывают только её участники.
+
+**Проверка.** В личном чате с ботом отправьте `/start`. Если всё в порядке, бот ответит: «Привет, <ваше имя>! Вы
+авторизованы как учитель LexiFlow». Если вместо этого бот предлагает выбрать язык и цель, значит, ваш аккаунт ещё не
+привязан (пункт 1).
+
+> **Содержание уроков** добавляет и меняет администратор платформы. Учитель не может загружать уроки, править курсы и
+> слова (страница «Импорт урока» ему недоступна). Нужного модуля или урока нет — попросите администратора его загрузить.
+
+---
+
+## 2. Команды бота
+
+Команды учителя работают только в группе, где вы назначены учителем.
+
+| Команда | Где | Что делает |
 |---|---|---|
-| `/help` | any | Shows command list |
-| `/start` | private chat (DM) | Greets a teacher whose Telegram ID is linked to their profile (an unlinked account gets the learner onboarding) |
-| `/start_training [stage] [lesson]` | group | Opens a flashcard training session |
-| `/start_exam [stage] [lesson] [minutes]` | group | Opens a timed exam session |
-| `/close_exam` | group | Closes the current exam and posts the leaderboard |
-| `/stats` | private chat (DM) | Your report for the last 7 days; an account that is not linked yet is shown its Telegram ID |
+| `/start_training` | группа | Тренировка. Без чисел бот покажет список уроков кнопками; `/start_training 2 3` сразу запускает модуль 2, урок 3 |
+| `/start_exam [модуль] [урок] [минуты]` | группа | Экзамен на время. Без чисел: модуль 1, урок 1, 10 минут |
+| `/close_exam` | группа | Завершает идущий экзамен и публикует итоги |
+| `/help` | группа или личный чат | Справка |
+| `/start` | личный чат | Проверка, что аккаунт привязан |
+| `/stats` | личный чат | Ваш отчёт за 7 дней по вашим группам; если аккаунт не привязан, показывает ваш Telegram ID |
+| `/org` | личный чат | Для сотрудников учебных центров: ваши центры, роль, места и ссылка на кабинет (см. раздел 8) |
+
+Если набрать в группе `/`, Telegram покажет подсказки команд. Подсказки команд учителя (`start_training`, `start_exam`,
+`close_exam` и `help`) видят **администраторы группы**, остальные участники — только `help`. Если вы учитель, но не
+администратор группы, этих подсказок у вас не будет: наберите команду вручную, она сработает так же.
+
+Тексты бота в этом руководстве — на русском. Если для группы выбран узбекский язык бота, бот пишет по-узбекски
+(язык группы выбирает администратор).
 
 ---
 
-## Step 1 — Link Your Account (once)
+## 3. Тренировка
 
-In **private chat** with the bot, type:
-```
-/start
-```
-The bot replies with your name if your `telegram_user_id` is linked to your teacher profile. Until it is linked the bot treats you as an ordinary learner and starts the learner onboarding (language, goal, level, ...). To find your Telegram ID, send `/stats` to the bot in the private chat: it shows the ID for an account that is not linked yet. Give this ID to the administrator, who adds it to your profile; after that `/start` greets you as a teacher.
+1. В группе отправьте `/start_training`.
+2. Бот пришлёт кнопки с уроками курса группы: «Модуль 1 · Урок 1», «Модуль 1 · Урок 2» и так далее (до 20 уроков).
+   Нажмите нужную.
+   Номера можно сразу указать в команде: `/start_training 2 3` — модуль 2, урок 3. Если указать только модуль
+   (`/start_training 2`), будет урок 1.
+3. Бот напишет в группу: «📚 Тренировка запущена: модуль 2, урок 3. Нажмите кнопку, чтобы начать» и добавит кнопку
+   «🎯 Открыть тренировку».
+4. Ученики нажимают кнопку, и открывается мини-приложение с карточками этого урока.
 
----
+Что важно знать:
 
-## Step 2 — Start a Training Session
-
-In the **group chat**, type:
-```
-/start_training
-```
-Defaults: Stage 1, Lesson 1.
-
-To specify a different stage and lesson:
-```
-/start_training 2 3
-```
-(Stage 2, Lesson 3)
-
-The bot sends a message with an **Open Training** button. Students tap it to open the flashcard interface.
-
-### Notes
-- Only one training session can be open per group at a time.
-- If you run the same command again with the same stage/lesson, the existing session is reused.
+- Для одного урока в группе открыта одна тренировка. Если повторить команду для того же урока, бот не создаст вторую,
+  а снова пришлёт кнопку той же тренировки. Если ей больше 12 часов, бот откроет новую.
+- Тренировки разных уроков могут идти одновременно. Тренировка и экзамен тоже не мешают друг другу.
+- Тренировка закрывается сама примерно через сутки.
+- Итогов в группе у тренировки нет: ученики занимаются каждый в своём темпе. Общую картину вы увидите в отчёте `/stats` и
+  в панели (раздел 7).
 
 ---
 
-## Step 3 — Start an Exam
+## 4. Экзамен
 
-```
-/start_exam
-```
-Defaults: Stage 1, Lesson 1, 10 minutes.
+1. В группе отправьте `/start_exam`. Без чисел это модуль 1, урок 1 и 10 минут.
+   Другие варианты:
 
-To specify stage, lesson, and duration:
-```
-/start_exam 2 1 5
-```
-(Stage 2, Lesson 1, 5 minutes. Min: 1 min, max: 30 min.)
+   | Команда | Что запустится |
+   |---|---|
+   | `/start_exam 2` | модуль 2, урок 1, 10 минут |
+   | `/start_exam 2 3` | модуль 2, урок 3, 10 минут |
+   | `/start_exam 2 3 5` | модуль 2, урок 3, 5 минут |
 
-The bot posts a message with a countdown and an **Open Exam** button. Students join by tapping the button.
+2. Бот напишет в группу: «🏁 Экзамен запущен! Модуль 2 · Урок 3 · 5 мин. Нажмите кнопку, чтобы присоединиться» и добавит
+   кнопку «🏁 Открыть экзамен».
+3. Каждый ученик нажимает кнопку и отвечает на вопросы: ему показывают слово, а он выбирает верный перевод из
+   нескольких вариантов (обычно их четыре). На каждый вопрос даётся 10 секунд.
+4. Когда время вышло (или вы завершили экзамен командой `/close_exam`), бот публикует в группе итоги: десять лучших
+   с медалями 🥇🥈🥉 и очками.
 
-### What happens automatically
-- Each student sees the same pool of multiple-choice questions (4 options per word).
-- When the timer expires, the session closes and the bot posts the leaderboard in the group.
-- Scheduler also closes sessions automatically after the time limit + a 60-second grace period.
+Правила и ограничения:
+
+- **Длительность** — от 1 до 30 минут.
+- **Слов в уроке** должно быть не меньше 4 (учитываются только активные слова). Вопросов — до 10: если в уроке больше
+  10 слов, бот берёт 10 случайных, если меньше — по числу слов.
+- **Язык вопросов** — язык группы: переводы показываются на русском или узбекском, как выбрано для группы.
+- У каждого ученика **свой порядок** вопросов и вариантов ответа, поэтому подсмотреть у соседа не получится.
+- **В группе идёт только один экзамен.** Запустить второй, пока первый не закрыт, нельзя.
+- **Присоединиться можно в любой момент**, пока экзамен идёт. Но опоздавший получает меньше времени. Итоги ученики
+  видят только после закрытия экзамена.
+- **Очки.** Верный ответ приносит от 5 до 20 очков: чем быстрее ответ, тем больше. За слово, которое ученику раньше
+  давалось трудно, очки умножаются на 1,5. Неверный ответ, пропуск и ответ позже чем через 10 секунд дают 0 очков.
+- **Места.** Выше тот, у кого больше очков; при равенстве — у кого больше верных ответов, потом у кого меньше общее
+  время. Если всё равно, ученики делят место.
 
 ---
 
-## Step 4 — Close an Exam Early
+## 5. Закрыть экзамен раньше срока
+
+Отправьте в группе:
 
 ```
 /close_exam
 ```
-This immediately closes the open exam, builds the final leaderboard, and posts it in the group.
+
+Экзамен закроется сразу, и бот опубликует итоги (иногда это занимает несколько секунд).
+
+Закрывать экзамен вручную необязательно: через 1–2 минуты после окончания времени бот закроет его сам и тоже
+опубликует итоги. Если открытого экзамена нет, бот ответит: «Сейчас в группе нет открытого экзамена».
 
 ---
 
-## Error Messages and What They Mean
+## 6. Если что-то не получилось
 
-| Bot reply | Cause |
+| Что вы видите | Почему и что делать |
 |---|---|
-| "You are not a teacher of this group" | Your account is not linked to this group. Contact admin. |
-| "Group is not active" | The group is disabled in the admin panel. Contact admin. |
-| "Stage N not found" / "Lesson N not found" | That stage/lesson hasn't been imported yet. Ask the admin to import it (teachers cannot). |
-| "Not enough words" | The lesson has fewer than the minimum required words. Contact admin. |
-| "An exam is already open" | Another exam is running — close it first with `/close_exam`. |
-| "No exam is open in this group" | You tried `/close_exam` but there is nothing to close. |
-| "Duration must be between 1 and 30 minutes" | The minutes argument is out of range. |
+| Бот не отвечает в группе | Группа ещё не активирована или отключена. Попросите администратора платформы активировать её (панель → «Telegram-группы» → «Активировать»). Если группа активна — проверьте, что бот всё ещё в группе |
+| «Ваш Telegram-аккаунт не привязан к учителю» (иногда с добавлением «Попросите админа добавить вас.») | В аккаунте учителя нет вашего Telegram ID. Пришлите администратору ID из `/stats` (раздел 1) |
+| «Только учитель этой группы может запускать тренировку» (экзамен, закрывать экзамен) | Вы не назначены учителем этой группы или ваш аккаунт отключён. Обратитесь к администратору |
+| «Указанный модуль не найден.» или «Урок не найден.» | Такого номера нет в курсе группы. Отправьте `/start_training` без чисел и выберите урок кнопкой либо посмотрите номера в панели («Контент» → «Модули», «Уроки»). Нужного урока нет вообще — его должен загрузить администратор |
+| «В системе пока нет уроков. Попросите администратора загрузить контент.» | В курсе группы нет ни одного урока |
+| «В уроке недостаточно слов для экзамена.» | В уроке меньше 4 активных слов. Выберите другой урок или попросите добавить слова |
+| «Не хватает слов для вариантов ответа: добавьте больше слов в урок или в другие уроки этого модуля.» | Для неверных вариантов нужны другие слова. Попросите администратора добавить слова |
+| «В группе уже идёт экзамен. Завершите его через /close_exam.» | Двух экзаменов сразу не бывает |
+| «Длительность экзамена должна быть от 1 до 30 минут.» | Исправьте число минут в команде |
+| «Не удалось отправить кнопку в группу: экзамен отменён» (то же для тренировки) | Бот не смог написать в группу. Проверьте, что он в группе, что он администратор и что ему не запрещено писать, затем повторите команду |
+| «Сейчас в группе нет открытого экзамена.» | Завершать нечего |
+| «Не удалось запустить тренировку» (экзамен) или «Не удалось завершить экзамен» | Непредвиденный сбой. Повторите команду; если ошибка повторяется, сообщите администратору |
 
 ---
 
-## Viewing Results in the Admin Panel
+## 7. Результаты в панели администратора
 
-1. Open your browser and go to `/admin`.
-2. Log in with your teacher credentials.
-3. Open **Learning → Exam Logs** (Обучение → Экзамены) to see sessions, student results, and the per-word breakdown for your assigned groups. The panel is in Russian; other menu items you may see: **Content** (Контент: Модули, Уроки, Слова), **Administration** (Администрирование: Ученики, Telegram-группы).
-
-> Note: Teachers can only see their own groups. The admin decides which groups you are linked to.
-
----
-
-## Frequently Asked Questions
-
-**Can students join an exam after it started?**
-Yes. They can join at any time before the session closes, but they have less time to answer.
-
-**What happens to unanswered questions?**
-They count as incorrect (0 points).
-
-**Can I have a training session and an exam open at the same time?**
-Yes. Training sessions and exam sessions are independent.
-
-**How many students can join an exam?**
-There is no hard limit. All students in the active group can join.
-
-**Do I need to close the exam manually?**
-No. The scheduler closes it automatically after the time limit + 60-second grace. Use `/close_exam` only if you want to end it early.
+1. Откройте в браузере адрес панели, который дал администратор (он заканчивается на `/admin`), и войдите по email и
+   паролю. Двухфакторная защита для учителей не требуется — её включают только администраторам платформы.
+2. Слева вы увидите:
+   - **Инфопанель** — главная страница с цифрами по вашим группам: «Всего учеников», «Активны за 7 дней»,
+     «Экзаменов за 30 дней», «Активность тренировок за 30 дней», «Лучшие ученики за 30 дней», «Самые трудные слова за 30 дней».
+   - **Обучение → Экзамены** — все экзамены ваших групп: группа, урок, статус («Открыт» или «Закрыт»), кто запустил,
+     начало и окончание, число участников и ответов. Откройте экзамен: вкладка «Результаты учеников» показывает место,
+     баллы, число верных и всех ответов и время; вкладка «Ответы по словам» — на каждое слово выбранный и правильный перевод,
+     верно ли, баллы и время ответа.
+   - **Администрирование → Ученики** — ученики ваших групп (карточка ученика).
+   - **Администрирование → Telegram-группы** — ваши группы и их статус.
+   - **Контент → Модули, Уроки, Слова** — содержание курса, чтобы узнать номера модулей и уроков для команд.
+3. Учитель только смотрит: менять группы, учеников и содержание может только администратор. Видны только ваши группы.
+   Даты показываются в формате 28.10.2026 09:27.
 
 ---
 
-## Learning Center Cabinet (`/org`)
+## Вопросы и ответы
 
-Staff of a learning center (an **owner** or a **teacher** of the center) work in a separate cabinet at
-`https://<host>/org`. It is not the admin panel: you log in with the email and password from your
-invitation letter, and you only ever see your own center.
+**Можно ли присоединиться к экзамену, когда он уже идёт?**
+Да, пока экзамен не закрыт. Но времени остаётся меньше.
 
-### Getting in
+**Что с вопросами, на которые ученик не ответил?**
+Они не приносят очков (0).
 
-1. The owner invites you by email (**Teachers → Invite teacher**). You receive a letter with a
-   single-use link (valid 24 hours) to set your password. If the link has expired, use **Forgot
-   password?** on the login page — the account already exists.
-2. Open `/org`, log in. If you belong to several centers, switch between them in the menu at the top.
-3. **Owners must enable two-factor authentication** (Google Authenticator, 1Password, Authy): the cabinet
-   redirects you to the setup page on the first login and asks for a code on every new session. Teachers
-   may enable it in the same way; once enabled, it is required.
-4. In **Profile** (top-right menu) enter **My Telegram ID** — the bot shows it in a private chat on `/stats`.
-   Without it the bot's teacher commands (`/start_training`, `/start_exam`) do not recognise you, and an
-   owner cannot link groups.
+**Можно ли одновременно держать тренировку и экзамен?**
+Да, они не зависят друг от друга. Экзамен в группе при этом может быть только один.
 
-### Screens
+**Сколько учеников может участвовать в экзамене?**
+Жёсткого лимита нет — могут все участники активной группы.
 
-| Screen | Owner | Teacher |
+**Нужно ли завершать экзамен вручную?**
+Нет. Бот завершит его сам через 1–2 минуты после окончания времени. `/close_exam` нужна, только чтобы закончить раньше.
+
+**Могу ли я изменить слово или перевод?**
+Нет, содержание меняет администратор платформы. Если нашли ошибку в уроке — сообщите ему.
+
+---
+
+## 8. Кабинет учебного центра (`/org`)
+
+Сотрудники учебного центра — **владелец** и **учитель** центра — работают в отдельном кабинете по адресу
+`https://<адрес платформы>/org`. Это не панель администратора: вы входите по email и паролю из письма-приглашения и видите
+только свой центр.
+
+### Как войти
+
+1. Владелец приглашает вас по email («Учителя» → «Пригласить учителя»). Вам приходит письмо со ссылкой «Задать пароль»:
+   она действует 24 часа и срабатывает один раз. Если срок истёк, на странице входа нажмите «Забыли свой пароль?» — аккаунт уже создан.
+2. Откройте `/org` и войдите. Если вы сотрудник нескольких центров, переключайтесь между ними в меню сверху.
+3. **Владелец обязан включить двухфакторную защиту** (Google Authenticator, 1Password, Authy): при первом входе кабинет
+   сам откроет страницу настройки, а потом будет просить код при каждом новом входе. Учитель может включить её по желанию;
+   если включил, код нужен всегда.
+4. В **Профиле** (меню в правом верхнем углу) укажите **«Мой Telegram ID»** — бот показывает его по команде `/stats` в
+   личном чате. Без него команды учителя в группах (`/start_training`, `/start_exam`) вас не узнают, а владелец не сможет
+   привязывать группы.
+
+### Что есть в кабинете
+
+| Раздел меню | Владелец | Учитель |
 |---|---|---|
-| **Dashboard** | seats (taken / limit, waiting list), subscription, learners and activity of the last 7 days | activity of your groups only |
-| **Learners** | all members of the center with their seat state; **Add learner** by exact `@username` or Telegram ID; **Remove from center** (the seat goes to the first learner on the waiting list) | learners of your groups, read-only |
-| **Groups** | **Link group** by chat id — the bot must already be in the group and *you* must be its creator or administrator (the cabinet checks this with Telegram); **Unlink** | your groups only |
-| **Invitations** | create codes (label, uses, expiry), copy the `t.me/<bot>?start=org_<code>` link, deactivate | — |
-| **Teachers** | invite by email, assign groups, change role, resend the invitation, remove (the last owner cannot be removed) | — |
-| **Assignments** | all groups of the center: set a lesson with a deadline, see who finished, close | your groups only |
-| **Reports** | activity of the whole center, per group and per learner; CSV download | the same, for your groups only |
-| **Billing** | tariff and subscription, seats, payment, invoice, history (see *Payment* below) | — |
-| **Center settings** | name, contact, timezone, cabinet language | — |
+| **Обзор** | места (занято / лимит, очередь), подписка, ученики и активность за 7 дней | активность только ваших групп |
+| **Ученики** | все ученики центра и их места; «Добавить ученика» (по точному `@username` или Telegram ID; ученик должен уже писать боту); «Удалить из центра» (место получает первый в очереди) | ученики ваших групп, только просмотр |
+| **Группы** | «Привязать группу» по ID чата: бот уже должен быть в группе, а вы — её создателем или администратором (кабинет проверяет это через Telegram); «Отвязать» | только ваши группы |
+| **Приглашения** | создать код (метка, число использований, срок действия), скопировать ссылку `t.me/<бот>?start=org_<код>`, отключить | — |
+| **Учителя** | пригласить по email, назначить группы, сменить роль, отправить приглашение ещё раз, удалить (последнего владельца удалить нельзя) | — |
+| **Задания** | все группы центра: задать урок со сроком, смотреть, кто выполнил, закрыть | только ваши группы |
+| **Отчёты** | активность всего центра по группам и по ученикам, выгрузка в CSV | то же, но по вашим группам |
+| **Оплата** | тариф и подписка, места, оплата, счёт, история (см. «Оплата» ниже) | — |
+| **Настройки центра** | название, контакты, часовой пояс, язык кабинета | — |
 
-The cabinet speaks the language set in **Center settings** (Russian or Uzbek).
+Кабинет говорит на языке, выбранном в «Настройки центра» → «Язык кабинета» (русский или узбекский).
 
-### Assignments
+Привязанная группа должна быть **активна**, чтобы бот отвечал в ней на команды: если в таблице «Группы» она в статусе
+«Ожидает активации», её активирует администратор платформы. ID группы выглядит как `-1001234567890`; если не знаете его,
+спросите у администратора платформы — он виден в его разделе «Telegram-группы».
 
-An assignment is *one lesson of the group's course with a deadline*.
+### Задания
 
-1. **Assignments → Create assignment.** Pick the group (only groups of your center that have a course are listed), then the lesson (lessons of that group's course only), the deadline, and optionally a title (empty means the lesson title) and the completion threshold (default 100 % of the lesson's words).
-2. The bot posts **one message to the group chat** with an **Open lesson** button; the learners start the lesson straight from it. They also see the assignment in the **Today** screen of the mini app, with their own progress. The bot sends **one reminder to the group** about 24 hours before the deadline (nobody gets personal messages).
-3. **Progress** is the share of the lesson's active words the learner has answered correctly at least once. It is recounted every 30 minutes and whenever you open the assignment report. The list shows *N of M finished* (learners still in the group); the report shows each learner's progress and whether they finished, finished late or have not started. Only this aggregate is shown — never the learner's personal sessions or answers.
-4. After the deadline an assignment stays open: late completions are still counted and marked **finished late**. **Close** ends it by hand (the final progress stays in the report; a closed assignment cannot be reopened); an assignment overdue for 14 days is closed automatically.
+Задание — это *один урок курса группы со сроком выполнения*.
 
-A teacher sees and creates assignments only for their own groups; the owner for all groups of the center.
+1. «Задания» → «Создать задание». Выберите группу (в списке только группы вашего центра, у которых выбран курс), затем
+   урок (только уроки курса этой группы), срок выполнения и при желании название (пусто — название урока) и порог
+   выполнения (по умолчанию 100 % слов урока).
+2. Бот пришлёт **одно сообщение в группу** с кнопкой «Открыть урок»: ученики начинают урок прямо из него. Задание
+   видно и на главном экране «Сегодня» мини-приложения, с личным прогрессом. Примерно за 24 часа до срока бот пришлёт
+   **одно напоминание в группу** — никто не получает личных сообщений.
+3. **Прогресс** — доля активных слов урока, на которые ученик хотя бы раз ответил верно. Он пересчитывается каждые 30 минут
+   и при открытии отчёта по заданию. В списке видно «Выполнили: N из M» (среди учеников, которые ещё в группе), в отчёте —
+   прогресс каждого и итог: «Выполнено», «Выполнено с опозданием», «В процессе», «Не начато». Показывается только этот
+   итог — личные занятия и ответы ученика не видны никогда.
+4. После срока задание остаётся открытым: поздние выполнения засчитываются и помечаются «Выполнено с опозданием».
+   Кнопка «Закрыть» завершает задание вручную (итог сохранится в отчёте, открыть снова нельзя). Задание, просроченное на
+   14 дней, закрывается само.
 
-### Reports
+Учитель видит и создаёт задания только для своих групп, владелец — для всех групп центра.
 
-**Reports** shows how the learners practised over a period, as two tables: a summary **per group** and a list **per learner**.
+### Отчёты
 
-- **Filters.** *Group* (only the groups you can see; empty means all), *Period*: the last 7 days, the last 30 days, or your own dates (from / to, both days included, at most 366 days). Days are counted in the center's time zone (**Center settings**).
-- **Columns per learner.** *Reviews* and *new words* (sums over the period), *days active* (days with at least one review or new word), *days the daily goal was met*, the *current streak* (0 if the learner skipped yesterday), *assignments done / total* and *last seen*. The group table adds the number of learners and how many of them were active.
-- **Assignments.** Counted are the center's assignments whose **deadline falls in the chosen period**, for learners who are still in the assignment's group; "done" means the learner reached the completion threshold (late completions count). The numbers are the last saved snapshot (refreshed every 30 minutes and when an assignment report is opened).
-- **CSV.** **Download CSV (learners)** and **Download CSV (groups)** export exactly what the tables show for the current filters. The file is UTF-8 with a BOM, fields are separated by `;` (opens correctly in Excel with Russian / Uzbek regional settings), the headers are in the cabinet's language. Telegram IDs are not exported.
-- **Who sees what.** The owner sees the whole center; a teacher only the learners and groups of their own groups. Learners of other centers never appear.
-- **Privacy.** The report contains only daily totals and assignment results. A learner's individual sessions and answers are never shown to staff.
+«Отчёты» показывают, как ученики занимались за период, в двух таблицах: сводка **по группам** и список **по ученикам**.
 
-### Seats, in one paragraph
+- **Фильтры.** «Группа» (только те, что вам доступны; пусто — все) и «Период»: 7 дней, 30 дней или «Свой период»
+  («С» и «По», обе даты включаются, не больше 366 дней). Дни считаются по часовому поясу центра («Настройки центра»).
+- **Колонки по ученику.** «Повторений» и «Новых слов» (суммы за период), «Дней активности» (дни, когда было хотя бы одно
+  повторение или новое слово), «Дней с выполненной целью», «Серия дней» (0, если ученик пропустил вчера), «Задания
+  (выполнено / всего)» и «Был в сети». В таблице групп добавлены число учеников и сколько из них были активны.
+- **Задания.** Считаются задания центра, **срок которых попал в выбранный период**, для учеников, которые ещё в группе
+  задания; «выполнено» — порог достигнут (с опозданием тоже). Цифры берутся из последнего сохранённого снимка
+  (обновляется каждые 30 минут и при открытии отчёта по заданию).
+- **CSV.** «Скачать CSV (ученики)» и «Скачать CSV (группы)» выгружают ровно то, что видно в таблицах при текущих
+  фильтрах. Файл в UTF-8 с BOM, поля разделены `;` (в Excel с русскими и узбекскими региональными настройками откроется
+  правильно), заголовки — на языке кабинета. Telegram ID в файл не попадают.
+- **Кто что видит.** Владелец — весь центр, учитель — только учеников и группы из своих групп. Ученики других центров
+  не видны никому.
+- **Приватность.** В отчёте только суточные итоги и результаты заданий; личные занятия и ответы учеников не раскрываются.
 
-A learner joins the center through an invitation link, through one of the center's groups, or when the
-owner adds them. While the center has an active subscription, every member takes a seat up to the tariff's
-limit and gets Pro; members above the limit wait in the order they joined and get a seat as soon as one is
-freed or the tariff is raised. Nobody is blocked from learning — a waiting learner simply uses the free plan.
+### Места — коротко
 
-### `/org` in the bot
+Ученик попадает в центр по ссылке-приглашению, через одну из групп центра или когда его добавляет владелец. Пока у центра
+есть действующая подписка, каждый участник занимает место (до лимита тарифа) и получает Pro. Те, кто сверх лимита,
+ждут в очереди в порядке вступления и получают место, как только оно освободится или тариф повысят. Заниматься не мешают
+никому: ожидающий ученик просто пользуется бесплатным тарифом.
 
-Staff whose Telegram ID is linked can send `/org` to the bot in a private chat: it answers with every
-center you belong to, your role, the seats (owners) and the number of learners active in the last 7 days,
-plus the link to the cabinet.
+### `/org` в боте
 
-### Payment (owners)
+Сотрудник с привязанным Telegram ID может отправить боту в личном чате `/org`: бот ответит списком центров, в которых вы
+работаете, вашей ролью, местами (для владельцев) и числом учеников, активных за 7 дней, и пришлёт ссылку на кабинет.
 
-**Billing** is visible to owners only; a teacher gets "403" if they open the address by hand.
+### Оплата (для владельцев)
 
-1. At the top you see the current tariff, the status, the date paid until, the seats (taken / limit) and
-   how many learners wait for a seat.
-2. Choose a **tariff** and a **period**. The list shows the seats and the price of every tariff
-   (Tutor 30, Center S 100, Center M 300; Center L is agreed individually — the platform activates it).
-   The period is **1 month** or **1 year**; when the year is cheaper than twelve months, the page shows how much
-   you save. A year paid on top of a running period is added to its end.
-3. Press **Pay with Payme** or **Pay with Click** (a button appears only for the methods that are switched on):
-   you are taken to the provider's payment page. After the payment the subscription is extended by the
-   period (30 days per month paid, 365 per year paid) and the tariff takes effect immediately — learners from the waiting
-   list get seats in the order they joined. If nothing is paid within 24 hours the order closes by itself.
-4. Pay by bank transfer instead: **Request an invoice** sends your choice (tariff, period, comment) to the
-   platform administrator, who replies by email and activates the tariff after the payment. The same button
-   is how you ask for Center L.
-5. **Orders** lists every order with its status; **Invoice** opens a printable page (Ctrl+P, "Save as PDF")
-   with the platform's requisites, the number, the date and the amount in sums. **Payments** lists what was
-   actually charged or refunded.
+Раздел «Оплата» виден только владельцу; учитель, открыв его адрес вручную, получит ошибку 403.
 
-**Changing the tariff.** While your subscription is active, online payment only **extends the current tariff**;
-choosing another tariff and pressing Pay shows "To change the tariff, contact us". To move up or down, write to
-the platform (the **Request an invoice** button with a comment works for this too): the change is agreed and
-applied by hand, and from then on you renew the new tariff online. Once the paid period has ended, any tariff can
-be bought online again.
+1. Вверху — «Текущая подписка»: тариф, статус, «Оплачено до», места (занято / лимит) и сколько учеников ждут места.
+2. Выберите **тариф** и **срок**. В списке показаны места и цена каждого тарифа: «Репетитор» — 30 мест, «Центр S» — 100,
+   «Центр M» — 300; «Центр L» оговаривается отдельно, его подключает платформа. Срок — **1 месяц** или **1 год**;
+   если год выгоднее двенадцати месяцев, страница покажет экономию. Год, оплаченный поверх идущего периода, добавляется к его концу.
+3. Нажмите **«Оплатить через Payme»** или **«Оплатить через Click»** (кнопка есть только у включённых способов) — откроется
+   страница оплаты у провайдера. После оплаты подписка продлевается на выбранный срок (30 дней за месяц, 365 за год),
+   тариф вступает в силу сразу, а ученики из очереди получают места в порядке вступления. Если заказ не оплатить в
+   течение 24 часов, он закроется сам.
+4. Оплатить безналом можно через **«Запросить счёт»**: ваш выбор (тариф, срок, комментарий) уйдёт администратору платформы,
+   он ответит по email и подключит тариф после оплаты. Так же запрашивается «Центр L».
+5. «Заказы» — список всех заказов со статусом; «Счёт» открывает печатную страницу (Ctrl+P → «Сохранить как PDF») с
+   реквизитами платформы, номером, датой и суммой в сумах; «Платежи» — что реально списано или возвращено.
 
-Moving to a **smaller** tariff never removes anyone: learners who already hold a seat keep it, even if there
-are now more of them than the limit ("Over the limit: 5 of 2 seats" on Billing and on the Dashboard); new
-learners wait until seats free up or you raise the tariff again.
+**Смена тарифа.** Пока подписка действует, онлайн-оплата только **продлевает текущий тариф**: если выбрать другой тариф и
+нажать «Оплатить», кабинет ответит «Чтобы сменить тариф, свяжитесь с нами». Чтобы перейти выше или ниже, напишите
+платформе (подойдёт и «Запросить счёт» с комментарием): смену согласуют и сделают вручную, а потом вы продлеваете новый
+тариф онлайн. Когда оплаченный период закончился, любой тариф снова можно купить онлайн.
 
-You get an email (and a Telegram message, if your Telegram ID is linked) 3 days and 1 day before the paid
-period ends. After the end the center's learners return to the free plan; no data is deleted.
+Переход на **меньший** тариф никого не снимает: ученики, у которых уже есть место, его сохраняют, даже если их стало
+больше лимита (на «Оплате» и «Обзоре» появится «Превышение лимита: занято 5 из 2 мест»); новые ученики ждут, пока места
+освободятся или вы снова повысите тариф.
+
+За 3 дня и за 1 день до конца оплаченного периода владельцу приходит письмо (и сообщение в Telegram, если его Telegram ID
+привязан). Когда период закончился, ученики центра возвращаются на бесплатный тариф, данные не удаляются.

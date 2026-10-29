@@ -28,7 +28,10 @@ Stage = Модуль, Lesson = Урок, Word = Слово, Learner = Учени
 teacher = Учитель), Telegram group = Telegram-группа, Exam session = Экзамен, Organization = Учебный центр,
 Subscription = Подписка, Payment = Платёж, Payment order = Заказ, Provider transaction = Транзакция провайдера,
 Promo code = Промокод. Navigation groups: Content = Контент, Learning = Обучение, Administration = Администрирование,
-Billing = Оплата.
+Billing = Оплата. Dates are shown as `28.10.2026` and `28.10.2026 09:27`. The reason an action was refused (publishing a
+course, a refund, a discount annulment, adding a learner, linking a group, a lesson import...) is worded in Russian too
+(`admin.<screen>.errors.*` in `lang/ru/admin.php`); an error nobody has worded yet reads as one generic sentence, with the
+details in the log.
 
 ---
 
@@ -76,7 +79,7 @@ New groups appear here automatically with status `pending` when the bot is added
 Open the group record and pick **Course** (empty = the `default` course). The teacher commands
 `/start_training <stage> <lesson>` and `/start_exam <stage> <lesson>`, and the lesson picker of
 `/start_training`, look for the stage number **inside this course** only: two courses may both have
-"Stage 1 / Lesson 1". Only admins can change the course of a group.
+«Модуль 1 / Урок 1». Only admins can change the course of a group.
 
 ### Set the bot language of a group
 The bot writes to the group (command replies, lesson buttons, exam leaderboard) in Russian by default.
@@ -97,6 +100,10 @@ Navigate to **Content → Courses / Stages / Lessons / Words** (Контент �
 Content hierarchy: **Course → Module (stage) → Lesson → Word**. Stage numbers are unique *within a course*.
 The platform course `default` (created by the seeder or by the first import) receives everything that does
 not name a course.
+
+A module's **title is optional**. A module without one (the field is left empty) is shown to learners as
+**«Модуль N»** (in Uzbek **«N-modul»**) in their own language, and in the admin tables as «Модуль N» too; give it a
+title only when it is worth reading in one language for everybody (a learner who reads Uzbek sees a Russian title as it is).
 
 ### Courses (admins only)
 **Content → Courses** (Контент → Курсы) lists the catalog. A course has a unique `slug` (Latin lowercase, digits, dashes;
@@ -121,8 +128,8 @@ offered in the group **Course** select.
 
 **Publishing is checked.** A course is published only when (1) its title exists in every language, (2) it has
 at least one lesson with active words, and (3) **at least 95% of its active words have a translation in every
-language (RU and UZ; a blank text is no translation, and the word's main Translation field counts as the RU text)**; otherwise a red message says what is missing (e.g. *"Translations (ru+uz) are complete
-for 18 of 20 words (90.0%), required: 95.0%"*). The threshold is `CONTENT_PUBLISH_TRANSLATION_THRESHOLD`
+language (RU and UZ; a blank text is no translation, and the word's main Translation field counts as the RU text)**; otherwise a red message in Russian says what is missing (e.g. *«Переводы (RU, UZ) есть только
+для 18 из 20 слов (90%), а нужно не меньше 95%.»*). The threshold is `CONTENT_PUBLISH_TRANSLATION_THRESHOLD`
 (default `0.95`). The check applies to **new publications only**: a course that is already published is never
 re-checked, and old content without an Uzbek translation is shown in Uzbek-language sessions with the Russian
 text and a small note *"No translation in your language yet — Russian shown"*.
@@ -170,6 +177,8 @@ teachers (direct link → *403*), and the importer itself refuses any user who i
   goes into the `default` course. An unknown slug rejects the whole file.
 - `translations` (optional): `ru` / `uz` texts. The Russian text may also be given as `translation` (the old
   field; if both are present they must be equal). Russian is always required. `example_translations` is optional.
+- `stage.title` (optional): the name of the module. A file without it (or with a blank one) creates a module with
+  **no name**, which learners see as «Модуль N» / «N-modul», and never changes the name an existing module already has.
 
 The old files keep working unchanged — without `course` and `translations`:
 ```json
@@ -449,7 +458,7 @@ Changes apply within seconds.
 |---|---|---|
 | Total Learners (Всего учеников) | admin, teacher | Learners visible to you (admin: all; teacher: active members of your groups) and how many were active in the last 7 days (`last_seen_at`) |
 | Exams Last 30 Days (Экзаменов за 30 дней) | admin, teacher | Number of exam sessions in the past month |
-| Activity Chart (Активность тренировок за 30 дней) | admin, teacher | Daily active learners (line chart) |
+| Activity Chart (Активность тренировок за 30 дней) | admin, teacher | Line chart of **repetitions per day** over the last 30 days: how many cards were answered in training sessions that day (the dataset is called «Повторений»). It is not the number of learners: a learner who answers 30 cards counts 30. Admin: all sessions, including personal practice; teacher: group trainings of their own groups only |
 | Top Learners (Лучшие ученики за 30 дней) | admin, teacher | Top 10 learners by reviews in group trainings (last 30 days; a learner's personal practice is never counted for teachers) |
 | Hardest Words (Самые трудные слова за 30 дней) | admin, teacher | Top 20 words with lowest accuracy |
 | Pro subscriptions (Подписки Pro) | **admin only** | *Pro learners* — learners whose effective plan is Pro right now (own or sponsored, each counted once), with the split "own subscriptions / sponsoring organizations"; *Pro ending in 7 days* — own and organization subscriptions whose paid access ends within a week (for an auto-renewing provider: the end of the grace period) |
@@ -488,6 +497,18 @@ Teachers see only exams from their assigned groups; administrators see all group
 ```bash
 php artisan telegram:set-webhook
 ```
+
+### Command menu and the «LexiFlow» button (once after deploy)
+```bash
+php artisan telegram:setup-bot
+```
+Sets the list of bot commands that Telegram shows after «/» (Russian and Uzbek; private chats and group chats have
+their own lists; in a group the teacher's commands `/start_training`, `/start_exam`, `/close_exam` are shown to the group
+administrators only, every other member sees `/help`; a teacher who is not an administrator of the group types the
+command by hand) and the permanent **«LexiFlow»** menu button that opens the Mini App at `{TWA_BASE_URL}/twa/`.
+Telegram accepts the button only for an https address: with any other address the command warns and skips the button
+(the command list is still set). It is safe to repeat — run it again after a deploy that changes the bot's commands.
+Without it the «/» menu stays empty. See `docs/VPS_DEPLOY_GUIDE_RU.md` for the BotFather side (Main Mini App).
 
 ### Remove the webhook
 ```bash

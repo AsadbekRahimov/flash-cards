@@ -111,7 +111,8 @@ function place(rank: number): string {
       </section>
 
       <ListGroup v-if="!isMock && leaderboard.length > 0" class="w-full text-left" :header="t('result.top')" data-testid="leaderboard">
-        <ListRow v-for="row in leaderboard" :key="row.rank" :title="row.name" :data-testid="`leader-${row.rank}`">
+        <!-- Equal scores share a place (1, 2, 2, 4), and the API names no learner: a row is told by its position in the list. -->
+        <ListRow v-for="(row, index) in leaderboard" :key="index" :title="row.name" :data-testid="`leader-${index + 1}`">
           <template #leading>
             <span
               class="w-[30px] shrink-0 text-center"

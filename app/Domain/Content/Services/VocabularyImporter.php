@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Content\Services;
 
+use App\Domain\Content\DTO\ImportIssue;
 use App\Domain\Content\DTO\ImportReport;
 use App\Domain\Learning\Services\LearningCache;
 use App\Domain\Localization\Services\LocaleResolver;
@@ -85,8 +86,7 @@ final class VocabularyImporter
         }
 
         if (strlen($rawJson) > self::MAX_BYTES) {
-            $report->aborted = true;
-            $report->errors[] = sprintf('File exceeds %d bytes limit.', self::MAX_BYTES);
+            $report->abort(ImportIssue::FILE_TOO_LARGE, sprintf('File exceeds %d bytes limit.', self::MAX_BYTES), ['megabytes' => self::MAX_BYTES / 1024 / 1024]);
 
             return $report;
         }
@@ -94,15 +94,13 @@ final class VocabularyImporter
         try {
             $data = json_decode($rawJson, true, 32, JSON_THROW_ON_ERROR);
         } catch (Throwable $e) {
-            $report->aborted = true;
-            $report->errors[] = 'Invalid JSON: '.$e->getMessage();
+            $report->abort(ImportIssue::INVALID_JSON, 'Invalid JSON: '.$e->getMessage(), ['cause' => $this->jsonCause($e)]);
 
             return $report;
         }
 
         if (! is_array($data)) {
-            $report->aborted = true;
-            $report->errors[] = 'Root must be an object.';
+            $report->abort(ImportIssue::ROOT_NOT_OBJECT, 'Root must be an object.');
 
             return $report;
         }
@@ -112,9 +110,10 @@ final class VocabularyImporter
         $validator = Validator::make($data, $this->rules());
 
         if ($validator->fails()) {
-            $report->aborted = true;
-            foreach ($validator->errors()->all() as $msg) {
-                $report->errors[] = $msg;
+            foreach ($validator->errors()->messages() as $field => $messages) {
+                foreach ($messages as $msg) {
+                    $report->abort(ImportIssue::VALIDATION, $msg, ['field' => (string) $field, 'message' => $msg]);
+                }
             }
 
             return $report;
@@ -136,10 +135,17 @@ final class VocabularyImporter
         }
 
         $lesson = DB::transaction(function () use ($data, $words, $course, $report, $by, $auditContext): Lesson {
+            // The first lock of the transaction: the writers of one course take turns (CoursePublisher::lockForWriting).
+            $this->publisher->lockForWriting($course);
+
+            // A file without a stage title (or with a blank one) gives a new module NO name (NULL: readers are shown
+            // "Модуль N" / "N-modul" in their language, docs/14 §8) and leaves the name of an existing module alone.
+            $stageTitle = $data['stage']['title'] ?? null;
+
             $stage = Stage::updateOrCreate(
                 ['course_id' => $course->id, 'number' => $data['stage']['number']],
                 array_filter([
-                    'title' => $data['stage']['title'] ?? "Stage {$data['stage']['number']}",
+                    'title' => is_string($stageTitle) && trim($stageTitle) !== '' ? $stageTitle : null,
                     'description' => $data['stage']['description'] ?? null,
                 ], fn ($v): bool => $v !== null),
             );
@@ -225,10 +231,20 @@ final class VocabularyImporter
         return $report;
     }
 
+    /** What is wrong with a file `json_decode` refused: the few mistakes a person can fix; anything else is `other`. */
+    private function jsonCause(Throwable $e): string
+    {
+        return match ($e->getCode()) {
+            JSON_ERROR_SYNTAX => ImportIssue::CAUSE_SYNTAX,
+            JSON_ERROR_UTF8, JSON_ERROR_UTF16 => ImportIssue::CAUSE_ENCODING,
+            JSON_ERROR_DEPTH => ImportIssue::CAUSE_DEPTH,
+            default => ImportIssue::CAUSE_OTHER,
+        };
+    }
+
     private function refuse(ImportReport $report): ImportReport
     {
-        $report->aborted = true;
-        $report->errors[] = 'Import is not allowed: only a platform admin can import vocabulary.';
+        $report->abort(ImportIssue::NOT_ALLOWED, 'Import is not allowed: only a platform admin can import vocabulary.');
 
         return $report;
     }
@@ -244,8 +260,11 @@ final class VocabularyImporter
 
         $course = is_string($slug) ? $this->catalog->findBySlug($slug) : null;
         if ($course === null) {
-            $report->aborted = true;
-            $report->errors[] = 'Course '.(is_string($slug) ? "'{$slug}'" : '(invalid)').' not found: create it in the admin panel first.';
+            $report->abort(
+                ImportIssue::COURSE_NOT_FOUND,
+                'Course '.(is_string($slug) ? "'{$slug}'" : '(invalid)').' not found: create it in the admin panel first.',
+                ['slug' => is_string($slug) ? $slug : '(invalid)'],
+            );
         }
 
         return $course;
@@ -273,8 +292,11 @@ final class VocabularyImporter
             foreach (['translations' => $w['translations'] ?? null, 'example_translations' => $w['example_translations'] ?? null] as $field => $raw) {
                 foreach (is_array($raw) ? array_keys($raw) : [] as $locale) {
                     if (! in_array((string) $locale, $supported, true)) {
-                        $report->aborted = true;
-                        $report->errors[] = "{$label}: unsupported locale '{$locale}' in {$field} (supported: ".implode(', ', $supported).').';
+                        $report->abort(
+                            ImportIssue::UNSUPPORTED_LOCALE,
+                            "{$label}: unsupported locale '{$locale}' in {$field} (supported: ".implode(', ', $supported).').',
+                            ['word' => (string) $w['word'], 'position' => $i + 1, 'locale' => (string) $locale, 'field' => $field, 'supported' => $supported],
+                        );
                     }
                 }
             }
@@ -283,13 +305,11 @@ final class VocabularyImporter
             $ru = $translations['ru'] ?? '';
 
             if ($legacy !== '' && $ru !== '' && $legacy !== $ru) {
-                $report->aborted = true;
-                $report->errors[] = "{$label}: 'translation' and 'translations.ru' differ.";
+                $report->abort(ImportIssue::TRANSLATION_CONFLICT, "{$label}: 'translation' and 'translations.ru' differ.", ['word' => (string) $w['word'], 'position' => $i + 1]);
             }
 
             if ($legacy === '' && $ru === '') {
-                $report->aborted = true;
-                $report->errors[] = "{$label}: ru translation is required ('translation' or 'translations.ru').";
+                $report->abort(ImportIssue::RU_REQUIRED, "{$label}: ru translation is required ('translation' or 'translations.ru').", ['word' => (string) $w['word'], 'position' => $i + 1]);
             }
 
             $translations['ru'] = $legacy !== '' ? $legacy : $ru;
@@ -297,8 +317,11 @@ final class VocabularyImporter
             // An example translation needs its word translation; silently dropping it would hide a typo.
             foreach (array_keys($exampleTranslations) as $locale) {
                 if (in_array($locale, $supported, true) && ($translations[$locale] ?? '') === '') {
-                    $report->aborted = true;
-                    $report->errors[] = "{$label}: example_translations '{$locale}' has no matching translations.{$locale}.";
+                    $report->abort(
+                        ImportIssue::EXAMPLE_TRANSLATION_ORPHAN,
+                        "{$label}: example_translations '{$locale}' has no matching translations.{$locale}.",
+                        ['word' => (string) $w['word'], 'position' => $i + 1, 'locale' => $locale],
+                    );
                 }
             }
 
@@ -449,8 +472,7 @@ final class VocabularyImporter
         foreach ($words as $i => $w) {
             $key = mb_strtolower(trim((string) $w['word']));
             if (isset($seen[$key])) {
-                $report->aborted = true;
-                $report->errors[] = "Duplicate word '{$w['word']}' at index {$i}.";
+                $report->abort(ImportIssue::DUPLICATE_WORD, "Duplicate word '{$w['word']}' at index {$i}.", ['word' => (string) $w['word'], 'position' => $i + 1]);
 
                 return;
             }

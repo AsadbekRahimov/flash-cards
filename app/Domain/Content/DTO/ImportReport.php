@@ -17,10 +17,25 @@ final class ImportReport
 
     public int $translationsUpdated = 0;
 
-    /** @var list<string> */
+    /** @var list<string> English texts of the refusals, for the audit record and logs. */
     public array $errors = [];
 
+    /** @var list<ImportIssue> The same refusals with a code and the values behind the text, for a panel to word in its own language. */
+    public array $issues = [];
+
     public bool $aborted = false;
+
+    /**
+     * Refuses the import for one more reason: `$message` (English) goes to {@see $errors}, the code and the values to {@see $issues}.
+     *
+     * @param  array<string, int|float|string|list<string>>  $context
+     */
+    public function abort(string $code, string $message, array $context = []): void
+    {
+        $this->aborted = true;
+        $this->errors[] = $message;
+        $this->issues[] = new ImportIssue($code, $message, $context);
+    }
 
     public function ok(): bool
     {

@@ -6,6 +6,7 @@ namespace App\Filament\Resources\CourseResource\Support;
 
 use App\Domain\Content\Exceptions\CoursePublishException;
 use App\Domain\Content\Services\CoursePublisher;
+use App\Filament\Resources\Support\AdminErrors;
 use App\Filament\Resources\Support\AdminLabels;
 use App\Models\Course;
 use App\Models\User;
@@ -53,7 +54,7 @@ final class CourseTransitionActions
                 try {
                     app(CoursePublisher::class)->transition($record, $to, $user, request()->ip());
                 } catch (CoursePublishException $e) {
-                    Notification::make()->title(__('admin.courses.notifications.failed'))->body($e->getMessage())->danger()->persistent()->send();
+                    Notification::make()->title(__('admin.courses.notifications.failed'))->body(AdminErrors::for('courses', $e))->danger()->persistent()->send();
 
                     return;
                 }

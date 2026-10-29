@@ -60,6 +60,26 @@ describe('formatDate', () => {
     expect(formatDate(iso, 'dayMonth', 'ru')).toBe(expected)
   })
 
+  it('shows a moment in the time zone it is given instead of the device one', () => {
+    // 01:30 on the 29th in Tashkent, 09:30 on the 28th in Pago Pago: whatever the device zone is, one of them differs from it.
+    const moment = '2026-10-28T20:30:00Z'
+
+    expect(plain(formatDate(moment, 'weekdayDayMonth', 'ru', 'Asia/Tashkent'))).toBe('четверг, 29 октября')
+    expect(plain(formatDate(moment, 'dayMonthShortTime', 'ru', 'Asia/Tashkent'))).toBe('29 окт., 01:30')
+    expect(plain(formatDate(moment, 'weekdayDayMonth', 'ru', 'Pacific/Pago_Pago'))).toBe('среда, 28 октября')
+    expect(plain(formatDate(moment, 'dayMonth', 'uz', 'Asia/Tashkent'))).toBe('29-oktabr')
+  })
+
+  it('never moves a calendar date with a zone: a date has none', () => {
+    expect(formatDate('2026-10-28', 'dayMonth', 'ru', 'Pacific/Kiritimati')).toBe('28 октября')
+    expect(formatDate('2026-10-28', 'dayMonth', 'ru', 'Pacific/Pago_Pago')).toBe('28 октября')
+  })
+
+  it('falls back to the device zone for a zone the browser does not know, without throwing', () => {
+    expect(formatDate(NOON, 'dayMonthShortTime', 'ru', 'Mars/Olympus')).toBe(formatDate(NOON, 'dayMonthShortTime', 'ru'))
+    expect(formatDate(NOON, 'dayMonthShortTime', 'ru', '')).toBe(formatDate(NOON, 'dayMonthShortTime', 'ru'))
+  })
+
   it('returns an empty string for a value that is not a date instead of throwing', () => {
     expect(formatDate('', 'dayMonth', 'ru')).toBe('')
     expect(formatDate('not a date', 'dayMonthYear', 'uz')).toBe('')
@@ -76,6 +96,24 @@ describe('formatDate', () => {
     fresh.formatDate(NOON, 'dayMonth', 'uz')
 
     expect(created).toEqual(['ru', 'ru', 'uz-Latn'])
+  })
+
+  it('builds one Intl formatter per zone as well, also for a zone it does not know', async () => {
+    vi.resetModules()
+    const zones: unknown[] = []
+    const Original = Intl.DateTimeFormat as new (...args: unknown[]) => unknown
+    vi.spyOn(Intl, 'DateTimeFormat').mockImplementation(function (...args: unknown[]) {
+      zones.push((args[1] as Intl.DateTimeFormatOptions | undefined)?.timeZone ?? null)
+      return new Original(...args) as never
+    })
+    const fresh = await import('../format')
+
+    for (let i = 0; i < 3; i++) fresh.formatDate('2026-10-28T20:30:00Z', 'dayMonth', 'ru', 'Asia/Tashkent')
+    fresh.formatDate('2026-10-28T20:30:00Z', 'dayMonth', 'ru')
+    // An unknown zone is tried once (it throws), then the device's formatter is kept under that key.
+    for (let i = 0; i < 3; i++) fresh.formatDate('2026-10-28T20:30:00Z', 'dayMonth', 'ru', 'Mars/Olympus')
+
+    expect(zones).toEqual(['Asia/Tashkent', null, 'Mars/Olympus', null])
   })
 })
 

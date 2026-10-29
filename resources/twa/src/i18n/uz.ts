@@ -15,12 +15,14 @@ export const uz: Translations = {
   'common.error_title': 'Xatolik',
   'common.copied': 'Nusxalandi',
   'common.saved': 'Saqlandi',
+  'common.copy_failed': "Nusxalab bo'lmadi. Havolani belgilab, qo'lda nusxalang.",
 
   // ---- nav ----
   'nav.today': 'Asosiy',
   'nav.courses': 'Kurslar',
   'nav.rating': 'Reyting',
   'nav.profile': 'Profil',
+  'nav.label': "Bo'limlar",
 
   // ---- profile ----
   'profile.anonymous': "O'quvchi",
@@ -50,7 +52,7 @@ export const uz: Translations = {
 
   // ---- landing ----
   'landing.outside_telegram':
-    "Bu sahifa faqat Telegram Web App ichida ishlaydi. O'qituvchidan mashg'ulot havolasini guruhga yuborishini so'rang.",
+    "Bu sahifa faqat Telegram Web App ichida ishlaydi. O'qituvchidan trening havolasini guruhga yuborishini so'rang.",
 
   // ---- today ----
   'today.title': 'Bugun',
@@ -174,7 +176,10 @@ export const uz: Translations = {
 
   // ---- course: mock exam (Pro) ----
   'course.mock_exam': 'Sinov testi',
-  'course.mock_exam_hint': "Kursdan {count} ta so'z · {minutes} daqiqa · natija foizda va boshqalar bilan taqqoslash",
+  'course.mock_exam_hint': {
+    one: "Kursdan {count} ta so'z · {minutes} daqiqa · natija foizda va boshqalar bilan taqqoslash",
+    other: "Kursdan {count} ta so'z · {minutes} daqiqa · natija foizda va boshqalar bilan taqqoslash",
+  },
   'course.mock_exam_start': 'Testni boshlash',
 
   // ---- finished (training) ----
@@ -187,7 +192,7 @@ export const uz: Translations = {
   'finished.reason.nothing_due': "Bugun takrorlaydigan narsa yo'q.",
   'finished.reason.new_quota_exhausted': "Bugungi yangi so'zlar limiti tugadi. Yangi so'zlar ertaga ochiladi.",
   'finished.reason.session_cap': "Bu uzun mashg'ulot bo'ldi — biroz dam oling.",
-  'finished.home': 'Bosh sahifaga',
+  'finished.home': 'Asosiy sahifaga',
   'finished.goal': 'Kunlik maqsad: {target} tadan {done} tasi',
   'finished.goal_met': 'Kunlik maqsad bajarildi!',
   'finished.next_label': 'Keyingi takrorlash',
@@ -211,13 +216,17 @@ export const uz: Translations = {
   'paywall.title': 'Pro tez orada',
   'paywall.lead_quota': "Bugungi yangi so'zlar limiti tugadi — takrorlash cheklovsiz.",
   'paywall.soon': 'Pro tez orada ochiladi.',
-  'paywall.free': "Hozir sizda Free tarif: kuniga {count} ta yangi so'z, takrorlash cheklovsiz.",
+  'paywall.free': {
+    one: "Hozir sizda Free tarif: kuniga {count} ta yangi so'z, takrorlash cheklovsiz.",
+    other: "Hozir sizda Free tarif: kuniga {count} ta yangi so'z, takrorlash cheklovsiz.",
+  },
   'paywall.free_generic': "Hozir sizda Free tarif: yangi so'zlar kunlik limit bilan cheklangan, takrorlash cheklovsiz.",
   'paywall.contact': "Markazda o'qiysizmi? Markaz administratoridan LexiFlow Pro'ni ulashni so'rang:",
   'paywall.dismiss': 'Tushunarli',
   'paywall.open': 'Pro haqida bilib oling',
   'paywall.review': "So'zlarni takrorlash",
-  'paywall.lead_decks': "Free tarifida to'plamlar limiti: 50 tagacha so'zli 1 ta to'plam. Pro'da 2000 tadan so'zli 20 tagacha to'plam.",
+  'paywall.lead_decks': "Free tarifida to'plamlar limiti: {words}li {decks}. Pro'da 2000 tadan so'zli 20 tagacha to'plam.",
+  'paywall.lead_decks_generic': "Siz Free tarifidagi to'plamlar limitiga yetdingiz. Pro'da 2000 tadan so'zli 20 tagacha to'plam.",
   'paywall.lead_streak_freeze': "Seriyani muzlatish — Pro'da: o'tkazib yuborilgan kun seriyani uzmaydi, 2 tagacha muzlatish, har hafta +1.",
   'paywall.lead_exam_simulator': "IELTS va SAT sinov testlari — Pro'da: 20 daqiqada kursdan 40 ta so'z, natija foizda va boshqalar bilan taqqoslash.",
 
@@ -271,6 +280,14 @@ export const uz: Translations = {
   'billing.period.label': "To'lov muddati",
   'billing.pay_method': "To'lov usuli",
   'billing.offer_chip': '−{pct}%',
+  'billing.grace': "Telegram yangilash uchun Stars'ni yecha olmadi. Stars balansini to'ldiring — Telegram yechishni qayta urinib ko'radi.",
+  'billing.grace_until': 'Pro {date} gacha amal qiladi.',
+  'billing.plan.free_limit': {
+    one: "Kuniga {count} ta yangi so'z, takrorlash cheklovsiz",
+    other: "Kuniga {count} ta yangi so'z, takrorlash cheklovsiz",
+  },
+  'paywall.title_renew': "Pro'ni uzaytirish",
+  'paywall.lead_renew': "To'lov joriy Pro muddatiga qo'shiladi ({date} gacha).",
 
   // ---- course catalog ----
   'catalog.title': 'Kurslar',
@@ -294,7 +311,10 @@ export const uz: Translations = {
   'course.continue': 'Davom etish: {stage}-modul, {number}-dars',
   'course.all_done': 'Kursning barcha darslari tugallandi',
   'course.choose_hint': "Kunlik mashg'ulotdagi yangi so'zlar shu kursdan bo'ladi",
-  'course.lesson_words': "{total} ta so'zdan {done} tasi",
+  'course.lesson_words': {
+    one: "{total} ta so'zdan {done} tasi",
+    other: "{total} ta so'zdan {done} tasi",
+  },
 
   // ---- learner decks ----
   'decks.title': "Mening to'plamlarim",
@@ -307,7 +327,7 @@ export const uz: Translations = {
   'decks.edit.rename': 'Nomi',
   'decks.edit.save': 'Saqlash',
   'decks.edit.no_words': "To'plamda hali so'zlar yo'q.",
-  'decks.edit.remove_word': 'Olib tashlash',
+  'decks.edit.remove_word': "So'zni olib tashlash: {word}",
   'decks.edit.import': "So'zlar qo'shish",
   'decks.edit.format.list': "Ro'yxat",
   'decks.edit.format.csv': 'CSV',
@@ -331,6 +351,17 @@ export const uz: Translations = {
   'decks.active': "Asosiy to'plam",
   'decks.words_title': "So'zlar ({count})",
   'decks.edit.format.label': 'Format',
+  'decks.count': {
+    one: "{count} ta to'plam",
+    other: "{count} ta to'plam",
+  },
+  'decks.words_up_to': {
+    one: "{count} tagacha so'z",
+    other: "{count} tagacha so'z",
+  },
+  'decks.limit_pro.decks': "Bu Pro tarifingizdagi chegara: {decks}. Yangi to'plam yaratish uchun keraksizini o'chiring — so'zlar arxivga o'tadi, natijangiz saqlanadi.",
+  'decks.limit_pro.words': "Bu Pro tarifingizdagi chegara: to'plamda {words}. Hech narsa qo'shilmadi — keraksiz so'zlarni olib tashlang yoki ro'yxatning bir qismini boshqa to'plamga qo'shing.",
+  'decks.choose_empty_hint': "Asosiy qilish uchun to'plamga kamida bitta so'z qo'shing.",
 
   // ---- settings ----
   'settings.title': 'Sozlamalar',
@@ -360,12 +391,13 @@ export const uz: Translations = {
   // ---- settings: my centers (docs/13 §6.2) ----
   'orgs.title': 'Mening markazlarim',
   'orgs.seated': 'Markaz bergan Pro',
-  'orgs.waitlisted': 'Navbatda',
+  'orgs.waitlisted': 'Pro uchun navbatda',
   'orgs.via_group': "Siz markazdasiz — guruh orqali. Chiqish uchun Telegram'da markaz guruhini tark eting.",
   'orgs.leave': 'Markazni tark etish',
   'orgs.leave.confirm': "«{name}» markazini tark etasizmi? Markaz bergan Pro o'chadi, shaxsiy obunangiz (agar bo'lsa) saqlanadi.",
   'orgs.leave.yes': 'Ha, tark etaman',
   'orgs.leave.no': 'Bekor qilish',
+  'orgs.waitlisted_hint': "Markazda hozircha bo'sh joy yo'q. Joy bo'shaganda markaz bergan Pro yoqiladi.",
 
   // ---- achievements (docs/13 §7.4) ----
   'achievements.title': 'Yutuqlar',
@@ -411,7 +443,7 @@ export const uz: Translations = {
   'league.settings.open': 'Liga sozlamalari',
   'league.rating_title': 'Reyting',
   'league.rules_title': 'Ligalar qanday ishlaydi',
-  'settings.leagues.hint': "Ligadan chiqish keyingi joylashtirishdan boshlab amal qiladi; joriy hafta saqlanib qoladi.",
+  'settings.leagues.hint': "Ligalardan chiqish keyingi haftadan boshlab amal qiladi: joriy hafta o'zgarishsiz qoladi. Ligalarni istalgan vaqtda qayta yoqish mumkin.",
 
   // ---- referrals: invite a friend (docs/13 §7.1) ----
   'referrals.title': "Do'stni taklif qilish",
@@ -453,12 +485,12 @@ export const uz: Translations = {
   'friends.list.empty': "Hozircha do'stlar yo'q. Havolani tanishingizga yuboring.",
   'friends.list.count': '{count} / {limit}',
   'friends.list.anonymous': "Do'st",
-  'friends.list.remove': "Do'stlikdan chiqarish",
+  'friends.list.remove': "Do'stlikdan chiqarish: {name}",
   'friends.list.remove_confirm': "{name} do'stlikdan chiqarilsinmi? Shu do'st bilan tugallanmagan musobaqa bekor qilinadi.",
   'friends.list.remove_yes': "Ha, chiqarish",
   'friends.list.remove_no': 'Bekor qilish',
   'friends.challenge.title': 'Musobaqalar',
-  'friends.challenge.new': 'Musobaqa tashlash',
+  'friends.challenge.new': 'Musobaqa tashlash: {name}',
   'friends.challenge.pick': '{days} kunda kim ko\'proq?',
   'friends.challenge.metric.reviews': 'Ko\'proq kartochka takrorlaydi',
   'friends.challenge.metric.new_words': 'Ko\'proq yangi so\'z o\'rganadi',
@@ -491,13 +523,13 @@ export const uz: Translations = {
   'error.closed.training': "Bu mashg'ulot allaqachon yopilgan: u yakunlangan yoki sessiya vaqti tugagan.",
   'error.closed.exam': "Imtihon o'qituvchi tomonidan yakunlandi.",
   'error.closed.catalog': 'Kurs endi mavjud emas.',
-  'error.closed.today': 'Bugun ekrani endi mavjud emas.',
+  'error.closed.today': 'Asosiy ekran endi mavjud emas.',
   'error.closed.settings': 'Sozlamalar endi mavjud emas.',
   'error.closed.decks': "To'plam endi mavjud emas.",
   'error.forbidden.training': "Sizda bu mashg'ulotga kirish huquqi yo'q.",
   'error.forbidden.exam': "Sizda bu imtihonga kirish huquqi yo'q.",
   'error.forbidden.catalog': "Sizda kurslar katalogiga kirish huquqi yo'q.",
-  'error.forbidden.today': "Sizda Bugun ekraniga kirish huquqi yo'q.",
+  'error.forbidden.today': "Sizda asosiy ekranga kirish huquqi yo'q.",
   'error.forbidden.settings': "Sizda sozlamalarga kirish huquqi yo'q.",
   'error.forbidden.decks': "Sizda to'plamlarga kirish huquqi yo'q.",
   'error.network': "Server bilan aloqa yo'q. Qayta urinib ko'ring.",
@@ -548,7 +580,8 @@ export const uz: Translations = {
   'error.code.provider_not_supported': "Bu to'lov usuli siz uchun mavjud emas.",
   'error.code.checkout_conflict': "Sizda Stars avtoyangilash yoqilgan. Yangi to'lovdan oldin uni «Obuna» bo'limida o'chiring.",
   'error.code.already_perpetual': "Sizda Pro muddatsiz faol — hech narsa to'lash shart emas.",
-  'error.code.subscribe_too_early': "Pro allaqachon uzoq muddatga to'langan. Stars obunasini oxirgi kunlarda rasmiylashtirish mumkin; hozircha bir yillik bir martalik to'lovni tanlang.",
+  'error.code.subscribe_too_early':
+    "Pro allaqachon uzoq muddatga to'langan, shuning uchun Stars orqali bir oylik to'lovni hozircha rasmiylashtirib bo'lmaydi — buni muddat tugashiga yaqin qilish mumkin. «Yil» muddatini tanlang yoki Payme yoki Click orqali to'lang: yangi muddat joriy muddatga qo'shiladi.",
   'error.code.too_many_pending': "Sizda to'lanmagan hisoblar bor. Ulardan birini to'lang yoki kuting — ular o'zi yopiladi.",
   'error.code.offer_busy': "Chegirmali oldingi to'lov hali qayta ishlanmoqda — bir daqiqadan so'ng urinib ko'ring.",
   'error.code.offer_not_applicable': "Chegirma bu xaridga qo'llanilmaydi.",

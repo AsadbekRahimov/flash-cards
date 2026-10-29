@@ -103,10 +103,11 @@
 | `REFERRALS_INVITEE_REWARDS_PER_30D` | `20` | Опц. | Лимит наград приглашённым одного пригласившего |
 | `REFERRALS_FLAG_LINKS_PER_DAY` | `20` | Опц. | Порог флага всплеска |
 | `LEAGUES_ENABLED` | `true` | Опц. | Выключатель лиг |
-| `LEAGUES_TIMEZONE` | `Asia/Tashkent` | Опц. | Граница недели; закрытие в 00:05 по этому поясу |
+| `LEAGUES_TIMEZONE` | `Asia/Tashkent` | Опц. | Граница недели; закрытие в 00:00 по этому поясу, страховочный запуск в 00:05 |
 | `LEAGUES_GROUP_CAPACITY` / `LEAGUES_PROMOTE` / `LEAGUES_DEMOTE` | `30` / `5` / `5` | Опц. | Размер группы, зоны |
 | `LEAGUES_POINTS_REVIEW` / `_CORRECT` / `_NEW_WORD` / `_GOAL_MET` | `1` / `1` / `2` / `10` | Опц. | Очки за строку `learner_daily_stats` |
-| `LEAGUES_STANDINGS_CACHE_SECONDS` / `LEAGUES_NOTIFY_TTL_HOURS` | `60` / `12` | Опц. | Кэш таблицы / срок актуальности ЛС итогов |
+| `LEAGUES_STANDINGS_CACHE_SECONDS` / `LEAGUES_NOTIFY_TTL_HOURS` | `60` / `12` | Опц. | Кэш таблицы / срок актуальности ЛС итогов (единый для всей рассылки, считается от закрытия недели) |
+| `LEAGUES_NOTIFY_BATCH_SIZE` / `LEAGUES_NOTIFY_BATCH_SECONDS` | `100` / `30` | Опц. | ЛС итогов идут пачками `SendLeagueResultsJob`: участников в одной пачке / секунд отправки, после которых остаток уходит новым job'ом (держать заметно ниже `--timeout` воркера, 120 с) |
 
 Также влияют: `TELEGRAM_BOT_USERNAME` (без него нет ссылок-приглашений центров, рефералки, друзей, кнопки «Поделиться»),
 `ACHIEVEMENTS_ENABLED` (дефолт `true`, `config/achievements.php`),
@@ -146,7 +147,7 @@
 | `subscriptions:remind-expiring` | ежедневно 06:00 UTC | напоминания о конце периода за 3 и 1 день |
 | `organizations:sync-members` | ежечасно | ремонт членства центров |
 | `assignments:refresh` | каждые 30 мин | снимки заданий, напоминания в группу за 24 ч, автозакрытие |
-| `leagues:close-week` | ежедневно 00:05 в `LEAGUES_TIMEZONE` | закрытие недели лиг (идемпотентно) |
+| `leagues:close-week` | ежедневно 00:00 и страховочный 00:05 в `LEAGUES_TIMEZONE` (одна запись расписания) | закрытие недели лиг по группам (идемпотентно, возобновляемо), ЛС итогов пачками |
 | `referrals:recover` | каждые 30 мин | повтор наград рефералки после потерянного job'а |
 | `billing:reconcile-stars` | ежедневно 04:30 UTC | сверка Stars-леджера с Telegram (read-only; при выключенных Stars молчит) |
 | `reminders:dispatch` | каждые 15 мин | личные напоминания по локальному времени |
@@ -436,7 +437,7 @@
 
 - [ ] Первая оценка локального дня размещает learner'а в группу текущей недели (≤ `LEAGUES_GROUP_CAPACITY`); `GET /api/twa/league`, экран `/league`, строка на «Сегодня». Opt-out в TWA `/settings` («Лиги»).
 - [ ] Очки = Σ по `learner_daily_stats` недели (`LEAGUES_POINTS_*`); таблица кэшируется на `LEAGUES_STANDINGS_CACHE_SECONDS`.
-- [ ] **Закрытие недели:** `php artisan leagues:close-week` (в обычном режиме — каждую ночь 00:05 по `LEAGUES_TIMEZONE`, реально закрывает неделю после понедельника).
+- [ ] **Закрытие недели:** `php artisan leagues:close-week` (в обычном режиме — каждую ночь 00:00 по `LEAGUES_TIMEZONE` и страховочный запуск 00:05 той же записью расписания; реально закрывает неделю в ночь на понедельник).
       Все незакрытые прошедшие недели закрываются; повторный запуск ничего не меняет и не шлёт ЛС повторно. Результаты: повышение/понижение по зонам (`LEAGUES_PROMOTE`/`_DEMOTE`), tier следующей недели, ЛС итогов с кнопкой «Открыть лигу» (один на learner'а и неделю), события `league.week_closed`.
       Для проверки без ожидания понедельника — **уточнить** (сдвиг `league_weeks` в БД на staging).
 - [ ] Достижение `league_top1` выдано победителю группы с ≥ 1 очком.

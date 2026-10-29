@@ -10,6 +10,7 @@ import { useToast } from '@/composables/useToast'
 import { getLocale, setLocale } from '@/i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useBillingStore } from '@/stores/billing'
+import { useSettingsStore } from '@/stores/settings'
 import type { LearnerSettings, MeResponse, OrganizationMembership, SettingsPatch } from '@/api/types'
 
 const state = vi.hoisted(() => ({ ensure: vi.fn(), back: undefined as undefined | (() => void), hideBack: vi.fn() }))
@@ -150,7 +151,22 @@ describe('SettingsView', () => {
       expect(text).toContain('карточек в день')
       expect(text).toContain('Карточки «слово → перевод» включены всегда')
       expect(text).toContain('Время — по вашему часовому поясу.')
-      expect(text).toContain('Выход из лиги действует со следующего размещения')
+      expect(text).toContain('Выход из лиг действует со следующей недели')
+    })
+
+    it('explains the leagues switch in plain words: from next week, the current week stays, and it can be switched on again any time', async () => {
+      const w = await render()
+
+      const hint = w.findAll('p').map((p) => p.text()).find((text) => text.startsWith('Выход из лиг'))
+      expect(hint).toBe('Выход из лиг действует со следующей недели: текущая неделя остаётся как есть. Включить лиги обратно можно в любой момент.')
+      expect(w.text()).not.toContain('размещени') // the word of the code, not of a learner
+    })
+
+    it('says the same in Uzbek', async () => {
+      const w = await render(settingsFixture({ interface_locale: 'uz' }))
+
+      expect(w.text()).toContain("Ligalardan chiqish keyingi haftadan boshlab amal qiladi: joriy hafta o'zgarishsiz qoladi. Ligalarni istalgan vaqtda qayta yoqish mumkin.")
+      expect(w.text()).not.toContain('joylashtirish')
     })
 
     it('drops the old buttons: the course row and the Profile tab replace «Course catalog» and «Subscription»', async () => {
@@ -359,15 +375,14 @@ describe('SettingsView', () => {
       expect(useAuthStore().learner?.locale).toBe('uz')
     })
 
-    it('keeps the language when a change is refused, shows the reason and puts the select back', async () => {
+    it('keeps the language when a change is refused, tells the reason in a toast and puts the select back', async () => {
       const w = await render()
       vi.mocked(api.me.updateSettings).mockRejectedValue(new ApiClientError('validation', 422, 'unknown', 'The timezone field is invalid.'))
 
       await choose(w, 'timezone-select', 'Europe/Moscow')
 
-      expect(w.get('[data-testid=settings-error]').text()).toBe('Что-то пошло не так.')
+      expect(toastText()).toBe('Что-то пошло не так.')
       expect(value(w, 'timezone-select')).toBe('Asia/Tashkent')
-      expect(toastText()).toBeUndefined()
       expect(getLocale()).toBe('ru')
     })
 
@@ -385,31 +400,68 @@ describe('SettingsView', () => {
       expect(getLocale()).toBe('ru')
     })
 
-    it('shows the error on top of the page as an alert with an icon', async () => {
+    it('tells a refusal in a toast, not in an alert on top of the page: the page is long and the alert would be out of sight', async () => {
       const w = await render()
       vi.mocked(api.me.updateSettings).mockRejectedValue(new ApiClientError('network', 0, 'unknown', 'Failed to fetch'))
 
       await tap(w, 'goal-40')
 
-      const alert = w.get('[data-testid=settings-error]')
-      expect(alert.attributes('role')).toBe('alert')
-      expect(alert.find('svg').exists()).toBe(true)
-      expect(alert.classes()).toContain('text-danger-ink')
-      expect(w.get('[data-testid=settings-view] > div > :first-child').element).toBe(alert.element)
+      expect(toastText()).toBe('Нет связи с сервером. Попробуйте ещё раз.')
+      expect(w.find('[data-testid=settings-error]').exists()).toBe(false)
+      expect(w.find('[role=alert]').exists()).toBe(false)
+      expect(useSettingsStore().errorMessage).toBe('') // told once: the same failure again is news again
     })
 
-    it('explains a network failure and clears the message on the next successful change', async () => {
+    it('tells the refusal of the leagues switch at the bottom of the page the same way, and puts the switch back', async () => {
+      const w = await render(settingsFixture({ leagues_opt_out: false }))
+      vi.mocked(api.me.updateSettings).mockRejectedValue(new ApiClientError('network', 0, 'unknown', 'Failed to fetch'))
+
+      await tap(w, 'leagues-toggle')
+
+      expect(isOn(w, 'leagues-toggle')).toBe(true)
+      expect(toastText()).toBe('Нет связи с сервером. Попробуйте ещё раз.')
+      expect(w.find('[data-testid=settings-error]').exists()).toBe(false)
+    })
+
+    it('keeps a refusal on screen for 4 seconds, longer than «Saved»', async () => {
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+      const w = await render()
+      vi.mocked(api.me.updateSettings).mockRejectedValue(new ApiClientError('network', 0, 'unknown', 'Failed to fetch'))
+
+      await tap(w, 'goal-40')
+      await vi.advanceTimersByTimeAsync(3999)
+      expect(toastText()).toBe('Нет связи с сервером. Попробуйте ещё раз.')
+
+      await vi.advanceTimersByTimeAsync(1)
+      expect(toastText()).toBeUndefined()
+      vi.useRealTimers()
+    })
+
+    it('explains a network failure, and the next successful change says «Saved» instead', async () => {
       const w = await render()
       vi.mocked(api.me.updateSettings).mockRejectedValueOnce(new ApiClientError('network', 0, 'unknown', 'Failed to fetch'))
 
       await tap(w, 'goal-10')
-      expect(w.get('[data-testid=settings-error]').text()).toBe('Нет связи с сервером. Попробуйте ещё раз.')
+      expect(toastText()).toBe('Нет связи с сервером. Попробуйте ещё раз.')
       expect(selectedSegment(w, 'goal-select')).toBe('20')
 
       vi.mocked(api.me.updateSettings).mockResolvedValue(me(settingsFixture({ daily_goal: 10 })))
       await tap(w, 'goal-10')
-      expect(w.find('[data-testid=settings-error]').exists()).toBe(false)
+      expect(toastText()).toBe('Сохранено')
       expect(selectedSegment(w, 'goal-select')).toBe('10')
+    })
+
+    it('shows the message of a screen that has no data in its error state, not in a toast', async () => {
+      vi.mocked(api.me.get).mockRejectedValue(new ApiClientError('network', 0, 'unknown', 'Failed to fetch'))
+      vi.mocked(api.organizations.list).mockResolvedValue({ organizations: [] })
+      const router = makeRouter()
+      await router.push('/settings')
+      const w = mount(SettingsView, { global: { plugins: [router] } })
+      await flushPromises()
+
+      expect(w.get('[data-testid=error]').text()).toContain('Нет связи с сервером')
+      expect(toastText()).toBeUndefined()
+      expect(useSettingsStore().errorMessage).not.toBe('') // kept for the retry
     })
 
     it('disables the controls while a change is being saved', async () => {
@@ -523,10 +575,10 @@ describe('SettingsView', () => {
       await choose(w, 'timezone-select', 'Europe/Moscow')
 
       expect(value(w, 'timezone-select')).toBe('Asia/Tashkent')
-      expect(w.get('[data-testid=settings-error]').text()).toBe(w.get('[data-testid=timezone-locked]').text())
-      expect(w.get('[data-testid=settings-error]').text()).toContain('Следующая смена — 20 октября')
+      expect(toastText()).toBe(w.get('[data-testid=timezone-locked]').text())
+      expect(toastText()).toContain('Следующая смена — 20 октября')
       expect(select(w, 'timezone-select').disabled).toBe(true)
-      expect(toastText()).toBeUndefined()
+      expect(w.find('[data-testid=settings-error]').exists()).toBe(false)
     })
 
     it('on 422 timezone_change_too_soon falls back to the text without a date when the settings cannot be reloaded', async () => {
@@ -536,7 +588,7 @@ describe('SettingsView', () => {
 
       await choose(w, 'timezone-select', 'Europe/Moscow')
 
-      expect(w.get('[data-testid=settings-error]').text()).toBe('Часовой пояс можно менять не чаще раза в сутки.')
+      expect(toastText()).toBe('Часовой пояс можно менять не чаще раза в сутки.')
       expect(value(w, 'timezone-select')).toBe('Asia/Tashkent')
     })
   })
@@ -610,9 +662,8 @@ describe('SettingsView', () => {
       await flushPromises()
 
       expect(w.find('[data-testid=timezone-undo]').exists()).toBe(false)
-      expect(w.get('[data-testid=settings-error]').text()).toContain('Отменить смену часового пояса уже нельзя')
+      expect(toastText()).toContain('Отменить смену часового пояса уже нельзя')
       expect(value(w, 'timezone-select')).toBe('Europe/Moscow')
-      expect(toastText()).toBeUndefined()
     })
   })
 
@@ -647,10 +698,30 @@ describe('SettingsView', () => {
       const names = w.findAll('[data-testid=org-name]').map((n) => n.text())
       const states = w.findAll('[data-testid=org-state]')
       expect(names).toEqual(['Bright Center', 'Other Center'])
-      expect(states.map((n) => n.text())).toEqual(['Pro от центра', 'В очереди'])
+      expect(states.map((n) => n.text())).toEqual(['Pro от центра', 'В очереди на Pro'])
       expect(states[0]?.classes()).toEqual(expect.arrayContaining(['chip', 'chip-success']))
       expect(states[1]?.classes()).toEqual(expect.arrayContaining(['chip', 'chip-warning']))
       expect(w.get('[data-testid=orgs-card] h2').text()).toBe('Мои центры')
+    })
+
+    it('tells a learner in the queue what it means and when Pro comes, and tells nobody else', async () => {
+      const w = await render(settingsFixture(), [
+        membership(),
+        membership({ id: 18, name: 'Other Center', seat_state: 'waitlisted' }),
+      ])
+
+      expect(w.find('[data-testid=org-17] [data-testid=org-waitlisted-hint]').exists()).toBe(false)
+      const hint = w.get('[data-testid=org-18] [data-testid=org-waitlisted-hint]')
+      expect(hint.text()).toBe('В центре пока нет свободных мест. Pro от центра включится, когда место освободится.')
+      expect(hint.classes()).toContain('text-tg-hint')
+      expect(w.findAll('[data-testid=org-waitlisted-hint]')).toHaveLength(1)
+    })
+
+    it('says it in Uzbek', async () => {
+      const w = await render(settingsFixture({ interface_locale: 'uz' }), [membership({ seat_state: 'waitlisted' })])
+
+      expect(w.get('[data-testid=org-state]').text()).toBe('Pro uchun navbatda')
+      expect(w.get('[data-testid=org-waitlisted-hint]').text()).toBe("Markazda hozircha bo'sh joy yo'q. Joy bo'shaganda markaz bergan Pro yoqiladi.")
     })
 
     it('explains a center joined through a group instead of offering to leave it', async () => {

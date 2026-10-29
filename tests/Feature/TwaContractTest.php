@@ -176,13 +176,16 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
             'entitlement' => ['plan', 'source', 'until'],
             'onboarding_completed',
             'league',
+            'timezone',
         ]);
 
     expect($response->json('due_count'))->toBeInt()
         ->and($response->json('new_words_remaining'))->toBe(20)
         ->and($response->json('open_session_id'))->toBeInt()
         ->and($response->json('onboarding_completed'))->toBeTrue()
-        ->and($response->json('entitlement'))->toBe(['plan' => 'free', 'source' => 'free', 'until' => null]);
+        ->and($response->json('entitlement'))->toBe(['plan' => 'free', 'source' => 'free', 'until' => null])
+        // the IANA id of the learner's zone: the TWA dates the header of the screen by it
+        ->and($response->json('timezone'))->toBe($learner->timezone);
 
     $bare = Learner::factory()->create();
     $this->withHeaders(contractHeaders($bare))
@@ -190,10 +193,11 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
         ->assertOk()
         ->assertExactJsonStructure([
             'due_count', 'new_words_remaining', 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK,
-            'active_course', 'open_session_id', 'entitlement' => ['plan', 'source', 'until'], 'onboarding_completed', 'league',
+            'active_course', 'open_session_id', 'entitlement' => ['plan', 'source', 'until'], 'onboarding_completed', 'league', 'timezone',
         ])
         ->assertJsonPath('active_course', null)
-        ->assertJsonPath('open_session_id', null);
+        ->assertJsonPath('open_session_id', null)
+        ->assertJsonPath('timezone', $bare->timezone);
 });
 
 it('GET /me reports the Free entitlement and a paywall without contact while BILLING_SUPPORT_CONTACT is empty', function (): void {
@@ -409,6 +413,26 @@ it('GET /courses/{slug} keeps its exact JSON shape', function (): void {
                 'lessons' => [['id', 'number', 'title', 'progress' => CONTRACT_PROGRESS]],
             ]],
         ]);
+});
+
+it('GET /courses/{slug} keeps the shape for a module without a name: `title` is present and null', function (): void {
+    $s = contractCourse();
+    Stage::query()->where('course_id', $s['course']->id)->update(['title' => null]);
+
+    $response = $this->withHeaders(contractHeaders($s['learner']))
+        ->getJson('/api/twa/courses/contract-course')
+        ->assertOk()
+        ->assertExactJsonStructure([
+            'slug', 'title', 'description', 'level', 'exam_tag', 'words_count', 'is_active',
+            'progress' => CONTRACT_PROGRESS,
+            'stages' => [[
+                'number', 'title', 'progress' => CONTRACT_PROGRESS,
+                'lessons' => [['id', 'number', 'title', 'progress' => CONTRACT_PROGRESS]],
+            ]],
+        ]);
+
+    expect($response->json('stages.0'))->toHaveKey('title')
+        ->and($response->json('stages.0.title'))->toBeNull();
 });
 
 it('POST /me/course keeps its exact JSON shape (a course row) and 404 error envelope', function (): void {

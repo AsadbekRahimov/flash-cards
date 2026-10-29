@@ -15,14 +15,15 @@ import ListRow from '@/components/ui/ListRow.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import { formatDate } from '@/composables/format'
+import { tierLabelKey } from '@/composables/leagueTiers'
 import { useBackButton } from '@/composables/useBackButton'
+import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useAssignmentsStore } from '@/stores/assignments'
 import { useAuthStore } from '@/stores/auth'
 import { useTodayStore } from '@/stores/today'
 import { useTrainingStore } from '@/stores/training'
 import { errorMessage } from '@/i18n/errors'
 import { useI18n } from '@/i18n'
-import type { StringKey } from '@/i18n/ru'
 import type { OpenSessionRequest } from '@/api/types'
 
 /**
@@ -95,27 +96,19 @@ function openPaywall(reason: PaywallReason): void {
 }
 
 /** "Repeat words" in the paywall: close the sheet (a failure shows on this screen) and start the review. */
-async function onPaywallReview(): Promise<void> {
+const { reviewFromPaywall: onPaywallReview } = useReviewFromPaywall(() => {
   paywallOpen.value = false
-  await review()
-}
-
-/** The i18n key of a tier; an unknown key (a renamed tier on the server) falls back to the lowest one. */
-function tierKey(key: string): StringKey {
-  const known: Record<string, StringKey> = {
-    bronze: 'league.tier.bronze',
-    silver: 'league.tier.silver',
-    gold: 'league.tier.gold',
-    platinum: 'league.tier.platinum',
-    diamond: 'league.tier.diamond',
-  }
-  return known[key] ?? 'league.tier.bronze'
-}
+})
 
 const name = computed(() => auth.learner?.first_name?.trim() ?? '')
 const greeting = computed(() => (name.value !== '' ? t('today.greeting', { name: name.value }) : t('today.title')))
-/** «среда, 28 октября»: the device's date and time zone, like the rest of the app. */
-const dateLine = computed(() => formatDate(new Date().toISOString(), 'weekdayDayMonth', locale.value))
+/**
+ * «среда, 28 октября»: the day the goal and the streak below are counted in, i.e. in the learner's time zone that
+ * `/today` names (the zone of the settings). The device's zone is only the fallback, for a zone this browser does not know.
+ */
+const dateLine = computed(() =>
+  formatDate(new Date().toISOString(), 'weekdayDayMonth', locale.value, data.value?.timezone),
+)
 const isPro = computed(() => data.value?.entitlement.plan === 'pro')
 
 const goalLeft = computed(() => (data.value ? Math.max(0, data.value.goal.target - data.value.goal.done) : 0))
@@ -152,7 +145,7 @@ const leagueRow = computed(() => {
   if (!league) return { title: t('today.league.join_title'), subtitle: t('today.league.join_subtitle') }
 
   return {
-    title: t('today.league.title', { tier: t(tierKey(league.tier_key)) }),
+    title: t('today.league.title', { tier: t(tierLabelKey(league.tier_key)) }),
     subtitle: t('today.league.subtitle', {
       rank: league.rank,
       members: league.members_count,

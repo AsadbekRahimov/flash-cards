@@ -212,7 +212,8 @@ it('builds the onboarding funnel as a 7-day cohort of distinct learners', functi
     $this->actingAs(pa_user('admin'));
     Livewire::test(OnboardingFunnelWidget::class)
         ->assertSee('Начали настройку')
-        ->assertSee('66.7%');
+        ->assertSee('66,7%')
+        ->assertDontSee('66.7%');
 });
 
 it('shows a dash instead of a conversion while nobody started onboarding', function (): void {

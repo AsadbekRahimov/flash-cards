@@ -113,6 +113,92 @@ describe('decks store', () => {
     expect(store.limitReached).toBe(false)
   })
 
+  it('tells which limit refused the write: a new deck or words over the size of a deck', async () => {
+    vi.mocked(api.decks.create).mockRejectedValueOnce(apiError(422, 'deck_limit_reached'))
+    vi.mocked(api.decks.addWords).mockRejectedValueOnce(apiError(422, 'deck_words_limit_reached'))
+    const store = useDecksStore()
+    expect(store.limitKind).toBeNull()
+
+    await store.create('Second')
+    expect(store.limitKind).toBe('decks')
+
+    await store.importWords('a', 'text', 'list')
+    expect(store.limitKind).toBe('deck_words')
+
+    store.dismissLimit()
+    expect(store.limitKind).toBeNull()
+    expect(store.limitReached).toBe(false)
+  })
+
+  it('takes the plan limits again when a limit refuses a write: the numbers it quotes are the ones the server applied', async () => {
+    vi.mocked(api.decks.create).mockRejectedValue(apiError(422, 'deck_limit_reached'))
+    vi.mocked(api.decks.list).mockResolvedValue({ decks: [], limits: { decks: 20, deck_words: 2000, used_decks: 20 } })
+    const store = useDecksStore()
+    store.limits = { decks: 1, deck_words: 50, used_decks: 1 } // a list loaded before the plan changed
+
+    await store.create('21st')
+
+    expect(store.limits).toEqual({ decks: 20, deck_words: 2000, used_decks: 20 })
+    expect(store.limitReached).toBe(true)
+    expect(store.decks).toEqual([]) // only the limits are taken: the list on screen is not replaced behind the learner
+  })
+
+  it('has limits after a refusal even for a deck opened from a link (no list was loaded)', async () => {
+    vi.mocked(api.decks.addWords).mockRejectedValue(apiError(422, 'deck_words_limit_reached'))
+    vi.mocked(api.decks.list).mockResolvedValue({ decks: [], limits: { decks: 20, deck_words: 2000, used_decks: 3 } })
+    const store = useDecksStore()
+    store.detail = detail('a')
+    expect(store.limits).toBeNull()
+
+    await store.importWords('a', 'text', 'csv')
+
+    expect(store.limits).toEqual({ decks: 20, deck_words: 2000, used_decks: 3 })
+    expect(store.limitKind).toBe('deck_words')
+  })
+
+  it('keeps the limits it has, and still reports the refusal, when they cannot be taken again', async () => {
+    vi.mocked(api.decks.create).mockRejectedValue(apiError(422, 'deck_limit_reached'))
+    vi.mocked(api.decks.list).mockRejectedValue(new ApiClientError('network', 0, 'unknown', 'x'))
+    const store = useDecksStore()
+    store.limits = { decks: 1, deck_words: 50, used_decks: 1 }
+
+    await store.create('Second')
+
+    expect(store.limits).toEqual({ decks: 1, deck_words: 50, used_decks: 1 })
+    expect(store.limitReached).toBe(true)
+    expect(store.errorMessage).toBe('Достигнут лимит колод вашего тарифа.')
+    expect(store.busy).toBe(false)
+  })
+
+  it('does not ask for the limits again for any other refusal', async () => {
+    vi.mocked(api.decks.rename).mockRejectedValue(apiError(404, 'deck_not_found'))
+    const store = useDecksStore()
+
+    await store.rename('a', 'B')
+
+    expect(api.decks.list).not.toHaveBeenCalled()
+    expect(store.limitKind).toBeNull()
+  })
+
+  it('drops a refusal when the list or the deck is loaded again: it never greets the learner on another screen', async () => {
+    vi.mocked(api.decks.create).mockRejectedValue(apiError(422, 'deck_limit_reached'))
+    vi.mocked(api.decks.list).mockResolvedValue({ decks: [], limits: { decks: 1, deck_words: 50, used_decks: 0 } })
+    vi.mocked(api.decks.get).mockResolvedValue(detail('a'))
+    const store = useDecksStore()
+
+    await store.create('Second')
+    expect(store.limitReached).toBe(true)
+    await store.load()
+    expect(store.limitReached).toBe(false)
+    expect(store.limitKind).toBeNull()
+
+    await store.create('Second')
+    expect(store.limitReached).toBe(true)
+    await store.loadDetail('a')
+    expect(store.limitReached).toBe(false)
+    expect(store.limitKind).toBeNull()
+  })
+
   it('does not raise the paywall for other refusals, and clears it on the next write', async () => {
     vi.mocked(api.decks.create).mockRejectedValueOnce(apiError(422, 'deck_limit_reached'))
     vi.mocked(api.decks.rename).mockRejectedValueOnce(apiError(404, 'deck_not_found'))

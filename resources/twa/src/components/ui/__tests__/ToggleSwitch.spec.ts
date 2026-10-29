@@ -13,6 +13,12 @@ describe('ToggleSwitch', () => {
     expect(w.attributes('aria-label')).toBe('Перевод → слово')
   })
 
+  it('keeps its 51 x 31 look and takes the press on 44 px (tap-target)', () => {
+    const w = mount(ToggleSwitch, { props: { modelValue: true, label: 'x' } })
+
+    expect(w.classes()).toEqual(expect.arrayContaining(['tap-target', 'h-[31px]', 'w-[51px]']))
+  })
+
   it('reports off', () => {
     const w = mount(ToggleSwitch, { props: { modelValue: false, label: 'x' } })
 

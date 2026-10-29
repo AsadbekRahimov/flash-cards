@@ -6,6 +6,7 @@ namespace App\Filament\Widgets;
 
 use App\Domain\Engagement\Services\LeagueService;
 use App\Filament\Concerns\RequiresActiveAdmin;
+use App\Filament\Resources\Support\AdminDates;
 use App\Filament\Resources\Support\AdminLabels;
 use App\Models\LeagueGroup;
 use App\Models\LeagueWeek;
@@ -75,8 +76,8 @@ class LeagueGroupsTableWidget extends TableWidget
         $members = (int) LeagueGroup::query()->where('league_week_id', $week->id)->sum('members_count');
 
         return __('admin.widgets.league_groups.heading', [
-            'from' => $week->starts_on->toDateString(),
-            'to' => $week->ends_on->toDateString(),
+            'from' => AdminDates::date($week->starts_on),
+            'to' => AdminDates::date($week->ends_on),
             'status' => AdminLabels::value('widgets.league_groups.week_status', $week->status),
             'groups' => $groups,
             'members' => $members,

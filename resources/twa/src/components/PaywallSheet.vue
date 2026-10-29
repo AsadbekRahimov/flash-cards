@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import PromoRedeem from '@/components/PromoRedeem.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import ProBenefits from '@/components/ui/ProBenefits.vue'
 import SegmentedControl, { type SegmentOption } from '@/components/ui/SegmentedControl.vue'
-import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice, yearSavingPct } from '@/composables/billingFormat'
+import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice, graceText, inStarsGrace, yearSavingPct } from '@/composables/billingFormat'
 import { formatDate } from '@/composables/format'
 import { supportContactLink } from '@/composables/supportContact'
 import { useBillingStore } from '@/stores/billing'
 import { useTodayStore } from '@/stores/today'
 import { useI18n } from '@/i18n'
 import type { StringKey } from '@/i18n/ru'
-import type { BillingPeriod, BillingProviderKey, MeResponse } from '@/api/types'
+import type { BillingPeriod, BillingProviderKey, DeckLimits, MeResponse } from '@/api/types'
 
 export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam_simulator'
 
@@ -30,30 +30,53 @@ export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam
  * non-empty catalog): anything else, including a catalog that failed to load, keeps the `coming_soon` copy.
  *
  * `reason = 'quota'` is the end of today's new words; `'decks'` is a refused deck / deck-word limit
- * (docs/04 A.10); `'streak_freeze'` is the Free teaser of streak freezes (docs/13 §7.2); `'exam_simulator'`
- * is a refused IELTS / SAT mock (docs/13 §8.4); `'info'` is the learner opening it from the Today screen. A promo code that works or a
- * confirmed payment refreshes `/me` (billing store) and `/today`.
+ * (docs/04 A.10; `deckLimits` are the numbers of `GET /decks`, the lead quotes them); `'streak_freeze'` is the Free
+ * teaser of streak freezes (docs/13 §7.2); `'exam_simulator'` is a refused IELTS / SAT mock (docs/13 §8.4); `'info'` is
+ * the learner opening it from the Today screen or from "Renew Pro". A promo code that works or a confirmed payment
+ * refreshes `/me` (billing store) and `/today`.
+ *
+ * What the sheet says follows the plan from `/me`: the line "you are on Free: N new words a day" is for Free only (Pro
+ * has `new_words_per_day: null` = no limit, which is not "unknown"). A Stars subscription in grace (`past_due`) cannot
+ * be paid over — the server refuses it — so the pay buttons give way to the reason and the date.
+ *
+ * A Pro learner comes here to extend (the "Renew Pro" button of the Subscription screen), not to be sold Pro: when
+ * their own subscription has an end, the title is "Renew Pro" and the lead says what a payment does — it is added to
+ * that end (Payme / Click and a Stars year do exactly that, `CheckoutService::assertCanBuyOver`); the sales pitch and the
+ * line for students of a center ("ask your center") are for Free. A Stars month over a period that is paid far ahead is
+ * refused by the server (`subscribe_too_early`); the error text says what to choose instead.
  *
  * "Repeat words" (shown when the Today store knows of due cards) emits `review`: reviews are never
- * limited on Free, so the quota wall is not a dead end. The parent opens the daily_review session.
+ * limited on Free, so the quota wall is not a dead end. The parent opens the daily_review session
+ * (`useReviewFromPaywall`, the same for every screen that shows the sheet).
+ *
+ * A refused purchase is shown under the pay buttons and scrolled into view: on a phone the sheet is taller than the
+ * screen and the message (it may name a way out, like `subscribe_too_early`) would start below the fold.
  *
  * a11y (minimal): the focus moves into the dialog on open and returns to the opener on close;
  * Escape closes it.
  */
-const props = withDefaults(defineProps<{ reason?: PaywallReason }>(), { reason: 'info' })
+const props = withDefaults(defineProps<{ reason?: PaywallReason; deckLimits?: DeckLimits | null }>(), { reason: 'info', deckLimits: null })
 const emit = defineEmits<{ close: []; redeemed: [me: MeResponse]; review: [] }>()
 
-const { t, locale } = useI18n()
+const { t, tn, locale } = useI18n()
 const billing = useBillingStore()
 const today = useTodayStore()
 
 const redeemed = ref(false)
 const sheet = ref<HTMLElement | null>(null)
+const purchaseError = ref<InstanceType<typeof InlineAlert> | null>(null)
 let opener: HTMLElement | null = null
 
 const dueCount = computed(() => today.data?.due_count ?? 0)
 
-const limit = computed(() => billing.entitlement?.new_words_per_day ?? null)
+const isPro = computed(() => billing.entitlement?.plan === 'pro')
+
+/** What Free gives; nothing for Pro. The generic line is for a plan that is not known (`/me` has not come). */
+const freeLine = computed((): string => {
+  if (isPro.value) return ''
+  const limit = billing.entitlement?.new_words_per_day ?? null
+  return limit !== null ? tn('paywall.free', limit) : t('paywall.free_generic')
+})
 const contact = computed(() => supportContactLink(billing.paywall?.contact))
 
 const purchaseMode = computed(() => billing.canPurchase)
@@ -61,18 +84,35 @@ const paid = computed(() => billing.purchase.status === 'paid')
 const done = computed(() => redeemed.value || paid.value)
 const busy = computed(() => billing.purchase.status === 'starting' || billing.purchase.status === 'awaiting')
 
-/** What the reason adds before the sales pitch (none for `info`). */
+/** What the reason adds before the sales pitch (none for `info`; `decks` quotes the limits, see `reasonLead`). */
 const REASON_LEADS: Partial<Record<PaywallReason, StringKey>> = {
   quota: 'paywall.lead_quota',
-  decks: 'paywall.lead_decks',
   streak_freeze: 'paywall.lead_streak_freeze',
   exam_simulator: 'paywall.lead_exam_simulator',
 }
 
+const reasonLead = computed((): string => {
+  if (props.reason === 'decks') {
+    const limits = props.deckLimits
+    return limits
+      ? t('paywall.lead_decks', { decks: tn('decks.count', limits.decks), words: tn('decks.words_up_to', limits.deck_words) })
+      : t('paywall.lead_decks_generic')
+  }
+  const key = REASON_LEADS[props.reason]
+  return key ? t(key) : ''
+})
+
 const lead = computed(() => {
+  if (extendUntil.value !== null) return t('paywall.lead_renew', { date: formatDate(extendUntil.value, 'dayMonthYear', locale.value) })
   const pitch = purchaseMode.value ? t('paywall.lead_purchase') : t('paywall.soon')
-  const reason = REASON_LEADS[props.reason]
-  return reason ? `${t(reason)} ${pitch}` : pitch
+  return reasonLead.value ? `${reasonLead.value} ${pitch}` : pitch
+})
+
+/** The title of the sheet; the name of the plan once the learner is Pro (`done`). */
+const title = computed(() => {
+  if (done.value) return 'Pro'
+  if (!purchaseMode.value) return t('paywall.title')
+  return extendUntil.value !== null ? t('paywall.title_renew') : t('paywall.title_purchase')
 })
 
 const periods = computed<BillingPeriod[]>(() => (billing.catalog?.items ?? []).map((item) => item.period))
@@ -80,10 +120,23 @@ const chosenPeriod = ref<BillingPeriod | null>(null)
 const period = computed<BillingPeriod | null>(() => chosenPeriod.value ?? periods.value[0] ?? null)
 const item = computed(() => billing.catalog?.items.find((i) => i.period === period.value) ?? null)
 const offer = computed(() => billing.catalog?.offer ?? null)
+/** The discount belongs to one period (`period: null` = any): its chip is shown next to that period only. */
+const offerShown = computed(() => offer.value !== null && (offer.value.period === null || offer.value.period === period.value))
 /** Stars renew by themselves: paying again would charge twice (the server refuses with checkout_conflict). */
 const renewing = computed(() => billing.catalog?.subscription?.auto_renew === true)
 /** A perpetual grant leaves nothing to buy (the server refuses with already_perpetual). */
 const perpetual = computed(() => billing.catalog?.subscription?.perpetual === true)
+/** The renewal charge of Stars failed and Telegram retries it: any new payment is refused (checkout_conflict). */
+const grace = computed(() => inStarsGrace(billing.catalog?.subscription))
+const graceMessage = computed(() => graceText(billing.catalog?.subscription?.ends_at ?? billing.entitlement?.until ?? null, locale.value))
+/**
+ * The end of the paid period of a Pro learner's own subscription while a payment can still be added to it: what the
+ * sheet is for then. `null` for Free, for a Pro that is only a center's and for the cases with nothing to pay (above).
+ */
+const extendUntil = computed((): string | null => {
+  if (!purchaseMode.value || !isPro.value || renewing.value || perpetual.value || grace.value) return null
+  return billing.catalog?.subscription?.ends_at ?? null
+})
 
 const periodOptions = computed<SegmentOption[]>(() => {
   const saving = yearSavingPct(billing.catalog?.items ?? [])
@@ -150,6 +203,15 @@ function onRedeemed(me: MeResponse): void {
   emit('redeemed', me)
 }
 
+watch(
+  () => billing.purchase.status,
+  async (status) => {
+    if (status !== 'failed') return
+    await nextTick()
+    purchaseError.value?.$el.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' })
+  },
+)
+
 function onKeydown(event: KeyboardEvent): void {
   if (event.key === 'Escape') emit('close')
 }
@@ -180,7 +242,7 @@ onBeforeUnmount(() => {
       tabindex="-1"
       role="dialog"
       aria-modal="true"
-      :aria-label="purchaseMode ? t('paywall.title_purchase') : t('paywall.title')"
+      :aria-label="title"
       data-testid="paywall"
     >
       <!-- A 44 px target around a 32 px circle; outside the scrolling part, so it stays in reach. -->
@@ -200,18 +262,14 @@ onBeforeUnmount(() => {
             <AppIcon name="sparkles" solid :size="28" />
           </span>
 
-          <h2 class="text-[22px] leading-7 font-bold" data-testid="paywall-title">
-            {{ done ? 'Pro' : purchaseMode ? t('paywall.title_purchase') : t('paywall.title') }}
-          </h2>
+          <h2 class="text-[22px] leading-7 font-bold" data-testid="paywall-title">{{ title }}</h2>
 
           <InlineAlert v-if="paid" tone="success" :message="paidMessage" class="w-full" data-testid="paywall-paid" />
 
           <template v-if="!done">
             <p class="text-[15px] leading-5" data-testid="paywall-lead">{{ lead }}</p>
 
-            <p class="text-[13px] leading-[18px] text-tg-hint" data-testid="paywall-free">
-              {{ limit !== null ? t('paywall.free', { count: limit }) : t('paywall.free_generic') }}
-            </p>
+            <p v-if="freeLine" class="text-[13px] leading-[18px] text-tg-hint" data-testid="paywall-free">{{ freeLine }}</p>
           </template>
         </header>
 
@@ -220,7 +278,7 @@ onBeforeUnmount(() => {
         </div>
 
         <section v-if="purchaseMode && !done" class="space-y-3" data-testid="purchase">
-          <p v-if="offer" class="flex justify-center">
+          <p v-if="offerShown" class="flex justify-center">
             <span class="chip chip-warning h-auto py-1 text-center whitespace-normal" data-testid="purchase-offer">{{ offerText }}</span>
           </p>
 
@@ -242,6 +300,8 @@ onBeforeUnmount(() => {
             <AppIcon name="check-circle" solid :size="18" class="mt-px text-success" />
             <span>{{ t('billing.perpetual') }}</span>
           </p>
+
+          <InlineAlert v-else-if="grace" tone="warning" :message="graceMessage" data-testid="purchase-grace" />
 
           <div v-else class="space-y-2">
             <p class="text-[13px] leading-[18px] text-tg-hint" data-testid="pay-method">{{ t('billing.pay_method') }}</p>
@@ -312,6 +372,7 @@ onBeforeUnmount(() => {
           </div>
           <InlineAlert
             v-else-if="billing.purchase.status === 'failed'"
+            ref="purchaseError"
             tone="danger"
             :message="billing.purchase.error"
             data-testid="purchase-error"
@@ -331,7 +392,7 @@ onBeforeUnmount(() => {
 
         <PromoRedeem @redeemed="onRedeemed" />
 
-        <p v-if="contact && !done" class="text-center text-[13px] leading-[18px] text-tg-hint" data-testid="paywall-contact">
+        <p v-if="contact && !done && !isPro" class="text-center text-[13px] leading-[18px] text-tg-hint" data-testid="paywall-contact">
           {{ t('paywall.contact') }}
           <a
             v-if="contact.href"

@@ -7,6 +7,7 @@ namespace App\Filament\Resources\PaymentResource\Support;
 use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Exceptions\BillingException;
 use App\Domain\Billing\Services\PaymentRefundService;
+use App\Filament\Resources\Support\AdminErrors;
 use App\Models\Payment;
 use App\Models\User;
 use Filament\Actions\Action;
@@ -51,7 +52,7 @@ final class PaymentActions
                 try {
                     app(PaymentRefundService::class)->refund($record, $user, (string) $data['note'], (bool) ($data['returned_by_hand'] ?? false), request()->ip());
                 } catch (BillingException $e) {
-                    Notification::make()->title(__('admin.payments.notifications.failed'))->body($e->getMessage())->danger()->persistent()->send();
+                    Notification::make()->title(__('admin.payments.notifications.failed'))->body(AdminErrors::for('payments', $e))->danger()->persistent()->send();
 
                     return;
                 }

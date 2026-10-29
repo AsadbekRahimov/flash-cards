@@ -81,9 +81,63 @@ class StageResource extends Resource
                     ignoreRecord: true,
                     modifyRuleUsing: fn (Unique $rule, Get $get): Unique => $rule->where('course_id', $get('course_id')),
                 ),
-            Forms\Components\TextInput::make('title')->label(__('admin.stages.fields.title'))->required()->maxLength(255),
+            self::titleField(),
             Forms\Components\Textarea::make('description')->label(__('admin.stages.fields.description'))->rows(3)->columnSpanFull(),
         ]);
+    }
+
+    /**
+     * The name of a module is optional: an empty field is stored as NULL, and learners are shown "Модуль N" (uz "N-modul") in their
+     * language. Shared with the stages tab of a course.
+     */
+    public static function titleField(): Forms\Components\TextInput
+    {
+        return Forms\Components\TextInput::make('title')
+            ->label(__('admin.stages.fields.title'))
+            ->helperText(__('admin.stages.fields.title_help'))
+            ->maxLength(255)
+            ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? $state : null);
+    }
+
+    /** The module as the panel names it: its title, or "Модуль N" when it has none (the learner reads the same in their language). */
+    public static function displayTitle(?Stage $stage): string
+    {
+        if ($stage === null) {
+            return '—';
+        }
+
+        $title = $stage->title;
+
+        return is_string($title) && trim($title) !== '' ? $title : __('admin.stages.untitled', ['number' => $stage->number]);
+    }
+
+    /**
+     * The modules the lesson form offers for a search text: by a part of the title or by the number inside the text ("3",
+     * "Модуль 3"); without a text, the first ones in course and number order. A module without a title has no title to
+     * match, which is why the relationship search of the select (a LIKE on the title) is not enough.
+     *
+     * @return array<int, string> stage id => {@see displayTitle()}
+     */
+    public static function searchOptions(?string $search): array
+    {
+        $term = trim((string) $search);
+
+        return Stage::query()
+            ->when($term !== '', function (Builder $query) use ($term): void {
+                $query->where(function (Builder $query) use ($term): void {
+                    $query->whereLike('title', "%{$term}%");
+
+                    if (preg_match('/\d+/', $term, $digits) === 1) {
+                        $query->orWhere('number', (int) $digits[0]);
+                    }
+                });
+            })
+            ->orderBy('course_id')
+            ->orderBy('number')
+            ->limit(50)
+            ->get(['id', 'number', 'title'])
+            ->mapWithKeys(fn (Stage $stage): array => [$stage->id => self::displayTitle($stage)])
+            ->all();
     }
 
     public static function table(Table $table): Table
@@ -92,7 +146,10 @@ class StageResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('course.slug')->label(__('admin.stages.fields.course'))->sortable(),
                 Tables\Columns\TextColumn::make('number')->label(__('admin.stages.fields.number'))->sortable(),
-                Tables\Columns\TextColumn::make('title')->label(__('admin.stages.fields.title'))->searchable(),
+                Tables\Columns\TextColumn::make('title')
+                    ->label(__('admin.stages.fields.title'))
+                    ->searchable()
+                    ->default(fn (Stage $record): string => self::displayTitle($record)),
                 Tables\Columns\TextColumn::make('lessons_count')->counts('lessons')->label(__('admin.stages.columns.lessons_count')),
                 Tables\Columns\TextColumn::make('created_at')->label(__('admin.stages.columns.created_at'))->dateTime()->toggleable(isToggledHiddenByDefault: true),
             ])

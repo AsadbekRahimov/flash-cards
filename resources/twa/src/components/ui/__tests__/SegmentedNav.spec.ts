@@ -19,7 +19,7 @@ async function mountNav(start: string) {
     ],
   })
   await router.push(start)
-  const w = mount(SegmentedNav, { props: { items: ITEMS }, global: { plugins: [router] } })
+  const w = mount(SegmentedNav, { props: { items: ITEMS, ariaLabel: 'Курсы и колоды' }, global: { plugins: [router] } })
   return { w, router }
 }
 
@@ -31,6 +31,21 @@ describe('SegmentedNav', () => {
     expect(links.map((a) => a.text())).toEqual(['Курсы', 'Мои колоды'])
     expect(links.map((a) => a.attributes('href'))).toEqual(['/courses', '/decks'])
     expect(w.get('[data-testid=nav-decks]').text()).toBe('Мои колоды')
+  })
+
+  it('is a navigation landmark with its own name, so it is told apart from the tab bar', async () => {
+    const { w } = await mountNav('/courses')
+
+    expect(w.element.tagName).toBe('NAV')
+    expect(w.attributes('aria-label')).toBe('Курсы и колоды')
+  })
+
+  it('keeps the look of a 36 px segment and takes the press on 44 px (tap-target)', async () => {
+    const { w } = await mountNav('/courses')
+
+    for (const link of w.findAll('a')) {
+      expect(link.classes()).toEqual(expect.arrayContaining(['tap-target', 'min-h-9']))
+    }
   })
 
   it('highlights the item of the current route', async () => {

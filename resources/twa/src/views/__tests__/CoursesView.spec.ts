@@ -93,6 +93,15 @@ describe('CoursesView', () => {
       expect(wrapper.get('[data-testid=hint]').text()).toBe('Новые слова для ежедневного занятия берутся из основного курса')
     })
 
+    it('names the switch as a navigation landmark of its own, besides the tab bar', async () => {
+      vi.mocked(api.courses.list).mockResolvedValue({ courses: [course()] })
+
+      const { wrapper } = await render()
+
+      expect(wrapper.get('nav').attributes('aria-label')).toBe('Курсы')
+      expect(wrapper.findAll('nav')).toHaveLength(1)
+    })
+
     it('keeps the heading and the switch while loading, when the list is empty and when it failed', async () => {
       vi.mocked(api.courses.list).mockReturnValue(new Promise(() => {}))
       const loading = await render()

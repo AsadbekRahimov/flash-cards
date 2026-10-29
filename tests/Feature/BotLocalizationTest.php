@@ -175,7 +175,7 @@ it('posts the training start message in uz and ru', function (string $locale, st
         ->and($this->api->log[0]['text'])->toContain($text)
         ->and($this->api->log[0]['button'])->toBe($button);
 })->with([
-    'uz' => ['uz', "Mashg'ulot boshlandi: 1-modul, 1-dars", "🎯 Mashg'ulotni ochish"],
+    'uz' => ['uz', 'Trening boshlandi: 1-modul, 1-dars', '🎯 Treningni ochish'],
     'ru' => ['ru', 'Тренировка запущена: модуль 1, урок 1', '🎯 Открыть тренировку'],
 ]);
 
@@ -186,7 +186,7 @@ it('shows the lesson picker in the group language', function (): void {
 
     locDispatch(['chat' => ['id' => -5004, 'type' => 'supergroup'], 'from' => ['id' => 703], 'text' => '/start_training']);
 
-    expect($this->api->log[0]['text'])->toBe("Mashg'ulot uchun darsni tanlang:")
+    expect($this->api->log[0]['text'])->toBe('Trening uchun darsni tanlang:')
         ->and($this->api->log[0]['markup']['inline_keyboard'][0][0]['text'])->toBe('1-modul · 1-dars');
 });
 

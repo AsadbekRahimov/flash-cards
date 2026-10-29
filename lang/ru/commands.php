@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 /**
  * Descriptions of the bot commands in the Telegram "/" menu (`php artisan telegram:setup-bot`, docs/04 B.3).
- * Telegram allows 1–256 characters; `private` is the list of private chats, `group` the one of group chats.
+ * Telegram allows 1–256 characters; `private` is the list of private chats, `group` holds the commands of group chats:
+ * `/help` for every member, the teacher's commands for the group administrators only (BotMenuBuilder::SCOPES).
  */
 return [
 

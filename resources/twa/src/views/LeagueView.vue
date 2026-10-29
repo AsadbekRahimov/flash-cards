@@ -123,7 +123,7 @@ onMounted(() => {
 <template>
   <div class="page" data-testid="league-view">
     <PageHeader :title="t('league.rating_title')" large />
-    <SegmentedNav :items="ratingTabs" class="mb-4" />
+    <SegmentedNav :items="ratingTabs" :ariaLabel="t('league.rating_title')" class="mb-4" />
 
     <LoadingState v-if="!data && !message" />
 

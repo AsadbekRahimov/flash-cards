@@ -168,12 +168,11 @@ class DemoContentSeeder extends Seeder
             $course = app(CourseCatalogService::class)->defaultCourse();
 
             foreach (self::CONTENT as $stageNumber => $lessons) {
+                // No `title`: a module without a name of its own is shown as "Модуль N" / "N-modul" in the language of the
+                // reader (docs/14 §8), while any title written here would be read in that one language by everybody.
                 $stage = Stage::updateOrCreate(
                     ['course_id' => $course->id, 'number' => $stageNumber],
-                    [
-                        'title' => "Stage {$stageNumber}",
-                        'description' => "Demo stage {$stageNumber}",
-                    ],
+                    ['description' => "Demo stage {$stageNumber}"],
                 );
 
                 foreach ($lessons as $lessonNumber => $words) {

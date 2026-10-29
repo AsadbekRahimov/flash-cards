@@ -134,7 +134,8 @@
   },
   "open_session_id": 918,
   "entitlement": { "plan": "free", "source": "free", "until": null },
-  "onboarding_completed": true
+  "onboarding_completed": true,
+  "timezone": "Asia/Tashkent"
 }
 ```
 
@@ -146,6 +147,7 @@
 - `open_session_id` — открытая и **неистёкшая** `daily_review` learner'а (продолжить); `null` — нет такой (просроченная, но не закрытая планировщиком, не считается).
 - `entitlement` — как в `/me` (A.2), без `new_words_per_day`.
 - `onboarding_completed` — `onboarding_state = done`. Экран работает и без онбординга (learner мог прийти из группы), но может подсказать завершить настройку в боте.
+- `timezone` — IANA-пояс learner'а, в котором считаются локальный день, `goal` и `streak` (`learners.timezone`; именно тот, что берёт `LearnerClock`: пустое или неизвестное значение заменяется поясом по умолчанию `config('learners.default_timezone')`, затем UTC — поле всегда непустая строка). Берётся из уже загруженного learner'а и `LearnerClock`, лишних запросов к БД нет. По нему TWA датирует шапку «Главной» («вторник, 28 октября»; `formatDate(…, timeZone)`), а не по поясу устройства: `/me` экран «Сегодня» не запрашивает (docs/14 §6.1). После смены пояса в настройках (A.2b) поле меняется сразу.
 
 Кнопка «Повторить» — `POST /training/sessions {"mode": "daily_review", "source": "self"}` (A.3). Ошибки: 401 (как у всех маршрутов TWA).
 
@@ -582,13 +584,17 @@ Pro (`exercise.spelling`, `exercise.gap_fill`) и только с `repetitions �
   "words_count": 500, "is_active": true, "progress": { "done": 120, "total": 500 },
   "stages": [
     {
-      "number": 1, "title": "Stage 1", "progress": { "done": 40, "total": 100 },
+      "number": 1, "title": "Образование", "progress": { "done": 40, "total": 100 },
       "lessons": [ { "id": 11, "number": 1, "title": "Greetings", "progress": { "done": 20, "total": 25 } } ]
-    }
+    },
+    { "number": 2, "title": null, "progress": { "done": 0, "total": 80 }, "lessons": [] }
   ]
 }
 ```
-Модули и уроки — в порядке изучения `(stage.number, lesson.number)`; `lessons[].title` может быть `null`.
+Модули и уроки — в порядке изучения `(stage.number, lesson.number)`; `lessons[].title` может быть `null`. **`stages[].title` — `null`,
+если у модуля нет собственного названия** (docs/03 §2.5): клиент подписывает его по `number` на языке читателя («Модуль 2» /
+«2-modul»; TWA — ключ `course.module`), а чип «Модуль N» рядом с названием показывает только у модуля с названием. Сервер
+не подставляет подпись сам — ни «Stage 2», ни пустую строку. Для колоды learner'а `title` всегда локализованное «Моя колода» / «Mening lug'atim».
 
 #### `POST /api/twa/me/course`
 Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 → иначе 422). Ставит `learners.active_course_id`
@@ -806,7 +812,7 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 
 `GET /today` += `league: {tier, tier_key, rank, points, members_count} | null` — строка «Лига» на «Сегодня». `PATCH /me/settings` += `leagues_opt_out: bool` (только JSON-boolean; `settings.leagues_opt_out` в ответе) — `true` = не размещать (текущее членство остаётся до конца недели; возврат действует с первой оценки следующего локального дня).
 
-**Итоги недели** — ЛС `leagues.result.{promoted|stayed|demoted}` (`lang/*/leagues.php`) с web_app-кнопкой «Открыть лигу» → `/twa/league`; очередь `SendLeagueResultsJob` — пачка до `LEAGUES_NOTIFY_BATCH_SIZE` участников, слот глобального лимита исходящих B.7/2R.3 на каждое сообщение, остаток после `LEAGUES_NOTIFY_BATCH_SECONDS` или без слота уходит новым job'ом (`tries = 0`, `maxExceptions = 3`, `retryUntil` +`LEAGUES_NOTIFY_TTL_HOURS`), не больше одного сообщения на learner'а и закрытую неделю (`notifications_log.type = league_result` пишется до вызова Telegram); 403 → `dm_blocked_at`.
+**Итоги недели** — ЛС `leagues.result.{promoted|stayed|demoted}` (`lang/*/leagues.php`) с web_app-кнопкой «Открыть лигу» → `/twa/league`; очередь `SendLeagueResultsJob` — пачка до `LEAGUES_NOTIFY_BATCH_SIZE` участников, слот глобального лимита исходящих B.7/2R.3 на каждое сообщение (пропускаемые участники — opt-out, закрытый ЛС, уже отправлено — слот не тратят), остаток после `LEAGUES_NOTIFY_BATCH_SECONDS` или без слота уходит новым job'ом (`tries = 0`, `maxExceptions = 3`, `retryUntil` — единый дедлайн рассылки: закрытие недели + `LEAGUES_NOTIFY_TTL_HOURS`, у остатка он тот же), не больше одного сообщения на learner'а и закрытую неделю (`notifications_log.type = league_result` пишется до вызова Telegram); 403 → `dm_blocked_at`.
 
 ### A.14 Друзья и вызовы (docs/13 §1.5, §7.5, Фаза 2 / 2C.5)
 `FriendshipService` / `ChallengeService`. Чужой id (пара или вызов, в которых вы не участник) неотличим от несуществующего: **404** `friendship_not_found` / `challenge_not_found`. Запросы дружбы создаются не здесь, а ссылкой `f_<code>` в боте (B.3). Записи — `throttle:twa-friends` (30/мин на learner'а).
@@ -907,10 +913,17 @@ public function __invoke(Request $request, string $secret)
 по «/» Telegram ничего не подсказывает, а в личном чате нет постоянной кнопки приложения. Команда вызывает Bot API (контракт
 `TelegramClient::setMyCommands` / `setChatMenuButton`, набор данных — `BotMenuBuilder`):
 
-- `setMyCommands` для `all_private_chats` (`today`, `settings`, `invite`, `pro`, `promo`, `help`) и `all_group_chats`
-  (`start_training`, `start_exam`, `close_exam`, `help`) — по два вызова на каждый scope: без `language_code` (язык по умолчанию,
-  ru; его видят все, у кого нет списка на своём языке) и с `language_code = uz`. Описания — `lang/{ru,uz}/commands.php`
-  (`commands.private.*`, `commands.group.*`; 1–256 знаков). `/start`, `/stats` и `/paysupport` в меню не входят.
+- `setMyCommands` для трёх scope — `all_private_chats` (`today`, `settings`, `invite`, `pro`, `promo`, `help`), `all_group_chats`
+  (только `help`) и `all_chat_administrators` (`start_training`, `start_exam`, `close_exam`, `help`) — по два вызова на каждый
+  scope: без `language_code` (язык по умолчанию, ru; его видят все, у кого нет списка на своём языке) и с `language_code = uz`.
+  Описания — `lang/{ru,uz}/commands.php` (`commands.private.*`, `commands.group.*`; 1–256 знаков). `/start`, `/stats` и
+  `/paysupport` в меню не входят.
+- **Почему команды учителя — только у администраторов группы.** Меню «/» в группе видят все участники, а `/start_training`,
+  `/start_exam` и `/close_exam` ученику отвечают «аккаунт не привязан к учителю» (ответ уходит в общий чат). Telegram берёт для
+  человека первый найденный список (для администратора `all_chat_administrators` раньше `all_group_chats`), поэтому
+  администратору приходит только список администраторов, и `help` повторён в обоих списках. Учитель, не являющийся
+  администратором группы, видит в меню один `/help`; команды он набирает вручную — они работают, потому что права учителя
+  проверяет хендлер, а не меню.
 - `setChatMenuButton` без `chat_id` — кнопка по умолчанию для всех личных чатов:
   `{"type":"web_app","text":"LexiFlow","web_app":{"url":"{TWA_BASE_URL}/twa/"}}`. Именно «LexiFlow» названа кнопка в `/help`.
   Telegram принимает `web_app` только с https: при другом `TWA_BASE_URL` (в том числе пустом) команда печатает предупреждение,

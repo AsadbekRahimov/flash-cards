@@ -33,6 +33,7 @@
   --color-success-soft: var(--app-success-soft);
   --color-warning-soft: var(--app-warning-soft);
   --color-danger-soft: var(--app-danger-soft);
+  --color-accent-ink: var(--app-accent-ink);
   --color-success-ink: var(--app-success-ink);
   --color-warning-ink: var(--app-warning-ink);
   --color-danger-ink: var(--app-danger-ink);
@@ -89,10 +90,16 @@
   --app-success-soft: color-mix(in srgb, var(--app-success) 16%, transparent);
   --app-warning-soft: color-mix(in srgb, var(--app-warning) 18%, transparent);
   --app-danger-soft: color-mix(in srgb, var(--app-danger) 14%, transparent);
-  /* "Ink" = text on a soft background: mixed with the theme text colour, so it reads in both light and dark. */
-  --app-success-ink: color-mix(in srgb, var(--app-success) 72%, var(--tg-text));
-  --app-warning-ink: color-mix(in srgb, var(--app-warning) 72%, var(--tg-text));
-  --app-danger-ink: color-mix(in srgb, var(--app-danger) 85%, var(--tg-text));
+  /*
+   * "Ink" = text on a soft background: the colour mixed with the theme text colour, so it reads in both light and dark.
+   * Each share is the largest one that keeps 4.5:1 on the soft background of its colour, over a card and over the bare
+   * page, in every built-in Telegram theme (iOS, Android, Desktop, Web; light and dark; docs/14 §4.1, guarded by
+   * designSystem.spec.ts). The lightest hues set the bound: the Android light button blue (#50a8eb) and amber.
+   */
+  --app-accent-ink: color-mix(in srgb, var(--app-accent) 50%, var(--tg-text));
+  --app-success-ink: color-mix(in srgb, var(--app-success) 50%, var(--tg-text));
+  --app-warning-ink: color-mix(in srgb, var(--app-warning) 45%, var(--tg-text));
+  --app-danger-ink: color-mix(in srgb, var(--app-danger) 60%, var(--tg-text));
   --app-track: color-mix(in srgb, var(--tg-hint) 24%, transparent); /* progress tracks, switches */
 
   /* Icon tiles: the same in both themes, the icon is white. */
@@ -192,10 +199,10 @@ body {
     background: var(--app-accent);
     color: var(--tg-button-text);
   }
-  /* Secondary action anywhere (page or card). */
+  /* Secondary action anywhere (page or card). The text is the ink, not the bare accent: that was 2.0-3.4:1 on its own soft fill in the light themes. */
   .btn-tinted {
     background: var(--app-accent-soft);
-    color: var(--app-accent);
+    color: var(--app-accent-ink);
   }
   /* Neutral button INSIDE a surface (e.g. "Cancel"); on the bare page it has the page colour — use btn-tinted there. */
   .btn-secondary {
@@ -218,6 +225,26 @@ body {
   }
   .btn-block {
     @apply flex w-full;
+  }
+
+  /*
+   * Touch area (docs/14 §3): a control that looks smaller than a finger (a 36 px small button, a segment, a switch)
+   * keeps its look, and an invisible layer of at least 44 × 44 px centred on it takes the press. The layer is a
+   * pseudo-element of the control itself, so it is part of the control for the pointer and for nothing else.
+   */
+  .btn-sm,
+  .tap-target {
+    position: relative;
+  }
+  .btn-sm::after,
+  .tap-target::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
   }
 
   /* ---- fields ---- */
@@ -255,10 +282,15 @@ body {
     background-color: var(--app-surface);
     border-color: var(--app-hairline);
   }
-  /* The value on the right of a list row: no box, accent colour (use together with .field). */
+  /*
+   * The value on the right of a list row: no box, accent colour (use together with .field). It looks like a line of
+   * text (22 px) but is pressed with a finger: the box is 44 px high and pulls itself back into the row with negative
+   * margins (22 px of text + 2 × 11 px), so the row keeps its height and the touch area is the size it should be.
+   */
   .field.field-inline {
     @apply w-auto rounded-none py-0 pr-0 pl-2 text-right;
-    min-height: 0;
+    min-height: 44px;
+    margin-block: -11px;
     background-color: transparent;
     border-color: transparent;
     color: var(--app-accent);
@@ -268,6 +300,11 @@ body {
   .field.field-inline:focus-visible {
     box-shadow: none;
     border-color: transparent;
+  }
+  /* No box means no focus ring of the field: a keyboard user still has to see where the focus is. */
+  .field.field-inline:focus-visible {
+    outline: 2px solid var(--app-accent);
+    outline-offset: 2px;
   }
   select.field.field-inline {
     padding-right: 1.5rem;
@@ -318,7 +355,7 @@ body {
   }
   .chip-accent {
     background: var(--app-accent-soft);
-    color: var(--app-accent);
+    color: var(--app-accent-ink);
   }
   .chip-success {
     background: var(--app-success-soft);

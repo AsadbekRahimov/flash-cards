@@ -312,7 +312,7 @@ it('stores the generalised training_sessions columns (mode, source, course, expi
 
 it('creates the renamed learner indexes and none of the student ones', function (): void {
     $expected = [
-        'word_repetitions' => ['word_repetitions_next_card_idx', 'word_repetitions_due_learners_idx'],
+        'word_repetitions' => ['word_repetitions_next_card_idx'],
         'words' => ['words_inactive_idx'],
         'training_reviews' => ['training_reviews_created_learner_idx', 'training_reviews_session_learner_idx'],
         'exam_answers' => ['exam_answers_session_learner_word_unique', 'exam_answers_answered_learner_idx'],
@@ -337,6 +337,11 @@ it('creates the renamed learner indexes and none of the student ones', function 
 
     // Dropped as unused (2026_10_28_200001): no query filters by is_hard, so a partial index on it could never be read.
     expect(array_column(Schema::getIndexes('word_repetitions'), 'name'))->not->toContain('word_repetitions_learner_is_hard_idx');
+
+    // Dropped as unused (2026_10_28_300001): every query that filters word_repetitions by next_review_at also names the
+    // learner (the picker, the learn-ahead pick, dueCount), and the reminders scan learners.next_reminder_at.
+    expect(array_column(Schema::getIndexes('word_repetitions'), 'name'))->not->toContain('word_repetitions_due_learners_idx')
+        ->and(array_column(Schema::getIndexes('learners'), 'name'))->toContain('learners_next_reminder_at_idx');
 });
 
 it('has the CHECK constraint on the shape of training_sessions by mode', function (): void {
@@ -450,6 +455,129 @@ it('rebuilds the dropped is_hard partial index exactly as it was on rollback and
     expect($copies())->toBe(1);
     $migration->up();
     expect($copies())->toBe(0);
+});
+
+it('rebuilds the dropped due_learners index exactly as it was on rollback and drops it again on re-run', function (): void {
+    $migration = require database_path('migrations/2026_10_28_300001_drop_word_repetitions_due_learners_idx.php');
+    $name = 'word_repetitions_due_learners_idx';
+    $copies = fn (): int => count(array_filter(Schema::getIndexes('word_repetitions'), fn (array $index): bool => $index['name'] === $name));
+    $definition = fn (): ?string => DB::getDriverName() === 'pgsql'
+        ? DB::table('pg_indexes')->where('indexname', $name)->value('indexdef')
+        : DB::table('sqlite_master')->where('type', 'index')->where('name', $name)->value('sql');
+
+    expect($copies())->toBe(0);
+
+    // down(): back to the original - a plain btree on (next_review_at, learner_id), in that order.
+    $migration->down();
+    expect($copies())->toBe(1)
+        ->and(array_column(Schema::getIndexes('word_repetitions'), 'columns', 'name')[$name])->toBe(['next_review_at', 'learner_id'])
+        ->and(array_column(Schema::getIndexes('word_repetitions'), 'unique', 'name')[$name])->toBeFalse();
+    expect((string) $definition())->toMatch(DB::getDriverName() === 'pgsql'
+        ? '/USING btree \(next_review_at, learner_id\)$/'
+        : '/ON word_repetitions \(next_review_at, learner_id\)$/');
+
+    $migration->up();
+    expect($copies())->toBe(0);
+
+    // A retry after an interrupted deploy is harmless in either direction.
+    $migration->up();
+    $migration->down();
+    $migration->down();
+    expect($copies())->toBe(1);
+    $migration->up();
+    expect($copies())->toBe(0);
+});
+
+// --- 17.14-S: a module may have no name of its own (docs/03 §2.5) ------------------------------------
+
+/** @return array<string, mixed> the `title` column of `stages` as the schema reports it */
+function stageTitleColumn(): array
+{
+    $column = collect(Schema::getColumns('stages'))->firstWhere('name', 'title');
+    assert(is_array($column));
+
+    return $column;
+}
+
+it('turns the placeholder titles "Stage N" of modules into NULL and back, and leaves real names alone', function (): void {
+    $migration = require database_path('migrations/2026_10_28_400001_make_stages_title_nullable.php');
+    $first = Course::factory()->create();
+    $second = Course::factory()->create();
+    $key = fn (Course $course, int $number): string => "{$course->slug}#{$number}";
+    // Sorted by key: PostgreSQL does not hand the rows back in the order they were inserted.
+    $titles = fn (): array => ksorted(DB::table('stages')
+        ->join('courses', 'courses.id', '=', 'stages.course_id')
+        ->get(['courses.slug', 'stages.number', 'stages.title'])
+        ->mapWithKeys(fn (object $row): array => ["{$row->slug}#{$row->number}" => $row->title])
+        ->all());
+
+    // The shape before the migration: the title is NOT NULL, and a module that has no name gets "Stage N".
+    $migration->down();
+    expect(stageTitleColumn()['nullable'])->toBeFalse();
+
+    $before = [
+        [$first, 1, 'Stage 1'],     // the placeholder of its own number -> NULL
+        [$first, 2, 'Основы'],      // a real name stays
+        [$first, 3, 'Stage 3'],     // the placeholder -> NULL
+        [$first, 4, 'Stage 3'],     // "Stage 3" on module 4 is not its placeholder: stays
+        [$first, 5, 'stage 5'],     // other case: stays
+        [$first, 6, 'Stage 06'],    // zero-padded: stays
+        [$first, 7, 'Stage 7 '],    // trailing space: stays
+        [$second, 1, 'Stage 1'],    // the same number in another course -> NULL
+        [$second, 2, 'Stage 12'],   // "12" is not "2": stays
+        [$second, 12, 'Stage 12'],  // -> NULL
+    ];
+    foreach ($before as [$course, $number, $title]) {
+        DB::table('stages')->insert(['course_id' => $course->id, 'number' => $number, 'title' => $title, 'created_at' => now(), 'updated_at' => now()]);
+    }
+    $named = ksorted(collect($before)->mapWithKeys(fn (array $row): array => [$key($row[0], $row[1]) => $row[2]])->all());
+
+    $migration->up();
+
+    $afterUp = $named;
+    foreach ([$key($first, 1), $key($first, 3), $key($second, 1), $key($second, 12)] as $placeholder) {
+        $afterUp[$placeholder] = null;
+    }
+    $afterUp = ksorted($afterUp);
+    expect(stageTitleColumn()['nullable'])->toBeTrue()
+        ->and($titles())->toBe($afterUp);
+
+    // Rebuilding the table on sqlite keeps the unique (course_id, number) and the foreign key to the course.
+    $unique = collect(Schema::getIndexes('stages'))->first(fn (array $index): bool => $index['unique'] && $index['columns'] === ['course_id', 'number']);
+    $courseKey = collect(Schema::getForeignKeys('stages'))->first(fn (array $fk): bool => $fk['columns'] === ['course_id']);
+    expect($unique)->not->toBeNull()
+        ->and($courseKey['foreign_table'] ?? null)->toBe('courses')
+        ->and($courseKey['on_delete'] ?? null)->toBe('cascade');
+
+    // A retry after an interrupted deploy changes nothing.
+    $migration->up();
+    expect($titles())->toBe($afterUp);
+
+    // down(): the NULL titles get "Stage N" back, the others are untouched, and the title is NOT NULL again.
+    $migration->down();
+    expect(stageTitleColumn()['nullable'])->toBeFalse()
+        ->and($titles())->toBe($named)
+        ->and(fn () => DB::transaction(fn () => DB::table('stages')->insert(['course_id' => $first->id, 'number' => 99, 'title' => null, 'created_at' => now(), 'updated_at' => now()])))
+        ->toThrow(QueryException::class);
+
+    $migration->up();
+    expect($titles())->toBe($afterUp);
+});
+
+// This test runs inside the transaction of RefreshDatabase on purpose: rebuilding the table of the stages there (what
+// `->change()` does on sqlite) would delete their lessons and words through the foreign keys.
+it('keeps the lessons and words of the modules while the title column changes, also inside a transaction on sqlite', function (): void {
+    $migration = require database_path('migrations/2026_10_28_400001_make_stages_title_nullable.php');
+    $stage = Stage::factory()->create(['title' => 'Stage 1', 'number' => 1]);
+    $lesson = Lesson::factory()->for($stage)->create();
+    Word::factory()->count(2)->for($lesson)->create();
+
+    $migration->down();
+    $migration->up();
+
+    expect(Stage::query()->findOrFail($stage->id)->title)->toBeNull()
+        ->and(Lesson::query()->whereKey($lesson->id)->exists())->toBeTrue()
+        ->and(Word::query()->where('lesson_id', $lesson->id)->count())->toBe(2);
 });
 
 it('runs migrate:fresh --seed and produces demo data', function (): void {

@@ -40,7 +40,7 @@ describe('PromoRedeem', () => {
     expect(w.get('[data-testid=promo-toggle]').text()).toBe('Есть промокод?')
   })
 
-  it('collapsed is a plain button, expanded is a field and a primary button side by side', async () => {
+  it('collapsed is a plain button, expanded is a field and a tinted button side by side (the screens have their own primary one)', async () => {
     const w = mount(PromoRedeem)
     const toggle = w.get('[data-testid=promo-toggle]')
     expect(toggle.element.tagName).toBe('BUTTON')
@@ -55,7 +55,8 @@ describe('PromoRedeem', () => {
     expect(input.attributes('aria-label')).toBe('Промокод')
     expect(input.attributes('placeholder')).toBe('Промокод')
     const submit = w.get('[data-testid=promo-submit]')
-    expect(submit.classes()).toEqual(expect.arrayContaining(['btn', 'btn-primary']))
+    expect(submit.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted']))
+    expect(submit.classes()).not.toContain('btn-primary')
     expect(submit.text()).toBe('Активировать')
     expect(w.get('form').classes()).toContain('flex')
   })

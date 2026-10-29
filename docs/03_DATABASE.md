@@ -123,10 +123,18 @@ erDiagram
 | id | bigint PK |
 | course_id | bigint FK → courses, ON DELETE CASCADE, NOT NULL |
 | number | int |
-| title | string(255) |
+| title | string(255) **nullable** |
 | description | text nullable |
 
 **Индексы:** `(course_id, number)` unique — номер модуля уникален внутри курса (одинаковый `number` в разных курсах разрешён).
+
+**`title` = NULL — модуль без собственного названия** (17.14-S). Его подпись строится при показе на языке читателя: «Модуль N» /
+«N-modul» (docs/14 §8) — TWA из `number`, админка из `admin.stages.untitled`; в API `stages[].title` приходит `null`
+(docs/04 A.5a). Раньше импорт без `stage.title` и демо-сидер писали английское «Stage N», которое видел и uz-ученик; миграция
+`2026_10_28_400001_make_stages_title_nullable` сняла NOT NULL и превратила в NULL названия, равные ровно «Stage {свой number}»
+(«Stage 3» у модуля №5 и любое настоящее название остаются; `down()` возвращает «Stage N» в NULL-строки). Импорт без названия
+создаёт модуль с NULL и **не затирает** название существующего; пустая строка и пробелы — то же, что «нет названия».
+У колод learner'а название техническое («Моя колода», см. §2.20) и в API заменяется локализованным.
 
 ### 2.6 `lessons`
 | Колонка | Тип |
@@ -199,7 +207,18 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
   5977 буферов / 2,8 мс → 7 буферов / 0,05 мс). Заменил `(learner_id, is_hard, next_review_at)` (`word_repetitions_learner_hard_due_idx`):
   по `is_hard` сортирует только пикер, остальным запросам хватает индексов по `learner_id` / `(learner_id, next_review_at)`.
   В sqlite создаётся так же (`DESC` поддерживается).
-- `(next_review_at, learner_id)` (`word_repetitions_due_learners_idx`) — batch scan learner'ов, которым пора напомнить о повторении.
+- ~~`(next_review_at, learner_id)`~~ (`word_repetitions_due_learners_idx`) — **удалён** миграцией `2026_10_28_300001_drop_word_repetitions_due_learners_idx`
+  (17.12). Задумывался под «batch scan learner'ов, которым пора напомнить о повторении», но этот скан — `learners.next_reminder_at`
+  (`learners_next_reminder_at_idx`, `ReminderDispatcher`), а запроса к `word_repetitions` с фильтром по `next_review_at` **без** learner'а в приложении нет:
+  три запроса с этим фильтром (due-выбор и learn-ahead в `CardPicker`, `dueCount` для `/today`, `/me` и напоминаний) содержат `learner_id = ?` и обслуживаются
+  `word_repetitions_next_card_idx` и `(learner_id, next_review_at)`; в `app/`, командах, виджетах Filament и отчётах других нет (`DueRepetitionCriteria`
+  вызывается только из `LearnerStatsService::dueCount`). Замер на PostgreSQL 16, 900 000 строк (300 learner'ов × 3000 слов): EXPLAIN (ANALYZE, BUFFERS) всех
+  реальных путей (`/me`, `/today`, `/courses`, `/league`, `/friends`, `/achievements`, `/assignments`, daily- и lesson-сессия с оценками, `CardPicker`,
+  `LearnerStatsService`, каталог, поиск `is_hard` в экзамене, список learner'ов Filament — 36 разных запросов) и generic-планы 163 запросов, которые тестовый
+  набор шлёт в таблицу, не содержат его ни в одном плане, `idx_scan = 0` за прогон реальных путей, а планы трёх запросов без индекса те же
+  (1,98 / 0,058 / 0,064 мс с индексом, 2,19 / 0,050 / 0,068 мс без). Индекс стоил 36 МБ на этом объёме и запись в него при каждой оценке (`POST /review`
+  двигает `next_review_at`). Единственное, что он ускорял бы, — запрос по **всем** learner'ам («у кого карточка наступит в ближайшие 15 минут»: 0,05 мс
+  против 21 мс без него, `count(*)` «сколько всего просрочено»: 37 против 98 мс), но такого запроса нет; кто его добавит, вернёт индекс в том же изменении.
 - `(learner_id, created_at)` — квота новых слов за локальный день (docs/12 §5.3).
 
 ### 2.9 `training_sessions`
@@ -515,7 +534,23 @@ Append-only журнал для продуктовой аналитики (не 
 (`GET /courses`, колоды, `active_course` на «Сегодня») берётся из него, слова каталога при открытии не считаются
 (`done` — запросом по строкам `word_repetitions` самого learner'а). Поэтому любой путь, меняющий активные слова
 (импорт, колоды learner'а, правка слова в админке), обязан вызвать `recount` и `LearningCache::forgetLesson`;
-текущие пути перечислены в `WordChangePathsTest` и `WordTranslationsAdminTest`. Курс `default` создаётся `CourseCatalogService::defaultCourse()`
+текущие пути перечислены в `WordChangePathsTest` и `WordTranslationsAdminTest`. Ремонт расхождений (дамп, ручной SQL, релиз, меняющий правило) —
+`php artisan courses:recount-words` (17.12): `CoursePublisher::recount` для каждого курса, **включая колоды learner'ов и архивные**
+(пишет только тех, у кого число неверно), и сброс `LearningCache::forgetLesson` по всем урокам; идемпотентна, выводит, сколько курсов
+изменила; `deploy.sh` вызывает её после миграций (DEVOPS_GUIDE §14.2).
+**Писатели одного курса идут по очереди через его строку** (17.12): `VocabularyImporter` первым выражением своей транзакции берёт строку
+курса (`CoursePublisher::lockForWriting`, `FOR NO KEY UPDATE` на PostgreSQL; её же берёт ремонт), как `LearnerDeckService` (`addWords` / `removeWord` / `archive`) и `CoursePublisher::transition`
+берут её `FOR UPDATE`. Без этого два параллельных импорта в один курс считали активные слова из снимков без чужих незакоммиченных строк,
+и позднейший commit оставлял `words_count` без слов раннего импорта; двойная отправка одного файла в существующий урок падала на unique
+`(lesson_id, word)`. Порядок замков единый (курс — первым, уроки и слова — после), цикла нет; правка слова в админке: само слово пишется одиночным
+выражением без транзакции панели (`databaseTransactions()` не включён, это закреплено `CourseWriterLocksTest`), а пересчёт после
+него (`LessonContentRefresher::wordChanged`) идёт в своей короткой транзакции, где строка курса берётся первой (17.14-S; +1 запрос
+на пути правки слова): иначе `COUNT` мог пройти, пока импорт держит свои слова незакоммиченными, и после его commit записать
+число без них. Слабее `FOR UPDATE`
+выбран намеренно: он не конфликтует с `FOR KEY SHARE` проверки внешнего ключа, поэтому вставки `training_sessions.course_id`,
+`learners.active_course_id` и `stages` не ждут конца импорта (замер на PG 16: при удержании строки курса 3 с вставка в `stages` ждала остаток
+удержания, 2,0 с, а при `FOR NO KEY UPDATE` — 0,05 с). Гонки проверены на
+PostgreSQL в `ImportConcurrencyTest` (pcntl). Курс `default` создаётся `CourseCatalogService::defaultCourse()`
 (сидер, первый импорт без `course`) сразу в статусе `published`; группа с `telegram_groups.course_id = NULL` работает в нём.
 
 ### 2.21 `word_translations` — переводы слов по локалям
@@ -555,6 +590,14 @@ Append-only журнал для продуктовой аналитики (не 
 | created_at, updated_at | | |
 
 **Индексы:** `(learner_id, date)` unique.
+
+**Представление `date` (17.12).** Eloquent пишет `date`-каст как `Y-m-d 00:00:00`. PostgreSQL приводит это к DATE в любом виде, а в sqlite колонка —
+текст, и `'2026-10-28'` ≠ `'2026-10-28 00:00:00'`: запись, равенство, границы диапазона и unique `(learner_id, date)` обязаны идти в одном
+представлении, иначе unique не увидит дубль, а диапазон потеряет граничный день. Это представление строит **одно** место —
+`App\Domain\Learners\Support\StoredDate::of('Y-m-d')` (раньше — семь приватных копий `storedDate()` в `DailyStatsService`, `StreakService`,
+`StreakFreezeService`, `ReferralService`, `ChallengeService`, `LeagueService`, `OrgActivityReport`); любой код, строящий границу или значение для
+`learner_daily_stats.date` и для `date`-колонок недель лиг и вызовов (`league_weeks`, `challenges`), берёт его оттуда. Поведение на sqlite и PostgreSQL
+закреплено `StoredDateTest`.
 
 ### 2.23 `subscriptions`
 | Колонка | Тип | Описание |
@@ -782,7 +825,7 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 | id | bigint PK | |
 | league_week_id | bigint FK → league_weeks, ON DELETE CASCADE | |
 | tier | smallint | 0 Bronze … 4 Diamond (`config('leagues.tiers')`) |
-| capacity | smallint default 30 | `LEAGUES_GROUP_CAPACITY` на момент создания группы |
+| capacity | smallint default 30 | `LEAGUES_GROUP_CAPACITY` на момент создания группы (конфиг режет значение до 500: итоги группы пишутся одним UPDATE по 4 параметра на участника, а PostgreSQL принимает не больше 65 535 параметров) |
 | members_count | smallint default 0 | число мест занято; меняется только под блокировкой строки в `LeagueService::place` |
 | closed_at | timestamp nullable | штамп финализации группы (`LeagueService::closeGroup`, P1-2): `final_*` всех её участников записаны одним UPDATE; `NOT NULL` ⇔ standings читаются из `final_*`, место в группе больше не выдаётся. Ставится закрытием недели (по группе в транзакции) или размещением участника в следующую неделю, которому вердикт нужен раньше закрытия |
 | created_at, updated_at | | |
@@ -909,6 +952,9 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
     `(learner_id) WHERE is_hard = true` (см. §2.8). Как и 44: на PostgreSQL `DROP INDEX CONCURRENTLY IF EXISTS` вне транзакции мигратора
     (`$withinTransaction = false`), внутри чужой транзакции (тесты) — обычный `DROP INDEX IF EXISTS`; индекс есть и в sqlite, там тот же обычный `DROP`.
     `down()` пересоздаёт его ровно в исходном виде *(17.10)*
+47. `2026_10_28_300001_drop_word_repetitions_due_learners_idx` — убирает неиспользуемый индекс `word_repetitions_due_learners_idx (next_review_at, learner_id)`
+    (см. §2.8): запроса по `next_review_at` без learner'а нет. Как 44 и 46: `DROP INDEX CONCURRENTLY IF EXISTS` на PostgreSQL вне транзакции мигратора,
+    обычный `DROP` внутри чужой транзакции и в sqlite; `down()` пересоздаёт индекс ровно в исходном виде *(17.12)*
 
 Индексные миграции (`add_performance_indexes`, `add_open_session_unique_indexes`) и `create_exam_*`, `create_notifications_log_table`,
 `create_product_events_table` переведены на `learner_id` на месте; `add_open_session_unique_indexes` дополнительно создаёт

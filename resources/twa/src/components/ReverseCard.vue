@@ -10,9 +10,10 @@ import { useI18n } from '@/i18n'
 
 /**
  * Reverse exercise (docs/13 §2.5): the translation is shown, the learner picks the English word
- * among four. Graded here — the right answer is `card.word` — and sent as `quality`.
- * A right pick moves on by itself; a wrong one stays on screen (the right option and the example are shown)
- * until "Next" (docs/14 N6).
+ * among four. Graded here — the right answer is `card.word` — and the grade (`grade`: 4 right, 2 wrong) is emitted at the
+ * pick, so it is saved even if the learner leaves at once. `advance` says when the next card may appear: a right pick
+ * moves on by itself after a short pause; a wrong one stays on screen (the right option and the example are shown)
+ * until "Next" (docs/14 N6). If the grade has not come back from the server yet (`disabled`), "Next" waits for it.
  */
 const props = defineProps<{
   card: Card
@@ -21,6 +22,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'grade', quality: Quality): void
+  (e: 'advance'): void
 }>()
 
 const { haptic, notificationHaptic } = useTelegram()
@@ -30,14 +32,17 @@ const { t } = useI18n()
 const options = computed((): string[] => props.card.prompt?.options ?? [])
 const front = computed((): string => props.card.prompt?.front || props.card.translation)
 
-const { picked, stateOf, isCorrect, awaitingConfirm, pick, confirm } = useChoice(
+const { picked, stateOf, isCorrect, awaitingConfirm, confirmed, pick, confirm } = useChoice(
   options,
   computed(() => props.card.word),
-  (quality) => {
-    if (props.disabled) return
-    emit('grade', quality)
+  {
+    grade: (quality) => emit('grade', quality),
+    advance: () => emit('advance'),
   },
 )
+
+/** "Next" was pressed while the grade is still on its way: the button waits for the server. */
+const waiting = computed((): boolean => confirmed.value && props.disabled === true)
 
 function onPick(index: number): void {
   if (props.disabled || picked.value !== null) return
@@ -86,7 +91,20 @@ function onContinue(): void {
     </div>
 
     <StickyActions v-if="awaitingConfirm">
-      <button type="button" class="btn btn-primary btn-lg btn-block" data-testid="continue-btn" :disabled="disabled" @click="onContinue">
+      <button
+        type="button"
+        class="btn btn-primary btn-lg btn-block"
+        data-testid="continue-btn"
+        :disabled="waiting"
+        :aria-busy="waiting"
+        @click="onContinue"
+      >
+        <span
+          v-if="waiting"
+          class="size-5 animate-spin rounded-full border-2 border-current/30 border-t-current motion-reduce:animate-none"
+          aria-hidden="true"
+          data-testid="continue-waiting"
+        />
         {{ t('exercise.continue') }}
       </button>
     </StickyActions>

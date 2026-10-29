@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { computed, onBeforeUnmount, ref } from 'vue'
+import { RouterLink } from 'vue-router'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import { useTrainingStore } from '@/stores/training'
+import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
 
@@ -25,7 +26,6 @@ const REASONS = ['lesson_complete', 'nothing_due', 'new_quota_exhausted', 'sessi
 
 const { close, notificationHaptic } = useTelegram()
 const { t, tn } = useI18n()
-const router = useRouter()
 const training = useTrainingStore()
 
 // Goal and streak of the day come with the server summary of a personal session (absent for group sessions).
@@ -63,13 +63,16 @@ const quotaExhausted = computed(() => props.reason === 'new_quota_exhausted')
 const paywallOpen = ref(quotaExhausted.value)
 
 /** "Repeat words" in the paywall: closes it and starts a daily review; a failure is shown on this screen. */
-async function reviewFromPaywall(): Promise<void> {
+const { reviewFromPaywall } = useReviewFromPaywall(() => {
   paywallOpen.value = false
-  const sessionId = await training.open({ mode: 'daily_review', source: 'self' })
-  if (sessionId !== null) await router.push({ name: 'training', params: { sessionId } })
-}
+})
 
 notificationHaptic('success')
+
+// A failed "Repeat words" is shown here only: Today (where "Home" leads) shows the same `openError` for its own button.
+onBeforeUnmount(() => {
+  training.clearOpenError()
+})
 </script>
 
 <template>

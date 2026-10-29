@@ -6,7 +6,11 @@ import MyDecksView from '../MyDecksView.vue'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
-import type { Course, Deck, DecksResponse } from '@/api/types'
+import { useToast } from '@/composables/useToast'
+import { useTodayStore } from '@/stores/today'
+import { useDecksStore } from '@/stores/decks'
+import type { Course, Deck, DecksResponse, MeResponse } from '@/api/types'
+import { settingsFixture } from '@/api/__tests__/settingsFixture'
 
 const tg = vi.hoisted(() => ({ showBack: vi.fn(), hideBack: vi.fn() }))
 
@@ -15,6 +19,7 @@ vi.mock('@/api', () => ({
     me: { get: vi.fn().mockResolvedValue(null) },
     decks: { list: vi.fn(), create: vi.fn() },
     courses: { select: vi.fn() },
+    training: { open: vi.fn() },
   },
 }))
 
@@ -40,6 +45,15 @@ const response = (decks: Deck[] = [deck()], used = decks.length): DecksResponse 
   limits: { decks: 1, deck_words: 50, used_decks: used },
 })
 
+const me = (plan: 'free' | 'pro'): MeResponse => ({
+  learner: { id: 1, first_name: 'A', username: null, locale: 'ru', onboarding_completed: true },
+  groups: [],
+  stats: { words_learned: 0, words_due_today: 0 },
+  entitlement: { plan, source: plan === 'pro' ? 'subscription' : 'free', until: null, new_words_per_day: plan === 'pro' ? null : 20 },
+  paywall: { mode: 'coming_soon', contact: null },
+  settings: settingsFixture(),
+})
+
 const selected = (overrides: Partial<Course> = {}): Course => ({
   slug: 'deck-1-abc',
   title: 'Мои слова',
@@ -61,6 +75,7 @@ function makeRouter() {
       { path: '/courses', name: 'courses', component: stub },
       { path: '/decks', name: 'decks', component: stub },
       { path: '/decks/:slug', name: 'deck', component: stub },
+      { path: '/training/:sessionId(\\d+)', name: 'training', component: stub },
     ],
   })
 }
@@ -78,8 +93,13 @@ describe('MyDecksView', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
+    vi.mocked(api.me.get).mockResolvedValue(null as never) // the plan is not known unless a test says so
+    useToast().hide()
   })
-  afterEach(() => setLocale('ru'))
+  afterEach(() => {
+    useToast().hide()
+    setLocale('ru')
+  })
 
   describe('heading and switch', () => {
     it('has the large "Курсы" heading, the switch with "Мои колоды" active and the intro', async () => {
@@ -100,6 +120,12 @@ describe('MyDecksView', () => {
       expect(wrapper.get('[data-testid=intro]').text()).toBe(
         'Создайте свою колоду и добавьте слова списком или из CSV. Колоду видите только вы.',
       )
+    })
+
+    it('names the switch as a navigation landmark of its own, besides the tab bar', async () => {
+      const { wrapper } = await render()
+
+      expect(wrapper.get('nav').attributes('aria-label')).toBe('Курсы')
     })
 
     it('goes to the courses from the switch', async () => {
@@ -177,6 +203,140 @@ describe('MyDecksView', () => {
     })
   })
 
+  describe('the deck limit', () => {
+    const refuse = () => vi.mocked(api.decks.create).mockRejectedValue(new ApiClientError('validation', 422, 'deck_limit_reached', 'x'))
+
+    async function submit(wrapper: Awaited<ReturnType<typeof render>>['wrapper']) {
+      await wrapper.get('[data-testid=title-input]').setValue('Вторая')
+      await wrapper.get('[data-testid=create-form]').trigger('submit')
+      await flushPromises()
+    }
+
+    it('quotes the limits of the server in the paywall of a Free learner, not fixed numbers', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(me('free'))
+      refuse()
+      const { wrapper } = await render({ decks: [deck()], limits: { decks: 3, deck_words: 101, used_decks: 3 } })
+
+      await submit(wrapper)
+
+      expect(wrapper.get('[data-testid=paywall-lead]').text()).toContain('Лимит колод тарифа Free: 3 колоды до 101 слова.')
+      expect(wrapper.get('[data-testid=paywall-free]').text()).toContain('Сейчас у вас тариф Free')
+      expect(wrapper.find('[data-testid=pro-limit]').exists()).toBe(false)
+    })
+
+    it('does not open the paywall for a Pro learner: this is the limit of their plan, and here is what to do', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(me('pro'))
+      refuse()
+      const { wrapper } = await render({ decks: [deck()], limits: { decks: 20, deck_words: 2000, used_decks: 20 } })
+
+      await submit(wrapper)
+
+      expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      const notice = wrapper.get('[data-testid=pro-limit]')
+      expect(notice.text()).toBe(
+        'Это предел вашего тарифа Pro: 20 колод. Чтобы создать новую колоду, удалите ненужную — слова уйдут в архив, а прогресс сохранится.',
+      )
+      expect(notice.attributes('role')).toBe('status')
+      expect(notice.classes()).toContain('text-warning-ink')
+      expect(wrapper.find('[data-testid=write-error]').exists()).toBe(false) // one message, not two
+      expect(wrapper.text()).not.toContain('тариф Free')
+    })
+
+    it('takes the numbers of a Pro learner from the answer of GET /decks, even when the list on screen was loaded before', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(me('pro'))
+      refuse()
+      const { wrapper } = await render({ decks: [deck()], limits: { decks: 1, deck_words: 50, used_decks: 1 } })
+      vi.mocked(api.decks.list).mockResolvedValue({ decks: [deck()], limits: { decks: 20, deck_words: 2000, used_decks: 20 } })
+
+      await submit(wrapper)
+
+      expect(wrapper.get('[data-testid=pro-limit]').text()).toContain('20 колод')
+    })
+
+    it('shows the general refusal of the server when a Pro learner has no numbers to quote', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(me('pro'))
+      refuse()
+      const { wrapper } = await render()
+      useDecksStore().limits = null // the list carried none (an old server)
+      vi.mocked(api.decks.list).mockRejectedValue(new ApiClientError('network', 0, 'unknown', 'x'))
+
+      await submit(wrapper)
+
+      expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=pro-limit]').exists()).toBe(false)
+      expect(wrapper.get('[data-testid=write-error]').text()).toBe('Достигнут лимит колод вашего тарифа.')
+    })
+
+    it('explains it in Uzbek to a Pro learner', async () => {
+      setLocale('uz')
+      vi.mocked(api.me.get).mockResolvedValue(me('pro'))
+      refuse()
+      const { wrapper } = await render({ decks: [deck()], limits: { decks: 20, deck_words: 2000, used_decks: 20 } })
+
+      await submit(wrapper)
+
+      expect(wrapper.get('[data-testid=pro-limit]').text()).toContain("Bu Pro tarifingizdagi chegara: 20 ta to'plam.")
+    })
+
+    it('does not open a refusal that was left over from the other deck screen', async () => {
+      useDecksStore().$patch({ limitReached: true, limitKind: 'deck_words' })
+
+      const { wrapper } = await render()
+
+      expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      expect(useDecksStore().limitReached).toBe(false)
+    })
+
+    it('drops the refusal when the learner leaves the screen', async () => {
+      refuse()
+      const { wrapper } = await render()
+      await submit(wrapper)
+      expect(wrapper.find('[data-testid=paywall]').exists()).toBe(true)
+
+      wrapper.unmount()
+
+      expect(useDecksStore().limitReached).toBe(false)
+    })
+  })
+
+  describe('"Повторить слова" in the paywall', () => {
+    /** The deck limit refuses a new deck while the Home tab knows of due cards: the sheet offers the review. */
+    async function openPaywall() {
+      useTodayStore().data = { due_count: 12 } as never
+      vi.mocked(api.decks.create).mockRejectedValue(new ApiClientError('validation', 422, 'deck_limit_reached', 'x'))
+      const context = await render()
+      await context.wrapper.get('[data-testid=title-input]').setValue('Вторая')
+      await context.wrapper.get('[data-testid=create-form]').trigger('submit')
+      await flushPromises()
+      return context
+    }
+
+    it('starts the daily review: the sheet closes and the training screen opens', async () => {
+      vi.mocked(api.training.open).mockResolvedValue({ session_id: 61, mode: 'daily_review', lesson: null, total_words: 5 } as never)
+      const { wrapper, router } = await openPaywall()
+      expect(wrapper.get('[data-testid=paywall-review]').text()).toBe('Повторить слова')
+
+      await wrapper.get('[data-testid=paywall-review]').trigger('click')
+      await flushPromises()
+
+      expect(api.training.open).toHaveBeenCalledWith({ mode: 'daily_review', source: 'self' })
+      expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      expect(router.currentRoute.value.name).toBe('training')
+      expect(router.currentRoute.value.params.sessionId).toBe('61')
+    })
+
+    it('tells in a toast why the review did not open and stays on the decks', async () => {
+      vi.mocked(api.training.open).mockRejectedValue(new ApiClientError('network', 0, 'unknown', 'x'))
+      const { wrapper, router } = await openPaywall()
+
+      await wrapper.get('[data-testid=paywall-review]').trigger('click')
+      await flushPromises()
+
+      expect(router.currentRoute.value.name).toBe('decks')
+      expect(useToast().toast.value?.text).toBe('Нет связи с сервером. Попробуйте ещё раз.')
+    })
+  })
+
   describe('deck cards', () => {
     it('lists the decks as cards with a words chip, progress and a link', async () => {
       const { wrapper } = await render()
@@ -236,6 +396,24 @@ describe('MyDecksView', () => {
       expect(api.courses.select).toHaveBeenCalledWith('deck-1-abc')
       expect(wrapper.get('[data-testid="deck-deck-1-abc"] [data-testid=active-badge]').text()).toBe('Основная колода')
       expect(wrapper.find('[data-testid="deck-deck-1-abc"] [data-testid=choose-btn]').exists()).toBe(false)
+    })
+
+    it('says why an empty deck cannot be made the main one, under its disabled button only', async () => {
+      const { wrapper } = await render(response([deck(), deck({ slug: 'empty', title: 'Пустая', words_count: 0 })], 2))
+
+      const hint = wrapper.get('[data-testid="deck-empty"] [data-testid=choose-hint]')
+      expect(hint.text()).toBe('Добавьте в колоду хотя бы одно слово, чтобы сделать её основной.')
+      expect(hint.classes()).toContain('text-tg-hint')
+      expect(wrapper.get('[data-testid="deck-empty"] [data-testid=choose-btn]').attributes('disabled')).toBeDefined()
+      expect(wrapper.findAll('[data-testid=choose-hint]')).toHaveLength(1)
+      expect(wrapper.find('[data-testid="deck-deck-1-abc"] [data-testid=choose-hint]').exists()).toBe(false)
+    })
+
+    it('gives the hint in Uzbek', async () => {
+      setLocale('uz')
+      const { wrapper } = await render(response([deck({ words_count: 0 })], 1))
+
+      expect(wrapper.get('[data-testid=choose-hint]').text()).toBe("Asosiy qilish uchun to'plamga kamida bitta so'z qo'shing.")
     })
 
     it('disables the choose buttons while a write is in flight', async () => {

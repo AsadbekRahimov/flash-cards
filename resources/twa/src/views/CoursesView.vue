@@ -47,7 +47,7 @@ onMounted(() => {
 <template>
   <div class="page">
     <PageHeader :title="t('catalog.title')" large />
-    <SegmentedNav :items="tabs" />
+    <SegmentedNav :items="tabs" :ariaLabel="t('catalog.title')" />
     <p class="mt-2 px-4 text-[13px] leading-[18px] text-tg-hint" data-testid="hint">{{ t('catalog.hint') }}</p>
 
     <LoadingState v-if="status === 'idle' || status === 'loading'" class="mt-4" />

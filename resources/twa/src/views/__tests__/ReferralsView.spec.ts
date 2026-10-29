@@ -76,6 +76,11 @@ function setClipboard(value: unknown): void {
   Object.defineProperty(navigator, 'clipboard', { value, configurable: true })
 }
 
+/** The old way of copying (a selected field): what the browser answers to `execCommand('copy')`. */
+function setExecCommand(result: boolean | undefined): void {
+  Object.defineProperty(document, 'execCommand', { value: result === undefined ? undefined : () => result, configurable: true, writable: true })
+}
+
 /** Local date of an ISO instant as the screen writes it ("20 окт."). */
 const shortDate = (iso: string): string => new Intl.DateTimeFormat('ru', { day: 'numeric', month: 'short' }).format(new Date(iso))
 
@@ -132,7 +137,8 @@ describe('ReferralsView', () => {
       const circles = wrapper.findAll('[data-testid=rule] li > span:first-child')
       expect(circles.map((c) => c.text())).toEqual(['1', '2', '3'])
       for (const circle of circles) {
-        expect(circle.classes()).toEqual(expect.arrayContaining(['rounded-full', 'bg-accent-soft', 'text-accent']))
+        // the number is text on the soft accent: it takes the ink of the accent, not the bare accent (docs/14 §4.1)
+        expect(circle.classes()).toEqual(expect.arrayContaining(['rounded-full', 'bg-accent-soft', 'text-accent-ink']))
         expect(circle.attributes('aria-hidden')).toBe('true')
       }
     })
@@ -197,14 +203,27 @@ describe('ReferralsView', () => {
       expect(text(wrapper, 'copy-btn')).toBe('Скопировать ссылку')
     })
 
-    it('stays silent when the clipboard refuses: the link is on the screen anyway', async () => {
-      setClipboard({ writeText: vi.fn().mockRejectedValue(new Error('NotAllowedError')) })
+    it('copies the old way and says "Скопировано" when the clipboard API is missing', async () => {
+      setClipboard(undefined)
+      setExecCommand(true)
       const { wrapper } = await render()
 
       await wrapper.get('[data-testid=copy-btn]').trigger('click')
       await flushPromises()
 
-      expect(useToast().toast.value).toBeNull()
+      expect(useToast().toast.value?.text).toBe('Скопировано')
+    })
+
+    it('tells that it could not copy when nothing works: the link is on the screen to select and copy by hand', async () => {
+      setClipboard({ writeText: vi.fn().mockRejectedValue(new Error('NotAllowedError')) })
+      setExecCommand(false)
+      const { wrapper } = await render()
+
+      await wrapper.get('[data-testid=copy-btn]').trigger('click')
+      await flushPromises()
+
+      expect(useToast().toast.value?.text).toBe('Не удалось скопировать. Выделите ссылку и скопируйте вручную.')
+      expect(wrapper.get('[data-testid=link]').text()).toBe(LINK)
     })
 
     it('shows the code and an explanation while the bot username is not configured', async () => {

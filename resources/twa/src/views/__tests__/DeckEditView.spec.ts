@@ -6,7 +6,11 @@ import DeckEditView from '../DeckEditView.vue'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
-import type { Course, DeckDetail, DeckImportResult } from '@/api/types'
+import { useToast } from '@/composables/useToast'
+import { useDecksStore } from '@/stores/decks'
+import { useTodayStore } from '@/stores/today'
+import type { Course, DeckDetail, DeckImportResult, DeckLimits, MeResponse } from '@/api/types'
+import { settingsFixture } from '@/api/__tests__/settingsFixture'
 
 const tg = vi.hoisted(() => ({
   handler: null as (() => void) | null,
@@ -18,8 +22,9 @@ const tg = vi.hoisted(() => ({
 vi.mock('@/api', () => ({
   api: {
     me: { get: vi.fn().mockResolvedValue(null) },
-    decks: { get: vi.fn(), rename: vi.fn(), remove: vi.fn(), addWords: vi.fn(), removeWord: vi.fn() },
+    decks: { get: vi.fn(), list: vi.fn(), rename: vi.fn(), remove: vi.fn(), addWords: vi.fn(), removeWord: vi.fn() },
     courses: { select: vi.fn() },
+    training: { open: vi.fn() },
   },
 }))
 
@@ -44,6 +49,18 @@ const detail = (overrides: Partial<DeckDetail> = {}): DeckDetail => ({
   ...overrides,
 })
 
+const me = (plan: 'free' | 'pro'): MeResponse => ({
+  learner: { id: 1, first_name: 'A', username: null, locale: 'ru', onboarding_completed: true },
+  groups: [],
+  stats: { words_learned: 0, words_due_today: 0 },
+  entitlement: { plan, source: plan === 'pro' ? 'subscription' : 'free', until: null, new_words_per_day: plan === 'pro' ? null : 20 },
+  paywall: { mode: 'coming_soon', contact: null },
+  settings: settingsFixture(),
+})
+
+const FREE_LIMITS: DeckLimits = { decks: 1, deck_words: 50, used_decks: 1 }
+const PRO_LIMITS: DeckLimits = { decks: 20, deck_words: 2000, used_decks: 3 }
+
 const importResult = (overrides: Partial<DeckImportResult> = {}): DeckImportResult => ({
   added: 2,
   reactivated: 0,
@@ -63,6 +80,7 @@ async function render(data: DeckDetail = detail()) {
     routes: [
       { path: '/decks', name: 'decks', component: { template: '<div />' } },
       { path: '/decks/:slug', name: 'deck', component: DeckEditView, props: true },
+      { path: '/training/:sessionId(\\d+)', name: 'training', component: { template: '<div />' } },
     ],
   })
   await router.push('/decks/deck-1-abc')
@@ -75,13 +93,18 @@ describe('DeckEditView', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
+    vi.mocked(api.me.get).mockResolvedValue(null as never) // the plan is not known unless a test says so
+    useToast().hide()
     tg.handler = null
     tg.showBack.mockImplementation((handler: () => void) => {
       tg.handler = handler
       return tg.release
     })
   })
-  afterEach(() => setLocale('ru'))
+  afterEach(() => {
+    useToast().hide()
+    setLocale('ru')
+  })
 
   describe('heading and word list', () => {
     it('shows the deck title as the heading and the words with their translations', async () => {
@@ -113,7 +136,7 @@ describe('DeckEditView', () => {
       const { wrapper } = await render()
 
       const button = wrapper.get('[data-testid=word-1] [data-testid=remove-word]')
-      expect(button.attributes('aria-label')).toBe('Убрать')
+      expect(button.attributes('aria-label')).toBe('Убрать слово: apple')
       expect(button.text()).toBe('')
       expect(button.find('svg').exists()).toBe(true)
 
@@ -126,10 +149,22 @@ describe('DeckEditView', () => {
       expect(wrapper.get('[data-testid=words] .section-label').text()).toBe('Слова (1)')
     })
 
-    it('shows an empty-deck hint under "Слова (0)"', async () => {
+    it('names every remove button after its word: a screen reader hears which row it is on', async () => {
+      const { wrapper } = await render()
+
+      const names = wrapper.findAll('[data-testid=remove-word]').map((b) => b.attributes('aria-label'))
+
+      expect(names).toEqual(['Убрать слово: apple', 'Убрать слово: pear'])
+      expect(new Set(names).size).toBe(names.length)
+    })
+
+    it('shows an empty-deck state with an icon under "Слова (0)", like every other empty list', async () => {
       const { wrapper } = await render(detail({ words: [], words_count: 0 }))
 
-      expect(wrapper.get('[data-testid=no-words]').text()).toBe('В колоде пока нет слов.')
+      const empty = wrapper.get('[data-testid=no-words]')
+      expect(empty.text()).toBe('В колоде пока нет слов.')
+      expect(empty.find('svg').exists()).toBe(true)
+      expect(empty.element.parentElement?.classList.contains('card')).toBe(true)
       expect(wrapper.find('[data-testid=words]').exists()).toBe(false)
       expect(wrapper.get('.section-label').text()).toBe('Слова (0)')
     })
@@ -196,10 +231,29 @@ describe('DeckEditView', () => {
       expect(wrapper.findAll('.btn-primary')).toHaveLength(1)
     })
 
-    it('cannot choose an empty deck', async () => {
+    it('cannot choose an empty deck, and says why under the disabled button', async () => {
       const { wrapper } = await render(detail({ words: [], words_count: 0 }))
 
       expect(wrapper.get('[data-testid=choose-btn]').attributes('disabled')).toBeDefined()
+      const hint = wrapper.get('[data-testid=choose-hint]')
+      expect(hint.text()).toBe('Добавьте в колоду хотя бы одно слово, чтобы сделать её основной.')
+      expect(hint.classes()).toContain('text-tg-hint')
+    })
+
+    it('says nothing under the button of a deck that has words, nor under the chip of the main one', async () => {
+      const { wrapper } = await render()
+      expect(wrapper.get('[data-testid=choose-btn]').attributes('disabled')).toBeUndefined()
+      expect(wrapper.find('[data-testid=choose-hint]').exists()).toBe(false)
+
+      const main = await render(detail({ is_active: true, words: [], words_count: 0 }))
+      expect(main.wrapper.find('[data-testid=choose-hint]').exists()).toBe(false)
+    })
+
+    it('gives the hint in Uzbek', async () => {
+      setLocale('uz')
+      const { wrapper } = await render(detail({ words: [], words_count: 0 }))
+
+      expect(wrapper.get('[data-testid=choose-hint]').text()).toBe("Asosiy qilish uchun to'plamga kamida bitta so'z qo'shing.")
     })
 
     it('chooses the deck through the course selection and shows the chip instead of the button', async () => {
@@ -387,6 +441,116 @@ describe('DeckEditView', () => {
       expect(wrapper.find('[data-testid=report]').exists()).toBe(false)
     })
 
+    describe('the word limit', () => {
+      async function addTooMany(limits: DeckLimits) {
+        vi.mocked(api.decks.list).mockResolvedValue({ decks: [], limits })
+        vi.mocked(api.decks.addWords).mockRejectedValue(new ApiClientError('validation', 422, 'deck_words_limit_reached', 'x'))
+        const context = await render()
+        await context.wrapper.get('[data-testid=text-input]').setValue('plum — слива')
+        await context.wrapper.get('[data-testid=add-btn]').trigger('click')
+        await flushPromises()
+        return context
+      }
+
+      it('quotes the Free limits of GET /decks in the paywall, even for a deck opened from a link (no list was loaded)', async () => {
+        vi.mocked(api.me.get).mockResolvedValue(me('free'))
+
+        const { wrapper } = await addTooMany(FREE_LIMITS)
+
+        expect(wrapper.get('[data-testid=paywall-lead]').text()).toContain('Лимит колод тарифа Free: 1 колода до 50 слов.')
+        expect(wrapper.find('[data-testid=pro-limit]').exists()).toBe(false)
+      })
+
+      it('does not open the paywall for a Pro learner: it explains the size of a deck, under the button they pressed', async () => {
+        vi.mocked(api.me.get).mockResolvedValue(me('pro'))
+
+        const { wrapper } = await addTooMany(PRO_LIMITS)
+
+        expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+        const notice = wrapper.get('[data-testid=import] [data-testid=pro-limit]')
+        expect(notice.text()).toBe(
+          'Это предел вашего тарифа Pro: до 2000 слов в колоде. Ничего не добавлено — уберите ненужные слова или добавьте часть списка в другую колоду.',
+        )
+        expect(notice.attributes('role')).toBe('status')
+        expect(wrapper.find('[data-testid=write-error]').exists()).toBe(false) // one message, not two
+        expect(wrapper.text()).not.toContain('тариф Free')
+        expect((wrapper.get('[data-testid=text-input]').element as HTMLTextAreaElement).value).toBe('plum — слива')
+      })
+
+      it('shows the general refusal of the server to a Pro learner when there are no numbers to quote', async () => {
+        vi.mocked(api.me.get).mockResolvedValue(me('pro'))
+        vi.mocked(api.decks.list).mockRejectedValue(new ApiClientError('network', 0, 'unknown', 'x'))
+        vi.mocked(api.decks.addWords).mockRejectedValue(new ApiClientError('validation', 422, 'deck_words_limit_reached', 'x'))
+        const { wrapper } = await render()
+
+        await wrapper.get('[data-testid=text-input]').setValue('plum — слива')
+        await wrapper.get('[data-testid=add-btn]').trigger('click')
+        await flushPromises()
+
+        expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+        expect(wrapper.find('[data-testid=pro-limit]').exists()).toBe(false)
+        expect(wrapper.get('[data-testid=write-error]').text()).toBe('Достигнут лимит слов в колоде вашего тарифа. Ничего не добавлено.')
+      })
+
+      it('explains it in Uzbek to a Pro learner', async () => {
+        setLocale('uz')
+        vi.mocked(api.me.get).mockResolvedValue(me('pro'))
+
+        const { wrapper } = await addTooMany(PRO_LIMITS)
+
+        expect(wrapper.get('[data-testid=pro-limit]').text()).toContain("to'plamda 2000 tagacha so'z")
+      })
+
+      it('drops the refusal when the learner leaves with the paywall open: it must not pop up on "My decks"', async () => {
+        const { wrapper } = await addTooMany(FREE_LIMITS)
+        expect(wrapper.find('[data-testid=paywall]').exists()).toBe(true)
+
+        wrapper.unmount()
+
+        expect(useDecksStore().limitReached).toBe(false)
+        expect(useDecksStore().limitKind).toBeNull()
+      })
+    })
+
+    describe('"Повторить слова" in the paywall', () => {
+      /** The word limit refuses the import while the Home tab knows of due cards: the sheet offers the review. */
+      async function openPaywall() {
+        useTodayStore().data = { due_count: 12 } as never
+        vi.mocked(api.decks.addWords).mockRejectedValue(new ApiClientError('validation', 422, 'deck_words_limit_reached', 'x'))
+        const context = await render()
+        await context.wrapper.get('[data-testid=text-input]').setValue('plum — слива')
+        await context.wrapper.get('[data-testid=add-btn]').trigger('click')
+        await flushPromises()
+        return context
+      }
+
+      it('starts the daily review: the sheet closes and the training screen opens', async () => {
+        vi.mocked(api.training.open).mockResolvedValue({ session_id: 62, mode: 'daily_review', lesson: null, total_words: 5 } as never)
+        const { wrapper, router } = await openPaywall()
+        expect(wrapper.get('[data-testid=paywall-review]').text()).toBe('Повторить слова')
+
+        await wrapper.get('[data-testid=paywall-review]').trigger('click')
+        await flushPromises()
+
+        expect(api.training.open).toHaveBeenCalledWith({ mode: 'daily_review', source: 'self' })
+        expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+        expect(router.currentRoute.value.name).toBe('training')
+        expect(router.currentRoute.value.params.sessionId).toBe('62')
+      })
+
+      it('tells in a toast why the review did not open and stays on the deck, with the typed text', async () => {
+        vi.mocked(api.training.open).mockRejectedValue(new ApiClientError('network', 0, 'unknown', 'x'))
+        const { wrapper, router } = await openPaywall()
+
+        await wrapper.get('[data-testid=paywall-review]').trigger('click')
+        await flushPromises()
+
+        expect(router.currentRoute.value.name).toBe('deck')
+        expect(useToast().toast.value?.text).toBe('Нет связи с сервером. Попробуйте ещё раз.')
+        expect((wrapper.get('[data-testid=text-input]').element as HTMLTextAreaElement).value).toBe('plum — слива')
+      })
+    })
+
     it('explains an import with no usable line', async () => {
       vi.mocked(api.decks.addWords).mockRejectedValue(new ApiClientError('validation', 422, 'deck_import_empty', 'x'))
       const { wrapper } = await render()
@@ -520,7 +684,7 @@ describe('DeckEditView', () => {
     expect(wrapper.get('[data-testid=choose-btn]').text()).toBe('Asosiy qilish')
     expect(wrapper.get('[data-testid=words] .section-label').text()).toBe("So'zlar (2)")
     expect(wrapper.get('[data-testid=import] [role=radiogroup]').attributes('aria-label')).toBe('Format')
-    expect(wrapper.get('[data-testid=remove-word]').attributes('aria-label')).toBe('Olib tashlash')
+    expect(wrapper.get('[data-testid=remove-word]').attributes('aria-label')).toBe("So'zni olib tashlash: apple")
   })
 
   it('renders the main deck chip in Uzbek', async () => {

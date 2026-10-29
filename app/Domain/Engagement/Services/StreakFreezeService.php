@@ -8,6 +8,7 @@ use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Engagement\Exceptions\FreezeNotApplied;
+use App\Domain\Learners\Support\StoredDate;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
 use Carbon\CarbonImmutable;
@@ -122,7 +123,7 @@ final class StreakFreezeService
                 }
 
                 foreach ($missedLocalDates as $missedLocalDate) {
-                    $date = $this->storedDate($missedLocalDate);
+                    $date = StoredDate::of($missedLocalDate);
 
                     LearnerDailyStats::query()->insertOrIgnore([
                         'learner_id' => $learner->id,
@@ -217,11 +218,5 @@ final class StreakFreezeService
     private function syncFreezes(Learner $learner, int $freezes): void
     {
         $learner->forceFill(['streak_freezes' => $freezes])->syncOriginalAttributes(['streak_freezes']);
-    }
-
-    /** The `date` column as Eloquent stores it (see DailyStatsService::storedDate): sqlite compares text. */
-    private function storedDate(string $localDate): string
-    {
-        return (string) (new LearnerDailyStats)->fromDateTime($localDate);
     }
 }

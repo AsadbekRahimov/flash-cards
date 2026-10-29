@@ -11,6 +11,8 @@ use App\Domain\Billing\Services\SubscriptionService;
 use App\Domain\Billing\Support\AutoRenewal;
 use App\Domain\Billing\Support\OrgTiers;
 use App\Domain\Billing\Support\SubscriptionLiveness;
+use App\Filament\Resources\Support\AdminDates;
+use App\Filament\Resources\Support\AdminErrors;
 use App\Filament\Resources\Support\AdminLabels;
 use App\Models\Learner;
 use App\Models\Organization;
@@ -182,6 +184,9 @@ final class SubscriptionActions
     private static function shortenWarning(callable $get): string
     {
         $learnerId = $get('learner_id');
+        // `$get()` gives the state AFTER the casts of the field (DateTimeStateCast::get): the clock time typed in the zone of the
+        // picker (`learners.default_timezone`) is already converted to the zone of the app. So it is parsed in the app zone below;
+        // parsing it in the zone of the picker would shift it a second time (FilamentDateDisplayTest pins the boundary in three zones).
         $until = $get('until');
 
         if ($get('subscriber_type') !== 'learner' || ! is_numeric($learnerId) || ! is_string($until) || $until === '') {
@@ -204,7 +209,8 @@ final class SubscriptionActions
             return '';
         }
 
-        return __('admin.subscriptions.grant.until_warning', ['date' => CarbonImmutable::instance($paidUntil)->setTimezone((string) config('learners.default_timezone'))->format('Y-m-d H:i')]);
+        // In the zone of the date picker above, whose help line names it.
+        return __('admin.subscriptions.grant.until_warning', ['date' => AdminDates::dateTime($paidUntil, (string) config('learners.default_timezone'))]);
     }
 
     /** @return array<string, string> tier key => "Центр S · мест: 100" */
@@ -225,7 +231,7 @@ final class SubscriptionActions
 
     private static function failed(SubscriptionException $e): void
     {
-        Notification::make()->title(__('admin.subscriptions.notifications.failed'))->body($e->getMessage())->danger()->persistent()->send();
+        Notification::make()->title(__('admin.subscriptions.notifications.failed'))->body(AdminErrors::for('subscriptions', $e))->danger()->persistent()->send();
     }
 
     /** @return array<int, string> */

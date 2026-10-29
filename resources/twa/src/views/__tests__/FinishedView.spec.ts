@@ -158,6 +158,17 @@ describe('FinishedView', () => {
     it('shows no error when there is none', () => {
       expect(render(3, 1).find('[data-testid=open-error]').exists()).toBe(false)
     })
+
+    it('forgets the failed "Repeat words" when the learner leaves, so Today does not show it', () => {
+      const training = useTrainingStore()
+      training.openError = 'Слишком много запросов. Подождите немного и повторите.'
+      const w = render(3, 1)
+      expect(w.find('[data-testid=open-error]').exists()).toBe(true)
+
+      w.unmount()
+
+      expect(training.openError).toBe('')
+    })
   })
 
   describe('numbers of the session', () => {
@@ -366,7 +377,7 @@ describe('FinishedView', () => {
 
       expect(w.get('[data-testid=goal-text]').text()).toBe('Kunlik maqsad: 20 tadan 12 tasi')
       expect(w.get('[data-testid=streak]').text()).toBe('3 kun ketma-ket')
-      expect(w.get('[data-testid=home-btn]').text()).toBe('Bosh sahifaga')
+      expect(w.get('[data-testid=home-btn]').text()).toBe('Asosiy sahifaga')
     })
   })
 

@@ -14,8 +14,8 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `bot.start.greeting` | Salom, :name! Siz LexiFlow o'qituvchisi sifatida tizimga kirdingiz. Guruhdagi buyruqlar: /help | Привет, :name! Вы авторизованы как учитель LexiFlow. Команды в группе: /help |
-| `bot.help.private` | LexiFlow — Telegramda inglizcha so'zlar: ovozli kartochkalar va aqlli takrorlash.<br><br>Qanday shug'ullanish kerak:<br>• Xabar yozish maydonining chap tomonidagi «LexiFlow» tugmasi yoki /today — bugungi mashg'ulot<br>• /settings — til, maqsad, daraja, vaqt mintaqasi, eslatmalar<br>• /invite — do'stingizni taklif qiling va birgalikda Pro oling<br>• /pro — Pro obuna, /promo KOD — promokod<br>• /paysupport — to'lov bo'yicha savollar<br><br>O'qituvchilar uchun:<br>• Botni guruhga qo'shing va administrator qiling, so'ng LexiFlow administratoridan guruhni faollashtirishni so'rang.<br>• Guruhda: /start_training — mashg'ulot, /start_exam — imtihon, /close_exam — imtihonni yakunlash.<br>• /stats — 7 kunlik hisobotingiz (shu yerda, shaxsiy chatda). | LexiFlow — английские слова в Telegram: карточки с озвучкой и умные повторения.<br><br>Как заниматься:<br>• Кнопка «LexiFlow» слева от поля ввода или /today — занятие на сегодня<br>• /settings — язык, цель, уровень, часовой пояс, напоминания<br>• /invite — пригласить друга и вместе получить Pro<br>• /pro — подписка Pro, /promo КОД — промокод<br>• /paysupport — вопросы по оплате<br><br>Для учителей:<br>• Добавьте бота в группу и сделайте его администратором, затем попросите администратора LexiFlow активировать группу.<br>• В группе: /start_training — тренировка, /start_exam — экзамен, /close_exam — завершить экзамен.<br>• /stats — ваш отчёт за 7 дней (здесь, в личном чате). |
-| `bot.help.group` | LexiFlow guruhda.<br><br>O'qituvchi buyruqlari:<br>/start_training — mashg'ulotni boshlash<br>/start_exam — imtihonni boshlash<br>/close_exam — imtihonni yopish<br>/stats — bot bilan shaxsiy chatda hisobot<br>/help — ushbu yordam | LexiFlow в группе.<br><br>Команды учителя:<br>/start_training — запустить тренировку<br>/start_exam — запустить экзамен<br>/close_exam — закрыть экзамен<br>/stats — личный отчёт в чате с ботом<br>/help — эта справка |
+| `bot.help.private` | LexiFlow — Telegramda inglizcha so'zlar: ovozli kartochkalar va aqlli takrorlash.<br><br>Qanday shug'ullanish kerak:<br>• Xabar yozish maydonining chap tomonidagi «LexiFlow» tugmasi yoki /today — bugungi mashg'ulot<br>• /settings — til, maqsad, daraja, vaqt mintaqasi, eslatmalar<br>• /invite — do'stingizni taklif qiling va birgalikda Pro oling<br>• /pro — Pro obuna, /promo KOD — promokod<br>• /paysupport — to'lov bo'yicha savollar<br><br>O'qituvchilar uchun:<br>• Botni guruhga qo'shing va administrator qiling, so'ng LexiFlow administratoridan guruhni faollashtirishni so'rang.<br>• Guruhda: /start_training — trening, /start_exam — imtihon, /close_exam — imtihonni yakunlash.<br>• /stats — 7 kunlik hisobotingiz (shu yerda, shaxsiy chatda). | LexiFlow — английские слова в Telegram: карточки с озвучкой и умные повторения.<br><br>Как заниматься:<br>• Кнопка «LexiFlow» слева от поля ввода или /today — занятие на сегодня<br>• /settings — язык, цель, уровень, часовой пояс, напоминания<br>• /invite — пригласить друга и вместе получить Pro<br>• /pro — подписка Pro, /promo КОД — промокод<br>• /paysupport — вопросы по оплате<br><br>Для учителей:<br>• Добавьте бота в группу и сделайте его администратором, затем попросите администратора LexiFlow активировать группу.<br>• В группе: /start_training — тренировка, /start_exam — экзамен, /close_exam — завершить экзамен.<br>• /stats — ваш отчёт за 7 дней (здесь, в личном чате). |
+| `bot.help.group` | LexiFlow guruhda.<br><br>O'qituvchi buyruqlari:<br>/start_training — treningni boshlash<br>/start_exam — imtihonni boshlash<br>/close_exam — imtihonni yakunlash<br>/stats — bot bilan shaxsiy chatda hisobot<br>/help — ushbu yordam | LexiFlow в группе.<br><br>Команды учителя:<br>/start_training — запустить тренировку<br>/start_exam — запустить экзамен<br>/close_exam — завершить экзамен<br>/stats — личный отчёт в чате с ботом<br>/help — эта справка |
 | `bot.group.bot_not_admin` | ⚠️ Botni guruh administratori qiling. Aks holda bot xabarlarni va a'zolarning chiqib ketishini ko'rmaydi, LexiFlow to'liq ishlamaydi. Guruh → Boshqarish → Administratorlar → Administrator qo'shish. | ⚠️ Сделайте бота администратором группы. Без этого он не видит сообщения и выход участников, и LexiFlow работает не полностью. Группа → Управление → Администраторы → Добавить администратора. |
 | `bot.stats.not_linked` | Bu Telegram akkaunt LexiFlow o'qituvchisiga biriktirilmagan.<br>Sizning Telegram ID'ngiz: :id | Этот Telegram-аккаунт не привязан к учителю LexiFlow.<br>Ваш Telegram ID: :id |
 | `errors.teacher_not_linked` | Sizning Telegram akkauntingiz o'qituvchiga biriktirilmagan. | Ваш Telegram-аккаунт не привязан к учителю. |
@@ -23,9 +23,9 @@
 | `errors.group_inactive` | Guruh faollashtirilmagan. Administratordan uni /admin orqali faollashtirishini so'rang. | Группа не активирована. Попросите админа активировать её в /admin. |
 | `errors.stage_not_found` | Ko'rsatilgan modul topilmadi. | Указанный модуль не найден. |
 | `errors.lesson_not_found` | Dars topilmadi. | Урок не найден. |
-| `errors.training.not_teacher` | Mashg'ulotni faqat shu guruhning o'qituvchisi boshlay oladi. | Только учитель этой группы может запускать тренировку. |
-| `errors.training.failed` | Mashg'ulotni boshlab bo'lmadi. | Не удалось запустить тренировку. |
-| `errors.training.not_delivered` | Tugmani guruhga yuborib bo'lmadi: mashg'ulot bekor qilindi. Bot guruhda ekanini va yoza olishini tekshiring, so'ng buyruqni takrorlang. | Не удалось отправить кнопку в группу: тренировка отменена. Проверьте, что бот в группе и может писать, и повторите команду. |
+| `errors.training.not_teacher` | Treningni faqat shu guruhning o'qituvchisi boshlay oladi. | Только учитель этой группы может запускать тренировку. |
+| `errors.training.failed` | Treningni boshlab bo'lmadi. | Не удалось запустить тренировку. |
+| `errors.training.not_delivered` | Tugmani guruhga yuborib bo'lmadi: trening bekor qilindi. Bot guruhda ekanini va yoza olishini tekshiring, so'ng buyruqni takrorlang. | Не удалось отправить кнопку в группу: тренировка отменена. Проверьте, что бот в группе и может писать, и повторите команду. |
 | `errors.exam.not_teacher` | Imtihonni faqat shu guruhning o'qituvchisi boshlay oladi. | Только учитель этой группы может запускать экзамен. |
 | `errors.exam.not_enough_words` | Darsda imtihon uchun so'zlar yetarli emas. | В уроке недостаточно слов для экзамена. |
 | `errors.exam.not_enough_distractors` | Javob variantlari uchun so'zlar yetarli emas: darsga yoki shu modulning boshqa darslariga ko'proq so'z qo'shing. | Не хватает слов для вариантов ответа: добавьте больше слов в урок или в другие уроки этого модуля. |
@@ -33,9 +33,9 @@
 | `errors.exam.invalid_duration` | Imtihon davomiyligi 1 daqiqadan 30 daqiqagacha bo'lishi kerak. | Длительность экзамена должна быть от 1 до 30 минут. |
 | `errors.exam.failed` | Imtihonni boshlab bo'lmadi. | Не удалось запустить экзамен. |
 | `errors.exam.not_delivered` | Tugmani guruhga yuborib bo'lmadi: imtihon bekor qilindi. Bot guruhda ekanini va yoza olishini tekshiring, so'ng buyruqni takrorlang. | Не удалось отправить кнопку в группу: экзамен отменён. Проверьте, что бот в группе и может писать, и повторите команду. |
-| `errors.exam.close_not_teacher` | Imtihonni faqat shu guruhning o'qituvchisi yopishi mumkin. | Только учитель этой группы может закрыть экзамен. |
+| `errors.exam.close_not_teacher` | Imtihonni faqat shu guruhning o'qituvchisi yakunlashi mumkin. | Только учитель этой группы может завершить экзамен. |
 | `errors.exam.no_open_exam` | Hozir guruhda ochiq imtihon yo'q. | Сейчас в группе нет открытого экзамена. |
-| `errors.exam.close_failed` | Imtihonni yopib bo'lmadi. | Не удалось закрыть экзамен. |
+| `errors.exam.close_failed` | Imtihonni yakunlab bo'lmadi. | Не удалось завершить экзамен. |
 | `exam.started` | 🏁 <b>Imtihon boshlandi!</b><br>:stage-modul · :lesson-dars · <b>:minutes daq</b><br>Qo'shilish uchun tugmani bosing. | 🏁 <b>Экзамен запущен!</b><br>Модуль :stage · Урок :lesson · <b>:minutes мин</b><br>Нажмите кнопку, чтобы присоединиться. |
 | `exam.open_button` | 🏁 Imtihonni ochish | 🏁 Открыть экзамен |
 | `exam.leaderboard.title` | 🏁 <b>Imtihon natijalari</b><br>Dars :lesson | 🏁 <b>Итоги экзамена</b><br>Урок :lesson |
@@ -49,11 +49,11 @@
 | `stats.reviews` | Kartochkalarni takrorlashlar: :count | Повторений карточек: :count |
 | `stats.exams` | Boshlangan imtihonlar: :count | Экзаменов запущено: :count |
 | `stats.accuracy` | Imtihonlardagi aniqlik: :percent% | Точность экзаменов: :percent% |
-| `training.picker.prompt` | Mashg'ulot uchun darsni tanlang: | Выберите урок для тренировки: |
+| `training.picker.prompt` | Trening uchun darsni tanlang: | Выберите урок для тренировки: |
 | `training.picker.empty` | Tizimda hozircha darslar yo'q. Administratordan kontent yuklashini so'rang. | В системе пока нет уроков. Попросите администратора загрузить контент. |
 | `training.picker.button` | :stage-modul · :lesson-dars | Модуль :stage · Урок :lesson |
-| `training.started` | 📚 Mashg'ulot boshlandi: :stage-modul, :lesson-dars. Boshlash uchun tugmani bosing. | 📚 Тренировка запущена: модуль :stage, урок :lesson. Нажмите кнопку, чтобы начать. |
-| `training.open_button` | 🎯 Mashg'ulotni ochish | 🎯 Открыть тренировку |
+| `training.started` | 📚 Trening boshlandi: :stage-modul, :lesson-dars. Boshlash uchun tugmani bosing. | 📚 Тренировка запущена: модуль :stage, урок :lesson. Нажмите кнопку, чтобы начать. |
+| `training.open_button` | 🎯 Treningni ochish | 🎯 Открыть тренировку |
 | `twofactor.confirm_button` | Tasdiqlash | Подтвердить |
 | `twofactor.setup.title` | 2FA sozlash | Настройка 2FA |
 | `twofactor.setup.heading` | Ikki bosqichli autentifikatsiyani yoqing | Включите двухфакторную аутентификацию |
@@ -125,8 +125,8 @@
 | `landing.pricing.centers.name` | O'quv markazlari uchun | Для учебных центров |
 | `landing.pricing.centers.tagline` | Oyiga bir marta qat'iy to'lov | Фиксированная оплата раз в месяц |
 | `landing.pricing.centers.features.0` | Markaz oyiga bir marta qat'iy summa to'laydi | Центр платит фиксированную сумму раз в месяц |
-| `landing.pricing.centers.features.1` | Markaz o'quvchilari markazda ekan, to'liq Pro oladi | Все студенты центра получают полный Pro, пока состоят в центре |
-| `landing.pricing.centers.features.2` | Telegramdagi guruhlar, o'qituvchilar uchun mashg'ulot va imtihonlar | Группы в Telegram, тренировки и экзамены для учителей |
+| `landing.pricing.centers.features.1` | Markaz o'quvchilari markazda ekan, tarifdagi o'rinlar doirasida Pro oladi | Студенты центра получают Pro в пределах мест тарифа, пока состоят в центре |
+| `landing.pricing.centers.features.2` | Telegramdagi guruhlar, o'qituvchilar uchun trening va imtihonlar | Группы в Telegram, тренировки и экзамены для учителей |
 | `landing.pricing.centers.contact` | Markazni ulash: | Подключить центр: |
 | `landing.footer.tagline` | LexiFlow - Telegramda ingliz tili. | LexiFlow — английский в Telegram. |
 | `landing.footer.contact` | Qo'llab-quvvatlash: | Поддержка: |
@@ -165,7 +165,7 @@
 | `common.loading` | Yuklanmoqda… | Загрузка… |
 | `common.retry` | Qayta urinish | Повторить |
 | `common.error_title` | Xatolik | Ошибка |
-| `landing.outside_telegram` | Bu sahifa faqat Telegram Web App ichida ishlaydi. O'qituvchidan mashg'ulot havolasini guruhga yuborishini so'rang. | Эта страница работает только внутри Telegram Web App. Попросите учителя прислать ссылку-тренировку в группу. |
+| `landing.outside_telegram` | Bu sahifa faqat Telegram Web App ichida ishlaydi. O'qituvchidan trening havolasini guruhga yuborishini so'rang. | Эта страница работает только внутри Telegram Web App. Попросите учителя прислать ссылку-тренировку в группу. |
 | `card.kind.new` | Yangi so'z | Новое слово |
 | `card.kind.learning` | Mustahkamlash | Закрепление |
 | `card.kind.due` | Takrorlash | Повторение |
@@ -216,7 +216,7 @@
 | `error.code.course_not_found` | Kurs topilmadi yoki mavjud emas. | Курс не найден или недоступен. |
 | `error.code.timezone_change_too_soon` | Vaqt mintaqasini kuniga bir martadan ko'p o'zgartirib bo'lmaydi. | Часовой пояс можно менять не чаще раза в сутки. |
 | `error.code.timezone_revert_unavailable` | Vaqt mintaqasi o'zgarishini endi bekor qilib bo'lmaydi: 10 daqiqadan ko'proq o'tdi yoki u allaqachon bekor qilingan. | Отменить смену часового пояса уже нельзя: прошло больше 10 минут или она уже отменена. |
-| `error.closed.training` | O'qituvchi mashg'ulotni yakunladi. | Учитель завершил тренировку. |
+| `error.closed.training` | Bu mashg'ulot allaqachon yopilgan: u yakunlangan yoki sessiya vaqti tugagan. | Эта тренировка уже закрыта: она завершена или время сессии истекло. |
 | `error.closed.exam` | Imtihon o'qituvchi tomonidan yakunlandi. | Экзамен был завершён учителем. |
 | `error.forbidden.training` | Sizda bu mashg'ulotga kirish huquqi yo'q. | У вас нет доступа к этой тренировке. |
 | `error.forbidden.exam` | Sizda bu imtihonga kirish huquqi yo'q. | У вас нет доступа к этому экзамену. |
@@ -274,7 +274,10 @@
 | `paywall.title` | Pro tez orada | Pro скоро |
 | `paywall.lead_quota` | Bugungi yangi so'zlar limiti tugadi — takrorlash cheklovsiz. | Лимит новых слов на сегодня исчерпан — повторения доступны без ограничений. |
 | `paywall.soon` | Pro tez orada ochiladi. | Pro скоро откроется. |
-| `paywall.free` | Hozir sizda Free tarif: kuniga {count} ta yangi so'z, takrorlash cheklovsiz. | Сейчас у вас тариф Free: {count} новых слов в день, повторения — без лимита. |
+| `paywall.free.one` | Hozir sizda Free tarif: kuniga {count} ta yangi so'z, takrorlash cheklovsiz. | Сейчас у вас тариф Free: {count} новое слово в день, повторения — без лимита. |
+| `paywall.free.few` | _(в uz этой формы нет — используется `other`)_ | Сейчас у вас тариф Free: {count} новых слова в день, повторения — без лимита. |
+| `paywall.free.many` | _(в uz этой формы нет — используется `other`)_ | Сейчас у вас тариф Free: {count} новых слов в день, повторения — без лимита. |
+| `paywall.free.other` | Hozir sizda Free tarif: kuniga {count} ta yangi so'z, takrorlash cheklovsiz. | Сейчас у вас тариф Free: {count} новых слова в день, повторения — без лимита. |
 | `paywall.free_generic` | Hozir sizda Free tarif: yangi so'zlar kunlik limit bilan cheklangan, takrorlash cheklovsiz. | Сейчас у вас тариф Free: новые слова ограничены дневным лимитом, повторения — без лимита. |
 | `paywall.contact` | Markazda o'qiysizmi? Markaz administratoridan LexiFlow Pro'ni ulashni so'rang: | Учитесь в центре? Попросите администратора центра подключить LexiFlow Pro: |
 | `paywall.dismiss` | Tushunarli | Понятно |
@@ -400,11 +403,11 @@
 | `today.course.completed` | Kursdagi barcha so'zlar ko'rsatildi | Все слова курса уже показаны |
 | `today.course.none` | Asosiy kurs tanlanmagan | Основной курс не выбран |
 | `today.onboarding_hint` | Sozlashni yakunlash uchun botga /start yuboring | Чтобы завершить настройку, отправьте боту /start |
-| `finished.home` | Bosh sahifaga | На главную |
+| `finished.home` | Asosiy sahifaga | На главную |
 | `finished.goal` | Kunlik maqsad: {target} tadan {done} tasi | Цель дня: {done} из {target} |
 | `finished.goal_met` | Kunlik maqsad bajarildi! | Цель дня выполнена! |
-| `error.closed.today` | Bugun ekrani endi mavjud emas. | Экран «Сегодня» больше недоступен. |
-| `error.forbidden.today` | Sizda Bugun ekraniga kirish huquqi yo'q. | У вас нет доступа к экрану «Сегодня». |
+| `error.closed.today` | Asosiy ekran endi mavjud emas. | Экран «Главная» больше недоступен. |
+| `error.forbidden.today` | Sizda asosiy ekranga kirish huquqi yo'q. | У вас нет доступа к экрану «Главная». |
 
 Удалены ключи `landing.in_telegram` и `landing.review_all`: стартовый экран в Telegram теперь сразу ведёт на «Сегодня».
 
@@ -643,7 +646,7 @@
 | `decks.edit.rename` | Nomi | Название |
 | `decks.edit.save` | Saqlash | Сохранить |
 | `decks.edit.no_words` | To'plamda hali so'zlar yo'q. | В колоде пока нет слов. |
-| `decks.edit.remove_word` | Olib tashlash | Убрать |
+| `decks.edit.remove_word` | So'zni olib tashlash: {word} | Убрать слово: {word} |
 | `decks.edit.import` | So'zlar qo'shish | Добавить слова |
 | `decks.edit.format.list` | Ro'yxat | Списком |
 | `decks.edit.format.csv` | CSV | CSV |
@@ -663,7 +666,7 @@
 | `decks.reason.duplicate` | takror | повтор |
 | `decks.reason.over_limit` | qatorlar limitidan ortiq | сверх лимита строк |
 | `decks.error.too_large` | Matn juda katta: 256 KB dan oshmasligi kerak. | Текст слишком большой: не больше 256 КБ. |
-| `paywall.lead_decks` | Free tarifida to'plamlar limiti: 50 tagacha so'zli 1 ta to'plam. Pro'da 2000 tadan so'zli 20 tagacha to'plam. | Лимит колод тарифа Free: 1 колода до 50 слов. В Pro — до 20 колод по 2000 слов. |
+| `paywall.lead_decks` | Free tarifida to'plamlar limiti: {words}li {decks}. Pro'da 2000 tadan so'zli 20 tagacha to'plam. | Лимит колод тарифа Free: {decks} {words}. В Pro — до 20 колод по 2000 слов. |
 | `error.closed.decks` | To'plam endi mavjud emas. | Колода больше недоступна. |
 | `error.forbidden.decks` | Sizda to'plamlarga kirish huquqi yo'q. | У вас нет доступа к колодам. |
 | `error.code.deck_not_found` | To'plam topilmadi. | Колода не найдена. |
@@ -850,7 +853,7 @@
 | `error.code.provider_not_supported` | Bu to'lov usuli siz uchun mavjud emas. | Этот способ оплаты вам недоступен. |
 | `error.code.checkout_conflict` | Sizda Stars avtoyangilash yoqilgan. Yangi to'lovdan oldin uni «Obuna» bo'limida o'chiring. | У вас включено автопродление Stars. Отключите его в «Подписке», прежде чем оформлять новую оплату. |
 | `error.code.already_perpetual` | Sizda Pro muddatsiz faol — hech narsa to'lash shart emas. | У вас уже есть Pro без ограничения по сроку — оплачивать ничего не нужно. |
-| `error.code.subscribe_too_early` | Pro allaqachon uzoq muddatga to'langan. Stars obunasini oxirgi kunlarda rasmiylashtirish mumkin; hozircha bir yillik bir martalik to'lovni tanlang. | Pro уже оплачен на длительный срок. Подписку Stars можно оформить ближе к окончанию; пока выберите разовую оплату на год. |
+| `error.code.subscribe_too_early` | Pro allaqachon uzoq muddatga to'langan, shuning uchun Stars orqali bir oylik to'lovni hozircha rasmiylashtirib bo'lmaydi — buni muddat tugashiga yaqin qilish mumkin. «Yil» muddatini tanlang yoki Payme yoki Click orqali to'lang: yangi muddat joriy muddatga qo'shiladi. | Pro уже оплачен надолго, поэтому оплату Stars на месяц пока оформить нельзя — это можно сделать ближе к окончанию срока. Выберите «Год» или оплату через Payme или Click: срок добавится к текущему. |
 | `error.code.too_many_pending` | Sizda to'lanmagan hisoblar bor. Ulardan birini to'lang yoki kuting — ular o'zi yopiladi. | У вас уже есть неоплаченные счета. Оплатите один из них или подождите — они закроются сами. |
 | `error.code.offer_not_applicable` | Chegirma bu xaridga qo'llanilmaydi. | Скидка к этой покупке не применяется. |
 | `error.code.offer_busy` | Chegirmali oldingi to'lov hali qayta ishlanmoqda — bir daqiqadan so'ng urinib ko'ring. | Предыдущая оплата со скидкой ещё обрабатывается — попробуйте через минуту. |
@@ -910,7 +913,7 @@
 |---|---|---|
 | `orgs.title` | Mening markazlarim | Мои центры |
 | `orgs.seated` | Markaz bergan Pro | Pro от центра |
-| `orgs.waitlisted` | Navbatda | В очереди |
+| `orgs.waitlisted` | Pro uchun navbatda | В очереди на Pro |
 | `orgs.via_group` | Siz markazdasiz — guruh orqali. Chiqish uchun Telegram'da markaz guruhini tark eting. | Вы в центре через группу. Чтобы выйти, покиньте группу центра в Telegram. |
 | `orgs.leave` | Markazni tark etish | Покинуть центр |
 | `orgs.leave.confirm` | «{name}» markazini tark etasizmi? Markaz bergan Pro o'chadi, shaxsiy obunangiz (agar bo'lsa) saqlanadi. | Покинуть центр «{name}»? Pro от центра отключится, личная подписка (если есть) останется. |
@@ -1410,7 +1413,10 @@
 | `result.mock_attempts` | Solishtirilgan urinishlar: {count} | Попыток в сравнении: {count} |
 | `result.mock_again` | Kurslarga | К курсам |
 | `course.mock_exam` | Sinov testi | Пробный тест |
-| `course.mock_exam_hint` | Kursdan {count} ta so'z · {minutes} daqiqa · natija foizda va boshqalar bilan taqqoslash | {count} слов курса · {minutes} мин · результат в процентах и сравнение с другими |
+| `course.mock_exam_hint.one` | Kursdan {count} ta so'z · {minutes} daqiqa · natija foizda va boshqalar bilan taqqoslash | {count} слово курса · {minutes} мин · результат в процентах и сравнение с другими |
+| `course.mock_exam_hint.few` | _(в uz этой формы нет — используется `other`)_ | {count} слова курса · {minutes} мин · результат в процентах и сравнение с другими |
+| `course.mock_exam_hint.many` | _(в uz этой формы нет — используется `other`)_ | {count} слов курса · {minutes} мин · результат в процентах и сравнение с другими |
+| `course.mock_exam_hint.other` | Kursdan {count} ta so'z · {minutes} daqiqa · natija foizda va boshqalar bilan taqqoslash | {count} слова курса · {minutes} мин · результат в процентах и сравнение с другими |
 | `paywall.lead_exam_simulator` | IELTS va SAT sinov testlari — Pro'da: 20 daqiqada kursdan 40 ta so'z, natija foizda va boshqalar bilan taqqoslash. | Пробные тесты IELTS и SAT — в Pro: 40 слов курса за 20 минут, результат в процентах и сравнение с другими. |
 | `error.code.exam_simulator_pro_required` | Sinov testlari Pro'da mavjud. | Пробные тесты доступны в Pro. |
 | `error.code.course_not_exam` | Bu kursda sinov testi yo'q. | У этого курса нет пробного теста. |
@@ -1467,7 +1473,7 @@
 | `league.last.stayed` | {tier}: {rank}-o'rin, {points} — ligada qoldingiz | {tier}: {rank}-е место, {points} — остались в лиге |
 | `league.last.demoted` | {tier}: {rank}-o'rin, {points} — tushish | {tier}: {rank}-е место, {points} — понижение |
 | `league.settings.open` | Liga sozlamalari | Настройки лиг |
-| `settings.leagues.hint` | Ligadan chiqish keyingi joylashtirishdan boshlab amal qiladi; joriy hafta saqlanib qoladi. | Выход из лиги действует со следующего размещения; текущая неделя остаётся. |
+| `settings.leagues.hint` | Ligalardan chiqish keyingi haftadan boshlab amal qiladi: joriy hafta o'zgarishsiz qoladi. Ligalarni istalgan vaqtda qayta yoqish mumkin. | Выход из лиг действует со следующей недели: текущая неделя остаётся как есть. Включить лиги обратно можно в любой момент. |
 
 ## Фаза 2 · задача 2C.5 (друзья и вызовы) — на проверку носителю
 
@@ -1540,12 +1546,12 @@
 | `friends.list.count` | {count} / {limit} | {count} из {limit} |
 | `friends.list.anonymous` | Do'st | Друг |
 | `friends.list.words` | {count} ta so'z | {count} слово / слова / слов |
-| `friends.list.remove` | Do'stlikdan chiqarish | Удалить из друзей |
+| `friends.list.remove` | Do'stlikdan chiqarish: {name} | Удалить из друзей: {name} |
 | `friends.list.remove_confirm` | {name} do'stlikdan chiqarilsinmi? Shu do'st bilan tugallanmagan musobaqa bekor qilinadi. | Удалить {name} из друзей? Незавершённый вызов с этим другом отменится. |
 | `friends.list.remove_yes` | Ha, chiqarish | Да, удалить |
 | `friends.list.remove_no` | Bekor qilish | Отмена |
 | `friends.challenge.title` | Musobaqalar | Вызовы |
-| `friends.challenge.new` | Musobaqa tashlash | Бросить вызов |
+| `friends.challenge.new` | Musobaqa tashlash: {name} | Бросить вызов: {name} |
 | `friends.challenge.pick` | {days} kunda kim ko'proq? | Кто больше за {days} дн.? |
 | `friends.challenge.metric.reviews` | Ko'proq kartochka takrorlaydi | Повторит карточек |
 | `friends.challenge.metric.new_words` | Ko'proq yangi so'z o'rganadi | Выучит новых слов |
@@ -1750,7 +1756,10 @@
 | `course.continue` | Davom etish: {stage}-modul, {number}-dars | Продолжить: модуль {stage}, урок {number} |
 | `course.all_done` | Kursning barcha darslari tugallandi | Все уроки курса пройдены |
 | `course.choose_hint` | Kunlik mashg'ulotdagi yangi so'zlar shu kursdan bo'ladi | Новые слова в ежедневном занятии будут из этого курса |
-| `course.lesson_words` | {total} ta so'zdan {done} tasi | {done} из {total} слов |
+| `course.lesson_words.one` | {total} ta so'zdan {done} tasi | {done} из {total} слова |
+| `course.lesson_words.few` | _(в uz этой формы нет — используется `other`)_ | {done} из {total} слов |
+| `course.lesson_words.many` | _(в uz этой формы нет — используется `other`)_ | {done} из {total} слов |
+| `course.lesson_words.other` | {total} ta so'zdan {done} tasi | {done} из {total} слова |
 | `course.mock_exam_start` | Testni boshlash | Начать тест |
 | `decks.choose` | Asosiy qilish | Сделать основной |
 | `decks.active` | Asosiy to'plam | Основная колода |
@@ -1874,7 +1883,7 @@
 | `commands.private.pro` | Pro obuna | Подписка Pro |
 | `commands.private.promo` | Promokodni faollashtirish | Активировать промокод |
 | `commands.private.help` | Yordam | Справка |
-| `commands.group.start_training` | Mashg'ulotni boshlash | Запустить тренировку |
+| `commands.group.start_training` | Treningni boshlash | Запустить тренировку |
 | `commands.group.start_exam` | Imtihonni boshlash | Запустить экзамен |
 | `commands.group.close_exam` | Imtihonni yakunlash | Завершить экзамен |
 | `commands.group.help` | Yordam | Справка |
@@ -1900,3 +1909,136 @@
 | `landing.limits.free_new_words_unlimited` | yangi so'zlar uchun kunlik limitsiz | новые слова без дневного лимита |
 | `landing.limits.pro_new_words` | Yangi so'zlar uchun kunlik limitsiz | Без дневного лимита новых слов |
 | `landing.limits.decks` | {1} Shaxsiy to'plam: :deck_words tagacha so'z\|[2,*] Shaxsiy to'plamlar: :deck_words tadan so'zli :decks tagacha to'plam | {1} Своя колода до :deck_words слов\|[2,*] Свои колоды: до :decks колод по :deck_words слов |
+
+## Редизайн 2026-10-28 · 17.11-A — на проверку носителю
+
+> Проверить: название панели нижней навигации для экранных дикторов — «Bo'limlar» (разделы; читается как «Bo'limlar, navigatsiya»).
+> Экран «Главная» (вкладка «Asosiy») теперь так и называется везде: кнопка «На главную» — «Asosiy sahifaga» (было «Bosh sahifaga»), тексты «экран больше недоступен» / «нет доступа к экрану» — «Asosiy ekran endi mavjud emas.» и «Sizda asosiy ekranga kirish huquqi yo'q.» (было «Bugun ekrani…» — «Сегодня»). Проверить, что «asosiy ekran» / «asosiy sahifa» естественно читаются рядом с названием вкладки «Asosiy».
+> Изменённые значения старых ключей (`finished.home`, `error.closed.today`, `error.forbidden.today`) исправлены в своих прежних строках выше; здесь — только новые ключи.
+
+### TWA, нижняя навигация (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `nav.label` | Bo'limlar | Разделы |
+
+## Редизайн 2026-10-28 · 17-11b — на проверку носителю
+
+> Проверить: пейвол без слов про «Free» у платящего ученика; склонение в лимитах колод (`paywall.lead_decks`: «{words}li {decks}» даёт «50 tagacha so'zli 1 ta to'plam» — `decks.words_up_to`, `decks.count`); «это предел вашего тарифа Pro» и что делать (`decks.limit_pro.*`); предупреждение о неудавшемся списании Stars (`billing.grace`, `billing.grace_until`); подписи кнопок-значков с названием объекта («So'zni olib tashlash: {word}», «Musobaqa tashlash: {name}», «Do'stlikdan chiqarish: {name}»); «Pro uchun navbatda» и пояснение к нему; сообщение, когда не удалось скопировать (`common.copy_failed`).
+> Изменённые значения старых ключей (`paywall.free` — теперь с формами числа, `paywall.lead_decks` — числа берутся из лимитов тарифа, `course.mock_exam_hint` и `course.lesson_words` — с формами числа, `decks.edit.remove_word`, `friends.list.remove`, `friends.challenge.new` — с названием объекта, `orgs.waitlisted`, `settings.leagues.hint` — простыми словами) исправлены в исходных строках выше; здесь — только новые ключи.
+
+### TWA: пейвол, колоды, подписка, настройки, друзья (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `paywall.lead_decks_generic` | Siz Free tarifidagi to'plamlar limitiga yetdingiz. Pro'da 2000 tadan so'zli 20 tagacha to'plam. | Вы достигли лимита колод тарифа Free. В Pro — до 20 колод по 2000 слов. |
+| `decks.count.one` | {count} ta to'plam | {count} колода |
+| `decks.count.few` | _(в uz этой формы нет — используется `other`)_ | {count} колоды |
+| `decks.count.many` | _(в uz этой формы нет — используется `other`)_ | {count} колод |
+| `decks.count.other` | {count} ta to'plam | {count} колоды |
+| `decks.words_up_to.one` | {count} tagacha so'z | до {count} слова |
+| `decks.words_up_to.few` | _(в uz этой формы нет — используется `other`)_ | до {count} слов |
+| `decks.words_up_to.many` | _(в uz этой формы нет — используется `other`)_ | до {count} слов |
+| `decks.words_up_to.other` | {count} tagacha so'z | до {count} слова |
+| `decks.limit_pro.decks` | Bu Pro tarifingizdagi chegara: {decks}. Yangi to'plam yaratish uchun keraksizini o'chiring — so'zlar arxivga o'tadi, natijangiz saqlanadi. | Это предел вашего тарифа Pro: {decks}. Чтобы создать новую колоду, удалите ненужную — слова уйдут в архив, а прогресс сохранится. |
+| `decks.limit_pro.words` | Bu Pro tarifingizdagi chegara: to'plamda {words}. Hech narsa qo'shilmadi — keraksiz so'zlarni olib tashlang yoki ro'yxatning bir qismini boshqa to'plamga qo'shing. | Это предел вашего тарифа Pro: {words} в колоде. Ничего не добавлено — уберите ненужные слова или добавьте часть списка в другую колоду. |
+| `billing.grace` | Telegram yangilash uchun Stars'ni yecha olmadi. Stars balansini to'ldiring — Telegram yechishni qayta urinib ko'radi. | Telegram не смог списать Stars за продление. Пополните баланс Stars — Telegram повторит списание. |
+| `billing.grace_until` | Pro {date} gacha amal qiladi. | Pro действует до {date} |
+| `decks.choose_empty_hint` | Asosiy qilish uchun to'plamga kamida bitta so'z qo'shing. | Добавьте в колоду хотя бы одно слово, чтобы сделать её основной. |
+| `orgs.waitlisted_hint` | Markazda hozircha bo'sh joy yo'q. Joy bo'shaganda markaz bergan Pro yoqiladi. | В центре пока нет свободных мест. Pro от центра включится, когда место освободится. |
+| `common.copy_failed` | Nusxalab bo'lmadi. Havolani belgilab, qo'lda nusxalang. | Не удалось скопировать. Выделите ссылку и скопируйте вручную. |
+
+## Редизайн 2026-10-28 · 17.13 — на проверку носителю
+
+> Исправления по ревью админки, бота и лендинга. Изменённые значения прежних ключей уже обновлены в таблицах выше; здесь они собраны ещё раз,
+> чтобы носителю не искать их по документу. Новых ключей в 17.13 нет. Проверить три вещи: карточку центра на лендинге, слово «yakunlash» для
+> `/close_exam` и слово «trening» для групповой тренировки.
+
+### Лендинг, карточка «Для учебных центров» (`lang/uz/landing.php`)
+
+> Раньше карточка обещала «Все студенты центра получают полный Pro» — это неверно: Pro получают ученики в пределах мест тарифа, сверх лимита они
+> ждут в очереди и остаются на Free. Проверить: «tarifdagi o'rinlar doirasida» (в пределах мест тарифа) — «o'rin» так же называется место в кабинете
+> центра (`org.seats_count`: «o'rinlar: :count»); «Markaz o'quvchilari markazda ekan» (пока состоят в центре) оставлено из прежней строки.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `landing.pricing.centers.features.1` | Markaz o'quvchilari markazda ekan, tarifdagi o'rinlar doirasida Pro oladi | Студенты центра получают Pro в пределах мест тарифа, пока состоят в центре |
+
+### Справка бота в группе: «завершить экзамен» (`lang/uz/bot.php`)
+
+> Меню «/» и справка в личном чате называли `/close_exam` «Imtihonni yakunlash» (завершить экзамен), справка в группе — «imtihonni yopish»
+> (закрыть экзамен): одна команда выглядела как две. Теперь везде «yakunlash». Сообщения об отказе (`errors.exam.close_not_teacher`,
+> `errors.exam.close_failed`) тоже говорили «yopishi» / «yopib bo'lmadi» (закрыть) — в 17.14-S они приведены к тому же глаголу
+> («yakunlashi mumkin», «yakunlab bo'lmadi»; ru «завершить»), строки в таблице `errors.exam.*` выше изменены на месте. Проверить: «yakunlab bo'lmadi».
+
+| Ключ | uz | ru |
+|---|---|---|
+| `bot.help.group` | LexiFlow guruhda.<br><br>O'qituvchi buyruqlari:<br>/start_training — treningni boshlash<br>/start_exam — imtihonni boshlash<br>/close_exam — imtihonni yakunlash<br>/stats — bot bilan shaxsiy chatda hisobot<br>/help — ushbu yordam | LexiFlow в группе.<br><br>Команды учителя:<br>/start_training — запустить тренировку<br>/start_exam — запустить экзамен<br>/close_exam — завершить экзамен<br>/stats — личный отчёт в чате с ботом<br>/help — эта справка |
+
+### Групповая тренировка — «trening», а «mashg'ulot» — занятие из `/today` (`lang/uz/bot.php`, `commands.php`, `training.php`, `errors.php`, `landing.php`)
+
+> В одной справке `/help` слово «mashg'ulot» означало и занятие на сегодня (`/today — bugungi mashg'ulot`, docs/14 §8), и тренировку группы
+> (`/start_training — mashg'ulot`). Теперь тренировка, которую учитель запускает командой `/start_training`, — «trening» во всех строках её пути:
+> подсказка в меню «/», справка, выбор урока, сообщение в группе, кнопка, отказы и карточка центра на лендинге. «Mashg'ulot» остаётся за занятием
+> ученика (`/today`, «Mashg'ulotni boshlash» в приложении). Проверить: естественно ли «trening» (заимствованное слово) в этом значении; если нет —
+> вариант «guruh mashg'uloti» (групповое занятие), тогда заменить его во всех строках ниже одним проходом.
+> Приложение (`resources/twa/src/i18n/uz.ts`) в этой задаче не менялось: там «mashg'ulot» стоит и для занятия, и для групповой тренировки
+> (`landing.outside_telegram`, `training.closed_title`, `error.closed.training`, `error.forbidden.training`) — решить после проверки носителем.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `bot.help.private` (строка «Для учителей») | • Guruhda: /start_training — trening, /start_exam — imtihon, /close_exam — imtihonni yakunlash. | • В группе: /start_training — тренировка, /start_exam — экзамен, /close_exam — завершить экзамен. |
+| `bot.help.group` (строка `/start_training`) | /start_training — treningni boshlash | /start_training — запустить тренировку |
+| `commands.group.start_training` | Treningni boshlash | Запустить тренировку |
+| `training.picker.prompt` | Trening uchun darsni tanlang: | Выберите урок для тренировки: |
+| `training.started` | 📚 Trening boshlandi: :stage-modul, :lesson-dars. Boshlash uchun tugmani bosing. | 📚 Тренировка запущена: модуль :stage, урок :lesson. Нажмите кнопку, чтобы начать. |
+| `training.open_button` | 🎯 Treningni ochish | 🎯 Открыть тренировку |
+| `errors.training.not_teacher` | Treningni faqat shu guruhning o'qituvchisi boshlay oladi. | Только учитель этой группы может запускать тренировку. |
+| `errors.training.failed` | Treningni boshlab bo'lmadi. | Не удалось запустить тренировку. |
+| `errors.training.not_delivered` | Tugmani guruhga yuborib bo'lmadi: trening bekor qilindi. Bot guruhda ekanini va yoza olishini tekshiring, so'ng buyruqni takrorlang. | Не удалось отправить кнопку в группу: тренировка отменена. Проверьте, что бот в группе и может писать, и повторите команду. |
+| `landing.pricing.centers.features.2` | Telegramdagi guruhlar, o'qituvchilar uchun trening va imtihonlar | Группы в Telegram, тренировки и экзамены для учителей |
+
+## Редизайн 2026-10-28 · 17.14-T — на проверку носителю
+
+> Финальная полировка приложения: экран «Подписка» у Free, пейвол у Pro и согласование слова «trening» с ботом (ниже — по подразделам).
+
+### TWA: «Подписка» у Free — строка под заголовком (`resources/twa/src/i18n/uz.ts`)
+
+> Заголовок карточки уже говорит «Bepul tarif» (бесплатный тариф), поэтому строка под ним больше не повторяет название тарифа, а говорит, что он
+> даёт. Раньше она читалась «Bepul tarif: kuniga 20 ta yangi so'z» (`profile.plan.free` — эта строка остаётся в «Профиле», где названия тарифа рядом нет).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `billing.plan.free_limit.one` | Kuniga {count} ta yangi so'z, takrorlash cheklovsiz | {count} новое слово в день, повторения без ограничений |
+| `billing.plan.free_limit.few` | _(в uz этой формы нет — используется `other`)_ | {count} новых слова в день, повторения без ограничений |
+| `billing.plan.free_limit.many` | _(в uz этой формы нет — используется `other`)_ | {count} новых слов в день, повторения без ограничений |
+| `billing.plan.free_limit.other` | Kuniga {count} ta yangi so'z, takrorlash cheklovsiz | {count} новых слова в день, повторения без ограничений |
+
+### TWA: пейвол для Pro-ученика (`resources/twa/src/i18n/uz.ts`)
+
+> Кнопка «Продлить Pro» в «Подписке» открывает тот же лист, что и «Узнать о Pro» у Free; Pro-ученику он больше не продаёт Pro: свой заголовок («Pro'ni
+> uzaytirish» — как кнопка `billing.renew`) и лид о том, что делает оплата: срок добавляется к концу уже оплаченного (Payme, Click и Stars на год так и
+> работают). Строка «Markazda o'qiysizmi?» (`paywall.contact`) у Pro не показывается. Проверить: «To'lov joriy Pro muddatiga qo'shiladi ({date} gacha)» и
+> новый текст отказа `error.code.subscribe_too_early` (его значение исправлено в строке выше, в таблице ошибок TWA): он говорит, что Stars на месяц пока
+> нельзя, когда это можно и что выбрать сейчас («Yil» — подпись периода «Год»; Payme или Click). Бот (`billing.pro.errors.subscribe_too_early`) не менялся.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `paywall.title_renew` | Pro'ni uzaytirish | Продлить Pro |
+| `paywall.lead_renew` | To'lov joriy Pro muddatiga qo'shiladi ({date} gacha). | Оплата добавит срок к текущему Pro (до {date}). |
+
+### TWA: групповая тренировка — «trening», как в боте (`resources/twa/src/i18n/uz.ts`)
+
+> Бот (17.13) называет «trening» тренировку, которую учитель запускает в группе, а «mashg'ulot» — только занятие ученика из `/today`. В приложении проверены
+> четыре строки со словом «mashg'ulot» (в ru там «тренировка»). Изменена одна: `landing.outside_telegram` — просьба прислать **учителя** ссылку на групповую
+> тренировку («ссылка-тренировка»), значение исправлено в строке выше. Остальные три не менялись, потому что экран тренировки один и для групповой, и для
+> личной сессии ученика (урок, ежедневное занятие), и слово в них относится к обеим: `training.closed_title` и `error.closed.training` показываются при 410 для
+> любой сессии (групповая, которую закрыли или она истекла, и личная, закончившаяся в другой вкладке); `error.forbidden.training` сервер отдаёт только для
+> чужой личной сессии и заблокированного ученика (для группы у отказов свои тексты — `error.code.not_a_member`, `error.code.group_inactive`). Если носитель
+> решит, что общие строки о закрытой сессии должны говорить «trening», это два значения в одном проходе (`training.closed_title`, `error.closed.training`);
+> `error.forbidden.training` останется «mashg'ulot»: оно о личной сессии. Строка `error.closed.training` в таблице выше приведена к тексту приложения (в документе
+> стояла старая формулировка «O'qituvchi mashg'ulotni yakunladi»).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `landing.outside_telegram` | Bu sahifa faqat Telegram Web App ichida ishlaydi. O'qituvchidan trening havolasini guruhga yuborishini so'rang. | Эта страница работает только внутри Telegram Web App. Попросите учителя прислать ссылку-тренировку в группу. |

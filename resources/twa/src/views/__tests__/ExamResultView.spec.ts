@@ -146,6 +146,32 @@ describe('ExamResultView', () => {
     expect(wrapper.get('[data-testid=final-score]').text()).not.toBe('1340')
   })
 
+  it('keeps every row of a tie: equal scores share a place, and a row is told by its position', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const { wrapper } = await render(group({
+      rank: 2,
+      total_participants: 5,
+      leaderboard: [
+        { rank: 1, name: 'Anna', score: 1720 },
+        { rank: 2, name: 'Timur', score: 1610 },
+        { rank: 2, name: 'Dilnoza', score: 1610 },
+        { rank: 4, name: 'Kamila', score: 1200 },
+      ],
+    }))
+
+    const ids = wrapper.get('[data-testid=leaderboard]').findAll('.list-row').map((row) => row.attributes('data-testid'))
+    expect(ids).toEqual(['leader-1', 'leader-2', 'leader-3', 'leader-4'])
+    // Both tied rows are drawn, with the place they share.
+    expect(wrapper.get('[data-testid=leader-2]').text()).toContain('Timur')
+    expect(wrapper.get('[data-testid=leader-2]').text()).toContain('🥈')
+    expect(wrapper.get('[data-testid=leader-3]').text()).toContain('Dilnoza')
+    expect(wrapper.get('[data-testid=leader-3]').text()).toContain('🥈')
+    expect(wrapper.get('[data-testid=leader-4]').text()).toContain('Kamila')
+    // A second row with the same key would be a Vue warning (and a glitch on the next update).
+    expect(warn.mock.calls.flat().join('\n')).not.toContain('Duplicate keys')
+    warn.mockRestore()
+  })
+
   it('has no table when nobody has a result yet, and says the places are still being counted', async () => {
     const { wrapper } = await render(group({ rank: null, leaderboard: [] }))
 

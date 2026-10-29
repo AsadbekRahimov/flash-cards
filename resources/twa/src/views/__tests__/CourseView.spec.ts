@@ -6,6 +6,8 @@ import CourseView from '../CourseView.vue'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
+import { useToast } from '@/composables/useToast'
+import { useTodayStore } from '@/stores/today'
 import { useTrainingStore } from '@/stores/training'
 import type { Course, CourseDetail, CourseLesson, CourseStage } from '@/api/types'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
@@ -117,13 +119,17 @@ describe('CourseView', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
+    useToast().hide()
     tg.handler = null
     tg.showBack.mockImplementation((handler: () => void) => {
       tg.handler = handler
       return tg.release
     })
   })
-  afterEach(() => setLocale('ru'))
+  afterEach(() => {
+    useToast().hide()
+    setLocale('ru')
+  })
 
   describe('heading', () => {
     it('loads the course by slug and shows the title, chips, description and progress', async () => {
@@ -330,7 +336,7 @@ describe('CourseView', () => {
       expect(wrapper.get('[data-testid=learn-btn]').attributes('disabled')).toBeDefined()
     })
 
-    it('explains in an alert why a session could not be opened from "Продолжить"', async () => {
+    it('explains in a toast why a session could not be opened from "Продолжить"', async () => {
       vi.mocked(api.courses.get).mockResolvedValue(detail({ is_active: true }))
       vi.mocked(api.training.open).mockRejectedValue(
         new ApiClientError('not_found', 404, 'lesson_not_found', 'Training lesson not found.'),
@@ -340,9 +346,8 @@ describe('CourseView', () => {
       await wrapper.get('[data-testid=continue-btn]').trigger('click')
       await flushPromises()
 
-      const alert = wrapper.get('[data-testid=open-error]')
-      expect(alert.text()).toBe('Урок не найден.')
-      expect(alert.attributes('role')).toBe('alert')
+      expect(useToast().toast.value?.text).toBe('Урок не найден.')
+      expect(wrapper.find('[data-testid=open-error]').exists()).toBe(false)
     })
   })
 
@@ -368,6 +373,40 @@ describe('CourseView', () => {
       expect(second.find('.list').exists()).toBe(false)
     })
 
+    it('names a module without a title by its number: "Модуль N" is the heading, with no second chip and a matching bar label', async () => {
+      vi.mocked(api.courses.get).mockResolvedValue(detail({
+        stages: [
+          { ...stage(1, [lesson(11, 1, 1, 2)]), title: 'Образование' },
+          { ...stage(2, [lesson(21, 1, 0, 3)]), title: null },
+        ],
+      }))
+
+      const { wrapper } = await render()
+
+      const named = wrapper.get('[data-testid=stage-1]')
+      expect(named.get('h2').text()).toBe('Образование')
+      expect(chips(named)).toEqual([{ text: 'Модуль 1', tone: 'chip-neutral' }])
+      expect(named.get('[data-testid=progress-bar]').attributes('aria-label')).toBe('Образование')
+
+      const bare = wrapper.get('[data-testid=stage-2]')
+      expect(bare.get('h2').text()).toBe('Модуль 2')
+      expect(chips(bare)).toEqual([])
+      expect(bare.get('[data-testid=progress-bar]').attributes('aria-label')).toBe('Модуль 2')
+      expect(bare.get('[data-testid=lesson-21]').text()).toContain('Урок 1')
+      expect(wrapper.text()).not.toContain('Stage')
+      expect(wrapper.text()).not.toContain('null')
+    })
+
+    it('treats a blank title like no title', async () => {
+      vi.mocked(api.courses.get).mockResolvedValue(detail({ stages: [{ ...stage(3, []), title: '   ' }] }))
+
+      const { wrapper } = await render()
+
+      const bare = wrapper.get('[data-testid=stage-3]')
+      expect(bare.get('h2').text()).toBe('Модуль 3')
+      expect(chips(bare)).toEqual([])
+    })
+
     it('shows a lesson as "Урок N · title" with the words learned', async () => {
       vi.mocked(api.courses.get).mockResolvedValue(detail())
 
@@ -381,6 +420,21 @@ describe('CourseView', () => {
       expect(untitled.text()).toContain('Урок 2')
       expect(untitled.text()).not.toContain('·')
       expect(untitled.get('[data-testid=lesson-progress]').text()).toBe('0 из 2 слов')
+    })
+
+    it.each([
+      [1, '0 из 1 слова'],
+      [2, '0 из 2 слов'],
+      [5, '0 из 5 слов'],
+      [11, '0 из 11 слов'],
+      [21, '0 из 21 слова'],
+      [22, '0 из 22 слов'],
+    ])('agrees «слов» with the size of the lesson: %i -> %s', async (total, expected) => {
+      vi.mocked(api.courses.get).mockResolvedValue(detail({ stages: [stage(1, [lesson(11, 1, 0, total)])] }))
+
+      const { wrapper } = await render()
+
+      expect(wrapper.get('[data-testid=lesson-11] [data-testid=lesson-progress]').text()).toBe(expected)
     })
 
     it('marks the status of a lesson: learned, started, not started', async () => {
@@ -451,7 +505,7 @@ describe('CourseView', () => {
       expect(wrapper.findAll('[data-testid=learn-btn]').map((b) => b.attributes('disabled') !== undefined)).toEqual([true, true])
     })
 
-    it('stays on the course and explains why a lesson could not be opened', async () => {
+    it('stays on the course and explains in a toast why a lesson could not be opened: the button is far from the top of the page', async () => {
       vi.mocked(api.courses.get).mockResolvedValue(detail())
       vi.mocked(api.training.open).mockRejectedValue(
         new ApiClientError('not_found', 404, 'lesson_not_found', 'Training lesson not found.'),
@@ -463,10 +517,12 @@ describe('CourseView', () => {
       await flushPromises()
 
       expect(router.currentRoute.value.name).toBe('courses')
-      expect(wrapper.get('[data-testid=open-error]').text()).toBe('Урок не найден.')
+      expect(useToast().toast.value?.text).toBe('Урок не найден.')
+      expect(wrapper.find('[data-testid=open-error]').exists()).toBe(false)
+      expect(wrapper.find('[role=alert]').exists()).toBe(false)
     })
 
-    it('forgets the open error when the learner leaves the screen', async () => {
+    it('tells the refusal once and leaves nothing in the training store for the next screen', async () => {
       vi.mocked(api.courses.get).mockResolvedValue(detail())
       vi.mocked(api.training.open).mockRejectedValue(
         new ApiClientError('not_found', 404, 'lesson_not_found', 'Training lesson not found.'),
@@ -475,8 +531,22 @@ describe('CourseView', () => {
       const { wrapper } = await render()
       await wrapper.get('[data-testid=lesson-11]').get('[data-testid=learn-btn]').trigger('click')
       await flushPromises()
-      expect(useTrainingStore().openError).toBe('Урок не найден.')
+      expect(useTrainingStore().openError).toBe('')
 
+      // the same refusal again is news again
+      useToast().hide()
+      await wrapper.get('[data-testid=lesson-11]').get('[data-testid=learn-btn]').trigger('click')
+      await flushPromises()
+      expect(useToast().toast.value?.text).toBe('Урок не найден.')
+
+      wrapper.unmount()
+      expect(useTrainingStore().openError).toBe('')
+    })
+
+    it('forgets an open error that was left by another screen when the learner leaves this one', async () => {
+      vi.mocked(api.courses.get).mockResolvedValue(detail())
+      const { wrapper } = await render()
+      useTrainingStore().openError = 'left over'
       wrapper.unmount()
 
       expect(useTrainingStore().openError).toBe('')
@@ -572,6 +642,20 @@ describe('CourseView', () => {
       }
     })
 
+    it.each([
+      [1, '1 слово курса'],
+      [3, '3 слова курса'],
+      [12, '12 слов курса'],
+      [21, '21 слово курса'],
+      [500, '40 слов курса'], // the mock takes at most 40
+    ])('agrees «слов» in the hint with the size of the test: %i words in the course -> %s', async (words, expected) => {
+      vi.mocked(api.courses.get).mockResolvedValue(detail({ exam_tag: 'sat', words_count: words }))
+
+      const { wrapper } = await render()
+
+      expect(wrapper.get('[data-testid=mock-exam-hint]').text()).toBe(`${expected} · 20 мин · результат в процентах и сравнение с другими`)
+    })
+
     it('draws the card with a purple flag tile and a tinted block button', async () => {
       vi.mocked(api.courses.get).mockResolvedValue(detail({ exam_tag: 'ielts' }))
 
@@ -641,6 +725,55 @@ describe('CourseView', () => {
       expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
     })
 
+    describe('"Повторить слова" in the paywall', () => {
+      /** A Free learner is refused the mock while the Home tab knows of due cards: the sheet offers the review. */
+      async function openPaywall() {
+        useTodayStore().data = { due_count: 12 } as never
+        vi.mocked(api.courses.get).mockResolvedValue(detail({ exam_tag: 'sat' }))
+        vi.mocked(api.exam.openMock).mockRejectedValue(
+          new ApiClientError('forbidden', 403, 'exam_simulator_pro_required', 'Mock exams are a Pro feature.'),
+        )
+        vi.mocked(api.me.get).mockResolvedValue({
+          learner: { id: 1, first_name: 'A', username: null, locale: 'ru', onboarding_completed: true },
+          groups: [],
+          stats: { words_learned: 0, words_due_today: 0 },
+          entitlement: { plan: 'free', source: 'free', until: null, new_words_per_day: 20 },
+          paywall: { mode: 'coming_soon', contact: null },
+          settings: settingsFixture(),
+        })
+        const context = await render()
+        await context.router.push('/courses')
+        await context.wrapper.get('[data-testid=mock-exam-btn]').trigger('click')
+        await flushPromises()
+        return context
+      }
+
+      it('starts the daily review: the sheet closes and the training screen opens', async () => {
+        vi.mocked(api.training.open).mockResolvedValue({ session_id: 64, mode: 'daily_review', lesson: null, total_words: 5 } as never)
+        const { wrapper, router } = await openPaywall()
+        expect(wrapper.get('[data-testid=paywall-review]').text()).toBe('Повторить слова')
+
+        await wrapper.get('[data-testid=paywall-review]').trigger('click')
+        await flushPromises()
+
+        expect(api.training.open).toHaveBeenCalledWith({ mode: 'daily_review', source: 'self' })
+        expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+        expect(router.currentRoute.value.name).toBe('training')
+        expect(router.currentRoute.value.params.sessionId).toBe('64')
+      })
+
+      it('tells in a toast why the review did not open, as for any other session of this screen, and stays on the course', async () => {
+        vi.mocked(api.training.open).mockRejectedValue(new ApiClientError('network', 0, 'unknown', 'x'))
+        const { wrapper, router } = await openPaywall()
+
+        await wrapper.get('[data-testid=paywall-review]').trigger('click')
+        await flushPromises()
+
+        expect(router.currentRoute.value.name).toBe('courses')
+        expect(useToast().toast.value?.text).toBe('Нет связи с сервером. Попробуйте ещё раз.')
+      })
+    })
+
     it('explains any other refusal of the mock in an alert on the card', async () => {
       vi.mocked(api.courses.get).mockResolvedValue(detail({ exam_tag: 'ielts' }))
       vi.mocked(api.exam.openMock).mockRejectedValue(
@@ -658,6 +791,18 @@ describe('CourseView', () => {
     })
   })
 
+  it('names a module without a title "N-modul" in Uzbek: the server sends null, never an English "Stage N"', async () => {
+    setLocale('uz')
+    vi.mocked(api.courses.get).mockResolvedValue(detail({ stages: [{ ...stage(2, [lesson(21, 1, 0, 1)]), title: null }] }))
+
+    const { wrapper } = await render()
+
+    const bare = wrapper.get('[data-testid=stage-2]')
+    expect(bare.get('h2').text()).toBe('2-modul')
+    expect(chips(bare)).toEqual([])
+    expect(bare.get('[data-testid=progress-bar]').attributes('aria-label')).toBe('2-modul')
+  })
+
   it('renders Uzbek texts', async () => {
     setLocale('uz')
     vi.mocked(api.courses.get).mockResolvedValue(detail({ stages: [stage(1, [lesson(11, 1, 2, 3, 'Greetings'), lesson(12, 2, 0, 3)])] }))
@@ -667,6 +812,7 @@ describe('CourseView', () => {
     expect(wrapper.get('[data-testid=stage-1]').text()).toContain('1-modul')
     expect(wrapper.get('[data-testid=lesson-11]').text()).toContain('1-dars · Greetings')
     expect(wrapper.get('[data-testid=lesson-11] [data-testid=lesson-progress]').text()).toBe("3 ta so'zdan 2 tasi")
+    expect(wrapper.get('[data-testid=lesson-12] [data-testid=lesson-progress]').text()).toBe("3 ta so'zdan 0 tasi")
     expect(wrapper.get('[data-testid=progress-text]').text()).toBe("5 tadan 2 tasi o'rganildi")
     expect(wrapper.get('[data-testid=choose-btn]').text()).toBe('Asosiy qilish')
     expect(wrapper.get('[data-testid=choose-hint]').text()).toBe("Kunlik mashg'ulotdagi yangi so'zlar shu kursdan bo'ladi")

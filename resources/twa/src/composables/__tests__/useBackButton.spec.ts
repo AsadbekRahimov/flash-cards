@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
-import { createMemoryHistory, createRouter } from 'vue-router'
+import { createMemoryHistory, createRouter, createWebHistory } from 'vue-router'
 import { useBackButton, type BackButtonTarget } from '../useBackButton'
 
 const tg = vi.hoisted(() => ({
@@ -67,6 +67,75 @@ describe('useBackButton', () => {
     await flushPromises()
 
     expect(router.currentRoute.value.path).toBe('/profile')
+  })
+
+  describe('with a real history (the app)', () => {
+    /** Like the app's router: web history, so every entry knows the one before it (`history.state.back`). */
+    function makeWebRouter() {
+      return createRouter({
+        history: createWebHistory('/back-test/'),
+        routes: [
+          { path: '/', name: 'home', component: { template: '<div />' } },
+          { path: '/courses', name: 'courses', component: { template: '<div />' } },
+          { path: '/courses/:slug', name: 'course', component: { template: '<div />' } },
+          { path: '/profile', name: 'profile', component: { template: '<div />' } },
+        ],
+      })
+    }
+
+    it('steps back in the history when the screen before is the target: that screen comes back where it was scrolled to', async () => {
+      const router = makeWebRouter()
+      await router.push('/courses')
+      await router.push('/courses/ielts-core')
+      mountScreen({ name: 'courses' }, router)
+      const back = vi.spyOn(router, 'back')
+      const push = vi.spyOn(router, 'push')
+
+      tg.handler?.()
+
+      await vi.waitFor(() => expect(router.currentRoute.value.name).toBe('courses'))
+      expect(back).toHaveBeenCalledTimes(1)
+      expect(push).not.toHaveBeenCalled()
+    })
+
+    it('pushes the target when the screen before is another one (a deep link, another way in)', async () => {
+      const router = makeWebRouter()
+      await router.push('/profile')
+      await router.push('/courses/ielts-core')
+      mountScreen({ name: 'courses' }, router)
+      const back = vi.spyOn(router, 'back')
+
+      tg.handler?.()
+
+      await vi.waitFor(() => expect(router.currentRoute.value.name).toBe('courses'))
+      expect(back).not.toHaveBeenCalled()
+    })
+
+    it('pushes the target when there is no screen before (the very first one)', async () => {
+      const router = makeWebRouter()
+      await router.replace('/courses/ielts-core')
+      mountScreen({ name: 'courses' }, router)
+      const back = vi.spyOn(router, 'back')
+
+      tg.handler?.()
+
+      await vi.waitFor(() => expect(router.currentRoute.value.name).toBe('courses'))
+      expect(back).not.toHaveBeenCalled()
+    })
+
+    it('compares the whole place, query included: another list of the same screen is not "the screen before"', async () => {
+      const router = makeWebRouter()
+      await router.push('/courses?tab=2')
+      await router.push('/courses/ielts-core')
+      mountScreen({ name: 'courses' }, router)
+      const back = vi.spyOn(router, 'back')
+
+      tg.handler?.()
+
+      await vi.waitFor(() => expect(router.currentRoute.value.name).toBe('courses'))
+      expect(back).not.toHaveBeenCalled()
+      expect(router.currentRoute.value.fullPath).toBe('/courses')
+    })
   })
 
   it('calls a function target instead of navigating', async () => {

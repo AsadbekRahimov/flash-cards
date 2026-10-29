@@ -6,6 +6,7 @@ namespace App\Filament\Widgets;
 
 use App\Domain\Administration\Services\PlatformStatsService;
 use App\Filament\Concerns\RequiresActiveAdmin;
+use App\Filament\Resources\Support\AdminNumbers;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
@@ -38,7 +39,7 @@ class OnboardingFunnelWidget extends StatsOverviewWidget
                 ->description(__('admin.widgets.onboarding_funnel.completed_help'))
                 ->color($funnel['completed'] > 0 ? 'success' : 'gray')
                 ->icon('heroicon-o-check-circle'),
-            Stat::make(__('admin.widgets.onboarding_funnel.conversion'), $funnel['conversion'] === null ? '—' : $funnel['conversion'].'%')
+            Stat::make(__('admin.widgets.onboarding_funnel.conversion'), $funnel['conversion'] === null ? '—' : AdminNumbers::decimal($funnel['conversion'], trimZeros: true).'%')
                 ->icon('heroicon-o-funnel'),
         ];
     }

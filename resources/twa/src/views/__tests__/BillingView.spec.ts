@@ -6,7 +6,9 @@ import BillingView from '../BillingView.vue'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
+import { useToast } from '@/composables/useToast'
 import { useBillingStore } from '@/stores/billing'
+import { useTodayStore } from '@/stores/today'
 import type { BillingCatalog, MeResponse, Renewal, SubscriptionSummary } from '@/api/types'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 
@@ -18,6 +20,7 @@ vi.mock('@/api', () => ({
     promo: { redeem: vi.fn() },
     today: { get: vi.fn() },
     billing: { catalog: vi.fn(), checkout: vi.fn(), order: vi.fn(), cancel: vi.fn(), resume: vi.fn() },
+    training: { open: vi.fn() },
   },
 }))
 
@@ -41,13 +44,15 @@ interface Setup {
   renewal?: Renewal | null
   mode?: 'coming_soon' | 'purchase'
   contact?: string | null
+  /** New words a day of a Free learner. */
+  limit?: number
 }
 
-const me = ({ plan = 'free', source, until = null, renewal = null, mode = 'purchase', contact = null }: Setup = {}): MeResponse => ({
+const me = ({ plan = 'free', source, until = null, renewal = null, mode = 'purchase', contact = null, limit = 20 }: Setup = {}): MeResponse => ({
   learner: { id: 1, first_name: 'A', username: null, locale: 'ru', onboarding_completed: true },
   groups: [],
   stats: { words_learned: 0, words_due_today: 0 },
-  entitlement: { plan, source: source ?? (plan === 'pro' ? 'subscription' : 'free'), until, new_words_per_day: plan === 'pro' ? null : 20, renewal },
+  entitlement: { plan, source: source ?? (plan === 'pro' ? 'subscription' : 'free'), until, new_words_per_day: plan === 'pro' ? null : limit, renewal },
   paywall: { mode, contact },
   settings: settingsFixture(),
 })
@@ -76,6 +81,7 @@ const makeRouter = () =>
     routes: [
       { path: '/profile', name: 'profile', component: { template: '<div />' } },
       { path: '/billing', name: 'billing', component: BillingView },
+      { path: '/training/:sessionId(\\d+)', name: 'training', component: { template: '<div />' } },
     ],
   })
 
@@ -100,8 +106,12 @@ describe('BillingView', () => {
     state.back = undefined
     state.ensure.mockResolvedValue(undefined)
     vi.mocked(api.today.get).mockResolvedValue({} as never)
+    useToast().hide()
   })
-  afterEach(() => setLocale('ru'))
+  afterEach(() => {
+    useToast().hide()
+    setLocale('ru')
+  })
 
   describe('the plan card', () => {
     it('shows a Free learner the plan, the Free chip and what Free gives', async () => {
@@ -111,9 +121,38 @@ describe('BillingView', () => {
       expect(wrapper.get('[data-testid=plan-name]').text()).toBe('Бесплатный тариф')
       expect(wrapper.get('[data-testid=plan-chip]').text()).toBe('Free')
       expect(wrapper.get('[data-testid=plan-chip]').classes()).toContain('chip-neutral')
-      expect(wrapper.get('[data-testid=plan-free]').text()).toContain('20 новых слов в день')
+      expect(wrapper.get('[data-testid=plan-free]').text()).toBe('20 новых слов в день, повторения без ограничений')
       expect(wrapper.find('[data-testid=plan-until]').exists()).toBe(false)
       expect(wrapper.find('[data-testid=renewal-card]').exists()).toBe(false)
+    })
+
+    it('names the plan once: the line under the title says what it gives, without the name of the plan again', async () => {
+      const { wrapper } = await render(me(), catalog())
+
+      const card = wrapper.get('[data-testid=plan-card]')
+      expect(card.text().match(/Бесплатный тариф/g)).toHaveLength(1)
+      expect(wrapper.get('[data-testid=plan-free]').text()).not.toContain('тариф')
+    })
+
+    it.each([
+      [1, '1 новое слово в день, повторения без ограничений'],
+      [2, '2 новых слова в день, повторения без ограничений'],
+      [5, '5 новых слов в день, повторения без ограничений'],
+      [11, '11 новых слов в день, повторения без ограничений'],
+      [21, '21 новое слово в день, повторения без ограничений'],
+    ])('inflects the word for a limit of %i', async (limit, text) => {
+      const { wrapper } = await render(me({ limit }), catalog())
+
+      expect(wrapper.get('[data-testid=plan-free]').text()).toBe(text)
+    })
+
+    it('says the limit of Free in Uzbek, and names the plan once there too', async () => {
+      setLocale('uz')
+      const { wrapper } = await render(me({ limit: 1 }), catalog())
+
+      expect(wrapper.get('[data-testid=plan-name]').text()).toBe('Bepul tarif')
+      expect(wrapper.get('[data-testid=plan-free]').text()).toBe("Kuniga 1 ta yangi so'z, takrorlash cheklovsiz")
+      expect(wrapper.get('[data-testid=plan-card]').text().match(/Bepul tarif/g)).toHaveLength(1)
     })
 
     it('has a purple tile with the sparkles icon', async () => {
@@ -214,6 +253,34 @@ describe('BillingView', () => {
       expect(api.me.get).toHaveBeenCalledTimes(1)
     })
 
+    it('does not offer «Renew Pro» on top of the Pro of a center: the card says where Pro comes from', async () => {
+      const { wrapper } = await render(me({ plan: 'pro', source: 'sponsor:organization:3', until: null }), catalog())
+
+      expect(wrapper.get('[data-testid=plan-sponsored]').text()).toBe('Pro подключён вашим центром.')
+      expect(wrapper.find('[data-testid=buy]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=unavailable]').exists()).toBe(false)
+      expect(wrapper.findAll('.btn-primary')).toHaveLength(0)
+      expect(wrapper.find('[data-testid=promo-card]').exists()).toBe(true)
+    })
+
+    it('offers no discount block to the Pro of a center either', async () => {
+      const { wrapper } = await render(me({ plan: 'pro', source: 'sponsor:organization:3', until: null }), offerCatalog())
+
+      expect(wrapper.find('[data-testid=offer-card]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=buy]').exists()).toBe(false)
+    })
+
+    it('still offers to renew to a learner who pays for Pro themself while a center also gives it', async () => {
+      const ends = '2026-11-20T00:00:00+00:00'
+      const { wrapper } = await render(
+        me({ plan: 'pro', source: 'sponsor:organization:3', until: ends, renewal: { auto: false, provider: 'payme', ends_at: ends, reminder_sent: false } }),
+        catalog(summary({ provider: 'payme', ends_at: ends, auto_renew: false, can_cancel: false, can_resume: false })),
+      )
+
+      expect(wrapper.find('[data-testid=plan-sponsored]').exists()).toBe(false)
+      expect(wrapper.get('[data-testid=buy]').text()).toBe('Продлить Pro')
+    })
+
     it('shows no buy button for a perpetual Pro grant', async () => {
       const { wrapper } = await render(
         me({ plan: 'pro', until: null }),
@@ -235,6 +302,23 @@ describe('BillingView', () => {
       expect(wrapper.get('[data-testid=buy]').text()).toBe('Продлить Pro')
     })
 
+    it('renews for a Pro learner without telling them in the sheet that they are on Free', async () => {
+      const ends = '2026-11-20T00:00:00+00:00'
+      const { wrapper } = await render(
+        me({ plan: 'pro', until: ends, renewal: { auto: false, provider: 'payme', ends_at: ends, reminder_sent: false } }),
+        catalog(summary({ provider: 'payme', ends_at: ends, auto_renew: false, can_cancel: false, can_resume: false })),
+      )
+      expect(wrapper.get('[data-testid=buy]').text()).toBe('Продлить Pro')
+
+      await wrapper.get('[data-testid=buy]').trigger('click')
+      await flushPromises()
+
+      expect(wrapper.find('[data-testid=paywall]').exists()).toBe(true)
+      expect(wrapper.find('[data-testid=paywall-free]').exists()).toBe(false)
+      expect(wrapper.get('[data-testid=paywall]').text()).not.toContain('тариф Free')
+      expect(wrapper.find('[data-testid=pay-telegram_stars]').exists()).toBe(true) // the sheet still sells the renewal
+    })
+
     it('shows "Pro ended" to a Free learner whose subscription lapsed: the banner and the button both say renew', async () => {
       const lapsedMe = me()
       lapsedMe.entitlement.lapsed = { provider: 'payme', ended_at: '2026-10-18T09:30:00+00:00' }
@@ -247,6 +331,56 @@ describe('BillingView', () => {
       await wrapper.get('[data-testid=lapsed-renew]').trigger('click')
       await flushPromises()
       expect(wrapper.find('[data-testid=paywall]').exists()).toBe(true)
+    })
+
+    describe('"Повторить слова" in the paywall', () => {
+      /** The learner opens the purchase sheet while the Home tab knows of due cards: it offers the review. */
+      async function openPaywall() {
+        useTodayStore().data = { due_count: 12 } as never
+        const context = await render(me(), catalog())
+        await context.wrapper.get('[data-testid=buy]').trigger('click')
+        await flushPromises()
+        return context
+      }
+
+      it('starts the daily review: the sheet closes and the training screen opens', async () => {
+        vi.mocked(api.training.open).mockResolvedValue({ session_id: 63, mode: 'daily_review', lesson: null, total_words: 5 } as never)
+        const { wrapper, router } = await openPaywall()
+        expect(wrapper.get('[data-testid=paywall-review]').text()).toBe('Повторить слова')
+
+        await wrapper.get('[data-testid=paywall-review]').trigger('click')
+        await flushPromises()
+
+        expect(api.training.open).toHaveBeenCalledWith({ mode: 'daily_review', source: 'self' })
+        expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+        expect(router.currentRoute.value.name).toBe('training')
+        expect(router.currentRoute.value.params.sessionId).toBe('63')
+      })
+
+      it('tells in a toast why the review did not open and stays on the subscription', async () => {
+        vi.mocked(api.training.open).mockRejectedValue(new ApiClientError('network', 0, 'unknown', 'x'))
+        const { wrapper, router } = await openPaywall()
+
+        await wrapper.get('[data-testid=paywall-review]').trigger('click')
+        await flushPromises()
+
+        expect(router.currentRoute.value.name).toBe('billing')
+        expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+        expect(useToast().toast.value?.text).toBe('Нет связи с сервером. Попробуйте ещё раз.')
+      })
+    })
+
+    it('tells a lapsed learner that Pro ended, with no «Renew» button that would do nothing, while nothing is for sale', async () => {
+      const lapsedMe = me({ mode: 'coming_soon' })
+      lapsedMe.entitlement.lapsed = { provider: 'payme', ended_at: '2026-10-18T09:30:00+00:00' }
+      window.localStorage.clear()
+      const { wrapper } = await render(lapsedMe, catalog(null, false))
+
+      expect(wrapper.get('[data-testid=lapsed-title]').text()).toBe('Pro закончился')
+      expect(wrapper.find('[data-testid=lapsed-renew]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=buy]').exists()).toBe(false)
+      expect(wrapper.get('[data-testid=unavailable]').text()).toBe('Оплата скоро откроется.')
+      expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
     })
 
     it('has no banner without a lapse and none for a Pro learner', async () => {
@@ -279,7 +413,38 @@ describe('BillingView', () => {
       const resume = wrapper.get('[data-testid=resume-renewal]')
       expect(resume.text()).toBe('Включить автопродление')
       expect(resume.classes()).toEqual(expect.arrayContaining(['btn-primary', 'btn-block']))
-      expect(wrapper.get('[data-testid=buy]').text()).toBe('Продлить Pro')
+      const buy = wrapper.get('[data-testid=buy]')
+      expect(buy.text()).toBe('Продлить Pro')
+      // One main action on the screen: "Resume" is it, paying again is the other way.
+      expect(buy.classes()).toEqual(expect.arrayContaining(['btn-tinted', 'btn-lg', 'btn-block']))
+      expect(buy.classes()).not.toContain('btn-primary')
+      expect(wrapper.findAll('.btn-primary')).toHaveLength(1)
+    })
+
+    it('has one primary button whatever the plan: «Buy», «Renew» or «Resume»', async () => {
+      const free = await render(me(), catalog())
+      expect(free.wrapper.findAll('.btn-primary').map((b) => b.attributes('data-testid'))).toEqual(['buy'])
+
+      setActivePinia(createPinia())
+      const payme = await render(
+        me({ plan: 'pro', until: '2026-11-20T00:00:00+00:00', renewal: { auto: false, provider: 'payme', ends_at: '2026-11-20T00:00:00+00:00', reminder_sent: false } }),
+        catalog(summary({ provider: 'payme', auto_renew: false, can_cancel: false, can_resume: false })),
+      )
+      expect(payme.wrapper.findAll('.btn-primary').map((b) => b.attributes('data-testid'))).toEqual(['buy'])
+
+      setActivePinia(createPinia())
+      const running = await render(me({ plan: 'pro', until: renewing.ends_at, renewal: renewing }), catalog(summary()))
+      expect(running.wrapper.findAll('.btn-primary')).toHaveLength(0) // cancel is secondary, nothing to buy
+    })
+
+    it('keeps the promo field tinted: «Activate» is not the main action of the screen', async () => {
+      const { wrapper } = await render(me(), catalog())
+
+      await wrapper.get('[data-testid=promo-toggle]').trigger('click')
+
+      const submit = wrapper.get('[data-testid=promo-submit]')
+      expect(submit.classes()).toContain('btn-tinted')
+      expect(wrapper.findAll('.btn-primary').map((b) => b.attributes('data-testid'))).toEqual(['buy'])
     })
 
     it('resumes the renewal', async () => {
@@ -322,6 +487,56 @@ describe('BillingView', () => {
       await useBillingStore().load()
 
       expect(api.me.get).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('a Stars renewal in grace (past_due)', () => {
+    const ends = '2026-11-03T12:00:00+00:00'
+    const graceMe = () => me({ plan: 'pro', until: ends, renewal: { auto: false, provider: 'telegram_stars', ends_at: ends, reminder_sent: true } })
+    const graceSubscription = () => summary({ status: 'past_due', ends_at: ends, auto_renew: false, can_cancel: false, can_resume: false })
+
+    it('hides the purchase the server would refuse and says what to do instead, with the date', async () => {
+      const { wrapper } = await render(graceMe(), catalog(graceSubscription()))
+
+      expect(wrapper.find('[data-testid=buy]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=unavailable]').exists()).toBe(false)
+      const alert = wrapper.get('[data-testid=grace-alert]')
+      expect(alert.text()).toBe(
+        'Telegram не смог списать Stars за продление. Пополните баланс Stars — Telegram повторит списание. Pro действует до 3 ноября 2026 г.',
+      )
+      expect(alert.attributes('role')).toBe('status')
+      expect(alert.classes()).toContain('text-warning-ink')
+    })
+
+    it('keeps the plan card, shows no cancel or resume button, and offers no discount to pay for', async () => {
+      const withOffer = { ...offerCatalog(), subscription: graceSubscription() }
+      const { wrapper } = await render(graceMe(), withOffer)
+
+      expect(wrapper.get('[data-testid=plan-chip]').text()).toBe('Pro')
+      expect(wrapper.get('[data-testid=plan-until]').text()).toBe('Действует до 3 ноября 2026 г.')
+      expect(wrapper.find('[data-testid=renewal-card]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=offer-card]').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+    })
+
+    it('has one primary button at most: none here, the promo field stays', async () => {
+      const { wrapper } = await render(graceMe(), catalog(graceSubscription()))
+
+      expect(wrapper.findAll('.btn-primary')).toHaveLength(0)
+      expect(wrapper.find('[data-testid=promo-card]').exists()).toBe(true)
+    })
+
+    it('says it in Uzbek', async () => {
+      setLocale('uz')
+      const { wrapper } = await render(graceMe(), catalog(graceSubscription()))
+
+      expect(wrapper.get('[data-testid=grace-alert]').text()).toContain("Telegram yangilash uchun Stars'ni yecha olmadi.")
+    })
+
+    it('is not shown for a running renewal, which has its own card', async () => {
+      const { wrapper } = await render(me({ plan: 'pro', until: renewing.ends_at, renewal: renewing }), catalog(summary()))
+
+      expect(wrapper.find('[data-testid=grace-alert]').exists()).toBe(false)
     })
   })
 

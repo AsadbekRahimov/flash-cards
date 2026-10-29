@@ -139,6 +139,12 @@ describe('LeagueView', () => {
       expect(router.currentRoute.value.name).toBe('friends')
     })
 
+    it('names the switch as a navigation landmark of its own, besides the tab bar', async () => {
+      const { wrapper } = await render()
+
+      expect(wrapper.get('nav').attributes('aria-label')).toBe('Рейтинг')
+    })
+
     it('is a tab root: no system Back button', async () => {
       await render()
 

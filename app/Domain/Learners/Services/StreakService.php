@@ -8,6 +8,7 @@ use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Engagement\Services\StreakFreezeService;
 use App\Domain\Learners\DTO\StreakState;
+use App\Domain\Learners\Support\StoredDate;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
 use Carbon\CarbonImmutable;
@@ -318,8 +319,8 @@ class StreakService
         return LearnerDailyStats::query()
             ->where('learner_id', $learnerId)
             ->where(fn (Builder $q) => $q->whereNotNull('goal_met_at')->orWhereNotNull('frozen_at'))
-            ->where('date', '>=', $this->storedDate($from))
-            ->where('date', '<=', $this->storedDate($through))
+            ->where('date', '>=', StoredDate::of($from))
+            ->where('date', '<=', StoredDate::of($through))
             ->orderBy('date')
             ->get(['id', 'learner_id', 'date', 'goal_met_at', 'frozen_at']);
     }
@@ -429,7 +430,7 @@ class StreakService
         /** @var LearnerDailyStats|null $row */
         $row = LearnerDailyStats::query()
             ->where('learner_id', $learnerId)
-            ->where('date', $this->storedDate($date))
+            ->where('date', StoredDate::of($date))
             ->where(fn (Builder $q) => $q->whereNotNull('goal_met_at')->orWhereNotNull('frozen_at'))
             ->first(['id', 'learner_id', 'date', 'goal_met_at', 'frozen_at']);
 
@@ -448,8 +449,8 @@ class StreakService
         $rows = LearnerDailyStats::query()
             ->where('learner_id', $learnerId)
             ->where(fn (Builder $q) => $q->whereNotNull('goal_met_at')->orWhereNotNull('frozen_at'))
-            ->where('date', '<=', $this->storedDate($endDate))
-            ->where('date', '>', $this->storedDate($end->subDays(self::MAX_REBUILD_DAYS)->toDateString()))
+            ->where('date', '<=', StoredDate::of($endDate))
+            ->where('date', '>', StoredDate::of($end->subDays(self::MAX_REBUILD_DAYS)->toDateString()))
             ->orderByDesc('date')
             ->get(['date', 'goal_met_at']);
 
@@ -466,12 +467,6 @@ class StreakService
         }
 
         return $run;
-    }
-
-    /** The `date` column as Eloquent stores it (see DailyStatsService::storedDate): sqlite compares text. */
-    private function storedDate(string $localDate): string
-    {
-        return (string) (new LearnerDailyStats)->fromDateTime($localDate);
     }
 
     private function syncModel(Learner $learner, int $current, int $best, string $last): void

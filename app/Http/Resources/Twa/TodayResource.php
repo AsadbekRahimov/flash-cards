@@ -28,7 +28,8 @@ final class TodayResource extends TwaResource
      *   open_session_id: int|null,
      *   entitlement: array{plan: string, source: string, until: string|null},
      *   onboarding_completed: bool,
-     *   league: array{tier: int, tier_key: string, rank: int, points: int, members_count: int}|null
+     *   league: array{tier: int, tier_key: string, rank: int, points: int, members_count: int}|null,
+     *   timezone: string
      * }
      */
     public function toArray(Request $request): array
@@ -62,6 +63,7 @@ final class TodayResource extends TwaResource
             ],
             'onboarding_completed' => $summary->onboardingCompleted,
             'league' => $summary->league?->toArray(),
+            'timezone' => $summary->timezone,
         ];
     }
 }

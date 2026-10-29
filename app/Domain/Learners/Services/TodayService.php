@@ -68,6 +68,8 @@ final class TodayService
             openSessionId: $this->openDailySessionId($learner, $now),
             entitlement: $this->entitlements->for($learner, $now),
             onboardingCompleted: $learner->onboarding_state === 'done',
+            // The zone the clock really counted the day in (an unknown stored value falls back there): the TWA dates its header by it.
+            timezone: $this->clock->timezone($learner)->getName(),
             league: $this->leagues->todayLine($learner, $now),
         );
     }

@@ -121,6 +121,18 @@ describe('FlashCard', () => {
     }
   })
 
+  it('writes the hints in a colour of their own, not faded with opacity (12 px text must read in a light theme)', () => {
+    const w = mount(FlashCard, { props: { card, showTranslation: true } })
+    const hints = w.findAll('[data-testid=grade-hint]')
+
+    expect(hints.map((hint) => hint.text())).toEqual(['повторим сегодня', 'по расписанию', 'покажем реже'])
+    for (const hint of hints) {
+      expect(hint.classes().filter((name) => name.startsWith('opacity-'))).toEqual([])
+      // The colour of the button mixed with the theme text colour (docs/14 §4.1: 4.5:1 and better on the soft fills).
+      expect(hint.classes().some((name) => name.startsWith('text-[color-mix('))).toBe(true)
+    }
+  })
+
   it('notes that the translation is a Russian fallback only when the server says so', () => {
     const plain = mount(FlashCard, { props: { card, showTranslation: true } })
     expect(plain.find('[data-testid=translation-fallback]').exists()).toBe(false)

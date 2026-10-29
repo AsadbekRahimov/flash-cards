@@ -21,9 +21,15 @@ class StageFactory extends Factory
         return [
             'course_id' => Course::factory(),
             'number' => $counter,
-            'title' => "Stage {$counter}",
+            'title' => "Module {$counter}",
             'description' => fake()->sentence(),
         ];
+    }
+
+    /** A module without a name of its own (`title` NULL): readers are shown "Модуль N" / "N-modul". */
+    public function untitled(): static
+    {
+        return $this->state(fn (): array => ['title' => null]);
     }
 
     /** The stage lives in the platform `default` course (where teacher commands look for it when the group has no course). */

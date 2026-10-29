@@ -99,6 +99,7 @@ it('is empty for a fresh learner: zero goal progress, no streak, no course, the 
         'entitlement' => ['plan' => 'free', 'source' => 'free', 'until' => null],
         'onboarding_completed' => false,
         'league' => null,
+        'timezone' => $learner->timezone,
     ]);
 });
 
@@ -178,6 +179,34 @@ it('reads "today" in the learner\'s own zone: the same instant is two different 
     todayGet($this, $newYork)->assertOk()->assertJsonPath('streak.at_risk', false)->assertJsonPath('streak.met_today', true);
 });
 
+it('names the zone the day is counted in, so that the header of the screen can be dated by it', function (): void {
+    $tashkent = Learner::factory()->create(['timezone' => 'Asia/Tashkent']);
+    $newYork = Learner::factory()->create(['timezone' => 'America/New_York']);
+
+    todayGet($this, $tashkent)->assertOk()->assertJsonPath('timezone', 'Asia/Tashkent');
+    todayGet($this, $newYork)->assertOk()->assertJsonPath('timezone', 'America/New_York');
+});
+
+it('follows the zone of the settings the moment it changes', function (): void {
+    $learner = Learner::factory()->onboarded()->create(['timezone' => 'Asia/Tashkent']);
+
+    todayGet($this, $learner)->assertOk()->assertJsonPath('timezone', 'Asia/Tashkent');
+
+    $this->withHeaders(todayHeaders($learner))->patchJson('/api/twa/me/settings', ['timezone' => 'America/New_York'])->assertOk();
+
+    todayGet($this, $learner)->assertOk()->assertJsonPath('timezone', 'America/New_York');
+});
+
+it('names the zone the clock fell back to when the stored one is not a zone: the day is counted there', function (string $stored): void {
+    config(['learners.default_timezone' => 'Asia/Samarkand']);
+    CarbonImmutable::setTestNow('2026-10-19 19:30:00'); // 00:30 on the 20th in Samarkand
+    $learner = Learner::factory()->create(['timezone' => $stored, 'streak_current' => 2, 'streak_best' => 2, 'streak_last_date' => '2026-10-19']);
+
+    todayGet($this, $learner)->assertOk()
+        ->assertJsonPath('timezone', 'Asia/Samarkand')
+        ->assertJsonPath('streak.at_risk', true); // the 20th has started there, the streak of the 19th is no longer "met today"
+})->with(['an unknown id' => 'Mars/Olympus', 'an empty value' => '']);
+
 // --- due_count ------------------------------------------------------------------------
 
 it('counts only due cards of active words', function (): void {
@@ -247,6 +276,24 @@ it('describes the active course with its progress and the next lesson with new w
         ->assertJsonPath('active_course.progress', ['learned' => 1, 'total' => 4])
         ->assertJsonPath('active_course.next_lesson.id', $lessons[1]->id)
         ->assertJsonPath('active_course.next_lesson.lesson', 2);
+});
+
+it('finds the next lesson and its stage in one statement: no separate read of `stages` on the Today screen', function (): void {
+    $lessons = todayCourse(2, 2);
+    $learner = Learner::factory()->onboarded()->create(['active_course_id' => $lessons[0]->stage?->course_id]);
+    todayGet($this, $learner)->assertOk(); // warm the entitlement and catalog caches
+
+    $queries = [];
+    DB::listen(function ($query) use (&$queries): void {
+        $queries[] = $query->sql;
+    });
+    todayGet($this, $learner)->assertOk()->assertJsonPath('active_course.next_lesson.stage', 1);
+
+    $matching = fn (string $pattern): array => array_values(array_filter($queries, fn (string $sql): bool => preg_match($pattern, $sql) === 1));
+    // The next lesson carries its stage from the joined row ...
+    expect($matching('/["`]stages["`]\.["`]number["`] as ["`]stage__number["`]/'))->toHaveCount(1)
+        // ... and the stage is not loaded again by an eager load after it.
+        ->and($matching('/^select \* from ["`]stages["`] where ["`]stages["`]\.["`]id["`] in/'))->toBe([]);
 });
 
 it('has no next lesson once every word of the course was served, and localizes the title', function (): void {
