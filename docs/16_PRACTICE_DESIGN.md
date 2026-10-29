@@ -1042,11 +1042,11 @@ afterCommit: product_events (session_finished при завершении)
 | `invited` | `decline` | адресат | `closed/declined` | `active_learner_id = NULL` обоим |
 | `invited` | `cancel` | инициатор | `closed/canceled` | то же |
 | `invited` | `invite_expires_at <= now` | дворник / ленивый `accept`/`view` | `closed/invite_expired` | то же |
-| `room` | `ready` | участник | `room` (один готов) / `countdown` (оба) | `ready_at`; оба → `starts_at = now+3 с`, `current_round = 1`, `phase = answering`, `round_deadline_at = starts_at + round_seconds`, `version++`; событие `battle.started` |
+| `room` | `ready` | участник | `room` (один готов) / `countdown` (оба) | `ready_at`; оба → `starts_at = now+3 с`, `current_round = 1`, `round_deadline_at = starts_at + round_seconds`, `phase` остаётся `NULL` (CHECK `battles_phase_shape_check`: фаза есть только в `playing`), `version++`; событие `battle.started` |
 | `room` | `cancel` | любой участник | `closed/canceled` | — |
 | `room` | `room_expires_at <= now` | дворник / опрос | `closed/room_expired` | — |
 | `room`, `countdown` | участник отсутствует > 30 с | `advance` | `closed/canceled` (`meta.left = role`) | — |
-| `countdown` | `now >= starts_at` | ничего не меняется в строке: `playing` вычисляется как `status=countdown && now>=starts_at`? **Нет** — хранится явно: первый `advance` после `starts_at` ставит `status = playing` | `playing` | `version++` |
+| `countdown` | `now >= starts_at` | первый `advance` после `starts_at` (статус хранится явно, не вычисляется) | `playing/answering` | `phase = answering` (дедлайн раунда 1 уже стоит — `starts_at + round_seconds`, от момента `advance` не зависит), `version++` |
 | `countdown`, `playing` | `surrender` | участник | `finished/surrender` | победитель — соперник; очки как есть |
 | `playing/answering` | `answer` второго игрока | участник | `playing/reveal` | `phase_ends_at = now + reveal_seconds`, `version++` |
 | `playing/answering` | `now >= round_deadline_at + grace` | `advance` | `playing/reveal` | отсутствующим ответам — строка `timeout` 0 очков; `version++` |
@@ -1105,7 +1105,7 @@ advance(b, now):
                  if absent(any) → close(canceled, meta.left = role); return
                  return
       countdown: if absent(any) → close(canceled); return
-                 if now >= starts_at → status = playing; version++; continue
+                 if now >= starts_at → status = playing; phase = answering; version++; continue   -- round_deadline_at задан в ready()
                  return
       playing:
         if absent(challenger) && absent(opponent) → close(both_absent); return
