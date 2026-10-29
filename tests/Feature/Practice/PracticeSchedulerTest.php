@@ -77,7 +77,8 @@ it('closes the sessions past their time as finished / expired, lets the learners
         ->and($events->pluck('learner_id')->sort()->values()->all())->toBe(collect([$pairs, $dictation, $edge])->pluck('learner_id')->sort()->values()->all());
 
     $event = $events->firstWhere('learner_id', $pairs->learner_id);
-    expect($event?->props)->toBe([
+    // `toEqual`: jsonb does not keep the order of the keys.
+    expect($event?->props)->toEqual([
         'session_id' => $pairs->id, 'mode' => 'pairs', 'total' => 3, 'answered' => 2, 'correct_first' => 1, 'hints' => 1, 'mismatches' => 3,
         'reason' => 'expired', 'duration_ms' => 25 * 3600 * 1000, // started 25 hours ago, closed now
     ]);
