@@ -44,6 +44,12 @@ Schedule::command('training:close-expired')
     ->everyFifteenMinutes()
     ->withoutOverlapping();
 
+// Solo practice sessions past `expires_at` become finished / expired and let go of the learner's "one active session"
+// (docs/16 §6.1, §8.6). One conditional UPDATE per session, so overlapping or repeated runs are harmless.
+Schedule::command('practice:close-expired')
+    ->everyFifteenMinutes()
+    ->withoutOverlapping();
+
 // Friend challenges (docs/13 §7.5): active ones past `ends_at` are scored from learner_daily_stats and finished,
 // unanswered pending ones expire. Idempotent: the claim is a conditional UPDATE, so a repeated run raises nothing twice.
 Schedule::command('challenges:close-due')
