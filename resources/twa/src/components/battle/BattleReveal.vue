@@ -74,6 +74,7 @@ const next = computed((): string => {
         <li v-for="pair in correct.pairs" :key="pair.left" class="flex items-center justify-center gap-2 text-lg leading-6 font-semibold break-words">
           <span>{{ pair.left }}</span>
           <AppIcon name="arrows-right-left" :size="16" class="shrink-0 text-tg-hint" />
+          <span class="sr-only"> — </span>
           <span>{{ pair.right }}</span>
         </li>
       </ul>
