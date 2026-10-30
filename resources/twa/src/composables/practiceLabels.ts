@@ -1,7 +1,7 @@
 import { t } from '@/i18n'
 import type { IconName } from '@/components/ui/icons'
 import type { TileColor } from '@/components/ui/ListRow.vue'
-import type { PracticeLessonRef, PracticeMode } from '@/api/types'
+import type { PracticeElementKind, PracticeLessonRef, PracticeMode, PracticeVerdict } from '@/api/types'
 
 /** The order of the cards of the hub: the order of the plan (docs/15 §6). */
 export const PRACTICE_MODE_ORDER: readonly PracticeMode[] = ['pairs', 'collocation', 'sentence', 'dictation']
@@ -32,6 +32,15 @@ export function lessonNumber(lesson: PracticeLessonRef): string {
 /** "Module 2 · Lesson 4 · Food"; a lesson without a title is "Module 2 · Lesson 4", one without a number is its title. */
 export function lessonHeader(lesson: PracticeLessonRef): string {
   return [lessonNumber(lesson), lesson.title].filter((part): part is string => Boolean(part)).join(' · ')
+}
+
+/**
+ * The verdict in words. A dictation can still be written better, so its "wrong" is "Needs fixing"; a pick, a sentence and a pair
+ * that are wrong are simply "Wrong" (docs/14 §6.2): the answer is final, there is nothing to fix, only "Next".
+ */
+export function verdictLabel(kind: PracticeElementKind, verdict: PracticeVerdict): string {
+  if (verdict === 'wrong' && kind !== 'dictation') return t('practice.verdict.wrong_final')
+  return t(`practice.verdict.${verdict}`)
 }
 
 /** Whole minutes for "≈ 2 min": never less than one. */

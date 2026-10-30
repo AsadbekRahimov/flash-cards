@@ -293,7 +293,7 @@ describe('SentenceBuilder — sending', () => {
     expect(isDisabled(checkButton(w))).toBe(true)
   })
 
-  it('stops the line while the answer is out, and gives it back when the screen takes the lock off (the answer did not go through)', async () => {
+  it('stops the line while the answer is out, and sends the very same line again when the request got no reply', async () => {
     const w = mountBuilder()
     await put(w, RIGHT)
     await checkButton(w).trigger('click')
@@ -351,6 +351,136 @@ describe('SentenceBuilder — sending', () => {
     await nextTick()
 
     expect(w.emitted('answer')).toEqual([[{ order: RIGHT }]])
+  })
+})
+
+// The line is ONE answer per element (docs/16 §11.4). When its request gets no reply the server may have counted it, so the line is not
+// given back: another order would be a second answer, refused as "already accepted" and shown as the verdict of the first.
+describe('SentenceBuilder — an answer that got no reply (solo)', () => {
+  /** The learner builds the right line, presses "Check"; the screen locks the component for the request, which ends with no reply. */
+  async function lostReply(props: Props = {}) {
+    const w = mountBuilder(props)
+    await put(w, RIGHT)
+    await checkButton(w).trigger('click')
+    await w.setProps({ disabled: true })
+    await w.setProps({ disabled: false })
+    return w
+  }
+
+  const lockedControls = (w: VueWrapper) =>
+    w.findAll('[data-testid=sentence-answer] button, [data-testid=sentence-bank] button, [data-testid=reset-btn]')
+
+  it('keeps the line as it was, and locks the line, the bank and "Start again": no other order can be made', async () => {
+    const w = await lostReply()
+
+    expect(lineIds(w)).toEqual(RIGHT)
+    expect(lockedControls(w).every((button) => isDisabled(button))).toBe(true)
+    await w.get('[data-testid=line-fW2]').trigger('click')
+    ;(lineButton(w, 'fT5').element as HTMLButtonElement).click()
+    await resetButton(w).trigger('click')
+    expect(lineIds(w)).toEqual(RIGHT)
+    expectIntact(w)
+  })
+
+  it('"Check" is on and sends the very same line, as often as the request gets no reply', async () => {
+    const w = await lostReply()
+
+    for (let again = 0; again < 2; again++) {
+      expect(isDisabled(checkButton(w))).toBe(false)
+      await checkButton(w).trigger('click')
+      await w.setProps({ disabled: true }) // on its way ...
+      await w.setProps({ disabled: false }) // ... and no reply again
+    }
+
+    expect(isDisabled(checkButton(w))).toBe(false)
+    expect(w.emitted('answer')).toEqual([[{ order: RIGHT }], [{ order: RIGHT }], [{ order: RIGHT }]])
+    expect(w.emitted('skip')).toBeUndefined()
+    expect(lineIds(w)).toEqual(RIGHT)
+  })
+
+  it('"I don\'t know" is off: it would be a second answer', async () => {
+    const w = await lostReply()
+
+    expect(isDisabled(skipButton(w))).toBe(true)
+    await skipButton(w).trigger('click')
+
+    expect(w.emitted('skip')).toBeUndefined()
+  })
+
+  it('says so, in a note of the page (not only in the toast of the screen)', async () => {
+    const w = await lostReply()
+
+    const note = w.get('[data-testid=sentence-resend-note]')
+    expect(note.text()).toBe('Ответа от сервера нет. Свой ответ уже не изменить — отправьте его ещё раз.')
+    expect(note.attributes('role')).toBe('status')
+  })
+
+  it('has no note before a request has failed, and not while one is on its way', async () => {
+    const w = mountBuilder()
+    expect(w.find('[data-testid=sentence-resend-note]').exists()).toBe(false)
+    await put(w, RIGHT)
+    await checkButton(w).trigger('click')
+    await w.setProps({ disabled: true })
+
+    expect(w.find('[data-testid=sentence-resend-note]').exists()).toBe(false)
+  })
+
+  it('an "I don\'t know" that got no reply is what goes again: "I don\'t know" is on, "Check" is off', async () => {
+    const w = mountBuilder()
+    await put(w, RIGHT)
+    await skipButton(w).trigger('click')
+    await w.setProps({ disabled: true })
+    await w.setProps({ disabled: false })
+
+    expect(isDisabled(checkButton(w))).toBe(true)
+    expect(isDisabled(skipButton(w))).toBe(false)
+    await checkButton(w).trigger('click')
+    await skipButton(w).trigger('click')
+
+    expect(w.emitted('answer')).toBeUndefined()
+    expect(w.emitted('skip')).toHaveLength(2)
+  })
+
+  it('a lock that no answer of this component caused is no failure: the learner goes on building', async () => {
+    const w = mountBuilder()
+    await put(w, ['fW2'])
+
+    await w.setProps({ disabled: true })
+    await w.setProps({ disabled: false })
+    await put(w, ['fT5'])
+
+    expect(lineIds(w)).toEqual(['fW2', 'fT5'])
+    expect(w.find('[data-testid=sentence-resend-note]').exists()).toBe(false)
+  })
+
+  it('starts clean for another element in the same component', async () => {
+    const w = await lostReply()
+
+    await w.setProps({ element: sentenceElement({ id: 'eSent00002', fragments: [{ id: 'fX1', text: 'Hello' }, { id: 'fX2', text: 'there' }] }) })
+
+    expect(w.find('[data-testid=sentence-resend-note]').exists()).toBe(false)
+    expect(isDisabled(w.get('[data-testid=fragment-fX1]'))).toBe(false)
+    await w.get('[data-testid=fragment-fX1]').trigger('click')
+    expect(lineIds(w)).toEqual(['fX1'])
+    expect(isDisabled(skipButton(w))).toBe(false)
+  })
+
+  it('speaks Uzbek', async () => {
+    setLocale('uz')
+
+    const w = await lostReply()
+
+    expect(w.get('[data-testid=sentence-resend-note]').text()).toBe("Serverdan javob kelmadi. Javobingizni endi o'zgartirib bo'lmaydi — uni yana yuboring.")
+  })
+
+  it('in a battle the line is handed back as before: the battle screen has its own retry panel', async () => {
+    const w = await lostReply({ mode: 'battle' })
+
+    expect(w.find('[data-testid=sentence-resend-note]').exists()).toBe(false)
+    expect(isDisabled(checkButton(w))).toBe(false)
+    expect(isDisabled(skipButton(w))).toBe(false)
+    await w.get('[data-testid=line-fW2]').trigger('click')
+    expect(lineIds(w)).toEqual(['fT5', 'fR4', 'fE3', 'fQ1'])
   })
 })
 

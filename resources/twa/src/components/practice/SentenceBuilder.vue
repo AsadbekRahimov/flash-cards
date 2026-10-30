@@ -5,6 +5,10 @@
  *
  * - `element` — the prompt and the fragments in the order the server shuffled them (opaque ids; nothing says which order is right).
  * - `mode` — `solo` / `battle`: the same in both; "Check" sends the whole line once (in a battle that is the final answer).
+ *   Solo: ONE answer per element (docs/16 §11.4). When the request got no reply (the screen lets go of `disabled` while the element
+ *   is still this one) the server may have counted that very line, so the line is NOT given back: it stays as it was, the bank and
+ *   "Start again" and "I don't know" stay locked, and the button that went before ("Check" or "I don't know") sends the same again
+ *   - with the same request id, which the store keeps - so that the review that comes back is the one of the line that was given.
  * - `disabled` — an answer is on its way: nothing reacts.
  * Events: `answer` (`{ order }`: the ids of ALL the fragments, in the order they were put), `skip` ("I don't know").
  *
@@ -22,6 +26,7 @@ import { computed, nextTick, onBeforeUnmount, ref, useId, watch } from 'vue'
 import type { ComponentPublicInstance } from 'vue'
 import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import InlineAlert from '@/components/ui/InlineAlert.vue'
 import { modeTitle } from '@/composables/practiceLabels'
 import { clearSentenceDraft, readSentenceDraft, writeSentenceDraft } from '@/composables/sentenceDraft'
 import { useTelegram } from '@/composables/useTelegram'
@@ -47,11 +52,19 @@ const textOf = computed(() => new Map(props.element.fragments.map((fragment) => 
 const order = ref<string[]>(readSentenceDraft(props.element.id, fragmentIds.value))
 /** The answer (or "I don't know") has been sent and nothing has come back: a second tap sends nothing. */
 const sent = ref(false)
+/** What went out last: the line ("Check") or "I don't know". */
+const lastSent = ref<'answer' | 'skip' | null>(null)
+/** Solo: the last request got no reply. The line is as it was and cannot be changed; the same action goes again. */
+const retrying = ref(false)
 
 const total = computed(() => props.element.fragments.length)
 const placed = computed(() => new Set(order.value))
 const complete = computed(() => total.value > 0 && order.value.length === total.value)
-const locked = computed(() => props.disabled === true || sent.value)
+/** The line, the bank and "Start again" wait: a request is on its way, or the answer is out and cannot be changed. */
+const locked = computed(() => props.disabled === true || sent.value || retrying.value)
+/** After a lost reply only the action that was lost goes again. */
+const canCheck = computed(() => props.disabled !== true && !sent.value && complete.value && (!retrying.value || lastSent.value === 'answer'))
+const canSkip = computed(() => props.disabled !== true && !sent.value && (!retrying.value || lastSent.value === 'skip'))
 
 /** A text with its first letter in capitals (a code point, not a UTF-16 unit): only what the line shows. */
 function capitalized(text: string): string {
@@ -134,14 +147,16 @@ function reset(): void {
 }
 
 function check(): void {
-  if (locked.value || !complete.value) return
+  if (!canCheck.value) return
   sent.value = true
+  lastSent.value = 'answer'
   emit('answer', { order: [...order.value] })
 }
 
 function skip(): void {
-  if (locked.value) return
+  if (!canSkip.value) return
   sent.value = true
+  lastSent.value = 'skip'
   emit('skip')
 }
 
@@ -156,14 +171,20 @@ watch(
   () => {
     order.value = readSentenceDraft(props.element.id, fragmentIds.value)
     sent.value = false
+    lastSent.value = null
+    retrying.value = false
   },
 )
 
-// The answer did not go through (the screen takes the lock off): the line is as it was, and can be sent again.
+// The answer did not go through (the screen takes the lock off): the line is as it was. In a solo session it is the answer that
+// the server may have counted, so it is sent again as it is, and nothing else can be sent for this element (`retrying`); a
+// battle screen hands the line back for its own retry.
 watch(
   () => props.disabled,
   (now, before) => {
-    if (before === true && now !== true) sent.value = false
+    if (before !== true || now === true) return
+    if (props.mode === 'solo' && sent.value) retrying.value = true
+    sent.value = false
   },
 )
 
@@ -212,6 +233,9 @@ onBeforeUnmount(() => {
         </button>
       </div>
 
+      <!-- The line did not get its reply: it cannot be changed any more, and it is sent again. -->
+      <InlineAlert v-if="retrying" tone="warning" :message="t('practice.session.resend_note')" data-testid="sentence-resend-note" />
+
       <!-- The bank: every fragment has its slot for good, a fragment in the line leaves the slot empty. -->
       <div role="group" :aria-label="t('practice.sentence.bank')" class="flex flex-wrap gap-2" data-testid="sentence-bank">
         <div
@@ -242,14 +266,14 @@ onBeforeUnmount(() => {
         ref="checkButton"
         type="button"
         class="btn btn-primary btn-lg btn-block"
-        :disabled="locked || !complete"
+        :disabled="!canCheck"
         :aria-describedby="progressId"
         data-testid="check-btn"
         @click="check"
       >
         {{ t('exercise.check') }}
       </button>
-      <button type="button" class="btn btn-plain btn-block" :disabled="locked" data-testid="skip-btn" @click="skip">
+      <button type="button" class="btn btn-plain btn-block" :disabled="!canSkip" data-testid="skip-btn" @click="skip">
         {{ t('exercise.skip') }}
       </button>
     </StickyActions>

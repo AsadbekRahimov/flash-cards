@@ -13,7 +13,7 @@ import ErrorState from '@/components/ui/ErrorState.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import { progressPercent } from '@/composables/courseLabels'
 import { showErrorToast } from '@/composables/errorToast'
-import { lessonHeader } from '@/composables/practiceLabels'
+import { lessonHeader, verdictLabel } from '@/composables/practiceLabels'
 import { useBackButton } from '@/composables/useBackButton'
 import { usePracticeAudio } from '@/composables/usePracticeAudio'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
@@ -142,7 +142,8 @@ const liveText = computed((): string => {
   if (done.element.kind === 'pairs_round') {
     return t('practice.session.round_done', { round: done.element.round, rounds: done.element.rounds })
   }
-  return t(`practice.verdict.${done.verdict}`)
+  const words = verdictLabel(done.element.kind, done.verdict)
+  return done.earlier ? `${words}. ${t('practice.reveal.earlier')}` : words
 })
 
 watch(outcome, (done) => {

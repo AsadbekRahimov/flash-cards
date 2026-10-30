@@ -53,6 +53,11 @@ export interface PracticeOutcome {
   pair: { left_id: string; right_id: string } | null
   /** Pairs: that match completed the round. */
   roundDone: boolean
+  /**
+   * The server had an answer for this element already (409 `answer_already_accepted`: another tab, a reply that was lost for good):
+   * `verdict` is the one it counted, `answer` is only what was just sent - NOT the answer that counted - and there is no explanation.
+   */
+  earlier?: boolean
 }
 
 interface HubScope {
@@ -89,12 +94,21 @@ interface PracticeState {
   actionError: string
   outcome: PracticeOutcome | null
   /**
-   * The `request_id` of the answer (or replacement) that is on its way or failed without an answer — network, 5xx, 429.
-   * A repeat of the same answer takes the same id, so the server counts it once; a different answer gets a new one.
+   * The `request_id` of the answer that is on its way or failed without a reply — network, 5xx, 429. It lives until the server
+   * has answered for good (a verdict or a refusal), and a repeat takes the same id, so the server counts it once.
+   * A collocation, a sentence and a dictation have ONE answer: the key is the element, whatever is sent for it. A pair is an
+   * attempt of its own: the key is the element and the pair, so that a second attempt is counted too.
    */
   pendingRequestId: string | null
-  /** What `pendingRequestId` belongs to: the element and the answer. */
+  /** What `pendingRequestId` belongs to: the element (one answer per element), or the element and the pair. */
   pendingKey: string | null
+  /**
+   * What the pending request carries (one answer per element only). A repeat sends THIS, whatever the screen hands over: the
+   * server tells the first answer again for the same id, and the screen must not show another one as if it were that.
+   */
+  pendingAnswer: PracticeAnswerPayload | null
+  /** The replacement of the clip that is on its way or got no reply: its own id, apart from the answer's, so that neither forgets the other. */
+  replacing: { elementId: string; requestId: string } | null
   /** Counts the sessions the store has been reset for: a reply that comes back for an earlier one is dropped. */
   generation: number
   /** Grows with every new element: the screen keys the mode component by it, so a new element has no pick left over. */
@@ -146,8 +160,11 @@ const isVerdict = (value: unknown): value is PracticeVerdict =>
  * element by element, see the verdict, finish with the summary.
  *
  * The server grades everything; this store only keeps what the screens need and defends the learner's answer:
- * - one `request_id` per answer, kept across a network error so that a repeat counts once (`pendingRequestId`);
- * - `generation`: every reply is dropped if the learner has moved to another session meanwhile;
+ * - one `request_id` per answer, kept across a network error so that a repeat counts once (`pendingRequestId`); a collocation,
+ *   a sentence and a dictation have one answer per ELEMENT, so after a lost reply only that very answer can be sent again
+ *   (`pendingAnswer`) - a different one would be refused as "already accepted" and shown as the verdict of the first;
+ * - `generation`: every reply is dropped if the learner has moved to another session meanwhile (and `openSeq`: a refusal to
+ *   open a session that comes after its screen was left);
  * - `status` ≠ `ready` ignores a second tap, so a double tap is one request.
  *
  * Pairs go on in the same round after each match (`ready`); the other kinds, and the end of a round, stop at `verdict`
@@ -174,6 +191,8 @@ export const usePracticeStore = defineStore('practice', {
     outcome: null,
     pendingRequestId: null,
     pendingKey: null,
+    pendingAnswer: null,
+    replacing: null,
     generation: 0,
     elementSeq: 0,
     elementShownAt: 0,
@@ -326,8 +345,8 @@ export const usePracticeStore = defineStore('practice', {
       this.errorMessage = ''
       this.actionError = ''
       this.outcome = null
-      this.pendingRequestId = null
-      this.pendingKey = null
+      this.clearPending()
+      this.replacing = null
       this.paywall = false
       this.elementShownAt = 0
       this.releaseAudio()
@@ -352,14 +371,24 @@ export const usePracticeStore = defineStore('practice', {
       this.status = 'ready'
     },
 
-    /** One answer. Pairs: one match (`{left_id, right_id}`). A second call while one is on its way does nothing. */
+    /**
+     * One answer. Pairs: one match (`{left_id, right_id}`). A second call while one is on its way does nothing.
+     *
+     * A collocation, a sentence and a dictation have ONE answer, so its request id belongs to the element (docs/16 §11.4): after a
+     * lost reply the repeat carries the same id AND the same answer - the one that went first, whatever is handed over now -
+     * and the server, which may have counted it, tells its verdict and its explanation again. A pair is an attempt of its own.
+     */
     async answer(payload: PracticeAnswerPayload): Promise<void> {
       const session = this.session
       const element = session?.current ?? null
       if (this.status !== 'ready' || session === null || element === null) return
 
       const generation = this.generation
-      const requestId = this.requestIdFor(`${element.id}|${JSON.stringify(payload)}`)
+      const single = element.kind !== 'pairs_round'
+      const key = single ? element.id : `${element.id}|${JSON.stringify(payload)}`
+      const sent = single && this.pendingKey === key && this.pendingAnswer !== null ? this.pendingAnswer : payload
+      const requestId = this.requestIdFor(key)
+      this.pendingAnswer = single ? sent : null
       const timeSpent = Math.min(MAX_TIME_SPENT_MS, Math.max(0, Date.now() - this.elementShownAt))
       this.status = 'submitting'
       this.actionError = ''
@@ -368,14 +397,14 @@ export const usePracticeStore = defineStore('practice', {
           request_id: requestId,
           element_id: element.id,
           time_spent_ms: timeSpent,
-          answer: payload,
+          answer: sent,
         })
         if (generation !== this.generation) return
         this.clearPending()
-        this.applyAnswer(res, element, payload)
+        this.applyAnswer(res, element, sent)
       } catch (err) {
         if (generation !== this.generation) return
-        await this.refuseAnswer(err, element, payload)
+        await this.refuseAnswer(err, element, sent)
       }
     },
 
@@ -389,6 +418,7 @@ export const usePracticeStore = defineStore('practice', {
       if (this.pendingRequestId === null || this.pendingKey !== key) {
         this.pendingRequestId = newRequestId()
         this.pendingKey = key
+        this.pendingAnswer = null
       }
       return this.pendingRequestId
     },
@@ -396,6 +426,7 @@ export const usePracticeStore = defineStore('practice', {
     clearPending(): void {
       this.pendingRequestId = null
       this.pendingKey = null
+      this.pendingAnswer = null
     },
 
     applyAnswer(res: PracticeAnswerResponse, element: PracticeElement, payload: PracticeAnswerPayload): void {
@@ -425,7 +456,8 @@ export const usePracticeStore = defineStore('practice', {
     /** The answer was not counted as given. A conflict re-reads the session; a lost reply is left for a repeat. */
     async refuseAnswer(err: unknown, element: PracticeElement, payload: PracticeAnswerPayload): Promise<void> {
       if (isUncertain(err)) {
-        // The server may or may not have it: the same answer will carry the same id, and it is counted once.
+        // The server may or may not have it: the same answer will carry the same id and the same content, and it is counted once.
+        // The screen keeps what was sent where it was (a pick, a line, a text) and offers to send it again - not to change it.
         this.status = 'ready'
         this.actionError = errorMessage(err, 'practice')
         return
@@ -446,9 +478,11 @@ export const usePracticeStore = defineStore('practice', {
           if (fresh === null) return
           const verdict = err.details?.verdict
           this.applySession(fresh)
-          // The verdict of the answer that was counted is told; the explanation is not at hand, only the verdict.
+          // The verdict of the answer that was counted is told; the explanation is not at hand, only the verdict, and the
+          // answer that counted is not known either (it is NOT what was just sent): the screen says "an answer sent earlier
+          // was counted", and shows no right answer and no pick. "Next" goes on to what the re-read session has.
           if (isVerdict(verdict) && element.kind !== 'pairs_round') {
-            this.outcome = { element, answer: payload, verdict, firstAttempt: false, reveal: null, pair: null, roundDone: false }
+            this.outcome = { element, answer: payload, verdict, firstAttempt: false, reveal: null, pair: null, roundDone: false, earlier: true }
             this.status = 'verdict'
           }
           return
@@ -504,7 +538,10 @@ export const usePracticeStore = defineStore('practice', {
       if (this.status !== 'ready' || session === null || element === null || element.kind !== 'dictation') return false
 
       const generation = this.generation
-      const requestId = this.requestIdFor(`replace|${element.id}`)
+      // The replacement has an id of its own: an answer of this element that got no reply keeps its id (and may still be repeated).
+      const replacing = this.replacing?.elementId === element.id ? this.replacing : { elementId: element.id, requestId: newRequestId() }
+      this.replacing = replacing
+      const requestId = replacing.requestId
       this.status = 'submitting'
       this.actionError = ''
       try {
@@ -514,7 +551,8 @@ export const usePracticeStore = defineStore('practice', {
           reason: 'audio_unavailable',
         })
         if (generation !== this.generation) return false
-        this.clearPending()
+        this.replacing = null
+        this.clearPending() // the element that was answered, or not, is gone
         this.releaseAudio()
         this.applySession(replaced)
         return true
@@ -525,7 +563,14 @@ export const usePracticeStore = defineStore('practice', {
           this.actionError = errorMessage(err, 'practice')
           return false
         }
-        this.clearPending()
+        this.replacing = null
+        if (err instanceof ApiClientError && err.code === 'replace_not_allowed' && err.details?.reason === 'not_current') {
+          // Another tab went on: the element on this screen is not the current one. Nothing the learner did is wrong, so there is no
+          // message - the screen follows the server.
+          const fresh = await this.reread(generation)
+          if (fresh !== null) this.applySession(fresh)
+          return false
+        }
         if (err instanceof ApiClientError && (err.code === 'replace_not_allowed' || err.kind === 'conflict' || err.kind === 'validation')) {
           this.status = 'ready'
           this.actionError = errorMessage(err, 'practice')

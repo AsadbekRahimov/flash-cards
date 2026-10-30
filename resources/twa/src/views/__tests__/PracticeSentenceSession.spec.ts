@@ -132,7 +132,7 @@ describe('"Build the sentence" on the screen of a session', () => {
     await flushPromises()
 
     expect(w.find('[data-testid=sentence-builder]').exists()).toBe(false)
-    expect(w.get('[data-testid=reveal-text]').text()).toBe('Нужно исправить')
+    expect(w.get('[data-testid=reveal-text]').text()).toBe('Неверно') // a sentence is final: "Нужно исправить" is the word of a dictation
     expect(w.get('[data-testid=expected]').text()).toBe('I usually drink tea.')
     expect(w.get('[data-testid=alternatives]').text()).toContain('Можно и так')
     expect(w.get('[data-testid=alternatives]').text()).toContain('Usually I drink tea.')
@@ -175,10 +175,11 @@ describe('"Build the sentence" on the screen of a session', () => {
     await check(w).trigger('click')
     await flushPromises()
 
-    // the answer did not go through: the screen is the same, the line is whole, "Check" is on again
+    // the answer did not go through: the screen is the same, the line is whole, "Check" is on again - and nothing else is
     expect(w.find('[data-testid=sentence-builder]').exists()).toBe(true)
     expect(lineIds(w)).toEqual(RIGHT)
     expect(check(w).attributes('disabled')).toBeUndefined()
+    expect(w.get('[data-testid=sentence-resend-note]').text()).toContain('отправьте его ещё раз')
 
     await check(w).trigger('click')
     await flushPromises()
@@ -190,7 +191,9 @@ describe('"Build the sentence" on the screen of a session', () => {
     w.unmount()
   })
 
-  it('takes a different line under a new request id: the learner changed their mind after the failure', async () => {
+  // The answer may have been counted, and the reply lost: a different line would be a second answer to the same element, refused by the
+  // server as "already accepted" and shown as the verdict of the first. So after a lost reply the line cannot be changed at all.
+  it('does not take a different line after the failure: the line is frozen, and "Check" sends the first one again', async () => {
     vi.mocked(api.practice.answer).mockRejectedValueOnce(offline()).mockResolvedValueOnce(answerResponse())
     const w = await render()
     await put(w, RIGHT)
@@ -200,13 +203,58 @@ describe('"Build the sentence" on the screen of a session', () => {
     await w.get('[data-testid=line-fQ1]').trigger('click')
     await fragment(w, 'fQ1').trigger('click')
     await w.get('[data-testid=line-fW2]').trigger('click')
-    await fragment(w, 'fW2').trigger('click') // the same fragments, another order: fW2 is last now
+    await w.get('[data-testid=reset-btn]').trigger('click')
+    expect(lineIds(w)).toEqual(RIGHT)
+    expect(w.findAll('[data-testid=sentence-line] button, [data-testid=sentence-bank] button, [data-testid=reset-btn], [data-testid=skip-btn]').every((button) => button.attributes('disabled') !== undefined)).toBe(true)
+
     await check(w).trigger('click')
     await flushPromises()
 
     expect(answerCalls()).toHaveLength(2)
-    expect(answerCalls()[1]![1].answer).toEqual({ order: ['fT5', 'fR4', 'fE3', 'fQ1', 'fW2'] })
-    expect(answerCalls()[1]![1].request_id).not.toBe(answerCalls()[0]![1].request_id)
+    expect(answerCalls()[1]![1].answer).toEqual({ order: RIGHT })
+    expect(answerCalls()[1]![1].request_id).toBe(answerCalls()[0]![1].request_id)
+    w.unmount()
+  })
+
+  it('an "I don\'t know" that got no reply is repeated as "I don\'t know", with the same request id - and "Check" cannot take its place', async () => {
+    vi.mocked(api.practice.answer).mockRejectedValueOnce(offline()).mockResolvedValueOnce(answerResponse({ verdict: 'skipped' }))
+    const w = await render()
+    await put(w, RIGHT)
+    await w.get('[data-testid=skip-btn]').trigger('click')
+    await flushPromises()
+
+    expect(check(w).attributes('disabled')).toBeDefined()
+    expect(w.get('[data-testid=skip-btn]').attributes('disabled')).toBeUndefined()
+    await w.get('[data-testid=skip-btn]').trigger('click')
+    await flushPromises()
+
+    expect(answerCalls().map((call) => call[1].answer)).toEqual([{ skip: true }, { skip: true }])
+    expect(answerCalls()[1]![1].request_id).toBe(answerCalls()[0]![1].request_id)
+    expect(w.get('[data-testid=reveal-text]').text()).toBe('Подсказка')
+    w.unmount()
+  })
+
+  it('after a lost reply of an answer that WAS counted, "Check" brings the review of the line that was given', async () => {
+    vi.mocked(api.practice.answer)
+      .mockRejectedValueOnce(offline())
+      .mockResolvedValueOnce(
+        answerResponse({
+          verdict: 'wrong',
+          reveal: { correct_text: 'My mother is a teacher.', alternatives: [], your_text: 'My is mother a teacher', explanation: null },
+        }),
+      )
+    const w = await render()
+    await put(w, ['fW2', 'fR4', 'fT5', 'fE3', 'fQ1']) // a wrong line, counted by the server
+    await check(w).trigger('click')
+    await flushPromises()
+
+    await check(w).trigger('click')
+    await flushPromises()
+
+    expect(w.get('[data-testid=reveal-text]').text()).toBe('Неверно')
+    expect(w.get('[data-testid=expected]').text()).toBe('My mother is a teacher.')
+    expect(w.get('[data-testid=your-text]').text()).toBe('My is mother a teacher')
+    expect(w.find('[data-testid=reveal-earlier]').exists()).toBe(false)
     w.unmount()
   })
 

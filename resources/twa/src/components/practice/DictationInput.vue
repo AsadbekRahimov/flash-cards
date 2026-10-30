@@ -8,10 +8,16 @@
  * - `element` - the dictation. The clip is fetched with the token into a `blob:` (`usePracticeAudio`) as soon as the element is
  *   shown - the session screen does it for the next element while the verdict is read, this component asks when nobody has - and
  *   it is played from the tap, as many times as the learner wants.
- * - `mode` - `solo` / `battle`. Solo: "Check" sends the text, and a refusal that leaves the learner here (no network) lets them try
- *   again. Battle: the answer is final (docs/15 §3.5) - after "Check" or "I don't know" the component locks.
- * - `disabled` - an answer is on its way: the text and the answer buttons wait. Listening is not an answer and stays possible.
- * Events: `answer` (`{ text }`), `skip` ("I don't know").
+ * - `mode` - `solo` / `battle`. Solo: "Check" sends the text. ONE answer per element (docs/16 §11.4): when the request got no reply
+ *   (no network, the screen lets go of `disabled`) the server may have counted that very text, so the text is NOT given back for
+ *   editing - the field stays as it was, read-only, "I don't know" is locked, and "Check" (or "I don't know", if that went first)
+ *   sends the same again, with the same request id, which the store keeps. Battle: the answer is final (docs/15 §3.5) - after
+ *   "Check" or "I don't know" the component locks.
+ * - `disabled` - an answer is on its way: the text and the answer buttons wait. The field is read-only, not disabled: the focus and
+ *   the keyboard stay where they were (a disabled field would lose them and the learner would have to tap it again).
+ *   Listening is not an answer and stays possible.
+ * Events: `answer` (`{ text }`), `skip` ("I don't know"), `silent` (solo: "No sound for now" - the learner leaves the dictation for
+ *   the hub to choose another mode; the screen leads there. It is always on the screen, not only when the sound fails).
  *
  * No guessing in the dark: when the clip cannot be loaded and the learner has not heard it, the field and both answer buttons wait,
  * and the circle becomes "Retry" (the session screen offers the sheet: retry / replace the task / go on without sound). A clip
@@ -24,6 +30,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import InlineAlert from '@/components/ui/InlineAlert.vue'
 import { modeTitle } from '@/composables/practiceLabels'
 import { usePracticeAudio } from '@/composables/usePracticeAudio'
 import { useTelegram } from '@/composables/useTelegram'
@@ -36,7 +43,7 @@ const props = defineProps<{
   disabled?: boolean
 }>()
 
-const emit = defineEmits<{ answer: [payload: PracticeAnswerPayload]; skip: [] }>()
+const emit = defineEmits<{ answer: [payload: PracticeAnswerPayload]; skip: []; silent: [] }>()
 
 const { selectionHaptic } = useTelegram()
 const { t, tn } = useI18n()
@@ -47,6 +54,10 @@ const text = ref('')
 const heard = ref(false)
 /** Battle: the one final answer has gone. */
 const sent = ref(false)
+/** What went out last in a solo session: the text ("Check") or "I don't know". */
+const lastSent = ref<'answer' | 'skip' | null>(null)
+/** Solo: the last request got no reply. The text is as it was and cannot be changed; the same action goes again. */
+const retrying = ref(false)
 
 const trimmed = computed((): string => text.value.trim())
 const typedWords = computed((): number => (trimmed.value === '' ? 0 : trimmed.value.split(/\s+/).length))
@@ -61,8 +72,10 @@ const playing = computed((): boolean => audio.playing.value && state.value === '
 /** The clip cannot be loaded and has never been heard: nothing to write down, so no answer is offered. */
 const blocked = computed((): boolean => failed.value && !heard.value)
 const locked = computed((): boolean => props.disabled === true || sent.value)
-const canCheck = computed((): boolean => trimmed.value !== '' && !locked.value && !blocked.value)
-const canSkip = computed((): boolean => !locked.value && !blocked.value)
+/** A text that has gone out once is sent again as it is, whatever happened to the sound since: that is not a guess in the dark. */
+const answerable = computed((): boolean => !locked.value && (retrying.value || !blocked.value))
+const canCheck = computed((): boolean => trimmed.value !== '' && answerable.value && (!retrying.value || lastSent.value === 'answer'))
+const canSkip = computed((): boolean => answerable.value && (!retrying.value || lastSent.value === 'skip'))
 
 const listenLabel = computed((): string => (failed.value ? t('practice.audio.retry') : loading.value ? t('practice.audio.loading') : t('practice.audio.play')))
 
@@ -88,7 +101,18 @@ watch(
     text.value = ''
     heard.value = false
     sent.value = false
+    lastSent.value = null
+    retrying.value = false
     void audio.load(props.element.audio_url)
+  },
+)
+
+// The request ended and the element is still this one: in a solo session what was sent got no reply (or the screen was brought up to
+// date). The answer may have been counted, so the text stays as it is and goes again (`retrying`); a battle has its own retry.
+watch(
+  () => props.disabled,
+  (now, before) => {
+    if (before === true && now !== true && props.mode === 'solo' && lastSent.value !== null) retrying.value = true
   },
 )
 
@@ -110,12 +134,14 @@ function listen(): void {
 
 function check(): void {
   if (!canCheck.value) return
+  lastSent.value = 'answer'
   emit('answer', { text: trimmed.value })
   if (props.mode === 'battle') sent.value = true
 }
 
 function skip(): void {
   if (!canSkip.value) return
+  lastSent.value = 'skip'
   emit('skip')
   if (props.mode === 'battle') sent.value = true
 }
@@ -201,16 +227,25 @@ function skip(): void {
         spellcheck="false"
         enterkeyhint="done"
         maxlength="200"
-        :disabled="locked || blocked"
+        :readonly="locked || retrying"
+        :disabled="blocked && !retrying"
         :aria-label="t('practice.dictation.input')"
         :placeholder="t('practice.dictation.input')"
         data-testid="dictation-text"
         @keydown.enter.prevent="check"
       />
 
-      <p v-if="blocked" class="px-2 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="blocked-note">
+      <p v-if="blocked && !retrying" class="px-2 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="blocked-note">
         {{ t('practice.dictation.blocked') }}
       </p>
+
+      <!-- The text did not get its reply: it cannot be changed any more, and it is sent again. -->
+      <InlineAlert v-if="retrying" tone="warning" :message="t('practice.session.resend_note')" data-testid="dictation-resend-note" />
+
+      <!-- Always there, not only when the sound fails: a learner who cannot listen now (no headphones) has a way out besides the ✕. -->
+      <button v-if="mode === 'solo'" type="button" class="btn btn-plain btn-sm self-center" data-testid="silent-btn" @click="emit('silent')">
+        {{ t('practice.audio.silent') }}
+      </button>
     </div>
 
     <StickyActions>

@@ -193,26 +193,6 @@ describe('CollocationChoice — while the request is on its way', () => {
     expect(answers(wrapper)).toHaveLength(1)
   })
 
-  it('in a solo session lets the learner tap again when the request failed and the element is still this one', async () => {
-    const wrapper = render()
-    await option(wrapper, 0).trigger('click')
-    await wrapper.setProps({ disabled: true })
-
-    await wrapper.setProps({ disabled: false }) // the reply never came: the screen is ready again
-
-    expect(option(wrapper, 0).attributes('data-state')).toBe('idle')
-    expect(option(wrapper, 0).attributes('disabled')).toBeUndefined()
-    expect(wrapper.get('[data-testid=collocation-blank]').attributes('data-tone')).toBe('empty')
-    expect(wrapper.find('[data-testid=collocation-footnote]').exists()).toBe(true)
-
-    await option(wrapper, 0).trigger('click') // the same answer again
-    await wrapper.setProps({ disabled: true })
-    await wrapper.setProps({ disabled: false })
-    await option(wrapper, 2).trigger('click') // or another one
-
-    expect(answers(wrapper)).toEqual([[{ option_id: 'oA1' }], [{ option_id: 'oA1' }], [{ option_id: 'oC3' }]])
-  })
-
   it('does not release a pick that was never sent on its way (the screen did not lock)', async () => {
     const wrapper = render()
     await option(wrapper, 0).trigger('click')
@@ -222,6 +202,121 @@ describe('CollocationChoice — while the request is on its way', () => {
     expect(option(wrapper, 0).attributes('data-state')).toBe('selected')
     await option(wrapper, 1).trigger('click')
     expect(answers(wrapper)).toHaveLength(1)
+    expect(wrapper.find('[data-testid=resend-btn]').exists()).toBe(false)
+  })
+})
+
+// A tap is ONE answer per element (docs/16 §11.4). When its request gets no reply the server may have counted it, so the pick is not
+// taken back: a different option would be a second answer, refused as "already accepted" and shown as the verdict of the first.
+describe('CollocationChoice — a pick whose request got no reply (solo)', () => {
+  /** The learner taps `index`, the screen locks the component for the request, and the request comes back with nothing. */
+  async function lostReply(index = 0) {
+    const wrapper = render()
+    await option(wrapper, index).trigger('click')
+    await wrapper.setProps({ disabled: true })
+    await wrapper.setProps({ disabled: false })
+    return wrapper
+  }
+
+  it('keeps the pick: marked in the options and written in the blank, as it was while the request was on its way', async () => {
+    const wrapper = await lostReply(0)
+
+    expect(option(wrapper, 0).attributes('data-state')).toBe('selected')
+    expect(option(wrapper, 0).attributes('aria-pressed')).toBe('true')
+    expect(wrapper.get('[data-testid=option-caption-0]').text()).toBe('ваш ответ')
+    expect(wrapper.get('[data-testid=collocation-blank]').text()).toBe('make')
+    expect(wrapper.get('[data-testid=collocation-blank]').attributes('data-tone')).toBe('picked')
+  })
+
+  it('does not let the learner change it: every option stays locked, and a tap on another one sends nothing', async () => {
+    const wrapper = await lostReply(0)
+
+    for (const index of [0, 1, 2]) expect(option(wrapper, index).attributes('disabled')).toBeDefined()
+    await option(wrapper, 2).trigger('click')
+    ;(option(wrapper, 1).element as HTMLButtonElement).click() // not through the disabled attribute either
+
+    expect(answers(wrapper)).toEqual([[{ option_id: 'oA1' }]])
+    expect(wrapper.get('[data-testid=collocation-blank]').text()).toBe('make')
+  })
+
+  it('says so, and offers one thing: "Retry" - in the sticky block, the one primary button of the screen', async () => {
+    const wrapper = await lostReply()
+
+    expect(wrapper.get('[data-testid=collocation-resend-note]').text()).toBe('Ответа от сервера нет. Свой ответ уже не изменить — отправьте его ещё раз.')
+    expect(wrapper.get('[data-testid=collocation-resend-note]').attributes('role')).toBe('status')
+    const retry = wrapper.get('[data-testid=actions] [data-testid=resend-btn]')
+    expect(retry.text()).toBe('Повторить')
+    expect(retry.classes()).toEqual(expect.arrayContaining(['btn', 'btn-primary', 'btn-lg']))
+    expect(wrapper.findAll('.btn-primary')).toHaveLength(1)
+    expect(wrapper.find('[data-testid=collocation-footnote]').exists()).toBe(false) // "checked at once" is not the news any more
+  })
+
+  it('"Retry" sends the very same option, again', async () => {
+    const wrapper = await lostReply(2)
+
+    await wrapper.get('[data-testid=resend-btn]').trigger('click')
+
+    expect(answers(wrapper)).toEqual([[{ option_id: 'oC3' }], [{ option_id: 'oC3' }]])
+  })
+
+  it('"Retry" waits while the repeat is on its way, and is there again when that has no reply either', async () => {
+    const wrapper = await lostReply()
+    await wrapper.get('[data-testid=resend-btn]').trigger('click')
+
+    await wrapper.setProps({ disabled: true })
+    expect(wrapper.get('[data-testid=resend-btn]').attributes('disabled')).toBeDefined()
+    expect(wrapper.get('[data-testid=resend-btn]').attributes('aria-busy')).toBe('true')
+    await wrapper.get('[data-testid=resend-btn]').trigger('click')
+    expect(answers(wrapper)).toHaveLength(2)
+
+    await wrapper.setProps({ disabled: false })
+    expect(wrapper.get('[data-testid=resend-btn]').attributes('disabled')).toBeUndefined()
+    await wrapper.get('[data-testid=resend-btn]').trigger('click')
+    expect(answers(wrapper)).toEqual([[{ option_id: 'oA1' }], [{ option_id: 'oA1' }], [{ option_id: 'oA1' }]])
+    expect(option(wrapper, 0).attributes('data-state')).toBe('selected') // still the pick of the first tap
+  })
+
+  it('has none of it before: no note, no button, until a request has failed', async () => {
+    const wrapper = render()
+    expect(wrapper.find('[data-testid=resend-btn]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=collocation-resend-note]').exists()).toBe(false)
+
+    await option(wrapper, 0).trigger('click')
+    await wrapper.setProps({ disabled: true })
+
+    expect(wrapper.find('[data-testid=resend-btn]').exists()).toBe(false) // on its way is not "no reply"
+    expect(wrapper.findAll('.btn-primary')).toHaveLength(0)
+  })
+
+  it('a lock that was not for this component\'s tap (nothing picked) is no failure of an answer', async () => {
+    const wrapper = render()
+
+    await wrapper.setProps({ disabled: true }) // e.g. the screen is busy with something else
+    await wrapper.setProps({ disabled: false })
+
+    expect(wrapper.find('[data-testid=resend-btn]').exists()).toBe(false)
+    await option(wrapper, 1).trigger('click')
+    expect(answers(wrapper)).toEqual([[{ option_id: 'oB2' }]])
+  })
+
+  it('speaks Uzbek', async () => {
+    setLocale('uz')
+
+    const wrapper = await lostReply()
+
+    expect(wrapper.get('[data-testid=resend-btn]').text()).toBe('Qayta urinish')
+    expect(wrapper.get('[data-testid=collocation-resend-note]').text()).toBe("Serverdan javob kelmadi. Javobingizni endi o'zgartirib bo'lmaydi — uni yana yuboring.")
+  })
+
+  it('in a battle there is no such thing: the battle screen has its own retry, and the component stays as the final answer', async () => {
+    const wrapper = render({ mode: 'battle' })
+    await option(wrapper, 1).trigger('click')
+    await wrapper.setProps({ disabled: true })
+    await wrapper.setProps({ disabled: false })
+
+    expect(wrapper.find('[data-testid=resend-btn]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=collocation-resend-note]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=actions]').exists()).toBe(false)
   })
 })
 

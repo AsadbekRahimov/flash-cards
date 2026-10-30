@@ -922,6 +922,11 @@ export interface CollocationReveal {
   full_text: string
   translation: string | null
   explanation: string | null
+  /**
+   * The option the server counted as the learner's answer (null: none - a hint). The server adds it to the explanation so that
+   * the review is true on its own; an older server does not send it (absent: the screen marks the pick it knows).
+   */
+  your_option_id?: string | null
 }
 
 /** The explanation shown after an answer; its shape follows the kind of the element answered (pairs have none). */

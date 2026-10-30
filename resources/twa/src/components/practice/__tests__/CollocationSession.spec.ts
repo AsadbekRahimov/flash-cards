@@ -158,7 +158,7 @@ describe('a session of collocations — the verdict', () => {
 
     const verdict = wrapper.get('[data-testid=answer-reveal]')
     expect(verdict.attributes('data-verdict')).toBe('wrong')
-    expect(wrapper.get('[data-testid=reveal-text]').text()).toBe('Нужно исправить')
+    expect(wrapper.get('[data-testid=reveal-text]').text()).toBe('Неверно') // a pick is final: "Needs fixing" is the word of a dictation
     expect(wrapper.get('[data-testid=reveal-icon]').findComponent(AppIcon).props('name')).toBe('x-mark')
     expect(wrapper.get('[data-testid=reveal-icon]').classes()).toContain('bg-danger-soft')
 
@@ -182,7 +182,7 @@ describe('a session of collocations — the verdict', () => {
 
     expect(wrapper.get('[data-testid=translation]').text()).toContain('Давайте проведём встречу в понедельник.')
     expect(wrapper.get('[data-testid=explanation]').text()).toContain('С meeting говорят have.')
-    expect(wrapper.get('[data-testid=verdict-live]').text()).toBe('Нужно исправить')
+    expect(wrapper.get('[data-testid=verdict-live]').text()).toBe('Неверно')
     expect(tg.notification).toHaveBeenCalledWith('error')
     expect(wrapper.find('[data-testid=collocation-choice]').exists()).toBe(false)
     wrapper.unmount()
@@ -256,7 +256,7 @@ describe('a session of collocations — the verdict', () => {
     await option(wrapper, 0).trigger('click')
     await flushPromises()
 
-    expect(wrapper.get('[data-testid=reveal-text]').text()).toBe('Tuzatish kerak')
+    expect(wrapper.get('[data-testid=reveal-text]').text()).toBe("Noto'g'ri")
     expect(revealOption(wrapper, 'oA1').text()).toContain('sizning javobingiz')
     expect(revealOption(wrapper, 'oB2').text()).toContain("to'g'ri javob")
     wrapper.unmount()
@@ -266,7 +266,7 @@ describe('a session of collocations — the verdict', () => {
 describe('a session of collocations — when the request does not get through', () => {
   const offline = () => new ApiClientError('network', 0, 'network', 'fetch failed')
 
-  it('tells it in a toast, frees the options, and counts the repeated tap once (the same request id)', async () => {
+  it('tells it in a toast, keeps the pick, locks the other options, and "Retry" counts the same tap once (the same request id)', async () => {
     vi.mocked(api.practice.answer).mockRejectedValueOnce(offline()).mockResolvedValueOnce(answered())
     const wrapper = await render()
 
@@ -275,10 +275,11 @@ describe('a session of collocations — when the request does not get through', 
 
     expect(showErrorToast).toHaveBeenCalledTimes(1)
     expect(wrapper.find('[data-testid=answer-reveal]').exists()).toBe(false)
-    expect(option(wrapper, 0).attributes('data-state')).toBe('idle')
-    expect(option(wrapper, 0).attributes('disabled')).toBeUndefined()
+    expect(option(wrapper, 0).attributes('data-state')).toBe('selected') // the pick stays
+    for (const index of [0, 1, 2]) expect(option(wrapper, index).attributes('disabled')).toBeDefined()
+    expect(wrapper.find('[data-testid=collocation-resend-note]').exists()).toBe(true)
 
-    await option(wrapper, 0).trigger('click') // the same answer again
+    await wrapper.get('[data-testid=resend-btn]').trigger('click') // the same answer again
     await flushPromises()
 
     expect(api.practice.answer).toHaveBeenCalledTimes(2)
@@ -289,32 +290,102 @@ describe('a session of collocations — when the request does not get through', 
     wrapper.unmount()
   })
 
-  it('a different option after a lost reply is a different answer with a request id of its own', async () => {
+  it('a different option cannot be chosen after a lost reply: there is no second answer, whatever is tapped', async () => {
     vi.mocked(api.practice.answer).mockRejectedValueOnce(offline()).mockResolvedValueOnce(answered())
     const wrapper = await render()
     await option(wrapper, 0).trigger('click')
     await flushPromises()
 
     await option(wrapper, 2).trigger('click')
+    await option(wrapper, 1).trigger('click')
     await flushPromises()
 
-    const [first, other] = vi.mocked(api.practice.answer).mock.calls.map((call) => call[1])
-    expect(other?.answer).toEqual({ option_id: 'oC3' })
-    expect(other?.request_id).not.toBe(first?.request_id)
+    expect(api.practice.answer).toHaveBeenCalledTimes(1) // nothing went out for the taps on the others
+    expect(wrapper.get('[data-testid=collocation-blank]').text()).toBe('make')
     wrapper.unmount()
   })
 
-  it('shows the verdict of an answer that was already counted (another tab got there first), without the explanation', async () => {
+  // The case of the review: the answer is counted ("make", wrong) but the reply is lost; the screen used to hand the options back, the
+  // learner tapped the right one, and the server's 409 was shown as the verdict of that tap - a cross after the right option, and nothing else.
+  it('after a lost reply of an answer that WAS counted, "Retry" brings the review of that answer: the pick it is, the right option marked', async () => {
+    vi.mocked(api.practice.answer)
+      .mockRejectedValueOnce(offline())
+      .mockResolvedValueOnce(answered({ reveal: { ...REVEAL, your_option_id: 'oA1' } })) // the server replays the stored result of the same request id
+    const wrapper = await render()
+    await option(wrapper, 0).trigger('click') // "make", wrong
+    await flushPromises()
+
+    await wrapper.get('[data-testid=resend-btn]').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.get('[data-testid=reveal-text]').text()).toBe('Неверно')
+    expect(wrapper.find('[data-testid=reveal-earlier]').exists()).toBe(false)
+    expect(revealOption(wrapper, 'oA1').attributes('data-state')).toBe('incorrect') // the pick that was given
+    expect(revealOption(wrapper, 'oB2').attributes('data-state')).toBe('reveal') // and the right one
+    expect(wrapper.get('[data-testid=expected-fill]').text()).toBe('have')
+    wrapper.unmount()
+  })
+
+  it('shows the verdict of an answer that was already counted (another tab got there first): says so, no right answer is made up', async () => {
+    const conflict = new ApiClientError('conflict', 409, 'answer_already_accepted', 'English message', undefined, { verdict: 'wrong' })
+    vi.mocked(api.practice.answer).mockRejectedValue(conflict)
+    const wrapper = await render()
+
+    await option(wrapper, 1).trigger('click') // the right option, as it happens; the answer that counted was another one
+    await flushPromises()
+
+    expect(wrapper.get('[data-testid=reveal-text]').text()).toBe('Неверно')
+    expect(wrapper.get('[data-testid=reveal-earlier]').text()).toBe('Засчитан ответ, отправленный раньше.')
+    expect(wrapper.get('[data-testid=verdict-live]').text()).toBe('Неверно. Засчитан ответ, отправленный раньше.')
+    expect(wrapper.find('[data-testid=expected]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=reveal-options]').exists()).toBe(false) // no pick, no right option: neither is known
+    expect(wrapper.find('[data-testid=translation]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=continue-btn]').exists()).toBe(true)
+    wrapper.unmount()
+  })
+
+  it('"Next" after it opens what the server has now: the re-read session', async () => {
     const conflict = new ApiClientError('conflict', 409, 'answer_already_accepted', 'English message', undefined, { verdict: 'correct' })
+    vi.mocked(api.practice.answer).mockRejectedValue(conflict)
+    const wrapper = await render()
+    vi.mocked(api.practice.get).mockResolvedValue(session({ mode: 'collocation', current: second(), progress: { done: 3, total: 5 } }))
+
+    await option(wrapper, 0).trigger('click')
+    await flushPromises()
+    expect(wrapper.get('[data-testid=progress]').text()).toBe('3 / 5')
+    await wrapper.get('[data-testid=continue-btn]').trigger('click')
+
+    expect(wrapper.get('[data-testid=collocation-text]').text()).toContain('She wants to')
+    expect(wrapper.get('[data-testid=collocation-blank]').attributes('data-tone')).toBe('empty')
+    expect(wrapper.find('[data-testid=resend-btn]').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('speaks Uzbek when the answer was counted earlier', async () => {
+    setLocale('uz')
+    const conflict = new ApiClientError('conflict', 409, 'answer_already_accepted', 'English message', undefined, { verdict: 'wrong' })
     vi.mocked(api.practice.answer).mockRejectedValue(conflict)
     const wrapper = await render()
 
     await option(wrapper, 0).trigger('click')
     await flushPromises()
 
-    expect(wrapper.get('[data-testid=reveal-text]').text()).toBe('Верно!')
-    expect(wrapper.find('[data-testid=expected]').exists()).toBe(false)
-    expect(wrapper.find('[data-testid=reveal-options]').exists()).toBe(false)
+    expect(wrapper.get('[data-testid=reveal-text]').text()).toBe("Noto'g'ri")
+    expect(wrapper.get('[data-testid=reveal-earlier]').text()).toBe('Avval yuborilgan javob hisobga olindi.')
+    wrapper.unmount()
+  })
+
+  it('the answer of the server that names the pick (your_option_id) wins over the tap of this screen', async () => {
+    // e.g. the reply of a repeat that another device gave: the server says which option it counted
+    vi.mocked(api.practice.answer).mockResolvedValue(answered({ reveal: { ...REVEAL, your_option_id: 'oC3' } }))
+    const wrapper = await render()
+
+    await option(wrapper, 0).trigger('click')
+    await flushPromises()
+
+    expect(revealOption(wrapper, 'oC3').attributes('data-state')).toBe('incorrect')
+    expect(revealOption(wrapper, 'oC3').text()).toContain('ваш ответ')
+    expect(revealOption(wrapper, 'oA1').attributes('data-state')).toBe('idle')
     wrapper.unmount()
   })
 })

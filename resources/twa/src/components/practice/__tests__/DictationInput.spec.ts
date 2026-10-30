@@ -413,10 +413,11 @@ describe('DictationInput — the answer', () => {
     wrapper.unmount()
   })
 
-  it('waits while an answer is on its way: the field and both buttons, but not the recording', async () => {
+  it('waits while an answer is on its way: the field (read-only, not disabled) and both buttons, but not the recording', async () => {
     const wrapper = await render({ disabled: true })
 
-    expect(field(wrapper).attributes('disabled')).toBeDefined()
+    expect(field(wrapper).attributes('readonly')).toBeDefined()
+    expect(field(wrapper).attributes('disabled')).toBeUndefined() // a disabled field drops the focus and the keyboard
     expect(check(wrapper).attributes('disabled')).toBeDefined()
     expect(skip(wrapper).attributes('disabled')).toBeDefined()
     await skip(wrapper).trigger('click')
@@ -455,7 +456,7 @@ describe('DictationInput — the answer', () => {
 
     expect(wrapper.emitted('answer')).toEqual([[{ text: 'see you tomorrow' }]])
     expect(wrapper.emitted('skip')).toBeUndefined()
-    expect(field(wrapper).attributes('disabled')).toBeDefined()
+    expect(field(wrapper).attributes('readonly')).toBeDefined()
     expect(check(wrapper).attributes('disabled')).toBeDefined()
     expect(skip(wrapper).attributes('disabled')).toBeDefined()
     // The recording can still be heard.
@@ -488,6 +489,269 @@ describe('DictationInput — the answer', () => {
     expect(field(wrapper).attributes('disabled')).toBeUndefined()
     expect(api.practice.audioBlob).toHaveBeenLastCalledWith('/api/twa/practice/battles/15/audio/eDict00002', expect.any(AbortSignal))
     expect(wrapper.findAll('[data-testid=word-tile]')).toHaveLength(2)
+    wrapper.unmount()
+  })
+})
+
+// The text is ONE answer per element (docs/16 §11.4). When its request gets no reply the server may have counted it, so the field is not
+// given back for editing: another text would be a second answer, refused as "already accepted" and shown as the verdict of the first.
+describe('DictationInput — an answer that got no reply (solo)', () => {
+  /** The learner types `text`, presses what they press, the screen locks the component for the request, and no reply comes. */
+  async function lostReply(how: 'check' | 'skip' = 'check', text = 'see you tomorow', options: Options = {}) {
+    const wrapper = await render(options)
+    await field(wrapper).setValue(text)
+    await (how === 'check' ? check(wrapper) : skip(wrapper)).trigger('click')
+    await wrapper.setProps({ disabled: true })
+    await wrapper.setProps({ disabled: false })
+    return wrapper
+  }
+
+  it('keeps the text in the field, which can be read but not changed: read-only, and the text is still what was typed', async () => {
+    const wrapper = await lostReply()
+
+    expect((field(wrapper).element as HTMLInputElement).value).toBe('see you tomorow')
+    expect(field(wrapper).attributes('readonly')).toBeDefined()
+    expect(field(wrapper).attributes('disabled')).toBeUndefined()
+    wrapper.unmount()
+  })
+
+  it('"Check" sends the very same text again, as often as the request gets no reply', async () => {
+    const wrapper = await lostReply()
+
+    for (let again = 0; again < 2; again++) {
+      expect(check(wrapper).attributes('disabled')).toBeUndefined()
+      await check(wrapper).trigger('click')
+      await wrapper.setProps({ disabled: true })
+      await wrapper.setProps({ disabled: false })
+    }
+
+    expect(wrapper.emitted('answer')).toEqual([[{ text: 'see you tomorow' }], [{ text: 'see you tomorow' }], [{ text: 'see you tomorow' }]])
+    expect(wrapper.emitted('skip')).toBeUndefined()
+    wrapper.unmount()
+  })
+
+  it('Enter sends it again too', async () => {
+    const wrapper = await lostReply()
+
+    await field(wrapper).trigger('keydown.enter')
+
+    expect(wrapper.emitted('answer')).toEqual([[{ text: 'see you tomorow' }], [{ text: 'see you tomorow' }]])
+    wrapper.unmount()
+  })
+
+  it('"I don\'t know" is off: it would be a second answer', async () => {
+    const wrapper = await lostReply()
+
+    expect(skip(wrapper).attributes('disabled')).toBeDefined()
+    await skip(wrapper).trigger('click')
+
+    expect(wrapper.emitted('skip')).toBeUndefined()
+    wrapper.unmount()
+  })
+
+  it('an "I don\'t know" that got no reply is what goes again, and "Check" cannot take its place', async () => {
+    const wrapper = await lostReply('skip')
+
+    expect(skip(wrapper).attributes('disabled')).toBeUndefined()
+    expect(check(wrapper).attributes('disabled')).toBeDefined()
+    await check(wrapper).trigger('click')
+    await skip(wrapper).trigger('click')
+
+    expect(wrapper.emitted('answer')).toBeUndefined()
+    expect(wrapper.emitted('skip')).toHaveLength(2)
+    wrapper.unmount()
+  })
+
+  it('says so, in a note under the field', async () => {
+    const wrapper = await lostReply()
+
+    const note = wrapper.get('[data-testid=dictation-resend-note]')
+    expect(note.text()).toBe('Ответа от сервера нет. Свой ответ уже не изменить — отправьте его ещё раз.')
+    expect(note.attributes('role')).toBe('status')
+    wrapper.unmount()
+  })
+
+  it('has no note before a request has failed, nor while one is on its way', async () => {
+    const wrapper = await render()
+    await field(wrapper).setValue('see you tomorow')
+    await check(wrapper).trigger('click')
+    await wrapper.setProps({ disabled: true })
+
+    expect(wrapper.find('[data-testid=dictation-resend-note]').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('does not take away the repeat when the sound fails meanwhile: a text that has gone out once is not a guess in the dark', async () => {
+    const wrapper = await render()
+    await field(wrapper).setValue('see you tomorow')
+    await check(wrapper).trigger('click')
+    await wrapper.setProps({ disabled: true })
+    await wrapper.setProps({ disabled: false })
+    vi.mocked(api.practice.audioBlob).mockRejectedValue(new Error('offline'))
+    await circle(wrapper).trigger('click') // a press that fails the clip: still failed, never heard
+    FakeAudio.playResult = () => Promise.reject(Object.assign(new Error('bad media'), { name: 'NotSupportedError' }))
+    await flushPromises()
+
+    expect(check(wrapper).attributes('disabled')).toBeUndefined()
+    expect(wrapper.find('[data-testid=blocked-note]').exists()).toBe(false) // "no answer without the recording" would contradict the note
+    await check(wrapper).trigger('click')
+    expect(wrapper.emitted('answer')).toHaveLength(2)
+    wrapper.unmount()
+  })
+
+  it('a lock that no answer of this component caused (a replacement of the clip) is no failure', async () => {
+    const wrapper = await render()
+    await field(wrapper).setValue('see you')
+
+    await wrapper.setProps({ disabled: true })
+    await wrapper.setProps({ disabled: false })
+
+    expect(field(wrapper).attributes('readonly')).toBeUndefined()
+    expect(wrapper.find('[data-testid=dictation-resend-note]').exists()).toBe(false)
+    expect(skip(wrapper).attributes('disabled')).toBeUndefined()
+    wrapper.unmount()
+  })
+
+  it('starts clean for another element in the same component', async () => {
+    const wrapper = await lostReply()
+
+    await wrapper.setProps({ element: dictationElement({ id: 'eDict00002', audio_url: '/api/twa/practice/sessions/77/audio/eDict00002' }) })
+    await flushPromises()
+
+    expect(field(wrapper).attributes('readonly')).toBeUndefined()
+    expect((field(wrapper).element as HTMLInputElement).value).toBe('')
+    expect(wrapper.find('[data-testid=dictation-resend-note]').exists()).toBe(false)
+    expect(skip(wrapper).attributes('disabled')).toBeUndefined()
+    wrapper.unmount()
+  })
+
+  it('speaks Uzbek', async () => {
+    setLocale('uz')
+
+    const wrapper = await lostReply()
+
+    expect(wrapper.get('[data-testid=dictation-resend-note]').text()).toBe("Serverdan javob kelmadi. Javobingizni endi o'zgartirib bo'lmaydi — uni yana yuboring.")
+    wrapper.unmount()
+  })
+
+  it('in a battle there is no such thing: the battle screen has its own retry', async () => {
+    const wrapper = await lostReply('check', 'see you tomorow', { mode: 'battle' })
+
+    expect(wrapper.find('[data-testid=dictation-resend-note]').exists()).toBe(false)
+    expect(check(wrapper).attributes('disabled')).toBeDefined() // final: the one answer has gone
+    wrapper.unmount()
+  })
+})
+
+describe('DictationInput — the field keeps the keyboard while the answer is on its way', () => {
+  it('is read-only, not disabled, so that the focus (and with it the on-screen keyboard) stays where it was', async () => {
+    const wrapper = await render()
+    ;(field(wrapper).element as HTMLInputElement).focus()
+    expect(document.activeElement).toBe(field(wrapper).element)
+
+    await field(wrapper).setValue('see you tomorrow')
+    await check(wrapper).trigger('click')
+    await wrapper.setProps({ disabled: true }) // the answer is on its way
+
+    expect(field(wrapper).attributes('readonly')).toBeDefined()
+    expect(document.activeElement).toBe(field(wrapper).element)
+    wrapper.unmount()
+  })
+
+  it('takes nothing typed while it waits, and gives the text back for typing only when no answer is out', async () => {
+    const wrapper = await render({ disabled: true })
+    expect(field(wrapper).attributes('readonly')).toBeDefined()
+
+    await wrapper.setProps({ disabled: false })
+
+    expect(field(wrapper).attributes('readonly')).toBeUndefined()
+    wrapper.unmount()
+  })
+
+  it('stays disabled where the answer is not allowed at all: the recording cannot be loaded and was never heard', async () => {
+    vi.mocked(api.practice.audioBlob).mockRejectedValue(new Error('offline'))
+    const wrapper = await render()
+
+    expect(field(wrapper).attributes('disabled')).toBeDefined()
+    expect(wrapper.find('[data-testid=blocked-note]').exists()).toBe(true)
+    wrapper.unmount()
+  })
+})
+
+// docs/15 §3.4: "an explicit button «No sound for now» with the way back to choosing another mode". Not only in the sheet of the sound
+// that failed: a learner whose sound loaded but who cannot listen now (no headphones) has it too.
+describe('DictationInput — "No sound for now"', () => {
+  const silent = (wrapper: VueWrapper) => wrapper.get('[data-testid=silent-btn]')
+
+  it('is always on the screen of a solo session: when the sound is fine', async () => {
+    const wrapper = await render()
+
+    expect(silent(wrapper).text()).toBe('Сейчас без звука')
+    expect(silent(wrapper).classes()).toEqual(expect.arrayContaining(['btn', 'btn-plain']))
+    expect(silent(wrapper).attributes('type')).toBe('button')
+    wrapper.unmount()
+  })
+
+  it('and while the sound loads, and when it failed, and while an answer is on its way', async () => {
+    vi.mocked(api.practice.audioBlob).mockReturnValue(new Promise<Blob>(() => {}))
+    const loading = await render()
+    expect(loading.find('[data-testid=silent-btn]').exists()).toBe(true)
+    loading.unmount()
+
+    vi.mocked(api.practice.audioBlob).mockRejectedValue(new Error('offline'))
+    const failed = await render()
+    expect(failed.find('[data-testid=silent-btn]').exists()).toBe(true)
+    failed.unmount()
+
+    vi.mocked(api.practice.audioBlob).mockResolvedValue(clip())
+    const busy = await render({ disabled: true })
+    expect(busy.find('[data-testid=silent-btn]').exists()).toBe(true)
+    expect(silent(busy).attributes('disabled')).toBeUndefined() // leaving is not an answer
+    busy.unmount()
+  })
+
+  it('sends `silent`, and nothing else: it is not an answer', async () => {
+    const wrapper = await render()
+    await field(wrapper).setValue('some text')
+
+    await silent(wrapper).trigger('click')
+
+    expect(wrapper.emitted('silent')).toHaveLength(1)
+    expect(wrapper.emitted('answer')).toBeUndefined()
+    expect(wrapper.emitted('skip')).toBeUndefined()
+    wrapper.unmount()
+  })
+
+  it('is no second primary button, and it is not in the sticky block with "Check": it does not compete with the main action', async () => {
+    const wrapper = await render()
+
+    expect(wrapper.findAll('.btn-primary')).toHaveLength(1)
+    expect(wrapper.get('[data-testid=actions]').find('[data-testid=silent-btn]').exists()).toBe(false)
+    const html = wrapper.html()
+    expect(html.indexOf('data-testid="dictation-text"')).toBeLessThan(html.indexOf('data-testid="silent-btn"')) // under the field
+    wrapper.unmount()
+  })
+
+  it('is a button a finger can hit: 44 px (the small button keeps a touch area of that size)', async () => {
+    const wrapper = await render()
+
+    expect(silent(wrapper).classes()).toContain('btn-sm') // .btn-sm has an invisible 44 × 44 px layer (style.css)
+    wrapper.unmount()
+  })
+
+  it('is not in a battle: there is no hub to go back to in the middle of a match', async () => {
+    const wrapper = await render({ mode: 'battle' })
+
+    expect(wrapper.find('[data-testid=silent-btn]').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('speaks Uzbek', async () => {
+    setLocale('uz')
+
+    const wrapper = await render()
+
+    expect(silent(wrapper).text()).toBe('Hozircha ovozsiz')
     wrapper.unmount()
   })
 })

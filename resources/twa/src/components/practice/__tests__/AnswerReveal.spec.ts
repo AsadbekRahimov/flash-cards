@@ -117,9 +117,31 @@ describe('AnswerReveal — the verdict is a symbol and words, never a colour alo
   it('speaks Uzbek', () => {
     setLocale('uz')
 
-    const wrapper = render(outcome({ verdict: 'wrong', reveal: sentence() }))
+    const wrapper = render(outcome({ element: dictationElement(), answer: { text: 'x' }, verdict: 'wrong', reveal: dictation() }))
 
     expect(wrapper.get('[data-testid=reveal-text]').text()).toBe('Tuzatish kerak')
+  })
+
+  // docs/14 §6.2: "Неверно". "Нужно исправить" (docs/15) is a word for a text that can still be written better - the dictation's.
+  it.each([
+    ['a sentence', outcome({ verdict: 'wrong', reveal: sentence() })],
+    ['a collocation', outcome({ element: collocationElement(), answer: { option_id: 'oA1' }, verdict: 'wrong', reveal: { correct_option_ids: ['oB2'], full_text: "Let's have a meeting.", translation: null, explanation: null } })],
+  ])('a wrong answer of %s is simply "Неверно": nothing is left to fix, only "Next"', (_name, done) => {
+    const wrapper = render(done)
+
+    expect(wrapper.get('[data-testid=reveal-text]').text()).toBe('Неверно')
+    expect(wrapper.get('[data-testid=reveal-icon]').classes()).toContain('bg-danger-soft')
+    expect(wrapper.get('[data-testid=answer-reveal]').attributes('data-verdict')).toBe('wrong')
+    setLocale('uz')
+    expect(render(done).get('[data-testid=reveal-text]').text()).toBe("Noto'g'ri")
+  })
+
+  it('only a dictation says "Нужно исправить", and the other verdicts are the same for every kind', () => {
+    expect(render(outcome({ element: dictationElement(), answer: { text: 'x' }, verdict: 'wrong', reveal: dictation() })).get('[data-testid=reveal-text]').text()).toBe('Нужно исправить')
+    for (const element of [sentenceElement(), collocationElement()]) {
+      const same = (verdict: 'correct' | 'typo' | 'skipped') => render(outcome({ element, answer: { skip: true }, verdict, reveal: null })).get('[data-testid=reveal-text]').text()
+      expect([same('correct'), same('typo'), same('skipped')]).toEqual(['Верно!', 'Есть опечатка', 'Подсказка'])
+    }
   })
 })
 
@@ -484,6 +506,42 @@ describe('AnswerReveal — collocation', () => {
     expect(wrapper.find('[data-testid=explanation]').exists()).toBe(false)
   })
 
+  // `your_option_id` of the explanation (docs/16 §7.2, added by the server): the option that was COUNTED as the learner's answer,
+  // true for a reply that was repeated or given by another tab. It wins over what this screen knows (`outcome.answer`).
+  describe('the option the server names as the learner\'s (your_option_id)', () => {
+    it('is marked as "yours", and the pick this screen sent is not, when they differ', () => {
+      const wrapper = render(outcome({ element, answer: { option_id: 'oB2' }, verdict: 'wrong', reveal: collocation({ your_option_id: 'oC3' }) }))
+
+      expect(wrapper.get('[data-testid=reveal-option-oC3]').attributes('data-state')).toBe('incorrect')
+      expect(wrapper.get('[data-testid=reveal-caption-oC3]').text()).toBe('ваш ответ')
+      expect(wrapper.get('[data-testid=reveal-option-oB2]').attributes('data-state')).toBe('reveal') // the right one, not "yours"
+      expect(wrapper.get('[data-testid=reveal-caption-oB2]').text()).toBe('верный ответ')
+      expect(wrapper.get('[data-testid=reveal-option-oA1]').attributes('data-state')).toBe('idle')
+    })
+
+    it('is the right option when the server says the right one was the answer that counted', () => {
+      const wrapper = render(outcome({ element, answer: { option_id: 'oA1' }, verdict: 'correct', reveal: collocation({ your_option_id: 'oB2' }) }))
+
+      expect(wrapper.get('[data-testid=reveal-option-oB2]').attributes('data-state')).toBe('correct')
+      expect(wrapper.get('[data-testid=reveal-option-oA1]').attributes('data-state')).toBe('idle')
+    })
+
+    it('null means there was no pick (a hint): no option is "yours", whatever this screen sent', () => {
+      const wrapper = render(outcome({ element, answer: { option_id: 'oA1' }, verdict: 'skipped', reveal: collocation({ your_option_id: null }) }))
+
+      expect(wrapper.find('[data-testid=reveal-caption-oA1]').exists()).toBe(false)
+      expect(wrapper.get('[data-testid=reveal-option-oA1]').attributes('data-state')).toBe('idle')
+      expect(wrapper.get('[data-testid=reveal-option-oB2]').attributes('data-state')).toBe('reveal')
+    })
+
+    it('absent (an older server): the pick this screen made is marked, as before', () => {
+      const wrapper = render(outcome({ element, answer: { option_id: 'oA1' }, verdict: 'wrong', reveal: collocation() }))
+
+      expect(wrapper.get('[data-testid=reveal-option-oA1]').attributes('data-state')).toBe('incorrect')
+      expect(wrapper.get('[data-testid=reveal-caption-oA1]').text()).toBe('ваш ответ')
+    })
+  })
+
   it('speaks Uzbek', () => {
     setLocale('uz')
 
@@ -563,10 +621,73 @@ describe('AnswerReveal — a verdict without the explanation', () => {
   it('is the verdict and the way on (the answer had been counted before, the explanation is not at hand)', () => {
     const wrapper = render(outcome({ verdict: 'wrong', reveal: null }))
 
-    expect(wrapper.get('[data-testid=reveal-text]').text()).toBe('Нужно исправить')
+    expect(wrapper.get('[data-testid=reveal-text]').text()).toBe('Неверно')
     expect(wrapper.find('[data-testid=expected]').exists()).toBe(false)
     expect(wrapper.find('[data-testid=your-text]').exists()).toBe(false)
     expect(wrapper.find('[data-testid=continue-btn]').exists()).toBe(true)
+  })
+})
+
+// 409 `answer_already_accepted` (docs/16 §7.2): another tab, or a reply that was lost for good. The verdict is the server's, the answer
+// that counted is not known here - so the screen says "an answer sent earlier was counted", and never pretends the last tap is it.
+describe('AnswerReveal — an answer that was counted earlier', () => {
+  const earlier = (overrides: Partial<PracticeOutcome> = {}) => outcome({ earlier: true, firstAttempt: false, reveal: null, ...overrides })
+
+  it('says so under the verdict, in the words of the verdict that the server counted', () => {
+    const wrapper = render(earlier({ verdict: 'wrong', element: collocationElement(), answer: { option_id: 'oB2' } }))
+
+    expect(wrapper.get('[data-testid=reveal-text]').text()).toBe('Неверно')
+    expect(wrapper.get('[data-testid=reveal-earlier]').text()).toBe('Засчитан ответ, отправленный раньше.')
+    expect(wrapper.get('[data-testid=reveal-icon]').classes()).toContain('bg-danger-soft')
+    expect(wrapper.get('[data-testid=answer-reveal]').attributes('data-verdict')).toBe('wrong')
+  })
+
+  it('shows no right answer and no pick: the option that was just tapped is NOT the answer that counted', () => {
+    const wrapper = render(earlier({ verdict: 'wrong', element: collocationElement(), answer: { option_id: 'oB2' } }))
+
+    expect(wrapper.find('[data-testid=expected]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=reveal-options]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=reveal-caption-oB2]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=your-text]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=translation]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=explanation]').exists()).toBe(false)
+  })
+
+  it('"Next" is there, the one primary button', async () => {
+    const wrapper = render(earlier({ verdict: 'correct' }))
+
+    expect(wrapper.findAll('.btn-primary')).toHaveLength(1)
+    await wrapper.get('[data-testid=continue-btn]').trigger('click')
+    expect(wrapper.emitted('continue')).toHaveLength(1)
+  })
+
+  it.each(['correct', 'typo', 'wrong', 'skipped'] as const)('says it for a %s verdict too, in place of the notes that promise an explanation', (verdict) => {
+    const wrapper = render(earlier({ verdict }))
+
+    expect(wrapper.find('[data-testid=reveal-earlier]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid=reveal-note]').exists()).toBe(false) // "Here is the right answer" would be untrue
+  })
+
+  it('a dictation counted earlier says "Нужно исправить", as any dictation does', () => {
+    const wrapper = render(earlier({ verdict: 'wrong', element: dictationElement(), answer: { text: 'x' } }))
+
+    expect(wrapper.get('[data-testid=reveal-text]').text()).toBe('Нужно исправить')
+    expect(wrapper.find('[data-testid=reveal-earlier]').exists()).toBe(true)
+  })
+
+  it('an ordinary verdict has no such line', () => {
+    const wrapper = render(outcome({ verdict: 'wrong', reveal: sentence() }))
+
+    expect(wrapper.find('[data-testid=reveal-earlier]').exists()).toBe(false)
+  })
+
+  it('speaks Uzbek', () => {
+    setLocale('uz')
+
+    const wrapper = render(earlier({ verdict: 'wrong' }))
+
+    expect(wrapper.get('[data-testid=reveal-earlier]').text()).toBe('Avval yuborilgan javob hisobga olindi.')
+    expect(wrapper.get('[data-testid=reveal-text]').text()).toBe("Noto'g'ri")
   })
 })
 

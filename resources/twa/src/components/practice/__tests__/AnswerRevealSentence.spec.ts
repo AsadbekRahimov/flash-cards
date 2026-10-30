@@ -75,7 +75,7 @@ describe('AnswerReveal — sentence', () => {
     const w = render('wrong')
 
     expect(w.get('[data-testid=alternatives]').text()).toContain("Bunday ham bo'ladi")
-    expect(w.get('[data-testid=reveal-text]').text()).toBe('Tuzatish kerak')
+    expect(w.get('[data-testid=reveal-text]').text()).toBe("Noto'g'ri") // a sentence is final: "Tuzatish kerak" is the word of a dictation
   })
 
   it('draws the text of the server as text: markup in the sentence, in the other orders and in the explanation is not HTML', () => {

@@ -282,7 +282,7 @@ describe('PracticeSessionView — answering', () => {
   it.each([
     ['correct', 'Верно!', 'success'],
     ['typo', 'Есть опечатка', 'warning'],
-    ['wrong', 'Нужно исправить', 'error'],
+    ['wrong', 'Неверно', 'error'],
     ['skipped', 'Подсказка', 'error'],
   ] as const)('%s: the words on screen, the same words to a screen reader, a tap of the right kind to the hand', async (verdict, words, haptic) => {
     vi.mocked(api.practice.answer).mockResolvedValue(answerResponse({ verdict }))
@@ -403,14 +403,18 @@ describe('PracticeSessionView — an answer that did not get through', () => {
     r.wrapper.unmount()
   })
 
-  it('the server has the answer already (409 answer_already_accepted): shows the verdict it counted', async () => {
+  it('the server has the answer already (409 answer_already_accepted): shows the verdict it counted, and says that it was sent earlier', async () => {
     vi.mocked(api.practice.answer).mockRejectedValue(apiError('conflict', 409, 'answer_already_accepted', { verdict: 'wrong' }))
     const r = await render()
     vi.mocked(api.practice.get).mockResolvedValue(session({ progress: { done: 3, total: 5 }, current: sentenceElement({ id: 'eSent00002' }) }))
 
     await answerProbe(r)
 
-    expect(r.wrapper.get('[data-testid=reveal-text]').text()).toBe('Нужно исправить')
+    expect(r.wrapper.get('[data-testid=reveal-text]').text()).toBe('Неверно')
+    expect(r.wrapper.get('[data-testid=reveal-earlier]').text()).toBe('Засчитан ответ, отправленный раньше.')
+    expect(r.wrapper.get('[data-testid=verdict-live]').text()).toBe('Неверно. Засчитан ответ, отправленный раньше.')
+    expect(r.wrapper.find('[data-testid=expected]').exists()).toBe(false) // no right answer is made up
+    expect(showErrorToast).not.toHaveBeenCalled()
     await continueBtn(r).trigger('click')
     expect(probe(r).attributes('data-element')).toBe('eSent00002')
     r.wrapper.unmount()
@@ -838,7 +842,7 @@ describe('PracticeSessionView — Uzbek', () => {
 
     expect(r.wrapper.get('[data-testid=caption]').text()).toContain('2-modul')
     await answerProbe(r)
-    expect(r.wrapper.get('[data-testid=reveal-text]').text()).toBe('Tuzatish kerak')
+    expect(r.wrapper.get('[data-testid=reveal-text]').text()).toBe("Noto'g'ri")
     r.wrapper.unmount()
   })
 })
