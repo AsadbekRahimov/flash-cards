@@ -5,8 +5,11 @@
  * - `element` — the round: the words, the translations (shuffled apart), `matched` (the pairs already put together; they are
  *   gone from the board, a reload brings them back as they were), `mismatches`.
  * - `mode` — `solo`: every match is sent at once, `answer` with `{ left_id, right_id }`; `battle`: the matches are collected
- *   (and may be changed) and sent together by "Check", ONE `answer` with `{ pairs }`.
- * - `disabled` — an answer is on its way: nothing reacts.
+ *   (and may be changed) and sent together by "Check", ONE `answer` with `{ pairs }`. A battle does not say "Round N of 5" on
+ *   the board (its screen has that in the header), and when all pairs but one are made the last one is put together by the board:
+ *   the word and the translation that are left can only belong together.
+ * - `disabled` — an answer is on its way: nothing reacts. A battle that frees the board again (the answer was refused, not lost)
+ *   gets its table back to send once more.
  * Events: `answer` (the payload of the mode).
  *
  * A match can be started from either side: a tap picks a card, a tap on the picked card lets it go, a tap on a card of the same
@@ -75,6 +78,8 @@ const chosen = ref<Record<string, string>>({})
 const numbers = ref<Record<string, number>>({})
 /** Battle: the answer is out; it is final. */
 const submitted = ref(false)
+/** Battle: the last pair of the table was put together by the board itself (the tap before it made the one before the last). */
+const autoMade = ref(false)
 
 const board = ref<HTMLElement | null>(null)
 let timer: ReturnType<typeof setTimeout> | null = null
@@ -147,7 +152,7 @@ const status = computed((): { tone: 'hint' | 'success' | 'danger'; text: string 
       text: pick.side === 'left' ? t('practice.pairs.pick_translation', { text: textOf('left', pick.id) }) : t('practice.pairs.pick_word', { text: textOf('right', pick.id) }),
     }
   }
-  if (!solo.value && complete.value) return { tone: 'hint', text: t('practice.pairs.ready') }
+  if (!solo.value && complete.value) return { tone: 'hint', text: autoMade.value ? t('practice.pairs.auto_last') : t('practice.pairs.ready') }
   return { tone: 'hint', text: solo.value ? t('practice.pairs.hint_solo') : t('practice.pairs.hint_battle') }
 })
 
@@ -189,6 +194,7 @@ function tapSolo(side: Side, id: string): void {
 }
 
 function tapBattle(side: Side, id: string): void {
+  autoMade.value = false
   const pick = picked.value
   if (pick?.side === side && pick.id === id) {
     picked.value = null
@@ -200,6 +206,7 @@ function tapBattle(side: Side, id: string): void {
     unpair(side, id)
     pair(side === 'right' ? pick.id : id, side === 'right' ? id : pick.id)
     picked.value = null
+    completeLast()
     haptic('light')
     return
   }
@@ -216,6 +223,23 @@ function pair(left: string, right: string): void {
   while (used.has(number)) number++
   chosen.value = { ...chosen.value, [left]: right }
   numbers.value = { ...numbers.value, [left]: number }
+}
+
+/**
+ * Battle: when all pairs but one are made, the one word and the one translation that are left can only belong together - there is
+ * nothing to choose. The pair is put together at once, so that a table that is a single tap short is never lost (time runs out, the
+ * learner could not send it). It is a pair like any other: the learner may break it up, and the line under the columns says it was
+ * made for them. Only a tap that makes a pair does this: letting a card go never puts anything back.
+ */
+function completeLast(): void {
+  const taken = new Set(Object.values(chosen.value))
+  const words = props.element.left.filter((card) => !(card.id in chosen.value))
+  const translations = props.element.right.filter((card) => !taken.has(card.id))
+  const word = words[0]
+  const translation = translations[0]
+  if (total.value < 2 || words.length !== 1 || translations.length !== 1 || word === undefined || translation === undefined) return
+  pair(word.id, translation.id)
+  autoMade.value = true
 }
 
 /** Breaks up the pair a card is in; false when it was in none. */
@@ -329,6 +353,7 @@ watch(
     chosen.value = {}
     numbers.value = {}
     submitted.value = false
+    autoMade.value = false
     seenPairs = props.element.matched.map(([left]) => left)
     seenMismatches = props.element.mismatches
   },
@@ -343,8 +368,9 @@ onBeforeUnmount(clearTimer)
       <h2 class="sr-only">{{ modeTitle('pairs') }}</h2>
 
       <div class="flex items-baseline justify-between gap-3 px-1 text-[15px] leading-5 text-tg-subtitle">
-        <p class="font-medium" data-testid="pairs-round">{{ t('practice.pairs.round', { round: element.round, rounds: element.rounds }) }}</p>
-        <p class="tabular-nums" data-testid="pairs-count">{{ counter }}</p>
+        <!-- A battle says the round in the header of its screen: the board does not say it twice. -->
+        <p v-if="solo" class="font-medium" data-testid="pairs-round">{{ t('practice.pairs.round', { round: element.round, rounds: element.rounds }) }}</p>
+        <p class="ml-auto tabular-nums" data-testid="pairs-count">{{ counter }}</p>
       </div>
 
       <div class="grid grid-cols-2 gap-2.5">
