@@ -2,9 +2,16 @@
 
 declare(strict_types=1);
 
+use App\Domain\Practice\Enums\BattleEndReason;
+use App\Domain\Practice\Enums\BattlePhase;
+use App\Domain\Practice\Enums\BattleStatus;
 use App\Domain\Practice\Enums\FinishReason;
 use App\Domain\Practice\Enums\PracticeMode;
 use App\Domain\Practice\Enums\SessionStatus;
+use App\Domain\Practice\Services\Battle\BattleService;
+use App\Models\Battle;
+use App\Models\BattleAnswer;
+use App\Models\Friendship;
 use App\Models\Learner;
 use App\Models\PracticeSession;
 use App\Models\ProductEvent;
@@ -14,7 +21,9 @@ use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Tests\Support\Practice\BattleKit;
 use Tests\Support\Practice\PracticeKit;
 use Tests\Support\QueryLog;
 
@@ -162,4 +171,89 @@ it('works through any number of sessions in chunks, with the learners loaded onc
         ->and(PracticeSession::query()->where('status', 'active')->count())->toBe(0)
         ->and(schedulerFinishedEvents())->toBe(230)
         ->and(count(QueryLog::matching($queries, '/^select .* from ["`]learners["`]/i')))->toBe(2); // 200 + 30
+});
+
+// ------------------------------------------------------------------------------------------------------------ practice:battles-sweep (18.6)
+
+it('sweeps the battles every minute, without overlapping, in the background', function (): void {
+    $event = collect(app(Schedule::class)->events())
+        ->first(fn ($e) => str_contains((string) $e->command, 'practice:battles-sweep'));
+
+    expect($event)->not->toBeNull()
+        ->and($event->expression)->toBe('* * * * *')
+        ->and($event->withoutOverlapping)->toBeTrue()
+        ->and($event->runInBackground)->toBeTrue();
+});
+
+it('expires the invitations past their time, moves the matches that are on by the clock, leaves the rest alone, and does nothing twice', function (): void {
+    Storage::fake('practice_audio');
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    $pair = fn (): array => [$a = Learner::factory()->create(), $b = Learner::factory()->create(['interface_locale' => 'uz']), Friendship::factory()->between($a, $b)->create()];
+    [$a1, $b1, $f1] = $pair();
+    [$a2, $b2, $f2] = $pair();
+    [$a3, $b3, $f3] = $pair();
+    [$a4, $b4, $f4] = $pair();
+
+    $expired = BattleKit::invite($a1, $f1, PracticeMode::Pairs, $course);             // past its 5 minutes
+    $fresh = BattleKit::invite($a2, $f2, PracticeMode::Pairs, $course);               // 10:05:00 is its last second
+    $countdown = BattleKit::countdown($a3, $b3, $f3, PracticeMode::Collocation, $course); // starts at 10:00:03
+    $game = BattleKit::playing($me, $friend, $friendship, PracticeMode::Collocation, $course); // round 1 until 10:00:33
+    BattleKit::answer($game, $me, 1, BattleKit::correct(BattleKit::element($game, 1)));
+    $done = BattleKit::countdown($a4, $b4, $f4, PracticeMode::Sentence, $course);
+    app(BattleService::class)->surrender($a4, $done->id);
+    Battle::query()->whereKey($expired->id)->update(['invite_expires_at' => '2026-10-30 10:04:59']);
+    Battle::query()->whereKey($fresh->id)->update(['invite_expires_at' => '2026-10-30 10:05:00']);
+    Battle::query()->whereKey($game->id)->update(['round_deadline_at' => '2026-10-30 10:04:58']); // deadline + grace passed by 10:04:59.5
+    Battle::query()->whereKey($countdown->id)->update(['starts_at' => '2026-10-30 10:04:59', 'round_deadline_at' => '2026-10-30 10:05:29']); // the countdown ends just before the run
+    DB::table('battle_participants')->whereIn('battle_id', [$game->id, $countdown->id])->update(['last_seen_at' => '2026-10-30 10:04:50']); // everybody is here
+
+    $doneAt = BattleKit::fresh($done)->finished_at?->toDateTimeString();
+    CarbonImmutable::setTestNow('2026-10-30 10:04:59.5');
+    $this->artisan('practice:battles-sweep')->expectsOutput('Battles swept: 3')->assertSuccessful();
+
+    expect(BattleKit::fresh($expired)->status)->toBe(BattleStatus::Closed)
+        ->and(BattleKit::fresh($expired)->end_reason)->toBe(BattleEndReason::InviteExpired)
+        ->and(BattleKit::fresh($expired)->participants->pluck('active_learner_id')->all())->toBe([null, null])
+        ->and(BattleKit::fresh($fresh)->status)->toBe(BattleStatus::Invited)
+        ->and([BattleKit::fresh($countdown)->status, BattleKit::fresh($countdown)->phase])->toBe([BattleStatus::Playing, BattlePhase::Answering])
+        ->and(BattleKit::fresh($game)->phase)->toBe(BattlePhase::Reveal)
+        ->and(BattleAnswer::query()->where('battle_id', $game->id)->where('verdict', 'timeout')->sole()->learner_id)->toBe($friend->id)
+        ->and(BattleKit::fresh($game)->participant($me->id)->score)->toBe(100)
+        ->and(BattleKit::fresh($done)->finished_at?->toDateTimeString())->toBe($doneAt) // a match that is over is not touched
+        ->and(ProductEvent::query()->where('name', 'battle.closed')->count())->toBe(1)
+        ->and(ProductEvent::query()->where('name', 'battle.closed')->sole()->props)->toEqual(['battle_id' => $expired->id, 'end_reason' => 'invite_expired']);
+
+    // Nothing is due any more: a second run changes nothing and raises nothing.
+    $this->artisan('practice:battles-sweep')->expectsOutput('Battles swept: 0')->assertSuccessful();
+    expect(ProductEvent::query()->where('name', 'battle.closed')->count())->toBe(1);
+
+    // A second later the fresh invitation is past its time too.
+    CarbonImmutable::setTestNow('2026-10-30 10:05:00');
+    $this->artisan('practice:battles-sweep')->expectsOutput('Battles swept: 1')->assertSuccessful();
+    expect(BattleKit::fresh($fresh)->end_reason)->toBe(BattleEndReason::InviteExpired);
+});
+
+it('voids the matches that are on when the practice is switched off, and leaves the invitations to expire by themselves', function (): void {
+    Storage::fake('practice_audio');
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    $other = Learner::factory()->create();
+    $third = Learner::factory()->create(['interface_locale' => 'uz']);
+    $pair = Friendship::factory()->between($other, $third)->create();
+
+    $game = BattleKit::playing($me, $friend, $friendship, PracticeMode::Pairs, $course);
+    $invited = BattleKit::invite($other, $pair, PracticeMode::Collocation, $course);
+
+    config(['practice.access' => 'off']);
+    $this->artisan('practice:battles-sweep')->expectsOutput('Battles swept: 1')->assertSuccessful();
+
+    $row = BattleKit::fresh($game);
+    expect([$row->status, $row->end_reason, $row->meta['voided_reason'], $row->winner_learner_id])->toBe([BattleStatus::Closed, BattleEndReason::Voided, 'practice_off', null])
+        ->and($row->participants->pluck('active_learner_id')->all())->toBe([null, null])
+        ->and(BattleKit::fresh($invited)->status)->toBe(BattleStatus::Invited)
+        ->and(ProductEvent::query()->where('name', 'battle.closed')->sole()->props)->toEqual(['battle_id' => $game->id, 'end_reason' => 'voided']);
+
+    // Still off a day later: the invitation has expired the ordinary way; nothing else to void.
+    CarbonImmutable::setTestNow('2026-10-31 10:00:00');
+    $this->artisan('practice:battles-sweep')->expectsOutput('Battles swept: 1')->assertSuccessful();
+    expect(BattleKit::fresh($invited)->end_reason)->toBe(BattleEndReason::InviteExpired);
 });

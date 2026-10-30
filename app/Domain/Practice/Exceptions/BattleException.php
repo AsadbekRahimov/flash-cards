@@ -23,6 +23,7 @@ use RuntimeException;
  *   battle_not_found             404  not a battle of the learner
  *   battle_not_recipient         403  only the invited side answers an invitation
  *   battle_not_challenger        403  only the inviting side withdraws it
+ *   not_friends                  403  the pair is not an accepted friendship (the code of the challenges, docs/16 §7.6)
  *   battle_closed                409  {end_reason}: the battle is over
  *   battle_wrong_state           409  {status}: the action does not fit the status
  *   round_not_open               409  {round, phase}: the round has not started
@@ -43,6 +44,8 @@ final class BattleException extends RuntimeException
     public const NOT_RECIPIENT = 'battle_not_recipient';
 
     public const NOT_CHALLENGER = 'battle_not_challenger';
+
+    public const NOT_FRIENDS = 'not_friends';
 
     public const CLOSED = 'battle_closed';
 
@@ -100,6 +103,11 @@ final class BattleException extends RuntimeException
         return new self(self::NOT_CHALLENGER, 'Only the one who invited can withdraw the invitation.');
     }
 
+    public static function notFriends(): self
+    {
+        return new self(self::NOT_FRIENDS, 'A battle is played with a friend.');
+    }
+
     public static function closed(?BattleEndReason $reason): self
     {
         return new self(self::CLOSED, 'The battle is over.', ['end_reason' => $reason?->value]);
@@ -124,7 +132,7 @@ final class BattleException extends RuntimeException
     {
         return match ($this->errorCode) {
             self::NOT_FOUND => 404,
-            self::NOT_RECIPIENT, self::NOT_CHALLENGER => 403,
+            self::NOT_RECIPIENT, self::NOT_CHALLENGER, self::NOT_FRIENDS => 403,
             self::MATERIAL_UNAVAILABLE => 422,
             default => 409,
         };

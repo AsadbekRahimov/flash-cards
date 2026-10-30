@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use LogicException;
 
 /**
  * A 1-on-1 battle (docs/16 §2.7, §8): one match of one mode on one theme between two friends. The 5 rounds are frozen
@@ -114,6 +115,22 @@ class Battle extends Model
     public function otherId(int $learnerId): int
     {
         return $this->challenger_id === $learnerId ? $this->opponent_id : $this->challenger_id;
+    }
+
+    /**
+     * The participant row of a player, out of the loaded `participants` (loaded here when they are not yet).
+     *
+     * @throws LogicException the learner is not a player of this battle
+     */
+    public function participant(int $learnerId): BattleParticipant
+    {
+        foreach ($this->participants as $participant) {
+            if ($participant->learner_id === $learnerId) {
+                return $participant;
+            }
+        }
+
+        throw new LogicException("Learner {$learnerId} is not a participant of battle {$this->id}.");
     }
 
     /** @return BelongsTo<Learner, $this> */
