@@ -219,6 +219,15 @@ it('costs one statement more than the plain read of a finished session when its 
     expect(count($paired))->toBe(2, implode("\n", $paired));
 });
 
+it('opens the repeat in at most 13 statements: a plain opening (12) and the read of the session it repeats and the one question about its tasks (docs/16 §13)', function (string $type): void {
+    [$learner, $course, $lesson] = retryWorld($type);
+    $finished = retryFinished($learner, $course, $lesson, $type);
+
+    $queries = QueryLog::during(fn () => retryOpen($learner, $course, $type, ['retry_of' => $finished['id'], 'source' => 'retry'])->assertCreated());
+
+    expect(count($queries))->toBeLessThanOrEqual(13, implode("\n", $queries));
+})->with(['collocation', 'sentence', 'dictation']);
+
 it('does not ask about the tasks when the cheap checks already say no: nothing to repeat, mode off', function (): void {
     [$learner, $course, $lesson] = retryWorld('collocation');
     $finished = retryFinished($learner, $course, $lesson, 'collocation');
