@@ -88,7 +88,8 @@
       "reminder_times": ["08:00", "13:00", "19:00", "21:00"],
       "daily_goals": [10, 20, 40]
     }
-  }
+  },
+  "practice": { "available": true, "pro_required": false, "modes": ["pairs", "collocation", "sentence", "dictation"], "battle": true }
 }
 ```
 
@@ -115,6 +116,10 @@
   `timezone_change_available_at` — ISO 8601 UTC, когда можно снова сменить часовой пояс (раз в 24 ч, A.2b), `null` = можно сейчас (TWA блокирует выбор пояса до этого момента);
   `active_course` — `null`, если курса нет или он стал недоступен; `options.timezones[].label` и `active_course.title` — на языке learner'а (город + текущее смещение UTC,
   например «Ташкент (UTC+5)»); текущий пояс/время, которых нет в списках (выставлены через API), добавляются в конец списка. `options.locales[].label` — всегда на самом языке.
+- `practice` (docs/16 §3.3, A.16) — доступ к практике; блок **всегда** есть в ответе (`PracticeAccess::describe`, без запросов к БД сверх кэша тарифа). `available` — входы в практику
+  можно показывать: практика открыта ученику (`PRACTICE_ACCESS` = `all`, либо `pilot` и ученик в пилоте) **или** это Free-ученик при `PRACTICE_PLAN=pro` (вход виден с чипом Pro); при `false` TWA входов не рисует, а
+  эндпоинты практики отвечают 403 `practice_unavailable`. `pro_required` — Free-ученик при `PRACTICE_PLAN=pro`: нажатие на вход открывает пейвол `practice`, сервер отвечает 403 `practice_pro_required`.
+  `modes` — включённые режимы (`PRACTICE_MODE_*`), `battle` — переключатель баттла (`PRACTICE_BATTLE`). Блок есть и в других ответах формы `/me` (`PATCH /me/settings`, `POST /billing/subscription/cancel|resume`, `POST /promo/redeem`) — их собирает тот же `MePayloadBuilder`.
 - Цель дня и streak — в `GET /today` (A.2a), не в `/me`.
 
 ### A.2a `GET /api/twa/today`
@@ -218,13 +223,21 @@ Learner завершает **свою личную** сессию (`status = clo
 {
   "reviewed": 14, "correct": 11, "new_words": 4,
   "goal": { "target": 20, "done": 14, "met": false },
-  "streak": { "current": 5, "best": 12, "met_today": false, "at_risk": true, "freezes": 1, "frozen_yesterday": false }
+  "streak": { "current": 5, "best": 12, "met_today": false, "at_risk": true, "freezes": 1, "frozen_yesterday": false },
+  "practice_entry": { "course": "english-a1", "lesson_id": 41 }
 }
 ```
 `reviewed` — принятые оценки в сессии, `correct` — из них с `quality >= 3`, `new_words` — слова, у которых строка
 `word_repetitions` создана не раньше начала сессии. `goal` и `streak` — состояние **дня** learner'а на момент ответа (те же
 поля и правила, что в `GET /today`, A.2a): `goal.done` считает все оценки локального дня, а не только этой сессии. Повторный
 `finish` в тот же день отдаёт те же `goal`/`streak`; в следующем локальном дне они уже будут новыми (числа сессии — прежними).
+
+`practice_entry` (docs/16 §11.1, A.16) — куда ведёт кнопка «Практика урока» / «Практика курса» на экране итога; ключ **есть всегда**, значение `{course, lesson_id}` или `null`.
+`course` — slug курса (адрес хаба `GET /practice/hub?course=…`), `lesson_id` — урок занятия (`mode = lesson`) либо `null` у ежедневного занятия (`daily_review`) с курсом (`training_sessions.course_id` —
+снимок основного курса). `null` — когда кнопки не должно быть: ежедневное занятие без курса; групповая сессия (её закрывает учитель, ученик получил бы 403); практика закрыта ученику
+(`PRACTICE_ACCESS=off` или ученик не в пилоте); курс или урок хаб не откроет — курс не опубликован либо приватный курс центра (урок, открытый по заданию центра). Free-ученик при `PRACTICE_PLAN=pro`
+запись получает (хаб покажет карточки с чипом Pro, как кнопка на экране курса). **Материал не проверяется**: курс или урок без достаточного числа слов и заданий хаб объясняет сам («Мало материала» + «Учить урок»),
+а считать четыре режима на каждый `finish` дороже одного запроса. Цена записи — один запрос (урок с курсом одним JOIN'ом, либо курс ежедневного занятия); `PracticeEntryResolver`, закреплено `PracticeEntryTest`.
 
 Незавершённые сессии закрывает команда `training:close-expired` (планировщик, каждые 15 минут, `withoutOverlapping`): личные — по
 `expires_at` (`now + learning.session_ttl_hours`, 12 ч, при открытии), групповые — старше `group_session_ttl_hours`; обе с
@@ -657,12 +670,19 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 
 ### A.6 Общие правила
 - Все даты в ISO 8601 UTC.
-- Rate limit: 60 запросов/минуту на learner'а (кроме `/tts` — 30/мин, `/promo/redeem` — A.7, `POST /billing/checkout` — A.8, `POST /training/sessions` — 10/мин, `/decks*` — A.10, `DELETE /me/organizations/{id}` — A.11). `TwaAuth` выполняется **до** `throttle:*`
+- Rate limit: 60 запросов/минуту на learner'а (кроме `/tts` — 30/мин, `/promo/redeem` — A.7, `POST /billing/checkout` — A.8, `POST /training/sessions` — 10/мин, `/decks*` — A.10, `DELETE /me/organizations/{id}` — A.11, практика — A.16). `TwaAuth` выполняется **до** `throttle:*`
   (`bootstrap/app.php`, `prependToPriorityList`), поэтому ключ лимитера — `learner_id`, а не IP.
 - При любой 4xx/5xx (кроме 422 валидации Laravel) ответ — `ApiErrorResource`:
 ```json
 { "error": { "code": "string", "message": "string" } }
 ```
+- **`error.details`** (с практики, docs/16 §7.6) — необязательный объект с полями, которые нужны клиенту для экрана; он лежит **внутри** `error` и появляется только у кодов, у которых описан, и только когда не пуст:
+```json
+{ "error": { "code": "practice_session_active", "message": "There is an unfinished practice session.",
+             "details": { "session_id": 77, "mode": "pairs", "course": "english-a1", "lesson_id": 41, "progress": { "done": 1, "total": 3 } } } }
+```
+  Остальные ошибки не меняются: ключа `details` в них нет (не пустой объект, а именно нет). Сообщение `message` — английское и не показывается ученику: TWA выбирает текст по `code` (и `details`). Контракт закреплён тестами
+  `PracticeContractTest` (форма на проводе, ключи `details` каждого кода); в TWA — `ApiClientError.details`. Коды практики — A.16.
 
 ### A.7 `POST /api/twa/promo/redeem`
 Активация промокода (docs/12 §5.5). Rate limit `twa-promo`: **5/мин на learner'а и 60/мин на IP** (429) — защита от подбора кодов.
@@ -859,6 +879,149 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 ```
 `title` / `description` / `share_text` — на языке запроса (`lang/{ru,uz}/achievements.php`). `progress` — только у счётных ключей (`streak_*` по лучшей серии, `words_*` по словам с `repetitions ≥ 1`), `current` не больше `target`; у разовых — `null`. `share_text` — только у полученных. `share_link` — `t.me/<bot>?start=ref_<code>` (тот же код, что у рефералки); `null`, пока не задан `TELEGRAM_BOT_USERNAME` — клиент прячет кнопку «Поделиться».
 - `POST /api/twa/achievements/{key}/shared` — learner открыл диалог «Поделиться» (`useTelegram().shareUrl`): ставит `shared_at` один раз (+ событие `achievement.shared`), повтор — без изменений. **404** `achievement_not_found` — ключ неизвестен, не получен или чужой.
+
+### A.16 Практика — четыре режима (docs/16 §7, §10; задачи 18.1–18.5)
+Самостоятельная практика закрепляет **уже введённые** ученику слова: «Найди пары» (`pairs`), «Подбери сочетание» (`collocation`), «Собери предложение» (`sentence`), «Слушай и пиши» (`dictation`). Она **не пишет**
+`word_repetitions`, `training_*`, цель дня, серию, лиги, задания центра и достижения (docs/16 §0, `PracticeIsolationTest`). Контроллеры `PracticeHubController`, `PracticeSessionController`, `PracticeAudioController` тонкие
+(валидация → сервис → Resource): `PracticeHubService`, `PracticeSessionService`, `PracticeAudioService`; ответы — `PracticeHubResource`, `PracticeSessionResource`, `PracticeAnswerResource`; ошибки — `ApiErrorResource` (A.6, с `details`).
+Формы закреплены `PracticeContractTest` (`assertExactJsonStructure`, запретные ключи снимка на любой глубине). Даты — ISO 8601 UTC **с миллисекундами** (`2026-10-30T10:00:05.321Z`); `server_now` — в каждом ответе сессии.
+
+**Доступ** проверяется на каждом эндпоинте раньше всего (`PracticeAccess::state`): `PRACTICE_ACCESS=off` или `pilot` без ученика в пилоте → **403** `practice_unavailable` (один код: наличие пилота не раскрываем); `PRACTICE_PLAN=pro` и ученик не на Pro → **403** `practice_pro_required`
+(TWA открывает пейвол `practice`). Выключатель режима `PRACTICE_MODE_*` проверяется **только при создании** сессии (**409** `practice_mode_disabled`) и показывается в хабе как `disabled`: открытые сессии доигрываются.
+Чужая сессия неотличима от несуществующей: **404** `practice_session_not_found`.
+
+**Лимиты** (ключ — `learner_id`, `TwaAuth` раньше `throttle`): все маршруты, кроме аудио, под `twa-api` (60/мин); дополнительно `POST /practice/sessions` — `twa-practice-open` **10/мин**; `…/answer` и `…/replace` — `twa-practice-answer` **90/мин**
+(быстрый ученик сопоставляет ~40 пар в минуту); аудио — `twa-practice-audio` **60/мин** и **вне** `twa-api` (клипы грузятся пачкой и не должны съедать общий бюджет). 429 — `rate_limited` (A.6).
+
+#### `GET /api/twa/practice/hub?course={slug}[&lesson_id={id}]`
+Хаб курса или урока: четыре режима с состоянием, незавершённая сессия, сводка баттла. Бюджет — 9 запросов к БД (`PracticeQueryBudgetTest`).
+```json
+{ "course": { "slug": "english-a1", "title": "Английский A1" },
+  "lesson": { "id": 41, "stage": 2, "number": 4, "title": "Еда" },
+  "modes": [
+    { "mode": "pairs",       "state": "available",  "available": 14, "required": 3, "reason": null,       "estimate_seconds": 120 },
+    { "mode": "collocation", "state": "not_enough", "available": 1,  "required": 3, "reason": "no_items", "estimate_seconds": 90 },
+    { "mode": "sentence",    "state": "disabled",   "available": 0,  "required": 3, "reason": null,       "estimate_seconds": 150 },
+    { "mode": "dictation",   "state": "available",  "available": 7,  "required": 3, "reason": null,       "estimate_seconds": 180 }
+  ],
+  "active_session": { "id": 77, "mode": "pairs", "course": "english-a1", "lesson_id": 41, "progress": { "done": 1, "total": 3 } },
+  "battle": { "enabled": true, "active_battle_id": null, "incoming_count": 1 } }
+```
+- `lesson` — `null` без `lesson_id` (хаб курса); `stage` и `number` — номера модуля и урока, `title` — название (у безымянного урока `null`; у колоды ученика — по `DeckTitles`). Тексты на языке ученика.
+- `modes[]` всегда четыре, в порядке `pairs`, `collocation`, `sentence`, `dictation`. `state`: `available` (можно играть), `not_enough` (материала мало: числа `available` / `required` и `reason`), `disabled` (режим выключен
+  `PRACTICE_MODE_*`), `pro_required` (Free при `PRACTICE_PLAN=pro`: числа не считаются). У `disabled` и `pro_required` `available = 0`, `reason = null`. `required` — минимум: у пар 3 слова в раунде, у остальных 3 задания (`practice.solo.items.min`).
+  `reason`: `no_words` (введённых слов меньше минимума), `ambiguous` (слов хватает, но после исключения неоднозначных переводов — нет), `no_items` (опубликованных заданий мало или их целевые слова не введены), `audio_pending` (заданий хватает, но озвучка не готова),
+  `no_audio_words` (диктант слов: нет слов с готовой озвучкой). `estimate_seconds` — «≈ N мин» на карточке (120 / 90 / 150 / 180).
+- `active_session` — единственная незавершённая сессия ученика **в любом курсе** (`null`, если нет; просроченная закрывается и не возвращается): карточка «Продолжить» и лист «Незавершённая практика».
+- `battle` — сводка баттла: `enabled` (`PRACTICE_BATTLE`), `active_battle_id` (свой матч, который не закончен), `incoming_count` (приглашения мне, срок которых не истёк). Один запрос к `battles`; API баттла — A.17.
+- Ошибки: **403** `practice_unavailable`; **404** `course_not_found` (курс не опубликован, приватный чужой или нет такого), `lesson_not_found`; **422** `lesson_not_in_course`, валидация (`course` обязателен, ≤ 64 символов).
+
+#### `POST /api/twa/practice/sessions` — открыть сольную сессию (лимитер `twa-practice-open`)
+```json
+{ "mode": "pairs", "course": "english-a1", "lesson_id": 41, "source": "hub", "replace_active": false, "retry_of": null }
+```
+`mode` — один из четырёх; `course` — slug (≤ 64); `lesson_id` — целое ≥ 1 или `null` (практика курса); `source` — `hub` (по умолчанию) | `after_training` (хаб открыт с итога занятия: `?from=finished`) | `retry` | `deeplink` — откуда открыта, для аналитики;
+`replace_active` — закрыть незавершённую сессию (`finish_reason = replaced`); `retry_of` — id **завершённой** своей сессии: «Повторить ошибки» (режим, курс и урок берутся из неё, присланные игнорируются, `source = retry`).
+Ответ **201** — сессия (форма ниже, как `GET`); в `current` — первый элемент. Что в сессии: пары — до 3 раундов по 4 слова (минимум один раунд из 3); сочетание, предложение — 5 заданий (минимум 3); диктант — 5 заданий (минимум 3): до 3 фраз, остальное — слова с готовой озвучкой (слов не хватает — добираются фразами), сначала слова, потом фразы.
+Раскладка и ожидаемые ответы создаются на сервере один раз и хранятся в снимке (`practice_sessions.snapshot`, §03 2.43): перезагрузка отдаёт ту же раскладку, правка контента на идущую сессию не влияет.
+- Одна активная сессия на ученика (unique `active_learner_id`): вторая открывается только с `replace_active` — иначе **409** `practice_session_active` (`details` — незавершённая сессия: `{session_id, mode, course, lesson_id, progress}`).
+  Две вкладки, открывшие одну и ту же практику одновременно, получают **одну** сессию (проигравший гонку читает победителя); другую практику — 409.
+- Ошибки: **403** `practice_unavailable` / `practice_pro_required`; **409** `practice_mode_disabled` (`{mode}`), `practice_session_active`, `retry_not_available` (в исходной сессии нечего повторять или материала для повтора мало); **404** `course_not_found`, `lesson_not_found`,
+  `practice_session_not_found` (чужая или несуществующая `retry_of`); **422** `lesson_not_in_course`, `practice_not_enough_material`, валидация.
+- **422 `practice_not_enough_material`** — `details`: `{ "mode": "pairs", "available": 2, "required": 3, "reason": "no_words", "course": "english-a1", "lesson_id": 41 }` (те же `reason`, что в хабе). TWA по нему объясняет причину и предлагает «Учить урок».
+- Побочный эффект: событие `practice.session_started` `{session_id, mode, course_id, lesson_id, source, total, retry}`; отказ 422 — `practice.not_enough_material` (кроме повтора ошибок).
+
+#### `GET /api/twa/practice/sessions/{id}` — сессия
+```json
+{ "id": 77, "status": "active", "mode": "sentence", "source": "hub", "retry_of": null,
+  "course": { "slug": "english-a1", "title": "Английский A1" },
+  "lesson": { "id": 41, "stage": 2, "number": 4, "title": "Еда" },
+  "progress": { "done": 2, "total": 5 }, "counters": { "correct_first": 1, "hints": 0, "mismatches": 0 },
+  "expires_at": "2026-10-31T10:00:00.000Z", "server_now": "2026-10-30T10:00:05.321Z",
+  "current": { "id": "eK7qM2x9Ab", "kind": "sentence", "prompt": "Моя мама — учитель.",
+               "fragments": [ { "id": "fQ1xT8aLmN", "text": "teacher" }, { "id": "fW2pB4cDeR", "text": "My" } ] },
+  "summary": null }
+```
+`status` — `active` | `finished`; `lesson` — `null` у практики курса; `progress.done` — завершённые элементы (у пар — раунды); `counters` — для шапки; `expires_at` — `started_at + 24 ч` (`practice.solo.session_ttl_hours`). Восстановление экрана — этим же запросом: раскладка та же.
+`current` — **белый список** (`PracticeModeHandler::project` + повторная очистка Resource'ом от ключей снимка); id элементов, фрагментов, вариантов и карточек пар — случайные 10-символьные (`e…`, `f…`, `o…`, `l…`, `r…`), порядок — перестановка от случайного seed'а, который не хранится. Формы `current` по `kind`:
+- `pairs_round` — `{ id, kind, round, rounds, left: [{id, text}], right: [{id, text}], matched: [[leftId, rightId], …], mismatches }`; `right.text` — перевод на языке ученика (при отсутствии — русский); правильные соответствия **не** отдаются;
+- `collocation` — `{ id, kind, text: "Let's ___ a meeting on Monday.", options: [{id, text} ×3] }`;
+- `sentence` — как в примере выше (`prompt` — смысл на языке ученика, `fragments` — перемешанные);
+- `dictation` — `{ id, kind, source: "phrase" | "word", audio_url: "/api/twa/practice/sessions/77/audio/eD4rS6yUiO", words: 3, replacements_left: 2 }` — **текста нет**; `words` — число слов (для пустых плашек).
+Завершённая сессия: `current: null`, `summary` (ниже). `GET` завершённой — **200** с итогами (не 410: итоги читаемы всегда); просроченная активная закрывается при обращении (`finish_reason = expired`) и тоже отвечает 200.
+Ошибки: **404** `practice_session_not_found`; **403** по доступу.
+
+`summary` (итог, `SummaryView`):
+```json
+{ "total": 5, "answered": 5, "correct_first": 3, "typos": 1, "hints": 1, "mismatches": null,
+  "duration_ms": 93000, "finish_reason": "completed", "retry_available": true,
+  "mistakes": [ { "element_id": "eD4rS6yUiO", "kind": "dictation", "label": "See you tomorrow", "your_answer": "see you tomorow", "verdict": "typo" } ] }
+```
+`correct_first` — верно с первой попытки (`typo` не считается), `hints` — «Не знаю». У пар `correct_first` — слова, сопоставленные верно с первой попытки, `mismatches` — число неверных сопоставлений (у остальных режимов `null`), `mistakes[]` — слова, в которых была ошибка
+(`label: "mother — мама"`, `your_answer: null`, `verdict: "wrong"`). `finish_reason` — `completed` | `expired` | `replaced`; `retry_available` — можно «Повторить ошибки» (есть ошибки и материала хватает); `duration_ms` — серверное `finished_at − started_at`.
+
+#### `POST /api/twa/practice/sessions/{id}/answer` — ответ (лимитеры `twa-api` + `twa-practice-answer`)
+```json
+{ "request_id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d", "element_id": "eK7qM2x9Ab", "time_spent_ms": 8200,
+  "answer": { "order": ["fW2pB4cDeR", "fQ1xT8aLmN"] } }
+```
+`request_id` — **uuid**, обязателен: ключ повтора. `element_id` — id текущего элемента (≤ 16). `time_spent_ms` — 0…600000, телеметрия, на вердикт не влияет. `answer` по режиму:
+пары — `{left_id, right_id}` (одно сопоставление; проверяется сразу); сочетание — `{option_id}` или `{skip: true}`; предложение — `{order: [id всех фрагментов]}` (≤ 8) или `{skip: true}`; диктант — `{text}` (≤ 200 символов; пустой текст = «Не знаю») или `{skip: true}`.
+Тело запроса ≤ 4 КБ. Ответ **200**:
+```json
+{ "verdict": "typo", "first_attempt": true,
+  "reveal": { "expected": "See you tomorrow", "your_text": "see you tomorow",
+              "diff": [ { "expected": "see", "got": "see", "ok": true }, { "expected": "tomorrow", "got": "tomorow", "ok": false } ],
+              "translation": "До завтра", "explanation": null },
+  "pair": null,
+  "session": { "...": "сессия, как GET: следующий элемент в current или summary" } }
+```
+- `verdict` — `correct` | `typo` (только диктант: «Есть опечатка», в `correct_first` не засчитывается) | `wrong` | `skipped`. `first_attempt` — первая ли это попытка по элементу.
+- `reveal` — разбор **после** ответа, по виду элемента: `collocation` — `{correct_option_ids, full_text, translation, explanation}`; `sentence` — `{correct_text, alternatives: [...], your_text, explanation}`; `dictation` — `{expected, your_text, diff, translation, explanation}`
+  (`diff` — пословное сравнение при равном числе слов, иначе `null`; при «Не знаю» `your_text = null`). У пар `reveal` всегда `null`, правильная пара при ошибке **не** раскрывается.
+- Пары: `pair: { left_id, right_id }` — какое сопоставление проверено, `verdict` — `correct` | `wrong` (первая ошибка по слову фиксируется, даже если потом оно найдено), `round_done: bool` — раунд завершён (**ключ есть только у пар**).
+- **Повтор того же `request_id`** возвращает прежние `verdict`/`reveal` (из журнала `practice_attempts`) и **текущее** состояние сессии — даже если она уже закончилась (потерянный ответ на последний элемент не превращается в 410).
+- Порядок проверок под блокировкой сессии: повтор → закрыта (410) → неизвестный элемент (422) → элемент уже отвечен (409) → не текущий (409) → форма ответа (422). Ошибки:
+  **410** `practice_session_closed` (`{finish_reason}`; просроченная сессия закрывается этим запросом); **409** `element_not_current` (`{current}` — id элемента, который отвечать сейчас; TWA перечитывает сессию), `answer_already_accepted` (`{verdict}`), `pair_already_matched` (`{left_id}`; также для уже занятой правой карточки);
+  **422** `invalid_answer_shape` (`{expected}`: `order_of_all_fragments` | `option_id` | `left_right` | `text_or_skip` | `bijection`), `unknown_element_id` (неизвестный элемент, фрагмент, вариант или карточка), валидация; **404**.
+- Побочный эффект при завершении сессии: событие `practice.session_finished` `{session_id, mode, total, answered, correct_first, hints, mismatches, reason, duration_ms}` (после commit, один раз).
+
+#### `POST /api/twa/practice/sessions/{id}/replace` — замена диктанта без штрафа (лимитер `twa-practice-answer`)
+`{ "request_id": "…uuid…", "element_id": "eD4rS6yUiO", "reason": "audio_unavailable" }` → **200** сессия (как `GET`): диктант, чья запись не загрузилась, заменён следующим кандидатом из пула снимка (фраза — фразой, иначе словом); если запасных нет, элемент
+убирается и `progress.total` уменьшается (минимум 1). Заменённый элемент не входит в `total` и `answered`. Не больше `practice.solo.dictation.max_replacements` (2) на сессию. Ошибки: **409** `replace_not_allowed` (`{reason: not_dictation | not_current | limit}`), **410**, **404**.
+Повтор `request_id` второй раз не заменяет: ответ — текущая сессия. Событие `practice.audio_failed` `{session_id, source, reason, verified}` (после commit).
+
+#### `GET /api/twa/practice/sessions/{id}/audio/{element}` — запись диктанта (лимитер `twa-practice-audio`, вне `twa-api`)
+Тело — `audio/mpeg`, заголовки `Cache-Control: private, no-store`, `Content-Length`, `X-Content-Type-Options: nosniff`. Файл читается с диска элемента снимка (`practice_audio` — фразы; `public` — предгенерированные слова, `audio:pregenerate`) по **непрозрачному id элемента**;
+ни пути, ни текста в API нет. TWA грузит клип запросом с `Authorization` в `blob:` и играет по нажатию (Web Speech для диктанта запрещён: нужен текст на клиенте). Доступ — только владельцу; завершённая сессия отдаёт записи до `expires_at` (повторное прослушивание в разборе).
+Ошибки: **404** `practice_session_not_found` — чужая сессия, неизвестный элемент или элемент без записи (неотличимо), **503** `practice_audio_unavailable` — файла нет (TWA предлагает «Повторить загрузку» и «Заменить задание»; событие `practice.audio_failed`).
+
+#### Коды ошибок практики (сводно)
+| Код | HTTP | `details` |
+|---|---|---|
+| `practice_unavailable` | 403 | — |
+| `practice_pro_required` | 403 | — (пейвол `practice`) |
+| `practice_mode_disabled` | 409 | `{mode}` |
+| `practice_not_enough_material` | 422 | `{mode, available, required, reason, course, lesson_id}` |
+| `practice_session_active` | 409 | `{session_id, mode, course, lesson_id, progress}` |
+| `practice_session_not_found` | 404 | — |
+| `practice_session_closed` | 410 | `{finish_reason}` |
+| `element_not_current` | 409 | `{current}` |
+| `answer_already_accepted` | 409 | `{verdict}` (в баттле ещё `points`) |
+| `pair_already_matched` | 409 | `{left_id}` |
+| `invalid_answer_shape` | 422 | `{expected}` |
+| `unknown_element_id` | 422 | — |
+| `replace_not_allowed` | 409 | `{reason}` |
+| `retry_not_available` | 409 | — |
+| `practice_audio_unavailable` | 503 | — |
+| `course_not_found` / `lesson_not_found` | 404 | — |
+| `lesson_not_in_course` | 422 | — |
+
+TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru/uz); клиент разбирает `details` у `practice_session_active`, `element_not_current`, `answer_already_accepted`.
+
+### A.17 Баттл 1 на 1 — API (docs/16 §7.3–§7.4, §8)
+> Описывается в 18.7c, после слияния серверной части баттла (18.6 / 18.6b). Таблицы — §03 2.45–2.47; лимитеры `twa-battle-invite` (5/мин), `twa-battle-action` (60/мин), `twa-battle-poll` (90/мин, вне `twa-api`) объявлены в `AppServiceProvider`;
+> экраны TWA — docs/05 §5a.
 
 ## Часть B — Telegram Bot
 
@@ -1118,6 +1281,9 @@ private function formatLeaderboard(ExamSession $session): string
 `callback_data` (префикс `fr1`, строгий regex `^fr1:(acc|dec|cacc|cdec|snd|no):[A-Z0-9]{1,18}$` + проверка аргумента: id — цифры, `snd`/`no` — реферальный код `[A-Z0-9]{6,12}`, id проверяется сервисом среди **своих** пар/вызовов — чужой id = «приглашение больше не действует»): `fr1:snd:<code>` / `fr1:no:<code>` — отправить запрос владельцу ссылки `f_<code>` / «не сейчас»; `fr1:acc:<friendship_id>` / `fr1:dec:<friendship_id>` — принять/отклонить запрос в друзья (адресату); `fr1:cacc:<challenge_id>` / `fr1:cdec:<challenge_id>` — принять/отклонить вызов. Кнопки работают только в личном чате самого нажавшего, для learner'а с завершённым онбордингом.
 
 Фоновые ЛС (`SendFriendDmJob`, `ThrottleTelegramOutbound`, `tries = 0` + `maxExceptions = 3`, `retryUntil` +6 ч; состояние перечитывается — неактуальное не объявляется; `blocked_at`/`dm_blocked_at` — молчим; 403 → `dm_blocked_at`): «X хочет добавить вас в друзья» с кнопками (адресату запроса), «X принял приглашение» (отправителю запроса), «X бросает вам вызов» с кнопками (адресату), «X принял вызов» (бросившему), итог вызова — **два отдельных задания** (по одному на сторону): победа / поражение / ничья со счётом, на языке получателя. Повтор job'а после фактической доставки не дублирует ЛС: маркер в `notifications_log` (`type = friend_dm`, ключ `вид:id:сторона`) пишется до вызова Telegram.
+
+### B.14 Баттл: ЛС с приглашением (docs/16 §8.7)
+> Описывается в 18.7c, после слияния серверной части баттла (18.6b: `SendBattleDmJob`, `BattleMessenger`, `lang/{ru,uz}/battle.php`). Практика (A.16) в боте ничего не меняет: у неё нет команд и ЛС.
 
 ## Часть D — Вебхуки платёжных провайдеров (docs/13 §4)
 
