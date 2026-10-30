@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { errorMessage } from '@/i18n/errors'
+import { incomingInvitation } from '@/stores/battle'
 import { useCoursesStore } from '@/stores/courses'
 import { useFriendsStore } from '@/stores/friends'
 import type { BattleModeOption, BattleOptionsResponse, Course, PracticeMode } from '@/api/types'
@@ -266,7 +267,11 @@ export const useBattleSetupStore = defineStore('battleSetup', {
       }
     },
 
-    /** "Invite". Returns the id of the new battle for the route, or null with the reason in `inviteError` / `paywall` / `blocked`. */
+    /**
+     * "Invite". Returns the id of the battle for the route, or null with the reason in `inviteError` / `paywall` / `blocked`. If the
+     * friend has invited the learner at this very moment (409 `battle_busy` names THEIR invitation), the id is that invitation's: the
+     * screen leads into it, where the learner accepts it - no refusal is shown.
+     */
     async invite(): Promise<number | null> {
       if (!this.canInvite || this.friendshipId === null || this.course === null || this.mode === null) return null
 
@@ -280,6 +285,9 @@ export const useBattleSetupStore = defineStore('battleSetup', {
         return generation === this.generation ? battle.id : null
       } catch (err) {
         if (generation !== this.generation) return null
+        const theirs = await incomingInvitation(err)
+        if (generation !== this.generation) return null
+        if (theirs !== null) return theirs
         this.inviteError = errorMessage(err, 'battle')
         if (err instanceof ApiClientError) {
           if (err.code === 'battle_busy') this.busyBattleId = typeof err.details?.battle_id === 'number' ? err.details.battle_id : null

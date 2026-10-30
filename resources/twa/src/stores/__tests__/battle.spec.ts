@@ -824,18 +824,81 @@ describe('battle store — a clip that does not play', () => {
     expect(store.polling).toBe(false)
   })
 
-  it('when the file is there the match goes on, and a failure of the report is not a failure of the match', async () => {
+  it('when the file is there the match goes on, and a report that never gets through is not a failure of the match', async () => {
     const store = await opened()
-    vi.mocked(api.battles.audioFailed).mockResolvedValueOnce({ verified: false, battle: battle({ version: 24 }) }).mockRejectedValueOnce(offline())
+    vi.mocked(api.battles.audioFailed).mockResolvedValueOnce({ verified: false, battle: battle({ version: 24 }) }).mockRejectedValue(offline())
 
-    await store.audioFailed('eDict00001')
-    await store.audioFailed('eDict00002')
+    expect(await store.audioFailed('eDict00001')).toBe(false)
+    const second = store.audioFailed('eDict00002')
+    await vi.advanceTimersByTimeAsync(2000)
 
+    expect(await second).toBeNull()
     expect(store.status).toBe('playing')
     expect(store.polling).toBe(true)
     expect(store.actionError).toBe('')
   })
+
+  it('answers what the server found: true when the match is voided, false when the file is there, null when nothing was found out', async () => {
+    const store = await opened()
+    vi.mocked(api.battles.audioFailed)
+      .mockResolvedValueOnce({ verified: false, battle: battle({ version: 24 }) })
+      .mockResolvedValueOnce({ verified: true, battle: closedBattle('voided', { version: 30 }) })
+
+    expect(await store.audioFailed('eDict00001')).toBe(false)
+    expect(await store.audioFailed('eDict00002')).toBe(true)
+    expect(await store.audioFailed('eDict00002')).toBeNull() // once per element
+  })
+
+  it('sends a report that got no reply once more - the same request_id, so the server counts it once', async () => {
+    const store = await opened()
+    vi.mocked(api.battles.audioFailed).mockRejectedValueOnce(offline()).mockResolvedValueOnce({ verified: true, battle: closedBattle('voided', { version: 30 }) })
+
+    const reporting = store.audioFailed('eDict00001')
+    await vi.advanceTimersByTimeAsync(2000)
+
+    expect(await reporting).toBe(true)
+    const [first, second] = vi.mocked(api.battles.audioFailed).mock.calls
+    expect(first?.[1].request_id).toMatch(UUID)
+    expect(second?.[1]).toEqual(first?.[1])
+    expect(store.status).toBe('closed')
+  })
+
+  it('repeats a report ONCE: a second failure is let be', async () => {
+    const store = await opened()
+    vi.mocked(api.battles.audioFailed).mockRejectedValue(apiError('server', 503, 'x'))
+
+    const reporting = store.audioFailed('eDict00005')
+    await vi.advanceTimersByTimeAsync(10_000)
+
+    expect(await reporting).toBeNull()
+    expect(api.battles.audioFailed).toHaveBeenCalledTimes(2)
+  })
+
+  it('stops repeating a report when the screen is left', async () => {
+    const store = await opened()
+    vi.mocked(api.battles.audioFailed).mockRejectedValue(offline())
+
+    const reporting = store.audioFailed('eDict00005')
+    await vi.advanceTimersByTimeAsync(0)
+    store.leave()
+    await vi.advanceTimersByTimeAsync(5000)
+
+    expect(await reporting).toBeNull()
+    expect(api.battles.audioFailed).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not send a report again after a refusal: it would be the same refusal', async () => {
+    const store = await opened()
+    vi.mocked(api.battles.audioFailed).mockRejectedValue(apiError('conflict', 409, 'battle_closed', { end_reason: 'voided' }))
+
+    expect(await store.audioFailed('eDict00001')).toBeNull()
+
+    expect(api.battles.audioFailed).toHaveBeenCalledTimes(1)
+  })
 })
+
+const OFFERED = { battle_id: 16, status: 'invited', by_me: false } as const
+const MINE = { battle_id: 16, status: 'invited', by_me: true } as const
 
 describe('battle store — the rematch', () => {
   it('invites to the same format and place with rematch_of', async () => {
@@ -844,21 +907,21 @@ describe('battle store — the rematch', () => {
 
     expect(await store.rematch()).toBe(16)
 
-    expect(api.battles.invite).toHaveBeenCalledWith({ rematch_of: 15, mode: 'sentence', course: 'english-a1', lesson_id: 41 })
+    expect(api.battles.invite).toHaveBeenCalledWith({ rematch_of: 15, mode: 'sentence', course: 'english-a1', lesson_id: 41, friendship_id: 11 })
     expect(store.acting).toBeNull()
   })
 
-  it('sends the friendship too when the server has told it', async () => {
-    const store = await opened(finishedBattle('won', 'completed', { friendship_id: 11 }), null)
+  it('leaves the friendship out when the server has none to tell (it is gone): a rematch needs none', async () => {
+    const store = await opened(finishedBattle('won', 'completed', { friendship_id: null }), null)
     vi.mocked(api.battles.invite).mockResolvedValue(invitedBattle({ id: 16 }))
 
     await store.rematch()
 
-    expect(api.battles.invite).toHaveBeenCalledWith({ rematch_of: 15, mode: 'sentence', course: 'english-a1', lesson_id: 41, friendship_id: 11 })
+    expect(api.battles.invite).toHaveBeenCalledWith({ rematch_of: 15, mode: 'sentence', course: 'english-a1', lesson_id: 41 })
   })
 
   it('also after a battle that did not take place; a whole course is a null lesson', async () => {
-    const store = await opened(closedBattle('room_expired', { lesson: null }), null)
+    const store = await opened(closedBattle('room_expired', { lesson: null, friendship_id: null }), null)
     vi.mocked(api.battles.invite).mockResolvedValue(invitedBattle({ id: 16 }))
 
     await store.rematch()
@@ -873,53 +936,145 @@ describe('battle store — the rematch', () => {
     expect(api.battles.invite).not.toHaveBeenCalled()
   })
 
-  it('a refusal gives no id and says why; a battle in the way is remembered', async () => {
-    const store = await opened(finishedBattle(), null)
-    vi.mocked(api.battles.invite).mockRejectedValue(apiError('conflict', 409, 'battle_busy', { battle_id: 9 }))
+  describe('when a battle is in the way (409 battle_busy)', () => {
+    const refusedBy = (id: number | null) => apiError('conflict', 409, 'battle_busy', id === null ? null : { battle_id: id })
+    const BUSY = 'У вас уже есть активный баттл. Завершите его, чтобы начать новый.'
+    const reading = (other: Battle) => vi.mocked(api.battles.get).mockImplementation((id) => Promise.resolve(id === 15 ? finishedBattle() : other))
 
-    expect(await store.rematch()).toBeNull()
+    it('the friend offered a rematch at the same moment: their invitation to the learner is the one to go to, and nothing is refused', async () => {
+      const store = await opened(finishedBattle(), null)
+      vi.mocked(api.battles.invite).mockRejectedValue(refusedBy(16))
+      reading(invitedBattle({ id: 16, role: 'opponent' }))
 
-    expect(store.actionError).toBe('У вас уже есть активный баттл. Завершите его, чтобы начать новый.')
-    expect(store.busyBattleId).toBe(9)
-    expect(store.acting).toBeNull()
+      expect(await store.rematch()).toBe(16)
+
+      expect(api.battles.get).toHaveBeenCalledWith(16)
+      expect(store.actionError).toBe('')
+      expect(store.busyBattleId).toBeNull()
+      expect(store.acting).toBeNull()
+    })
+
+    it('the battle in the way is the learner’s own invitation (they are its challenger): the message stands, with the way to it', async () => {
+      const store = await opened(finishedBattle(), null)
+      vi.mocked(api.battles.invite).mockRejectedValue(refusedBy(9))
+      reading(invitedBattle({ id: 9, role: 'challenger' }))
+
+      expect(await store.rematch()).toBeNull()
+
+      expect(store.actionError).toBe(BUSY)
+      expect(store.busyBattleId).toBe(9)
+      expect(store.acting).toBeNull()
+    })
+
+    it('a battle that is on (the invitation was accepted) is not an invitation to accept, whoever started it', async () => {
+      const store = await opened(finishedBattle(), null)
+      vi.mocked(api.battles.invite).mockRejectedValue(refusedBy(9))
+      reading(roomBattle({ id: 9, role: 'opponent' }))
+
+      expect(await store.rematch()).toBeNull()
+
+      expect(store.busyBattleId).toBe(9)
+    })
+
+    it('the battle in the way cannot be read: the message stands', async () => {
+      const store = await opened(finishedBattle(), null)
+      vi.mocked(api.battles.invite).mockRejectedValue(refusedBy(9))
+      vi.mocked(api.battles.get).mockImplementation((id) => (id === 15 ? Promise.resolve(finishedBattle()) : Promise.reject(offline())))
+
+      expect(await store.rematch()).toBeNull()
+
+      expect(store.actionError).toBe(BUSY)
+      expect(store.busyBattleId).toBe(9)
+    })
+
+    it('a refusal that names no battle is not looked up', async () => {
+      const store = await opened(finishedBattle(), null)
+      vi.mocked(api.battles.invite).mockRejectedValue(refusedBy(null))
+      vi.mocked(api.battles.get).mockClear()
+
+      expect(await store.rematch()).toBeNull()
+
+      expect(api.battles.get).not.toHaveBeenCalled()
+      expect(store.busyBattleId).toBeNull()
+      expect(store.actionError).toBe(BUSY)
+    })
+
+    it('another refusal is not looked up either', async () => {
+      const store = await opened(finishedBattle(), null)
+      vi.mocked(api.battles.invite).mockRejectedValue(apiError('forbidden', 403, 'not_friends'))
+      vi.mocked(api.battles.get).mockClear()
+
+      expect(await store.rematch()).toBeNull()
+
+      expect(api.battles.get).not.toHaveBeenCalled()
+      expect(store.actionError).toBe('Это можно сделать только с другом.')
+    })
+
+    it('a lookup that comes back after the screen was left changes nothing', async () => {
+      const store = await opened(finishedBattle(), null)
+      vi.mocked(api.battles.invite).mockRejectedValue(refusedBy(16))
+      const looked = pending<Battle>()
+      vi.mocked(api.battles.get).mockImplementation((id) => (id === 15 ? Promise.resolve(finishedBattle()) : looked.promise))
+
+      const asking = store.rematch()
+      await vi.advanceTimersByTimeAsync(0)
+      store.leave()
+      looked.resolve(invitedBattle({ id: 16, role: 'opponent' }))
+
+      expect(await asking).toBeNull()
+      expect(store.actionError).toBe('')
+    })
   })
 
-  it('reads the rematch that follows, to know who offered it', async () => {
-    vi.mocked(api.battles.get).mockImplementation((id) =>
-      Promise.resolve(id === 15 ? finishedBattle('won', 'completed', { rematch: { battle_id: 16, status: 'invited' } }) : invitedBattle({ id: 16, role: 'opponent' })),
-    )
+  it('takes who offered it from the reading itself (by_me): there is no second request to find out', async () => {
+    vi.mocked(api.battles.get).mockResolvedValue(finishedBattle('won', 'completed', { rematch: OFFERED }))
     const store = useBattleStore()
 
     await store.open(15)
 
-    expect(api.battles.get).toHaveBeenCalledWith(16)
-    expect(store.rematchBattle).toMatchObject({ id: 16, role: 'opponent', status: 'invited' })
+    expect(api.battles.get).toHaveBeenCalledTimes(1)
+    expect(api.battles.get).not.toHaveBeenCalledWith(16)
+    expect(store.rematchOffer).toEqual(OFFERED)
   })
 
-  it('has no offer to read when there is none, and forgets one that is gone', async () => {
+  it('has no offer when there is none', async () => {
     const store = await opened(finishedBattle(), null)
-    expect(store.rematchBattle).toBeNull()
+
+    expect(store.rematchOffer).toBeNull()
     expect(api.battles.get).toHaveBeenCalledTimes(1)
   })
 
-  it('the result screen reads again: an offer that comes after the end is seen, and the reading is bounded', async () => {
+  it('the result screen asks with the POLL (it carries the offer and costs the server little), not with GET /battles/{id}; the reading is bounded', async () => {
     const store = await opened(finishedBattle(), null)
+    vi.mocked(api.battles.get).mockClear()
+    vi.mocked(api.battles.poll).mockResolvedValue(pollOf(finishedBattle(), { rematch: OFFERED }))
     expect(store.watchingResult).toBe(true)
-    vi.mocked(api.battles.get).mockImplementation((id) =>
-      Promise.resolve(id === 15 ? finishedBattle('won', 'completed', { version: 41, rematch: { battle_id: 16, status: 'invited' } }) : invitedBattle({ id: 16, role: 'opponent' })),
-    )
 
     await store.refreshResult()
 
-    expect(store.rematchBattle).toMatchObject({ id: 16, role: 'opponent' })
+    expect(api.battles.poll).toHaveBeenCalledWith(15)
+    expect(api.battles.get).not.toHaveBeenCalled()
+    expect(store.rematchOffer).toEqual(OFFERED)
     expect(store.resultChecks).toBe(1)
 
     for (let i = 1; i < RESULT_CHECKS_MAX; i++) await store.refreshResult()
     expect(store.resultChecks).toBe(RESULT_CHECKS_MAX)
     expect(store.watchingResult).toBe(false)
-    const reads = vi.mocked(api.battles.get).mock.calls.length
+    const reads = vi.mocked(api.battles.poll).mock.calls.length
     await store.refreshResult()
-    expect(api.battles.get).toHaveBeenCalledTimes(reads)
+    expect(api.battles.poll).toHaveBeenCalledTimes(reads)
+    expect(api.battles.get).not.toHaveBeenCalled()
+  })
+
+  it('an offer that is taken back disappears, a reading that fails is let be', async () => {
+    const store = await opened(finishedBattle('won', 'completed', { rematch: OFFERED }), null)
+    vi.mocked(api.battles.poll).mockRejectedValueOnce(offline()).mockResolvedValueOnce(pollOf(finishedBattle(), { rematch: null }))
+
+    await store.refreshResult()
+    expect(store.rematchOffer).toEqual(OFFERED)
+    await store.refreshResult()
+
+    expect(store.rematchOffer).toBeNull()
   })
 
   it('does not read the result of a battle that is on', async () => {
@@ -927,13 +1082,12 @@ describe('battle store — the rematch', () => {
 
     expect(store.watchingResult).toBe(false)
     await store.refreshResult()
+    expect(api.battles.poll).not.toHaveBeenCalled()
     expect(api.battles.get).toHaveBeenCalledTimes(1)
   })
 
   it('accepts the rematch of the friend and gives the id of its room', async () => {
-    const store = await opened(finishedBattle('won', 'completed', { rematch: { battle_id: 16, status: 'invited' } }), null)
-    vi.mocked(api.battles.get).mockResolvedValue(invitedBattle({ id: 16, role: 'opponent' }))
-    await store.loadRematch()
+    const store = await opened(finishedBattle('won', 'completed', { rematch: OFFERED }), null)
     vi.mocked(api.battles.accept).mockResolvedValue(roomBattle({ id: 16, role: 'opponent' }))
 
     expect(await store.acceptRematch()).toBe(16)
@@ -941,29 +1095,514 @@ describe('battle store — the rematch', () => {
     expect(api.battles.accept).toHaveBeenCalledWith(16)
   })
 
-  it('a rematch that cannot be accepted any more is told, and the offer is read again', async () => {
-    const store = await opened(finishedBattle('won', 'completed', { rematch: { battle_id: 16, status: 'invited' } }), null)
-    vi.mocked(api.battles.get).mockResolvedValue(invitedBattle({ id: 16, role: 'opponent' }))
-    await store.loadRematch()
+  it('does not answer an offer that is the learner’s own: it is the friend’s to accept', async () => {
+    const store = await opened(finishedBattle('won', 'completed', { rematch: MINE }), null)
+
+    expect(await store.acceptRematch()).toBeNull()
+    expect(await store.declineRematch()).toBe(false)
+
+    expect(api.battles.accept).not.toHaveBeenCalled()
+    expect(api.battles.decline).not.toHaveBeenCalled()
+  })
+
+  it('a rematch that cannot be accepted any more is told, and the offer is read again with the poll', async () => {
+    const store = await opened(finishedBattle('won', 'completed', { rematch: OFFERED }), null)
     vi.mocked(api.battles.accept).mockRejectedValue(apiError('conflict', 409, 'battle_closed', { end_reason: 'canceled' }))
-    vi.mocked(api.battles.get).mockResolvedValue(closedBattle('canceled', { id: 16, role: 'opponent' }))
+    vi.mocked(api.battles.poll).mockResolvedValue(pollOf(finishedBattle(), { rematch: { ...OFFERED, status: 'closed' } }))
 
     expect(await store.acceptRematch()).toBeNull()
 
     expect(store.actionError).toBe('Этот баттл уже закрыт.')
     expect(store.acting).toBeNull()
+    expect(store.rematchOffer?.status).toBe('closed')
   })
 
   it('declines the rematch of the friend', async () => {
-    const store = await opened(finishedBattle('won', 'completed', { rematch: { battle_id: 16, status: 'invited' } }), null)
-    vi.mocked(api.battles.get).mockResolvedValue(invitedBattle({ id: 16, role: 'opponent' }))
-    await store.loadRematch()
+    const store = await opened(finishedBattle('won', 'completed', { rematch: OFFERED }), null)
     vi.mocked(api.battles.decline).mockResolvedValue(closedBattle('declined', { id: 16, role: 'opponent' }))
 
     expect(await store.declineRematch()).toBe(true)
 
     expect(api.battles.decline).toHaveBeenCalledWith(16)
-    expect(store.rematchBattle?.status).toBe('closed')
+    expect(store.rematchOffer).toEqual({ battle_id: 16, status: 'closed', by_me: false })
+  })
+
+  it('a reading that was on its way while the offer was declined cannot bring it back: the statuses only go forward', async () => {
+    const store = await opened(finishedBattle('won', 'completed', { rematch: OFFERED }), null)
+    vi.mocked(api.battles.decline).mockResolvedValue(closedBattle('declined', { id: 16, role: 'opponent' }))
+    await store.declineRematch()
+    vi.mocked(api.battles.poll).mockResolvedValue(pollOf(finishedBattle(), { rematch: OFFERED }))
+
+    await store.refreshResult()
+
+    expect(store.rematchOffer?.status).toBe('closed')
+  })
+
+  it('an offer of another battle is taken as it is (a new rematch after the declined one)', async () => {
+    const store = await opened(finishedBattle('won', 'completed', { rematch: { ...OFFERED, status: 'closed' } }), null)
+    vi.mocked(api.battles.poll).mockResolvedValue(pollOf(finishedBattle(), { rematch: { battle_id: 17, status: 'invited', by_me: false } }))
+
+    await store.refreshResult()
+
+    expect(store.rematchOffer).toEqual({ battle_id: 17, status: 'invited', by_me: false })
+  })
+
+  it('a poll of a battle that is on takes the offer away (it has none)', async () => {
+    const store = await opened()
+    store.applyRematch(OFFERED)
+
+    await store.applyPoll(poll({ version: 24, rematch: null }))
+
+    expect(store.rematchOffer).toBeNull()
+  })
+})
+
+describe('battle store — an answer belongs to its round (review Б1)', () => {
+  const round3 = () => poll({ version: 27, round: roundState({ no: 3, deadline_at: at(45) }) })
+  const round3Task = () => answeringRound({ no: 3, deadline_at: at(45), element: sentenceElement({ id: 'eSent00003' }) })
+
+  /** Round 2: the answer never gets through (four tries) and the screen waits for "Retry". */
+  async function failedInRound2() {
+    const store = await opened()
+    vi.mocked(api.battles.answer).mockRejectedValue(offline())
+    const sending = store.answer(ORDER)
+    await vi.advanceTimersByTimeAsync(3500)
+    await sending
+    expect(store.answerState).toBe('failed')
+    expect(store.pendingAnswer?.round).toBe(2)
+    return store
+  }
+
+  it('an answer of round 2 that was not delivered does not stand in the way of round 3: the poll lets it go, without a word', async () => {
+    const store = await failedInRound2()
+    vi.mocked(api.battles.poll).mockResolvedValue(round3())
+    vi.mocked(api.battles.round).mockResolvedValue(round3Task())
+
+    await store.tick()
+
+    expect(store.currentRound?.no).toBe(3)
+    expect(store.answerState).toBe('idle')
+    expect(store.pendingAnswer).toBeNull()
+    expect(store.actionError).toBe('')
+
+    // and round 3 takes its answer
+    vi.mocked(api.battles.answer).mockReset()
+    vi.mocked(api.battles.answer).mockResolvedValue(answerReply({ poll: poll({ version: 28, round: roundState({ no: 3, my_answered: true }) }) }))
+    await store.answer({ order: ['a', 'b'] })
+    expect(api.battles.answer).toHaveBeenCalledTimes(1)
+    expect(api.battles.answer).toHaveBeenCalledWith(15, { request_id: expect.stringMatching(UUID), round: 3, answer: { order: ['a', 'b'] } })
+    expect(store.actionError).toBe('')
+  })
+
+  it('the same when the lost answer WAS counted (only its reply was lost): the poll says so, then round 3 opens', async () => {
+    const store = await failedInRound2()
+    vi.mocked(api.battles.poll).mockResolvedValue(poll({ version: 24, round: roundState({ my_answered: true }) }))
+
+    await store.tick()
+
+    expect(store.roundState?.my_answered).toBe(true)
+    expect(store.answerState).toBe('idle')
+    expect(store.pendingAnswer).toBeNull()
+
+    vi.mocked(api.battles.poll).mockResolvedValue(round3())
+    vi.mocked(api.battles.round).mockResolvedValue(round3Task())
+    await store.tick()
+    expect(store.currentRound?.no).toBe(3)
+    expect(store.answerState).toBe('idle')
+  })
+
+  it('the full reading of the battle lets it go too, not only the poll', async () => {
+    const store = await failedInRound2()
+
+    store.applyBattle(battle({ version: 30, round: roundState({ no: 3, deadline_at: at(45) }) }))
+
+    expect(store.answerState).toBe('idle')
+    expect(store.pendingAnswer).toBeNull()
+  })
+
+  it.each([
+    ['the battle is over', () => poll({ version: 30, status: 'finished', round: null, end_reason: 'completed' })],
+    ['the round is in its reveal', () => poll({ version: 30, round: roundState({ phase: 'reveal', phase_ends_at: at(3), opponent_answered: true }) })],
+    ['the round is another one', () => poll({ version: 30, round: roundState({ no: 3 }) })],
+  ])('lets it go when %s', async (_why, next) => {
+    const store = await failedInRound2()
+    vi.mocked(api.battles.get).mockResolvedValue(finishedBattle())
+    vi.mocked(api.battles.round).mockResolvedValue(revealRound())
+    vi.mocked(api.battles.poll).mockResolvedValue(next())
+
+    await store.tick()
+
+    expect(store.answerState).toBe('idle')
+    expect(store.pendingAnswer).toBeNull()
+    expect(store.actionError).toBe('')
+  })
+
+  it('keeps it while the server is still in the round, whatever else moves (the opponent answered, the score, the presence)', async () => {
+    const store = await failedInRound2()
+    vi.mocked(api.battles.poll).mockResolvedValue(poll({ version: 25, scores: { me: 100, opponent: 125 }, opponent_present: false, round: roundState({ opponent_answered: true }) }))
+
+    await store.tick()
+
+    expect(store.answerState).toBe('failed')
+    expect(store.pendingAnswer?.round).toBe(2)
+  })
+
+  it('a repeat that is still on its way when the round moves on ends quietly: no toast, no new reading', async () => {
+    const store = await opened()
+    const reply = pending<ReturnType<typeof answerReply>>()
+    vi.mocked(api.battles.answer).mockReturnValueOnce(reply.promise)
+    const sending = store.answer(ORDER)
+    expect(store.answerState).toBe('sending')
+    vi.mocked(api.battles.poll).mockResolvedValue(round3())
+    vi.mocked(api.battles.round).mockResolvedValue(round3Task())
+
+    await store.tick()
+    expect(store.answerState).toBe('idle')
+    expect(store.currentRound?.no).toBe(3)
+    vi.mocked(api.battles.poll).mockClear()
+    reply.reject(apiError('conflict', 409, 'round_closed', { round: 2, phase: 'reveal' }))
+    await sending
+
+    expect(store.actionError).toBe('')
+    expect(store.answerState).toBe('idle')
+    expect(api.battles.poll).not.toHaveBeenCalled()
+  })
+
+  it('and the same when it is the NETWORK that fails it at that moment: no more repeats of an answer nobody waits for', async () => {
+    const store = await opened()
+    const reply = pending<ReturnType<typeof answerReply>>()
+    vi.mocked(api.battles.answer).mockReturnValueOnce(reply.promise)
+    const sending = store.answer(ORDER)
+    vi.mocked(api.battles.poll).mockResolvedValue(round3())
+    vi.mocked(api.battles.round).mockResolvedValue(round3Task())
+    await store.tick()
+
+    reply.reject(offline())
+    await vi.advanceTimersByTimeAsync(5000)
+    await sending
+
+    expect(api.battles.answer).toHaveBeenCalledTimes(1)
+    expect(store.answerState).toBe('idle')
+  })
+
+  it('what an old request brings back does not touch the answer of the next round', async () => {
+    const store = await opened()
+    const old = pending<ReturnType<typeof answerReply>>()
+    vi.mocked(api.battles.answer).mockReturnValueOnce(old.promise)
+    const first = store.answer(ORDER)
+    vi.mocked(api.battles.poll).mockResolvedValue(round3())
+    vi.mocked(api.battles.round).mockResolvedValue(round3Task())
+    await store.tick()
+
+    // the answer of round 3 is on its way, too
+    const next = pending<ReturnType<typeof answerReply>>()
+    vi.mocked(api.battles.answer).mockReturnValueOnce(next.promise)
+    const second = store.answer({ order: ['a', 'b'] })
+    expect(store.pendingAnswer?.round).toBe(3)
+
+    // the reply of round 2 comes at last: its poll is from round 2
+    old.resolve(answerReply())
+    await first
+
+    expect(store.pendingAnswer?.round).toBe(3)
+    expect(store.answerState).toBe('sending')
+    next.resolve(answerReply({ poll: poll({ version: 28, round: roundState({ no: 3, my_answered: true }) }) }))
+    await second
+    expect(store.pendingAnswer).toBeNull()
+    expect(store.roundState).toMatchObject({ no: 3, my_answered: true })
+  })
+})
+
+describe('battle store — a repeat that is late after a try with no reply is not a refusal (review Б2)', () => {
+  const LATE = [
+    ['round_closed', { round: 2, phase: 'reveal' }],
+    ['round_not_open', { round: 2, phase: 'reveal' }],
+    ['battle_closed', { end_reason: 'completed' }],
+  ] as const
+
+  it.each(LATE)('%s after a try that got no reply: nothing is told, the server is followed', async (code, details) => {
+    const store = await opened()
+    vi.mocked(api.battles.answer).mockRejectedValueOnce(offline()).mockRejectedValueOnce(apiError('conflict', 409, code, details))
+    vi.mocked(api.battles.poll).mockResolvedValue(poll({ version: 26, round: roundState({ phase: 'reveal', phase_ends_at: at(3), my_answered: true, opponent_answered: true }) }))
+    vi.mocked(api.battles.round).mockResolvedValue(revealRound())
+
+    const sending = store.answer(ORDER)
+    await vi.advanceTimersByTimeAsync(500)
+    await sending
+
+    expect(store.actionError).toBe('')
+    expect(store.pendingAnswer).toBeNull()
+    expect(store.answerState).toBe('idle')
+    // the same request went twice, and the screen goes to where the server is: the review shows what became of the answer
+    const ids = vi.mocked(api.battles.answer).mock.calls.map((call) => call[1].request_id)
+    expect(ids).toHaveLength(2)
+    expect(new Set(ids).size).toBe(1)
+    expect(api.battles.poll).toHaveBeenCalledWith(15)
+    expect(store.currentRound?.phase).toBe('reveal')
+  })
+
+  it('the match over after a lost reply: no “this battle is closed” above the result', async () => {
+    const store = await opened(battle({ round: roundState({ no: 5 }) }), answeringRound({ no: 5 }))
+    vi.mocked(api.battles.answer).mockRejectedValueOnce(offline()).mockRejectedValueOnce(offline()).mockRejectedValueOnce(apiError('conflict', 409, 'battle_closed', { end_reason: 'completed' }))
+    vi.mocked(api.battles.poll).mockResolvedValue(pollOf(finishedBattle()))
+    vi.mocked(api.battles.get).mockResolvedValue(finishedBattle())
+
+    const sending = store.answer(ORDER)
+    await vi.advanceTimersByTimeAsync(1500)
+    await sending
+
+    expect(store.actionError).toBe('')
+    expect(store.status).toBe('finished')
+  })
+
+  it('also when the answer went again by hand: “Retry” meets “too late” after the automatic repeats had no reply', async () => {
+    const store = await opened()
+    vi.mocked(api.battles.answer).mockRejectedValue(offline())
+    const sending = store.answer(ORDER)
+    await vi.advanceTimersByTimeAsync(3500)
+    await sending
+    expect(store.pendingAnswer?.uncertain).toBe(true)
+    vi.mocked(api.battles.answer).mockReset()
+    vi.mocked(api.battles.answer).mockRejectedValue(apiError('conflict', 409, 'round_closed', { round: 2, phase: 'reveal' }))
+    vi.mocked(api.battles.poll).mockResolvedValue(poll({ version: 26, round: roundState({ phase: 'reveal', phase_ends_at: at(3) }) }))
+    vi.mocked(api.battles.round).mockResolvedValue(revealRound())
+
+    await store.retryAnswer()
+
+    expect(store.actionError).toBe('')
+    expect(store.answerState).toBe('idle')
+  })
+
+  it('a FIRST try that is late is a plain “not taken”: the learner is told', async () => {
+    const store = await opened()
+    vi.mocked(api.battles.answer).mockRejectedValue(apiError('conflict', 409, 'battle_closed', { end_reason: 'completed' }))
+    vi.mocked(api.battles.get).mockResolvedValue(finishedBattle())
+
+    await store.answer(ORDER)
+
+    expect(store.pendingAnswer).toBeNull()
+    expect(store.actionError).toBe('Этот баттл уже закрыт.')
+  })
+
+  it('any other refusal after a try with no reply is still told (it is not about being late)', async () => {
+    const store = await opened()
+    vi.mocked(api.battles.answer).mockRejectedValueOnce(offline()).mockRejectedValueOnce(apiError('validation', 422, 'unknown_element_id'))
+    vi.mocked(api.battles.poll).mockResolvedValue(poll({ version: 24 }))
+
+    const sending = store.answer(ORDER)
+    await vi.advanceTimersByTimeAsync(500)
+    await sending
+
+    expect(store.actionError).toBe('Ответ не относится к этому заданию. Обновите экран.')
+  })
+
+  it('says what the trouble was: the connection, or the server', async () => {
+    const store = await opened()
+    vi.mocked(api.battles.answer).mockRejectedValue(apiError('server', 503, 'x'))
+    const sending = store.answer(ORDER)
+    await vi.advanceTimersByTimeAsync(3500)
+    await sending
+    expect(store.answerState).toBe('failed')
+    expect(store.answerCause).toBe('server')
+
+    vi.mocked(api.battles.answer).mockReset()
+    vi.mocked(api.battles.answer).mockRejectedValue(new ApiClientError('network', 0, 'timeout', 'The request timed out'))
+    const again = store.retryAnswer()
+    await vi.advanceTimersByTimeAsync(3500)
+    await again
+    expect(store.answerCause).toBe('network') // a request that hung up to its limit is the connection
+  })
+})
+
+describe('battle store — the poll and the screen in trouble', () => {
+  it('a reading of the battle that is older than the poll takes nothing back: the status does not flicker to the one before', async () => {
+    const store = await opened()
+    await store.applyPoll(poll({ version: 25, round: roundState({ phase: 'reveal', phase_ends_at: at(3), my_answered: true, opponent_answered: true }) }))
+    vi.mocked(api.battles.round).mockResolvedValue(revealRound())
+
+    // the full reading was asked before the poll and comes after it
+    store.applyBattle(battle({ version: 24, status: 'countdown', starts_at: at(3), round: roundState({ no: 1, phase: null }) }))
+
+    expect(store.status).toBe('playing')
+    expect(store.battle?.version).toBe(23)
+    expect(store.roundState?.phase).toBe('reveal')
+  })
+
+  it('a reading of the same version as the poll is taken (nothing is newer)', async () => {
+    const store = await opened()
+    await store.applyPoll(poll({ version: 24 }))
+
+    store.applyBattle(battle({ version: 24, scores: { me: 100, opponent: 125 } }))
+
+    expect(store.battle?.version).toBe(24)
+  })
+
+  it('the connection and the server are told apart in the trouble of the poll', async () => {
+    const store = await opened()
+    vi.mocked(api.battles.poll).mockRejectedValueOnce(apiError('server', 503, 'x')).mockRejectedValueOnce(apiError('rate_limited', 429, 'x')).mockRejectedValueOnce(offline())
+
+    await expect(store.tick()).rejects.toBeDefined()
+    expect([store.offline, store.offlineCause]).toEqual([true, 'server'])
+    await expect(store.tick()).rejects.toBeDefined()
+    expect(store.offlineCause).toBe('server')
+    await expect(store.tick()).rejects.toBeDefined()
+    expect(store.offlineCause).toBe('network')
+  })
+
+  it('a poll that hung up to its limit is the connection: it slows the poll down, and the next beat can start', async () => {
+    const store = await opened()
+    vi.mocked(api.battles.poll).mockRejectedValueOnce(new ApiClientError('network', 0, 'timeout', 'The request timed out')).mockResolvedValueOnce(poll({ version: 24 }))
+
+    await expect(store.tick()).rejects.toBeInstanceOf(ApiClientError)
+    expect(store.offline).toBe(true)
+    expect(store.ticking).toBe(false) // nothing holds the next poll back
+
+    await store.tick()
+    expect(store.offline).toBe(false)
+  })
+
+  it('names the moment since which the opponent is gone - the server says it - and the same number comes after a reload', async () => {
+    const store = await opened()
+
+    await store.applyPoll(poll({ version: 24, opponent_present: false, opponent_absent_since: at(-12), server_now: at(0) }))
+    expect(store.absentSince).toBe(Date.parse(at(-12)))
+
+    // a reload: a new store opens the same battle and is told the same moment
+    store.leave()
+    vi.mocked(api.battles.get).mockResolvedValue(battle({ version: 25, opponent_present: false, opponent_absent_since: at(-12), server_now: at(2) }))
+    await store.open(15)
+    expect(store.absentSince).toBe(Date.parse(at(-12)))
+  })
+
+  it('a wake-up that comes while a poll is on its way is not lost: another poll follows it at once', async () => {
+    const store = await opened()
+    const first = pending<BattlePoll>()
+    vi.mocked(api.battles.poll).mockReturnValueOnce(first.promise).mockResolvedValue(poll({ version: 24 }))
+
+    const ticking = store.tick()
+    await store.wake()
+    expect(api.battles.poll).toHaveBeenCalledTimes(1)
+    first.resolve(poll({ version: 24 }))
+    await ticking
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(api.battles.poll).toHaveBeenCalledTimes(2)
+    expect(store.wakeQueued).toBe(false)
+  })
+
+  it('several wake-ups during one poll make one more poll, not a crowd', async () => {
+    const store = await opened()
+    const first = pending<BattlePoll>()
+    vi.mocked(api.battles.poll).mockReturnValueOnce(first.promise).mockResolvedValue(poll({ version: 24 }))
+
+    const ticking = store.tick()
+    await store.wake()
+    await store.wake()
+    await store.wake()
+    first.resolve(poll({ version: 24 }))
+    await ticking
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(api.battles.poll).toHaveBeenCalledTimes(2)
+  })
+
+  it('a wake-up with no poll on its way is a poll', async () => {
+    const store = await opened()
+    vi.mocked(api.battles.poll).mockResolvedValue(poll({ version: 24 }))
+
+    await store.wake()
+
+    expect(api.battles.poll).toHaveBeenCalledTimes(1)
+  })
+
+  it('a poll that failed does not forget the wake-up that waited for it', async () => {
+    const store = await opened()
+    const first = pending<BattlePoll>()
+    vi.mocked(api.battles.poll).mockReturnValueOnce(first.promise).mockResolvedValue(poll({ version: 24 }))
+
+    const ticking = store.tick().catch(() => undefined)
+    await store.wake()
+    first.reject(offline())
+    await ticking
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(api.battles.poll).toHaveBeenCalledTimes(2)
+  })
+
+  it('a wake-up that waited for a poll of a battle that was left is dropped', async () => {
+    const store = await opened()
+    const first = pending<BattlePoll>()
+    vi.mocked(api.battles.poll).mockReturnValue(first.promise)
+
+    const ticking = store.tick()
+    await store.wake()
+    store.leave()
+    first.resolve(poll({ version: 24 }))
+    await ticking
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(api.battles.poll).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('battle store — behind Pro (docs/16 §3.2)', () => {
+  const PRO = () => apiError('forbidden', 403, 'practice_pro_required')
+
+  it('“Accept” of a learner without Pro opens the paywall, with no message', async () => {
+    const store = await opened(invitedBattle({ role: 'opponent' }), null)
+    vi.mocked(api.battles.accept).mockRejectedValue(PRO())
+
+    expect(await store.accept()).toBe(false)
+
+    expect(store.paywall).toBe(true)
+    expect(store.actionError).toBe('')
+    expect(store.status).toBe('invited')
+    store.dismissPaywall()
+    expect(store.paywall).toBe(false)
+  })
+
+  it('a battle that cannot be opened for the same reason opens the paywall too (the screen keeps its closed state under it)', async () => {
+    vi.mocked(api.battles.get).mockRejectedValue(PRO())
+    const store = useBattleStore()
+
+    await store.open(15)
+
+    expect(store.paywall).toBe(true)
+    expect(store.loadStatus).toBe('error')
+    expect(store.gone).toBe(true)
+    expect(store.errorMessage).toBe('Практика доступна в Pro.')
+  })
+
+  it('an invitation of the list is no different: the paywall, not a toast', async () => {
+    vi.mocked(api.battles.list).mockResolvedValue(battleList({ incoming: [incoming({ id: 15 })] }))
+    vi.mocked(api.battles.accept).mockRejectedValue(PRO())
+    const store = useBattleStore()
+    await store.loadList()
+
+    expect(await store.acceptInvitation(15)).toBe(false)
+
+    expect(store.paywall).toBe(true)
+    expect(store.actionError).toBe('')
+  })
+
+  it('another refusal is not the paywall', async () => {
+    const store = await opened(invitedBattle({ role: 'opponent' }), null)
+    vi.mocked(api.battles.accept).mockRejectedValue(apiError('forbidden', 403, 'practice_unavailable'))
+
+    await store.accept()
+
+    expect(store.paywall).toBe(false)
+    expect(store.actionError).toBe('Практика сейчас недоступна.')
+  })
+
+  it('leaving the battle takes the paywall with it', async () => {
+    const store = await opened(invitedBattle({ role: 'opponent' }), null)
+    vi.mocked(api.battles.accept).mockRejectedValue(PRO())
+    await store.accept()
+
+    store.leave()
+
+    expect(store.paywall).toBe(false)
   })
 })
 

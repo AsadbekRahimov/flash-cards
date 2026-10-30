@@ -5,12 +5,12 @@ import { ApiClientError } from '@/api/client'
 import { useBattleSetupStore } from '../battleSetup'
 import { useCoursesStore } from '../courses'
 import { useFriendsStore } from '../friends'
-import { courseDetail, courseRow, invitedBattle, options } from '@/api/__tests__/battleFixtures'
-import type { BattleOptionsResponse, Course, CourseDetail } from '@/api/types'
+import { courseDetail, courseRow, invitedBattle, options, roomBattle } from '@/api/__tests__/battleFixtures'
+import type { Battle, BattleOptionsResponse, Course, CourseDetail } from '@/api/types'
 
 vi.mock('@/api', () => ({
   api: {
-    battles: { options: vi.fn(), invite: vi.fn() },
+    battles: { options: vi.fn(), invite: vi.fn(), get: vi.fn() },
     courses: { list: vi.fn(), get: vi.fn() },
     decks: { list: vi.fn() },
   },
@@ -494,18 +494,95 @@ describe('battle setup — the invitation', () => {
     expect(api.battles.invite).toHaveBeenCalledTimes(1)
   })
 
-  it('a battle of the learner’s own is in the way: the text and the id to go to', async () => {
-    const setup = await begun()
-    vi.mocked(api.battles.invite).mockRejectedValue(apiError('conflict', 409, 'battle_busy', { battle_id: 9 }))
+  describe('when a battle is in the way (409 battle_busy)', () => {
+    const BUSY = 'У вас уже есть активный баттл. Завершите его, чтобы начать новый.'
+    const refused = (id: number | null = 9) => apiError('conflict', 409, 'battle_busy', id === null ? null : { battle_id: id })
 
-    expect(await setup.invite()).toBeNull()
+    it('a battle of the learner’s own is in the way: the text and the id to go to', async () => {
+      const setup = await begun()
+      vi.mocked(api.battles.invite).mockRejectedValue(refused())
+      vi.mocked(api.battles.get).mockResolvedValue(invitedBattle({ id: 9, role: 'challenger' }))
 
-    expect(setup.inviteError).toBe('У вас уже есть активный баттл. Завершите его, чтобы начать новый.')
-    expect(setup.busyBattleId).toBe(9)
-    expect(setup.inviting).toBe(false)
-    setup.clearInviteError()
-    expect(setup.inviteError).toBe('')
-    expect(setup.busyBattleId).toBeNull()
+      expect(await setup.invite()).toBeNull()
+
+      expect(api.battles.get).toHaveBeenCalledWith(9)
+      expect(setup.inviteError).toBe(BUSY)
+      expect(setup.busyBattleId).toBe(9)
+      expect(setup.inviting).toBe(false)
+      setup.clearInviteError()
+      expect(setup.inviteError).toBe('')
+      expect(setup.busyBattleId).toBeNull()
+    })
+
+    it('the friend invited the learner at the same moment: their invitation is the one to go to - its id is the answer, nothing is refused', async () => {
+      const setup = await begun()
+      vi.mocked(api.battles.invite).mockRejectedValue(refused(16))
+      vi.mocked(api.battles.get).mockResolvedValue(invitedBattle({ id: 16, role: 'opponent' }))
+
+      expect(await setup.invite()).toBe(16)
+
+      expect(api.battles.get).toHaveBeenCalledWith(16)
+      expect(setup.inviteError).toBe('')
+      expect(setup.busyBattleId).toBeNull()
+      expect(setup.inviting).toBe(false)
+    })
+
+    it('a battle that is on (the learner is in its room) is not an invitation to accept', async () => {
+      const setup = await begun()
+      vi.mocked(api.battles.invite).mockRejectedValue(refused())
+      vi.mocked(api.battles.get).mockResolvedValue(roomBattle({ id: 9, role: 'opponent' }))
+
+      expect(await setup.invite()).toBeNull()
+
+      expect(setup.inviteError).toBe(BUSY)
+      expect(setup.busyBattleId).toBe(9)
+    })
+
+    it('the battle in the way cannot be read: the text stands, with the way to it', async () => {
+      const setup = await begun()
+      vi.mocked(api.battles.invite).mockRejectedValue(refused())
+      vi.mocked(api.battles.get).mockRejectedValue(apiError('network', 0, 'network'))
+
+      expect(await setup.invite()).toBeNull()
+
+      expect(setup.inviteError).toBe(BUSY)
+      expect(setup.busyBattleId).toBe(9)
+    })
+
+    it('a refusal that names no battle is not looked up', async () => {
+      const setup = await begun()
+      vi.mocked(api.battles.invite).mockRejectedValue(refused(null))
+
+      expect(await setup.invite()).toBeNull()
+
+      expect(api.battles.get).not.toHaveBeenCalled()
+      expect(setup.inviteError).toBe(BUSY)
+      expect(setup.busyBattleId).toBeNull()
+    })
+
+    it('other refusals are not looked up either', async () => {
+      const setup = await begun()
+      vi.mocked(api.battles.invite).mockRejectedValue(apiError('conflict', 409, 'battle_friend_no_access'))
+
+      await setup.invite()
+
+      expect(api.battles.get).not.toHaveBeenCalled()
+    })
+
+    it('a lookup that comes back after the setup was left (another friend) changes nothing', async () => {
+      const setup = await begun()
+      vi.mocked(api.battles.invite).mockRejectedValue(refused(16))
+      const looked = pending<Battle>()
+      vi.mocked(api.battles.get).mockReturnValue(looked.promise)
+
+      const inviting = setup.invite()
+      await Promise.resolve()
+      await setup.begin(12, null, null)
+      looked.resolve(invitedBattle({ id: 16, role: 'opponent' }))
+
+      expect(await inviting).toBeNull()
+      expect(setup.inviteError).toBe('')
+    })
   })
 
   it('the material is gone since the numbers were read: told, and the formats are read again', async () => {

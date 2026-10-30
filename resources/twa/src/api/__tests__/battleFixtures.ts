@@ -37,11 +37,16 @@ export const roundState = (overrides: Partial<BattleRoundState> = {}): BattleRou
   ...overrides,
 })
 
-/** A battle in `playing`, answering the second round of a sentence battle; pass the fields that differ. */
+/**
+ * A battle in `playing`, answering the second round of a sentence battle; pass the fields that differ. Every key the server sends
+ * is here, with the values of `BattleContractTest` (the grace of a missing player 30 s, the warning after 10 s, the grace of a
+ * deadline 1.5 s).
+ */
 export function battle(overrides: Partial<Battle> = {}): Battle {
   return {
     id: 15,
     status: 'playing',
+    end_reason: null,
     mode: 'sentence',
     role: 'challenger',
     course: COURSE,
@@ -51,6 +56,9 @@ export function battle(overrides: Partial<Battle> = {}): Battle {
     round_seconds: 45,
     countdown_seconds: 3,
     reveal_seconds: 4,
+    presence_grace_seconds: 30,
+    presence_warn_seconds: 10,
+    deadline_grace_ms: 1500,
     invite_expires_at: at(240),
     room_expires_at: null,
     starts_at: null,
@@ -58,13 +66,19 @@ export function battle(overrides: Partial<Battle> = {}): Battle {
     server_now: SERVER_NOW,
     ready: { me: true, opponent: true },
     opponent_present: true,
+    opponent_absent_since: null,
     round: roundState(),
     scores: { me: 100, opponent: 125 },
     result: null,
     rematch: null,
+    friendship_id: 11,
+    audio_preload: null,
     ...overrides,
   }
 }
+
+/** The `audio_preload` of a dictation battle: the five clips, `/api/twa/practice/battles/{id}/audio/{element}`. */
+export const clipUrls = (id = 15): string[] => [1, 2, 3, 4, 5].map((n) => `/api/twa/practice/battles/${id}/audio/eD${n}`)
 
 export const invitedBattle = (overrides: Partial<Battle> = {}): Battle =>
   battle({ status: 'invited', version: 1, ready: { me: false, opponent: false }, round: null, scores: { me: 0, opponent: 0 }, ...overrides })
@@ -91,6 +105,7 @@ export function finishedBattle(outcome: 'won' | 'lost' | 'draw' = 'won', reason:
   const scores = { won: { me: 300, opponent: 200 }, lost: { me: 200, opponent: 300 }, draw: { me: 200, opponent: 200 } }[outcome]
   return battle({
     status: 'finished',
+    end_reason: reason,
     version: 40,
     round: null,
     scores,
@@ -99,10 +114,11 @@ export function finishedBattle(outcome: 'won' | 'lost' | 'draw' = 'won', reason:
   })
 }
 
-/** A battle that ended without a result. */
+/** A battle that ended without a result (the server gives it a result of its own, `outcome: none`, and the reason). */
 export const closedBattle = (reason: BattleEndReason = 'canceled', overrides: Partial<Battle> = {}): Battle =>
   battle({
     status: 'closed',
+    end_reason: reason,
     version: 9,
     round: null,
     scores: { me: 0, opponent: 0 },
@@ -118,9 +134,11 @@ export function poll(overrides: Partial<BattlePoll> = {}): BattlePoll {
     server_now: SERVER_NOW,
     ready: { me: true, opponent: true },
     opponent_present: true,
+    opponent_absent_since: null,
     round: roundState(),
     scores: { me: 100, opponent: 125 },
     end_reason: null,
+    rematch: null,
     ...overrides,
   }
 }
@@ -134,9 +152,11 @@ export const pollOf = (b: Battle, overrides: Partial<BattlePoll> = {}): BattlePo
     server_now: b.server_now,
     ready: b.ready,
     opponent_present: b.opponent_present,
+    opponent_absent_since: b.opponent_absent_since,
     round: b.round,
     scores: b.scores,
     end_reason: b.result?.end_reason ?? null,
+    rematch: b.rematch,
     ...overrides,
   })
 
