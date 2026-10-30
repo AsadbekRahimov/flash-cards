@@ -243,7 +243,7 @@ after a change run `php artisan config:cache` and restart the queue workers (`do
 | `PRACTICE_ACCESS` | `off` (default) · `pilot` · `all` | Who may practise. `off` — nobody: the entries disappear from the TWA and every practice endpoint answers 403. `pilot` — only the learners with the pilot mark (below). `all` — everybody. Anything else (a typo) counts as `off`: a mistake in `.env` never opens the practice to everybody |
 | `PRACTICE_PLAN` | `all` (default) · `pro` | `pro` — the practice is a Pro feature: a Free learner still sees the entries, with a **Pro** chip, and is shown the paywall instead of the hub (the server answers 403 `practice_pro_required`). Applies on top of `PRACTICE_ACCESS` |
 | `PRACTICE_MODE_PAIRS` · `_COLLOCATION` · `_SENTENCE` · `_DICTATION` | `true` (default) · `false` | Switches one mode off. The hub shows it as «Выключено» and **no new session** of that mode can be opened; sessions already started are played to the end |
-| `PRACTICE_BATTLE` | `true` (default) · `false` | The switch of the 1-on-1 battle (the hub hides the battle card, new invitations are refused; matches that are on go to the end). The battle itself is described in the battle chapter of this guide when it ships (task 18.7c) |
+| `PRACTICE_BATTLE` | `true` (default) · `false` | The switch of the 1-on-1 battle (see *Battle 1-on-1* below). `false` hides the battle entries in the TWA (the card in the hub, the «Баттл» buttons in Friends) and refuses a **new invitation** and the **acceptance** of one that was already sent (409 `battle_disabled`); matches that are on go to the end, invitations that were sent run out by themselves |
 
 Recommended roll-out: keep `off` while the tasks are imported and checked; set `pilot`, put a few learners into the pilot (button on **Learners**), watch them; then `all`. To stop the practice in a hurry
 set `PRACTICE_ACCESS=off`: the sessions that are open die by their own term (24 hours; `practice:close-expired` runs every 15 minutes), nothing of the lessons, the streak or the leagues is touched —
@@ -313,6 +313,51 @@ The column shows the version the learners get — the published one — and note
 «Записи для заданий ещё готовятся» and the mode stays closed. The button **Сгенерировать аудио заново** voices the published version and the draft behind it again (use it after a failure, once the `tts` service is back; a published version whose audio failed is voiced by it, too). Editing the text of a task makes a new version and a new voice-over; the
 old file stays for the sessions that are playing the old version. The voice is the one of the word audio (`TTS_VOICE`, `TTS_SERVICE_URL`; bumping `TTS_AUDIO_VERSION` re-voices everything under new file names). The phrases are stored in the private directory `storage/app/practice-audio`, which the web server does **not** serve — learners hear
 them only through the API (`docs/DEVOPS_GUIDE.md` §10.2). The *word* part of a dictation uses the ordinary pre-generated word audio (`php artisan audio:pregenerate <course-slug>`, see *Word audio* above): a word without current audio is simply not taken.
+
+### Battle 1-on-1
+
+Two friends play **5 rounds** of one of the four modes on the same tasks; the one with more points wins (the rules — `docs/15` §3.5, the technical design — `docs/16` §8, the API — `docs/04` A.17). The battle has **no screen in the admin panel** and no tasks of its own: it uses the words of the course and the published tasks of the practice
+(a dictation needs voiced phrases — *Audio of the dictations* above), and it writes nothing to the lessons, the streak, the leagues, the centre assignments or the achievements — its points are its own. A learner sees the battle only while the practice is open to them.
+
+**What the switches do to a battle**
+
+| Setting | Effect |
+|---|---|
+| `PRACTICE_BATTLE=false` | No new invitation and no acceptance of a sent one (409 `battle_disabled`); the TWA hides the entries. Matches that are on are played to the end |
+| `PRACTICE_MODE_*=false` | No new invitation in that mode (409 `practice_mode_disabled`); matches of that mode that are on finish |
+| `PRACTICE_ACCESS=pilot` / `PRACTICE_PLAN=pro` | **Both** players need access. An invitation to a friend who is not in the pilot (or a Free friend while the plan is `pro`) is refused: the setup screen says «у друга нет доступа к практике» |
+| `PRACTICE_ACCESS=off` | Every battle endpoint answers 403, and the scheduler **voids** the matches that are on within a minute (`closed / voided`, «Матч аннулирован»): nobody wins, nobody loses |
+
+**The numbers** are fixed in `config/practice.php` (a release changes them, not `.env`): 5 rounds; a round lasts 30 s (*Подбери сочетание*), 45 s (*Найди пары*, *Собери предложение*) or 60 s (*Слушай и пиши*); a countdown of 3 s; the review between rounds 4 s;
+an invitation waits **5 minutes**, a room **2 minutes**; the opponent is warned about after **10 s** of silence, and a player silent for **30 s** loses (in a room or a countdown the match is just canceled); an answer that reaches the server up to 1.5 s after the end of a round is still taken.
+A round is worth up to 100 points (a right answer 100, anything else 0; pairs — 25 for each right pair); there is no bonus for speed, equal points are a draw.
+
+**Enough material, in both languages.** The material is counted for the languages of **both** players (ru and uz), over every active word and every published task of the chosen course or lesson — the progress of the players is not looked at. *Найди пары* needs 20 words with distinct translations (5 rounds × 4 pairs),
+the other modes 5 published tasks (a dictation: phrases with ready audio). Otherwise the format is grey in the setup («Мало материала») and the invitation is refused (422 `battle_material_unavailable`). One learner can be in one battle at a time.
+
+**A match that "hangs".** A match cannot stay open for long by itself: an invitation lives 5 minutes, a room 2 minutes, a round at most 60 s + 1.5 s + the 4 s review, and a player who has gone is dropped after 30 s. Everything that is due is done by **whoever looks first** — a request of either player moves the match — and by the scheduler command
+**`practice:battles-sweep`** (every minute): it closes expired invitations, moves the matches that are on (absence, deadlines, the end) and, with `PRACTICE_ACCESS=off`, voids them. If **both** players closed the app, only this command ends the match (about 1.5 minutes after they left).
+So a match, or a learner's «you are busy with another battle», that stays for more than a few minutes means the **scheduler is not running**: check `/health/ready` (`scheduler`), `php artisan schedule:list` (the line `practice:battles-sweep`, every minute) and the cron entry (`docs/DEVOPS_GUIDE.md` §11). Running `php artisan practice:battles-sweep` by hand is safe and repeatable (it prints `Battles swept: N`);
+**do not edit the rows of `battles` by hand.** A learner who is stuck can also open «Идёт баттл» in Friends and leave it (✕ → cancel or surrender): their own visit moves the match too.
+
+**Where to look.** There is no battle list in the panel. Open **Learners →** the learner **→ Recent events** and pick an event in the *Event* filter: `battle.invited`, `battle.accepted`, `battle.started`, `battle.finished`, `battle.closed` (properties: `battle_id`, `mode`, `end_reason`, `result` — `challenger` / `opponent` / `draw`, `rounds_played`, `duration_ms`),
+`practice.audio_failed` (a dictation clip that did not play: `battle_id`, `source`, `reason`, `verified`) and `practice.not_enough_material` (`battle: true`). The events of a match are written to the learner who **invited** (the challenger); `practice.audio_failed` — to the one who reported. The rows themselves (`battles`, `battle_participants`, `battle_answers`; `docs/03` §2.45–§2.47) are for DevOps to read.
+
+`end_reason` of a finished or closed match:
+
+| `end_reason` | What happened |
+|---|---|
+| `completed` | All 5 rounds were played; the winner is the one with more points (a draw if equal) |
+| `surrender` | One side pressed «Сдаться»; the other wins, the points stay as they were |
+| `absent` | A player was silent for 30 s in the game; the one who stayed wins |
+| `declined` · `invite_expired` | The friend pressed «Отклонить» · nobody answered in 5 minutes (no result) |
+| `room_expired` | Both did not press «Готов» in 2 minutes (no result) |
+| `canceled` | The inviter withdrew, or somebody left the room or the countdown, or was silent there for 30 s, or the friendship ended before the acceptance (no result) |
+| `both_absent` | Both players were silent for 30 s in the game (no winner) |
+| `voided` | A technical problem: a dictation clip is missing from the disk (regenerate the audio — *Audio of the dictations*), or `PRACTICE_ACCESS=off` (no result) |
+
+**The invitation** reaches the friend as a message of the bot with the button «Открыть баттл» (the text is in the friend's language). If the friend never opened the bot or blocked it, the message does not come (the learner gets `dm_blocked_at`; it is cleared when they write to the bot), but the invitation is in the app (Friends, the practice hub) for its 5 minutes.
+The bot sends nothing else about battles: no results, no reminders.
 
 ---
 
@@ -673,6 +718,9 @@ Open **Billing → Payments** (Оплата → Платежи) and search by th
 plan cache is dropped on payment). A `failed` row means the money arrived but could not be credited (see the raw payload
 and **Payment orders** for the reason: expired order, amount mismatch): fix it by granting Pro (**Grant Pro**) or refund
 the payment, and tell DevOps if it looks systematic. No row at all: the provider's webhook did not reach us (DEVOPS_GUIDE §17).
+
+**A learner says "you are busy with another battle", or a battle never ends.**
+Almost always the scheduler is not running: `practice:battles-sweep` (every minute) is what ends a match that both players left and frees the learners (see *Practice tasks → Battle 1-on-1 → A match that "hangs"*). Check `/health/ready`, `php artisan schedule:list` and the cron entry; the learner can also open «Идёт баттл» in Friends and leave the match (✕).
 
 **Admin panel shows a blank page after login.**
 Run `php artisan optimize:clear` (or `make cache-clear`) to clear cached views.
