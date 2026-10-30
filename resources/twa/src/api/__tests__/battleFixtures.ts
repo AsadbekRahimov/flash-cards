@@ -1,5 +1,7 @@
 import type {
   Battle,
+  Course,
+  CourseDetail,
   BattleEndReason,
   BattleIncoming,
   BattleListResponse,
@@ -214,5 +216,46 @@ export const activeOf = (status: BattleStatus = 'room', overrides: Partial<NonNu
   course: COURSE,
   lesson: null,
   opponent: { first_name: 'Dilnoza' },
+  ...overrides,
+})
+
+const PROGRESS = { done: 0, total: 20 }
+
+/** A row of `GET /courses`. */
+export const courseRow = (overrides: Partial<Course> = {}): Course => ({
+  slug: 'english-a1',
+  title: 'Английский A1',
+  description: null,
+  level: 'A1',
+  exam_tag: null,
+  words_count: 900,
+  is_featured: false,
+  is_active: false,
+  progress: { done: 0, total: 900 },
+  ...overrides,
+})
+
+/** `GET /courses/{slug}`: two modules, three lessons (one without a title, one in a module without a name). */
+export const courseDetail = (overrides: Partial<CourseDetail> = {}): CourseDetail => ({
+  slug: 'english-a1',
+  title: 'Английский A1',
+  description: null,
+  level: 'A1',
+  exam_tag: null,
+  words_count: 900,
+  is_active: true,
+  progress: { done: 0, total: 900 },
+  stages: [
+    {
+      number: 1,
+      title: 'Семья',
+      progress: PROGRESS,
+      lessons: [
+        { id: 31, number: 3, title: null, progress: PROGRESS },
+        { id: 32, number: 4, title: 'Дом', progress: PROGRESS },
+      ],
+    },
+    { number: 2, title: null, progress: PROGRESS, lessons: [{ id: 41, number: 4, title: 'Еда', progress: PROGRESS }] },
+  ],
   ...overrides,
 })

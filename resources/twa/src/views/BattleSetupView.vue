@@ -88,8 +88,8 @@ const friendName = computed(() => setup.friendName)
 const title = computed(() => (friendName.value ? t('battle.setup.title_with', { name: friendName.value }) : t('battle.setup.title')))
 const shownName = computed(() => friendName.value ?? t('friends.list.anonymous'))
 
-const catalogLoading = computed(() => props.friendshipId !== null && (listStatus.value === 'idle' || listStatus.value === 'loading'))
 const catalogFailed = computed(() => listStatus.value === 'error' || loginError.value !== '')
+const catalogLoading = computed(() => props.friendshipId !== null && !catalogFailed.value && (listStatus.value === 'idle' || listStatus.value === 'loading'))
 const catalogMessage = computed(() => loginError.value || catalog.errorMessage)
 
 const noAccess = computed(() => options.value?.friend_access === 'no_access')
