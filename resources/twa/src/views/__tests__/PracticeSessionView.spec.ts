@@ -55,11 +55,12 @@ vi.mock('@/components/practice/modeComponents', async () => {
   const { defineComponent, h } = await import('vue')
   const Probe = defineComponent({
     props: { element: { type: Object, required: true }, mode: { type: String, default: 'solo' }, disabled: { type: Boolean, default: false } },
-    emits: ['answer', 'skip'],
+    emits: ['answer', 'skip', 'silent'],
     setup: (props, { emit }) => () =>
       h('div', { 'data-testid': 'probe', 'data-element': (props.element as { id: string }).id, 'data-mode': props.mode, 'data-disabled': String(props.disabled) }, [
         h('button', { 'data-testid': 'probe-answer', onClick: () => emit('answer', { order: ['fW2', 'fT5'] }) }),
         h('button', { 'data-testid': 'probe-skip', onClick: () => emit('skip') }),
+        h('button', { 'data-testid': 'probe-silent', onClick: () => emit('silent') }),
       ]),
   })
   return { MODE_COMPONENTS: {}, modeComponentFor: () => Probe }
@@ -673,6 +674,23 @@ describe('PracticeSessionView — the summary', () => {
     expect(r.router.currentRoute.value.name).toBe('courses')
   })
 
+  it('does not tell the next screen a refusal of the repeat that comes after the learner has left', async () => {
+    const r = await render(finished())
+    const reply = pending<PracticeSession>()
+    vi.mocked(api.practice.open).mockReturnValue(reply.promise)
+    await r.wrapper.get('[data-testid=retry-btn]').trigger('click')
+    r.wrapper.unmount()
+    await r.router.push({ name: 'courses' })
+
+    reply.reject(apiError('conflict', 409, 'retry_not_available'))
+    await flushPromises()
+
+    const store = usePracticeStore()
+    expect(store.openError).toBe('') // the hub would show it as a toast of its own
+    expect(store.retryUnavailable).toBe(false)
+    expect(showErrorToast).not.toHaveBeenCalled()
+  })
+
   it('"To the course" opens the course', async () => {
     const r = await render(finished())
 
@@ -789,14 +807,57 @@ describe('PracticeSessionView — the clip of a dictation', () => {
     r.wrapper.unmount()
   })
 
-  it('"No sound for now" leaves the dictation for the hub', async () => {
+  it('"No sound for now" leaves the dictation for the hub, and drops it on purpose: the hub will not ask about it', async () => {
     vi.mocked(api.practice.audioBlob).mockRejectedValue(offline())
     const r = await render(dictation())
+    expect(usePracticeStore().abandoned).toBeNull()
 
     await r.wrapper.get('[data-testid=trouble-silent]').trigger('click')
     await flushPromises()
 
     expect(r.router.currentRoute.value.name).toBe('practice-hub')
+    expect(usePracticeStore().abandoned).toBe(77)
+    r.wrapper.unmount()
+  })
+
+  it('the button the dictation always has does the same: to the hub of the lesson, the session dropped on purpose', async () => {
+    vi.mocked(api.practice.audioBlob).mockResolvedValue(clip()) // the sound is fine: this is for a learner who cannot listen now
+    const r = await render(dictation())
+    expect(r.wrapper.find('[data-testid=audio-trouble]').exists()).toBe(false)
+
+    await r.wrapper.get('[data-testid=probe-silent]').trigger('click')
+    await flushPromises()
+
+    expect(r.router.currentRoute.value.name).toBe('practice-hub')
+    expect(r.router.currentRoute.value.query).toEqual({ lesson: '41' })
+    expect(usePracticeStore().abandoned).toBe(77)
+    r.wrapper.unmount()
+  })
+
+  it('the ✕ and the system "Back" are not "dropped on purpose": the hub asks about the unfinished session as always', async () => {
+    const r = await render(dictation())
+
+    await r.wrapper.get('[data-testid=close-btn]').trigger('click')
+    await flushPromises()
+
+    expect(r.router.currentRoute.value.name).toBe('practice-hub')
+    expect(usePracticeStore().abandoned).toBeNull()
+    r.wrapper.unmount()
+  })
+
+  it('a replacement that the server refuses because the learner is not on this element (another tab went on) is no toast: the screen follows', async () => {
+    vi.mocked(api.practice.audioBlob).mockRejectedValue(offline())
+    const r = await render(dictation())
+    vi.mocked(api.practice.replace).mockRejectedValue(apiError('conflict', 409, 'replace_not_allowed', { reason: 'not_current' }))
+    vi.mocked(api.practice.get).mockResolvedValue(session({ mode: 'dictation', progress: { done: 3, total: 5 }, current: dictationElement({ id: 'eDict00007', audio_url: '/api/twa/practice/sessions/77/audio/eDict00007' }) }))
+
+    await r.wrapper.get('[data-testid=trouble-replace]').trigger('click')
+    await flushPromises()
+
+    expect(showErrorToast).not.toHaveBeenCalled()
+    expect(probe(r).attributes('data-element')).toBe('eDict00007')
+    expect(r.wrapper.get('[data-testid=progress]').text()).toBe('3 / 5')
+    expect(api.practice.audioBlob).toHaveBeenLastCalledWith('/api/twa/practice/sessions/77/audio/eDict00007', expect.any(AbortSignal))
     r.wrapper.unmount()
   })
 

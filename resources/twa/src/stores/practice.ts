@@ -3,7 +3,7 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { newRequestId } from '@/composables/requestId'
 import { errorMessage } from '@/i18n/errors'
-import { PRACTICE_MODE_ORDER } from '@/composables/practiceLabels'
+import { PRACTICE_MODE_ORDER, lessonHeader } from '@/composables/practiceLabels'
 import type {
   PracticeActiveSession,
   PracticeAnswerPayload,
@@ -77,6 +77,13 @@ interface PracticeState {
   opening: PracticeMode | null
   /** Why the last open was refused (localized); the hub shows it as a toast. */
   openError: string
+  /** Counts the screens that opened a session and the ones left: a refusal that comes back after its screen was left is dropped. */
+  openSeq: number
+  /**
+   * The unfinished session that the learner dropped on purpose ("No sound for now" on a dictation): the hub they land on starts
+   * the mode they choose over it at once (`replace_active`), without asking about a session they have just walked out of.
+   */
+  abandoned: number | null
   /** The learner's unfinished session that `open` ran into (409 `practice_session_active`): the hub asks what to do. */
   conflict: PracticeActiveSession | null
   /** Show the paywall (`practice_pro_required`). */
@@ -179,6 +186,8 @@ export const usePracticeStore = defineStore('practice', {
     hubSeq: 0,
     opening: null,
     openError: '',
+    openSeq: 0,
+    abandoned: null,
     conflict: null,
     paywall: false,
     retryUnavailable: false,
@@ -216,6 +225,23 @@ export const usePracticeStore = defineStore('practice', {
       s.session !== null
         ? { course: s.session.course.slug, lessonId: s.session.lesson?.id ?? null }
         : s.hubScope,
+
+    /**
+     * Where an unfinished session is, in words ("Module 2 · Lesson 4 · Food", or the course): so that the "Continue" card and the
+     * sheet of the unfinished practice say which one it is. The server tells the slug of the course and the id of the lesson,
+     * not their names, so only the session this run has seen, or the very place the hub is about, can be named; null otherwise.
+     */
+    placeOf:
+      (s) =>
+      (active: PracticeActiveSession): string | null => {
+        const seen = s.session !== null && s.session.id === active.id ? s.session : null
+        if (seen !== null) return (seen.lesson ? lessonHeader(seen.lesson) : '') || seen.course.title
+
+        const hub = s.hub
+        if (hub === null || hub.course.slug !== active.course) return null
+        if (active.lesson_id === null) return hub.course.title
+        return hub.lesson?.id === active.lesson_id ? lessonHeader(hub.lesson) || hub.course.title : null
+      },
   },
 
   actions: {
@@ -260,23 +286,53 @@ export const usePracticeStore = defineStore('practice', {
      */
     async open(request: PracticeOpenRequest, { canAsk = true }: { canAsk?: boolean } = {}): Promise<number | null> {
       if (this.opening !== null) return null
+      const seq = ++this.openSeq
       this.opening = request.mode
       this.openError = ''
       this.conflict = null
       this.paywall = false
       try {
         const session = await api.practice.open(request)
+        // The session exists on the server whether or not the screen is still there: it is kept, and the hub shows it to continue.
         this.preloaded = session
         this.retryUnavailable = false
         // The hub the learner comes back to shows this session as the one to continue (the server has one per learner).
         if (this.hub !== null) this.hub.active_session = activeOf(session)
         return session.id
       } catch (err) {
-        this.refuseOpen(err, canAsk)
+        // A refusal that comes after its screen was left is nobody's: the next hub must not open with its sheet, paywall or toast.
+        if (seq === this.openSeq) this.refuseOpen(err, canAsk)
         return null
       } finally {
-        this.opening = null
+        if (seq === this.openSeq) this.opening = null
       }
+    },
+
+    /**
+     * The screen that opens sessions (the hub, the summary of a session) is left. What it asked for may still come back; what it
+     * would have been told - the unfinished session, the paywall, the reason of a refusal - is not told to the next screen.
+     */
+    leaveOpen(): void {
+      this.openSeq += 1
+      this.opening = null
+      this.openError = ''
+      this.conflict = null
+      this.paywall = false
+    },
+
+    /** "No sound for now": this session is dropped on purpose; the hub the learner comes to starts another mode over it. */
+    abandonSession(): void {
+      this.abandoned = this.sessionId
+    },
+
+    /** The unfinished session of the hub is the one the learner walked out of on purpose (so "Start a new one" is not asked). */
+    isAbandoned(activeId: number | null): boolean {
+      return this.abandoned !== null && this.abandoned === activeId
+    },
+
+    /** The new session is open (or the hub is left): the next hub asks, as it always did. */
+    clearAbandoned(): void {
+      this.abandoned = null
     },
 
     /**

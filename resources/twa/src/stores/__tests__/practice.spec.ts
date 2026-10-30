@@ -255,6 +255,191 @@ describe('practice store — opening a session', () => {
 
     expect(vi.mocked(api.practice.open).mock.calls[0]![0]).toMatchObject({ replace_active: true })
   })
+
+  describe('when its screen is left before the answer comes', () => {
+    const active = () =>
+      apiError('conflict', 409, 'practice_session_active', { session_id: 77, mode: 'sentence', course: 'english-a1', lesson_id: 41, progress: { done: 2, total: 5 } })
+
+    /** An `open` that is still on its way: `refuse` / `accept` is the reply. */
+    function inFlight() {
+      let refuse!: (reason: unknown) => void
+      let accept!: (value: ReturnType<typeof session>) => void
+      vi.mocked(api.practice.open).mockReturnValueOnce(
+        new Promise((resolve, reject) => {
+          accept = resolve
+          refuse = reject
+        }),
+      )
+      return { refuse: (reason: unknown) => refuse(reason), accept: (value: ReturnType<typeof session>) => accept(value) }
+    }
+
+    it('drops the refusal "you have an unfinished session": the next hub does not open with its sheet', async () => {
+      const reply = inFlight()
+      const store = usePracticeStore()
+      const asking = store.open(request)
+
+      store.leaveOpen() // the hub is left
+      reply.refuse(active())
+
+      expect(await asking).toBeNull()
+      expect(store.conflict).toBeNull()
+      expect(store.opening).toBeNull()
+    })
+
+    it('drops the paywall, the reason of a refusal, and the other things that the refusal would have set', async () => {
+      const store = usePracticeStore()
+      const cases: [unknown, () => void][] = [
+        [apiError('forbidden', 403, 'practice_pro_required'), () => expect(store.paywall).toBe(false)],
+        [apiError('validation', 422, 'practice_not_enough_material'), () => expect(store.openError).toBe('')],
+        [offline(), () => expect(store.openError).toBe('')],
+        [apiError('forbidden', 403, 'practice_unavailable'), () => expect(store.hubStatus).toBe('idle')],
+        [apiError('conflict', 409, 'retry_not_available'), () => expect(store.retryUnavailable).toBe(false)],
+      ]
+
+      for (const [refusal, expectNothing] of cases) {
+        const reply = inFlight()
+        const asking = store.open(request)
+        store.leaveOpen()
+        reply.refuse(refusal)
+        await asking
+        expectNothing()
+      }
+    })
+
+    it('tells the refusal as usual while the screen is still there', async () => {
+      const reply = inFlight()
+      const store = usePracticeStore()
+      const asking = store.open(request)
+
+      reply.refuse(active())
+      await asking
+
+      expect(store.conflict).toMatchObject({ id: 77 })
+    })
+
+    it('still keeps a session that was opened meanwhile (it exists on the server): the hub shows it to continue', async () => {
+      vi.mocked(api.practice.hub).mockResolvedValue(hub())
+      const reply = inFlight()
+      const store = usePracticeStore()
+      await store.loadHub('english-a1', 41)
+      const asking = store.open(request)
+
+      store.leaveOpen()
+      reply.accept(session({ id: 85, mode: 'pairs' }))
+
+      expect(await asking).toBe(85)
+      expect(store.preloaded?.id).toBe(85)
+      expect(store.hub?.active_session).toMatchObject({ id: 85, mode: 'pairs' })
+    })
+
+    it('what comes back for the old request does not touch the one that was asked for since', async () => {
+      const old = inFlight()
+      const store = usePracticeStore()
+      const asking = store.open(request)
+      store.leaveOpen()
+      inFlight() // the next hub asks for another mode, and waits
+      void store.open({ ...request, mode: 'sentence' })
+      expect(store.opening).toBe('sentence')
+
+      old.refuse(active())
+      await asking
+
+      expect(store.opening).toBe('sentence') // still waiting for its own answer
+      expect(store.conflict).toBeNull()
+    })
+
+    it('nothing is being opened any more once the screen is left (the cards of the next hub are not "busy")', async () => {
+      inFlight()
+      const store = usePracticeStore()
+      void store.open(request)
+      expect(store.opening).toBe('pairs')
+
+      store.leaveOpen()
+
+      expect(store.opening).toBeNull()
+      expect(store.openError).toBe('')
+    })
+  })
+})
+
+describe('practice store — a session dropped on purpose ("No sound for now")', () => {
+  it('marks the session of the screen, and only that one', async () => {
+    const store = await started(session({ id: 77, mode: 'dictation' }))
+
+    expect(store.isAbandoned(77)).toBe(false)
+    store.abandonSession()
+
+    expect(store.isAbandoned(77)).toBe(true)
+    expect(store.isAbandoned(78)).toBe(false) // another unfinished session is asked about as always
+    expect(store.isAbandoned(null)).toBe(false)
+  })
+
+  it('is for one visit to the hub: it is cleared when the next session is open, and when the hub is left', async () => {
+    const store = await started(session({ id: 77, mode: 'dictation' }))
+    store.abandonSession()
+
+    store.clearAbandoned()
+
+    expect(store.isAbandoned(77)).toBe(false)
+  })
+
+  it('is not set by anything else: leaving the screen, finishing, or another session', async () => {
+    const store = await started(session({ id: 77, mode: 'dictation' }))
+
+    store.leaveOpen()
+    vi.mocked(api.practice.get).mockResolvedValue(session({ id: 80 }))
+    await store.load(80)
+
+    expect(store.abandoned).toBeNull()
+  })
+})
+
+describe('practice store — where an unfinished session is', () => {
+  const active = (overrides = {}) => activeSession({ id: 77, mode: 'pairs', course: 'english-a1', lesson_id: 41, ...overrides })
+
+  it('names the session that this run has seen: its lesson with the module, or its course', async () => {
+    const store = await started(session({ id: 77 }))
+    expect(store.placeOf(active())).toBe('Модуль 2 · Урок 4 · Еда')
+
+    const course = await started(session({ id: 77, lesson: null }))
+    expect(course.placeOf(active({ lesson_id: null }))).toBe('Английский A1')
+  })
+
+  it('names the very place that the hub is about, when the unfinished session is its own', async () => {
+    vi.mocked(api.practice.hub).mockResolvedValue(hub())
+    const store = usePracticeStore()
+    await store.loadHub('english-a1', 41)
+
+    expect(store.placeOf(active())).toBe('Модуль 2 · Урок 4 · Еда')
+  })
+
+  it('names the course when the unfinished session is of the whole course of the hub', async () => {
+    vi.mocked(api.practice.hub).mockResolvedValue(hub())
+    const store = usePracticeStore()
+    await store.loadHub('english-a1', 41)
+
+    expect(store.placeOf(active({ lesson_id: null }))).toBe('Английский A1')
+  })
+
+  it('says nothing of a session that it has no name for: the server sends only the slug of the course and the id of the lesson', async () => {
+    vi.mocked(api.practice.hub).mockResolvedValue(hub())
+    const store = usePracticeStore()
+    await store.loadHub('english-a1', 41)
+
+    expect(store.placeOf(active({ course: 'ielts-core' }))).toBeNull() // another course
+    expect(store.placeOf(active({ lesson_id: 99 }))).toBeNull() // another lesson of this course
+    expect(store.placeOf(active({ lesson_id: null, course: 'ielts-core' }))).toBeNull()
+  })
+
+  it('a store that holds nothing yet knows nothing', () => {
+    expect(usePracticeStore().placeOf(active())).toBeNull()
+  })
+
+  it('does not take another session for this one, even in the same course', async () => {
+    const store = await started(session({ id: 77, lesson: { id: 41, stage: 2, number: 4, title: 'Еда' } }))
+
+    expect(store.placeOf(active({ id: 78, lesson_id: 99 }))).toBeNull()
+  })
 })
 
 describe('practice store — entering a session', () => {

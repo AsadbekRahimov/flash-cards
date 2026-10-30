@@ -104,7 +104,8 @@ watch(
 onBeforeUnmount(() => {
   left = true
   audio.revoke()
-  practice.clearOpenError()
+  // What a repeat / "Again" asked for may still come back: a refusal of it is not told to the next screen.
+  practice.leaveOpen()
 })
 
 // ---- the header ----
@@ -206,6 +207,16 @@ function retryAudio(): void {
 async function replaceTask(): Promise<void> {
   troubleDismissed.value = false
   await practice.replace()
+}
+
+/**
+ * "No sound for now" (the sheet of the sound trouble, and the button the dictation always has): the learner walks out of the
+ * dictation to the hub to choose another mode. The dictation is dropped on purpose, so the hub starts the next mode over it
+ * without asking "Continue or start a new one" about a session they have just left.
+ */
+function silent(): void {
+  practice.abandonSession()
+  leave()
 }
 
 // ---- the summary ----
@@ -321,6 +332,7 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => practice.dismissPaywall
         :disabled="busy"
         @answer="onAnswer"
         @skip="onSkip"
+        @silent="silent"
       />
     </template>
 
@@ -330,7 +342,7 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => practice.dismissPaywall
       :busy="busy"
       @retry="retryAudio"
       @replace="replaceTask"
-      @silent="leave"
+      @silent="silent"
       @close="troubleDismissed = true"
     />
 
