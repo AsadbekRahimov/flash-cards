@@ -66,6 +66,9 @@ const canSkip = computed((): boolean => !locked.value && !blocked.value)
 
 const listenLabel = computed((): string => (failed.value ? t('practice.audio.retry') : loading.value ? t('practice.audio.loading') : t('practice.audio.play')))
 
+/** Nothing is going on with the sound: the caption is only the tip. */
+const calm = computed((): boolean => !failed.value && !loading.value && !playing.value)
+
 const caption = computed((): string => {
   if (failed.value) return t('practice.audio.trouble.title')
   if (loading.value) return t('practice.audio.loading')
@@ -120,8 +123,12 @@ function skip(): void {
 
 <template>
   <div class="flex flex-1 flex-col" data-testid="dictation-input" :data-mode="mode">
-    <div class="flex flex-1 flex-col gap-3 px-4 pt-3 pb-4">
-      <article class="card flex flex-col items-center gap-2 px-5 py-4 text-center">
+    <div class="flex flex-1 flex-col gap-3 px-4 pt-3 pb-4 [@media(max-height:560px)]:gap-2 [@media(max-height:560px)]:pt-2">
+      <!-- On a short window (the keyboard is up) the card becomes one row: the circle, then the tiles - the field stays in view. -->
+      <article
+        class="card flex flex-col items-center gap-2 px-5 py-4 text-center [@media(max-height:560px)]:flex-row [@media(max-height:560px)]:gap-4 [@media(max-height:560px)]:py-2 [@media(max-height:560px)]:text-left"
+        data-testid="dictation-card"
+      >
         <p class="text-[15px] leading-5 font-medium text-tg-subtitle [@media(max-height:560px)]:hidden" data-testid="dictation-title">
           {{ modeTitle('dictation') }}
         </p>
@@ -149,34 +156,37 @@ function skip(): void {
           <AppIcon v-else :name="failed ? 'arrow-path' : 'speaker-wave'" :size="36" />
         </button>
 
-        <p
-          class="text-[13px] leading-[18px]"
-          :class="failed ? 'font-medium text-warning-ink' : 'text-tg-hint'"
-          role="status"
-          data-testid="audio-state"
-          :data-state="state"
-        >
-          {{ caption }}
-        </p>
-
-        <!-- One empty tile per word, no letters; a tile fills as the words are typed. -->
-        <div class="flex flex-col items-center gap-1" data-testid="word-hints">
-          <div
-            class="flex flex-wrap justify-center gap-1.5"
-            role="img"
-            :aria-label="t('practice.dictation.typed', { typed: filled, count: total })"
-            data-testid="word-tiles"
+        <div class="flex min-w-0 flex-col items-center gap-2 [@media(max-height:560px)]:items-start [@media(max-height:560px)]:gap-1">
+          <!-- The tip is not worth a line on a short window; what is going on with the sound (loading, playing, trouble) always is. -->
+          <p
+            class="text-[13px] leading-[18px]"
+            :class="[failed ? 'font-medium text-warning-ink' : 'text-tg-hint', calm ? '[@media(max-height:560px)]:hidden' : '']"
+            role="status"
+            data-testid="audio-state"
+            :data-state="state"
           >
-            <span
-              v-for="n in total"
-              :key="n"
-              class="h-6 rounded-md border-2"
-              :class="[total > 8 ? 'w-6' : 'w-9', n <= filled ? 'border-accent bg-accent-soft' : 'border-dashed border-tg-hint']"
-              :data-filled="n <= filled ? 'true' : 'false'"
-              data-testid="word-tile"
-            />
+            {{ caption }}
+          </p>
+
+          <!-- One empty tile per word, no letters; a tile fills as the words are typed. -->
+          <div class="flex flex-col items-center gap-1 [@media(max-height:560px)]:items-start" data-testid="word-hints">
+            <div
+              class="flex flex-wrap justify-center gap-1.5 [@media(max-height:560px)]:justify-start"
+              role="img"
+              :aria-label="t('practice.dictation.typed', { typed: filled, count: total })"
+              data-testid="word-tiles"
+            >
+              <span
+                v-for="n in total"
+                :key="n"
+                class="h-6 rounded-md border-2"
+                :class="[total > 8 ? 'w-6' : 'w-9', n <= filled ? 'border-accent bg-accent-soft' : 'border-dashed border-tg-hint']"
+                :data-filled="n <= filled ? 'true' : 'false'"
+                data-testid="word-tile"
+              />
+            </div>
+            <p class="text-[13px] leading-[18px] font-medium text-tg-subtitle" data-testid="word-count">{{ tn('practice.dictation.words', total) }}</p>
           </div>
-          <p class="text-[13px] leading-[18px] font-medium text-tg-subtitle" data-testid="word-count">{{ tn('practice.dictation.words', total) }}</p>
         </div>
       </article>
 
@@ -208,7 +218,13 @@ function skip(): void {
         <button type="button" class="btn btn-plain shrink-0" :disabled="!canSkip" data-testid="skip-btn" @click="skip">
           {{ t('exercise.skip') }}
         </button>
-        <button type="button" class="btn btn-primary btn-lg min-w-0 flex-1" :disabled="!canCheck" data-testid="check-btn" @click="check">
+        <button
+          type="button"
+          class="btn btn-primary btn-lg min-w-0 flex-1 [@media(max-height:560px)]:min-h-12"
+          :disabled="!canCheck"
+          data-testid="check-btn"
+          @click="check"
+        >
           {{ t('exercise.check') }}
         </button>
       </div>

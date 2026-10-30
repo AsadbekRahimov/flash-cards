@@ -343,6 +343,27 @@ describe('usePracticeAudio — one slot, many users', () => {
     expect(store.audio).toEqual({ state: 'ready', blobUrl: 'blob:clip-1' })
   })
 
+  it('a slot of its own fetches again a clip that another slot holds (the review of an answer keeps its own copy)', async () => {
+    vi.mocked(api.practice.audioBlob).mockResolvedValue(clip())
+    const screen = usePracticeAudio({ slot: slotOf() })
+    const review = usePracticeAudio({ slot: slotOf() })
+
+    await screen.load('/api/twa/practice/sessions/7/audio/eD4')
+    await screen.load('/api/twa/practice/sessions/7/audio/eD5') // the screen goes on to the next clip while the verdict is read
+    await review.load('/api/twa/practice/sessions/7/audio/eD4')
+
+    expect(vi.mocked(api.practice.audioBlob).mock.calls.map(([url]) => url)).toEqual([
+      '/api/twa/practice/sessions/7/audio/eD4',
+      '/api/twa/practice/sessions/7/audio/eD5',
+      '/api/twa/practice/sessions/7/audio/eD4',
+    ])
+    // Each holds its own blob; letting the review's go does not touch the screen's.
+    expect(screen.blobUrl.value).not.toBe(review.blobUrl.value)
+    review.revoke()
+    expect(screen.state.value).toBe('ready')
+    expect(review.state.value).toBe('idle')
+  })
+
   it('two slots are two clips (the room of a battle holds five)', async () => {
     vi.mocked(api.practice.audioBlob).mockResolvedValue(clip())
     const one = usePracticeAudio({ slot: slotOf() })
