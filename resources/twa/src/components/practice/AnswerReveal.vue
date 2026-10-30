@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import type { IconName } from '@/components/ui/icons'
-import { filledWith, shownOptions, splitPhrase } from '@/composables/collocationPhrase'
+import { filledWith, phraseSize, shownOptions, splitPhrase } from '@/composables/collocationPhrase'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
 import type { PracticeOutcome } from '@/stores/practice'
@@ -131,7 +131,7 @@ function onContinue(): void {
         <!-- The whole collocation: the phrase with the right option in the blank, the word the learner needed marked. -->
         <div v-if="collocation" class="mt-1 w-full">
           <p class="text-[13px] leading-[18px] font-medium tracking-wide text-tg-section-header uppercase">{{ t('exercise.verdict.expected') }}</p>
-          <p class="mt-1 text-2xl leading-8 font-bold break-words" lang="en" data-testid="expected">
+          <p class="mt-1 font-bold break-words" :class="phraseSize(collocation.full_text)" lang="en" data-testid="expected">
             <template v-if="phrase">
               <span>{{ phrase.before }}</span>
               <span class="rounded-md bg-success-soft px-1 text-success-ink" data-testid="expected-fill">{{ phrase.filled }}</span>

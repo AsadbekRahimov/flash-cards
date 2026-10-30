@@ -42,7 +42,7 @@ describe('CollocationChoice — the phrase and the options', () => {
   })
 
   it('tells what to do, in a line above the phrase', () => {
-    expect(render().get('[data-testid=collocation-instruction]').text()).toBe('Выберите слово, которое подходит к пропуску')
+    expect(render().get('[data-testid=collocation-instruction]').text()).toBe('Выберите подходящее слово')
   })
 
   it('draws every option as a button of the design system, in the order of the element, all of them idle', () => {
@@ -58,7 +58,7 @@ describe('CollocationChoice — the phrase and the options', () => {
       expect(button.attributes('disabled')).toBeUndefined()
       expect(button.attributes('aria-pressed')).toBeUndefined()
     }
-    expect(wrapper.get('[role=group]').attributes('aria-label')).toBe('Выберите слово, которое подходит к пропуску')
+    expect(wrapper.get('[role=group]').attributes('aria-label')).toBe('Выберите подходящее слово')
   })
 
   it('has no "Check" and no "Skip": the tap is the answer', () => {
@@ -69,11 +69,13 @@ describe('CollocationChoice — the phrase and the options', () => {
     expect(wrapper.find('.btn').exists()).toBe(false)
   })
 
-  it('takes the type down a size for a long phrase, so that the card stays short at 320 px', () => {
-    const long = collocationElement({ text: `${'Every morning my grandmother and I '.repeat(2)}___ a very long walk in the old park.` })
+  it('takes the type down a size for a long phrase, and one more for a very long one, so that the card stays short at 320 px', () => {
+    const middle = collocationElement({ text: 'Every morning my grandmother and I ___ a long walk in the park.' })
+    const long = collocationElement({ text: `${'Every morning my grandmother and I '.repeat(2)}___ a very long walk in the old park near our house.` })
 
     expect(render().get('[data-testid=collocation-text]').classes()).toContain('text-2xl')
-    expect(render({ element: long }).get('[data-testid=collocation-text]').classes()).toContain('text-xl')
+    expect(render({ element: middle }).get('[data-testid=collocation-text]').classes()).toContain('text-xl')
+    expect(render({ element: long }).get('[data-testid=collocation-text]').classes()).toContain('text-lg')
   })
 
   it('shows what the server sent as text, never as markup', () => {
@@ -101,7 +103,7 @@ describe('CollocationChoice — the phrase and the options', () => {
 
     const wrapper = render()
 
-    expect(wrapper.get('[data-testid=collocation-instruction]').text()).toBe("Bo'sh joyga mos keladigan so'zni tanlang")
+    expect(wrapper.get('[data-testid=collocation-instruction]').text()).toBe("Bo'sh joyga mos so'zni tanlang")
     expect(wrapper.get('[data-testid=collocation-blank] .sr-only').text()).toBe("bo'sh joy")
     expect(wrapper.get('[data-testid=collocation-footnote]').text()).toBe('Javob bosilganda darhol tekshiriladi.')
   })
@@ -228,7 +230,7 @@ describe('CollocationChoice — a battle', () => {
     const wrapper = render({ mode: 'battle' })
 
     expect(wrapper.get('[data-testid=collocation-choice]').attributes('data-mode')).toBe('battle')
-    expect(wrapper.get('[data-testid=collocation-footnote]').text()).toBe('Ответ окончательный: после нажатия его нельзя изменить.')
+    expect(wrapper.get('[data-testid=collocation-footnote]').text()).toBe('Ответ окончательный: изменить нельзя.')
     expect(render({ mode: 'solo' }).get('[data-testid=collocation-footnote]').text()).toBe('Ответ проверяется сразу после нажатия.')
   })
 

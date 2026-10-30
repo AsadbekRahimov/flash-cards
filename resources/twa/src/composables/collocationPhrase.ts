@@ -27,6 +27,16 @@ export function filledWith(fullText: string, parts: PhraseParts): string | null 
   return fullText.slice(before.length, fullText.length - after.length)
 }
 
+/**
+ * The type of a phrase by its length (Tailwind classes): a short phrase is big, a long one (up to 160 characters, docs/16 §4.5)
+ * takes a smaller size, so that the card does not outgrow the screen at 320 px.
+ */
+export function phraseSize(text: string): string {
+  if (text.length <= 56) return 'text-2xl leading-8'
+  if (text.length <= 100) return 'text-xl leading-7'
+  return 'text-lg leading-6'
+}
+
 /** How an option is drawn (`data-state` of `.option`, docs/14 §4.3). */
 export type OptionLook = 'idle' | 'selected' | 'correct' | 'incorrect' | 'reveal'
 

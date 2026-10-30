@@ -2198,7 +2198,7 @@
 
 | Ключ | uz | ru |
 |---|---|---|
-| `practice.collocation.instruction` | Bo'sh joyga mos keladigan so'zni tanlang | Выберите слово, которое подходит к пропуску |
+| `practice.collocation.instruction` | Bo'sh joyga mos so'zni tanlang | Выберите подходящее слово |
 | `practice.collocation.blank` | bo'sh joy | пропуск |
 | `practice.collocation.footnote.solo` | Javob bosilganda darhol tekshiriladi. | Ответ проверяется сразу после нажатия. |
-| `practice.collocation.footnote.battle` | Javob yakuniy: bosilgandan keyin uni o'zgartirib bo'lmaydi. | Ответ окончательный: после нажатия его нельзя изменить. |
+| `practice.collocation.footnote.battle` | Javob yakuniy: o'zgartirib bo'lmaydi. | Ответ окончательный: изменить нельзя. |

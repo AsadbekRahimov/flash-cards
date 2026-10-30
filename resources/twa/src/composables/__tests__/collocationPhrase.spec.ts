@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { BLANK, filledWith, shownOptions, splitPhrase } from '../collocationPhrase'
+import { BLANK, filledWith, phraseSize, shownOptions, splitPhrase } from '../collocationPhrase'
 import type { PracticeChoice } from '@/api/types'
 
 const options: PracticeChoice[] = [
@@ -47,6 +47,17 @@ describe('filledWith — what the whole phrase has in place of the blank', () =>
   it('works with a blank at either end', () => {
     expect(filledWith('Making a decision is hard.', splitPhrase('___ a decision is hard.')!)).toBe('Making')
     expect(filledWith('He is good at', splitPhrase('He is good ___')!)).toBe('at')
+  })
+})
+
+describe('phraseSize — the type of a phrase by its length', () => {
+  it('is big for a short phrase, smaller for a long one, smallest for the longest the content rules allow', () => {
+    expect(phraseSize("Let's ___ a meeting on Monday.")).toBe('text-2xl leading-8')
+    expect(phraseSize('x'.repeat(56))).toBe('text-2xl leading-8')
+    expect(phraseSize('x'.repeat(57))).toBe('text-xl leading-7')
+    expect(phraseSize('x'.repeat(100))).toBe('text-xl leading-7')
+    expect(phraseSize('x'.repeat(101))).toBe('text-lg leading-6')
+    expect(phraseSize('x'.repeat(160))).toBe('text-lg leading-6')
   })
 })
 

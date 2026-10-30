@@ -18,7 +18,7 @@
  */
 import { computed, ref, watch } from 'vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
-import { shownOptions, splitPhrase } from '@/composables/collocationPhrase'
+import { phraseSize, shownOptions, splitPhrase } from '@/composables/collocationPhrase'
 import { useI18n } from '@/i18n'
 import type { CollocationElement, PracticeAnswerPayload, PracticeChoice } from '@/api/types'
 
@@ -58,8 +58,7 @@ function pick(option: PracticeChoice): void {
 const parts = computed(() => splitPhrase(props.element.text))
 const pickedText = computed((): string | null => props.element.options.find((option) => option.id === picked.value)?.text ?? null)
 
-/** A long phrase takes a smaller type, so that the card does not outgrow the screen at 320 px. */
-const phraseClass = computed((): string => (props.element.text.length > 90 ? 'text-xl leading-7' : 'text-2xl leading-8'))
+const phraseClass = computed((): string => phraseSize(props.element.text))
 
 // ---- the options ----
 

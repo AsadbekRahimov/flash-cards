@@ -626,10 +626,10 @@ export const uz: Translations = {
   // ---- practice: pairs ----
 
   // ---- practice: collocation ----
-  'practice.collocation.instruction': "Bo'sh joyga mos keladigan so'zni tanlang",
+  'practice.collocation.instruction': "Bo'sh joyga mos so'zni tanlang",
   'practice.collocation.blank': "bo'sh joy",
   'practice.collocation.footnote.solo': 'Javob bosilganda darhol tekshiriladi.',
-  'practice.collocation.footnote.battle': "Javob yakuniy: bosilgandan keyin uni o'zgartirib bo'lmaydi.",
+  'practice.collocation.footnote.battle': "Javob yakuniy: o'zgartirib bo'lmaydi.",
 
   // ---- practice: sentence ----
 

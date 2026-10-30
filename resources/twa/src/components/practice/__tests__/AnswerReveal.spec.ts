@@ -199,6 +199,18 @@ describe('AnswerReveal — collocation', () => {
     expect(wrapper.get('[data-testid=answer-reveal]').text()).toContain('Правильный ответ')
   })
 
+  it('sets a long phrase in a smaller type than a short one', () => {
+    const long = 'Every morning my grandmother and I take a very long walk in the old park near our house and the river.'
+    const short = render(outcome({ element, answer: { option_id: 'oA1' }, verdict: 'wrong', reveal: collocation() }))
+    const wrapper = render(
+      outcome({ element: collocationElement({ text: long.replace('take', '___') }), answer: { option_id: 'oA1' }, verdict: 'wrong', reveal: collocation({ full_text: long }) }),
+    )
+
+    expect(short.get('[data-testid=expected]').classes()).toContain('text-2xl')
+    expect(wrapper.get('[data-testid=expected]').classes()).toContain('text-lg')
+    expect(wrapper.get('[data-testid=expected-fill]').text()).toBe('take')
+  })
+
   it('marks a several-word collocation as one piece', () => {
     const wrapper = render(
       outcome({
