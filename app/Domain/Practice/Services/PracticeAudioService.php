@@ -16,6 +16,7 @@ use App\Domain\Twa\Services\TtsFallbackService;
 use App\Jobs\GeneratePracticeAudioJob;
 use App\Models\Learner;
 use App\Models\PracticeItemVersion;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -36,6 +37,9 @@ use Throwable;
 final class PracticeAudioService
 {
     private const MIME = 'audio/mpeg';
+
+    /** How long a missing clip is reported once: ten minutes. */
+    public const MISSING_EVENT_SECONDS = 600;
 
     public function __construct(
         private readonly ProductEventRecorder $events,
@@ -116,10 +120,15 @@ final class PracticeAudioService
 
     /**
      * The file an element names is not there (the endpoint answered 503): the event `practice.audio_failed` with
-     * `reason = file_missing`, `verified = true` (the server looked).
+     * `reason = file_missing`, `verified = true` (the server looked). At most ONE per (session, element) in
+     * {@see self::MISSING_EVENT_SECONDS}: "Retry" is a tap away and every 503 would write a row (60 a minute at the limit of the endpoint).
      */
     public function recordMissing(Learner $learner, int $sessionId, Snapshot $snapshot, string $elementId): void
     {
+        if (! Cache::add("practice:audio-missing:{$sessionId}:{$elementId}", true, self::MISSING_EVENT_SECONDS)) {
+            return;
+        }
+
         $this->events->record(ProductEventName::PracticeAudioFailed, [
             'session_id' => $sessionId,
             'source' => $snapshot->element($elementId)?->get('source'),

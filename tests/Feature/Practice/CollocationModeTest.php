@@ -199,6 +199,72 @@ it('counts the tasks it can play, and says no_items when there are fewer than th
     expect($report($learner))->toBe([true, 4, 3, null]);
 });
 
+it('tells that the tasks are LOCKED when the ones that wait for a word the learner has not met would make the number, and no_items when they would not', function (): void {
+    [$learner, $course, $lesson] = collWorld(1);                              // one task the learner can play
+    $unseen = PracticeKit::words($lesson, 1)[0];
+    $report = function () use ($course, $lesson, $learner): array {
+        $a = collHandler()->availability(new MaterialScope($course, $lesson), $learner, LocaleSet::of('ru'));
+
+        return [$a->isAvailable, $a->available, $a->required, $a->reason];
+    };
+
+    expect($report())->toBe([false, 1, 3, 'no_items']);                       // nothing is waiting: there are simply no more tasks
+
+    collTask($lesson, $unseen, 2);                                            // 1 + 1 locked = 2 < 3: learning the lesson would not be enough
+    expect($report())->toBe([false, 1, 3, 'no_items']);
+
+    collTask($lesson, $unseen, 3);                                            // 1 + 2 locked = 3: learning the lesson is the way
+    expect($report())->toBe([false, 1, 3, 'items_locked']);
+
+    PracticeKit::introduce($learner, $unseen);                                // the word is met: the tasks are playable
+    expect($report())->toBe([true, 3, 3, null]);
+});
+
+it('does not count a task with a word that was switched off as locked: learning does not open it', function (): void {
+    [$learner, $course, $lesson] = collWorld(2);
+    $off = PracticeKit::words($lesson, 1, null, ['is_active' => false])[0];
+    collTask($lesson, $off, 3);
+
+    $availability = collHandler()->availability(new MaterialScope($course, $lesson), $learner, LocaleSet::of('ru'));
+
+    expect([$availability->available, $availability->reason])->toBe([2, 'no_items']);
+});
+
+it('names the option the learner PICKED in the review of a solo answer - right or wrong - and null for "I don\'t know"; the review of a battle has no such key', function (): void {
+    [$learner, $course, $lesson] = collWorld(5);
+    $session = collOpen($learner, $course, ['lesson_id' => $lesson->id])->assertCreated()->json();
+    $id = $session['id'];
+
+    $right = collStored($id, $session['current']['id']);
+    $first = collAnswer($learner, $id, $right['id'], ['option_id' => collPick($right)])->assertOk();
+    expect($first->json('verdict'))->toBe('correct')
+        ->and($first->json('reveal.your_option_id'))->toBe(collPick($right))
+        ->and($first->json('reveal.correct_option_ids'))->toContain($first->json('reveal.your_option_id'));
+
+    $wrong = collStored($id, $first->json('session.current.id'));
+    $second = collAnswer($learner, $id, $wrong['id'], ['option_id' => collPick($wrong, right: false)])->assertOk();
+    expect($second->json('verdict'))->toBe('wrong')
+        ->and($second->json('reveal.your_option_id'))->toBe(collPick($wrong, right: false))
+        ->and($second->json('reveal.correct_option_ids'))->not->toContain($second->json('reveal.your_option_id'));
+
+    $skipped = collStored($id, $second->json('session.current.id'));
+    $third = collAnswer($learner, $id, $skipped['id'], ['skip' => true])->assertOk();
+    expect($third->json('verdict'))->toBe('skipped')
+        ->and($third->json('reveal'))->toHaveKey('your_option_id')
+        ->and($third->json('reveal.your_option_id'))->toBeNull();
+
+    // A repeat of the answer returns the stored review, `your_option_id` included.
+    $request = (string) Str::uuid();
+    $body = ['request_id' => $request, 'element_id' => $third->json('session.current.id'), 'answer' => ['option_id' => collPick(collStored($id, $third->json('session.current.id')))]];
+    $once = test()->withHeaders(PracticeKit::headers($learner))->postJson("/api/twa/practice/sessions/{$id}/answer", $body)->assertOk();
+    $again = test()->withHeaders(PracticeKit::headers($learner))->postJson("/api/twa/practice/sessions/{$id}/answer", $body)->assertOk();
+    expect($again->json('reveal'))->toBe($once->json('reveal'))->and($again->json('reveal.your_option_id'))->toBe($body['answer']['option_id']);
+
+    // The review of a battle round is one for both players: the handler's reveal() carries nothing of the pick.
+    $element = new SnapshotElement($right['id'], 'collocation', $right);
+    expect(array_keys(collHandler()->reveal($element, 'ru', ElementState::open())))->toBe(['correct_option_ids', 'full_text', 'translation', 'explanation']);
+});
+
 it('needs only one task to repeat the mistakes, as the minimum of the retry says', function (): void {
     [$learner, $course, $lesson, $items] = collWorld(3);
     $scope = new MaterialScope($course, $lesson, new RetryMaterial([], [$items[1]->id]));
@@ -218,7 +284,8 @@ it('does not hand out a task whose target word the learner has not met - the ope
     collOpen($learner, $course, ['lesson_id' => $lesson->id])
         ->assertStatus(422)
         ->assertJsonPath('error.code', 'practice_not_enough_material')
-        ->assertJsonPath('error.details', ['mode' => 'collocation', 'available' => 2, 'required' => 3, 'reason' => 'no_items', 'course' => 'english-a1', 'lesson_id' => $lesson->id]);
+        // The two tasks that wait for the unmet word would make the number: the reason is that they are locked, not that there are none.
+        ->assertJsonPath('error.details', ['mode' => 'collocation', 'available' => 2, 'required' => 3, 'reason' => 'items_locked', 'course' => 'english-a1', 'lesson_id' => $lesson->id]);
     expect(PracticeSession::query()->count())->toBe(0);
 
     PracticeKit::introduce($learner, $unseen);
@@ -456,7 +523,7 @@ it('shows the client the phrase and the options and nothing else - the blank and
 
     // Neither a key nor a word of the secrets of the snapshot is on the wire - the right ids, the whole phrase, the explanation.
     $json = (string) $session->getContent();
-    expect(collKeys($session->json()))->not->toContain('correct_ids', 'full_text', 'version_id', 'item_id', 'word_id', 'translation', 'explanation', 'accepted', 'expected')
+    expect(collKeys($session->json()))->not->toContain('correct_ids')->not->toContain('full_text')->not->toContain('version_id')->not->toContain('item_id')->not->toContain('word_id')->not->toContain('translation')->not->toContain('explanation')->not->toContain('accepted')->not->toContain('expected')
         ->and($json)->not->toContain($stored['full_text'])
         ->and($json)->not->toContain($stored['explanation']['ru'])
         ->and($json)->not->toContain($stored['translation']['ru']);
@@ -498,7 +565,7 @@ it('plays a whole session: an answer, its review, the next phrase, the summary w
         $response = collAnswer($learner, $id, $stored['id'], $answer)->assertOk();
         $response->assertExactJsonStructure([
             'verdict', 'first_attempt', 'pair',
-            'reveal' => ['correct_option_ids', 'full_text', 'translation', 'explanation'],
+            'reveal' => ['correct_option_ids', 'full_text', 'translation', 'explanation', 'your_option_id'],
             'session' => ['id', 'status', 'mode', 'source', 'retry_of', 'course' => ['slug', 'title'], 'lesson' => ['id', 'stage', 'number', 'title'], 'progress' => ['done', 'total'],
                 'counters' => ['correct_first', 'hints', 'mismatches'], 'expires_at', 'server_now', 'current', 'summary'],
         ]);
@@ -511,6 +578,7 @@ it('plays a whole session: an answer, its review, the next phrase, the summary w
                 'full_text' => "Phrase {$n}: they right{$n} it.",
                 'translation' => "Перевод {$n}",
                 'explanation' => "Пояснение {$n}",
+                'your_option_id' => $answer['option_id'] ?? null,   // the option picked; null for "I don't know"
             ]))
             ->and($response->json('session.progress.done'))->toBe($step + 1);
 
@@ -644,13 +712,15 @@ it('is not changed by an edit of a task while the session is on: the same phrase
     expect(collGet($learner, $session['id'])->assertOk()->json('current'))->toBe($before);
 
     // ...the verdict is by the old right answer, the review is the old one.
-    $answer = collAnswer($learner, $session['id'], $stored['id'], ['option_id' => collPick($stored)])->assertOk();
+    $picked = collPick($stored);
+    $answer = collAnswer($learner, $session['id'], $stored['id'], ['option_id' => $picked])->assertOk();
     expect($answer->json('verdict'))->toBe('correct')
         ->and(ksorted($answer->json('reveal')))->toBe(ksorted([
             'correct_option_ids' => $stored['correct_ids'],
             'full_text' => "Phrase {$n}: they right{$n} it.",
             'translation' => "Перевод {$n}",
             'explanation' => "Пояснение {$n}",
+            'your_option_id' => $picked,
         ]));
 
     // The next session sees the edit: that task has the new text, the archived one and the one without words are gone.

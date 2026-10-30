@@ -30,6 +30,7 @@ use RuntimeException;
  *   unknown_element_id              422  an id that is not in the snapshot
  *   replace_not_allowed             409  {reason}: not_dictation | not_current | limit
  *   retry_not_available             409  nothing (enough) to repeat
+ *   request_id_reused               409  the `request_id` is the one of a request of another kind (an answer / a swap)
  *   practice_audio_unavailable      503  the file of the audio is not there
  *   course_not_found                404  / lesson_not_found 404 / lesson_not_in_course 422
  */
@@ -62,6 +63,8 @@ final class PracticeException extends RuntimeException
     public const REPLACE_NOT_ALLOWED = 'replace_not_allowed';
 
     public const RETRY_NOT_AVAILABLE = 'retry_not_available';
+
+    public const REQUEST_ID_REUSED = 'request_id_reused';
 
     public const AUDIO_UNAVAILABLE = 'practice_audio_unavailable';
 
@@ -181,6 +184,12 @@ final class PracticeException extends RuntimeException
     public static function retryNotAvailable(): self
     {
         return new self(self::RETRY_NOT_AVAILABLE, 'There is nothing to repeat in this session.');
+    }
+
+    /** The `request_id` of an answer was sent as the one of a swap, or the other way round: a repeat is of the same kind. */
+    public static function requestIdReused(): self
+    {
+        return new self(self::REQUEST_ID_REUSED, 'This request_id belongs to a request of another kind.');
     }
 
     public static function audioUnavailable(): self

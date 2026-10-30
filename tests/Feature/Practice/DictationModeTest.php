@@ -101,6 +101,59 @@ it('says no_items when there are a few voiced words and phrases, but not enough'
     expect($report->toArray())->toBe(['available' => 2, 'required' => 3, 'reason' => 'no_items']);
 });
 
+it('says items_locked when voiced phrases wait for words the learner has not met and would make the number, and no_items when they would not', function (): void {
+    [$learner, $course, $lesson] = DictationKit::world();
+    $report = fn (): array => dmMode()->availability(new MaterialScope($course, $lesson), $learner, LocaleSet::of('ru'))->toArray();
+    DictationKit::word($lesson, $learner, 'mother');                                             // one clip to play now
+
+    DictationKit::phrase($lesson, $learner, 'Nice to meet you', introduced: false);
+    expect($report())->toBe(['available' => 1, 'required' => 3, 'reason' => 'no_items']);       // 1 + 1 locked = 2: learning would not be enough
+
+    DictationKit::phrase($lesson, $learner, 'How much is it', introduced: false);
+    expect($report())->toBe(['available' => 1, 'required' => 3, 'reason' => 'items_locked']);    // 1 + 2 locked = 3
+
+    $error = dmCatch(fn () => dmBuild($course, $lesson, $learner));
+    expect($error?->errorCode)->toBe('practice_not_enough_material')
+        ->and($error?->details)->toMatchArray(['mode' => 'dictation', 'available' => 1, 'required' => 3, 'reason' => 'items_locked']);
+});
+
+it('puts audio_pending before items_locked, and does not count a locked phrase that has no voice yet', function (): void {
+    [$learner, $course, $lesson] = DictationKit::world();
+    DictationKit::phrase($lesson, $learner, 'See you tomorrow');
+    DictationKit::phrase($lesson, $learner, 'Nice to meet you', audio: 'pending');                      // the words are met, the voice is not
+    DictationKit::phrase($lesson, $learner, 'How much is it', audio: 'failed');
+    DictationKit::phrase($lesson, $learner, 'Where is the bank', introduced: false);                    // voiced, locked: also enough with the rest
+    DictationKit::phrase($lesson, $learner, 'Open the window', audio: 'pending', introduced: false);    // locked AND voiceless: counted nowhere
+
+    $report = dmMode()->availability(new MaterialScope($course, $lesson), $learner, LocaleSet::of('ru'));
+
+    expect($report->toArray())->toBe(['available' => 1, 'required' => 3, 'reason' => 'audio_pending']);
+});
+
+it('says items_locked rather than no_audio_words when the learner knows only voiceless words and the locked phrases would make the number', function (): void {
+    [$learner, $course, $lesson] = DictationKit::world();
+    DictationKit::word($lesson, $learner, 'mother', voiced: false);
+    foreach (['See you tomorrow', 'Nice to meet you', 'How much is it'] as $text) {
+        DictationKit::phrase($lesson, $learner, $text, introduced: false);
+    }
+
+    $report = dmMode()->availability(new MaterialScope($course, $lesson), $learner, LocaleSet::of('ru'));
+
+    expect($report->toArray())->toBe(['available' => 0, 'required' => 3, 'reason' => 'items_locked']);
+});
+
+it('has no locked phrases in a battle: no learner, no progress', function (): void {
+    [$learner, $course, $lesson] = DictationKit::world();
+    foreach (range(1, 4) as $n) {
+        DictationKit::phrase($lesson, $learner, "Phrase number {$n}", introduced: false);
+    }
+    $other = PracticeKit::words($lesson, 1, null, ['is_active' => false])[0];
+
+    $battle = dmMode()->availability(new MaterialScope($course, $lesson), null, LocaleSet::of('ru', 'uz'));
+
+    expect($battle->toArray())->toBe(['available' => 4, 'required' => 5, 'reason' => 'no_items']);
+});
+
 it('says audio_pending when the tasks are there and their voice is not (still being made, or failed)', function (): void {
     [$learner, $course, $lesson] = DictationKit::world();
     DictationKit::phrase($lesson, $learner, 'See you tomorrow');

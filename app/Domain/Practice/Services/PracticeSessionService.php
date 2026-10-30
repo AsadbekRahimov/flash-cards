@@ -46,7 +46,8 @@ use LogicException;
  *
  * The answer (docs/16 §6.3), under the lock, in this order:
  *   1. a repeated `request_id` -> the stored `result` and the CURRENT view (even when the session has ended since: a lost
- *      answer to the last element must not turn into a 410 on the retry);
+ *      answer to the last element must not turn into a 410 on the retry); a repeat is of the SAME kind - the `request_id` of a
+ *      swap sent as an answer (or the other way round) is 409 `request_id_reused`;
  *   2. an ended session -> 410; a session past `expires_at` is closed (`expired`) and answers 410;
  *   3. an unknown element -> 422; an element that is already answered -> 409 `answer_already_accepted` (with its verdict);
  *      an element that is not the current one -> 409 `element_not_current` (with the current id);
@@ -71,7 +72,12 @@ final class PracticeSessionService
      * - an active session and no `$replaceActive` -> 409 `practice_session_active` (with its details); with the flag it is
      *   finished (`replaced`); one past its `expires_at` is finished (`expired`) either way;
      * - `$retryOf`: the id of a FINISHED session of the learner; mode, course and lesson are taken from it, the material is its
-     *   mistakes, the seed is new; nothing (enough) to repeat -> 409 `retry_not_available`;
+     *   mistakes, the seed is new; nothing (enough) to repeat -> 409 `retry_not_available` ({@see retryBlocker()}: the same decision
+     *   as the `retry_available` of the summary);
+     * - the order of the work: an unfinished session and no `$replaceActive` is a 409 BEFORE the snapshot is built (the reads of the
+     *   material, the disk, the event `practice.not_enough_material` would be work for nothing); with the flag the snapshot comes
+     *   first - a 422 leaves the unfinished session alone - and only then, in the transaction, the old one is closed and the new
+     *   one created;
      * - two tabs at once: the loser of the race gets the winner's session when it is the same practice (same mode, course,
      *   lesson), else the 409.
      *
@@ -93,7 +99,13 @@ final class PracticeSessionService
         $this->access->assertCanPractice($learner);
 
         $retrySource = $retryOf === null ? null : $this->retrySource($learner, $retryOf, $now);
+        $retryMaterial = null;
         if ($retrySource !== null) {
+            $retryMaterial = $this->retryMaterial($retrySource);
+            $blocked = $this->retryBlocker($retrySource, $retryMaterial, $learner);
+            if ($blocked !== null) {
+                throw $blocked;
+            }
             $mode = $retrySource->mode;
             $source = PracticeSession::SOURCE_RETRY;
         }
@@ -109,7 +121,14 @@ final class PracticeSessionService
 
         $locale = $this->locales->forLearner($learner);
         $locales = new LocaleSet([$locale]);
-        $scope = new MaterialScope($course, $lesson, $retrySource === null ? null : $this->retryMaterial($retrySource));
+        $scope = new MaterialScope($course, $lesson, $retryMaterial);
+
+        if (! $replaceActive) {
+            $busy = $this->activeOf($learner);
+            if ($busy !== null && $busy->expires_at->gt($now)) {
+                throw PracticeException::sessionActive($this->activeDetails($busy));
+            }
+        }
 
         $snapshot = $this->buildSnapshot($mode, $scope, $learner, $locales, $retrySource !== null);
 
@@ -252,7 +271,7 @@ final class PracticeSessionService
                 $current = $handler->project($element, $session->locale, $this->elementState($session, $element));
             }
         } else {
-            $summary = $this->summary($session, $snapshot, $handler);
+            $summary = $this->summary($session, $snapshot, $handler, $learner);
         }
 
         return new SessionView(
@@ -312,7 +331,10 @@ final class PracticeSessionService
 
             $prior = $this->attemptOf($locked, $requestId);
             if ($prior !== null) {
-                return new AnswerOutcome($prior->result, $this->view($locked, $learner, $now));
+                // A repeat of an answer; the id of a swap is not one.
+                return $prior->kind === PracticeAttempt::KIND_REPLACE
+                    ? PracticeException::requestIdReused()
+                    : new AnswerOutcome($prior->result, $this->view($locked, $learner, $now));
             }
 
             $closed = $this->refuseEnded($locked, $learner, $now);
@@ -352,13 +374,18 @@ final class PracticeSessionService
         $requestId = strtolower($requestId);
         $sessionId = $session instanceof PracticeSession ? $session->id : $session;
 
-        $outcome = DB::transaction(function () use ($sessionId, $learner, $requestId, $elementId, $reason, $now): SessionView|PracticeException {
+        // The disk is read HERE, before the lock of the session (docs/16 §9 rule 10): which spares of the pool have their clip.
+        $playable = $this->playableSpares($sessionId, $learner);
+
+        $outcome = DB::transaction(function () use ($sessionId, $learner, $requestId, $elementId, $reason, $now, $playable): SessionView|PracticeException {
             $locked = $this->lock($sessionId, $learner);
             if ($locked === null) {
                 return PracticeException::sessionNotFound();
             }
-            if ($this->attemptOf($locked, $requestId) !== null) {
-                return $this->view($locked, $learner, $now);
+            $prior = $this->attemptOf($locked, $requestId);
+            if ($prior !== null) {
+                // A repeat of a swap; the id of an answer is not one.
+                return $prior->kind === PracticeAttempt::KIND_REPLACE ? $this->view($locked, $learner, $now) : PracticeException::requestIdReused();
             }
 
             $closed = $this->refuseEnded($locked, $learner, $now);
@@ -366,7 +393,7 @@ final class PracticeSessionService
                 return $closed;
             }
 
-            return $this->swap($locked, $learner, $requestId, $elementId, $reason, $now);
+            return $this->swap($locked, $learner, $requestId, $elementId, $reason, $now, $playable);
         });
 
         if ($outcome instanceof PracticeException) {
@@ -406,17 +433,75 @@ final class PracticeSessionService
     }
 
     /**
-     * Whether the finished session has anything to repeat: words (pairs: at least a round of them) or tasks it got wrong.
+     * Whether "repeat the mistakes" of the finished session would be accepted (docs/16 §6.1, §6.4): the `retry_available` of the
+     * summary. The very decision the opening makes ({@see retryBlocker()}).
      */
-    public function retryAvailable(PracticeSession $session): bool
+    public function retryAvailable(PracticeSession $session, Learner $learner): bool
     {
-        $material = $this->retryMaterial($session);
+        return $this->retryBlocker($session, $this->retryMaterial($session), $learner) === null;
+    }
 
-        if ($session->mode === PracticeMode::Pairs) {
-            return count($material->wordIds) >= max(1, (int) config('practice.solo.pairs.min_per_round'));
+    /**
+     * Why a finished session cannot be repeated, or null when it can: ONE decision for the button of the summary and for the opening
+     * of the retry, so the button does not lead to a refusal that could be known in advance. In the order the opening reports:
+     *   1. there is something to repeat - pairs: at least `practice.solo.pairs.min_per_round` words; the others: a task or a word
+     *      (no query) - else `retry_not_available`;
+     *   2. the learner may practice and the mode is switched on (no query) - `practice_unavailable`, `practice_pro_required`,
+     *      `practice_mode_disabled`;
+     *   3. the tasks among the mistakes can still be played - published, their target words active and introduced, a dictation with its
+     *      audio ready - or a word is left to play: ONE statement ({@see PracticeMaterialService::retryItemStock()}), none when there are
+     *      no tasks among the mistakes (pairs). Else `retry_not_available`.
+     * What this does not look at - a word of a pairs round that is gone, two translations that clash now - the snapshot of the opening
+     * does, and refuses with the same `retry_not_available`.
+     */
+    private function retryBlocker(PracticeSession $source, RetryMaterial $material, Learner $learner): ?PracticeException
+    {
+        $words = count($material->wordIds);
+        $items = count($material->itemIds);
+
+        $enough = $source->mode === PracticeMode::Pairs
+            ? $words >= max(1, (int) config('practice.solo.pairs.min_per_round'))
+            : $words + $items >= 1;
+        if (! $enough) {
+            return PracticeException::retryNotAvailable();
         }
 
-        return count($material->wordIds) + count($material->itemIds) >= 1;
+        $access = $this->access->state($learner);
+        if ($access->isProRequired()) {
+            return PracticeException::proRequired();
+        }
+        if (! $access->isAvailable()) {
+            return PracticeException::unavailable();
+        }
+        if (! $source->mode->isEnabled()) {
+            return PracticeException::modeDisabled($source->mode);
+        }
+
+        if ($source->mode !== PracticeMode::Pairs && $items > 0 && $words + $this->material->retryItemStock($material->itemIds, $learner) < 1) {
+            return PracticeException::retryNotAvailable();
+        }
+
+        return null;
+    }
+
+    /**
+     * Which spares of the pool of a dictation can be played, found BEFORE the lock of {@see replace()}: the check reads the disk, and the
+     * transactions of the practice wait for nothing (docs/16 §9 rule 10). One read of the session without a lock; the pool only shrinks,
+     * so what the locked row holds later was in it. Nothing playable (not a dictation, no such session...): the empty list - the swap
+     * under the lock then answers with its own refusal or takes the element out.
+     *
+     * @return list<string>
+     */
+    private function playableSpares(int $sessionId, Learner $learner): array
+    {
+        /** @var PracticeSession|null $peek */
+        $peek = PracticeSession::query()->where('id', $sessionId)->where('learner_id', $learner->id)->first();
+        $handler = $this->modes->for(PracticeMode::Dictation);
+        if ($peek === null || $peek->mode !== PracticeMode::Dictation || ! $peek->isActive() || ! $handler instanceof ReplaceableElements) {
+            return [];
+        }
+
+        return $handler->playableSpares(Snapshot::fromArray($peek->snapshot)->pool);
     }
 
     /**
@@ -499,7 +584,7 @@ final class PracticeSessionService
         }
 
         $source = $this->expireIfDue($source, $learner, $now);
-        if ($source->isActive() || ! $this->retryAvailable($source)) {
+        if ($source->isActive()) {
             throw PracticeException::retryNotAvailable();
         }
 
@@ -692,9 +777,12 @@ final class PracticeSessionService
     }
 
     /**
-     * The body of {@see replace()} under the lock.
+     * The body of {@see replace()} under the lock. The disk is not touched here: the spares that can be played were found before
+     * the lock and the swap chooses among them.
+     *
+     * @param  list<string>  $playable  {@see playableSpares()}
      */
-    private function swap(PracticeSession $session, Learner $learner, string $requestId, string $elementId, string $reason, CarbonImmutable $now): SessionView|PracticeException
+    private function swap(PracticeSession $session, Learner $learner, string $requestId, string $elementId, string $reason, CarbonImmutable $now, array $playable): SessionView|PracticeException
     {
         $handler = $this->modes->for($session->mode);
         if ($session->mode !== PracticeMode::Dictation || ! $handler instanceof ReplaceableElements) {
@@ -718,7 +806,7 @@ final class PracticeSessionService
         }
 
         $old = $snapshot->elements[$index];
-        $swap = $handler->replacement($old, $snapshot->pool, new LocaleSet($snapshot->locales));
+        $swap = $handler->replacement($old, $snapshot->pool, new LocaleSet($snapshot->locales), $playable);
 
         $elements = $snapshot->elements;
         if ($swap !== null) {
@@ -876,7 +964,7 @@ final class PracticeSessionService
     /**
      * The summary of a finished session (docs/16 §6.4).
      */
-    private function summary(PracticeSession $session, Snapshot $snapshot, PracticeModeHandler $handler): SummaryView
+    private function summary(PracticeSession $session, Snapshot $snapshot, PracticeModeHandler $handler, Learner $learner): SummaryView
     {
         $typos = 0;
         $mistakes = [];
@@ -913,7 +1001,7 @@ final class PracticeSessionService
             mismatches: $session->mode === PracticeMode::Pairs ? $session->mismatches : null,
             durationMs: max(0, ($finishedAt->getTimestamp() - $session->started_at->getTimestamp()) * 1000),
             finishReason: ($session->finish_reason ?? FinishReason::Completed)->value,
-            retryAvailable: $this->retryAvailable($session),
+            retryAvailable: $this->retryAvailable($session, $learner),
             mistakes: $mistakes,
         );
     }

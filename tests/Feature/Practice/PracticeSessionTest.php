@@ -625,7 +625,7 @@ it('repeats the mistakes: a new session from the wrong answers of a finished one
     expect($session['summary']['retry_available'])->toBeTrue();
 
     // The body names another mode and another course - the session of the retry decides.
-    $retry = psOpen($this, $learner, 'no-such-course', 'sentence', ['retry_of' => $session['id'], 'source' => 'hub'])->assertCreated()->json();
+    $retry = psOpen($this, $learner, 'no-such-course', 'sentence', ['retry_of' => $session['id'], 'source' => 'retry'])->assertCreated()->json();
 
     expect($retry['mode'])->toBe('collocation')
         ->and($retry['source'])->toBe('retry')
@@ -649,18 +649,18 @@ it('refuses to repeat what cannot be repeated: nothing wrong, not finished, not 
     $clean = psOpen($this, $learner, $course->slug)->assertCreated()->json();
     $active = $clean;
     // Not finished yet: 409.
-    psOpen($this, $learner, $course->slug, body: ['retry_of' => $active['id']])->assertStatus(409)->assertJsonPath('error.code', 'retry_not_available');
+    psOpen($this, $learner, $course->slug, body: ['retry_of' => $active['id'], 'source' => 'retry'])->assertStatus(409)->assertJsonPath('error.code', 'retry_not_available');
 
     foreach (range(1, 3) as $ignored) {
         $clean = psAnswerCurrent($this, $learner, $clean)->assertOk()->json('session');
     }
     expect($clean['summary']['retry_available'])->toBeFalse();
-    psOpen($this, $learner, $course->slug, body: ['retry_of' => $clean['id']])->assertStatus(409)->assertJsonPath('error.code', 'retry_not_available');
+    psOpen($this, $learner, $course->slug, body: ['retry_of' => $clean['id'], 'source' => 'retry'])->assertStatus(409)->assertJsonPath('error.code', 'retry_not_available');
 
     // Somebody else's session and a missing one are "not found".
     $stranger = Learner::factory()->create();
-    psOpen($this, $stranger, $course->slug, body: ['retry_of' => $clean['id']])->assertNotFound()->assertJsonPath('error.code', 'practice_session_not_found');
-    psOpen($this, $learner, $course->slug, body: ['retry_of' => 999999])->assertNotFound()->assertJsonPath('error.code', 'practice_session_not_found');
+    psOpen($this, $stranger, $course->slug, body: ['retry_of' => $clean['id'], 'source' => 'retry'])->assertNotFound()->assertJsonPath('error.code', 'practice_session_not_found');
+    psOpen($this, $learner, $course->slug, body: ['retry_of' => 999999, 'source' => 'retry'])->assertNotFound()->assertJsonPath('error.code', 'practice_session_not_found');
 
     // A session with a mistake can be repeated - but one session at a time.
     $wrong = psOpen($this, $learner, $course->slug)->assertCreated()->json();
@@ -668,13 +668,13 @@ it('refuses to repeat what cannot be repeated: nothing wrong, not finished, not 
     foreach (range(1, 2) as $ignored) {
         $wrong = psAnswerCurrent($this, $learner, $wrong)->assertOk()->json('session');
     }
-    $retry = psOpen($this, $learner, $course->slug, body: ['retry_of' => $wrong['id']])->assertCreated();
-    psOpen($this, $learner, $course->slug, body: ['retry_of' => $wrong['id']])->assertStatus(409)->assertJsonPath('error.code', 'practice_session_active');
+    $retry = psOpen($this, $learner, $course->slug, body: ['retry_of' => $wrong['id'], 'source' => 'retry'])->assertCreated();
+    psOpen($this, $learner, $course->slug, body: ['retry_of' => $wrong['id'], 'source' => 'retry'])->assertStatus(409)->assertJsonPath('error.code', 'practice_session_active');
 
     // The mode of the retried session may be switched off by now: the retry is a new session of that mode.
     $retry->assertJsonPath('progress.total', 1);
     config(['practice.modes.collocation' => false]);
-    psOpen($this, $learner, $course->slug, body: ['retry_of' => $wrong['id'], 'replace_active' => true])->assertStatus(409)->assertJsonPath('error.code', 'practice_mode_disabled');
+    psOpen($this, $learner, $course->slug, body: ['retry_of' => $wrong['id'], 'source' => 'retry', 'replace_active' => true])->assertStatus(409)->assertJsonPath('error.code', 'practice_mode_disabled');
 });
 
 it('repeats only the words of a pairs session that went wrong, and only when there are enough of them', function (): void {
@@ -697,7 +697,7 @@ it('repeats only the words of a pairs session that went wrong, and only when the
     expect($response->json('session.summary.retry_available'))->toBeTrue()
         ->and($response->json('session.summary.mistakes'))->toHaveCount(3);
 
-    $retry = psOpen($this, $learner, $course->slug, 'pairs', ['retry_of' => $session['id']])->assertCreated()->json();
+    $retry = psOpen($this, $learner, $course->slug, 'pairs', ['retry_of' => $session['id'], 'source' => 'retry'])->assertCreated()->json();
     $words = collect(PracticeSession::query()->findOrFail($retry['id'])->snapshot['elements'])->pluck('left')->flatten(1)->pluck('word_id')->sort()->values()->all();
     $expected = collect($rounds[0]['left'])->pluck('word_id')->sort()->values()->all();
     expect($retry['progress']['total'])->toBe(1)
@@ -935,7 +935,7 @@ it('repeats the words of a pairs session that went wrong, from wrong_left, and o
         ->and(array_filter(array_column($summary['mistakes'], 'label'), fn (string $label): bool => preg_match('/^word\d+ — перевод \d+$/u', $label) !== 1))->toBe([]);
 
     // Several mistakes of one round are several rows with the same element: they are told apart by the label.
-    $retry = psOpen($this, $learner, $course->slug, 'pairs', ['retry_of' => $session['id'], 'source' => 'hub'])->assertCreated()->json();
+    $retry = psOpen($this, $learner, $course->slug, 'pairs', ['retry_of' => $session['id'], 'source' => 'retry'])->assertCreated()->json();
     $words = collect(psPairsRounds($retry['id']))->pluck('left')->flatten(1)->pluck('word_id')->all();
 
     expect($retry['source'])->toBe('retry')
@@ -960,7 +960,7 @@ it('does not offer to repeat what was a single mistake: fewer than three words i
 
     expect($last->json('session.summary.retry_available'))->toBeFalse()
         ->and($last->json('session.summary.mistakes'))->toHaveCount(1);
-    psOpen($this, $learner, $course->slug, 'pairs', ['retry_of' => $session['id']])->assertStatus(409)->assertJsonPath('error.code', 'retry_not_available');
+    psOpen($this, $learner, $course->slug, 'pairs', ['retry_of' => $session['id'], 'source' => 'retry'])->assertStatus(409)->assertJsonPath('error.code', 'retry_not_available');
 });
 
 it('says why the pairs cannot be played: too few words, or words that say the same, with the numbers', function (): void {
@@ -1018,6 +1018,69 @@ it('opens a session of pairs for a learner whose words have a uz translation: th
     expect($every)->toContain('bir')
         ->and($every)->toContain('перевод 2')
         ->and(count($texts))->toBe(3);
+});
+
+/**
+ * A uz learner who has been introduced to words given as `[english, ru, uz]` (`uz` null: no uz text, the ru one is shown).
+ *
+ * @param  list<array{0: string, 1: string, 2: string|null}>  $rows
+ * @return array{0: Learner, 1: Course, 2: Lesson}
+ */
+function psUzPairsWorld(array $rows): array
+{
+    [$course, $lesson] = PracticeKit::course();
+    $learner = Learner::factory()->create(['interface_locale' => 'uz']);
+    foreach ($rows as [$english, $ru, $uz]) {
+        $word = Word::factory()->for($lesson)->create(['word' => $english, 'translation' => $ru]);
+        if ($uz !== null) {
+            WordTranslation::factory()->uz()->create(['word_id' => $word->id, 'translation' => $uz]);
+        }
+        PracticeKit::introduce($learner, $word);
+    }
+
+    return [$learner, $course, $lesson];
+}
+
+it('never puts «mother» and «mum» on one board of a uz learner in 50 openings when only «mother» has a uz text (the card of «mum» says «мама»)', function (): void {
+    [$learner, $course, $lesson] = psUzPairsWorld([
+        ['mother', 'мама', 'ona'], ['mum', 'мама', null], ['father', 'папа', 'ota'], ['sister', 'сестра', 'opa'], ['brother', 'брат', 'aka'],
+    ]);
+
+    $seen = ['mother' => 0, 'mum' => 0];
+    foreach (range(1, 50) as $opening) {
+        PracticeKit::resetLimiters($learner);
+        $session = psOpen($this, $learner, $course->slug, 'pairs', ['lesson_id' => $lesson->id, 'replace_active' => true])->assertCreated();
+        $words = array_column(psPairsRounds($session->json('id'))[0]['left'], 'text');
+
+        expect($words)->toHaveCount(4)
+            ->and(in_array('mother', $words, true) && in_array('mum', $words, true))->toBeFalse("opening {$opening}: ".implode(', ', $words));
+        foreach (array_keys($seen) as $word) {
+            $seen[$word] += in_array($word, $words, true) ? 1 : 0;
+        }
+    }
+
+    // Neither of them is shut out for good: each takes the free place now and then.
+    expect($seen['mother'])->toBeGreaterThan(0)->and($seen['mum'])->toBeGreaterThan(0);
+});
+
+it('does not offer the pairs to a uz learner whose three words make an ambiguous board: the hub and the opening agree', function (): void {
+    [$learner, $course, $lesson] = psUzPairsWorld([['mother', 'мама', 'ona'], ['mum', 'мама', null], ['father', 'папа', 'ota']]);
+
+    $hub = $this->withHeaders(PracticeKit::headers($learner))->getJson("/api/twa/practice/hub?course={$course->slug}&lesson_id={$lesson->id}")->assertOk();
+    expect($hub->json('modes.0'))->toBe(['mode' => 'pairs', 'state' => 'not_enough', 'available' => 2, 'required' => 3, 'reason' => 'ambiguous', 'estimate_seconds' => 120]);
+
+    psOpen($this, $learner, $course->slug, 'pairs', ['lesson_id' => $lesson->id])
+        ->assertStatus(422)->assertJsonPath('error.code', 'practice_not_enough_material')
+        ->assertJsonPath('error.details', ['mode' => 'pairs', 'available' => 2, 'required' => 3, 'reason' => 'ambiguous', 'course' => 'english-a1', 'lesson_id' => $lesson->id]);
+    expect(PracticeSession::query()->count())->toBe(0);
+
+    // The ru learner of the same words has the same trouble: «мама» twice.
+    $ru = Learner::factory()->create(['interface_locale' => 'ru']);
+    foreach (Word::query()->get() as $word) {
+        PracticeKit::introduce($ru, $word);
+    }
+    $this->withHeaders(PracticeKit::headers($ru))->getJson("/api/twa/practice/hub?course={$course->slug}&lesson_id={$lesson->id}")->assertOk()
+        ->assertJsonPath('modes.0.state', 'not_enough')->assertJsonPath('modes.0.reason', 'ambiguous');
 });
 
 it('keeps the board of a session of pairs the same however often it is read, until a match changes it', function (): void {
@@ -1228,4 +1291,114 @@ it('hands the hub only the active session of the learner', function (): void {
     CarbonImmutable::setTestNow('2026-11-05 10:00:00');
     $this->withHeaders($headers)->getJson("/api/twa/practice/hub?course={$course->slug}")->assertOk()->assertJsonPath('active_session', null);
     expect(PracticeSession::query()->findOrFail($session['id'])->finish_reason)->toBe(FinishReason::Expired);
+});
+
+// ---- 18.9b: the kind of a repeat, the order of opening, retry and source ----
+
+it('keeps the request_id of an answer and the one of a swap apart: the other kind is 409 request_id_reused, the same kind is a repeat', function (): void {
+    PracticeKit::fake(PracticeMode::Dictation, candidates: 8, spares: 3);
+    [$learner, $course] = psWorld();
+    $session = psOpen($this, $learner, $course->slug, 'dictation')->assertCreated()->json();
+    $headers = PracticeKit::headers($learner);
+    $swapUri = "/api/twa/practice/sessions/{$session['id']}/replace";
+    $answerUri = "/api/twa/practice/sessions/{$session['id']}/answer";
+    $swap = fn (string $requestId, string $elementId) => $this->withHeaders($headers)->postJson($swapUri, ['request_id' => $requestId, 'element_id' => $elementId, 'reason' => 'audio_unavailable']);
+    $answer = fn (string $requestId, string $elementId) => $this->withHeaders($headers)->postJson($answerUri, ['request_id' => $requestId, 'element_id' => $elementId, 'answer' => ['skip' => true]]);
+
+    // The id of a swap, sent as an answer, is not a repeat: 409, nothing answered (it used to be a 200 with a verdict of null).
+    $swapId = (string) Str::uuid();
+    $swapped = $swap($swapId, $session['current']['id'])->assertOk();
+    $answer($swapId, $swapped->json('current.id'))->assertStatus(409)->assertJsonPath('error.code', 'request_id_reused')->assertJsonMissingPath('error.details');
+    expect(PracticeSession::query()->findOrFail($session['id'])->answered)->toBe(0)
+        ->and(PracticeAttempt::query()->count())->toBe(1);
+
+    // The same kind stays a repeat: the same id swaps nothing the second time.
+    $repeat = $swap($swapId, $session['current']['id'])->assertOk();
+    expect($repeat->json('current.id'))->toBe($swapped->json('current.id'))
+        ->and(PracticeSession::query()->findOrFail($session['id'])->state['replacements'])->toBe(1);
+
+    // The other way round: the id of an answer, sent as a swap.
+    $answerId = (string) Str::uuid();
+    $first = $answer($answerId, $swapped->json('current.id'))->assertOk();
+    expect($first->json('verdict'))->toBe('skipped');
+    $swap($answerId, $first->json('session.current.id'))->assertStatus(409)->assertJsonPath('error.code', 'request_id_reused')->assertJsonMissingPath('error.details');
+    expect(PracticeSession::query()->findOrFail($session['id'])->state['replacements'])->toBe(1)
+        ->and(PracticeAttempt::query()->where('kind', 'replace')->count())->toBe(1);
+
+    // ... and the repeat of the answer is still the stored answer.
+    $again = $answer($answerId, $swapped->json('current.id'))->assertOk();
+    expect($again->json('verdict'))->toBe('skipped')
+        ->and($again->json('reveal'))->toBe($first->json('reveal'))
+        ->and(PracticeSession::query()->findOrFail($session['id'])->answered)->toBe(1);
+});
+
+it('answers 409 practice_session_active at once, without building a snapshot or noting a shortage of material, while a session is unfinished', function (): void {
+    PracticeKit::fake(PracticeMode::Collocation, candidates: 6);
+    PracticeKit::fake(PracticeMode::Sentence, candidates: 1);   // too little for a sentence session: it would be a 422
+    [$learner, $course] = psWorld();
+    $active = psOpen($this, $learner, $course->slug, 'collocation')->assertCreated()->json();
+    ProductEvent::query()->delete();
+
+    $refused = psOpen($this, $learner, $course->slug, 'sentence')->assertStatus(409);
+
+    // The 409, not the 422; the details of the session that is on; nothing was asked of the material and nothing noted.
+    $refused->assertJsonPath('error.code', 'practice_session_active')->assertJsonPath('error.details.session_id', $active['id']);
+    expect(psEvents('practice.not_enough_material'))->toBe(0)
+        ->and(PracticeSession::query()->findOrFail($active['id'])->status)->toBe(SessionStatus::Active);
+});
+
+it('builds the snapshot first when the session is replaced: a 422 leaves the unfinished session alone, a built snapshot closes it', function (): void {
+    PracticeKit::fake(PracticeMode::Collocation, candidates: 6);
+    PracticeKit::fake(PracticeMode::Sentence, candidates: 1);
+    [$learner, $course] = psWorld();
+    $active = psOpen($this, $learner, $course->slug, 'collocation')->assertCreated()->json();
+    $before = PracticeSession::query()->findOrFail($active['id'])->only(['status', 'finish_reason', 'active_learner_id', 'answered']);
+
+    // Too little material for the new practice: 422 with the numbers, the old session is still the learner's one.
+    psOpen($this, $learner, $course->slug, 'sentence', ['replace_active' => true])
+        ->assertStatus(422)->assertJsonPath('error.code', 'practice_not_enough_material')->assertJsonPath('error.details.available', 1);
+    expect(PracticeSession::query()->findOrFail($active['id'])->only(['status', 'finish_reason', 'active_learner_id', 'answered']))->toBe($before)
+        ->and(PracticeSession::query()->where('status', 'active')->count())->toBe(1)
+        ->and(psEvents('practice.not_enough_material'))->toBe(1)
+        ->and(psEvents('practice.session_finished'))->toBe(0);
+
+    // Enough material: the old one is closed as replaced and the new one is the active one.
+    PracticeKit::fake(PracticeMode::Sentence, candidates: 6);
+    $new = psOpen($this, $learner, $course->slug, 'sentence', ['replace_active' => true])->assertCreated();
+    expect(PracticeSession::query()->findOrFail($active['id'])->finish_reason)->toBe(FinishReason::Replaced)
+        ->and(PracticeSession::query()->where('status', 'active')->sole()->id)->toBe($new->json('id'))
+        ->and(psEvents('practice.session_finished'))->toBe(1);
+});
+
+it('opens over an unfinished session that has run out of time without a flag: it is closed as expired, and the new one is built', function (): void {
+    PracticeKit::fake(PracticeMode::Collocation, candidates: 6);
+    [$learner, $course] = psWorld();
+    $old = psOpen($this, $learner, $course->slug, 'collocation')->assertCreated()->json();
+
+    CarbonImmutable::setTestNow('2026-10-31 10:00:01');
+    $new = psOpen($this, $learner, $course->slug, 'collocation')->assertCreated();
+
+    expect(PracticeSession::query()->findOrFail($old['id'])->finish_reason)->toBe(FinishReason::Expired)
+        ->and($new->json('id'))->not->toBe($old['id']);
+});
+
+it('wants `retry_of` and `source: retry` together: either one alone is a 422', function (): void {
+    PracticeKit::fake(PracticeMode::Collocation, candidates: 5);
+    [$learner, $course] = psWorld();
+    $session = psOpen($this, $learner, $course->slug, 'collocation')->assertCreated()->json();
+    foreach (range(1, 5) as $_) {
+        $session = psAnswerCurrent($this, $learner, $session, 'wrong')->assertOk()->json('session');
+    }
+    expect($session['status'])->toBe('finished');
+
+    // A retry that is not marked as one, one marked with another source, and a mark with nothing to repeat.
+    psOpen($this, $learner, $course->slug, body: ['retry_of' => $session['id']])->assertStatus(422)->assertJsonValidationErrors('source');
+    psOpen($this, $learner, $course->slug, body: ['retry_of' => $session['id'], 'source' => 'hub'])->assertStatus(422)->assertJsonValidationErrors('source');
+    psOpen($this, $learner, $course->slug, body: ['source' => 'retry'])->assertStatus(422)->assertJsonValidationErrors('retry_of');
+    psOpen($this, $learner, $course->slug, body: ['source' => 'retry', 'retry_of' => null])->assertStatus(422)->assertJsonValidationErrors('retry_of');
+    expect(PracticeSession::query()->where('status', 'active')->count())->toBe(0);
+
+    // Together they are a retry (and a source other than retry stays fine without retry_of).
+    psOpen($this, $learner, $course->slug, body: ['retry_of' => $session['id'], 'source' => 'retry'])->assertCreated()->assertJsonPath('source', 'retry');
+    psOpen($this, $learner, $course->slug, body: ['source' => 'deeplink', 'replace_active' => true])->assertCreated()->assertJsonPath('source', 'deeplink');
 });

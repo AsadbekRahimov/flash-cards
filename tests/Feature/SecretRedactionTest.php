@@ -340,7 +340,7 @@ it('covers every SDK call path of the client', function (): void {
             $call();
             $this->fail("{$name} did not throw");
         } catch (TelegramApiException $e) {
-            expect((string) $e)->not->toContain('AAEhBP', $name)
+            expect((string) $e)->not->toContain('AAEhBP')
                 ->and($e->getPrevious())->toBeNull();
         }
     }

@@ -49,7 +49,9 @@ return [
         'protected_tokens' => ['not', 'no', 'never', 'none', 'nothing', 'nobody',
             'zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen',
             'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety', 'hundred', 'thousand', 'million',
-            'first', 'second', 'third', 'half'],
+            'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth', 'eleventh', 'twelfth', 'thirteenth', 'fourteenth',
+            'fifteenth', 'sixteenth', 'seventeenth', 'eighteenth', 'nineteenth', 'twentieth', 'thirtieth', 'fortieth', 'fiftieth', 'sixtieth', 'seventieth',
+            'eightieth', 'ninetieth', 'hundredth', 'thousandth', 'millionth', 'half'],
     ],
     'import' => ['max_bytes' => 2 * 1024 * 1024, 'max_items' => 300],
     // config/filesystems.php: root storage/app/practice-audio, no url - the files are served only by the audio endpoint (docs/16 §10.5).

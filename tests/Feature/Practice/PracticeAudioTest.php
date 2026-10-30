@@ -10,6 +10,7 @@ use App\Models\PracticeSession;
 use App\Models\ProductEvent;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
@@ -35,7 +36,10 @@ beforeEach(function (): void {
     Storage::fake('public');
 });
 
-afterEach(fn () => CarbonImmutable::setTestNow());
+afterEach(function (): void {
+    CarbonImmutable::setTestNow();
+    Carbon::setTestNow();
+});
 
 /** @return array{0: Learner, 1: array<string, mixed>} a learner and the response body of an opened dictation session */
 function practiceClipSession(): array
@@ -116,14 +120,51 @@ it('answers 503 practice_audio_unavailable when the file is not there or is empt
     Storage::disk(FakeEchoMode::AUDIO_DISK)->put(practiceClipPath($session['id'], $element), '');
     practiceClipGet($learner, $session['current']['audio_url'])->assertStatus(503)->assertJsonPath('error.code', 'practice_audio_unavailable');
 
+    // Two 503s for one clip are one event: "Retry" must not write a row a tap.
     $event = ProductEvent::query()->where('name', 'practice.audio_failed')->orderBy('id')->firstOrFail();
-    expect(ProductEvent::query()->where('name', 'practice.audio_failed')->count())->toBe(2)
+    expect(ProductEvent::query()->where('name', 'practice.audio_failed')->count())->toBe(1)
         ->and($event->learner_id)->toBe($learner->id)
         ->and($event->props)->toMatchArray(['session_id' => $session['id'], 'source' => 'phrase', 'reason' => 'file_missing', 'verified' => true]);
 
     // The learner is not stuck: the swap of the element is there (and a file that appears later plays).
     Storage::disk(FakeEchoMode::AUDIO_DISK)->put(practiceClipPath($session['id'], $element), 'now-there');
     expect(practiceClipGet($learner, $session['current']['audio_url'])->assertOk()->streamedContent())->toBe('now-there');
+});
+
+it('notes a missing clip once per (session, element) in ten minutes, not once per 503: "Retry" must not write a row a tap', function (): void {
+    [$learner, $session] = practiceClipSession();
+    $elements = array_column(PracticeSession::query()->findOrFail($session['id'])->snapshot['elements'], 'id');
+    $get = fn (string $element) => practiceClipGet($learner, "/api/twa/practice/sessions/{$session['id']}/audio/{$element}")->assertStatus(503);
+    $events = fn (): int => ProductEvent::query()->where('name', 'practice.audio_failed')->count();
+    // The clock of the test is read by the `array` store only (a Redis key lives by the real clock): the store is pinned, whatever the
+    // environment says. It knows two clocks, the app's own and Carbon's; both stand at the same minute.
+    config(['cache.default' => 'array']);
+    $at = function (string $time): void {
+        CarbonImmutable::setTestNow($time);
+        Carbon::setTestNow($time);
+    };
+    $at('2026-10-30 10:00:00');
+
+    foreach (range(1, 6) as $_) {
+        $get($elements[0]);
+    }
+    expect($events())->toBe(1);
+
+    // Another element of the session is another clip: its own event, once.
+    $get($elements[1]);
+    $get($elements[1]);
+    expect($events())->toBe(2);
+
+    // Nine minutes on: still the same report; ten and a bit: the clip is reported again, once.
+    $at('2026-10-30 10:09:00');
+    $get($elements[0]);
+    expect($events())->toBe(2);
+    $at('2026-10-30 10:10:30');
+    $get($elements[0]);
+    $get($elements[0]);
+    expect($events())->toBe(3)
+        ->and(ProductEvent::query()->where('name', 'practice.audio_failed')->orderByDesc('id')->firstOrFail()->props)
+        ->toMatchArray(['session_id' => $session['id'], 'reason' => 'file_missing', 'verified' => true]);
 });
 
 it('hides the audio of somebody else\'s session, of a missing one and of an element nobody knows behind the same 404', function (): void {

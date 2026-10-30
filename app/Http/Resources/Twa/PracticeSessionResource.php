@@ -21,11 +21,12 @@ use Illuminate\Http\Request;
 final class PracticeSessionResource extends TwaResource
 {
     /**
-     * Keys of the snapshot that a client never gets in `current`: the expected answers and the ids of the database
-     * (docs/16 §2.8, §12). The verdict's `reveal` is another matter - it is shown AFTER the answer, and is not cleaned here.
+     * Keys of the snapshot that a client never gets in `current`: the expected answers, the text of a dictation and its translation,
+     * the explanation, and the ids of the database (docs/16 §2.8, §12). Cleaned from the projection of the ELEMENT only: the verdict's
+     * `reveal` is another matter - it is shown AFTER the answer (with `translation` and `explanation` in it), and is not cleaned here.
      */
     public const NEVER_SHOWN = [
-        'pairs', 'correct_ids', 'accepted', 'accepted_display', 'expected', 'full_text',
+        'pairs', 'correct_ids', 'accepted', 'accepted_display', 'expected', 'full_text', 'display', 'translation', 'explanation',
         'audio_path', 'audio_disk', 'word_id', 'version_id', 'item_id', 'pool',
     ];
 

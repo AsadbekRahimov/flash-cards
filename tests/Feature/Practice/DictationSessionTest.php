@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Practice\DTO\Snapshot;
 use App\Domain\Practice\Enums\SessionStatus;
 use App\Models\Course;
 use App\Models\Learner;
@@ -10,6 +11,7 @@ use App\Models\PracticeSession;
 use App\Models\ProductEvent;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
@@ -272,7 +274,7 @@ it('repeats the mistakes of a dictation: the words and the phrases it got wrong,
     $elements = $played['elements'];
 
     $retry = $this->withHeaders(PracticeKit::headers($learner))
-        ->postJson('/api/twa/practice/sessions', ['mode' => 'dictation', 'course' => $course->slug, 'retry_of' => $played['id']])
+        ->postJson('/api/twa/practice/sessions', ['mode' => 'dictation', 'course' => $course->slug, 'retry_of' => $played['id'], 'source' => 'retry'])
         ->assertCreated();
 
     $snapshot = dsSnapshot($retry->json('id'));
@@ -450,7 +452,7 @@ it('reads the hub in at most 9 statements, and the words and the tasks once each
         ->and(count(QueryLog::matching($queries, '/^select .* from ["`]practice_item_versions["`]/i')))->toBe(1);
 });
 
-it('opens a session in at most 12 statements and takes an answer and a swap in at most 6', function (): void {
+it('opens a session in at most 12 statements and takes an answer in at most 6 and a swap in at most 7 (one read of the session before the lock: the disk is looked at outside it)', function (): void {
     [$learner, $course, $lesson] = DictationKit::world();
     DictationKit::stock($lesson, $learner, 5, 6);
     $session = null;
@@ -464,7 +466,67 @@ it('opens a session in at most 12 statements and takes an answer and a swap in a
 
     expect(count($open))->toBeLessThanOrEqual(12, implode("\n", $open))
         ->and(count($answer))->toBeLessThanOrEqual(6, implode("\n", $answer))
-        ->and(count($swap))->toBeLessThanOrEqual(6, implode("\n", $swap))
+        ->and(count($swap))->toBeLessThanOrEqual(7, implode("\n", $swap))
         ->and(strlen((string) json_encode($session)))->toBeLessThan(8 * 1024)
-        ->and(strlen((string) json_encode(dsSnapshot($session['id']))))->toBeLessThan(32 * 1024);
+        ->and(strlen((string) json_encode(dsSnapshot($session['id']))))->toBeLessThan(Snapshot::MAX_BYTES);
+});
+
+it('looks at the clips of the spares BEFORE the lock of the swap, never inside its transaction (docs/16 §9 rule 10), and swaps for a spare whose clip is there', function (): void {
+    [$learner, $course, $lesson] = DictationKit::world();
+    DictationKit::stock($lesson, $learner, 5, 6);
+    $session = dsOpen($this, $learner, $course, ['lesson_id' => $lesson->id])->assertCreated()->json();
+    $snapshot = dsSnapshot($session['id']);
+    $pool = $snapshot['pool'];
+    expect($pool)->not->toBeEmpty();
+
+    // The first spare of the same source has lost its clip: the swap must pass it by.
+    $sameSource = array_values(array_filter($pool, fn (array $spare): bool => $spare['source'] === $snapshot['elements'][0]['source']));
+    Storage::disk($sameSource[0]['audio_disk'])->delete($sameSource[0]['audio_path']);
+
+    // Every look at a disk is noted with the depth of the transactions at that moment.
+    $levels = [];
+    foreach (['practice_audio', 'public'] as $name) {
+        $real = Storage::disk($name);
+        $spy = Mockery::mock($real);
+        foreach (['exists', 'size'] as $method) {
+            $spy->shouldReceive($method)->andReturnUsing(function (string $path) use ($real, $method, $name, &$levels) {
+                $levels[] = ['disk' => $name, 'call' => $method, 'level' => DB::transactionLevel()];
+
+                return $real->{$method}($path);
+            });
+        }
+        Storage::set($name, $spy);
+    }
+    $outside = DB::transactionLevel();   // the transaction the test itself runs in
+
+    $swapped = dsReplace($this, $learner, $session['id'], $session['current']['id'])->assertOk();
+
+    // The disk was read (the spares were looked at) ...
+    expect($levels)->not->toBeEmpty()
+        // ... and not once with the transaction of the swap open.
+        ->and(array_values(array_unique(array_column($levels, 'level'))))->toBe([$outside]);
+
+    // The swap took a spare whose clip is there, not the one that lost it; and that one left the pool.
+    $after = dsSnapshot($session['id']);
+    $current = collect($after['elements'])->firstWhere('id', $swapped->json('current.id'));
+    expect($current['audio_path'])->not->toBe($sameSource[0]['audio_path'])
+        ->and(array_column($after['pool'], 'audio_path'))->not->toContain($sameSource[0]['audio_path'])
+        ->and(array_column($after['pool'], 'audio_path'))->not->toContain($current['audio_path']);
+});
+
+it('takes the element out when no spare has its clip any more - without reading the disk under the lock either', function (): void {
+    [$learner, $course, $lesson] = DictationKit::world();
+    DictationKit::stock($lesson, $learner, 5, 6);
+    $session = dsOpen($this, $learner, $course, ['lesson_id' => $lesson->id])->assertCreated()->json();
+    $spares = dsSnapshot($session['id'])['pool'];
+    foreach ($spares as $spare) {
+        Storage::disk($spare['audio_disk'])->delete($spare['audio_path']);
+    }
+
+    $swapped = dsReplace($this, $learner, $session['id'], $session['current']['id'])->assertOk();
+
+    // No clip to play: the element goes and the session gets shorter, as it did when the disk was read under the lock.
+    expect($swapped->json('progress.total'))->toBe(4)
+        ->and(count(dsSnapshot($session['id'])['pool']))->toBe(count($spares))
+        ->and(array_column(dsSnapshot($session['id'])['elements'], 'id'))->not->toContain($session['current']['id']);
 });

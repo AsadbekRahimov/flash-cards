@@ -72,8 +72,9 @@ final class DictationMode implements PracticeModeHandler, ReplaceableElements
 
     /**
      * Phrases + voiced words (a battle: phrases only). No disk, no query beyond the shared reads of the scope. When there is not
-     * enough, the reason is the closest of docs/16 §4.3: `audio_pending` (tasks wait for their voice), `no_audio_words` (the
-     * learner has words, none of them is voiced), `no_words` (nothing was introduced), else `no_items`.
+     * enough, the reason is the closest of docs/16 §4.3: `audio_pending` (tasks wait for their voice), `items_locked` (voiced
+     * phrases are there but their words are not learned yet), `no_audio_words` (the learner has words, none of them is voiced),
+     * `no_words` (nothing was introduced), else `no_items`.
      */
     public function availability(MaterialScope $scope, ?Learner $learner, LocaleSet $locales): ModeAvailability
     {
@@ -89,8 +90,10 @@ final class DictationMode implements PracticeModeHandler, ReplaceableElements
             return ModeAvailability::enough($available, $required);
         }
 
+        $locked = $learner === null ? 0 : $this->material->lockedItems($scope, PracticeItemType::Dictation, $learner);
         $reason = match (true) {
             $pending > 0 && $available + $pending >= $required => ModeAvailability::REASON_AUDIO_PENDING,
+            $locked > 0 && $available + $locked >= $required => ModeAvailability::REASON_ITEMS_LOCKED,
             $learner === null => ModeAvailability::REASON_NO_ITEMS,
             $introduced > 0 && $voiced === 0 => ModeAvailability::REASON_NO_AUDIO_WORDS,
             $introduced === 0 && $phrases === 0 => ModeAvailability::REASON_NO_WORDS,
@@ -234,7 +237,19 @@ final class DictationMode implements PracticeModeHandler, ReplaceableElements
      * The first spare of the same source whose clip is on the disk, else the first spare of the other source (docs/16 §10.4). A
      * spare found missing is dropped from the pool along with the one used.
      */
-    public function replacement(SnapshotElement $replaced, array $pool, LocaleSet $locales): ?array
+    public function playableSpares(array $pool): array
+    {
+        $keys = [];
+        foreach ($pool as $candidate) {
+            if ($this->isPlayable($candidate)) {
+                $keys[] = self::spareKey($candidate);
+            }
+        }
+
+        return $keys;
+    }
+
+    public function replacement(SnapshotElement $replaced, array $pool, LocaleSet $locales, ?array $playable = null): ?array
     {
         $source = $replaced->get('source');
         $order = array_keys($pool);
@@ -243,7 +258,8 @@ final class DictationMode implements PracticeModeHandler, ReplaceableElements
         $tried = [];
         foreach ($order as $index) {
             $tried[$index] = true;
-            if ($this->isPlayable($pool[$index])) {
+            // The keys found before the lock decide; only without them is the disk looked at here.
+            if ($playable === null ? $this->isPlayable($pool[$index]) : in_array(self::spareKey($pool[$index]), $playable, true)) {
                 $rest = array_values(array_diff_key($pool, $tried));
 
                 return [new SnapshotElement(OpaqueId::make('e', [$replaced->id]), $this->mode()->elementKind(), $pool[$index]), $rest];
@@ -501,6 +517,16 @@ final class DictationMode implements PracticeModeHandler, ReplaceableElements
         }
 
         return $taken;
+    }
+
+    /**
+     * What names a spare: the disk and the path of its clip (a phrase and a word never share a file).
+     *
+     * @param  array<string, mixed>  $candidate
+     */
+    private static function spareKey(array $candidate): string
+    {
+        return (is_string($candidate['audio_disk'] ?? null) ? $candidate['audio_disk'] : '').'|'.(is_string($candidate['audio_path'] ?? null) ? $candidate['audio_path'] : '');
     }
 
     /** @param array<string, mixed> $candidate */

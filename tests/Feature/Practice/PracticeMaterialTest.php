@@ -23,6 +23,7 @@ use App\Models\Stage;
 use App\Models\Word;
 use App\Models\WordTranslation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Assert;
 use Tests\Support\Practice\PracticeKit;
 use Tests\Support\QueryLog;
 
@@ -323,6 +324,82 @@ it('narrows the tasks to the ones of a retry', function (): void {
     expect(array_map(fn (PracticeItemVersion $v): int => $v->item_id, $found))->toBe([$items[0]->id, $items[2]->id]);
 });
 
+it('counts the tasks that are LOCKED - published, a target word not introduced yet, none inactive - by type; a dictation only when voiced; none for a battle', function (): void {
+    [$course, $lesson, $learner, $words] = matItemWorld();
+    $unseen = PracticeKit::words($lesson, 1)[0];                                                                          // nobody has met it
+    $off = PracticeKit::words($lesson, 1, $learner, ['is_active' => false])[0];                                           // switched off
+    $scope = new MaterialScope($course, $lesson);
+    PracticeItem::factory()->sentence()->published()->forLesson($lesson)->targeting($words)->create();                    // fit
+    PracticeItem::factory()->sentence()->published()->forLesson($lesson)->targeting([$words[0], $unseen])->create();      // locked
+    PracticeItem::factory()->sentence()->published()->forLesson($lesson)->targeting([$unseen, $off])->create();           // dead: a switched-off word beats an unmet one
+    PracticeItem::factory()->sentence()->forLesson($lesson)->targeting($unseen)->create();                                // a draft is nobody's
+    PracticeItem::factory()->collocation()->published()->forLesson($lesson)->targeting($unseen)->create();                // locked
+    PracticeItem::factory()->dictation()->published()->audioReady()->forLesson($lesson)->targeting($unseen)->create();    // locked and voiced: worth counting
+    PracticeItem::factory()->dictation()->published()->audioPending()->forLesson($lesson)->targeting($unseen)->create();  // locked and mute: counted nowhere
+
+    $service = matService();
+
+    expect($service->lockedItems($scope, PracticeItemType::Sentence, $learner))->toBe(1)
+        ->and($service->lockedItems($scope, PracticeItemType::Collocation, $learner))->toBe(1)
+        ->and($service->lockedItems($scope, PracticeItemType::Dictation, $learner))->toBe(1)
+        ->and(count($service->eligibleItems($scope, PracticeItemType::Sentence, $learner)))->toBe(1)
+        ->and($service->pendingAudioItems($scope, $learner))->toBe(0);   // the mute one is locked, so its voice is not what stops it
+
+    // A battle looks at no progress: nothing is locked, a switched-off word is still dead.
+    expect($service->lockedItems($scope, PracticeItemType::Sentence, null))->toBe(0)
+        ->and(count($service->eligibleItems($scope, PracticeItemType::Sentence, null)))->toBe(2)
+        ->and(count($service->eligibleItems($scope, PracticeItemType::Collocation, null)))->toBe(1);
+});
+
+it('moves a task from locked to eligible when its word is introduced', function (): void {
+    [$course, $lesson, $learner] = matItemWorld();
+    $unseen = PracticeKit::words($lesson, 1)[0];
+    PracticeItem::factory()->collocation()->published()->forLesson($lesson)->targeting($unseen)->create();
+
+    $before = new MaterialScope($course, $lesson);
+    expect(matService()->lockedItems($before, PracticeItemType::Collocation, $learner))->toBe(1)
+        ->and(matService()->eligibleItems($before, PracticeItemType::Collocation, $learner))->toBe([]);
+
+    PracticeKit::introduce($learner, $unseen);
+    $after = new MaterialScope($course, $lesson);
+    expect(matService()->lockedItems($after, PracticeItemType::Collocation, $learner))->toBe(0)
+        ->and(count(matService()->eligibleItems($after, PracticeItemType::Collocation, $learner)))->toBe(1);
+});
+
+it('names the shortage of tasks: items_locked when the locked ones would make the number, no_items when nothing waits or too little', function (): void {
+    [$course, $lesson, $learner] = matItemWorld();
+    $unseen = PracticeKit::words($lesson, 1)[0];
+    PracticeItem::factory()->count(2)->sentence()->published()->forLesson($lesson)->targeting($unseen)->create();
+    $scope = new MaterialScope($course, $lesson);
+    $reason = fn (?Learner $who, int $available, int $required): string => matService()->shortageReason($scope, PracticeItemType::Sentence, $who, $available, $required);
+
+    expect($reason($learner, 1, 3))->toBe('items_locked')      // 1 + 2 locked = 3
+        ->and($reason($learner, 0, 3))->toBe('no_items')         // 0 + 2 = 2: learning is not enough
+        ->and($reason($learner, 0, 2))->toBe('items_locked')
+        ->and($reason(null, 1, 3))->toBe('no_items');            // a battle has nothing locked
+});
+
+it('keeps the locked tasks inside the two queries: the fitness is a column of the query, not a second one', function (): void {
+    [$course, $lesson, $learner, $words] = matItemWorld();
+    $unseen = PracticeKit::words($lesson, 1)[0];
+    PracticeItem::factory()->sentence()->published()->forLesson($lesson)->targeting($words)->create();
+    PracticeItem::factory()->sentence()->published()->forLesson($lesson)->targeting($unseen)->create();
+    PracticeItem::factory()->dictation()->published()->audioReady()->forLesson($lesson)->targeting($unseen)->create();
+    $scope = new MaterialScope($course, $lesson);
+
+    $log = QueryLog::during(function () use ($scope, $learner): void {
+        foreach (PracticeItemType::cases() as $type) {
+            matService()->eligibleItems($scope, $type, $learner);
+            matService()->lockedItems($scope, $type, $learner);
+        }
+        matService()->pendingAudioItems($scope, $learner);
+    });
+
+    expect($log)->toHaveCount(2)
+        ->and(QueryLog::matching($log, '/practice_items/'))->toHaveCount(1)
+        ->and(QueryLog::matching($log, '/practice_item_versions/'))->toHaveCount(1);
+});
+
 it('reads the tasks of ALL the types in two queries and remembers them for the scope', function (): void {
     [$course, $lesson, $learner, $words] = matItemWorld();
     PracticeItem::factory()->sentence()->published()->forLesson($lesson)->targeting($words)->create();
@@ -455,6 +532,17 @@ function matPairMates(array $rounds, string $english): array
 }
 
 /**
+ * Fails, naming the seed, when `$b` stands in the round of `$a`. (Not `->not->toContain($b, "seed")`: Pest reads the second
+ * argument as a second needle, and a negation of two needles passes as soon as ONE of them is missing - it would never fail.)
+ *
+ * @param  list<SnapshotElement>  $rounds
+ */
+function matAssertApart(array $rounds, string $a, string $b, string $seed): void
+{
+    Assert::assertNotContains($b, matPairMates($rounds, $a), "«{$a}» and «{$b}» stand in one round (seed {$seed})");
+}
+
+/**
  * @param  list<SnapshotElement>  $rounds
  * @return list<string> the English words of all the rounds
  */
@@ -560,8 +648,8 @@ it('keeps the words that clash apart: «mother» and «mum» are both «мама
         $rounds = matPairRounds($course, $lesson, $learner, "mum-{$n}");
 
         expect(matPairSizes($rounds))->toBe([4, 4, 4], "seed {$n}")
-            ->and(matPairMates($rounds, 'mother'))->not->toContain('mum', "seed {$n}")
             ->and(matPairTexts($rounds))->toContain('mother', 'mum');  // not thrown out: they are in different rounds
+        matAssertApart($rounds, 'mother', 'mum', "mum-{$n}");
     }
 });
 
@@ -654,15 +742,66 @@ it('checks a uz learner against the uz translations and the ru ones where there 
         $uz = matPairRounds($course, $lesson, $learner, "uz-{$n}", 'uz');
         $ru = matPairRounds($course, $lesson, $learner, "uz-{$n}", 'ru');
 
-        expect(matPairSizes($uz))->toBe([4, 3, 3], "seed {$n}")
-            ->and(matPairMates($uz, 'mother'))->not->toContain('mum', "seed {$n}")
-            ->and(matPairMates($uz, 'dad'))->not->toContain('father', "seed {$n}")
-            ->and(matPairMates($ru, 'dad'))->not->toContain('father', "seed {$n}");
+        expect(matPairSizes($uz))->toBe([4, 3, 3], "seed {$n}");
+        matAssertApart($uz, 'mother', 'mum', "uz-{$n}");
+        matAssertApart($uz, 'dad', 'father', "uz-{$n}");
+        matAssertApart($ru, 'dad', 'father', "uz-{$n}");
         $together[] = in_array('mum', matPairMates($ru, 'mother'), true);
     }
 
     // In ru they are two different words («мама», «мамочка»): nothing keeps them apart.
     expect($together)->toContain(true);
+});
+
+it('keeps «mother» and «mum» apart for a uz learner when only one of them has a uz text: «mum» is shown in ru, «мама» is the base of both', function (): void {
+    [$course, $lesson] = PracticeKit::course();
+    $learner = Learner::factory()->create(['interface_locale' => 'uz']);
+    matPairWords($lesson, $learner, [
+        ['mother', 'мама', 'ona'],       // «ona» in uz
+        ['mum', 'мама'],                 // no uz text: the card says «мама»
+        ['father', 'папа', 'ota'],
+        ...matPairRows(9),
+    ]);
+
+    foreach (range(0, 49) as $n) {
+        $rounds = matPairRounds($course, $lesson, $learner, "mum-uz-{$n}", 'uz');
+
+        expect(matPairSizes($rounds))->toBe([4, 4, 4], "seed {$n}")
+            ->and(matPairTexts($rounds))->toContain('mother', 'mum');   // not thrown out: they stand in different rounds
+        matAssertApart($rounds, 'mother', 'mum', "mum-uz-{$n}");
+        matAssertApart($rounds, 'mum', 'mother', "mum-uz-{$n}");
+    }
+});
+
+it('does not promise the pairs of «mother», «mum» and «father» to a uz learner: the board of three would be ambiguous', function (): void {
+    [$course, $lesson] = PracticeKit::course();
+    $learner = Learner::factory()->create(['interface_locale' => 'uz']);
+    matPairWords($lesson, $learner, [['mother', 'мама', 'ona'], ['mum', 'мама'], ['father', 'папа', 'ota']]);
+    $scope = new MaterialScope($course, $lesson);
+    $mode = app(PairsMode::class);
+
+    $availability = $mode->availability($scope, $learner, LocaleSet::of('uz'));
+
+    expect($availability->isAvailable)->toBeFalse()
+        ->and($availability->toArray())->toBe(['available' => 2, 'required' => 3, 'reason' => 'ambiguous']);
+    expect(fn () => $mode->build($scope, $learner, LocaleSet::of('uz'), MAT_SEED, 3, false))
+        ->toThrow(fn (PracticeException $e) => expect($e->details['reason'])->toBe('ambiguous'));
+
+    // The hub counts through the same words: one more word that says its own, and the three that can stand together make a round.
+    matPairWords($lesson, $learner, [['sister', 'сестра', 'opa']]);
+    expect(app(PairsMode::class)->availability(new MaterialScope($course, $lesson), $learner, LocaleSet::of('uz'))->toArray())
+        ->toBe(['available' => 4, 'required' => 3, 'reason' => null]);
+});
+
+it('counts the base only for what it is: a word with an empty base is still fit, and the shown text decides', function (): void {
+    [$course, $lesson] = PracticeKit::course();
+    $learner = Learner::factory()->create(['interface_locale' => 'uz']);
+    // Three words, the base of none of them says anything: only the uz texts count, and they are three different ones.
+    matPairWords($lesson, $learner, [['alpha', '', 'alfa'], ['beta', '  ', 'beta-uz'], ['gamma', '(разг.)', 'gamma-uz']]);
+
+    $availability = app(PairsMode::class)->availability(new MaterialScope($course, $lesson), $learner, LocaleSet::of('uz'));
+
+    expect($availability->toArray())->toBe(['available' => 3, 'required' => 3, 'reason' => null]);
 });
 
 it('puts the card in the language of the learner: the uz text where there is one, the ru text where there is none', function (): void {
@@ -813,12 +952,26 @@ describe('the pairs of a battle', function (): void {
             $rounds = app(PairsMode::class)->build($scope, null, LocaleSet::of('ru', 'uz'), "battle-{$n}", 5, true);
 
             // «ona» in uz: apart, whatever the ru texts. The scope remembers the words, so the seed is the only thing that changes.
-            expect(matPairMates($rounds, 'mother'))->not->toContain('mum', "seed {$n}");
+            matAssertApart($rounds, 'mother', 'mum', "battle-{$n}");
             foreach ($rounds as $element) {
                 foreach (PairsRound::of($element)->right as $card) {
                     expect(array_keys($card['text']))->toBe(['ru', 'uz']);
                 }
             }
+        }
+    });
+
+    it('keeps «mother» and «mum» apart in a battle of two uz players when only one of them has a uz text', function (): void {
+        [$course, $lesson] = PracticeKit::course();
+        matPairWords($lesson, null, [['mother', 'мама', 'ona'], ['mum', 'мама'], ...matPairRows(18)]);   // 20 words: every one is in a round
+        $scope = new MaterialScope($course, $lesson);
+
+        foreach (range(0, 39) as $n) {
+            // Two uz players: the set is one locale, uz.
+            $rounds = app(PairsMode::class)->build($scope, null, LocaleSet::of('uz', 'uz'), "battle-uz-{$n}", 5, true);
+
+            expect(matPairSizes($rounds))->toBe([4, 4, 4, 4, 4], "seed {$n}");
+            matAssertApart($rounds, 'mother', 'mum', "battle-uz-{$n}");
         }
     });
 
@@ -877,8 +1030,8 @@ describe('the pairs of a battle', function (): void {
         foreach (range(0, 59) as $n) {
             $rounds = app(PairsMode::class)->build($scope, null, LocaleSet::of('ru'), "exact-{$n}", 5, true);
 
-            expect(matPairSizes($rounds))->toBe([4, 4, 4, 4, 4], "seed {$n}")
-                ->and(matPairMates($rounds, 'mother'))->not->toContain('mum', "seed {$n}");
+            expect(matPairSizes($rounds))->toBe([4, 4, 4, 4, 4], "seed {$n}");
+            matAssertApart($rounds, 'mother', 'mum', "exact-{$n}");
         }
     });
 
