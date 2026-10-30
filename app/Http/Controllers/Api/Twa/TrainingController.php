@@ -10,6 +10,7 @@ use App\Domain\Engagement\Services\ReferralService;
 use App\Domain\Learners\Services\TodayService;
 use App\Domain\Learning\Exceptions\ReviewSubmissionException;
 use App\Domain\Learning\Exceptions\TrainingSessionException;
+use App\Domain\Learning\Services\PracticeEntryResolver;
 use App\Domain\Learning\Services\TrainingFlowService;
 use App\Domain\Learning\Services\TrainingSessionService;
 use App\Http\Requests\Twa\OpenTrainingSessionRequest;
@@ -35,6 +36,7 @@ final class TrainingController
         private readonly ProductEventRecorder $events,
         private readonly TodayService $today,
         private readonly ReferralService $referrals,
+        private readonly PracticeEntryResolver $practiceEntries,
     ) {}
 
     /**
@@ -136,7 +138,11 @@ final class TrainingController
             $this->referrals->evaluate($learner, CarbonImmutable::now());
         }
 
-        return (new SessionSummaryResource(['summary' => $summary, 'progress' => $this->today->progress($learner)]))->response();
+        return (new SessionSummaryResource([
+            'summary' => $summary,
+            'progress' => $this->today->progress($learner),
+            'practice_entry' => $this->practiceEntries->forSession($summary->session, $learner),
+        ]))->response();
     }
 
     public function start(Request $request, int $sessionId): JsonResponse

@@ -226,6 +226,8 @@ export const ru = {
   'finished.stats.cards': 'Карточек',
   'finished.stats.correct': 'Верно',
   'finished.stats.new': 'Новых слов',
+  'finished.practice_lesson': 'Практика урока',
+  'finished.practice_course': 'Практика курса',
 
   // ---- promo code ----
   'promo.toggle': 'Есть промокод?',
@@ -335,6 +337,7 @@ export const ru = {
   'course.module': 'Модуль {number}',
   'course.lesson': 'Урок {number}',
   'course.learn': 'Учить',
+  'course.practice_lesson': 'Практика: {place}',
   'course.no_lessons': 'В курсе пока нет уроков.',
   'catalog.hint': 'Новые слова для ежедневного занятия берутся из основного курса',
   'course.continue': 'Продолжить: модуль {stage}, урок {number}',

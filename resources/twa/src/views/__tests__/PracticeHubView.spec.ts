@@ -83,7 +83,7 @@ const incoming = (id: number, name: string): BattleListResponse['incoming'][numb
 })
 
 /** `response`: the hub, a hub that never comes (a pending promise), or the error the server answers with. */
-async function render(props: { slug?: string; lessonId?: number | null } = {}, response: PracticeHubResponse | Promise<PracticeHubResponse> | Error = hub()) {
+async function render(props: { slug?: string; lessonId?: number | null; from?: 'finished' | null } = {}, response: PracticeHubResponse | Promise<PracticeHubResponse> | Error = hub()) {
   if (response instanceof Error) vi.mocked(api.practice.hub).mockRejectedValue(response)
   else vi.mocked(api.practice.hub).mockReturnValue(Promise.resolve(response))
   const stub = { template: '<div />' }
@@ -282,6 +282,17 @@ describe('PracticeHubView — starting a session', () => {
     wrapper.unmount()
   })
 
+  it('says the session is "after training" when the hub was opened from the finish screen (?from=finished)', async () => {
+    vi.mocked(api.practice.open).mockResolvedValue(session({ id: 80, mode: 'pairs' }))
+    const { wrapper } = await render({ from: 'finished' })
+
+    await card(wrapper, 'pairs').trigger('click')
+    await flushPromises()
+
+    expect(api.practice.open).toHaveBeenCalledWith({ mode: 'pairs', course: 'english-a1', lesson_id: 41, source: 'after_training', replace_active: false })
+    wrapper.unmount()
+  })
+
   it('opens the practice of a course without a lesson', async () => {
     vi.mocked(api.practice.open).mockResolvedValue(session({ id: 79, lesson: null }))
     const { wrapper } = await render({ lessonId: null }, hub({ lesson: null }))
@@ -441,6 +452,19 @@ describe('PracticeHubView — the unfinished session', () => {
 
       expect(vi.mocked(api.practice.open).mock.calls[1]![0]).toEqual({ mode: 'sentence', course: 'english-a1', lesson_id: 41, source: 'hub', replace_active: true })
       expect(router.currentRoute.value.params.id).toBe('82')
+      wrapper.unmount()
+    })
+
+    it('"Start a new one" keeps "after training" in a hub that was opened from the finish screen', async () => {
+      vi.mocked(api.practice.open).mockRejectedValueOnce(conflict()).mockResolvedValueOnce(session({ id: 83, mode: 'sentence' }))
+      const { wrapper } = await render({ from: 'finished' })
+      await card(wrapper, 'sentence').trigger('click')
+      await flushPromises()
+
+      await wrapper.get('[data-testid=active-replace]').trigger('click')
+      await flushPromises()
+
+      expect(vi.mocked(api.practice.open).mock.calls.map((call) => call[0].source)).toEqual(['after_training', 'after_training'])
       wrapper.unmount()
     })
 
