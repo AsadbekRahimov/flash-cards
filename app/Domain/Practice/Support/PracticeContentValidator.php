@@ -20,8 +20,9 @@ use Normalizer;
  * The stored form replaces the sequences of the sentence by indices of the fragments and `correct` by indices of the
  * options, adds `text` as the first of the `accepted` of a dictation and keeps only the texts that are not empty.
  *
- * Every text is cleaned on the way in ({@see clean()}): tags stripped, control and invisible characters removed, NFC,
- * one-line, trimmed - the content comes from a file or a form and is displayed to learners (docs/16 §12).
+ * Every text is cleaned on the way in ({@see clean()}): control and invisible characters removed, NFC, one-line, trimmed - the
+ * content comes from a file or a form and is displayed to learners (docs/16 §12). A text with `<` or `>` is REFUSED
+ * (`markup_not_allowed`), never cut: stripping tags would silently drop what follows a lone `<` ("I <3 you" -> "I ").
  * The first fault found raises {@see PracticeContentException} with the code of §4.5 and the field it is in.
  *
  * {@see canonical()} is the check at saving a version; {@see assertPublishable()} is the stricter one at publishing
@@ -120,13 +121,14 @@ final class PracticeContentValidator
     }
 
     /**
-     * One text of an author as it is stored: tags stripped, white space (tabs, line breaks, no-break spaces) and the other
-     * control and invisible format characters (zero-width, bidi marks...) dealt with - the first as one space, the rest
-     * deleted - NFC, trimmed. An invisible character would make the answer a learner types never match.
+     * One text of an author as it is stored: white space (tabs, line breaks, no-break spaces) and the other control and invisible
+     * format characters (zero-width, bidi marks...) dealt with - the first as one space, the rest deleted - NFC, trimmed. An
+     * invisible character would make the answer a learner types never match. It does not look at `<` and `>`: a text that has them
+     * is refused before it comes here ({@see text()}).
      */
     public static function clean(string $value): string
     {
-        $value = strip_tags(mb_scrub($value));
+        $value = mb_scrub($value);
         $value = (string) preg_replace('/\s+/u', ' ', $value);
         $value = (string) preg_replace('/[\p{Cc}\p{Cf}]+/u', '', $value);
 
@@ -187,7 +189,7 @@ final class PracticeContentValidator
                 $this->fail(PracticeContentException::FRAGMENT_INVALID, 'fragments', "Fragment {$index} is not a one-line text.", ['index' => $index, 'max' => $longest]);
             }
 
-            $clean = self::clean($fragment);
+            $clean = $this->text($fragment, 'fragments', ['index' => $index, 'max' => $longest]);
             if (PracticeTextNormalizer::normalize($clean) === '' || mb_strlen($clean) > $longest) {
                 $this->fail(PracticeContentException::FRAGMENT_INVALID, 'fragments', "Fragment {$index} is empty, only punctuation or longer than {$longest} characters.", ['index' => $index, 'max' => $longest]);
             }
@@ -204,6 +206,10 @@ final class PracticeContentValidator
      * appearance - which makes no difference to grading, the text is compared). Sequences that read the same are kept once;
      * a list that is nothing but one sequence written twice or more is a slip of the author (a variant that was meant to
      * differ) and is refused.
+     *
+     * The FIRST accepted sequence is the order of the fragments (`accepted_first_mismatch` otherwise): the review of an answer shows
+     * the first as the right one, and the fragments are written in the order the author means them. A list that starts with
+     * another order would put the order of the fragments in a place where it may be left out, and it would then be graded wrong.
      *
      * @param  list<string>  $fragments
      * @return list<list<int>>
@@ -248,6 +254,10 @@ final class PracticeContentValidator
             $distinct[$reading] ??= $indices;
         }
 
+        if ((string) array_key_first($distinct) !== PracticeTextNormalizer::normalize(implode(' ', $fragments))) {
+            $this->fail(PracticeContentException::ACCEPTED_FIRST_MISMATCH, 'accepted', 'The first accepted order must be the order of the fragments.');
+        }
+
         if (count($raw) > 1 && count($distinct) === 1) {
             $this->fail(PracticeContentException::ACCEPTED_DUPLICATE, 'accepted', 'The accepted orders are one order written several times.');
         }
@@ -273,7 +283,7 @@ final class PracticeContentValidator
             return null;
         }
 
-        $display = is_string($raw) ? self::clean($raw) : null;
+        $display = is_string($raw) ? $this->text($raw, 'display') : null;
         if ($display === '') {
             return null;
         }
@@ -335,7 +345,7 @@ final class PracticeContentValidator
         $required = $this->limit('collocation_options');
         $options = [];
         foreach (is_array($raw) && array_is_list($raw) ? $raw : [] as $option) {
-            $clean = is_string($option) ? self::clean($option) : '';
+            $clean = is_string($option) ? $this->text($option, 'options') : '';
             if ($clean !== '') {
                 $options[] = $clean;
             }
@@ -416,7 +426,7 @@ final class PracticeContentValidator
 
         $longest = $this->limit('dictation_text_max');
         foreach ($raw as $variant) {
-            $clean = is_string($variant) ? self::clean($variant) : '';
+            $clean = is_string($variant) ? $this->text($variant, 'accepted') : '';
             $reading = PracticeTextNormalizer::normalize($clean);
             if ($reading === '') {
                 $this->fail(PracticeContentException::DICTATION_ACCEPTED_INVALID, 'accepted', 'An accepted writing is empty.', ['cause' => 'empty']);
@@ -448,10 +458,27 @@ final class PracticeContentValidator
 
     // --- shared -----------------------------------------------------------------------------------------------------
 
+    /**
+     * A text the author wrote, cleaned ({@see clean()}). One with `<` or `>` is refused: no text of the practice is markup, and
+     * `strip_tags` would take a lone `<` for the start of a tag and drop all that follows it, without a word to the author.
+     *
+     * @param  array<string, int|string>  $context
+     *
+     * @throws PracticeContentException markup_not_allowed
+     */
+    private function text(string $value, string $field, array $context = []): string
+    {
+        if (str_contains($value, '<') || str_contains($value, '>')) {
+            $this->fail(PracticeContentException::MARKUP_NOT_ALLOWED, $field, "The text '{$field}' has a '<' or '>': markup is not allowed.", $context);
+        }
+
+        return self::clean($value);
+    }
+
     /** A text that must be there (and is not only punctuation) and not longer than `$max`. */
     private function requiredText(mixed $raw, string $field, int $max): string
     {
-        $text = is_string($raw) ? self::clean($raw) : '';
+        $text = is_string($raw) ? $this->text($raw, $field) : '';
         if (PracticeTextNormalizer::normalize($text) === '') {
             $this->fail(PracticeContentException::TEXT_REQUIRED, $field, "The text '{$field}' is required.");
         }
@@ -474,7 +501,7 @@ final class PracticeContentValidator
         if (is_array($raw)) {
             foreach ($this->locales->supported() as $locale) {
                 $value = $raw[$locale] ?? null;
-                $clean = is_string($value) ? self::clean($value) : '';
+                $clean = is_string($value) ? $this->text($value, $field, ['locale' => $locale]) : '';
                 if ($clean === '') {
                     continue;
                 }

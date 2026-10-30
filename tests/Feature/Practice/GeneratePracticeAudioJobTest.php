@@ -6,6 +6,7 @@ use App\Domain\Practice\Enums\AudioStatus;
 use App\Domain\Practice\Services\PracticeAudioService;
 use App\Jobs\GeneratePracticeAudioJob;
 use App\Models\PracticeItemVersion;
+use Illuminate\Contracts\Queue\Job as QueueJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Factory as HttpFactory;
@@ -285,11 +286,52 @@ it('fails at once, without a call, a version with no text to voice, and does not
         ->and($collocation->fresh()?->audio_key)->toBeNull();
 });
 
-it('throws a clear code when the TTS service is not configured', function (): void {
+it('fails at once when the TTS service is not configured: the queue job is failed, not released, and nothing is thrown', function (): void {
     config(['twa.tts.service_url' => '']);
     $version = audioJobVersion();
+    $queueJob = Mockery::mock(QueueJob::class);
+    // `fail()` once, with the code; no `release()` (a retry) - an installation without a TTS service does not get one in an hour.
+    $queueJob->shouldReceive('fail')->once()->with(Mockery::on(fn (mixed $e): bool => $e instanceof RuntimeException && $e->getMessage() === 'tts_service_not_configured'));
+    $queueJob->shouldNotReceive('release');
+    $job = new GeneratePracticeAudioJob($version->id);
+    $job->setJob($queueJob);
 
-    expect(fn () => audioJobRun($version))->toThrow(RuntimeException::class, 'tts_service_not_configured');
+    $job->handle(app(PracticeAudioService::class));
+
+    Http::assertNothingSent();
+});
+
+it('turns the version to failed with the code on the sync queue and throws nothing out of dispatch(): the case of db:seed without a TTS service', function (): void {
+    Log::spy();
+    config(['twa.tts.service_url' => '', 'queue.default' => 'sync']);
+    $version = audioJobVersion();
+
+    // The sync queue rethrows whatever a job throws; this job throws nothing.
+    GeneratePracticeAudioJob::dispatch($version->id);
+
+    $failed = $version->fresh();
+    expect($failed?->audio_status)->toBe(AudioStatus::Failed)
+        ->and($failed?->audio_error)->toBe('tts_service_not_configured')
+        ->and(Storage::disk('practice_audio')->allFiles())->toBe([]);
+    Log::shouldHaveReceived('warning')->once()->with('practice.audio_failed', ['version_id' => $version->id, 'reason' => 'tts_service_not_configured']);
+
+    // The service comes: "generate again" voices the version.
+    config(['twa.tts.service_url' => 'http://tts.test']);
+    audioJobFakeTts('recovered');
+    app(PracticeAudioService::class)->schedule($failed ?? $version, force: true);
+    expect($version->fresh()?->audio_status)->toBe(AudioStatus::Ready)
+        ->and($version->fresh()?->audio_error)->toBeNull();
+});
+
+it('still throws for a TTS service that is configured and failing: that one is retried', function (): void {
+    audioJobFakeTts('', 500);
+    $version = audioJobVersion();
+    $queueJob = Mockery::mock(QueueJob::class);
+    $queueJob->shouldNotReceive('fail');
+    $job = new GeneratePracticeAudioJob($version->id);
+    $job->setJob($queueJob);
+
+    expect(fn () => $job->handle(app(PracticeAudioService::class)))->toThrow(RuntimeException::class, 'tts_service_failed');
 });
 
 it('does nothing for a version that has been deleted since the job was queued', function (): void {

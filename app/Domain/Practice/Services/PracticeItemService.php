@@ -26,17 +26,19 @@ use App\Models\Word;
 use Carbon\CarbonImmutable;
 use Closure;
 use Illuminate\Support\Facades\DB;
+use InvalidArgumentException;
 
 /**
  * The authoring of the tasks of the practice (docs/16 §1.3, §2.2-§2.4, §4.5): the only writer of `practice_items`,
  * `practice_item_versions` and `practice_item_words`.
  *
- * A task is a stable `key` plus APPEND-ONLY versions. The text lives in a version and never changes after it is written;
- * an edit writes a new version (a draft). The status of the task is a projection of its versions, and only this service
- * writes it: `archived` when `archived_at` is set; else `published` when there is a `published_version_id`; else the
- * state of the current version (`draft` / `reviewed`). Learners get `published_version_id`, never `current_version_id`:
- * editing a published task leaves it `published` with the old version served, until the new one is "reviewed" and
- * "published" (the old one becomes `superseded`; the sessions and matches that hold it keep playing it).
+ * A task is a stable `key` plus APPEND-ONLY versions. A version holds everything an edit can change: the text, the target words,
+ * the lesson and the level, and it never changes after it is written; an edit writes a new version (a draft). The status of the
+ * task is a projection of its versions, and only this service writes it: `archived` when `archived_at` is set; else `published`
+ * when there is a `published_version_id`; else the state of the current version (`draft` / `reviewed`). Learners get
+ * `published_version_id`, never `current_version_id`: editing a published task leaves it `published` with the old version served,
+ * until the new one is "reviewed" and "published" (the old one becomes `superseded`; the sessions and matches that hold it keep
+ * playing it).
  *
  *   draft --"reviewed"--> reviewed --"publish"--> published (the previous published version: superseded)
  *   any stage -> archived (the published pointer stays, nothing is handed out) -> restored
@@ -44,9 +46,16 @@ use Illuminate\Support\Facades\DB;
  * which writes the version as published: the owner's decision that the content of a file may skip the review is confirmed by
  * the option of the person who runs the import, never by the file.
  *
- * What identifies a change: a new version is written when the text OR the target words differ from the current version's
- * (the words belong to the task and are rewritten with it, docs/16 §2.4); a changed lesson or level alone is written on the
- * task without a new version. Saving what is already there writes nothing.
+ * The PROJECTION. `practice_items.lesson_id`, `practice_items.level` and the rows of `practice_item_words` are what the material of
+ * the practice reads (PracticeMaterialService), and they are the place and the target words of ONE version: the published one when
+ * the task has it, else the current one. Only three moves write them: {@see write()} for a task that has no published version
+ * (every new version is the current one), {@see makePublished()} (the version that becomes the published one, in the same
+ * transaction), and nothing else - a draft of a published task changes none of the three, so it cannot take the task away from the
+ * learners who get the published version, move it to another lesson or, with no target words, hand it to everyone. Archiving and
+ * restoring do not move the published pointer, hence not the projection either.
+ *
+ * What identifies a change: a new version is written when ANY of the four differs from the current version's - the text, the
+ * target words, the lesson, the level. Saving what is already there writes nothing.
  *
  * Every write runs in one transaction that takes the lock of the course FIRST (CoursePublisher::lockForWriting, docs/16 §9
  * rule 12), then the tasks, the versions, the words and the audit trail. A new version of a dictation is queued for voicing
@@ -94,6 +103,7 @@ final class PracticeItemService
      *
      * @throws PracticeContentException
      * @throws PracticeItemStateException
+     * @throws InvalidArgumentException `$item` is a task of another course than `$course`
      */
     public function save(?PracticeItem $item, Course $course, array $data, ?User $by, bool $publish = false): SavedPracticeItem
     {
@@ -103,8 +113,13 @@ final class PracticeItemService
             // Re-read after the lock: whoever held it before us may have moved the pointers of the task.
             $fresh = $item === null ? null : (PracticeItem::query()->whereKey($item->id)->first() ?? throw PracticeItemStateException::gone());
 
-            // An archived task is not edited, whatever the text says (the form of an archived task is switched off and sends none).
             if ($fresh !== null) {
+                // The lock above is the lock of `$course`: a task of another course would be written under the wrong one.
+                if ($fresh->course_id !== $course->id) {
+                    throw new InvalidArgumentException("The task {$fresh->id} belongs to the course {$fresh->course_id}, not to the course {$course->id}.");
+                }
+
+                // An archived task is not edited, whatever the text says (the form of an archived task is switched off and sends none).
                 $this->assertNotArchived($fresh);
             }
 
@@ -165,25 +180,28 @@ final class PracticeItemService
     }
 
     /**
-     * Writes a prepared task: the task (new, or its lesson / level), a new version when the text or the words changed, the
-     * words, the pointers and the status. Under the lock of the course; {@see save()} is the entry for a single task.
+     * Writes a prepared task: the task itself when it is new, a new version when the text, the target words, the lesson or the
+     * level differ from the current version's (all four are written into the version), the projection when the task has no
+     * published version yet, and the publishing when asked. Under the lock of the course; {@see save()} is the entry for a single
+     * task.
+     *
+     * `$scheduleAudio` false: a new dictation version is born `pending` and NO voicing job is queued - for the caller who voices the
+     * phrases itself and sets them `ready` (the demo seeder, which makes the audio with ffmpeg). Every other caller leaves it true.
      *
      * @throws PracticeContentException
      * @throws PracticeItemStateException
      */
-    public function write(Course $course, ?PracticeItem $item, PreparedPracticeItem $prepared, ?User $by, bool $publish = false): SavedPracticeItem
+    public function write(Course $course, ?PracticeItem $item, PreparedPracticeItem $prepared, ?User $by, bool $publish = false, bool $scheduleAudio = true): SavedPracticeItem
     {
         if ($publish) {
             $this->assertPublishable($prepared);
         }
 
-        return DB::transaction(function () use ($course, $item, $prepared, $by, $publish): SavedPracticeItem {
+        return DB::transaction(function () use ($course, $item, $prepared, $by, $publish, $scheduleAudio): SavedPracticeItem {
             $this->lockCourse($course);
 
             $itemCreated = $item === null;
-            $attributesChanged = false;
             $current = null;
-            $currentWords = [];
 
             if ($item === null) {
                 $item = PracticeItem::query()->create([
@@ -199,29 +217,24 @@ final class PracticeItemService
                 $this->assertNotArchived($item);
 
                 $current = $item->current_version_id === null ? null : PracticeItemVersion::query()->find($item->current_version_id);
-                $currentWords = $this->linkedWordIds($item);
-
-                if ($item->lesson_id !== $prepared->lessonId || $item->level !== $prepared->level) {
-                    $item->forceFill(['lesson_id' => $prepared->lessonId, 'level' => $prepared->level]);
-                    $attributesChanged = true;
-                }
             }
 
-            if ($current === null || $currentWords !== $prepared->wordIds || ! $this->sameContent($current->content, $prepared->content)) {
+            if ($current === null || ! $this->sameVersion($current, $prepared)) {
                 $versionCreated = true;
-                $version = $this->newVersion($item, $prepared, $by);
-                $this->syncWords($item, $currentWords, $prepared->wordIds);
+                $version = $this->newVersion($item, $prepared, $by, $scheduleAudio);
 
                 $item->forceFill([
                     'current_version_id' => $version->id,
                     'status' => $item->published_version_id !== null ? PracticeItemStatus::Published : PracticeItemStatus::Draft,
-                ])->save();
+                ]);
+                // Without a published version the task shows its current one; with it, a draft changes nothing the learners get.
+                if ($item->published_version_id === null) {
+                    $this->project($item, $version);
+                }
+                $item->save();
             } else {
                 $versionCreated = false;
                 $version = $current;
-                if ($attributesChanged) {
-                    $item->save();
-                }
             }
 
             $published = false;
@@ -230,7 +243,7 @@ final class PracticeItemService
                 $published = true;
             }
 
-            return new SavedPracticeItem($item, $version, $itemCreated, $versionCreated, $attributesChanged, $published);
+            return new SavedPracticeItem($item, $version, $itemCreated, $versionCreated, $published);
         });
     }
 
@@ -238,12 +251,17 @@ final class PracticeItemService
      * The current version of the task is checked ("reviewed"): draft -> reviewed. A version that is already reviewed stays
      * so (a second click is harmless). The task becomes `reviewed` unless it is `published` (then a newer draft waits).
      *
-     * @throws PracticeItemStateException the task is archived, or the current version is published
+     * `$expectedVersionId` is the version the admin was looking at (the page passes it; the import and the seeders do not): when
+     * the current version is another one - an import or another editor wrote a newer one meanwhile - the move is refused, so that
+     * nobody marks as checked a text nobody has read.
+     *
+     * @throws PracticeItemStateException the task is archived, the current version is published, or it is not the expected one
      */
-    public function markReviewed(PracticeItem $item, User $by, ?string $ip = null): PracticeItem
+    public function markReviewed(PracticeItem $item, User $by, ?string $ip = null, ?int $expectedVersionId = null): PracticeItem
     {
-        return $this->transition($item, function (PracticeItem $locked) use ($by, $ip): void {
+        return $this->transition($item, function (PracticeItem $locked) use ($by, $ip, $expectedVersionId): void {
             $this->assertNotArchived($locked);
+            $this->assertShown($locked, $expectedVersionId);
             $version = $this->currentVersion($locked);
 
             if ($version->state === VersionState::Reviewed) {
@@ -265,15 +283,18 @@ final class PracticeItemService
 
     /**
      * reviewed -> published, with the strict checks of publishing; the previously published version becomes `superseded`,
-     * `published_version_id` moves to the current version. A version that is already published stays so.
+     * `published_version_id` moves to the current version, and the task takes the lesson, the level and the target words of it
+     * (the projection). A version that is already published stays so. The strict checks read the version itself - its own target
+     * words, not the ones the task shows now. `$expectedVersionId`: see {@see markReviewed()}.
      *
      * @throws PracticeContentException a "П" rule of §4.5 (a target word, a text in every language, still valid)
-     * @throws PracticeItemStateException the task is archived, or the current version was not marked as reviewed
+     * @throws PracticeItemStateException the task is archived, the current version was not marked as reviewed, or it is not the expected one
      */
-    public function publish(PracticeItem $item, User $by, ?string $ip = null): PracticeItem
+    public function publish(PracticeItem $item, User $by, ?string $ip = null, ?int $expectedVersionId = null): PracticeItem
     {
-        return $this->transition($item, function (PracticeItem $locked) use ($by, $ip): void {
+        return $this->transition($item, function (PracticeItem $locked) use ($by, $ip, $expectedVersionId): void {
             $this->assertNotArchived($locked);
+            $this->assertShown($locked, $expectedVersionId);
             $version = $this->currentVersion($locked);
 
             if ($version->state === VersionState::Published) {
@@ -287,9 +308,9 @@ final class PracticeItemService
             $this->assertPublishable(new PreparedPracticeItem(
                 $locked->type,
                 $locked->key,
-                $locked->lesson_id,
-                $locked->level,
-                $this->wordIds($course, $this->linkedWordIds($locked)),
+                $version->lesson_id,
+                $version->level,
+                $this->wordIds($course, $version->target_word_ids),
                 $version->content,
             ));
 
@@ -323,7 +344,8 @@ final class PracticeItemService
 
     /**
      * archived -> published when there is a published version, else the state of the current version. The task is as it was
-     * before it went to the archive (a version published meanwhile is impossible: the archived task is not published).
+     * before it went to the archive (a version published meanwhile is impossible: the archived task is not published), so the
+     * published pointer, and with it the projection, is the same: restoring moves neither.
      *
      * @throws PracticeItemStateException the task is not archived
      */
@@ -348,8 +370,9 @@ final class PracticeItemService
     }
 
     /**
-     * "Generate the audio again": queues the voicing of the CURRENT version of a dictation (the one the admin edits), forced
-     * even if it is ready. Nothing for another type or an archived task.
+     * "Generate the audio again": queues the voicing, forced even if it is ready, of the PUBLISHED version of a dictation (the
+     * one the learners get - a published version whose audio failed cannot be played) and of the CURRENT one (the one the admin
+     * edits) when that is another version; each at most once. Nothing for another type or an archived task.
      *
      * @throws PracticeItemStateException the task is archived
      */
@@ -357,13 +380,19 @@ final class PracticeItemService
     {
         $this->assertNotArchived($item);
 
-        if ($item->type !== PracticeItemType::Dictation || $item->current_version_id === null) {
+        if ($item->type !== PracticeItemType::Dictation) {
             return;
         }
 
-        $version = PracticeItemVersion::query()->find($item->current_version_id);
-        if ($version !== null && $version->audio_status !== AudioStatus::None) {
-            $this->audio->schedule($version, force: true);
+        $ids = array_values(array_unique(array_filter([$item->published_version_id, $item->current_version_id], static fn (?int $id): bool => $id !== null)));
+        if ($ids === []) {
+            return;
+        }
+
+        foreach (PracticeItemVersion::query()->whereIn('id', $ids)->orderBy('id')->get() as $version) {
+            if ($version->audio_status !== AudioStatus::None) {
+                $this->audio->schedule($version, force: true);
+            }
         }
     }
 
@@ -413,10 +442,24 @@ final class PracticeItemService
     }
 
     /**
-     * Writes the next version of the task as a draft. A dictation is born `pending`: its audio is awaited and is queued
-     * (a job after the commit) - the text is voiced under the key the job computes.
+     * The admin acts on the version the page showed: when the task has moved on since (an import or another editor wrote a newer
+     * version), the move is refused and the page has to be opened again. No expected version (the import, a seeder) - no check.
+     *
+     * @throws PracticeItemStateException version_changed
      */
-    private function newVersion(PracticeItem $item, PreparedPracticeItem $prepared, ?User $by): PracticeItemVersion
+    private function assertShown(PracticeItem $item, ?int $expectedVersionId): void
+    {
+        if ($expectedVersionId !== null && $item->current_version_id !== $expectedVersionId) {
+            throw PracticeItemStateException::versionChanged();
+        }
+    }
+
+    /**
+     * Writes the next version of the task as a draft, with the target words, the lesson and the level it stands for. A dictation
+     * is born `pending`: its audio is awaited and is queued (a job after the commit) - the text is voiced under the key the job
+     * computes.
+     */
+    private function newVersion(PracticeItem $item, PreparedPracticeItem $prepared, ?User $by, bool $scheduleAudio): PracticeItemVersion
     {
         $dictation = $prepared->type === PracticeItemType::Dictation;
 
@@ -425,11 +468,14 @@ final class PracticeItemService
             'number' => (int) PracticeItemVersion::query()->where('item_id', $item->id)->max('number') + 1,
             'state' => VersionState::Draft,
             'content' => $prepared->content,
+            'target_word_ids' => $prepared->wordIds,
+            'lesson_id' => $prepared->lessonId,
+            'level' => $prepared->level,
             'audio_status' => $dictation ? AudioStatus::Pending : AudioStatus::None,
             'created_by_user_id' => $by?->id,
         ]);
 
-        if ($dictation) {
+        if ($dictation && $scheduleAudio) {
             $this->audio->schedule($version);
         }
 
@@ -438,7 +484,11 @@ final class PracticeItemService
 
     /**
      * The version becomes the published one: the previous published version (if another) is superseded, the task points at
-     * this one and is `published`. One statement for the task, so the PostgreSQL CHECK on its shape holds at every step.
+     * this one, is `published` and shows the lesson, the level and the target words of the version (the projection, in the same
+     * transaction). One statement for the task, so the PostgreSQL CHECK on its shape holds at every step.
+     *
+     * The target words of the version were checked by the caller ({@see write()} with `$publish`, {@see publish()}): they are
+     * active words of the course, so the rows below can be written.
      *
      * @return int|null the id of the version that was superseded
      */
@@ -454,6 +504,7 @@ final class PracticeItemService
         }
 
         $version->forceFill(['state' => VersionState::Published, 'published_by_user_id' => $by?->id, 'published_at' => $now])->save();
+        $this->project($item, $version);
         $item->forceFill([
             'status' => PracticeItemStatus::Published,
             'current_version_id' => $version->id,
@@ -462,6 +513,17 @@ final class PracticeItemService
         ])->save();
 
         return $previous;
+    }
+
+    /**
+     * The task takes the place and the target words of the version: `lesson_id` and `level` are set on the model (the caller saves
+     * it) and the rows of `practice_item_words` are made to be the version's. The only writer of the three (see the class docblock).
+     */
+    private function project(PracticeItem $item, PracticeItemVersion $version): void
+    {
+        $item->forceFill(['lesson_id' => $version->lesson_id, 'level' => $version->level]);
+
+        $this->syncWords($item, $this->linkedWordIds($item), $this->sortedIds($version->target_word_ids));
     }
 
     /**
@@ -481,7 +543,7 @@ final class PracticeItemService
         }
     }
 
-    /** @return list<int> the target words of the task, ascending */
+    /** @return list<int> the target words the task shows now (the rows of `practice_item_words`), ascending */
     private function linkedWordIds(PracticeItem $item): array
     {
         $ids = [];
@@ -491,6 +553,32 @@ final class PracticeItemService
         sort($ids);
 
         return $ids;
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $ids
+     * @return list<int> each id once, ascending
+     */
+    private function sortedIds(array $ids): array
+    {
+        $sorted = [];
+        foreach ($ids as $id) {
+            if (is_int($id) || (is_string($id) && ctype_digit($id))) {
+                $sorted[(int) $id] = (int) $id;
+            }
+        }
+        sort($sorted);
+
+        return $sorted;
+    }
+
+    /** The version already is what is being saved: the same text, target words, lesson and level. */
+    private function sameVersion(PracticeItemVersion $version, PreparedPracticeItem $prepared): bool
+    {
+        return $version->lesson_id === $prepared->lessonId
+            && $version->level === $prepared->level
+            && $this->sortedIds($version->target_word_ids) === $this->sortedIds($prepared->wordIds)
+            && $this->sameContent($version->content, $prepared->content);
     }
 
     /**
@@ -601,7 +689,11 @@ final class PracticeItemService
 
         foreach ($wanted as $id) {
             if (! isset($found[$id])) {
-                $this->fail(PracticeContentException::TARGET_WORD_UNKNOWN, 'target_words', "The word #{$id} is no active word of the course.", ['word' => (string) $id]);
+                // The admin knows the word by its text; the id is all there is for a word that has gone.
+                $text = Word::query()->whereKey($id)->value('word');
+                $word = is_string($text) && trim($text) !== '' ? $text : (string) $id;
+
+                $this->fail(PracticeContentException::TARGET_WORD_UNKNOWN, 'target_words', "The word '{$word}' is no active word of the course.", ['word' => $word]);
             }
         }
 

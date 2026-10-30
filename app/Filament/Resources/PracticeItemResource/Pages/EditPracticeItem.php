@@ -15,10 +15,19 @@ use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
+use Livewire\Attributes\Locked;
 
 class EditPracticeItem extends EditRecord
 {
     protected static string $resource = PracticeItemResource::class;
+
+    /**
+     * The version the form shows. The record is read again from the database with every request, the form is not: "Проверено" and
+     * "Опубликовать" act on THIS version (PracticeItemService refuses when the task has a newer one), whatever the page was redrawn
+     * with since it was opened.
+     */
+    #[Locked]
+    public ?int $shownVersionId = null;
 
     public function getTitle(): string
     {
@@ -28,11 +37,12 @@ class EditPracticeItem extends EditRecord
     /** @return array<int, Action> */
     protected function getHeaderActions(): array
     {
-        return PracticeItemActions::all();
+        return PracticeItemActions::all(fn (): ?int => $this->shownVersionId);
     }
 
     /**
-     * The form shows the text of the CURRENT version (a draft that is waiting, if there is one), not the columns of the task.
+     * The form shows the place, the target words and the text of the CURRENT version (a draft that is waiting, if there is one), not
+     * the columns and the words of the task, which are those of the published version.
      *
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
@@ -41,6 +51,7 @@ class EditPracticeItem extends EditRecord
     {
         /** @var PracticeItem $record */
         $record = $this->getRecord();
+        $this->shownVersionId = $record->current_version_id;
 
         return PracticeItemFormMapper::fill($record);
     }
@@ -73,6 +84,8 @@ class EditPracticeItem extends EditRecord
         }
 
         $saved->item->unsetRelations();
+        // What was just saved is what the form shows now.
+        $this->shownVersionId = $saved->version->id;
 
         return $saved->item;
     }

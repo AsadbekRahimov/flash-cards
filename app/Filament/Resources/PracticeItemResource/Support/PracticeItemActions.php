@@ -21,34 +21,50 @@ use Filament\Notifications\Notification;
  * The buttons of a task (a row of the list and the header of the edit page): "Проверено", "Опубликовать", "В архив", "Вернуть"
  * and "Сгенерировать аудио заново". Every move is PracticeItemService's: it owns the rules, the strict checks of publishing and
  * the audit trail; a refusal is worded in Russian by AdminErrors. The buttons only show where the move can be made.
+ *
+ * "Проверено" and "Опубликовать" act on the version the page showed (the id rides on the button, {@see ShownVersionAction}); when
+ * the task has a newer one by the time of the click, the service refuses with `version_changed`.
  */
 final class PracticeItemActions
 {
-    /** @return list<Action> */
-    public static function all(): array
+    /**
+     * @param  (Closure(): ?int)|null  $shownVersion  the version the page shows, where that is not the current one of the record
+     * @return list<Action>
+     */
+    public static function all(?Closure $shownVersion = null): array
     {
-        return [self::review(), self::publish(), self::archive(), self::restore(), self::regenerateAudio()];
+        return [self::review($shownVersion), self::publish($shownVersion), self::archive(), self::restore(), self::regenerateAudio()];
     }
 
-    /** draft -> reviewed: the text of the current version has been checked. */
-    public static function review(): Action
+    /**
+     * draft -> reviewed: the text of the current version has been checked.
+     *
+     * @param  (Closure(): ?int)|null  $shownVersion
+     */
+    public static function review(?Closure $shownVersion = null): Action
     {
-        return Action::make('review')
+        return ShownVersionAction::make('review')
+            ->shownVersion($shownVersion)
             ->label(__('admin.practice_items.actions.review'))
             ->icon('heroicon-o-check-badge')
             ->color('info')
             ->visible(fn (PracticeItem $record): bool => ! self::archived($record) && $record->currentVersion?->state === VersionState::Draft)
             ->authorize('review')
-            ->action(fn (PracticeItem $record) => self::run(
+            ->action(fn (PracticeItem $record, array $arguments) => self::run(
                 'reviewed',
-                fn (User $user): PracticeItem => app(PracticeItemService::class)->markReviewed($record, $user, request()->ip()),
+                fn (User $user): PracticeItem => app(PracticeItemService::class)->markReviewed($record, $user, request()->ip(), self::expectedVersion($arguments)),
             ));
     }
 
-    /** reviewed -> published. */
-    public static function publish(): Action
+    /**
+     * reviewed -> published.
+     *
+     * @param  (Closure(): ?int)|null  $shownVersion
+     */
+    public static function publish(?Closure $shownVersion = null): Action
     {
-        return Action::make('publish')
+        return ShownVersionAction::make('publish')
+            ->shownVersion($shownVersion)
             ->label(__('admin.practice_items.actions.publish'))
             ->icon('heroicon-o-rocket-launch')
             ->color('success')
@@ -57,9 +73,9 @@ final class PracticeItemActions
             ->requiresConfirmation()
             ->modalHeading(__('admin.practice_items.actions.publish_heading'))
             ->modalDescription(__('admin.practice_items.actions.publish_help'))
-            ->action(fn (PracticeItem $record) => self::run(
+            ->action(fn (PracticeItem $record, array $arguments) => self::run(
                 'published',
-                fn (User $user): PracticeItem => app(PracticeItemService::class)->publish($record, $user, request()->ip()),
+                fn (User $user): PracticeItem => app(PracticeItemService::class)->publish($record, $user, request()->ip(), self::expectedVersion($arguments)),
             ));
     }
 
@@ -128,6 +144,19 @@ final class PracticeItemActions
             ->danger()
             ->persistent()
             ->send();
+    }
+
+    /**
+     * The version the button was drawn for. The arguments come from the browser: anything but a whole number is no version (the
+     * move is then not tied to one).
+     *
+     * @param  array<array-key, mixed>  $arguments
+     */
+    private static function expectedVersion(array $arguments): ?int
+    {
+        $version = $arguments[ShownVersionAction::ARGUMENT] ?? null;
+
+        return is_int($version) || (is_string($version) && ctype_digit($version)) ? (int) $version : null;
     }
 
     private static function archived(PracticeItem $record): bool

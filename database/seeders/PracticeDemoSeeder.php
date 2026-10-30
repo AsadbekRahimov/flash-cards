@@ -34,10 +34,11 @@ use Throwable;
  *     target words of the package the way the lessons of the group would have done it (a `word_repetitions` row of the group lesson,
  *     ten days old, not due): DemoRepetitionsSeeder covers the first forty words only, and a task is handed out to a learner who has
  *     been introduced to ALL its words. With `PRACTICE_ACCESS=pilot` the demo learners can practice at once.
- *   - The audio. Where no TTS service is configured (`twa.tts.service_url` is empty - the local environment) the seeder voices every
- *     phrase itself: `ffmpeg` with the `flite` filter makes an mp3 that is put under `{audio_key}.mp3` on the disk of the practice
- *     audio, and the version becomes `ready`. Where ffmpeg (or its flite filter) is missing the seeder says so and leaves the phrases
- *     `pending`. With a TTS service the queue (GeneratePracticeAudioJob) does it, as in production.
+ *   - The audio. The seeder voices every phrase itself, whatever TTS service is configured: `ffmpeg` with the `flite` filter makes
+ *     an mp3 that is put under `{audio_key}.mp3` on the disk of the practice audio, and the version becomes `ready`. For that the
+ *     import queues NO voicing job (`scheduleAudio: false`): on the sync queue of a test or a local run a job would call the TTS
+ *     service (or fail for want of one) in the middle of `db:seed`. Where ffmpeg (or its flite filter) is missing the seeder says
+ *     so and leaves the phrases `pending`: "Сгенерировать аудио заново" in the admin panel voices them through the queue.
  *
  * Only in local/testing, like the other demo seeders. A repeated run changes nothing.
  */
@@ -54,15 +55,30 @@ class PracticeDemoSeeder extends Seeder
             return;
         }
 
-        $report = app(PracticeImporter::class)->importAsSystem((string) file_get_contents(database_path(self::PACKAGE)), publish: true);
+        $json = (string) file_get_contents(database_path(self::PACKAGE));
+
+        $report = app(PracticeImporter::class)->importAsSystem($json, publish: true, scheduleAudio: false);
         if (! $report->ok()) {
             throw new RuntimeException('The pilot package of the practice was refused: '.implode(' ', $report->errors));
         }
 
-        $course = app(CourseCatalogService::class)->defaultCourse();
+        $course = $this->packageCourse($json);
 
         $this->enrolDemoLearners($course);
         $this->voicePhrases($course);
+    }
+
+    /**
+     * The course the package names (`"course"`): the importer has found it, or the package would have been refused. Not the default
+     * course of the installation - under another `CONTENT_DEFAULT_COURSE_SLUG` that would be a course the package never touched.
+     */
+    private function packageCourse(string $json): Course
+    {
+        $package = json_decode($json, true, 32, JSON_THROW_ON_ERROR);
+        $slug = is_array($package) && is_string($package['course'] ?? null) ? $package['course'] : '';
+
+        return app(CourseCatalogService::class)->findBySlug($slug)
+            ?? throw new RuntimeException("The course '{$slug}' of the pilot package of the practice does not exist.");
     }
 
     /** The pilot and the words: the demo learners are the members of the demo group (as in DemoRepetitionsSeeder). */
@@ -127,13 +143,9 @@ class PracticeDemoSeeder extends Seeder
         });
     }
 
-    /** The audio of the phrases of the published dictations, made here when no TTS service is configured. */
+    /** The audio of the phrases of the published dictations, made here with ffmpeg (the import queued no job for them). */
     private function voicePhrases(Course $course): void
     {
-        if (filled(config('twa.tts.service_url'))) {
-            return;
-        }
-
         $diskName = (string) config('practice.audio.disk');
         try {
             $disk = Storage::disk($diskName);
@@ -167,7 +179,7 @@ class PracticeDemoSeeder extends Seeder
 
             $sound = $this->synthesize($text);
             if ($sound === null) {
-                $this->demoWarning('PracticeDemoSeeder: ffmpeg with the flite filter is not available, so the audio of the phrases stays pending.');
+                $this->demoWarning('PracticeDemoSeeder: ffmpeg with the flite filter is not available, so the audio of the phrases stays pending (the button "Сгенерировать аудио заново" in the admin panel voices them through the queue).');
 
                 return;
             }

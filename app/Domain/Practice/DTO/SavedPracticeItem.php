@@ -9,7 +9,8 @@ use App\Models\PracticeItemVersion;
 
 /**
  * What a save did to a task (PracticeItemService::save): the task and the version it now stands on (`version` is the
- * current one - a new row when `versionCreated`, otherwise the one the text already was in).
+ * current one - a new row when `versionCreated`, otherwise the one the text, the target words, the lesson and the level
+ * already were in).
  */
 final readonly class SavedPracticeItem
 {
@@ -24,16 +25,18 @@ final readonly class SavedPracticeItem
         public PracticeItemVersion $version,
         public bool $itemCreated,
         public bool $versionCreated,
-        public bool $attributesChanged,
         public bool $published,
     ) {}
 
-    /** `added` (a new task), `updated` (a new version, or a changed lesson / level) or `skipped` (nothing changed). */
+    /**
+     * `added` (a new task), `updated` (a new version: any of the text, the target words, the lesson, the level changed) or
+     * `skipped` (nothing changed). There is no change of a task without a new version.
+     */
     public function outcome(): string
     {
         return match (true) {
             $this->itemCreated => self::ADDED,
-            $this->versionCreated, $this->attributesChanged => self::UPDATED,
+            $this->versionCreated => self::UPDATED,
             default => self::SKIPPED,
         };
     }

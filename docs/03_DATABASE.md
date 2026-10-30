@@ -67,8 +67,8 @@ erDiagram
     FRIENDSHIPS ||--o{ BATTLES : invited_through
 ```
 
-> **Практика и баттл 1 на 1 (docs/16 §2, задачи 18.x).** Добавлены `practice_items`, `practice_item_versions`, `practice_item_words`
-> (авторские задания, §2.40–§2.42), `practice_sessions`, `practice_attempts` (сольные сессии, §2.43–§2.44), `battles`,
+> **Практика и баттл 1 на 1 (docs/16 §2, задачи 18.x).** Добавлены `practice_items`, `practice_item_versions` (текст, целевые слова, урок и уровень версии),
+> `practice_item_words` (проекция целевых слов одной версии) (авторские задания, §2.40–§2.42), `practice_sessions`, `practice_attempts` (сольные сессии, §2.43–§2.44), `battles`,
 > `battle_participants`, `battle_answers` (баттл, §2.45–§2.47) и колонка `learners.practice_pilot_at` (§2.17). Практика **не пишет**
 > таблицы обучения (`word_repetitions`, `training_*`, `learner_daily_stats`, серия, лиги, `assignment_results`, `achievements`,
 > `challenges`) — только свои таблицы и `product_events`; инвариант закреплён тестом `PracticeIsolationTest`.
@@ -925,10 +925,10 @@ CHECK не создаются — инвариант дублируют серв
 |---------|-----|----------|
 | id | bigint PK | |
 | course_id | bigint FK → courses, ON DELETE CASCADE | курс задания; колоды learner'ов заданий не имеют (проверка `PracticeItemService`, ошибка `course_invalid`) |
-| lesson_id | bigint nullable FK → lessons, ON DELETE SET NULL | урок («практика урока»); `NULL` — задание курса |
+| lesson_id | bigint nullable FK → lessons, ON DELETE SET NULL | урок («практика урока»); `NULL` — задание курса. **Проекция версии** (опубликованной, а пока её нет — текущей), см. §2.41–§2.42 |
 | type | varchar(12) | `collocation` / `sentence` / `dictation` (у режима «Найди пары» заданий нет — он собирается из слов) |
 | key | varchar(64) | стабильный ключ автора (`/\A[a-z0-9][a-z0-9._-]{0,63}\z/`): идемпотентность импорта; после создания не меняется (как курс и тип) |
-| level | varchar(2) nullable | `A1`..`C2` |
+| level | varchar(2) nullable | `A1`..`C2`; проекция версии, как `lesson_id` |
 | status | varchar(10) default 'draft' | `draft` / `reviewed` / `published` / `archived` — **проекция версий**: `archived`, если `archived_at` задан; иначе `published`, если есть `published_version_id`; иначе состояние текущей версии |
 | current_version_id | bigint nullable | последняя версия (**без FK**: цикл items ↔ versions; целостность держит `PracticeItemService`) |
 | published_version_id | bigint nullable | версия, которую получают ученики; `NULL` — не публиковалось. Правка опубликованного задания создаёт новую версию-черновик (`current_version_id` переезжает), `published_version_id` и выдача остаются прежними |
@@ -940,7 +940,7 @@ CHECK не создаются — инвариант дублируют серв
 `practice_items_type_check`, `practice_items_status_check`, `practice_items_published_shape_check ((status = 'published') = (published_version_id IS NOT NULL AND archived_at IS NULL))`.
 Пишет только `PracticeItemService` (редактор админки, импорт, `practice:import`), под блокировкой курса (`CoursePublisher::lockForWriting`).
 
-### 2.41 `practice_item_versions` — неизменяемый текст задания *(18.1, 18.7a)*
+### 2.41 `practice_item_versions` — неизменяемая версия задания: текст, целевые слова, урок, уровень *(18.1, 18.7a, 18.9a)*
 | Колонка | Тип | Описание |
 |---------|-----|----------|
 | id | bigint PK | |
@@ -948,6 +948,9 @@ CHECK не создаются — инвариант дублируют серв
 | number | smallint | 1, 2, … внутри задания |
 | state | varchar(10) | `draft` → `reviewed` → `published` → `superseded` (прямой `draft → published` — только импорт с «опубликовать сразу») |
 | content | jsonb | тексты и структура по типу (`sentence`: `prompt`, `fragments`, `accepted` — перестановки индексов, `display`, `explanation`; `collocation`: `text` с одним `___`, `options`, `correct`, `translation`, `explanation`; `dictation`: `text`, `accepted`, `translation`, `explanation`); **не меняется после INSERT** |
+| target_word_ids | jsonb NOT NULL default '[]' | `words.id` целевых слов версии, по возрастанию, без повторов; **не меняется после INSERT** *(18.9a)* |
+| lesson_id | bigint nullable FK → lessons, ON DELETE SET NULL | урок версии (при удалении урока — `NULL`, как у `practice_items.lesson_id`); не меняется после INSERT *(18.9a)* |
+| level | varchar(2) nullable | `A1`..`C2`; не меняется после INSERT *(18.9a)* |
 | audio_key | varchar(40) nullable | только `dictation`: `sha1(version_id\|нормализованный текст\|голос\|TTS_AUDIO_VERSION)` — имя файла `{audio_key}.mp3` на диске `practice_audio`; наружу не уходит |
 | audio_status | varchar(8) default 'none' | `none` (не диктант) / `pending` / `ready` / `failed` |
 | audio_error | varchar(100) nullable | причина последнего `failed` |
@@ -957,16 +960,16 @@ CHECK не создаются — инвариант дублируют серв
 | created_at | timestamp default now | **без `updated_at`**: содержимое неизменно, служебные колонки аудио меняет только job `GeneratePracticeAudioJob` |
 
 **Индексы:** unique `(item_id, number)`; **partial** `practice_item_versions_audio_pending_idx (audio_status) WHERE audio_status = 'pending'` (PostgreSQL и SQLite — для виджета «аудио в очереди» и повторной постановки). **PostgreSQL CHECK:** `practice_item_versions_state_check`, `practice_item_versions_audio_status_check`.
-Версия — отдельная таблица, а не `version int` у задания: аудио принадлежит конкретному тексту, снимки ссылаются на `version_id` для аналитики, а «проверено / опубликовано» относится к тексту.
+Версия — отдельная таблица, а не `version int` у задания: аудио принадлежит конкретному тексту, снимки ссылаются на `version_id` для аналитики, а «проверено / опубликовано» относится к тексту. Текст, целевые слова, урок и уровень — четыре составляющие версии: изменилась любая — `PracticeItemService` пишет новую версию (изменения задания без новой версии нет), поэтому черновик опубликованного задания не меняет выдачу.
 
-### 2.42 `practice_item_words` — целевые слова задания *(18.1, 18.7a)*
+### 2.42 `practice_item_words` — проекция целевых слов задания *(18.1, 18.7a, 18.9a)*
 | Колонка | Тип | Описание |
 |---------|-----|----------|
 | id | bigint PK | |
 | item_id | bigint FK → practice_items, ON DELETE CASCADE | |
 | word_id | bigint FK → words, ON DELETE CASCADE | активное слово **того же курса** (любого урока); для публикации нужно ≥ 1 слова |
 
-**Индексы:** unique `(item_id, word_id)`; `word_id`. Связь принадлежит заданию, а не версии: смена целевых слов — обычная правка (новая версия), таблица перезаписывается вместе с ней. Ученику выдаётся только задание, у которого **все** целевые слова активны и введены ему (есть `word_repetitions`).
+**Индексы:** unique `(item_id, word_id)`; `word_id`. Целевые слова версии лежат в `practice_item_versions.target_word_ids` (§2.41); строки этой таблицы вместе с `practice_items.lesson_id` и `practice_items.level` — **проекция одной версии**: опубликованной, если у задания есть `published_version_id`, иначе текущей. Её читает выдача (`PracticeMaterialService`). Пишет проекцию только `PracticeItemService`: для задания без опубликованной версии — при каждой новой версии, для опубликованного — когда новая версия публикуется (в той же транзакции, что и `published_version_id`); черновик правки её не трогает. Ученику выдаётся только задание, у которого **все** целевые слова (проекции) активны и введены ему (есть `word_repetitions`).
 
 ### 2.43 `practice_sessions` — сольная сессия *(18.1)*
 | Колонка | Тип | Описание |
@@ -1140,8 +1143,9 @@ CHECK не создаются — инвариант дублируют серв
 50. `2026_10_30_100002_create_practice_items_tables` — `practice_items`, `practice_item_versions`, `practice_item_words` (одна миграция, три таблицы; без FK на версии из `practice_items`; partial-индекс `practice_item_versions_audio_pending_idx` — `CREATE INDEX … WHERE` для pgsql и sqlite; CHECK — только pgsql) *(18.1, §2.40–§2.42)*
 51. `2026_10_30_100003_create_practice_sessions_tables` — `practice_sessions`, `practice_attempts` (unique `active_learner_id`; CHECK — только pgsql) *(18.1, §2.43–§2.44)*
 52. `2026_10_30_100004_create_battles_tables` — `battles`, `battle_participants`, `battle_answers`; созданы вместе с практикой, чтобы баттл (18.6) стартовал на готовой схеме *(18.1, §2.45–§2.47)*
+53. `2026_10_30_100010_add_scope_to_practice_item_versions_table` — `practice_item_versions.target_word_ids` (jsonb NOT NULL default `'[]'`), `lesson_id` (nullable FK → `lessons`, ON DELETE SET NULL), `level`; backfill всех существующих версий из их заданий (слова — из `practice_item_words` по возрастанию, урок и уровень — из `practice_items`; query builder, чанки по 500 заданий, переносимо для SQLite и PostgreSQL). На SQLite FK добавляется пересборкой таблицы, а пересборка пересоздаёт индексы без предиката — поэтому partial-индекс `practice_item_versions_audio_pending_idx` перед ней снимается и после неё ставится заново. `down()` снимает FK и три колонки *(18.9a, §2.41–§2.42)*
 
-Миграции практики (49–52) — отдельные **forward**-миграции с рабочим `down()` (он удаляет таблицы в обратном порядке зависимостей; индексы и CHECK уходят вместе с таблицами; `down()` 49 снимает колонку); откат всех четырёх проверяет `DatabaseSchemaTest`. Цикл `practice_items` ↔ `practice_item_versions` разорван сознательно (версии ссылаются на задание FK, обратные ссылки `current_version_id` / `published_version_id` — без FK).
+Миграции практики (49–53) — отдельные **forward**-миграции с рабочим `down()` (он удаляет таблицы в обратном порядке зависимостей; индексы и CHECK уходят вместе с таблицами; `down()` 49 снимает колонку, `down()` 53 — FK и три колонки); откат всех проверяет `DatabaseSchemaTest`, backfill и откат 53 — `PracticeVersionScopeMigrationTest`. Цикл `practice_items` ↔ `practice_item_versions` разорван сознательно (версии ссылаются на задание FK, обратные ссылки `current_version_id` / `published_version_id` — без FK).
 
 Индексные миграции (`add_performance_indexes`, `add_open_session_unique_indexes`) и `create_exam_*`, `create_notifications_log_table`,
 `create_product_events_table` переведены на `learner_id` на месте; `add_open_session_unique_indexes` дополнительно создаёт

@@ -2,12 +2,15 @@
 
 declare(strict_types=1);
 
+use App\Domain\Practice\DTO\MaterialScope;
 use App\Domain\Practice\Enums\AudioStatus;
 use App\Domain\Practice\Enums\PracticeItemStatus;
+use App\Domain\Practice\Enums\PracticeItemType;
 use App\Domain\Practice\Enums\VersionState;
 use App\Domain\Practice\Exceptions\PracticeContentException;
 use App\Domain\Practice\Exceptions\PracticeItemStateException;
 use App\Domain\Practice\Services\PracticeItemService;
+use App\Domain\Practice\Services\PracticeMaterialService;
 use App\Jobs\GeneratePracticeAudioJob;
 use App\Models\AuditLog;
 use App\Models\Course;
@@ -232,7 +235,6 @@ it('writes nothing when what is saved is what is already there', function (): vo
     $again = $service->save($item, $course, $data, $this->admin);
 
     expect($again->versionCreated)->toBeFalse()
-        ->and($again->attributesChanged)->toBeFalse()
         ->and($again->outcome())->toBe('skipped')
         ->and($again->version->id)->toBe($first->id)
         ->and(PracticeItemVersion::query()->count())->toBe(1);
@@ -240,7 +242,7 @@ it('writes nothing when what is saved is what is already there', function (): vo
     Queue::assertPushed(GeneratePracticeAudioJob::class, 1);
 });
 
-it('writes a new version when only the target words change, and rewrites the words with it', function (): void {
+it('writes a new version when only the target words change, and a task with no published version shows the words of its newest', function (): void {
     [$course, , $words] = pis_course();
     $service = app(PracticeItemService::class);
     $item = pis_item($course, data: ['word_ids' => [$words[0]->id, $words[1]->id]]);
@@ -249,22 +251,244 @@ it('writes a new version when only the target words change, and rewrites the wor
 
     expect($saved->versionCreated)->toBeTrue()
         ->and($saved->version->number)->toBe(2)
+        ->and($saved->version->target_word_ids)->toBe([$words[1]->id, $words[2]->id])
         ->and(PracticeItemWord::query()->where('item_id', $item->id)->pluck('word_id')->sort()->values()->all())->toBe([$words[1]->id, $words[2]->id]);
 });
 
-it('changes the lesson and the level of the task without a new version', function (): void {
-    [$course, $lesson] = pis_course();
+// --- the target words, the lesson and the level belong to the VERSION (docs/16 §2.3-§2.4) ---------------------------------
+
+/** A second lesson in the module of `pis_course()`. */
+function pis_second_lesson(Lesson $lesson): Lesson
+{
+    return Lesson::factory()->for(Stage::query()->findOrFail($lesson->stage_id))->create(['number' => 2]);
+}
+
+/** @return list<int> the ids of the tasks of the type a learner is handed in the lesson (the lesson null: of the whole course) */
+function pis_served(Course $course, ?Lesson $lesson, Learner $learner, PracticeItemType $type = PracticeItemType::Sentence): array
+{
+    $versions = app(PracticeMaterialService::class)->eligibleItems(new MaterialScope($course, $lesson), $type, $learner);
+
+    return array_map(static fn (PracticeItemVersion $version): int => $version->item_id, $versions);
+}
+
+/**
+ * A sentence published in lesson 1, level A1, on the target word `$words[0]`; the learner knows `$words[0]` and `$words[1]`, not `$words[2]`.
+ *
+ * @return array{0: Course, 1: Lesson, 2: Lesson, 3: list<Word>, 4: Learner, 5: PracticeItem}
+ */
+function pis_published(): array
+{
+    [$course, $lesson, $words] = pis_course();
+    $learner = Learner::factory()->create();
+    PracticeKit::introduce($learner, $words[0]);
+    PracticeKit::introduce($learner, $words[1]);
+
     $service = app(PracticeItemService::class);
-    $item = pis_item($course);
+    $saved = $service->save(null, $course, pis_data('sentence', data: ['lesson_id' => $lesson->id, 'level' => 'A1', 'word_ids' => [$words[0]->id]]), null, publish: true);
 
-    $saved = $service->save($item, $course, pis_data('sentence', data: ['lesson_id' => $lesson->id, 'level' => 'B2']), $this->admin);
+    return [$course, $lesson, pis_second_lesson($lesson), $words, $learner, $saved->item];
+}
 
-    expect($saved->versionCreated)->toBeFalse()
-        ->and($saved->attributesChanged)->toBeTrue()
+it('writes a new version for each of the four - the text, the target words, the lesson, the level - and all four go into it', function (string $change): void {
+    [$course, $lesson, $words] = pis_course();
+    $other = pis_second_lesson($lesson);
+    $service = app(PracticeItemService::class);
+    $base = ['lesson_id' => $lesson->id, 'level' => 'A1', 'word_ids' => [$words[0]->id]];
+    $item = pis_item($course, data: $base);
+    $first = PracticeItemVersion::query()->where('item_id', $item->id)->sole();
+
+    $content = $change === 'text' ? ['explanation' => ['ru' => 'Другое пояснение.', 'uz' => 'Boshqa izoh.']] : [];
+    $data = match ($change) {
+        'lesson' => [...$base, 'lesson_id' => $other->id],
+        'level' => [...$base, 'level' => 'B2'],
+        'words' => [...$base, 'word_ids' => [$words[0]->id, $words[1]->id]],
+        default => $base,
+    };
+
+    $saved = $service->save($item, $course, pis_data('sentence', $content, $data), $this->admin);
+
+    expect($saved->versionCreated)->toBeTrue()
         ->and($saved->outcome())->toBe('updated')
-        ->and($item->fresh()?->lesson_id)->toBe($lesson->id)
-        ->and($item->fresh()?->level)->toBe('B2')
+        ->and($saved->version->number)->toBe(2)
+        ->and($saved->version->lesson_id)->toBe($data['lesson_id'])
+        ->and($saved->version->level)->toBe($data['level'])
+        ->and($saved->version->target_word_ids)->toBe($data['word_ids'])
+        ->and(PracticeItemVersion::query()->where('item_id', $item->id)->count())->toBe(2)
+        // The first version stays as it was written.
+        ->and($first->fresh()?->lesson_id)->toBe($lesson->id)
+        ->and($first->fresh()?->level)->toBe('A1')
+        ->and($first->fresh()?->target_word_ids)->toBe([$words[0]->id]);
+})->with(['text', 'words', 'lesson', 'level']);
+
+it('writes the first version with the words, the lesson and the level it is saved with, in ascending order of the words', function (): void {
+    [$course, $lesson, $words] = pis_course();
+
+    $version = app(PracticeItemService::class)->saveVersion(null, $course, pis_data('sentence', data: ['lesson_id' => $lesson->id, 'level' => 'A2', 'word_ids' => [$words[2]->id, $words[0]->id, $words[2]->id]]), $this->admin);
+
+    expect($version->target_word_ids)->toBe([$words[0]->id, $words[2]->id])
+        ->and($version->lesson_id)->toBe($lesson->id)
+        ->and($version->level)->toBe('A2');
+});
+
+it('keeps the lesson, the level and the words of a task that was never published as those of its newest version', function (): void {
+    [$course, $lesson, $words] = pis_course();
+    $other = pis_second_lesson($lesson);
+    $service = app(PracticeItemService::class);
+    $item = pis_item($course, data: ['lesson_id' => $lesson->id, 'level' => 'A1', 'word_ids' => [$words[0]->id]]);
+
+    $service->save($item, $course, pis_data('sentence', data: ['lesson_id' => $other->id, 'level' => 'B1', 'word_ids' => [$words[1]->id, $words[2]->id]]), $this->admin);
+
+    $fresh = $item->fresh();
+    expect($fresh?->lesson_id)->toBe($other->id)
+        ->and($fresh?->level)->toBe('B1')
+        ->and($fresh?->published_version_id)->toBeNull()
+        ->and(PracticeItemWord::query()->where('item_id', $item->id)->pluck('word_id')->sort()->values()->all())->toBe([$words[1]->id, $words[2]->id]);
+});
+
+it('does not let a draft with another target word change who gets the published version', function (): void {
+    [$course, $lesson, , $words, $learner, $item] = pis_published();
+    $service = app(PracticeItemService::class);
+    expect(pis_served($course, $lesson, $learner))->toBe([$item->id]);
+
+    // The draft names a word the learner has not met.
+    $draft = $service->saveVersion($item, $course, pis_data('sentence', data: ['lesson_id' => $lesson->id, 'level' => 'A1', 'word_ids' => [$words[2]->id]]), $this->admin);
+
+    $fresh = $item->fresh();
+    expect(pis_served($course, $lesson, $learner))->toBe([$item->id])
+        ->and($fresh?->status)->toBe(PracticeItemStatus::Published)
+        ->and($fresh?->current_version_id)->toBe($draft->id)
+        ->and($fresh?->published_version_id)->not->toBe($draft->id)
+        ->and($draft->target_word_ids)->toBe([$words[2]->id])
+        ->and(PracticeItemWord::query()->where('item_id', $item->id)->pluck('word_id')->all())->toBe([$words[0]->id]);
+
+    // Published, the new version is what the learners get: and this learner has not met its word.
+    $service->markReviewed($item, $this->admin);
+    $service->publish($item, $this->admin);
+
+    expect(pis_served($course, $lesson, $learner))->toBe([])
+        ->and(PracticeItemWord::query()->where('item_id', $item->id)->pluck('word_id')->all())->toBe([$words[2]->id]);
+});
+
+it('does not let a draft in another lesson or at another level move the published version', function (): void {
+    [$course, $lesson, $other, $words, $learner, $item] = pis_published();
+    $service = app(PracticeItemService::class);
+
+    $service->saveVersion($item, $course, pis_data('sentence', data: ['lesson_id' => $other->id, 'level' => 'B2', 'word_ids' => [$words[0]->id]]), $this->admin);
+
+    $fresh = $item->fresh();
+    expect(pis_served($course, $lesson, $learner))->toBe([$item->id])
+        ->and(pis_served($course, $other, $learner))->toBe([])
+        ->and($fresh?->lesson_id)->toBe($lesson->id)
+        ->and($fresh?->level)->toBe('A1');
+
+    $service->markReviewed($item, $this->admin);
+    $service->publish($item, $this->admin);
+
+    $fresh = $item->fresh();
+    expect(pis_served($course, $lesson, $learner))->toBe([])
+        ->and(pis_served($course, $other, $learner))->toBe([$item->id])
+        ->and($fresh?->lesson_id)->toBe($other->id)
+        ->and($fresh?->level)->toBe('B2');
+});
+
+it('does not hand the published version to everyone, nor publish it, when a draft is left without target words', function (): void {
+    [$course, $lesson, , $words, , $item] = pis_published();
+    $service = app(PracticeItemService::class);
+    $stranger = Learner::factory()->create(); // introduced to nothing: the published version needs `$words[0]`
+    expect(pis_served($course, $lesson, $stranger))->toBe([]);
+
+    $draft = $service->saveVersion($item, $course, pis_data('sentence', data: ['lesson_id' => $lesson->id, 'level' => 'A1', 'word_ids' => []]), $this->admin);
+
+    expect($draft->target_word_ids)->toBe([])
+        ->and(pis_served($course, $lesson, $stranger))->toBe([])
+        ->and(PracticeItemWord::query()->where('item_id', $item->id)->pluck('word_id')->all())->toBe([$words[0]->id]);
+
+    $service->markReviewed($item, $this->admin);
+    $publishedBefore = $item->fresh()?->published_version_id;
+
+    expect(pis_fails(fn () => $service->publish($item, $this->admin)))->toBe(['target_words_required', 'target_words'])
+        ->and($item->fresh()?->published_version_id)->toBe($publishedBefore)
+        ->and(pis_served($course, $lesson, $stranger))->toBe([])
+        ->and(PracticeItemWord::query()->where('item_id', $item->id)->pluck('word_id')->all())->toBe([$words[0]->id]);
+});
+
+it('checks the target words of the version it publishes, not the ones the task shows', function (): void {
+    [$course, $lesson, , $words, , $item] = pis_published();
+    $service = app(PracticeItemService::class);
+    $word = Word::query()->findOrFail($words[1]->id);
+
+    $service->saveVersion($item, $course, pis_data('sentence', data: ['lesson_id' => $lesson->id, 'level' => 'A1', 'word_ids' => [$word->id]]), $this->admin);
+    $service->markReviewed($item, $this->admin);
+    // The task still shows `$words[0]`, which is fine; the version names `$word`, which has gone inactive meanwhile.
+    $word->update(['is_active' => false, 'word' => 'ghostword']);
+
+    try {
+        $service->publish($item, $this->admin);
+        $this->fail('a version whose target word is inactive must not be published');
+    } catch (PracticeContentException $e) {
+        // The admin is told the word, not its number.
+        expect([$e->errorCode, $e->field, $e->context['word']])->toBe(['target_word_unknown', 'target_words', 'ghostword']);
+    }
+});
+
+it('names an unknown target word by its text when there is one, by its number when the word has gone', function (): void {
+    [$course, $lesson, $words] = pis_course();
+    $service = app(PracticeItemService::class);
+    $words[1]->update(['is_active' => false, 'word' => 'ghostword']);
+    $gone = Word::factory()->for($lesson)->create();
+    $goneId = $gone->id;
+    $gone->delete();
+
+    $context = static function (int $id) use ($service, $course): array {
+        try {
+            $service->saveVersion(null, $course, pis_data('sentence', data: ['key' => "k{$id}", 'word_ids' => [$id]]), null);
+        } catch (PracticeContentException $e) {
+            return [$e->errorCode, $e->context['word'], $e->getMessage()];
+        }
+
+        return [];
+    };
+
+    expect($context($words[1]->id))->toBe(['target_word_unknown', 'ghostword', "The word 'ghostword' is no active word of the course."])
+        ->and($context($goneId))->toBe(['target_word_unknown', (string) $goneId, "The word '{$goneId}' is no active word of the course."]);
+});
+
+it('moves the projection to the published version at once when a version is saved with publishing', function (): void {
+    [$course, $lesson, $other, $words, $learner, $item] = pis_published();
+    $service = app(PracticeItemService::class);
+
+    $service->save($item, $course, pis_data('sentence', data: ['lesson_id' => $other->id, 'level' => 'B1', 'word_ids' => [$words[1]->id]]), null, publish: true);
+
+    $fresh = $item->fresh();
+    expect(pis_served($course, $lesson, $learner))->toBe([])
+        ->and(pis_served($course, $other, $learner))->toBe([$item->id])
+        ->and($fresh?->lesson_id)->toBe($other->id)
+        ->and($fresh?->level)->toBe('B1')
+        ->and(PracticeItemWord::query()->where('item_id', $item->id)->pluck('word_id')->all())->toBe([$words[1]->id]);
+});
+
+it('refuses to write a version as published without a target word, and writes nothing', function (): void {
+    [$course, $lesson, , , , $item] = pis_published();
+
+    expect(pis_fails(fn () => app(PracticeItemService::class)->save($item, $course, pis_data('sentence', data: ['lesson_id' => $lesson->id, 'level' => 'A1', 'word_ids' => []]), null, publish: true)))
+        ->toBe(['target_words_required', 'target_words'])
         ->and(PracticeItemVersion::query()->where('item_id', $item->id)->count())->toBe(1);
+});
+
+it('leaves the projection on the published version through the archive and back, whatever the newer draft says', function (): void {
+    [$course, $lesson, $other, $words, $learner, $item] = pis_published();
+    $service = app(PracticeItemService::class);
+    $service->saveVersion($item, $course, pis_data('sentence', data: ['lesson_id' => $other->id, 'level' => 'C1', 'word_ids' => [$words[2]->id]]), $this->admin);
+
+    $service->archive($item, $this->admin);
+    expect(pis_served($course, $lesson, $learner))->toBe([]);
+    $service->restore($item, $this->admin);
+
+    $fresh = $item->fresh();
+    expect(pis_served($course, $lesson, $learner))->toBe([$item->id])
+        ->and($fresh?->lesson_id)->toBe($lesson->id)
+        ->and($fresh?->level)->toBe('A1')
+        ->and(PracticeItemWord::query()->where('item_id', $item->id)->pluck('word_id')->all())->toBe([$words[0]->id]);
 });
 
 it('keeps the key and the type of an existing task whatever the data says, and refuses a type that differs', function (): void {
@@ -515,26 +739,186 @@ it('asks for the audio of the current version again only for a dictation', funct
     expect(PracticeItemVersion::query()->where('item_id', $dictation->id)->value('audio_status'))->toBe(AudioStatus::Pending);
 });
 
+it('voices the published version and the current one again when the draft is another version, each once', function (): void {
+    [$course, , $words] = pis_course();
+    $service = app(PracticeItemService::class);
+    $data = ['key' => 'dd', 'word_ids' => [$words[0]->id]];
+    $item = pis_item($course, 'dictation', data: $data);
+    $service->markReviewed($item, $this->admin);
+    $service->publish($item, $this->admin);
+    $published = PracticeItemVersion::query()->where('item_id', $item->id)->sole();
+    // The published version's audio failed; a draft with another text waits (and is pending).
+    $published->forceFill(['audio_status' => AudioStatus::Failed, 'audio_error' => 'tts_service_failed'])->save();
+    $draft = $service->saveVersion($item, $course, pis_data('dictation', ['text' => 'See you soon', 'accepted' => []], $data), $this->admin);
+    Queue::fake();
+
+    $service->regenerateAudio($item->fresh() ?? $item);
+
+    Queue::assertPushed(GeneratePracticeAudioJob::class, 2);
+    Queue::assertPushed(GeneratePracticeAudioJob::class, fn (GeneratePracticeAudioJob $job): bool => $job->versionId === $published->id && $job->force);
+    Queue::assertPushed(GeneratePracticeAudioJob::class, fn (GeneratePracticeAudioJob $job): bool => $job->versionId === $draft->id && $job->force);
+    expect($published->fresh()?->audio_status)->toBe(AudioStatus::Pending)
+        ->and($published->fresh()?->audio_error)->toBeNull();
+});
+
+it('voices the one version again once when the current version is the published one', function (): void {
+    [$course, , $words] = pis_course();
+    $service = app(PracticeItemService::class);
+    $item = pis_item($course, 'dictation', data: ['word_ids' => [$words[0]->id]]);
+    $service->markReviewed($item, $this->admin);
+    $service->publish($item, $this->admin);
+    PracticeItemVersion::query()->where('item_id', $item->id)->update(['audio_status' => AudioStatus::Ready->value]);
+    Queue::fake();
+
+    $service->regenerateAudio($item->fresh() ?? $item);
+
+    Queue::assertPushed(GeneratePracticeAudioJob::class, 1);
+});
+
+it('voices only the current version of a dictation that was never published, and nothing for an archived one', function (): void {
+    [$course] = pis_course();
+    $service = app(PracticeItemService::class);
+    $item = pis_item($course, 'dictation');
+    $service->saveVersion($item, $course, pis_data('dictation', ['text' => 'See you soon', 'accepted' => []]), $this->admin);
+    $current = PracticeItemVersion::query()->where('item_id', $item->id)->where('number', 2)->sole();
+    Queue::fake();
+
+    $service->regenerateAudio($item->fresh() ?? $item);
+
+    Queue::assertPushed(GeneratePracticeAudioJob::class, 1);
+    Queue::assertPushed(GeneratePracticeAudioJob::class, fn (GeneratePracticeAudioJob $job): bool => $job->versionId === $current->id);
+
+    $service->archive($item, $this->admin);
+    expect(fn () => $service->regenerateAudio($item->fresh() ?? $item))->toThrow(PracticeItemStateException::class);
+});
+
+// --- "reviewed" and "publish" act on the version the admin saw ------------------------------------------------------------------
+
+it('refuses "reviewed" and "publish" for a version the admin did not see: an import wrote a newer one meanwhile', function (): void {
+    [$course, , $words] = pis_course();
+    $service = app(PracticeItemService::class);
+    $data = ['word_ids' => [$words[0]->id]];
+    $item = pis_item($course, data: $data);
+    $seen = $item->current_version_id;
+    // The admin has the first version open; an import writes a second one.
+    $newer = $service->saveVersion($item->fresh() ?? $item, $course, pis_data('sentence', ['explanation' => ['ru' => 'Другое.', 'uz' => 'Boshqa.']], $data), null);
+
+    try {
+        $service->markReviewed($item->fresh() ?? $item, $this->admin, null, $seen);
+        $this->fail('a version nobody has seen must not be marked as checked');
+    } catch (PracticeItemStateException $e) {
+        expect($e->errorCode)->toBe('version_changed')->and($e->httpStatus())->toBe(409);
+    }
+    expect($newer->fresh()?->state)->toBe(VersionState::Draft)
+        ->and(AuditLog::query()->where('action', 'practice_item.reviewed')->count())->toBe(0);
+
+    // The newer version marked as checked by someone else: "publish" of the old page is refused, too.
+    $service->markReviewed($item->fresh() ?? $item, $this->admin, null, $newer->id);
+    $stale = fn () => $service->publish($item->fresh() ?? $item, $this->admin, null, $seen);
+
+    expect($stale)->toThrow(PracticeItemStateException::class, 'changed')
+        ->and($item->fresh()?->published_version_id)->toBeNull()
+        ->and($newer->fresh()?->state)->toBe(VersionState::Reviewed);
+
+    // The version that was seen goes through.
+    $service->publish($item->fresh() ?? $item, $this->admin, null, $newer->id);
+    expect($item->fresh()?->published_version_id)->toBe($newer->id);
+});
+
+it('does not tie the move to a version when none is expected: the import and the seeders', function (): void {
+    [$course, , $words] = pis_course();
+    $service = app(PracticeItemService::class);
+    $item = pis_item($course, data: ['word_ids' => [$words[0]->id]]);
+
+    $service->markReviewed($item, $this->admin);
+    $service->publish($item, $this->admin, null, null);
+
+    expect($item->fresh()?->status)->toBe(PracticeItemStatus::Published);
+});
+
+it('checks that the task is not archived before it asks which version the admin saw', function (): void {
+    [$course] = pis_course();
+    $service = app(PracticeItemService::class);
+    $item = pis_item($course);
+    $service->archive($item, $this->admin);
+
+    try {
+        $service->markReviewed($item, $this->admin, null, 999_999);
+        $this->fail('an archived task is not marked as checked');
+    } catch (PracticeItemStateException $e) {
+        expect($e->errorCode)->toBe('item_archived');
+    }
+});
+
+// --- the course of the task ----------------------------------------------------------------------------------------------------------
+
+it('refuses to save a task under the course of another: the lock and the checks would be the wrong ones', function (): void {
+    [$course, , $words] = pis_course();
+    $other = Course::factory()->published()->create();
+    $item = pis_item($course, data: ['word_ids' => [$words[0]->id]]);
+
+    expect(fn () => app(PracticeItemService::class)->save($item, $other, pis_data('sentence'), $this->admin))
+        ->toThrow(InvalidArgumentException::class, "belongs to the course {$course->id}, not to the course {$other->id}")
+        ->and(PracticeItemVersion::query()->where('item_id', $item->id)->count())->toBe(1);
+});
+
+// --- the voicing of a new dictation version is optional for the caller who does it itself ---------------------------------------------------------
+
+it('queues no voicing job when the caller says it voices the phrases itself, and leaves the version pending', function (): void {
+    [$course, , $words] = pis_course();
+    $service = app(PracticeItemService::class);
+    $prepared = $service->prepare($course, pis_data('dictation', data: ['word_ids' => [$words[0]->id]]));
+
+    $silent = $service->write($course, null, $prepared, null, scheduleAudio: false);
+
+    Queue::assertNothingPushed();
+    expect($silent->version->audio_status)->toBe(AudioStatus::Pending);
+
+    // By default the voicing is queued, for the new version of the same task as for a new task.
+    $service->write($course, $silent->item, $service->prepare($course, pis_data('dictation', ['text' => 'See you soon', 'accepted' => []], ['word_ids' => [$words[0]->id]]), $silent->item), null);
+    Queue::assertPushed(GeneratePracticeAudioJob::class, 1);
+});
+
 // --- the text is untrusted -----------------------------------------------------------------------------------------
 
-it('strips tags and control characters and composes the text on the way in', function (): void {
+it('removes control characters and composes the text on the way in', function (): void {
     [$course] = pis_course();
 
     $version = app(PracticeItemService::class)->saveVersion(null, $course, pis_data('collocation', [
-        'text' => "Let's <b>___</b> a\u{0000} meeting <script>alert(1)</script>on\tMonday.\u{200B}",
-        'options' => ['<i>have</i>', "ma\u{0007}ke", 'do'],
+        'text' => "Let's ___ a\u{0000} meeting on\tMonday.\u{200B}",
+        'options' => ['have', "ma\u{0007}ke", 'do'],
         'correct' => ['have'],
         // «Мой» with the breve apart from the letter (и + U+0306) is composed into one letter й (U+0439).
         'translation' => ['ru' => "Мо\u{0438}\u{0306}", 'uz' => "Uchrashuv\n o'tkazaylik"],
-        'explanation' => ['ru' => '<img src=x onerror=alert(1)>Пояснение', 'uz' => 'Izoh'],
+        'explanation' => ['ru' => 'Пояснение & "кавычки"', 'uz' => 'Izoh'],
     ]), $this->admin);
 
-    expect($version->content['text'])->toBe("Let's ___ a meeting alert(1)on Monday.")
+    expect($version->content['text'])->toBe("Let's ___ a meeting on Monday.")
         ->and($version->content['options'])->toBe(['have', 'make', 'do'])
         ->and($version->content['translation']['ru'])->toBe("Мо\u{0439}")
         ->and($version->content['translation']['uz'])->toBe("Uchrashuv o'tkazaylik")
-        ->and($version->content['explanation']['ru'])->toBe('Пояснение');
+        // `&` and quotes are text, not markup: they are kept (the pages print them escaped).
+        ->and($version->content['explanation']['ru'])->toBe('Пояснение & "кавычки"');
 });
+
+it('refuses a text with < or > and names the field, instead of cutting the text off at the sign', function (string $type, array $content, string $field): void {
+    [$course] = pis_course();
+
+    expect(pis_fails(fn () => app(PracticeItemService::class)->saveVersion(null, $course, pis_data($type, $content), $this->admin)))->toBe(['markup_not_allowed', $field])
+        ->and(PracticeItem::query()->count())->toBe(0)
+        ->and(PracticeItemVersion::query()->count())->toBe(0);
+})->with([
+    'a tag in a prompt' => ['sentence', ['prompt' => ['ru' => '<b>Моя</b> мама — учитель.', 'uz' => "Onam o'qituvchi."]], 'prompt'],
+    'a lone < in an explanation' => ['sentence', ['explanation' => ['ru' => 'Знак < значит «меньше».', 'uz' => 'x']], 'explanation'],
+    'a > in a fragment' => ['sentence', ['fragments' => ['my', 'mother', 'is', 'a', 'teacher>']], 'fragments'],
+    'a tag in a display' => ['sentence', ['display' => 'My mother is a <i>teacher</i>.'], 'display'],
+    'a script in the text of a collocation' => ['collocation', ['text' => "Let's ___ a <script>alert(1)</script> meeting."], 'text'],
+    'a tag in an option' => ['collocation', ['options' => ['<i>have</i>', 'make', 'do']], 'options'],
+    'an image in a translation' => ['collocation', ['translation' => ['ru' => '<img src=x onerror=alert(1)>Встреча', 'uz' => 'x']], 'translation'],
+    'a lone < in a dictation' => ['dictation', ['text' => 'I <3 you', 'accepted' => []], 'text'],
+    'a > in another accepted writing' => ['dictation', ['accepted' => ['See you > tomorrow']], 'accepted'],
+    'a tag in the translation of a dictation' => ['dictation', ['translation' => ['ru' => 'До <b>завтра</b>', 'uz' => 'Ertagacha']], 'translation'],
+]);
 
 it('does not take a line break inside a fragment for a space', function (): void {
     [$course] = pis_course();
@@ -577,6 +961,8 @@ it('refuses a text with the code of §4.5', function (string $type, array $conte
     'accepted lacks a fragment' => ['sentence', ['accepted' => [['my', 'mother', 'is', 'a']]], 'accepted_not_permutation', 'accepted'],
     'accepted has a stranger' => ['sentence', ['accepted' => [['my', 'mother', 'is', 'a', 'doctor']]], 'accepted_not_permutation', 'accepted'],
     'accepted repeats a fragment' => ['sentence', ['accepted' => [['my', 'mother', 'is', 'a', 'a']]], 'accepted_not_permutation', 'accepted'],
+    'the first accepted order is not the order of the fragments' => ['sentence', ['accepted' => [['teacher', 'a', 'is', 'mother', 'my'], ['my', 'mother', 'is', 'a', 'teacher']], 'display' => null], 'accepted_first_mismatch', 'accepted'],
+    'the only accepted order is another one' => ['sentence', ['fragments' => ['I', 'usually', 'drink', 'tea'], 'accepted' => [['usually', 'I', 'drink', 'tea']], 'display' => null], 'accepted_first_mismatch', 'accepted'],
     'second accepted order is no permutation' => ['sentence', ['accepted' => [['my', 'mother', 'is', 'a', 'teacher'], ['my', 'mother']]], 'accepted_not_permutation', 'accepted'],
     'one order written twice' => ['sentence', ['accepted' => [['my', 'mother', 'is', 'a', 'teacher'], ['My', 'Mother', 'is', 'a', 'teacher.']]], 'accepted_duplicate', 'accepted'],
     'seven distinct orders' => ['sentence', [

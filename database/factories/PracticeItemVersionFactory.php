@@ -9,12 +9,16 @@ use App\Domain\Practice\Enums\PracticeItemType;
 use App\Domain\Practice\Enums\VersionState;
 use App\Models\PracticeItem;
 use App\Models\PracticeItemVersion;
+use App\Models\PracticeItemWord;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * A version of a task with a VALID `content` for its type (docs/16 §2.3, §4.5) - what the tests of the modes
  * use instead of PracticeItemService. The type states set the content; a dictation also gets an `audio_key`
  * and the audio status `pending` ({@see audioReady()} and the like change it).
+ *
+ * The place and the target words of the version (`lesson_id`, `level`, `target_word_ids`) are those the task has at the moment
+ * (its columns and its `practice_item_words`), so a version agrees with its task unless a test says otherwise.
  *
  * @extends Factory<PracticeItemVersion>
  */
@@ -35,6 +39,10 @@ class PracticeItemVersionFactory extends Factory
             'number' => 1,
             'state' => VersionState::Draft,
             'content' => self::contentFor(PracticeItemType::Collocation, $counter),
+            // After `item_id`: a closure is given the attributes resolved so far.
+            'target_word_ids' => static fn (array $attributes): array => self::wordsOf($attributes['item_id']),
+            'lesson_id' => static fn (array $attributes): ?int => self::lessonOf($attributes['item_id']),
+            'level' => static fn (array $attributes): ?string => self::levelOf($attributes['item_id']),
             'audio_key' => null,
             'audio_status' => AudioStatus::None,
             'audio_error' => null,
@@ -142,6 +150,31 @@ class PracticeItemVersionFactory extends Factory
             PracticeItemType::Collocation => self::collocationContent($i),
             PracticeItemType::Dictation => self::dictationContent($i),
         };
+    }
+
+    /** @return list<int> the target words the task has now, ascending */
+    private static function wordsOf(mixed $itemId): array
+    {
+        $ids = [];
+        foreach (PracticeItemWord::query()->where('item_id', $itemId)->orderBy('word_id')->pluck('word_id') as $id) {
+            $ids[] = (int) $id;
+        }
+
+        return $ids;
+    }
+
+    private static function lessonOf(mixed $itemId): ?int
+    {
+        $lesson = PracticeItem::query()->whereKey($itemId)->value('lesson_id');
+
+        return is_numeric($lesson) ? (int) $lesson : null;
+    }
+
+    private static function levelOf(mixed $itemId): ?string
+    {
+        $level = PracticeItem::query()->whereKey($itemId)->value('level');
+
+        return is_string($level) ? $level : null;
     }
 
     /** The name of the audio file of a version: 40 hex characters, like `sha1(...)`. */

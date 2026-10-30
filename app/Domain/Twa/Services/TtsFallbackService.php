@@ -9,6 +9,9 @@ use RuntimeException;
 
 final class TtsFallbackService
 {
+    /** The message (a stable code) of the RuntimeException thrown while `twa.tts.service_url` is empty: nothing to retry. */
+    public const NOT_CONFIGURED = 'tts_service_not_configured';
+
     /**
      * @return array{body:string, content_type:string}
      */
@@ -16,7 +19,7 @@ final class TtsFallbackService
     {
         $baseUrl = rtrim((string) config('twa.tts.service_url'), '/');
         if ($baseUrl === '') {
-            throw new RuntimeException('tts_service_not_configured');
+            throw new RuntimeException(self::NOT_CONFIGURED);
         }
 
         $response = Http::timeout((int) config('twa.tts.timeout', 8))

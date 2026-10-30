@@ -189,7 +189,8 @@ it('words the unknown course and the missing translation of a lesson file', func
     ], JSON_THROW_ON_ERROR);
     livewire(ImportLesson::class)->set('data.file', UploadedFile::fake()->createWithContent('d.json', $json))->call('submit');
 
-    expect(aet_sent()[0]['body'])->toBe('Слово «dog» (№1): не указан русский перевод — заполните "translation" или "translations.ru".');
+    // The body of the notification is HTML (Filament prints it as such), so the text of the file's refusals goes in escaped: the quotes are entities.
+    expect(aet_sent()[0]['body'])->toBe(e('Слово «dog» (№1): не указан русский перевод — заполните "translation" или "translations.ru".'));
 });
 
 it('passes the schema errors of a lesson file on in Russian', function (): void {

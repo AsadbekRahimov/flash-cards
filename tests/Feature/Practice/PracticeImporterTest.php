@@ -6,9 +6,12 @@ use App\Domain\Content\DTO\ImportIssue;
 use App\Domain\Practice\DTO\PracticeImportReport;
 use App\Domain\Practice\Enums\AudioStatus;
 use App\Domain\Practice\Enums\PracticeItemStatus;
+use App\Domain\Practice\Enums\Verdict;
 use App\Domain\Practice\Enums\VersionState;
+use App\Domain\Practice\Services\Grading\DictationGrader;
 use App\Domain\Practice\Services\PracticeImporter;
 use App\Domain\Practice\Services\PracticeItemService;
+use App\Filament\Resources\Support\AdminErrors;
 use App\Jobs\GeneratePracticeAudioJob;
 use App\Models\AuditLog;
 use App\Models\Course;
@@ -298,26 +301,90 @@ it('writes a changed task as a new version and leaves the rest', function (): vo
         ->and(PracticeItem::query()->count())->toBe(3);
 });
 
-it('counts a changed target word as an update, and a changed lesson alone too, without a second version', function (): void {
+it('skips a task when the text, the target words, the lesson and the level are all the same, and writes a new version when ANY of the four differs', function (string $field, array $change): void {
     pim_course();
     pim_import(pim_file(pim_items()));
-    $versionsOf = static fn (string $key): int => PracticeItemVersion::query()->where('item_id', PracticeItem::query()->where('key', $key)->value('id'))->count();
+    $item = PracticeItem::query()->where('key', 'sent-1')->firstOrFail();
+    $first = PracticeItemVersion::query()->findOrFail($item->current_version_id);
 
-    $words = pim_items();
-    $words[0]['target_words'] = ['mother', 'father'];
-    $first = pim_import(pim_file($words));
+    $again = pim_import(pim_file(pim_items()));
+    expect($again->toArray())->toMatchArray(['added' => 0, 'updated' => 0, 'skipped' => 3])
+        ->and(PracticeItemVersion::query()->where('item_id', $item->id)->count())->toBe(1);
 
-    expect($first->toArray())->toMatchArray(['updated' => 1, 'skipped' => 2])
-        ->and($versionsOf('sent-1'))->toBe(2);
+    $changed = pim_items();
+    $changed[0] = [...$changed[0], ...$change];
+    $report = pim_import(pim_file($changed));
 
-    $lesson = $words;
-    $lesson[2]['lesson'] = ['stage' => 1, 'number' => 1];
-    $second = pim_import(pim_file($lesson));
+    $item->refresh();
+    $second = PracticeItemVersion::query()->findOrFail($item->current_version_id);
+    expect($report->toArray())->toMatchArray(['added' => 0, 'updated' => 1, 'skipped' => 2], $field)
+        ->and(PracticeItemVersion::query()->where('item_id', $item->id)->count())->toBe(2)
+        ->and($second->number)->toBe(2)
+        ->and($second->state)->toBe(VersionState::Draft)
+        // the first version is as it was
+        ->and(PracticeItemVersion::query()->findOrFail($first->id)->getAttributes())->toBe($first->getAttributes())
+        // all four are in the new version, and a task that was never published shows it
+        ->and($second->lesson_id)->toBe($item->lesson_id)
+        ->and($second->level)->toBe($item->level)
+        ->and($second->target_word_ids)->toBe($item->words()->orderBy('words.id')->pluck('words.id')->all());
+})->with([
+    'the text' => ['text', ['explanation' => ['ru' => 'Другое пояснение.', 'uz' => 'Boshqa izoh.']]],
+    'the target words' => ['target words', ['target_words' => ['mother', 'father']]],
+    'the lesson' => ['lesson', ['lesson' => ['stage' => 1, 'number' => 2]]],
+    'the level' => ['level', ['level' => 'B2']],
+]);
 
-    // The dictation moved to lesson 1: the task changes, the text does not, so there is no new version.
-    expect($second->toArray())->toMatchArray(['updated' => 1, 'skipped' => 2])
-        ->and($versionsOf('dic-1'))->toBe(1)
-        ->and(PracticeItem::query()->where('key', 'dic-1')->firstOrFail()->lesson?->number)->toBe(1);
+it('writes the new version of a changed lesson, level or word of a published task as a draft, and leaves what the learners get', function (string $field, array $change): void {
+    [, $one, $two] = pim_course();
+    pim_import(pim_file(pim_items()), publish: true);
+    $item = PracticeItem::query()->where('key', 'sent-1')->firstOrFail();
+    $published = $item->published_version_id;
+    $words = $item->words()->orderBy('words.id')->pluck('words.id')->all();
+
+    $changed = pim_items();
+    $changed[0] = [...$changed[0], ...$change];
+    $report = pim_import(pim_file($changed));
+
+    $item->refresh();
+    expect($report->toArray())->toMatchArray(['updated' => 1, 'skipped' => 2, 'published' => 0], $field)
+        ->and($item->status)->toBe(PracticeItemStatus::Published)
+        ->and($item->published_version_id)->toBe($published)
+        ->and($item->current_version_id)->not->toBe($published)
+        ->and($item->lesson_id)->toBe($one->id)
+        ->and($item->level)->toBe('A1')
+        ->and($item->words()->orderBy('words.id')->pluck('words.id')->all())->toBe($words);
+
+    // The same file with publishing makes the draft the published version, and the task takes its place.
+    $report = pim_import(pim_file($changed), publish: true);
+
+    $item->refresh();
+    expect($report->toArray())->toMatchArray(['updated' => 0, 'skipped' => 3, 'published' => 1], $field)
+        ->and($item->published_version_id)->toBe($item->current_version_id)
+        ->and($item->lesson_id)->toBe(($change['lesson']['number'] ?? 1) === 2 ? $two->id : $one->id)
+        ->and($item->level)->toBe($change['level'] ?? 'A1');
+})->with([
+    'the target words' => ['target words', ['target_words' => ['mother', 'father']]],
+    'the lesson' => ['lesson', ['lesson' => ['stage' => 1, 'number' => 2]]],
+    'the level' => ['level', ['level' => 'B2']],
+]);
+
+it('refuses to publish at once a changed task whose target words are gone from the file', function (): void {
+    pim_course();
+    pim_import(pim_file(pim_items()), publish: true);
+    $item = PracticeItem::query()->where('key', 'sent-1')->firstOrFail();
+
+    $changed = pim_items();
+    $changed[0]['target_words'] = [];
+    $report = pim_import(pim_file($changed), publish: true);
+
+    expect(pim_issues($report))->toBe([['target_words_required', 1, 'sent-1']])
+        ->and($item->fresh()?->published_version_id)->toBe($item->published_version_id)
+        ->and(PracticeItemVersion::query()->where('item_id', $item->id)->count())->toBe(1);
+
+    // As a draft the same file is fine: the published version keeps its words for the learners.
+    $draft = pim_import(pim_file($changed));
+    expect($draft->toArray())->toMatchArray(['updated' => 1])
+        ->and($item->fresh()?->words()->count())->toBe(1);
 });
 
 it('imports an edit of a published task as a draft: the learners keep the published version', function (): void {
@@ -473,6 +540,7 @@ it('refuses a task with its code, its position in the file and its key, and writ
     'no type' => ['sentence', ['type' => null], 'type_invalid', null],
     'lesson that the course lacks' => ['sentence', ['lesson' => ['stage' => 9, 'number' => 9]], 'lesson_not_in_course', 'lesson'],
     'lesson of the wrong shape' => ['sentence', ['lesson' => 'one'], 'field_invalid', 'lesson'],
+    'a key besides stage and number in the lesson' => ['sentence', ['lesson' => ['stage' => 1, 'number' => 1, 'title' => 'Family']], 'field_unknown', 'lesson.title'],
     'lesson with a text for a number' => ['sentence', ['lesson' => ['stage' => '1', 'number' => 1]], 'field_invalid', 'lesson'],
     'level outside A1..C2' => ['sentence', ['level' => 'D1'], 'level_invalid', 'level'],
     'level that is no text' => ['sentence', ['level' => 1], 'field_invalid', 'level'],
@@ -498,6 +566,8 @@ it('refuses a task with its code, its position in the file and its key, and writ
     'a fragment with a line break' => ['sentence', ['fragments' => ['my', "moth\ner", 'is', 'a', 'teacher']], 'fragment_invalid', 'fragments'],
     'no accepted orders' => ['sentence', ['accepted' => []], 'accepted_required', 'accepted'],
     'an accepted order that is no permutation' => ['sentence', ['accepted' => [['my', 'mother', 'is', 'a', 'doctor']]], 'accepted_not_permutation', 'accepted'],
+    'a first accepted order that is not the order of the fragments' => ['sentence', ['accepted' => [['teacher', 'a', 'is', 'mother', 'my'], ['my', 'mother', 'is', 'a', 'teacher']], 'display' => null], 'accepted_first_mismatch', 'accepted'],
+    'a text with a < in it' => ['sentence', ['explanation' => ['ru' => 'a < b', 'uz' => 'x']], 'markup_not_allowed', 'explanation'],
     'one accepted order twice' => ['sentence', ['accepted' => [['my', 'mother', 'is', 'a', 'teacher'], ['my', 'mother', 'is', 'a', 'teacher']]], 'accepted_duplicate', 'accepted'],
     'seven accepted orders' => ['sentence', [
         'fragments' => ['a', 'b', 'c', 'd'],
@@ -522,6 +592,18 @@ it('refuses a task with its code, its position in the file and its key, and writ
     'an empty accepted writing' => ['dictation', ['accepted' => ['See you tomorrow', ' ']], 'dictation_accepted_invalid', 'accepted'],
     'six other accepted writings' => ['dictation', ['accepted' => ['a one', 'a two', 'a three', 'a four', 'a five', 'a six']], 'dictation_accepted_invalid', 'accepted'],
 ]);
+
+it('reports a misspelt key of the lesson as an unknown field, as everywhere else, together with what it left out', function (): void {
+    pim_course();
+
+    $report = pim_import(pim_file([pim_item('sentence', ['key' => 'typo', 'lesson' => ['stage' => 1, 'numbr' => 1]])]));
+
+    expect(pim_issues($report))->toBe([['field_unknown', 1, 'typo'], ['field_invalid', 1, 'typo']])
+        ->and($report->issues[0]->context['field'])->toBe('lesson.numbr')
+        ->and($report->issues[1]->context['field'])->toBe('lesson')
+        ->and(AdminErrors::practiceImportIssue($report->issues[0]))->toContain('неизвестное поле «lesson.numbr»')
+        ->and(pim_nothing_written())->toBeTrue();
+});
 
 it('refuses a key that is missing or malformed, and names the task by the key it has', function (array $override, string $code, string $shown): void {
     pim_course();
@@ -693,6 +775,18 @@ it('keeps the texts of the pilot package as the coordinator wrote them: the stor
             default => expect($content['text'])->toBe($task['text'])->and($content['accepted'][0])->toBe($task['text']),
         };
     }
+});
+
+it('takes "Check your e-mail" for the dictation "Check your email" of the pilot package: the hyphen makes four tokens, so the variant is listed', function (): void {
+    $this->seed(DemoContentSeeder::class);
+    pim_import((string) file_get_contents(base_path('database/data/practice/pilot-a1-a2.json')));
+
+    $content = PracticeItemVersion::query()->findOrFail(PracticeItem::query()->where('key', 'pilot-work-d07')->firstOrFail()->current_version_id)->content;
+    $grader = app(DictationGrader::class);
+
+    expect($content['accepted'])->toBe(['Check your email', 'Check your e-mail'])
+        ->and($grader->grade($content['accepted'], 'Check your email')->verdict)->toBe(Verdict::Correct)
+        ->and($grader->grade($content['accepted'], 'check your e-mail.')->verdict)->toBe(Verdict::Correct);
 });
 
 // --- artisan ---------------------------------------------------------------------------------------------------------------------
