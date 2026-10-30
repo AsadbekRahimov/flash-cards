@@ -8,6 +8,8 @@ use App\Domain\Practice\Exceptions\BattleException;
 use App\Domain\Practice\Services\Battle\BattleJanitor;
 use App\Domain\Practice\Services\Battle\BattleReader;
 use App\Domain\Practice\Services\Battle\BattleService;
+use App\Domain\Practice\Services\Modes\ModeRegistry;
+use App\Domain\Practice\Support\PracticeTextNormalizer;
 use App\Models\Achievement;
 use App\Models\AssignmentResult;
 use App\Models\Battle;
@@ -18,10 +20,12 @@ use App\Models\LeagueMember;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
 use App\Models\Lesson;
+use App\Models\PracticeItem;
 use App\Models\PracticeSession;
 use App\Models\ProductEvent;
 use App\Models\TrainingReview;
 use App\Models\TrainingSession;
+use App\Models\Word;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
@@ -32,6 +36,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use Tests\Support\Practice\BattleKit;
+use Tests\Support\Practice\DictationKit;
 use Tests\Support\Practice\FakeEchoMode;
 use Tests\Support\Practice\PracticeKit;
 use Tests\Support\QueryLog;
@@ -278,6 +283,223 @@ function isolationPlayEverything(Learner $learner, Course $course, Lesson $lesso
     isolationGet($learner, "sessions/{$last['id']}")->assertOk()->assertJsonPath('summary.finish_reason', 'expired');
 }
 
+/**
+ * The same learner with a life, and the material the four REAL handlers play (no test handler stands in their place): every word has
+ * a translation of its own (the board of the pairs is not what is looked at here), the collocations and the sentences are aimed at
+ * words the learner knows, the dictation has voiced words and phrases with their clips on the disks.
+ *
+ * @return array{0: Learner, 1: Course, 2: Lesson, 3: Course} the learner, the course with its lesson, a course with nothing in it
+ */
+function isolationRealWorld(): array
+{
+    [$learner, $course, $lesson] = isolationWorld();
+    [$empty] = PracticeKit::course('empty-course');
+
+    $words = PracticeKit::words($lesson, 10, $learner);
+    foreach (range(1, 5) as $unused) {
+        PracticeItem::factory()->collocation()->published()->forLesson($lesson)->targeting($words)->create();
+        PracticeItem::factory()->sentence()->published()->forLesson($lesson)->targeting($words)->create();
+    }
+    DictationKit::stock($lesson, $learner, 6, 6);
+
+    foreach (Word::query()->where('lesson_id', $lesson->id)->pluck('id') as $id) {
+        Word::query()->whereKey($id)->update(['translation' => "перевод {$id}"]);
+    }
+
+    return [$learner, $course, $lesson, $empty];
+}
+
+/**
+ * One round of pairs the way a learner may play it: for each of the first three words a card that is not its own and that nobody has
+ * taken yet (a mistake), then the right card; the other words go straight to their own.
+ *
+ * @param  array<string, mixed>  $element
+ * @return list<array{left_id: string, right_id: string}>
+ */
+function isolationPairsAnswers(array $element): array
+{
+    $answers = [];
+    $matched = [];
+    foreach (array_column($element['left'], 'id') as $n => $leftId) {
+        $own = $element['pairs'][$leftId];
+        $free = array_values(array_diff(array_column($element['right'], 'id'), $matched, [$own]));
+        if ($n < 3 && $free !== []) {
+            $answers[] = ['left_id' => $leftId, 'right_id' => $free[0]];
+        }
+        $answers[] = ['left_id' => $leftId, 'right_id' => $own];
+        $matched[] = $own;
+    }
+
+    return $answers;
+}
+
+/**
+ * The ids of the shown fragments of a sentence in its first allowed order (each shown text is a word of the normalized sentence).
+ *
+ * @param  array<string, mixed>  $element
+ * @return list<string>
+ */
+function isolationSentenceOrder(array $element): array
+{
+    $pool = $element['fragments'];
+    $ids = [];
+    foreach (explode(' ', $element['accepted'][0]) as $token) {
+        foreach ($pool as $i => $fragment) {
+            if (PracticeTextNormalizer::normalize($fragment['text']) === $token) {
+                $ids[] = $fragment['id'];
+                unset($pool[$i]);
+
+                continue 2;
+            }
+        }
+
+        throw new RuntimeException("No fragment reads {$token}.");
+    }
+
+    return $ids;
+}
+
+/** The text with the third and the fourth letter of its first word exchanged: "Phrase number one" -> "Pharse number one". */
+function isolationTypo(string $text): string
+{
+    $words = explode(' ', $text);
+    $words[0] = substr($words[0], 0, 2).$words[0][3].$words[0][2].substr($words[0], 4);
+
+    return implode(' ', $words);
+}
+
+/**
+ * What a learner would send to an element of a REAL handler, read from the snapshot (a test may). A round of pairs: see
+ * isolationPairsAnswers(). The other modes by the number of the element: right, wrong, right, a skip, wrong; the dictation puts a typo
+ * in place of the second "right" and a right answer in other capitals at the end.
+ *
+ * @param  array<string, mixed>  $element
+ * @return list<array<string, mixed>>
+ */
+function isolationRealAnswers(array $element, int $step): array
+{
+    $step %= 5;
+
+    return match ($element['kind']) {
+        'pairs_round' => isolationPairsAnswers($element),
+        'collocation' => [match ($step) {
+            0, 2 => ['option_id' => $element['correct_ids'][0]],
+            3 => ['skip' => true],
+            default => ['option_id' => array_values(array_diff(array_column($element['options'], 'id'), $element['correct_ids']))[0]],
+        }],
+        'sentence' => [match ($step) {
+            0, 2 => ['order' => isolationSentenceOrder($element)],
+            3 => ['skip' => true],
+            default => ['order' => array_reverse(isolationSentenceOrder($element))],
+        }],
+        'dictation' => [match ($step) {
+            0 => ['text' => $element['display']],
+            1 => ['text' => 'nonsense'],
+            2 => ['text' => isolationTypo($element['display'])],
+            3 => ['skip' => true],
+            default => ['text' => mb_strtoupper($element['display']).'.'],
+        }],
+        default => throw new RuntimeException("No answers for an element of the kind {$element['kind']}."),
+    };
+}
+
+/**
+ * Plays a session of a REAL handler to its end with isolationRealAnswers().
+ *
+ * @param  array<string, mixed>  $session
+ * @return array<string, mixed> the finished session
+ */
+function isolationPlayReal(Learner $learner, array $session): array
+{
+    for ($i = 0; $session['status'] === 'active' && $i < 40; $i++) {
+        $elementId = $session['current']['id'];
+
+        foreach (isolationRealAnswers(isolationElement($session['id'], $elementId), $i) as $answer) {
+            $session = isolationPost($learner, "sessions/{$session['id']}/answer", ['request_id' => (string) Str::uuid(), 'element_id' => $elementId, 'answer' => $answer])
+                ->assertOk()->json('session');
+        }
+    }
+
+    return $session;
+}
+
+/**
+ * Everything a learner does with the practice, on the four REAL handlers: every mode to its end and the repeat of its mistakes, a
+ * clip that is gone from its disk and the swap for the next one, the hub, two sessions that are not opened for a lack of material,
+ * a session that a newer one replaces, one that the scheduler closes and one that a request closes.
+ */
+function isolationPlayEverythingReal(Learner $learner, Course $course, Lesson $lesson, Course $empty): void
+{
+    foreach (PracticeMode::cases() as $mode) {
+        isolationGet($learner, "hub?course={$course->slug}&lesson_id={$lesson->id}")->assertOk();
+        $session = isolationOpen($learner, $course, $mode->value, ['lesson_id' => $lesson->id, 'source' => 'after_training'])->assertCreated()->json();
+
+        if ($mode === PracticeMode::Dictation) {
+            // The first clip is gone from its disk: 503 and the event, then the swap for a spare whose clip is there.
+            $gone = isolationElement($session['id'], $session['current']['id']);
+            Storage::disk($gone['audio_disk'])->delete($gone['audio_path']);
+            isolationGet($learner, Str::after($session['current']['audio_url'], '/api/twa/practice/'))->assertStatus(503);
+            $session = isolationPost($learner, "sessions/{$session['id']}/replace", ['request_id' => (string) Str::uuid(), 'element_id' => $session['current']['id'], 'reason' => 'audio_unavailable'])
+                ->assertOk()->json();
+            expect($session['current']['id'])->not->toBe($gone['id']);
+            isolationGet($learner, Str::after($session['current']['audio_url'], '/api/twa/practice/'))->assertOk()->streamedContent();
+        }
+
+        $finished = isolationPlayReal($learner, $session);
+        expect($finished['status'])->toBe('finished')
+            ->and($finished['summary']['retry_available'])->toBeTrue();
+
+        $retry = isolationOpen($learner, $course, $mode->value, ['retry_of' => $finished['id'], 'source' => 'retry'])->assertCreated()->json();
+        expect($retry['retry_of'])->toBe($finished['id'])
+            ->and(isolationPlayReal($learner, $retry)['status'])->toBe('finished');
+    }
+
+    // Too little material: 422, nothing but the event.
+    foreach (['collocation', 'dictation'] as $mode) {
+        isolationOpen($learner, $empty, $mode)->assertStatus(422)->assertJsonPath('error.code', 'practice_not_enough_material');
+    }
+
+    // A session that a newer one replaces ...
+    isolationOpen($learner, $course, 'collocation', ['lesson_id' => $lesson->id])->assertCreated();
+    isolationOpen($learner, $course, 'sentence', ['lesson_id' => $lesson->id, 'replace_active' => true])->assertCreated();
+
+    // ... one that the scheduler closes a day later ...
+    CarbonImmutable::setTestNow(CarbonImmutable::now()->addHours(25));
+    expect(Artisan::call('practice:close-expired'))->toBe(0);
+
+    // ... and one that a request closes.
+    $last = isolationOpen($learner, $course, 'collocation', ['lesson_id' => $lesson->id])->assertCreated()->json();
+    CarbonImmutable::setTestNow(CarbonImmutable::now()->addHours(25));
+    isolationGet($learner, "sessions/{$last['id']}")->assertOk()->assertJsonPath('summary.finish_reason', 'expired');
+}
+
+/**
+ * What a run of the solo practice left in `product_events`: only the events of docs/16 §3.4, each with the props the document lists
+ * and for the learner; one start and one finish for every session, none for the sessions that were not opened.
+ */
+function isolationAssertSoloEvents(Learner $learner): void
+{
+    $names = ProductEvent::query()->distinct()->pluck('name')->all();
+    sort($names);
+    expect(array_diff($names, ISOLATION_EVENT_NAMES))->toBe([])
+        ->and($names)->toBe(['practice.audio_failed', 'practice.not_enough_material', 'practice.session_finished', 'practice.session_started']);
+
+    foreach (ProductEvent::query()->get() as $event) {
+        $keys = array_keys($event->props ?? []);
+        $expected = ISOLATION_SOLO_EVENT_PROPS[$event->name];
+        sort($keys);
+        sort($expected);
+
+        expect($keys)->toBe($expected, "props of {$event->name}")
+            ->and($event->learner_id)->toBe($learner->id);
+    }
+
+    $sessions = PracticeSession::query()->count();
+    expect(ProductEvent::query()->where('name', 'practice.session_started')->count())->toBe($sessions)
+        ->and(ProductEvent::query()->where('name', 'practice.session_finished')->count())->toBe($sessions)
+        ->and(PracticeSession::query()->where('status', 'active')->count())->toBe(0);
+}
+
 it('leaves the learning of the learner exactly as it was after all four modes, their retries, a replaced and an expired session', function (): void {
     [$learner, $course, $lesson] = isolationWorld();
     PracticeKit::fake(PracticeMode::Pairs, candidates: 9);
@@ -310,26 +532,45 @@ it('writes only the events of docs/16 §3.4, with the props the document lists a
 
     isolationPlayEverything($learner, $course, $lesson);
 
-    $names = ProductEvent::query()->distinct()->pluck('name')->all();
-    sort($names);
-    expect(array_diff($names, ISOLATION_EVENT_NAMES))->toBe([])
-        ->and($names)->toBe(['practice.audio_failed', 'practice.not_enough_material', 'practice.session_finished', 'practice.session_started']);
+    isolationAssertSoloEvents($learner);
+});
 
-    foreach (ProductEvent::query()->get() as $event) {
-        $keys = array_keys($event->props ?? []);
-        $expected = ISOLATION_SOLO_EVENT_PROPS[$event->name];
-        sort($keys);
-        sort($expected);
-
-        expect($keys)->toBe($expected, "props of {$event->name}")
-            ->and($event->learner_id)->toBe($learner->id);
+it('leaves the learning of the learner exactly as it was when the four REAL handlers play: every mode and its retry, a clip that is gone, a replaced and an expired session', function (): void {
+    [$learner, $course, $lesson, $empty] = isolationRealWorld();
+    foreach (PracticeMode::cases() as $mode) {
+        expect(app(ModeRegistry::class)->for($mode))->not->toBeInstanceOf(FakeEchoMode::class);
     }
 
-    // One start and one finish per session; a session that was not opened (too little material) has neither.
-    $sessions = PracticeSession::query()->count();
-    expect(ProductEvent::query()->where('name', 'practice.session_started')->count())->toBe($sessions)
-        ->and(ProductEvent::query()->where('name', 'practice.session_finished')->count())->toBe($sessions)
-        ->and(PracticeSession::query()->where('status', 'active')->count())->toBe(0);
+    foreach ([...ISOLATION_TABLES, 'learners'] as $table) {
+        expect(DB::table($table)->count())->toBeGreaterThan(0, "The baseline of {$table} is empty: the test would prove nothing.");
+    }
+    $before = isolationChecksums();
+
+    $queries = QueryLog::during(fn () => isolationPlayEverythingReal($learner, $course, $lesson, $empty));
+
+    // The rows are the same ...
+    expect(isolationChecksums())->toBe($before);
+
+    // ... and nothing was written anywhere but the tables of the practice and the events.
+    expect(isolationWrittenTables($queries))->toBe(ISOLATION_WRITTEN);
+
+    // It was the real thing that was played: every mode to its end and its mistakes once more, and the three sessions that were cut short.
+    foreach (PracticeMode::cases() as $mode) {
+        $sessions = PracticeSession::query()->where('mode', $mode->value)->where('status', 'finished')->where('finish_reason', 'completed');
+        expect((clone $sessions)->whereNull('retry_of_session_id')->count())->toBe(1, "{$mode->value}: sessions")
+            ->and((clone $sessions)->whereNotNull('retry_of_session_id')->count())->toBe(1, "{$mode->value}: retries");
+    }
+    expect(PracticeSession::query()->whereIn('finish_reason', ['replaced', 'expired'])->count())->toBe(3)
+        ->and(PracticeSession::query()->count())->toBe(11);
+});
+
+it('writes only the events of docs/16 §3.4 on the REAL handlers too, with the props the document lists and no personal data', function (): void {
+    [$learner, $course, $lesson, $empty] = isolationRealWorld();
+    expect(ProductEvent::query()->count())->toBe(0);
+
+    isolationPlayEverythingReal($learner, $course, $lesson, $empty);
+
+    isolationAssertSoloEvents($learner);
 });
 
 /**
