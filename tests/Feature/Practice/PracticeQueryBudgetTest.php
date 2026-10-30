@@ -47,7 +47,8 @@ afterEach(fn () => CarbonImmutable::setTestNow());
 
 /**
  * A lesson with six words the learner has been introduced to and four published tasks of each of the three types, aimed at
- * them; all four modes are test handlers that read this material.
+ * them. The pairs are the REAL handler (it reads the words like any learner's session does: a clash between two translations
+ * would only change the rounds, so the six translations are fixed); the other three modes are test handlers that read this material.
  *
  * @return array{0: Learner, 1: Course, 2: Lesson}
  */
@@ -56,6 +57,9 @@ function budgetWorld(string $locale = 'ru'): array
     [$course, $lesson] = PracticeKit::course("english-{$locale}");
     $learner = Learner::factory()->create(['interface_locale' => $locale]);
     $words = PracticeKit::words($lesson, 6, $learner, state: 'review');
+    foreach ($words as $i => $word) {
+        $word->update(['translation' => 'перевод '.($i + 1)]);
+    }
 
     foreach ($words as $i => $word) {
         PracticeItem::factory()->collocation()->published()->forLesson($lesson)->targeting($word)->create();
@@ -64,7 +68,9 @@ function budgetWorld(string $locale = 'ru'): array
     }
 
     foreach (PracticeMode::cases() as $mode) {
-        PracticeKit::fake($mode, candidates: 9, spares: 2)->readsMaterial = true;
+        if ($mode !== PracticeMode::Pairs) {
+            PracticeKit::fake($mode, candidates: 9, spares: 2)->readsMaterial = true;
+        }
     }
 
     return [$learner, $course, $lesson];
@@ -101,7 +107,7 @@ it('reads the hub in at most 9 statements, whatever the language, and asks for t
     foreach (['ru', 'uz'] as $locale) {
         [$learner, $course, $lesson] = budgetWorld($locale);
 
-        $queries = QueryLog::during(fn () => budgetHub($learner, $course, $lesson)->assertOk()->assertJsonPath('modes.0.available', 9));
+        $queries = QueryLog::during(fn () => budgetHub($learner, $course, $lesson)->assertOk()->assertJsonPath('modes.0.available', 6)->assertJsonPath('modes.0.state', 'available'));
         // The same for a whole course.
         $courseQueries = QueryLog::during(fn () => budgetHub($learner, $course)->assertOk());
 
@@ -145,6 +151,19 @@ it('opens a session in at most 12 statements: a plain one, and one that replaces
         ->and(budgetReads($replacing, 'practice_items'))->toBe(1)
         ->and(PracticeSession::query()->where('status', 'active')->count())->toBe(1)
         ->and(ProductEvent::query()->where('name', 'practice.session_started')->count())->toBe(2);
+});
+
+it('opens a session of the real pairs in at most 12 statements, and reads the words once for the availability and the build together', function (): void {
+    foreach (['ru', 'uz'] as $locale) {
+        [$learner, $course, $lesson] = budgetWorld($locale);
+
+        $queries = QueryLog::during(fn () => budgetOpen($learner, $course, 'pairs', ['lesson_id' => $lesson->id, 'replace_active' => true])->assertCreated()->assertJsonPath('progress.total', 2));
+
+        expect(count($queries))->toBeLessThanOrEqual(BUDGET_OPEN, "pairs ({$locale}): ".implode("\n", $queries))
+            ->and(budgetReads($queries, 'words'))->toBe(1)
+            ->and(budgetReads($queries, 'word_translations'))->toBe(1)
+            ->and(budgetReads($queries, 'practice_items'))->toBe(0); // pairs take words, not tasks
+    }
 });
 
 it('shows a session in at most 3 statements, a short one and a long one alike', function (): void {

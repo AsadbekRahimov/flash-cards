@@ -662,6 +662,30 @@ export const ru = {
   'practice.audio.replacements_left': 'Замен осталось: {count}',
 
   // ---- practice: pairs ----
+  'practice.pairs.round': 'Раунд {round} из {rounds}',
+  'practice.pairs.left': {
+    one: 'Осталась {count} пара',
+    few: 'Осталось {count} пары',
+    many: 'Осталось {count} пар',
+    other: 'Осталось {count} пары',
+  },
+  'practice.pairs.joined': 'Соединено {done} из {total}',
+  'practice.pairs.words': 'Слова',
+  'practice.pairs.translations': 'Переводы',
+  'practice.pairs.hint_solo': 'Нажмите слово, затем его перевод — или наоборот.',
+  'practice.pairs.hint_battle': 'Соедините слова с переводами и нажмите «Проверить». Пару можно поменять.',
+  'practice.pairs.pick_translation': 'Теперь выберите перевод слова «{text}»',
+  'practice.pairs.pick_word': 'Теперь выберите слово с переводом «{text}»',
+  'practice.pairs.checking': 'Проверяем…',
+  'practice.pairs.correct': 'Верно: {word} — {translation}',
+  'practice.pairs.wrong': 'Не подходит. Попробуйте ещё раз.',
+  'practice.pairs.ready': 'Все пары собраны. Нажмите «Проверить».',
+  'practice.pairs.sent': 'Ответ отправлен.',
+  'practice.pairs.state.selected': 'выбрано',
+  'practice.pairs.state.correct': 'верно',
+  'practice.pairs.state.wrong': 'не подходит',
+  'practice.pairs.state.paired': 'пара {number}',
+  'practice.pairs.recap': 'Пары раунда',
 
   // ---- practice: collocation ----
   'practice.collocation.instruction': 'Выберите подходящее слово',

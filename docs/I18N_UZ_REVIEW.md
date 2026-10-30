@@ -2224,3 +2224,37 @@
 | `practice.sentence.remove` | Olib tashlash: {word} | Убрать: {word} |
 | `practice.sentence.reset` | Qaytadan boshlash | Начать заново |
 | `practice.sentence.also_correct` | Bunday ham bo'ladi | Можно и так |
+
+## Практика и баттл 2026-10 · 18-2 — на проверку носителю
+
+> Режим «Найди пары» (`resources/twa/src/i18n/uz.ts`, блок `practice: pairs`, задача 18.2): подписи доски, подсказки в строке состояния, слова для
+> экранного чтения и итог раунда. Названия режима и сообщения об ошибках сервера уже в разделе 18-1t.
+>
+> Что решить носителю:
+> - **«Пара»** — `juft` (как в названии режима «Juftlarni toping»); «соединить» — `juftlamoq` («{total} tadan {done} tasi juftlandi»).
+> - **«Не подходит»** (слово и перевод не сочетаются) — `Mos kelmadi`; сообщение звучит как совет: «Qayta urinib ko'ring».
+> - **«Раунд»** — `raund`, порядок «{rounds} raunddan {round}-raund» тот же, что в `practice.session.round_done`.
+> - Слова для экранного чтения произносятся внутри карточки после слова: «mother, tanlandi» / «mother, 2-juft».
+> - Английские слова на карточках остаются как есть, переводятся только подписи.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `practice.pairs.round` | {rounds} raunddan {round}-raund | Раунд {round} из {rounds} |
+| `practice.pairs.left` | {count} ta juft qoldi | Осталась {count} пара / Осталось {count} пары / Осталось {count} пар |
+| `practice.pairs.joined` | {total} tadan {done} tasi juftlandi | Соединено {done} из {total} |
+| `practice.pairs.words` | So'zlar | Слова |
+| `practice.pairs.translations` | Tarjimalar | Переводы |
+| `practice.pairs.hint_solo` | So'zni, keyin uning tarjimasini bosing — yoki teskarisi. | Нажмите слово, затем его перевод — или наоборот. |
+| `practice.pairs.hint_battle` | So'zlarni tarjimalari bilan juftlang va «Tekshirish» tugmasini bosing. Juftni almashtirish mumkin. | Соедините слова с переводами и нажмите «Проверить». Пару можно поменять. |
+| `practice.pairs.pick_translation` | Endi «{text}» so'zining tarjimasini tanlang | Теперь выберите перевод слова «{text}» |
+| `practice.pairs.pick_word` | Endi «{text}» tarjimasiga mos so'zni tanlang | Теперь выберите слово с переводом «{text}» |
+| `practice.pairs.checking` | Tekshirilmoqda… | Проверяем… |
+| `practice.pairs.correct` | To'g'ri: {word} — {translation} | Верно: {word} — {translation} |
+| `practice.pairs.wrong` | Mos kelmadi. Qayta urinib ko'ring. | Не подходит. Попробуйте ещё раз. |
+| `practice.pairs.ready` | Barcha juftlar tayyor. «Tekshirish» tugmasini bosing. | Все пары собраны. Нажмите «Проверить». |
+| `practice.pairs.sent` | Javob yuborildi. | Ответ отправлен. |
+| `practice.pairs.state.selected` | tanlandi | выбрано |
+| `practice.pairs.state.correct` | to'g'ri | верно |
+| `practice.pairs.state.wrong` | mos kelmadi | не подходит |
+| `practice.pairs.state.paired` | {number}-juft | пара {number} |
+| `practice.pairs.recap` | Raund juftlari | Пары раунда |

@@ -11,6 +11,7 @@ use App\Models\Learner;
 use App\Models\PracticeAttempt;
 use App\Models\PracticeSession;
 use App\Models\ProductEvent;
+use App\Models\Word;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Support\Facades\DB;
@@ -271,4 +272,89 @@ it('closes an expired session exactly once when an answer and the scheduler get 
         ->and($events->pluck('props')->pluck('session_id')->unique())->toHaveCount(6)
         ->and($events->pluck('props')->pluck('reason')->unique()->all())->toBe(['expired'])
         ->and($closedByScheduler)->toBeLessThanOrEqual(6);
+});
+
+/**
+ * A learner who has met twelve words of a lesson and a session of the real pairs of theirs, committed: the id of the learner, of the
+ * session, and the first round as the server keeps it (id, `left`, `right`, `pairs`) - a test may read the table no client gets.
+ *
+ * @return array{0: int, 1: int, 2: array<string, mixed>}
+ */
+function practiceRacePairs(string $slug, int $lessonId): array
+{
+    $learner = Learner::factory()->create();
+    foreach (range(1, 12) as $i) {
+        PracticeKit::introduce($learner, Word::factory()->create(['lesson_id' => $lessonId, 'word' => "word{$i}-".Str::lower(Str::random(5)), 'translation' => "перевод {$i}"]));
+    }
+    $session = app(PracticeSessionService::class)->open($learner, PracticeMode::Pairs, $slug, null, 'hub', false, null);
+
+    return [$learner->id, $session->id, $session->snapshot['elements'][0]];
+}
+
+/** The answer of a tab to a round of pairs: one match. @param array<string, mixed> $round @return Closure(): array<string, mixed> */
+function practiceRaceMatch(int $sessionId, int $learnerId, array $round, string $left, string $right): Closure
+{
+    return fn (): array => app(PracticeSessionService::class)->answer(
+        $sessionId, Learner::query()->findOrFail($learnerId), (string) Str::uuid(), $round['id'], ['left_id' => $left, 'right_id' => $right], null,
+    )->result;
+}
+
+it('takes one match of a pair from two tabs at the same instant: the second is 409 pair_already_matched, the accuracy is raised once', function (): void {
+    [$course, $lesson] = PracticeKit::course();
+    [$learnerId, $sessionId, $round] = practiceRacePairs($course->slug, $lesson->id);
+    $left = $round['left'][0]['id'];
+
+    $results = practiceRace(array_fill(0, 3, practiceRaceMatch($sessionId, $learnerId, $round, $left, $round['pairs'][$left])));
+
+    $session = PracticeSession::query()->findOrFail($sessionId);
+    expect(practiceRaceCrashes($results))->toBe([])
+        ->and(array_count_values(array_map(fn (array $r): string => $r['ok'] ? 'accepted' : (string) $r['code'], $results)))->toEqual(['accepted' => 1, 'pair_already_matched' => 2])
+        ->and(PracticeAttempt::query()->where('session_id', $sessionId)->count())->toBe(1)
+        ->and($session->correct_first)->toBe(1)
+        ->and($session->mismatches)->toBe(0)
+        ->and($session->state['pairs'][$round['id']]['matched'])->toBe([$left => $round['pairs'][$left]]);
+});
+
+it('loses no match when four tabs match the four pairs of a round at the same instant: the round ends once', function (): void {
+    [$course, $lesson] = PracticeKit::course();
+    [$learnerId, $sessionId, $round] = practiceRacePairs($course->slug, $lesson->id);
+
+    $results = practiceRace(array_map(
+        fn (array $word): Closure => practiceRaceMatch($sessionId, $learnerId, $round, $word['id'], $round['pairs'][$word['id']]),
+        $round['left'],
+    ));
+
+    $session = PracticeSession::query()->findOrFail($sessionId);
+    expect(practiceRaceCrashes($results))->toBe([])
+        ->and(array_column($results, 'ok'))->toBe([true, true, true, true])
+        ->and(array_count_values(array_map(fn (array $r): string => json_encode($r['value']['round_done']), $results)))->toEqual(['true' => 1, 'false' => 3]) // the last one in ends the round
+        ->and(PracticeAttempt::query()->where('session_id', $sessionId)->count())->toBe(4)
+        ->and($session->correct_first)->toBe(4)
+        ->and($session->answered)->toBe(1)
+        ->and($session->state['current'])->toBe(1)
+        ->and(ksorted($session->state['pairs'][$round['id']]['matched']))->toBe(ksorted($round['pairs']));   // no lost update of the state
+});
+
+it('cannot raise the accuracy by a race: a wrong card and the right one for the same word at the same instant', function (): void {
+    [$course, $lesson] = PracticeKit::course();
+    foreach (range(0, 5) as $attempt) {
+        [$learnerId, $sessionId, $round] = practiceRacePairs($course->slug, $lesson->id);
+        $left = $round['left'][0]['id'];
+        $other = $round['pairs'][$round['left'][1]['id']];
+
+        $results = practiceRace([
+            practiceRaceMatch($sessionId, $learnerId, $round, $left, $other),
+            practiceRaceMatch($sessionId, $learnerId, $round, $left, $round['pairs'][$left]),
+        ]);
+
+        // Whoever got the lock first: the wrong card then the right one (a mistake, the word is not a first try), or the right one
+        // first and the wrong one refused (a first try, no mistake). Never both a first try and a mistake.
+        $session = PracticeSession::query()->findOrFail($sessionId);
+        $attempts = PracticeAttempt::query()->where('session_id', $sessionId)->count();
+        expect(practiceRaceCrashes($results))->toBe([]);
+        $wrongFirst = $session->mismatches === 1 && $session->correct_first === 0 && $attempts === 2 && array_column($results, 'ok') === [true, true];
+        $rightFirst = $session->mismatches === 0 && $session->correct_first === 1 && $attempts === 1 && $results[1]['ok'] && ($results[0]['code'] ?? null) === 'pair_already_matched';
+        expect($wrongFirst || $rightFirst)->toBeTrue("attempt {$attempt}: ".json_encode([$session->mismatches, $session->correct_first, $attempts, $results]));
+        expect($session->state['pairs'][$round['id']]['matched'])->toBe([$left => $round['pairs'][$left]]);
+    }
 });

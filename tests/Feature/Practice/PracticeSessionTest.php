@@ -12,6 +12,8 @@ use App\Models\PracticeAttempt;
 use App\Models\PracticeSession;
 use App\Models\ProductEvent;
 use App\Models\Stage;
+use App\Models\Word;
+use App\Models\WordTranslation;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -24,7 +26,7 @@ use Tests\Support\Practice\PracticeKit;
 /*
  * The life cycle of a solo session (docs/16 §6) on the test handler (FakeEchoMode): open, one active session, resume, expiry,
  * retry, the summary, the checks of an answer, the idempotency of `request_id`, the swap of a dictation. The modes themselves
- * (18.2-18.5) have tests of their own.
+ * (18.2-18.5) have tests of their own - the pairs play here on the real handler as well (see "pairs on the real handler").
  */
 
 uses(RefreshDatabase::class);
@@ -700,6 +702,341 @@ it('repeats only the words of a pairs session that went wrong, and only when the
     $expected = collect($rounds[0]['left'])->pluck('word_id')->sort()->values()->all();
     expect($retry['progress']['total'])->toBe(1)
         ->and($words)->toBe($expected);
+});
+
+// ---- pairs on the real handler (18.2): a whole session through the API, no test double ----
+
+/**
+ * A learner who has been introduced to `$words` words of a lesson ("word1" - "перевод 1"...). The real PairsMode plays them.
+ *
+ * @return array{0: Learner, 1: Course, 2: Lesson}
+ */
+function psPairsWorld(int $words = 12, string $locale = 'ru'): array
+{
+    [$course, $lesson] = PracticeKit::course();
+    $learner = Learner::factory()->create(['interface_locale' => $locale]);
+    for ($i = 1; $i <= $words; $i++) {
+        PracticeKit::introduce($learner, Word::factory()->for($lesson)->create(['word' => "word{$i}", 'translation' => "перевод {$i}"]));
+    }
+
+    return [$learner, $course, $lesson];
+}
+
+/** The rounds of the session as the server keeps them (a test may read the table that no client gets). @return list<array<string, mixed>> */
+function psPairsRounds(int $sessionId): array
+{
+    return PracticeSession::query()->findOrFail($sessionId)->snapshot['elements'];
+}
+
+/**
+ * A card of the round that is not the translation of `$left` and is still free: the translation of the word that follows it.
+ *
+ * @param  array<string, mixed>  $round  an element of the snapshot
+ */
+function psPairsWrongCard(array $round, int $position): string
+{
+    return $round['pairs'][$round['left'][$position + 1]['id']];
+}
+
+it('plays a session of pairs: a wrong match is counted and does not give the answer away, the first mistake of a word stays, a reload keeps the board', function (): void {
+    [$learner, $course, $lesson] = psPairsWorld(12);
+    $session = psOpen($this, $learner, $course->slug, 'pairs', ['lesson_id' => $lesson->id])->assertCreated()->json();
+    $rounds = psPairsRounds($session['id']);
+    $board = $session['current'];
+    $table = $rounds[0]['pairs'];
+    $elementId = $board['id'];
+    [$a, $b, $c, $d] = array_column($board['left'], 'id');
+    $match = fn (string $left, ?string $right = null, ?string $requestId = null): TestResponse => psAnswer($this, $learner, $session['id'], $elementId, ['left_id' => $left, 'right_id' => $right ?? $table[$left]], $requestId);
+
+    expect($session['mode'])->toBe('pairs')
+        ->and($session['progress'])->toBe(['done' => 0, 'total' => 3])
+        ->and(array_keys($board))->toBe(['id', 'kind', 'round', 'rounds', 'left', 'right', 'matched', 'mismatches'])
+        ->and([$board['kind'], $board['round'], $board['rounds']])->toBe(['pairs_round', 1, 3])
+        ->and($board['left'])->toHaveCount(4)->and($board['right'])->toHaveCount(4)
+        ->and(array_keys($board['left'][0]))->toBe(['id', 'text'])
+        ->and(array_keys($board['right'][0]))->toBe(['id', 'text'])
+        ->and([$board['matched'], $board['mismatches']])->toBe([[], 0]);
+    foreach (array_column($board['left'], 'text') as $text) {
+        expect($text)->toStartWith('word');
+    }
+    foreach (array_column($board['right'], 'text') as $text) {
+        expect($text)->toStartWith('перевод ');
+    }
+
+    // A wrong card for the word `$a`: a mistake, nothing is given away, the board goes on.
+    $miss = $match($a, $table[$b])->assertOk();
+    $miss->assertJsonPath('verdict', 'wrong')->assertJsonPath('first_attempt', true)->assertJsonPath('reveal', null)
+        ->assertJsonPath('pair', ['left_id' => $a, 'right_id' => $table[$b]])->assertJsonPath('round_done', false)
+        ->assertJsonPath('session.current.matched', [])->assertJsonPath('session.current.mismatches', 1)
+        ->assertJsonPath('session.counters', ['correct_first' => 0, 'hints' => 0, 'mismatches' => 1])
+        ->assertJsonPath('session.progress.done', 0);
+    expect($miss->json('session.current.left'))->toBe($board['left'])      // the board is where it was
+        ->and($miss->json('session.current.right'))->toBe($board['right']);
+
+    // The right card, afterwards: matched, but not a first try - the first mistake of the word stays.
+    $hitId = (string) Str::uuid();
+    $hit = $match($a, requestId: $hitId)->assertOk();
+    $hit->assertJsonPath('verdict', 'correct')->assertJsonPath('first_attempt', false)->assertJsonPath('round_done', false)
+        ->assertJsonPath('session.current.matched', [[$a, $table[$a]]])->assertJsonPath('session.current.mismatches', 1)
+        ->assertJsonPath('session.counters.correct_first', 0);
+
+    // A tap on a pair that is done again: 409, nothing is counted a second time.
+    $attempts = PracticeAttempt::query()->where('session_id', $session['id'])->count();
+    $match($a)->assertStatus(409)->assertJsonPath('error.code', 'pair_already_matched')->assertJsonPath('error.details', ['left_id' => $a]);
+    $match($a, $table[$b])->assertStatus(409)->assertJsonPath('error.code', 'pair_already_matched');
+    $match($b, $table[$a])->assertStatus(409)->assertJsonPath('error.code', 'pair_already_matched')->assertJsonPath('error.details', ['left_id' => $a]); // the card is taken
+    expect(PracticeAttempt::query()->where('session_id', $session['id'])->count())->toBe($attempts);
+
+    // The same request again (a lost reply): the same answer, and still one attempt.
+    $replay = $match($a, requestId: $hitId)->assertOk();
+    expect(Arr::only($replay->json(), ['verdict', 'first_attempt', 'reveal', 'pair', 'round_done']))->toBe(Arr::only($hit->json(), ['verdict', 'first_attempt', 'reveal', 'pair', 'round_done']))
+        ->and(PracticeAttempt::query()->where('session_id', $session['id'])->count())->toBe($attempts);
+
+    // `b` at the first go.
+    $match($b)->assertOk()->assertJsonPath('first_attempt', true)->assertJsonPath('session.counters.correct_first', 1);
+
+    // A reload: the same board, the same order, what is matched stays matched, the mistakes are remembered.
+    $reload = psGet($this, $learner, $session['id'])->assertOk()->json('current');
+    expect($reload['id'])->toBe($elementId)
+        ->and($reload['left'])->toBe($board['left'])
+        ->and($reload['right'])->toBe($board['right'])
+        ->and($reload['matched'])->toBe([[$a, $table[$a]], [$b, $table[$b]]])  // in the order of the words on the screen
+        ->and($reload['mismatches'])->toBe(1);
+
+    $match($c)->assertOk()->assertJsonPath('round_done', false)->assertJsonPath('session.counters.correct_first', 2);
+    $done = $match($d)->assertOk();
+    $done->assertJsonPath('verdict', 'correct')->assertJsonPath('round_done', true)->assertJsonPath('session.progress', ['done' => 1, 'total' => 3])
+        ->assertJsonPath('session.current.id', $rounds[1]['id'])->assertJsonPath('session.current.round', 2)
+        ->assertJsonPath('session.current.matched', [])->assertJsonPath('session.counters.correct_first', 3);
+
+    // The first round is over: its cards are no more answers.
+    $match($d)->assertStatus(409)->assertJsonPath('error.code', 'answer_already_accepted');
+
+    // Rounds 2 and 3, all right at the first go; the end is the summary.
+    foreach ([1, 2] as $index) {
+        foreach ($rounds[$index]['left'] as $left) {
+            $last = psAnswer($this, $learner, $session['id'], $rounds[$index]['id'], ['left_id' => $left['id'], 'right_id' => $rounds[$index]['pairs'][$left['id']]])->assertOk();
+        }
+    }
+    $last->assertJsonPath('session.status', 'finished')->assertJsonPath('session.current', null)->assertJsonPath('round_done', true);
+    $summary = $last->json('session.summary');
+
+    expect($summary)->toMatchArray(['total' => 3, 'answered' => 3, 'correct_first' => 11, 'mismatches' => 1, 'typos' => 0, 'hints' => 0, 'finish_reason' => 'completed', 'retry_available' => false])
+        ->and($summary['mistakes'])->toBe([[
+            'element_id' => $elementId,
+            'kind' => 'pairs_round',
+            'label' => $board['left'][0]['text'].' — '.collect($board['right'])->firstWhere('id', $table[$a])['text'],
+            'your_answer' => null,
+            'verdict' => 'wrong',
+        ]]);
+
+    $row = PracticeSession::query()->findOrFail($session['id']);
+    expect($row->status)->toBe(SessionStatus::Finished)
+        ->and([$row->answered, $row->correct_first, $row->mismatches, $row->hints])->toBe([3, 11, 1, 0])
+        ->and(ksorted($row->state['pairs'][$elementId]))->toBe(ksorted(['matched' => $table, 'mismatches' => 1, 'wrong_left' => [$a]]))
+        ->and(PracticeAttempt::query()->where('session_id', $session['id'])->pluck('kind')->unique()->all())->toBe(['pair'])
+        ->and(PracticeAttempt::query()->where('session_id', $session['id'])->orderBy('id')->pluck('is_first')->take(5)->all())->toBe([true, false, true, true, true]);
+
+    $event = ProductEvent::query()->where('name', 'practice.session_finished')->sole();
+    expect($event->props)->toMatchArray(['session_id' => $session['id'], 'mode' => 'pairs', 'total' => 3, 'answered' => 3, 'correct_first' => 11, 'hints' => 0, 'mismatches' => 1, 'reason' => 'completed']);
+});
+
+it('does not let a tap repeated on a pair that is done raise the accuracy of the first tries', function (): void {
+    [$learner, $course] = psPairsWorld(6);
+    $session = psOpen($this, $learner, $course->slug, 'pairs')->assertCreated()->json();
+    $round = psPairsRounds($session['id'])[0];
+    $left = $round['left'][0]['id'];
+    $answer = ['left_id' => $left, 'right_id' => $round['pairs'][$left]];
+
+    psAnswer($this, $learner, $session['id'], $round['id'], $answer)->assertOk()->assertJsonPath('session.counters.correct_first', 1);
+    foreach (range(1, 6) as $ignored) {
+        psAnswer($this, $learner, $session['id'], $round['id'], $answer)->assertStatus(409)->assertJsonPath('error.code', 'pair_already_matched');
+    }
+
+    $row = PracticeSession::query()->findOrFail($session['id']);
+    expect($row->correct_first)->toBe(1)
+        ->and($row->mismatches)->toBe(0)
+        ->and(PracticeAttempt::query()->where('session_id', $session['id'])->count())->toBe(1)
+        ->and($row->state['pairs'][$round['id']]['matched'])->toBe([$left => $round['pairs'][$left]]);
+});
+
+it('counts every wrong card as a mistake and writes the word once: a word tried wrongly three times is one mistake of the word', function (): void {
+    [$learner, $course] = psPairsWorld(6);
+    $session = psOpen($this, $learner, $course->slug, 'pairs')->assertCreated()->json();
+    $round = psPairsRounds($session['id'])[0];
+    [$a, $b, $c] = array_column($round['left'], 'id');
+
+    foreach ([$round['pairs'][$b], $round['pairs'][$c], $round['pairs'][$b]] as $try => $card) {
+        psAnswer($this, $learner, $session['id'], $round['id'], ['left_id' => $a, 'right_id' => $card])->assertOk()
+            ->assertJsonPath('verdict', 'wrong')->assertJsonPath('first_attempt', $try === 0)->assertJsonPath('session.current.mismatches', $try + 1);
+    }
+
+    $row = PracticeSession::query()->findOrFail($session['id']);
+    expect($row->mismatches)->toBe(3)
+        ->and($row->state['pairs'][$round['id']]['wrong_left'])->toBe([$a])
+        ->and($row->state['pairs'][$round['id']]['matched'])->toBe([]);
+});
+
+it('refuses a match that is not one: ids that are not in the round, the shape of another mode, another round', function (): void {
+    [$learner, $course] = psPairsWorld(12);
+    $session = psOpen($this, $learner, $course->slug, 'pairs')->assertCreated()->json();
+    $rounds = psPairsRounds($session['id']);
+    $round = $rounds[0];
+    $left = $round['left'][0]['id'];
+    $right = $round['pairs'][$left];
+    $second = $rounds[1];
+    $answer = fn (string $elementId, array $body): TestResponse => psAnswer($this, $learner, $session['id'], $elementId, $body);
+
+    // The shape: both ids, nothing else counts.
+    $answer($round['id'], ['left_id' => $left])->assertStatus(422)->assertJsonPath('error.code', 'invalid_answer_shape')->assertJsonPath('error.details.expected', 'left_right');
+    $answer($round['id'], ['right_id' => $right])->assertStatus(422)->assertJsonPath('error.code', 'invalid_answer_shape');
+    $answer($round['id'], ['skip' => true])->assertStatus(422)->assertJsonPath('error.code', 'invalid_answer_shape');
+    $answer($round['id'], ['pairs' => [$left => $right]])->assertStatus(422)->assertJsonPath('error.code', 'invalid_answer_shape')->assertJsonPath('error.details.expected', 'left_right');
+    $answer($round['id'], ['option_id' => $right])->assertStatus(422)->assertJsonPath('error.code', 'invalid_answer_shape');
+
+    // Ids that are not in the round.
+    $answer($round['id'], ['left_id' => 'lNoSuchWord', 'right_id' => $right])->assertStatus(422)->assertJsonPath('error.code', 'unknown_element_id');
+    $answer($round['id'], ['left_id' => $left, 'right_id' => 'rNoSuchCard'])->assertStatus(422)->assertJsonPath('error.code', 'unknown_element_id');
+    $answer($round['id'], ['left_id' => $second['left'][0]['id'], 'right_id' => $second['pairs'][$second['left'][0]['id']]])->assertStatus(422)->assertJsonPath('error.code', 'unknown_element_id'); // words of the next round
+    $answer('eNoSuchRound', ['left_id' => $left, 'right_id' => $right])->assertStatus(422)->assertJsonPath('error.code', 'unknown_element_id');
+
+    // The next round is not the one to play yet.
+    $answer($second['id'], ['left_id' => $second['left'][0]['id'], 'right_id' => $second['pairs'][$second['left'][0]['id']]])
+        ->assertStatus(409)->assertJsonPath('error.code', 'element_not_current')->assertJsonPath('error.details.current', $round['id']);
+
+    expect(PracticeAttempt::query()->count())->toBe(0)
+        ->and(PracticeSession::query()->findOrFail($session['id']))->mismatches->toBe(0);
+});
+
+it('repeats the words of a pairs session that went wrong, from wrong_left, and only those', function (): void {
+    [$learner, $course, $lesson] = psPairsWorld(12);
+    $session = psOpen($this, $learner, $course->slug, 'pairs', ['lesson_id' => $lesson->id])->assertCreated()->json();
+    $rounds = psPairsRounds($session['id']);
+    $wrong = [[0, 0], [1, 2], [2, 1]];     // [round, position of the word that gets a wrong card first]
+    $mistaken = [];
+
+    foreach ($rounds as $index => $round) {
+        foreach ($round['left'] as $position => $left) {
+            if (in_array([$index, $position], $wrong, true)) {
+                psAnswer($this, $learner, $session['id'], $round['id'], ['left_id' => $left['id'], 'right_id' => psPairsWrongCard($round, $position)])->assertOk()->assertJsonPath('verdict', 'wrong');
+                $mistaken[] = $left['word_id'];
+            }
+            $last = psAnswer($this, $learner, $session['id'], $round['id'], ['left_id' => $left['id'], 'right_id' => $round['pairs'][$left['id']]])->assertOk();
+        }
+    }
+    $summary = $last->json('session.summary');
+
+    expect($summary['retry_available'])->toBeTrue()
+        ->and($summary['correct_first'])->toBe(9)
+        ->and($summary['mismatches'])->toBe(3)
+        ->and($summary['mistakes'])->toHaveCount(3)
+        ->and(array_column($summary['mistakes'], 'verdict'))->toBe(['wrong', 'wrong', 'wrong'])
+        ->and(array_unique(array_column($summary['mistakes'], 'kind')))->toBe(['pairs_round'])
+        ->and(array_filter(array_column($summary['mistakes'], 'label'), fn (string $label): bool => preg_match('/^word\d+ — перевод \d+$/u', $label) !== 1))->toBe([]);
+
+    // Several mistakes of one round are several rows with the same element: they are told apart by the label.
+    $retry = psOpen($this, $learner, $course->slug, 'pairs', ['retry_of' => $session['id'], 'source' => 'hub'])->assertCreated()->json();
+    $words = collect(psPairsRounds($retry['id']))->pluck('left')->flatten(1)->pluck('word_id')->all();
+
+    expect($retry['source'])->toBe('retry')
+        ->and($retry['retry_of'])->toBe($session['id'])
+        ->and($retry['progress'])->toBe(['done' => 0, 'total' => 1])
+        ->and($retry['current']['left'])->toHaveCount(3)
+        ->and([$retry['current']['round'], $retry['current']['rounds']])->toBe([1, 1])
+        ->and($words)->toEqualCanonicalizing($mistaken);
+});
+
+it('does not offer to repeat what was a single mistake: fewer than three words is too few for a round', function (): void {
+    [$learner, $course] = psPairsWorld(6);
+    $session = psOpen($this, $learner, $course->slug, 'pairs')->assertCreated()->json();
+    foreach (psPairsRounds($session['id']) as $index => $round) {
+        foreach ($round['left'] as $position => $left) {
+            if ($index === 0 && $position === 0) {
+                psAnswer($this, $learner, $session['id'], $round['id'], ['left_id' => $left['id'], 'right_id' => psPairsWrongCard($round, 0)])->assertOk();
+            }
+            $last = psAnswer($this, $learner, $session['id'], $round['id'], ['left_id' => $left['id'], 'right_id' => $round['pairs'][$left['id']]])->assertOk();
+        }
+    }
+
+    expect($last->json('session.summary.retry_available'))->toBeFalse()
+        ->and($last->json('session.summary.mistakes'))->toHaveCount(1);
+    psOpen($this, $learner, $course->slug, 'pairs', ['retry_of' => $session['id']])->assertStatus(409)->assertJsonPath('error.code', 'retry_not_available');
+});
+
+it('says why the pairs cannot be played: too few words, or words that say the same, with the numbers', function (): void {
+    [$course, $lesson] = PracticeKit::course();
+    $learner = Learner::factory()->create();
+    foreach ([['mother', 'мама'], ['mum', 'мама'], ['mummy', 'мама'], ['father', 'папа'], ['dad', 'папа']] as [$english, $ru]) {
+        PracticeKit::introduce($learner, Word::factory()->for($lesson)->create(['word' => $english, 'translation' => $ru]));
+    }
+
+    psOpen($this, $learner, $course->slug, 'pairs', ['lesson_id' => $lesson->id])
+        ->assertStatus(422)->assertJsonPath('error.code', 'practice_not_enough_material')
+        ->assertJsonPath('error.details', ['mode' => 'pairs', 'available' => 2, 'required' => 3, 'reason' => 'ambiguous', 'course' => 'english-a1', 'lesson_id' => $lesson->id]);
+
+    $hub = $this->withHeaders(PracticeKit::headers($learner))->getJson("/api/twa/practice/hub?course={$course->slug}&lesson_id={$lesson->id}")->assertOk();
+    expect($hub->json('modes.0'))->toBe(['mode' => 'pairs', 'state' => 'not_enough', 'available' => 2, 'required' => 3, 'reason' => 'ambiguous', 'estimate_seconds' => 120]);
+
+    // A learner who has met two words only.
+    $beginner = Learner::factory()->create();
+    foreach (Word::query()->limit(2)->get() as $word) {
+        PracticeKit::introduce($beginner, $word);
+    }
+    psOpen($this, $beginner, $course->slug, 'pairs')
+        ->assertStatus(422)->assertJsonPath('error.details', ['mode' => 'pairs', 'available' => 2, 'required' => 3, 'reason' => 'no_words', 'course' => 'english-a1', 'lesson_id' => null]);
+    expect(PracticeSession::query()->count())->toBe(0)
+        ->and(psEvents('practice.not_enough_material'))->toBe(2);
+
+    // One more word that says something of its own: the three that can stand together make a round.
+    $reader = Learner::factory()->create();
+    Word::factory()->for($lesson)->create(['word' => 'sister', 'translation' => 'сестра']);
+    foreach (Word::query()->whereIn('word', ['mother', 'father', 'dad', 'sister'])->get() as $word) {
+        PracticeKit::introduce($reader, $word);
+    }
+    $hub = $this->withHeaders(PracticeKit::headers($reader))->getJson("/api/twa/practice/hub?course={$course->slug}")->assertOk();
+    expect($hub->json('modes.0'))->toBe(['mode' => 'pairs', 'state' => 'available', 'available' => 4, 'required' => 3, 'reason' => null, 'estimate_seconds' => 120]);
+
+    $opened = psOpen($this, $reader, $course->slug, 'pairs')->assertCreated();
+    expect($opened->json('progress'))->toBe(['done' => 0, 'total' => 1])
+        ->and($opened->json('current.left'))->toHaveCount(3);
+});
+
+it('opens a session of pairs for a learner whose words have a uz translation: the cards say it in uz, the ru text where there is none', function (): void {
+    [$learner, $course, $lesson] = psPairsWorld(6, 'uz');
+    $uz = Word::query()->where('word', 'word1')->firstOrFail();
+    WordTranslation::factory()->uz()->create(['word_id' => $uz->id, 'translation' => 'bir']);
+
+    $session = psOpen($this, $learner, $course->slug, 'pairs', ['lesson_id' => $lesson->id])->assertCreated();
+    $texts = array_column($session->json('current.right'), 'text');
+    $rounds = psPairsRounds($session->json('id'));
+
+    expect($session->json('course.title'))->toBe('Ingliz tili A1')
+        ->and(PracticeSession::query()->findOrFail($session->json('id'))->locale)->toBe('uz')
+        ->and($rounds[0]['right'][0]['text'])->toHaveKey('uz');
+    // `word1` is on the board of the first round or of the second, and wherever it is its card says «bir».
+    $every = collect($rounds)->flatMap(fn (array $r): array => array_column($r['right'], 'text'))->map(fn (array $t): string => $t['uz'])->all();
+    expect($every)->toContain('bir')
+        ->and($every)->toContain('перевод 2')
+        ->and(count($texts))->toBe(3);
+});
+
+it('keeps the board of a session of pairs the same however often it is read, until a match changes it', function (): void {
+    [$learner, $course] = psPairsWorld(9);
+    $session = psOpen($this, $learner, $course->slug, 'pairs')->assertCreated()->json();
+    $round = psPairsRounds($session['id'])[0];
+
+    $first = psGet($this, $learner, $session['id'])->assertOk()->json();
+    $second = psGet($this, $learner, $session['id'])->assertOk()->json();
+
+    expect(Arr::except($first, ['server_now']))->toBe(Arr::except($second, ['server_now']))
+        ->and($first['current'])->toBe($session['current']);
+
+    psAnswer($this, $learner, $session['id'], $round['id'], ['left_id' => $round['left'][0]['id'], 'right_id' => $round['pairs'][$round['left'][0]['id']]])->assertOk();
+    $after = psGet($this, $learner, $session['id'])->assertOk()->json('current');
+
+    expect($after['left'])->toBe($session['current']['left'])
+        ->and($after['right'])->toBe($session['current']['right'])
+        ->and($after['matched'])->toHaveCount(1);
 });
 
 it('swaps a dictation whose audio does not play for the next spare, twice at most, without a penalty', function (): void {

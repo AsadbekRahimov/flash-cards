@@ -8,18 +8,25 @@ declare(strict_types=1);
  * If a test here fails, the TWA client breaks - change the client and docs/04 together.
  */
 
+use App\Domain\Practice\DTO\ElementState;
+use App\Domain\Practice\DTO\LocaleSet;
+use App\Domain\Practice\DTO\MaterialScope;
 use App\Domain\Practice\DTO\ModeAvailability;
 use App\Domain\Practice\Enums\FinishReason;
 use App\Domain\Practice\Enums\PracticeMode;
 use App\Domain\Practice\Enums\Verdict;
 use App\Domain\Practice\Exceptions\BattleException;
 use App\Domain\Practice\Exceptions\PracticeException;
+use App\Domain\Practice\Services\Modes\PairsMode;
+use App\Domain\Practice\Services\PracticeSnapshotBuilder;
 use App\Http\Resources\ApiErrorResource;
 use App\Models\Battle;
 use App\Models\Learner;
 use App\Models\PracticeItem;
 use App\Models\PracticeItemVersion;
 use App\Models\PracticeSession;
+use App\Models\Word;
+use App\Models\WordTranslation;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
@@ -544,6 +551,162 @@ it('puts `details` INSIDE `error` on the wire: the refusals of an answer, and `r
         ->and($last->json('reveal'))->toBeNull()
         ->and($last->json('pair'))->toBe(['left_id' => $lefts[2], 'right_id' => $round['pairs'][$lefts[2]]])
         ->and($last->json('session.progress.done'))->toBe(1);
+});
+
+/**
+ * A learner who has met twelve words of a lesson ("word1" - "перевод 1"...): the REAL handler of the pairs plays them.
+ *
+ * @return array{0: Learner, 1: Course, 2: Lesson}
+ */
+function contractPairsWorld(int $words = 12): array
+{
+    [$course, $lesson] = PracticeKit::course();
+    $learner = Learner::factory()->create();
+    for ($i = 1; $i <= $words; $i++) {
+        PracticeKit::introduce($learner, Word::factory()->for($lesson)->create(['word' => "word{$i}", 'translation' => "перевод {$i}"]));
+    }
+
+    return [$learner, $course, $lesson];
+}
+
+it('keeps the JSON of the pairs on the real handler: the board, a wrong and a right match, the end of a round, the summary - and none of the secrets of the snapshot', function (): void {
+    [$learner, $course, $lesson] = contractPairsWorld();
+    $board = ['id', 'kind', 'round', 'rounds', 'left' => ['*' => ['id', 'text']], 'right' => ['*' => ['id', 'text']], 'matched', 'mismatches'];
+    $match = ['verdict', 'first_attempt', 'reveal', 'pair' => ['left_id', 'right_id'], 'round_done'];
+    $seen = [];
+
+    // The board.
+    $session = contractOpen($learner, $course->slug, 'pairs', ['lesson_id' => $lesson->id])->assertCreated()
+        ->assertExactJsonStructure(contractSession($board, lesson: true))->json();
+    $seen[] = $session;
+    $rounds = PracticeSession::query()->findOrFail($session['id'])->snapshot['elements'];
+    $table = $rounds[0]['pairs'];
+    $elementId = $rounds[0]['id'];
+    [$a, $b, $c, $d] = array_column($session['current']['left'], 'id');
+    $try = fn (string $left, string $right): TestResponse => contractAnswerElement($learner, $session['id'], $elementId, ['left_id' => $left, 'right_id' => $right]);
+
+    $seen[] = test()->withHeaders(PracticeKit::headers($learner))->getJson("/api/twa/practice/sessions/{$session['id']}")->assertOk()
+        ->assertExactJsonStructure(contractSession($board, lesson: true))->json();
+    $seen[] = test()->withHeaders(PracticeKit::headers($learner))->getJson("/api/twa/practice/hub?course={$course->slug}&lesson_id={$lesson->id}")->assertOk()->json();
+
+    // A wrong match: the verdict, the pair that was tried, no reveal, and the partner of the word is not named anywhere.
+    $miss = $try($a, $table[$b])->assertOk()->assertExactJsonStructure([...$match, 'session' => contractSession($board, lesson: true)]);
+    $seen[] = $miss->json();
+    expect($miss->json('verdict'))->toBe('wrong')
+        ->and($miss->json('reveal'))->toBeNull()
+        ->and($miss->json('pair'))->toBe(['left_id' => $a, 'right_id' => $table[$b]])
+        ->and($miss->json('round_done'))->toBeFalse()
+        ->and($miss->json('session.current.matched'))->toBe([])
+        ->and($miss->json('session.current.mismatches'))->toBe(1);
+
+    // A right one.
+    $hit = $try($a, $table[$a])->assertOk()->assertExactJsonStructure([...$match, 'session' => contractSession($board, lesson: true)]);
+    $seen[] = $hit->json();
+    expect($hit->json('session.current.matched'))->toBe([[$a, $table[$a]]])
+        ->and($hit->json('reveal'))->toBeNull();
+
+    // The refusals of a real round, on the wire.
+    expect(contractError($try($a, $table[$a]), 409, 'pair_already_matched', ['left_id']))->toEqual(['left_id' => $a])
+        ->and(contractError(contractAnswerElement($learner, $session['id'], $elementId, ['left_id' => $b]), 422, 'invalid_answer_shape', ['expected']))->toEqual(['expected' => 'left_right'])
+        ->and(contractError($try('lNoSuchWord', $table[$b]), 422, 'unknown_element_id', null))->toBe([]);
+
+    // The end of a round: `round_done`, and the next board in the same response.
+    $try($b, $table[$b])->assertOk();
+    $try($c, $table[$c])->assertOk();
+    $end = $try($d, $table[$d])->assertOk()->assertExactJsonStructure([...$match, 'session' => contractSession($board, lesson: true)]);
+    $seen[] = $end->json();
+    expect($end->json('round_done'))->toBeTrue()
+        ->and($end->json('session.current.id'))->toBe($rounds[1]['id'])
+        ->and($end->json('session.current.round'))->toBe(2)
+        ->and($end->json('session.progress'))->toBe(['done' => 1, 'total' => 3]);
+
+    // The summary: the mistakes are listed with the right pairing - once the session is over.
+    foreach ([1, 2] as $index) {
+        foreach ($rounds[$index]['left'] as $left) {
+            $last = contractAnswerElement($learner, $session['id'], $rounds[$index]['id'], ['left_id' => $left['id'], 'right_id' => $rounds[$index]['pairs'][$left['id']]])->assertOk();
+        }
+    }
+    $last->assertExactJsonStructure([...$match, 'session' => contractSession(null, lesson: true, summary: true)]);
+    $seen[] = $last->json();
+    $mistakes = $last->json('session.summary.mistakes');
+
+    expect($mistakes)->toHaveCount(1)
+        ->and($mistakes[0]['kind'])->toBe('pairs_round')
+        ->and($mistakes[0]['verdict'])->toBe('wrong')
+        ->and($mistakes[0]['your_answer'])->toBeNull()
+        ->and($mistakes[0]['label'])->toMatch('/^word\d+ — перевод \d+$/u')
+        ->and($last->json('session.summary.mismatches'))->toBe(1);
+
+    $seen[] = test()->withHeaders(PracticeKit::headers($learner))->getJson("/api/twa/practice/sessions/{$session['id']}")->assertOk()
+        ->assertExactJsonStructure(contractSession(null, lesson: true, summary: true))->json();
+
+    foreach ($seen as $body) {
+        expect(array_values(array_intersect(contractKeys($body), CONTRACT_FORBIDDEN_PRACTICE_KEYS)))->toBe([]);
+    }
+});
+
+it('hands out ids that say nothing, and answers every wrong guess with the same «wrong» and nothing more', function (): void {
+    [$learner, $course] = contractPairsWorld();
+    $session = contractOpen($learner, $course->slug, 'pairs')->assertCreated()->json();
+    $round = PracticeSession::query()->findOrFail($session['id'])->snapshot['elements'][0];
+    $a = $session['current']['left'][0]['id'];
+
+    // The ids of the board are random: a prefix and ten characters, no word id, no order of the pairs in them.
+    $ids = array_merge(array_column($session['current']['left'], 'id'), array_column($session['current']['right'], 'id'));
+    expect($session['current']['id'])->toMatch('/^e[A-Za-z0-9]{10}$/')
+        ->and(array_unique($ids))->toHaveCount(8);
+    foreach ($ids as $id) {
+        expect($id)->toMatch('/^[lr][A-Za-z0-9]{10}$/');
+    }
+
+    // Three cards are wrong for the word: three times «wrong», the same body, and the board has no new fact.
+    $wrongCards = array_values(array_diff(array_column($session['current']['right'], 'id'), [$round['pairs'][$a]]));
+    foreach ($wrongCards as $index => $card) {
+        $answer = contractAnswerElement($learner, $session['id'], $round['id'], ['left_id' => $a, 'right_id' => $card])->assertOk();
+
+        expect(array_keys($answer->json()))->toBe(['verdict', 'first_attempt', 'reveal', 'pair', 'round_done', 'session'])
+            ->and($answer->json('verdict'))->toBe('wrong')
+            ->and($answer->json('first_attempt'))->toBe($index === 0)
+            ->and($answer->json('reveal'))->toBeNull()
+            ->and($answer->json('pair'))->toBe(['left_id' => $a, 'right_id' => $card])
+            ->and($answer->json('session.current.matched'))->toBe([])
+            ->and($answer->json('session.current.left'))->toBe($session['current']['left'])
+            ->and($answer->json('session.current.right'))->toBe($session['current']['right']);
+    }
+    expect($wrongCards)->toHaveCount(3);
+});
+
+it('shows a round of a battle the way it shows a solo one - the same board in the language of the viewer, none of the secrets, nothing matched', function (): void {
+    [$course, $lesson] = PracticeKit::course();
+    foreach (range(1, 20) as $i) {
+        $word = Word::factory()->for($lesson)->create(['word' => "word{$i}", 'translation' => "перевод {$i}"]);
+        if ($i % 2 === 0) {
+            WordTranslation::factory()->uz()->create(['word_id' => $word->id, 'translation' => "tarjima {$i}"]);
+        }
+    }
+    $snapshot = app(PracticeSnapshotBuilder::class)->build(PracticeMode::Pairs, new MaterialScope($course, $lesson), null, LocaleSet::of('ru', 'uz'), 5, true, str_repeat('b', 32));
+    $mode = app(PairsMode::class);
+
+    expect($snapshot->count())->toBe(5);
+    foreach ($snapshot->elements as $index => $element) {
+        $ru = $mode->project($element, 'ru', ElementState::open());
+        $uz = $mode->project($element, 'uz', ElementState::open());
+
+        expect(array_keys($ru))->toBe(['id', 'kind', 'round', 'rounds', 'left', 'right', 'matched', 'mismatches'])
+            ->and($ru['kind'])->toBe('pairs_round')
+            ->and([$ru['round'], $ru['rounds']])->toBe([$index + 1, 5])
+            ->and([$ru['matched'], $ru['mismatches']])->toBe([[], 0])
+            ->and($uz['left'])->toBe($ru['left'])                                          // the English side is one for both players
+            ->and(array_column($uz['right'], 'id'))->toBe(array_column($ru['right'], 'id'))   // the same cards in the same places
+            ->and(array_values(array_intersect(contractKeys($ru), [...CONTRACT_FORBIDDEN_PRACTICE_KEYS, 'battle'])))->toBe([])
+            ->and(array_values(array_intersect(contractKeys($uz), [...CONTRACT_FORBIDDEN_PRACTICE_KEYS, 'battle'])))->toBe([]);
+        foreach ($ru['right'] as $card) {
+            expect($card['text'])->toStartWith('перевод ');
+        }
+        foreach ($uz['right'] as $card) {
+            expect($card['text'])->toMatch('/^(tarjima|перевод) \d+$/u');   // uz where there is a uz text, the ru fallback where there is none
+        }
+    }
 });
 
 it('puts `details` INSIDE `error` on the wire: replace_not_allowed names its reason - not_dictation, not_current or limit', function (): void {

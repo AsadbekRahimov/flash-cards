@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import PracticeSummary from '../PracticeSummary.vue'
 import { setLocale } from '@/i18n'
@@ -101,6 +101,22 @@ describe('PracticeSummary — the mistakes', () => {
     const wrapper = render({ summary: summary({ mistakes: [{ element_id: 'c', kind: 'collocation', label: 'C', your_answer: null, verdict: 'skipped' }] }) })
 
     expect(wrapper.find('[data-testid=mistake-answer]').exists()).toBe(false)
+  })
+
+  it('pairs: several words of one round are several rows, and a Vue key is not repeated among them', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    const row = (elementId: string, label: string) => ({ element_id: elementId, kind: 'pairs_round' as const, label, your_answer: null, verdict: 'wrong' as const })
+    const first = [row('ePair00001', 'mother — мама'), row('ePair00001', 'father — папа'), row('ePair00002', 'sister — сестра')]
+    const wrapper = render({ summary: summary({ mismatches: 3, mistakes: first }) }, 'pairs')
+
+    expect(wrapper.findAll('[data-testid=mistake-label]').map((label) => label.text())).toEqual(['mother — мама', 'father — папа', 'sister — сестра'])
+
+    // A keyed list is compared when it changes (here: the rows come in another order): a key twice is what Vue warns about.
+    await wrapper.setProps({ summary: summary({ mismatches: 3, mistakes: [first[2]!, first[0]!, first[1]!] }) })
+
+    expect(wrapper.findAll('[data-testid=mistake-label]').map((label) => label.text())).toEqual(['sister — сестра', 'mother — мама', 'father — папа'])
+    expect(warn.mock.calls.filter((call) => String(call[0]).includes('Duplicate keys'))).toEqual([])
+    warn.mockRestore()
   })
 
   it('no mistakes: a word of praise instead of the list', () => {
