@@ -710,8 +710,8 @@ describe('FriendsView', () => {
         expect(buttons).toHaveLength(2)
         expect(buttons[0]?.text()).toBe('Баттл')
         expect(buttons[0]?.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-sm']))
-        expect(buttons[0]?.attributes('aria-label')).toBe('Баттл с Dilnoza')
-        expect(buttons[1]?.attributes('aria-label')).toBe('Баттл с Друг')
+        expect(buttons[0]?.attributes('aria-label')).toBe('Баттл с другом: Dilnoza')
+        expect(buttons[1]?.attributes('aria-label')).toBe('Баттл с другом: Друг')
       })
 
       it('leads to the setup of a battle with that friend', async () => {

@@ -298,7 +298,7 @@ describe('BattleView — the invitation', () => {
   it('sent by the learner: waits, shows how long it lasts, and the poll runs', async () => {
     const r = await render(invitedBattle({ role: 'challenger' }))
 
-    expect(text(r, 'room-title')).toBe('Ждём Dilnoza…')
+    expect(text(r, 'room-title')).toBe('Ждём ответа: Dilnoza')
     expect(text(r, 'room-expires')).toBe('Приглашение действует ещё 4:00')
     expect(api.battles.poll).not.toHaveBeenCalled()
 

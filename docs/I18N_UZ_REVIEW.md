@@ -2221,7 +2221,6 @@
 | `battle.points.other` | {count} ochko | {count} очка |
 | `battle.score.aria` | Hisob: siz {me}, {name} {opponent} | Счёт: вы {me}, {name} {opponent} |
 | `battle.setup.title` | Yangi bellashuv | Новый баттл |
-| `battle.setup.title_with` | {name} bilan bellashuv | Баттл с {name} |
 | `battle.setup.subtitle` | Mavzu va formatni tanlang | Выберите тему и формат |
 | `battle.setup.friend` | Raqib | Соперник |
 | `battle.setup.course` | Kurs | Курс |
@@ -2249,7 +2248,7 @@
 | `battle.setup.reason.audio_pending` | Topshiriqlar uchun yozuvlar hali tayyorlanmoqda. Keyinroq qaytib keling. | Записи для заданий ещё готовятся. Загляните позже. |
 | `battle.setup.reason.no_audio_words` | Bu mavzudagi so'zlar uchun hozircha yozuvlar yo'q. | Для слов этой темы пока нет записей. |
 | `battle.setup.reason.unknown` | Bu format uchun material hozircha yetarli emas. | Для этого формата пока не хватает материала. |
-| `battle.invite.waiting` | {name} kutilmoqda… | Ждём {name}… |
+| `battle.invite.waiting` | {name} kutilmoqda… | Ждём ответа: {name} |
 | `battle.invite.waiting_anon` | Do'stingizning javobi kutilmoqda… | Ждём ответа друга… |
 | `battle.invite.lead_sent` | Do'stingiz taklifni oldi. U qabul qilishi bilan xona ochiladi. | Друг получил приглашение. Как только он примет его, откроется комната. |
 | `battle.invite.lead` | Qoidalar bilan tanishing va taklifni qabul qiling — xona ochiladi. | Посмотрите правила и примите приглашение — откроется комната. |
@@ -2346,7 +2345,7 @@
 | `battle.live.waiting` | Javob qabul qilindi. Raqib kutilmoqda. | Ответ принят. Ждём соперника. |
 | `battle.live.reveal` | Raund tugadi. {verdict}. | Раунд завершён. {verdict}. |
 | `battle.friends.button` | Bellashuv | Баттл |
-| `battle.friends.button_aria` | {name} bilan bellashuv | Баттл с {name} |
+| `battle.friends.button_aria` | {name} bilan bellashuv | Баттл с другом: {name} |
 | `battle.friends.active` | Bellashuv davom etmoqda | Идёт баттл |
 | `battle.friends.status.invited` | Javob kutilmoqda | Ждём ответа |
 | `battle.friends.status.room` | Xona | Комната |

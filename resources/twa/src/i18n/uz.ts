@@ -644,7 +644,6 @@ export const uz: Translations = {
   'battle.score.aria': 'Hisob: siz {me}, {name} {opponent}',
 
   'battle.setup.title': 'Yangi bellashuv',
-  'battle.setup.title_with': '{name} bilan bellashuv',
   'battle.setup.subtitle': 'Mavzu va formatni tanlang',
   'battle.setup.friend': 'Raqib',
   'battle.setup.course': 'Kurs',

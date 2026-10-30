@@ -684,7 +684,6 @@ export const ru = {
   'battle.score.aria': 'Счёт: вы {me}, {name} {opponent}',
 
   'battle.setup.title': 'Новый баттл',
-  'battle.setup.title_with': 'Баттл с {name}',
   'battle.setup.subtitle': 'Выберите тему и формат',
   'battle.setup.friend': 'Соперник',
   'battle.setup.course': 'Курс',
@@ -713,7 +712,7 @@ export const ru = {
   'battle.setup.reason.no_audio_words': 'Для слов этой темы пока нет записей.',
   'battle.setup.reason.unknown': 'Для этого формата пока не хватает материала.',
 
-  'battle.invite.waiting': 'Ждём {name}…',
+  'battle.invite.waiting': 'Ждём ответа: {name}',
   'battle.invite.waiting_anon': 'Ждём ответа друга…',
   'battle.invite.lead_sent': 'Друг получил приглашение. Как только он примет его, откроется комната.',
   'battle.invite.lead': 'Посмотрите правила и примите приглашение — откроется комната.',
@@ -825,7 +824,7 @@ export const ru = {
   'battle.live.reveal': 'Раунд завершён. {verdict}.',
 
   'battle.friends.button': 'Баттл',
-  'battle.friends.button_aria': 'Баттл с {name}',
+  'battle.friends.button_aria': 'Баттл с другом: {name}',
   'battle.friends.active': 'Идёт баттл',
   'battle.friends.status.invited': 'Ждём ответа',
   'battle.friends.status.room': 'Комната',

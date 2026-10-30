@@ -54,7 +54,7 @@ describe('BattleRoom — the invitation that was sent', () => {
     const w = render(sent())
 
     expect(w.get('[data-testid=battle-room]').attributes('data-phase')).toBe('invite_sent')
-    expect(w.get('h1').text()).toBe('Ждём Dilnoza…')
+    expect(w.get('h1').text()).toBe('Ждём ответа: Dilnoza')
     expect(w.get('[data-testid=room-expires]').text()).toBe('Приглашение действует ещё 4:00')
     expect(chips(w)).toEqual(['ещё не ответил'])
   })

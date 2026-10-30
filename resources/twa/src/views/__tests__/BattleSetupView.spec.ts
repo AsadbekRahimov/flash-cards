@@ -149,10 +149,10 @@ describe('BattleSetupView — the screen', () => {
     expect(authEnsure).toHaveBeenCalled()
   })
 
-  it('names the friend in the heading and shows them in a card', async () => {
+  it('has one heading for every friend and shows the friend in a card under it', async () => {
     const r = await render()
 
-    expect(r.wrapper.get('h1').text()).toBe('Баттл с Dilnoza')
+    expect(r.wrapper.get('h1').text()).toBe('Новый баттл')
     expect(text(r, 'friend-name')).toBe('Dilnoza')
     expect(api.battles.options).toHaveBeenCalledWith(11, 'english-a1', null)
   })
@@ -571,7 +571,7 @@ describe('BattleSetupView — Uzbek', () => {
     setLocale('uz')
     const r = await render()
 
-    expect(r.wrapper.get('h1').text()).toBe('Dilnoza bilan bellashuv')
+    expect(r.wrapper.get('h1').text()).toBe('Yangi bellashuv')
     expect(text(r, 'invite-btn')).toBe('Taklif qilish')
     expect(lessonOptions(r)[0]).toBe('Butun kurs')
     expect(get(r, 'format-pairs').text()).toContain('Har bir raundga 45 soniya')

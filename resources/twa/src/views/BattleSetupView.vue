@@ -84,9 +84,7 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => setup.dismissPaywall(),
 
 // ---------------------------------------------------------------- the view
 
-const friendName = computed(() => setup.friendName)
-const title = computed(() => (friendName.value ? t('battle.setup.title_with', { name: friendName.value }) : t('battle.setup.title')))
-const shownName = computed(() => friendName.value ?? t('friends.list.anonymous'))
+const shownName = computed(() => setup.friendName ?? t('friends.list.anonymous'))
 
 const catalogFailed = computed(() => listStatus.value === 'error' || loginError.value !== '')
 const catalogLoading = computed(() => props.friendshipId !== null && !catalogFailed.value && (listStatus.value === 'idle' || listStatus.value === 'loading'))
@@ -136,7 +134,7 @@ const blockedKey = computed(() => {
 
 <template>
   <div class="page" data-testid="battle-setup-view">
-    <PageHeader :title="title" :subtitle="t('battle.setup.subtitle')" />
+    <PageHeader :title="t('battle.setup.title')" :subtitle="t('battle.setup.subtitle')" />
 
     <!-- No friend in the address: a battle is played by two. -->
     <EmptyState
