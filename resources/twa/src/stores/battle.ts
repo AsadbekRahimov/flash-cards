@@ -204,9 +204,6 @@ export const useBattleStore = defineStore('battle', {
     /** The battle I am in (a sent invitation, the room, the match). */
     active: (s): BattleListResponse['active'] => s.list?.active ?? null,
 
-    /** The battle is not over: an invitation, the room, the countdown or the match. */
-    isLive: (s): boolean => (LIVE as readonly string[]).includes(s.status),
-
     /** The battle is over: it has a result (`finished`) or ended without one (`closed`). */
     isOver: (s): boolean => s.status === 'finished' || s.status === 'closed',
 

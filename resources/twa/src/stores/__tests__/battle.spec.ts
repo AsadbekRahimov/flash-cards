@@ -103,7 +103,6 @@ describe('battle store — opening a battle', () => {
     const store = await opened(battle({ status, round: status === 'playing' ? roundState() : null }))
 
     expect(store.polling).toBe(true)
-    expect(store.isLive).toBe(true)
   })
 
   it.each([
@@ -456,6 +455,39 @@ describe('battle store — generation: a reply that comes late changes nothing',
 
     expect(store.offline).toBe(false)
     expect(store.battle).toBeNull()
+  })
+
+  it('drops a poll that comes back after the screen was left: it is not taken, nothing is read for it', async () => {
+    const store = await opened()
+    vi.mocked(api.battles.get).mockClear()
+    const reply = pending<BattlePoll>()
+    vi.mocked(api.battles.poll).mockReturnValue(reply.promise)
+
+    const ticking = store.tick()
+    store.leave()
+    reply.resolve(poll({ status: 'finished', version: 40, round: null, scores: { me: 300, opponent: 200 }, end_reason: 'completed' }))
+    await ticking
+
+    expect(store.poll).toBeNull()
+    expect(store.status).toBe('idle')
+    expect(store.scores).toEqual({ me: 0, opponent: 0 })
+    expect(api.battles.get).not.toHaveBeenCalled()
+  })
+
+  it('drops a poll of the first battle that comes back when the learner has opened another', async () => {
+    const store = await opened()
+    const reply = pending<BattlePoll>()
+    vi.mocked(api.battles.poll).mockReturnValue(reply.promise)
+    vi.mocked(api.battles.get).mockResolvedValue(roomBattle({ id: 16 }))
+
+    const ticking = store.tick()
+    await store.open(16)
+    reply.resolve(poll({ id: 15, status: 'finished', version: 40, round: null, end_reason: 'completed' }))
+    await ticking
+
+    expect(store.battleId).toBe(16)
+    expect(store.status).toBe('room')
+    expect(store.poll?.id).toBe(16)
   })
 
   it('leaving forgets everything of the battle on screen and stops the poll', async () => {

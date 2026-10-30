@@ -440,6 +440,21 @@ describe('battle setup — the friend', () => {
     expect(setup.options?.friend_access).toBe('no_access')
     expect(setup.canInvite).toBe(false)
   })
+
+  it('a format that is short of material or switched off cannot be invited to, whatever the state holds', async () => {
+    serve()
+    vi.mocked(api.battles.options).mockResolvedValue(options({ modes: { sentence: { state: 'not_enough', reason: 'no_items', available: 3 }, dictation: { state: 'disabled' } } }))
+    const setup = useBattleSetupStore()
+    await setup.begin(11, null, null)
+    expect(setup.canInvite).toBe(true)
+
+    for (const mode of ['sentence', 'dictation'] as const) {
+      setup.mode = mode
+      expect(setup.canInvite).toBe(false)
+      expect(await setup.invite()).toBeNull()
+    }
+    expect(api.battles.invite).not.toHaveBeenCalled()
+  })
 })
 
 describe('battle setup — the invitation', () => {
