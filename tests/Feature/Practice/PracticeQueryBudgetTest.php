@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
+use Tests\Support\Practice\BattleHttp;
 use Tests\Support\Practice\BattleKit;
 use Tests\Support\Practice\FakeEchoMode;
 use Tests\Support\Practice\PracticeKit;
@@ -265,7 +266,7 @@ it('keeps the response of a session under 8 KB and refuses to store a snapshot o
 
 /*
  * docs/16 §13, the battle. The HTTP budgets count the 1 statement of TwaAuth (the learner); the services are measured here
- * without it (the HTTP tests come with the routes of 18.6b), so every service-level bound below is the HTTP one minus one.
+ * without it (the same budgets on the routes are at the end of the file, 18.6b), so every service-level bound below is the HTTP one minus one.
  */
 const BUDGET_BATTLE_POLL = 4;
 const BUDGET_BATTLE_POLL_TRANSITION = 10;
@@ -276,6 +277,12 @@ const BUDGET_BATTLE_SWEEP_BASE = 4;
 const BUDGET_BATTLE_SWEEP_PER_EXPIRED = 2;
 const BUDGET_BATTLE_SWEEP_PER_LIVE = 7;
 const BUDGET_BATTLE_POLL_BYTES = 600;
+/** Reads the document gives no number for, pinned a little above where they are (the learner of TwaAuth included): a round with its review 4, the battle 4, the list 7. */
+const BUDGET_BATTLE_ROUND = 5;
+const BUDGET_BATTLE_VIEW = 5;
+const BUDGET_BATTLE_LIST = 8;
+/** A clip: the learner, the battle and its participants (`BattleReader::find`) - one more than a clip of a solo session (§13: 2): the players of the battle are the price of "only a player gets it". */
+const BUDGET_BATTLE_AUDIO = 3;
 
 /** A battle that is on, with both players present. @return array{0: Learner, 1: Learner, 2: Battle} */
 function budgetBattle(PracticeMode $mode = PracticeMode::Collocation): array
@@ -449,4 +456,125 @@ it('keeps the poll of a battle under 600 bytes on the wire: a game with its roun
     $over = budgetPoll($me, $battle->id)->toArray();
     expect(strlen(json_encode($over, JSON_THROW_ON_ERROR)))->toBeLessThanOrEqual(BUDGET_BATTLE_POLL_BYTES)
         ->and($over['rematch'])->toMatchArray(['status' => 'invited', 'by_me' => false]);
+});
+
+// ------------------------------------------------------------------------------------------------------------ the battle over HTTP (18.6b)
+
+/*
+ * The same budgets, on the routes: `TwaAuth` reads the learner (1 statement), so the bounds above (`BUDGET_BATTLE_*`, which are the
+ * HTTP ones: the service tests above subtract that 1) hold for the whole request - the controller, the request, the resource
+ * included. The DM of an invitation is a job of the queue worker, not of the request: the queue is faked.
+ */
+
+/** The statements of one request; the answer must be a success. @return list<string> */
+function budgetHttp(Closure $request): array
+{
+    return QueryLog::during(function () use ($request): void {
+        $response = $request();
+        $response->assertSuccessful();
+    });
+}
+
+it('polls a battle over HTTP in at most 4 statements without a transition and in at most 10 with one - a time-out, the next round, the end, a poll of a match that is over', function (): void {
+    [$me, $friend, $battle] = budgetBattle();
+    $poll = fn (Learner $who) => fn (): TestResponse => BattleHttp::poll($who, $battle->id);
+
+    // No transition, the presence stale (written): the learner, the battle, its participants, the heartbeat.
+    CarbonImmutable::setTestNow('2026-10-30 10:00:10');
+    $quiet = budgetHttp($poll($me));
+    expect(count($quiet))->toBeLessThanOrEqual(BUDGET_BATTLE_POLL, implode("\n", $quiet))
+        ->and(budgetReads($quiet, 'battles'))->toBe(1)
+        ->and(budgetReads($quiet, 'battle_participants'))->toBe(1)
+        ->and(budgetReads($quiet, 'battle_answers'))->toBe(0);
+
+    // The presence is fresh: no heartbeat to write, no answers to read - fewer still.
+    $fresh = budgetHttp($poll($me));
+    expect(count($fresh))->toBeLessThanOrEqual(BUDGET_BATTLE_POLL - 1, implode("\n", $fresh));
+
+    // The deadline and the grace passed with one answer in: a time-out for the other, the round resolved.
+    BattleHttp::answer($me, $battle->id, 1, BattleKit::correct(BattleKit::element($battle, 1)))->assertOk();
+    BattleKit::bothPoll($battle, $me, $friend, '2026-10-30 10:00:20');
+    BattleKit::bothPoll($battle, $me, $friend, '2026-10-30 10:00:32');
+    CarbonImmutable::setTestNow('2026-10-30 10:00:34.5');
+    $timeout = budgetHttp($poll($friend));
+    expect(count($timeout))->toBeLessThanOrEqual(BUDGET_BATTLE_POLL_TRANSITION, implode("\n", $timeout))
+        ->and(BattleKit::fresh($battle)->phase)->toBe(BattlePhase::Reveal);
+
+    // The reveal is over: the next round.
+    CarbonImmutable::setTestNow('2026-10-30 10:00:38.5');
+    $next = budgetHttp($poll($me));
+    expect(count($next))->toBeLessThanOrEqual(BUDGET_BATTLE_POLL_TRANSITION, implode("\n", $next))
+        ->and(BattleKit::fresh($battle)->current_round)->toBe(2);
+
+    // Rounds 2-5 played; the end of the last reveal: the finalisation with its event.
+    for ($round = 2; $round <= 5; $round++) {
+        $element = BattleKit::element($battle, $round);
+        BattleKit::answer($battle, $me, $round, BattleKit::correct($element));
+        BattleKit::answer($battle, $friend, $round, BattleKit::wrong($element));
+        CarbonImmutable::setTestNow(CarbonImmutable::now()->addSeconds(4));
+        if ($round < 5) {
+            budgetPoll($me, $battle->id);
+        }
+    }
+    $final = budgetHttp($poll($friend));
+    expect(count($final))->toBeLessThanOrEqual(BUDGET_BATTLE_POLL_TRANSITION, implode("\n", $final))
+        ->and(BattleKit::fresh($battle)->status)->toBe(BattleStatus::Finished)
+        ->and(ProductEvent::query()->where('name', 'battle.finished')->count())->toBe(1);
+
+    // The poll of a match that is over: no presence, the rematch looked up.
+    $over = budgetHttp($poll($me));
+    expect(count($over))->toBeLessThanOrEqual(BUDGET_BATTLE_POLL, implode("\n", $over));
+});
+
+it('takes an answer over HTTP in at most 8 statements, the second one that resolves the round included, and reads the round and the battle within a handful', function (): void {
+    [$me, $friend, $battle] = budgetBattle(PracticeMode::Pairs);
+    $element = BattleKit::element($battle, 1);
+
+    CarbonImmutable::setTestNow('2026-10-30 10:00:10'); // the presence of the one who answers is stale: written
+    $first = budgetHttp(fn (): TestResponse => BattleHttp::answer($me, $battle->id, 1, BattleKit::correct($element)));
+    $second = budgetHttp(fn (): TestResponse => BattleHttp::answer($friend, $battle->id, 1, BattleKit::wrong($element)));
+    $row = BattleKit::fresh($battle);
+
+    expect(count($first))->toBeLessThanOrEqual(BUDGET_BATTLE_ANSWER, implode("\n", $first))
+        ->and(count($second))->toBeLessThanOrEqual(BUDGET_BATTLE_ANSWER, implode("\n", $second))
+        ->and(budgetReads($second, 'battle_answers'))->toBe(1)
+        ->and($row->phase)->toBe(BattlePhase::Reveal)
+        ->and([$row->participant($me->id)->score, $row->participant($friend->id)->score])->toBe([100, 50]);
+
+    // A repeat of the request, the round read with its review, the battle, the list: the reads have no budget in the document; pinned here.
+    $repeat = budgetHttp(fn (): TestResponse => BattleHttp::answer($friend, $battle->id, 1, BattleKit::wrong($element), BattleKit::fresh($battle)->answers()->where('learner_id', $friend->id)->value('request_id')));
+    $round = budgetHttp(fn (): TestResponse => BattleHttp::round($me, $battle->id, 1));
+    $view = budgetHttp(fn (): TestResponse => BattleHttp::view($me, $battle->id));
+    $list = budgetHttp(fn (): TestResponse => BattleHttp::get($me, ''));
+    expect(count($repeat))->toBeLessThanOrEqual(BUDGET_BATTLE_ANSWER, implode("\n", $repeat))
+        ->and(count($round))->toBeLessThanOrEqual(BUDGET_BATTLE_ROUND, implode("\n", $round))
+        ->and(count($view))->toBeLessThanOrEqual(BUDGET_BATTLE_VIEW, implode("\n", $view))
+        ->and(count($list))->toBeLessThanOrEqual(BUDGET_BATTLE_LIST, implode("\n", $list));
+});
+
+it('sends an invitation over HTTP in at most 14 statements - pairs (words and two languages of translations), a task mode, and a rematch - and hands out a clip in at most 3', function (): void {
+    Storage::fake('practice_audio');
+    Queue::fake(); // the DM of the invitation is a job of the queue worker, not of the request
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+
+    $pairs = budgetHttp(fn (): TestResponse => BattleHttp::invite($me, $friendship, PracticeMode::Pairs, $course, $lesson)->assertCreated());
+    BattleHttp::cancel($me, (int) Battle::query()->latest('id')->firstOrFail()->id)->assertOk();
+    $tasks = budgetHttp(fn (): TestResponse => BattleHttp::invite($me, $friendship, PracticeMode::Dictation, $course, null)->assertCreated());
+    $source = Battle::query()->latest('id')->firstOrFail();
+    BattleHttp::accept($friend, $source->id)->assertOk();
+    $url = (string) BattleHttp::view($friend, $source->id)->json('audio_preload.0');
+    $clip = budgetHttp(fn (): TestResponse => BattleHttp::audio($friend, $url));
+    BattleHttp::ready($me, $source->id)->assertOk();
+    BattleHttp::ready($friend, $source->id)->assertOk();
+    BattleHttp::surrender($friend, $source->id)->assertOk();
+    $rematch = budgetHttp(fn (): TestResponse => BattleHttp::rematch($me, $source->id, ['mode' => 'pairs', 'course' => 'ignored'])->assertCreated());
+
+    expect(count($pairs))->toBeLessThanOrEqual(BUDGET_BATTLE_INVITE, implode("\n", $pairs))
+        ->and(budgetReads($pairs, 'words'))->toBe(1)
+        ->and(budgetReads($pairs, 'word_translations'))->toBe(2) // ru and uz
+        ->and(count($tasks))->toBeLessThanOrEqual(BUDGET_BATTLE_INVITE, implode("\n", $tasks))
+        ->and(budgetReads($tasks, 'practice_items'))->toBe(1)
+        ->and(budgetReads($tasks, 'practice_item_versions'))->toBe(1)
+        ->and(count($rematch))->toBeLessThanOrEqual(BUDGET_BATTLE_INVITE, implode("\n", $rematch))
+        ->and(count($clip))->toBeLessThanOrEqual(BUDGET_BATTLE_AUDIO, implode("\n", $clip));
 });
