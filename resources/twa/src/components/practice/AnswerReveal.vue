@@ -88,9 +88,22 @@ const options = computed((): ShownOption[] => {
   })
 })
 
+/** The end of a round of pairs: which round, the wrong matches in it, and its pairs (they have left the board one by one). */
 const round = computed(() => {
   const element = props.outcome.element
-  return element.kind === 'pairs_round' ? { round: element.round, rounds: element.rounds, mistakes: element.mismatches } : null
+  if (element.kind !== 'pairs_round') return null
+
+  // The pairs matched before the last one are on the element; the last one is what was just answered.
+  const matched = new Map(element.matched)
+  const last = props.outcome.pair
+  if (last !== null) matched.set(last.left_id, last.right_id)
+
+  const pairs = element.left.flatMap((word) => {
+    const translation = element.right.find((card) => card.id === matched.get(word.id))
+    return translation === undefined ? [] : [{ id: word.id, word: word.text, translation: translation.text }]
+  })
+
+  return { round: element.round, rounds: element.rounds, mistakes: element.mismatches, pairs }
 })
 
 function onContinue(): void {
@@ -114,6 +127,15 @@ function onContinue(): void {
           <p class="text-base leading-[22px] text-tg-subtitle" data-testid="round-mistakes">
             {{ round.mistakes === 0 ? t('practice.session.round_clean') : t('practice.session.round_mistakes', { count: round.mistakes }) }}
           </p>
+          <div v-if="round.pairs.length > 0" class="mt-1 w-full" data-testid="round-pairs">
+            <p class="text-[13px] leading-[18px] font-medium tracking-wide text-tg-section-header uppercase">{{ t('practice.pairs.recap') }}</p>
+            <ul class="mt-1.5 flex flex-col gap-1.5 text-left" role="list">
+              <li v-for="pair in round.pairs" :key="pair.id" class="flex items-baseline justify-between gap-3 text-base leading-[22px]" data-testid="round-pair">
+                <span class="min-w-0 font-medium break-words">{{ pair.word }}</span>
+                <span class="min-w-0 text-right text-tg-subtitle break-words">{{ pair.translation }}</span>
+              </li>
+            </ul>
+          </div>
         </template>
 
         <template v-else>

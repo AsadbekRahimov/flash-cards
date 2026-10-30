@@ -206,6 +206,51 @@ describe('AnswerReveal — end of a round of pairs', () => {
     expect(wrapper.find('[data-testid=expected]').exists()).toBe(false)
     expect(wrapper.find('[data-testid=translation]').exists()).toBe(false)
   })
+
+  describe('the pairs of the round, which have left the board one by one', () => {
+    // Three pairs were matched before the last one; the last is the answer that ended the round.
+    const finished = (overrides: Partial<PracticeOutcome> = {}) =>
+      outcome({
+        element: pairsElement({ round: 1, rounds: 3, matched: [['lS3', 'rT1'], ['lM1', 'rU2'], ['lF2', 'rW4']] }),
+        answer: { left_id: 'lB4', right_id: 'rV3' },
+        pair: { left_id: 'lB4', right_id: 'rV3' },
+        roundDone: true,
+        ...overrides,
+      })
+
+    it('lists every pair as a word and its translation, in the order of the words on the board', () => {
+      const rows = render(finished()).findAll('[data-testid=round-pair]')
+
+      // The board shows mother, father, sister, brother (fixtures/practiceFixtures.ts): the recap keeps that order, not the order of the matches.
+      expect(rows.map((row) => row.findAll('span').map((span) => span.text()))).toEqual([
+        ['mother', 'мама'],
+        ['father', 'папа'],
+        ['sister', 'сестра'],
+        ['brother', 'брат'],
+      ])
+    })
+
+    it('has a heading for them, in the language of the screen', () => {
+      expect(render(finished()).get('[data-testid=round-pairs]').text()).toContain('Пары раунда')
+
+      setLocale('uz')
+      expect(render(finished()).get('[data-testid=round-pairs]').text()).toContain('Raund juftlari')
+    })
+
+    it('does not list the last pair twice when the element already holds it', () => {
+      const rows = render(finished({ element: pairsElement({ matched: [['lM1', 'rU2'], ['lB4', 'rV3']] }) })).findAll('[data-testid=round-pair]')
+
+      expect(rows.map((row) => row.findAll('span')[0]?.text())).toEqual(['mother', 'brother'])
+    })
+
+    it('has no list when nothing is known of the pairs', () => {
+      expect(render(round(0)).find('[data-testid=round-pairs]').exists()).toBe(false)
+    })
+
+    it('shows no pair on the screen of any other kind of answer', () => {
+      expect(render(outcome({ element: dictationElement(), reveal: dictation() })).find('[data-testid=round-pairs]').exists()).toBe(false)
+    })
+  })
 })
 
 describe('AnswerReveal — a verdict without the explanation', () => {

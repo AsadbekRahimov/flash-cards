@@ -624,6 +624,28 @@ export const uz: Translations = {
   'practice.audio.replacements_left': 'Qolgan almashtirishlar: {count}',
 
   // ---- practice: pairs ----
+  'practice.pairs.round': '{rounds} raunddan {round}-raund',
+  'practice.pairs.left': {
+    one: '{count} ta juft qoldi',
+    other: '{count} ta juft qoldi',
+  },
+  'practice.pairs.joined': '{total} tadan {done} tasi juftlandi',
+  'practice.pairs.words': "So'zlar",
+  'practice.pairs.translations': 'Tarjimalar',
+  'practice.pairs.hint_solo': "So'zni, keyin uning tarjimasini bosing — yoki teskarisi.",
+  'practice.pairs.hint_battle': "So'zlarni tarjimalari bilan juftlang va «Tekshirish» tugmasini bosing. Juftni almashtirish mumkin.",
+  'practice.pairs.pick_translation': "Endi «{text}» so'zining tarjimasini tanlang",
+  'practice.pairs.pick_word': "Endi «{text}» tarjimasiga mos so'zni tanlang",
+  'practice.pairs.checking': 'Tekshirilmoqda…',
+  'practice.pairs.correct': "To'g'ri: {word} — {translation}",
+  'practice.pairs.wrong': "Mos kelmadi. Qayta urinib ko'ring.",
+  'practice.pairs.ready': "Barcha juftlar tayyor. «Tekshirish» tugmasini bosing.",
+  'practice.pairs.sent': 'Javob yuborildi.',
+  'practice.pairs.state.selected': 'tanlandi',
+  'practice.pairs.state.correct': "to'g'ri",
+  'practice.pairs.state.wrong': 'mos kelmadi',
+  'practice.pairs.state.paired': '{number}-juft',
+  'practice.pairs.recap': 'Raund juftlari',
 
   // ---- practice: collocation ----
 

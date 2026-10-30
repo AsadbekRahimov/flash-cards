@@ -88,7 +88,8 @@ function chipOf(mistake: PracticeMistake): Chip {
       <p class="-mt-1 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="summary-facts">{{ facts }}</p>
 
       <ListGroup v-if="summary.mistakes.length > 0" :header="t('practice.summary.mistakes')" data-testid="mistakes">
-        <div v-for="mistake in summary.mistakes" :key="mistake.element_id" class="list-row" data-testid="mistake-row">
+        <!-- Pairs: several words of one round are several rows of the same element, so the index is part of the key. -->
+        <div v-for="(mistake, index) in summary.mistakes" :key="`${mistake.element_id}:${index}`" class="list-row" data-testid="mistake-row">
           <div class="min-w-0 flex-1">
             <p class="text-base leading-[22px] font-medium break-words" data-testid="mistake-label">{{ mistake.label }}</p>
             <p v-if="mistake.your_answer" class="text-[13px] leading-[18px] text-tg-hint break-words" data-testid="mistake-answer">
