@@ -9,6 +9,7 @@ use App\Domain\Practice\DTO\Snapshot;
 use App\Domain\Practice\Enums\BattleDmKind;
 use App\Domain\Practice\Enums\BattleStatus;
 use App\Domain\Practice\Services\Battle\BattleSettings;
+use App\Domain\Practice\Services\PracticeAccess;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Support\DmLearnerResolver;
@@ -37,6 +38,7 @@ final class BattleMessenger
         private readonly LocaleResolver $locales,
         private readonly DmLearnerResolver $dm,
         private readonly BattleSettings $settings,
+        private readonly PracticeAccess $access,
     ) {}
 
     /**
@@ -105,12 +107,19 @@ final class BattleMessenger
             : __('battle.dm.lesson', ['stage' => $snapshot->lessonStage, 'number' => $snapshot->lessonNumber], $locale);
     }
 
-    /** The learner if a DM can reach them: exists, not blocked, DM not closed. */
+    /**
+     * The learner if a DM can reach them and the button would open something: exists, not blocked, DM not closed, and the practice
+     * is open to them (`PracticeAccess`, docs/16 §3.2 - an invitation sent seconds before the switch went off, or to a friend who left
+     * the pilot, must not lead into a 403).
+     */
     private function reachable(int $learnerId): ?Learner
     {
         $learner = Learner::query()->find($learnerId);
+        if (! $learner instanceof Learner || $learner->blocked_at !== null || $learner->dm_blocked_at !== null) {
+            return null;
+        }
 
-        return $learner instanceof Learner && $learner->blocked_at === null && $learner->dm_blocked_at === null ? $learner : null;
+        return $this->access->state($learner)->isAvailable() ? $learner : null;
     }
 
     /**

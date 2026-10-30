@@ -21,6 +21,7 @@ use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Tests\Support\Practice\BattleKit;
@@ -231,6 +232,42 @@ it('expires the invitations past their time, moves the matches that are on by th
     CarbonImmutable::setTestNow('2026-10-30 10:05:00');
     $this->artisan('practice:battles-sweep')->expectsOutput('Battles swept: 1')->assertSuccessful();
     expect(BattleKit::fresh($fresh)->end_reason)->toBe(BattleEndReason::InviteExpired);
+});
+
+it('goes on past a match that throws: the failure is reported, the other matches are moved, the run returns what it changed (Ж3)', function (): void {
+    Storage::fake('practice_audio');
+    Exceptions::fake();
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    $a = Learner::factory()->create();
+    $b = Learner::factory()->create(['interface_locale' => 'uz']);
+    $ab = Friendship::factory()->between($a, $b)->create();
+
+    $first = BattleKit::playing($me, $friend, $friendship, PracticeMode::Collocation, $course);
+    // A corrupt row between the two healthy ones: a game without its participants (the clock cannot tell who is who and throws).
+    $corrupt = Battle::factory()->create([
+        'challenger_id' => Learner::factory()->create()->id, 'opponent_id' => Learner::factory()->create()->id,
+        'status' => BattleStatus::Playing, 'phase' => BattlePhase::Answering, 'current_round' => 1,
+        'accepted_at' => '2026-10-30 10:00:00', 'starts_at' => '2026-10-30 10:00:03', 'round_deadline_at' => '2026-10-30 10:00:33',
+    ]);
+    $second = BattleKit::playing($a, $b, $ab, PracticeMode::Collocation, $course); // starts 3 s after the first: its round 1 ends at 10:00:36
+    expect($corrupt->id)->toBeGreaterThan($first->id)->toBeLessThan($second->id);
+    DB::table('battle_participants')->whereIn('battle_id', [$first->id, $second->id])->update(['last_seen_at' => '2026-10-30 10:00:37']);
+
+    // Past the deadline and the grace of round 1 for all three: the two healthy matches get their time-outs, the corrupt one is reported.
+    CarbonImmutable::setTestNow('2026-10-30 10:00:38');
+    $this->artisan('practice:battles-sweep')->expectsOutput('Battles swept: 2')->assertSuccessful();
+
+    Exceptions::assertReported(fn (LogicException $e): bool => str_contains($e->getMessage(), "battle {$corrupt->id}"));
+    expect(BattleKit::fresh($first)->phase)->toBe(BattlePhase::Reveal)
+        ->and(BattleKit::fresh($second)->phase)->toBe(BattlePhase::Reveal)
+        ->and(BattleAnswer::query()->whereIn('battle_id', [$first->id, $second->id])->where('verdict', 'timeout')->count())->toBe(4)
+        ->and(BattleKit::fresh($corrupt)->phase)->toBe(BattlePhase::Answering); // untouched: its transaction rolled back
+
+    // A match that is not due by the clock is not even locked: the run over two games in their reveal writes nothing (the corrupt one is reported again, and only that).
+    CarbonImmutable::setTestNow('2026-10-30 10:00:39');
+    $queries = QueryLog::during(fn () => Artisan::call('practice:battles-sweep'));
+    expect(QueryLog::matching($queries, '/^(update|insert)/i'))->toBe([])
+        ->and(Artisan::output())->toContain('Battles swept: 0');
 });
 
 it('voids the matches that are on when the practice is switched off, and leaves the invitations to expire by themselves', function (): void {

@@ -29,6 +29,7 @@ class BattleFactory extends Factory
             'challenger_id' => Learner::factory(),
             'opponent_id' => Learner::factory(),
             'friendship_id' => null,
+            'open_pair' => null,
             'course_id' => Course::factory()->published(),
             'lesson_id' => null,
             'mode' => PracticeMode::Pairs,
@@ -49,6 +50,16 @@ class BattleFactory extends Factory
             'state_version' => 0,
             'meta' => [],
         ];
+    }
+
+    /** A battle that is not over holds its pair (`open_pair`, unique), the way the invitation writes it; a terminal one does not. */
+    public function configure(): static
+    {
+        return $this->afterMaking(function (Battle $battle): void {
+            if (! $battle->status->isTerminal() && $battle->open_pair === null) {
+                $battle->open_pair = Battle::pairKey($battle->challenger_id, $battle->opponent_id);
+            }
+        });
     }
 
     /** The two participants: the challenger is busy with the match, the opponent is not until the acceptance. */

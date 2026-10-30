@@ -13,7 +13,11 @@ use App\Models\Battle;
 use App\Models\BattleParticipant;
 use App\Models\Learner;
 use Carbon\CarbonImmutable;
+use Closure;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Throwable;
 
 /**
  * The sweeper of the battles (`practice:battles-sweep`, every minute; docs/16 §8.6):
@@ -27,6 +31,10 @@ use Illuminate\Support\Facades\DB;
  *  3. with `PRACTICE_ACCESS=off` the matches that are on are voided instead (`closed / voided`, `meta.voided_reason = practice_off`).
  *
  * Idempotent: a repeated or an overlapping run finds nothing to do. Returns how many battles this run changed.
+ *
+ * One match cannot stop the run (docs/16 §9 rule 14, 18.6-fix Ж3): the transaction of each match is on its own - whatever it
+ * throws is reported (`report()`) and the pass goes on to the next one; the expiry step is guarded the same way. A match that is
+ * not due by the clock (`isDue` on the row read without a lock, with its participants) is not even locked (М6).
  */
 final class BattleJanitor
 {
@@ -40,7 +48,25 @@ final class BattleJanitor
     {
         $now ??= CarbonImmutable::now();
 
-        return $this->expireInvitations($now) + $this->advanceLive($now);
+        return $this->guarded(fn (): int => $this->expireInvitations($now), ['step' => 'expire']) + $this->advanceLive($now);
+    }
+
+    /**
+     * Runs one step of the sweep; a failure is reported and counts as nothing done, so the rest of the run goes on.
+     *
+     * @param  Closure(): int  $step
+     * @param  array<string, mixed>  $context
+     */
+    private function guarded(Closure $step, array $context): int
+    {
+        try {
+            return $step();
+        } catch (Throwable $e) {
+            report($e);
+            Log::warning('practice.battles_sweep_failed', [...$context, 'exception' => $e::class, 'error' => Str::limit($e->getMessage(), 200)]);
+
+            return 0;
+        }
     }
 
     private function expireInvitations(CarbonImmutable $now): int
@@ -66,6 +92,7 @@ final class BattleJanitor
                     ->increment('state_version', 1, [
                         'status' => BattleStatus::Closed->value,
                         'end_reason' => BattleEndReason::InviteExpired->value,
+                        'open_pair' => null,
                         'finished_at' => $now,
                         'updated_at' => $now,
                     ]) === 1;
@@ -100,10 +127,16 @@ final class BattleJanitor
         $changed = 0;
 
         Battle::query()
+            ->with('participants')
             ->whereIn('status', [BattleStatus::Room->value, BattleStatus::Countdown->value, BattleStatus::Playing->value])
             ->lazyById(100, 'id')
             ->each(function (Battle $row) use ($now, $off, &$changed): void {
-                $changed += DB::transaction(function () use ($row, $now, $off): int {
+                // Nothing due by the clock (read without a lock): the row is left alone - no lock for a match that is just playing.
+                if (! $off && ! $this->clock->isDue($row, $now)) {
+                    return;
+                }
+
+                $changed += $this->guarded(fn (): int => DB::transaction(function () use ($row, $now, $off): int {
                     /** @var Battle|null $battle */
                     $battle = Battle::query()->whereKey($row->id)->lockForUpdate()->first();
                     if ($battle === null || ! $battle->status->isLive()) {
@@ -118,7 +151,7 @@ final class BattleJanitor
                     }
 
                     return $this->clock->advance($battle, $now)->changed ? 1 : 0;
-                });
+                }), ['step' => 'advance', 'battle_id' => $row->id]);
             });
 
         return $changed;

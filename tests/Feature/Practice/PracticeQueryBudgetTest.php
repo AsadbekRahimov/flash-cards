@@ -275,8 +275,8 @@ const BUDGET_BATTLE_POLL = 4;
 const BUDGET_BATTLE_POLL_TRANSITION = 10;
 const BUDGET_BATTLE_ANSWER = 8;
 const BUDGET_BATTLE_INVITE = 14;
-/** The sweeper: the expired invitations (one read, one release of their participants, one read of their challengers; a claim and an event each) and the live matches (one read; a lock, the participants and the steps of the clock each). */
-const BUDGET_BATTLE_SWEEP_BASE = 4;
+/** The sweeper: the expired invitations (one read, one release of their participants, one read of their challengers; a claim and an event each) and the live matches (one read with their participants - two statements; a match that is due: a lock, the participants again and the steps of the clock). */
+const BUDGET_BATTLE_SWEEP_BASE = 5;
 const BUDGET_BATTLE_SWEEP_PER_EXPIRED = 2;
 const BUDGET_BATTLE_SWEEP_PER_LIVE = 7;
 const BUDGET_BATTLE_POLL_BYTES = 600;
@@ -401,7 +401,7 @@ it('sends an invitation in at most 13 statements - pairs (words and two language
         ->and(Battle::query()->count())->toBe(3);
 });
 
-it('sweeps the battles within 4 + 2 per expired invitation + 7 per live match', function (): void {
+it('sweeps the battles within 5 + 2 per expired invitation + 7 per live match that is due', function (): void {
     Storage::fake('practice_audio');
     [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
     [$a1, $b1, $f1] = budgetPair();

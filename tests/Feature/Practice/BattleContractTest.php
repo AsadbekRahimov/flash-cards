@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
+use Ramsey\Uuid\Uuid;
 use Tests\Support\Practice\BattleHttp;
 use Tests\Support\Practice\BattleKit;
 use Tests\Support\Practice\PracticeKit;
@@ -50,6 +51,56 @@ beforeEach(function (): void {
 });
 
 afterEach(fn () => CarbonImmutable::setTestNow());
+
+// ------------------------------------------------------------------------------------------------------------ 18.6-fix regressions over HTTP
+
+it('keeps polling at 200 and resolves the round by the clock when a client has answered under a request_id forged from the old time-out formula (Б1)', function (): void {
+    [$me, $friend, $course, , $friendship] = BattleKit::world();
+    $id = BattleHttp::playing($me, $friend, $friendship, PracticeMode::Collocation, $course);
+    $forged = Uuid::uuid5(Uuid::NAMESPACE_URL, "lexiflow:battle:{$id}:round:2:learner:{$me->id}")->toString();
+
+    $first = BattleKit::element(BattleKit::fresh($id), 1);
+    BattleHttp::answer($me, $id, 1, BattleKit::correct($first), $forged)->assertOk();
+    BattleHttp::answer($friend, $id, 1, BattleKit::wrong($first))->assertOk()->assertJsonPath('round_resolved', true);
+    CarbonImmutable::setTestNow(CarbonImmutable::now()->addSeconds(5));
+    BattleHttp::poll($friend, $id)->assertOk()->assertJsonPath('round.no', 2);
+
+    // Round 2: the friend answers, I do not; both keep polling.
+    BattleHttp::answer($friend, $id, 2, BattleKit::correct(BattleKit::element(BattleKit::fresh($id), 2)))->assertOk();
+    $deadline = BattleKit::fresh($id)->round_deadline_at ?? throw new RuntimeException('no deadline');
+    foreach ([15, 1] as $before) {
+        CarbonImmutable::setTestNow($deadline->subSeconds($before));
+        BattleHttp::poll($me, $id)->assertOk();
+        BattleHttp::poll($friend, $id)->assertOk();
+    }
+    CarbonImmutable::setTestNow($deadline->addSeconds(2));
+
+    BattleHttp::poll($friend, $id)->assertOk()->assertJsonPath('round.phase', 'reveal')->assertJsonPath('scores.me', 100);
+    BattleHttp::poll($me, $id)->assertOk()->assertJsonPath('round.phase', 'reveal');
+    expect(app(BattleJanitor::class)->sweep())->toBe(0);
+    BattleHttp::round($me, $id, 2)->assertOk()->assertJsonPath('reveal.me.verdict', 'timeout')->assertJsonPath('reveal.opponent.verdict', 'correct');
+});
+
+it('lets a learner whose own invitation ran out (not swept yet) invite and accept again: the dead one is closed on the way (Ж1)', function (): void {
+    [$me, $friend, $course, , $friendship] = BattleKit::world();
+    $third = Learner::factory()->create(['interface_locale' => 'ru']);
+    $withThird = Friendship::factory()->between($me, $third)->create();
+
+    $old = (int) BattleHttp::invite($me, $friendship, PracticeMode::Collocation, $course)->assertCreated()->json('id');
+    CarbonImmutable::setTestNow(CarbonImmutable::parse(BattleKit::T0)->addSeconds(301));
+    $fromThird = (int) BattleHttp::invite($third, $withThird, PracticeMode::Collocation, $course)->assertCreated()->json('id');
+
+    BattleHttp::accept($me, $fromThird)->assertOk()->assertJsonPath('status', 'room');
+    BattleHttp::view($me, $old)->assertOk()->assertJsonPath('status', 'closed')->assertJsonPath('end_reason', 'invite_expired');
+    BattleHttp::cancel($me, $fromThird)->assertOk();
+
+    $dead = (int) BattleHttp::invite($me, $friendship, PracticeMode::Collocation, $course)->assertCreated()->json('id');
+    CarbonImmutable::setTestNow(CarbonImmutable::now()->addSeconds(301));
+    $again = BattleHttp::invite($me, $withThird, PracticeMode::Pairs, $course)->assertCreated();
+    expect($again->json('id'))->not->toBe($dead)
+        ->and($again->json('status'))->toBe('invited');
+    BattleHttp::view($me, $dead)->assertOk()->assertJsonPath('end_reason', 'invite_expired');
+});
 
 /**
  * The structure of the battle as the TWA reads it; the flags say which nested parts are objects (a part that is null is only a key).

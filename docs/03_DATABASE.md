@@ -1023,6 +1023,7 @@ CHECK не создаются — инвариант дублируют серв
 | id | bigint PK | |
 | challenger_id, opponent_id | bigint FK → learners, ON DELETE CASCADE | инициатор / приглашённый; **PostgreSQL CHECK** `battles_distinct_players_check (challenger_id <> opponent_id)` |
 | friendship_id | bigint nullable FK → friendships, ON DELETE SET NULL | пара на момент приглашения (играют только принявшие дружбу); у реванша — пара, найденная по сопернику прежнего матча |
+| open_pair | varchar(64) nullable **unique** *(18.6-fix)* | `"<меньший learner_id>:<больший>"`, пока матч не завершён; `NULL` после любого конца — «одна пара — один незавершённый матч» как факт БД (встречные приглашения не проходят обе, docs/16 §8.2); **PostgreSQL CHECK** `battles_open_pair_shape_check (open_pair IS NULL OR status NOT IN ('finished','closed'))` |
 | course_id | bigint FK → courses, ON DELETE CASCADE | курс матча (опубликованный, не колода) |
 | lesson_id | bigint nullable FK → lessons, ON DELETE SET NULL | `NULL` — матч на весь курс |
 | mode | varchar(12) | формат матча (один на матч): `pairs` / `collocation` / `sentence` / `dictation` |
@@ -1042,8 +1043,8 @@ CHECK не создаются — инвариант дублируют серв
 | meta | jsonb default '{}' | служебное, ключи — ниже |
 | created_at, updated_at | | |
 
-**Индексы:** `status`; `(status, invite_expires_at)` (дворник: просроченные приглашения); `(challenger_id, status)`; `(opponent_id, status)` (встречное приглашение, `incoming`, список); `rematch_of_id`; `winner_learner_id`; `friendship_id`.
-**PostgreSQL CHECK:** `battles_distinct_players_check`, `battles_round_check (current_round BETWEEN 0 AND 5)`, `battles_status_check (status IN ('invited','room','countdown','playing','finished','closed'))`, `battles_phase_shape_check ((status = 'playing') = (phase IS NOT NULL))`.
+**Индексы:** `status`; `(status, invite_expires_at)` (дворник: просроченные приглашения); `(challenger_id, status)`; `(opponent_id, status)` (встречное приглашение, `incoming`, список); `rematch_of_id`; `winner_learner_id`; `friendship_id`; unique `open_pair` *(18.6-fix, миграция `2026_10_30_100005`: одна пара — один незавершённый матч; `openBattleOfPair` ищет по нему встречное приглашение)*.
+**PostgreSQL CHECK:** `battles_distinct_players_check`, `battles_round_check (current_round BETWEEN 0 AND 5)`, `battles_status_check (status IN ('invited','room','countdown','playing','finished','closed'))`, `battles_phase_shape_check ((status = 'playing') = (phase IS NOT NULL))`, `battles_open_pair_shape_check (open_pair IS NULL OR status NOT IN ('finished','closed'))` *(18.6-fix)*.
 На SQLite эти инварианты держат сервисы и enum'ы (`BattleStatus`, `BattleEndReason`, `BattlePhase`).
 
 **Ключи `meta`** — все необязательны; пишет только ядро (`BattleService`, `BattleClock`, `BattleJanitor`), клиенту отдаётся не `meta`, а то, что из неё считается:
@@ -1088,7 +1089,7 @@ CHECK не создаются — инвариант дублируют серв
 | battle_id | bigint FK → battles, ON DELETE CASCADE | |
 | learner_id | bigint FK → learners, ON DELETE CASCADE | |
 | round | smallint | 1..5 (CHECK `battle_answers_round_check`) |
-| request_id | uuid (PostgreSQL `uuid`, SQLite `char(36)`) | клиентский ключ запроса (хранится в нижнем регистре): повтор того же `request_id` отвечает прежним результатом. У `timeout` — детерминированный uuid v5 (`NAMESPACE_URL`, `lexiflow:battle:{battle_id}:round:{n}:learner:{learner_id}`) |
+| request_id | uuid (PostgreSQL `uuid`, SQLite `char(36)`) | клиентский ключ запроса (хранится в нижнем регистре): повтор того же `request_id` отвечает прежним результатом. У `timeout` — **случайный uuid v4** (`Str::uuid()`, 18.6-fix): прежний детерминированный uuid v5 от `battle:round:learner` игрок мог вычислить и занять своим ответом на предыдущий раунд — INSERT таймаута бился в unique `(battle_id, learner_id, request_id)`, раунд не разрешался (docs/16 §2.7). Повтор таймаута держит unique `(battle_id, round, learner_id)` |
 | payload | jsonb | принятый ответ в форме, в которой его присылает клиент: `{pairs: {left_id: right_id}}` (весь набор, по порядку левых карточек) / `{option_id}` / `{order: [fragment_id…]}` / `{text}` (обрезан до 200 символов) / `{skip: true}`; у `timeout` — `{timeout: true}` |
 | verdict | varchar(8) | `correct` / `typo` (диктант: одна безопасная опечатка, 0 очков) / `wrong` / `skipped` («Не знаю», пустой текст) / `timeout` (пишет сервер, когда дедлайн + `deadline_grace_ms` прошли без ответа) |
 | points | smallint | 0..100 (CHECK `battle_answers_points_check`): 100 за `correct`; пары — 25 за каждую верную пару; остальные вердикты — 0 |

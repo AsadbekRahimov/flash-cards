@@ -1308,7 +1308,7 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
   а тело повтора не сравнивается (ответ первого запроса). Новый `request_id` на тот же раунд — 409 `answer_already_accepted {verdict, points}` (первый ответ остаётся).
 - Порядок проверок под блокировкой строки матча: присутствие автора → ленивые переходы → повтор `request_id` (200) → терминальный (409 `battle_closed`) → отсчёт (409 `round_not_open {round, phase: null}`) → не `playing` (409 `battle_wrong_state`) → раунд позже текущего (409 `round_not_open`) → раунд раньше текущего, пауза разбора или дедлайн + грейс прошли (409 `round_closed`) →
   второй ответ (409 `answer_already_accepted`) → форма (422 `invalid_answer_shape {expected}`, `unknown_element_id`). Форма пар в баттле — `bijection`, предложения — `order_of_all_fragments`, сочетания — `option_id`, диктанта — `text_or_skip`.
-- Тайм-аут: если игрок не ответил до `deadline_at + deadline_grace_ms`, ближайший обратившийся (опрос любого игрока, действие, дворник) разрешает раунд: пишет игроку строку `timeout` (0 очков, `request_id` — детерминированный uuid v5) и начинает `reveal`. Отвечать после этого поздно — 409 `round_closed`.
+- Тайм-аут: если игрок не ответил до `deadline_at + deadline_grace_ms`, ближайший обратившийся (опрос любого игрока, действие, дворник) разрешает раунд: пишет игроку строку `timeout` (0 очков, `request_id` — случайный uuid v4, который клиент не может предугадать и занять заранее; docs/16 §2.7) и начинает `reveal`. Отвечать после этого поздно — 409 `round_closed`.
 
 #### `POST /api/twa/practice/battles/{id}/audio-failed` — клип диктанта не играет
 ```json

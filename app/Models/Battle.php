@@ -25,6 +25,7 @@ use LogicException;
  * @property int $challenger_id
  * @property int $opponent_id
  * @property int|null $friendship_id
+ * @property string|null $open_pair "<lower id>:<higher id>" of the players while the battle is not over (unique: one such battle per pair, docs/16 §8.2); NULL after any end
  * @property int $course_id
  * @property int|null $lesson_id
  * @property PracticeMode $mode
@@ -57,6 +58,7 @@ class Battle extends Model
         'challenger_id',
         'opponent_id',
         'friendship_id',
+        'open_pair',
         'course_id',
         'lesson_id',
         'mode',
@@ -105,6 +107,12 @@ class Battle extends Model
             'state_version' => 'integer',
             'meta' => 'array',
         ];
+    }
+
+    /** The key of `open_pair` for two players, whichever order they come in: "<lower id>:<higher id>". */
+    public static function pairKey(int $a, int $b): string
+    {
+        return $a < $b ? "{$a}:{$b}" : "{$b}:{$a}";
     }
 
     public function involves(int $learnerId): bool
