@@ -138,7 +138,7 @@ it('sorts by reviews descending', function (): void {
 it('never includes learners of another organization or non-members; a left group member keeps no assignments', function (): void {
     $ids = array_map(fn ($r) => $r->learnerId, $this->report->perLearner($this->owner, $this->org, null, $this->range, $this->now));
 
-    expect($ids)->not->toContain($this->foreign->id, $this->notMember->id);
+    expect($ids)->not->toContain($this->foreign->id)->not->toContain($this->notMember->id);
 
     // A foreign group handed in by mistake yields nothing for this organization's owner.
     expect($this->report->perLearner($this->owner, $this->org, $this->gOther, $this->range, $this->now))->toBe([]);

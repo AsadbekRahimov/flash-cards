@@ -332,11 +332,11 @@ it('shows the Russian navigation groups and items on every kind of admin page', 
 it('titles the lesson list and the stage form in Russian and offers "Создать" instead of "Create Stage"', function (): void {
     $lessons = loc_text(loc_get(loc_user(), '/admin/lessons')->assertOk()->getContent());
     expect($lessons)->toContain('Уроки', 'Создать урок', 'Модуль')
-        ->and($lessons)->not->toContain('Stage', 'Words');
+        ->and($lessons)->not->toContain('Stage')->not->toContain('Words');
 
     $form = loc_text(loc_get(loc_user(), '/admin/stages/create')->assertOk()->getContent());
     expect($form)->toContain('Новый модуль', 'Курс', 'Номер', 'Название', 'Описание')
-        ->and($form)->not->toContain('Create Stage', 'Создать Stage');
+        ->and($form)->not->toContain('Create Stage')->not->toContain('Создать Stage');
 });
 
 it('shows a teacher the Russian navigation too', function (): void {

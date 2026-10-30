@@ -523,7 +523,7 @@ it('shows the client the phrase and the options and nothing else - the blank and
 
     // Neither a key nor a word of the secrets of the snapshot is on the wire - the right ids, the whole phrase, the explanation.
     $json = (string) $session->getContent();
-    expect(collKeys($session->json()))->not->toContain('correct_ids', 'full_text', 'version_id', 'item_id', 'word_id', 'translation', 'explanation', 'accepted', 'expected')
+    expect(collKeys($session->json()))->not->toContain('correct_ids')->not->toContain('full_text')->not->toContain('version_id')->not->toContain('item_id')->not->toContain('word_id')->not->toContain('translation')->not->toContain('explanation')->not->toContain('accepted')->not->toContain('expected')
         ->and($json)->not->toContain($stored['full_text'])
         ->and($json)->not->toContain($stored['explanation']['ru'])
         ->and($json)->not->toContain($stored['translation']['ru']);

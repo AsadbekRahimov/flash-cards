@@ -492,7 +492,7 @@ it('grades and scores a round of every mode for both players, and shows one revi
         ->and($ru->reveal)->not->toBeNull()
         ->and(array_keys($ru->reveal ?? []))->toBe(['correct', 'me', 'opponent', 'explanation', 'translation'])
         ->and($ru->reveal['correct'] ?? [])->toHaveKey($correctKey)
-        ->and(array_keys($ru->reveal['correct'] ?? []))->not->toContain('translation', 'explanation')
+        ->and(array_keys($ru->reveal['correct'] ?? []))->not->toContain('translation')->not->toContain('explanation')
         ->and($ru->reveal['me'] ?? null)->toBe(['answer' => $mine->poll->id === $battle->id ? BattleAnswer::query()->where('battle_id', $battle->id)->where('learner_id', $me->id)->sole()->payload : null, 'verdict' => 'correct', 'points' => $pointsRight])
         ->and($ru->reveal['opponent']['verdict'] ?? null)->toBe($wrongVerdict)
         ->and($ru->reveal['opponent']['points'] ?? null)->toBe($pointsWrong)
