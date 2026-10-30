@@ -469,7 +469,8 @@ describe('SentenceBuilder — for a screen reader and a keyboard', () => {
     expect(w.get('[data-testid=sentence-bank]').classes()).toContain('flex-wrap')
     for (const li of w.findAll('[data-testid=sentence-answer] li')) expect(li.classes()).toEqual(expect.arrayContaining(['max-w-full', 'min-w-0']))
     for (const button of w.findAll('[data-testid=sentence-answer] button, [data-testid=sentence-bank] button')) {
-      expect(button.classes()).toEqual(expect.arrayContaining(['max-w-full', 'wrap-anywhere']))
+      // `scroll-mb-40`: a fragment that the keyboard focuses is scrolled clear of the sticky "Check" block, not left behind it
+      expect(button.classes()).toEqual(expect.arrayContaining(['max-w-full', 'wrap-anywhere', 'scroll-mb-40']))
     }
     expect(w.html()).not.toMatch(/overflow-x-(auto|scroll)|whitespace-nowrap|flex-nowrap|w-max\b/)
     expect(isDisabled(checkButton(w))).toBe(false)

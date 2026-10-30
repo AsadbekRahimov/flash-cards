@@ -187,7 +187,7 @@ onBeforeUnmount(() => {
           <li v-for="item in line" :key="item.id" class="max-w-full min-w-0">
             <button
               type="button"
-              class="btn btn-secondary max-w-full min-w-12 wrap-anywhere"
+              class="btn btn-secondary max-w-full min-w-12 scroll-mb-40 wrap-anywhere"
               :disabled="locked"
               :aria-label="t('practice.sentence.remove', { word: item.text })"
               :data-testid="`line-${item.id}`"
@@ -223,7 +223,7 @@ onBeforeUnmount(() => {
           <button
             :ref="(el) => bankRef(fragment.id, el)"
             type="button"
-            class="btn btn-tinted max-w-full min-w-12 wrap-anywhere"
+            class="btn btn-tinted max-w-full min-w-12 scroll-mb-40 wrap-anywhere"
             :class="{ invisible: placed.has(fragment.id) }"
             :disabled="locked || placed.has(fragment.id)"
             :aria-label="t('practice.sentence.add', { word: fragment.text })"
