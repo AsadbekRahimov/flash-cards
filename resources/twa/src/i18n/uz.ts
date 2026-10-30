@@ -536,7 +536,8 @@ export const uz: Translations = {
   'practice.hub.card.aria_resume': 'Davom etish: {title}, {total} tadan {done} tasi bajarildi',
   'practice.hub.reason.no_words': "O'rganilgan so'zlar: {available}/{required}. Darsni o'ting — rejim ochiladi.",
   'practice.hub.reason.ambiguous': "Mos so'zlar: {available}/{required}. Yangi so'zlarni o'rganing — rejim ochiladi.",
-  'practice.hub.reason.no_items': "Topshiriqlar: {available}/{required}. Dars so'zlarini o'rganganingizdan keyin paydo bo'ladi.",
+  'practice.hub.reason.no_items': "Bu mavzu bo'yicha topshiriqlar hozircha yo'q.",
+  'practice.hub.reason.items_locked': "Dars so'zlarini o'rganing — topshiriqlar ochiladi.",
   'practice.hub.reason.audio_pending': 'Topshiriqlar uchun yozuvlar hali tayyorlanmoqda. Keyinroq qaytib keling.',
   'practice.hub.reason.no_audio_words': "So'zlaringiz uchun hozircha yozuvlar yo'q. Keyinroq qaytib keling.",
   'practice.hub.reason.unknown': 'Material hozircha yetarli emas.',
@@ -579,9 +580,12 @@ export const uz: Translations = {
   'practice.session.round_done': '{rounds} raunddan {round}-raund tugadi',
   'practice.session.round_clean': 'Xatosiz',
   'practice.session.round_mistakes': 'Raunddagi xatolar: {count}',
+  'practice.session.resend_note': "Serverdan javob kelmadi. Javobingizni endi o'zgartirib bo'lmaydi — uni yana yuboring.",
   'practice.verdict.correct': "To'g'ri!",
   'practice.verdict.typo': 'Imloda xato bor',
+  // "Tuzatish kerak" is the word of a dictation (the text can still be written better); a pick, a sentence and a pair are "Noto'g'ri".
   'practice.verdict.wrong': 'Tuzatish kerak',
+  'practice.verdict.wrong_final': "Noto'g'ri",
   'practice.verdict.skipped': 'Yordam',
   'practice.reveal.typo_note': "Deyarli to'g'ri, lekin so'zda imlo xatosi bor. Bu birinchi urinishda to'g'ri deb hisoblanmaydi.",
   'practice.reveal.skipped_note': "Mana to'g'ri javob. Bu yordam sifatida hisoblanadi.",
@@ -590,6 +594,7 @@ export const uz: Translations = {
   'practice.reveal.explanation': 'Izoh',
   'practice.reveal.your_option': 'sizning javobingiz',
   'practice.reveal.right_option': "to'g'ri javob",
+  'practice.reveal.earlier': 'Avval yuborilgan javob hisobga olindi.',
 
   // ---- practice: summary ----
   'practice.summary.title': 'Tayyor!',

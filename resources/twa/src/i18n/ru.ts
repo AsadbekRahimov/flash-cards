@@ -574,7 +574,8 @@ export const ru = {
   'practice.hub.card.aria_resume': 'Продолжить: {title}, выполнено {done} из {total}',
   'practice.hub.reason.no_words': 'Изучено слов: {available} из {required}. Пройдите урок, и режим откроется.',
   'practice.hub.reason.ambiguous': 'Подходящих слов: {available} из {required}. Выучите новые слова, и режим откроется.',
-  'practice.hub.reason.no_items': 'Заданий: {available} из {required}. Они появятся, когда вы выучите слова урока.',
+  'practice.hub.reason.no_items': 'Для этой темы заданий пока нет.',
+  'practice.hub.reason.items_locked': 'Выучите слова урока — задания откроются.',
   'practice.hub.reason.audio_pending': 'Записи для заданий ещё готовятся. Загляните позже.',
   'practice.hub.reason.no_audio_words': 'Для ваших слов пока нет записей. Загляните позже.',
   'practice.hub.reason.unknown': 'Пока не хватает материала.',
@@ -617,9 +618,12 @@ export const ru = {
   'practice.session.round_done': 'Раунд {round} из {rounds} пройден',
   'practice.session.round_clean': 'Без ошибок',
   'practice.session.round_mistakes': 'Ошибок в раунде: {count}',
+  'practice.session.resend_note': 'Ответа от сервера нет. Свой ответ уже не изменить — отправьте его ещё раз.',
   'practice.verdict.correct': 'Верно!',
   'practice.verdict.typo': 'Есть опечатка',
+  // "Нужно исправить" is the word of a dictation (the text can still be written better); a pick, a sentence and a pair are "Неверно".
   'practice.verdict.wrong': 'Нужно исправить',
+  'practice.verdict.wrong_final': 'Неверно',
   'practice.verdict.skipped': 'Подсказка',
   'practice.reveal.typo_note': 'Почти верно, но в слове опечатка. С первой попытки это не засчитывается.',
   'practice.reveal.skipped_note': 'Вот правильный ответ. Это считается подсказкой.',
@@ -628,6 +632,7 @@ export const ru = {
   'practice.reveal.explanation': 'Пояснение',
   'practice.reveal.your_option': 'ваш ответ',
   'practice.reveal.right_option': 'верный ответ',
+  'practice.reveal.earlier': 'Засчитан ответ, отправленный раньше.',
 
   // ---- practice: summary ----
   'practice.summary.title': 'Готово!',

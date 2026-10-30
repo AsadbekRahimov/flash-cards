@@ -2073,7 +2073,7 @@
 | `practice.hub.card.aria_resume` | Davom etish: {title}, {total} tadan {done} tasi bajarildi | Продолжить: {title}, выполнено {done} из {total} |
 | `practice.hub.reason.no_words` | O'rganilgan so'zlar: {available}/{required}. Darsni o'ting — rejim ochiladi. | Изучено слов: {available} из {required}. Пройдите урок, и режим откроется. |
 | `practice.hub.reason.ambiguous` | Mos so'zlar: {available}/{required}. Yangi so'zlarni o'rganing — rejim ochiladi. | Подходящих слов: {available} из {required}. Выучите новые слова, и режим откроется. |
-| `practice.hub.reason.no_items` | Topshiriqlar: {available}/{required}. Dars so'zlarini o'rganganingizdan keyin paydo bo'ladi. | Заданий: {available} из {required}. Они появятся, когда вы выучите слова урока. |
+| `practice.hub.reason.no_items` | Bu mavzu bo'yicha topshiriqlar hozircha yo'q. | Для этой темы заданий пока нет. |
 | `practice.hub.reason.audio_pending` | Topshiriqlar uchun yozuvlar hali tayyorlanmoqda. Keyinroq qaytib keling. | Записи для заданий ещё готовятся. Загляните позже. |
 | `practice.hub.reason.no_audio_words` | So'zlaringiz uchun hozircha yozuvlar yo'q. Keyinroq qaytib keling. | Для ваших слов пока нет записей. Загляните позже. |
 | `practice.hub.reason.unknown` | Material hozircha yetarli emas. | Пока не хватает материала. |
@@ -2463,3 +2463,27 @@
 | `finished.practice_lesson` | Dars amaliyoti | Практика урока |
 | `finished.practice_course` | Kurs amaliyoti | Практика курса |
 | `course.practice_lesson` | Amaliyot: {place} | Практика: {place} |
+
+## Практика и баттл 2026-10 · 18-9t — на проверку носителю
+
+> Исправления сольной практики в приложении после ревью (`resources/twa/src/i18n/uz.ts`, задача 18.9t): вердикт «Неверно» у сочетания и предложения,
+> «ответ уже засчитан раньше», подсказка после потерянного ответа сервера, две причины недоступности режима на карточке хаба.
+> Кнопки взяты из уже проверенных строк: «Повторить» — `common.retry` (`Qayta urinish`), «Сейчас без звука» — `practice.audio.silent` (`Hozircha ovozsiz`).
+> Строка `practice.hub.reason.no_items` **изменена** — исправлена на месте, в разделе `18-1t`; здесь она не повторяется.
+>
+> Что решить носителю:
+> - **«Неверно»** — `Noto'g'ri`: то же слово, что в вердикте упражнения тренировки (`exercise.verdict.wrong`). «Tuzatish kerak» («нужно исправить»)
+>   остаётся только у диктанта: там текст можно написать лучше, а у выбора варианта и сборки предложения ответ окончательный.
+> - **«Засчитан ответ, отправленный раньше»** — `Avval yuborilgan javob hisobga olindi.`: показывается, когда сервер уже принял ответ на это задание
+>   (другая вкладка или потерянный ответ), а что именно ответили и какой был верный, экран не знает.
+> - **Подсказка после потерянного ответа** — `Serverdan javob kelmadi. Javobingizni endi o'zgartirib bo'lmaydi — uni yana yuboring.`: ответ мог дойти
+>   до сервера, поэтому менять его нельзя, его отправляют ещё раз. Проверить тон («Javobingizni» — обращение «Siz») и длинное тире.
+> - **Две причины на карточке режима.** `no_items` («заданий для темы нет вообще», кнопки «Darsni o'rganish» нет) и `items_locked` («задания есть, они
+>   откроются, когда выучены слова урока», кнопка «Darsni o'rganish» есть). Тире в `items_locked` — как в подсказках раздела `18-1t`.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `practice.verdict.wrong_final` | Noto'g'ri | Неверно |
+| `practice.reveal.earlier` | Avval yuborilgan javob hisobga olindi. | Засчитан ответ, отправленный раньше. |
+| `practice.session.resend_note` | Serverdan javob kelmadi. Javobingizni endi o'zgartirib bo'lmaydi — uni yana yuboring. | Ответа от сервера нет. Свой ответ уже не изменить — отправьте его ещё раз. |
+| `practice.hub.reason.items_locked` | Dars so'zlarini o'rganing — topshiriqlar ochiladi. | Выучите слова урока — задания откроются. |
