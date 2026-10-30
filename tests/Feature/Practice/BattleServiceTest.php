@@ -100,7 +100,7 @@ it('invites a friend: an invited row, the two participants with the challenger b
     expect([$challenger->role->value, $challenger->active_learner_id, $challenger->locale, $challenger->ready_at, $challenger->last_seen_at, $challenger->score])->toBe(['challenger', $me->id, 'ru', null, null, 0])
         ->and([$opponent->role->value, $opponent->active_learner_id, $opponent->locale])->toBe(['opponent', null, 'uz']);
 
-    expect(battleEvents('battle.invited'))->toBe([['battle_id' => $battle->id, 'mode' => 'sentence', 'course_id' => $course->id, 'lesson_id' => $lesson->id, 'rematch' => false]])
+    expect(battleEvents('battle.invited'))->toEqual([['battle_id' => $battle->id, 'mode' => 'sentence', 'course_id' => $course->id, 'lesson_id' => $lesson->id, 'rematch' => false]])
         ->and(ProductEvent::query()->where('name', 'battle.invited')->sole()->learner_id)->toBe($me->id);
     Queue::assertPushed(SendBattleDmJob::class, fn (SendBattleDmJob $job): bool => $job->kind === 'invited' && $job->battleId === $battle->id);
 });
@@ -127,7 +127,7 @@ it('refuses an invitation for the reasons of docs/16 §8.2, each with its code, 
     [$code, $details] = battleRefusal(fn () => $invite($me, $friendship->id, PracticeMode::Pairs, $empty->slug));
     expect($code)->toBe('battle_material_unavailable')
         ->and($details)->toBe(['mode' => 'pairs', 'available' => 0, 'required' => 20, 'reason' => 'no_words', 'course' => 'empty-course', 'lesson_id' => null])
-        ->and(battleEvents('practice.not_enough_material'))->toBe([['mode' => 'pairs', 'course_id' => $empty->id, 'lesson_id' => null, 'available' => 0, 'required' => 20, 'reason' => 'no_words', 'battle' => true]]);
+        ->and(battleEvents('practice.not_enough_material'))->toEqual([['mode' => 'pairs', 'course_id' => $empty->id, 'lesson_id' => null, 'available' => 0, 'required' => 20, 'reason' => 'no_words', 'battle' => true]]);
 
     // The switches: the battle, the mode; the friend without access to the practice.
     config(['practice.battle.enabled' => false]);
@@ -189,7 +189,7 @@ it('accepts an invitation: a room with both present, a 120 s life, version +1, t
         expect($participant->active_learner_id)->toBe($player->id)
             ->and($participant->last_seen_at?->toDateTimeString())->toBe('2026-10-30 10:01:00');
     }
-    expect(battleEvents('battle.accepted'))->toBe([['battle_id' => $battle->id]])
+    expect(battleEvents('battle.accepted'))->toEqual([['battle_id' => $battle->id]])
         ->and(ProductEvent::query()->where('name', 'battle.accepted')->sole()->learner_id)->toBe($me->id); // the actor of the events is the challenger
 
     // Idempotent: a second tap, by either player, is the same room.
@@ -209,7 +209,7 @@ it('refuses the acceptance of a learner busy with another battle: 409 battle_bus
     expect(battleRefusal(fn () => BattleKit::service()->accept($friend, $toFriend->id)))->toBe(['battle_busy', ['battle_id' => $byFriend->id]])
         ->and(BattleKit::fresh($toFriend)->status)->toBe(BattleStatus::Invited)
         ->and(BattleKit::fresh($toFriend)->participant($friend->id)->active_learner_id)->toBeNull()
-        ->and(battleEvents('battle.accepted'))->toBe([]);
+        ->and(battleEvents('battle.accepted'))->toEqual([]);
 
     // The friend withdraws theirs and can accept.
     BattleKit::service()->cancel($friend, $byFriend->id);
@@ -332,7 +332,7 @@ it('starts the match: one ready keeps the room, both make a countdown with round
     expect([$both->status, $both->current_round, $both->phase, $both->state_version])->toBe([BattleStatus::Countdown, 1, null, 3])
         ->and($both->starts_at?->toDateTimeString())->toBe('2026-10-30 10:00:15')
         ->and($both->round_deadline_at?->toDateTimeString())->toBe('2026-10-30 10:00:45') // starts_at + 30 s of a collocation
-        ->and(battleEvents('battle.started'))->toBe([['battle_id' => $room->id, 'mode' => 'collocation']]);
+        ->and(battleEvents('battle.started'))->toEqual([['battle_id' => $room->id, 'mode' => 'collocation']]);
 
     // The view during the countdown: round 1 without a phase, with the deadline; the answer is `round_not_open`.
     $view = BattleKit::reader()->view(BattleKit::reader()->find($friend, $room->id), $friend, CarbonImmutable::now());
@@ -376,8 +376,8 @@ it('checks the five clips of a dictation at ready and lists them for preloading;
     $after = BattleKit::service()->ready($friend, $voided->id);
     expect([$after->status, $after->end_reason, $after->meta['voided_reason'], $after->meta['rounds_played']])->toBe([BattleStatus::Closed, BattleEndReason::Voided, 'audio_missing', 0])
         ->and(BattleKit::fresh($voided)->participants->pluck('active_learner_id')->all())->toBe([null, null])
-        ->and(battleEvents('practice.audio_failed'))->toBe([['battle_id' => $voided->id, 'source' => 'phrase', 'reason' => 'file_missing', 'verified' => true]])
-        ->and(collect(battleEvents('battle.closed'))->last()['end_reason'] ?? null)->toBe('voided');
+        ->and(battleEvents('practice.audio_failed'))->toEqual([['battle_id' => $voided->id, 'source' => 'phrase', 'reason' => 'file_missing', 'verified' => true]])
+        ->and(collect(battleEvents('battle.closed'))->last()['end_reason'] ?? null)->toEqual('voided');
 });
 
 // ------------------------------------------------------------------------------------------------------------ answers
@@ -638,7 +638,7 @@ it('ends in a draw when the scores are equal: no winner, `draw` for both, the ev
         ->and([$row->participant($me->id)->score, $row->participant($friend->id)->score])->toBe([500, 500])
         ->and(BattleKit::reader()->view($row, $me, CarbonImmutable::now())->result['outcome'] ?? null)->toBe('draw')
         ->and(BattleKit::reader()->view($row, $friend, CarbonImmutable::now())->result['outcome'] ?? null)->toBe('draw')
-        ->and(battleEvents('battle.finished')[0]['result'] ?? null)->toBe('draw');
+        ->and(battleEvents('battle.finished')[0]['result'] ?? null)->toEqual('draw');
 });
 
 it('lets a player surrender in the countdown or the game: the opponent wins with the scores of the resolved rounds; not in a room', function (): void {
@@ -699,7 +699,7 @@ it('finishes a game whose opponent is silent for more than 30 s in favour of the
     $row = BattleKit::fresh($both);
     expect([$row->status, $row->end_reason, $row->winner_learner_id])->toBe([BattleStatus::Closed, BattleEndReason::BothAbsent, null])
         ->and(BattleKit::reader()->view($row, $me, CarbonImmutable::now())->result)->toMatchArray(['outcome' => 'none', 'end_reason' => 'both_absent'])
-        ->and(collect(battleEvents('battle.closed'))->last()['end_reason'] ?? null)->toBe('both_absent');
+        ->and(collect(battleEvents('battle.closed'))->last()['end_reason'] ?? null)->toEqual('both_absent');
 });
 
 it('writes the presence at most once per 5 s and never moves the version; the poll tells when the opponent is absent and since when', function (): void {
@@ -750,7 +750,7 @@ it('reports a clip that does not play: the file is there - the match goes on; mi
 
     $local = BattleKit::service()->audioFailed($me, $battle->id, $requestId, $element['id']);
     expect([$local->verified, $local->battle->status, $local->battle->state_version])->toBe([false, BattleStatus::Playing, 4])
-        ->and(battleEvents('practice.audio_failed'))->toBe([['battle_id' => $battle->id, 'source' => 'phrase', 'reason' => 'client_report', 'verified' => false]]);
+        ->and(battleEvents('practice.audio_failed'))->toEqual([['battle_id' => $battle->id, 'source' => 'phrase', 'reason' => 'client_report', 'verified' => false]]);
     $repeat = BattleKit::service()->audioFailed($me, $battle->id, $requestId, $element['id']);
     expect($repeat->verified)->toBeFalse()
         ->and(battleEvents('practice.audio_failed'))->toHaveCount(1);
@@ -759,7 +759,7 @@ it('reports a clip that does not play: the file is there - the match goes on; mi
     $voided = BattleKit::service()->audioFailed($friend, $battle->id, (string) Str::uuid(), $element['id']);
     expect([$voided->verified, $voided->battle->status, $voided->battle->end_reason])->toBe([true, BattleStatus::Closed, BattleEndReason::Voided])
         ->and($voided->battle->meta)->toMatchArray(['voided_reason' => 'audio_missing', 'audio_failed_by' => 'opponent'])
-        ->and(collect(battleEvents('practice.audio_failed'))->last())->toBe(['battle_id' => $battle->id, 'source' => 'phrase', 'reason' => 'file_missing', 'verified' => true])
+        ->and(collect(battleEvents('practice.audio_failed'))->last())->toEqual(['battle_id' => $battle->id, 'source' => 'phrase', 'reason' => 'file_missing', 'verified' => true])
         ->and(BattleKit::fresh($battle)->participants->pluck('active_learner_id')->all())->toBe([null, null])
         ->and(battleRefusal(fn () => BattleKit::service()->audioFailed($me, $battle->id, (string) Str::uuid(), $element['id'])))->toBe(['battle_closed', ['end_reason' => 'voided']]);
 });
