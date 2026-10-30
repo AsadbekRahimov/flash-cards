@@ -6,6 +6,7 @@ namespace App\Filament\Pages;
 
 use App\Domain\Practice\Services\PracticeImporter;
 use App\Filament\Resources\Support\AdminErrors;
+use App\Filament\Resources\Support\AdminNumbers;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Checkbox;
@@ -76,6 +77,12 @@ class ImportPracticeItems extends Page implements HasSchemas
         $this->form->fill();
     }
 
+    /** The size limit of the file: the one of the importer, which refuses the files over it. */
+    private function maxBytes(): int
+    {
+        return app(PracticeImporter::class)->maxBytes();
+    }
+
     public function form(Schema $schema): Schema
     {
         return $schema
@@ -83,10 +90,13 @@ class ImportPracticeItems extends Page implements HasSchemas
                 FileUpload::make('file')
                     ->label(__('admin.pages.import_practice.file'))
                     ->acceptedFileTypes(['application/json', 'text/plain'])
-                    ->maxSize(PracticeImporter::MAX_BYTES / 1024)
+                    ->maxSize((int) ceil($this->maxBytes() / 1024))
                     ->required()
                     ->storeFiles(false)
-                    ->helperText(__('admin.pages.import_practice.file_help')),
+                    ->helperText(__('admin.pages.import_practice.file_help', [
+                        'mb' => AdminNumbers::decimal($this->maxBytes() / 1024 / 1024, 1, trimZeros: true),
+                        'max' => (int) config('practice.import.max_items'),
+                    ])),
                 Checkbox::make('publish')
                     ->label(__('admin.pages.import_practice.publish'))
                     ->helperText(__('admin.pages.import_practice.publish_help')),
@@ -125,7 +135,7 @@ class ImportPracticeItems extends Page implements HasSchemas
         }
 
         // One byte over the limit is enough for the importer to refuse the file: do not read a huge file whole.
-        $raw = (string) file_get_contents((string) $file->getRealPath(), false, null, 0, PracticeImporter::MAX_BYTES + 1);
+        $raw = (string) file_get_contents((string) $file->getRealPath(), false, null, 0, $importer->maxBytes() + 1);
 
         $report = $importer->import($raw, $user, (bool) ($state['publish'] ?? false), ['ip' => request()->ip()]);
 
@@ -149,7 +159,9 @@ class ImportPracticeItems extends Page implements HasSchemas
         } else {
             Notification::make()
                 ->title(__('admin.pages.import_practice.failed'))
-                ->body(implode("\n", array_slice($errors, 0, 5)))
+                // A text of the file (a key, a word) is in the lines: each is escaped, the lines are told apart by <br>. Filament prints
+                // the body as HTML, and what it lets through (<a href>, <img src>) must never come from a file.
+                ->body(implode('<br>', array_map(e(...), array_slice($errors, 0, 5))))
                 ->danger()
                 ->persistent()
                 ->send();

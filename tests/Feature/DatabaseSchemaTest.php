@@ -1501,7 +1501,7 @@ function practiceRawBattle(array $override = []): array
     ];
 }
 
-it('rolls back and re-applies the four practice migrations (18.1) in FK order', function (): void {
+it('rolls back and re-applies the practice migrations (18.1, and the scope of the versions) in FK order', function (): void {
     $tables = ['battle_answers', 'battle_participants', 'battles', 'practice_attempts', 'practice_sessions', 'practice_item_words', 'practice_item_versions', 'practice_items'];
 
     $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_30_100001_add_practice_pilot_at_to_learners_table')])->assertSuccessful();
@@ -1516,7 +1516,9 @@ it('rolls back and re-applies the four practice migrations (18.1) in FK order', 
     foreach ($tables as $table) {
         expect(Schema::hasTable($table))->toBeTrue("Table {$table} missing after re-migrate");
     }
-    expect(Schema::hasColumn('learners', 'practice_pilot_at'))->toBeTrue();
+    expect(Schema::hasColumn('learners', 'practice_pilot_at'))->toBeTrue()
+        // The migration of the 18.9a (the words, the lesson and the level belong to the version) comes with the table.
+        ->and(Schema::hasColumns('practice_item_versions', ['target_word_ids', 'lesson_id', 'level']))->toBeTrue();
 
     // The invariants are back with the tables: the unique "one active session" and the partial index.
     $learner = Learner::factory()->create();
@@ -1674,7 +1676,9 @@ it('cascades the practice rows with their learner, course and word, and nulls th
 
     Lesson::query()->whereKey($lesson->id)->delete();
     expect($inLesson->fresh()?->lesson_id)->toBeNull()
-        ->and($item->fresh()?->lesson_id)->toBeNull();
+        ->and($item->fresh()?->lesson_id)->toBeNull()
+        // The version holds the lesson, too (its own foreign key, set NULL like the task's).
+        ->and(PracticeItemVersion::query()->where('item_id', $item->id)->whereNotNull('lesson_id')->count())->toBe(0);
 
     // The course takes the tasks (with their versions) and the sessions along.
     $course = Course::factory()->published()->create();

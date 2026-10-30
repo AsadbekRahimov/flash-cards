@@ -44,7 +44,7 @@ final class PracticeItemFormMapper
             'lesson_id' => $version !== null ? $version->lesson_id : $item->lesson_id,
             'level' => $version !== null ? $version->level : $item->level,
             'word_ids' => $version !== null
-                ? array_values(array_map(static fn (mixed $id): int => (int) $id, $version->target_word_ids))
+                ? array_map(static fn (mixed $id): int => (int) $id, $version->target_word_ids)
                 : PracticeItemWord::query()->where('item_id', $item->id)->orderBy('word_id')->pluck('word_id')->map(static fn (mixed $id): int => (int) $id)->all(),
         ];
 

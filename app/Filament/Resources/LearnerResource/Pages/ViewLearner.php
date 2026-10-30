@@ -21,6 +21,6 @@ class ViewLearner extends ViewRecord
     /** @return array<int, Action> */
     protected function getHeaderActions(): array
     {
-        return [PracticePilotAction::make()];
+        return [PracticePilotAction::include(), PracticePilotAction::exclude()];
     }
 }

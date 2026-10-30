@@ -739,6 +739,146 @@ it('asks for the audio of the current version again only for a dictation', funct
     expect(PracticeItemVersion::query()->where('item_id', $dictation->id)->value('audio_status'))->toBe(AudioStatus::Pending);
 });
 
+it('voices the published version and the current one again when the draft is another version, each once', function (): void {
+    [$course, , $words] = pis_course();
+    $service = app(PracticeItemService::class);
+    $data = ['key' => 'dd', 'word_ids' => [$words[0]->id]];
+    $item = pis_item($course, 'dictation', data: $data);
+    $service->markReviewed($item, $this->admin);
+    $service->publish($item, $this->admin);
+    $published = PracticeItemVersion::query()->where('item_id', $item->id)->sole();
+    // The published version's audio failed; a draft with another text waits (and is pending).
+    $published->forceFill(['audio_status' => AudioStatus::Failed, 'audio_error' => 'tts_service_failed'])->save();
+    $draft = $service->saveVersion($item, $course, pis_data('dictation', ['text' => 'See you soon', 'accepted' => []], $data), $this->admin);
+    Queue::fake();
+
+    $service->regenerateAudio($item->fresh() ?? $item);
+
+    Queue::assertPushed(GeneratePracticeAudioJob::class, 2);
+    Queue::assertPushed(GeneratePracticeAudioJob::class, fn (GeneratePracticeAudioJob $job): bool => $job->versionId === $published->id && $job->force);
+    Queue::assertPushed(GeneratePracticeAudioJob::class, fn (GeneratePracticeAudioJob $job): bool => $job->versionId === $draft->id && $job->force);
+    expect($published->fresh()?->audio_status)->toBe(AudioStatus::Pending)
+        ->and($published->fresh()?->audio_error)->toBeNull();
+});
+
+it('voices the one version again once when the current version is the published one', function (): void {
+    [$course, , $words] = pis_course();
+    $service = app(PracticeItemService::class);
+    $item = pis_item($course, 'dictation', data: ['word_ids' => [$words[0]->id]]);
+    $service->markReviewed($item, $this->admin);
+    $service->publish($item, $this->admin);
+    PracticeItemVersion::query()->where('item_id', $item->id)->update(['audio_status' => AudioStatus::Ready->value]);
+    Queue::fake();
+
+    $service->regenerateAudio($item->fresh() ?? $item);
+
+    Queue::assertPushed(GeneratePracticeAudioJob::class, 1);
+});
+
+it('voices only the current version of a dictation that was never published, and nothing for an archived one', function (): void {
+    [$course] = pis_course();
+    $service = app(PracticeItemService::class);
+    $item = pis_item($course, 'dictation');
+    $service->saveVersion($item, $course, pis_data('dictation', ['text' => 'See you soon', 'accepted' => []]), $this->admin);
+    $current = PracticeItemVersion::query()->where('item_id', $item->id)->where('number', 2)->sole();
+    Queue::fake();
+
+    $service->regenerateAudio($item->fresh() ?? $item);
+
+    Queue::assertPushed(GeneratePracticeAudioJob::class, 1);
+    Queue::assertPushed(GeneratePracticeAudioJob::class, fn (GeneratePracticeAudioJob $job): bool => $job->versionId === $current->id);
+
+    $service->archive($item, $this->admin);
+    expect(fn () => $service->regenerateAudio($item->fresh() ?? $item))->toThrow(PracticeItemStateException::class);
+});
+
+// --- "reviewed" and "publish" act on the version the admin saw ------------------------------------------------------------------
+
+it('refuses "reviewed" and "publish" for a version the admin did not see: an import wrote a newer one meanwhile', function (): void {
+    [$course, , $words] = pis_course();
+    $service = app(PracticeItemService::class);
+    $data = ['word_ids' => [$words[0]->id]];
+    $item = pis_item($course, data: $data);
+    $seen = $item->current_version_id;
+    // The admin has the first version open; an import writes a second one.
+    $newer = $service->saveVersion($item->fresh() ?? $item, $course, pis_data('sentence', ['explanation' => ['ru' => 'Другое.', 'uz' => 'Boshqa.']], $data), null);
+
+    try {
+        $service->markReviewed($item->fresh() ?? $item, $this->admin, null, $seen);
+        $this->fail('a version nobody has seen must not be marked as checked');
+    } catch (PracticeItemStateException $e) {
+        expect($e->errorCode)->toBe('version_changed')->and($e->httpStatus())->toBe(409);
+    }
+    expect($newer->fresh()?->state)->toBe(VersionState::Draft)
+        ->and(AuditLog::query()->where('action', 'practice_item.reviewed')->count())->toBe(0);
+
+    // The newer version marked as checked by someone else: "publish" of the old page is refused, too.
+    $service->markReviewed($item->fresh() ?? $item, $this->admin, null, $newer->id);
+    $stale = fn () => $service->publish($item->fresh() ?? $item, $this->admin, null, $seen);
+
+    expect($stale)->toThrow(PracticeItemStateException::class, 'changed')
+        ->and($item->fresh()?->published_version_id)->toBeNull()
+        ->and($newer->fresh()?->state)->toBe(VersionState::Reviewed);
+
+    // The version that was seen goes through.
+    $service->publish($item->fresh() ?? $item, $this->admin, null, $newer->id);
+    expect($item->fresh()?->published_version_id)->toBe($newer->id);
+});
+
+it('does not tie the move to a version when none is expected: the import and the seeders', function (): void {
+    [$course, , $words] = pis_course();
+    $service = app(PracticeItemService::class);
+    $item = pis_item($course, data: ['word_ids' => [$words[0]->id]]);
+
+    $service->markReviewed($item, $this->admin);
+    $service->publish($item, $this->admin, null, null);
+
+    expect($item->fresh()?->status)->toBe(PracticeItemStatus::Published);
+});
+
+it('checks that the task is not archived before it asks which version the admin saw', function (): void {
+    [$course] = pis_course();
+    $service = app(PracticeItemService::class);
+    $item = pis_item($course);
+    $service->archive($item, $this->admin);
+
+    try {
+        $service->markReviewed($item, $this->admin, null, 999_999);
+        $this->fail('an archived task is not marked as checked');
+    } catch (PracticeItemStateException $e) {
+        expect($e->errorCode)->toBe('item_archived');
+    }
+});
+
+// --- the course of the task ----------------------------------------------------------------------------------------------------------
+
+it('refuses to save a task under the course of another: the lock and the checks would be the wrong ones', function (): void {
+    [$course, , $words] = pis_course();
+    $other = Course::factory()->published()->create();
+    $item = pis_item($course, data: ['word_ids' => [$words[0]->id]]);
+
+    expect(fn () => app(PracticeItemService::class)->save($item, $other, pis_data('sentence'), $this->admin))
+        ->toThrow(InvalidArgumentException::class, "belongs to the course {$course->id}, not to the course {$other->id}")
+        ->and(PracticeItemVersion::query()->where('item_id', $item->id)->count())->toBe(1);
+});
+
+// --- the voicing of a new dictation version is optional for the caller who does it itself ---------------------------------------------------------
+
+it('queues no voicing job when the caller says it voices the phrases itself, and leaves the version pending', function (): void {
+    [$course, , $words] = pis_course();
+    $service = app(PracticeItemService::class);
+    $prepared = $service->prepare($course, pis_data('dictation', data: ['word_ids' => [$words[0]->id]]));
+
+    $silent = $service->write($course, null, $prepared, null, scheduleAudio: false);
+
+    Queue::assertNothingPushed();
+    expect($silent->version->audio_status)->toBe(AudioStatus::Pending);
+
+    // By default the voicing is queued, for the new version of the same task as for a new task.
+    $service->write($course, $silent->item, $service->prepare($course, pis_data('dictation', ['text' => 'See you soon', 'accepted' => []], ['word_ids' => [$words[0]->id]]), $silent->item), null);
+    Queue::assertPushed(GeneratePracticeAudioJob::class, 1);
+});
+
 // --- the text is untrusted -----------------------------------------------------------------------------------------
 
 it('removes control characters and composes the text on the way in', function (): void {

@@ -345,6 +345,7 @@ return [
         'columns' => [
             'preview' => 'Текст',
             'audio' => 'Аудио',
+            'audio_draft' => 'Правка: :status',
             'unpublished_edit' => 'Есть неопубликованная правка',
             'unpublished_edit_help' => 'Ученики получают прежнюю версию, пока новая не проверена и не опубликована.',
             'version' => 'Версия',
