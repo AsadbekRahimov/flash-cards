@@ -10,9 +10,9 @@ use App\Domain\Content\DTO\ImportIssue;
  * What a practice import did (docs/16 §15.1), or why it refused: the twin of the report of the vocabulary import.
  *
  * The counters partition the tasks of the file that were written without an error: `added` (a new key), `updated` (a known
- * key whose text, target words, lesson or level changed - a changed text or word list becomes a NEW version), `skipped` (a known
- * key whose content is identical: nothing written). `published` counts the tasks this import made published; it is independent
- * of the three (an identical task that was still a draft is `skipped` and, with "publish at once", `published`).
+ * key whose text, target words, lesson or level changed - any of the four becomes a NEW version), `skipped` (a known key whose
+ * four are identical to the current version's: nothing written). `published` counts the tasks this import made published; it is
+ * independent of the three (an identical task that was still a draft is `skipped` and, with "publish at once", `published`).
  *
  * An import is all or nothing: with any issue `aborted` is true and the counters are zero. Every issue is an
  * {@see ImportIssue}: its `code` is stable, its `context` carries `position` (the number of the task in the file, from 1)

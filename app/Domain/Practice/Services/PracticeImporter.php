@@ -31,10 +31,12 @@ use Throwable;
  *   {"format": "lexiflow-practice/1", "course": "default", "items": [ {key, type, lesson: {stage, number}, level,
  *     target_words: [..], ...the fields of the type...}, ... ]}
  *
- * The `key` of a task is its identity: the file can be imported again. A task with a known key and the same text and target
- * words is `skipped`; a changed one gets a NEW version (`updated`); a new key is `added`; the key of an archived task is a
- * refusal (`item_archived`: restore it in the admin panel first). By default the versions are drafts; with `$publish` ("publish
- * at once", the option of the person who runs the import - never a field of the file) they are written as published.
+ * The `key` of a task is its identity: the file can be imported again. A task with a known key whose text, target words, lesson
+ * and level are all the same as the current version's is `skipped`; if any of the four differs it gets a NEW version
+ * (`updated`: the target words, the lesson and the level belong to the version, not to the task); a new key is `added`; the key of
+ * an archived task is a refusal (`item_archived`: restore it in the admin panel first). By default the versions are drafts; with
+ * `$publish` ("publish at once", the option of the person who runs the import - never a field of the file) they are written as
+ * published.
  *
  * All or nothing, as the vocabulary import: the whole file is checked first (every task, every fault is reported with the
  * `position` of the task in the file, from 1, and its `key`), and written in ONE transaction only if nothing was refused. The

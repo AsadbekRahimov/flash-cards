@@ -298,26 +298,90 @@ it('writes a changed task as a new version and leaves the rest', function (): vo
         ->and(PracticeItem::query()->count())->toBe(3);
 });
 
-it('counts a changed target word as an update, and a changed lesson alone too, without a second version', function (): void {
+it('skips a task when the text, the target words, the lesson and the level are all the same, and writes a new version when ANY of the four differs', function (string $field, array $change): void {
     pim_course();
     pim_import(pim_file(pim_items()));
-    $versionsOf = static fn (string $key): int => PracticeItemVersion::query()->where('item_id', PracticeItem::query()->where('key', $key)->value('id'))->count();
+    $item = PracticeItem::query()->where('key', 'sent-1')->firstOrFail();
+    $first = PracticeItemVersion::query()->findOrFail($item->current_version_id);
 
-    $words = pim_items();
-    $words[0]['target_words'] = ['mother', 'father'];
-    $first = pim_import(pim_file($words));
+    $again = pim_import(pim_file(pim_items()));
+    expect($again->toArray())->toMatchArray(['added' => 0, 'updated' => 0, 'skipped' => 3])
+        ->and(PracticeItemVersion::query()->where('item_id', $item->id)->count())->toBe(1);
 
-    expect($first->toArray())->toMatchArray(['updated' => 1, 'skipped' => 2])
-        ->and($versionsOf('sent-1'))->toBe(2);
+    $changed = pim_items();
+    $changed[0] = [...$changed[0], ...$change];
+    $report = pim_import(pim_file($changed));
 
-    $lesson = $words;
-    $lesson[2]['lesson'] = ['stage' => 1, 'number' => 1];
-    $second = pim_import(pim_file($lesson));
+    $item->refresh();
+    $second = PracticeItemVersion::query()->findOrFail($item->current_version_id);
+    expect($report->toArray())->toMatchArray(['added' => 0, 'updated' => 1, 'skipped' => 2], $field)
+        ->and(PracticeItemVersion::query()->where('item_id', $item->id)->count())->toBe(2)
+        ->and($second->number)->toBe(2)
+        ->and($second->state)->toBe(VersionState::Draft)
+        // the first version is as it was
+        ->and(PracticeItemVersion::query()->findOrFail($first->id)->getAttributes())->toBe($first->getAttributes())
+        // all four are in the new version, and a task that was never published shows it
+        ->and($second->lesson_id)->toBe($item->lesson_id)
+        ->and($second->level)->toBe($item->level)
+        ->and($second->target_word_ids)->toBe($item->words()->orderBy('words.id')->pluck('words.id')->all());
+})->with([
+    'the text' => ['text', ['explanation' => ['ru' => 'Другое пояснение.', 'uz' => 'Boshqa izoh.']]],
+    'the target words' => ['target words', ['target_words' => ['mother', 'father']]],
+    'the lesson' => ['lesson', ['lesson' => ['stage' => 1, 'number' => 2]]],
+    'the level' => ['level', ['level' => 'B2']],
+]);
 
-    // The dictation moved to lesson 1: the task changes, the text does not, so there is no new version.
-    expect($second->toArray())->toMatchArray(['updated' => 1, 'skipped' => 2])
-        ->and($versionsOf('dic-1'))->toBe(1)
-        ->and(PracticeItem::query()->where('key', 'dic-1')->firstOrFail()->lesson?->number)->toBe(1);
+it('writes the new version of a changed lesson, level or word of a published task as a draft, and leaves what the learners get', function (string $field, array $change): void {
+    [, $one, $two] = pim_course();
+    pim_import(pim_file(pim_items()), publish: true);
+    $item = PracticeItem::query()->where('key', 'sent-1')->firstOrFail();
+    $published = $item->published_version_id;
+    $words = $item->words()->orderBy('words.id')->pluck('words.id')->all();
+
+    $changed = pim_items();
+    $changed[0] = [...$changed[0], ...$change];
+    $report = pim_import(pim_file($changed));
+
+    $item->refresh();
+    expect($report->toArray())->toMatchArray(['updated' => 1, 'skipped' => 2, 'published' => 0], $field)
+        ->and($item->status)->toBe(PracticeItemStatus::Published)
+        ->and($item->published_version_id)->toBe($published)
+        ->and($item->current_version_id)->not->toBe($published)
+        ->and($item->lesson_id)->toBe($one->id)
+        ->and($item->level)->toBe('A1')
+        ->and($item->words()->orderBy('words.id')->pluck('words.id')->all())->toBe($words);
+
+    // The same file with publishing makes the draft the published version, and the task takes its place.
+    $report = pim_import(pim_file($changed), publish: true);
+
+    $item->refresh();
+    expect($report->toArray())->toMatchArray(['updated' => 0, 'skipped' => 3, 'published' => 1], $field)
+        ->and($item->published_version_id)->toBe($item->current_version_id)
+        ->and($item->lesson_id)->toBe(($change['lesson']['number'] ?? 1) === 2 ? $two->id : $one->id)
+        ->and($item->level)->toBe($change['level'] ?? 'A1');
+})->with([
+    'the target words' => ['target words', ['target_words' => ['mother', 'father']]],
+    'the lesson' => ['lesson', ['lesson' => ['stage' => 1, 'number' => 2]]],
+    'the level' => ['level', ['level' => 'B2']],
+]);
+
+it('refuses to publish at once a changed task whose target words are gone from the file', function (): void {
+    pim_course();
+    pim_import(pim_file(pim_items()), publish: true);
+    $item = PracticeItem::query()->where('key', 'sent-1')->firstOrFail();
+
+    $changed = pim_items();
+    $changed[0]['target_words'] = [];
+    $report = pim_import(pim_file($changed), publish: true);
+
+    expect(pim_issues($report))->toBe([['target_words_required', 1, 'sent-1']])
+        ->and($item->fresh()?->published_version_id)->toBe($item->published_version_id)
+        ->and(PracticeItemVersion::query()->where('item_id', $item->id)->count())->toBe(1);
+
+    // As a draft the same file is fine: the published version keeps its words for the learners.
+    $draft = pim_import(pim_file($changed));
+    expect($draft->toArray())->toMatchArray(['updated' => 1])
+        ->and($item->fresh()?->words()->count())->toBe(1);
 });
 
 it('imports an edit of a published task as a draft: the learners keep the published version', function (): void {

@@ -571,7 +571,8 @@ it('says in Russian why the text is not accepted and keeps the form: nothing is 
         ])
         ->call('create');
 
-    expect(pad_sent()[0]['body'])->toContain('«'.$w['words']['ghost']->id.'»')->toContain('не найдено среди активных слов курса');
+    // The word is named by its text (the admin knows it so), not by its number.
+    expect(pad_sent()[0]['body'])->toContain('«ghost»')->not->toContain((string) $w['words']['ghost']->id.'»')->toContain('не найдено среди активных слов курса');
 });
 
 it('fills the edit form with the text of the current version in the way it is typed', function (): void {
