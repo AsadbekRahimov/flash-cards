@@ -38,6 +38,8 @@ final class PracticeContentException extends RuntimeException
 
     public const TEXT_TOO_LONG = 'text_too_long';
 
+    public const MARKUP_NOT_ALLOWED = 'markup_not_allowed';
+
     public const LOCALE_TEXT_REQUIRED = 'locale_text_required';
 
     public const FRAGMENTS_COUNT = 'fragments_count';
@@ -51,6 +53,8 @@ final class PracticeContentException extends RuntimeException
     public const ACCEPTED_NOT_PERMUTATION = 'accepted_not_permutation';
 
     public const ACCEPTED_DUPLICATE = 'accepted_duplicate';
+
+    public const ACCEPTED_FIRST_MISMATCH = 'accepted_first_mismatch';
 
     public const DISPLAY_MISMATCH = 'display_mismatch';
 

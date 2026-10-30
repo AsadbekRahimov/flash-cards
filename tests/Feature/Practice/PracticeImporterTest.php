@@ -562,6 +562,8 @@ it('refuses a task with its code, its position in the file and its key, and writ
     'a fragment with a line break' => ['sentence', ['fragments' => ['my', "moth\ner", 'is', 'a', 'teacher']], 'fragment_invalid', 'fragments'],
     'no accepted orders' => ['sentence', ['accepted' => []], 'accepted_required', 'accepted'],
     'an accepted order that is no permutation' => ['sentence', ['accepted' => [['my', 'mother', 'is', 'a', 'doctor']]], 'accepted_not_permutation', 'accepted'],
+    'a first accepted order that is not the order of the fragments' => ['sentence', ['accepted' => [['teacher', 'a', 'is', 'mother', 'my'], ['my', 'mother', 'is', 'a', 'teacher']], 'display' => null], 'accepted_first_mismatch', 'accepted'],
+    'a text with a < in it' => ['sentence', ['explanation' => ['ru' => 'a < b', 'uz' => 'x']], 'markup_not_allowed', 'explanation'],
     'one accepted order twice' => ['sentence', ['accepted' => [['my', 'mother', 'is', 'a', 'teacher'], ['my', 'mother', 'is', 'a', 'teacher']]], 'accepted_duplicate', 'accepted'],
     'seven accepted orders' => ['sentence', [
         'fragments' => ['a', 'b', 'c', 'd'],

@@ -741,24 +741,44 @@ it('asks for the audio of the current version again only for a dictation', funct
 
 // --- the text is untrusted -----------------------------------------------------------------------------------------
 
-it('strips tags and control characters and composes the text on the way in', function (): void {
+it('removes control characters and composes the text on the way in', function (): void {
     [$course] = pis_course();
 
     $version = app(PracticeItemService::class)->saveVersion(null, $course, pis_data('collocation', [
-        'text' => "Let's <b>___</b> a\u{0000} meeting <script>alert(1)</script>on\tMonday.\u{200B}",
-        'options' => ['<i>have</i>', "ma\u{0007}ke", 'do'],
+        'text' => "Let's ___ a\u{0000} meeting on\tMonday.\u{200B}",
+        'options' => ['have', "ma\u{0007}ke", 'do'],
         'correct' => ['have'],
         // «Мой» with the breve apart from the letter (и + U+0306) is composed into one letter й (U+0439).
         'translation' => ['ru' => "Мо\u{0438}\u{0306}", 'uz' => "Uchrashuv\n o'tkazaylik"],
-        'explanation' => ['ru' => '<img src=x onerror=alert(1)>Пояснение', 'uz' => 'Izoh'],
+        'explanation' => ['ru' => 'Пояснение & "кавычки"', 'uz' => 'Izoh'],
     ]), $this->admin);
 
-    expect($version->content['text'])->toBe("Let's ___ a meeting alert(1)on Monday.")
+    expect($version->content['text'])->toBe("Let's ___ a meeting on Monday.")
         ->and($version->content['options'])->toBe(['have', 'make', 'do'])
         ->and($version->content['translation']['ru'])->toBe("Мо\u{0439}")
         ->and($version->content['translation']['uz'])->toBe("Uchrashuv o'tkazaylik")
-        ->and($version->content['explanation']['ru'])->toBe('Пояснение');
+        // `&` and quotes are text, not markup: they are kept (the pages print them escaped).
+        ->and($version->content['explanation']['ru'])->toBe('Пояснение & "кавычки"');
 });
+
+it('refuses a text with < or > and names the field, instead of cutting the text off at the sign', function (string $type, array $content, string $field): void {
+    [$course] = pis_course();
+
+    expect(pis_fails(fn () => app(PracticeItemService::class)->saveVersion(null, $course, pis_data($type, $content), $this->admin)))->toBe(['markup_not_allowed', $field])
+        ->and(PracticeItem::query()->count())->toBe(0)
+        ->and(PracticeItemVersion::query()->count())->toBe(0);
+})->with([
+    'a tag in a prompt' => ['sentence', ['prompt' => ['ru' => '<b>Моя</b> мама — учитель.', 'uz' => "Onam o'qituvchi."]], 'prompt'],
+    'a lone < in an explanation' => ['sentence', ['explanation' => ['ru' => 'Знак < значит «меньше».', 'uz' => 'x']], 'explanation'],
+    'a > in a fragment' => ['sentence', ['fragments' => ['my', 'mother', 'is', 'a', 'teacher>']], 'fragments'],
+    'a tag in a display' => ['sentence', ['display' => 'My mother is a <i>teacher</i>.'], 'display'],
+    'a script in the text of a collocation' => ['collocation', ['text' => "Let's ___ a <script>alert(1)</script> meeting."], 'text'],
+    'a tag in an option' => ['collocation', ['options' => ['<i>have</i>', 'make', 'do']], 'options'],
+    'an image in a translation' => ['collocation', ['translation' => ['ru' => '<img src=x onerror=alert(1)>Встреча', 'uz' => 'x']], 'translation'],
+    'a lone < in a dictation' => ['dictation', ['text' => 'I <3 you', 'accepted' => []], 'text'],
+    'a > in another accepted writing' => ['dictation', ['accepted' => ['See you > tomorrow']], 'accepted'],
+    'a tag in the translation of a dictation' => ['dictation', ['translation' => ['ru' => 'До <b>завтра</b>', 'uz' => 'Ertagacha']], 'translation'],
+]);
 
 it('does not take a line break inside a fragment for a space', function (): void {
     [$course] = pis_course();
@@ -801,6 +821,8 @@ it('refuses a text with the code of §4.5', function (string $type, array $conte
     'accepted lacks a fragment' => ['sentence', ['accepted' => [['my', 'mother', 'is', 'a']]], 'accepted_not_permutation', 'accepted'],
     'accepted has a stranger' => ['sentence', ['accepted' => [['my', 'mother', 'is', 'a', 'doctor']]], 'accepted_not_permutation', 'accepted'],
     'accepted repeats a fragment' => ['sentence', ['accepted' => [['my', 'mother', 'is', 'a', 'a']]], 'accepted_not_permutation', 'accepted'],
+    'the first accepted order is not the order of the fragments' => ['sentence', ['accepted' => [['teacher', 'a', 'is', 'mother', 'my'], ['my', 'mother', 'is', 'a', 'teacher']], 'display' => null], 'accepted_first_mismatch', 'accepted'],
+    'the only accepted order is another one' => ['sentence', ['fragments' => ['I', 'usually', 'drink', 'tea'], 'accepted' => [['usually', 'I', 'drink', 'tea']], 'display' => null], 'accepted_first_mismatch', 'accepted'],
     'second accepted order is no permutation' => ['sentence', ['accepted' => [['my', 'mother', 'is', 'a', 'teacher'], ['my', 'mother']]], 'accepted_not_permutation', 'accepted'],
     'one order written twice' => ['sentence', ['accepted' => [['my', 'mother', 'is', 'a', 'teacher'], ['My', 'Mother', 'is', 'a', 'teacher.']]], 'accepted_duplicate', 'accepted'],
     'seven distinct orders' => ['sentence', [

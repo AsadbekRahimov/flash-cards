@@ -112,7 +112,8 @@ final class AdminErrors
     }
 
     /**
-     * The languages of a practice text in capitals as in the captions of the form («RU», «UZ»), the type of a task by its caption.
+     * The languages of a practice text in capitals as in the captions of the form («RU», «UZ»), the type of a task by its caption,
+     * the noun «задание» agreeing with the number before it («в файле 301 задание»).
      *
      * @param  array<string, mixed>  $context
      * @return array<string, mixed>
@@ -121,6 +122,11 @@ final class AdminErrors
     {
         if (isset($context['locale']) && is_string($context['locale'])) {
             $context['locale'] = mb_strtoupper($context['locale']);
+        }
+
+        // The text is Russian whatever locale the request has.
+        if (isset($context['count']) && is_int($context['count'])) {
+            $context['tasks'] = trans_choice('admin.pages.import_practice.tasks', $context['count'], [], 'ru');
         }
 
         return self::captioned($context, ['existing_type' => 'practice_items.type']);

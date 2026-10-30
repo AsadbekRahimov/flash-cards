@@ -6,9 +6,11 @@ use App\Domain\Content\DTO\ImportIssue;
 use App\Domain\Practice\Enums\AudioStatus;
 use App\Domain\Practice\Enums\PracticeItemStatus;
 use App\Domain\Practice\Enums\PracticeItemType;
+use App\Domain\Practice\Enums\Verdict;
 use App\Domain\Practice\Enums\VersionState;
 use App\Domain\Practice\Exceptions\PracticeContentException;
 use App\Domain\Practice\Exceptions\PracticeItemStateException;
+use App\Domain\Practice\Services\Grading\SentenceGrader;
 use App\Domain\Practice\Services\PracticeAccess;
 use App\Domain\Practice\Services\PracticeImporter;
 use App\Domain\Practice\Services\PracticeItemService;
@@ -234,16 +236,33 @@ it('lists the tasks: course, «Модуль N · Урок M», type, key, text, 
     expect(PracticeItemResource::lessonLabel($sentence->load('lesson.stage')))->toBe('Модуль 2 · Урок 1');
 });
 
-it('shows the text a learner works on, not the prompt, and escapes whatever an author wrote', function (): void {
+it('shows the text a learner works on, not the prompt, and prints whatever an author wrote escaped', function (): void {
     $w = pad_world();
     $sentence = pad_make($w['course'], 'sentence', 'text-sentence');
-    $dictation = pad_make($w['course'], 'dictation', 'text-dictation', content: ['text' => 'Say <b>hello</b>']);
+    $dictation = pad_make($w['course'], 'dictation', 'text-dictation', content: ['text' => 'Tom & Jerry say "hello"']);
 
     livewire(ListPracticeItems::class)
         ->assertTableColumnStateSet('preview', 'My mother is a teacher.', $sentence)
-        // The tags were stripped on the way in: what is left is text, and the page prints it escaped.
-        ->assertTableColumnStateSet('preview', 'Say hello', $dictation)
-        ->assertDontSeeHtml('<b>hello</b>');
+        ->assertTableColumnStateSet('preview', 'Tom & Jerry say "hello"', $dictation)
+        // `&` and quotes are text: the page prints them as entities, so nothing an author typed can become markup.
+        ->assertSeeHtml('Tom &amp; Jerry say &quot;hello&quot;');
+});
+
+it('refuses a text with markup in the form and says so in Russian: nothing is written', function (): void {
+    $w = pad_world();
+    pad_sent();
+
+    livewire(CreatePracticeItem::class)
+        ->fillForm([
+            'course_id' => $w['course']->id,
+            'type' => 'dictation',
+            'key' => 'with-markup',
+            'dictation' => ['text' => 'Say <b>hello</b>'],
+        ])
+        ->call('create');
+
+    expect(pad_sent())->toBe([['title' => 'Не получилось', 'body' => 'В поле «Текст» не должно быть знаков «<» и «>»: разметка не поддерживается, пишите обычный текст.']])
+        ->and(PracticeItem::query()->count())->toBe(0);
 });
 
 it('marks a published task that has a newer version waiting', function (): void {
@@ -427,6 +446,118 @@ it('takes the order of the fragments as the only accepted one when the field of 
     expect($version->content['accepted'])->toBe([[0, 1, 2, 3]]);
 });
 
+it('keeps the order of the fragments first when the field lists one other order, and shows that one alone when the task is opened again', function (): void {
+    $w = pad_world();
+
+    livewire(CreatePracticeItem::class)
+        ->fillForm([
+            'course_id' => $w['course']->id,
+            'type' => 'sentence',
+            'key' => 'form-other-order',
+            'sentence' => [
+                'prompt' => ['ru' => 'Я обычно пью чай.', 'uz' => 'Men odatda choy ichaman.'],
+                'fragments' => "I\nusually\ndrink\ntea",
+                'accepted' => 'usually | I | drink | tea',
+            ],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $item = PracticeItem::query()->where('key', 'form-other-order')->sole();
+    $content = PracticeItemVersion::query()->findOrFail($item->current_version_id)->content;
+
+    // [the order of the fragments, the other one]: the field never takes the place of the first.
+    expect($content['accepted'])->toBe([[0, 1, 2, 3], [1, 0, 2, 3]]);
+
+    // Both are right answers for the grader: the case that was graded wrong when the field replaced the order of the fragments.
+    $grader = new SentenceGrader;
+    $accepted = $grader->forms($content['fragments'], $content['accepted'])['accepted'];
+    expect($grader->grade(['f1' => 'I', 'f2' => 'usually', 'f3' => 'drink', 'f4' => 'tea'], $accepted, ['order' => ['f1', 'f2', 'f3', 'f4']])->verdict)->toBe(Verdict::Correct)
+        ->and($grader->grade(['f1' => 'I', 'f2' => 'usually', 'f3' => 'drink', 'f4' => 'tea'], $accepted, ['order' => ['f2', 'f1', 'f3', 'f4']])->verdict)->toBe(Verdict::Correct);
+
+    livewire(EditPracticeItem::class, ['record' => $item->getKey()])
+        ->assertFormSet(['sentence.fragments' => "I\nusually\ndrink\ntea", 'sentence.accepted' => 'usually | I | drink | tea']);
+});
+
+it('leaves out of the other orders a line that reads like the order of the fragments or like an earlier line', function (): void {
+    $w = pad_world();
+
+    livewire(CreatePracticeItem::class)
+        ->fillForm([
+            'course_id' => $w['course']->id,
+            'type' => 'sentence',
+            'key' => 'form-repeats',
+            'sentence' => [
+                'prompt' => ['ru' => 'Я обычно пью чай.', 'uz' => 'Men odatda choy ichaman.'],
+                'fragments' => "I\nusually\ndrink\ntea",
+                // the first line is the order of the fragments (in other case), the third is the second one with a full stop
+                'accepted' => "i | Usually | drink | tea\nusually | I | drink | tea\nUsually | i | drink | tea.\n",
+            ],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $item = PracticeItem::query()->where('key', 'form-repeats')->sole();
+
+    expect(PracticeItemVersion::query()->findOrFail($item->current_version_id)->content['accepted'])->toBe([[0, 1, 2, 3], [1, 0, 2, 3]]);
+
+    // A field that is only the order of the fragments is the same as an empty one: no error about "one order written twice".
+    livewire(CreatePracticeItem::class)
+        ->fillForm([
+            'course_id' => $w['course']->id,
+            'type' => 'sentence',
+            'key' => 'form-only-repeat',
+            'sentence' => ['prompt' => ['ru' => 'Это кот.'], 'fragments' => "this\nis\na\ncat", 'accepted' => "this | is | a | cat\nThis | is | a | cat"],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(PracticeItemVersion::query()->findOrFail(PracticeItem::query()->where('key', 'form-only-repeat')->sole()->current_version_id)->content['accepted'])->toBe([[0, 1, 2, 3]]);
+});
+
+it('says in Russian that an order of the field is no permutation of the fragments', function (): void {
+    $w = pad_world();
+    pad_sent();
+
+    livewire(CreatePracticeItem::class)
+        ->fillForm([
+            'course_id' => $w['course']->id,
+            'type' => 'sentence',
+            'key' => 'form-bad-order',
+            'sentence' => ['prompt' => ['ru' => 'Это кот.'], 'fragments' => "this\nis\na\ncat", 'accepted' => 'this | is | a'],
+        ])
+        ->call('create');
+
+    expect(pad_sent())->toBe([['title' => 'Не получилось', 'body' => 'Один из допустимых порядков — не перестановка фрагментов: каждый фрагмент должен встретиться в нём ровно столько раз, сколько в списке фрагментов.']])
+        ->and(PracticeItem::query()->count())->toBe(0);
+});
+
+it('shows every order of a task saved before the rule, so that saving it again loses none, and the task can be published after that', function (): void {
+    $w = pad_world();
+    // What the old form stored: the field REPLACED the order of the fragments, so the first accepted order is `usually I drink tea`.
+    $item = PracticeItem::factory()->sentence()->reviewed()->forCourse($w['course'])->targeting($w['words']['mother'])->withContent([
+        'fragments' => ['I', 'usually', 'drink', 'tea'],
+        'accepted' => [[1, 0, 2, 3]],
+        'display' => 'Usually I drink tea.',
+    ])->create(['key' => 'legacy-order']);
+    pad_sent();
+
+    // It cannot be published as it is: the order of the fragments must be the first one.
+    livewire(ListPracticeItems::class)->callTableAction('publish', $item);
+    expect(pad_sent())->toBe([['title' => 'Не получилось', 'body' => 'Первым допустимым порядком должен быть порядок фрагментов. Откройте задание и сохраните его заново: порядок фрагментов встанет первым сам.']]);
+
+    // The form shows the order that is stored (it is not the order of the fragments, so it is not hidden)...
+    livewire(EditPracticeItem::class, ['record' => $item->getKey()])
+        ->assertFormSet(['sentence.accepted' => 'usually | I | drink | tea'])
+        ->fillForm(['sentence' => ['display' => 'I usually drink tea.']])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    // ... and saving puts the order of the fragments first and keeps that one after it.
+    $item->refresh();
+    expect(PracticeItemVersion::query()->findOrFail($item->current_version_id)->content['accepted'])->toBe([[0, 1, 2, 3], [1, 0, 2, 3]]);
+});
+
 it('creates a collocation from the form: three options, the correct ones marked', function (): void {
     $w = pad_world();
 
@@ -593,7 +724,8 @@ it('fills the edit form with the text of the current version in the way it is ty
             'level' => 'A1',
             'word_ids' => [$w['words']['mother']->id],
             'sentence.fragments' => "I\nusually\ndrink\ntea",
-            'sentence.accepted' => "I | usually | drink | tea\nusually | I | drink | tea",
+            // The order of the fragments is the first accepted order and is not shown again: the field lists the others.
+            'sentence.accepted' => 'usually | I | drink | tea',
             'sentence.display' => 'I usually drink tea.',
             'sentence.prompt.ru' => 'Моя мама — учитель.',
         ]);
