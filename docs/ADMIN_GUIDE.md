@@ -227,6 +227,46 @@ Open any Stage → Lesson → click on a word to edit its translation, example, 
 
 ---
 
+## Practice tasks (docs/16)
+
+Navigate to **Practice → Practice tasks / Import tasks** (Практика → Задания практики / Импорт заданий). **Admins only**: a teacher
+gets *403*, and the cabinet of a center has no such screen. The practice itself is off until `PRACTICE_ACCESS` in `.env` says
+otherwise: `off` (default, nobody), `pilot` (only the learners put into the pilot, see *Learners* below) or `all`.
+
+**Three types of task** (the fourth mode, *pairs*, needs no task: it is made of the words of the course): *Подбери сочетание*
+(a phrase with one gap `___`, three options, one or two of them correct), *Собери предложение* (fragments the learner puts in order; the
+accepted orders, an optional canonical writing to show after the answer), *Слушай и пиши* (a phrase the learner hears and writes; other
+accepted writings are optional). Every task has a **key** (Latin lower case, digits, `.` `-` `_`; unique in the course; chosen once), a course,
+an optional lesson ("Модуль N · Урок M"; empty = a task of the whole course), a level and the **target words** — active words of the course.
+A task is handed out to a learner only when the learner has been introduced to *all* its target words.
+
+**Versions.** The text of a task is never changed: **Save** writes a *new version* (a draft). The task moves by buttons:
+**Проверено** (the current version has been checked) → **Опубликовать** (learners get this version; the previous published one is
+superseded, but whoever is playing it finishes with it) · **В архив** (nobody is given the task any more) · **Вернуть** (back from the archive).
+A draft cannot be published directly. A published task that has been edited stays published with the **old version handed out**; the list marks
+it «Есть неопубликованная правка» until the new version is checked and published. Publishing is stricter than saving: at least one target word and a text
+in **both** languages (the meaning/prompt and explanation of a sentence, the translation and explanation of a collocation, the translation of a dictation).
+The audio of a dictation is made in the background after saving; the column **Аудио** shows `В очереди / Готово / Ошибка`, the button **Сгенерировать аудио
+заново** voices the current version again. A dictation whose audio is not ready is not handed out. Every move is written to the audit log
+(`practice_item.reviewed / published / archived / restored`).
+
+**Import (JSON, format `lexiflow-practice/1`).** The page **Import tasks** takes a file with `"course"` (the slug of an existing course, not a deck) and a
+list `"items"` (1–300 tasks, ≤ 2 MB); **Download sample** gives a valid file. The same service runs as
+`php artisan practice:import {file} [--publish]`. Rules:
+- every task has a `key`; importing the same file again **skips** what is identical, writes a **new version** for a changed task, and refuses the key of an
+  **archived** task (restore it first). A changed target word list counts as a change; a changed lesson or level is written without a new version;
+- `target_words` are texts of active words of the course (case does not matter); `lesson` is `{"stage": N, "number": N}`; sentences give the accepted
+  orders as lists of the fragment texts, collocations name the correct options by their text; an unknown field is an error, so a misspelt name never loses text;
+- **all or nothing**: any fault refuses the whole file, and the report lists every fault with the **number of the task and its key**;
+- tasks are written as **drafts**; the box **«Опубликовать сразу (только проверенный контент)»** (`--publish`) writes them as published (and publishes identical
+  drafts of an earlier import). It is your confirmation that the texts are checked — a file cannot publish itself. The strict rules of publishing apply.
+
+The pilot package (90 tasks in three lessons of the `default` course) is `database/data/practice/pilot-a1-a2.json`. On a local machine the seeder
+`PracticeDemoSeeder` (part of `db:seed`) imports it published, puts the demo learners into the pilot and — with no `TTS_SERVICE_URL` — voices the phrases itself
+with `ffmpeg` + `flite`. On production import it as drafts, check, then publish.
+
+---
+
 ## Learners
 
 Navigate to **Administration → Learners** (Администрирование → Ученики). An admin sees every learner; a teacher sees only the active members
@@ -246,6 +286,9 @@ invited, rejected ones excluded), last seen.
   `401 learner_blocked` (the TWA is closed to them) and review reminders stop; progress is kept. Every change is written to the audit log
   (`learner.blocked` / `learner.unblocked`). Unblocking restores access at once.
 
+- **Practice pilot** (Пилот практики; column, filter *In the pilot / Not in the pilot*, and the button **Включить в пилот практики** /
+  **Исключить из пилота** on the row and on the learner page; admin only): with `PRACTICE_ACCESS=pilot` only the learners in the pilot get the practice.
+  Every real change is written to the audit log (`learner.practice_pilot_changed`: `from`, `to` — the moment the learner entered the pilot, or empty).
 - **SRS algorithm** (Алгоритм повторений; row button, admin only): switches one learner between **SM-2** and **FSRS-5**. The choice
   is made automatically when a learner is created (`FSRS_ROLLOUT_PERCENT` in `.env`: the share of *new* learners
   that gets FSRS, `0` by default = nobody; changing it never moves existing learners). Switching to FSRS seeds the
