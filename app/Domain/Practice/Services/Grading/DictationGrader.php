@@ -7,6 +7,7 @@ namespace App\Domain\Practice\Services\Grading;
 use App\Domain\Learning\Services\SpellingGrader;
 use App\Domain\Practice\DTO\GradeResult;
 use App\Domain\Practice\Enums\Verdict;
+use App\Domain\Practice\Support\EnglishLexicon;
 use App\Domain\Practice\Support\InflectionGuard;
 use App\Domain\Practice\Support\PracticeTextNormalizer;
 
@@ -18,9 +19,11 @@ use App\Domain\Practice\Support\PracticeTextNormalizer;
  *   1. the same tokens -> `correct`;
  *   2. `typo` only when ALL of this holds - the answer has as many tokens as the variant, exactly ONE token differs, the
  *      distance between the two (optimal string alignment, as in `SpellingGrader`) is 1, the expected token is at least
- *      `practice.grading.typo_min_length` long, the change is not one of the form of a word ({@see InflectionGuard}), and
- *      neither token is "protected": a word of `practice.grading.protected_tokens` (`not`, the numerals...), anything with
- *      `n't`, anything with a digit (a missing `not`, another number or `don't` / `dont` change the meaning);
+ *      `practice.grading.typo_min_length` long, the change is not one of the form of a word ({@see InflectionGuard}), the TYPED
+ *      token is not an English word ({@see EnglishLexicon}: `light` for `right`, `wrote` for `write`, `women` for `woman` are other
+ *      words, not slips - only a non-word next to the right one is a typo), and neither token is "protected": a word of
+ *      `practice.grading.protected_tokens` (`not`, the numerals and the ordinals...), anything with `n't`, anything with a digit
+ *      (a missing `not`, another number or `don't` / `dont` change the meaning);
  *   3. anything else -> `wrong`. A doubtful case is a mistake, with the right text shown.
  * Nothing written (or nothing but punctuation) is `skipped`: a hint and a mistake. A contraction is not the same as the long
  * form (`I'm` is not `I am`): only the variants the author lists are.
@@ -124,7 +127,8 @@ final class DictationGrader
             && ! $this->isProtected($got, $protected)
             && ! $this->isProtected($expected, $protected)
             && $this->spelling->distance($got, $expected) === 1
-            && ! InflectionGuard::isInflection($got, $expected);
+            && ! InflectionGuard::isInflection($got, $expected)
+            && ! EnglishLexicon::isWord($got);
     }
 
     /**

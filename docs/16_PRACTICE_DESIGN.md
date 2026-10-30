@@ -49,7 +49,7 @@
 | Непрозрачные id | Элементы (`e…`), фрагменты (`f…`), варианты (`o…`), стороны пар (`l…`/`r…`) — случайные 10-символьные id, порождённые при создании снимка; порядок показа — keyed-sort по HMAC от случайного seed, seed не хранится |
 | Один активный | Соло: одна активная сессия на ученика; баттл: один активный на ученика (своё исходящее приглашение, комната, матч). Оба инварианта держит **nullable unique-колонка `active_learner_id`** (как `challenges.open_pair`): одинаково на PostgreSQL и SQLite, без PHP-проверок как источника истины |
 | Аудио диктанта | JWT-эндпоинт `GET …/audio/{element}` стримит файл по непрозрачному id элемента снимка; TWA загружает в blob при показе и играет по нажатию. Подписанные URL не нужны: `fetch` шлёт `Authorization`, а blob нужен и так (iOS). Генерация — job после commit через `TtsFallbackService`; файлы контент-адресные на диске, но путь наружу не уходит |
-| Проверка ответов | Общий `PracticeTextNormalizer` (NFKC, регистр, апострофы, дефис → пробел, оговорённая пунктуация → пробел). Диктант: `correct` / `typo` / `wrong`; «безопасная опечатка» — ровно один токен, OSA = 1, длина ожидаемого токена ≥ 5, не грамматическая форма (общий стем), не защищённый токен (`not`, `n't`, числительные, цифры) (§5.2) |
+| Проверка ответов | Общий `PracticeTextNormalizer` (NFKC, регистр, апострофы, дефис → пробел, оговорённая пунктуация → пробел). Диктант: `correct` / `typo` / `wrong`; «безопасная опечатка» — ровно один токен, OSA = 1, длина ожидаемого токена ≥ 5, не грамматическая форма (концевая буква), набранный токен — не английское слово (`EnglishLexicon`), не защищённый токен (`not`, `n't`, числительные и порядковые, цифры) (§5.2) |
 | Размеры соло | Пары: до 3 раундов по 4, допускаются раунды по 3, минимум один раунд из 3 (формула §4.3). Остальные режимы: 5 заданий, минимум 3 (`practice.solo.items.min`). «Не знаю» = подсказка + ошибка |
 | Транспорт баттла | Опрос `GET …/poll` раз в 2 с только в комнате/матче; отдельный лимитер `twa-battle-poll` 90/мин (вне `twa-api`); ответ ≤ 600 байт; без блокировок, пока переход не назрел; переходы и финализация — лениво под `FOR UPDATE` строки `battles` + дворник `practice:battles-sweep` каждую минуту |
 | Присутствие | Heartbeat = сам опрос; `battle_participants.last_seen_at` пишется условным UPDATE не чаще раза в 5 с; отсутствие > 30 с в матче при живом сопернике — техническое поражение, оба пропали — `closed/both_absent` |
@@ -755,13 +755,15 @@ WHERE i.course_id = :course [AND i.lesson_id = :lesson] AND i.type = :type AND i
 Для каждого допустимого варианта `E` считается вердикт, берётся лучший (`correct` > `typo` > `wrong`):
 
 1. `norm(answer) === norm(E)` → `correct`;
-2. `typo`, если **все** условия: `tokens(answer)` и `tokens(E)` одной длины; ровно одна позиция `i` с разными токенами `a ≠ e`; `OSA(a, e) = 1`; `mb_strlen(e) ≥ 5` (`grading.typo_min_length`); `!InflectionGuard::isInflection(a, e)`; `e` и `a` не в `grading.protected_tokens`; ни `e`, ни `a` не содержат `n't`; ни один не состоит из цифр;
+2. `typo`, если **все** условия: `tokens(answer)` и `tokens(E)` одной длины; ровно одна позиция `i` с разными токенами `a ≠ e`; `OSA(a, e) = 1`; `mb_strlen(e) ≥ 5` (`grading.typo_min_length`); `!InflectionGuard::isInflection(a, e)`; **набранный токен `a` — не известная английская словоформа** (`!EnglishLexicon::isWord(a)`, ниже); `e` и `a` не в `grading.protected_tokens` (отрицания, числительные **и порядковые**); ни `e`, ни `a` не содержат `n't`; ни один не состоит из цифр;
 3. иначе `wrong`.
 
 `InflectionGuard::isInflection(a, e)` (правка координатора: стеммер с отрезанием `es`/`ed` ошибался — `coffee`/`coffees` давали разные стемы `coffe`/`coff` и проходили как опечатка). Так как до проверки уже известно `OSA(a, e) = 1`, смена грамматической формы на одну правку бывает только на конце слова, и правило — по хвосту: пусть `x` — более короткий токен, `y` — более длинный (при равной длине — любой порядок); `true`, если
-- (а) `y === x.'s'` или `y === x.'d'` — дописана конечная `s`/`d` (`teacher/teachers`, `coffee/coffees`, `like/liked`, `live/lived`);
-- (б) длины равны, токены совпадают во всём, кроме последней буквы, и эти две последние буквы — `s` и `d` (`likes/liked`, `watches/watched`, `uses/used`).
+- (а) `y === x.c`, где `c` ∈ {`s`, `d`, `r`, `n`, `y`} — дописана одна из концевых букв форм: `s` (мн. число, 3-е лицо), `d` (прошедшее), `r` (степень, «деятель»), `n` (причастие), `y` (прилагательное от существительного) — `teacher/teachers`, `coffee/coffees`, `like/liked`, `nice/nicer`, `take/taken`, `rain/rainy`;
+- (б) длины равны, токены совпадают во всём, кроме последней буквы, и эти две последние буквы — две разные из {`s`, `d`, `r`, `n`, `y`} (`likes/liked`, `watches/watched`, `walker/walked`, `taker/taken`, `rains/rainy`).
 Иначе `false`. Строгость намеренная (docs/15 §3.4: сомнительное — ошибка): `friend`/`frien` (потеряна конечная `d`) — `wrong`; ложные «формы» безвредны — такой ответ просто не получает пометку «опечатка».
+
+`EnglishLexicon::isWord(a)` (`app/Domain/Practice/Support/EnglishLexicon.php`, чистая функция без БД; правка 18.9b по docs/15 §3.4 — «другое слово» и «другая форма слова» не опечатка: `light` вместо `right`, `were` вместо `where`, `wrote` вместо `write`, `women` вместо `woman`). Данные — `resources/lexicon/en-common.txt`: слова A1–B2, **все** формы неправильных глаголов, неправильные множественные и степени сравнения; одно слово в строке, нижний регистр, отсортирован, шапка `#`; читается один раз за процесс. Токен — слово, если он в списке **или** одно правило правописания даёт лемму из списка: `'s`; `-s`, `-es` (после s, x, z, ch, sh, o), `-ies` → `y`; `-ed`, `-d` (после `e`), удвоенная согласная + `ed`, `-ied` → `y`; `-ing`, `-ing` + `e`, удвоенная согласная + `ing`, `-ying` → `ie`; `-er`/`-est`, `-r`/`-st` (после `e`), удвоенная + `er`/`est`, `-ier`/`-iest` → `y`; `-ly`, `-ily` → `y` (основа ≥ 2 букв; правило применяется один раз). Ошибаться можно только в безопасную сторону: лишнее «слово» (`begining` = `begin` + `ing`) делает проверку строже (`wrong` вместо `typo`), недостающее слово оставляет прежнее поведение (опечатка прощается).
 
 Пустой ответ или `skip: true` → `skipped` (в итогах — ошибка, подсказка `+1`; разбор показан). `typo` в соло: показывается «Есть опечатка», в `correct_first` **не** считается; в баттле: 0 очков, в разборе — пометка «опечатка».
 
@@ -792,6 +794,23 @@ WHERE i.course_id = :course [AND i.lesson_id = :lesson] AND i.type = :type AND i
 | 19 | `I like coffee` | `I like coffees` | wrong | форма: дописана `s` (стеммер давал бы ложную «опечатку») |
 | 20 | `My friend` | `My frien` | wrong | потеряна конечная `d` — правило (а), строгость намеренная |
 | 21 | `They watched TV` | `They watches TV` | wrong | замена `d`→`s` в последней букве (правило б) |
+| 22 | `Call me later` | `Call me late` | wrong | `late` — другое слово |
+| 23 | `Where is your father?` | `Were is your father` | wrong | `were` — другое слово |
+| 24 | `I wrote a letter` | `I write a letter` | wrong | `write` — слово (неправильный глагол), не опечатка |
+| 25 | `The women are here` | `The woman are here` | wrong | другое число: `woman` — слово |
+| 26 | `Turn right here` | `Turn light here` | wrong | `light` — другое слово |
+| 27 | `The fourth floor` | `The forth floor` | wrong | порядковое защищено (`fourth`) |
+| 28 | `The books are on the table` | `The boots are on the table` | wrong | `boots` — другое слово |
+| 29 | `a nicer day` | `a nice day` | wrong | форма: дописана `r` (правило а) |
+| 30 | `because` | `becuase` | typo | `becuase` — не слово, OSA 1 |
+| 31 | `My friend is here` | `My freind is here` | typo | `freind` — не слово |
+| 32 | `I love my family` | `I love my famliy` | typo | `famliy` — не слово |
+| 33 | `Many people came` | `Many peopel came` | typo | `peopel` — не слово |
+| 34 | `It is beautiful` | `It is beautifull` | typo | `beautifull` — не слово |
+| 35 | `I cannot swim` | `I canot swim` | typo | `canot` — не слово |
+| 36 | `We meet on Wednesday` | `We meet on Wendesday` | typo | `wendesday` — не слово |
+| 37 | `I go to school` | `I go to shcool` | typo | `shcool` — не слово |
+| 38 | `Call the client today` | `Call the client todya` | typo | `todya` — не слово |
 
 **Реализация 18.5** (`Modes/DictationMode`, `Grading/DictationGrader`, `Support/InflectionGuard`, `PracticeAudioService`, `GeneratePracticeAudioJob`):
 - Состав сессии (§4.3) — как в проекте: до `practice.solo.dictation.phrases_max` (3) фраз, остальное — слова; слов не хватает — добираются фразами; **сначала слова, потом фразы** (docs/15 §3.4). Слово годится, только если `words.audio_path` совпадает с файлом, в который хэшируется **текущий** текст слова (`WordAudioService::pathFor`): после правки слова старый файл — уже не его голос.
@@ -1414,7 +1433,8 @@ Blob не загрузился (503/сеть) → экран показывае�
 | Файл | Сценарии |
 |---|---|
 | `tests/Unit/Practice/PracticeTextNormalizerTest` | NFKC, регистр, апострофы, дефис, пунктуация, пробелы; `tokens` |
-| `tests/Unit/Practice/DictationGraderTest` | таблица §5.2 (21 кейс) + `InflectionGuard::isInflection` (`likes/liked`, `like/liked`, `coffee/coffees`, `uses/used`, `walked/walkd` → false, `receive/recieve` → false) + несколько accepted |
+| `tests/Unit/Practice/DictationGraderTest` | таблица §5.2 (38 кейсов) + пары «другое слово» в обе стороны (`right/light`, `were/where`, `wrote/write`, `women/woman`…) + порядковые + `InflectionGuard::isInflection` (`likes/liked`, `nice/nicer`, `take/taken`, `walker/walked`, `walked/walkd` → false, `receive/recieve` → false) + несколько accepted |
+| `tests/Unit/Practice/EnglishLexiconTest` | файл `resources/lexicon/en-common.txt` (≥ 2500 слов, нижний регистр, отсортирован, без повторов и пустых строк), все формы ~150 неправильных глаголов, правила `-s/-es/-ies/-ed/-ing/-er/-est/-ly/'s`, описки (`becuase`, `freind`…) — не слова, 1000 вызовов < 50 мс |
 | `tests/Unit/Practice/SentenceGraderTest` | таблица §5.3 (8 кейсов) |
 | `tests/Unit/Practice/CollocationGraderTest` | один/два верных, skip, неизвестный id |
 | `tests/Unit/Practice/PairsGraderTest` | верно/неверно, `wrong_left` фиксируется один раз, `pair_already_matched`, биекция баттла, 25×n |
