@@ -183,6 +183,16 @@ describe('PracticeSessionView — entering', () => {
     r.wrapper.unmount()
   })
 
+  it('under the header a lesson outside a module is "Lesson 4", and one with no number falls back to the course - never "Module null"', async () => {
+    const outside = await render(session({ lesson: { id: 41, stage: null, number: 4, title: 'Еда' } }))
+    expect(outside.wrapper.get('[data-testid=caption]').text()).toBe('Урок 4 · Еда')
+    outside.wrapper.unmount()
+
+    const unnumbered = await render(session({ lesson: { id: 41, stage: null, number: null, title: null } }))
+    expect(unnumbered.wrapper.get('[data-testid=caption]').text()).toBe('Английский A1')
+    unnumbered.wrapper.unmount()
+  })
+
   it('under the header a course without a lesson shows the course', async () => {
     const r = await render(session({ lesson: null }))
 

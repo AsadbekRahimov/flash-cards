@@ -115,7 +115,7 @@ const progressWidth = computed((): number => progressPercent(progress.value))
 const caption = computed((): string => {
   const open = session.value
   if (open === null) return ''
-  return open.lesson ? lessonHeader(open.lesson) : open.course.title
+  return (open.lesson ? lessonHeader(open.lesson) : '') || open.course.title
 })
 
 // ---- the element ----

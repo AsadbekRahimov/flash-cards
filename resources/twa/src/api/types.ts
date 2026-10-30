@@ -757,10 +757,10 @@ export interface PracticeCourseRef {
 
 export interface PracticeLessonRef {
   id: number
-  /** Number of the module. */
-  stage: number
-  /** Number of the lesson inside the module. */
-  number: number
+  /** Number of the module; null when the server does not know it (the lesson was read from a snapshot that has none). */
+  stage: number | null
+  /** Number of the lesson inside the module; null likewise. */
+  number: number | null
   title: string | null
 }
 

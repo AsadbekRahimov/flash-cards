@@ -165,6 +165,28 @@ describe('PracticeHubView — the states', () => {
     wrapper.unmount()
   })
 
+  it('a lesson outside a module is headed "Lesson 4", never "Module null"', async () => {
+    const { wrapper } = await render({}, hub({ lesson: { id: 41, stage: null, number: 4, title: null } }))
+
+    expect(wrapper.get('h1').text()).toBe('Урок 4')
+    expect(wrapper.text()).toContain('Практика · Английский A1')
+    expect(wrapper.text()).not.toContain('null')
+    wrapper.unmount()
+  })
+
+  it('a lesson the server knows no number of is headed by its name, and without one by its course', async () => {
+    const named = await render({}, hub({ lesson: { id: 41, stage: null, number: null, title: 'Еда' } }))
+    expect(named.wrapper.get('h1').text()).toBe('Еда')
+    expect(named.wrapper.text()).toContain('Практика · Английский A1')
+    expect(named.wrapper.text()).not.toContain('null')
+    named.wrapper.unmount()
+
+    const bare = await render({}, hub({ lesson: { id: 41, stage: null, number: null, title: null } }))
+    expect(bare.wrapper.get('h1').text()).toBe('Английский A1')
+    expect(bare.wrapper.text()).not.toContain('null')
+    bare.wrapper.unmount()
+  })
+
   it('the hub of a whole course is headed by the course', async () => {
     const { wrapper } = await render({ lessonId: null }, hub({ lesson: null }))
 

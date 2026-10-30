@@ -84,14 +84,16 @@ const title = computed((): string => {
   const current = hub.value
   if (current === null) return t('practice.hub.title')
   if (current.lesson === null) return current.course.title
-  return current.lesson.title ?? lessonNumber(current.lesson)
+  // A lesson with neither a name nor a number (the server does not know them) is headed by its course.
+  return current.lesson.title || lessonNumber(current.lesson) || current.course.title
 })
 
 const subtitle = computed((): string => {
   const current = hub.value
   if (current === null) return ''
   if (current.lesson === null) return t('practice.hub.title')
-  return `${t('practice.hub.title')} · ${current.lesson.title ? lessonNumber(current.lesson) : current.course.title}`
+  const place = (current.lesson.title ? lessonNumber(current.lesson) : '') || current.course.title
+  return `${t('practice.hub.title')} · ${place}`
 })
 
 /** The unfinished session of the mode, when it is this very course / lesson: the card leads straight back into it. */
