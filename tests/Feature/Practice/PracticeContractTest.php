@@ -20,8 +20,10 @@ use App\Models\Learner;
 use App\Models\PracticeSession;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
+use Tests\Support\Practice\DictationKit;
 use Tests\Support\Practice\PracticeKit;
 
 uses(RefreshDatabase::class);
@@ -246,6 +248,48 @@ it('POST /practice/sessions/{id}/replace keeps the shape of a session', function
     $this->withHeaders(PracticeKit::headers($learner))->postJson("/api/twa/practice/sessions/{$session['id']}/replace", [
         'request_id' => (string) Str::uuid(), 'element_id' => $session['current']['id'], 'reason' => 'audio_unavailable',
     ])->assertOk()->assertExactJsonStructure(contractSession($current));
+});
+
+it('keeps the exact JSON shape of the REAL dictation: an element without a text, the review only with the answer', function (): void {
+    Storage::fake('practice_audio');
+    [$learner, $course, $lesson] = DictationKit::world();
+    DictationKit::stock($lesson, $learner, 5, 6);
+    $headers = PracticeKit::headers($learner);
+    $current = ['id', 'kind', 'source', 'audio_url', 'words', 'replacements_left'];
+    $review = ['expected', 'your_text', 'diff' => ['*' => ['expected', 'got', 'ok']], 'translation', 'explanation'];
+
+    $opened = contractOpen($learner, $course->slug, 'dictation', ['lesson_id' => $lesson->id])->assertCreated()
+        ->assertExactJsonStructure(contractSession($current, lesson: true))->json();
+    $read = $this->withHeaders($headers)->getJson("/api/twa/practice/sessions/{$opened['id']}")->assertOk()
+        ->assertExactJsonStructure(contractSession($current, lesson: true))->json();
+    $hub = $this->withHeaders($headers)->getJson("/api/twa/practice/hub?course={$course->slug}&lesson_id={$lesson->id}")->assertOk()->json();
+    $elements = PracticeSession::query()->findOrFail($opened['id'])->snapshot['elements'];
+
+    // Before any answer: no key of the snapshot anywhere, and no text of any element, in the session, the hub or a refusal.
+    $refused = contractAnswerElement($learner, $opened['id'], $elements[3]['id'], ['text' => 'anything']);
+    expect(contractError($refused, 409, 'element_not_current', ['current']))->toBe(['current' => $elements[0]['id']]);
+    foreach ([$opened, $read, $hub, $refused->json()] as $body) {
+        expect(array_values(array_intersect(contractKeys($body), CONTRACT_FORBIDDEN_PRACTICE_KEYS)))->toBe([]);
+        foreach ($elements as $element) {
+            expect(json_encode($body, JSON_THROW_ON_ERROR))->not->toContain($element['display'])->not->toContain($element['audio_path']);
+        }
+    }
+
+    // A typo: the review has the text of THIS element and the comparison word by word; the session next to it has none of the next one.
+    $first = $elements[0]['display'];
+    $typo = contractAnswerElement($learner, $opened['id'], $elements[0]['id'], ['text' => substr($first, 0, 2).$first[3].$first[2].substr($first, 4)])->assertOk()
+        ->assertExactJsonStructure(['verdict', 'first_attempt', 'reveal' => $review, 'pair', 'session' => contractSession($current, lesson: true)]);
+    expect($typo->json('verdict'))->toBe('typo')
+        ->and($typo->json('reveal.expected'))->toBe($first)
+        ->and($typo->json('pair'))->toBeNull()
+        ->and(array_values(array_intersect(contractKeys($typo->json('session')), CONTRACT_FORBIDDEN_PRACTICE_KEYS)))->toBe([])
+        ->and(json_encode($typo->json('session'), JSON_THROW_ON_ERROR))->not->toContain($elements[1]['display'])->not->toContain($first);
+
+    // A skip: the same keys, nothing written and no comparison.
+    contractAnswerElement($learner, $opened['id'], $elements[1]['id'], ['skip' => true])->assertOk()
+        ->assertExactJsonStructure(['verdict', 'first_attempt', 'reveal' => ['expected', 'your_text', 'diff', 'translation', 'explanation'], 'pair', 'session' => contractSession($current, lesson: true)])
+        ->assertJsonPath('reveal.your_text', null)
+        ->assertJsonPath('reveal.diff', null);
 });
 
 it('keeps the practice block of GET /me in its exact shape', function (): void {

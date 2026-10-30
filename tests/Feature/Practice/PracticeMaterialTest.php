@@ -361,7 +361,7 @@ it('reports the material of the four modes: nothing yet for the skeletons, the n
             'pairs' => [false, 0, 3, null],
             'collocation' => [false, 0, 3, null],
             'sentence' => [false, 0, 3, null],
-            'dictation' => [false, 0, 3, null],
+            'dictation' => [false, 0, 3, 'no_words'],
         ]);
 
     PracticeKit::fake(PracticeMode::Sentence, candidates: 7);

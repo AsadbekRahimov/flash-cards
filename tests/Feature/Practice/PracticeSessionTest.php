@@ -169,11 +169,11 @@ it('takes the size from the config and never opens a session shorter than the mi
 it('answers 422 practice_not_enough_material with the numbers when the material is too small, and writes no session', function (): void {
     [$learner, $course, $lesson] = psWorld();
 
-    // A skeleton mode (18.1) has no material at all.
+    // A learner who has been introduced to nothing has nothing to write down (the real dictation, 18.5).
     psOpen($this, $learner, $course->slug, 'dictation', ['lesson_id' => $lesson->id])
         ->assertStatus(422)
         ->assertJsonPath('error.code', 'practice_not_enough_material')
-        ->assertJsonPath('error.details', ['mode' => 'dictation', 'available' => 0, 'required' => 3, 'reason' => null, 'course' => 'english-a1', 'lesson_id' => $lesson->id]);
+        ->assertJsonPath('error.details', ['mode' => 'dictation', 'available' => 0, 'required' => 3, 'reason' => 'no_words', 'course' => 'english-a1', 'lesson_id' => $lesson->id]);
 
     PracticeKit::fake(PracticeMode::Sentence, candidates: 2);
     psOpen($this, $learner, $course->slug, 'sentence')
