@@ -2464,3 +2464,29 @@
 | `finished.practice_lesson` | Dars amaliyoti | Практика урока |
 | `finished.practice_course` | Kurs amaliyoti | Практика курса |
 | `course.practice_lesson` | Amaliyot: {place} | Практика: {place} |
+
+## Практика и баттл 2026-10 · 18-6b — на проверку носителю
+
+> Личное сообщение бота с приглашением на баттл (`lang/uz/battle.php`, задача 18.6b; `docs/16` §8.7). Приходит другу в личный чат, под текстом одна кнопка,
+> которая открывает баттл в приложении. Пример целиком (ru): «Bek зовёт вас на баттл: Найди пары, Английский A1 · Модуль 1 · Урок 3. Приглашение действует 5 минут.»
+>
+> Что решить носителю:
+> - **Порядок слов** в `battle.dm.invited`: `{name} sizni bellashuvga chaqiryapti: {format}, {place}. {validity}` — то же начало, что у карточки приглашения в приложении
+>   (`practice.hub.battle.invited_by`). Двоеточие и запятая после формата — не слишком ли по-русски.
+> - **Названия форматов** (`battle.mode.*`) — те же, что на карточках режимов в приложении (`practice.mode.*.title`), здесь повторены, потому что бот не читает файл приложения.
+> - **Срок** (`battle.dm.validity`): `Taklif {count} daqiqa amal qiladi.` («Приглашение действует N минут»). Число — из настройки, форма слова не меняется.
+> - **Урок** (`battle.dm.lesson`): `{stage}-modul · {number}-dars` — то же сочетание, что в шапке тренировки; `battle.dm.lesson_no_stage` — урок без модуля.
+> - **Кнопка** (`battle.dm.open`): `Bellashuvni ochish` («Открыть баттл»). **Без имени** (`battle.anonymous`): `Do'stingiz` («ваш друг»).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `battle.anonymous` | Do'stingiz | Ваш друг |
+| `battle.mode.pairs` | Juftlarni toping | Найди пары |
+| `battle.mode.collocation` | So'z birikmasini tanlang | Подбери сочетание |
+| `battle.mode.sentence` | Gap tuzing | Собери предложение |
+| `battle.mode.dictation` | Eshiting va yozing | Слушай и пиши |
+| `battle.dm.invited` | :name sizni bellashuvga chaqiryapti: :format, :place. :validity | :name зовёт вас на баттл: :format, :place. :validity |
+| `battle.dm.validity` | Taklif :count daqiqa amal qiladi. | Приглашение действует :count минуту / минуты / минут. |
+| `battle.dm.open` | Bellashuvni ochish | Открыть баттл |
+| `battle.dm.lesson` | :stage-modul · :number-dars | Модуль :stage · Урок :number |
+| `battle.dm.lesson_no_stage` | :number-dars | Урок :number |

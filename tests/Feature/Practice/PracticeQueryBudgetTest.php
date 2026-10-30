@@ -20,6 +20,7 @@ use App\Models\PracticeSession;
 use App\Models\ProductEvent;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
@@ -366,6 +367,7 @@ it('takes the answer to a round in at most 7 statements, the second one that res
 
 it('sends an invitation in at most 13 statements - pairs (words and two languages of translations), a task mode, and a rematch', function (): void {
     Storage::fake('practice_audio');
+    Queue::fake(); // the DM of the invitation is a job of the queue worker, not of the request (sync in tests would count it)
     [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
     $service = app(BattleService::class);
 

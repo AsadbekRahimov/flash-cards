@@ -18,6 +18,7 @@ use App\Models\LeagueMember;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
 use App\Models\Lesson;
+use App\Models\NotificationLog;
 use App\Models\PracticeSession;
 use App\Models\ProductEvent;
 use App\Models\TrainingReview;
@@ -69,8 +70,8 @@ const ISOLATION_SOLO_EVENT_PROPS = [
     'practice.audio_failed' => ['session_id', 'source', 'reason', 'verified'],
 ];
 
-/** What the battle writes (docs/16 §2.7, §3.4), and no more. */
-const ISOLATION_BATTLE_WRITTEN = ['battle_answers', 'battle_participants', 'battles', 'product_events'];
+/** What the battle writes (docs/16 §2.7, §3.4, §8.7), and no more: its tables, the events, the marker of the DM of an invitation. */
+const ISOLATION_BATTLE_WRITTEN = ['battle_answers', 'battle_participants', 'battles', 'notifications_log', 'product_events'];
 
 /** The props of the events of the battle, exactly as §3.4 lists them (the audio event names the battle, not a session). */
 const ISOLATION_BATTLE_EVENT_PROPS = [
@@ -436,10 +437,13 @@ it('leaves the learning of both players exactly as it was after battles of every
 
     $queries = QueryLog::during(fn () => isolationBattleEverything($me, $friend, $course, $lesson, $friendship, $empty));
 
-    // The rows are the same, and nothing was written anywhere but the tables of the battle and the events.
+    // The rows are the same, and nothing was written anywhere but the tables of the battle, the events and the marker of the DM
+    // of each invitation (the queue is `sync` here: the DM goes out at once, one per invitation, nothing else in `notifications_log`).
     expect(isolationChecksums())->toBe($before)
         ->and(isolationWrittenTables($queries))->toBe(ISOLATION_BATTLE_WRITTEN)
-        ->and(Battle::query()->count())->toBeGreaterThan(12);
+        ->and(Battle::query()->count())->toBeGreaterThan(12)
+        ->and(NotificationLog::query()->distinct()->pluck('type')->all())->toBe(['battle_dm'])
+        ->and(NotificationLog::query()->count())->toBe(Battle::query()->count());
 
     // Only the events of docs/16 §3.4, with the props the document lists; the actor of a battle event is its challenger.
     $names = ProductEvent::query()->distinct()->pluck('name')->all();
