@@ -185,16 +185,19 @@ final class PracticeItemService
      * published version yet, and the publishing when asked. Under the lock of the course; {@see save()} is the entry for a single
      * task.
      *
+     * `$scheduleAudio` false: a new dictation version is born `pending` and NO voicing job is queued - for the caller who voices the
+     * phrases itself and sets them `ready` (the demo seeder, which makes the audio with ffmpeg). Every other caller leaves it true.
+     *
      * @throws PracticeContentException
      * @throws PracticeItemStateException
      */
-    public function write(Course $course, ?PracticeItem $item, PreparedPracticeItem $prepared, ?User $by, bool $publish = false): SavedPracticeItem
+    public function write(Course $course, ?PracticeItem $item, PreparedPracticeItem $prepared, ?User $by, bool $publish = false, bool $scheduleAudio = true): SavedPracticeItem
     {
         if ($publish) {
             $this->assertPublishable($prepared);
         }
 
-        return DB::transaction(function () use ($course, $item, $prepared, $by, $publish): SavedPracticeItem {
+        return DB::transaction(function () use ($course, $item, $prepared, $by, $publish, $scheduleAudio): SavedPracticeItem {
             $this->lockCourse($course);
 
             $itemCreated = $item === null;
@@ -218,7 +221,7 @@ final class PracticeItemService
 
             if ($current === null || ! $this->sameVersion($current, $prepared)) {
                 $versionCreated = true;
-                $version = $this->newVersion($item, $prepared, $by);
+                $version = $this->newVersion($item, $prepared, $by, $scheduleAudio);
 
                 $item->forceFill([
                     'current_version_id' => $version->id,
@@ -456,7 +459,7 @@ final class PracticeItemService
      * is born `pending`: its audio is awaited and is queued (a job after the commit) - the text is voiced under the key the job
      * computes.
      */
-    private function newVersion(PracticeItem $item, PreparedPracticeItem $prepared, ?User $by): PracticeItemVersion
+    private function newVersion(PracticeItem $item, PreparedPracticeItem $prepared, ?User $by, bool $scheduleAudio): PracticeItemVersion
     {
         $dictation = $prepared->type === PracticeItemType::Dictation;
 
@@ -472,7 +475,7 @@ final class PracticeItemService
             'created_by_user_id' => $by?->id,
         ]);
 
-        if ($dictation) {
+        if ($dictation && $scheduleAudio) {
             $this->audio->schedule($version);
         }
 

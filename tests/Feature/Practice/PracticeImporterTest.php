@@ -6,9 +6,12 @@ use App\Domain\Content\DTO\ImportIssue;
 use App\Domain\Practice\DTO\PracticeImportReport;
 use App\Domain\Practice\Enums\AudioStatus;
 use App\Domain\Practice\Enums\PracticeItemStatus;
+use App\Domain\Practice\Enums\Verdict;
 use App\Domain\Practice\Enums\VersionState;
+use App\Domain\Practice\Services\Grading\DictationGrader;
 use App\Domain\Practice\Services\PracticeImporter;
 use App\Domain\Practice\Services\PracticeItemService;
+use App\Filament\Resources\Support\AdminErrors;
 use App\Jobs\GeneratePracticeAudioJob;
 use App\Models\AuditLog;
 use App\Models\Course;
@@ -537,6 +540,7 @@ it('refuses a task with its code, its position in the file and its key, and writ
     'no type' => ['sentence', ['type' => null], 'type_invalid', null],
     'lesson that the course lacks' => ['sentence', ['lesson' => ['stage' => 9, 'number' => 9]], 'lesson_not_in_course', 'lesson'],
     'lesson of the wrong shape' => ['sentence', ['lesson' => 'one'], 'field_invalid', 'lesson'],
+    'a key besides stage and number in the lesson' => ['sentence', ['lesson' => ['stage' => 1, 'number' => 1, 'title' => 'Family']], 'field_unknown', 'lesson.title'],
     'lesson with a text for a number' => ['sentence', ['lesson' => ['stage' => '1', 'number' => 1]], 'field_invalid', 'lesson'],
     'level outside A1..C2' => ['sentence', ['level' => 'D1'], 'level_invalid', 'level'],
     'level that is no text' => ['sentence', ['level' => 1], 'field_invalid', 'level'],
@@ -588,6 +592,18 @@ it('refuses a task with its code, its position in the file and its key, and writ
     'an empty accepted writing' => ['dictation', ['accepted' => ['See you tomorrow', ' ']], 'dictation_accepted_invalid', 'accepted'],
     'six other accepted writings' => ['dictation', ['accepted' => ['a one', 'a two', 'a three', 'a four', 'a five', 'a six']], 'dictation_accepted_invalid', 'accepted'],
 ]);
+
+it('reports a misspelt key of the lesson as an unknown field, as everywhere else, together with what it left out', function (): void {
+    pim_course();
+
+    $report = pim_import(pim_file([pim_item('sentence', ['key' => 'typo', 'lesson' => ['stage' => 1, 'numbr' => 1]])]));
+
+    expect(pim_issues($report))->toBe([['field_unknown', 1, 'typo'], ['field_invalid', 1, 'typo']])
+        ->and($report->issues[0]->context['field'])->toBe('lesson.numbr')
+        ->and($report->issues[1]->context['field'])->toBe('lesson')
+        ->and(AdminErrors::practiceImportIssue($report->issues[0]))->toContain('неизвестное поле «lesson.numbr»')
+        ->and(pim_nothing_written())->toBeTrue();
+});
 
 it('refuses a key that is missing or malformed, and names the task by the key it has', function (array $override, string $code, string $shown): void {
     pim_course();
@@ -759,6 +775,18 @@ it('keeps the texts of the pilot package as the coordinator wrote them: the stor
             default => expect($content['text'])->toBe($task['text'])->and($content['accepted'][0])->toBe($task['text']),
         };
     }
+});
+
+it('takes "Check your e-mail" for the dictation "Check your email" of the pilot package: the hyphen makes four tokens, so the variant is listed', function (): void {
+    $this->seed(DemoContentSeeder::class);
+    pim_import((string) file_get_contents(base_path('database/data/practice/pilot-a1-a2.json')));
+
+    $content = PracticeItemVersion::query()->findOrFail(PracticeItem::query()->where('key', 'pilot-work-d07')->firstOrFail()->current_version_id)->content;
+    $grader = app(DictationGrader::class);
+
+    expect($content['accepted'])->toBe(['Check your email', 'Check your e-mail'])
+        ->and($grader->grade($content['accepted'], 'Check your email')->verdict)->toBe(Verdict::Correct)
+        ->and($grader->grade($content['accepted'], 'check your e-mail.')->verdict)->toBe(Verdict::Correct);
 });
 
 // --- artisan ---------------------------------------------------------------------------------------------------------------------

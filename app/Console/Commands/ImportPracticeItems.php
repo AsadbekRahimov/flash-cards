@@ -36,8 +36,9 @@ final class ImportPracticeItems extends Command
             return self::FAILURE;
         }
 
-        // One byte over the limit is enough for the importer to refuse the file: do not read a huge file whole.
-        $raw = file_get_contents($file, false, null, 0, PracticeImporter::MAX_BYTES + 1);
+        // One byte over the limit is enough for the importer to refuse the file: do not read a huge file whole. The limit is the
+        // importer's own (`practice.import.max_bytes`): a file cut at another size would be refused as broken JSON.
+        $raw = file_get_contents($file, false, null, 0, $importer->maxBytes() + 1);
         if ($raw === false) {
             $this->error("File not readable: {$path}");
 

@@ -81,6 +81,9 @@ final class PracticeImporter
 
     private const COMMON_FIELDS = ['key', 'type', 'lesson', 'level', 'target_words'];
 
+    /** The keys of the object `lesson`. */
+    private const LESSON_FIELDS = ['stage', 'number'];
+
     /** @var array<string, list<string>> */
     private const TYPE_FIELDS = [
         'sentence' => ['prompt', 'fragments', 'accepted', 'display', 'explanation'],
@@ -105,28 +108,43 @@ final class PracticeImporter
     ) {}
 
     /**
+     * The size limit of a file in bytes: `practice.import.max_bytes` ({@see MAX_BYTES} when the config does not say).
+     *
+     * @return int<0, max>
+     */
+    public function maxBytes(): int
+    {
+        return max(0, (int) config('practice.import.max_bytes', self::MAX_BYTES));
+    }
+
+    /**
      * Imports a file on behalf of a person.
      *
      * @param  array{ip?:string|null}  $auditContext
+     * @param  bool  $scheduleAudio  see {@see importAsSystem()}
      */
-    public function import(string $rawJson, User $by, bool $publish, array $auditContext = []): PracticeImportReport
+    public function import(string $rawJson, User $by, bool $publish, array $auditContext = [], bool $scheduleAudio = true): PracticeImportReport
     {
-        return $this->run($rawJson, $by, $publish, $auditContext);
+        return $this->run($rawJson, $by, $publish, $auditContext, $scheduleAudio);
     }
 
     /**
      * Import by trusted system code (artisan, seeders): no policy check, audit `user_id` null and `meta.actor` `system`. Never
      * call it with a file from a request.
      *
+     * `$scheduleAudio` false queues no voicing job for the new dictation versions (they are left `pending`): for the caller that
+     * voices the phrases itself right after - the demo seeder makes the audio with ffmpeg and must not call a TTS service, nor
+     * run a job on the sync queue that would.
+     *
      * @param  array{ip?:string|null}  $auditContext
      */
-    public function importAsSystem(string $rawJson, bool $publish, array $auditContext = []): PracticeImportReport
+    public function importAsSystem(string $rawJson, bool $publish, array $auditContext = [], bool $scheduleAudio = true): PracticeImportReport
     {
-        return $this->run($rawJson, null, $publish, $auditContext);
+        return $this->run($rawJson, null, $publish, $auditContext, $scheduleAudio);
     }
 
     /** @param  array{ip?:string|null}  $auditContext */
-    private function run(string $rawJson, ?User $by, bool $publish, array $auditContext): PracticeImportReport
+    private function run(string $rawJson, ?User $by, bool $publish, array $auditContext, bool $scheduleAudio): PracticeImportReport
     {
         $report = new PracticeImportReport;
 
@@ -136,7 +154,7 @@ final class PracticeImporter
             return $report;
         }
 
-        $maxBytes = (int) config('practice.import.max_bytes', self::MAX_BYTES);
+        $maxBytes = $this->maxBytes();
         if (strlen($rawJson) > $maxBytes) {
             $report->abort(ImportIssue::FILE_TOO_LARGE, sprintf('File exceeds %d bytes limit.', $maxBytes), ['megabytes' => $maxBytes / 1024 / 1024]);
 
@@ -168,7 +186,7 @@ final class PracticeImporter
         /** @var list<mixed> $items */
         $items = $data['items'];
 
-        DB::transaction(function () use ($items, $course, $by, $publish, $auditContext, $report): void {
+        DB::transaction(function () use ($items, $course, $by, $publish, $auditContext, $scheduleAudio, $report): void {
             // The first lock of the transaction: the writers of one course take turns (CoursePublisher::lockForWriting).
             if ($this->publisher->lockForWriting($course) === null) {
                 $report->abort(ImportIssue::COURSE_NOT_FOUND, 'The course does not exist.', ['slug' => $course->slug]);
@@ -182,7 +200,7 @@ final class PracticeImporter
             }
 
             foreach ($plans as $plan) {
-                $saved = $this->items->write($course, $plan['existing'], $plan['prepared'], $by, $publish);
+                $saved = $this->items->write($course, $plan['existing'], $plan['prepared'], $by, $publish, $scheduleAudio);
 
                 if ($saved->outcome() === SavedPracticeItem::ADDED) {
                     $report->added++;
@@ -406,7 +424,8 @@ final class PracticeImporter
     }
 
     /**
-     * `{"stage": 1, "number": 3}` -> the id of that lesson of the course. Absent / null: a task of the course.
+     * `{"stage": 1, "number": 3}` -> the id of that lesson of the course. Absent / null: a task of the course. A key besides the two
+     * is reported as an unknown field, as everywhere else in the file: a misspelt `"numbr"` must not read as "no lesson".
      *
      * @param  array<string, int>  $lessons  "stage:number" => lesson id
      * @param  callable(string, string, array<string, int|float|string|list<string>>): mixed  $issue
@@ -415,6 +434,14 @@ final class PracticeImporter
     {
         if ($lesson === null) {
             return null;
+        }
+
+        if (is_array($lesson) && ! array_is_list($lesson)) {
+            foreach (array_keys($lesson) as $key) {
+                if (! in_array((string) $key, self::LESSON_FIELDS, true)) {
+                    $issue(self::FIELD_UNKNOWN, "unknown field '{$key}' in 'lesson'.", ['field' => "lesson.{$key}"]);
+                }
+            }
         }
 
         $stage = is_array($lesson) ? ($lesson['stage'] ?? null) : null;

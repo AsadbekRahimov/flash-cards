@@ -20,6 +20,7 @@ use Database\Seeders\DemoContentSeeder;
 use Database\Seeders\PracticeDemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Process\PendingProcess;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
@@ -28,15 +29,16 @@ uses(RefreshDatabase::class);
 
 /*
  * PracticeDemoSeeder (docs/16 §16 item 1): the pilot package, published, in the demo course; the demo learners in the pilot and
- * introduced to its words; the audio of the phrases made locally with ffmpeg + flite where no TTS service is configured.
+ * introduced to its words; the audio of the phrases made by the seeder itself with ffmpeg + flite - it queues no voicing job and
+ * calls no TTS service, whatever a developer's .env names (the queue of a test is the sync one, so a job would run in the middle
+ * of the seeding: TestCase forbids stray HTTP requests, which fails any test of this file that lets one through).
  * ffmpeg itself is replaced by a stand-in that writes a file, so the test runs the same everywhere.
  */
 
 beforeEach(function (): void {
-    Queue::fake();
     Storage::fake('practice_audio');
-    // The local environment has no TTS service (a developer's .env may name one): without it the seeder voices the phrases itself.
-    config(['twa.tts.service_url' => '']);
+    // A developer's .env names a TTS service (the .env.example does): the seeder must not need it.
+    config(['twa.tts.service_url' => 'http://tts:8000', 'queue.default' => 'sync']);
     $this->commands = [];
     // The stand-in of ffmpeg: it "makes" the mp3 (the last argument is the file to write) and remembers how it was asked to.
     Process::fake(function (PendingProcess $process): mixed {
@@ -165,18 +167,22 @@ it('voices again a phrase whose file has gone', function (): void {
         ->and(Storage::disk('practice_audio')->exists("{$version->audio_key}.mp3"))->toBeTrue();
 });
 
-it('leaves the phrases pending and does not break when ffmpeg or its flite filter is missing', function (): void {
+it('leaves the phrases pending and does not break when ffmpeg or its flite filter is missing, with no TTS service either', function (string $url): void {
+    config(['twa.tts.service_url' => $url]);
     Process::fake(fn () => Process::result(errorOutput: 'No such filter: flite', exitCode: 1));
     $this->seed(DemoContentSeeder::class);
 
+    // The sync queue, as in a test or a local run: nothing is queued, so nothing can fail "for want of a TTS service" or reach one.
     $this->seed(PracticeDemoSeeder::class);
 
     expect(PracticeItem::query()->count())->toBe(90)
         ->and(PracticeItemVersion::query()->where('audio_status', AudioStatus::Pending->value)->count())->toBe(30)
+        ->and(PracticeItemVersion::query()->where('audio_status', AudioStatus::Failed->value)->count())->toBe(0)
         ->and(Storage::disk('practice_audio')->allFiles())->toBe([]);
+    Http::assertNothingSent();
     // It asked once and gave up: thirty failures in a row would only be thirty waits.
     Process::assertRanTimes(fn () => true, 1);
-});
+})->with(['no TTS service' => [''], 'a TTS service' => ['http://tts:8000']]);
 
 it('does not take an empty file for audio', function (): void {
     Process::fake(fn () => Process::result());
@@ -188,14 +194,28 @@ it('does not take an empty file for audio', function (): void {
     expect(PracticeItemVersion::query()->where('audio_status', AudioStatus::Pending->value)->count())->toBe(30);
 });
 
-it('leaves the voicing to the queue when a TTS service is configured', function (): void {
-    config(['twa.tts.service_url' => 'http://tts:8000']);
+it('voices the phrases itself whatever TTS service is configured: no job is queued and no request is sent', function (string $url): void {
+    config(['twa.tts.service_url' => $url]);
+    Queue::fake();
     $this->seed(DemoContentSeeder::class);
 
     $this->seed(PracticeDemoSeeder::class);
 
-    expect($this->commands)->toBe([])
-        ->and(PracticeItemVersion::query()->where('audio_status', AudioStatus::Pending->value)->count())->toBe(30);
+    Queue::assertNothingPushed();
+    Http::assertNothingSent();
+    expect($this->commands)->toHaveCount(30)
+        ->and(PracticeItemVersion::query()->where('audio_status', AudioStatus::Ready->value)->count())->toBe(30)
+        ->and(PracticeItemVersion::query()->where('audio_status', AudioStatus::Pending->value)->count())->toBe(0);
+})->with(['no TTS service' => [''], 'a TTS service' => ['http://tts:8000']]);
+
+it('seeds on the sync queue with a TTS service that nobody can reach: db:seed does not call it', function (): void {
+    // With the .env of a developer (a TTS service) and the sync queue the import used to run the voicing job in the middle of the
+    // seeding: a request to the service, which a test forbids and a machine without the service fails.
+    pds_seed_all();
+
+    Http::assertNothingSent();
+    expect(PracticeItem::query()->count())->toBe(90)
+        ->and(PracticeItemVersion::query()->where('audio_status', AudioStatus::Ready->value)->count())->toBe(30);
 });
 
 it('leaves the phrases pending when the disk of the practice audio is not configured', function (): void {
@@ -209,6 +229,22 @@ it('leaves the phrases pending when the disk of the practice audio is not config
     expect($this->commands)->toBe([])
         ->and(PracticeItem::query()->count())->toBe(90)
         ->and(PracticeItemVersion::query()->where('audio_status', AudioStatus::Pending->value)->count())->toBe(30);
+});
+
+it('takes the course from the package, not from the default course of the installation', function (): void {
+    $this->seed(DatabaseSeeder::class);
+    $learner = Learner::query()->orderBy('id')->firstOrFail();
+    WordRepetition::query()->where('learner_id', $learner->id)->whereIn('word_id', PracticeItemWord::query()->select('word_id'))->delete();
+    Learner::query()->update(['practice_pilot_at' => null]);
+
+    // Another default course (`CONTENT_DEFAULT_COURSE_SLUG`): it is not the course of the package, which names `default`.
+    config(['content.default_course_slug' => 'elsewhere']);
+    $this->seed(PracticeDemoSeeder::class);
+
+    expect(Course::query()->where('slug', 'elsewhere')->exists())->toBeFalse()
+        ->and(Learner::query()->whereNotNull('practice_pilot_at')->count())->toBe(5)
+        ->and(WordRepetition::query()->where('learner_id', $learner->id)->whereIn('word_id', PracticeItemWord::query()->select('word_id'))->count())
+        ->toBe(PracticeItemWord::query()->distinct()->count('word_id'));
 });
 
 it('imports the package without a demo group, and puts nobody into the pilot', function (): void {
