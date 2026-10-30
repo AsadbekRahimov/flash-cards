@@ -166,6 +166,83 @@ it('lets a learner have one open battle: a second invitation is 409 battle_busy 
     expect(BattleKit::invite($me, $other, PracticeMode::Pairs, $course)->status)->toBe(BattleStatus::Invited);
 });
 
+it('refuses a crossing invitation: the friend has already invited me, so 409 battle_busy names THAT invitation - for a new battle and for a rematch', function (): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+
+    // A new battle: the friend invites first, my invitation back is refused with the id of theirs (I am its recipient).
+    $theirs = BattleKit::invite($friend, $friendship, PracticeMode::Sentence, $course, $lesson);
+    expect(battleRefusal(fn () => BattleKit::invite($me, $friendship, PracticeMode::Pairs, $course)))->toBe(['battle_busy', ['battle_id' => $theirs->id]])
+        ->and(Battle::query()->count())->toBe(1)
+        ->and(BattleParticipant::query()->whereNotNull('active_learner_id')->pluck('active_learner_id')->all())->toBe([$friend->id]);   // nothing was taken
+
+    // Answering it is the way out: after the acceptance the battle is on, and so I am busy with it (the old rule).
+    BattleKit::service()->accept($me, $theirs->id);
+    expect(battleRefusal(fn () => BattleKit::invite($me, $friendship, PracticeMode::Pairs, $course)))->toBe(['battle_busy', ['battle_id' => $theirs->id]]);
+    BattleKit::service()->cancel($me, $theirs->id);
+
+    // A declined or withdrawn invitation, or one that ran out, does not block: the friend has invited and it is over.
+    $declined = BattleKit::invite($friend, $friendship, PracticeMode::Sentence, $course, $lesson);
+    BattleKit::service()->decline($me, $declined->id);
+    expect(BattleKit::invite($me, $friendship, PracticeMode::Pairs, $course)->status)->toBe(BattleStatus::Invited);
+    BattleKit::service()->cancel($me, Battle::query()->latest('id')->firstOrFail()->id);
+
+    $expiring = BattleKit::invite($friend, $friendship, PracticeMode::Sentence, $course, $lesson);
+    battleTick('2026-10-30 10:05:00');   // the 300 s of the invitation are over; the row still says `invited`
+    expect($expiring->fresh()?->status)->toBe(BattleStatus::Invited)
+        ->and(BattleKit::invite($me, $friendship, PracticeMode::Pairs, $course)->status)->toBe(BattleStatus::Invited);
+    BattleKit::service()->cancel($me, Battle::query()->latest('id')->firstOrFail()->id);
+    expect(app(BattleJanitor::class)->sweep())->toBe(1);   // the sweeper closes the one that ran out
+    battleTick(BattleKit::T0);
+
+    // A rematch of a finished match: both press it, the second is told about the first.
+    $source = BattleKit::countdown($me, $friend, $friendship, PracticeMode::Collocation, $course, $lesson);
+    BattleKit::service()->surrender($friend, $source->id);
+    $first = BattleKit::service()->invite($friend, null, PracticeMode::Collocation, $course->slug, null, $source->id);
+    expect(battleRefusal(fn () => BattleKit::service()->invite($me, null, PracticeMode::Collocation, $course->slug, null, $source->id)))->toBe(['battle_busy', ['battle_id' => $first->id]])
+        ->and(Battle::query()->where('rematch_of_id', $source->id)->count())->toBe(1);
+
+    // And the one who offered it is not told anything of the sort by pressing it again: they are busy with their own.
+    expect(battleRefusal(fn () => BattleKit::service()->invite($friend, null, PracticeMode::Collocation, $course->slug, null, $source->id)))->toBe(['battle_busy', ['battle_id' => $first->id]]);
+
+    // The recipient accepts the one rematch there is.
+    expect(BattleKit::service()->accept($me, $first->id)->status)->toBe(BattleStatus::Room);
+});
+
+it('never names a battle the asker is not in: every battle_busy carries the id of a match of the one who was refused', function (): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    $third = Learner::factory()->create(['interface_locale' => 'ru']);
+    $fourth = Learner::factory()->create(['interface_locale' => 'uz']);
+    $friendThird = Friendship::factory()->between($friend, $third)->create();
+    $friendFourth = Friendship::factory()->between($friend, $fourth)->create();
+    $meFourth = Friendship::factory()->between($me, $fourth)->create();
+
+    // Two invitations to the friend from other people (none of my business) and one of the friend's to me (mine).
+    $thirdToFriend = BattleKit::invite($third, $friendThird, PracticeMode::Pairs, $course);
+    $fourthToFriend = BattleKit::invite($fourth, $friendFourth, PracticeMode::Pairs, $course);
+    $friendToMe = BattleKit::invite($friend, $friendship, PracticeMode::Collocation, $course);
+
+    $refusals = [
+        'I invite the friend back' => [$me, fn () => BattleKit::invite($me, $friendship, PracticeMode::Pairs, $course), $friendToMe->id],
+        'the friend invites the third who has invited them' => [$friend, fn () => BattleKit::invite($friend, $friendThird, PracticeMode::Pairs, $course), $thirdToFriend->id],
+        'the friend invites me a second time' => [$friend, fn () => BattleKit::invite($friend, $friendship, PracticeMode::Collocation, $course), $friendToMe->id],
+        'the friend accepts the invitation of the fourth while busy with theirs' => [$friend, fn () => BattleKit::service()->accept($friend, $fourthToFriend->id), $friendToMe->id],
+    ];
+    foreach ($refusals as $label => [$asker, $act, $expected]) {
+        [$code, $details] = battleRefusal($act);
+
+        expect($code)->toBe('battle_busy', $label)
+            ->and(array_keys($details))->toBe(['battle_id'], $label)
+            ->and($details['battle_id'])->toBe($expected, $label)
+            ->and(Battle::query()->findOrFail($details['battle_id'])->involves($asker->id))->toBeTrue("{$label}: the named battle is not a match of the asker");
+    }
+
+    // I accept: I am busy with the room, and the id I am given for another invitation is the room's.
+    BattleKit::service()->accept($me, $friendToMe->id);
+    [$code, $details] = battleRefusal(fn () => BattleKit::invite($me, $meFourth, PracticeMode::Pairs, $course));
+    expect([$code, $details])->toBe(['battle_busy', ['battle_id' => $friendToMe->id]])
+        ->and(Battle::query()->count())->toBe(3);
+});
+
 // ------------------------------------------------------------------------------------------------------------ accept / decline / cancel / expiry
 
 it('accepts an invitation: a room with both present, a 120 s life, version +1, the event; accepting again changes nothing; the challenger and a stranger cannot accept', function (): void {
@@ -857,6 +934,8 @@ it('lists the battles of a learner: the one they are busy with, the invitations 
     [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
     $third = Learner::factory()->create(['first_name' => 'Aziz']);
     $withThird = Friendship::factory()->between($me, $third)->create();
+    $fourth = Learner::factory()->create(['first_name' => 'Madina']);
+    $withFourth = Friendship::factory()->between($me, $fourth)->create();
 
     // Eleven finished matches between me and the friend, the oldest first.
     for ($i = 1; $i <= 11; $i++) {
@@ -868,10 +947,10 @@ it('lists the battles of a learner: the one they are busy with, the invitations 
     $incoming = BattleKit::invite($third, $withThird, PracticeMode::Pairs, $course, $lesson);
     $expired = BattleKit::invite($friend, $friendship, PracticeMode::Pairs, $course);
     Battle::query()->whereKey($expired->id)->update(['invite_expires_at' => '2026-10-30 09:59:59']);
-    $mine = BattleKit::invite($me, $withThird, PracticeMode::Sentence, $course, $lesson);
+    $mine = BattleKit::invite($me, $withFourth, PracticeMode::Sentence, $course, $lesson);   // not to the third: that would cross his invitation to me
 
     $list = BattleKit::reader()->list($me, CarbonImmutable::now());
-    expect($list->active)->toBe(['id' => $mine->id, 'status' => 'invited', 'mode' => 'sentence', 'role' => 'challenger', 'course' => ['slug' => $course->slug, 'title' => 'Английский A1'], 'lesson' => ['id' => $lesson->id, 'stage' => 1, 'number' => 1, 'title' => 'Еда'], 'opponent' => ['first_name' => 'Aziz']])
+    expect($list->active)->toBe(['id' => $mine->id, 'status' => 'invited', 'mode' => 'sentence', 'role' => 'challenger', 'course' => ['slug' => $course->slug, 'title' => 'Английский A1'], 'lesson' => ['id' => $lesson->id, 'stage' => 1, 'number' => 1, 'title' => 'Еда'], 'opponent' => ['first_name' => 'Madina']])
         ->and($list->incoming)->toBe([['id' => $incoming->id, 'mode' => 'pairs', 'from' => ['first_name' => 'Aziz'], 'course' => ['slug' => $course->slug, 'title' => 'Английский A1'], 'lesson' => ['id' => $lesson->id, 'stage' => 1, 'number' => 1, 'title' => 'Еда'], 'invite_expires_at' => '2026-10-30T10:05:00.000Z', 'rematch' => false]])
         ->and($list->finished)->toHaveCount(10)
         ->and($list->finished[0])->toMatchArray(['mode' => 'collocation', 'opponent' => ['first_name' => 'Dilnoza'], 'outcome' => 'won', 'scores' => ['me' => 0, 'opponent' => 0], 'finished_at' => '2026-10-30T09:11:00.000Z'])
