@@ -204,6 +204,8 @@ export const uz: Translations = {
   'finished.stats.cards': 'Kartochka',
   'finished.stats.correct': "To'g'ri",
   'finished.stats.new': "Yangi so'z",
+  'finished.practice_lesson': 'Dars amaliyoti',
+  'finished.practice_course': 'Kurs amaliyoti',
 
   // ---- promo code ----
   'promo.toggle': 'Promokodingiz bormi?',
@@ -307,6 +309,7 @@ export const uz: Translations = {
   'course.module': '{number}-modul',
   'course.lesson': '{number}-dars',
   'course.learn': "O'rganish",
+  'course.practice_lesson': 'Amaliyot: {place}',
   'course.no_lessons': "Kursda hali darslar yo'q.",
   'catalog.hint': "Kunlik mashg'ulot uchun yangi so'zlar asosiy kursdan olinadi",
   'course.continue': 'Davom etish: {stage}-modul, {number}-dars',
