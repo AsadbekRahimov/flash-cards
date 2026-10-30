@@ -326,6 +326,30 @@ describe('a session of collocations — when the request does not get through', 
     wrapper.unmount()
   })
 
+  it('a refusal for good (422: nothing was counted) hands the options back, with no "no reply" note: another option may be chosen', async () => {
+    vi.mocked(api.practice.answer)
+      .mockRejectedValueOnce(new ApiClientError('validation', 422, 'unknown_element_id', 'English message'))
+      .mockResolvedValueOnce(answered())
+    const wrapper = await render()
+
+    await option(wrapper, 0).trigger('click')
+    await flushPromises()
+
+    expect(showErrorToast).toHaveBeenCalledWith('Ответ не относится к этому заданию. Обновите экран.')
+    expect(wrapper.find('[data-testid=collocation-resend-note]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=resend-btn]').exists()).toBe(false)
+    expect(wrapper.get('[data-testid=collocation-blank]').attributes('data-tone')).toBe('empty')
+    for (const index of [0, 1, 2]) expect(option(wrapper, index).attributes('disabled')).toBeUndefined()
+
+    await option(wrapper, 2).trigger('click')
+    await flushPromises()
+
+    const [first, other] = vi.mocked(api.practice.answer).mock.calls.map((call) => call[1])
+    expect(other?.answer).toEqual({ option_id: 'oC3' })
+    expect(other?.request_id).not.toBe(first?.request_id) // the first was not counted: this is a new answer
+    wrapper.unmount()
+  })
+
   it('shows the verdict of an answer that was already counted (another tab got there first): says so, no right answer is made up', async () => {
     const conflict = new ApiClientError('conflict', 409, 'answer_already_accepted', 'English message', undefined, { verdict: 'wrong' })
     vi.mocked(api.practice.answer).mockRejectedValue(conflict)

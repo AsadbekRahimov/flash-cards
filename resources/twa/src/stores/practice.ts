@@ -118,7 +118,11 @@ interface PracticeState {
   replacing: { elementId: string; requestId: string } | null
   /** Counts the sessions the store has been reset for: a reply that comes back for an earlier one is dropped. */
   generation: number
-  /** Grows with every new element: the screen keys the mode component by it, so a new element has no pick left over. */
+  /**
+   * Grows with every new element: the screen keys the mode component by it, so a new element has no pick left over. It grows too when
+   * the server refused an answer for good (nothing was counted) and the learner stays on the element: the component starts afresh,
+   * unlocked - unlike after a lost reply, where the answer may have been counted and the component keeps it, locked.
+   */
   elementSeq: number
   /** Epoch ms when the element appeared: `time_spent_ms` of the answer is telemetry measured from it. */
   elementShownAt: number
@@ -543,15 +547,20 @@ export const usePracticeStore = defineStore('practice', {
           }
           return
         }
+        // From here on the server did NOT count the answer (it was refused before it was graded): nothing is pinned, the learner may
+        // answer otherwise, and the screen starts the element afresh (a new `elementSeq`) so that its component is not left locked
+        // with the words "no reply from the server" - which is not what happened.
         if (err.code === 'practice_pro_required') {
           this.paywall = true
           this.status = 'ready'
+          this.elementSeq += 1
           return
         }
         if (err.kind === 'validation' || err.kind === 'conflict') {
           // The server refused this answer, not the session: the learner can still answer.
           this.status = 'ready'
           this.actionError = errorMessage(err, 'practice')
+          this.elementSeq += 1
           return
         }
       }

@@ -795,6 +795,38 @@ describe('practice store — a request that may be repeated', () => {
     expect(store.status).toBe('verdict')
   })
 
+  // The component keeps what was sent only after a LOST reply (the answer may have been counted). A refusal for good - nothing was counted -
+  // starts the element afresh: a new `elementSeq` keys a new, unlocked component.
+  it('a lost reply leaves the component as it is (the same `elementSeq`: it is pinned), a refusal for good starts it afresh', async () => {
+    const store = await started(session({ mode: 'collocation' }))
+    const seq = store.elementSeq
+    vi.mocked(api.practice.answer).mockRejectedValueOnce(offline())
+
+    await store.answer({ option_id: 'oA1' })
+    expect(store.elementSeq).toBe(seq)
+
+    vi.mocked(api.practice.answer).mockRejectedValueOnce(apiError('validation', 422, 'invalid_answer_shape'))
+    await store.answer({ option_id: 'oA1' })
+    expect(store.elementSeq).toBe(seq + 1)
+    expect(store.status).toBe('ready')
+  })
+
+  it.each([
+    ['422 invalid_answer_shape', apiError('validation', 422, 'invalid_answer_shape')],
+    ['409 of another kind', apiError('conflict', 409, 'something_else')],
+    ['403 practice_pro_required', apiError('forbidden', 403, 'practice_pro_required')],
+  ])('%s: nothing was counted, so the element starts afresh and the learner may answer otherwise', async (_name, refusal) => {
+    const store = await started(session({ mode: 'collocation' }))
+    const seq = store.elementSeq
+    vi.mocked(api.practice.answer).mockRejectedValue(refusal)
+
+    await store.answer({ option_id: 'oA1' })
+
+    expect(store.elementSeq).toBe(seq + 1)
+    expect(store.status).toBe('ready')
+    expect(store.pendingRequestId).toBeNull()
+  })
+
   it('after a refusal of the server (not a lost reply) the learner may answer otherwise, under a new request id', async () => {
     const store = await started(session({ mode: 'collocation' }))
     vi.mocked(api.practice.answer).mockRejectedValueOnce(apiError('validation', 422, 'unknown_element_id')).mockResolvedValueOnce(answerResponse())
