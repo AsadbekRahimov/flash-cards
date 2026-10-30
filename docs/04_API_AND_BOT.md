@@ -922,11 +922,13 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 ```
 `mode` — один из четырёх; `course` — slug (≤ 64); `lesson_id` — целое ≥ 1 или `null` (практика курса); `source` — `hub` (по умолчанию) | `after_training` (хаб открыт с итога занятия: `?from=finished`) | `retry` | `deeplink` — откуда открыта, для аналитики;
 `replace_active` — закрыть незавершённую сессию (`finish_reason = replaced`); `retry_of` — id **завершённой** своей сессии: «Повторить ошибки» (режим, курс и урок берутся из неё, присланные игнорируются, `source = retry`).
+**`source: retry` и `retry_of` приходят только вместе**: одно без другого — **422** (валидация Laravel), чтобы повтор нельзя было выдать за обычное открытие и наоборот.
 Ответ **201** — сессия (форма ниже, как `GET`); в `current` — первый элемент. Что в сессии: пары — до 3 раундов по 4 слова (минимум один раунд из 3); сочетание, предложение — 5 заданий (минимум 3); диктант — 5 заданий (минимум 3): до 3 фраз, остальное — слова с готовой озвучкой (слов не хватает — добираются фразами), сначала слова, потом фразы.
 Раскладка и ожидаемые ответы создаются на сервере один раз и хранятся в снимке (`practice_sessions.snapshot`, docs/03 §2.43): перезагрузка отдаёт ту же раскладку, правка контента на идущую сессию не влияет.
 - Одна активная сессия на ученика (unique `active_learner_id`): вторая открывается только с `replace_active` — иначе **409** `practice_session_active` (`details` — незавершённая сессия: `{session_id, mode, course, lesson_id, progress}`).
   Две вкладки, открывшие одну и ту же практику одновременно, получают **одну** сессию (проигравший гонку читает победителя); другую практику — 409.
-- Ошибки: **403** `practice_unavailable` / `practice_pro_required`; **409** `practice_mode_disabled` (`{mode}`), `practice_session_active`, `retry_not_available` (в исходной сессии нечего повторять или материала для повтора мало); **404** `course_not_found`, `lesson_not_found`,
+- Порядок работы: незавершённая живая сессия без `replace_active` даёт 409 **до** сборки снимка (ни чтений материала, ни диска, ни события `practice.not_enough_material`); с `replace_active` снимок строится первым — 422 «мало материала» не закрывает идущую сессию, старая закрывается только вместе с созданием новой.
+- Ошибки: **403** `practice_unavailable` / `practice_pro_required`; **409** `practice_mode_disabled` (`{mode}`), `practice_session_active`, `retry_not_available` (в исходной сессии нечего повторять, или все задания-ошибки сняты с публикации / потеряли озвучку или слова; кнопку `summary.retry_available` скрывает то же решение, плюс выключенный режим и закрытый доступ — их открытие повтора отдаёт обычными `practice_mode_disabled` и 403); **404** `course_not_found`, `lesson_not_found`,
   `practice_session_not_found` (чужая или несуществующая `retry_of`); **422** `lesson_not_in_course`, `practice_not_enough_material`, валидация.
 - **422 `practice_not_enough_material`** — `details`: `{ "mode": "pairs", "available": 2, "required": 3, "reason": "no_words", "course": "english-a1", "lesson_id": 41 }` (те же `reason`, что в хабе). TWA по нему объясняет причину и предлагает «Учить урок».
 - Побочный эффект: событие `practice.session_started` `{session_id, mode, course_id, lesson_id, source, total, retry}`; отказ 422 — `practice.not_enough_material` (кроме повтора ошибок).
@@ -958,7 +960,9 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
   "mistakes": [ { "element_id": "eD4rS6yUiO", "kind": "dictation", "label": "See you tomorrow", "your_answer": "see you tomorow", "verdict": "typo" } ] }
 ```
 `correct_first` — верно с первой попытки (`typo` не считается), `hints` — «Не знаю». У пар `correct_first` — слова, сопоставленные верно с первой попытки, `mismatches` — число неверных сопоставлений (у остальных режимов `null`), `mistakes[]` — слова, в которых была ошибка
-(`label: "mother — мама"`, `your_answer: null`, `verdict: "wrong"`). `finish_reason` — `completed` | `expired` | `replaced`; `retry_available` — можно «Повторить ошибки» (есть ошибки и материала хватает); `duration_ms` — серверное `finished_at − started_at`.
+(`label: "mother — мама"`, `your_answer: null`, `verdict: "wrong"`). `finish_reason` — `completed` | `expired` | `replaced`; `duration_ms` — серверное `finished_at − started_at`. `retry_available` — можно «Повторить ошибки»: то же решение, что принимает открытие повтора, и считается оно при каждом чтении итога (не хранится) —
+есть что повторять (пары: ≥ 3 слов, остальные режимы: ≥ 1 слова или задания), практика доступна ученику, режим включён и хотя бы одно задание-ошибка ещё играбельно (опубликовано, целевые слова активны и введены, у диктанта озвучка готова). Чего решение не видит (слово раунда пар, которого не стало; два перевода, ставших неоднозначными), то открытие находит при сборке и отвечает 409 `retry_not_available`.
+Цена: у завершённой сессии с ошибками-заданиями `GET` стоит 3 запроса (один — о заданиях), у пар 2.
 
 #### `POST /api/twa/practice/sessions/{id}/answer` — ответ (лимитеры `twa-api` + `twa-practice-answer`)
 ```json
@@ -977,10 +981,11 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
   "session": { "...": "сессия, как GET: следующий элемент в current или summary" } }
 ```
 - `verdict` — `correct` | `typo` (только диктант: «Есть опечатка», в `correct_first` не засчитывается) | `wrong` | `skipped`. `first_attempt` — первая ли это попытка по элементу.
-- `reveal` — разбор **после** ответа, по виду элемента: `collocation` — `{correct_option_ids, full_text, translation, explanation}`; `sentence` — `{correct_text, alternatives: [...], your_text, explanation}`; `dictation` — `{expected, your_text, diff, translation, explanation}`
+- `reveal` — разбор **после** ответа, по виду элемента: `collocation` — `{correct_option_ids, full_text, translation, explanation, your_option_id}` (`your_option_id` — `string | null`: id варианта, который выбрал ученик, `null` при «Не знаю»; экран отмечает им выбор среди трёх); `sentence` — `{correct_text, alternatives: [...], your_text, explanation}`; `dictation` — `{expected, your_text, diff, translation, explanation}`
   (`diff` — пословное сравнение при равном числе слов, иначе `null`; при «Не знаю» `your_text = null`). У пар `reveal` всегда `null`, правильная пара при ошибке **не** раскрывается.
 - Пары: `pair: { left_id, right_id }` — какое сопоставление проверено, `verdict` — `correct` | `wrong` (первая ошибка по слову фиксируется, даже если потом оно найдено), `round_done: bool` — раунд завершён (**ключ есть только у пар**).
 - **Повтор того же `request_id`** возвращает прежние `verdict`/`reveal` (из журнала `practice_attempts`) и **текущее** состояние сессии — даже если она уже закончилась (потерянный ответ на последний элемент не превращается в 410).
+  `request_id` принадлежит одному виду запроса: если он уже принят как **замена** диктанта, ответ с ним — **409** `request_id_reused` (без `details`); новый запрос — новый uuid, повторяется только тот, чей ответ потерян.
 - Порядок проверок под блокировкой сессии: повтор → закрыта (410) → неизвестный элемент (422) → элемент уже отвечен (409) → не текущий (409) → форма ответа (422). Ошибки:
   **410** `practice_session_closed` (`{finish_reason}`; просроченная сессия закрывается этим запросом); **409** `element_not_current` (`{current}` — id элемента, который отвечать сейчас; TWA перечитывает сессию), `answer_already_accepted` (`{verdict}`), `pair_already_matched` (`{left_id}`; также для уже занятой правой карточки);
   **422** `invalid_answer_shape` (`{expected}`: `order_of_all_fragments` | `option_id` | `left_right` | `text_or_skip` | `bijection`), `unknown_element_id` (неизвестный элемент, фрагмент, вариант или карточка), валидация; **404**.
@@ -989,12 +994,12 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 #### `POST /api/twa/practice/sessions/{id}/replace` — замена диктанта без штрафа (лимитер `twa-practice-answer`)
 `{ "request_id": "…uuid…", "element_id": "eD4rS6yUiO", "reason": "audio_unavailable" }` → **200** сессия (как `GET`): диктант, чья запись не загрузилась, заменён следующим кандидатом из пула снимка (фраза — фразой, иначе словом); если запасных нет, элемент
 убирается и `progress.total` уменьшается (минимум 1). Заменённый элемент не входит в `total` и `answered`. Не больше `practice.solo.dictation.max_replacements` (2) на сессию. Ошибки: **409** `replace_not_allowed` (`{reason: not_dictation | not_current | limit}`), **410**, **404**.
-Повтор `request_id` второй раз не заменяет: ответ — текущая сессия. Событие `practice.audio_failed` `{session_id, source, reason, verified}` (после commit).
+Повтор `request_id` второй раз не заменяет: ответ — текущая сессия; `request_id`, уже принятый как ответ, — **409** `request_id_reused`. Запасные кандидаты проверяются на диске **до** блокировки сессии (под ней диск не читается). Событие `practice.audio_failed` `{session_id, source, reason, verified}` (после commit).
 
 #### `GET /api/twa/practice/sessions/{id}/audio/{element}` — запись диктанта (лимитер `twa-practice-audio`, вне `twa-api`)
 Тело — `audio/mpeg`, заголовки `Cache-Control: private, no-store`, `Content-Length`, `X-Content-Type-Options: nosniff`. Файл читается с диска элемента снимка (`practice_audio` — фразы; `public` — предгенерированные слова, `audio:pregenerate`) по **непрозрачному id элемента**;
 ни пути, ни текста в API нет. TWA грузит клип запросом с `Authorization` в `blob:` и играет по нажатию (Web Speech для диктанта запрещён: нужен текст на клиенте). Доступ — только владельцу; завершённая сессия отдаёт записи до `expires_at` (повторное прослушивание в разборе).
-Ошибки: **404** `practice_session_not_found` — чужая сессия, неизвестный элемент или элемент без записи (неотличимо), **503** `practice_audio_unavailable` — файла нет (TWA предлагает «Повторить загрузку» и «Заменить задание»; событие `practice.audio_failed`).
+Ошибки: **404** `practice_session_not_found` — чужая сессия, неизвестный элемент или элемент без записи (неотличимо), **503** `practice_audio_unavailable` — файла нет (TWA предлагает «Повторить загрузку» и «Заменить задание»; событие `practice.audio_failed` с `reason: file_missing` — не чаще раза в 10 минут на пару «сессия — элемент»).
 
 #### Коды ошибок практики (сводно)
 | Код | HTTP | `details` |
@@ -1012,12 +1017,15 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 | `invalid_answer_shape` | 422 | `{expected}` |
 | `unknown_element_id` | 422 | — |
 | `replace_not_allowed` | 409 | `{reason}` |
+| `request_id_reused` | 409 | — (`request_id` уже принят как запрос другого вида: ответ ≠ замена) |
 | `retry_not_available` | 409 | — |
 | `practice_audio_unavailable` | 503 | — |
 | `course_not_found` / `lesson_not_found` | 404 | — |
 | `lesson_not_in_course` | 422 | — |
 
-TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru/uz); клиент разбирает `details` у `practice_session_active`, `element_not_current`, `answer_already_accepted`.
+TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru/uz; новый в 18.9b — `request_id_reused`); клиент разбирает `details` у `practice_session_active`, `element_not_current`, `answer_already_accepted`.
+
+**Запросы к БД** (`PracticeQueryBudgetTest`, `DictationSessionTest`, `PracticeRetryTest`; `TwaAuth` с его запросом `learners` включён): хаб ≤ 9; открытие ≤ 12, открытие повтора ≤ 13; `GET` сессии ≤ 3 (завершённая с ошибками-заданиями — 3, пары — 2); ответ ≤ 6, последний ответ сессии (с итогом) ≤ 7; замена диктанта ≤ 7; аудио ≤ 2. Снимок сессии — не больше 40 КБ в UTF-8 (`Snapshot::MAX_BYTES`), ответ сессии — не больше 8 КБ.
 
 ### A.17 Баттл 1 на 1 — API (docs/16 §7.3–§7.4, §8)
 > Описывается в 18.7c, после слияния серверной части баттла (18.6 / 18.6b). Таблицы — docs/03 §2.45–§2.47; лимитеры `twa-battle-invite` (5/мин), `twa-battle-action` (60/мин), `twa-battle-poll` (90/мин, вне `twa-api`) объявлены в `AppServiceProvider`;
