@@ -390,7 +390,7 @@ describe('BattleSetupView — the format', () => {
     const r = await render()
 
     expect(has(r, 'formats')).toBe(false)
-    expect(r.wrapper.get('[data-testid=format-section] [data-testid=spinner]').exists()).toBe(true)
+    expect(r.wrapper.find('[data-testid=format-section] [data-testid=spinner]').exists()).toBe(true)
     expect(get(r, 'invite-btn').attributes('disabled')).toBeDefined()
 
     formats.resolve(options())

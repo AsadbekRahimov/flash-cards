@@ -205,7 +205,7 @@ describe('BattleResult — what to do next', () => {
     const own = invitedBattle({ id: 16, role: 'challenger' })
     const w = render(finishedBattle(), { rematch: own })
 
-    expect(w.get('[data-testid=rematch-own]').exists()).toBe(true)
+    expect(w.find('[data-testid=rematch-own]').exists()).toBe(true)
     expect(w.find('[data-testid=rematch-btn]').exists()).toBe(false)
     expect(primaries(w)).toHaveLength(1)
     await w.get('[data-testid=open-rematch-btn]').trigger('click')
@@ -217,7 +217,7 @@ describe('BattleResult — what to do next', () => {
 
     expect(w.find('[data-testid=rematch-offer]').exists()).toBe(false)
     expect(w.find('[data-testid=rematch-own]').exists()).toBe(false)
-    expect(w.get('[data-testid=rematch-btn]').exists()).toBe(true)
+    expect(w.find('[data-testid=rematch-btn]').exists()).toBe(true)
   })
 
   it('has exactly one primary button in every variant', () => {

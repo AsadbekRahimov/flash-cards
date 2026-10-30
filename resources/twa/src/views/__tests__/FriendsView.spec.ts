@@ -741,12 +741,12 @@ describe('FriendsView', () => {
         expect(wrapper.findAll('[data-testid=battle-btn]')).toHaveLength(2)
       })
 
-      it.each([
+      it.each<[string, PracticeAccess | undefined]>([
         ['practice is not available', { ...BATTLES_ON, available: false, modes: [], battle: false }],
         ['battles are switched off', { ...BATTLES_ON, battle: false }],
         ['practice is switched off but the flag of battles is on', { ...BATTLES_ON, available: false }],
         ['the server sends no practice block (an older one)', undefined],
-      ] as const)('is not there when %s', async (_name, practice) => {
+      ])('is not there when %s', async (_name, practice) => {
         const { wrapper } = await renderBattles(practice, battleList({ incoming: [incoming()], active: activeOf() }))
 
         expect(wrapper.find('[data-testid=battle-btn]').exists()).toBe(false)
