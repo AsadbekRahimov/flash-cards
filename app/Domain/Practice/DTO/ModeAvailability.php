@@ -19,8 +19,11 @@ final readonly class ModeAvailability
     /** Words are enough, but after the ones with a clashing translation are left out, they are not. */
     public const REASON_AMBIGUOUS = 'ambiguous';
 
-    /** Fewer published tasks than the minimum, or their target words are not introduced yet. */
+    /** Fewer published tasks than the minimum, and the ones that exist would not make the number even if their words were learned. */
     public const REASON_NO_ITEMS = 'no_items';
+
+    /** The tasks are there and would be enough, but their target words are not introduced to the learner yet: learn the lesson. */
+    public const REASON_ITEMS_LOCKED = 'items_locked';
 
     /** Tasks are enough, but the audio of too many of them is not ready yet. */
     public const REASON_AUDIO_PENDING = 'audio_pending';

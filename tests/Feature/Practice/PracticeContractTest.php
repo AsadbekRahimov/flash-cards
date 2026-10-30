@@ -53,6 +53,12 @@ const CONTRACT_FORBIDDEN_PRACTICE_KEYS = [
     'audio_path', 'audio_disk', 'word_id', 'version_id', 'item_id', 'pool', 'seed',
 ];
 
+/**
+ * What a session, its element or the hub must not carry either, at any depth: the text of a dictation, the translation and the
+ * explanation of a task. (Not for a whole ANSWER: its `reveal` has the last two, and the expected text, by right.)
+ */
+const CONTRACT_FORBIDDEN_ELEMENT_KEYS = [...CONTRACT_FORBIDDEN_PRACTICE_KEYS, 'display', 'translation', 'explanation'];
+
 beforeEach(function (): void {
     CarbonImmutable::setTestNow('2026-10-30 10:00:00');
     PracticeKit::openAccess();
@@ -278,7 +284,7 @@ it('keeps the exact JSON shape of the REAL dictation: an element without a text,
     $refused = contractAnswerElement($learner, $opened['id'], $elements[3]['id'], ['text' => 'anything']);
     expect(contractError($refused, 409, 'element_not_current', ['current']))->toBe(['current' => $elements[0]['id']]);
     foreach ([$opened, $read, $hub, $refused->json()] as $body) {
-        expect(array_values(array_intersect(contractKeys($body), CONTRACT_FORBIDDEN_PRACTICE_KEYS)))->toBe([]);
+        expect(array_values(array_intersect(contractKeys($body), CONTRACT_FORBIDDEN_ELEMENT_KEYS)))->toBe([]);
         foreach ($elements as $element) {
             expect(json_encode($body, JSON_THROW_ON_ERROR))->not->toContain($element['display'])->not->toContain($element['audio_path']);
         }
@@ -291,7 +297,7 @@ it('keeps the exact JSON shape of the REAL dictation: an element without a text,
     expect($typo->json('verdict'))->toBe('typo')
         ->and($typo->json('reveal.expected'))->toBe($first)
         ->and($typo->json('pair'))->toBeNull()
-        ->and(array_values(array_intersect(contractKeys($typo->json('session')), CONTRACT_FORBIDDEN_PRACTICE_KEYS)))->toBe([])
+        ->and(array_values(array_intersect(contractKeys($typo->json('session')), CONTRACT_FORBIDDEN_ELEMENT_KEYS)))->toBe([])
         ->and(json_encode($typo->json('session'), JSON_THROW_ON_ERROR))->not->toContain($elements[1]['display'])->not->toContain($first);
 
     // A skip: the same keys, nothing written and no comparison.
@@ -354,7 +360,7 @@ it('shows no key of the snapshot in any response, at any depth, and none of its 
     }
 
     foreach ($seen as $body) {
-        expect(array_values(array_intersect(contractKeys($body), CONTRACT_FORBIDDEN_PRACTICE_KEYS)))->toBe([]);
+        expect(array_values(array_intersect(contractKeys($body), CONTRACT_FORBIDDEN_ELEMENT_KEYS)))->toBe([]);
     }
 });
 
@@ -385,20 +391,21 @@ it('keeps the contract of the collocation element on the real handler: its exact
     }
 
     // The review comes with the answer - the review of the element answered, and nothing of the next one.
-    $reveal = ['correct_option_ids', 'full_text', 'translation', 'explanation'];
+    $reveal = ['correct_option_ids', 'full_text', 'translation', 'explanation', 'your_option_id'];
     $first = collect($stored)->firstWhere('id', $session['current']['id']);
     $answer = contractAnswer($learner, $session, ['option_id' => $first['options'][0]['id']])->assertOk()
         ->assertExactJsonStructure(['verdict', 'first_attempt', 'reveal' => $reveal, 'pair', 'session' => contractSession($current, lesson: true)]);
     $next = collect($stored)->firstWhere('id', $answer->json('session.current.id'));
 
     expect($answer->json('reveal.full_text'))->toBe($first['full_text'])
+        ->and($answer->json('reveal.your_option_id'))->toBe($first['options'][0]['id'])          // the option that was picked
         ->and($answer->json('reveal.correct_option_ids'))->toBe($first['correct_ids'])
         ->and($answer->json('reveal.translation'))->toBe($first['translation']['ru'])
         ->and(json_encode($answer->json('session'), JSON_THROW_ON_ERROR))->not->toContain($next['full_text'])->not->toContain($next['translation']['ru'])->not->toContain($first['full_text']);
     $seen[] = $answer->json('session');
 
     foreach ($seen as $body) {
-        expect(array_values(array_intersect(contractKeys($body), CONTRACT_FORBIDDEN_PRACTICE_KEYS)))->toBe([]);
+        expect(array_values(array_intersect(contractKeys($body), CONTRACT_FORBIDDEN_ELEMENT_KEYS)))->toBe([]);
     }
 });
 
@@ -410,9 +417,28 @@ it('cleans the keys of the snapshot out of the current element even when a handl
     $session = contractOpen($learner, $course->slug, 'collocation')->assertCreated()->json();
 
     // The keys the handler let through are gone at any depth (`nested` was an object made of two of them: nothing is left in it).
-    expect(array_keys($session['current']))->toBe(['id', 'kind', 'prompt', 'nested'])
+    // So are the text of a dictation, its translation and the explanation: they are the review's, and the review comes with the answer.
+    expect(array_keys($session['current']))->toBe(['id', 'kind', 'prompt', 'nested', 'review'])
         ->and($session['current']['nested'])->toBe([])
-        ->and(array_values(array_intersect(contractKeys($session), CONTRACT_FORBIDDEN_PRACTICE_KEYS)))->toBe([]);
+        ->and($session['current']['review'])->toBe([])
+        ->and(array_values(array_intersect(contractKeys($session), CONTRACT_FORBIDDEN_ELEMENT_KEYS)))->toBe([]);
+});
+
+it('keeps `translation` and `explanation` in the review of an answer while it strips them from the element: the net is for the projection, not for the verdict', function (): void {
+    Storage::fake('practice_audio');
+    [$learner, $course, $lesson] = DictationKit::world();
+    DictationKit::stock($lesson, $learner, 5, 6);
+    $opened = contractOpen($learner, $course->slug, 'dictation', ['lesson_id' => $lesson->id])->assertCreated()->json();
+    $elements = PracticeSession::query()->findOrFail($opened['id'])->snapshot['elements'];
+
+    // The element and the session: none of the three keys, at any depth.
+    expect(array_values(array_intersect(contractKeys($opened), CONTRACT_FORBIDDEN_ELEMENT_KEYS)))->toBe([]);
+
+    // The review of the answer is whole: the expected text, the translation, the explanation.
+    $answer = contractAnswerElement($learner, $opened['id'], $elements[0]['id'], ['text' => 'nonsense'])->assertOk();
+    expect(array_keys($answer->json('reveal')))->toContain('expected', 'translation', 'explanation')
+        ->and($answer->json('reveal.expected'))->toBe($elements[0]['display'])
+        ->and(array_values(array_intersect(contractKeys($answer->json('session')), CONTRACT_FORBIDDEN_ELEMENT_KEYS)))->toBe([]);
 });
 
 /** A learner who has been introduced to three words and five published sentences: for the REAL handler of the sentence mode (18.4). @return array{0: Learner, 1: Course, 2: Lesson} */
@@ -503,6 +529,7 @@ it('wraps every error of the practice in the envelope, with `details` exactly wh
         'unknown_element_id' => [PracticeException::unknownElementId(), null],
         'replace_not_allowed' => [PracticeException::replaceNotAllowed(PracticeException::REPLACE_LIMIT), ['reason']],
         'retry_not_available' => [PracticeException::retryNotAvailable(), null],
+        'request_id_reused' => [PracticeException::requestIdReused(), null],
         'practice_audio_unavailable' => [PracticeException::audioUnavailable(), null],
         'lesson_not_in_course' => [PracticeException::lessonNotInCourse(), null],
         'course_not_found' => [PracticeException::courseNotFound(), null],
@@ -553,6 +580,27 @@ it('puts `details` INSIDE `error` on the wire, with the keys of docs/16 §7.6: t
     contractError(contractOpen($learner, $course->slug, 'collocation', ['lesson_id' => 999999]), 404, 'lesson_not_found', null);
     config(['practice.access' => 'off']);
     contractError(contractOpen($learner, $course->slug, 'collocation'), 403, 'practice_unavailable', null);
+});
+
+it('says `items_locked` on the wire - in the refusal of the opening and in the card of the hub - while the words of the tasks are not met, `no_items` when learning would not be enough', function (): void {
+    [$learner, $course, $lesson] = contractWorld();
+    $met = PracticeKit::words($lesson, 1, $learner);
+    $unseen = PracticeKit::words($lesson, 1);
+    PracticeItem::factory()->sentence()->published()->forLesson($lesson)->targeting($met)->create();                  // one to play
+    $hub = fn () => test()->withHeaders(PracticeKit::headers($learner))->getJson("/api/twa/practice/hub?course={$course->slug}&lesson_id={$lesson->id}")->assertOk()->json('modes.2');
+    $details = ['mode', 'available', 'required', 'reason', 'course', 'lesson_id'];
+
+    // One to play and one locked make two of three: learning the lesson would not be enough.
+    PracticeItem::factory()->sentence()->published()->forLesson($lesson)->targeting($unseen)->create();
+    expect($hub()['reason'])->toBe('no_items')
+        ->and(contractError(contractOpen($learner, $course->slug, 'sentence', ['lesson_id' => $lesson->id]), 422, 'practice_not_enough_material', $details)['reason'])->toBe('no_items');
+
+    // Two locked make three: the tasks are there, the words are not met.
+    PracticeItem::factory()->sentence()->published()->forLesson($lesson)->targeting($unseen)->create();
+    expect($hub())->toBe(['mode' => 'sentence', 'state' => 'not_enough', 'available' => 1, 'required' => 3, 'reason' => 'items_locked', 'estimate_seconds' => 150])
+        ->and(contractError(contractOpen($learner, $course->slug, 'sentence', ['lesson_id' => $lesson->id]), 422, 'practice_not_enough_material', $details))
+        ->toEqual(['mode' => 'sentence', 'available' => 1, 'required' => 3, 'reason' => 'items_locked', 'course' => 'english-a1', 'lesson_id' => $lesson->id]);
+    expect(array_keys($hub()))->toBe(CONTRACT_PRACTICE_MODE_ROW);
 });
 
 it('puts `details` INSIDE `error` on the wire: the refusals of an answer, and `round_done` at the end of a round of pairs', function (): void {
@@ -685,7 +733,7 @@ it('keeps the JSON of the pairs on the real handler: the board, a wrong and a ri
         ->assertExactJsonStructure(contractSession(null, lesson: true, summary: true))->json();
 
     foreach ($seen as $body) {
-        expect(array_values(array_intersect(contractKeys($body), CONTRACT_FORBIDDEN_PRACTICE_KEYS)))->toBe([]);
+        expect(array_values(array_intersect(contractKeys($body), CONTRACT_FORBIDDEN_ELEMENT_KEYS)))->toBe([]);
     }
 });
 
@@ -742,8 +790,8 @@ it('shows a round of a battle the way it shows a solo one - the same board in th
             ->and([$ru['matched'], $ru['mismatches']])->toBe([[], 0])
             ->and($uz['left'])->toBe($ru['left'])                                          // the English side is one for both players
             ->and(array_column($uz['right'], 'id'))->toBe(array_column($ru['right'], 'id'))   // the same cards in the same places
-            ->and(array_values(array_intersect(contractKeys($ru), [...CONTRACT_FORBIDDEN_PRACTICE_KEYS, 'battle'])))->toBe([])
-            ->and(array_values(array_intersect(contractKeys($uz), [...CONTRACT_FORBIDDEN_PRACTICE_KEYS, 'battle'])))->toBe([]);
+            ->and(array_values(array_intersect(contractKeys($ru), [...CONTRACT_FORBIDDEN_ELEMENT_KEYS, 'battle'])))->toBe([])
+            ->and(array_values(array_intersect(contractKeys($uz), [...CONTRACT_FORBIDDEN_ELEMENT_KEYS, 'battle'])))->toBe([]);
         foreach ($ru['right'] as $card) {
             expect($card['text'])->toStartWith('перевод ');
         }

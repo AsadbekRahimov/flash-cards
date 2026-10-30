@@ -19,8 +19,12 @@ final readonly class Snapshot
 {
     public const VERSION = 1;
 
-    /** The size limit of a snapshot (docs/16 §13): 5 elements fit with a wide margin; a bigger one is a bug. */
-    public const MAX_BYTES = 32 * 1024;
+    /**
+     * The size limit of a snapshot in UTF-8 bytes (docs/16 §13): the biggest snapshot that content within `practice.content` can make
+     * (5 sentences of 8 fragments of 40 characters with 6 orders and the texts at their limits, in two languages) is about 29 KB -
+     * SnapshotSizeTest measures it - and the limit keeps more than a quarter of that on top. A bigger snapshot is a bug.
+     */
+    public const MAX_BYTES = 40 * 1024;
 
     /**
      * @param  list<string>  $locales
@@ -156,12 +160,14 @@ final readonly class Snapshot
     /**
      * The snapshot must stay a modest row (docs/16 §13).
      *
+     * Measured in UTF-8, the way the database keeps `jsonb` text: the `json` cast escapes non-ASCII (`\u0414`, six bytes for a
+     * Cyrillic letter that takes two), and that escaped form is not the size of the row.
+     *
      * @throws LogicException when the JSON is bigger than {@see self::MAX_BYTES}
      */
     public function assertFits(): void
     {
-        // Encoded the way the `json` cast writes the column (non-ASCII escaped): the size that really goes into the row.
-        $bytes = strlen(json_encode($this->toArray(), JSON_THROW_ON_ERROR));
+        $bytes = strlen(json_encode($this->toArray(), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
         if ($bytes > self::MAX_BYTES) {
             throw new LogicException("A snapshot of {$bytes} bytes exceeds the limit of ".self::MAX_BYTES.' bytes.');
         }

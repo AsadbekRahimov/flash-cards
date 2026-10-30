@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Practice\DTO\BattlePollView;
+use App\Domain\Practice\DTO\Snapshot;
 use App\Domain\Practice\Enums\BattlePhase;
 use App\Domain\Practice\Enums\BattleStatus;
 use App\Domain\Practice\Enums\PracticeMode;
@@ -44,9 +45,11 @@ const BUDGET_HUB = 9;
 const BUDGET_OPEN = 12;
 const BUDGET_SHOW = 3;
 const BUDGET_ANSWER = 6;
+/** The answer that ENDS a session carries the summary, and the summary asks whether the mistakes can be repeated: one statement more (docs/16 §13). */
+const BUDGET_ANSWER_LAST = 7;
 const BUDGET_AUDIO = 2;
 
-/** A response of a session must not exceed 8 KB (docs/16 §13), the snapshot - 32 KB. */
+/** A response of a session must not exceed 8 KB (docs/16 §13); the snapshot is held to `Snapshot::MAX_BYTES` (UTF-8, SnapshotSizeTest). */
 const BUDGET_SESSION_BYTES = 8 * 1024;
 
 beforeEach(function (): void {
@@ -193,7 +196,7 @@ it('shows a session in at most 3 statements, a short one and a long one alike', 
     expect(count($queries))->toBeLessThanOrEqual(BUDGET_SHOW, implode("\n", $queries));
 });
 
-it('takes an answer in at most 6 statements, the last one that ends the session included', function (): void {
+it('takes an answer in at most 6 statements, the last one that ends the session in at most 7 (the summary checks the retry)', function (): void {
     [$learner, $course] = budgetWorld();
     PracticeKit::fake(PracticeMode::Collocation, candidates: 3);
     $session = budgetOpen($learner, $course, 'collocation')->assertCreated()->json();
@@ -208,7 +211,7 @@ it('takes an answer in at most 6 statements, the last one that ends the session 
 
     expect($session['status'])->toBe('finished')
         ->and(count($middle))->toBeLessThanOrEqual(BUDGET_ANSWER, implode("\n", $middle))
-        ->and(count($last))->toBeLessThanOrEqual(BUDGET_ANSWER, implode("\n", $last))
+        ->and(count($last))->toBeLessThanOrEqual(BUDGET_ANSWER_LAST, implode("\n", $last))
         ->and(ProductEvent::query()->where('name', 'practice.session_finished')->count())->toBe(1);
 });
 
@@ -234,25 +237,25 @@ it('hands out a clip in at most 2 statements before the file itself', function (
     expect(count($queries))->toBeLessThanOrEqual(BUDGET_AUDIO, implode("\n", $queries));
 });
 
-it('keeps the response of a session under 8 KB and refuses to store a snapshot over 32 KB', function (): void {
+it('keeps the response of a session under 8 KB and refuses to store a snapshot over the limit', function (): void {
     [$learner, $course] = budgetWorld();
     $fake = PracticeKit::fake(PracticeMode::Collocation, candidates: 9);
 
     $response = budgetOpen($learner, $course, 'collocation')->assertCreated();
     expect(strlen((string) $response->getContent()))->toBeLessThan(BUDGET_SESSION_BYTES);
 
-    // 5 elements of 5 KB: 25 KB and a little, under the limit.
+    // 5 elements that weigh most of the limit between them: under it, the padding stays in the snapshot.
     PracticeSession::query()->delete();
-    $fake->padding = 5_000;
+    $fake->padding = intdiv(Snapshot::MAX_BYTES, 5) - 1_500;
     $stored = budgetOpen($learner, $course, 'collocation')->assertCreated();
     $bytes = strlen(json_encode(PracticeSession::query()->findOrFail($stored->json('id'))->snapshot, JSON_THROW_ON_ERROR));
-    expect($bytes)->toBeGreaterThan(25_000)->toBeLessThan(32 * 1024)
-        ->and(strlen((string) $stored->getContent()))->toBeLessThan(BUDGET_SESSION_BYTES); // the padding stays in the snapshot
+    expect($bytes)->toBeGreaterThan((int) (Snapshot::MAX_BYTES * 0.7))->toBeLessThan(Snapshot::MAX_BYTES)
+        ->and(strlen((string) $stored->getContent()))->toBeLessThan(BUDGET_SESSION_BYTES);
 
-    // 5 elements of 8 KB: a LogicException, no row, no event, and the learner is free to start another session.
+    // 5 elements that weigh more than the limit: a LogicException, no row, no event, and the learner is free to start another session.
     PracticeSession::query()->delete();
     ProductEvent::query()->delete();
-    $fake->padding = 8_000;
+    $fake->padding = intdiv(Snapshot::MAX_BYTES, 5) + 1_500;
     $this->withoutExceptionHandling();
     expect(fn () => budgetOpen($learner, $course, 'collocation'))->toThrow(LogicException::class, 'exceeds the limit');
     expect(PracticeSession::query()->count())->toBe(0)

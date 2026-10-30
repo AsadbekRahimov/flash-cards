@@ -159,4 +159,53 @@ describe('the clash of two words', function (): void {
         expect(TranslationVariants::clashKeys("Don\u{2019}t", ['ru' => 'не, Нет', 'uz' => 'yo\'q']))
             ->toBe(["en|don't", 'ru|не', 'ru|нет', "uz|yo'q"]);
     });
+
+    it('names the variants of the BASE translation `base|…` after the keys of the locales, as the author wrote them', function (): void {
+        expect(TranslationVariants::clashKeys('mother', ['uz' => 'ona'], 'Мама (разг.), мамочка'))
+            ->toBe(['en|mother', 'uz|ona', 'base|мама', 'base|мамочка']);
+    });
+
+    it('is a clash through the base: «mum» has no uz text and shows ru «мама», «mother» shows «ona» and has the same base', function (): void {
+        $mother = (array) TranslationVariants::clashKeys('mother', ['uz' => 'ona'], 'мама');
+        $mum = (array) TranslationVariants::clashKeys('mum', ['uz' => 'мама'], 'мама');   // no uz text: the ru one is shown
+        $father = (array) TranslationVariants::clashKeys('father', ['uz' => 'ota'], 'папа');
+
+        expect(TranslationVariants::clash($mother, $mum))->toBeTrue()
+            ->and(TranslationVariants::clash($mum, $mother))->toBeTrue()
+            ->and(TranslationVariants::clash($mother, $father))->toBeFalse()
+            ->and(TranslationVariants::clash($mum, $father))->toBeFalse();
+
+        // The hole this closes: the shown texts alone («ona», «мама») never meet.
+        expect(TranslationVariants::clash(
+            (array) TranslationVariants::clashKeys('mother', ['uz' => 'ona']),
+            (array) TranslationVariants::clashKeys('mum', ['uz' => 'мама']),
+        ))->toBeFalse();
+    });
+
+    it('sees the base through the case, ё, the brackets and the variants, like any other translation', function (): void {
+        $a = (array) TranslationVariants::clashKeys('hedgehog', ['uz' => 'tipratikan'], 'Ёж (зверёк), колючка');
+        $b = (array) TranslationVariants::clashKeys('urchin', ['uz' => 'dengiz tipratikani'], 'еж!');
+        $c = (array) TranslationVariants::clashKeys('thorn', ['uz' => 'tikan'], 'шип');
+
+        expect(TranslationVariants::clash($a, $b))->toBeTrue()
+            ->and(TranslationVariants::clash($a, $c))->toBeFalse();
+    });
+
+    it('does not make a word unfit when its base is empty: no `base` key, and the rest as before', function (string $base): void {
+        expect(TranslationVariants::clashKeys('mother', ['ru' => 'мама'], $base))->toBe(['en|mother', 'ru|мама']);
+    })->with([
+        'empty' => [''],
+        'blank' => ['   '],
+        'only a note' => ['(разг.)'],
+        'only separators' => [', ; /'],
+    ]);
+
+    it('leaves a ru learner as he was: the shown text and the base say the same, so no pair is new', function (): void {
+        $mother = (array) TranslationVariants::clashKeys('mother', ['ru' => 'мама'], 'мама');
+        $mum = (array) TranslationVariants::clashKeys('mum', ['ru' => 'Мама, мамочка'], 'мама, мамочка');
+        $father = (array) TranslationVariants::clashKeys('father', ['ru' => 'папа'], 'папа');
+
+        expect(TranslationVariants::clash($mother, $mum))->toBeTrue()
+            ->and(TranslationVariants::clash($mother, $father))->toBeFalse();
+    });
 });

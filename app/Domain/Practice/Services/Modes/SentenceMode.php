@@ -64,7 +64,7 @@ final class SentenceMode implements PracticeModeHandler
 
         return $available >= $required
             ? ModeAvailability::enough($available, $required)
-            : ModeAvailability::notEnough($available, $required, ModeAvailability::REASON_NO_ITEMS);
+            : ModeAvailability::notEnough($available, $required, $this->material->shortageReason($scope, PracticeItemType::Sentence, $learner, $available, $required));
     }
 
     public function build(MaterialScope $scope, ?Learner $learner, LocaleSet $locales, string $seed, int $size, bool $strictSize): array
@@ -76,7 +76,7 @@ final class SentenceMode implements PracticeModeHandler
         if (count($tasks) < $required || $count < 1) {
             throw PracticeException::notEnoughMaterial(
                 PracticeMode::Sentence,
-                ModeAvailability::notEnough(count($tasks), max(1, $required), ModeAvailability::REASON_NO_ITEMS),
+                ModeAvailability::notEnough(count($tasks), max(1, $required), $this->material->shortageReason($scope, PracticeItemType::Sentence, $learner, count($tasks), max(1, $required))),
                 $scope->course->slug,
                 $scope->lesson?->id,
             );

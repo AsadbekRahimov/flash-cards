@@ -54,13 +54,13 @@ final class DictationKit
     /**
      * A published dictation of the lesson with the audio in the state `$audio` (ready | pending | failed); its target word is one
      * the learner knows and that has no voice of its own, so it does not count as a word of the dictation. `$file`: the clip is on
-     * the disk.
+     * the disk. `$introduced`: false - the target word is one the learner has not met, so the phrase is LOCKED for them.
      *
      * @param  array<string, mixed>  $content  over the default content of a dictation
      */
-    public static function phrase(Lesson $lesson, Learner $learner, string $text, array $content = [], string $audio = 'ready', bool $file = true): PracticeItem
+    public static function phrase(Lesson $lesson, Learner $learner, string $text, array $content = [], string $audio = 'ready', bool $file = true, bool $introduced = true): PracticeItem
     {
-        $target = self::word($lesson, $learner, 'target-'.Str::lower(Str::random(8)), voiced: false);
+        $target = self::word($lesson, $learner, 'target-'.Str::lower(Str::random(8)), voiced: false, introduced: $introduced);
         $factory = PracticeItem::factory()->dictation()->published()->forLesson($lesson)->targeting($target)
             ->withContent(['text' => $text, 'accepted' => [$text], ...$content]);
         $item = match ($audio) {
