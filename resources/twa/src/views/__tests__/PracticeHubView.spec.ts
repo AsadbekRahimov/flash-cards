@@ -201,7 +201,7 @@ describe('PracticeHubView — the states', () => {
       {},
       hub({
         modes: {
-          collocation: { state: 'not_enough', available: 1, reason: 'no_items' },
+          collocation: { state: 'not_enough', available: 1, reason: 'no_words' },
           sentence: { state: 'disabled' },
           dictation: { state: 'pro_required' },
         },
@@ -210,7 +210,7 @@ describe('PracticeHubView — the states', () => {
 
     expect(card(wrapper, 'pairs').attributes('data-state')).toBe('available')
     expect(card(wrapper, 'collocation').attributes('data-state')).toBe('not_enough')
-    expect(card(wrapper, 'collocation').text()).toContain('Заданий: 1 из 3')
+    expect(card(wrapper, 'collocation').text()).toContain('Изучено слов: 1 из 3')
     expect(card(wrapper, 'sentence').attributes('data-state')).toBe('disabled')
     expect(card(wrapper, 'dictation').attributes('data-state')).toBe('pro_required')
     wrapper.unmount()
@@ -552,6 +552,64 @@ describe('PracticeHubView — Pro', () => {
       expect(api.practice.hub).toHaveBeenCalledTimes(1)
       wrapper.unmount()
     })
+  })
+})
+
+describe('PracticeHubView — short of material: no tasks, and tasks that wait for the words', () => {
+  // The server tells `no_items` (there are no tasks for the topic: nothing to learn will change it) from `items_locked` (the tasks are
+  // there and open when the words of the lesson are met). The hub does not promise what will not come, and offers learning where it helps.
+  it('says in a lesson that there are no tasks, with no promise and no "Learn the lesson"', async () => {
+    const { wrapper } = await render({}, hub({ modes: { collocation: { state: 'not_enough', available: 0, reason: 'no_items' } } }))
+
+    const collocation = card(wrapper, 'collocation')
+    expect(collocation.get('[data-testid=mode-reason]').text()).toBe('Для этой темы заданий пока нет.')
+    expect(collocation.find('[data-testid=mode-learn-collocation]').exists()).toBe(false)
+    expect(collocation.text()).not.toContain('Учить урок')
+    wrapper.unmount()
+  })
+
+  it('says in a lesson that the tasks open with its words, and offers "Learn the lesson" - which starts the lesson', async () => {
+    vi.mocked(api.training.open).mockResolvedValue({ session_id: 502, mode: 'lesson', lesson: { stage: 2, lesson: 4, title: 'Еда' }, total_words: 20 })
+    const { wrapper, router } = await render({}, hub({ modes: { sentence: { state: 'not_enough', available: 0, reason: 'items_locked' } } }))
+
+    const sentence = card(wrapper, 'sentence')
+    expect(sentence.get('[data-testid=mode-reason]').text()).toBe('Выучите слова урока — задания откроются.')
+    expect(sentence.get('[data-testid=mode-learn-sentence]').text()).toBe('Учить урок')
+    await sentence.get('[data-testid=mode-learn-sentence]').trigger('click')
+    await flushPromises()
+
+    expect(api.training.open).toHaveBeenCalledWith({ mode: 'lesson', lesson_id: 41, source: 'picker' }) // the same action as for `no_words`
+    expect(router.currentRoute.value.name).toBe('training')
+    wrapper.unmount()
+  })
+
+  it('in a course: no tasks says so with no button; tasks that wait for words offer "To the lessons"', async () => {
+    const { wrapper, router } = await render(
+      { lessonId: null },
+      hub({ lesson: null, modes: { collocation: { state: 'not_enough', reason: 'no_items' }, sentence: { state: 'not_enough', reason: 'items_locked' } } }),
+    )
+
+    expect(card(wrapper, 'collocation').get('[data-testid=mode-reason]').text()).toBe('Для этой темы заданий пока нет.')
+    expect(wrapper.find('[data-testid=mode-learn-collocation]').exists()).toBe(false)
+    expect(wrapper.get('[data-testid=mode-learn-sentence]').text()).toBe('К урокам')
+    await wrapper.get('[data-testid=mode-learn-sentence]').trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('course')
+    wrapper.unmount()
+  })
+
+  it('both cards side by side, in Uzbek', async () => {
+    setLocale('uz')
+    const { wrapper } = await render(
+      {},
+      hub({ modes: { collocation: { state: 'not_enough', reason: 'no_items' }, sentence: { state: 'not_enough', reason: 'items_locked' } } }),
+    )
+
+    expect(card(wrapper, 'collocation').text()).toContain("Bu mavzu bo'yicha topshiriqlar hozircha yo'q.")
+    expect(card(wrapper, 'sentence').text()).toContain("Dars so'zlarini o'rganing — topshiriqlar ochiladi.")
+    expect(wrapper.find('[data-testid=mode-learn-collocation]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=mode-learn-sentence]').exists()).toBe(true)
+    wrapper.unmount()
   })
 })
 

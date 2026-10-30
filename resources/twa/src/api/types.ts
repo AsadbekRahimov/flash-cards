@@ -769,8 +769,15 @@ export type PracticeSource = 'hub' | 'after_training' | 'retry' | 'deeplink'
 /** `available` is playable; `not_enough` lacks material (see `reason`); `disabled` is switched off; `pro_required` is behind the paywall. */
 export type PracticeModeState = 'available' | 'not_enough' | 'disabled' | 'pro_required'
 
-/** Why a mode lacks material (docs/16 §4.3). */
+/** Why a mode lacks material (docs/16 §4.3). `no_items`: there are no published tasks for the topic (or too few). */
 export type PracticeShortageReason = 'no_words' | 'ambiguous' | 'no_items' | 'audio_pending' | 'no_audio_words'
+
+/**
+ * Why a card of the HUB lacks material: the reasons above, and `items_locked` - the tasks are there, but the learner has not met the
+ * target words of the lesson yet (docs/16 §4.2). A battle has no learner whose words could be "not met", so its formats
+ * (`BattleModeOption`) keep `PracticeShortageReason` and never get this one.
+ */
+export type PracticeHubReason = PracticeShortageReason | 'items_locked'
 
 /** A card of the hub. */
 export interface PracticeModeInfo {
@@ -779,7 +786,7 @@ export interface PracticeModeInfo {
   available: number
   required: number
   /** Set with `not_enough`. */
-  reason: PracticeShortageReason | null
+  reason: PracticeHubReason | null
   estimate_seconds: number
 }
 
