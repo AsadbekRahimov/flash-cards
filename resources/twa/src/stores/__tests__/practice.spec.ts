@@ -1,0 +1,1323 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { createPinia, setActivePinia } from 'pinia'
+import { api } from '@/api'
+import { ApiClientError } from '@/api/client'
+import { setLocale } from '@/i18n'
+import { usePracticeStore } from '../practice'
+import {
+  activeSession,
+  answerResponse,
+  collocationElement,
+  dictationElement,
+  finishedSession,
+  hub,
+  pairsElement,
+  sentenceElement,
+  session,
+} from '@/api/__tests__/practiceFixtures'
+import type { PracticeAnswerPayload, PracticeSession } from '@/api/types'
+
+vi.mock('@/api', () => ({
+  api: { practice: { hub: vi.fn(), open: vi.fn(), get: vi.fn(), answer: vi.fn(), replace: vi.fn() } },
+}))
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+
+const apiError = (kind: ConstructorParameters<typeof ApiClientError>[0], status: number, code: string, details: Record<string, unknown> | null = null) =>
+  new ApiClientError(kind, status, code, 'English message', undefined, details)
+const offline = () => apiError('network', 0, 'network')
+
+/** The body of the n-th `POST …/answer`. */
+const sent = (n = 0) => vi.mocked(api.practice.answer).mock.calls[n]![1]
+
+beforeEach(() => {
+  setActivePinia(createPinia())
+  vi.resetAllMocks()
+})
+afterEach(() => setLocale('ru'))
+
+/** A store with a session of `mode` on screen. */
+async function started(s = session()) {
+  vi.mocked(api.practice.get).mockResolvedValue(s)
+  const store = usePracticeStore()
+  await store.load(s.id)
+  return store
+}
+
+describe('practice store — the hub', () => {
+  it('loads the hub of a lesson: loading, then ready', async () => {
+    let finish!: (value: ReturnType<typeof hub>) => void
+    vi.mocked(api.practice.hub).mockReturnValue(new Promise((resolve) => (finish = resolve)))
+    const store = usePracticeStore()
+
+    const loading = store.loadHub('english-a1', 41)
+    expect(store.hubStatus).toBe('loading')
+    expect(api.practice.hub).toHaveBeenCalledWith('english-a1', 41)
+
+    finish(hub())
+    await loading
+    expect(store.hubStatus).toBe('ready')
+    expect(store.hub?.modes).toHaveLength(4)
+  })
+
+  it('asks for a course without a lesson', async () => {
+    vi.mocked(api.practice.hub).mockResolvedValue(hub({ lesson: null }))
+    const store = usePracticeStore()
+
+    await store.loadHub('english-a1')
+
+    expect(api.practice.hub).toHaveBeenCalledWith('english-a1', null)
+  })
+
+  it('practice_unavailable (403) is its own state, not an error', async () => {
+    vi.mocked(api.practice.hub).mockRejectedValue(apiError('forbidden', 403, 'practice_unavailable'))
+    const store = usePracticeStore()
+
+    await store.loadHub('english-a1', 41)
+
+    expect(store.hubStatus).toBe('unavailable')
+    expect(store.hub).toBeNull()
+  })
+
+  it('any other failure is an error with the text of its code (never the English message)', async () => {
+    vi.mocked(api.practice.hub).mockRejectedValue(apiError('not_found', 404, 'course_not_found'))
+    const store = usePracticeStore()
+
+    await store.loadHub('nope')
+
+    expect(store.hubStatus).toBe('error')
+    expect(store.hubError).toBe('Курс не найден или недоступен.')
+    expect(store.hubError).not.toContain('English')
+  })
+
+  it('a network failure says so', async () => {
+    vi.mocked(api.practice.hub).mockRejectedValue(offline())
+    const store = usePracticeStore()
+
+    await store.loadHub('english-a1')
+
+    expect(store.hubError).toBe('Нет связи с сервером. Попробуйте ещё раз.')
+  })
+
+  it('the hub that is already on screen stays when the refresh fails', async () => {
+    vi.mocked(api.practice.hub).mockResolvedValueOnce(hub()).mockRejectedValueOnce(offline())
+    const store = usePracticeStore()
+    await store.loadHub('english-a1', 41)
+
+    await store.loadHub('english-a1', 41)
+
+    expect(store.hubStatus).toBe('ready')
+    expect(store.hub).not.toBeNull()
+  })
+
+  it('the hub of another lesson is not shown while the new one loads', async () => {
+    vi.mocked(api.practice.hub).mockResolvedValueOnce(hub())
+    const store = usePracticeStore()
+    await store.loadHub('english-a1', 41)
+
+    vi.mocked(api.practice.hub).mockReturnValueOnce(new Promise(() => {}))
+    void store.loadHub('english-a1', 42)
+
+    expect(store.hub).toBeNull()
+    expect(store.hubStatus).toBe('loading')
+  })
+
+  it('remembers the scope of the hub: the screens lead back to it', async () => {
+    vi.mocked(api.practice.hub).mockResolvedValue(hub())
+    const store = usePracticeStore()
+
+    await store.loadHub('english-a1', 41)
+
+    expect(store.scope).toEqual({ course: 'english-a1', lessonId: 41 })
+  })
+})
+
+describe('practice store — opening a session', () => {
+  const request = { mode: 'pairs', course: 'english-a1', lesson_id: 41, source: 'hub' } as const
+
+  it('opens it and keeps the answer: entering the session does not read it a second time', async () => {
+    const opened = session({ id: 78, mode: 'pairs' })
+    vi.mocked(api.practice.open).mockResolvedValue(opened)
+    const store = usePracticeStore()
+
+    expect(await store.open(request)).toBe(78)
+    expect(api.practice.open).toHaveBeenCalledWith(request)
+    expect(store.opening).toBeNull()
+
+    await store.load(78)
+
+    expect(api.practice.get).not.toHaveBeenCalled()
+    expect(store.status).toBe('ready')
+    expect(store.session?.id).toBe(78)
+  })
+
+  it('does not open two at once: a second tap is ignored', async () => {
+    let finish!: (value: ReturnType<typeof session>) => void
+    vi.mocked(api.practice.open).mockReturnValue(new Promise((resolve) => (finish = resolve)))
+    const store = usePracticeStore()
+
+    const first = store.open(request)
+    expect(store.opening).toBe('pairs')
+    expect(await store.open(request)).toBeNull()
+    expect(api.practice.open).toHaveBeenCalledTimes(1)
+
+    finish(session())
+    await first
+  })
+
+  it('an unfinished session (409) is handed to the screen with what the server said about it', async () => {
+    vi.mocked(api.practice.open).mockRejectedValue(
+      apiError('conflict', 409, 'practice_session_active', {
+        session_id: 77,
+        mode: 'sentence',
+        course: 'english-a1',
+        lesson_id: 41,
+        progress: { done: 2, total: 5 },
+      }),
+    )
+    const store = usePracticeStore()
+
+    expect(await store.open(request)).toBeNull()
+
+    expect(store.conflict).toEqual({ id: 77, mode: 'sentence', course: 'english-a1', lesson_id: 41, progress: { done: 2, total: 5 } })
+    expect(store.openError).toBe('')
+  })
+
+  it('falls back to the session the hub knows when the details are missing', async () => {
+    vi.mocked(api.practice.hub).mockResolvedValue(hub({ active_session: activeSession({ id: 90 }) }))
+    vi.mocked(api.practice.open).mockRejectedValue(apiError('conflict', 409, 'practice_session_active'))
+    const store = usePracticeStore()
+    await store.loadHub('english-a1', 41)
+
+    await store.open(request)
+
+    expect(store.conflict?.id).toBe(90)
+  })
+
+  it('says it in words when there is nothing to offer instead', async () => {
+    vi.mocked(api.practice.open).mockRejectedValue(apiError('conflict', 409, 'practice_session_active'))
+    const store = usePracticeStore()
+
+    await store.open(request)
+
+    expect(store.conflict).toBeNull()
+    expect(store.openError).toBe('У вас уже есть незавершённая практика.')
+  })
+
+  it('asks the paywall to open when the plan is Pro-only (403)', async () => {
+    vi.mocked(api.practice.open).mockRejectedValue(apiError('forbidden', 403, 'practice_pro_required'))
+    const store = usePracticeStore()
+
+    expect(await store.open(request)).toBeNull()
+
+    expect(store.paywall).toBe(true)
+    expect(store.openError).toBe('')
+  })
+
+  it('tells why a mode has no material (422), in the words of the code', async () => {
+    vi.mocked(api.practice.open).mockRejectedValue(
+      apiError('validation', 422, 'practice_not_enough_material', { mode: 'pairs', available: 2, required: 3, reason: 'no_words' }),
+    )
+    const store = usePracticeStore()
+
+    await store.open(request)
+
+    expect(store.openError).toBe('Для этого режима пока мало материала. Выучите ещё несколько слов.')
+    expect(store.opening).toBeNull()
+  })
+
+  it('practice_unavailable makes the hub unavailable', async () => {
+    vi.mocked(api.practice.open).mockRejectedValue(apiError('forbidden', 403, 'practice_unavailable'))
+    const store = usePracticeStore()
+
+    await store.open(request)
+
+    expect(store.hubStatus).toBe('unavailable')
+  })
+
+  it('clears the old refusals when it tries again', async () => {
+    vi.mocked(api.practice.open).mockRejectedValueOnce(offline()).mockResolvedValueOnce(session())
+    const store = usePracticeStore()
+    await store.open(request)
+    expect(store.openError).not.toBe('')
+
+    await store.open(request)
+
+    expect(store.openError).toBe('')
+    expect(store.conflict).toBeNull()
+  })
+
+  it('sends replace_active when the learner chose to start a new one', async () => {
+    vi.mocked(api.practice.open).mockResolvedValue(session({ id: 79 }))
+    const store = usePracticeStore()
+
+    expect(await store.open({ ...request, replace_active: true })).toBe(79)
+
+    expect(vi.mocked(api.practice.open).mock.calls[0]![0]).toMatchObject({ replace_active: true })
+  })
+
+  describe('when its screen is left before the answer comes', () => {
+    const active = () =>
+      apiError('conflict', 409, 'practice_session_active', { session_id: 77, mode: 'sentence', course: 'english-a1', lesson_id: 41, progress: { done: 2, total: 5 } })
+
+    /** An `open` that is still on its way: `refuse` / `accept` is the reply. */
+    function inFlight() {
+      let refuse!: (reason: unknown) => void
+      let accept!: (value: ReturnType<typeof session>) => void
+      vi.mocked(api.practice.open).mockReturnValueOnce(
+        new Promise((resolve, reject) => {
+          accept = resolve
+          refuse = reject
+        }),
+      )
+      return { refuse: (reason: unknown) => refuse(reason), accept: (value: ReturnType<typeof session>) => accept(value) }
+    }
+
+    it('drops the refusal "you have an unfinished session": the next hub does not open with its sheet', async () => {
+      const reply = inFlight()
+      const store = usePracticeStore()
+      const asking = store.open(request)
+
+      store.leaveOpen() // the hub is left
+      reply.refuse(active())
+
+      expect(await asking).toBeNull()
+      expect(store.conflict).toBeNull()
+      expect(store.opening).toBeNull()
+    })
+
+    it('drops the paywall, the reason of a refusal, and the other things that the refusal would have set', async () => {
+      const store = usePracticeStore()
+      const cases: [unknown, () => void][] = [
+        [apiError('forbidden', 403, 'practice_pro_required'), () => expect(store.paywall).toBe(false)],
+        [apiError('validation', 422, 'practice_not_enough_material'), () => expect(store.openError).toBe('')],
+        [offline(), () => expect(store.openError).toBe('')],
+        [apiError('forbidden', 403, 'practice_unavailable'), () => expect(store.hubStatus).toBe('idle')],
+        [apiError('conflict', 409, 'retry_not_available'), () => expect(store.retryUnavailable).toBe(false)],
+      ]
+
+      for (const [refusal, expectNothing] of cases) {
+        const reply = inFlight()
+        const asking = store.open(request)
+        store.leaveOpen()
+        reply.refuse(refusal)
+        await asking
+        expectNothing()
+      }
+    })
+
+    it('tells the refusal as usual while the screen is still there', async () => {
+      const reply = inFlight()
+      const store = usePracticeStore()
+      const asking = store.open(request)
+
+      reply.refuse(active())
+      await asking
+
+      expect(store.conflict).toMatchObject({ id: 77 })
+    })
+
+    it('still keeps a session that was opened meanwhile (it exists on the server): the hub shows it to continue', async () => {
+      vi.mocked(api.practice.hub).mockResolvedValue(hub())
+      const reply = inFlight()
+      const store = usePracticeStore()
+      await store.loadHub('english-a1', 41)
+      const asking = store.open(request)
+
+      store.leaveOpen()
+      reply.accept(session({ id: 85, mode: 'pairs' }))
+
+      expect(await asking).toBe(85)
+      expect(store.preloaded?.id).toBe(85)
+      expect(store.hub?.active_session).toMatchObject({ id: 85, mode: 'pairs' })
+    })
+
+    it('what comes back for the old request does not touch the one that was asked for since', async () => {
+      const old = inFlight()
+      const store = usePracticeStore()
+      const asking = store.open(request)
+      store.leaveOpen()
+      inFlight() // the next hub asks for another mode, and waits
+      void store.open({ ...request, mode: 'sentence' })
+      expect(store.opening).toBe('sentence')
+
+      old.refuse(active())
+      await asking
+
+      expect(store.opening).toBe('sentence') // still waiting for its own answer
+      expect(store.conflict).toBeNull()
+    })
+
+    it('nothing is being opened any more once the screen is left (the cards of the next hub are not "busy")', async () => {
+      inFlight()
+      const store = usePracticeStore()
+      void store.open(request)
+      expect(store.opening).toBe('pairs')
+
+      store.leaveOpen()
+
+      expect(store.opening).toBeNull()
+      expect(store.openError).toBe('')
+    })
+  })
+})
+
+describe('practice store — a session dropped on purpose ("No sound for now")', () => {
+  it('marks the session of the screen, and only that one', async () => {
+    const store = await started(session({ id: 77, mode: 'dictation' }))
+
+    expect(store.isAbandoned(77)).toBe(false)
+    store.abandonSession()
+
+    expect(store.isAbandoned(77)).toBe(true)
+    expect(store.isAbandoned(78)).toBe(false) // another unfinished session is asked about as always
+    expect(store.isAbandoned(null)).toBe(false)
+  })
+
+  it('is for one visit to the hub: it is cleared when the next session is open, and when the hub is left', async () => {
+    const store = await started(session({ id: 77, mode: 'dictation' }))
+    store.abandonSession()
+
+    store.clearAbandoned()
+
+    expect(store.isAbandoned(77)).toBe(false)
+  })
+
+  it('is not set by anything else: leaving the screen, finishing, or another session', async () => {
+    const store = await started(session({ id: 77, mode: 'dictation' }))
+
+    store.leaveOpen()
+    vi.mocked(api.practice.get).mockResolvedValue(session({ id: 80 }))
+    await store.load(80)
+
+    expect(store.abandoned).toBeNull()
+  })
+})
+
+describe('practice store — where an unfinished session is', () => {
+  const active = (overrides = {}) => activeSession({ id: 77, mode: 'pairs', course: 'english-a1', lesson_id: 41, ...overrides })
+
+  it('names the session that this run has seen: its lesson with the module, or its course', async () => {
+    const store = await started(session({ id: 77 }))
+    expect(store.placeOf(active())).toBe('Модуль 2 · Урок 4 · Еда')
+
+    const course = await started(session({ id: 77, lesson: null }))
+    expect(course.placeOf(active({ lesson_id: null }))).toBe('Английский A1')
+  })
+
+  it('names the very place that the hub is about, when the unfinished session is its own', async () => {
+    vi.mocked(api.practice.hub).mockResolvedValue(hub())
+    const store = usePracticeStore()
+    await store.loadHub('english-a1', 41)
+
+    expect(store.placeOf(active())).toBe('Модуль 2 · Урок 4 · Еда')
+  })
+
+  it('names the course when the unfinished session is of the whole course of the hub', async () => {
+    vi.mocked(api.practice.hub).mockResolvedValue(hub())
+    const store = usePracticeStore()
+    await store.loadHub('english-a1', 41)
+
+    expect(store.placeOf(active({ lesson_id: null }))).toBe('Английский A1')
+  })
+
+  it('says nothing of a session that it has no name for: the server sends only the slug of the course and the id of the lesson', async () => {
+    vi.mocked(api.practice.hub).mockResolvedValue(hub())
+    const store = usePracticeStore()
+    await store.loadHub('english-a1', 41)
+
+    expect(store.placeOf(active({ course: 'ielts-core' }))).toBeNull() // another course
+    expect(store.placeOf(active({ lesson_id: 99 }))).toBeNull() // another lesson of this course
+    expect(store.placeOf(active({ lesson_id: null, course: 'ielts-core' }))).toBeNull()
+  })
+
+  it('a store that holds nothing yet knows nothing', () => {
+    expect(usePracticeStore().placeOf(active())).toBeNull()
+  })
+
+  it('does not take another session for this one, even in the same course', async () => {
+    const store = await started(session({ id: 77, lesson: { id: 41, stage: 2, number: 4, title: 'Еда' } }))
+
+    expect(store.placeOf(active({ id: 78, lesson_id: 99 }))).toBeNull()
+  })
+})
+
+describe('practice store — entering a session', () => {
+  it('reads the session and shows its first element', async () => {
+    const store = await started(session({ mode: 'collocation' }))
+
+    expect(store.status).toBe('ready')
+    expect(store.current?.kind).toBe('collocation')
+    expect(store.progress).toEqual({ done: 0, total: 5 })
+    expect(store.elementSeq).toBe(1)
+  })
+
+  it('a session that is finished already shows the summary', async () => {
+    const store = await started(finishedSession())
+
+    expect(store.status).toBe('finished')
+    expect(store.session?.summary?.correct_first).toBe(3)
+    expect(store.current).toBeNull()
+  })
+
+  it('a closed session (410) is closed, with the words of the screen', async () => {
+    vi.mocked(api.practice.get).mockRejectedValue(apiError('gone', 410, 'practice_session_closed', { finish_reason: 'expired' }))
+    const store = usePracticeStore()
+
+    await store.load(77)
+
+    expect(store.status).toBe('closed')
+    expect(store.errorMessage).toBe('Эта практика уже завершена или её время вышло.')
+  })
+
+  it('a session that is not found is an error, and says so', async () => {
+    vi.mocked(api.practice.get).mockRejectedValue(apiError('not_found', 404, 'practice_session_not_found'))
+    const store = usePracticeStore()
+
+    await store.load(404)
+
+    expect(store.status).toBe('error')
+    expect(store.errorMessage).toBe('Эта практика не найдена.')
+  })
+
+  it('a lost connection is an error that can be retried by entering again', async () => {
+    vi.mocked(api.practice.get).mockRejectedValueOnce(offline()).mockResolvedValueOnce(session())
+    const store = usePracticeStore()
+
+    await store.load(77)
+    expect(store.status).toBe('error')
+
+    await store.load(77)
+    expect(store.status).toBe('ready')
+    expect(store.errorMessage).toBe('')
+  })
+
+  it('a Free learner on a Pro-only plan gets the paywall (403) over a session that was in progress', async () => {
+    const store = await started(session())
+    vi.mocked(api.practice.get).mockRejectedValue(apiError('forbidden', 403, 'practice_pro_required'))
+
+    await store.load(77)
+
+    expect(store.paywall).toBe(true)
+    expect(store.status).toBe('error')
+  })
+
+  it('forgets everything about the earlier session', async () => {
+    const store = await started(session())
+    vi.mocked(api.practice.answer).mockRejectedValueOnce(offline())
+    await store.answer({ order: ['fW2'] })
+    expect(store.pendingRequestId).not.toBeNull()
+    const before = store.generation
+
+    vi.mocked(api.practice.get).mockResolvedValue(session({ id: 80 }))
+    await store.load(80)
+
+    expect(store.generation).toBe(before + 1)
+    expect(store.pendingRequestId).toBeNull()
+    expect(store.actionError).toBe('')
+    expect(store.outcome).toBeNull()
+  })
+})
+
+describe('practice store — answering', () => {
+  const order = ['fW2', 'fT5', 'fR4', 'fE3', 'fQ1']
+
+  it('sends the answer with a request id, the element and the time, and shows the verdict', async () => {
+    const store = await started(session({ mode: 'sentence' }))
+    const reply = answerResponse({ verdict: 'correct' })
+    let finish!: (value: typeof reply) => void
+    vi.mocked(api.practice.answer).mockReturnValue(new Promise((resolve) => (finish = resolve)))
+
+    const answering = store.answer({ order })
+    expect(store.status).toBe('submitting')
+
+    finish(reply)
+    await answering
+
+    expect(api.practice.answer).toHaveBeenCalledWith(77, expect.objectContaining({ element_id: 'eSent00001', answer: { order } }))
+    expect(sent().request_id).toMatch(UUID)
+    expect(sent().time_spent_ms).toBeGreaterThanOrEqual(0)
+    expect(store.status).toBe('verdict')
+    expect(store.outcome).toMatchObject({ verdict: 'correct', firstAttempt: true, answer: { order }, roundDone: false })
+    expect(store.outcome?.element.id).toBe('eSent00001')
+    expect(store.outcome?.reveal).toMatchObject({ correct_text: 'My mother is a teacher.' })
+    expect(store.progress).toEqual({ done: 1, total: 5 })
+  })
+
+  it('keeps the verdict and the explanation of the answer for the screen, until "Next"', async () => {
+    const store = await started()
+    expect(store.verdict).toBeNull()
+    expect(store.reveal).toBeNull()
+    vi.mocked(api.practice.answer).mockResolvedValue(answerResponse({ verdict: 'wrong' }))
+
+    await store.answer({ order })
+
+    expect(store.verdict).toBe('wrong')
+    expect(store.reveal).toMatchObject({ correct_text: 'My mother is a teacher.' })
+    store.continueAfterVerdict()
+    expect(store.verdict).toBeNull()
+    expect(store.reveal).toBeNull()
+  })
+
+  it('the next element waits behind "Next"; the summary follows the last one', async () => {
+    const store = await started()
+    vi.mocked(api.practice.answer).mockResolvedValue(answerResponse())
+    await store.answer({ order })
+    expect(store.current?.id).toBe('eSent00002') // the session already holds it …
+    const seq = store.elementSeq
+
+    store.continueAfterVerdict() // … and "Next" shows it
+
+    expect(store.status).toBe('ready')
+    expect(store.outcome).toBeNull()
+    expect(store.elementSeq).toBe(seq + 1)
+
+    vi.mocked(api.practice.answer).mockResolvedValue(answerResponse({ session: finishedSession() }))
+    await store.answer({ order })
+    expect(store.status).toBe('verdict')
+    store.continueAfterVerdict()
+    expect(store.status).toBe('finished')
+  })
+
+  it('"Next" does nothing when no verdict is waiting', async () => {
+    const store = await started()
+
+    store.continueAfterVerdict()
+
+    expect(store.status).toBe('ready')
+    expect(store.elementSeq).toBe(1)
+  })
+
+  it('"I do not know" sends skip', async () => {
+    const store = await started(session({ mode: 'dictation' }))
+    vi.mocked(api.practice.answer).mockResolvedValue(answerResponse({ verdict: 'skipped' }))
+
+    await store.skip()
+
+    expect(sent().answer).toEqual({ skip: true })
+    expect(store.outcome?.verdict).toBe('skipped')
+  })
+
+  it('a typo is a verdict of its own', async () => {
+    const store = await started(session({ mode: 'dictation' }))
+    vi.mocked(api.practice.answer).mockResolvedValue(
+      answerResponse({ verdict: 'typo', first_attempt: true, reveal: { expected: 'See you tomorrow', your_text: 'see you tomorow', diff: null, translation: null, explanation: null } }),
+    )
+
+    await store.answer({ text: 'see you tomorow' })
+
+    expect(store.outcome?.verdict).toBe('typo')
+    expect(store.status).toBe('verdict')
+  })
+
+  it.each(['verdict', 'submitting', 'finished', 'closed', 'error', 'idle', 'starting'] as const)(
+    'ignores an answer while the status is %s',
+    async (status) => {
+      const store = await started()
+      store.status = status
+
+      await store.answer({ order })
+
+      expect(api.practice.answer).not.toHaveBeenCalled()
+    },
+  )
+
+  it('ignores an answer when there is no element', async () => {
+    const store = usePracticeStore()
+
+    await store.answer({ skip: true })
+
+    expect(api.practice.answer).not.toHaveBeenCalled()
+  })
+
+  it('the time spent is telemetry: never negative, never more than ten minutes', async () => {
+    const store = await started()
+    store.elementShownAt = Date.now() + 60_000
+    vi.mocked(api.practice.answer).mockResolvedValue(answerResponse())
+    await store.answer({ order })
+    expect(sent(0).time_spent_ms).toBe(0)
+
+    store.status = 'ready'
+    store.elementShownAt = Date.now() - 3 * 3_600_000
+    await store.answer({ order })
+    expect(sent(1).time_spent_ms).toBe(600_000)
+  })
+
+  describe('pairs', () => {
+    const match = { left_id: 'lM1', right_id: 'rU2' }
+
+    it('a match inside a round goes on in the same round: the board stays, with the new element', async () => {
+      const store = await started(session({ mode: 'pairs' }))
+      const seq = store.elementSeq
+      vi.mocked(api.practice.answer).mockResolvedValue(
+        answerResponse({
+          verdict: 'correct',
+          reveal: null,
+          pair: match,
+          round_done: false,
+          session: session({ mode: 'pairs', current: pairsElement({ matched: [['lM1', 'rU2']] }) }),
+        }),
+      )
+
+      await store.answer(match)
+
+      expect(store.status).toBe('ready')
+      expect(store.elementSeq).toBe(seq)
+      expect(store.outcome).toMatchObject({ verdict: 'correct', pair: match, roundDone: false })
+      expect((store.current as ReturnType<typeof pairsElement>).matched).toEqual([['lM1', 'rU2']])
+    })
+
+    it('a wrong match is a verdict too, and the round goes on', async () => {
+      const store = await started(session({ mode: 'pairs' }))
+      vi.mocked(api.practice.answer).mockResolvedValue(
+        answerResponse({
+          verdict: 'wrong',
+          reveal: null,
+          pair: match,
+          session: session({ mode: 'pairs', current: pairsElement({ mismatches: 1 }), counters: { correct_first: 0, hints: 0, mismatches: 1 } }),
+        }),
+      )
+
+      await store.answer(match)
+
+      expect(store.status).toBe('ready')
+      expect(store.outcome?.verdict).toBe('wrong')
+      expect(store.session?.counters.mismatches).toBe(1)
+    })
+
+    it('the last match of a round stops at the verdict; "Next" opens the next round', async () => {
+      const store = await started(session({ mode: 'pairs' }))
+      const next = pairsElement({ id: 'ePair00002', round: 2 })
+      vi.mocked(api.practice.answer).mockResolvedValue(
+        answerResponse({ verdict: 'correct', reveal: null, pair: match, round_done: true, session: session({ mode: 'pairs', current: next, progress: { done: 1, total: 3 } }) }),
+      )
+
+      await store.answer(match)
+
+      expect(store.status).toBe('verdict')
+      expect(store.outcome).toMatchObject({ roundDone: true })
+      store.continueAfterVerdict()
+      expect(store.status).toBe('ready')
+      expect(store.current?.id).toBe('ePair00002')
+    })
+  })
+})
+
+describe('practice store — a request that may be repeated', () => {
+  const order = ['fW2', 'fT5']
+
+  it('keeps the request id after a network error: the same answer is sent with the same id', async () => {
+    const store = await started()
+    vi.mocked(api.practice.answer).mockRejectedValueOnce(offline()).mockResolvedValueOnce(answerResponse())
+
+    await store.answer({ order })
+    const first = store.pendingRequestId
+
+    expect(first).toMatch(UUID)
+    expect(store.status).toBe('ready') // the learner is still on the element, with their answer
+    expect(store.actionError).toBe('Нет связи с сервером. Попробуйте ещё раз.')
+
+    await store.answer({ order })
+
+    expect(sent(1).request_id).toBe(sent(0).request_id)
+    expect(sent(0).request_id).toBe(first)
+    expect(store.status).toBe('verdict')
+    expect(store.pendingRequestId).toBeNull() // the next answer is a new request
+  })
+
+  it.each([
+    ['a server error', apiError('server', 500, 'server_error')],
+    ['a rate limit', apiError('rate_limited', 429, 'too_many_requests')],
+  ])('%s keeps it too (the server may have counted the answer)', async (_name, err) => {
+    const store = await started()
+    vi.mocked(api.practice.answer).mockRejectedValueOnce(err).mockResolvedValueOnce(answerResponse())
+
+    await store.answer({ order })
+    await store.answer({ order })
+
+    expect(sent(1).request_id).toBe(sent(0).request_id)
+  })
+
+  // The answer of a collocation, a sentence or a dictation is ONE per element: its request id lives from the first send to the reply of
+  // the server (docs/16 §11.4), and what is sent again is that very answer. Otherwise the first one, if it landed, is refused by 409
+  // `answer_already_accepted`, and the screen shows the verdict of the first answer as if it were the verdict of the second.
+  const ONE_ANSWER: [string, PracticeSession, PracticeAnswerPayload, PracticeAnswerPayload][] = [
+    ['a collocation', session({ mode: 'collocation' }), { option_id: 'oA1' }, { option_id: 'oB2' }],
+    ['a sentence', session({ mode: 'sentence' }), { order: ['fW2', 'fT5'] }, { order: ['fT5', 'fW2'] }],
+    ['a dictation text', session({ mode: 'dictation' }), { text: 'see you tomorow' }, { text: 'see you tomorrow' }],
+    ['a dictation, then "I do not know"', session({ mode: 'dictation' }), { text: 'see you tomorow' }, { skip: true }],
+  ]
+
+  it.each(ONE_ANSWER)('%s: after a lost reply the repeat is the same answer under the same request id, whatever is handed over', async (_name, opened, first, other) => {
+    const store = await started(opened)
+    vi.mocked(api.practice.answer).mockRejectedValueOnce(offline()).mockResolvedValueOnce(answerResponse())
+
+    await store.answer(first)
+    expect(store.status).toBe('ready')
+    await store.answer(other) // another answer, handed over after the reply was lost
+
+    expect(sent(1).request_id).toBe(sent(0).request_id) // one id for the element …
+    expect(sent(1).answer).toEqual(first) // … and it carries the answer that went first
+    expect(store.outcome?.answer).toEqual(first) // the review is of THAT answer
+    expect(store.pendingRequestId).toBeNull()
+    expect(store.pendingAnswer).toBeNull()
+  })
+
+  it('a lost reply of a collocation: the repeat gets the explanation of the first answer, and the review marks it as the pick', async () => {
+    const store = await started(session({ mode: 'collocation' }))
+    vi.mocked(api.practice.answer)
+      .mockRejectedValueOnce(offline())
+      .mockResolvedValueOnce(
+        answerResponse({
+          verdict: 'wrong',
+          reveal: { correct_option_ids: ['oB2'], full_text: "Let's have a meeting on Monday.", translation: null, explanation: 'С meeting говорят have.', your_option_id: 'oA1' },
+        }),
+      )
+
+    await store.answer({ option_id: 'oA1' })
+    await store.answer({ option_id: 'oB2' }) // the right one, tapped (or sent) after the reply was lost
+
+    expect(store.status).toBe('verdict')
+    expect(store.outcome).toMatchObject({ verdict: 'wrong', answer: { option_id: 'oA1' } })
+    expect(store.outcome?.earlier).toBeUndefined() // a real review, not "an answer sent earlier"
+    expect(store.outcome?.reveal).toMatchObject({ correct_option_ids: ['oB2'], your_option_id: 'oA1' })
+  })
+
+  it('the id is kept through several lost replies, and is the same on the third try', async () => {
+    const store = await started(session({ mode: 'sentence' }))
+    vi.mocked(api.practice.answer).mockRejectedValueOnce(offline()).mockRejectedValueOnce(apiError('server', 502, 'server_error')).mockResolvedValueOnce(answerResponse())
+
+    await store.answer({ order })
+    await store.answer({ order })
+    await store.answer({ order })
+
+    expect(new Set([0, 1, 2].map((n) => sent(n).request_id)).size).toBe(1)
+    expect(store.status).toBe('verdict')
+  })
+
+  // The component keeps what was sent only after a LOST reply (the answer may have been counted). A refusal for good - nothing was counted -
+  // starts the element afresh: a new `elementSeq` keys a new, unlocked component.
+  it('a lost reply leaves the component as it is (the same `elementSeq`: it is pinned), a refusal for good starts it afresh', async () => {
+    const store = await started(session({ mode: 'collocation' }))
+    const seq = store.elementSeq
+    vi.mocked(api.practice.answer).mockRejectedValueOnce(offline())
+
+    await store.answer({ option_id: 'oA1' })
+    expect(store.elementSeq).toBe(seq)
+
+    vi.mocked(api.practice.answer).mockRejectedValueOnce(apiError('validation', 422, 'invalid_answer_shape'))
+    await store.answer({ option_id: 'oA1' })
+    expect(store.elementSeq).toBe(seq + 1)
+    expect(store.status).toBe('ready')
+  })
+
+  it.each([
+    ['422 invalid_answer_shape', apiError('validation', 422, 'invalid_answer_shape')],
+    ['409 of another kind', apiError('conflict', 409, 'something_else')],
+    ['403 practice_pro_required', apiError('forbidden', 403, 'practice_pro_required')],
+  ])('%s: nothing was counted, so the element starts afresh and the learner may answer otherwise', async (_name, refusal) => {
+    const store = await started(session({ mode: 'collocation' }))
+    const seq = store.elementSeq
+    vi.mocked(api.practice.answer).mockRejectedValue(refusal)
+
+    await store.answer({ option_id: 'oA1' })
+
+    expect(store.elementSeq).toBe(seq + 1)
+    expect(store.status).toBe('ready')
+    expect(store.pendingRequestId).toBeNull()
+  })
+
+  it('after a refusal of the server (not a lost reply) the learner may answer otherwise, under a new request id', async () => {
+    const store = await started(session({ mode: 'collocation' }))
+    vi.mocked(api.practice.answer).mockRejectedValueOnce(apiError('validation', 422, 'unknown_element_id')).mockResolvedValueOnce(answerResponse())
+
+    await store.answer({ option_id: 'oA1' })
+    expect(store.pendingRequestId).toBeNull()
+    await store.answer({ option_id: 'oB2' })
+
+    expect(sent(1).request_id).not.toBe(sent(0).request_id)
+    expect(sent(1).answer).toEqual({ option_id: 'oB2' })
+  })
+
+  it('the id of an element is not the id of the next one: a new element, a new request, with the answer that is handed over', async () => {
+    const store = await started(session({ mode: 'collocation' }))
+    vi.mocked(api.practice.answer).mockRejectedValueOnce(offline()).mockResolvedValueOnce(answerResponse())
+    await store.answer({ option_id: 'oA1' })
+    expect(store.pendingKey).toBe('eColl00001')
+
+    store.applySession(session({ mode: 'collocation', current: collocationElement({ id: 'eColl00002' }) })) // the screen follows the server on
+    await store.answer({ option_id: 'oB2' })
+
+    expect(sent(1).element_id).toBe('eColl00002')
+    expect(sent(1).request_id).not.toBe(sent(0).request_id)
+    expect(sent(1).answer).toEqual({ option_id: 'oB2' }) // nothing of the first element's answer is sent for the second
+  })
+
+  describe('pairs: an attempt of its own', () => {
+    const a = { left_id: 'lM1', right_id: 'rU2' }
+    const b = { left_id: 'lM1', right_id: 'rW4' }
+
+    it('every attempt has its own request id, and a repeat of the attempt that got no reply has the same one', async () => {
+      const store = await started(session({ mode: 'pairs' }))
+      vi.mocked(api.practice.answer).mockRejectedValue(offline())
+
+      await store.answer(a)
+      await store.answer(a) // the same attempt again
+      await store.answer(b) // another attempt: the server must count it, so it is NOT the first one again
+
+      expect(sent(1).request_id).toBe(sent(0).request_id)
+      expect(sent(2).request_id).not.toBe(sent(0).request_id)
+      expect(sent(0).answer).toEqual(a)
+      expect(sent(2).answer).toEqual(b) // a pair is handed over as it is: there is no "one answer" to pin
+    })
+
+    it('a pair of the same round after a verdict is a new attempt', async () => {
+      const store = await started(session({ mode: 'pairs' }))
+      vi.mocked(api.practice.answer).mockResolvedValue(answerResponse({ verdict: 'wrong', reveal: null, pair: a, session: session({ mode: 'pairs', current: pairsElement({ mismatches: 1 }) }) }))
+
+      await store.answer(a)
+      await store.answer(a)
+
+      expect(sent(1).request_id).not.toBe(sent(0).request_id)
+    })
+  })
+
+  it('each answer has its own id', async () => {
+    const store = await started()
+    vi.mocked(api.practice.answer).mockResolvedValue(answerResponse())
+
+    await store.answer({ order })
+    store.continueAfterVerdict()
+    await store.answer({ order })
+
+    expect(sent(1).request_id).not.toBe(sent(0).request_id)
+  })
+
+  it('a refusal of the server ends the request: the id is not kept', async () => {
+    const store = await started()
+    vi.mocked(api.practice.answer).mockRejectedValue(apiError('validation', 422, 'invalid_answer_shape'))
+
+    await store.answer({ order })
+
+    expect(store.pendingRequestId).toBeNull()
+    expect(store.status).toBe('ready')
+    expect(store.actionError).toBe('Не получилось отправить ответ. Обновите экран и попробуйте ещё раз.')
+  })
+})
+
+describe('practice store — answers that the server does not take', () => {
+  const order = ['fW2', 'fT5']
+
+  it('element_not_current: another tab got ahead, the session is read again and the screen follows', async () => {
+    const store = await started()
+    vi.mocked(api.practice.answer).mockRejectedValue(apiError('conflict', 409, 'element_not_current', { current: 'eSent00002' }))
+    vi.mocked(api.practice.get).mockResolvedValue(session({ progress: { done: 1, total: 5 }, current: sentenceElement({ id: 'eSent00002' }) }))
+    const seq = store.elementSeq
+
+    await store.answer({ order })
+
+    expect(api.practice.get).toHaveBeenCalledTimes(2) // entering, and the re-read
+    expect(store.status).toBe('ready')
+    expect(store.current?.id).toBe('eSent00002')
+    expect(store.elementSeq).toBe(seq + 1)
+    expect(store.actionError).toBe('Задание уже сменилось. Экран обновлён.')
+    expect(store.pendingRequestId).toBeNull()
+  })
+
+  it('element_not_current with the same element keeps the component (what the learner did stays)', async () => {
+    const store = await started()
+    vi.mocked(api.practice.answer).mockRejectedValue(apiError('conflict', 409, 'element_not_current'))
+    const seq = store.elementSeq
+
+    await store.answer({ order })
+
+    expect(store.status).toBe('ready')
+    expect(store.elementSeq).toBe(seq)
+  })
+
+  it('pair_already_matched: a silent re-read (a double tap is not worth a message)', async () => {
+    const store = await started(session({ mode: 'pairs' }))
+    vi.mocked(api.practice.answer).mockRejectedValue(apiError('conflict', 409, 'pair_already_matched', { left_id: 'lM1' }))
+    vi.mocked(api.practice.get).mockResolvedValue(session({ mode: 'pairs', current: pairsElement({ matched: [['lM1', 'rU2']] }) }))
+
+    await store.answer({ left_id: 'lM1', right_id: 'rU2' })
+
+    expect(store.status).toBe('ready')
+    expect(store.actionError).toBe('')
+    expect((store.current as ReturnType<typeof pairsElement>).matched).toHaveLength(1)
+  })
+
+  it('answer_already_accepted: shows the verdict that was counted, and moves to what the server has now', async () => {
+    const store = await started()
+    vi.mocked(api.practice.answer).mockRejectedValue(apiError('conflict', 409, 'answer_already_accepted', { verdict: 'wrong' }))
+    vi.mocked(api.practice.get).mockResolvedValue(session({ progress: { done: 1, total: 5 }, current: sentenceElement({ id: 'eSent00002' }) }))
+
+    await store.answer({ order })
+
+    expect(store.status).toBe('verdict')
+    expect(store.outcome).toMatchObject({ verdict: 'wrong', reveal: null, earlier: true }) // told as "an answer sent earlier", not as this one
+    expect(store.outcome?.element.id).toBe('eSent00001')
+    store.continueAfterVerdict()
+    expect(store.current?.id).toBe('eSent00002')
+  })
+
+  it('answer_already_accepted: the right answer is not made up - there is no explanation, whatever was just sent', async () => {
+    const store = await started(session({ mode: 'collocation' }))
+    vi.mocked(api.practice.answer).mockRejectedValue(apiError('conflict', 409, 'answer_already_accepted', { verdict: 'wrong' }))
+    vi.mocked(api.practice.get).mockResolvedValue(session({ mode: 'collocation', progress: { done: 1, total: 5 }, current: collocationElement({ id: 'eColl00002' }) }))
+
+    await store.answer({ option_id: 'oB2' }) // the right option, as it happens - and the server counted another answer, sent earlier
+
+    expect(store.verdict).toBe('wrong')
+    expect(store.reveal).toBeNull()
+    expect(store.outcome).toMatchObject({ earlier: true, firstAttempt: false })
+    expect(store.pendingRequestId).toBeNull()
+  })
+
+  it('answer_already_accepted: "Next" shows what the re-read session has, the whole session being read once for it', async () => {
+    const store = await started(session({ mode: 'sentence' }))
+    vi.mocked(api.practice.answer).mockRejectedValue(apiError('conflict', 409, 'answer_already_accepted', { verdict: 'correct' }))
+    vi.mocked(api.practice.get).mockResolvedValue(session({ progress: { done: 3, total: 5 }, current: sentenceElement({ id: 'eSent00004' }) }))
+
+    await store.answer({ order })
+    expect(store.progress).toEqual({ done: 3, total: 5 }) // the header is the server's already
+    store.continueAfterVerdict()
+
+    expect(store.status).toBe('ready')
+    expect(store.current?.id).toBe('eSent00004')
+    expect(api.practice.get).toHaveBeenCalledTimes(2) // entering, and the re-read
+  })
+
+  it('answer_already_accepted without a readable verdict just follows the server', async () => {
+    const store = await started()
+    vi.mocked(api.practice.answer).mockRejectedValue(apiError('conflict', 409, 'answer_already_accepted', { verdict: 'amazing' }))
+    vi.mocked(api.practice.get).mockResolvedValue(session({ current: sentenceElement({ id: 'eSent00002' }) }))
+
+    await store.answer({ order })
+
+    expect(store.status).toBe('ready')
+    expect(store.current?.id).toBe('eSent00002')
+  })
+
+  it('a re-read that fails ends in the error state, not in a stuck "submitting"', async () => {
+    const store = await started()
+    vi.mocked(api.practice.answer).mockRejectedValue(apiError('conflict', 409, 'element_not_current'))
+    vi.mocked(api.practice.get).mockRejectedValue(offline())
+
+    await store.answer({ order })
+
+    expect(store.status).toBe('error')
+  })
+
+  it('410: the session is over', async () => {
+    const store = await started()
+    vi.mocked(api.practice.answer).mockRejectedValue(apiError('gone', 410, 'practice_session_closed', { finish_reason: 'expired' }))
+
+    await store.answer({ order })
+
+    expect(store.status).toBe('closed')
+  })
+
+  it('404: the session is gone', async () => {
+    const store = await started()
+    vi.mocked(api.practice.answer).mockRejectedValue(apiError('not_found', 404, 'practice_session_not_found'))
+
+    await store.answer({ order })
+
+    expect(store.status).toBe('error')
+    expect(store.errorMessage).toBe('Эта практика не найдена.')
+  })
+
+  it('403 practice_pro_required: the paywall opens over the session, which stays as it is', async () => {
+    const store = await started()
+    vi.mocked(api.practice.answer).mockRejectedValue(apiError('forbidden', 403, 'practice_pro_required'))
+
+    await store.answer({ order })
+
+    expect(store.paywall).toBe(true)
+    expect(store.status).toBe('ready')
+    expect(store.session?.id).toBe(77)
+  })
+
+  it('422 unknown_element_id: the learner can still answer', async () => {
+    const store = await started()
+    vi.mocked(api.practice.answer).mockRejectedValue(apiError('validation', 422, 'unknown_element_id'))
+
+    await store.answer({ order })
+
+    expect(store.status).toBe('ready')
+    expect(store.actionError).toBe('Ответ не относится к этому заданию. Обновите экран.')
+  })
+})
+
+describe('practice store — replacing a dictation without sound', () => {
+  it('swaps the element, gives the clip back and sends a request id', async () => {
+    const store = await started(session({ mode: 'dictation' }))
+    store.audio.blobUrl = 'blob:old'
+    store.audio.state = 'failed'
+    const revoke = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {})
+    vi.mocked(api.practice.replace).mockResolvedValue(
+      session({ mode: 'dictation', current: dictationElement({ id: 'eDict00002', replacements_left: 1 }) }),
+    )
+    const seq = store.elementSeq
+
+    expect(await store.replace()).toBe(true)
+
+    const body = vi.mocked(api.practice.replace).mock.calls[0]![1]
+    expect(body).toMatchObject({ element_id: 'eDict00001', reason: 'audio_unavailable' })
+    expect(body.request_id).toMatch(UUID)
+    expect(store.current?.id).toBe('eDict00002')
+    expect(store.elementSeq).toBe(seq + 1)
+    expect(store.status).toBe('ready')
+    expect(revoke).toHaveBeenCalledWith('blob:old')
+    expect(store.audio).toEqual({ state: 'idle', blobUrl: null })
+    revoke.mockRestore()
+  })
+
+  it('has nothing to replace in the other modes', async () => {
+    const store = await started(session({ mode: 'sentence' }))
+
+    expect(await store.replace()).toBe(false)
+
+    expect(api.practice.replace).not.toHaveBeenCalled()
+  })
+
+  it('no replacements left (409): the learner stays, and is told', async () => {
+    const store = await started(session({ mode: 'dictation' }))
+    vi.mocked(api.practice.replace).mockRejectedValue(apiError('conflict', 409, 'replace_not_allowed', { reason: 'limit' }))
+
+    expect(await store.replace()).toBe(false)
+
+    expect(store.status).toBe('ready')
+    expect(store.actionError).toBe('Заменить задание больше нельзя.')
+    expect(store.current?.id).toBe('eDict00001')
+  })
+
+  it('after a network error the same replacement is repeated with the same id', async () => {
+    const store = await started(session({ mode: 'dictation' }))
+    vi.mocked(api.practice.replace).mockRejectedValueOnce(offline()).mockResolvedValueOnce(session({ mode: 'dictation', current: dictationElement({ id: 'eDict00002' }) }))
+
+    expect(await store.replace()).toBe(false)
+    expect(store.status).toBe('ready')
+    expect(await store.replace()).toBe(true)
+
+    const [first, second] = vi.mocked(api.practice.replace).mock.calls.map((call) => call[1].request_id)
+    expect(second).toBe(first)
+    expect(store.replacing).toBeNull()
+  })
+
+  it('has an id of its own: an answer that got no reply keeps its id (and its content) through a replacement that fails', async () => {
+    const store = await started(session({ mode: 'dictation' }))
+    vi.mocked(api.practice.answer).mockRejectedValueOnce(offline()).mockResolvedValueOnce(answerResponse())
+    vi.mocked(api.practice.replace).mockRejectedValueOnce(offline())
+
+    await store.answer({ text: 'see you tomorow' })
+    const answerId = store.pendingRequestId
+    expect(await store.replace()).toBe(false)
+    expect(store.pendingRequestId).toBe(answerId)
+    await store.answer({ text: 'see you tomorow' })
+
+    expect(sent(1).request_id).toBe(sent(0).request_id)
+    expect(vi.mocked(api.practice.replace).mock.calls[0]![1].request_id).not.toBe(sent(0).request_id)
+  })
+
+  it('another tab has gone on (replace_not_allowed, not_current): no error is told, the screen follows the server', async () => {
+    const store = await started(session({ mode: 'dictation' }))
+    vi.mocked(api.practice.replace).mockRejectedValue(apiError('conflict', 409, 'replace_not_allowed', { reason: 'not_current' }))
+    vi.mocked(api.practice.get).mockResolvedValue(session({ mode: 'dictation', progress: { done: 1, total: 5 }, current: dictationElement({ id: 'eDict00002' }) }))
+    const seq = store.elementSeq
+
+    expect(await store.replace()).toBe(false)
+
+    expect(store.actionError).toBe('') // nothing the learner did was wrong: no toast
+    expect(store.status).toBe('ready')
+    expect(store.current?.id).toBe('eDict00002')
+    expect(store.progress).toEqual({ done: 1, total: 5 })
+    expect(store.elementSeq).toBe(seq + 1)
+    expect(api.practice.get).toHaveBeenCalledTimes(2) // entering, and the re-read
+    expect(store.replacing).toBeNull()
+  })
+
+  it('not_current with the same element on the server keeps the component, and the screen is not left "submitting"', async () => {
+    const store = await started(session({ mode: 'dictation' }))
+    vi.mocked(api.practice.replace).mockRejectedValue(apiError('conflict', 409, 'replace_not_allowed', { reason: 'not_current' }))
+    const seq = store.elementSeq
+
+    await store.replace()
+
+    expect(store.status).toBe('ready')
+    expect(store.elementSeq).toBe(seq)
+    expect(store.actionError).toBe('')
+  })
+
+  it('not_current whose re-read fails ends in the error state, not in a stuck "submitting"', async () => {
+    const store = await started(session({ mode: 'dictation' }))
+    vi.mocked(api.practice.replace).mockRejectedValue(apiError('conflict', 409, 'replace_not_allowed', { reason: 'not_current' }))
+    vi.mocked(api.practice.get).mockRejectedValue(offline())
+
+    await store.replace()
+
+    expect(store.status).toBe('error')
+  })
+
+  it.each(['limit', 'not_dictation'])('replace_not_allowed (%s) is still a refusal that the learner is told', async (reason) => {
+    const store = await started(session({ mode: 'dictation' }))
+    vi.mocked(api.practice.replace).mockRejectedValue(apiError('conflict', 409, 'replace_not_allowed', { reason }))
+
+    expect(await store.replace()).toBe(false)
+
+    expect(store.status).toBe('ready')
+    expect(store.actionError).toBe('Заменить задание больше нельзя.')
+    expect(api.practice.get).toHaveBeenCalledTimes(1) // no re-read
+  })
+})
+
+describe('practice store — after the summary', () => {
+  it('"Repeat mistakes" opens a session out of the mistakes of this one', async () => {
+    const store = await started(finishedSession({ mode: 'dictation' }))
+    vi.mocked(api.practice.open).mockResolvedValue(session({ id: 91, mode: 'dictation' }))
+
+    expect(await store.retry()).toBe(91)
+
+    expect(api.practice.open).toHaveBeenCalledWith({
+      mode: 'dictation',
+      course: 'english-a1',
+      lesson_id: 41,
+      source: 'retry',
+      retry_of: 77,
+    })
+  })
+
+  it('a course-level session is repeated at the course level', async () => {
+    const store = await started(finishedSession({ lesson: null }))
+    vi.mocked(api.practice.open).mockResolvedValue(session({ id: 91 }))
+
+    await store.retry()
+
+    expect(vi.mocked(api.practice.open).mock.calls[0]![0]).toMatchObject({ lesson_id: null })
+  })
+
+  it('"Again" is a new session of the same mode in the same place, not a retry', async () => {
+    const store = await started(finishedSession({ mode: 'collocation' }))
+    vi.mocked(api.practice.open).mockResolvedValue(session({ id: 92, mode: 'collocation' }))
+
+    expect(await store.again()).toBe(92)
+
+    const body = vi.mocked(api.practice.open).mock.calls[0]![0]
+    expect(body).toMatchObject({ mode: 'collocation', course: 'english-a1', lesson_id: 41, source: 'hub' })
+    expect(body.retry_of).toBeUndefined()
+  })
+
+  it('nothing to repeat (409): the retry gives way to "Again", and the learner is told', async () => {
+    const store = await started(finishedSession())
+    vi.mocked(api.practice.open).mockRejectedValue(apiError('conflict', 409, 'retry_not_available'))
+
+    expect(await store.retry()).toBeNull()
+
+    expect(store.retryUnavailable).toBe(true)
+    expect(store.openError).toBe('Повторить ошибки не получится: их слишком мало или нет совсем.')
+  })
+
+  it('cannot repeat a session that is not finished', async () => {
+    const store = await started(session())
+
+    expect(await store.retry()).toBeNull()
+    expect(await store.again()).toBeNull()
+    expect(api.practice.open).not.toHaveBeenCalled()
+  })
+
+  it('a new session forgets that the retry was refused', async () => {
+    const store = await started(finishedSession())
+    vi.mocked(api.practice.open).mockRejectedValueOnce(apiError('conflict', 409, 'retry_not_available')).mockResolvedValueOnce(session({ id: 93 }))
+    await store.retry()
+    expect(store.retryUnavailable).toBe(true)
+
+    await store.again()
+
+    expect(store.retryUnavailable).toBe(false)
+  })
+})
+
+describe('practice store — the hub the learner comes back to', () => {
+  /** A store with the hub of the lesson read (an unfinished session `77` of pairs, 1 of 3) and the session `77` entered. */
+  async function withHub(s = session({ mode: 'pairs', progress: { done: 1, total: 3 } })) {
+    vi.mocked(api.practice.hub).mockResolvedValue(hub({ active_session: activeSession({ id: 77, progress: { done: 1, total: 3 } }) }))
+    const store = await started(s)
+    await store.loadHub('english-a1', 41)
+    return store
+  }
+
+  it('shows the session that was just opened as the one to continue', async () => {
+    vi.mocked(api.practice.hub).mockResolvedValue(hub())
+    const store = usePracticeStore()
+    await store.loadHub('english-a1', 41)
+    vi.mocked(api.practice.open).mockResolvedValue(session({ id: 90, mode: 'dictation', progress: { done: 0, total: 5 } }))
+
+    await store.open({ mode: 'dictation', course: 'english-a1', lesson_id: 41, source: 'hub' })
+
+    expect(store.hub?.active_session).toEqual({ id: 90, mode: 'dictation', course: 'english-a1', lesson_id: 41, progress: { done: 0, total: 5 } })
+  })
+
+  it('follows the progress of the session as the answers come', async () => {
+    const store = await withHub(session({ id: 77, mode: 'sentence', progress: { done: 1, total: 5 } }))
+    vi.mocked(api.practice.answer).mockResolvedValue(answerResponse({ session: session({ id: 77, progress: { done: 2, total: 5 } }) }))
+
+    await store.answer({ order: ['fW2'] })
+
+    expect(store.hub?.active_session?.progress).toEqual({ done: 2, total: 5 })
+  })
+
+  it('drops the session from the hub when it is over, so that no "Continue" is left behind', async () => {
+    const store = await withHub(session({ id: 77, mode: 'sentence', progress: { done: 4, total: 5 } }))
+    vi.mocked(api.practice.answer).mockResolvedValue(answerResponse({ session: finishedSession({ id: 77 }) }))
+
+    await store.answer({ order: ['fW2'] })
+
+    expect(store.hub?.active_session).toBeNull()
+  })
+
+  it('leaves the card of another session alone', async () => {
+    vi.mocked(api.practice.hub).mockResolvedValue(hub({ active_session: activeSession({ id: 99 }) }))
+    const store = await started(session({ id: 77 }))
+    await store.loadHub('english-a1', 41)
+    vi.mocked(api.practice.answer).mockResolvedValue(answerResponse({ session: finishedSession({ id: 77 }) }))
+
+    await store.answer({ order: ['fW2'] })
+
+    expect(store.hub?.active_session?.id).toBe(99)
+  })
+})
+
+describe('practice store — a new session from the summary', () => {
+  it('has no sheet to ask with: an unfinished session of another tab is told in a sentence', async () => {
+    const store = await started(finishedSession())
+    vi.mocked(api.practice.open).mockRejectedValue(
+      apiError('conflict', 409, 'practice_session_active', { session_id: 91, mode: 'pairs', course: 'english-a1', lesson_id: 41, progress: { done: 0, total: 3 } }),
+    )
+
+    expect(await store.retry()).toBeNull()
+    expect(store.conflict).toBeNull()
+    expect(store.openError).toBe('У вас уже есть незавершённая практика.')
+
+    store.clearOpenError()
+    expect(await store.again()).toBeNull()
+    expect(store.conflict).toBeNull()
+    expect(store.openError).toBe('У вас уже есть незавершённая практика.')
+  })
+})
+
+describe('practice store — the clip of the element', () => {
+  it('is given back when another session is entered', async () => {
+    const store = await started(session({ mode: 'dictation' }))
+    store.audio.blobUrl = 'blob:clip'
+    store.audio.state = 'ready'
+    const revoke = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {})
+
+    vi.mocked(api.practice.get).mockResolvedValue(session({ id: 81 }))
+    await store.load(81)
+
+    expect(revoke).toHaveBeenCalledWith('blob:clip')
+    expect(store.audio).toEqual({ state: 'idle', blobUrl: null })
+    revoke.mockRestore()
+  })
+})

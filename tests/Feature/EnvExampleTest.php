@@ -9,7 +9,7 @@ declare(strict_types=1);
  * permission, ...) and driver variables we do not use (memcached, SQS, ...) are out of scope.
  */
 
-const ENV_OWN_CONFIGS = ['app', 'backup', 'billing', 'cache', 'content', 'leagues', 'learners', 'learning', 'localization', 'logging', 'operations', 'queue', 'referrals', 'session', 'site', 'telegram', 'twa'];
+const ENV_OWN_CONFIGS = ['app', 'backup', 'billing', 'cache', 'content', 'leagues', 'learners', 'learning', 'localization', 'logging', 'operations', 'practice', 'queue', 'referrals', 'session', 'site', 'telegram', 'twa'];
 
 /** @return list<string> */
 function envExampleKeys(): array

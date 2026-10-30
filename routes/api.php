@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Domain\Practice\Services\Battle\BattleReader;
 use App\Http\Controllers\Api\Twa\AchievementController;
 use App\Http\Controllers\Api\Twa\AssignmentController;
 use App\Http\Controllers\Api\Twa\AuthController;
+use App\Http\Controllers\Api\Twa\BattleController;
 use App\Http\Controllers\Api\Twa\BillingController;
 use App\Http\Controllers\Api\Twa\ChallengeController;
 use App\Http\Controllers\Api\Twa\CourseController;
@@ -15,6 +17,9 @@ use App\Http\Controllers\Api\Twa\LeagueController;
 use App\Http\Controllers\Api\Twa\MeController;
 use App\Http\Controllers\Api\Twa\MockExamController;
 use App\Http\Controllers\Api\Twa\OrganizationController;
+use App\Http\Controllers\Api\Twa\PracticeAudioController;
+use App\Http\Controllers\Api\Twa\PracticeHubController;
+use App\Http\Controllers\Api\Twa\PracticeSessionController;
 use App\Http\Controllers\Api\Twa\PromoController;
 use App\Http\Controllers\Api\Twa\ReferralController;
 use App\Http\Controllers\Api\Twa\SettingsController;
@@ -127,5 +132,65 @@ Route::prefix('twa')->group(function (): void {
                 ->name('twa.exam.answer');
             Route::get('/result', [ExamController::class, 'result'])->name('twa.exam.result');
         });
+
+        // Practice (docs/16 §7.1-7.2): the hub and the solo sessions. Opening a session and answering have limiters
+        // of their own on top of `twa-api`. The battle (§7.3-7.4) follows below.
+        Route::get('/practice/hub', [PracticeHubController::class, 'show'])->name('twa.practice.hub');
+        Route::post('/practice/sessions', [PracticeSessionController::class, 'store'])
+            ->middleware('throttle:twa-practice-open')
+            ->name('twa.practice.sessions.store');
+
+        Route::prefix('practice/sessions/{session}')->whereNumber('session')->group(function (): void {
+            Route::get('/', [PracticeSessionController::class, 'show'])->name('twa.practice.sessions.show');
+            Route::middleware('throttle:twa-practice-answer')->group(function (): void {
+                Route::post('/answer', [PracticeSessionController::class, 'answer'])->name('twa.practice.sessions.answer');
+                Route::post('/replace', [PracticeSessionController::class, 'replace'])->name('twa.practice.sessions.replace');
+            });
+        });
+
+        // Battle 1 on 1 (docs/16 §7.3-7.4): the reads share `twa-api`; an invitation (a snapshot, rows, a DM to the friend) and the
+        // actions have limiters of their own on top. The poll and the audio are OUTSIDE it, below. `options` before `{battle}`.
+        // The id is up to 18 digits: a longer one does not fit an integer and would reach the controller as a TypeError (500).
+        Route::prefix('practice/battles')->group(function (): void {
+            Route::get('/options', [BattleController::class, 'options'])->name('twa.practice.battles.options');
+            Route::get('/', [BattleController::class, 'index'])->name('twa.practice.battles.index');
+            Route::post('/', [BattleController::class, 'store'])
+                ->middleware(['throttle:twa-practice-open', 'throttle:twa-battle-invite'])
+                ->name('twa.practice.battles.store');
+
+            Route::prefix('{battle}')->where(['battle' => '[0-9]{1,18}'])->group(function (): void {
+                Route::get('/', [BattleController::class, 'show'])->name('twa.practice.battles.show');
+                Route::get('/round', [BattleController::class, 'round'])->name('twa.practice.battles.round');
+                Route::middleware('throttle:twa-battle-action')->group(function (): void {
+                    Route::post('/accept', [BattleController::class, 'accept'])->name('twa.practice.battles.accept');
+                    Route::post('/decline', [BattleController::class, 'decline'])->name('twa.practice.battles.decline');
+                    Route::post('/cancel', [BattleController::class, 'cancel'])->name('twa.practice.battles.cancel');
+                    Route::post('/ready', [BattleController::class, 'ready'])->name('twa.practice.battles.ready');
+                    Route::post('/surrender', [BattleController::class, 'surrender'])->name('twa.practice.battles.surrender');
+                    Route::post('/answer', [BattleController::class, 'answer'])->name('twa.practice.battles.answer');
+                    Route::post('/audio-failed', [BattleController::class, 'audioFailed'])->name('twa.practice.battles.audio-failed');
+                });
+            });
+        });
+    });
+
+    // The poll of a battle lives OUTSIDE `twa-api` (docs/16 §7.5): a request every 2 s for as long as a room or a match is on screen is
+    // 30 a minute (two tabs, 60), and inside `twa-api` it would eat the whole budget of 60 and choke the rounds and the answers. It has
+    // a bucket of its own (90 a minute) - a limit still, so that a loop in a client or a script runs into it, not into the database.
+    Route::middleware([TwaAuth::class, SetTwaLocale::class, 'throttle:twa-battle-poll'])->group(function (): void {
+        Route::get('/practice/battles/{battle}/poll', [BattleController::class, 'poll'])
+            ->where('battle', '[0-9]{1,18}')
+            ->name('twa.practice.battles.poll');
+    });
+
+    // The audio of a practice session and of a battle lives OUTSIDE `twa-api` (docs/16 §7.5): five clips are loaded at once when a
+    // room is entered, and that preloading must not eat the general budget of 60 requests a minute. It has its own limiter.
+    Route::middleware([TwaAuth::class, SetTwaLocale::class, 'throttle:twa-practice-audio'])->group(function (): void {
+        Route::get('/practice/sessions/{session}/audio/{element}', [PracticeAudioController::class, 'session'])
+            ->whereNumber('session')
+            ->name('twa.practice.sessions.audio');
+        Route::get('/practice/battles/{battle}/audio/{element}', [PracticeAudioController::class, 'battle'])
+            ->where('battle', '[0-9]{1,18}')
+            ->name(BattleReader::AUDIO_ROUTE);
     });
 });

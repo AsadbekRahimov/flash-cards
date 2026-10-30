@@ -460,6 +460,14 @@ php artisan audio:pregenerate <course-slug> --force  # re-synthesize existing fi
   (`<project>` is the compose project name, see `docker volume ls`.) The old copy inside `app_storage` can be deleted afterwards (optional). An `app_audio` created by Docker from a fresh image is already owned by `app` (the image creates `storage/app/public/audio`); only a manually created volume needs the `chown`.
 - Pre-generation is not triggered automatically (neither by import nor by publishing): run the command after importing or publishing a course.
 
+### 10.2 Audio of the practice dictations (task 18.5)
+
+The phrases of the practice mode "Listen and write" (docs/16 §10) are voiced by `GeneratePracticeAudioJob` (queue `low`, 5 attempts, backoff 30 s / 2 m / 10 m / 30 m) into **`storage/app/practice-audio/{sha1}.mp3`** — the disk `practice_audio` of `config/filesystems.php` (a file is written to `.tmp/` first and moved, so a reader never sees half of an mp3). Unlike `storage/app/public/audio` this directory is **private: nginx does NOT serve it** (no `location`, no `storage:link` entry, the disk has no `url`); the files leave the server only through the JWT-guarded endpoints `GET /api/twa/practice/sessions/{id}/audio/{element}` and, for a battle, `GET /api/twa/practice/battles/{id}/audio/{element}` (the five clips of a dictation are loaded when the room is entered; a missing file voids the match — `docs/ADMIN_GUIDE.md`, *Battle 1-on-1*).
+
+- Permissions: as for the rest of `storage/` (the queue worker writes, php-fpm reads — see `File Permissions Reference`; the directory is created by the application on first use, mode 755, files 644). Backup: it is inside the project directory, so `backup:run` includes it exactly like `storage/app/public`; in Docker it lives in the `app_storage` volume shared by `app`, `queue-*` and `scheduler`, and nginx (which mounts only `app_audio`) cannot see it — nothing to add to the compose file.
+- A version whose voicing failed on the last attempt is `failed` with a short `audio_error` (`tts_service_failed`, `tts_service_not_configured`, ...) and waits for the admin action to voice it again; the same text, voice and `TTS_AUDIO_VERSION` give the same file name, so a repeated job does nothing. The `tts` service must be reachable from the queue worker, as for the word audio (§10.1).
+- Lost files (a restore without this directory): the hub still counts the phrases (it does not look at the disk), a dictation session skips a phrase whose file is missing, and when fewer than three clips can play it is refused with "the recordings are being prepared" (422 `practice_not_enough_material`, reason `audio_pending`); voice the phrases again with the admin action.
+
 ---
 
 ## 11. Configure Cron (Laravel Scheduler)
@@ -479,6 +487,11 @@ This runs every minute. Laravel's scheduler internally dispatches:
 - `reminders:dispatch` — every 15 minutes (personal reminders by the learner's local time; a learner is claimed by a conditional UPDATE, so overlapping runs are safe; `withoutOverlapping(10)` — the mutex expires after 10 minutes — and `runInBackground`). Its jobs go to the `default` queue, spread at `REMINDERS_SEND_RATE_PER_SECOND` (25/s) over at most 14 minutes. A run queues at most rate x 840 jobs (`capped` -> a warning line; the rest stays due for the next run). Every background Telegram send also takes a slot of `TELEGRAM_OUTBOUND_GLOBAL_PER_SECOND` (queued jobs release themselves when none is free; `assignments:refresh` waits up to 2 s per post and postpones the rest to the next run).
 - `model:prune` — daily at 03:00 (`product_events` and `notifications_log`, 400 days by default).
 - `training:close-expired` — every 15 minutes (expired personal / stale group training sessions).
+- `practice:close-expired` — every 15 minutes (solo practice sessions past their `expires_at`, 24 h after the start, become `finished / expired` and release the learner's «one active session»; the event `practice.session_finished` is written once; a conditional UPDATE per session, so repeated or parallel runs are harmless; `withoutOverlapping`). A session that nobody closed is also closed by the learner's next request, so a late run costs nothing.
+- `practice:battles-sweep` — every minute (`everyMinute()->withoutOverlapping()->runInBackground()`; the 1-on-1 battle, docs/16 §8.6, task 18.6). One run: (1) invitations past `invite_expires_at` (5 minutes) become `closed / invite_expired` — one conditional UPDATE per row, so an invitation accepted a moment earlier is left alone — and release both players' «one active battle»;
+  (2) every match that is on (`room`, `countdown`, `playing`) is moved by the clock under `FOR UPDATE` of its own row, one transaction per match: a room past 2 minutes, a player silent for more than 30 s, the end of a round (deadline + 1.5 s grace) and of the review, the end of the match; (3) with `PRACTICE_ACCESS=off` the matches that are on are **voided** instead (`closed / voided`, `meta.voided_reason = practice_off`).
+  Idempotent: a repeated or overlapping run changes nothing; it prints `Battles swept: N` (invitations closed + matches moved or voided). The command itself needs no queue worker (the DM that invites a friend does — §14.3). A request of either player moves the same match lazily, so a late run only delays things by a minute — but a match both players left is ended **only** by this command (about 1.5 minutes after they went),
+  and without it the learners' «one active battle» stays taken until each of them looks at the match again. A scheduler that is down (`/health/ready` → `scheduler`) shows up first as matches stuck in `room` / `countdown` / `playing`.
 - `subscriptions:expire` — hourly (time-based subscription transitions).
 - `billing:expire-orders` — every 15 minutes (pending payment orders past `BILLING_ORDER_TTL_MINUTES` become `expired`).
 - `subscriptions:remind-expiring` — daily at 06:00 UTC (renewal reminders 3 and 1 day before a Payme/Click period or a canceled Stars period ends; queues `RenewalReminderJob`, so a queue worker must run; organization owners are e-mailed — the `MAIL_*` settings must be real in production, `MAIL_MAILER=log` only logs them).
@@ -647,6 +660,30 @@ php artisan courses:recount-words
   (the same lock the importer, the decks and the publication take), so a run that meets an import waits for its commit instead of
   overwriting the counter with a count that misses the import.
 
+### 14.3 Deploying the practice (docs/16, tasks 18.x)
+
+The practice ships **switched off**: `PRACTICE_ACCESS` defaults to `off`, so a deploy changes nothing for learners until you turn it on.
+
+1. `php artisan migrate --force` runs the four forward migrations `2026_10_30_100001..100004` (`learners.practice_pilot_at`; `practice_items`, `practice_item_versions`, `practice_item_words`; `practice_sessions`, `practice_attempts`; `battles`, `battle_participants`, `battle_answers`) — new tables and one nullable column, no rewrite of existing data.
+2. `php artisan config:cache`, then restart the queue workers (`supervisorctl restart lexiflow-worker:*`): the voicing job `GeneratePracticeAudioJob` runs on the `low` queue (the `default,low` worker, §10) and the DM that invites a friend to a battle (`SendBattleDmJob`) on the `default` queue; both need the new code.
+3. The directory `storage/app/practice-audio` is created by the application on first use (private, §10.2); on a bare VPS it is in the `mkdir -p` list of the VPS guide §7.1. It is part of the backup (`backup:run`) next to `storage/app/public`.
+4. `php artisan schedule:list` shows `practice:close-expired` (every 15 minutes) and `practice:battles-sweep` (every minute, §11). `/health/ready` needs no change: a dead scheduler already fails its `scheduler` check, and the battle sweeper rides on the same cron entry.
+5. Turn it on in steps (`docs/ADMIN_GUIDE.md`, «Practice tasks»): import the pilot package as drafts (`php artisan practice:import database/data/practice/pilot-a1-a2.json`), check and publish the tasks in the admin, wait until the column «Аудио» of the dictations says «Готово» (the `tts` service and a queue worker must be up), then `PRACTICE_ACCESS=pilot` + `php artisan config:cache`, put a few learners into the pilot, and later `all`.
+6. The 1-on-1 battle comes with the practice (`PRACTICE_BATTLE` defaults to `true`; it is reachable only where `PRACTICE_ACCESS` lets the learners in) and needs nothing else on the server except what steps 2–4 name: `TWA_BASE_URL` must be the public https address (the button of the invitation DM opens `${TWA_BASE_URL}/twa/battles/{id}`), the bot token must work (the DM), and the scheduler must run every minute.
+   Smoke check with two test learners who are friends: invite → the DM arrives with «Открыть баттл» → accept → both press «Готов» → one round; then `php artisan practice:battles-sweep` run twice in a row ends with `Battles swept: 0`.
+7. Rollback: `PRACTICE_ACCESS=off` + `config:cache` hides the practice at once (the entries disappear from `/me`, the endpoints answer 403) and within a minute the sweeper voids the battles that are on; the data stays. `PRACTICE_BATTLE=false` stops only new invitations and acceptances — matches that are on are played to the end. The migrations are reversible (`down()`), but do not roll them back on a live system.
+
+   Stuck battles are visible in the database: a read-only query for matches that did not move although the scheduler should have moved them (a healthy scheduler leaves no rows; more than a few minutes of rows means `practice:battles-sweep` does not run):
+
+   ```sql
+   SELECT id, status, end_reason, invite_expires_at, room_expires_at, updated_at
+   FROM battles
+   WHERE (status = 'invited' AND invite_expires_at < now() - interval '2 minutes')
+      OR (status IN ('room', 'countdown', 'playing') AND updated_at < now() - interval '5 minutes');
+   ```
+
+   Do not repair such rows by hand: run `php artisan practice:battles-sweep` (idempotent) and look at the scheduler. The `meta` keys and the columns are in `docs/03` §2.45–§2.47.
+
 ---
 
 ## 15. Monitoring and Error Tracking
@@ -742,10 +779,12 @@ Worker heartbeat: every minute the scheduler dispatches `QueueHeartbeatJob` to t
 | Certificate expiry | < 14 days |
 | Disk usage on the DB / backup volume | > 80% |
 | `billing.promo_rejected_burst` (warning log; `learner_id`, `rejections`, `last_reason`) | any occurrence outside a known broken client — one learner failed ≥ 5 promo redemptions in 10 min (`BILLING_PROMO_REJECTIONS_ALERT_*`): code guessing; consider blocking the learner |
+| Battles that did not move (the query of §14.3, step 7: invitations expired for 2 minutes, matches that are on and not updated for 5) | rows for more than 10 minutes — `practice:battles-sweep` does not run (the scheduler is down; `/health/ready` should have failed first) |
 
 Product events (`product_events` table, see `docs/03_DATABASE.md`) are for product analytics, not alerting.
 `reminder.failed` is expected for learners who blocked the bot or never opened a DM with it (`reason`: `bot_blocked` / `not_started` / `user_deactivated` / `chat_not_found`); it sets `learners.dm_blocked_at` and the learner is not retried until they write to the bot. Alert only on a sudden spike. `reminders:dispatch` prints `claimed / queued / skipped stale / repaired / backfilled`; a steadily non-zero `skipped stale` means the scheduler or the queue lags by more than `REMINDERS_MAX_DELAY_MINUTES`.
 `promo.rejected` is likewise expected (typos); the burst *log line* above, not the event, is the alert.
+`telegram.battle_dm_forbidden` (warning: `learner_id`, `reason`) is expected too: the friend who was invited to a battle blocked the bot or never opened it; the message is not delivered, `learners.dm_blocked_at` is set, the invitation is still in the app. Alert only on a sudden spike. `battle.*` product events (`battle.finished`, `battle.closed` with `end_reason`) are analytics, not alerts; a growing share of `voided` means missing dictation audio (§10.2).
 
 ---
 
@@ -1029,3 +1068,19 @@ All optional; the defaults are the production values (`.env.example` lists them)
 | `REFERRALS_INVITEE_REWARDS_PER_30D` | `20` | Invited learners of one inviter that get a reward per rolling 30 days |
 | `REFERRALS_FLAG_LINKS_PER_DAY` | `20` | Links of one inviter within 24 h at which the next one is flagged (reward waits for an admin) |
 | `REFERRALS_RECOVER_WINDOW_DAYS` | `14` | `referrals:recover` looks only at referrals activated / rewarded within this many days |
+
+### Practice variables (docs/16 §3.1)
+
+The switches are read from `.env`; everything else of `config/practice.php` (sizes, limits, timings) is changed by a release, not by an environment variable. Changing a value needs `php artisan config:cache` + a worker restart (section 14).
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `PRACTICE_ACCESS` | `off` | Who may practise: `off` (nobody), `pilot` (learners with `learners.practice_pilot_at`, set by an admin), `all`. Any other value counts as `off` |
+| `PRACTICE_PLAN` | `all` | `pro` — only Pro learners practise; a Free learner gets the paywall (403 `practice_pro_required`) |
+| `PRACTICE_MODE_PAIRS` / `_COLLOCATION` / `_SENTENCE` / `_DICTATION` | `true` | Switches one mode off: no new session of it; sessions already started finish |
+| `PRACTICE_BATTLE` | `true` | The switch of the 1-on-1 battle: `false` refuses new invitations and the acceptance of sent ones (409 `battle_disabled`) and hides the entries (`/me` → `practice.battle`); matches that are on finish. `PRACTICE_ACCESS=off` is stronger: the sweeper voids the matches that are on |
+| `TTS_SERVICE_URL`, `TTS_VOICE`, `TTS_AUDIO_VERSION` | see §10.1 | Voicing of the dictation phrases uses the same service and voice as the word audio (§10.2) |
+
+Fixed in `config/practice.php`: solo session TTL 24 h (`practice.solo.session_ttl_hours`); 5 tasks per session, at least 3 (`solo.items`); pairs — up to 3 rounds of 4, rounds of 3 allowed (`solo.pairs`); dictation — at most 3 phrases, 2 swaps of a clip (`solo.dictation`); import ≤ 2 MB and ≤ 300 tasks (`import`); the disk of the phrase audio `practice_audio` (`config/filesystems.php`, root `storage/app/practice-audio`, no URL).
+The battle (`practice.battle.*`): 5 rounds; a round lasts 30 s (collocation), 45 s (pairs, sentence) or 60 s (dictation); a countdown of 3 s and a review of 4 s; an invitation lives 300 s, a room 120 s; the opponent is warned about after 10 s of silence (`presence_warn_seconds`), a player silent for 30 s loses (`presence_grace_seconds`); the presence is written at most once per 5 s (`heartbeat_write_seconds`);
+an answer is taken up to 1500 ms after the deadline (`deadline_grace_ms`); a round is worth 100 points, a pair 25 (`points`); the list of finished matches holds 10 (`finished_list`). The limiters (`AppServiceProvider`): `twa-battle-invite` 5/min, `twa-battle-action` 60/min, `twa-battle-poll` 90/min (outside `twa-api`), `twa-practice-audio` 60/min (shared with the solo audio).

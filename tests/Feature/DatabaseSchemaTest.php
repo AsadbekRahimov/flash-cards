@@ -4,9 +4,23 @@ declare(strict_types=1);
 
 use App\Domain\Learning\Enums\ExerciseType;
 use App\Domain\Learning\Enums\SchedulerKind;
+use App\Domain\Practice\Enums\AudioStatus;
+use App\Domain\Practice\Enums\BattleEndReason;
+use App\Domain\Practice\Enums\BattlePhase;
+use App\Domain\Practice\Enums\BattleRole;
+use App\Domain\Practice\Enums\BattleStatus;
+use App\Domain\Practice\Enums\PracticeItemStatus;
+use App\Domain\Practice\Enums\PracticeItemType;
+use App\Domain\Practice\Enums\PracticeMode;
+use App\Domain\Practice\Enums\SessionStatus;
+use App\Domain\Practice\Enums\Verdict;
+use App\Domain\Practice\Enums\VersionState;
 use App\Models\Achievement;
 use App\Models\Assignment;
 use App\Models\AssignmentResult;
+use App\Models\Battle;
+use App\Models\BattleAnswer;
+use App\Models\BattleParticipant;
 use App\Models\Challenge;
 use App\Models\Course;
 use App\Models\ExamAnswer;
@@ -29,6 +43,11 @@ use App\Models\OrganizationMember;
 use App\Models\OrganizationUser;
 use App\Models\Payment;
 use App\Models\PaymentOrder;
+use App\Models\PracticeAttempt;
+use App\Models\PracticeItem;
+use App\Models\PracticeItemVersion;
+use App\Models\PracticeItemWord;
+use App\Models\PracticeSession;
 use App\Models\ProductEvent;
 use App\Models\PromoCode;
 use App\Models\PromoRedemption;
@@ -48,6 +67,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 uses(RefreshDatabase::class);
 
@@ -89,6 +109,9 @@ $expectedTables = [
     'friendships', 'challenges',
     // Phase 2 (docs/13 §1.5): achievements.
     'achievements',
+    // Practice and battle (docs/16 §2).
+    'practice_items', 'practice_item_versions', 'practice_item_words', 'practice_sessions', 'practice_attempts',
+    'battles', 'battle_participants', 'battle_answers',
 ];
 
 /**
@@ -1428,3 +1451,323 @@ it('rolls back and re-applies the achievements migration (2C.4)', function (): v
     expect(Schema::hasTable('achievements'))->toBeTrue()
         ->and(Schema::hasColumns('achievements', ['learner_id', 'key', 'unlocked_at', 'shared_at', 'meta']))->toBeTrue();
 });
+
+// --- 18.1 practice and battle (docs/16 §2) ----------------------------------------
+
+/**
+ * A raw `practice_sessions` row (for the tests of what only PostgreSQL's CHECKs refuse).
+ *
+ * @param  array<string, mixed>  $override
+ * @return array<string, mixed>
+ */
+function practiceRawSession(array $override = []): array
+{
+    $learner = Learner::factory()->create();
+
+    return [
+        'learner_id' => $learner->id,
+        'active_learner_id' => $learner->id,
+        'mode' => 'pairs',
+        'course_id' => Course::factory()->create()->id,
+        'source' => 'hub',
+        'status' => 'active',
+        'snapshot' => '{}',
+        'state' => '{}',
+        'total' => 3,
+        'locale' => 'ru',
+        'expires_at' => now()->addDay(),
+        'started_at' => now(),
+        ...$override,
+    ];
+}
+
+/**
+ * A raw `battles` row.
+ *
+ * @param  array<string, mixed>  $override
+ * @return array<string, mixed>
+ */
+function practiceRawBattle(array $override = []): array
+{
+    return [
+        'challenger_id' => Learner::factory()->create()->id,
+        'opponent_id' => Learner::factory()->create()->id,
+        'course_id' => Course::factory()->create()->id,
+        'mode' => 'pairs',
+        'status' => 'invited',
+        'snapshot' => '{}',
+        'invite_expires_at' => now()->addMinutes(5),
+        ...$override,
+    ];
+}
+
+it('rolls back and re-applies the practice migrations (18.1, and the scope of the versions) in FK order', function (): void {
+    $tables = ['battle_answers', 'battle_participants', 'battles', 'practice_attempts', 'practice_sessions', 'practice_item_words', 'practice_item_versions', 'practice_items'];
+
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_30_100001_add_practice_pilot_at_to_learners_table')])->assertSuccessful();
+    foreach ($tables as $table) {
+        expect(Schema::hasTable($table))->toBeFalse("Table {$table} survived rollback");
+    }
+    expect(Schema::hasColumn('learners', 'practice_pilot_at'))->toBeFalse()
+        ->and(Schema::hasTable('learners'))->toBeTrue()
+        ->and(Schema::hasTable('friendships'))->toBeTrue();
+
+    $this->artisan('migrate')->assertSuccessful();
+    foreach ($tables as $table) {
+        expect(Schema::hasTable($table))->toBeTrue("Table {$table} missing after re-migrate");
+    }
+    expect(Schema::hasColumn('learners', 'practice_pilot_at'))->toBeTrue()
+        // The migration of the 18.9a (the words, the lesson and the level belong to the version) comes with the table.
+        ->and(Schema::hasColumns('practice_item_versions', ['target_word_ids', 'lesson_id', 'level']))->toBeTrue()
+        // ... and so does `battles.open_pair` of 18.6-fix (one battle that is not over per pair).
+        ->and(Schema::hasColumn('battles', 'open_pair'))->toBeTrue();
+
+    // The invariants are back with the tables: the unique "one active session" and the partial index.
+    $learner = Learner::factory()->create();
+    PracticeSession::factory()->create(['learner_id' => $learner->id]);
+    expectConstraintViolation(fn () => PracticeSession::factory()->create(['learner_id' => $learner->id]));
+    expect(array_column(Schema::getIndexes('practice_item_versions'), 'name'))->toContain('practice_item_versions_audio_pending_idx');
+});
+
+it('adds learners.practice_pilot_at as a nullable timestamp', function (): void {
+    $learner = Learner::factory()->create();
+    expect($learner->fresh()?->practice_pilot_at)->toBeNull();
+
+    $learner->update(['practice_pilot_at' => '2026-10-30 10:00:00']);
+    expect($learner->fresh()?->practice_pilot_at?->toDateTimeString())->toBe('2026-10-30 10:00:00');
+});
+
+it('allows ONE active practice session per learner through the unique active_learner_id, and many finished ones', function (): void {
+    $learner = Learner::factory()->create();
+    PracticeSession::factory()->create(['learner_id' => $learner->id]);
+
+    expectConstraintViolation(fn () => PracticeSession::factory()->create(['learner_id' => $learner->id]));
+
+    // A finished session lets go of the column (NULLs never collide), another learner is independent.
+    PracticeSession::factory()->count(3)->finished()->create(['learner_id' => $learner->id]);
+    PracticeSession::factory()->create();
+    expect(PracticeSession::query()->where('learner_id', $learner->id)->count())->toBe(4)
+        ->and(PracticeSession::query()->where('learner_id', $learner->id)->whereNotNull('active_learner_id')->count())->toBe(1);
+});
+
+it('allows ONE battle that is not over per pair of players through the unique battles.open_pair, whichever side invited (18.6-fix)', function (): void {
+    $a = Learner::factory()->create();
+    $b = Learner::factory()->create();
+
+    // The factory holds the pair for a battle that is not over, the way the invitation writes it: the same key from either side.
+    $first = Battle::factory()->create(['challenger_id' => $a->id, 'opponent_id' => $b->id]);
+    expect($first->open_pair)->toBe(Battle::pairKey($a->id, $b->id))
+        ->and(Battle::pairKey($b->id, $a->id))->toBe(Battle::pairKey($a->id, $b->id));
+    expectConstraintViolation(fn () => Battle::factory()->create(['challenger_id' => $b->id, 'opponent_id' => $a->id]));
+    expectConstraintViolation(fn () => Battle::factory()->create(['challenger_id' => $a->id, 'opponent_id' => $b->id, 'status' => BattleStatus::Room, 'accepted_at' => now(), 'room_expires_at' => now()->addMinutes(2)]));
+
+    // A battle that is over lets the pair go (NULL does not collide): the next invitation of the pair is free.
+    $first->forceFill(['status' => BattleStatus::Closed, 'end_reason' => BattleEndReason::Declined, 'finished_at' => now(), 'open_pair' => null])->save();
+    $second = Battle::factory()->create(['challenger_id' => $b->id, 'opponent_id' => $a->id]);
+    expect($second->open_pair)->toBe(Battle::pairKey($a->id, $b->id))
+        ->and(Battle::factory()->create(['challenger_id' => $a->id, 'opponent_id' => $b->id, 'status' => BattleStatus::Finished, 'end_reason' => BattleEndReason::Completed, 'finished_at' => now()])->open_pair)->toBeNull();
+
+    // Another pair is another key.
+    $c = Learner::factory()->create();
+    expect(Battle::factory()->create(['challenger_id' => $a->id, 'opponent_id' => $c->id])->open_pair)->toBe(Battle::pairKey($a->id, $c->id));
+
+    // PostgreSQL: a battle that is over cannot hold the pair.
+    if (DB::getDriverName() === 'pgsql') {
+        expectConstraintViolation(fn () => Battle::factory()->create(['challenger_id' => $b->id, 'opponent_id' => $c->id, 'status' => BattleStatus::Closed, 'end_reason' => BattleEndReason::Declined, 'finished_at' => now(), 'open_pair' => Battle::pairKey($b->id, $c->id)]));
+    }
+});
+
+it('allows ONE active battle per learner through the unique battle_participants.active_learner_id', function (): void {
+    $learner = Learner::factory()->create();
+    $first = Battle::factory()->create(['challenger_id' => $learner->id]);
+    BattleParticipant::factory()->create(['battle_id' => $first->id, 'learner_id' => $learner->id, 'active_learner_id' => $learner->id]);
+
+    $second = Battle::factory()->create(['challenger_id' => $learner->id]);
+    expectConstraintViolation(fn () => BattleParticipant::factory()->create(['battle_id' => $second->id, 'learner_id' => $learner->id, 'active_learner_id' => $learner->id]));
+
+    // A player who is not busy with the match (NULL) is not limited by that column - only one row per (battle, player).
+    BattleParticipant::factory()->create(['battle_id' => $second->id, 'learner_id' => $learner->id, 'active_learner_id' => null]);
+    expectConstraintViolation(fn () => BattleParticipant::factory()->create(['battle_id' => $second->id, 'learner_id' => $learner->id, 'active_learner_id' => null]));
+    expect(BattleParticipant::query()->where('learner_id', $learner->id)->count())->toBe(2);
+});
+
+it('keeps the idempotency keys of attempts and battle answers unique', function (): void {
+    $session = PracticeSession::factory()->create();
+    $requestId = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d';
+    PracticeAttempt::factory()->create(['session_id' => $session->id, 'learner_id' => $session->learner_id, 'request_id' => $requestId]);
+
+    expectConstraintViolation(fn () => PracticeAttempt::factory()->create(['session_id' => $session->id, 'learner_id' => $session->learner_id, 'request_id' => $requestId]));
+    PracticeAttempt::factory()->create(['session_id' => $session->id, 'learner_id' => $session->learner_id]); // another request
+    PracticeAttempt::factory()->create(['request_id' => $requestId]); // the same key in another session
+
+    $battle = Battle::factory()->create();
+    $player = $battle->challenger_id;
+    BattleAnswer::factory()->create(['battle_id' => $battle->id, 'learner_id' => $player, 'round' => 1, 'request_id' => $requestId]);
+
+    // One final answer per (battle, round, player); one request per (battle, player).
+    expectConstraintViolation(fn () => BattleAnswer::factory()->create(['battle_id' => $battle->id, 'learner_id' => $player, 'round' => 1]));
+    expectConstraintViolation(fn () => BattleAnswer::factory()->create(['battle_id' => $battle->id, 'learner_id' => $player, 'round' => 2, 'request_id' => $requestId]));
+    BattleAnswer::factory()->create(['battle_id' => $battle->id, 'learner_id' => $player, 'round' => 2]);
+    BattleAnswer::factory()->create(['battle_id' => $battle->id, 'learner_id' => $battle->opponent_id, 'round' => 1, 'request_id' => $requestId]);
+    expect(BattleAnswer::query()->count())->toBe(3);
+});
+
+it('keeps the task keys unique per course, the versions per task and the target words per task', function (): void {
+    $course = Course::factory()->published()->create();
+    $item = PracticeItem::factory()->bare()->forCourse($course)->create(['key' => 'k1']);
+
+    expectConstraintViolation(fn () => PracticeItem::factory()->bare()->forCourse($course)->create(['key' => 'k1']));
+    PracticeItem::factory()->bare()->create(['key' => 'k1']); // the same key in another course
+
+    PracticeItemVersion::factory()->create(['item_id' => $item->id, 'number' => 1]);
+    expectConstraintViolation(fn () => PracticeItemVersion::factory()->create(['item_id' => $item->id, 'number' => 1]));
+    PracticeItemVersion::factory()->create(['item_id' => $item->id, 'number' => 2]);
+
+    $word = Word::factory()->create();
+    PracticeItemWord::factory()->create(['item_id' => $item->id, 'word_id' => $word->id]);
+    expectConstraintViolation(fn () => PracticeItemWord::factory()->create(['item_id' => $item->id, 'word_id' => $word->id]));
+    PracticeItemWord::factory()->create(['item_id' => $item->id]);
+    expect(PracticeItemWord::query()->where('item_id', $item->id)->count())->toBe(2);
+});
+
+it('has the partial index of the versions whose audio is pending, with its predicate', function (): void {
+    $definition = DB::getDriverName() === 'pgsql'
+        ? DB::table('pg_indexes')->where('indexname', 'practice_item_versions_audio_pending_idx')->value('indexdef')
+        : DB::table('sqlite_master')->where('type', 'index')->where('name', 'practice_item_versions_audio_pending_idx')->value('sql');
+
+    expect((string) $definition)->toContain('audio_status')
+        ->toContain('WHERE')
+        ->toContain("'pending'");
+});
+
+it('stores the jsonb columns of the practice as arrays and the enumerations as enums', function (): void {
+    $item = PracticeItem::factory()->sentence()->published()->create();
+    $version = PracticeItemVersion::query()->findOrFail($item->fresh()?->published_version_id);
+
+    expect($item->fresh()?->type)->toBe(PracticeItemType::Sentence)
+        ->and($item->fresh()?->status)->toBe(PracticeItemStatus::Published)
+        ->and($version->state)->toBe(VersionState::Published)
+        ->and($version->audio_status)->toBe(AudioStatus::None)
+        ->and($version->content)->toBeArray()->toHaveKeys(['prompt', 'fragments', 'accepted']);
+
+    $session = PracticeSession::factory()->ofMode(PracticeMode::Dictation)->create();
+    expect($session->fresh()?->mode)->toBe(PracticeMode::Dictation)
+        ->and($session->fresh()?->status)->toBe(SessionStatus::Active)
+        ->and($session->fresh()?->snapshot)->toBeArray()->toHaveKey('elements')
+        ->and($session->fresh()?->state)->toBeArray()->toHaveKey('current')
+        ->and($session->fresh()?->expires_at)->toBeInstanceOf(CarbonImmutable::class);
+
+    $battle = Battle::factory()->withParticipants()->create();
+    expect($battle->fresh()?->status)->toBe(BattleStatus::Invited)
+        ->and($battle->fresh()?->end_reason)->toBeNull()
+        ->and($battle->fresh()?->phase)->toBeNull()
+        ->and($battle->fresh()?->meta)->toBe([])
+        ->and($battle->participants()->orderBy('id')->pluck('role')->all())->toBe([BattleRole::Challenger, BattleRole::Opponent])
+        ->and($battle->participants()->whereNotNull('active_learner_id')->count())->toBe(1);
+
+    $playing = Battle::factory()->create(['status' => BattleStatus::Playing, 'phase' => BattlePhase::Answering, 'current_round' => 1, 'end_reason' => BattleEndReason::Completed]);
+    expect($playing->fresh()?->phase)->toBe(BattlePhase::Answering)
+        ->and($playing->fresh()?->end_reason)->toBe(BattleEndReason::Completed);
+
+    $answer = BattleAnswer::factory()->create(['verdict' => Verdict::Timeout, 'points' => 0]);
+    expect($answer->fresh()?->verdict)->toBe(Verdict::Timeout);
+});
+
+it('cascades the practice rows with their learner, course and word, and nulls the lesson and the retried session', function (): void {
+    $learner = Learner::factory()->create();
+    $session = PracticeSession::factory()->create(['learner_id' => $learner->id]);
+    PracticeAttempt::factory()->create(['session_id' => $session->id, 'learner_id' => $learner->id]);
+    $battle = Battle::factory()->create(['challenger_id' => $learner->id]);
+    BattleParticipant::factory()->create(['battle_id' => $battle->id, 'learner_id' => $learner->id]);
+    BattleAnswer::factory()->create(['battle_id' => $battle->id, 'learner_id' => $learner->id]);
+    $keep = PracticeSession::factory()->create();
+
+    $learner->forceDelete();
+    expect(PracticeSession::query()->whereKey($session->id)->exists())->toBeFalse()
+        ->and(PracticeAttempt::query()->count())->toBe(0)
+        ->and(Battle::query()->whereKey($battle->id)->exists())->toBeFalse()
+        ->and(BattleParticipant::query()->count())->toBe(0)
+        ->and(BattleAnswer::query()->count())->toBe(0)
+        ->and(PracticeSession::query()->whereKey($keep->id)->exists())->toBeTrue();
+
+    // A lesson that goes leaves the sessions and the tasks of the course (SET NULL); a word takes its target-word links along.
+    $lesson = Lesson::factory()->for(Stage::factory()->create())->create();
+    $word = Word::factory()->for($lesson)->create();
+    $item = PracticeItem::factory()->forLesson($lesson)->targeting($word)->published()->create();
+    $inLesson = PracticeSession::factory()->create(['lesson_id' => $lesson->id]);
+    $retry = PracticeSession::factory()->finished()->create(['retry_of_session_id' => $keep->id]);
+
+    $keep->delete();
+    expect($retry->fresh()?->retry_of_session_id)->toBeNull();
+
+    Word::query()->whereKey($word->id)->delete();
+    expect(PracticeItemWord::query()->where('item_id', $item->id)->count())->toBe(0);
+
+    Lesson::query()->whereKey($lesson->id)->delete();
+    expect($inLesson->fresh()?->lesson_id)->toBeNull()
+        ->and($item->fresh()?->lesson_id)->toBeNull()
+        // The version holds the lesson, too (its own foreign key, set NULL like the task's).
+        ->and(PracticeItemVersion::query()->where('item_id', $item->id)->whereNotNull('lesson_id')->count())->toBe(0);
+
+    // The course takes the tasks (with their versions) and the sessions along.
+    $course = Course::factory()->published()->create();
+    $courseItem = PracticeItem::factory()->forCourse($course)->published()->create();
+    $courseSession = PracticeSession::factory()->create(['course_id' => $course->id]);
+    $course->delete();
+    expect(PracticeItem::query()->whereKey($courseItem->id)->exists())->toBeFalse()
+        ->and(PracticeItemVersion::query()->where('item_id', $courseItem->id)->count())->toBe(0)
+        ->and(PracticeSession::query()->whereKey($courseSession->id)->exists())->toBeFalse();
+});
+
+it('has the CHECK constraints of the practice tables (PostgreSQL)', function (): void {
+    $course = Course::factory()->create();
+    $item = ['course_id' => $course->id, 'key' => 'k', 'type' => 'sentence', 'status' => 'draft'];
+
+    // practice_items: the type, the status and the shape "published <=> a published version and not archived".
+    expectConstraintViolation(fn () => DB::table('practice_items')->insert([...$item, 'type' => 'pairs']));
+    expectConstraintViolation(fn () => DB::table('practice_items')->insert([...$item, 'status' => 'live']));
+    expectConstraintViolation(fn () => DB::table('practice_items')->insert([...$item, 'status' => 'published']));
+    expectConstraintViolation(fn () => DB::table('practice_items')->insert([...$item, 'published_version_id' => 7]));
+    expectConstraintViolation(fn () => DB::table('practice_items')->insert([...$item, 'status' => 'published', 'published_version_id' => 7, 'archived_at' => now()]));
+    DB::table('practice_items')->insert([...$item, 'key' => 'k-published', 'status' => 'published', 'published_version_id' => 7]);
+    DB::table('practice_items')->insert([...$item, 'key' => 'k-archived', 'status' => 'archived', 'published_version_id' => 7, 'archived_at' => now()]);
+
+    // practice_item_versions
+    $itemId = (int) DB::table('practice_items')->where('key', 'k-published')->value('id');
+    $version = ['item_id' => $itemId, 'number' => 1, 'state' => 'draft', 'content' => '{}'];
+    expectConstraintViolation(fn () => DB::table('practice_item_versions')->insert([...$version, 'state' => 'archived']));
+    expectConstraintViolation(fn () => DB::table('practice_item_versions')->insert([...$version, 'audio_status' => 'broken']));
+    DB::table('practice_item_versions')->insert($version);
+
+    // practice_sessions: the enumerations, active <=> active_learner_id, active_learner_id = learner_id.
+    expectConstraintViolation(fn () => DB::table('practice_sessions')->insert(practiceRawSession(['mode' => 'karaoke'])));
+    expectConstraintViolation(fn () => DB::table('practice_sessions')->insert(practiceRawSession(['status' => 'paused'])));
+    expectConstraintViolation(fn () => DB::table('practice_sessions')->insert(practiceRawSession(['active_learner_id' => null])));
+    expectConstraintViolation(fn () => DB::table('practice_sessions')->insert(practiceRawSession(['status' => 'finished'])));
+    expectConstraintViolation(fn () => DB::table('practice_sessions')->insert(practiceRawSession(['active_learner_id' => Learner::factory()->create()->id])));
+    DB::table('practice_sessions')->insert(practiceRawSession());
+    DB::table('practice_sessions')->insert(practiceRawSession(['status' => 'finished', 'active_learner_id' => null]));
+
+    // battles: two different players, a round 0..5, the status, the phase only while playing.
+    $same = Learner::factory()->create()->id;
+    expectConstraintViolation(fn () => DB::table('battles')->insert(practiceRawBattle(['challenger_id' => $same, 'opponent_id' => $same])));
+    expectConstraintViolation(fn () => DB::table('battles')->insert(practiceRawBattle(['current_round' => 6])));
+    expectConstraintViolation(fn () => DB::table('battles')->insert(practiceRawBattle(['status' => 'lobby'])));
+    expectConstraintViolation(fn () => DB::table('battles')->insert(practiceRawBattle(['status' => 'playing'])));
+    expectConstraintViolation(fn () => DB::table('battles')->insert(practiceRawBattle(['phase' => 'answering'])));
+    DB::table('battles')->insert(practiceRawBattle());
+    DB::table('battles')->insert(practiceRawBattle(['status' => 'playing', 'phase' => 'answering', 'current_round' => 5]));
+
+    // battle_participants / battle_answers
+    $battleId = (int) DB::table('battles')->value('id');
+    $player = Learner::factory()->create()->id;
+    $participant = ['battle_id' => $battleId, 'learner_id' => $player, 'role' => 'challenger', 'locale' => 'ru'];
+    expectConstraintViolation(fn () => DB::table('battle_participants')->insert([...$participant, 'active_learner_id' => Learner::factory()->create()->id]));
+    DB::table('battle_participants')->insert([...$participant, 'active_learner_id' => $player]);
+
+    $answer = ['battle_id' => $battleId, 'learner_id' => $player, 'round' => 1, 'payload' => '{}', 'verdict' => 'correct', 'points' => 100, 'accepted_at' => now()];
+    expectConstraintViolation(fn () => DB::table('battle_answers')->insert([...$answer, 'request_id' => (string) Str::uuid(), 'points' => 101]));
+    expectConstraintViolation(fn () => DB::table('battle_answers')->insert([...$answer, 'request_id' => (string) Str::uuid(), 'round' => 0]));
+    expectConstraintViolation(fn () => DB::table('battle_answers')->insert([...$answer, 'request_id' => (string) Str::uuid(), 'round' => 6]));
+    DB::table('battle_answers')->insert([...$answer, 'request_id' => (string) Str::uuid()]);
+})->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'The CHECK constraints are PostgreSQL-only; on SQLite the services and the enums hold the same invariants.');

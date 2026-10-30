@@ -349,8 +349,12 @@ sudo find /var/www/lexiflow -type f -exec chmod 644 {} \;
 sudo chmod -R ug+rwX storage bootstrap/cache
 sudo setfacl -R  -m u:www-data:rwX -m u:deploy:rwX storage bootstrap/cache
 sudo setfacl -dR -m u:www-data:rwX -m u:deploy:rwX storage bootstrap/cache
-mkdir -p storage/app/public/audio storage/app/public/achievements
+mkdir -p storage/app/public/audio storage/app/public/achievements storage/app/practice-audio
 ```
+
+`storage/app/practice-audio` — озвучка фраз режима практики «Слушай и пиши» (`GeneratePracticeAudioJob`, очередь `low`). Каталог **приватный: nginx его НЕ раздаёт**
+(в конфигурации из §12.3 для него нет `location`, и добавлять не нужно — файлы отдаёт только эндпоинт API с JWT). Права и ACL — те же, что у остального `storage/`
+(воркер пишет, php-fpm читает); бэкап `backup:run` включает каталог так же, как `storage/app/public` (§18).
 
 ---
 
@@ -489,6 +493,12 @@ SENTRY_ENVIRONMENT=production
   у всех есть разумные значения по умолчанию; таблица — `docs/DEVOPS_GUIDE.md`, раздел «Phase 2 variables».
 - **Озвучка слов** `TTS_SERVICE_URL` — адрес сервиса edge-tts. Если его нет, ученики слышат озвучку браузера (Web Speech);
   предгенерация аудио (`audio:pregenerate`) просто не будет работать. Можно настроить позже.
+- **Практика** (четыре режима: пары, сочетание, предложение, диктант) — по умолчанию **выключена**: `PRACTICE_ACCESS=off`. Включайте ступенями, когда импортированы и проверены задания (`docs/ADMIN_GUIDE.md`, раздел «Practice tasks»):
+  `PRACTICE_ACCESS=pilot` (только ученики с отметкой «пилот» в админке) → `all`. Остальные переключатели — `PRACTICE_PLAN=pro` (только Pro), `PRACTICE_MODE_PAIRS|COLLOCATION|SENTENCE|DICTATION=false` (выключить один режим),
+  `PRACTICE_BATTLE=false`; таблица — `docs/DEVOPS_GUIDE.md`, «Practice variables». Диктанты озвучивает очередь `low` через тот же `TTS_SERVICE_URL`, что и слова: без него фразы не получат запись и диктант не откроется.
+  «Баттл 1 на 1» включён по умолчанию (`PRACTICE_BATTLE=true`) и работает там, где открыта практика. Ему нужны: воркер очереди `default` (ЛС с приглашением другу), `TWA_BASE_URL` с публичным https-адресом (кнопка «Открыть баттл» ведёт на `${TWA_BASE_URL}/twa/battles/{id}`) и **cron раз в минуту** (§14):
+  команда `practice:battles-sweep` каждую минуту закрывает просроченные приглашения и матчи, которые оба игрока бросили; без неё такие матчи и «занятость» учеников «зависают».
+  После правки `.env` — `php artisan config:cache` и `supervisorctl restart lexiflow-worker:*` (§17).
 
 > **`.env` никогда не коммитим** и не отдаём наружу (nginx ниже запрещает доступ к dot-файлам, а корень сайта — `public/`).
 
@@ -797,15 +807,18 @@ sudo crontab -e -u www-data
 * * * * * cd /var/www/lexiflow && /usr/bin/php artisan schedule:run >> /dev/null 2>&1
 ```
 
-Laravel сам запускает все задачи по расписанию: напоминания ученикам, закрытие сессий и экзаменов, истечение
+Laravel сам запускает все задачи по расписанию: напоминания ученикам, закрытие сессий (в том числе сессий практики — `practice:close-expired`, каждые 15 минут) и экзаменов, истечение
 подписок и заказов, напоминания о продлении, закрытие недели лиг, вызовы друзей, задания центров, восстановление
-рефералов, сверку Stars, бэкапы. Полный список с расписанием — `docs/DEVOPS_GUIDE.md` §11.
+рефералов, сверку Stars, бэкапы. Каждую минуту — `practice:battles-sweep`: дворник «Баттла 1 на 1» (закрывает просроченные приглашения, двигает матчи по времени, прекращает матчи, которые оба игрока бросили). Полный список с расписанием — `docs/DEVOPS_GUIDE.md` §11.
 
 Проверка:
 
 ```bash
 sudo -u www-data php /var/www/lexiflow/artisan schedule:list
 ```
+
+В списке должны быть `practice:close-expired` (каждые 15 минут) и `practice:battles-sweep` (каждую минуту). Если баттл «завис» (ученику пишет «вы заняты другим баттлом» дольше нескольких минут), первым делом проверьте cron и `/health/ready`, затем один раз выполните
+`sudo -u www-data php /var/www/lexiflow/artisan practice:battles-sweep` (безопасно и повторяемо; выводит `Battles swept: N`). Вручную правьте строки `battles` не нужно (`docs/DEVOPS_GUIDE.md` §14.3).
 
 ---
 
@@ -982,6 +995,8 @@ git checkout --detach <prev_sha>     # SHA предыдущего успешно
 - `BACKUP_DISKS=local` хранит архивы **на этом же сервере** (`storage/app/...`) — этого недостаточно.
   Настройте внешнее хранилище (S3-совместимое: Backblaze, Wasabi, Selectel и т.п.) и добавьте его в `BACKUP_DISKS`,
   или копируйте архивы на другой сервер (`rsync` по cron).
+- В архив попадают и загруженные файлы: `storage/app/public` (озвучка слов, карточки достижений) и `storage/app/practice-audio` (озвучка диктантов практики).
+  Потерянную озвучку диктантов можно сгенерировать заново из админки, но восстановление из архива быстрее.
 - **Проверьте восстановление** хотя бы раз: разверните архив на тестовой БД и запустите приложение на ней.
 
 Ручной бэкап и проверка:
@@ -1044,6 +1059,7 @@ sudo -u www-data php artisan backup:list
 - [ ] Nginx + сертификат Let's Encrypt, автопродление проверено
 - [ ] Supervisor: воркеры RUNNING
 - [ ] Cron `schedule:run` для `www-data`
+- [ ] Практика: `PRACTICE_ACCESS=off` пока нет проверенных заданий; каталог `storage/app/practice-audio` создан (§7.1), `schedule:list` показывает `practice:close-expired` и `practice:battles-sweep` (раз в минуту)
 - [ ] `telegram:set-webhook`, `telegram:setup-bot` (меню команд по «/» и кнопка «LexiFlow» → `/twa/`)
 - [ ] Smoke test (§16) пройден, бот отвечает на `/start`
 - [ ] Бэкапы уходят во внешнее хранилище, восстановление проверено

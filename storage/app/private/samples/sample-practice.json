@@ -1,0 +1,49 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "default",
+  "items": [
+    {
+      "key": "sample-sentence-1",
+      "type": "sentence",
+      "lesson": {"stage": 1, "number": 1},
+      "level": "A1",
+      "target_words": ["drink", "water"],
+      "prompt": {"ru": "Я пью воду каждый день.", "uz": "Men har kuni suv ichaman."},
+      "fragments": ["I", "drink", "water", "every", "day"],
+      "accepted": [
+        ["I", "drink", "water", "every", "day"],
+        ["every", "day", "I", "drink", "water"]
+      ],
+      "display": "I drink water every day.",
+      "explanation": {
+        "ru": "Слова every day можно поставить и в начало: Every day I drink water.",
+        "uz": "Every day so'zlarini gap boshiga ham qo'yish mumkin: Every day I drink water."
+      }
+    },
+    {
+      "key": "sample-collocation-1",
+      "type": "collocation",
+      "lesson": {"stage": 1, "number": 1},
+      "level": "A1",
+      "target_words": ["friend"],
+      "text": "She is my best ___.",
+      "options": ["friend", "water", "house"],
+      "correct": ["friend"],
+      "translation": {"ru": "Она моя лучшая подруга.", "uz": "U mening eng yaqin do'stim."},
+      "explanation": {
+        "ru": "best friend — «лучший друг»: устойчивое сочетание.",
+        "uz": "best friend — «eng yaqin do'st»: turg'un birikma."
+      }
+    },
+    {
+      "key": "sample-dictation-1",
+      "type": "dictation",
+      "lesson": {"stage": 1, "number": 1},
+      "level": "A1",
+      "target_words": ["water"],
+      "text": "Drink more water",
+      "accepted": ["Drink more water"],
+      "translation": {"ru": "Пейте больше воды", "uz": "Ko'proq suv iching"}
+    }
+  ]
+}

@@ -7,8 +7,11 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { useToast } from '@/composables/useToast'
 import { setLocale } from '@/i18n'
+import { useBillingStore } from '@/stores/billing'
 import { useFriendsStore } from '@/stores/friends'
-import type { ChallengeItem, ChallengesResponse, FriendsResponse } from '@/api/types'
+import { settingsFixture } from '@/api/__tests__/settingsFixture'
+import { activeOf, battleList, closedBattle, incoming, roomBattle } from '@/api/__tests__/battleFixtures'
+import type { BattleListResponse, ChallengeItem, ChallengesResponse, FriendsResponse, MeResponse, PracticeAccess } from '@/api/types'
 
 const state = vi.hoisted(() => ({
   ensure: vi.fn(),
@@ -22,10 +25,25 @@ vi.mock('@/api', () => ({
   api: {
     friends: { get: vi.fn(), accept: vi.fn(), decline: vi.fn(), remove: vi.fn() },
     challenges: { list: vi.fn(), propose: vi.fn(), accept: vi.fn(), decline: vi.fn() },
+    me: { get: vi.fn() },
+    battles: { list: vi.fn(), accept: vi.fn(), decline: vi.fn() },
   },
 }))
 
 vi.mock('@/stores/auth', () => ({ useAuthStore: () => ({ ensure: state.ensure }) }))
+
+// The sheet has its own spec; here only that it opens, for which reason, and that it closes.
+vi.mock('@/components/PaywallSheet.vue', async () => {
+  const { defineComponent, h } = await import('vue')
+  return {
+    default: defineComponent({
+      props: { reason: { type: String, default: 'info' } },
+      emits: ['close', 'review'],
+      setup: (props, { emit }) => () =>
+        h('div', { 'data-testid': 'paywall', 'data-reason': props.reason }, [h('button', { 'data-testid': 'paywall-close', onClick: () => emit('close') })]),
+    }),
+  }
+})
 
 vi.mock('@/composables/useTelegram', () => ({
   useTelegram: () => ({
@@ -83,8 +101,23 @@ const makeRouter = () =>
     routes: [
       { path: '/league', name: 'league', component: { template: '<div />' } },
       { path: '/friends', name: 'friends', component: FriendsView },
+      { path: '/battles/new', name: 'battle-new', component: { template: '<div />' } },
+      { path: '/battles/:id(\\d+)', name: 'battle', component: { template: '<div />' } },
     ],
   })
+
+/** `GET /me` of a learner; `practice` is the block of docs/16 §3.3 (absent: an older server). */
+const meWith = (practice?: PracticeAccess): MeResponse => ({
+  learner: { id: 1, first_name: 'Асадбек', locale: 'ru', onboarding_completed: true, username: null },
+  groups: [],
+  stats: { words_learned: 0, words_due_today: 0 },
+  entitlement: { plan: 'free', source: 'free', until: null, new_words_per_day: 20 },
+  paywall: { mode: 'purchase', contact: null },
+  settings: settingsFixture(),
+  ...(practice ? { practice } : {}),
+})
+
+const BATTLES_ON: PracticeAccess = { available: true, pro_required: false, modes: ['pairs', 'collocation', 'sentence', 'dictation'], battle: true }
 
 async function render(friends: FriendsResponse = friendsResponse(), challenges: ChallengesResponse = challengesResponse()) {
   vi.mocked(api.friends.get).mockResolvedValue(friends)
@@ -115,6 +148,9 @@ describe('FriendsView', () => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
     state.ensure.mockResolvedValue(undefined)
+    // A learner who has no practice: the screen is the Friends screen of before the battles.
+    vi.mocked(api.me.get).mockResolvedValue(meWith())
+    vi.mocked(api.battles.list).mockResolvedValue(battleList())
     useToast().hide()
   })
   afterEach(() => {
@@ -668,6 +704,323 @@ describe('FriendsView', () => {
 
       expect(wrapper.find('[data-testid=error]').exists()).toBe(true)
       expect(api.friends.get).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('battles 1 on 1 (docs/16 §11.1)', () => {
+    async function renderBattles(practice: PracticeAccess | undefined, list: BattleListResponse = battleList()) {
+      vi.mocked(api.me.get).mockResolvedValue(meWith(practice))
+      vi.mocked(api.battles.list).mockResolvedValue(list)
+      return render()
+    }
+
+    const rowOf = (wrapper: Wrapper, name: string) => wrapper.findAll('[data-testid=friend-row]').find((row) => row.text().includes(name))!
+
+    describe('the “Battle” button of a friend', () => {
+      it('is there at every friend: a small tinted button with the name of the friend in its name', async () => {
+        const { wrapper } = await renderBattles(BATTLES_ON)
+
+        const buttons = wrapper.findAll('[data-testid=battle-btn]')
+        expect(buttons).toHaveLength(2)
+        expect(buttons[0]?.text()).toBe('Баттл')
+        expect(buttons[0]?.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-sm']))
+        expect(buttons[0]?.attributes('aria-label')).toBe('Баттл с другом: Dilnoza')
+        expect(buttons[1]?.attributes('aria-label')).toBe('Баттл с другом: Друг')
+      })
+
+      it('leads to the setup of a battle with that friend', async () => {
+        const { wrapper, router } = await renderBattles(BATTLES_ON)
+
+        await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+        await flushPromises()
+
+        expect(router.currentRoute.value.name).toBe('battle-new')
+        expect(router.currentRoute.value.query).toEqual({ friendship: '11' })
+        expect(state.haptic).toHaveBeenCalledWith('light')
+      })
+
+      it('is in the same row as the name, under the line of the streak, not beside the other buttons that would not fit at 320 px', async () => {
+        const { wrapper } = await renderBattles(BATTLES_ON)
+
+        const row = rowOf(wrapper, 'Dilnoza')
+        const column = row.get('[data-testid=friend-subtitle]').element.parentElement!
+        expect(column.contains(row.get('[data-testid=battle-btn]').element)).toBe(true)
+        expect(row.find('[data-testid=challenge-btn]').exists()).toBe(true)
+        expect(row.find('[data-testid=remove-btn]').exists()).toBe(true)
+      })
+
+      it('is there while the practice is behind Pro: the setup explains it and opens the paywall', async () => {
+        const { wrapper } = await renderBattles({ ...BATTLES_ON, pro_required: true })
+
+        expect(wrapper.findAll('[data-testid=battle-btn]')).toHaveLength(2)
+      })
+
+      it.each<[string, PracticeAccess | undefined]>([
+        ['practice is not available', { ...BATTLES_ON, available: false, modes: [], battle: false }],
+        ['battles are switched off', { ...BATTLES_ON, battle: false }],
+        ['practice is switched off but the flag of battles is on', { ...BATTLES_ON, available: false }],
+        ['the server sends no practice block (an older one)', undefined],
+      ])('is not there when %s', async (_name, practice) => {
+        const { wrapper } = await renderBattles(practice, battleList({ incoming: [incoming()], active: activeOf() }))
+
+        expect(wrapper.find('[data-testid=battle-btn]').exists()).toBe(false)
+        expect(wrapper.find('[data-testid=battle-invites]').exists()).toBe(false)
+        expect(wrapper.find('[data-testid=active-battle]').exists()).toBe(false)
+        expect(api.battles.list).not.toHaveBeenCalled()
+      })
+
+      it('is not there when /me cannot be read', async () => {
+        vi.mocked(api.me.get).mockRejectedValue(new ApiClientError('network', 0, 'network', 'x'))
+        const { wrapper } = await render()
+
+        expect(wrapper.find('[data-testid=battle-btn]').exists()).toBe(false)
+        expect(wrapper.find('[data-testid=link]').exists()).toBe(true) // the rest of the screen is there
+      })
+
+      it('goes away from the row whose challenge picker or removal question is open', async () => {
+        const { wrapper } = await renderBattles(BATTLES_ON)
+        const row = rowOf(wrapper, 'Dilnoza')
+
+        await row.get('[data-testid=challenge-btn]').trigger('click')
+        expect(row.find('[data-testid=battle-btn]').exists()).toBe(false)
+        expect(wrapper.findAll('[data-testid=battle-btn]')).toHaveLength(1)
+        await row.get('[data-testid=picker-cancel]').trigger('click')
+        expect(wrapper.findAll('[data-testid=battle-btn]')).toHaveLength(2)
+
+        await row.get('[data-testid=remove-btn]').trigger('click')
+        expect(row.find('[data-testid=battle-btn]').exists()).toBe(false)
+      })
+
+      it('keeps the one primary button of the screen: “Share”', async () => {
+        const { wrapper } = await renderBattles(BATTLES_ON, battleList({ incoming: [incoming()], active: activeOf() }))
+
+        expect(wrapper.findAll('button.btn-primary')).toHaveLength(1)
+        expect(wrapper.get('button.btn-primary').attributes('data-testid')).toBe('share-btn')
+      })
+
+      it('is named in Uzbek too', async () => {
+        setLocale('uz')
+        const { wrapper } = await renderBattles(BATTLES_ON)
+
+        const button = wrapper.get('[data-testid=battle-btn]')
+        expect(button.text()).toBe('Bellashuv')
+        expect(button.attributes('aria-label')).toBe('Dilnoza bilan bellashuv')
+      })
+    })
+
+    describe('invitations to a battle', () => {
+      const invitations = () => battleList({ incoming: [incoming({ id: 15 }), incoming({ id: 16, mode: 'dictation', from: { first_name: null }, lesson: null })] })
+
+      it('are listed above everything else, with who calls and what is played where', async () => {
+        const { wrapper } = await renderBattles(BATTLES_ON, invitations())
+
+        const rows = wrapper.findAll('[data-testid=battle-invite-row]')
+        expect(rows).toHaveLength(2)
+        expect(rows[0]?.text()).toContain('Bek зовёт вас на баттл')
+        expect(rows[0]?.get('[data-testid=battle-invite-meta]').text()).toBe('Найди пары · Модуль 2 · Урок 4 · Еда')
+        expect(rows[1]?.text()).toContain('Друг зовёт вас на баттл')
+        expect(rows[1]?.get('[data-testid=battle-invite-meta]').text()).toBe('Слушай и пиши · Английский A1')
+        expect(wrapper.get('[data-testid=battle-invites]').text()).toContain('Приглашения на баттл')
+
+        const html = wrapper.html()
+        expect(html.indexOf('data-testid="battle-invites"')).toBeLessThan(html.indexOf('data-testid="invite"'))
+      })
+
+      it('are answered with a tinted “Accept” and a secondary “Decline”, small, like the requests for friendship', async () => {
+        const { wrapper } = await renderBattles(BATTLES_ON, invitations())
+
+        const row = wrapper.get('[data-testid=battle-invite-row]')
+        expect(row.get('[data-testid=battle-accept-btn]').text()).toBe('Принять')
+        expect(row.get('[data-testid=battle-accept-btn]').classes()).toEqual(expect.arrayContaining(['btn-tinted', 'btn-sm']))
+        expect(row.get('[data-testid=battle-decline-btn]').text()).toBe('Отклонить')
+        expect(row.get('[data-testid=battle-decline-btn]').classes()).toEqual(expect.arrayContaining(['btn-secondary', 'btn-sm']))
+      })
+
+      it('“Accept” takes the invitation and leads into its room', async () => {
+        vi.mocked(api.battles.accept).mockResolvedValue(roomBattle({ id: 15, role: 'opponent' }))
+        const { wrapper, router } = await renderBattles(BATTLES_ON, invitations())
+
+        await wrapper.get('[data-testid=battle-accept-btn]').trigger('click')
+        await flushPromises()
+
+        expect(api.battles.accept).toHaveBeenCalledWith(15)
+        expect(router.currentRoute.value.name).toBe('battle')
+        expect(router.currentRoute.value.params.id).toBe('15')
+      })
+
+      it('“Decline” closes it: the row goes', async () => {
+        vi.mocked(api.battles.decline).mockResolvedValue(closedBattle('declined', { id: 15, role: 'opponent' }))
+        const { wrapper } = await renderBattles(BATTLES_ON, invitations())
+
+        await wrapper.get('[data-testid=battle-decline-btn]').trigger('click')
+        await flushPromises()
+
+        expect(api.battles.decline).toHaveBeenCalledWith(15)
+        expect(wrapper.findAll('[data-testid=battle-invite-row]')).toHaveLength(1)
+      })
+
+      it('the buttons of an invitation wait while its answer is on its way', async () => {
+        let release!: (value: ReturnType<typeof roomBattle>) => void
+        vi.mocked(api.battles.accept).mockReturnValue(new Promise((resolve) => (release = resolve)))
+        const { wrapper } = await renderBattles(BATTLES_ON, invitations())
+        const row = wrapper.get('[data-testid=battle-invite-row]')
+
+        await row.get('[data-testid=battle-accept-btn]').trigger('click')
+        expect(row.get('[data-testid=battle-accept-btn]').attributes('disabled')).toBeDefined()
+        expect(row.get('[data-testid=battle-decline-btn]').attributes('disabled')).toBeDefined()
+
+        release(roomBattle({ id: 15, role: 'opponent' }))
+        await flushPromises()
+      })
+
+      it('an invitation that has run out is told in a toast, and the list is read again', async () => {
+        vi.mocked(api.battles.accept).mockRejectedValue(new ApiClientError('conflict', 409, 'battle_closed', 'x', undefined, { end_reason: 'invite_expired' }))
+        const { wrapper, router } = await renderBattles(BATTLES_ON, invitations())
+        vi.mocked(api.battles.list).mockResolvedValue(battleList({ incoming: [incoming({ id: 16 })] }))
+
+        await wrapper.get('[data-testid=battle-accept-btn]').trigger('click')
+        await flushPromises()
+
+        expect(useToast().toast.value?.text).toBe('Этот баттл уже закрыт.')
+        expect(router.currentRoute.value.name).toBe('friends')
+        expect(wrapper.findAll('[data-testid=battle-invite-row]')).toHaveLength(1)
+        expect(api.battles.list).toHaveBeenCalledTimes(2)
+      })
+
+      it('none: no group at all', async () => {
+        const { wrapper } = await renderBattles(BATTLES_ON, battleList())
+
+        expect(wrapper.find('[data-testid=battle-invites]').exists()).toBe(false)
+      })
+
+      it('a list that could not be read does not break the screen', async () => {
+        vi.mocked(api.me.get).mockResolvedValue(meWith(BATTLES_ON))
+        vi.mocked(api.battles.list).mockRejectedValue(new ApiClientError('network', 0, 'network', 'x'))
+        const { wrapper } = await render()
+
+        expect(wrapper.find('[data-testid=link]').exists()).toBe(true)
+        expect(wrapper.find('[data-testid=battle-invites]').exists()).toBe(false)
+        expect(wrapper.findAll('[data-testid=battle-btn]')).toHaveLength(2)
+      })
+    })
+
+    describe('a battle that is on', () => {
+      it('is one tap back into it: the title, the format and the opponent, the stage of the battle', async () => {
+        const { wrapper, router } = await renderBattles(BATTLES_ON, battleList({ active: activeOf('room') }))
+
+        const row = wrapper.get('[data-testid=active-battle-row]')
+        expect(row.text()).toContain('Идёт баттл')
+        expect(row.text()).toContain('Собери предложение · Dilnoza')
+        expect(row.text()).toContain('Комната')
+        expect(row.attributes('href')).toBe('/battles/9')
+
+        await row.trigger('click')
+        await flushPromises()
+        expect(router.currentRoute.value.name).toBe('battle')
+        expect(router.currentRoute.value.params.id).toBe('9')
+      })
+
+      it.each([
+        ['invited', 'Ждём ответа'],
+        ['room', 'Комната'],
+        ['countdown', 'Старт'],
+        ['playing', 'Игра'],
+      ] as const)('%s: says “%s”', async (status, word) => {
+        const { wrapper } = await renderBattles(BATTLES_ON, battleList({ active: activeOf(status) }))
+
+        expect(wrapper.get('[data-testid=active-battle-row]').text()).toContain(word)
+      })
+
+      it('is above the invitations', async () => {
+        const { wrapper } = await renderBattles(BATTLES_ON, battleList({ active: activeOf('playing'), incoming: [incoming()] }))
+
+        const html = wrapper.html()
+        expect(html.indexOf('data-testid="active-battle"')).toBeLessThan(html.indexOf('data-testid="battle-invites"'))
+      })
+
+      it('none: no row', async () => {
+        const { wrapper } = await renderBattles(BATTLES_ON, battleList())
+
+        expect(wrapper.find('[data-testid=active-battle]').exists()).toBe(false)
+      })
+    })
+
+    it('asks for /me and for the list once each when the screen opens, and again on “Retry”', async () => {
+      await renderBattles(BATTLES_ON)
+
+      expect(api.me.get).toHaveBeenCalledTimes(1)
+      expect(api.battles.list).toHaveBeenCalledTimes(1)
+    })
+
+    describe('when /me is on its way already for another screen (review Ж4)', () => {
+      // Another screen (the banner of Today, the course) asked for /me a moment ago and it has not come; then Friends opens.
+      it('the battles still load when /me comes: the invitations and the battle that is on appear, not only the buttons', async () => {
+        vi.mocked(api.me.get).mockReset()
+        let answerMe!: (me: MeResponse) => void
+        vi.mocked(api.me.get).mockReturnValue(new Promise<MeResponse>((resolve) => (answerMe = resolve)))
+        vi.mocked(api.battles.list).mockResolvedValue(battleList({ active: activeOf('room'), incoming: [incoming({ id: 15 })] }))
+        void useBillingStore().load()
+
+        const { wrapper } = await render()
+        expect(api.battles.list).not.toHaveBeenCalled() // the learner is not known to play battles yet
+        expect(wrapper.find('[data-testid=battle-btn]').exists()).toBe(false)
+
+        answerMe(meWith(BATTLES_ON))
+        await flushPromises()
+
+        expect(wrapper.findAll('[data-testid=battle-btn]')).toHaveLength(2)
+        expect(api.battles.list).toHaveBeenCalledTimes(1)
+        expect(wrapper.findAll('[data-testid=battle-invite-row]')).toHaveLength(1)
+        expect(wrapper.find('[data-testid=active-battle]').exists()).toBe(true)
+        expect(api.me.get).toHaveBeenCalledTimes(1) // this screen did not ask again
+      })
+
+      it('and does not ask for a learner who is not to play battles, when /me comes', async () => {
+        vi.mocked(api.me.get).mockReset()
+        let answerMe!: (me: MeResponse) => void
+        vi.mocked(api.me.get).mockReturnValue(new Promise<MeResponse>((resolve) => (answerMe = resolve)))
+        void useBillingStore().load()
+
+        const { wrapper } = await render()
+        answerMe(meWith({ ...BATTLES_ON, battle: false }))
+        await flushPromises()
+
+        expect(api.battles.list).not.toHaveBeenCalled()
+        expect(wrapper.find('[data-testid=battle-btn]').exists()).toBe(false)
+      })
+
+      it('a learner whose practice is known already (the screen was opened before) gets the list right away, once', async () => {
+        useBillingStore().apply({ entitlement: meWith(BATTLES_ON).entitlement, paywall: meWith(BATTLES_ON).paywall, practice: BATTLES_ON })
+        vi.mocked(api.battles.list).mockResolvedValue(battleList({ incoming: [incoming({ id: 15 })] }))
+
+        const { wrapper } = await render()
+
+        expect(api.battles.list).toHaveBeenCalledTimes(1)
+        expect(wrapper.findAll('[data-testid=battle-invite-row]')).toHaveLength(1)
+      })
+    })
+
+    describe('“Accept” of a learner without Pro (docs/16 §3.2)', () => {
+      it('opens the paywall of the practice, with no toast and no way into the battle', async () => {
+        vi.mocked(api.battles.accept).mockRejectedValue(new ApiClientError('forbidden', 403, 'practice_pro_required', 'x'))
+        const { wrapper, router } = await renderBattles(BATTLES_ON, battleList({ incoming: [incoming({ id: 15 })] }))
+
+        await wrapper.get('[data-testid=battle-accept-btn]').trigger('click')
+        await flushPromises()
+
+        expect(wrapper.get('[data-testid=paywall]').attributes('data-reason')).toBe('practice')
+        expect(useToast().toast.value).toBeNull()
+        expect(router.currentRoute.value.name).toBe('friends')
+
+        await wrapper.get('[data-testid=paywall-close]').trigger('click')
+        expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      })
+
+      it('no paywall until it is refused', async () => {
+        const { wrapper } = await renderBattles(BATTLES_ON, battleList({ incoming: [incoming({ id: 15 })] }))
+
+        expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      })
     })
   })
 

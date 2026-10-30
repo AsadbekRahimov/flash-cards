@@ -1,4 +1,5 @@
 *
 !private/
 !public/
+!practice-audio/
 !.gitignore

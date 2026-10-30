@@ -26,6 +26,11 @@ export interface MeResponse {
   entitlement: Entitlement
   paywall: Paywall
   settings: LearnerSettings
+  /**
+   * Practice access (docs/16 §3.3). The server always sends it; optional here so that an answer of an older server (and
+   * every fixture typed as `MeResponse`) reads as "no practice": the billing store turns a missing block into `available: false`.
+   */
+  practice?: PracticeAccess
 }
 
 export interface SettingsChoice {
@@ -389,6 +394,8 @@ export interface SessionSummary {
   new_words: number
   goal?: DailyGoal
   streak?: Streak
+  /** Where "Practice of the lesson / course" leads (docs/16 §11.1); null: no entry (daily review, group session, no access). */
+  practice_entry?: { course: string; lesson_id: number | null } | null
 }
 
 export interface TodayLesson {
@@ -725,4 +732,497 @@ export interface DeckImportResult {
   duplicates: number
   rejected: { line: number; reason: DeckRejectReason }[]
   deck: Deck
+}
+
+// ---------------- Practice and battle (docs/16 §7, §11.7) ----------------
+
+export type PracticeMode = 'pairs' | 'collocation' | 'sentence' | 'dictation'
+
+/** `kind` of an element a screen draws: it equals the mode except for pairs, whose element is one round. */
+export type PracticeElementKind = 'pairs_round' | 'collocation' | 'sentence' | 'dictation'
+
+/** Block `practice` of GET /me (docs/16 §3.3): `available` false hides every entry; `pro_required` shows them with a Pro chip. */
+export interface PracticeAccess {
+  available: boolean
+  pro_required: boolean
+  /** The modes switched on. */
+  modes: PracticeMode[]
+  battle: boolean
+}
+
+export interface PracticeCourseRef {
+  slug: string
+  title: string
+}
+
+export interface PracticeLessonRef {
+  id: number
+  /** Number of the module; null when the server does not know it (the lesson was read from a snapshot that has none). */
+  stage: number | null
+  /** Number of the lesson inside the module; null likewise. */
+  number: number | null
+  title: string | null
+}
+
+export type PracticeSource = 'hub' | 'after_training' | 'retry' | 'deeplink'
+
+/** `available` is playable; `not_enough` lacks material (see `reason`); `disabled` is switched off; `pro_required` is behind the paywall. */
+export type PracticeModeState = 'available' | 'not_enough' | 'disabled' | 'pro_required'
+
+/** Why a mode lacks material (docs/16 §4.3). `no_items`: there are no published tasks for the topic (or too few). */
+export type PracticeShortageReason = 'no_words' | 'ambiguous' | 'no_items' | 'audio_pending' | 'no_audio_words'
+
+/**
+ * Why a card of the HUB lacks material: the reasons above, and `items_locked` - the tasks are there, but the learner has not met the
+ * target words of the lesson yet (docs/16 §4.2). A battle has no learner whose words could be "not met", so its formats
+ * (`BattleModeOption`) keep `PracticeShortageReason` and never get this one.
+ */
+export type PracticeHubReason = PracticeShortageReason | 'items_locked'
+
+/** A card of the hub. */
+export interface PracticeModeInfo {
+  mode: PracticeMode
+  state: PracticeModeState
+  available: number
+  required: number
+  /** Set with `not_enough`. */
+  reason: PracticeHubReason | null
+  estimate_seconds: number
+}
+
+/** The unfinished solo session (one per learner). */
+export interface PracticeActiveSession {
+  id: number
+  mode: PracticeMode
+  course: string
+  lesson_id: number | null
+  progress: Progress
+}
+
+/** GET /practice/hub (docs/16 §7.1). */
+export interface PracticeHubResponse {
+  course: PracticeCourseRef
+  lesson: PracticeLessonRef | null
+  modes: PracticeModeInfo[]
+  active_session: PracticeActiveSession | null
+  battle: { enabled: boolean; active_battle_id: number | null; incoming_count: number }
+}
+
+/** A fragment, an option or a side of a pair: an opaque id and what is written on it. */
+export interface PracticeChoice {
+  id: string
+  text: string
+}
+
+/** One round of "Find the pairs": the words on the left, the translations on the right (shuffled separately). */
+export interface PairsRoundElement {
+  id: string
+  kind: 'pairs_round'
+  round: number
+  rounds: number
+  left: PracticeChoice[]
+  right: PracticeChoice[]
+  /** `[left_id, right_id]` of the pairs already put together. */
+  matched: [string, string][]
+  mismatches: number
+}
+
+export interface CollocationElement {
+  id: string
+  kind: 'collocation'
+  /** With one blank: `Let's ___ a meeting.` */
+  text: string
+  options: PracticeChoice[]
+}
+
+export interface SentenceElement {
+  id: string
+  kind: 'sentence'
+  /** The meaning in the language of the learner. */
+  prompt: string
+  fragments: PracticeChoice[]
+}
+
+/** Dictation: there is no text, only the clip behind `audio_url`; `words` is the number of words (blanks to draw). */
+export interface DictationElement {
+  id: string
+  kind: 'dictation'
+  source: 'phrase' | 'word'
+  /** Path of the API (`/api/twa/practice/sessions/7/audio/eD4…`): fetched with the token, never put into `<audio src>`. */
+  audio_url: string
+  words: number
+  replacements_left: number
+}
+
+export type PracticeElement = PairsRoundElement | CollocationElement | SentenceElement | DictationElement
+
+/** What the learner sends for one element. `pairs` is the battle form (the whole set at once). */
+export type PracticeAnswerPayload =
+  | { left_id: string; right_id: string }
+  | { option_id: string }
+  | { order: string[] }
+  | { text: string }
+  | { pairs: Record<string, string> }
+  | { skip: true }
+
+export type PracticeVerdict = 'correct' | 'typo' | 'wrong' | 'skipped'
+
+/** Body of POST /practice/sessions/{id}/answer. */
+export interface PracticeAnswerRequest {
+  /** uuid: the key of the request, the same one for a repeat of it. */
+  request_id: string
+  element_id: string
+  time_spent_ms?: number | null
+  answer: PracticeAnswerPayload
+}
+
+/** Body of POST /practice/sessions/{id}/replace. */
+export interface PracticeReplaceRequest {
+  request_id: string
+  element_id: string
+  reason: 'audio_unavailable'
+}
+
+/** Body of POST /practice/sessions. */
+export interface PracticeOpenRequest {
+  mode: PracticeMode
+  course: string
+  lesson_id?: number | null
+  source: PracticeSource
+  replace_active?: boolean
+  retry_of?: number | null
+}
+
+/** One token of the dictation diff: what was expected and what was typed in its place. */
+export interface PracticeDiffToken {
+  expected: string
+  got: string
+  ok: boolean
+}
+
+export interface DictationReveal {
+  expected: string
+  your_text: string | null
+  /** Token by token, only when the answer had as many tokens as the phrase. */
+  diff: PracticeDiffToken[] | null
+  translation: string | null
+  explanation: string | null
+}
+
+export interface SentenceReveal {
+  correct_text: string
+  /** Other accepted orders. */
+  alternatives: string[]
+  your_text: string | null
+  explanation: string | null
+}
+
+export interface CollocationReveal {
+  correct_option_ids: string[]
+  full_text: string
+  translation: string | null
+  explanation: string | null
+  /**
+   * The option the server counted as the learner's answer (null: none - a hint). The server adds it to the explanation so that
+   * the review is true on its own; an older server does not send it (absent: the screen marks the pick it knows).
+   */
+  your_option_id?: string | null
+}
+
+/** The explanation shown after an answer; its shape follows the kind of the element answered (pairs have none). */
+export type PracticeReveal = DictationReveal | SentenceReveal | CollocationReveal
+
+/** One mistake of the summary: a word of the pairs, a phrase, a sentence. */
+export interface PracticeMistake {
+  element_id: string
+  kind: PracticeElementKind
+  label: string
+  your_answer: string | null
+  verdict: 'typo' | 'wrong' | 'skipped'
+}
+
+export type PracticeFinishReason = 'completed' | 'expired' | 'replaced'
+
+/** `summary` of a finished session (docs/16 §6.4). */
+export interface PracticeSummary {
+  total: number
+  answered: number
+  correct_first: number
+  typos: number
+  hints: number
+  /** Pairs only: the wrong matches; null elsewhere. */
+  mismatches: number | null
+  duration_ms: number
+  finish_reason: PracticeFinishReason
+  retry_available: boolean
+  mistakes: PracticeMistake[]
+}
+
+/** GET /practice/sessions/{id}; also what open, replace and every answer return (docs/16 §7.2). */
+export interface PracticeSession {
+  id: number
+  status: 'active' | 'finished'
+  mode: PracticeMode
+  source: PracticeSource
+  retry_of: number | null
+  course: PracticeCourseRef
+  lesson: PracticeLessonRef | null
+  progress: Progress
+  counters: { correct_first: number; hints: number; mismatches: number }
+  expires_at: string
+  server_now: string
+  /** The element to answer; null once the session is finished. */
+  current: PracticeElement | null
+  summary: PracticeSummary | null
+}
+
+/** Answer of POST /practice/sessions/{id}/answer. Pairs: `verdict` is correct|wrong, `pair` the match tried, `reveal` null. */
+export interface PracticeAnswerResponse {
+  verdict: PracticeVerdict
+  first_attempt: boolean
+  reveal: PracticeReveal | null
+  pair: { left_id: string; right_id: string } | null
+  /** Pairs: the round is complete. Absent for the other modes. */
+  round_done?: boolean
+  session: PracticeSession
+}
+
+export type BattleStatus = 'invited' | 'room' | 'countdown' | 'playing' | 'finished' | 'closed'
+export type BattlePhase = 'answering' | 'reveal'
+export type BattleRole = 'challenger' | 'opponent'
+export type BattleEndReason =
+  | 'completed' | 'surrender' | 'absent'
+  | 'declined' | 'invite_expired' | 'room_expired' | 'canceled' | 'both_absent' | 'voided'
+/** `none`: a closed battle has no result. */
+export type BattleOutcome = 'won' | 'lost' | 'draw' | 'none'
+/** The verdict of a round; `timeout` is written by the server when the time ran out. */
+export type BattleVerdict = PracticeVerdict | 'timeout'
+
+export interface BattleOpponent {
+  first_name: string | null
+}
+
+/** One format of GET /practice/battles/options (docs/16 §7.3). */
+export interface BattleModeOption {
+  mode: PracticeMode
+  state: PracticeModeState
+  available: number
+  required: number
+  reason: PracticeShortageReason | null
+  round_seconds: number
+}
+
+export interface BattleOptionsResponse {
+  friend: BattleOpponent
+  course: PracticeCourseRef
+  lesson: PracticeLessonRef | null
+  modes: BattleModeOption[]
+  friend_access: 'available' | 'no_access'
+}
+
+/** The round the battle is in. */
+export interface BattleRoundState {
+  no: number
+  /** `null` while the countdown runs: the round has a number and a deadline, but no phase before the match starts (docs/16 §8.1). */
+  phase: BattlePhase | null
+  /** End of the time to answer (server clock). */
+  deadline_at: string | null
+  /** End of the pause that shows the answers. */
+  phase_ends_at: string | null
+  my_answered: boolean
+  opponent_answered: boolean
+}
+
+export interface BattleScores {
+  me: number
+  opponent: number
+}
+
+export interface BattleRoundResult {
+  no: number
+  me: { verdict: BattleVerdict; points: number }
+  opponent: { verdict: BattleVerdict; points: number }
+}
+
+export interface BattleResult {
+  outcome: BattleOutcome
+  end_reason: BattleEndReason
+  rounds: BattleRoundResult[]
+}
+
+/**
+ * The rematch offered after a finished battle (docs/16 §7.4, §8.7): the next battle with `rematch_of` = this one, and who offered it.
+ * `by_me` tells the result screen whether the offer is the learner's to answer or their own to open.
+ */
+export interface BattleRematch {
+  battle_id: number
+  status: BattleStatus
+  by_me: boolean
+}
+
+/**
+ * GET /practice/battles/{id} and the answer of every action (docs/16 §7.4, "Реализация 18.6b": the wire form - every key is always
+ * there, and what is absent is `null`; pinned by `BattleContractTest`).
+ */
+export interface Battle {
+  id: number
+  status: BattleStatus
+  /** Why the battle ended (the same as `result.end_reason`); `null` while it is on. */
+  end_reason: BattleEndReason | null
+  mode: PracticeMode
+  role: BattleRole
+  course: PracticeCourseRef
+  lesson: PracticeLessonRef | null
+  opponent: BattleOpponent
+  rounds_total: number
+  round_seconds: number
+  countdown_seconds: number
+  reveal_seconds: number
+  /** How long a player who has gone silent is waited for before the match ends (30 s): the strip counts down to it. */
+  presence_grace_seconds: number
+  /** After how long of silence `opponent_present` turns false (10 s). */
+  presence_warn_seconds: number
+  /** How long after the deadline of a round an answer is still taken, in milliseconds (1500): the screen asks the server after it. */
+  deadline_grace_ms: number
+  invite_expires_at: string
+  room_expires_at: string | null
+  starts_at: string | null
+  /** Grows with every change the players can see; a poll that brings a new one means: read the battle again. */
+  version: number
+  server_now: string
+  ready: { me: boolean; opponent: boolean }
+  opponent_present: boolean
+  /** The last time the opponent was seen, while `opponent_present` is false (the strip counts `presence_grace_seconds` from it); else `null`. */
+  opponent_absent_since: string | null
+  round: BattleRoundState | null
+  scores: BattleScores
+  result: BattleResult | null
+  /** The rematch offered after this battle; only a battle that is over has one. */
+  rematch: BattleRematch | null
+  /** The friendship of the battle (a rematch needs none: the server takes the friend from the finished battle); `null` if it is gone. */
+  friendship_id: number | null
+  /** Dictation, `room` and `countdown` only (docs/16 §10.3): the clips of the five rounds to load before "Ready"; else `null`. */
+  audio_preload: string[] | null
+}
+
+/** GET /practice/battles/{id}/poll (docs/16 §7.4): at most 600 bytes, read every two seconds. */
+export interface BattlePoll {
+  id: number
+  status: BattleStatus
+  version: number
+  server_now: string
+  ready: { me: boolean; opponent: boolean }
+  opponent_present: boolean
+  /** As in `Battle`. */
+  opponent_absent_since: string | null
+  round: BattleRoundState | null
+  scores: BattleScores
+  end_reason: BattleEndReason | null
+  /** As in `Battle`; the poll of a battle that is on carries `null` (the server does not look for one). */
+  rematch: BattleRematch | null
+}
+
+export interface BattleSideResult {
+  answer: Record<string, unknown> | null
+  verdict: BattleVerdict
+  points: number
+}
+
+/** What the round shows once it is resolved; the correct answer in the form of the mode. */
+export interface BattleReveal {
+  correct: {
+    correct_text?: string
+    correct_option_ids?: string[]
+    expected?: string
+    pairs?: Record<string, string>
+    /** Collocation: the whole phrase with the right option in the blank. */
+    full_text?: string
+    /** Sentence: the other orders that are right too (without the first one, which is `correct_text`). */
+    alternatives?: string[]
+  }
+  me: BattleSideResult
+  opponent: BattleSideResult
+  explanation: string | null
+  translation: string | null
+}
+
+/** GET /practice/battles/{id}/round?no= (docs/16 §7.4). */
+export interface BattleRound {
+  no: number
+  /** `null` for round 1 of a battle in its countdown: the round exists, its phase has not begun. */
+  phase: BattlePhase | null
+  deadline_at: string | null
+  phase_ends_at: string | null
+  server_now: string
+  element: PracticeElement
+  /** Null until the round is resolved. */
+  reveal: BattleReveal | null
+}
+
+export interface BattleIncoming {
+  id: number
+  mode: PracticeMode
+  from: BattleOpponent
+  course: PracticeCourseRef
+  lesson: PracticeLessonRef | null
+  invite_expires_at: string
+  rematch: boolean
+}
+
+export interface BattleFinishedItem {
+  id: number
+  mode: PracticeMode
+  opponent: BattleOpponent
+  outcome: BattleOutcome
+  scores: BattleScores
+  finished_at: string
+}
+
+/**
+ * GET /practice/battles (docs/16 §7.3). `active` is "BattleResource, compact" in the design: of it the fields every form
+ * of the resource carries are typed here; the screen reads the battle itself with `GET /practice/battles/{id}`.
+ */
+export interface BattleListResponse {
+  active: Pick<Battle, 'id' | 'status' | 'mode' | 'role' | 'course' | 'lesson' | 'opponent'> | null
+  incoming: BattleIncoming[]
+  finished: BattleFinishedItem[]
+}
+
+/** Body of POST /practice/battles. */
+export interface BattleInviteRequest {
+  /** The friendship to invite. A rematch (`rematch_of`) takes the friend from the finished battle: the id is left out when the TWA does not know it. */
+  friendship_id?: number
+  mode: PracticeMode
+  course: string
+  lesson_id?: number | null
+  /** My finished battle: the format and the topic are taken from it. */
+  rematch_of?: number | null
+}
+
+/** Body of POST /practice/battles/{id}/answer. */
+export interface BattleAnswerRequest {
+  request_id: string
+  round: number
+  answer: PracticeAnswerPayload
+}
+
+/** Answer of POST /practice/battles/{id}/answer; the correct answer is not returned, it comes with the resolved round. */
+export interface BattleAnswerResponse {
+  verdict: BattleVerdict
+  points: number
+  accepted_at: string
+  round_resolved: boolean
+  poll: BattlePoll
+}
+
+/** Body of POST /practice/battles/{id}/audio-failed. */
+export interface BattleAudioFailedRequest {
+  request_id: string
+  element_id: string
+}
+
+/** Answer of POST /practice/battles/{id}/audio-failed: `verified` true when the server confirmed the clip is missing. */
+export interface BattleAudioFailedResponse {
+  verified: boolean
+  battle: Battle
 }

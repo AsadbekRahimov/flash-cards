@@ -11,6 +11,7 @@ use App\Domain\Learners\Services\GroupMembershipService;
 use App\Domain\Learners\Services\LearnerSettingsService;
 use App\Domain\Learning\DTO\LearnerStats;
 use App\Domain\Learning\Services\LearnerStatsService;
+use App\Domain\Practice\Services\PracticeAccess;
 use App\Models\Learner;
 use App\Models\TelegramGroup;
 use Illuminate\Support\Collection;
@@ -29,6 +30,7 @@ final class MePayloadBuilder
         private readonly EntitlementResolver $entitlements,
         private readonly LearnerSettingsService $settings,
         private readonly LearnerBillingService $billing,
+        private readonly PracticeAccess $practice,
     ) {}
 
     /**
@@ -40,7 +42,8 @@ final class MePayloadBuilder
      *   renewal: array{auto: bool, provider: string, ends_at: string|null, reminder_sent: bool}|null,
      *   lapsed: array{provider: string, ended_at: string}|null,
      *   paywall: array{mode: string, contact: string|null},
-     *   settings: SettingsPayload
+     *   settings: SettingsPayload,
+     *   practice: array{available: bool, pro_required: bool, modes: list<string>, battle: bool}
      * }
      */
     public function build(Learner $learner): array
@@ -56,6 +59,7 @@ final class MePayloadBuilder
             'lapsed' => $this->billing->lapsed($learner, $entitlement),
             'paywall' => $this->billing->paywall($learner),
             'settings' => $this->settings->describe($learner),
+            'practice' => $this->practice->describe($learner, $entitlement),
         ];
     }
 }

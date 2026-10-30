@@ -88,7 +88,8 @@
       "reminder_times": ["08:00", "13:00", "19:00", "21:00"],
       "daily_goals": [10, 20, 40]
     }
-  }
+  },
+  "practice": { "available": true, "pro_required": false, "modes": ["pairs", "collocation", "sentence", "dictation"], "battle": true }
 }
 ```
 
@@ -115,6 +116,10 @@
   `timezone_change_available_at` — ISO 8601 UTC, когда можно снова сменить часовой пояс (раз в 24 ч, A.2b), `null` = можно сейчас (TWA блокирует выбор пояса до этого момента);
   `active_course` — `null`, если курса нет или он стал недоступен; `options.timezones[].label` и `active_course.title` — на языке learner'а (город + текущее смещение UTC,
   например «Ташкент (UTC+5)»); текущий пояс/время, которых нет в списках (выставлены через API), добавляются в конец списка. `options.locales[].label` — всегда на самом языке.
+- `practice` (docs/16 §3.3, A.16) — доступ к практике; блок **всегда** есть в ответе (`PracticeAccess::describe`, без запросов к БД сверх кэша тарифа). `available` — входы в практику
+  можно показывать: практика открыта ученику (`PRACTICE_ACCESS` = `all`, либо `pilot` и ученик в пилоте) **или** это Free-ученик при `PRACTICE_PLAN=pro` (вход виден с чипом Pro); при `false` TWA входов не рисует, а
+  эндпоинты практики отвечают 403 `practice_unavailable`. `pro_required` — Free-ученик при `PRACTICE_PLAN=pro`: нажатие на вход открывает пейвол `practice`, сервер отвечает 403 `practice_pro_required`.
+  `modes` — включённые режимы (`PRACTICE_MODE_*`), `battle` — переключатель баттла (`PRACTICE_BATTLE`). Блок есть и в других ответах формы `/me` (`PATCH /me/settings`, `POST /billing/subscription/cancel|resume`, `POST /promo/redeem`) — их собирает тот же `MePayloadBuilder`.
 - Цель дня и streak — в `GET /today` (A.2a), не в `/me`.
 
 ### A.2a `GET /api/twa/today`
@@ -218,13 +223,21 @@ Learner завершает **свою личную** сессию (`status = clo
 {
   "reviewed": 14, "correct": 11, "new_words": 4,
   "goal": { "target": 20, "done": 14, "met": false },
-  "streak": { "current": 5, "best": 12, "met_today": false, "at_risk": true, "freezes": 1, "frozen_yesterday": false }
+  "streak": { "current": 5, "best": 12, "met_today": false, "at_risk": true, "freezes": 1, "frozen_yesterday": false },
+  "practice_entry": { "course": "english-a1", "lesson_id": 41 }
 }
 ```
 `reviewed` — принятые оценки в сессии, `correct` — из них с `quality >= 3`, `new_words` — слова, у которых строка
 `word_repetitions` создана не раньше начала сессии. `goal` и `streak` — состояние **дня** learner'а на момент ответа (те же
 поля и правила, что в `GET /today`, A.2a): `goal.done` считает все оценки локального дня, а не только этой сессии. Повторный
 `finish` в тот же день отдаёт те же `goal`/`streak`; в следующем локальном дне они уже будут новыми (числа сессии — прежними).
+
+`practice_entry` (docs/16 §11.1, A.16) — куда ведёт кнопка «Практика урока» / «Практика курса» на экране итога; ключ **есть всегда**, значение `{course, lesson_id}` или `null`.
+`course` — slug курса (адрес хаба `GET /practice/hub?course=…`), `lesson_id` — урок занятия (`mode = lesson`) либо `null` у ежедневного занятия (`daily_review`) с курсом (`training_sessions.course_id` —
+снимок основного курса). `null` — когда кнопки не должно быть: ежедневное занятие без курса; групповая сессия (её закрывает учитель, ученик получил бы 403); практика закрыта ученику
+(`PRACTICE_ACCESS=off` или ученик не в пилоте); курс или урок хаб не откроет — курс не опубликован либо приватный курс центра (урок, открытый по заданию центра). Free-ученик при `PRACTICE_PLAN=pro`
+запись получает (хаб покажет карточки с чипом Pro, как кнопка на экране курса). **Материал не проверяется**: курс или урок без достаточного числа слов и заданий хаб объясняет сам («Мало материала» + «Учить урок»),
+а считать четыре режима на каждый `finish` дороже одного запроса. Цена записи — один запрос (урок с курсом одним JOIN'ом, либо курс ежедневного занятия); `Learning\Services\PracticeEntryResolver` (в домене Learning: код практики не импортирует модели обучения, `PracticeIsolationTest`; практика лишь отвечает, открыта ли она), закреплено `PracticeEntryTest` и `TwaContractTest`.
 
 Незавершённые сессии закрывает команда `training:close-expired` (планировщик, каждые 15 минут, `withoutOverlapping`): личные — по
 `expires_at` (`now + learning.session_ttl_hours`, 12 ч, при открытии), групповые — старше `group_session_ttl_hours`; обе с
@@ -657,12 +670,19 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 
 ### A.6 Общие правила
 - Все даты в ISO 8601 UTC.
-- Rate limit: 60 запросов/минуту на learner'а (кроме `/tts` — 30/мин, `/promo/redeem` — A.7, `POST /billing/checkout` — A.8, `POST /training/sessions` — 10/мин, `/decks*` — A.10, `DELETE /me/organizations/{id}` — A.11). `TwaAuth` выполняется **до** `throttle:*`
+- Rate limit: 60 запросов/минуту на learner'а (кроме `/tts` — 30/мин, `/promo/redeem` — A.7, `POST /billing/checkout` — A.8, `POST /training/sessions` — 10/мин, `/decks*` — A.10, `DELETE /me/organizations/{id}` — A.11, практика — A.16, баттл — A.17). `TwaAuth` выполняется **до** `throttle:*`
   (`bootstrap/app.php`, `prependToPriorityList`), поэтому ключ лимитера — `learner_id`, а не IP.
 - При любой 4xx/5xx (кроме 422 валидации Laravel) ответ — `ApiErrorResource`:
 ```json
 { "error": { "code": "string", "message": "string" } }
 ```
+- **`error.details`** (с практики, docs/16 §7.6) — необязательный объект с полями, которые нужны клиенту для экрана; он лежит **внутри** `error` и появляется только у кодов, у которых описан, и только когда не пуст:
+```json
+{ "error": { "code": "practice_session_active", "message": "There is an unfinished practice session.",
+             "details": { "session_id": 77, "mode": "pairs", "course": "english-a1", "lesson_id": 41, "progress": { "done": 1, "total": 3 } } } }
+```
+  Остальные ошибки не меняются: ключа `details` в них нет (не пустой объект, а именно нет). Сообщение `message` — английское и не показывается ученику: TWA выбирает текст по `code` (и `details`). Контракт закреплён тестами
+  `PracticeContractTest` и `BattleContractTest` (форма на проводе, ключи `details` каждого кода); в TWA — `ApiClientError.details`. Коды практики — A.16, баттла — A.17.
 
 ### A.7 `POST /api/twa/promo/redeem`
 Активация промокода (docs/12 §5.5). Rate limit `twa-promo`: **5/мин на learner'а и 60/мин на IP** (429) — защита от подбора кодов.
@@ -859,6 +879,489 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 ```
 `title` / `description` / `share_text` — на языке запроса (`lang/{ru,uz}/achievements.php`). `progress` — только у счётных ключей (`streak_*` по лучшей серии, `words_*` по словам с `repetitions ≥ 1`), `current` не больше `target`; у разовых — `null`. `share_text` — только у полученных. `share_link` — `t.me/<bot>?start=ref_<code>` (тот же код, что у рефералки); `null`, пока не задан `TELEGRAM_BOT_USERNAME` — клиент прячет кнопку «Поделиться».
 - `POST /api/twa/achievements/{key}/shared` — learner открыл диалог «Поделиться» (`useTelegram().shareUrl`): ставит `shared_at` один раз (+ событие `achievement.shared`), повтор — без изменений. **404** `achievement_not_found` — ключ неизвестен, не получен или чужой.
+
+### A.16 Практика — четыре режима (docs/16 §7, §10; задачи 18.1–18.5)
+Самостоятельная практика закрепляет **уже введённые** ученику слова: «Найди пары» (`pairs`), «Подбери сочетание» (`collocation`), «Собери предложение» (`sentence`), «Слушай и пиши» (`dictation`). Она **не пишет**
+`word_repetitions`, `training_*`, цель дня, серию, лиги, задания центра и достижения (docs/16 §0, `PracticeIsolationTest`). Контроллеры `PracticeHubController`, `PracticeSessionController`, `PracticeAudioController` тонкие
+(валидация → сервис → Resource): `PracticeHubService`, `PracticeSessionService`, `PracticeAudioService`; ответы — `PracticeHubResource`, `PracticeSessionResource`, `PracticeAnswerResource`; ошибки — `ApiErrorResource` (A.6, с `details`).
+Формы закреплены `PracticeContractTest` (`assertExactJsonStructure`, запретные ключи снимка на любой глубине). Даты — ISO 8601 UTC **с миллисекундами** (`2026-10-30T10:00:05.321Z`); `server_now` — в каждом ответе сессии.
+
+**Доступ** проверяется на каждом эндпоинте раньше всего (`PracticeAccess::state`): `PRACTICE_ACCESS=off` или `pilot` без ученика в пилоте → **403** `practice_unavailable` (один код: наличие пилота не раскрываем); `PRACTICE_PLAN=pro` и ученик не на Pro → **403** `practice_pro_required`
+(TWA открывает пейвол `practice`). Выключатель режима `PRACTICE_MODE_*` проверяется **только при создании** сессии (**409** `practice_mode_disabled`) и показывается в хабе как `disabled`: открытые сессии доигрываются.
+Чужая сессия неотличима от несуществующей: **404** `practice_session_not_found`.
+
+**Лимиты** (ключ — `learner_id`, `TwaAuth` раньше `throttle`): все маршруты, кроме аудио, под `twa-api` (60/мин); дополнительно `POST /practice/sessions` — `twa-practice-open` **10/мин**; `…/answer` и `…/replace` — `twa-practice-answer` **90/мин**
+(быстрый ученик сопоставляет ~40 пар в минуту); аудио — `twa-practice-audio` **60/мин** и **вне** `twa-api` (клипы грузятся пачкой и не должны съедать общий бюджет). 429 — `rate_limited` (A.6).
+
+#### `GET /api/twa/practice/hub?course={slug}[&lesson_id={id}]`
+Хаб курса или урока: четыре режима с состоянием, незавершённая сессия, сводка баттла. Бюджет — 9 запросов к БД (`PracticeQueryBudgetTest`).
+```json
+{ "course": { "slug": "english-a1", "title": "Английский A1" },
+  "lesson": { "id": 41, "stage": 2, "number": 4, "title": "Еда" },
+  "modes": [
+    { "mode": "pairs",       "state": "available",  "available": 14, "required": 3, "reason": null,       "estimate_seconds": 120 },
+    { "mode": "collocation", "state": "not_enough", "available": 1,  "required": 3, "reason": "no_items", "estimate_seconds": 90 },
+    { "mode": "sentence",    "state": "disabled",   "available": 0,  "required": 3, "reason": null,       "estimate_seconds": 150 },
+    { "mode": "dictation",   "state": "available",  "available": 7,  "required": 3, "reason": null,       "estimate_seconds": 180 }
+  ],
+  "active_session": { "id": 77, "mode": "pairs", "course": "english-a1", "lesson_id": 41, "progress": { "done": 1, "total": 3 } },
+  "battle": { "enabled": true, "active_battle_id": null, "incoming_count": 1 } }
+```
+- `lesson` — `null` без `lesson_id` (хаб курса); `stage` и `number` — номера модуля и урока, `title` — название (у безымянного урока `null`; у колоды ученика — по `DeckTitles`). Тексты на языке ученика.
+- `modes[]` всегда четыре, в порядке `pairs`, `collocation`, `sentence`, `dictation`. `state`: `available` (можно играть), `not_enough` (материала мало: числа `available` / `required` и `reason`), `disabled` (режим выключен
+  `PRACTICE_MODE_*`), `pro_required` (Free при `PRACTICE_PLAN=pro`: числа не считаются). У `disabled` и `pro_required` `available = 0`, `reason = null`. `required` — минимум: у пар 3 слова в раунде, у остальных 3 задания (`practice.solo.items.min`).
+  `reason`: `no_words` (введённых слов меньше минимума), `ambiguous` (слов хватает, но после исключения неоднозначных переводов — нет), `no_items` (опубликованных заданий типа мало, и «запертые» их не дополнят — обещать «они появятся» нельзя), `items_locked` (задания есть, но не хватает из-за невведённых целевых слов: с ними хватило бы — «выучите слова урока»; у баттла не бывает),
+  `audio_pending` (заданий хватает, но озвучка не готова), `no_audio_words` (диктант слов: нет слов с готовой озвучкой). `estimate_seconds` — «≈ N мин» на карточке (120 / 90 / 150 / 180).
+- `active_session` — единственная незавершённая сессия ученика **в любом курсе** (`null`, если нет; просроченная закрывается и не возвращается): карточка «Продолжить» и лист «Незавершённая практика».
+- `battle` — сводка баттла: `enabled` (`PRACTICE_BATTLE`), `active_battle_id` (свой матч, который не закончен), `incoming_count` (приглашения мне, срок которых не истёк). Один запрос к `battles`; API баттла — A.17.
+- Ошибки: **403** `practice_unavailable`; **404** `course_not_found` (курс не опубликован, приватный чужой или нет такого), `lesson_not_found`; **422** `lesson_not_in_course`, валидация (`course` обязателен, ≤ 64 символов).
+
+#### `POST /api/twa/practice/sessions` — открыть сольную сессию (лимитер `twa-practice-open`)
+```json
+{ "mode": "pairs", "course": "english-a1", "lesson_id": 41, "source": "hub", "replace_active": false, "retry_of": null }
+```
+`mode` — один из четырёх; `course` — slug (≤ 64); `lesson_id` — целое ≥ 1 или `null` (практика курса); `source` — `hub` (по умолчанию) | `after_training` (хаб открыт с итога занятия: `?from=finished`) | `retry` | `deeplink` — откуда открыта, для аналитики;
+`replace_active` — закрыть незавершённую сессию (`finish_reason = replaced`); `retry_of` — id **завершённой** своей сессии: «Повторить ошибки» (режим, курс и урок берутся из неё, присланные игнорируются, `source = retry`).
+**`source: retry` и `retry_of` приходят только вместе**: одно без другого — **422** (валидация Laravel), чтобы повтор нельзя было выдать за обычное открытие и наоборот.
+Ответ **201** — сессия (форма ниже, как `GET`); в `current` — первый элемент. Что в сессии: пары — до 3 раундов по 4 слова (минимум один раунд из 3); сочетание, предложение — 5 заданий (минимум 3); диктант — 5 заданий (минимум 3): до 3 фраз, остальное — слова с готовой озвучкой (слов не хватает — добираются фразами), сначала слова, потом фразы.
+Раскладка и ожидаемые ответы создаются на сервере один раз и хранятся в снимке (`practice_sessions.snapshot`, docs/03 §2.43): перезагрузка отдаёт ту же раскладку, правка контента на идущую сессию не влияет.
+- Одна активная сессия на ученика (unique `active_learner_id`): вторая открывается только с `replace_active` — иначе **409** `practice_session_active` (`details` — незавершённая сессия: `{session_id, mode, course, lesson_id, progress}`).
+  Две вкладки, открывшие одну и ту же практику одновременно, получают **одну** сессию (проигравший гонку читает победителя); другую практику — 409.
+- Порядок работы: незавершённая живая сессия без `replace_active` даёт 409 **до** сборки снимка (ни чтений материала, ни диска, ни события `practice.not_enough_material`); с `replace_active` снимок строится первым — 422 «мало материала» не закрывает идущую сессию, старая закрывается только вместе с созданием новой.
+- Ошибки: **403** `practice_unavailable` / `practice_pro_required`; **409** `practice_mode_disabled` (`{mode}`), `practice_session_active`, `retry_not_available` (в исходной сессии нечего повторять, или все задания-ошибки сняты с публикации / потеряли озвучку или слова; кнопку `summary.retry_available` скрывает то же решение, плюс выключенный режим и закрытый доступ — их открытие повтора отдаёт обычными `practice_mode_disabled` и 403); **404** `course_not_found`, `lesson_not_found`,
+  `practice_session_not_found` (чужая или несуществующая `retry_of`); **422** `lesson_not_in_course`, `practice_not_enough_material`, валидация.
+- **422 `practice_not_enough_material`** — `details`: `{ "mode": "pairs", "available": 2, "required": 3, "reason": "no_words", "course": "english-a1", "lesson_id": 41 }` (те же `reason`, что в хабе). TWA по нему объясняет причину и предлагает «Учить урок».
+- Побочный эффект: событие `practice.session_started` `{session_id, mode, course_id, lesson_id, source, total, retry}`; отказ 422 — `practice.not_enough_material` (кроме повтора ошибок).
+
+#### `GET /api/twa/practice/sessions/{id}` — сессия
+```json
+{ "id": 77, "status": "active", "mode": "sentence", "source": "hub", "retry_of": null,
+  "course": { "slug": "english-a1", "title": "Английский A1" },
+  "lesson": { "id": 41, "stage": 2, "number": 4, "title": "Еда" },
+  "progress": { "done": 2, "total": 5 }, "counters": { "correct_first": 1, "hints": 0, "mismatches": 0 },
+  "expires_at": "2026-10-31T10:00:00.000Z", "server_now": "2026-10-30T10:00:05.321Z",
+  "current": { "id": "eK7qM2x9Ab", "kind": "sentence", "prompt": "Моя мама — учитель.",
+               "fragments": [ { "id": "fQ1xT8aLmN", "text": "teacher" }, { "id": "fW2pB4cDeR", "text": "My" } ] },
+  "summary": null }
+```
+`status` — `active` | `finished`; `lesson` — `null` у практики курса; `progress.done` — завершённые элементы (у пар — раунды); `counters` — для шапки; `expires_at` — `started_at + 24 ч` (`practice.solo.session_ttl_hours`). Восстановление экрана — этим же запросом: раскладка та же.
+`current` — **белый список** (`PracticeModeHandler::project` + повторная очистка Resource'ом от ключей снимка); id элементов, фрагментов, вариантов и карточек пар — случайные 10-символьные (`e…`, `f…`, `o…`, `l…`, `r…`), порядок — перестановка от случайного seed'а, который не хранится. Формы `current` по `kind`:
+- `pairs_round` — `{ id, kind, round, rounds, left: [{id, text}], right: [{id, text}], matched: [[leftId, rightId], …], mismatches }`; `right.text` — перевод на языке ученика (при отсутствии — русский); правильные соответствия **не** отдаются;
+- `collocation` — `{ id, kind, text: "Let's ___ a meeting on Monday.", options: [{id, text} ×3] }`;
+- `sentence` — как в примере выше (`prompt` — смысл на языке ученика, `fragments` — перемешанные);
+- `dictation` — `{ id, kind, source: "phrase" | "word", audio_url: "/api/twa/practice/sessions/77/audio/eD4rS6yUiO", words: 3, replacements_left: 2 }` — **текста нет**; `words` — число слов (для пустых плашек).
+Завершённая сессия: `current: null`, `summary` (ниже). `GET` завершённой — **200** с итогами (не 410: итоги читаемы всегда); просроченная активная закрывается при обращении (`finish_reason = expired`) и тоже отвечает 200.
+Ошибки: **404** `practice_session_not_found`; **403** по доступу.
+
+`summary` (итог, `SummaryView`):
+```json
+{ "total": 5, "answered": 5, "correct_first": 3, "typos": 1, "hints": 1, "mismatches": null,
+  "duration_ms": 93000, "finish_reason": "completed", "retry_available": true,
+  "mistakes": [ { "element_id": "eD4rS6yUiO", "kind": "dictation", "label": "See you tomorrow", "your_answer": "see you tomorow", "verdict": "typo" } ] }
+```
+`correct_first` — верно с первой попытки (`typo` не считается), `hints` — «Не знаю». У пар `correct_first` — слова, сопоставленные верно с первой попытки, `mismatches` — число неверных сопоставлений (у остальных режимов `null`), `mistakes[]` — слова, в которых была ошибка
+(`label: "mother — мама"`, `your_answer: null`, `verdict: "wrong"`). `finish_reason` — `completed` | `expired` | `replaced`; `duration_ms` — серверное `finished_at − started_at`. `retry_available` — можно «Повторить ошибки»: то же решение, что принимает открытие повтора, и считается оно при каждом чтении итога (не хранится) —
+есть что повторять (пары: ≥ 3 слов, остальные режимы: ≥ 1 слова или задания), практика доступна ученику, режим включён и хотя бы одно задание-ошибка ещё играбельно (опубликовано, целевые слова активны и введены, у диктанта озвучка готова). Чего решение не видит (слово раунда пар, которого не стало; два перевода, ставших неоднозначными), то открытие находит при сборке и отвечает 409 `retry_not_available`.
+Цена: у завершённой сессии с ошибками-заданиями `GET` стоит 3 запроса (один — о заданиях), у пар 2.
+
+#### `POST /api/twa/practice/sessions/{id}/answer` — ответ (лимитеры `twa-api` + `twa-practice-answer`)
+```json
+{ "request_id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d", "element_id": "eK7qM2x9Ab", "time_spent_ms": 8200,
+  "answer": { "order": ["fW2pB4cDeR", "fQ1xT8aLmN"] } }
+```
+`request_id` — **uuid**, обязателен: ключ повтора. `element_id` — id текущего элемента (≤ 16). `time_spent_ms` — 0…600000, телеметрия, на вердикт не влияет. `answer` по режиму:
+пары — `{left_id, right_id}` (одно сопоставление; проверяется сразу); сочетание — `{option_id}` или `{skip: true}`; предложение — `{order: [id всех фрагментов]}` (≤ 8) или `{skip: true}`; диктант — `{text}` (≤ 200 символов; пустой текст = «Не знаю») или `{skip: true}`.
+Тело запроса ≤ 4 КБ. Ответ **200**:
+```json
+{ "verdict": "typo", "first_attempt": true,
+  "reveal": { "expected": "See you tomorrow", "your_text": "see you tomorow",
+              "diff": [ { "expected": "see", "got": "see", "ok": true }, { "expected": "tomorrow", "got": "tomorow", "ok": false } ],
+              "translation": "До завтра", "explanation": null },
+  "pair": null,
+  "session": { "...": "сессия, как GET: следующий элемент в current или summary" } }
+```
+- `verdict` — `correct` | `typo` (только диктант: «Есть опечатка», в `correct_first` не засчитывается) | `wrong` | `skipped`. `first_attempt` — первая ли это попытка по элементу.
+- `reveal` — разбор **после** ответа, по виду элемента: `collocation` — `{correct_option_ids, full_text, translation, explanation, your_option_id}` (`your_option_id` — `string | null`: id варианта, который выбрал ученик, `null` при «Не знаю»; экран отмечает им выбор среди трёх); `sentence` — `{correct_text, alternatives: [...], your_text, explanation}`; `dictation` — `{expected, your_text, diff, translation, explanation}`
+  (`diff` — пословное сравнение при равном числе слов, иначе `null`; при «Не знаю» `your_text = null`). У пар `reveal` всегда `null`, правильная пара при ошибке **не** раскрывается.
+- Пары: `pair: { left_id, right_id }` — какое сопоставление проверено, `verdict` — `correct` | `wrong` (первая ошибка по слову фиксируется, даже если потом оно найдено), `round_done: bool` — раунд завершён (**ключ есть только у пар**).
+- **Повтор того же `request_id`** возвращает прежние `verdict`/`reveal` (из журнала `practice_attempts`) и **текущее** состояние сессии — даже если она уже закончилась (потерянный ответ на последний элемент не превращается в 410).
+  `request_id` принадлежит одному виду запроса: если он уже принят как **замена** диктанта, ответ с ним — **409** `request_id_reused` (без `details`); новый запрос — новый uuid, повторяется только тот, чей ответ потерян.
+- Порядок проверок под блокировкой сессии: повтор → закрыта (410) → неизвестный элемент (422) → элемент уже отвечен (409) → не текущий (409) → форма ответа (422). Ошибки:
+  **410** `practice_session_closed` (`{finish_reason}`; просроченная сессия закрывается этим запросом); **409** `element_not_current` (`{current}` — id элемента, который отвечать сейчас; TWA перечитывает сессию), `answer_already_accepted` (`{verdict}`), `pair_already_matched` (`{left_id}`; также для уже занятой правой карточки);
+  **422** `invalid_answer_shape` (`{expected}`: `order_of_all_fragments` | `option_id` | `left_right` | `text_or_skip` | `bijection`), `unknown_element_id` (неизвестный элемент, фрагмент, вариант или карточка), валидация; **404**.
+- Побочный эффект при завершении сессии: событие `practice.session_finished` `{session_id, mode, total, answered, correct_first, hints, mismatches, reason, duration_ms}` (после commit, один раз).
+
+#### `POST /api/twa/practice/sessions/{id}/replace` — замена диктанта без штрафа (лимитер `twa-practice-answer`)
+`{ "request_id": "…uuid…", "element_id": "eD4rS6yUiO", "reason": "audio_unavailable" }` → **200** сессия (как `GET`): диктант, чья запись не загрузилась, заменён следующим кандидатом из пула снимка (фраза — фразой, иначе словом); если запасных нет, элемент
+убирается и `progress.total` уменьшается (минимум 1). Заменённый элемент не входит в `total` и `answered`. Не больше `practice.solo.dictation.max_replacements` (2) на сессию. Ошибки: **409** `replace_not_allowed` (`{reason: not_dictation | not_current | limit}`), **410**, **404**.
+Повтор `request_id` второй раз не заменяет: ответ — текущая сессия; `request_id`, уже принятый как ответ, — **409** `request_id_reused`. Запасные кандидаты проверяются на диске **до** блокировки сессии (под ней диск не читается). Событие `practice.audio_failed` `{session_id, source, reason, verified}` (после commit).
+
+#### `GET /api/twa/practice/sessions/{id}/audio/{element}` — запись диктанта (лимитер `twa-practice-audio`, вне `twa-api`)
+Тело — `audio/mpeg`, заголовки `Cache-Control: private, no-store`, `Content-Length`, `X-Content-Type-Options: nosniff`. Файл читается с диска элемента снимка (`practice_audio` — фразы; `public` — предгенерированные слова, `audio:pregenerate`) по **непрозрачному id элемента**;
+ни пути, ни текста в API нет. TWA грузит клип запросом с `Authorization` в `blob:` и играет по нажатию (Web Speech для диктанта запрещён: нужен текст на клиенте). Доступ — только владельцу; завершённая сессия отдаёт записи до `expires_at` (повторное прослушивание в разборе).
+Ошибки: **404** `practice_session_not_found` — чужая сессия, неизвестный элемент или элемент без записи (неотличимо), **503** `practice_audio_unavailable` — файла нет (TWA предлагает «Повторить загрузку» и «Заменить задание»; событие `practice.audio_failed` с `reason: file_missing` — не чаще раза в 10 минут на пару «сессия — элемент»).
+
+#### Коды ошибок практики (сводно)
+| Код | HTTP | `details` |
+|---|---|---|
+| `practice_unavailable` | 403 | — |
+| `practice_pro_required` | 403 | — (пейвол `practice`) |
+| `practice_mode_disabled` | 409 | `{mode}` |
+| `practice_not_enough_material` | 422 | `{mode, available, required, reason, course, lesson_id}` |
+| `practice_session_active` | 409 | `{session_id, mode, course, lesson_id, progress}` |
+| `practice_session_not_found` | 404 | — |
+| `practice_session_closed` | 410 | `{finish_reason}` |
+| `element_not_current` | 409 | `{current}` |
+| `answer_already_accepted` | 409 | `{verdict}` (в баттле ещё `points`) |
+| `pair_already_matched` | 409 | `{left_id}` |
+| `invalid_answer_shape` | 422 | `{expected}` |
+| `unknown_element_id` | 422 | — |
+| `replace_not_allowed` | 409 | `{reason}` |
+| `request_id_reused` | 409 | — (`request_id` уже принят как запрос другого вида: ответ ≠ замена) |
+| `retry_not_available` | 409 | — |
+| `practice_audio_unavailable` | 503 | — |
+| `course_not_found` / `lesson_not_found` | 404 | — |
+| `lesson_not_in_course` | 422 | — |
+
+TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru/uz; новый в 18.9b — `request_id_reused`); клиент разбирает `details` у `practice_session_active`, `element_not_current`, `answer_already_accepted`.
+
+**Запросы к БД** (`PracticeQueryBudgetTest`, `DictationSessionTest`, `PracticeRetryTest`; `TwaAuth` с его запросом `learners` включён): хаб ≤ 9; открытие ≤ 12, открытие повтора ≤ 13; `GET` сессии ≤ 3 (завершённая с ошибками-заданиями — 3, пары — 2); ответ ≤ 6, последний ответ сессии (с итогом) ≤ 7; замена диктанта ≤ 7; аудио ≤ 2. Снимок сессии — не больше 40 КБ в UTF-8 (`Snapshot::MAX_BYTES`), ответ сессии — не больше 8 КБ.
+
+### A.17 Баттл 1 на 1 — API (docs/16 §7.3–§7.4, §8; задачи 18.6, 18.6b)
+Матч двух учеников, которые дружат: один формат из четырёх (`pairs`, `collocation`, `sentence`, `dictation`), 5 одинаковых раундов, очки только баттла (на обучение, серию, лиги, задания центра и достижения они не влияют — `PracticeIsolationTest`, A.16).
+`BattleController` тонкий: FormRequest → `BattleService` (действия) или `BattleReader` (чтения) → Resource; аудио отдаёт `PracticeAudioController::battle`; ошибки — `ApiErrorResource` с `details` внутри `error` (A.6). Формы закреплены
+`BattleContractTest` (`assertExactJsonStructure` по каждому статусу, запретные ключи снимка на любой глубине, `poll` ≤ 600 байт); доступ — `BattleHttpRulesTest`, лимитеры — `BattleRateLimitTest`, аудио — `BattleAudioTest`, матч двух игроков по HTTP целиком — `BattleHttpMatchTest`.
+Правила матча, часы и присутствие — docs/16 §8; таблицы — docs/03 §2.45–§2.47; экраны TWA — docs/05 §5a.5; ЛС-приглашение — B.14.
+
+**Общие правила**
+- Доступ к практике проверяется раньше всего (A.16): `PRACTICE_ACCESS=off` или пилот без ученика → **403** `practice_unavailable`; `PRACTICE_PLAN=pro` и ученик не на Pro → **403** `practice_pro_required`. Выключатель `PRACTICE_BATTLE=false` проверяют только создание
+  (`POST /battles`, `options`) и принятие (`accept`) → **409** `battle_disabled`; матч, который идёт, доигрывается. `PRACTICE_ACCESS=off` аннулирует и идущие матчи — дворник `practice:battles-sweep` (`closed / voided`) не позже чем через минуту.
+- Матч видят только его участники. Чужой и несуществующий id неотличимы: **404** `battle_not_found` (тело одно и то же; запрос чужого не пишет даже присутствие). `{id}` — целое до 18 цифр, иначе это 404 роутера (не 500).
+- Даты — ISO 8601 UTC с миллисекундами (`2026-10-30T10:00:05.321Z`). Часы матча — только серверные; `server_now` есть в каждом ответе матча, раунда и опроса. Клиент считает смещение `server_now − Date.now()` и тикает от него; клиентское время на результат не влияет.
+- Тексты (название курса, задание, разбор) — на языке **смотрящего**: у каждого игрока своя сторона снимка (`battle_participants.locale`, язык при приглашении). О сопернике известно только имя `opponent.first_name` (может быть `null`).
+- Ошибки — конверт A.6 `{"error": {"code", "message"[, "details"]}}`, коды — таблица ниже. Ошибки валидации Laravel (422 `{message, errors}`) и 429 лимитера (`Too Many Attempts.` + `Retry-After`) идут вне конверта; TWA различает их по статусу.
+- Чтение матча не «чистое»: `GET /battles/{id}`, `…/poll` и `…/round` каждый раз пишут присутствие игрока (условный UPDATE, не чаще раза в 5 с) и, если назрел переход по времени, выполняют его под блокировкой строки — кто первый посмотрел, тот и двигает матч. `GET /battles` присутствие не пишет,
+  но тоже доводит собственный матч до «сейчас» (просроченное приглашение закрывается). Опрос, пока ничего не назрело, блокировок не берёт и укладывается в 4 запроса к БД (бюджеты — docs/16 §13).
+
+**Маршруты и лимитеры** (ключ лимитера — `learner_id`; `TwaAuth` стоит раньше `throttle`)
+
+| Метод и путь | Лимитеры | Ответ |
+|---|---|---|
+| `GET /practice/battles/options?friendship_id=&course=[&lesson_id=]` | `twa-api` 60/мин | `BattleOptionsResource` |
+| `GET /practice/battles` | `twa-api` | `BattleListResource` |
+| `POST /practice/battles` | `twa-api` + `twa-practice-open` 10/мин + `twa-battle-invite` **5/мин** | **201** `BattleResource` |
+| `GET /practice/battles/{id}` | `twa-api` | `BattleResource` |
+| `GET /practice/battles/{id}/round?no=` | `twa-api` | `BattleRoundResource` |
+| `GET /practice/battles/{id}/poll` | только `twa-battle-poll` **90/мин** (вне `twa-api`) | `BattlePollResource` |
+| `POST /practice/battles/{id}/accept` · `decline` · `cancel` · `ready` · `surrender` | `twa-api` + `twa-battle-action` **60/мин** | `BattleResource` |
+| `POST /practice/battles/{id}/answer` | то же | `BattleAnswerResource` |
+| `POST /practice/battles/{id}/audio-failed` | то же | `BattleAudioFailedResource` |
+| `GET /practice/battles/{id}/audio/{element}` | только `twa-practice-audio` **60/мин** (вне `twa-api`) | `audio/mpeg` |
+
+- `POST /battles` считает и отказанные попытки (409, 422): каждое приглашение — снимок, строки и ЛС другу. `twa-practice-open` общий с соло (A.16).
+- Опрос раз в 2 с — 30 запросов в минуту (две вкладки — 60). Внутри `twa-api` (60) он съел бы бюджет раундов и ответов, поэтому у него свой бакет; это не «без лимита»: цикл в клиенте или скрипт упрутся в 90/мин, а не в БД.
+  `BattleRateLimitTest`: 30 опросов и 60 других запросов за минуту проходят, 61-й другой запрос — 429, а опрос идёт дальше (и наоборот: 91-й опрос — 429, остальной API жив). `twa-battle-action` — один бакет на все семь действий.
+- Аудио — пять клипов подряд при входе в комнату диктанта: свой бакет, чтобы предзагрузка не тратила общий бюджет.
+
+**Статусы матча** (полная машина состояний — docs/16 §8.1; переходы по времени происходят лениво при любом обращении участника и по минутному дворнику)
+
+| `status` | Как наступает | Что можно сделать | Дальше |
+|---|---|---|---|
+| `invited` | `POST /battles`; живёт до `invite_expires_at` (+300 с) | адресат: `accept`, `decline`; инициатор: `cancel` | `room`; `closed`: `declined`, `canceled`, `invite_expired` |
+| `room` | `accept`; живёт до `room_expires_at` (+120 с) | оба: `ready`; любой: `cancel`; диктант: загрузить `audio_preload` | `countdown` (оба готовы); `closed`: `canceled` (выход, либо участник молчит > 30 с — `meta.left`), `room_expired`, `voided` (нет записи) |
+| `countdown` | второй `ready`; `starts_at` = +3 с, раунд 1 уже с дедлайном `starts_at + round_seconds` | `cancel`, `surrender` | `playing` в `starts_at` |
+| `playing` | раунд: `phase = answering` (до дедлайна + грейс либо пока не ответят оба) → `reveal` (4 с) → следующий раунд | `answer`, `surrender` | после `reveal` 5-го раунда `finished/completed`; `finished`: `surrender`, `absent`; `closed`: `both_absent`, `voided` |
+| `finished` | есть результат: победа, поражение, ничья | реванш (`POST /battles {rematch_of}`) | — |
+| `closed` | матч не состоялся или прерван без победителя | реванш | — |
+
+Терминальные статусы (`finished`, `closed`) не меняются; любое действие над ними — **409** `battle_closed` (читать можно всегда, `GET` — 200). `cancel` приглашения — только инициатор; в `room` и `countdown` — любой участник; в `playing` выйти можно только `surrender`
+(`cancel` → 409 `battle_wrong_state`). Сдача — поражение сдавшегося, победа соперника, очки остаются как есть (даже если сдавшийся вёл). Тихий выход (тишина дольше `presence_grace_seconds`) в `room`/`countdown` отменяет матч, в `playing` — техническое поражение молчащего.
+
+#### `BattleResource` — один вид матча для всех статусов
+Отдают `GET /battles/{id}`, 201 приглашения, ответ каждого действия (`accept`, `decline`, `cancel`, `ready`, `surrender`) и поле `battle` ответа `audio-failed`. Все ключи есть всегда, отсутствующее — `null`; порядок ключей как в таблице.
+
+| Ключ | Тип | Смысл |
+|---|---|---|
+| `id`, `status`, `mode` | int, string, string | `status` — таблица выше; `mode` — `pairs` · `collocation` · `sentence` · `dictation` |
+| `end_reason` | string \| null | только у терминального: `completed`, `surrender`, `absent` (у `finished`); `declined`, `invite_expired`, `room_expired`, `canceled`, `both_absent`, `voided` (у `closed`) |
+| `role` | string | моя сторона: `challenger` (пригласил) · `opponent` (приглашён) |
+| `course` | `{slug, title}` | название на моём языке |
+| `lesson` | `{id, stage, number, title}` \| null | `null` — матч на весь курс; `stage`/`number` — номера модуля и урока, `title` может быть `null` |
+| `opponent` | `{first_name}` | соперник |
+| `rounds_total`, `round_seconds`, `countdown_seconds`, `reveal_seconds` | int | 5; время раунда по формату (`collocation` 30 · `pairs` 45 · `sentence` 45 · `dictation` 60 с); 3 с; 4 с |
+| `presence_grace_seconds`, `presence_warn_seconds`, `deadline_grace_ms` | int | 30 с; 10 с; 1500 мс (ниже) |
+| `invite_expires_at`, `room_expires_at`, `starts_at` | ISO \| null | конец приглашения; конец комнаты (`null` до принятия); конец отсчёта (`null` до старта) |
+| `version`, `server_now` | int, ISO | `version` растёт при каждом изменении, видимом игрокам (принятие, готовность, ответ, переход), присутствие его не двигает |
+| `ready` | `{me, opponent}` | кто нажал «Готов» |
+| `opponent_present`, `opponent_absent_since` | bool, ISO \| null | соперник молчит (таблица ниже) |
+| `round` | `{no, phase, deadline_at, phase_ends_at, my_answered, opponent_answered}` \| null | раунд, в котором матч; только в `countdown` и `playing` |
+| `scores` | `{me, opponent}` | сумма очков **разрешённых** раундов (0…500) |
+| `result` | `{outcome, end_reason, rounds[]}` \| null | у любого терминального матча, у `closed` тоже |
+| `rematch` | `{battle_id, status, by_me}` \| null | только у терминального матча: самый поздний реванш этого матча |
+| `friendship_id` | int \| null | дружба на момент приглашения |
+| `audio_preload` | list<string> \| null | только диктант в `room` и `countdown` |
+
+`round.phase`: `answering` · `reveal` · `null` (отсчёт: раунд 1 уже назван и имеет дедлайн, но фазы ещё нет). `deadline_at` — конец приёма ответов; `phase_ends_at` — конец показа разбора (в `answering` `null`); `my_answered`/`opponent_answered` — кто ответил (самого ответа соперника нет до разбора).
+`result.outcome` — с моей стороны: `won` · `lost` · `draw` · `none` (`closed`: матч без результата). `result.rounds` — **только разрешённые раунды** (`meta.rounds_played`): `{no, me: {verdict, points}, opponent: {verdict, points}}`; `verdict` — `correct` · `typo` · `wrong` · `skipped` · `timeout`.
+Раунд, оборванный сдачей или отсутствием, в итог не входит, его очки не засчитаны.
+
+**Поля, которые клиент читает сверх проекта docs/16 §7.4** (решения координатора, 18.6/18.6b)
+
+| Поле | Что значит и как использовать |
+|---|---|
+| `rematch.by_me` | Реванш предложил я (`true`) или соперник (`false`). Лишний `GET` реванша не нужен: `status: invited` и `by_me: false` — предложение мне, «Принять» открывает `/battles/{battle_id}`. Есть в `BattleResource` и в `poll` терминального матча |
+| `opponent_present`, `opponent_absent_since` | Живой матч (`room`, `countdown`, `playing`): соперник молчит дольше `presence_warn_seconds` (10 с) → `opponent_present = false`, а `opponent_absent_since` — момент его последнего присутствия. У `invited` и терминальных статусов — `true` / `null` |
+| `presence_grace_seconds` | Матч кончается, когда от `opponent_absent_since` прошло столько секунд (в `playing` — победа остающегося, в `room`/`countdown` — отмена); момент замечает ближайший опрос игрока или дворник. «Осталось» на экране: `opponent_absent_since + presence_grace_seconds − server_now`; после перезагрузки число то же. Предупреждение (10 с) и конец (30 с) — разные пороги, конец решает только 30. Правило одно для обоих: молчащим можете оказаться и вы |
+| `deadline_grace_ms` | Ответ, ушедший у клиента в 0:00 и дошедший позже, принимается ещё столько мс после `round.deadline_at`. Клиент не угадывает грейс, а читает его отсюда |
+| `round` в `countdown` | `{no: 1, phase: null, deadline_at: starts_at + round_seconds, phase_ends_at: null, my_answered: false, opponent_answered: false}`; `GET …/round?no=1` в отсчёте уже отдаёт задание (`phase: null`, `reveal: null`) — экран может нарисоваться до старта. Ответ на раунд в отсчёте — 409 `round_not_open {round: 1, phase: null}`: после него перечитайте опрос |
+| `audio_preload` | Диктант, `room` и `countdown`: пять путей клипов. Совпадают **строка в строку** с `round.element.audio_url` раундов 1…5 (с префиксом `/api/twa`), поэтому blob, загруженный в комнате, играет в раунде. «Готов» ждёт загрузки всех пяти; `null` у других форматов и статусов |
+| `friendship_id` | Дружба на момент приглашения (`null`, если запись дружбы удалена). Для реванша не нужен: `rematch_of` обходится без него |
+
+#### Примеры по статусам
+Один матч целиком, с моей стороны (Bek, `challenger`; соперник Dilnoza, `uz`). Матч 15, `sentence`, курс `english-a1`, урок 41 («Модуль 2 · Урок 4 · Еда»), дружба 11.
+
+**`invited`** — ответ `POST /battles` (**201**); `GET` у того, кого пригласили, то же с `role: "opponent"`, названием курса на его языке и `opponent.first_name` инициатора:
+```json
+{ "id": 15, "status": "invited", "end_reason": null, "mode": "sentence", "role": "challenger",
+  "course": { "slug": "english-a1", "title": "Английский A1" },
+  "lesson": { "id": 41, "stage": 2, "number": 4, "title": "Еда" },
+  "opponent": { "first_name": "Dilnoza" },
+  "rounds_total": 5, "round_seconds": 45, "countdown_seconds": 3, "reveal_seconds": 4,
+  "presence_grace_seconds": 30, "presence_warn_seconds": 10, "deadline_grace_ms": 1500,
+  "invite_expires_at": "2026-10-30T10:05:00.000Z", "room_expires_at": null, "starts_at": null,
+  "version": 0, "server_now": "2026-10-30T10:00:00.120Z",
+  "ready": { "me": false, "opponent": false }, "opponent_present": true, "opponent_absent_since": null,
+  "round": null, "scores": { "me": 0, "opponent": 0 }, "result": null, "rematch": null,
+  "friendship_id": 11, "audio_preload": null }
+```
+
+Дальше для каждого статуса показаны только ключи, которые отличаются от `invited`: набор и порядок ключей у `BattleResource` всегда те же (`BattleContractTest` проверяет точную структуру каждого статуса).
+
+**`room`** — после `accept` (10:00:20) и моего «Готов»:
+```json
+{ "status": "room", "version": 2, "server_now": "2026-10-30T10:00:35.050Z",
+  "room_expires_at": "2026-10-30T10:02:20.000Z", "ready": { "me": true, "opponent": false } }
+```
+У диктанта в `room` (и в `countdown`) `audio_preload` — пять клипов, остальные ключи те же (`round_seconds: 60`):
+```json
+"audio_preload": [ "/api/twa/practice/battles/15/audio/eD4rS6yUiOa", "/api/twa/practice/battles/15/audio/ejIzGfbYA0Z", "…" ]
+```
+
+**`countdown`** — второй «Готов» (10:00:41): `starts_at` на 3 с впереди, раунд 1 без фазы, но с дедлайном:
+```json
+{ "status": "countdown", "version": 3, "server_now": "2026-10-30T10:00:41.200Z",
+  "starts_at": "2026-10-30T10:00:44.000Z", "ready": { "me": true, "opponent": true },
+  "round": { "no": 1, "phase": null, "deadline_at": "2026-10-30T10:01:29.000Z", "phase_ends_at": null, "my_answered": false, "opponent_answered": false } }
+```
+
+**`playing` / `answering`** — я ответил в 10:00:52, соперник ещё нет (счёт не двигается, пока раунд не разрешён; если бы ответил соперник, а не я, было бы `my_answered: false`, `opponent_answered: true`):
+```json
+{ "status": "playing", "version": 5, "server_now": "2026-10-30T10:00:53.000Z",
+  "round": { "no": 1, "phase": "answering", "deadline_at": "2026-10-30T10:01:29.000Z", "phase_ends_at": null, "my_answered": true, "opponent_answered": false },
+  "scores": { "me": 0, "opponent": 0 } }
+```
+
+**`playing` / `reveal`** — соперник ответил в 10:00:57, раунд разрешён: счёт обновлён, пауза 4 с до следующего раунда (`phase_ends_at`):
+```json
+{ "status": "playing", "version": 6, "server_now": "2026-10-30T10:00:57.410Z",
+  "round": { "no": 1, "phase": "reveal", "deadline_at": "2026-10-30T10:01:29.000Z", "phase_ends_at": "2026-10-30T10:01:01.410Z", "my_answered": true, "opponent_answered": true },
+  "scores": { "me": 100, "opponent": 0 } }
+```
+
+**`finished`** — после 5 раундов (раунд 2 — оба не успели, `timeout`); у соперника то же зеркально (`role: "opponent"`, `scores`/`rounds` меняются местами, `outcome: "lost"`):
+```json
+{ "status": "finished", "end_reason": "completed", "version": 18, "server_now": "2026-10-30T10:03:41.000Z",
+  "round": null, "audio_preload": null, "opponent_present": true, "opponent_absent_since": null,
+  "scores": { "me": 400, "opponent": 300 },
+  "result": { "outcome": "won", "end_reason": "completed", "rounds": [
+    { "no": 1, "me": { "verdict": "correct", "points": 100 }, "opponent": { "verdict": "wrong",   "points": 0 } },
+    { "no": 2, "me": { "verdict": "timeout", "points": 0 },   "opponent": { "verdict": "timeout", "points": 0 } },
+    { "no": 3, "me": { "verdict": "correct", "points": 100 }, "opponent": { "verdict": "correct", "points": 100 } },
+    { "no": 4, "me": { "verdict": "correct", "points": 100 }, "opponent": { "verdict": "correct", "points": 100 } },
+    { "no": 5, "me": { "verdict": "correct", "points": 100 }, "opponent": { "verdict": "correct", "points": 100 } } ] },
+  "rematch": null }
+```
+Ничья — `outcome: "draw"` (`winner_learner_id = NULL`), сдача — `end_reason: "surrender"` (у сдавшегося `outcome: "lost"`), потеря связи — `end_reason: "absent"`.
+
+**`closed`** — приглашение отклонено; `result` есть и здесь, без раундов:
+```json
+{ "status": "closed", "end_reason": "declined", "version": 1, "round": null, "scores": { "me": 0, "opponent": 0 },
+  "result": { "outcome": "none", "end_reason": "declined", "rounds": [] }, "rematch": null }
+```
+Матч, закрытый после сыгранных раундов (`both_absent` — оба пропали), несёт в `result.rounds` только разрешённые раунды, а `scores` — их сумму; у `voided` и `canceled` раундов нет.
+
+#### `GET /api/twa/practice/battles/{id}/poll` — опрос (вне `twa-api`)
+Раз в 2 с, пока матч живой и экран на виду; это и **heartbeat** игрока. Не больше 600 байт (на деле до 404 в самом тяжёлом состоянии) — только то, что меняется. Ключи одни и те же для всех статусов:
+```json
+{ "id": 15, "status": "playing", "version": 5, "server_now": "2026-10-30T10:00:53.000Z",
+  "ready": { "me": true, "opponent": true }, "opponent_present": true, "opponent_absent_since": null,
+  "round": { "no": 1, "phase": "answering", "deadline_at": "2026-10-30T10:01:29.000Z", "phase_ends_at": null, "my_answered": true, "opponent_answered": false },
+  "scores": { "me": 0, "opponent": 0 }, "end_reason": null, "rematch": null }
+```
+Раунд разрешён (следующий опрос после ответа соперника): `version` +1 (6), `round.phase = "reveal"`, `phase_ends_at` заполнен, `opponent_answered: true`, **счёт сдвинулся** (`"scores": {"me": 100, "opponent": 0}`) — до этого момента очки раунда не видны ни у кого.
+`rematch` в опросе есть только у терминального матча (у живого — `null` без запроса): `{ "battle_id": 16, "status": "invited", "by_me": false }`. Клиент перечитывает `GET /battles/{id}` при смене `status` и `GET …/round?no=` при смене `round.no` или `round.phase`.
+
+#### `GET /api/twa/practice/battles/{id}/round?no=2` — раунд
+`no` — 1…99; раунд, который ещё не начался, → **409** `round_not_open {round, phase}` (в отсчёте доступен раунд 1). `element` — задание в проекции режима на моём языке (формы как `current` в A.16, без ответов и текста диктанта); `reveal` — `null`, пока раунд не разрешён
+(ответили оба либо вышел дедлайн + грейс) — до этого ни правильного ответа, ни ответа соперника на устройстве нет. `phase`/`deadline_at`/`phase_ends_at` — часы **этого** раунда: у текущего они живые, у прошедшего `phase = "reveal"`, а часов нет.
+
+Раунд идёт — правильного ответа нет (`reveal: null`); тот же запрос у соперника отдаёт то же задание на его языке (`prompt: "Gap 6."`):
+```json
+{ "no": 1, "phase": "answering", "deadline_at": "2026-10-30T10:01:29.000Z", "phase_ends_at": null, "server_now": "2026-10-30T10:00:50.300Z",
+  "element": { "id": "epzXBzLqc0T", "kind": "sentence", "prompt": "Предложение 6.",
+               "fragments": [ { "id": "fq9dacye0Ft", "text": "we" }, { "id": "fAJmerOMAu0", "text": "play" }, { "id": "f0zDbJwf5C6", "text": "today" }, { "id": "f6KAra9XgkU", "text": "game6" } ] },
+  "reveal": null }
+```
+Раунд разрешён — тот же запрос отдаёт разбор (`translation` и `explanation` — на моём языке, `null`, если у формата их нет):
+```json
+{ "no": 1, "phase": "reveal", "deadline_at": "2026-10-30T10:01:29.000Z", "phase_ends_at": "2026-10-30T10:01:01.410Z", "server_now": "2026-10-30T10:00:57.600Z",
+  "element": { "...": "как выше" },
+  "reveal": { "correct": { "correct_text": "We play game6 today.", "alternatives": [] },
+              "me":       { "answer": { "order": [ "fq9dacye0Ft", "fAJmerOMAu0", "f6KAra9XgkU", "f0zDbJwf5C6" ] }, "verdict": "correct", "points": 100 },
+              "opponent": { "answer": { "order": [ "f0zDbJwf5C6", "f6KAra9XgkU", "fAJmerOMAu0", "fq9dacye0Ft" ] }, "verdict": "wrong", "points": 0 },
+              "explanation": "Порядок 6", "translation": "Предложение 6." } }
+```
+`reveal.me.answer` / `opponent.answer` — принятый ответ в форме, в которой его присылают (`null` у `timeout`). Разбор раунда доступен и позже — тем же запросом, но без часов (`deadline_at: null`, `phase_ends_at: null`), а у тайм-аута `me`/`opponent` = `{answer: null, verdict: "timeout", points: 0}`.
+
+| Формат | `element.kind` и поля | Ответ (`answer` в `POST …/answer`) | `reveal.correct` |
+|---|---|---|---|
+| `pairs` | `pairs_round`: `round`, `rounds` (5), `left[{id,text}]` ×4, `right[{id,text}]` ×4 (перевод на моём языке, порядок свой), `matched: []`, `mismatches: 0` | **весь набор сразу**: `{ "pairs": { "<left_id>": "<right_id>", … } }` — все 4 слова, без повторов правой карточки | `{ "pairs": { "<left_id>": "<right_id>", … } }` |
+| `collocation` | `collocation`: `text` (с `___`), `options[{id,text}]` ×3 | `{ "option_id": "…" }` или `{ "skip": true }` | `{ "correct_option_ids": ["…"], "full_text": "…" }` |
+| `sentence` | `sentence`: `prompt`, `fragments[{id,text}]` | `{ "order": ["<id фрагмента>", …] }` — все фрагменты ровно по разу, или `{ "skip": true }` | `{ "correct_text": "…", "alternatives": ["…"] }` |
+| `dictation` | `dictation`: `source`, `audio_url`, `words`, `replacements_left: 0` (в баттле клип не заменяют) — **текста нет** | `{ "text": "…" }` (≤ 200 символов) или `{ "skip": true }` | `{ "expected": "…" }` |
+
+Очки раунда: `correct` — `practice.battle.points.round` (100); `wrong`, `skipped`, `timeout` и `typo` (диктант с опечаткой: пометка в разборе) — 0. Пары: 25 за каждое верное соответствие, `correct` только при 4 из 4, иначе `wrong` с частичными очками (50 за две пары).
+Скорость очков не прибавляет. Выигрывает набравший больше за 5 раундов; равный счёт — ничья.
+
+#### `GET /api/twa/practice/battles/options?friendship_id=11&course=english-a1[&lesson_id=41]`
+Что можно сыграть с этим другом на этом материале. `friendship_id` — id из `GET /friends`, `course` — slug (≤ 64), `lesson_id` — урок курса. Курс — только опубликованный и не колода ученика.
+```json
+{ "friend": { "first_name": "Dilnoza" },
+  "course": { "slug": "english-a1", "title": "Английский A1" },
+  "lesson": { "id": 41, "stage": 2, "number": 4, "title": "Еда" },
+  "modes": [
+    { "mode": "pairs",       "state": "available",  "available": 24, "required": 20, "reason": null,       "round_seconds": 45 },
+    { "mode": "collocation", "state": "not_enough", "available": 3,  "required": 5,  "reason": "no_items", "round_seconds": 30 },
+    { "mode": "sentence",    "state": "disabled",   "available": 6,  "required": 5,  "reason": null,       "round_seconds": 45 },
+    { "mode": "dictation",   "state": "available",  "available": 6,  "required": 5,  "reason": null,       "round_seconds": 60 } ],
+  "friend_access": "available" }
+```
+- `modes[]` — всегда четыре, в порядке `pairs`, `collocation`, `sentence`, `dictation`. `state`: `available` · `not_enough` (числа и `reason` — как в хабе A.16: `no_words`, `ambiguous`, `no_items`, `audio_pending`, `no_audio_words`) · `disabled` (`PRACTICE_MODE_*`; числа и `reason` при этом настоящие — материал считается и для выключенного формата, в отличие от хаба A.16, где у `disabled` `available = 0`).
+  Состояния `pro_required` у баттла нет: Free при `PRACTICE_PLAN=pro` получает 403 на весь запрос.
+  Материал считается по языкам **обоих** игроков: пары — 5 раундов × 4 слова = 20 слов, однозначных в каждом из двух языков; остальные — 5 заданий (диктант — фразы с готовой записью). Числа `available` — то, что нашлось.
+- `friend_access`: `available` · `no_access` (друг не в пилоте / не Pro при `PRACTICE_PLAN=pro`) — это не ошибка, экран объясняет и не даёт пригласить.
+- Ошибки: **404** `friendship_not_found` (чужая пара, друг удалён или заблокирован), **403** `not_friends` (пара не `accepted`), **404** `course_not_found`, `lesson_not_found`, **422** `lesson_not_in_course`, **409** `battle_disabled`, **403** доступ, **422** валидация.
+
+#### `GET /api/twa/practice/battles` — список
+```json
+{ "active": { "id": 15, "status": "room", "mode": "sentence", "role": "challenger",
+              "course": { "slug": "english-a1", "title": "Английский A1" }, "lesson": { "id": 41, "stage": 2, "number": 4, "title": "Еда" }, "opponent": { "first_name": "Dilnoza" } },
+  "incoming": [ { "id": 18, "mode": "pairs", "from": { "first_name": "Aziza" },
+                  "course": { "slug": "english-a1", "title": "Английский A1" }, "lesson": null,
+                  "invite_expires_at": "2026-10-30T10:05:00.000Z", "rematch": false } ],
+  "finished": [ { "id": 9, "mode": "sentence", "opponent": { "first_name": "Dilnoza" }, "outcome": "won",
+                 "scores": { "me": 400, "opponent": 300 }, "finished_at": "2026-10-30T10:01:10.000Z" } ] }
+```
+- `active` — матч, которым я занят (`battle_participants.active_learner_id`): моё приглашение, которое не просрочено, комната, отсчёт, игра; `null` — никакого. Компактно: **ровно** `id, status, mode, role, course, lesson, opponent` (остальное — `GET /battles/{id}`).
+- `incoming` — приглашения мне со сроком в будущем, новые сверху; `rematch: true` — это реванш. `finished` — последние 10 (`finished_list`) терминальных матчей с моим участием, новые сверху; `outcome` — `won` · `lost` · `draw` · `none` (закрытые: отказ, истёкшее приглашение, отмена…).
+
+#### `POST /api/twa/practice/battles` — пригласить друга (201)
+```json
+{ "friendship_id": 11, "mode": "sentence", "course": "english-a1", "lesson_id": 41 }
+```
+`friendship_id`, `mode`, `course` обязательны, `lesson_id` — целое ≥ 1 или `null` (весь курс). Ответ **201** `BattleResource` (`status: invited`); другу уходит ЛС (B.14) и событие `battle.invited`. Снимок на 5 раундов строится сразу, на языках обоих игроков.
+- **Реванш:** `{ "rematch_of": 15 }` — мой терминальный матч (`finished` или `closed`). Друг — соперник того матча (пара всё ещё `accepted`, иначе **403** `not_friends`), формат, курс и урок — оттуда, снимок новый (при ровно 5 заданиях те же задания в другом порядке).
+  Остальные поля тела при `rematch_of` **не читаются и не валидируются** (TWA шлёт `mode`, `course`, `lesson_id`, `friendship_id` заодно — это не 422, даже если там мусор). `rematch_of` чужого матча → **404** `battle_not_found`; матча, который ещё идёт → **409** `battle_wrong_state {status}`.
+- **Занятость.** Один живой матч на ученика (unique `battle_participants.active_learner_id`): второе приглашение → **409** `battle_busy {battle_id}` — id моего матча. Встречное приглашение (друг **уже пригласил меня**, оно открыто) тоже **409** `battle_busy`, но с id **его** приглашения: открой его и прими
+  (оба нажали «Реванш» с разницей в секунды — второй попадает сюда). Проверка до транзакции, без блокировок: приглашения, пересёкшиеся в ту же миллисекунду, пройдут оба — тогда каждый занят своим, а принять чужое можно, только отозвав своё.
+- Порядок проверок и ошибки: доступ (403) → `battle_disabled` (409) → [реванш: 404/409] → `practice_mode_disabled` (409 `{mode}`) → пара (404 `friendship_not_found`, 403 `not_friends`) → `battle_friend_no_access` (409) → встречное `battle_busy` → курс (404 `course_not_found`) → урок (404 `lesson_not_found`, 422 `lesson_not_in_course`) → материал
+  (422 `battle_material_unavailable` с `details` как у `practice_not_enough_material`, событие `practice.not_enough_material {battle: true}`) → запись (нарушение unique → `battle_busy`). Валидация Laravel — 422 до всего этого.
+
+#### Действия: `accept` · `decline` · `cancel` · `ready` · `surrender`
+`POST /practice/battles/{id}/<действие>`, без тела, кроме `surrender` (`{ "confirm": true }`; без него **422** — выход из игры не делается случайным запросом). Ответ **200** `BattleResource` — матч таким, каким его видит действующий.
+
+| Действие | Кто | Что делает | Отказы |
+|---|---|---|---|
+| `accept` | приглашённый | `invited` → `room`; оба «присутствуют» с этой секунды; занимает приглашённого (`active_learner_id`). Для матча, который уже идёт, — 200 без изменений (двойное нажатие) | 403 `battle_not_recipient`; 409 `battle_closed` (просрочено — `invite_expired`; дружба кончилась — `canceled`); 409 `battle_busy {battle_id}` (я занят другим); 409 `battle_disabled` |
+| `decline` | приглашённый | `invited` → `closed/declined` | 403 `battle_not_recipient`; 409 `battle_wrong_state` (`room`, `countdown`, `playing`), `battle_closed` |
+| `cancel` | инициатор — приглашение; любой — комнату и отсчёт | → `closed/canceled` (`meta.left` — кто вышел) | 403 `battle_not_challenger`; 409 `battle_wrong_state` (`playing` — сдайтесь), `battle_closed` |
+| `ready` | оба игрока в `room` | отмечает готовность; оба → `countdown`. Диктант: сервер проверяет 5 файлов, нет — матч сразу `closed/voided` (в ответе 200, статус виден). В `countdown`/`playing` — 200 без изменений | 409 `battle_wrong_state` (`invited`), `battle_closed` |
+| `surrender` | любой в `countdown`, `playing` | → `finished/surrender`, победа соперника | 422 (`confirm`); 409 `battle_wrong_state` (`invited`, `room`), `battle_closed` |
+
+Любое действие в первую очередь доводит матч до «сейчас» (просроченное приглашение закрывается, назревший раунд разрешается) — отказ, возникший **после** такого перехода, не откатывает его.
+Присутствие (`last_seen_at`) обновляют `accept` (у обоих игроков), `ready`, `answer`, `surrender`, `audio-failed` и чтения `GET /battles/{id}`, `…/poll`, `…/round`; `decline`, `cancel` и список — нет. События: `battle.accepted` — при принятии, `battle.started` — когда оба готовы, `battle.closed` / `battle.finished` — при конце.
+
+#### `POST /api/twa/practice/battles/{id}/answer` — ответ раунда
+```json
+{ "request_id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d", "round": 1, "answer": { "order": ["fq9dacye0Ft", "fAJmerOMAu0", "f6KAra9XgkU", "f0zDbJwf5C6"] } }
+```
+`request_id` — **uuid** (регистр не важен), ключ повтора; `round` — 1…99, номер раунда, на который отвечают; `answer` — по формату (таблица выше). Пределы: `text` ≤ 200 символов, `order` ≤ 8 id по ≤ 16 символов, `pairs` ≤ 4 пары, тело `answer` ≤ 4 КБ. Ответ **200**:
+```json
+{ "verdict": "correct", "points": 100, "accepted_at": "2026-10-30T10:00:52.200Z", "round_resolved": false,
+  "poll": { "id": 15, "status": "playing", "version": 5, "server_now": "2026-10-30T10:00:52.200Z",
+            "ready": { "me": true, "opponent": true }, "opponent_present": true, "opponent_absent_since": null,
+            "round": { "no": 1, "phase": "answering", "deadline_at": "2026-10-30T10:01:29.000Z", "phase_ends_at": null, "my_answered": true, "opponent_answered": false },
+            "scores": { "me": 0, "opponent": 0 }, "end_reason": null, "rematch": null } }
+```
+- `verdict`/`points` — **мои**: разбор и ответ соперника здесь не возвращаются, они приходят в `GET …/round` после разрешения раунда. `round_resolved: true` — мой ответ оказался вторым и раунд разрешён (в `poll` уже `phase = "reveal"` и новый счёт). `poll` — состояние матча после ответа (отдельный опрос не нужен).
+- **Один окончательный ответ на раунд** (unique `(battle_id, round, learner_id)`); пары — весь набор сразу. Повтор с **тем же `request_id`** возвращает прежний результат (тот же `verdict`, `points`, `accepted_at`) — даже если раунд уже закрыт, начался следующий или матч закончился: потерянный ответ нельзя «потерять» повтором,
+  а тело повтора не сравнивается (ответ первого запроса). Новый `request_id` на тот же раунд — 409 `answer_already_accepted {verdict, points}` (первый ответ остаётся).
+- Порядок проверок под блокировкой строки матча: присутствие автора → ленивые переходы → повтор `request_id` (200) → терминальный (409 `battle_closed`) → отсчёт (409 `round_not_open {round, phase: null}`) → не `playing` (409 `battle_wrong_state`) → раунд позже текущего (409 `round_not_open`) → раунд раньше текущего, пауза разбора или дедлайн + грейс прошли (409 `round_closed`) →
+  второй ответ (409 `answer_already_accepted`) → форма (422 `invalid_answer_shape {expected}`, `unknown_element_id`). Форма пар в баттле — `bijection`, предложения — `order_of_all_fragments`, сочетания — `option_id`, диктанта — `text_or_skip`.
+- Тайм-аут: если игрок не ответил до `deadline_at + deadline_grace_ms`, ближайший обратившийся (опрос любого игрока, действие, дворник) разрешает раунд: пишет игроку строку `timeout` (0 очков, `request_id` — случайный uuid v4, который клиент не может предугадать и занять заранее; docs/16 §2.7) и начинает `reveal`. Отвечать после этого поздно — 409 `round_closed`.
+
+#### `POST /api/twa/practice/battles/{id}/audio-failed` — клип диктанта не играет
+```json
+{ "request_id": "3d5f0a8e-77b1-4a43-9c2e-6d1d9f5b2a10", "element_id": "ejIzGfbYA0Z" }
+```
+Сервер сам проверяет файл элемента. Ответ **200** `{ "verified": true | false, "battle": { "...BattleResource..." } }`:
+- `verified: true` — файла нет (или он пуст): матч `closed/voided` для обоих (`end_reason: "voided"`, `result.outcome: "none"`), очки не засчитаны;
+- `verified: false` — файл на месте, беда локальная, матч идёт дальше (игрок отвечает без звука или получает 0 за тайм-аут). Разрешён в `room`, `countdown`, `playing`; повтор с тем же `request_id` отвечает первым отчётом (идемпотентно, одно событие `practice.audio_failed`).
+- Ошибки: 409 `battle_wrong_state` (`invited`), `battle_closed` (терминальный; повтор того же `request_id` — 200), 422 `unknown_element_id` (элемент не из этого матча или без записи).
+
+#### `GET /api/twa/practice/battles/{id}/audio/{element}` — клип диктанта (вне `twa-api`)
+Тело — `audio/mpeg`, заголовки `Cache-Control: private, no-store`, `Content-Length`, `X-Content-Type-Options: nosniff`; путь на диске и текст в API не выходят. TWA берёт URL из `audio_preload` или `round.element.audio_url` и грузит клип с `Authorization` в `blob:`.
+- Клип отдаётся участнику, если раунд этого элемента **уже начался** (номер раунда ≤ `current_round`; матч, который закончился, помнит свой последний раунд — все пять), либо матч в `room` / `countdown` (предзагрузка всех пяти: «Готов» без неё нельзя, а звук текст не раскрывает).
+  Клип будущего раунда, чужой матч, неизвестный элемент и элемент без записи — один и тот же **404** `battle_not_found`. Файла нет → **503** `practice_audio_unavailable` и больше ничего (матч не трогается, событие не пишется): отчёт, который аннулирует матч, — `audio-failed`.
+
+#### Коды ошибок баттла (сводно)
+Коды практики общие с A.16 (`practice_unavailable`, `practice_pro_required`, `practice_mode_disabled`, `answer_already_accepted`, `invalid_answer_shape`, `unknown_element_id`, `practice_audio_unavailable`, `course_not_found`, `lesson_not_found`, `lesson_not_in_course`); дружбы — A.14. TWA: каждый код в `KNOWN_ERROR_CODES` и `error.code.<код>`.
+
+| Код | HTTP | `details` | Где и когда |
+|---|---|---|---|
+| `practice_unavailable` | 403 | — | любой маршрут: практика закрыта (`off`, не в пилоте) |
+| `practice_pro_required` | 403 | — | любой маршрут: Free при `PRACTICE_PLAN=pro` (пейвол `practice`) |
+| `battle_disabled` | 409 | — | `options`, `POST /battles`, `accept`: `PRACTICE_BATTLE=false` |
+| `practice_mode_disabled` | 409 | `{mode}` | `POST /battles`: формат выключен (`PRACTICE_MODE_*`) |
+| `battle_busy` | 409 | `{battle_id}` | `POST /battles`: я занят своим матчем (id) либо друг уже пригласил меня (id **его** приглашения); `accept`: я занят другим матчем. Называет только матчи, где спрашивающий — участник. `battle_id` бывает `null`, если матч, державший ученика, успел закрыться |
+| `battle_friend_no_access` | 409 | — | `POST /battles`: у друга нет доступа к практике |
+| `battle_material_unavailable` | 422 | `{mode, available, required, reason, course, lesson_id}` | `POST /battles`: материала на 5 раундов нет в языках обоих |
+| `friendship_not_found` | 404 | — | `options`, `POST /battles`: не моя пара, друг удалён или заблокирован |
+| `not_friends` | 403 | — | пара не `accepted`; реванш после удаления из друзей |
+| `battle_not_found` | 404 | — | любой `{id}`: нет такого или чужой (неотличимо); `rematch_of` чужого матча; аудио: клип раунда, который не начался, неизвестный элемент или элемент без записи |
+| `battle_not_recipient` | 403 | — | `accept`/`decline` не приглашённым |
+| `battle_not_challenger` | 403 | — | `cancel` приглашения не инициатором |
+| `battle_closed` | 409 | `{end_reason}` | действие над терминальным матчем (в т. ч. просроченным приглашением — `invite_expired`) или ответ с **новым** `request_id` после конца |
+| `battle_wrong_state` | 409 | `{status}` | действие не по статусу (см. таблицу действий); `rematch_of` матча, который ещё идёт |
+| `round_not_open` | 409 | `{round, phase}` | `answer` на раунд позже текущего или в отсчёте (`phase: null`); `GET …/round` раунда, который не начался |
+| `round_closed` | 409 | `{round, phase}` | `answer` на прошедший раунд, во время `reveal` или после `deadline_at` + `deadline_grace_ms` |
+| `answer_already_accepted` | 409 | `{verdict, points}` | другой (новый `request_id`) ответ на тот же раунд, пока он идёт |
+| `invalid_answer_shape` | 422 | `{expected}` | форма ответа не по формату: `order_of_all_fragments`, `option_id`, `text_or_skip`, `bijection` |
+| `unknown_element_id` | 422 | — | вариант / фрагмент / карточка не из раунда; `audio-failed`: элемент без записи или чужой |
+| `practice_audio_unavailable` | 503 | — | `GET …/audio/{element}`: файла нет |
+
+#### Как ходит клиент (TWA)
+1. Вход — список (`GET /battles`: «идёт баттл», приглашения мне) либо ссылка из ЛС `/twa/battles/{id}` → `GET /battles/{id}`. Приглашение друга — экран настройки: `options` на каждый выбор курса/урока → `POST /battles`.
+2. Пока статус живой (`invited`, `room`, `countdown`, `playing`) — `GET …/poll` раз в 2 с, только на экране (в фоне стоп, при возврате опрос сразу); сбой (сеть, 5xx, 429) удваивает паузу до 10 с. Смена `status` → `GET /battles/{id}`; смена `round.no`/`round.phase` → `GET …/round?no=`.
+   На терминальном матче опрос продолжается недолго (раз в 5 с до 2 минут) ради `rematch` — это дешевле `GET /battles/{id}` и вне `twa-api`.
+3. Таймеры рисуются от серверных меток (`invite_expires_at`, `room_expires_at`, `starts_at`, `round.deadline_at`, `round.phase_ends_at`) по смещению `server_now`; 0:00 не останавливает ввод — ответ уйдёт, решит сервер (грейс). Экран просыпается ровно к моменту перехода, не дожидаясь опроса.
+4. Ответ: новый `request_id` на попытку; при потере ответа (сеть, 5xx, 429) — тот же `request_id` (до 3 раз, затем кнопка «Повторить»). Определённый отказ (`round_closed`, `round_not_open`, `battle_closed`) после неопределённого сбоя значит «ответ мог пройти»: показывать правду будут опрос и разбор.
+5. Диктант: в `room` загрузить все `audio_preload` в blob до «Готов»; окончательный 503 → `POST …/audio-failed`; `verified: true` — матч аннулирован, показать итог, `verified: false` — повторить загрузку.
+6. Присутствие: `opponent_present = false` → полоса «соперник потерял связь» с остатком `opponent_absent_since + presence_grace_seconds − server_now`. Свой уход в фон дольше 30 с — это техническое поражение: после возврата матч уже может быть `finished/absent`.
+7. После конца: итог из `result`; реванш — `POST /battles {rematch_of}`; предложение соперника — `rematch.by_me = false` и `status = invited`. На 409 `battle_busy` с чужим приглашением — открыть его (`GET /battles/{battle_id}`) и принять.
+
+**События аналитики** (`product_events`, после commit, актёр — инициатор матча; в props только числа и коды): `battle.invited` `{battle_id, mode, course_id, lesson_id, rematch}`; `battle.accepted` `{battle_id}`; `battle.started` `{battle_id, mode}`;
+`battle.finished` `{battle_id, end_reason, result (challenger|opponent|draw), rounds_played, duration_ms}`; `battle.closed` `{battle_id, end_reason}`; `practice.not_enough_material` (с `battle: true`) и `practice.audio_failed` `{battle_id, source (word|phrase), reason (file_missing|client_report), verified}`. Событие пишется один раз, после commit той транзакции, которая изменила состояние матча, — не опросом и не повтором запроса.
 
 ## Часть B — Telegram Bot
 
@@ -1118,6 +1621,34 @@ private function formatLeaderboard(ExamSession $session): string
 `callback_data` (префикс `fr1`, строгий regex `^fr1:(acc|dec|cacc|cdec|snd|no):[A-Z0-9]{1,18}$` + проверка аргумента: id — цифры, `snd`/`no` — реферальный код `[A-Z0-9]{6,12}`, id проверяется сервисом среди **своих** пар/вызовов — чужой id = «приглашение больше не действует»): `fr1:snd:<code>` / `fr1:no:<code>` — отправить запрос владельцу ссылки `f_<code>` / «не сейчас»; `fr1:acc:<friendship_id>` / `fr1:dec:<friendship_id>` — принять/отклонить запрос в друзья (адресату); `fr1:cacc:<challenge_id>` / `fr1:cdec:<challenge_id>` — принять/отклонить вызов. Кнопки работают только в личном чате самого нажавшего, для learner'а с завершённым онбордингом.
 
 Фоновые ЛС (`SendFriendDmJob`, `ThrottleTelegramOutbound`, `tries = 0` + `maxExceptions = 3`, `retryUntil` +6 ч; состояние перечитывается — неактуальное не объявляется; `blocked_at`/`dm_blocked_at` — молчим; 403 → `dm_blocked_at`): «X хочет добавить вас в друзья» с кнопками (адресату запроса), «X принял приглашение» (отправителю запроса), «X бросает вам вызов» с кнопками (адресату), «X принял вызов» (бросившему), итог вызова — **два отдельных задания** (по одному на сторону): победа / поражение / ничья со счётом, на языке получателя. Повтор job'а после фактической доставки не дублирует ЛС: маркер в `notifications_log` (`type = friend_dm`, ключ `вид:id:сторона`) пишется до вызова Telegram.
+
+### B.14 Баттл: ЛС с приглашением (docs/16 §8.7; задача 18.6b)
+Практика (A.16) в боте ничего не меняет: у неё нет команд и ЛС. У баттла одно сообщение бота — **приглашение другу**; принять, отклонить и играть можно только в приложении (у бота нет команд и `callback_data` для баттла).
+Итог матча, отказ и истечение приглашения в ЛС не приходят: оба игрока в приложении.
+
+**Путь.** `BattleService::invite` (после commit, в том числе у реванша) → `SendBattleDmJob::send(BattleDmKind::Invited, battle_id)` (`dispatch()->afterCommit()`, очередь `default`; нужен рабочий воркер) → `BattleMessenger::notify` → `TelegramClient::sendWebAppButton`.
+Job — по образцу `SendFriendDmJob`: middleware `ThrottleTelegramOutbound` (общий бюджет исходящих B.7), `tries = 0`, `maxExceptions = 3`, `backoff = 60`, `retryUntil` +1 час (у приглашения срок 5 минут, позже слать нечего).
+
+**Когда молчим.** Мессенджер перечитывает состояние и ничего не шлёт, если матча нет, он уже не `invited` (отклонён, отозван, принят) или `invite_expires_at` прошёл, если адресата нет, он заблокирован (`blocked_at`) или его ЛС закрыт (`dm_blocked_at`), или инициатор пропал.
+Просроченное, но ещё не закрытое дворником приглашение тоже не объявляется.
+
+**Текст** (`lang/{ru,uz}/battle.php`, язык адресата — `LocaleResolver::forLearner`; новые uz-строки — `docs/I18N_UZ_REVIEW.md`, раздел «18-6b»):
+
+| Язык | Сообщение | Кнопка |
+|---|---|---|
+| ru | `Dilnoza зовёт вас на баттл: Собери предложение, Английский A1 · Модуль 2 · Урок 4. Приглашение действует 5 минут.` | «Открыть баттл» |
+| uz | `Bek sizni bellashuvga chaqiryapti: Gap tuzing, Ingliz tili A1 · 2-modul · 4-dars. Taklif 5 daqiqa amal qiladi.` | «Bellashuvni ochish» |
+
+Состав: `battle.dm.invited` = «:name зовёт вас на баттл: :format, :place. :validity». `:format` — название формата (`battle.mode.*`: «Найди пары», «Подбери сочетание», «Собери предложение», «Слушай и пиши»; uz: «Juftlarni toping», «So'z birikmasini tanlang», «Gap tuzing», «Eshiting va yozing»);
+`:place` — курс на языке адресата, для матча на урок — «курс · Модуль N · Урок M» (`battle.dm.lesson`; у урока без модуля — «Урок M»), для матча на весь курс — только курс; `:validity` — срок из `practice.battle.invite_ttl_seconds` словами (`trans_choice`: «1 минуту», «2 минуты», «5 минут»; число не вписано в текст). Без имени инициатора — «Ваш друг» / «Do'stingiz» (`battle.anonymous`).
+
+**Кнопка.** Одна, `web_app` (ЛС — приватный чат, `web_app` допустим; `MiniAppLinks::forPath` не нужен), URL `{twa.base_url}/twa/battles/{battle_id}` (конечные `/` у `twa.base_url` отбрасываются) — SPA-маршрут `/battles/:id`, nginx отдаёт `index.html`. Нажатие открывает приложение на этом приглашении: «Принять» / «Отклонить».
+
+**Идемпотентность.** До вызова Telegram пишется строка `notifications_log`: `learner_id` адресата, `type = battle_dm`, `payload = {"key": "invited:<battle_id>"}`. Повторный запуск job (ретрай после падения воркера, дубль) находит маркер и молча выходит — одно приглашение, одно сообщение.
+**Отказы Telegram.** 403 или 400 `chat not found` (`TelegramForbiddenException`: бот заблокирован, диалог не начат, аккаунт удалён) → маркер **удаляется** (ничего не доставлено), у адресата `learners.dm_blocked_at = now()` (`DmLearnerResolver::markBlocked`, как у напоминаний), в лог — `telegram.battle_dm_forbidden` (warning: `learner_id`, `reason`), job завершается без повторов.
+Любой другой сбой — исключение (ретрай, не больше 3 сбоев) **при оставленном маркере**: сообщение могло уйти, повтор не продублирует его. `dm_blocked_at` снимается, когда человек сам пишет боту (B.5a).
+Кнопка не `immediate`: если у чата исчерпан лимит бота в секунду, `sendMessage` откладывает сообщение в `SendTelegramMessageJob` (очередь `high`), и 403 там только логируется (`telegram.deferred_message_forbidden`) — `dm_blocked_at` не ставится, а доставка может прийти после срока приглашения (приложение всё равно покажет его закрытым).
+Приглашение видно и без ЛС: оно в `incoming` списка баттлов (A.17), в «Друзьях» и в хабе практики.
 
 ## Часть D — Вебхуки платёжных провайдеров (docs/13 §4)
 

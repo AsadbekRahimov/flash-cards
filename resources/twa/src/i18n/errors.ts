@@ -83,11 +83,40 @@ export const KNOWN_ERROR_CODES = [
   'challenge_invalid',
   'not_opponent',
   'challenge_closed',
+  // Practice and battle (docs/16 §7.6); `course_not_found`, `lesson_not_found`, `friendship_not_found` and `not_friends` are above.
+  'practice_unavailable',
+  'practice_pro_required',
+  'practice_mode_disabled',
+  'practice_not_enough_material',
+  'practice_session_active',
+  'practice_session_not_found',
+  'practice_session_closed',
+  'element_not_current',
+  'answer_already_accepted',
+  'pair_already_matched',
+  'invalid_answer_shape',
+  'unknown_element_id',
+  'request_id_reused',
+  'replace_not_allowed',
+  'retry_not_available',
+  'practice_audio_unavailable',
+  'lesson_not_in_course',
+  'battle_disabled',
+  'battle_busy',
+  'battle_friend_no_access',
+  'battle_material_unavailable',
+  'battle_not_found',
+  'battle_not_recipient',
+  'battle_not_challenger',
+  'battle_closed',
+  'battle_wrong_state',
+  'round_not_open',
+  'round_closed',
 ] as const
 
 export type KnownErrorCode = (typeof KNOWN_ERROR_CODES)[number]
 
-export type ErrorContext = 'training' | 'exam' | 'catalog' | 'today' | 'settings' | 'decks'
+export type ErrorContext = 'training' | 'exam' | 'catalog' | 'today' | 'settings' | 'decks' | 'practice' | 'battle'
 
 function isKnownCode(code: string): code is KnownErrorCode {
   return (KNOWN_ERROR_CODES as readonly string[]).includes(code)

@@ -2042,3 +2042,523 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `landing.outside_telegram` | Bu sahifa faqat Telegram Web App ichida ishlaydi. O'qituvchidan trening havolasini guruhga yuborishini so'rang. | Эта страница работает только внутри Telegram Web App. Попросите учителя прислать ссылку-тренировку в группу. |
+
+## Практика и баттл 2026-10 · 18-1t — на проверку носителю
+
+> Оболочка практики и баттла в приложении (`resources/twa/src/i18n/uz.ts`, задача 18.1-T): хаб практики, сессия, итоги, звук, названия четырёх режимов,
+> тексты ошибок сервера для практики и баттла (коды `docs/16` §7.6), причина пейвола «practice». Тексты режимов (пары, сочетание, предложение, диктант) и
+> самого баттла добавят свои задачи — отдельными разделами ниже.
+>
+> Что решить носителю:
+> - **«Практика»** — `Amaliyot` (не `mashg'ulot`: так названо ежедневное занятие, `docs/14` §8).
+> - **«Баттл»** — `bellashuv`; существующие «вызовы» в разделе «Друзья» — `musobaqa` (недельное соревнование по числу карточек), смешивать не хотелось.
+> - **Режимы:** «Найди пары» — `Juftlarni toping`; «Подбери сочетание» — `So'z birikmasini tanlang` (collocation); «Собери предложение» — `Gap tuzing`;
+>   «Слушай и пиши» — `Eshiting va yozing`.
+> - **Подсказка** («Не знаю» → показан ответ) — `Yordam`; **опечатка** — `imlo xatosi` («Imloda xato bor» в вердикте).
+> - Примеры на карточках режимов (`practice.mode.*.example`) — английский текст остаётся как есть, переведены только пояснения.
+> - Длительность: «≈ 2 мин» → `≈ 2 daq.`
+
+| Ключ | uz | ru |
+|---|---|---|
+| `paywall.lead_practice` | Amaliyot — so'zlarni mustahkamlash o'yinlari va do'stlar bilan bellashuvlar — Pro'da mavjud. | Практика — игры на закрепление слов и баттлы с друзьями — доступна в Pro. |
+| `practice.hub.title` | Amaliyot | Практика |
+| `practice.hub.choose` | Rejimni tanlang | Выберите режим |
+| `practice.hub.continue` | Davom etish | Продолжить |
+| `practice.hub.estimate` | ≈ {minutes} daq. | ≈ {minutes} мин |
+| `practice.hub.state.disabled` | O'chirilgan | Выключено |
+| `practice.hub.state.not_enough` | Material kam | Мало материала |
+| `practice.hub.state.pro` | Pro | Pro |
+| `practice.hub.card.aria` | {title}. {example}. {estimate} | {title}. {example}. {estimate} |
+| `practice.hub.card.aria_pro` | {title}. Pro'da mavjud | {title}. Доступно в Pro |
+| `practice.hub.card.aria_resume` | Davom etish: {title}, {total} tadan {done} tasi bajarildi | Продолжить: {title}, выполнено {done} из {total} |
+| `practice.hub.reason.no_words` | O'rganilgan so'zlar: {available}/{required}. Darsni o'ting — rejim ochiladi. | Изучено слов: {available} из {required}. Пройдите урок, и режим откроется. |
+| `practice.hub.reason.ambiguous` | Mos so'zlar: {available}/{required}. Yangi so'zlarni o'rganing — rejim ochiladi. | Подходящих слов: {available} из {required}. Выучите новые слова, и режим откроется. |
+| `practice.hub.reason.no_items` | Bu mavzu bo'yicha topshiriqlar hozircha yo'q. | Для этой темы заданий пока нет. |
+| `practice.hub.reason.audio_pending` | Topshiriqlar uchun yozuvlar hali tayyorlanmoqda. Keyinroq qaytib keling. | Записи для заданий ещё готовятся. Загляните позже. |
+| `practice.hub.reason.no_audio_words` | So'zlaringiz uchun hozircha yozuvlar yo'q. Keyinroq qaytib keling. | Для ваших слов пока нет записей. Загляните позже. |
+| `practice.hub.reason.unknown` | Material hozircha yetarli emas. | Пока не хватает материала. |
+| `practice.hub.learn_lesson` | Darsni o'rganish | Учить урок |
+| `practice.hub.to_lessons` | Darslarga | К урокам |
+| `practice.hub.unavailable_title` | Amaliyot hozircha mavjud emas | Практика пока недоступна |
+| `practice.hub.unavailable_text` | U keyinroq ochiladi. Kurs bo'yicha odatdagidek o'qishni davom ettirishingiz mumkin. | Она откроется позже. А заниматься по курсу можно как обычно. |
+| `practice.hub.to_course` | Kursga | К курсу |
+| `practice.hub.battle.title` | 1 ga 1 bellashuv | Баттл 1 на 1 |
+| `practice.hub.battle.text` | Bir xil topshiriqlarda besh raund. Ko'proq ochko to'plagan g'olib bo'ladi. | Пять раундов на одинаковых заданиях. Побеждает тот, кто наберёт больше очков. |
+| `practice.hub.battle.play` | Do'st bilan o'ynash | Играть с другом |
+| `practice.hub.battle.invites` | Bellashuvga takliflar | Приглашения на баттл |
+| `practice.hub.battle.invited_by` | {name} sizni bellashuvga chaqiryapti | {name} зовёт вас на баттл |
+| `practice.hub.battle.resume` | Bellashuvga qaytish | Вернуться в баттл |
+| `practice.hub.friends.title` | Kim bilan o'ynaymiz? | С кем играем? |
+| `practice.hub.friends.play_with` | {name} bilan o'ynash | Играть с {name} |
+| `practice.hub.friends.empty` | Hozircha do'stlaringiz yo'q. «Reyting» bo'limida tanishingizni taklif qiling — birga o'ynaysiz. | Пока нет друзей. Позовите знакомого во вкладке «Рейтинг», и играйте вместе. |
+| `practice.hub.friends.invite` | Do'stni taklif qilish | Позвать друга |
+| `practice.hub.active.title` | Tugallanmagan amaliyot | Незавершённая практика |
+| `practice.hub.active.text` | {mode}: {total} tadan {done} tasi bajarildi. Uni davom ettiring yoki yangisini boshlang — eskisi yopiladi. | {mode}: выполнено {done} из {total}. Продолжите её или начните новую — прежняя закроется. |
+| `practice.hub.active.new` | Yangisini boshlash | Начать новую |
+| `practice.hub.active.cancel` | Bekor qilish | Отмена |
+| `practice.mode.pairs.title` | Juftlarni toping | Найди пары |
+| `practice.mode.pairs.example` | mother ↔ ona | mother ↔ мама |
+| `practice.mode.collocation.title` | So'z birikmasini tanlang | Подбери сочетание |
+| `practice.mode.collocation.example` | ___ a decision → make | ___ a decision → make |
+| `practice.mode.sentence.title` | Gap tuzing | Собери предложение |
+| `practice.mode.sentence.example` | I · usually · drink · tea | I · usually · drink · tea |
+| `practice.mode.dictation.title` | Eshiting va yozing | Слушай и пиши |
+| `practice.mode.dictation.example` | tinglaysiz — yozasiz | слышите — пишете |
+| `practice.session.progress` | {total} tadan {done} tasi bajarildi | Выполнено {done} из {total} |
+| `practice.session.retry_chip` | Xatolarni takrorlash | Повтор ошибок |
+| `practice.session.to_summary` | Natijalarga | К итогам |
+| `practice.session.closed_title` | Amaliyot yakunlandi | Практика завершена |
+| `practice.session.to_hub` | Amaliyotga qaytish | К практике |
+| `practice.session.round_done` | {rounds} raunddan {round}-raund tugadi | Раунд {round} из {rounds} пройден |
+| `practice.session.round_clean` | Xatosiz | Без ошибок |
+| `practice.session.round_mistakes` | Raunddagi xatolar: {count} | Ошибок в раунде: {count} |
+| `practice.verdict.correct` | To'g'ri! | Верно! |
+| `practice.verdict.typo` | Imloda xato bor | Есть опечатка |
+| `practice.verdict.wrong` | Tuzatish kerak | Нужно исправить |
+| `practice.verdict.skipped` | Yordam | Подсказка |
+| `practice.reveal.typo_note` | Deyarli to'g'ri, lekin so'zda imlo xatosi bor. Bu birinchi urinishda to'g'ri deb hisoblanmaydi. | Почти верно, но в слове опечатка. С первой попытки это не засчитывается. |
+| `practice.reveal.skipped_note` | Mana to'g'ri javob. Bu yordam sifatida hisoblanadi. | Вот правильный ответ. Это считается подсказкой. |
+| `practice.reveal.your_answer` | Sizning javobingiz | Ваш ответ |
+| `practice.reveal.translation` | Tarjima | Перевод |
+| `practice.reveal.explanation` | Izoh | Пояснение |
+| `practice.reveal.your_option` | sizning javobingiz | ваш ответ |
+| `practice.reveal.right_option` | to'g'ri javob | верный ответ |
+| `practice.summary.title` | Tayyor! | Готово! |
+| `practice.summary.reason.completed` | Amaliyot yakunlandi. | Практика пройдена. |
+| `practice.summary.reason.expired` | Amaliyot vaqti tugadi. Ulgurganingiz mana bular. | Время практики вышло. Вот что успели. |
+| `practice.summary.reason.replaced` | Bu amaliyot yopildi: siz yangisini boshladingiz. | Эта практика закрыта: вы начали новую. |
+| `practice.summary.stat.done` | Bajarildi | Выполнено |
+| `practice.summary.stat.rounds` | Raundlar | Раундов |
+| `practice.summary.stat.first` | Birinchi urinishda to'g'ri | Верно с первой попытки |
+| `practice.summary.stat.hints` | Yordamlar | Подсказки |
+| `practice.summary.stat.mismatches` | Xatolar | Ошибок |
+| `practice.summary.typos` | Imlo xatolari: {count} | Опечаток: {count} |
+| `practice.summary.duration` | Vaqt: {time} | Время: {time} |
+| `practice.summary.mistakes` | Nimani mashq qilish kerak | Над чем поработать |
+| `practice.summary.perfect` | Birorta ham xato yo'q. Ajoyib natija! | Ни одной ошибки. Отличная работа! |
+| `practice.summary.chip.typo` | Imlo xatosi | Опечатка |
+| `practice.summary.chip.wrong` | Xato | Ошибка |
+| `practice.summary.chip.skipped` | Yordam | Подсказка |
+| `practice.summary.retry` | Xatolarni takrorlash | Повторить ошибки |
+| `practice.summary.again` | Yana bir bor | Ещё раз |
+| `practice.summary.to_course` | Kursga | В курс |
+| `practice.audio.play` | Tinglash | Прослушать |
+| `practice.audio.loading` | Ovoz yuklanmoqda… | Загружаем звук… |
+| `practice.audio.trouble.title` | Ovoz mavjud emas | Звук недоступен |
+| `practice.audio.trouble.text` | Yozuvni yuklab bo'lmadi. Qayta yuklang yoki topshiriqni almashtiring — jarima yo'q. | Не удалось загрузить запись. Повторите загрузку или замените задание — штрафа не будет. |
+| `practice.audio.trouble.text_no_replace` | Yozuvni yuklab bo'lmadi, almashtirishlar esa tugagan. Qayta yuklang yoki ovozsiz davom eting. | Не удалось загрузить запись, а замен больше нет. Повторите загрузку или продолжите без звука. |
+| `practice.audio.retry` | Qayta yuklash | Повторить загрузку |
+| `practice.audio.replace` | Topshiriqni almashtirish | Заменить задание |
+| `practice.audio.silent` | Hozircha ovozsiz | Сейчас без звука |
+| `practice.audio.replacements_left` | Qolgan almashtirishlar: {count} | Замен осталось: {count} |
+| `error.closed.practice` | Bu amaliyot allaqachon yakunlangan yoki vaqti o'tib ketgan. | Эта практика уже завершена или её время вышло. |
+| `error.closed.battle` | Bu bellashuv allaqachon yopilgan. | Этот баттл уже закрыт. |
+| `error.forbidden.practice` | Sizda amaliyotga kirish huquqi yo'q. | У вас нет доступа к практике. |
+| `error.forbidden.battle` | Sizda bu bellashuvga kirish huquqi yo'q. | У вас нет доступа к этому баттлу. |
+| `error.code.practice_unavailable` | Amaliyot hozircha mavjud emas. | Практика сейчас недоступна. |
+| `error.code.practice_pro_required` | Amaliyot Pro'da mavjud. | Практика доступна в Pro. |
+| `error.code.practice_mode_disabled` | Bu rejim hozir o'chirilgan. Boshqasini tanlang. | Этот режим сейчас выключен. Выберите другой. |
+| `error.code.practice_not_enough_material` | Bu rejim uchun material hali kam. Yana bir nechta so'z o'rganing. | Для этого режима пока мало материала. Выучите ещё несколько слов. |
+| `error.code.practice_session_active` | Sizda tugallanmagan amaliyot bor. | У вас уже есть незавершённая практика. |
+| `error.code.practice_session_not_found` | Bu amaliyot topilmadi. | Эта практика не найдена. |
+| `error.code.practice_session_closed` | Bu amaliyot allaqachon yakunlangan. | Эта практика уже завершена. |
+| `error.code.element_not_current` | Topshiriq almashgan. Ekran yangilandi. | Задание уже сменилось. Экран обновлён. |
+| `error.code.answer_already_accepted` | Bu topshiriqqa javob allaqachon qabul qilingan. | Ответ на это задание уже принят. |
+| `error.code.pair_already_matched` | Bu juftlik allaqachon topilgan. | Эта пара уже собрана. |
+| `error.code.invalid_answer_shape` | Javobni yuborib bo'lmadi. Ekranni yangilab, qayta urinib ko'ring. | Не получилось отправить ответ. Обновите экран и попробуйте ещё раз. |
+| `error.code.unknown_element_id` | Javob bu topshiriqqa tegishli emas. Ekranni yangilang. | Ответ не относится к этому заданию. Обновите экран. |
+| `error.code.replace_not_allowed` | Topshiriqni endi almashtirib bo'lmaydi. | Заменить задание больше нельзя. |
+| `error.code.retry_not_available` | Xatolarni takrorlab bo'lmaydi: ular juda kam yoki umuman yo'q. | Повторить ошибки не получится: их слишком мало или нет совсем. |
+| `error.code.practice_audio_unavailable` | Bu topshiriq uchun ovoz hozir mavjud emas. | Запись для этого задания сейчас недоступна. |
+| `error.code.lesson_not_in_course` | Bu dars tanlangan kursga tegishli emas. | Этот урок не относится к выбранному курсу. |
+| `error.code.battle_disabled` | Bellashuvlar hozir o'chirilgan. | Баттлы сейчас выключены. |
+| `error.code.battle_busy` | Sizda faol bellashuv bor. Yangisini boshlash uchun uni tugating. | У вас уже есть активный баттл. Завершите его, чтобы начать новый. |
+| `error.code.battle_friend_no_access` | Do'stingizda amaliyotga hali ruxsat yo'q. | У вашего друга пока нет доступа к практике. |
+| `error.code.battle_material_unavailable` | Bu formatdagi bellashuv uchun material yetarli emas. Boshqa dars yoki formatni tanlang. | Для баттла в этом формате не хватает материала. Выберите другой урок или формат. |
+| `error.code.battle_not_found` | Bellashuv topilmadi. | Баттл не найден. |
+| `error.code.battle_not_recipient` | Bu taklifga faqat taklif qilingan kishi javob bera oladi. | Ответить на это приглашение может только тот, кого пригласили. |
+| `error.code.battle_not_challenger` | Taklifni faqat uni yuborgan kishi qaytarib olishi mumkin. | Отозвать приглашение может только тот, кто его отправил. |
+| `error.code.battle_closed` | Bu bellashuv allaqachon yopilgan. | Этот баттл уже закрыт. |
+| `error.code.battle_wrong_state` | Bu amal hozir mavjud emas. Ekran yangilanadi. | Сейчас это действие недоступно. Экран обновится. |
+| `error.code.round_not_open` | Bu raund hali boshlanmagan. | Этот раунд ещё не начался. |
+| `error.code.round_closed` | Raund vaqti tugadi: javob qabul qilinmadi. | Время раунда вышло: ответ не принят. |
+
+## Практика и баттл 2026-10 · 18-3 — на проверку носителю
+
+> Режим «Подбери сочетание» (`resources/twa/src/i18n/uz.ts`, блок `practice: collocation`, задача 18.3): фраза на английском с пропуском и три варианта; нажатие на
+> вариант сразу и есть ответ — кнопки «Проверить» нет. Подписи «Ваш ответ» / «Верный ответ» на вариантах и вердикты берутся из блоков «session» и «reveal» задачи 18.1-T
+> (там же их uz-строки), здесь только новые.
+>
+> Что решить носителю:
+> - **Пропуск** в фразе (`___`) — `bo'sh joy` (для чтения экраном: «пропуск»).
+> - **Окончательность ответа**: в соло — «проверяется сразу», в баттле — «Javob yakuniy» (изменить нельзя).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `practice.collocation.instruction` | Bo'sh joyga mos so'zni tanlang | Выберите подходящее слово |
+| `practice.collocation.blank` | bo'sh joy | пропуск |
+| `practice.collocation.footnote.solo` | Javob bosilganda darhol tekshiriladi. | Ответ проверяется сразу после нажатия. |
+| `practice.collocation.footnote.battle` | Javob yakuniy: o'zgartirib bo'lmaydi. | Ответ окончательный: изменить нельзя. |
+
+## Практика и баттл 2026-10 · 18-4 — на проверку носителю
+
+> Режим «Собери предложение» (`resources/twa/src/i18n/uz.ts`, блок `practice: sentence`, задача 18.4): строка ответа, банк слов, подписи кнопок для экранного
+> чтения («Добавить: tea» / «Убрать: tea» — после двоеточия идёт само английское слово), «Начать заново», пометка «Можно и так» в разборе.
+> Название режима («Gap tuzing») и общие кнопки («Tekshirish», «Bilmayman») — из раздела 18-1t и «упражнений», здесь не повторяются.
+>
+> Что решить носителю:
+> - **«Можно и так»** (другой допустимый порядок слов в разборе) — `Bunday ham bo'ladi`; можно короче: `Yana to'g'ri`.
+> - **«Начать заново»** — `Qaytadan boshlash`.
+> - **Подписи кнопок со словом** читает экранный диктор: `Qo'shish: {word}` (слово из банка идёт в строку), `Olib tashlash: {word}` (слово из строки возвращается в банк).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `practice.sentence.line` | Sizning gapingiz | Ваше предложение |
+| `practice.sentence.empty` | Quyidagi so'zlarni tartib bilan bosing | Нажимайте на слова ниже по порядку |
+| `practice.sentence.progress` | {total} tadan {done} tasi yig'ildi | Собрано {done} из {total} |
+| `practice.sentence.bank` | Gap uchun so'zlar | Слова для предложения |
+| `practice.sentence.add` | Qo'shish: {word} | Добавить: {word} |
+| `practice.sentence.remove` | Olib tashlash: {word} | Убрать: {word} |
+| `practice.sentence.reset` | Qaytadan boshlash | Начать заново |
+| `practice.sentence.also_correct` | Bunday ham bo'ladi | Можно и так |
+
+## Практика и баттл 2026-10 · 18-2 — на проверку носителю
+
+> Режим «Найди пары» (`resources/twa/src/i18n/uz.ts`, блок `practice: pairs`, задача 18.2): подписи доски, подсказки в строке состояния, слова для
+> экранного чтения и итог раунда. Названия режима и сообщения об ошибках сервера уже в разделе 18-1t.
+>
+> Что решить носителю:
+> - **«Пара»** — `juft` (как в названии режима «Juftlarni toping»); «соединить» — `juftlamoq` («{total} tadan {done} tasi juftlandi»).
+> - **«Не подходит»** (слово и перевод не сочетаются) — `Mos kelmadi`; сообщение звучит как совет: «Qayta urinib ko'ring».
+> - **«Раунд»** — `raund`, порядок «{rounds} raunddan {round}-raund» тот же, что в `practice.session.round_done`.
+> - Слова для экранного чтения произносятся внутри карточки после слова: «mother, tanlandi» / «mother, 2-juft».
+> - Английские слова на карточках остаются как есть, переводятся только подписи.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `practice.pairs.round` | {rounds} raunddan {round}-raund | Раунд {round} из {rounds} |
+| `practice.pairs.left` | {count} ta juft qoldi | Осталась {count} пара / Осталось {count} пары / Осталось {count} пар |
+| `practice.pairs.joined` | {total} tadan {done} tasi juftlandi | Соединено {done} из {total} |
+| `practice.pairs.words` | So'zlar | Слова |
+| `practice.pairs.translations` | Tarjimalar | Переводы |
+| `practice.pairs.hint_solo` | So'zni, keyin uning tarjimasini bosing — yoki teskarisi. | Нажмите слово, затем его перевод — или наоборот. |
+| `practice.pairs.hint_battle` | So'zlarni tarjimalari bilan juftlang va «Tekshirish» tugmasini bosing. Juftni almashtirish mumkin. | Соедините слова с переводами и нажмите «Проверить». Пару можно поменять. |
+| `practice.pairs.pick_translation` | Endi «{text}» so'zining tarjimasini tanlang | Теперь выберите перевод слова «{text}» |
+| `practice.pairs.pick_word` | Endi «{text}» tarjimasiga mos so'zni tanlang | Теперь выберите слово с переводом «{text}» |
+| `practice.pairs.checking` | Tekshirilmoqda… | Проверяем… |
+| `practice.pairs.correct` | To'g'ri: {word} — {translation} | Верно: {word} — {translation} |
+| `practice.pairs.wrong` | Mos kelmadi. Qayta urinib ko'ring. | Не подходит. Попробуйте ещё раз. |
+| `practice.pairs.ready` | Barcha juftlar tayyor. «Tekshirish» tugmasini bosing. | Все пары собраны. Нажмите «Проверить». |
+| `practice.pairs.sent` | Javob yuborildi. | Ответ отправлен. |
+| `practice.pairs.state.selected` | tanlandi | выбрано |
+| `practice.pairs.state.correct` | to'g'ri | верно |
+| `practice.pairs.state.wrong` | mos kelmadi | не подходит |
+| `practice.pairs.state.paired` | {number}-juft | пара {number} |
+| `practice.pairs.recap` | Raund juftlari | Пары раунда |
+
+## Практика и баттл 2026-10 · 18-5 — на проверку носителю
+
+> Режим «Слушай и пиши» в приложении (`resources/twa/src/i18n/uz.ts`, задача 18.5): экран диктанта (кнопка «Прослушать», плашки по числу слов, поле ввода) и разбор ответа
+> (сравнение по словам, «Прослушать ещё раз»). Остальные тексты режима — названия, вердикты, причины, звук, замена задания — уже в разделе `18-1t`.
+>
+> Что решить носителю:
+> - **Плашки «N слов»** показывают, сколько слов в записи, без букв: `{count} ta so'z` (как в списке друзей `friends.list.words`).
+> - **«Прослушать ещё раз»** в разборе — `Yana eshitish` (то же, что в упражнении «Что вы услышали?», `exercise.audio.play`).
+> - **Слова в сравнении** помечены значком и подписью для экранного чтения: `to'g'ri` / `xato`.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `practice.dictation.hint` | Istagancha tinglang va inglizcha yozing | Слушайте сколько нужно и пишите по-английски |
+| `practice.dictation.playing` | Yozuv eshittirilmoqda… | Играет запись… |
+| `practice.dictation.blocked` | Yozuvsiz javob bo'lmaydi. Qayta yuklang yoki topshiriqni almashtiring. | Без записи отвечать нельзя. Повторите загрузку или замените задание. |
+| `practice.dictation.input` | Eshitganingizni yozing | Напишите, что услышали |
+| `practice.dictation.words` | {count} ta so'z | {count} слово / слова / слов |
+| `practice.dictation.typed` | Yozilgan so'zlar: {count} tadan {typed} tasi | Написано слов: {typed} из {count} |
+| `practice.dictation.listen_again` | Yana eshitish | Прослушать ещё раз |
+| `practice.dictation.diff.right` | to'g'ri | верно |
+| `practice.dictation.diff.wrong` | xato | ошибка |
+| `practice.dictation.diff_hint` | Xato bor so'zlar belgilangan. | Отмечены слова, в которых ошибка. |
+
+## Практика и баттл 2026-10 · 18-6t — на проверку носителю
+
+> Экраны баттла 1 на 1 в приложении (`resources/twa/src/i18n/uz.ts`, блок `// ---- battle ----`, задача 18.6-T): настройка (кого зовём, тема, формат),
+> приглашение, комната, обратный отсчёт, раунды с таймером, разбор раунда, итог с реваншем, выход и сдача, а также кнопка «Баттл» и приглашения в разделе «Друзья».
+> Тексты ошибок сервера для баттла (коды `docs/16` §7.6) уже в разделе `18-1t` выше. Строки `practice.hub.battle.soon_title` / `soon_text` («Баттлы скоро»)
+> удалены из приложения и из раздела `18-1t`.
+>
+> Что решить носителю:
+> - **«Баттл»** — `bellashuv` (как в `18-1t`); «Реванш» — `Revansh`; «Ничья» — `Durang`; «Сдаться» — `Taslim bo'lish`; «Соперник» — `raqib`; «Комната» — `xona`.
+> - **«Раунд»** — `raund`: заголовок «Раунд 2 из 5» — `5 raunddan 2-raund`; в списке итога — `2-raund`. Порядок слов и дефис проверить.
+> - **«Очки»** — `ochko`: после числа слово не меняется (`1 ochko`, `100 ochko`), поэтому у `battle.points` формы `one` и `other` совпадают.
+> - **«Готов»** — `Tayyorman` («я готов»); «Готов — ждём соперника» — `Tayyorman — raqib kutilmoqda` (галочку рисует иконка, в тексте её нет).
+> - **Состояния соперника** под именем: `javob bermoqda…` («отвечает…»), `javob berdi` («ответил»), `tayyor` / `tayyor emas`, `aloqa yo'q` («нет связи»),
+>   `hali javob bermadi` («ещё не ответил» — про приглашение).
+> - **Вердикты** разбора раунда: `To'g'ri`, `Imlo xatosi` (опечатка, как в `18-1t`), `Xato`, `O'tkazib yuborildi` («пропущено»), `Vaqt tugadi`.
+> - **Причины окончания** (`battle.reason.*`): тон спокойный, без упрёков. Просьба прочитать «Siz taslim bo'ldingiz: g'alaba raqibga yozildi»
+>   и «Siz o'yindan yo'qolib qoldingiz: mag'lubiyat yozildi» — не звучат ли слишком канцелярски; «yo'qolib qoldingiz» = «пропали из матча» (нет связи долго).
+> - **Правила** (`battle.rules.*`) показываются перед игрой, формулировки короткие; «Tezlik ochko qo'shmaydi» = «скорость очков не добавляет».
+> - **Секунды:** «{seconds} с на раунд» на карточке формата записано как `Har bir raundga {seconds} soniya` («на каждый раунд {seconds} секунд») — на узкой карточке
+>   можно короче, если носитель подскажет привычную форму.
+> - Обращение везде на «Вы» (`Siz`), как в остальном приложении.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `battle.title` | Bellashuv | Баттл |
+| `battle.you` | Siz | Вы |
+| `battle.opponent` | Raqib | Соперник |
+| `battle.gone_title` | Bellashuv mavjud emas | Баттл недоступен |
+| `battle.to_friends` | Do'stlarga | К друзьям |
+| `battle.to_course` | Kursga | В курс |
+| `battle.open_current` | Joriy bellashuvni ochish | Открыть текущий баттл |
+| `battle.points.one` | {count} ochko | {count} очко |
+| `battle.points.few` | _(в uz этой формы нет — используется `other`)_ | {count} очка |
+| `battle.points.many` | _(в uz этой формы нет — используется `other`)_ | {count} очков |
+| `battle.points.other` | {count} ochko | {count} очка |
+| `battle.score.aria` | Hisob: siz {me}, {name} {opponent} | Счёт: вы {me}, {name} {opponent} |
+| `battle.setup.title` | Yangi bellashuv | Новый баттл |
+| `battle.setup.subtitle` | Mavzu va formatni tanlang | Выберите тему и формат |
+| `battle.setup.friend` | Raqib | Соперник |
+| `battle.setup.course` | Kurs | Курс |
+| `battle.setup.lesson` | Dars | Урок |
+| `battle.setup.lesson_all` | Butun kurs | Весь курс |
+| `battle.setup.format` | Format | Формат |
+| `battle.setup.round_seconds` | Har bir raundga {seconds} soniya | {seconds} с на раунд |
+| `battle.setup.invite` | Taklif qilish | Пригласить |
+| `battle.setup.inviting` | Taklif qilinmoqda… | Приглашаем… |
+| `battle.setup.invite_hint` | Do'stingiz taklifni Telegram va ilovada oladi. | Друг получит приглашение в Telegram и в приложении. |
+| `battle.setup.no_friend_title` | Do'stni tanlang | Выберите друга |
+| `battle.setup.no_friend_text` | Bellashuv ikki kishi bilan o'ynaladi. Do'stlar ro'yxatini ochib, kerakli do'stning yonidagi «Bellashuv» tugmasini bosing. | Баттл играют вдвоём. Откройте список друзей и нажмите «Баттл» рядом с нужным. |
+| `battle.setup.no_courses` | Bellashuv uchun hozircha mos kurslar yo'q. | Для баттла пока нет подходящих курсов. |
+| `battle.setup.lessons_error` | Kurs darslarini yuklab bo'lmadi. | Не удалось загрузить уроки курса. |
+| `battle.setup.friend_no_access` | {name} hozircha o'ynay olmaydi: do'stingizda amaliyotga ruxsat yo'q. U ochilgach, taklif qilishingiz mumkin. | {name} пока не может играть: у друга нет доступа к практике. Позвать получится, когда он откроется. |
+| `battle.setup.blocked.friend.title` | Bu do'st ro'yxatda yo'q | Этого друга нет в списке |
+| `battle.setup.blocked.friend.text` | Bellashuvga faqat do'stni taklif qilish mumkin. Do'stlar ro'yxatini tekshiring. | Позвать в баттл можно только друга. Проверьте список друзей. |
+| `battle.setup.blocked.off.title` | Bellashuvlar hozir o'chirilgan | Баттлы сейчас выключены |
+| `battle.setup.blocked.off.text` | Keyinroq qaytib keling. Yakka o'zingiz esa mashq qilishingiz mumkin: kurs amaliyotini oching. | Загляните позже. А потренироваться можно и в одиночку: откройте практику курса. |
+| `battle.setup.blocked.unavailable.title` | Amaliyot hozircha mavjud emas | Практика пока недоступна |
+| `battle.setup.blocked.unavailable.text` | U keyinroq ochiladi. Kurs bo'yicha odatdagidek o'qishni davom ettirishingiz mumkin. | Она откроется позже. А заниматься по курсу можно как обычно. |
+| `battle.setup.reason.no_words` | Bu mavzuda bellashuv uchun so'zlar yetarli emas: {required} tadan {available} tasi. Boshqa dars yoki butun kursni tanlang. | В этой теме слов меньше, чем нужно для баттла: {available} из {required}. Выберите другой урок или весь курс. |
+| `battle.setup.reason.ambiguous` | Mos so'zlar: {required} tadan {available} tasi — ko'plarining tarjimasi bir xil. Boshqa darsni tanlang. | Подходящих слов: {available} из {required} — у многих совпадают переводы. Выберите другой урок. |
+| `battle.setup.reason.no_items` | Bu mavzuda shu formatdagi topshiriqlar yetarli emas: {required} tadan {available} tasi. | Заданий этого формата в теме меньше, чем нужно: {available} из {required}. |
+| `battle.setup.reason.audio_pending` | Topshiriqlar uchun yozuvlar hali tayyorlanmoqda. Keyinroq qaytib keling. | Записи для заданий ещё готовятся. Загляните позже. |
+| `battle.setup.reason.no_audio_words` | Bu mavzudagi so'zlar uchun hozircha yozuvlar yo'q. | Для слов этой темы пока нет записей. |
+| `battle.setup.reason.unknown` | Bu format uchun material hozircha yetarli emas. | Для этого формата пока не хватает материала. |
+| `battle.invite.waiting` | {name} kutilmoqda… | Ждём ответа: {name} |
+| `battle.invite.waiting_anon` | Do'stingizning javobi kutilmoqda… | Ждём ответа друга… |
+| `battle.invite.lead_sent` | Do'stingiz taklifni oldi. U qabul qilishi bilan xona ochiladi. | Друг получил приглашение. Как только он примет его, откроется комната. |
+| `battle.invite.lead` | Qoidalar bilan tanishing va taklifni qabul qiling — xona ochiladi. | Посмотрите правила и примите приглашение — откроется комната. |
+| `battle.invite.expires` | Taklif muddati tugashiga {time} qoldi | Приглашение действует ещё {time} |
+| `battle.invite.accept` | Qabul qilish | Принять |
+| `battle.invite.decline` | Rad etish | Отклонить |
+| `battle.invite.cancel` | Bekor qilish | Отменить |
+| `battle.room.title` | Xona tayyor | Комната готова |
+| `battle.room.lead` | Tayyor bo'lganingizda «Tayyorman» tugmasini bosing. Ikkalangiz bossangiz, o'yin boshlanadi. | Нажмите «Готов», когда будете готовы. Матч начнётся, когда нажмут оба. |
+| `battle.room.expires` | Xona yopilishiga {time} qoldi | Комната закроется через {time} |
+| `battle.room.ready` | Tayyorman | Готов |
+| `battle.room.ready_done` | Tayyorman — raqib kutilmoqda | Готов — ждём соперника |
+| `battle.room.leave` | Chiqish | Выйти |
+| `battle.player.invited` | hali javob bermadi | ещё не ответил |
+| `battle.player.not_ready` | tayyor emas | не готов |
+| `battle.player.ready` | tayyor | готов |
+| `battle.player.answering` | javob bermoqda… | отвечает… |
+| `battle.player.answered` | javob berdi | ответил |
+| `battle.player.absent` | aloqa yo'q | нет связи |
+| `battle.rules.title` | Qoidalar | Правила |
+| `battle.rules.rounds` | Raundlar soni: {count}. Topshiriqlar ikkalangizda bir xil. | Раундов: {count}. Задания у обоих одинаковые. |
+| `battle.rules.time` | Har bir raundga {seconds} soniya beriladi. Vaqtni server hisoblaydi. | На каждый раунд — {seconds} с. Время считает сервер. |
+| `battle.rules.points` | Raund uchun 100 ochkogacha beriladi. Tezlik ochko qo'shmaydi. | За раунд — до 100 очков. Скорость очков не добавляет. |
+| `battle.rules.points_pairs` | Har bir to'g'ri juftlik uchun 25 ochko, raundga 100 ochkogacha. Tezlik ochko qo'shmaydi. | За каждую верную пару — 25 очков, за раунд до 100. Скорость очков не добавляет. |
+| `battle.rules.winner` | Ochkosi ko'p bo'lgan g'olib bo'ladi. Hisob teng bo'lsa — durang. | Побеждает тот, у кого больше очков. При равном счёте — ничья. |
+| `battle.rules.final` | Raundda javob bitta va oxirgi. | Ответ в раунде один и окончательный. |
+| `battle.rules.leave` | O'yindan chiqish — taslim bo'lish: g'alaba raqibga o'tadi. Uzoq vaqt yo'qolib qolish ham mag'lubiyatga olib keladi. | Выход из матча — это сдача: победа достанется сопернику. Надолго пропасть тоже значит проиграть. |
+| `battle.rules.dictation` | Agar o'yin paytida ovoz yuklanmasa, raund 0 ochko beradi. Yozuv umuman bo'lmasa, o'yin bekor qilinadi. | Если звук не загрузится во время матча, раунд даст 0 очков. Если записи нет совсем, матч аннулируется. |
+| `battle.audio.loading` | Ovoz yuklanmoqda: {total} tadan {loaded} tasi | Загружаем звук: {loaded} из {total} |
+| `battle.audio.ready` | Ovoz yuklandi | Звук загружен |
+| `battle.audio.failed` | Ovozni yuklab bo'lmadi. Usiz boshlab bo'lmaydi — qayta yuklang. | Не удалось загрузить звук. Без него начать нельзя — повторите загрузку. |
+| `battle.audio.round_failed` | Ovoz yuklanmadi. Qayta yuklang: bo'lmasa, raund 0 ochko beradi. | Звук не загрузился. Повторите загрузку: если не получится, раунд даст 0 очков. |
+| `battle.countdown.title` | O'yin boshlanmoqda | Матч начинается |
+| `battle.countdown.go` | Start! | Старт! |
+| `battle.round.title` | {rounds} raunddan {round}-raund | Раунд {round} из {rounds} |
+| `battle.round.answered` | Javob qabul qilindi | Ответ принят |
+| `battle.round.waiting` | Raqib kutilmoqda… | Ждём соперника… |
+| `battle.round.sending` | Javob yuborilmoqda… | Отправляем ответ… |
+| `battle.round.send_failed` | Javob yuborilmadi: aloqa yo'q. Raund vaqti tugamasidan qayta yuboring. | Ответ не отправился: нет связи. Повторите, пока идёт время раунда. |
+| `battle.timer.label` | Raund vaqti | Время раунда |
+| `battle.timer.left` | {seconds} soniya qoldi | Осталось {seconds} с |
+| `battle.timer.over` | Vaqt tugadi | Время вышло |
+| `battle.connection.offline` | Aloqa yo'q, qayta urinilmoqda… | Нет связи, пробуем… |
+| `battle.connection.absent` | Raqibning aloqasi uzildi… {time} | Соперник потерял связь… {time} |
+| `battle.connection.absent_playing` | Agar u qaytmasa, g'alaba sizga o'tadi. | Если он не вернётся, победа достанется вам. |
+| `battle.connection.absent_room` | Agar u qaytmasa, xona yopiladi. | Если он не вернётся, комната закроется. |
+| `battle.reveal.correct` | To'g'ri javob | Правильный ответ |
+| `battle.reveal.no_answer` | Javob yo'q | Ответа нет |
+| `battle.reveal.pairs_right` | To'g'ri juftliklar: {total} tadan {right} tasi | Верных пар: {right} из {total} |
+| `battle.reveal.next` | Keyingi raund {seconds} soniyadan keyin… | Следующий раунд через {seconds}… |
+| `battle.reveal.next_now` | Keyingi raund… | Следующий раунд… |
+| `battle.reveal.last` | Natijalar {seconds} soniyadan keyin… | Итоги через {seconds}… |
+| `battle.reveal.last_now` | Natijalar hisoblanmoqda… | Подводим итоги… |
+| `battle.verdict.correct` | To'g'ri | Верно |
+| `battle.verdict.typo` | Imlo xatosi | Опечатка |
+| `battle.verdict.wrong` | Xato | Ошибка |
+| `battle.verdict.skipped` | O'tkazib yuborildi | Пропуск |
+| `battle.verdict.timeout` | Vaqt tugadi | Время вышло |
+| `battle.result.title.won` | G'alaba | Победа |
+| `battle.result.title.lost` | Mag'lubiyat | Поражение |
+| `battle.result.title.draw` | Durang | Ничья |
+| `battle.result.title.none` | Bellashuv bo'lib o'tmadi | Матч не состоялся |
+| `battle.result.rounds` | Raundlar | Раунды |
+| `battle.result.round` | {round}-raund | Раунд {round} |
+| `battle.result.rematch` | Revansh | Реванш |
+| `battle.result.again` | Yana taklif qilish | Пригласить снова |
+| `battle.result.rematch_from` | {name} revansh taklif qilyapti | {name} предлагает реванш |
+| `battle.result.rematch_text` | Format ham, mavzu ham o'sha-o'sha. Qabul qiling — xona ochiladi. | Тот же формат и та же тема. Примите, и откроется комната. |
+| `battle.result.rematch_mine` | Siz revansh taklif qildingiz | Вы предложили реванш |
+| `battle.result.rematch_mine_text` | Do'stingizning javobi kutilmoqda. Taklifni pastdagi tugma bilan ochishingiz mumkin. | Ждём ответа друга. Открыть приглашение можно кнопкой ниже. |
+| `battle.result.open_rematch` | Revanshni ochish | Открыть реванш |
+| `battle.reason.completed` | Barcha raundlar o'ynaldi. | Сыграны все раунды. |
+| `battle.reason.completed_draw` | Barcha raundlar o'ynaldi, hisob teng. | Сыграны все раунды, счёт равный. |
+| `battle.reason.surrender_won` | Raqib taslim bo'ldi — g'alaba sizniki. | Соперник сдался — победа ваша. |
+| `battle.reason.surrender_lost` | Siz taslim bo'ldingiz: g'alaba raqibga yozildi. | Вы сдались: победа засчитана сопернику. |
+| `battle.reason.absent_won` | Raqib o'yindan chiqib, qaytmadi — g'alaba sizniki. | Соперник вышел из матча и не вернулся — победа ваша. |
+| `battle.reason.absent_lost` | Siz o'yindan yo'qolib qoldingiz: mag'lubiyat yozildi. | Вы пропали из матча: засчитано поражение. |
+| `battle.reason.both_absent` | Ikkala o'yinchi ham yo'qoldi — bellashuv g'olibsiz yopildi. | Оба игрока пропали — матч закрыт без победителя. |
+| `battle.reason.declined` | Taklif rad etildi. | Приглашение отклонено. |
+| `battle.reason.invite_expired` | Taklif o'z vaqtida qabul qilinmadi. | Приглашение не приняли вовремя. |
+| `battle.reason.room_expired` | Xona yopildi: o'yin o'z vaqtida boshlanmadi. | Комната закрыта: матч не начался вовремя. |
+| `battle.reason.canceled` | O'yin boshlanishidan oldin bekor qilindi. | Матч отменили до начала. |
+| `battle.reason.voided` | Bellashuv texnik muammo tufayli bekor qilindi. Ochkolar hisoblanmaydi. | Матч аннулирован из-за технической проблемы. Очки не засчитаны. |
+| `battle.leave.room_title` | Xonadan chiqasizmi? | Выйти из комнаты? |
+| `battle.leave.room_text` | O'yin bekor qilinadi, raqib bundan xabar topadi. | Матч отменится, соперник узнает об этом. |
+| `battle.leave.invite_text` | Taklif qaytarib olinadi. | Приглашение будет отозвано. |
+| `battle.leave.room_confirm` | Chiqish | Выйти |
+| `battle.leave.match_title` | Taslim bo'lib chiqasizmi? | Сдаться и выйти? |
+| `battle.leave.match_text` | Sizga mag'lubiyat yoziladi, g'alaba esa raqibga o'tadi. | Вам засчитают поражение, а победа достанется сопернику. |
+| `battle.leave.match_confirm` | Taslim bo'lish | Сдаться |
+| `battle.leave.stay` | Qolish | Остаться |
+| `battle.live.countdown` | Startga {seconds} | Старт через {seconds} |
+| `battle.live.round` | {rounds} raunddan {round}-raund. Vaqt ketmoqda. | Раунд {round} из {rounds}. Время пошло. |
+| `battle.live.waiting` | Javob qabul qilindi. Raqib kutilmoqda. | Ответ принят. Ждём соперника. |
+| `battle.live.reveal` | Raund tugadi. {verdict}. | Раунд завершён. {verdict}. |
+| `battle.friends.button` | Bellashuv | Баттл |
+| `battle.friends.button_aria` | {name} bilan bellashuv | Баттл с другом: {name} |
+| `battle.friends.active` | Bellashuv davom etmoqda | Идёт баттл |
+| `battle.friends.status.invited` | Javob kutilmoqda | Ждём ответа |
+| `battle.friends.status.room` | Xona | Комната |
+| `battle.friends.status.countdown` | Start | Старт |
+| `battle.friends.status.playing` | O'yin | Игра |
+
+## Практика и баттл 2026-10 · 18-7b — на проверку носителю
+
+> Входы в практику (`resources/twa/src/i18n/uz.ts`, задача 18.7b): кнопка на экране «Итог занятия» и подпись кнопки-иконки в строке урока на экране курса.
+> Название раздела («Amaliyot», «Практика») — из раздела 18-1t, здесь не повторяется.
+>
+> Что решить носителю:
+> - **«Практика урока» / «Практика курса»** на итоговом экране (вторичная кнопка под «Asosiy sahifaga»): `Dars amaliyoti` / `Kurs amaliyoti` (изафет:
+>   «практика урока», «практика курса»). Если естественнее глагольная форма — `Darsni mashq qilish` / `Kursni mashq qilish`.
+> - **Подпись кнопки-иконки в строке урока** читает экранный диктор, у кнопки нет текста: `Amaliyot: {place}`, где `{place}` — «2-modul · 4-dars»
+>   (то же сочетание, что в шапке тренировки).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `finished.practice_lesson` | Dars amaliyoti | Практика урока |
+| `finished.practice_course` | Kurs amaliyoti | Практика курса |
+| `course.practice_lesson` | Amaliyot: {place} | Практика: {place} |
+
+## Практика и баттл 2026-10 · 18-9t — на проверку носителю
+
+> Исправления сольной практики в приложении после ревью (`resources/twa/src/i18n/uz.ts`, задача 18.9t): вердикт «Неверно» у сочетания и предложения,
+> «ответ уже засчитан раньше», подсказка после потерянного ответа сервера, две причины недоступности режима на карточке хаба.
+> Кнопки взяты из уже проверенных строк: «Повторить» — `common.retry` (`Qayta urinish`), «Сейчас без звука» — `practice.audio.silent` (`Hozircha ovozsiz`).
+> Строка `practice.hub.reason.no_items` **изменена** — исправлена на месте, в разделе `18-1t`; здесь она не повторяется.
+>
+> Что решить носителю:
+> - **«Неверно»** — `Noto'g'ri`: то же слово, что в вердикте упражнения тренировки (`exercise.verdict.wrong`). «Tuzatish kerak» («нужно исправить»)
+>   остаётся только у диктанта: там текст можно написать лучше, а у выбора варианта и сборки предложения ответ окончательный.
+> - **«Засчитан ответ, отправленный раньше»** — `Avval yuborilgan javob hisobga olindi.`: показывается, когда сервер уже принял ответ на это задание
+>   (другая вкладка или потерянный ответ), а что именно ответили и какой был верный, экран не знает.
+> - **Подсказка после потерянного ответа** — `Serverdan javob kelmadi. Javobingizni endi o'zgartirib bo'lmaydi — uni yana yuboring.`: ответ мог дойти
+>   до сервера, поэтому менять его нельзя, его отправляют ещё раз. Проверить тон («Javobingizni» — обращение «Siz») и длинное тире.
+> - **Две причины на карточке режима.** `no_items` («заданий для темы нет вообще», кнопки «Darsni o'rganish» нет) и `items_locked` («задания есть, они
+>   откроются, когда выучены слова урока», кнопка «Darsni o'rganish» есть). Тире в `items_locked` — как в подсказках раздела `18-1t`.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `practice.verdict.wrong_final` | Noto'g'ri | Неверно |
+| `practice.reveal.earlier` | Avval yuborilgan javob hisobga olindi. | Засчитан ответ, отправленный раньше. |
+| `practice.session.resend_note` | Serverdan javob kelmadi. Javobingizni endi o'zgartirib bo'lmaydi — uni yana yuboring. | Ответа от сервера нет. Свой ответ уже не изменить — отправьте его ещё раз. |
+| `practice.hub.reason.items_locked` | Dars so'zlarini o'rganing — topshiriqlar ochiladi. | Выучите слова урока — задания откроются. |
+
+## Практика и баттл 2026-10 · 18-6b — на проверку носителю
+
+> Личное сообщение бота с приглашением на баттл (`lang/uz/battle.php`, задача 18.6b; `docs/16` §8.7). Приходит другу в личный чат, под текстом одна кнопка,
+> которая открывает баттл в приложении. Пример целиком (ru): «Bek зовёт вас на баттл: Найди пары, Английский A1 · Модуль 1 · Урок 3. Приглашение действует 5 минут.»
+>
+> Что решить носителю:
+> - **Порядок слов** в `battle.dm.invited`: `{name} sizni bellashuvga chaqiryapti: {format}, {place}. {validity}` — то же начало, что у карточки приглашения в приложении
+>   (`practice.hub.battle.invited_by`). Двоеточие и запятая после формата — не слишком ли по-русски.
+> - **Названия форматов** (`battle.mode.*`) — те же, что на карточках режимов в приложении (`practice.mode.*.title`), здесь повторены, потому что бот не читает файл приложения.
+> - **Срок** (`battle.dm.validity`): `Taklif {count} daqiqa amal qiladi.` («Приглашение действует N минут»). Число — из настройки, форма слова не меняется.
+> - **Урок** (`battle.dm.lesson`): `{stage}-modul · {number}-dars` — то же сочетание, что в шапке тренировки; `battle.dm.lesson_no_stage` — урок без модуля.
+> - **Кнопка** (`battle.dm.open`): `Bellashuvni ochish` («Открыть баттл»). **Без имени** (`battle.anonymous`): `Do'stingiz` («ваш друг»).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `battle.anonymous` | Do'stingiz | Ваш друг |
+| `battle.mode.pairs` | Juftlarni toping | Найди пары |
+| `battle.mode.collocation` | So'z birikmasini tanlang | Подбери сочетание |
+| `battle.mode.sentence` | Gap tuzing | Собери предложение |
+| `battle.mode.dictation` | Eshiting va yozing | Слушай и пиши |
+| `battle.dm.invited` | :name sizni bellashuvga chaqiryapti: :format, :place. :validity | :name зовёт вас на баттл: :format, :place. :validity |
+| `battle.dm.validity` | Taklif :count daqiqa amal qiladi. | Приглашение действует :count минуту / минуты / минут. |
+| `battle.dm.open` | Bellashuvni ochish | Открыть баттл |
+| `battle.dm.lesson` | :stage-modul · :number-dars | Модуль :stage · Урок :number |
+| `battle.dm.lesson_no_stage` | :number-dars | Урок :number |
+
+## Практика и баттл 2026-10 · 18-10t — на проверку носителю
+
+> Исправления экранов баттла 1 на 1 в приложении после ревью (`resources/twa/src/i18n/uz.ts`, задача 18.10t) и один код ошибки сервера, добавленный
+> в 18.9b. Кнопки взяты из уже проверенных строк: «Повторить» — `common.retry`, «Принять» — `battle.invite.accept`, «Открыть реванш» — `battle.result.open_rematch`.
+>
+> **Группа «Заменённые строки» — это строки, которые уже есть в более ранних разделах (`18-6t`, `18-1t`, «Редизайн»): у них изменился текст.
+> Прежний текст в тех разделах устарел, проверять нужно эти.**
+>
+> Что решить носителю:
+> - **Полоса «Соперник потерял связь»** (`battle.connection.absent*`) теперь из двух строк: «Raqibning aloqasi uzildi.» и под ней, с числом секунд,
+>   которые сервер ещё ждёт соперника (число идёт назад каждую секунду): «Agar u {seconds} soniya ichida qaytmasa, g'alaba sizga o'tadi.» В комнате и в отсчёте
+>   победы нет, матч отменяется: «…o'yin bekor qilinadi.» Проверить «soniya ichida» («за N секунд») и «sizga o'tadi» («достанется вам»).
+> - **«Сервер не отвечает»** (`battle.connection.offline_server`, `battle.round.send_failed_server`) — для случая, когда не отвечает сам сервер (ошибка 5xx, лимит запросов), в отличие
+>   от «Aloqa yo'q» (`battle.connection.offline`, `battle.round.send_failed`), когда пропала сеть. Раньше при любом сбое писали «нет связи».
+> - **«Матч прерван»** (`battle.result.title.aborted`): матч начался и оборвался (оба игрока пропали, сервер аннулировал матч после старта). Отличать от «Bellashuv bo'lib o'tmadi»
+>   («матч не состоялся»: приглашение отклонили, не приняли вовремя, комната закрылась до старта).
+> - **Причина для диктанта** (`battle.reason.voided_audio`): запись не загрузилась и на сервере её тоже нет, матч отменён. Для остальных форматов остаётся прежняя
+>   строка `battle.reason.voided` («техническая проблема»).
+> - **«Реванш уже идёт»** (`battle.result.rematch_on`, `battle.result.rematch_on_text`): реванш уже открыт (друг принял предложение или ученик принял его на другом устройстве);
+>   под текстом кнопка «Revanshni ochish».
+> - **Подсказка при приглашении** (`battle.setup.invite_hint`, `battle.invite.lead_sent`) больше не обещает сообщение в Telegram: друг видит приглашение в разделе «Do'stlar»
+>   (название раздела — `friends.title`), а сообщение от бота получит, только если разрешил боту писать ему.
+> - **Последняя пара** (`practice.pairs.auto_last`): в баттле, когда собраны все пары, кроме одной, последняя подбирается сама; строка под колонками говорит об этом, чтобы
+>   ученик проверил и нажал «Tekshirish» (`exercise.check`).
+> - **`error.code.not_friends`** теперь без слова «musobaqa» («вызов»): код общий для баттла и для соревнования с другом, текст подходит обоим.
+> - **`error.code.request_id_reused`** — сервер отвечает так, когда один и тот же идентификатор запроса использован для запроса другого вида (редко, после обновления экрана всё в порядке).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `battle.connection.offline_server` | Server javob bermayapti, qayta urinilmoqda… | Сервер не отвечает, пробуем ещё раз… |
+| `battle.round.send_failed_server` | Javob yuborilmadi: server javob bermayapti. Raund vaqti tugamasidan qayta yuboring. | Ответ не отправился: сервер не отвечает. Повторите, пока идёт время раунда. |
+| `battle.result.title.aborted` | Bellashuv to'xtatildi | Матч прерван |
+| `battle.reason.voided_audio` | Bellashuv bekor qilindi: yozuv mavjud emas. Ochkolar hisoblanmaydi. | Матч отменён: запись недоступна. Очки не засчитаны. |
+| `battle.result.rematch_on` | Revansh boshlandi | Реванш уже идёт |
+| `battle.result.rematch_on_text` | Revansh xonasi ochiq. Unga pastdagi tugma orqali qaytishingiz mumkin. | Комната реванша открыта. Вернуться в неё можно кнопкой ниже. |
+| `practice.pairs.auto_last` | Oxirgi juft o'zi tanlandi. Hammasini tekshirib chiqing va «Tekshirish» tugmasini bosing. | Последняя пара подобрана сама. Проверьте всё и нажмите «Проверить». |
+| `error.code.request_id_reused` | So'rov allaqachon ishlatilgan. Ekranni yangilang. | Запрос уже использован. Обновите экран. |
+
+Заменённые строки (прежний текст в разделах `18-6t`, `18-1t`, «Редизайн» устарел):
+
+| Ключ | uz | ru |
+|---|---|---|
+| `battle.connection.absent` | Raqibning aloqasi uzildi. | Соперник потерял связь. |
+| `battle.connection.absent_playing` | Agar u {seconds} soniya ichida qaytmasa, g'alaba sizga o'tadi. | Если не вернётся за {seconds} с, победа ваша. |
+| `battle.connection.absent_room` | Agar u {seconds} soniya ichida qaytmasa, o'yin bekor qilinadi. | Если не вернётся за {seconds} с, матч отменится. |
+| `battle.setup.invite_hint` | Do'stingiz taklifni «Do'stlar» bo'limida ko'radi (ruxsat bergan bo'lsa, botdan xabar ham oladi). | Друг увидит приглашение в разделе «Друзья» (и получит сообщение от бота, если разрешил). |
+| `battle.invite.lead_sent` | Do'stingiz taklifni «Do'stlar» bo'limida ko'radi (ruxsat bergan bo'lsa, botdan xabar ham oladi). U qabul qilishi bilan xona ochiladi. | Друг увидит приглашение в разделе «Друзья» (и получит сообщение от бота, если разрешил). Как только он примет его, откроется комната. |
+| `error.code.not_friends` | Buni faqat do'st bilan qilish mumkin. | Это можно сделать только с другом. |

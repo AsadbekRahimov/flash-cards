@@ -1,33 +1,47 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import InitialAvatar from '@/components/InitialAvatar.vue'
+import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import ListGroup from '@/components/ui/ListGroup.vue'
+import ListRow from '@/components/ui/ListRow.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import SegmentedNav from '@/components/ui/SegmentedNav.vue'
 import { showErrorToast } from '@/composables/errorToast'
 import { formatDate } from '@/composables/format'
+import { lessonHeader, modeTitle } from '@/composables/practiceLabels'
 import { useBackButton } from '@/composables/useBackButton'
 import { useCopyToClipboard } from '@/composables/useCopyToClipboard'
+import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
 import { useAuthStore } from '@/stores/auth'
+import { useBattleStore } from '@/stores/battle'
+import { useBillingStore } from '@/stores/billing'
 import { useFriendsStore } from '@/stores/friends'
 import { errorMessage } from '@/i18n/errors'
 import { useI18n } from '@/i18n'
 import type { StringKey } from '@/i18n/ru'
-import type { ChallengeItem, ChallengeMetric, ChallengeStatus, FriendItem, FriendRequestItem } from '@/api/types'
+import type { BattleIncoming, BattleStatus, ChallengeItem, ChallengeMetric, ChallengeStatus, FriendItem, FriendRequestItem } from '@/api/types'
 
 /**
  * "Rating" tab, the Friends pane (docs/13 §7.5, docs/14 §6.7, docs/04 A.13): the invite link (`f_<code>`) with
  * Telegram's share dialog, incoming and outgoing requests, the friends with their streak and learned words,
  * challenges ("who repeats more") and their state. A tab root (the other pane is League): no system "Back" button.
  * A refused action (accept, decline, remove, challenge) is a toast: the buttons are all over a long screen.
+ *
+ * Battles 1 on 1 (docs/16 §11.1), only while `/me.practice` says practice and battles are available: "Battle" at every
+ * friend leads to the setup of a battle with them; above everything is the battle that is on ("A battle is on") and the
+ * invitations that came ("Battle invitations": "Accept" leads into the room, "Decline" closes them).
  */
 const auth = useAuthStore()
 const store = useFriendsStore()
+const battles = useBattleStore()
+const billing = useBillingStore()
+const router = useRouter()
 const { shareUrl, haptic } = useTelegram()
 const { copy } = useCopyToClipboard()
 const { t, tn, locale } = useI18n()
@@ -54,6 +68,73 @@ watch(
     store.clearActionError()
   },
 )
+
+// A refused battle action (an invitation that has run out, one that is withdrawn) is told the same way.
+watch(
+  () => battles.actionError,
+  (text) => {
+    if (text === '') return
+    showErrorToast(text)
+    battles.clearActionError()
+  },
+)
+
+/** Battles are offered only to a learner who may practise and whose server has battles switched on. */
+const battleOn = computed(() => billing.practiceAccess.available && billing.practiceAccess.battle)
+const invitations = computed(() => (battleOn.value ? battles.incoming : []))
+const activeBattle = computed(() => (battleOn.value ? battles.active : null))
+
+// The battle that is on and the invitations are asked for as soon as the learner is known to play battles. That is when `/me` has come,
+// and it may be on its way for another screen already (then `billing.load()` of this one returns at once and `battleOn` turns true
+// later, with nobody to ask): the list follows the switch, not the end of this screen's own reading.
+watch(
+  battleOn,
+  (on) => {
+    if (on) void battles.loadList()
+  },
+  { immediate: true },
+)
+
+// Behind Pro, "Accept" is answered with the paywall, as everywhere in the practice (docs/16 §3.2).
+const { reviewFromPaywall } = useReviewFromPaywall(() => battles.dismissPaywall(), { toastErrors: true })
+
+const ACTIVE_STATUS: Partial<Record<BattleStatus, StringKey>> = {
+  invited: 'battle.friends.status.invited',
+  room: 'battle.friends.status.room',
+  countdown: 'battle.friends.status.countdown',
+  playing: 'battle.friends.status.playing',
+}
+
+const activeStatus = computed((): string => {
+  const key = activeBattle.value ? ACTIVE_STATUS[activeBattle.value.status] : undefined
+  return key ? t(key) : ''
+})
+
+const activeMeta = computed((): string => {
+  const active = activeBattle.value
+  if (active === null) return ''
+  return `${modeTitle(active.mode)} · ${active.opponent.first_name || t('friends.list.anonymous')}`
+})
+
+function invitationMeta(invitation: BattleIncoming): string {
+  const topic = invitation.lesson ? lessonHeader(invitation.lesson) : invitation.course.title
+  return `${modeTitle(invitation.mode)} · ${topic}`
+}
+
+function startBattle(friendshipId: number): void {
+  haptic('light')
+  void router.push({ name: 'battle-new', query: { friendship: String(friendshipId) } })
+}
+
+async function acceptBattle(invitation: BattleIncoming): Promise<void> {
+  haptic('light')
+  if (await battles.acceptInvitation(invitation.id)) await router.push({ name: 'battle', params: { id: invitation.id } })
+}
+
+async function declineBattle(invitation: BattleIncoming): Promise<void> {
+  haptic('light')
+  await battles.declineInvitation(invitation.id)
+}
 
 const ratingTabs = computed(() => [
   { to: { name: 'league' }, label: t('league.title'), testid: 'seg-league' },
@@ -155,7 +236,7 @@ async function load(): Promise<void> {
     failed.value = errorMessage(err, 'settings')
     return
   }
-  await store.load()
+  await Promise.all([store.load(), billing.load()])
 }
 
 onMounted(() => {
@@ -173,6 +254,53 @@ onMounted(() => {
     <ErrorState v-else-if="!friends" :message="message" @retry="load" />
 
     <div v-else class="space-y-3">
+      <!-- The battle that is on: one tap back into it. -->
+      <ListGroup v-if="activeBattle" data-testid="active-battle">
+        <ListRow
+          :to="{ name: 'battle', params: { id: activeBattle.id } }"
+          icon="bolt"
+          tile="orange"
+          :title="t('battle.friends.active')"
+          :subtitle="activeMeta"
+          :value="activeStatus"
+          data-testid="active-battle-row"
+        />
+      </ListGroup>
+
+      <ListGroup v-if="invitations.length > 0" :header="t('practice.hub.battle.invites')" data-testid="battle-invites">
+        <div v-for="invitation in invitations" :key="invitation.id" class="list-row flex-wrap gap-y-3" data-testid="battle-invite-row">
+          <div class="flex min-w-0 basis-full items-center gap-3">
+            <InitialAvatar :name="invitation.from.first_name || t('friends.list.anonymous')" />
+            <div class="min-w-0 flex-1">
+              <div class="truncate text-base leading-[22px] font-medium">
+                {{ t('practice.hub.battle.invited_by', { name: invitation.from.first_name || t('friends.list.anonymous') }) }}
+              </div>
+              <div class="truncate text-[13px] leading-[18px] text-tg-hint" data-testid="battle-invite-meta">{{ invitationMeta(invitation) }}</div>
+            </div>
+          </div>
+          <div class="flex w-full gap-2">
+            <button
+              type="button"
+              class="btn btn-tinted btn-sm flex-1"
+              data-testid="battle-accept-btn"
+              :disabled="battles.invitationBusy.includes(invitation.id)"
+              @click="acceptBattle(invitation)"
+            >
+              {{ t('friends.incoming.accept') }}
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm flex-1"
+              data-testid="battle-decline-btn"
+              :disabled="battles.invitationBusy.includes(invitation.id)"
+              @click="declineBattle(invitation)"
+            >
+              {{ t('friends.incoming.decline') }}
+            </button>
+          </div>
+        </div>
+      </ListGroup>
+
       <section class="card" data-testid="invite">
         <div class="flex items-start gap-3">
           <span class="icon-tile tile-blue size-11 rounded-xl"><AppIcon name="user-plus" :size="22" /></span>
@@ -257,6 +385,17 @@ onMounted(() => {
             <div class="min-w-0 flex-1">
               <div class="truncate text-base leading-[22px] font-medium">{{ personName(friend) }}</div>
               <div class="truncate text-[13px] leading-[18px] text-tg-hint" data-testid="friend-subtitle">{{ friendSubtitle(friend) }}</div>
+              <!-- A battle 1 on 1 with this friend: the setup takes the friend from the address. -->
+              <button
+                v-if="battleOn && picking !== friend.id && removing !== friend.id"
+                type="button"
+                class="btn btn-tinted btn-sm mt-2"
+                :aria-label="t('battle.friends.button_aria', { name: personName(friend) })"
+                data-testid="battle-btn"
+                @click="startBattle(friend.id)"
+              >
+                {{ t('battle.friends.button') }}
+              </button>
             </div>
 
             <div v-if="picking === friend.id" class="w-full space-y-2" data-testid="metric-picker">
@@ -390,5 +529,7 @@ onMounted(() => {
         </template>
       </section>
     </div>
+
+    <PaywallSheet v-if="battles.paywall" reason="practice" @close="battles.dismissPaywall()" @review="reviewFromPaywall" />
   </div>
 </template>

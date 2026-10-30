@@ -101,7 +101,7 @@ it('learners(): a teacher sees only ACTIVE members of their groups', function ()
 
     $visible = app(PanelDataScope::class)->learners()->pluck('id')->all();
     expect($visible)->toBe([$active->id])
-        ->and($visible)->not->toContain($left->id, $removed->id, $foreign->id, $noGroup->id);
+        ->and($visible)->not->toContain($left->id)->not->toContain($removed->id)->not->toContain($foreign->id)->not->toContain($noGroup->id);
     expect(app(PanelDataScope::class)->learnerIds()->pluck('id')->all())->toBe([$active->id]);
 });
 

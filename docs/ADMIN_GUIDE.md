@@ -227,6 +227,140 @@ Open any Stage → Lesson → click on a word to edit its translation, example, 
 
 ---
 
+## Practice tasks (docs/16)
+
+Navigate to **Practice → Practice tasks / Import tasks** (Практика → Задания практики / Импорт заданий). **Admins only**: a teacher
+gets *403*, and the cabinet of a center has no such screen. The practice itself is off until `PRACTICE_ACCESS` in `.env` says
+otherwise: `off` (default, nobody), `pilot` (only the learners put into the pilot, see *Learners* below) or `all`.
+
+### Switching the practice on
+
+Four learner-facing modes (*Найди пары*, *Подбери сочетание*, *Собери предложение*, *Слушай и пиши*) are switched by `.env` (read from `config/practice.php`);
+after a change run `php artisan config:cache` and restart the queue workers (`docs/DEVOPS_GUIDE.md` §14).
+
+| Variable | Values | What it does |
+|---|---|---|
+| `PRACTICE_ACCESS` | `off` (default) · `pilot` · `all` | Who may practise. `off` — nobody: the entries disappear from the TWA and every practice endpoint answers 403. `pilot` — only the learners with the pilot mark (below). `all` — everybody. Anything else (a typo) counts as `off`: a mistake in `.env` never opens the practice to everybody |
+| `PRACTICE_PLAN` | `all` (default) · `pro` | `pro` — the practice is a Pro feature: a Free learner still sees the entries, with a **Pro** chip, and is shown the paywall instead of the hub (the server answers 403 `practice_pro_required`). Applies on top of `PRACTICE_ACCESS` |
+| `PRACTICE_MODE_PAIRS` · `_COLLOCATION` · `_SENTENCE` · `_DICTATION` | `true` (default) · `false` | Switches one mode off. The hub shows it as «Выключено» and **no new session** of that mode can be opened; sessions already started are played to the end |
+| `PRACTICE_BATTLE` | `true` (default) · `false` | The switch of the 1-on-1 battle (see *Battle 1-on-1* below). `false` hides the battle entries in the TWA (the card in the hub, the «Баттл» buttons in Friends) and refuses a **new invitation** and the **acceptance** of one that was already sent (409 `battle_disabled`); matches that are on go to the end, invitations that were sent run out by themselves |
+
+Recommended roll-out: keep `off` while the tasks are imported and checked; set `pilot`, put a few learners into the pilot (button on **Learners**), watch them; then `all`. To stop the practice in a hurry
+set `PRACTICE_ACCESS=off`: the sessions that are open die by their own term (24 hours; `practice:close-expired` runs every 15 minutes), nothing of the lessons, the streak or the leagues is touched —
+the practice never writes them. Tasks, versions and results stay in the database whatever the switch says.
+
+**Three types of task** (the fourth mode, *pairs*, needs no task: it is made of the words of the course): *Подбери сочетание*
+(a phrase with one gap `___`, three options, one or two of them correct), *Собери предложение* (fragments the learner puts in order; other
+accepted orders, an optional canonical writing to show after the answer), *Слушай и пиши* (a phrase the learner hears and writes; other
+accepted writings are optional). Every task has a **key** (Latin lower case, digits, `.` `-` `_`; unique in the course; chosen once), a course,
+an optional lesson ("Модуль N · Урок M"; empty = a task of the whole course), a level and the **target words** — active words of the course.
+A task is handed out to a learner only when the learner has been introduced to *all* its target words.
+In a *sentence* the order of the fragments you type is always a right answer, and it is the first one (the review of an answer shows it). The field
+**«Другие допустимые порядки»** takes only the OTHER right orders, one per line, fragments told apart by ` | ` (an order that repeats the one above, or an earlier line, is
+dropped); leave it empty if there is no other. Text fields take plain text: a `<` or a `>` is refused («разметка не поддерживается»), `&` and quotes are fine.
+
+**Versions.** The text of a task is never changed: **Save** writes a *new version* (a draft). The task moves by buttons:
+**Проверено** (the current version has been checked) → **Опубликовать** (learners get this version; the previous published one is
+superseded, but whoever is playing it finishes with it) · **В архив** (nobody is given the task any more) · **Вернуть** (back from the archive).
+A draft cannot be published directly. A published task that has been edited stays published with the **old version handed out**; the list marks
+it «Есть неопубликованная правка» until the new version is checked and published. The **target words, the lesson and the level belong to the version**, like the text:
+a change of any of them is a new version too, and takes effect only when that version is published (the form says so under «Курс, урок и слова»; it shows the values of
+the version you edit, and the learners keep getting the lesson and the words of the published one meanwhile). Publishing is stricter than saving: at least one target word **in the version
+being published** and a text in **both** languages (the meaning/prompt and explanation of a sentence, the translation and explanation of a collocation, the translation of a dictation).
+**Проверено** and **Опубликовать** act on the version you were looking at: if an import or another editor wrote a newer one meanwhile, the answer is
+«Задание изменили, пока вы его смотрели. Откройте его заново.» (code `version_changed`) and nothing is changed — open the task again and read the new version.
+The audio of a dictation is made in the background after saving; the column **Аудио** shows `В очереди / Готово / Ошибка` of the version the learners get
+(the published one; while the task is not published, the current one), with a small note «Правка: …» when the draft behind it has another status. The button **Сгенерировать аудио
+заново** voices both the published version and the draft behind it. A dictation whose audio is not ready is not handed out. Every move is written to the audit log
+(`practice_item.reviewed / published / archived / restored`).
+
+**Import (JSON, format `lexiflow-practice/1`).** The page **Import tasks** takes a file with `"course"` (the slug of an existing course, not a deck) and a
+list `"items"` (1–300 tasks, ≤ 2 MB); **Download sample** gives a valid file. The same service runs as
+`php artisan practice:import {file} [--publish]`. Rules:
+- every task has a `key`; importing the same file again **skips** a task whose text, target words, lesson and level are all the same as the current version's, writes a
+  **new version** when ANY of the four differs (shown as «обновлено»), and refuses the key of an **archived** task (restore it first);
+- `target_words` are texts of active words of the course (case does not matter); `lesson` is `{"stage": N, "number": N}`; sentences give ALL the accepted
+  orders as lists of the fragment texts, the first of them being the order of `fragments`, collocations name the correct options by their text; an unknown field
+  (also a key besides `stage` and `number` inside `lesson`) is an error, so a misspelt name never loses text;
+- **all or nothing**: any fault refuses the whole file, and the report lists every fault with the **number of the task and its key**;
+- tasks are written as **drafts**; the box **«Опубликовать сразу (только проверенный контент)»** (`--publish`) writes them as published (and publishes identical
+  drafts of an earlier import). It is your confirmation that the texts are checked — a file cannot publish itself. The strict rules of publishing apply.
+
+A file looks like this (the real pilot package, `database/data/practice/pilot-a1-a2.json`, has 90 such tasks):
+
+```json
+{ "format": "lexiflow-practice/1", "course": "default",
+  "items": [
+    { "key": "pilot-time-s01", "type": "sentence", "lesson": {"stage": 1, "number": 2}, "level": "A1", "target_words": ["monday", "friday"],
+      "prompt": {"ru": "…", "uz": "…"}, "fragments": ["I", "…"], "accepted": [["I", "…"]], "explanation": {"ru": "…", "uz": "…"} },
+    { "key": "…-c01", "type": "collocation", "lesson": {"stage": 2, "number": 1}, "target_words": ["meeting"],
+      "text": "Let's ___ a meeting on Monday.", "options": ["have", "make", "do"], "correct": ["have"],
+      "translation": {"ru": "…", "uz": "…"}, "explanation": {"ru": "…", "uz": "…"} },
+    { "key": "…-d01", "type": "dictation", "lesson": {"stage": 1, "number": 2}, "target_words": ["tomorrow"],
+      "text": "See you tomorrow", "accepted": ["See you tomorrow"], "translation": {"ru": "До завтра", "uz": "Ertagacha"} }
+  ] }
+```
+
+The pilot package: 90 tasks — ten tasks of each of the three types in each of three lessons of the `default` course: *Module 1 · Lesson 2* (time and days of the week, A1), *Module 1 · Lesson 3* (family, A1), *Module 2 · Lesson 1* (work, A2). Its target words and lessons must exist in the course, otherwise the whole file is refused.
+The Uzbek texts of the pack wait for a native speaker's review (`docs/I18N_UZ_REVIEW.md`). On a local machine the seeder `PracticeDemoSeeder` (part of `db:seed`) imports it published, puts the demo learners into the pilot and voices the phrases itself
+with `ffmpeg` + `flite` — whatever `TTS_SERVICE_URL` says, and without queueing a single voicing job (no TTS service is called during `db:seed`). Without `ffmpeg` the phrases stay `В очереди`: press **Сгенерировать аудио заново** for them. **On production import it as drafts** (`php artisan practice:import database/data/practice/pilot-a1-a2.json`), read the tasks in the list, press **Проверено** and **Опубликовать** (or re-import with `--publish` once the texts are checked).
+
+### Audio of the dictations
+
+A dictation task is voiced in the background after it is saved or imported (`GeneratePracticeAudioJob`, queue `low`, a queue worker must run): the column **Аудио** shows `В очереди` (the job waits or is being retried),
+`Готово`, or `Ошибка` with the reason (for example, the `tts` service is not reachable; with no `TTS_SERVICE_URL` at all the job fails at once with `tts_service_not_configured` and is not retried).
+The column shows the version the learners get — the published one — and notes a draft behind it whose status differs. A dictation without ready audio is **not handed out** to learners: when too few are voiced, the hub of the lesson says
+«Записи для заданий ещё готовятся» and the mode stays closed. The button **Сгенерировать аудио заново** voices the published version and the draft behind it again (use it after a failure, once the `tts` service is back; a published version whose audio failed is voiced by it, too). Editing the text of a task makes a new version and a new voice-over; the
+old file stays for the sessions that are playing the old version. The voice is the one of the word audio (`TTS_VOICE`, `TTS_SERVICE_URL`; bumping `TTS_AUDIO_VERSION` re-voices everything under new file names). The phrases are stored in the private directory `storage/app/practice-audio`, which the web server does **not** serve — learners hear
+them only through the API (`docs/DEVOPS_GUIDE.md` §10.2). The *word* part of a dictation uses the ordinary pre-generated word audio (`php artisan audio:pregenerate <course-slug>`, see *Word audio* above): a word without current audio is simply not taken.
+
+### Battle 1-on-1
+
+Two friends play **5 rounds** of one of the four modes on the same tasks; the one with more points wins (the rules — `docs/15` §3.5, the technical design — `docs/16` §8, the API — `docs/04` A.17). The battle has **no screen in the admin panel** and no tasks of its own: it uses the words of the course and the published tasks of the practice
+(a dictation needs voiced phrases — *Audio of the dictations* above), and it writes nothing to the lessons, the streak, the leagues, the centre assignments or the achievements — its points are its own. A learner sees the battle only while the practice is open to them.
+
+**What the switches do to a battle**
+
+| Setting | Effect |
+|---|---|
+| `PRACTICE_BATTLE=false` | No new invitation and no acceptance of a sent one (409 `battle_disabled`); the TWA hides the entries. Matches that are on are played to the end |
+| `PRACTICE_MODE_*=false` | No new invitation in that mode (409 `practice_mode_disabled`); matches of that mode that are on finish |
+| `PRACTICE_ACCESS=pilot` / `PRACTICE_PLAN=pro` | **Both** players need access. An invitation to a friend who is not in the pilot (or a Free friend while the plan is `pro`) is refused: the setup screen says «у друга нет доступа к практике» |
+| `PRACTICE_ACCESS=off` | Every battle endpoint answers 403, and the scheduler **voids** the matches that are on within a minute (`closed / voided`, «Матч аннулирован»): nobody wins, nobody loses |
+
+**The numbers** are fixed in `config/practice.php` (a release changes them, not `.env`): 5 rounds; a round lasts 30 s (*Подбери сочетание*), 45 s (*Найди пары*, *Собери предложение*) or 60 s (*Слушай и пиши*); a countdown of 3 s; the review between rounds 4 s;
+an invitation waits **5 minutes**, a room **2 minutes**; the opponent is warned about after **10 s** of silence, and a player silent for **30 s** loses (in a room or a countdown the match is just canceled); an answer that reaches the server up to 1.5 s after the end of a round is still taken.
+A round is worth up to 100 points (a right answer 100, anything else 0; pairs — 25 for each right pair); there is no bonus for speed, equal points are a draw.
+
+**Enough material, in both languages.** The material is counted for the languages of **both** players (ru and uz), over every active word and every published task of the chosen course or lesson — the progress of the players is not looked at. *Найди пары* needs 20 words with distinct translations (5 rounds × 4 pairs),
+the other modes 5 published tasks (a dictation: phrases with ready audio). Otherwise the format is grey in the setup («Мало материала») and the invitation is refused (422 `battle_material_unavailable`). One learner can be in one battle at a time.
+
+**A match that "hangs".** A match cannot stay open for long by itself: an invitation lives 5 minutes, a room 2 minutes, a round at most 60 s + 1.5 s + the 4 s review, and a player who has gone is dropped after 30 s. Everything that is due is done by **whoever looks first** — a request of either player moves the match — and by the scheduler command
+**`practice:battles-sweep`** (every minute): it closes expired invitations, moves the matches that are on (absence, deadlines, the end) and, with `PRACTICE_ACCESS=off`, voids them. If **both** players closed the app, only this command ends the match (about 1.5 minutes after they left).
+So a match, or a learner's «you are busy with another battle», that stays for more than a few minutes means the **scheduler is not running**: check `/health/ready` (`scheduler`), `php artisan schedule:list` (the line `practice:battles-sweep`, every minute) and the cron entry (`docs/DEVOPS_GUIDE.md` §11). Running `php artisan practice:battles-sweep` by hand is safe and repeatable (it prints `Battles swept: N`);
+**do not edit the rows of `battles` by hand.** A learner who is stuck can also open «Идёт баттл» in Friends and leave it (✕ → cancel or surrender): their own visit moves the match too.
+
+**Where to look.** There is no battle list in the panel. Open **Learners →** the learner **→ Recent events** and pick an event in the *Event* filter: `battle.invited`, `battle.accepted`, `battle.started`, `battle.finished`, `battle.closed` (properties: `battle_id`, `mode`, `end_reason`, `result` — `challenger` / `opponent` / `draw`, `rounds_played`, `duration_ms`),
+`practice.audio_failed` (a dictation clip that did not play: `battle_id`, `source`, `reason`, `verified`) and `practice.not_enough_material` (`battle: true`). The events of a match are written to the learner who **invited** (the challenger); `practice.audio_failed` — to the one who reported. The rows themselves (`battles`, `battle_participants`, `battle_answers`; `docs/03` §2.45–§2.47) are for DevOps to read.
+
+`end_reason` of a finished or closed match:
+
+| `end_reason` | What happened |
+|---|---|
+| `completed` | All 5 rounds were played; the winner is the one with more points (a draw if equal) |
+| `surrender` | One side pressed «Сдаться»; the other wins, the points stay as they were |
+| `absent` | A player was silent for 30 s in the game; the one who stayed wins |
+| `declined` · `invite_expired` | The friend pressed «Отклонить» · nobody answered in 5 minutes (no result) |
+| `room_expired` | Both did not press «Готов» in 2 minutes (no result) |
+| `canceled` | The inviter withdrew, or somebody left the room or the countdown, or was silent there for 30 s, or the friendship ended before the acceptance (no result) |
+| `both_absent` | Both players were silent for 30 s in the game (no winner) |
+| `voided` | A technical problem: a dictation clip is missing from the disk (regenerate the audio — *Audio of the dictations*), or `PRACTICE_ACCESS=off` (no result) |
+
+**The invitation** reaches the friend as a message of the bot with the button «Открыть баттл» (the text is in the friend's language). If the friend never opened the bot or blocked it, the message does not come (the learner gets `dm_blocked_at`; it is cleared when they write to the bot), but the invitation is in the app (Friends, the practice hub) for its 5 minutes.
+The bot sends nothing else about battles: no results, no reminders.
+
+---
+
 ## Learners
 
 Navigate to **Administration → Learners** (Администрирование → Ученики). An admin sees every learner; a teacher sees only the active members
@@ -246,6 +380,9 @@ invited, rejected ones excluded), last seen.
   `401 learner_blocked` (the TWA is closed to them) and review reminders stop; progress is kept. Every change is written to the audit log
   (`learner.blocked` / `learner.unblocked`). Unblocking restores access at once.
 
+- **Practice pilot** (Пилот практики; column, filter *In the pilot / Not in the pilot*, and the button **Включить в пилот практики** /
+  **Исключить из пилота** on the row and on the learner page; admin only): with `PRACTICE_ACCESS=pilot` only the learners in the pilot get the practice.
+  Every real change is written to the audit log (`learner.practice_pilot_changed`: `from`, `to` — the moment the learner entered the pilot, or empty).
 - **SRS algorithm** (Алгоритм повторений; row button, admin only): switches one learner between **SM-2** and **FSRS-5**. The choice
   is made automatically when a learner is created (`FSRS_ROLLOUT_PERCENT` in `.env`: the share of *new* learners
   that gets FSRS, `0` by default = nobody; changing it never moves existing learners). Switching to FSRS seeds the
@@ -581,6 +718,9 @@ Open **Billing → Payments** (Оплата → Платежи) and search by th
 plan cache is dropped on payment). A `failed` row means the money arrived but could not be credited (see the raw payload
 and **Payment orders** for the reason: expired order, amount mismatch): fix it by granting Pro (**Grant Pro**) or refund
 the payment, and tell DevOps if it looks systematic. No row at all: the provider's webhook did not reach us (DEVOPS_GUIDE §17).
+
+**A learner says "you are busy with another battle", or a battle never ends.**
+Almost always the scheduler is not running: `practice:battles-sweep` (every minute) is what ends a match that both players left and frees the learners (see *Practice tasks → Battle 1-on-1 → A match that "hangs"*). Check `/health/ready`, `php artisan schedule:list` and the cron entry; the learner can also open «Идёт баттл» in Friends and leave the match (✕).
 
 **Admin panel shows a blank page after login.**
 Run `php artisan optimize:clear` (or `make cache-clear`) to clear cached views.
