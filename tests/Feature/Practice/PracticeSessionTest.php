@@ -1020,6 +1020,69 @@ it('opens a session of pairs for a learner whose words have a uz translation: th
         ->and(count($texts))->toBe(3);
 });
 
+/**
+ * A uz learner who has been introduced to words given as `[english, ru, uz]` (`uz` null: no uz text, the ru one is shown).
+ *
+ * @param  list<array{0: string, 1: string, 2: string|null}>  $rows
+ * @return array{0: Learner, 1: Course, 2: Lesson}
+ */
+function psUzPairsWorld(array $rows): array
+{
+    [$course, $lesson] = PracticeKit::course();
+    $learner = Learner::factory()->create(['interface_locale' => 'uz']);
+    foreach ($rows as [$english, $ru, $uz]) {
+        $word = Word::factory()->for($lesson)->create(['word' => $english, 'translation' => $ru]);
+        if ($uz !== null) {
+            WordTranslation::factory()->uz()->create(['word_id' => $word->id, 'translation' => $uz]);
+        }
+        PracticeKit::introduce($learner, $word);
+    }
+
+    return [$learner, $course, $lesson];
+}
+
+it('never puts «mother» and «mum» on one board of a uz learner in 50 openings when only «mother» has a uz text (the card of «mum» says «мама»)', function (): void {
+    [$learner, $course, $lesson] = psUzPairsWorld([
+        ['mother', 'мама', 'ona'], ['mum', 'мама', null], ['father', 'папа', 'ota'], ['sister', 'сестра', 'opa'], ['brother', 'брат', 'aka'],
+    ]);
+
+    $seen = ['mother' => 0, 'mum' => 0];
+    foreach (range(1, 50) as $opening) {
+        PracticeKit::resetLimiters($learner);
+        $session = psOpen($this, $learner, $course->slug, 'pairs', ['lesson_id' => $lesson->id, 'replace_active' => true])->assertCreated();
+        $words = array_column(psPairsRounds($session->json('id'))[0]['left'], 'text');
+
+        expect($words)->toHaveCount(4)
+            ->and(in_array('mother', $words, true) && in_array('mum', $words, true))->toBeFalse("opening {$opening}: ".implode(', ', $words));
+        foreach (array_keys($seen) as $word) {
+            $seen[$word] += in_array($word, $words, true) ? 1 : 0;
+        }
+    }
+
+    // Neither of them is shut out for good: each takes the free place now and then.
+    expect($seen['mother'])->toBeGreaterThan(0)->and($seen['mum'])->toBeGreaterThan(0);
+});
+
+it('does not offer the pairs to a uz learner whose three words make an ambiguous board: the hub and the opening agree', function (): void {
+    [$learner, $course, $lesson] = psUzPairsWorld([['mother', 'мама', 'ona'], ['mum', 'мама', null], ['father', 'папа', 'ota']]);
+
+    $hub = $this->withHeaders(PracticeKit::headers($learner))->getJson("/api/twa/practice/hub?course={$course->slug}&lesson_id={$lesson->id}")->assertOk();
+    expect($hub->json('modes.0'))->toBe(['mode' => 'pairs', 'state' => 'not_enough', 'available' => 2, 'required' => 3, 'reason' => 'ambiguous', 'estimate_seconds' => 120]);
+
+    psOpen($this, $learner, $course->slug, 'pairs', ['lesson_id' => $lesson->id])
+        ->assertStatus(422)->assertJsonPath('error.code', 'practice_not_enough_material')
+        ->assertJsonPath('error.details', ['mode' => 'pairs', 'available' => 2, 'required' => 3, 'reason' => 'ambiguous', 'course' => 'english-a1', 'lesson_id' => $lesson->id]);
+    expect(PracticeSession::query()->count())->toBe(0);
+
+    // The ru learner of the same words has the same trouble: «мама» twice.
+    $ru = Learner::factory()->create(['interface_locale' => 'ru']);
+    foreach (Word::query()->get() as $word) {
+        PracticeKit::introduce($ru, $word);
+    }
+    $this->withHeaders(PracticeKit::headers($ru))->getJson("/api/twa/practice/hub?course={$course->slug}&lesson_id={$lesson->id}")->assertOk()
+        ->assertJsonPath('modes.0.state', 'not_enough')->assertJsonPath('modes.0.reason', 'ambiguous');
+});
+
 it('keeps the board of a session of pairs the same however often it is read, until a match changes it', function (): void {
     [$learner, $course] = psPairsWorld(9);
     $session = psOpen($this, $learner, $course->slug, 'pairs')->assertCreated()->json();

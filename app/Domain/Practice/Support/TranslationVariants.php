@@ -23,6 +23,11 @@ use Normalizer;
  * the text of a locale is what the learner of that locale sees after the fallback to ru (WordTranslationResolver). So «Mother» and
  * «Mum», both «мама», never stand in one round - they stand in different ones - and two words that have no uz text and fall back
  * to the same ru text clash in uz as well.
+ *
+ * The variants of the BASE translation (`words.translation`, the last stop of the fallback) are keys of the word as well, whatever
+ * the locales show: a uz learner who reads Russian sees «мама» on the card of «mum» (no uz text) and may well take it for the
+ * translation of «mother» (uz «ona», base «мама») too. So the base is a tag of its own (`base|…`) and a word whose base says what
+ * the other word says never shares a round with it. An empty base adds no key and does not make the word unfit.
  */
 final class TranslationVariants
 {
@@ -59,14 +64,15 @@ final class TranslationVariants
     }
 
     /**
-     * The keys by which a word clashes with another in a round: its English key and the keys of its variants in EACH locale
-     * (every key carries its locale, so the same string in two languages is not a clash). Null: the word is unfit - no English
-     * text, or no variant of the translation in some locale.
+     * The keys by which a word clashes with another in a round: its English key, the keys of its variants in EACH locale (every
+     * key carries its locale, so the same string in two languages is not a clash) and the keys of the variants of its base
+     * translation (tagged `base`). Null: the word is unfit - no English text, or no variant of the translation in some locale.
      *
      * @param  array<string, string>  $translations  locale => the text of the translation shown in that locale (after the fallback)
+     * @param  string  $base  `words.translation`: what the word falls back to; empty - no `base` key
      * @return list<string>|null
      */
-    public static function clashKeys(string $english, array $translations): ?array
+    public static function clashKeys(string $english, array $translations, string $base = ''): ?array
     {
         $key = PracticeTextNormalizer::key($english);
         if ($key === '' || $translations === []) {
@@ -82,6 +88,9 @@ final class TranslationVariants
             foreach ($variants as $variant) {
                 $keys[] = "{$locale}|{$variant}";
             }
+        }
+        foreach (self::keys($base) as $variant) {
+            $keys[] = "base|{$variant}";
         }
 
         return $keys;

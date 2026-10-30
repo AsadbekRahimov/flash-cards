@@ -33,7 +33,8 @@ use App\Models\Learner;
  *
  * ROUNDS: solo - up to 3 rounds of 3-4 words by the formula of §4.3; a battle - exactly 5 rounds of 4 (`$size` rounds), no less,
  * or the format is refused. The words that clash (the same English text, or a shared variant of the translation in ANY locale of the
- * set, after the fallback) never stand in one round - {@see PairsPacker} - and a round that ends with fewer than 3 words is dropped.
+ * set, after the fallback, or of the base translation `words.translation` - the text a locale without a translation of its own falls
+ * back to) never stand in one round - {@see PairsPacker} - and a round that ends with fewer than 3 words is dropped.
  * The hub has no seed, so it lays the rounds out under a seed of its own: the same material gives the same answer there.
  *
  * Why the material may fall short: `no_words` - fewer fit words than the minimum (3; a battle 20); `ambiguous` - the words are
@@ -204,7 +205,7 @@ final class PairsMode implements PracticeModeHandler
                     $translations[$locale] = $word->translationFor($locale);
                 }
 
-                $keys = TranslationVariants::clashKeys($word->word, $translations);
+                $keys = TranslationVariants::clashKeys($word->word, $translations, $word->translation);
                 if ($keys === null) {
                     continue;
                 }
