@@ -2,11 +2,18 @@
 
 declare(strict_types=1);
 
+use App\Domain\Practice\Enums\BattleStatus;
 use App\Domain\Practice\Enums\PracticeMode;
+use App\Domain\Practice\Exceptions\BattleException;
+use App\Domain\Practice\Services\Battle\BattleJanitor;
+use App\Domain\Practice\Services\Battle\BattleReader;
+use App\Domain\Practice\Services\Battle\BattleService;
 use App\Models\Achievement;
 use App\Models\AssignmentResult;
+use App\Models\Battle;
 use App\Models\Challenge;
 use App\Models\Course;
+use App\Models\Friendship;
 use App\Models\LeagueMember;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
@@ -24,6 +31,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
+use Tests\Support\Practice\BattleKit;
 use Tests\Support\Practice\FakeEchoMode;
 use Tests\Support\Practice\PracticeKit;
 use Tests\Support\QueryLog;
@@ -59,6 +67,20 @@ const ISOLATION_SOLO_EVENT_PROPS = [
     'practice.session_finished' => ['session_id', 'mode', 'total', 'answered', 'correct_first', 'hints', 'mismatches', 'reason', 'duration_ms'],
     'practice.not_enough_material' => ['mode', 'course_id', 'lesson_id', 'available', 'required', 'reason', 'battle'],
     'practice.audio_failed' => ['session_id', 'source', 'reason', 'verified'],
+];
+
+/** What the battle writes (docs/16 §2.7, §3.4), and no more. */
+const ISOLATION_BATTLE_WRITTEN = ['battle_answers', 'battle_participants', 'battles', 'product_events'];
+
+/** The props of the events of the battle, exactly as §3.4 lists them (the audio event names the battle, not a session). */
+const ISOLATION_BATTLE_EVENT_PROPS = [
+    'battle.invited' => ['battle_id', 'mode', 'course_id', 'lesson_id', 'rematch'],
+    'battle.accepted' => ['battle_id'],
+    'battle.started' => ['battle_id', 'mode'],
+    'battle.finished' => ['battle_id', 'end_reason', 'result', 'rounds_played', 'duration_ms'],
+    'battle.closed' => ['battle_id', 'end_reason'],
+    'practice.audio_failed' => ['battle_id', 'source', 'reason', 'verified'],
+    'practice.not_enough_material' => ['mode', 'course_id', 'lesson_id', 'available', 'required', 'reason', 'battle'],
 ];
 
 beforeEach(function (): void {
@@ -310,6 +332,139 @@ it('writes only the events of docs/16 §3.4, with the props the document lists a
         ->and(PracticeSession::query()->where('status', 'active')->count())->toBe(0);
 });
 
+/**
+ * Everything two friends do with the battle, through the services (the routes come with 18.6b): a full match of every mode -
+ * right, wrong, skipped and timed-out answers, the reviews of the rounds in both languages -, an invitation declined, one
+ * withdrawn, one that expires, a room left, a surrender, an absent opponent, a dictation with a clip reported and one voided
+ * at "ready", a rematch, an invitation refused for lack of material, a match voided by the switch, the lists and the options.
+ */
+function isolationBattleEverything(Learner $me, Learner $friend, Course $course, Lesson $lesson, Friendship $friendship, Course $empty): void
+{
+    $service = app(BattleService::class);
+    $reader = app(BattleReader::class);
+    $janitor = app(BattleJanitor::class);
+    $now = static fn (): CarbonImmutable => CarbonImmutable::now();
+
+    foreach (PracticeMode::cases() as $i => $mode) {
+        CarbonImmutable::setTestNow(CarbonImmutable::parse(BattleKit::T0)->addMinutes($i * 10));
+        $reader->options($me, $friendship->id, $course->slug, $lesson->id);
+        $battle = BattleKit::playing($me, $friend, $friendship, $mode, $course, $lesson);
+        $reader->view($reader->find($friend, $battle->id), $friend, $now());
+
+        for ($round = 1; $round <= 5; $round++) {
+            $element = BattleKit::element($battle, $round);
+            $reader->round($reader->find($me, $battle->id), $me, $round, $now());
+            if ($round === 3) {
+                // I answer, the friend lets the time run out while both keep polling (a client polls every 2 s): the sweeper
+                // resolves the round with a time-out for the friend.
+                BattleKit::answer($battle, $me, 3, BattleKit::correct($element));
+                $deadline = BattleKit::fresh($battle)->round_deadline_at ?? throw new RuntimeException('no deadline');
+                for ($at = CarbonImmutable::now()->addSeconds(15); $at->lt($deadline); $at = $at->addSeconds(15)) {
+                    BattleKit::bothPoll($battle, $me, $friend, $at->toDateTimeString());
+                }
+                BattleKit::bothPoll($battle, $me, $friend, $deadline->subSecond()->toDateTimeString());
+                CarbonImmutable::setTestNow($deadline->addSeconds(2));
+                $janitor->sweep();
+            } else {
+                $mine = $round === 2 ? ($mode === PracticeMode::Pairs ? BattleKit::wrong($element) : ['skip' => true]) : BattleKit::correct($element);
+                BattleKit::answer($battle, $me, $round, $mine);
+                BattleKit::answer($battle, $friend, $round, $round % 2 === 0 ? BattleKit::correct($element) : BattleKit::wrong($element));
+            }
+            $reader->round($reader->find($friend, $battle->id), $friend, $round, $now());
+            CarbonImmutable::setTestNow(CarbonImmutable::now()->addSeconds(4));
+            $reader->poll($reader->find($me, $battle->id), $me, $now()); // the next round, or the end
+        }
+        expect(BattleKit::fresh($battle)->status)->toBe(BattleStatus::Finished);
+        $reader->view($reader->find($friend, $battle->id), $friend, $now());
+    }
+
+    // Every other way a battle can end.
+    $declined = BattleKit::invite($me, $friendship, PracticeMode::Pairs, $course);
+    $service->decline($friend, $declined->id);
+    $withdrawn = BattleKit::invite($me, $friendship, PracticeMode::Pairs, $course);
+    $service->cancel($me, $withdrawn->id);
+    BattleKit::invite($friend, $friendship, PracticeMode::Collocation, $course);
+    CarbonImmutable::setTestNow(CarbonImmutable::now()->addSeconds(301));
+    $janitor->sweep();
+    $left = BattleKit::room($me, $friend, $friendship, PracticeMode::Sentence, $course);
+    $service->cancel($friend, $left->id);
+    $surrendered = BattleKit::countdown($me, $friend, $friendship, PracticeMode::Collocation, $course);
+    $service->surrender($me, $surrendered->id);
+    $absent = BattleKit::playing($me, $friend, $friendship, PracticeMode::Collocation, $course);
+    CarbonImmutable::setTestNow(CarbonImmutable::now()->addSeconds(31));
+    $reader->poll($reader->find($me, $absent->id), $me, $now());
+
+    // A dictation: a clip reported while it plays (the match goes on), then one voided at "ready" (a clip is gone).
+    $dictation = BattleKit::playing($me, $friend, $friendship, PracticeMode::Dictation, $course);
+    $service->audioFailed($me, $dictation->id, (string) Str::uuid(), BattleKit::element($dictation, 1)['id']);
+    $service->surrender($friend, $dictation->id);
+    $voided = BattleKit::room($me, $friend, $friendship, PracticeMode::Dictation, $course);
+    Storage::disk('practice_audio')->delete(BattleKit::element($voided, 4)['audio_path']);
+    $service->ready($me, $voided->id);
+
+    // A rematch of the surrendered match, accepted and then left; an invitation refused for lack of material.
+    $rematch = $service->invite($friend, null, PracticeMode::Pairs, 'ignored', null, $surrendered->id);
+    $service->accept($me, $rematch->id);
+    $service->cancel($me, $rematch->id);
+    try {
+        $service->invite($me, $friendship->id, PracticeMode::Pairs, $empty->slug, null, null);
+    } catch (BattleException $e) {
+        expect($e->errorCode)->toBe('battle_material_unavailable');
+    }
+
+    // The switch: a match that is on is voided by the sweeper.
+    $live = BattleKit::playing($me, $friend, $friendship, PracticeMode::Pairs, $course);
+    config(['practice.access' => 'off']);
+    $janitor->sweep();
+    config(['practice.access' => 'all']);
+    expect(BattleKit::fresh($live)->meta['voided_reason'] ?? null)->toBe('practice_off');
+
+    $reader->list($me, $now());
+    $reader->list($friend, $now());
+    expect(Battle::query()->whereIn('status', BattleStatus::nonTerminalValues())->count())->toBe(0);
+}
+
+it('leaves the learning of both players exactly as it was after battles of every mode and every way a battle can end', function (): void {
+    [$me, $course, $lesson] = isolationWorld();
+    $friend = Learner::factory()->create(['interface_locale' => 'uz', 'streak_current' => 2, 'streak_best' => 3, 'streak_last_date' => '2026-10-29', 'daily_goal' => 20]);
+    PracticeKit::words($lesson, 2, $friend, state: 'review');
+    LearnerDailyStats::factory()->create(['learner_id' => $friend->id, 'reviews_count' => 5, 'new_words_count' => 1, 'correct_count' => 4, 'time_spent_ms' => 60_000]);
+    $friendship = Friendship::factory()->between($me, $friend)->create();
+    BattleKit::items($lesson, BattleKit::words($lesson, 24), 6);
+    [$empty] = PracticeKit::course('empty-course');
+    $before = isolationChecksums();
+
+    $queries = QueryLog::during(fn () => isolationBattleEverything($me, $friend, $course, $lesson, $friendship, $empty));
+
+    // The rows are the same, and nothing was written anywhere but the tables of the battle and the events.
+    expect(isolationChecksums())->toBe($before)
+        ->and(isolationWrittenTables($queries))->toBe(ISOLATION_BATTLE_WRITTEN)
+        ->and(Battle::query()->count())->toBeGreaterThan(12);
+
+    // Only the events of docs/16 §3.4, with the props the document lists; the actor of a battle event is its challenger.
+    $names = ProductEvent::query()->distinct()->pluck('name')->all();
+    sort($names);
+    expect(array_diff($names, ISOLATION_EVENT_NAMES))->toBe([])
+        ->and($names)->toBe(['battle.accepted', 'battle.closed', 'battle.finished', 'battle.invited', 'battle.started', 'practice.audio_failed', 'practice.not_enough_material']);
+    foreach (ProductEvent::query()->get() as $event) {
+        $keys = array_keys($event->props ?? []);
+        $expected = ISOLATION_BATTLE_EVENT_PROPS[$event->name];
+        sort($keys);
+        sort($expected);
+        expect($keys)->toBe($expected, "props of {$event->name}");
+        if (str_starts_with($event->name, 'battle.')) {
+            expect($event->learner_id)->toBe(Battle::query()->findOrFail((int) ($event->props['battle_id'] ?? 0))->challenger_id, "actor of {$event->name}");
+        }
+    }
+
+    // One invitation and exactly one end per battle; a `finished` battle has its `battle.finished`, a `closed` one its `battle.closed`.
+    $battles = Battle::query()->count();
+    expect(ProductEvent::query()->where('name', 'battle.invited')->count())->toBe($battles)
+        ->and(ProductEvent::query()->where('name', 'battle.finished')->count())->toBe(Battle::query()->where('status', 'finished')->count())
+        ->and(ProductEvent::query()->where('name', 'battle.closed')->count())->toBe(Battle::query()->where('status', 'closed')->count())
+        ->and(ProductEvent::query()->where('name', 'battle.started')->count())->toBe(Battle::query()->whereNotNull('starts_at')->count());
+});
+
 it('notices a change in any of the protected tables: the check is not blind', function (): void {
     [$learner] = isolationWorld();
     $before = isolationChecksums();
@@ -364,6 +519,9 @@ it('imports none of the services and models that write the learning of a learner
         ...glob(app_path('Http/Requests/Twa/Practice*.php')) ?: [],
         ...glob(app_path('Http/Resources/Twa/Practice*.php')) ?: [],
         app_path('Console/Commands/ClosePracticeSessions.php'),
+        app_path('Console/Commands/SweepBattles.php'),
+        app_path('Jobs/SendBattleDmJob.php'),
+        app_path('Domain/Telegram/Services/BattleMessenger.php'),
     ];
     expect(count($files))->toBeGreaterThan(40);
 
