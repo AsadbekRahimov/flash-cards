@@ -122,6 +122,14 @@ final class PracticeAccess
         return (bool) config('practice.battle.enabled', false);
     }
 
+    /** `PRACTICE_ACCESS` is `off` for everybody (anything but `all` / `pilot`): the sweeper voids the matches that are on (docs/16 §3.2). */
+    public function isOff(): bool
+    {
+        $access = strtolower(trim((string) config('practice.access', 'off')));
+
+        return $access !== 'all' && $access !== 'pilot';
+    }
+
     /** @param Closure(): Entitlement $entitlement read lazily: only the flag `plan = pro` needs it */
     private function resolve(Learner $learner, Closure $entitlement): PracticeAccessState
     {

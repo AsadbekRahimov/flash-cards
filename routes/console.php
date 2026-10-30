@@ -50,6 +50,13 @@ Schedule::command('practice:close-expired')
     ->everyFifteenMinutes()
     ->withoutOverlapping();
 
+// Battles (docs/16 §8.6): expired invitations are closed, the matches that are on move by the clock (absence, deadlines,
+// the end) - one row lock per match, the same `BattleClock::advance` the polls run, so a repeated or parallel run changes nothing.
+Schedule::command('practice:battles-sweep')
+    ->everyMinute()
+    ->withoutOverlapping()
+    ->runInBackground();
+
 // Friend challenges (docs/13 §7.5): active ones past `ends_at` are scored from learner_daily_stats and finished,
 // unanswered pending ones expire. Idempotent: the claim is a conditional UPDATE, so a repeated run raises nothing twice.
 Schedule::command('challenges:close-due')

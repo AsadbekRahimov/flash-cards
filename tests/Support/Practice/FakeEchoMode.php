@@ -145,7 +145,7 @@ final class FakeEchoMode implements PracticeModeHandler, ReplaceableElements
         }
 
         if (($answer['skip'] ?? false) === true) {
-            return new GradeResult(Verdict::Skipped, $this->reveal($element, null), ['skip' => true]);
+            return new GradeResult(Verdict::Skipped, $this->review($element, null), ['skip' => true]);
         }
         if (! isset($answer['text']) || ! is_string($answer['text'])) {
             throw PracticeException::invalidAnswerShape(PracticeException::EXPECTED_TEXT_OR_SKIP);
@@ -159,7 +159,17 @@ final class FakeEchoMode implements PracticeModeHandler, ReplaceableElements
             default => Verdict::Wrong,
         };
 
-        return new GradeResult($verdict, $this->reveal($element, $text), ['text' => $text]);
+        return new GradeResult($verdict, $this->review($element, $text), ['text' => $text]);
+    }
+
+    /** The review of a battle round: the secret as the right answer (pairs: the table), a fixed translation, no explanation. */
+    public function reveal(SnapshotElement $element, string $locale, ElementState $state): array
+    {
+        if ($element->isPairsRound()) {
+            return ['pairs' => (array) $element->get('pairs'), 'translation' => null, 'explanation' => null];
+        }
+
+        return ['expected' => (string) $element->get('expected'), 'translation' => 'tr', 'explanation' => null];
     }
 
     public function mistakeLabel(SnapshotElement $element, ElementState $state, string $locale): array
@@ -334,7 +344,7 @@ final class FakeEchoMode implements PracticeModeHandler, ReplaceableElements
     }
 
     /** @return array<string, mixed> */
-    private function reveal(SnapshotElement $element, ?string $yourText): array
+    private function review(SnapshotElement $element, ?string $yourText): array
     {
         return ['expected' => (string) $element->get('expected'), 'your_text' => $yourText, 'translation' => 'tr', 'explanation' => null];
     }
