@@ -26,7 +26,8 @@ import type { CourseLesson, CourseStage } from '@/api/types'
  * One course (docs/14 §6.5): the heading with the progress, the main action ("Continue: module M, lesson N" in the
  * main course, "Make main" in any other), "Practice" under it (the hub of the course, docs/16 §11.1; shown while
  * `/me.practice.available`, with a Pro chip and the paywall while it is behind Pro), the IELTS / SAT mock for Pro, and
- * the modules with their lessons and statuses. "Back" is the system button (-> the catalog).
+ * the modules with their lessons and statuses; a lesson row has "Learn" and a quiet icon button "Practice of the lesson"
+ * that closes the line of its progress (the hub of that lesson, same rules). "Back" is the system button (-> the catalog).
  */
 
 /** Courses with an IELTS / SAT mock (docs/13 §8.4); the server refuses the others anyway. */
@@ -104,16 +105,27 @@ async function learn(lessonId: number): Promise<void> {
 /** "Repeat words" in the paywall sheet: the sheet closes and the daily review starts (the refusal of the mock is Free's). */
 const { reviewFromPaywall } = useReviewFromPaywall(() => exam.dismissMockPaywall())
 
-/** Practice (docs/16 §11.1): the entry shows while `/me.practice.available`; behind Pro it opens the paywall instead. */
+/**
+ * Practice (docs/16 §11.1): the entries show while `/me.practice.available` - the button of the course and the small one in
+ * every row of a lesson; behind Pro they open the paywall instead.
+ */
 const practice = computed(() => billing.practiceAccess)
 const practicePaywall = ref(false)
 const { reviewFromPaywall: reviewFromPracticePaywall } = useReviewFromPaywall(() => {
   practicePaywall.value = false
 })
 
-function openPractice(): void {
+function enterPractice(lessonId: number | null): void {
   if (practice.value.pro_required) practicePaywall.value = true
-  else void router.push({ name: 'practice-hub', params: { slug: props.slug } })
+  else void router.push({ name: 'practice-hub', params: { slug: props.slug }, query: lessonId === null ? {} : { lesson: String(lessonId) } })
+}
+
+const openPractice = (): void => enterPractice(null)
+const openLessonPractice = (lessonId: number): void => enterPractice(lessonId)
+
+/** The name of the small button of a lesson for a screen reader: "Practice: Module 2 · Lesson 4". */
+function practiceLessonLabel(stage: CourseStage, lesson: CourseLesson): string {
+  return t('course.practice_lesson', { place: t('training.lesson_header', { stage: stage.number, lesson: lesson.number }) })
 }
 
 /** Pro: opens (or resumes) the mock and goes to the exam screen; Free: the paywall sheet. */
@@ -276,8 +288,27 @@ onBeforeUnmount(() => {
             </span>
             <div class="min-w-0 flex-1">
               <p class="text-base leading-[22px] break-words">{{ lessonTitle(lesson) }}</p>
-              <p class="text-[13px] leading-[18px] text-tg-hint" data-testid="lesson-progress">
-                {{ tn('course.lesson_words', lesson.progress.total, { done: lesson.progress.done, total: lesson.progress.total }) }}
+              <p class="text-[13px] leading-[18px] text-tg-hint">
+                <span data-testid="lesson-progress">
+                  {{ tn('course.lesson_words', lesson.progress.total, { done: lesson.progress.done, total: lesson.progress.total }) }}
+                </span>
+                <!--
+                  The practice of the lesson: a quiet icon that closes the line of the progress ("learned N of M" - practise it). It is not a
+                  second button beside "Learn": at 320 px that took 40 px from the title (the column fell from 138 to 98 px, in Uzbek to 72)
+                  and broke words. The button is 36 px (-my cancels the height, the line stays 18 px); its touch area is the 44 x 44 px
+                  layer of `.btn-sm`.
+                -->
+                <button
+                  v-if="practice.available"
+                  type="button"
+                  class="btn btn-plain btn-sm -top-0.5 -my-2.5 ml-1 size-9 px-0 align-middle"
+                  :disabled="opening || lesson.progress.total === 0"
+                  :aria-label="practiceLessonLabel(stage, lesson)"
+                  data-testid="practice-lesson-btn"
+                  @click="openLessonPractice(lesson.id)"
+                >
+                  <AppIcon name="puzzle-piece" :size="20" />
+                </button>
               </p>
             </div>
             <button
