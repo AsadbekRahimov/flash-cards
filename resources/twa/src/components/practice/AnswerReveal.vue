@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, reactive } from 'vue'
 import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import type { IconName } from '@/components/ui/icons'
+import { filledWith, phraseSize, shownOptions, splitPhrase } from '@/composables/collocationPhrase'
 import { usePracticeAudio } from '@/composables/usePracticeAudio'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
@@ -69,25 +70,25 @@ const yourText = computed((): string | null => {
 /** The phrase as it should be written, marked token by token where the answer differed (a typo is a miss of one word). */
 const diff = computed(() => (verdict.value === 'correct' ? null : (dictation.value?.diff ?? null)))
 
-type OptionState = 'idle' | 'correct' | 'incorrect' | 'reveal'
-
-interface ShownOption {
-  id: string
-  text: string
-  state: OptionState
-}
-
-const options = computed((): ShownOption[] => {
+/** The options of a collocation as the answer left them: the pick `correct` / `incorrect` (by the verdict), the right ones marked. */
+const options = computed(() => {
   const element = props.outcome.element
   const done = collocation.value
   if (element.kind !== 'collocation' || done === null) return []
   const picked = 'option_id' in props.outcome.answer ? props.outcome.answer.option_id : null
 
-  return element.options.map((option): ShownOption => {
-    const right = done.correct_option_ids.includes(option.id)
-    if (option.id === picked) return { ...option, state: right ? 'correct' : 'incorrect' }
-    return { ...option, state: right ? 'reveal' : 'idle' }
-  })
+  return shownOptions(element.options, picked, verdict.value, done.correct_option_ids)
+})
+
+/** The whole phrase cut around the right option, so that the word the learner needed can be marked in it. */
+const phrase = computed((): { before: string; filled: string; after: string } | null => {
+  const element = props.outcome.element
+  const done = collocation.value
+  if (element.kind !== 'collocation' || done === null) return null
+  const parts = splitPhrase(element.text)
+  const filled = parts === null ? null : filledWith(done.full_text, parts)
+
+  return parts !== null && filled !== null ? { before: parts.before, filled, after: parts.after } : null
 })
 
 const round = computed(() => {
@@ -157,7 +158,18 @@ function onContinue(): void {
           <p class="text-[13px] leading-[18px] font-medium tracking-wide text-tg-section-header uppercase">{{ t('exercise.verdict.expected') }}</p>
           <p class="mt-1 text-2xl leading-8 font-bold break-words" data-testid="expected">{{ dictation?.expected ?? sentence?.correct_text }}</p>
         </div>
-        <p v-if="collocation" class="mt-1 w-full text-2xl leading-8 font-bold break-words" data-testid="expected">{{ collocation.full_text }}</p>
+        <!-- The whole collocation: the phrase with the right option in the blank, the word the learner needed marked. -->
+        <div v-if="collocation" class="mt-1 w-full">
+          <p class="text-[13px] leading-[18px] font-medium tracking-wide text-tg-section-header uppercase">{{ t('exercise.verdict.expected') }}</p>
+          <p class="mt-1 font-bold break-words" :class="phraseSize(collocation.full_text)" lang="en" data-testid="expected">
+            <template v-if="phrase">
+              <span>{{ phrase.before }}</span>
+              <span class="rounded-md bg-success-soft px-1 text-success-ink" data-testid="expected-fill">{{ phrase.filled }}</span>
+              <span>{{ phrase.after }}</span>
+            </template>
+            <template v-else>{{ collocation.full_text }}</template>
+          </p>
+        </div>
 
         <!-- Dictation: the recording of the task again (the clip is fetched into a slot of this review). -->
         <button
@@ -205,17 +217,24 @@ function onContinue(): void {
         </div>
 
         <div v-if="sentence && sentence.alternatives.length > 0" class="w-full" data-testid="alternatives">
-          <p class="text-[13px] leading-[18px] font-medium tracking-wide text-tg-section-header uppercase">{{ t('practice.reveal.also_correct') }}</p>
-          <p v-for="alternative in sentence.alternatives" :key="alternative" class="mt-1 text-base leading-[22px] break-words">{{ alternative }}</p>
+          <p class="text-[13px] leading-[18px] font-medium tracking-wide text-tg-section-header uppercase">{{ t('practice.sentence.also_correct') }}</p>
+          <p v-for="alternative in sentence.alternatives" :key="alternative" class="mt-1 text-base leading-[22px] break-words" data-testid="alternative">{{ alternative }}</p>
         </div>
       </article>
 
-      <!-- The three options of a collocation, each with a symbol and a word besides the colour. -->
+      <!-- The three options of a collocation: the pick and the right one, each with a symbol and a caption besides the colour. -->
       <div v-if="options.length > 0" class="flex flex-col gap-2.5" role="group" data-testid="reveal-options">
         <div v-for="option in options" :key="option.id" class="option" :data-state="option.state" :data-testid="`reveal-option-${option.id}`">
-          <span class="min-w-0 flex-1 break-words">{{ option.text }}</span>
-          <span v-if="option.state === 'correct' || option.state === 'reveal'" class="sr-only">{{ t('practice.reveal.right_option') }}</span>
-          <span v-else-if="option.state === 'incorrect'" class="sr-only">{{ t('practice.reveal.your_option') }}</span>
+          <span class="min-w-0 flex-1 break-words">
+            <span class="block" lang="en">{{ option.text }}</span>
+            <span
+              v-if="option.caption"
+              class="mt-0.5 block text-[13px] leading-[18px] font-normal first-letter:uppercase"
+              :data-testid="`reveal-caption-${option.id}`"
+            >
+              {{ t(option.caption === 'your' ? 'practice.reveal.your_option' : 'practice.reveal.right_option') }}
+            </span>
+          </span>
           <AppIcon v-if="option.state === 'correct' || option.state === 'reveal'" name="check" :size="22" />
           <AppIcon v-else-if="option.state === 'incorrect'" name="x-mark" :size="22" />
         </div>

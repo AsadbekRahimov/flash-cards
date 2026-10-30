@@ -16,6 +16,7 @@ use App\Domain\Learning\Services\SchedulerResolver;
 use App\Domain\Learning\Services\SchedulerSwitchService;
 use App\Filament\Resources\LearnerResource\Pages;
 use App\Filament\Resources\LearnerResource\RelationManagers;
+use App\Filament\Resources\LearnerResource\Support\PracticePilotAction;
 use App\Filament\Resources\Support\AdminDates;
 use App\Filament\Resources\Support\AdminLabels;
 use App\Models\Learner;
@@ -104,6 +105,12 @@ class LearnerResource extends Resource
                 ->label(__('admin.learners.fields.scheduler'))
                 ->state(fn (Learner $record): string => self::schedulerLabel($record))
                 ->visible($isAdmin),
+            // In the pilot of the practice since... (docs/16 §2.1): the button above the card moves the learner in and out.
+            TextEntry::make('practice_pilot_at')
+                ->label(__('admin.learners.fields.practice_pilot_at'))
+                ->dateTime()
+                ->placeholder('—')
+                ->visible($isAdmin),
             TextEntry::make('repetitions_count')->label(__('admin.learners.fields.repetitions_count'))->visible($isAdmin),
             TextEntry::make('training_reviews_count')->label(__('admin.learners.fields.training_reviews_count')),
             TextEntry::make('exam_answers_count')->label(__('admin.learners.fields.exam_answers_count')),
@@ -163,6 +170,14 @@ class LearnerResource extends Resource
                     ->trueColor('danger')
                     ->falseColor('gray')
                     ->visible($isAdmin),
+                Tables\Columns\IconColumn::make('practice_pilot')
+                    ->label(__('admin.learners.fields.practice_pilot'))
+                    ->state(fn (Learner $record): bool => $record->practice_pilot_at !== null)
+                    ->boolean()
+                    ->trueColor('success')
+                    ->falseColor('gray')
+                    ->toggleable()
+                    ->visible($isAdmin),
                 // Invited learners (docs/13 §7.1): all non-rejected referrals; the flagged ones are in the Referrals tab.
                 Tables\Columns\TextColumn::make('referrals_count')
                     ->label(__('admin.learners.fields.referrals_count'))
@@ -209,6 +224,18 @@ class LearnerResource extends Resource
                     ->queries(
                         true: fn (Builder $query): Builder => app(PanelDataScope::class)->isAdmin() ? $query->where('onboarding_state', OnboardingService::DONE) : $query,
                         false: fn (Builder $query): Builder => app(PanelDataScope::class)->isAdmin() ? $query->where('onboarding_state', '<>', OnboardingService::DONE) : $query,
+                        blank: fn (Builder $query): Builder => $query,
+                    )
+                    ->visible($isAdmin),
+                // The pilot of the practice: admin only, the query re-checks the role like the filters above.
+                Tables\Filters\TernaryFilter::make('practice_pilot')
+                    ->label(__('admin.learners.filters.practice_pilot'))
+                    ->placeholder(__('admin.common.all'))
+                    ->trueLabel(__('admin.learners.filters.practice_pilot_in'))
+                    ->falseLabel(__('admin.learners.filters.practice_pilot_out'))
+                    ->queries(
+                        true: fn (Builder $query): Builder => app(PanelDataScope::class)->isAdmin() ? $query->whereNotNull('learners.practice_pilot_at') : $query,
+                        false: fn (Builder $query): Builder => app(PanelDataScope::class)->isAdmin() ? $query->whereNull('learners.practice_pilot_at') : $query,
                         blank: fn (Builder $query): Builder => $query,
                     )
                     ->visible($isAdmin),
@@ -259,6 +286,8 @@ class LearnerResource extends Resource
 
                         app(SchedulerSwitchService::class)->switchTo($record, $to, $actor, request()->ip());
                     }),
+                // The pilot of the practice (docs/16 §2.1): admin only, audited (`learner.practice_pilot_changed`).
+                PracticePilotAction::make(),
                 Actions\ViewAction::make(),
             ])
             ->defaultSort('first_name');

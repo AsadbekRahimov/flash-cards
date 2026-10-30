@@ -17,6 +17,8 @@ use App\Domain\Practice\Exceptions\PracticeException;
 use App\Http\Resources\ApiErrorResource;
 use App\Models\Battle;
 use App\Models\Learner;
+use App\Models\PracticeItem;
+use App\Models\PracticeItemVersion;
 use App\Models\PracticeSession;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -349,6 +351,50 @@ it('shows no key of the snapshot in any response, at any depth, and none of its 
     }
 });
 
+it('keeps the contract of the collocation element on the real handler: its exact shape, no secret of the snapshot before the answer, the review only with the answer', function (): void {
+    [$learner, $course, $lesson] = contractWorld();
+    foreach (PracticeKit::words($lesson, 5, $learner) as $word) {
+        PracticeItem::factory()->collocation()->published()->forLesson($lesson)->targeting($word)->create();
+    }
+    $current = ['id', 'kind', 'text', 'options' => ['*' => ['id', 'text']]];
+    $headers = PracticeKit::headers($learner);
+    $seen = [];
+
+    $session = contractOpen($learner, $course->slug, 'collocation', ['lesson_id' => $lesson->id])->assertCreated()
+        ->assertExactJsonStructure(contractSession($current, lesson: true))->json();
+    $seen[] = $session;
+    $seen[] = $this->withHeaders($headers)->getJson("/api/twa/practice/sessions/{$session['id']}")->assertOk()->assertExactJsonStructure(contractSession($current, lesson: true))->json();
+    $seen[] = $this->withHeaders($headers)->getJson("/api/twa/practice/hub?course={$course->slug}&lesson_id={$lesson->id}")->assertOk()->json();
+
+    // Before the answer neither a key nor a word of what the snapshot knows is out: the whole phrase, the translation, the explanation.
+    $stored = PracticeSession::query()->findOrFail($session['id'])->snapshot['elements'];
+    expect($stored)->toHaveCount(5);
+    foreach ($seen as $body) {
+        $json = json_encode($body, JSON_THROW_ON_ERROR);
+        foreach ($stored as $element) {
+            expect($json)->not->toContain($element['full_text'])->not->toContain($element['translation']['ru']);
+        }
+        expect($json)->not->toContain($stored[0]['explanation']['ru']);
+    }
+
+    // The review comes with the answer - the review of the element answered, and nothing of the next one.
+    $reveal = ['correct_option_ids', 'full_text', 'translation', 'explanation'];
+    $first = collect($stored)->firstWhere('id', $session['current']['id']);
+    $answer = contractAnswer($learner, $session, ['option_id' => $first['options'][0]['id']])->assertOk()
+        ->assertExactJsonStructure(['verdict', 'first_attempt', 'reveal' => $reveal, 'pair', 'session' => contractSession($current, lesson: true)]);
+    $next = collect($stored)->firstWhere('id', $answer->json('session.current.id'));
+
+    expect($answer->json('reveal.full_text'))->toBe($first['full_text'])
+        ->and($answer->json('reveal.correct_option_ids'))->toBe($first['correct_ids'])
+        ->and($answer->json('reveal.translation'))->toBe($first['translation']['ru'])
+        ->and(json_encode($answer->json('session'), JSON_THROW_ON_ERROR))->not->toContain($next['full_text'])->not->toContain($next['translation']['ru'])->not->toContain($first['full_text']);
+    $seen[] = $answer->json('session');
+
+    foreach ($seen as $body) {
+        expect(array_values(array_intersect(contractKeys($body), CONTRACT_FORBIDDEN_PRACTICE_KEYS)))->toBe([]);
+    }
+});
+
 it('cleans the keys of the snapshot out of the current element even when a handler lets them through', function (): void {
     $fake = PracticeKit::fake(PracticeMode::Collocation);
     $fake->leak = true;
@@ -360,6 +406,77 @@ it('cleans the keys of the snapshot out of the current element even when a handl
     expect(array_keys($session['current']))->toBe(['id', 'kind', 'prompt', 'nested'])
         ->and($session['current']['nested'])->toBe([])
         ->and(array_values(array_intersect(contractKeys($session), CONTRACT_FORBIDDEN_PRACTICE_KEYS)))->toBe([]);
+});
+
+/** A learner who has been introduced to three words and five published sentences: for the REAL handler of the sentence mode (18.4). @return array{0: Learner, 1: Course, 2: Lesson} */
+function contractSentenceWorld(): array
+{
+    [$course, $lesson] = PracticeKit::course();
+    $learner = Learner::factory()->create();
+    $words = PracticeKit::words($lesson, 3, $learner);
+    foreach (range(1, 5) as $_) {
+        PracticeItem::factory()->sentence()->published()->forLesson($lesson)->targeting($words)->create();
+    }
+
+    return [$learner, $course, $lesson];
+}
+
+it('shows the sentence mode on the wire: the prompt and the fragments before the answer, the review after it, no key of the snapshot anywhere', function (): void {
+    [$learner, $course, $lesson] = contractSentenceWorld();
+    $headers = PracticeKit::headers($learner);
+    $element = ['id', 'kind', 'prompt', 'fragments' => ['*' => ['id', 'text']]];
+    $reveal = ['correct_text', 'alternatives', 'your_text', 'explanation'];
+
+    $session = contractOpen($learner, $course->slug, 'sentence', ['lesson_id' => $lesson->id])->assertCreated()
+        ->assertExactJsonStructure(contractSession($element, lesson: true))->json();
+    $seen = [
+        $session,
+        $this->withHeaders($headers)->getJson("/api/twa/practice/sessions/{$session['id']}")->assertOk()->assertExactJsonStructure(contractSession($element, lesson: true))->json(),
+        $this->withHeaders($headers)->getJson("/api/twa/practice/hub?course={$course->slug}&lesson_id={$lesson->id}")->assertOk()->json(),
+    ];
+
+    // Before the answer: not one of the right sentences or of the explanations of the tasks, and nothing of the review.
+    $contents = PracticeItemVersion::query()->get()->map(fn (PracticeItemVersion $v): array => $v->content);
+    $json = json_encode($seen, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
+    foreach ($contents as $content) {
+        expect($json)->not->toContain($content['display'])->not->toContain($content['explanation']['ru']);
+    }
+    expect(array_values(array_intersect(contractKeys($seen), ['correct_text', 'alternatives', 'your_text'])))->toBe([]);
+
+    // The fragments are shown in an order that is not a right sentence, so the line as shown is a wrong answer: the review comes back whole.
+    $answer = contractAnswer($learner, $session, ['order' => array_column($session['current']['fragments'], 'id')])->assertOk()
+        ->assertExactJsonStructure(['verdict', 'first_attempt', 'reveal' => $reveal, 'pair', 'session' => contractSession($element, lesson: true)]);
+    expect($answer->json('verdict'))->toBe('wrong')
+        ->and($answer->json('pair'))->toBeNull()
+        ->and($answer->json('reveal.correct_text'))->toBeString()->not->toBe('')
+        ->and($answer->json('reveal.alternatives'))->toBeArray()
+        ->and($answer->json('reveal.your_text'))->toBeString()
+        // the review shows the sentence that was answered, none of the sentences that are still to come
+        ->and(array_values(array_intersect(contractKeys($answer->json()), CONTRACT_FORBIDDEN_PRACTICE_KEYS)))->toBe([]);
+    $next = json_encode($answer->json('session'), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
+    expect($next)->not->toContain($answer->json('reveal.correct_text'));
+
+    // "I don't know": the same review without a line of the learner; four more and the session is over, with the summary of its mistakes.
+    $session = $answer->json('session');
+    $skipped = contractAnswer($learner, $session, ['skip' => true])->assertOk()
+        ->assertExactJsonStructure(['verdict', 'first_attempt', 'reveal' => $reveal, 'pair', 'session' => contractSession($element, lesson: true)])
+        ->assertJsonPath('verdict', 'skipped')
+        ->assertJsonPath('reveal.your_text', null);
+    $session = $skipped->json('session');
+    foreach ([3, 4] as $_) {
+        $session = contractAnswer($learner, $session, ['skip' => true])->assertOk()->json('session');
+    }
+    $last = contractAnswer($learner, $session, ['skip' => true])->assertOk()
+        ->assertExactJsonStructure(['verdict', 'first_attempt', 'reveal' => $reveal, 'pair', 'session' => contractSession(null, lesson: true, summary: true)]);
+
+    $mistakes = $last->json('session.summary.mistakes');
+    expect($mistakes)->toHaveCount(5)
+        ->and(array_column($mistakes, 'kind'))->toBe(array_fill(0, 5, 'sentence'))
+        ->and($mistakes[0]['verdict'])->toBe('wrong')
+        ->and($mistakes[0]['your_answer'])->toBeString()
+        ->and($mistakes[1]['verdict'])->toBe('skipped')
+        ->and($mistakes[1]['your_answer'])->toBeNull()
+        ->and(array_values(array_intersect(contractKeys($last->json()), CONTRACT_FORBIDDEN_PRACTICE_KEYS)))->toBe([]);
 });
 
 it('wraps every error of the practice in the envelope, with `details` exactly where docs/16 §7.6 has them', function (): void {

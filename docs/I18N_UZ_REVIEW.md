@@ -2186,6 +2186,45 @@
 | `error.code.round_not_open` | Bu raund hali boshlanmagan. | Этот раунд ещё не начался. |
 | `error.code.round_closed` | Raund vaqti tugadi: javob qabul qilinmadi. | Время раунда вышло: ответ не принят. |
 
+## Практика и баттл 2026-10 · 18-3 — на проверку носителю
+
+> Режим «Подбери сочетание» (`resources/twa/src/i18n/uz.ts`, блок `practice: collocation`, задача 18.3): фраза на английском с пропуском и три варианта; нажатие на
+> вариант сразу и есть ответ — кнопки «Проверить» нет. Подписи «Ваш ответ» / «Верный ответ» на вариантах и вердикты берутся из блоков «session» и «reveal» задачи 18.1-T
+> (там же их uz-строки), здесь только новые.
+>
+> Что решить носителю:
+> - **Пропуск** в фразе (`___`) — `bo'sh joy` (для чтения экраном: «пропуск»).
+> - **Окончательность ответа**: в соло — «проверяется сразу», в баттле — «Javob yakuniy» (изменить нельзя).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `practice.collocation.instruction` | Bo'sh joyga mos so'zni tanlang | Выберите подходящее слово |
+| `practice.collocation.blank` | bo'sh joy | пропуск |
+| `practice.collocation.footnote.solo` | Javob bosilganda darhol tekshiriladi. | Ответ проверяется сразу после нажатия. |
+| `practice.collocation.footnote.battle` | Javob yakuniy: o'zgartirib bo'lmaydi. | Ответ окончательный: изменить нельзя. |
+
+## Практика и баттл 2026-10 · 18-4 — на проверку носителю
+
+> Режим «Собери предложение» (`resources/twa/src/i18n/uz.ts`, блок `practice: sentence`, задача 18.4): строка ответа, банк слов, подписи кнопок для экранного
+> чтения («Добавить: tea» / «Убрать: tea» — после двоеточия идёт само английское слово), «Начать заново», пометка «Можно и так» в разборе.
+> Название режима («Gap tuzing») и общие кнопки («Tekshirish», «Bilmayman») — из раздела 18-1t и «упражнений», здесь не повторяются.
+>
+> Что решить носителю:
+> - **«Можно и так»** (другой допустимый порядок слов в разборе) — `Bunday ham bo'ladi`; можно короче: `Yana to'g'ri`.
+> - **«Начать заново»** — `Qaytadan boshlash`.
+> - **Подписи кнопок со словом** читает экранный диктор: `Qo'shish: {word}` (слово из банка идёт в строку), `Olib tashlash: {word}` (слово из строки возвращается в банк).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `practice.sentence.line` | Sizning gapingiz | Ваше предложение |
+| `practice.sentence.empty` | Quyidagi so'zlarni tartib bilan bosing | Нажимайте на слова ниже по порядку |
+| `practice.sentence.progress` | {total} tadan {done} tasi yig'ildi | Собрано {done} из {total} |
+| `practice.sentence.bank` | Gap uchun so'zlar | Слова для предложения |
+| `practice.sentence.add` | Qo'shish: {word} | Добавить: {word} |
+| `practice.sentence.remove` | Olib tashlash: {word} | Убрать: {word} |
+| `practice.sentence.reset` | Qaytadan boshlash | Начать заново |
+| `practice.sentence.also_correct` | Bunday ham bo'ladi | Можно и так |
+
 ## Практика и баттл 2026-10 · 18-5 — на проверку носителю
 
 > Режим «Слушай и пиши» в приложении (`resources/twa/src/i18n/uz.ts`, задача 18.5): экран диктанта (кнопка «Прослушать», плашки по числу слов, поле ввода) и разбор ответа
