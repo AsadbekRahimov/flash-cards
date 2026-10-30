@@ -159,6 +159,12 @@ describe('BattleRoom — the invitation that came', () => {
     expect(w.emitted('open-busy')).toHaveLength(1)
     expect(render(received()).find('[data-testid=room-busy]').exists()).toBe(false)
   })
+
+  it('puts that refusal above the rules: the button that caused it is at the bottom, the reason must be in sight', () => {
+    const w = render(received(), { busyBattleId: 9 })
+
+    expect(w.get('[data-testid=room-busy]').element.compareDocumentPosition(w.get('[data-testid=room-rules]').element) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
 })
 
 describe('BattleRoom — the room', () => {
@@ -261,6 +267,14 @@ describe('BattleRoom — a dictation loads its recordings before “Ready”', (
     expect(w.get('[data-testid=ready-btn]').attributes('disabled')).toBeDefined()
     await w.get('[data-testid=audio-retry]').trigger('click')
     expect(w.emitted('retry-audio')).toHaveLength(1)
+  })
+
+  it('what stops “Ready” is above the rules: on a phone the rules fill the screen, the reason must not be under them', () => {
+    const w = render(dictation(), { audio: { state: 'failed', loaded: 4, total: 5 } })
+
+    const rules = w.get('[data-testid=room-rules]').element
+    expect(w.get('[data-testid=room-audio]').element.compareDocumentPosition(rules) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(w.get('[data-testid=room-brief]').element.compareDocumentPosition(w.get('[data-testid=room-audio]').element) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 
   it('the other formats have no sound to wait for', () => {

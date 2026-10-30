@@ -143,15 +143,10 @@ const canReady = computed(() => !props.ready.me && !waitingForAudio.value && pro
         <p v-if="battle.lesson" class="-mt-1 pl-[26px] text-[13px] leading-[18px] text-tg-hint break-words">{{ battle.course.title }}</p>
       </section>
 
-      <section data-testid="room-rules">
-        <h2 class="section-label mt-0">{{ t('battle.rules.title') }}</h2>
-        <ul class="card flex flex-col gap-2.5" role="list">
-          <li v-for="rule in rules" :key="rule" class="flex items-start gap-2.5 text-[15px] leading-5" data-testid="rule-row">
-            <AppIcon name="check-circle" :size="18" class="mt-px text-success" />
-            <span class="min-w-0 flex-1 break-words">{{ rule }}</span>
-          </li>
-        </ul>
-      </section>
+      <div v-if="busyBattleId != null" class="space-y-2" data-testid="room-busy">
+        <InlineAlert tone="warning" :message="t('error.code.battle_busy')" />
+        <button type="button" class="btn btn-tinted btn-sm" data-testid="open-busy" @click="emit('open-busy')">{{ t('battle.open_current') }}</button>
+      </div>
 
       <!-- A dictation: the five recordings are loaded before "Ready" (docs/16 §10.3). -->
       <section v-if="phase === 'room' && audio" data-testid="room-audio" :data-state="audio.state">
@@ -170,10 +165,15 @@ const canReady = computed(() => !props.ready.me && !waitingForAudio.value && pro
         </button>
       </section>
 
-      <div v-if="busyBattleId != null" class="space-y-2" data-testid="room-busy">
-        <InlineAlert tone="warning" :message="t('error.code.battle_busy')" />
-        <button type="button" class="btn btn-tinted btn-sm" data-testid="open-busy" @click="emit('open-busy')">{{ t('battle.open_current') }}</button>
-      </div>
+      <section data-testid="room-rules">
+        <h2 class="section-label mt-0">{{ t('battle.rules.title') }}</h2>
+        <ul class="card flex flex-col gap-2.5" role="list">
+          <li v-for="rule in rules" :key="rule" class="flex items-start gap-2.5 text-[15px] leading-5" data-testid="rule-row">
+            <AppIcon name="check-circle" :size="18" class="mt-px text-success" />
+            <span class="min-w-0 flex-1 break-words">{{ rule }}</span>
+          </li>
+        </ul>
+      </section>
     </div>
 
     <StickyActions>
