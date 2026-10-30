@@ -48,8 +48,10 @@ use Ramsey\Uuid\Uuid;
  * (`battle.finished` / `battle.closed`) goes after the commit, from the one transaction that made the change.
  *
  * Presence (§8.4): a player is absent when `last_seen_at` (or, before any poll, `accepted_at`) is older than
- * `presence_grace_seconds`. {@see touch()} is the heartbeat: a conditional UPDATE at most once per `heartbeat_write_seconds`,
- * run outside the transaction by the poll (and inside it, before `advance`, by an action - the player who acts is here).
+ * `presence_grace_seconds`; the screens are warned earlier, when it is older than `presence_warn_seconds` ({@see isSilent()}),
+ * but the match ends only by the grace. {@see touch()} is the heartbeat: a conditional UPDATE at most once per
+ * `heartbeat_write_seconds`, run outside the transaction by the poll (and inside it, before `advance`, by an action - the
+ * player who acts is here).
  */
 final class BattleClock
 {
@@ -222,10 +224,21 @@ final class BattleClock
         return $seen !== null && $seen->lt($now->subSeconds($this->settings->presenceGraceSeconds()));
     }
 
-    /** The last presence of an absent player (what the screens count the grace from); null while the player is present. */
-    public function absentSince(Battle $battle, BattleParticipant $participant, CarbonImmutable $now): ?CarbonImmutable
+    /**
+     * The player has gone quiet: the last presence is older than `presence_warn_seconds` (docs/16 §8.4). A warning for the screens
+     * ("the opponent lost the connection, N s left") that comes well before {@see isAbsent()}; only the latter ends a match.
+     */
+    public function isSilent(Battle $battle, BattleParticipant $participant, CarbonImmutable $now): bool
     {
-        return $this->isAbsent($battle, $participant, $now) ? $this->lastSeen($battle, $participant) : null;
+        $seen = $this->lastSeen($battle, $participant);
+
+        return $seen !== null && $seen->lt($now->subSeconds($this->settings->presenceWarnSeconds()));
+    }
+
+    /** The last presence of a quiet player (what the screens count the grace from); null while the player is here. */
+    public function silentSince(Battle $battle, BattleParticipant $participant, CarbonImmutable $now): ?CarbonImmutable
+    {
+        return $this->isSilent($battle, $participant, $now) ? $this->lastSeen($battle, $participant) : null;
     }
 
     /** How many rounds the match has resolved so far (a match that is over: `meta.rounds_played`). */

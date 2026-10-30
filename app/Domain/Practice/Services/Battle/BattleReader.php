@@ -109,6 +109,7 @@ final class BattleReader
             countdownSeconds: $this->settings->countdownSeconds(),
             revealSeconds: $this->settings->revealSeconds(),
             presenceGraceSeconds: $this->settings->presenceGraceSeconds(),
+            presenceWarnSeconds: $this->settings->presenceWarnSeconds(),
             deadlineGraceMs: $this->settings->deadlineGraceMs(),
             inviteExpiresAt: $battle->invite_expires_at,
             roomExpiresAt: $battle->room_expires_at,
@@ -117,7 +118,7 @@ final class BattleReader
             serverNow: $now,
             ready: ['me' => $me->ready_at !== null, 'opponent' => $other->ready_at !== null],
             opponentPresent: $this->present($battle, $other, $now),
-            opponentAbsentSince: $battle->status->isLive() ? $this->clock->absentSince($battle, $other, $now) : null,
+            opponentAbsentSince: $battle->status->isLive() ? $this->clock->silentSince($battle, $other, $now) : null,
             round: $this->roundState($battle, $me, $other),
             scores: ['me' => $me->score, 'opponent' => $other->score],
             result: $terminal ? $this->result($battle, $me, $other) : null,
@@ -153,7 +154,7 @@ final class BattleReader
             serverNow: $now,
             ready: ['me' => $me->ready_at !== null, 'opponent' => $other->ready_at !== null],
             opponentPresent: $this->present($battle, $other, $now),
-            opponentAbsentSince: $battle->status->isLive() ? $this->clock->absentSince($battle, $other, $now) : null,
+            opponentAbsentSince: $battle->status->isLive() ? $this->clock->silentSince($battle, $other, $now) : null,
             round: $this->roundState($battle, $me, $other),
             scores: ['me' => $me->score, 'opponent' => $other->score],
             rematch: $battle->status->isTerminal() && $lookupRematch ? $this->rematch($battle, $viewer) : null,
@@ -359,7 +360,7 @@ final class BattleReader
 
     private function present(Battle $battle, BattleParticipant $other, CarbonImmutable $now): bool
     {
-        return ! $battle->status->isLive() || ! $this->clock->isAbsent($battle, $other, $now);
+        return ! $battle->status->isLive() || ! $this->clock->isSilent($battle, $other, $now);
     }
 
     /** The round the match is in: a countdown (no phase yet) or a game; null otherwise. */

@@ -40,6 +40,7 @@ use App\Models\Lesson;
 use Carbon\CarbonImmutable;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -88,6 +89,11 @@ final class BattleService
      * A rematch (`$rematchOf` - a battle of the learner that is over) needs no `$friendshipId`: the friend is the other player
      * of that battle, the mode, the course and the lesson are its own (what was sent for them is ignored); the snapshot is new.
      *
+     * An invitation that CROSSES one that is open (the friend has invited me already: both pressed "Rematch" within seconds, or I
+     * invite back instead of answering) is refused as `battle_busy` with the id of THAT invitation - I am its recipient, so the id
+     * is mine to know, and the screen leads me into it to accept. Only a check before the transaction: two invitations that cross
+     * in the very same instant both go through (each player is then busy with their own, the old rule holds).
+     *
      * @throws BattleException battle_disabled | battle_busy | battle_friend_no_access | not_friends | battle_material_unavailable |
      *                         battle_not_found (a rematch of a battle that is not the learner's) | battle_wrong_state (a rematch of a match still on)
      * @throws PracticeException practice_unavailable | practice_pro_required | practice_mode_disabled | course_not_found | lesson_not_found | lesson_not_in_course
@@ -116,6 +122,7 @@ final class BattleService
             ? $this->friends->byFriendship($by, $friendshipId ?? throw FriendshipException::notFound())
             : $this->friends->ofRematch($by, $source);
         $this->access->assertFriendCanPractice($friend);
+        $this->assertNotCrossing($by, $friend, $now);
 
         [$course, $lesson] = $source === null
             ? $this->scopeOf($courseSlug, $lessonId)
@@ -148,20 +155,30 @@ final class BattleService
             return DB::transaction(function () use ($by, $friend, $attributes, $challengerLocale, $opponentLocale, $source): Battle {
                 $battle = Battle::query()->create($attributes);
 
-                BattleParticipant::query()->create([
+                // Complete rows (the defaults of the columns written out): the caller shows the battle at once, from these two models.
+                $challengerRow = BattleParticipant::query()->create([
                     'battle_id' => $battle->id,
                     'learner_id' => $by->id,
                     'role' => BattleRole::Challenger,
                     'active_learner_id' => $by->id,
+                    'ready_at' => null,
+                    'last_seen_at' => null,
+                    'surrendered_at' => null,
+                    'score' => 0,
                     'locale' => $challengerLocale,
                 ]);
-                BattleParticipant::query()->create([
+                $opponentRow = BattleParticipant::query()->create([
                     'battle_id' => $battle->id,
                     'learner_id' => $friend->id,
                     'role' => BattleRole::Opponent,
                     'active_learner_id' => null,
+                    'ready_at' => null,
+                    'last_seen_at' => null,
+                    'surrendered_at' => null,
+                    'score' => 0,
                     'locale' => $opponentLocale,
                 ]);
+                $battle->setRelation('participants', new EloquentCollection([$challengerRow, $opponentRow]));
 
                 DB::afterCommit(function () use ($battle, $by, $source): void {
                     $this->events->record(ProductEventName::BattleInvited, [
@@ -765,6 +782,28 @@ final class BattleService
             'verified' => $verified,
         ];
         DB::afterCommit(fn () => $this->events->record(ProductEventName::PracticeAudioFailed, $props, learner: $by));
+    }
+
+    /**
+     * The friend's invitation to me that is open (not answered, not run out) makes mine a crossing one: neither of us could accept
+     * without withdrawing their own. `battle_busy` with the id of the invitation to me - a match I am a player of, like every id
+     * `battle_busy` carries.
+     *
+     * @throws BattleException battle_busy
+     */
+    private function assertNotCrossing(Learner $by, Learner $friend, CarbonImmutable $now): void
+    {
+        $open = Battle::query()
+            ->where('challenger_id', $friend->id)
+            ->where('opponent_id', $by->id)
+            ->where('status', BattleStatus::Invited->value)
+            ->where('invite_expires_at', '>', $now)
+            ->orderByDesc('id')
+            ->value('id');
+
+        if ($open !== null) {
+            throw BattleException::busy((int) $open);
+        }
     }
 
     /** The match the learner is busy with, if any (the `details.battle_id` of 409 `battle_busy`). */

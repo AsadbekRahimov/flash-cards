@@ -15,8 +15,11 @@ use Carbon\CarbonImmutable;
  *   result                 finished / closed only: `{outcome: won|lost|draw|none, end_reason, rounds: [{no, me: {verdict, points},
  *                          opponent: {...}}]}` - the rounds that were resolved (a round cut short by a surrender is not listed)
  *   rematch                the nearest battle with `rematch_of_id = id`: `{battle_id, status, by_me}` (`by_me`: the viewer offered it)
- *   opponentAbsentSince    the last presence of the opponent when he counts as absent (docs/16 §8.4), else null
- *   presenceGraceSeconds   how long an absence is forgiven; deadlineGraceMs - how late an answer may arrive (the client does not guess)
+ *   opponentPresent        false once the opponent has been silent longer than `presenceWarnSeconds` (a warning: the match goes on)
+ *   opponentAbsentSince    the last presence of the opponent while he is silent (docs/16 §8.4), else null
+ *   presenceGraceSeconds   how long an absence is forgiven - the match ends this long after `opponentAbsentSince` (the screen counts
+ *                          the seconds left from it); presenceWarnSeconds - the silence that turns `opponentPresent` false;
+ *                          deadlineGraceMs - how late an answer may arrive (the client does not guess)
  *   audioPreload           dictation, room / countdown only: the URLs of the clips of the five rounds (the same `audio_url`
  *                          the rounds give), so "Ready" can wait for all of them (docs/16 §10.3); null otherwise
  */
@@ -46,6 +49,7 @@ final readonly class BattleView
         public int $countdownSeconds,
         public int $revealSeconds,
         public int $presenceGraceSeconds,
+        public int $presenceWarnSeconds,
         public int $deadlineGraceMs,
         public CarbonImmutable $inviteExpiresAt,
         public ?CarbonImmutable $roomExpiresAt,
