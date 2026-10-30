@@ -853,6 +853,6 @@ it('keeps a session of the longest tasks the authoring allows well inside the li
     $battle = strlen(json_encode(smSnapshot($course, $lesson, null, LocaleSet::of('ru', 'uz'), 5, true)->toArray(), JSON_THROW_ON_ERROR));
 
     expect(strlen((string) $response->getContent()))->toBeLessThan(8 * 1024)
-        ->and($solo)->toBeLessThan(32 * 1024)
-        ->and($battle)->toBeLessThan(32 * 1024); // with both languages in every element
+        ->and($solo)->toBeLessThan(Snapshot::MAX_BYTES)
+        ->and($battle)->toBeLessThan(Snapshot::MAX_BYTES); // with both languages in every element
 });

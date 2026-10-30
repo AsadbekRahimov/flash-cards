@@ -917,7 +917,7 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 Общие правила: перечисления — `varchar` (допустимые значения держат enum'ы `App\Domain\Practice\Enums\*`, а на **PostgreSQL** ещё и CHECK; на SQLite
 CHECK не создаются — инвариант дублируют сервисы и тесты). «Один активный» — факт БД: nullable **unique-колонка** `active_learner_id`
 (как `challenges.open_pair`): у активной строки она равна владельцу, у завершённой — `NULL`, а `NULL` не конфликтуют; одинаково на PostgreSQL и SQLite.
-`snapshot` (`jsonb`) — **серверный** снимок выдачи (тексты, раскладка, ожидаемые ответы, непрозрачные id; ≤ 32 КБ): во время игры проверка читает только его
+`snapshot` (`jsonb`) — **серверный** снимок выдачи (тексты, раскладка, ожидаемые ответы, непрозрачные id; ≤ 40 КБ в UTF-8): во время игры проверка читает только его
 (`practice_items` и `words` не читаются), в ответы API он не попадает — клиент получает белый список через `PracticeModeHandler::project`.
 
 ### 2.40 `practice_items` — авторское задание *(18.1, 18.7a)*

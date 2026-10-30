@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Practice\DTO\Snapshot;
 use App\Domain\Practice\Enums\SessionStatus;
 use App\Models\Course;
 use App\Models\Learner;
@@ -466,5 +467,5 @@ it('opens a session in at most 12 statements and takes an answer and a swap in a
         ->and(count($answer))->toBeLessThanOrEqual(6, implode("\n", $answer))
         ->and(count($swap))->toBeLessThanOrEqual(6, implode("\n", $swap))
         ->and(strlen((string) json_encode($session)))->toBeLessThan(8 * 1024)
-        ->and(strlen((string) json_encode(dsSnapshot($session['id']))))->toBeLessThan(32 * 1024);
+        ->and(strlen((string) json_encode(dsSnapshot($session['id']))))->toBeLessThan(Snapshot::MAX_BYTES);
 });
