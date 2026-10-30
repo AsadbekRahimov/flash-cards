@@ -139,6 +139,17 @@ final class PairsMode implements PracticeModeHandler
         return $this->grader->grade($element, $answer, $state);
     }
 
+    /**
+     * The review of a round for a viewer of any locale: the right table (left id => right id; the viewer has the cards of the
+     * board in his language already). Pairs have no translation or explanation of their own.
+     *
+     * @return array{pairs: array<string, string>, translation: null, explanation: null}
+     */
+    public function reveal(SnapshotElement $element, string $locale, ElementState $state): array
+    {
+        return ['pairs' => PairsRound::of($element)->table, 'translation' => null, 'explanation' => null];
+    }
+
     public function mistakeLabel(SnapshotElement $element, ElementState $state, string $locale): array
     {
         $round = PairsRound::of($element);

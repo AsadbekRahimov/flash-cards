@@ -117,7 +117,7 @@ final class CollocationMode implements PracticeModeHandler
 
         return new GradeResult(
             verdict: $graded->verdict,
-            reveal: $this->reveal($element),
+            reveal: $this->review($element, null),
             normalizedAnswer: $graded->normalizedAnswer,
             final: $graded->final,
             points: $graded->points,
@@ -141,14 +141,24 @@ final class CollocationMode implements PracticeModeHandler
     }
 
     /**
-     * What the learner is shown after the answer, in his language: the right options, the whole phrase, the translation and
-     * the short explanation. Read from the element of the snapshot - the very one the answer was graded on. `$locale`: the
-     * viewer's (a battle keeps the texts of both players; two of them can look at the same element); without it the first
-     * text the element has - a solo session has just one.
+     * The review for a viewer of `$locale` (a battle keeps the texts of both players; two of them look at the same element):
+     * the right options, the whole phrase, the translation and the short explanation in that language.
      *
      * @return array{correct_option_ids: list<string>, full_text: string, translation: string|null, explanation: string|null}
      */
-    public function reveal(SnapshotElement $element, ?string $locale = null): array
+    public function reveal(SnapshotElement $element, string $locale, ElementState $state): array
+    {
+        return $this->review($element, $locale);
+    }
+
+    /**
+     * What the learner is shown after the answer: the right options, the whole phrase, the translation and the short
+     * explanation. Read from the element of the snapshot - the very one the answer was graded on. `$locale`: the viewer's;
+     * without it the first text the element has - a solo session has just one.
+     *
+     * @return array{correct_option_ids: list<string>, full_text: string, translation: string|null, explanation: string|null}
+     */
+    private function review(SnapshotElement $element, ?string $locale): array
     {
         return [
             'correct_option_ids' => $this->correctIds($element),

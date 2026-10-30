@@ -146,6 +146,24 @@ final class SentenceMode implements PracticeModeHandler
         );
     }
 
+    /**
+     * The review for a viewer of `$locale`: the right sentence and the other allowed ones (docs/16 §5.3), the prompt of the
+     * task as its translation, the explanation - all from the element the answers were graded on.
+     *
+     * @return array{correct_text: string, alternatives: list<string>, translation: string|null, explanation: string|null}
+     */
+    public function reveal(SnapshotElement $element, string $locale, ElementState $state): array
+    {
+        $shown = $this->strings($element->get('accepted_display'));
+
+        return [
+            'correct_text' => $shown[0] ?? '',
+            'alternatives' => array_slice($shown, 1),
+            'translation' => $this->localized($element->get('prompt'), $locale),
+            'explanation' => $this->localized($element->get('explanation'), $locale),
+        ];
+    }
+
     public function mistakeLabel(SnapshotElement $element, ElementState $state, string $locale): array
     {
         $shown = $this->strings($element->get('accepted_display'));

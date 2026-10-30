@@ -182,6 +182,21 @@ final class DictationMode implements PracticeModeHandler, ReplaceableElements
         );
     }
 
+    /**
+     * The review for a viewer of `$locale`: what was dictated (as it is written), its translation and explanation in that
+     * language - from the element the answers were graded on. The text leaves the server only here, once the round is resolved.
+     *
+     * @return array{expected: string, translation: string|null, explanation: string|null}
+     */
+    public function reveal(SnapshotElement $element, string $locale, ElementState $state): array
+    {
+        return [
+            'expected' => $this->variants($element)[0] ?? '',
+            'translation' => $this->textFor($element->get('translation'), $locale),
+            'explanation' => $this->textFor($element->get('explanation'), $locale),
+        ];
+    }
+
     public function mistakeLabel(SnapshotElement $element, ElementState $state, string $locale): array
     {
         $typed = $state->answer['text'] ?? null;
@@ -417,6 +432,14 @@ final class DictationMode implements PracticeModeHandler, ReplaceableElements
         }
 
         return $result;
+    }
+
+    /** The text of the locale from a snapshot map, else the first one the map has; null for nothing. */
+    private function textFor(mixed $texts, string $locale): ?string
+    {
+        $own = is_array($texts) ? ($texts[$locale] ?? null) : null;
+
+        return is_string($own) && $own !== '' ? $own : $this->firstText($texts);
     }
 
     /** The text of the first locale of a snapshot map (solo: the only one); null for nothing. */

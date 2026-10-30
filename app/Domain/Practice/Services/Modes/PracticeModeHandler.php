@@ -74,6 +74,18 @@ interface PracticeModeHandler
     public function grade(SnapshotElement $element, array $answer, ElementState $state): GradeResult;
 
     /**
+     * The review of an element for a viewer of `$locale`, independent of any answer (a battle shows ONE review to two
+     * players who answered differently and read different languages, docs/16 §7.4): the right answer in the form of the
+     * mode - `correct_text` (+ `alternatives`) / `correct_option_ids` (+ `full_text`) / `expected` / `pairs` - and the texts
+     * `translation` and `explanation` of that locale (null when the element has none). The keys other than those two are
+     * the `correct` block of the round's reveal. Read from the SAME element the answers were graded on, so the review can
+     * never contradict a verdict. `grade()` keeps building the review of a solo answer (the learner's own language).
+     *
+     * @return array<string, mixed>
+     */
+    public function reveal(SnapshotElement $element, string $locale, ElementState $state): array;
+
+    /**
      * The rows of the list of mistakes of the summary for an element the learner got wrong (docs/16 §6.4): zero or
      * more `{label, your_answer}` - one for an ordinary element, one per word of `wrong_left` for a round of pairs.
      *
