@@ -621,7 +621,6 @@ export const ru = {
   'practice.reveal.typo_note': 'Почти верно, но в слове опечатка. С первой попытки это не засчитывается.',
   'practice.reveal.skipped_note': 'Вот правильный ответ. Это считается подсказкой.',
   'practice.reveal.your_answer': 'Ваш ответ',
-  'practice.reveal.also_correct': 'Тоже верно',
   'practice.reveal.translation': 'Перевод',
   'practice.reveal.explanation': 'Пояснение',
   'practice.reveal.your_option': 'ваш ответ',

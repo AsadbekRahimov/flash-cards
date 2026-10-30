@@ -2119,7 +2119,6 @@
 | `practice.reveal.typo_note` | Deyarli to'g'ri, lekin so'zda imlo xatosi bor. Bu birinchi urinishda to'g'ri deb hisoblanmaydi. | Почти верно, но в слове опечатка. С первой попытки это не засчитывается. |
 | `practice.reveal.skipped_note` | Mana to'g'ri javob. Bu yordam sifatida hisoblanadi. | Вот правильный ответ. Это считается подсказкой. |
 | `practice.reveal.your_answer` | Sizning javobingiz | Ваш ответ |
-| `practice.reveal.also_correct` | Bu ham to'g'ri | Тоже верно |
 | `practice.reveal.translation` | Tarjima | Перевод |
 | `practice.reveal.explanation` | Izoh | Пояснение |
 | `practice.reveal.your_option` | sizning javobingiz | ваш ответ |

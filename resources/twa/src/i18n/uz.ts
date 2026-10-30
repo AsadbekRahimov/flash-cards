@@ -583,7 +583,6 @@ export const uz: Translations = {
   'practice.reveal.typo_note': "Deyarli to'g'ri, lekin so'zda imlo xatosi bor. Bu birinchi urinishda to'g'ri deb hisoblanmaydi.",
   'practice.reveal.skipped_note': "Mana to'g'ri javob. Bu yordam sifatida hisoblanadi.",
   'practice.reveal.your_answer': 'Sizning javobingiz',
-  'practice.reveal.also_correct': "Bu ham to'g'ri",
   'practice.reveal.translation': 'Tarjima',
   'practice.reveal.explanation': 'Izoh',
   'practice.reveal.your_option': 'sizning javobingiz',
