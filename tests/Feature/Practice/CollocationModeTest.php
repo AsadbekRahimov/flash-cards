@@ -379,7 +379,7 @@ it('writes the whole phrase with the first right option the author listed, and t
         ->and(collHandler()->grade($element, ['option_id' => $byText['make']], $state)->verdict->value)->toBe('correct')
         ->and(collHandler()->grade($element, ['option_id' => $byText['take']], $state)->verdict->value)->toBe('correct')
         ->and(collHandler()->grade($element, ['option_id' => $byText['do']], $state)->verdict->value)->toBe('wrong')
-        ->and(collHandler()->reveal($element)['correct_option_ids'])->toBe([$byText['make'], $byText['take']]);
+        ->and(collHandler()->reveal($element, 'ru', $state)['correct_option_ids'])->toBe([$byText['make'], $byText['take']]);
 });
 
 it('builds a battle the same way: exactly five rounds, the texts of both players, the same elements for both', function (): void {
@@ -396,7 +396,7 @@ it('builds a battle the same way: exactly five rounds, the texts of both players
             ->and($element->get('explanation'))->toBe(['ru' => "Пояснение {$n}", 'uz' => "Izoh {$n}"]);
 
         // Each player is told in his own language, from the same element.
-        $viewer = ['ru' => $mode->reveal($element, 'ru'), 'uz' => $mode->reveal($element, 'uz')];
+        $viewer = ['ru' => $mode->reveal($element, 'ru', ElementState::open()), 'uz' => $mode->reveal($element, 'uz', ElementState::open())];
         expect($viewer['ru'])->toBe(['correct_option_ids' => $element->get('correct_ids'), 'full_text' => "Phrase {$n}: they right{$n} it.", 'translation' => "Перевод {$n}", 'explanation' => "Пояснение {$n}"])
             ->and($viewer['uz'])->toBe([...$viewer['ru'], 'translation' => "Tarjima {$n}", 'explanation' => "Izoh {$n}"])
             ->and($mode->project($element, 'uz', ElementState::open()))->toBe($mode->project($element, 'ru', ElementState::open()));
@@ -425,8 +425,8 @@ it('gives a text in the other language its fallback: ru when the uz text is miss
 
     expect($element->get('translation'))->toBe(['uz' => 'Только по-русски'])
         ->and($element->get('explanation'))->toBe([])
-        ->and(collHandler()->reveal($element, 'uz')['translation'])->toBe('Только по-русски')
-        ->and(collHandler()->reveal($element, 'uz')['explanation'])->toBeNull();
+        ->and(collHandler()->reveal($element, 'uz', ElementState::open())['translation'])->toBe('Только по-русски')
+        ->and(collHandler()->reveal($element, 'uz', ElementState::open())['explanation'])->toBeNull();
 });
 
 // ------------------------------------------------------------------------------------------------------------ projection
