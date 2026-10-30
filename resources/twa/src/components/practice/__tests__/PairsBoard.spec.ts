@@ -787,6 +787,167 @@ describe('PairsBoard — a battle round: the whole table at once', () => {
   })
 })
 
+describe('PairsBoard — a battle round: the round is in the header of the screen, the last pair is put together by the board', () => {
+  const grown = (w: Mounted) => w.findAll('[data-testid=pair-number]').map((n) => n.text())
+  const joined = (w: Mounted) => w.get('[data-testid=pairs-count]').text()
+
+  it('does not say “Round N of 5” on the board - the screen says it above - while a solo round still does', () => {
+    const solo = board({ element: pairsElement({ round: 2, rounds: 5 }) })
+    expect(solo.get('[data-testid=pairs-round]').text()).toBe('Раунд 2 из 5')
+    solo.unmount()
+
+    const battle = board({ mode: 'battle', element: pairsElement({ round: 2, rounds: 5 }) })
+
+    expect(battle.find('[data-testid=pairs-round]').exists()).toBe(false)
+    expect(battle.text()).not.toContain('Раунд')
+    expect(joined(battle)).toBe('Соединено 0 из 4') // the counter stays
+  })
+
+  it('when three pairs of four are made, the fourth is put together at once, and the table can be sent', async () => {
+    const w = board({ mode: 'battle' })
+    await match(w, 'lM1', 'rU2')
+    await match(w, 'lF2', 'rW4')
+    expect(joined(w)).toBe('Соединено 2 из 4')
+    expect(w.get('[data-testid=pairs-check]').attributes('disabled')).toBeDefined()
+
+    await match(w, 'lS3', 'rT1') // the third pair: «brother» and «брат» are all that is left
+
+    expect(joined(w)).toBe('Соединено 4 из 4')
+    expect(grown(w)).toEqual(['1', '2', '3', '4', '3', '1', '4', '2']) // pair 4 is brother - брат, with its number
+    expect(card(w, 'lB4').attributes('data-pair')).toBe('4')
+    expect(card(w, 'rV3').attributes('data-pair')).toBe('4')
+    expect(w.get('[data-testid=pairs-check]').attributes('disabled')).toBeUndefined()
+    expect(w.get('[data-testid=pairs-status]').text()).toBe('Последняя пара подобрана сама. Проверьте всё и нажмите «Проверить».')
+
+    await w.get('[data-testid=pairs-check]').trigger('click')
+    expect(answers(w)).toEqual([[{ pairs: { lM1: 'rU2', lF2: 'rW4', lS3: 'rT1', lB4: 'rV3' } }]])
+  })
+
+  it('does it from either side, whatever order the pairs were made in', async () => {
+    const w = board({ mode: 'battle' })
+    await match(w, 'rV3', 'lB4')
+    await match(w, 'rT1', 'lS3')
+    await match(w, 'lM1', 'rU2')
+
+    expect(joined(w)).toBe('Соединено 4 из 4')
+    expect(card(w, 'lF2').attributes('data-pair')).toBe('4') // the next number: father - папа is the fourth pair of the table
+    expect(card(w, 'rW4').attributes('data-pair')).toBe('4')
+  })
+
+  it('does nothing while more than one pair is left to make', async () => {
+    const w = board({ mode: 'battle' })
+
+    await match(w, 'lM1', 'rU2')
+    await match(w, 'lF2', 'rW4')
+
+    expect(joined(w)).toBe('Соединено 2 из 4')
+    expect(w.get('[data-testid=pairs-status]').text()).toBe('Соедините слова с переводами и нажмите «Проверить». Пару можно поменять.')
+  })
+
+  it('does nothing for a card that is only picked: the last pair is made by the tap that makes a pair', async () => {
+    const w = board({ mode: 'battle' })
+    await match(w, 'lM1', 'rU2')
+    await match(w, 'lF2', 'rW4')
+
+    await card(w, 'lS3').trigger('click')
+
+    expect(joined(w)).toBe('Соединено 2 из 4')
+    expect(state(w, 'lS3')).toBe('selected')
+  })
+
+  it('the pair that was put together is a pair like any other: the learner may break it up, and nothing puts it back by itself', async () => {
+    const w = board({ mode: 'battle' })
+    await match(w, 'lM1', 'rU2')
+    await match(w, 'lF2', 'rW4')
+    await match(w, 'lS3', 'rT1') // brother - брат is made by the board
+
+    await card(w, 'lB4').trigger('click') // let go of it and pick the word up
+
+    expect(joined(w)).toBe('Соединено 3 из 4')
+    expect(state(w, 'lB4')).toBe('selected')
+    expect(state(w, 'rV3')).toBe('idle')
+    expect(w.get('[data-testid=pairs-check]').attributes('disabled')).toBeDefined()
+    expect(w.get('[data-testid=pairs-status]').text()).not.toContain('подобрана сама')
+
+    await card(w, 'rV3').trigger('click') // and the learner makes it themself
+    expect(joined(w)).toBe('Соединено 4 из 4')
+    expect(w.get('[data-testid=pairs-status]').text()).toBe('Все пары собраны. Нажмите «Проверить».') // made by hand: nothing to explain
+  })
+
+  it('a pair taken over leaves two cards that belong together: they are put together, again', async () => {
+    const w = board({ mode: 'battle' })
+    await match(w, 'lM1', 'rU2')
+    await match(w, 'lF2', 'rW4')
+    await match(w, 'lS3', 'rT1') // all four are made now
+
+    // «папа» goes from father to mother: father and «мама» are left, and they are all that is left
+    await card(w, 'lM1').trigger('click') // pick mother up (her pair breaks)
+    await card(w, 'rW4').trigger('click') // «папа» is taken over
+
+    expect(joined(w)).toBe('Соединено 4 из 4')
+    expect(card(w, 'lM1').attributes('data-pair')).toBe(card(w, 'rW4').attributes('data-pair'))
+    expect(card(w, 'lF2').attributes('data-pair')).toBe(card(w, 'rU2').attributes('data-pair'))
+    await w.get('[data-testid=pairs-check]').trigger('click')
+    expect((answers(w)[0]?.[0] as { pairs: Record<string, string> }).pairs).toEqual({ lM1: 'rW4', lF2: 'rU2', lS3: 'rT1', lB4: 'rV3' })
+  })
+
+  it('is for a battle only: a solo round sends every match at once and puts nothing together', async () => {
+    const w = board({ mode: 'solo' })
+
+    await match(w, 'lM1', 'rU2')
+
+    expect(answers(w)).toEqual([[{ left_id: 'lM1', right_id: 'rU2' }]])
+    expect(w.findAll('[data-testid=pair-number]')).toHaveLength(0)
+  })
+
+  it('and a solo round that is down to its last pair is not completed for the learner', async () => {
+    const w = board({ mode: 'solo', element: pairsElement({ matched: [['lM1', 'rU2'], ['lF2', 'rW4'], ['lS3', 'rT1']] }) })
+
+    expect(w.findAll('button[data-state="gone"]')).toHaveLength(6)
+    expect(answers(w)).toHaveLength(0)
+    expect(w.findAll('[data-testid=pair-number]')).toHaveLength(0)
+  })
+
+  it('is forgotten with the round: the next round starts with nothing made', async () => {
+    const w = board({ mode: 'battle' })
+    await match(w, 'lM1', 'rU2')
+    await match(w, 'lF2', 'rW4')
+    await match(w, 'lS3', 'rT1')
+
+    await w.setProps({ element: pairsElement({ id: 'ePair00002' }) })
+
+    expect(joined(w)).toBe('Соединено 0 из 4')
+    expect(w.get('[data-testid=pairs-status]').text()).toBe('Соедините слова с переводами и нажмите «Проверить». Пару можно поменять.')
+  })
+
+  it('gives the table back, the board-made pair with it, when the screen frees the board after a refused answer', async () => {
+    const w = board({ mode: 'battle' })
+    await match(w, 'lM1', 'rU2')
+    await match(w, 'lF2', 'rW4')
+    await match(w, 'lS3', 'rT1')
+    await w.get('[data-testid=pairs-check]').trigger('click')
+    await w.setProps({ disabled: true })
+
+    await w.setProps({ disabled: false })
+
+    expect(joined(w)).toBe('Соединено 4 из 4')
+    expect(w.get('[data-testid=pairs-check]').attributes('disabled')).toBeUndefined()
+    await w.get('[data-testid=pairs-check]').trigger('click')
+    expect(answers(w)).toHaveLength(2)
+    expect(answers(w)[1]).toEqual(answers(w)[0])
+  })
+
+  it('says it in Uzbek', async () => {
+    setLocale('uz')
+    const w = board({ mode: 'battle' })
+    await match(w, 'lM1', 'rU2')
+    await match(w, 'lF2', 'rW4')
+    await match(w, 'lS3', 'rT1')
+
+    expect(w.get('[data-testid=pairs-status]').text()).toBe("Oxirgi juft o'zi tanlandi. Hammasini tekshirib chiqing va «Tekshirish» tugmasini bosing.")
+  })
+})
+
 describe('PairsBoard — Uzbek', () => {
   it('speaks uz: the round, the columns, the hint, the verdict', async () => {
     setLocale('uz')

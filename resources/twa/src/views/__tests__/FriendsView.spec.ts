@@ -7,6 +7,7 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { useToast } from '@/composables/useToast'
 import { setLocale } from '@/i18n'
+import { useBillingStore } from '@/stores/billing'
 import { useFriendsStore } from '@/stores/friends'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 import { activeOf, battleList, closedBattle, incoming, roomBattle } from '@/api/__tests__/battleFixtures'
@@ -30,6 +31,19 @@ vi.mock('@/api', () => ({
 }))
 
 vi.mock('@/stores/auth', () => ({ useAuthStore: () => ({ ensure: state.ensure }) }))
+
+// The sheet has its own spec; here only that it opens, for which reason, and that it closes.
+vi.mock('@/components/PaywallSheet.vue', async () => {
+  const { defineComponent, h } = await import('vue')
+  return {
+    default: defineComponent({
+      props: { reason: { type: String, default: 'info' } },
+      emits: ['close', 'review'],
+      setup: (props, { emit }) => () =>
+        h('div', { 'data-testid': 'paywall', 'data-reason': props.reason }, [h('button', { 'data-testid': 'paywall-close', onClick: () => emit('close') })]),
+    }),
+  }
+})
 
 vi.mock('@/composables/useTelegram', () => ({
   useTelegram: () => ({
@@ -936,6 +950,77 @@ describe('FriendsView', () => {
 
       expect(api.me.get).toHaveBeenCalledTimes(1)
       expect(api.battles.list).toHaveBeenCalledTimes(1)
+    })
+
+    describe('when /me is on its way already for another screen (review Ж4)', () => {
+      // Another screen (the banner of Today, the course) asked for /me a moment ago and it has not come; then Friends opens.
+      it('the battles still load when /me comes: the invitations and the battle that is on appear, not only the buttons', async () => {
+        vi.mocked(api.me.get).mockReset()
+        let answerMe!: (me: MeResponse) => void
+        vi.mocked(api.me.get).mockReturnValue(new Promise<MeResponse>((resolve) => (answerMe = resolve)))
+        vi.mocked(api.battles.list).mockResolvedValue(battleList({ active: activeOf('room'), incoming: [incoming({ id: 15 })] }))
+        void useBillingStore().load()
+
+        const { wrapper } = await render()
+        expect(api.battles.list).not.toHaveBeenCalled() // the learner is not known to play battles yet
+        expect(wrapper.find('[data-testid=battle-btn]').exists()).toBe(false)
+
+        answerMe(meWith(BATTLES_ON))
+        await flushPromises()
+
+        expect(wrapper.findAll('[data-testid=battle-btn]')).toHaveLength(2)
+        expect(api.battles.list).toHaveBeenCalledTimes(1)
+        expect(wrapper.findAll('[data-testid=battle-invite-row]')).toHaveLength(1)
+        expect(wrapper.find('[data-testid=active-battle]').exists()).toBe(true)
+        expect(api.me.get).toHaveBeenCalledTimes(1) // this screen did not ask again
+      })
+
+      it('and does not ask for a learner who is not to play battles, when /me comes', async () => {
+        vi.mocked(api.me.get).mockReset()
+        let answerMe!: (me: MeResponse) => void
+        vi.mocked(api.me.get).mockReturnValue(new Promise<MeResponse>((resolve) => (answerMe = resolve)))
+        void useBillingStore().load()
+
+        const { wrapper } = await render()
+        answerMe(meWith({ ...BATTLES_ON, battle: false }))
+        await flushPromises()
+
+        expect(api.battles.list).not.toHaveBeenCalled()
+        expect(wrapper.find('[data-testid=battle-btn]').exists()).toBe(false)
+      })
+
+      it('a learner whose practice is known already (the screen was opened before) gets the list right away, once', async () => {
+        useBillingStore().apply({ entitlement: meWith(BATTLES_ON).entitlement, paywall: meWith(BATTLES_ON).paywall, practice: BATTLES_ON })
+        vi.mocked(api.battles.list).mockResolvedValue(battleList({ incoming: [incoming({ id: 15 })] }))
+
+        const { wrapper } = await render()
+
+        expect(api.battles.list).toHaveBeenCalledTimes(1)
+        expect(wrapper.findAll('[data-testid=battle-invite-row]')).toHaveLength(1)
+      })
+    })
+
+    describe('“Accept” of a learner without Pro (docs/16 §3.2)', () => {
+      it('opens the paywall of the practice, with no toast and no way into the battle', async () => {
+        vi.mocked(api.battles.accept).mockRejectedValue(new ApiClientError('forbidden', 403, 'practice_pro_required', 'x'))
+        const { wrapper, router } = await renderBattles(BATTLES_ON, battleList({ incoming: [incoming({ id: 15 })] }))
+
+        await wrapper.get('[data-testid=battle-accept-btn]').trigger('click')
+        await flushPromises()
+
+        expect(wrapper.get('[data-testid=paywall]').attributes('data-reason')).toBe('practice')
+        expect(useToast().toast.value).toBeNull()
+        expect(router.currentRoute.value.name).toBe('friends')
+
+        await wrapper.get('[data-testid=paywall-close]').trigger('click')
+        expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      })
+
+      it('no paywall until it is refused', async () => {
+        const { wrapper } = await renderBattles(BATTLES_ON, battleList({ incoming: [incoming({ id: 15 })] }))
+
+        expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      })
     })
   })
 

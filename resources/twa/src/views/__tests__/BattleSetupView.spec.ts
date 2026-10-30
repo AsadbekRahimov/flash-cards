@@ -11,7 +11,7 @@ import type { BattleOptionsResponse, Course, CourseDetail } from '@/api/types'
 
 vi.mock('@/api', () => ({
   api: {
-    battles: { options: vi.fn(), invite: vi.fn() },
+    battles: { options: vi.fn(), invite: vi.fn(), get: vi.fn() },
     courses: { list: vi.fn(), get: vi.fn() },
     decks: { list: vi.fn() },
     me: { get: vi.fn() },
@@ -460,15 +460,24 @@ describe('BattleSetupView — “Invite”', () => {
     expect(api.battles.invite).toHaveBeenCalledTimes(1)
   })
 
-  it('tells the friend will be invited in Telegram and in the app', async () => {
+  it('tells where the friend will see the invitation, and does not promise a message of the bot that a friend who forbade it never gets', async () => {
     const r = await render()
 
-    expect(text(r, 'invite-hint')).toBe('Друг получит приглашение в Telegram и в приложении.')
+    expect(text(r, 'invite-hint')).toBe('Друг увидит приглашение в разделе «Друзья» (и получит сообщение от бота, если разрешил).')
+    expect(text(r, 'invite-hint')).not.toContain('Telegram')
+  })
+
+  it('says it in Uzbek', async () => {
+    setLocale('uz')
+    const r = await render()
+
+    expect(text(r, 'invite-hint')).toBe("Do'stingiz taklifni «Do'stlar» bo'limida ko'radi (ruxsat bergan bo'lsa, botdan xabar ham oladi).")
   })
 
   it('a battle of the learner’s own is in the way: told, with a way to it', async () => {
     const r = await render()
     vi.mocked(api.battles.invite).mockRejectedValue(apiError('conflict', 409, 'battle_busy', { battle_id: 9 }))
+    vi.mocked(api.battles.get).mockResolvedValue(invitedBattle({ id: 9, role: 'challenger' }))
 
     await click(r, 'invite-btn')
 
@@ -479,6 +488,19 @@ describe('BattleSetupView — “Invite”', () => {
     await click(r, 'open-busy')
     expect(route(r).name).toBe('battle')
     expect(route(r).params.id).toBe('9')
+  })
+
+  it('the friend invited the learner at the same moment: the screen leads into THEIR invitation (to accept it), and no refusal is shown', async () => {
+    const r = await render()
+    vi.mocked(api.battles.invite).mockRejectedValue(apiError('conflict', 409, 'battle_busy', { battle_id: 16 }))
+    vi.mocked(api.battles.get).mockResolvedValue(invitedBattle({ id: 16, role: 'opponent' }))
+
+    await click(r, 'invite-btn')
+
+    expect(api.battles.get).toHaveBeenCalledWith(16)
+    expect(route(r).name).toBe('battle')
+    expect(route(r).params.id).toBe('16')
+    expect(r.wrapper.find('[data-testid=invite-error]').exists()).toBe(false)
   })
 
   it('the material is gone: told, and the formats on screen are the new ones', async () => {

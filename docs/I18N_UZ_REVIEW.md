@@ -2513,3 +2513,52 @@
 | `battle.dm.open` | Bellashuvni ochish | Открыть баттл |
 | `battle.dm.lesson` | :stage-modul · :number-dars | Модуль :stage · Урок :number |
 | `battle.dm.lesson_no_stage` | :number-dars | Урок :number |
+
+## Практика и баттл 2026-10 · 18-10t — на проверку носителю
+
+> Исправления экранов баттла 1 на 1 в приложении после ревью (`resources/twa/src/i18n/uz.ts`, задача 18.10t) и один код ошибки сервера, добавленный
+> в 18.9b. Кнопки взяты из уже проверенных строк: «Повторить» — `common.retry`, «Принять» — `battle.invite.accept`, «Открыть реванш» — `battle.result.open_rematch`.
+>
+> **Группа «Заменённые строки» — это строки, которые уже есть в более ранних разделах (`18-6t`, `18-1t`, «Редизайн»): у них изменился текст.
+> Прежний текст в тех разделах устарел, проверять нужно эти.**
+>
+> Что решить носителю:
+> - **Полоса «Соперник потерял связь»** (`battle.connection.absent*`) теперь из двух строк: «Raqibning aloqasi uzildi.» и под ней, с числом секунд,
+>   которые сервер ещё ждёт соперника (число идёт назад каждую секунду): «Agar u {seconds} soniya ichida qaytmasa, g'alaba sizga o'tadi.» В комнате и в отсчёте
+>   победы нет, матч отменяется: «…o'yin bekor qilinadi.» Проверить «soniya ichida» («за N секунд») и «sizga o'tadi» («достанется вам»).
+> - **«Сервер не отвечает»** (`battle.connection.offline_server`, `battle.round.send_failed_server`) — для случая, когда не отвечает сам сервер (ошибка 5xx, лимит запросов), в отличие
+>   от «Aloqa yo'q» (`battle.connection.offline`, `battle.round.send_failed`), когда пропала сеть. Раньше при любом сбое писали «нет связи».
+> - **«Матч прерван»** (`battle.result.title.aborted`): матч начался и оборвался (оба игрока пропали, сервер аннулировал матч после старта). Отличать от «Bellashuv bo'lib o'tmadi»
+>   («матч не состоялся»: приглашение отклонили, не приняли вовремя, комната закрылась до старта).
+> - **Причина для диктанта** (`battle.reason.voided_audio`): запись не загрузилась и на сервере её тоже нет, матч отменён. Для остальных форматов остаётся прежняя
+>   строка `battle.reason.voided` («техническая проблема»).
+> - **«Реванш уже идёт»** (`battle.result.rematch_on`, `battle.result.rematch_on_text`): реванш уже открыт (друг принял предложение или ученик принял его на другом устройстве);
+>   под текстом кнопка «Revanshni ochish».
+> - **Подсказка при приглашении** (`battle.setup.invite_hint`, `battle.invite.lead_sent`) больше не обещает сообщение в Telegram: друг видит приглашение в разделе «Do'stlar»
+>   (название раздела — `friends.title`), а сообщение от бота получит, только если разрешил боту писать ему.
+> - **Последняя пара** (`practice.pairs.auto_last`): в баттле, когда собраны все пары, кроме одной, последняя подбирается сама; строка под колонками говорит об этом, чтобы
+>   ученик проверил и нажал «Tekshirish» (`exercise.check`).
+> - **`error.code.not_friends`** теперь без слова «musobaqa» («вызов»): код общий для баттла и для соревнования с другом, текст подходит обоим.
+> - **`error.code.request_id_reused`** — сервер отвечает так, когда один и тот же идентификатор запроса использован для запроса другого вида (редко, после обновления экрана всё в порядке).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `battle.connection.offline_server` | Server javob bermayapti, qayta urinilmoqda… | Сервер не отвечает, пробуем ещё раз… |
+| `battle.round.send_failed_server` | Javob yuborilmadi: server javob bermayapti. Raund vaqti tugamasidan qayta yuboring. | Ответ не отправился: сервер не отвечает. Повторите, пока идёт время раунда. |
+| `battle.result.title.aborted` | Bellashuv to'xtatildi | Матч прерван |
+| `battle.reason.voided_audio` | Bellashuv bekor qilindi: yozuv mavjud emas. Ochkolar hisoblanmaydi. | Матч отменён: запись недоступна. Очки не засчитаны. |
+| `battle.result.rematch_on` | Revansh boshlandi | Реванш уже идёт |
+| `battle.result.rematch_on_text` | Revansh xonasi ochiq. Unga pastdagi tugma orqali qaytishingiz mumkin. | Комната реванша открыта. Вернуться в неё можно кнопкой ниже. |
+| `practice.pairs.auto_last` | Oxirgi juft o'zi tanlandi. Hammasini tekshirib chiqing va «Tekshirish» tugmasini bosing. | Последняя пара подобрана сама. Проверьте всё и нажмите «Проверить». |
+| `error.code.request_id_reused` | So'rov allaqachon ishlatilgan. Ekranni yangilang. | Запрос уже использован. Обновите экран. |
+
+Заменённые строки (прежний текст в разделах `18-6t`, `18-1t`, «Редизайн» устарел):
+
+| Ключ | uz | ru |
+|---|---|---|
+| `battle.connection.absent` | Raqibning aloqasi uzildi. | Соперник потерял связь. |
+| `battle.connection.absent_playing` | Agar u {seconds} soniya ichida qaytmasa, g'alaba sizga o'tadi. | Если не вернётся за {seconds} с, победа ваша. |
+| `battle.connection.absent_room` | Agar u {seconds} soniya ichida qaytmasa, o'yin bekor qilinadi. | Если не вернётся за {seconds} с, матч отменится. |
+| `battle.setup.invite_hint` | Do'stingiz taklifni «Do'stlar» bo'limida ko'radi (ruxsat bergan bo'lsa, botdan xabar ham oladi). | Друг увидит приглашение в разделе «Друзья» (и получит сообщение от бота, если разрешил). |
+| `battle.invite.lead_sent` | Do'stingiz taklifni «Do'stlar» bo'limida ko'radi (ruxsat bergan bo'lsa, botdan xabar ham oladi). U qabul qilishi bilan xona ochiladi. | Друг увидит приглашение в разделе «Друзья» (и получит сообщение от бота, если разрешил). Как только он примет его, откроется комната. |
+| `error.code.not_friends` | Buni faqat do'st bilan qilish mumkin. | Это можно сделать только с другом. |

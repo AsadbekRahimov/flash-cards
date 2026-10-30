@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { api } from '@/api'
+import { ApiClientError } from '@/api/client'
 import { useBattleAudio } from '../useBattleAudio'
 
 vi.mock('@/api', () => ({ api: { battles: { audioBlob: vi.fn() }, practice: { audioBlob: vi.fn() } } }))
@@ -175,5 +176,85 @@ describe('useBattleAudio — the recordings of a dictation, before “Ready”',
 
     expect(audio.total.value).toBe(0)
     expect(audio.loaded.value).toBe(0)
+  })
+})
+
+describe('useBattleAudio — a clip the server has no file for (503)', () => {
+  const unavailable = () => new ApiClientError('server', 503, 'practice_audio_unavailable', 'x')
+
+  it('lists the clips that were answered with 503: the server says it has no file for them', async () => {
+    vi.mocked(api.battles.audioBlob).mockImplementation((url) => (url === URLS[2] ? Promise.reject(unavailable()) : Promise.resolve(clip())))
+    const audio = useBattleAudio()
+
+    expect(audio.missing.value).toEqual([])
+    audio.preload(URLS)
+    await flushPromises()
+
+    expect(audio.missing.value).toEqual([URLS[2]])
+    expect(audio.state.value).toBe('failed')
+  })
+
+  it('does not list a clip that failed for any other reason: no connection, a 500, an empty file', async () => {
+    vi.mocked(api.battles.audioBlob).mockImplementation((url) => {
+      if (url === URLS[0]) return Promise.reject(new ApiClientError('network', 0, 'timeout', 'x'))
+      if (url === URLS[1]) return Promise.reject(new ApiClientError('server', 500, 'server_error', 'x'))
+      if (url === URLS[2]) return Promise.reject(new ApiClientError('rate_limited', 429, 'x', 'x'))
+      if (url === URLS[3]) return Promise.resolve(clip(0))
+      return Promise.resolve(clip())
+    })
+    const audio = useBattleAudio()
+
+    audio.preload(URLS)
+    await flushPromises()
+
+    expect(audio.state.value).toBe('failed')
+    expect(audio.missing.value).toEqual([])
+  })
+
+  it('a clip leaves the list when it comes; a 503 that comes again after “Retry” is news again', async () => {
+    let answer: () => Promise<Blob> = () => Promise.reject(unavailable())
+    vi.mocked(api.battles.audioBlob).mockImplementation((url) => (url === URLS[1] ? answer() : Promise.resolve(clip())))
+    const audio = useBattleAudio()
+    audio.preload(URLS)
+    await flushPromises()
+    expect(audio.missing.value).toEqual([URLS[1]])
+
+    // “Retry”: the old news is gone at once, and the 503 that comes again is put on the list anew
+    audio.retry()
+    expect(audio.missing.value).toEqual([])
+    await flushPromises()
+    expect(audio.missing.value).toEqual([URLS[1]])
+
+    answer = () => Promise.resolve(clip())
+    audio.retry()
+    await flushPromises()
+    expect(audio.missing.value).toEqual([])
+    expect(audio.state.value).toBe('ready')
+  })
+
+  it('lists a clip once, however many times it fails', async () => {
+    vi.mocked(api.battles.audioBlob).mockRejectedValue(unavailable())
+    const audio = useBattleAudio()
+    audio.preload(URLS)
+    await flushPromises()
+
+    expect(audio.missing.value).toEqual(URLS)
+    expect(new Set(audio.missing.value).size).toBe(5)
+  })
+
+  it('release forgets the news, and a 503 of a list that has been dropped is nobody’s', async () => {
+    const late = pending<Blob>()
+    vi.mocked(api.battles.audioBlob).mockImplementation((url) => (url === URLS[0] ? late.promise : Promise.reject(unavailable())))
+    const audio = useBattleAudio()
+    audio.preload(URLS)
+    await flushPromises()
+    expect(audio.missing.value).toHaveLength(4)
+
+    audio.release()
+    expect(audio.missing.value).toEqual([])
+    late.reject(unavailable())
+    await flushPromises()
+
+    expect(audio.missing.value).toEqual([])
   })
 })

@@ -7,6 +7,7 @@ import { nextTick } from 'vue'
 import DictationInput from '../DictationInput.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import { api } from '@/api'
+import { PRACTICE_CLIP_SOURCE } from '@/composables/usePracticeAudio'
 import { setLocale } from '@/i18n'
 import { usePracticeStore } from '@/stores/practice'
 import { dictationElement } from '@/api/__tests__/practiceFixtures'
@@ -247,6 +248,43 @@ describe('DictationInput — a recording that does not load', () => {
 
     await check(wrapper).trigger('click')
     expect(wrapper.emitted('answer')).toEqual([[{ text: 'see you tomorrow' }]])
+    wrapper.unmount()
+  })
+})
+
+describe('DictationInput — the source of the clip belongs to the screen (a battle has loaded it in the room)', () => {
+  it('takes the clip from the source the screen provides: its “Retry” plays what the room loaded, it does not fetch another copy', async () => {
+    const preloaded = new Blob(['room'], { type: 'audio/mpeg' })
+    const source = vi.fn(() => Promise.resolve(preloaded))
+    const wrapper = mount(DictationInput, {
+      props: { element: dictationElement(), mode: 'battle', disabled: false },
+      global: { provide: { [PRACTICE_CLIP_SOURCE as symbol]: source } },
+      attachTo: document.body,
+    })
+    await flushPromises()
+
+    expect(source).toHaveBeenCalledWith(dictationElement().audio_url, expect.any(AbortSignal))
+    expect(api.practice.audioBlob).not.toHaveBeenCalled()
+
+    // the clip stops playing, and the circle's own "Retry" asks the same source again
+    await circle(wrapper).trigger('click') // plays the first
+    await flushPromises()
+    FakeAudio.instances[0]!.emit('error')
+    await nextTick()
+    expect(circle(wrapper).attributes('aria-label')).toBe('Повторить загрузку')
+    await circle(wrapper).trigger('click')
+    await flushPromises()
+
+    expect(source).toHaveBeenCalledTimes(2)
+    expect(api.practice.audioBlob).not.toHaveBeenCalled() // never the endpoint of a solo session
+    expect(circle(wrapper).attributes('aria-label')).toBe('Прослушать')
+    wrapper.unmount()
+  })
+
+  it('a solo session provides nothing: the clip comes from the endpoint of the session', async () => {
+    const wrapper = await render()
+
+    expect(api.practice.audioBlob).toHaveBeenCalledTimes(1)
     wrapper.unmount()
   })
 })

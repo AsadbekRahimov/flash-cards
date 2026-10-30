@@ -27,12 +27,12 @@
  * "Check" are one row in `StickyActions`, above the keyboard. On a short window (a phone with the keyboard up) the title goes and
  * the circle shrinks to 64 px, so the field and the buttons stay in view. The empty tiles are one per word (no letters).
  */
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, inject, onMounted, ref, watch } from 'vue'
 import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import { modeTitle } from '@/composables/practiceLabels'
-import { usePracticeAudio } from '@/composables/usePracticeAudio'
+import { PRACTICE_CLIP_SOURCE, usePracticeAudio } from '@/composables/usePracticeAudio'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
 import type { DictationElement, PracticeAnswerPayload } from '@/api/types'
@@ -47,7 +47,10 @@ const emit = defineEmits<{ answer: [payload: PracticeAnswerPayload]; skip: []; s
 
 const { selectionHaptic } = useTelegram()
 const { t, tn } = useI18n()
-const audio = usePracticeAudio()
+// A battle provides the clips its room has loaded: the "Retry" of this component then plays the same clip as the "Retry" of the screen.
+// A solo session provides nothing, and the clip comes from the endpoint of the session.
+const clipSource = inject(PRACTICE_CLIP_SOURCE, null)
+const audio = usePracticeAudio(clipSource === null ? {} : { fetchBlob: clipSource })
 
 const text = ref('')
 /** The learner has started the clip at least once: a later failure of the sound does not take the answer away. */

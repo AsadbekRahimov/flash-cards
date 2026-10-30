@@ -4,32 +4,35 @@ import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import type { IconName } from '@/components/ui/icons'
 import BattleScoreboard from '@/components/battle/BattleScoreboard.vue'
+import { resultTitleKey } from '@/components/battle/resultTitle'
 import { VERDICT_LOOK } from '@/components/battle/verdict'
 import { lessonHeader, modeTitle } from '@/composables/practiceLabels'
 import { useI18n } from '@/i18n'
 import type { StringKey } from '@/i18n/ru'
 import type { BattleAction } from '@/stores/battle'
-import type { Battle, BattleEndReason, BattleOutcome, BattleResult, BattleRoundResult } from '@/api/types'
+import type { Battle, BattleEndReason, BattleOutcome, BattleRematch, BattleResult, BattleRoundResult, BattleStatus } from '@/api/types'
 
 /**
  * The end of a battle (docs/16 §11.2, docs/15 §3.5): `finished` (somebody won, or it is a draw) and `closed` (it did not
  * take place). From top to bottom:
- * - the outcome, big - "Victory", "Defeat", "Draw", "The match did not take place" - with a symbol, a colour and the
- *   reason in words (`end_reason`: all rounds played, surrender, left and did not come back, both gone, declined,
- *   the time of the invitation or of the room ran out, cancelled, voided);
+ * - the outcome, big - "Victory", "Defeat", "Draw", "The match did not take place" (or "The match was interrupted": it began, and
+ *   both players left or the server voided it, `resultTitleKey`) - with a symbol, a colour and the reason in words (`end_reason`: all
+ *   rounds played, surrender, left and did not come back, both gone, declined, the time of the invitation or of the room ran out,
+ *   cancelled, voided - for a dictation the recording that is not there);
  * - the score and the rounds, one row each, "You | Name", with the symbol, the points and (for a screen reader) the verdict;
  * - the actions: "Rematch" (the one primary button; "Invite again" after a battle that did not take place), "To friends",
  *   "To the course". After a decline there is no new invitation: "To friends" is the primary one.
  *
- * `rematch` is the rematch that follows this battle, read in full: an offer to the learner is answered here ("Accept" is
- * then the primary button, "Rematch" gives way to it), an offer of their own is a way back into it.
- * Events: `rematch`, `accept-rematch`, `decline-rematch`, `open-rematch`, `friends`, `course`.
+ * `rematch` is the rematch that follows this battle as the server reports it - `{battle_id, status, by_me}`, no battle to read:
+ * an offer of the friend is answered here ("Accept" is then the primary button, "Rematch" gives way to it); a rematch of the learner's
+ * own that waits, and one that is on already (the friend took it, or the learner took the friend's on another device), is a way back
+ * into it. Events: `rematch`, `accept-rematch`, `decline-rematch`, `open-rematch`, `friends`, `course`.
  */
 const props = defineProps<{
   battle: Battle
   /** The result of the server; for a battle that carries none the screen passes an outcome of `none` with the reason. */
   result: BattleResult
-  rematch: Battle | null
+  rematch: BattleRematch | null
   busy: BattleAction | null
 }>()
 
@@ -49,17 +52,17 @@ const opponentName = computed(() => props.battle.opponent.first_name?.trim() || 
 interface Look {
   icon: IconName
   circle: string
-  title: StringKey
 }
 
 const LOOKS: Record<BattleOutcome, Look> = {
-  won: { icon: 'trophy', circle: 'bg-success-soft text-success-ink', title: 'battle.result.title.won' },
-  lost: { icon: 'flag', circle: 'bg-track text-tg-subtitle', title: 'battle.result.title.lost' },
-  draw: { icon: 'arrows-right-left', circle: 'bg-accent-soft text-accent-ink', title: 'battle.result.title.draw' },
-  none: { icon: 'information-circle', circle: 'bg-track text-tg-subtitle', title: 'battle.result.title.none' },
+  won: { icon: 'trophy', circle: 'bg-success-soft text-success-ink' },
+  lost: { icon: 'flag', circle: 'bg-track text-tg-subtitle' },
+  draw: { icon: 'arrows-right-left', circle: 'bg-accent-soft text-accent-ink' },
+  none: { icon: 'information-circle', circle: 'bg-track text-tg-subtitle' },
 }
 
 const look = computed(() => LOOKS[props.result.outcome])
+const title = computed((): string => t(resultTitleKey(props.battle, props.result)))
 
 /** The reasons that do not depend on who won; the others read differently for the winner and for the one who lost. */
 const PLAIN_REASONS: Partial<Record<BattleEndReason, StringKey>> = {
@@ -76,6 +79,9 @@ const reason = computed((): string => {
   if (why === 'completed') return t(outcome === 'draw' ? 'battle.reason.completed_draw' : 'battle.reason.completed')
   if (why === 'surrender') return t(outcome === 'won' ? 'battle.reason.surrender_won' : 'battle.reason.surrender_lost')
   if (why === 'absent') return t(outcome === 'won' ? 'battle.reason.absent_won' : 'battle.reason.absent_lost')
+  // Only a dictation has a recording to lack. The server voids a battle for nothing else but a missing clip (or practice switched
+  // off, rare), so for a dictation the reason is told as the one the learner may have met in the room: the recording is not there.
+  if (why === 'voided' && props.battle.mode === 'dictation') return t('battle.reason.voided_audio')
   return t(PLAIN_REASONS[why] ?? 'battle.reason.canceled')
 })
 
@@ -88,10 +94,14 @@ const showScore = computed(() => props.result.outcome !== 'none')
 
 // ---- the rematch ----
 
-const offered = computed(() => props.rematch !== null && props.rematch.role === 'opponent' && props.rematch.status === 'invited')
-const ownRematch = computed(
-  () => props.rematch !== null && props.rematch.role === 'challenger' && ['invited', 'room', 'countdown', 'playing'].includes(props.rematch.status),
-)
+const OPEN_STATUSES: readonly BattleStatus[] = ['invited', 'room', 'countdown', 'playing']
+
+/** The friend offers a rematch (`by_me` is false) and it waits for the learner: to be answered here. */
+const offered = computed(() => props.rematch !== null && !props.rematch.by_me && props.rematch.status === 'invited')
+/** A rematch that is the learner's to open: their own offer that waits, or one that is on already (taken by the friend, or by the learner elsewhere). */
+const ownRematch = computed(() => props.rematch !== null && !offered.value && OPEN_STATUSES.includes(props.rematch.status))
+/** The rematch is on already: the room is open, the card says so instead of "waiting for the friend". */
+const rematchOn = computed(() => ownRematch.value && props.rematch?.status !== 'invited')
 /** After a decline nobody asks the friend again at once; after a game, or a battle that fell through, one may. */
 const canInviteAgain = computed(() => !offered.value && !ownRematch.value && props.result.end_reason !== 'declined')
 const finished = computed(() => props.battle.status === 'finished')
@@ -106,7 +116,7 @@ const cell = (side: BattleRoundResult['me']) => ({ look: VERDICT_LOOK[side.verdi
         <span class="flex size-20 items-center justify-center rounded-full" :class="look.circle" data-testid="result-icon">
           <AppIcon :name="look.icon" solid :size="44" />
         </span>
-        <h1 class="text-[28px] leading-[34px] font-bold tracking-tight" data-testid="result-title">{{ t(look.title) }}</h1>
+        <h1 class="text-[28px] leading-[34px] font-bold tracking-tight" data-testid="result-title">{{ title }}</h1>
         <p class="text-[15px] leading-5 text-tg-subtitle" data-testid="result-reason">{{ reason }}</p>
         <p class="text-[13px] leading-[18px] text-tg-hint break-words" data-testid="result-topic">{{ topic }}</p>
       </header>
@@ -144,13 +154,13 @@ const cell = (side: BattleRoundResult['me']) => ({ look: VERDICT_LOOK[side.verdi
       </section>
 
       <!-- The friend offers a rematch: answered here. -->
-      <section v-if="offered && rematch" class="card flex flex-col gap-1" data-testid="rematch-offer">
-        <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('battle.result.rematch_from', { name: rematch.opponent.first_name?.trim() || t('battle.opponent') }) }}</h2>
+      <section v-if="offered" class="card flex flex-col gap-1" data-testid="rematch-offer">
+        <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('battle.result.rematch_from', { name: opponentName }) }}</h2>
         <p class="text-[15px] leading-5 text-tg-subtitle">{{ t('battle.result.rematch_text') }}</p>
       </section>
-      <section v-else-if="ownRematch" class="card flex flex-col gap-1" data-testid="rematch-own">
-        <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('battle.result.rematch_mine') }}</h2>
-        <p class="text-[15px] leading-5 text-tg-subtitle">{{ t('battle.result.rematch_mine_text') }}</p>
+      <section v-else-if="ownRematch" class="card flex flex-col gap-1" data-testid="rematch-own" :data-state="rematchOn ? 'on' : 'waiting'">
+        <h2 class="text-[17px] leading-[22px] font-semibold">{{ rematchOn ? t('battle.result.rematch_on') : t('battle.result.rematch_mine') }}</h2>
+        <p class="text-[15px] leading-5 text-tg-subtitle">{{ rematchOn ? t('battle.result.rematch_on_text') : t('battle.result.rematch_mine_text') }}</p>
       </section>
     </div>
 

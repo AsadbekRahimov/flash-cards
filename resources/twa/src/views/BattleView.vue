@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, provide, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { api } from '@/api'
 import ClosedState from '@/components/ClosedState.vue'
+import PaywallSheet from '@/components/PaywallSheet.vue'
+import AbsentStrip from '@/components/battle/AbsentStrip.vue'
 import BattleResultPanel from '@/components/battle/BattleResult.vue'
 import BattleReveal from '@/components/battle/BattleReveal.vue'
 import BattleRoom from '@/components/battle/BattleRoom.vue'
@@ -11,20 +13,22 @@ import BattleScoreboard from '@/components/battle/BattleScoreboard.vue'
 import LeaveConfirm from '@/components/battle/LeaveConfirm.vue'
 import OpponentStatus from '@/components/battle/OpponentStatus.vue'
 import RoundTimer from '@/components/battle/RoundTimer.vue'
+import { resultTitleKey } from '@/components/battle/resultTitle'
 import { VERDICT_LOOK } from '@/components/battle/verdict'
 import { modeComponentFor } from '@/components/practice/modeComponents'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
-import { clockText, remainingMs, secondsLeft } from '@/composables/battleTime'
+import { remainingMs, secondsLeft } from '@/composables/battleTime'
 import { showErrorToast } from '@/composables/errorToast'
 import { lessonHeader } from '@/composables/practiceLabels'
 import { useBackButton } from '@/composables/useBackButton'
 import { useBattleAudio } from '@/composables/useBattleAudio'
 import { useNow } from '@/composables/useNow'
 import { usePolling } from '@/composables/usePolling'
-import { usePracticeAudio } from '@/composables/usePracticeAudio'
+import { PRACTICE_CLIP_SOURCE, usePracticeAudio } from '@/composables/usePracticeAudio'
+import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
 import { useWakeAt } from '@/composables/useWakeAt'
 import { useAuthStore } from '@/stores/auth'
@@ -42,15 +46,20 @@ import type { BattleResult, PracticeAnswerPayload } from '@/api/types'
  *   doing; at the end of the round the reveal (`BattleReveal`) with the pause before the next one;
  * - `finished` / `closed` — `BattleResult` (the outcome, the reason, the rounds, the rematch).
  * The strips under the header tell about trouble that does not end the match: "No connection, trying…" (the poll
- * fails) and "The opponent lost connection… 0:21" (the poll says `opponent_present = false`).
+ * fails; "The server does not answer…" when it is the server that fails) and "The opponent lost connection. If they do not come
+ * back in 21 s, the victory is yours" (the poll says `opponent_present = false`; the seconds are what is left of the wait of the
+ * server, `AbsentStrip`).
  *
  * The poll (`usePolling`, every two seconds) runs only while the battle is alive, stops in the background and when the
  * screen is left, and reads at once on return; the screen is also woken at the moments the server moves the battle on
- * (the start, the deadline of a round, the end of the pause), so that a round does not begin two seconds late.
+ * (the start, the deadline of a round and its grace, the end of the pause), so that a round does not begin two seconds late.
  *
  * ✕ and the system "Back" (docs/16 §11.3): the invitation of the opponent — just leaves; the invitation sent, the room
  * and the countdown — "Leave the room?" and `cancel`; the match — "Surrender and leave?" and `surrender`; the end —
- * to the friends (to the course if the learner came from the practice hub).
+ * to the friends (to the course if the learner came from the practice hub). The question follows the battle: it goes when the
+ * battle is over, and "Leave the room?" goes when the match begins (the learner asks again, now for a surrender).
+ *
+ * Behind Pro (403 `practice_pro_required` on opening or on "Accept") the answer is the paywall, not a message.
  */
 const props = defineProps<{ id: number }>()
 
@@ -61,7 +70,8 @@ const { haptic, notificationHaptic } = useTelegram()
 const { t } = useI18n()
 const now = useNow()
 
-const { battle: data, status, loadStatus, errorMessage, gone, acting, actionError, offline, answerState, busyBattleId, rematchBattle, serverOffsetMs } = storeToRefs(store)
+const { battle: data, status, loadStatus, errorMessage, gone, acting, actionError, offline, offlineCause, answerState, answerCause, busyBattleId, rematchOffer, serverOffsetMs, paywall } =
+  storeToRefs(store)
 
 // ---------------------------------------------------------------- entering
 
@@ -108,8 +118,10 @@ usePolling(() => store.refreshResult(), { enabled: computed(() => store.watching
 
 // ------------------------------------------------------------------ clocks
 
-/** Server time of the next moment at which the server moves the battle on; the screen asks for the poll right then. */
-const GRACE_GUESS_MS = 1600
+/**
+ * Server time of the next moment at which the server moves the battle on; the screen asks for the poll right then. A round is moved
+ * on `deadline_grace_ms` after its deadline (the server's own number: an answer that left at 0:00 is still taken until then).
+ */
 const dueAt = computed((): number | null => {
   const battle = data.value
   if (battle === null) return null
@@ -121,7 +133,7 @@ const dueAt = computed((): number | null => {
   else if (status.value === 'playing' && state?.phase === 'reveal') at = state.phase_ends_at
   else if (status.value === 'playing' && state?.phase === 'answering' && state.deadline_at !== null) {
     const deadline = Date.parse(state.deadline_at)
-    return Number.isFinite(deadline) ? deadline + GRACE_GUESS_MS : null
+    return Number.isFinite(deadline) ? deadline + battle.deadline_grace_ms : null
   }
   const parsed = Date.parse(at ?? '')
   return Number.isFinite(parsed) ? parsed : null
@@ -130,8 +142,9 @@ const dueAt = computed((): number | null => {
 useWakeAt({
   dueAt: () => dueAt.value,
   offsetMs: () => serverOffsetMs.value,
+  // A poll that is on its way may have been asked before this moment: the store follows it with another one at once.
   wake: () => {
-    store.tick().catch(() => undefined)
+    store.wake().catch(() => undefined)
   },
 })
 
@@ -155,25 +168,30 @@ const headline = computed((): string =>
   status.value === 'playing' && state.value !== null ? t('battle.round.title', { round: state.value.no, rounds: roundsTotal.value }) : t('battle.title'),
 )
 
+/**
+ * The answer is going out AGAIN, after a try that got no reply. The task is not drawn beside the note: the component of the mode
+ * would be a new, empty one (the first was replaced by the "not delivered" screen), and an empty board next to "Sending…" looks like an
+ * answer that has been lost. The first try keeps the component (locked) in view.
+ */
+const resending = computed(() => answerState.value === 'sending' && store.pendingAnswer?.uncertain === true)
+
 const loading = computed(() => loadStatus.value === 'idle' || loadStatus.value === 'loading' || (loadStatus.value === 'ready' && data.value === null))
 const failed = computed(() => loadStatus.value === 'error')
 const live = computed(() => status.value === 'invited' || status.value === 'room' || status.value === 'countdown' || status.value === 'playing')
 const over = computed(() => status.value === 'finished' || status.value === 'closed')
 
-/** What the result screen shows; a battle without a result of its own is one that did not take place. */
+/** What the result screen shows; the server gives every battle that is over a result of its own (`closed`: `outcome: none` and the reason). */
 const result = computed(
-  (): BattleResult => data.value?.result ?? { outcome: 'none', end_reason: store.poll?.end_reason ?? 'canceled', rounds: [] },
+  (): BattleResult => data.value?.result ?? { outcome: 'none', end_reason: data.value?.end_reason ?? store.poll?.end_reason ?? 'canceled', rounds: [] },
 )
 
 // ------------------------------------------------------------------ strips
 
-const absentSeconds = computed((): number => {
-  if (store.absentSince === null) return 0
-  return Math.max(0, Math.floor((now.value + serverOffsetMs.value - store.absentSince) / 1000))
-})
 const showAbsent = computed(() => !store.opponentPresent && (status.value === 'room' || status.value === 'countdown' || status.value === 'playing'))
-const absentText = computed(() => t('battle.connection.absent', { time: clockText(absentSeconds.value) }))
-const absentHint = computed(() => t(status.value === 'playing' ? 'battle.connection.absent_playing' : 'battle.connection.absent_room'))
+/** Since when the opponent is gone, by the server's clock: the server names it; the moment this screen first saw them gone is the fallback. */
+const absentSince = computed((): number => store.absentSince ?? now.value + serverOffsetMs.value)
+const offlineText = computed(() => t(offlineCause.value === 'server' ? 'battle.connection.offline_server' : 'battle.connection.offline'))
+const sendFailedText = computed(() => t(answerCause.value === 'server' ? 'battle.round.send_failed_server' : 'battle.round.send_failed'))
 
 // --------------------------------------------------------------- countdown
 
@@ -185,10 +203,13 @@ const countdownNumbers = computed((): number[] => {
 
 // -------------------------------------------------------------------- audio
 
-/** A dictation loads its five recordings in the room; "Ready" waits for them (docs/16 §10.3). */
+/**
+ * A dictation loads its five recordings in the room; "Ready" waits for them (docs/16 §10.3). The server lists them in the room and
+ * in the countdown too (a reload in the three seconds of the countdown has not lost them).
+ */
 const preload = useBattleAudio()
 watch(
-  () => (status.value === 'room' ? (data.value?.audio_preload ?? null) : null),
+  () => (status.value === 'room' || status.value === 'countdown' ? (data.value?.audio_preload ?? null) : null),
   (urls) => {
     if (urls !== null && urls.length > 0) preload.preload(urls)
   },
@@ -201,8 +222,33 @@ const roomAudio = computed(() =>
     : null,
 )
 
+/**
+ * A clip of the room that the server answered 503 for is not on its disk. The server is told, once per clip: it looks at the file
+ * itself and voids the match when it is missing (the result says so), or says the file is there - then the 503 was a hiccup and
+ * the clip is asked for again. Without this "Ready" would never open and the room would run out with a wrong reason.
+ */
+const reportedMissing = new Set<string>()
+async function reportMissing(url: string): Promise<void> {
+  const elementId = url.split('/').pop() ?? ''
+  if (elementId === '' || reportedMissing.has(url)) return
+  reportedMissing.add(url)
+  const verified = await store.audioFailed(elementId)
+  if (verified === false && !left) preload.retry()
+}
+watch(
+  () => preload.missing.value,
+  (urls) => {
+    for (const url of urls) void reportMissing(url)
+  },
+)
+
 /** The clip of the round on screen: from what the room loaded, else from the server. */
-const roundAudio = usePracticeAudio({ fetchBlob: async (url) => preload.blobFor(url) ?? (await api.battles.audioBlob(url)) })
+async function clipOf(url: string): Promise<Blob> {
+  return preload.blobFor(url) ?? (await api.battles.audioBlob(url))
+}
+const roundAudio = usePracticeAudio({ fetchBlob: clipOf })
+// The dictation has a "Retry" of its own: it must play the same clip (the one the room loaded), not fetch another copy.
+provide(PRACTICE_CLIP_SOURCE, clipOf)
 
 const dictation = computed(() => {
   const element = round.value?.element
@@ -218,12 +264,21 @@ watch(
   { immediate: true },
 )
 
-/** The recording did not come: the server is told once per round (it checks the file), the learner can ask again. */
+/**
+ * The recording did not come: the server is told once per round (it checks the file), the learner can ask again. A clip that did
+ * reach the device and fails to PLAY afterwards is a fault of the device: the file is there, and the server is not told.
+ */
+const clipArrived = new Set<string>()
+watch(
+  [() => dictation.value?.id ?? null, () => roundAudio.state.value] as const,
+  ([elementId, state]) => {
+    if (elementId === null) return
+    if (state === 'ready') clipArrived.add(elementId)
+    else if (state === 'failed' && !clipArrived.has(elementId)) void store.audioFailed(elementId)
+  },
+  { immediate: true },
+)
 const clipFailed = computed(() => dictation.value !== null && roundAudio.state.value === 'failed')
-watch(clipFailed, (failedNow) => {
-  const element = dictation.value
-  if (failedNow && element !== null) void store.audioFailed(element.id)
-})
 
 function retryClip(): void {
   const element = dictation.value
@@ -266,6 +321,9 @@ function openBusy(): void {
   if (id !== null) void router.push({ name: 'battle', params: { id } })
 }
 
+// Behind Pro, "Accept" (and the opening of the battle itself) is answered with the paywall, as everywhere in the practice (docs/16 §3.2).
+const { reviewFromPaywall } = useReviewFromPaywall(() => store.dismissPaywall(), { toastErrors: true })
+
 // A refusal that leaves the learner on the screen is a toast: the buttons are at the bottom, an alert would be at the top.
 watch(actionError, (message) => {
   if (message === '') return
@@ -290,12 +348,20 @@ async function onAcceptRematch(): Promise<void> {
 }
 
 function onOpenRematch(): void {
-  goTo(rematchBattle.value?.id ?? null)
+  goTo(rematchOffer.value?.battle_id ?? null)
 }
 
 // ------------------------------------------------------------------ leaving
 
 const leaving = ref<'room' | 'match' | null>(null)
+
+// The question follows the battle. A sheet that outlives its question would ask for something that is no longer so: "Surrender and
+// leave?" over the result of a match that has ended, "Leave the room?" over a match that has begun (confirming it is refused by the
+// server, and the learner stays in the match). Both go; the learner asks again if they still want to leave.
+watch(status, (next) => {
+  if (leaving.value === null) return
+  if (next === 'finished' || next === 'closed' || (next === 'playing' && leaving.value === 'room')) leaving.value = null
+})
 
 function toFriends(): void {
   if (!left) void router.replace({ name: 'friends' })
@@ -354,7 +420,7 @@ const liveText = computed((): string => {
     if (iAnswered.value) return t('battle.live.waiting')
     return t('battle.live.round', { round: state.value.no, rounds: roundsTotal.value })
   }
-  if (over.value) return t(`battle.result.title.${result.value.outcome}`)
+  if (over.value) return t(resultTitleKey(battle, result.value))
   return ''
 })
 
@@ -406,11 +472,14 @@ watch(over, (isOver) => {
 
       <!-- Trouble that does not end the match. -->
       <div v-if="offline || showAbsent" class="mt-3 flex flex-col gap-2 px-4" data-testid="strips">
-        <InlineAlert v-if="offline" tone="warning" :message="t('battle.connection.offline')" data-testid="offline-strip" />
-        <InlineAlert v-if="showAbsent" tone="warning" data-testid="absent-strip">
-          <span class="block font-medium" data-testid="absent-text">{{ absentText }}</span>
-          <span class="block text-[13px] leading-[18px]" data-testid="absent-hint">{{ absentHint }}</span>
-        </InlineAlert>
+        <InlineAlert v-if="offline" tone="warning" :message="offlineText" data-testid="offline-strip" />
+        <AbsentStrip
+          v-if="showAbsent"
+          :since="absentSince"
+          :grace-seconds="data.presence_grace_seconds"
+          :offset-ms="serverOffsetMs"
+          :playing="status === 'playing'"
+        />
       </div>
 
       <BattleRoom
@@ -482,8 +551,14 @@ watch(over, (isOver) => {
 
           <!-- Not delivered: the answer waits for "Retry"; the clock goes on. -->
           <section v-else-if="answerState === 'failed'" class="flex flex-1 flex-col gap-4 px-4 pt-4 pb-6" data-testid="battle-send-failed">
-            <InlineAlert tone="warning" :message="t('battle.round.send_failed')" />
+            <InlineAlert tone="warning" :message="sendFailedText" />
             <button type="button" class="btn btn-primary btn-lg btn-block" data-testid="retry-answer-btn" @click="store.retryAnswer()">{{ t('common.retry') }}</button>
+          </section>
+
+          <!-- Going again after a try with no reply: the note stands alone (see `resending`). -->
+          <section v-else-if="resending" class="flex flex-1 flex-col items-center justify-center gap-3 px-4 py-10 text-center" data-testid="battle-resending">
+            <span class="size-8 animate-spin rounded-full border-[3px] border-track border-t-accent motion-reduce:animate-none" aria-hidden="true" />
+            <p class="text-[17px] leading-[22px] font-semibold" role="status" data-testid="resending-note">{{ t('battle.round.sending') }}</p>
           </section>
 
           <template v-else-if="round">
@@ -514,7 +589,7 @@ watch(over, (isOver) => {
         v-else-if="over"
         :battle="data"
         :result="result"
-        :rematch="rematchBattle"
+        :rematch="rematchOffer"
         :busy="acting"
         @rematch="onRematch"
         @accept-rematch="onAcceptRematch"
@@ -535,5 +610,7 @@ watch(over, (isOver) => {
       @confirm="confirmLeave"
       @stay="leaving = null"
     />
+
+    <PaywallSheet v-if="paywall" reason="practice" @close="store.dismissPaywall()" @review="reviewFromPaywall" />
   </section>
 </template>

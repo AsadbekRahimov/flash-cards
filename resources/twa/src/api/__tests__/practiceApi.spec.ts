@@ -11,7 +11,7 @@ const http = vi.hoisted(() => ({
 vi.mock('../client', () => ({ createApiClient: () => http }))
 
 // Imported after the mock, so that `api` builds its client on the stub above.
-const { api } = await import('../index')
+const { api, BATTLE_ACTION_TIMEOUT_MS, BATTLE_READ_TIMEOUT_MS } = await import('../index')
 
 beforeEach(() => {
   setActivePinia(createPinia())
@@ -68,29 +68,32 @@ describe('api.practice', () => {
 })
 
 describe('api.battles', () => {
+  const READ = { timeoutMs: 8000 }
+  const ACT = { timeoutMs: 10_000 }
+
   it('options: friendship, course and an optional lesson', async () => {
     await api.battles.options(11, 'english-a1')
     await api.battles.options(11, 'english-a1', 41)
 
-    expect(http.get).toHaveBeenNthCalledWith(1, '/practice/battles/options', { friendship_id: 11, course: 'english-a1' })
-    expect(http.get).toHaveBeenNthCalledWith(2, '/practice/battles/options', { friendship_id: 11, course: 'english-a1', lesson_id: 41 })
+    expect(http.get).toHaveBeenNthCalledWith(1, '/practice/battles/options', { friendship_id: 11, course: 'english-a1' }, READ)
+    expect(http.get).toHaveBeenNthCalledWith(2, '/practice/battles/options', { friendship_id: 11, course: 'english-a1', lesson_id: 41 }, READ)
   })
 
-  it('reads the list, a battle, its poll and a round', async () => {
+  it('reads the list, a battle, its poll and a round - every read with the limit of a read (8 s)', async () => {
     await api.battles.list()
     await api.battles.get(15)
     await api.battles.poll(15)
     await api.battles.round(15, 2)
 
     expect(http.get.mock.calls).toEqual([
-      ['/practice/battles'],
-      ['/practice/battles/15'],
-      ['/practice/battles/15/poll'],
-      ['/practice/battles/15/round', { no: 2 }],
+      ['/practice/battles', undefined, READ],
+      ['/practice/battles/15', undefined, READ],
+      ['/practice/battles/15/poll', undefined, READ],
+      ['/practice/battles/15/round', { no: 2 }, READ],
     ])
   })
 
-  it('invites, and runs the actions of the room without a body', async () => {
+  it('invites, and runs the actions of the room without a body - every action with the limit of an action (10 s)', async () => {
     const invite = { friendship_id: 11, mode: 'sentence', course: 'english-a1', lesson_id: 41, rematch_of: null } as const
 
     await api.battles.invite(invite)
@@ -100,15 +103,15 @@ describe('api.battles', () => {
     await api.battles.ready(15)
 
     expect(http.post.mock.calls).toEqual([
-      ['/practice/battles', invite],
-      ['/practice/battles/15/accept'],
-      ['/practice/battles/15/decline'],
-      ['/practice/battles/15/cancel'],
-      ['/practice/battles/15/ready'],
+      ['/practice/battles', invite, ACT],
+      ['/practice/battles/15/accept', undefined, ACT],
+      ['/practice/battles/15/decline', undefined, ACT],
+      ['/practice/battles/15/cancel', undefined, ACT],
+      ['/practice/battles/15/ready', undefined, ACT],
     ])
   })
 
-  it('surrender confirms; answer and audio-failed carry their bodies', async () => {
+  it('surrender confirms; answer and audio-failed carry their bodies, with the limit of an action', async () => {
     const answer = { request_id: 'r1', round: 2, answer: { pairs: { l1: 'r1' } } }
     const failed = { request_id: 'r2', element_id: 'eD4' }
 
@@ -117,10 +120,15 @@ describe('api.battles', () => {
     await api.battles.audioFailed(15, failed)
 
     expect(http.post.mock.calls).toEqual([
-      ['/practice/battles/15/surrender', { confirm: true }],
-      ['/practice/battles/15/answer', answer],
-      ['/practice/battles/15/audio-failed', failed],
+      ['/practice/battles/15/surrender', { confirm: true }, ACT],
+      ['/practice/battles/15/answer', answer, ACT],
+      ['/practice/battles/15/audio-failed', failed, ACT],
     ])
+  })
+
+  it('names the limits in the open: a poll gives up sooner than an action', () => {
+    expect(BATTLE_READ_TIMEOUT_MS).toBe(8000)
+    expect(BATTLE_ACTION_TIMEOUT_MS).toBe(10_000)
   })
 
   it('audioBlob fetches a clip of a round', async () => {

@@ -96,6 +96,7 @@ export const KNOWN_ERROR_CODES = [
   'pair_already_matched',
   'invalid_answer_shape',
   'unknown_element_id',
+  'request_id_reused',
   'replace_not_allowed',
   'retry_not_available',
   'practice_audio_unavailable',

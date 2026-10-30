@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import InitialAvatar from '@/components/InitialAvatar.vue'
+import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
@@ -15,6 +16,7 @@ import { formatDate } from '@/composables/format'
 import { lessonHeader, modeTitle } from '@/composables/practiceLabels'
 import { useBackButton } from '@/composables/useBackButton'
 import { useCopyToClipboard } from '@/composables/useCopyToClipboard'
+import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
 import { useAuthStore } from '@/stores/auth'
 import { useBattleStore } from '@/stores/battle'
@@ -81,6 +83,20 @@ watch(
 const battleOn = computed(() => billing.practiceAccess.available && billing.practiceAccess.battle)
 const invitations = computed(() => (battleOn.value ? battles.incoming : []))
 const activeBattle = computed(() => (battleOn.value ? battles.active : null))
+
+// The battle that is on and the invitations are asked for as soon as the learner is known to play battles. That is when `/me` has come,
+// and it may be on its way for another screen already (then `billing.load()` of this one returns at once and `battleOn` turns true
+// later, with nobody to ask): the list follows the switch, not the end of this screen's own reading.
+watch(
+  battleOn,
+  (on) => {
+    if (on) void battles.loadList()
+  },
+  { immediate: true },
+)
+
+// Behind Pro, "Accept" is answered with the paywall, as everywhere in the practice (docs/16 §3.2).
+const { reviewFromPaywall } = useReviewFromPaywall(() => battles.dismissPaywall(), { toastErrors: true })
 
 const ACTIVE_STATUS: Partial<Record<BattleStatus, StringKey>> = {
   invited: 'battle.friends.status.invited',
@@ -221,8 +237,6 @@ async function load(): Promise<void> {
     return
   }
   await Promise.all([store.load(), billing.load()])
-  // The battle that is on and the invitations: asked for only when the learner can play battles at all.
-  if (battleOn.value) void battles.loadList()
 }
 
 onMounted(() => {
@@ -515,5 +529,7 @@ onMounted(() => {
         </template>
       </section>
     </div>
+
+    <PaywallSheet v-if="battles.paywall" reason="practice" @close="battles.dismissPaywall()" @review="reviewFromPaywall" />
   </div>
 </template>

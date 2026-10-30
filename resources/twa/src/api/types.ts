@@ -1050,10 +1050,25 @@ export interface BattleResult {
   rounds: BattleRoundResult[]
 }
 
-/** GET /practice/battles/{id} and the answer of every action (docs/16 §7.4). */
+/**
+ * The rematch offered after a finished battle (docs/16 §7.4, §8.7): the next battle with `rematch_of` = this one, and who offered it.
+ * `by_me` tells the result screen whether the offer is the learner's to answer or their own to open.
+ */
+export interface BattleRematch {
+  battle_id: number
+  status: BattleStatus
+  by_me: boolean
+}
+
+/**
+ * GET /practice/battles/{id} and the answer of every action (docs/16 §7.4, "Реализация 18.6b": the wire form - every key is always
+ * there, and what is absent is `null`; pinned by `BattleContractTest`).
+ */
 export interface Battle {
   id: number
   status: BattleStatus
+  /** Why the battle ended (the same as `result.end_reason`); `null` while it is on. */
+  end_reason: BattleEndReason | null
   mode: PracticeMode
   role: BattleRole
   course: PracticeCourseRef
@@ -1063,6 +1078,12 @@ export interface Battle {
   round_seconds: number
   countdown_seconds: number
   reveal_seconds: number
+  /** How long a player who has gone silent is waited for before the match ends (30 s): the strip counts down to it. */
+  presence_grace_seconds: number
+  /** After how long of silence `opponent_present` turns false (10 s). */
+  presence_warn_seconds: number
+  /** How long after the deadline of a round an answer is still taken, in milliseconds (1500): the screen asks the server after it. */
+  deadline_grace_ms: number
   invite_expires_at: string
   room_expires_at: string | null
   starts_at: string | null
@@ -1071,15 +1092,17 @@ export interface Battle {
   server_now: string
   ready: { me: boolean; opponent: boolean }
   opponent_present: boolean
+  /** The last time the opponent was seen, while `opponent_present` is false (the strip counts `presence_grace_seconds` from it); else `null`. */
+  opponent_absent_since: string | null
   round: BattleRoundState | null
   scores: BattleScores
   result: BattleResult | null
-  /** The rematch offered after this battle. */
-  rematch: { battle_id: number; status: BattleStatus } | null
-  /** Not in docs/16 §7.4: the friendship of the battle, used for a rematch when the server sends it. */
-  friendship_id?: number | null
-  /** Dictation, `room` only (docs/16 §10.3): the clips of the five rounds to load before "Ready". */
-  audio_preload?: string[]
+  /** The rematch offered after this battle; only a battle that is over has one. */
+  rematch: BattleRematch | null
+  /** The friendship of the battle (a rematch needs none: the server takes the friend from the finished battle); `null` if it is gone. */
+  friendship_id: number | null
+  /** Dictation, `room` and `countdown` only (docs/16 §10.3): the clips of the five rounds to load before "Ready"; else `null`. */
+  audio_preload: string[] | null
 }
 
 /** GET /practice/battles/{id}/poll (docs/16 §7.4): at most 600 bytes, read every two seconds. */
@@ -1090,9 +1113,13 @@ export interface BattlePoll {
   server_now: string
   ready: { me: boolean; opponent: boolean }
   opponent_present: boolean
+  /** As in `Battle`. */
+  opponent_absent_since: string | null
   round: BattleRoundState | null
   scores: BattleScores
   end_reason: BattleEndReason | null
+  /** As in `Battle`; the poll of a battle that is on carries `null` (the server does not look for one). */
+  rematch: BattleRematch | null
 }
 
 export interface BattleSideResult {
@@ -1108,6 +1135,10 @@ export interface BattleReveal {
     correct_option_ids?: string[]
     expected?: string
     pairs?: Record<string, string>
+    /** Collocation: the whole phrase with the right option in the blank. */
+    full_text?: string
+    /** Sentence: the other orders that are right too (without the first one, which is `correct_text`). */
+    alternatives?: string[]
   }
   me: BattleSideResult
   opponent: BattleSideResult
@@ -1118,7 +1149,8 @@ export interface BattleReveal {
 /** GET /practice/battles/{id}/round?no= (docs/16 §7.4). */
 export interface BattleRound {
   no: number
-  phase: BattlePhase
+  /** `null` for round 1 of a battle in its countdown: the round exists, its phase has not begun. */
+  phase: BattlePhase | null
   deadline_at: string | null
   phase_ends_at: string | null
   server_now: string

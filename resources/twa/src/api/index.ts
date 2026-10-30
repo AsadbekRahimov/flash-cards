@@ -58,6 +58,18 @@ import type {
 } from './types'
 
 /**
+ * How long a READ of a battle (the poll, the battle, a round, the list, the options) may take: past it the request is given up like a
+ * lost connection (`network`, code `timeout`) and the poll slows down. Without a limit a request on a dead connection hangs, the poll
+ * (which does not start another beside one that is on its way) goes quiet, and the server counts the silence against the player.
+ */
+export const BATTLE_READ_TIMEOUT_MS = 8_000
+/** How long an ACTION of a battle (an answer, "Ready", an invitation, the report of a clip) may take: the same, a little more patient. */
+export const BATTLE_ACTION_TIMEOUT_MS = 10_000
+
+const READ = { timeoutMs: BATTLE_READ_TIMEOUT_MS }
+const ACT = { timeoutMs: BATTLE_ACTION_TIMEOUT_MS }
+
+/**
  * Lazy-built singleton API client. Constructed on first access so Pinia
  * is already installed when `useAuthStore()` is called.
  */
@@ -242,26 +254,33 @@ export const api = {
   },
   battles: {
     options: (friendshipId: number, course: string, lessonId: number | null = null) =>
-      client().get<BattleOptionsResponse>('/practice/battles/options', {
-        friendship_id: friendshipId,
-        course,
-        ...(lessonId !== null ? { lesson_id: lessonId } : {}),
-      }),
-    list: () => client().get<BattleListResponse>('/practice/battles'),
-    invite: (body: BattleInviteRequest) => client().post<Battle>('/practice/battles', { ...body }),
-    get: (id: number) => client().get<Battle>(`/practice/battles/${id}`),
-    /** The heartbeat of a battle: read every two seconds while the room or the match is on screen. */
-    poll: (id: number) => client().get<BattlePoll>(`/practice/battles/${id}/poll`),
-    round: (id: number, no: number) => client().get<BattleRound>(`/practice/battles/${id}/round`, { no }),
-    accept: (id: number) => client().post<Battle>(`/practice/battles/${id}/accept`),
-    decline: (id: number) => client().post<Battle>(`/practice/battles/${id}/decline`),
-    cancel: (id: number) => client().post<Battle>(`/practice/battles/${id}/cancel`),
-    ready: (id: number) => client().post<Battle>(`/practice/battles/${id}/ready`),
-    surrender: (id: number) => client().post<Battle>(`/practice/battles/${id}/surrender`, { confirm: true }),
+      client().get<BattleOptionsResponse>(
+        '/practice/battles/options',
+        {
+          friendship_id: friendshipId,
+          course,
+          ...(lessonId !== null ? { lesson_id: lessonId } : {}),
+        },
+        READ,
+      ),
+    list: () => client().get<BattleListResponse>('/practice/battles', undefined, READ),
+    invite: (body: BattleInviteRequest) => client().post<Battle>('/practice/battles', { ...body }, ACT),
+    get: (id: number) => client().get<Battle>(`/practice/battles/${id}`, undefined, READ),
+    /**
+     * The heartbeat of a battle: read every two seconds while the room or the match is on screen. After a battle is over it is
+     * also the cheap way to ask whether a rematch has been offered (it carries `rematch`, and runs outside the `twa-api` budget).
+     */
+    poll: (id: number) => client().get<BattlePoll>(`/practice/battles/${id}/poll`, undefined, READ),
+    round: (id: number, no: number) => client().get<BattleRound>(`/practice/battles/${id}/round`, { no }, READ),
+    accept: (id: number) => client().post<Battle>(`/practice/battles/${id}/accept`, undefined, ACT),
+    decline: (id: number) => client().post<Battle>(`/practice/battles/${id}/decline`, undefined, ACT),
+    cancel: (id: number) => client().post<Battle>(`/practice/battles/${id}/cancel`, undefined, ACT),
+    ready: (id: number) => client().post<Battle>(`/practice/battles/${id}/ready`, undefined, ACT),
+    surrender: (id: number) => client().post<Battle>(`/practice/battles/${id}/surrender`, { confirm: true }, ACT),
     answer: (id: number, body: BattleAnswerRequest) =>
-      client().post<BattleAnswerResponse>(`/practice/battles/${id}/answer`, { ...body }),
+      client().post<BattleAnswerResponse>(`/practice/battles/${id}/answer`, { ...body }, ACT),
     audioFailed: (id: number, body: BattleAudioFailedRequest) =>
-      client().post<BattleAudioFailedResponse>(`/practice/battles/${id}/audio-failed`, { ...body }),
+      client().post<BattleAudioFailedResponse>(`/practice/battles/${id}/audio-failed`, { ...body }, ACT),
     /** A clip of a dictation round (`audio_url` of the element, or one of `audio_preload` in the room). */
     audioBlob: (audioUrl: string) => client().getBlob(audioUrl),
   },

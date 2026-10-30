@@ -7,6 +7,7 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { showErrorToast } from '@/composables/errorToast'
+import { RESULT_CHECKS_MAX } from '@/stores/battle'
 import {
   SERVER_NOW,
   answeringRound,
@@ -70,17 +71,44 @@ vi.mock('@/composables/useTelegram', () => ({
 
 vi.mock('@/composables/errorToast', () => ({ showErrorToast: vi.fn() }))
 
+// The sheet has its own spec; here only that it opens, for which reason, and that it closes.
+vi.mock('@/components/PaywallSheet.vue', async () => {
+  const { defineComponent, h } = await import('vue')
+  return {
+    default: defineComponent({
+      props: { reason: { type: String, default: 'info' } },
+      emits: ['close', 'review'],
+      setup: (props, { emit }) => () =>
+        h('div', { 'data-testid': 'paywall', 'data-reason': props.reason }, [h('button', { 'data-testid': 'paywall-close', onClick: () => emit('close') })]),
+    }),
+  }
+})
+
+/** What the probe finds in the screen: the source of the clips it provides (the component of a dictation asks it for its "Retry"). */
+const probeClip = vi.hoisted(() => ({ last: null as Blob | null, provided: false }))
+
 // The component of a mode is the business of its own task; here a probe that answers when it is told to.
 vi.mock('@/components/practice/modeComponents', async () => {
-  const { defineComponent, h } = await import('vue')
+  const { defineComponent, h, inject } = await import('vue')
+  const { PRACTICE_CLIP_SOURCE } = await import('@/composables/usePracticeAudio')
   const Probe = defineComponent({
     props: { element: { type: Object, required: true }, mode: { type: String, default: 'solo' }, disabled: { type: Boolean, default: false } },
     emits: ['answer', 'skip'],
-    setup: (props, { emit }) => () =>
-      h('div', { 'data-testid': 'probe', 'data-element': (props.element as { id: string }).id, 'data-mode': props.mode, 'data-disabled': String(props.disabled) }, [
-        h('button', { 'data-testid': 'probe-answer', onClick: () => emit('answer', { order: ['fW2', 'fT5'] }) }),
-        h('button', { 'data-testid': 'probe-skip', onClick: () => emit('skip') }),
-      ]),
+    setup: (props, { emit }) => {
+      const source = inject(PRACTICE_CLIP_SOURCE, null)
+      probeClip.provided = source !== null
+      return () =>
+        h('div', { 'data-testid': 'probe', 'data-element': (props.element as { id: string }).id, 'data-mode': props.mode, 'data-disabled': String(props.disabled) }, [
+          h('button', { 'data-testid': 'probe-answer', onClick: () => emit('answer', { order: ['fW2', 'fT5'] }) }),
+          h('button', { 'data-testid': 'probe-skip', onClick: () => emit('skip') }),
+          h('button', {
+            'data-testid': 'probe-clip',
+            onClick: () => {
+              void source?.((props.element as { audio_url?: string }).audio_url ?? '').then((blob) => (probeClip.last = blob))
+            },
+          }),
+        ])
+    },
   })
   return { MODE_COMPONENTS: {}, modeComponentFor: () => Probe }
 })
@@ -337,8 +365,8 @@ describe('BattleView — the invitation', () => {
     expect(text(r, 'result-title')).toBe('Матч не состоялся')
     expect(text(r, 'result-reason')).toBe('Приглашение отклонено.')
     vi.mocked(api.battles.poll).mockClear()
-    await pass(10_000)
-    expect(api.battles.poll).not.toHaveBeenCalled()
+    await pass(4000)
+    expect(api.battles.poll).not.toHaveBeenCalled() // the beat of the match has stopped (the slow reading for a rematch comes every five seconds)
   })
 
   it('the invitation runs out: the screen asks at the very moment, and shows it', async () => {
@@ -823,10 +851,41 @@ describe('BattleView — a round', () => {
 
     await pass(2000)
     expect(api.battles.poll).toHaveBeenCalledTimes(1) // the regular beat
-    await pass(2600) // 4.6 s: the beat at 4 s has been, the wake-up (3 s + the grace of about 1.6 s) not yet
+    await pass(2500) // 4.5 s: the beat at 4 s has been, the wake-up (3 s + the grace of the server, 1.5 s) not yet
     expect(api.battles.poll).toHaveBeenCalledTimes(2)
-    await pass(200) // 4.8 s
+    await pass(200) // 4.7 s
     expect(api.battles.poll).toHaveBeenCalledTimes(3)
+    expect(has(r, 'probe')).toBe(true)
+  })
+
+  it('takes the grace of the deadline from the battle (deadline_grace_ms), not from a guess of its own', async () => {
+    const r = await render(battle({ deadline_grace_ms: 3000, round: roundState({ deadline_at: at(3) }) }), { round: answeringRound({ deadline_at: at(3) }) })
+    vi.mocked(api.battles.poll).mockClear()
+
+    await pass(2000)
+    await pass(2000) // 4 s: the two beats; with a grace of 1.5 s the wake-up would have come at 4.58 s already
+    await pass(1000) // 5 s: the beat at 6 s has not been
+    expect(api.battles.poll).toHaveBeenCalledTimes(2)
+    await pass(1100) // 6.1 s: the wake-up at 3 + 3 s + the slack, and the beat at 6 s
+    expect(vi.mocked(api.battles.poll).mock.calls.length).toBeGreaterThanOrEqual(3)
+    expect(has(r, 'probe')).toBe(true)
+  })
+
+  it('a wake-up at the deadline that finds a poll on its way is not lost: another poll follows that one at once', async () => {
+    const r = await render(battle({ round: roundState({ deadline_at: at(3) }) }), { round: answeringRound({ deadline_at: at(3) }) })
+    vi.mocked(api.battles.poll).mockClear()
+    await pass(2500) // the beat at 2 s is done; the one at 4 s is not asked yet
+    const slow = pending<BattlePoll>()
+    vi.mocked(api.battles.poll).mockReturnValueOnce(slow.promise)
+
+    await pass(1500) // 4 s: the beat starts and hangs; the wake-up at 4.58 s will find it on its way
+    expect(api.battles.poll).toHaveBeenCalledTimes(2)
+    await pass(1000) // 5 s: the wake-up has come
+    expect(api.battles.poll).toHaveBeenCalledTimes(2) // it did not start a second poll beside the one on its way
+    slow.resolve(stamp(poll({ version: 23 })))
+    await flushPromises()
+
+    expect(api.battles.poll).toHaveBeenCalledTimes(3) // ... and asked again as soon as that one was done
     expect(has(r, 'probe')).toBe(true)
   })
 
@@ -857,11 +916,61 @@ describe('BattleView — a round', () => {
 
   it('the server found the recording missing: the match is voided, and the result says so', async () => {
     vi.mocked(api.battles.audioBlob).mockRejectedValue(apiError('server', 503, 'practice_audio_unavailable'))
-    vi.mocked(api.battles.audioFailed).mockResolvedValue({ verified: true, battle: closedBattle('voided', { mode: 'dictation', version: 30 }) })
+    vi.mocked(api.battles.audioFailed).mockResolvedValue({ verified: true, battle: closedBattle('voided', { mode: 'dictation', version: 30, starts_at: at(-60) }) })
     const r = await render(battle({ mode: 'dictation' }), { round: answeringRound({ element: dictationElement({ audio_url: CLIPS[1] }) }) })
 
-    expect(text(r, 'result-reason')).toBe('Матч аннулирован из-за технической проблемы. Очки не засчитаны.')
-    expect(text(r, 'result-title')).toBe('Матч не состоялся')
+    // a dictation voided after the start: the match was on, and was broken off; the recording is the reason
+    expect(text(r, 'result-reason')).toBe('Матч отменён: запись недоступна. Очки не засчитаны.')
+    expect(text(r, 'result-title')).toBe('Матч прерван')
+  })
+
+  it('a recording that was loaded and then fails to PLAY is a fault of the device: the file is there, and the server is not told', async () => {
+    vi.mocked(api.battles.audioBlob).mockResolvedValue(clip())
+    const r = await render(battle({ mode: 'dictation' }), { round: answeringRound({ element: dictationElement({ id: 'eDict00002', audio_url: CLIPS[1] }) }) })
+    expect(api.battles.audioBlob).toHaveBeenCalledWith(CLIPS[1])
+
+    // the next play of the clip does not work: the slot of the clip turns to failed
+    const { usePracticeStore } = await import('@/stores/practice')
+    usePracticeStore().audio.state = 'failed'
+    await flushPromises()
+
+    expect(has(r, 'clip-failed')).toBe(true) // the learner may ask for the clip again
+    expect(api.battles.audioFailed).not.toHaveBeenCalled()
+  })
+
+  it('the round gives its source of clips to the component of the mode: the “Retry” of the dictation plays what the room loaded, like the “Retry” of the screen', async () => {
+    const fromRoom = new Blob(['room'], { type: 'audio/mpeg' })
+    vi.mocked(api.battles.audioBlob).mockImplementation((url) => Promise.resolve(url === CLIPS[0] ? fromRoom : clip()))
+    probeClip.last = null
+    const r = await render(roomBattle({ mode: 'dictation', audio_preload: CLIPS }))
+    await flushPromises()
+    expect(api.battles.audioBlob).toHaveBeenCalledTimes(5) // the room loaded the five clips
+
+    // the match begins; round 1 is the first clip
+    vi.mocked(api.battles.audioBlob).mockClear()
+    const playing = battle({ mode: 'dictation', version: 6, round: roundState({ no: 1, deadline_at: at(45) }) })
+    servePoll(() => pollOf(playing))
+    serveBattle(() => playing)
+    vi.mocked(api.battles.round).mockImplementation(() => Promise.resolve(stamp(answeringRound({ no: 1, element: dictationElement({ id: 'eDict00001', audio_url: CLIPS[0] }) }))))
+    await pass(2000)
+    expect(probeClip.provided).toBe(true)
+    expect(api.battles.audioBlob).not.toHaveBeenCalled() // the screen took the clip from the room, not from the network
+
+    await click(r, 'probe-clip') // what the component asks for on its own "Retry"
+    expect(probeClip.last).toBe(fromRoom)
+    expect(api.battles.audioBlob).not.toHaveBeenCalled()
+  })
+
+  it('and goes to the network for a clip the room does not have', async () => {
+    vi.mocked(api.battles.audioBlob).mockResolvedValue(clip())
+    probeClip.last = null
+    const r = await render(battle({ mode: 'dictation' }), { round: answeringRound({ element: dictationElement({ audio_url: CLIPS[1] }) }) })
+    vi.mocked(api.battles.audioBlob).mockClear()
+
+    await click(r, 'probe-clip')
+
+    expect(api.battles.audioBlob).toHaveBeenCalledWith(CLIPS[1])
+    expect(probeClip.last).toBeInstanceOf(Blob)
   })
 
   it('reads the new task at the next round, with a component of its own', async () => {
@@ -1063,16 +1172,45 @@ describe('BattleView — trouble that does not end the match', () => {
     expect(api.battles.poll).toHaveBeenCalledTimes(2)
   })
 
-  it('the opponent lost connection: the strip counts the seconds, and says what happens next', async () => {
+  it('the opponent lost connection: the strip says what is left of the wait of the server, counts it down, and says what happens next', async () => {
     const r = await render(battle())
-    servePoll(() => poll({ version: 24, opponent_present: false }))
+    // the server saw the opponent last at 10:00:00 and waits `presence_grace_seconds` (30 s) for them
+    servePoll(() => poll({ version: 24, opponent_present: false, opponent_absent_since: at(-5) }))
+
+    await pass(2000) // 10:00:07
+    expect(text(r, 'absent-text')).toBe('Соперник потерял связь.')
+    expect(text(r, 'absent-hint')).toBe('Если не вернётся за 23 с, победа ваша.')
+
+    await pass(5000)
+    expect(text(r, 'absent-hint')).toBe('Если не вернётся за 18 с, победа ваша.')
+  })
+
+  it('takes the wait of the server from the battle, not from a number of its own', async () => {
+    const r = await render(battle({ presence_grace_seconds: 45 }))
+    servePoll(() => poll({ version: 24, opponent_present: false, opponent_absent_since: at(-5) }))
 
     await pass(2000)
-    expect(text(r, 'absent-text')).toBe('Соперник потерял связь… 0:00')
-    expect(text(r, 'absent-hint')).toBe('Если он не вернётся, победа достанется вам.')
 
-    await pass(21_000)
-    expect(text(r, 'absent-text')).toBe('Соперник потерял связь… 0:21')
+    expect(text(r, 'absent-hint')).toBe('Если не вернётся за 38 с, победа ваша.')
+  })
+
+  it('after a reload the number is the same, not a count from 0:00: the first reading already says since when', async () => {
+    // the opponent was last seen 7 s before the reading (10:00:05): 23 s of the wait are left
+    const r = await render(battle({ opponent_present: false, opponent_absent_since: at(-7) }))
+
+    expect(text(r, 'absent-hint')).toBe('Если не вернётся за 23 с, победа ваша.')
+    await pass(4000)
+    expect(text(r, 'absent-hint')).toBe('Если не вернётся за 19 с, победа ваша.')
+  })
+
+  it('never goes below 0: past the wait the strip says 0 until the server ends the match', async () => {
+    const r = await render(battle())
+    servePoll(() => poll({ version: 24, opponent_present: false, opponent_absent_since: at(-30) }))
+
+    await pass(2000)
+    await pass(10_000)
+
+    expect(text(r, 'absent-hint')).toBe('Если не вернётся за 0 с, победа ваша.')
   })
 
   it('the opponent is back: the strip goes', async () => {
@@ -1087,13 +1225,49 @@ describe('BattleView — trouble that does not end the match', () => {
     expect(has(r, 'absent-strip')).toBe(false)
   })
 
-  it('in the room the hint says the room closes', async () => {
+  it('in the room, and in the countdown, the hint says the match is canceled (not that the learner wins)', async () => {
     const r = await render(roomBattle({ ready: { me: false, opponent: false } }))
-    servePoll(() => poll({ status: 'room', version: 3, opponent_present: false, round: null }))
+    servePoll(() => poll({ status: 'room', version: 3, opponent_present: false, opponent_absent_since: at(-5), round: null }))
 
     await pass(2000)
 
-    expect(text(r, 'absent-hint')).toBe('Если он не вернётся, комната закроется.')
+    expect(text(r, 'absent-hint')).toBe('Если не вернётся за 23 с, матч отменится.')
+    expect(text(r, 'absent-text')).toBe('Соперник потерял связь.')
+  })
+
+  it('the connection and the server are told apart: “No connection” for the network, “The server does not answer” for a 5xx and a 429', async () => {
+    const r = await render(battle())
+    vi.mocked(api.battles.poll).mockRejectedValueOnce(apiError('server', 503, 'x'))
+
+    await pass(2000)
+    expect(text(r, 'offline-strip')).toBe('Сервер не отвечает, пробуем ещё раз…')
+
+    vi.mocked(api.battles.poll).mockRejectedValueOnce(apiError('rate_limited', 429, 'x'))
+    await pass(4000)
+    expect(text(r, 'offline-strip')).toBe('Сервер не отвечает, пробуем ещё раз…')
+
+    vi.mocked(api.battles.poll).mockRejectedValueOnce(offline())
+    await pass(8000)
+    expect(text(r, 'offline-strip')).toBe('Нет связи, пробуем…')
+  })
+
+  it('a poll that hangs up to its limit is a lost connection: “No connection”', async () => {
+    const r = await render(battle())
+    vi.mocked(api.battles.poll).mockRejectedValueOnce(new ApiClientError('network', 0, 'timeout', 'The request timed out'))
+
+    await pass(2000)
+
+    expect(text(r, 'offline-strip')).toBe('Нет связи, пробуем…')
+  })
+
+  it('says the trouble of the server in Uzbek too', async () => {
+    setLocale('uz')
+    const r = await render(battle())
+    vi.mocked(api.battles.poll).mockRejectedValueOnce(apiError('server', 503, 'x'))
+
+    await pass(2000)
+
+    expect(text(r, 'offline-strip')).toBe('Server javob bermayapti, qayta urinilmoqda…')
   })
 
   it('the strips are symbols and words (not a colour alone), and neither is the red of an error', async () => {
@@ -1115,12 +1289,15 @@ describe('BattleView — trouble that does not end the match', () => {
 })
 
 describe('BattleView — the end', () => {
-  it('a battle that is over is read once and polled no more', async () => {
+  it('a battle that is over is read once; the beat of the match stops, only the slow reading for a rematch goes on (every five seconds)', async () => {
     const r = await render(finishedBattle('won'))
 
     expect(text(r, 'result-title')).toBe('Победа')
     await pass(4000)
-    expect(api.battles.poll).not.toHaveBeenCalled()
+    expect(api.battles.poll).not.toHaveBeenCalled() // no beat every two seconds
+    await pass(1500)
+    expect(api.battles.poll).toHaveBeenCalledTimes(1) // the reading for a rematch, at five seconds
+    expect(api.battles.get).toHaveBeenCalledTimes(1) // the battle itself is not read again
   })
 
   it('the score and the rounds of the result are the server’s', async () => {
@@ -1142,7 +1319,6 @@ describe('BattleView — the end', () => {
   })
 
   it.each([
-    ['both_absent', 'Оба игрока пропали — матч закрыт без победителя.'],
     ['declined', 'Приглашение отклонено.'],
     ['invite_expired', 'Приглашение не приняли вовремя.'],
     ['room_expired', 'Комната закрыта: матч не начался вовремя.'],
@@ -1153,6 +1329,14 @@ describe('BattleView — the end', () => {
 
     expect(text(r, 'result-title')).toBe('Матч не состоялся')
     expect(text(r, 'result-reason')).toBe(words)
+  })
+
+  it('a match that began and was broken off (both players gone) is “interrupted”, not “did not take place”, with its reason - and a screen reader hears the same', async () => {
+    const r = await render(closedBattle('both_absent', { starts_at: at(-60) }))
+
+    expect(text(r, 'result-title')).toBe('Матч прерван')
+    expect(text(r, 'result-reason')).toBe('Оба игрока пропали — матч закрыт без победителя.')
+    expect(text(r, 'battle-live')).toBe('Матч прерван')
   })
 
   it('the learner who won hears it: a tap of success and the word to a screen reader', async () => {
@@ -1220,48 +1404,74 @@ describe('BattleView — the end', () => {
 })
 
 describe('BattleView — the rematch', () => {
+  const OFFER = { battle_id: 16, status: 'invited', by_me: false } as const
+
   it('“Rematch” invites the friend to the same format and place, and leads to the new battle', async () => {
-    const r = await render(finishedBattle())
-    vi.mocked(api.battles.invite).mockResolvedValue(invitedBattle({ id: 16, role: 'challenger' }))
+    const r = await render(finishedBattle('lost'))
+    vi.mocked(api.battles.invite).mockResolvedValue(invitedBattle({ id: 16 }))
+    serveBattle((id) => (id === 16 ? invitedBattle({ id: 16 }) : finishedBattle('lost')))
 
     await click(r, 'rematch-btn')
 
-    expect(api.battles.invite).toHaveBeenCalledWith({ rematch_of: 15, mode: 'sentence', course: 'english-a1', lesson_id: 41 })
+    expect(api.battles.invite).toHaveBeenCalledWith({ rematch_of: 15, mode: 'sentence', course: 'english-a1', lesson_id: 41, friendship_id: 11 })
     expect(route(r).name).toBe('battle')
     expect(route(r).params.id).toBe('16')
   })
 
   it('a rematch that is refused is told, and the learner stays', async () => {
     const r = await render(finishedBattle())
-    vi.mocked(api.battles.invite).mockRejectedValue(apiError('conflict', 409, 'battle_friend_no_access'))
+    vi.mocked(api.battles.invite).mockRejectedValue(apiError('conflict', 409, 'battle_disabled'))
 
     await click(r, 'rematch-btn')
 
-    expect(showErrorToast).toHaveBeenCalledWith('У вашего друга пока нет доступа к практике.')
-    expect(route(r).params.id).toBe('15')
+    expect(showErrorToast).toHaveBeenCalledWith('Баттлы сейчас выключены.')
     expect(has(r, 'battle-result')).toBe(true)
   })
 
-  const offered = (outcome: 'won' | 'lost' = 'lost') => finishedBattle(outcome, 'completed', { rematch: { battle_id: 16, status: 'invited' } })
-  const theirs = () => invitedBattle({ id: 16, role: 'opponent' })
+  it('the friend offered a rematch at the same moment: the screen leads into THEIR invitation, where the learner accepts it - no toast', async () => {
+    const r = await render(finishedBattle('lost'), { others: { 16: invitedBattle({ id: 16, role: 'opponent' }) } })
+    vi.mocked(api.battles.invite).mockRejectedValue(apiError('conflict', 409, 'battle_busy', { battle_id: 16 }))
 
-  it('the friend offers one: it is answered on the result screen, and “Accept” opens its room', async () => {
-    const r = await render(offered(), { others: { 16: theirs() } })
+    await click(r, 'rematch-btn')
 
     expect(api.battles.get).toHaveBeenCalledWith(16)
-    expect(has(r, 'rematch-offer')).toBe(true)
-    expect(text(r, 'rematch-offer')).toContain('Dilnoza предлагает реванш')
-    expect(has(r, 'rematch-btn')).toBe(false)
-    expect(primaries(r)).toHaveLength(1)
+    expect(route(r).name).toBe('battle')
+    expect(route(r).params.id).toBe('16')
+    expect(showErrorToast).not.toHaveBeenCalled()
+    // and there it is the invitation that came: “Accept”
+    await r.wrapper.setProps({ id: 16 })
+    await flushPromises()
+    expect(has(r, 'accept-btn')).toBe(true)
+    expect(text(r, 'room-title')).toContain('Dilnoza')
+  })
 
+  it('a battle of the learner’s own is in the way of the rematch: the toast, and the way to it (the old message stands)', async () => {
+    const r = await render(finishedBattle('lost'), { others: { 9: invitedBattle({ id: 9, role: 'challenger' }) } })
+    vi.mocked(api.battles.invite).mockRejectedValue(apiError('conflict', 409, 'battle_busy', { battle_id: 9 }))
+
+    await click(r, 'rematch-btn')
+
+    expect(showErrorToast).toHaveBeenCalledWith('У вас уже есть активный баттл. Завершите его, чтобы начать новый.')
+    expect(has(r, 'battle-result')).toBe(true)
+    expect(route(r).params.id).toBe('15')
+  })
+
+  it('the friend offers one (by_me is false): it is answered on the result screen, and “Accept” opens its room', async () => {
+    const r = await render(finishedBattle('lost', 'completed', { rematch: OFFER }))
     vi.mocked(api.battles.accept).mockResolvedValue(roomBattle({ id: 16, role: 'opponent' }))
+    serveBattle((id) => (id === 16 ? roomBattle({ id: 16, role: 'opponent' }) : finishedBattle('lost')))
+
+    expect(text(r, 'rematch-offer')).toContain('Dilnoza предлагает реванш')
+    expect(api.battles.get).toHaveBeenCalledTimes(1) // who offered it came with the battle: the friend's battle was not read
     await click(r, 'accept-rematch-btn')
+
     expect(api.battles.accept).toHaveBeenCalledWith(16)
+    expect(route(r).name).toBe('battle')
     expect(route(r).params.id).toBe('16')
   })
 
   it('“Decline” takes the offer off the screen', async () => {
-    const r = await render(offered('won'), { others: { 16: theirs() } })
+    const r = await render(finishedBattle('lost', 'completed', { rematch: OFFER }))
     vi.mocked(api.battles.decline).mockResolvedValue(closedBattle('declined', { id: 16, role: 'opponent' }))
 
     await click(r, 'decline-rematch-btn')
@@ -1272,48 +1482,55 @@ describe('BattleView — the rematch', () => {
   })
 
   it('an offer that has run out cannot be accepted: told, and the offer is gone', async () => {
-    const r = await render(offered(), { others: { 16: theirs() } })
+    const r = await render(finishedBattle('lost', 'completed', { rematch: OFFER }))
     vi.mocked(api.battles.accept).mockRejectedValue(apiError('conflict', 409, 'battle_closed', { end_reason: 'invite_expired' }))
-    serveBattle((id) => (id === 15 ? finishedBattle('lost', 'completed', { version: 41, rematch: { battle_id: 16, status: 'closed' } }) : closedBattle('invite_expired', { id: 16, role: 'opponent' })))
+    servePoll(() => pollOf(finishedBattle('lost'), { rematch: { ...OFFER, status: 'closed' } }))
 
     await click(r, 'accept-rematch-btn')
 
     expect(showErrorToast).toHaveBeenCalledWith('Этот баттл уже закрыт.')
-    expect(route(r).params.id).toBe('15')
     expect(has(r, 'rematch-offer')).toBe(false)
-    expect(has(r, 'rematch-btn')).toBe(true)
+    expect(route(r).params.id).toBe('15')
   })
 
-  it('an offer of the learner’s own (made on another device) is a way back into it', async () => {
-    const r = await render(finishedBattle('won', 'completed', { rematch: { battle_id: 16, status: 'invited' } }), {
-      others: { 16: invitedBattle({ id: 16, role: 'challenger' }) },
-    })
+  it('an offer of the learner’s own (by_me: made on another device) is a way back into it', async () => {
+    const r = await render(finishedBattle('won', 'completed', { rematch: { ...OFFER, by_me: true } }))
 
-    expect(has(r, 'rematch-own')).toBe(true)
+    expect(has(r, 'rematch-offer')).toBe(false)
+    expect(has(r, 'rematch-btn')).toBe(false)
+    expect(text(r, 'rematch-own')).toContain('Вы предложили реванш')
+    await click(r, 'open-rematch-btn')
+    expect(route(r).params.id).toBe('16')
+  })
+
+  it('a rematch the learner took on another device is a way back into it, too', async () => {
+    const r = await render(finishedBattle('won', 'completed', { rematch: { battle_id: 16, status: 'room', by_me: false } }))
+
+    expect(text(r, 'rematch-own')).toContain('Реванш уже идёт')
     expect(has(r, 'rematch-btn')).toBe(false)
     await click(r, 'open-rematch-btn')
     expect(route(r).params.id).toBe('16')
   })
 
-  it('an offer that comes after the end appears by itself: the result screen asks again every five seconds', async () => {
+  it('an offer that comes after the end appears by itself: the result screen asks again every five seconds - with the poll, not with the battle', async () => {
     const r = await render(finishedBattle())
     expect(has(r, 'rematch-offer')).toBe(false)
-    serveBattle((id) => (id === 15 ? finishedBattle('won', 'completed', { version: 41, rematch: { battle_id: 16, status: 'invited' } }) : theirs()))
+    servePoll(() => pollOf(finishedBattle(), { rematch: OFFER }))
 
-    await pass(4900)
-    expect(has(r, 'rematch-offer')).toBe(false)
-    await pass(200)
+    await pass(5000)
 
-    expect(has(r, 'rematch-offer')).toBe(true)
+    expect(api.battles.poll).toHaveBeenCalledWith(15)
+    expect(api.battles.get).toHaveBeenCalledTimes(1) // never again GET /battles/{id}
     expect(text(r, 'rematch-offer')).toContain('Dilnoza предлагает реванш')
+    expect(primaries(r)).toHaveLength(1)
   })
 
   it('an offer that is taken back disappears by itself too', async () => {
-    const r = await render(offered(), { others: { 16: theirs() } })
+    const r = await render(finishedBattle('won', 'completed', { rematch: OFFER }))
     expect(has(r, 'rematch-offer')).toBe(true)
-    serveBattle((id) => (id === 15 ? finishedBattle('lost', 'completed', { version: 42, rematch: { battle_id: 16, status: 'closed' } }) : closedBattle('canceled', { id: 16, role: 'opponent' })))
+    servePoll(() => pollOf(finishedBattle(), { rematch: { ...OFFER, status: 'closed' } }))
 
-    await pass(5100)
+    await pass(5000)
 
     expect(has(r, 'rematch-offer')).toBe(false)
     expect(has(r, 'rematch-btn')).toBe(true)
@@ -1321,15 +1538,416 @@ describe('BattleView — the rematch', () => {
 
   it('the result screen stops asking after a couple of minutes, and when the learner leaves it', async () => {
     const r = await render(finishedBattle())
-    vi.mocked(api.battles.get).mockClear()
+    servePoll(() => pollOf(finishedBattle()))
 
-    await pass(24 * 5000 + 1000)
-    expect(vi.mocked(api.battles.get).mock.calls.length).toBe(24)
-    vi.mocked(api.battles.get).mockClear()
+    await pass(5000 * 24 + 1000)
+    expect(vi.mocked(api.battles.poll).mock.calls.length).toBe(RESULT_CHECKS_MAX)
     await pass(30_000)
-    expect(api.battles.get).not.toHaveBeenCalled()
+    expect(vi.mocked(api.battles.poll).mock.calls.length).toBe(RESULT_CHECKS_MAX)
 
+    vi.mocked(api.battles.poll).mockClear()
     r.wrapper.unmount()
+    mounted.length = 0
+    await pass(30_000)
+    expect(api.battles.poll).not.toHaveBeenCalled()
+  })
+})
+
+describe('BattleView — an answer that was not delivered belongs to its round (review Б1, Б2)', () => {
+  /** The connection is gone: the answer of round 2 goes four times and the screen asks to retry. */
+  async function undeliveredInRound2() {
+    const r = await render(battle())
+    vi.mocked(api.battles.answer).mockRejectedValue(offline())
+    vi.mocked(api.battles.poll).mockRejectedValue(offline())
+
+    await get(r, 'probe-answer').trigger('click')
+    await pass(500)
+    await pass(1000)
+    await pass(2000)
+    expect(has(r, 'battle-send-failed')).toBe(true)
+    return r
+  }
+
+  const round3 = (overrides: Partial<BattlePoll> = {}) => poll({ version: 30, round: roundState({ no: 3, deadline_at: at(90) }), scores: { me: 100, opponent: 225 }, ...overrides })
+  const serveRound3 = () => {
+    servePoll(() => round3())
+    vi.mocked(api.battles.round).mockImplementation(() =>
+      Promise.resolve(stamp(answeringRound({ no: 3, deadline_at: at(90), element: sentenceElement({ id: 'eSent00003' }) }))),
+    )
+  }
+
+  it('V1: an answer of round 2 that never got through does not take round 3 from the learner - the task is there, nothing is told, and it can be answered', async () => {
+    const r = await undeliveredInRound2()
+
+    // the connection is back after the deadline: the server is in round 3 (round 2 got a time-out)
+    serveRound3()
+    await pass(10_000)
+
+    expect(text(r, 'headline')).toBe('Раунд 3 из 5')
+    expect(has(r, 'battle-send-failed')).toBe(false)
+    expect(has(r, 'retry-answer-btn')).toBe(false)
+    expect(get(r, 'probe').attributes('data-element')).toBe('eSent00003')
+    expect(get(r, 'probe').attributes('data-disabled')).toBe('false')
+    expect(showErrorToast).not.toHaveBeenCalled()
+
+    vi.mocked(api.battles.answer).mockReset()
+    vi.mocked(api.battles.answer).mockResolvedValue(answerReply({ poll: poll({ version: 31, round: roundState({ no: 3, deadline_at: at(90), my_answered: true }) }) }))
+    await get(r, 'probe-answer').trigger('click')
+    await flushPromises()
+    expect(api.battles.answer).toHaveBeenCalledTimes(1)
+    expect(vi.mocked(api.battles.answer).mock.calls[0]?.[1].round).toBe(3)
+    expect(has(r, 'battle-waiting')).toBe(true)
+  })
+
+  it('the same when the lost answer WAS counted (only its reply was lost): “waiting” first, then round 3 with its task', async () => {
+    const r = await undeliveredInRound2()
+    servePoll(() => poll({ version: 24, round: roundState({ my_answered: true }) }))
+
+    await pass(10_000)
+    expect(has(r, 'battle-waiting')).toBe(true)
+    expect(has(r, 'battle-send-failed')).toBe(false)
+
+    serveRound3()
+    await pass(2000)
+
+    expect(text(r, 'headline')).toBe('Раунд 3 из 5')
+    expect(has(r, 'battle-send-failed')).toBe(false)
+    expect(has(r, 'battle-waiting')).toBe(false)
+    expect(get(r, 'probe').attributes('data-element')).toBe('eSent00003')
+    expect(showErrorToast).not.toHaveBeenCalled()
+  })
+
+  it('Б1b: the round moves on while the repeat of the old answer is still on its way - round 3 is not locked, no note of sending, no toast when the old one is refused', async () => {
+    const r = await render(battle({ round: roundState({ deadline_at: at(1) }) }))
+    const late = pending<never>()
+    vi.mocked(api.battles.answer).mockRejectedValueOnce(offline()).mockReturnValueOnce(late.promise)
+    await get(r, 'probe-answer').trigger('click')
+    await flushPromises()
+
+    serveRound3()
+    await pass(2000)
+
+    expect(text(r, 'headline')).toBe('Раунд 3 из 5')
+    expect(has(r, 'sending')).toBe(false)
+    expect(has(r, 'battle-resending')).toBe(false)
+    expect(get(r, 'probe').attributes('data-element')).toBe('eSent00003')
+    expect(get(r, 'probe').attributes('data-disabled')).toBe('false')
+
+    late.reject(apiError('conflict', 409, 'round_closed', { round: 2, phase: 'answering' }))
+    await flushPromises()
+    expect(showErrorToast).not.toHaveBeenCalled()
+    expect(get(r, 'probe').attributes('data-disabled')).toBe('false')
+  })
+
+  it('Б2: the repeat of an answer that WAS counted meets “time is up” after the round was resolved - no “not accepted” beside “Correct”: the review tells the truth', async () => {
+    const r = await render(battle({ round: roundState({ opponent_answered: true }) }))
+    // the first try: the server counts it (and, being the second answer, resolves the round), the reply is lost; the repeat meets round_closed
+    vi.mocked(api.battles.answer).mockRejectedValueOnce(offline()).mockRejectedValueOnce(apiError('conflict', 409, 'round_closed', { round: 2, phase: 'reveal' }))
+    servePoll(() => poll({ version: 25, round: roundState({ phase: 'reveal', phase_ends_at: at(4), my_answered: true, opponent_answered: true }), scores: { me: 200, opponent: 125 } }))
+    vi.mocked(api.battles.round).mockImplementation(() => Promise.resolve(stamp(revealRound())))
+
+    await get(r, 'probe-answer').trigger('click')
+    await pass(500)
+
+    const ids = vi.mocked(api.battles.answer).mock.calls.map((call) => call[1].request_id)
+    expect(ids).toHaveLength(2)
+    expect(new Set(ids).size).toBe(1)
+    expect(showErrorToast).not.toHaveBeenCalled()
+    expect(has(r, 'battle-reveal')).toBe(true)
+    expect(get(r, 'side-me').attributes('data-verdict')).toBe('correct')
+  })
+
+  it('Б2: the same after the last round - no “This battle is closed” above the result', async () => {
+    const r = await render(battle({ round: roundState({ no: 5, opponent_answered: true }) }), { round: answeringRound({ no: 5 }) })
+    vi.mocked(api.battles.answer).mockRejectedValueOnce(offline()).mockRejectedValueOnce(offline()).mockRejectedValueOnce(apiError('conflict', 409, 'battle_closed', { end_reason: 'completed' }))
+    servePoll(() => pollOf(finishedBattle('won')))
+    serveBattle(() => finishedBattle('won'))
+
+    await get(r, 'probe-answer').trigger('click')
+    await pass(500)
+    await pass(1000)
+
+    expect(showErrorToast).not.toHaveBeenCalled()
+    expect(text(r, 'result-title')).toBe('Победа')
+  })
+
+  it('a FIRST try that is late is told: nothing was sent before, so the answer was not taken', async () => {
+    const r = await render(battle())
+    vi.mocked(api.battles.answer).mockRejectedValue(apiError('conflict', 409, 'round_closed', { round: 2, phase: 'reveal' }))
+    servePoll(() => poll({ version: 26, round: roundState({ phase: 'reveal', phase_ends_at: at(3) }) }))
+    vi.mocked(api.battles.round).mockImplementation(() => Promise.resolve(stamp(revealRound())))
+
+    await click(r, 'probe-answer')
+
+    expect(showErrorToast).toHaveBeenCalledWith('Время раунда вышло: ответ не принят.')
+  })
+
+  it('the answer that goes again is not drawn beside an empty task: “Sending…” stands alone, and “Retry” does not bring back an empty board', async () => {
+    const r = await render(battle())
+    vi.mocked(api.battles.answer).mockRejectedValue(offline())
+
+    await get(r, 'probe-answer').trigger('click')
+    await flushPromises()
+    // the first try got no reply: from now on it is a repeat
+    expect(has(r, 'battle-resending')).toBe(true)
+    expect(text(r, 'resending-note')).toBe('Отправляем ответ…')
+    expect(has(r, 'probe')).toBe(false)
+
+    await pass(500)
+    await pass(1000)
+    await pass(2000)
+    expect(has(r, 'battle-send-failed')).toBe(true)
+    expect(has(r, 'battle-resending')).toBe(false)
+
+    const again = pending<ReturnType<typeof answerReply>>()
+    vi.mocked(api.battles.answer).mockReset()
+    vi.mocked(api.battles.answer).mockReturnValue(again.promise)
+    await click(r, 'retry-answer-btn')
+
+    expect(has(r, 'battle-resending')).toBe(true)
+    expect(has(r, 'probe')).toBe(false)
+    expect(has(r, 'battle-send-failed')).toBe(false)
+    again.resolve(answerReply())
+    await flushPromises()
+    expect(has(r, 'battle-waiting')).toBe(true)
+  })
+
+  it('the first try keeps the (locked) component in view, as before', async () => {
+    const r = await render(battle())
+    const reply = pending<ReturnType<typeof answerReply>>()
+    vi.mocked(api.battles.answer).mockReturnValue(reply.promise)
+
+    await get(r, 'probe-answer').trigger('click')
+
+    expect(has(r, 'probe')).toBe(true)
+    expect(get(r, 'probe').attributes('data-disabled')).toBe('true')
+    expect(has(r, 'sending')).toBe(true)
+    expect(has(r, 'battle-resending')).toBe(false)
+    reply.resolve(answerReply())
+    await flushPromises()
+  })
+
+  it('says what failed: the connection, or the server - “not delivered” is not “no connection” when the server answers 503', async () => {
+    const r = await render(battle())
+    vi.mocked(api.battles.answer).mockRejectedValue(apiError('server', 503, 'x'))
+
+    await get(r, 'probe-answer').trigger('click')
+    await pass(500)
+    await pass(1000)
+    await pass(2000)
+
+    expect(text(r, 'battle-send-failed')).toContain('Ответ не отправился: сервер не отвечает. Повторите, пока идёт время раунда.')
+    expect(text(r, 'battle-send-failed')).not.toContain('нет связи')
+  })
+
+  it('and for the connection the old words stand, in Uzbek too', async () => {
+    setLocale('uz')
+    const r = await undeliveredInRound2()
+
+    expect(text(r, 'battle-send-failed')).toContain("Javob yuborilmadi: aloqa yo'q.")
+  })
+})
+
+describe('BattleView — the question about leaving follows the battle (review Ж3)', () => {
+  it('V2: “Surrender and leave?” goes when the match ends meanwhile: the result is not covered by a question that is no longer so', async () => {
+    const r = await render(battle())
+    await click(r, 'close-btn')
+    expect(has(r, 'leave-confirm')).toBe(true)
+
+    servePoll(() => pollOf(finishedBattle('won', 'completed')))
+    serveBattle(() => finishedBattle('won', 'completed'))
+    await pass(2000)
+
+    expect(text(r, 'result-title')).toBe('Победа')
+    expect(has(r, 'leave-confirm')).toBe(false)
+    expect(api.battles.surrender).not.toHaveBeenCalled()
+  })
+
+  it('the same for a battle that ends without a result (closed)', async () => {
+    const r = await render(battle())
+    await click(r, 'close-btn')
+
+    servePoll(() => pollOf(closedBattle('both_absent', { version: 40, starts_at: at(-60) })))
+    serveBattle(() => closedBattle('both_absent', { version: 40, starts_at: at(-60) }))
+    await pass(2000)
+
+    expect(text(r, 'result-title')).toBe('Матч прерван')
+    expect(has(r, 'leave-confirm')).toBe(false)
+  })
+
+  it('V3: “Leave the room?” goes when the match begins: confirming it would be refused, and the learner would stay in the match', async () => {
+    const r = await render(roomBattle({ ready: { me: true, opponent: false } }), { round: answeringRound({ no: 1, deadline_at: at(45) }) })
+    await click(r, 'close-btn')
+    expect(text(r, 'leave-text')).toBe('Матч отменится, соперник узнает об этом.')
+
+    // the countdown is still a room that can be left: the question stays
+    const countdown = countdownBattle({ version: 5 })
+    servePoll(() => pollOf(countdown))
+    serveBattle(() => countdown)
+    await pass(2000)
+    expect(get(r, 'battle-view').attributes('data-status')).toBe('countdown')
+    expect(has(r, 'leave-confirm')).toBe(true)
+
+    // the match begins: it is not
+    const playing = battle({ version: 6, round: roundState({ no: 1, deadline_at: at(45) }), scores: { me: 0, opponent: 0 } })
+    servePoll(() => pollOf(playing))
+    serveBattle(() => playing)
+    await pass(2000)
+
+    expect(get(r, 'battle-view').attributes('data-status')).toBe('playing')
+    expect(has(r, 'leave-confirm')).toBe(false)
+    expect(api.battles.cancel).not.toHaveBeenCalled()
+    expect(showErrorToast).not.toHaveBeenCalled()
+    // asking again now asks for the thing that is true: a surrender
+    await click(r, 'close-btn')
+    expect(get(r, 'leave-confirm').attributes('data-variant')).toBe('match')
+    expect(text(r, 'leave-title')).toBe('Сдаться и выйти?')
+  })
+
+  it('an invitation that is accepted while the learner is asked: the question stays, now about the room', async () => {
+    const r = await render(invitedBattle({ role: 'challenger' }))
+    await click(r, 'close-btn')
+    expect(text(r, 'leave-text')).toBe('Приглашение будет отозвано.')
+
+    servePoll(() => pollOf(roomBattle()))
+    serveBattle(() => roomBattle())
+    await pass(2000)
+
+    expect(get(r, 'battle-view').attributes('data-status')).toBe('room')
+    expect(has(r, 'leave-confirm')).toBe(true)
+    expect(text(r, 'leave-text')).toBe('Матч отменится, соперник узнает об этом.')
+  })
+
+  it('the question of a match stays while the match goes on', async () => {
+    const r = await render(battle())
+    await click(r, 'close-btn')
+
+    await pass(6000)
+
+    expect(has(r, 'leave-confirm')).toBe(true)
+    expect(get(r, 'leave-confirm').attributes('data-variant')).toBe('match')
+  })
+})
+
+describe('BattleView — a recording the server does not have (review Ж5)', () => {
+  const ELEMENTS = ['eD1', 'eD2', 'eD3', 'eD4', 'eD5']
+
+  it('a clip of the room that the server answers 503 for is reported (audio-failed): the server voids the match, and the result says why', async () => {
+    vi.mocked(api.battles.audioBlob).mockImplementation((url) => (url.endsWith('eD3') ? Promise.reject(apiError('server', 503, 'practice_audio_unavailable')) : Promise.resolve(clip())))
+    vi.mocked(api.battles.audioFailed).mockResolvedValue({ verified: true, battle: closedBattle('voided', { mode: 'dictation', version: 5 }) })
+
+    const r = await render(roomBattle({ mode: 'dictation', audio_preload: CLIPS }))
+    await flushPromises()
+
+    expect(api.battles.audioFailed).toHaveBeenCalledTimes(1)
+    expect(api.battles.audioFailed).toHaveBeenCalledWith(15, { request_id: expect.any(String), element_id: ELEMENTS[2] })
+    expect(get(r, 'battle-view').attributes('data-status')).toBe('closed')
+    expect(text(r, 'result-title')).toBe('Матч не состоялся') // the room: the match did not begin
+    expect(text(r, 'result-reason')).toBe('Матч отменён: запись недоступна. Очки не засчитаны.')
+    expect(primaries(r)).toHaveLength(1)
+  })
+
+  it('the file is there after all (verified: false): the clip is asked for again, once, and the room opens “Ready”', async () => {
+    let missing = true
+    vi.mocked(api.battles.audioBlob).mockImplementation((url) => (url.endsWith('eD3') && missing ? Promise.reject(apiError('server', 503, 'practice_audio_unavailable')) : Promise.resolve(clip())))
+    vi.mocked(api.battles.audioFailed).mockImplementation(() => {
+      missing = false // a hiccup of the server, it is over
+      return Promise.resolve({ verified: false, battle: roomBattle({ mode: 'dictation', version: 3, audio_preload: CLIPS }) })
+    })
+
+    const r = await render(roomBattle({ mode: 'dictation', audio_preload: CLIPS }))
+    await flushPromises()
+
+    expect(api.battles.audioFailed).toHaveBeenCalledTimes(1)
+    expect(vi.mocked(api.battles.audioBlob).mock.calls.filter(([url]) => url.endsWith('eD3'))).toHaveLength(2)
+    expect(get(r, 'room-audio').attributes('data-state')).toBe('ready')
+    expect(get(r, 'ready-btn').attributes('disabled')).toBeUndefined()
+    expect(get(r, 'battle-view').attributes('data-status')).toBe('room')
+  })
+
+  it('a clip that is still answered 503 after that is not reported again and again: the learner has “Retry”, and the room has its own end', async () => {
+    vi.mocked(api.battles.audioBlob).mockImplementation((url) => (url.endsWith('eD3') ? Promise.reject(apiError('server', 503, 'practice_audio_unavailable')) : Promise.resolve(clip())))
+    vi.mocked(api.battles.audioFailed).mockResolvedValue({ verified: false, battle: roomBattle({ mode: 'dictation', version: 3, audio_preload: CLIPS }) })
+    const r = await render(roomBattle({ mode: 'dictation', audio_preload: CLIPS }))
+    await flushPromises()
+    const asked = () => vi.mocked(api.battles.audioBlob).mock.calls.filter(([url]) => url.endsWith('eD3')).length
+
+    expect(api.battles.audioFailed).toHaveBeenCalledTimes(1)
+    expect(asked()).toBe(2) // the first, and the one retry after “the file is there”
+    expect(get(r, 'room-audio').attributes('data-state')).toBe('failed')
+    expect(get(r, 'ready-btn').attributes('disabled')).toBeDefined()
+
+    await click(r, 'audio-retry')
+    await flushPromises()
+
+    expect(asked()).toBe(3)
+    expect(api.battles.audioFailed).toHaveBeenCalledTimes(1)
+  })
+
+  it('a clip that fails for any other reason (no connection) is not reported: the server has no file to check', async () => {
+    vi.mocked(api.battles.audioBlob).mockImplementation((url) => (url.endsWith('eD3') ? Promise.reject(offline()) : Promise.resolve(clip())))
+
+    const r = await render(roomBattle({ mode: 'dictation', audio_preload: CLIPS }))
+    await flushPromises()
+
+    expect(get(r, 'room-audio').attributes('data-state')).toBe('failed')
+    expect(api.battles.audioFailed).not.toHaveBeenCalled()
+  })
+
+  it('a reload in the countdown loads the clips too: the server lists them there as well', async () => {
+    vi.mocked(api.battles.audioBlob).mockResolvedValue(clip())
+
+    await render(countdownBattle({ mode: 'dictation', audio_preload: CLIPS }))
+    await flushPromises()
+
+    expect(api.battles.audioBlob).toHaveBeenCalledTimes(5)
+    for (const url of CLIPS) expect(api.battles.audioBlob).toHaveBeenCalledWith(url)
+  })
+
+  it('a match that is on has no list to load (the server sends null), and a battle of another format never had one', async () => {
+    vi.mocked(api.battles.audioBlob).mockResolvedValue(clip())
+
+    await render(battle({ mode: 'sentence' }))
+    await render(roomBattle({ mode: 'pairs' }))
+    await flushPromises()
+
+    expect(api.battles.audioBlob).not.toHaveBeenCalled()
+  })
+})
+
+describe('BattleView — behind Pro (docs/16 §3.2)', () => {
+  const PRO = () => apiError('forbidden', 403, 'practice_pro_required')
+
+  it('“Accept” without Pro opens the paywall of the practice - no toast - and the invitation stays on screen', async () => {
+    const r = await render(invitedBattle({ role: 'opponent' }))
+    vi.mocked(api.battles.accept).mockRejectedValue(PRO())
+
+    await click(r, 'accept-btn')
+
+    expect(get(r, 'paywall').attributes('data-reason')).toBe('practice')
+    expect(showErrorToast).not.toHaveBeenCalled()
+    expect(has(r, 'battle-room')).toBe(true)
+    await click(r, 'paywall-close')
+    expect(has(r, 'paywall')).toBe(false)
+    expect(has(r, 'accept-btn')).toBe(true)
+  })
+
+  it('a battle that cannot be opened without Pro opens the paywall over the closed state; closing it leaves the way to the friends', async () => {
+    const r = await render(PRO())
+
+    expect(get(r, 'paywall').attributes('data-reason')).toBe('practice')
+    expect(has(r, 'closed')).toBe(true) // under the sheet: not a toast, and not the only thing the learner is given
+    await click(r, 'paywall-close')
+    expect(has(r, 'paywall')).toBe(false)
+    await click(r, 'friends-btn')
+    expect(route(r).name).toBe('friends')
+  })
+
+  it('a refusal that is not about Pro is not a paywall', async () => {
+    const r = await render(apiError('forbidden', 403, 'practice_unavailable'))
+
+    expect(has(r, 'paywall')).toBe(false)
+    expect(r.wrapper.text()).toContain('Практика сейчас недоступна.')
   })
 })
 

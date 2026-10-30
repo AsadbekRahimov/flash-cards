@@ -9,6 +9,7 @@ import type {
   BattleIncoming,
   BattleListResponse,
   BattlePoll,
+  BattleRematch,
   BattleRound,
   BattleRoundState,
   BattleStatus,
@@ -26,23 +27,41 @@ export type BattleAction = 'accept' | 'decline' | 'cancel' | 'ready' | 'surrende
 /** The answer of the round: nothing on its way / being sent (repeats included) / not delivered, waiting for "Retry". */
 export type AnswerState = 'idle' | 'sending' | 'failed'
 
+/** Why a request got no reply: the connection (or a request that hung up to its limit) or the server itself (5xx, 429). The screen says which. */
+export type TroubleCause = 'network' | 'server'
+
 /** The answer that is on its way or was not delivered: a repeat takes the same `request_id`, so the server counts it once. */
 export interface PendingAnswer {
   request_id: string
   round: number
   payload: PracticeAnswerPayload
+  /** A try of it ended without a reply (no network, 5xx, 429, a hung request): the server may have counted it. */
+  uncertain: boolean
 }
 
 /** The statuses in which the battle is alive: the poll runs only in them (docs/16 §11.4). */
 const LIVE: readonly BattleStatus[] = ['invited', 'room', 'countdown', 'playing']
+
+/** The order in which a battle goes through its statuses (the two end ones are equal): an older reading does not take a newer one back. */
+const STATUS_RANK: Record<BattleStatus, number> = { invited: 0, room: 1, countdown: 2, playing: 3, finished: 4, closed: 4 }
 
 /** How many times a lost answer is sent again by itself before the screen asks the learner to retry. */
 export const ANSWER_REPEATS = 3
 /** The pause before each repeat, in milliseconds. */
 const ANSWER_REPEAT_DELAYS_MS = [500, 1000, 2000]
 
+/** The pause before the report of a broken clip, if it did not reach the server, is sent once more. */
+const AUDIO_REPORT_REPEAT_MS = 1500
+
 /** How many times the result screen asks the server about a rematch (one reading per five seconds, two minutes). */
 export const RESULT_CHECKS_MAX = 24
+
+/**
+ * What the server says to a repeat of an answer that comes too late. After a try that got no reply the first one may have been
+ * counted before it was late (the server answers a repeat with the first result, but an older server did not), so these are not
+ * "your answer was not taken": the review of the round tells what became of it.
+ */
+const LATE_CODES = ['round_closed', 'round_not_open', 'battle_closed']
 
 const NOT_READY = { me: false, opponent: false }
 const NO_SCORE = { me: 0, opponent: 0 }
@@ -74,9 +93,11 @@ interface BattleState {
   gone: boolean
   /** Counts the battles the store has been reset for: a reply that comes back for an earlier one is dropped. */
   generation: number
-  /** The answer of the round that is on its way (`request_id`), kept for a repeat after a network error. */
+  /** The answer of the round that is on its way (`request_id`), kept for a repeat after a lost reply. */
   pendingAnswer: PendingAnswer | null
   answerState: AnswerState
+  /** Why the last try of the answer got no reply (for the words under "Retry"). */
+  answerCause: TroubleCause
   /** `server time − device time`, for the timer of a round. */
   serverOffsetMs: number
   /** The poll runs. */
@@ -85,9 +106,13 @@ interface BattleState {
   pollingWanted: boolean
   /** A poll is on its way: a second one (the wake-up at a deadline) does not start beside it. */
   ticking: boolean
+  /** A wake-up came while a poll was on its way: another follows it as soon as it is done. */
+  wakeQueued: boolean
   /** The poll failed (no network, 5xx, 429): "No connection, trying…". */
   offline: boolean
-  /** Server time (epoch ms) at which the poll first showed the opponent gone; null while they are there. */
+  /** What the failed poll was: the connection or the server (the strip says it in other words). */
+  offlineCause: TroubleCause
+  /** Server time (epoch ms) since which the opponent is gone (their last presence); null while they are there. */
   absentSince: number | null
   /** The action that is on its way. */
   acting: BattleAction | null
@@ -95,14 +120,16 @@ interface BattleState {
   actionError: string
   /** The learner's other battle that blocked an accept or a rematch (409 `battle_busy`). */
   busyBattleId: number | null
+  /** The action was refused because practice is behind Pro (403 `practice_pro_required`): the paywall opens instead of a message. */
+  paywall: boolean
   /** Number of the newest round request: an older round that comes late is dropped. */
   roundReq: number
   /** Grows with every new round element: the screen keys the mode component by it, so a new round has no pick left over. */
   elementSeq: number
   /** Elements whose clip the learner reported as broken (once each). */
   audioReported: string[]
-  /** The rematch of the finished battle, read in full: it tells who offered it. */
-  rematchBattle: Battle | null
+  /** The rematch offered after the battle that is over, and who offered it (`by_me`); null if none. (`rematch()` is the action.) */
+  rematchOffer: BattleRematch | null
   /** How many times the result screen has asked the server since the battle ended. */
   resultChecks: number
 }
@@ -126,9 +153,36 @@ function isUncertain(err: unknown): boolean {
   return err instanceof ApiClientError && (err.kind === 'network' || err.kind === 'server' || err.kind === 'rate_limited')
 }
 
+/** Why a request got no reply: the connection (a request that hung up to its limit is that too) or the server (5xx, 429). */
+function causeOf(err: unknown): TroubleCause {
+  return err instanceof ApiClientError && (err.kind === 'server' || err.kind === 'rate_limited') ? 'server' : 'network'
+}
+
 /** A refusal that no repeat can change: the battle is not there (or not the learner's), or not open to them. */
 function isFinal(err: unknown): boolean {
   return err instanceof ApiClientError && (err.kind === 'not_found' || err.kind === 'forbidden' || err.kind === 'gone')
+}
+
+/** Practice (a battle with it) is behind Pro for this learner (docs/16 §3.2): the answer is the paywall, not a message. */
+export function isProRequired(err: unknown): boolean {
+  return err instanceof ApiClientError && err.code === 'practice_pro_required'
+}
+
+/**
+ * 409 `battle_busy` names the battle that is in the way (`details.battle_id`). When it is an invitation from the friend TO ME - the
+ * two of us offered a battle (or a rematch) at the same moment, and theirs was first - it is the one to accept, and this gives its id
+ * so that the screen leads into it. Null: the battle in the way is the learner's own (or it cannot be read), the message about it stands.
+ */
+export async function incomingInvitation(err: unknown): Promise<number | null> {
+  if (!(err instanceof ApiClientError) || err.code !== 'battle_busy') return null
+  const id = err.details?.battle_id
+  if (typeof id !== 'number') return null
+  try {
+    const battle = await api.battles.get(id)
+    return battle.status === 'invited' && battle.role === 'opponent' ? battle.id : null
+  } catch {
+    return null
+  }
 }
 
 /** The dynamic part of a full reading, in the shape of a poll: the screen reads the freshest of the two. */
@@ -140,9 +194,11 @@ function pollOf(battle: Battle): BattlePoll {
     server_now: battle.server_now,
     ready: battle.ready,
     opponent_present: battle.opponent_present,
+    opponent_absent_since: battle.opponent_absent_since,
     round: battle.round,
     scores: battle.scores,
-    end_reason: battle.result?.end_reason ?? null,
+    end_reason: battle.result?.end_reason ?? battle.end_reason,
+    rematch: battle.rematch,
   }
 }
 
@@ -160,8 +216,10 @@ function isNewer(next: { version: number; server_now: string }, than: { version:
  * - `tick` is the poll (the heartbeat of the player): it reads `GET /battles/{id}` again when the `status` changed and
  *   `GET /round` when the round or its phase changed, and nothing else;
  * - `generation`: every reply is dropped if the learner has moved to another battle or left the screen meanwhile;
- * - one `request_id` per answer of a round, kept across a network error (`pendingAnswer`): the repeat is counted once;
- *   a repeat that arrives after the deadline (`round_closed`) shows no verdict, only the state the server has now;
+ * - one `request_id` per answer of a round, kept across a lost reply (`pendingAnswer`): the repeat is counted once. The answer
+ *   belongs to ONE round: as soon as the server is somewhere else (`dropStaleAnswer`) it is let go without a word, and what is
+ *   still in flight for it ends quietly; a repeat that arrives late after a try with no reply shows no refusal either, only the
+ *   state the server has now;
  * - `serverOffsetMs`: the timer of a round counts to the server's deadline by the server's clock.
  */
 export const useBattleStore = defineStore('battle', {
@@ -181,19 +239,23 @@ export const useBattleStore = defineStore('battle', {
     generation: 0,
     pendingAnswer: null,
     answerState: 'idle',
+    answerCause: 'network',
     serverOffsetMs: 0,
     polling: false,
     pollingWanted: false,
     ticking: false,
+    wakeQueued: false,
     offline: false,
+    offlineCause: 'network',
     absentSince: null,
     acting: null,
     actionError: '',
     busyBattleId: null,
+    paywall: false,
     roundReq: 0,
     elementSeq: 0,
     audioReported: [],
-    rematchBattle: null,
+    rematchOffer: null,
     resultChecks: 0,
   }),
 
@@ -250,7 +312,7 @@ export const useBattleStore = defineStore('battle', {
 
     /**
      * Accepts an invitation of the list (the Friends screen). True when it was accepted: the battle is the learner's
-     * now, and the screen leads into its room. A refusal is in `actionError`; the list is read again.
+     * now, and the screen leads into its room. A refusal is in `actionError` (or, behind Pro, in `paywall`); the list is read again.
      */
     async acceptInvitation(id: number): Promise<boolean> {
       return this.answerInvitation(id, (battleId) => api.battles.accept(battleId))
@@ -269,7 +331,8 @@ export const useBattleStore = defineStore('battle', {
         if (this.list !== null) this.list = { ...this.list, incoming: this.list.incoming.filter((item) => item.id !== id) }
         return true
       } catch (err) {
-        this.actionError = errorMessage(err, 'battle')
+        if (isProRequired(err)) this.paywall = true
+        else this.actionError = errorMessage(err, 'battle')
         // Another side acted first (the invitation ran out, was withdrawn): show what is true now.
         void this.loadList()
         return false
@@ -284,6 +347,10 @@ export const useBattleStore = defineStore('battle', {
 
     clearBusyBattle(): void {
       this.busyBattleId = null
+    },
+
+    dismissPaywall(): void {
+      this.paywall = false
     },
 
     // -------------------------------------------------------- the screen
@@ -301,20 +368,24 @@ export const useBattleStore = defineStore('battle', {
       this.gone = false
       this.pendingAnswer = null
       this.answerState = 'idle'
+      this.answerCause = 'network'
       this.serverOffsetMs = 0
       clockOf(this).reset()
       this.polling = false
       this.pollingWanted = id !== null
       this.ticking = false
+      this.wakeQueued = false
       this.offline = false
+      this.offlineCause = 'network'
       this.absentSince = null
       this.acting = null
       this.actionError = ''
       this.busyBattleId = null
+      this.paywall = false
       this.roundReq += 1
       this.elementSeq = 0
       this.audioReported = []
-      this.rematchBattle = null
+      this.rematchOffer = null
       this.resultChecks = 0
     },
 
@@ -329,7 +400,6 @@ export const useBattleStore = defineStore('battle', {
         this.loadStatus = 'ready'
         // The round is not what the screen waits for; a failure here is repaired by the next poll.
         await this.syncRound().catch(() => undefined)
-        await this.loadRematch()
       } catch (err) {
         if (generation !== this.generation) return
         this.failLoad(err)
@@ -346,6 +416,7 @@ export const useBattleStore = defineStore('battle', {
       this.errorMessage = errorMessage(err, 'battle')
       this.gone = isFinal(err)
       this.polling = false
+      if (isProRequired(err)) this.paywall = true
     },
 
     startPolling(): void {
@@ -369,9 +440,13 @@ export const useBattleStore = defineStore('battle', {
       this.serverOffsetMs = clock.offsetMs.value
     },
 
-    /** Takes a full reading of the battle: the answer of `GET /battles/{id}` and of every action. */
+    /**
+     * Takes a full reading of the battle: the answer of `GET /battles/{id}` and of every action. `version` only grows, and the poll
+     * is read more often than the battle: a reading older than what the screen has - the last full one OR the last poll - is a reply
+     * that came late, and it takes nothing back (no status that flickers back to the one before).
+     */
     applyBattle(battle: Battle): void {
-      if (this.battle !== null && battle.version < this.battle.version) return
+      if (battle.version < Math.max(this.battle?.version ?? 0, this.poll?.version ?? 0)) return
       this.battle = battle
       this.status = battle.status
       this.syncClock(battle.server_now)
@@ -380,12 +455,51 @@ export const useBattleStore = defineStore('battle', {
         this.poll = poll
         this.trackPresence(poll)
       }
+      this.applyRematch(battle.rematch)
+      this.dropStaleAnswer()
       this.updatePolling()
     },
 
+    /**
+     * Since when the opponent is gone: the server names the moment (`opponent_absent_since`, their last presence) and the strip counts
+     * `presence_grace_seconds` from it - the same number after a reload. A server that does not name it is taken at its word from the
+     * first poll that saw the opponent gone.
+     */
     trackPresence(poll: BattlePoll): void {
-      if (poll.opponent_present) this.absentSince = null
+      if (poll.opponent_present) {
+        this.absentSince = null
+        return
+      }
+      const since = Date.parse(poll.opponent_absent_since ?? '')
+      if (Number.isFinite(since)) this.absentSince = since
       else if (this.absentSince === null) this.absentSince = Date.parse(poll.server_now) || Date.now()
+    },
+
+    /**
+     * Takes the rematch the server reports. The statuses of a battle only go forward, so a reading that was on its way while the
+     * offer was answered (declined, accepted) cannot bring the old status back.
+     */
+    applyRematch(next: BattleRematch | null): void {
+      const known = this.rematchOffer
+      if (next !== null && known !== null && next.battle_id === known.battle_id && STATUS_RANK[next.status] < STATUS_RANK[known.status]) return
+      this.rematchOffer = next
+    },
+
+    /**
+     * The answer belongs to ONE round. When the server is somewhere else - the battle is not `playing`, the round is another one, its
+     * phase is not `answering` any more, or this player's answer is counted already (it was the reply that got lost) - the answer that
+     * was on its way or "not delivered" is let go without a word: it must not stand in the way of the next round, and the request that
+     * is still in flight finds its `request_id` gone and ends quietly (`send`).
+     */
+    dropStaleAnswer(): void {
+      const pending = this.pendingAnswer
+      const poll = this.poll
+      if (pending === null || poll === null) return
+      const round = poll.round
+      const stale = poll.status !== 'playing' || round === null || round.no !== pending.round || round.phase !== 'answering' || round.my_answered
+      if (!stale) return
+      this.pendingAnswer = null
+      this.answerState = 'idle'
     },
 
     async reloadBattle(): Promise<void> {
@@ -401,7 +515,8 @@ export const useBattleStore = defineStore('battle', {
 
     /**
      * One beat of the poll, which is also the player's heartbeat (docs/16 §8.4). It throws when the beat did not come
-     * (no network, 5xx, 429) so that `usePolling` slows down; a refusal that no repeat cures ends the polling.
+     * (no network, 5xx, 429, a request that hung up to its limit) so that `usePolling` slows down; a refusal that no repeat cures
+     * ends the polling.
      */
     async tick(): Promise<void> {
       const id = this.battleId
@@ -421,10 +536,31 @@ export const useBattleStore = defineStore('battle', {
           return
         }
         this.offline = true
+        this.offlineCause = causeOf(err)
         throw err
       } finally {
-        if (generation === this.generation) this.ticking = false
+        if (generation === this.generation) {
+          this.ticking = false
+          // A wake-up came while this poll was on its way: it was asked before the moment, so another follows at once.
+          if (this.wakeQueued) {
+            this.wakeQueued = false
+            void this.tick().catch(() => undefined)
+          }
+        }
       }
+    },
+
+    /**
+     * The screen asks for a poll NOW: a moment at which the server moves the battle on has come (the deadline of a round, the end of
+     * the pause). If a poll is on its way it may have been asked before the moment, so it is not enough to drop the call: another poll
+     * follows it as soon as it is done, instead of the next beat, two seconds later.
+     */
+    async wake(): Promise<void> {
+      if (this.ticking) {
+        this.wakeQueued = true
+        return
+      }
+      await this.tick()
     },
 
     /**
@@ -438,11 +574,12 @@ export const useBattleStore = defineStore('battle', {
       const changed = poll.status !== this.status
       this.poll = poll
       this.trackPresence(poll)
+      this.applyRematch(poll.rematch)
+      this.dropStaleAnswer()
 
       if (changed) {
         await this.reloadBattle()
         if (generation !== this.generation) return
-        if (this.isOver) await this.loadRematch()
       }
       await this.syncRound()
       this.updatePolling()
@@ -527,8 +664,15 @@ export const useBattleStore = defineStore('battle', {
       }
     },
 
-    /** The action was not done. A conflict means the state has moved: it is read again, and the screen follows it. */
+    /**
+     * The action was not done. Behind Pro the answer is the paywall, not a message. A conflict means the state has moved: it is read
+     * again, and the screen follows it.
+     */
     async refuse(err: unknown): Promise<void> {
+      if (isProRequired(err)) {
+        this.paywall = true
+        return
+      }
       this.actionError = errorMessage(err, 'battle')
       if (!(err instanceof ApiClientError)) return
       if (err.code === 'battle_busy') this.busyBattleId = typeof err.details?.battle_id === 'number' ? err.details.battle_id : null
@@ -551,7 +695,7 @@ export const useBattleStore = defineStore('battle', {
       if (this.battleId === null || this.status !== 'playing' || state === null || state.phase !== 'answering' || state.my_answered) return
       if (round === null || this.answerState !== 'idle' || this.pendingAnswer !== null) return
 
-      this.pendingAnswer = { request_id: newRequestId(), round: round.no, payload }
+      this.pendingAnswer = { request_id: newRequestId(), round: round.no, payload, uncertain: false }
       await this.send()
     },
 
@@ -567,12 +711,16 @@ export const useBattleStore = defineStore('battle', {
       if (pending === null || id === null) return
 
       const generation = this.generation
+      // Is this answer still the one the screen waits for? A poll may have shown that the round moved on (`dropStaleAnswer`), and the
+      // answer of the next round may be on its way by now: whatever this request brings back is then nobody's, and must not touch it.
+      const current = (): boolean => generation === this.generation && this.pendingAnswer?.request_id === pending.request_id
+
       this.answerState = 'sending'
       this.actionError = ''
       for (let attempt = 0; ; attempt++) {
         try {
           const res = await api.battles.answer(id, { request_id: pending.request_id, round: pending.round, answer: pending.payload })
-          if (generation !== this.generation) return
+          if (!current()) return
           this.pendingAnswer = null
           this.answerState = 'idle'
           // The verdict is not shown: the right answer and the other's come together with the reveal of the round.
@@ -583,30 +731,38 @@ export const useBattleStore = defineStore('battle', {
           }
           return
         } catch (err) {
-          if (generation !== this.generation) return
+          if (!current()) return
           if (isUncertain(err)) {
+            // The server may have counted this try: from now on "too late" is not "not taken" (see `LATE_CODES`).
+            pending.uncertain = true
+            this.answerCause = causeOf(err)
             if (attempt < ANSWER_REPEATS) {
               await sleep(ANSWER_REPEAT_DELAYS_MS[attempt] ?? 2000)
-              if (generation !== this.generation || this.pendingAnswer?.request_id !== pending.request_id) return
+              if (!current()) return
               continue
             }
             this.answerState = 'failed'
             return
           }
-          await this.refuseAnswer(err)
+          await this.refuseAnswer(err, pending.uncertain)
           return
         }
       }
     },
 
-    /** The server did not take the answer. Nothing of it is shown as a verdict: the screen goes to where the server is. */
-    async refuseAnswer(err: unknown): Promise<void> {
+    /**
+     * The server did not take the answer. Nothing of it is shown as a verdict: the screen goes to where the server is.
+     * `uncertain`: an earlier try of this very answer got no reply, so it may have been counted.
+     */
+    async refuseAnswer(err: unknown, uncertain = false): Promise<void> {
       const generation = this.generation
       this.pendingAnswer = null
       this.answerState = 'idle'
       const code = err instanceof ApiClientError ? err.code : ''
-      // The answer of this round was counted already (a repeat whose reply was lost): nothing to say, only to follow.
-      if (code !== 'answer_already_accepted') this.actionError = errorMessage(err, 'battle')
+      // Nothing to say when the answer of this round was counted already (a repeat whose reply was lost), nor when a try that got
+      // no reply meets "late": the review of the round tells what became of the answer. Only a first try that is late is a "no".
+      const silent = code === 'answer_already_accepted' || (uncertain && LATE_CODES.includes(code))
+      if (!silent) this.actionError = errorMessage(err, 'battle')
 
       if (err instanceof ApiClientError && (code === 'invalid_answer_shape' || code === 'unknown_element_id')) this.round = null
       try {
@@ -620,26 +776,45 @@ export const useBattleStore = defineStore('battle', {
       }
     },
 
-    /** The clip of the round does not play: tell the server once per element; it checks the file (docs/16 §10.3). */
-    async audioFailed(elementId: string): Promise<void> {
+    /**
+     * The clip does not come: tell the server once per element; it checks the file (docs/16 §10.3). A report that got no reply is sent
+     * once more (with the same `request_id`: the server counts it once). Returns what the server found - `true`: the file is
+     * missing and the match is voided (the battle it answers with is taken at once), `false`: the file is there, the fault is local -
+     * or `null`: nothing was found out (a second report of an element, no reply, a refusal).
+     */
+    async audioFailed(elementId: string): Promise<boolean | null> {
       const id = this.battleId
-      if (id === null || this.audioReported.includes(elementId)) return
+      if (id === null || this.audioReported.includes(elementId)) return null
 
       this.audioReported.push(elementId)
       const generation = this.generation
-      try {
-        const res = await api.battles.audioFailed(id, { request_id: newRequestId(), element_id: elementId })
-        if (generation !== this.generation) return
-        // `verified`: the server found the file missing and voided the match; otherwise it goes on and this is a local fault.
-        this.applyBattle(res.battle)
-      } catch {
-        // best effort: the poll tells if the match was voided
+      const requestId = newRequestId()
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const res = await api.battles.audioFailed(id, { request_id: requestId, element_id: elementId })
+          if (generation !== this.generation) return null
+          this.applyBattle(res.battle)
+          return res.verified
+        } catch (err) {
+          if (generation !== this.generation) return null
+          // best effort: the poll tells if the match was voided
+          if (attempt === 0 && isUncertain(err)) {
+            await sleep(AUDIO_REPORT_REPEAT_MS)
+            if (generation !== this.generation) return null
+            continue
+          }
+          return null
+        }
       }
+      return null
     },
 
     // ----------------------------------------------------------- rematch
 
-    /** "Rematch": a new invitation to the same friend, in the same format and place. Returns its id, or null (`actionError`). */
+    /**
+     * "Rematch": a new invitation to the same friend, in the same format and place. Returns the id of the battle to go to, or null
+     * (`actionError`). If the friend offered a rematch at the same moment, the invitation to go to is THEIRS - the learner accepts it.
+     */
     async rematch(): Promise<number | null> {
       const battle = this.battle
       if (battle === null || !this.isOver || this.acting !== null) return null
@@ -657,7 +832,11 @@ export const useBattleStore = defineStore('battle', {
         })
         return created.id
       } catch (err) {
-        if (generation === this.generation) await this.refuse(err)
+        if (generation !== this.generation) return null
+        const theirs = await incomingInvitation(err)
+        if (generation !== this.generation) return null
+        if (theirs !== null) return theirs
+        await this.refuse(err)
         return null
       } finally {
         if (generation === this.generation) this.acting = null
@@ -665,54 +844,45 @@ export const useBattleStore = defineStore('battle', {
     },
 
     /**
-     * Reads the rematch that follows this battle, to know who offered it (`rematch` of the battle has only its id and
-     * status): an offer to me is answered with "Accept" or "Decline", my own is only a way back into it.
+     * Asks whether a rematch has been offered after this battle, and by whom - with the poll: it carries `rematch` (`by_me`) for a
+     * battle that is over, costs the server a fraction of `GET /battles/{id}` and runs outside the budget of the other requests.
+     * Best effort.
      */
-    async loadRematch(): Promise<void> {
-      const offer = this.battle?.rematch ?? null
-      if (offer === null) {
-        this.rematchBattle = null
-        return
-      }
-      if (this.rematchBattle?.id === offer.battle_id && this.rematchBattle.status === offer.status) return
-
+    async readRematch(): Promise<void> {
+      const id = this.battleId
+      if (id === null) return
       const generation = this.generation
       try {
-        const rematch = await api.battles.get(offer.battle_id)
-        if (generation === this.generation) this.rematchBattle = rematch
+        const poll = await api.battles.poll(id)
+        if (generation !== this.generation) return
+        this.applyRematch(poll.rematch)
       } catch {
-        // the offer is just not shown
+        // the next reading shows it
       }
     },
 
     /** One reading of the result screen: the offer of a rematch may have come, or been taken back. Best effort. */
     async refreshResult(): Promise<void> {
       if (!this.watchingResult) return
-      const generation = this.generation
       this.resultChecks += 1
-      try {
-        await this.reloadBattle()
-      } catch {
-        return
-      }
-      if (generation === this.generation) await this.loadRematch()
+      await this.readRematch()
     },
 
-    /** Accepts the rematch offered to me; returns its id for the route, or null (`actionError`). */
+    /** Accepts the rematch offered to me; returns the id of its battle for the route, or null (`actionError`). */
     async acceptRematch(): Promise<number | null> {
-      const offer = this.rematchBattle
-      if (offer === null || this.acting !== null) return null
+      const offer = this.rematchOffer
+      if (offer === null || offer.by_me || this.acting !== null) return null
 
       const generation = this.generation
       this.acting = 'accept'
       this.actionError = ''
       try {
-        const accepted = await api.battles.accept(offer.id)
+        const accepted = await api.battles.accept(offer.battle_id)
         return accepted.id
       } catch (err) {
         if (generation === this.generation) {
           await this.refuse(err)
-          await this.loadRematch().catch(() => undefined)
+          await this.readRematch()
         }
         return null
       } finally {
@@ -721,15 +891,15 @@ export const useBattleStore = defineStore('battle', {
     },
 
     async declineRematch(): Promise<boolean> {
-      const offer = this.rematchBattle
-      if (offer === null || this.acting !== null) return false
+      const offer = this.rematchOffer
+      if (offer === null || offer.by_me || this.acting !== null) return false
 
       const generation = this.generation
       this.acting = 'decline'
       this.actionError = ''
       try {
-        const declined = await api.battles.decline(offer.id)
-        if (generation === this.generation) this.rematchBattle = declined
+        const declined = await api.battles.decline(offer.battle_id)
+        if (generation === this.generation) this.applyRematch({ ...offer, status: declined.status })
         return true
       } catch (err) {
         if (generation === this.generation) await this.refuse(err)

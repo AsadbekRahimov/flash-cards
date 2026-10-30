@@ -1,6 +1,16 @@
-import { computed, getCurrentScope, onScopeDispose, ref, toRaw } from 'vue'
+import { computed, getCurrentScope, onScopeDispose, ref, toRaw, type InjectionKey } from 'vue'
 import { api } from '@/api'
 import { usePracticeStore, type AudioSlot, type AudioState } from '@/stores/practice'
+
+/** Fetches a clip by the `audio_url` of an element; the signal fires when the load is dropped. */
+export type ClipFetcher = (url: string, signal?: AbortSignal) => Promise<Blob>
+
+/**
+ * Where the mode component finds the clips of the screen it is drawn on. A battle gives the recordings that the room has already
+ * loaded before it goes to the network, and every "Retry" of the round - the one of the screen and the one of the dictation itself -
+ * must play THAT clip, not fetch another copy; the solo session provides nothing, and the component takes the endpoint of a session.
+ */
+export const PRACTICE_CLIP_SOURCE: InjectionKey<ClipFetcher> = Symbol('practice-clip-source')
 
 /**
  * What belongs to a slot but is not shown: which clip it holds, which load is the newest, what is playing. Kept by
@@ -52,7 +62,7 @@ export interface PracticeAudioOptions {
    * Fetches the clip by the `audio_url` of an element; the solo endpoint by default (`api.battles.audioBlob` for a battle).
    * The signal fires when the load is dropped (`revoke()`, a newer `load()`): a function that can stop its request should.
    */
-  fetchBlob?: (url: string, signal?: AbortSignal) => Promise<Blob>
+  fetchBlob?: ClipFetcher
 }
 
 /**
