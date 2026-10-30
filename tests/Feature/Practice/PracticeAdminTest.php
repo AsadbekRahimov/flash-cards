@@ -276,7 +276,8 @@ it('refuses a text with markup in the form and says so in Russian: nothing is wr
         ])
         ->call('create');
 
-    expect(pad_sent())->toBe([['title' => 'Не получилось', 'body' => 'В поле «Текст» не должно быть знаков «<» и «>»: разметка не поддерживается, пишите обычный текст.']])
+    // The body of a notification is HTML: the signs of the sentence itself are printed as entities and read «<» and «>» on the screen.
+    expect(pad_sent())->toBe([['title' => 'Не получилось', 'body' => 'В поле «Текст» не должно быть знаков «&lt;» и «&gt;»: разметка не поддерживается, пишите обычный текст.']])
         ->and(PracticeItem::query()->count())->toBe(0);
 });
 
@@ -770,6 +771,46 @@ it('says in Russian why the text is not accepted and keeps the form: nothing is 
 
     // The word is named by its text (the admin knows it so), not by its number.
     expect(pad_sent()[0]['body'])->toContain('«ghost»')->not->toContain((string) $w['words']['ghost']->id.'»')->toContain('не найдено среди активных слов курса');
+});
+
+it('prints the text of a refused target word as text, never as HTML, on the form, in the editor and on the buttons of the list', function (): void {
+    $w = pad_world();
+    // A word text as the vocabulary import and the word form take it (`required|string|max:100`).
+    $evil = '<a href="https://evil.example/x">fix</a><img src=x>';
+    $word = Word::factory()->for($w['l11'])->create(['word' => $evil, 'translation' => 'т']);
+    $inForm = pad_make($w['course'], 'dictation', 'evil-edit', [$word]);
+    $inList = pad_make($w['course'], 'dictation', 'evil-publish', [$word]);
+    app(PracticeItemService::class)->markReviewed($inList, $this->admin);
+    // The word is switched off after the drafts were written: the refusal names it by its text (`wordIds()`).
+    Word::query()->whereKey($word->id)->update(['is_active' => false]);
+
+    $printed = function (string $body) use ($evil): void {
+        $rendered = (string) str($body)->sanitizeHtml();
+        expect($body)->toContain(e($evil))->not->toContain('<a ')->not->toContain('<img')
+            // what Filament prints of the body (its sanitizer rewrites `=` and quotes as entities): the text of the word, no link and no picture
+            ->and($rendered)->not->toContain('<a ')->not->toContain('<img')->toContain('&lt;a href')->toContain('не найдено среди активных слов курса');
+    };
+
+    pad_sent();
+    livewire(CreatePracticeItem::class)
+        ->fillForm(['course_id' => $w['course']->id, 'type' => 'dictation', 'key' => 'evil-create', 'word_ids' => [$word->id], 'dictation' => ['text' => 'See you tomorrow', 'translation' => ['ru' => 'До завтра', 'uz' => 'Ertagacha']]])
+        ->call('create');
+    $sent = pad_sent();
+    expect($sent)->toHaveCount(1)->and($sent[0]['title'])->toBe('Не получилось');
+    $printed((string) $sent[0]['body']);
+
+    livewire(EditPracticeItem::class, ['record' => $inForm->getKey()])->call('save');
+    $sent = pad_sent();
+    expect($sent)->toHaveCount(1)->and($sent[0]['title'])->toBe('Не получилось');
+    $printed((string) $sent[0]['body']);
+
+    livewire(ListPracticeItems::class)->callTableAction('publish', $inList->fresh());
+    $sent = pad_sent();
+    expect($sent)->toHaveCount(1)->and($sent[0]['title'])->toBe('Не получилось');
+    $printed((string) $sent[0]['body']);
+
+    expect(PracticeItem::query()->where('key', 'evil-create')->exists())->toBeFalse()
+        ->and($inList->fresh()?->status)->toBe(PracticeItemStatus::Reviewed);
 });
 
 it('fills the edit form with the text of the current version in the way it is typed', function (): void {
