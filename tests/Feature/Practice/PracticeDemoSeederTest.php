@@ -9,6 +9,7 @@ use App\Domain\Practice\Enums\PracticeItemType;
 use App\Domain\Practice\Services\PracticeAccess;
 use App\Domain\Practice\Services\PracticeMaterialService;
 use App\Domain\Practice\Support\PracticeTextNormalizer;
+use App\Jobs\GeneratePracticeAudioJob;
 use App\Models\Course;
 use App\Models\Learner;
 use App\Models\PracticeItem;
@@ -183,6 +184,21 @@ it('leaves the phrases pending and does not break when ffmpeg or its flite filte
     // It asked once and gave up: thirty failures in a row would only be thirty waits.
     Process::assertRanTimes(fn () => true, 1);
 })->with(['no TTS service' => [''], 'a TTS service' => ['http://tts:8000']]);
+
+it('sends the phrases that are left to the voicing queue when ffmpeg is missing and the queue is asynchronous', function (): void {
+    // The Docker setup: a worker and the TTS container, no ffmpeg in the image. The jobs wait for the worker; nothing runs in db:seed.
+    config(['queue.default' => 'redis']);
+    Queue::fake();
+    Process::fake(fn () => Process::result(errorOutput: 'No such filter: flite', exitCode: 1));
+    $this->seed(DemoContentSeeder::class);
+
+    $this->seed(PracticeDemoSeeder::class);
+
+    Queue::assertPushed(GeneratePracticeAudioJob::class, 30);
+    expect(PracticeItemVersion::query()->where('audio_status', AudioStatus::Pending->value)->count())->toBe(30)
+        ->and(Storage::disk('practice_audio')->allFiles())->toBe([]);
+    Http::assertNothingSent();
+});
 
 it('does not take an empty file for audio', function (): void {
     Process::fake(fn () => Process::result());
