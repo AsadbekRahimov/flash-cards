@@ -2185,3 +2185,20 @@
 | `error.code.battle_wrong_state` | Bu amal hozir mavjud emas. Ekran yangilanadi. | Сейчас это действие недоступно. Экран обновится. |
 | `error.code.round_not_open` | Bu raund hali boshlanmagan. | Этот раунд ещё не начался. |
 | `error.code.round_closed` | Raund vaqti tugadi: javob qabul qilinmadi. | Время раунда вышло: ответ не принят. |
+
+## Практика и баттл 2026-10 · 18-3 — на проверку носителю
+
+> Режим «Подбери сочетание» (`resources/twa/src/i18n/uz.ts`, блок `practice: collocation`, задача 18.3): фраза на английском с пропуском и три варианта; нажатие на
+> вариант сразу и есть ответ — кнопки «Проверить» нет. Подписи «Ваш ответ» / «Верный ответ» на вариантах и вердикты берутся из блоков «session» и «reveal» задачи 18.1-T
+> (там же их uz-строки), здесь только новые.
+>
+> Что решить носителю:
+> - **Пропуск** в фразе (`___`) — `bo'sh joy` (для чтения экраном: «пропуск»).
+> - **Окончательность ответа**: в соло — «проверяется сразу», в баттле — «Javob yakuniy» (изменить нельзя).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `practice.collocation.instruction` | Bo'sh joyga mos so'zni tanlang | Выберите подходящее слово |
+| `practice.collocation.blank` | bo'sh joy | пропуск |
+| `practice.collocation.footnote.solo` | Javob bosilganda darhol tekshiriladi. | Ответ проверяется сразу после нажатия. |
+| `practice.collocation.footnote.battle` | Javob yakuniy: o'zgartirib bo'lmaydi. | Ответ окончательный: изменить нельзя. |

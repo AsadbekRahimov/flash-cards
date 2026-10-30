@@ -664,6 +664,10 @@ export const ru = {
   // ---- practice: pairs ----
 
   // ---- practice: collocation ----
+  'practice.collocation.instruction': 'Выберите подходящее слово',
+  'practice.collocation.blank': 'пропуск',
+  'practice.collocation.footnote.solo': 'Ответ проверяется сразу после нажатия.',
+  'practice.collocation.footnote.battle': 'Ответ окончательный: изменить нельзя.',
 
   // ---- practice: sentence ----
 

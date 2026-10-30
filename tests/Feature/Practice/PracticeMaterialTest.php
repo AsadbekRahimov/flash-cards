@@ -359,7 +359,7 @@ it('reports the material of the four modes: nothing yet for the skeletons, the n
     expect(array_keys($report))->toBe(['pairs', 'collocation', 'sentence', 'dictation'])
         ->and(array_map(fn ($a) => [$a->isAvailable, $a->available, $a->required, $a->reason], $report))->toBe([
             'pairs' => [false, 0, 3, null],
-            'collocation' => [false, 0, 3, null],
+            'collocation' => [false, 0, 3, 'no_items'], // a real handler since 18.3: no task yet
             'sentence' => [false, 0, 3, null],
             'dictation' => [false, 0, 3, null],
         ]);
