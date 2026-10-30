@@ -1127,7 +1127,9 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
   "friendship_id": 11, "audio_preload": null }
 ```
 
-**`room`** — после `accept` (10:00:20) и моего «Готов» (в ответе ключи те же, меняются):
+Дальше для каждого статуса показаны только ключи, которые отличаются от `invited`: набор и порядок ключей у `BattleResource` всегда те же (`BattleContractTest` проверяет точную структуру каждого статуса).
+
+**`room`** — после `accept` (10:00:20) и моего «Готов»:
 ```json
 { "status": "room", "version": 2, "server_now": "2026-10-30T10:00:35.050Z",
   "room_expires_at": "2026-10-30T10:02:20.000Z", "ready": { "me": true, "opponent": false } }
