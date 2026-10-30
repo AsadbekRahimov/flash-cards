@@ -277,7 +277,7 @@ describe('AnswerReveal — dictation: listen again', () => {
     await nextTick()
 
     expect(api.practice.audioBlob).toHaveBeenCalledTimes(1)
-    expect(api.practice.audioBlob).toHaveBeenCalledWith('/api/twa/practice/sessions/77/audio/eDict00001')
+    expect(api.practice.audioBlob).toHaveBeenCalledWith('/api/twa/practice/sessions/77/audio/eDict00001', expect.any(AbortSignal))
     const button = wrapper.get('[data-testid=listen-again-btn]')
     expect(button.attributes('disabled')).toBeDefined()
     expect(button.attributes('aria-busy')).toBe('true')

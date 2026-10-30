@@ -73,7 +73,7 @@ describe('usePracticeAudio — loading the clip', () => {
 
     const loading = audio.load('/api/twa/practice/sessions/7/audio/eD4')
     expect(audio.state.value).toBe('loading')
-    expect(api.practice.audioBlob).toHaveBeenCalledWith('/api/twa/practice/sessions/7/audio/eD4')
+    expect(api.practice.audioBlob).toHaveBeenCalledWith('/api/twa/practice/sessions/7/audio/eD4', expect.any(AbortSignal))
 
     reply.resolve(clip())
     await loading
@@ -151,7 +151,7 @@ describe('usePracticeAudio — loading the clip', () => {
 
     await audio.load('/api/twa/practice/battles/15/audio/eD4')
 
-    expect(fetchBlob).toHaveBeenCalledWith('/api/twa/practice/battles/15/audio/eD4')
+    expect(fetchBlob).toHaveBeenCalledWith('/api/twa/practice/battles/15/audio/eD4', expect.any(AbortSignal))
     expect(api.practice.audioBlob).not.toHaveBeenCalled()
   })
 })
@@ -375,5 +375,89 @@ describe('usePracticeAudio — one slot, many users', () => {
 
     expect(one.state.value).toBe('idle')
     expect(two.state.value).toBe('ready')
+  })
+})
+
+describe('usePracticeAudio — a load that nobody waits for any more', () => {
+  /** The signal that the n-th fetch of the solo clip was given. */
+  const signalOf = (n = 0): AbortSignal => vi.mocked(api.practice.audioBlob).mock.calls[n]![1] as AbortSignal
+
+  it('gives the fetch a signal, and leaving the screen (revoke) fires it: the request is stopped, not only ignored', async () => {
+    const reply = pending<Blob>()
+    vi.mocked(api.practice.audioBlob).mockReturnValue(reply.promise)
+    const slot = slotOf()
+    const audio = usePracticeAudio({ slot })
+
+    const loading = audio.load('/a')
+    expect(signalOf().aborted).toBe(false)
+    audio.revoke()
+    expect(signalOf().aborted).toBe(true)
+
+    // the request ends with an error, as an aborted one does: the slot is empty, not "failed"
+    reply.reject(new DOMException('The operation was aborted.', 'AbortError'))
+    await loading
+    expect(slot).toEqual({ state: 'idle', blobUrl: null })
+  })
+
+  it('a newer load stops the request of the older one', async () => {
+    const first = pending<Blob>()
+    vi.mocked(api.practice.audioBlob).mockReturnValueOnce(first.promise).mockResolvedValueOnce(clip())
+    const audio = usePracticeAudio({ slot: slotOf() })
+
+    const old = audio.load('/old')
+    await audio.load('/new')
+
+    expect(signalOf(0).aborted).toBe(true)
+    expect(signalOf(1).aborted).toBe(false)
+    first.reject(new DOMException('The operation was aborted.', 'AbortError'))
+    await old
+    expect(audio.state.value).toBe('ready')
+  })
+
+  it('"Retry" (force) stops the request that was hanging, and asks again', async () => {
+    const hanging = pending<Blob>()
+    vi.mocked(api.practice.audioBlob).mockReturnValueOnce(hanging.promise).mockResolvedValueOnce(clip())
+    const audio = usePracticeAudio({ slot: slotOf() })
+
+    void audio.load('/a')
+    await audio.load('/a', { force: true })
+
+    expect(signalOf(0).aborted).toBe(true)
+    expect(audio.state.value).toBe('ready')
+  })
+
+  it('a clip that has come is not "stopped" afterwards: revoke() after it fires nothing', async () => {
+    vi.mocked(api.practice.audioBlob).mockResolvedValue(clip())
+    const audio = usePracticeAudio({ slot: slotOf() })
+    await audio.load('/a')
+
+    audio.revoke()
+
+    expect(signalOf().aborted).toBe(false)
+  })
+
+  it('a clip that did not come in time (the client gives up with a network error) is failed, so that the screen offers a retry', async () => {
+    vi.mocked(api.practice.audioBlob).mockRejectedValue(Object.assign(new Error('The operation was aborted.'), { kind: 'network' }))
+    const audio = usePracticeAudio({ slot: slotOf() })
+
+    await audio.load('/a')
+
+    expect(audio.state.value).toBe('failed')
+  })
+
+  it('the end of the screen that plays (its scope) does not stop the load of the clip of the next element: the slot has other holders', async () => {
+    const reply = pending<Blob>()
+    vi.mocked(api.practice.audioBlob).mockReturnValue(reply.promise)
+    const slot = slotOf()
+    const scope = effectScope()
+    const holder = scope.run(() => usePracticeAudio({ slot }))!
+    const loading = holder.load('/next')
+
+    scope.stop()
+
+    expect(signalOf().aborted).toBe(false)
+    reply.resolve(clip())
+    await loading
+    expect(slot.state).toBe('ready')
   })
 })

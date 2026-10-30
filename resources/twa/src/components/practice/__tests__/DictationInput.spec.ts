@@ -93,7 +93,7 @@ describe('DictationInput — the recording', () => {
     await nextTick()
 
     expect(api.practice.audioBlob).toHaveBeenCalledTimes(1)
-    expect(api.practice.audioBlob).toHaveBeenCalledWith('/api/twa/practice/sessions/77/audio/eDict00001')
+    expect(api.practice.audioBlob).toHaveBeenCalledWith('/api/twa/practice/sessions/77/audio/eDict00001', expect.any(AbortSignal))
     expect(circle(wrapper).attributes('disabled')).toBeDefined()
     expect(circle(wrapper).attributes('aria-busy')).toBe('true')
     expect(circle(wrapper).attributes('aria-label')).toBe('Загружаем звук…')
@@ -486,7 +486,7 @@ describe('DictationInput — the answer', () => {
 
     expect((field(wrapper).element as HTMLInputElement).value).toBe('')
     expect(field(wrapper).attributes('disabled')).toBeUndefined()
-    expect(api.practice.audioBlob).toHaveBeenLastCalledWith('/api/twa/practice/battles/15/audio/eDict00002')
+    expect(api.practice.audioBlob).toHaveBeenLastCalledWith('/api/twa/practice/battles/15/audio/eDict00002', expect.any(AbortSignal))
     expect(wrapper.findAll('[data-testid=word-tile]')).toHaveLength(2)
     wrapper.unmount()
   })

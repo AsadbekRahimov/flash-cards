@@ -593,6 +593,19 @@ describe('PracticeSessionView — leaving', () => {
     expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:clip')
     expect(usePracticeStore().audio).toEqual({ state: 'idle', blobUrl: null })
   })
+
+  it('stops the request of a clip that is still coming when the screen is left, instead of keeping a connection for it', async () => {
+    vi.mocked(api.practice.audioBlob).mockReturnValue(new Promise<Blob>(() => {}))
+    const r = await render(session({ mode: 'dictation', current: dictationElement() }))
+    const signal = vi.mocked(api.practice.audioBlob).mock.calls[0]![1] as AbortSignal
+    expect(usePracticeStore().audio.state).toBe('loading')
+    expect(signal.aborted).toBe(false)
+
+    r.wrapper.unmount()
+
+    expect(signal.aborted).toBe(true)
+    expect(usePracticeStore().audio).toEqual({ state: 'idle', blobUrl: null })
+  })
 })
 
 describe('PracticeSessionView — the summary', () => {
@@ -685,7 +698,7 @@ describe('PracticeSessionView — the clip of a dictation', () => {
     vi.mocked(api.practice.audioBlob).mockResolvedValue(clip())
     const r = await render(dictation())
 
-    expect(api.practice.audioBlob).toHaveBeenCalledWith('/api/twa/practice/sessions/77/audio/eDict00001')
+    expect(api.practice.audioBlob).toHaveBeenCalledWith('/api/twa/practice/sessions/77/audio/eDict00001', expect.any(AbortSignal))
     expect(usePracticeStore().audio.state).toBe('ready')
     expect(r.wrapper.find('[data-testid=audio-trouble]').exists()).toBe(false)
     r.wrapper.unmount()
@@ -745,7 +758,7 @@ describe('PracticeSessionView — the clip of a dictation', () => {
 
     expect(vi.mocked(api.practice.replace).mock.calls[0]![1]).toMatchObject({ element_id: 'eDict00001', reason: 'audio_unavailable' })
     expect(probe(r).attributes('data-element')).toBe('eDict00002')
-    expect(api.practice.audioBlob).toHaveBeenLastCalledWith('/api/twa/practice/sessions/77/audio/eDict00002')
+    expect(api.practice.audioBlob).toHaveBeenLastCalledWith('/api/twa/practice/sessions/77/audio/eDict00002', expect.any(AbortSignal))
     expect(r.wrapper.find('[data-testid=audio-trouble]').exists()).toBe(false)
     r.wrapper.unmount()
   })
