@@ -53,6 +53,17 @@ export interface ClientOptions {
  */
 export const BLOB_TIMEOUT_MS = 15_000
 
+/** What a caller may ask of a JSON request besides its path and body. */
+export interface RequestOptions {
+  /**
+   * Gives the request up after this many milliseconds, the headers and the body alike: it ends as a `network` error with the code
+   * `timeout`, the very one a lost connection ends as, so every caller that knows what to do after a lost connection (the poll of a
+   * battle slows down, an answer is sent again with its own `request_id`) does it for a request that hangs, too. Without it a JSON request
+   * has no limit of its own - the solo practice and the rest of the app are not touched; the battle names its limits in `api/index.ts`.
+   */
+  timeoutMs?: number
+}
+
 /** The refresh in flight, shared by every request that got a 401 meanwhile. */
 let refreshing: Promise<string> | null = null
 
@@ -86,7 +97,7 @@ export function createApiClient(opts: ClientOptions) {
       query?: Record<string, unknown>
       withAuth?: boolean
       _retry?: boolean
-    } = {},
+    } & RequestOptions = {},
   ): Promise<T> {
     const withAuth = init.withAuth ?? true
     // The server picks the language of validation/error texts: by the learner when authenticated,
@@ -95,6 +106,18 @@ export function createApiClient(opts: ClientOptions) {
     const sentToken = withAuth ? opts.getToken() : ''
     if (sentToken) headers.Authorization = `Bearer ${sentToken}`
 
+    // A request with a limit is stopped by a timer of its own: `ofetch` has a `timeout` option, but it lets go of the timer as soon as the
+    // headers are in, and a body that hangs would hang the caller (the poll of a battle waits for its reply before it asks again).
+    const controller = init.timeoutMs !== undefined ? new AbortController() : null
+    let timedOut = false
+    const timer =
+      controller !== null
+        ? setTimeout(() => {
+            timedOut = true
+            controller.abort()
+          }, init.timeoutMs)
+        : null
+
     try {
       return await ofetch<T>(path, {
         baseURL,
@@ -102,9 +125,12 @@ export function createApiClient(opts: ClientOptions) {
         headers,
         body: init.body,
         query: init.query,
+        ...(controller !== null ? { signal: controller.signal } : {}),
       })
     } catch (err) {
-      const apiErr = mapError(err)
+      // The limit has done its work: a refresh of the token (below) must not be counted against it.
+      if (timer !== null) clearTimeout(timer)
+      const apiErr = timedOut ? new ApiClientError('network', 0, 'timeout', 'The request timed out', err) : mapError(err)
       if (apiErr.kind === 'unauthorized' && withAuth && !init._retry) {
         const fresh = await freshToken(sentToken)
         if (fresh) {
@@ -112,6 +138,8 @@ export function createApiClient(opts: ClientOptions) {
         }
       }
       throw apiErr
+    } finally {
+      if (timer !== null) clearTimeout(timer)
     }
   }
 
@@ -172,10 +200,10 @@ export function createApiClient(opts: ClientOptions) {
   }
 
   return {
-    get: <T>(path: string, query?: Record<string, unknown>) =>
-      request<T>(path, { method: 'GET', query }),
-    post: <T>(path: string, body?: Record<string, unknown>) =>
-      request<T>(path, { method: 'POST', body }),
+    get: <T>(path: string, query?: Record<string, unknown>, options?: RequestOptions) =>
+      request<T>(path, { method: 'GET', query, ...options }),
+    post: <T>(path: string, body?: Record<string, unknown>, options?: RequestOptions) =>
+      request<T>(path, { method: 'POST', body, ...options }),
     patch: <T>(path: string, body?: Record<string, unknown>) =>
       request<T>(path, { method: 'PATCH', body }),
     delete: <T>(path: string) => request<T>(path, { method: 'DELETE' }),
