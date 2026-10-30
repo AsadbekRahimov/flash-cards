@@ -47,6 +47,15 @@ final class BattleSettings
         return $this->int('presence_grace_seconds', 30);
     }
 
+    /**
+     * The silence after which the screens warn that the opponent has lost the connection (`opponent_present = false`, docs/16 §8.4).
+     * Never longer than the grace: it is a warning that comes BEFORE the end, and the match ends only at {@see presenceGraceSeconds()}.
+     */
+    public function presenceWarnSeconds(): int
+    {
+        return min($this->int('presence_warn_seconds', 10), $this->presenceGraceSeconds());
+    }
+
     public function heartbeatWriteSeconds(): int
     {
         return $this->int('heartbeat_write_seconds', 5);

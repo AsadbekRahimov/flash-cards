@@ -677,11 +677,11 @@ it('lets a player surrender in the countdown or the game: the opponent wins with
 it('finishes a game whose opponent is silent for more than 30 s in favour of the one who is here, and closes one both have left', function (): void {
     [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
 
-    // I poll, the friend went silent after the acceptance (10:00:00): absent once 30 s have passed.
+    // I poll, the friend went silent after the acceptance (10:00:00): absent once 30 s have passed (the screens are warned from 10 s on).
     $battle = BattleKit::playing($me, $friend, $friendship, PracticeMode::Collocation, $course);
     battleTick('2026-10-30 10:00:30');
     $poll = BattleKit::reader()->poll(BattleKit::reader()->find($me, $battle->id), $me, CarbonImmutable::now());
-    expect([$poll->status, $poll->opponentPresent, $poll->opponentAbsentSince])->toBe(['playing', true, null]);
+    expect([$poll->status, $poll->opponentPresent, $poll->opponentAbsentSince?->toDateTimeString()])->toBe(['playing', false, BattleKit::T0]);
     battleTick('2026-10-30 10:00:31');
     $poll = BattleKit::reader()->poll(BattleKit::reader()->find($me, $battle->id), $me, CarbonImmutable::now());
     expect([$poll->status, $poll->endReason])->toBe(['finished', 'absent'])
@@ -727,10 +727,10 @@ it('writes the presence at most once per 5 s and never moves the version; the po
     });
     expect($writes($queries))->toBe(1);
 
-    // The friend has been silent since the acceptance (10:00:00): absent from 10:00:31, and the poll says since when.
+    // The friend has been silent since the acceptance (10:00:00): the poll says since when from 10:00:11 on, the match ends at 10:00:31.
     battleTick('2026-10-30 10:00:30');
     $poll = $pollNow($me);
-    expect([$poll->opponentPresent, $poll->opponentAbsentSince])->toBe([true, null]);
+    expect([$poll->opponentPresent, $poll->opponentAbsentSince?->toDateTimeString()])->toBe([false, BattleKit::T0]);
     battleTick('2026-10-30 10:00:31');
     $poll = $pollNow($me);
     expect([$poll->status, $poll->endReason])->toBe(['finished', 'absent']);
@@ -738,6 +738,64 @@ it('writes the presence at most once per 5 s and never moves the version; the po
     // The poll of a finished match writes no presence.
     battleTick('2026-10-30 10:01:00');
     expect($writes(QueryLog::during(fn () => $pollNow($me))))->toBe(0);
+});
+
+it('warns that the opponent lost the connection after 10 s of silence - long before the 30 s that end the match - and says since when; they are present again as soon as they poll', function (): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    $battle = BattleKit::playing($me, $friend, $friendship, PracticeMode::Collocation, $course);
+    $pollNow = fn (Learner $who) => BattleKit::reader()->poll(BattleKit::reader()->find($who, $battle->id), $who, CarbonImmutable::now());
+    $viewNow = fn (Learner $who) => BattleKit::reader()->view(BattleKit::reader()->find($who, $battle->id), $who, CarbonImmutable::now());
+    $state = fn ($read) => [$read->status, $read->opponentPresent, $read->opponentAbsentSince?->toDateTimeString()];
+
+    // The friend's last heartbeat is the acceptance (10:00:00). Silence counts when it is LONGER than 10 s.
+    battleTick('2026-10-30 10:00:10');
+    expect($state($pollNow($me)))->toBe(['playing', true, null]);
+    battleTick('2026-10-30 10:00:11');
+    $view = $viewNow($me);
+    expect($state($pollNow($me)))->toBe(['playing', false, BattleKit::T0])
+        ->and($state($view))->toBe(['playing', false, BattleKit::T0])
+        ->and([$view->presenceWarnSeconds, $view->presenceGraceSeconds])->toBe([10, 30]);   // the screen counts 30 - (now - since)
+
+    // They poll once: the heartbeat is written and they are here again; the same moment shows nothing to the other side's rules.
+    battleTick('2026-10-30 10:00:20');
+    expect($state($pollNow($me)))->toBe(['playing', false, BattleKit::T0]);
+    $pollNow($friend);
+    battleTick('2026-10-30 10:00:21');
+    expect($state($pollNow($me)))->toBe(['playing', true, null]);
+
+    // Gone again: the warning comes 11 s after the heartbeat, the end exactly as before - after 30 s of silence, not a second earlier.
+    battleTick('2026-10-30 10:00:31');
+    expect($state($pollNow($me)))->toBe(['playing', false, '2026-10-30 10:00:20']);
+    battleTick('2026-10-30 10:00:50');
+    expect($state($pollNow($me)))->toBe(['playing', false, '2026-10-30 10:00:20']);
+    battleTick('2026-10-30 10:00:51');
+    $ended = $pollNow($me);
+    expect([$ended->status, $ended->endReason, $ended->opponentPresent, $ended->opponentAbsentSince])->toBe(['finished', 'absent', true, null]);   // over: nobody to warn about
+});
+
+it('warns about silence in the room and the countdown as well, never for an invitation or a match that is over, and never longer than the grace', function (): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    $see = fn (Battle $row, Learner $who) => BattleKit::reader()->view(BattleKit::reader()->find($who, $row->id), $who, CarbonImmutable::now());
+
+    $invited = BattleKit::invite($me, $friendship, PracticeMode::Pairs, $course, $lesson);
+    battleTick('2026-10-30 10:00:20');
+    expect([$see($invited, $friend)->opponentPresent, $see($invited, $friend)->opponentAbsentSince])->toBe([true, null]);   // nobody is "present" yet
+
+    $room = BattleKit::service()->accept($friend, $invited->id);
+    expect($see($room, $me)->opponentPresent)->toBeTrue();
+    battleTick('2026-10-30 10:00:31');   // 11 s after the acceptance
+    $view = $see($room, $me);
+    expect([$view->status, $view->opponentPresent, $view->opponentAbsentSince?->toDateTimeString()])->toBe(['room', false, '2026-10-30 10:00:20']);
+
+    BattleKit::service()->cancel($me, $room->id);
+    $over = $see($room, $friend);
+    expect([$over->status, $over->opponentPresent, $over->opponentAbsentSince])->toBe(['closed', true, null]);
+
+    // The warning cannot be set to come after the end: it is cut to the grace.
+    config(['practice.battle.presence_warn_seconds' => 99]);
+    expect(BattleKit::reader()->view(BattleKit::fresh($room), $me, CarbonImmutable::now())->presenceWarnSeconds)->toBe(30);
+    config(['practice.battle.presence_warn_seconds' => 7]);
+    expect(BattleKit::reader()->view(BattleKit::fresh($room), $me, CarbonImmutable::now())->presenceWarnSeconds)->toBe(7);
 });
 
 it('reports a clip that does not play: the file is there - the match goes on; missing - the match is voided; a repeated report answers the same', function (): void {
