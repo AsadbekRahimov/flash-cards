@@ -926,3 +926,83 @@ it('warns over HTTP that the opponent has lost the connection after 10 s - since
     expect([$gone->json('status'), $gone->json('end_reason')])->toBe(['finished', 'absent']);
     expect(BattleHttp::view($me, $id)->json('result.outcome'))->toBe('won');
 });
+
+// ------------------------------------------------------------------------------------------------------------ the refusals
+
+it('wraps every refusal of the battle in the one envelope, with `details` INSIDE `error` exactly where docs/16 §7.6 has them', function (): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    $stranger = Learner::factory()->create();
+    $id = (int) BattleHttp::invite($me, $friendship, PracticeMode::Pairs, $course, $lesson)->json('id');
+
+    // 404 battle_not_found: a stranger's battle looks like none that exists. 403 for the wrong side, 409 for the wrong state.
+    battleError(BattleHttp::view($stranger, $id), 404, 'battle_not_found', null);
+    expect(BattleHttp::view($stranger, $id)->json())->toBe(BattleHttp::view($stranger, 999_999)->json());
+    battleError(BattleHttp::accept($me, $id), 403, 'battle_not_recipient', null);
+    battleError(BattleHttp::cancel($friend, $id), 403, 'battle_not_challenger', null);
+    expect(battleError(BattleHttp::ready($me, $id), 409, 'battle_wrong_state', ['status']))->toBe(['status' => 'invited']);
+
+    // 409 battle_busy {battle_id}: the invitation I have is the match I am busy with.
+    expect(battleError(BattleHttp::invite($me, $friendship, PracticeMode::Sentence, $course, $lesson), 409, 'battle_busy', ['battle_id']))->toBe(['battle_id' => $id]);
+
+    // 409 battle_closed {end_reason}: the invitation was declined; any action on it says how it ended.
+    BattleHttp::decline($friend, $id)->assertOk();
+    expect(battleError(BattleHttp::accept($friend, $id), 409, 'battle_closed', ['end_reason']))->toBe(['end_reason' => 'declined'])
+        ->and(battleError(BattleHttp::cancel($me, $id), 409, 'battle_closed', ['end_reason']))->toBe(['end_reason' => 'declined']);
+
+    // The invitation itself: the format switched off, too little material (the numbers of both players' languages), the course, the lesson.
+    config(['practice.modes.sentence' => false]);
+    expect(battleError(BattleHttp::invite($me, $friendship, PracticeMode::Sentence, $course, $lesson), 409, 'practice_mode_disabled', ['mode']))->toBe(['mode' => 'sentence']);
+    config(['practice.modes.sentence' => true]);
+    [$empty] = PracticeKit::course('empty-course');
+    expect(battleError(BattleHttp::invite($me, $friendship, PracticeMode::Pairs, $empty), 422, 'battle_material_unavailable', ['mode', 'available', 'required', 'reason', 'course', 'lesson_id']))
+        ->toBe(['mode' => 'pairs', 'available' => 0, 'required' => 20, 'reason' => 'no_words', 'course' => 'empty-course', 'lesson_id' => null]);
+    battleError(BattleHttp::post($me, '', ['friendship_id' => $friendship->id, 'mode' => 'pairs', 'course' => 'no-such-course']), 404, 'course_not_found', null);
+    PracticeKit::resetLimiters($me);
+    battleError(BattleHttp::post($me, '', ['friendship_id' => $friendship->id, 'mode' => 'pairs', 'course' => $course->slug, 'lesson_id' => 999_999]), 404, 'lesson_not_found', null);
+    PracticeKit::resetLimiters($me);
+    [, $foreign] = PracticeKit::course('other-course');
+    battleError(BattleHttp::post($me, '', ['friendship_id' => $friendship->id, 'mode' => 'pairs', 'course' => $course->slug, 'lesson_id' => $foreign->id]), 422, 'lesson_not_in_course', null);
+    PracticeKit::resetLimiters($me);
+
+    // The friend: not mine / not accepted (the pair), cannot practice, the battle switched off.
+    battleError(BattleHttp::post($stranger, '', ['friendship_id' => $friendship->id, 'mode' => 'pairs', 'course' => $course->slug]), 404, 'friendship_not_found', null);
+    $pending = Friendship::factory()->between($me, Learner::factory()->create())->pending()->create();
+    battleError(BattleHttp::post($me, '', ['friendship_id' => $pending->id, 'mode' => 'pairs', 'course' => $course->slug]), 403, 'not_friends', null);
+    PracticeKit::resetLimiters($me);
+    config(['practice.access' => 'pilot']);
+    $me->update(['practice_pilot_at' => now()]);
+    battleError(BattleHttp::invite($me, $friendship, PracticeMode::Pairs, $course, $lesson), 409, 'battle_friend_no_access', null);
+    battleError(BattleHttp::view($friend, $id), 403, 'practice_unavailable', null);   // the friend is not in the pilot: nothing of the practice is theirs
+    config(['practice.access' => 'all', 'practice.battle.enabled' => false]);
+    battleError(BattleHttp::invite($me, $friendship, PracticeMode::Pairs, $course, $lesson), 409, 'battle_disabled', null);
+});
+
+it('answers audio-failed with what the server found and the battle as it is now - the match goes on if the file is there, is voided if it is not - and the same request answers the same', function (): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    $id = BattleHttp::room($me, $friend, $friendship, PracticeMode::Dictation, $course, $lesson);
+    $element = BattleKit::element(BattleKit::fresh($id), 2);
+
+    // The file is there: the trouble is on the device, the match is not touched.
+    $request = (string) Str::uuid();
+    $local = BattleHttp::audioFailed($me, $id, $element['id'], $request)->assertOk()->assertExactJsonStructure(['verified', 'battle' => battleShape()]);
+    expect($local->json('verified'))->toBeFalse()
+        ->and($local->json('battle.status'))->toBe('room')
+        ->and($local->json('battle.version'))->toBe(1)
+        ->and($local->json('battle.audio_preload'))->toHaveCount(5);
+
+    // The file goes; the same request is answered as it was (the first report stands), a new one finds the file missing: voided.
+    Storage::disk('practice_audio')->delete($element['audio_path']);
+    BattleHttp::audioFailed($me, $id, $element['id'], $request)->assertOk()->assertJsonPath('verified', false)->assertJsonPath('battle.status', 'room');
+    $voided = BattleHttp::audioFailed($friend, $id, $element['id'])->assertOk()->assertExactJsonStructure(['verified', 'battle' => battleShape(result: true)]);
+    expect([$voided->json('verified'), $voided->json('battle.status'), $voided->json('battle.end_reason'), $voided->json('battle.result.outcome'), $voided->json('battle.audio_preload')])
+        ->toBe([true, 'closed', 'voided', 'none', null]);
+    expect(battleError(BattleHttp::audioFailed($me, $id, $element['id']), 409, 'battle_closed', ['end_reason']))->toBe(['end_reason' => 'voided']);
+
+    // The other refusals: an id that is not a clip of this match; an invitation that has no clips yet.
+    $again = (int) BattleHttp::invite($me, $friendship, PracticeMode::Collocation, $course, $lesson)->assertCreated()->json('id');
+    expect(battleError(BattleHttp::audioFailed($me, $again, 'eNoSuchEl00'), 409, 'battle_wrong_state', ['status']))->toBe(['status' => 'invited']);
+    BattleHttp::accept($friend, $again)->assertOk();
+    battleError(BattleHttp::audioFailed($me, $again, 'eNoSuchEl00'), 422, 'unknown_element_id', null);
+    battleError(BattleHttp::audioFailed($me, $again, BattleKit::element(BattleKit::fresh($again), 1)['id']), 422, 'unknown_element_id', null);   // a round without a clip
+    BattleHttp::post($me, "/{$again}/audio-failed", ['request_id' => 'x', 'element_id' => 'e'])->assertStatus(422)->assertJsonValidationErrors(['request_id']);
+});
