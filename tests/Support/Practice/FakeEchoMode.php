@@ -105,7 +105,10 @@ final class FakeEchoMode implements PracticeModeHandler, ReplaceableElements
         $projection = $this->projection($element, $state);
 
         return $this->leak
-            ? [...$projection, 'expected' => $element->get('expected'), 'word_id' => $element->get('word_id'), 'pairs' => $element->get('pairs'), 'nested' => ['audio_path' => $element->get('audio_path'), 'item_id' => $element->get('item_id')]]
+            ? [...$projection, 'expected' => $element->get('expected'), 'word_id' => $element->get('word_id'), 'pairs' => $element->get('pairs'), 'nested' => ['audio_path' => $element->get('audio_path'), 'item_id' => $element->get('item_id')],
+                // The text of a dictation, its translation and the explanation: what the review shows AFTER the answer, never before.
+                'display' => $element->get('expected'), 'translation' => ['ru' => 'leaked translation'], 'explanation' => 'leaked explanation',
+                'review' => ['translation' => 'leaked again', 'explanation' => ['ru' => 'leaked again']]]
             : $projection;
     }
 
@@ -203,7 +206,13 @@ final class FakeEchoMode implements PracticeModeHandler, ReplaceableElements
         return array_map(static fn (int $k): array => ['item_id' => $k, 'source' => 'phrase'], array_slice($rest, 0, $this->spares));
     }
 
-    public function replacement(SnapshotElement $replaced, array $pool, LocaleSet $locales): ?array
+    /** The imaginary spares have no file to look for: all of them play. */
+    public function playableSpares(array $pool): array
+    {
+        return array_map(static fn (array $candidate): string => 'item|'.$candidate['item_id'], $pool);
+    }
+
+    public function replacement(SnapshotElement $replaced, array $pool, LocaleSet $locales, ?array $playable = null): ?array
     {
         if ($pool === []) {
             return null;

@@ -254,7 +254,7 @@ function isolationPlayEverything(Learner $learner, Course $course, Lesson $lesso
         expect($finished['status'])->toBe('finished')
             ->and($finished['summary']['retry_available'])->toBeTrue();
 
-        $retry = isolationOpen($learner, $course, $mode->value, ['retry_of' => $finished['id']])->assertCreated()->json();
+        $retry = isolationOpen($learner, $course, $mode->value, ['retry_of' => $finished['id'], 'source' => 'retry'])->assertCreated()->json();
         expect($retry['retry_of'])->toBe($finished['id'])
             ->and(isolationPlay($learner, $retry)['status'])->toBe('finished');
     }

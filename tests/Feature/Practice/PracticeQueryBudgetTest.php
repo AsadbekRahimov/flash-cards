@@ -43,6 +43,8 @@ const BUDGET_HUB = 9;
 const BUDGET_OPEN = 12;
 const BUDGET_SHOW = 3;
 const BUDGET_ANSWER = 6;
+/** The answer that ENDS a session carries the summary, and the summary asks whether the mistakes can be repeated: one statement more (docs/16 §13). */
+const BUDGET_ANSWER_LAST = 7;
 const BUDGET_AUDIO = 2;
 
 /** A response of a session must not exceed 8 KB (docs/16 §13); the snapshot is held to `Snapshot::MAX_BYTES` (UTF-8, SnapshotSizeTest). */
@@ -192,7 +194,7 @@ it('shows a session in at most 3 statements, a short one and a long one alike', 
     expect(count($queries))->toBeLessThanOrEqual(BUDGET_SHOW, implode("\n", $queries));
 });
 
-it('takes an answer in at most 6 statements, the last one that ends the session included', function (): void {
+it('takes an answer in at most 6 statements, the last one that ends the session in at most 7 (the summary checks the retry)', function (): void {
     [$learner, $course] = budgetWorld();
     PracticeKit::fake(PracticeMode::Collocation, candidates: 3);
     $session = budgetOpen($learner, $course, 'collocation')->assertCreated()->json();
@@ -207,7 +209,7 @@ it('takes an answer in at most 6 statements, the last one that ends the session 
 
     expect($session['status'])->toBe('finished')
         ->and(count($middle))->toBeLessThanOrEqual(BUDGET_ANSWER, implode("\n", $middle))
-        ->and(count($last))->toBeLessThanOrEqual(BUDGET_ANSWER, implode("\n", $last))
+        ->and(count($last))->toBeLessThanOrEqual(BUDGET_ANSWER_LAST, implode("\n", $last))
         ->and(ProductEvent::query()->where('name', 'practice.session_finished')->count())->toBe(1);
 });
 

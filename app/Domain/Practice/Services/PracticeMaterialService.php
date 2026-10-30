@@ -202,6 +202,41 @@ final class PracticeMaterialService
     }
 
     /**
+     * How many of the tasks among the mistakes of a finished session can still be played again (docs/16 §6.1): ONE statement
+     * with the very test of {@see items()} - published, no target word inactive or not introduced to the learner - and a dictation
+     * with its audio ready. An id without a row says nothing (the practice never deletes a task) and is not counted as gone.
+     *
+     * @param  list<int>  $itemIds
+     */
+    public function retryItemStock(array $itemIds, Learner $learner): int
+    {
+        if ($itemIds === []) {
+            return 0;
+        }
+
+        [$lockState, $bindings] = $this->lockStateSql($learner);
+        $rows = PracticeItem::query()
+            ->select('practice_items.id', 'practice_items.type', 'practice_items.status', 'practice_items.published_version_id')
+            ->selectRaw($lockState.' as lock_state', $bindings)
+            ->selectSub(
+                PracticeItemVersion::query()->select('audio_status')->whereColumn('practice_item_versions.id', 'practice_items.published_version_id'),
+                'audio_status',
+            )
+            ->whereIn('practice_items.id', $itemIds)
+            ->get();
+
+        $playable = 0;
+        foreach ($rows as $row) {
+            $voiced = $row->type !== PracticeItemType::Dictation || $row->getAttribute('audio_status') === AudioStatus::Ready->value;
+            if ($row->status === PracticeItemStatus::Published && $row->published_version_id !== null && (int) $row->getAttribute('lock_state') === self::FIT && $voiced) {
+                $playable++;
+            }
+        }
+
+        return $playable + (count($itemIds) - count($rows));
+    }
+
+    /**
      * How much material each mode has in the scope: the hub and the options of a battle. The handlers report; they read the
      * material through this service, so the whole answer costs the queries of the words and of the tasks - once.
      *
@@ -367,7 +402,7 @@ final class PracticeMaterialService
             $bindings = [...$bindings, ...$unseen->getBindings()];
         }
 
-        return [$sql.' else '.self::FIT.' end', array_values($bindings)];
+        return [$sql.' else '.self::FIT.' end', $bindings];
     }
 
     /** The target words of the task being selected (`practice_items`): the part of a `lock_state` subquery that the two share. */

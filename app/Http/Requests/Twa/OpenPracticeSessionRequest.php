@@ -11,7 +11,8 @@ use Illuminate\Validation\Rule;
 
 /**
  * POST /api/twa/practice/sessions (docs/16 §7.2). With `retry_of` the mode, the course and the lesson are taken from the
- * finished session it names, and whatever is sent in their place is ignored - so they are not required then.
+ * finished session it names, and whatever is sent in their place is ignored - so they are not required then. `retry_of` and
+ * `source: retry` go together: either without the other is a 422 (a retry that is not marked as one, or a mark with nothing to repeat).
  */
 final class OpenPracticeSessionRequest extends FormRequest
 {
@@ -22,9 +23,11 @@ final class OpenPracticeSessionRequest extends FormRequest
             'mode' => ['required_without:retry_of', 'nullable', 'string', Rule::enum(PracticeMode::class)],
             'course' => ['required_without:retry_of', 'nullable', 'string', 'max:64'],
             'lesson_id' => ['nullable', 'integer', 'min:1'],
-            'source' => ['nullable', 'string', Rule::in(PracticeSession::SOURCES)],
+            'source' => $this->filled('retry_of')
+                ? ['required', 'string', Rule::in([PracticeSession::SOURCE_RETRY])]
+                : ['nullable', 'string', Rule::in(PracticeSession::SOURCES)],
             'replace_active' => ['nullable', 'boolean'],
-            'retry_of' => ['nullable', 'integer', 'min:1', 'max:9223372036854775807'],
+            'retry_of' => ['nullable', 'integer', 'min:1', 'max:9223372036854775807', 'required_if:source,'.PracticeSession::SOURCE_RETRY],
         ];
     }
 

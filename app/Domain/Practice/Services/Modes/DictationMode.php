@@ -237,7 +237,19 @@ final class DictationMode implements PracticeModeHandler, ReplaceableElements
      * The first spare of the same source whose clip is on the disk, else the first spare of the other source (docs/16 §10.4). A
      * spare found missing is dropped from the pool along with the one used.
      */
-    public function replacement(SnapshotElement $replaced, array $pool, LocaleSet $locales): ?array
+    public function playableSpares(array $pool): array
+    {
+        $keys = [];
+        foreach ($pool as $candidate) {
+            if ($this->isPlayable($candidate)) {
+                $keys[] = self::spareKey($candidate);
+            }
+        }
+
+        return $keys;
+    }
+
+    public function replacement(SnapshotElement $replaced, array $pool, LocaleSet $locales, ?array $playable = null): ?array
     {
         $source = $replaced->get('source');
         $order = array_keys($pool);
@@ -246,7 +258,8 @@ final class DictationMode implements PracticeModeHandler, ReplaceableElements
         $tried = [];
         foreach ($order as $index) {
             $tried[$index] = true;
-            if ($this->isPlayable($pool[$index])) {
+            // The keys found before the lock decide; only without them is the disk looked at here.
+            if ($playable === null ? $this->isPlayable($pool[$index]) : in_array(self::spareKey($pool[$index]), $playable, true)) {
                 $rest = array_values(array_diff_key($pool, $tried));
 
                 return [new SnapshotElement(OpaqueId::make('e', [$replaced->id]), $this->mode()->elementKind(), $pool[$index]), $rest];
@@ -504,6 +517,16 @@ final class DictationMode implements PracticeModeHandler, ReplaceableElements
         }
 
         return $taken;
+    }
+
+    /**
+     * What names a spare: the disk and the path of its clip (a phrase and a word never share a file).
+     *
+     * @param  array<string, mixed>  $candidate
+     */
+    private static function spareKey(array $candidate): string
+    {
+        return (is_string($candidate['audio_disk'] ?? null) ? $candidate['audio_disk'] : '').'|'.(is_string($candidate['audio_path'] ?? null) ? $candidate['audio_path'] : '');
     }
 
     /** @param array<string, mixed> $candidate */
