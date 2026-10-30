@@ -202,8 +202,8 @@ onBeforeUnmount(() => {
         <h2 class="text-2xl leading-8 font-bold break-words" data-testid="sentence-prompt">{{ element.prompt }}</h2>
       </article>
 
-      <!-- The line: wraps onto new rows, never scrolls sideways. -->
-      <div class="card flex min-h-28 flex-col gap-2 p-3" data-testid="sentence-line">
+      <!-- The line: wraps onto new rows, never scrolls sideways. On a short window (320 x 568) it starts lower: the bank must come up above the sticky block. -->
+      <div class="card flex min-h-28 flex-col gap-2 p-3 [@media(max-height:600px)]:min-h-20" data-testid="sentence-line">
         <ul role="list" :aria-label="t('practice.sentence.line')" class="flex flex-wrap content-start gap-2" data-testid="sentence-answer">
           <li v-for="item in line" :key="item.id" class="max-w-full min-w-0">
             <button
@@ -261,11 +261,12 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
-    <StickyActions>
+    <!-- On a short window the two buttons are one row (skip first, the check wide), as in the dictation: the block is 80 px, not 136, and the bank stays in view. -->
+    <StickyActions class="[@media(max-height:600px)]:flex-row-reverse">
       <button
         ref="checkButton"
         type="button"
-        class="btn btn-primary btn-lg btn-block"
+        class="btn btn-primary btn-lg btn-block [@media(max-height:600px)]:w-auto [@media(max-height:600px)]:min-w-0 [@media(max-height:600px)]:flex-1"
         :disabled="!canCheck"
         :aria-describedby="progressId"
         data-testid="check-btn"
@@ -273,7 +274,13 @@ onBeforeUnmount(() => {
       >
         {{ t('exercise.check') }}
       </button>
-      <button type="button" class="btn btn-plain btn-block" :disabled="!canSkip" data-testid="skip-btn" @click="skip">
+      <button
+        type="button"
+        class="btn btn-plain btn-block [@media(max-height:600px)]:w-auto [@media(max-height:600px)]:shrink-0"
+        :disabled="!canSkip"
+        data-testid="skip-btn"
+        @click="skip"
+      >
         {{ t('exercise.skip') }}
       </button>
     </StickyActions>

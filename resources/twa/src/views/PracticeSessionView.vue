@@ -35,7 +35,8 @@ import type { PracticeAnswerPayload } from '@/api/types'
  * - `finished` — `PracticeSummary`.
  * A dictation whose clip does not load or play opens `AudioTrouble` over it; a refusal that leaves the learner on the
  * element (no network, a rule of the server) is a toast. The `PaywallSheet` opens over the session when the server says
- * `practice_pro_required`.
+ * `practice_pro_required`. "No sound for now" - in that sheet, and the button the dictation always has - leads to the hub with the
+ * session dropped on purpose (`practice.abandonSession()`): the mode chosen there starts over it without asking.
  *
  * ✕ and the system "Back" lead to the hub of the session (docs/16 §11.1): the answers are saved as they go, nothing is
  * asked. When the store knows nothing yet (a link straight to the session) they lead to the courses.

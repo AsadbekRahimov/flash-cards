@@ -95,6 +95,21 @@ describe('SentenceBuilder — the screen', () => {
     expect(actions.find('[data-testid=check-btn]').exists()).toBe(true)
     expect(actions.find('[data-testid=skip-btn]').exists()).toBe(true)
   })
+
+  // 320 x 568: the sticky block (136 px, two rows) used to cover the first row of the bank at the first show, so that no fragment was
+  // in view. On a short window the block is one row of 80 px (skip first, the check wide - as in the dictation) and the line is lower.
+  it('on a short window (max-height 600 px) keeps the bank in view: the two buttons make one row, and the line starts lower', () => {
+    const w = mountBuilder()
+
+    expect(w.get('[data-testid=actions]').classes()).toContain('[@media(max-height:600px)]:flex-row-reverse')
+    expect(checkButton(w).classes()).toEqual(
+      expect.arrayContaining(['btn-primary', 'btn-lg', '[@media(max-height:600px)]:w-auto', '[@media(max-height:600px)]:min-w-0', '[@media(max-height:600px)]:flex-1']),
+    )
+    expect(skipButton(w).classes()).toEqual(expect.arrayContaining(['btn-plain', '[@media(max-height:600px)]:w-auto', '[@media(max-height:600px)]:shrink-0']))
+    expect(w.get('[data-testid=sentence-line]').classes()).toEqual(expect.arrayContaining(['min-h-28', '[@media(max-height:600px)]:min-h-20']))
+    // The order in the page stays "Check", then "I don't know": the main action comes first for a keyboard and a screen reader.
+    expect(w.get('[data-testid=actions]').findAll('button').map((button) => button.attributes('data-testid'))).toEqual(['check-btn', 'skip-btn'])
+  })
 })
 
 describe('SentenceBuilder — the line and the bank', () => {
