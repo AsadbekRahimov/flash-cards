@@ -106,6 +106,9 @@ const options = computed(() => shownOptions(props.element.options, picked.value,
         </h2>
       </article>
 
+      <!-- The pick did not get its reply: it cannot be changed, and it is sent again. Above the options, so that it is in view on a short window. -->
+      <InlineAlert v-if="retrying" tone="warning" :message="t('practice.session.resend_note')" data-testid="collocation-resend-note" />
+
       <div class="flex flex-col gap-2.5" role="group" :aria-label="t('practice.collocation.instruction')">
         <button
           v-for="(option, index) in options"
@@ -136,9 +139,6 @@ const options = computed(() => shownOptions(props.element.options, picked.value,
       <p v-if="picked === null" class="px-2 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="collocation-footnote">
         {{ t(mode === 'battle' ? 'practice.collocation.footnote.battle' : 'practice.collocation.footnote.solo') }}
       </p>
-
-      <!-- The pick did not get its reply: it cannot be changed, and it is sent again. -->
-      <InlineAlert v-if="retrying" tone="warning" :message="t('practice.session.resend_note')" data-testid="collocation-resend-note" />
     </div>
 
     <StickyActions v-if="retrying">
