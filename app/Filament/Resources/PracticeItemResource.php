@@ -73,7 +73,7 @@ class PracticeItemResource extends Resource
      */
     public static function getEloquentQuery(): Builder
     {
-        return PracticeItem::query()->with(['course', 'lesson.stage', 'currentVersion']);
+        return PracticeItem::query()->with(['course', 'lesson.stage', 'currentVersion', 'publishedVersion']);
     }
 
     public static function form(Schema $schema): Schema
@@ -82,7 +82,7 @@ class PracticeItemResource extends Resource
         $is = fn (string $type): \Closure => fn (Get $get): bool => $get('type') === $type;
 
         return $schema->components([
-            Section::make(__('admin.practice_items.sections.place'))->columns(2)->disabled($archived)->schema([
+            Section::make(__('admin.practice_items.sections.place'))->description(__('admin.practice_items.sections.place_help'))->columns(2)->disabled($archived)->schema([
                 Forms\Components\Select::make('course_id')
                     ->label(__('admin.practice_items.fields.course'))
                     ->options(fn (): array => self::courseOptions())
@@ -290,6 +290,7 @@ class PracticeItemResource extends Resource
                     ->label(__('admin.practice_items.columns.audio'))
                     ->badge()
                     ->state(fn (PracticeItem $record): ?string => self::audioStatus($record))
+                    ->description(fn (PracticeItem $record): ?string => self::draftAudioNote($record))
                     ->formatStateUsing(fn (string $state): string => AdminLabels::value('practice_items.audio', $state))
                     ->color(fn (?string $state): string => match ($state) {
                         AudioStatus::Ready->value => 'success',
@@ -319,7 +320,8 @@ class PracticeItemResource extends Resource
                 Tables\Filters\SelectFilter::make('status')
                     ->label(__('admin.practice_items.fields.status'))
                     ->options(AdminLabels::options('practice_items.status', array_map(static fn (PracticeItemStatus $status): string => $status->value, PracticeItemStatus::cases()))),
-                // The audio of the CURRENT version of a dictation. The value comes from the client: only the known statuses count.
+                // The audio of a dictation: the version the learners get (the published one, else the current one) or the draft that waits
+                // behind it - the column shows the first and notes the second. The value comes from the client: only the known statuses count.
                 Tables\Filters\SelectFilter::make('audio')
                     ->label(__('admin.practice_items.columns.audio'))
                     ->options(AdminLabels::options('practice_items.audio', [AudioStatus::Pending->value, AudioStatus::Ready->value, AudioStatus::Failed->value]))
@@ -327,7 +329,9 @@ class PracticeItemResource extends Resource
                         $status = $data['value'] ?? null;
 
                         return in_array($status, [AudioStatus::Pending->value, AudioStatus::Ready->value, AudioStatus::Failed->value], true)
-                            ? $query->whereHas('currentVersion', fn (Builder $version): Builder => $version->where('audio_status', $status))
+                            ? $query->where(fn (Builder $any): Builder => $any
+                                ->whereHas('publishedVersion', fn (Builder $version): Builder => $version->where('audio_status', $status))
+                                ->orWhereHas('currentVersion', fn (Builder $version): Builder => $version->where('audio_status', $status)))
                             : $query;
                     }),
                 Tables\Filters\TernaryFilter::make('unpublished_edit')
@@ -376,10 +380,32 @@ class PracticeItemResource extends Resource
         return $record->published_version_id !== null && $record->current_version_id !== $record->published_version_id;
     }
 
-    /** The audio of the current version of a dictation; null for the other types. */
+    /**
+     * The audio of the version the learners get - the published one, and the current one while the task has not been published; null
+     * for the other types. A published version whose audio is not ready is not handed out, so this is the status that matters.
+     */
     private static function audioStatus(PracticeItem $record): ?string
     {
-        return $record->type === PracticeItemType::Dictation ? $record->currentVersion?->audio_status->value : null;
+        if ($record->type !== PracticeItemType::Dictation) {
+            return null;
+        }
+
+        return ($record->publishedVersion ?? $record->currentVersion)?->audio_status->value;
+    }
+
+    /** «Правка: ошибка» - a small note when the draft waiting behind the published version has another audio status than it. */
+    private static function draftAudioNote(PracticeItem $record): ?string
+    {
+        if ($record->type !== PracticeItemType::Dictation || $record->published_version_id === null || $record->current_version_id === $record->published_version_id) {
+            return null;
+        }
+
+        $draft = $record->currentVersion?->audio_status;
+        if ($draft === null || $draft === $record->publishedVersion?->audio_status) {
+            return null;
+        }
+
+        return __('admin.practice_items.columns.audio_draft', ['status' => mb_strtolower(AdminLabels::value('practice_items.audio', $draft->value))]);
     }
 
     /** The English text of a task for the list: what the learner works on (a sentence: the sentence, not its prompt). */

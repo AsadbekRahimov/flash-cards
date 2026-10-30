@@ -12,10 +12,13 @@ import type { PracticeActiveSession } from '@/api/types'
  * Opened on 409 `practice_session_active`; the session comes from the `details` of the refusal.
  *
  * Events: `continue`, `replace` (start the new one, `replace_active`), `close` (the ✕ and "Cancel": nothing happens).
- * `busy` disables the buttons while the new session is being opened.
+ * `busy` disables the buttons while the new session is being opened. `place` says where the unfinished session is ("Module 2 ·
+ * Lesson 4 · Food", or the course) when the screen can tell: the server names the course by its slug and the lesson by its id only,
+ * so a session of another course that this run has not seen has no name to give, and the line is left out (nothing is made up).
  */
 const props = defineProps<{
   session: PracticeActiveSession
+  place?: string | null
   busy?: boolean
 }>()
 
@@ -38,6 +41,7 @@ const text = computed(() =>
     <header class="flex flex-col items-center gap-2 pt-1 text-center">
       <span class="icon-tile size-14 rounded-2xl" :class="`tile-${look.tile}`"><AppIcon :name="look.icon" :size="28" /></span>
       <h2 class="text-[22px] leading-7 font-bold" data-testid="active-title">{{ t('practice.hub.active.title') }}</h2>
+      <p v-if="place" class="text-[15px] leading-5 font-medium text-tg-subtitle" data-testid="active-place">{{ place }}</p>
       <p class="text-[15px] leading-5" data-testid="active-text">{{ text }}</p>
     </header>
 

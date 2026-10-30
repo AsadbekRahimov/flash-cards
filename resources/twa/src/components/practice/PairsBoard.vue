@@ -11,9 +11,11 @@
  *
  * A match can be started from either side: a tap picks a card, a tap on the picked card lets it go, a tap on a card of the same
  * side moves the pick, a tap on a card of the other side makes the pair. It is the server that says whether a pair is right
- * (solo): the board learns it from the new `element` — a pair in `matched` was right, one more in `mismatches` was wrong — and
- * shows it: a right pair is green with a check for ~0.4 s and leaves, a wrong one is red with a cross for ~0.6 s with an error
- * haptic; the right answer of a wrong pair is NOT shown. While a match is on its way the board takes no other tap.
+ * (solo): the board learns it from the new `element` — the sent pair among the new ones in `matched` was right, one more in
+ * `mismatches` was wrong — and shows it: a right pair is green with a check for ~0.4 s and leaves, a wrong one is red with a cross
+ * for ~0.6 s with an error haptic; the right answer of a wrong pair is NOT shown. While a match is on its way the board takes no
+ * other tap. After a reply that was lost the element may carry pairs the learner never saw answered: they leave the board quietly,
+ * and the verdict is still that of the pair that was sent.
  *
  * Every state is a colour, a symbol AND a word (read by a screen reader inside the card, and said in the live line under the
  * columns); the cards are real buttons (Tab, Enter, Space; Escape lets the pick go), at least 56 px high, and a long
@@ -272,7 +274,15 @@ function keepFocus(): void {
   board.value?.querySelector<HTMLElement>('button[data-card]:not([data-state="gone"])')?.focus()
 }
 
-/** The element changed or the board was released: what came of the match that was sent. */
+/**
+ * The element changed or the board was released: what came of the match that was sent.
+ *
+ * The verdict is read for the pair that was SENT (`tried`), not for the one the server put together last: after a reply that was lost
+ * the new element may carry pairs the learner never saw answered, and `matched` is in the order of the left column, not of the time.
+ * - the sent word is among the new pairs: that pair is right (shown as the server paired it);
+ * - else, when `mismatches` has grown: the sent pair is wrong - red, the error haptic, "Doesn't fit";
+ * - any other new pair just leaves the board, with no flash.
+ */
 function settle(): void {
   if (!solo.value) return
 
@@ -282,18 +292,19 @@ function settle(): void {
   seenPairs = matched.map(([left]) => left)
   seenMismatches = props.element.mismatches
 
-  const latest = fresh[fresh.length - 1]
-  if (latest !== undefined) {
-    show({ left: latest[0], right: latest[1], kind: 'correct' }, CORRECT_MS)
+  const attempt = tried.value
+  const mine = attempt === null ? undefined : fresh.find(([left]) => left === attempt.left)
+  if (mine !== undefined) {
+    show({ left: mine[0], right: mine[1], kind: 'correct' }, CORRECT_MS)
     tried.value = null
-  } else if (worse && tried.value !== null) {
-    show({ ...tried.value, kind: 'wrong' }, WRONG_MS)
+  } else if (worse && attempt !== null) {
+    show({ ...attempt, kind: 'wrong' }, WRONG_MS)
     notificationHaptic('error')
     tried.value = null
   }
 
   // The match is over — answered, or lost on the way (the board is free again with nothing new): the learner may pick again.
-  if (sent.value !== null && (latest !== undefined || worse || !props.disabled)) sent.value = null
+  if (sent.value !== null && (fresh.length > 0 || worse || !props.disabled)) sent.value = null
 }
 
 watch(() => `${props.element.matched.map(([left]) => left).join(',')}|${props.element.mismatches}|${props.disabled ? 1 : 0}`, settle)

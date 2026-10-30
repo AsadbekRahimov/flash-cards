@@ -16,6 +16,8 @@ use RuntimeException;
  *   not_reviewed       "publish" for a version nobody has marked as reviewed (a draft is never published directly)
  *   no_version         the task has no version to move (a task is made with its first version, so this means a damaged row)
  *   item_gone          the task was deleted while the admin looked at it
+ *   version_changed    the current version is not the one the admin was looking at (an import or another editor wrote a newer
+ *                      one): "reviewed" / "publish" would act on a text nobody has seen
  */
 final class PracticeItemStateException extends RuntimeException
 {
@@ -30,6 +32,8 @@ final class PracticeItemStateException extends RuntimeException
     public const NO_VERSION = 'no_version';
 
     public const GONE = 'item_gone';
+
+    public const VERSION_CHANGED = 'version_changed';
 
     public function __construct(public readonly string $errorCode, string $message)
     {
@@ -64,6 +68,11 @@ final class PracticeItemStateException extends RuntimeException
     public static function gone(): self
     {
         return new self(self::GONE, 'The task no longer exists.');
+    }
+
+    public static function versionChanged(): self
+    {
+        return new self(self::VERSION_CHANGED, 'The task was changed while it was open: open it again.');
     }
 
     public function httpStatus(): int

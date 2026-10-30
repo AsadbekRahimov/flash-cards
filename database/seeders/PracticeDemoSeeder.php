@@ -8,6 +8,7 @@ use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Practice\Enums\AudioStatus;
 use App\Domain\Practice\Enums\PracticeItemType;
+use App\Domain\Practice\Services\PracticeAudioService;
 use App\Domain\Practice\Services\PracticeImporter;
 use App\Domain\Practice\Support\PracticeTextNormalizer;
 use App\Models\Course;
@@ -34,10 +35,12 @@ use Throwable;
  *     target words of the package the way the lessons of the group would have done it (a `word_repetitions` row of the group lesson,
  *     ten days old, not due): DemoRepetitionsSeeder covers the first forty words only, and a task is handed out to a learner who has
  *     been introduced to ALL its words. With `PRACTICE_ACCESS=pilot` the demo learners can practice at once.
- *   - The audio. Where no TTS service is configured (`twa.tts.service_url` is empty - the local environment) the seeder voices every
- *     phrase itself: `ffmpeg` with the `flite` filter makes an mp3 that is put under `{audio_key}.mp3` on the disk of the practice
- *     audio, and the version becomes `ready`. Where ffmpeg (or its flite filter) is missing the seeder says so and leaves the phrases
- *     `pending`. With a TTS service the queue (GeneratePracticeAudioJob) does it, as in production.
+ *   - The audio. The seeder voices every phrase itself, whatever TTS service is configured: `ffmpeg` with the `flite` filter makes
+ *     an mp3 that is put under `{audio_key}.mp3` on the disk of the practice audio, and the version becomes `ready`. For that the
+ *     import queues NO voicing job (`scheduleAudio: false`): on the sync queue of a test or a local run a job would call the TTS
+ *     service (or fail for want of one) in the middle of `db:seed`. Where ffmpeg (or its flite filter) is missing, the phrases that
+ *     are left go to the voicing queue when the queue is asynchronous (the Docker setup: a worker and the TTS container); on the
+ *     sync queue (tests, a bare local run) they stay `pending` with a warning - "Сгенерировать аудио заново" voices them later.
  *
  * Only in local/testing, like the other demo seeders. A repeated run changes nothing.
  */
@@ -54,15 +57,30 @@ class PracticeDemoSeeder extends Seeder
             return;
         }
 
-        $report = app(PracticeImporter::class)->importAsSystem((string) file_get_contents(database_path(self::PACKAGE)), publish: true);
+        $json = (string) file_get_contents(database_path(self::PACKAGE));
+
+        $report = app(PracticeImporter::class)->importAsSystem($json, publish: true, scheduleAudio: false);
         if (! $report->ok()) {
             throw new RuntimeException('The pilot package of the practice was refused: '.implode(' ', $report->errors));
         }
 
-        $course = app(CourseCatalogService::class)->defaultCourse();
+        $course = $this->packageCourse($json);
 
         $this->enrolDemoLearners($course);
         $this->voicePhrases($course);
+    }
+
+    /**
+     * The course the package names (`"course"`): the importer has found it, or the package would have been refused. Not the default
+     * course of the installation - under another `CONTENT_DEFAULT_COURSE_SLUG` that would be a course the package never touched.
+     */
+    private function packageCourse(string $json): Course
+    {
+        $package = json_decode($json, true, 32, JSON_THROW_ON_ERROR);
+        $slug = is_array($package) && is_string($package['course'] ?? null) ? $package['course'] : '';
+
+        return app(CourseCatalogService::class)->findBySlug($slug)
+            ?? throw new RuntimeException("The course '{$slug}' of the pilot package of the practice does not exist.");
     }
 
     /** The pilot and the words: the demo learners are the members of the demo group (as in DemoRepetitionsSeeder). */
@@ -127,13 +145,9 @@ class PracticeDemoSeeder extends Seeder
         });
     }
 
-    /** The audio of the phrases of the published dictations, made here when no TTS service is configured. */
+    /** The audio of the phrases of the published dictations, made here with ffmpeg (the import queued no job for them). */
     private function voicePhrases(Course $course): void
     {
-        if (filled(config('twa.tts.service_url'))) {
-            return;
-        }
-
         $diskName = (string) config('practice.audio.disk');
         try {
             $disk = Storage::disk($diskName);
@@ -152,7 +166,7 @@ class PracticeDemoSeeder extends Seeder
             ->orderBy('id')
             ->get();
 
-        foreach ($versions as $version) {
+        foreach ($versions as $index => $version) {
             $text = $version->content['text'] ?? null;
             if (! is_string($text) || $text === '') {
                 continue;
@@ -167,7 +181,7 @@ class PracticeDemoSeeder extends Seeder
 
             $sound = $this->synthesize($text);
             if ($sound === null) {
-                $this->demoWarning('PracticeDemoSeeder: ffmpeg with the flite filter is not available, so the audio of the phrases stays pending.');
+                $this->queueOrWarn(array_values($versions->slice($index)->all()));
 
                 return;
             }
@@ -180,6 +194,27 @@ class PracticeDemoSeeder extends Seeder
                 'audio_generated_at' => now(),
             ]);
         }
+    }
+
+    /**
+     * No speech here: an asynchronous queue voices the phrases that are left (a worker calls the TTS service later, nothing runs
+     * inside `db:seed`); the sync queue would call the service right now, so there the phrases stay `pending`.
+     *
+     * @param  list<PracticeItemVersion>  $versions
+     */
+    private function queueOrWarn(array $versions): void
+    {
+        if (config('queue.default') === 'sync') {
+            $this->demoWarning('PracticeDemoSeeder: ffmpeg with the flite filter is not available, so the audio of the phrases stays pending (the button "Сгенерировать аудио заново" in the admin panel voices them through the queue).');
+
+            return;
+        }
+
+        $audio = app(PracticeAudioService::class);
+        foreach ($versions as $version) {
+            $audio->schedule($version);
+        }
+        $this->demoWarning('PracticeDemoSeeder: ffmpeg with the flite filter is not available, so '.count($versions).' phrases went to the voicing queue (the TTS service voices them).');
     }
 
     /** The name of the file by docs/16 §10.1: `sha1(version_id|normalized text|voice|audio_version)`. */

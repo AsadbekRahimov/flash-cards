@@ -287,7 +287,8 @@ class LearnerResource extends Resource
                         app(SchedulerSwitchService::class)->switchTo($record, $to, $actor, request()->ip());
                     }),
                 // The pilot of the practice (docs/16 §2.1): admin only, audited (`learner.practice_pilot_changed`).
-                PracticePilotAction::make(),
+                PracticePilotAction::include(),
+                PracticePilotAction::exclude(),
                 Actions\ViewAction::make(),
             ])
             ->defaultSort('first_name');

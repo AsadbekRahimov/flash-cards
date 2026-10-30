@@ -3,7 +3,8 @@ import { computed, onBeforeUnmount, onMounted, reactive } from 'vue'
 import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import type { IconName } from '@/components/ui/icons'
-import { filledWith, phraseSize, shownOptions, splitPhrase } from '@/composables/collocationPhrase'
+import { filledWith, phraseSize, shownOptions, splitPhrase, yourOptionId } from '@/composables/collocationPhrase'
+import { verdictLabel } from '@/composables/practiceLabels'
 import { usePracticeAudio } from '@/composables/usePracticeAudio'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
@@ -17,7 +18,11 @@ import type { CollocationReveal, DictationReveal, PracticeReveal, PracticeVerdic
  *   word has a symbol and a word besides its colour, the wrong ones are underlined), the translation and the explanation;
  * - sentence — the correct sentence, the other accepted orders, what was assembled;
  * - collocation — the whole phrase, the three options with the right one and the picked one marked, the translation;
- * - the end of a round of pairs — "Round 2 of 3 is done" and the number of wrong matches in it.
+ *   the picked one is the server's `your_option_id` when it sends it (the answer that COUNTED), else the pick this screen knows;
+ * - the end of a round of pairs — "Round 2 of 3 is done" and the number of wrong matches in it;
+ * - an answer that was counted EARLIER (`outcome.earlier`, 409 `answer_already_accepted`: another tab, a reply that was lost) —
+ *   only the verdict the server counted and the words "an answer sent earlier was counted": no right answer and no pick, for
+ *   neither is known here, and the pick that was just made is not the one that counted.
  * With the explanation of the task, when it has one. "Next" is at the bottom (`StickyActions`); on the last element it
  * leads to the summary (`last`).
  *
@@ -75,9 +80,9 @@ const options = computed(() => {
   const element = props.outcome.element
   const done = collocation.value
   if (element.kind !== 'collocation' || done === null) return []
-  const picked = 'option_id' in props.outcome.answer ? props.outcome.answer.option_id : null
+  const sent = 'option_id' in props.outcome.answer ? props.outcome.answer.option_id : null
 
-  return shownOptions(element.options, picked, verdict.value, done.correct_option_ids)
+  return shownOptions(element.options, yourOptionId(done, sent), verdict.value, done.correct_option_ids)
 })
 
 /** The whole phrase cut around the right option, so that the word the learner needed can be marked in it. */
@@ -170,8 +175,9 @@ function onContinue(): void {
         </template>
 
         <template v-else>
-          <h2 class="text-[22px] leading-7 font-bold" data-testid="reveal-text">{{ t(`practice.verdict.${verdict}`) }}</h2>
-          <p v-if="verdict === 'typo'" class="text-[15px] leading-5 text-tg-subtitle" data-testid="reveal-note">{{ t('practice.reveal.typo_note') }}</p>
+          <h2 class="text-[22px] leading-7 font-bold" data-testid="reveal-text">{{ verdictLabel(outcome.element.kind, verdict) }}</h2>
+          <p v-if="outcome.earlier" class="text-[15px] leading-5 text-tg-subtitle" data-testid="reveal-earlier">{{ t('practice.reveal.earlier') }}</p>
+          <p v-else-if="verdict === 'typo'" class="text-[15px] leading-5 text-tg-subtitle" data-testid="reveal-note">{{ t('practice.reveal.typo_note') }}</p>
           <p v-else-if="verdict === 'skipped'" class="text-[15px] leading-5 text-tg-subtitle" data-testid="reveal-note">{{ t('practice.reveal.skipped_note') }}</p>
         </template>
 

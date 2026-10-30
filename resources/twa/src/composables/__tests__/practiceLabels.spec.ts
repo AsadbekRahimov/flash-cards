@@ -27,6 +27,16 @@ describe('practiceLabels', () => {
     expect(lessonHeader({ id: 41, stage: 2, number: 4, title: null })).toContain('2')
   })
 
+  it('never writes "null": a lesson outside a module is "Lesson 4", one with no number is its title or nothing', () => {
+    expect(lessonNumber({ id: 41, stage: null, number: 4, title: 'Еда' })).toBe('Урок 4')
+    expect(lessonHeader({ id: 41, stage: null, number: 4, title: 'Еда' })).toBe('Урок 4 · Еда')
+    expect(lessonHeader({ id: 41, stage: 2, number: null, title: 'Еда' })).toBe('Еда')
+    expect(lessonNumber({ id: 41, stage: 2, number: null, title: 'Еда' })).toBe('')
+    expect(lessonHeader({ id: 41, stage: null, number: null, title: null })).toBe('')
+    setLocale('uz')
+    expect(lessonHeader({ id: 41, stage: null, number: 4, title: null })).toBe('4-dars')
+  })
+
   it('rounds a length to whole minutes, never under one', () => {
     expect([0, 29, 30, 89, 90, 120, 149, 150, 300].map(estimateMinutes)).toEqual([1, 1, 1, 1, 2, 2, 2, 3, 5])
   })

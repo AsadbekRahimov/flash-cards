@@ -6,13 +6,16 @@ use App\Domain\Content\DTO\ImportIssue;
 use App\Domain\Practice\Enums\AudioStatus;
 use App\Domain\Practice\Enums\PracticeItemStatus;
 use App\Domain\Practice\Enums\PracticeItemType;
+use App\Domain\Practice\Enums\Verdict;
 use App\Domain\Practice\Enums\VersionState;
 use App\Domain\Practice\Exceptions\PracticeContentException;
 use App\Domain\Practice\Exceptions\PracticeItemStateException;
+use App\Domain\Practice\Services\Grading\SentenceGrader;
 use App\Domain\Practice\Services\PracticeAccess;
 use App\Domain\Practice\Services\PracticeImporter;
 use App\Domain\Practice\Services\PracticeItemService;
 use App\Domain\Practice\Services\PracticePilotService;
+use App\Domain\Practice\Support\PracticeContentValidator;
 use App\Filament\Pages\ImportPracticeItems;
 use App\Filament\Resources\LearnerResource\Pages\ListLearners;
 use App\Filament\Resources\LearnerResource\Pages\ViewLearner;
@@ -36,10 +39,12 @@ use App\Models\Word;
 use Database\Seeders\DemoContentSeeder;
 use Database\Seeders\RolePermissionSeeder;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\NotificationMailbox;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Testing\TestResponse;
@@ -126,6 +131,18 @@ function pad_make(Course $course, string $type, string $key, array $words = [], 
     return app(PracticeItemService::class)
         ->save(null, $course, ['type' => $type, 'key' => $key, 'level' => 'A1', 'word_ids' => array_map(static fn (Word $w): int => $w->id, $words), 'content' => [...$base, ...$content]], $by)
         ->item;
+}
+
+/**
+ * The content of the current version of a task in the form a save takes (texts, not indices).
+ *
+ * @return array<string, mixed>
+ */
+function pad_content(PracticeItem $item): array
+{
+    $version = PracticeItemVersion::query()->findOrFail($item->fresh()?->current_version_id);
+
+    return app(PracticeContentValidator::class)->authorForm($item->type, $version->content);
 }
 
 function pad_publish(PracticeItem $item, User $by): PracticeItem
@@ -234,16 +251,33 @@ it('lists the tasks: course, «Модуль N · Урок M», type, key, text, 
     expect(PracticeItemResource::lessonLabel($sentence->load('lesson.stage')))->toBe('Модуль 2 · Урок 1');
 });
 
-it('shows the text a learner works on, not the prompt, and escapes whatever an author wrote', function (): void {
+it('shows the text a learner works on, not the prompt, and prints whatever an author wrote escaped', function (): void {
     $w = pad_world();
     $sentence = pad_make($w['course'], 'sentence', 'text-sentence');
-    $dictation = pad_make($w['course'], 'dictation', 'text-dictation', content: ['text' => 'Say <b>hello</b>']);
+    $dictation = pad_make($w['course'], 'dictation', 'text-dictation', content: ['text' => 'Tom & Jerry say "hello"']);
 
     livewire(ListPracticeItems::class)
         ->assertTableColumnStateSet('preview', 'My mother is a teacher.', $sentence)
-        // The tags were stripped on the way in: what is left is text, and the page prints it escaped.
-        ->assertTableColumnStateSet('preview', 'Say hello', $dictation)
-        ->assertDontSeeHtml('<b>hello</b>');
+        ->assertTableColumnStateSet('preview', 'Tom & Jerry say "hello"', $dictation)
+        // `&` and quotes are text: the page prints them as entities, so nothing an author typed can become markup.
+        ->assertSeeHtml('Tom &amp; Jerry say &quot;hello&quot;');
+});
+
+it('refuses a text with markup in the form and says so in Russian: nothing is written', function (): void {
+    $w = pad_world();
+    pad_sent();
+
+    livewire(CreatePracticeItem::class)
+        ->fillForm([
+            'course_id' => $w['course']->id,
+            'type' => 'dictation',
+            'key' => 'with-markup',
+            'dictation' => ['text' => 'Say <b>hello</b>'],
+        ])
+        ->call('create');
+
+    expect(pad_sent())->toBe([['title' => 'Не получилось', 'body' => 'В поле «Текст» не должно быть знаков «<» и «>»: разметка не поддерживается, пишите обычный текст.']])
+        ->and(PracticeItem::query()->count())->toBe(0);
 });
 
 it('marks a published task that has a newer version waiting', function (): void {
@@ -320,6 +354,57 @@ it('names the audio of the current version of a dictation, ready or failed', fun
     livewire(ListPracticeItems::class)
         ->assertTableColumnFormattedStateSet('audio', 'Готово', $ready)
         ->assertTableColumnFormattedStateSet('audio', 'Ошибка', $failed);
+});
+
+it('shows the audio of the PUBLISHED version of a dictation, and notes a draft behind it whose audio is another', function (): void {
+    $w = pad_world();
+    $item = pad_publish(pad_make($w['course'], 'dictation', 'audio-served', [$w['words']['tomorrow']]), $this->admin);
+    PracticeItemVersion::query()->where('item_id', $item->id)->update(['audio_status' => AudioStatus::Ready->value]);
+    // A newer draft: its audio failed.
+    $draft = app(PracticeItemService::class)->saveVersion($item->fresh() ?? $item, $w['course'], [
+        'word_ids' => [$w['words']['tomorrow']->id], 'level' => 'A1',
+        'content' => ['text' => 'See you soon', 'accepted' => [], 'translation' => ['ru' => 'Скоро увидимся', 'uz' => "Tez ko'rishamiz"]],
+    ], $this->admin);
+    $draft->forceFill(['audio_status' => AudioStatus::Failed, 'audio_error' => 'tts_service_failed'])->save();
+
+    livewire(ListPracticeItems::class)
+        ->assertTableColumnFormattedStateSet('audio', 'Готово', $item->fresh())
+        ->assertTableColumnHasDescription('audio', 'Правка: ошибка', $item->fresh());
+
+    // The draft with the same audio status as the published one: no note. A task that was never published shows its current version.
+    $draft->forceFill(['audio_status' => AudioStatus::Ready, 'audio_error' => null])->save();
+    $unpublished = pad_make($w['course'], 'dictation', 'audio-unpublished');
+    PracticeItemVersion::query()->where('item_id', $unpublished->id)->update(['audio_status' => AudioStatus::Failed->value]);
+
+    livewire(ListPracticeItems::class)
+        ->assertTableColumnFormattedStateSet('audio', 'Готово', $item->fresh())
+        ->assertTableColumnDoesNotHaveDescription('audio', 'Правка: готово', $item->fresh())
+        ->assertTableColumnFormattedStateSet('audio', 'Ошибка', $unpublished)
+        ->assertTableColumnDoesNotHaveDescription('audio', 'Правка: ошибка', $unpublished);
+});
+
+it('finds a dictation by the audio of the version learners get or of the draft behind it', function (): void {
+    $w = pad_world();
+    $served = pad_publish(pad_make($w['course'], 'dictation', 'audio-find-served', [$w['words']['tomorrow']]), $this->admin);
+    PracticeItemVersion::query()->where('item_id', $served->id)->update(['audio_status' => AudioStatus::Failed->value]);
+    $behind = pad_publish(pad_make($w['course'], 'dictation', 'audio-find-behind', [$w['words']['tomorrow']]), $this->admin);
+    PracticeItemVersion::query()->where('item_id', $behind->id)->update(['audio_status' => AudioStatus::Ready->value]);
+    $draft = app(PracticeItemService::class)->saveVersion($behind->fresh() ?? $behind, $w['course'], [
+        'word_ids' => [$w['words']['tomorrow']->id], 'level' => 'A1',
+        'content' => ['text' => 'See you soon', 'accepted' => [], 'translation' => ['ru' => 'Скоро увидимся', 'uz' => "Tez ko'rishamiz"]],
+    ], $this->admin);
+    $draft->forceFill(['audio_status' => AudioStatus::Failed])->save();
+    $fine = pad_publish(pad_make($w['course'], 'dictation', 'audio-find-fine', [$w['words']['tomorrow']]), $this->admin);
+    PracticeItemVersion::query()->where('item_id', $fine->id)->update(['audio_status' => AudioStatus::Ready->value]);
+
+    livewire(ListPracticeItems::class)
+        ->filterTable('audio', 'failed')
+        ->assertCanSeeTableRecords([$served, $behind])
+        ->assertCanNotSeeTableRecords([$fine])
+        ->resetTableFilters()
+        ->filterTable('audio', 'ready')
+        ->assertCanSeeTableRecords([$behind, $fine])
+        ->assertCanNotSeeTableRecords([$served]);
 });
 
 // --- the forms by type ----------------------------------------------------------------------------------------------------------
@@ -425,6 +510,118 @@ it('takes the order of the fragments as the only accepted one when the field of 
 
     $version = PracticeItemVersion::query()->findOrFail(PracticeItem::query()->where('key', 'form-simple')->sole()->current_version_id);
     expect($version->content['accepted'])->toBe([[0, 1, 2, 3]]);
+});
+
+it('keeps the order of the fragments first when the field lists one other order, and shows that one alone when the task is opened again', function (): void {
+    $w = pad_world();
+
+    livewire(CreatePracticeItem::class)
+        ->fillForm([
+            'course_id' => $w['course']->id,
+            'type' => 'sentence',
+            'key' => 'form-other-order',
+            'sentence' => [
+                'prompt' => ['ru' => 'Я обычно пью чай.', 'uz' => 'Men odatda choy ichaman.'],
+                'fragments' => "I\nusually\ndrink\ntea",
+                'accepted' => 'usually | I | drink | tea',
+            ],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $item = PracticeItem::query()->where('key', 'form-other-order')->sole();
+    $content = PracticeItemVersion::query()->findOrFail($item->current_version_id)->content;
+
+    // [the order of the fragments, the other one]: the field never takes the place of the first.
+    expect($content['accepted'])->toBe([[0, 1, 2, 3], [1, 0, 2, 3]]);
+
+    // Both are right answers for the grader: the case that was graded wrong when the field replaced the order of the fragments.
+    $grader = new SentenceGrader;
+    $accepted = $grader->forms($content['fragments'], $content['accepted'])['accepted'];
+    expect($grader->grade(['f1' => 'I', 'f2' => 'usually', 'f3' => 'drink', 'f4' => 'tea'], $accepted, ['order' => ['f1', 'f2', 'f3', 'f4']])->verdict)->toBe(Verdict::Correct)
+        ->and($grader->grade(['f1' => 'I', 'f2' => 'usually', 'f3' => 'drink', 'f4' => 'tea'], $accepted, ['order' => ['f2', 'f1', 'f3', 'f4']])->verdict)->toBe(Verdict::Correct);
+
+    livewire(EditPracticeItem::class, ['record' => $item->getKey()])
+        ->assertFormSet(['sentence.fragments' => "I\nusually\ndrink\ntea", 'sentence.accepted' => 'usually | I | drink | tea']);
+});
+
+it('leaves out of the other orders a line that reads like the order of the fragments or like an earlier line', function (): void {
+    $w = pad_world();
+
+    livewire(CreatePracticeItem::class)
+        ->fillForm([
+            'course_id' => $w['course']->id,
+            'type' => 'sentence',
+            'key' => 'form-repeats',
+            'sentence' => [
+                'prompt' => ['ru' => 'Я обычно пью чай.', 'uz' => 'Men odatda choy ichaman.'],
+                'fragments' => "I\nusually\ndrink\ntea",
+                // the first line is the order of the fragments (in other case), the third is the second one with a full stop
+                'accepted' => "i | Usually | drink | tea\nusually | I | drink | tea\nUsually | i | drink | tea.\n",
+            ],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $item = PracticeItem::query()->where('key', 'form-repeats')->sole();
+
+    expect(PracticeItemVersion::query()->findOrFail($item->current_version_id)->content['accepted'])->toBe([[0, 1, 2, 3], [1, 0, 2, 3]]);
+
+    // A field that is only the order of the fragments is the same as an empty one: no error about "one order written twice".
+    livewire(CreatePracticeItem::class)
+        ->fillForm([
+            'course_id' => $w['course']->id,
+            'type' => 'sentence',
+            'key' => 'form-only-repeat',
+            'sentence' => ['prompt' => ['ru' => 'Это кот.'], 'fragments' => "this\nis\na\ncat", 'accepted' => "this | is | a | cat\nThis | is | a | cat"],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(PracticeItemVersion::query()->findOrFail(PracticeItem::query()->where('key', 'form-only-repeat')->sole()->current_version_id)->content['accepted'])->toBe([[0, 1, 2, 3]]);
+});
+
+it('says in Russian that an order of the field is no permutation of the fragments', function (): void {
+    $w = pad_world();
+    pad_sent();
+
+    livewire(CreatePracticeItem::class)
+        ->fillForm([
+            'course_id' => $w['course']->id,
+            'type' => 'sentence',
+            'key' => 'form-bad-order',
+            'sentence' => ['prompt' => ['ru' => 'Это кот.'], 'fragments' => "this\nis\na\ncat", 'accepted' => 'this | is | a'],
+        ])
+        ->call('create');
+
+    expect(pad_sent())->toBe([['title' => 'Не получилось', 'body' => 'Один из допустимых порядков — не перестановка фрагментов: каждый фрагмент должен встретиться в нём ровно столько раз, сколько в списке фрагментов.']])
+        ->and(PracticeItem::query()->count())->toBe(0);
+});
+
+it('shows every order of a task saved before the rule, so that saving it again loses none, and the task can be published after that', function (): void {
+    $w = pad_world();
+    // What the old form stored: the field REPLACED the order of the fragments, so the first accepted order is `usually I drink tea`.
+    $item = PracticeItem::factory()->sentence()->reviewed()->forCourse($w['course'])->targeting($w['words']['mother'])->withContent([
+        'fragments' => ['I', 'usually', 'drink', 'tea'],
+        'accepted' => [[1, 0, 2, 3]],
+        'display' => 'Usually I drink tea.',
+    ])->create(['key' => 'legacy-order']);
+    pad_sent();
+
+    // It cannot be published as it is: the order of the fragments must be the first one.
+    livewire(ListPracticeItems::class)->callTableAction('publish', $item);
+    expect(pad_sent())->toBe([['title' => 'Не получилось', 'body' => 'Первым допустимым порядком должен быть порядок фрагментов. Откройте задание и сохраните его заново: порядок фрагментов встанет первым сам.']]);
+
+    // The form shows the order that is stored (it is not the order of the fragments, so it is not hidden)...
+    livewire(EditPracticeItem::class, ['record' => $item->getKey()])
+        ->assertFormSet(['sentence.accepted' => 'usually | I | drink | tea'])
+        ->fillForm(['sentence' => ['display' => 'I usually drink tea.']])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    // ... and saving puts the order of the fragments first and keeps that one after it.
+    $item->refresh();
+    expect(PracticeItemVersion::query()->findOrFail($item->current_version_id)->content['accepted'])->toBe([[0, 1, 2, 3], [1, 0, 2, 3]]);
 });
 
 it('creates a collocation from the form: three options, the correct ones marked', function (): void {
@@ -571,7 +768,8 @@ it('says in Russian why the text is not accepted and keeps the form: nothing is 
         ])
         ->call('create');
 
-    expect(pad_sent()[0]['body'])->toContain('«'.$w['words']['ghost']->id.'»')->toContain('не найдено среди активных слов курса');
+    // The word is named by its text (the admin knows it so), not by its number.
+    expect(pad_sent()[0]['body'])->toContain('«ghost»')->not->toContain((string) $w['words']['ghost']->id.'»')->toContain('не найдено среди активных слов курса');
 });
 
 it('fills the edit form with the text of the current version in the way it is typed', function (): void {
@@ -592,7 +790,8 @@ it('fills the edit form with the text of the current version in the way it is ty
             'level' => 'A1',
             'word_ids' => [$w['words']['mother']->id],
             'sentence.fragments' => "I\nusually\ndrink\ntea",
-            'sentence.accepted' => "I | usually | drink | tea\nusually | I | drink | tea",
+            // The order of the fragments is the first accepted order and is not shown again: the field lists the others.
+            'sentence.accepted' => 'usually | I | drink | tea',
             'sentence.display' => 'I usually drink tea.',
             'sentence.prompt.ru' => 'Моя мама — учитель.',
         ]);
@@ -654,6 +853,72 @@ it('keeps a published task published with the old version handed out while its e
         ->and($item->published_version_id)->toBe($published)
         ->and($item->current_version_id)->not->toBe($published)
         ->and(PracticeItemVersion::query()->findOrFail($item->current_version_id)->state)->toBe(VersionState::Draft);
+});
+
+it('shows in the form the place and the target words of the CURRENT version, not the ones the published version has', function (): void {
+    $w = pad_world();
+    $item = pad_publish(pad_make($w['course'], 'sentence', 'form-version', [$w['words']['mother']], [], null), $this->admin);
+    $service = app(PracticeItemService::class);
+    // The published version: lesson none, level A1, word «mother». The draft: lesson 1.2, level B1, word «tomorrow».
+    $service->saveVersion($item->fresh() ?? $item, $w['course'], [
+        'lesson_id' => $w['l12']->id, 'level' => 'B1', 'word_ids' => [$w['words']['tomorrow']->id],
+        'content' => pad_content($item),
+    ], $this->admin);
+    $item->refresh();
+
+    // What the learners get is still the published version's ...
+    expect($item->lesson_id)->toBeNull()
+        ->and($item->level)->toBe('A1')
+        ->and(PracticeItemWord::query()->where('item_id', $item->id)->pluck('word_id')->all())->toBe([$w['words']['mother']->id]);
+
+    // ... and the form edits the draft.
+    livewire(EditPracticeItem::class, ['record' => $item->getKey()])
+        ->assertFormSet(['lesson_id' => $w['l12']->id, 'level' => 'B1', 'word_ids' => [$w['words']['tomorrow']->id]]);
+
+    // Saved as it is shown: nothing new, nothing changed for the learners.
+    livewire(EditPracticeItem::class, ['record' => $item->getKey()])->call('save')->assertHasNoFormErrors();
+    expect(PracticeItemVersion::query()->where('item_id', $item->id)->count())->toBe(2);
+
+    // A change of the lesson alone in the form is a new version, and the learners are not moved.
+    livewire(EditPracticeItem::class, ['record' => $item->getKey()])
+        ->fillForm(['lesson_id' => $w['l21']->id])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    $item->refresh();
+    expect(PracticeItemVersion::query()->where('item_id', $item->id)->count())->toBe(3)
+        ->and(PracticeItemVersion::query()->findOrFail($item->current_version_id)->lesson_id)->toBe($w['l21']->id)
+        ->and($item->lesson_id)->toBeNull();
+});
+
+it('marks a published task as having an unpublished edit when only its lesson, level or target words differ in the draft', function (string $change): void {
+    $w = pad_world();
+    $item = pad_publish(pad_make($w['course'], 'sentence', "edit-{$change}", [$w['words']['mother']]), $this->admin);
+    $plain = pad_publish(pad_make($w['course'], 'sentence', "plain-{$change}", [$w['words']['mother']]), $this->admin);
+    $content = pad_content($item);
+    $data = [
+        'lesson_id' => $change === 'lesson' ? $w['l12']->id : null,
+        'level' => $change === 'level' ? 'B2' : 'A1',
+        'word_ids' => [$change === 'words' ? $w['words']['tomorrow']->id : $w['words']['mother']->id],
+        'content' => $content,
+    ];
+
+    app(PracticeItemService::class)->saveVersion($item, $w['course'], $data, $this->admin);
+
+    livewire(ListPracticeItems::class)
+        ->assertTableColumnStateSet('has_unpublished_edit', true, $item->fresh())
+        ->assertTableColumnStateSet('has_unpublished_edit', false, $plain->fresh())
+        ->filterTable('unpublished_edit', true)
+        ->assertCanSeeTableRecords([$item])
+        ->assertCanNotSeeTableRecords([$plain]);
+})->with(['lesson', 'level', 'words']);
+
+it('says on the form that the lesson, the level and the target words take effect after publishing', function (): void {
+    $w = pad_world();
+    $item = pad_make($w['course'], 'sentence', 'help-line');
+
+    livewire(CreatePracticeItem::class)->assertSee('Изменения урока, уровня и целевых слов вступают в силу после публикации.');
+    livewire(EditPracticeItem::class, ['record' => $item->getKey()])->assertSee('Изменения урока, уровня и целевых слов вступают в силу после публикации.');
 });
 
 it('refuses to save an archived task and shows the reason', function (): void {
@@ -761,6 +1026,119 @@ it('offers the same buttons on the edit page and moves the task from there', fun
     expect($item->fresh()?->status)->toBe(PracticeItemStatus::Published);
 });
 
+/** The id of the version a button was drawn with: what the browser sends when it is clicked (`mountAction('review', {"version": 5}, ...)`). */
+function pad_button_version(string $html, string $action): ?int
+{
+    return preg_match('/mountAction\(\''.preg_quote($action, '/').'\', JSON\.parse\(\'\{\\\\u0022version\\\\u0022:(\d+)\}\'\)/', $html, $found) === 1 ? (int) $found[1] : null;
+}
+
+/** An edit of a task written by someone else (an import): a newer version, a draft. */
+function pad_edit_elsewhere(PracticeItem $item, Course $course, Word $word, string $explanation = 'Другое пояснение.'): PracticeItemVersion
+{
+    return app(PracticeItemService::class)->saveVersion($item->fresh() ?? $item, $course, [
+        'word_ids' => [$word->id],
+        'content' => ['prompt' => ['ru' => 'Моя мама — учитель.', 'uz' => "Onam o'qituvchi."], 'fragments' => ['my', 'mother', 'is', 'a', 'teacher'], 'accepted' => [['my', 'mother', 'is', 'a', 'teacher']],
+            'display' => 'My mother is a teacher.', 'explanation' => ['ru' => $explanation, 'uz' => 'Boshqa izoh.']],
+    ], null);
+}
+
+it('draws «Проверено» and «Опубликовать» with the id of the version the page shows, in the list and on the edit page', function (): void {
+    $w = pad_world();
+    $draft = pad_make($w['course'], 'sentence', 'carry-draft', [$w['words']['mother']]);
+    $reviewed = pad_make($w['course'], 'sentence', 'carry-reviewed', [$w['words']['mother']]);
+    app(PracticeItemService::class)->markReviewed($reviewed, $this->admin);
+
+    $list = livewire(ListPracticeItems::class)->html();
+    $page = livewire(EditPracticeItem::class, ['record' => $draft->getKey()]);
+
+    expect(pad_button_version($list, 'review'))->toBe($draft->fresh()?->current_version_id)
+        ->and(pad_button_version($list, 'publish'))->toBe($reviewed->fresh()?->current_version_id)
+        ->and(pad_button_version($page->html(), 'review'))->toBe($draft->fresh()?->current_version_id)
+        ->and($page->instance()->shownVersionId)->toBe($draft->fresh()?->current_version_id);
+});
+
+it('refuses «Проверено» and «Опубликовать» from the list when the task has a newer version than the row showed', function (): void {
+    $w = pad_world();
+    $item = pad_make($w['course'], 'sentence', 'stale-row', [$w['words']['mother']]);
+    $seen = $item->current_version_id;
+    $list = livewire(ListPracticeItems::class);
+    $drawn = pad_button_version($list->html(), 'review');
+    pad_edit_elsewhere($item, $w['course'], $w['words']['mother']);
+    pad_sent();
+
+    // The row was drawn with the first version; the click carries it.
+    $list->callTableAction('review', $item, arguments: ['version' => $drawn]);
+
+    expect($drawn)->toBe($seen)
+        ->and(pad_sent())->toBe([['title' => 'Не получилось', 'body' => 'Задание изменили, пока вы его смотрели. Откройте его заново.']])
+        ->and(PracticeItemVersion::query()->where('item_id', $item->id)->where('state', 'reviewed')->count())->toBe(0)
+        ->and(AuditLog::query()->where('action', 'practice_item.reviewed')->count())->toBe(0);
+
+    // The same for «Опубликовать»: the newer version is reviewed, the row still has the old one.
+    app(PracticeItemService::class)->markReviewed($item->fresh() ?? $item, $this->admin);
+    livewire(ListPracticeItems::class)->callTableAction('publish', $item->fresh(), arguments: ['version' => $seen]);
+
+    expect(pad_sent())->toBe([['title' => 'Не получилось', 'body' => 'Задание изменили, пока вы его смотрели. Откройте его заново.']])
+        ->and($item->fresh()?->published_version_id)->toBeNull();
+
+    // A row that is drawn again carries the newer version, and the move goes through.
+    $fresh = livewire(ListPracticeItems::class);
+    $fresh->callTableAction('publish', $item->fresh(), arguments: ['version' => pad_button_version($fresh->html(), 'publish')]);
+
+    expect($item->fresh()?->status)->toBe(PracticeItemStatus::Published);
+});
+
+it('keeps the edit page to the version its form shows: a redraw does not move the buttons to a newer one', function (): void {
+    $w = pad_world();
+    $item = pad_make($w['course'], 'sentence', 'stale-page', [$w['words']['mother']]);
+    $seen = $item->current_version_id;
+    $page = livewire(EditPracticeItem::class, ['record' => $item->getKey()]);
+    $newer = pad_edit_elsewhere($item, $w['course'], $w['words']['mother']);
+
+    // Any request redraws the page and its buttons; the record is read again, the form is not.
+    $page->call('$refresh');
+    $drawn = pad_button_version($page->html(), 'review');
+    pad_sent();
+    $page->callAction('review', arguments: ['version' => $drawn]);
+
+    expect($drawn)->toBe($seen)
+        ->and($newer->id)->not->toBe($seen)
+        ->and(pad_sent())->toBe([['title' => 'Не получилось', 'body' => 'Задание изменили, пока вы его смотрели. Откройте его заново.']])
+        ->and($newer->fresh()?->state)->toBe(VersionState::Draft);
+
+    // Opened again, the page shows the newer version and its buttons carry it.
+    $reopened = livewire(EditPracticeItem::class, ['record' => $item->getKey()]);
+    $reopened->callAction('review', arguments: ['version' => pad_button_version($reopened->html(), 'review')]);
+
+    expect($newer->fresh()?->state)->toBe(VersionState::Reviewed);
+});
+
+it('moves the buttons of the edit page to the version it has just saved', function (): void {
+    $w = pad_world();
+    $item = pad_make($w['course'], 'sentence', 'saved-page', [$w['words']['mother']]);
+    $page = livewire(EditPracticeItem::class, ['record' => $item->getKey()]);
+    $first = $item->current_version_id;
+
+    $page->fillForm(['sentence' => ['explanation' => ['ru' => 'Новое пояснение.', 'uz' => 'Yangi izoh.']]])->call('save')->assertHasNoFormErrors();
+
+    $second = $item->fresh()?->current_version_id;
+    expect($second)->not->toBe($first)
+        ->and($page->instance()->shownVersionId)->toBe($second)
+        ->and(pad_button_version($page->html(), 'review'))->toBe($second);
+
+    $page->callAction('review', arguments: ['version' => $second]);
+    expect(PracticeItemVersion::query()->findOrFail($second)->state)->toBe(VersionState::Reviewed);
+});
+
+it('takes anything but a whole number for the id of a version as no version: the move is not tied to one', function (mixed $argument): void {
+    $w = pad_world();
+    $item = pad_make($w['course'], 'sentence', 'odd-argument', [$w['words']['mother']]);
+
+    livewire(ListPracticeItems::class)->callTableAction('review', $item, arguments: ['version' => $argument]);
+
+    expect($item->fresh()?->status)->toBe(PracticeItemStatus::Reviewed);
+})->with(['an array' => [[1]], 'text' => ['latest'], 'nothing' => [null], 'a fraction' => [1.5]]);
+
 it('voices a dictation again from the list and from the edit page, and offers it for no other type', function (): void {
     $w = pad_world();
     $dictation = pad_make($w['course'], 'dictation', 'voice');
@@ -782,6 +1160,25 @@ it('voices a dictation again from the list and from the edit page, and offers it
     livewire(EditPracticeItem::class, ['record' => $dictation->getKey()])->assertActionVisible('regenerateAudio')->callAction('regenerateAudio');
     Queue::assertPushed(GeneratePracticeAudioJob::class, 2);
     livewire(EditPracticeItem::class, ['record' => $sentence->getKey()])->assertActionHidden('regenerateAudio');
+});
+
+it('voices again from the button both the published version, whose audio failed, and the draft behind it', function (): void {
+    $w = pad_world();
+    $item = pad_publish(pad_make($w['course'], 'dictation', 'regen-both', [$w['words']['tomorrow']]), $this->admin);
+    $published = PracticeItemVersion::query()->where('item_id', $item->id)->sole();
+    $published->forceFill(['audio_status' => AudioStatus::Failed, 'audio_error' => 'tts_service_failed'])->save();
+    $draft = app(PracticeItemService::class)->saveVersion($item->fresh() ?? $item, $w['course'], [
+        'word_ids' => [$w['words']['tomorrow']->id], 'level' => 'A1',
+        'content' => ['text' => 'See you soon', 'accepted' => [], 'translation' => ['ru' => 'Скоро увидимся', 'uz' => "Tez ko'rishamiz"]],
+    ], $this->admin);
+    Queue::fake();
+
+    livewire(ListPracticeItems::class)->callTableAction('regenerateAudio', $item->fresh());
+
+    Queue::assertPushed(GeneratePracticeAudioJob::class, 2);
+    Queue::assertPushed(GeneratePracticeAudioJob::class, fn (GeneratePracticeAudioJob $job): bool => $job->versionId === $published->id && $job->force);
+    Queue::assertPushed(GeneratePracticeAudioJob::class, fn (GeneratePracticeAudioJob $job): bool => $job->versionId === $draft->id && $job->force);
+    expect($published->fresh()?->audio_status)->toBe(AudioStatus::Pending);
 });
 
 // --- the import page ---------------------------------------------------------------------------------------------------------------------
@@ -904,6 +1301,88 @@ it('lists every refusal of a file in Russian with the number of the task and its
     expect(PracticeItem::query()->count())->toBe(0);
 });
 
+it('prints the text of a refused file in the notification as text, never as HTML: one escaped line per fault, told apart by <br>', function (string $text): void {
+    $this->seed(DemoContentSeeder::class);
+    $file = json_encode([
+        'format' => 'lexiflow-practice/1', 'course' => 'default',
+        'items' => [
+            // the key of the file is in the sentence about the key; the word, in the one about the target word
+            ['key' => $text, 'type' => 'dictation', 'target_words' => ['tomorrow'], 'text' => 'Hello'],
+            ['key' => 'second', 'type' => 'dictation', 'target_words' => [$text], 'text' => 'Hello'],
+            ['key' => 'third', 'type' => 'dictation', 'target_words' => ['tomorrow'], 'text' => 'Hello', 'level' => 'Z9'],
+        ],
+    ], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
+    pad_sent();
+
+    livewire(ImportPracticeItems::class)
+        ->set('data.file', UploadedFile::fake()->createWithContent('practice.json', $file))
+        ->call('submit');
+
+    $body = (string) pad_sent()[0]['body'];
+    $printed = (string) str($body)->sanitizeHtml();
+    expect($body)->toContain(e($text))->not->toContain($text)
+        // the lines are told apart by <br>, not run together by "\n"
+        ->and(substr_count($body, '<br>'))->toBe(2)
+        ->and($body)->not->toContain("\n")
+        // what Filament prints of the body (its sanitizer rewrites the markup: `<br />`, `&#61;`) has no element of the file's, and has the line breaks
+        ->and($printed)->not->toContain('<a ')->not->toContain('<img')->not->toContain('<b>')->toContain('&lt;')->toContain('<br />');
+    expect(PracticeItem::query()->count())->toBe(0);
+})->with([
+    'a tag' => ['<b>x</b>'],
+    'a link' => ['<a href="https://evil.example/">click</a>'],
+    'an image' => ['<img src="https://evil.example/pixel.png">'],
+]);
+
+it('agrees the noun with the number in «В файле N заданий»', function (): void {
+    $line = fn (int $count): string => AdminErrors::practiceImportIssue(new ImportIssue('items_too_many', 'English', ['count' => $count, 'max' => 300]));
+
+    expect($line(301))->toBe('В файле 301 задание, а можно не больше 300.')
+        ->and($line(302))->toBe('В файле 302 задания, а можно не больше 300.')
+        ->and($line(305))->toBe('В файле 305 заданий, а можно не больше 300.')
+        ->and($line(311))->toBe('В файле 311 заданий, а можно не больше 300.')
+        ->and($line(321))->toBe('В файле 321 задание, а можно не больше 300.')
+        ->and($line(1000))->toBe('В файле 1000 заданий, а можно не больше 300.');
+});
+
+it('takes the size limit of a file from the config on the page and on the command line, as the importer does', function (): void {
+    $this->seed(DemoContentSeeder::class);
+    config(['practice.import.max_bytes' => 3 * 1024 * 1024, 'practice.import.max_items' => 250]);
+
+    // The help line and the limit of the upload follow the config ...
+    livewire(ImportPracticeItems::class)
+        ->assertSee('До 3 МБ, до 250 заданий.')
+        ->assertFormFieldExists('file', fn (FileUpload $field): bool => $field->getMaxSize() === 3072);
+
+    config(['practice.import.max_bytes' => 1536 * 1024]);
+    livewire(ImportPracticeItems::class)->assertSee('До 1,5 МБ, до 250 заданий.');
+
+    // ... and so does what is read of the file: a valid file longer than the old 2 MB is not cut into broken JSON.
+    config(['practice.import.max_bytes' => 3 * 1024 * 1024]);
+    $json = json_decode(pad_sample(), true, 512, JSON_THROW_ON_ERROR);
+    $big = json_encode($json, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+    $big = substr($big, 0, -1).str_repeat(' ', 2 * 1024 * 1024 + 4096)."}\n";
+
+    livewire(ImportPracticeItems::class)
+        ->set('data.file', UploadedFile::fake()->createWithContent('practice.json', $big))
+        ->call('submit')
+        ->assertNotified('Импорт выполнен: новых — 3, обновлено — 0, пропущено — 0, опубликовано — 0.');
+
+    PracticeItem::query()->delete();
+    $path = sys_get_temp_dir().'/practice-big-'.bin2hex(random_bytes(6)).'.json';
+    file_put_contents($path, $big);
+
+    expect(Artisan::call('practice:import', ['file' => $path]))->toBe(0)
+        ->and(PracticeItem::query()->count())->toBe(3);
+
+    // Under the old limit the same file is refused as too large, whole.
+    config(['practice.import.max_bytes' => 2 * 1024 * 1024]);
+    PracticeItem::query()->delete();
+
+    expect(Artisan::call('practice:import', ['file' => $path]))->toBe(1)
+        ->and(Artisan::output())->toContain('file_too_large');
+    unlink($path);
+});
+
 it('words the refusals of the file itself in Russian', function (string $json, string $text): void {
     $this->seed(DemoContentSeeder::class);
 
@@ -1005,9 +1484,10 @@ it('puts a learner into the pilot and out of it from the page of the learner, wi
     pad_sent();
 
     $page = livewire(ViewLearner::class, ['record' => $learner->getKey()])
-        ->assertActionVisible('practicePilot')
-        ->assertActionHasLabel('practicePilot', 'Включить в пилот практики')
-        ->callAction('practicePilot');
+        ->assertActionVisible('practicePilotInclude')
+        ->assertActionHidden('practicePilotExclude')
+        ->assertActionHasLabel('practicePilotInclude', 'Включить в пилот практики')
+        ->callAction('practicePilotInclude');
 
     $in = $learner->fresh()?->practice_pilot_at;
     expect($in)->not->toBeNull()
@@ -1020,7 +1500,9 @@ it('puts a learner into the pilot and out of it from the page of the learner, wi
         ->and($audit->meta['from'])->toBeNull()
         ->and($audit->meta['to'])->toBe($in?->toIso8601String());
 
-    $page->assertActionHasLabel('practicePilot', 'Исключить из пилота')->callAction('practicePilot');
+    $page->assertActionHidden('practicePilotInclude')
+        ->assertActionHasLabel('practicePilotExclude', 'Исключить из пилота')
+        ->callAction('practicePilotExclude');
 
     $out = AuditLog::query()->where('action', 'learner.practice_pilot_changed')->latest('id')->firstOrFail();
     expect($learner->fresh()?->practice_pilot_at)->toBeNull()
@@ -1044,11 +1526,15 @@ it('changes the pilot from the list too, shows who is in it and filters by it', 
         ->assertCanSeeTableRecords([$out])
         ->assertCanNotSeeTableRecords([$in])
         ->resetTableFilters()
-        ->callTableAction('practicePilot', $out);
+        ->assertTableActionVisible('practicePilotInclude', $out)
+        ->assertTableActionHidden('practicePilotExclude', $out)
+        ->assertTableActionHidden('practicePilotInclude', $in)
+        ->assertTableActionVisible('practicePilotExclude', $in)
+        ->callTableAction('practicePilotInclude', $out);
 
     expect($out->fresh()?->practice_pilot_at)->not->toBeNull();
 
-    livewire(ListLearners::class)->callTableAction('practicePilot', $in);
+    livewire(ListLearners::class)->callTableAction('practicePilotExclude', $in);
     expect($in->fresh()?->practice_pilot_at)->toBeNull();
 });
 
@@ -1059,9 +1545,10 @@ it('shows the pilot to an admin only: a teacher sees neither the column, the fil
     $learner = Learner::factory()->memberOf($group)->create();
     $this->actingAs($teacher);
 
-    livewire(ViewLearner::class, ['record' => $learner->getKey()])->assertActionHidden('practicePilot');
+    livewire(ViewLearner::class, ['record' => $learner->getKey()])->assertActionHidden('practicePilotInclude')->assertActionHidden('practicePilotExclude');
     livewire(ListLearners::class)
-        ->assertTableActionHidden('practicePilot', $learner)
+        ->assertTableActionHidden('practicePilotInclude', $learner)
+        ->assertTableActionHidden('practicePilotExclude', $learner)
         ->assertTableColumnHidden('practice_pilot')
         ->assertTableFilterHidden('practice_pilot');
 });
@@ -1073,11 +1560,42 @@ it('makes the practice open to the learner of the pilot and to no one else while
 
     expect($access->state($learner)->isAvailable())->toBeFalse();
 
-    livewire(ViewLearner::class, ['record' => $learner->getKey()])->callAction('practicePilot');
+    livewire(ViewLearner::class, ['record' => $learner->getKey()])->callAction('practicePilotInclude');
     expect($access->state($learner->fresh() ?? $learner)->isAvailable())->toBeTrue();
 
-    livewire(ViewLearner::class, ['record' => $learner->getKey()])->callAction('practicePilot');
+    livewire(ViewLearner::class, ['record' => $learner->getKey()])->callAction('practicePilotExclude');
     expect($access->state($learner->fresh() ?? $learner)->isAvailable())->toBeFalse();
+});
+
+it('does not turn the move round for a button of a page that is out of date: a confirmed «Включить» never takes a learner OUT of the pilot', function (): void {
+    $learner = Learner::factory()->create();
+    // The page was opened while the learner was not in the pilot: it shows «Включить в пилот практики» ...
+    $page = livewire(ViewLearner::class, ['record' => $learner->getKey()])->assertActionVisible('practicePilotInclude');
+    // ... and another admin put the learner there before the click.
+    app(PracticePilotService::class)->include($learner, $this->admin);
+    $in = $learner->fresh()?->practice_pilot_at;
+    pad_sent();
+
+    $page->callAction('practicePilotInclude');
+
+    // The button of a direction the learner has already gone is not run at all: the page is drawn again with the right one.
+    expect($learner->fresh()?->practice_pilot_at?->equalTo($in))->toBeTrue()
+        ->and(pad_sent())->toBe([])
+        ->and(AuditLog::query()->where('action', 'learner.practice_pilot_changed')->count())->toBe(1);
+
+    // And the other way round: «Исключить» from an old page does not put back a learner who has been taken out.
+    $out = Learner::factory()->create(['practice_pilot_at' => now()]);
+    $stale = livewire(ViewLearner::class, ['record' => $out->getKey()])->assertActionVisible('practicePilotExclude');
+    app(PracticePilotService::class)->exclude($out, $this->admin);
+
+    $stale->callAction('practicePilotExclude');
+
+    expect($out->fresh()?->practice_pilot_at)->toBeNull()
+        ->and(pad_sent())->toBe([])
+        ->and(AuditLog::query()->where('action', 'learner.practice_pilot_changed')->count())->toBe(2);
+
+    // Both directions are the action's own: the buttons of a learner who is out of the pilot offer «Включить» only.
+    livewire(ViewLearner::class, ['record' => $out->getKey()])->assertActionVisible('practicePilotInclude')->assertActionHidden('practicePilotExclude');
 });
 
 it('does not change the pilot twice: a repeated move writes no second audit record', function (): void {

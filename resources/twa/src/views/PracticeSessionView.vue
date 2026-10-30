@@ -13,7 +13,7 @@ import ErrorState from '@/components/ui/ErrorState.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import { progressPercent } from '@/composables/courseLabels'
 import { showErrorToast } from '@/composables/errorToast'
-import { lessonHeader } from '@/composables/practiceLabels'
+import { lessonHeader, verdictLabel } from '@/composables/practiceLabels'
 import { useBackButton } from '@/composables/useBackButton'
 import { usePracticeAudio } from '@/composables/usePracticeAudio'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
@@ -35,7 +35,8 @@ import type { PracticeAnswerPayload } from '@/api/types'
  * - `finished` — `PracticeSummary`.
  * A dictation whose clip does not load or play opens `AudioTrouble` over it; a refusal that leaves the learner on the
  * element (no network, a rule of the server) is a toast. The `PaywallSheet` opens over the session when the server says
- * `practice_pro_required`.
+ * `practice_pro_required`. "No sound for now" - in that sheet, and the button the dictation always has - leads to the hub with the
+ * session dropped on purpose (`practice.abandonSession()`): the mode chosen there starts over it without asking.
  *
  * ✕ and the system "Back" lead to the hub of the session (docs/16 §11.1): the answers are saved as they go, nothing is
  * asked. When the store knows nothing yet (a link straight to the session) they lead to the courses.
@@ -104,7 +105,8 @@ watch(
 onBeforeUnmount(() => {
   left = true
   audio.revoke()
-  practice.clearOpenError()
+  // What a repeat / "Again" asked for may still come back: a refusal of it is not told to the next screen.
+  practice.leaveOpen()
 })
 
 // ---- the header ----
@@ -115,7 +117,7 @@ const progressWidth = computed((): number => progressPercent(progress.value))
 const caption = computed((): string => {
   const open = session.value
   if (open === null) return ''
-  return open.lesson ? lessonHeader(open.lesson) : open.course.title
+  return (open.lesson ? lessonHeader(open.lesson) : '') || open.course.title
 })
 
 // ---- the element ----
@@ -142,7 +144,8 @@ const liveText = computed((): string => {
   if (done.element.kind === 'pairs_round') {
     return t('practice.session.round_done', { round: done.element.round, rounds: done.element.rounds })
   }
-  return t(`practice.verdict.${done.verdict}`)
+  const words = verdictLabel(done.element.kind, done.verdict)
+  return done.earlier ? `${words}. ${t('practice.reveal.earlier')}` : words
 })
 
 watch(outcome, (done) => {
@@ -205,6 +208,16 @@ function retryAudio(): void {
 async function replaceTask(): Promise<void> {
   troubleDismissed.value = false
   await practice.replace()
+}
+
+/**
+ * "No sound for now" (the sheet of the sound trouble, and the button the dictation always has): the learner walks out of the
+ * dictation to the hub to choose another mode. The dictation is dropped on purpose, so the hub starts the next mode over it
+ * without asking "Continue or start a new one" about a session they have just left.
+ */
+function silent(): void {
+  practice.abandonSession()
+  leave()
 }
 
 // ---- the summary ----
@@ -320,6 +333,7 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => practice.dismissPaywall
         :disabled="busy"
         @answer="onAnswer"
         @skip="onSkip"
+        @silent="silent"
       />
     </template>
 
@@ -329,7 +343,7 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => practice.dismissPaywall
       :busy="busy"
       @retry="retryAudio"
       @replace="replaceTask"
-      @silent="leave"
+      @silent="silent"
       @close="troubleDismissed = true"
     />
 

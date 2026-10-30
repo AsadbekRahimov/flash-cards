@@ -44,7 +44,7 @@
 | Значения docs/15 §8 | Приняты все: самостоятельная практика без влияния на основное обучение; 3 темы A1–A2; пилот по флагу; соло без таймера; баттл — 5 раундов, лимиты раунда, без бонуса за скорость, ничья при равном счёте; два друга, один формат |
 | Изоляция | Практика и баттл **не пишут** `word_repetitions`, `training_sessions`, `training_reviews`, `learner_daily_stats`, `learners.streak_*`/`streak_freezes`, лиги, `assignment_results`, `achievements`, квоту новых слов, `challenges`. Пишут только свои таблицы (§2) и `product_events` (§3.4). Инвариант закреплён тестом `PracticeIsolationTest` (§14) |
 | Домен | Один домен `app/Domain/Practice` (подпапки `Services/Modes`, `Services/Grading`, `Services/Battle`); тексты бота — `app/Domain/Telegram/Services/BattleMessenger`. Отдельный `app/Domain/Battle` отвергнут: баттл переиспользует материал, снимки и грейдеры режимов на уровне классов (§1.1) |
-| Контент | `practice_items` (задание, стабильный `key`) + append-only `practice_item_versions` (текст, аудио) + `practice_item_words` (целевые слова). Опубликованная версия выдаётся, пока правка (новая версия-черновик) не прошла «проверено → опубликовано». Целевые слова обязательны (≥ 1) — правила «без целевых слов» нет (§4.2) |
+| Контент | `practice_items` (задание, стабильный `key`) + append-only `practice_item_versions` (текст, **целевые слова, урок, уровень**, аудио) + `practice_item_words` (проекция целевых слов одной версии). Опубликованная версия выдаётся, пока правка (новая версия-черновик) не прошла «проверено → опубликовано»; слова, урок и уровень правки вступают в силу вместе с ней. Целевые слова обязательны (≥ 1) — правила «без целевых слов» нет (§4.2) |
 | Снимок | Сессия и баттл хранят **полный** снимок выдачи (`snapshot` jsonb: тексты, раскладка, ожидаемые ответы, непрозрачные id). Проверка ответов никогда не читает `practice_items`/`words` во время игры; правка контента на идущую сессию не влияет |
 | Непрозрачные id | Элементы (`e…`), фрагменты (`f…`), варианты (`o…`), стороны пар (`l…`/`r…`) — случайные 10-символьные id, порождённые при создании снимка; порядок показа — keyed-sort по HMAC от случайного seed, seed не хранится |
 | Один активный | Соло: одна активная сессия на ученика; баттл: один активный на ученика (своё исходящее приглашение, комната, матч). Оба инварианта держит **nullable unique-колонка `active_learner_id`** (как `challenges.open_pair`): одинаково на PostgreSQL и SQLite, без PHP-проверок как источника истины |
@@ -215,21 +215,25 @@ final class PracticeAudioService
 
 final class PracticeItemService
 {
-    /** Новая версия (черновик) из формы/импорта; валидация формы (§4.5) → PracticeContentException (422, details {field, code}). */
+    /** Новая версия (черновик) из формы/импорта, если отличается хотя бы одно из четырёх: текст, целевые слова, урок, уровень (все четыре пишутся в версию); валидация формы (§4.5) → PracticeContentException (422, details {field, code}). Задание другого курса → InvalidArgumentException. */
     public function saveVersion(PracticeItem|null $item, Course $course, array $data, ?User $by): PracticeItemVersion;
-    public function markReviewed(PracticeItem $item, User $by): PracticeItem;        // текущая версия draft → reviewed; audit practice_item.reviewed
-    /** reviewed → published (валидация публикации §4.5); прежняя опубликованная → superseded; item.published_version_id = current. audit practice_item.published */
-    public function publish(PracticeItem $item, User $by): PracticeItem;
+    /** текущая версия draft → reviewed; audit practice_item.reviewed. $expectedVersionId — версия, которую админ видел: текущая другая → PracticeItemStateException version_changed (409); импорт и сидеры его не передают */
+    public function markReviewed(PracticeItem $item, User $by, ?string $ip = null, ?int $expectedVersionId = null): PracticeItem;
+    /** reviewed → published (валидация публикации §4.5 — по целевым словам САМОЙ версии); прежняя опубликованная → superseded; item.published_version_id = current, проекция (§2.4) = эта версия. audit practice_item.published. $expectedVersionId — как у markReviewed */
+    public function publish(PracticeItem $item, User $by, ?string $ip = null, ?int $expectedVersionId = null): PracticeItem;
     public function archive(PracticeItem $item, User $by): PracticeItem;             // любой → archived (published_version_id сохраняется, но не выдаётся)
-    public function restore(PracticeItem $item, User $by): PracticeItem;             // archived → published (если есть published_version_id) иначе состояние текущей версии
+    public function restore(PracticeItem $item, User $by): PracticeItem;             // archived → published (если есть published_version_id) иначе состояние текущей версии; проекция не меняется
+    /** «Сгенерировать аудио заново»: ставит (force) опубликованную версию диктанта и текущую, если это другая версия, — по разу */
+    public function regenerateAudio(PracticeItem $item): void;
 }
 
 final class PracticeImporter
 {
     public const MAX_BYTES = 2 * 1024 * 1024;
-    /** Файл целиком в одной транзакции или ничего (как VocabularyImporter). $publish — опубликовать сразу (валидация публикации каждому заданию). */
-    public function import(string $rawJson, User $by, bool $publish, array $auditContext = []): PracticeImportReport;
-    public function importAsSystem(string $rawJson, bool $publish, array $auditContext = []): PracticeImportReport;   // artisan practice:import
+    /** Файл целиком в одной транзакции или ничего (как VocabularyImporter). $publish — опубликовать сразу (валидация публикации каждому заданию). $scheduleAudio = false — не ставить job озвучки новых версий диктанта (сам озвучивает вызывающий: демо-сидер) */
+    public function import(string $rawJson, User $by, bool $publish, array $auditContext = [], bool $scheduleAudio = true): PracticeImportReport;
+    public function importAsSystem(string $rawJson, bool $publish, array $auditContext = [], bool $scheduleAudio = true): PracticeImportReport;   // artisan practice:import
+    public function maxBytes(): int;   // practice.import.max_bytes: тот же предел у страницы импорта и у команды
 }
 ```
 
@@ -314,10 +318,10 @@ final class BattleReader
 |---|---|---|
 | id | bigint PK | |
 | course_id | bigint FK → courses, ON DELETE CASCADE | курс задания; только `owner_type ∈ {platform, organization}` (колоды learner'ов заданий не имеют — проверка сервиса) |
-| lesson_id | bigint nullable FK → lessons, ON DELETE SET NULL | урок (вход «практика урока»); `NULL` — задание курса |
+| lesson_id | bigint nullable FK → lessons, ON DELETE SET NULL | урок (вход «практика урока»); `NULL` — задание курса. **Проекция версии** (см. ниже и §2.4): читает `PracticeMaterialService`, пишет только `PracticeItemService` |
 | type | varchar(12) | `collocation` / `sentence` / `dictation` (пары заданий не имеют — берут `words`) |
 | key | varchar(64) | стабильный ключ автора (`/\A[a-z0-9][a-z0-9._-]{0,63}\z/`), идемпотентность импорта |
-| level | varchar(2) nullable | `A1`..`C2` |
+| level | varchar(2) nullable | `A1`..`C2`; проекция версии, как `lesson_id` |
 | status | varchar(10) default 'draft' | `draft` / `reviewed` / `published` / `archived` — см. правила ниже |
 | current_version_id | bigint nullable | последняя версия (без FK: цикл items ↔ versions; целостность — `PracticeItemService`, тест) |
 | published_version_id | bigint nullable | версия, которую получают ученики; `NULL` — не публиковалось |
@@ -328,7 +332,7 @@ final class BattleReader
 **PG CHECK:** `practice_items_type_check (type IN ('collocation','sentence','dictation'))`, `practice_items_status_check (status IN ('draft','reviewed','published','archived'))`,
 `practice_items_published_shape_check ((status = 'published') = (published_version_id IS NOT NULL AND archived_at IS NULL))`.
 
-**Статус = проекция версий** (пишет только `PracticeItemService`): `archived` — `archived_at NOT NULL`; иначе `published` — есть `published_version_id`; иначе — `state` текущей версии (`draft` / `reviewed`). Правка опубликованного задания создаёт новую версию `draft`, `current_version_id` переезжает, `status` остаётся `published` (ученики продолжают получать `published_version_id`); у такого задания в админке признак «есть неопубликованная правка» (`current_version_id <> published_version_id`). Переходы версии: `draft → reviewed` («Проверено»), `reviewed → published` («Опубликовать»: прежняя опубликованная → `superseded`), любая → `archived` всего задания. Публиковать `draft` напрямую нельзя (прямой переход — только через `import --publish`, который сразу создаёт версию `published`, минуя `reviewed`: это явное решение владельца «опубликовать сразу — только для проверенного контента», подтверждённое чекбоксом/опцией, а не файлом).
+**Статус = проекция версий** (пишет только `PracticeItemService`): `archived` — `archived_at NOT NULL`; иначе `published` — есть `published_version_id`; иначе — `state` текущей версии (`draft` / `reviewed`). Правка опубликованного задания создаёт новую версию `draft`, `current_version_id` переезжает, `status` остаётся `published` (ученики продолжают получать `published_version_id` — **вместе со словами, уроком и уровнем той версии**: они в версии, §2.3); у такого задания в админке признак «есть неопубликованная правка» (`current_version_id <> published_version_id`), он покрывает любое из четырёх изменений (текст, слова, урок, уровень). Переходы версии: `draft → reviewed` («Проверено»), `reviewed → published` («Опубликовать»: прежняя опубликованная → `superseded`), любая → `archived` всего задания. Публиковать `draft` напрямую нельзя (прямой переход — только через `import --publish`, который сразу создаёт версию `published`, минуя `reviewed`: это явное решение владельца «опубликовать сразу — только для проверенного контента», подтверждённое чекбоксом/опцией, а не файлом).
 
 ### 2.3 `practice_item_versions` — неизменяемый текст задания
 
@@ -339,6 +343,9 @@ final class BattleReader
 | number | smallint | 1, 2, … внутри задания |
 | state | varchar(10) | `draft` / `reviewed` / `published` / `superseded` |
 | content | jsonb NOT NULL | тексты и структура по типу (ниже); **не меняется после INSERT** |
+| target_word_ids | jsonb NOT NULL default '[]' | `words.id` целевых слов версии, по возрастанию, без повторов (активные слова курса; для публикации ≥ 1); не меняется после INSERT |
+| lesson_id | bigint nullable FK → lessons, ON DELETE SET NULL | урок версии (как `practice_items.lesson_id`: при удалении урока — `NULL`); не меняется после INSERT |
+| level | varchar(2) nullable | `A1`..`C2`; не меняется после INSERT |
 | audio_key | varchar(40) nullable | только `dictation`: `sha1(version_id|normalized text|voice|audio_version)` — имя файла `{audio_key}.mp3` на отдельном диске `practice_audio` (не раздаётся nginx, §10.5); наружу не уходит |
 | audio_status | varchar(8) default 'none' | `none` (не диктант) / `pending` / `ready` / `failed` |
 | audio_error | varchar(100) nullable | последняя причина `failed` |
@@ -346,6 +353,8 @@ final class BattleReader
 | created_by_user_id, reviewed_by_user_id, published_by_user_id | bigint nullable FK → users, ON DELETE SET NULL | |
 | reviewed_at, published_at, superseded_at | timestamp nullable | |
 | created_at | timestamp | (без `updated_at` у содержимого; служебные колонки аудио меняет job) |
+
+Текст, целевые слова, урок и уровень — **четыре составляющие версии**: изменилась любая — новая версия (`save()` и импорт не пишут «правку только урока или уровня» мимо версии). Миграция `2026_10_30_100010` добавила три последние колонки и заполнила ими все существующие версии из их заданий (слова — из `practice_item_words`, урок и уровень — из `practice_items`): в момент миграции выдача не меняется.
 
 **Индексы:** unique `(item_id, number)`; `(audio_status) WHERE audio_status = 'pending'` — partial `practice_item_versions_audio_pending_idx` (PG и SQLite) для админ-виджета «аудио в очереди»/повторной постановки.
 **PG CHECK:** `state IN (...)`, `audio_status IN ('none','pending','ready','failed')`.
@@ -355,7 +364,7 @@ final class BattleReader
 ```jsonc
 // sentence
 { "prompt": {"ru": "Моя мама — учитель.", "uz": "Onam o'qituvchi."},
-  "fragments": ["My", "mother", "is", "a", "teacher"],            // порядок автора = один из допустимых; индексы 0..n-1
+  "fragments": ["My", "mother", "is", "a", "teacher"],            // порядок автора = ПЕРВАЯ допустимая последовательность (§4.5); индексы 0..n-1
   "accepted": [[0,1,2,3,4]],                                      // перестановки индексов фрагментов (строки файла → индексы при сохранении)
   "display": "My mother is a teacher.",                           // необязательно: каноническая запись первой допустимой (регистр, пунктуация) для разбора
   "explanation": {"ru": "…", "uz": "…"} }
@@ -377,7 +386,9 @@ final class BattleReader
 | item_id | bigint FK → practice_items, ON DELETE CASCADE |
 | word_id | bigint FK → words, ON DELETE CASCADE |
 
-**Индексы:** unique `(item_id, word_id)`; `(word_id)`. Слово — активное слово **того же курса** (любого урока). Связь принадлежит заданию, не версии: смена целевых слов — обычная правка (новая версия), таблица перезаписывается вместе с ней.
+**Индексы:** unique `(item_id, word_id)`; `(word_id)`. Слово — активное слово **того же курса** (любого урока).
+
+**Проекция.** Целевые слова версии лежат в `practice_item_versions.target_word_ids` (§2.3). Строки `practice_item_words`, а также `practice_items.lesson_id` и `practice_items.level` — **проекция одной версии**: опубликованной, если у задания есть `published_version_id`, иначе текущей. Их читает `PracticeMaterialService` (§4.2), поэтому черновик опубликованного задания не меняет выдачу: ни слова (иначе опубликованная версия пропала бы у учеников, не знающих новое слово, а при пустом списке выдавалась бы всем), ни урок. Проекцию пишет только `PracticeItemService`: `write()` у задания **без** опубликованной версии (каждая новая версия — текущая) и `makePublished()` для версии, которая становится опубликованной, — в той же транзакции, что и `published_version_id`. `archive()`/`restore()` указатель не двигают, проекция та же.
 
 ### 2.5 `practice_sessions` — сольная сессия
 
@@ -530,6 +541,7 @@ final class BattleReader
 | 2 | `2026_10_30_100002_create_practice_items_tables` | `practice_items` (без FK на версии), `practice_item_versions`, `practice_item_words`; partial `practice_item_versions_audio_pending_idx` (pgsql и sqlite raw `CREATE INDEX … WHERE`); PG CHECK; `down()` — drop три таблицы в обратном порядке |
 | 3 | `2026_10_30_100003_create_practice_sessions_tables` | `practice_sessions`, `practice_attempts`; PG CHECK; `down()` — drop |
 | 4 | `2026_10_30_100004_create_battles_tables` | `battles`, `battle_participants`, `battle_answers`; PG CHECK; `down()` — drop |
+| 5 | `2026_10_30_100010_add_scope_to_practice_item_versions_table` | `practice_item_versions.target_word_ids` / `lesson_id` / `level` + backfill всех версий из их заданий (чанки по `chunkById`, query builder); на SQLite FK добавляется пересборкой таблицы, поэтому partial-индекс аудио снимается и ставится заново; `down()` — drop FK и три колонки |
 
 Правила: новые forward-миграции (не правка на месте — прод-релиз был); `uuid` — `$table->uuid('request_id')` (на SQLite — `char(36)`); CHECK — только `if (DB::getDriverName() === 'pgsql')` (образец `2026_10_23_400001`); partial-индекс — raw `CREATE INDEX` для `pgsql`/`sqlite` (образец `2026_07_13_000002`). **На SQLite** инварианты «один активный» держат unique-колонки `active_learner_id` (работают везде), а CHECK-инварианты дублируются в сервисах (`assertShape`) и тестах.
 
@@ -662,7 +674,7 @@ ORDER BY w.id
 
 ### 4.2 Авторские задания (сочетание, предложение, фраза-диктант)
 
-Соло — опубликованные задания (`practice_items.status = published`, версия `published_version_id`) курса/урока того же типа, у которых **все** целевые слова активны и введены ученику; диктант — дополнительно `audio_status = ready`. Правило «без целевых слов» не нужно: публикация требует ≥ 1 целевого слова (§4.5).
+Соло — опубликованные задания (`practice_items.status = published`, версия `published_version_id`) курса/урока того же типа, у которых **все** целевые слова активны и введены ученику; диктант — дополнительно `audio_status = ready`. Урок и слова берутся из проекции (§2.4) — это урок и слова опубликованной версии. Правило «без целевых слов» не нужно: публикация требует ≥ 1 целевого слова в публикуемой версии (§4.5).
 
 ```sql
 SELECT i.id, i.published_version_id
@@ -713,14 +725,16 @@ WHERE i.course_id = :course [AND i.lesson_id = :lesson] AND i.type = :type AND i
 | `course_invalid` | курс — колода learner'а или не найден |
 | `lesson_not_in_course` | урок не из курса |
 | `level_invalid` | не `A1`..`C2` |
-| `target_words_required` (П) | нет целевых слов |
-| `target_word_unknown` | слово не найдено среди активных слов курса (по `words.word` без регистра; в редакторе — по id) |
+| `target_words_required` (П) | в **публикуемой версии** нет целевых слов (проверяются `target_word_ids` самой версии; так же при `import --publish` и сохранении с публикацией) |
+| `target_word_unknown` | слово не найдено среди активных слов курса (по `words.word` без регистра; в редакторе — по id; в сообщении — текст слова, а номер только если слова уже нет) |
 | `text_required` / `text_too_long` | обязательные тексты; лимиты `content.*_max` |
+| `markup_not_allowed` | в тексте (`prompt`, `explanation`, `translation`, `fragments`, `display`, `text`, `options`, варианты диктанта) есть `<` или `>`: разметки в заданиях нет, а `strip_tags` молча отрезал бы текст после одиночного `<` («I <3 you» → «I »). `&` и кавычки — обычный текст |
 | `locale_text_required` (П) | `prompt`/`translation` без `ru` или `uz`; `explanation` без `ru`/`uz` у `collocation` и `sentence` (у `dictation` `explanation` необязательно) |
 | `fragments_count` | `sentence`: фрагментов вне `[min, max]` (3..8) |
 | `fragment_invalid` | пустой фрагмент / длиннее 40 / с переводом строки |
 | `accepted_required` / `accepted_too_many` | `sentence`: нет допустимых последовательностей / больше 6 |
 | `accepted_not_permutation` | последовательность — не перестановка **всех** фрагментов (сравнение мультимножеств нормализованных текстов) |
+| `accepted_first_mismatch` | `sentence`: **первая допустимая последовательность не совпадает с порядком фрагментов** (сравнение нормализованного прочтения). Порядок фрагментов — всегда первая допустимая; в форме админки поле «Другие допустимые порядки» содержит только остальные, а порядок фрагментов добавляется первым автоматически (повторы первого и друг друга в форме отбрасываются). В файле импорта `accepted` по-прежнему содержит полные порядки. Проверяется и при публикации сохранённого содержимого |
 | `accepted_duplicate` | две одинаковые (по нормализованному тексту) последовательности — убираются молча при сохранении, ошибка только если дубликат — единственная |
 | `display_mismatch` | `sentence`: `display` задан, но его нормализованный текст ≠ нормализованному тексту первой допустимой последовательности (разбор не должен противоречить проверке); `display` длиннее `prompt_max` — `text_too_long` |
 | `placeholder_invalid` | `collocation`: в `text` не ровно один `___` |
@@ -1288,7 +1302,7 @@ practice_items / practice_item_versions / practice_item_words — пишет т�
 
 ### 10.1 Генерация и хранение
 
-- Фразы: при создании версии `dictation` (редактор, импорт) → `PracticeAudioService::schedule(version)`: `audio_status = pending`, `GeneratePracticeAudioJob::dispatch(version_id)->afterCommit()` (очередь `low`, `tries 5`, backoff как `PregenerateWordAudioJob`). Job: `TtsFallbackService::synthesize(text, voice)` → атомарная запись `{audio_key}.mp3` на диск `practice_audio` (`.tmp` + `move`, как `WordAudioService::store`) → `audio_status = ready`, `audio_generated_at`; сбой → `failed` + `audio_error` (`Log::warning practice.audio_failed`). Повторная постановка — админское действие «Сгенерировать заново» (`force`). `audio_key = sha1(version_id|normalize(text)|voice|twa.tts.audio_version)` — имя не выводится из текста без знания `version_id`, а каталог `practice-audio/` nginx **не** раздаёт публично (в отличие от `audio/` словаря): файл доступен только через эндпоинт.
+- Фразы: при создании версии `dictation` (редактор, импорт) → `PracticeAudioService::schedule(version)`: `audio_status = pending`, `GeneratePracticeAudioJob::dispatch(version_id)->afterCommit()` (очередь `low`, `tries 5`, backoff как `PregenerateWordAudioJob`). Job: `TtsFallbackService::synthesize(text, voice)` → атомарная запись `{audio_key}.mp3` на диск `practice_audio` (`.tmp` + `move`, как `WordAudioService::store`) → `audio_status = ready`, `audio_generated_at`; сбой → `failed` + `audio_error` (`Log::warning practice.audio_failed`). Повторная постановка — админское действие «Сгенерировать заново» (`force`): ставит опубликованную версию и текущую, если это другая (по разу). `tts_service_not_configured` (пустой `TTS_SERVICE_URL`) — постоянная ошибка: job падает сразу (`fail()`, без повторов и без исключения наружу — на sync-очереди оно сорвало бы `db:seed`), версия → `failed` с этим кодом. Демо-сидер импортирует с `scheduleAudio: false` (job не ставится) и озвучивает фразы сам (`ffmpeg` + `flite`). `audio_key = sha1(version_id|normalize(text)|voice|twa.tts.audio_version)` — имя не выводится из текста без знания `version_id`, а каталог `practice-audio/` nginx **не** раздаёт публично (в отличие от `audio/` словаря): файл доступен только через эндпоинт.
 - Смена текста = новая версия = новый `audio_key`; старая версия и её файл остаются (идущие сессии/матчи ссылаются на `audio_path` в снимке). Чистка файлов `superseded`/`archived` версий — отдельная команда позже (вне выпуска).
 - Слова: используется существующее `words.audio_path` (`audio/{sha1}.mp3`, `PregenerateWordAudioJob`); в снимке — путь; наружу путь не уходит (§10.2). Генерации в запросе ответа нет никогда.
 
@@ -1396,7 +1410,7 @@ Blob не загрузился (503/сеть) → экран показывае�
 | Доступ к аудио | Только владелец/участник, по id элемента снимка, JWT; `no-store`; каталог `practice-audio` не раздаётся nginx; имя файла не содержит текста; клипы будущих раундов не отдаются (кроме комнаты диктанта) |
 | Размеры входа | `answer.text ≤ 200`, `order ≤ 8` id по 16 символов, `pairs ≤ 4` пар, тела ≤ 4 КБ (валидация), импорт ≤ 2 МБ / ≤ 300 заданий, `key ≤ 64`, тексты по `content.*_max`; `request_id` строго uuid |
 | Лимиты | §7.5; опрос — свой бакет, не исключение; `TwaAuth` до `throttle` (уже так) |
-| Контент из импорта (XSS) | Строки — untrusted: Filament экранирует; TWA выводит через `{{ }}` (без `v-html`); `strip_tags` + удаление управляющих символов при сохранении версии |
+| Контент из импорта (XSS) | Строки — untrusted: Filament экранирует; TWA выводит через `{{ }}` (без `v-html`); текст со знаками `<` и `>` отклоняется (`markup_not_allowed`), управляющие символы удаляются при сохранении версии; уведомления админки об ошибках файла собираются из строк, пропущенных через `e()` (тело уведомления Filament выводит как HTML) |
 | Чужая практика в админке | Только активный `admin` (`PracticeItemPolicy` → `viewAny/create/update/review/publish/archive` = admin; teacher — 403); кабинет `/org` ресурса не получает; пилот — действие на `LearnerResource` только admin, с `audit_logs` |
 | Изоляция обучения | Практика не вызывает сервисы SRS/статистики/лиг; `PracticeIsolationTest` (§14) |
 
@@ -1528,15 +1542,22 @@ Blob не загрузился (503/сеть) → экран показывае�
   ] }
 ```
 
-Отличия от предложения координатора: **`key` обязателен** (ключ идемпотентности задаёт автор; производный от содержимого ключ ломал бы идемпотентность при правке опечатки — вместо новой версии рождалось бы новое задание); `format` обязателен и равен `lexiflow-practice/1` (иначе `format_unsupported`); `lesson` необязателен (`null`/отсутствие — задание курса), `course` обязателен (slug существующего курса, не колоды); флага публикации в файле нет — он у вызывающего (чекбокс/`--publish`). `accepted` у предложения — массивы **строк-фрагментов**, при сохранении превращаются в индексы (одинаковые фрагменты сопоставляются по порядку появления; на проверку это не влияет — сравнивается текст). Необязательное поле предложения `display` (строка) — каноническая запись первой допустимой последовательности с регистром и пунктуацией для разбора (`display_mismatch`, §4.5); фрагменты в файле — строчные, кроме `I` и имён собственных (§5.3). Неизвестные поля задания — ошибка `field_unknown` (опечатка в имени поля не должна молча терять текст).
+Отличия от предложения координатора: **`key` обязателен** (ключ идемпотентности задаёт автор; производный от содержимого ключ ломал бы идемпотентность при правке опечатки — вместо новой версии рождалось бы новое задание); `format` обязателен и равен `lexiflow-practice/1` (иначе `format_unsupported`); `lesson` необязателен (`null`/отсутствие — задание курса), `course` обязателен (slug существующего курса, не колоды); флага публикации в файле нет — он у вызывающего (чекбокс/`--publish`). `accepted` у предложения — массивы **строк-фрагментов**, при сохранении превращаются в индексы (одинаковые фрагменты сопоставляются по порядку появления; на проверку это не влияет — сравнивается текст). Необязательное поле предложения `display` (строка) — каноническая запись первой допустимой последовательности с регистром и пунктуацией для разбора (`display_mismatch`, §4.5); фрагменты в файле — строчные, кроме `I` и имён собственных (§5.3). Неизвестные поля задания **и ключи внутри объекта `lesson`** (кроме `stage`, `number`) — ошибка `field_unknown` (опечатка в имени поля не должна молча терять текст).
 
-Правила файла: ≤ 2 МБ, 1..300 заданий, `key` уникален в файле (`key_duplicate_in_file`), `target_words` — активные слова курса по тексту без регистра (`target_word_unknown {word, position}`), остальное — §4.5. Повтор файла: задание с тем же `key` и идентичным `content`+целевыми словами → `skipped`; изменённое → новая версия (`updated`; при `--publish` — сразу `published`, прежняя `superseded`); новое → `added`; архивное → `item_archived` (восстановите в админке). Отчёт `PracticeImportReport {added, updated, skipped, published, errors[], issues[]}`; `ImportIssue`-коды с `position` (номер задания, с 1) и `key`; тексты по-русски — `admin.pages.import_practice.errors.<code>` через `AdminErrors::text('pages.import_practice', …)`. Транзакция: `CoursePublisher::lockForWriting(course)` первым, затем задания; аудит `practice.imported {course_id, report}`; job аудио — `afterCommit`. Аналог для artisan: `php artisan practice:import storage/practice/pilot-a1.json --publish`.
+Правила файла: ≤ 2 МБ, 1..300 заданий, `key` уникален в файле (`key_duplicate_in_file`), `target_words` — активные слова курса по тексту без регистра (`target_word_unknown {word, position}`), остальное — §4.5. Повтор файла: задание с тем же `key`, у которого с текущей версией совпадают все четыре — `content`, целевые слова, урок (`lesson`) и уровень (`level`), → `skipped`; любое отличие → новая версия (`updated`; все четыре пишутся в неё; при `--publish` — сразу `published`, прежняя `superseded`); новое → `added`; архивное → `item_archived` (восстановите в админке). Отчёт `PracticeImportReport {added, updated, skipped, published, errors[], issues[]}`; `ImportIssue`-коды с `position` (номер задания, с 1) и `key`; тексты по-русски — `admin.pages.import_practice.errors.<code>` через `AdminErrors::text('pages.import_practice', …)`. Транзакция: `CoursePublisher::lockForWriting(course)` первым, затем задания; аудит `practice.imported {course_id, report}`; job аудио — `afterCommit`. Аналог для artisan: `php artisan practice:import storage/practice/pilot-a1.json --publish`.
 
 **Реализация 18.7a** (`PracticeItemService`, `PracticeImporter`, `PracticePilotService`, `Filament\Resources\PracticeItemResource`, `Filament\Pages\ImportPracticeItems`, `PracticeDemoSeeder`):
 - Переходы жизни задания, которые не подходят к его состоянию, — `PracticeItemStateException` (409 в админке, тексты — `AdminErrors`): `item_archived` (сначала «Вернуть»), `item_not_archived`, `not_draft` («Проверено» у уже опубликованной версии), `not_reviewed` (опубликовать можно только проверенное), `no_version`, `item_gone`.
-- `course`, `type` и `key` после создания **не меняются**; `lesson` и `level` при повторном импорте обновляются **без** новой версии (они не часть текста), а изменённый список целевых слов — это правка (новая версия).
-- `PracticeDemoSeeder` (только `local` / `testing`) для демо-учеников дописывает строки `word_repetitions` по **всем** целевым словам пакета (иначе задание не выдаётся: ученик должен быть введён во все его слова), ставит их в пилот и озвучивает фразы локально (`ffmpeg` + `flite`), если нет `TTS_SERVICE_URL`; повторный запуск ничего не меняет.
+- `course`, `type` и `key` после создания **не меняются**; целевые слова, урок и уровень — часть версии (исправления 18.9a ниже): любое их изменение, как и изменение текста, — новая версия.
+- `PracticeDemoSeeder` (только `local` / `testing`) для демо-учеников дописывает строки `word_repetitions` по **всем** целевым словам пакета (иначе задание не выдаётся: ученик должен быть введён во все его слова), ставит их в пилот и озвучивает фразы сам (`ffmpeg` + `flite`; по 18.9a его импорт не ставит job озвучки); курс берёт по slug из пакета; повторный запуск ничего не меняет.
 - Пилотный пакет `database/data/practice/pilot-a1-a2.json` — 90 заданий (по 10 каждого из трёх типов в трёх уроках курса `default`); после проверки языка тексты правились (коммит «pilot pack language fixes»); импорт на проде — черновиками.
+
+**Исправления 18.9a** (по ревью админки и контента):
+- Целевые слова, урок и уровень принадлежат **версии** (§2.3), `practice_items.lesson_id`/`level` и `practice_item_words` — проекция одной версии (§2.4): черновик больше не меняет выдачу опубликованной. Импорт: `skipped`, если у текущей версии совпали все четыре (текст, слова, урок, уровень), иначе `updated`. `SavedPracticeItem::attributesChanged` убран — изменения задания без новой версии нет.
+- «Проверено» и «Опубликовать» принимают версию, которую админ видел (`ShownVersionAction` кладёт её id в кнопку; страница правки хранит версию своей формы); другая текущая — `version_changed`.
+- Колонка «Аудио» — статус опубликованной версии (у неопубликованного задания — текущей), «Правка: …» — если у черновика иначе; фильтр находит и то, и другое. Кнопка «Сгенерировать аудио заново» ставит обе версии.
+- Порядок фрагментов — всегда первая допустимая последовательность (`accepted_first_mismatch`, §4.5); `<`/`>` в тексте — `markup_not_allowed`.
+- Кнопка пилота — два действия (`practicePilotInclude` / `practicePilotExclude`), направление не вычисляется при нажатии; уведомления импорта экранируют строки файла; лимит размера импорта у страницы и команды — `practice.import.max_bytes` (`PracticeImporter::maxBytes()`); `save()` отказывает заданию чужого курса.
 
 ---
 

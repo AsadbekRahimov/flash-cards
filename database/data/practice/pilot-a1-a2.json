@@ -390,7 +390,7 @@
      "text": "We start at nine", "accepted": ["We start at nine", "We start at 9"],
      "translation": {"ru": "Мы начинаем в девять", "uz": "Biz soat to'qqizda boshlaymiz"}},
     {"key": "pilot-work-d07", "type": "dictation", "lesson": {"stage": 2, "number": 1}, "level": "A2", "target_words": ["email"],
-     "text": "Check your email", "accepted": ["Check your email"],
+     "text": "Check your email", "accepted": ["Check your email", "Check your e-mail"],
      "translation": {"ru": "Проверь почту", "uz": "Pochtangni tekshir"}},
     {"key": "pilot-work-d08", "type": "dictation", "lesson": {"stage": 2, "number": 1}, "level": "A2", "target_words": ["project"],
      "text": "The project is ready", "accepted": ["The project is ready", "The project's ready"],

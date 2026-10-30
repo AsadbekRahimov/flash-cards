@@ -17,17 +17,15 @@ use Database\Seeders\DemoGroupSeeder;
 use Database\Seeders\DemoRepetitionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Process;
-use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
-    // DatabaseSeeder includes PracticeDemoSeeder: it imports the pilot package of the practice (a job to voice each phrase is queued)
-    // and voices the phrases with ffmpeg. Here ffmpeg is not run, no job runs, and nothing goes to the real disk of the audio.
+    // DatabaseSeeder includes PracticeDemoSeeder: it imports the pilot package of the practice (no job to voice a phrase is queued)
+    // and voices the phrases with ffmpeg. Here ffmpeg is not run, and nothing goes to the real disk of the audio.
     Process::fake();
-    Queue::fake();
     Storage::fake('practice_audio');
 });
 

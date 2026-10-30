@@ -250,29 +250,38 @@ set `PRACTICE_ACCESS=off`: the sessions that are open die by their own term (24 
 the practice never writes them. Tasks, versions and results stay in the database whatever the switch says.
 
 **Three types of task** (the fourth mode, *pairs*, needs no task: it is made of the words of the course): *Подбери сочетание*
-(a phrase with one gap `___`, three options, one or two of them correct), *Собери предложение* (fragments the learner puts in order; the
+(a phrase with one gap `___`, three options, one or two of them correct), *Собери предложение* (fragments the learner puts in order; other
 accepted orders, an optional canonical writing to show after the answer), *Слушай и пиши* (a phrase the learner hears and writes; other
 accepted writings are optional). Every task has a **key** (Latin lower case, digits, `.` `-` `_`; unique in the course; chosen once), a course,
 an optional lesson ("Модуль N · Урок M"; empty = a task of the whole course), a level and the **target words** — active words of the course.
 A task is handed out to a learner only when the learner has been introduced to *all* its target words.
+In a *sentence* the order of the fragments you type is always a right answer, and it is the first one (the review of an answer shows it). The field
+**«Другие допустимые порядки»** takes only the OTHER right orders, one per line, fragments told apart by ` | ` (an order that repeats the one above, or an earlier line, is
+dropped); leave it empty if there is no other. Text fields take plain text: a `<` or a `>` is refused («разметка не поддерживается»), `&` and quotes are fine.
 
 **Versions.** The text of a task is never changed: **Save** writes a *new version* (a draft). The task moves by buttons:
 **Проверено** (the current version has been checked) → **Опубликовать** (learners get this version; the previous published one is
 superseded, but whoever is playing it finishes with it) · **В архив** (nobody is given the task any more) · **Вернуть** (back from the archive).
 A draft cannot be published directly. A published task that has been edited stays published with the **old version handed out**; the list marks
-it «Есть неопубликованная правка» until the new version is checked and published. Publishing is stricter than saving: at least one target word and a text
-in **both** languages (the meaning/prompt and explanation of a sentence, the translation and explanation of a collocation, the translation of a dictation).
-The audio of a dictation is made in the background after saving; the column **Аудио** shows `В очереди / Готово / Ошибка`, the button **Сгенерировать аудио
-заново** voices the current version again. A dictation whose audio is not ready is not handed out. Every move is written to the audit log
+it «Есть неопубликованная правка» until the new version is checked and published. The **target words, the lesson and the level belong to the version**, like the text:
+a change of any of them is a new version too, and takes effect only when that version is published (the form says so under «Курс, урок и слова»; it shows the values of
+the version you edit, and the learners keep getting the lesson and the words of the published one meanwhile). Publishing is stricter than saving: at least one target word **in the version
+being published** and a text in **both** languages (the meaning/prompt and explanation of a sentence, the translation and explanation of a collocation, the translation of a dictation).
+**Проверено** and **Опубликовать** act on the version you were looking at: if an import or another editor wrote a newer one meanwhile, the answer is
+«Задание изменили, пока вы его смотрели. Откройте его заново.» (code `version_changed`) and nothing is changed — open the task again and read the new version.
+The audio of a dictation is made in the background after saving; the column **Аудио** shows `В очереди / Готово / Ошибка` of the version the learners get
+(the published one; while the task is not published, the current one), with a small note «Правка: …» when the draft behind it has another status. The button **Сгенерировать аудио
+заново** voices both the published version and the draft behind it. A dictation whose audio is not ready is not handed out. Every move is written to the audit log
 (`practice_item.reviewed / published / archived / restored`).
 
 **Import (JSON, format `lexiflow-practice/1`).** The page **Import tasks** takes a file with `"course"` (the slug of an existing course, not a deck) and a
 list `"items"` (1–300 tasks, ≤ 2 MB); **Download sample** gives a valid file. The same service runs as
 `php artisan practice:import {file} [--publish]`. Rules:
-- every task has a `key`; importing the same file again **skips** what is identical, writes a **new version** for a changed task, and refuses the key of an
-  **archived** task (restore it first). A changed target word list counts as a change; a changed lesson or level is written without a new version;
-- `target_words` are texts of active words of the course (case does not matter); `lesson` is `{"stage": N, "number": N}`; sentences give the accepted
-  orders as lists of the fragment texts, collocations name the correct options by their text; an unknown field is an error, so a misspelt name never loses text;
+- every task has a `key`; importing the same file again **skips** a task whose text, target words, lesson and level are all the same as the current version's, writes a
+  **new version** when ANY of the four differs (shown as «обновлено»), and refuses the key of an **archived** task (restore it first);
+- `target_words` are texts of active words of the course (case does not matter); `lesson` is `{"stage": N, "number": N}`; sentences give ALL the accepted
+  orders as lists of the fragment texts, the first of them being the order of `fragments`, collocations name the correct options by their text; an unknown field
+  (also a key besides `stage` and `number` inside `lesson`) is an error, so a misspelt name never loses text;
 - **all or nothing**: any fault refuses the whole file, and the report lists every fault with the **number of the task and its key**;
 - tasks are written as **drafts**; the box **«Опубликовать сразу (только проверенный контент)»** (`--publish`) writes them as published (and publishes identical
   drafts of an earlier import). It is your confirmation that the texts are checked — a file cannot publish itself. The strict rules of publishing apply.
@@ -293,14 +302,15 @@ A file looks like this (the real pilot package, `database/data/practice/pilot-a1
 ```
 
 The pilot package: 90 tasks — ten tasks of each of the three types in each of three lessons of the `default` course: *Module 1 · Lesson 2* (time and days of the week, A1), *Module 1 · Lesson 3* (family, A1), *Module 2 · Lesson 1* (work, A2). Its target words and lessons must exist in the course, otherwise the whole file is refused.
-The Uzbek texts of the pack wait for a native speaker's review (`docs/I18N_UZ_REVIEW.md`). On a local machine the seeder `PracticeDemoSeeder` (part of `db:seed`) imports it published, puts the demo learners into the pilot and — with no `TTS_SERVICE_URL` — voices the phrases itself
-with `ffmpeg` + `flite`. **On production import it as drafts** (`php artisan practice:import database/data/practice/pilot-a1-a2.json`), read the tasks in the list, press **Проверено** and **Опубликовать** (or re-import with `--publish` once the texts are checked).
+The Uzbek texts of the pack wait for a native speaker's review (`docs/I18N_UZ_REVIEW.md`). On a local machine the seeder `PracticeDemoSeeder` (part of `db:seed`) imports it published, puts the demo learners into the pilot and voices the phrases itself
+with `ffmpeg` + `flite` — whatever `TTS_SERVICE_URL` says, and without queueing a single voicing job (no TTS service is called during `db:seed`). Without `ffmpeg` the phrases stay `В очереди`: press **Сгенерировать аудио заново** for them. **On production import it as drafts** (`php artisan practice:import database/data/practice/pilot-a1-a2.json`), read the tasks in the list, press **Проверено** and **Опубликовать** (or re-import with `--publish` once the texts are checked).
 
 ### Audio of the dictations
 
 A dictation task is voiced in the background after it is saved or imported (`GeneratePracticeAudioJob`, queue `low`, a queue worker must run): the column **Аудио** shows `В очереди` (the job waits or is being retried),
-`Готово`, or `Ошибка` with the reason (for example, the `tts` service is not reachable). A dictation without ready audio is **not handed out** to learners: when too few are voiced, the hub of the lesson says
-«Записи для заданий ещё готовятся» and the mode stays closed. The button **Сгенерировать аудио заново** voices the current version again (use it after a failure, once the `tts` service is back). Editing the text of a task makes a new version and a new voice-over; the
+`Готово`, or `Ошибка` with the reason (for example, the `tts` service is not reachable; with no `TTS_SERVICE_URL` at all the job fails at once with `tts_service_not_configured` and is not retried).
+The column shows the version the learners get — the published one — and notes a draft behind it whose status differs. A dictation without ready audio is **not handed out** to learners: when too few are voiced, the hub of the lesson says
+«Записи для заданий ещё готовятся» and the mode stays closed. The button **Сгенерировать аудио заново** voices the published version and the draft behind it again (use it after a failure, once the `tts` service is back; a published version whose audio failed is voiced by it, too). Editing the text of a task makes a new version and a new voice-over; the
 old file stays for the sessions that are playing the old version. The voice is the one of the word audio (`TTS_VOICE`, `TTS_SERVICE_URL`; bumping `TTS_AUDIO_VERSION` re-voices everything under new file names). The phrases are stored in the private directory `storage/app/practice-audio`, which the web server does **not** serve — learners hear
 them only through the API (`docs/DEVOPS_GUIDE.md` §10.2). The *word* part of a dictation uses the ordinary pre-generated word audio (`php artisan audio:pregenerate <course-slug>`, see *Word audio* above): a word without current audio is simply not taken.
 
