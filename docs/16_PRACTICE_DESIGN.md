@@ -72,7 +72,7 @@ app/Domain/Practice/
 ├── DTO/          PracticeAccessState, ModeAvailability, MaterialReport, Snapshot, SnapshotElement, GradeResult,
 │                 SessionView, SummaryView, BattleView, BattlePollView, RoundView, PracticeImportReport
 ├── Exceptions/   PracticeException, BattleException, PracticeContentException   (errorCode + httpStatus() + details)
-├── Support/      PracticeTextNormalizer, SeededShuffle, OpaqueId, InflectionGuard, TranslationVariants
+├── Support/      PracticeTextNormalizer, SeededShuffle, OpaqueId, InflectionGuard, TranslationVariants, EnglishLexicon (+ resources/lexicon/en-common.txt)
 └── Services/
     ├── PracticeAccess                 флаги, пилот, тариф, блок `/me`
     ├── PracticeMaterialService        пригодные слова/задания для ученика (соло) и для пары игроков (баттл)
