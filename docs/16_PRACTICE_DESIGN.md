@@ -110,7 +110,7 @@ interface PracticeModeHandler
 
     /** Сколько пригодного материала есть (не строит снимок). $learner = null — баттл: без учёта прогресса. */
     public function availability(MaterialScope $scope, ?Learner $learner, LocaleSet $locales): ModeAvailability;
-    // ModeAvailability { bool $available; int $available; int $required; ?string $reason /* no_words | ambiguous | no_items | audio_pending */ }
+    // ModeAvailability { bool $available; int $available; int $required; ?string $reason /* no_words | ambiguous | no_items | items_locked | audio_pending | no_audio_words */ }
 
     /**
      * Строит элементы снимка. Детерминировано от $seed (SeededShuffle). Бросает PracticeException::notEnoughMaterial(...)
@@ -675,6 +675,8 @@ WHERE i.course_id = :course [AND i.lesson_id = :lesson] AND i.type = :type AND i
 ```
 затем `SELECT * FROM practice_item_versions WHERE id IN (...) [AND audio_status = 'ready']`. Для баттла (`learner = null`) анти-join проверяет только `w.is_active`. Индексы: `practice_items (course_id, status, type)` / `(lesson_id, status, type)`, `practice_item_words (item_id, word_id)`. 2 запроса на тип.
 
+**Как реализовано (18.9b):** годность задания — не фильтр запроса, а его колонка `lock_state = CASE WHEN EXISTS(слово неактивно) THEN 2 WHEN EXISTS(слово не введено ученику) THEN 1 ELSE 0 END` (ученик — binding), строки сортирует PHP; запросов столько же (2 на все типы сразу, хаб 9). Так видны «запертые» задания (`1`: целевые слова ещё не введены, неактивных нет) — основа причины `items_locked` (§4.3); `2` (слово выключено) не откроет никакое обучение и не считается нигде.
+
 ### 4.3 Размеры и распределение
 
 | Режим | Соло | Баттл |
@@ -687,7 +689,7 @@ WHERE i.course_id = :course [AND i.lesson_id = :lesson] AND i.type = :type AND i
 ```json
 { "mode": "pairs", "available": 2, "required": 3, "reason": "no_words", "course": "english-a1", "lesson_id": 41 }
 ```
-`reason`: `no_words` (введённых слов меньше минимума), `ambiguous` (слов хватает, но после исключения неоднозначных — нет), `no_items` (опубликованных заданий меньше минимума / целевые слова не введены), `audio_pending` (заданий хватает, но аудио не готово), `no_audio_words` (диктант слов: нет слов с готовым аудио). TWA по `reason` + `lesson_id` объясняет причину и предлагает «Учить урок» (`POST /training/sessions {mode: lesson, lesson_id}`) либо другой урок.
+`reason`: `no_words` (введённых слов меньше минимума), `ambiguous` (слов хватает, но после исключения неоднозначных — нет), `no_items` (опубликованных заданий типа меньше минимума и «запертые» их не дополнят), `items_locked` (задания есть, но не хватает из-за невведённых целевых слов: с «запертыми» хватило бы — выучите слова урока), `audio_pending` (заданий хватает, но аудио не готово), `no_audio_words` (диктант слов: нет слов с готовой озвучкой). TWA по `reason` + `lesson_id` объясняет причину и предлагает «Учить урок» (`POST /training/sessions {mode: lesson, lesson_id}`) либо другой урок.
 
 ### 4.4 Однозначность пар
 
@@ -814,7 +816,7 @@ WHERE i.course_id = :course [AND i.lesson_id = :lesson] AND i.type = :type AND i
 
 **Реализация 18.5** (`Modes/DictationMode`, `Grading/DictationGrader`, `Support/InflectionGuard`, `PracticeAudioService`, `GeneratePracticeAudioJob`):
 - Состав сессии (§4.3) — как в проекте: до `practice.solo.dictation.phrases_max` (3) фраз, остальное — слова; слов не хватает — добираются фразами; **сначала слова, потом фразы** (docs/15 §3.4). Слово годится, только если `words.audio_path` совпадает с файлом, в который хэшируется **текущий** текст слова (`WordAudioService::pathFor`): после правки слова старый файл — уже не его голос.
-  Доступность считается без диска (хаб не ходит в файловую систему); файлы выбранных элементов проверяются при построении снимка (`exists && size > 0`, один раз на элемент), отсутствующий пропускается ради следующего кандидата. Причина нехватки: `audio_pending` → `no_audio_words` → `no_words` → иначе `no_items`.
+  Доступность считается без диска (хаб не ходит в файловую систему); файлы выбранных элементов проверяются при построении снимка (`exists && size > 0`, один раз на элемент), отсутствующий пропускается ради следующего кандидата. Причина нехватки: `audio_pending` → `items_locked` → `no_audio_words` → `no_words` → иначе `no_items`.
 - Запасные кандидаты (`pool`) — до 4 фраз и до 4 слов; замена берёт следующего того же источника, при его отсутствии — другого, без запасных элемент убирается (`total` уменьшается, минимум один элемент).
 - Аудио: снимок называет диск элемента (`practice_audio` — фразы, `public` — слова); **любое другое имя диска сервис не открывает**. Нет файла → 503 `practice_audio_unavailable` и событие `practice.audio_failed`. Сбой последней попытки job'а — `audio_status = failed` + `audio_error`; «Сгенерировать заново» в админке ставит job снова.
 - `typo` в соло не засчитывается как «верно с первой попытки» и показывается в итогах отдельно (чип «Опечатка», счётчик `typos`).

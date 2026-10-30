@@ -324,6 +324,82 @@ it('narrows the tasks to the ones of a retry', function (): void {
     expect(array_map(fn (PracticeItemVersion $v): int => $v->item_id, $found))->toBe([$items[0]->id, $items[2]->id]);
 });
 
+it('counts the tasks that are LOCKED - published, a target word not introduced yet, none inactive - by type; a dictation only when voiced; none for a battle', function (): void {
+    [$course, $lesson, $learner, $words] = matItemWorld();
+    $unseen = PracticeKit::words($lesson, 1)[0];                                                                          // nobody has met it
+    $off = PracticeKit::words($lesson, 1, $learner, ['is_active' => false])[0];                                           // switched off
+    $scope = new MaterialScope($course, $lesson);
+    PracticeItem::factory()->sentence()->published()->forLesson($lesson)->targeting($words)->create();                    // fit
+    PracticeItem::factory()->sentence()->published()->forLesson($lesson)->targeting([$words[0], $unseen])->create();      // locked
+    PracticeItem::factory()->sentence()->published()->forLesson($lesson)->targeting([$unseen, $off])->create();           // dead: a switched-off word beats an unmet one
+    PracticeItem::factory()->sentence()->forLesson($lesson)->targeting($unseen)->create();                                // a draft is nobody's
+    PracticeItem::factory()->collocation()->published()->forLesson($lesson)->targeting($unseen)->create();                // locked
+    PracticeItem::factory()->dictation()->published()->audioReady()->forLesson($lesson)->targeting($unseen)->create();    // locked and voiced: worth counting
+    PracticeItem::factory()->dictation()->published()->audioPending()->forLesson($lesson)->targeting($unseen)->create();  // locked and mute: counted nowhere
+
+    $service = matService();
+
+    expect($service->lockedItems($scope, PracticeItemType::Sentence, $learner))->toBe(1)
+        ->and($service->lockedItems($scope, PracticeItemType::Collocation, $learner))->toBe(1)
+        ->and($service->lockedItems($scope, PracticeItemType::Dictation, $learner))->toBe(1)
+        ->and(count($service->eligibleItems($scope, PracticeItemType::Sentence, $learner)))->toBe(1)
+        ->and($service->pendingAudioItems($scope, $learner))->toBe(0);   // the mute one is locked, so its voice is not what stops it
+
+    // A battle looks at no progress: nothing is locked, a switched-off word is still dead.
+    expect($service->lockedItems($scope, PracticeItemType::Sentence, null))->toBe(0)
+        ->and(count($service->eligibleItems($scope, PracticeItemType::Sentence, null)))->toBe(2)
+        ->and(count($service->eligibleItems($scope, PracticeItemType::Collocation, null)))->toBe(1);
+});
+
+it('moves a task from locked to eligible when its word is introduced', function (): void {
+    [$course, $lesson, $learner] = matItemWorld();
+    $unseen = PracticeKit::words($lesson, 1)[0];
+    PracticeItem::factory()->collocation()->published()->forLesson($lesson)->targeting($unseen)->create();
+
+    $before = new MaterialScope($course, $lesson);
+    expect(matService()->lockedItems($before, PracticeItemType::Collocation, $learner))->toBe(1)
+        ->and(matService()->eligibleItems($before, PracticeItemType::Collocation, $learner))->toBe([]);
+
+    PracticeKit::introduce($learner, $unseen);
+    $after = new MaterialScope($course, $lesson);
+    expect(matService()->lockedItems($after, PracticeItemType::Collocation, $learner))->toBe(0)
+        ->and(count(matService()->eligibleItems($after, PracticeItemType::Collocation, $learner)))->toBe(1);
+});
+
+it('names the shortage of tasks: items_locked when the locked ones would make the number, no_items when nothing waits or too little', function (): void {
+    [$course, $lesson, $learner] = matItemWorld();
+    $unseen = PracticeKit::words($lesson, 1)[0];
+    PracticeItem::factory()->count(2)->sentence()->published()->forLesson($lesson)->targeting($unseen)->create();
+    $scope = new MaterialScope($course, $lesson);
+    $reason = fn (?Learner $who, int $available, int $required): string => matService()->shortageReason($scope, PracticeItemType::Sentence, $who, $available, $required);
+
+    expect($reason($learner, 1, 3))->toBe('items_locked')      // 1 + 2 locked = 3
+        ->and($reason($learner, 0, 3))->toBe('no_items')         // 0 + 2 = 2: learning is not enough
+        ->and($reason($learner, 0, 2))->toBe('items_locked')
+        ->and($reason(null, 1, 3))->toBe('no_items');            // a battle has nothing locked
+});
+
+it('keeps the locked tasks inside the two queries: the fitness is a column of the query, not a second one', function (): void {
+    [$course, $lesson, $learner, $words] = matItemWorld();
+    $unseen = PracticeKit::words($lesson, 1)[0];
+    PracticeItem::factory()->sentence()->published()->forLesson($lesson)->targeting($words)->create();
+    PracticeItem::factory()->sentence()->published()->forLesson($lesson)->targeting($unseen)->create();
+    PracticeItem::factory()->dictation()->published()->audioReady()->forLesson($lesson)->targeting($unseen)->create();
+    $scope = new MaterialScope($course, $lesson);
+
+    $log = QueryLog::during(function () use ($scope, $learner): void {
+        foreach (PracticeItemType::cases() as $type) {
+            matService()->eligibleItems($scope, $type, $learner);
+            matService()->lockedItems($scope, $type, $learner);
+        }
+        matService()->pendingAudioItems($scope, $learner);
+    });
+
+    expect($log)->toHaveCount(2)
+        ->and(QueryLog::matching($log, '/practice_items/'))->toHaveCount(1)
+        ->and(QueryLog::matching($log, '/practice_item_versions/'))->toHaveCount(1);
+});
+
 it('reads the tasks of ALL the types in two queries and remembers them for the scope', function (): void {
     [$course, $lesson, $learner, $words] = matItemWorld();
     PracticeItem::factory()->sentence()->published()->forLesson($lesson)->targeting($words)->create();

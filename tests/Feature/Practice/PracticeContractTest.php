@@ -555,6 +555,27 @@ it('puts `details` INSIDE `error` on the wire, with the keys of docs/16 §7.6: t
     contractError(contractOpen($learner, $course->slug, 'collocation'), 403, 'practice_unavailable', null);
 });
 
+it('says `items_locked` on the wire - in the refusal of the opening and in the card of the hub - while the words of the tasks are not met, `no_items` when learning would not be enough', function (): void {
+    [$learner, $course, $lesson] = contractWorld();
+    $met = PracticeKit::words($lesson, 1, $learner);
+    $unseen = PracticeKit::words($lesson, 1);
+    PracticeItem::factory()->sentence()->published()->forLesson($lesson)->targeting($met)->create();                  // one to play
+    $hub = fn () => test()->withHeaders(PracticeKit::headers($learner))->getJson("/api/twa/practice/hub?course={$course->slug}&lesson_id={$lesson->id}")->assertOk()->json('modes.2');
+    $details = ['mode', 'available', 'required', 'reason', 'course', 'lesson_id'];
+
+    // One to play and one locked make two of three: learning the lesson would not be enough.
+    PracticeItem::factory()->sentence()->published()->forLesson($lesson)->targeting($unseen)->create();
+    expect($hub()['reason'])->toBe('no_items')
+        ->and(contractError(contractOpen($learner, $course->slug, 'sentence', ['lesson_id' => $lesson->id]), 422, 'practice_not_enough_material', $details)['reason'])->toBe('no_items');
+
+    // Two locked make three: the tasks are there, the words are not met.
+    PracticeItem::factory()->sentence()->published()->forLesson($lesson)->targeting($unseen)->create();
+    expect($hub())->toBe(['mode' => 'sentence', 'state' => 'not_enough', 'available' => 1, 'required' => 3, 'reason' => 'items_locked', 'estimate_seconds' => 150])
+        ->and(contractError(contractOpen($learner, $course->slug, 'sentence', ['lesson_id' => $lesson->id]), 422, 'practice_not_enough_material', $details))
+        ->toEqual(['mode' => 'sentence', 'available' => 1, 'required' => 3, 'reason' => 'items_locked', 'course' => 'english-a1', 'lesson_id' => $lesson->id]);
+    expect(array_keys($hub()))->toBe(CONTRACT_PRACTICE_MODE_ROW);
+});
+
 it('puts `details` INSIDE `error` on the wire: the refusals of an answer, and `round_done` at the end of a round of pairs', function (): void {
     PracticeKit::fake(PracticeMode::Collocation, candidates: 6);
     PracticeKit::fake(PracticeMode::Pairs, candidates: 9);

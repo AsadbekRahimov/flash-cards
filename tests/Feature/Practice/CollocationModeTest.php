@@ -199,6 +199,37 @@ it('counts the tasks it can play, and says no_items when there are fewer than th
     expect($report($learner))->toBe([true, 4, 3, null]);
 });
 
+it('tells that the tasks are LOCKED when the ones that wait for a word the learner has not met would make the number, and no_items when they would not', function (): void {
+    [$learner, $course, $lesson] = collWorld(1);                              // one task the learner can play
+    $unseen = PracticeKit::words($lesson, 1)[0];
+    $report = function () use ($course, $lesson, $learner): array {
+        $a = collHandler()->availability(new MaterialScope($course, $lesson), $learner, LocaleSet::of('ru'));
+
+        return [$a->isAvailable, $a->available, $a->required, $a->reason];
+    };
+
+    expect($report())->toBe([false, 1, 3, 'no_items']);                       // nothing is waiting: there are simply no more tasks
+
+    collTask($lesson, $unseen, 2);                                            // 1 + 1 locked = 2 < 3: learning the lesson would not be enough
+    expect($report())->toBe([false, 1, 3, 'no_items']);
+
+    collTask($lesson, $unseen, 3);                                            // 1 + 2 locked = 3: learning the lesson is the way
+    expect($report())->toBe([false, 1, 3, 'items_locked']);
+
+    PracticeKit::introduce($learner, $unseen);                                // the word is met: the tasks are playable
+    expect($report())->toBe([true, 3, 3, null]);
+});
+
+it('does not count a task with a word that was switched off as locked: learning does not open it', function (): void {
+    [$learner, $course, $lesson] = collWorld(2);
+    $off = PracticeKit::words($lesson, 1, null, ['is_active' => false])[0];
+    collTask($lesson, $off, 3);
+
+    $availability = collHandler()->availability(new MaterialScope($course, $lesson), $learner, LocaleSet::of('ru'));
+
+    expect([$availability->available, $availability->reason])->toBe([2, 'no_items']);
+});
+
 it('needs only one task to repeat the mistakes, as the minimum of the retry says', function (): void {
     [$learner, $course, $lesson, $items] = collWorld(3);
     $scope = new MaterialScope($course, $lesson, new RetryMaterial([], [$items[1]->id]));
@@ -218,7 +249,8 @@ it('does not hand out a task whose target word the learner has not met - the ope
     collOpen($learner, $course, ['lesson_id' => $lesson->id])
         ->assertStatus(422)
         ->assertJsonPath('error.code', 'practice_not_enough_material')
-        ->assertJsonPath('error.details', ['mode' => 'collocation', 'available' => 2, 'required' => 3, 'reason' => 'no_items', 'course' => 'english-a1', 'lesson_id' => $lesson->id]);
+        // The two tasks that wait for the unmet word would make the number: the reason is that they are locked, not that there are none.
+        ->assertJsonPath('error.details', ['mode' => 'collocation', 'available' => 2, 'required' => 3, 'reason' => 'items_locked', 'course' => 'english-a1', 'lesson_id' => $lesson->id]);
     expect(PracticeSession::query()->count())->toBe(0);
 
     PracticeKit::introduce($learner, $unseen);

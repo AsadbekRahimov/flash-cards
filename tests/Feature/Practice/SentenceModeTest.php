@@ -241,9 +241,27 @@ it('counts only the published tasks whose target words the learner has been intr
 
     $availability = app(PracticeMaterialService::class)->availability(new MaterialScope($course, $lesson), $learner, LocaleSet::of('ru'));
 
+    // Two to play, one that waits for the word the learner has not met: 2 + 1 make the minimum, so the tasks are LOCKED, not missing.
     expect($availability['sentence']->available)->toBe(2)
         ->and($availability['sentence']->isAvailable)->toBeFalse()
-        ->and($availability['sentence']->reason)->toBe('no_items');
+        ->and($availability['sentence']->reason)->toBe('items_locked');
+});
+
+it('says items_locked in the hub and in the 422 of the opening while the words of the tasks are not met, and no_items when learning would not be enough', function (): void {
+    [$learner, $course, $lesson, , $words] = smWorld(['mother']);                       // one sentence to play
+    $unseen = PracticeKit::words($lesson, 1)[0];
+    $hub = fn () => $this->withHeaders(PracticeKit::headers($learner))->getJson("/api/twa/practice/hub?course={$course->slug}&lesson_id={$lesson->id}")->assertOk()->json('modes.2');
+
+    smItem($lesson, [$words[0], $unseen], 'cat');                                       // 1 + 1 locked = 2 < 3
+    expect($hub())->toMatchArray(['state' => 'not_enough', 'available' => 1, 'required' => 3, 'reason' => 'no_items']);
+
+    smItem($lesson, [$unseen], 'tea');                                                  // 1 + 2 locked = 3
+    expect($hub())->toMatchArray(['state' => 'not_enough', 'available' => 1, 'required' => 3, 'reason' => 'items_locked']);
+    smOpen($learner, $course->slug, ['lesson_id' => $lesson->id])->assertUnprocessable()
+        ->assertJsonPath('error.details', ['mode' => 'sentence', 'available' => 1, 'required' => 3, 'reason' => 'items_locked', 'course' => $course->slug, 'lesson_id' => $lesson->id]);
+
+    PracticeKit::introduce($learner, $unseen);                                          // the words are met: the three are playable
+    expect($hub())->toMatchArray(['state' => 'available', 'available' => 3, 'reason' => null]);
 });
 
 it('leaves out a version whose content cannot be played, from the count and from the choice, instead of failing on it', function (): void {

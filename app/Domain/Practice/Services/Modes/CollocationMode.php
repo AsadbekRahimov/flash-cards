@@ -67,7 +67,7 @@ final class CollocationMode implements PracticeModeHandler
 
         return $available >= $required
             ? ModeAvailability::enough($available, $required)
-            : ModeAvailability::notEnough($available, $required, ModeAvailability::REASON_NO_ITEMS);
+            : ModeAvailability::notEnough($available, $required, $this->material->shortageReason($scope, PracticeItemType::Collocation, $learner, $available, $required));
     }
 
     public function build(MaterialScope $scope, ?Learner $learner, LocaleSet $locales, string $seed, int $size, bool $strictSize): array
@@ -79,7 +79,7 @@ final class CollocationMode implements PracticeModeHandler
         if (count($playable) < $required) {
             throw PracticeException::notEnoughMaterial(
                 PracticeMode::Collocation,
-                ModeAvailability::notEnough(count($playable), $required, ModeAvailability::REASON_NO_ITEMS),
+                ModeAvailability::notEnough(count($playable), $required, $this->material->shortageReason($scope, PracticeItemType::Collocation, $learner, count($playable), $required)),
                 $scope->course->slug,
                 $scope->lesson?->id,
             );
