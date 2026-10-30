@@ -26,7 +26,7 @@ import { useFriendsStore } from '@/stores/friends'
 import { usePracticeStore } from '@/stores/practice'
 import { useTrainingStore } from '@/stores/training'
 import { useI18n } from '@/i18n'
-import type { BattleIncoming, FriendItem, PracticeActiveSession, PracticeMode, PracticeModeInfo } from '@/api/types'
+import type { BattleIncoming, FriendItem, PracticeActiveSession, PracticeMode, PracticeModeInfo, PracticeSource } from '@/api/types'
 
 /**
  * The practice hub of a course or of one lesson (docs/16 §11.2, docs/14): the heading with the course and the lesson,
@@ -36,13 +36,19 @@ import type { BattleIncoming, FriendItem, PracticeActiveSession, PracticeMode, P
  * States: loading, error (Retry), "practice is not available yet" (`practice_unavailable`), the hub. A card is playable
  * (the whole card is the button), short of material ("Learn the lesson"), switched off, or behind Pro (the paywall).
  * The one unfinished session of a learner: a mode pressed while there is one asks what to do (`ActiveSessionSheet`).
- * "Back" leads to the course.
+ * "Back" leads to the course. A hub opened from the finish screen of a training session (`?from=finished`, the button
+ * "Practice of the lesson / of the course") starts its sessions with `source = after_training` instead of `hub`.
  */
-const props = defineProps<{
-  slug: string
-  /** The lesson of the hub (`?lesson=`); null: the whole course. */
-  lessonId: number | null
-}>()
+const props = withDefaults(
+  defineProps<{
+    slug: string
+    /** The lesson of the hub (`?lesson=`); null: the whole course. */
+    lessonId: number | null
+    /** `?from=finished`: the hub was opened from the finish screen of a training session (its sessions are "after training"). */
+    from?: 'finished' | null
+  }>(),
+  { from: null },
+)
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -125,7 +131,8 @@ async function start(mode: PracticeMode, replaceActive: boolean): Promise<void> 
   // One session is being opened at a time; a second card pressed meanwhile must not become "the mode that was pressed".
   if (opening.value !== null) return
   pressed.value = mode
-  const id = await practice.open({ mode, course: props.slug, lesson_id: props.lessonId, source: 'hub', replace_active: replaceActive })
+  const source: PracticeSource = props.from === 'finished' ? 'after_training' : 'hub'
+  const id = await practice.open({ mode, course: props.slug, lesson_id: props.lessonId, source, replace_active: replaceActive })
   if (id !== null && !left) await openSession(id)
 }
 

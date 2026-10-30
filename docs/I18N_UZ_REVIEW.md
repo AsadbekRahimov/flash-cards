@@ -2447,3 +2447,20 @@
 | `battle.friends.status.room` | Xona | Комната |
 | `battle.friends.status.countdown` | Start | Старт |
 | `battle.friends.status.playing` | O'yin | Игра |
+
+## Практика и баттл 2026-10 · 18-7b — на проверку носителю
+
+> Входы в практику (`resources/twa/src/i18n/uz.ts`, задача 18.7b): кнопка на экране «Итог занятия» и подпись кнопки-иконки в строке урока на экране курса.
+> Название раздела («Amaliyot», «Практика») — из раздела 18-1t, здесь не повторяется.
+>
+> Что решить носителю:
+> - **«Практика урока» / «Практика курса»** на итоговом экране (вторичная кнопка под «Asosiy sahifaga»): `Dars amaliyoti` / `Kurs amaliyoti` (изафет:
+>   «практика урока», «практика курса»). Если естественнее глагольная форма — `Darsni mashq qilish` / `Kursni mashq qilish`.
+> - **Подпись кнопки-иконки в строке урока** читает экранный диктор, у кнопки нет текста: `Amaliyot: {place}`, где `{place}` — «2-modul · 4-dars»
+>   (то же сочетание, что в шапке тренировки).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `finished.practice_lesson` | Dars amaliyoti | Практика урока |
+| `finished.practice_course` | Kurs amaliyoti | Практика курса |
+| `course.practice_lesson` | Amaliyot: {place} | Практика: {place} |

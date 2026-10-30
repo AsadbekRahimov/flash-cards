@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, type RouteLocationRaw } from 'vue-router'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
@@ -13,7 +13,9 @@ import { useI18n } from '@/i18n'
  * "Session finished" (docs/14 §6.3): an immersive screen (no tab bar) that ends a personal or group session.
  * The numbers of a personal session (cards, share of right answers, new words) and the goal and streak of the day
  * come with the server summary (`training.summary`); a group session has none, so it says only how many cards were
- * reviewed. The buttons at the bottom lead out: "Home" (the one primary button) and "Close".
+ * reviewed. The buttons at the bottom lead out: "Home" (the one primary button), "Practice of the lesson / of the course"
+ * (a tinted secondary action: the server's `practice_entry` says whether there is one and where it leads, docs/16 §11.1) and
+ * "Close".
  */
 const props = defineProps<{
   reviewed: number
@@ -57,6 +59,20 @@ const goalPercent = computed(() => {
   if (current.met) return 100
   return current.target > 0 ? Math.min(100, Math.round((current.done / current.target) * 100)) : 0
 })
+
+/**
+ * The hub of the lesson that was just studied (or of the course of a daily review), opened "from the finish screen": the
+ * hub then starts its sessions with `source = after_training` (docs/16 §2.5, the `source` of `practice_sessions`).
+ */
+const practiceEntry = computed(() => summary.value?.practice_entry ?? null)
+const practiceTarget = computed((): RouteLocationRaw | null => {
+  const entry = practiceEntry.value
+  if (entry === null) return null
+  const lesson = entry.lesson_id === null ? {} : { lesson: String(entry.lesson_id) }
+  return { name: 'practice-hub', params: { slug: entry.course }, query: { ...lesson, from: 'finished' } }
+})
+/** "Practice of the lesson" after a lesson, "Practice of the course" after a daily review. */
+const practiceLabel = computed(() => (practiceEntry.value?.lesson_id === null ? t('finished.practice_course') : t('finished.practice_lesson')))
 
 // The end of today's new words is the moment to say what Free gives and what Pro will (docs/12 §5.4).
 const quotaExhausted = computed(() => props.reason === 'new_quota_exhausted')
@@ -161,6 +177,11 @@ onBeforeUnmount(() => {
 
       <RouterLink :to="{ name: 'today' }" class="btn btn-primary btn-lg btn-block" data-testid="home-btn">
         {{ t('finished.home') }}
+      </RouterLink>
+      <!-- A secondary action under the primary one: practising what was just learned (docs/15 §4). -->
+      <RouterLink v-if="practiceTarget" :to="practiceTarget" class="btn btn-tinted btn-block" data-testid="practice-btn">
+        <AppIcon name="puzzle-piece" :size="20" />
+        {{ practiceLabel }}
       </RouterLink>
       <button v-if="quotaExhausted" type="button" class="btn btn-tinted btn-block" data-testid="paywall-open" @click="paywallOpen = true">
         {{ t('paywall.open') }}
