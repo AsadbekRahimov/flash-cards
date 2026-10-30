@@ -16,11 +16,14 @@ use App\Domain\Practice\Enums\PracticeMode;
 use App\Domain\Practice\Services\Battle\BattleJanitor;
 use App\Domain\Practice\Support\IsoTime;
 use App\Models\Battle;
+use App\Models\Course;
+use App\Models\Friendship;
 use App\Models\Learner;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use Tests\Support\Practice\BattleHttp;
 use Tests\Support\Practice\BattleKit;
@@ -596,3 +599,330 @@ it('reviews a resolved round in the form of its mode - the right answer, what ea
         ->and($current->json('reveal'))->toBeNull();
     battleError(BattleHttp::round($me, $id, 4), 409, 'round_not_open', ['round', 'phase']);
 })->with('battle modes');
+
+// ------------------------------------------------------------------------------------------------------------ the options, the list, the poll
+
+it('keeps the exact JSON of the options of a battle - both players\' languages, the state of every format - and refuses what docs/16 §7.3 refuses', function (): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    config(['practice.modes.sentence' => false]);
+    $row = ['mode', 'state', 'available', 'required', 'reason', 'round_seconds'];
+
+    $options = BattleHttp::options($me, $friendship, $course, $lesson)->assertOk()->assertExactJsonStructure([
+        'friend' => ['first_name'], 'course' => BATTLE_CONTRACT_COURSE, 'lesson' => BATTLE_CONTRACT_LESSON, 'modes' => ['*' => $row], 'friend_access',
+    ]);
+    $modes = $options->json('modes');
+    expect($options->json('friend'))->toBe(['first_name' => 'Dilnoza'])
+        ->and($options->json('course'))->toBe(['slug' => 'english-a1', 'title' => 'Английский A1'])
+        ->and(array_column($modes, 'mode'))->toBe(['pairs', 'collocation', 'sentence', 'dictation'])
+        ->and(array_column($modes, 'state'))->toBe(['available', 'available', 'disabled', 'available'])
+        ->and(array_column($modes, 'round_seconds'))->toBe([45, 30, 45, 60])
+        ->and($modes[0])->toBe(['mode' => 'pairs', 'state' => 'available', 'available' => 24, 'required' => 20, 'reason' => null, 'round_seconds' => 45])
+        ->and($options->json('friend_access'))->toBe('available');
+
+    // The whole course (no lesson) and the other side: the friend is Bek, the course is named in their language.
+    $theirs = BattleHttp::options($friend, $friendship, $course)->assertOk()->assertExactJsonStructure([
+        'friend' => ['first_name'], 'course' => BATTLE_CONTRACT_COURSE, 'lesson', 'modes' => ['*' => $row], 'friend_access',
+    ]);
+    expect([$theirs->json('friend'), $theirs->json('course.title'), $theirs->json('lesson')])->toBe([['first_name' => 'Bek'], 'Ingliz tili A1', null]);
+
+    // A friend who cannot practice (the pilot is not open to them) is told, not refused: the setup screen explains it.
+    config(['practice.access' => 'pilot']);
+    $me->update(['practice_pilot_at' => now()]);
+    BattleHttp::options($me, $friendship, $course)->assertOk()->assertJsonPath('friend_access', 'no_access');
+    config(['practice.access' => 'all']);
+
+    // The refusals, in the envelope: a pair that is not mine, one that is not accepted, a deck, a lesson that is not there / not of the course.
+    $stranger = Learner::factory()->create();
+    $pending = Friendship::factory()->between($me, Learner::factory()->create())->pending()->create();
+    $private = Course::factory()->published()->create(['slug' => 'private-deck', 'visibility' => 'private']);
+    [, $foreign] = PracticeKit::course('other-course');
+    battleError(BattleHttp::options($stranger, $friendship, $course), 404, 'friendship_not_found', null);
+    battleError(BattleHttp::options($me, $pending, $course), 403, 'not_friends', null);
+    battleError(BattleHttp::options($me, $friendship, $private), 404, 'course_not_found', null);
+    battleError(BattleHttp::get($me, "/options?friendship_id={$friendship->id}&course={$course->slug}&lesson_id=999999"), 404, 'lesson_not_found', null);
+    battleError(BattleHttp::get($me, "/options?friendship_id={$friendship->id}&course={$course->slug}&lesson_id={$foreign->id}"), 422, 'lesson_not_in_course', null);
+    BattleHttp::get($me, '/options')->assertStatus(422)->assertJsonValidationErrors(['friendship_id', 'course']);
+    config(['practice.battle.enabled' => false]);
+    battleError(BattleHttp::options($me, $friendship, $course), 409, 'battle_disabled', null);
+});
+
+it('lists the battles with the exact JSON - the one in hand (compact: the seven keys the TWA reads), the invitations to the learner, the last ones that are over', function (): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    $compact = ['id', 'status', 'mode', 'role', 'course' => BATTLE_CONTRACT_COURSE, 'lesson' => BATTLE_CONTRACT_LESSON, 'opponent' => ['first_name']];
+    $incoming = ['id', 'mode', 'from' => ['first_name'], 'course' => BATTLE_CONTRACT_COURSE, 'lesson' => BATTLE_CONTRACT_LESSON, 'invite_expires_at', 'rematch'];
+    $finished = ['id', 'mode', 'opponent' => ['first_name'], 'outcome', 'scores' => ['me', 'opponent'], 'finished_at'];
+
+    // Nothing yet.
+    expect(BattleHttp::get($me, '')->assertOk()->json())->toBe(['active' => null, 'incoming' => [], 'finished' => []]);
+
+    // An invitation: for me the match in hand, for the friend a row of "incoming".
+    $id = (int) BattleHttp::invite($me, $friendship, PracticeMode::Sentence, $course, $lesson)->json('id');
+    $mine = BattleHttp::get($me, '')->assertOk()->assertExactJsonStructure(['active' => $compact, 'incoming', 'finished']);
+    $theirs = BattleHttp::get($friend, '')->assertOk()->assertExactJsonStructure(['active', 'incoming' => ['*' => $incoming], 'finished']);
+    expect($mine->json('active'))->toBe([
+        'id' => $id, 'status' => 'invited', 'mode' => 'sentence', 'role' => 'challenger',
+        'course' => ['slug' => 'english-a1', 'title' => 'Английский A1'], 'lesson' => ['id' => $lesson->id, 'stage' => 1, 'number' => 1, 'title' => 'Еда'],
+        'opponent' => ['first_name' => 'Dilnoza'],
+    ])
+        ->and($theirs->json('active'))->toBeNull()
+        ->and($theirs->json('incoming'))->toBe([[
+            'id' => $id, 'mode' => 'sentence', 'from' => ['first_name' => 'Bek'],
+            'course' => ['slug' => 'english-a1', 'title' => 'Ingliz tili A1'], 'lesson' => ['id' => $lesson->id, 'stage' => 1, 'number' => 1, 'title' => 'Еда'],
+            'invite_expires_at' => '2026-10-30T10:05:00.000Z', 'rematch' => false,
+        ]]);
+
+    // Accepted, then in the game: still the same seven keys for the match in hand (the round is the battle's, not the list's).
+    BattleHttp::accept($friend, $id)->assertOk();
+    foreach ([$me, $friend] as $who) {
+        $room = BattleHttp::get($who, '')->assertOk()->assertExactJsonStructure(['active' => $compact, 'incoming', 'finished']);
+        expect($room->json('active.status'))->toBe('room')
+            ->and($room->json('incoming'))->toBe([]);
+    }
+    BattleHttp::ready($me, $id)->assertOk();
+    BattleHttp::ready($friend, $id)->assertOk();
+    CarbonImmutable::setTestNow(BattleKit::fresh($id)->starts_at);
+    BattleHttp::poll($me, $id)->assertOk();
+    $playing = BattleHttp::get($friend, '')->assertOk()->assertExactJsonStructure(['active' => $compact, 'incoming', 'finished']);
+    expect($playing->json('active.status'))->toBe('playing')
+        ->and($playing->json('active.role'))->toBe('opponent')
+        ->and($playing->json('active.opponent'))->toBe(['first_name' => 'Bek'])
+        ->and(array_keys($playing->json('active')))->toBe(['id', 'status', 'mode', 'role', 'course', 'lesson', 'opponent']);
+
+    // Over: nothing in hand, a row of "finished" for each, with the outcome from their side.
+    BattleHttp::surrender($friend, $id)->assertOk();
+    $mineOver = BattleHttp::get($me, '')->assertOk()->assertExactJsonStructure(['active', 'incoming', 'finished' => ['*' => $finished]]);
+    $theirsOver = BattleHttp::get($friend, '')->assertOk()->assertExactJsonStructure(['active', 'incoming', 'finished' => ['*' => $finished]]);
+    expect($mineOver->json('active'))->toBeNull()
+        ->and($mineOver->json('finished'))->toBe([['id' => $id, 'mode' => 'sentence', 'opponent' => ['first_name' => 'Dilnoza'], 'outcome' => 'won', 'scores' => ['me' => 0, 'opponent' => 0], 'finished_at' => '2026-10-30T10:00:03.000Z']])
+        ->and($theirsOver->json('finished.0.outcome'))->toBe('lost')
+        ->and($theirsOver->json('finished.0.opponent'))->toBe(['first_name' => 'Bek']);
+});
+
+it('keeps the poll of a battle under 600 bytes in every state, at its fattest too - the round with both clocks, the opponent gone quiet, a result with a rematch', function (): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    $sizes = [];
+    $check = function (string $label, TestResponse $response, bool $round = false, bool $rematch = false) use (&$sizes): TestResponse {
+        $response->assertOk()->assertExactJsonStructure(battlePollShape(round: $round, rematch: $rematch));
+        $sizes[$label] = strlen((string) $response->getContent());
+        expect($sizes[$label])->toBeLessThanOrEqual(600, "poll {$label}: {$sizes[$label]} bytes");
+
+        return $response;
+    };
+
+    $id = (int) BattleHttp::invite($me, $friendship, PracticeMode::Collocation, $course, $lesson)->json('id');
+    $check('invited', BattleHttp::poll($friend, $id));
+    BattleHttp::accept($friend, $id)->assertOk();
+    $check('room', BattleHttp::poll($me, $id));
+    BattleHttp::ready($me, $id)->assertOk();
+    BattleHttp::ready($friend, $id)->assertOk();
+    $check('countdown', BattleHttp::poll($me, $id), round: true)->assertJsonPath('round.phase', null);
+    CarbonImmutable::setTestNow(BattleKit::fresh($id)->starts_at);
+    $check('answering', BattleHttp::poll($me, $id), round: true);
+
+    // The fattest game state: the review (both clocks set), 3-digit scores, the friend silent for 20 s (the date of the last presence).
+    $element = BattleKit::element(BattleKit::fresh($id), 1);
+    BattleHttp::answer($me, $id, 1, BattleKit::correct($element))->assertOk();
+    BattleHttp::answer($friend, $id, 1, BattleKit::correct($element))->assertOk();
+    CarbonImmutable::setTestNow('2026-10-30 10:00:06');
+    PracticeKit::resetLimiters($me);
+    $fat = $check('reveal, opponent quiet', BattleHttp::poll($me, $id), round: true);
+    expect($fat->json('round.phase'))->toBe('reveal')
+        ->and($fat->json('round.phase_ends_at'))->not->toBeNull()
+        ->and($fat->json('scores'))->toBe(['me' => 100, 'opponent' => 100]);
+    CarbonImmutable::setTestNow('2026-10-30 10:00:20');
+    $quiet = $check('opponent absent', BattleHttp::poll($me, $id), round: true);
+    expect($quiet->json('opponent_present'))->toBeFalse()
+        ->and($quiet->json('opponent_absent_since'))->not->toBeNull();
+
+    // Over, with the rematch the other side offered; then a closed battle with the longest reason there is (`invite_expired`).
+    BattleHttp::surrender($friend, $id)->assertOk();
+    $source = $id;
+    $offered = (int) BattleHttp::rematch($friend, $source)->assertCreated()->json('id');
+    $over = $check('finished with a rematch', BattleHttp::poll($me, $source), rematch: true);
+    expect($over->json('rematch'))->toBe(['battle_id' => $offered, 'status' => 'invited', 'by_me' => false])
+        ->and($over->json('end_reason'))->toBe('surrender');
+
+    BattleHttp::decline($me, $offered)->assertOk();
+    CarbonImmutable::setTestNow(BattleKit::T0);
+    $late = (int) BattleHttp::invite($me, $friendship, PracticeMode::Collocation, $course, $lesson)->json('id');
+    CarbonImmutable::setTestNow('2026-10-30 10:05:00');
+    $check('closed (invite_expired)', BattleHttp::poll($friend, $late))->assertJsonPath('end_reason', 'invite_expired');
+    expect(max($sizes))->toBeLessThanOrEqual(600);
+});
+
+// ------------------------------------------------------------------------------------------------------------ the invitation, the rematch
+
+it('validates the body of an invitation, and a rematch needs only `rematch_of` - the mode, the course, the lesson and the friendship the TWA sends along are not read, whatever they are', function (): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+
+    // Without a rematch the friendship, the format and the course are required (each refusal counts for the limiter of the invitations).
+    BattleHttp::post($me, '', [])->assertStatus(422)->assertJsonValidationErrors(['friendship_id', 'mode', 'course']);
+    PracticeKit::resetLimiters($me);
+    BattleHttp::post($me, '', ['friendship_id' => $friendship->id, 'mode' => 'chess', 'course' => $course->slug])->assertStatus(422)->assertJsonValidationErrors(['mode']);
+    PracticeKit::resetLimiters($me);
+    BattleHttp::post($me, '', ['friendship_id' => $friendship->id, 'mode' => 'pairs', 'course' => $course->slug, 'lesson_id' => 0])->assertStatus(422)->assertJsonValidationErrors(['lesson_id']);
+    PracticeKit::resetLimiters($me);
+    BattleHttp::post($me, '', ['rematch_of' => 'x'])->assertStatus(422)->assertJsonValidationErrors(['rematch_of']);
+    PracticeKit::resetLimiters($me);
+    BattleHttp::post($me, '', ['rematch_of' => ['x']])->assertStatus(422)->assertJsonValidationErrors(['rematch_of']);
+    expect(Battle::query()->count())->toBe(0);
+
+    // A match that is over to repeat.
+    $source = BattleHttp::countdown($me, $friend, $friendship, PracticeMode::Collocation, $course, $lesson);
+    BattleHttp::surrender($friend, $source)->assertOk();
+
+    // What the TWA sends: the battle and - because it does not know better - the mode, the course, the lesson, the friendship. All of it
+    // other than the truth here; none of it is read, and none of it is a 422.
+    $first = BattleHttp::rematch($me, $source, ['mode' => 'pairs', 'course' => 'no-such-course', 'lesson_id' => 999999, 'friendship_id' => 424242])
+        ->assertCreated()->assertExactJsonStructure(battleShape());
+    expect($first->json())->toMatchArray(['status' => 'invited', 'mode' => 'collocation', 'role' => 'challenger', 'friendship_id' => $friendship->id])
+        ->and($first->json('course.slug'))->toBe('english-a1')
+        ->and($first->json('lesson.id'))->toBe($lesson->id)
+        ->and(Battle::query()->findOrFail($first->json('id'))->rematch_of_id)->toBe($source);
+    BattleHttp::cancel($me, (int) $first->json('id'))->assertOk();
+
+    // A field of the wrong kind is only ignored too (it would not have been a mode, a course, a number).
+    $second = BattleHttp::rematch($me, $source, ['mode' => 'chess', 'course' => ['x'], 'lesson_id' => 'abc', 'friendship_id' => ['nope']])->assertCreated();
+    expect($second->json('mode'))->toBe('collocation')
+        ->and($second->json('lesson.id'))->toBe($lesson->id);
+    $secondId = (int) $second->json('id');
+
+    // The battle that is over shows the offer to both, and who made it.
+    $mineOver = BattleHttp::view($me, $source)->assertOk()->assertExactJsonStructure(battleShape(result: true, rematch: true));
+    $theirsOver = BattleHttp::view($friend, $source)->assertOk()->assertExactJsonStructure(battleShape(result: true, rematch: true));
+    expect($mineOver->json('rematch'))->toBe(['battle_id' => $secondId, 'status' => 'invited', 'by_me' => true])
+        ->and($theirsOver->json('rematch'))->toBe(['battle_id' => $secondId, 'status' => 'invited', 'by_me' => false]);
+
+    // What a rematch is refused for: a battle that is not mine (a stranger's looks like none), one that is still on, a friendship that is gone.
+    battleError(BattleHttp::rematch(Learner::factory()->create(), $source), 404, 'battle_not_found', null);
+    expect(battleError(BattleHttp::rematch($me, $secondId), 409, 'battle_wrong_state', ['status']))->toBe(['status' => 'invited']);
+    $friendship->delete();
+    battleError(BattleHttp::rematch($friend, $source), 403, 'not_friends', null);
+});
+
+it('refuses the second of two rematches that cross - 409 battle_busy with the invitation the asker is invited to, which they open and accept - and never names a battle the asker is not in', function (): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    $source = BattleHttp::countdown($me, $friend, $friendship, PracticeMode::Sentence, $course, $lesson);
+    BattleHttp::surrender($me, $source)->assertOk();
+
+    // The friend presses "Rematch"; a moment later so do I, with what the TWA sends along.
+    $first = (int) BattleHttp::rematch($friend, $source, ['mode' => 'sentence', 'course' => $course->slug])->assertCreated()->json('id');
+    $refusal = battleError(BattleHttp::rematch($me, $source, ['mode' => 'sentence', 'course' => $course->slug, 'lesson_id' => $lesson->id, 'friendship_id' => $friendship->id]), 409, 'battle_busy', ['battle_id']);
+    expect($refusal)->toBe(['battle_id' => $first])
+        ->and(Battle::query()->where('rematch_of_id', $source)->count())->toBe(1)
+        ->and(Battle::query()->count())->toBe(2);
+
+    // That is the invitation to open: I am its recipient; the result screen shows it as the friend's offer; I accept it.
+    expect(BattleHttp::view($me, $source)->json('rematch'))->toBe(['battle_id' => $first, 'status' => 'invited', 'by_me' => false]);
+    BattleHttp::view($me, $first)->assertOk()->assertJsonPath('role', 'opponent')->assertJsonPath('status', 'invited')->assertJsonPath('opponent', ['first_name' => 'Dilnoza']);
+    BattleHttp::accept($me, $first)->assertOk()->assertJsonPath('status', 'room');
+
+    // The friend is busy with it now too; a third person's invitation to the friend is none of my business, and the friend, asked to accept it, is
+    // told about THEIR battle - the one they are in - and nothing else.
+    $third = Learner::factory()->create(['interface_locale' => 'ru']);
+    $withThird = Friendship::factory()->between($friend, $third)->create();
+    $toFriend = (int) BattleHttp::invite($third, $withThird, PracticeMode::Pairs, $course)->assertCreated()->json('id');
+    expect(battleError(BattleHttp::accept($friend, $toFriend), 409, 'battle_busy', ['battle_id']))->toBe(['battle_id' => $first]);
+    battleError(BattleHttp::view($me, $toFriend), 404, 'battle_not_found', null);
+    battleError(BattleHttp::accept($me, $toFriend), 404, 'battle_not_found', null);
+
+    // And the friend's own invitation, repeated by a double tap, names the friend's own battle.
+    BattleHttp::cancel($me, $first)->assertOk();
+    $again = (int) BattleHttp::invite($friend, $friendship, PracticeMode::Sentence, $course, $lesson)->assertCreated()->json('id');
+    expect(battleError(BattleHttp::invite($friend, $friendship, PracticeMode::Sentence, $course, $lesson), 409, 'battle_busy', ['battle_id']))->toBe(['battle_id' => $again]);
+});
+
+it('answers a repeated request again with the first answer - round resolved, next round begun, match over - and refuses only a NEW request, with the details of docs/16 §7.6', function (): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+
+    // Countdown: the round exists, its phase has not begun.
+    $id = BattleHttp::countdown($me, $friend, $friendship, PracticeMode::Collocation, $course, $lesson);
+    $element = BattleKit::element(BattleKit::fresh($id), 1);
+    expect(battleError(BattleHttp::answer($me, $id, 1, BattleKit::correct($element)), 409, 'round_not_open', ['round', 'phase']))->toBe(['round' => 1, 'phase' => null]);
+
+    CarbonImmutable::setTestNow(BattleKit::fresh($id)->starts_at);
+    BattleHttp::poll($me, $id)->assertOk()->assertJsonPath('status', 'playing');
+    BattleHttp::answer($me, $id, 1, BattleKit::correct($element))->assertOk();
+
+    // The friend answers second: the round is resolved. The reply is lost; the client sends the very same request again.
+    $request = (string) Str::uuid();
+    $first = BattleHttp::answer($friend, $id, 1, BattleKit::wrong($element), $request)->assertOk();
+    expect($first->json('round_resolved'))->toBeTrue();
+    foreach ([BattleKit::wrong($element), BattleKit::correct($element)] as $payload) {   // a repeat with another body is answered with the first
+        $repeat = BattleHttp::answer($friend, $id, 1, $payload, $request)->assertOk();
+        expect($repeat->json('verdict'))->toBe('wrong')
+            ->and($repeat->json('points'))->toBe(0)
+            ->and($repeat->json('accepted_at'))->toBe($first->json('accepted_at'))
+            ->and($repeat->json('round_resolved'))->toBeTrue()
+            ->and($repeat->json('poll.round.phase'))->toBe('reveal');
+    }
+
+    // The next round has begun (the round of the request is behind): the repeat is still the first answer, not a 409.
+    battleWait($id, $me, $friend, 4);
+    expect(BattleHttp::view($me, $id)->json('round.no'))->toBe(2);
+    $late = BattleHttp::answer($friend, $id, 1, BattleKit::wrong($element), $request)->assertOk();
+    expect([$late->json('verdict'), $late->json('points'), $late->json('round_resolved'), $late->json('poll.round.no')])->toBe(['wrong', 0, true, 2]);
+
+    // A NEW request is another thing: for the round behind it is 409 round_closed, for one ahead round_not_open - with the round and the phase.
+    expect(battleError(BattleHttp::answer($friend, $id, 1, BattleKit::wrong($element)), 409, 'round_closed', ['round', 'phase']))->toBe(['round' => 1, 'phase' => 'answering'])
+        ->and(battleError(BattleHttp::answer($friend, $id, 3, BattleKit::wrong($element)), 409, 'round_not_open', ['round', 'phase']))->toBe(['round' => 3, 'phase' => 'answering']);
+
+    // A second answer to the round that is on: the details tell the first one (verdict and points) - the answer itself stands.
+    $next = BattleKit::element(BattleKit::fresh($id), 2);
+    BattleHttp::answer($me, $id, 2, BattleKit::correct($next))->assertOk();
+    expect(battleError(BattleHttp::answer($me, $id, 2, BattleKit::wrong($next)), 409, 'answer_already_accepted', ['verdict', 'points']))->toBe(['verdict' => 'correct', 'points' => 100]);
+
+    // The shape of an answer is the mode's to check: 422 with what it expected; an id that is not in the round is 422 too.
+    expect(battleError(BattleHttp::answer($friend, $id, 2, ['option' => 'x']), 422, 'invalid_answer_shape', ['expected']))->toBe(['expected' => 'option_id']);
+    battleError(BattleHttp::answer($friend, $id, 2, ['option_id' => 'eNoSuchOpt0']), 422, 'unknown_element_id', null);
+    BattleHttp::post($friend, "/{$id}/answer", ['request_id' => 'not-a-uuid', 'round' => 2, 'answer' => ['skip' => true]])->assertStatus(422)->assertJsonValidationErrors(['request_id']);
+    BattleHttp::post($friend, "/{$id}/answer", ['request_id' => (string) Str::uuid(), 'round' => 0, 'answer' => ['skip' => true]])->assertStatus(422)->assertJsonValidationErrors(['round']);
+    BattleHttp::post($friend, "/{$id}/answer", ['request_id' => (string) Str::uuid(), 'round' => 2])->assertStatus(422)->assertJsonValidationErrors(['answer']);
+    BattleHttp::post($friend, "/{$id}/answer", ['request_id' => (string) Str::uuid(), 'round' => 2, 'answer' => ['text' => str_repeat('x', 201)]])->assertStatus(422)->assertJsonValidationErrors(['answer.text']);
+
+    // The end of the match: the very same request is still answered with the first answer, and a new one is "the battle is closed".
+    BattleHttp::answer($friend, $id, 2, ['skip' => true])->assertOk();
+    for ($round = 3; $round <= 5; $round++) {
+        battleWait($id, $me, $friend, 4);
+        $each = BattleKit::element(BattleKit::fresh($id), $round);
+        BattleHttp::answer($me, $id, $round, BattleKit::correct($each))->assertOk();
+        BattleHttp::answer($friend, $id, $round, BattleKit::correct($each))->assertOk();
+    }
+    battleWait($id, $me, $friend, 4);
+    expect(BattleHttp::view($me, $id)->json('status'))->toBe('finished');
+    $over = BattleHttp::answer($friend, $id, 1, BattleKit::wrong($element), $request)->assertOk();
+    expect([$over->json('verdict'), $over->json('points'), $over->json('round_resolved'), $over->json('poll.status')])->toBe(['wrong', 0, true, 'finished']);
+    expect(battleError(BattleHttp::answer($friend, $id, 5, BattleKit::wrong($element)), 409, 'battle_closed', ['end_reason']))->toBe(['end_reason' => 'completed']);
+});
+
+it('warns over HTTP that the opponent has lost the connection after 10 s - since when, and how long the screen has - and drops the warning when they poll', function (): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    $id = BattleHttp::playing($me, $friend, $friendship, PracticeMode::Collocation, $course, $lesson);   // 10:00:03; the friend was last here at 10:00:00
+
+    CarbonImmutable::setTestNow('2026-10-30 10:00:10');
+    $near = BattleHttp::poll($me, $id)->assertOk();
+    expect([$near->json('opponent_present'), $near->json('opponent_absent_since')])->toBe([true, null]);
+
+    CarbonImmutable::setTestNow('2026-10-30 10:00:11');
+    $quiet = BattleHttp::poll($me, $id)->assertOk()->assertExactJsonStructure(battlePollShape(round: true));
+    $view = BattleHttp::view($me, $id)->assertOk();
+    expect([$quiet->json('status'), $quiet->json('opponent_present'), $quiet->json('opponent_absent_since')])->toBe(['playing', false, '2026-10-30T10:00:00.000Z'])
+        ->and([$view->json('opponent_present'), $view->json('opponent_absent_since')])->toBe([false, '2026-10-30T10:00:00.000Z'])
+        ->and([$view->json('presence_warn_seconds'), $view->json('presence_grace_seconds')])->toBe([10, 30])
+        // what the screen counts: the match ends `presence_grace_seconds` after the last presence
+        ->and(30 - (CarbonImmutable::parse($view->json('server_now'))->getTimestamp() - CarbonImmutable::parse($view->json('opponent_absent_since'))->getTimestamp()))->toBe(19);
+
+    // The friend polls: the heartbeat is written, the warning is gone, the match never stopped.
+    BattleHttp::poll($friend, $id)->assertOk();
+    CarbonImmutable::setTestNow('2026-10-30 10:00:12');
+    $back = BattleHttp::poll($me, $id)->assertOk();
+    expect([$back->json('status'), $back->json('opponent_present'), $back->json('opponent_absent_since')])->toBe(['playing', true, null]);
+
+    // The end is still the grace, not the warning: silent for 30 s the match goes on, past it the one who is here wins.
+    CarbonImmutable::setTestNow('2026-10-30 10:00:41');   // 29 s after the friend's last poll
+    expect(BattleHttp::poll($me, $id)->json('status'))->toBe('playing');
+    CarbonImmutable::setTestNow('2026-10-30 10:00:43');
+    $gone = BattleHttp::poll($me, $id)->assertOk();
+    expect([$gone->json('status'), $gone->json('end_reason')])->toBe(['finished', 'absent']);
+    expect(BattleHttp::view($me, $id)->json('result.outcome'))->toBe('won');
+});
