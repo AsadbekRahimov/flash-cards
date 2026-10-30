@@ -493,6 +493,10 @@ SENTRY_ENVIRONMENT=production
   у всех есть разумные значения по умолчанию; таблица — `docs/DEVOPS_GUIDE.md`, раздел «Phase 2 variables».
 - **Озвучка слов** `TTS_SERVICE_URL` — адрес сервиса edge-tts. Если его нет, ученики слышат озвучку браузера (Web Speech);
   предгенерация аудио (`audio:pregenerate`) просто не будет работать. Можно настроить позже.
+- **Практика** (четыре режима: пары, сочетание, предложение, диктант) — по умолчанию **выключена**: `PRACTICE_ACCESS=off`. Включайте ступенями, когда импортированы и проверены задания (`docs/ADMIN_GUIDE.md`, раздел «Practice tasks»):
+  `PRACTICE_ACCESS=pilot` (только ученики с отметкой «пилот» в админке) → `all`. Остальные переключатели — `PRACTICE_PLAN=pro` (только Pro), `PRACTICE_MODE_PAIRS|COLLOCATION|SENTENCE|DICTATION=false` (выключить один режим),
+  `PRACTICE_BATTLE=false`; таблица — `docs/DEVOPS_GUIDE.md`, «Practice variables». Диктанты озвучивает очередь `low` через тот же `TTS_SERVICE_URL`, что и слова: без него фразы не получат запись и диктант не откроется.
+  После правки `.env` — `php artisan config:cache` и `supervisorctl restart lexiflow-worker:*` (§17).
 
 > **`.env` никогда не коммитим** и не отдаём наружу (nginx ниже запрещает доступ к dot-файлам, а корень сайта — `public/`).
 
@@ -801,7 +805,7 @@ sudo crontab -e -u www-data
 * * * * * cd /var/www/lexiflow && /usr/bin/php artisan schedule:run >> /dev/null 2>&1
 ```
 
-Laravel сам запускает все задачи по расписанию: напоминания ученикам, закрытие сессий и экзаменов, истечение
+Laravel сам запускает все задачи по расписанию: напоминания ученикам, закрытие сессий (в том числе сессий практики — `practice:close-expired`, каждые 15 минут) и экзаменов, истечение
 подписок и заказов, напоминания о продлении, закрытие недели лиг, вызовы друзей, задания центров, восстановление
 рефералов, сверку Stars, бэкапы. Полный список с расписанием — `docs/DEVOPS_GUIDE.md` §11.
 
@@ -1050,6 +1054,7 @@ sudo -u www-data php artisan backup:list
 - [ ] Nginx + сертификат Let's Encrypt, автопродление проверено
 - [ ] Supervisor: воркеры RUNNING
 - [ ] Cron `schedule:run` для `www-data`
+- [ ] Практика: `PRACTICE_ACCESS=off` пока нет проверенных заданий; каталог `storage/app/practice-audio` создан (§7.1), `schedule:list` показывает `practice:close-expired`
 - [ ] `telegram:set-webhook`, `telegram:setup-bot` (меню команд по «/» и кнопка «LexiFlow» → `/twa/`)
 - [ ] Smoke test (§16) пройден, бот отвечает на `/start`
 - [ ] Бэкапы уходят во внешнее хранилище, восстановление проверено

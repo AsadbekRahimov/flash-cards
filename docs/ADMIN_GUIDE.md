@@ -233,6 +233,22 @@ Navigate to **Practice → Practice tasks / Import tasks** (Практика →
 gets *403*, and the cabinet of a center has no such screen. The practice itself is off until `PRACTICE_ACCESS` in `.env` says
 otherwise: `off` (default, nobody), `pilot` (only the learners put into the pilot, see *Learners* below) or `all`.
 
+### Switching the practice on
+
+Four learner-facing modes (*Найди пары*, *Подбери сочетание*, *Собери предложение*, *Слушай и пиши*) are switched by `.env` (read from `config/practice.php`);
+after a change run `php artisan config:cache` and restart the queue workers (`docs/DEVOPS_GUIDE.md` §14).
+
+| Variable | Values | What it does |
+|---|---|---|
+| `PRACTICE_ACCESS` | `off` (default) · `pilot` · `all` | Who may practise. `off` — nobody: the entries disappear from the TWA and every practice endpoint answers 403. `pilot` — only the learners with the pilot mark (below). `all` — everybody. Anything else (a typo) counts as `off`: a mistake in `.env` never opens the practice to everybody |
+| `PRACTICE_PLAN` | `all` (default) · `pro` | `pro` — the practice is a Pro feature: a Free learner still sees the entries, with a **Pro** chip, and is shown the paywall instead of the hub (the server answers 403 `practice_pro_required`). Applies on top of `PRACTICE_ACCESS` |
+| `PRACTICE_MODE_PAIRS` · `_COLLOCATION` · `_SENTENCE` · `_DICTATION` | `true` (default) · `false` | Switches one mode off. The hub shows it as «Выключено» and **no new session** of that mode can be opened; sessions already started are played to the end |
+| `PRACTICE_BATTLE` | `true` (default) · `false` | The switch of the 1-on-1 battle (the hub hides the battle card, new invitations are refused; matches that are on go to the end). The battle itself is described in the battle chapter of this guide when it ships (task 18.7c) |
+
+Recommended roll-out: keep `off` while the tasks are imported and checked; set `pilot`, put a few learners into the pilot (button on **Learners**), watch them; then `all`. To stop the practice in a hurry
+set `PRACTICE_ACCESS=off`: the sessions that are open die by their own term (24 hours; `practice:close-expired` runs every 15 minutes), nothing of the lessons, the streak or the leagues is touched —
+the practice never writes them. Tasks, versions and results stay in the database whatever the switch says.
+
 **Three types of task** (the fourth mode, *pairs*, needs no task: it is made of the words of the course): *Подбери сочетание*
 (a phrase with one gap `___`, three options, one or two of them correct), *Собери предложение* (fragments the learner puts in order; the
 accepted orders, an optional canonical writing to show after the answer), *Слушай и пиши* (a phrase the learner hears and writes; other
@@ -261,9 +277,32 @@ list `"items"` (1–300 tasks, ≤ 2 MB); **Download sample** gives a valid file
 - tasks are written as **drafts**; the box **«Опубликовать сразу (только проверенный контент)»** (`--publish`) writes them as published (and publishes identical
   drafts of an earlier import). It is your confirmation that the texts are checked — a file cannot publish itself. The strict rules of publishing apply.
 
-The pilot package (90 tasks in three lessons of the `default` course) is `database/data/practice/pilot-a1-a2.json`. On a local machine the seeder
-`PracticeDemoSeeder` (part of `db:seed`) imports it published, puts the demo learners into the pilot and — with no `TTS_SERVICE_URL` — voices the phrases itself
-with `ffmpeg` + `flite`. On production import it as drafts, check, then publish.
+A file looks like this (the real pilot package, `database/data/practice/pilot-a1-a2.json`, has 90 such tasks):
+
+```json
+{ "format": "lexiflow-practice/1", "course": "default",
+  "items": [
+    { "key": "pilot-time-s01", "type": "sentence", "lesson": {"stage": 1, "number": 2}, "level": "A1", "target_words": ["monday", "friday"],
+      "prompt": {"ru": "…", "uz": "…"}, "fragments": ["I", "…"], "accepted": [["I", "…"]], "explanation": {"ru": "…", "uz": "…"} },
+    { "key": "…-c01", "type": "collocation", "lesson": {"stage": 2, "number": 1}, "target_words": ["meeting"],
+      "text": "Let's ___ a meeting on Monday.", "options": ["have", "make", "do"], "correct": ["have"],
+      "translation": {"ru": "…", "uz": "…"}, "explanation": {"ru": "…", "uz": "…"} },
+    { "key": "…-d01", "type": "dictation", "lesson": {"stage": 1, "number": 2}, "target_words": ["tomorrow"],
+      "text": "See you tomorrow", "accepted": ["See you tomorrow"], "translation": {"ru": "До завтра", "uz": "Ertagacha"} }
+  ] }
+```
+
+The pilot package: 90 tasks — ten tasks of each of the three types in each of three lessons of the `default` course: *Module 1 · Lesson 2* (time and days of the week, A1), *Module 1 · Lesson 3* (family, A1), *Module 2 · Lesson 1* (work, A2). Its target words and lessons must exist in the course, otherwise the whole file is refused.
+The Uzbek texts of the pack wait for a native speaker's review (`docs/I18N_UZ_REVIEW.md`). On a local machine the seeder `PracticeDemoSeeder` (part of `db:seed`) imports it published, puts the demo learners into the pilot and — with no `TTS_SERVICE_URL` — voices the phrases itself
+with `ffmpeg` + `flite`. **On production import it as drafts** (`php artisan practice:import database/data/practice/pilot-a1-a2.json`), read the tasks in the list, press **Проверено** and **Опубликовать** (or re-import with `--publish` once the texts are checked).
+
+### Audio of the dictations
+
+A dictation task is voiced in the background after it is saved or imported (`GeneratePracticeAudioJob`, queue `low`, a queue worker must run): the column **Аудио** shows `В очереди` (the job waits or is being retried),
+`Готово`, or `Ошибка` with the reason (for example, the `tts` service is not reachable). A dictation without ready audio is **not handed out** to learners: when too few are voiced, the hub of the lesson says
+«Записи для заданий ещё готовятся» and the mode stays closed. The button **Сгенерировать аудио заново** voices the current version again (use it after a failure, once the `tts` service is back). Editing the text of a task makes a new version and a new voice-over; the
+old file stays for the sessions that are playing the old version. The voice is the one of the word audio (`TTS_VOICE`, `TTS_SERVICE_URL`; bumping `TTS_AUDIO_VERSION` re-voices everything under new file names). The phrases are stored in the private directory `storage/app/practice-audio`, which the web server does **not** serve — learners hear
+them only through the API (`docs/DEVOPS_GUIDE.md` §10.2). The *word* part of a dictation uses the ordinary pre-generated word audio (`php artisan audio:pregenerate <course-slug>`, see *Word audio* above): a word without current audio is simply not taken.
 
 ---
 
