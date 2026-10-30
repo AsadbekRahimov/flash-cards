@@ -53,7 +53,25 @@ erDiagram
     ORGANIZATION_INVITES ||--o{ ORGANIZATION_MEMBERS : joined_via
     ORGANIZATIONS ||--o{ ORGANIZATION_USERS : staff
     USERS ||--o{ ORGANIZATION_USERS : role
+    COURSES ||--o{ PRACTICE_ITEMS : tasks
+    PRACTICE_ITEMS ||--o{ PRACTICE_ITEM_VERSIONS : versions
+    PRACTICE_ITEMS ||--o{ PRACTICE_ITEM_WORDS : target_words
+    WORDS ||--o{ PRACTICE_ITEM_WORDS : targeted_by
+    LEARNERS ||--o{ PRACTICE_SESSIONS : plays
+    COURSES ||--o{ PRACTICE_SESSIONS : about
+    PRACTICE_SESSIONS ||--o{ PRACTICE_ATTEMPTS : journal
+    LEARNERS ||--o{ BATTLE_PARTICIPANTS : takes_part
+    BATTLES ||--o{ BATTLE_PARTICIPANTS : two_players
+    BATTLES ||--o{ BATTLE_ANSWERS : final_answers
+    COURSES ||--o{ BATTLES : about
+    FRIENDSHIPS ||--o{ BATTLES : invited_through
 ```
+
+> **Практика и баттл 1 на 1 (docs/16 §2, задачи 18.x).** Добавлены `practice_items`, `practice_item_versions`, `practice_item_words`
+> (авторские задания, §2.40–§2.42), `practice_sessions`, `practice_attempts` (сольные сессии, §2.43–§2.44), `battles`,
+> `battle_participants`, `battle_answers` (баттл, §2.45–§2.47) и колонка `learners.practice_pilot_at` (§2.17). Практика **не пишет**
+> таблицы обучения (`word_repetitions`, `training_*`, `learner_daily_stats`, серия, лиги, `assignment_results`, `achievements`,
+> `challenges`) — только свои таблицы и `product_events`; инвариант закреплён тестом `PracticeIsolationTest`.
 
 > **Фаза 2, оплата (docs/13 §1.2, задача 2A.1).** Добавлены `offers`, `payment_orders`, `provider_transactions`,
 > `payments` (§2.26–§2.29); `subscriptions` получила `tier`, а статус `canceled` стал live (предикат partial unique).
@@ -450,6 +468,7 @@ Append-only журнал для продуктовой аналитики (не 
 | streak_freezes | smallint default 0 | инвентарь заморозок серии (Pro, docs/13 §7.2): ≤ `config('learners.streak_freeze.max')` (2); тратится `StreakFreezeService::tryFreeze` условным `UPDATE … WHERE streak_freezes > 0` *(2C.2)* |
 | streak_freezes_refilled_on | date nullable | понедельник локальной недели, за которую пополнение уже выдано (или отмечено при полном инвентаре) *(2C.2)* |
 | scheduler | varchar(8) nullable | A/B-бакет SRS: `sm2` / `fsrs`; `NULL` = `config('learning.algorithm')`. Ставится при создании: `crc32(telegram_user_id) % 100 < config('learning.fsrs.rollout_percent')`; позже — только админом в Filament с аудитом *(2D.3, docs/06 §9.1)* |
+| practice_pilot_at | timestamp nullable | ученик включён в пилот практики (`PRACTICE_ACCESS=pilot`, docs/16 §2.1, §3.2): ставит и снимает админ действием «Включить в пилот практики» / «Исключить из пилота» (`PracticePilotService`), `audit_logs` `learner.practice_pilot_changed {from, to}`; `NULL` — не в пилоте. При `PRACTICE_ACCESS=all` колонка не читается; индекса нет (редкий флаг) |
 | last_seen_at | timestamp nullable | |
 | blocked_at | timestamp nullable | бан платформой |
 | deleted_at | timestamp nullable | `SoftDeletes` |
@@ -893,6 +912,167 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 
 **Индексы:** unique `(learner_id, key)` — именно он делает выдачу «ровно один раз»: `AchievementService::unlock` — `INSERT … ON CONFLICT DO NOTHING` (`insertOrIgnore`), и только вставивший (affected rows = 1) пишет событие `achievement.unlocked` и ставит ЛС с карточкой. Строки пишет только `AchievementService`, после commit (docs/13 §3 п.5).
 
+### Практика и баттл 1 на 1 *(задачи 18.x, docs/16 §2)*
+
+Общие правила: перечисления — `varchar` (допустимые значения держат enum'ы `App\Domain\Practice\Enums\*`, а на **PostgreSQL** ещё и CHECK; на SQLite
+CHECK не создаются — инвариант дублируют сервисы и тесты). «Один активный» — факт БД: nullable **unique-колонка** `active_learner_id`
+(как `challenges.open_pair`): у активной строки она равна владельцу, у завершённой — `NULL`, а `NULL` не конфликтуют; одинаково на PostgreSQL и SQLite.
+`snapshot` (`jsonb`) — **серверный** снимок выдачи (тексты, раскладка, ожидаемые ответы, непрозрачные id; ≤ 32 КБ): во время игры проверка читает только его
+(`practice_items` и `words` не читаются), в ответы API он не попадает — клиент получает белый список через `PracticeModeHandler::project`.
+
+### 2.40 `practice_items` — авторское задание *(18.1, 18.7a)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| course_id | bigint FK → courses, ON DELETE CASCADE | курс задания; колоды learner'ов заданий не имеют (проверка `PracticeItemService`, ошибка `course_invalid`) |
+| lesson_id | bigint nullable FK → lessons, ON DELETE SET NULL | урок («практика урока»); `NULL` — задание курса |
+| type | varchar(12) | `collocation` / `sentence` / `dictation` (у режима «Найди пары» заданий нет — он собирается из слов) |
+| key | varchar(64) | стабильный ключ автора (`/\A[a-z0-9][a-z0-9._-]{0,63}\z/`): идемпотентность импорта; после создания не меняется (как курс и тип) |
+| level | varchar(2) nullable | `A1`..`C2` |
+| status | varchar(10) default 'draft' | `draft` / `reviewed` / `published` / `archived` — **проекция версий**: `archived`, если `archived_at` задан; иначе `published`, если есть `published_version_id`; иначе состояние текущей версии |
+| current_version_id | bigint nullable | последняя версия (**без FK**: цикл items ↔ versions; целостность держит `PracticeItemService`) |
+| published_version_id | bigint nullable | версия, которую получают ученики; `NULL` — не публиковалось. Правка опубликованного задания создаёт новую версию-черновик (`current_version_id` переезжает), `published_version_id` и выдача остаются прежними |
+| created_by_user_id | bigint nullable FK → users, ON DELETE SET NULL | |
+| archived_at | timestamp nullable | |
+| created_at, updated_at | | |
+
+**Индексы:** unique `(course_id, key)`; `(course_id, status, type)`; `(lesson_id, status, type)`; `current_version_id`; `published_version_id`. **PostgreSQL CHECK:**
+`practice_items_type_check`, `practice_items_status_check`, `practice_items_published_shape_check ((status = 'published') = (published_version_id IS NOT NULL AND archived_at IS NULL))`.
+Пишет только `PracticeItemService` (редактор админки, импорт, `practice:import`), под блокировкой курса (`CoursePublisher::lockForWriting`).
+
+### 2.41 `practice_item_versions` — неизменяемый текст задания *(18.1, 18.7a)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| item_id | bigint FK → practice_items, ON DELETE CASCADE | |
+| number | smallint | 1, 2, … внутри задания |
+| state | varchar(10) | `draft` → `reviewed` → `published` → `superseded` (прямой `draft → published` — только импорт с «опубликовать сразу») |
+| content | jsonb | тексты и структура по типу (`sentence`: `prompt`, `fragments`, `accepted` — перестановки индексов, `display`, `explanation`; `collocation`: `text` с одним `___`, `options`, `correct`, `translation`, `explanation`; `dictation`: `text`, `accepted`, `translation`, `explanation`); **не меняется после INSERT** |
+| audio_key | varchar(40) nullable | только `dictation`: `sha1(version_id\|нормализованный текст\|голос\|TTS_AUDIO_VERSION)` — имя файла `{audio_key}.mp3` на диске `practice_audio`; наружу не уходит |
+| audio_status | varchar(8) default 'none' | `none` (не диктант) / `pending` / `ready` / `failed` |
+| audio_error | varchar(100) nullable | причина последнего `failed` |
+| audio_generated_at | timestamp nullable | |
+| created_by_user_id, reviewed_by_user_id, published_by_user_id | bigint nullable FK → users, ON DELETE SET NULL | |
+| reviewed_at, published_at, superseded_at | timestamp nullable | |
+| created_at | timestamp default now | **без `updated_at`**: содержимое неизменно, служебные колонки аудио меняет только job `GeneratePracticeAudioJob` |
+
+**Индексы:** unique `(item_id, number)`; **partial** `practice_item_versions_audio_pending_idx (audio_status) WHERE audio_status = 'pending'` (PostgreSQL и SQLite — для виджета «аудио в очереди» и повторной постановки). **PostgreSQL CHECK:** `practice_item_versions_state_check`, `practice_item_versions_audio_status_check`.
+Версия — отдельная таблица, а не `version int` у задания: аудио принадлежит конкретному тексту, снимки ссылаются на `version_id` для аналитики, а «проверено / опубликовано» относится к тексту.
+
+### 2.42 `practice_item_words` — целевые слова задания *(18.1, 18.7a)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| item_id | bigint FK → practice_items, ON DELETE CASCADE | |
+| word_id | bigint FK → words, ON DELETE CASCADE | активное слово **того же курса** (любого урока); для публикации нужно ≥ 1 слова |
+
+**Индексы:** unique `(item_id, word_id)`; `word_id`. Связь принадлежит заданию, а не версии: смена целевых слов — обычная правка (новая версия), таблица перезаписывается вместе с ней. Ученику выдаётся только задание, у которого **все** целевые слова активны и введены ему (есть `word_repetitions`).
+
+### 2.43 `practice_sessions` — сольная сессия *(18.1)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| learner_id | bigint FK → learners, ON DELETE CASCADE | владелец; чужая сессия отвечает 404, как несуществующая |
+| active_learner_id | bigint nullable **unique** | `= learner_id`, пока `status = active`, иначе `NULL` — «одна активная сессия на ученика» |
+| mode | varchar(12) | `pairs` / `collocation` / `sentence` / `dictation` |
+| course_id | bigint FK → courses, ON DELETE CASCADE | |
+| lesson_id | bigint nullable FK → lessons, ON DELETE SET NULL | |
+| source | varchar(16) | откуда открыта: `hub` / `after_training` (хаб, открытый кнопкой «Практика урока / курса» на итоге занятия) / `retry` («Повторить ошибки») / `deeplink`; для аналитики |
+| retry_of_session_id | bigint nullable FK → practice_sessions, ON DELETE SET NULL | исходная сессия «Повторить ошибки» |
+| status | varchar(10) default 'active' | `active` / `finished` |
+| finish_reason | varchar(12) nullable | `completed` / `expired` (TTL) / `replaced` (ученик начал новую с `replace_active`) |
+| snapshot | jsonb | выдача целиком (серверная) |
+| state | jsonb default '{}' | прогресс по элементам: текущий, ответы, пары (`matched`, `wrong_left`), замены; меняется только под `FOR UPDATE` строки |
+| total | smallint | число элементов (у пар — раундов) |
+| answered, correct_first, hints, mismatches | smallint default 0 | счётчики для итогов и отчётов: завершено / верно с первой попытки (`typo` не считается) / «Не знаю» / неверных сопоставлений пар |
+| locale | varchar(5) | язык текстов снимка (локаль ученика при открытии) |
+| expires_at | timestamp | `started_at + practice.solo.session_ttl_hours` (24 ч) |
+| started_at | timestamp | |
+| finished_at | timestamp nullable | |
+| created_at, updated_at | | |
+
+**Индексы:** `active_learner_id` unique; `(learner_id, status, started_at)`; `(status, expires_at)` (планировщик `practice:close-expired`); `retry_of_session_id`; `(course_id, mode, finished_at)` (отчёты пилота).
+**PostgreSQL CHECK:** `practice_sessions_mode_check`, `practice_sessions_status_check`, `practice_sessions_active_shape_check ((status = 'active') = (active_learner_id IS NOT NULL))`, `practice_sessions_active_owner_check`.
+Пишет только `PracticeSessionService` (+ одиночный `UPDATE` планировщика): порядок блокировок docs/16 §9 — строка сессии `FOR UPDATE` → `practice_attempts` → `product_events`; строки `learners`, `courses`, `words` практика **не блокирует**.
+
+### 2.44 `practice_attempts` — журнал принятых запросов *(18.1)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| session_id | bigint FK → practice_sessions, ON DELETE CASCADE | |
+| learner_id | bigint FK → learners, ON DELETE CASCADE | |
+| request_id | uuid (PostgreSQL `uuid`, SQLite `char(36)`) | клиентский ключ запроса: повтор того же `request_id` возвращает прежний результат |
+| element_id | varchar(16) | непрозрачный id элемента снимка |
+| kind | varchar(8) | `answer` / `pair` (одно сопоставление) / `skip` («Не знаю») / `replace` (замена диктанта) |
+| payload | jsonb | ответ как прислан (после валидации формы) |
+| verdict | varchar(8) nullable | `correct` / `typo` / `wrong` / `skipped`; `NULL` у `replace` |
+| is_first | boolean default true | первая попытка по элементу / по левому слову пары |
+| result | jsonb | тело ответа API без `session` — для побайтово одинакового повтора |
+| time_spent_ms | int nullable | телеметрия клиента, на вердикт не влияет |
+| accepted_at | timestamp | серверное время приёма |
+| created_at | timestamp default now | **без `updated_at`**: строки не меняются |
+
+**Индексы:** unique `(session_id, request_id)` — идемпотентность и защита от двойной отправки (нарушение при гонке → перечитать победителя); `(session_id, element_id)`; `(learner_id, accepted_at)`.
+
+### 2.45 `battles` — матч «Баттл 1 на 1» *(18.1; сервер и API — 18.6, описываются в 18.7c)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| challenger_id, opponent_id | bigint FK → learners, ON DELETE CASCADE | инициатор / приглашённый; **PostgreSQL CHECK** `battles_distinct_players_check (challenger_id <> opponent_id)` |
+| friendship_id | bigint nullable FK → friendships, ON DELETE SET NULL | пара на момент приглашения (играют только принявшие дружбу) |
+| course_id | bigint FK → courses, ON DELETE CASCADE | курс матча (опубликованный, не колода) |
+| lesson_id | bigint nullable FK → lessons, ON DELETE SET NULL | |
+| mode | varchar(12) | формат матча (один на матч) |
+| status | varchar(10) | `invited` → `room` → `countdown` → `playing` → `finished` (есть результат) / `closed` (без результата) |
+| end_reason | varchar(16) nullable | `finished`: `completed` / `surrender` / `absent`; `closed`: `declined` / `invite_expired` / `room_expired` / `canceled` / `both_absent` / `voided` |
+| snapshot | jsonb | 5 раундов, общих для обоих игроков (локали обоих) |
+| current_round | smallint default 0 | 0 до старта, 1..5 (CHECK `battles_round_check`) |
+| phase | varchar(10) nullable | `answering` / `reveal`, только в `playing` (CHECK `battles_phase_shape_check`) |
+| round_deadline_at, phase_ends_at | timestamp nullable | конец приёма ответов раунда / конец показа разбора (серверное время) |
+| invite_expires_at | timestamp | срок приглашения (`practice.battle.invite_ttl_seconds`, 300 с) |
+| room_expires_at | timestamp nullable | срок комнаты (`room_ttl_seconds`, 120 с) |
+| accepted_at, starts_at, finished_at | timestamp nullable | `starts_at` — конец обратного отсчёта |
+| winner_learner_id | bigint nullable FK → learners, ON DELETE SET NULL | `NULL` — ничья или матч без результата |
+| rematch_of_id | bigint nullable FK → battles, ON DELETE SET NULL | реванш какого матча |
+| state_version | int default 0 | растёт при каждом изменении, видимом игрокам; присутствие его не меняет |
+| meta | jsonb default '{}' | служебное (`voided_reason`, `left`, …) |
+| created_at, updated_at | | |
+
+**Индексы:** `status`; `(status, invite_expires_at)`; `(challenger_id, status)`; `(opponent_id, status)`; `rematch_of_id`; `winner_learner_id`; `friendship_id`. **PostgreSQL CHECK:** `battles_status_check`.
+
+### 2.46 `battle_participants` — два игрока матча *(18.1)*
+Ровно две строки на матч, создаются вместе с ним.
+
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| battle_id | bigint FK → battles, ON DELETE CASCADE | |
+| learner_id | bigint FK → learners, ON DELETE CASCADE | |
+| role | varchar(10) | `challenger` / `opponent` |
+| active_learner_id | bigint nullable **unique** | `= learner_id`, пока игрок «занят» матчем (инициатор — с приглашения, приглашённый — с принятия), `NULL` после любого завершения: «один активный баттл на ученика» |
+| ready_at, last_seen_at, surrendered_at | timestamp nullable | готовность / присутствие (heartbeat — опрос) / сдача |
+| score | smallint default 0 | сумма очков раундов (0..500) |
+| locale | varchar(5) | язык текстов его стороны снимка |
+| created_at, updated_at | | |
+
+**Индексы:** unique `(battle_id, learner_id)`; `active_learner_id` unique; `(learner_id, battle_id)`. **PostgreSQL CHECK:** `battle_participants_active_owner_check`.
+
+### 2.47 `battle_answers` — окончательные ответы раундов *(18.1)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| battle_id | bigint FK → battles, ON DELETE CASCADE | |
+| learner_id | bigint FK → learners, ON DELETE CASCADE | |
+| round | smallint | 1..5 (CHECK `battle_answers_round_check`) |
+| request_id | uuid | клиентский ключ запроса |
+| payload | jsonb | ответ |
+| verdict | varchar(8) | `correct` / `typo` / `wrong` / `skipped` / `timeout` (`timeout` пишет сервер при дедлайне без ответа) |
+| points | smallint | 0..100 (CHECK `battle_answers_points_check`) |
+| accepted_at | timestamp | серверное время приёма |
+| created_at | timestamp default now | |
+
+**Индексы:** unique `(battle_id, round, learner_id)` — один окончательный ответ на раунд; unique `(battle_id, learner_id, request_id)` — повтор запроса.
+
 ## 3. Порядок миграций
 
 Миграции создаём в таком порядке (порядок имеет значение из-за FK). Пока на дисках лежат исходные create-миграции
@@ -955,6 +1135,13 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 47. `2026_10_28_300001_drop_word_repetitions_due_learners_idx` — убирает неиспользуемый индекс `word_repetitions_due_learners_idx (next_review_at, learner_id)`
     (см. §2.8): запроса по `next_review_at` без learner'а нет. Как 44 и 46: `DROP INDEX CONCURRENTLY IF EXISTS` на PostgreSQL вне транзакции мигратора,
     обычный `DROP` внутри чужой транзакции и в sqlite; `down()` пересоздаёт индекс ровно в исходном виде *(17.12)*
+48. `2026_10_28_400001_make_stages_title_nullable` — `stages.title` необязателен: безымянный модуль — `NULL` и «Модуль N» в интерфейсе, а не английское «Stage N» *(17.14-S)*
+49. `2026_10_30_100001_add_practice_pilot_at_to_learners_table` — `learners.practice_pilot_at` *(18.1, §2.17)*
+50. `2026_10_30_100002_create_practice_items_tables` — `practice_items`, `practice_item_versions`, `practice_item_words` (одна миграция, три таблицы; без FK на версии из `practice_items`; partial-индекс `practice_item_versions_audio_pending_idx` — `CREATE INDEX … WHERE` для pgsql и sqlite; CHECK — только pgsql) *(18.1, §2.40–§2.42)*
+51. `2026_10_30_100003_create_practice_sessions_tables` — `practice_sessions`, `practice_attempts` (unique `active_learner_id`; CHECK — только pgsql) *(18.1, §2.43–§2.44)*
+52. `2026_10_30_100004_create_battles_tables` — `battles`, `battle_participants`, `battle_answers`; созданы вместе с практикой, чтобы баттл (18.6) стартовал на готовой схеме *(18.1, §2.45–§2.47)*
+
+Миграции практики (49–52) — отдельные **forward**-миграции с рабочим `down()` (он удаляет таблицы в обратном порядке зависимостей; индексы и CHECK уходят вместе с таблицами; `down()` 49 снимает колонку); откат всех четырёх проверяет `DatabaseSchemaTest`. Цикл `practice_items` ↔ `practice_item_versions` разорван сознательно (версии ссылаются на задание FK, обратные ссылки `current_version_id` / `published_version_id` — без FK).
 
 Индексные миграции (`add_performance_indexes`, `add_open_session_unique_indexes`) и `create_exam_*`, `create_notifications_log_table`,
 `create_product_events_table` переведены на `learner_id` на месте; `add_open_session_unique_indexes` дополнительно создаёт

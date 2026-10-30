@@ -92,7 +92,8 @@ const routes: RouteRecordRaw[] = [
     name: 'practice-hub',
     component: () => import('@/views/PracticeHubView.vue'),
     meta: { tab: 'courses' },
-    props: (route) => ({ slug: String(route.params.slug), lessonId: queryId(route.query.lesson) }),
+    // `?from=finished`: the learner came from the finish screen of a training session, so the sessions it opens are "after training".
+    props: (route) => ({ slug: String(route.params.slug), lessonId: queryId(route.query.lesson), from: route.query.from === 'finished' ? 'finished' : null }),
   },
   {
     path: '/practice/sessions/:id(\\d+)',
