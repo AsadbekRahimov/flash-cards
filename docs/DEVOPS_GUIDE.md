@@ -487,6 +487,7 @@ This runs every minute. Laravel's scheduler internally dispatches:
 - `reminders:dispatch` — every 15 minutes (personal reminders by the learner's local time; a learner is claimed by a conditional UPDATE, so overlapping runs are safe; `withoutOverlapping(10)` — the mutex expires after 10 minutes — and `runInBackground`). Its jobs go to the `default` queue, spread at `REMINDERS_SEND_RATE_PER_SECOND` (25/s) over at most 14 minutes. A run queues at most rate x 840 jobs (`capped` -> a warning line; the rest stays due for the next run). Every background Telegram send also takes a slot of `TELEGRAM_OUTBOUND_GLOBAL_PER_SECOND` (queued jobs release themselves when none is free; `assignments:refresh` waits up to 2 s per post and postpones the rest to the next run).
 - `model:prune` — daily at 03:00 (`product_events` and `notifications_log`, 400 days by default).
 - `training:close-expired` — every 15 minutes (expired personal / stale group training sessions).
+- `practice:close-expired` — every 15 minutes (solo practice sessions past their `expires_at`, 24 h after the start, become `finished / expired` and release the learner's «one active session»; the event `practice.session_finished` is written once; a conditional UPDATE per session, so repeated or parallel runs are harmless; `withoutOverlapping`). A session that nobody closed is also closed by the learner's next request, so a late run costs nothing. `practice:battles-sweep` (every minute: expired invitations, matches that are on, `PRACTICE_ACCESS=off`) arrives with the server of the battle (task 18.6) and is described with it (18.7c).
 - `subscriptions:expire` — hourly (time-based subscription transitions).
 - `billing:expire-orders` — every 15 minutes (pending payment orders past `BILLING_ORDER_TTL_MINUTES` become `expired`).
 - `subscriptions:remind-expiring` — daily at 06:00 UTC (renewal reminders 3 and 1 day before a Payme/Click period or a canceled Stars period ends; queues `RenewalReminderJob`, so a queue worker must run; organization owners are e-mailed — the `MAIL_*` settings must be real in production, `MAIL_MAILER=log` only logs them).
@@ -654,6 +655,17 @@ php artisan courses:recount-words
 - **Safe on a live system**: a course that needs a correction is recounted in a short transaction that takes the course row first
   (the same lock the importer, the decks and the publication take), so a run that meets an import waits for its commit instead of
   overwriting the counter with a count that misses the import.
+
+### 14.3 Deploying the practice (docs/16, tasks 18.x)
+
+The practice ships **switched off**: `PRACTICE_ACCESS` defaults to `off`, so a deploy changes nothing for learners until you turn it on.
+
+1. `php artisan migrate --force` runs the four forward migrations `2026_10_30_100001..100004` (`learners.practice_pilot_at`; `practice_items`, `practice_item_versions`, `practice_item_words`; `practice_sessions`, `practice_attempts`; `battles`, `battle_participants`, `battle_answers`) — new tables and one nullable column, no rewrite of existing data.
+2. `php artisan config:cache`, then restart the queue workers (`supervisorctl restart lexiflow-worker:*`): the voicing job `GeneratePracticeAudioJob` runs on the `low` queue (the `default,low` worker, §10) and needs the new code.
+3. The directory `storage/app/practice-audio` is created by the application on first use (private, §10.2); on a bare VPS it is in the `mkdir -p` list of the VPS guide §7.1. It is part of the backup (`backup:run`) next to `storage/app/public`.
+4. `php artisan schedule:list` shows `practice:close-expired` (every 15 minutes). `/health/ready` needs no change.
+5. Turn it on in steps (`docs/ADMIN_GUIDE.md`, «Practice tasks»): import the pilot package as drafts (`php artisan practice:import database/data/practice/pilot-a1-a2.json`), check and publish the tasks in the admin, wait until the column «Аудио» of the dictations says «Готово» (the `tts` service and a queue worker must be up), then `PRACTICE_ACCESS=pilot` + `php artisan config:cache`, put a few learners into the pilot, and later `all`.
+6. Rollback: `PRACTICE_ACCESS=off` + `config:cache` hides the practice at once (the entries disappear from `/me`, the endpoints answer 403); the data stays. The migrations are reversible (`down()`), but do not roll them back on a live system.
 
 ---
 
@@ -1037,3 +1049,17 @@ All optional; the defaults are the production values (`.env.example` lists them)
 | `REFERRALS_INVITEE_REWARDS_PER_30D` | `20` | Invited learners of one inviter that get a reward per rolling 30 days |
 | `REFERRALS_FLAG_LINKS_PER_DAY` | `20` | Links of one inviter within 24 h at which the next one is flagged (reward waits for an admin) |
 | `REFERRALS_RECOVER_WINDOW_DAYS` | `14` | `referrals:recover` looks only at referrals activated / rewarded within this many days |
+
+### Practice variables (docs/16 §3.1)
+
+The switches are read from `.env`; everything else of `config/practice.php` (sizes, limits, timings) is changed by a release, not by an environment variable. Changing a value needs `php artisan config:cache` + a worker restart (section 14).
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `PRACTICE_ACCESS` | `off` | Who may practise: `off` (nobody), `pilot` (learners with `learners.practice_pilot_at`, set by an admin), `all`. Any other value counts as `off` |
+| `PRACTICE_PLAN` | `all` | `pro` — only Pro learners practise; a Free learner gets the paywall (403 `practice_pro_required`) |
+| `PRACTICE_MODE_PAIRS` / `_COLLOCATION` / `_SENTENCE` / `_DICTATION` | `true` | Switches one mode off: no new session of it; sessions already started finish |
+| `PRACTICE_BATTLE` | `true` | The switch of the 1-on-1 battle (new invitations); matches that are on finish |
+| `TTS_SERVICE_URL`, `TTS_VOICE`, `TTS_AUDIO_VERSION` | see §10.1 | Voicing of the dictation phrases uses the same service and voice as the word audio (§10.2) |
+
+Fixed in `config/practice.php`: solo session TTL 24 h (`practice.solo.session_ttl_hours`); 5 tasks per session, at least 3 (`solo.items`); pairs — up to 3 rounds of 4, rounds of 3 allowed (`solo.pairs`); dictation — at most 3 phrases, 2 swaps of a clip (`solo.dictation`); import ≤ 2 MB and ≤ 300 tasks (`import`); the disk of the phrase audio `practice_audio` (`config/filesystems.php`, root `storage/app/practice-audio`, no URL).
