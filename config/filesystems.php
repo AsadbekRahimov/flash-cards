@@ -49,6 +49,23 @@ return [
             'report' => false,
         ],
 
+        /*
+         * The voice of the dictations of the practice (docs/16 §10.5): `{audio_key}.mp3`, written by the queue worker, read by the
+         * audio endpoint. No `url` and no `storage:link` entry: no web server maps this directory (nginx has no `location` for it),
+         * the files leave the server only through the JWT-guarded endpoint. The modes are those of the `public` disk, as the worker
+         * and php-fpm may run as different users.
+         */
+        'practice_audio' => [
+            'driver' => 'local',
+            'root' => storage_path('app/practice-audio'),
+            'permissions' => [
+                'file' => ['public' => 0644, 'private' => 0644],
+                'dir' => ['public' => 0755, 'private' => 0755],
+            ],
+            'throw' => false,
+            'report' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

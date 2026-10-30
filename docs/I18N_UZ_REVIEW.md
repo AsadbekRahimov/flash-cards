@@ -2258,3 +2258,26 @@
 | `practice.pairs.state.wrong` | mos kelmadi | не подходит |
 | `practice.pairs.state.paired` | {number}-juft | пара {number} |
 | `practice.pairs.recap` | Raund juftlari | Пары раунда |
+
+## Практика и баттл 2026-10 · 18-5 — на проверку носителю
+
+> Режим «Слушай и пиши» в приложении (`resources/twa/src/i18n/uz.ts`, задача 18.5): экран диктанта (кнопка «Прослушать», плашки по числу слов, поле ввода) и разбор ответа
+> (сравнение по словам, «Прослушать ещё раз»). Остальные тексты режима — названия, вердикты, причины, звук, замена задания — уже в разделе `18-1t`.
+>
+> Что решить носителю:
+> - **Плашки «N слов»** показывают, сколько слов в записи, без букв: `{count} ta so'z` (как в списке друзей `friends.list.words`).
+> - **«Прослушать ещё раз»** в разборе — `Yana eshitish` (то же, что в упражнении «Что вы услышали?», `exercise.audio.play`).
+> - **Слова в сравнении** помечены значком и подписью для экранного чтения: `to'g'ri` / `xato`.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `practice.dictation.hint` | Istagancha tinglang va inglizcha yozing | Слушайте сколько нужно и пишите по-английски |
+| `practice.dictation.playing` | Yozuv eshittirilmoqda… | Играет запись… |
+| `practice.dictation.blocked` | Yozuvsiz javob bo'lmaydi. Qayta yuklang yoki topshiriqni almashtiring. | Без записи отвечать нельзя. Повторите загрузку или замените задание. |
+| `practice.dictation.input` | Eshitganingizni yozing | Напишите, что услышали |
+| `practice.dictation.words` | {count} ta so'z | {count} слово / слова / слов |
+| `practice.dictation.typed` | Yozilgan so'zlar: {count} tadan {typed} tasi | Написано слов: {typed} из {count} |
+| `practice.dictation.listen_again` | Yana eshitish | Прослушать ещё раз |
+| `practice.dictation.diff.right` | to'g'ri | верно |
+| `practice.dictation.diff.wrong` | xato | ошибка |
+| `practice.dictation.diff_hint` | Xato bor so'zlar belgilangan. | Отмечены слова, в которых ошибка. |

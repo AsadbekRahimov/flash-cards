@@ -1,13 +1,48 @@
-import { afterEach, describe, expect, it } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises, mount } from '@vue/test-utils'
+import { createPinia, setActivePinia } from 'pinia'
+import { nextTick } from 'vue'
 import AnswerReveal from '../AnswerReveal.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import { api } from '@/api'
 import { setLocale } from '@/i18n'
+import { usePracticeStore } from '@/stores/practice'
 import { collocationElement, dictationElement, pairsElement, sentenceElement } from '@/api/__tests__/practiceFixtures'
 import type { PracticeOutcome } from '@/stores/practice'
 import type { CollocationReveal, DictationReveal, SentenceReveal } from '@/api/types'
 
-afterEach(() => setLocale('ru'))
+// The review of a dictation fetches the recording of the answered element for "Listen again".
+vi.mock('@/api', () => ({ api: { practice: { audioBlob: vi.fn() } } }))
+
+/** An `<audio>` that records what it was asked to do. */
+class FakeAudio {
+  static instances: FakeAudio[] = []
+  constructor(public src: string) {
+    FakeAudio.instances.push(this)
+  }
+  play = vi.fn(() => Promise.resolve())
+  pause = vi.fn()
+  addEventListener = vi.fn()
+}
+
+let urlCounter = 0
+const revoked = vi.fn()
+
+beforeEach(() => {
+  setActivePinia(createPinia())
+  vi.mocked(api.practice.audioBlob).mockReset().mockResolvedValue(new Blob(['x'], { type: 'audio/mpeg' }))
+  FakeAudio.instances = []
+  urlCounter = 0
+  revoked.mockReset()
+  vi.stubGlobal('Audio', FakeAudio)
+  URL.createObjectURL = () => `blob:answered-${++urlCounter}`
+  URL.revokeObjectURL = (url: string) => revoked(url)
+})
+
+afterEach(() => {
+  setLocale('ru')
+  vi.unstubAllGlobals()
+})
 
 const outcome = (overrides: Partial<PracticeOutcome>): PracticeOutcome => ({
   element: sentenceElement(),
@@ -116,14 +151,195 @@ describe('AnswerReveal — dictation', () => {
     )
 
     const diff = wrapper.get('[data-testid=diff]')
-    expect(diff.findAll('span').map((span) => span.text())).toEqual(['see', 'you', 'tomorow'])
+    expect(diff.findAll('[data-testid=diff-word]').map((word) => word.text())).toEqual(['see', 'you', 'tomorow'])
     const marked = diff.findAll('span.underline')
     expect(marked.map((span) => span.text())).toEqual(['tomorow'])
+  })
+
+  it('marks every word of the comparison by a symbol AND a word as well as the colour: right ones with a check, wrong ones with a cross and an underline', () => {
+    const wrapper = render(
+      outcome({
+        element: dictationElement(),
+        answer: { text: 'see you tomorow' },
+        verdict: 'typo',
+        reveal: dictation({
+          diff: [
+            { expected: 'see', got: 'see', ok: true },
+            { expected: 'you', got: 'you', ok: true },
+            { expected: 'tomorrow', got: 'tomorow', ok: false },
+          ],
+        }),
+      }),
+    )
+
+    const tokens = wrapper.findAll('[data-testid=diff-token]')
+    expect(tokens.map((token) => token.attributes('data-ok'))).toEqual(['true', 'true', 'false'])
+    expect(tokens.map((token) => token.findComponent(AppIcon).props('name'))).toEqual(['check', 'check', 'x-mark'])
+    // The words for a screen reader, beside the symbol and the colour.
+    expect(tokens.map((token) => token.get('.sr-only').text())).toEqual(['верно', 'верно', 'ошибка'])
+    // Colour: the ink of success / of danger; the wrong word is also underlined and bold, the right ones are not.
+    expect(tokens[0]!.classes()).toContain('text-success-ink')
+    expect(tokens[2]!.classes()).toContain('text-danger-ink')
+    expect(tokens[2]!.classes()).toContain('font-semibold')
+    expect(tokens[0]!.find('.underline').exists()).toBe(false)
+    expect(tokens[2]!.get('[data-testid=diff-word]').classes()).toContain('underline')
+    expect(wrapper.get('[data-testid=diff-hint]').text()).toBe('Отмечены слова, в которых ошибка.')
+  })
+
+  it('marks every wrong word when there are several, and says which ones in Uzbek too', () => {
+    setLocale('uz')
+    const wrapper = render(
+      outcome({
+        element: dictationElement(),
+        answer: { text: 'see me later' },
+        verdict: 'wrong',
+        reveal: dictation({
+          diff: [
+            { expected: 'see', got: 'see', ok: true },
+            { expected: 'you', got: 'me', ok: false },
+            { expected: 'tomorrow', got: 'later', ok: false },
+          ],
+        }),
+      }),
+    )
+
+    const tokens = wrapper.findAll('[data-testid=diff-token]')
+    expect(tokens.map((token) => token.attributes('data-ok'))).toEqual(['true', 'false', 'false'])
+    expect(tokens.map((token) => token.get('.sr-only').text())).toEqual(["to'g'ri", 'xato', 'xato'])
+    expect(wrapper.get('[data-testid=diff-hint]').text()).toBe("Xato bor so'zlar belgilangan.")
+  })
+
+  it('has no hint when nothing is marked, and falls back to the struck-out text when the server gave no comparison', () => {
+    const allRight = render(
+      outcome({
+        element: dictationElement(),
+        verdict: 'wrong',
+        reveal: dictation({ diff: [{ expected: 'see', got: 'see', ok: true }] }),
+      }),
+    )
+    expect(allRight.find('[data-testid=diff-hint]').exists()).toBe(false)
+
+    const noDiff = render(outcome({ element: dictationElement(), verdict: 'wrong', reveal: dictation({ your_text: 'see you later today', diff: null }) }))
+    expect(noDiff.find('[data-testid=diff]').exists()).toBe(false)
+    expect(noDiff.find('[data-testid=diff-hint]').exists()).toBe(false)
+    expect(noDiff.get('[data-testid=your-text]').text()).toBe('see you later today')
+    expect(noDiff.get('[data-testid=your-text]').classes()).toContain('line-through')
+  })
+
+  it('shows the comparison for a typo and a mistake, and none for a right answer', () => {
+    const diff = [{ expected: 'see', got: 'see', ok: true }]
+
+    expect(render(outcome({ element: dictationElement(), verdict: 'correct', reveal: dictation({ diff }) })).find('[data-testid=diff]').exists()).toBe(false)
+    expect(render(outcome({ element: dictationElement(), verdict: 'typo', reveal: dictation({ diff }) })).find('[data-testid=diff]').exists()).toBe(true)
+    expect(render(outcome({ element: dictationElement(), verdict: 'wrong', reveal: dictation({ diff }) })).find('[data-testid=diff]').exists()).toBe(true)
   })
 
   it('shows no "your answer" for a right answer or an empty one', () => {
     expect(render(outcome({ element: dictationElement(), verdict: 'correct', reveal: dictation() })).find('[data-testid=your-text]').exists()).toBe(false)
     expect(render(outcome({ element: dictationElement(), verdict: 'skipped', reveal: dictation({ your_text: '  ' }) })).find('[data-testid=your-text]').exists()).toBe(false)
+  })
+})
+
+describe('AnswerReveal — dictation: listen again', () => {
+  const answered = (overrides: Partial<PracticeOutcome> = {}) =>
+    outcome({ element: dictationElement({ audio_url: '/api/twa/practice/sessions/77/audio/eDict00001' }), answer: { text: 'x' }, verdict: 'wrong', reveal: dictation(), ...overrides })
+
+  it('has a button to hear the recording again, for every verdict and also when the explanation is not at hand', async () => {
+    for (const verdict of ['correct', 'typo', 'wrong', 'skipped'] as const) {
+      const wrapper = render(answered({ verdict }))
+      await flushPromises()
+      expect(wrapper.get('[data-testid=listen-again-btn]').text()).toBe('Прослушать ещё раз')
+      expect(wrapper.get('[data-testid=listen-again-btn]').classes()).toContain('btn-tinted')
+      expect(wrapper.findAll('.btn-primary')).toHaveLength(1) // "Next" stays the one primary button
+      wrapper.unmount()
+    }
+
+    // A verdict recovered from `answer_already_accepted` has no explanation, and the recording is still there to hear.
+    const recovered = render(answered({ reveal: null }))
+    await flushPromises()
+    expect(recovered.find('[data-testid=expected]').exists()).toBe(false)
+    expect(recovered.find('[data-testid=listen-again-btn]').exists()).toBe(true)
+    recovered.unmount()
+  })
+
+  it('is only for a dictation', () => {
+    expect(render(outcome({ element: sentenceElement(), verdict: 'wrong', reveal: sentence() })).find('[data-testid=listen-again-btn]').exists()).toBe(false)
+    expect(render(outcome({ element: collocationElement(), answer: { option_id: 'oA1' }, verdict: 'wrong', reveal: collocation() })).find('[data-testid=listen-again-btn]').exists()).toBe(false)
+    expect(render(outcome({ element: pairsElement(), answer: { left_id: 'lB4', right_id: 'rV3' }, roundDone: true })).find('[data-testid=listen-again-btn]').exists()).toBe(false)
+    expect(api.practice.audioBlob).not.toHaveBeenCalled()
+  })
+
+  it('fetches the recording of the ANSWERED element when it appears, and waits for it with a spinner', async () => {
+    let finish!: (blob: Blob) => void
+    vi.mocked(api.practice.audioBlob).mockReturnValue(new Promise<Blob>((resolve) => (finish = resolve)))
+
+    const wrapper = render(answered())
+    await nextTick()
+
+    expect(api.practice.audioBlob).toHaveBeenCalledTimes(1)
+    expect(api.practice.audioBlob).toHaveBeenCalledWith('/api/twa/practice/sessions/77/audio/eDict00001')
+    const button = wrapper.get('[data-testid=listen-again-btn]')
+    expect(button.attributes('disabled')).toBeDefined()
+    expect(button.attributes('aria-busy')).toBe('true')
+    expect(wrapper.find('[data-testid=listen-again-spinner]').exists()).toBe(true)
+
+    finish(new Blob(['x'], { type: 'audio/mpeg' }))
+    await flushPromises()
+
+    expect(button.attributes('disabled')).toBeUndefined()
+    expect(button.attributes('aria-busy')).toBeUndefined()
+    expect(wrapper.find('[data-testid=listen-again-spinner]').exists()).toBe(false)
+    expect(wrapper.findComponent(AppIcon).exists()).toBe(true)
+  })
+
+  it('plays it from the tap, as often as asked, from the clip of this review and not from the shared slot of the session', async () => {
+    const store = usePracticeStore()
+    store.audio.state = 'ready'
+    store.audio.blobUrl = 'blob:next-element'
+    const wrapper = render(answered())
+    await flushPromises()
+
+    await wrapper.get('[data-testid=listen-again-btn]').trigger('click')
+    await wrapper.get('[data-testid=listen-again-btn]').trigger('click')
+
+    expect(FakeAudio.instances).toHaveLength(2)
+    expect(FakeAudio.instances.map((player) => player.src)).toEqual(['blob:answered-1', 'blob:answered-1'])
+    expect(FakeAudio.instances[0]!.pause).toHaveBeenCalled() // the second press starts the clip over
+    // The clip of the next element, which the session screen fetched, is untouched.
+    expect(store.audio).toEqual({ state: 'ready', blobUrl: 'blob:next-element' })
+  })
+
+  it('gives the clip back when the review goes', async () => {
+    const wrapper = render(answered())
+    await flushPromises()
+
+    wrapper.unmount()
+
+    expect(revoked).toHaveBeenCalledWith('blob:answered-1')
+  })
+
+  it('offers to load it again when it could not be fetched', async () => {
+    vi.mocked(api.practice.audioBlob).mockRejectedValueOnce(new Error('offline'))
+    const wrapper = render(answered())
+    await flushPromises()
+
+    const button = wrapper.get('[data-testid=listen-again-btn]')
+    expect(button.text()).toBe('Повторить загрузку')
+    expect(button.findComponent(AppIcon).props('name')).toBe('arrow-path')
+    await button.trigger('click')
+    await flushPromises()
+
+    expect(api.practice.audioBlob).toHaveBeenCalledTimes(2)
+    expect(wrapper.get('[data-testid=listen-again-btn]').text()).toBe('Прослушать ещё раз')
+    expect(FakeAudio.instances).toHaveLength(0) // loading again is not playing
+  })
+
+  it('speaks Uzbek', async () => {
+    setLocale('uz')
+    const wrapper = render(answered())
+    await flushPromises()
+
+    expect(wrapper.get('[data-testid=listen-again-btn]').text()).toBe('Yana eshitish')
   })
 })
 

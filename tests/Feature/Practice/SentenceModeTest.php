@@ -827,7 +827,7 @@ it('stays within the query budgets of docs/16 §13 on the real handler, and read
         ->and(count($answer))->toBeLessThanOrEqual(6, implode("\n", $answer))
         ->and($reads($hub, 'practice_items'))->toBe(1)
         ->and($reads($hub, 'practice_item_versions'))->toBe(1)
-        ->and($reads($hub, 'words'))->toBeLessThanOrEqual(1) // the hub asks every mode: that one read is the pairs' own material (18.2)
+        ->and($reads($hub, 'words'))->toBeLessThanOrEqual(1) // the hub asks every mode: the pairs (18.2) and the dictation (18.5) share one read of the introduced words
         ->and($reads($open, 'practice_items'))->toBe(1)
         ->and($reads($open, 'words'))->toBe(0)
         ->and($reads($answer, 'practice_items'))->toBe(0)  // the answer is graded by the snapshot: no task is read

@@ -366,7 +366,7 @@ it('reports the material of the four modes: nothing yet for the skeletons, the n
             'pairs' => [false, 0, 3, 'no_words'], // a real handler: no word introduced yet
             'collocation' => [false, 0, 3, 'no_items'], // a real handler since 18.3: no task yet
             'sentence' => [false, 0, 3, 'no_items'], // a real handler since 18.4: it says why
-            'dictation' => [false, 0, 3, null],
+            'dictation' => [false, 0, 3, 'no_words'], // a real handler since 18.5: nothing introduced yet
         ]);
 
     PracticeKit::fake(PracticeMode::Sentence, candidates: 7);

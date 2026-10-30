@@ -664,6 +664,19 @@ export const uz: Translations = {
   'practice.sentence.also_correct': "Bunday ham bo'ladi",
 
   // ---- practice: dictation ----
+  'practice.dictation.hint': 'Istagancha tinglang va inglizcha yozing',
+  'practice.dictation.playing': 'Yozuv eshittirilmoqda…',
+  'practice.dictation.blocked': "Yozuvsiz javob bo'lmaydi. Qayta yuklang yoki topshiriqni almashtiring.",
+  'practice.dictation.input': 'Eshitganingizni yozing',
+  'practice.dictation.words': {
+    one: "{count} ta so'z",
+    other: "{count} ta so'z",
+  },
+  'practice.dictation.typed': "Yozilgan so'zlar: {count} tadan {typed} tasi",
+  'practice.dictation.listen_again': 'Yana eshitish',
+  'practice.dictation.diff.right': "to'g'ri",
+  'practice.dictation.diff.wrong': 'xato',
+  'practice.dictation.diff_hint': "Xato bor so'zlar belgilangan.",
 
   // ---- battle ----
 

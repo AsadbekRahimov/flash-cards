@@ -1,18 +1,20 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive } from 'vue'
 import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import type { IconName } from '@/components/ui/icons'
 import { filledWith, phraseSize, shownOptions, splitPhrase } from '@/composables/collocationPhrase'
+import { usePracticeAudio } from '@/composables/usePracticeAudio'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
-import type { PracticeOutcome } from '@/stores/practice'
+import type { AudioSlot, PracticeOutcome } from '@/stores/practice'
 import type { CollocationReveal, DictationReveal, PracticeReveal, PracticeVerdict, SentenceReveal } from '@/api/types'
 
 /**
  * What the server said about the answer (docs/16 §5, §11.2): a coloured circle with a symbol and the verdict in words
  * (the colour is never alone), then the explanation in the shape of the task:
- * - dictation — the phrase as it should be written, what was typed (the differing words marked), the translation;
+ * - dictation — the phrase as it should be written with a button to listen to it again, what was typed (word by word: every
+ *   word has a symbol and a word besides its colour, the wrong ones are underlined), the translation and the explanation;
  * - sentence — the correct sentence, the other accepted orders, what was assembled;
  * - collocation — the whole phrase, the three options with the right one and the picked one marked, the translation;
  * - the end of a round of pairs — "Round 2 of 3 is done" and the number of wrong matches in it.
@@ -29,7 +31,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{ continue: [] }>()
 
-const { haptic } = useTelegram()
+const { haptic, selectionHaptic } = useTelegram()
 const { t } = useI18n()
 
 const verdict = computed((): PracticeVerdict => props.outcome.verdict)
@@ -107,6 +109,34 @@ const round = computed(() => {
   return { round: element.round, rounds: element.rounds, mistakes: element.mismatches, pairs }
 })
 
+// ---- dictation: listen again ----
+
+/**
+ * The recording of the dictation that was just answered. The slot of the session screen is not ours: it already holds (or
+ * is loading) the clip of the NEXT element - the screen fetches it while the verdict is read - so this review keeps a slot of
+ * its own, fetches the answered clip when it appears (a tap cannot wait for a download on iOS) and gives it back when it goes.
+ */
+const clip = computed(() => (props.outcome.element.kind === 'dictation' ? props.outcome.element : null))
+const replaySlot = reactive<AudioSlot>({ state: 'idle', blobUrl: null })
+const replay = usePracticeAudio({ slot: replaySlot })
+const replayLoading = computed((): boolean => replay.state.value === 'loading')
+const replayFailed = computed((): boolean => replay.state.value === 'failed')
+
+onMounted(() => {
+  if (clip.value !== null) void replay.load(clip.value.audio_url)
+})
+
+onBeforeUnmount(() => replay.revoke())
+
+function listenAgain(): void {
+  if (replayFailed.value && clip.value !== null) {
+    void replay.load(clip.value.audio_url, { force: true })
+  } else if (replay.state.value === 'ready') {
+    selectionHaptic()
+    void replay.play()
+  }
+}
+
 function onContinue(): void {
   haptic('light')
   emit('continue')
@@ -163,14 +193,48 @@ function onContinue(): void {
           </p>
         </div>
 
+        <!-- Dictation: the recording of the task again (the clip is fetched into a slot of this review). -->
+        <button
+          v-if="clip"
+          type="button"
+          class="btn btn-tinted"
+          :disabled="replayLoading"
+          :aria-busy="replayLoading ? 'true' : undefined"
+          data-testid="listen-again-btn"
+          @click="listenAgain"
+        >
+          <span
+            v-if="replayLoading"
+            class="size-5 animate-spin rounded-full border-2 border-current/30 border-t-current motion-reduce:animate-none"
+            aria-hidden="true"
+            data-testid="listen-again-spinner"
+          />
+          <AppIcon v-else :name="replayFailed ? 'arrow-path' : 'speaker-wave'" :size="20" />
+          {{ replayFailed ? t('practice.audio.retry') : t('practice.dictation.listen_again') }}
+        </button>
+
         <div v-if="yourText" class="w-full">
           <p class="text-[13px] leading-[18px] font-medium tracking-wide text-tg-section-header uppercase">{{ t('practice.reveal.your_answer') }}</p>
-          <p v-if="diff" class="mt-1 flex flex-wrap justify-center gap-x-1.5 text-base leading-[22px]" data-testid="diff">
-            <template v-for="(token, index) in diff" :key="index">
-              <span v-if="token.ok">{{ token.got }}</span>
-              <span v-else class="font-semibold text-danger-ink underline decoration-danger decoration-2 underline-offset-4">{{ token.got || '…' }}</span>
-            </template>
-          </p>
+          <template v-if="diff">
+            <!-- Word by word: a symbol AND a word for a screen reader beside the colour, the wrong ones underlined. -->
+            <ul class="mt-1.5 flex flex-wrap justify-center gap-x-3 gap-y-1.5" data-testid="diff">
+              <li
+                v-for="(token, index) in diff"
+                :key="index"
+                class="inline-flex items-center gap-1 text-base leading-[22px]"
+                :class="token.ok ? 'text-success-ink' : 'font-semibold text-danger-ink'"
+                :data-ok="token.ok ? 'true' : 'false'"
+                data-testid="diff-token"
+              >
+                <AppIcon :name="token.ok ? 'check' : 'x-mark'" :size="16" />
+                <span :class="token.ok ? '' : 'underline decoration-danger decoration-2 underline-offset-4'" data-testid="diff-word">{{ token.got || '…' }}</span>
+                <span class="sr-only">{{ token.ok ? t('practice.dictation.diff.right') : t('practice.dictation.diff.wrong') }}</span>
+              </li>
+            </ul>
+            <p v-if="diff.some((token) => !token.ok)" class="mt-1.5 text-[13px] leading-[18px] text-tg-hint" data-testid="diff-hint">
+              {{ t('practice.dictation.diff_hint') }}
+            </p>
+          </template>
           <p v-else class="mt-1 text-base leading-[22px] text-tg-hint line-through break-words" data-testid="your-text">{{ yourText }}</p>
         </div>
 
