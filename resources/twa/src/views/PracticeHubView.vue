@@ -36,7 +36,8 @@ import type { BattleIncoming, FriendItem, PracticeActiveSession, PracticeMode, P
  * States: loading, error (Retry), "practice is not available yet" (`practice_unavailable`), the hub. A card is playable
  * (the whole card is the button), short of material ("Learn the lesson"), switched off, or behind Pro (the paywall).
  * The one unfinished session of a learner: a mode pressed while there is one asks what to do (`ActiveSessionSheet`).
- * "Back" leads to the course.
+ * "Back" leads to the course. A hub opened from the finish screen of a training session (`?from=finished`, the button
+ * "Practice of the lesson / of the course") starts its sessions with `source = after_training` instead of `hub`.
  */
 const props = withDefaults(
   defineProps<{
