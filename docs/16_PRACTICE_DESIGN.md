@@ -106,6 +106,8 @@ interface PracticeModeHandler
 - `ElementState` — состояние элемента из `practice_sessions.state` / `battles.snapshot` (пары: сопоставленное; диктант: число подсказок).
 - `ModeRegistry::for(PracticeMode): PracticeModeHandler`; выключенный режим (`config('practice.modes.<mode>') = false`) **есть** в реестре — флаг проверяет `PracticeAccess` только при создании.
 
+**Реализация 18.6:** в интерфейс добавлен `reveal(SnapshotElement $element, string $locale, ElementState $state): array` — разбор элемента для смотрящего **независимо от ответа** (в баттле один элемент читают два игрока на разных языках): правильный ответ в форме режима (`correct_text` + `alternatives` / `correct_option_ids` + `full_text` / `expected` / `pairs`) плюс `translation` и `explanation` этой локали (`null`, если нет). Все ключи, кроме двух последних, — блок `correct` разбора раунда (§7.4). `grade()` по-прежнему строит разбор соло-ответа (одна локаль). Реализовано во всех четырёх режимах; у `CollocationMode` прежний публичный `reveal($element, ?$locale)` приведён к этой сигнатуре.
+
 ### 1.3 Контракты сервисов
 
 ```php
@@ -258,6 +260,8 @@ final class BattleReader
 ```
 
 Исключения — по образцу `FriendshipException`: `public readonly string $errorCode`, `public readonly array $details = []`, `httpStatus(): int`. Контроллеры: `return ApiErrorResource::respond($e->httpStatus(), $e->errorCode, $e->getMessage(), $e->details)`. Полный список кодов — §7.6.
+
+**Реализация 18.6** (`app/Domain/Practice/Services/Battle/`): `BattleService::invite(Learner $by, ?int $friendshipId, PracticeMode $mode, string $courseSlug, ?int $lessonId, ?int $rematchOf, ?CarbonImmutable $now = null)` — `friendshipId` nullable: реванш (`rematchOf`) идёт без него, друг/формат/курс/урок берутся из завершённого матча (решение координатора). `BattleClock`, кроме `advance`/`isDue`, публично отдаёт писателей терминальных переходов, которыми пользуется и сервис: `close(Battle, BattleEndReason, now, array $meta = [])`, `finish(Battle, BattleEndReason, ?int $winnerId, now)`, `resolveRound(Battle, now, Collection $answers)`, а также присутствие — `touch(Battle, BattleParticipant, now): bool` (условный UPDATE ≤ 1 раз в `heartbeat_write_seconds`), `isAbsent`, `absentSince`, `acceptsAnswers`, `roundsPlayed`, `leader`. `BattleReader::find` делает `assertCanPractice` (как `PracticeSessionService::find`); `view`/`poll`/`round` — heartbeat смотрящего (live-статусы) и ленивый переход под `FOR UPDATE`, если `isDue`; `pollView(Battle, Learner, now)` строит опрос из строки в памяти (им отвечает `answer`). Общая проверка «с кем можно играть» — `BattleFriends::byFriendship` / `ofRematch` (404 `friendship_not_found` для чужой пары, пропавшего или заблокированного друга; 403 `not_friends` для не-accepted). Числа конфига — `BattleSettings`. Read-модели — `DTO/BattleView`, `BattlePollView` (с `toArray()` в форме провода — на нём проверяется бюджет 600 байт), `RoundStateView`, `RoundView`, `BattleListView`, `BattleOptionsView`, `BattleAnswerOutcome`, `AudioFailureOutcome`, `BattleTransitionReport`; Resources 18.6b оборачивают их. `BattleException::NOT_FRIENDS = 'not_friends'` (403) — код тот же, что у вызовов. `App\Domain\Practice\Enums\BattleDmKind` (Invited), `App\Jobs\SendBattleDmJob::send(kind, battleId)` (после commit), `App\Domain\Telegram\Services\BattleMessenger::notify()` — каркас без отправки (тело — 18.6b).
 
 ---
 
@@ -458,6 +462,8 @@ final class BattleReader
 | created_at | timestamp | |
 
 **Индексы:** unique `(battle_id, round, learner_id)` — один окончательный ответ; unique `(battle_id, learner_id, request_id)` — повтор запроса. **PG CHECK:** `points BETWEEN 0 AND 100`, `round BETWEEN 1 AND 5`.
+
+**Реализация 18.6:** `battle_participants.score` растёт при **разрешении** раунда (начало `reveal`) в той же транзакции, что и ответы, которые его разрешили, — одним выражением на обе строки; поэтому опрос отдаёт текущий счёт без запроса, а матч, оконченный досрочно (сдача, отсутствие), считает только разрешённые раунды (ответ на неразрешённый раунд очков не даёт). `finish()` SUM по `battle_answers` не делает — источник счёта один. `meta` хранит: `answered {challenger: n, opponent: n}` — последний отвеченный раунд каждого (флаги `my_answered`/`opponent_answered` опроса без запроса к `battle_answers`); `rounds_played` — разрешённых раундов на момент конца (`result.rounds` и разбор только для них); `left` (роль покинувшего комнату), `voided_reason` (`audio_missing` | `practice_off`), `audio_failed_by`, `audio_reports {request_id: verified}` (идемпотентность `audio-failed`). `timeout`-строка: `payload = {"timeout": true}`, `request_id = uuid5(NAMESPACE_URL, "lexiflow:battle:{id}:round:{n}:learner:{id}")`.
 
 ### 2.8 Снимок (`snapshot` jsonb) — серверный, никогда не отдаётся целиком
 
@@ -941,6 +947,8 @@ afterCommit: product_events (session_finished при завершении)
 
 **`POST /practice/battles`** (лимитер `twa-battle-invite` 5/мин) — `{ "friendship_id": 11, "mode": "sentence", "course": "english-a1", "lesson_id": 41, "rematch_of": null }` → **201** `BattleResource`. Ошибки: 409 `battle_disabled`, `battle_busy` (details `{battle_id}` моего активного), `battle_friend_no_access`, `practice_mode_disabled`; 403 `not_friends`; 404 `friendship_not_found`, `course_not_found`, `lesson_not_found`; 422 `lesson_not_in_course`, `battle_material_unavailable` (details §4.3). `rematch_of` — мой завершённый матч: формат/тема берутся из него (присланные игнорируются), друг — соперник того матча.
 
+**Реализация 18.6:** реванш работает **без** `friendship_id` (решение координатора): друг — другая сторона завершённого матча, пара должна по-прежнему быть `accepted` (иначе 403 `not_friends`); `rematch_of` чужого матча — 404 `battle_not_found`, незавершённого — 409 `battle_wrong_state`. `BattleListView.active` — матч, которым я занят (`battle_participants.active_learner_id = me`: своё непросроченное приглашение, комната, отсчёт, игра; просроченное закрывается лениво и в `active` не попадает); `incoming` — `invited` ко мне с `invite_expires_at > now`; `finished` — последние `finished_list` по `finished_at` (лениво закрытое приглашение туда тоже попадает, `outcome: none`). `options.modes[].state`: `disabled` (выключен) / `available` / `not_enough` — доступность считается по локалям **обоих** игроков.
+
 ### 7.4 Баттл — комната и матч
 
 **`GET /practice/battles/{id}`** — `BattleResource`:
@@ -978,6 +986,8 @@ afterCommit: product_events (session_finished при завершении)
                      "explanation": "…", "translation": "…" } }
 ```
 `no` ≤ `current_round` (будущие раунды → 409 `round_not_open`); `reveal` только у разрешённого раунда (`phase = reveal` или раунд < текущего).
+
+**Реализация 18.6 (поля read-моделей, которые ждёт TWA 18.6-T; 18.6b выводит их в Resources):** `BattleView` дополнительно несёт `end_reason`, `opponent_absent_since` (последнее присутствие соперника, когда он считается отсутствующим, иначе `null`), `presence_grace_seconds`, `deadline_grace_ms`, `friendship_id`, `rematch = {battle_id, status, by_me}` (кто предложил), `audio_preload[]` (диктант, только `room`/`countdown`: URL пяти клипов — те же, что `audio_url` элементов раундов; иначе `null`). `round` в `countdown` = `{no: 1, phase: null, deadline_at: starts_at + round_seconds, phase_ends_at: null, my_answered: false, opponent_answered: false}`; у `invited`/`room`/терминальных — `null`. `result.rounds` — только разрешённые раунды (`meta.rounds_played`); у `closed` — `outcome: none`. `BattlePollView` (`toArray()`, ≤ 600 байт) = `{id, status, version, server_now, ready, opponent_present, opponent_absent_since, round, scores, end_reason, rematch}` — `rematch` только у терминального матча (один запрос), у живого `null` без запроса. `RoundView`: `phase` — фаза **этого** раунда (`reveal` у разрешённого, фаза матча у текущего, `null` в отсчёте), `deadline_at`/`phase_ends_at` только у текущего; `reveal.correct` — ключи `reveal()` режима без `translation`/`explanation`, `me`/`opponent` = `{answer: payload | null (таймаут), verdict, points}`. Ответ на раунд в `countdown` — 409 `round_not_open {round, phase: null}` (не `battle_wrong_state`): раунд уже есть, фаза ещё не открыта. URL аудио баттла — маршрут `twa.practice.battles.audio` (18.6b регистрирует его на `/api/twa/practice/battles/{battle}/audio/{element}`; пока маршрута нет, `BattleReader` строит этот путь строкой).
 
 **`POST /practice/battles/{id}/accept|decline|cancel|ready|surrender`** (лимитер `twa-battle-action` 60/мин) — без тела (у `surrender` — `{ "confirm": true }`); ответ 200 `BattleResource`. Ошибки: 404 `battle_not_found`; 403 `battle_not_recipient` (accept/decline не адресатом), `battle_not_challenger` (cancel приглашения не инициатором); 409 `battle_busy`, `battle_closed` (терминальный / просрочен — details `{end_reason}`), `battle_wrong_state` (details `{status}`), `battle_friend_no_access`, `battle_disabled` (accept при выключенном баттле); 403 `practice_unavailable`.
 
@@ -1067,6 +1077,8 @@ afterCommit: product_events (session_finished при завершении)
 
 Терминальные статусы: `finished` (есть результат: `completed`, `surrender`, `absent`) и `closed` (`declined`, `invite_expired`, `room_expired`, `canceled`, `both_absent`, `voided`). Любой переход в терминальный статус в той же транзакции ставит `active_learner_id = NULL` обоим участникам и `finished_at`.
 
+**Реализация 18.6:** любой терминальный переход также обнуляет `phase` (CHECK `battles_phase_shape_check`) и пишет `meta.rounds_played`. `ready` повторно / в `countdown` и `playing` — 200 без изменений (оба уже готовы), в `invited` — 409 `battle_wrong_state`; `decline`/`cancel` терминального — 409 `battle_closed` (двойной тап клиент гасит перечитыванием). Отказ, возникший **после** ленивого перехода в той же транзакции (просроченное приглашение закрыто → 409 `battle_closed {invite_expired}`; 422 формы ответа после открытия раунда), возвращается из транзакции значением и бросается после commit — переход сохраняется. Присутствие: игрок, который действует (`ready`/`answer`/`surrender`/`audio-failed`), получает heartbeat **до** `advance`, чтобы собственное действие не признало его отсутствующим. В `room` `last_seen_at` обоих — `accepted_at` (ставится при принятии): инициатор, ушедший до принятия, через 30 с комнаты даёт `closed/canceled (meta.left = challenger)`.
+
 ### 8.2 Приглашение и принятие (атомарность)
 
 Приглашение (`BattleService::invite`): вне транзакции — `assertCanPractice(by)`, `assertBattleEnabled`, `assertModeEnabled`, `FriendshipService::find(by, friendshipId)` → другая сторона `friend` (нет learner'а → 404), `areFriends` (иначе 403 `not_friends`), `friend.blocked_at = NULL` (иначе 404 `friendship_not_found`), `assertFriendCanPractice(friend)`, `courseForBattle(slug)` (published, не private), урок, снимок (`strictSize = true`; `LocaleSet` = локали обоих). Транзакция:
@@ -1132,6 +1144,8 @@ advance(b, now):
 
 Переходы случаются «кто первый»: ответ второго игрока, опрос любого игрока с назревшим переходом (`isDue` без блокировки → только тогда транзакция `FOR UPDATE` + `advance`), дворник. Все три пути ведут в одну функцию под одной блокировкой строки, поэтому раунд разрешается и матч финализируется ровно один раз; события — только в транзакции, которая реально сменила статус (`changed`).
 
+**Реализация 18.6:** `advance` в фазе `answering` до `deadline + grace` **не читает** `battle_answers` (ветка «оба ответили» обслуживается самим `answer()`, который разрешает раунд в своей транзакции); после дедлайна — одно чтение ответов раунда, `timeout`-строки недостающим, `resolveRound`. `finish(completed)` берёт победителя по `battle_participants.score` (инкремент при разрешении, см. §2.7), SUM не делает. `isDue` читает только строку и уже загруженных участников (`Battle::with('participants')`) — ноль запросов (закреплено тестом). Под блокировкой участники перечитываются (`load('participants')`) — свежие `last_seen_at` для решения об отсутствии. `duration_ms` события `battle.finished` = `finished_at − starts_at` (без старта — от `accepted_at`). Actor событий `battle.*` — инициатор (`$battle->challenger`, читается после commit).
+
 ### 8.4 Присутствие
 
 - Heartbeat = `GET …/poll` (и любой другой запрос участника к матчу). `BattleReader::poll`: если `last_seen_at < now − heartbeat_write_seconds (5)` → `UPDATE battle_participants SET last_seen_at = now WHERE id = ? AND (last_seen_at IS NULL OR last_seen_at < ?)` — одиночное выражение вне транзакции, ≤ 1 запись на 5 с на игрока; иначе записи нет.
@@ -1157,6 +1171,8 @@ COMMIT
 ```
 Грейс `deadline_grace_ms = 1500`: ответ, ушедший при 0:00 на клиенте и дошедший на 1,2 с позже, принимается; дворник/опрос разрешают раунд по таймауту тоже только после `deadline + grace` (одно правило в `advance`). Очки и ответ соперника до разрешения раунда недоступны (poll отдаёт лишь `opponent_answered`).
 
+**Реализация 18.6:** порядок внутри транзакции уточнён — после `advance` **сначала** одно чтение `battle_answers` (ответы раунда обоих + моя строка с этим `request_id`, одним запросом: `round = ? OR (learner_id = me AND request_id = ?)`), и повтор `request_id` отвечает прежними `verdict`/`points` **даже если раунд уже закрыт или матч окончен** (потерянный ответ не должен превращаться в 409 при повторе — как у соло); затем проверки статуса/раунда/фазы, затем `answer_already_accepted {verdict, points}`, затем `grade()`. Нарушение unique при INSERT (под блокировкой невозможно, сетка оставлена) → транзакция откатывается и `answer()` повторяется один раз, отвечая по найденной строке. `points` обрезаются в `0..practice.battle.points.round`. `round_resolved` ответа — `true`, когда ответ был вторым.
+
 ### 8.6 Дворник и расписание
 
 `routes/console.php`:
@@ -1165,6 +1181,8 @@ Schedule::command('practice:battles-sweep')->everyMinute()->withoutOverlapping()
 Schedule::command('practice:close-expired')->everyFifteenMinutes()->withoutOverlapping();
 ```
 `BattleJanitor::sweep`: (1) `UPDATE battles … WHERE status='invited' AND invite_expires_at <= now` → `closed/invite_expired` + `UPDATE battle_participants SET active_learner_id = NULL WHERE battle_id IN (…)` (две операции в одной транзакции, без блокировок строк заранее: UPDATE сам берёт их); (2) `Battle::whereIn('status', ['room','countdown','playing'])->lazyById()` → каждому — своя транзакция `FOR UPDATE` + `advance`; (3) при `access = off` — всем live `close(voided, practice_off)`. Live-баттлов в пилоте десятки, поэтому полный проход дешевле индекса «следующая проверка».
+
+**Реализация 18.6:** шаг (1) выполнен не одним bulk UPDATE, а как у `practice:close-expired`: SELECT просроченных id → условный «клейм» каждой строки (`WHERE status = 'invited'`, `state_version + 1`) → один UPDATE участников закрытых → по одному `battle.closed` на закрытую строку после commit (приглашение, принятое за мгновение до прогона, не трогается и события не даёт — bulk UPDATE не дал бы точных событий). Возвращает число изменённых матчей (просроченные + сдвинутые `advance` + аннулированные). При `access = off` аннулируются только live-матчи, приглашения истекают сами по времени.
 
 ### 8.7 Реванш, ЛС, глубокие ссылки
 
@@ -1191,6 +1209,8 @@ practice_items / practice_item_versions / practice_item_words — пишет т�
 12. Импорт/редактор контента берёт строку курса первой (`CoursePublisher::lockForWriting`, как `VocabularyImporter`), затем свои таблицы: с импортом слов конфликтов нет (тот же первый замок), с сессиями — нет общих замков (сессии контент не блокируют).
 13. Проверка — `tests/Feature/Practice/BattleConcurrencyTest` и `PracticeSessionConcurrencyTest` (pcntl, PG), сценарии §14.
 
+**Реализация 18.6:** правила 8–11 выполнены буквально: внутри транзакции матча читаются без блокировки только `friendships` (при `accept`: пара ещё accepted?) и `battle_answers`; проверка файлов диктанта при `ready`/`audio-failed` — локальный диск (≤ 5 `stat`) под блокировкой строки, внешних вызовов нет. Каждый воркер `BattleConcurrencyTest` ставит `SET lock_timeout = '8000'`: deadlock (40P01) или бесконечное ожидание (55P03) видны как падение, а не как зависший тест. Проверка «зубастости»: без `lockForUpdate()` падают 5 из 7 сценариев (accept ∥ cancel, два ответа, answer ∥ дворник, финализация, surrender ∥ answer); два оставшихся (два приглашения одному адресату, три приглашения одного инициатора) держатся на unique `active_learner_id` — как и задумано правилом 9. В docs/13 §3 добавлена строка-ссылка на эти правила.
+
 ---
 
 ## 10. Аудио
@@ -1210,6 +1230,8 @@ practice_items / practice_item_versions / practice_item_words — пишет т�
 ### 10.3 Готовность в баттле
 
 Диктант: `ready` допускается на клиенте только после загрузки всех 5 blob (`GET …/round?no=1..5` в комнате не нужен: список `audio_url` пяти раундов отдаёт `BattleResource.audio_preload[]` в статусе `room` — только URL, без текста). Сервер при `ready` проверяет `exists && size > 0` у 5 файлов снимка (5 обращений к диску); нет → `closed/voided (audio_missing)`. После старта: `audio-failed` от игрока → сервер проверяет файл: нет/пустой → `closed/voided (audio_missing)`; есть → `{verified: false}`, матч идёт (локальная проблема; игрок отвечает или получает 0 по таймауту — правило показано в комнате).
+
+**Реализация 18.6:** `audio_preload` отдаётся в `room` **и** `countdown` (клиент мог перезагрузиться в отсчёте); `ready` с пропавшим клипом возвращает 200 с матчем `closed/voided` (клиент видит статус) и пишет `practice.audio_failed {battle_id, source, reason: file_missing, verified: true}`; `audio-failed` идемпотентен по `request_id` (`meta.audio_reports`), повтор не даёт второго события; `audio-failed` на неизвестный элемент или элемент без аудио — 422 `unknown_element_id`.
 
 ### 10.4 Ошибки аудио в соло
 
@@ -1321,6 +1343,8 @@ Blob не загрузился (503/сеть) → экран показывае�
 
 Размеры ответов: `poll` ≤ 600 байт; `PracticeSessionResource` ≤ 8 КБ (пары: 8 карточек; предложение: 8 фрагментов); `BattleRoundResource` ≤ 6 КБ; списки `finished` — 10 строк. Снимок ≤ 32 КБ (5 элементов/раундов; проверяется при создании — `LogicException` при превышении, чтобы не раздувать строку).
 
+**Реализация 18.6 (бюджеты баттла закреплены на сервисах, без запроса `learners` от `TwaAuth`; HTTP-тесты — 18.6b):** poll без перехода ≤ 3 (battle, participants, условный UPDATE присутствия; у терминального — вместо присутствия чтение реванша), с переходом ≤ 9 (худший — таймаут с одним ответом: + lock, participants, answers, INSERT timeout, UPDATE score, UPDATE battle; финализация: + lock, participants, release, UPDATE battle, challenger, INSERT события); answer ≤ 7 (lock, participants, присутствие, answers, INSERT, UPDATE score CASE на обе строки, UPDATE battle); invite ≤ 13 (пары: words 1 + word_translations 2 — по локали каждого игрока); sweep ≤ 4 + 2 × просроченных + 7 × live (а не «2 + 4 × live»: участники, release и событие в докладе не были учтены). Фактические значения — в `PracticeQueryBudgetTest` (комментарии к константам `BUDGET_BATTLE_*`).
+
 Индексы — §2; дополнительных не нужно: все выборки учениковые (`learner_id`/участник) или по `(course_id, status, type)`. Кэшей нет (все ответы персональные и короткоживущие), кроме существующего кэша entitlement. Генерация аудио — только в job.
 
 ---
@@ -1346,7 +1370,7 @@ Blob не загрузился (503/сеть) → экран показывае�
 | `tests/Feature/Practice/PracticeIsolationTest` | полный прогон 4 соло-сессий и баттла (оба игрока) → контрольные суммы `word_repetitions`, `training_sessions`, `training_reviews`, `learner_daily_stats`, `learners.{streak_*,streak_freezes,daily_goal}`, `league_members`, `assignment_results`, `achievements`, `challenges` до и после равны; `product_events` содержит только события §3.4 |
 | `tests/Feature/Practice/PracticeItemServiceTest` | версии (append-only), статусы и `published_version_id`, правка опубликованного → новая draft при прежней выдаче, archive/restore, валидация §4.5 (каждый код) |
 | `tests/Feature/Practice/PracticeImporterTest` | формат §15.2: успех, повтор файла → `skipped`, изменённое задание → новая версия, `--publish`, каждый код ошибки с `position`, лимиты, транзакция «всё или ничего», аудит `practice.imported`, job аудио поставлен после commit |
-| `tests/Feature/Practice/BattleServiceTest` | invite (друг, не друг, сам себе, blocked, private курс, мало материала, выключено, busy), accept/decline/cancel/expire (ленивое и дворником), ready → countdown → playing, ответы и очки по режимам, `round_not_open`/`round_closed`/грейс, разрешение раунда вторым ответом, таймаут с `timeout`-строками, reveal → следующий раунд, финализация 5 раундов (победа/ничья), surrender, absent/both_absent через `last_seen_at`, voided (аудио), рематч, присутствие пишется ≤ 1 раз в 5 с, `state_version`, `BattleListResource`, `options` |
+| `tests/Feature/Practice/BattleServiceTest` | invite (друг, не друг, сам себе, blocked, private курс, мало материала, выключено, busy), accept/decline/cancel/expire (ленивое и дворником), ready → countdown → playing, ответы и очки по режимам, `round_not_open`/`round_closed`/грейс, разрешение раунда вторым ответом, таймаут с `timeout`-строками, reveal → следующий раунд, финализация 5 раундов (победа/ничья), surrender, absent/both_absent через `last_seen_at`, voided (аудио), рематч, присутствие пишется ≤ 1 раз в 5 с, `state_version`, `BattleListResource`, `options`. **Реализация 18.6:** 29 тестов на сервисах и реальных режимах (все четыре), тест-кит `tests/Support/Practice/BattleKit` (мир двух друзей ru/uz с материалом всех режимов, шаги матча, верный/неверный ответ из снимка); ровно так же — `BattleConcurrencyTest` (7 гонок), баттл-части `PracticeIsolationTest`, `PracticeSchedulerTest`, `PracticeQueryBudgetTest` |
 | `tests/Feature/Practice/BattleContractTest` | формы §7.3–7.4, poll ≤ 600 байт, `reveal: null` до разрешения, чужой ответ не виден до reveal |
 | `tests/Feature/Practice/BattleMessengerTest` | ЛС приглашения один раз (маркер), молчание при `declined`/просроченном, 403 → `dm_blocked_at`, web_app URL |
 | `tests/Feature/Practice/PracticeQueryBudgetTest` | бюджеты §13 через `QueryLog::during` |

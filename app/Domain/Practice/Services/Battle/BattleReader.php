@@ -89,7 +89,7 @@ final class BattleReader
     /** The full view of docs/16 §7.4 (`GET /practice/battles/{id}` and the answer of every action). */
     public function view(Battle $battle, Learner $viewer, CarbonImmutable $now): BattleView
     {
-        $battle = $this->settle($battle, $viewer, $now);
+        [$battle, $endedNow] = $this->settle($battle, $viewer, $now);
         $me = $battle->participant($viewer->id);
         $other = $battle->participant($battle->otherId($viewer->id));
         $snapshot = Snapshot::fromArray($battle->snapshot);
@@ -121,7 +121,7 @@ final class BattleReader
             round: $this->roundState($battle, $me, $other),
             scores: ['me' => $me->score, 'opponent' => $other->score],
             result: $terminal ? $this->result($battle, $me, $other) : null,
-            rematch: $terminal ? $this->rematch($battle, $viewer) : null,
+            rematch: $terminal && ! $endedNow ? $this->rematch($battle, $viewer) : null,
             friendshipId: $battle->friendship_id,
             audioPreload: $this->audioPreload($battle, $snapshot),
         );
@@ -130,11 +130,17 @@ final class BattleReader
     /** The poll of docs/16 §7.4: the heartbeat, the transition that is due, a small answer. */
     public function poll(Battle $battle, Learner $viewer, CarbonImmutable $now): BattlePollView
     {
-        return $this->pollView($this->settle($battle, $viewer, $now), $viewer, $now);
+        [$battle, $endedNow] = $this->settle($battle, $viewer, $now);
+
+        return $this->pollView($battle, $viewer, $now, ! $endedNow);
     }
 
-    /** The poll of a battle as it is in memory (no query for a match that is on; the rematch of one that is over). */
-    public function pollView(Battle $battle, Learner $viewer, CarbonImmutable $now): BattlePollView
+    /**
+     * The poll of a battle as it is in memory: no query for a match that is on; for one that is over, the rematch that follows
+     * it - unless `$lookupRematch` is false (the match ended in this very request: its rematch cannot exist yet, the next poll
+     * of the result screen picks it up).
+     */
+    public function pollView(Battle $battle, Learner $viewer, CarbonImmutable $now, bool $lookupRematch = true): BattlePollView
     {
         $me = $battle->participant($viewer->id);
         $other = $battle->participant($battle->otherId($viewer->id));
@@ -150,7 +156,7 @@ final class BattleReader
             opponentAbsentSince: $battle->status->isLive() ? $this->clock->absentSince($battle, $other, $now) : null,
             round: $this->roundState($battle, $me, $other),
             scores: ['me' => $me->score, 'opponent' => $other->score],
-            rematch: $battle->status->isTerminal() ? $this->rematch($battle, $viewer) : null,
+            rematch: $battle->status->isTerminal() && $lookupRematch ? $this->rematch($battle, $viewer) : null,
         );
     }
 
@@ -162,7 +168,7 @@ final class BattleReader
      */
     public function round(Battle $battle, Learner $viewer, int $no, CarbonImmutable $now): RoundView
     {
-        $battle = $this->settle($battle, $viewer, $now);
+        [$battle] = $this->settle($battle, $viewer, $now);
         if ($no < 1 || $no > $battle->current_round) {
             throw BattleException::roundNotOpen($no, $battle->phase);
         }
@@ -220,7 +226,7 @@ final class BattleReader
             /** @var Battle|null $mine */
             $mine = Battle::query()->with('participants')->whereKey((int) $activeId)->first();
             if ($mine !== null) {
-                $mine = $this->settle($mine, $viewer, $now, touch: false);
+                [$mine] = $this->settle($mine, $viewer, $now, touch: false);
                 $active = $mine->status->isTerminal() ? null : $this->compact($mine, $viewer);
             }
         }
@@ -325,27 +331,29 @@ final class BattleReader
 
     /**
      * The heartbeat of the viewer (a live match) and the transition that is due, if any - made under the lock, from a fresh
-     * read. Returns the battle as it is after that.
+     * read. Returns the battle as it is after that, and whether this call ended it.
+     *
+     * @return array{0: Battle, 1: bool}
      */
-    private function settle(Battle $battle, Learner $viewer, CarbonImmutable $now, bool $touch = true): Battle
+    private function settle(Battle $battle, Learner $viewer, CarbonImmutable $now, bool $touch = true): array
     {
         if ($touch && $battle->status->isLive()) {
             $this->clock->touch($battle, $battle->participant($viewer->id), $now);
         }
         if (! $this->clock->isDue($battle, $now)) {
-            return $battle;
+            return [$battle, false];
         }
 
-        return DB::transaction(function () use ($battle, $now): Battle {
+        return DB::transaction(function () use ($battle, $now): array {
             /** @var Battle|null $locked */
             $locked = Battle::query()->whereKey($battle->id)->lockForUpdate()->first();
             if ($locked === null) {
-                return $battle;
+                return [$battle, false];
             }
             $locked->load('participants');
-            $this->clock->advance($locked, $now);
+            $report = $this->clock->advance($locked, $now);
 
-            return $locked;
+            return [$locked, $report->finalized];
         });
     }
 

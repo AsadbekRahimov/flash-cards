@@ -2,8 +2,17 @@
 
 declare(strict_types=1);
 
+use App\Domain\Practice\DTO\BattlePollView;
+use App\Domain\Practice\Enums\BattlePhase;
+use App\Domain\Practice\Enums\BattleStatus;
 use App\Domain\Practice\Enums\PracticeMode;
+use App\Domain\Practice\Services\Battle\BattleJanitor;
+use App\Domain\Practice\Services\Battle\BattleReader;
+use App\Domain\Practice\Services\Battle\BattleService;
+use App\Models\Battle;
+use App\Models\BattleParticipant;
 use App\Models\Course;
+use App\Models\Friendship;
 use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\PracticeItem;
@@ -14,6 +23,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
+use Tests\Support\Practice\BattleKit;
 use Tests\Support\Practice\FakeEchoMode;
 use Tests\Support\Practice\PracticeKit;
 use Tests\Support\QueryLog;
@@ -248,4 +258,193 @@ it('keeps the response of a session under 8 KB and refuses to store a snapshot o
 
     $fake->padding = 0;
     budgetOpen($learner, $course, 'collocation')->assertCreated();
+});
+
+// ------------------------------------------------------------------------------------------------------------ the battle (18.6)
+
+/*
+ * docs/16 §13, the battle. The HTTP budgets count the 1 statement of TwaAuth (the learner); the services are measured here
+ * without it (the HTTP tests come with the routes of 18.6b), so every service-level bound below is the HTTP one minus one.
+ */
+const BUDGET_BATTLE_POLL = 4;
+const BUDGET_BATTLE_POLL_TRANSITION = 10;
+const BUDGET_BATTLE_ANSWER = 8;
+const BUDGET_BATTLE_INVITE = 14;
+/** The sweeper: the expired invitations (one read, one release of their participants, one read of their challengers; a claim and an event each) and the live matches (one read; a lock, the participants and the steps of the clock each). */
+const BUDGET_BATTLE_SWEEP_BASE = 4;
+const BUDGET_BATTLE_SWEEP_PER_EXPIRED = 2;
+const BUDGET_BATTLE_SWEEP_PER_LIVE = 7;
+const BUDGET_BATTLE_POLL_BYTES = 600;
+
+/** A battle that is on, with both players present. @return array{0: Learner, 1: Learner, 2: Battle} */
+function budgetBattle(PracticeMode $mode = PracticeMode::Collocation): array
+{
+    Storage::fake('practice_audio');
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world(slug: 'battle-'.$mode->value);
+    $battle = BattleKit::playing($me, $friend, $friendship, $mode, $course, $lesson);
+
+    return [$me, $friend, $battle];
+}
+
+function budgetPoll(Learner $viewer, int $battleId): BattlePollView
+{
+    $reader = app(BattleReader::class);
+
+    return $reader->poll($reader->find($viewer, $battleId), $viewer, CarbonImmutable::now());
+}
+
+/** Two friends (ru / uz) besides the world's, with their accepted friendship. @return array{0: Learner, 1: Learner, 2: Friendship} */
+function budgetPair(): array
+{
+    $a = Learner::factory()->create(['interface_locale' => 'ru']);
+    $b = Learner::factory()->create(['interface_locale' => 'uz']);
+
+    return [$a, $b, Friendship::factory()->between($a, $b)->create()];
+}
+
+it('polls a live battle in at most 3 statements without a transition (the presence written), and in at most 9 with one - a time-out, the next round, the end', function (): void {
+    [$me, $friend, $battle] = budgetBattle();
+
+    // No transition, the presence stale (written): find = battle + participants, the heartbeat.
+    CarbonImmutable::setTestNow('2026-10-30 10:00:10');
+    $quiet = QueryLog::during(fn () => budgetPoll($me, $battle->id));
+    expect(count($quiet))->toBeLessThanOrEqual(BUDGET_BATTLE_POLL - 1, implode("\n", $quiet))
+        ->and(budgetReads($quiet, 'battles'))->toBe(1)
+        ->and(budgetReads($quiet, 'battle_participants'))->toBe(1)
+        ->and(budgetReads($quiet, 'battle_answers'))->toBe(0);
+
+    // The deadline and the grace passed with one answer in (both players polling all along): a time-out for the other, the round resolved.
+    BattleKit::answer($battle, $me, 1, BattleKit::correct(BattleKit::element($battle, 1)));
+    BattleKit::bothPoll($battle, $me, $friend, '2026-10-30 10:00:20');
+    BattleKit::bothPoll($battle, $me, $friend, '2026-10-30 10:00:32');
+    CarbonImmutable::setTestNow('2026-10-30 10:00:34.5');
+    $timeout = QueryLog::during(fn () => budgetPoll($friend, $battle->id));
+    expect(count($timeout))->toBeLessThanOrEqual(BUDGET_BATTLE_POLL_TRANSITION - 1, implode("\n", $timeout))
+        ->and(BattleKit::fresh($battle)->phase)->toBe(BattlePhase::Reveal);
+
+    // The reveal is over: the next round.
+    CarbonImmutable::setTestNow('2026-10-30 10:00:38.5');
+    $next = QueryLog::during(fn () => budgetPoll($me, $battle->id));
+    expect(count($next))->toBeLessThanOrEqual(BUDGET_BATTLE_POLL_TRANSITION - 1, implode("\n", $next))
+        ->and(BattleKit::fresh($battle)->current_round)->toBe(2);
+
+    // Rounds 2-5 played; the end of the last reveal: the finalisation with its event.
+    for ($round = 2; $round <= 5; $round++) {
+        $element = BattleKit::element($battle, $round);
+        BattleKit::answer($battle, $me, $round, BattleKit::correct($element));
+        BattleKit::answer($battle, $friend, $round, BattleKit::wrong($element));
+        CarbonImmutable::setTestNow(CarbonImmutable::now()->addSeconds(4));
+        if ($round < 5) {
+            budgetPoll($me, $battle->id);
+        }
+    }
+    $final = QueryLog::during(fn () => budgetPoll($friend, $battle->id));
+    expect(count($final))->toBeLessThanOrEqual(BUDGET_BATTLE_POLL_TRANSITION - 1, implode("\n", $final))
+        ->and(BattleKit::fresh($battle)->status)->toBe(BattleStatus::Finished)
+        ->and(ProductEvent::query()->where('name', 'battle.finished')->count())->toBe(1);
+
+    // The poll of a match that is over: no presence, the rematch looked up.
+    $over = QueryLog::during(fn () => budgetPoll($me, $battle->id));
+    expect(count($over))->toBeLessThanOrEqual(BUDGET_BATTLE_POLL - 1, implode("\n", $over));
+});
+
+it('takes the answer to a round in at most 7 statements, the second one that resolves the round included', function (): void {
+    [$me, $friend, $battle] = budgetBattle(PracticeMode::Pairs);
+    $element = BattleKit::element($battle, 1);
+
+    CarbonImmutable::setTestNow('2026-10-30 10:00:10'); // the presence of the one who answers is stale: written
+    $first = QueryLog::during(fn () => BattleKit::answer($battle, $me, 1, BattleKit::correct($element)));
+    $second = QueryLog::during(fn () => BattleKit::answer($battle, $friend, 1, BattleKit::wrong($element)));
+    $row = BattleKit::fresh($battle);
+
+    expect(count($first))->toBeLessThanOrEqual(BUDGET_BATTLE_ANSWER - 1, implode("\n", $first))
+        ->and(count($second))->toBeLessThanOrEqual(BUDGET_BATTLE_ANSWER - 1, implode("\n", $second))
+        ->and(budgetReads($second, 'battle_answers'))->toBe(1)
+        ->and($row->phase)->toBe(BattlePhase::Reveal)
+        ->and([$row->participant($me->id)->score, $row->participant($friend->id)->score])->toBe([100, 50]);
+});
+
+it('sends an invitation in at most 13 statements - pairs (words and two languages of translations), a task mode, and a rematch', function (): void {
+    Storage::fake('practice_audio');
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    $service = app(BattleService::class);
+
+    $pairs = QueryLog::during(fn () => $service->invite($me, $friendship->id, PracticeMode::Pairs, $course->slug, $lesson->id, null));
+    $service->cancel($me, Battle::query()->latest('id')->firstOrFail()->id);
+    $tasks = QueryLog::during(fn () => $service->invite($me, $friendship->id, PracticeMode::Collocation, $course->slug, null, null));
+    $source = Battle::query()->latest('id')->firstOrFail();
+    $service->accept($friend, $source->id);
+    $service->ready($me, $source->id);
+    $service->ready($friend, $source->id);
+    $service->surrender($friend, $source->id);
+    $rematch = QueryLog::during(fn () => $service->invite($me, null, PracticeMode::Pairs, 'ignored', null, $source->id));
+
+    expect(count($pairs))->toBeLessThanOrEqual(BUDGET_BATTLE_INVITE - 1, implode("\n", $pairs))
+        ->and(budgetReads($pairs, 'words'))->toBe(1)
+        ->and(budgetReads($pairs, 'word_translations'))->toBe(2) // ru and uz
+        ->and(count($tasks))->toBeLessThanOrEqual(BUDGET_BATTLE_INVITE - 1, implode("\n", $tasks))
+        ->and(budgetReads($tasks, 'practice_items'))->toBe(1)
+        ->and(budgetReads($tasks, 'practice_item_versions'))->toBe(1)
+        ->and(count($rematch))->toBeLessThanOrEqual(BUDGET_BATTLE_INVITE - 1, implode("\n", $rematch))
+        ->and(Battle::query()->count())->toBe(3);
+});
+
+it('sweeps the battles within 4 + 2 per expired invitation + 7 per live match', function (): void {
+    Storage::fake('practice_audio');
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    [$a1, $b1, $f1] = budgetPair();
+    [$a2, $b2, $f2] = budgetPair();
+    [$a3, $b3, $f3] = budgetPair();
+    [$a4, $b4, $f4] = budgetPair();
+
+    // Two expired invitations, a countdown past its start, a game past the deadline (two time-outs), a game at the end of its last reveal.
+    $expired = [BattleKit::invite($a1, $f1, PracticeMode::Pairs, $course), BattleKit::invite($a2, $f2, PracticeMode::Pairs, $course)];
+    $countdown = BattleKit::countdown($a3, $b3, $f3, PracticeMode::Collocation, $course);
+    $game = BattleKit::playing($me, $friend, $friendship, PracticeMode::Collocation, $course);
+    $ending = BattleKit::playing($a4, $b4, $f4, PracticeMode::Sentence, $course);
+    for ($round = 1; $round <= 5; $round++) {
+        $element = BattleKit::element($ending, $round);
+        BattleKit::answer($ending, $a4, $round, BattleKit::correct($element));
+        BattleKit::answer($ending, $b4, $round, BattleKit::wrong($element));
+        if ($round < 5) {
+            CarbonImmutable::setTestNow(CarbonImmutable::now()->addSeconds(4));
+            budgetPoll($a4, $ending->id);
+        }
+    }
+    CarbonImmutable::setTestNow('2026-10-30 10:05:01');
+    Battle::query()->whereIn('id', [$expired[0]->id, $expired[1]->id])->update(['invite_expires_at' => '2026-10-30 10:05:00']);
+    Battle::query()->whereKey($game->id)->update(['round_deadline_at' => '2026-10-30 10:04:59']);
+    Battle::query()->whereKey($ending->id)->update(['phase_ends_at' => '2026-10-30 10:05:00']);
+    BattleParticipant::query()->whereIn('battle_id', [$game->id, $ending->id, $countdown->id])->update(['last_seen_at' => '2026-10-30 10:05:00']); // everybody is here
+
+    $queries = QueryLog::during(fn () => expect(app(BattleJanitor::class)->sweep())->toBe(5));
+
+    expect(count($queries))->toBeLessThanOrEqual(BUDGET_BATTLE_SWEEP_BASE + 2 * BUDGET_BATTLE_SWEEP_PER_EXPIRED + 3 * BUDGET_BATTLE_SWEEP_PER_LIVE, implode("\n", $queries))
+        ->and(BattleKit::fresh($countdown)->status)->toBe(BattleStatus::Playing)
+        ->and(BattleKit::fresh($game)->phase)->toBe(BattlePhase::Reveal)
+        ->and(BattleKit::fresh($ending)->status)->toBe(BattleStatus::Finished)
+        ->and(Battle::query()->where('end_reason', 'invite_expired')->count())->toBe(2)
+        ->and(app(BattleJanitor::class)->sweep())->toBe(0);
+});
+
+it('keeps the poll of a battle under 600 bytes on the wire: a game with its round, and a match that is over with a rematch', function (): void {
+    [$me, $friend, $battle] = budgetBattle();
+    BattleKit::answer($battle, $me, 1, BattleKit::correct(BattleKit::element($battle, 1)));
+    CarbonImmutable::setTestNow('2026-10-30 10:00:20');
+
+    $playing = budgetPoll($me, $battle->id)->toArray();
+    expect(strlen(json_encode($playing, JSON_THROW_ON_ERROR)))->toBeLessThanOrEqual(BUDGET_BATTLE_POLL_BYTES)
+        ->and(array_keys($playing))->toBe(['id', 'status', 'version', 'server_now', 'ready', 'opponent_present', 'opponent_absent_since', 'round', 'scores', 'end_reason', 'rematch'])
+        ->and($playing['round'])->toMatchArray(['no' => 1, 'phase' => 'answering', 'my_answered' => true, 'opponent_answered' => false]);
+
+    // The friend has been silent since the acceptance: absent (the poll says since when), and that ends the match in my favour.
+    CarbonImmutable::setTestNow('2026-10-30 10:00:31');
+    $absent = budgetPoll($me, $battle->id)->toArray();
+    expect(strlen(json_encode($absent, JSON_THROW_ON_ERROR)))->toBeLessThanOrEqual(BUDGET_BATTLE_POLL_BYTES)
+        ->and([$absent['status'], $absent['end_reason']])->toBe(['finished', 'absent']);
+
+    app(BattleService::class)->invite($friend, null, PracticeMode::Pairs, 'ignored', null, $battle->id);
+    $over = budgetPoll($me, $battle->id)->toArray();
+    expect(strlen(json_encode($over, JSON_THROW_ON_ERROR)))->toBeLessThanOrEqual(BUDGET_BATTLE_POLL_BYTES)
+        ->and($over['rematch'])->toMatchArray(['status' => 'invited', 'by_me' => false]);
 });
