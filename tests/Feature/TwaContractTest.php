@@ -533,6 +533,7 @@ it('POST /training/finish keeps its exact JSON shape', function (): void {
             'reviewed', 'correct', 'new_words',
             'goal' => CONTRACT_GOAL,
             'streak' => CONTRACT_STREAK,
+            'practice_entry',
         ]);
 
     expect($response->json('reviewed'))->toBeInt()
@@ -540,7 +541,30 @@ it('POST /training/finish keeps its exact JSON shape', function (): void {
         ->and($response->json('new_words'))->toBeInt()
         ->and($response->json('goal.target'))->toBeInt()
         ->and($response->json('goal.met'))->toBeBool()
-        ->and($response->json('streak.at_risk'))->toBeBool();
+        ->and($response->json('streak.at_risk'))->toBeBool()
+        // The key is always there; `null` while the practice is closed to the learner or the session has no place to lead to (docs/16 §11.1).
+        ->and($response->json('practice_entry'))->toBeNull();
+});
+
+it('POST /training/finish carries the practice entry {course, lesson_id} of a lesson and of a daily review', function (): void {
+    config(['practice.access' => 'all', 'practice.plan' => 'all']);
+    $course = Course::factory()->published()->create(['slug' => 'english-a1']);
+    $lesson = Lesson::factory()->for(Stage::factory()->create(['course_id' => $course->id, 'number' => 2]))->create(['number' => 4]);
+    $learner = Learner::factory()->create();
+    $lessonSession = TrainingSession::factory()->personal($learner, 'lesson')->create(['lesson_id' => $lesson->id]);
+    $reviewSession = TrainingSession::factory()->personal($learner, 'daily_review')->create(['course_id' => $course->id]);
+    $headers = contractHeaders($learner);
+
+    $forLesson = $this->withHeaders($headers)->postJson("/api/twa/training/sessions/{$lessonSession->id}/finish")
+        ->assertOk()
+        ->assertExactJsonStructure(['reviewed', 'correct', 'new_words', 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK, 'practice_entry' => ['course', 'lesson_id']]);
+    $forReview = $this->withHeaders($headers)->postJson("/api/twa/training/sessions/{$reviewSession->id}/finish")
+        ->assertOk()
+        ->assertExactJsonStructure(['reviewed', 'correct', 'new_words', 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK, 'practice_entry' => ['course', 'lesson_id']]);
+
+    // A lesson leads to its lesson (an id), a daily review to the course (null instead of the lesson).
+    expect($forLesson->json('practice_entry'))->toBe(['course' => 'english-a1', 'lesson_id' => $lesson->id])
+        ->and($forReview->json('practice_entry'))->toBe(['course' => 'english-a1', 'lesson_id' => null]);
 });
 
 it('GET /training/next keeps its exact JSON shape, with and without a card', function (): void {
