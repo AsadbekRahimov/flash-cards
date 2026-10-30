@@ -670,6 +670,14 @@ export const ru = {
   'practice.collocation.footnote.battle': 'Ответ окончательный: изменить нельзя.',
 
   // ---- practice: sentence ----
+  'practice.sentence.line': 'Ваше предложение',
+  'practice.sentence.empty': 'Нажимайте на слова ниже по порядку',
+  'practice.sentence.progress': 'Собрано {done} из {total}',
+  'practice.sentence.bank': 'Слова для предложения',
+  'practice.sentence.add': 'Добавить: {word}',
+  'practice.sentence.remove': 'Убрать: {word}',
+  'practice.sentence.reset': 'Начать заново',
+  'practice.sentence.also_correct': 'Можно и так',
 
   // ---- practice: dictation ----
 
