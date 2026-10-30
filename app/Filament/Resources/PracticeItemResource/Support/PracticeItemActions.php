@@ -134,13 +134,17 @@ final class PracticeItemActions
 
     /**
      * A refusal of PracticeItemService as the admin reads it: the Russian reason, kept on the screen until closed. The pages
-     * of the form use it for a text that was not accepted.
+     * of the form use it for a text that was not accepted (the buttons of the list reach it through `run()`).
+     *
+     * The body of a Filament notification is HTML, and the sentence holds the text of a word as the vocabulary has it (`wordIds()`
+     * names a target word that went inactive by its text: a word with `<a href>` or `<img>` in it is accepted by the import and
+     * by the form, `required|string|max:100`), so the sentence is escaped here.
      */
     public static function refused(PracticeContentException|PracticeItemStateException $e): void
     {
         Notification::make()
             ->title(__('admin.practice_items.notifications.failed'))
-            ->body(AdminErrors::for('practice_items', $e))
+            ->body(e(AdminErrors::for('practice_items', $e)))
             ->danger()
             ->persistent()
             ->send();
