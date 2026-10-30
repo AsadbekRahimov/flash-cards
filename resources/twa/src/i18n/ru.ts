@@ -668,6 +668,21 @@ export const ru = {
   // ---- practice: sentence ----
 
   // ---- practice: dictation ----
+  'practice.dictation.hint': 'Слушайте сколько нужно и пишите по-английски',
+  'practice.dictation.playing': 'Играет запись…',
+  'practice.dictation.blocked': 'Без записи отвечать нельзя. Повторите загрузку или замените задание.',
+  'practice.dictation.input': 'Напишите, что услышали',
+  'practice.dictation.words': {
+    one: '{count} слово',
+    few: '{count} слова',
+    many: '{count} слов',
+    other: '{count} слова',
+  },
+  'practice.dictation.typed': 'Написано слов: {typed} из {count}',
+  'practice.dictation.listen_again': 'Прослушать ещё раз',
+  'practice.dictation.diff.right': 'верно',
+  'practice.dictation.diff.wrong': 'ошибка',
+  'practice.dictation.diff_hint': 'Отмечены слова, в которых ошибка.',
 
   // ---- battle ----
 

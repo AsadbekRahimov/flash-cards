@@ -795,7 +795,14 @@ describe('PracticeSessionView — the clip of a dictation', () => {
     await answerProbe(r)
 
     expect(r.wrapper.find('[data-testid=answer-reveal]').exists()).toBe(true)
-    expect(api.practice.audioBlob).toHaveBeenLastCalledWith('/api/twa/practice/sessions/77/audio/eDict00002')
+    // The shared slot of the screen takes the NEXT clip; the review (18.5) fetches the clip of the answered element into a slot of its
+    // own, for "Listen again" - so the next clip is not the last request any more, but it is asked for, and only once.
+    const asked = vi.mocked(api.practice.audioBlob).mock.calls.map(([url]) => url)
+    expect(asked).toEqual([
+      '/api/twa/practice/sessions/77/audio/eDict00001',
+      '/api/twa/practice/sessions/77/audio/eDict00002',
+      '/api/twa/practice/sessions/77/audio/eDict00001',
+    ])
     r.wrapper.unmount()
   })
 })
