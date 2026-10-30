@@ -2088,8 +2088,6 @@
 | `practice.hub.battle.invites` | Bellashuvga takliflar | Приглашения на баттл |
 | `practice.hub.battle.invited_by` | {name} sizni bellashuvga chaqiryapti | {name} зовёт вас на баттл |
 | `practice.hub.battle.resume` | Bellashuvga qaytish | Вернуться в баттл |
-| `practice.hub.battle.soon_title` | Bellashuvlar tez orada | Баттлы скоро |
-| `practice.hub.battle.soon_text` | 1 ga 1 bellashuvlarni yakunlayapmiz. Biroz keyinroq qaytib keling. | Мы доделываем баттлы 1 на 1. Загляните чуть позже. |
 | `practice.hub.friends.title` | Kim bilan o'ynaymiz? | С кем играем? |
 | `practice.hub.friends.play_with` | {name} bilan o'ynash | Играть с {name} |
 | `practice.hub.friends.empty` | Hozircha do'stlaringiz yo'q. «Reyting» bo'limida tanishingizni taklif qiling — birga o'ynaysiz. | Пока нет друзей. Позовите знакомого во вкладке «Рейтинг», и играйте вместе. |
@@ -2281,3 +2279,171 @@
 | `practice.dictation.diff.right` | to'g'ri | верно |
 | `practice.dictation.diff.wrong` | xato | ошибка |
 | `practice.dictation.diff_hint` | Xato bor so'zlar belgilangan. | Отмечены слова, в которых ошибка. |
+
+## Практика и баттл 2026-10 · 18-6t — на проверку носителю
+
+> Экраны баттла 1 на 1 в приложении (`resources/twa/src/i18n/uz.ts`, блок `// ---- battle ----`, задача 18.6-T): настройка (кого зовём, тема, формат),
+> приглашение, комната, обратный отсчёт, раунды с таймером, разбор раунда, итог с реваншем, выход и сдача, а также кнопка «Баттл» и приглашения в разделе «Друзья».
+> Тексты ошибок сервера для баттла (коды `docs/16` §7.6) уже в разделе `18-1t` выше. Строки `practice.hub.battle.soon_title` / `soon_text` («Баттлы скоро»)
+> удалены из приложения и из раздела `18-1t`.
+>
+> Что решить носителю:
+> - **«Баттл»** — `bellashuv` (как в `18-1t`); «Реванш» — `Revansh`; «Ничья» — `Durang`; «Сдаться» — `Taslim bo'lish`; «Соперник» — `raqib`; «Комната» — `xona`.
+> - **«Раунд»** — `raund`: заголовок «Раунд 2 из 5» — `5 raunddan 2-raund`; в списке итога — `2-raund`. Порядок слов и дефис проверить.
+> - **«Очки»** — `ochko`: после числа слово не меняется (`1 ochko`, `100 ochko`), поэтому у `battle.points` формы `one` и `other` совпадают.
+> - **«Готов»** — `Tayyorman` («я готов»); «Готов — ждём соперника» — `Tayyorman — raqib kutilmoqda` (галочку рисует иконка, в тексте её нет).
+> - **Состояния соперника** под именем: `javob bermoqda…` («отвечает…»), `javob berdi` («ответил»), `tayyor` / `tayyor emas`, `aloqa yo'q` («нет связи»),
+>   `hali javob bermadi` («ещё не ответил» — про приглашение).
+> - **Вердикты** разбора раунда: `To'g'ri`, `Imlo xatosi` (опечатка, как в `18-1t`), `Xato`, `O'tkazib yuborildi` («пропущено»), `Vaqt tugadi`.
+> - **Причины окончания** (`battle.reason.*`): тон спокойный, без упрёков. Просьба прочитать «Siz taslim bo'ldingiz: g'alaba raqibga yozildi»
+>   и «Siz o'yindan yo'qolib qoldingiz: mag'lubiyat yozildi» — не звучат ли слишком канцелярски; «yo'qolib qoldingiz» = «пропали из матча» (нет связи долго).
+> - **Правила** (`battle.rules.*`) показываются перед игрой, формулировки короткие; «Tezlik ochko qo'shmaydi» = «скорость очков не добавляет».
+> - **Секунды:** «{seconds} с на раунд» на карточке формата записано как `Har bir raundga {seconds} soniya` («на каждый раунд {seconds} секунд») — на узкой карточке
+>   можно короче, если носитель подскажет привычную форму.
+> - Обращение везде на «Вы» (`Siz`), как в остальном приложении.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `battle.title` | Bellashuv | Баттл |
+| `battle.you` | Siz | Вы |
+| `battle.opponent` | Raqib | Соперник |
+| `battle.gone_title` | Bellashuv mavjud emas | Баттл недоступен |
+| `battle.to_friends` | Do'stlarga | К друзьям |
+| `battle.to_course` | Kursga | В курс |
+| `battle.open_current` | Joriy bellashuvni ochish | Открыть текущий баттл |
+| `battle.points.one` | {count} ochko | {count} очко |
+| `battle.points.few` | _(в uz этой формы нет — используется `other`)_ | {count} очка |
+| `battle.points.many` | _(в uz этой формы нет — используется `other`)_ | {count} очков |
+| `battle.points.other` | {count} ochko | {count} очка |
+| `battle.score.aria` | Hisob: siz {me}, {name} {opponent} | Счёт: вы {me}, {name} {opponent} |
+| `battle.setup.title` | Yangi bellashuv | Новый баттл |
+| `battle.setup.subtitle` | Mavzu va formatni tanlang | Выберите тему и формат |
+| `battle.setup.friend` | Raqib | Соперник |
+| `battle.setup.course` | Kurs | Курс |
+| `battle.setup.lesson` | Dars | Урок |
+| `battle.setup.lesson_all` | Butun kurs | Весь курс |
+| `battle.setup.format` | Format | Формат |
+| `battle.setup.round_seconds` | Har bir raundga {seconds} soniya | {seconds} с на раунд |
+| `battle.setup.invite` | Taklif qilish | Пригласить |
+| `battle.setup.inviting` | Taklif qilinmoqda… | Приглашаем… |
+| `battle.setup.invite_hint` | Do'stingiz taklifni Telegram va ilovada oladi. | Друг получит приглашение в Telegram и в приложении. |
+| `battle.setup.no_friend_title` | Do'stni tanlang | Выберите друга |
+| `battle.setup.no_friend_text` | Bellashuv ikki kishi bilan o'ynaladi. Do'stlar ro'yxatini ochib, kerakli do'stning yonidagi «Bellashuv» tugmasini bosing. | Баттл играют вдвоём. Откройте список друзей и нажмите «Баттл» рядом с нужным. |
+| `battle.setup.no_courses` | Bellashuv uchun hozircha mos kurslar yo'q. | Для баттла пока нет подходящих курсов. |
+| `battle.setup.lessons_error` | Kurs darslarini yuklab bo'lmadi. | Не удалось загрузить уроки курса. |
+| `battle.setup.friend_no_access` | {name} hozircha o'ynay olmaydi: do'stingizda amaliyotga ruxsat yo'q. U ochilgach, taklif qilishingiz mumkin. | {name} пока не может играть: у друга нет доступа к практике. Позвать получится, когда он откроется. |
+| `battle.setup.blocked.friend.title` | Bu do'st ro'yxatda yo'q | Этого друга нет в списке |
+| `battle.setup.blocked.friend.text` | Bellashuvga faqat do'stni taklif qilish mumkin. Do'stlar ro'yxatini tekshiring. | Позвать в баттл можно только друга. Проверьте список друзей. |
+| `battle.setup.blocked.off.title` | Bellashuvlar hozir o'chirilgan | Баттлы сейчас выключены |
+| `battle.setup.blocked.off.text` | Keyinroq qaytib keling. Yakka o'zingiz esa mashq qilishingiz mumkin: kurs amaliyotini oching. | Загляните позже. А потренироваться можно и в одиночку: откройте практику курса. |
+| `battle.setup.blocked.unavailable.title` | Amaliyot hozircha mavjud emas | Практика пока недоступна |
+| `battle.setup.blocked.unavailable.text` | U keyinroq ochiladi. Kurs bo'yicha odatdagidek o'qishni davom ettirishingiz mumkin. | Она откроется позже. А заниматься по курсу можно как обычно. |
+| `battle.setup.reason.no_words` | Bu mavzuda bellashuv uchun so'zlar yetarli emas: {required} tadan {available} tasi. Boshqa dars yoki butun kursni tanlang. | В этой теме слов меньше, чем нужно для баттла: {available} из {required}. Выберите другой урок или весь курс. |
+| `battle.setup.reason.ambiguous` | Mos so'zlar: {required} tadan {available} tasi — ko'plarining tarjimasi bir xil. Boshqa darsni tanlang. | Подходящих слов: {available} из {required} — у многих совпадают переводы. Выберите другой урок. |
+| `battle.setup.reason.no_items` | Bu mavzuda shu formatdagi topshiriqlar yetarli emas: {required} tadan {available} tasi. | Заданий этого формата в теме меньше, чем нужно: {available} из {required}. |
+| `battle.setup.reason.audio_pending` | Topshiriqlar uchun yozuvlar hali tayyorlanmoqda. Keyinroq qaytib keling. | Записи для заданий ещё готовятся. Загляните позже. |
+| `battle.setup.reason.no_audio_words` | Bu mavzudagi so'zlar uchun hozircha yozuvlar yo'q. | Для слов этой темы пока нет записей. |
+| `battle.setup.reason.unknown` | Bu format uchun material hozircha yetarli emas. | Для этого формата пока не хватает материала. |
+| `battle.invite.waiting` | {name} kutilmoqda… | Ждём ответа: {name} |
+| `battle.invite.waiting_anon` | Do'stingizning javobi kutilmoqda… | Ждём ответа друга… |
+| `battle.invite.lead_sent` | Do'stingiz taklifni oldi. U qabul qilishi bilan xona ochiladi. | Друг получил приглашение. Как только он примет его, откроется комната. |
+| `battle.invite.lead` | Qoidalar bilan tanishing va taklifni qabul qiling — xona ochiladi. | Посмотрите правила и примите приглашение — откроется комната. |
+| `battle.invite.expires` | Taklif muddati tugashiga {time} qoldi | Приглашение действует ещё {time} |
+| `battle.invite.accept` | Qabul qilish | Принять |
+| `battle.invite.decline` | Rad etish | Отклонить |
+| `battle.invite.cancel` | Bekor qilish | Отменить |
+| `battle.room.title` | Xona tayyor | Комната готова |
+| `battle.room.lead` | Tayyor bo'lganingizda «Tayyorman» tugmasini bosing. Ikkalangiz bossangiz, o'yin boshlanadi. | Нажмите «Готов», когда будете готовы. Матч начнётся, когда нажмут оба. |
+| `battle.room.expires` | Xona yopilishiga {time} qoldi | Комната закроется через {time} |
+| `battle.room.ready` | Tayyorman | Готов |
+| `battle.room.ready_done` | Tayyorman — raqib kutilmoqda | Готов — ждём соперника |
+| `battle.room.leave` | Chiqish | Выйти |
+| `battle.player.invited` | hali javob bermadi | ещё не ответил |
+| `battle.player.not_ready` | tayyor emas | не готов |
+| `battle.player.ready` | tayyor | готов |
+| `battle.player.answering` | javob bermoqda… | отвечает… |
+| `battle.player.answered` | javob berdi | ответил |
+| `battle.player.absent` | aloqa yo'q | нет связи |
+| `battle.rules.title` | Qoidalar | Правила |
+| `battle.rules.rounds` | Raundlar soni: {count}. Topshiriqlar ikkalangizda bir xil. | Раундов: {count}. Задания у обоих одинаковые. |
+| `battle.rules.time` | Har bir raundga {seconds} soniya beriladi. Vaqtni server hisoblaydi. | На каждый раунд — {seconds} с. Время считает сервер. |
+| `battle.rules.points` | Raund uchun 100 ochkogacha beriladi. Tezlik ochko qo'shmaydi. | За раунд — до 100 очков. Скорость очков не добавляет. |
+| `battle.rules.points_pairs` | Har bir to'g'ri juftlik uchun 25 ochko, raundga 100 ochkogacha. Tezlik ochko qo'shmaydi. | За каждую верную пару — 25 очков, за раунд до 100. Скорость очков не добавляет. |
+| `battle.rules.winner` | Ochkosi ko'p bo'lgan g'olib bo'ladi. Hisob teng bo'lsa — durang. | Побеждает тот, у кого больше очков. При равном счёте — ничья. |
+| `battle.rules.final` | Raundda javob bitta va oxirgi. | Ответ в раунде один и окончательный. |
+| `battle.rules.leave` | O'yindan chiqish — taslim bo'lish: g'alaba raqibga o'tadi. Uzoq vaqt yo'qolib qolish ham mag'lubiyatga olib keladi. | Выход из матча — это сдача: победа достанется сопернику. Надолго пропасть тоже значит проиграть. |
+| `battle.rules.dictation` | Agar o'yin paytida ovoz yuklanmasa, raund 0 ochko beradi. Yozuv umuman bo'lmasa, o'yin bekor qilinadi. | Если звук не загрузится во время матча, раунд даст 0 очков. Если записи нет совсем, матч аннулируется. |
+| `battle.audio.loading` | Ovoz yuklanmoqda: {total} tadan {loaded} tasi | Загружаем звук: {loaded} из {total} |
+| `battle.audio.ready` | Ovoz yuklandi | Звук загружен |
+| `battle.audio.failed` | Ovozni yuklab bo'lmadi. Usiz boshlab bo'lmaydi — qayta yuklang. | Не удалось загрузить звук. Без него начать нельзя — повторите загрузку. |
+| `battle.audio.round_failed` | Ovoz yuklanmadi. Qayta yuklang: bo'lmasa, raund 0 ochko beradi. | Звук не загрузился. Повторите загрузку: если не получится, раунд даст 0 очков. |
+| `battle.countdown.title` | O'yin boshlanmoqda | Матч начинается |
+| `battle.countdown.go` | Start! | Старт! |
+| `battle.round.title` | {rounds} raunddan {round}-raund | Раунд {round} из {rounds} |
+| `battle.round.answered` | Javob qabul qilindi | Ответ принят |
+| `battle.round.waiting` | Raqib kutilmoqda… | Ждём соперника… |
+| `battle.round.sending` | Javob yuborilmoqda… | Отправляем ответ… |
+| `battle.round.send_failed` | Javob yuborilmadi: aloqa yo'q. Raund vaqti tugamasidan qayta yuboring. | Ответ не отправился: нет связи. Повторите, пока идёт время раунда. |
+| `battle.timer.label` | Raund vaqti | Время раунда |
+| `battle.timer.left` | {seconds} soniya qoldi | Осталось {seconds} с |
+| `battle.timer.over` | Vaqt tugadi | Время вышло |
+| `battle.connection.offline` | Aloqa yo'q, qayta urinilmoqda… | Нет связи, пробуем… |
+| `battle.connection.absent` | Raqibning aloqasi uzildi… {time} | Соперник потерял связь… {time} |
+| `battle.connection.absent_playing` | Agar u qaytmasa, g'alaba sizga o'tadi. | Если он не вернётся, победа достанется вам. |
+| `battle.connection.absent_room` | Agar u qaytmasa, xona yopiladi. | Если он не вернётся, комната закроется. |
+| `battle.reveal.correct` | To'g'ri javob | Правильный ответ |
+| `battle.reveal.no_answer` | Javob yo'q | Ответа нет |
+| `battle.reveal.pairs_right` | To'g'ri juftliklar: {total} tadan {right} tasi | Верных пар: {right} из {total} |
+| `battle.reveal.next` | Keyingi raund {seconds} soniyadan keyin… | Следующий раунд через {seconds}… |
+| `battle.reveal.next_now` | Keyingi raund… | Следующий раунд… |
+| `battle.reveal.last` | Natijalar {seconds} soniyadan keyin… | Итоги через {seconds}… |
+| `battle.reveal.last_now` | Natijalar hisoblanmoqda… | Подводим итоги… |
+| `battle.verdict.correct` | To'g'ri | Верно |
+| `battle.verdict.typo` | Imlo xatosi | Опечатка |
+| `battle.verdict.wrong` | Xato | Ошибка |
+| `battle.verdict.skipped` | O'tkazib yuborildi | Пропуск |
+| `battle.verdict.timeout` | Vaqt tugadi | Время вышло |
+| `battle.result.title.won` | G'alaba | Победа |
+| `battle.result.title.lost` | Mag'lubiyat | Поражение |
+| `battle.result.title.draw` | Durang | Ничья |
+| `battle.result.title.none` | Bellashuv bo'lib o'tmadi | Матч не состоялся |
+| `battle.result.rounds` | Raundlar | Раунды |
+| `battle.result.round` | {round}-raund | Раунд {round} |
+| `battle.result.rematch` | Revansh | Реванш |
+| `battle.result.again` | Yana taklif qilish | Пригласить снова |
+| `battle.result.rematch_from` | {name} revansh taklif qilyapti | {name} предлагает реванш |
+| `battle.result.rematch_text` | Format ham, mavzu ham o'sha-o'sha. Qabul qiling — xona ochiladi. | Тот же формат и та же тема. Примите, и откроется комната. |
+| `battle.result.rematch_mine` | Siz revansh taklif qildingiz | Вы предложили реванш |
+| `battle.result.rematch_mine_text` | Do'stingizning javobi kutilmoqda. Taklifni pastdagi tugma bilan ochishingiz mumkin. | Ждём ответа друга. Открыть приглашение можно кнопкой ниже. |
+| `battle.result.open_rematch` | Revanshni ochish | Открыть реванш |
+| `battle.reason.completed` | Barcha raundlar o'ynaldi. | Сыграны все раунды. |
+| `battle.reason.completed_draw` | Barcha raundlar o'ynaldi, hisob teng. | Сыграны все раунды, счёт равный. |
+| `battle.reason.surrender_won` | Raqib taslim bo'ldi — g'alaba sizniki. | Соперник сдался — победа ваша. |
+| `battle.reason.surrender_lost` | Siz taslim bo'ldingiz: g'alaba raqibga yozildi. | Вы сдались: победа засчитана сопернику. |
+| `battle.reason.absent_won` | Raqib o'yindan chiqib, qaytmadi — g'alaba sizniki. | Соперник вышел из матча и не вернулся — победа ваша. |
+| `battle.reason.absent_lost` | Siz o'yindan yo'qolib qoldingiz: mag'lubiyat yozildi. | Вы пропали из матча: засчитано поражение. |
+| `battle.reason.both_absent` | Ikkala o'yinchi ham yo'qoldi — bellashuv g'olibsiz yopildi. | Оба игрока пропали — матч закрыт без победителя. |
+| `battle.reason.declined` | Taklif rad etildi. | Приглашение отклонено. |
+| `battle.reason.invite_expired` | Taklif o'z vaqtida qabul qilinmadi. | Приглашение не приняли вовремя. |
+| `battle.reason.room_expired` | Xona yopildi: o'yin o'z vaqtida boshlanmadi. | Комната закрыта: матч не начался вовремя. |
+| `battle.reason.canceled` | O'yin boshlanishidan oldin bekor qilindi. | Матч отменили до начала. |
+| `battle.reason.voided` | Bellashuv texnik muammo tufayli bekor qilindi. Ochkolar hisoblanmaydi. | Матч аннулирован из-за технической проблемы. Очки не засчитаны. |
+| `battle.leave.room_title` | Xonadan chiqasizmi? | Выйти из комнаты? |
+| `battle.leave.room_text` | O'yin bekor qilinadi, raqib bundan xabar topadi. | Матч отменится, соперник узнает об этом. |
+| `battle.leave.invite_text` | Taklif qaytarib olinadi. | Приглашение будет отозвано. |
+| `battle.leave.room_confirm` | Chiqish | Выйти |
+| `battle.leave.match_title` | Taslim bo'lib chiqasizmi? | Сдаться и выйти? |
+| `battle.leave.match_text` | Sizga mag'lubiyat yoziladi, g'alaba esa raqibga o'tadi. | Вам засчитают поражение, а победа достанется сопернику. |
+| `battle.leave.match_confirm` | Taslim bo'lish | Сдаться |
+| `battle.leave.stay` | Qolish | Остаться |
+| `battle.live.countdown` | Startga {seconds} | Старт через {seconds} |
+| `battle.live.round` | {rounds} raunddan {round}-raund. Vaqt ketmoqda. | Раунд {round} из {rounds}. Время пошло. |
+| `battle.live.waiting` | Javob qabul qilindi. Raqib kutilmoqda. | Ответ принят. Ждём соперника. |
+| `battle.live.reveal` | Raund tugadi. {verdict}. | Раунд завершён. {verdict}. |
+| `battle.friends.button` | Bellashuv | Баттл |
+| `battle.friends.button_aria` | {name} bilan bellashuv | Баттл с другом: {name} |
+| `battle.friends.active` | Bellashuv davom etmoqda | Идёт баттл |
+| `battle.friends.status.invited` | Javob kutilmoqda | Ждём ответа |
+| `battle.friends.status.room` | Xona | Комната |
+| `battle.friends.status.countdown` | Start | Старт |
+| `battle.friends.status.playing` | O'yin | Игра |

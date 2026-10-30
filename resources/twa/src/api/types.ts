@@ -1011,7 +1011,8 @@ export interface BattleOptionsResponse {
 /** The round the battle is in. */
 export interface BattleRoundState {
   no: number
-  phase: BattlePhase
+  /** `null` while the countdown runs: the round has a number and a deadline, but no phase before the match starts (docs/16 §8.1). */
+  phase: BattlePhase | null
   /** End of the time to answer (server clock). */
   deadline_at: string | null
   /** End of the pause that shows the answers. */
@@ -1063,6 +1064,8 @@ export interface Battle {
   result: BattleResult | null
   /** The rematch offered after this battle. */
   rematch: { battle_id: number; status: BattleStatus } | null
+  /** Not in docs/16 §7.4: the friendship of the battle, used for a rematch when the server sends it. */
+  friendship_id?: number | null
   /** Dictation, `room` only (docs/16 §10.3): the clips of the five rounds to load before "Ready". */
   audio_preload?: string[]
 }
@@ -1143,7 +1146,8 @@ export interface BattleListResponse {
 
 /** Body of POST /practice/battles. */
 export interface BattleInviteRequest {
-  friendship_id: number
+  /** The friendship to invite. A rematch (`rematch_of`) takes the friend from the finished battle: the id is left out when the TWA does not know it. */
+  friendship_id?: number
   mode: PracticeMode
   course: string
   lesson_id?: number | null
