@@ -1518,7 +1518,9 @@ it('rolls back and re-applies the practice migrations (18.1, and the scope of th
     }
     expect(Schema::hasColumn('learners', 'practice_pilot_at'))->toBeTrue()
         // The migration of the 18.9a (the words, the lesson and the level belong to the version) comes with the table.
-        ->and(Schema::hasColumns('practice_item_versions', ['target_word_ids', 'lesson_id', 'level']))->toBeTrue();
+        ->and(Schema::hasColumns('practice_item_versions', ['target_word_ids', 'lesson_id', 'level']))->toBeTrue()
+        // ... and so does `battles.open_pair` of 18.6-fix (one battle that is not over per pair).
+        ->and(Schema::hasColumn('battles', 'open_pair'))->toBeTrue();
 
     // The invariants are back with the tables: the unique "one active session" and the partial index.
     $learner = Learner::factory()->create();
@@ -1546,6 +1548,33 @@ it('allows ONE active practice session per learner through the unique active_lea
     PracticeSession::factory()->create();
     expect(PracticeSession::query()->where('learner_id', $learner->id)->count())->toBe(4)
         ->and(PracticeSession::query()->where('learner_id', $learner->id)->whereNotNull('active_learner_id')->count())->toBe(1);
+});
+
+it('allows ONE battle that is not over per pair of players through the unique battles.open_pair, whichever side invited (18.6-fix)', function (): void {
+    $a = Learner::factory()->create();
+    $b = Learner::factory()->create();
+
+    // The factory holds the pair for a battle that is not over, the way the invitation writes it: the same key from either side.
+    $first = Battle::factory()->create(['challenger_id' => $a->id, 'opponent_id' => $b->id]);
+    expect($first->open_pair)->toBe(Battle::pairKey($a->id, $b->id))
+        ->and(Battle::pairKey($b->id, $a->id))->toBe(Battle::pairKey($a->id, $b->id));
+    expectConstraintViolation(fn () => Battle::factory()->create(['challenger_id' => $b->id, 'opponent_id' => $a->id]));
+    expectConstraintViolation(fn () => Battle::factory()->create(['challenger_id' => $a->id, 'opponent_id' => $b->id, 'status' => BattleStatus::Room, 'accepted_at' => now(), 'room_expires_at' => now()->addMinutes(2)]));
+
+    // A battle that is over lets the pair go (NULL does not collide): the next invitation of the pair is free.
+    $first->forceFill(['status' => BattleStatus::Closed, 'end_reason' => BattleEndReason::Declined, 'finished_at' => now(), 'open_pair' => null])->save();
+    $second = Battle::factory()->create(['challenger_id' => $b->id, 'opponent_id' => $a->id]);
+    expect($second->open_pair)->toBe(Battle::pairKey($a->id, $b->id))
+        ->and(Battle::factory()->create(['challenger_id' => $a->id, 'opponent_id' => $b->id, 'status' => BattleStatus::Finished, 'end_reason' => BattleEndReason::Completed, 'finished_at' => now()])->open_pair)->toBeNull();
+
+    // Another pair is another key.
+    $c = Learner::factory()->create();
+    expect(Battle::factory()->create(['challenger_id' => $a->id, 'opponent_id' => $c->id])->open_pair)->toBe(Battle::pairKey($a->id, $c->id));
+
+    // PostgreSQL: a battle that is over cannot hold the pair.
+    if (DB::getDriverName() === 'pgsql') {
+        expectConstraintViolation(fn () => Battle::factory()->create(['challenger_id' => $b->id, 'opponent_id' => $c->id, 'status' => BattleStatus::Closed, 'end_reason' => BattleEndReason::Declined, 'finished_at' => now(), 'open_pair' => Battle::pairKey($b->id, $c->id)]));
+    }
 });
 
 it('allows ONE active battle per learner through the unique battle_participants.active_learner_id', function (): void {

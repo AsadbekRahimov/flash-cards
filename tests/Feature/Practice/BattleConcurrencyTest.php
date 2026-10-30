@@ -353,6 +353,51 @@ it('finalises a match exactly once when both players poll and the sweeper runs a
         ->and(battleRaceEvents('battle.finished')[0])->toMatchArray(['battle_id' => $battle->id, 'end_reason' => 'completed', 'result' => 'challenger', 'rounds_played' => 5]);
 });
 
+it('lets exactly one of two rematches that cross go through, whatever the gap between them: the other is 409 battle_busy with the id of the first (Ж2, open_pair)', function (): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    $meId = $me->id;
+    $friendId = $friend->id;
+    $outcomes = [];
+
+    foreach ([0.0, 0.005, 0.010, 0.0, 0.005, 0.010] as $attempt => $gap) {
+        CarbonImmutable::setTestNow(BattleKit::T0);
+        $source = BattleKit::countdown($me, $friend, $friendship, PracticeMode::Collocation, $course);
+        app(BattleService::class)->surrender($me, $source->id);
+        $sourceId = $source->id;
+
+        $results = battleRace([
+            fn (): int => app(BattleService::class)->invite(battleRaceLearner($meId), null, PracticeMode::Pairs, '', null, $sourceId)->id,
+            function () use ($friendId, $sourceId, $gap): int {
+                usleep((int) ($gap * 1_000_000));
+
+                return app(BattleService::class)->invite(battleRaceLearner($friendId), null, PracticeMode::Pairs, '', null, $sourceId)->id;
+            },
+        ]);
+        $open = Battle::query()->where('rematch_of_id', $sourceId)->whereIn('status', BattleStatus::nonTerminalValues())->get();
+        $codes = battleRaceOutcomes($results);
+        $outcomes[] = implode('/', $codes);
+        $winner = $open->first();
+
+        expect(battleRaceCrashes($results))->toBe([], "attempt {$attempt}")
+            ->and($open)->toHaveCount(1, "attempt {$attempt}: ".json_encode($results))
+            ->and(array_count_values($codes))->toEqual(['ok' => 1, 'battle_busy' => 1])
+            ->and($winner?->open_pair)->toBe(Battle::pairKey($meId, $friendId))
+            ->and(Battle::query()->where('rematch_of_id', $sourceId)->count())->toBe(1); // the loser's INSERT was refused: no second row, no second event
+        foreach ($results as $result) {
+            if ($result['ok']) {
+                expect($result['value'])->toBe($winner?->id);
+            } else {
+                expect($result['details'] ?? null)->toBe(['battle_id' => $winner?->id]); // the loser is told which one to open and accept
+            }
+        }
+
+        app(BattleService::class)->cancel(battleRaceLearner((int) $winner?->challenger_id), (int) $winner?->id);
+    }
+
+    expect(ProductEvent::query()->where('name', 'battle.invited')->where('props->rematch', true)->count())->toBe(6)
+        ->and(BattleParticipant::query()->whereNotNull('active_learner_id')->count())->toBe(0);
+});
+
 it('settles a surrender and the opponent answer that meet: one finished match with the opponent as the winner, no deadlock', function (): void {
     [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
     $meId = $me->id;

@@ -25,6 +25,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Ramsey\Uuid\Uuid;
 use Tests\Support\Practice\BattleKit;
 use Tests\Support\Practice\PracticeKit;
 use Tests\Support\QueryLog;
@@ -166,6 +167,120 @@ it('lets a learner have one open battle: a second invitation is 409 battle_busy 
     expect(BattleKit::invite($me, $other, PracticeMode::Pairs, $course)->status)->toBe(BattleStatus::Invited);
 });
 
+// ------------------------------------------------------------------------------------------------------------ 18.6-fix (the review of the battle server)
+
+it('cannot be stalled by a request_id forged from the old time-out formula: the time-out row gets a random id of its own and the round is resolved (Б1)', function (): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    $battle = BattleKit::playing($me, $friend, $friendship, PracticeMode::Collocation, $course);
+    // What a client could compute from docs/16 §2.7 as it was: the id the server would give MY time-out row of round 2.
+    $forged = Uuid::uuid5(Uuid::NAMESPACE_URL, "lexiflow:battle:{$battle->id}:round:2:learner:{$me->id}")->toString();
+
+    $element = BattleKit::element($battle, 1);
+    expect(BattleKit::answer($battle, $me, 1, BattleKit::correct($element), $forged)->verdict)->toBe(Verdict::Correct)
+        ->and(BattleKit::answer($battle, $friend, 1, BattleKit::wrong($element))->roundResolved)->toBeTrue();
+    battleTick('2026-10-30 10:00:07');
+    expect(BattleKit::reader()->poll(BattleKit::reader()->find($me, $battle->id), $me, CarbonImmutable::now())->round?->no)->toBe(2);
+
+    // Round 2: the friend answers, I let the time run out while both keep polling.
+    BattleKit::answer($battle, $friend, 2, BattleKit::correct(BattleKit::element($battle, 2)));
+    $deadline = BattleKit::fresh($battle)->round_deadline_at ?? throw new RuntimeException('no deadline');
+    BattleKit::bothPoll($battle, $me, $friend, $deadline->subSeconds(15)->toDateTimeString());
+    BattleKit::bothPoll($battle, $me, $friend, $deadline->subSecond()->toDateTimeString());
+    battleTick($deadline->addSeconds(2)->toDateTimeString());
+
+    // The poll resolves the round by the clock - no exception, a time-out row of mine with an id nobody could send in advance.
+    $poll = BattleKit::reader()->poll(BattleKit::reader()->find($friend, $battle->id), $friend, CarbonImmutable::now());
+    $timeout = BattleAnswer::query()->where('battle_id', $battle->id)->where('round', 2)->where('learner_id', $me->id)->sole();
+    expect([$poll->status, $poll->round?->phase])->toBe(['playing', 'reveal'])
+        ->and($timeout->verdict)->toBe(Verdict::Timeout)
+        ->and($timeout->request_id)->not->toBe($forged)
+        ->and($timeout->request_id)->toMatch('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/')
+        ->and($poll->scores)->toBe(['me' => 100, 'opponent' => 100])
+        ->and(app(BattleJanitor::class)->sweep())->toBe(0) // nothing due, nothing thrown
+        ->and(BattleKit::reader()->round(BattleKit::reader()->find($me, $battle->id), $me, 2, CarbonImmutable::now())->reveal['me'] ?? null)->toBe(['answer' => null, 'verdict' => 'timeout', 'points' => 0]);
+    // The forged id still answers as the repeat of MY round-1 answer, nothing more.
+    $repeat = BattleKit::answer($battle, $me, 1, ['skip' => true], $forged);
+    expect([$repeat->verdict, $repeat->points, $repeat->roundResolved])->toBe([Verdict::Correct, 100, true]);
+});
+
+it('frees a learner whose own invitation ran out before the sweeper came: an acceptance or a new invitation closes it and goes through (Ж1)', function (): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    $third = Learner::factory()->create(['interface_locale' => 'ru']);
+    $withThird = Friendship::factory()->between($me, $third)->create();
+
+    // The acceptance: my invitation to the friend is 1 s past its 5 minutes, the sweeper has not come - accepting the third's goes through.
+    $dead = BattleKit::invite($me, $friendship, PracticeMode::Collocation, $course);
+    battleTick('2026-10-30 10:05:01');
+    $fromThird = BattleKit::invite($third, $withThird, PracticeMode::Pairs, $course);
+    $room = BattleKit::service()->accept($me, $fromThird->id);
+    expect($room->status)->toBe(BattleStatus::Room)
+        ->and(BattleKit::fresh($dead)->status)->toBe(BattleStatus::Closed)
+        ->and(BattleKit::fresh($dead)->end_reason)->toBe(BattleEndReason::InviteExpired)
+        ->and(BattleKit::fresh($dead)->open_pair)->toBeNull()
+        ->and(collect(battleEvents('battle.closed'))->pluck('battle_id')->all())->toBe([$dead->id]);
+    BattleKit::service()->cancel($me, $fromThird->id);
+
+    // The invitation: the same with a new invitation of mine.
+    battleTick('2026-10-30 10:05:02');
+    $dead = BattleKit::invite($me, $friendship, PracticeMode::Collocation, $course);
+    battleTick('2026-10-30 10:10:03');
+    $fresh = BattleKit::invite($me, $withThird, PracticeMode::Sentence, $course);
+    expect($fresh->status)->toBe(BattleStatus::Invited)
+        ->and($fresh->id)->not->toBe($dead->id)
+        ->and(BattleKit::fresh($dead)->end_reason)->toBe(BattleEndReason::InviteExpired)
+        ->and(BattleParticipant::query()->where('active_learner_id', $me->id)->sole()->battle_id)->toBe($fresh->id)
+        ->and(collect(battleEvents('battle.closed'))->pluck('end_reason')->all())->toBe(['invite_expired', 'canceled', 'invite_expired']);
+
+    // The friend's dead invitation to me does not stand in the way of mine to them either: it is closed by the clock on the way.
+    BattleKit::service()->cancel($me, $fresh->id);
+    battleTick('2026-10-30 10:10:04');
+    $theirs = BattleKit::invite($friend, $friendship, PracticeMode::Pairs, $course);
+    battleTick('2026-10-30 10:15:05');
+    $mine = BattleKit::invite($me, $friendship, PracticeMode::Pairs, $course);
+    expect($mine->status)->toBe(BattleStatus::Invited)
+        ->and(BattleKit::fresh($theirs)->end_reason)->toBe(BattleEndReason::InviteExpired)
+        ->and($mine->open_pair)->toBe(Battle::pairKey($me->id, $friend->id));
+
+    // A live match of mine keeps me busy as before: the clock changes nothing there.
+    BattleKit::service()->accept($friend, $mine->id);
+    expect(battleRefusal(fn () => BattleKit::invite($me, $withThird, PracticeMode::Pairs, $course)))->toBe(['battle_busy', ['battle_id' => $mine->id]]);
+});
+
+it('tells the same accepted_at in the first answer and in its repeat, at the precision of the column (М1)', function (): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    $battle = BattleKit::playing($me, $friend, $friendship, PracticeMode::Collocation, $course);
+    CarbonImmutable::setTestNow(CarbonImmutable::now()->addMilliseconds(1321));
+    $requestId = (string) Str::uuid();
+
+    $first = BattleKit::answer($battle, $me, 1, BattleKit::correct(BattleKit::element($battle, 1)), $requestId);
+    $again = BattleKit::answer($battle, $me, 1, BattleKit::correct(BattleKit::element($battle, 1)), $requestId);
+
+    expect($first->acceptedAt->format('Y-m-d H:i:s.v'))->toBe('2026-10-30 10:00:04.000')
+        ->and($again->acceptedAt->format('Y-m-d H:i:s.v'))->toBe('2026-10-30 10:00:04.000')
+        ->and(BattleAnswer::query()->where('battle_id', $battle->id)->sole()->accepted_at->format('Y-m-d H:i:s.v'))->toBe('2026-10-30 10:00:04.000');
+});
+
+it('treats the acceptance as a creation for both switches and for the access of the challenger: the mode switched off or a challenger without the practice refuse, and the invitation waits (М2, М3)', function (): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    $battle = BattleKit::invite($me, $friendship, PracticeMode::Sentence, $course);
+
+    config(['practice.modes.sentence' => false]);
+    expect(battleRefusal(fn () => BattleKit::service()->accept($friend, $battle->id)))->toBe(['practice_mode_disabled', ['mode' => 'sentence']])
+        ->and(BattleKit::fresh($battle)->status)->toBe(BattleStatus::Invited);
+    config(['practice.modes.sentence' => true]);
+
+    // The challenger left the pilot after inviting: no room that would only close 30 s later - a refusal with the code of the friend's access.
+    config(['practice.access' => 'pilot']);
+    $friend->update(['practice_pilot_at' => now()]);
+    expect(battleRefusal(fn () => BattleKit::service()->accept($friend->fresh() ?? $friend, $battle->id)))->toBe(['battle_friend_no_access', []])
+        ->and(BattleKit::fresh($battle)->status)->toBe(BattleStatus::Invited)
+        ->and(BattleKit::fresh($battle)->participant($friend->id)->active_learner_id)->toBeNull()
+        ->and(battleEvents('battle.accepted'))->toBe([]);
+
+    $me->update(['practice_pilot_at' => now()]);
+    expect(BattleKit::service()->accept($friend->fresh() ?? $friend, $battle->id)->status)->toBe(BattleStatus::Room);
+});
+
 it('refuses a crossing invitation: the friend has already invited me, so 409 battle_busy names THAT invitation - for a new battle and for a rematch', function (): void {
     [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
 
@@ -191,7 +306,8 @@ it('refuses a crossing invitation: the friend has already invited me, so 409 bat
     expect($expiring->fresh()?->status)->toBe(BattleStatus::Invited)
         ->and(BattleKit::invite($me, $friendship, PracticeMode::Pairs, $course)->status)->toBe(BattleStatus::Invited);
     BattleKit::service()->cancel($me, Battle::query()->latest('id')->firstOrFail()->id);
-    expect(app(BattleJanitor::class)->sweep())->toBe(1);   // the sweeper closes the one that ran out
+    expect($expiring->fresh()?->end_reason)->toBe(BattleEndReason::InviteExpired)   // closed on the way by my invitation (18.6-fix): the pair was held by a dead row
+        ->and(app(BattleJanitor::class)->sweep())->toBe(0);                            // nothing left for the sweeper
     battleTick(BattleKit::T0);
 
     // A rematch of a finished match: both press it, the second is told about the first.
@@ -613,7 +729,7 @@ it('writes a time-out for each missing answer when the deadline and the grace pa
         ->and($timeouts)->toHaveCount(2)
         ->and($timeouts->pluck('verdict')->unique()->all())->toBe([Verdict::Timeout])
         ->and($timeouts->pluck('request_id')->unique())->toHaveCount(2)
-        ->and($timeouts->first()?->request_id)->toMatch('/^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/'); // uuid v5, deterministic
+        ->and($timeouts->first()?->request_id)->toMatch('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/'); // a random uuid v4: no client can send it in advance (18.6-fix Б1)
 
     // The review of a timed-out round: no answers, both `timeout`, the right table is there.
     $round = BattleKit::reader()->round(BattleKit::reader()->find($friend, $battle->id), $friend, 1, CarbonImmutable::now());

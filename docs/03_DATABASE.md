@@ -1023,6 +1023,7 @@ CHECK не создаются — инвариант дублируют серв
 | id | bigint PK | |
 | challenger_id, opponent_id | bigint FK → learners, ON DELETE CASCADE | инициатор / приглашённый; **PostgreSQL CHECK** `battles_distinct_players_check (challenger_id <> opponent_id)` |
 | friendship_id | bigint nullable FK → friendships, ON DELETE SET NULL | пара на момент приглашения (играют только принявшие дружбу) |
+| open_pair | varchar(64) nullable **unique** *(18.6-fix)* | `"<меньший learner_id>:<больший>"`, пока матч не завершён; `NULL` после любого конца — «одна пара — один незавершённый матч» как факт БД (встречные приглашения не проходят обе, docs/16 §8.2); **PostgreSQL CHECK** `battles_open_pair_shape_check (open_pair IS NULL OR status NOT IN ('finished','closed'))` |
 | course_id | bigint FK → courses, ON DELETE CASCADE | курс матча (опубликованный, не колода) |
 | lesson_id | bigint nullable FK → lessons, ON DELETE SET NULL | |
 | mode | varchar(12) | формат матча (один на матч) |
@@ -1041,7 +1042,7 @@ CHECK не создаются — инвариант дублируют серв
 | meta | jsonb default '{}' | служебное (`voided_reason`, `left`, …) |
 | created_at, updated_at | | |
 
-**Индексы:** `status`; `(status, invite_expires_at)`; `(challenger_id, status)`; `(opponent_id, status)`; `rematch_of_id`; `winner_learner_id`; `friendship_id`. **PostgreSQL CHECK:** `battles_status_check`.
+**Индексы:** `status`; `(status, invite_expires_at)`; `(challenger_id, status)`; `(opponent_id, status)`; `rematch_of_id`; `winner_learner_id`; `friendship_id`; unique `open_pair` *(18.6-fix, миграция `2026_10_30_100005`)*. **PostgreSQL CHECK:** `battles_status_check`, `battles_open_pair_shape_check`.
 
 ### 2.46 `battle_participants` — два игрока матча *(18.1)*
 Ровно две строки на матч, создаются вместе с ним.

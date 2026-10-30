@@ -91,8 +91,12 @@ final class BattleService
      *
      * An invitation that CROSSES one that is open (the friend has invited me already: both pressed "Rematch" within seconds, or I
      * invite back instead of answering) is refused as `battle_busy` with the id of THAT invitation - I am its recipient, so the id
-     * is mine to know, and the screen leads me into it to accept. Only a check before the transaction: two invitations that cross
-     * in the very same instant both go through (each player is then busy with their own, the old rule holds).
+     * is mine to know, and the screen leads me into it to accept. The unique `battles.open_pair` ("one battle that is not over per
+     * pair") makes it atomic: two invitations that cross in the very same instant end with the second INSERT refused by the index,
+     * whatever the gap; the check before the transaction only spares the exception on the common path (docs/16 §8.2).
+     *
+     * A learner kept "busy" only by an invitation of their own that has run out (the sweeper has not come yet) is not refused: the
+     * dead invitation is closed by the clock in a short transaction of its own and the invitation is tried once more (Ж1).
      *
      * @throws BattleException battle_disabled | battle_busy | battle_friend_no_access | not_friends | battle_material_unavailable |
      *                         battle_not_found (a rematch of a battle that is not the learner's) | battle_wrong_state (a rematch of a match still on)
@@ -122,7 +126,6 @@ final class BattleService
             ? $this->friends->byFriendship($by, $friendshipId ?? throw FriendshipException::notFound())
             : $this->friends->ofRematch($by, $source);
         $this->access->assertFriendCanPractice($friend);
-        $this->assertNotCrossing($by, $friend, $now);
 
         [$course, $lesson] = $source === null
             ? $this->scopeOf($courseSlug, $lessonId)
@@ -135,6 +138,7 @@ final class BattleService
             'challenger_id' => $by->id,
             'opponent_id' => $friend->id,
             'friendship_id' => $friendship->id,
+            'open_pair' => Battle::pairKey($by->id, $friend->id),
             'course_id' => $course->id,
             'lesson_id' => $lesson?->id,
             'mode' => $mode,
@@ -151,117 +155,151 @@ final class BattleService
         $challengerLocale = $this->locales->forLearner($by);
         $opponentLocale = $this->locales->forLearner($friend);
 
-        try {
-            return DB::transaction(function () use ($by, $friend, $attributes, $challengerLocale, $opponentLocale, $source): Battle {
-                $battle = Battle::query()->create($attributes);
+        // As close to the INSERTs as it gets: the friendly 409 for the common crossing; the index below is the guarantee.
+        $this->assertNotCrossing($by, $friend, $now);
 
-                // Complete rows (the defaults of the columns written out): the caller shows the battle at once, from these two models.
-                $challengerRow = BattleParticipant::query()->create([
-                    'battle_id' => $battle->id,
-                    'learner_id' => $by->id,
-                    'role' => BattleRole::Challenger,
-                    'active_learner_id' => $by->id,
-                    'ready_at' => null,
-                    'last_seen_at' => null,
-                    'surrendered_at' => null,
-                    'score' => 0,
-                    'locale' => $challengerLocale,
-                ]);
-                $opponentRow = BattleParticipant::query()->create([
-                    'battle_id' => $battle->id,
-                    'learner_id' => $friend->id,
-                    'role' => BattleRole::Opponent,
-                    'active_learner_id' => null,
-                    'ready_at' => null,
-                    'last_seen_at' => null,
-                    'surrendered_at' => null,
-                    'score' => 0,
-                    'locale' => $opponentLocale,
-                ]);
-                $battle->setRelation('participants', new EloquentCollection([$challengerRow, $opponentRow]));
+        for ($attempt = 0; $attempt < 2; $attempt++) {
+            try {
+                return DB::transaction(function () use ($by, $friend, $attributes, $challengerLocale, $opponentLocale, $source): Battle {
+                    $battle = Battle::query()->create($attributes);
 
-                DB::afterCommit(function () use ($battle, $by, $source): void {
-                    $this->events->record(ProductEventName::BattleInvited, [
+                    // Complete rows (the defaults of the columns written out): the caller shows the battle at once, from these two models.
+                    $challengerRow = BattleParticipant::query()->create([
                         'battle_id' => $battle->id,
-                        'mode' => $battle->mode->value,
-                        'course_id' => $battle->course_id,
-                        'lesson_id' => $battle->lesson_id,
-                        'rematch' => $source !== null,
-                    ], learner: $by);
-                    SendBattleDmJob::send(BattleDmKind::Invited, $battle->id);
-                });
+                        'learner_id' => $by->id,
+                        'role' => BattleRole::Challenger,
+                        'active_learner_id' => $by->id,
+                        'ready_at' => null,
+                        'last_seen_at' => null,
+                        'surrendered_at' => null,
+                        'score' => 0,
+                        'locale' => $challengerLocale,
+                    ]);
+                    $opponentRow = BattleParticipant::query()->create([
+                        'battle_id' => $battle->id,
+                        'learner_id' => $friend->id,
+                        'role' => BattleRole::Opponent,
+                        'active_learner_id' => null,
+                        'ready_at' => null,
+                        'last_seen_at' => null,
+                        'surrendered_at' => null,
+                        'score' => 0,
+                        'locale' => $opponentLocale,
+                    ]);
+                    $battle->setRelation('participants', new EloquentCollection([$challengerRow, $opponentRow]));
 
-                return $battle;
-            });
-        } catch (UniqueConstraintViolationException) {
-            // The challenger is busy with another match (their active_learner_id is taken): the database decided.
-            throw BattleException::busy($this->activeBattleIdOf($by));
+                    DB::afterCommit(function () use ($battle, $by, $source): void {
+                        $this->events->record(ProductEventName::BattleInvited, [
+                            'battle_id' => $battle->id,
+                            'mode' => $battle->mode->value,
+                            'course_id' => $battle->course_id,
+                            'lesson_id' => $battle->lesson_id,
+                            'rematch' => $source !== null,
+                        ], learner: $by);
+                        SendBattleDmJob::send(BattleDmKind::Invited, $battle->id);
+                    });
+
+                    return $battle;
+                });
+            } catch (UniqueConstraintViolationException) {
+                // The database decided: either the challenger is busy with another match (active_learner_id), or the pair has a
+                // battle that is not over (open_pair) - the friend's invitation to me landed first. A dead invitation of my own that
+                // kept me busy has just been closed: once more.
+                $busy = $this->busyWith($by, $now);
+                if ($busy !== null) {
+                    throw BattleException::busy($busy);
+                }
+                $crossing = $this->openBattleOfPair($by, $friend, $now);
+                if ($crossing !== null) {
+                    throw BattleException::busy($crossing);
+                }
+            }
         }
+
+        throw new LogicException('Could not invite: the battles of the learner keep changing under us.');
     }
 
     /**
      * The invited friend accepts (docs/16 §8.2): the match becomes a `room`, both players are present from now. Idempotent
      * for a match that is on already (a double tap). The acceptance takes the learner's `active_learner_id`: busy with
-     * another match -> 409 `battle_busy`. A friendship that ended in the meantime closes the invitation (`canceled`).
+     * another match -> 409 `battle_busy` (a dead invitation of their own is closed first and the acceptance tried once more, Ж1).
+     * A friendship that ended in the meantime closes the invitation (`canceled`). The acceptance is a creation for both switches
+     * (docs/16 §3.2): the battle and the mode must be on; and the challenger must still have the practice (`battle_friend_no_access`
+     * otherwise - no room that would only close 30 s later).
      *
-     * @throws BattleException battle_not_found | battle_not_recipient | battle_closed | battle_busy | battle_disabled
-     * @throws PracticeException practice_unavailable | practice_pro_required
+     * @throws BattleException battle_not_found | battle_not_recipient | battle_closed | battle_busy | battle_disabled | battle_friend_no_access
+     * @throws PracticeException practice_unavailable | practice_pro_required | practice_mode_disabled
      */
     public function accept(Learner $by, int $battleId, ?CarbonImmutable $now = null): Battle
     {
         $now ??= CarbonImmutable::now();
         $this->access->assertCanPractice($by);
 
-        try {
-            return $this->transact(function () use ($by, $battleId, $now): Battle|BattleException {
-                $battle = $this->lock($battleId, $by);
-                if ($battle === null) {
-                    return BattleException::notFound();
-                }
-                $this->clock->advance($battle, $now);
+        for ($attempt = 0; $attempt < 2; $attempt++) {
+            try {
+                return $this->transact(function () use ($by, $battleId, $now): Battle|BattleException|PracticeException {
+                    $battle = $this->lock($battleId, $by);
+                    if ($battle === null) {
+                        return BattleException::notFound();
+                    }
+                    $this->clock->advance($battle, $now);
 
-                if ($battle->status->isLive()) {
+                    if ($battle->status->isLive()) {
+                        return $battle;
+                    }
+                    if ($battle->status->isTerminal()) {
+                        return BattleException::closed($battle->end_reason);
+                    }
+                    if ($battle->opponent_id !== $by->id) {
+                        return BattleException::notRecipient();
+                    }
+                    if (! $this->friendships->areFriends($battle->challenger_id, $battle->opponent_id)) {
+                        $this->clock->close($battle, BattleEndReason::Canceled, $now);
+
+                        return BattleException::closed(BattleEndReason::Canceled);
+                    }
+                    if (! $this->access->battleEnabled()) {
+                        return BattleException::disabled();
+                    }
+                    if (! $battle->mode->isEnabled()) {
+                        return PracticeException::modeDisabled($battle->mode);
+                    }
+                    $challenger = $battle->challenger;
+                    if ($challenger === null || $challenger->blocked_at !== null || ! $this->access->state($challenger)->isAvailable()) {
+                        return BattleException::friendNoAccess();
+                    }
+
+                    // The unique index decides: a violation (busy with another match) leaves the transaction and is a 409 below.
+                    $me = $battle->participant($by->id);
+                    BattleParticipant::query()->whereKey($me->id)->update(['active_learner_id' => $by->id, 'last_seen_at' => $now, 'updated_at' => $now]);
+                    $me->active_learner_id = $by->id;
+                    $me->last_seen_at = $now;
+
+                    $challenger = $battle->participant($battle->challenger_id);
+                    BattleParticipant::query()->whereKey($challenger->id)->update(['last_seen_at' => $now, 'updated_at' => $now]);
+                    $challenger->last_seen_at = $now;
+
+                    $battle->forceFill([
+                        'status' => BattleStatus::Room,
+                        'accepted_at' => $now,
+                        'room_expires_at' => $now->addSeconds($this->settings->roomTtlSeconds()),
+                        'state_version' => $battle->state_version + 1,
+                    ])->save();
+
+                    DB::afterCommit(fn () => $this->events->record(ProductEventName::BattleAccepted, ['battle_id' => $battle->id], learner: $battle->challenger));
+
                     return $battle;
+                });
+            } catch (UniqueConstraintViolationException) {
+                $busy = $this->busyWith($by, $now);
+                if ($busy !== null) {
+                    throw BattleException::busy($busy);
                 }
-                if ($battle->status->isTerminal()) {
-                    return BattleException::closed($battle->end_reason);
-                }
-                if ($battle->opponent_id !== $by->id) {
-                    return BattleException::notRecipient();
-                }
-                if (! $this->friendships->areFriends($battle->challenger_id, $battle->opponent_id)) {
-                    $this->clock->close($battle, BattleEndReason::Canceled, $now);
-
-                    return BattleException::closed(BattleEndReason::Canceled);
-                }
-                if (! $this->access->battleEnabled()) {
-                    return BattleException::disabled();
-                }
-
-                // The unique index decides: a violation (busy with another match) leaves the transaction and is a 409 below.
-                $me = $battle->participant($by->id);
-                BattleParticipant::query()->whereKey($me->id)->update(['active_learner_id' => $by->id, 'last_seen_at' => $now, 'updated_at' => $now]);
-                $me->active_learner_id = $by->id;
-                $me->last_seen_at = $now;
-
-                $challenger = $battle->participant($battle->challenger_id);
-                BattleParticipant::query()->whereKey($challenger->id)->update(['last_seen_at' => $now, 'updated_at' => $now]);
-                $challenger->last_seen_at = $now;
-
-                $battle->forceFill([
-                    'status' => BattleStatus::Room,
-                    'accepted_at' => $now,
-                    'room_expires_at' => $now->addSeconds($this->settings->roomTtlSeconds()),
-                    'state_version' => $battle->state_version + 1,
-                ])->save();
-
-                DB::afterCommit(fn () => $this->events->record(ProductEventName::BattleAccepted, ['battle_id' => $battle->id], learner: $battle->challenger));
-
-                return $battle;
-            });
-        } catch (UniqueConstraintViolationException) {
-            throw BattleException::busy($this->activeBattleIdOf($by));
+                // The dead invitation of my own that kept me busy has just been closed: once more.
+            }
         }
+
+        throw new LogicException('Could not accept: the battles of the learner keep changing under us.');
     }
 
     /**
@@ -484,6 +522,8 @@ final class BattleService
                         return $refused;
                     }
 
+                    // The column is a timestamp without fractions: what the first answer tells is what a repeat reads back.
+                    $acceptedAt = $now->startOfSecond();
                     $row = BattleAnswer::query()->create([
                         'battle_id' => $battle->id,
                         'learner_id' => $by->id,
@@ -492,7 +532,7 @@ final class BattleService
                         'payload' => $graded->normalizedAnswer,
                         'verdict' => $graded->verdict,
                         'points' => max(0, min($this->settings->roundPoints(), $graded->points)),
-                        'accepted_at' => $now,
+                        'accepted_at' => $acceptedAt,
                     ]);
 
                     $meta = $battle->meta;
@@ -508,7 +548,7 @@ final class BattleService
                         $battle->forceFill(['state_version' => $battle->state_version + 1])->save();
                     }
 
-                    return new BattleAnswerOutcome($row->verdict, $row->points, $now, $theirs !== null, $this->reader->pollView($battle, $by, $now));
+                    return new BattleAnswerOutcome($row->verdict, $row->points, $acceptedAt, $theirs !== null, $this->reader->pollView($battle, $by, $now));
                 });
             } catch (UniqueConstraintViolationException) {
                 // The net of docs/16 §8.5: a row for this round or request landed between the read and the insert (it cannot
@@ -787,7 +827,7 @@ final class BattleService
     /**
      * The friend's invitation to me that is open (not answered, not run out) makes mine a crossing one: neither of us could accept
      * without withdrawing their own. `battle_busy` with the id of the invitation to me - a match I am a player of, like every id
-     * `battle_busy` carries.
+     * `battle_busy` carries. A courtesy check without a lock; the unique `open_pair` is what really decides (docs/16 §8.2).
      *
      * @throws BattleException battle_busy
      */
@@ -806,7 +846,63 @@ final class BattleService
         }
     }
 
-    /** The match the learner is busy with, if any (the `details.battle_id` of 409 `battle_busy`). */
+    /**
+     * The match that keeps the learner busy (the `details.battle_id` of 409 `battle_busy`) - after the clock has had its say: a match
+     * that is due (an invitation of their own that ran out before the sweeper came) is moved in a short transaction of its own, and
+     * when that lets the learner go, null is returned so that the caller may try once more (Ж1). Only on the path of a refusal.
+     */
+    private function busyWith(Learner $learner, CarbonImmutable $now): ?int
+    {
+        $id = $this->activeBattleIdOf($learner);
+
+        return $id === null ? null : $this->afterTheClock($id, $now);
+    }
+
+    /**
+     * The battle of the pair that is not over (the unique `open_pair`), if any - the friend's invitation to me that landed first; one
+     * that has run out is closed by the clock the same way and does not count.
+     */
+    private function openBattleOfPair(Learner $by, Learner $friend, CarbonImmutable $now): ?int
+    {
+        $id = Battle::query()->where('open_pair', Battle::pairKey($by->id, $friend->id))->value('id');
+
+        return $id === null ? null : $this->afterTheClock((int) $id, $now);
+    }
+
+    /**
+     * The id of the battle if it is still not over once the clock has had its say: a transition that is due (an invitation that ran out
+     * before the sweeper came, a room nobody is in any more) is made in a short transaction of its own; null when that ended it.
+     */
+    private function afterTheClock(int $battleId, CarbonImmutable $now): ?int
+    {
+        /** @var Battle|null $battle */
+        $battle = Battle::query()->with('participants')->whereKey($battleId)->first();
+        if ($battle === null) {
+            return null;
+        }
+        if ($battle->status->isTerminal()) {
+            return null;
+        }
+        if (! $this->clock->isDue($battle, $now)) {
+            return $battleId;
+        }
+
+        $ended = DB::transaction(function () use ($battleId, $now): bool {
+            /** @var Battle|null $locked */
+            $locked = Battle::query()->whereKey($battleId)->lockForUpdate()->first();
+            if ($locked === null) {
+                return true;
+            }
+            $locked->load('participants');
+            $this->clock->advance($locked, $now);
+
+            return $locked->status->isTerminal();
+        });
+
+        return $ended ? null : $battleId;
+    }
+
+    /** The match the learner is busy with, if any. */
     private function activeBattleIdOf(Learner $learner): ?int
     {
         $id = BattleParticipant::query()->where('active_learner_id', $learner->id)->value('battle_id');

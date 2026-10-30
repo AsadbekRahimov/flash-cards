@@ -47,6 +47,30 @@ function battleDm(int $battleId): void
     app(BattleMessenger::class)->notify(BattleDmKind::Invited, $battleId);
 }
 
+it('stays silent when the practice is closed to the recipient by the time the DM would go: the button would only open a 403 (М5)', function (): void {
+    Queue::fake();
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    $battle = BattleKit::invite($me, $friendship, PracticeMode::Pairs, $course, $lesson);
+
+    // Between the invitation and the worker the pilot closed to the friend (or the switch went off for everybody).
+    config(['practice.access' => 'pilot']);
+    $me->update(['practice_pilot_at' => now()]);
+    battleDm($battle->id);
+    expect($this->tg->sent)->toBe([])
+        ->and(NotificationLog::query()->where('type', BattleMessenger::NOTIFICATION_TYPE)->count())->toBe(0);
+
+    config(['practice.access' => 'off']);
+    battleDm($battle->id);
+    expect($this->tg->sent)->toBe([]);
+
+    // Open again: the DM goes, once.
+    config(['practice.access' => 'all']);
+    battleDm($battle->id);
+    battleDm($battle->id);
+    expect($this->tg->sent)->toHaveCount(1)
+        ->and($this->tg->sent[0]['chat_id'])->toBe($friend->telegram_user_id);
+});
+
 it('invites the friend with a DM once: their language, the format, the course and the lesson, one web_app button into the battle', function (): void {
     [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
 

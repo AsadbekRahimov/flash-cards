@@ -19,7 +19,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Ramsey\Uuid\Uuid;
+use Illuminate\Support\Str;
 
 /**
  * The clocks of a battle (docs/16 §8.3, §8.4): the ONE place where a match moves by time and by presence, and the one place
@@ -156,6 +156,7 @@ final class BattleClock
             'winner_learner_id' => $winnerId,
             'finished_at' => $now,
             'phase' => null,
+            'open_pair' => null,
             'meta' => [...$battle->meta, self::META_ROUNDS_PLAYED => $roundsPlayed],
         ]);
 
@@ -185,6 +186,7 @@ final class BattleClock
             'end_reason' => $reason,
             'finished_at' => $now,
             'phase' => null,
+            'open_pair' => null,
             'meta' => [...$battle->meta, ...$meta, self::META_ROUNDS_PLAYED => $roundsPlayed],
         ]);
 
@@ -392,8 +394,11 @@ final class BattleClock
     }
 
     /**
-     * The answers of the current round, with a `timeout` row (0 points, a deterministic uuid v5 request id) written for each
-     * player who has none - the deadline has passed.
+     * The answers of the current round, with a `timeout` row (0 points) written for each player who has none - the deadline has
+     * passed. Its `request_id` is a RANDOM uuid (v4): a client that knew the server's formula could send an answer under the id of
+     * its own future time-out row and make the round unresolvable (the INSERT would hit unique `(battle_id, learner_id, request_id)`,
+     * 18.6-fix Б1). Determinism is not needed: the row is written under `FOR UPDATE` of the battle and only for a player without
+     * an answer, and unique `(battle_id, round, learner_id)` keeps a second time-out out.
      *
      * @return Collection<int, BattleAnswer>
      */
@@ -411,7 +416,7 @@ final class BattleClock
                 'battle_id' => $battle->id,
                 'learner_id' => $participant->learner_id,
                 'round' => $battle->current_round,
-                'request_id' => Uuid::uuid5(Uuid::NAMESPACE_URL, "lexiflow:battle:{$battle->id}:round:{$battle->current_round}:learner:{$participant->learner_id}")->toString(),
+                'request_id' => (string) Str::uuid(),
                 'payload' => ['timeout' => true],
                 'verdict' => Verdict::Timeout,
                 'points' => 0,
