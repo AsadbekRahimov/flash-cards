@@ -77,6 +77,17 @@ describe('PairsBoard — the board', () => {
     }
   })
 
+  it('marks the English words as English, for a reader that pronounces them and a browser that hyphenates them', () => {
+    const w = board()
+
+    for (const word of w.findAll('[data-testid=pairs-left] [data-testid=card-text]')) {
+      expect(word.attributes('lang')).toBe('en')
+    }
+    for (const translation of w.findAll('[data-testid=pairs-right] [data-testid=card-text]')) {
+      expect(translation.attributes('lang')).toBeUndefined() // the language of the screen
+    }
+  })
+
   it('names the two columns for a screen reader and says which round it is and how many pairs are left', () => {
     const w = board({ element: pairsElement({ round: 2, rounds: 3 }) })
 

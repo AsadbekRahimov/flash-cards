@@ -356,11 +356,12 @@ onBeforeUnmount(clearTimer)
             :disabled="card.look === 'gone'"
             @click="tap(column.side, card.id)"
           >
-            <span v-if="card.number !== null" class="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-accent text-[13px] font-semibold text-tg-button-text" aria-hidden="true" data-testid="pair-number">{{ card.number }}</span>
+            <span v-if="card.number !== null" class="inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-semibold text-tg-button-text" aria-hidden="true" data-testid="pair-number">{{ card.number }}</span>
             <AppIcon v-else-if="card.look === 'correct'" name="check" :size="20" />
             <AppIcon v-else-if="card.look === 'incorrect'" name="x-mark" :size="20" />
             <span v-else-if="card.look === 'selected'" class="size-2.5 shrink-0 rounded-full bg-accent" aria-hidden="true" data-testid="pick-dot" />
-            <span class="min-w-0 break-words hyphens-auto">{{ card.text }}</span>
+            <!-- The words are English, in a screen of another language: a reader pronounces and a browser hyphenates them as English. -->
+            <span class="min-w-0 break-words hyphens-auto" :lang="column.side === 'left' ? 'en' : undefined" data-testid="card-text">{{ card.text }}</span>
             <span v-if="stateWord(card)" class="sr-only" data-testid="card-state">, {{ stateWord(card) }}</span>
           </button>
         </div>
