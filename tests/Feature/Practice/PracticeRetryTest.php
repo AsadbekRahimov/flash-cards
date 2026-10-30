@@ -108,8 +108,8 @@ it('shows the button exactly when the opening would be accepted: the same answer
     match ($scenario) {
         'all as it was' => null,
         'mode switched off' => config(["practice.modes.{$type}" => false]),
-        'one task left published' => PracticeItem::query()->whereIn('id', array_slice($mistaken, 1))->update(['status' => PracticeItemStatus::Archived->value]),
-        'every task archived' => PracticeItem::query()->whereIn('id', $mistaken)->update(['status' => PracticeItemStatus::Archived->value]),
+        'one task left published' => PracticeItem::query()->whereIn('id', array_slice($mistaken, 1))->update(['status' => PracticeItemStatus::Archived->value, 'archived_at' => now()]),
+        'every task archived' => PracticeItem::query()->whereIn('id', $mistaken)->update(['status' => PracticeItemStatus::Archived->value, 'archived_at' => now()]),
         'every task back to a draft' => PracticeItem::query()->whereIn('id', $mistaken)->update(['status' => PracticeItemStatus::Draft->value, 'published_version_id' => null]),
         'a target word switched off' => Word::query()->whereIn('id', array_map(fn (Word $w): int => $w->id, $words))->update(['is_active' => false]),
         'a target word not introduced' => WordRepetition::query()->where('learner_id', $learner->id)->delete(),
@@ -149,10 +149,11 @@ it('brings the button back when the tasks come back: the summary is read, not st
     $finished = retryFinished($learner, $course, $lesson, 'collocation');
     $mistaken = retryItemIds($finished['id']);
 
-    PracticeItem::query()->whereIn('id', $mistaken)->update(['status' => PracticeItemStatus::Archived->value]);
+    // The pointers the way PostgreSQL's CHECK wants them: published <=> a published version and no `archived_at`.
+    PracticeItem::query()->whereIn('id', $mistaken)->update(['status' => PracticeItemStatus::Archived->value, 'archived_at' => now()]);
     expect(retryGet($learner, $finished['id'])->json('summary.retry_available'))->toBeFalse();
 
-    PracticeItem::query()->whereIn('id', $mistaken)->update(['status' => PracticeItemStatus::Published->value]);
+    PracticeItem::query()->whereIn('id', $mistaken)->update(['status' => PracticeItemStatus::Published->value, 'archived_at' => null]);
     expect(retryGet($learner, $finished['id'])->json('summary.retry_available'))->toBeTrue();
 
     config(['practice.modes.collocation' => false]);

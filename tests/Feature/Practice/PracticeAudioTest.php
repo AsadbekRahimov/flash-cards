@@ -136,7 +136,9 @@ it('notes a missing clip once per (session, element) in ten minutes, not once pe
     $elements = array_column(PracticeSession::query()->findOrFail($session['id'])->snapshot['elements'], 'id');
     $get = fn (string $element) => practiceClipGet($learner, "/api/twa/practice/sessions/{$session['id']}/audio/{$element}")->assertStatus(503);
     $events = fn (): int => ProductEvent::query()->where('name', 'practice.audio_failed')->count();
-    // The cache of the test knows two clocks: the app's own and Carbon's; both stand at the same minute.
+    // The clock of the test is read by the `array` store only (a Redis key lives by the real clock): the store is pinned, whatever the
+    // environment says. It knows two clocks, the app's own and Carbon's; both stand at the same minute.
+    config(['cache.default' => 'array']);
     $at = function (string $time): void {
         CarbonImmutable::setTestNow($time);
         Carbon::setTestNow($time);
