@@ -2185,3 +2185,25 @@
 | `error.code.battle_wrong_state` | Bu amal hozir mavjud emas. Ekran yangilanadi. | Сейчас это действие недоступно. Экран обновится. |
 | `error.code.round_not_open` | Bu raund hali boshlanmagan. | Этот раунд ещё не начался. |
 | `error.code.round_closed` | Raund vaqti tugadi: javob qabul qilinmadi. | Время раунда вышло: ответ не принят. |
+
+## Практика и баттл 2026-10 · 18-4 — на проверку носителю
+
+> Режим «Собери предложение» (`resources/twa/src/i18n/uz.ts`, блок `practice: sentence`, задача 18.4): строка ответа, банк слов, подписи кнопок для экранного
+> чтения («Добавить: tea» / «Убрать: tea» — после двоеточия идёт само английское слово), «Начать заново», пометка «Можно и так» в разборе.
+> Название режима («Gap tuzing») и общие кнопки («Tekshirish», «Bilmayman») — из раздела 18-1t и «упражнений», здесь не повторяются.
+>
+> Что решить носителю:
+> - **«Можно и так»** (другой допустимый порядок слов в разборе) — `Bunday ham bo'ladi`; можно короче: `Yana to'g'ri`.
+> - **«Начать заново»** — `Qaytadan boshlash`.
+> - **Подписи кнопок со словом** читает экранный диктор: `Qo'shish: {word}` (слово из банка идёт в строку), `Olib tashlash: {word}` (слово из строки возвращается в банк).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `practice.sentence.line` | Sizning gapingiz | Ваше предложение |
+| `practice.sentence.empty` | Quyidagi so'zlarni tartib bilan bosing | Нажимайте на слова ниже по порядку |
+| `practice.sentence.progress` | {total} tadan {done} tasi yig'ildi | Собрано {done} из {total} |
+| `practice.sentence.bank` | Gap uchun so'zlar | Слова для предложения |
+| `practice.sentence.add` | Qo'shish: {word} | Добавить: {word} |
+| `practice.sentence.remove` | Olib tashlash: {word} | Убрать: {word} |
+| `practice.sentence.reset` | Qaytadan boshlash | Начать заново |
+| `practice.sentence.also_correct` | Bunday ham bo'ladi | Можно и так |

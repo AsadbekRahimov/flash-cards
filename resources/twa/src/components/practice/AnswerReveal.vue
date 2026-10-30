@@ -141,8 +141,8 @@ function onContinue(): void {
         </div>
 
         <div v-if="sentence && sentence.alternatives.length > 0" class="w-full" data-testid="alternatives">
-          <p class="text-[13px] leading-[18px] font-medium tracking-wide text-tg-section-header uppercase">{{ t('practice.reveal.also_correct') }}</p>
-          <p v-for="alternative in sentence.alternatives" :key="alternative" class="mt-1 text-base leading-[22px] break-words">{{ alternative }}</p>
+          <p class="text-[13px] leading-[18px] font-medium tracking-wide text-tg-section-header uppercase">{{ t('practice.sentence.also_correct') }}</p>
+          <p v-for="alternative in sentence.alternatives" :key="alternative" class="mt-1 text-base leading-[22px] break-words" data-testid="alternative">{{ alternative }}</p>
         </div>
       </article>
 

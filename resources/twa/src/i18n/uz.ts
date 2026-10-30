@@ -628,6 +628,14 @@ export const uz: Translations = {
   // ---- practice: collocation ----
 
   // ---- practice: sentence ----
+  'practice.sentence.line': 'Sizning gapingiz',
+  'practice.sentence.empty': "Quyidagi so'zlarni tartib bilan bosing",
+  'practice.sentence.progress': "{total} tadan {done} tasi yig'ildi",
+  'practice.sentence.bank': "Gap uchun so'zlar",
+  'practice.sentence.add': "Qo'shish: {word}",
+  'practice.sentence.remove': 'Olib tashlash: {word}',
+  'practice.sentence.reset': 'Qaytadan boshlash',
+  'practice.sentence.also_correct': "Bunday ham bo'ladi",
 
   // ---- practice: dictation ----
 
