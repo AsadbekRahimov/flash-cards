@@ -150,6 +150,7 @@ Route::prefix('twa')->group(function (): void {
 
         // Battle 1 on 1 (docs/16 §7.3-7.4): the reads share `twa-api`; an invitation (a snapshot, rows, a DM to the friend) and the
         // actions have limiters of their own on top. The poll and the audio are OUTSIDE it, below. `options` before `{battle}`.
+        // The id is up to 18 digits: a longer one does not fit an integer and would reach the controller as a TypeError (500).
         Route::prefix('practice/battles')->group(function (): void {
             Route::get('/options', [BattleController::class, 'options'])->name('twa.practice.battles.options');
             Route::get('/', [BattleController::class, 'index'])->name('twa.practice.battles.index');
@@ -157,7 +158,7 @@ Route::prefix('twa')->group(function (): void {
                 ->middleware(['throttle:twa-practice-open', 'throttle:twa-battle-invite'])
                 ->name('twa.practice.battles.store');
 
-            Route::prefix('{battle}')->whereNumber('battle')->group(function (): void {
+            Route::prefix('{battle}')->where(['battle' => '[0-9]{1,18}'])->group(function (): void {
                 Route::get('/', [BattleController::class, 'show'])->name('twa.practice.battles.show');
                 Route::get('/round', [BattleController::class, 'round'])->name('twa.practice.battles.round');
                 Route::middleware('throttle:twa-battle-action')->group(function (): void {
@@ -178,7 +179,7 @@ Route::prefix('twa')->group(function (): void {
     // a bucket of its own (90 a minute) - a limit still, so that a loop in a client or a script runs into it, not into the database.
     Route::middleware([TwaAuth::class, SetTwaLocale::class, 'throttle:twa-battle-poll'])->group(function (): void {
         Route::get('/practice/battles/{battle}/poll', [BattleController::class, 'poll'])
-            ->whereNumber('battle')
+            ->where('battle', '[0-9]{1,18}')
             ->name('twa.practice.battles.poll');
     });
 
@@ -189,7 +190,7 @@ Route::prefix('twa')->group(function (): void {
             ->whereNumber('session')
             ->name('twa.practice.sessions.audio');
         Route::get('/practice/battles/{battle}/audio/{element}', [PracticeAudioController::class, 'battle'])
-            ->whereNumber('battle')
+            ->where('battle', '[0-9]{1,18}')
             ->name(BattleReader::AUDIO_ROUTE);
     });
 });

@@ -76,6 +76,21 @@ it('tells a stranger "no such battle" on every route - the very body of an id th
     expect([BattleKit::fresh($id)->toArray(), BattleKit::fresh($id)->participants->toArray(), BattleAnswer::query()->count()])->toBe($before);
 });
 
+it('answers an id that is no integer - too long to fit one, negative, fractional - with the 404 of the router, never with a 500', function (): void {
+    [$me] = BattleKit::world();
+
+    foreach (['99999999999999999999', '9223372036854775808', '-1', '1.5', 'abc'] as $id) {
+        foreach ([['GET', "/{$id}"], ['GET', "/{$id}/poll"], ['GET', "/{$id}/round?no=1"], ['GET', "/{$id}/audio/eX"], ['POST', "/{$id}/accept"], ['POST', "/{$id}/answer"]] as [$method, $path]) {
+            $response = $method === 'GET' ? BattleHttp::get($me, $path) : BattleHttp::post($me, $path);
+
+            expect($response->status())->toBe(404, "{$method} {$path}");
+        }
+    }
+
+    // The longest id that fits is a battle that is not there: the envelope of the battle.
+    BattleHttp::view($me, 999_999_999_999_999_999)->assertNotFound()->assertJsonPath('error.code', 'battle_not_found');
+});
+
 it('answers 401 on every route - the poll and the audio, which live outside `twa-api`, included - without a token or with a token that is no good', function (): void {
     [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
     $id = BattleHttp::room($me, $friend, $friendship, PracticeMode::Dictation, $course, $lesson);
