@@ -9,6 +9,8 @@ use App\Domain\Billing\Exceptions\BillingException;
 use App\Domain\Content\DTO\ImportIssue;
 use App\Domain\Content\Exceptions\CoursePublishException;
 use App\Domain\Organizations\Exceptions\OrganizationMembershipException;
+use App\Domain\Practice\Exceptions\PracticeContentException;
+use App\Domain\Practice\Exceptions\PracticeItemStateException;
 use Illuminate\Support\Facades\Lang;
 use Throwable;
 
@@ -33,6 +35,9 @@ final class AdminErrors
             $e instanceof BillingException => [$e->errorCode, self::billingContext($e->context)],
             $e instanceof CoursePublishException => [$e->reason, self::courseContext($e->context)],
             $e instanceof OrganizationMembershipException, $e instanceof OrganizationGroupLinkException => [$e->errorCode, []],
+            // The text of a practice task is refused with the field it is in; the editor names the field by its caption.
+            $e instanceof PracticeContentException => [$e->errorCode, self::practiceContext([...$e->context, 'field' => AdminLabels::value('practice_items.field_names', $e->field)])],
+            $e instanceof PracticeItemStateException => [$e->errorCode, []],
             default => ['', []],
         };
 
@@ -43,6 +48,15 @@ final class AdminErrors
     public static function importIssue(ImportIssue $issue): string
     {
         return self::text('pages.import_lesson', $issue->code, $issue->context);
+    }
+
+    /**
+     * Text of one reason a practice import was refused. The names of the fields stay as they are in the JSON of the file
+     * (`fragments`, `target_words`): that is what the person has in front of them.
+     */
+    public static function practiceImportIssue(ImportIssue $issue): string
+    {
+        return self::text('pages.import_practice', $issue->code, self::practiceContext($issue->context));
     }
 
     /**
@@ -95,6 +109,21 @@ final class AdminErrors
         }
 
         return $replacements;
+    }
+
+    /**
+     * The languages of a practice text in capitals as in the captions of the form («RU», «UZ»), the type of a task by its caption.
+     *
+     * @param  array<string, mixed>  $context
+     * @return array<string, mixed>
+     */
+    private static function practiceContext(array $context): array
+    {
+        if (isset($context['locale']) && is_string($context['locale'])) {
+            $context['locale'] = mb_strtoupper($context['locale']);
+        }
+
+        return self::captioned($context, ['existing_type' => 'practice_items.type']);
     }
 
     /**

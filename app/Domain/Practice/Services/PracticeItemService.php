@@ -103,6 +103,11 @@ final class PracticeItemService
             // Re-read after the lock: whoever held it before us may have moved the pointers of the task.
             $fresh = $item === null ? null : (PracticeItem::query()->whereKey($item->id)->first() ?? throw PracticeItemStateException::gone());
 
+            // An archived task is not edited, whatever the text says (the form of an archived task is switched off and sends none).
+            if ($fresh !== null) {
+                $this->assertNotArchived($fresh);
+            }
+
             $saved = $this->write($course, $fresh, $this->prepare($course, $data, $fresh), $by, $publish);
 
             $item?->setRawAttributes($saved->item->getAttributes(), true);

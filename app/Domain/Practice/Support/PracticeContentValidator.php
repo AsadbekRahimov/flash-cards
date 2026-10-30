@@ -184,7 +184,7 @@ final class PracticeContentValidator
 
             // A line break is checked BEFORE the text is cleaned: cleaning would turn it into a space and hide the mistake.
             if (! is_string($fragment) || preg_match('/[\r\n]/', $fragment) === 1) {
-                $this->fail(PracticeContentException::FRAGMENT_INVALID, 'fragments', "Fragment {$index} is not a one-line text.", ['index' => $index]);
+                $this->fail(PracticeContentException::FRAGMENT_INVALID, 'fragments', "Fragment {$index} is not a one-line text.", ['index' => $index, 'max' => $longest]);
             }
 
             $clean = self::clean($fragment);
@@ -409,16 +409,20 @@ final class PracticeContentValidator
         $accepted = [$text];
         $seen = [PracticeTextNormalizer::normalize($text) => true];
         $raw = $in['accepted'] ?? [];
+        // `cause` tells the admin panel which of the faults of this code it is (the sentences differ): shape, empty, length, count.
         if (! is_array($raw)) {
-            $this->fail(PracticeContentException::DICTATION_ACCEPTED_INVALID, 'accepted', 'The accepted writings must be a list of texts.');
+            $this->fail(PracticeContentException::DICTATION_ACCEPTED_INVALID, 'accepted', 'The accepted writings must be a list of texts.', ['cause' => 'shape']);
         }
 
         $longest = $this->limit('dictation_text_max');
         foreach ($raw as $variant) {
             $clean = is_string($variant) ? self::clean($variant) : '';
             $reading = PracticeTextNormalizer::normalize($clean);
-            if ($reading === '' || mb_strlen($clean) > $longest) {
-                $this->fail(PracticeContentException::DICTATION_ACCEPTED_INVALID, 'accepted', "An accepted writing is empty or longer than {$longest} characters.", ['max' => $longest]);
+            if ($reading === '') {
+                $this->fail(PracticeContentException::DICTATION_ACCEPTED_INVALID, 'accepted', 'An accepted writing is empty.', ['cause' => 'empty']);
+            }
+            if (mb_strlen($clean) > $longest) {
+                $this->fail(PracticeContentException::DICTATION_ACCEPTED_INVALID, 'accepted', "An accepted writing is longer than {$longest} characters.", ['cause' => 'length', 'max' => $longest]);
             }
 
             if (! isset($seen[$reading])) {
@@ -429,7 +433,7 @@ final class PracticeContentValidator
 
         $extra = $this->limit('dictation_accepted_max');
         if (count($accepted) - 1 > $extra) {
-            $this->fail(PracticeContentException::DICTATION_ACCEPTED_INVALID, 'accepted', "A dictation takes at most {$extra} accepted writings besides the text.", ['max' => $extra]);
+            $this->fail(PracticeContentException::DICTATION_ACCEPTED_INVALID, 'accepted', "A dictation takes at most {$extra} accepted writings besides the text.", ['cause' => 'count', 'max' => $extra]);
         }
 
         $explanation = $this->localized($in['explanation'] ?? null, 'explanation', $this->limit('explanation_max'));
