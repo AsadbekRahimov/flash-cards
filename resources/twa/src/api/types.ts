@@ -757,10 +757,10 @@ export interface PracticeCourseRef {
 
 export interface PracticeLessonRef {
   id: number
-  /** Number of the module. */
-  stage: number
-  /** Number of the lesson inside the module. */
-  number: number
+  /** Number of the module; null when the server does not know it (the lesson was read from a snapshot that has none). */
+  stage: number | null
+  /** Number of the lesson inside the module; null likewise. */
+  number: number | null
   title: string | null
 }
 
@@ -769,8 +769,15 @@ export type PracticeSource = 'hub' | 'after_training' | 'retry' | 'deeplink'
 /** `available` is playable; `not_enough` lacks material (see `reason`); `disabled` is switched off; `pro_required` is behind the paywall. */
 export type PracticeModeState = 'available' | 'not_enough' | 'disabled' | 'pro_required'
 
-/** Why a mode lacks material (docs/16 §4.3). */
+/** Why a mode lacks material (docs/16 §4.3). `no_items`: there are no published tasks for the topic (or too few). */
 export type PracticeShortageReason = 'no_words' | 'ambiguous' | 'no_items' | 'audio_pending' | 'no_audio_words'
+
+/**
+ * Why a card of the HUB lacks material: the reasons above, and `items_locked` - the tasks are there, but the learner has not met the
+ * target words of the lesson yet (docs/16 §4.2). A battle has no learner whose words could be "not met", so its formats
+ * (`BattleModeOption`) keep `PracticeShortageReason` and never get this one.
+ */
+export type PracticeHubReason = PracticeShortageReason | 'items_locked'
 
 /** A card of the hub. */
 export interface PracticeModeInfo {
@@ -779,7 +786,7 @@ export interface PracticeModeInfo {
   available: number
   required: number
   /** Set with `not_enough`. */
-  reason: PracticeShortageReason | null
+  reason: PracticeHubReason | null
   estimate_seconds: number
 }
 
@@ -915,6 +922,11 @@ export interface CollocationReveal {
   full_text: string
   translation: string | null
   explanation: string | null
+  /**
+   * The option the server counted as the learner's answer (null: none - a hint). The server adds it to the explanation so that
+   * the review is true on its own; an older server does not send it (absent: the screen marks the pick it knows).
+   */
+  your_option_id?: string | null
 }
 
 /** The explanation shown after an answer; its shape follows the kind of the element answered (pairs have none). */

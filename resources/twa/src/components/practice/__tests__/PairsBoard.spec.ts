@@ -392,17 +392,124 @@ describe('PairsBoard — a match in a solo round', () => {
     expect(answers(w)[1]).toEqual(answers(w)[0])
   })
 
-  it('shows a pair that the server says is done already (another tab was first) as a right one', async () => {
+  it('shows the pair that was sent as a right one when the server has it done already (another tab was first); the other pair that came with the re-read just leaves', async () => {
     const w = board()
     await match(w, 'lM1', 'rU2')
     await w.setProps({ disabled: true })
 
     await reply(w, pairsElement({ matched: [[...PAIR.mother], [...PAIR.father]] })) // the re-read after 409 pair_already_matched
 
-    expect(state(w, 'lF2')).toBe('correct')
+    expect(state(w, 'lM1')).toBe('correct') // the pair the learner sent
+    expect(state(w, 'rU2')).toBe('correct')
+    expect(status(w).text()).toBe('Верно: mother — мама')
+    expect(state(w, 'lF2')).toBe('gone') // what the other tab did: no flash, it is simply not on the board any more
+    expect(state(w, 'rW4')).toBe('gone')
     await vi.advanceTimersByTimeAsync(400)
     expect(state(w, 'lM1')).toBe('gone')
-    expect(state(w, 'lF2')).toBe('gone')
+    expect(tg.notificationHaptic).not.toHaveBeenCalled()
+  })
+})
+
+// A reply that was lost: the server may have counted the pair that was sent, and the board does not know it. The next element then
+// carries pairs the learner never saw answered, and `matched` is in the order of the left column, not of the time. The verdict that the
+// board shows (and buzzes) is the one of the pair that was SENT last - not of the one that happens to be last in `matched`.
+describe('PairsBoard — after a reply that was lost', () => {
+  /** The pair `[left, right]` is sent, and its request gets no reply: the element is as it was. */
+  async function lostPair(w: Mounted, pair: readonly [string, string]) {
+    await match(w, ...pair)
+    await w.setProps({ disabled: true })
+    await w.setProps({ disabled: false })
+  }
+
+  it('a wrong pair sent after a lost right one is red, buzzes and says so - the right one that was lost just leaves the board', async () => {
+    const w = board()
+    await lostPair(w, PAIR.sister) // counted by the server (a right pair), the reply lost
+    await match(w, 'lM1', 'rW4') // mother - папа: wrong
+    await w.setProps({ disabled: true })
+
+    await reply(w, pairsElement({ matched: [[...PAIR.sister]], mismatches: 1 })) // sister is matched; the mismatch is of the sent pair
+
+    for (const id of ['lM1', 'rW4']) {
+      expect(state(w, id)).toBe('incorrect')
+      expect(card(w, id).findComponent(AppIcon).props('name')).toBe('x-mark')
+    }
+    expect(status(w).text()).toBe('Не подходит. Попробуйте ещё раз.')
+    expect(status(w).attributes('data-tone')).toBe('danger')
+    expect(tg.notificationHaptic).toHaveBeenCalledTimes(1)
+    expect(tg.notificationHaptic).toHaveBeenCalledWith('error')
+    expect(state(w, 'lS3')).toBe('gone') // no green for the pair that was not sent now
+    expect(state(w, 'rT1')).toBe('gone')
+    expect(state(w, 'rU2')).toBe('idle') // and the right answer of the wrong pair is still not shown
+
+    await vi.advanceTimersByTimeAsync(600)
+    expect(state(w, 'lM1')).toBe('idle')
+    expect(state(w, 'rW4')).toBe('idle')
+  })
+
+  it('a right pair sent after a lost one is green - not the lost one that comes later in the list', async () => {
+    const w = board()
+    await lostPair(w, PAIR.sister) // the server has it
+    await match(w, ...PAIR.mother)
+    await w.setProps({ disabled: true })
+
+    // `matched` is in the order of the left column: mother comes BEFORE sister, though sister was answered first
+    await reply(w, pairsElement({ matched: [[...PAIR.mother], [...PAIR.sister]] }))
+
+    expect(state(w, 'lM1')).toBe('correct')
+    expect(state(w, 'rU2')).toBe('correct')
+    expect(status(w).text()).toBe('Верно: mother — мама')
+    expect(state(w, 'lS3')).toBe('gone')
+    await vi.advanceTimersByTimeAsync(400)
+    expect(state(w, 'lM1')).toBe('gone')
+    expect(tg.notificationHaptic).not.toHaveBeenCalled()
+  })
+
+  it('a right pair is green even if a lost wrong one has raised the mistakes meanwhile (no buzz for a pair the learner did not just send)', async () => {
+    const w = board()
+    await lostPair(w, ['lM1', 'rW4']) // wrong, counted, the reply lost
+    await match(w, ...PAIR.sister)
+    await w.setProps({ disabled: true })
+
+    await reply(w, pairsElement({ matched: [[...PAIR.sister]], mismatches: 1 }))
+
+    expect(state(w, 'lS3')).toBe('correct')
+    expect(status(w).attributes('data-tone')).toBe('success')
+    expect(tg.notificationHaptic).not.toHaveBeenCalled()
+  })
+
+  it('when the same pair is sent again after the lost reply, the stored answer is shown for it', async () => {
+    const w = board()
+    await lostPair(w, ['lM1', 'rW4']) // wrong, counted, the reply lost
+    await match(w, 'lM1', 'rW4') // the same pair again: the store gives it the same request id
+    await w.setProps({ disabled: true })
+
+    await reply(w, pairsElement({ mismatches: 1 })) // the server answers with the stored result of the first one
+
+    expect(state(w, 'lM1')).toBe('incorrect')
+    expect(state(w, 'rW4')).toBe('incorrect')
+    expect(tg.notificationHaptic).toHaveBeenCalledTimes(1)
+    expect(answers(w)).toEqual([[{ left_id: 'lM1', right_id: 'rW4' }], [{ left_id: 'lM1', right_id: 'rW4' }]])
+  })
+
+  it('shows nothing for pairs that came while nothing was sent (a bigger element, no tap): they just leave', async () => {
+    const w = board()
+
+    await w.setProps({ element: pairsElement({ matched: [[...PAIR.mother]], mismatches: 1 }) })
+
+    expect(state(w, 'lM1')).toBe('gone')
+    expect(status(w).attributes('data-tone')).toBe('hint')
+    expect(tg.notificationHaptic).not.toHaveBeenCalled()
+  })
+
+  it('does not blame a pair for a mistake that was counted before it: the mistakes grew, the sent pair is among the new ones', async () => {
+    const w = board()
+    await match(w, ...PAIR.father)
+    await w.setProps({ disabled: true })
+
+    await reply(w, pairsElement({ matched: [[...PAIR.father]], mismatches: 2 }))
+
+    expect(state(w, 'lF2')).toBe('correct')
+    expect(tg.notificationHaptic).not.toHaveBeenCalled()
   })
 })
 

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ofetch } from 'ofetch'
-import { ApiClientError, createApiClient } from '../client'
+import { ApiClientError, BLOB_TIMEOUT_MS, createApiClient } from '../client'
 import { setLocale } from '@/i18n'
 
 vi.mock('ofetch', () => ({ ofetch: vi.fn() }))
@@ -165,5 +165,124 @@ describe('api client — getBlob (the clip of a dictation)', () => {
     await expect(client(onUnauthorized).getBlob('/practice/sessions/7/audio/e')).rejects.toMatchObject({ kind: 'unauthorized' })
     expect(onUnauthorized).toHaveBeenCalledTimes(1)
     expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe('api client — getBlob: the time limit and the stop', () => {
+  const PATH = '/practice/sessions/7/audio/e'
+  const fetchMock = vi.fn()
+  const client = (onUnauthorized: () => Promise<string> = async () => '') => createApiClient({ getToken: () => 'jwt', onUnauthorized })
+  /** The init of the n-th `fetch`: the signal that stops it. */
+  const sent = (n = 0): { signal: AbortSignal } => fetchMock.mock.calls[n]?.[1] as { signal: AbortSignal }
+
+  /** A request that never answers by itself and fails the way a browser's does when its signal fires. */
+  const hang = (_url: string, { signal }: { signal: AbortSignal }) =>
+    new Promise<Response>((_resolve, reject) => {
+      signal.addEventListener('abort', () => reject(new DOMException('The operation was aborted.', 'AbortError')))
+    })
+
+  beforeEach(() => {
+    fetchMock.mockReset()
+    vi.stubGlobal('fetch', fetchMock)
+    vi.useFakeTimers()
+  })
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.unstubAllGlobals()
+  })
+
+  it('gives up on a clip that does not come within 15 s: the very error of a lost connection, so that the dictation offers a retry', async () => {
+    fetchMock.mockImplementation(hang)
+
+    const result = client().getBlob(PATH).catch((e: unknown) => e)
+    await vi.advanceTimersByTimeAsync(BLOB_TIMEOUT_MS - 1)
+    expect(sent().signal.aborted).toBe(false)
+    await vi.advanceTimersByTimeAsync(1)
+
+    expect(BLOB_TIMEOUT_MS).toBe(15_000)
+    expect(sent().signal.aborted).toBe(true)
+    const err = await result
+    expect(err).toBeInstanceOf(ApiClientError)
+    expect(err).toMatchObject({ kind: 'network', status: 0, code: 'network' })
+  })
+
+  it('counts the body as well: headers that come and a body that stalls are given up on in the same 15 s', async () => {
+    fetchMock.mockImplementation(async (_url: string, { signal }: { signal: AbortSignal }) => ({
+      ok: true,
+      status: 200,
+      blob: () =>
+        new Promise<Blob>((_resolve, reject) => {
+          signal.addEventListener('abort', () => reject(new DOMException('The operation was aborted.', 'AbortError')))
+        }),
+    }))
+
+    const result = client().getBlob(PATH).catch((e: unknown) => e)
+    await vi.advanceTimersByTimeAsync(BLOB_TIMEOUT_MS)
+
+    expect(await result).toMatchObject({ kind: 'network', status: 0 })
+  })
+
+  it('does not cut a clip that comes in time, and leaves no timer behind', async () => {
+    fetchMock.mockImplementation(async () => {
+      await new Promise((resolve) => setTimeout(resolve, BLOB_TIMEOUT_MS - 1000))
+      return new Response(new Blob(['mp3-bytes'], { type: 'audio/mpeg' }), { status: 200 })
+    })
+
+    const result = client().getBlob(PATH)
+    await vi.advanceTimersByTimeAsync(BLOB_TIMEOUT_MS - 1000)
+
+    expect(await (await result).text()).toBe('mp3-bytes')
+    expect(sent().signal.aborted).toBe(false)
+    expect(vi.getTimerCount()).toBe(0)
+  })
+
+  it('stops with the caller: a signal that fires ends the request at once, as a network error', async () => {
+    fetchMock.mockImplementation(hang)
+    const leaving = new AbortController()
+
+    const result = client().getBlob(PATH, leaving.signal).catch((e: unknown) => e)
+    await vi.advanceTimersByTimeAsync(2000)
+    expect(sent().signal.aborted).toBe(false)
+    leaving.abort()
+
+    expect(sent().signal.aborted).toBe(true)
+    expect(await result).toMatchObject({ kind: 'network', status: 0 })
+    expect(vi.getTimerCount()).toBe(0) // the limit is cleared with the request
+  })
+
+  it('does not send a request that was stopped before it started', async () => {
+    const leaving = new AbortController()
+    leaving.abort()
+
+    await expect(client().getBlob(PATH, leaving.signal)).rejects.toMatchObject({ kind: 'network' })
+
+    expect(fetchMock).not.toHaveBeenCalled()
+    expect(vi.getTimerCount()).toBe(0)
+  })
+
+  it('lets go of the signal of the caller when the clip has come: a late stop changes nothing', async () => {
+    fetchMock.mockResolvedValue(new Response(new Blob(['mp3']), { status: 200 }))
+    const leaving = new AbortController()
+
+    await client().getBlob(PATH, leaving.signal)
+    leaving.abort()
+
+    expect(sent().signal.aborted).toBe(false)
+  })
+
+  it('a request repeated after a refreshed token has a limit of its own, not what was left of the first', async () => {
+    fetchMock
+      .mockResolvedValueOnce(new Response(JSON.stringify({ error: { code: 'invalid_token', message: 'x' } }), { status: 401 }))
+      .mockImplementationOnce(hang)
+    const onUnauthorized = vi.fn(async () => 'new')
+
+    const result = client(onUnauthorized).getBlob(PATH).catch((e: unknown) => e)
+    await vi.advanceTimersByTimeAsync(BLOB_TIMEOUT_MS - 1)
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(sent(1).signal.aborted).toBe(false)
+    await vi.advanceTimersByTimeAsync(1)
+
+    expect(sent(1).signal.aborted).toBe(true)
+    expect(await result).toMatchObject({ kind: 'network' })
   })
 })

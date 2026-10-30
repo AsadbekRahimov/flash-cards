@@ -1,4 +1,4 @@
-import type { PracticeChoice, PracticeVerdict } from '@/api/types'
+import type { CollocationReveal, PracticeChoice, PracticeVerdict } from '@/api/types'
 
 /** The blank of the phrase of a "Pick the collocation" task (docs/16 §2.3): the author writes exactly one. */
 export const BLANK = '___'
@@ -35,6 +35,15 @@ export function phraseSize(text: string): string {
   if (text.length <= 56) return 'text-2xl leading-8'
   if (text.length <= 100) return 'text-xl leading-7'
   return 'text-lg leading-6'
+}
+
+/**
+ * The option that the review marks as the learner's own. The word of the server comes first: `your_option_id` of the reveal is
+ * the answer that was COUNTED (the same for a reply that was repeated, or one that another tab gave), and null says there was none
+ * (a hint). A server that does not send the field (it is absent) leaves the screen with the pick it knows (`local`).
+ */
+export function yourOptionId(reveal: CollocationReveal, local: string | null): string | null {
+  return reveal.your_option_id !== undefined ? reveal.your_option_id : local
 }
 
 /** How an option is drawn (`data-state` of `.option`, docs/14 §4.3). */

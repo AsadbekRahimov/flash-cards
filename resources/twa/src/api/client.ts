@@ -46,6 +46,13 @@ export interface ClientOptions {
   onUnauthorized: () => Promise<string>
 }
 
+/**
+ * How long a clip may take, from the request to the last byte. A request that hangs is given up like a lost connection
+ * (a `network` error), so that the dictation offers "Retry" / "Replace the task" instead of a spinner for ever (docs/15 §3.4:
+ * the sound never blocks the screen).
+ */
+export const BLOB_TIMEOUT_MS = 15_000
+
 /** The refresh in flight, shared by every request that got a 401 meanwhile. */
 let refreshing: Promise<string> | null = null
 
@@ -127,25 +134,39 @@ export function createApiClient(opts: ClientOptions) {
    * An authenticated GET of a binary body (the audio of a dictation). Plain `fetch` with the `Authorization` header:
    * an `<audio src>` cannot carry it, and a blob is what iOS needs to play on a tap anyway. Errors (JSON envelope, 401
    * refresh once) are mapped exactly like `request`.
+   *
+   * The request is stopped after `BLOB_TIMEOUT_MS`, or when the caller's `signal` fires (the screen was left, a newer
+   * clip is wanted): both end as a `network` error - the headers and the body alike are under the same limit - and the
+   * caller, which knows it dropped the load, ignores it.
    */
-  async function requestBlob(path: string, retried = false): Promise<Blob> {
+  async function requestBlob(path: string, signal?: AbortSignal, retried = false): Promise<Blob> {
     const url = baseURL + localPath(path)
     const headers: Record<string, string> = { Accept: 'audio/mpeg, application/json;q=0.5', 'Accept-Language': getLocale() }
     const sentToken = opts.getToken()
     if (sentToken) headers.Authorization = `Bearer ${sentToken}`
 
+    const controller = new AbortController()
+    const stop = (): void => controller.abort()
+    const timer = setTimeout(stop, BLOB_TIMEOUT_MS)
+    signal?.addEventListener('abort', stop, { once: true })
+
     let apiErr: ApiClientError
     try {
-      const response = await fetch(url, { headers, credentials: 'omit' })
+      // A load that was dropped before it started is not sent at all.
+      if (signal?.aborted) throw new Error('The request was cancelled')
+      const response = await fetch(url, { headers, credentials: 'omit', signal: controller.signal })
       if (response.ok) return await response.blob()
       apiErr = await errorOf(response)
     } catch (err) {
       apiErr = err instanceof ApiClientError ? err : new ApiClientError('network', 0, 'network', (err as Error)?.message ?? 'Request failed', err)
+    } finally {
+      clearTimeout(timer)
+      signal?.removeEventListener('abort', stop)
     }
 
     if (apiErr.kind === 'unauthorized' && !retried) {
       const fresh = await freshToken(sentToken)
-      if (fresh) return requestBlob(path, true)
+      if (fresh) return requestBlob(path, signal, true)
     }
     throw apiErr
   }
@@ -161,8 +182,11 @@ export function createApiClient(opts: ClientOptions) {
     /** Unauthenticated POST — used only for /auth. */
     postPublic: <T>(path: string, body: Record<string, unknown>) =>
       request<T>(path, { method: 'POST', body, withAuth: false }),
-    /** Authenticated GET of a file (audio): the body as a `Blob`. `path` may carry the `/api/twa` prefix, as `audio_url` does. */
-    getBlob: (path: string) => requestBlob(path),
+    /**
+     * Authenticated GET of a file (audio): the body as a `Blob`. `path` may carry the `/api/twa` prefix, as `audio_url` does.
+     * Gives up after `BLOB_TIMEOUT_MS`, or when `signal` fires: a `network` error either way.
+     */
+    getBlob: (path: string, signal?: AbortSignal) => requestBlob(path, signal),
   }
 }
 

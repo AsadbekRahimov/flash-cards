@@ -54,8 +54,16 @@ describe('api.practice', () => {
   it('audioBlob fetches the audio_url of the element as a blob', async () => {
     const blob = await api.practice.audioBlob('/api/twa/practice/sessions/77/audio/eD4')
 
-    expect(http.getBlob).toHaveBeenCalledWith('/api/twa/practice/sessions/77/audio/eD4')
+    expect(http.getBlob).toHaveBeenCalledWith('/api/twa/practice/sessions/77/audio/eD4', undefined)
     expect(blob).toBeInstanceOf(Blob)
+  })
+
+  it('audioBlob hands the signal of the caller to the client, which stops the request with it', async () => {
+    const controller = new AbortController()
+
+    await api.practice.audioBlob('/api/twa/practice/sessions/77/audio/eD4', controller.signal)
+
+    expect(http.getBlob).toHaveBeenCalledWith('/api/twa/practice/sessions/77/audio/eD4', controller.signal)
   })
 })
 

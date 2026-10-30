@@ -234,8 +234,11 @@ export const api = {
     /** Swaps a dictation whose clip does not play, without a penalty (docs/16 §10.4). */
     replace: (id: number, body: PracticeReplaceRequest) =>
       client().post<PracticeSession>(`/practice/sessions/${id}/replace`, { ...body }),
-    /** The clip of a dictation: `audioUrl` is the `audio_url` of the element; fetched with the token, played from a blob. */
-    audioBlob: (audioUrl: string) => client().getBlob(audioUrl),
+    /**
+     * The clip of a dictation: `audioUrl` is the `audio_url` of the element; fetched with the token, played from a blob.
+     * Gives up after 15 s (a `network` error); `signal` stops it sooner - the screen was left, a newer clip is wanted.
+     */
+    audioBlob: (audioUrl: string, signal?: AbortSignal) => client().getBlob(audioUrl, signal),
   },
   battles: {
     options: (friendshipId: number, course: string, lessonId: number | null = null) =>

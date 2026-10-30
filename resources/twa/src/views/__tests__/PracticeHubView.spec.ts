@@ -8,6 +8,7 @@ import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { showErrorToast } from '@/composables/errorToast'
 import { useBillingStore } from '@/stores/billing'
+import { usePracticeStore } from '@/stores/practice'
 import { activeSession, hub, session } from '@/api/__tests__/practiceFixtures'
 import type { BattleListResponse, FriendsResponse, PracticeHubResponse } from '@/api/types'
 
@@ -165,6 +166,28 @@ describe('PracticeHubView — the states', () => {
     wrapper.unmount()
   })
 
+  it('a lesson outside a module is headed "Lesson 4", never "Module null"', async () => {
+    const { wrapper } = await render({}, hub({ lesson: { id: 41, stage: null, number: 4, title: null } }))
+
+    expect(wrapper.get('h1').text()).toBe('Урок 4')
+    expect(wrapper.text()).toContain('Практика · Английский A1')
+    expect(wrapper.text()).not.toContain('null')
+    wrapper.unmount()
+  })
+
+  it('a lesson the server knows no number of is headed by its name, and without one by its course', async () => {
+    const named = await render({}, hub({ lesson: { id: 41, stage: null, number: null, title: 'Еда' } }))
+    expect(named.wrapper.get('h1').text()).toBe('Еда')
+    expect(named.wrapper.text()).toContain('Практика · Английский A1')
+    expect(named.wrapper.text()).not.toContain('null')
+    named.wrapper.unmount()
+
+    const bare = await render({}, hub({ lesson: { id: 41, stage: null, number: null, title: null } }))
+    expect(bare.wrapper.get('h1').text()).toBe('Английский A1')
+    expect(bare.wrapper.text()).not.toContain('null')
+    bare.wrapper.unmount()
+  })
+
   it('the hub of a whole course is headed by the course', async () => {
     const { wrapper } = await render({ lessonId: null }, hub({ lesson: null }))
 
@@ -179,7 +202,7 @@ describe('PracticeHubView — the states', () => {
       {},
       hub({
         modes: {
-          collocation: { state: 'not_enough', available: 1, reason: 'no_items' },
+          collocation: { state: 'not_enough', available: 1, reason: 'no_words' },
           sentence: { state: 'disabled' },
           dictation: { state: 'pro_required' },
         },
@@ -188,7 +211,7 @@ describe('PracticeHubView — the states', () => {
 
     expect(card(wrapper, 'pairs').attributes('data-state')).toBe('available')
     expect(card(wrapper, 'collocation').attributes('data-state')).toBe('not_enough')
-    expect(card(wrapper, 'collocation').text()).toContain('Заданий: 1 из 3')
+    expect(card(wrapper, 'collocation').text()).toContain('Изучено слов: 1 из 3')
     expect(card(wrapper, 'sentence').attributes('data-state')).toBe('disabled')
     expect(card(wrapper, 'dictation').attributes('data-state')).toBe('pro_required')
     wrapper.unmount()
@@ -386,6 +409,266 @@ describe('PracticeHubView — the unfinished session', () => {
     wrapper.unmount()
   })
 
+  // The server names an unfinished session by the slug of its course and the id of its lesson only. The card and the sheet say where it
+  // is when the screen can tell (the session this run has seen, or the very place of the hub), and say nothing where it cannot: no
+  // slug, no id and no guess is made up for a name.
+  describe('where it is', () => {
+    const elsewhere = () => activeSession({ id: 77, mode: 'pairs', course: 'ielts-core', lesson_id: 12, progress: { done: 1, total: 3 } })
+
+    it('the card names the place of the hub when the session is its own: the module, the lesson and its name', async () => {
+      const { wrapper } = await render({}, withActive())
+
+      expect(wrapper.get('[data-testid=continue-place]').text()).toBe('Модуль 2 · Урок 4 · Еда')
+      expect(wrapper.get('[data-testid=continue-card]').attributes('aria-label')).toBe('Продолжить: Найди пары, выполнено 1 из 3. Модуль 2 · Урок 4 · Еда')
+      wrapper.unmount()
+    })
+
+    it('the card names the course when the session is of the whole course of the hub', async () => {
+      const { wrapper } = await render({}, withActive({ lesson_id: null }))
+
+      expect(wrapper.get('[data-testid=continue-place]').text()).toBe('Английский A1')
+      wrapper.unmount()
+    })
+
+    it('the card names a session of another course or lesson that this run has seen (the learner has just left it)', async () => {
+      usePracticeStore().session = session({
+        id: 77,
+        course: { slug: 'ielts-core', title: 'IELTS Core' },
+        lesson: { id: 12, stage: 1, number: 2, title: 'Travel' },
+      })
+      const { wrapper } = await render({}, hub({ active_session: elsewhere() }))
+
+      expect(wrapper.get('[data-testid=continue-place]').text()).toBe('Модуль 1 · Урок 2 · Travel')
+      expect(wrapper.get('[data-testid=continue-card]').attributes('aria-label')).toContain('Модуль 1 · Урок 2 · Travel')
+      wrapper.unmount()
+    })
+
+    it('says nothing of a session of another course that it knows no name of, and shows no slug and no id', async () => {
+      const { wrapper } = await render({}, hub({ active_session: elsewhere() }))
+
+      expect(wrapper.find('[data-testid=continue-place]').exists()).toBe(false)
+      expect(wrapper.get('[data-testid=continue-card]').text()).not.toMatch(/ielts-core|12/)
+      expect(wrapper.get('[data-testid=continue-card]').attributes('aria-label')).toBe('Продолжить: Найди пары, выполнено 1 из 3')
+      wrapper.unmount()
+    })
+
+    it('does not take another session of the store for this one', async () => {
+      usePracticeStore().session = session({ id: 5, course: { slug: 'ielts-core', title: 'IELTS Core' }, lesson: { id: 12, stage: 1, number: 2, title: 'Travel' } })
+      const { wrapper } = await render({}, hub({ active_session: elsewhere() })) // the unfinished one is 77, not 5
+
+      expect(wrapper.find('[data-testid=continue-place]').exists()).toBe(false)
+      wrapper.unmount()
+    })
+
+    it('the sheet of the unfinished practice names it too, when it can', async () => {
+      vi.mocked(api.practice.open).mockRejectedValue(
+        apiError('conflict', 409, 'practice_session_active', { session_id: 77, mode: 'pairs', course: 'english-a1', lesson_id: 41, progress: { done: 1, total: 3 } }),
+      )
+      const { wrapper } = await render()
+
+      await card(wrapper, 'sentence').trigger('click')
+      await flushPromises()
+
+      expect(wrapper.get('[data-testid=active-place]').text()).toBe('Модуль 2 · Урок 4 · Еда')
+      expect(wrapper.get('[data-testid=active-text]').text()).toContain('Найди пары: выполнено 1 из 3')
+      wrapper.unmount()
+    })
+
+    it('and the sheet says nothing where it cannot', async () => {
+      vi.mocked(api.practice.open).mockRejectedValue(
+        apiError('conflict', 409, 'practice_session_active', { session_id: 90, mode: 'dictation', course: 'ielts-core', lesson_id: 12, progress: { done: 2, total: 5 } }),
+      )
+      const { wrapper } = await render()
+
+      await card(wrapper, 'sentence').trigger('click')
+      await flushPromises()
+
+      expect(wrapper.find('[data-testid=active-place]').exists()).toBe(false)
+      expect(wrapper.get('[data-testid=active-session-sheet]').text()).toContain('Слушай и пиши: выполнено 2 из 5')
+      wrapper.unmount()
+    })
+
+    it('speaks Uzbek', async () => {
+      setLocale('uz')
+      const { wrapper } = await render({}, withActive())
+
+      expect(wrapper.get('[data-testid=continue-place]').text()).toBe('2-modul · 4-dars · Еда')
+      wrapper.unmount()
+    })
+  })
+
+  // "No sound for now" on a dictation walks the learner out of it on purpose, to choose another mode. The hub does not ask "Continue or
+  // start a new one" about the dictation they have just left: the mode they choose takes its place at once.
+  describe('a dictation dropped on purpose ("No sound for now")', () => {
+    const dropped = () => hub({ active_session: activeSession({ id: 77, mode: 'dictation', progress: { done: 2, total: 5 } }) })
+
+    it('another mode starts over it at once: replace_active, and no sheet', async () => {
+      vi.mocked(api.practice.open).mockResolvedValue(session({ id: 82, mode: 'sentence' }))
+      usePracticeStore().abandoned = 77 // what the session screen does
+      const { wrapper, router } = await render({}, dropped())
+
+      await card(wrapper, 'sentence').trigger('click')
+      await flushPromises()
+
+      expect(api.practice.open).toHaveBeenCalledTimes(1)
+      expect(vi.mocked(api.practice.open).mock.calls[0]![0]).toEqual({ mode: 'sentence', course: 'english-a1', lesson_id: 41, source: 'hub', replace_active: true })
+      expect(wrapper.find('[data-testid=active-session-sheet]').exists()).toBe(false)
+      expect(router.currentRoute.value.params.id).toBe('82')
+      wrapper.unmount()
+    })
+
+    it('is for one transition: once the new session is open the flag is gone', async () => {
+      vi.mocked(api.practice.open).mockResolvedValue(session({ id: 82, mode: 'sentence' }))
+      const store = usePracticeStore()
+      store.abandoned = 77
+      const { wrapper } = await render({}, dropped())
+
+      await card(wrapper, 'sentence').trigger('click')
+      await flushPromises()
+
+      expect(store.abandoned).toBeNull()
+      wrapper.unmount()
+    })
+
+    it('is for this visit only: leaving the hub forgets it, and the next hub asks as always', async () => {
+      const store = usePracticeStore()
+      store.abandoned = 77
+      const first = await render({}, dropped())
+      first.wrapper.unmount()
+      expect(store.abandoned).toBeNull()
+
+      vi.mocked(api.practice.open).mockRejectedValue(
+        apiError('conflict', 409, 'practice_session_active', { session_id: 77, mode: 'dictation', course: 'english-a1', lesson_id: 41, progress: { done: 2, total: 5 } }),
+      )
+      const next = await render({}, dropped())
+      await card(next.wrapper, 'sentence').trigger('click')
+      await flushPromises()
+
+      expect(vi.mocked(api.practice.open).mock.calls[0]![0]).toMatchObject({ replace_active: false })
+      expect(next.wrapper.find('[data-testid=active-session-sheet]').exists()).toBe(true)
+      next.wrapper.unmount()
+    })
+
+    it('the dropped dictation itself is resumed by its own card, as always - dropping it was about choosing another mode', async () => {
+      usePracticeStore().abandoned = 77
+      const { wrapper, router } = await render({}, dropped())
+
+      await card(wrapper, 'dictation').trigger('click')
+      await flushPromises()
+
+      expect(api.practice.open).not.toHaveBeenCalled()
+      expect(router.currentRoute.value.params.id).toBe('77')
+      wrapper.unmount()
+    })
+
+    it('a mode that could not be opened (no material) leaves it for the next try: the next mode still starts over the dictation', async () => {
+      vi.mocked(api.practice.open)
+        .mockRejectedValueOnce(apiError('validation', 422, 'practice_not_enough_material'))
+        .mockResolvedValueOnce(session({ id: 83, mode: 'collocation' }))
+      usePracticeStore().abandoned = 77
+      const { wrapper } = await render({}, dropped())
+
+      await card(wrapper, 'sentence').trigger('click')
+      await flushPromises()
+      await card(wrapper, 'collocation').trigger('click')
+      await flushPromises()
+
+      expect(vi.mocked(api.practice.open).mock.calls.map((call) => call[0].replace_active)).toEqual([true, true])
+      expect(wrapper.find('[data-testid=active-session-sheet]').exists()).toBe(false)
+      wrapper.unmount()
+    })
+
+    it('does not touch an unfinished session that is not the dropped one: that one is asked about as always', async () => {
+      vi.mocked(api.practice.open).mockRejectedValue(
+        apiError('conflict', 409, 'practice_session_active', { session_id: 90, mode: 'pairs', course: 'english-a1', lesson_id: 41, progress: { done: 1, total: 3 } }),
+      )
+      usePracticeStore().abandoned = 77 // the dictation 77 was dropped, but the unfinished session now is 90
+      const { wrapper } = await render({}, hub({ active_session: activeSession({ id: 90, mode: 'pairs' }) }))
+
+      await card(wrapper, 'sentence').trigger('click')
+      await flushPromises()
+
+      expect(vi.mocked(api.practice.open).mock.calls[0]![0]).toMatchObject({ replace_active: false })
+      expect(wrapper.find('[data-testid=active-session-sheet]').exists()).toBe(true)
+      wrapper.unmount()
+    })
+  })
+
+  // A refusal that comes after the hub was left must not be written down: the next hub would open with the sheet (or the paywall) by
+  // itself, and "Start a new one" would do nothing, for no card was pressed there.
+  describe('a refusal that comes after the hub was left', () => {
+    it('is not kept: the next hub does not open with the sheet of the unfinished practice', async () => {
+      let refuse!: (reason: unknown) => void
+      vi.mocked(api.practice.open).mockReturnValueOnce(new Promise((_, reject) => (refuse = reject)))
+      const first = await render()
+      await card(first.wrapper, 'sentence').trigger('click')
+      first.wrapper.unmount() // the learner leaves the hub
+
+      refuse(apiError('conflict', 409, 'practice_session_active', { session_id: 77, mode: 'pairs', course: 'english-a1', lesson_id: 41, progress: { done: 1, total: 3 } }))
+      await flushPromises()
+      const next = await render()
+
+      expect(usePracticeStore().conflict).toBeNull()
+      expect(next.wrapper.find('[data-testid=active-session-sheet]').exists()).toBe(false)
+      next.wrapper.unmount()
+    })
+
+    it('nor the paywall', async () => {
+      let refuse!: (reason: unknown) => void
+      vi.mocked(api.practice.open).mockReturnValueOnce(new Promise((_, reject) => (refuse = reject)))
+      const first = await render()
+      await card(first.wrapper, 'sentence').trigger('click')
+      first.wrapper.unmount()
+
+      refuse(apiError('forbidden', 403, 'practice_pro_required'))
+      await flushPromises()
+      const next = await render()
+
+      expect(next.wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      next.wrapper.unmount()
+    })
+
+    it('nor the toast of the reason', async () => {
+      let refuse!: (reason: unknown) => void
+      vi.mocked(api.practice.open).mockReturnValueOnce(new Promise((_, reject) => (refuse = reject)))
+      const first = await render()
+      await card(first.wrapper, 'sentence').trigger('click')
+      first.wrapper.unmount()
+
+      refuse(apiError('validation', 422, 'practice_not_enough_material'))
+      await flushPromises()
+      const next = await render()
+
+      expect(showErrorToast).not.toHaveBeenCalled()
+      next.wrapper.unmount()
+    })
+
+    it('is still told while the learner is on the hub', async () => {
+      vi.mocked(api.practice.open).mockRejectedValue(apiError('validation', 422, 'practice_not_enough_material'))
+      const { wrapper } = await render()
+
+      await card(wrapper, 'sentence').trigger('click')
+      await flushPromises()
+
+      expect(showErrorToast).toHaveBeenCalledWith('Для этого режима пока мало материала. Выучите ещё несколько слов.')
+      wrapper.unmount()
+    })
+
+    it('leaves no card "busy" on the next hub when the learner left while a session was being opened', async () => {
+      vi.mocked(api.practice.open).mockReturnValueOnce(new Promise(() => {}))
+      const first = await render()
+      await card(first.wrapper, 'sentence').trigger('click')
+      expect(usePracticeStore().opening).toBe('sentence')
+      first.wrapper.unmount()
+
+      const next = await render()
+
+      expect(usePracticeStore().opening).toBeNull()
+      expect(next.wrapper.find('[data-testid=mode-busy]').exists()).toBe(false)
+      next.wrapper.unmount()
+    })
+  })
+
   describe('a new session while one is unfinished (409)', () => {
     const conflict = () =>
       apiError('conflict', 409, 'practice_session_active', { session_id: 77, mode: 'pairs', course: 'english-a1', lesson_id: 41, progress: { done: 1, total: 3 } })
@@ -530,6 +813,64 @@ describe('PracticeHubView — Pro', () => {
       expect(api.practice.hub).toHaveBeenCalledTimes(1)
       wrapper.unmount()
     })
+  })
+})
+
+describe('PracticeHubView — short of material: no tasks, and tasks that wait for the words', () => {
+  // The server tells `no_items` (there are no tasks for the topic: nothing to learn will change it) from `items_locked` (the tasks are
+  // there and open when the words of the lesson are met). The hub does not promise what will not come, and offers learning where it helps.
+  it('says in a lesson that there are no tasks, with no promise and no "Learn the lesson"', async () => {
+    const { wrapper } = await render({}, hub({ modes: { collocation: { state: 'not_enough', available: 0, reason: 'no_items' } } }))
+
+    const collocation = card(wrapper, 'collocation')
+    expect(collocation.get('[data-testid=mode-reason]').text()).toBe('Для этой темы заданий пока нет.')
+    expect(collocation.find('[data-testid=mode-learn-collocation]').exists()).toBe(false)
+    expect(collocation.text()).not.toContain('Учить урок')
+    wrapper.unmount()
+  })
+
+  it('says in a lesson that the tasks open with its words, and offers "Learn the lesson" - which starts the lesson', async () => {
+    vi.mocked(api.training.open).mockResolvedValue({ session_id: 502, mode: 'lesson', lesson: { stage: 2, lesson: 4, title: 'Еда' }, total_words: 20 })
+    const { wrapper, router } = await render({}, hub({ modes: { sentence: { state: 'not_enough', available: 0, reason: 'items_locked' } } }))
+
+    const sentence = card(wrapper, 'sentence')
+    expect(sentence.get('[data-testid=mode-reason]').text()).toBe('Выучите слова урока — задания откроются.')
+    expect(sentence.get('[data-testid=mode-learn-sentence]').text()).toBe('Учить урок')
+    await sentence.get('[data-testid=mode-learn-sentence]').trigger('click')
+    await flushPromises()
+
+    expect(api.training.open).toHaveBeenCalledWith({ mode: 'lesson', lesson_id: 41, source: 'picker' }) // the same action as for `no_words`
+    expect(router.currentRoute.value.name).toBe('training')
+    wrapper.unmount()
+  })
+
+  it('in a course: no tasks says so with no button; tasks that wait for words offer "To the lessons"', async () => {
+    const { wrapper, router } = await render(
+      { lessonId: null },
+      hub({ lesson: null, modes: { collocation: { state: 'not_enough', reason: 'no_items' }, sentence: { state: 'not_enough', reason: 'items_locked' } } }),
+    )
+
+    expect(card(wrapper, 'collocation').get('[data-testid=mode-reason]').text()).toBe('Для этой темы заданий пока нет.')
+    expect(wrapper.find('[data-testid=mode-learn-collocation]').exists()).toBe(false)
+    expect(wrapper.get('[data-testid=mode-learn-sentence]').text()).toBe('К урокам')
+    await wrapper.get('[data-testid=mode-learn-sentence]').trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('course')
+    wrapper.unmount()
+  })
+
+  it('both cards side by side, in Uzbek', async () => {
+    setLocale('uz')
+    const { wrapper } = await render(
+      {},
+      hub({ modes: { collocation: { state: 'not_enough', reason: 'no_items' }, sentence: { state: 'not_enough', reason: 'items_locked' } } }),
+    )
+
+    expect(card(wrapper, 'collocation').text()).toContain("Bu mavzu bo'yicha topshiriqlar hozircha yo'q.")
+    expect(card(wrapper, 'sentence').text()).toContain("Dars so'zlarini o'rganing — topshiriqlar ochiladi.")
+    expect(wrapper.find('[data-testid=mode-learn-collocation]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=mode-learn-sentence]').exists()).toBe(true)
+    wrapper.unmount()
   })
 })
 

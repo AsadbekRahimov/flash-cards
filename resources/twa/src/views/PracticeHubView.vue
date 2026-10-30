@@ -90,14 +90,16 @@ const title = computed((): string => {
   const current = hub.value
   if (current === null) return t('practice.hub.title')
   if (current.lesson === null) return current.course.title
-  return current.lesson.title ?? lessonNumber(current.lesson)
+  // A lesson with neither a name nor a number (the server does not know them) is headed by its course.
+  return current.lesson.title || lessonNumber(current.lesson) || current.course.title
 })
 
 const subtitle = computed((): string => {
   const current = hub.value
   if (current === null) return ''
   if (current.lesson === null) return t('practice.hub.title')
-  return `${t('practice.hub.title')} · ${current.lesson.title ? lessonNumber(current.lesson) : current.course.title}`
+  const place = (current.lesson.title ? lessonNumber(current.lesson) : '') || current.course.title
+  return `${t('practice.hub.title')} · ${place}`
 })
 
 /** The unfinished session of the mode, when it is this very course / lesson: the card leads straight back into it. */
@@ -109,6 +111,21 @@ function resumeFor(info: PracticeModeInfo): PracticeActiveSession | null {
 }
 
 const learnKind = computed(() => (hub.value?.lesson ? 'lesson' : 'course'))
+
+/** Where the unfinished session is ("Module 2 · Lesson 4 · Food"), when that can be told: the card and the sheet name it. */
+const activePlace = computed((): string | null => {
+  const active = hub.value?.active_session ?? null
+  return active === null ? null : practice.placeOf(active)
+})
+const conflictPlace = computed((): string | null => (conflict.value === null ? null : practice.placeOf(conflict.value)))
+
+/** "Continue: Find the pairs, 1 of 3 done" for a screen reader, and where the session is. */
+const continueLabel = computed((): string => {
+  const active = hub.value?.active_session ?? null
+  if (active === null) return ''
+  const words = t('practice.hub.card.aria_resume', { title: modeTitle(active.mode), done: active.progress.done, total: active.progress.total })
+  return activePlace.value === null ? words : `${words}. ${activePlace.value}`
+})
 
 async function load(): Promise<void> {
   try {
@@ -132,7 +149,11 @@ async function start(mode: PracticeMode, replaceActive: boolean): Promise<void> 
   if (opening.value !== null) return
   pressed.value = mode
   const source: PracticeSource = props.from === 'finished' ? 'after_training' : 'hub'
-  const id = await practice.open({ mode, course: props.slug, lesson_id: props.lessonId, source, replace_active: replaceActive })
+  // The unfinished session is the one the learner has just walked out of on purpose ("No sound for now" on a dictation): the mode
+  // they chose takes its place at once, with no "Continue or start a new one" about it.
+  const replace = replaceActive || practice.isAbandoned(hub.value?.active_session?.id ?? null)
+  const id = await practice.open({ mode, course: props.slug, lesson_id: props.lessonId, source, replace_active: replace })
+  if (id !== null) practice.clearAbandoned()
   if (id !== null && !left) await openSession(id)
 }
 
@@ -237,8 +258,10 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   left = true
-  practice.clearOpenError()
-  practice.clearConflict()
+  // What the hub asked for may still come back: a refusal of it (the unfinished session, the paywall, a toast) is not for the next hub.
+  // And "dropped on purpose" is for this one visit only.
+  practice.leaveOpen()
+  practice.clearAbandoned()
 })
 </script>
 
@@ -283,13 +306,7 @@ onBeforeUnmount(() => {
         v-if="hub.active_session"
         :to="{ name: 'practice-session', params: { id: hub.active_session.id } }"
         class="card mb-4 flex items-center gap-3 transition-transform active:scale-[0.99]"
-        :aria-label="
-          t('practice.hub.card.aria_resume', {
-            title: modeTitle(hub.active_session.mode),
-            done: hub.active_session.progress.done,
-            total: hub.active_session.progress.total,
-          })
-        "
+        :aria-label="continueLabel"
         data-testid="continue-card"
       >
         <span class="icon-tile size-10 rounded-xl" :class="`tile-${MODE_LOOK[hub.active_session.mode].tile}`">
@@ -298,6 +315,7 @@ onBeforeUnmount(() => {
         <span class="min-w-0 flex-1">
           <span class="block text-[13px] leading-[18px] font-semibold tracking-wide text-accent-ink uppercase">{{ t('practice.hub.continue') }}</span>
           <span class="block text-[17px] leading-[22px] font-semibold" data-testid="continue-title">{{ modeTitle(hub.active_session.mode) }}</span>
+          <span v-if="activePlace" class="block text-[15px] leading-5 text-tg-subtitle" data-testid="continue-place">{{ activePlace }}</span>
           <span class="block text-[13px] leading-[18px] text-tg-hint" data-testid="continue-progress">
             {{ t('practice.session.progress', { done: hub.active_session.progress.done, total: hub.active_session.progress.total }) }}
           </span>
@@ -336,7 +354,15 @@ onBeforeUnmount(() => {
       </section>
     </template>
 
-    <ActiveSessionSheet v-if="conflict" :session="conflict" :busy="opening !== null" @continue="continueActive" @replace="startNew" @close="practice.clearConflict()" />
+    <ActiveSessionSheet
+      v-if="conflict"
+      :session="conflict"
+      :place="conflictPlace"
+      :busy="opening !== null"
+      @continue="continueActive"
+      @replace="startNew"
+      @close="practice.clearConflict()"
+    />
 
     <FriendPickerSheet
       v-if="pickerOpen"

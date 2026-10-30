@@ -4,7 +4,7 @@ import AppIcon from '@/components/ui/AppIcon.vue'
 import { MODE_LOOK, estimateMinutes, modeTitle } from '@/composables/practiceLabels'
 import { useI18n } from '@/i18n'
 import type { StringKey } from '@/i18n/ru'
-import type { PracticeActiveSession, PracticeMode, PracticeModeInfo, PracticeShortageReason } from '@/api/types'
+import type { PracticeActiveSession, PracticeHubReason, PracticeMode, PracticeModeInfo } from '@/api/types'
 
 /**
  * One of the four cards of the practice hub (docs/16 §11.2, docs/14 §6.5): the icon tile of the mode, its name, a line
@@ -15,7 +15,8 @@ import type { PracticeActiveSession, PracticeMode, PracticeModeInfo, PracticeSho
  *   into it.
  * - `busy` — the session is being opened (a spinner instead of the chevron, the card does not react).
  * - `learn` — what to offer when material is short: `lesson` ("Learn the lesson" - the hub is for one lesson), `course`
- *   ("To the lessons"), or nothing. Hidden when more learning would not help (the recordings are still being made).
+ *   ("To the lessons"), or nothing. Hidden when more learning would not help: the recordings are still being made, or there are no
+ *   tasks for the topic at all (`no_items`). With `items_locked` the tasks are there and wait for the words of the lesson: it is shown.
  *
  * The whole card is one button of 90 px or so when there is something to play (`available`, `pro_required` and a
  * session to continue); a card that cannot be played now (`not_enough`, `disabled`) is a plain block, and its only
@@ -48,10 +49,11 @@ const label = computed((): string => {
   return t('practice.hub.card.aria', { title: title.value, example: example.value, estimate: estimate.value })
 })
 
-const REASONS: Record<PracticeShortageReason, StringKey> = {
+const REASONS: Record<PracticeHubReason, StringKey> = {
   no_words: 'practice.hub.reason.no_words',
   ambiguous: 'practice.hub.reason.ambiguous',
   no_items: 'practice.hub.reason.no_items',
+  items_locked: 'practice.hub.reason.items_locked',
   audio_pending: 'practice.hub.reason.audio_pending',
   no_audio_words: 'practice.hub.reason.no_audio_words',
 }
@@ -63,8 +65,14 @@ const reason = computed((): string =>
   }),
 )
 
-/** More learning helps when words or items are missing; it does not when the recordings are still being made. */
-const learnHelps = computed(() => props.info.reason !== 'audio_pending' && props.info.reason !== 'no_audio_words')
+/**
+ * More learning helps when the words are missing, or when the tasks are there and wait for the words of the lesson
+ * (`items_locked`). It does not when there are no tasks for the topic at all (`no_items`), nor while the recordings are still
+ * being made.
+ */
+const learnHelps = computed(
+  () => props.info.reason !== 'audio_pending' && props.info.reason !== 'no_audio_words' && props.info.reason !== 'no_items',
+)
 const learnLabel = computed(() => (props.learn === 'lesson' ? t('practice.hub.learn_lesson') : t('practice.hub.to_lessons')))
 
 function select(): void {

@@ -42,16 +42,17 @@ describe('modeComponents — which component draws which element', () => {
 })
 
 describe.each([
-  ['PairsBoard', PairsBoard, false],
-  ['CollocationChoice', CollocationChoice, false],
-  ['SentenceBuilder', SentenceBuilder, true],
-  ['DictationInput', DictationInput, true],
-] as const)('%s keeps the interface of a mode component', (_name, component, canSkip) => {
+  ['PairsBoard', PairsBoard, ['answer']],
+  ['CollocationChoice', CollocationChoice, ['answer']],
+  ['SentenceBuilder', SentenceBuilder, ['answer', 'skip']],
+  // The dictation also says `silent` ("No sound for now", solo only, docs/15 §3.4): the solo screen leads to the hub, a battle ignores it.
+  ['DictationInput', DictationInput, ['answer', 'silent', 'skip']],
+] as const)('%s keeps the interface of a mode component', (_name, component, events) => {
   it('takes `element`, `mode` and `disabled`', () => {
     expect(Object.keys(declared(component).props ?? {}).sort()).toEqual(['disabled', 'element', 'mode'])
   })
 
-  it('sends `answer`' + (canSkip ? ' and `skip`' : ''), () => {
-    expect(emitsOf(component).sort()).toEqual(canSkip ? ['answer', 'skip'] : ['answer'])
+  it('sends ' + events.map((event) => '`' + event + '`').join(', '), () => {
+    expect(emitsOf(component).sort()).toEqual([...events])
   })
 })

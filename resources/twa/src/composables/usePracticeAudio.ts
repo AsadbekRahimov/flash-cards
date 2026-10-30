@@ -11,6 +11,8 @@ interface SlotRuntime {
   url: string | null
   seq: number
   player: HTMLAudioElement | null
+  /** Stops the request of the load that is on its way: a load that nobody waits for any more must not keep a connection. */
+  controller: AbortController | null
 }
 
 const runtimes = new WeakMap<AudioSlot, SlotRuntime>()
@@ -19,10 +21,17 @@ function runtimeOf(slot: AudioSlot): SlotRuntime {
   const key = toRaw(slot)
   let runtime = runtimes.get(key)
   if (!runtime) {
-    runtime = { url: null, seq: 0, player: null }
+    runtime = { url: null, seq: 0, player: null, controller: null }
     runtimes.set(key, runtime)
   }
   return runtime
+}
+
+/** The load on its way is dropped: its request is stopped (the reply, if one still comes, is ignored by `seq`). */
+function stopLoad(runtime: SlotRuntime): void {
+  const controller = runtime.controller
+  runtime.controller = null
+  controller?.abort()
 }
 
 function stopPlayer(runtime: SlotRuntime): void {
@@ -39,8 +48,11 @@ function stopPlayer(runtime: SlotRuntime): void {
 export interface PracticeAudioOptions {
   /** Where the clip lives; the practice store's `audio` by default. A battle keeps one slot per clip. */
   slot?: AudioSlot
-  /** Fetches the clip by the `audio_url` of an element; the solo endpoint by default (`api.battles.audioBlob` for a battle). */
-  fetchBlob?: (url: string) => Promise<Blob>
+  /**
+   * Fetches the clip by the `audio_url` of an element; the solo endpoint by default (`api.battles.audioBlob` for a battle).
+   * The signal fires when the load is dropped (`revoke()`, a newer `load()`): a function that can stop its request should.
+   */
+  fetchBlob?: (url: string, signal?: AbortSignal) => Promise<Blob>
 }
 
 /**
@@ -52,17 +64,20 @@ export interface PracticeAudioOptions {
  * not used here and must not be (the dictation would be solved by the machine).
  *
  * - `load(url)` — fetch the clip of an element (once per URL; `force` loads it again, e.g. "Retry"). The state goes
- *   `loading` → `ready` | `failed`. A load that is overtaken by a newer one is dropped.
+ *   `loading` → `ready` | `failed`; a clip that does not come within 15 s (the client's limit) is `failed` too, so the
+ *   screen offers "Retry" / "Replace the task" instead of waiting for ever. A load that is overtaken by a newer one is
+ *   dropped, and its request is stopped.
  * - `play()` — call it straight from the tap handler: the `<audio>` is created there, which keeps the gesture on iOS.
  *   Every press starts the clip from the beginning. Returns false when nothing could be played.
- * - `revoke()` — gives the `blob:` URL back and empties the slot (the element changed, the screen is left).
+ * - `revoke()` — gives the `blob:` URL back and empties the slot (the element changed, the screen is left); a clip that is
+ *   still coming is not waited for: its request is stopped.
  *
  * The slot is a reactive `{ state, blobUrl }`: the screen reads `state` to show the loading and the failure, the
  * component reads it to enable its button.
  */
 export function usePracticeAudio(options: PracticeAudioOptions = {}) {
   const slot: AudioSlot = options.slot ?? usePracticeStore().audio
-  const fetchBlob = options.fetchBlob ?? ((url: string) => api.practice.audioBlob(url))
+  const fetchBlob = options.fetchBlob ?? ((url: string, signal?: AbortSignal) => api.practice.audioBlob(url, signal))
   const runtime = runtimeOf(slot)
   const playing = ref(false)
 
@@ -81,10 +96,13 @@ export function usePracticeAudio(options: PracticeAudioOptions = {}) {
 
     const seq = ++runtime.seq
     runtime.url = url
+    stopLoad(runtime) // the load this one replaces has nobody to wait for it
+    const controller = new AbortController()
+    runtime.controller = controller
     release()
     slot.state = 'loading'
     try {
-      const blob = await fetchBlob(url)
+      const blob = await fetchBlob(url, controller.signal)
       // A newer load (another element, "Retry") or `revoke()` has taken over: this clip is nobody's.
       if (seq !== runtime.seq) return
       if (blob.size === 0) throw new Error('empty clip')
@@ -93,6 +111,8 @@ export function usePracticeAudio(options: PracticeAudioOptions = {}) {
     } catch {
       if (seq !== runtime.seq) return
       slot.state = 'failed'
+    } finally {
+      if (runtime.controller === controller) runtime.controller = null
     }
   }
 
@@ -129,6 +149,7 @@ export function usePracticeAudio(options: PracticeAudioOptions = {}) {
   function revoke(): void {
     runtime.seq += 1
     runtime.url = null
+    stopLoad(runtime) // the screen is left: a clip that is still coming is not waited for
     release()
     slot.state = 'idle'
   }
