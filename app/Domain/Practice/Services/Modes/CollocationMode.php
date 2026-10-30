@@ -115,9 +115,13 @@ final class CollocationMode implements PracticeModeHandler
     {
         $graded = $this->grader->grade(array_column($this->options($element), 'id'), $this->correctIds($element), $answer);
 
+        // The review of a SOLO answer also names the option that was picked, so that the screen marks it among the three; null for
+        // "I don't know". (The review of a battle round, reveal(), is one for both players and has no such key.)
+        $picked = $graded->normalizedAnswer['option_id'] ?? null;
+
         return new GradeResult(
             verdict: $graded->verdict,
-            reveal: $this->review($element, null),
+            reveal: [...$this->review($element, null), 'your_option_id' => is_string($picked) ? $picked : null],
             normalizedAnswer: $graded->normalizedAnswer,
             final: $graded->final,
             points: $graded->points,
