@@ -349,8 +349,12 @@ sudo find /var/www/lexiflow -type f -exec chmod 644 {} \;
 sudo chmod -R ug+rwX storage bootstrap/cache
 sudo setfacl -R  -m u:www-data:rwX -m u:deploy:rwX storage bootstrap/cache
 sudo setfacl -dR -m u:www-data:rwX -m u:deploy:rwX storage bootstrap/cache
-mkdir -p storage/app/public/audio storage/app/public/achievements
+mkdir -p storage/app/public/audio storage/app/public/achievements storage/app/practice-audio
 ```
+
+`storage/app/practice-audio` — озвучка фраз режима практики «Слушай и пиши» (`GeneratePracticeAudioJob`, очередь `low`). Каталог **приватный: nginx его НЕ раздаёт**
+(в конфигурации из §12.3 для него нет `location`, и добавлять не нужно — файлы отдаёт только эндпоинт API с JWT). Права и ACL — те же, что у остального `storage/`
+(воркер пишет, php-fpm читает); бэкап `backup:run` включает каталог так же, как `storage/app/public` (§18).
 
 ---
 
@@ -982,6 +986,8 @@ git checkout --detach <prev_sha>     # SHA предыдущего успешно
 - `BACKUP_DISKS=local` хранит архивы **на этом же сервере** (`storage/app/...`) — этого недостаточно.
   Настройте внешнее хранилище (S3-совместимое: Backblaze, Wasabi, Selectel и т.п.) и добавьте его в `BACKUP_DISKS`,
   или копируйте архивы на другой сервер (`rsync` по cron).
+- В архив попадают и загруженные файлы: `storage/app/public` (озвучка слов, карточки достижений) и `storage/app/practice-audio` (озвучка диктантов практики).
+  Потерянную озвучку диктантов можно сгенерировать заново из админки, но восстановление из архива быстрее.
 - **Проверьте восстановление** хотя бы раз: разверните архив на тестовой БД и запустите приложение на ней.
 
 Ручной бэкап и проверка:

@@ -460,6 +460,14 @@ php artisan audio:pregenerate <course-slug> --force  # re-synthesize existing fi
   (`<project>` is the compose project name, see `docker volume ls`.) The old copy inside `app_storage` can be deleted afterwards (optional). An `app_audio` created by Docker from a fresh image is already owned by `app` (the image creates `storage/app/public/audio`); only a manually created volume needs the `chown`.
 - Pre-generation is not triggered automatically (neither by import nor by publishing): run the command after importing or publishing a course.
 
+### 10.2 Audio of the practice dictations (task 18.5)
+
+The phrases of the practice mode "Listen and write" (docs/16 §10) are voiced by `GeneratePracticeAudioJob` (queue `low`, 5 attempts, backoff 30 s / 2 m / 10 m / 30 m) into **`storage/app/practice-audio/{sha1}.mp3`** — the disk `practice_audio` of `config/filesystems.php` (a file is written to `.tmp/` first and moved, so a reader never sees half of an mp3). Unlike `storage/app/public/audio` this directory is **private: nginx does NOT serve it** (no `location`, no `storage:link` entry, the disk has no `url`); the files leave the server only through the JWT-guarded endpoint `GET /api/twa/practice/sessions/{id}/audio/{element}`.
+
+- Permissions: as for the rest of `storage/` (the queue worker writes, php-fpm reads — see `File Permissions Reference`; the directory is created by the application on first use, mode 755, files 644). Backup: it is inside the project directory, so `backup:run` includes it exactly like `storage/app/public`; in Docker it lives in the `app_storage` volume shared by `app`, `queue-*` and `scheduler`, and nginx (which mounts only `app_audio`) cannot see it — nothing to add to the compose file.
+- A version whose voicing failed on the last attempt is `failed` with a short `audio_error` (`tts_service_failed`, `tts_service_not_configured`, ...) and waits for the admin action to voice it again; the same text, voice and `TTS_AUDIO_VERSION` give the same file name, so a repeated job does nothing. The `tts` service must be reachable from the queue worker, as for the word audio (§10.1).
+- Lost files (a restore without this directory): the hub still counts the phrases (it does not look at the disk), a dictation session skips a phrase whose file is missing, and when fewer than three clips can play it is refused with "the recordings are being prepared" (422 `practice_not_enough_material`, reason `audio_pending`); voice the phrases again with the admin action.
+
 ---
 
 ## 11. Configure Cron (Laravel Scheduler)
