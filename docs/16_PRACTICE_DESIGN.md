@@ -184,7 +184,7 @@ final class PracticeSessionService
 {
     /**
      * Открывает соло-сессию. Вне внешней транзакции (повтор чтения победителя после unique violation).
-     * $replaceActive = false и есть активная → PracticeException practice_session_active (409, details {session_id, mode, course, lesson_id}).
+     * $replaceActive = false и есть активная → PracticeException practice_session_active (409, details {session_id, mode, course, course_title, lesson_id, lesson, progress}).
      * $retryOf — id завершённой сессии ученика: материал = её ошибки, новый seed; нет ошибок / мало → retry_not_available (409).
      * @throws PracticeException practice_unavailable | practice_pro_required | practice_mode_disabled | course_not_found | lesson_not_found |
      *         lesson_not_in_course | practice_not_enough_material (422, details ModeAvailability) | practice_session_active | retry_not_available
@@ -907,8 +907,8 @@ WHERE i.course_id = :course [AND i.lesson_id = :lesson] AND i.type = :type AND i
                                       └──────────────────────────────────────────► finished/replaced
 ```
 
-- **Одна активная на ученика** — `active_learner_id` unique. `open()` в транзакции: `SELECT … WHERE active_learner_id = :me FOR UPDATE` → есть и не просрочена → без `replace_active` → 409 `practice_session_active` (details `{session_id, mode, course, lesson_id, progress}`); с флагом → `finished/replaced` (+ `active_learner_id = NULL`, событие `practice.session_finished{reason: replaced}`); просрочена → `finished/expired`; затем `INSERT` новой. `UniqueConstraintViolationException` (гонка двух вкладок) → повторное чтение активной строки ученика и ответ ею (как `openPersonal`). Нельзя вызывать внутри внешней транзакции.
-- **Возврат к незавершённой** — хаб (`GET /practice/hub`) отдаёт `active_session {id, mode, course, lesson_id, progress}`; TWA показывает «Продолжить» на карточке режима и в шапке хаба. `GET /practice/sessions/{id}` восстанавливает экран с текущего элемента (раскладка та же: снимок).
+- **Одна активная на ученика** — `active_learner_id` unique. `open()` в транзакции: `SELECT … WHERE active_learner_id = :me FOR UPDATE` → есть и не просрочена → без `replace_active` → 409 `practice_session_active` (details `{session_id, mode, course, course_title, lesson_id, lesson, progress}`); с флагом → `finished/replaced` (+ `active_learner_id = NULL`, событие `practice.session_finished{reason: replaced}`); просрочена → `finished/expired`; затем `INSERT` новой. `UniqueConstraintViolationException` (гонка двух вкладок) → повторное чтение активной строки ученика и ответ ею (как `openPersonal`). Нельзя вызывать внутри внешней транзакции.
+- **Возврат к незавершённой** — хаб (`GET /practice/hub`) отдаёт `active_session {id, mode, course, course_title, lesson_id, lesson, progress}`; TWA показывает «Продолжить» на карточке режима и в шапке хаба. `GET /practice/sessions/{id}` восстанавливает экран с текущего элемента (раскладка та же: снимок).
 - **Истечение** — `expires_at = started_at + 24 ч`. Запрос к просроченной активной сессии сначала закрывает её (одиночный условный `UPDATE … WHERE status='active' AND expires_at <= now`), затем отвечает 410 `practice_session_closed`; `GET` финишной сессии — 200 со `summary` (не 410: итоги читаемы всегда).
 - **Повтор ошибок** — `POST /practice/sessions {mode, retry_of: <id>, source: "retry"}`: исходная `finished` и своя; материал = её ошибки (`wrong`/`typo`/`skipped`; пары — слова из `wrong_left`), новый seed/раскладка; `source = retry`; `retry_of_session_id`. Пар < 3 или слов и заданий < 1 → 409 `retry_not_available` (TWA скрывает кнопку по `summary.retry_available`). Исходная сессия не меняется. `retry_of` и `source: retry` приходят **только вместе**: одно без другого — 422 (валидация), повтор не выдаётся за обычное открытие и наоборот (18.9b).
 - **Кнопка и открытие — одно решение** (18.9b, `PracticeSessionService::retryBlocker`): `summary.retry_available` истинно ровно тогда, когда `open(retry_of)` не откажет по причинам, видимым без сборки снимка: (1) есть что повторять — пары ≥ 3 слов, остальные режимы ≥ 1 слова или задания; (2) ученик допущен (`practice_unavailable`, `practice_pro_required`); (3) режим включён (`practice_mode_disabled`); (4) хотя бы одно из заданий-ошибок ещё играбельно — опубликовано, все целевые слова активны и введены ученику, у диктанта аудио `ready` (**один** запрос `PracticeMaterialService::retryItemStock` по всем заданиям-ошибкам, с тем же `lock_state`, что у `items()` §4.2; у пар запроса нет). Чего предикат не видит — слова раунда пар, которого не стало, двух переводов, ставших неоднозначными, — то находит сборка снимка, и отказ тот же `retry_not_available`. Кнопка считается при каждом чтении итога, а не хранится: вернулись задания — вернулась кнопка. Цена — §13.
@@ -983,10 +983,14 @@ afterCommit: product_events (session_finished при завершении)
     { "mode": "sentence", "state": "disabled", "available": 0, "required": 3, "reason": null, "estimate_seconds": 150 },
     { "mode": "dictation", "state": "available", "available": 7, "required": 3, "reason": null, "estimate_seconds": 180 }
   ],
-  "active_session": { "id": 77, "mode": "pairs", "course": "english-a1", "lesson_id": 41, "progress": { "done": 1, "total": 3 } } | null,
+  "active_session": { "id": 77, "mode": "pairs", "course": "english-a1", "course_title": "Английский A1", "lesson_id": 41,
+                      "lesson": { "stage": 2, "number": 4, "title": "Еда" }, "progress": { "done": 1, "total": 3 } } | null,
   "battle": { "enabled": true, "active_battle_id": null, "incoming_count": 1 } }
 ```
 `state`: `available` / `not_enough` / `disabled` / `pro_required`. Ошибки: 403 `practice_unavailable`, 404 `course_not_found` / `lesson_not_found`, 422 `lesson_not_in_course`.
+
+`active_session` называет место сессии и id, и словами (М4 повторного ревью; `PracticeSessionService::activeSummary`): `course_title` — название курса на языке сессии (иначе любой язык снимка, иначе slug), `lesson` — `{stage, number, title}` либо `null`
+(практика курса; снимок без названий; часть, которой у урока нет, — `null`). Всё берётся из снимка, который `activeSummary` и так разбирает ради slug: ни одного запроса сверх бюджета хаба. Те же поля — в `details` 409 `practice_session_active` (`session_id` вместо `id`).
 
 ### 7.2 Сольная сессия
 
@@ -1141,7 +1145,7 @@ afterCommit: product_events (session_finished при завершении)
 | `practice_pro_required` | 403 | — (paywall reason `practice`) |
 | `practice_mode_disabled` | 409 | `{mode}` |
 | `practice_not_enough_material` | 422 | `{mode, available, required, reason, course, lesson_id}` |
-| `practice_session_active` | 409 | `{session_id, mode, course, lesson_id, progress}` |
+| `practice_session_active` | 409 | `{session_id, mode, course, course_title, lesson_id, lesson, progress}` |
 | `practice_session_not_found` | 404 | — |
 | `practice_session_closed` | 410 | `{finish_reason}` |
 | `element_not_current` | 409 | `{current}` |
@@ -1434,7 +1438,8 @@ Blob не загрузился (503/сеть) → экран показывае�
   (сервер ответит первым результатом на тот же id, и экран не покажет другой выбор как засчитанный). Пара — отдельная попытка: ключ — элемент и сопоставление. Замена диктанта держит свой id (`replacing {elementId, requestId}`), чтобы потерянный ответ и потерянная замена не забывали друг друга.
 - **Исход `earlier`.** `PracticeOutcome` получил признак `earlier`: на 409 `answer_already_accepted` (другая вкладка, ответ, потерянный навсегда) экран показывает вердикт из `details` и фразу «Засчитан ответ, отправленный раньше» (`practice.reveal.earlier`) — **без** правильного ответа и без выбора ученика: какой ответ засчитан, клиент не знает, и это не тот, что только что отправлен (у `answer_already_accepted` в соло в `details` только `verdict`). «Дальше» ведёт на перечитанную сессию; у пар такого исхода нет.
 - **Поколения.** К `generation` добавлены `openSeq` — поколение вызова `open()` — и действие `leaveOpen()`: отказ открытия (лист «Незавершённая практика», пейвол, тост), пришедший после ухода с экрана, следующему экрану не показывается; `leaveOpen()` вызывают хаб и экран сессии при уходе. Геттер `placeOf(active)` называет место незавершённой сессии словами
-  («Модуль 2 · Урок 4 · Еда» или курс) для карточки «Продолжить» и листа, пока оно известно клиенту: сервер в `active_session` и в `details` 409 `practice_session_active` даёт только slug курса и id урока, поэтому без показанной сессии или хаба того же места `placeOf` возвращает `null` (сервер может добавить названия — открытый вопрос).
+  для карточки «Продолжить» и листа: место самого хаба — коротко («Модуль 2 · Урок 4 · Еда» или курс: остальное на экране), любое другое — по названиям, которые сервер шлёт вместе с сессией (`course_title` и `lesson` в `active_session` и в `details` 409 `practice_session_active`, §7.1), с курсом впереди: «Английский A1 · Модуль 2 · Урок 4 · Еда», у практики курса — только курс.
+  Нет названий (`course_title` пуст, `lesson: null`) — `null`: ни slug, ни id на экран не попадают. `conflictFrom`/`activeOf` переносят оба поля в `PracticeActiveSession`.
 - **`elementSeq`** растёт не только на новом элементе, но и после окончательного отказа сервера (422, 409 другого рода, 403 Pro): компонент режима начинается заново и разблокирован; после потерянного ответа (сеть, 5xx, 429) он остаётся заблокирован вместе с выбором — ответ мог быть засчитан.
 - **«Сейчас без звука».** Кнопка `btn-plain` видна на экране диктанта постоянно, а не только при сбое звука, и ведёт в хаб. Перед уходом сессия помечается `abandoned` (`abandonSession()`): хаб открывает следующий режим сразу с `replace_active` и не спрашивает «Продолжить или начать новую» про сессию, из которой ученик только что вышел
   (`isAbandoned`, `clearAbandoned`; пометка снимается, когда новая сессия открыта).

@@ -165,13 +165,15 @@ describe('practice store — opening a session', () => {
     await first
   })
 
-  it('an unfinished session (409) is handed to the screen with what the server said about it', async () => {
+  it('an unfinished session (409) is handed to the screen with what the server said about it, the names of its place too', async () => {
     vi.mocked(api.practice.open).mockRejectedValue(
       apiError('conflict', 409, 'practice_session_active', {
         session_id: 77,
         mode: 'sentence',
         course: 'english-a1',
+        course_title: 'Английский A1',
         lesson_id: 41,
+        lesson: { stage: 2, number: 4, title: 'Еда' },
         progress: { done: 2, total: 5 },
       }),
     )
@@ -179,8 +181,34 @@ describe('practice store — opening a session', () => {
 
     expect(await store.open(request)).toBeNull()
 
-    expect(store.conflict).toEqual({ id: 77, mode: 'sentence', course: 'english-a1', lesson_id: 41, progress: { done: 2, total: 5 } })
+    expect(store.conflict).toEqual({
+      id: 77,
+      mode: 'sentence',
+      course: 'english-a1',
+      course_title: 'Английский A1',
+      lesson_id: 41,
+      lesson: { stage: 2, number: 4, title: 'Еда' },
+      progress: { done: 2, total: 5 },
+    })
     expect(store.openError).toBe('')
+  })
+
+  it('reads the names of the place from the details defensively: a lesson without a title or a number, a payload without names', async () => {
+    const refuse = (details: Record<string, unknown>) =>
+      vi.mocked(api.practice.open).mockRejectedValue(apiError('conflict', 409, 'practice_session_active', { session_id: 77, mode: 'pairs', course: 'english-a1', lesson_id: 41, progress: { done: 0, total: 3 }, ...details }))
+    const store = usePracticeStore()
+
+    refuse({ course_title: 'Английский A1', lesson: { stage: null, number: 4, title: '' } })
+    await store.open(request)
+    expect(store.conflict).toMatchObject({ course_title: 'Английский A1', lesson: { stage: null, number: 4, title: null } })
+
+    refuse({ lesson: null })
+    await store.open(request)
+    expect(store.conflict).toMatchObject({ course_title: '', lesson: null })
+
+    refuse({ course_title: 5, lesson: 'Еда' })
+    await store.open(request)
+    expect(store.conflict).toMatchObject({ course_title: '', lesson: null })
   })
 
   it('falls back to the session the hub knows when the details are missing', async () => {
@@ -396,49 +424,67 @@ describe('practice store — a session dropped on purpose ("No sound for now")',
 
 describe('practice store — where an unfinished session is', () => {
   const active = (overrides = {}) => activeSession({ id: 77, mode: 'pairs', course: 'english-a1', lesson_id: 41, ...overrides })
-
-  it('names the session that this run has seen: its lesson with the module, or its course', async () => {
-    const store = await started(session({ id: 77 }))
-    expect(store.placeOf(active())).toBe('Модуль 2 · Урок 4 · Еда')
-
-    const course = await started(session({ id: 77, lesson: null }))
-    expect(course.placeOf(active({ lesson_id: null }))).toBe('Английский A1')
-  })
-
-  it('names the very place that the hub is about, when the unfinished session is its own', async () => {
+  /** An unfinished session of another course, as the server names it. */
+  const elsewhere = (overrides = {}) =>
+    active({ course: 'ielts-core', course_title: 'IELTS Core', lesson_id: 12, lesson: { stage: 1, number: 2, title: 'Travel' }, ...overrides })
+  /** The hub of lesson 41 of english-a1 is on screen. */
+  async function onHub() {
     vi.mocked(api.practice.hub).mockResolvedValue(hub())
     const store = usePracticeStore()
     await store.loadHub('english-a1', 41)
+    return store
+  }
+
+  it('names the very place that the hub is about, short, when the unfinished session is its own', async () => {
+    const store = await onHub()
 
     expect(store.placeOf(active())).toBe('Модуль 2 · Урок 4 · Еда')
   })
 
   it('names the course when the unfinished session is of the whole course of the hub', async () => {
-    vi.mocked(api.practice.hub).mockResolvedValue(hub())
-    const store = usePracticeStore()
-    await store.loadHub('english-a1', 41)
+    const store = await onHub()
 
-    expect(store.placeOf(active({ lesson_id: null }))).toBe('Английский A1')
+    expect(store.placeOf(active({ lesson_id: null, lesson: null }))).toBe('Английский A1')
   })
 
-  it('says nothing of a session that it has no name for: the server sends only the slug of the course and the id of the lesson', async () => {
-    vi.mocked(api.practice.hub).mockResolvedValue(hub())
-    const store = usePracticeStore()
-    await store.loadHub('english-a1', 41)
+  it('names a place that is not the hub’s by what the server sent: the course first, then the module, the lesson and its name', async () => {
+    const store = await onHub()
 
-    expect(store.placeOf(active({ course: 'ielts-core' }))).toBeNull() // another course
-    expect(store.placeOf(active({ lesson_id: 99 }))).toBeNull() // another lesson of this course
-    expect(store.placeOf(active({ lesson_id: null, course: 'ielts-core' }))).toBeNull()
+    expect(store.placeOf(elsewhere())).toBe('IELTS Core · Модуль 1 · Урок 2 · Travel') // another course
+    expect(store.placeOf(active({ lesson_id: 99, lesson: { stage: 3, number: 1, title: 'Семья' } }))).toBe('Английский A1 · Модуль 3 · Урок 1 · Семья') // another lesson of this course
   })
 
-  it('a store that holds nothing yet knows nothing', () => {
-    expect(usePracticeStore().placeOf(active())).toBeNull()
+  it('names a place with nothing but the server’s names, with no hub and no session at all in the store', () => {
+    expect(usePracticeStore().placeOf(elsewhere())).toBe('IELTS Core · Модуль 1 · Урок 2 · Travel')
   })
 
-  it('does not take another session for this one, even in the same course', async () => {
+  it('names the course alone for the practice of a whole course of another place', async () => {
+    const store = await onHub()
+
+    expect(store.placeOf(elsewhere({ lesson_id: null, lesson: null }))).toBe('IELTS Core')
+  })
+
+  it('leaves out what the server does not know: a lesson with no title is its module and number, one with no number is its title', async () => {
+    const store = await onHub()
+
+    expect(store.placeOf(elsewhere({ lesson: { stage: 1, number: 2, title: null } }))).toBe('IELTS Core · Модуль 1 · Урок 2')
+    expect(store.placeOf(elsewhere({ lesson: { stage: null, number: null, title: 'Travel' } }))).toBe('IELTS Core · Travel')
+    expect(store.placeOf(elsewhere({ lesson: { stage: null, number: 2, title: 'Travel' } }))).toBe('IELTS Core · Урок 2 · Travel')
+    expect(store.placeOf(elsewhere({ course_title: '' }))).toBe('Модуль 1 · Урок 2 · Travel')
+  })
+
+  it('says nothing when it has no name at all - no title of the course, no lesson, and not the place of the hub - and never the slug or the id', async () => {
+    const store = await onHub()
+
+    expect(store.placeOf(elsewhere({ course_title: '', lesson: null }))).toBeNull()
+    setActivePinia(createPinia())
+    expect(usePracticeStore().placeOf(active({ course_title: '', lesson: null }))).toBeNull() // a store that holds nothing yet
+  })
+
+  it('does not take the session on screen for the unfinished one: the names are the server’s', async () => {
     const store = await started(session({ id: 77, lesson: { id: 41, stage: 2, number: 4, title: 'Еда' } }))
 
-    expect(store.placeOf(active({ id: 78, lesson_id: 99 }))).toBeNull()
+    expect(store.placeOf(active({ id: 78, course_title: '', lesson_id: 99, lesson: null }))).toBeNull()
   })
 })
 
@@ -1255,7 +1301,26 @@ describe('practice store — the hub the learner comes back to', () => {
 
     await store.open({ mode: 'dictation', course: 'english-a1', lesson_id: 41, source: 'hub' })
 
-    expect(store.hub?.active_session).toEqual({ id: 90, mode: 'dictation', course: 'english-a1', lesson_id: 41, progress: { done: 0, total: 5 } })
+    expect(store.hub?.active_session).toEqual({
+      id: 90,
+      mode: 'dictation',
+      course: 'english-a1',
+      course_title: 'Английский A1',
+      lesson_id: 41,
+      lesson: { stage: 2, number: 4, title: 'Еда' },
+      progress: { done: 0, total: 5 },
+    })
+  })
+
+  it('names the course and no lesson for a session of a whole course', async () => {
+    vi.mocked(api.practice.hub).mockResolvedValue(hub({ lesson: null }))
+    const store = usePracticeStore()
+    await store.loadHub('english-a1')
+    vi.mocked(api.practice.open).mockResolvedValue(session({ id: 91, lesson: null }))
+
+    await store.open({ mode: 'pairs', course: 'english-a1', lesson_id: null, source: 'hub' })
+
+    expect(store.hub?.active_session).toMatchObject({ id: 91, course_title: 'Английский A1', lesson_id: null, lesson: null })
   })
 
   it('follows the progress of the session as the answers come', async () => {

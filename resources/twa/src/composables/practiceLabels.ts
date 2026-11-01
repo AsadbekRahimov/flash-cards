@@ -17,12 +17,15 @@ export const MODE_LOOK: Record<PracticeMode, { icon: IconName; tile: TileColor }
 /** "Find the pairs". */
 export const modeTitle = (mode: PracticeMode): string => t(`practice.mode.${mode}.title`)
 
+/** What the words about a lesson need: its module, its number and its name (a lesson of the hub, or the names of an unfinished session, which has no `id` of its own). */
+type LessonNames = Pick<PracticeLessonRef, 'stage' | 'number' | 'title'> & { id?: number }
+
 /**
  * "Module 2 · Lesson 4": where the lesson is, without its name. A lesson outside a module is "Lesson 4" (as in the training
  * header); one whose number the server does not know says nothing - never "Module null" - and the caller falls back to the
  * title or to the course.
  */
-export function lessonNumber(lesson: PracticeLessonRef): string {
+export function lessonNumber(lesson: LessonNames): string {
   if (lesson.number === null) return ''
   return lesson.stage === null
     ? t('training.lesson_header_no_stage', { lesson: lesson.number })
@@ -30,7 +33,7 @@ export function lessonNumber(lesson: PracticeLessonRef): string {
 }
 
 /** "Module 2 · Lesson 4 · Food"; a lesson without a title is "Module 2 · Lesson 4", one without a number is its title. */
-export function lessonHeader(lesson: PracticeLessonRef): string {
+export function lessonHeader(lesson: LessonNames): string {
   return [lessonNumber(lesson), lesson.title].filter((part): part is string => Boolean(part)).join(' · ')
 }
 

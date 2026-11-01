@@ -142,6 +142,17 @@ const isMode = (value: unknown): value is PracticeMode => PRACTICE_MODE_ORDER.in
 const isProgress = (value: unknown): value is Progress =>
   typeof value === 'object' && value !== null && typeof (value as Progress).done === 'number' && typeof (value as Progress).total === 'number'
 
+/** The names of the lesson of an unfinished session out of a payload ({stage, number, title}); null when there are none to read. */
+function lessonNamesFrom(value: unknown): PracticeActiveSession['lesson'] {
+  if (typeof value !== 'object' || value === null) return null
+  const raw = value as Record<string, unknown>
+  return {
+    stage: typeof raw.stage === 'number' ? raw.stage : null,
+    number: typeof raw.number === 'number' ? raw.number : null,
+    title: typeof raw.title === 'string' && raw.title !== '' ? raw.title : null,
+  }
+}
+
 /** The unfinished session out of `details` of 409 `practice_session_active`; null when the server's fields do not add up. */
 function conflictFrom(details: Record<string, unknown> | null, fallback: PracticeActiveSession | null): PracticeActiveSession | null {
   if (details === null || typeof details.session_id !== 'number' || !isMode(details.mode)) return fallback
@@ -149,7 +160,9 @@ function conflictFrom(details: Record<string, unknown> | null, fallback: Practic
     id: details.session_id,
     mode: details.mode,
     course: typeof details.course === 'string' ? details.course : (fallback?.course ?? ''),
+    course_title: typeof details.course_title === 'string' ? details.course_title : (fallback?.course_title ?? ''),
     lesson_id: typeof details.lesson_id === 'number' ? details.lesson_id : null,
+    lesson: lessonNamesFrom(details.lesson),
     progress: isProgress(details.progress) ? details.progress : (fallback?.progress ?? { done: 0, total: 0 }),
   }
 }
@@ -159,7 +172,9 @@ const activeOf = (session: PracticeSession): PracticeActiveSession => ({
   id: session.id,
   mode: session.mode,
   course: session.course.slug,
+  course_title: session.course.title,
   lesson_id: session.lesson?.id ?? null,
+  lesson: session.lesson ? { stage: session.lesson.stage, number: session.lesson.number, title: session.lesson.title } : null,
   progress: session.progress,
 })
 
@@ -231,20 +246,22 @@ export const usePracticeStore = defineStore('practice', {
         : s.hubScope,
 
     /**
-     * Where an unfinished session is, in words ("Module 2 · Lesson 4 · Food", or the course): so that the "Continue" card and the
-     * sheet of the unfinished practice say which one it is. The server tells the slug of the course and the id of the lesson,
-     * not their names, so only the session this run has seen, or the very place the hub is about, can be named; null otherwise.
+     * Where an unfinished session is, in words: so that the "Continue" card and the sheet of the unfinished practice say which one it is.
+     * The very place the hub is about is named by the hub, short ("Module 2 · Lesson 4 · Food", or the course): the rest of the place is on
+     * the screen. Any other place is named by what the server sends with the session (`course_title`, `lesson`): the course first,
+     * "English A1 · Module 2 · Lesson 4 · Food", or the course alone for the practice of a whole course. null when there is nothing to name.
      */
     placeOf:
       (s) =>
       (active: PracticeActiveSession): string | null => {
-        const seen = s.session !== null && s.session.id === active.id ? s.session : null
-        if (seen !== null) return (seen.lesson ? lessonHeader(seen.lesson) : '') || seen.course.title
-
         const hub = s.hub
-        if (hub === null || hub.course.slug !== active.course) return null
-        if (active.lesson_id === null) return hub.course.title
-        return hub.lesson?.id === active.lesson_id ? lessonHeader(hub.lesson) || hub.course.title : null
+        if (hub !== null && hub.course.slug === active.course) {
+          if (active.lesson_id === null) return hub.course.title
+          if (hub.lesson?.id === active.lesson_id) return lessonHeader(hub.lesson) || hub.course.title
+        }
+
+        const named = [active.course_title, active.lesson ? lessonHeader(active.lesson) : ''].filter(Boolean).join(' · ')
+        return named === '' ? null : named
       },
   },
 
