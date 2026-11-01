@@ -55,6 +55,27 @@ fi
 : > "$LOCK_FILE"
 printf 'pid=%s started=%s command=deploy.sh %s\n' "$$" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" >&9
 
+# The running containers belong to the commit checked out now: docker-compose.prod.yml bind-mounts files of the working
+# tree into them (docker/postgres/entrypoint-guard.sh into postgres, docker/nginx/prod.conf into nginx), and a restart of a
+# container re-resolves those mounts. A deploy that stops after its checkout but before it touched the stack - a STOP of
+# one of the checks below, a failed build - would leave a tree the containers do not fit; a rollback to a commit without
+# the guard file would make every restart of postgres 18 fail (the mount source gone, Docker creates a directory there).
+# So on such a failure the tree goes back to where it was. Two exceptions, on purpose: once the stack is touched the tree
+# stays with it; and a STOP of `upgrade.sh --check` keeps the new checkout, because the way out it names (the upgrade,
+# --redo / --keep-current) has to be run from that checkout.
+PREV_HEAD="$(git rev-parse HEAD)"
+STACK_TOUCHED=0
+KEEP_CHECKOUT=0
+restore_tree_on_failure() {
+    local status=$1
+    [ "$status" -ne 0 ] && [ "$STACK_TOUCHED" -eq 0 ] && [ "$KEEP_CHECKOUT" -eq 0 ] || return 0
+    [ "$(git rev-parse HEAD 2>/dev/null)" != "$PREV_HEAD" ] || return 0
+    echo "==> The deploy stopped before it touched the stack: checking out the previous commit ${PREV_HEAD:0:7} again, the one the running containers belong to" >&2
+    git checkout --detach "$PREV_HEAD" >/dev/null 2>&1 \
+        || echo "WARNING: could not check out ${PREV_HEAD:0:7}; the working tree stays at $(git rev-parse --short HEAD 2>/dev/null)" >&2
+}
+trap 'restore_tree_on_failure $?' EXIT
+
 if [ -n "$DEPLOY_SHA" ]; then
     echo "==> Checking out the exact commit ${DEPLOY_SHA}"
     git fetch origin
@@ -81,22 +102,32 @@ fi
 # and stops the deploy with the upgrade command. The running stack is left as it is.
 if [ -f docker/postgres/upgrade.sh ]; then
     echo "==> Checking the PostgreSQL data volumes"
-    bash docker/postgres/upgrade.sh --prod --check
+    # A STOP here is acted upon from this checkout (see restore_tree_on_failure), so the tree stays.
+    bash docker/postgres/upgrade.sh --prod --check || { KEEP_CHECKOUT=1; exit 1; }
 else
     # A rollback to a commit from before the PostgreSQL 18 layout: that compose still runs 16 on the old volume, read-write.
     echo "==> No docker/postgres/upgrade.sh in this commit (PostgreSQL 16 layout): skipping the data volume check"
     # Not onto an empty legacy volume, though. Once the old volume was deleted after the upgrade, compose recreates it empty,
     # PostgreSQL 16 would initialise an empty cluster, the migrations below would build an empty database and the application
     # would run on it: stop instead. `$PGDATA` is where the ≤16 images keep the cluster (/var/lib/postgresql/data); this is the
-    # compose file of that old commit, so only its `postgres` service is assumed.
+    # compose file of that old commit, so only its `postgres` service is assumed. The probe prints its finding, so a failure
+    # of `compose run` itself (daemon, image, compose file) is told apart from an empty volume.
     echo "==> Checking that the legacy volume still holds a PostgreSQL cluster"
-    if ! $COMPOSE run --rm --no-deps -T --quiet-pull --entrypoint sh postgres -c 'test -s "$PGDATA/PG_VERSION"'; then
-        echo "STOP: the legacy PostgreSQL volume holds no cluster (no PG_VERSION in the data directory): it was deleted after the" >&2
-        echo "      upgrade and compose has just recreated it empty. Starting this commit would initialise an EMPTY database and run" >&2
-        echo "      the application on it. Restore the PostgreSQL 16 data into that volume from a backup first, or deploy a commit" >&2
-        echo "      with the PostgreSQL 18 layout again. Details: docs/DEVOPS_GUIDE.md §0, «Откат и его цена»." >&2
-        exit 1
-    fi
+    LEGACY_PROBE="$($COMPOSE run --rm --no-deps -T --quiet-pull --entrypoint sh postgres -c \
+        'if [ -s "$PGDATA/PG_VERSION" ]; then echo lexiflow-legacy-cluster=present; else echo lexiflow-legacy-cluster=missing; fi')" \
+        || { echo "ERROR: could not inspect the legacy volume (docker compose run failed, see above); nothing was started" >&2; exit 1; }
+    case "$LEGACY_PROBE" in
+        *lexiflow-legacy-cluster=present*) ;;
+        *lexiflow-legacy-cluster=missing*)
+            echo "STOP: the legacy PostgreSQL volume holds no cluster (no PG_VERSION in the data directory): it was deleted after the" >&2
+            echo "      upgrade and compose has just recreated it empty. Starting this commit would initialise an EMPTY database and run" >&2
+            echo "      the application on it. Restore the PostgreSQL 16 data into that volume from a backup first, or deploy a commit" >&2
+            echo "      with the PostgreSQL 18 layout again. Details: docs/DEVOPS_GUIDE.md §0, «Откат и его цена»." >&2
+            exit 1 ;;
+        *)
+            echo "ERROR: could not inspect the legacy volume: unexpected output of the probe: ${LEGACY_PROBE}" >&2
+            exit 1 ;;
+    esac
     echo "    NOTE: this commit runs PostgreSQL 16 on the legacy volume READ-WRITE. If the stack had already moved to 18, the two copies"
     echo "    diverge from now on; the next forward deploy stops until you pick one of them (upgrade.sh --redo / --keep-current), and"
     echo "    the postgres container of the 18 compose refuses to start until then (docs/DEVOPS_GUIDE.md §0 «Откат и его цена»)."
@@ -106,6 +137,7 @@ echo "==> Building immutable application and nginx images"
 $COMPOSE build --pull app nginx
 
 echo "==> Starting database and Redis"
+STACK_TOUCHED=1
 $COMPOSE up -d postgres redis
 
 echo "==> Checking the TLS certificate"
