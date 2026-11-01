@@ -893,8 +893,94 @@ describe('battle store — a clip that does not play', () => {
     vi.mocked(api.battles.audioFailed).mockRejectedValue(apiError('conflict', 409, 'battle_closed', { end_reason: 'voided' }))
 
     expect(await store.audioFailed('eDict00001')).toBeNull()
+    expect(await store.audioFailed('eDict00001')).toBeNull()
 
     expect(api.battles.audioFailed).toHaveBeenCalledTimes(1)
+  })
+
+  // Re-review М-2: "once per element" is once ANSWERED. A report that never got a reply was not made.
+  describe('a report that got no reply twice (re-review М-2)', () => {
+    const lost = async (store: Awaited<ReturnType<typeof opened>>, elementId: string): Promise<boolean | null> => {
+      const reporting = store.audioFailed(elementId)
+      await vi.advanceTimersByTimeAsync(2000)
+      return reporting
+    }
+
+    it('is not counted as made: the next failure of the clip is reported again, and the server voids the match', async () => {
+      const store = await opened()
+      vi.mocked(api.battles.audioFailed)
+        .mockRejectedValueOnce(offline())
+        .mockRejectedValueOnce(offline())
+        .mockResolvedValueOnce({ verified: true, battle: closedBattle('voided', { version: 30 }) })
+
+      expect(await lost(store, 'eDict00003')).toBeNull()
+      expect(store.audioReported).toEqual([])
+
+      expect(await store.audioFailed('eDict00003')).toBe(true)
+      expect(api.battles.audioFailed).toHaveBeenCalledTimes(3)
+      expect(store.status).toBe('closed')
+    })
+
+    it.each([
+      ['a 5xx', () => apiError('server', 503, 'x')],
+      ['a 429', () => apiError('rate_limited', 429, 'x')],
+      ['a request that hung up to its limit', () => new ApiClientError('network', 0, 'timeout', 'The request timed out')],
+    ] as const)('%s is no reply either', async (_name, failure) => {
+      const store = await opened()
+      vi.mocked(api.battles.audioFailed).mockRejectedValue(failure())
+
+      expect(await lost(store, 'eDict00003')).toBeNull()
+      expect(await lost(store, 'eDict00003')).toBeNull()
+
+      expect(api.battles.audioFailed).toHaveBeenCalledTimes(4) // two tries each time
+    })
+
+    it('a report that got its reply on the second try is made: the element stays counted', async () => {
+      const store = await opened()
+      vi.mocked(api.battles.audioFailed).mockRejectedValueOnce(offline()).mockResolvedValueOnce({ verified: false, battle: battle({ version: 24 }) })
+
+      expect(await lost(store, 'eDict00003')).toBe(false)
+      expect(await store.audioFailed('eDict00003')).toBeNull()
+
+      expect(api.battles.audioFailed).toHaveBeenCalledTimes(2)
+      expect(store.audioReported).toEqual(['eDict00003'])
+    })
+
+    it('a report the server answered (“the file is there”) is never made again, whatever happens to the clip after', async () => {
+      const store = await opened()
+      vi.mocked(api.battles.audioFailed).mockResolvedValue({ verified: false, battle: battle({ version: 24 }) })
+
+      expect(await store.audioFailed('eDict00003')).toBe(false)
+      expect(await store.audioFailed('eDict00003')).toBeNull()
+      expect(await store.audioFailed('eDict00003')).toBeNull()
+
+      expect(api.battles.audioFailed).toHaveBeenCalledTimes(1)
+    })
+
+    it('the other elements are not touched: a lost report lets go of its own element only', async () => {
+      const store = await opened()
+      vi.mocked(api.battles.audioFailed)
+        .mockResolvedValueOnce({ verified: false, battle: battle({ version: 24 }) })
+        .mockRejectedValue(offline())
+
+      await store.audioFailed('eDict00001')
+      await lost(store, 'eDict00002')
+
+      expect(store.audioReported).toEqual(['eDict00001'])
+    })
+
+    it('a report in flight is not made twice: the element is counted until the reply, or the loss, comes', async () => {
+      const store = await opened()
+      const reply = pending<{ verified: boolean; battle: Battle }>()
+      vi.mocked(api.battles.audioFailed).mockReturnValue(reply.promise)
+
+      const first = store.audioFailed('eDict00001')
+      expect(await store.audioFailed('eDict00001')).toBeNull()
+      reply.resolve({ verified: false, battle: battle({ version: 24 }) })
+
+      expect(await first).toBe(false)
+      expect(api.battles.audioFailed).toHaveBeenCalledTimes(1)
+    })
   })
 })
 

@@ -228,6 +228,10 @@ const roomAudio = computed(() =>
  * A clip of the room that the server answered 503 for is not on its disk. The server is told, once per clip: it looks at the file
  * itself and voids the match when it is missing (the result says so), or says the file is there - then the 503 was a hiccup and
  * the clip is asked for again. Without this "Ready" would never open and the room would run out with a wrong reason.
+ *
+ * `reportedMissing` only keeps the watch below from telling again at every change of the list while a clip waits for the learner's "Retry"
+ * (`onRetryAudio` empties it). Whether the server HAS been told is the store's to say (`audioFailed`): a report it answered is never
+ * made twice, a report that got no reply is made again when the clip fails again.
  */
 const reportedMissing = new Set<string>()
 async function reportMissing(url: string): Promise<void> {
@@ -243,6 +247,12 @@ watch(
     for (const url of urls) void reportMissing(url)
   },
 )
+
+/** "Retry" of the room: the clips that failed are asked for again, and a clip that fails once more may be reported again (see above). */
+function onRetryAudio(): void {
+  reportedMissing.clear()
+  preload.retry()
+}
 
 /** The clip of the round on screen: from what the room loaded, else from the server. */
 async function clipOf(url: string): Promise<Blob> {
@@ -499,7 +509,7 @@ watch(over, (isOver) => {
         @cancel="onCancel"
         @ready="onReady"
         @leave="leaving = 'room'"
-        @retry-audio="preload.retry()"
+        @retry-audio="onRetryAudio"
         @open-busy="openBusy"
       />
 

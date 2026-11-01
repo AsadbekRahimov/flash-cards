@@ -130,7 +130,7 @@ interface BattleState {
   roundReq: number
   /** Grows with every new round element: the screen keys the mode component by it, so a new round has no pick left over. */
   elementSeq: number
-  /** Elements whose clip the learner reported as broken (once each). */
+  /** Elements whose clip was reported as broken and the server answered (once each); a report that got no reply is not here. */
   audioReported: string[]
   /** The rematch offered after the battle that is over, and who offered it (`by_me`); null if none. (`rematch()` is the action.) */
   rematchOffer: BattleRematch | null
@@ -797,6 +797,11 @@ export const useBattleStore = defineStore('battle', {
      * once more (with the same `request_id`: the server counts it once). Returns what the server found - `true`: the file is
      * missing and the match is voided (the battle it answers with is taken at once), `false`: the file is there, the fault is local -
      * or `null`: nothing was found out (a second report of an element, no reply, a refusal).
+     *
+     * "Once per element" counts the reports the server ANSWERED (a verdict, or a refusal that a repeat would meet again). A report that
+     * got no reply twice - the connection, a 5xx, a 429 - was not made: the element is let go, and the next failure of its clip (after the
+     * learner's "Retry") is reported again. Otherwise a clip the server never heard about would stay unreported for good, and the room
+     * would run out (`room_expired`) instead of being voided for the missing recording.
      */
     async audioFailed(elementId: string): Promise<boolean | null> {
       const id = this.battleId
@@ -819,6 +824,7 @@ export const useBattleStore = defineStore('battle', {
             if (generation !== this.generation) return null
             continue
           }
+          if (isUncertain(err)) this.audioReported = this.audioReported.filter((known) => known !== elementId)
           return null
         }
       }

@@ -945,6 +945,23 @@ describe('BattleView — a round', () => {
     expect(has(r, 'probe')).toBe(true) // the learner may still answer: the round gives 0 if nothing is heard
   })
 
+  it('a report of the round that got no reply twice is made again after “Retry” (re-review М-2)', async () => {
+    vi.mocked(api.battles.audioBlob).mockRejectedValue(apiError('server', 503, 'practice_audio_unavailable'))
+    vi.mocked(api.battles.audioFailed)
+      .mockRejectedValueOnce(offline())
+      .mockRejectedValueOnce(offline())
+      .mockResolvedValueOnce({ verified: true, battle: closedBattle('voided', { mode: 'dictation', version: 30, starts_at: at(-60) }) })
+    const r = await render(battle({ mode: 'dictation' }), { round: answeringRound({ element: dictationElement({ id: 'eDict00002', audio_url: CLIPS[1] }) }) })
+    await pass(1500)
+    expect(api.battles.audioFailed).toHaveBeenCalledTimes(2)
+    expect(has(r, 'clip-failed')).toBe(true)
+
+    await click(r, 'clip-retry')
+
+    expect(api.battles.audioFailed).toHaveBeenCalledTimes(3)
+    expect(text(r, 'result-reason')).toBe('Матч отменён: запись недоступна. Очки не засчитаны.')
+  })
+
   it('the server found the recording missing: the match is voided, and the result says so', async () => {
     vi.mocked(api.battles.audioBlob).mockRejectedValue(apiError('server', 503, 'practice_audio_unavailable'))
     vi.mocked(api.battles.audioFailed).mockResolvedValue({ verified: true, battle: closedBattle('voided', { mode: 'dictation', version: 30, starts_at: at(-60) }) })
@@ -1966,6 +1983,60 @@ describe('BattleView — a recording the server does not have (review Ж5)', () 
 
     expect(asked()).toBe(3)
     expect(api.battles.audioFailed).toHaveBeenCalledTimes(1)
+  })
+
+  it('a report that got no reply twice is made again after “Retry”: the clip is still 503, and the match is voided, not left to run out (re-review М-2)', async () => {
+    vi.mocked(api.battles.audioBlob).mockImplementation((url) => (url.endsWith('eD3') ? Promise.reject(apiError('server', 503, 'practice_audio_unavailable')) : Promise.resolve(clip())))
+    vi.mocked(api.battles.audioFailed)
+      .mockRejectedValueOnce(offline())
+      .mockRejectedValueOnce(offline())
+      .mockResolvedValueOnce({ verified: true, battle: closedBattle('voided', { mode: 'dictation', version: 5 }) })
+    const r = await render(roomBattle({ mode: 'dictation', audio_preload: CLIPS }))
+    await flushPromises()
+    await pass(1500) // the one repeat of the report
+
+    expect(api.battles.audioFailed).toHaveBeenCalledTimes(2) // no reply twice
+    expect(get(r, 'room-audio').attributes('data-state')).toBe('failed')
+    expect(get(r, 'battle-view').attributes('data-status')).toBe('room')
+
+    await click(r, 'audio-retry')
+    await flushPromises()
+
+    expect(api.battles.audioFailed).toHaveBeenCalledTimes(3)
+    expect(api.battles.audioFailed).toHaveBeenLastCalledWith(15, { request_id: expect.any(String), element_id: ELEMENTS[2] })
+    expect(get(r, 'battle-view').attributes('data-status')).toBe('closed')
+    expect(text(r, 'result-reason')).toBe('Матч отменён: запись недоступна. Очки не засчитаны.')
+  })
+
+  it('and it is made again at every “Retry” until the server has heard it - not at every change of the list of clips', async () => {
+    vi.mocked(api.battles.audioBlob).mockImplementation((url) => (url.endsWith('eD3') || url.endsWith('eD4') ? Promise.reject(apiError('server', 503, 'practice_audio_unavailable')) : Promise.resolve(clip())))
+    vi.mocked(api.battles.audioFailed).mockRejectedValue(offline())
+    const r = await render(roomBattle({ mode: 'dictation', audio_preload: CLIPS }))
+    await flushPromises()
+    await pass(1500)
+
+    // two clips are missing: each was reported (two tries each) and none got a reply - nothing more until the learner asks
+    expect(api.battles.audioFailed).toHaveBeenCalledTimes(4)
+    await pass(30_000)
+    expect(api.battles.audioFailed).toHaveBeenCalledTimes(4)
+
+    await click(r, 'audio-retry')
+    await pass(1500)
+
+    expect(api.battles.audioFailed).toHaveBeenCalledTimes(8)
+  })
+
+  it('a report the server answered is not made again after “Retry”, even when another clip fails meanwhile', async () => {
+    vi.mocked(api.battles.audioBlob).mockImplementation((url) => (url.endsWith('eD3') || url.endsWith('eD4') ? Promise.reject(apiError('server', 503, 'practice_audio_unavailable')) : Promise.resolve(clip())))
+    vi.mocked(api.battles.audioFailed).mockResolvedValue({ verified: false, battle: roomBattle({ mode: 'dictation', version: 3, audio_preload: CLIPS }) })
+    const r = await render(roomBattle({ mode: 'dictation', audio_preload: CLIPS }))
+    await flushPromises()
+    expect(api.battles.audioFailed).toHaveBeenCalledTimes(2) // eD3 and eD4, once each
+
+    await click(r, 'audio-retry')
+    await flushPromises()
+
+    expect(api.battles.audioFailed).toHaveBeenCalledTimes(2)
   })
 
   it('a clip that fails for any other reason (no connection) is not reported: the server has no file to check', async () => {
