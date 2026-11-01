@@ -27,7 +27,10 @@ return [
         'round_seconds' => ['collocation' => 30, 'pairs' => 45, 'sentence' => 45, 'dictation' => 60],
         'countdown_seconds' => 3, 'reveal_seconds' => 4,
         'invite_ttl_seconds' => 300, 'room_ttl_seconds' => 120,
-        'presence_grace_seconds' => (int) env('PRACTICE_BATTLE_PRESENCE_GRACE', 30), // ускорение для e2e / стенда (docs/16 §14.4); not below ~10: a heartbeat is up to 7 s old
+        // The silence that ends a match. The environment shortens it for the e2e stand (docs/16 §14.4), but never below the floor of
+        // BattleSettings::presenceGraceFloorSeconds() = heartbeat_write_seconds + 10 s (the longest pause of the poll): the mark of a
+        // player who is here is up to 7 s old, up to 15 s after a failed poll, so a shorter grace would cancel healthy matches.
+        'presence_grace_seconds' => (int) env('PRACTICE_BATTLE_PRESENCE_GRACE', 30),
         'presence_warn_seconds' => 10, 'heartbeat_write_seconds' => 5, 'deadline_grace_ms' => 1500,
         'points' => ['round' => 100, 'pair' => 25],
         'finished_list' => 10,

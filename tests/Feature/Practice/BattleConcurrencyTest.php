@@ -427,3 +427,77 @@ it('settles a surrender and the opponent answer that meet: one finished match wi
 
     expect(battleRaceEvents('battle.finished'))->toHaveCount(4);
 });
+
+// ------------------------------------------------------------------------------------------------------------ the presence (18.12a)
+
+it('closes a game both have left as both_absent exactly once when both come back at the same instant as the sweeper: one battle.closed, no winner, no heartbeat written', function (): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    $battle = BattleKit::playing($me, $friend, $friendship, PracticeMode::Collocation, $course);   // both were last here at 10:00:00
+    $at = CarbonImmutable::parse('2026-10-30 10:00:31');
+    CarbonImmutable::setTestNow($at);
+    $meId = $me->id;
+    $friendId = $friend->id;
+    $read = function (int $learnerId) use ($battle, $at): array {
+        $reader = app(BattleReader::class);
+        $poll = $reader->poll($reader->find(battleRaceLearner($learnerId), $battle->id), battleRaceLearner($learnerId), $at);
+
+        return [$poll->status, $poll->endReason];
+    };
+
+    $results = battleRace([
+        fn (): array => $read($meId),
+        fn (): array => $read($friendId),
+        fn (): array => (function () use ($battle, $friendId, $at): array {
+            $view = app(BattleReader::class)->view(app(BattleReader::class)->find(battleRaceLearner($friendId), $battle->id), battleRaceLearner($friendId), $at);
+
+            return [$view->status, $view->endReason, $view->result['outcome'] ?? null];
+        })(),
+        fn (): int => app(BattleJanitor::class)->sweep($at),
+    ]);
+
+    $row = BattleKit::fresh($battle);
+    expect(battleRaceCrashes($results))->toBe([])
+        ->and(battleRaceOutcomes($results))->toBe(['ok', 'ok', 'ok', 'ok'])
+        ->and([$results[0]['value'], $results[1]['value'], $results[2]['value']])->toBe([['closed', 'both_absent'], ['closed', 'both_absent'], ['closed', 'both_absent', 'none']])
+        ->and([$row->status, $row->end_reason, $row->winner_learner_id, $row->meta['rounds_played']])->toBe([BattleStatus::Closed, BattleEndReason::BothAbsent, null, 0])
+        ->and($row->participants->pluck('active_learner_id')->all())->toBe([null, null])
+        // Nobody was marked present by coming back: the clock judged by the marks as they were.
+        ->and($row->participants->map(fn (BattleParticipant $p): ?string => $p->last_seen_at?->toDateTimeString())->all())->toBe([BattleKit::T0, BattleKit::T0])
+        ->and(battleRaceEvents('battle.closed'))->toHaveCount(1)
+        ->and(battleRaceEvents('battle.closed')[0])->toMatchArray(['battle_id' => $battle->id, 'end_reason' => 'both_absent'])
+        ->and(battleRaceEvents('battle.finished'))->toBe([]);
+});
+
+it('finishes a game exactly once against the player who was away longer when their poll, their answer, the poll of the other and the sweeper meet: one battle.finished, the one who stayed wins, no answer row', function (): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    $battle = BattleKit::playing($me, $friend, $friendship, PracticeMode::Collocation, $course);
+    CarbonImmutable::setTestNow('2026-10-30 10:00:20');
+    BattleKit::reader()->poll(BattleKit::reader()->find($friend, $battle->id), $friend, CarbonImmutable::now());   // the friend is here; I have been silent since 10:00:00
+    $at = CarbonImmutable::parse('2026-10-30 10:00:31');
+    CarbonImmutable::setTestNow($at);
+    $meId = $me->id;
+    $friendId = $friend->id;
+    $element = BattleKit::element($battle, 1);
+
+    $results = battleRace([
+        fn (): string => app(BattleReader::class)->poll(app(BattleReader::class)->find(battleRaceLearner($meId), $battle->id), battleRaceLearner($meId), $at)->status,
+        fn (): string => BattleKit::answer($battle, battleRaceLearner($meId), 1, BattleKit::correct($element))->verdict->value,
+        fn (): string => app(BattleReader::class)->poll(app(BattleReader::class)->find(battleRaceLearner($friendId), $battle->id), battleRaceLearner($friendId), $at)->status,
+        fn (): int => app(BattleJanitor::class)->sweep($at),
+    ]);
+
+    $row = BattleKit::fresh($battle);
+    $outcomes = battleRaceOutcomes($results);
+    expect(battleRaceCrashes($results))->toBe([])
+        ->and([$outcomes[0], $outcomes[2], $outcomes[3]])->toBe(['ok', 'ok', 'ok'])
+        ->and([$results[0]['value'], $results[2]['value']])->toBe(['finished', 'finished'])
+        ->and($outcomes[1])->toBe('battle_closed')
+        ->and($results[1]['details'] ?? null)->toBe(['end_reason' => 'absent'])
+        ->and([$row->status, $row->end_reason, $row->winner_learner_id, $row->meta['rounds_played']])->toBe([BattleStatus::Finished, BattleEndReason::Absent, $friendId, 0])
+        ->and($row->participants->pluck('active_learner_id')->all())->toBe([null, null])
+        ->and([$row->participant($meId)->last_seen_at?->toDateTimeString(), $row->participant($friendId)->last_seen_at?->toDateTimeString()])->toBe([BattleKit::T0, '2026-10-30 10:00:20'])
+        ->and(BattleAnswer::query()->where('battle_id', $battle->id)->count())->toBe(0)
+        ->and(battleRaceEvents('battle.finished'))->toHaveCount(1)
+        ->and(battleRaceEvents('battle.finished')[0])->toMatchArray(['battle_id' => $battle->id, 'end_reason' => 'absent', 'result' => 'opponent', 'rounds_played' => 0])
+        ->and(battleRaceEvents('battle.closed'))->toBe([]);
+});

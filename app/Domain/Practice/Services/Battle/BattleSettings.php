@@ -12,6 +12,12 @@ use App\Domain\Practice\Enums\PracticeMode;
  */
 final class BattleSettings
 {
+    /**
+     * The longest pause between two polls of the TWA (`usePolling`, `maxIntervalMs`): the beat is 2 s, and a failed poll doubles
+     * it up to this. With `heartbeat_write_seconds` it bounds how old the mark of a player who is HERE can be - the floor of the grace.
+     */
+    public const POLL_MAX_PAUSE_SECONDS = 10;
+
     public function rounds(): int
     {
         return $this->int('rounds', 5);
@@ -42,9 +48,22 @@ final class BattleSettings
         return $this->int('room_ttl_seconds', 120);
     }
 
+    /**
+     * The silence that ends a match (docs/16 §8.4), never below {@see presenceGraceFloorSeconds()}. The heartbeat of a player is
+     * written at most once per `heartbeat_write_seconds` and the poll beats every 2 s (up to 10 s after a failed one), so the mark
+     * of a player who is here is up to ~7 s old, up to ~15 s after a failed poll: a grace below the floor would cancel healthy
+     * matches in the countdown (the 5 s of an earlier docs/16 §14.4 did, on the e2e stand - 18.12a). `PRACTICE_BATTLE_PRESENCE_GRACE`
+     * speeds a stand up only down to the floor; the screens read the effective value from the battle.
+     */
     public function presenceGraceSeconds(): int
     {
-        return $this->int('presence_grace_seconds', 30);
+        return max($this->int('presence_grace_seconds', 30), $this->presenceGraceFloorSeconds());
+    }
+
+    /** `heartbeat_write_seconds` + the longest pause of the poll: the mark of a player who is here is never older than this. */
+    public function presenceGraceFloorSeconds(): int
+    {
+        return $this->heartbeatWriteSeconds() + self::POLL_MAX_PAUSE_SECONDS;
     }
 
     /**

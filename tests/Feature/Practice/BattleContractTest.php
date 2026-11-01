@@ -969,7 +969,10 @@ it('warns over HTTP that the opponent has lost the connection after 10 s - since
     $back = BattleHttp::poll($me, $id)->assertOk();
     expect([$back->json('status'), $back->json('opponent_present'), $back->json('opponent_absent_since')])->toBe(['playing', true, null]);
 
-    // The end is still the grace, not the warning: silent for 30 s the match goes on, past it the one who is here wins.
+    // The end is still the grace, not the warning: silent for 30 s the match goes on, past it the one who is here wins. I keep
+    // polling meanwhile - the clock judges me by my own last presence as well (18.12a): silent for 31 s, I would be the one to lose.
+    CarbonImmutable::setTestNow('2026-10-30 10:00:25');
+    BattleHttp::poll($me, $id)->assertOk();
     CarbonImmutable::setTestNow('2026-10-30 10:00:41');   // 29 s after the friend's last poll
     expect(BattleHttp::poll($me, $id)->json('status'))->toBe('playing');
     CarbonImmutable::setTestNow('2026-10-30 10:00:43');
