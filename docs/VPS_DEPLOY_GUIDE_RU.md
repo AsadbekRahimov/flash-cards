@@ -27,7 +27,7 @@
 | PostgreSQL | **18** | основная БД; из официального репозитория PGDG (§4), штатный в Ubuntu 24.04 — 16 |
 | Redis | **8** | кэш, сессии, очереди, блокировки; из репозитория `packages.redis.io` (§5) |
 | Nginx | из репозитория Ubuntu | веб-сервер |
-| Node.js | **24 LTS** | только для сборки фронтенда (Vite) |
+| Node.js | **26 LTS** | только для сборки фронтенда (Vite) |
 | Composer | 2 | зависимости PHP |
 | Supervisor | из репозитория | воркеры очереди |
 | Certbot | из репозитория | сертификат Let's Encrypt |
@@ -351,12 +351,12 @@ sudo apt -y install nginx supervisor certbot python3-certbot-nginx
 sudo systemctl enable --now nginx supervisor
 ```
 
-Node.js 24 LTS из репозитория NodeSource (нужен только для сборки фронтенда; та же версия, что в CI и Docker-образах):
+Node.js 26 LTS из репозитория NodeSource (нужен только для сборки фронтенда; та же версия, что в CI и Docker-образах):
 
 ```bash
-curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
+curl -fsSL https://deb.nodesource.com/setup_26.x | sudo -E bash -
 sudo apt -y install nodejs
-node -v      # v24.x
+node -v      # v26.x
 npm -v
 ```
 

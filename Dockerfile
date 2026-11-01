@@ -1,5 +1,4 @@
-# Node 24 LTS, not 26: the TWA tests (vitest + happy-dom) fail on the built-in localStorage of Node 25+.
-FROM node:24-alpine AS frontend
+FROM node:26-alpine AS frontend
 
 WORKDIR /build
 

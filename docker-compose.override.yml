@@ -17,7 +17,7 @@ services:
     # Vite dev-server для TWA фронтенда. Запускается в отдельном контейнере
     # на порту 5173 (стандартный для Vite). HMR работает через WebSocket.
     vite:
-        image: node:24-alpine
+        image: node:26-alpine
         container_name: lexiflow-vite
         working_dir: /var/www/html/resources/twa
         # UID/GID хоста — чтобы node_modules не оказался под root на Linux/WSL.

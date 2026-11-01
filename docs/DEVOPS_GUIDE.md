@@ -180,7 +180,7 @@ php artisan db:seed   # loads demo admin, teacher, 2 groups, 120 words, 5 learne
 
 ## 6. Build the Frontend (TWA SPA)
 
-If Node.js 24 LTS (22.12+ is enough) is available on the server:
+If Node.js 26 LTS (22.12+ is enough) is available on the server:
 ```bash
 cd resources/twa
 npm ci                  # install all deps — build needs vite/vue-tsc from devDependencies
