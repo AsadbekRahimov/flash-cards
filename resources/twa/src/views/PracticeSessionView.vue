@@ -12,7 +12,7 @@ import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import { progressPercent } from '@/composables/courseLabels'
-import { showErrorToast } from '@/composables/errorToast'
+import { hideErrorToast, showErrorToast } from '@/composables/errorToast'
 import { lessonHeader, verdictLabel } from '@/composables/practiceLabels'
 import { useBackButton } from '@/composables/useBackButton'
 import { usePracticeAudio } from '@/composables/usePracticeAudio'
@@ -172,6 +172,21 @@ watch(
   },
 )
 
+// The toast tells about an action that failed. The learner's next try (an answer, "I don't know", a swap of the task, "Repeat mistakes",
+// "Again") takes it off at once: when that goes through, the review must not stand under a refusal that was dealt with; when it fails
+// again, the toast comes back with its own words (the watchers above). "Next" does the same: nothing of the old refusal belongs to the next task.
+watch(busy, (isBusy) => {
+  if (isBusy) hideErrorToast()
+})
+watch(opening, (now) => {
+  if (now !== null) hideErrorToast()
+})
+
+function onContinue(): void {
+  hideErrorToast()
+  practice.continueAfterVerdict()
+}
+
 // ---- the clip of a dictation ----
 
 /** The clip of the element on screen (the next one is fetched while the verdict is read). */
@@ -320,7 +335,7 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => practice.dismissPaywall
         v-else-if="status === 'verdict' && outcome"
         :outcome="outcome"
         :last="lastElement"
-        @continue="practice.continueAfterVerdict()"
+        @continue="onContinue"
       />
 
       <!-- The component of the mode (modeComponents.ts); the key makes every element a new one, with no pick left over. -->

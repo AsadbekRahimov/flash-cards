@@ -21,7 +21,7 @@ import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import { remainingMs, secondsLeft } from '@/composables/battleTime'
-import { showErrorToast } from '@/composables/errorToast'
+import { hideErrorToast, showErrorToast } from '@/composables/errorToast'
 import { lessonHeader } from '@/composables/practiceLabels'
 import { useBackButton } from '@/composables/useBackButton'
 import { useBattleAudio } from '@/composables/useBattleAudio'
@@ -365,6 +365,16 @@ watch(actionError, (message) => {
   store.clearActionError()
 })
 
+// The next try of an action (an answer, "Retry", "Ready", "Accept", the rematch, ...) takes the toast of the refusal off at once: when it
+// goes through, nothing of the old refusal belongs to what comes next, and when it fails again the toast is back with its own words. A refusal
+// that no new action follows stays its four seconds: the answer that was too late is explained by the review that comes after it.
+watch(acting, (now) => {
+  if (now !== null) hideErrorToast()
+})
+watch(answerState, (now) => {
+  if (now === 'sending') hideErrorToast()
+})
+
 // ------------------------------------------------------------- the rematch
 
 function goTo(id: number | null): void {
@@ -493,7 +503,7 @@ watch(over, (isOver) => {
     </ErrorState>
 
     <template v-else-if="data">
-      <header class="px-4 pt-3">
+      <header class="px-4 pt-3 short:pt-2">
         <div class="flex items-center gap-2">
           <button type="button" class="-ml-1 flex size-11 shrink-0 items-center justify-center" :aria-label="t('common.close')" data-testid="close-btn" @click="requestLeave">
             <span class="flex size-9 items-center justify-center rounded-full bg-track text-tg-subtitle"><AppIcon name="x-mark" :size="20" /></span>
@@ -501,7 +511,15 @@ watch(over, (isOver) => {
           <p class="min-w-0 flex-1 truncate text-center text-[17px] leading-[22px] font-semibold" data-testid="headline">{{ headline }}</p>
           <span class="size-10 shrink-0" aria-hidden="true" />
         </div>
-        <p v-if="caption" class="mt-1 truncate text-center text-[15px] leading-5 font-medium text-tg-subtitle" data-testid="caption">{{ caption }}</p>
+        <!-- In a short window the round and the result do not need the lesson here (the result says it again under the title): the row is the task's. The room keeps it. -->
+        <p
+          v-if="caption"
+          class="mt-1 truncate text-center text-[15px] leading-5 font-medium text-tg-subtitle"
+          :class="{ 'short:hidden': status === 'playing' || over }"
+          data-testid="caption"
+        >
+          {{ caption }}
+        </p>
       </header>
 
       <!-- Trouble that does not end the match. -->
@@ -555,9 +573,12 @@ watch(over, (isOver) => {
       </section>
 
       <template v-else-if="status === 'playing'">
-        <div class="px-4 pt-3">
+        <div class="px-4 pt-3 short:pt-2">
+          <!-- The slot is there only while the round runs: the scoreboard lays itself out for the timer when it has one (and for the colon when it has not). -->
           <BattleScoreboard :me="store.scores.me" :opponent="store.scores.opponent" :opponent-name="opponentName">
-            <RoundTimer v-if="phase === 'answering' && state" :deadline="state.deadline_at" :offset-ms="serverOffsetMs" :total-seconds="data.round_seconds" />
+            <template v-if="phase === 'answering' && state" #default>
+              <RoundTimer :deadline="state.deadline_at" :offset-ms="serverOffsetMs" :total-seconds="data.round_seconds" />
+            </template>
           </BattleScoreboard>
         </div>
 

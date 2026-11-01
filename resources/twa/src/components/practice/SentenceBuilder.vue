@@ -21,6 +21,9 @@
  *
  * The half-built line is kept in the memory of the page (`sentenceDraft`): ✕ and "Continue" bring it back.
  * Keyboard: the fragments are buttons; when the pressed one leaves the place it was pressed in, the focus follows the learner.
+ *
+ * A round of a battle in a short window (`short:`, 320 x 568) is tighter than a solo task: the header of the battle (the score and the
+ * timer) is above it, and the first row of the bank has to come up over the sticky block of buttons without scrolling - the clock is running.
  */
 import { computed, nextTick, onBeforeUnmount, ref, useId, watch } from 'vue'
 import type { ComponentPublicInstance } from 'vue'
@@ -56,6 +59,9 @@ const sent = ref(false)
 const lastSent = ref<'answer' | 'skip' | null>(null)
 /** Solo: the last request got no reply. The line is as it was and cannot be changed; the same action goes again. */
 const retrying = ref(false)
+
+/** A round of a battle: in a short window its room is spent more sparingly (see above). */
+const tight = computed(() => props.mode === 'battle')
 
 const total = computed(() => props.element.fragments.length)
 const placed = computed(() => new Set(order.value))
@@ -196,14 +202,18 @@ onBeforeUnmount(() => {
 
 <template>
   <div ref="root" class="flex flex-1 flex-col" :data-mode="mode" data-testid="sentence-builder">
-    <div class="flex flex-1 flex-col gap-3 px-4 pt-4 pb-4">
-      <article class="card flex flex-col items-center gap-2 px-5 py-5 text-center">
+    <div class="flex flex-1 flex-col gap-3 px-4 pt-4 pb-4" :class="{ 'short:gap-2 short:pt-2 short:pb-3': tight }">
+      <article class="card flex flex-col items-center gap-2 px-5 py-5 text-center" :class="{ 'short:gap-1 short:px-4 short:py-3': tight }">
         <p class="text-[15px] leading-5 font-medium text-tg-subtitle">{{ modeTitle('sentence') }}</p>
         <h2 class="text-2xl leading-8 font-bold break-words" data-testid="sentence-prompt">{{ element.prompt }}</h2>
       </article>
 
       <!-- The line: wraps onto new rows, never scrolls sideways. On a short window (320 x 568) it starts lower: the bank must come up above the sticky block. -->
-      <div class="card flex min-h-28 flex-col gap-2 p-3 [@media(max-height:600px)]:min-h-20" data-testid="sentence-line">
+      <div
+        class="card flex min-h-28 flex-col gap-2 p-3"
+        :class="tight ? 'short:min-h-16' : '[@media(max-height:600px)]:min-h-20'"
+        data-testid="sentence-line"
+      >
         <ul role="list" :aria-label="t('practice.sentence.line')" class="flex flex-wrap content-start gap-2" data-testid="sentence-answer">
           <li v-for="item in line" :key="item.id" class="max-w-full min-w-0">
             <button
@@ -227,7 +237,14 @@ onBeforeUnmount(() => {
         <p :id="progressId" class="min-w-0 px-1 text-[15px] leading-5 text-tg-subtitle" role="status" aria-live="polite" data-testid="sentence-progress">
           {{ t('practice.sentence.progress', { done: order.length, total }) }}
         </p>
-        <button type="button" class="btn btn-plain shrink-0" :disabled="locked || order.length === 0" data-testid="reset-btn" @click="reset">
+        <button
+          type="button"
+          class="btn btn-plain shrink-0"
+          :class="{ 'tap-target short:min-h-9 short:px-3 short:py-1.5 short:text-sm': tight }"
+          :disabled="locked || order.length === 0"
+          data-testid="reset-btn"
+          @click="reset"
+        >
           <AppIcon name="arrow-path" :size="18" />
           {{ t('practice.sentence.reset') }}
         </button>

@@ -206,6 +206,78 @@ describe('BattleResult — what to do next', () => {
     expect(w.emitted('course')).toHaveLength(1)
   })
 
+  // 18.12b. Three buttons in the sticky block were 192 of 568 px at 320 x 568: the score card was cut off and the list of the rounds was
+  // wholly under the block. The block holds the main action only; the ways out are in the page, after what the learner came to read.
+  describe('the sticky block holds the main action only; the ways out are in the page', () => {
+    const inBar = (w: Wrapper) => w.get('[data-testid=actions]').findAll('button').map((button) => button.attributes('data-testid'))
+    const inExits = (w: Wrapper) => w.get('[data-testid=result-exits]').findAll('button').map((button) => button.attributes('data-testid'))
+    const FOLLOWING = Node.DOCUMENT_POSITION_FOLLOWING
+
+    it('after a match: “Rematch” in the block, “To the friends” and “To the course” in one row of the page after the rounds', () => {
+      const w = render()
+
+      expect(inBar(w)).toEqual(['rematch-btn'])
+      expect(inExits(w)).toEqual(['friends-btn', 'course-btn'])
+      expect(w.get('[data-testid=result-exits]').classes()).toEqual(expect.arrayContaining(['flex', 'gap-2']))
+      for (const id of ['friends-btn', 'course-btn']) expect(w.get(`[data-testid=${id}]`).classes()).toContain('flex-1')
+      const exits = w.get('[data-testid=result-exits]').element
+      expect(w.get('[data-testid=result-rounds]').element.compareDocumentPosition(exits) & FOLLOWING).toBeTruthy()
+      expect(exits.compareDocumentPosition(w.get('[data-testid=actions]').element) & FOLLOWING).toBeTruthy()
+      expect(primaries(w)).toHaveLength(1)
+    })
+
+    it('with a rematch to answer: “Accept” and “Decline” are the block (a decision of two buttons), the ways out are in the page', () => {
+      const w = render(finishedBattle('lost'), { rematch: { battle_id: 16, status: 'invited', by_me: false } })
+
+      expect(inBar(w)).toEqual(['accept-rematch-btn', 'decline-rematch-btn'])
+      expect(inExits(w)).toEqual(['friends-btn', 'course-btn'])
+      // the offer is above the ways out: it is what the learner has to answer
+      expect(w.get('[data-testid=rematch-offer]').element.compareDocumentPosition(w.get('[data-testid=result-exits]').element) & FOLLOWING).toBeTruthy()
+    })
+
+    it('with a rematch that waits or is on: the way into it is the block', () => {
+      const w = render(finishedBattle(), { rematch: { battle_id: 16, status: 'invited', by_me: true } })
+
+      expect(inBar(w)).toEqual(['open-rematch-btn'])
+      expect(inExits(w)).toEqual(['friends-btn', 'course-btn'])
+    })
+
+    it('after a decline “To friends” is the main button, in the block, and “To the course” is alone in the page', () => {
+      const w = render(closedBattle('declined'))
+
+      expect(inBar(w)).toEqual(['friends-btn'])
+      expect(w.get('[data-testid=friends-btn]').classes()).toEqual(expect.arrayContaining(['btn-primary', 'btn-lg']))
+      expect(inExits(w)).toEqual(['course-btn'])
+      expect(primaries(w)).toHaveLength(1)
+    })
+
+    it('keeps the buttons by their ids and their words, wherever they stand', async () => {
+      const w = render()
+
+      expect(w.get('[data-testid=friends-btn]').text()).toBe('К друзьям')
+      expect(w.get('[data-testid=course-btn]').text()).toBe('В курс')
+      await w.get('[data-testid=friends-btn]').trigger('click')
+      await w.get('[data-testid=course-btn]').trigger('click')
+      expect(w.emitted('friends')).toHaveLength(1)
+      expect(w.emitted('course')).toHaveLength(1)
+    })
+
+    it('every variant has its own ways out: one “To the friends” and one “To the course” at most, never two of a kind', () => {
+      const variants = [
+        render(),
+        render(finishedBattle('lost'), { rematch: { battle_id: 16, status: 'invited', by_me: false } }),
+        render(finishedBattle(), { rematch: { battle_id: 16, status: 'room', by_me: true } }),
+        render(closedBattle('declined')),
+        render(closedBattle('both_absent')),
+      ]
+
+      for (const w of variants) {
+        expect(w.findAll('[data-testid=friends-btn]')).toHaveLength(1)
+        expect(w.findAll('[data-testid=course-btn]')).toHaveLength(1)
+      }
+    })
+  })
+
   it.each(['invite_expired', 'room_expired', 'canceled', 'both_absent', 'voided'] as const)('after a battle that fell through (%s) one may invite again', (reason) => {
     const w = render(closedBattle(reason))
 

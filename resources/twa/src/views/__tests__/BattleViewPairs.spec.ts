@@ -25,7 +25,7 @@ vi.mock('@/api', () => ({
 }))
 
 vi.mock('@/stores/auth', () => ({ useAuthStore: () => ({ ensure: () => Promise.resolve() }) }))
-vi.mock('@/composables/errorToast', () => ({ showErrorToast: vi.fn() }))
+vi.mock('@/composables/errorToast', () => ({ showErrorToast: vi.fn(), hideErrorToast: vi.fn() }))
 vi.mock('@/composables/useTelegram', () => ({
   useTelegram: () => ({
     showBackButton: () => () => undefined,

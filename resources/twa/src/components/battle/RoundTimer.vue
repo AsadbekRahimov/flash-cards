@@ -14,6 +14,8 @@ import { useI18n } from '@/i18n'
  * - `deadline` — `round.deadline_at`; `null` shows a full bar and no time.
  * - `totalSeconds` — the length of a round, for the bar.
  * - the last ten seconds are warm (the warning colour, never red, nothing blinks).
+ * - in a short window (`short:`, 320 x 568) the time is over the bar, not beside it: the timer stands between the two scores
+ *   (`BattleScoreboard`), in a column of its own.
  *
  * a11y: `role="timer"`. The numbers that change every second are hidden from a screen reader; a live region says the time
  * left every ten seconds and every second of the last five, and "Time is up" at 0.
@@ -47,17 +49,17 @@ watch(
 
 <template>
   <div
-    class="flex items-center gap-3"
+    class="flex items-center gap-3 short:flex-col-reverse short:items-stretch short:gap-1"
     role="timer"
     :aria-label="t('battle.timer.label')"
     :data-state="over ? 'over' : low ? 'low' : 'ok'"
     data-testid="round-timer"
   >
-    <div class="progress flex-1" aria-hidden="true">
+    <div class="progress flex-1 short:flex-none" aria-hidden="true">
       <div class="progress-fill" :class="{ 'bg-warning': low || over }" :style="{ width: `${Math.round(share * 100)}%` }" data-testid="timer-fill" />
     </div>
     <span
-      class="flex min-w-[4.5rem] items-center justify-end gap-1 font-bold tabular-nums"
+      class="flex min-w-[4.5rem] items-center justify-end gap-1 font-bold tabular-nums short:justify-center"
       :class="[over ? 'text-[17px] leading-[22px]' : 'text-[22px] leading-7', low || over ? 'text-warning-ink' : 'text-tg-text']"
       aria-hidden="true"
       data-testid="timer-text"

@@ -21,8 +21,9 @@ import type { Battle, BattleEndReason, BattleOutcome, BattleRematch, BattleResul
  *   rounds played, surrender, left and did not come back, both gone, declined, the time of the invitation or of the room ran out,
  *   cancelled, voided - for a dictation the recording that is not there);
  * - the score and the rounds, one row each, "You | Name", with the symbol, the points and (for a screen reader) the verdict;
- * - the actions: "Rematch" (the one primary button; "Invite again" after a battle that did not take place), "To friends",
- *   "To the course". After a decline there is no new invitation: "To friends" is the primary one.
+ * - the actions: "Rematch" (the one primary button, in the sticky block; "Invite again" after a battle that did not take place), then in
+ *   the page, in one row, "To friends" and "To the course" (a short window cannot spare 192 px of 568 for three buttons). After a decline
+ *   there is no new invitation: "To friends" is the primary one, in the sticky block, and "To the course" is alone in the page.
  *
  * `rematch` is the rematch that follows this battle as the server reports it - `{battle_id, status, by_me}`, no battle to read:
  * an offer of the friend is answered here ("Accept" is then the primary button, "Rematch" gives way to it); a rematch of the learner's
@@ -112,6 +113,8 @@ const rematchOn = computed(() => ownRematch.value && props.rematch?.status !== '
 /** After a decline nobody asks the friend again at once; after a game, or a battle that fell through, one may. */
 const canInviteAgain = computed(() => !offered.value && !ownRematch.value && props.result.end_reason !== 'declined')
 const finished = computed(() => props.battle.status === 'finished')
+/** Nothing above asks for the main button, so "To friends" is it (a declined match: nobody asks the friend again at once). */
+const friendsFirst = computed(() => !offered.value && !ownRematch.value && !canInviteAgain.value)
 
 const cell = (side: BattleRoundResult['me']) => ({ look: VERDICT_LOOK[side.verdict], points: side.points })
 </script>
@@ -175,6 +178,12 @@ const cell = (side: BattleRoundResult['me']) => ({ look: VERDICT_LOOK[side.verdi
         <h2 class="text-[17px] leading-[22px] font-semibold">{{ rematchOn ? t('battle.result.rematch_on') : t('battle.result.rematch_mine') }}</h2>
         <p class="text-[15px] leading-5 text-tg-subtitle">{{ rematchOn ? t('battle.result.rematch_on_text') : t('battle.result.rematch_mine_text') }}</p>
       </section>
+
+      <!-- The ways out that are not the main one are in the page, after what the learner came to read: in a short window three buttons in the sticky block (192 of 568 px) covered the score and the rounds. -->
+      <div class="flex gap-2" data-testid="result-exits">
+        <button v-if="!friendsFirst" type="button" class="btn btn-tinted flex-1" data-testid="friends-btn" @click="emit('friends')">{{ t('battle.to_friends') }}</button>
+        <button type="button" class="btn btn-plain flex-1" data-testid="course-btn" @click="emit('course')">{{ t('battle.to_course') }}</button>
+      </div>
     </div>
 
     <StickyActions>
@@ -192,17 +201,7 @@ const cell = (side: BattleRoundResult['me']) => ({ look: VERDICT_LOOK[side.verdi
       <button v-else-if="canInviteAgain" type="button" class="btn btn-primary btn-lg btn-block" :disabled="busy !== null" data-testid="rematch-btn" @click="emit('rematch')">
         {{ finished ? t('battle.result.rematch') : t('battle.result.again') }}
       </button>
-
-      <button
-        type="button"
-        class="btn btn-block"
-        :class="offered || ownRematch || canInviteAgain ? 'btn-tinted' : 'btn-primary btn-lg'"
-        data-testid="friends-btn"
-        @click="emit('friends')"
-      >
-        {{ t('battle.to_friends') }}
-      </button>
-      <button type="button" class="btn btn-plain btn-block" data-testid="course-btn" @click="emit('course')">{{ t('battle.to_course') }}</button>
+      <button v-else type="button" class="btn btn-primary btn-lg btn-block" data-testid="friends-btn" @click="emit('friends')">{{ t('battle.to_friends') }}</button>
     </StickyActions>
   </div>
 </template>

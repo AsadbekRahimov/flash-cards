@@ -6,7 +6,7 @@ import BattleView from '../BattleView.vue'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
-import { showErrorToast } from '@/composables/errorToast'
+import { hideErrorToast, showErrorToast } from '@/composables/errorToast'
 import { RESULT_CHECKS_MAX } from '@/stores/battle'
 import {
   SERVER_NOW,
@@ -69,7 +69,7 @@ vi.mock('@/composables/useTelegram', () => ({
   }),
 }))
 
-vi.mock('@/composables/errorToast', () => ({ showErrorToast: vi.fn() }))
+vi.mock('@/composables/errorToast', () => ({ showErrorToast: vi.fn(), hideErrorToast: vi.fn() }))
 
 // The sheet has its own spec; here only that it opens, for which reason, and that it closes.
 vi.mock('@/components/PaywallSheet.vue', async () => {
@@ -463,6 +463,76 @@ describe('BattleView — the invitation', () => {
 
     expect(showErrorToast).toHaveBeenCalledWith('Этот баттл уже закрыт.')
     expect(text(r, 'result-reason')).toBe('Приглашение не приняли вовремя.')
+  })
+})
+
+describe('BattleView — the toast of a refusal goes when the learner moves on (18.12b)', () => {
+  it('the next try of an action takes the toast off at once, before the reply of the server', async () => {
+    const r = await render(invitedBattle({ role: 'opponent' }))
+    vi.mocked(api.battles.accept).mockRejectedValueOnce(offline())
+
+    await click(r, 'accept-btn')
+    expect(showErrorToast).toHaveBeenCalledTimes(1)
+    vi.mocked(hideErrorToast).mockClear() // (the first try took off nothing: no toast was there)
+
+    const reply = pending<Battle>()
+    vi.mocked(api.battles.accept).mockReturnValueOnce(reply.promise)
+    await click(r, 'accept-btn')
+    expect(hideErrorToast).toHaveBeenCalledTimes(1)
+
+    serveBattle(() => roomBattle())
+    reply.resolve(roomBattle())
+    await flushPromises()
+    expect(has(r, 'battle-room')).toBe(true)
+    expect(showErrorToast).toHaveBeenCalledTimes(1)
+  })
+
+  it('a try that fails again puts the toast back, after taking the old one off', async () => {
+    const r = await render(invitedBattle({ role: 'opponent' }))
+    vi.mocked(api.battles.accept).mockRejectedValue(offline())
+
+    await click(r, 'accept-btn')
+    await click(r, 'accept-btn')
+
+    expect(showErrorToast).toHaveBeenCalledTimes(2)
+    expect(hideErrorToast).toHaveBeenCalledTimes(2) // each try begins by taking off what the one before it left
+    const [firstShown, secondShown] = vi.mocked(showErrorToast).mock.invocationCallOrder
+    const secondTry = vi.mocked(hideErrorToast).mock.invocationCallOrder[1]
+    expect(secondTry).toBeGreaterThan(firstShown!)
+    expect(secondTry).toBeLessThan(secondShown!)
+  })
+
+  it('an answer on its way is a try: “Retry” of the answer that was not delivered takes the toast off', async () => {
+    const r = await render(battle())
+    vi.mocked(api.battles.answer).mockRejectedValue(offline())
+
+    await get(r, 'probe-answer').trigger('click')
+    await pass(500)
+    await pass(1000)
+    await pass(2000)
+    expect(has(r, 'battle-send-failed')).toBe(true)
+    vi.mocked(hideErrorToast).mockClear()
+
+    vi.mocked(api.battles.answer).mockResolvedValue(answerReply())
+    await click(r, 'retry-answer-btn')
+
+    expect(hideErrorToast).toHaveBeenCalledTimes(1)
+    expect(has(r, 'battle-waiting')).toBe(true)
+  })
+
+  it('a refusal that no new action follows is left to its time: the review of the round explains an answer that was too late', async () => {
+    const r = await render(battle())
+    vi.mocked(api.battles.answer).mockRejectedValue(apiError('conflict', 409, 'round_closed', { round: 2, phase: 'reveal' }))
+    servePoll(() => poll({ version: 26, round: roundState({ phase: 'reveal', phase_ends_at: at(3), opponent_answered: true }) }))
+    vi.mocked(api.battles.round).mockImplementation(() => Promise.resolve(stamp(revealRound({ reveal: { ...revealRound().reveal!, me: { answer: null, verdict: 'timeout', points: 0 } } }))))
+
+    await click(r, 'probe-answer')
+
+    expect(showErrorToast).toHaveBeenCalledWith('Время раунда вышло: ответ не принят.')
+    expect(has(r, 'battle-reveal')).toBe(true)
+    // the answer itself began by taking off an older toast; after the refusal was shown nothing took it off
+    const shown = vi.mocked(showErrorToast).mock.invocationCallOrder[0]!
+    expect(vi.mocked(hideErrorToast).mock.invocationCallOrder.every((order) => order < shown)).toBe(true)
   })
 })
 
@@ -2183,6 +2253,60 @@ describe('BattleView — behind Pro (docs/16 §3.2)', () => {
 
     expect(has(r, 'paywall')).toBe(false)
     expect(r.wrapper.text()).toContain('Практика сейчас недоступна.')
+  })
+})
+
+// 18.12b. At 320 x 568 the header of a round (the lesson row, the score and the timer) was 218 px of 568: the bank of the sentence, the
+// fields of the dictation and the fourth row of the pairs were under the sticky block of buttons. In a short window (max-height 640 px)
+// the round gives the room back; happy-dom has no media queries, so the classes that do it are what is checked here, and the e2e of the
+// pictures (`shots`, 320 x 568) is what sees the result.
+describe('BattleView — a short window', () => {
+  const caption = (r: Rendered) => get(r, 'caption')
+  const dropsInShortWindow = (r: Rendered) => caption(r).classes().includes('short:hidden')
+
+  it('drops the lesson row in a round, and in the result (which says it again under the title); the room keeps it', async () => {
+    const round = await render(battle())
+    expect(has(round, 'battle-view')).toBe(true)
+    expect(dropsInShortWindow(round)).toBe(true)
+
+    const reveal = await render(battle({ round: roundState({ phase: 'reveal', phase_ends_at: at(3), my_answered: true, opponent_answered: true }) }), { round: revealRound() })
+    expect(dropsInShortWindow(reveal)).toBe(true)
+
+    const over = await render(finishedBattle())
+    expect(dropsInShortWindow(over)).toBe(true)
+
+    const room = await render(roomBattle())
+    expect(dropsInShortWindow(room)).toBe(false)
+    expect(text(room, 'caption')).toBe('Модуль 2 · Урок 4 · Еда')
+  })
+
+  it('has less air over the header and over the score in a round', async () => {
+    const r = await render(battle())
+
+    expect(r.wrapper.get('header').classes()).toEqual(expect.arrayContaining(['pt-3', 'short:pt-2']))
+    expect(get(r, 'scoreboard').element.parentElement?.className).toContain('short:pt-2')
+  })
+
+  it('has the timer in the scoreboard while the round runs, and no timer slot after it (the pause, the review)', async () => {
+    const running = await render(battle())
+    expect(get(running, 'scoreboard').find('[data-testid=scoreboard-timer] [data-testid=round-timer]').exists()).toBe(true)
+
+    const paused = await render(battle({ round: roundState({ phase: 'reveal', phase_ends_at: at(3), my_answered: true, opponent_answered: true }) }), { round: revealRound() })
+    expect(has(paused, 'round-timer')).toBe(false)
+    expect(has(paused, 'scoreboard-timer')).toBe(false)
+    expect(text(paused, 'score-me')).toBe('100')
+    expect(get(paused, 'scoreboard').find('[aria-hidden=true]').classes()).not.toContain('short:hidden') // the colon stays where there is no timer
+  })
+
+  it('keeps the same things on the screen: the headline, the score, the timer, the task and the actions of the mode', async () => {
+    const r = await render(battle())
+
+    expect(text(r, 'headline')).toBe('Раунд 2 из 5')
+    expect(has(r, 'score-me')).toBe(true)
+    expect(has(r, 'score-opponent')).toBe(true)
+    expect(has(r, 'round-timer')).toBe(true)
+    expect(has(r, 'probe')).toBe(true)
+    expect(has(r, 'close-btn')).toBe(true)
   })
 })
 
