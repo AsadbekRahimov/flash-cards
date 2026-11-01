@@ -2,6 +2,13 @@
 
 @source "../index.html";
 
+/*
+ * `short:` - a short window: a phone with a small screen (the iPhone SE is 320 x 568, and Telegram's window is lower still) or a phone on
+ * its side. An immersive screen (a round of a battle) takes its vertical room back there, so that the task stays above the sticky
+ * block of buttons without scrolling (docs/14 §3: the actions are at the bottom, and so is the thumb).
+ */
+@custom-variant short (@media (max-height: 640px));
+
 @theme {
   /* Telegram theme parameters (docs/14 §4.1); filled in by composables/telegramTheme.ts. */
   --color-tg-bg: var(--tg-bg);

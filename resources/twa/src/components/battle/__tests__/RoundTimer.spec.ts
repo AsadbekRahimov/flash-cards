@@ -137,6 +137,20 @@ describe('RoundTimer', () => {
     expect(live(w)).toBe('Осталось 30 с')
   })
 
+  // 18.12b. In a short window (max-height 640 px) the timer stands between the two scores, in a column of its own: the time is over the
+  // bar, not beside it. Nothing is hidden: the same bar, the same time, the same live region.
+  it('in a short window puts the time over the bar (a column), and keeps everything it shows', () => {
+    const w = render()
+
+    expect(w.get('[role=timer]').classes()).toEqual(expect.arrayContaining(['flex', 'items-center', 'gap-3', 'short:flex-col-reverse', 'short:items-stretch', 'short:gap-1']))
+    expect(w.get('[data-testid=timer-fill]').element.parentElement?.className).toContain('short:flex-none')
+    expect(w.get('[data-testid=timer-text]').classes()).toContain('short:justify-center')
+    // the bar comes first in the page (the clock over it is the same element, only drawn above), so a reader meets the same order everywhere
+    const parts = [...w.get('[role=timer]').element.children].map((el) => el.getAttribute('data-testid') ?? el.className.split(' ')[0])
+    expect(parts).toEqual(['progress', 'timer-text', 'timer-live'])
+    expect(text(w)).toBe('0:32')
+  })
+
   it('speaks Uzbek', async () => {
     setLocale('uz')
     const w = render({ deadline: at(1) })

@@ -2256,6 +2256,60 @@ describe('BattleView — behind Pro (docs/16 §3.2)', () => {
   })
 })
 
+// 18.12b. At 320 x 568 the header of a round (the lesson row, the score and the timer) was 218 px of 568: the bank of the sentence, the
+// fields of the dictation and the fourth row of the pairs were under the sticky block of buttons. In a short window (max-height 640 px)
+// the round gives the room back; happy-dom has no media queries, so the classes that do it are what is checked here, and the e2e of the
+// pictures (`shots`, 320 x 568) is what sees the result.
+describe('BattleView — a short window', () => {
+  const caption = (r: Rendered) => get(r, 'caption')
+  const dropsInShortWindow = (r: Rendered) => caption(r).classes().includes('short:hidden')
+
+  it('drops the lesson row in a round, and in the result (which says it again under the title); the room keeps it', async () => {
+    const round = await render(battle())
+    expect(has(round, 'battle-view')).toBe(true)
+    expect(dropsInShortWindow(round)).toBe(true)
+
+    const reveal = await render(battle({ round: roundState({ phase: 'reveal', phase_ends_at: at(3), my_answered: true, opponent_answered: true }) }), { round: revealRound() })
+    expect(dropsInShortWindow(reveal)).toBe(true)
+
+    const over = await render(finishedBattle())
+    expect(dropsInShortWindow(over)).toBe(true)
+
+    const room = await render(roomBattle())
+    expect(dropsInShortWindow(room)).toBe(false)
+    expect(text(room, 'caption')).toBe('Модуль 2 · Урок 4 · Еда')
+  })
+
+  it('has less air over the header and over the score in a round', async () => {
+    const r = await render(battle())
+
+    expect(r.wrapper.get('header').classes()).toEqual(expect.arrayContaining(['pt-3', 'short:pt-2']))
+    expect(get(r, 'scoreboard').element.parentElement?.className).toContain('short:pt-2')
+  })
+
+  it('has the timer in the scoreboard while the round runs, and no timer slot after it (the pause, the review)', async () => {
+    const running = await render(battle())
+    expect(get(running, 'scoreboard').find('[data-testid=scoreboard-timer] [data-testid=round-timer]').exists()).toBe(true)
+
+    const paused = await render(battle({ round: roundState({ phase: 'reveal', phase_ends_at: at(3), my_answered: true, opponent_answered: true }) }), { round: revealRound() })
+    expect(has(paused, 'round-timer')).toBe(false)
+    expect(has(paused, 'scoreboard-timer')).toBe(false)
+    expect(text(paused, 'score-me')).toBe('100')
+    expect(get(paused, 'scoreboard').find('[aria-hidden=true]').classes()).not.toContain('short:hidden') // the colon stays where there is no timer
+  })
+
+  it('keeps the same things on the screen: the headline, the score, the timer, the task and the actions of the mode', async () => {
+    const r = await render(battle())
+
+    expect(text(r, 'headline')).toBe('Раунд 2 из 5')
+    expect(has(r, 'score-me')).toBe(true)
+    expect(has(r, 'score-opponent')).toBe(true)
+    expect(has(r, 'round-timer')).toBe(true)
+    expect(has(r, 'probe')).toBe(true)
+    expect(has(r, 'close-btn')).toBe(true)
+  })
+})
+
 describe('BattleView — the screen as a whole', () => {
   it('stops everything when the learner leaves: no more beats, nothing is kept', async () => {
     const r = await render(battle())

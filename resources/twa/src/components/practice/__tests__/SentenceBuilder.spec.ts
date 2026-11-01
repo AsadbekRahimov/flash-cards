@@ -110,6 +110,50 @@ describe('SentenceBuilder — the screen', () => {
     // The order in the page stays "Check", then "I don't know": the main action comes first for a keyboard and a screen reader.
     expect(w.get('[data-testid=actions]').findAll('button').map((button) => button.attributes('data-testid'))).toEqual(['check-btn', 'skip-btn'])
   })
+
+  // 18.12b. A battle puts its score and its timer above the task (74 px in a short window, 126 px otherwise): at 320 x 568 the first row
+  // of the bank was 100 px under the sticky block when the round began, with the clock running. A round of a battle spends its room more
+  // sparingly in a short window; a solo task keeps what it had.
+  describe('in a round of a battle (short window: max-height 640 px)', () => {
+    const container = (w: VueWrapper) => w.get('[data-testid=sentence-line]').element.parentElement
+    const classesOf = (el: Element | null) => [...(el?.classList ?? [])]
+
+    it('has less air between the blocks, a smaller prompt card and a lower line than a solo task has', () => {
+      const w = mountBuilder({ mode: 'battle' })
+
+      expect(classesOf(container(w))).toEqual(expect.arrayContaining(['short:gap-2', 'short:pt-2', 'short:pb-3']))
+      expect(w.get('article').classes()).toEqual(expect.arrayContaining(['short:gap-1', 'short:px-4', 'short:py-3']))
+      expect(w.get('[data-testid=sentence-line]').classes()).toEqual(expect.arrayContaining(['min-h-28', 'short:min-h-16']))
+      // the line has the one rule of its height in the window: the solo one (600 px) does not fight the battle one
+      expect(w.get('[data-testid=sentence-line]').classes()).not.toContain('[@media(max-height:600px)]:min-h-20')
+    })
+
+    it('makes "Start again" small to the eye (36 px) but not to the finger: it keeps the 44 px area of a tap target', () => {
+      const w = mountBuilder({ mode: 'battle' })
+
+      expect(resetButton(w).classes()).toEqual(expect.arrayContaining(['btn', 'btn-plain', 'tap-target', 'short:min-h-9', 'short:px-3', 'short:py-1.5', 'short:text-sm']))
+    })
+
+    it('leaves a solo task as it was', () => {
+      const w = mountBuilder({ mode: 'solo' })
+
+      for (const el of [container(w), w.get('article').element, w.get('[data-testid=sentence-line]').element, resetButton(w).element]) {
+        expect(classesOf(el).filter((name) => name.startsWith('short:'))).toEqual([])
+      }
+      expect(resetButton(w).classes()).not.toContain('tap-target')
+    })
+
+    it('does not change what the learner can do: the same line, the same bank, the same buttons', async () => {
+      const w = mountBuilder({ mode: 'battle' })
+
+      await put(w, RIGHT)
+
+      expect(lineIds(w)).toEqual(RIGHT)
+      expect(w.get('[data-testid=sentence-bank]').findAll('button')).toHaveLength(5)
+      expect(isDisabled(checkButton(w))).toBe(false)
+      expect(isDisabled(resetButton(w))).toBe(false)
+    })
+  })
 })
 
 describe('SentenceBuilder — the line and the bank', () => {

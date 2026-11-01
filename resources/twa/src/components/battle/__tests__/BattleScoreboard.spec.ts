@@ -46,6 +46,60 @@ describe('BattleScoreboard', () => {
     expect(mount(BattleScoreboard, { props: { me: 0, opponent: 0, opponentName: 'D' } }).find('[data-testid=under]').exists()).toBe(false)
   })
 
+  // 18.12b. 320 x 568: the card was 126 px (a row of numbers and a row of the timer) and pushed the task of the round under the sticky
+  // block. In a short window (max-height 640 px) the timer stands where the colon was, between the two scores: one row, 74 px.
+  describe('with the timer of a round, in a short window', () => {
+    const withTimer = () =>
+      mount(BattleScoreboard, { props: { me: 0, opponent: 0, opponentName: 'D' }, slots: { default: '<span data-testid="under">timer</span>' } })
+
+    it('is one row: the timer takes the place of the colon, the numbers are a little smaller, the card has less padding', () => {
+      const w = withTimer()
+      const card = w.get('[data-testid=scoreboard]')
+      const colon = w.get('[aria-hidden=true]')
+      const timer = w.get('[data-testid=scoreboard-timer]')
+
+      expect(card.classes()).toEqual(expect.arrayContaining(['short:p-3', 'short:items-center', 'short:gap-y-0']))
+      expect(colon.text()).toBe(':')
+      expect(colon.classes()).toContain('short:hidden')
+      expect(timer.classes()).toEqual(expect.arrayContaining(['short:col-start-2', 'short:row-start-1', 'short:col-span-1']))
+      expect(timer.find('[data-testid=under]').exists()).toBe(true)
+      for (const id of ['score-me', 'score-opponent']) expect(w.get(`[data-testid=${id}]`).classes()).toEqual(expect.arrayContaining(['short:text-[28px]', 'short:leading-8']))
+    })
+
+    it('is two rows in a window of the usual height: the timer is under the numbers, the colon is between them', () => {
+      const w = withTimer()
+      const timer = w.get('[data-testid=scoreboard-timer]')
+
+      expect(timer.classes()).toEqual(expect.arrayContaining(['col-span-3', 'row-start-2']))
+      expect(w.get('[data-testid=scoreboard]').classes()).toContain('gap-y-3')
+    })
+
+    it('every cell has its place, so that the numbers and the colon keep their columns whichever way the timer is laid out', () => {
+      const w = withTimer()
+      const place = (id: string) => w.get(`[data-testid=${id}]`).element.parentElement?.className ?? ''
+
+      expect(place('score-me')).toContain('col-start-1')
+      expect(place('score-opponent')).toContain('col-start-3')
+      expect(w.get('[aria-hidden=true]').classes()).toContain('col-start-2')
+    })
+
+    it('has no empty row when the round has no timer (the review): the slot is not rendered, and the card keeps its colon and its size', () => {
+      const w = mount(BattleScoreboard, { props: { me: 100, opponent: 0, opponentName: 'D' } })
+
+      expect(w.find('[data-testid=scoreboard-timer]').exists()).toBe(false)
+      expect(w.get('[data-testid=scoreboard]').classes().filter((name) => name.startsWith('short:'))).toEqual([])
+      expect(w.get('[aria-hidden=true]').classes()).not.toContain('short:hidden')
+      expect(w.get('[data-testid=score-me]').classes()).not.toContain('short:text-[28px]')
+    })
+
+    it('the result (size lg) is not touched: no timer, the big numbers', () => {
+      const w = mount(BattleScoreboard, { props: { me: 450, opponent: 450, opponentName: 'D', size: 'lg' } })
+
+      expect(w.get('[data-testid=score-me]').classes()).toContain('text-[44px]')
+      expect(w.html()).not.toContain('short:')
+    })
+  })
+
   it('speaks Uzbek', () => {
     setLocale('uz')
     const w = mount(BattleScoreboard, { props: { me: 3, opponent: 4, opponentName: 'Dilnoza' } })
