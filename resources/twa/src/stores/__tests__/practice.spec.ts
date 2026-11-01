@@ -1037,12 +1037,12 @@ describe('practice store — answers that the server does not take', () => {
   })
 
   // The element on screen is not in the session any more (another tab replaced the dictation; the reply of our own swap was lost): every answer
-  // would be refused. Before, the toast said "update the screen" and the screen stayed on the old element (review 18.11, minor 2).
+  // would be refused. Before, the toast said "update the screen" and the screen stayed on the old element (review 18.11, minor 2): now the screen follows the session and says, like element_not_current, that the task has changed.
   it.each([
     ['a dictation replaced in another tab', session({ mode: 'dictation' }), { text: 'see you' }, session({ mode: 'dictation', current: dictationElement({ id: 'eDict00002' }) }), 'eDict00002'],
     ['a sentence', session({ mode: 'sentence' }), { order: ['fW2'] }, session({ mode: 'sentence', current: sentenceElement({ id: 'eSent00002' }) }), 'eSent00002'],
     ['a round of pairs', session({ mode: 'pairs' }), { left_id: 'lM1', right_id: 'rU2' }, session({ mode: 'pairs', current: pairsElement({ id: 'ePair00002', round: 2 }) }), 'ePair00002'],
-  ])('unknown_element_id (%s): the session is read again and the screen follows, with no toast', async (_name, opened, payload, fresh, expectedId) => {
+  ])('unknown_element_id (%s): the session is read again and the screen follows, told as element_not_current', async (_name, opened, payload, fresh, expectedId) => {
     const store = await started(opened)
     vi.mocked(api.practice.answer).mockRejectedValue(apiError('validation', 422, 'unknown_element_id'))
     vi.mocked(api.practice.get).mockResolvedValue(fresh)
@@ -1054,7 +1054,7 @@ describe('practice store — answers that the server does not take', () => {
     expect(store.status).toBe('ready')
     expect(store.current?.id).toBe(expectedId)
     expect(store.elementSeq).toBe(seq + 1) // a new element, a new component
-    expect(store.actionError).toBe('') // nothing to apologise for, and nothing to ask of the learner
+    expect(store.actionError).toBe('Задание уже сменилось. Экран обновлён.') // the typed answer did not vanish for nothing
     expect(store.pendingRequestId).toBeNull()
     expect(store.pendingPairs).toBeNull()
   })

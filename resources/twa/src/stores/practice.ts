@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { newRequestId } from '@/composables/requestId'
+import { t } from '@/i18n'
 import { errorMessage } from '@/i18n/errors'
 import { PRACTICE_MODE_ORDER, lessonHeader } from '@/composables/practiceLabels'
 import type {
@@ -577,9 +578,10 @@ export const usePracticeStore = defineStore('practice', {
         }
         if (err.code === 'unknown_element_id') {
           // The element on this screen is not in the session any more (another tab replaced the dictation, or the reply of our own swap was
-          // lost): it cannot be answered however often the learner tries, so the session is read again and the screen follows it - with no
-          // toast, there is nothing to ask of the learner. An element that is still the current one is refused for something INSIDE it (a
-          // fragment, an option, a card the server does not know): that is told, the old way, and the component starts afresh.
+          // lost): it cannot be answered however often the learner tries, so the session is read again and the screen follows it, told as
+          // `element_not_current` is ("the task has changed, the screen is updated" - the typed answer did not vanish for nothing); a session
+          // that is over meanwhile is its summary, with nothing to tell. An element that is still the current one is refused for something
+          // INSIDE it (a fragment, an option, a card the server does not know): that is told, the old way, and the component starts afresh.
           const fresh = await this.reread(generation)
           if (fresh === null) return
           const same = fresh.current?.id === element.id
@@ -587,6 +589,8 @@ export const usePracticeStore = defineStore('practice', {
           if (same) {
             this.actionError = errorMessage(err, 'practice')
             this.elementSeq += 1
+          } else if (fresh.current != null) {
+            this.actionError = t('error.code.element_not_current')
           }
           return
         }
