@@ -122,7 +122,7 @@ services:
         entrypoint: /bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done'
 
     postgres:
-        image: postgres:16-alpine
+        image: postgres:18-alpine
         container_name: lexiflow-postgres
         restart: unless-stopped
         environment:
@@ -130,7 +130,11 @@ services:
             POSTGRES_USER: ${DB_USERNAME}
             POSTGRES_PASSWORD: ${DB_PASSWORD}
         volumes:
-            - pgdata:/var/lib/postgresql/data
+            # 18+ images keep the cluster in /var/lib/postgresql/<major>/docker: one mount at /var/lib/postgresql,
+            # the volume name carries no version. Data of the ≤16 stack lives in the old volume `pgdata`
+            # (mounted at /var/lib/postgresql/data); deploy.sh refuses to start until `make prod-pg-upgrade`
+            # has moved it here (docs/DEVOPS_GUIDE.md §0, «Обновление PostgreSQL 16 → 18 (Docker)»).
+            - postgresql:/var/lib/postgresql
         healthcheck:
             test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
             interval: 10s
@@ -160,7 +164,7 @@ services:
             retries: 5
 
 volumes:
-    pgdata:
+    postgresql:
     redisdata:
     app_storage:
     app_audio:

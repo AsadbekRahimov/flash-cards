@@ -50,6 +50,13 @@ else
     git checkout --detach "origin/${DEPLOY_BRANCH}"
 fi
 
+# PostgreSQL 18 keeps its data in a new volume and layout (docker/postgres/upgrade.sh, docs/DEVOPS_GUIDE.md §0,
+# «Обновление PostgreSQL 16 → 18»). Never start 18 next to 16 data that has not been moved, and never let the
+# application run on an empty database: the check runs BEFORE the build re-tags the images and before any `up`,
+# and stops the deploy with the upgrade command. The running stack is left as it is.
+echo "==> Checking the PostgreSQL data volumes"
+bash docker/postgres/upgrade.sh --prod --check
+
 echo "==> Building immutable application and nginx images"
 $COMPOSE build --pull app nginx
 

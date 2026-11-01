@@ -31,7 +31,7 @@ services:
             - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
 
     postgres:
-        image: postgres:16-alpine
+        image: postgres:18-alpine
         container_name: lexiflow-postgres
         environment:
             POSTGRES_DB: ${DB_DATABASE:-lexiflow}
@@ -40,7 +40,10 @@ services:
         ports:
             - "${DB_PORT_HOST:-5432}:5432"
         volumes:
-            - pgdata:/var/lib/postgresql/data
+            # 18+ images keep the cluster in /var/lib/postgresql/<major>/docker: one mount at /var/lib/postgresql,
+            # the volume name carries no version. Data of the ≤16 stack lives in the old volume `pgdata`
+            # (mounted at /var/lib/postgresql/data); `make pg-upgrade` moves it here (docs/DEVOPS_GUIDE.md §0).
+            - postgresql:/var/lib/postgresql
         healthcheck:
             test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-lexiflow}"]
             interval: 5s
@@ -71,5 +74,5 @@ services:
             retries: 10
 
 volumes:
-    pgdata:
+    postgresql:
     redisdata:
