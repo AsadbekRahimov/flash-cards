@@ -155,7 +155,7 @@ it('answers 422 with the numbers when there is nothing to play, and a session ne
     dsOpen($this, $learner, $course, ['lesson_id' => $lesson->id])
         ->assertStatus(422)
         ->assertJsonPath('error.details.available', 2)
-        ->assertJsonPath('error.details.reason', 'no_items');
+        ->assertJsonPath('error.details.reason', 'no_words');   // a voiced word is there: one more learned word opens the mode
     expect(PracticeSession::query()->count())->toBe(0);
 });
 
@@ -167,6 +167,25 @@ it('shows the dictation in the hub with the numbers and the reason', function ()
     expect($hub())->toBe(['mode' => 'dictation', 'state' => 'not_enough', 'available' => 2, 'required' => 3, 'reason' => 'no_audio_words', 'estimate_seconds' => 180]);
 
     DictationKit::word($lesson, $learner, 'mother');
+    expect($hub())->toBe(['mode' => 'dictation', 'state' => 'available', 'available' => 3, 'required' => 3, 'reason' => null, 'estimate_seconds' => 180]);
+});
+
+// The card of a lesson that has no phrases of the dictation: a few voiced words are learned, one more opens the mode. The reason is
+// `no_words` ("words learned: 2 of 3" and the button "Learn the lesson" in the TWA), not `no_items` ("no tasks for this topic", no button).
+it('tells the hub card of a lesson with no phrases and two voiced words learned `no_words`, and the third word opens the mode (review 18.11, item 3)', function (): void {
+    [$learner, $course, $lesson] = DictationKit::world();
+    DictationKit::word($lesson, $learner, 'mother', 'мама');
+    DictationKit::word($lesson, $learner, 'father', 'папа');
+    DictationKit::word($lesson, $learner, 'sister', 'сестра', introduced: false);   // voiced, not learned yet
+    $hub = fn (): array => collect($this->withHeaders(PracticeKit::headers($learner))->getJson("/api/twa/practice/hub?course={$course->slug}&lesson_id={$lesson->id}")->assertOk()->json('modes'))->firstWhere('mode', 'dictation');
+
+    expect($hub())->toBe(['mode' => 'dictation', 'state' => 'not_enough', 'available' => 2, 'required' => 3, 'reason' => 'no_words', 'estimate_seconds' => 180]);
+
+    dsOpen($this, $learner, $course, ['lesson_id' => $lesson->id])
+        ->assertStatus(422)
+        ->assertJsonPath('error.details', ['mode' => 'dictation', 'available' => 2, 'required' => 3, 'reason' => 'no_words', 'course' => 'english-a1', 'lesson_id' => $lesson->id]);
+
+    DictationKit::word($lesson, $learner, 'brother', 'брат');   // one more word is learned
     expect($hub())->toBe(['mode' => 'dictation', 'state' => 'available', 'available' => 3, 'required' => 3, 'reason' => null, 'estimate_seconds' => 180]);
 });
 

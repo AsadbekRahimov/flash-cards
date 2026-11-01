@@ -91,23 +91,25 @@ it('says no_audio_words when the learner knows words but none of them has a voic
     expect($report->toArray())->toBe(['available' => 0, 'required' => 3, 'reason' => 'no_audio_words']);
 });
 
-it('says no_items when there are a few voiced words and phrases, but not enough', function (): void {
+it('says no_words, not no_items, when there are a few voiced words and phrases but not enough: one more learned word opens the mode', function (): void {
     [$learner, $course, $lesson] = DictationKit::world();
     DictationKit::word($lesson, $learner, 'mother');
     DictationKit::phrase($lesson, $learner, 'See you tomorrow');
+    $report = fn (): array => dmMode()->availability(new MaterialScope($course, $lesson), $learner, LocaleSet::of('ru'))->toArray();
 
-    $report = dmMode()->availability(new MaterialScope($course, $lesson), $learner, LocaleSet::of('ru'));
+    expect($report())->toBe(['available' => 2, 'required' => 3, 'reason' => 'no_words']);   // "words learned: 2 of 3" and "Learn the lesson" on the card
 
-    expect($report->toArray())->toBe(['available' => 2, 'required' => 3, 'reason' => 'no_items']);
+    DictationKit::word($lesson, $learner, 'father');
+    expect($report())->toBe(['available' => 3, 'required' => 3, 'reason' => null]);
 });
 
-it('says items_locked when voiced phrases wait for words the learner has not met and would make the number, and no_items when they would not', function (): void {
+it('says items_locked when voiced phrases wait for words the learner has not met and would make the number, and no_words (a voiced word is there) when they would not', function (): void {
     [$learner, $course, $lesson] = DictationKit::world();
     $report = fn (): array => dmMode()->availability(new MaterialScope($course, $lesson), $learner, LocaleSet::of('ru'))->toArray();
     DictationKit::word($lesson, $learner, 'mother');                                             // one clip to play now
 
     DictationKit::phrase($lesson, $learner, 'Nice to meet you', introduced: false);
-    expect($report())->toBe(['available' => 1, 'required' => 3, 'reason' => 'no_items']);       // 1 + 1 locked = 2: learning would not be enough
+    expect($report())->toBe(['available' => 1, 'required' => 3, 'reason' => 'no_words']);       // 1 + 1 locked = 2: the locked phrase alone would not do, one more learned word may
 
     DictationKit::phrase($lesson, $learner, 'How much is it', introduced: false);
     expect($report())->toBe(['available' => 1, 'required' => 3, 'reason' => 'items_locked']);    // 1 + 2 locked = 3
@@ -276,7 +278,7 @@ it('refuses a lesson with fewer than three to play, and says how many there were
     $error = dmCatch(fn () => dmBuild($course, $lesson, $learner));
 
     expect($error?->errorCode)->toBe('practice_not_enough_material')
-        ->and($error?->details)->toMatchArray(['mode' => 'dictation', 'available' => 2, 'required' => 3, 'reason' => 'no_items', 'course' => 'english-a1', 'lesson_id' => $lesson->id]);
+        ->and($error?->details)->toMatchArray(['mode' => 'dictation', 'available' => 2, 'required' => 3, 'reason' => 'no_words', 'course' => 'english-a1', 'lesson_id' => $lesson->id]);
 });
 
 it('keeps the layout for a seed and changes it with another', function (): void {
