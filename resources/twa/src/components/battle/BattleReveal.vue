@@ -17,7 +17,9 @@ import type { BattleRound, BattleSideResult } from '@/api/types'
  *   word pairs.
  * - A card for each player: the verdict (a symbol, a colour and a word), what they gave, the points of the round.
  * - The explanation and the translation, when the task has them.
- * - "Next round in 3…" (on the last round "Result in 3…"): the server moves the match on by itself, there is no button.
+ * - "Next round in 3…" (on the last round "Result in 3…"): the server moves the match on by itself, there is no button. It is the
+ *   first line under the score, not the last: it is the only thing here that runs out, and in a short window the end of the screen is
+ *   below the fold for the whole pause (docs/16 §11.2).
  *
  * `round` is a round that is resolved (`reveal` is set); `last` — it is the last round of the match; `offsetMs` and
  * `totalSeconds` — the clock of the server and the length of this pause, for the countdown and its bar.
@@ -67,6 +69,17 @@ const next = computed((): string => {
 
 <template>
   <div v-if="reveal" class="flex flex-1 flex-col gap-3 px-4 pt-3 pb-6" data-testid="battle-reveal">
+    <!-- The pause runs out: its clock is under the score, where the clock of the round was, and not at the bottom - in a short window (320 x 568) the bottom is below the fold for the whole pause. -->
+    <div class="flex flex-col gap-2" data-testid="reveal-next">
+      <div class="progress" aria-hidden="true">
+        <div class="progress-fill" :style="{ width: `${Math.round(share * 100)}%` }" />
+      </div>
+      <p class="flex items-center justify-center gap-1.5 text-[15px] leading-5 font-medium text-tg-subtitle">
+        <AppIcon name="clock" :size="16" />
+        <span data-testid="reveal-next-text">{{ next }}</span>
+      </p>
+    </div>
+
     <article class="card flex flex-col items-center gap-2 px-5 py-5 text-center">
       <p class="text-[13px] leading-[18px] font-medium tracking-wide text-tg-section-header uppercase">{{ t('battle.reveal.correct') }}</p>
       <p v-if="correct?.text" class="text-2xl leading-8 font-bold break-words" data-testid="reveal-correct">{{ correct.text }}</p>
@@ -107,15 +120,5 @@ const next = computed((): string => {
         <p class="mt-0.5 text-base leading-[22px]">{{ reveal.explanation }}</p>
       </div>
     </section>
-
-    <div class="mt-auto flex flex-col gap-2 pt-2" data-testid="reveal-next">
-      <div class="progress" aria-hidden="true">
-        <div class="progress-fill" :style="{ width: `${Math.round(share * 100)}%` }" />
-      </div>
-      <p class="flex items-center justify-center gap-1.5 text-[15px] leading-5 font-medium text-tg-subtitle">
-        <AppIcon name="clock" :size="16" />
-        <span data-testid="reveal-next-text">{{ next }}</span>
-      </p>
-    </div>
   </div>
 </template>

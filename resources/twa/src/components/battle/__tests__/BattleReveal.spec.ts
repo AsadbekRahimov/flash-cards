@@ -162,6 +162,20 @@ describe('BattleReveal — the other modes', () => {
 })
 
 describe('BattleReveal — the pause before the next round', () => {
+  // 18.12b. At 320 x 568 the clock of the pause was the last block of a screen 800 px tall: below the fold for the whole pause (4 s).
+  it('is the first block of the screen, under the score: the clock of the pause is in sight whatever the height of the window', () => {
+    const w = render(revealRound({ phase_ends_at: at(3) }))
+    const blocks = [...w.get('[data-testid=battle-reveal]').element.children]
+
+    expect(blocks[0]?.getAttribute('data-testid')).toBe('reveal-next')
+    expect(blocks[0]?.querySelector('.progress')).not.toBeNull()
+    expect(blocks[0]?.querySelector('svg')).not.toBeNull() // a symbol with the words, not a bar alone
+    expect(blocks[1]?.querySelector('[data-testid=reveal-correct]')).not.toBeNull()
+    // it no longer pushes itself to the bottom: nothing of it is at the end of the page
+    expect(blocks.at(-1)?.getAttribute('data-testid')).not.toBe('reveal-next')
+    expect(w.get('[data-testid=reveal-next]').classes()).not.toContain('mt-auto')
+  })
+
   it('counts down to the end of the pause by the clock of the server', async () => {
     const w = render(revealRound({ phase_ends_at: at(3) }))
     expect(w.get('[data-testid=reveal-next-text]').text()).toBe('Следующий раунд через 3…')
