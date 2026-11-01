@@ -1,0 +1,31 @@
+# Test override for docker/postgres/tests/run.sh (CI job `postgres-upgrade`), applied on top of docker-compose.yml:
+#   docker compose -p lexiflow-pgtest -f docker-compose.yml -f docker/postgres/tests/compose.test.yml ...
+# The application services become stand-ins that only have to be "running" for upgrade.sh to stop and start them
+# (busybox, no build, no bind mounts); nothing publishes a port; the container names do not collide with a dev stack.
+# postgres and redis keep their real images and volumes - that is what is under test.
+services:
+    app:
+        image: busybox:stable
+        build: !reset null
+        container_name: lexiflow-pgtest-app
+        depends_on: !reset {}
+        volumes: !reset []
+        environment: !reset {}
+        # `sleep` as PID 1 ignores SIGTERM and `compose stop` would wait 10 s per service; the trap makes it immediate.
+        command: ["sh", "-c", "trap 'exit 0' TERM INT; while :; do sleep 1; done"]
+
+    nginx:
+        image: busybox:stable
+        container_name: lexiflow-pgtest-nginx
+        depends_on: !reset []
+        ports: !reset []
+        volumes: !reset []
+        command: ["sh", "-c", "trap 'exit 0' TERM INT; while :; do sleep 1; done"]
+
+    postgres:
+        container_name: lexiflow-pgtest-postgres
+        ports: !reset []
+
+    redis:
+        container_name: lexiflow-pgtest-redis
+        ports: !reset []
