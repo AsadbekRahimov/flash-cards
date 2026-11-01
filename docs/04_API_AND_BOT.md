@@ -1339,9 +1339,9 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 | `practice_unavailable` | 403 | — | любой маршрут: практика закрыта (`off`, не в пилоте) |
 | `practice_pro_required` | 403 | — | любой маршрут: Free при `PRACTICE_PLAN=pro` (пейвол `practice`) |
 | `battle_disabled` | 409 | — | `options`, `POST /battles`, `accept`: `PRACTICE_BATTLE=false` |
-| `practice_mode_disabled` | 409 | `{mode}` | `POST /battles`: формат выключен (`PRACTICE_MODE_*`) |
+| `practice_mode_disabled` | 409 | `{mode}` | `POST /battles`: формат выключен (`PRACTICE_MODE_*`); `accept`: формат выключили после приглашения — оно остаётся `invited` до истечения |
 | `battle_busy` | 409 | `{battle_id}` | `POST /battles`: я занят своим матчем (id) либо друг уже пригласил меня (id **его** приглашения); `accept`: я занят другим матчем. Называет только матчи, где спрашивающий — участник. `battle_id` бывает `null`, если матч, державший ученика, успел закрыться |
-| `battle_friend_no_access` | 409 | — | `POST /battles`: у друга нет доступа к практике |
+| `battle_friend_no_access` | 409 | — | `POST /battles`: у друга нет доступа к практике; `accept`: у пригласившего больше нет доступа к практике |
 | `battle_material_unavailable` | 422 | `{mode, available, required, reason, course, lesson_id}` | `POST /battles`: материала на 5 раундов нет в языках обоих |
 | `friendship_not_found` | 404 | — | `options`, `POST /battles`: не моя пара, друг удалён или заблокирован |
 | `not_friends` | 403 | — | пара не `accepted`; реванш после удаления из друзей |
