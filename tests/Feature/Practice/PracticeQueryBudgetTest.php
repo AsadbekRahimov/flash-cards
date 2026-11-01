@@ -137,12 +137,18 @@ it('reads the hub in at most 9 statements, whatever the language, and asks for t
     }
 });
 
-it('reads the hub within the budget with an unfinished session, and for a Pro learner at PRACTICE_PLAN=pro (the entitlement is cached)', function (): void {
+it('reads the hub within the budget with an unfinished session - which costs it no statement: its place is named from its snapshot - and for a Pro learner at PRACTICE_PLAN=pro (the entitlement is cached)', function (): void {
     [$learner, $course, $lesson] = budgetWorld();
+    budgetHub($learner, $course, $lesson)->assertOk();   // the first request warms what it warms
+    $without = QueryLog::during(fn () => budgetHub($learner, $course, $lesson)->assertOk()->assertJsonPath('active_session', null));
     budgetOpen($learner, $course, 'collocation', ['lesson_id' => $lesson->id])->assertCreated();
 
-    $queries = QueryLog::during(fn () => budgetHub($learner, $course, $lesson)->assertOk()->assertJsonPath('active_session.mode', 'collocation'));
-    expect(count($queries))->toBeLessThanOrEqual(BUDGET_HUB, implode("\n", $queries));
+    $queries = QueryLog::during(fn () => budgetHub($learner, $course, $lesson)->assertOk()
+        ->assertJsonPath('active_session.mode', 'collocation')
+        ->assertJsonPath('active_session.course_title', 'Английский A1')
+        ->assertJsonPath('active_session.lesson', ['stage' => 1, 'number' => 1, 'title' => 'Еда']));
+    expect(count($queries))->toBeLessThanOrEqual(BUDGET_HUB, implode("\n", $queries))
+        ->and(count($queries))->toBe(count($without), "with: \n".implode("\n", $queries)."\nwithout: \n".implode("\n", $without));
 
     config(['practice.plan' => 'pro']);
     PracticeKit::pro($learner);

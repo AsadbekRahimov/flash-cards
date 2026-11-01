@@ -40,6 +40,9 @@ uses(RefreshDatabase::class);
 const CONTRACT_PRACTICE_COURSE = ['slug', 'title'];
 const CONTRACT_PRACTICE_LESSON = ['id', 'stage', 'number', 'title'];
 const CONTRACT_PRACTICE_PROGRESS = ['done', 'total'];
+/** The unfinished session of the hub (`active_session`) and `details` of the 409 `practice_session_active` (that one names the id `session_id`): where it is, by id and by name. */
+const CONTRACT_PRACTICE_ACTIVE = ['id', 'mode', 'course', 'course_title', 'lesson_id', 'lesson', 'progress' => CONTRACT_PRACTICE_PROGRESS];
+const CONTRACT_PRACTICE_ACTIVE_DETAILS = ['session_id', 'mode', 'course', 'course_title', 'lesson_id', 'lesson', 'progress'];
 const CONTRACT_PRACTICE_MODE_ROW = ['mode', 'state', 'available', 'required', 'reason', 'estimate_seconds'];
 const CONTRACT_PRACTICE_SUMMARY = ['total', 'answered', 'correct_first', 'typos', 'hints', 'mismatches', 'duration_ms', 'finish_reason', 'retry_available'];
 const CONTRACT_PRACTICE_MISTAKE = ['element_id', 'kind', 'label', 'your_answer', 'verdict'];
@@ -197,10 +200,11 @@ it('GET /practice/hub keeps its exact JSON shape, for a lesson and for a whole c
         ->assertOk()
         ->assertExactJsonStructure([
             'course' => CONTRACT_PRACTICE_COURSE, 'lesson', 'modes' => ['*' => CONTRACT_PRACTICE_MODE_ROW],
-            'active_session' => ['id', 'mode', 'course', 'lesson_id', 'progress' => CONTRACT_PRACTICE_PROGRESS],
+            'active_session' => CONTRACT_PRACTICE_ACTIVE,
             'battle' => ['enabled', 'active_battle_id', 'incoming_count'],
         ])
-        ->assertJsonPath('active_session.id', $session['id']);
+        ->assertJsonPath('active_session.id', $session['id'])
+        ->assertJsonPath('active_session.lesson', null);   // the practice of a whole course names no lesson
 });
 
 it('POST /practice/sessions and GET /practice/sessions/{id} keep their exact JSON shape, for a lesson and for a course', function (): void {
@@ -519,7 +523,7 @@ it('wraps every error of the practice in the envelope, with `details` exactly wh
         'practice_pro_required' => [PracticeException::proRequired(), null],
         'practice_mode_disabled' => [PracticeException::modeDisabled(PracticeMode::Pairs), ['mode']],
         'practice_not_enough_material' => [PracticeException::notEnoughMaterial(PracticeMode::Pairs, new ModeAvailability(false, 2, 3, 'no_words'), 'english-a1', 41), ['mode', 'available', 'required', 'reason', 'course', 'lesson_id']],
-        'practice_session_active' => [PracticeException::sessionActive(['session_id' => 7, 'mode' => 'pairs', 'course' => 'a', 'lesson_id' => null, 'progress' => ['done' => 1, 'total' => 3]]), ['session_id', 'mode', 'course', 'lesson_id', 'progress']],
+        'practice_session_active' => [PracticeException::sessionActive(['session_id' => 7, 'mode' => 'pairs', 'course' => 'a', 'course_title' => 'A', 'lesson_id' => null, 'lesson' => null, 'progress' => ['done' => 1, 'total' => 3]]), CONTRACT_PRACTICE_ACTIVE_DETAILS],
         'practice_session_not_found' => [PracticeException::sessionNotFound(), null],
         'practice_session_closed' => [PracticeException::sessionClosed(FinishReason::Expired), ['finish_reason']],
         'element_not_current' => [PracticeException::elementNotCurrent('eAAAAAAAAAA'), ['current']],
@@ -558,11 +562,11 @@ it('puts `details` INSIDE `error` on the wire, with the keys of docs/16 §7.6: t
     expect(contractError(contractOpen($learner, $course->slug, 'sentence', ['lesson_id' => $lesson->id]), 422, 'practice_not_enough_material', ['mode', 'available', 'required', 'reason', 'course', 'lesson_id']))
         ->toEqual(['mode' => 'sentence', 'available' => 1, 'required' => 3, 'reason' => 'no_items', 'course' => 'english-a1', 'lesson_id' => $lesson->id]);
 
-    // 409 practice_session_active: {session_id, mode, course, lesson_id, progress}
+    // 409 practice_session_active: {session_id, mode, course, course_title, lesson_id, lesson, progress}
     $session = contractOpen($learner, $course->slug, 'collocation')->assertCreated()->json();
     $answered = contractAnswer($learner, $session, ['text' => 'nonsense'])->assertOk()->json('session');
-    expect(contractError(contractOpen($learner, $course->slug, 'collocation'), 409, 'practice_session_active', ['session_id', 'mode', 'course', 'lesson_id', 'progress']))
-        ->toEqual(['session_id' => $session['id'], 'mode' => 'collocation', 'course' => 'english-a1', 'lesson_id' => null, 'progress' => ['done' => 1, 'total' => 5]]);
+    expect(contractError(contractOpen($learner, $course->slug, 'collocation'), 409, 'practice_session_active', CONTRACT_PRACTICE_ACTIVE_DETAILS))
+        ->toEqual(['session_id' => $session['id'], 'mode' => 'collocation', 'course' => 'english-a1', 'course_title' => 'Английский A1', 'lesson_id' => null, 'lesson' => null, 'progress' => ['done' => 1, 'total' => 5]]);
 
     // 409 practice_mode_disabled: {mode}
     config(['practice.modes.collocation' => false]);
@@ -601,6 +605,55 @@ it('says `items_locked` on the wire - in the refusal of the opening and in the c
         ->and(contractError(contractOpen($learner, $course->slug, 'sentence', ['lesson_id' => $lesson->id]), 422, 'practice_not_enough_material', $details))
         ->toEqual(['mode' => 'sentence', 'available' => 1, 'required' => 3, 'reason' => 'items_locked', 'course' => 'english-a1', 'lesson_id' => $lesson->id]);
     expect(array_keys($hub()))->toBe(CONTRACT_PRACTICE_MODE_ROW);
+});
+
+// The place of an unfinished session by NAME (M4 of the review of the fixes): the screens learn it from the same two answers that
+// name the session by id, and without a statement more - the names are in the snapshot that is read for the slug anyway.
+it('names the place of an unfinished session - the title of its course in the language of the learner, the module / number / title of its lesson - in the hub of another course and in the 409', function (): void {
+    PracticeKit::fake(PracticeMode::Collocation);
+    [$course, $lesson] = PracticeKit::course();
+    [$other] = PracticeKit::course('ielts-core');
+    $learner = Learner::factory()->create(['interface_locale' => 'uz']);
+    $session = contractOpen($learner, $course->slug, 'collocation', ['lesson_id' => $lesson->id])->assertCreated()->json();
+    $place = ['course' => 'english-a1', 'course_title' => 'Ingliz tili A1', 'lesson_id' => $lesson->id, 'lesson' => ['stage' => 1, 'number' => 1, 'title' => 'Еда'], 'progress' => ['done' => 0, 'total' => 5]];
+
+    // The hub of ANOTHER course: the unfinished session is not of this place, yet it is named.
+    $hub = $this->withHeaders(PracticeKit::headers($learner))->getJson("/api/twa/practice/hub?course={$other->slug}")
+        ->assertOk()
+        ->assertExactJsonStructure(['course' => CONTRACT_PRACTICE_COURSE, 'lesson', 'modes' => ['*' => CONTRACT_PRACTICE_MODE_ROW], 'active_session' => ['id', 'mode', 'course', 'course_title', 'lesson_id', 'lesson' => ['stage', 'number', 'title'], 'progress' => CONTRACT_PRACTICE_PROGRESS], 'battle' => ['enabled', 'active_battle_id', 'incoming_count']]);
+    expect($hub->json('active_session'))->toBe(['id' => $session['id'], 'mode' => 'collocation', ...$place]);
+
+    $details = contractError(contractOpen($learner, $other->slug, 'pairs'), 409, 'practice_session_active', CONTRACT_PRACTICE_ACTIVE_DETAILS);
+    expect($details)->toEqual(['session_id' => $session['id'], 'mode' => 'collocation', ...$place])
+        ->and(array_keys($details['lesson']))->toBe(['stage', 'number', 'title']);
+
+    // The title follows the language of the session, which is the learner's at the opening.
+    $ru = Learner::factory()->create(['interface_locale' => 'ru']);
+    contractOpen($ru, $course->slug, 'collocation')->assertCreated();
+    expect($this->withHeaders(PracticeKit::headers($ru))->getJson("/api/twa/practice/hub?course={$other->slug}")->json('active_session.course_title'))->toBe('Английский A1');
+});
+
+it('names no lesson of a snapshot that has none, and falls back for the title of the course as the session does: an old snapshot, a lesson that the snapshot does not know', function (): void {
+    PracticeKit::fake(PracticeMode::Collocation);
+    [$course, $lesson] = PracticeKit::course();
+    $learner = Learner::factory()->create(['interface_locale' => 'ru']);
+    $session = contractOpen($learner, $course->slug, 'collocation', ['lesson_id' => $lesson->id])->assertCreated()->json();
+    $hub = fn (): array => $this->withHeaders(PracticeKit::headers($learner))->getJson("/api/twa/practice/hub?course={$course->slug}")->assertOk()->json('active_session');
+
+    expect($hub()['lesson'])->toBe(['stage' => 1, 'number' => 1, 'title' => 'Еда']);
+
+    // A snapshot written before the names were kept in it: the session is still found by its ids, nothing is made up.
+    $row = PracticeSession::query()->findOrFail($session['id']);
+    $bare = $row->snapshot;
+    unset($bare['course_title'], $bare['lesson_stage'], $bare['lesson_number'], $bare['lesson_title']);
+    $row->forceFill(['snapshot' => $bare])->save();
+
+    expect($hub())->toBe(['id' => $session['id'], 'mode' => 'collocation', 'course' => 'english-a1', 'course_title' => 'english-a1', 'lesson_id' => $lesson->id, 'lesson' => null, 'progress' => ['done' => 0, 'total' => 5]]);
+
+    // A lesson with a number and no name (a nameless lesson): the parts that are known are given, the rest is null.
+    $row->forceFill(['snapshot' => [...$bare, 'course_title' => ['ru' => 'Английский A1'], 'lesson_stage' => 2, 'lesson_number' => 4]])->save();
+    expect($hub()['lesson'])->toBe(['stage' => 2, 'number' => 4, 'title' => null])
+        ->and($hub()['course_title'])->toBe('Английский A1');
 });
 
 it('puts `details` INSIDE `error` on the wire: the refusals of an answer, and `round_done` at the end of a round of pairs', function (): void {
