@@ -11,7 +11,7 @@ use App\Domain\Practice\Support\EnglishLexicon;
  * of a lookup.
  */
 
-dataset('lexiconFiles', [
+dataset('lexicon files', [
     'en-common.txt' => [EnglishLexicon::FILE, 2500],
     'en-irregular.txt' => [EnglishLexicon::IRREGULAR_FILE, 200],
 ]);
@@ -33,7 +33,7 @@ it('is a text file with enough words and a comment on what it is for at the top'
     expect(count(lexiconFileWords($file)))->toBeGreaterThanOrEqual($least)
         ->and($lines[0])->toStartWith('#')
         ->and(implode("\n", array_slice($lines, 0, 10)))->toContain('dictation', 'EnglishLexicon');
-})->with('lexiconFiles');
+})->with('lexicon files');
 
 it('keeps the file clean: no blank line, lower case, letters and the apostrophe only, no spaces round a word', function (string $file): void {
     $lines = (array) file(resource_path($file), FILE_IGNORE_NEW_LINES);
@@ -49,7 +49,7 @@ it('keeps the file clean: no blank line, lower case, letters and the apostrophe 
     }
 
     expect($offences)->toBe([]);
-})->with('lexiconFiles');
+})->with('lexicon files');
 
 it('is sorted in byte order, without a word twice', function (string $file): void {
     $words = lexiconFileWords($file);
@@ -62,7 +62,7 @@ it('is sorted in byte order, without a word twice', function (string $file): voi
 
     expect($offences)->toBe([])
         ->and(count(array_unique($words)))->toBe(count($words));
-})->with('lexiconFiles');
+})->with('lexicon files');
 
 it('keeps a word in one file only: a lemma is a base, an irregular form is not, and nothing is both', function (): void {
     $both = array_intersect(lexiconFileWords(), lexiconFileWords(EnglishLexicon::IRREGULAR_FILE));
@@ -517,8 +517,8 @@ function lexiconSlips(): array
 }
 
 /**
- * @return list<string> the slips of an ending (docs/16 §5.2): the doubling left out or put in, the silent e kept, the wrong y; the 40 of the
- *                      review minus the four that are words (`siting`, `planed`, `traveling`: see below) and the three that are two edits away
+ * @return list<string> the slips of an ending (docs/16 §5.2): the doubling left out or put in, the silent e kept, the wrong y - those of the
+ *                      review but the three that are words (`siting` = site + ing, `planed` = plane + ed, `traveling` = the American spelling)
  */
 function lexiconSuffixSlips(): array
 {

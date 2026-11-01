@@ -71,9 +71,6 @@ final class EnglishLexicon
     /** Lemmas in `e` whose `-ing` form is spelled both ways (`aging` / `ageing`, `queuing` / `queueing`, `eying` / `eyeing`). */
     private const E_EITHER = ['age', 'queue', 'glue', 'cue', 'clue', 'blue', 'eye'];
 
-    /** Lemmas in `e` that keep it before `-ing` although they do not end in ee, oe, ye (`singe` -> `singeing`, which is not `singing`). */
-    private const E_KEPT = ['singe', 'tinge', 'binge', 'whinge'];
-
     /**
      * Nouns and adjectives in `e` that are no verbs but have a one-syllable verb for a twin (`cut` / `cute`, `nod` / `node`, `spin` /
      * `spine`): no `-ing` form, or the slip `cuting` for `cutting` would be taken for `cute` + `ing`. (Twins that ARE verbs, `hop` / `hope`,
@@ -95,7 +92,7 @@ final class EnglishLexicon
         'about', 'above', 'across', 'after', 'against', 'along', 'among', 'around', 'at', 'before', 'behind', 'below', 'beside', 'besides', 'between',
         'beyond', 'by', 'during', 'except', 'for', 'from', 'in', 'inside', 'into', 'of', 'off', 'on', 'onto', 'outside', 'per', 'since', 'through',
         'throughout', 'to', 'toward', 'towards', 'under', 'until', 'up', 'upon', 'via', 'with', 'within', 'without',
-        'and', 'or', 'but', 'so', 'if', 'as', 'because', 'although', 'though', 'unless', 'while', 'whether', 'nor', 'than', 'till',
+        'and', 'or', 'but', 'so', 'if', 'as', 'because', 'although', 'though', 'unless', 'while', 'whether', 'nor', 'than',
         'when', 'where', 'why', 'how', 'here', 'there', 'then', 'thus', 'now', 'ever', 'never', 'always', 'often', 'also', 'too', 'very', 'quite',
         'rather', 'again', 'ago', 'away', 'already', 'almost', 'only', 'yet', 'perhaps', 'maybe', 'however', 'whatever', 'whenever', 'wherever',
         'whichever', 'whoever', 'far',
@@ -298,7 +295,7 @@ final class EnglishLexicon
             return [$dropped, $kept];
         }
 
-        return preg_match('/(?:ee|oe|ye)\z/', $lemma) === 1 || in_array($lemma, self::E_KEPT, true) ? [$kept] : [$dropped];
+        return preg_match('/(?:ee|oe|ye)\z/', $lemma) === 1 ? [$kept] : [$dropped];
     }
 
     /**

@@ -256,6 +256,44 @@ it('forgives the slips of an ending: the doubling left out or put in, the silent
     'happier' => ['happier', 'happyer'],
 ]);
 
+it('keeps the ordinary slips a typo: a letter left out, swapped or doubled where the token spells nothing', function (string $expected, string $typed): void {
+    expect(dictationVerdict([$expected], $typed))->toBe(Verdict::Typo);
+})->with([
+    'because' => ['because', 'becuase'],
+    'friend' => ['friend', 'freind'],
+    'receive' => ['receive', 'recieve'],
+    'tomorrow' => ['tomorrow', 'tomorow'],
+    'beautiful' => ['beautiful', 'beatiful'],
+    'really' => ['really', 'realy'],
+    'finally' => ['finally', 'finaly'],
+    'until' => ['until', 'untill'],
+    'which' => ['which', 'wich'],
+    'their' => ['their', 'thier'],
+    'different' => ['different', 'diferent'],
+    'address' => ['address', 'adress'],
+    'necessary' => ['necessary', 'neccessary'],
+    'always' => ['always', 'allways'],
+    'coffee' => ['coffee', 'cofee'],
+    'sister' => ['sister', 'sistr'],
+    'mother' => ['mother', 'mohter'],
+    'father' => ['father', 'fahter'],
+    'brother' => ['brother', 'brothr'],
+    'family' => ['family', 'famly'],
+    'school' => ['school', 'scool'],
+    'teacher' => ['teacher', 'teaher'],
+    'morning' => ['morning', 'mornig'],
+    'evening' => ['evening', 'evenig'],
+    'breakfast' => ['breakfast', 'brekfast'],
+    'february' => ['february', 'febuary'],
+    'library' => ['library', 'libary'],
+    'probably' => ['probably', 'probaly'],
+    'usually' => ['usually', 'usualy'],
+]);
+
+it('keeps a slip of two letters a mistake, whatever it spells: wensday for Wednesday', function (): void {
+    expect(dictationVerdict(['wednesday'], 'wensday'))->toBe(Verdict::Wrong);
+});
+
 it('keeps a slip a mistake when the typed token is a word after all: another spelling, a verb that has a twin, a form of another lemma', function (string $expected, string $typed, string $why): void {
     expect(EnglishLexicon::isWord($typed))->toBeTrue($why)
         ->and(dictationVerdict([$expected], $typed))->toBe(Verdict::Wrong);
@@ -457,6 +495,8 @@ it('knows a change of the form of a word from a slip of the pen', function (stri
     'e / s at the end (not s / d)' => ['likes', 'likee', false],
     'equal tokens' => ['same', 'same', false],
     'an added letter that is not s or d' => ['teacher', 'teachet', false],
+    'a last letter that is not s or d (x / s)' => ['rains', 'rainx', false],
+    'two different words, however their last letters' => ['rains', 'daily', false],
     // r, n, y were tails of the guard in 18.9b; they are not any more: the typed token of such a pair is a word, and the lexicon says so.
     'nice / nicer: r is not a tail' => ['nice', 'nicer', false],
     'take / taken: n is not a tail' => ['take', 'taken', false],
