@@ -15,12 +15,15 @@ use Illuminate\Support\Facades\Cache;
 
 /**
  * "SM-2 vs FSRS" over the last 28 days (docs/13 §8.3, docs/06 §9.6). Admin only: platform-wide numbers.
+ *
+ * @phpstan-import-type SchedulerMetricsArray from SchedulerMetrics
  */
 class SchedulerComparisonWidget extends StatsOverviewWidget
 {
     use RequiresActiveAdmin;
 
-    public const CACHE_KEY = 'admin:scheduler-comparison';
+    /** `v1` = arrays of scalars; the objects of the unversioned key are never read (cache.serializable_classes = false). */
+    public const CACHE_KEY = 'admin:scheduler-comparison:v1';
 
     public static function canView(): bool
     {
@@ -37,8 +40,13 @@ class SchedulerComparisonWidget extends StatsOverviewWidget
     /** @return array<int, Stat> */
     protected function getStats(): array
     {
-        /** @var array<string, SchedulerMetrics> $metrics */
-        $metrics = Cache::remember(self::CACHE_KEY, 120, fn (): array => app(SchedulerMetricsService::class)->compare());
+        // The cache holds arrays of scalars, never DTO objects: the store may refuse to unserialize a class.
+        /** @var array<string, SchedulerMetricsArray> $rows */
+        $rows = Cache::remember(self::CACHE_KEY, 120, fn (): array => array_map(
+            static fn (SchedulerMetrics $metrics): array => $metrics->toArray(),
+            app(SchedulerMetricsService::class)->compare(),
+        ));
+        $metrics = array_map(SchedulerMetrics::fromArray(...), $rows);
 
         $sm2 = $metrics[SchedulerKind::Sm2->value];
         $fsrs = $metrics[SchedulerKind::Fsrs->value];
