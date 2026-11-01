@@ -337,7 +337,7 @@ A round is worth up to 100 points (a right answer 100, anything else 0; pairs �
 the other modes 5 published tasks (a dictation: phrases with ready audio). Otherwise the format is grey in the setup («Мало материала») and the invitation is refused (422 `battle_material_unavailable`). One learner can be in one battle at a time.
 
 **A match that "hangs".** A match cannot stay open for long by itself: an invitation lives 5 minutes, a room 2 minutes, a round at most 60 s + 1.5 s + the 4 s review, and a player who has gone is dropped after 30 s. Everything that is due is done by **whoever looks first** — a request of either player moves the match — and by the scheduler command
-**`practice:battles-sweep`** (every minute): it closes expired invitations, moves the matches that are on (absence, deadlines, the end) and, with `PRACTICE_ACCESS=off`, voids them. If **both** players closed the app, only this command ends the match (about 1.5 minutes after they left).
+**`practice:battles-sweep`** (every minute): it closes expired invitations, moves the matches that are on (absence, deadlines, the end) and, with `PRACTICE_ACCESS=off`, voids them. If **both** players closed the app, the match ends as `closed / both_absent` (no winner) by this command (about 1.5 minutes after they left) or earlier, by the first request of either player who comes back after the 30 s grace: the clock decides the outcome before the returning player counts as present again (task 18.12a), so coming back first never wins a match both had left.
 So a match, or a learner's «you are busy with another battle», that stays for more than a few minutes means the **scheduler is not running**: check `/health/ready` (`scheduler`), `php artisan schedule:list` (the line `practice:battles-sweep`, every minute) and the cron entry (`docs/DEVOPS_GUIDE.md` §11). Running `php artisan practice:battles-sweep` by hand is safe and repeatable (it prints `Battles swept: N`);
 **do not edit the rows of `battles` by hand.** A learner who is stuck can also open «Идёт баттл» in Friends and leave it (✕ → cancel or surrender): their own visit moves the match too.
 
@@ -721,7 +721,7 @@ and **Payment orders** for the reason: expired order, amount mismatch): fix it b
 the payment, and tell DevOps if it looks systematic. No row at all: the provider's webhook did not reach us (DEVOPS_GUIDE §17).
 
 **A learner says "you are busy with another battle", or a battle never ends.**
-Almost always the scheduler is not running: `practice:battles-sweep` (every minute) is what ends a match that both players left and frees the learners (see *Practice tasks → Battle 1-on-1 → A match that "hangs"*). Check `/health/ready`, `php artisan schedule:list` and the cron entry; the learner can also open «Идёт баттл» in Friends and leave the match (✕).
+Almost always the scheduler is not running: `practice:battles-sweep` (every minute) is what ends a match that both players left and frees the learners when neither of them comes back (a player who opens the match again ends it the same way at once) (see *Practice tasks → Battle 1-on-1 → A match that "hangs"*). Check `/health/ready`, `php artisan schedule:list` and the cron entry; the learner can also open «Идёт баттл» in Friends and leave the match (✕).
 
 **Admin panel shows a blank page after login.**
 Run `php artisan optimize:clear` (or `make cache-clear`) to clear cached views.
