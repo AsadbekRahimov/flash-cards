@@ -119,6 +119,35 @@ make down            # стоп
 | Контейнер `app` рестартует                        | любая            | `docker compose logs -f app` — обычно отсутствует `.env` или `APP_KEY`.  |
 | Порт 80 занят (Apache / IIS / Skype)              | любая            | `APP_PORT=8080` в `.env`, открывать `http://localhost:8080`.              |
 
+### 2.3 Обновление PostgreSQL 16 → 18 (дев-данные)
+
+`docker-compose.yml` теперь поднимает `postgres:18-alpine` с новым томом `<project>_postgresql`
+(один mount в `/var/lib/postgresql`, кластер в `18/docker`). Старые данные остаются в томе
+`<project>_pgdata` — PostgreSQL 18 их не читает. Этот том смонтирован в контейнер только для чтения
+(`/var/lib/postgresql/16/docker`) как предохранитель: пока в нём есть кластер 16, а кластера 18 нет,
+`docker compose up -d` НЕ даст пустую базу — контейнер `postgres` откажется стартовать
+(`docker compose logs postgres` объяснит почему), а `app` не поднимется. Два пути:
+
+```bash
+# Дев-данные не нужны — удалить старый том и пересоздать базу:
+docker compose down
+docker volume rm <project>_pgdata            # имя печатает make pg-check
+docker compose up -d
+make fresh                                   # migrate:fresh --seed
+docker compose exec app php artisan cache:clear
+
+# Дев-данные нужны — перенести (останавливает app/nginx примерно на минуту):
+make pg-upgrade                              # = bash docker/postgres/upgrade.sh
+```
+
+`make pg-upgrade` можно запускать и до, и после первого `up -d` с новой версией. Скрипт копирует
+старый том, снимает дамп на `postgres:16-alpine`, восстанавливает в 18, сверяет счётчики строк,
+последовательности и индексы и поднимает сервисы обратно; повтор после успеха — no-op. Если на 18 уже
+успели сделать `make fresh`, скрипт остановится с diff — тогда `docker compose exec postgres dropdb -U lexiflow lexiflow`
+и повторить. Состояние томов без изменений показывает `make pg-check`. Старый том не удаляется автоматически:
+когда он больше не нужен — `docker volume rm <project>_pgdata` (имя печатает `make pg-check`).
+Подробности и прод — `docs/DEVOPS_GUIDE.md`, §0 «Обновление PostgreSQL 16 → 18 (Docker)».
+
 ---
 
 ## 3. Vite dev-server (TWA frontend)
