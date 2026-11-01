@@ -212,4 +212,16 @@ jobs:
                   key: ${{ secrets.SSH_PRIVATE_KEY }}
                   # Deploy exactly the commit that passed CI, not whatever master points to by now.
                   envs: DEPLOY_SHA
-                  script: cd /var/www/lexiflow && bash deploy.sh "$DEPLOY_SHA"
+                  # Run the deploy.sh OF THAT COMMIT, not the one of the current checkout: bash keeps reading the
+                  # file it opened, so `git checkout` inside the script cannot swap in the new version (its new
+                  # safety checks would be skipped on exactly the deploy that needs them).
+                  script: |
+                      set -euo pipefail
+                      cd /var/www/lexiflow
+                      git fetch origin
+                      tmp="$(mktemp)"
+                      git show "${DEPLOY_SHA}:deploy.sh" > "$tmp"
+                      rc=0
+                      bash "$tmp" "$DEPLOY_SHA" || rc=$?
+                      rm -f "$tmp"
+                      exit "$rc"

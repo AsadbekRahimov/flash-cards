@@ -54,8 +54,13 @@ fi
 # «Обновление PostgreSQL 16 → 18»). Never start 18 next to 16 data that has not been moved, and never let the
 # application run on an empty database: the check runs BEFORE the build re-tags the images and before any `up`,
 # and stops the deploy with the upgrade command. The running stack is left as it is.
-echo "==> Checking the PostgreSQL data volumes"
-bash docker/postgres/upgrade.sh --prod --check
+if [ -f docker/postgres/upgrade.sh ]; then
+    echo "==> Checking the PostgreSQL data volumes"
+    bash docker/postgres/upgrade.sh --prod --check
+else
+    # A rollback to a commit from before the PostgreSQL 18 layout: that compose still runs 16 on the old volume.
+    echo "==> No docker/postgres/upgrade.sh in this commit (PostgreSQL 16 layout): skipping the data volume check"
+fi
 
 echo "==> Building immutable application and nginx images"
 $COMPOSE build --pull app nginx

@@ -44,6 +44,11 @@ services:
             # the volume name carries no version. Data of the ≤16 stack lives in the old volume `pgdata`
             # (mounted at /var/lib/postgresql/data); `make pg-upgrade` moves it here (docs/DEVOPS_GUIDE.md §0).
             - postgresql:/var/lib/postgresql
+            # Guard: the old volume stays mounted read-only where the 18+ entrypoint looks for unmigrated clusters
+            # (/var/lib/postgresql/*/docker). While it still holds a 16 cluster and the 18 cluster does not exist,
+            # the container refuses to initialise an empty database (downtime, never an empty DB), whatever
+            # starts it - an old deploy.sh, a plain `docker compose up -d`. An empty or absent old volume is harmless.
+            - pgdata:/var/lib/postgresql/16/docker:ro
         healthcheck:
             test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-lexiflow}"]
             interval: 5s
@@ -75,4 +80,6 @@ services:
 
 volumes:
     postgresql:
+    # ≤16 data (rollback copy), mounted read-only into postgres as a guard; nothing writes it. Removed in a later release.
+    pgdata:
     redisdata:

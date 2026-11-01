@@ -18,8 +18,9 @@
 #   1. stops every service of the stack except postgres and redis (the writers), then the old postgres;
 #   2. copies the legacy volume into a temporary volume and starts the matching official
 #      postgres:<old major>-alpine on the COPY (the legacy volume itself is never written);
-#   3. starts the stack's new postgres (18+ layout) and streams `pg_dump` (new client) into
-#      `pg_restore --single-transaction` — the target is either fully restored or left empty;
+#   3. initialises the 18+ cluster on the new volume (the stack keeps the legacy volume mounted read-only as a
+#      guard, so the plain entrypoint would refuse), starts the stack's new postgres and streams `pg_dump`
+#      (new client) into `pg_restore --single-transaction` — the target is either fully restored or left empty;
 #   4. compares row counts of every table, sequences, indexes and constraints between the two clusters;
 #   5. runs `vacuumdb --analyze-in-stages`, writes a marker into the new volume, removes the temporaries;
 #   6. starts the services it stopped.
@@ -166,12 +167,19 @@ resolve_stack() {
 # ---------------------------------------------------------------------------------------------------
 volume_exists() { docker volume inspect "$1" >/dev/null 2>&1; }
 
-# The ≤16 volume: created by compose as <project>_pgdata (found by its compose labels, then by name).
+# The ≤16 volume: still declared in compose (mounted read-only as a guard), so its real name comes from the
+# config; otherwise it is found by its compose labels, then by the default name <project>_pgdata.
 find_legacy_volume() {
     local found
-    found="$(docker volume ls -q \
-        --filter "label=com.docker.compose.project=$PROJECT" \
-        --filter "label=com.docker.compose.volume=$LEGACY_VOLUME_KEY" | head -n 1)"
+    found="$(cfg_get volumes "$LEGACY_VOLUME_KEY" name)"
+    if [ -n "$found" ] && ! volume_exists "$found"; then
+        found=''
+    fi
+    if [ -z "$found" ]; then
+        found="$(docker volume ls -q \
+            --filter "label=com.docker.compose.project=$PROJECT" \
+            --filter "label=com.docker.compose.volume=$LEGACY_VOLUME_KEY" | head -n 1)"
+    fi
     if [ -z "$found" ] && volume_exists "${PROJECT}_${LEGACY_VOLUME_KEY}"; then
         found="${PROJECT}_${LEGACY_VOLUME_KEY}"
     fi
@@ -267,7 +275,7 @@ run_check() {
     fi
     if [ -n "$OLD_MAJOR" ] && [ -z "$NEW_MAJOR" ]; then
         local where='does not exist'
-        [ "$NEW_EXISTS" -eq 0 ] || where='is empty'
+        [ "$NEW_EXISTS" -eq 0 ] || where='has no cluster yet'
         stop_deploy "the PostgreSQL $OLD_MAJOR data in volume $OLD_VOL has not been moved to the 18+ layout (volume $NEW_VOL $where)." \
             "Starting $IMAGE now would initialise an EMPTY database and the application would run on it." \
             "Run the upgrade first (stops the app, copies $OLD_MAJOR → $IMAGE_MAJOR, verifies, starts the app again):" \
@@ -418,6 +426,33 @@ WHERE n.nspname NOT IN ('pg_catalog', 'information_schema')
 ORDER BY 1, 2, 3, 4;
 SQL
 )
+# Runs inside a one-off container of the stack's postgres service, as the postgres user. Mirrors the official
+# /usr/local/bin/docker-ensure-initdb.sh step by step, except docker_error_old_databases (see the call site).
+INIT_NEW_CLUSTER=$(cat <<'BASH'
+set -Eeuo pipefail
+source /usr/local/bin/docker-entrypoint.sh
+for f in docker_setup_env docker_create_db_directories docker_verify_minimum_env docker_init_database_dir \
+         pg_setup_hba_conf docker_temp_server_start docker_setup_db docker_process_init_files docker_temp_server_stop; do
+    declare -F "$f" > /dev/null || { echo "docker-entrypoint.sh has no function $f; update docker/postgres/upgrade.sh" >&2; exit 3; }
+done
+docker_setup_env
+docker_create_db_directories
+if [ -n "$DATABASE_ALREADY_EXISTS" ]; then
+    echo "cluster already initialised in $PGDATA"
+    exit 0
+fi
+docker_verify_minimum_env
+ls /docker-entrypoint-initdb.d/ > /dev/null
+docker_init_database_dir
+pg_setup_hba_conf postgres
+export PGPASSWORD="${PGPASSWORD:-$POSTGRES_PASSWORD}"
+docker_temp_server_start postgres
+docker_setup_db
+docker_process_init_files /docker-entrypoint-initdb.d/*
+docker_temp_server_stop
+echo "PostgreSQL $PG_MAJOR cluster initialised in $PGDATA"
+BASH
+)
 SQL_IS_EMPTY=$(cat <<'SQL'
 SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
 WHERE c.relkind IN ('r', 'p', 'S', 'v', 'm', 'f') AND n.nspname NOT IN ('pg_catalog', 'information_schema') AND n.nspname NOT LIKE 'pg_toast%';
@@ -505,9 +540,24 @@ run_upgrade() {
     fi
     log "Stopping the stack's postgres"
     compose stop postgres
-    local users
-    users="$(docker ps --filter "volume=$OLD_VOL" --format '{{.Names}}' | tr '\n' ' ')"
-    [ -z "${users// /}" ] || die "the legacy volume $OLD_VOL is still mounted by running container(s): $users — stop them first"
+    # Read-only mounts (the guard mount of the stack's own postgres) are fine; a writer is not.
+    local users='' c
+    for c in $(docker ps -q --filter "volume=$OLD_VOL"); do
+        if [ "$(docker inspect "$c" --format "{{range .Mounts}}{{if eq .Name \"$OLD_VOL\"}}{{.RW}}{{end}}{{end}}")" = 'true' ]; then
+            users="$users $(docker inspect "$c" --format '{{.Name}}' | sed 's#^/##')"
+        fi
+    done
+    [ -z "${users// /}" ] || die "the legacy volume $OLD_VOL is mounted read-write by running container(s):$users — stop them first"
+
+    STEP='initialise the new cluster'
+    if [ -z "$NEW_MAJOR" ]; then
+        # The stack mounts the legacy volume read-only at $NEW_MOUNT/<old>/docker on purpose (see the compose
+        # files): the image's entrypoint then refuses to initialise an empty cluster next to it. Initialise the
+        # cluster the way the official docker-ensure-initdb.sh does (same functions, same env, same volumes),
+        # minus that one refusal — this script is the migration the refusal asks for.
+        log "Initialising the PostgreSQL $IMAGE_MAJOR cluster on volume $NEW_VOL"
+        compose run --rm --no-deps --user postgres --entrypoint /bin/bash postgres -c "$INIT_NEW_CLUSTER"
+    fi
 
     STEP='start the new postgres'
     log "Starting the stack's postgres ($IMAGE) on volume $NEW_VOL"
