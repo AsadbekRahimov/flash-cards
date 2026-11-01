@@ -1343,13 +1343,18 @@ run_upgrade() {
     local md5_now
     md5_now="$(legacy_md5)"
     [ "$md5_now" = "$LEGACY_MD5" ] || die "the legacy cluster changed while the upgrade ran (pg_control md5 $LEGACY_MD5 → $md5_now): was PostgreSQL $OLD_MAJOR started on $OLD_VOL? Stop it and run this again"
-    open_gate
-    info "network gate opened: PostgreSQL $IMAGE_MAJOR accepts network connections again"
     write_done_marker "$(printf 'upgraded %s → %s at %s: %s tables, %s rows, database %s, source volume %s' \
         "$OLD_MAJOR" "$IMAGE_MAJOR" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$src_tables" "$src_rows" "$DB_NAME" "$OLD_VOL")"
     # Verified and recorded: the in-progress marker turns into a plain pending start (redo=0) at once. Left at redo=1 next
     # to a done marker that matches the legacy fingerprint, it would read as a replacement still under way.
     write_wip_marker 0
+    # The gate opens only now, after both markers say "verified": a run cut short before this line leaves a closed gate
+    # next to a done marker, which --check reports and any run of this script reopens (reopen_gate_if_closed). Opened
+    # before the markers, an interruption would leave the network open with the guard lifted (redo=1) and the old
+    # fingerprint, and the next --redo would drop what an application started around the STOP had written.
+    open_gate
+    GATE_CLOSED=0
+    info "network gate opened: PostgreSQL $IMAGE_MAJOR accepts network connections again"
     docker rm -f "$SRC_CTR" >/dev/null
     cleanup_temp
 
