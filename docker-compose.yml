@@ -33,10 +33,18 @@ services:
     postgres:
         image: postgres:18-alpine
         container_name: lexiflow-postgres
+        # Wrapper in front of the official entrypoint (docker/postgres/entrypoint-guard.sh, mounted below): refuses to
+        # start 18 when the 16 cluster in `pgdata` ran after the data move (a rollback) - the 18 data would be stale.
+        # `entrypoint:` discards the image's CMD, hence the explicit `command`; run through `sh` so the bind-mounted
+        # file needs no execute bit on the host.
+        entrypoint: ["/bin/sh", "/usr/local/bin/lexiflow-entrypoint-guard.sh"]
+        command: ["postgres"]
         environment:
             POSTGRES_DB: ${DB_DATABASE:-lexiflow}
             POSTGRES_USER: ${DB_USERNAME:-lexiflow}
             POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
+            # What the guard tells the operator to run when it refuses (the dev stack: no --prod).
+            LEXIFLOW_UPGRADE_CMD: bash docker/postgres/upgrade.sh
         ports:
             - "${DB_PORT_HOST:-5432}:5432"
         volumes:
@@ -49,6 +57,7 @@ services:
             # the container refuses to initialise an empty database (downtime, never an empty DB), whatever
             # starts it - an old deploy.sh, a plain `docker compose up -d`. An empty or absent old volume is harmless.
             - pgdata:/var/lib/postgresql/16/docker:ro
+            - ./docker/postgres/entrypoint-guard.sh:/usr/local/bin/lexiflow-entrypoint-guard.sh:ro
         healthcheck:
             test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-lexiflow}"]
             interval: 5s

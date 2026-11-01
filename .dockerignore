@@ -14,5 +14,6 @@ public/twa
 .env
 .env.*
 !.env.example
+.deploy.lock
 *.md
 docs

@@ -37,7 +37,17 @@ COMPOSE="docker compose -f docker-compose.prod.yml --env-file .env"
 LOCK_FILE="${DEPLOY_LOCK_FILE:-.deploy.lock}"
 LOCK_WAIT="${DEPLOY_LOCK_WAIT:-300}"
 command -v flock >/dev/null 2>&1 || { echo "ERROR: flock(1) is required (package util-linux)" >&2; exit 1; }
-exec 9>>"$LOCK_FILE"
+# Whoever runs first creates the file (root via sudo, the deploy user from CI): world-writable, so the other one can open
+# it too - its content is informational only, the lock itself is flock(2) on the inode.
+LOCK_CREATED=0
+[ -e "$LOCK_FILE" ] || LOCK_CREATED=1
+if ! exec 9>>"$LOCK_FILE"; then
+    echo "ERROR: cannot open the lock file ${LOCK_FILE} (owner $(stat -c %U "$LOCK_FILE" 2>/dev/null || echo '?'), you are $(id -un))." >&2
+    echo "       It is shared with docker/postgres/upgrade.sh: whoever created it (e.g. root running make prod-pg-upgrade) must make it" >&2
+    echo "       writable for the deploy user:  sudo chmod 666 ${LOCK_FILE}" >&2
+    exit 1
+fi
+[ "$LOCK_CREATED" -eq 0 ] || chmod 666 "$LOCK_FILE" 2>/dev/null || true
 if ! flock -n 9; then
     echo "==> Waiting for the lock ${LOCK_FILE} — another deploy.sh or docker/postgres/upgrade.sh is running ($(head -n 1 "$LOCK_FILE" 2>/dev/null || true)); up to ${LOCK_WAIT}s"
     flock -w "$LOCK_WAIT" 9 || { echo "ERROR: ${LOCK_FILE} is still held after ${LOCK_WAIT}s; let the other deploy/upgrade finish, then run the deploy again" >&2; exit 1; }
@@ -75,9 +85,21 @@ if [ -f docker/postgres/upgrade.sh ]; then
 else
     # A rollback to a commit from before the PostgreSQL 18 layout: that compose still runs 16 on the old volume, read-write.
     echo "==> No docker/postgres/upgrade.sh in this commit (PostgreSQL 16 layout): skipping the data volume check"
+    # Not onto an empty legacy volume, though. Once the old volume was deleted after the upgrade, compose recreates it empty,
+    # PostgreSQL 16 would initialise an empty cluster, the migrations below would build an empty database and the application
+    # would run on it: stop instead. `$PGDATA` is where the ≤16 images keep the cluster (/var/lib/postgresql/data); this is the
+    # compose file of that old commit, so only its `postgres` service is assumed.
+    echo "==> Checking that the legacy volume still holds a PostgreSQL cluster"
+    if ! $COMPOSE run --rm --no-deps -T --quiet-pull --entrypoint sh postgres -c 'test -s "$PGDATA/PG_VERSION"'; then
+        echo "STOP: the legacy PostgreSQL volume holds no cluster (no PG_VERSION in the data directory): it was deleted after the" >&2
+        echo "      upgrade and compose has just recreated it empty. Starting this commit would initialise an EMPTY database and run" >&2
+        echo "      the application on it. Restore the PostgreSQL 16 data into that volume from a backup first, or deploy a commit" >&2
+        echo "      with the PostgreSQL 18 layout again. Details: docs/DEVOPS_GUIDE.md §0, «Откат и его цена»." >&2
+        exit 1
+    fi
     echo "    NOTE: this commit runs PostgreSQL 16 on the legacy volume READ-WRITE. If the stack had already moved to 18, the two copies"
-    echo "    diverge from now on; the next forward deploy stops until you pick one of them (upgrade.sh --redo / --keep-current,"
-    echo "    docs/DEVOPS_GUIDE.md §0 «Откат и его цена»)."
+    echo "    diverge from now on; the next forward deploy stops until you pick one of them (upgrade.sh --redo / --keep-current), and"
+    echo "    the postgres container of the 18 compose refuses to start until then (docs/DEVOPS_GUIDE.md §0 «Откат и его цена»)."
 fi
 
 echo "==> Building immutable application and nginx images"
