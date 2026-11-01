@@ -18,7 +18,9 @@ namespace App\Domain\Practice\Support;
  *   (b) the lengths are equal, the tokens are the same up to the last letter and those letters are `s` and `d` -
  *       `likes` / `liked`, `watches` / `watched`, `uses` / `used`.
  * Anything else is not. The strictness is intended: a doubtful case is a mistake. `friend` / `frien` (the final `d` is gone)
- * is a mistake by (a), and so is `friend` / `friendd`; a false "form" costs nothing - the answer only does not get the mark "typo".
+ * is a mistake by (a); a false "form" costs nothing - the answer only does not get the mark "typo". A DOUBLED final letter is
+ * not a form, though: no English form adds an `s` to a final `s` or a `d` to a final `d` (the plural is `-es`, the past `-ed`), so
+ * `friend` / `friendd`, `always` / `alwayss`, `guess` / `gues` are left to {@see EnglishLexicon}: a slip that spells nothing is a typo.
  *
  * Only `s` (the plural, the third person) and `d` (the past) are the tail of a form this class can tell from a slip. The other
  * endings of a form - `r` (`nice` / `nicer`), `n` (`take` / `taken`), `y` (`rain` / `rainy`), a changed vowel (`write` / `wrote`) -
@@ -36,8 +38,8 @@ final class InflectionGuard
         $e = mb_strtolower($e);
         [$short, $long] = mb_strlen($a) <= mb_strlen($e) ? [$a, $e] : [$e, $a];
 
-        // (a) a final `s` or `d` was added.
-        if (mb_strlen($long) === mb_strlen($short) + 1 && ($long === $short.'s' || $long === $short.'d')) {
+        // (a) a final `s` or `d` was added - not a doubled one (`friend` / `friendd` is no form).
+        if (mb_strlen($long) === mb_strlen($short) + 1 && ($long === $short.'s' || $long === $short.'d') && mb_substr($short, -1) !== mb_substr($long, -1)) {
             return true;
         }
 

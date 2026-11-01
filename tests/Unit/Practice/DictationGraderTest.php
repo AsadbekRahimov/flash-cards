@@ -345,15 +345,22 @@ it('forgives a slip at the last letter of a token that spells nothing: mothe, Mo
     'the last letter dropped: sister' => ['sister', 'siste'],
 ]);
 
-it('keeps the tails s and d of the guard, and what the guard cannot tell from a form stays a mistake on purpose: frien, friendd, alwayss', function (string $expected, string $typed): void {
-    // «frien» for «friend» is «friend» without the tail d (docs/16 §5.2: a doubtful case is a mistake); a doubled s / d is the same tail to the rule.
+it('keeps the tails s and d of the guard, and what the guard cannot tell from a form stays a mistake on purpose: frien', function (string $expected, string $typed): void {
+    // «frien» for «friend» is «friend» without the tail d (docs/16 §5.2: a doubtful case is a mistake).
     expect(dictationVerdict([$expected], $typed))->toBe(Verdict::Wrong);
 })->with([
     'frien' => ['friend', 'frien'],
-    'friendd' => ['friend', 'friendd'],
-    'alwayss' => ['always', 'alwayss'],
     'teacher / teachers' => ['teacher', 'teachers'],
     'likes / liked' => ['likes', 'liked'],
+]);
+
+it('forgives a doubled final s or d that spells nothing: no English form doubles it (friendd, alwayss, guess / gues)', function (string $expected, string $typed): void {
+    expect(dictationVerdict([$expected], $typed))->toBe(Verdict::Typo);
+})->with([
+    'friendd' => ['friend', 'friendd'],
+    'alwayss' => ['always', 'alwayss'],
+    'gues' => ['guess', 'gues'],
+    'addres' => ['address', 'addres'],
 ]);
 
 it('keeps a numeral a mistake even when the typed token spells nothing: seves for seven', function (): void {
@@ -484,8 +491,9 @@ it('knows a change of the form of a word from a slip of the pen', function (stri
     'live / lived (a: d)' => ['live', 'lived', true],
     'teacher / teachers (a: s)' => ['teacher', 'teachers', true],
     'friend / frien (a: d)' => ['friend', 'frien', true],
-    'friend / friendd (a: d, a doubled letter: the tail is all the rule sees)' => ['friend', 'friendd', true],
-    'always / alwayss (a: s, the same)' => ['always', 'alwayss', true],
+    'friend / friendd is no form (a doubled final d)' => ['friend', 'friendd', false],
+    'always / alwayss is no form (a doubled final s)' => ['always', 'alwayss', false],
+    'guess / gues is no form (a doubled final s, the other way round)' => ['guess', 'gues', false],
     'watches / watched (b)' => ['watches', 'watched', true],
     'walked / walkd is a slip' => ['walked', 'walkd', false],
     'receive / recieve is a slip' => ['receive', 'recieve', false],
