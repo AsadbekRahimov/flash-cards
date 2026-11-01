@@ -52,7 +52,8 @@ import type { BattleResult, PracticeAnswerPayload } from '@/api/types'
  *
  * The poll (`usePolling`, every two seconds) runs only while the battle is alive, stops in the background and when the
  * screen is left, and reads at once on return; the screen is also woken at the moments the server moves the battle on
- * (the start, the deadline of a round and its grace, the end of the pause), so that a round does not begin two seconds late.
+ * (the start, the deadline of a round and its grace, the end of the pause, the end of the wait for an absent opponent), so that a round
+ * does not begin two seconds late and the strip does not stand at "0".
  *
  * ✕ and the system "Back" (docs/16 §11.3): the invitation of the opponent — just leaves; the invitation sent, the room
  * and the countdown — "Leave the room?" and `cancel`; the match — "Surrender and leave?" and `surrender`; the end —
@@ -192,8 +193,29 @@ const result = computed(
 const showAbsent = computed(() => !store.opponentPresent && (status.value === 'room' || status.value === 'countdown' || status.value === 'playing'))
 /** Since when the opponent is gone, by the server's clock: the server names it; the moment this screen first saw them gone is the fallback. */
 const absentSince = computed((): number => store.absentSince ?? now.value + serverOffsetMs.value)
+
 const offlineText = computed(() => t(offlineCause.value === 'server' ? 'battle.connection.offline_server' : 'battle.connection.offline'))
 const sendFailedText = computed(() => t(answerCause.value === 'server' ? 'battle.round.send_failed_server' : 'battle.round.send_failed'))
+
+/**
+ * Server time at which the wait for the absent opponent is over: their last presence + `presence_grace_seconds` (the number of the strip
+ * reaches 0). From then on the server may end the match, so the screen asks at that moment instead of standing at "0" until the next beat,
+ * up to two seconds. A second wake-up beside the one of `dueAt` (the clock of the round): the two moments are not ordered, and each
+ * has to wait for its own. `store.absentSince` and not `absentSince` above: the fallback of that one moves with the device clock.
+ */
+const absenceEndsAt = computed((): number | null => {
+  const battle = data.value
+  if (battle === null || !showAbsent.value || store.absentSince === null) return null
+  return store.absentSince + battle.presence_grace_seconds * 1000
+})
+
+useWakeAt({
+  dueAt: () => absenceEndsAt.value,
+  offsetMs: () => serverOffsetMs.value,
+  wake: () => {
+    store.wake().catch(() => undefined)
+  },
+})
 
 // --------------------------------------------------------------- countdown
 

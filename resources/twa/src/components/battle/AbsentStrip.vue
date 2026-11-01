@@ -16,6 +16,9 @@ import { useI18n } from '@/i18n'
  *   `server time − device time` (the clock of the battle store).
  * - `playing` - in a match the one who stayed wins; before it (the room, the countdown) the match is canceled.
  *
+ * When the wait is over (0) the second line is not drawn: "if they do not come back in 0 s" says nothing, and the server is deciding
+ * that very moment (the screen has asked for a poll at it, see `BattleView`); the strip keeps its first line until the answer comes.
+ *
  * a11y: the numbers change every second, so the lines are hidden from a screen reader; a polite live region says the sentence when the
  * strip appears, then every ten seconds and every second of the last five - the way the timer of a round does.
  */
@@ -30,15 +33,18 @@ const { t } = useI18n()
 const now = useNow()
 
 const seconds = computed((): number => secondsLeft(props.since + props.graceSeconds * 1000 - (now.value + props.offsetMs)))
-const hint = computed((): string => t(props.playing ? 'battle.connection.absent_playing' : 'battle.connection.absent_room', { seconds: seconds.value }))
-const sentence = computed((): string => `${t('battle.connection.absent')} ${hint.value}`)
+/** What happens next, with the seconds left; empty once there are none. */
+const hint = computed((): string =>
+  seconds.value > 0 ? t(props.playing ? 'battle.connection.absent_playing' : 'battle.connection.absent_room', { seconds: seconds.value }) : '',
+)
+const sentence = computed((): string => (hint.value === '' ? t('battle.connection.absent') : `${t('battle.connection.absent')} ${hint.value}`))
 
-/** What the live region says: set only at the moments worth a word. */
+/** What the live region says: set only at the moments worth a word (not at 0: there is nothing new to say, the sentence of the last second stands). */
 const announced = ref('')
 watch(
   seconds,
   (s) => {
-    if (announced.value === '' || s <= 5 || s % 10 === 0) announced.value = sentence.value
+    if (announced.value === '' || (s > 0 && (s <= 5 || s % 10 === 0))) announced.value = sentence.value
   },
   { immediate: true },
 )
@@ -47,7 +53,7 @@ watch(
 <template>
   <InlineAlert tone="warning" data-testid="absent-strip" :data-seconds="seconds">
     <span class="block font-medium" aria-hidden="true" data-testid="absent-text">{{ t('battle.connection.absent') }}</span>
-    <span class="block text-[13px] leading-[18px]" aria-hidden="true" data-testid="absent-hint">{{ hint }}</span>
+    <span v-if="hint" class="block text-[13px] leading-[18px]" aria-hidden="true" data-testid="absent-hint">{{ hint }}</span>
     <span class="sr-only" data-testid="absent-live">{{ announced }}</span>
   </InlineAlert>
 </template>

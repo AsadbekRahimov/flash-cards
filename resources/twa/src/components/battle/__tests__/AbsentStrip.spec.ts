@@ -71,10 +71,36 @@ describe('AbsentStrip — the number', () => {
     const w = strip({ since: NOW - 29_000 })
 
     await vi.advanceTimersByTimeAsync(10_000)
-    expect(hint(w)).toBe('Если не вернётся за 0 с, победа ваша.')
+    expect(w.get('[data-testid=absent-strip]').attributes('data-seconds')).toBe('0')
     await vi.advanceTimersByTimeAsync(60_000)
-    expect(hint(w)).toBe('Если не вернётся за 0 с, победа ваша.')
+    expect(w.get('[data-testid=absent-strip]').attributes('data-seconds')).toBe('0')
     expect(strip({ since: NOW - 100_000 }).get('[data-testid=absent-strip]').attributes('data-seconds')).toBe('0')
+  })
+
+  // Re-review М-7: "if they do not come back in 0 s" says nothing; the server is deciding that very moment.
+  it('does not say “in 0 s”: the last second is “in 1 s”, and at 0 the second line is not drawn, the first stays', async () => {
+    const w = strip({ since: NOW - 29_000 }) // 1 s left
+    expect(hint(w)).toBe('Если не вернётся за 1 с, победа ваша.')
+
+    await vi.advanceTimersByTimeAsync(1000)
+
+    expect(w.find('[data-testid=absent-hint]').exists()).toBe(false)
+    expect(w.get('[data-testid=absent-text]').text()).toBe('Соперник потерял связь.')
+    expect(w.text()).not.toContain('0 с')
+    expect(w.get('[data-testid=absent-strip]').attributes('data-seconds')).toBe('0')
+  })
+
+  it('a strip that is drawn past the wait (a reload) has the first line only, in the room and in the match, in Uzbek too', () => {
+    for (const playing of [true, false]) {
+      const w = strip({ since: NOW - 100_000, playing })
+      expect(w.find('[data-testid=absent-hint]').exists()).toBe(false)
+      expect(w.get('[data-testid=absent-text]').text()).toBe('Соперник потерял связь.')
+      w.unmount()
+    }
+    setLocale('uz')
+    const uz = strip({ since: NOW - 100_000 })
+    expect(uz.find('[data-testid=absent-hint]').exists()).toBe(false)
+    expect(uz.get('[data-testid=absent-text]').text()).toBe('Raqibning aloqasi uzildi.')
   })
 
   it('counts by the clock of the SERVER, not by the clock of the device', () => {
@@ -129,6 +155,17 @@ describe('AbsentStrip — a11y: a warning that is read, not a number that chatte
     await vi.advanceTimersByTimeAsync(3000) // 15 s: nothing new to say
     expect(live(w)).toBe('Соперник потерял связь. Если не вернётся за 18 с, победа ваша.')
     expect(hint(w)).toBe('Если не вернётся за 15 с, победа ваша.')
+  })
+
+  it('says no “0 s” to a screen reader either: at 0 the live region keeps the sentence of the last second, and a strip drawn at 0 says the first line', async () => {
+    const w = strip({ since: NOW - 29_000 }) // 1 s left
+    expect(live(w)).toBe('Соперник потерял связь. Если не вернётся за 1 с, победа ваша.')
+
+    await vi.advanceTimersByTimeAsync(3000)
+    expect(live(w)).toBe('Соперник потерял связь. Если не вернётся за 1 с, победа ваша.')
+    expect(live(w)).not.toContain('0 с')
+
+    expect(live(strip({ since: NOW - 100_000 }))).toBe('Соперник потерял связь.')
   })
 
   it('says it again every ten seconds, and every second of the last five', async () => {

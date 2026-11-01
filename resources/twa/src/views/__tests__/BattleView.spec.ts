@@ -1251,14 +1251,94 @@ describe('BattleView — trouble that does not end the match', () => {
     expect(text(r, 'absent-hint')).toBe('Если не вернётся за 19 с, победа ваша.')
   })
 
-  it('never goes below 0: past the wait the strip says 0 until the server ends the match', async () => {
+  it('never goes below 0, and does not say “in 0 s”: past the wait the strip keeps its first line until the server ends the match (re-review М-7)', async () => {
     const r = await render(battle())
     servePoll(() => poll({ version: 24, opponent_present: false, opponent_absent_since: at(-30) }))
 
     await pass(2000)
     await pass(10_000)
 
-    expect(text(r, 'absent-hint')).toBe('Если не вернётся за 0 с, победа ваша.')
+    expect(get(r, 'absent-strip').attributes('data-seconds')).toBe('0')
+    expect(text(r, 'absent-text')).toBe('Соперник потерял связь.')
+    expect(has(r, 'absent-hint')).toBe(false)
+    expect(get(r, 'absent-strip').text()).not.toContain('0 с')
+  })
+
+  describe('the wait for the absent opponent ends (re-review М-7)', () => {
+    // 3 s of the wait are left at the first reading: the server may end the match at 10:00:08.
+    const absent = (overrides: Partial<Battle> = {}) => battle({ opponent_present: false, opponent_absent_since: at(-27), ...overrides })
+    const MOMENT = Date.parse(at(3))
+
+    it('the screen asks at that very moment, not at the next beat: the match the server has ended is on screen at once', async () => {
+      const waiting = absent()
+      const r = await render(waiting)
+      servePoll(() => (Date.now() > MOMENT ? pollOf(finishedBattle('won', 'absent')) : pollOf(waiting)))
+      serveBattle(() => finishedBattle('won', 'absent'))
+
+      await pass(2500) // the beat at 2 s has been: the opponent is still gone
+      expect(has(r, 'absent-strip')).toBe(true)
+      expect(has(r, 'battle-result')).toBe(false)
+
+      await pass(700) // 3.2 s: the wake-up at 3 s and its slack; the next beat is at 4 s
+      expect(text(r, 'result-title')).toBe('Победа')
+      expect(text(r, 'result-reason')).toBe('Соперник вышел из матча и не вернулся — победа ваша.')
+      expect(has(r, 'absent-strip')).toBe(false)
+    })
+
+    it('... so there is one more poll than the beats alone give, and none before the moment', async () => {
+      const r = await render(absent())
+      vi.mocked(api.battles.poll).mockClear()
+
+      await pass(2500) // the beat at 2 s
+      expect(api.battles.poll).toHaveBeenCalledTimes(1)
+      await pass(700) // 3.2 s: the wake-up
+      expect(api.battles.poll).toHaveBeenCalledTimes(2)
+      expect(has(r, 'absent-strip')).toBe(true) // the server has not ended it: the strip stays, with no number
+      expect(has(r, 'absent-hint')).toBe(false)
+    })
+
+    it('takes the wait from the battle (presence_grace_seconds): a longer wait moves the moment', async () => {
+      // gone 30 s ago, the server waits 45 s: the moment is 15 s from the first reading, between the beats at 14 s and 16 s
+      await render(absent({ presence_grace_seconds: 45, opponent_absent_since: at(-30) }))
+      vi.mocked(api.battles.poll).mockClear()
+
+      await pass(14_500) // the beats at 2, 4, ... 14 s
+      expect(api.battles.poll).toHaveBeenCalledTimes(7)
+      await pass(700) // 15.2 s: the wake-up at 15 s
+      expect(api.battles.poll).toHaveBeenCalledTimes(8)
+    })
+
+    it('the opponent comes back before the moment: no wake-up is left behind', async () => {
+      const waiting = absent()
+      await render(waiting)
+      servePoll(() => pollOf(waiting, { opponent_present: true, opponent_absent_since: null, version: 24 }))
+      vi.mocked(api.battles.poll).mockClear()
+
+      await pass(3200) // the beat at 2 s brings them back; the moment at 3 s finds nothing to wake for
+
+      expect(api.battles.poll).toHaveBeenCalledTimes(1)
+    })
+
+    it('no wake-up while the opponent is there', async () => {
+      await render(battle())
+      vi.mocked(api.battles.poll).mockClear()
+
+      await pass(3200)
+
+      expect(api.battles.poll).toHaveBeenCalledTimes(1)
+    })
+
+    it('the room has it too: the server cancels the match for the one who left, and the screen shows it at once', async () => {
+      const waiting = roomBattle({ opponent_present: false, opponent_absent_since: at(-27), ready: { me: false, opponent: false } })
+      const r = await render(waiting)
+      servePoll(() => (Date.now() > MOMENT ? pollOf(closedBattle('canceled')) : pollOf(waiting)))
+      serveBattle(() => closedBattle('canceled'))
+
+      await pass(3200)
+
+      expect(get(r, 'battle-view').attributes('data-status')).toBe('closed')
+      expect(has(r, 'absent-strip')).toBe(false)
+    })
   })
 
   it('the opponent is back: the strip goes', async () => {
