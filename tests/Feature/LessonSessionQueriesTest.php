@@ -118,7 +118,7 @@ it('costs the same statements for a lesson of 6 and of 40 words, and counts no w
     foreach (['start' => 10, 'next' => 9, 'review' => 22] as $step => $budget) {
         expect(count($small[$step]))->toBeLessThanOrEqual($budget)
             ->and(count($large[$step]))->toBe(count($small[$step]))
-            ->and(QueryLog::matching($large[$step], '/select count\(\*\) as aggregate from ["`]words["`]/'))->toBe([]);
+            ->and(QueryLog::matching($large[$step], '/select count\(\*\) as "?aggregate"? from ["`]words["`]/'))->toBe([]);
     }
 });
 

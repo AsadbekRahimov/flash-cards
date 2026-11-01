@@ -69,7 +69,7 @@ it('recounts the course after a word edit in a short transaction of its own that
     // Inside: the lock, the count, the figure - in this order; the lesson, its stage and its course are read before.
     expect($inside)->toHaveCount(3)
         ->and($inside[0])->toStartWith('select * from "courses" where "courses"."id" = ?')
-        ->and($inside[1])->toStartWith('select count(*) as aggregate from "words"')
+        ->and($inside[1])->toStartWith('select count(*) as "aggregate" from "words"')
         ->and($inside[2])->toStartWith('update "courses" set "words_count" = ?')
         // 5 statements before the lock was added (3 reads, count, update): one more is the whole price of the lock.
         ->and($all)->toHaveCount(6)
