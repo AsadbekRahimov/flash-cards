@@ -19,7 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         apiPrefix: 'api',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->validateCsrfTokens(except: [
+        $middleware->preventRequestForgery(except: [
             'telegram/webhook/*',
             'billing/webhook/*',
         ]);
