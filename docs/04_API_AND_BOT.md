@@ -993,7 +993,7 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
   `request_id` принадлежит одному виду запроса: если он уже принят как **замена** диктанта, ответ с ним — **409** `request_id_reused` (без `details`); новый запрос — новый uuid, повторяется только тот, чей ответ потерян.
 - Порядок проверок под блокировкой сессии: повтор → закрыта (410) → неизвестный элемент (422) → элемент уже отвечен (409) → не текущий (409) → форма ответа (422). Ошибки:
   **410** `practice_session_closed` (`{finish_reason}`; просроченная сессия закрывается этим запросом); **409** `element_not_current` (`{current}` — id элемента, который отвечать сейчас; TWA перечитывает сессию), `answer_already_accepted` (`{verdict}`), `pair_already_matched` (`{left_id}`; также для уже занятой правой карточки);
-  **422** `invalid_answer_shape` (`{expected}`: `order_of_all_fragments` | `option_id` | `left_right` | `text_or_skip` | `bijection`), `unknown_element_id` (неизвестный элемент, фрагмент, вариант или карточка), валидация; **404**.
+  **422** `invalid_answer_shape` (`{expected}`: `order_of_all_fragments` | `option_id` | `left_right` | `text_or_skip` | `bijection`), `unknown_element_id` (неизвестный элемент, фрагмент, вариант или карточка; TWA перечитывает сессию и идёт за ней без сообщения — элемента на экране уже нет), валидация; **404**.
 - Побочный эффект при завершении сессии: событие `practice.session_finished` `{session_id, mode, total, answered, correct_first, hints, mismatches, reason, duration_ms}` (после commit, один раз).
 
 #### `POST /api/twa/practice/sessions/{id}/replace` — замена диктанта без штрафа (лимитер `twa-practice-answer`)

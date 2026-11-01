@@ -103,17 +103,24 @@ interface PracticeState {
   /**
    * The `request_id` of the answer that is on its way or failed without a reply — network, 5xx, 429. It lives until the server
    * has answered for good (a verdict or a refusal), and a repeat takes the same id, so the server counts it once.
-   * A collocation, a sentence and a dictation have ONE answer: the key is the element, whatever is sent for it. A pair is an
-   * attempt of its own: the key is the element and the pair, so that a second attempt is counted too.
+   * A collocation, a sentence and a dictation have ONE answer: the key is the element, whatever is sent for it. (A pair is an
+   * attempt of its own, and has its ids in `pendingPairs`.)
    */
   pendingRequestId: string | null
-  /** What `pendingRequestId` belongs to: the element (one answer per element), or the element and the pair. */
+  /** What `pendingRequestId` belongs to: the element (one answer per element). */
   pendingKey: string | null
   /**
    * What the pending request carries (one answer per element only). A repeat sends THIS, whatever the screen hands over: the
    * server tells the first answer again for the same id, and the screen must not show another one as if it were that.
    */
   pendingAnswer: PracticeAnswerPayload | null
+  /**
+   * Pairs: the `request_id` of every match of the CURRENT round that got no reply, by the pair ("left_id|right_id"). A match is an attempt
+   * of its own, so a second attempt is counted too; and the lost reply of one pair is not forgotten when the learner tries another one
+   * meanwhile: "A lost, then B, then A again" sends A under the id of the first A, so a wrong A is ONE mismatch on the server, not two.
+   * A pair leaves the table with its final reply; the table goes with the round (`elementId`).
+   */
+  pendingPairs: { elementId: string; ids: Record<string, string> } | null
   /** The replacement of the clip that is on its way or got no reply: its own id, apart from the answer's, so that neither forgets the other. */
   replacing: { elementId: string; requestId: string } | null
   /** Counts the sessions the store has been reset for: a reply that comes back for an earlier one is dropped. */
@@ -181,6 +188,11 @@ const activeOf = (session: PracticeSession): PracticeActiveSession => ({
 const isVerdict = (value: unknown): value is PracticeVerdict =>
   value === 'correct' || value === 'typo' || value === 'wrong' || value === 'skipped'
 
+/** "left_id|right_id" of a match of pairs: the key of its request; the whole payload when it is not a match (nothing else is sent for a round). */
+function pairKey(payload: PracticeAnswerPayload): string {
+  return 'left_id' in payload ? `${payload.left_id}|${payload.right_id}` : JSON.stringify(payload)
+}
+
 /**
  * Solo practice (docs/16 §11.4): the hub of a course or lesson, and the session the learner plays — open it, answer
  * element by element, see the verdict, finish with the summary.
@@ -220,6 +232,7 @@ export const usePracticeStore = defineStore('practice', {
     pendingRequestId: null,
     pendingKey: null,
     pendingAnswer: null,
+    pendingPairs: null,
     replacing: null,
     generation: 0,
     elementSeq: 0,
@@ -462,10 +475,10 @@ export const usePracticeStore = defineStore('practice', {
 
       const generation = this.generation
       const single = element.kind !== 'pairs_round'
-      const key = single ? element.id : `${element.id}|${JSON.stringify(payload)}`
-      const sent = single && this.pendingKey === key && this.pendingAnswer !== null ? this.pendingAnswer : payload
-      const requestId = this.requestIdFor(key)
-      this.pendingAnswer = single ? sent : null
+      const pair = single ? null : pairKey(payload)
+      const sent = single && this.pendingKey === element.id && this.pendingAnswer !== null ? this.pendingAnswer : payload
+      const requestId = pair === null ? this.requestIdFor(element.id) : this.pairRequestId(element.id, pair)
+      if (single) this.pendingAnswer = sent
       const timeSpent = Math.min(MAX_TIME_SPENT_MS, Math.max(0, Date.now() - this.elementShownAt))
       this.status = 'submitting'
       this.actionError = ''
@@ -477,7 +490,7 @@ export const usePracticeStore = defineStore('practice', {
           answer: sent,
         })
         if (generation !== this.generation) return
-        this.clearPending()
+        this.clearPending(pair)
         this.applyAnswer(res, element, sent)
       } catch (err) {
         if (generation !== this.generation) return
@@ -490,7 +503,7 @@ export const usePracticeStore = defineStore('practice', {
       await this.answer({ skip: true })
     },
 
-    /** The id of the request for `key`: the one still pending for it (a repeat), else a new one. */
+    /** The id of the request for `key` (the element of a one-answer kind): the one still pending for it (a repeat), else a new one. */
     requestIdFor(key: string): string {
       if (this.pendingRequestId === null || this.pendingKey !== key) {
         this.pendingRequestId = newRequestId()
@@ -500,10 +513,22 @@ export const usePracticeStore = defineStore('practice', {
       return this.pendingRequestId
     },
 
-    clearPending(): void {
+    /** The id of the request for the match `pair` of the round `elementId`: the one still pending for THAT pair (a repeat, even after other pairs were tried), else a new one. */
+    pairRequestId(elementId: string, pair: string): string {
+      if (this.pendingPairs === null || this.pendingPairs.elementId !== elementId) this.pendingPairs = { elementId, ids: {} }
+      return (this.pendingPairs.ids[pair] ??= newRequestId())
+    },
+
+    /** The server has answered for good (or the session is gone): the request is forgotten - for a pair `pair` only its own, the other matches may still be repeated. */
+    clearPending(pair: string | null = null): void {
       this.pendingRequestId = null
       this.pendingKey = null
       this.pendingAnswer = null
+      if (pair !== null && this.pendingPairs !== null) {
+        delete this.pendingPairs.ids[pair]
+        if (Object.keys(this.pendingPairs.ids).length > 0) return
+      }
+      this.pendingPairs = null
     },
 
     applyAnswer(res: PracticeAnswerResponse, element: PracticeElement, payload: PracticeAnswerPayload): void {
@@ -539,7 +564,7 @@ export const usePracticeStore = defineStore('practice', {
         this.actionError = errorMessage(err, 'practice')
         return
       }
-      this.clearPending()
+      this.clearPending(element.kind === 'pairs_round' ? pairKey(payload) : null)
 
       if (err instanceof ApiClientError) {
         const generation = this.generation
@@ -548,6 +573,21 @@ export const usePracticeStore = defineStore('practice', {
           if (err.code === 'element_not_current') this.actionError = errorMessage(err, 'practice')
           const fresh = await this.reread(generation)
           if (fresh !== null) this.applySession(fresh)
+          return
+        }
+        if (err.code === 'unknown_element_id') {
+          // The element on this screen is not in the session any more (another tab replaced the dictation, or the reply of our own swap was
+          // lost): it cannot be answered however often the learner tries, so the session is read again and the screen follows it - with no
+          // toast, there is nothing to ask of the learner. An element that is still the current one is refused for something INSIDE it (a
+          // fragment, an option, a card the server does not know): that is told, the old way, and the component starts afresh.
+          const fresh = await this.reread(generation)
+          if (fresh === null) return
+          const same = fresh.current?.id === element.id
+          this.applySession(fresh)
+          if (same) {
+            this.actionError = errorMessage(err, 'practice')
+            this.elementSeq += 1
+          }
           return
         }
         if (err.code === 'answer_already_accepted') {

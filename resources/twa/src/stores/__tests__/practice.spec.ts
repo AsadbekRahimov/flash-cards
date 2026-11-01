@@ -926,6 +926,61 @@ describe('practice store — a request that may be repeated', () => {
 
       expect(sent(1).request_id).not.toBe(sent(0).request_id)
     })
+
+    // The id of a lost reply lives with its PAIR (review 18.11, minor 1), not in one slot: while the learner tries other pairs, the server may
+    // have counted the first one, and a wrong pair sent again under a new id would be a second mismatch.
+    it('"A lost, then B, then A again" sends A under the id of the first A, and B under its own', async () => {
+      const store = await started(session({ mode: 'pairs' }))
+      vi.mocked(api.practice.answer).mockRejectedValue(offline())
+
+      await store.answer(a)
+      await store.answer(b)
+      await store.answer(a)
+      await store.answer(b)
+
+      expect(sent(2).request_id).toBe(sent(0).request_id)
+      expect(sent(3).request_id).toBe(sent(1).request_id)
+      expect(sent(1).request_id).not.toBe(sent(0).request_id)
+      expect(new Set([0, 1, 2, 3].map((n) => sent(n).request_id)).size).toBe(2)
+    })
+
+    it('B counted while A is lost: A is still sent under its own id, and B (answered) is a new attempt afterwards', async () => {
+      const store = await started(session({ mode: 'pairs' }))
+      vi.mocked(api.practice.answer)
+        .mockRejectedValueOnce(offline()) // A: no reply
+        .mockResolvedValueOnce(answerResponse({ verdict: 'wrong', reveal: null, pair: b, session: session({ mode: 'pairs', current: pairsElement({ mismatches: 1 }) }) })) // B: counted
+        .mockResolvedValue(answerResponse({ verdict: 'wrong', reveal: null, pair: a, session: session({ mode: 'pairs', current: pairsElement({ mismatches: 2 }) }) }))
+
+      await store.answer(a)
+      await store.answer(b)
+      expect(store.pendingPairs?.ids).toEqual({ 'lM1|rU2': sent(0).request_id }) // B is forgotten with its reply, A is not
+      await store.answer(a)
+      await store.answer(b)
+
+      expect(sent(2).request_id).toBe(sent(0).request_id) // the repeat of A
+      expect(sent(3).request_id).not.toBe(sent(1).request_id) // B after its verdict: another attempt
+      expect(store.pendingPairs).toBeNull() // nothing is waiting for a reply any more
+    })
+
+    it('a refusal for good forgets that pair only; the table goes with the round and with the session', async () => {
+      const store = await started(session({ mode: 'pairs' }))
+      vi.mocked(api.practice.answer).mockRejectedValueOnce(offline()).mockRejectedValueOnce(apiError('validation', 422, 'invalid_answer_shape'))
+
+      await store.answer(a)
+      await store.answer(b) // refused for good: nothing was counted
+      expect(store.pendingPairs?.ids).toEqual({ 'lM1|rU2': sent(0).request_id })
+
+      // The next round: its pairs are new attempts, whatever they are called.
+      store.applySession(session({ mode: 'pairs', current: pairsElement({ id: 'ePair00002', round: 2 }) }))
+      vi.mocked(api.practice.answer).mockRejectedValueOnce(offline())
+      await store.answer(a)
+      expect(sent(2).request_id).not.toBe(sent(0).request_id)
+      expect(store.pendingPairs).toEqual({ elementId: 'ePair00002', ids: { 'lM1|rU2': sent(2).request_id } })
+
+      vi.mocked(api.practice.get).mockResolvedValue(session({ id: 80, mode: 'pairs' }))
+      await store.load(80)
+      expect(store.pendingPairs).toBeNull()
+    })
   })
 
   it('each answer has its own id', async () => {
@@ -979,6 +1034,65 @@ describe('practice store — answers that the server does not take', () => {
 
     expect(store.status).toBe('ready')
     expect(store.elementSeq).toBe(seq)
+  })
+
+  // The element on screen is not in the session any more (another tab replaced the dictation; the reply of our own swap was lost): every answer
+  // would be refused. Before, the toast said "update the screen" and the screen stayed on the old element (review 18.11, minor 2).
+  it.each([
+    ['a dictation replaced in another tab', session({ mode: 'dictation' }), { text: 'see you' }, session({ mode: 'dictation', current: dictationElement({ id: 'eDict00002' }) }), 'eDict00002'],
+    ['a sentence', session({ mode: 'sentence' }), { order: ['fW2'] }, session({ mode: 'sentence', current: sentenceElement({ id: 'eSent00002' }) }), 'eSent00002'],
+    ['a round of pairs', session({ mode: 'pairs' }), { left_id: 'lM1', right_id: 'rU2' }, session({ mode: 'pairs', current: pairsElement({ id: 'ePair00002', round: 2 }) }), 'ePair00002'],
+  ])('unknown_element_id (%s): the session is read again and the screen follows, with no toast', async (_name, opened, payload, fresh, expectedId) => {
+    const store = await started(opened)
+    vi.mocked(api.practice.answer).mockRejectedValue(apiError('validation', 422, 'unknown_element_id'))
+    vi.mocked(api.practice.get).mockResolvedValue(fresh)
+    const seq = store.elementSeq
+
+    await store.answer(payload)
+
+    expect(api.practice.get).toHaveBeenCalledTimes(2) // entering, and the re-read
+    expect(store.status).toBe('ready')
+    expect(store.current?.id).toBe(expectedId)
+    expect(store.elementSeq).toBe(seq + 1) // a new element, a new component
+    expect(store.actionError).toBe('') // nothing to apologise for, and nothing to ask of the learner
+    expect(store.pendingRequestId).toBeNull()
+    expect(store.pendingPairs).toBeNull()
+  })
+
+  it('unknown_element_id for an element that is still the current one: something INSIDE it is unknown - told as before, and the component starts afresh', async () => {
+    const store = await started()
+    vi.mocked(api.practice.answer).mockRejectedValue(apiError('validation', 422, 'unknown_element_id'))
+    vi.mocked(api.practice.get).mockResolvedValue(session()) // the same element
+    const seq = store.elementSeq
+
+    await store.answer({ order: ['fNO'] })
+
+    expect(store.status).toBe('ready')
+    expect(store.current?.id).toBe('eSent00001')
+    expect(store.elementSeq).toBe(seq + 1)
+    expect(store.actionError).toBe('Ответ не относится к этому заданию. Обновите экран.')
+  })
+
+  it('unknown_element_id when the session cannot be read again: the failure is the one shown', async () => {
+    const store = await started()
+    vi.mocked(api.practice.answer).mockRejectedValue(apiError('validation', 422, 'unknown_element_id'))
+    vi.mocked(api.practice.get).mockRejectedValue(offline())
+
+    await store.answer({ order: ['fW2'] })
+
+    expect(store.status).toBe('error')
+    expect(store.errorMessage).toBe('Нет связи с сервером. Попробуйте ещё раз.')
+  })
+
+  it('unknown_element_id: the session is over meanwhile - the summary', async () => {
+    const store = await started()
+    vi.mocked(api.practice.answer).mockRejectedValue(apiError('validation', 422, 'unknown_element_id'))
+    vi.mocked(api.practice.get).mockResolvedValue(finishedSession())
+
+    await store.answer({ order: ['fW2'] })
+
+    expect(store.status).toBe('finished')
+    expect(store.actionError).toBe('')
   })
 
   it('pair_already_matched: a silent re-read (a double tap is not worth a message)', async () => {
