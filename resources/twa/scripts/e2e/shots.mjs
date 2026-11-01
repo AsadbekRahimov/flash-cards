@@ -4,7 +4,8 @@
 // whole are listed for a look.
 //
 // Four runs (width x theme), two at a time: each run is its own pair of friends (Alice and Bob, Charlie and Diana), so the limits of
-// opening a session (10 a minute for a learner) are not the speed of the scenario.
+// opening a session (10 a minute for a learner) are not the speed of the scenario. Then the rounds of the other two modes at 320 px, and
+// in every battle a check of the first round: the task is in sight above the bar of the buttons.
 import { EXPECTED_STATUSES, until } from './kit.mjs'
 import { COMPONENT, MODES, boardCards, doCollocation, doDictation, doSentence, matchPair, typoOf } from './screens.mjs'
 import { acceptFromLink, bothReady, checkResults, clearBattles, playRound } from './battle.mjs'
@@ -14,6 +15,14 @@ const CONFIGS = [
   { width: 390, theme: 'dark', mode: 'sentence', who: ['c', 'd'] },
   { width: 320, theme: 'light', mode: 'sentence', who: ['a', 'b'] },
   { width: 320, theme: 'dark', mode: 'pairs', who: ['c', 'd'] },
+]
+/**
+ * The rounds of the two other modes in the narrow window too (the pairs and the sentence are above): the modes differ in the height they
+ * need, and the task of every one has to be above the bar of the buttons at 320 x 568.
+ */
+const NARROW_BATTLES = [
+  { width: 320, theme: 'light', mode: 'collocation', who: ['a', 'b'] },
+  { width: 320, theme: 'dark', mode: 'dictation', who: ['c', 'd'] },
 ]
 /** Who takes the pictures of the solo screens: the fifth learner, one after another (the battles go on beside her, by pairs). */
 const SOLO = 'e'
@@ -26,9 +35,9 @@ async function shots(env, s) {
   const solo = async () => {
     for (const config of CONFIGS) await track(env, s, config, 'solo', async (scene, p) => soloScreens(env, scene, p, config))
   }
-  // The battles: two pairs at a time, the second two when the first two are done.
+  // The battles: two pairs at a time, the second two when the first two are done, the narrow rounds of the other modes at the end.
   const battles = async () => {
-    for (const batch of [CONFIGS.slice(0, 2), CONFIGS.slice(2)]) {
+    for (const batch of [CONFIGS.slice(0, 2), CONFIGS.slice(2), NARROW_BATTLES]) {
       await Promise.all(
         batch.map((config) =>
           track(env, s, config, 'battle', async (scene, challenger, opponent) => {
@@ -69,6 +78,30 @@ async function look(s, p, label) {
   const cut = await p.cutOff()
   await s.check(cut.edges.length === 0, `${label} (${p.width} px, ${p.theme}): nothing sticks out of the window sideways`, { players: [], actual: cut.edges.join(' | ') })
   if (cut.clipped.length > 0) s.note(`${label}: text a box does not show whole: ${cut.clipped.join(' | ')}`)
+}
+
+/**
+ * At the start of a round the clock is running: what the learner touches first is in the window and above the bar of the buttons, with
+ * no scrolling (18.12b: at 320 x 568 the bank of the sentence, the field of the dictation and the fourth row of the pairs were under it).
+ */
+async function taskInSight(s, p, mode) {
+  const seen = await p.page.evaluate((kind) => {
+    const all = (selector) => [...document.querySelectorAll(selector)]
+    const targets = {
+      pairs: all('button[data-card]'),
+      collocation: all('[data-testid="collocation-choice"] button[data-testid^="option-"]'),
+      sentence: all('[data-testid="sentence-bank"] button[data-testid^="fragment-"]').slice(0, 1),
+      dictation: all('[data-testid="dictation-text"]'),
+    }[kind]
+    const bar = document.querySelector('[data-testid="actions"]')?.getBoundingClientRect().top ?? innerHeight
+    return { limit: Math.round(Math.min(bar, innerHeight)), bottoms: targets.map((element) => Math.round(element.getBoundingClientRect().bottom)) }
+  }, mode)
+  const lowest = Math.max(...seen.bottoms)
+  await s.check(seen.bottoms.length > 0 && lowest <= seen.limit, `${mode}, round 1 (${p.width} x ${p.height} px, ${p.theme}): the task is above the buttons and inside the window, no scrolling needed`, {
+    players: [p],
+    expected: `the lowest edge <= ${seen.limit}`,
+    actual: seen.bottoms.join(', '),
+  })
 }
 
 // -------------------------------------------------------------------------------------- the solo
@@ -171,7 +204,11 @@ async function battleScreens(env, s, a, b, config) {
 
   // Round 1: the question, the card "Ответ принят" of the one who answered first, the review; the other rounds only to the end.
   const rounds = []
-  rounds.push(await playRound(env, s, battle, a, b, 1, { a: 'right', b: 'wrong' }, { shots: true, waitingShot: true, shoot: (p, label) => look(s, p, `${config.mode}-${label}`) }))
+  const shoot = async (p, label) => {
+    await look(s, p, `${config.mode}-${label}`)
+    if (label === 'round-1') await taskInSight(s, p, config.mode)
+  }
+  rounds.push(await playRound(env, s, battle, a, b, 1, { a: 'right', b: 'wrong' }, { shots: true, waitingShot: true, shoot }))
   for (let round = 2; round <= 5; round++) rounds.push(await playRound(env, s, battle, a, b, round, { a: round === 4 ? 'wrong' : 'right', b: 'right' }))
   await checkResults(env, s, battle, a, b, rounds)
   await look(s, a, 'result')
