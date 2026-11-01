@@ -59,6 +59,8 @@ import type { BattleResult, PracticeAnswerPayload } from '@/api/types'
  * to the friends (to the course if the learner came from the practice hub). The question follows the battle: it goes when the
  * battle is over, and "Leave the room?" goes when the match begins (the learner asks again, now for a surrender).
  *
+ * A battle of the learner's own that stands in the way of "Accept" or of a rematch (409 `battle_busy`) is told in a toast, and stays on the
+ * screen as a line with the way into that battle: in the room and on the result screen.
  * Behind Pro (403 `practice_pro_required` on opening or on "Accept") the answer is the paywall, not a message.
  */
 const props = defineProps<{ id: number }>()
@@ -591,10 +593,12 @@ watch(over, (isOver) => {
         :result="result"
         :rematch="rematchOffer"
         :busy="acting"
+        :busy-battle-id="busyBattleId"
         @rematch="onRematch"
         @accept-rematch="onAcceptRematch"
         @decline-rematch="store.declineRematch()"
         @open-rematch="onOpenRematch"
+        @open-busy="openBusy"
         @friends="toFriends"
         @course="toCourse"
       />

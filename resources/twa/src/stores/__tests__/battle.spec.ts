@@ -967,6 +967,37 @@ describe('battle store — the rematch', () => {
       expect(store.acting).toBeNull()
     })
 
+    it('the way to the other battle is forgotten when the next action starts: a refusal that is over leaves no link behind (re-review М-1)', async () => {
+      const store = await opened(finishedBattle(), null)
+      vi.mocked(api.battles.invite).mockRejectedValueOnce(refusedBy(9)).mockResolvedValueOnce(invitedBattle({ id: 16 }))
+      reading(invitedBattle({ id: 9, role: 'challenger' }))
+
+      await store.rematch()
+      expect(store.busyBattleId).toBe(9)
+
+      expect(await store.rematch()).toBe(16)
+      expect(store.busyBattleId).toBeNull()
+    })
+
+    it('... and so it is for “Accept” in the room and for the offer of the friend', async () => {
+      const room = await opened(invitedBattle({ role: 'opponent' }), null)
+      vi.mocked(api.battles.accept).mockRejectedValueOnce(refusedBy(9)).mockResolvedValueOnce(roomBattle({ role: 'opponent' }))
+      await room.accept()
+      expect(room.busyBattleId).toBe(9)
+      await room.accept()
+      expect(room.busyBattleId).toBeNull()
+
+      setActivePinia(createPinia())
+      const result = await opened(finishedBattle('lost', 'completed', { rematch: OFFERED }), null)
+      vi.mocked(api.battles.poll).mockResolvedValue(pollOf(finishedBattle('lost'), { rematch: OFFERED }))
+      vi.mocked(api.battles.accept).mockReset()
+      vi.mocked(api.battles.accept).mockRejectedValueOnce(refusedBy(9)).mockResolvedValueOnce(roomBattle({ id: 16, role: 'opponent' }))
+      expect(await result.acceptRematch()).toBeNull()
+      expect(result.busyBattleId).toBe(9)
+      expect(await result.acceptRematch()).toBe(16)
+      expect(result.busyBattleId).toBeNull()
+    })
+
     it('a battle that is on (the invitation was accepted) is not an invitation to accept, whoever started it', async () => {
       const store = await opened(finishedBattle(), null)
       vi.mocked(api.battles.invite).mockRejectedValue(refusedBy(9))

@@ -119,7 +119,10 @@ interface BattleState {
   acting: BattleAction | null
   /** The refusal of an action that leaves the learner on the screen (localized): shown as a toast. */
   actionError: string
-  /** The learner's other battle that blocked an accept or a rematch (409 `battle_busy`). */
+  /**
+   * The learner's other battle that blocked an accept or a rematch (409 `battle_busy`): the room and the result screen show the way to it.
+   * The next action forgets it - a link to a refusal that is over would mislead.
+   */
   busyBattleId: number | null
   /** The action was refused because practice is behind Pro (403 `practice_pro_required`): the paywall opens instead of a message. */
   paywall: boolean
@@ -661,6 +664,7 @@ export const useBattleStore = defineStore('battle', {
       const generation = this.generation
       this.acting = action
       this.actionError = ''
+      this.busyBattleId = null
       try {
         const battle = await call(id)
         if (generation !== this.generation) return false
@@ -834,6 +838,7 @@ export const useBattleStore = defineStore('battle', {
       const generation = this.generation
       this.acting = 'rematch'
       this.actionError = ''
+      this.busyBattleId = null
       try {
         const created = await api.battles.invite({
           rematch_of: battle.id,
@@ -888,6 +893,7 @@ export const useBattleStore = defineStore('battle', {
       const generation = this.generation
       this.acting = 'accept'
       this.actionError = ''
+      this.busyBattleId = null
       try {
         const accepted = await api.battles.accept(offer.battle_id)
         return accepted.id

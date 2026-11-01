@@ -1485,6 +1485,48 @@ describe('BattleView — the rematch', () => {
     expect(showErrorToast).toHaveBeenCalledWith('У вас уже есть активный баттл. Завершите его, чтобы начать новый.')
     expect(has(r, 'battle-result')).toBe(true)
     expect(route(r).params.id).toBe('15')
+    // ... and the way to it stays on the screen after the toast has gone, the way the room has it (re-review М-1)
+    expect(text(r, 'result-busy')).toContain('У вас уже есть активный баттл')
+    await click(r, 'open-busy')
+    expect(route(r).name).toBe('battle')
+    expect(route(r).params.id).toBe('9')
+    expect(has(r, 'result-busy')).toBe(false)
+  })
+
+  it('the line about the other battle is not left behind by the next try: a new tap on “Rematch” forgets it, and a refusal of another kind does not bring it back', async () => {
+    const r = await render(finishedBattle('lost'), { others: { 9: invitedBattle({ id: 9, role: 'challenger' }) } })
+    vi.mocked(api.battles.invite).mockRejectedValueOnce(apiError('conflict', 409, 'battle_busy', { battle_id: 9 })).mockRejectedValueOnce(apiError('conflict', 409, 'battle_disabled'))
+
+    await click(r, 'rematch-btn')
+    expect(has(r, 'result-busy')).toBe(true)
+
+    await click(r, 'rematch-btn')
+
+    expect(showErrorToast).toHaveBeenLastCalledWith('Баттлы сейчас выключены.')
+    expect(has(r, 'result-busy')).toBe(false)
+  })
+
+  it('the offer of the friend is accepted while another battle of the learner’s is on: the same line and the way to it', async () => {
+    const r = await render(finishedBattle('lost', 'completed', { rematch: OFFER }))
+    vi.mocked(api.battles.accept).mockRejectedValue(apiError('conflict', 409, 'battle_busy', { battle_id: 9 }))
+
+    await click(r, 'accept-rematch-btn')
+
+    expect(showErrorToast).toHaveBeenCalledWith('У вас уже есть активный баттл. Завершите его, чтобы начать новый.')
+    expect(has(r, 'rematch-offer')).toBe(true)
+    await click(r, 'open-busy')
+    expect(route(r).params.id).toBe('9')
+  })
+
+  it('the way to the other battle is in Uzbek too', async () => {
+    setLocale('uz')
+    const r = await render(finishedBattle('lost'), { others: { 9: invitedBattle({ id: 9, role: 'challenger' }) } })
+    vi.mocked(api.battles.invite).mockRejectedValue(apiError('conflict', 409, 'battle_busy', { battle_id: 9 }))
+
+    await click(r, 'rematch-btn')
+
+    expect(text(r, 'result-busy')).toContain('Sizda faol bellashuv bor')
+    expect(text(r, 'open-busy')).toBe('Joriy bellashuvni ochish')
   })
 
   it('the friend offers one (by_me is false): it is answered on the result screen, and “Accept” opens its room', async () => {

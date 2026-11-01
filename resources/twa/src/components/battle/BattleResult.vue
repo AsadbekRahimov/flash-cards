@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import InlineAlert from '@/components/ui/InlineAlert.vue'
 import type { IconName } from '@/components/ui/icons'
 import BattleScoreboard from '@/components/battle/BattleScoreboard.vue'
 import { resultTitleKey } from '@/components/battle/resultTitle'
@@ -26,7 +27,10 @@ import type { Battle, BattleEndReason, BattleOutcome, BattleRematch, BattleResul
  * `rematch` is the rematch that follows this battle as the server reports it - `{battle_id, status, by_me}`, no battle to read:
  * an offer of the friend is answered here ("Accept" is then the primary button, "Rematch" gives way to it); a rematch of the learner's
  * own that waits, and one that is on already (the friend took it, or the learner took the friend's on another device), is a way back
- * into it. Events: `rematch`, `accept-rematch`, `decline-rematch`, `open-rematch`, `friends`, `course`.
+ * into it. Events: `rematch`, `accept-rematch`, `decline-rematch`, `open-rematch`, `friends`, `course`, `open-busy`.
+ *
+ * `busyBattleId` is the learner's OTHER battle that stands in the way of a rematch (or of accepting the friend's): 409 `battle_busy` named
+ * it. The toast says so for a moment; the line under the title stays and leads into that battle (`open-busy`), the way the room does.
  */
 const props = defineProps<{
   battle: Battle
@@ -34,6 +38,8 @@ const props = defineProps<{
   result: BattleResult
   rematch: BattleRematch | null
   busy: BattleAction | null
+  /** The learner's other battle that stands in the way (409 `battle_busy`). */
+  busyBattleId?: number | null
 }>()
 
 const emit = defineEmits<{
@@ -43,6 +49,7 @@ const emit = defineEmits<{
   'open-rematch': []
   friends: []
   course: []
+  'open-busy': []
 }>()
 
 const { t } = useI18n()
@@ -120,6 +127,12 @@ const cell = (side: BattleRoundResult['me']) => ({ look: VERDICT_LOOK[side.verdi
         <p class="text-[15px] leading-5 text-tg-subtitle" data-testid="result-reason">{{ reason }}</p>
         <p class="text-[13px] leading-[18px] text-tg-hint break-words" data-testid="result-topic">{{ topic }}</p>
       </header>
+
+      <!-- Another battle of the learner's stands in the way of the rematch: the way to it, up here where it is seen without scrolling. -->
+      <div v-if="busyBattleId != null" class="space-y-2" data-testid="result-busy">
+        <InlineAlert tone="warning" :message="t('error.code.battle_busy')" />
+        <button type="button" class="btn btn-tinted btn-sm" data-testid="open-busy" @click="emit('open-busy')">{{ t('battle.open_current') }}</button>
+      </div>
 
       <BattleScoreboard v-if="showScore" :me="battle.scores.me" :opponent="battle.scores.opponent" :opponent-name="opponentName" size="lg" />
 
