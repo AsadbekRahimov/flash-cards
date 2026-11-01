@@ -48,7 +48,7 @@ use Throwable;
  *                 a missed scheduler run) it finalises that one group ({@see closeGroup}) and no other;
  *   standings   — ONE aggregate query over `learner_daily_stats` for the dates of the week with
  *                 the weights of `config('leagues.points')`, cached `standings_cache_seconds`
- *                 (`league:standings:{group}`); a finalised group reads the final columns instead;
+ *                 (`league:standings:v1:{group}`, arrays of scalars); a finalised group reads the final columns instead;
  *   closeGroup  — the unit of closing: one short transaction under the group row lock writes the
  *                 final points / ranks / results of the whole group in ONE statement and stamps
  *                 `league_groups.closed_at`; idempotent by that stamp;
@@ -65,12 +65,15 @@ use Throwable;
  * a seat is never taken in a `closing` week, and no cycle exists. Nothing here runs inside the
  * review transaction: `place` is called by DailyStatsService in a `DB::afterCommit` hook and locks
  * only `league_*` rows (docs/13 §3 rule 5); nothing of `learners` is locked at all.
+ *
+ * @phpstan-import-type LeagueStandingArray from LeagueStanding
  */
 final class LeagueService
 {
     public const OPT_OUT_META = 'leagues_opt_out';
 
-    public const CACHE_PREFIX = 'league:standings:';
+    /** `v1` = arrays of scalars; the objects of the unversioned keys are never read (cache.serializable_classes = false). */
+    public const CACHE_PREFIX = 'league:standings:v1:';
 
     public function __construct(
         private readonly ProductEventRecorder $events,
@@ -302,10 +305,18 @@ final class LeagueService
 
         $ttl = max(1, (int) config('leagues.standings_cache_seconds', 60));
 
-        /** @var list<LeagueStanding> $rows */
-        $rows = Cache::remember(self::CACHE_PREFIX.$group->id, $ttl, fn (): array => $this->computeStandings($group, $week));
+        // The cache holds arrays of scalars, never DTO objects: the store may refuse to unserialize a class.
+        /** @var list<LeagueStandingArray> $rows */
+        $rows = Cache::remember(
+            self::CACHE_PREFIX.$group->id,
+            $ttl,
+            fn (): array => array_map(
+                static fn (LeagueStanding $standing): array => $standing->toArray(),
+                $this->computeStandings($group, $week),
+            ),
+        );
 
-        return collect($rows);
+        return collect(array_map(LeagueStanding::fromArray(...), $rows));
     }
 
     /** The "Today" line: the learner's place this week, or null when not placed (or leagues off). */

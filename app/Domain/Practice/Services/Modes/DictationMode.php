@@ -97,7 +97,8 @@ final class DictationMode implements PracticeModeHandler, ReplaceableElements
             $locked > 0 && $available + $locked >= $required => ModeAvailability::REASON_ITEMS_LOCKED,
             $learner === null => ModeAvailability::REASON_NO_ITEMS,
             $introduced > 0 && $voiced === 0 => ModeAvailability::REASON_NO_AUDIO_WORDS,
-            $voiced > 0, $introduced === 0 && $phrases === 0 => ModeAvailability::REASON_NO_WORDS,
+            // Without voiced words `$introduced` is 0 here: the arm above took every `$introduced > 0`.
+            $voiced > 0, $phrases === 0 => ModeAvailability::REASON_NO_WORDS,
             default => ModeAvailability::REASON_NO_ITEMS,
         };
 

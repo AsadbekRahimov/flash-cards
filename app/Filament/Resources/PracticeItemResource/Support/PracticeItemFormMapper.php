@@ -150,7 +150,8 @@ final class PracticeItemFormMapper
             }
 
             $options[] = $text;
-            if (is_array($row) && ($row['correct'] ?? false)) {
+            // A non-empty $text came from an array row (anything else gives ''), so $row is an array here.
+            if ($row['correct'] ?? false) {
                 $correct[] = $text;
             }
         }

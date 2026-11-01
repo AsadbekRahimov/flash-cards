@@ -81,8 +81,8 @@ it('writes the minutes of a learner day with a decimal comma', function (): void
 
 it('writes the percents and ratios of the SM-2 / FSRS comparison with a decimal comma', function (): void {
     Cache::put(SchedulerComparisonWidget::CACHE_KEY, [
-        SchedulerKind::Sm2->value => new SchedulerMetrics(SchedulerKind::Sm2, 50, 40, 37, 16, 7, 4),
-        SchedulerKind::Fsrs->value => new SchedulerMetrics(SchedulerKind::Fsrs, 0, 0, 0, 0, 0, 0),
+        SchedulerKind::Sm2->value => (new SchedulerMetrics(SchedulerKind::Sm2, 50, 40, 37, 16, 7, 4))->toArray(),
+        SchedulerKind::Fsrs->value => (new SchedulerMetrics(SchedulerKind::Fsrs, 0, 0, 0, 0, 0, 0))->toArray(),
     ], 60);
 
     livewire(SchedulerComparisonWidget::class)

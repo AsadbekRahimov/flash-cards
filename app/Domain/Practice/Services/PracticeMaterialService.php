@@ -36,17 +36,18 @@ use Illuminate\Support\Facades\DB;
  * lesson, none of whose target words is inactive or not introduced (a battle - `$learner = null` - checks only that the
  * words are active), then their published versions; a dictation only with `audio_status = ready`.
  *
- * The fitness of a task is not a filter of the query but a column of it (`lock_state`: 0 fit, 1 LOCKED - a target word is not
- * introduced yet, 2 DEAD - a target word is inactive), and the rows are sorted out in PHP. The locked tasks are what the filter
- * used to hide: a mode that is short of tasks can then tell "the tasks are there, the words are not learned" (`items_locked`)
- * from "there are no such tasks" (`no_items`) at no query more ({@see shortageReason()}).
+ * The fitness of a task is not a filter of the query but two columns of it (`lock_dead`, `lock_unseen`: a target word is
+ * inactive / not introduced yet, see {@see selectLockFlags()}) that make its state - 0 fit, 1 LOCKED, 2 DEAD - and the rows are
+ * sorted out in PHP. The locked tasks are what the filter used to hide: a mode that is short of tasks can then tell
+ * "the tasks are there, the words are not learned" (`items_locked`) from "there are no such tasks" (`no_items`) at no query
+ * more ({@see shortageReason()}).
  *
  * Everything read here is remembered by the {@see MaterialScope} it was read for: the four modes of a hub ask for the
  * same words and tasks, and the database is asked once. The tasks of ALL the types come in one pass.
  */
 final class PracticeMaterialService
 {
-    /** `lock_state` of a task: every target word is active and introduced ... */
+    /** The state of a task (see {@see lockStateOf()}): every target word is active and introduced ... */
     private const FIT = 0;
 
     /** ... some target word is not introduced to the learner yet (and none is inactive) ... */
@@ -214,10 +215,10 @@ final class PracticeMaterialService
             return 0;
         }
 
-        [$lockState, $bindings] = $this->lockStateSql($learner);
-        $rows = PracticeItem::query()
-            ->select('practice_items.id', 'practice_items.type', 'practice_items.status', 'practice_items.published_version_id')
-            ->selectRaw($lockState.' as lock_state', $bindings)
+        $rows = $this->selectLockFlags(
+            PracticeItem::query()->select('practice_items.id', 'practice_items.type', 'practice_items.status', 'practice_items.published_version_id'),
+            $learner,
+        )
             ->selectSub(
                 PracticeItemVersion::query()->select('audio_status')->whereColumn('practice_item_versions.id', 'practice_items.published_version_id'),
                 'audio_status',
@@ -228,7 +229,7 @@ final class PracticeMaterialService
         $playable = 0;
         foreach ($rows as $row) {
             $voiced = $row->type !== PracticeItemType::Dictation || $row->getAttribute('audio_status') === AudioStatus::Ready->value;
-            if ($row->status === PracticeItemStatus::Published && $row->published_version_id !== null && (int) $row->getAttribute('lock_state') === self::FIT && $voiced) {
+            if ($row->status === PracticeItemStatus::Published && $row->published_version_id !== null && $this->lockStateOf($row) === self::FIT && $voiced) {
                 $playable++;
             }
         }
@@ -304,18 +305,17 @@ final class PracticeMaterialService
     }
 
     /**
-     * The tasks of ALL the types for the scope in two queries (the tasks with their `lock_state`, then the versions), split by type.
+     * The tasks of ALL the types for the scope in two queries (the tasks with their lock flags, then the versions), split by type.
      *
      * @return array{ready: array<string, list<PracticeItemVersion>>, pending_audio: int, locked: array<string, int>}
      */
     private function items(MaterialScope $scope, ?Learner $learner): array
     {
         return $scope->remember('items:'.($learner->id ?? 0), function () use ($scope, $learner): array {
-            [$lockState, $bindings] = $this->lockStateSql($learner);
-
-            $query = PracticeItem::query()
-                ->select('practice_items.id', 'practice_items.type', 'practice_items.published_version_id')
-                ->selectRaw($lockState.' as lock_state', $bindings)
+            $query = $this->selectLockFlags(
+                PracticeItem::query()->select('practice_items.id', 'practice_items.type', 'practice_items.published_version_id'),
+                $learner,
+            )
                 ->where('practice_items.course_id', $scope->course->id)
                 ->where('practice_items.status', PracticeItemStatus::Published->value)
                 ->whereNotNull('practice_items.published_version_id')
@@ -332,7 +332,7 @@ final class PracticeMaterialService
             $items = $query->get();
             $versionIds = [];
             foreach ($items as $item) {
-                $state = (int) $item->getAttribute('lock_state');
+                $state = $this->lockStateOf($item);
                 if ($state === self::FIT || ($state === self::LOCKED && $item->type === PracticeItemType::Dictation)) {
                     $versionIds[] = (int) $item->published_version_id;
                 }
@@ -347,7 +347,7 @@ final class PracticeMaterialService
             $locked = [];
             $pendingAudio = 0;
             foreach ($items as $item) {
-                $state = (int) $item->getAttribute('lock_state');
+                $state = $this->lockStateOf($item);
                 if ($state === self::DEAD) {
                     continue; // a target word is switched off: nothing the learner does opens this task
                 }
@@ -380,29 +380,43 @@ final class PracticeMaterialService
     }
 
     /**
-     * The SQL of the column `lock_state` of a task, as a `case`: 2 when a target word is inactive, 1 when a target word is not
-     * introduced to the learner, else 0. A battle (`$learner = null`) knows only the first. The learner is a binding; the numbers
-     * are the constants of this class.
+     * Adds the two flags a task's state is made of to a query of `practice_items`, each a correlated sub-select that is not NULL
+     * when it holds: `lock_dead` - a target word is inactive; `lock_unseen` - a target word is not introduced to the learner (no
+     * `word_repetitions` row, in any state). A battle (`$learner = null`) knows only the first. The learner is a binding.
      *
-     * @return array{0: string, 1: list<mixed>} the expression and its bindings, in the order of the `?` in it
+     * Typed query-builder calls, not a `case when exists (...)` text: Laravel's `selectRaw()` takes a literal string only, and
+     * that text would be put together from the SQL of the two sub-queries.
+     *
+     * @param  Builder<PracticeItem>  $query
+     * @return Builder<PracticeItem>
      */
-    private function lockStateSql(?Learner $learner): array
+    private function selectLockFlags(Builder $query, ?Learner $learner): Builder
     {
-        $inactive = $this->targetWords()->where('target.is_active', false);
-        $sql = 'case when exists ('.$inactive->toSql().') then '.self::DEAD;
-        $bindings = $inactive->getBindings();
+        $query->selectSub($this->targetWords()->where('target.is_active', false)->limit(1), 'lock_dead');
 
         if ($learner !== null) {
-            $unseen = $this->targetWords()
-                ->leftJoin('word_repetitions as seen', function (JoinClause $join) use ($learner): void {
-                    $join->on('seen.word_id', '=', 'target_words.word_id')->where('seen.learner_id', '=', $learner->id);
-                })
-                ->whereNull('seen.id');
-            $sql .= ' when exists ('.$unseen->toSql().') then '.self::LOCKED;
-            $bindings = [...$bindings, ...$unseen->getBindings()];
+            $query->selectSub(
+                $this->targetWords()
+                    ->leftJoin('word_repetitions as seen', function (JoinClause $join) use ($learner): void {
+                        $join->on('seen.word_id', '=', 'target_words.word_id')->where('seen.learner_id', '=', $learner->id);
+                    })
+                    ->whereNull('seen.id')
+                    ->limit(1),
+                'lock_unseen',
+            );
         }
 
-        return [$sql.' else '.self::FIT.' end', $bindings];
+        return $query;
+    }
+
+    /** 2 when a target word is inactive, else 1 when a target word is not introduced to the learner, else 0 (see {@see selectLockFlags()}). */
+    private function lockStateOf(PracticeItem $item): int
+    {
+        if ($item->getAttribute('lock_dead') !== null) {
+            return self::DEAD;
+        }
+
+        return $item->getAttribute('lock_unseen') !== null ? self::LOCKED : self::FIT;
     }
 
     /** The target words of the task being selected (`practice_items`): the part of a `lock_state` subquery that the two share. */

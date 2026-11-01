@@ -471,7 +471,7 @@
 
 ### validation — на проверку носителю (`lang/uz/validation.php`)
 
-Стандартные сообщения валидации Laravel 12 (ответы 422 API). `:attribute` — название поля (подставляется из `validation.attributes.*` ниже либо имя поля как есть); остальные `:x` — значения. Узбекский — латиница, апостроф ASCII, «maydoni» = «поле». Ключи с плюралами (`min.string` и т.д.) — разные типы значения, не формы числа.
+Стандартные сообщения валидации Laravel 13 (ответы 422 API). `:attribute` — название поля (подставляется из `validation.attributes.*` ниже либо имя поля как есть); остальные `:x` — значения. Узбекский — латиница, апостроф ASCII, «maydoni» = «поле». Ключи с плюралами (`min.string` и т.д.) — разные типы значения, не формы числа.
 
 | Ключ | uz | ru |
 |---|---|---|
@@ -485,7 +485,9 @@
 | `validation.alpha_num` | :attribute maydoni faqat harflar va raqamlardan iborat bo'lishi kerak. | Поле :attribute может содержать только буквы и цифры. |
 | `validation.any_of` | :attribute maydoni noto'g'ri to'ldirilgan. | Поле :attribute заполнено неверно. |
 | `validation.array` | :attribute maydoni massiv bo'lishi kerak. | Поле :attribute должно быть массивом. |
+| `validation.array_keys` | :attribute maydonida faqat quyidagi kalitlar bo'lishi mumkin: :values. | Поле :attribute может содержать только следующие ключи: :values. |
 | `validation.ascii` | :attribute maydoni faqat bir baytli harflar, raqamlar va belgilardan iborat bo'lishi kerak. | Поле :attribute может содержать только однобайтовые буквы, цифры и символы. |
+| `validation.base64` | :attribute maydoni to'g'ri Base64 qatori bo'lishi kerak. | Поле :attribute должно быть корректной строкой в формате Base64. |
 | `validation.before` | :attribute maydoni :date dan oldingi sana bo'lishi kerak. | Поле :attribute должно быть датой до :date. |
 | `validation.before_or_equal` | :attribute maydoni :date yoki undan oldingi sana bo'lishi kerak. | Поле :attribute должно быть датой не позже :date. |
 | `validation.between.array` | :attribute maydonida :min dan :max gacha element bo'lishi kerak. | Поле :attribute должно содержать от :min до :max элементов. |
