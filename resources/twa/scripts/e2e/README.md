@@ -61,5 +61,5 @@ The exit code is 1 on any FAIL.
   turns: Alice and Bob, Charlie and Diana; the solo pictures: Eve). Do not start it twice within a minute, or two copies at once.
 - The pictures: `<out>/<scenario>--<player>--<screen>--<width>-<theme>[--pN].png` (`--pN`: the page scrolled, when it is longer than
   the window - the buttons at the bottom stay in place, so a picture of the "whole page" would paint them over the content).
-  `node resources/twa/scripts/e2e/sheet.mjs <out> --width 320 --only shots-` makes contact sheets (`sheet-NN.png` and `.html`, the light
+  `node resources/twa/scripts/e2e/sheet.mjs <out> --width 320 --only '^shots-' --name sheet-320` makes contact sheets (`sheet-320-NN.png` and `.html`, the light
   and the dark picture of a screen side by side, a caption under each) to look at 4 screens at once.

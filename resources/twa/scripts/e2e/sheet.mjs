@@ -3,7 +3,7 @@
 // (scenario, player, screen, width, theme), taken with the same Playwright and put next to the pictures. The light and the dark
 // picture of one screen stand side by side.
 //
-//   node resources/twa/scripts/e2e/sheet.mjs <dir with the pictures> [--per 4] [--scale 1] [--width 390] [--only text]
+//   node resources/twa/scripts/e2e/sheet.mjs <dir with the pictures> [--per 4] [--scale 1] [--width 390] [--only regexp] [--name sheet-x]
 //
 // Names of the pictures are `<scenario>--<player>--<screen>--<width>-<theme>[--pN].png` (see `Player.shot`); `--pN` is the Nth scroll of a
 // page that is longer than the window.
@@ -15,13 +15,19 @@ import { loadPlaywright, parseArgs } from './kit.mjs'
 const args = parseArgs(process.argv.slice(2))
 const dir = resolve(String(process.argv[2] ?? ''))
 if (!process.argv[2] || process.argv[2].startsWith('--')) {
-  console.error('usage: node sheet.mjs <dir with the pictures> [--per 4] [--scale 1] [--width 390] [--only text]')
+  console.error('usage: node sheet.mjs <dir with the pictures> [--per 4] [--scale 1] [--width 390] [--only regexp] [--name sheet-x]')
   process.exit(2)
 }
 const per = Number(args.per ?? 4)
 const scale = Number(args.scale ?? 1)
-const only = args.only ? String(args.only) : null
+const only = args.only ? new RegExp(String(args.only)) : null
 const width = args.width ? String(args.width) : null
+// The files are `<name>-NN.png` / `.html`; the name starts with `sheet-` (such files are never taken for pictures).
+const prefix = args.name ? String(args.name) : 'sheet'
+if (!prefix.startsWith('sheet')) {
+  console.error('--name has to start with "sheet"')
+  process.exit(2)
+}
 
 /** `solo-pairs--Alice--pairs-task--390-light--p2.png` -> its parts; null for a file that is not a picture of the e2e. */
 function parse(file) {
@@ -37,7 +43,7 @@ function parse(file) {
 
 const pictures = readdirSync(dir)
   .map(parse)
-  .filter((item) => item !== null && (width === null || item.width === width) && (only === null || item.file.includes(only)))
+  .filter((item) => item !== null && (width === null || item.width === width) && (only === null || only.test(item.file)))
 
 // One screen = scenario + player + label + page + width; its light picture first, then the dark one.
 const screens = new Map()
@@ -69,7 +75,7 @@ for (const [index, sheet] of sheets.entries()) {
     figure { margin: 0; } img { display: block; outline: 1px solid #000; background: #fff; }
     figcaption { padding-top: 4px; max-width: 420px; }
   </style><main>${sheet.map(cell).join('')}</main>`
-  const name = `sheet-${String(index + 1).padStart(2, '0')}`
+  const name = `${prefix}-${String(index + 1).padStart(2, '0')}`
   const htmlPath = join(dir, `${name}.html`)
   writeFileSync(htmlPath, html)
   const widest = Math.max(...sheet.map((item) => Number(item.screen.width))) * scale

@@ -6,7 +6,6 @@ import { COMPONENT, MODE_TITLE, doRound, normalize, whyNotShown } from './screen
 
 /** The verdict of a round and its points for what a player did (`null`: did not answer, the time ran out). */
 const VERDICT = { right: 'correct', wrong: 'wrong', skip: 'skipped', typo: 'typo', null: 'timeout' }
-const VERDICT_WORDS = { correct: 'Верно', typo: 'Опечатка', wrong: 'Ошибка', skipped: 'Пропуск', timeout: 'Время вышло' }
 const POINTS = { correct: 100, typo: 0, wrong: 0, skipped: 0, timeout: 0 }
 const OUTCOME_WORDS = { won: 'Победа', lost: 'Поражение', draw: 'Ничья', none: 'Матч не состоялся', aborted: 'Матч прерван' }
 const MIRROR = { won: 'lost', lost: 'won', draw: 'draw', none: 'none' }

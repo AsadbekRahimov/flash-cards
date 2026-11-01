@@ -429,6 +429,7 @@ export class Player {
       .catch(() => null)
     if (room === null) return first
     await this.page.evaluate(() => window.scrollTo(0, 0)).catch(() => undefined)
+    await this.settle()
     await this.page.screenshot({ path: first }).catch(() => undefined)
     this.shots.push(first)
     const last = room.total - room.inner
@@ -443,6 +444,18 @@ export class Player {
     }
     await this.page.evaluate(() => window.scrollTo(0, 0)).catch(() => undefined)
     return first
+  }
+
+  /** Waits (a second at most) for the transitions that are on the page to end, so that a picture is not of a bar half filled or a button half faded. */
+  async settle() {
+    await this.page
+      .evaluate(() =>
+        Promise.race([
+          Promise.all(document.getAnimations().filter((animation) => Number.isFinite(animation.effect?.getComputedTiming().endTime ?? Infinity)).map((animation) => animation.finished.catch(() => undefined))),
+          new Promise((resolve) => setTimeout(resolve, 1000)),
+        ]),
+      )
+      .catch(() => undefined)
   }
 
   async overflow() {
