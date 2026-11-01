@@ -30,6 +30,21 @@ fi
 
 COMPOSE="docker compose -f docker-compose.prod.yml --env-file .env"
 
+# One lock for deploy.sh and docker/postgres/upgrade.sh (.deploy.lock in the project directory): a deploy never overlaps
+# a PostgreSQL data move, and two deploys never overlap each other, whatever started them. Taken before the checkout so
+# the git state cannot be swapped under a running deploy either. `upgrade.sh --check` below is read-only and does not
+# lock, so the check under this lock cannot block itself. Do not delete the lock file by hand.
+LOCK_FILE="${DEPLOY_LOCK_FILE:-.deploy.lock}"
+LOCK_WAIT="${DEPLOY_LOCK_WAIT:-300}"
+command -v flock >/dev/null 2>&1 || { echo "ERROR: flock(1) is required (package util-linux)" >&2; exit 1; }
+exec 9>>"$LOCK_FILE"
+if ! flock -n 9; then
+    echo "==> Waiting for the lock ${LOCK_FILE} — another deploy.sh or docker/postgres/upgrade.sh is running ($(head -n 1 "$LOCK_FILE" 2>/dev/null || true)); up to ${LOCK_WAIT}s"
+    flock -w "$LOCK_WAIT" 9 || { echo "ERROR: ${LOCK_FILE} is still held after ${LOCK_WAIT}s; let the other deploy/upgrade finish, then run the deploy again" >&2; exit 1; }
+fi
+: > "$LOCK_FILE"
+printf 'pid=%s started=%s command=deploy.sh %s\n' "$$" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" >&9
+
 if [ -n "$DEPLOY_SHA" ]; then
     echo "==> Checking out the exact commit ${DEPLOY_SHA}"
     git fetch origin
@@ -58,8 +73,11 @@ if [ -f docker/postgres/upgrade.sh ]; then
     echo "==> Checking the PostgreSQL data volumes"
     bash docker/postgres/upgrade.sh --prod --check
 else
-    # A rollback to a commit from before the PostgreSQL 18 layout: that compose still runs 16 on the old volume.
+    # A rollback to a commit from before the PostgreSQL 18 layout: that compose still runs 16 on the old volume, read-write.
     echo "==> No docker/postgres/upgrade.sh in this commit (PostgreSQL 16 layout): skipping the data volume check"
+    echo "    NOTE: this commit runs PostgreSQL 16 on the legacy volume READ-WRITE. If the stack had already moved to 18, the two copies"
+    echo "    diverge from now on; the next forward deploy stops until you pick one of them (upgrade.sh --redo / --keep-current,"
+    echo "    docs/DEVOPS_GUIDE.md §0 «Откат и его цена»)."
 fi
 
 echo "==> Building immutable application and nginx images"

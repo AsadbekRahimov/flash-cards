@@ -1,5 +1,7 @@
 *.log
 .DS_Store
+# lock shared by deploy.sh and docker/postgres/upgrade.sh (lives in the project directory on the server)
+.deploy.lock
 .env
 .env.backup
 .env.production
