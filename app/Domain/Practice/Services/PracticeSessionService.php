@@ -54,6 +54,9 @@ use LogicException;
  *   4. the handler validates the shape and grades -> an attempt row, the new state, the counters, maybe the end.
  * (docs/16 §6.3 checks "not current" before "already accepted"; an element answered earlier is never the current one,
  * so that order would never say `answer_already_accepted`, which §14.2 expects for a second tab.)
+ *
+ * @phpstan-type ActiveLesson array{stage: int|null, number: int|null, title: string|null}
+ * @phpstan-type ActiveSummary array{id: int, mode: string, course: string, course_title: string, lesson_id: int|null, lesson: ActiveLesson|null, progress: array{done: int, total: int}}
  */
 final class PracticeSessionService
 {
@@ -237,19 +240,27 @@ final class PracticeSessionService
     }
 
     /**
-     * What the hub and the 409 `practice_session_active` tell about an active session.
+     * What the hub and the 409 `practice_session_active` tell about an active session: where it is by id AND by name - the title of
+     * the course in the language of the session (`course_title`) and the module / number / title of the lesson (`lesson`, null for the
+     * practice of a course, and for a snapshot that has no names) - so that "Continue" can say which one it is for a place the screen
+     * has not seen. The names are in the snapshot that is decoded for the slug anyway: no query (docs/16 §13).
      *
-     * @return array{id: int, mode: string, course: string, lesson_id: int|null, progress: array{done: int, total: int}}
+     * @return ActiveSummary
      */
     public function activeSummary(PracticeSession $session): array
     {
         $snapshot = Snapshot::fromArray($session->snapshot);
+        $named = $snapshot->lessonStage !== null || $snapshot->lessonNumber !== null || $snapshot->lessonTitle !== null;
 
         return [
             'id' => $session->id,
             'mode' => $session->mode->value,
             'course' => $snapshot->courseSlug,
+            'course_title' => $snapshot->courseTitleFor($session->locale),
             'lesson_id' => $session->lesson_id,
+            'lesson' => $session->lesson_id !== null && $named
+                ? ['stage' => $snapshot->lessonStage, 'number' => $snapshot->lessonNumber, 'title' => $snapshot->lessonTitle]
+                : null,
             'progress' => ['done' => $session->answered, 'total' => $session->total],
         ];
     }
@@ -630,7 +641,7 @@ final class PracticeSessionService
         return new RetryMaterial(array_values(array_unique($wordIds)), array_values(array_unique($itemIds)));
     }
 
-    /** @return array{session_id: int, mode: string, course: string, lesson_id: int|null, progress: array{done: int, total: int}} */
+    /** @return array{session_id: int, mode: string, course: string, course_title: string, lesson_id: int|null, lesson: ActiveLesson|null, progress: array{done: int, total: int}} */
     private function activeDetails(PracticeSession $session): array
     {
         $summary = $this->activeSummary($session);
@@ -639,7 +650,9 @@ final class PracticeSessionService
             'session_id' => $summary['id'],
             'mode' => $summary['mode'],
             'course' => $summary['course'],
+            'course_title' => $summary['course_title'],
             'lesson_id' => $summary['lesson_id'],
+            'lesson' => $summary['lesson'],
             'progress' => $summary['progress'],
         ];
     }

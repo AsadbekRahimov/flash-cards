@@ -23,10 +23,32 @@ uses(RefreshDatabase::class);
  */
 
 const PVS_MIGRATION = '2026_10_30_100010_add_scope_to_practice_item_versions_table';
+/** The migration that came after it: an index on `practice_item_versions.lesson_id` (18.11b). */
+const PVS_INDEX_MIGRATION = '2026_10_30_100011_add_lesson_index_to_practice_item_versions_table';
 
 function pvs_migration(): Migration
 {
     return require database_path('migrations/'.PVS_MIGRATION.'.php');
+}
+
+/**
+ * Takes the table back to before the scope, in the order `migrate:rollback` does it: the migration that came LATER (the index on `lesson_id`,
+ * which SQLite will not leave behind a dropped column) goes first. @return Migration the migration of the scope, for `pvs_up()`
+ */
+function pvs_down(): Migration
+{
+    (require database_path('migrations/'.PVS_INDEX_MIGRATION.'.php'))->down();
+    $migration = pvs_migration();
+    $migration->down();
+
+    return $migration;
+}
+
+/** Applies them again, the scope first and the index after it. */
+function pvs_up(Migration $migration): void
+{
+    $migration->up();
+    (require database_path('migrations/'.PVS_INDEX_MIGRATION.'.php'))->up();
 }
 
 /** A course with a lesson, an empty second lesson and `$words` words in the first. @return array{0: Course, 1: Lesson, 2: Lesson, 3: list<Word>} */
@@ -91,8 +113,7 @@ it('adds the three columns: the words as a jsonb list that defaults to empty, th
 
 it('gives every existing version the words, the lesson and the level its task has now', function (): void {
     [$course, $one, $two, $words] = pvs_course(3);
-    $migration = pvs_migration();
-    $migration->down();
+    $migration = pvs_down();
 
     // The old shape: the place and the words on the task, a published task with a newer draft behind it, a task with nothing.
     $full = pvs_item($course, 'full', $one->id, 'A1');
@@ -107,7 +128,7 @@ it('gives every existing version the words, the lesson and the level its task ha
     $otherVersion = pvs_version($other, 1);
     $noVersion = pvs_item($course, 'no-version', $one->id, 'B1');
 
-    $migration->up();
+    pvs_up($migration);
 
     $of = static fn (int $id): PracticeItemVersion => PracticeItemVersion::query()->findOrFail($id);
     foreach ($fullVersions as $id) {
@@ -131,8 +152,7 @@ it('gives every existing version the words, the lesson and the level its task ha
 
 it('backfills in chunks: more tasks than one chunk, every one of them', function (): void {
     [$course, $one, , $words] = pvs_course(2);
-    $migration = pvs_migration();
-    $migration->down();
+    $migration = pvs_down();
 
     $ids = [];
     foreach (range(1, 1100) as $n) {
@@ -145,7 +165,7 @@ it('backfills in chunks: more tasks than one chunk, every one of them', function
         DB::table('practice_item_words')->insert(array_map(static fn (int $id): array => ['item_id' => $id, 'word_id' => $words[$id % 2]->id], $chunk));
     }
 
-    $migration->up();
+    pvs_up($migration);
 
     expect(DB::table('practice_item_versions')->count())->toBe(1100)
         ->and(DB::table('practice_item_versions')->whereNull('lesson_id')->count())->toBe(550)
@@ -176,9 +196,8 @@ it('rolls back to the table as it was, with the partial index of the pending aud
     $itemId = pvs_item($course, 'cycle', $one->id, 'A1');
     DB::table('practice_item_words')->insert(['item_id' => $itemId, 'word_id' => $words[0]->id]);
     $versionId = pvs_version($itemId, 1);
-    $migration = pvs_migration();
 
-    $migration->down();
+    $migration = pvs_down();
 
     expect(Schema::hasColumn('practice_item_versions', 'target_word_ids'))->toBeFalse()
         ->and(Schema::hasColumn('practice_item_versions', 'lesson_id'))->toBeFalse()
@@ -187,7 +206,7 @@ it('rolls back to the table as it was, with the partial index of the pending aud
         ->and(array_column(Schema::getIndexes('practice_item_versions'), 'name'))->toContain('practice_item_versions_item_id_number_unique')
         ->and(DB::table('practice_item_versions')->where('id', $versionId)->value('content'))->not->toBeNull();
 
-    $migration->up();
+    pvs_up($migration);
 
     $version = PracticeItemVersion::query()->findOrFail($versionId);
     expect(Schema::hasColumns('practice_item_versions', ['target_word_ids', 'lesson_id', 'level']))->toBeTrue()
@@ -195,13 +214,12 @@ it('rolls back to the table as it was, with the partial index of the pending aud
         ->and($version->lesson_id)->toBe($one->id)
         ->and($version->level)->toBe('A1')
         ->and(pvs_pending_index())->toContain('audio_status')->toContain('WHERE')->toContain("'pending'")
-        ->and(array_column(Schema::getIndexes('practice_item_versions'), 'name'))->toContain('practice_item_versions_item_id_number_unique');
+        ->and(array_column(Schema::getIndexes('practice_item_versions'), 'name'))->toContain('practice_item_versions_item_id_number_unique')
+        ->and(array_column(Schema::getIndexes('practice_item_versions'), 'name'))->toContain('practice_item_versions_lesson_id_index');
 });
 
 it('keeps the foreign keys of the versions through the rollback and the second application', function (): void {
-    $migration = pvs_migration();
-    $migration->down();
-    $migration->up();
+    pvs_up(pvs_down());
 
     $keys = array_map(static fn (array $key): string => implode(',', $key['columns']).'>'.$key['foreign_table'].':'.$key['on_delete'], Schema::getForeignKeys('practice_item_versions'));
     sort($keys);

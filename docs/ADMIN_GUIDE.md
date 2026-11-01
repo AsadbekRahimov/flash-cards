@@ -271,8 +271,9 @@ being published** and a text in **both** languages (the meaning/prompt and expla
 «Задание изменили, пока вы его смотрели. Откройте его заново.» (code `version_changed`) and nothing is changed — open the task again and read the new version.
 The audio of a dictation is made in the background after saving; the column **Аудио** shows `В очереди / Готово / Ошибка` of the version the learners get
 (the published one; while the task is not published, the current one), with a small note «Правка: …» when the draft behind it has another status. The button **Сгенерировать аудио
-заново** voices both the published version and the draft behind it. A dictation whose audio is not ready is not handed out. Every move is written to the audit log
-(`practice_item.reviewed / published / archived / restored`).
+заново** voices the version you edit again (the draft; a task with one version — that version) and the published version behind it only when its audio is **not** ready
+(`Ошибка` or `В очереди`); a published version whose audio is `Готово` is left alone, so learners keep getting it while the draft is mended. A dictation whose audio is not ready is not handed out.
+Every move is written to the audit log (`practice_item.reviewed / published / archived / restored`).
 
 **Import (JSON, format `lexiflow-practice/1`).** The page **Import tasks** takes a file with `"course"` (the slug of an existing course, not a deck) and a
 list `"items"` (1–300 tasks, ≤ 2 MB); **Download sample** gives a valid file. The same service runs as
@@ -303,14 +304,14 @@ A file looks like this (the real pilot package, `database/data/practice/pilot-a1
 
 The pilot package: 90 tasks — ten tasks of each of the three types in each of three lessons of the `default` course: *Module 1 · Lesson 2* (time and days of the week, A1), *Module 1 · Lesson 3* (family, A1), *Module 2 · Lesson 1* (work, A2). Its target words and lessons must exist in the course, otherwise the whole file is refused.
 The Uzbek texts of the pack wait for a native speaker's review (`docs/I18N_UZ_REVIEW.md`). On a local machine the seeder `PracticeDemoSeeder` (part of `db:seed`) imports it published, puts the demo learners into the pilot and voices the phrases itself
-with `ffmpeg` + `flite` — whatever `TTS_SERVICE_URL` says, and without queueing a single voicing job (no TTS service is called during `db:seed`). Without `ffmpeg` the phrases stay `В очереди`: press **Сгенерировать аудио заново** for them. **On production import it as drafts** (`php artisan practice:import database/data/practice/pilot-a1-a2.json`), read the tasks in the list, press **Проверено** and **Опубликовать** (or re-import with `--publish` once the texts are checked).
+with `ffmpeg` + `flite` — whatever `TTS_SERVICE_URL` says, and without queueing a single voicing job (no TTS service is called during `db:seed`). Without `ffmpeg` (or its `flite` filter) the phrases that are left go to the voicing queue by themselves when the queue is asynchronous (the Docker setup: a worker and the `tts` container voice them a little later, `db:seed` prints a notice); on the `sync` queue (a bare local run) they stay `В очереди` with a warning in the output of `db:seed`: press **Сгенерировать аудио заново** for them. **On production import it as drafts** (`php artisan practice:import database/data/practice/pilot-a1-a2.json`), read the tasks in the list, press **Проверено** and **Опубликовать** (or re-import with `--publish` once the texts are checked).
 
 ### Audio of the dictations
 
 A dictation task is voiced in the background after it is saved or imported (`GeneratePracticeAudioJob`, queue `low`, a queue worker must run): the column **Аудио** shows `В очереди` (the job waits or is being retried),
 `Готово`, or `Ошибка` with the reason (for example, the `tts` service is not reachable; with no `TTS_SERVICE_URL` at all the job fails at once with `tts_service_not_configured` and is not retried).
 The column shows the version the learners get — the published one — and notes a draft behind it whose status differs. A dictation without ready audio is **not handed out** to learners: when too few are voiced, the hub of the lesson says
-«Записи для заданий ещё готовятся» and the mode stays closed. The button **Сгенерировать аудио заново** voices the published version and the draft behind it again (use it after a failure, once the `tts` service is back; a published version whose audio failed is voiced by it, too). Editing the text of a task makes a new version and a new voice-over; the
+«Записи для заданий ещё готовятся» and the mode stays closed. The button **Сгенерировать аудио заново** voices the version being edited again, even if its audio is ready (use it after a failure, once the `tts` service is back), and the published version behind it only if that one is not ready — a published version with ready audio is not touched: queueing it would take it from the learners (`В очереди` is not handed out) for the time of the job, and for good once the retries are spent if the `tts` service is still down. Editing the text of a task makes a new version and a new voice-over; the
 old file stays for the sessions that are playing the old version. The voice is the one of the word audio (`TTS_VOICE`, `TTS_SERVICE_URL`; bumping `TTS_AUDIO_VERSION` re-voices everything under new file names). The phrases are stored in the private directory `storage/app/practice-audio`, which the web server does **not** serve — learners hear
 them only through the API (`docs/DEVOPS_GUIDE.md` §10.2). The *word* part of a dictation uses the ordinary pre-generated word audio (`php artisan audio:pregenerate <course-slug>`, see *Word audio* above): a word without current audio is simply not taken.
 

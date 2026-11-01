@@ -409,11 +409,21 @@ describe('PracticeHubView — the unfinished session', () => {
     wrapper.unmount()
   })
 
-  // The server names an unfinished session by the slug of its course and the id of its lesson only. The card and the sheet say where it
-  // is when the screen can tell (the session this run has seen, or the very place of the hub), and say nothing where it cannot: no
-  // slug, no id and no guess is made up for a name.
+  // The server names the place of an unfinished session (`course_title`, `lesson`): the card and the sheet say where it is, whichever
+  // course or lesson it is of. The very place of the hub is named short, by the hub (the rest of the place is on the screen); any other
+  // place with its course first. Where the server has no names, the line is left out: no slug, no id and no guess is made up for a name.
   describe('where it is', () => {
-    const elsewhere = () => activeSession({ id: 77, mode: 'pairs', course: 'ielts-core', lesson_id: 12, progress: { done: 1, total: 3 } })
+    const elsewhere = (overrides = {}) =>
+      activeSession({
+        id: 77,
+        mode: 'pairs',
+        course: 'ielts-core',
+        course_title: 'IELTS Core',
+        lesson_id: 12,
+        lesson: { stage: 1, number: 2, title: 'Travel' },
+        progress: { done: 1, total: 3 },
+        ...overrides,
+      })
 
     it('the card names the place of the hub when the session is its own: the module, the lesson and its name', async () => {
       const { wrapper } = await render({}, withActive())
@@ -424,27 +434,37 @@ describe('PracticeHubView — the unfinished session', () => {
     })
 
     it('the card names the course when the session is of the whole course of the hub', async () => {
-      const { wrapper } = await render({}, withActive({ lesson_id: null }))
+      const { wrapper } = await render({}, withActive({ lesson_id: null, lesson: null }))
 
       expect(wrapper.get('[data-testid=continue-place]').text()).toBe('Английский A1')
       wrapper.unmount()
     })
 
-    it('the card names a session of another course or lesson that this run has seen (the learner has just left it)', async () => {
-      usePracticeStore().session = session({
-        id: 77,
-        course: { slug: 'ielts-core', title: 'IELTS Core' },
-        lesson: { id: 12, stage: 1, number: 2, title: 'Travel' },
-      })
+    it('the card names a session of another course by what the server says: the course, the module, the lesson and its name', async () => {
       const { wrapper } = await render({}, hub({ active_session: elsewhere() }))
 
-      expect(wrapper.get('[data-testid=continue-place]').text()).toBe('Модуль 1 · Урок 2 · Travel')
-      expect(wrapper.get('[data-testid=continue-card]').attributes('aria-label')).toContain('Модуль 1 · Урок 2 · Travel')
+      expect(wrapper.get('[data-testid=continue-place]').text()).toBe('IELTS Core · Модуль 1 · Урок 2 · Travel')
+      expect(wrapper.get('[data-testid=continue-card]').attributes('aria-label')).toBe('Продолжить: Найди пары, выполнено 1 из 3. IELTS Core · Модуль 1 · Урок 2 · Travel')
       wrapper.unmount()
     })
 
-    it('says nothing of a session of another course that it knows no name of, and shows no slug and no id', async () => {
-      const { wrapper } = await render({}, hub({ active_session: elsewhere() }))
+    it('the card names a session of another lesson of the same course with the course too', async () => {
+      const { wrapper } = await render({}, withActive({ lesson_id: 99, lesson: { stage: 3, number: 1, title: 'Семья' } }))
+
+      expect(wrapper.get('[data-testid=continue-place]').text()).toBe('Английский A1 · Модуль 3 · Урок 1 · Семья')
+      expect(card(wrapper, 'pairs').attributes('data-state')).toBe('available') // not "Continue" on this lesson’s card
+      wrapper.unmount()
+    })
+
+    it('the card names the course alone for a whole-course session of another course', async () => {
+      const { wrapper } = await render({}, hub({ active_session: elsewhere({ lesson_id: null, lesson: null }) }))
+
+      expect(wrapper.get('[data-testid=continue-place]').text()).toBe('IELTS Core')
+      wrapper.unmount()
+    })
+
+    it('says nothing of a session that the server has no names for, and shows no slug and no id', async () => {
+      const { wrapper } = await render({}, hub({ active_session: elsewhere({ course_title: '', lesson: null }) }))
 
       expect(wrapper.find('[data-testid=continue-place]').exists()).toBe(false)
       expect(wrapper.get('[data-testid=continue-card]').text()).not.toMatch(/ielts-core|12/)
@@ -452,15 +472,15 @@ describe('PracticeHubView — the unfinished session', () => {
       wrapper.unmount()
     })
 
-    it('does not take another session of the store for this one', async () => {
+    it('does not take the session on screen for the unfinished one: the names are the server’s', async () => {
       usePracticeStore().session = session({ id: 5, course: { slug: 'ielts-core', title: 'IELTS Core' }, lesson: { id: 12, stage: 1, number: 2, title: 'Travel' } })
-      const { wrapper } = await render({}, hub({ active_session: elsewhere() })) // the unfinished one is 77, not 5
+      const { wrapper } = await render({}, hub({ active_session: elsewhere({ course_title: '', lesson: null }) })) // the unfinished one is 77, not 5
 
       expect(wrapper.find('[data-testid=continue-place]').exists()).toBe(false)
       wrapper.unmount()
     })
 
-    it('the sheet of the unfinished practice names it too, when it can', async () => {
+    it('the sheet of the unfinished practice names it too: the place of the hub short, another place from the details of the 409', async () => {
       vi.mocked(api.practice.open).mockRejectedValue(
         apiError('conflict', 409, 'practice_session_active', { session_id: 77, mode: 'pairs', course: 'english-a1', lesson_id: 41, progress: { done: 1, total: 3 } }),
       )
@@ -474,7 +494,29 @@ describe('PracticeHubView — the unfinished session', () => {
       wrapper.unmount()
     })
 
-    it('and the sheet says nothing where it cannot', async () => {
+    it('the sheet names a session of another course by the names in the details of the 409: the course, the module, the lesson', async () => {
+      vi.mocked(api.practice.open).mockRejectedValue(
+        apiError('conflict', 409, 'practice_session_active', {
+          session_id: 90,
+          mode: 'dictation',
+          course: 'ielts-core',
+          course_title: 'IELTS Core',
+          lesson_id: 12,
+          lesson: { stage: 1, number: 2, title: 'Travel' },
+          progress: { done: 2, total: 5 },
+        }),
+      )
+      const { wrapper } = await render()
+
+      await card(wrapper, 'sentence').trigger('click')
+      await flushPromises()
+
+      expect(wrapper.get('[data-testid=active-place]').text()).toBe('IELTS Core · Модуль 1 · Урок 2 · Travel')
+      expect(wrapper.get('[data-testid=active-session-sheet]').text()).toContain('Слушай и пиши: выполнено 2 из 5')
+      wrapper.unmount()
+    })
+
+    it('and the sheet says nothing where the 409 has no names', async () => {
       vi.mocked(api.practice.open).mockRejectedValue(
         apiError('conflict', 409, 'practice_session_active', { session_id: 90, mode: 'dictation', course: 'ielts-core', lesson_id: 12, progress: { done: 2, total: 5 } }),
       )
@@ -493,6 +535,14 @@ describe('PracticeHubView — the unfinished session', () => {
       const { wrapper } = await render({}, withActive())
 
       expect(wrapper.get('[data-testid=continue-place]').text()).toBe('2-modul · 4-dars · Еда')
+      wrapper.unmount()
+    })
+
+    it('speaks Uzbek for another place too, with the course first', async () => {
+      setLocale('uz')
+      const { wrapper } = await render({}, hub({ active_session: elsewhere() }))
+
+      expect(wrapper.get('[data-testid=continue-place]').text()).toBe('IELTS Core · 1-modul · 2-dars · Travel')
       wrapper.unmount()
     })
   })
@@ -852,11 +902,23 @@ describe('PracticeHubView — short of material: no tasks, and tasks that wait f
 
     expect(card(wrapper, 'collocation').get('[data-testid=mode-reason]').text()).toBe('Для этой темы заданий пока нет.')
     expect(wrapper.find('[data-testid=mode-learn-collocation]').exists()).toBe(false)
+    expect(card(wrapper, 'sentence').get('[data-testid=mode-reason]').text()).toBe('Выучите слова уроков — задания откроются.') // the lessons, next to "To the lessons"
     expect(wrapper.get('[data-testid=mode-learn-sentence]').text()).toBe('К урокам')
     await wrapper.get('[data-testid=mode-learn-sentence]').trigger('click')
     await flushPromises()
     expect(router.currentRoute.value.name).toBe('course')
     wrapper.unmount()
+  })
+
+  it('a topic with a task or two says "few" with the numbers, not "none" - in a lesson and in a course', async () => {
+    const lesson = await render({}, hub({ modes: { sentence: { state: 'not_enough', available: 2, required: 3, reason: 'no_items' } } }))
+    expect(card(lesson.wrapper, 'sentence').get('[data-testid=mode-reason]').text()).toBe('Заданий пока мало: 2 из 3.')
+    expect(lesson.wrapper.find('[data-testid=mode-learn-sentence]').exists()).toBe(false)
+    lesson.wrapper.unmount()
+
+    const course = await render({ lessonId: null }, hub({ lesson: null, modes: { collocation: { state: 'not_enough', available: 1, required: 3, reason: 'no_items' } } }))
+    expect(card(course.wrapper, 'collocation').get('[data-testid=mode-reason]').text()).toBe('Заданий пока мало: 1 из 3.')
+    course.wrapper.unmount()
   })
 
   it('both cards side by side, in Uzbek', async () => {

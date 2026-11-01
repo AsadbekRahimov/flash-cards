@@ -16,7 +16,8 @@ import type { PracticeActiveSession, PracticeHubReason, PracticeMode, PracticeMo
  * - `busy` — the session is being opened (a spinner instead of the chevron, the card does not react).
  * - `learn` — what to offer when material is short: `lesson` ("Learn the lesson" - the hub is for one lesson), `course`
  *   ("To the lessons"), or nothing. Hidden when more learning would not help: the recordings are still being made, or there are no
- *   tasks for the topic at all (`no_items`). With `items_locked` the tasks are there and wait for the words of the lesson: it is shown.
+ *   tasks for the topic at all (`no_items`; with a few tasks already there it says "few: 2 of 3", and the button stays hidden too). With `items_locked`
+ *   the tasks are there and wait for the words of the lesson (of the lessons, on the hub of a course): it is shown.
  *
  * The whole card is one button of 90 px or so when there is something to play (`available`, `pro_required` and a
  * session to continue); a card that cannot be played now (`not_enough`, `disabled`) is a plain block, and its only
@@ -58,12 +59,18 @@ const REASONS: Record<PracticeHubReason, StringKey> = {
   no_audio_words: 'practice.hub.reason.no_audio_words',
 }
 
-const reason = computed((): string =>
-  t(props.info.reason ? REASONS[props.info.reason] : 'practice.hub.reason.unknown', {
-    available: props.info.available,
-    required: props.info.required,
-  }),
-)
+/**
+ * The sentence under a card that cannot be played. Two reasons say more than their key: `items_locked` on the hub of a COURSE (the button
+ * is "To the lessons") names the words of the lessons, not of one lesson; and `no_items` with some tasks already there (0 < available < required)
+ * says "few" with the numbers, not "none" - a topic with 2 tasks of 3 has tasks.
+ */
+const reason = computed((): string => {
+  const { reason: why, available, required } = props.info
+  const params = { available, required }
+  if (why === 'items_locked' && props.learn === 'course') return t('practice.hub.reason.items_locked_course', params)
+  if (why === 'no_items' && available > 0 && available < required) return t('practice.hub.reason.no_items_few', params)
+  return t(why ? REASONS[why] : 'practice.hub.reason.unknown', params)
+})
 
 /**
  * More learning helps when the words are missing, or when the tasks are there and wait for the words of the lesson

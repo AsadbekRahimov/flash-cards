@@ -1222,6 +1222,26 @@ it('voices again from the button both the published version, whose audio failed,
     expect($published->fresh()?->audio_status)->toBe(AudioStatus::Pending);
 });
 
+it('voices again from the button only the draft when the published version is ready: the learners keep their dictation', function (): void {
+    $w = pad_world();
+    $item = pad_publish(pad_make($w['course'], 'dictation', 'regen-ready', [$w['words']['tomorrow']]), $this->admin);
+    $published = PracticeItemVersion::query()->where('item_id', $item->id)->sole();
+    $published->forceFill(['audio_status' => AudioStatus::Ready, 'audio_key' => str_repeat('c', 40)])->save();
+    $draft = app(PracticeItemService::class)->saveVersion($item->fresh() ?? $item, $w['course'], [
+        'word_ids' => [$w['words']['tomorrow']->id], 'level' => 'A1',
+        'content' => ['text' => 'See you soon', 'accepted' => [], 'translation' => ['ru' => 'Скоро увидимся', 'uz' => "Tez ko'rishamiz"]],
+    ], $this->admin);
+    $draft->forceFill(['audio_status' => AudioStatus::Failed, 'audio_error' => 'tts_service_failed'])->save();
+    Queue::fake();
+
+    livewire(ListPracticeItems::class)->callTableAction('regenerateAudio', $item->fresh());
+
+    Queue::assertPushed(GeneratePracticeAudioJob::class, 1);
+    Queue::assertPushed(GeneratePracticeAudioJob::class, fn (GeneratePracticeAudioJob $job): bool => $job->versionId === $draft->id && $job->force);
+    expect($published->fresh()?->audio_status)->toBe(AudioStatus::Ready)
+        ->and($draft->fresh()?->audio_status)->toBe(AudioStatus::Pending);
+});
+
 // --- the import page ---------------------------------------------------------------------------------------------------------------------
 
 /** The sample of the page imported into the demo content (its words are the ones of the sample lesson). */

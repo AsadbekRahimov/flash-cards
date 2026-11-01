@@ -1529,6 +1529,25 @@ it('rolls back and re-applies the practice migrations (18.1, and the scope of th
     expect(array_column(Schema::getIndexes('practice_item_versions'), 'name'))->toContain('practice_item_versions_audio_pending_idx');
 });
 
+it('indexes practice_item_versions.lesson_id - the foreign key of the scope had no index of its own - and the rollback takes the index only (18.11b)', function (): void {
+    $onLesson = fn (): array => array_values(array_filter(
+        Schema::getIndexes('practice_item_versions'),
+        static fn (array $index): bool => $index['columns'] === ['lesson_id'],
+    ));
+
+    expect($onLesson())->toHaveCount(1)
+        ->and($onLesson()[0]['name'])->toBe('practice_item_versions_lesson_id_index')
+        ->and($onLesson()[0]['unique'])->toBeFalse();
+
+    $this->artisan('migrate:rollback', ['--step' => migrationStepsBackTo('2026_10_30_100011_add_lesson_index_to_practice_item_versions_table')])->assertSuccessful();
+    expect($onLesson())->toBe([])
+        ->and(Schema::hasColumn('practice_item_versions', 'lesson_id'))->toBeTrue()
+        ->and(array_column(Schema::getIndexes('practice_item_versions'), 'name'))->toContain('practice_item_versions_audio_pending_idx');
+
+    $this->artisan('migrate')->assertSuccessful();
+    expect($onLesson())->toHaveCount(1);
+});
+
 it('adds learners.practice_pilot_at as a nullable timestamp', function (): void {
     $learner = Learner::factory()->create();
     expect($learner->fresh()?->practice_pilot_at)->toBeNull();

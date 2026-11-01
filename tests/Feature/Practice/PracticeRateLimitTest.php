@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Testing\TestResponse;
 use Tests\Support\Practice\FakeEchoMode;
 use Tests\Support\Practice\PracticeKit;
 
@@ -138,4 +139,43 @@ it('gives the audio a bucket of its own: 60 clips a minute, and `twa-api` is not
     $this->withHeaders($headers)->getJson("/api/twa/practice/sessions/{$session['id']}")->assertOk();
     $this->withHeaders($headers)->getJson("/api/twa/practice/hub?course={$course->slug}")->assertOk();
     $this->withHeaders(PracticeKit::headers(Learner::factory()->create()))->get($session['current']['audio_url'])->assertNotFound();
+});
+
+// docs/04 A.16: the 429 of a limiter is Laravel's own, OUTSIDE the envelope of A.6 (the way A.17 says it of the battle). The TWA tells it by the
+// status (`api/client.ts`: 429 -> `rate_limited`), so there is no `error` key and no code to expect in it.
+it('answers the refusal of the limiters of the practice outside the envelope of A.6: 429, Retry-After and the message "Too Many Attempts.", no `error`', function (): void {
+    PracticeKit::fake(PracticeMode::Collocation);
+    [$course] = PracticeKit::course();
+    $learner = Learner::factory()->create();
+    $headers = PracticeKit::headers($learner);
+    $session = $this->withHeaders($headers)->postJson('/api/twa/practice/sessions', ['mode' => 'collocation', 'course' => $course->slug])->assertCreated()->json();
+    $answer = ['request_id' => (string) Str::uuid(), 'element_id' => $session['current']['id'], 'answer' => ['skip' => true]];
+
+    $refused = function (TestResponse $response): void {
+        $response->assertStatus(429)
+            ->assertHeader('Retry-After')
+            ->assertJsonPath('message', 'Too Many Attempts.')
+            ->assertJsonMissingPath('error');
+        expect((int) $response->headers->get('Retry-After'))->toBeGreaterThan(0);
+    };
+
+    // The common bucket (60 a minute) in front of the hub, the session and the answer.
+    PracticeKit::exhaust('twa-api', $learner, 60);
+    $refused($this->withHeaders($headers)->getJson("/api/twa/practice/hub?course={$course->slug}"));
+    PracticeKit::resetLimiters($learner);
+
+    // The ones of the practice itself: opening, answering, the audio (outside `twa-api`).
+    PracticeKit::exhaust('twa-practice-open', $learner, 10);
+    $refused($this->withHeaders($headers)->postJson('/api/twa/practice/sessions', ['mode' => 'collocation', 'course' => $course->slug]));
+    PracticeKit::resetLimiters($learner);
+
+    PracticeKit::exhaust('twa-practice-answer', $learner, 90);
+    $refused($this->withHeaders($headers)->postJson("/api/twa/practice/sessions/{$session['id']}/answer", $answer));
+    PracticeKit::resetLimiters($learner);
+
+    // The audio asks for `audio/mpeg`, not for JSON (the TWA reads the status of its answer only): a page, not a body to read - the status and the wait are the same.
+    PracticeKit::exhaust('twa-practice-audio', $learner, 60);
+    $clip = $this->withHeaders([...$headers, 'Accept' => 'audio/mpeg, application/json;q=0.5'])->get("/api/twa/practice/sessions/{$session['id']}/audio/eAAAAAAAAAA");
+    $clip->assertStatus(429)->assertHeader('Retry-After');
+    expect((int) $clip->headers->get('Retry-After'))->toBeGreaterThan(0);
 });
