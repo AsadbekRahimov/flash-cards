@@ -370,17 +370,17 @@ jobs:
   security:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
-        with: { php-version: '8.2' }
+        with: { php-version: '8.5' }
       - run: composer install
       - run: composer audit
-      - uses: actions/setup-node@v4
-        with: { node-version: '20' }
+      - uses: actions/setup-node@v7
+        with: { node-version: '26' }
       - run: cd resources/twa && npm ci && npm audit --audit-level=high
-      - uses: github/codeql-action/init@v3
+      - uses: github/codeql-action/init@v4
         with: { languages: 'javascript, php' }
-      - uses: github/codeql-action/analyze@v3
+      - uses: github/codeql-action/analyze@v4
 ```
 
 Дополнительно: `psalm` или `phpstan level 8` + `larastan` как статический анализ (ловит, например, Mass Assignment).

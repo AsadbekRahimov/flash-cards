@@ -10,8 +10,8 @@
 
 | Файл                          | Назначение                                                                  |
 |-------------------------------|-----------------------------------------------------------------------------|
-| `Dockerfile`                  | Прод-образ: php-fpm 8.3, минимум расширений.                                |
-| `Dockerfile.dev`              | **Дев-образ**: + Xdebug, Node.js 20, npm, vim, less, увеличенные лимиты.    |
+| `Dockerfile`                  | Прод-образ: php-fpm 8.5, минимум расширений.                                |
+| `Dockerfile.dev`              | **Дев-образ**: + Xdebug, Node.js (LTS из репозитория Alpine), npm, vim, less, увеличенные лимиты. |
 | `docker-compose.yml`          | Базовый стек: `app`, `nginx`, `postgres`, `redis`.                          |
 | `docker-compose.override.yml` | Дев-настройки: подмена на `Dockerfile.dev`, сервисы `vite` и `ngrok`.        |
 | `docker-compose.prod.yml`     | Прод-стек, **override НЕ применяется** при явном `-f docker-compose.prod.yml`. |

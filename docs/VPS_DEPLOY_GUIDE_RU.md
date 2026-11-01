@@ -1,7 +1,7 @@
 # LexiFlow Pro — запуск на VPS с нуля (без Docker)
 
 Пошаговое руководство: от чистого сервера до работающего бота, мини-приложения (TWA) и админки.
-Ориентир — **Ubuntu 24.04 LTS**; на Debian 12 команды те же, кроме версий пакетов (см. примечания).
+Ориентир — **Ubuntu 24.04 LTS**; на Debian 12 команды те же, кроме подключения репозитория PHP (см. §2).
 
 > Вариант с Docker (`docker-compose.prod.yml` + `deploy.sh`) описан в `README.md` и `docs/DEVOPS_GUIDE.md` §0.
 > Здесь — «голый» сервер: всё ставится пакетами. Подробности по отдельным темам (оплата, мониторинг,
@@ -23,11 +23,11 @@
 
 | Компонент | Версия | Примечание |
 |---|---|---|
-| PHP + PHP-FPM | **8.3** | `composer.json` требует `^8.3` |
-| PostgreSQL | **16** (подходит 14+) | основная БД |
-| Redis | 7 | кэш, сессии, очереди, блокировки |
+| PHP + PHP-FPM | **8.5** | версия CI и Docker-образов; в Ubuntu 24.04 штатно 8.3, поэтому ставим из `ppa:ondrej/php` (§2) |
+| PostgreSQL | **18** | основная БД; из официального репозитория PGDG (§4), штатный в Ubuntu 24.04 — 16 |
+| Redis | **8** | кэш, сессии, очереди, блокировки; из репозитория `packages.redis.io` (§5) |
 | Nginx | из репозитория Ubuntu | веб-сервер |
-| Node.js | **20 LTS** | только для сборки фронтенда (vite 5) |
+| Node.js | **26 LTS** | только для сборки фронтенда (Vite) |
 | Composer | 2 | зависимости PHP |
 | Supervisor | из репозитория | воркеры очереди |
 | Certbot | из репозитория | сертификат Let's Encrypt |
@@ -114,18 +114,37 @@ echo '/swapfile none swap sw 0 0' >> /etc/fstab
 
 ---
 
-## 2. Установка PHP 8.3 и расширений
+## 2. Установка PHP 8.5 и расширений
 
-В Ubuntu 24.04 PHP 8.3 есть в штатном репозитории:
+В штатном репозитории Ubuntu 24.04 только PHP 8.3 (в Debian 12 — 8.2), а проекту нужен 8.5. Подключите репозиторий
+Ondřej Surý: в нём собраны актуальные версии PHP для Ubuntu (`ppa:ondrej/php`) и Debian (`packages.sury.org/php`).
+
+**Ubuntu** (22.04 / 24.04):
 
 ```bash
-sudo apt -y install php8.3-fpm php8.3-cli php8.3-common \
-    php8.3-pgsql php8.3-redis php8.3-bcmath php8.3-intl php8.3-mbstring \
-    php8.3-xml php8.3-zip php8.3-gd php8.3-curl php8.3-opcache
+sudo add-apt-repository -y ppa:ondrej/php
+sudo apt update
 ```
 
-> **Debian 12 / Ubuntu 22.04:** там PHP 8.3 нет в штатных пакетах. Подключите репозиторий Ondřej Surý
-> (`sudo add-apt-repository ppa:ondrej/php` на Ubuntu, `packages.sury.org/php` на Debian) и ставьте те же пакеты.
+**Debian** (12 и новее):
+
+```bash
+sudo curl -sSLo /tmp/debsuryorg-archive-keyring.deb https://packages.sury.org/debsuryorg-archive-keyring.deb
+sudo dpkg -i /tmp/debsuryorg-archive-keyring.deb
+echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" \
+    | sudo tee /etc/apt/sources.list.d/php.list
+sudo apt update
+```
+
+Дальше одинаково для обоих дистрибутивов:
+
+```bash
+sudo apt -y install php8.5-fpm php8.5-cli php8.5-common \
+    php8.5-pgsql php8.5-redis php8.5-bcmath php8.5-intl php8.5-mbstring \
+    php8.5-xml php8.5-zip php8.5-gd php8.5-curl
+```
+
+> OPcache в PHP 8.5 встроен в ядро: отдельный пакет (`php8.5-opcache`) ставить и подключать не нужно.
 
 Зачем расширения:
 - `pgsql` — PostgreSQL;
@@ -133,13 +152,13 @@ sudo apt -y install php8.3-fpm php8.3-cli php8.3-common \
 - `bcmath`, `intl`, `mbstring` — деньги, локали ru/uz, строки;
 - `gd` (с FreeType) — карточки достижений;
 - `zip`, `xml`, `curl` — composer, импорт, HTTP-клиенты;
-- `pcntl` встроен в `php8.3-cli` — нужен воркерам очереди.
+- `pcntl` встроен в `php8.5-cli` — нужен воркерам очереди.
 
 Проверка:
 
 ```bash
-php -v                                         # PHP 8.3.x
-php -m | grep -E 'pgsql|redis|bcmath|intl|mbstring|gd|zip|pcntl'
+php -v                                         # PHP 8.5.x
+php -m | grep -E 'pgsql|redis|bcmath|intl|mbstring|gd|zip|pcntl|OPcache'
 php -r 'var_dump(gd_info()["FreeType Support"]);'   # bool(true) — без этого не рисуются карточки достижений
 ```
 
@@ -148,7 +167,7 @@ php -r 'var_dump(gd_info()["FreeType Support"]);'   # bool(true) — без эт
 Создайте файл, который подхватят и FPM, и CLI:
 
 ```bash
-sudo nano /etc/php/8.3/mods-available/lexiflow.ini
+sudo nano /etc/php/8.5/mods-available/lexiflow.ini
 ```
 
 ```ini
@@ -174,12 +193,12 @@ sudo phpenmod lexiflow
 
 > Первые две строки повторяют `docker/php/zz-lexiflow.ini` из репозитория. Остальное — разумные значения для старта.
 > `opcache.validate_timestamps = 0` даёт прирост скорости, но после обновления кода обязательно
-> `sudo systemctl reload php8.3-fpm`, иначе PHP продолжит выполнять старый код.
+> `sudo systemctl reload php8.5-fpm`, иначе PHP продолжит выполнять старый код.
 
 ### 2.2 Пул PHP-FPM
 
 ```bash
-sudo nano /etc/php/8.3/fpm/pool.d/www.conf
+sudo nano /etc/php/8.5/fpm/pool.d/www.conf
 ```
 
 Проверьте/поменяйте:
@@ -187,7 +206,7 @@ sudo nano /etc/php/8.3/fpm/pool.d/www.conf
 ```ini
 user = www-data
 group = www-data
-listen = /run/php/php8.3-fpm.sock
+listen = /run/php/php8.5-fpm.sock
 listen.owner = www-data
 listen.group = www-data
 
@@ -200,8 +219,8 @@ pm.max_requests = 500
 ```
 
 ```bash
-sudo systemctl restart php8.3-fpm
-sudo systemctl enable php8.3-fpm
+sudo systemctl restart php8.5-fpm
+sudo systemctl enable php8.5-fpm
 ```
 
 ---
@@ -218,12 +237,25 @@ composer --version            # Composer version 2.x
 
 ---
 
-## 4. Установка PostgreSQL
+## 4. Установка PostgreSQL 18
+
+Штатный PostgreSQL в Ubuntu 24.04 — 16-й, поэтому 18-й ставим из официального репозитория PGDG (`apt.postgresql.org`);
+шаги одинаковы для Ubuntu и Debian. Подключение репозитория:
 
 ```bash
-sudo apt -y install postgresql postgresql-contrib     # Ubuntu 24.04 → PostgreSQL 16
+sudo install -d /usr/share/postgresql-common/pgdg
+sudo curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc
+echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
+    | sudo tee /etc/apt/sources.list.d/pgdg.list
+sudo apt update
+```
+
+Установка:
+
+```bash
+sudo apt -y install postgresql-18       # контрибные модули входят в пакет; клиент (psql, pg_dump) 18-й версии ставится вместе с ним
 sudo systemctl enable --now postgresql
-psql --version
+psql --version                          # psql (PostgreSQL) 18.x
 ```
 
 ### 4.1 Пользователь и база
@@ -250,14 +282,14 @@ psql -h 127.0.0.1 -U lexiflow -d lexiflow -c 'select version();'
 По умолчанию PostgreSQL в Ubuntu слушает только `localhost` — так и оставляем. Убедитесь:
 
 ```bash
-sudo grep -E "^#?listen_addresses" /etc/postgresql/16/main/postgresql.conf   # 'localhost'
+sudo grep -E "^#?listen_addresses" /etc/postgresql/18/main/postgresql.conf   # 'localhost'
 sudo ss -ltnp | grep 5432                                                     # 127.0.0.1:5432
 ```
 
 ### 4.3 Базовый тюнинг (для 4 ГБ RAM)
 
 ```bash
-sudo nano /etc/postgresql/16/main/conf.d/lexiflow.conf
+sudo nano /etc/postgresql/18/main/conf.d/lexiflow.conf
 ```
 
 ```ini
@@ -274,10 +306,19 @@ sudo systemctl restart postgresql
 
 ---
 
-## 5. Установка Redis
+## 5. Установка Redis 8
+
+В штатных репозиториях Ubuntu 24.04 и Debian 12 лежит Redis 7.0 (приложению он тоже подходит), но Docker-стек проекта
+работает на Redis 8, поэтому ставим пакеты из официального репозитория Redis:
 
 ```bash
+curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+sudo chmod 644 /usr/share/keyrings/redis-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" \
+    | sudo tee /etc/apt/sources.list.d/redis.list
+sudo apt update
 sudo apt -y install redis-server
+redis-server --version                  # Redis server v=8.x
 sudo nano /etc/redis/redis.conf
 ```
 
@@ -310,12 +351,12 @@ sudo apt -y install nginx supervisor certbot python3-certbot-nginx
 sudo systemctl enable --now nginx supervisor
 ```
 
-Node.js 20 (нужен только для сборки фронтенда):
+Node.js 26 LTS из репозитория NodeSource (нужен только для сборки фронтенда; та же версия, что в CI и Docker-образах):
 
 ```bash
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+curl -fsSL https://deb.nodesource.com/setup_26.x | sudo -E bash -
 sudo apt -y install nodejs
-node -v      # v20.x
+node -v      # v26.x
 npm -v
 ```
 
@@ -695,7 +736,7 @@ server {
     # Админка, 2FA и Livewire — напрямую в PHP-FPM и БЕЗ сжатия (защита от BREACH)
     location ~ ^/(?:admin(?:/|$)|org(?:/|$)|2fa(?:/|$)|livewire-) {
         gzip off;
-        fastcgi_pass unix:/run/php/php8.3-fpm.sock;
+        fastcgi_pass unix:/run/php/php8.5-fpm.sock;
         include fastcgi_params;
         fastcgi_param SCRIPT_FILENAME $realpath_root/index.php;
         fastcgi_param SCRIPT_NAME /index.php;
@@ -707,7 +748,7 @@ server {
     }
 
     location ~ \.php$ {
-        fastcgi_pass unix:/run/php/php8.3-fpm.sock;
+        fastcgi_pass unix:/run/php/php8.5-fpm.sock;
         fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
         include fastcgi_params;
         fastcgi_read_timeout 60s;
@@ -719,7 +760,7 @@ server {
 }
 ```
 
-> Сокет — `php8.3-fpm.sock` (проверьте `ls /run/php/`). Кабинет учебного центра `/org` — такая же Filament-панель
+> Сокет — `php8.5-fpm.sock` (проверьте `ls /run/php/`). Кабинет учебного центра `/org` — такая же Filament-панель
 > с CSRF-токенами, как `/admin`, поэтому тоже без сжатия.
 
 ```bash
@@ -926,7 +967,7 @@ php artisan route:cache
 php artisan view:cache
 php artisan event:cache
 
-sudo systemctl reload php8.3-fpm                 # сбросить OPcache (validate_timestamps=0)
+sudo systemctl reload php8.5-fpm                 # сбросить OPcache (validate_timestamps=0)
 sudo supervisorctl restart lexiflow-worker:*     # воркеры держат старый код в памяти
 php artisan telegram:set-webhook                 # безопасно повторять
 # Меню команд и кнопка «LexiFlow»; безопасно повторять. Сбой не должен оставить сайт в режиме обслуживания (set -e).
@@ -942,7 +983,7 @@ chmod +x update.sh
 ```
 
 > Чтобы `deploy` мог перезапускать сервисы без пароля, добавьте через `sudo visudo -f /etc/sudoers.d/deploy`:
-> `deploy ALL=(root) NOPASSWD: /usr/bin/systemctl reload php8.3-fpm, /usr/bin/supervisorctl restart lexiflow-worker\:*`
+> `deploy ALL=(root) NOPASSWD: /usr/bin/systemctl reload php8.5-fpm, /usr/bin/supervisorctl restart lexiflow-worker\:*`
 
 **`php artisan courses:recount-words` — счётчики слов курсов.** `courses.words_count` — число *активных* слов курса и `total` прогресса
 в `GET /courses` (каталог больше не считает слова всех курсов при каждом открытии). Все пути, меняющие слова (импорт, колоды учеников,
@@ -991,7 +1032,7 @@ git checkout --detach <prev_sha>     # SHA предыдущего успешно
 В проекте подключён `spatie/laravel-backup`; планировщик сам запускает `backup:clean` (01:00), `backup:run` (01:30)
 и `backup:monitor` (02:00). Архив шифруется паролем `BACKUP_ARCHIVE_PASSWORD`.
 
-- Для `pg_dump` нужен клиент PostgreSQL — он уже стоит вместе с сервером.
+- Для `pg_dump` нужен клиент PostgreSQL — он уже стоит вместе с сервером (`postgresql-client-18`; `pg_dump --version` должен показать 18.x — клиент не должен быть старше сервера).
 - `BACKUP_DISKS=local` хранит архивы **на этом же сервере** (`storage/app/...`) — этого недостаточно.
   Настройте внешнее хранилище (S3-совместимое: Backblaze, Wasabi, Selectel и т.п.) и добавьте его в `BACKUP_DISKS`,
   или копируйте архивы на другой сервер (`rsync` по cron).
@@ -1031,15 +1072,15 @@ sudo -u www-data php artisan backup:list
 
 | Симптом | Причина / решение |
 |---|---|
-| `502 Bad Gateway` | php-fpm не запущен или неверный сокет: `systemctl status php8.3-fpm`, `ls /run/php/` и путь в nginx |
+| `502 Bad Gateway` | php-fpm не запущен или неверный сокет: `systemctl status php8.5-fpm`, `ls /run/php/` и путь в nginx |
 | `500` сразу после деплоя | права на `storage/`/`bootstrap/cache` (§7.1) или устаревший кэш: `php artisan optimize:clear && php artisan config:cache` |
 | Бот молчит | вебхук: `getWebhookInfo` → `last_error_message`; воркеры: `supervisorctl status`; ошибки в `laravel-*.log` |
 | Бот отвечает с задержкой минуты | воркеров мало или они упали; проверьте `worker.log`, увеличьте `numprocs` |
 | Мини-приложение — белый экран | не собран `public/twa` (§9) или `TWA_BASE_URL`/домен в BotFather не совпадают с `APP_URL` |
 | Админка грузится без стилей / 404 на `livewire-…js` | `php artisan livewire:publish --assets`, `route:cache`, проверьте блок `location ~ ^/(?:admin…|livewire-)` в nginx |
 | Правка `.env` «не действует» | `php artisan config:cache` + `supervisorctl restart lexiflow-worker:*` |
-| Новый код «не действует» | `opcache.validate_timestamps=0` → `systemctl reload php8.3-fpm` |
-| Не рисуются карточки достижений | нет FreeType в GD: `php -r 'var_dump(gd_info()["FreeType Support"]);'` → переустановить `php8.3-gd` |
+| Новый код «не действует» | `opcache.validate_timestamps=0` → `systemctl reload php8.5-fpm` |
+| Не рисуются карточки достижений | нет FreeType в GD: `php -r 'var_dump(gd_info()["FreeType Support"]);'` → переустановить `php8.5-gd` |
 | `/health/ready` не готов | cron не настроен (§14) или нет воркеров (§13); Redis/PostgreSQL недоступны |
 | Ошибка «MISCONF Redis…» / задания пропадают | закончилась память Redis: увеличьте `maxmemory`, политика должна быть `noeviction` |
 
@@ -1048,9 +1089,9 @@ sudo -u www-data php artisan backup:list
 ## Краткий чек-лист
 
 - [ ] Сервер обновлён, UTC, пользователь `deploy`, SSH по ключу, ufw (22/80/443)
-- [ ] PHP 8.3 + расширения (`pgsql redis bcmath intl mbstring gd zip xml curl opcache`), FreeType = true
-- [ ] PostgreSQL: пользователь и база `lexiflow`, слушает только localhost
-- [ ] Redis: `bind 127.0.0.1`, `maxmemory-policy noeviction`
+- [ ] PHP 8.5 (`ppa:ondrej/php` / `packages.sury.org`) + расширения (`pgsql redis bcmath intl mbstring gd zip xml curl`; OPcache встроен), FreeType = true
+- [ ] PostgreSQL 18 (репозиторий PGDG): пользователь и база `lexiflow`, слушает только localhost
+- [ ] Redis 8 (`packages.redis.io`): `bind 127.0.0.1`, `maxmemory-policy noeviction`
 - [ ] Код в `/var/www/lexiflow`, права на `storage/` и `bootstrap/cache/`
 - [ ] `composer install --no-dev`, собраны `public/build` и `public/twa`
 - [ ] `.env` заполнен (production, debug=false, секреты, Telegram, TWA), `chmod 640`
