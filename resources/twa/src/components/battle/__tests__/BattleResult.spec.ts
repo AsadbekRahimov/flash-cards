@@ -10,7 +10,7 @@ afterEach(() => {
   setLocale('ru')
 })
 
-function render(battle: BattleData = finishedBattle(), props: { rematch?: BattleRematch | null; busy?: BattleAction | null } = {}) {
+function render(battle: BattleData = finishedBattle(), props: { rematch?: BattleRematch | null; busy?: BattleAction | null; busyBattleId?: number | null } = {}) {
   return mount(BattleResult, {
     props: {
       battle,
@@ -317,5 +317,45 @@ describe('BattleResult — what to do next', () => {
     expect(w.get('h1').text()).toBe("Mag'lubiyat")
     expect(w.get('[data-testid=rematch-btn]').text()).toBe('Revansh')
     expect(w.get('[data-testid=friends-btn]').text()).toBe("Do'stlarga")
+  })
+})
+
+describe('BattleResult — another battle of the learner’s is in the way of the rematch (re-review М-1)', () => {
+  it('shows the line of the refusal and the way to that battle, and the way emits open-busy', async () => {
+    const w = render(finishedBattle('lost'), { busyBattleId: 9 })
+
+    expect(w.get('[data-testid=result-busy]').text()).toContain('У вас уже есть активный баттл')
+    expect(w.get('[data-testid=open-busy]').text()).toBe('Открыть текущий баттл')
+    await w.get('[data-testid=open-busy]').trigger('click')
+    expect(w.emitted('open-busy')).toHaveLength(1)
+  })
+
+  it('has none while no battle is in the way (null or not given)', () => {
+    expect(render(finishedBattle('lost')).find('[data-testid=result-busy]').exists()).toBe(false)
+    expect(render(finishedBattle('lost'), { busyBattleId: null }).find('[data-testid=result-busy]').exists()).toBe(false)
+  })
+
+  it('is a quiet note with a small button, not a second primary one; the screen keeps its one primary button', () => {
+    const w = render(finishedBattle('lost'), { busyBattleId: 9 })
+
+    expect(w.get('[data-testid=open-busy]').classes()).toEqual(expect.arrayContaining(['btn-tinted', 'btn-sm']))
+    expect(w.get('[data-testid=result-busy]').find('svg').exists()).toBe(true) // a symbol, not a colour alone
+    expect(primaries(w)).toHaveLength(1)
+  })
+
+  it('is above the rounds and the rematch: the button that caused it is at the bottom, so the reason must be in sight', () => {
+    const w = render(finishedBattle('lost'), { busyBattleId: 9 })
+    const busy = w.get('[data-testid=result-busy]').element
+
+    expect(busy.compareDocumentPosition(w.get('[data-testid=result-rounds]').element) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(busy.compareDocumentPosition(w.get('[data-testid=actions]').element) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('a battle that fell through has it too, and the way to it is in Uzbek as well', () => {
+    setLocale('uz')
+    const w = render(closedBattle('room_expired'), { busyBattleId: 9 })
+
+    expect(w.get('[data-testid=result-busy]').text()).toContain('Sizda faol bellashuv bor')
+    expect(w.get('[data-testid=open-busy]').text()).toBe('Joriy bellashuvni ochish')
   })
 })

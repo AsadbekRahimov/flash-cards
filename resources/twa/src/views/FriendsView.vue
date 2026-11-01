@@ -84,12 +84,18 @@ const battleOn = computed(() => billing.practiceAccess.available && billing.prac
 const invitations = computed(() => (battleOn.value ? battles.incoming : []))
 const activeBattle = computed(() => (battleOn.value ? battles.active : null))
 
+/** Counts the taps on "Retry": each one asks for the list of battles again (see the watch below). */
+const retries = ref(0)
+
 // The battle that is on and the invitations are asked for as soon as the learner is known to play battles. That is when `/me` has come,
 // and it may be on its way for another screen already (then `billing.load()` of this one returns at once and `battleOn` turns true
 // later, with nobody to ask): the list follows the switch, not the end of this screen's own reading.
+// "Retry" asks again as well: when `/me` was known before this screen opened, `battleOn` does not turn and the switch alone would stay
+// silent, so the screen would come back with the friends but without the invitations and the battle that is on. One watch for both
+// keeps it a single request per cause: a retry whose `/me` comes in the middle of it asks once, not twice.
 watch(
-  battleOn,
-  (on) => {
+  [battleOn, retries],
+  ([on]) => {
     if (on) void battles.loadList()
   },
   { immediate: true },
@@ -239,6 +245,11 @@ async function load(): Promise<void> {
   await Promise.all([store.load(), billing.load()])
 }
 
+function retry(): void {
+  retries.value += 1
+  void load()
+}
+
 onMounted(() => {
   void load()
 })
@@ -251,7 +262,7 @@ onMounted(() => {
 
     <LoadingState v-if="!friends && !message" />
 
-    <ErrorState v-else-if="!friends" :message="message" @retry="load" />
+    <ErrorState v-else-if="!friends" :message="message" @retry="retry" />
 
     <div v-else class="space-y-3">
       <!-- The battle that is on: one tap back into it. -->

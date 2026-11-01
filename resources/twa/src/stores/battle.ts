@@ -3,6 +3,7 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { newRequestId } from '@/composables/requestId'
 import { useServerClock, type ServerClock } from '@/composables/useServerClock'
+import { t } from '@/i18n'
 import { errorMessage } from '@/i18n/errors'
 import type {
   Battle,
@@ -118,7 +119,10 @@ interface BattleState {
   acting: BattleAction | null
   /** The refusal of an action that leaves the learner on the screen (localized): shown as a toast. */
   actionError: string
-  /** The learner's other battle that blocked an accept or a rematch (409 `battle_busy`). */
+  /**
+   * The learner's other battle that blocked an accept or a rematch (409 `battle_busy`): the room and the result screen show the way to it.
+   * The next action forgets it - a link to a refusal that is over would mislead.
+   */
   busyBattleId: number | null
   /** The action was refused because practice is behind Pro (403 `practice_pro_required`): the paywall opens instead of a message. */
   paywall: boolean
@@ -126,7 +130,7 @@ interface BattleState {
   roundReq: number
   /** Grows with every new round element: the screen keys the mode component by it, so a new round has no pick left over. */
   elementSeq: number
-  /** Elements whose clip the learner reported as broken (once each). */
+  /** Elements whose clip was reported as broken and the server answered (once each); a report that got no reply is not here. */
   audioReported: string[]
   /** The rematch offered after the battle that is over, and who offered it (`by_me`); null if none. (`rematch()` is the action.) */
   rematchOffer: BattleRematch | null
@@ -166,6 +170,17 @@ function isFinal(err: unknown): boolean {
 /** Practice (a battle with it) is behind Pro for this learner (docs/16 §3.2): the answer is the paywall, not a message. */
 export function isProRequired(err: unknown): boolean {
   return err instanceof ApiClientError && err.code === 'practice_pro_required'
+}
+
+/**
+ * The words for a refused action. One refusal reads differently to whoever ACCEPTS: an invitation to a format that has been switched off
+ * (409 `practice_mode_disabled`) cannot be taken, and "Choose another" (the text of the setup) sends them looking for a choice they do not
+ * have - all they have is "Accept" and "Decline". The other codes read the same to both sides (`battle_friend_no_access`: "Your friend has
+ * no access to practice yet" is true of the friend who invited, too).
+ */
+function refusalText(err: unknown, accepting: boolean): string {
+  if (accepting && err instanceof ApiClientError && err.code === 'practice_mode_disabled') return t('battle.invite.mode_disabled')
+  return errorMessage(err, 'battle')
 }
 
 /**
@@ -315,14 +330,14 @@ export const useBattleStore = defineStore('battle', {
      * now, and the screen leads into its room. A refusal is in `actionError` (or, behind Pro, in `paywall`); the list is read again.
      */
     async acceptInvitation(id: number): Promise<boolean> {
-      return this.answerInvitation(id, (battleId) => api.battles.accept(battleId))
+      return this.answerInvitation(id, (battleId) => api.battles.accept(battleId), true)
     },
 
     async declineInvitation(id: number): Promise<boolean> {
-      return this.answerInvitation(id, (battleId) => api.battles.decline(battleId))
+      return this.answerInvitation(id, (battleId) => api.battles.decline(battleId), false)
     },
 
-    async answerInvitation(id: number, call: (id: number) => Promise<Battle>): Promise<boolean> {
+    async answerInvitation(id: number, call: (id: number) => Promise<Battle>, accepting: boolean): Promise<boolean> {
       if (this.invitationBusy.includes(id)) return false
       this.invitationBusy.push(id)
       this.actionError = ''
@@ -332,7 +347,7 @@ export const useBattleStore = defineStore('battle', {
         return true
       } catch (err) {
         if (isProRequired(err)) this.paywall = true
-        else this.actionError = errorMessage(err, 'battle')
+        else this.actionError = refusalText(err, accepting)
         // Another side acted first (the invitation ran out, was withdrawn): show what is true now.
         void this.loadList()
         return false
@@ -649,6 +664,7 @@ export const useBattleStore = defineStore('battle', {
       const generation = this.generation
       this.acting = action
       this.actionError = ''
+      this.busyBattleId = null
       try {
         const battle = await call(id)
         if (generation !== this.generation) return false
@@ -657,7 +673,7 @@ export const useBattleStore = defineStore('battle', {
         return true
       } catch (err) {
         if (generation !== this.generation) return false
-        await this.refuse(err)
+        await this.refuse(err, action === 'accept')
         return false
       } finally {
         if (generation === this.generation) this.acting = null
@@ -668,12 +684,12 @@ export const useBattleStore = defineStore('battle', {
      * The action was not done. Behind Pro the answer is the paywall, not a message. A conflict means the state has moved: it is read
      * again, and the screen follows it.
      */
-    async refuse(err: unknown): Promise<void> {
+    async refuse(err: unknown, accepting = false): Promise<void> {
       if (isProRequired(err)) {
         this.paywall = true
         return
       }
-      this.actionError = errorMessage(err, 'battle')
+      this.actionError = refusalText(err, accepting)
       if (!(err instanceof ApiClientError)) return
       if (err.code === 'battle_busy') this.busyBattleId = typeof err.details?.battle_id === 'number' ? err.details.battle_id : null
       if (err.code === 'battle_closed' || err.code === 'battle_wrong_state') {
@@ -781,6 +797,11 @@ export const useBattleStore = defineStore('battle', {
      * once more (with the same `request_id`: the server counts it once). Returns what the server found - `true`: the file is
      * missing and the match is voided (the battle it answers with is taken at once), `false`: the file is there, the fault is local -
      * or `null`: nothing was found out (a second report of an element, no reply, a refusal).
+     *
+     * "Once per element" counts the reports the server ANSWERED (a verdict, or a refusal that a repeat would meet again). A report that
+     * got no reply twice - the connection, a 5xx, a 429 - was not made: the element is let go, and the next failure of its clip (after the
+     * learner's "Retry") is reported again. Otherwise a clip the server never heard about would stay unreported for good, and the room
+     * would run out (`room_expired`) instead of being voided for the missing recording.
      */
     async audioFailed(elementId: string): Promise<boolean | null> {
       const id = this.battleId
@@ -803,6 +824,7 @@ export const useBattleStore = defineStore('battle', {
             if (generation !== this.generation) return null
             continue
           }
+          if (isUncertain(err)) this.audioReported = this.audioReported.filter((known) => known !== elementId)
           return null
         }
       }
@@ -822,6 +844,7 @@ export const useBattleStore = defineStore('battle', {
       const generation = this.generation
       this.acting = 'rematch'
       this.actionError = ''
+      this.busyBattleId = null
       try {
         const created = await api.battles.invite({
           rematch_of: battle.id,
@@ -876,12 +899,13 @@ export const useBattleStore = defineStore('battle', {
       const generation = this.generation
       this.acting = 'accept'
       this.actionError = ''
+      this.busyBattleId = null
       try {
         const accepted = await api.battles.accept(offer.battle_id)
         return accepted.id
       } catch (err) {
         if (generation === this.generation) {
-          await this.refuse(err)
+          await this.refuse(err, true)
           await this.readRematch()
         }
         return null

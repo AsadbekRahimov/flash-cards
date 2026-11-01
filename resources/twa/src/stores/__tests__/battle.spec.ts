@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
+import { setLocale } from '@/i18n'
 import { ANSWER_REPEATS, RESULT_CHECKS_MAX, useBattleStore } from '../battle'
 import {
   SERVER_NOW,
@@ -892,8 +893,94 @@ describe('battle store — a clip that does not play', () => {
     vi.mocked(api.battles.audioFailed).mockRejectedValue(apiError('conflict', 409, 'battle_closed', { end_reason: 'voided' }))
 
     expect(await store.audioFailed('eDict00001')).toBeNull()
+    expect(await store.audioFailed('eDict00001')).toBeNull()
 
     expect(api.battles.audioFailed).toHaveBeenCalledTimes(1)
+  })
+
+  // Re-review М-2: "once per element" is once ANSWERED. A report that never got a reply was not made.
+  describe('a report that got no reply twice (re-review М-2)', () => {
+    const lost = async (store: Awaited<ReturnType<typeof opened>>, elementId: string): Promise<boolean | null> => {
+      const reporting = store.audioFailed(elementId)
+      await vi.advanceTimersByTimeAsync(2000)
+      return reporting
+    }
+
+    it('is not counted as made: the next failure of the clip is reported again, and the server voids the match', async () => {
+      const store = await opened()
+      vi.mocked(api.battles.audioFailed)
+        .mockRejectedValueOnce(offline())
+        .mockRejectedValueOnce(offline())
+        .mockResolvedValueOnce({ verified: true, battle: closedBattle('voided', { version: 30 }) })
+
+      expect(await lost(store, 'eDict00003')).toBeNull()
+      expect(store.audioReported).toEqual([])
+
+      expect(await store.audioFailed('eDict00003')).toBe(true)
+      expect(api.battles.audioFailed).toHaveBeenCalledTimes(3)
+      expect(store.status).toBe('closed')
+    })
+
+    it.each([
+      ['a 5xx', () => apiError('server', 503, 'x')],
+      ['a 429', () => apiError('rate_limited', 429, 'x')],
+      ['a request that hung up to its limit', () => new ApiClientError('network', 0, 'timeout', 'The request timed out')],
+    ] as const)('%s is no reply either', async (_name, failure) => {
+      const store = await opened()
+      vi.mocked(api.battles.audioFailed).mockRejectedValue(failure())
+
+      expect(await lost(store, 'eDict00003')).toBeNull()
+      expect(await lost(store, 'eDict00003')).toBeNull()
+
+      expect(api.battles.audioFailed).toHaveBeenCalledTimes(4) // two tries each time
+    })
+
+    it('a report that got its reply on the second try is made: the element stays counted', async () => {
+      const store = await opened()
+      vi.mocked(api.battles.audioFailed).mockRejectedValueOnce(offline()).mockResolvedValueOnce({ verified: false, battle: battle({ version: 24 }) })
+
+      expect(await lost(store, 'eDict00003')).toBe(false)
+      expect(await store.audioFailed('eDict00003')).toBeNull()
+
+      expect(api.battles.audioFailed).toHaveBeenCalledTimes(2)
+      expect(store.audioReported).toEqual(['eDict00003'])
+    })
+
+    it('a report the server answered (“the file is there”) is never made again, whatever happens to the clip after', async () => {
+      const store = await opened()
+      vi.mocked(api.battles.audioFailed).mockResolvedValue({ verified: false, battle: battle({ version: 24 }) })
+
+      expect(await store.audioFailed('eDict00003')).toBe(false)
+      expect(await store.audioFailed('eDict00003')).toBeNull()
+      expect(await store.audioFailed('eDict00003')).toBeNull()
+
+      expect(api.battles.audioFailed).toHaveBeenCalledTimes(1)
+    })
+
+    it('the other elements are not touched: a lost report lets go of its own element only', async () => {
+      const store = await opened()
+      vi.mocked(api.battles.audioFailed)
+        .mockResolvedValueOnce({ verified: false, battle: battle({ version: 24 }) })
+        .mockRejectedValue(offline())
+
+      await store.audioFailed('eDict00001')
+      await lost(store, 'eDict00002')
+
+      expect(store.audioReported).toEqual(['eDict00001'])
+    })
+
+    it('a report in flight is not made twice: the element is counted until the reply, or the loss, comes', async () => {
+      const store = await opened()
+      const reply = pending<{ verified: boolean; battle: Battle }>()
+      vi.mocked(api.battles.audioFailed).mockReturnValue(reply.promise)
+
+      const first = store.audioFailed('eDict00001')
+      expect(await store.audioFailed('eDict00001')).toBeNull()
+      reply.resolve({ verified: false, battle: battle({ version: 24 }) })
+
+      expect(await first).toBe(false)
+      expect(api.battles.audioFailed).toHaveBeenCalledTimes(1)
+    })
   })
 })
 
@@ -964,6 +1051,37 @@ describe('battle store — the rematch', () => {
       expect(store.actionError).toBe(BUSY)
       expect(store.busyBattleId).toBe(9)
       expect(store.acting).toBeNull()
+    })
+
+    it('the way to the other battle is forgotten when the next action starts: a refusal that is over leaves no link behind (re-review М-1)', async () => {
+      const store = await opened(finishedBattle(), null)
+      vi.mocked(api.battles.invite).mockRejectedValueOnce(refusedBy(9)).mockResolvedValueOnce(invitedBattle({ id: 16 }))
+      reading(invitedBattle({ id: 9, role: 'challenger' }))
+
+      await store.rematch()
+      expect(store.busyBattleId).toBe(9)
+
+      expect(await store.rematch()).toBe(16)
+      expect(store.busyBattleId).toBeNull()
+    })
+
+    it('... and so it is for “Accept” in the room and for the offer of the friend', async () => {
+      const room = await opened(invitedBattle({ role: 'opponent' }), null)
+      vi.mocked(api.battles.accept).mockRejectedValueOnce(refusedBy(9)).mockResolvedValueOnce(roomBattle({ role: 'opponent' }))
+      await room.accept()
+      expect(room.busyBattleId).toBe(9)
+      await room.accept()
+      expect(room.busyBattleId).toBeNull()
+
+      setActivePinia(createPinia())
+      const result = await opened(finishedBattle('lost', 'completed', { rematch: OFFERED }), null)
+      vi.mocked(api.battles.poll).mockResolvedValue(pollOf(finishedBattle('lost'), { rematch: OFFERED }))
+      vi.mocked(api.battles.accept).mockReset()
+      vi.mocked(api.battles.accept).mockRejectedValueOnce(refusedBy(9)).mockResolvedValueOnce(roomBattle({ id: 16, role: 'opponent' }))
+      expect(await result.acceptRematch()).toBeNull()
+      expect(result.busyBattleId).toBe(9)
+      expect(await result.acceptRematch()).toBe(16)
+      expect(result.busyBattleId).toBeNull()
     })
 
     it('a battle that is on (the invitation was accepted) is not an invitation to accept, whoever started it', async () => {
@@ -1659,5 +1777,91 @@ describe('battle store — the invitations of the list', () => {
     await first
 
     expect(api.battles.accept).toHaveBeenCalledTimes(1)
+  })
+})
+
+// The words for a refused "Accept" (re-review Ж-2): whoever accepts has no other format to choose - they have "Accept" and "Decline".
+describe('battle store — the words for a refused “Accept”', () => {
+  const DISABLED = () => apiError('conflict', 409, 'practice_mode_disabled', { mode: 'pairs' })
+  const FORMAT_OFF = 'Этот формат сейчас выключен — принять приглашение нельзя.'
+  const SETUP_TEXT = 'Этот режим сейчас выключен. Выберите другой.'
+
+  it('an invitation of the list to a format that is switched off: its own words, not “Choose another”; the list is read again', async () => {
+    vi.mocked(api.battles.list).mockResolvedValue(battleList({ incoming: [incoming({ id: 15 })] }))
+    vi.mocked(api.battles.accept).mockRejectedValue(DISABLED())
+    const store = useBattleStore()
+    await store.loadList()
+
+    expect(await store.acceptInvitation(15)).toBe(false)
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(store.actionError).toBe(FORMAT_OFF)
+    expect(store.actionError).not.toBe(SETUP_TEXT)
+    expect(api.battles.list).toHaveBeenCalledTimes(2)
+    expect(store.paywall).toBe(false)
+  })
+
+  it('the invitation on the screen of the battle: the same words', async () => {
+    const store = await opened(invitedBattle({ role: 'opponent' }), null)
+    vi.mocked(api.battles.accept).mockRejectedValue(DISABLED())
+
+    expect(await store.accept()).toBe(false)
+
+    expect(store.actionError).toBe(FORMAT_OFF)
+    expect(store.status).toBe('invited') // the invitation stays until it runs out (docs/16 §8.2)
+  })
+
+  it('the rematch offered by the friend, answered on the result screen: the same words', async () => {
+    const store = await opened(finishedBattle('lost', 'completed', { rematch: { battle_id: 16, status: 'invited', by_me: false } }), null)
+    vi.mocked(api.battles.accept).mockRejectedValue(DISABLED())
+    vi.mocked(api.battles.poll).mockResolvedValue(pollOf(finishedBattle('lost')))
+
+    expect(await store.acceptRematch()).toBeNull()
+
+    expect(store.actionError).toBe(FORMAT_OFF)
+  })
+
+  it('in Uzbek too', async () => {
+    setLocale('uz')
+    try {
+      const store = await opened(invitedBattle({ role: 'opponent' }), null)
+      vi.mocked(api.battles.accept).mockRejectedValue(DISABLED())
+
+      await store.accept()
+
+      expect(store.actionError).toBe("Bu format hozir o'chirilgan — taklifni qabul qila olmaysiz.")
+    } finally {
+      setLocale('ru')
+    }
+  })
+
+  it('it is the words of “Accept” only: a rematch that the learner offers is refused with the old ones - there they can choose another format', async () => {
+    const store = await opened(finishedBattle('lost'), null)
+    vi.mocked(api.battles.invite).mockRejectedValue(DISABLED())
+
+    expect(await store.rematch()).toBeNull()
+
+    expect(store.actionError).toBe(SETUP_TEXT)
+  })
+
+  it.each([
+    ['an invitation of the list', async () => {
+      vi.mocked(api.battles.list).mockResolvedValue(battleList({ incoming: [incoming({ id: 15 })] }))
+      const store = useBattleStore()
+      await store.loadList()
+      await store.acceptInvitation(15)
+      return store
+    }],
+    ['the invitation on the screen', async () => {
+      const store = await opened(invitedBattle({ role: 'opponent' }), null)
+      await store.accept()
+      return store
+    }],
+  ] as const)('the friend lost access to practice (battle_friend_no_access) is told the same way as ever, to whoever accepts: %s', async (_name, run) => {
+    vi.mocked(api.battles.accept).mockRejectedValue(apiError('conflict', 409, 'battle_friend_no_access'))
+
+    const store = await run()
+
+    expect(store.actionError).toBe('У вашего друга пока нет доступа к практике.')
   })
 })

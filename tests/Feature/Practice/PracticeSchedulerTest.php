@@ -270,6 +270,34 @@ it('goes on past a match that throws: the failure is reported, the other matches
         ->and(Artisan::output())->toContain('Battles swept: 0');
 });
 
+it('takes no row lock on a match that is not due by the clock, and takes one on the same match once it is (М5)', function (): void {
+    // `lockForUpdate()` compiles to nothing on SQLite, so the log of its SQL cannot tell a locked row from an unlocked one.
+    if (DB::getDriverName() !== 'pgsql') {
+        $this->markTestSkipped('Needs PostgreSQL: SQLite has no row locks, so FOR UPDATE leaves no trace in its SQL.');
+    }
+    Storage::fake('practice_audio');
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    $game = BattleKit::playing($me, $friend, $friendship, PracticeMode::Collocation, $course); // round 1 until 10:00:33, its grace to 10:00:34.5
+    $locksOfBattles = fn (array $queries): array => QueryLog::matching($queries, '/\bfrom ["`]battles["`]\s.*\bfor update\b/i');
+
+    // 10:00:20: nobody is late, the round is on. The run reads the live matches (with their participants) and locks none of them.
+    DB::table('battle_participants')->where('battle_id', $game->id)->update(['last_seen_at' => '2026-10-30 10:00:19']);
+    CarbonImmutable::setTestNow('2026-10-30 10:00:20');
+    $queries = QueryLog::during(fn () => Artisan::call('practice:battles-sweep'));
+    expect(Artisan::output())->toContain('Battles swept: 0')
+        ->and(QueryLog::matching($queries, '/^select .* from ["`]battles["`]/i'))->not->toBe([]) // the live matches were read ...
+        ->and($locksOfBattles($queries))->toBe([])                                                // ... and none was locked
+        ->and(QueryLog::matching($queries, '/\bfor update\b/i'))->toBe([]);                       // not a participant row either
+
+    // 10:00:34.6: the deadline and its grace are past, the players are here. Now the match is due: its row is locked, once, and moved.
+    DB::table('battle_participants')->where('battle_id', $game->id)->update(['last_seen_at' => '2026-10-30 10:00:34']);
+    CarbonImmutable::setTestNow('2026-10-30 10:00:34.6');
+    $queries = QueryLog::during(fn () => Artisan::call('practice:battles-sweep'));
+    expect(Artisan::output())->toContain('Battles swept: 1')
+        ->and($locksOfBattles($queries))->toHaveCount(1)
+        ->and(BattleKit::fresh($game)->phase)->toBe(BattlePhase::Reveal);
+});
+
 it('voids the matches that are on when the practice is switched off, and leaves the invitations to expire by themselves', function (): void {
     Storage::fake('practice_audio');
     [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();

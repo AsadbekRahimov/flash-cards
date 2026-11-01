@@ -2580,3 +2580,17 @@
 |---|---|---|
 | `practice.hub.reason.items_locked_course` | Darslardagi so'zlarni o'rganing — topshiriqlar ochiladi. | Выучите слова уроков — задания откроются. |
 | `practice.hub.reason.no_items_few` | Topshiriqlar hozircha kam: {required} tadan {available} tasi. | Заданий пока мало: {available} из {required}. |
+
+## Практика и баттл 2026-10 · 18-10f — на проверку носителю
+
+> Правка экранов баттла в приложении после повторного ревью (`resources/twa/src/i18n/uz.ts`, задача 18.10f). Одна новая строка; остальные тексты правки (ссылка на свой
+> баттл на экране итогов, полоса «Соперник потерял связь» в последнюю секунду) взяты из уже проверенных строк.
+>
+> Что решить носителю:
+> - **Отказ при «Принять»** (`battle.invite.mode_disabled`): формат (режим) баттла выключили после того, как пришло приглашение. Тому, кто принимает, выбирать другой формат
+>   не из чего — у него только «Qabul qilish» и «Rad etish», — поэтому текст сказан про приглашение. На экране настройки баттла остаётся прежний `error.code.practice_mode_disabled`
+>   («Bu rejim hozir o'chirilgan. Boshqasini tanlang.»). Проверить «format» (в экранах баттла везде «format», см. `battle.setup.format`) и «qabul qila olmaysiz» («вы не можете принять»).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `battle.invite.mode_disabled` | Bu format hozir o'chirilgan — taklifni qabul qila olmaysiz. | Этот формат сейчас выключен — принять приглашение нельзя. |
