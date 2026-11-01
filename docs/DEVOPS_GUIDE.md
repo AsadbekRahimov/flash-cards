@@ -3,8 +3,8 @@
 This guide covers deploying LexiFlow Pro on a **bare server** that already has:
 - Linux (Debian/Ubuntu recommended)
 - Git
-- PostgreSQL 14+
-- PHP 8.2+ (with extensions: `pdo_pgsql`, `redis`, `bcmath`, `intl`, `gd` or `imagick`)
+- PostgreSQL 18
+- PHP 8.5+ (with extensions: `pdo_pgsql`, `redis`, `bcmath`, `intl`, `gd` or `imagick`)
 - Nginx (or Caddy)
 - Certbot (SSL certificates)
 - Supervisor (process manager for queue workers)
@@ -180,7 +180,7 @@ php artisan db:seed   # loads demo admin, teacher, 2 groups, 120 words, 5 learne
 
 ## 6. Build the Frontend (TWA SPA)
 
-If Node.js 18+ is available on the server:
+If Node.js 26 LTS (22.12+ is enough) is available on the server:
 ```bash
 cd resources/twa
 npm ci                  # install all deps — build needs vite/vue-tsc from devDependencies
@@ -309,7 +309,7 @@ server {
     # redirect to `location ~ \.php$`.
     location ~ ^/(?:admin(?:/|$)|org(?:/|$)|2fa(?:/|$)|livewire-) {
         gzip off;
-        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+        fastcgi_pass unix:/run/php/php8.5-fpm.sock;
         include fastcgi_params;
         fastcgi_param SCRIPT_FILENAME $realpath_root/index.php;
         fastcgi_param SCRIPT_NAME /index.php;
@@ -322,8 +322,8 @@ server {
 
     location ~ \.php$ {
         # Update the socket path to match your installed PHP version
-        # (e.g. php8.3-fpm.sock or php8.4-fpm.sock). Verify with: ls /run/php/
-        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+        # (php8.5-fpm.sock for PHP 8.5, php8.6-fpm.sock for 8.6, ...). Verify with: ls /run/php/
+        fastcgi_pass unix:/run/php/php8.5-fpm.sock;
         fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
         include fastcgi_params;
     }

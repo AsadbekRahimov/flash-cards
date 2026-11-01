@@ -36,7 +36,7 @@
 
 1. **Код и тесты** + текущий контракт: `03_DATABASE`, `04_API_AND_BOT`, `05_TWA`, `07_SECURITY`, `DEVOPS_GUIDE`, `VPS_DEPLOY_GUIDE_RU`; для интерфейса (TWA, тексты бота и админки, термины) — `14_UX_AUDIT_AND_REDESIGN`.
 2. **Принятые решения фаз**: `16_PRACTICE_DESIGN` (практика и баттл; «Статус реализации» и блоки «Реализация 18.x»; при расхождении с продуктовым планом `15_PRACTICE_GAMES_PLAN` верен 16), `13_PHASE2_DESIGN` (разделы «Реализация …»), затем `12_PHASE1_DESIGN`, затем `11_SYSTEM_ANALYSIS_AND_SAAS_STRATEGY`.
-3. **Исторические документы MVP**: `01_PRD`, `02_ARCHITECTURE` (кроме ADR-8/ADR-11), `08_ROADMAP`, `09_AI_AGENTS_GUIDE`. В них остались `students` (заменено на learner-first: `learners` + `group_members`), PHP 8.2 (требуется **8.3**), `nutgram` (используется **`irazasyed/telegram-bot-sdk`** через адаптер `TelegramClient`), MySQL как вариант (поддерживается только **PostgreSQL 16**).
+3. **Исторические документы MVP**: `01_PRD`, `02_ARCHITECTURE` (кроме ADR-8/ADR-11), `08_ROADMAP`, `09_AI_AGENTS_GUIDE`. В них остались `students` (заменено на learner-first: `learners` + `group_members`), PHP 8.2 (требуется **8.5**), `nutgram` (используется **`irazasyed/telegram-bot-sdk`** через адаптер `TelegramClient`), MySQL как вариант (поддерживается только **PostgreSQL 18**).
 
 Статусы в `PROGRESS.md`: «✅ код» = реализовано и автотесты зелёные; ручная приёмка на staging и разрешение на production отмечаются отдельно (см. `STAGING_PHASE2_CHECKLIST.md`). Аудит от 2026-10-22 и статус исправлений — `AUDIT_2026-10-22_RU.md` и `PROGRESS.md`.
 
@@ -48,14 +48,14 @@
 2. **Telegram Bot** — работает только в зарегистрированных группах; учитель запускает режимы тренировки и экзамена.
 3. **Telegram Web App (TWA)** — там студенты видят карточки, проходят экзамены, слушают TTS.
 
-Под капотом — Laravel 12, алгоритм интервальных повторений SM-2, очереди на Redis, шедулер для персональных уведомлений.
+Под капотом — Laravel 13, алгоритм интервальных повторений SM-2, очереди на Redis, шедулер для персональных уведомлений.
 
 ## 🛠️ Технический стек (сводка)
 
-- **Backend:** PHP 8.3, Laravel 12
+- **Backend:** PHP 8.5, Laravel 13
 - **Admin:** Filament 5
-- **Database:** PostgreSQL 16
-- **Cache/Queue:** Redis 7
+- **Database:** PostgreSQL 18
+- **Cache/Queue:** Redis 8
 - **Bot:** Telegram Bot API (SDK: `irazasyed/telegram-bot-sdk` за адаптером `TelegramClient`)
 - **TWA Frontend:** Vue 3 + Vite + TailwindCSS (внутри Laravel через Inertia или как SPA)
 - **TTS:** Web Speech API (primary), edge-tts как fallback через Python микросервис

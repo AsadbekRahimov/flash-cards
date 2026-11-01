@@ -1,10 +1,11 @@
 # LexiFlow Pro — Dev image.
-# Полный образ для локальной разработки: PHP 8.3, Xdebug, Node 20 (для Vite),
+# Полный образ для локальной разработки: PHP 8.5, Xdebug, Node.js из репозитория Alpine (LTS, для Vite),
 # composer, git, bash, oh-my-quality-of-life tools. НЕ использовать в проде.
-FROM php:8.3-fpm-alpine AS app
+FROM php:8.5-fpm-alpine AS app
 
 ARG UID=1000
-ARG PHPREDIS_VERSION=6.2.0
+ARG PHPREDIS_VERSION=6.3.0
+ARG XDEBUG_VERSION=3.5.3
 ARG GID=1000
 
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
@@ -12,15 +13,18 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
     XDEBUG_MODE=off \
     PHP_IDE_CONFIG="serverName=lexiflow"
 
+# pdo, mbstring и OPcache вкомпилированы в официальный образ PHP 8.5 (OPcache как расширение больше не собирается),
+# поэтому собираем только недостающее. Клиента PostgreSQL (pg_dump) здесь нет намеренно: backup:run в деве
+# не запускается (он идёт по расписанию в проде, где клиент 18-й версии стоит в Dockerfile).
 RUN apk add --no-cache \
-        bash git curl icu-dev oniguruma-dev libzip-dev libpng-dev freetype-dev \
+        bash git curl icu-dev libzip-dev libpng-dev freetype-dev \
         postgresql-dev linux-headers autoconf g++ make \
         nodejs npm shadow su-exec less vim \
     && docker-php-ext-configure gd --with-freetype \
     && docker-php-ext-install -j"$(nproc)" \
-        pdo pdo_pgsql bcmath intl mbstring opcache pcntl zip gd \
+        pdo_pgsql bcmath intl pcntl zip gd \
     # PECL occasionally answers "No releases available": retry before failing the build.
-    && for attempt in 1 2 3 4; do pecl install -f redis-${PHPREDIS_VERSION} xdebug && break; [ "$attempt" = 4 ] && exit 1; sleep $((attempt * 15)); done \
+    && for attempt in 1 2 3 4; do pecl install -f redis-${PHPREDIS_VERSION} xdebug-${XDEBUG_VERSION} && break; [ "$attempt" = 4 ] && exit 1; sleep $((attempt * 15)); done \
     && docker-php-ext-enable redis xdebug \
     && apk del autoconf g++ make linux-headers \
     && rm -rf /tmp/* /var/cache/apk/*
@@ -54,6 +58,12 @@ RUN { \
         echo "opcache.validate_timestamps=1"; \
         echo "opcache.revalidate_freq=0"; \
     } > /usr/local/etc/php/conf.d/zz-dev.ini
+
+# Потерянное расширение должно ронять сборку образа, а не тесты у разработчика (как и в прод-Dockerfile).
+RUN set -eu; \
+    for ext in pdo_pgsql bcmath intl mbstring pcntl zip gd redis xdebug 'Zend OPcache'; do \
+        php -m | grep -qix "$ext" || { echo "missing PHP extension: $ext" >&2; exit 1; }; \
+    done
 
 # Создаём пользователя app с UID/GID хоста, чтобы файлы из контейнера
 # не оказывались под root на macOS/Linux. На Windows (named volume) UID

@@ -2,7 +2,7 @@
 .github
 .idea
 .vscode
-node_modules
+**/node_modules
 vendor
 storage/logs/*
 storage/tmp/*
