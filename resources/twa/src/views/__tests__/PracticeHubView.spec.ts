@@ -902,11 +902,23 @@ describe('PracticeHubView — short of material: no tasks, and tasks that wait f
 
     expect(card(wrapper, 'collocation').get('[data-testid=mode-reason]').text()).toBe('Для этой темы заданий пока нет.')
     expect(wrapper.find('[data-testid=mode-learn-collocation]').exists()).toBe(false)
+    expect(card(wrapper, 'sentence').get('[data-testid=mode-reason]').text()).toBe('Выучите слова уроков — задания откроются.') // the lessons, next to "To the lessons"
     expect(wrapper.get('[data-testid=mode-learn-sentence]').text()).toBe('К урокам')
     await wrapper.get('[data-testid=mode-learn-sentence]').trigger('click')
     await flushPromises()
     expect(router.currentRoute.value.name).toBe('course')
     wrapper.unmount()
+  })
+
+  it('a topic with a task or two says "few" with the numbers, not "none" - in a lesson and in a course', async () => {
+    const lesson = await render({}, hub({ modes: { sentence: { state: 'not_enough', available: 2, required: 3, reason: 'no_items' } } }))
+    expect(card(lesson.wrapper, 'sentence').get('[data-testid=mode-reason]').text()).toBe('Заданий пока мало: 2 из 3.')
+    expect(lesson.wrapper.find('[data-testid=mode-learn-sentence]').exists()).toBe(false)
+    lesson.wrapper.unmount()
+
+    const course = await render({ lessonId: null }, hub({ lesson: null, modes: { collocation: { state: 'not_enough', available: 1, required: 3, reason: 'no_items' } } }))
+    expect(card(course.wrapper, 'collocation').get('[data-testid=mode-reason]').text()).toBe('Заданий пока мало: 1 из 3.')
+    course.wrapper.unmount()
   })
 
   it('both cards side by side, in Uzbek', async () => {

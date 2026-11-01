@@ -124,7 +124,6 @@ describe('ModeCard — short of material', () => {
   it.each([
     ['no_words', 'Изучено слов: 2 из 3. Пройдите урок, и режим откроется.'],
     ['ambiguous', 'Подходящих слов: 2 из 3. Выучите новые слова, и режим откроется.'],
-    ['no_items', 'Для этой темы заданий пока нет.'],
     ['items_locked', 'Выучите слова урока — задания откроются.'],
     ['audio_pending', 'Записи для заданий ещё готовятся. Загляните позже.'],
     ['no_audio_words', 'Для ваших слов пока нет записей. Загляните позже.'],
@@ -161,13 +160,77 @@ describe('ModeCard — short of material', () => {
 
     it('says the same in Uzbek', () => {
       setLocale('uz')
-      const none = render({ info: info('collocation', { state: 'not_enough', reason: 'no_items' }), learn: 'lesson' })
+      const none = render({ info: info('collocation', { state: 'not_enough', available: 0, reason: 'no_items' }), learn: 'lesson' })
       const locked = render({ info: info('collocation', { state: 'not_enough', reason: 'items_locked' }), learn: 'lesson' })
 
       expect(none.get('[data-testid=mode-reason]').text()).toBe("Bu mavzu bo'yicha topshiriqlar hozircha yo'q.")
       expect(none.find('[data-testid=mode-learn-collocation]').exists()).toBe(false)
       expect(locked.get('[data-testid=mode-reason]').text()).toBe("Dars so'zlarini o'rganing — topshiriqlar ochiladi.")
       expect(locked.get('[data-testid=mode-learn-collocation]').text()).toBe("Darsni o'rganish")
+    })
+  })
+
+  // The hub of a COURSE has the button "To the lessons": the words to learn are the ones of the lessons, not of one lesson (review 18.11, minor 3).
+  describe('items_locked on the hub of a course', () => {
+    it('speaks of the lessons, not of the lesson, next to "To the lessons"; the hub of a lesson keeps its words', () => {
+      const course = render({ info: info('sentence', { state: 'not_enough', available: 0, required: 3, reason: 'items_locked' }), learn: 'course' })
+      const lesson = render({ info: info('sentence', { state: 'not_enough', available: 0, required: 3, reason: 'items_locked' }), learn: 'lesson' })
+
+      expect(course.get('[data-testid=mode-reason]').text()).toBe('Выучите слова уроков — задания откроются.')
+      expect(course.get('[data-testid=mode-learn-sentence]').text()).toBe('К урокам')
+      expect(lesson.get('[data-testid=mode-reason]').text()).toBe('Выучите слова урока — задания откроются.')
+      expect(lesson.get('[data-testid=mode-learn-sentence]').text()).toBe('Учить урок')
+    })
+
+    it('says it in Uzbek too', () => {
+      setLocale('uz')
+      const course = render({ info: info('sentence', { state: 'not_enough', available: 0, required: 3, reason: 'items_locked' }), learn: 'course' })
+      const lesson = render({ info: info('sentence', { state: 'not_enough', available: 0, required: 3, reason: 'items_locked' }), learn: 'lesson' })
+
+      expect(course.get('[data-testid=mode-reason]').text()).toBe("Darslardagi so'zlarni o'rganing — topshiriqlar ochiladi.")
+      expect(lesson.get('[data-testid=mode-reason]').text()).toBe("Dars so'zlarini o'rganing — topshiriqlar ochiladi.")
+    })
+
+    it('other reasons do not change with the place', () => {
+      const course = render({ info: info('pairs', { state: 'not_enough', available: 2, required: 3, reason: 'no_words' }), learn: 'course' })
+
+      expect(course.get('[data-testid=mode-reason]').text()).toBe('Изучено слов: 2 из 3. Пройдите урок, и режим откроется.')
+    })
+  })
+
+  // `no_items` with a task or two already there is not "no tasks": the lesson has tasks, too few for a session (review 18.11, minor 4).
+  describe('no_items with some tasks, but fewer than a session needs', () => {
+    it.each([
+      [1, 3, 'Заданий пока мало: 1 из 3.'],
+      [2, 3, 'Заданий пока мало: 2 из 3.'],
+      [4, 5, 'Заданий пока мало: 4 из 5.'],
+    ])('available %i of %i: "few", with the numbers, and still no "Learn the lesson" (learning would not add tasks)', (available, required, text) => {
+      for (const learn of ['lesson', 'course'] as const) {
+        const wrapper = render({ info: info('sentence', { state: 'not_enough', available, required, reason: 'no_items' }), learn })
+
+        expect(wrapper.get('[data-testid=mode-reason]').text()).toBe(text)
+        expect(wrapper.find('button').exists()).toBe(false)
+      }
+    })
+
+    it('with none at all it is "none", as before', () => {
+      const wrapper = render({ info: info('sentence', { state: 'not_enough', available: 0, required: 3, reason: 'no_items' }) })
+
+      expect(wrapper.get('[data-testid=mode-reason]').text()).toBe('Для этой темы заданий пока нет.')
+    })
+
+    it('does not treat numbers that do not add up as "few": a card that has enough is not short', () => {
+      const wrapper = render({ info: info('sentence', { state: 'not_enough', available: 3, required: 3, reason: 'no_items' }) })
+
+      expect(wrapper.get('[data-testid=mode-reason]').text()).toBe('Для этой темы заданий пока нет.')
+    })
+
+    it('says it in Uzbek', () => {
+      setLocale('uz')
+      const wrapper = render({ info: info('collocation', { state: 'not_enough', available: 2, required: 3, reason: 'no_items' }), learn: 'lesson' })
+
+      expect(wrapper.get('[data-testid=mode-reason]').text()).toBe('Topshiriqlar hozircha kam: 3 tadan 2 tasi.')
+      expect(wrapper.find('[data-testid=mode-learn-collocation]').exists()).toBe(false)
     })
   })
 

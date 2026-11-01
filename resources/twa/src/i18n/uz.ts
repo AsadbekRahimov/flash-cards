@@ -538,6 +538,8 @@ export const uz: Translations = {
   'practice.hub.reason.ambiguous': "Mos so'zlar: {available}/{required}. Yangi so'zlarni o'rganing — rejim ochiladi.",
   'practice.hub.reason.no_items': "Bu mavzu bo'yicha topshiriqlar hozircha yo'q.",
   'practice.hub.reason.items_locked': "Dars so'zlarini o'rganing — topshiriqlar ochiladi.",
+  'practice.hub.reason.items_locked_course': "Darslardagi so'zlarni o'rganing — topshiriqlar ochiladi.",
+  'practice.hub.reason.no_items_few': 'Topshiriqlar hozircha kam: {required} tadan {available} tasi.',
   'practice.hub.reason.audio_pending': 'Topshiriqlar uchun yozuvlar hali tayyorlanmoqda. Keyinroq qaytib keling.',
   'practice.hub.reason.no_audio_words': "So'zlaringiz uchun hozircha yozuvlar yo'q. Keyinroq qaytib keling.",
   'practice.hub.reason.unknown': 'Material hozircha yetarli emas.',
