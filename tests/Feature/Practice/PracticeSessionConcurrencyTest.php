@@ -27,7 +27,12 @@ use Tests\Support\Practice\PracticeKit;
  * explicit truncate after each test. The battle races (BattleConcurrencyTest) arrive with 18.6.
  */
 
-uses(DatabaseTruncation::class);
+// Attached where the file runs at all: the trait migrates the database in the set-up of the first test, before `beforeEach` can skip it,
+// and on SQLite that marks an empty :memory: database as migrated (`RefreshDatabaseState::$migrated`) for the next RefreshDatabase file
+// of the same worker ("no such table"). The environment decides, as in the other *ConcurrencyTest files.
+if ((getenv('DB_CONNECTION') ?: 'sqlite') === 'pgsql') {
+    uses(DatabaseTruncation::class);
+}
 
 beforeEach(function (): void {
     if (config('database.default') !== 'pgsql') {
