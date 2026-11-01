@@ -3,6 +3,7 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { newRequestId } from '@/composables/requestId'
 import { useServerClock, type ServerClock } from '@/composables/useServerClock'
+import { t } from '@/i18n'
 import { errorMessage } from '@/i18n/errors'
 import type {
   Battle,
@@ -169,6 +170,17 @@ export function isProRequired(err: unknown): boolean {
 }
 
 /**
+ * The words for a refused action. One refusal reads differently to whoever ACCEPTS: an invitation to a format that has been switched off
+ * (409 `practice_mode_disabled`) cannot be taken, and "Choose another" (the text of the setup) sends them looking for a choice they do not
+ * have - all they have is "Accept" and "Decline". The other codes read the same to both sides (`battle_friend_no_access`: "Your friend has
+ * no access to practice yet" is true of the friend who invited, too).
+ */
+function refusalText(err: unknown, accepting: boolean): string {
+  if (accepting && err instanceof ApiClientError && err.code === 'practice_mode_disabled') return t('battle.invite.mode_disabled')
+  return errorMessage(err, 'battle')
+}
+
+/**
  * 409 `battle_busy` names the battle that is in the way (`details.battle_id`). When it is an invitation from the friend TO ME - the
  * two of us offered a battle (or a rematch) at the same moment, and theirs was first - it is the one to accept, and this gives its id
  * so that the screen leads into it. Null: the battle in the way is the learner's own (or it cannot be read), the message about it stands.
@@ -315,14 +327,14 @@ export const useBattleStore = defineStore('battle', {
      * now, and the screen leads into its room. A refusal is in `actionError` (or, behind Pro, in `paywall`); the list is read again.
      */
     async acceptInvitation(id: number): Promise<boolean> {
-      return this.answerInvitation(id, (battleId) => api.battles.accept(battleId))
+      return this.answerInvitation(id, (battleId) => api.battles.accept(battleId), true)
     },
 
     async declineInvitation(id: number): Promise<boolean> {
-      return this.answerInvitation(id, (battleId) => api.battles.decline(battleId))
+      return this.answerInvitation(id, (battleId) => api.battles.decline(battleId), false)
     },
 
-    async answerInvitation(id: number, call: (id: number) => Promise<Battle>): Promise<boolean> {
+    async answerInvitation(id: number, call: (id: number) => Promise<Battle>, accepting: boolean): Promise<boolean> {
       if (this.invitationBusy.includes(id)) return false
       this.invitationBusy.push(id)
       this.actionError = ''
@@ -332,7 +344,7 @@ export const useBattleStore = defineStore('battle', {
         return true
       } catch (err) {
         if (isProRequired(err)) this.paywall = true
-        else this.actionError = errorMessage(err, 'battle')
+        else this.actionError = refusalText(err, accepting)
         // Another side acted first (the invitation ran out, was withdrawn): show what is true now.
         void this.loadList()
         return false
@@ -657,7 +669,7 @@ export const useBattleStore = defineStore('battle', {
         return true
       } catch (err) {
         if (generation !== this.generation) return false
-        await this.refuse(err)
+        await this.refuse(err, action === 'accept')
         return false
       } finally {
         if (generation === this.generation) this.acting = null
@@ -668,12 +680,12 @@ export const useBattleStore = defineStore('battle', {
      * The action was not done. Behind Pro the answer is the paywall, not a message. A conflict means the state has moved: it is read
      * again, and the screen follows it.
      */
-    async refuse(err: unknown): Promise<void> {
+    async refuse(err: unknown, accepting = false): Promise<void> {
       if (isProRequired(err)) {
         this.paywall = true
         return
       }
-      this.actionError = errorMessage(err, 'battle')
+      this.actionError = refusalText(err, accepting)
       if (!(err instanceof ApiClientError)) return
       if (err.code === 'battle_busy') this.busyBattleId = typeof err.details?.battle_id === 'number' ? err.details.battle_id : null
       if (err.code === 'battle_closed' || err.code === 'battle_wrong_state') {
@@ -881,7 +893,7 @@ export const useBattleStore = defineStore('battle', {
         return accepted.id
       } catch (err) {
         if (generation === this.generation) {
-          await this.refuse(err)
+          await this.refuse(err, true)
           await this.readRematch()
         }
         return null

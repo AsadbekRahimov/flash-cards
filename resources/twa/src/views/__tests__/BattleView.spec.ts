@@ -413,6 +413,37 @@ describe('BattleView — the invitation', () => {
     expect(route(r).params.id).toBe('9')
   })
 
+  it('an invitation to a format that has been switched off cannot be accepted: told in words of its own (there is nothing to choose), and it stays to be declined (re-review Ж-2)', async () => {
+    const r = await render(invitedBattle({ role: 'opponent' }))
+    vi.mocked(api.battles.accept).mockRejectedValue(apiError('conflict', 409, 'practice_mode_disabled', { mode: 'sentence' }))
+
+    await click(r, 'accept-btn')
+
+    expect(showErrorToast).toHaveBeenCalledWith('Этот формат сейчас выключен — принять приглашение нельзя.')
+    expect(showErrorToast).not.toHaveBeenCalledWith(expect.stringContaining('Выберите другой'))
+    expect(has(r, 'accept-btn')).toBe(true)
+    expect(has(r, 'decline-btn')).toBe(true)
+  })
+
+  it('the same in Uzbek', async () => {
+    setLocale('uz')
+    const r = await render(invitedBattle({ role: 'opponent' }))
+    vi.mocked(api.battles.accept).mockRejectedValue(apiError('conflict', 409, 'practice_mode_disabled', { mode: 'sentence' }))
+
+    await click(r, 'accept-btn')
+
+    expect(showErrorToast).toHaveBeenCalledWith("Bu format hozir o'chirilgan — taklifni qabul qila olmaysiz.")
+  })
+
+  it('the friend who invited has lost the access to practice: the words of the code stand, they suit the one who accepts', async () => {
+    const r = await render(invitedBattle({ role: 'opponent' }))
+    vi.mocked(api.battles.accept).mockRejectedValue(apiError('conflict', 409, 'battle_friend_no_access'))
+
+    await click(r, 'accept-btn')
+
+    expect(showErrorToast).toHaveBeenCalledWith('У вашего друга пока нет доступа к практике.')
+  })
+
   it('“Decline” closes it and leads to the friends', async () => {
     const r = await render(invitedBattle({ role: 'opponent' }))
     vi.mocked(api.battles.decline).mockResolvedValue(closedBattle('declined', { role: 'opponent' }))
@@ -1468,6 +1499,17 @@ describe('BattleView — the rematch', () => {
     expect(api.battles.accept).toHaveBeenCalledWith(16)
     expect(route(r).name).toBe('battle')
     expect(route(r).params.id).toBe('16')
+  })
+
+  it('an offer to a format that has been switched off cannot be accepted: told in the words of “Accept”, and the offer stays (re-review Ж-2)', async () => {
+    const r = await render(finishedBattle('lost', 'completed', { rematch: OFFER }))
+    vi.mocked(api.battles.accept).mockRejectedValue(apiError('conflict', 409, 'practice_mode_disabled', { mode: 'sentence' }))
+
+    await click(r, 'accept-rematch-btn')
+
+    expect(showErrorToast).toHaveBeenCalledWith('Этот формат сейчас выключен — принять приглашение нельзя.')
+    expect(has(r, 'rematch-offer')).toBe(true)
+    expect(route(r).params.id).toBe('15')
   })
 
   it('“Decline” takes the offer off the screen', async () => {

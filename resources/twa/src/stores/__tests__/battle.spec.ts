@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
+import { setLocale } from '@/i18n'
 import { ANSWER_REPEATS, RESULT_CHECKS_MAX, useBattleStore } from '../battle'
 import {
   SERVER_NOW,
@@ -1659,5 +1660,91 @@ describe('battle store — the invitations of the list', () => {
     await first
 
     expect(api.battles.accept).toHaveBeenCalledTimes(1)
+  })
+})
+
+// The words for a refused "Accept" (re-review Ж-2): whoever accepts has no other format to choose - they have "Accept" and "Decline".
+describe('battle store — the words for a refused “Accept”', () => {
+  const DISABLED = () => apiError('conflict', 409, 'practice_mode_disabled', { mode: 'pairs' })
+  const FORMAT_OFF = 'Этот формат сейчас выключен — принять приглашение нельзя.'
+  const SETUP_TEXT = 'Этот режим сейчас выключен. Выберите другой.'
+
+  it('an invitation of the list to a format that is switched off: its own words, not “Choose another”; the list is read again', async () => {
+    vi.mocked(api.battles.list).mockResolvedValue(battleList({ incoming: [incoming({ id: 15 })] }))
+    vi.mocked(api.battles.accept).mockRejectedValue(DISABLED())
+    const store = useBattleStore()
+    await store.loadList()
+
+    expect(await store.acceptInvitation(15)).toBe(false)
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(store.actionError).toBe(FORMAT_OFF)
+    expect(store.actionError).not.toBe(SETUP_TEXT)
+    expect(api.battles.list).toHaveBeenCalledTimes(2)
+    expect(store.paywall).toBe(false)
+  })
+
+  it('the invitation on the screen of the battle: the same words', async () => {
+    const store = await opened(invitedBattle({ role: 'opponent' }), null)
+    vi.mocked(api.battles.accept).mockRejectedValue(DISABLED())
+
+    expect(await store.accept()).toBe(false)
+
+    expect(store.actionError).toBe(FORMAT_OFF)
+    expect(store.status).toBe('invited') // the invitation stays until it runs out (docs/16 §8.2)
+  })
+
+  it('the rematch offered by the friend, answered on the result screen: the same words', async () => {
+    const store = await opened(finishedBattle('lost', 'completed', { rematch: { battle_id: 16, status: 'invited', by_me: false } }), null)
+    vi.mocked(api.battles.accept).mockRejectedValue(DISABLED())
+    vi.mocked(api.battles.poll).mockResolvedValue(pollOf(finishedBattle('lost')))
+
+    expect(await store.acceptRematch()).toBeNull()
+
+    expect(store.actionError).toBe(FORMAT_OFF)
+  })
+
+  it('in Uzbek too', async () => {
+    setLocale('uz')
+    try {
+      const store = await opened(invitedBattle({ role: 'opponent' }), null)
+      vi.mocked(api.battles.accept).mockRejectedValue(DISABLED())
+
+      await store.accept()
+
+      expect(store.actionError).toBe("Bu format hozir o'chirilgan — taklifni qabul qila olmaysiz.")
+    } finally {
+      setLocale('ru')
+    }
+  })
+
+  it('it is the words of “Accept” only: a rematch that the learner offers is refused with the old ones - there they can choose another format', async () => {
+    const store = await opened(finishedBattle('lost'), null)
+    vi.mocked(api.battles.invite).mockRejectedValue(DISABLED())
+
+    expect(await store.rematch()).toBeNull()
+
+    expect(store.actionError).toBe(SETUP_TEXT)
+  })
+
+  it.each([
+    ['an invitation of the list', async () => {
+      vi.mocked(api.battles.list).mockResolvedValue(battleList({ incoming: [incoming({ id: 15 })] }))
+      const store = useBattleStore()
+      await store.loadList()
+      await store.acceptInvitation(15)
+      return store
+    }],
+    ['the invitation on the screen', async () => {
+      const store = await opened(invitedBattle({ role: 'opponent' }), null)
+      await store.accept()
+      return store
+    }],
+  ] as const)('the friend lost access to practice (battle_friend_no_access) is told the same way as ever, to whoever accepts: %s', async (_name, run) => {
+    vi.mocked(api.battles.accept).mockRejectedValue(apiError('conflict', 409, 'battle_friend_no_access'))
+
+    const store = await run()
+
+    expect(store.actionError).toBe('У вашего друга пока нет доступа к практике.')
   })
 })

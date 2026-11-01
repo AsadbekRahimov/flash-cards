@@ -779,6 +779,7 @@ export const ru = {
   'battle.invite.accept': 'Принять',
   'battle.invite.decline': 'Отклонить',
   'battle.invite.cancel': 'Отменить',
+  'battle.invite.mode_disabled': 'Этот формат сейчас выключен — принять приглашение нельзя.',
 
   'battle.room.title': 'Комната готова',
   'battle.room.lead': 'Нажмите «Готов», когда будете готовы. Матч начнётся, когда нажмут оба.',

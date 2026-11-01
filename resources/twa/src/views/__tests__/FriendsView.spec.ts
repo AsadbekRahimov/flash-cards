@@ -887,6 +887,34 @@ describe('FriendsView', () => {
         expect(api.battles.list).toHaveBeenCalledTimes(2)
       })
 
+      it('an invitation to a format that has been switched off is told in words of its own (“Choose another” is for the setup), and the row stays to be declined (re-review Ж-2)', async () => {
+        vi.mocked(api.battles.accept).mockRejectedValue(new ApiClientError('conflict', 409, 'practice_mode_disabled', 'x', undefined, { mode: 'pairs' }))
+        const { wrapper, router } = await renderBattles(BATTLES_ON, invitations())
+
+        await wrapper.get('[data-testid=battle-accept-btn]').trigger('click')
+        await flushPromises()
+
+        expect(useToast().toast.value?.text).toBe('Этот формат сейчас выключен — принять приглашение нельзя.')
+        expect(router.currentRoute.value.name).toBe('friends')
+        expect(wrapper.findAll('[data-testid=battle-invite-row]')).toHaveLength(2)
+      })
+
+      it('the same in Uzbek; and the friend who lost access is told in the old words, which suit the one who accepts', async () => {
+        setLocale('uz')
+        vi.mocked(api.battles.accept).mockRejectedValueOnce(new ApiClientError('conflict', 409, 'practice_mode_disabled', 'x'))
+        const { wrapper } = await renderBattles(BATTLES_ON, invitations())
+
+        await wrapper.get('[data-testid=battle-accept-btn]').trigger('click')
+        await flushPromises()
+        expect(useToast().toast.value?.text).toBe("Bu format hozir o'chirilgan — taklifni qabul qila olmaysiz.")
+
+        useToast().hide()
+        vi.mocked(api.battles.accept).mockRejectedValueOnce(new ApiClientError('conflict', 409, 'battle_friend_no_access', 'x'))
+        await wrapper.get('[data-testid=battle-accept-btn]').trigger('click')
+        await flushPromises()
+        expect(useToast().toast.value?.text).toBe("Do'stingizda amaliyotga hali ruxsat yo'q.")
+      })
+
       it('none: no group at all', async () => {
         const { wrapper } = await renderBattles(BATTLES_ON, battleList())
 

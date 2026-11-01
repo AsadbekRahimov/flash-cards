@@ -735,6 +735,7 @@ export const uz: Translations = {
   'battle.invite.accept': 'Qabul qilish',
   'battle.invite.decline': 'Rad etish',
   'battle.invite.cancel': 'Bekor qilish',
+  'battle.invite.mode_disabled': "Bu format hozir o'chirilgan — taklifni qabul qila olmaysiz.",
 
   'battle.room.title': 'Xona tayyor',
   'battle.room.lead': "Tayyor bo'lganingizda «Tayyorman» tugmasini bosing. Ikkalangiz bossangiz, o'yin boshlanadi.",
