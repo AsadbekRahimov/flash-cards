@@ -3,11 +3,13 @@
 @source "../index.html";
 
 /*
- * `short:` - a short window: a phone with a small screen (the iPhone SE is 320 x 568, and Telegram's window is lower still) or a phone on
- * its side. An immersive screen (a round of a battle) takes its vertical room back there, so that the task stays above the sticky
- * block of buttons without scrolling (docs/14 §3: the actions are at the bottom, and so is the thumb).
+ * `short:` - a short window: a phone with a small screen (the iPhone SE is 320 x 568, and Telegram's window is lower still), the window
+ * of the Mini App on most phones (600-760 px under Telegram's own header) or a phone on its side. An immersive screen (a round of a
+ * battle) takes its vertical room back there, so that the task stays above the sticky block of buttons without scrolling (docs/14 §3:
+ * the actions are at the bottom, and so is the thumb). 760, not 640: between the two a round of "Build the sentence" still had its first
+ * row of words under the bar (a 700 px window: 14 px); a full-height window of a tall phone (844 and more) keeps the roomy layout.
  */
-@custom-variant short (@media (max-height: 640px));
+@custom-variant short (@media (max-height: 760px));
 
 @theme {
   /* Telegram theme parameters (docs/14 §4.1); filled in by composables/telegramTheme.ts. */

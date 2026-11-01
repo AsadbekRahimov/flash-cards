@@ -47,7 +47,7 @@ describe('BattleScoreboard', () => {
   })
 
   // 18.12b. 320 x 568: the card was 126 px (a row of numbers and a row of the timer) and pushed the task of the round under the sticky
-  // block. In a short window (max-height 640 px) the timer stands where the colon was, between the two scores: one row, 74 px.
+  // block. In a short window (max-height 760 px) the timer stands where the colon was, between the two scores: one row, 74 px.
   describe('with the timer of a round, in a short window', () => {
     const withTimer = () =>
       mount(BattleScoreboard, { props: { me: 0, opponent: 0, opponentName: 'D' }, slots: { default: '<span data-testid="under">timer</span>' } })

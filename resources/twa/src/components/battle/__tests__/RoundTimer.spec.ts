@@ -137,7 +137,7 @@ describe('RoundTimer', () => {
     expect(live(w)).toBe('Осталось 30 с')
   })
 
-  // 18.12b. In a short window (max-height 640 px) the timer stands between the two scores, in a column of its own: the time is over the
+  // 18.12b. In a short window (max-height 760 px) the timer stands between the two scores, in a column of its own: the time is over the
   // bar, not beside it. Nothing is hidden: the same bar, the same time, the same live region.
   it('in a short window puts the time over the bar (a column), and keeps everything it shows', () => {
     const w = render()

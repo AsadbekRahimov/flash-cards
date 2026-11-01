@@ -114,7 +114,7 @@ describe('SentenceBuilder — the screen', () => {
   // 18.12b. A battle puts its score and its timer above the task (74 px in a short window, 126 px otherwise): at 320 x 568 the first row
   // of the bank was 100 px under the sticky block when the round began, with the clock running. A round of a battle spends its room more
   // sparingly in a short window; a solo task keeps what it had.
-  describe('in a round of a battle (short window: max-height 640 px)', () => {
+  describe('in a round of a battle (short window: max-height 760 px)', () => {
     const container = (w: VueWrapper) => w.get('[data-testid=sentence-line]').element.parentElement
     const classesOf = (el: Element | null) => [...(el?.classList ?? [])]
 

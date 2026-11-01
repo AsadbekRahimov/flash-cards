@@ -2257,7 +2257,7 @@ describe('BattleView — behind Pro (docs/16 §3.2)', () => {
 })
 
 // 18.12b. At 320 x 568 the header of a round (the lesson row, the score and the timer) was 218 px of 568: the bank of the sentence, the
-// fields of the dictation and the fourth row of the pairs were under the sticky block of buttons. In a short window (max-height 640 px)
+// fields of the dictation and the fourth row of the pairs were under the sticky block of buttons. In a short window (max-height 760 px)
 // the round gives the room back; happy-dom has no media queries, so the classes that do it are what is checked here, and the e2e of the
 // pictures (`shots`, 320 x 568) is what sees the result.
 describe('BattleView — a short window', () => {
