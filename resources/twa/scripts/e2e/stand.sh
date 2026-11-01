@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# The stand of the browser e2e of the practice and the battle (docs/16 §14.4): a separate SQLite, the demo seed, two friends, the TWA
-# built into public/twa and PHP's built-in server that serves the TWA and the API from ONE origin. From scratch, one command:
+# The stand of the browser e2e of the practice and the battle (docs/16 §14.4): a separate SQLite, the demo seed, two pairs of friends,
+# the TWA built into public/twa and PHP's built-in server that serves the TWA and the API from ONE origin. From scratch, one command:
 #
 #   resources/twa/scripts/e2e/stand.sh up       # database, seed, friends, build, server
 #   resources/twa/scripts/e2e/stand.sh status
@@ -9,8 +9,8 @@
 #
 # Settings (environment, all optional): E2E_DIR (stand directory, default $TMPDIR/lexiflow-e2e), E2E_PORT (8010),
 # E2E_GRACE (PRACTICE_BATTLE_PRESENCE_GRACE, seconds; the server default 30 is kept when empty).
-# Nothing in .env is edited: the settings go through the environment of the commands below (the stand needs only a valid APP_KEY
-# and the ffmpeg of the demo seed from the machine).
+# Nothing in .env is edited: the settings go through the environment of the commands below, which beats what .env says (the stand
+# makes its own APP_KEY and JWT secret). From the machine it needs php, node with the packages of resources/twa, curl and ffmpeg.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
@@ -56,8 +56,9 @@ up() {
 
   echo "== database and demo seed ($DB_DATABASE)"
   php artisan migrate:fresh --seed --force --no-interaction | tail -n 3
-  echo "== friends"
-  php resources/twa/scripts/e2e/befriend.php
+  echo "== friends (Alice and Bob; Charlie and Diana for the pictures that run two by two)"
+  php resources/twa/scripts/e2e/befriend.php 200000001 200000002
+  php resources/twa/scripts/e2e/befriend.php 200000003 200000004
 
   if [ ! -f public/twa/index.html ] || [ -f "$BUILT_MARK" ]; then
     echo "== build of the TWA into public/twa"

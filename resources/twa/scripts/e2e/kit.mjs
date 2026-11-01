@@ -180,11 +180,12 @@ export class Oracle {
 
 /** The API of the stand called straight (not through a screen): the same token a Mini App gets. Used to cross-check what two screens say. */
 export class Api {
-  constructor({ base, botToken, user }) {
+  constructor({ base, botToken, user, ledger = [] }) {
     this.base = base
     this.botToken = botToken
     this.user = user
     this.token = null
+    this.ledger = ledger
   }
 
   async call(method, path, body) {
@@ -202,6 +203,7 @@ export class Api {
       headers: { Authorization: `Bearer ${this.token}`, 'Content-Type': 'application/json', Accept: 'application/json' },
       body: body === undefined ? undefined : JSON.stringify(body),
     })
+    this.ledger.push(Date.now())
     const text = await response.text()
     let json = null
     try {
@@ -231,8 +233,10 @@ const brief = (entry) => `${entry.method} ${entry.path} -> ${entry.status || ent
  * (`net`) and what broke in it (`errors`). The pages are mobile: touch, a phone's viewport, the time zone of Tashkent.
  */
 export class Player {
-  constructor({ name, telegramUser, browser, base, botToken, theme = 'light', width = 390, height = 844, out, tag = '', report }) {
-    Object.assign(this, { name, telegramUser, browser, base, botToken, theme, width, height, out, tag, report })
+  constructor({ name, who = null, role = null, telegramUser, browser, base, botToken, theme = 'light', width = 390, height = 844, out, tag = '', report, ledger = [] }) {
+    // `role` names the pictures when the same screen is taken for different people (the challenger, the opponent), so that the light
+    // and the dark picture of one screen are found side by side.
+    Object.assign(this, { name, who, role, telegramUser, browser, base, botToken, theme, width, height, out, tag, report, ledger })
     this.net = []
     this.errors = []
     this.shots = []
@@ -279,6 +283,8 @@ export class Player {
         body = null
       }
     }
+    // What counts against the limit of the API (60 a minute for a learner): everything but the poll and the clips, which have limits of their own.
+    if (!/\/poll$|\/audio\//.test(url.pathname)) this.ledger.push(Date.now())
     this.net.push({
       at: Date.now(),
       method: request.method(),
@@ -297,6 +303,14 @@ export class Player {
     this.path = path
     await this.page.goto(`${this.base}${path}${launchHash(this.botToken, this.telegramUser, this.theme)}`, { waitUntil: 'domcontentloaded' })
     return this
+  }
+
+  /**
+   * Goes to a screen of the app (a path under /twa/) the way a tap on a link does, without loading the page again: a new load signs in
+   * again, and a sign-in is limited to 10 a minute for a person.
+   */
+  async go(path) {
+    await this.page.evaluate((to) => document.querySelector('#app').__vue_app__.config.globalProperties.$router.push(to), path)
   }
 
   async close() {
@@ -403,7 +417,7 @@ export class Player {
    */
   async shot(label) {
     mkdirSync(this.out, { recursive: true })
-    const base = join(this.out, `${this.tag ? `${this.tag}--` : ''}${this.name}--${label}--${this.width}-${this.theme}`)
+    const base = join(this.out, `${this.tag ? `${this.tag}--` : ''}${this.role ?? this.name}--${label}--${this.width}-${this.theme}`)
     const first = `${base}.png`
     const room = await this.page
       .evaluate(() => ({ inner: innerHeight, total: document.documentElement.scrollHeight, bar: document.querySelector('[data-testid="actions"]')?.getBoundingClientRect().height ?? 0 }))
@@ -428,6 +442,52 @@ export class Player {
 
   async overflow() {
     return this.page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth).catch(() => 0)
+  }
+
+  /**
+   * What the screen cuts off. The page clips the overflow sideways (`overflow-x: clip`), so a document that is "not wider than the
+   * window" can still hide a card: `edges` are the visible elements that stick out of the window to the left or to the right, `clipped`
+   * the texts that a box with `overflow: hidden` does not show whole (an ellipsis is a decision of the design, not always a fault).
+   */
+  async cutOff() {
+    return this.page.evaluate(() => {
+      const width = document.documentElement.clientWidth
+      const name = (element) => {
+        const id = element.closest('[data-testid]')?.dataset.testid ?? ''
+        return `${element.tagName.toLowerCase()}${id ? `[${id}]` : ''} "${(element.textContent ?? '').replace(/\s+/g, ' ').trim().slice(0, 40)}"`
+      }
+      const shown = (element) => {
+        const style = getComputedStyle(element)
+        const box = element.getBoundingClientRect()
+        return style.visibility !== 'hidden' && style.display !== 'none' && Number(style.opacity) > 0.05 && box.width > 1 && box.height > 1
+      }
+      const edges = []
+      const clipped = []
+      for (const element of document.body.querySelectorAll('*')) {
+        if (!shown(element) || element.closest('.sr-only, [aria-hidden="true"][class*="invisible"], svg')) continue
+        const box = element.getBoundingClientRect()
+        if (box.right > width + 1 || box.left < -1) edges.push(`${name(element)} ${Math.round(box.left)}..${Math.round(box.right)} of ${width}`)
+        const style = getComputedStyle(element)
+        if (element.children.length === 0 && (element.textContent ?? '').trim() !== '' && ['hidden', 'clip'].includes(style.overflowX) && element.scrollWidth > element.clientWidth + 1) {
+          clipped.push(`${name(element)} ${element.scrollWidth} > ${element.clientWidth}`)
+        }
+      }
+      return { edges: edges.slice(0, 6), clipped: clipped.slice(0, 6) }
+    })
+  }
+
+  /** Proof that `cutOff()` sees something: a box that sticks out of the window is put on the page, found, and taken away again. */
+  async cutOffSees() {
+    await this.page.evaluate(() => {
+      const probe = document.createElement('div')
+      probe.id = 'e2e-probe'
+      probe.textContent = 'probe'
+      probe.style.cssText = 'position:absolute;top:10px;left:80%;width:50%;height:20px;background:red'
+      document.body.append(probe)
+    })
+    const cut = await this.cutOff()
+    await this.page.evaluate(() => document.getElementById('e2e-probe')?.remove())
+    return cut.edges.some((edge) => edge.includes('probe'))
   }
 
   /** The `<audio>` elements the app has made so far, with what each did (the hook of AUDIO_HOOK). */
@@ -517,13 +577,25 @@ export class Scene {
     return player
   }
 
+  /** A part of the scenario that runs beside the others (its own steps, players and findings; the findings count for the scenario too). */
+  fork(label) {
+    const child = new Scene(this.report, `${this.name}:${label}`)
+    child.parent = this
+    return child
+  }
+
+  /** The checks of a finished fork are the scenario's own. */
+  absorb(child) {
+    this.checks += child.checks
+  }
+
   step(text) {
     this.stepName = text
-    this.report.log(`   - ${text}`)
+    this.report.log(`   - ${this.parent ? `[${this.name.split(':').at(-1)}] ` : ''}${text}`)
   }
 
   note(text) {
-    this.report.log(`     ${text}`)
+    this.report.log(`     ${this.parent ? `[${this.name.split(':').at(-1)}] ` : ''}${text}`)
   }
 
   /** A soft check: a finding on failure, and the scenario goes on. Returns the truth of `condition`. */
@@ -543,7 +615,7 @@ export class Scene {
       if (player.page) shot = await player.shot(`FINDING-${id}`)
     }
     const finding = { id, scenario: this.name, step: this.stepName, message, expected, actual, requests, shot }
-    this.findings.push(finding)
+    for (let scene = this; scene; scene = scene.parent) scene.findings.push(finding)
     this.report.findings.push(finding)
     this.report.log(`     !! #${id} ${message}${expected !== undefined ? ` | expected ${expected}` : ''}${actual !== undefined ? ` | actual ${actual}` : ''}`)
   }
@@ -578,9 +650,27 @@ export class Scene {
   }
 
   async closeAll() {
-    for (const player of this.players) await player.close()
+    for (const player of this.players) {
+      const calls = player.net.filter((entry) => !/\/poll$|\/audio\//.test(entry.path)).length
+      if (calls > 0) this.report.log(`     ${player.name}: ${calls} calls of the API (the limit is 60 a minute), ${player.net.length - calls} polls and clips`)
+      await player.close()
+    }
   }
 }
+
+/**
+ * Calls of the API that end without a good status and are not faults: the question "continue or start a new one" of an unfinished session
+ * (409), an answer whose request or reply the script drops on purpose, a clip that the page stops loading because the learner has gone
+ * on (the review of a dictation loads the clip to listen again, and gives it up when it is left), and what a reload of the page cancels.
+ */
+export const EXPECTED_STATUSES = [
+  { method: 'POST', path: /\/practice\/sessions$/, status: 409 },
+  { method: 'POST', path: /\/answer$/, status: 0 },
+  { method: 'GET', path: /\/audio\//, status: 0 },
+  { method: 'GET', path: /\/poll$/, status: 0 },
+  { method: 'GET', path: /\/round\?no=\d+$/, status: 0 },
+  { method: 'GET', path: /\/battles\/\d+$/, status: 0 },
+]
 
 /** Playwright from the global modules (the stand does not install it): `NODE_PATH` or `npm root -g` of the machine. */
 export function loadPlaywright() {

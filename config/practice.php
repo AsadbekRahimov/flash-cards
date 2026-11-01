@@ -27,7 +27,8 @@ return [
         'round_seconds' => ['collocation' => 30, 'pairs' => 45, 'sentence' => 45, 'dictation' => 60],
         'countdown_seconds' => 3, 'reveal_seconds' => 4,
         'invite_ttl_seconds' => 300, 'room_ttl_seconds' => 120,
-        'presence_grace_seconds' => 30, 'presence_warn_seconds' => 10, 'heartbeat_write_seconds' => 5, 'deadline_grace_ms' => 1500,
+        'presence_grace_seconds' => (int) env('PRACTICE_BATTLE_PRESENCE_GRACE', 30), // ускорение для e2e / стенда (docs/16 §14.4); not below ~10: a heartbeat is up to 7 s old
+        'presence_warn_seconds' => 10, 'heartbeat_write_seconds' => 5, 'deadline_grace_ms' => 1500,
         'points' => ['round' => 100, 'pair' => 25],
         'finished_list' => 10,
     ],

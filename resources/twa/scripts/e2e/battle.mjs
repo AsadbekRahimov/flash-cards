@@ -1,7 +1,7 @@
 // Scenarios 2-6 of docs/16 §14.4: the battle 1 on 1 with two browser contexts (two learners) on the real server - the invitation from
 // "Друзья", the match to the end with a time-out and the same result on both screens, a reload in the middle, the background, a
 // surrender (and a rematch), and "both left" (`both_absent`).
-import { clockSeconds, sel, sleep, until } from './kit.mjs'
+import { EXPECTED_STATUSES, clockSeconds, sel, sleep, until } from './kit.mjs'
 import { COMPONENT, MODE_TITLE, doRound, normalize, whyNotShown } from './screens.mjs'
 
 /** The verdict of a round and its points for what a player did (`null`: did not answer, the time ran out). */
@@ -10,9 +10,6 @@ const VERDICT_WORDS = { correct: 'Верно', typo: 'Опечатка', wrong: 
 const POINTS = { correct: 100, typo: 0, wrong: 0, skipped: 0, timeout: 0 }
 const OUTCOME_WORDS = { won: 'Победа', lost: 'Поражение', draw: 'Ничья', none: 'Матч не состоялся', aborted: 'Матч прерван' }
 const MIRROR = { won: 'lost', lost: 'won', draw: 'draw', none: 'none' }
-
-/** What is not a fault: a time-out round answers late, a reload cancels a poll on its way. */
-const EXPECTED = [{ method: 'GET', path: /\/poll$/, status: 0 }, { method: 'GET', path: /\/round\?no=\d+$/, status: 0 }, { method: 'GET', path: /\/battles\/\d+$/, status: 0 }]
 
 export function battleScenarios(env) {
   return [
@@ -27,8 +24,8 @@ export function battleScenarios(env) {
 // ------------------------------------------------------------------------------------ the state
 
 /** A battle of an earlier run that is still on (a scenario that fell half-way) stands in the way of the next one: it is ended through the API. */
-export async function clearBattles(env) {
-  for (const who of ['a', 'b']) {
+export async function clearBattles(env, whos = ['a', 'b']) {
+  for (const who of whos) {
     const api = env.api(who)
     const list = await api.get('/practice/battles')
     const active = list.json?.active
@@ -102,7 +99,7 @@ async function acceptFromFriends(env, s, b, battle, { shot = false } = {}) {
 }
 
 /** B follows the link of the DM of the bot (`/twa/battles/{id}`): the invitation that came, "Принять". */
-async function acceptFromLink(env, s, b, battle, { shot = false } = {}) {
+export async function acceptFromLink(env, s, b, battle, { shot = false } = {}) {
   s.step(`${b.name}: open the link of the invitation and accept`)
   await b.open(`/twa/battles/${battle.id}`)
   await b.waitFor('battle-room')
@@ -113,7 +110,7 @@ async function acceptFromLink(env, s, b, battle, { shot = false } = {}) {
 }
 
 /** Both are in the room and press "Готов" (a dictation waits for its five clips first); the countdown and the first round follow. */
-async function bothReady(env, s, a, b, battle, { shot = false } = {}) {
+export async function bothReady(env, s, a, b, battle, { shot = false, shoot = (p, label) => p.shot(label) } = {}) {
   s.step('both press "Готов"')
   await until(async () => (await a.data('battle-room', 'phase')) === 'room', { label: `${a.name}: the room (the poll brings the accepted invitation)`, timeout: 15_000 })
   for (const p of [a, b]) {
@@ -124,19 +121,19 @@ async function bothReady(env, s, a, b, battle, { shot = false } = {}) {
       await s.check(clips.length >= 5, 'the room loads the five clips of the dictation', { players: [p], actual: `${clips.length} clips` })
     }
   }
-  if (shot) await a.shot('room')
+  if (shot) await shoot(a, 'room')
   const marks = [a.mark(), b.mark()]
   await Promise.all([a.click('ready-btn'), b.click('ready-btn')])
   await Promise.all([a, b].map((p, i) => p.waitCall(/\/ready$/, { method: 'POST', since: marks[i], status: 200 })))
   await Promise.all([a, b].map((p) => until(async () => ['countdown', 'playing'].includes(await p.data('battle-view', 'status')), { label: `${p.name}: the countdown`, timeout: 20_000 })))
   const state = await a.data('battle-view', 'status')
-  if (state === 'countdown' && shot) await a.shot('countdown')
+  if (state === 'countdown' && shot) await shoot(a, 'countdown')
   await Promise.all([a, b].map((p) => until(async () => (await p.data('battle-view', 'status')) === 'playing', { label: `${p.name}: the match begins`, timeout: 20_000 })))
 }
 
 // ------------------------------------------------------------------------------------ a round
 
-async function waitRound(p, round, battle, { timeout = 30_000 } = {}) {
+export async function waitRound(p, round, battle, { timeout = 30_000 } = {}) {
   const headline = `Раунд ${round} из 5`
   await until(async () => {
     const view = await p.page.evaluate(() => ({
@@ -183,7 +180,7 @@ function correctText(element) {
  * One round: both players answer the way `plan` says (`null`: nothing - the time runs out), the API's words about each answer, then the
  * reveal on both screens: the right answer, a verdict and the points of each, the same on both sides, mirrored.
  */
-async function playRound(env, s, battle, a, b, round, plan, { shots = false } = {}) {
+export async function playRound(env, s, battle, a, b, round, plan, { shots = false, waitingShot = false, shoot = (p, label) => p.shot(label) } = {}) {
   const { oracle } = env
   s.step(`round ${round}: ${a.name} ${plan.a ?? 'gives no answer'}, ${b.name} ${plan.b ?? 'gives no answer'}`)
   await Promise.all([waitRound(a, round, battle), waitRound(b, round, battle)])
@@ -193,13 +190,21 @@ async function playRound(env, s, battle, a, b, round, plan, { shots = false } = 
     await s.check(why === null, `${p.name}: the screen shows round ${round}, the element of the server`, { players: [p], actual: why })
   }
   await s.check((await a.page.locator(sel('round-timer')).count()) > 0, 'the round has a timer', { players: [a] })
-  if (shots) await a.shot(`round-${round}`)
+  if (shots) await shoot(a, `round-${round}`)
 
   const marks = [a.mark(), b.mark()]
-  const doing = []
-  if (plan.a !== null) doing.push(doRound(a, element, plan.a))
-  if (plan.b !== null) doing.push(doRound(b, element, plan.b))
-  await Promise.all(doing)
+  if (waitingShot && plan.a !== null && plan.b !== null) {
+    // A answers first and waits: the picture of the card "Ответ принят" - then B answers.
+    await doRound(a, element, plan.a)
+    await a.waitFor('battle-waiting')
+    await shoot(a, 'waiting')
+    await doRound(b, element, plan.b)
+  } else {
+    const doing = []
+    if (plan.a !== null) doing.push(doRound(a, element, plan.a))
+    if (plan.b !== null) doing.push(doRound(b, element, plan.b))
+    await Promise.all(doing)
+  }
 
   // What the API said to each answer.
   for (const [p, intent, mark] of [[a, plan.a, marks[0]], [b, plan.b, marks[1]]]) {
@@ -213,7 +218,7 @@ async function playRound(env, s, battle, a, b, round, plan, { shots = false } = 
   if (plan.a !== null && plan.b === null) {
     await a.waitFor('battle-waiting')
     await s.check((await a.text('battle-waiting')).includes('Ждём соперника'), `${a.name}: after the answer the screen waits for the opponent`, { players: [a] })
-    if (shots) await a.shot('waiting')
+    if (shots) await shoot(a, 'waiting')
   }
 
   // The round is resolved: at once when both answered, after the deadline and its grace when one did not.
@@ -252,8 +257,8 @@ async function playRound(env, s, battle, a, b, round, plan, { shots = false } = 
     }
   }
   if (shots) {
-    await a.shot(`reveal-${round}`)
-    await b.shot(`reveal-${round}`)
+    await shoot(a, `reveal-${round}`)
+    await shoot(b, `reveal-${round}`)
   }
   return { a: wantA, b: wantB, element }
 }
@@ -266,7 +271,7 @@ function answerWords(element, intent) {
 }
 
 /** What the server owes for an answer of this kind (a collocation / a sentence / a dictation: 100 or nothing; pairs: 25 for each right pair). */
-function expectedOf(element, intent) {
+export function expectedOf(element, intent) {
   if (element.kind === 'pairs_round' && intent === 'wrong') {
     const right = element.left.length - 2
     return { verdict: 'wrong', points: right * 25 }
@@ -278,7 +283,7 @@ function expectedOf(element, intent) {
 // ---------------------------------------------------------------------------------- the result
 
 /** Reads the result screen of a finished battle in one go. */
-async function readResult(p) {
+export async function readResult(p) {
   await p.waitFor('battle-result', { timeout: 25_000 })
   return p.page.evaluate(() => {
     const text = (id) => document.querySelector(`[data-testid="${id}"]`)?.textContent.replace(/\s+/g, ' ').trim() ?? null
@@ -305,7 +310,7 @@ async function readResult(p) {
  * The end of a match on both screens: the same outcome mirrored (a win and a defeat, or two draws), the same score and the same rounds
  * with the sides turned round; then the API (two learners ask for the same battle) and the database say the same.
  */
-async function checkResults(env, s, battle, a, b, rounds, expectation) {
+export async function checkResults(env, s, battle, a, b, rounds, expectation) {
   s.step('the result is the same on both screens, in the API and in the database')
   const [ra, rb] = await Promise.all([readResult(a), readResult(b)])
   const sumA = rounds.reduce((sum, round) => sum + round.a.points, 0)
@@ -330,7 +335,7 @@ async function checkResults(env, s, battle, a, b, rounds, expectation) {
   await s.check(ra.buttons.includes('rematch-btn') && rb.buttons.includes('rematch-btn'), 'both screens offer the rematch', { players: [a, b], actual: `${ra.buttons} / ${rb.buttons}` })
 
   // The API: two learners ask for the same battle.
-  const [apiA, apiB] = await Promise.all([env.api('a').get(`/practice/battles/${battle.id}`), env.api('b').get(`/practice/battles/${battle.id}`)])
+  const [apiA, apiB] = await Promise.all([env.api(a.who).get(`/practice/battles/${battle.id}`), env.api(b.who).get(`/practice/battles/${battle.id}`)])
   await s.check(apiA.status === 200 && apiB.status === 200, 'both learners can read the finished battle', { players: [a, b], actual: `${apiA.status} / ${apiB.status}` })
   const ja = apiA.json
   const jb = apiB.json
@@ -386,7 +391,7 @@ async function battleFull(env, s) {
   await b.shot('result')
   for (const p of [a, b]) await s.check((await p.overflow()) <= 0, `${p.name}: the result has no sideways scroll`, { players: [p] })
   await s.noPageErrors()
-  await s.noUnexpectedStatuses(EXPECTED)
+  await s.noUnexpectedStatuses(EXPECTED_STATUSES)
 }
 
 /** 3: a reload in the middle of a match (before answering, and after answering): the match goes on from the same round. */
@@ -402,7 +407,7 @@ async function battleReload(env, s) {
   await a.waitFor('battle-setup-view')
   const battle = await chooseAndInvite(env, s, a, 'dictation')
   await acceptFromLink(env, s, b, battle)
-  await bothReady(env, s, a, b, battle)
+  await bothReady(env, s, a, b, battle, { shot: true })
 
   // Round 1: A answers, B reloads the page before answering.
   s.step('round 1: B reloads the page before answering')
@@ -443,7 +448,7 @@ async function battleReload(env, s) {
   for (let round = 3; round <= 5; round++) rounds.push(await playRound(env, s, battle, a, b, round, { a: 'right', b: 'right' }))
   await checkResults(env, s, battle, a, b, rounds)
   await s.noPageErrors()
-  await s.noUnexpectedStatuses(EXPECTED)
+  await s.noUnexpectedStatuses(EXPECTED_STATUSES)
 }
 
 /** Hides the tab of a player (what `visibilitychange` does when Telegram is minimised) or shows it again. */
@@ -500,7 +505,7 @@ async function battleBackground(env, s) {
   for (let round = 2; round <= 5; round++) rounds.push(await playRound(env, s, battle, a, b, round, { a: 'right', b: round === 3 ? 'skip' : 'right' }))
   await checkResults(env, s, battle, a, b, rounds)
   await s.noPageErrors()
-  await s.noUnexpectedStatuses(EXPECTED)
+  await s.noUnexpectedStatuses(EXPECTED_STATUSES)
 }
 
 /**
@@ -559,7 +564,7 @@ async function battleSurrender(env, s) {
   await a.waitFor('leave-confirm')
   await a.click('leave-yes')
   await s.noPageErrors()
-  await s.noUnexpectedStatuses(EXPECTED)
+  await s.noUnexpectedStatuses(EXPECTED_STATUSES)
 }
 
 /**
@@ -613,5 +618,5 @@ async function battleBothAbsent(env, s) {
   const same = await Promise.all([env.api('a').get(`/practice/battles/${battle.id}`), env.api('b').get(`/practice/battles/${battle.id}`)])
   await s.check(same.every((api) => api.json?.status === 'closed' && api.json?.end_reason === 'both_absent' && api.json?.result?.outcome === 'none'), 'the API says closed / both_absent / no result to both', { players: [a2, b2], actual: JSON.stringify(same.map((api) => [api.json?.status, api.json?.end_reason, api.json?.result?.outcome])) })
   await s.noPageErrors()
-  await s.noUnexpectedStatuses(EXPECTED)
+  await s.noUnexpectedStatuses(EXPECTED_STATUSES)
 }

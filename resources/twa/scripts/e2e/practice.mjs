@@ -14,7 +14,7 @@ import { mkdirSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { basename, dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { Api, E2EError, Oracle, Player, Report, loadPlaywright, parseArgs } from './kit.mjs'
+import { Api, E2EError, Oracle, Player, Report, loadPlaywright, parseArgs, until } from './kit.mjs'
 import { battleScenarios } from './battle.mjs'
 import { soloScenarios } from './solo.mjs'
 import { shotScenarios } from './shots.mjs'
@@ -22,7 +22,7 @@ import { shotScenarios } from './shots.mjs'
 const args = parseArgs(process.argv.slice(2))
 
 if (args.help || args.h) {
-  console.log(`usage: node practice.mjs --db <sqlite of the stand> [--base URL] [--out DIR] [--a TG_ID] [--b TG_ID] [--only a,b] [--grace SEC] [--lesson ID] [--course SLUG] [--sweep CMD] [--headed]
+  console.log(`usage: node practice.mjs --db <sqlite of the stand> [--base URL] [--out DIR] [--a TG_ID] [--b TG_ID] [--c TG_ID] [--d TG_ID] [--e TG_ID] [--only a,b] [--grace SEC] [--lesson ID] [--course SLUG] [--sweep CMD] [--headed]
 scenarios: solo (solo:pairs, solo:collocation, solo:sentence, solo:dictation), battle (battle:full, battle:reload, battle:background, battle:surrender, battle:both-absent), shots`)
   process.exit(0)
 }
@@ -38,6 +38,11 @@ const cfg = {
   botToken: String(args['bot-token'] ?? process.env.TELEGRAM_BOT_TOKEN ?? '123456:e2e-test-token'),
   telegramA: Number(args.a ?? 200000001),
   telegramB: Number(args.b ?? 200000002),
+  // A second pair of friends for the pictures (they run two by two): the third and the fourth demo learner.
+  telegramC: Number(args.c ?? 200000003),
+  telegramD: Number(args.d ?? 200000004),
+  // The fifth demo learner takes the pictures of the solo screens by herself, so that the limit of the API is not what sets the pace.
+  telegramE: Number(args.e ?? 200000005),
   // presence_grace_seconds of the SERVER (the stand's default is 30; `stand.sh` takes E2E_GRACE): how long "both absent" has to wait.
   grace: Number(args.grace ?? 30),
   course: String(args.course ?? 'default'),
@@ -66,22 +71,40 @@ async function main() {
   const people = {
     a: personOf(oracle, cfg.telegramA),
     b: personOf(oracle, cfg.telegramB),
+    c: personOf(oracle, cfg.telegramC),
+    d: personOf(oracle, cfg.telegramD),
+    e: personOf(oracle, cfg.telegramE),
   }
-  const env = { cfg, browser, oracle, report, people, wanted, newPlayer, sweep, api: (who) => new Api({ base: cfg.base, botToken: cfg.botToken, user: people[who] }) }
+  // One API client (one token) for a learner: a sign-in is limited to 10 a minute for a person, like a Mini App's own.
+  const apis = {}
+  const ledgers = { a: [], b: [], c: [], d: [], e: [] }
+  const env = { cfg, browser, oracle, report, people, wanted, newPlayer, sweep, rest, api: (who) => (apis[who] ??= new Api({ base: cfg.base, botToken: cfg.botToken, user: people[who], ledger: ledgers[who] })) }
+
+  /**
+   * Waits (by the log of its own calls) until a learner has at least `room` calls left of the 60 a minute the API allows: the script is
+   * faster than a person, and a screen that gets "Too many requests" is not what is being tested.
+   */
+  async function rest(who, room) {
+    const used = () => ledgers[who].filter((at) => at > Date.now() - 60_000).length
+    if (used() <= 60 - room) return
+    report.log(`     (${people[who].first_name} has used ${used()} of 60 calls this minute: waiting for ${room} to be free)`)
+    await until(() => used() <= 60 - room, { timeout: 90_000, interval: 500, label: `the limit of the API for ${people[who].first_name}` })
+  }
 
   /** Runs the janitor once (`practice:battles-sweep`): `{ ok, output }`. */
   function sweep() {
     const standDir = basename(cfg.db) === 'e2e.sqlite' ? dirname(cfg.db) : null
     const command = cfg.sweep ?? (standDir === null ? null : `${join(dirname(fileURLToPath(import.meta.url)), 'stand.sh')} sweep`)
     if (command === null) return { ok: false, output: 'no way to run the janitor: pass --sweep "<command>" (the database of the stand is not named e2e.sqlite)' }
-    const run = spawnSync('bash', ['-c', command], { encoding: 'utf8', env: { ...process.env, E2E_DIR: standDir ?? process.env.E2E_DIR ?? '', E2E_PORT: new URL(cfg.base).port || '8010' } })
+    const run = spawnSync('bash', ['-c', command], { encoding: 'utf8', env: { ...process.env, E2E_DIR: standDir ?? process.env.E2E_DIR ?? '', E2E_PORT: new URL(cfg.base).port || '8010', E2E_GRACE: String(cfg.grace) } })
     return { ok: run.status === 0, output: `${run.stdout}${run.stderr}`.trim() }
   }
 
   /** A player with a Telegram launch, a theme and a width; `scene` closes it at the end of the scenario. */
-  async function newPlayer(scene, who, { theme = 'light', width = 390, height, tag = scene.name.replace(/[^\w-]+/g, '-') } = {}) {
+  async function newPlayer(scene, who, { theme = 'light', width = 390, height, role = null, tag = scene.name.replace(/[^\w-]+/g, '-') } = {}) {
     const user = people[who]
-    const player = new Player({ name: user.first_name, telegramUser: user, browser, base: cfg.base, botToken: cfg.botToken, theme, width, height: height ?? (width <= 320 ? 568 : 844), out: cfg.out, tag, report })
+    await rest(who, 30)
+    const player = new Player({ name: user.first_name, who, role, telegramUser: user, browser, base: cfg.base, botToken: cfg.botToken, theme, width, height: height ?? (width <= 320 ? 568 : 844), out: cfg.out, tag, report, ledger: ledgers[who] })
     scene.add(player)
     return player.start()
   }

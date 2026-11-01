@@ -221,3 +221,14 @@ export async function doRound(p, element, intent) {
       throw new E2EError(`no way to answer an element of the kind ${element.kind}`)
   }
 }
+
+/** One match of a board of pairs (solo): a card of the left column, then one of the right; the reply of the server comes back. */
+export async function matchPair(p, left, right, { last = false } = {}) {
+  const mark = p.mark()
+  await p.click(`left-${left}`)
+  await p.click(`right-${right}`)
+  const call = await p.waitCall(/\/answer$/, { method: 'POST', since: mark })
+  // The card shows the verdict (a flash); the board takes no other tap while the match is on its way.
+  if (!last) await until(async () => (await p.data(`left-${left}`, 'state')) !== 'selected', { label: 'the verdict of the match on the card' })
+  return { call, json: call.body ? JSON.parse(call.body) : null }
+}

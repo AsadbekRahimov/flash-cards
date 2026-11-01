@@ -1,18 +1,9 @@
 // Scenario 1 of docs/16 §14.4: each of the four solo modes from the hub of a lesson to the summary, with mistakes made on purpose,
 // "Repeat mistakes", the way back to an unfinished session ("Continue"), and an answer whose reply is lost on the way.
-import { E2EError, until } from './kit.mjs'
-import { CHIP_WORDS, COMPONENT, MODE_TITLE, VERDICT_WORDS, bankFragments, boardCards, doCollocation, doDictation, doSentence, normalize, typoOf, whyNotShown } from './screens.mjs'
+import { E2EError, EXPECTED_STATUSES, until } from './kit.mjs'
+import { CHIP_WORDS, COMPONENT, MODE_TITLE, VERDICT_WORDS, bankFragments, boardCards, doCollocation, doDictation, doSentence, matchPair, normalize, typoOf, whyNotShown } from './screens.mjs'
 
 const VERDICT = { right: 'correct', wrong: 'wrong', typo: 'typo', skip: 'skipped' }
-/**
- * Not faults: the question "continue or start a new one" of an unfinished session of an earlier run (409), and the answers whose
- * request or reply the script drops on purpose (the page sees no status).
- */
-const EXPECTED = [
-  { method: 'POST', path: /\/practice\/sessions$/, status: 409 },
-  { method: 'POST', path: /\/answer$/, status: 0 },
-]
-
 export function soloScenarios(env) {
   return [
     { name: 'solo:pairs', body: (s) => soloPairs(env, s) },
@@ -345,7 +336,7 @@ async function soloCollocation(env, s) {
   await p.shot('summary')
   await repeatAndFinish(env, s, p, session, results)
   await s.noPageErrors()
-  await s.noUnexpectedStatuses(EXPECTED)
+  await s.noUnexpectedStatuses(EXPECTED_STATUSES)
 }
 
 async function soloSentence(env, s) {
@@ -368,7 +359,7 @@ async function soloSentence(env, s) {
   await p.shot('summary')
   await repeatAndFinish(env, s, p, session, results)
   await s.noPageErrors()
-  await s.noUnexpectedStatuses(EXPECTED)
+  await s.noUnexpectedStatuses(EXPECTED_STATUSES)
 }
 
 /**
@@ -436,7 +427,7 @@ async function soloDictation(env, s) {
   await p.shot('summary')
   await repeatAndFinish(env, s, p, session, results)
   await s.noPageErrors()
-  await s.noUnexpectedStatuses(EXPECTED)
+  await s.noUnexpectedStatuses(EXPECTED_STATUSES)
 }
 
 /** "Repeat mistakes", then every repeated task right: the summary of the repeat is clean, and "Ещё раз" takes the place of the repeat. */
@@ -469,7 +460,7 @@ async function playRoundOfPairs(env, s, p, session, { slip = true, shot = false 
   if (slip) {
     const countBefore = await p.textNow('pairs-count')
     const wrongRight = Object.values(table).find((right) => right !== table[lefts[0].id])
-    const attempt = await matchPair(p, lefts[0].id, wrongRight, { last: false })
+    const attempt = await matchPair(p, lefts[0].id, wrongRight)
     slipped = lefts[0].text
     await s.check(attempt.json?.verdict === 'wrong' && attempt.json.pair?.left_id === lefts[0].id, 'the API calls a wrong match wrong', { players: [p], actual: JSON.stringify({ verdict: attempt.json?.verdict, pair: attempt.json?.pair }) })
     await s.check(attempt.json?.first_attempt === true, 'the wrong match is the first attempt of its word', { players: [p], actual: attempt.json?.first_attempt })
@@ -537,16 +528,5 @@ async function soloPairs(env, s) {
   await s.check(shown.perfect && shown.mistakes.length === 0, 'the repeat of the mistakes ends with no mistakes', { players: [p], since: retryMark, actual: JSON.stringify(shown) })
   await s.check(shown.again && !shown.retry, 'without mistakes the summary offers "Ещё раз"', { players: [p], since: retryMark, actual: JSON.stringify({ again: shown.again, retry: shown.retry }) })
   await s.noPageErrors()
-  await s.noUnexpectedStatuses(EXPECTED)
-}
-
-/** One match of a board of pairs: a card of the left column, then one of the right; the reply of the server comes back. */
-async function matchPair(p, left, right, { last }) {
-  const mark = p.mark()
-  await p.click(`left-${left}`)
-  await p.click(`right-${right}`)
-  const call = await p.waitCall(/\/answer$/, { method: 'POST', since: mark })
-  // The card shows the verdict (a flash); the board takes no other tap while the match is on its way.
-  if (!last) await until(async () => (await p.data(`left-${left}`, 'state')) !== 'selected', { label: 'the verdict of the match on the card' })
-  return { call, json: call.body ? JSON.parse(call.body) : null }
+  await s.noUnexpectedStatuses(EXPECTED_STATUSES)
 }
