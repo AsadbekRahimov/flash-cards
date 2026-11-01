@@ -26,9 +26,9 @@
 #
 # What the upgrade does (idempotent, re-runnable after any failure):
 #   1. takes the lock shared with deploy.sh (.deploy.lock in the project directory) and only then looks at the volumes,
-#      stops every service of the stack except postgres and redis (the writers), then the old postgres, and writes the
-#      in-progress marker with the list of stopped services into the new volume (created by compose) - from here on
-#      `--check` stops every deploy;
+#      stops every service of the stack except postgres and redis (the writers), then the old postgres; an existing 18+
+#      cluster gets its pg_hba.conf gate (below) while it is down; then the in-progress marker with the list of stopped
+#      services is written into the new volume (created by compose) - from here on `--check` stops every deploy;
 #   2. fingerprints the legacy cluster (md5 of global/pg_control: it changes whenever that server runs again);
 #   3. initialises the 18+ cluster on the new volume (the stack keeps the legacy volume mounted read-only as a guard,
 #      so the plain entrypoint would refuse) with a pg_hba.conf gate that rejects every network connection: nobody can
@@ -38,17 +38,20 @@
 #      `pg_restore --single-transaction` - the target is either fully restored or left empty;
 #   5. compares row counts of every table, sequences, indexes and constraints between the two clusters;
 #   6. runs `vacuumdb --analyze-in-stages`, opens the gate, writes the done marker (with the fingerprint) into the new
-#      volume, removes the temporaries, starts the services it stopped and removes the in-progress marker.
+#      volume and rewrites the in-progress marker as a plain pending start (redo=0), removes the temporaries, starts the
+#      services it stopped and removes the in-progress marker.
 #   The legacy volume stays as the rollback copy until the owner deletes it by hand. The stack's postgres container
-#   starts through docker/postgres/entrypoint-guard.sh, which refuses to start on a stale cluster (fingerprint changed,
-#   no in-progress marker) - the same verdict as `--check`, for anything that bypasses deploy.sh.
+#   starts through docker/postgres/entrypoint-guard.sh, which refuses to start on a stale cluster (fingerprint changed;
+#   only an in-progress marker with redo=1 - a --redo at work - lifts the check) - the same verdict as `--check`, for
+#   anything that bypasses deploy.sh.
 #
 # Environment:
-#   PG_UPGRADE_SOURCE_IMAGE  image for the old cluster (default postgres:<old major>-alpine)
-#   PG_UPGRADE_TIMEOUT       seconds to wait for a server to become ready (default 180)
-#   DEPLOY_LOCK_FILE         lock file shared with deploy.sh (default .deploy.lock in the project directory)
-#   DEPLOY_LOCK_WAIT         seconds to wait for that lock before giving up (default 300)
-#   PG_UPGRADE_FAIL_AT       tests only: the name of the step at which to fail on purpose
+#   PG_UPGRADE_SOURCE_IMAGE      image for the old cluster (default postgres:<old major>-alpine)
+#   PG_UPGRADE_TIMEOUT           seconds to wait for a server to become ready (default 180)
+#   PG_UPGRADE_SKIP_SPACE_CHECK  1 = do not check the free space before the move (warned about; the copy must still fit)
+#   DEPLOY_LOCK_FILE             lock file shared with deploy.sh (default .deploy.lock in the project directory)
+#   DEPLOY_LOCK_WAIT             seconds to wait for that lock before giving up (default 300)
+#   PG_UPGRADE_FAIL_AT           tests only: the name of the step at which to fail on purpose
 
 set -Eeuo pipefail
 
@@ -88,7 +91,7 @@ while [ $# -gt 0 ]; do
     else
         case "$1" in
             --) AFTER_DASHDASH=1 ;;
-            -h|--help) sed -n '2,51p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+            -h|--help) sed -n '2,54p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
             *) flag "$1" || { echo "Unknown argument: $1 (see --help)" >&2; exit 2; } ;;
         esac
     fi
@@ -405,9 +408,19 @@ run_check() {
             "Finish it before deploying:  $UPGRADE_CMD"
     fi
     if [ -n "$WIP_REDO" ]; then
+        local how=()
+        if [ -n "$OLD_MAJOR" ]; then
+            how=("Finish it:  $REDO_CMD" \
+                "or keep the PostgreSQL ${NEW_MAJOR:-$IMAGE_MAJOR} data after all:  $KEEP_CMD   (refused once that --redo has set the database aside)")
+        else
+            # --redo / --keep-current refuse without a legacy cluster; the plain run finishes what is left (or says how to put
+            # a set-aside database back by hand) - so that is the command to offer.
+            how=("The legacy volume holds no PostgreSQL cluster any more, so the copy cannot be finished. The plain run starts the" \
+                "services that --redo stopped and removes the marker - or, if that --redo had set the database aside, says how to put it back:" \
+                "    $UPGRADE_CMD")
+        fi
         stop_with "a --redo (copying the PostgreSQL ${OLD_MAJOR:-16} data again) is in progress or was interrupted (marker $MARKER_WIP with redo=1 in volume $NEW_VOL): the PostgreSQL ${NEW_MAJOR:-$IMAGE_MAJOR} database is being replaced${WIP_STALE_DB:+ — the previous one was to be set aside as $WIP_STALE_DB}." \
-            "Finish it:  $REDO_CMD" \
-            "or keep the PostgreSQL ${NEW_MAJOR:-$IMAGE_MAJOR} data after all:  $KEEP_CMD   (refused once that --redo has set the database aside)" \
+            "${how[@]}" \
             "then run the deploy again."
     fi
     if [ -n "$(fact "$NEW_FACTS" root)" ] || [ -n "$(fact "$NEW_FACTS" data)" ]; then
@@ -467,7 +480,7 @@ run_check() {
         log "OK: no PostgreSQL data yet — a fresh install, the stack will initialise an empty cluster"
     fi
     [ -z "$NEW_MAJOR" ] || stale_databases_info
-    [ -z "$WIP" ] || info "The last upgrade run did not get to start the application services; the deploy starts the whole stack anyway ($UPGRADE_CMD would only start them)."
+    [ -z "$WIP" ] || info "The last upgrade run did not get to start the application services; the deploy starts the whole stack anyway ($UPGRADE_CMD would only start them and remove the $MARKER_WIP marker)."
     exit 0
 }
 
@@ -531,9 +544,11 @@ on_exit() {
                 printf '  Still stopped: %s\n' "${STOPPED[*]}"
             fi
             if [ "$DONE_WRITTEN" -eq 1 ]; then
+                # The decision (--redo / --keep-current) is taken and recorded; the plain run finishes the start, the flags would
+                # only be refused ("nothing is stale") or repeat a decision that is already made.
                 printf '  The data move is complete and verified (marker %s in volume %s) and the network gate is open; only the start of\n' "$MARKER_DONE" "$NEW_VOL"
-                printf '  the application services is pending. Run the same command again — it starts them and removes the %s marker\n' "$MARKER_WIP"
-                printf '  (a deploy starts the whole stack as well):  %s\n' "$SAME_CMD"
+                printf '  the application services is pending. Run the script again without flags — it starts them and removes the %s marker\n' "$MARKER_WIP"
+                printf '  (a deploy starts the whole stack as well):  %s\n' "$SCRIPT_CMD"
             else
                 if [ "$MARKED_WIP" -eq 1 ]; then
                     printf '  Volume %s keeps the %s marker: deploy.sh refuses to start the stack until the upgrade completes' "$NEW_VOL" "$MARKER_WIP"
@@ -661,11 +676,21 @@ gate_is_closed() {
     out="$(pg_target psql -w -h 127.0.0.1 -U "$DB_USER" -d postgres -c 'SELECT 1' 2>&1 || true)"
     grep -q 'rejects connection' <<<"$out"
 }
+# The rule goes in front of pg_hba.conf of an EXISTING cluster while its server is down (a one-off container, before the
+# in-progress marker is written): from that moment any start of the cluster - this script's, a manual `up -d` while the
+# marker lifts the entrypoint guard - rejects network clients. close_gate, after the start, finds the rule in place and
+# only reloads and confirms; it still writes the rule itself for a cluster that got none (an older run, a hand-made cluster).
+GATE_SH='
+    f="$PGDATA/pg_hba.conf"
+    [ -s "$f" ] || { echo "no $f: the cluster has no pg_hba.conf" >&2; exit 1; }
+    grep -qx -- "$1" "$f" && exit 0
+    { printf "# %s\n%s\n" "$2" "$1"; cat "$f"; } > "$f.lexiflow" && mv "$f.lexiflow" "$f"'
+close_gate_offline() {
+    compose run --rm --no-deps -T --quiet-pull --user postgres --entrypoint /bin/sh postgres -c "$GATE_SH" sh "$GATE_RULE" "$GATE_NOTE"
+    GATE_CLOSED=1
+}
 close_gate() {  # idempotent: also for a cluster initialised by an older run or by hand
-    pg_target_as_postgres /bin/sh -c '
-        f="$PGDATA/pg_hba.conf"
-        grep -qx -- "$1" "$f" && exit 0
-        { printf "# %s\n%s\n" "$2" "$1"; cat "$f"; } > "$f.lexiflow" && mv "$f.lexiflow" "$f"' sh "$GATE_RULE" "$GATE_NOTE"
+    pg_target_as_postgres /bin/sh -c "$GATE_SH" sh "$GATE_RULE" "$GATE_NOTE"
     printf 'SELECT pg_reload_conf()' | psql_target -d postgres >/dev/null
     gate_is_closed || die "could not close the network gate of PostgreSQL $IMAGE_MAJOR (pg_hba.conf in $NEW_VOL)"
     GATE_CLOSED=1
@@ -720,7 +745,7 @@ describe_legacy_change() {
         VERDICT="this is a DIFFERENT cluster (system identifier $m_sysid → $n_sysid): the legacy volume was re-initialised"
     elif [ "$n_state" != 'shut down' ]; then
         VERDICT_KIND='running'
-        VERDICT="PostgreSQL $OLD_MAJOR is running or was not shut down cleanly (cluster state '$n_state'); what it wrote is unknown — if it runs, stop it, then run this again"
+        VERDICT="PostgreSQL $OLD_MAJOR is running or was not shut down cleanly (cluster state '$n_state'): what it wrote after the upgrade is unknown, pg_controldata sees only the last checkpoint (if it runs, stop it, then run this again)"
     elif [ "$m_xid" != "$n_xid" ] || [ "$m_oid" != "$n_oid" ]; then
         VERDICT_KIND='writes'
         VERDICT="transactions were committed on PostgreSQL $OLD_MAJOR after the upgrade; the PostgreSQL $IMAGE_MAJOR copy lacks them"
@@ -741,34 +766,49 @@ legacy_rw_users() {
     done
 }
 # --keep-current records the legacy cluster as it is now, so it must stand still: a running server rewrites pg_control at
-# every checkpoint (the recorded fingerprint would be stale at once) and keeps writing data nobody will notice.
+# every checkpoint (the recorded fingerprint would be stale at once) and keeps writing data nobody will notice. Standing
+# still is what counts: a cluster that was killed (OOM, `docker rm -f`, a host crash) keeps 'in production' in pg_control
+# for ever, yet with no container on the volume it changes no more - it is recorded as it is, with a warning. Should it
+# ever run again (crash recovery rewrites pg_control), the fingerprint changes and the checks stop again.
 require_legacy_shut_down() {
     local users state
     users="$(legacy_rw_users | tr '\n' ' ')"
     state="$(ctl_field "$(legacy_controldata)" 'Database cluster state')"
-    if [ -n "${users// /}" ] || [ "$state" != 'shut down' ]; then
-        die "PostgreSQL $OLD_MAJOR is running on the legacy volume $OLD_VOL, or was not shut down cleanly (pg_controldata: cluster state '$state'${users:+; running container(s): $users}). Stop it first — after a rollback that is the postgres container of the old compose file:  docker stop ${users:-lexiflow-postgres}  — then run this again:  $SAME_CMD"
+    if [ -n "${users// /}" ]; then
+        die "PostgreSQL $OLD_MAJOR is running on the legacy volume $OLD_VOL (container(s): ${users% }; pg_controldata: cluster state '$state'). Stop it first — after a rollback that is the postgres container of the old compose file:  docker stop ${users% }  — then run this again:  $SAME_CMD"
+    fi
+    if [ "$state" != 'shut down' ]; then
+        warn "PostgreSQL $OLD_MAJOR on $OLD_VOL was not shut down cleanly (pg_controldata: cluster state '$state' — killed, or the host went down), but no container uses the volume read-write: the cluster stands still and is recorded as it is. Whatever its WAL holds beyond the last checkpoint stays in the legacy volume; if PostgreSQL $OLD_MAJOR is ever started on it again, the fingerprint changes and the next check stops again"
     fi
 }
 
 # --- markers (written as root through a one-off container, so they can be rewritten whoever wrote them before) ---------
+# A marker is written whole: into a temporary file next to it, then renamed over it - a reader (the guard, --check, a
+# resumed run) never sees a half-written marker, whatever happens to this script half-way.
+write_marker() {  # $1 = marker file name; the content on stdin
+    one_off "f=$NEW_MOUNT/$1 && cat > \"\$f.tmp\" && chmod 644 \"\$f.tmp\" && mv -f \"\$f.tmp\" \"\$f\""
+}
 # The in-progress marker of a --redo keeps redo=1 (the done marker stays: it is the history of the verified move, and
-# `--check` knows from redo=1 that the database is being replaced, not merely waiting for its services) and, from the
-# moment the previous database is about to be renamed, stale_db=<name> - so that nothing blesses the replacement by mistake.
+# `--check` knows from redo=1 that the database is being replaced, not merely waiting for its services; the entrypoint
+# guard lets only redo=1 start postgres on a changed fingerprint) and, from the moment the previous database is about to
+# be renamed, stale_db=<name> - so that nothing blesses the replacement by mistake. With redo=0 (the move is complete
+# and verified, only the start of the services is pending) the marker carries no stale_db: a name left there would make a
+# later run take the live database for a replacement.
 write_wip_marker() {  # $1 = the redo flag to record (default: this run's)
-    local redo="${1:-$REDO}"
+    local redo="${1:-$REDO}" stale=''
+    [ "$redo" -eq 0 ] || stale="$STALE_DB"
     {
         printf 'started=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
         printf 'from=%s %s\n' "$OLD_MAJOR" "$OLD_VOL"
         printf 'to=%s %s\n' "$IMAGE_MAJOR" "$NEW_VOL"
         printf 'stopped_services=%s\n' "${STOPPED[*]:-}"
         printf 'redo=%s\n' "$redo"
-        printf 'stale_db=%s\n' "$STALE_DB"
-    } | one_off "cat > $NEW_MOUNT/$MARKER_WIP && chmod 644 $NEW_MOUNT/$MARKER_WIP"
+        printf 'stale_db=%s\n' "$stale"
+    } | write_marker "$MARKER_WIP"
     MARKED_WIP=1
 }
 remove_wip_marker() {
-    one_off "rm -f $NEW_MOUNT/$MARKER_WIP"
+    one_off "rm -f $NEW_MOUNT/$MARKER_WIP $NEW_MOUNT/$MARKER_WIP.tmp"
     MARKED_WIP=0
 }
 write_done_marker() {  # $1 = summary line; a --redo keeps the summary of the move it replaced as previous=
@@ -780,7 +820,7 @@ write_done_marker() {  # $1 = summary line; a --redo keeps the summary of the mo
         printf 'source_image=%s\ntarget_image=%s\n' "$SRC_IMAGE" "$IMAGE"
         printf 'stopped_services=%s\n' "${STOPPED[*]:-}"
         legacy_fingerprint_lines "$ctl" "$LEGACY_MD5"
-    } | one_off "cat > $NEW_MOUNT/$MARKER_DONE && chmod 644 $NEW_MOUNT/$MARKER_DONE"
+    } | write_marker "$MARKER_DONE"
     DONE_WRITTEN=1
 }
 refresh_done_marker() {  # --keep-current: the marker keeps its history, the legacy_* fields describe the cluster as it is now
@@ -792,7 +832,7 @@ refresh_done_marker() {  # --keep-current: the marker keeps its history, the leg
         printf '%s\n' "$current" | grep -v '^legacy_'
         legacy_fingerprint_lines "$ctl" "$md5"
         printf 'legacy_accepted_at=%s previous_md5=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "${DONE_MD5:-none}"
-    } | one_off "cat > $NEW_MOUNT/$MARKER_DONE && chmod 644 $NEW_MOUNT/$MARKER_DONE"
+    } | write_marker "$MARKER_DONE"
 }
 
 start_stopped_services() {
@@ -813,6 +853,20 @@ start_stopped_services() {
     fi
 }
 
+# An interrupted --redo is over - resolved in favour of the current data by --keep-current (right after
+# refuse_if_database_set_aside confirmed that '$DB_NAME' is untouched), or found complete and verified: from here on the
+# marker only carries the pending start (redo=0, the services it stopped). Done BEFORE the done marker is touched, so a
+# failure anywhere later leaves redo=0 next to the done marker - a state every later run finishes - and never redo=1 next
+# to a fingerprint that matches, which no path could resolve.
+end_interrupted_redo() {
+    [ -n "$WIP_REDO" ] || return 0
+    local s
+    for s in $(fact "$NEW_FACTS" done_services) $(fact "$NEW_FACTS" wip_services); do add_stopped "$s"; done
+    STALE_DB=''
+    write_wip_marker 0
+    WIP_REDO=''
+}
+
 # done + in-progress markers together: the data move is complete, only the start of the services is pending (the run
 # that wrote the done marker failed afterwards, or an interrupted --redo was resolved by --keep-current).
 finish_pending_start() {
@@ -823,12 +877,7 @@ finish_pending_start() {
     MARKED_WIP=1
     DONE_WRITTEN=1   # for on_exit: the move is verified, only this start is pending
     step 'start the application'
-    if [ -n "$WIP_REDO" ]; then
-        # the --redo is over (resolved in favour of the current data): from here on the marker only carries the pending start
-        STALE_DB=''
-        write_wip_marker 0
-        WIP_REDO=''
-    fi
+    end_interrupted_redo
     log "Starting the application services the interrupted run had stopped, then removing its $MARKER_WIP marker"
     start_stopped_services
     remove_wip_marker
@@ -855,8 +904,30 @@ reopen_gate_if_closed() {
     info "network gate opened: PostgreSQL $IMAGE_MAJOR accepts network connections again"
 }
 
+# The two questions below decide what is and is not the current data, so a failing query is an error, never an answer
+# (an unreachable server or a database that refuses connections would otherwise read as "does not exist" / "not empty").
 db_exists() {  # $1 = database name, on the target
-    [ "$(printf "SELECT 1 FROM pg_database WHERE datname = :'db'" | psql_target -d postgres -v db="$1")" = '1' ]
+    local found
+    found="$(printf "SELECT 1 FROM pg_database WHERE datname = :'db'" | psql_target -d postgres -v db="$1")" \
+        || die "cannot query pg_database of PostgreSQL $IMAGE_MAJOR (is the stack's postgres running?); nothing was decided"
+    [ "$found" = '1' ]
+}
+# Prints the number of user objects in '$DB_NAME' on the target (0 = empty) and returns psql's status: the caller dies on a
+# failure itself - a `die` inside `$(...)` would only end the subshell, and the empty answer would pass for a verdict.
+target_db_objects() {
+    printf '%s' "$SQL_IS_EMPTY" | psql_target -d "$DB_NAME"
+}
+CANNOT_INSPECT='cannot inspect database %s on PostgreSQL %s (does it accept connections?); nothing was decided'
+drop_target_database() {  # the unverified copy an interrupted --redo left in '$DB_NAME'; retried like the rename (pg_isready touches it)
+    local dropped=0
+    for _ in 1 2 3 4 5; do
+        if printf 'DROP DATABASE %s' "$(qi "$DB_NAME")" | psql_target -d postgres; then
+            dropped=1
+            break
+        fi
+        sleep 2
+    done
+    [ "$dropped" -eq 1 ] || die "could not drop the unverified copy '$DB_NAME' (still accessed by someone?); stop the clients and run this again:  $SAME_CMD"
 }
 
 # An interrupted --redo may already have set the current database aside (stale_db= in its marker is written right before
@@ -869,7 +940,10 @@ refuse_if_database_set_aside() {
     if db_exists "$WIP_STALE_DB"; then
         die "the interrupted --redo set the PostgreSQL $IMAGE_MAJOR database aside as '$WIP_STALE_DB'; '$DB_NAME' is its replacement (the PostgreSQL ${OLD_MAJOR:-16} copy: empty or unverified). Finish that --redo:  $REDO_CMD  — or, to keep the PostgreSQL $IMAGE_MAJOR data after all, put it back by hand (drop nothing): in  ${COMPOSE[*]} exec postgres psql -U $DB_USER -d postgres  rename '$DB_NAME' away (e.g. ALTER DATABASE $(qi "$DB_NAME") RENAME TO $(qi "${DB_NAME}_redo_aborted")) and '$WIP_STALE_DB' to '$DB_NAME', then run this again:  $SAME_CMD"
     fi
-    [ "$(printf '%s' "$SQL_IS_EMPTY" | psql_target -d "$DB_NAME")" != '0' ] \
+    local objects
+    # shellcheck disable=SC2059
+    objects="$(target_db_objects)" || die "$(printf "$CANNOT_INSPECT" "'$DB_NAME'" "$IMAGE_MAJOR")"
+    [ "$objects" != '0' ] \
         || die "database '$DB_NAME' on PostgreSQL $IMAGE_MAJOR is empty and the database the interrupted --redo set aside ('$WIP_STALE_DB') is gone: nothing here is the current data. Restore from a backup, or copy the legacy data:  $REDO_CMD"
     info "the interrupted --redo meant to set '$DB_NAME' aside as '$WIP_STALE_DB' but never did: the current database is untouched"
 }
@@ -877,6 +951,10 @@ refuse_if_database_set_aside() {
 # A full run needs room for a temporary copy of the legacy volume plus the restored database (about the legacy size
 # again); a database set aside by --redo stays as it is. Measured where Docker keeps its volumes, before anything is stopped.
 check_free_space() {
+    if [ "${PG_UPGRADE_SKIP_SPACE_CHECK:-0}" = '1' ]; then
+        warn "PG_UPGRADE_SKIP_SPACE_CHECK=1: not checking the free space; a full copy of the legacy volume plus the restored database must still fit where Docker keeps its volumes"
+        return 0
+    fi
     local legacy_mb free_mb need_mb
     legacy_mb="$(docker run --rm --entrypoint /bin/sh -v "$OLD_VOL:/v:ro" "$IMAGE" -c 'du -sm /v | cut -f1' 2>/dev/null || true)"
     free_mb="$(one_off "df -Pm $NEW_MOUNT | awk 'NR == 2 { print \$4 }'" 2>/dev/null || true)"
@@ -953,7 +1031,7 @@ run_upgrade() {
     resolve_stack
     take_lock                   # every decision below is taken under the lock shared with deploy.sh, never on a picture another run is changing
     inspect_stack
-    STALE_DB="$WIP_STALE_DB"    # a resumed --redo keeps the name its predecessor recorded
+    [ -z "$WIP_REDO" ] || STALE_DB="$WIP_STALE_DB"    # a resumed --redo keeps the name its predecessor recorded
     log "PostgreSQL volumes of the stack"
     describe_state
 
@@ -986,6 +1064,7 @@ run_upgrade() {
                 ensure_image "$SRC_IMAGE"
                 require_legacy_shut_down
                 refuse_if_database_set_aside
+                end_interrupted_redo
                 refresh_done_marker
                 log "Recorded the fingerprint of the PostgreSQL $OLD_MAJOR cluster in $OLD_VOL; the PostgreSQL $IMAGE_MAJOR data counts as current"
                 reopen_gate_if_closed
@@ -996,8 +1075,18 @@ run_upgrade() {
                 "If the PostgreSQL $IMAGE_MAJOR data is the current data, record the fingerprint once:  $KEEP_CMD"
         fi
         if [ "$DONE_MD5" = "$OLD_MD5" ]; then
+            if [ -n "$WIP_REDO" ]; then
+                # The in-progress marker names a --redo, yet the done marker records the fingerprint the legacy cluster has now.
+                # The done marker is only ever written after the copy was verified (that --redo then failed before it rewrote
+                # the marker or started the services) or refreshed by --keep-current after it had confirmed '$DB_NAME' untouched:
+                # either way '$DB_NAME' is the data the owner chose and only the start (and perhaps the gate) is left. The
+                # decision is made, so any flag finishes it: a plain run, the --redo an older on_exit hinted at, --keep-current.
+                log "The $MARKER_WIP marker names a --redo, but the $MARKER_DONE marker already records the current fingerprint of the legacy cluster: the data move is complete and verified, only the start of the application services is pending"
+                reopen_gate_if_closed
+                finish_pending_start
+                exit 0
+            fi
             [ "$REDO" -eq 0 ] || die "the PostgreSQL $OLD_MAJOR cluster in $OLD_VOL has not run since the upgrade: nothing is stale, refusing to set the current database aside (--redo is for a legacy cluster that ran again, e.g. after a rollback)"
-            [ -z "$WIP_REDO" ] || die "the $MARKER_WIP marker says a --redo was interrupted, yet the fingerprint of the legacy cluster equals the recorded one — a state this script does not produce; inspect the markers in $NEW_VOL and the databases by hand"
             reopen_gate_if_closed
             finish_pending_start
             if [ "$KEEP_CURRENT" -eq 1 ]; then
@@ -1016,6 +1105,7 @@ run_upgrade() {
         if [ "$KEEP_CURRENT" -eq 1 ]; then
             require_legacy_shut_down
             refuse_if_database_set_aside
+            end_interrupted_redo
             refresh_done_marker
             log "Kept the PostgreSQL $IMAGE_MAJOR data and recorded the current state of the legacy cluster"
             info "Whatever PostgreSQL $OLD_MAJOR wrote after the upgrade stays only in volume $OLD_VOL."
@@ -1028,11 +1118,18 @@ run_upgrade() {
             while IFS= read -r line; do lines+=("$line"); done < <(stale_commands)
             stop_with "the PostgreSQL $IMAGE_MAJOR data may be STALE — $VERDICT." "${lines[@]}"
         fi
-        # --redo on a verdict that would replace the live database with older or empty data needs --force.
+        # A running legacy server cannot be copied consistently (and would be found again, after the services were stopped).
+        if [ "$VERDICT_KIND" = 'running' ]; then
+            local users
+            users="$(legacy_rw_users | tr '\n' ' ')"
+            [ -z "${users// /}" ] || die "--redo refused: PostgreSQL $OLD_MAJOR is running on the legacy volume $OLD_VOL (container(s): ${users% }). Stop it first:  docker stop ${users% }  — then run this again:  $SAME_CMD"
+        fi
+        # --redo on a verdict that would (or might) replace the live database with older or empty data needs --force.
         if [ "$FORCE" -eq 0 ]; then
             case "$VERDICT_KIND" in
                 start) die "--redo refused: PostgreSQL $OLD_MAJOR only started since the upgrade and committed nothing (NextXID/NextOID unchanged), so copying it again would replace the live PostgreSQL $IMAGE_MAJOR database with the data as of the upgrade — losing what the application wrote on $IMAGE_MAJOR since. Record the new state of $OLD_MAJOR instead:  $KEEP_CMD   (if the $OLD_MAJOR data really is the truth:  $(script_cmd --redo --force))" ;;
                 different) die "--redo refused: the legacy volume $OLD_VOL holds a DIFFERENT PostgreSQL $OLD_MAJOR cluster than the one that was upgraded (system identifier changed: the volume was re-initialised, e.g. deleted and then recreated empty by a rollback). Copying it would replace the live PostgreSQL $IMAGE_MAJOR database with that cluster. Keep the current data and record this cluster instead:  $KEEP_CMD   (to copy it anyway:  $(script_cmd --redo --force))" ;;
+                running) die "--redo refused: $VERDICT — so this copy might replace the live PostgreSQL $IMAGE_MAJOR database with the data as of the upgrade, as after a mere start. If PostgreSQL $OLD_MAJOR can be started on $OLD_VOL once more, stop it cleanly (the final checkpoint tells writes from a start) and run this again:  $SAME_CMD   If it was killed and will not run again, copy it anyway — the copy replays its WAL:  $(script_cmd --redo --force)" ;;
             esac
         fi
         log "--redo: the PostgreSQL $OLD_MAJOR data will be copied again; the current PostgreSQL $IMAGE_MAJOR database is set aside, not dropped"
@@ -1100,6 +1197,15 @@ run_upgrade() {
     local users
     users="$(legacy_rw_users | tr '\n' ' ')"
     [ -z "${users// /}" ] || die "the legacy volume $OLD_VOL is mounted read-write by running container(s): $users— stop them first (docker stop $users)"
+
+    if [ -n "$NEW_MAJOR" ]; then
+        # An existing cluster (an interrupted run, a --redo): the in-progress marker below lifts the entrypoint guard for a
+        # --redo, and `--check` alone stops no manual `up -d` - so the gate goes into pg_hba.conf first, while the server is
+        # down. Whatever starts this cluster from now on rejects network clients until the move is verified.
+        step 'close the network gate'
+        log "Closing the network gate of the existing PostgreSQL $NEW_MAJOR cluster in $NEW_VOL (first rule of pg_hba.conf, written while the server is down)"
+        close_gate_offline
+    fi
 
     step 'mark the new volume'
     log "Writing the $MARKER_WIP marker into volume $NEW_VOL (stopped services: ${STOPPED[*]:-none}); deploy.sh refuses to start the stack while it is there"
@@ -1171,23 +1277,33 @@ run_upgrade() {
     step 'prepare the target database'
     local target_objects='0'
     if db_exists "$DB_NAME"; then
-        target_objects="$(printf '%s' "$SQL_IS_EMPTY" | psql_target -d "$DB_NAME")"
+        # shellcheck disable=SC2059
+        target_objects="$(target_db_objects)" || die "$(printf "$CANNOT_INSPECT" "'$DB_NAME'" "$IMAGE_MAJOR")"
         if [ "$target_objects" != '0' ] && [ "$REDO" -eq 1 ]; then
-            [ -z "$WIP_STALE_DB" ] || info "the interrupted --redo had set a database aside as '$WIP_STALE_DB' already; '$DB_NAME' holds objects again (its restore completed before the interruption?) and is set aside as well"
-            STALE_DB="${DB_NAME}_stale_$(date -u +%Y%m%dT%H%M%SZ)"
-            write_wip_marker   # stale_db= goes on record BEFORE the rename: from here on --keep-current refuses to bless '$DB_NAME'
-            log "Setting the current database aside: '$DB_NAME' → '$STALE_DB' (kept for inspection, nothing is dropped)"
-            # Nobody is connected: the application is stopped and the gate is closed. The healthcheck's pg_isready touches the
-            # database for a moment, though, so a collision ("is being accessed by other users") gets a few retries.
-            local renamed=0
-            for _ in 1 2 3 4 5; do
-                if printf 'ALTER DATABASE %s RENAME TO %s' "$(qi "$DB_NAME")" "$(qi "$STALE_DB")" | psql_target -d postgres; then
-                    renamed=1
-                    break
-                fi
-                sleep 2
-            done
-            [ "$renamed" -eq 1 ] || die "could not rename database '$DB_NAME' (still accessed by someone?); stop the clients and run this again"
+            if [ -n "$WIP_REDO" ] && [ -n "$WIP_STALE_DB" ] && db_exists "$WIP_STALE_DB"; then
+                # The interrupted --redo had set the previous database aside already (its marker says so, and that database is
+                # there), so what '$DB_NAME' holds is that run's copy of the legacy data: restored behind the closed gate, never
+                # verified, never connected to. The restore starts over anyway - the copy goes, the set-aside database stays and
+                # keeps its name in the marker (set aside a second time, the real PostgreSQL <new> data would drop out of it).
+                log "The interrupted --redo had set the previous PostgreSQL $IMAGE_MAJOR database aside as '$WIP_STALE_DB' (kept); '$DB_NAME' holds that run's unverified copy of the legacy data: dropping it, the restore starts over"
+                STALE_DB="$WIP_STALE_DB"
+                drop_target_database
+            else
+                STALE_DB="${DB_NAME}_stale_$(date -u +%Y%m%dT%H%M%SZ)"
+                write_wip_marker   # stale_db= goes on record BEFORE the rename: from here on --keep-current refuses to bless '$DB_NAME'
+                log "Setting the current database aside: '$DB_NAME' → '$STALE_DB' (kept for inspection, nothing is dropped)"
+                # Nobody is connected: the application is stopped and the gate is closed. The healthcheck's pg_isready touches the
+                # database for a moment, though, so a collision ("is being accessed by other users") gets a few retries.
+                local renamed=0
+                for _ in 1 2 3 4 5; do
+                    if printf 'ALTER DATABASE %s RENAME TO %s' "$(qi "$DB_NAME")" "$(qi "$STALE_DB")" | psql_target -d postgres; then
+                        renamed=1
+                        break
+                    fi
+                    sleep 2
+                done
+                [ "$renamed" -eq 1 ] || die "could not rename database '$DB_NAME' (still accessed by someone?); stop the clients and run this again"
+            fi
             target_objects='0'
         fi
     fi
@@ -1231,6 +1347,9 @@ run_upgrade() {
     info "network gate opened: PostgreSQL $IMAGE_MAJOR accepts network connections again"
     write_done_marker "$(printf 'upgraded %s → %s at %s: %s tables, %s rows, database %s, source volume %s' \
         "$OLD_MAJOR" "$IMAGE_MAJOR" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$src_tables" "$src_rows" "$DB_NAME" "$OLD_VOL")"
+    # Verified and recorded: the in-progress marker turns into a plain pending start (redo=0) at once. Left at redo=1 next
+    # to a done marker that matches the legacy fingerprint, it would read as a replacement still under way.
+    write_wip_marker 0
     docker rm -f "$SRC_CTR" >/dev/null
     cleanup_temp
 

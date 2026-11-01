@@ -43,8 +43,10 @@ services:
             POSTGRES_DB: ${DB_DATABASE:-lexiflow}
             POSTGRES_USER: ${DB_USERNAME:-lexiflow}
             POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
-            # What the guard tells the operator to run when it refuses (the dev stack: no --prod).
+            # What the guard tells the operator to run when it refuses (the dev stack: no --prod), and how to start the
+            # stack again afterwards.
             LEXIFLOW_UPGRADE_CMD: bash docker/postgres/upgrade.sh
+            LEXIFLOW_UP_CMD: docker compose up -d
         ports:
             - "${DB_PORT_HOST:-5432}:5432"
         volumes:
