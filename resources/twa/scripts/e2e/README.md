@@ -43,19 +43,23 @@ The exit code is 1 on any FAIL.
 | `battle:background` | `visibilitychange` hidden for 13 s: no polling, the opponent is told "Соперник потерял связь", then not; the match is not lost |
 | `battle:surrender` | "Остаться", then "Сдаться" by the one who leads: the other wins, the score stays; the rematch offered and accepted |
 | `battle:both-absent` | both contexts closed for longer than the grace, the janitor runs, `closed / both_absent` on both screens |
-| `battle:absent-lazy` | only by name (`--only battle:absent-lazy`): the same without the janitor - the first one to come back wins `finished / absent`; an observation, see below |
+| `battle:absent-lazy` | the same without the janitor: the first one to come back closes the match by their own request - `closed / both_absent`, no winner, the mark of nobody renewed; the other reads the same later |
 | `shots` | 390 and 320 px x light and dark: the screens of each mode (task, review) and of a battle (room, round, review, result); nothing may stick out of the window sideways |
 
 ## Things to know
 
-- **`presence_grace_seconds`.** The server's default is 30 s; `PRACTICE_BATTLE_PRESENCE_GRACE` (stand: `E2E_GRACE=12`, script: `--grace 12`)
-  changes it. The 5 s of docs/16 §14.4 does not work: a heartbeat is written every 5 s and polled every 2 s, so a healthy player is
-  up to 7 s "old", and a match with grace 5 is cancelled in the countdown. `battle:background` keeps a player away for 13 s and
-  needs about 25 s or more. For a quicker `battle:both-absent` run that scenario alone with 12 (about 22 s instead of 40).
-- **The janitor.** `both_absent` comes only from `practice:battles-sweep` (every minute in production): whoever opens the match first
-  after the grace is "present" (the heartbeat of the viewer is written before the transition is made) and wins by the absence of the
-  other (`finished / absent`) - `battle:absent-lazy` shows it. The stand has no scheduler, so `battle:both-absent` runs
-  `stand.sh sweep` itself (`--sweep` for another stand).
+- **`presence_grace_seconds`.** The server's default is 30 s; `PRACTICE_BATTLE_PRESENCE_GRACE` (stand: `E2E_GRACE=15`, script: `--grace 15`)
+  shortens it, but never below the floor of 15 s (`heartbeat_write_seconds` + the longest pause of the poll,
+  `BattleSettings::presenceGraceFloorSeconds`): a heartbeat is written every 5 s and polled every 2 s, so a healthy player is up to
+  7 s "old" (up to 15 s after a failed poll), and the 5 s an earlier docs/16 §14.4 proposed cancelled a match in the countdown.
+  `--grace` must name the EFFECTIVE value - the API tells it in `presence_grace_seconds` of a battle. `battle:background` keeps a
+  player away for 13 s and needs about 25 s or more. For quicker `battle:both-absent` / `battle:absent-lazy` runs, run those
+  scenarios alone with 15 (about 25 s of waiting instead of 40).
+- **The clock, not the janitor.** `both_absent` is decided by the clock: the first request of either player after the grace - opening
+  the match, a poll, an action - moves the match by the presence as it WAS, so both are absent and the match is closed without a
+  winner, and the one who came back is not marked present by coming back (`battle:absent-lazy`); a player away longer than the grace
+  loses to one away less, whoever asks first. `practice:battles-sweep` (every minute in production) gives the same outcome when nobody
+  comes back; the stand has no scheduler, so `battle:both-absent` runs `stand.sh sweep` itself (`--sweep` for another stand).
 - **Limits.** The API allows 60 calls a minute and `/auth` 10 a minute per learner. The script counts its own calls, waits when a
   learner is short of room and spreads the work over the five demo learners (the solo modes: Alice, Bob, Charlie, Diana; the battles by
   turns: Alice and Bob, Charlie and Diana; the solo pictures: Eve). Do not start it twice within a minute, or two copies at once.
