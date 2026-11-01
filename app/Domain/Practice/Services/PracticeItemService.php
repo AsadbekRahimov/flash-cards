@@ -370,9 +370,12 @@ final class PracticeItemService
     }
 
     /**
-     * "Generate the audio again": queues the voicing, forced even if it is ready, of the PUBLISHED version of a dictation (the
-     * one the learners get - a published version whose audio failed cannot be played) and of the CURRENT one (the one the admin
-     * edits) when that is another version; each at most once. Nothing for another type or an archived task.
+     * "Generate the audio again": queues the voicing, forced even if it is ready, of the CURRENT version of a dictation (the one
+     * the admin edits), and of the PUBLISHED one when that is another version and its audio is NOT ready (a published version whose
+     * audio failed or waits cannot be played, so it is mended). A READY published version is left alone: the learners get it, and
+     * queueing it would turn it to `pending` - not handed out - for the time of the job, and for good once the retries are spent
+     * if the TTS is still down (the draft failed most likely because of it). Each at most once. Nothing for another type or an
+     * archived task.
      *
      * @throws PracticeItemStateException the task is archived
      */
@@ -390,9 +393,15 @@ final class PracticeItemService
         }
 
         foreach (PracticeItemVersion::query()->whereIn('id', $ids)->orderBy('id')->get() as $version) {
-            if ($version->audio_status !== AudioStatus::None) {
-                $this->audio->schedule($version, force: true);
+            if ($version->audio_status === AudioStatus::None) {
+                continue;
             }
+
+            if ($version->id !== $item->current_version_id && $version->audio_status === AudioStatus::Ready) {
+                continue;
+            }
+
+            $this->audio->schedule($version, force: true);
         }
     }
 

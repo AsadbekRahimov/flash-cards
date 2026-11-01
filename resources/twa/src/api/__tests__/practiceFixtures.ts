@@ -152,11 +152,14 @@ const modeInfo = (mode: PracticeMode, overrides: Partial<PracticeModeInfo> = {})
   ...overrides,
 })
 
+/** The unfinished session as the server sends it: by id and by name (lesson 41 is the one of `hub()`). */
 export const activeSession = (overrides: Partial<PracticeActiveSession> = {}): PracticeActiveSession => ({
   id: 77,
   mode: 'pairs',
   course: 'english-a1',
+  course_title: 'Английский A1',
   lesson_id: 41,
+  lesson: { stage: 2, number: 4, title: 'Еда' },
   progress: { done: 1, total: 3 },
   ...overrides,
 })

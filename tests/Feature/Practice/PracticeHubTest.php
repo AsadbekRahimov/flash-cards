@@ -198,5 +198,5 @@ it('shows the unfinished session of the learner, whichever course it is of, and 
         'snapshot' => (new Snapshot(PracticeMode::Sentence, ['ru'], [], [], 'elsewhere', ['ru' => 'Курс']))->toArray(),
     ]);
     expect(hubGet($me, "course={$course->slug}")->json('active_session'))
-        ->toBe(['id' => $mine->id, 'mode' => 'sentence', 'course' => 'elsewhere', 'lesson_id' => null, 'progress' => ['done' => 2, 'total' => 5]]);
+        ->toBe(['id' => $mine->id, 'mode' => 'sentence', 'course' => 'elsewhere', 'course_title' => 'Курс', 'lesson_id' => null, 'lesson' => null, 'progress' => ['done' => 2, 'total' => 5]]);
 });
