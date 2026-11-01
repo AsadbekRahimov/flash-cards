@@ -151,7 +151,10 @@ make pg-upgrade                              # = bash docker/postgres/upgrade.sh
 (`docker compose logs postgres` → `lexiflow-upgrade guard: refusing to start PostgreSQL 18`): это обёртка entrypoint
 `docker/postgres/entrypoint-guard.sh`, она сверяет отпечаток кластера 16 с маркером. Выберите `--redo` или
 `--keep-current`, как описано в `docs/DEVOPS_GUIDE.md` (`--redo` после «просто запустили и выключили 16» без записей
-потребует `--redo --force`, потому что заменил бы живую базу 18 её же старым снимком), затем `docker compose up -d`.
+или после убитой 16 (`docker rm -f`, `Database cluster state` ≠ `shut down`) потребует `--redo --force`, потому что
+заменил бы живую базу 18 её же старым снимком; `--keep-current` убитую, но никем не запущенную 16 записывает с
+предупреждением), затем `docker compose up -d` — эту же команду guard печатает в логе. Если `make pg-upgrade` сорвался на
+самом последнем шаге (запуск `app`/`nginx`), просто повторите его без флагов: данные уже сверены.
 Состояние томов без изменений показывает `make pg-check`. Старый том не удаляется автоматически: когда он больше не
 нужен — последовательность выше (`down` → `volume rm` → `up -d`). На macOS без `flock` скрипт работает без общей с
 `deploy.sh` блокировки и предупреждает об этом. Подробности и прод — `docs/DEVOPS_GUIDE.md`, §0 «Обновление PostgreSQL

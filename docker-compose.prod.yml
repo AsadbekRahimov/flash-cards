@@ -137,8 +137,10 @@ services:
             POSTGRES_DB: ${DB_DATABASE}
             POSTGRES_USER: ${DB_USERNAME}
             POSTGRES_PASSWORD: ${DB_PASSWORD}
-            # What the guard tells the operator to run when it refuses.
+            # What the guard tells the operator to run when it refuses, and how to start the stack again afterwards (this
+            # container restarts on its own: restart: unless-stopped).
             LEXIFLOW_UPGRADE_CMD: bash docker/postgres/upgrade.sh --prod
+            LEXIFLOW_UP_CMD: bash deploy.sh <sha>   (postgres restarts on its own)
         volumes:
             # 18+ images keep the cluster in /var/lib/postgresql/<major>/docker: one mount at /var/lib/postgresql,
             # the volume name carries no version. Data of the ≤16 stack lives in the old volume `pgdata`

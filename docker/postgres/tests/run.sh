@@ -19,19 +19,27 @@
 #   3  the upgrade through `-- <compose args>`: counts, sequences, constraints identical; `--check` = 0 (flags before
 #      and after `--`); a repeat is a no-op; the stand-ins run again; the network gate is open
 #   4  🔴1 a PostgreSQL 18 cluster exists but no done marker (the hole left by an interrupted run of the old script):
-#      `--check` = 1 "never completed"; a run that fails after starting that cluster has closed its gate (close_gate on an
-#      existing cluster); the resume finishes the move
+#      `--check` = 1 "never completed"; a run that fails right after its marker has already closed the gate of that
+#      cluster (pg_hba.conf written while postgres was down), so a manual `up -d` gets no network client in; the resume
+#      (with PG_UPGRADE_SKIP_SPACE_CHECK=1) finishes the move
 #   4b a run that fails BEFORE the cluster is initialised: the in-progress marker is already there and no cluster is
 #      (marker before init); a run that fails right after the new cluster is up: the marker lists the stopped services,
 #      the gate rejects a network client even after a manual `up -d`; the resume starts the services the failed run stopped
 #   5  🔴2 rollback to 16 and forward: PostgreSQL 16 runs on the legacy volume and writes a row → R2: `up -d postgres` of
 #      the new compose does NOT start 18 (entrypoint guard), `--check` = 1 STALE, upgrade.sh without a flag stops;
 #      `--redo` copies again (the row is on 18, the old 18 database is kept aside, the gate is open, the done marker keeps
-#      the history); `--keep-current` keeps 18 and postgres starts again; R1: a `--redo` interrupted after it closed the
-#      gate → `--keep-current` reopens it and `--check` = 0; Y2: `--keep-current` while 16 runs is refused; a start of 16
-#      without writes is told apart from a start with writes and Y1: `--redo` is refused for it without --force;
-#      `--redo` on an unchanged legacy cluster is refused
-#   6  a fresh install without a legacy volume: `--check` = 0, `up -d` initialises 18 (through the guard), `--check` = 0
+#      the history); `--keep-current` keeps 18 and postgres starts again; R1: a `--redo` interrupted right after its
+#      marker leaves the gate closed for the `up -d` the marker lets through; a `--redo` interrupted after it closed the
+#      gate → `--keep-current` (refused while the database cannot be inspected; interrupted before the gate → its repeat)
+#      reopens it and `--check` = 0; Y2: `--keep-current` while 16 runs is refused; a start of 16 without writes is told
+#      apart from a start with writes and Y1: `--redo` is refused for it without --force; `--redo` on an unchanged legacy
+#      cluster is refused; a killed 16 ('in production' for good): `--redo` needs --force, `--keep-current` warns and
+#      records; a `--redo` interrupted after its restore: the second `--redo` keeps the set-aside database and its name,
+#      drops the unverified copy; a `--redo` that fails at the start of the services leaves a plain pending start (redo=0;
+#      `--check` = 0, the plain run finishes); a lingering redo=0 marker does not switch the guard off; redo=1 next to a
+#      matching fingerprint (the dead end of the previous script) is finished by the plain run
+#   6  a fresh install without a legacy volume: `--check` = 0, `up -d` initialises 18 (through the guard), `--check` = 0;
+#      the markers of a --redo whose legacy volume is gone: `--check` names the plain run, which finishes
 
 set -Eeuo pipefail
 
@@ -164,6 +172,13 @@ yes_no() { if "$@"; then echo yes; else echo no; fi; }
 labelled_volume() {  # $1 name, $2 compose key: the volume as compose would have created it
     docker volume create --label "com.docker.compose.project=$PROJECT" --label "com.docker.compose.volume=$2" "$1" >/dev/null
 }
+# States a run cannot be made to leave (or only slowly): the markers are edited or written by hand, with the fields the
+# script writes. $1 marker, $2 field, $3 value.
+set_marker_field() { docker run --rm -v "$NEW_VOL:/v" busybox:stable sh -c "sed -i 's/^$2=.*/$2=$3/' /v/$1"; }
+write_wip_by_hand() {  # $1 = redo flag: the in-progress marker as a run that failed at the start of the services leaves it
+    docker run --rm -v "$NEW_VOL:/v" busybox:stable sh -c \
+        "printf 'started=by-hand\nfrom=16 $LEGACY_VOL\nto=18 $NEW_VOL\nstopped_services=app nginx\nredo=$1\nstale_db=\n' > /v/$MARKER_WIP"
+}
 
 SQL_SEED=$(cat <<'SQL'
 CREATE TABLE users (
@@ -246,6 +261,7 @@ guard_stale_attempt() {
     run_capture compose logs postgres
     expect_contains "$1: the entrypoint guard refuses to start 18 on a possibly stale cluster" "$GUARD_TEXT" "$OUT"
     expect_contains "$1: the guard names the way out" 'bash docker/postgres/upgrade.sh --keep-current' "$OUT"
+    expect_contains "$1: the guard says how to start the stack again (LEXIFLOW_UP_CMD of the compose file)" 'Then start the stack again:  docker compose up -d' "$OUT"
     expect_eq "$1: postgres is not running" 'no' "$(pg_running)"
 }
 
@@ -286,8 +302,10 @@ scenario '7. the lock shared with deploy.sh'
 compose up -d app nginx redis >/dev/null 2>&1
 expect_eq 'stand-ins are running' 'app nginx redis' "$(running_services)"
 if command -v flock >/dev/null 2>&1; then
-    # The holder becomes `sleep` itself (exec), so killing it closes the descriptor and releases the lock.
-    ( exec 9>>"$DEPLOY_LOCK_FILE"; flock 9; printf 'pid=%s started=test command=holder\n' "$$" >&9; exec sleep 120 ) &
+    # The holder becomes `sleep` itself (exec), so killing it closes the descriptor and releases the lock. Like deploy.sh and
+    # upgrade.sh it truncates the file once it holds the lock, then writes its line: the first line always names the holder
+    # (scenario 2 left the line of its own upgrade.sh run there).
+    ( exec 9>>"$DEPLOY_LOCK_FILE"; flock 9; : > "$DEPLOY_LOCK_FILE"; printf 'pid=%s started=test command=holder\n' "$$" >&9; exec sleep 120 ) &
     HOLDER=$!
     for _ in $(seq 1 50); do ( exec 9>>"$DEPLOY_LOCK_FILE"; flock -n 9 ) 2>/dev/null || break; sleep 0.2; done
     expect_eq 'the test holds the lock' 'held' "$( ( exec 9>>"$DEPLOY_LOCK_FILE"; flock -n 9 ) 2>/dev/null && echo free || echo held)"
@@ -325,6 +343,8 @@ expect_eq 'no gate rule left in pg_hba.conf' 0 "$(volume_file "$NEW_VOL" 18/dock
 expect_contains 'the done marker records the legacy fingerprint' 'legacy_pg_control_md5=' "$(volume_file "$NEW_VOL" "$MARKER_DONE")"
 expect_contains 'the done marker records NextXID' 'legacy_next_xid=' "$(volume_file "$NEW_VOL" "$MARKER_DONE")"
 expect_eq 'the in-progress marker is gone' 'no' "$(yes_no volume_has "$NEW_VOL" "$MARKER_WIP")"
+expect_eq 'no half-written marker is left behind (markers are renamed into place)' 'no no' \
+    "$(yes_no volume_has "$NEW_VOL" "$MARKER_DONE.tmp") $(yes_no volume_has "$NEW_VOL" "$MARKER_WIP.tmp")"
 expect_eq 'the temporary volumes are gone' '' "$(docker volume ls -q --filter "name=${PROJECT}_pgupgrade" | tr '\n' ' ')"
 run_capture upgrade --check
 expect_eq '--check exits 0' 0 "$RC"
@@ -357,18 +377,26 @@ run_capture upgrade --check
 expect_eq '--check exits 1' 1 "$RC"
 expect_contains '--check: the move was never completed' 'was never completed' "$OUT"
 expect_not_contains '--check: not the "not moved" text' 'has not been moved to the 18+ layout' "$OUT"
-# the existing, gateless cluster: the run closes its gate right after starting it (close_gate on an existing cluster)
-run_capture upgrade_failing_at 'copy the legacy volume'
-expect_eq 'a run that fails after starting the existing cluster exits 2' 2 "$RC"
-expect_eq 'the gate rule was added to the existing pg_hba.conf as the first rule' 'host all all all reject' \
+# the existing, gateless cluster: the run writes the gate into its pg_hba.conf while postgres is down, before the marker -
+# a failure right after the marker leaves a cluster that rejects network clients whoever starts it (here: a manual `up -d`,
+# which the marker lets through)
+run_capture upgrade_failing_at 'fingerprint the legacy cluster'
+expect_eq 'a run that fails right after its marker exits 2' 2 "$RC"
+expect_contains 'the failure explains the marker and the gate' 'rejects network connections (pg_hba gate)' "$OUT"
+expect_eq 'postgres is down at that point' 'no' "$(pg_running)"
+expect_eq 'the gate rule was added to the existing pg_hba.conf as the first rule (while postgres was down)' 'host all all all reject' \
     "$(volume_file "$NEW_VOL" 18/docker/pg_hba.conf | grep -v '^#' | grep -m1 .)"
-expect_contains 'a network client is rejected by the gate on the existing cluster' 'rejects connection' "$(tcp_probe)"
+compose up -d postgres >/dev/null 2>&1
+wait_pg "$PG_CTR" "$DB_USER"
+expect_contains 'a network client is rejected by the gate on the existing cluster after a manual `up -d`' 'rejects connection' "$(tcp_probe)"
 run_capture upgrade --check
 expect_eq '--check exits 1 (interrupted)' 1 "$RC"
 expect_contains '--check: in progress or interrupted' 'in progress or was interrupted' "$OUT"
 expect_contains '--check: shows the closed gate' 'network gate: CLOSED' "$OUT"
-run_capture upgrade
+run_capture env PG_UPGRADE_SKIP_SPACE_CHECK=1 "${UPGRADE_SH[@]}" "${UPGRADE_TAIL[@]}"
 expect_eq 'upgrade.sh finishes the move (exit 0)' 0 "$RC"
+expect_contains 'PG_UPGRADE_SKIP_SPACE_CHECK=1 skips the space check with a warning' 'PG_UPGRADE_SKIP_SPACE_CHECK=1: not checking the free space' "$OUT"
+expect_not_contains 'PG_UPGRADE_SKIP_SPACE_CHECK=1: nothing was measured' 'needed: about' "$OUT"
 expect_contains 'upgrade.sh restored into the empty database' 'Restoring' "$OUT"
 expect_eq 'the data on 18 equals 16' "$EXPECTED" "$(probe_18)"
 expect_eq 'a network client can connect' 1 "$(tcp_probe)"
@@ -472,9 +500,22 @@ expect_eq '--check exits 0 after --keep-current' 0 "$RC"
 run_capture upgrade
 expect_eq 'the plain run is a no-op again' 0 "$RC"
 expect_contains 'the plain run says so' 'Nothing to do' "$OUT"
-# round 3 (R1, scenario B): 16 writes D3; a --redo is interrupted right after it closed the gate on the live cluster;
-# the owner changes their mind: --keep-current must reopen the gate and start the services
+# round 3 (R1, scenario B): 16 writes D3. A --redo interrupted right after it wrote its marker: the marker (redo=1) lets a
+# manual `up -d` start postgres, but the gate went into pg_hba.conf before the marker, while postgres was down, so no
+# network client gets in. Then a --redo interrupted after it closed the gate on the live cluster; the owner changes
+# their mind: --keep-current must reopen the gate and start the services - refusing while the database cannot be
+# inspected, and finishing on its repeat when it was interrupted before the gate
 rollback_16 "INSERT INTO users (name) VALUES ('D3')"
+run_capture upgrade_failing_at 'fingerprint the legacy cluster' --redo
+expect_eq 'a --redo interrupted right after its marker exits 2' 2 "$RC"
+expect_contains 'the in-progress marker says redo' 'redo=1' "$(volume_file "$NEW_VOL" "$MARKER_WIP")"
+expect_eq 'postgres is down at that point' 'no' "$(pg_running)"
+expect_eq 'the gate rule is the first rule of pg_hba.conf already (written while postgres was down)' 'host all all all reject' \
+    "$(volume_file "$NEW_VOL" 18/docker/pg_hba.conf | grep -v '^#' | grep -m1 .)"
+compose up -d postgres >/dev/null 2>&1
+wait_pg "$PG_CTR" "$DB_USER"
+expect_eq 'the marker (redo=1) lets a manual `up -d` start postgres' 'yes' "$(pg_running)"
+expect_contains 'a network client is rejected all the same: the gate was closed before the marker' 'rejects connection' "$(tcp_probe)"
 run_capture upgrade_failing_at 'copy the legacy volume' --redo
 expect_eq 'the interrupted --redo exits 2' 2 "$RC"
 expect_contains 'the interrupted --redo offers --keep-current as the way back' 'To keep the PostgreSQL 18 data instead' "$OUT"
@@ -484,10 +525,28 @@ expect_contains 'the gate is closed on the live cluster' 'rejects connection' "$
 run_capture upgrade --check
 expect_eq '--check exits 1 during an interrupted --redo (done + in-progress is not "finishing")' 1 "$RC"
 expect_contains '--check: names the interrupted --redo' 'a --redo (copying the PostgreSQL 16 data again) is in progress or was interrupted' "$OUT"
+# M2: the marker says the --redo meant to set the database aside; while the database cannot be inspected (it refuses
+# connections) --keep-current must not take the failed query for "not empty" and bless it
+set_marker_field "$MARKER_WIP" stale_db "${DB}_stale_never"
+sql_18 "ALTER DATABASE \"$DB\" ALLOW_CONNECTIONS false" postgres >/dev/null
 run_capture upgrade --keep-current
-expect_eq '--keep-current after the interrupted --redo exits 0' 0 "$RC"
+expect_eq '--keep-current refuses while the database cannot be inspected (exit 2)' 2 "$RC"
+expect_contains 'the refusal names the failed query, not a verdict' "cannot inspect database '$DB'" "$OUT"
+expect_contains 'the in-progress marker still says redo' 'redo=1' "$(volume_file "$NEW_VOL" "$MARKER_WIP")"
+sql_18 "ALTER DATABASE \"$DB\" ALLOW_CONNECTIONS true" postgres >/dev/null
+# a --keep-current that fails after it recorded the new fingerprint and before it reopened the gate
+run_capture upgrade_failing_at 'open the network gate' --keep-current
+expect_eq '--keep-current interrupted before the gate exits 2' 2 "$RC"
+expect_contains '--keep-current saw the set-aside that never happened' 'never did: the current database is untouched' "$OUT"
 expect_contains '--keep-current kept 18' 'Kept the PostgreSQL 18 data' "$OUT"
-expect_contains '--keep-current reopened the gate' 'network gate opened' "$OUT"
+expect_contains 'the in-progress marker is a plain pending start now (redo=0)' 'redo=0' "$(volume_file "$NEW_VOL" "$MARKER_WIP")"
+expect_contains 'the done marker records the new state of 16' 'legacy_accepted_at=' "$(volume_file "$NEW_VOL" "$MARKER_DONE")"
+run_capture upgrade --check
+expect_eq '--check exits 1 while the gate is closed' 1 "$RC"
+expect_contains '--check: the closed gate is the reason' 'is CLOSED' "$OUT"
+run_capture upgrade --keep-current
+expect_eq 'the repeated --keep-current exits 0' 0 "$RC"
+expect_contains 'the repeat reopened the gate' 'network gate opened' "$OUT"
 expect_eq 'a network client can connect again' 1 "$(tcp_probe)"
 expect_eq 'D3 is not on 18' 0 "$(sql_18 "SELECT count(*) FROM users WHERE name = 'D3'")"
 expect_eq 'the stand-ins the interrupted --redo stopped run again' 'app nginx postgres redis' "$(running_services)"
@@ -517,6 +576,105 @@ expect_eq '--keep-current exits 0' 0 "$RC"
 run_capture upgrade --check
 expect_eq '--check exits 0' 0 "$RC"
 expect_eq 'the stand-ins still run' 'app nginx postgres redis' "$(running_services)"
+# round 4b: 16 is killed (OOM, `docker rm -f`): pg_control keeps 'in production' for good while nothing runs on the volume.
+# --redo cannot tell writes from a mere start and needs --force; --keep-current records the still cluster with a warning
+start_16 -c autovacuum=off
+docker kill "$ROLLBACK_CTR" >/dev/null && docker rm "$ROLLBACK_CTR" >/dev/null
+run_capture upgrade --check
+expect_eq '--check exits 1 after a killed 16' 1 "$RC"
+run_capture upgrade
+expect_eq 'upgrade.sh stops (exit 1)' 1 "$RC"
+expect_contains 'upgrade.sh sees the unclean shutdown' "was not shut down cleanly (cluster state 'in production')" "$OUT"
+run_capture upgrade --redo
+expect_eq '--redo after a killed 16 is refused without --force (exit 2)' 2 "$RC"
+expect_contains '--redo refusal explains what pg_controldata cannot know' 'pg_controldata sees only the last checkpoint' "$OUT"
+expect_contains '--redo refusal names --force' '--redo --force' "$OUT"
+expect_eq 'the refusal changed nothing (951 users)' '951' "$(sql_18 'SELECT count(*) FROM users')"
+run_capture upgrade --keep-current
+expect_eq '--keep-current after a killed 16 exits 0' 0 "$RC"
+expect_contains '--keep-current warns about the unclean shutdown' 'was not shut down cleanly' "$OUT"
+expect_contains '--keep-current records the still cluster' 'Kept the PostgreSQL 18 data' "$OUT"
+run_capture upgrade --check
+expect_eq '--check exits 0 after --keep-current' 0 "$RC"
+expect_eq 'the stand-ins still run' 'app nginx postgres redis' "$(running_services)"
+# round 5: 16 writes D5; a --redo is interrupted after its restore, before the verification: its marker names the database
+# it set aside (T1 - the real 18 data) and the stack's database holds an unverified copy. The second --redo must keep T1
+# and its name, drop the copy and restore again - not bury T1 under a second set-aside
+rollback_16 "INSERT INTO users (name) VALUES ('D5')"
+STALE_BEFORE="$(sql_18 "SELECT count(*) FROM pg_database WHERE datname LIKE '${DB}_stale_%'" postgres)"
+run_capture upgrade_failing_at 'verify' --redo
+expect_eq 'the --redo interrupted after its restore exits 2' 2 "$RC"
+T1="$(volume_file "$NEW_VOL" "$MARKER_WIP" | sed -n 's/^stale_db=//p')"
+expect_contains 'the marker names the database set aside' "${DB}_stale_" "$T1"
+expect_eq 'T1 holds the 18 data from before this --redo (951 users)' '951' "$(sql_18 'SELECT count(*) FROM users' "$T1")"
+run_capture upgrade --check
+expect_eq '--check exits 1' 1 "$RC"
+expect_contains '--check names the set-aside database' "the previous one was to be set aside as $T1" "$OUT"
+run_capture upgrade --redo
+expect_eq 'the second --redo exits 0' 0 "$RC"
+expect_contains 'the second --redo dropped the unverified copy instead of setting it aside' "holds that run's unverified copy of the legacy data: dropping it" "$OUT"
+expect_contains 'the second --redo reports T1 as the database kept' "kept as '$T1'" "$OUT"
+expect_not_contains 'the second --redo did not set a database aside again' 'Setting the current database aside' "$OUT"
+expect_eq 'exactly one database was set aside in this round' "$((STALE_BEFORE + 1))" "$(sql_18 "SELECT count(*) FROM pg_database WHERE datname LIKE '${DB}_stale_%'" postgres)"
+expect_eq 'T1 is intact (951 users)' '951' "$(sql_18 'SELECT count(*) FROM users' "$T1")"
+expect_eq 'D5 is on 18 with everything 16 wrote (954 users)' '954' "$(sql_18 'SELECT count(*) FROM users')"
+expect_eq 'the stand-ins run again' 'app nginx postgres redis' "$(running_services)"
+expect_eq 'a network client can connect' 1 "$(tcp_probe)"
+expect_eq 'the in-progress marker is gone' 'no' "$(yes_no volume_has "$NEW_VOL" "$MARKER_WIP")"
+run_capture upgrade --check
+expect_eq '--check exits 0' 0 "$RC"
+# round 6: 16 writes D6; a --redo fails at the very last step, the start of the services: the copy is verified and the
+# done marker records the current fingerprint, so the in-progress marker is a plain pending start (redo=0) - a deploy
+# passes, the plain run finishes it
+rollback_16 "INSERT INTO users (name) VALUES ('D6')"
+run_capture upgrade_failing_at 'start the application' --redo
+expect_eq 'the --redo that fails at the start of the services exits 2' 2 "$RC"
+expect_contains 'the failure says the move is complete' 'The data move is complete and verified' "$OUT"
+expect_contains 'the failure hints at the plain run, not at --redo' '(a deploy starts the whole stack as well):  bash docker/postgres/upgrade.sh -- -p' "$OUT"
+WIP="$(volume_file "$NEW_VOL" "$MARKER_WIP")"
+expect_contains 'the in-progress marker is a plain pending start (redo=0)' 'redo=0' "$WIP"
+expect_eq 'the in-progress marker carries no stale_db' 'stale_db=' "$(grep '^stale_db=' <<<"$WIP")"
+expect_eq 'the stand-ins are still stopped' 'postgres redis' "$(running_services)"
+run_capture upgrade --check
+expect_eq '--check exits 0: a deploy may start the stack' 0 "$RC"
+expect_contains '--check: only the start is pending' 'did not get to start the application services' "$OUT"
+run_capture upgrade
+expect_eq 'the plain run finishes the pending start (exit 0)' 0 "$RC"
+expect_eq 'the stand-ins run again' 'app nginx postgres redis' "$(running_services)"
+expect_eq 'the in-progress marker is gone' 'no' "$(yes_no volume_has "$NEW_VOL" "$MARKER_WIP")"
+expect_eq 'D6 is on 18 (955 users)' '955' "$(sql_18 'SELECT count(*) FROM users')"
+run_capture upgrade --check
+expect_eq '--check exits 0' 0 "$RC"
+# round 7: such a marker (redo=0) lingers - a deploy started the stack instead of the plain run - and 16 runs again: the
+# lingering marker must not switch the entrypoint guard off (only redo=1 does); --keep-current resolves it and finishes
+# the pending start
+write_wip_by_hand 0
+compose rm -sf postgres >/dev/null 2>&1
+rollback_16 "INSERT INTO users (name) VALUES ('D7')"
+guard_stale_attempt 'R2 with a lingering in-progress marker (redo=0)'
+run_capture upgrade --check
+expect_eq '--check exits 1: stale' 1 "$RC"
+expect_contains '--check: may be STALE' 'may be STALE' "$OUT"
+run_capture upgrade --keep-current
+expect_eq '--keep-current exits 0' 0 "$RC"
+expect_eq 'the in-progress marker is gone' 'no' "$(yes_no volume_has "$NEW_VOL" "$MARKER_WIP")"
+compose up -d postgres >/dev/null 2>&1
+wait_pg "$PG_CTR" "$DB_USER"
+expect_eq 'the stand-ins run again' 'app nginx postgres redis' "$(running_services)"
+run_capture upgrade --check
+expect_eq '--check exits 0' 0 "$RC"
+# round 8: redo=1 next to a done marker that matches the legacy fingerprint - what the previous script left when a --redo
+# failed at the start of the services, a dead end then: every run must finish it now
+write_wip_by_hand 1
+run_capture upgrade --check
+expect_eq '--check exits 1 with redo=1 in the marker (conservative)' 1 "$RC"
+run_capture upgrade
+expect_eq 'the plain run finishes the pending start (exit 0)' 0 "$RC"
+expect_contains 'the plain run explains the markers' 'already records the current fingerprint of the legacy cluster' "$OUT"
+expect_eq 'the in-progress marker is gone' 'no' "$(yes_no volume_has "$NEW_VOL" "$MARKER_WIP")"
+expect_eq 'the stand-ins still run' 'app nginx postgres redis' "$(running_services)"
+run_capture upgrade --check
+expect_eq '--check exits 0' 0 "$RC"
 
 # ------------------------------------------------------------------------------------------------------------------
 scenario '6. a fresh install without a legacy volume'
@@ -535,3 +693,18 @@ run_capture upgrade --check
 expect_eq '--check exits 0 with the cluster' 0 "$RC"
 expect_contains '--check: data in place' 'OK: PostgreSQL 18 data is in place' "$OUT"
 expect_not_contains '--check: no rollback copy mentioned' 'rollback copy' "$OUT"
+# the markers of a --redo interrupted when the legacy volume was already gone (deleted by hand): --redo and --keep-current
+# have nothing to copy or compare, so --check names the plain run, which finishes the pending start
+docker run --rm -v "$NEW_VOL:/v" busybox:stable sh -c \
+    "printf 'upgraded 16 → 18 at by-hand: 2 tables, 5700 rows, database $DB, source volume gone\nstopped_services=app nginx\nlegacy_pg_control_md5=0123456789abcdef0123456789abcdef\n' > /v/$MARKER_DONE"
+write_wip_by_hand 1
+run_capture upgrade --check
+expect_eq '--check exits 1 (a --redo in progress)' 1 "$RC"
+expect_contains '--check offers the plain run: the only command that works without a legacy cluster' 'The plain run starts the' "$OUT"
+expect_not_contains '--check does not offer --redo, which would refuse' 'Finish it:  bash docker/postgres/upgrade.sh --redo' "$OUT"
+run_capture upgrade
+expect_eq 'the plain run finishes the pending start (exit 0)' 0 "$RC"
+expect_contains 'the plain run says why nothing else is left' 'the legacy volume holds no cluster any more' "$OUT"
+expect_eq 'the in-progress marker is gone' 'no' "$(yes_no volume_has "$NEW_VOL" "$MARKER_WIP")"
+run_capture upgrade --check
+expect_eq '--check exits 0 afterwards' 0 "$RC"
