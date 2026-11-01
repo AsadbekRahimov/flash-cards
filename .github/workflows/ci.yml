@@ -63,7 +63,8 @@ jobs:
                     --health-retries 10
 
             redis:
-                image: redis:8-alpine
+                # The same minor as docker-compose*.yml (pinned there while a rollback to redis 7.4 must stay possible).
+                image: redis:8.4-alpine
                 ports:
                     - 6379:6379
                 options: >-
@@ -190,6 +191,19 @@ jobs:
                   name: twa-build
                   path: public/twa/
                   retention-days: 7
+
+    postgres-upgrade:
+        name: PostgreSQL 16 → 18 move (real Docker)
+        # docker/postgres/upgrade.sh on the runner's Docker: 16 data in the legacy volume, the guard mount, the move, an
+        # interrupted run, a rollback to 16 and forward again, a fresh install, the deploy lock. Official images only,
+        # the application services are busybox stand-ins; nothing is built. See docker/postgres/tests/run.sh.
+        runs-on: ubuntu-latest
+        timeout-minutes: 30
+        steps:
+            - uses: actions/checkout@v7
+
+            - name: Run the upgrade scenarios
+              run: bash docker/postgres/tests/run.sh
 
     deploy:
         name: Deploy
