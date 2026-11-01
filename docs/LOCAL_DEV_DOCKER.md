@@ -147,10 +147,15 @@ make pg-upgrade                              # = bash docker/postgres/upgrade.sh
 в логе `app` в этот момент нормален). Если на 18 уже успели сделать `make fresh`, скрипт остановится с diff — тогда
 `bash docker/postgres/upgrade.sh --redo`: отложит эту базу как `lexiflow_stale_<время>` и перенесёт заново. Если после
 переноса снова запускали 16 на старом томе (старый чекаут, `docker compose up`), `make pg-check` ответит
-`STOP: … may be STALE` — выберите `--redo` или `--keep-current`, как описано в `docs/DEVOPS_GUIDE.md`. Состояние томов
-без изменений показывает `make pg-check`. Старый том не удаляется автоматически: когда он больше не нужен —
-последовательность выше (`down` → `volume rm` → `up -d`). На macOS без `flock` скрипт работает без общей с `deploy.sh`
-блокировки и предупреждает об этом. Подробности и прод — `docs/DEVOPS_GUIDE.md`, §0 «Обновление PostgreSQL 16 → 18 (Docker)».
+`STOP: … may be STALE`, а контейнер `postgres` при следующем `docker compose up -d` сам откажется стартовать
+(`docker compose logs postgres` → `lexiflow-upgrade guard: refusing to start PostgreSQL 18`): это обёртка entrypoint
+`docker/postgres/entrypoint-guard.sh`, она сверяет отпечаток кластера 16 с маркером. Выберите `--redo` или
+`--keep-current`, как описано в `docs/DEVOPS_GUIDE.md` (`--redo` после «просто запустили и выключили 16» без записей
+потребует `--redo --force`, потому что заменил бы живую базу 18 её же старым снимком), затем `docker compose up -d`.
+Состояние томов без изменений показывает `make pg-check`. Старый том не удаляется автоматически: когда он больше не
+нужен — последовательность выше (`down` → `volume rm` → `up -d`). На macOS без `flock` скрипт работает без общей с
+`deploy.sh` блокировки и предупреждает об этом. Подробности и прод — `docs/DEVOPS_GUIDE.md`, §0 «Обновление PostgreSQL
+16 → 18 (Docker)».
 
 ---
 
