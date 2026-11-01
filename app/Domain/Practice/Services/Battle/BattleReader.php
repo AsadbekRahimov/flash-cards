@@ -41,12 +41,15 @@ use Illuminate\Support\Facades\Route;
 
 /**
  * The read models of the battle (docs/16 §1.3, §7.3, §7.4): find / view / poll / round / list / options - the DTOs the
- * resources of the API return. A read, with two side effects a read of a match is allowed (docs/16 §8.3, §8.4):
+ * resources of the API return. A read, with two side effects a read of a match is allowed (docs/16 §8.3, §8.4), in this order:
  *
- *  - the presence of the viewer: any request of a participant to a live match is a heartbeat (`BattleClock::touch`, one
- *    conditional statement at most once per `heartbeat_write_seconds`, outside any transaction);
- *  - a transition that is due (`BattleClock::isDue`, a pure function of the row read without a lock) is made right here, under
- *    `FOR UPDATE` of the row - whoever looks first moves the match; a poll that finds nothing due takes no lock at all.
+ *  - a transition that is due (`BattleClock::isDue`, a pure function of the row read without a lock - the viewer's own stale
+ *    presence counts) is made right here, under `FOR UPDATE` of the row, by the presence as it was: whoever looks first moves
+ *    the match, and a viewer whose grace has run out ends it against themselves (`both_absent` when the other left too), not in
+ *    their favour; a poll that finds nothing due takes no lock at all;
+ *  - then the presence of the viewer, if the match is still on: any request of a participant to a live match is a heartbeat
+ *    (`BattleClock::touch`, one conditional statement at most once per `heartbeat_write_seconds` - outside any transaction
+ *    when nothing was due, under the lock after the clock otherwise).
  *
  * The texts of the viewer are those of their side of the snapshot (`battle_participants.locale`); the opponent is a first
  * name. The reviews (`round`) come from the handler of the mode (`reveal`) and the stored answers - never before the round
@@ -331,28 +334,33 @@ final class BattleReader
     // ------------------------------------------------------------------ the pieces
 
     /**
-     * The heartbeat of the viewer (a live match) and the transition that is due, if any - made under the lock, from a fresh
-     * read. Returns the battle as it is after that, and whether this call ended it.
+     * The transition that is due, if any - made under the lock, from a fresh read, by the presence as it was - and THEN the
+     * heartbeat of the viewer, if the match is still on (docs/16 §8.4: the clock first, so the viewer's own absence is judged
+     * before their request counts as presence). Nothing due: no lock, the heartbeat alone. Returns the battle as it is after
+     * that, and whether this call ended it.
      *
      * @return array{0: Battle, 1: bool}
      */
     private function settle(Battle $battle, Learner $viewer, CarbonImmutable $now, bool $touch = true): array
     {
-        if ($touch && $battle->status->isLive()) {
-            $this->clock->touch($battle, $battle->participant($viewer->id), $now);
-        }
         if (! $this->clock->isDue($battle, $now)) {
+            if ($touch && $battle->status->isLive()) {
+                $this->clock->touch($battle, $battle->participant($viewer->id), $now);
+            }
+
             return [$battle, false];
         }
 
-        return DB::transaction(function () use ($battle, $now): array {
+        return DB::transaction(function () use ($battle, $viewer, $now, $touch): array {
             /** @var Battle|null $locked */
             $locked = Battle::query()->whereKey($battle->id)->lockForUpdate()->first();
             if ($locked === null) {
                 return [$battle, false];
             }
             $locked->load('participants');
-            $report = $this->clock->advance($locked, $now);
+            $report = $touch
+                ? $this->clock->advanceThenTouch($locked, $locked->participant($viewer->id), $now)
+                : $this->clock->advance($locked, $now);
 
             return [$locked, $report->finalized];
         });

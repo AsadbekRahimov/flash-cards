@@ -50,8 +50,10 @@ use Illuminate\Support\Str;
  * Presence (§8.4): a player is absent when `last_seen_at` (or, before any poll, `accepted_at`) is older than
  * `presence_grace_seconds`; the screens are warned earlier, when it is older than `presence_warn_seconds` ({@see isSilent()}),
  * but the match ends only by the grace. {@see touch()} is the heartbeat: a conditional UPDATE at most once per
- * `heartbeat_write_seconds`, run outside the transaction by the poll (and inside it, before `advance`, by an action - the
- * player who acts is here).
+ * `heartbeat_write_seconds`, run outside any transaction by a poll that finds nothing due, and under the lock AFTER `advance`
+ * by everything else ({@see advanceThenTouch()}): the clock judges the match by the presence as it WAS, so a request cannot
+ * save the player who sends it once their grace has run out - the outcome is the clock's, not the order of the requests
+ * (18.12a: two players who both left and one of whom comes back first get `both_absent`, not a win of the one who came back).
  */
 final class BattleClock
 {
@@ -109,6 +111,22 @@ final class BattleClock
             }
             $changed = true;
         }
+    }
+
+    /**
+     * The clock first, the heartbeat second (docs/16 §8.4, 18.12a). Under `FOR UPDATE` of the row with the participants loaded:
+     * the match is moved to `$now` by the presence as it was - every transition that is due, the absence of `$player` included -
+     * and only then, if the match is still on, `$player` is marked present. A player whose grace has run out is absent whatever
+     * they send now: the outcome of an absence is decided by the clock, never by who asked first. Returns the report of the clock.
+     */
+    public function advanceThenTouch(Battle $battle, BattleParticipant $player, CarbonImmutable $now): BattleTransitionReport
+    {
+        $report = $this->advance($battle, $now);
+        if ($battle->status->isLive()) {
+            $this->touch($battle, $player, $now);
+        }
+
+        return $report;
     }
 
     /** The round takes answers: `answering`, and the deadline plus its grace has not passed (docs/16 §8.5). */

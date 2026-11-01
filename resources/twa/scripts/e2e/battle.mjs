@@ -1,6 +1,6 @@
-// Scenarios 2-6 of docs/16 §14.4: the battle 1 on 1 with two browser contexts (two learners) on the real server - the invitation from
+// Scenarios 2-7 of docs/16 §14.4: the battle 1 on 1 with two browser contexts (two learners) on the real server - the invitation from
 // "Друзья", the match to the end with a time-out and the same result on both screens, a reload in the middle, the background, a
-// surrender (and a rematch), and "both left" (`both_absent`).
+// surrender (and a rematch), and "both left" (`both_absent`) - by the janitor, and by the first request of the one who comes back.
 import { EXPECTED_STATUSES, clockSeconds, sel, sleep, until } from './kit.mjs'
 import { COMPONENT, MODE_TITLE, doRound, normalize, whyNotShown } from './screens.mjs'
 
@@ -24,8 +24,7 @@ export function battleScenarios(env) {
     { name: 'battle:background', body: run('ab', battleBackground) },
     { name: 'battle:surrender', body: run('cd', battleSurrender) },
     { name: 'battle:both-absent', body: run('ab', battleBothAbsent) },
-    // Not in the default run: it records what the server does when nobody runs the janitor (see the docblock).
-    { name: 'battle:absent-lazy', optional: true, body: run('ab', battleAbsentLazy) },
+    { name: 'battle:absent-lazy', body: run('cd', battleAbsentLazy) },
   ]
 }
 
@@ -577,8 +576,8 @@ async function battleSurrender(env, s, pair) {
 
 /**
  * 6: both players close the app; after the grace the janitor of the server (`practice:battles-sweep`, every minute in production) closes the
- * match as `both_absent`, and both see it so when they open it. (Without the janitor the first one to come back is "present" and wins
- * by the absence of the other: `finished/absent`; the stand has no scheduler, so the scenario runs the janitor itself.)
+ * match as `both_absent`, and both see it so when they open it. (The clock gives the same without the janitor - the first request of the
+ * one who comes back, `battleAbsentLazy`; the stand has no scheduler, so this scenario runs the janitor itself to cover its path.)
  */
 async function battleBothAbsent(env, s, pair) {
   const { a, b } = await twoPlayers(env, s, pair)
@@ -630,10 +629,11 @@ async function battleBothAbsent(env, s, pair) {
 }
 
 /**
- * An observation, not a requirement (run it by name: `--only battle:absent-lazy`): both close the app, nobody runs the janitor, and one of
- * them comes back after the grace. The server ends the match on that very request, and the one who came back is "present" by then (the
- * heartbeat of the viewer is written before the transition is made: `BattleReader::settle`), so it is `finished / absent` and a victory for
- * him, not `closed / both_absent`; the other, who comes later, reads a defeat. `both_absent` is the janitor's.
+ * 7: both players close the app and nobody runs the janitor; after the grace one of them comes back. The server judges the match by the
+ * presence as it WAS before that request (docs/16 §8.4, 18.12a: the clock first, the heartbeat of the viewer after - and only for a match
+ * still on): both were away for longer than the grace, so the very request of the one who came back closes the match `closed / both_absent`
+ * - no winner, nobody marked present by coming back - and the other, who comes later, reads the same. (Before 18.12a the heartbeat was
+ * written before the transition and the first one back "won" `finished / absent`: the outcome depended on who asked first.)
  */
 async function battleAbsentLazy(env, s, pair) {
   const { a, b } = await twoPlayers(env, s, pair)
@@ -645,20 +645,37 @@ async function battleAbsentLazy(env, s, pair) {
   s.step('both close the app, nobody runs the janitor')
   await a.close()
   await b.close()
-  const lastPresence = Math.max(...env.oracle.battle(battle.id).participants.map((participant) => Date.parse(`${participant.last_seen_at.replace(' ', 'T')}Z`)))
-  await until(() => Date.now() - lastPresence > (env.cfg.grace + 2) * 1000, { label: `the grace of ${env.cfg.grace} s`, timeout: (env.cfg.grace + 15) * 1000, interval: 500 })
+  const closedAt = Date.now()
+  const marksBefore = env.oracle.battle(battle.id).participants.map((participant) => participant.last_seen_at)
+  const lastPresence = Math.max(...marksBefore.map((mark) => Date.parse(`${mark.replace(' ', 'T')}Z`)))
+  s.note(`the server waits ${env.cfg.grace} s (presence_grace_seconds) after the last presence of the two; nobody will run the janitor`)
+  await until(() => Date.now() - lastPresence > (env.cfg.grace + 2) * 1000, { label: `the grace of ${env.cfg.grace} s after the last presence`, timeout: (env.cfg.grace + 15) * 1000, interval: 500 })
+  s.note(`both were away for ${((Date.now() - closedAt) / 1000).toFixed(0)} s`)
+  await s.check(env.oracle.battle(battle.id).status === 'playing', 'nothing touches the match while nobody is there', { actual: env.oracle.battle(battle.id).status })
 
-  s.step('the first one to come back')
+  s.step(`${a.name} comes back first: that request itself closes the match, both absent`)
   const a2 = await env.newPlayer(s, a.who, { tag: 'battle-absent-lazy' })
   await a2.open(`/twa/battles/${battle.id}`)
   const ra = await readResult(a2)
+  const closed = env.oracle.battle(battle.id)
+  await s.check(closed.status === 'closed' && closed.end_reason === 'both_absent' && closed.winner_learner_id === null, 'the database: closed, both_absent, no winner - by the first request after the grace, no janitor', { players: [a2], actual: `${closed.status}/${closed.end_reason} winner ${closed.winner_learner_id}` })
+  await s.check(closed.participants.every((participant) => participant.active_learner_id === null), 'nobody is held by the closed match', { players: [a2], actual: JSON.stringify(closed.participants.map((participant) => participant.active_learner_id)) })
+  const marksAfter = closed.participants.map((participant) => participant.last_seen_at)
+  await s.check(JSON.stringify(marksAfter) === JSON.stringify(marksBefore), 'coming back marked nobody present: the clock judged by the marks as they were', { players: [a2], expected: marksBefore.join(' '), actual: marksAfter.join(' ') })
+
+  s.step(`${b.name} comes back later and reads the same`)
   const b2 = await env.newPlayer(s, b.who, { tag: 'battle-absent-lazy' })
   await b2.open(`/twa/battles/${battle.id}`)
   const rb = await readResult(b2)
-  s.note(`observed: ${a.name} (first) ${ra.outcome}/${ra.reason} "${ra.title}", ${b.name} (later) ${rb.outcome}/${rb.reason} "${rb.title}"`)
-  await s.check(ra.outcome === 'won' && ra.reason === 'absent' && rb.outcome === 'lost' && rb.reason === 'absent', 'the first one to come back wins by the absence of the other (the documented rule of one absent, one present)', { players: [a2, b2], actual: `${ra.outcome}/${ra.reason} and ${rb.outcome}/${rb.reason}` })
+  for (const [p, shown] of [[a2, ra], [b2, rb]]) {
+    await s.check(shown.outcome === 'none' && shown.reason === 'both_absent', `${p.name}: the match is closed, both absent - no victory for the first one back`, { players: [p], actual: `${shown.outcome}/${shown.reason}` })
+    await s.check(shown.title === 'Матч прерван' && shown.reasonText === 'Оба игрока пропали — матч закрыт без победителя.', `${p.name}: the screen says the match was interrupted and why`, { players: [p], actual: `"${shown.title}" "${shown.reasonText}"` })
+    await s.check(shown.rows.length === 0 && !shown.buttons.includes('accept-rematch-btn'), `${p.name}: nothing to list, no rematch to answer`, { players: [p], actual: JSON.stringify(shown.buttons) })
+  }
   await a2.shot('result-first-back')
   await b2.shot('result-later')
+  const same = await Promise.all([env.api(a.who).get(`/practice/battles/${battle.id}`), env.api(b.who).get(`/practice/battles/${battle.id}`)])
+  await s.check(same.every((api) => api.json?.status === 'closed' && api.json?.end_reason === 'both_absent' && api.json?.result?.outcome === 'none'), 'the API says closed / both_absent / no result to both', { players: [a2, b2], actual: JSON.stringify(same.map((api) => [api.json?.status, api.json?.end_reason, api.json?.result?.outcome])) })
   await s.noPageErrors()
   await s.noUnexpectedStatuses(EXPECTED_STATUSES)
 }

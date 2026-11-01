@@ -58,8 +58,11 @@ use LogicException;
  * accepting two invitations at once, are decided by the index, never by a check that could race (§8.2).
  *
  * Every action first lets the clock move the match (`advance`), so an expired invitation, a deadline that has passed or
- * an absent player are seen by whoever comes first; a refusal raised AFTER the lazy transition is returned out of the
- * transaction and thrown after the commit, so the transition is kept (the same net as PracticeSessionService).
+ * an absent player are seen by whoever comes first - the player who acts included: the clock judges by the presence as it
+ * was, and only a match that is still on takes the action as a heartbeat (`BattleClock::advanceThenTouch`, docs/16 §8.4),
+ * so coming back after the grace loses (or closes a match both had left as `both_absent`) instead of winning by being first.
+ * A refusal raised AFTER the lazy transition is returned out of the transaction and thrown after the commit, so the
+ * transition is kept (the same net as PracticeSessionService).
  */
 final class BattleService
 {
@@ -393,10 +396,7 @@ final class BattleService
                 return BattleException::notFound();
             }
             $me = $battle->participant($by->id);
-            if ($battle->status->isLive()) {
-                $this->clock->touch($battle, $me, $now);
-            }
-            $this->clock->advance($battle, $now);
+            $this->clock->advanceThenTouch($battle, $me, $now);
 
             if ($battle->status->isTerminal()) {
                 return BattleException::closed($battle->end_reason);
@@ -477,10 +477,7 @@ final class BattleService
                         return BattleException::notFound();
                     }
                     $me = $battle->participant($by->id);
-                    if ($battle->status->isLive()) {
-                        $this->clock->touch($battle, $me, $now);
-                    }
-                    $this->clock->advance($battle, $now);
+                    $this->clock->advanceThenTouch($battle, $me, $now);
 
                     // One read for all three questions: a repeat of this request, my answer to the round, the opponent's.
                     $rows = $battle->status === BattleStatus::Playing || $battle->status->isTerminal()
@@ -575,10 +572,7 @@ final class BattleService
                 return BattleException::notFound();
             }
             $me = $battle->participant($by->id);
-            if ($battle->status->isLive()) {
-                $this->clock->touch($battle, $me, $now);
-            }
-            $this->clock->advance($battle, $now);
+            $this->clock->advanceThenTouch($battle, $me, $now);
 
             if ($battle->status->isTerminal()) {
                 return BattleException::closed($battle->end_reason);
@@ -615,10 +609,7 @@ final class BattleService
                 return BattleException::notFound();
             }
             $me = $battle->participant($by->id);
-            if ($battle->status->isLive()) {
-                $this->clock->touch($battle, $me, $now);
-            }
-            $this->clock->advance($battle, $now);
+            $this->clock->advanceThenTouch($battle, $me, $now);
 
             $meta = $battle->meta;
             $reports = is_array($meta['audio_reports'] ?? null) ? $meta['audio_reports'] : [];
