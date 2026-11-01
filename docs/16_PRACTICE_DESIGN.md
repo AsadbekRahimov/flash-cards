@@ -555,8 +555,8 @@ final class BattleReader
 | 3 | `2026_10_30_100003_create_practice_sessions_tables` | `practice_sessions`, `practice_attempts`; PG CHECK; `down()` — drop |
 | 4 | `2026_10_30_100004_create_battles_tables` | `battles`, `battle_participants`, `battle_answers`; PG CHECK; `down()` — drop |
 | 5 | `2026_10_30_100005_add_open_pair_to_battles_table` (18.6-fix) | `battles.open_pair` nullable unique + PG CHECK `battles_open_pair_shape_check`; backfill нетерминальных строк (первый матч пары берёт ключ); `down()` — drop CHECK, unique, column |
-| 5 | `2026_10_30_100010_add_scope_to_practice_item_versions_table` | `practice_item_versions.target_word_ids` / `lesson_id` / `level` + backfill всех версий из их заданий (чанки по `chunkById`, query builder); на SQLite FK добавляется пересборкой таблицы, поэтому partial-индекс аудио снимается и ставится заново; `down()` — drop FK и три колонки |
-| 6 | `2026_10_30_100011_add_lesson_index_to_practice_item_versions_table` (18.11b) | индекс `practice_item_versions (lesson_id)` (внешний ключ версии на урок, `ON DELETE SET NULL`, без индекса); `down()` — drop index |
+| 6 | `2026_10_30_100010_add_scope_to_practice_item_versions_table` | `practice_item_versions.target_word_ids` / `lesson_id` / `level` + backfill всех версий из их заданий (чанки по `chunkById`, query builder); на SQLite FK добавляется пересборкой таблицы, поэтому partial-индекс аудио снимается и ставится заново; `down()` — drop FK и три колонки |
+| 7 | `2026_10_30_100011_add_lesson_index_to_practice_item_versions_table` (18.11b) | индекс `practice_item_versions (lesson_id)` (внешний ключ версии на урок, `ON DELETE SET NULL`, без индекса); `down()` — drop index |
 
 Правила: новые forward-миграции (не правка на месте — прод-релиз был); `uuid` — `$table->uuid('request_id')` (на SQLite — `char(36)`); CHECK — только `if (DB::getDriverName() === 'pgsql')` (образец `2026_10_23_400001`); partial-индекс — raw `CREATE INDEX` для `pgsql`/`sqlite` (образец `2026_07_13_000002`). **На SQLite** инварианты «один активный» держат unique-колонки `active_learner_id` (работают везде), а CHECK-инварианты дублируются в сервисах (`assertShape`) и тестах.
 
