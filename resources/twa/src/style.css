@@ -115,6 +115,10 @@
 
   /* Height of the tab bar without the home-indicator inset. */
   --app-tabbar-h: 56px;
+  /*
+   * --app-actions-h: the height of the sticky block of buttons on screen, with its inset (StickyActions sets it on <html> and takes it
+   * back when it goes). Not declared here: absent means there is no such block, and `.toast` falls back to 0.
+   */
   /* Bottom inset the content still has to clear itself; the shell zeroes it while the tab bar covers it (.with-tabbar). */
   --app-safe-b: env(safe-area-inset-bottom, 0px);
 
@@ -480,10 +484,14 @@ body {
     background: var(--app-track);
   }
 
-  /* Short message above the tab bar (AppToast); inverted colours so it reads on any page. */
+  /*
+   * Short message above the tab bar (AppToast); inverted colours so it reads on any page. On a screen with the sticky block of buttons
+   * (StickyActions) it stands on that block: the block publishes its height as --app-actions-h, and that height already holds the
+   * home-indicator inset, so the larger of the two is taken, not their sum.
+   */
   .toast {
     @apply pointer-events-none fixed inset-x-0 z-50 mx-auto w-max max-w-[calc(100%-2rem)] rounded-full px-4 py-2.5 text-center text-sm font-medium;
-    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(12px + max(var(--app-actions-h, 0px), env(safe-area-inset-bottom, 0px)));
     background: color-mix(in srgb, var(--tg-text) 88%, transparent);
     color: var(--tg-bg);
     box-shadow: 0 4px 16px rgb(0 0 0 / 0.2);

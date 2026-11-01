@@ -6,7 +6,7 @@ import PracticeSessionView from '../PracticeSessionView.vue'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
-import { showErrorToast } from '@/composables/errorToast'
+import { hideErrorToast, showErrorToast } from '@/composables/errorToast'
 import { usePracticeStore } from '@/stores/practice'
 import {
   answerResponse,
@@ -48,7 +48,7 @@ vi.mock('@/composables/useTelegram', () => ({
   }),
 }))
 
-vi.mock('@/composables/errorToast', () => ({ showErrorToast: vi.fn() }))
+vi.mock('@/composables/errorToast', () => ({ showErrorToast: vi.fn(), hideErrorToast: vi.fn() }))
 
 // The component of a mode is the business of its own task; here a probe that answers when it is told to.
 vi.mock('@/components/practice/modeComponents', async () => {
@@ -442,6 +442,106 @@ describe('PracticeSessionView — an answer that did not get through', () => {
     expect(r.wrapper.find('[data-testid=probe]').exists()).toBe(true)
     await r.wrapper.get('[data-testid=paywall-close]').trigger('click')
     expect(r.wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+    r.wrapper.unmount()
+  })
+})
+
+describe('PracticeSessionView — the toast of a refusal goes when the learner moves on (18.12b)', () => {
+  it('the next try takes the toast off at once, before the reply: the review that follows does not stand under it', async () => {
+    const second = pending<PracticeAnswerResponse>()
+    vi.mocked(api.practice.answer).mockRejectedValueOnce(offline()).mockReturnValueOnce(second.promise)
+    const r = await render()
+
+    await answerProbe(r)
+    expect(showErrorToast).toHaveBeenCalledTimes(1)
+    vi.mocked(hideErrorToast).mockClear() // (the first try took off nothing: no toast was there)
+
+    await r.wrapper.get('[data-testid=probe-answer]').trigger('click')
+    expect(hideErrorToast).toHaveBeenCalledTimes(1)
+    expect(r.wrapper.find('[data-testid=reveal-text]').exists()).toBe(false) // the reply is still on its way
+
+    second.resolve(answerResponse())
+    await flushPromises()
+    expect(r.wrapper.get('[data-testid=reveal-text]').text()).toBe('Верно!')
+    expect(showErrorToast).toHaveBeenCalledTimes(1)
+    r.wrapper.unmount()
+  })
+
+  it('a try that fails again puts the toast back, after taking the old one off', async () => {
+    vi.mocked(api.practice.answer).mockRejectedValue(offline())
+    const r = await render()
+
+    await answerProbe(r)
+    await answerProbe(r)
+
+    expect(showErrorToast).toHaveBeenCalledTimes(2)
+    expect(hideErrorToast).toHaveBeenCalledTimes(2) // each try begins by taking off what the one before it left
+    const [firstShown, secondShown] = vi.mocked(showErrorToast).mock.invocationCallOrder
+    const secondTry = vi.mocked(hideErrorToast).mock.invocationCallOrder[1]
+    expect(secondTry).toBeGreaterThan(firstShown!)
+    expect(secondTry).toBeLessThan(secondShown!)
+    r.wrapper.unmount()
+  })
+
+  it('“I don’t know” is a try too', async () => {
+    vi.mocked(api.practice.answer).mockRejectedValueOnce(offline()).mockResolvedValueOnce(answerResponse({ verdict: 'skipped' }))
+    const r = await render()
+
+    await answerProbe(r)
+    vi.mocked(hideErrorToast).mockClear()
+    await r.wrapper.get('[data-testid=probe-skip]').trigger('click')
+    await flushPromises()
+
+    expect(hideErrorToast).toHaveBeenCalledTimes(1)
+    expect(r.wrapper.find('[data-testid=reveal-text]').exists()).toBe(true)
+    r.wrapper.unmount()
+  })
+
+  it('“Next” after the verdict takes it off too: nothing of an old refusal belongs to the next task', async () => {
+    vi.mocked(api.practice.answer).mockResolvedValue(answerResponse())
+    const r = await render()
+    await answerProbe(r)
+    vi.mocked(hideErrorToast).mockClear()
+
+    await continueBtn(r).trigger('click')
+
+    expect(hideErrorToast).toHaveBeenCalledTimes(1)
+    r.wrapper.unmount()
+  })
+
+  it('a swap of the task is a try too', async () => {
+    vi.mocked(api.practice.audioBlob).mockRejectedValue(offline())
+    const r = await render(session({ mode: 'dictation', current: dictationElement() }))
+    vi.mocked(api.practice.replace).mockRejectedValueOnce(apiError('conflict', 409, 'replace_not_allowed', { reason: 'limit' }))
+
+    await r.wrapper.get('[data-testid=trouble-replace]').trigger('click')
+    await flushPromises()
+    expect(showErrorToast).toHaveBeenCalledTimes(1)
+    expect(hideErrorToast).toHaveBeenCalledTimes(1) // the swap itself began: whatever was on screen before it is gone
+
+    vi.mocked(hideErrorToast).mockClear()
+    vi.mocked(api.practice.replace).mockResolvedValueOnce(session({ mode: 'dictation', current: dictationElement({ id: 'eDict00002' }) }))
+    await r.wrapper.get('[data-testid=trouble-replace]').trigger('click')
+    await flushPromises()
+
+    expect(hideErrorToast).toHaveBeenCalledTimes(1)
+    r.wrapper.unmount()
+  })
+
+  it('“Repeat mistakes” and “Again” are tries too', async () => {
+    const r = await render(finishedSession())
+    vi.mocked(api.practice.open).mockRejectedValueOnce(apiError('conflict', 409, 'retry_not_available'))
+    await r.wrapper.get('[data-testid=retry-btn]').trigger('click')
+    await flushPromises()
+    expect(showErrorToast).toHaveBeenCalledTimes(1)
+    expect(hideErrorToast).toHaveBeenCalledTimes(1) // the repeat itself began: it took off what was there
+
+    vi.mocked(hideErrorToast).mockClear()
+    vi.mocked(api.practice.open).mockResolvedValueOnce(session({ id: 92 }))
+    await r.wrapper.get('[data-testid=again-btn]').trigger('click')
+    await flushPromises()
+
+    expect(hideErrorToast).toHaveBeenCalledTimes(1)
     r.wrapper.unmount()
   })
 })

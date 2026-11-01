@@ -21,7 +21,7 @@ import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import { remainingMs, secondsLeft } from '@/composables/battleTime'
-import { showErrorToast } from '@/composables/errorToast'
+import { hideErrorToast, showErrorToast } from '@/composables/errorToast'
 import { lessonHeader } from '@/composables/practiceLabels'
 import { useBackButton } from '@/composables/useBackButton'
 import { useBattleAudio } from '@/composables/useBattleAudio'
@@ -363,6 +363,16 @@ watch(actionError, (message) => {
   if (message === '') return
   showErrorToast(message)
   store.clearActionError()
+})
+
+// The next try of an action (an answer, "Retry", "Ready", "Accept", the rematch, ...) takes the toast of the refusal off at once: when it
+// goes through, nothing of the old refusal belongs to what comes next, and when it fails again the toast is back with its own words. A refusal
+// that no new action follows stays its four seconds: the answer that was too late is explained by the review that comes after it.
+watch(acting, (now) => {
+  if (now !== null) hideErrorToast()
+})
+watch(answerState, (now) => {
+  if (now === 'sending') hideErrorToast()
 })
 
 // ------------------------------------------------------------- the rematch

@@ -6,7 +6,7 @@ import BattleView from '../BattleView.vue'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
-import { showErrorToast } from '@/composables/errorToast'
+import { hideErrorToast, showErrorToast } from '@/composables/errorToast'
 import { RESULT_CHECKS_MAX } from '@/stores/battle'
 import {
   SERVER_NOW,
@@ -69,7 +69,7 @@ vi.mock('@/composables/useTelegram', () => ({
   }),
 }))
 
-vi.mock('@/composables/errorToast', () => ({ showErrorToast: vi.fn() }))
+vi.mock('@/composables/errorToast', () => ({ showErrorToast: vi.fn(), hideErrorToast: vi.fn() }))
 
 // The sheet has its own spec; here only that it opens, for which reason, and that it closes.
 vi.mock('@/components/PaywallSheet.vue', async () => {
@@ -463,6 +463,76 @@ describe('BattleView — the invitation', () => {
 
     expect(showErrorToast).toHaveBeenCalledWith('Этот баттл уже закрыт.')
     expect(text(r, 'result-reason')).toBe('Приглашение не приняли вовремя.')
+  })
+})
+
+describe('BattleView — the toast of a refusal goes when the learner moves on (18.12b)', () => {
+  it('the next try of an action takes the toast off at once, before the reply of the server', async () => {
+    const r = await render(invitedBattle({ role: 'opponent' }))
+    vi.mocked(api.battles.accept).mockRejectedValueOnce(offline())
+
+    await click(r, 'accept-btn')
+    expect(showErrorToast).toHaveBeenCalledTimes(1)
+    vi.mocked(hideErrorToast).mockClear() // (the first try took off nothing: no toast was there)
+
+    const reply = pending<Battle>()
+    vi.mocked(api.battles.accept).mockReturnValueOnce(reply.promise)
+    await click(r, 'accept-btn')
+    expect(hideErrorToast).toHaveBeenCalledTimes(1)
+
+    serveBattle(() => roomBattle())
+    reply.resolve(roomBattle())
+    await flushPromises()
+    expect(has(r, 'battle-room')).toBe(true)
+    expect(showErrorToast).toHaveBeenCalledTimes(1)
+  })
+
+  it('a try that fails again puts the toast back, after taking the old one off', async () => {
+    const r = await render(invitedBattle({ role: 'opponent' }))
+    vi.mocked(api.battles.accept).mockRejectedValue(offline())
+
+    await click(r, 'accept-btn')
+    await click(r, 'accept-btn')
+
+    expect(showErrorToast).toHaveBeenCalledTimes(2)
+    expect(hideErrorToast).toHaveBeenCalledTimes(2) // each try begins by taking off what the one before it left
+    const [firstShown, secondShown] = vi.mocked(showErrorToast).mock.invocationCallOrder
+    const secondTry = vi.mocked(hideErrorToast).mock.invocationCallOrder[1]
+    expect(secondTry).toBeGreaterThan(firstShown!)
+    expect(secondTry).toBeLessThan(secondShown!)
+  })
+
+  it('an answer on its way is a try: “Retry” of the answer that was not delivered takes the toast off', async () => {
+    const r = await render(battle())
+    vi.mocked(api.battles.answer).mockRejectedValue(offline())
+
+    await get(r, 'probe-answer').trigger('click')
+    await pass(500)
+    await pass(1000)
+    await pass(2000)
+    expect(has(r, 'battle-send-failed')).toBe(true)
+    vi.mocked(hideErrorToast).mockClear()
+
+    vi.mocked(api.battles.answer).mockResolvedValue(answerReply())
+    await click(r, 'retry-answer-btn')
+
+    expect(hideErrorToast).toHaveBeenCalledTimes(1)
+    expect(has(r, 'battle-waiting')).toBe(true)
+  })
+
+  it('a refusal that no new action follows is left to its time: the review of the round explains an answer that was too late', async () => {
+    const r = await render(battle())
+    vi.mocked(api.battles.answer).mockRejectedValue(apiError('conflict', 409, 'round_closed', { round: 2, phase: 'reveal' }))
+    servePoll(() => poll({ version: 26, round: roundState({ phase: 'reveal', phase_ends_at: at(3), opponent_answered: true }) }))
+    vi.mocked(api.battles.round).mockImplementation(() => Promise.resolve(stamp(revealRound({ reveal: { ...revealRound().reveal!, me: { answer: null, verdict: 'timeout', points: 0 } } }))))
+
+    await click(r, 'probe-answer')
+
+    expect(showErrorToast).toHaveBeenCalledWith('Время раунда вышло: ответ не принят.')
+    expect(has(r, 'battle-reveal')).toBe(true)
+    // the answer itself began by taking off an older toast; after the refusal was shown nothing took it off
+    const shown = vi.mocked(showErrorToast).mock.invocationCallOrder[0]!
+    expect(vi.mocked(hideErrorToast).mock.invocationCallOrder.every((order) => order < shown)).toBe(true)
   })
 })
 

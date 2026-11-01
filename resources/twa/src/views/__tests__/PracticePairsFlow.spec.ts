@@ -34,7 +34,7 @@ vi.mock('@/composables/useTelegram', () => ({
   }),
 }))
 
-vi.mock('@/composables/errorToast', () => ({ showErrorToast: vi.fn() }))
+vi.mock('@/composables/errorToast', () => ({ showErrorToast: vi.fn(), hideErrorToast: vi.fn() }))
 
 // mother-мама (lM1-rU2), father-папа (lF2-rW4), sister-сестра (lS3-rT1), brother-брат (lB4-rV3)
 const MOTHER: [string, string] = ['lM1', 'rU2']

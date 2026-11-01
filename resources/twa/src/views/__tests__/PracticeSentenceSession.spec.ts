@@ -33,7 +33,7 @@ vi.mock('@/composables/useTelegram', () => ({
   }),
 }))
 
-vi.mock('@/composables/errorToast', () => ({ showErrorToast: vi.fn() }))
+vi.mock('@/composables/errorToast', () => ({ showErrorToast: vi.fn(), hideErrorToast: vi.fn() }))
 
 vi.mock('@/components/PaywallSheet.vue', async () => {
   const { defineComponent, h } = await import('vue')
