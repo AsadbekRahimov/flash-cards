@@ -2,6 +2,15 @@
 
 @source "../index.html";
 
+/*
+ * `short:` - a short window: a phone with a small screen (the iPhone SE is 320 x 568, and Telegram's window is lower still), the window
+ * of the Mini App on most phones (600-760 px under Telegram's own header) or a phone on its side. An immersive screen (a round of a
+ * battle) takes its vertical room back there, so that the task stays above the sticky block of buttons without scrolling (docs/14 §3:
+ * the actions are at the bottom, and so is the thumb). 760, not 640: between the two a round of "Build the sentence" still had its first
+ * row of words under the bar (a 700 px window: 14 px); a full-height window of a tall phone (844 and more) keeps the roomy layout.
+ */
+@custom-variant short (@media (max-height: 760px));
+
 @theme {
   /* Telegram theme parameters (docs/14 §4.1); filled in by composables/telegramTheme.ts. */
   --color-tg-bg: var(--tg-bg);
@@ -115,6 +124,10 @@
 
   /* Height of the tab bar without the home-indicator inset. */
   --app-tabbar-h: 56px;
+  /*
+   * --app-actions-h: the height of the sticky block of buttons on screen, with its inset (StickyActions sets it on <html> and takes it
+   * back when it goes). Not declared here: absent means there is no such block, and `.toast` falls back to 0.
+   */
   /* Bottom inset the content still has to clear itself; the shell zeroes it while the tab bar covers it (.with-tabbar). */
   --app-safe-b: env(safe-area-inset-bottom, 0px);
 
@@ -458,6 +471,11 @@ body {
     background: var(--app-track);
   }
 
+  /* The dimmed page behind a bottom sheet: neutral black dims the light and the dark page alike, the theme has no token for it. */
+  .scrim {
+    background: rgb(0 0 0 / 0.4);
+  }
+
   /* Bottom sheet: the grabber is the ::before. */
   .sheet {
     @apply w-full max-w-xl rounded-t-[20px] px-4 pt-3;
@@ -475,10 +493,14 @@ body {
     background: var(--app-track);
   }
 
-  /* Short message above the tab bar (AppToast); inverted colours so it reads on any page. */
+  /*
+   * Short message above the tab bar (AppToast); inverted colours so it reads on any page. On a screen with the sticky block of buttons
+   * (StickyActions) it stands on that block: the block publishes its height as --app-actions-h, and that height already holds the
+   * home-indicator inset, so the larger of the two is taken, not their sum.
+   */
   .toast {
     @apply pointer-events-none fixed inset-x-0 z-50 mx-auto w-max max-w-[calc(100%-2rem)] rounded-full px-4 py-2.5 text-center text-sm font-medium;
-    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(12px + max(var(--app-actions-h, 0px), env(safe-area-inset-bottom, 0px)));
     background: color-mix(in srgb, var(--tg-text) 88%, transparent);
     color: var(--tg-bg);
     box-shadow: 0 4px 16px rgb(0 0 0 / 0.2);

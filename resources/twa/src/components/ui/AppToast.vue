@@ -2,8 +2,8 @@
 import { useToast } from '@/composables/useToast'
 
 /**
- * Renders the message of `useToast()` above the tab bar (`.toast`). Mounted once, in App.vue; screens only
- * call `useToast().show(t('common.saved'))`.
+ * Renders the message of `useToast()` above the tab bar, or above the sticky block of buttons of the screen when it has one
+ * (`.toast`; `StickyActions` publishes its height). Mounted once, in App.vue; screens only call `useToast().show(t('common.saved'))`.
  *
  * The `role="status"` live region (`data-testid="toast-region"`) is always in the page and only the message
  * (`data-testid="toast"`) comes and goes inside it: a screen reader announces text that is put into a live region it

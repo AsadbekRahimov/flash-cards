@@ -104,6 +104,31 @@ describe('style.css: touch targets', () => {
 })
 
 /**
+ * The toast (docs/14 §4.4) stands above whatever covers the bottom edge of the window: the tab bar, or the sticky block of buttons of
+ * an immersive screen (`StickyActions`, which publishes its height as `--app-actions-h`). The test environment has no layout, so the
+ * rules are read from the stylesheet.
+ */
+describe('style.css: the toast stands on what covers the bottom edge', () => {
+  it('clears the sticky block of buttons: its height, or the home-indicator inset when there is no block', () => {
+    const bottom = rulesOf('.toast').map((body) => /(?:^|[\s;])bottom:\s*([^;]+);/.exec(body)?.[1]).find((value) => value !== undefined)
+
+    // the block's own height holds the inset (its padding is calc(0.75rem + var(--app-safe-b))): the larger of the two, not their sum
+    expect(bottom).toBe('calc(12px + max(var(--app-actions-h, 0px), env(safe-area-inset-bottom, 0px)))')
+  })
+
+  it('still stands on the tab bar where there is one', () => {
+    const bottom = rulesOf('.with-tabbar .toast').map((body) => /(?:^|[\s;])bottom:\s*([^;]+);/.exec(body)?.[1]).find((value) => value !== undefined)
+
+    expect(bottom).toBe('calc(12px + var(--app-tabbar-h) + env(safe-area-inset-bottom, 0px))')
+  })
+
+  it('is above the sticky block in the stack: the block is z-10, the toast z-50', () => {
+    expect(rulesOf('.toast').some((body) => /@apply[^;]*\bz-50\b/.test(body))).toBe(true)
+    expect(sources.get('components/StickyActions.vue')).toMatch(/\bz-10\b/)
+  })
+})
+
+/**
  * Text on a soft background (docs/14 §4.1): the "ink" of a colour over the soft fill of the same colour, on a card and on
  * the bare page, in the built-in Telegram themes. The CSS variables cannot be computed in happy-dom, so the test does the
  * arithmetic of `color-mix(in srgb, ...)` itself from the numbers in `style.css` and the WCAG formula; a change of a share

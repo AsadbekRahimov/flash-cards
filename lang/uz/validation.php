@@ -17,7 +17,9 @@ return [
     'alpha_num' => ':attribute maydoni faqat harflar va raqamlardan iborat bo\'lishi kerak.',
     'any_of' => ':attribute maydoni noto\'g\'ri to\'ldirilgan.',
     'array' => ':attribute maydoni massiv bo\'lishi kerak.',
+    'array_keys' => ':attribute maydonida faqat quyidagi kalitlar bo\'lishi mumkin: :values.',
     'ascii' => ':attribute maydoni faqat bir baytli harflar, raqamlar va belgilardan iborat bo\'lishi kerak.',
+    'base64' => ':attribute maydoni to\'g\'ri Base64 qatori bo\'lishi kerak.',
     'before' => ':attribute maydoni :date dan oldingi sana bo\'lishi kerak.',
     'before_or_equal' => ':attribute maydoni :date yoki undan oldingi sana bo\'lishi kerak.',
     'between' => [

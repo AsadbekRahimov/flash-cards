@@ -9,7 +9,7 @@ use App\Models\Payment;
 use App\Models\PaymentOrder;
 use App\Models\ProviderTransaction;
 use Carbon\CarbonImmutable;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Log;
@@ -207,12 +207,15 @@ it('is stateless (no CSRF, no session) and throttled per IP behind the optional 
         ->and($route?->uri())->toBe('billing/webhook/payme')
         ->and($route?->gatherMiddleware())->toContain('throttle:billing-webhook')
         ->and($route?->gatherMiddleware())->toContain(BillingIpAllowlist::class.':payme')
-        ->and($route?->gatherMiddleware())->not->toContain(StartSession::class)
-        ->and($route?->gatherMiddleware())->not->toContain(VerifyCsrfToken::class);
+        // gatherRouteMiddleware(): the `web` group expanded and the exclusions applied - gatherMiddleware() does neither,
+        // so a `not->toContain` on it could never fail.
+        ->and(app('router')->gatherRouteMiddleware($route))->not->toContain(StartSession::class)
+        ->and(app('router')->gatherRouteMiddleware($route))->not->toContain(PreventRequestForgery::class);
 
     $return = Route::getRoutes()->getByName('billing.return');
-    expect($return?->gatherMiddleware())->toContain('throttle:billing-return')
-        ->and($return?->gatherMiddleware())->not->toContain(StartSession::class);
+    expect($return)->not->toBeNull()
+        ->and($return?->gatherMiddleware())->toContain('throttle:billing-return')
+        ->and(app('router')->gatherRouteMiddleware($return))->not->toContain(StartSession::class);
 });
 
 it('refuses callers outside PAYME_IP_ALLOWLIST with 403 before authentication, and everyone when the list is empty passes', function (): void {

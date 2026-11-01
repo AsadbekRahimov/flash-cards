@@ -1,15 +1,15 @@
 # LexiFlow Pro
 
-Telegram-based платформа обучения английскому языку. Laravel 12 + Filament 5 + PostgreSQL + Redis.
+Telegram-based платформа обучения английскому языку. Laravel 13 + Filament 5 + PostgreSQL + Redis.
 Подробности архитектуры — в [`docs/`](docs/).
 
 ## Tech stack
 
-- **PHP** 8.3 / **Laravel** 12
+- **PHP** 8.5 / **Laravel** 13
 - **Filament** 5 — админка
-- **PostgreSQL** 16 / **Redis** 7
+- **PostgreSQL** 18 / **Redis** 8
 - **Telegram Bot SDK** (`irazasyed/telegram-bot-sdk`)
-- **Pest** 4 — тесты, **Larastan** level 8 — статический анализ, **Pint** — code style
+- **Pest** 5 — тесты, **Larastan** level 8 — статический анализ, **Pint** — code style
 - **spatie/laravel-permission**, **owen-it/laravel-auditing**, **firebase/php-jwt**
 
 ## Локальный запуск (Docker)

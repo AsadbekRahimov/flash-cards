@@ -8,7 +8,7 @@ use App\Models\Payment;
 use App\Models\PaymentOrder;
 use App\Models\ProviderTransaction;
 use Carbon\CarbonImmutable;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Log;
@@ -119,8 +119,9 @@ it('is stateless (no CSRF, no session) and throttled per IP behind the optional 
             ->and($route?->uri())->toBe("billing/webhook/click/{$action}")
             ->and($route?->gatherMiddleware())->toContain('throttle:billing-webhook')
             ->and($route?->gatherMiddleware())->toContain(BillingIpAllowlist::class.':click')
-            ->and($route?->gatherMiddleware())->not->toContain(StartSession::class)
-            ->and($route?->gatherMiddleware())->not->toContain(VerifyCsrfToken::class);
+            // gatherRouteMiddleware(): the `web` group expanded and the exclusions applied (gatherMiddleware() does neither).
+            ->and(app('router')->gatherRouteMiddleware($route))->not->toContain(StartSession::class)
+            ->and(app('router')->gatherRouteMiddleware($route))->not->toContain(PreventRequestForgery::class);
     }
 });
 

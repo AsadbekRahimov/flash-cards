@@ -45,6 +45,7 @@ use Illuminate\Support\Carbon;
  * @property SchedulerKind|null $scheduler A/B bucket of the SRS algorithm (docs/13 §8.3); NULL = config default
  * @property Carbon|null $last_seen_at
  * @property Carbon|null $blocked_at
+ * @property Carbon|null $practice_pilot_at in the pilot of the practice (`PRACTICE_ACCESS=pilot`, docs/16 §3.2); NULL = not in it
  * @property array<string, mixed> $meta
  */
 class Learner extends Model
@@ -84,6 +85,7 @@ class Learner extends Model
         'scheduler',
         'last_seen_at',
         'blocked_at',
+        'practice_pilot_at',
         'meta',
     ];
 
@@ -105,6 +107,7 @@ class Learner extends Model
             'scheduler' => SchedulerKind::class,
             'last_seen_at' => 'datetime',
             'blocked_at' => 'datetime',
+            'practice_pilot_at' => 'datetime',
             'meta' => 'array',
         ];
     }

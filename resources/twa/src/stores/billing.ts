@@ -12,6 +12,7 @@ import type {
   Entitlement,
   MeResponse,
   Paywall,
+  PracticeAccess,
 } from '@/api/types'
 
 /**
@@ -33,6 +34,8 @@ interface PurchaseState {
 interface BillingState {
   entitlement: Entitlement | null
   paywall: Paywall | null
+  /** The `practice` block of `/me` (docs/16 §3.3); null until `/me` has come, or when the server sent none. */
+  practice: PracticeAccess | null
   loading: boolean
   catalog: BillingCatalog | null
   catalogLoading: boolean
@@ -76,6 +79,7 @@ export const useBillingStore = defineStore('billing', {
   state: (): BillingState => ({
     entitlement: null,
     paywall: null,
+    practice: null,
     loading: false,
     catalog: null,
     catalogLoading: false,
@@ -88,6 +92,9 @@ export const useBillingStore = defineStore('billing', {
   getters: {
     /** The server only reports `purchase` when something is for sale; the catalog is the second check. */
     canPurchase: (state): boolean => state.paywall?.mode === 'purchase' && (state.catalog?.items.length ?? 0) > 0,
+
+    /** What the learner may do with practice; "nothing" until `/me` says otherwise, so no entry shows by mistake. */
+    practiceAccess: (state): PracticeAccess => state.practice ?? { available: false, pro_required: false, modes: [], battle: false },
   },
 
   actions: {
@@ -113,9 +120,10 @@ export const useBillingStore = defineStore('billing', {
     },
 
     /** Takes a `/me` (or an answer that carries the same `entitlement` / `paywall`) and marks the data fresh. */
-    apply(me: Pick<MeResponse, 'entitlement' | 'paywall'>): void {
+    apply(me: Pick<MeResponse, 'entitlement' | 'paywall' | 'practice'>): void {
       this.entitlement = me.entitlement
       this.paywall = me.paywall
+      this.practice = me.practice ?? null
       this.loadedAt = Date.now()
     },
 

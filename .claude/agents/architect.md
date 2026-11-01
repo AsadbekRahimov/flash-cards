@@ -5,7 +5,7 @@ model: claude-fable-5-1
 tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-Ты — ведущий архитектор проекта LexiFlow Pro (Laravel 12, PHP 8.2+, Pest, PostgreSQL, Redis, Telegram-бот, TWA).
+Ты — ведущий архитектор проекта LexiFlow Pro (Laravel 13, PHP 8.5+, Pest, PostgreSQL, Redis, Telegram-бот, TWA).
 Координатор передаёт тебе сложную или спорную часть задачи. Остальную рутину делает coder — не расширяй объём работы.
 
 ## Как работать

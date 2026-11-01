@@ -17,7 +17,7 @@ use Illuminate\Support\Collection;
  *
  * @phpstan-import-type SettingsPayload from LearnerSettingsService
  *
- * @property array{learner: Learner, groups: Collection<int, TelegramGroup>, stats: LearnerStats, entitlement: Entitlement, renewal: array{auto: bool, provider: string, ends_at: string|null, reminder_sent: bool}|null, lapsed: array{provider: string, ended_at: string}|null, paywall: array{mode: string, contact: string|null}, settings: SettingsPayload} $resource
+ * @property array{learner: Learner, groups: Collection<int, TelegramGroup>, stats: LearnerStats, entitlement: Entitlement, renewal: array{auto: bool, provider: string, ends_at: string|null, reminder_sent: bool}|null, lapsed: array{provider: string, ended_at: string}|null, paywall: array{mode: string, contact: string|null}, settings: SettingsPayload, practice: array{available: bool, pro_required: bool, modes: list<string>, battle: bool}} $resource
  */
 final class MeResource extends TwaResource
 {
@@ -28,7 +28,8 @@ final class MeResource extends TwaResource
      *   stats: array{words_learned: int, words_due_today: int},
      *   entitlement: array{plan: string, source: string, until: string|null, new_words_per_day: int|null, renewal: array{auto: bool, provider: string, ends_at: string|null, reminder_sent: bool}|null, lapsed: array{provider: string, ended_at: string}|null},
      *   paywall: array{mode: string, contact: string|null},
-     *   settings: SettingsPayload
+     *   settings: SettingsPayload,
+     *   practice: array{available: bool, pro_required: bool, modes: list<string>, battle: bool}
      * }
      */
     public function toArray(Request $request): array
@@ -64,6 +65,7 @@ final class MeResource extends TwaResource
             ],
             'paywall' => $this->resource['paywall'],
             'settings' => $this->resource['settings'],
+            'practice' => $this->resource['practice'],
         ];
     }
 }

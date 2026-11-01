@@ -3,8 +3,8 @@
 This guide covers deploying LexiFlow Pro on a **bare server** that already has:
 - Linux (Debian/Ubuntu recommended)
 - Git
-- PostgreSQL 14+
-- PHP 8.2+ (with extensions: `pdo_pgsql`, `redis`, `bcmath`, `intl`, `gd` or `imagick`)
+- PostgreSQL 18
+- PHP 8.5+ (with extensions: `pdo_pgsql`, `redis`, `bcmath`, `intl`, `gd` or `imagick`)
 - Nginx (or Caddy)
 - Certbot (SSL certificates)
 - Supervisor (process manager for queue workers)
@@ -41,6 +41,99 @@ bash deploy.sh --rollback <prev_sha>   # или ROLLBACK=1 bash deploy.sh <prev_
 ```
 
 Без `--rollback` обычный деплой по SHA идёт только вперёд: если `HEAD` не является предком указанного SHA (например, запуск Actions для старого коммита закончился позже нового), скрипт печатает «SHA ... older than the current HEAD: skipping» и завершается с кодом 0. Флаг `--rollback` пропускает эту проверку. Скрипт заново чекаутит коммит, пересобирает образы, перезапускает стек и прогоняет те же smoke-проверки. Миграции автоматически **не** откатываются, поэтому каждая миграция должна быть обратно совместимой со старым кодом (expand/contract): в релизе N только добавляем (столбцы nullable/с default, новые таблицы, индексы), в релизе N+1 или позже, когда старый код уже не нужен, удаляем/переименовываем. Миграции с `--skip-migrate` для отката не нужны, но и не мешают. Если откат невозможен из-за уже применённой несовместимой миграции — чините вперёд новой миграцией, а не `migrate:rollback` в продакшене.
+
+### Обновление PostgreSQL 16 → 18 (Docker)
+
+**Когда.** Один раз — при первом деплое коммита, в котором `docker-compose.prod.yml` перешёл на `postgres:18-alpine`. Образы 18+ хранят кластер в `/var/lib/postgresql/<major>/docker` и монтируют один том в `/var/lib/postgresql` — в compose это том `postgresql` (без номера версии в имени: версия и так в подкаталоге, будущий переход на 19 пойдёт внутри того же тома). Данные 16 лежат в прежнем томе `lexiflow_pgdata` (монтировался в `/var/lib/postgresql/data`). Файлы кластера 16 сервер 18 не читает, поэтому данные переносятся dump/restore официальными образами `postgres:16-alpine` и `postgres:18-alpine` — без сторонних образов. `pg_upgrade` не используется: в одном официальном образе нет бинарников двух версий, а на alpine/musl он к тому же наследует старые индексы с их collation; dump/restore перестраивает индексы заново, база невелика (минуты), старый том остаётся нетронутым.
+
+**Простой.** На время переноса остановлены все сервисы стека, кроме `postgres` и `redis`: `app`, `queue-high`, `queue-default`, `scheduler`, `nginx`, `certbot`. Для базы в сотни мегабайт это 1–3 минуты: на стенде 205 МБ / 500 тыс. строк восстановились за ~5 с, вся команда заняла около минуты (плюс скачивание `postgres:16-alpine`, если его нет локально). Очередь в Redis не теряется — воркеры доберут задания после запуска.
+
+**Одна команда** (на сервере, из каталога проекта с уже сделанным чекаутом нового коммита):
+
+```bash
+cd /var/www/lexiflow
+make prod-pg-upgrade        # = bash docker/postgres/upgrade.sh --prod
+```
+
+Если деплой из CI уже остановился на защите (см. ниже), чекаут нового коммита сделан: выполните команду и запустите деплой ещё раз — `bash deploy.sh <sha>` или перезапуск job в Actions.
+
+**Что делает `docker/postgres/upgrade.sh`:**
+1. читает `docker compose config`: имя проекта, образ `postgres`, том под `/var/lib/postgresql`, `POSTGRES_USER`/`POSTGRES_DB`; старый том находит по меткам compose (`<project>_pgdata`) — ничего не захардкожено, кроме прежнего ключа `pgdata`;
+2. берёт блокировку `.deploy.lock`, общую с `deploy.sh` (см. «Защита в глубину»), и только под ней смотрит на тома и принимает решения (второй `make prod-pg-upgrade`, запущенный во время первого, дождётся его и увидит уже завершённый перенос — «Nothing to do»); проверяет свободное место (копия старого тома плюс восстановленная база — около двух размеров кластера 16; `PG_UPGRADE_SKIP_SPACE_CHECK=1` пропускает проверку с предупреждением); останавливает все сервисы, кроме `postgres` и `redis`, затем старый `postgres`; если кластер 18 уже существует (прерванный запуск, `--redo`), первой строкой его `pg_hba.conf` ставится шлагбаум (см. шаг 5) ещё здесь, одноразовым контейнером при остановленном сервере — чтобы любой старт этого кластера, пока перенос не сверен, отвергал сетевые подключения;
+3. пишет в корень нового тома (compose создаёт его со своими метками) маркер `lexiflow-upgrade.in-progress` со списком остановленных сервисов — ещё **до** инициализации кластера; пока маркер есть, `deploy.sh` стек не запустит;
+4. снимает отпечаток старого кластера — md5 файла `global/pg_control` (сервер 16 переписывает его при каждом запуске и каждой контрольной точке);
+5. инициализирует кластер 18 на новом томе (пустая база из `.env`) и первой строкой `pg_hba.conf` ставит `host all all all reject` — «шлагбаум»: до конца сверки сервер 18 отвечает только по unix-сокету внутри контейнера, по сети его не получает ни приложение, ни `php artisan migrate`;
+6. копирует старый том во временный `<project>_pgupgrade_src` (сам старый том смонтирован только для чтения и сервером не открывается) и запускает на копии `postgres:16-alpine` без сети — только unix-сокет;
+7. `pg_dump` версии 18 → `pg_restore --single-transaction --exit-on-error`: база либо восстановлена целиком, либо остаётся пустой, поэтому повтор безопасен;
+8. сверяет точные `count(*)` по всем таблицам, `last_value` всех последовательностей, списки индексов и ограничений; при расхождении останавливается и печатает diff;
+9. `vacuumdb --analyze-in-stages`, пишет маркер `lexiflow-upgrade.done` с отпечатком старого кластера (md5 `pg_control`, system identifier, `NextXID`/`NextOID`, время контрольной точки из `pg_controldata` 16), сразу переписывает `in-progress` как обычное «ожидается старт сервисов» (`redo=0`) и только после этого убирает шлагбаум из `pg_hba.conf` (`pg_reload_conf()` и проверка настоящим TCP-подключением), удаляет временные контейнер и тома; маркеры всегда пишутся во временный файл рядом и переименовываются — наполовину записанного маркера никто не увидит;
+10. запускает остановленные сервисы (список лежит в маркерах, поэтому повтор после сбоя на любом шаге — даже до инициализации — поднимет те же сервисы) и снимает маркер `in-progress`.
+
+Повторный запуск после успеха — no-op («Nothing to do»). После сбоя на любом шаге — запустите ту же команду, она доведёт дело до конца: уже восстановленную базу сверит, а не восстановит заново; если сорвался только последний шаг (запуск сервисов), повтор запустит их и снимет маркер. В этом состоянии (`done` + `in-progress` с `redo=0`) `make prod-pg-check` отвечает `OK` — деплой поднимет весь стек сам, но маркер снимет только `make prod-pg-upgrade` (без флагов, даже если сорвался `--redo`: решение уже записано); пока маркер висит, guard контейнера `postgres` (слой 4 ниже) продолжает сверять отпечаток — такой маркер его не отключает. Старый том ни один шаг не изменяет и не удаляет. `make prod-pg-check` показывает состояние томов, ничего не меняя и не беря блокировку — им можно смотреть и на идущий перенос.
+
+Все сценарии — данные 16 в старой раскладке, защитное монтирование, перенос, прерывание до и после инициализации кластера, откат на 16 (контейнер `postgres` нового compose отказывается стартовать на устаревшем снимке), `--redo`/`--keep-current`, прерванный `--redo` и выход из него через `--keep-current` (в том числе прерванный на полпути), шлагбаум, закрытый до маркера при ручном `up -d`, отказ `--redo` без `--force` и `--keep-current` при работающей 16, убитая 16, повторный `--redo` после прерванного восстановления, сбой на последнем шаге и висящий маркер, свежая установка, блокировка — прогоняются на настоящем Docker в CI: job `postgres-upgrade` (`docker/postgres/tests/run.sh`, только официальные образы, образ приложения не собирается, около десяти минут). Job `deploy` ждёт его: без зелёных сценариев деплой не уходит.
+
+**Проверить результат:**
+
+```bash
+make prod-pg-check      # ==> OK: PostgreSQL 18 data is in place; the legacy PostgreSQL 16 volume lexiflow_pgdata is the rollback copy
+docker compose -f docker-compose.prod.yml --env-file .env exec postgres cat /var/lib/postgresql/lexiflow-upgrade.done
+# переменных .env в шелле оператора нет — берём их из окружения контейнера и из самого файла:
+docker compose -f docker-compose.prod.yml --env-file .env exec postgres sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "select version()"'
+curl -fsS "https://$(sed -n 's/^APP_DOMAIN=//p' .env)/health/ready"
+```
+
+Дальше — обычный деплой с его smoke-проверками. Первый `make backup` после апгрейда покажет, что `pg_dump` в образе приложения не старше сервера (нужен клиент PostgreSQL 18).
+
+**Если задеплоить без апгрейда.** `deploy.sh` ещё до `build` и до любого `up` вызывает `bash docker/postgres/upgrade.sh --prod --check`. Если в старом томе есть кластер 16, а нового тома нет или в нём нет кластера, деплой завершается с кодом 1 и сообщением `STOP: the PostgreSQL 16 data in volume lexiflow_pgdata has not been moved to the 18+ layout ...` и командой апгрейда; работающий старый стек не трогается — образы не пересобраны, контейнеры не пересозданы. Та же проверка останавливает деплой: при незавершённом апгрейде (маркер `in-progress`); когда кластер 18 уже есть, а маркера `done` нет — прерванный перенос или кластер, созданный вручную: база там пустая или неполная (`STOP: … was never completed`); при несовпадении мажора кластера в томе с мажором образа; когда старый кластер 16 запускался после апгрейда (`STOP: … may be STALE`, см. «Откат и его цена»). Автоматического апгрейда в CI нет намеренно: это одноразовая операция с простоем, её запускает владелец и смотрит на вывод. Свежая установка без единого тома проверку проходит, стек инициализирует пустой кластер 18.
+
+**Первый деплой после слияния и ручной деплой.** bash читает скрипт по мере выполнения, поэтому `git checkout` внутри `deploy.sh` не подменяет уже запущенный файл: старый `deploy.sh` доработал бы до конца без проверки выше. Поэтому шаг deploy в `.github/workflows/ci.yml` выполняет `deploy.sh` именно целевого коммита — `git show "$DEPLOY_SHA:deploy.sh" > /tmp/… && bash /tmp/… "$DEPLOY_SHA"`, а не `bash deploy.sh` из текущего чекаута; workflow берётся из нового коммита, так что это работает уже на первом деплое. При ручном деплое делайте так же:
+
+```bash
+cd /var/www/lexiflow && git fetch origin
+tmp=$(mktemp) && git show "<sha>:deploy.sh" > "$tmp" && bash "$tmp" "<sha>"; rm -f "$tmp"
+```
+
+**Защита в глубину.** Четыре слоя.
+
+1. *Защитное монтирование.* На случай, если кто-то всё же запустит старый `deploy.sh` из старого чекаута (`bash deploy.sh <sha>` без `git show`) или просто `docker compose -f docker-compose.prod.yml --env-file .env up -d`: compose монтирует старый том ещё и в контейнер `postgres` — только для чтения, в `/var/lib/postgresql/16/docker`, то есть туда, где entrypoint образов 18+ ищет неперенесённые кластеры. Пока в старом томе лежит кластер 16, а кластера 18 ещё нет, контейнер `postgres` отказывается инициализировать пустую базу и завершается (`docker compose logs postgres`: `Error: in 18+, these Docker images are configured to store database data … there appears to be PostgreSQL data in: /var/lib/postgresql/16/docker`), `app` без здорового `postgres` не стартует, старый `deploy.sh` падает на миграциях. Это простой, а не приложение на пустой БД. Выход тот же: `make prod-pg-upgrade` (скрипт сам инициализирует кластер 18 рядом с этим монтированием), затем деплой заново. Пустой или отсутствующий старый том монтированию не мешает — свежая установка работает как обычно.
+2. *Шлагбаум в `pg_hba.conf`.* Монтирование не спасает, когда кластер 18 уже создан, а перенос не завершён (прерванный `make prod-pg-upgrade`): entrypoint видит `PG_VERSION` и просто стартует. Поэтому, пока данные не сверены, первой строкой `pg_hba.conf` кластера 18 стоит `host all all all reject`: ручной `up -d` поднимет `postgres`, но приложение получит `FATAL: pg_hba.conf rejects connection`, `php artisan migrate --force` не создаст пустую базу, а healthcheck, `compose exec psql` и сам скрипт работают через unix-сокет. Новому кластеру шлагбаум ставит `initdb`-шаг; существующему (прерванный запуск, `--redo`) скрипт вписывает его в `pg_hba.conf` одноразовым контейнером при остановленном сервере — **до** маркера `in-progress`, так что прерывание сразу после маркера (когда маркер `redo=1` пропускает старт через guard) всё равно оставляет кластер закрытым для сети. Шлагбаум снимается на шаге 9 последним — после маркеров `done` и `redo=0`: прерывание в любой точке оставляет либо закрытый шлагбаум рядом с маркером `done` (его открывает любой следующий запуск скрипта), либо уже открытый, но со сверенными и записанными данными; `make prod-pg-check` показывает закрытый шлагбаум как `network gate: CLOSED`. Если прерванный запуск оставил шлагбаум закрытым при уже сверенных данных (маркер `done` есть), `--check` отвечает `STOP: the network gate … is CLOSED` — иначе прод остался бы без БД при зелёной проверке; `make prod-pg-upgrade` в этом состоянии поднимает `postgres`, открывает шлагбаум и запускает остановленные сервисы: данные были сверены, когда писался `done`.
+3. *Одна блокировка на деплой и перенос.* `deploy.sh` и `upgrade.sh` берут `flock` на файл `.deploy.lock` в каталоге проекта (в `.gitignore`): деплой не начнётся во время переноса, перенос — во время деплоя, два деплоя не пересекутся, кто бы их ни запустил. Второй процесс печатает, кто держит блокировку (`pid=… started=… command=…` — содержимое файла), ждёт до `DEPLOY_LOCK_WAIT` секунд (по умолчанию 300) и завершается с ошибкой. `--check` блокировку не берёт: внутри `deploy.sh` он идёт под блокировкой самого деплоя, а `make prod-pg-check` можно запускать когда угодно. Файл создаёт тот, кто запустил первым (root через `sudo` или пользователь деплоя из CI), с правами 666, чтобы второму он тоже открылся; если деплой падает с `cannot open the lock file .deploy.lock (owner root …)` — файл остался от старой версии скрипта, `sudo chmod 666 .deploy.lock`. Файл руками не удалять.
+4. *Guard в entrypoint `postgres`.* Контейнер `postgres` в обоих compose стартует через обёртку `docker/postgres/entrypoint-guard.sh` (bind-mount только для чтения, `entrypoint: ["/bin/sh", …]`, явная `command: ["postgres"]`, дальше — официальный `docker-entrypoint.sh`). Если в маркере `done` записан отпечаток кластера 16, старый том всё ещё содержит `global/pg_control`, его md5 другой, а маркера `in-progress` с `redo=1` нет — контейнер пишет в лог `lexiflow-upgrade guard: refusing to start PostgreSQL 18 - its data may be STALE` с командами `--redo`/`--keep-current` и тем, как потом поднять стек (`LEXIFLOW_UPGRADE_CMD` и `LEXIFLOW_UP_CMD` из compose: в проде `bash docker/postgres/upgrade.sh --prod` и `bash deploy.sh <sha>`), и завершается с кодом 1 (в проде с `restart: unless-stopped` — перезапускается и отказывает снова, пока владелец не решит). Healthcheck не проходит, `app` ждёт здоровый `postgres`: простой, а не приложение на устаревшем снимке. Это ловит всё, что обходит `deploy.sh` и его `--check`: старый `deploy.sh` или `make deploy` из чекаута, где проверки ещё нет, `make prod-up`, ручной `up -d` после `STOP: … may be STALE`. Контейнеры самого `upgrade.sh` запускаются с `--entrypoint` и под guard не попадают; `--redo` пишет `in-progress` с `redo=1` до старта `postgres` (и закрывает шлагбаум ещё раньше), `--keep-current` переписывает отпечаток до того, как что-либо стартует, завершённый `--redo` переписывает отпечаток до того, как его маркер становится `redo=0`, — поэтому все старты скрипта проходят. Маркер с `redo=0` (сервисы не стартовали) проверку **не** снимает: иначе забытый маркер отключил бы guard навсегда.
+
+Остаточный риск: ручной `up -d` в те несколько секунд, пока `initdb` создаёт кластер 18 (второй postmaster из другого контейнера), — повредить он может только новый пустой кластер, старый том скрипт не пишет никогда; сверка на шаге 8 такое заметит.
+
+*Рабочее дерево при сбое деплоя.* Compose монтирует в контейнеры файлы рабочего дерева (guard в `postgres`, `docker/nginx/prod.conf` в `nginx`), и перезапуск контейнера перечитывает эти монтирования. Поэтому `deploy.sh`, остановившись **после** чекаута, но **до** того, как тронул стек (STOP проверки пустого старого тома при откате, падение сборки), возвращает дерево на прежний коммит — иначе откат на коммит без `docker/postgres/entrypoint-guard.sh` оставил бы дерево без файла, а работающий `postgres` 18 падал бы при каждом перезапуске (Docker создаёт на месте пропавшего источника каталог). Два исключения: после первого `up` дерево остаётся с контейнерами; после `STOP` от `upgrade.sh --check` чекаут нового коммита сохраняется — именно из него запускают апгрейд или `--redo`/`--keep-current`.
+
+**Откат и его цена.** `bash deploy.sh --rollback <prev_sha>` на коммит с `postgres:16-alpine` возвращает старый compose: контейнер `postgres` пересоздаётся на томе `lexiflow_pgdata` **на запись**, данные 16 — в состоянии на момент апгрейда. В таком коммите нет `docker/postgres/upgrade.sh`; `deploy.sh` пишет `No docker/postgres/upgrade.sh in this commit (PostgreSQL 16 layout): skipping the data volume check` и предупреждает, что с этого момента копии расходятся. Всё, что записано в PostgreSQL 18 после апгрейда, на 16 не попадёт (обратного переноса нет). Том `lexiflow_postgresql` при откате не удаляется. Если старый том к этому моменту уже удалён (см. «Когда удалить старый том»), откат останавливается: `deploy.sh` того чекаута, из которого запущен откат, проверяет старым compose, что в томе есть `PG_VERSION`, и на пустом томе отвечает `STOP: the legacy PostgreSQL volume holds no cluster` — иначе 16 инициализировала бы пустой кластер, а миграции собрали бы на нём пустую базу.
+
+Любой запуск 16 на старом томе — откат через `deploy.sh`, ручной `docker compose up` из старого чекаута, даже «посмотреть одним глазом» — меняет `global/pg_control`, и следующий деплой вперёд остановится: `--check` сравнит отпечаток из маркера `done` с текущим и ответит `STOP: … ran again after the upgrade … may be STALE`. Минуя `deploy.sh` — тоже нельзя: контейнер `postgres` нового compose при старте сверяет тот же отпечаток (guard в entrypoint, слой 4 выше) и не стартует 18 на устаревшем снимке; `docker compose -f docker-compose.prod.yml --env-file .env logs postgres` покажет причину и те же команды. Решение принимает владелец, слияния двух веток нет; кластер 16 при этом должен быть остановлен (после отката это контейнер `lexiflow-postgres` старого compose: `docker stop lexiflow-postgres`):
+
+```bash
+bash docker/postgres/upgrade.sh --prod                  # показать, что изменилось на 16: NextXID/NextOID (были ли транзакции) или только запуск
+bash docker/postgres/upgrade.sh --prod --redo           # правда — на 16: база 18 переименовывается в lexiflow_stale_<время> (не удаляется), данные 16
+                                                        # переносятся заново; то, что приложение записало в 18 после апгрейда и до отката, остаётся
+                                                        # только в этой копии — изучить, затем `… exec postgres dropdb -U <user> lexiflow_stale_<время>`
+bash docker/postgres/upgrade.sh --prod --redo --force   # то же, когда 16 только запускалась без записей или в старом томе другой (переинициализированный)
+                                                        # кластер: без --force такой --redo отказывает, он заменил бы живую базу 18 устаревшими/пустыми данными
+bash docker/postgres/upgrade.sh --prod --keep-current   # правда — на 18: данные 18 остаются, в маркер записывается новый отпечаток 16; то, что 16
+                                                        # записала после апгрейда, остаётся только в старом томе
+```
+
+Затем деплой заново (после `--keep-current` контейнер `postgres`, остановленный guard'ом, в проде перезапустится сам; в dev — `docker compose up -d`). Отказы, которые защищают рабочую базу 18 от подмены: `--redo` на неизменившемся кластере 16 («nothing is stale»); `--redo`, когда 16 только запускалась и ничего не записала (NextXID/NextOID не сдвинулись), когда в старом томе другой, переинициализированный кластер (сменился system identifier — например, том удалили, а откат создал пустой) или когда 16 выключена нечисто (`Database cluster state` ≠ `shut down`: убита OOM или `docker rm -f`, и `pg_controldata` не может сказать, были ли записи после последней контрольной точки) — все три могли бы заменить живую базу 18 её же старым снимком или пустой базой, поэтому требуют `--redo --force` (копия 16 при этом сама доигрывает свой WAL); `--redo` и `--keep-current`, пока 16 работает (есть контейнер, держащий старый том на запись) — остановите её и повторите. Нечисто выключенная, но никем не запущенная 16 для `--keep-current` не помеха: кластер неподвижен, он записывается как есть с предупреждением; если 16 когда-нибудь запустить снова, отпечаток сменится и проверки остановят деплой ещё раз. Прерванный `--redo` оставляет маркер `in-progress` с `redo=1`, маркер `done` при этом сохраняется (история сверенного переноса): `--check` отвечает `STOP: a --redo … is in progress or was interrupted`, а дальше либо `--redo` доводит перенос (уже отложенная база и её имя в маркере не теряются: если восстановление успело завершиться, несверенная копия удаляется и восстанавливается заново, второй раз ничего не откладывается), либо `--keep-current` возвращает стек к данным 18 — открывает шлагбаум, поднимает остановленные сервисы, снимает маркер. Второе возможно, пока прерванный `--redo` не успел переименовать базу (`stale_db=` в маркере пишется перед переименованием): иначе скрипт откажет и скажет, как вернуть отложенную базу на место вручную (ничего не удаляется); если базу нельзя проверить (например, `psql` не подключается), скрипт тоже откажет, а не примет ошибку за ответ. Если `--redo` сорвался уже на запуске сервисов (данные сверены, `done` переписан), маркер становится `redo=0`: `--check` отвечает `OK`, а `make prod-pg-upgrade` без флагов поднимает сервисы и снимает маркер. Если старый том к этому времени удалён, `--redo`/`--keep-current` откажут (нечего копировать и сравнивать) — `--check` предлагает тот же запуск без флагов. Отложенные базы `lexiflow_stale_<время>` `make prod-pg-check` перечисляет строкой `databases set aside by --redo`. Тот же `--redo` — выход, если на пустой 18 успели прогнать миграции и сверка показала diff (раньше здесь предлагался `dropdb`).
+
+*Redis.* Образ закреплён на `redis:8.4-alpine`, а не на плавающем `redis:8-alpine`, пока жив путь отката: 8.4 пишет RDB формата 12, который читает `redis:7.4` коммита до апгрейда; 8.6+ пишут 13+, и 7.4 после первой перезаписи AOF/RDB падает с «Can't handle RDB format version» — откат остался бы без очереди и сессий. На последнюю 8.x переходим вместе с удалением защитного монтирования `pgdata`. Тесты в CI (job `test`) идут на той же версии.
+
+**Когда удалить старый том.** Когда 18 поработала достаточно (например, неделю), есть свежий бэкап и откат больше не нужен. Том держит контейнер `postgres` (защитное монтирование только для чтения — и остановленный контейнер тоже держит), поэтому `docker volume rm` сразу ответит «volume is in use»; сначала убрать контейнер:
+
+```bash
+cd /var/www/lexiflow
+docker compose -f docker-compose.prod.yml --env-file .env rm -sf postgres   # остановить и удалить контейнер postgres (приложение переподключится через секунды)
+docker volume rm lexiflow_pgdata                                           # точное имя печатает make prod-pg-check
+docker compose -f docker-compose.prod.yml --env-file .env up -d            # postgres пересоздаётся; compose заведёт пустой lexiflow_pgdata — это безвредно
+```
+
+Скрипты этого не делают никогда. Пустой том entrypoint не смущает, `make prod-pg-check` отвечает `OK` уже без «rollback copy». Внимание: из-за защитного монтирования том `pgdata` объявлен в compose, поэтому `docker compose down -v` удалит и его (как и все остальные данные стека). Само монтирование уберём из compose в одном из следующих релизов вместе с переходом Redis на последнюю 8.x.
 
 ---
 
@@ -180,7 +273,7 @@ php artisan db:seed   # loads demo admin, teacher, 2 groups, 120 words, 5 learne
 
 ## 6. Build the Frontend (TWA SPA)
 
-If Node.js 18+ is available on the server:
+If Node.js 26 LTS (22.12+ is enough) is available on the server:
 ```bash
 cd resources/twa
 npm ci                  # install all deps — build needs vite/vue-tsc from devDependencies
@@ -309,7 +402,7 @@ server {
     # redirect to `location ~ \.php$`.
     location ~ ^/(?:admin(?:/|$)|org(?:/|$)|2fa(?:/|$)|livewire-) {
         gzip off;
-        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+        fastcgi_pass unix:/run/php/php8.5-fpm.sock;
         include fastcgi_params;
         fastcgi_param SCRIPT_FILENAME $realpath_root/index.php;
         fastcgi_param SCRIPT_NAME /index.php;
@@ -322,8 +415,8 @@ server {
 
     location ~ \.php$ {
         # Update the socket path to match your installed PHP version
-        # (e.g. php8.3-fpm.sock or php8.4-fpm.sock). Verify with: ls /run/php/
-        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+        # (php8.5-fpm.sock for PHP 8.5, php8.6-fpm.sock for 8.6, ...). Verify with: ls /run/php/
+        fastcgi_pass unix:/run/php/php8.5-fpm.sock;
         fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
         include fastcgi_params;
     }
@@ -460,6 +553,14 @@ php artisan audio:pregenerate <course-slug> --force  # re-synthesize existing fi
   (`<project>` is the compose project name, see `docker volume ls`.) The old copy inside `app_storage` can be deleted afterwards (optional). An `app_audio` created by Docker from a fresh image is already owned by `app` (the image creates `storage/app/public/audio`); only a manually created volume needs the `chown`.
 - Pre-generation is not triggered automatically (neither by import nor by publishing): run the command after importing or publishing a course.
 
+### 10.2 Audio of the practice dictations (task 18.5)
+
+The phrases of the practice mode "Listen and write" (docs/16 §10) are voiced by `GeneratePracticeAudioJob` (queue `low`, 5 attempts, backoff 30 s / 2 m / 10 m / 30 m) into **`storage/app/practice-audio/{sha1}.mp3`** — the disk `practice_audio` of `config/filesystems.php` (a file is written to `.tmp/` first and moved, so a reader never sees half of an mp3). Unlike `storage/app/public/audio` this directory is **private: nginx does NOT serve it** (no `location`, no `storage:link` entry, the disk has no `url`); the files leave the server only through the JWT-guarded endpoints `GET /api/twa/practice/sessions/{id}/audio/{element}` and, for a battle, `GET /api/twa/practice/battles/{id}/audio/{element}` (the five clips of a dictation are loaded when the room is entered; a missing file voids the match — `docs/ADMIN_GUIDE.md`, *Battle 1-on-1*).
+
+- Permissions: as for the rest of `storage/` (the queue worker writes, php-fpm reads — see `File Permissions Reference`; the directory is created by the application on first use, mode 755, files 644). Backup: it is inside the project directory, so `backup:run` includes it exactly like `storage/app/public`; in Docker it lives in the `app_storage` volume shared by `app`, `queue-*` and `scheduler`, and nginx (which mounts only `app_audio`) cannot see it — nothing to add to the compose file.
+- A version whose voicing failed on the last attempt is `failed` with a short `audio_error` (`tts_service_failed`, `tts_service_not_configured`, ...) and waits for the admin action to voice it again; the same text, voice and `TTS_AUDIO_VERSION` give the same file name, so a repeated job does nothing. The `tts` service must be reachable from the queue worker, as for the word audio (§10.1).
+- Lost files (a restore without this directory): the hub still counts the phrases (it does not look at the disk), a dictation session skips a phrase whose file is missing, and when fewer than three clips can play it is refused with "the recordings are being prepared" (422 `practice_not_enough_material`, reason `audio_pending`); voice the phrases again with the admin action.
+
 ---
 
 ## 11. Configure Cron (Laravel Scheduler)
@@ -479,6 +580,11 @@ This runs every minute. Laravel's scheduler internally dispatches:
 - `reminders:dispatch` — every 15 minutes (personal reminders by the learner's local time; a learner is claimed by a conditional UPDATE, so overlapping runs are safe; `withoutOverlapping(10)` — the mutex expires after 10 minutes — and `runInBackground`). Its jobs go to the `default` queue, spread at `REMINDERS_SEND_RATE_PER_SECOND` (25/s) over at most 14 minutes. A run queues at most rate x 840 jobs (`capped` -> a warning line; the rest stays due for the next run). Every background Telegram send also takes a slot of `TELEGRAM_OUTBOUND_GLOBAL_PER_SECOND` (queued jobs release themselves when none is free; `assignments:refresh` waits up to 2 s per post and postpones the rest to the next run).
 - `model:prune` — daily at 03:00 (`product_events` and `notifications_log`, 400 days by default).
 - `training:close-expired` — every 15 minutes (expired personal / stale group training sessions).
+- `practice:close-expired` — every 15 minutes (solo practice sessions past their `expires_at`, 24 h after the start, become `finished / expired` and release the learner's «one active session»; the event `practice.session_finished` is written once; a conditional UPDATE per session, so repeated or parallel runs are harmless; `withoutOverlapping`). A session that nobody closed is also closed by the learner's next request, so a late run costs nothing.
+- `practice:battles-sweep` — every minute (`everyMinute()->withoutOverlapping()->runInBackground()`; the 1-on-1 battle, docs/16 §8.6, task 18.6). One run: (1) invitations past `invite_expires_at` (5 minutes) become `closed / invite_expired` — one conditional UPDATE per row, so an invitation accepted a moment earlier is left alone — and release both players' «one active battle»;
+  (2) every match that is on (`room`, `countdown`, `playing`) is moved by the clock under `FOR UPDATE` of its own row, one transaction per match: a room past 2 minutes, a player silent for more than 30 s, the end of a round (deadline + 1.5 s grace) and of the review, the end of the match; (3) with `PRACTICE_ACCESS=off` the matches that are on are **voided** instead (`closed / voided`, `meta.voided_reason = practice_off`).
+  Idempotent: a repeated or overlapping run changes nothing; it prints `Battles swept: N` (invitations closed + matches moved or voided). The command itself needs no queue worker (the DM that invites a friend does — §14.3). A request of either player moves the same match lazily, so a late run only delays things by a minute — but a match both players left is ended **only** by this command (about 1.5 minutes after they went),
+  and without it the learners' «one active battle» stays taken until each of them looks at the match again. A scheduler that is down (`/health/ready` → `scheduler`) shows up first as matches stuck in `room` / `countdown` / `playing`.
 - `subscriptions:expire` — hourly (time-based subscription transitions).
 - `billing:expire-orders` — every 15 minutes (pending payment orders past `BILLING_ORDER_TTL_MINUTES` become `expired`).
 - `subscriptions:remind-expiring` — daily at 06:00 UTC (renewal reminders 3 and 1 day before a Payme/Click period or a canceled Stars period ends; queues `RenewalReminderJob`, so a queue worker must run; organization owners are e-mailed — the `MAIL_*` settings must be real in production, `MAIL_MAILER=log` only logs them).
@@ -647,6 +753,30 @@ php artisan courses:recount-words
   (the same lock the importer, the decks and the publication take), so a run that meets an import waits for its commit instead of
   overwriting the counter with a count that misses the import.
 
+### 14.3 Deploying the practice (docs/16, tasks 18.x)
+
+The practice ships **switched off**: `PRACTICE_ACCESS` defaults to `off`, so a deploy changes nothing for learners until you turn it on.
+
+1. `php artisan migrate --force` runs the four forward migrations `2026_10_30_100001..100004` (`learners.practice_pilot_at`; `practice_items`, `practice_item_versions`, `practice_item_words`; `practice_sessions`, `practice_attempts`; `battles`, `battle_participants`, `battle_answers`) — new tables and one nullable column, no rewrite of existing data.
+2. `php artisan config:cache`, then restart the queue workers (`supervisorctl restart lexiflow-worker:*`): the voicing job `GeneratePracticeAudioJob` runs on the `low` queue (the `default,low` worker, §10) and the DM that invites a friend to a battle (`SendBattleDmJob`) on the `default` queue; both need the new code.
+3. The directory `storage/app/practice-audio` is created by the application on first use (private, §10.2); on a bare VPS it is in the `mkdir -p` list of the VPS guide §7.1. It is part of the backup (`backup:run`) next to `storage/app/public`.
+4. `php artisan schedule:list` shows `practice:close-expired` (every 15 minutes) and `practice:battles-sweep` (every minute, §11). `/health/ready` needs no change: a dead scheduler already fails its `scheduler` check, and the battle sweeper rides on the same cron entry.
+5. Turn it on in steps (`docs/ADMIN_GUIDE.md`, «Practice tasks»): import the pilot package as drafts (`php artisan practice:import database/data/practice/pilot-a1-a2.json`), check and publish the tasks in the admin, wait until the column «Аудио» of the dictations says «Готово» (the `tts` service and a queue worker must be up), then `PRACTICE_ACCESS=pilot` + `php artisan config:cache`, put a few learners into the pilot, and later `all`.
+6. The 1-on-1 battle comes with the practice (`PRACTICE_BATTLE` defaults to `true`; it is reachable only where `PRACTICE_ACCESS` lets the learners in) and needs nothing else on the server except what steps 2–4 name: `TWA_BASE_URL` must be the public https address (the button of the invitation DM opens `${TWA_BASE_URL}/twa/battles/{id}`), the bot token must work (the DM), and the scheduler must run every minute.
+   Smoke check with two test learners who are friends: invite → the DM arrives with «Открыть баттл» → accept → both press «Готов» → one round; then `php artisan practice:battles-sweep` run twice in a row ends with `Battles swept: 0`.
+7. Rollback: `PRACTICE_ACCESS=off` + `config:cache` hides the practice at once (the entries disappear from `/me`, the endpoints answer 403) and within a minute the sweeper voids the battles that are on; the data stays. `PRACTICE_BATTLE=false` stops only new invitations and acceptances — matches that are on are played to the end. The migrations are reversible (`down()`), but do not roll them back on a live system.
+
+   Stuck battles are visible in the database: a read-only query for matches that did not move although the scheduler should have moved them (a healthy scheduler leaves no rows; more than a few minutes of rows means `practice:battles-sweep` does not run):
+
+   ```sql
+   SELECT id, status, end_reason, invite_expires_at, room_expires_at, updated_at
+   FROM battles
+   WHERE (status = 'invited' AND invite_expires_at < now() - interval '2 minutes')
+      OR (status IN ('room', 'countdown', 'playing') AND updated_at < now() - interval '5 minutes');
+   ```
+
+   Do not repair such rows by hand: run `php artisan practice:battles-sweep` (idempotent) and look at the scheduler. The `meta` keys and the columns are in `docs/03` §2.45–§2.47.
+
 ---
 
 ## 15. Monitoring and Error Tracking
@@ -742,10 +872,12 @@ Worker heartbeat: every minute the scheduler dispatches `QueueHeartbeatJob` to t
 | Certificate expiry | < 14 days |
 | Disk usage on the DB / backup volume | > 80% |
 | `billing.promo_rejected_burst` (warning log; `learner_id`, `rejections`, `last_reason`) | any occurrence outside a known broken client — one learner failed ≥ 5 promo redemptions in 10 min (`BILLING_PROMO_REJECTIONS_ALERT_*`): code guessing; consider blocking the learner |
+| Battles that did not move (the query of §14.3, step 7: invitations expired for 2 minutes, matches that are on and not updated for 5) | rows for more than 10 minutes — `practice:battles-sweep` does not run (the scheduler is down; `/health/ready` should have failed first) |
 
 Product events (`product_events` table, see `docs/03_DATABASE.md`) are for product analytics, not alerting.
 `reminder.failed` is expected for learners who blocked the bot or never opened a DM with it (`reason`: `bot_blocked` / `not_started` / `user_deactivated` / `chat_not_found`); it sets `learners.dm_blocked_at` and the learner is not retried until they write to the bot. Alert only on a sudden spike. `reminders:dispatch` prints `claimed / queued / skipped stale / repaired / backfilled`; a steadily non-zero `skipped stale` means the scheduler or the queue lags by more than `REMINDERS_MAX_DELAY_MINUTES`.
 `promo.rejected` is likewise expected (typos); the burst *log line* above, not the event, is the alert.
+`telegram.battle_dm_forbidden` (warning: `learner_id`, `reason`) is expected too: the friend who was invited to a battle blocked the bot or never opened it; the message is not delivered, `learners.dm_blocked_at` is set, the invitation is still in the app. Alert only on a sudden spike. `battle.*` product events (`battle.finished`, `battle.closed` with `end_reason`) are analytics, not alerts; a growing share of `voided` means missing dictation audio (§10.2).
 
 ---
 
@@ -1029,3 +1161,19 @@ All optional; the defaults are the production values (`.env.example` lists them)
 | `REFERRALS_INVITEE_REWARDS_PER_30D` | `20` | Invited learners of one inviter that get a reward per rolling 30 days |
 | `REFERRALS_FLAG_LINKS_PER_DAY` | `20` | Links of one inviter within 24 h at which the next one is flagged (reward waits for an admin) |
 | `REFERRALS_RECOVER_WINDOW_DAYS` | `14` | `referrals:recover` looks only at referrals activated / rewarded within this many days |
+
+### Practice variables (docs/16 §3.1)
+
+The switches are read from `.env`; everything else of `config/practice.php` (sizes, limits, timings) is changed by a release, not by an environment variable. Changing a value needs `php artisan config:cache` + a worker restart (section 14).
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `PRACTICE_ACCESS` | `off` | Who may practise: `off` (nobody), `pilot` (learners with `learners.practice_pilot_at`, set by an admin), `all`. Any other value counts as `off` |
+| `PRACTICE_PLAN` | `all` | `pro` — only Pro learners practise; a Free learner gets the paywall (403 `practice_pro_required`) |
+| `PRACTICE_MODE_PAIRS` / `_COLLOCATION` / `_SENTENCE` / `_DICTATION` | `true` | Switches one mode off: no new session of it; sessions already started finish |
+| `PRACTICE_BATTLE` | `true` | The switch of the 1-on-1 battle: `false` refuses new invitations and the acceptance of sent ones (409 `battle_disabled`) and hides the entries (`/me` → `practice.battle`); matches that are on finish. `PRACTICE_ACCESS=off` is stronger: the sweeper voids the matches that are on |
+| `TTS_SERVICE_URL`, `TTS_VOICE`, `TTS_AUDIO_VERSION` | see §10.1 | Voicing of the dictation phrases uses the same service and voice as the word audio (§10.2) |
+
+Fixed in `config/practice.php`: solo session TTL 24 h (`practice.solo.session_ttl_hours`); 5 tasks per session, at least 3 (`solo.items`); pairs — up to 3 rounds of 4, rounds of 3 allowed (`solo.pairs`); dictation — at most 3 phrases, 2 swaps of a clip (`solo.dictation`); import ≤ 2 MB and ≤ 300 tasks (`import`); the disk of the phrase audio `practice_audio` (`config/filesystems.php`, root `storage/app/practice-audio`, no URL).
+The battle (`practice.battle.*`): 5 rounds; a round lasts 30 s (collocation), 45 s (pairs, sentence) or 60 s (dictation); a countdown of 3 s and a review of 4 s; an invitation lives 300 s, a room 120 s; the opponent is warned about after 10 s of silence (`presence_warn_seconds`), a player silent for 30 s loses (`presence_grace_seconds`); the presence is written at most once per 5 s (`heartbeat_write_seconds`);
+an answer is taken up to 1500 ms after the deadline (`deadline_grace_ms`); a round is worth 100 points, a pair 25 (`points`); the list of finished matches holds 10 (`finished_list`). The limiters (`AppServiceProvider`): `twa-battle-invite` 5/min, `twa-battle-action` 60/min, `twa-battle-poll` 90/min (outside `twa-api`), `twa-practice-audio` 60/min (shared with the solo audio).

@@ -14,14 +14,14 @@ use App\Http\Middleware\StaticPageCsp;
 use App\Http\Middleware\TelegramIpAllowlist;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 // Public site (landing, offer, privacy): static pages, so no session / cookies / CSRF.
 // `/page` negotiates the language from Accept-Language (ru default); `/{locale}/page` is explicit.
-Route::withoutMiddleware([EncryptCookies::class, AddQueuedCookiesToResponse::class, StartSession::class, ShareErrorsFromSession::class, VerifyCsrfToken::class])
+Route::withoutMiddleware([EncryptCookies::class, AddQueuedCookiesToResponse::class, StartSession::class, ShareErrorsFromSession::class, PreventRequestForgery::class])
     ->middleware(StaticPageCsp::class)
     ->group(function (): void {
         $locales = implode('|', array_map(preg_quote(...), (array) config('localization.supported', ['ru'])));
@@ -37,7 +37,7 @@ Route::withoutMiddleware([EncryptCookies::class, AddQueuedCookiesToResponse::cla
 
 // Readiness probe for monitoring: stateless (no session/cookies), throttled.
 Route::get('/health/ready', ReadinessController::class)
-    ->withoutMiddleware([EncryptCookies::class, AddQueuedCookiesToResponse::class, StartSession::class, ShareErrorsFromSession::class, VerifyCsrfToken::class])
+    ->withoutMiddleware([EncryptCookies::class, AddQueuedCookiesToResponse::class, StartSession::class, ShareErrorsFromSession::class, PreventRequestForgery::class])
     ->middleware('throttle:60,1')
     ->name('health.ready');
 
@@ -48,7 +48,7 @@ Route::post('/telegram/webhook/{secret}', WebhookController::class)
 
 // Payment providers (docs/13 §4, docs/07 §2a): stateless like the Telegram webhook — no session / cookies / CSRF;
 // authenticated by the provider's own scheme inside the controller; throttled per IP; optional caller allowlist.
-Route::withoutMiddleware([EncryptCookies::class, AddQueuedCookiesToResponse::class, StartSession::class, ShareErrorsFromSession::class, VerifyCsrfToken::class])
+Route::withoutMiddleware([EncryptCookies::class, AddQueuedCookiesToResponse::class, StartSession::class, ShareErrorsFromSession::class, PreventRequestForgery::class])
     ->prefix('billing')
     ->group(function (): void {
         Route::post('/webhook/payme', PaymeWebhookController::class)

@@ -352,6 +352,7 @@ it('adds the day\'s goal and streak to the /finish summary and keeps them on a r
         'reviewed' => 2, 'correct' => 2, 'new_words' => 2,
         'goal' => ['target' => 2, 'done' => 2, 'met' => true],
         'streak' => ['current' => 1, 'best' => 1, 'met_today' => true, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false],
+        'practice_entry' => null, // the practice is off by default (docs/16 §3.2): no entry to it
     ];
     $this->withHeaders(todayHeaders($learner))->postJson("/api/twa/training/sessions/{$id}/finish")
         ->assertOk()->assertExactJson($expected);

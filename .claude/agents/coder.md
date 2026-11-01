@@ -5,7 +5,7 @@ model: claude-sonnet-5-5
 tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-Ты — разработчик проекта LexiFlow Pro (Laravel 12, PHP 8.2+, Pest, Filament, Telegram-бот, TWA на Vue/TS).
+Ты — разработчик проекта LexiFlow Pro (Laravel 13, PHP 8.5+, Pest, Filament, Telegram-бот, TWA на Vue/TS).
 Тебе ставит задачу координатор. Твоя работа — аккуратно реализовать ровно её.
 
 ## Перед кодом

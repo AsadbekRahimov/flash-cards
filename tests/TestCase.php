@@ -19,6 +19,15 @@ use Tests\Support\OfflineTelegramApi;
 abstract class TestCase extends BaseTestCase
 {
     /**
+     * The connections the DatabaseTruncation trait empties (the PostgreSQL-only concurrency tests attach it). Its default,
+     * `[null]`, is the default connection too, but the trait keys its table cache by that name and PHP 8.5 deprecates
+     * `null` as an array offset (Laravel 13.39 still does it: one notice per test). These files run on pgsql only.
+     *
+     * @var list<string>
+     */
+    protected array $connectionsToTruncate = ['pgsql'];
+
+    /**
      * RefreshDatabase rolls back the DB but not the cache. With the array store
      * the state dies with the app instance; with a persistent store (CI runs
      * CACHE_STORE=redis) rate-limiter hits, cached entitlements/lookups and

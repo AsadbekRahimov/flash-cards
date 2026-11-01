@@ -22,6 +22,7 @@ use App\Filament\Resources\PaymentOrderResource;
 use App\Filament\Resources\PaymentOrderResource\Pages\ListPaymentOrders;
 use App\Filament\Resources\PaymentResource;
 use App\Filament\Resources\PaymentResource\Pages\ListPayments;
+use App\Filament\Resources\PracticeItemResource;
 use App\Filament\Resources\PromoCodeResource;
 use App\Filament\Resources\PromoCodeResource\Pages\EditPromoCode;
 use App\Filament\Resources\PromoCodeResource\Pages\ListPromoCodes;
@@ -55,6 +56,7 @@ use App\Models\Lesson;
 use App\Models\Organization;
 use App\Models\Payment;
 use App\Models\PaymentOrder;
+use App\Models\PracticeItem;
 use App\Models\PromoCode;
 use App\Models\ProviderTransaction;
 use App\Models\Stage;
@@ -163,6 +165,7 @@ function loc_records(User $admin): array
         StageResource::class => $stage,
         LessonResource::class => $lesson,
         WordResource::class => Word::factory()->create(['lesson_id' => $lesson->id]),
+        PracticeItemResource::class => PracticeItem::factory()->dictation()->forCourse($course)->create(),
         LearnerResource::class => $learner,
         TelegramGroupResource::class => TelegramGroup::factory()->create(),
         OrganizationResource::class => Organization::factory()->create(),
@@ -329,11 +332,11 @@ it('shows the Russian navigation groups and items on every kind of admin page', 
 it('titles the lesson list and the stage form in Russian and offers "Создать" instead of "Create Stage"', function (): void {
     $lessons = loc_text(loc_get(loc_user(), '/admin/lessons')->assertOk()->getContent());
     expect($lessons)->toContain('Уроки', 'Создать урок', 'Модуль')
-        ->and($lessons)->not->toContain('Stage', 'Words');
+        ->and($lessons)->not->toContain('Stage')->not->toContain('Words');
 
     $form = loc_text(loc_get(loc_user(), '/admin/stages/create')->assertOk()->getContent());
     expect($form)->toContain('Новый модуль', 'Курс', 'Номер', 'Название', 'Описание')
-        ->and($form)->not->toContain('Create Stage', 'Создать Stage');
+        ->and($form)->not->toContain('Create Stage')->not->toContain('Создать Stage');
 });
 
 it('shows a teacher the Russian navigation too', function (): void {
@@ -684,7 +687,7 @@ it('has no admin.php of its own in the other locales', function (): void {
 });
 
 it('defines every admin.* key the admin code asks for', function (): void {
-    $files = [resource_path('views/filament/pages/import-lesson.blade.php')];
+    $files = [resource_path('views/filament/pages/import-lesson.blade.php'), resource_path('views/filament/pages/import-practice-items.blade.php')];
     $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(app_path('Filament'), FilesystemIterator::SKIP_DOTS));
     foreach ($iterator as $file) {
         // `app/Filament/Org` is the center cabinet: its captions are lang/ru/org.php.

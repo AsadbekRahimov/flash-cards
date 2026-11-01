@@ -250,7 +250,8 @@ it('lets the scheduler command close due challenges and expire stale pending one
     $notYet = chSvc()->propose($x, $y, 'reviews', now: chNow());
     chSvc()->accept($y, $notYet->id, chNow());
     [$p, $q] = chFriends();
-    $stale = Challenge::factory()->create(['challenger_id' => $p->id, 'opponent_id' => $q->id, 'open_pair' => 'z', 'created_at' => now()->subDays(10)]);
+    // Ten days before the moment the command runs (fixed below), not before the real today: the test must not depend on the calendar.
+    $stale = Challenge::factory()->create(['challenger_id' => $p->id, 'opponent_id' => $q->id, 'open_pair' => 'z', 'created_at' => CarbonImmutable::parse('2026-10-12 12:00:00', 'UTC')]);
 
     $this->travelTo(CarbonImmutable::parse('2026-10-22 12:00:00', 'UTC'));
     $this->artisan('challenges:close-due')->assertSuccessful();

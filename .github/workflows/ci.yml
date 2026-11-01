@@ -11,18 +11,18 @@ jobs:
         name: Lint & Static analysis
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v7
 
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
-                  php-version: '8.3'
-                  extensions: mbstring, intl, bcmath, pdo_pgsql, redis, zip, gd
+                  php-version: '8.5'
+                  extensions: mbstring, intl, bcmath, pdo_pgsql, redis, zip, gd, pcntl
                   coverage: none
                   tools: composer:v2
 
             - name: Cache Composer packages
-              uses: actions/cache@v4
+              uses: actions/cache@v6
               with:
                   path: vendor
                   key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -49,7 +49,7 @@ jobs:
         runs-on: ubuntu-latest
         services:
             postgres:
-                image: postgres:16-alpine
+                image: postgres:18-alpine
                 env:
                     POSTGRES_DB: lexiflow
                     POSTGRES_USER: lexiflow
@@ -63,7 +63,8 @@ jobs:
                     --health-retries 10
 
             redis:
-                image: redis:7-alpine
+                # The same minor as docker-compose*.yml (pinned there while a rollback to redis 7.4 must stay possible).
+                image: redis:8.4-alpine
                 ports:
                     - 6379:6379
                 options: >-
@@ -86,18 +87,25 @@ jobs:
             SESSION_DRIVER: array
 
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v7
 
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
-                  php-version: '8.3'
-                  extensions: mbstring, intl, bcmath, pdo_pgsql, redis, zip, gd
+                  php-version: '8.5'
+                  extensions: mbstring, intl, bcmath, pdo_pgsql, redis, zip, gd, pcntl
                   coverage: none
                   tools: composer:v2
 
+            - name: Check PHP extensions of the concurrency tests
+              # Those tests skip themselves when pcntl/posix are missing: a lost extension must fail CI, not hide them.
+              run: |
+                  for ext in pcntl posix; do
+                      php -m | grep -qix "$ext" || { echo "missing PHP extension: $ext" >&2; exit 1; }
+                  done
+
             - name: Cache Composer packages
-              uses: actions/cache@v4
+              uses: actions/cache@v6
               with:
                   path: vendor
                   key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -122,12 +130,12 @@ jobs:
         runs-on: ubuntu-latest
         needs: [quality, test]
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v7
 
             - name: Setup Node.js
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v7
               with:
-                  node-version: '20.19'
+                  node-version: '26'
                   cache: npm
                   cache-dependency-path: |
                       package-lock.json
@@ -166,24 +174,42 @@ jobs:
                   docker build --target app --tag lexiflow/app:ci .
                   docker build --target nginx --tag lexiflow/nginx:ci .
 
+            - name: Build dev Docker image
+              # Dockerfile.dev is what `docker compose up` builds locally (docker-compose.override.yml): it must not rot unnoticed.
+              run: docker build -f Dockerfile.dev --tag lexiflow/app:ci-dev .
+
             - name: Upload Laravel build artifacts
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@v7
               with:
                   name: laravel-build
                   path: public/build/
                   retention-days: 7
 
             - name: Upload TWA build artifacts
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@v7
               with:
                   name: twa-build
                   path: public/twa/
                   retention-days: 7
 
+    postgres-upgrade:
+        name: PostgreSQL 16 → 18 move (real Docker)
+        # docker/postgres/upgrade.sh on the runner's Docker: 16 data in the legacy volume, the guard mount, the move, an
+        # interrupted run, a rollback to 16 and forward again, a fresh install, the deploy lock. Official images only,
+        # the application services are busybox stand-ins; nothing is built. See docker/postgres/tests/run.sh.
+        runs-on: ubuntu-latest
+        timeout-minutes: 30
+        steps:
+            - uses: actions/checkout@v7
+
+            - name: Run the upgrade scenarios
+              run: bash docker/postgres/tests/run.sh
+
     deploy:
         name: Deploy
         runs-on: ubuntu-latest
-        needs: build
+        # The deploy runs upgrade.sh --check on the server: it must not go out before the move scenarios passed on real Docker.
+        needs: [build, postgres-upgrade]
         if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
         environment: LexiFlow
         # Two quick merges must not deploy at the same time; the second waits instead of cancelling the first.
@@ -194,11 +220,23 @@ jobs:
             - name: Deploy via SSH
               env:
                   DEPLOY_SHA: ${{ github.sha }}
-              uses: appleboy/ssh-action@v1.0.3
+              uses: appleboy/ssh-action@v1.2.5
               with:
                   host: ${{ secrets.SSH_HOST }}
                   username: ${{ secrets.SSH_USER }}
                   key: ${{ secrets.SSH_PRIVATE_KEY }}
                   # Deploy exactly the commit that passed CI, not whatever master points to by now.
                   envs: DEPLOY_SHA
-                  script: cd /var/www/lexiflow && bash deploy.sh "$DEPLOY_SHA"
+                  # Run the deploy.sh OF THAT COMMIT, not the one of the current checkout: bash keeps reading the
+                  # file it opened, so `git checkout` inside the script cannot swap in the new version (its new
+                  # safety checks would be skipped on exactly the deploy that needs them).
+                  script: |
+                      set -euo pipefail
+                      cd /var/www/lexiflow
+                      git fetch origin
+                      tmp="$(mktemp)"
+                      git show "${DEPLOY_SHA}:deploy.sh" > "$tmp"
+                      rc=0
+                      bash "$tmp" "$DEPLOY_SHA" || rc=$?
+                      rm -f "$tmp"
+                      exit "$rc"

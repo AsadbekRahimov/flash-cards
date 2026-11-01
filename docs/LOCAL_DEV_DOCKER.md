@@ -10,8 +10,8 @@
 
 | Файл                          | Назначение                                                                  |
 |-------------------------------|-----------------------------------------------------------------------------|
-| `Dockerfile`                  | Прод-образ: php-fpm 8.3, минимум расширений.                                |
-| `Dockerfile.dev`              | **Дев-образ**: + Xdebug, Node.js 20, npm, vim, less, увеличенные лимиты.    |
+| `Dockerfile`                  | Прод-образ: php-fpm 8.5, минимум расширений.                                |
+| `Dockerfile.dev`              | **Дев-образ**: + Xdebug, Node.js (LTS из репозитория Alpine), npm, vim, less, увеличенные лимиты. |
 | `docker-compose.yml`          | Базовый стек: `app`, `nginx`, `postgres`, `redis`.                          |
 | `docker-compose.override.yml` | Дев-настройки: подмена на `Dockerfile.dev`, сервисы `vite` и `ngrok`.        |
 | `docker-compose.prod.yml`     | Прод-стек, **override НЕ применяется** при явном `-f docker-compose.prod.yml`. |
@@ -118,6 +118,47 @@ make down            # стоп
 | `host.docker.internal` не резолвится             | Linux            | Уже добавлено в `extra_hosts` в `docker-compose.override.yml`.            |
 | Контейнер `app` рестартует                        | любая            | `docker compose logs -f app` — обычно отсутствует `.env` или `APP_KEY`.  |
 | Порт 80 занят (Apache / IIS / Skype)              | любая            | `APP_PORT=8080` в `.env`, открывать `http://localhost:8080`.              |
+
+### 2.3 Обновление PostgreSQL 16 → 18 (дев-данные)
+
+`docker-compose.yml` теперь поднимает `postgres:18-alpine` с новым томом `<project>_postgresql`
+(один mount в `/var/lib/postgresql`, кластер в `18/docker`). Старые данные остаются в томе
+`<project>_pgdata` — PostgreSQL 18 их не читает. Этот том смонтирован в контейнер только для чтения
+(`/var/lib/postgresql/16/docker`) как предохранитель: пока в нём есть кластер 16, а кластера 18 нет,
+`docker compose up -d` НЕ даст пустую базу — контейнер `postgres` откажется стартовать
+(`docker compose logs postgres` объяснит почему), а `app` не поднимется. Два пути:
+
+```bash
+# Дев-данные не нужны — удалить старый том и пересоздать базу:
+docker compose down                          # контейнеры убраны — иначе volume rm ответит «volume is in use»: postgres держит том как защитное ro-монтирование
+docker volume rm <project>_pgdata            # имя печатает make pg-check
+docker compose up -d                         # compose заведёт пустой <project>_pgdata заново — это безвредно
+make fresh                                   # migrate:fresh --seed
+docker compose exec app php artisan cache:clear
+
+# Дев-данные нужны — перенести (останавливает app/nginx примерно на минуту):
+make pg-upgrade                              # = bash docker/postgres/upgrade.sh
+```
+
+`make pg-upgrade` можно запускать и до, и после первого `up -d` с новой версией. Скрипт копирует
+старый том, снимает дамп на `postgres:16-alpine`, восстанавливает в 18, сверяет счётчики строк,
+последовательности и индексы и поднимает сервисы обратно; повтор после успеха — no-op, повтор после сбоя
+доводит дело до конца (пока перенос не сверен, 18 не принимает сетевые подключения — `pg_hba.conf rejects connection`
+в логе `app` в этот момент нормален). Если на 18 уже успели сделать `make fresh`, скрипт остановится с diff — тогда
+`bash docker/postgres/upgrade.sh --redo`: отложит эту базу как `lexiflow_stale_<время>` и перенесёт заново. Если после
+переноса снова запускали 16 на старом томе (старый чекаут, `docker compose up`), `make pg-check` ответит
+`STOP: … may be STALE`, а контейнер `postgres` при следующем `docker compose up -d` сам откажется стартовать
+(`docker compose logs postgres` → `lexiflow-upgrade guard: refusing to start PostgreSQL 18`): это обёртка entrypoint
+`docker/postgres/entrypoint-guard.sh`, она сверяет отпечаток кластера 16 с маркером. Выберите `--redo` или
+`--keep-current`, как описано в `docs/DEVOPS_GUIDE.md` (`--redo` после «просто запустили и выключили 16» без записей
+или после убитой 16 (`docker rm -f`, `Database cluster state` ≠ `shut down`) потребует `--redo --force`, потому что
+заменил бы живую базу 18 её же старым снимком; `--keep-current` убитую, но никем не запущенную 16 записывает с
+предупреждением), затем `docker compose up -d` — эту же команду guard печатает в логе. Если `make pg-upgrade` сорвался на
+самом последнем шаге (запуск `app`/`nginx`), просто повторите его без флагов: данные уже сверены.
+Состояние томов без изменений показывает `make pg-check`. Старый том не удаляется автоматически: когда он больше не
+нужен — последовательность выше (`down` → `volume rm` → `up -d`). На macOS без `flock` скрипт работает без общей с
+`deploy.sh` блокировки и предупреждает об этом. Подробности и прод — `docs/DEVOPS_GUIDE.md`, §0 «Обновление PostgreSQL
+16 → 18 (Docker)».
 
 ---
 

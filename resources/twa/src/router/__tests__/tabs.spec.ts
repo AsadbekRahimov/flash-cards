@@ -4,12 +4,12 @@ import router from '../index'
 /** The screens that belong to a tab of the bottom navigation (docs/14 §5.1). */
 const TABS = {
   today: ['today'],
-  courses: ['courses', 'course', 'decks', 'deck'],
-  rating: ['league', 'friends'],
+  courses: ['courses', 'course', 'decks', 'deck', 'practice-hub'],
+  rating: ['league', 'friends', 'battle-new'],
   profile: ['profile', 'achievements', 'referrals', 'billing', 'settings'],
 } as const
 
-const NO_TAB = ['landing', 'training', 'finished', 'exam', 'exam-result']
+const NO_TAB = ['landing', 'training', 'finished', 'exam', 'exam-result', 'practice-session', 'battle']
 
 const record = (name: string) => router.getRoutes().find((r) => r.name === name)
 

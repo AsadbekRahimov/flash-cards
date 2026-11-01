@@ -136,7 +136,8 @@ class ImportLesson extends Page implements HasSchemas
         } else {
             Notification::make()
                 ->title(__('admin.pages.import_lesson.failed'))
-                ->body(implode("\n", array_slice($errors, 0, 5)))
+                // A text of the file (a word, a translation) is in the lines: each is escaped, the lines are told apart by <br>.
+                ->body(implode('<br>', array_map(e(...), array_slice($errors, 0, 5))))
                 ->danger()
                 ->persistent()
                 ->send();

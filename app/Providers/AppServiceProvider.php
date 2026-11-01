@@ -263,5 +263,23 @@ class AppServiceProvider extends ServiceProvider
 
             return Limit::perMinute(30)->by('twa-tts|'.$key);
         });
+
+        // Practice and battle (docs/16 §7.5), all keyed by the learner. `twa-practice-answer` and the creation limiters sit
+        // on top of `twa-api`; the audio and the battle poll are OUTSIDE it, with a bucket of their own.
+        foreach ([
+            'twa-practice-open' => 10,   // a session = a snapshot + the queries of the material
+            'twa-practice-answer' => 90, // a quick learner matches ~40 pairs a minute; `twa-api` (60) applies too
+            'twa-practice-audio' => 60,  // 5 clips at once when a room is entered
+            'twa-battle-invite' => 5,    // an invitation = a snapshot, rows, a DM to the friend
+            'twa-battle-action' => 60,   // accept / decline / cancel / ready / surrender / answer / audio-failed
+            'twa-battle-poll' => 90,     // a poll every 2 s is 30 a minute, two tabs 60: a bucket of its own, not "no limit"
+        ] as $name => $perMinute) {
+            RateLimiter::for($name, function (Request $request) use ($name, $perMinute): Limit {
+                /** @var array{learner_id:int}|null $ctx */
+                $ctx = $request->attributes->get('twa');
+
+                return Limit::perMinute($perMinute)->by($name.'|'.($ctx['learner_id'] ?? $request->ip()));
+            });
+        }
     }
 }

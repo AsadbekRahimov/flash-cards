@@ -8,6 +8,11 @@ use App\Domain\Learning\Enums\SchedulerKind;
 
 /**
  * One arm of the SRS A/B over the metrics window (docs/13 §2.5 "Метрики", docs/06 §9.6).
+ *
+ * The admin widget caches it as an array ({@see toArray()}): a cache holds scalars only, so the cache never
+ * unserializes an object (`cache.serializable_classes` is `false`) and a deploy never meets a stale one.
+ *
+ * @phpstan-type SchedulerMetricsArray array{kind:string, reviews:int, due_reviews:int, due_passes:int, graduated_words:int, cohort_learners:int, retained_d7:int}
  */
 final readonly class SchedulerMetrics
 {
@@ -26,6 +31,34 @@ final readonly class SchedulerMetrics
         /** of them: graded at least one card 7+ days after signing up */
         public int $retainedD7,
     ) {}
+
+    /** @return SchedulerMetricsArray */
+    public function toArray(): array
+    {
+        return [
+            'kind' => $this->kind->value,
+            'reviews' => $this->reviews,
+            'due_reviews' => $this->dueReviews,
+            'due_passes' => $this->duePasses,
+            'graduated_words' => $this->graduatedWords,
+            'cohort_learners' => $this->cohortLearners,
+            'retained_d7' => $this->retainedD7,
+        ];
+    }
+
+    /** @param  SchedulerMetricsArray  $data */
+    public static function fromArray(array $data): self
+    {
+        return new self(
+            SchedulerKind::from($data['kind']),
+            $data['reviews'],
+            $data['due_reviews'],
+            $data['due_passes'],
+            $data['graduated_words'],
+            $data['cohort_learners'],
+            $data['retained_d7'],
+        );
+    }
 
     public function passRate(): ?float
     {

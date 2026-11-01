@@ -14,7 +14,7 @@ import { useI18n } from '@/i18n'
 import type { StringKey } from '@/i18n/ru'
 import type { BillingPeriod, BillingProviderKey, DeckLimits, MeResponse } from '@/api/types'
 
-export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam_simulator'
+export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam_simulator' | 'practice'
 
 /**
  * Paywall (docs/12 §5.4, docs/13 §5, docs/14 §6.6): a bottom sheet with a grabber and a close button, the
@@ -31,7 +31,8 @@ export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam
  *
  * `reason = 'quota'` is the end of today's new words; `'decks'` is a refused deck / deck-word limit
  * (docs/04 A.10; `deckLimits` are the numbers of `GET /decks`, the lead quotes them); `'streak_freeze'` is the Free
- * teaser of streak freezes (docs/13 §7.2); `'exam_simulator'` is a refused IELTS / SAT mock (docs/13 §8.4); `'info'` is
+ * teaser of streak freezes (docs/13 §7.2); `'exam_simulator'` is a refused IELTS / SAT mock (docs/13 §8.4); `'practice'` is
+ * the practice (or a battle) behind Pro while `PRACTICE_PLAN=pro` (docs/16 §3.2); `'info'` is
  * the learner opening it from the Today screen or from "Renew Pro". A promo code that works or a confirmed payment
  * refreshes `/me` (billing store) and `/today`.
  *
@@ -89,6 +90,7 @@ const REASON_LEADS: Partial<Record<PaywallReason, StringKey>> = {
   quota: 'paywall.lead_quota',
   streak_freeze: 'paywall.lead_streak_freeze',
   exam_simulator: 'paywall.lead_exam_simulator',
+  practice: 'paywall.lead_practice',
 }
 
 const reasonLead = computed((): string => {

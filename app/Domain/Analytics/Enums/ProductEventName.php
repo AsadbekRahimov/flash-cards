@@ -84,4 +84,22 @@ enum ProductEventName: string
     case AchievementUnlocked = 'achievement.unlocked';
     /** The learner shared an achievement from the TWA, once per (learner, key) (props: key). */
     case AchievementShared = 'achievement.shared';
+    /** A solo practice session was created (props: session_id, mode, course_id, lesson_id, source, total, retry — docs/16 §3.4). */
+    case PracticeSessionStarted = 'practice.session_started';
+    /** A solo session ended, once, by whoever finished it (props: session_id, mode, total, answered, correct_first, hints, mismatches, reason — completed / expired / replaced, duration_ms). */
+    case PracticeSessionFinished = 'practice.session_finished';
+    /** A session or a battle was refused for lack of material (props: mode, course_id, lesson_id, available, required, reason, battle). */
+    case PracticeNotEnoughMaterial = 'practice.not_enough_material';
+    /** A dictation could not be played and was swapped / reported (props: session_id | battle_id, source — word / phrase, reason — file_missing / client_report, verified). */
+    case PracticeAudioFailed = 'practice.audio_failed';
+    /** A battle invitation was sent (props: battle_id, mode, course_id, lesson_id, rematch); actor = the challenger. */
+    case BattleInvited = 'battle.invited';
+    /** The invited friend accepted (props: battle_id). */
+    case BattleAccepted = 'battle.accepted';
+    /** Both players are ready, the countdown began (props: battle_id, mode). */
+    case BattleStarted = 'battle.started';
+    /** A battle ended with a result (props: battle_id, end_reason, result — challenger / opponent / draw, rounds_played, duration_ms). */
+    case BattleFinished = 'battle.finished';
+    /** A battle was closed without a result (props: battle_id, end_reason). */
+    case BattleClosed = 'battle.closed';
 }

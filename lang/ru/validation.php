@@ -18,7 +18,9 @@ return [
     'alpha_num' => 'Поле :attribute может содержать только буквы и цифры.',
     'any_of' => 'Поле :attribute заполнено неверно.',
     'array' => 'Поле :attribute должно быть массивом.',
+    'array_keys' => 'Поле :attribute может содержать только следующие ключи: :values.',
     'ascii' => 'Поле :attribute может содержать только однобайтовые буквы, цифры и символы.',
+    'base64' => 'Поле :attribute должно быть корректной строкой в формате Base64.',
     'before' => 'Поле :attribute должно быть датой до :date.',
     'before_or_equal' => 'Поле :attribute должно быть датой не позже :date.',
     'between' => [

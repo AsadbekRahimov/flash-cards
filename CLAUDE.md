@@ -4,8 +4,8 @@
 Telegram-based платформа обучения английскому. Подробности в docs/.
 
 ## Правила кода
-- PHP 8.2+, strict_types обязателен.
-- Laravel 12, следуй Laravel best practices.
+- PHP 8.5+, strict_types обязателен.
+- Laravel 13, следуй Laravel best practices.
 - Тесты: Pest (не PHPUnit синтаксис).
 - Стиль: Laravel Pint (php-cs-fixer preset).
 - Статический анализ: Larastan level 8 должен проходить.

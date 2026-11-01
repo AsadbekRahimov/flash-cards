@@ -16,12 +16,18 @@ trait GuardsDemoSeeding
             return true;
         }
 
+        $this->demoWarning(static::class.' skipped: demo seeders are disabled outside local/testing (set APP_DEMO_SEED=true to force).');
+
+        return false;
+    }
+
+    /** A warning on the console of `db:seed`; nothing when the seeder is not run by it. */
+    protected function demoWarning(string $message): void
+    {
         // Seeder::$command is documented non-null but stays unset when a seeder is run without
         // `db:seed` (e.g. app(DatabaseSeeder::class)->run() in tests).
         if (isset($this->command)) { // @phpstan-ignore isset.property
-            $this->command->warn(static::class.' skipped: demo seeders are disabled outside local/testing (set APP_DEMO_SEED=true to force).');
+            $this->command->warn($message);
         }
-
-        return false;
     }
 }

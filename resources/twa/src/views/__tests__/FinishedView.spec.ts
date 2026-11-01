@@ -26,6 +26,7 @@ const router = createRouter({
     { path: '/', name: 'landing', component: { template: '<div />' } },
     { path: '/today', name: 'today', component: { template: '<div />' } },
     { path: '/training/:sessionId(\\d+)', name: 'training', component: { template: '<div />' } },
+    { path: '/practice/:slug', name: 'practice-hub', component: { template: '<div />' } },
   ],
 })
 
@@ -168,6 +169,92 @@ describe('FinishedView', () => {
       w.unmount()
 
       expect(training.openError).toBe('')
+    })
+  })
+
+  describe('the entry to the practice (docs/16 §11.1)', () => {
+    const entry = (lessonId: number | null) => ({ course: 'english-a1', lesson_id: lessonId })
+
+    it('offers "Практика урока" after a lesson, as a tinted secondary action that leads to the hub of that lesson', () => {
+      useTrainingStore().summary = summary({ practice_entry: entry(41) })
+      const w = render(5, 1)
+
+      const practice = w.get('[data-testid=practice-btn]')
+      expect(practice.text()).toBe('Практика урока')
+      expect(practice.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-block']))
+      expect(practice.classes()).not.toContain('btn-primary')
+      expect(practice.attributes('href')).toBe('/practice/english-a1?lesson=41&from=finished')
+      expect(practice.get('path').attributes('d')).toBe(ICONS['puzzle-piece'].outline[0]?.d)
+    })
+
+    it('offers "Практика курса" after a daily review, without a lesson in the address', () => {
+      useTrainingStore().summary = summary({ practice_entry: entry(null) })
+      const w = render(5, 1)
+
+      expect(w.get('[data-testid=practice-btn]').text()).toBe('Практика курса')
+      expect(w.get('[data-testid=practice-btn]').attributes('href')).toBe('/practice/english-a1?from=finished')
+    })
+
+    it('opens the hub with the course, the lesson and the mark of the finish screen', async () => {
+      useTrainingStore().summary = summary({ practice_entry: entry(41) })
+      const w = render(5, 1)
+
+      await w.get('[data-testid=practice-btn]').trigger('click')
+      await flushPromises()
+
+      const route = router.currentRoute.value
+      expect(route.name).toBe('practice-hub')
+      expect(route.params.slug).toBe('english-a1')
+      expect(route.query).toEqual({ lesson: '41', from: 'finished' })
+    })
+
+    it('does not compete with the main action: "На главную" is still the only primary button, and comes first', () => {
+      useTrainingStore().summary = summary({ practice_entry: entry(41) })
+      const w = render(5, 1)
+
+      expect(w.findAll('.btn-primary')).toHaveLength(1)
+      const order = w.findAll('[data-testid=home-btn], [data-testid=practice-btn], [data-testid=close-btn]').map((b) => b.attributes('data-testid'))
+      expect(order).toEqual(['home-btn', 'practice-btn', 'close-btn'])
+    })
+
+    it('stands before "Узнать о Pro" when the new words ran out: practising is what the learner can still do today', async () => {
+      vi.mocked(api.me.get).mockResolvedValue({
+        learner: { id: 1, first_name: 'A', username: null, locale: 'ru', onboarding_completed: true },
+        groups: [],
+        stats: { words_learned: 0, words_due_today: 0 },
+        entitlement: { plan: 'free', source: 'free', until: null, new_words_per_day: 20 },
+        paywall: { mode: 'coming_soon', contact: '@lexiflow_help' },
+        settings: settingsFixture(),
+      })
+      useTrainingStore().summary = summary({ practice_entry: entry(41) })
+      const w = render(3, 1, 'new_quota_exhausted')
+      await flushPromises()
+
+      const order = w.findAll('[data-testid=home-btn], [data-testid=practice-btn], [data-testid=paywall-open], [data-testid=close-btn]').map((b) => b.attributes('data-testid'))
+      expect(order).toEqual(['home-btn', 'practice-btn', 'paywall-open', 'close-btn'])
+      expect(w.findAll('.btn-primary')).toHaveLength(1)
+    })
+
+    it.each([
+      ['the server has none (a daily review without a course, no access)', { practice_entry: null }],
+      ['an older server says nothing of it', {}],
+    ])('has no button when %s', (_name, overrides) => {
+      useTrainingStore().summary = summary(overrides)
+
+      expect(render(5, 1).find('[data-testid=practice-btn]').exists()).toBe(false)
+    })
+
+    it('has no button without a summary (a group session, a failed finish)', () => {
+      expect(render(5, 1).find('[data-testid=practice-btn]').exists()).toBe(false)
+    })
+
+    it('speaks Uzbek', () => {
+      setLocale('uz')
+      useTrainingStore().summary = summary({ practice_entry: entry(41) })
+      expect(render(5, 1).get('[data-testid=practice-btn]').text()).toBe('Dars amaliyoti')
+
+      useTrainingStore().summary = summary({ practice_entry: entry(null) })
+      expect(render(5, 1).get('[data-testid=practice-btn]').text()).toBe('Kurs amaliyoti')
     })
   })
 
