@@ -4,6 +4,7 @@
 #
 #   resources/twa/scripts/e2e/stand.sh up       # database, seed, friends, build, server
 #   resources/twa/scripts/e2e/stand.sh status
+#   resources/twa/scripts/e2e/stand.sh sweep    # one run of the janitor of the battles (what the scheduler does every minute in production)
 #   resources/twa/scripts/e2e/stand.sh down     # stops the server, removes what `up` made
 #
 # Settings (environment, all optional): E2E_DIR (stand directory, default $TMPDIR/lexiflow-e2e), E2E_PORT (8010),
@@ -88,6 +89,13 @@ down() {
   if [ -f "$AUDIO_MARK" ]; then rm -f "$AUDIO_DIR"/*.mp3 "$AUDIO_MARK" && echo "audio of the seed removed"; fi
 }
 
+# The stand has no scheduler (it would run every command of the project): the one run of the janitor that the scenarios need.
+sweep() {
+  stand_env
+  cd "$ROOT"
+  php artisan practice:battles-sweep --no-interaction
+}
+
 status() {
   if running; then echo "running: http://127.0.0.1:$PORT/twa/ (pid $(cat "$PID_FILE"), database $DIR/e2e.sqlite)"; else echo "stopped"; fi
 }
@@ -96,5 +104,6 @@ case "${1:-}" in
   up) up ;;
   down) down ;;
   status) status ;;
-  *) echo "usage: $0 up|down|status" >&2; exit 2 ;;
+  sweep) sweep ;;
+  *) echo "usage: $0 up|down|status|sweep" >&2; exit 2 ;;
 esac

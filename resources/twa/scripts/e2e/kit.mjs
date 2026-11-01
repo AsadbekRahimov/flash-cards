@@ -396,13 +396,34 @@ export class Player {
 
   // ------------------------------------------------------------------- the shots
 
-  /** A picture of the screen (the whole page): `<out>/<tag>-<name>-<label>-<width>-<theme>.png`; the path comes back. */
+  /**
+   * A picture of the screen as the learner sees it: `<out>/<tag>--<name>--<label>--<width>-<theme>.png`, and when the page is longer than
+   * the window one more for each scroll (`--p2`, `--p3`), because the buttons at the bottom stay in their place while the content moves
+   * (a picture of the "whole page" would paint them over the middle of it). The path of the first one comes back.
+   */
   async shot(label) {
     mkdirSync(this.out, { recursive: true })
-    const file = join(this.out, `${this.tag ? `${this.tag}--` : ''}${this.name}--${label}--${this.width}-${this.theme}.png`)
-    await this.page.screenshot({ path: file, fullPage: true }).catch(() => undefined)
-    this.shots.push(file)
-    return file
+    const base = join(this.out, `${this.tag ? `${this.tag}--` : ''}${this.name}--${label}--${this.width}-${this.theme}`)
+    const first = `${base}.png`
+    const room = await this.page
+      .evaluate(() => ({ inner: innerHeight, total: document.documentElement.scrollHeight, bar: document.querySelector('[data-testid="actions"]')?.getBoundingClientRect().height ?? 0 }))
+      .catch(() => null)
+    if (room === null) return first
+    await this.page.evaluate(() => window.scrollTo(0, 0)).catch(() => undefined)
+    await this.page.screenshot({ path: first }).catch(() => undefined)
+    this.shots.push(first)
+    const last = room.total - room.inner
+    const step = Math.max(200, room.inner - room.bar - 40)
+    for (let n = 2, y = step; last > 4 && n <= 4; n++, y += step) {
+      const at = Math.min(y, last)
+      await this.page.evaluate((top) => window.scrollTo(0, top), at).catch(() => undefined)
+      const file = `${base}--p${n}.png`
+      await this.page.screenshot({ path: file }).catch(() => undefined)
+      this.shots.push(file)
+      if (at >= last) break
+    }
+    await this.page.evaluate(() => window.scrollTo(0, 0)).catch(() => undefined)
+    return first
   }
 
   async overflow() {

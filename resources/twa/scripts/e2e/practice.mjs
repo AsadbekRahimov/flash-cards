@@ -3,15 +3,17 @@
 // launches a Mini App (signed initData, the theme in the fragment), talks to a stand with the demo seed (stand.sh). Nothing is mocked.
 //
 //   node resources/twa/scripts/e2e/practice.mjs --db <sqlite of the stand> [--base http://127.0.0.1:8010] [--out <dir>]
-//        [--a 200000001] [--b 200000002] [--only solo,battle,...] [--grace 30] [--lesson 2] [--course default] [--headed]
+//        [--a 200000001] [--b 200000002] [--only solo,battle,...] [--grace 30] [--lesson 2] [--course default] [--sweep CMD] [--headed]
 //
 // The right answers are read from the snapshot of the session / the battle in the database of the stand (the API never sends them;
 // docs/16 §12), everything else - what is on the screen, what the API says - is judged as the learner would see it.
 // See README.md of this directory.
+import { spawnSync } from 'node:child_process'
 import { createRequire } from 'node:module'
 import { mkdirSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { basename, dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { Api, E2EError, Oracle, Player, Report, loadPlaywright, parseArgs } from './kit.mjs'
 import { battleScenarios } from './battle.mjs'
 import { soloScenarios } from './solo.mjs'
@@ -20,7 +22,7 @@ import { shotScenarios } from './shots.mjs'
 const args = parseArgs(process.argv.slice(2))
 
 if (args.help || args.h) {
-  console.log(`usage: node practice.mjs --db <sqlite of the stand> [--base URL] [--out DIR] [--a TG_ID] [--b TG_ID] [--only a,b] [--grace SEC] [--lesson ID] [--course SLUG] [--headed]
+  console.log(`usage: node practice.mjs --db <sqlite of the stand> [--base URL] [--out DIR] [--a TG_ID] [--b TG_ID] [--only a,b] [--grace SEC] [--lesson ID] [--course SLUG] [--sweep CMD] [--headed]
 scenarios: solo (solo:pairs, solo:collocation, solo:sentence, solo:dictation), battle (battle:full, battle:reload, battle:background, battle:surrender, battle:both-absent), shots`)
   process.exit(0)
 }
@@ -41,6 +43,8 @@ const cfg = {
   course: String(args.course ?? 'default'),
   lesson: Number(args.lesson ?? 2),
   headed: Boolean(args.headed),
+  // One run of the janitor of the battles: the stand has no scheduler (`stand.sh sweep`; `--sweep 'a shell command'` for another stand).
+  sweep: args.sweep ? String(args.sweep) : null,
   only: args.only ? String(args.only).split(',').map((name) => name.trim()).filter(Boolean) : [],
 }
 
@@ -63,7 +67,16 @@ async function main() {
     a: personOf(oracle, cfg.telegramA),
     b: personOf(oracle, cfg.telegramB),
   }
-  const env = { cfg, browser, oracle, report, people, wanted, newPlayer, api: (who) => new Api({ base: cfg.base, botToken: cfg.botToken, user: people[who] }) }
+  const env = { cfg, browser, oracle, report, people, wanted, newPlayer, sweep, api: (who) => new Api({ base: cfg.base, botToken: cfg.botToken, user: people[who] }) }
+
+  /** Runs the janitor once (`practice:battles-sweep`): `{ ok, output }`. */
+  function sweep() {
+    const standDir = basename(cfg.db) === 'e2e.sqlite' ? dirname(cfg.db) : null
+    const command = cfg.sweep ?? (standDir === null ? null : `${join(dirname(fileURLToPath(import.meta.url)), 'stand.sh')} sweep`)
+    if (command === null) return { ok: false, output: 'no way to run the janitor: pass --sweep "<command>" (the database of the stand is not named e2e.sqlite)' }
+    const run = spawnSync('bash', ['-c', command], { encoding: 'utf8', env: { ...process.env, E2E_DIR: standDir ?? process.env.E2E_DIR ?? '', E2E_PORT: new URL(cfg.base).port || '8010' } })
+    return { ok: run.status === 0, output: `${run.stdout}${run.stderr}`.trim() }
+  }
 
   /** A player with a Telegram launch, a theme and a width; `scene` closes it at the end of the scenario. */
   async function newPlayer(scene, who, { theme = 'light', width = 390, height, tag = scene.name.replace(/[^\w-]+/g, '-') } = {}) {
