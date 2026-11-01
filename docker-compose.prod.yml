@@ -147,7 +147,10 @@ services:
             retries: 5
 
     redis:
-        image: redis:8-alpine
+        # Pinned to 8.4 while the rollback path to the commit before the PostgreSQL upgrade is alive: 8.4 writes RDB format 12,
+        # which the redis:7.4 of that commit still reads; 8.6+ write 13+ and 7.4 refuses the AOF/RDB after the first rewrite
+        # ("Can't handle RDB format version"). Move to the latest 8.x together with removing the guard mount of pgdata.
+        image: redis:8.4-alpine
         container_name: lexiflow-redis
         restart: unless-stopped
         command:
