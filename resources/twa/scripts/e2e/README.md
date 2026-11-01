@@ -4,7 +4,7 @@ The TWA in Chromium, launched the way Telegram launches a Mini App (initData sig
 `#tgWebApp…` fragment), against the **real** local API with the demo seed. Nothing is mocked. No packages are added: Playwright is the
 global one (`npm root -g`), the rest is `node:*`.
 
-Needs: PHP 8.2+, Node 22.13+ (`node:sqlite`), `ffmpeg` with the `flite` filter (the demo seed voices the phrases of the dictations),
+Needs: PHP 8.5+, Node 22.13+ (`node:sqlite`), `ffmpeg` with the `flite` filter (the demo seed voices the phrases of the dictations),
 a worktree with `vendor/` and `.env` (an `APP_KEY` is enough), `resources/twa/node_modules`.
 
 ## The stand
