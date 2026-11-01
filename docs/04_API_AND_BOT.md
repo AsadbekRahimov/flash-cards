@@ -891,7 +891,9 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 Чужая сессия неотличима от несуществующей: **404** `practice_session_not_found`.
 
 **Лимиты** (ключ — `learner_id`, `TwaAuth` раньше `throttle`): все маршруты, кроме аудио, под `twa-api` (60/мин); дополнительно `POST /practice/sessions` — `twa-practice-open` **10/мин**; `…/answer` и `…/replace` — `twa-practice-answer` **90/мин**
-(быстрый ученик сопоставляет ~40 пар в минуту); аудио — `twa-practice-audio` **60/мин** и **вне** `twa-api` (клипы грузятся пачкой и не должны съедать общий бюджет). 429 — `rate_limited` (A.6).
+(быстрый ученик сопоставляет ~40 пар в минуту); аудио — `twa-practice-audio` **60/мин** и **вне** `twa-api` (клипы грузятся пачкой и не должны съедать общий бюджет).
+Отказ лимитера — 429 **вне** конверта A.6 (middleware `throttle:` отвечает сам, как в A.17): `{"message": "Too Many Attempts."}` и заголовок `Retry-After` (секунды до сброса), без `error` и без кода (у запроса, который просит не JSON, — например, у аудио с `Accept: audio/mpeg` — вместо тела страница HTML; статус и `Retry-After` те же).
+TWA различает отказ по статусу, а не по коду: `api/client.ts` отдаёт любой 429 как `rate_limited`; форму закрепляет `PracticeRateLimitTest`.
 
 #### `GET /api/twa/practice/hub?course={slug}[&lesson_id={id}]`
 Хаб курса или урока: четыре режима с состоянием, незавершённая сессия, сводка баттла. Бюджет — 9 запросов к БД (`PracticeQueryBudgetTest`).
