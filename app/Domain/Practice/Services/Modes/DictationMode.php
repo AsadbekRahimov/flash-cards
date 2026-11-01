@@ -74,7 +74,8 @@ final class DictationMode implements PracticeModeHandler, ReplaceableElements
      * Phrases + voiced words (a battle: phrases only). No disk, no query beyond the shared reads of the scope. When there is not
      * enough, the reason is the closest of docs/16 §4.3: `audio_pending` (tasks wait for their voice), `items_locked` (voiced
      * phrases are there but their words are not learned yet), `no_audio_words` (the learner has words, none of them is voiced),
-     * `no_words` (nothing was introduced), else `no_items`.
+     * `no_words` (the words are fewer than the minimum: nothing was introduced, or there are voiced words that with the phrases are
+     * still too few - one more learned word may open the mode, and the screen offers "Learn the lesson"), else `no_items`.
      */
     public function availability(MaterialScope $scope, ?Learner $learner, LocaleSet $locales): ModeAvailability
     {
@@ -96,7 +97,7 @@ final class DictationMode implements PracticeModeHandler, ReplaceableElements
             $locked > 0 && $available + $locked >= $required => ModeAvailability::REASON_ITEMS_LOCKED,
             $learner === null => ModeAvailability::REASON_NO_ITEMS,
             $introduced > 0 && $voiced === 0 => ModeAvailability::REASON_NO_AUDIO_WORDS,
-            $introduced === 0 && $phrases === 0 => ModeAvailability::REASON_NO_WORDS,
+            $voiced > 0, $introduced === 0 && $phrases === 0 => ModeAvailability::REASON_NO_WORDS,
             default => ModeAvailability::REASON_NO_ITEMS,
         };
 

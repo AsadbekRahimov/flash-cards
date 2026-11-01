@@ -115,7 +115,7 @@ final class PracticeItemActions
             ));
     }
 
-    /** Voices the current version of a dictation again, even if the audio is ready. */
+    /** Voices the current version of a dictation again, even if the audio is ready, and the published one when that is another version whose audio is not ready. */
     public static function regenerateAudio(): Action
     {
         return Action::make('regenerateAudio')

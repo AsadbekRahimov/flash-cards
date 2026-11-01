@@ -13,8 +13,8 @@ import type { PracticeActiveSession } from '@/api/types'
  *
  * Events: `continue`, `replace` (start the new one, `replace_active`), `close` (the ✕ and "Cancel": nothing happens).
  * `busy` disables the buttons while the new session is being opened. `place` says where the unfinished session is ("Module 2 ·
- * Lesson 4 · Food", or the course) when the screen can tell: the server names the course by its slug and the lesson by its id only,
- * so a session of another course that this run has not seen has no name to give, and the line is left out (nothing is made up).
+ * Lesson 4 · Food" when it is the lesson of the hub, "English A1 · Module 2 · Lesson 4 · Food" for another place, or the course) -
+ * the store words it from the names the server sends with the session; where there are none the line is left out (nothing is made up).
  */
 const props = defineProps<{
   session: PracticeActiveSession

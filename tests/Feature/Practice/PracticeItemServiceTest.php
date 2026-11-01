@@ -739,7 +739,7 @@ it('asks for the audio of the current version again only for a dictation', funct
     expect(PracticeItemVersion::query()->where('item_id', $dictation->id)->value('audio_status'))->toBe(AudioStatus::Pending);
 });
 
-it('voices the published version and the current one again when the draft is another version, each once', function (): void {
+it('voices the published version and the current one again when the draft is another version and the published audio is not ready, each once', function (AudioStatus $status): void {
     [$course, , $words] = pis_course();
     $service = app(PracticeItemService::class);
     $data = ['key' => 'dd', 'word_ids' => [$words[0]->id]];
@@ -747,8 +747,8 @@ it('voices the published version and the current one again when the draft is ano
     $service->markReviewed($item, $this->admin);
     $service->publish($item, $this->admin);
     $published = PracticeItemVersion::query()->where('item_id', $item->id)->sole();
-    // The published version's audio failed; a draft with another text waits (and is pending).
-    $published->forceFill(['audio_status' => AudioStatus::Failed, 'audio_error' => 'tts_service_failed'])->save();
+    // The published version's audio failed (or still waits); a draft with another text waits (and is pending).
+    $published->forceFill(['audio_status' => $status, 'audio_error' => $status === AudioStatus::Failed ? 'tts_service_failed' : null])->save();
     $draft = $service->saveVersion($item, $course, pis_data('dictation', ['text' => 'See you soon', 'accepted' => []], $data), $this->admin);
     Queue::fake();
 
@@ -759,6 +759,36 @@ it('voices the published version and the current one again when the draft is ano
     Queue::assertPushed(GeneratePracticeAudioJob::class, fn (GeneratePracticeAudioJob $job): bool => $job->versionId === $draft->id && $job->force);
     expect($published->fresh()?->audio_status)->toBe(AudioStatus::Pending)
         ->and($published->fresh()?->audio_error)->toBeNull();
+})->with([
+    'failed' => [AudioStatus::Failed],
+    'pending' => [AudioStatus::Pending],
+]);
+
+it('leaves a READY published version to the learners when the draft behind it is voiced again: only the draft is queued (review 18.11, item 2)', function (): void {
+    [$course, $lesson, $words] = pis_course();
+    $learner = Learner::factory()->create();
+    PracticeKit::introduce($learner, $words[0]);
+    $service = app(PracticeItemService::class);
+    $data = ['key' => 'dd', 'lesson_id' => $lesson->id, 'word_ids' => [$words[0]->id]];
+    $item = pis_item($course, 'dictation', data: $data);
+    $service->markReviewed($item, $this->admin);
+    $service->publish($item, $this->admin);
+    $published = PracticeItemVersion::query()->where('item_id', $item->id)->sole();
+    $published->forceFill(['audio_status' => AudioStatus::Ready, 'audio_key' => str_repeat('a', 40)])->save();   // the learners get it
+    // The draft with another text: its voice failed ("Правка: ошибка" in the list), so the admin presses "generate again".
+    $draft = $service->saveVersion($item, $course, pis_data('dictation', ['text' => 'See you soon', 'accepted' => []], $data), $this->admin);
+    $draft->forceFill(['audio_status' => AudioStatus::Failed, 'audio_error' => 'tts_service_failed'])->save();
+    expect(pis_served($course, $lesson, $learner, PracticeItemType::Dictation))->toBe([$item->id]);
+    Queue::fake();
+
+    $service->regenerateAudio($item->fresh() ?? $item);
+
+    Queue::assertPushed(GeneratePracticeAudioJob::class, 1);
+    Queue::assertPushed(GeneratePracticeAudioJob::class, fn (GeneratePracticeAudioJob $job): bool => $job->versionId === $draft->id && $job->force);
+    expect($draft->fresh()?->audio_status)->toBe(AudioStatus::Pending)
+        ->and($published->fresh()?->audio_status)->toBe(AudioStatus::Ready)
+        ->and($published->fresh()?->audio_key)->toBe(str_repeat('a', 40))
+        ->and(pis_served($course, $lesson, $learner, PracticeItemType::Dictation))->toBe([$item->id]);   // still handed out while the job runs
 });
 
 it('voices the one version again once when the current version is the published one', function (): void {
@@ -772,7 +802,9 @@ it('voices the one version again once when the current version is the published 
 
     $service->regenerateAudio($item->fresh() ?? $item);
 
+    // The one version is the one on the desk: it is voiced again even though it is ready (and published) - the admin asked for exactly that.
     Queue::assertPushed(GeneratePracticeAudioJob::class, 1);
+    Queue::assertPushed(GeneratePracticeAudioJob::class, fn (GeneratePracticeAudioJob $job): bool => $job->force);
 });
 
 it('voices only the current version of a dictation that was never published, and nothing for an archived one', function (): void {

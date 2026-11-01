@@ -20,7 +20,7 @@ use RuntimeException;
  *   practice_pro_required           403  `PRACTICE_PLAN=pro` and the learner is on Free (the TWA opens the paywall `practice`)
  *   practice_mode_disabled          409  {mode}: the mode is switched off - blocks only the CREATION
  *   practice_not_enough_material    422  {mode, available, required, reason, course, lesson_id}
- *   practice_session_active         409  {session_id, mode, course, lesson_id, progress}
+ *   practice_session_active         409  {session_id, mode, course, course_title, lesson_id, lesson, progress}
  *   practice_session_not_found      404  not the learner's own session (a stranger's id looks the same)
  *   practice_session_closed         410  {finish_reason}
  *   element_not_current             409  {current}: the id of the element to answer now
@@ -127,7 +127,7 @@ final class PracticeException extends RuntimeException
     }
 
     /**
-     * @param  array<string, mixed>  $details  {session_id, mode, course, lesson_id, progress}
+     * @param  array<string, mixed>  $details  {session_id, mode, course, course_title, lesson_id, lesson: {stage, number, title}|null, progress}
      */
     public static function sessionActive(array $details): self
     {

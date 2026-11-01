@@ -891,7 +891,9 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 Чужая сессия неотличима от несуществующей: **404** `practice_session_not_found`.
 
 **Лимиты** (ключ — `learner_id`, `TwaAuth` раньше `throttle`): все маршруты, кроме аудио, под `twa-api` (60/мин); дополнительно `POST /practice/sessions` — `twa-practice-open` **10/мин**; `…/answer` и `…/replace` — `twa-practice-answer` **90/мин**
-(быстрый ученик сопоставляет ~40 пар в минуту); аудио — `twa-practice-audio` **60/мин** и **вне** `twa-api` (клипы грузятся пачкой и не должны съедать общий бюджет). 429 — `rate_limited` (A.6).
+(быстрый ученик сопоставляет ~40 пар в минуту); аудио — `twa-practice-audio` **60/мин** и **вне** `twa-api` (клипы грузятся пачкой и не должны съедать общий бюджет).
+Отказ лимитера — 429 **вне** конверта A.6 (middleware `throttle:` отвечает сам, как в A.17): `{"message": "Too Many Attempts."}` и заголовок `Retry-After` (секунды до сброса), без `error` и без кода (у запроса, который просит не JSON, — например, у аудио с `Accept: audio/mpeg` — вместо тела страница HTML; статус и `Retry-After` те же).
+TWA различает отказ по статусу, а не по коду: `api/client.ts` отдаёт любой 429 как `rate_limited`; форму закрепляет `PracticeRateLimitTest`.
 
 #### `GET /api/twa/practice/hub?course={slug}[&lesson_id={id}]`
 Хаб курса или урока: четыре режима с состоянием, незавершённая сессия, сводка баттла. Бюджет — 9 запросов к БД (`PracticeQueryBudgetTest`).
@@ -904,15 +906,19 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
     { "mode": "sentence",    "state": "disabled",   "available": 0,  "required": 3, "reason": null,       "estimate_seconds": 150 },
     { "mode": "dictation",   "state": "available",  "available": 7,  "required": 3, "reason": null,       "estimate_seconds": 180 }
   ],
-  "active_session": { "id": 77, "mode": "pairs", "course": "english-a1", "lesson_id": 41, "progress": { "done": 1, "total": 3 } },
+  "active_session": { "id": 77, "mode": "pairs", "course": "english-a1", "course_title": "Английский A1", "lesson_id": 41,
+                      "lesson": { "stage": 2, "number": 4, "title": "Еда" }, "progress": { "done": 1, "total": 3 } },
   "battle": { "enabled": true, "active_battle_id": null, "incoming_count": 1 } }
 ```
 - `lesson` — `null` без `lesson_id` (хаб курса); `stage` и `number` — номера модуля и урока, `title` — название (у безымянного урока `null`; у колоды ученика — по `DeckTitles`). Тексты на языке ученика.
 - `modes[]` всегда четыре, в порядке `pairs`, `collocation`, `sentence`, `dictation`. `state`: `available` (можно играть), `not_enough` (материала мало: числа `available` / `required` и `reason`), `disabled` (режим выключен
   `PRACTICE_MODE_*`), `pro_required` (Free при `PRACTICE_PLAN=pro`: числа не считаются). У `disabled` и `pro_required` `available = 0`, `reason = null`. `required` — минимум: у пар 3 слова в раунде, у остальных 3 задания (`practice.solo.items.min`).
-  `reason`: `no_words` (введённых слов меньше минимума), `ambiguous` (слов хватает, но после исключения неоднозначных переводов — нет), `no_items` (опубликованных заданий типа мало, и «запертые» их не дополнят — обещать «они появятся» нельзя), `items_locked` (задания есть, но не хватает из-за невведённых целевых слов: с ними хватило бы — «выучите слова урока»; у баттла не бывает),
+  `reason`: `no_words` (введённых слов меньше минимума; у диктанта — и когда озвученные слова есть, но вместе с фразами их меньше минимума: ещё одно выученное слово откроет режим), `ambiguous` (слов хватает, но после исключения неоднозначных переводов — нет), `no_items` (опубликованных заданий типа мало, и «запертые» их не дополнят — обещать «они появятся» нельзя), `items_locked` (задания есть, но не хватает из-за невведённых целевых слов: с ними хватило бы — «выучите слова урока»; у баттла не бывает),
   `audio_pending` (заданий хватает, но озвучка не готова), `no_audio_words` (диктант слов: нет слов с готовой озвучкой). `estimate_seconds` — «≈ N мин» на карточке (120 / 90 / 150 / 180).
-- `active_session` — единственная незавершённая сессия ученика **в любом курсе** (`null`, если нет; просроченная закрывается и не возвращается): карточка «Продолжить» и лист «Незавершённая практика».
+- `active_session` — единственная незавершённая сессия ученика **в любом курсе** (`null`, если нет; просроченная закрывается и не возвращается): карточка «Продолжить» и лист «Незавершённая практика». Место сессии названо и id, и **словами**, чтобы
+  «Продолжить» могла сказать, какая это сессия, и для курса или урока, которых экран не видел: `course_title` — название курса на языке сессии (языке ученика при открытии; нет названия — как у `course.title` сессии: любой язык снимка, иначе slug),
+  `lesson` — `{stage, number, title}` (модуль, номер в нём, название; часть, которой нет у урока, — `null`) либо `null` у практики курса и у снимка без названий. Названия лежат в снимке, который сервер и так разбирает ради slug курса: **ни одного запроса к БД сверх прежних**
+  (бюджет хаба тот же, `PracticeQueryBudgetTest`). TWA называет место коротко («Модуль 2 · Урок 4 · Еда» или курс), когда это место самого хаба, и с курсом впереди («Английский A1 · Модуль 2 · Урок 4 · Еда») — когда нет.
 - `battle` — сводка баттла: `enabled` (`PRACTICE_BATTLE`), `active_battle_id` (свой матч, который не закончен), `incoming_count` (приглашения мне, срок которых не истёк). Один запрос к `battles`; API баттла — A.17.
 - Ошибки: **403** `practice_unavailable`; **404** `course_not_found` (курс не опубликован, приватный чужой или нет такого), `lesson_not_found`; **422** `lesson_not_in_course`, валидация (`course` обязателен, ≤ 64 символов).
 
@@ -925,7 +931,8 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 **`source: retry` и `retry_of` приходят только вместе**: одно без другого — **422** (валидация Laravel), чтобы повтор нельзя было выдать за обычное открытие и наоборот.
 Ответ **201** — сессия (форма ниже, как `GET`); в `current` — первый элемент. Что в сессии: пары — до 3 раундов по 4 слова (минимум один раунд из 3); сочетание, предложение — 5 заданий (минимум 3); диктант — 5 заданий (минимум 3): до 3 фраз, остальное — слова с готовой озвучкой (слов не хватает — добираются фразами), сначала слова, потом фразы.
 Раскладка и ожидаемые ответы создаются на сервере один раз и хранятся в снимке (`practice_sessions.snapshot`, docs/03 §2.43): перезагрузка отдаёт ту же раскладку, правка контента на идущую сессию не влияет.
-- Одна активная сессия на ученика (unique `active_learner_id`): вторая открывается только с `replace_active` — иначе **409** `practice_session_active` (`details` — незавершённая сессия: `{session_id, mode, course, lesson_id, progress}`).
+- Одна активная сессия на ученика (unique `active_learner_id`): вторая открывается только с `replace_active` — иначе **409** `practice_session_active` (`details` — незавершённая сессия, те же поля, что у `active_session` хаба, с `session_id` вместо `id`:
+  `{session_id, mode, course, course_title, lesson_id, lesson, progress}`).
   Две вкладки, открывшие одну и ту же практику одновременно, получают **одну** сессию (проигравший гонку читает победителя); другую практику — 409.
 - Порядок работы: незавершённая живая сессия без `replace_active` даёт 409 **до** сборки снимка (ни чтений материала, ни диска, ни события `practice.not_enough_material`); с `replace_active` снимок строится первым — 422 «мало материала» не закрывает идущую сессию, старая закрывается только вместе с созданием новой.
 - Ошибки: **403** `practice_unavailable` / `practice_pro_required`; **409** `practice_mode_disabled` (`{mode}`), `practice_session_active`, `retry_not_available` (в исходной сессии нечего повторять, или все задания-ошибки сняты с публикации / потеряли озвучку или слова; кнопку `summary.retry_available` скрывает то же решение, плюс выключенный режим и закрытый доступ — их открытие повтора отдаёт обычными `practice_mode_disabled` и 403); **404** `course_not_found`, `lesson_not_found`,
@@ -988,7 +995,7 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
   `request_id` принадлежит одному виду запроса: если он уже принят как **замена** диктанта, ответ с ним — **409** `request_id_reused` (без `details`); новый запрос — новый uuid, повторяется только тот, чей ответ потерян.
 - Порядок проверок под блокировкой сессии: повтор → закрыта (410) → неизвестный элемент (422) → элемент уже отвечен (409) → не текущий (409) → форма ответа (422). Ошибки:
   **410** `practice_session_closed` (`{finish_reason}`; просроченная сессия закрывается этим запросом); **409** `element_not_current` (`{current}` — id элемента, который отвечать сейчас; TWA перечитывает сессию), `answer_already_accepted` (`{verdict}`), `pair_already_matched` (`{left_id}`; также для уже занятой правой карточки);
-  **422** `invalid_answer_shape` (`{expected}`: `order_of_all_fragments` | `option_id` | `left_right` | `text_or_skip` | `bijection`), `unknown_element_id` (неизвестный элемент, фрагмент, вариант или карточка), валидация; **404**.
+  **422** `invalid_answer_shape` (`{expected}`: `order_of_all_fragments` | `option_id` | `left_right` | `text_or_skip` | `bijection`), `unknown_element_id` (неизвестный элемент, фрагмент, вариант или карточка; TWA перечитывает сессию и идёт за ней без сообщения — элемента на экране уже нет), валидация; **404**.
 - Побочный эффект при завершении сессии: событие `practice.session_finished` `{session_id, mode, total, answered, correct_first, hints, mismatches, reason, duration_ms}` (после commit, один раз).
 
 #### `POST /api/twa/practice/sessions/{id}/replace` — замена диктанта без штрафа (лимитер `twa-practice-answer`)
@@ -1008,7 +1015,7 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 | `practice_pro_required` | 403 | — (пейвол `practice`) |
 | `practice_mode_disabled` | 409 | `{mode}` |
 | `practice_not_enough_material` | 422 | `{mode, available, required, reason, course, lesson_id}` |
-| `practice_session_active` | 409 | `{session_id, mode, course, lesson_id, progress}` |
+| `practice_session_active` | 409 | `{session_id, mode, course, course_title, lesson_id, lesson, progress}` (`lesson` — `{stage, number, title}` или `null`) |
 | `practice_session_not_found` | 404 | — |
 | `practice_session_closed` | 410 | `{finish_reason}` |
 | `element_not_current` | 409 | `{current}` |
@@ -1273,16 +1280,16 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 - **Реванш:** `{ "rematch_of": 15 }` — мой терминальный матч (`finished` или `closed`). Друг — соперник того матча (пара всё ещё `accepted`, иначе **403** `not_friends`), формат, курс и урок — оттуда, снимок новый (при ровно 5 заданиях те же задания в другом порядке).
   Остальные поля тела при `rematch_of` **не читаются и не валидируются** (TWA шлёт `mode`, `course`, `lesson_id`, `friendship_id` заодно — это не 422, даже если там мусор). `rematch_of` чужого матча → **404** `battle_not_found`; матча, который ещё идёт → **409** `battle_wrong_state {status}`.
 - **Занятость.** Один живой матч на ученика (unique `battle_participants.active_learner_id`): второе приглашение → **409** `battle_busy {battle_id}` — id моего матча. Встречное приглашение (друг **уже пригласил меня**, оно открыто) тоже **409** `battle_busy`, но с id **его** приглашения: открой его и прими
-  (оба нажали «Реванш» с разницей в секунды — второй попадает сюда). Проверка до транзакции, без блокировок: приглашения, пересёкшиеся в ту же миллисекунду, пройдут оба — тогда каждый занят своим, а принять чужое можно, только отозвав своё.
-- Порядок проверок и ошибки: доступ (403) → `battle_disabled` (409) → [реванш: 404/409] → `practice_mode_disabled` (409 `{mode}`) → пара (404 `friendship_not_found`, 403 `not_friends`) → `battle_friend_no_access` (409) → встречное `battle_busy` → курс (404 `course_not_found`) → урок (404 `lesson_not_found`, 422 `lesson_not_in_course`) → материал
-  (422 `battle_material_unavailable` с `details` как у `practice_not_enough_material`, событие `practice.not_enough_material {battle: true}`) → запись (нарушение unique → `battle_busy`). Валидация Laravel — 422 до всего этого.
+  (оба нажали «Реванш» с разницей в секунды — второй попадает сюда). Встречные приглашения атомарны: незавершённый матч пары держит ключ `battles.open_pair` (unique, docs/03), поэтому из двух приглашений одной пары, пересёкшихся даже в одну миллисекунду, второе получает тот же **409** `battle_busy` с id первого — без строки, события и ЛС (18.6-fix). Своё просроченное, ещё не выметенное приглашение занятым не делает: сервер закрывает его по пути (`closed/invite_expired`, событие) и повторяет действие один раз.
+- Порядок проверок и ошибки: доступ (403) → `battle_disabled` (409) → [реванш: 404/409] → `practice_mode_disabled` (409 `{mode}`) → пара (404 `friendship_not_found`, 403 `not_friends`) → `battle_friend_no_access` (409) → курс (404 `course_not_found`) → урок (404 `lesson_not_found`, 422 `lesson_not_in_course`) → материал
+  (422 `battle_material_unavailable` с `details` как у `practice_not_enough_material`, событие `practice.not_enough_material {battle: true}`) → встречное `battle_busy` (вплотную перед записью) → запись (нарушение unique `active_learner_id` → `battle_busy` с id моего матча, `open_pair` → с id матча пары). Поэтому при встречном приглашении и нехватке материала ответ — 422, а не 409. Валидация Laravel — 422 до всего этого.
 
 #### Действия: `accept` · `decline` · `cancel` · `ready` · `surrender`
 `POST /practice/battles/{id}/<действие>`, без тела, кроме `surrender` (`{ "confirm": true }`; без него **422** — выход из игры не делается случайным запросом). Ответ **200** `BattleResource` — матч таким, каким его видит действующий.
 
 | Действие | Кто | Что делает | Отказы |
 |---|---|---|---|
-| `accept` | приглашённый | `invited` → `room`; оба «присутствуют» с этой секунды; занимает приглашённого (`active_learner_id`). Для матча, который уже идёт, — 200 без изменений (двойное нажатие) | 403 `battle_not_recipient`; 409 `battle_closed` (просрочено — `invite_expired`; дружба кончилась — `canceled`); 409 `battle_busy {battle_id}` (я занят другим); 409 `battle_disabled` |
+| `accept` | приглашённый | `invited` → `room`; оба «присутствуют» с этой секунды; занимает приглашённого (`active_learner_id`). Для матча, который уже идёт, — 200 без изменений (двойное нажатие). Своё просроченное приглашение, которое держало «занятым», закрывается по пути, и принятие повторяется один раз | 403 `battle_not_recipient`; 409 `battle_closed` (просрочено — `invite_expired`; дружба кончилась — `canceled`); 409 `battle_disabled`; 409 `practice_mode_disabled {mode}` (формат выключили после приглашения — оно остаётся `invited` до истечения); 409 `battle_friend_no_access` (у пригласившего больше нет практики); 409 `battle_busy {battle_id}` (я занят другим) |
 | `decline` | приглашённый | `invited` → `closed/declined` | 403 `battle_not_recipient`; 409 `battle_wrong_state` (`room`, `countdown`, `playing`), `battle_closed` |
 | `cancel` | инициатор — приглашение; любой — комнату и отсчёт | → `closed/canceled` (`meta.left` — кто вышел) | 403 `battle_not_challenger`; 409 `battle_wrong_state` (`playing` — сдайтесь), `battle_closed` |
 | `ready` | оба игрока в `room` | отмечает готовность; оба → `countdown`. Диктант: сервер проверяет 5 файлов, нет — матч сразу `closed/voided` (в ответе 200, статус виден). В `countdown`/`playing` — 200 без изменений | 409 `battle_wrong_state` (`invited`), `battle_closed` |

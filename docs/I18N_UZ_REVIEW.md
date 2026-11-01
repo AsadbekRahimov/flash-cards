@@ -2563,6 +2563,24 @@
 | `battle.invite.lead_sent` | Do'stingiz taklifni «Do'stlar» bo'limida ko'radi (ruxsat bergan bo'lsa, botdan xabar ham oladi). U qabul qilishi bilan xona ochiladi. | Друг увидит приглашение в разделе «Друзья» (и получит сообщение от бота, если разрешил). Как только он примет его, откроется комната. |
 | `error.code.not_friends` | Buni faqat do'st bilan qilish mumkin. | Это можно сделать только с другом. |
 
+## Практика и баттл 2026-10 · 18-11b — на проверку носителю
+
+> Две подсказки на карточке режима в хабе практики (`resources/twa/src/i18n/uz.ts`, задача 18.11b, доводка по повторному ревью). Остальные строки задачи
+> (название места незавершённой практики, «Davom etish») берутся из уже проверенных: «2-modul · 4-dars» — `training.lesson_header`, «Davom etish» — `practice.hub.continue`.
+>
+> Что решить носителю:
+> - **Хаб курса, причина `items_locked`** (`practice.hub.reason.items_locked_course`): рядом стоит кнопка «Darslarga» («К урокам»), поэтому речь о словах **уроков**,
+>   а не одного урока. Прежняя строка для хаба одного урока (`practice.hub.reason.items_locked`, «Dars so'zlarini o'rganing — …», раздел `18-9t`) не изменилась.
+>   Здесь `Darslardagi so'zlarni o'rganing` («выучите слова в уроках»); если естественнее `Darslar so'zlarini o'rganing` — заменить.
+> - **«Заданий пока мало»** (`practice.hub.reason.no_items_few`): в теме уже есть одно-два задания, но для сессии нужно три (или пять). Не путать с `practice.hub.reason.no_items`
+>   («заданий для темы нет вообще», раздел `18-1t`). Числа — как в строках «выполнено N из M» (`{required} tadan {available} tasi`, «из M — N штук»). Проверить `kam` («мало»)
+>   и порядок слов; кнопки «Darsni o'rganish» у этой причины нет (выучить больше слов задания не добавит).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `practice.hub.reason.items_locked_course` | Darslardagi so'zlarni o'rganing — topshiriqlar ochiladi. | Выучите слова уроков — задания откроются. |
+| `practice.hub.reason.no_items_few` | Topshiriqlar hozircha kam: {required} tadan {available} tasi. | Заданий пока мало: {available} из {required}. |
+
 ## Практика и баттл 2026-10 · 18-10f — на проверку носителю
 
 > Правка экранов баттла в приложении после повторного ревью (`resources/twa/src/i18n/uz.ts`, задача 18.10f). Одна новая строка; остальные тексты правки (ссылка на свой

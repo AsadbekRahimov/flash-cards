@@ -227,7 +227,7 @@ it('lets a learner have ONE active session: 409 with its details, and replace_ac
     psOpen($this, $learner, $course->slug, 'sentence')
         ->assertStatus(409)
         ->assertJsonPath('error.code', 'practice_session_active')
-        ->assertJsonPath('error.details', ['session_id' => $first['id'], 'mode' => 'collocation', 'course' => 'english-a1', 'lesson_id' => $lesson->id, 'progress' => ['done' => 1, 'total' => 5]]);
+        ->assertJsonPath('error.details', ['session_id' => $first['id'], 'mode' => 'collocation', 'course' => 'english-a1', 'course_title' => 'Английский A1', 'lesson_id' => $lesson->id, 'lesson' => ['stage' => 1, 'number' => 1, 'title' => 'Еда'], 'progress' => ['done' => 1, 'total' => 5]]);
     expect(PracticeSession::query()->count())->toBe(1)
         ->and(PracticeSession::query()->findOrFail($first['id'])->status)->toBe(SessionStatus::Active);
 
@@ -1286,7 +1286,7 @@ it('hands the hub only the active session of the learner', function (): void {
     psAnswerCurrent($this, $learner, $session)->assertOk();
 
     $this->withHeaders($headers)->getJson("/api/twa/practice/hub?course={$course->slug}")->assertOk()
-        ->assertJsonPath('active_session', ['id' => $session['id'], 'mode' => 'collocation', 'course' => 'english-a1', 'lesson_id' => $lesson->id, 'progress' => ['done' => 1, 'total' => 5]]);
+        ->assertJsonPath('active_session', ['id' => $session['id'], 'mode' => 'collocation', 'course' => 'english-a1', 'course_title' => 'Английский A1', 'lesson_id' => $lesson->id, 'lesson' => ['stage' => 1, 'number' => 1, 'title' => 'Еда'], 'progress' => ['done' => 1, 'total' => 5]]);
 
     CarbonImmutable::setTestNow('2026-11-05 10:00:00');
     $this->withHeaders($headers)->getJson("/api/twa/practice/hub?course={$course->slug}")->assertOk()->assertJsonPath('active_session', null);

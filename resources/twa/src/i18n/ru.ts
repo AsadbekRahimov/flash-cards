@@ -576,6 +576,8 @@ export const ru = {
   'practice.hub.reason.ambiguous': 'Подходящих слов: {available} из {required}. Выучите новые слова, и режим откроется.',
   'practice.hub.reason.no_items': 'Для этой темы заданий пока нет.',
   'practice.hub.reason.items_locked': 'Выучите слова урока — задания откроются.',
+  'practice.hub.reason.items_locked_course': 'Выучите слова уроков — задания откроются.',
+  'practice.hub.reason.no_items_few': 'Заданий пока мало: {available} из {required}.',
   'practice.hub.reason.audio_pending': 'Записи для заданий ещё готовятся. Загляните позже.',
   'practice.hub.reason.no_audio_words': 'Для ваших слов пока нет записей. Загляните позже.',
   'practice.hub.reason.unknown': 'Пока не хватает материала.',

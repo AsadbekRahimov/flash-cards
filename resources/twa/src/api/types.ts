@@ -790,12 +790,19 @@ export interface PracticeModeInfo {
   estimate_seconds: number
 }
 
-/** The unfinished solo session (one per learner). */
+/**
+ * The unfinished solo session (one per learner): where it is by id AND by name, so that "Continue" can say which one it is even for a place
+ * this run has not seen (docs/16 §7.1; the same fields are in `details` of the 409 `practice_session_active`, with `session_id` for `id`).
+ */
 export interface PracticeActiveSession {
   id: number
   mode: PracticeMode
   course: string
+  /** The title of the course in the language of the session (the slug when the server has no title). */
+  course_title: string
   lesson_id: number | null
+  /** Module, number and title of the lesson; null for the practice of a whole course, and when the server has no names for it. */
+  lesson: Omit<PracticeLessonRef, 'id'> | null
   progress: Progress
 }
 
