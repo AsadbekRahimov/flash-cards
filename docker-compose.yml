@@ -20,7 +20,7 @@ services:
             PHP_IDE_CONFIG: serverName=lexiflow
 
     nginx:
-        image: nginx:1.27-alpine
+        image: nginx:1.30-alpine
         container_name: lexiflow-nginx
         depends_on:
             - app
@@ -48,7 +48,7 @@ services:
             retries: 10
 
     redis:
-        image: redis:7-alpine
+        image: redis:8-alpine
         container_name: lexiflow-redis
         command:
             - redis-server
