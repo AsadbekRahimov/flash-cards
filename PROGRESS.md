@@ -11,6 +11,85 @@
 ## Sprint 3 — Filament Admin ✅ (2FA отложен до Sprint 10)
 ## Sprint 4 — Import & Content ✅
 
+## Обновление стека: PHP 8.5, Laravel 13, PostgreSQL 18 ✅ код (2026-11-01)
+
+**Задача владельца:** PHP 8.5, Laravel — последняя подходящая версия, полное обновление, все Docker-файлы, PostgreSQL последней версии.
+
+**Где лежит:** ветка `claude/tender-allen-712v3m`. Ветка в PR #20 владельца вместе со Sprint 18.
+
+### Версии
+
+| Компонент | Было | Стало |
+|---|---|---|
+| PHP | 8.3 | **8.5.12** |
+| Laravel | 12.70 | **13.39** |
+| Filament / Livewire | 5.10 / 4.4.8 | 5.11 / 4.4.8 |
+| Pest / PHPUnit | 4.6 / 12.5 | 5.3.5 / 13.4 |
+| spatie/laravel-permission | 6.25 | 8.3 |
+| laravel/tinker | 2.11 | 3.0 |
+| Symfony | 7.4 | 8.1 |
+| PHPStan / Larastan | 2.1 / 3.9 | 2.3 / 3.13 |
+| Pint | 1.29 | 1.32 |
+| PostgreSQL | 16 | **18.6** (19 — только RC) |
+| Redis | 7 | **8.4** (см. решения) |
+| nginx | 1.27 | 1.30 (stable) |
+| Node | 20 (EOL) | **26 LTS** |
+| Vite (ассеты Laravel) | 7 | 8 |
+| laravel-vite-plugin | 2 | 3.2 |
+| phpredis | 6.2.0 | 6.3.0 |
+| Xdebug (дев-образ) | — | 3.5.3 |
+| GitHub Actions | — | checkout v7, cache v6, setup-node v7, upload-artifact v7 |
+
+### Задачи
+
+| # | Задача | Исполнитель | Статус |
+|---|--------|-------------|--------|
+| U0 | Разведка: версии на 2026-11-01 (Packagist, Docker Hub), руководства Laravel 13, Pest 5, permission 8, PHP 8.5 UPGRADING, раскладка образа PostgreSQL 18 | координатор | ✅ |
+| U1 | Composer:<br>• Laravel 13 и все пакеты;<br>• `PreventRequestForgery` вместо `VerifyCsrfToken` — иначе stateless-вебхуки Payme/Click на Laravel 13 отвечали бы 500;<br>• тест реальных стеков middleware;<br>• кэш без десериализации классов (`serializable_classes=false`), JSON-сессии, два объекта в кэше → массивы;<br>• конфиги по скелету 13, PHPStan 2.3 | coder | ✅ |
+| U2, U2b–U2e | PostgreSQL 16 → 18 в Docker без потери данных:<br>• новый том в раскладке 18+;<br>• `docker/postgres/upgrade.sh`: dump копии старого тома `pg_dump` 18, restore, сверка всех таблиц, последовательностей, индексов и ограничений;<br>• проверка в `deploy.sh` до сборки; CI запускает `deploy.sh` целевого коммита;<br>• старый том — read-only защита и копия для отката.<br>По четырём ревью:<br>• маркер до init;<br>• шлагбаум `pg_hba` на время переноса, открывается последним;<br>• отпечаток кластера 16 против отката с `--redo` / `--keep-current`;<br>• guard в entrypoint `postgres`: 18 не стартует на устаревшем снимке, кто бы его ни поднимал;<br>• общая блокировка с `deploy.sh`;<br>• CI-job `postgres-upgrade` | architect, координатор | ✅ |
+| U3, U3b | Образы, CI, документация:<br>• образы PHP 8.5 с проверкой расширений и `pg_dump` 18 при сборке;<br>• Node 26 LTS, nginx 1.30;<br>• CI на PHP 8.5 / PostgreSQL 18 / Redis 8 + сборка дев-образа;<br>• Vite 8 для ассетов Laravel;<br>• `--no-experimental-webstorage` для воркеров vitest (Node 25+);<br>• версии в документах, VPS-гайд (ondrej/sury, PGDG, NodeSource) | coder | ✅ |
+| U4 | Интеграция: слияния, браузерная проверка админки и e2e TWA на Laravel 13, CI | координатор | ✅ |
+| U5, U5b–U5d | Ревью всего обновления и три повторных ревью исправленного переноса. Блокирующих не осталось (U5d: «можно принимать»). Последнее окно из ограничений — шлагбаум открывался раньше маркеров — закрыл координатор | reviewer | ✅ |
+
+### Решения координатора
+- **Node 26 LTS.** С Node 25 у Node свой глобальный `localStorage`, он перекрывал `localStorage` happy-dom в 17 тестах TWA. Исправлено флагом воркеров vitest в `vite.config.ts`, это переносимо, в том числе на Windows. Зависимости TWA не обновлялись (Vite 7, vitest 4, vue-tsc 2) — отдельная задача.
+- **Ужесточение по скелету Laravel 13.**
+  - `cache.serializable_classes = false` и `session.serialization = json`: защита от gadget chain при утечке `APP_KEY` или записи в Redis.
+  - Цена: при выкатке один раз слетит вход в админку у админов и учителей.
+  - Префиксы кэша и Redis и имя cookie сессии не менялись: очереди и блокировки не осиротеют.
+- **Redis закреплён на 8.4, а не 8.10.** 8.6+ пишет RDB 13+, а Redis 7.4 его не читает. Пока жив путь отката на коммит до апгрейда, очередь должна этот откат переживать. На последнюю 8.x переходим вместе со снятием защитного монтирования тома 16.
+- **PostgreSQL 18, а не 19:** 19 пока только RC.
+- **Перенос — dump/restore на официальных образах**, а не `pg_upgrade`: без сторонних образов, collation alpine/musl пересобирается, база маленькая (минуты). Автоматического апгрейда в CI-деплое нет намеренно — это разовая операция владельца с простоем 1–3 минуты.
+
+### Проверки
+- **Pest на PHP 8.5:**
+  - SQLite — 5064 passed / 50 skipped (PG-only) / 0 failed;
+  - PostgreSQL 18.6 + Redis 8 — 5159 passed / 0 failed / 0 skipped.
+- **PHPStan L8:** 0 ошибок. **Pint:** passed. **Deprecations из нашего кода:** 0.
+- **CI (GitHub Actions)** на PHP 8.5 / PostgreSQL 18 / Redis 8.4 / Node 26 — зелёный: Pint, PHPStan, весь Pest, тесты и сборка TWA, сборка production- и дев-образов, `postgres-upgrade`.
+- **Браузер, админка на Laravel 13** — настоящий сервер PHP 8.5, PostgreSQL 18, сессии в Redis (encrypt + json): 33/33 проверки:
+  - вход, настройка 2FA, challenge;
+  - 17 разделов, Livewire;
+  - вебхуки Payme/Click без токена — 200; POST из cross-site без токена — 419.
+- **Браузерный e2e TWA на Laravel 13:** 7 сценариев, 718 проверок — PASS (4 соло-режима, `battle:full`, `battle:surrender`, `battle:reload`).
+  - Не запускались: `battle:background`, `battle:both-absent`, `battle:absent-lazy`, `shots` — Docker-демон песочницы остановился по лимиту времени.
+- **Перенос PostgreSQL:**
+  - в песочнице на настоящем Docker — 62 таблицы / 501 672 строки, повтор, обрыв restore, prod-вариант на заглушках;
+  - CI-job `postgres-upgrade` на каждом push, около 240 проверок на настоящем Docker, зелёный. Он покрывает: данные 16, защитное монтирование, перенос, прерывания до и после init, шлагбаум, откат на 16 и guard, `--redo` / `--keep-current` и их прерывания, убитую 16, свежую установку, блокировку. `deploy` ждёт этот job;
+  - заглушки без демона — 127 + 208 + 31 проверка.
+
+### Осталось вне кода
+1. **Прод: перенос PostgreSQL 16 → 18 вручную, один раз**, простой 1–3 минуты.
+   - Первый CI-деплой после слияния остановится на проверке, стек 16 продолжит работать.
+   - Затем на сервере: `make prod-pg-check` → `make prod-pg-upgrade` → `make prod-pg-check` → деплой заново. Подробно — `docs/DEVOPS_GUIDE.md` §0.
+   - Старый том `lexiflow_pgdata` — копия для отката. Удалять не раньше чем через неделю, по инструкции из docs.
+2. **Дев:** `make pg-upgrade` или пересоздать базу (`docs/LOCAL_DEV_DOCKER.md` §2.3).
+3. **После выкатки** админы и учителя один раз входят в админку заново.
+4. **Следующий релиз:** снять защитное монтирование `pgdata` и перейти на последний Redis 8.x.
+5. **Не проверено вживую:** реальный Telegram, Sentry, почта, оплаты на PHP 8.5 — только тесты и песочницы.
+6. **Наблюдение (было и раньше):** `POST /telegram/webhook/{secret}` не stateless — на каждый апдейт стартует сессия в Redis. Можно снять сессию с маршрута отдельной задачей.
+7. **Известные ограничения переноса** (финальное ревью, всё — двойные сбои или экзотика). Самое заметное: `initdb`, убитый между `PG_VERSION` и `pg_hba.conf` (SIGKILL/OOM/питание), требует вручную удалить `18/docker` перед повтором.
+
 ## Sprint 18 — Практика (4 режима) + Баттл 1 на 1 ✅ код (2026-10-29 — 2026-11-01; основание — `docs/15_PRACTICE_GAMES_PLAN.md`, проект — `docs/16_PRACTICE_DESIGN.md`)
 
 **Задача владельца:** реализовать план docs/15.
