@@ -123,11 +123,15 @@ make down            # стоп
 
 `docker-compose.yml` теперь поднимает `postgres:18-alpine` с новым томом `<project>_postgresql`
 (один mount в `/var/lib/postgresql`, кластер в `18/docker`). Старые данные остаются в томе
-`<project>_pgdata` — PostgreSQL 18 их не читает, поэтому после `docker compose up -d` база будет пустой.
-Два пути:
+`<project>_pgdata` — PostgreSQL 18 их не читает. Этот том смонтирован в контейнер только для чтения
+(`/var/lib/postgresql/16/docker`) как предохранитель: пока в нём есть кластер 16, а кластера 18 нет,
+`docker compose up -d` НЕ даст пустую базу — контейнер `postgres` откажется стартовать
+(`docker compose logs postgres` объяснит почему), а `app` не поднимется. Два пути:
 
 ```bash
-# Дев-данные не нужны — просто пересоздать базу:
+# Дев-данные не нужны — удалить старый том и пересоздать базу:
+docker compose down
+docker volume rm <project>_pgdata            # имя печатает make pg-check
 docker compose up -d
 make fresh                                   # migrate:fresh --seed
 docker compose exec app php artisan cache:clear
