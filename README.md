@@ -9,7 +9,7 @@ Telegram-based платформа обучения английскому язы
 - **Filament** 5 — админка
 - **PostgreSQL** 18 / **Redis** 8
 - **Telegram Bot SDK** (`irazasyed/telegram-bot-sdk`)
-- **Pest** 4 — тесты, **Larastan** level 8 — статический анализ, **Pint** — code style
+- **Pest** 5 — тесты, **Larastan** level 8 — статический анализ, **Pint** — code style
 - **spatie/laravel-permission**, **owen-it/laravel-auditing**, **firebase/php-jwt**
 
 ## Локальный запуск (Docker)

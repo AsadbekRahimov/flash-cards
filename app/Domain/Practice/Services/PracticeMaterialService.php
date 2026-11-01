@@ -412,11 +412,15 @@ final class PracticeMaterialService
     /** 2 when a target word is inactive, else 1 when a target word is not introduced to the learner, else 0 (see {@see selectLockFlags()}). */
     private function lockStateOf(PracticeItem $item): int
     {
-        if ($item->getAttribute('lock_dead') !== null) {
+        // The raw attributes, not getAttribute(): `lock_unseen` is not selected for a battle, and a model in strict mode
+        // (preventAccessingMissingAttributes) would throw on a column the query did not select.
+        $flags = $item->getAttributes();
+
+        if (($flags['lock_dead'] ?? null) !== null) {
             return self::DEAD;
         }
 
-        return $item->getAttribute('lock_unseen') !== null ? self::LOCKED : self::FIT;
+        return ($flags['lock_unseen'] ?? null) !== null ? self::LOCKED : self::FIT;
     }
 
     /** The target words of the task being selected (`practice_items`): the part of a `lock_state` subquery that the two share. */
