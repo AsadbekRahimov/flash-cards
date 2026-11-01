@@ -43,6 +43,7 @@ The exit code is 1 on any FAIL.
 | `battle:background` | `visibilitychange` hidden for 13 s: no polling, the opponent is told "Соперник потерял связь", then not; the match is not lost |
 | `battle:surrender` | "Остаться", then "Сдаться" by the one who leads: the other wins, the score stays; the rematch offered and accepted |
 | `battle:both-absent` | both contexts closed for longer than the grace, the janitor runs, `closed / both_absent` on both screens |
+| `battle:absent-lazy` | only by name (`--only battle:absent-lazy`): the same without the janitor - the first one to come back wins `finished / absent`; an observation, see below |
 | `shots` | 390 and 320 px x light and dark: the screens of each mode (task, review) and of a battle (room, round, review, result); nothing may stick out of the window sideways |
 
 ## Things to know
@@ -52,10 +53,12 @@ The exit code is 1 on any FAIL.
   up to 7 s "old", and a match with grace 5 is cancelled in the countdown. `battle:background` keeps a player away for 13 s and
   needs about 25 s or more. For a quicker `battle:both-absent` run that scenario alone with 12 (about 22 s instead of 40).
 - **The janitor.** `both_absent` comes only from `practice:battles-sweep` (every minute in production): whoever opens the match first
-  after the grace is "present" and wins by the absence of the other (`finished / absent`). The stand has no scheduler, so the
-  scenario runs `stand.sh sweep` itself (`--sweep` for another stand).
-- **Limits.** The API allows 60 calls a minute and `/auth` 10 a minute per learner. The script counts its own calls and waits when a
-  learner is short of room; do not start it twice within a minute, or two copies at once.
+  after the grace is "present" (the heartbeat of the viewer is written before the transition is made) and wins by the absence of the
+  other (`finished / absent`) - `battle:absent-lazy` shows it. The stand has no scheduler, so `battle:both-absent` runs
+  `stand.sh sweep` itself (`--sweep` for another stand).
+- **Limits.** The API allows 60 calls a minute and `/auth` 10 a minute per learner. The script counts its own calls, waits when a
+  learner is short of room and spreads the work over the five demo learners (the solo modes: Alice, Bob, Charlie, Diana; the battles by
+  turns: Alice and Bob, Charlie and Diana; the solo pictures: Eve). Do not start it twice within a minute, or two copies at once.
 - The pictures: `<out>/<scenario>--<player>--<screen>--<width>-<theme>[--pN].png` (`--pN`: the page scrolled, when it is longer than
   the window - the buttons at the bottom stay in place, so a picture of the "whole page" would paint them over the content).
   `node resources/twa/scripts/e2e/sheet.mjs <out> --width 320 --only shots-` makes contact sheets (`sheet-NN.png` and `.html`, the light

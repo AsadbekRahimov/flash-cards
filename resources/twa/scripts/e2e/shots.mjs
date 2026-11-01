@@ -84,7 +84,7 @@ async function soloScreens(env, s, p, config) {
   s.step(`${p.name}: the screens of a session (${config.width} px, ${config.theme})`)
   await p.open(`/twa/practice/${env.cfg.course}?lesson=${env.cfg.lesson}`)
   await p.waitFor('mode-cards')
-  await s.check(await p.cutOffSees(), `the check "nothing sticks out of the window" sees a box that does stick out (${p.width} px)`, { players: [p] })
+  await s.check(await p.cutOffSees(), `the check of what the screen cuts off sees a box that sticks out and a text that its box cuts (${p.width} px)`, { players: [p] })
   await look(s, p, 'hub')
 
   for (const mode of MODES) {

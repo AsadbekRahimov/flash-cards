@@ -23,7 +23,7 @@ const args = parseArgs(process.argv.slice(2))
 
 if (args.help || args.h) {
   console.log(`usage: node practice.mjs --db <sqlite of the stand> [--base URL] [--out DIR] [--a TG_ID] [--b TG_ID] [--c TG_ID] [--d TG_ID] [--e TG_ID] [--only a,b] [--grace SEC] [--lesson ID] [--course SLUG] [--sweep CMD] [--headed]
-scenarios: solo (solo:pairs, solo:collocation, solo:sentence, solo:dictation), battle (battle:full, battle:reload, battle:background, battle:surrender, battle:both-absent), shots`)
+scenarios: solo (solo:pairs, solo:collocation, solo:sentence, solo:dictation), battle (battle:full, battle:reload, battle:background, battle:surrender, battle:both-absent), shots; by name only: battle:absent-lazy`)
   process.exit(0)
 }
 
@@ -113,8 +113,9 @@ async function main() {
   const started = Date.now()
   try {
     const scenarios = [...soloScenarios(env), ...battleScenarios(env), ...shotScenarios(env)]
-    for (const { name, body } of scenarios) {
-      if (wanted(name)) await report.scenario(name, body)
+    for (const { name, body, optional } of scenarios) {
+      // A scenario marked `optional` is an observation: it runs only when it is named in `--only`.
+      if (optional ? cfg.only.includes(name) : wanted(name)) await report.scenario(name, body)
     }
   } finally {
     await browser.close()

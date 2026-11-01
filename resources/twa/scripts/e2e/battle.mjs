@@ -11,20 +11,29 @@ const POINTS = { correct: 100, typo: 0, wrong: 0, skipped: 0, timeout: 0 }
 const OUTCOME_WORDS = { won: 'Победа', lost: 'Поражение', draw: 'Ничья', none: 'Матч не состоялся', aborted: 'Матч прерван' }
 const MIRROR = { won: 'lost', lost: 'won', draw: 'draw', none: 'none' }
 
+/**
+ * The two pairs of friends of the stand (Alice and Bob, Charlie and Diana) play the scenarios by turns: the API allows a learner 60 calls
+ * a minute, and a match takes 35 of them.
+ */
+const PAIRS = { ab: ['a', 'b'], cd: ['c', 'd'] }
+
 export function battleScenarios(env) {
+  const run = (pair, body) => (s) => withCleanState(env, s, () => body(env, s, PAIRS[pair]))
   return [
-    { name: 'battle:full', body: (s) => withCleanState(env, s, () => battleFull(env, s)) },
-    { name: 'battle:reload', body: (s) => withCleanState(env, s, () => battleReload(env, s)) },
-    { name: 'battle:background', body: (s) => withCleanState(env, s, () => battleBackground(env, s)) },
-    { name: 'battle:surrender', body: (s) => withCleanState(env, s, () => battleSurrender(env, s)) },
-    { name: 'battle:both-absent', body: (s) => withCleanState(env, s, () => battleBothAbsent(env, s)) },
+    { name: 'battle:full', body: run('ab', battleFull) },
+    { name: 'battle:reload', body: run('cd', battleReload) },
+    { name: 'battle:background', body: run('ab', battleBackground) },
+    { name: 'battle:surrender', body: run('cd', battleSurrender) },
+    { name: 'battle:both-absent', body: run('ab', battleBothAbsent) },
+    // Not in the default run: it records what the server does when nobody runs the janitor (see the docblock).
+    { name: 'battle:absent-lazy', optional: true, body: run('ab', battleAbsentLazy) },
   ]
 }
 
 // ------------------------------------------------------------------------------------ the state
 
 /** A battle of an earlier run that is still on (a scenario that fell half-way) stands in the way of the next one: it is ended through the API. */
-export async function clearBattles(env, whos = ['a', 'b']) {
+export async function clearBattles(env, whos = ['a', 'b', 'c', 'd']) {
   for (const who of whos) {
     const api = env.api(who)
     const list = await api.get('/practice/battles')
@@ -364,17 +373,17 @@ async function playMatch(env, s, battle, a, b, plans, opts = {}) {
   return rounds
 }
 
-async function twoPlayers(env, s, opts = {}) {
-  const a = await env.newPlayer(s, 'a', opts)
-  const b = await env.newPlayer(s, 'b', opts)
+async function twoPlayers(env, s, pair, opts = {}) {
+  const a = await env.newPlayer(s, pair[0], opts)
+  const b = await env.newPlayer(s, pair[1], opts)
   return { a, b }
 }
 
 // ======================================================================================== scenarios
 
 /** 2: the match from the invitation in "Друзья" to the result; one player does not answer in one round (a time-out). */
-async function battleFull(env, s) {
-  const { a, b } = await twoPlayers(env, s)
+async function battleFull(env, s, pair) {
+  const { a, b } = await twoPlayers(env, s, pair)
   const battle = await inviteFromFriends(env, s, a, 'collocation', { shot: true })
   await acceptFromFriends(env, s, b, battle, { shot: true })
   await bothReady(env, s, a, b, battle, { shot: true })
@@ -395,8 +404,8 @@ async function battleFull(env, s) {
 }
 
 /** 3: a reload in the middle of a match (before answering, and after answering): the match goes on from the same round. */
-async function battleReload(env, s) {
-  const { a, b } = await twoPlayers(env, s)
+async function battleReload(env, s, pair) {
+  const { a, b } = await twoPlayers(env, s, pair)
   // The entry from the practice hub of the lesson: "Играть с другом" -> the friend -> the setup of the battle.
   s.step(`${a.name}: invite from the hub of the lesson ("Играть с другом")`)
   await a.open(`/twa/practice/${env.cfg.course}?lesson=${env.cfg.lesson}`)
@@ -461,8 +470,8 @@ async function setHidden(p, hidden) {
 }
 
 /** 4: one player goes to the background for ~13 s and comes back: the match is not lost, the other one is told, then told no more. */
-async function battleBackground(env, s) {
-  const { a, b } = await twoPlayers(env, s)
+async function battleBackground(env, s, pair) {
+  const { a, b } = await twoPlayers(env, s, pair)
   const battle = await inviteFromFriends(env, s, a, 'sentence')
   await acceptFromLink(env, s, b, battle)
   await bothReady(env, s, a, b, battle)
@@ -512,8 +521,8 @@ async function battleBackground(env, s) {
  * 5: a surrender in the middle of a match - after "Остаться" - by the one who leads: the opponent wins, the score stays as it was, and
  * the rounds played are listed; then the rematch offered to the one who surrendered.
  */
-async function battleSurrender(env, s) {
-  const { a, b } = await twoPlayers(env, s)
+async function battleSurrender(env, s, pair) {
+  const { a, b } = await twoPlayers(env, s, pair)
   const battle = await inviteFromFriends(env, s, a, 'pairs')
   await acceptFromLink(env, s, b, battle)
   await bothReady(env, s, a, b, battle)
@@ -572,8 +581,8 @@ async function battleSurrender(env, s) {
  * match as `both_absent`, and both see it so when they open it. (Without the janitor the first one to come back is "present" and wins
  * by the absence of the other: `finished/absent`; the stand has no scheduler, so the scenario runs the janitor itself.)
  */
-async function battleBothAbsent(env, s) {
-  const { a, b } = await twoPlayers(env, s)
+async function battleBothAbsent(env, s, pair) {
+  const { a, b } = await twoPlayers(env, s, pair)
   const battle = await inviteFromFriends(env, s, a, 'sentence')
   await acceptFromLink(env, s, b, battle)
   await bothReady(env, s, a, b, battle)
@@ -600,10 +609,10 @@ async function battleBothAbsent(env, s) {
   await s.check(closed.participants.every((participant) => participant.active_learner_id === null), 'nobody is held by the closed match', { actual: JSON.stringify(closed.participants.map((participant) => participant.active_learner_id)) })
 
   s.step('both open the match again')
-  const a2 = await env.newPlayer(s, 'a', { tag: 'battle-both-absent-again' })
+  const a2 = await env.newPlayer(s, a.who, { tag: 'battle-both-absent-again' })
   await a2.open(`/twa/battles/${battle.id}`)
   const ra = await readResult(a2)
-  const b2 = await env.newPlayer(s, 'b', { tag: 'battle-both-absent-again' })
+  const b2 = await env.newPlayer(s, b.who, { tag: 'battle-both-absent-again' })
   await b2.open(`/twa/battles/${battle.id}`)
   const rb = await readResult(b2)
   for (const [p, shown] of [[a2, ra], [b2, rb]]) {
@@ -613,10 +622,44 @@ async function battleBothAbsent(env, s) {
   }
   await a2.shot('result-both-absent')
   await b2.shot('result-both-absent')
-  const apis = await Promise.all([env.api('a').get('/practice/battles'), env.api('b').get('/practice/battles')])
+  const apis = await Promise.all([env.api(a.who).get('/practice/battles'), env.api(b.who).get('/practice/battles')])
   await s.check(apis.every((api) => api.json?.active === null), 'neither player has an active battle after it', { players: [a2, b2], actual: JSON.stringify(apis.map((api) => api.json?.active)) })
-  const same = await Promise.all([env.api('a').get(`/practice/battles/${battle.id}`), env.api('b').get(`/practice/battles/${battle.id}`)])
+  const same = await Promise.all([env.api(a.who).get(`/practice/battles/${battle.id}`), env.api(b.who).get(`/practice/battles/${battle.id}`)])
   await s.check(same.every((api) => api.json?.status === 'closed' && api.json?.end_reason === 'both_absent' && api.json?.result?.outcome === 'none'), 'the API says closed / both_absent / no result to both', { players: [a2, b2], actual: JSON.stringify(same.map((api) => [api.json?.status, api.json?.end_reason, api.json?.result?.outcome])) })
+  await s.noPageErrors()
+  await s.noUnexpectedStatuses(EXPECTED_STATUSES)
+}
+
+/**
+ * An observation, not a requirement (run it by name: `--only battle:absent-lazy`): both close the app, nobody runs the janitor, and one of
+ * them comes back after the grace. The server ends the match on that very request, and the one who came back is "present" by then (the
+ * heartbeat of the viewer is written before the transition is made: `BattleReader::settle`), so it is `finished / absent` and a victory for
+ * him, not `closed / both_absent`; the other, who comes later, reads a defeat. `both_absent` is the janitor's.
+ */
+async function battleAbsentLazy(env, s, pair) {
+  const { a, b } = await twoPlayers(env, s, pair)
+  const battle = await inviteFromFriends(env, s, a, 'sentence')
+  await acceptFromLink(env, s, b, battle)
+  await bothReady(env, s, a, b, battle)
+  await Promise.all([waitRound(a, 1, battle), waitRound(b, 1, battle)])
+
+  s.step('both close the app, nobody runs the janitor')
+  await a.close()
+  await b.close()
+  const lastPresence = Math.max(...env.oracle.battle(battle.id).participants.map((participant) => Date.parse(`${participant.last_seen_at.replace(' ', 'T')}Z`)))
+  await until(() => Date.now() - lastPresence > (env.cfg.grace + 2) * 1000, { label: `the grace of ${env.cfg.grace} s`, timeout: (env.cfg.grace + 15) * 1000, interval: 500 })
+
+  s.step('the first one to come back')
+  const a2 = await env.newPlayer(s, a.who, { tag: 'battle-absent-lazy' })
+  await a2.open(`/twa/battles/${battle.id}`)
+  const ra = await readResult(a2)
+  const b2 = await env.newPlayer(s, b.who, { tag: 'battle-absent-lazy' })
+  await b2.open(`/twa/battles/${battle.id}`)
+  const rb = await readResult(b2)
+  s.note(`observed: ${a.name} (first) ${ra.outcome}/${ra.reason} "${ra.title}", ${b.name} (later) ${rb.outcome}/${rb.reason} "${rb.title}"`)
+  await s.check(ra.outcome === 'won' && ra.reason === 'absent' && rb.outcome === 'lost' && rb.reason === 'absent', 'the first one to come back wins by the absence of the other (the documented rule of one absent, one present)', { players: [a2, b2], actual: `${ra.outcome}/${ra.reason} and ${rb.outcome}/${rb.reason}` })
+  await a2.shot('result-first-back')
+  await b2.shot('result-later')
   await s.noPageErrors()
   await s.noUnexpectedStatuses(EXPECTED_STATUSES)
 }

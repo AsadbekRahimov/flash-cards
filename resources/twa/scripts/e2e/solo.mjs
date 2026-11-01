@@ -4,6 +4,10 @@ import { E2EError, EXPECTED_STATUSES, until } from './kit.mjs'
 import { CHIP_WORDS, COMPONENT, MODE_TITLE, VERDICT_WORDS, bankFragments, boardCards, doCollocation, doDictation, doSentence, matchPair, normalize, typoOf, whyNotShown } from './screens.mjs'
 
 const VERDICT = { right: 'correct', wrong: 'wrong', typo: 'typo', skip: 'skipped' }
+/**
+ * Each mode is played by another demo learner: the API allows a learner 60 calls a minute, a scenario takes 11-23 of them, and four in a
+ * row for one learner would wait for the minute to pass.
+ */
 export function soloScenarios(env) {
   return [
     { name: 'solo:pairs', body: (s) => soloPairs(env, s) },
@@ -319,7 +323,7 @@ async function playSteps(env, s, p, session, steps) {
 // --------------------------------------------------------------------------------------- the modes
 
 async function soloCollocation(env, s) {
-  const p = await env.newPlayer(s, 'a')
+  const p = await env.newPlayer(s, 'b')
   await openHub(env, s, p)
   await p.shot('hub')
   const session = await startSession(s, p, 'collocation')
@@ -340,7 +344,7 @@ async function soloCollocation(env, s) {
 }
 
 async function soloSentence(env, s) {
-  const p = await env.newPlayer(s, 'a')
+  const p = await env.newPlayer(s, 'c')
   await openHub(env, s, p)
   const session = await startSession(s, p, 'sentence')
   const mark = p.mark()
@@ -394,7 +398,7 @@ async function resumeFromHub(env, s, p, session, fragmentsBefore, done) {
 
 async function soloDictation(env, s) {
   const { oracle } = env
-  const p = await env.newPlayer(s, 'a')
+  const p = await env.newPlayer(s, 'd')
   await openHub(env, s, p)
 
   // A slip is a typo only in a word of five letters or more, and the phrases of a session are drawn at random: a session with

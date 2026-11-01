@@ -188,7 +188,7 @@ export class Api {
     this.ledger = ledger
   }
 
-  async call(method, path, body) {
+  async call(method, path, body, { again = true } = {}) {
     if (this.token === null) {
       const auth = await fetch(`${this.base}/api/twa/auth`, {
         method: 'POST',
@@ -204,6 +204,11 @@ export class Api {
       body: body === undefined ? undefined : JSON.stringify(body),
     })
     this.ledger.push(Date.now())
+    if (response.status === 401 && again) {
+      // The token of a Mini App lives 15 minutes: a run that is longer signs in again, as the app does.
+      this.token = null
+      return this.call(method, path, body, { again: false })
+    }
     const text = await response.text()
     let json = null
     try {
@@ -476,18 +481,25 @@ export class Player {
     })
   }
 
-  /** Proof that `cutOff()` sees something: a box that sticks out of the window is put on the page, found, and taken away again. */
+  /** Proof that `cutOff()` sees something: a box that sticks out of the window and a text that its box cuts are put on the page, found, and taken away again. */
   async cutOffSees() {
     await this.page.evaluate(() => {
       const probe = document.createElement('div')
       probe.id = 'e2e-probe'
       probe.textContent = 'probe'
       probe.style.cssText = 'position:absolute;top:10px;left:80%;width:50%;height:20px;background:red'
-      document.body.append(probe)
+      const clip = document.createElement('div')
+      clip.id = 'e2e-probe-clip'
+      clip.textContent = 'a text that does not fit into its box at all'
+      clip.style.cssText = 'position:absolute;top:40px;left:0;width:40px;overflow:hidden;white-space:nowrap'
+      document.body.append(probe, clip)
     })
     const cut = await this.cutOff()
-    await this.page.evaluate(() => document.getElementById('e2e-probe')?.remove())
-    return cut.edges.some((edge) => edge.includes('probe'))
+    await this.page.evaluate(() => {
+      document.getElementById('e2e-probe')?.remove()
+      document.getElementById('e2e-probe-clip')?.remove()
+    })
+    return cut.edges.some((edge) => edge.includes('probe')) && cut.clipped.some((text) => text.includes('does not fit'))
   }
 
   /** The `<audio>` elements the app has made so far, with what each did (the hook of AUDIO_HOOK). */

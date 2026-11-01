@@ -56,6 +56,8 @@ up() {
 
   echo "== database and demo seed ($DB_DATABASE)"
   php artisan migrate:fresh --seed --force --no-interaction | tail -n 3
+  # The limiters live in the file cache of the worktree: what an earlier run counted is not the business of this one.
+  php artisan cache:clear --no-interaction > /dev/null
   echo "== friends (Alice and Bob; Charlie and Diana for the pictures that run two by two)"
   php resources/twa/scripts/e2e/befriend.php 200000001 200000002
   php resources/twa/scripts/e2e/befriend.php 200000003 200000004
