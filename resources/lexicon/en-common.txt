@@ -1,11 +1,11 @@
-# Known English word forms for the dictation of the practice (docs/15 §3.4, docs/16 §5.2).
-# Used by App\Domain\Practice\Support\EnglishLexicon: a typed word that is on this list (or is a regular form of a word on it:
+# Known English words for the dictation of the practice (docs/15 §3.4, docs/16 §5.2).
+# Used by App\Domain\Practice\Support\EnglishLexicon: a typed word that is on this list (or is a correctly spelled regular form of one:
 # -s, -es, -ies, -ed, -ing, -er, -est, -ly, 's) is another word, not a slip of the pen, so the dictation counts it as a mistake.
-# Contents: the common lemmas of the levels A1-B2 (function words, numerals, days and months, everyday nouns, verbs, adjectives,
-# adverbs), ALL the forms of the irregular verbs, the irregular plurals and the irregular degrees of comparison.
+# Contents: the LEMMAS and the common words of the levels A1-B2 (function words, numerals, days and months, everyday nouns, verbs,
+# adjectives, adverbs) - the only words a spelling rule starts from. The irregular forms are in en-irregular.txt, not here.
 # Format: one word to a line, lower case, sorted in byte order (LC_ALL=C sort), no repeats, no blank lines; a line with # is a comment.
 # A word missing here only means the old behaviour for that word (the slip is forgiven); a surplus one makes the check stricter.
-# Written for this project, not copied from anywhere. Keep it sorted: tests/Unit/Practice/EnglishLexiconTest.php checks the file.
+# Written for this project, not copied from anywhere. Keep it sorted: tests/Unit/Practice/EnglishLexiconTest.php checks both files.
 a
 abandon
 ability
@@ -107,9 +107,7 @@ alternative
 although
 altogether
 aluminium
-alumni
 always
-am
 amazed
 amazing
 ambition
@@ -121,7 +119,6 @@ amused
 amusing
 an
 analyse
-analyses
 analysis
 analyze
 ancient
@@ -163,7 +160,6 @@ apologize
 app
 appear
 appearance
-appendices
 appetite
 apple
 apples
@@ -177,20 +173,17 @@ apricot
 april
 arabic
 architect
-are
 area
 aren't
 arena
 argue
 argument
 arise
-arisen
 arm
 armchair
 armed
 arms
 army
-arose
 around
 arrange
 arrangement
@@ -217,7 +210,6 @@ assistant
 associate
 assume
 at
-ate
 attach
 attack
 attempt
@@ -243,8 +235,6 @@ aware
 away
 awesome
 awful
-awoke
-awoken
 baby
 back
 backache
@@ -252,7 +242,6 @@ backpack
 backward
 backwards
 bacon
-bacteria
 bad
 badge
 badminton
@@ -308,10 +297,8 @@ beard
 bears
 beast
 beat
-beaten
 beautiful
 beauty
-became
 because
 become
 bed
@@ -320,17 +307,14 @@ beds
 bedtime
 bee
 beef
-been
 beer
 bees
 beet
 beetroot
 before
 beg
-began
 begin
 beginning
-begun
 behave
 behavior
 behaviour
@@ -347,14 +331,11 @@ bench
 bend
 beneath
 benefit
-bent
 berries
 berry
 beside
 besides
-best
 bet
-better
 between
 beyond
 bicycle
@@ -375,9 +356,8 @@ birthday
 biscuit
 biscuits
 bishop
-bit
 bite
-bitten
+bits
 bitter
 black
 blackboard
@@ -387,12 +367,10 @@ blank
 blanket
 blast
 blaze
-bled
 bleed
 blend
 blender
 bless
-blew
 blind
 block
 blog
@@ -401,7 +379,6 @@ blood
 bloom
 blouse
 blow
-blown
 blue
 blueberry
 blunt
@@ -435,8 +412,6 @@ border
 bore
 bored
 boring
-born
-borne
 borrow
 boss
 both
@@ -444,7 +419,6 @@ bother
 bottle
 bottles
 bottom
-bought
 bounce
 bound
 bow
@@ -467,7 +441,6 @@ break
 breakfast
 breath
 breathe
-bred
 breed
 brick
 bricks
@@ -481,12 +454,9 @@ bring
 broad
 broadcast
 broccoli
-broke
-broken
 bronze
 broom
 brother
-brought
 brown
 browse
 bruise
@@ -498,7 +468,6 @@ bug
 build
 builder
 building
-built
 bulb
 bulk
 bull
@@ -510,7 +479,6 @@ bureau
 burger
 burn
 burned
-burnt
 burst
 bury
 bus
@@ -534,7 +502,6 @@ cab
 cabbage
 cabinet
 cable
-cacti
 cafe
 café
 cage
@@ -544,8 +511,6 @@ calendar
 calf
 call
 calm
-calves
-came
 camel
 camera
 camp
@@ -604,7 +569,6 @@ catch
 cater
 cathedral
 cats
-caught
 cauliflower
 cause
 cave
@@ -670,7 +634,6 @@ chew
 chicken
 chief
 child
-children
 chill
 chimney
 chin
@@ -684,8 +647,6 @@ choir
 choose
 chop
 chopsticks
-chose
-chosen
 chunk
 church
 cinema
@@ -735,7 +696,6 @@ cloudy
 clown
 club
 clumsy
-clung
 coach
 coal
 coast
@@ -888,16 +848,13 @@ create
 creation
 credit
 creep
-crept
 crew
 cricket
 crime
 criminal
-crises
 crisis
 crisp
 crisps
-criteria
 criticise
 criticism
 criticize
@@ -931,7 +888,6 @@ curly
 currency
 current
 currently
-curricula
 curtain
 curtains
 curve
@@ -970,7 +926,6 @@ deadline
 deaf
 deal
 dealer
-dealt
 dear
 death
 debate
@@ -1045,7 +1000,6 @@ development
 device
 devil
 devote
-diagnoses
 dial
 dialect
 dialog
@@ -1054,7 +1008,6 @@ diamond
 diary
 dice
 dictionary
-did
 didn't
 die
 diesel
@@ -1129,7 +1082,6 @@ domain
 dome
 don't
 donate
-done
 donkey
 door
 doors
@@ -1147,40 +1099,32 @@ draft
 drag
 drain
 drama
-drank
 draw
 drawer
 drawers
 drawing
-drawn
 dream
 dreamed
 dreams
-dreamt
 dress
 dressed
-drew
 dried
 drift
 drill
 drink
 drive
-driven
 driver
 drop
 drought
-drove
 drown
 drug
 drugs
 drum
 drums
-drunk
 dry
 dual
 duck
 ducks
-dug
 dull
 dump
 during
@@ -1190,9 +1134,7 @@ dustbin
 duty
 duvet
 dvd
-dwarves
 dwell
-dwelt
 dye
 dying
 each
@@ -1213,7 +1155,6 @@ east
 eastern
 easy
 eat
-eaten
 eating
 echoes
 economic
@@ -1236,9 +1177,7 @@ eightieth
 eighty
 either
 elbow
-elder
 elderly
-eldest
 elect
 election
 electric
@@ -1252,7 +1191,6 @@ eleventh
 eliminate
 elite
 else
-elves
 email
 embarrass
 embarrassed
@@ -1405,7 +1343,6 @@ fairy
 faith
 fake
 fall
-fallen
 false
 fame
 family
@@ -1417,8 +1354,6 @@ far
 fare
 farm
 farmer
-farther
-farthest
 fascinate
 fashion
 fast
@@ -1440,14 +1375,10 @@ feather
 feathers
 feature
 february
-fed
 feed
 feel
 feeling
-feet
-fell
 fellow
-felt
 female
 fence
 fern
@@ -1510,11 +1441,9 @@ flatter
 flavor
 flavour
 flea
-fled
 flee
 fleet
 flesh
-flew
 flies
 flight
 fling
@@ -1528,10 +1457,8 @@ flourish
 flow
 flower
 flowers
-flown
 flu
 fluid
-flung
 flush
 flute
 fly
@@ -1553,25 +1480,18 @@ foolish
 foot
 football
 for
-forbade
 forbid
-forbidden
 force
 fore
 forecast
 forehead
 foreign
-foresaw
 foresee
 forest
 forever
-forgave
 forge
 forget
 forgive
-forgiven
-forgot
-forgotten
 fork
 forks
 form
@@ -1586,7 +1506,6 @@ forty
 forum
 forward
 forwards
-fought
 found
 foundation
 fountain
@@ -1623,8 +1542,6 @@ frog
 from
 front
 frost
-froze
-frozen
 fruit
 fruits
 frustrate
@@ -1638,13 +1555,10 @@ fully
 fun
 function
 fund
-fungi
 funny
 fur
 furnish
 furniture
-further
-furthest
 future
 gain
 gallery
@@ -1660,9 +1574,7 @@ garlic
 gas
 gate
 gather
-gave
 gear
-geese
 gem
 gender
 general
@@ -1672,7 +1584,6 @@ generation
 generous
 gentle
 gentleman
-gentlemen
 geography
 german
 get
@@ -1683,7 +1594,6 @@ giraffe
 girl
 girlfriend
 give
-given
 glad
 glance
 glass
@@ -1704,15 +1614,12 @@ going
 gold
 golden
 golf
-gone
 good
 goodbye
 goods
 goose
 gorgeous
 gossip
-got
-gotten
 govern
 government
 grab
@@ -1748,7 +1655,6 @@ green
 greengrocer
 greet
 greeting
-grew
 grey
 grid
 grief
@@ -1764,7 +1670,6 @@ gross
 ground
 group
 grow
-grown
 growth
 grumble
 grumpy
@@ -1783,7 +1688,6 @@ guy
 guys
 gym
 habit
-had
 hadn't
 hail
 hair
@@ -1792,7 +1696,6 @@ half
 hall
 hallway
 halt
-halves
 ham
 hamburger
 hammer
@@ -1818,7 +1721,6 @@ harm
 harmless
 harsh
 harvest
-has
 hasn't
 hat
 hate
@@ -1841,7 +1743,6 @@ heal
 health
 healthy
 hear
-heard
 heart
 hearts
 heat
@@ -1851,7 +1752,6 @@ heavy
 heel
 heels
 height
-held
 helicopter
 hell
 hello
@@ -1873,8 +1773,6 @@ herself
 hesitate
 hey
 hi
-hid
-hidden
 hide
 high
 higher
@@ -1917,7 +1815,6 @@ hood
 hoodie
 hook
 hooray
-hooves
 hop
 hope
 hopeful
@@ -1948,7 +1845,6 @@ humorous
 humour
 hundred
 hundredth
-hung
 hunger
 hungry
 hunt
@@ -1960,7 +1856,6 @@ hurry
 hurt
 husband
 hymn
-hypotheses
 i
 i'd
 i'll
@@ -2004,7 +1899,6 @@ increase
 indeed
 independence
 index
-indices
 indoors
 industry
 infection
@@ -2064,7 +1958,6 @@ investment
 invitation
 invite
 iron
-is
 island
 isn't
 isolate
@@ -2128,7 +2021,6 @@ justify
 karate
 keen
 keep
-kept
 kernel
 ketchup
 kettle
@@ -2151,27 +2043,21 @@ knead
 knee
 kneel
 knees
-knelt
-knew
 knife
 knight
 knit
 knitting
-knives
 knob
 knock
 knot
 know
 knowledge
-known
 label
 labor
 labour
 lack
 ladder
 lady
-laid
-lain
 lake
 lamb
 lamp
@@ -2210,21 +2096,15 @@ leaf
 league
 leak
 lean
-leant
 leap
-leapt
 learn
 learned
-learnt
 lease
-least
 leather
 leave
 leaves
 lecture
 lecturer
-led
-left
 leg
 legacy
 legal
@@ -2236,8 +2116,6 @@ lemons
 lend
 length
 lens
-lent
-less
 lesson
 lessons
 lest
@@ -2251,7 +2129,6 @@ lever
 liar
 liberty
 library
-lice
 licence
 license
 lid
@@ -2282,7 +2159,6 @@ lipstick
 liquid
 list
 listen
-lit
 literature
 litter
 little
@@ -2295,7 +2171,6 @@ lizard
 load
 loaf
 loan
-loaves
 local
 locate
 lock
@@ -2317,7 +2192,6 @@ lorry
 lose
 loser
 loss
-lost
 lot
 lots
 loud
@@ -2342,7 +2216,6 @@ lyrics
 ma'am
 mad
 madam
-made
 magazine
 magic
 maid
@@ -2388,7 +2261,6 @@ mate
 math
 mathematics
 maths
-matrices
 matter
 mattress
 may
@@ -2400,7 +2272,6 @@ meal
 mean
 meaning
 means
-meant
 meanwhile
 measure
 meat
@@ -2418,9 +2289,7 @@ melon
 melt
 member
 memo
-memoranda
 memory
-men
 mend
 mental
 mention
@@ -2433,12 +2302,10 @@ mess
 message
 messages
 messy
-met
 metal
 meter
 method
 metro
-mice
 microphone
 microwave
 midday
@@ -2470,9 +2337,7 @@ miss
 missed
 mist
 mistake
-mistaken
 mister
-mistook
 misty
 mix
 mixed
@@ -2499,12 +2364,10 @@ moody
 moon
 mop
 moral
-more
 morning
 mortgage
 mosque
 mosquito
-most
 mostly
 motel
 moth
@@ -2648,7 +2511,6 @@ november
 now
 nowadays
 nowhere
-nuclei
 number
 nurse
 nut
@@ -2746,21 +2608,18 @@ outside
 oval
 oven
 over
-overcame
 overcoat
 overcome
 overlook
 overnight
 overseas
 overtake
-overtaken
 overtook
 overweight
 owe
 owl
 own
 owner
-oxen
 oxygen
 pace
 pack
@@ -2769,7 +2628,6 @@ packed
 paddle
 page
 pages
-paid
 pain
 paint
 painter
@@ -2845,7 +2703,6 @@ pencil
 penguin
 penny
 pension
-people
 pepper
 peppers
 per
@@ -2867,7 +2724,6 @@ petrol
 pets
 pharmacy
 phase
-phenomena
 phone
 photo
 photograph
@@ -3066,12 +2922,12 @@ protection
 protest
 proud
 prove
-proven
 provide
 province
 provoke
 pub
 public
+publicly
 publish
 pudding
 pull
@@ -3120,7 +2976,6 @@ race
 rack
 racket
 radiator
-radii
 radio
 radish
 rage
@@ -3133,10 +2988,8 @@ raise
 raisin
 raisins
 rally
-ran
 ranch
 random
-rang
 range
 rank
 rap
@@ -3285,7 +3138,6 @@ rhythm
 ribbon
 rice
 rich
-ridden
 ride
 rider
 ridge
@@ -3299,7 +3151,6 @@ ripe
 ripen
 ripple
 rise
-risen
 rising
 risk
 risky
@@ -3318,7 +3169,6 @@ rock
 rocket
 rocks
 rocky
-rode
 role
 roll
 romance
@@ -3360,7 +3210,6 @@ ruling
 rumor
 rumour
 run
-rung
 runner
 running
 runway
@@ -3376,7 +3225,6 @@ sadness
 safe
 safety
 sage
-said
 sail
 sailing
 sailor
@@ -3399,9 +3247,6 @@ sandals
 sandwich
 sandwiches
 sandy
-sang
-sank
-sat
 satisfaction
 satisfied
 satisfy
@@ -3422,7 +3267,6 @@ scanner
 scare
 scared
 scarf
-scarves
 scatter
 scene
 scent
@@ -3470,7 +3314,6 @@ seeds
 seeing
 seek
 seem
-seen
 seize
 seldom
 select
@@ -3480,7 +3323,6 @@ selfie
 selfish
 sell
 seller
-selves
 semester
 senate
 send
@@ -3489,7 +3331,6 @@ sensation
 sense
 sensible
 sensitive
-sent
 sentence
 sentences
 separate
@@ -3514,11 +3355,9 @@ several
 sew
 sewed
 sewing
-sewn
 shade
 shadow
 shake
-shaken
 shall
 shallow
 shame
@@ -3541,7 +3380,6 @@ sheets
 shelf
 shell
 shelter
-shelves
 shift
 shine
 shiny
@@ -3553,8 +3391,6 @@ shocked
 shocking
 shoe
 shoes
-shone
-shook
 shoot
 shop
 shopper
@@ -3564,7 +3400,7 @@ shore
 short
 shortage
 shorts
-shot
+shots
 should
 shoulder
 shoulders
@@ -3573,12 +3409,9 @@ shout
 show
 showed
 shower
-shown
-shrank
 shrimp
 shrink
 shrug
-shrunk
 shut
 shy
 sick
@@ -3638,9 +3471,7 @@ sleep
 sleeping
 sleepy
 sleeve
-slept
 slice
-slid
 slide
 slight
 slim
@@ -3651,12 +3482,10 @@ slippers
 slope
 slow
 slowly
-slung
 small
 smart
 smash
 smell
-smelt
 smile
 smoke
 smooth
@@ -3687,7 +3516,6 @@ soft
 soften
 software
 soil
-sold
 soldier
 sole
 solely
@@ -3713,7 +3541,6 @@ sore
 sorrow
 sorry
 sort
-sought
 soul
 sound
 soup
@@ -3731,27 +3558,22 @@ spanner
 spare
 spark
 sparrow
-spat
 speak
 speaker
 special
 species
 specific
-sped
 speech
 speed
 spell
 spelling
-spelt
 spend
-spent
 sphere
 spice
 spicy
 spider
 spike
 spill
-spilt
 spin
 spinach
 spine
@@ -3761,9 +3583,7 @@ spite
 splash
 split
 spoil
-spoilt
 spoke
-spoken
 sponge
 spoon
 spoons
@@ -3772,13 +3592,10 @@ sports
 spot
 spouse
 sprain
-sprang
 spray
 spread
 spring
 sprinkle
-sprung
-spun
 squad
 square
 squeeze
@@ -3798,7 +3615,6 @@ stall
 stamp
 stand
 standard
-stank
 staple
 star
 stare
@@ -3831,20 +3647,16 @@ sticker
 stiff
 still
 stimulate
-stimuli
 sting
 stink
 stir
 stitch
 stock
 stockings
-stole
-stolen
 stomach
 stomachache
 stone
 stones
-stood
 stool
 stoop
 stop
@@ -3874,21 +3686,15 @@ strip
 strive
 stroke
 strong
-strove
-struck
 structure
 struggle
-strung
 stubborn
-stuck
 student
 students
 studio
 study
 stuff
 stumble
-stung
-stunk
 stupid
 style
 subject
@@ -3918,9 +3724,7 @@ summer
 summit
 sun
 sunday
-sung
 sunglasses
-sunk
 sunny
 sunrise
 sunset
@@ -3950,7 +3754,6 @@ suspect
 suspend
 suspicion
 swallow
-swam
 swan
 swear
 sweat
@@ -3960,18 +3763,12 @@ sweet
 sweets
 swell
 swelled
-swept
 swift
 swim
 swimming
 swing
 switch
-swollen
 sword
-swore
-sworn
-swum
-swung
 syllabi
 syllable
 symbol
@@ -3985,7 +3782,6 @@ tablet
 tackle
 tail
 take
-taken
 tale
 talent
 talk
@@ -4002,7 +3798,6 @@ tasks
 taste
 tasteless
 tasty
-taught
 tax
 taxes
 taxi
@@ -4025,7 +3820,6 @@ tee
 teem
 teen
 teenager
-teeth
 telephone
 television
 tell
@@ -4072,7 +3866,6 @@ there
 there'll
 there's
 these
-theses
 they
 they'd
 they'll
@@ -4080,7 +3873,6 @@ they're
 they've
 thick
 thief
-thieves
 thin
 thing
 think
@@ -4095,7 +3887,6 @@ thirty
 this
 those
 though
-thought
 thoughtful
 thoughts
 thousand
@@ -4103,7 +3894,6 @@ thousandth
 thread
 threat
 three
-threw
 thrill
 thriller
 throat
@@ -4111,7 +3901,6 @@ throne
 through
 throughout
 throw
-thrown
 thrust
 thumb
 thunder
@@ -4157,7 +3946,6 @@ toes
 together
 toilet
 token
-told
 tolerate
 toll
 tomato
@@ -4168,7 +3956,6 @@ tone
 tongue
 tonight
 too
-took
 tool
 tools
 tooth
@@ -4179,8 +3966,6 @@ top
 topic
 tops
 torch
-tore
-torn
 tornado
 tornadoes
 tortoise
@@ -4243,8 +4028,6 @@ trim
 trip
 triple
 triumph
-trod
-trodden
 trolley
 troop
 trophy
@@ -4296,13 +4079,10 @@ undergone
 underground
 underneath
 understand
-understood
 undertake
 underwear
 underwent
-undid
 undo
-undone
 unemployed
 unemployment
 unfair
@@ -4372,7 +4152,6 @@ verb
 verify
 version
 vertebrae
-vertices
 very
 vest
 vet
@@ -4440,7 +4219,6 @@ warming
 warmth
 warn
 warning
-was
 wash
 washing
 wasn't
@@ -4479,9 +4257,6 @@ weird
 welcome
 welfare
 well
-went
-wept
-were
 weren't
 west
 western
@@ -4517,6 +4292,7 @@ who'll
 who's
 whoever
 whole
+wholly
 whom
 whose
 why
@@ -4548,23 +4324,14 @@ wish
 witch
 with
 withdraw
-withdrawn
-withdrew
 withheld
 withhold
 within
 without
 withstand
-withstood
 witness
-wives
-woke
-woken
 wolf
-wolves
 woman
-women
-won
 won't
 wonder
 wonderful
@@ -4574,25 +4341,19 @@ woods
 wool
 word
 words
-wore
 work
 worker
 world
 worm
-worn
 worried
 worry
 worrying
-worse
 worship
-worst
 worth
 worthy
 would
 wouldn't
 wound
-wove
-woven
 wow
 wrap
 wreck
@@ -4604,10 +4365,7 @@ wrist
 write
 writer
 writing
-written
 wrong
-wrote
-wrung
 yacht
 yard
 yarn

@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 use App\Domain\Practice\Enums\Verdict;
 use App\Domain\Practice\Services\Grading\DictationGrader;
+use App\Domain\Practice\Support\EnglishLexicon;
 use App\Domain\Practice\Support\InflectionGuard;
 
 /*
  * docs/16 §5.2: the verdicts of a dictation - the table of 38 cases of the document, the rules of a safe typo one by one, the
  * best verdict over the accepted variants, the review (`expected`, `your_text`, `diff`) - and InflectionGuard (§14.1).
- * A typo is a NON-word next to the right one: another word (`light` for `right`) or another form (`wrote` for `write`) is a mistake.
+ * A typo is a NON-word next to the right one: another word (`light` for `right`) or another form (`wrote` for `write`, `nicer` for
+ * `nice`) is a mistake, and so is a final `s` / `d` added or dropped; a token that spells nothing (`stoped`, `makeing`, `mothe`) is a typo.
  */
 
 function dictationGrader(): DictationGrader
@@ -56,7 +58,7 @@ it('gives the verdict of the table of docs/16 §5.2', function (array $expected,
     '26 another word: light for right' => [['Turn right here'], 'Turn light here', 'wrong'],
     '27 an ordinal is protected: fourth / forth' => [['The fourth floor'], 'The forth floor', 'wrong'],
     '28 another word: boots for books' => [['The books are on the table'], 'The boots are on the table', 'wrong'],
-    '29 another form: nicer / nice (rule a: r)' => [['a nicer day'], 'a nice day', 'wrong'],
+    '29 another form: nicer / nice (`nice` is a word)' => [['a nicer day'], 'a nice day', 'wrong'],
     '30 a slip: because' => [['because'], 'becuase', 'typo'],
     '31 a slip: friend' => [['My friend is here'], 'My freind is here', 'typo'],
     '32 a slip: family' => [['I love my family'], 'I love my famliy', 'typo'],
@@ -107,6 +109,27 @@ it('calls another WORD one edit away a mistake in either direction: the typed to
     'weather / feather' => ['weather', 'feather'],
     'water / waiter' => ['water', 'waiter'],
     'dinner / winner' => ['dinner', 'winner'],
+    'rainy / rains' => ['rainy', 'rains'],
+    'later / latter' => ['later', 'latter'],
+    'baker / baked' => ['baker', 'baked'],
+    'taken / token' => ['taken', 'token'],
+    'boots / boats' => ['boots', 'boats'],
+    'hoping / hopping' => ['hoping', 'hopping'],
+    'sitting / setting' => ['sitting', 'setting'],
+]);
+
+it('calls a change of the form of a word a mistake without the guard: the typed token is a word of the lexicon', function (string $expected, string $typed): void {
+    expect(InflectionGuard::isInflection($typed, $expected))->toBeFalse()                    // the guard looks at `s` / `d` only
+        ->and(dictationVerdict(["Say {$expected} twice"], "Say {$typed} twice"))->toBe(Verdict::Wrong);
+})->with([
+    'nice / nicer' => ['nicer', 'nice'],
+    'take / taken' => ['taken', 'take'],
+    'rain / rainy' => ['rainy', 'rain'],
+    'later / late' => ['later', 'late'],
+    'walker / walked' => ['walker', 'walked'],
+    'player / played' => ['player', 'played'],
+    'given / give' => ['given', 'give'],
+    'large / larger' => ['large', 'larger'],
 ]);
 
 it('keeps the ordinals out of the forgiven words, as the numerals are', function (string $ordinal, string $slip): void {
@@ -186,6 +209,175 @@ it('treats the typographic apostrophe and the straight one alike', function (): 
     expect(dictationVerdict(["It's five o'clock"], "It\u{2019}s five o\u{2019}clock"))->toBe(Verdict::Correct)
         ->and(dictationVerdict(["I don't know"], "I don\u{2019}t know"))->toBe(Verdict::Correct);
 });
+
+// ---------------------------------------------------------------- a slip that spells nothing is a typo (docs/15 §3.4, 18.11a)
+
+it('forgives the slips of an ending: the doubling left out or put in, the silent e kept, the wrong y - the typed token spells nothing', function (string $expected, string $typed): void {
+    expect(dictationVerdict([$expected], $typed))->toBe(Verdict::Typo)
+        ->and(dictationVerdict(["Say {$expected} twice"], "Say {$typed} twice"))->toBe(Verdict::Typo);
+})->with([
+    // the doubling left out
+    'stopped' => ['stopped', 'stoped'],
+    'running' => ['running', 'runing'],
+    'beginning' => ['beginning', 'begining'],
+    'swimming' => ['swimming', 'swiming'],
+    'getting' => ['getting', 'geting'],
+    'bigger' => ['bigger', 'biger'],
+    'hotter' => ['hotter', 'hoter'],
+    'shopping' => ['shopping', 'shoping'],
+    'occurred' => ['occurred', 'occured'],
+    'preferred' => ['preferred', 'prefered'],
+    'putting' => ['putting', 'puting'],
+    'cutting' => ['cutting', 'cuting'],
+    'dropped' => ['dropped', 'droped'],
+    'chatting' => ['chatting', 'chating'],
+    'stopping' => ['stopping', 'stoping'],
+    'biggest' => ['biggest', 'bigest'],
+    'hottest' => ['hottest', 'hotest'],
+    // the silent e kept
+    'making' => ['making', 'makeing'],
+    'writing' => ['writing', 'writeing'],
+    'coming' => ['coming', 'comeing'],
+    'having' => ['having', 'haveing'],
+    'giving' => ['giving', 'giveing'],
+    'living' => ['living', 'liveing'],
+    'taking' => ['taking', 'takeing'],
+    'using' => ['using', 'useing'],
+    'dancing' => ['dancing', 'danceing'],
+    'driving' => ['driving', 'driveing'],
+    // the consonant doubled where it is not
+    'meeting' => ['meeting', 'meetting'],
+    'eating' => ['eating', 'eatting'],
+    'visited' => ['visited', 'visitted'],
+    'opened' => ['opened', 'openned'],
+    'looking' => ['looking', 'lookking'],
+    // the y
+    'played' => ['played', 'plaied'],
+    'happier' => ['happier', 'happyer'],
+]);
+
+it('keeps the ordinary slips a typo: a letter left out, swapped or doubled where the token spells nothing', function (string $expected, string $typed): void {
+    expect(dictationVerdict([$expected], $typed))->toBe(Verdict::Typo);
+})->with([
+    'because' => ['because', 'becuase'],
+    'friend' => ['friend', 'freind'],
+    'receive' => ['receive', 'recieve'],
+    'tomorrow' => ['tomorrow', 'tomorow'],
+    'beautiful' => ['beautiful', 'beatiful'],
+    'really' => ['really', 'realy'],
+    'finally' => ['finally', 'finaly'],
+    'until' => ['until', 'untill'],
+    'which' => ['which', 'wich'],
+    'their' => ['their', 'thier'],
+    'different' => ['different', 'diferent'],
+    'address' => ['address', 'adress'],
+    'necessary' => ['necessary', 'neccessary'],
+    'always' => ['always', 'allways'],
+    'coffee' => ['coffee', 'cofee'],
+    'sister' => ['sister', 'sistr'],
+    'mother' => ['mother', 'mohter'],
+    'father' => ['father', 'fahter'],
+    'brother' => ['brother', 'brothr'],
+    'family' => ['family', 'famly'],
+    'school' => ['school', 'scool'],
+    'teacher' => ['teacher', 'teaher'],
+    'morning' => ['morning', 'mornig'],
+    'evening' => ['evening', 'evenig'],
+    'breakfast' => ['breakfast', 'brekfast'],
+    'february' => ['february', 'febuary'],
+    'library' => ['library', 'libary'],
+    'probably' => ['probably', 'probaly'],
+    'usually' => ['usually', 'usualy'],
+]);
+
+it('keeps a slip of two letters a mistake, whatever it spells: wensday for Wednesday', function (): void {
+    expect(dictationVerdict(['wednesday'], 'wensday'))->toBe(Verdict::Wrong);
+});
+
+it('keeps a slip a mistake when the typed token is a word after all: another spelling, a verb that has a twin, a form of another lemma', function (string $expected, string $typed, string $why): void {
+    expect(EnglishLexicon::isWord($typed))->toBeTrue($why)
+        ->and(dictationVerdict([$expected], $typed))->toBe(Verdict::Wrong);
+})->with([
+    'sitting / siting' => ['sitting', 'siting', 'site is a verb: siting'],
+    'planned / planed' => ['planned', 'planed', 'plane is a verb: planed'],
+    'travelling / traveling' => ['travelling', 'traveling', 'the American spelling'],
+    'hopping / hoping' => ['hopping', 'hoping', 'hope is a verb: hoping'],
+]);
+
+it('keeps a slip a mistake when it is two edits away: the form is not one edit from the right one', function (string $expected, string $typed): void {
+    // `studies` -> `studys`: i -> y and the e is lost. The lexicon knows it is no word, but OSA is 2, so it is no typo of the dictation.
+    expect(EnglishLexicon::isWord($typed))->toBeFalse()
+        ->and(dictationVerdict([$expected], $typed))->toBe(Verdict::Wrong);
+})->with([
+    'studies / studys' => ['studies', 'studys'],
+    'families / familys' => ['families', 'familys'],
+    'cities / citys' => ['cities', 'citys'],
+]);
+
+it('forgives a slip at the last letter of a token that spells nothing: mothe, Monda, famil, happ, kitche', function (string $expected, string $typed): void {
+    expect(dictationVerdict([$expected], $typed))->toBe(Verdict::Typo);
+})->with([
+    'a doubled last letter: mother' => ['mother', 'motherr'],
+    'a doubled last letter: father' => ['father', 'fatherr'],
+    'a doubled last letter: dinner' => ['dinner', 'dinnerr'],
+    'a doubled last letter: children' => ['children', 'childrenn'],
+    'a doubled last letter: happy' => ['happy', 'happyy'],
+    'a doubled last letter: kitchen' => ['kitchen', 'kitchenn'],
+    'a doubled last letter: family' => ['family', 'familyy'],
+    'a doubled last letter: garden' => ['garden', 'gardenn'],
+    'the last letter hit by its neighbour: children' => ['children', 'childred'],
+    'the last letter hit by its neighbour: kitchen' => ['kitchen', 'kitches'],
+    'the last letter hit by its neighbour: garden' => ['garden', 'gardes'],
+    'the last letter hit by its neighbour: water' => ['water', 'wated'],
+    'the last letter hit by its neighbour: doctor' => ['doctor', 'doctod'],
+    'the last letter hit by its neighbour: Monday' => ['Monday', 'Mondan'],
+    'the last letter hit by its neighbour: Sunday' => ['Sunday', 'Sundar'],
+    'the last letter hit by its neighbour: brown' => ['brown', 'browd'],
+    'the last letter hit by its neighbour: woman' => ['woman', 'womas'],
+    'the last letter dropped: mother' => ['mother', 'mothe'],
+    'the last letter dropped: happy' => ['happy', 'happ'],
+    'the last letter dropped: kitchen' => ['kitchen', 'kitche'],
+    'the last letter dropped: dinner' => ['dinner', 'dinne'],
+    'the last letter dropped: family' => ['family', 'famil'],
+    'the last letter dropped: Friday' => ['Friday', 'Frida'],
+    'the last letter dropped: Sunday' => ['Sunday', 'Sunda'],
+    'the last letter dropped: together' => ['together', 'togethe'],
+    'the last letter dropped: sister' => ['sister', 'siste'],
+]);
+
+it('keeps the tails s and d of the guard, and what the guard cannot tell from a form stays a mistake on purpose: frien, friendd, alwayss', function (string $expected, string $typed): void {
+    // «frien» for «friend» is «friend» without the tail d (docs/16 §5.2: a doubtful case is a mistake); a doubled s / d is the same tail to the rule.
+    expect(dictationVerdict([$expected], $typed))->toBe(Verdict::Wrong);
+})->with([
+    'frien' => ['friend', 'frien'],
+    'friendd' => ['friend', 'friendd'],
+    'alwayss' => ['always', 'alwayss'],
+    'teacher / teachers' => ['teacher', 'teachers'],
+    'likes / liked' => ['likes', 'liked'],
+]);
+
+it('keeps a numeral a mistake even when the typed token spells nothing: seves for seven', function (): void {
+    expect(dictationVerdict(['seven'], 'seves'))->toBe(Verdict::Wrong);
+});
+
+it('forgives the slips in the phrases of the pilot pack, «The meting is at ten» first', function (string $expected, string $typed): void {
+    expect(dictationVerdict([$expected], $typed))->toBe(Verdict::Typo);
+})->with([
+    'meeting' => ['The meeting is at ten', 'The meting is at ten'],
+    'morning' => ['Good morning', 'Good mornig'],
+    'evening' => ['Have a nice evening', 'Have a nice evning'],
+    'mother' => ['This is my mother', 'This is my mothe'],
+    'Friday' => ['Today is Friday', 'Today is Frida'],
+    'Sunday' => ['We meet on Sunday', 'We meet on Sunda'],
+    'together' => ['We walk together', 'We walk togethe'],
+    'sister' => ['I have one sister', 'I have one siste'],
+    'family' => ['I love my family', 'I love my famly'],
+    'brother' => ['Her brother is tall', 'Her brothr is tall'],
+    'lives' => ['My grandmother lives here', 'My grandmother livs here'],
+    'there' => ['There is a cat', 'Ther is a cat'],
+    'these' => ['These are my books', 'Thes are my books'],
+    'honest' => ['He is an honest man', 'He is an onest man'],
+]);
 
 // ---------------------------------------------------------------- the variants
 
@@ -292,6 +484,8 @@ it('knows a change of the form of a word from a slip of the pen', function (stri
     'live / lived (a: d)' => ['live', 'lived', true],
     'teacher / teachers (a: s)' => ['teacher', 'teachers', true],
     'friend / frien (a: d)' => ['friend', 'frien', true],
+    'friend / friendd (a: d, a doubled letter: the tail is all the rule sees)' => ['friend', 'friendd', true],
+    'always / alwayss (a: s, the same)' => ['always', 'alwayss', true],
     'watches / watched (b)' => ['watches', 'watched', true],
     'walked / walkd is a slip' => ['walked', 'walkd', false],
     'receive / recieve is a slip' => ['receive', 'recieve', false],
@@ -300,25 +494,32 @@ it('knows a change of the form of a word from a slip of the pen', function (stri
     'one other letter at the end' => ['water', 'watex', false],
     'e / s at the end (not s / d)' => ['likes', 'likee', false],
     'equal tokens' => ['same', 'same', false],
-    'an added letter that is not one of the five' => ['teacher', 'teachet', false],
-    'nice / nicer (a: r)' => ['nice', 'nicer', true],
-    'take / taken (a: n)' => ['take', 'taken', true],
-    'rain / rainy (a: y)' => ['rain', 'rainy', true],
-    'walker / walked (b: r / d)' => ['walker', 'walked', true],
-    'taker / taken (b: r / n)' => ['taker', 'taken', true],
-    'rains / rainy (b: s / y)' => ['rains', 'rainy', true],
-    'teacher / teaches (b: r / s)' => ['teacher', 'teaches', true],
-    'played / player (b: d / r)' => ['played', 'player', true],
-    'given / give (a: n)' => ['given', 'give', true],
-    'a last letter that is not one of the five (x / s)' => ['rains', 'rainx', false],
-    'two last letters out of the five, but not the same word before them' => ['rains', 'daily', false],
+    'an added letter that is not s or d' => ['teacher', 'teachet', false],
+    'a last letter that is not s or d (x / s)' => ['rains', 'rainx', false],
+    'two different words, however their last letters' => ['rains', 'daily', false],
+    // r, n, y were tails of the guard in 18.9b; they are not any more: the typed token of such a pair is a word, and the lexicon says so.
+    'nice / nicer: r is not a tail' => ['nice', 'nicer', false],
+    'take / taken: n is not a tail' => ['take', 'taken', false],
+    'rain / rainy: y is not a tail' => ['rain', 'rainy', false],
+    'mother / mothe: the slip of a non-word' => ['mother', 'mothe', false],
+    'Monday / Monda' => ['monday', 'monda', false],
+    'family / famil' => ['family', 'famil', false],
+    'happy / happ' => ['happy', 'happ', false],
+    'kitchen / kitche' => ['kitchen', 'kitche', false],
+    'walker / walked: r / d is not s / d' => ['walker', 'walked', false],
+    'taker / taken: r / n' => ['taker', 'taken', false],
+    'rains / rainy: s / y' => ['rains', 'rainy', false],
+    'teacher / teaches: r / s' => ['teacher', 'teaches', false],
+    'played / player: d / r' => ['played', 'player', false],
+    'children / childred: d / n' => ['children', 'childred', false],
+    'given / give: n is not a tail' => ['given', 'give', false],
     'the same last letter' => ['teachers', 'teachers', false],
 ]);
 
 it('does not mistake a longer word for a form when more than one letter is added', function (): void {
     expect(InflectionGuard::isInflection('teach', 'teachers'))->toBeFalse()
         ->and(InflectionGuard::isInflection('like', 'likesd'))->toBeFalse()
-        ->and(InflectionGuard::isInflection('rain', 'rainyr'))->toBeFalse();
+        ->and(InflectionGuard::isInflection('rain', 'rainsd'))->toBeFalse();
 });
 
 it('works on empty tokens without an error', function (): void {

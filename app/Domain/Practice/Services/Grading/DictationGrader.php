@@ -19,11 +19,12 @@ use App\Domain\Practice\Support\PracticeTextNormalizer;
  *   1. the same tokens -> `correct`;
  *   2. `typo` only when ALL of this holds - the answer has as many tokens as the variant, exactly ONE token differs, the
  *      distance between the two (optimal string alignment, as in `SpellingGrader`) is 1, the expected token is at least
- *      `practice.grading.typo_min_length` long, the change is not one of the form of a word ({@see InflectionGuard}), the TYPED
- *      token is not an English word ({@see EnglishLexicon}: `light` for `right`, `wrote` for `write`, `women` for `woman` are other
- *      words, not slips - only a non-word next to the right one is a typo), and neither token is "protected": a word of
- *      `practice.grading.protected_tokens` (`not`, the numerals and the ordinals...), anything with `n't`, anything with a digit
- *      (a missing `not`, another number or `don't` / `dont` change the meaning);
+ *      `practice.grading.typo_min_length` long, neither token is "protected" (a word of `practice.grading.protected_tokens` -
+ *      `not`, the numerals and the ordinals... -, anything with `n't`, anything with a digit: a missing `not`, another number or
+ *      `don't` / `dont` change the meaning), the change is not the tail of a form ({@see InflectionGuard}: a final `s` / `d` added,
+ *      dropped or swapped), and the TYPED token is not an English word ({@see EnglishLexicon::isWord()}). Another word (`light` for
+ *      `right`) or another form (`wrote` for `write`, `nicer` for `nice`, `women` for `woman`) is a mistake; a token that spells
+ *      nothing - `becuase`, but also `stoped` for `stopped` or `mothe` for `mother` - is a typo (docs/15 §3.4);
  *   3. anything else -> `wrong`. A doubtful case is a mistake, with the right text shown.
  * Nothing written (or nothing but punctuation) is `skipped`: a hint and a mistake. A contraction is not the same as the long
  * form (`I'm` is not `I am`): only the variants the author lists are.
