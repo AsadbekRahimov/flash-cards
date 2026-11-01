@@ -945,11 +945,79 @@ describe('FriendsView', () => {
       })
     })
 
-    it('asks for /me and for the list once each when the screen opens, and again on “Retry”', async () => {
+    it('asks for /me and for the list once each when the screen opens', async () => {
       await renderBattles(BATTLES_ON)
 
       expect(api.me.get).toHaveBeenCalledTimes(1)
       expect(api.battles.list).toHaveBeenCalledTimes(1)
+    })
+
+    describe('“Retry” after the screen could not be read', () => {
+      const offline = () => new ApiClientError('network', 0, 'network', 'x')
+
+      /** The screen opens with the friends failing; what `/me` and the list do is up to the spec. */
+      async function renderFailed() {
+        vi.mocked(api.friends.get).mockRejectedValueOnce(offline())
+        vi.mocked(api.challenges.list).mockResolvedValue(challengesResponse())
+        const router = makeRouter()
+        await router.push('/friends')
+        await router.isReady()
+        const wrapper = mount(FriendsView, { global: { plugins: [router] } })
+        await flushPromises()
+        return wrapper
+      }
+
+      it('asks for the list again when /me was known before the screen opened: the invitations and the battle that is on come back with the friends (re-review Ж-1)', async () => {
+        // The previous screen read /me, so the screen knows the learner plays battles from the first moment: nothing turns when it retries.
+        useBillingStore().apply({ entitlement: meWith(BATTLES_ON).entitlement, paywall: meWith(BATTLES_ON).paywall, practice: BATTLES_ON })
+        vi.mocked(api.battles.list).mockRejectedValueOnce(offline()) // no network: the list failed with the rest
+
+        const wrapper = await renderFailed()
+        expect(wrapper.find('[data-testid=error]').exists()).toBe(true)
+        expect(api.battles.list).toHaveBeenCalledTimes(1)
+
+        // The connection is back.
+        vi.mocked(api.friends.get).mockResolvedValue(friendsResponse())
+        vi.mocked(api.battles.list).mockResolvedValue(battleList({ active: activeOf('room'), incoming: [incoming({ id: 15 })] }))
+        await wrapper.get('[data-testid=retry-btn]').trigger('click')
+        await flushPromises()
+
+        expect(api.battles.list).toHaveBeenCalledTimes(2)
+        expect(wrapper.find('[data-testid=error]').exists()).toBe(false)
+        expect(wrapper.findAll('[data-testid=battle-invite-row]')).toHaveLength(1)
+        expect(wrapper.find('[data-testid=active-battle]').exists()).toBe(true)
+        expect(api.me.get).not.toHaveBeenCalled() // /me was fresh: it is not asked again
+      })
+
+      it('asks once, not twice, when /me comes in the middle of the retry: the first time the learner was not known to play battles', async () => {
+        vi.mocked(api.me.get).mockRejectedValueOnce(offline())
+
+        const wrapper = await renderFailed()
+        expect(api.battles.list).not.toHaveBeenCalled() // /me did not come: nobody is known to play battles
+
+        vi.mocked(api.friends.get).mockResolvedValue(friendsResponse())
+        vi.mocked(api.me.get).mockResolvedValue(meWith(BATTLES_ON))
+        vi.mocked(api.battles.list).mockResolvedValue(battleList({ incoming: [incoming({ id: 15 })] }))
+        await wrapper.get('[data-testid=retry-btn]').trigger('click')
+        await flushPromises()
+
+        expect(api.me.get).toHaveBeenCalledTimes(2)
+        expect(api.battles.list).toHaveBeenCalledTimes(1)
+        expect(wrapper.findAll('[data-testid=battle-invite-row]')).toHaveLength(1)
+        expect(wrapper.findAll('[data-testid=battle-btn]')).toHaveLength(2)
+      })
+
+      it('does not ask for the list of a learner who is not to play battles', async () => {
+        useBillingStore().apply({ entitlement: meWith().entitlement, paywall: meWith().paywall, practice: { ...BATTLES_ON, battle: false } })
+
+        const wrapper = await renderFailed()
+        vi.mocked(api.friends.get).mockResolvedValue(friendsResponse())
+        await wrapper.get('[data-testid=retry-btn]').trigger('click')
+        await flushPromises()
+
+        expect(wrapper.find('[data-testid=link]').exists()).toBe(true)
+        expect(api.battles.list).not.toHaveBeenCalled()
+      })
     })
 
     describe('when /me is on its way already for another screen (review Ж4)', () => {
