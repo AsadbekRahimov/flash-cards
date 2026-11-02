@@ -26,7 +26,9 @@ use Throwable;
  * updates (`TelegramGroup::where()->update()`) bypass observers.
  *
  * The same link is an input of the `/org` dashboard (the number of groups, a teacher's own groups): the cached overview of both
- * centers, the one the group left and the one it joined, is dropped after commit (docs/19 K2).
+ * centers, the one the group left and the one it joined, is dropped after commit (docs/19 K2) - AFTER the members have followed the
+ * group, and guarded like they are: a cache that cannot be reached is logged, it never throws out of the commit and never stops the
+ * members from following the group.
  */
 final class TelegramGroupObserver
 {
@@ -58,13 +60,8 @@ final class TelegramGroupObserver
             }
 
             $current = $group->organization_id === null ? null : (int) $group->organization_id;
-            DB::afterCommit(function () use ($previous, $current): void {
-                foreach (array_unique(array_filter([$previous, $current])) as $organizationId) {
-                    OrgOverviewService::forget($organizationId);
-                }
-            });
 
-            DB::afterCommit(function () use ($group, $previous, $learnerIds): void {
+            DB::afterCommit(function () use ($group, $previous, $current, $learnerIds): void {
                 $this->guard('organizations.group_relink_failed', $group, function () use ($group, $previous, $learnerIds): void {
                     if ($previous !== null) {
                         $this->organizations->leaveGroupOrphans($previous, $learnerIds);
@@ -72,6 +69,13 @@ final class TelegramGroupObserver
 
                     if ($group->organization_id !== null) {
                         $this->organizations->syncGroup($group);
+                    }
+                });
+
+                // Last: the overview recomputed from now on counts the members the relink moved, even when the relink stopped half way.
+                $this->guard('organizations.group_overview_forget_failed', $group, function () use ($previous, $current): void {
+                    foreach (array_unique(array_filter([$previous, $current])) as $organizationId) {
+                        OrgOverviewService::forget($organizationId);
                     }
                 });
             });
@@ -102,10 +106,9 @@ final class TelegramGroupObserver
 
         $this->memo->flush();
 
-        DB::afterCommit(fn () => OrgOverviewService::forget((int) $organizationId));
-
         DB::afterCommit(function () use ($group, $organizationId): void {
             $this->guard('organizations.group_delete_release_failed', $group, fn () => $this->organizations->releaseOrphans($organizationId));
+            $this->guard('organizations.group_overview_forget_failed', $group, fn () => OrgOverviewService::forget((int) $organizationId));
         });
     }
 
