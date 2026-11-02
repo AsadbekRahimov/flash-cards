@@ -93,11 +93,13 @@ export function calendarDay(at: number | string | Date, timeZone?: string): stri
   const zone = timeZone ?? ''
   let formatter = dayFormatters.get(zone)
   if (!formatter) {
-    // `en-CA` writes a date as year-month-day: the same text in every zone and every interface language.
+    // Latin digits in every interface language; the key is put together from the parts, so the layout of a locale does not matter.
     formatter = createDateFormatter('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }, zone)
     dayFormatters.set(zone, formatter)
   }
-  return formatter.format(date)
+  const parts = formatter.formatToParts(date)
+  const part = (type: Intl.DateTimeFormatPartTypes): string => parts.find((item) => item.type === type)?.value ?? ''
+  return `${part('year')}-${part('month')}-${part('day')}`
 }
 
 /** `1300` -> «1 300» (grouping per locale, cached formatter). */
