@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Content\Exceptions\CoursePublishException;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Content\Services\CoursePublisher;
+use App\Domain\Operations\Support\PureCache;
 use App\Models\AuditLog;
 use App\Models\Course;
 use App\Models\Lesson;
@@ -13,6 +14,7 @@ use App\Models\User;
 use App\Models\Word;
 use App\Models\WordTranslation;
 use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -142,11 +144,14 @@ it('drops the catalog cache only after the outermost transaction has committed',
     $admin = publisherAdmin();
     $base = DB::transactionLevel();
     $levels = [];
-    Cache::shouldReceive('deleteMultiple')->andReturnUsing(function () use (&$levels): bool {
+    // The published catalog is a pure cache (docs/19 §4): the publisher drops it on the store PureCache hands out.
+    $pure = Mockery::spy(CacheRepository::class);
+    $pure->shouldReceive('deleteMultiple')->andReturnUsing(function () use (&$levels): bool {
         $levels[] = DB::transactionLevel();
 
         return true;
     });
+    app()->instance(PureCache::CONTAINER_KEY, $pure);
 
     $inside = null;
     DB::transaction(function () use ($course, $admin, &$levels, &$inside): void {

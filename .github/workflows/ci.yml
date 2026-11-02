@@ -63,10 +63,24 @@ jobs:
                     --health-retries 10
 
             redis:
-                # The same minor as docker-compose*.yml (pinned there while a rollback to redis 7.4 must stay possible).
-                image: redis:8.4-alpine
+                # The exact tag of docker-compose*.yml: the tests run on the version production runs.
+                image: redis:8.10-alpine
                 ports:
                     - 6379:6379
+                options: >-
+                    --health-cmd "redis-cli ping"
+                    --health-interval 5s
+                    --health-timeout 3s
+                    --health-retries 10
+
+            redis-cache:
+                # The second instance of docker-compose*.yml (the pure cache store `lru`, docs/19 §4): a separate server,
+                # not another database of the first one, so a test that flushes the pure cache cannot touch the limits,
+                # markers and locks of the first - the same isolation the stack has. GitHub's service containers take no
+                # command, so the eviction policy itself is not under test here.
+                image: redis:8.10-alpine
+                ports:
+                    - 6380:6379
                 options: >-
                     --health-cmd "redis-cli ping"
                     --health-interval 5s
@@ -82,7 +96,11 @@ jobs:
             DB_PASSWORD: secret
             REDIS_HOST: 127.0.0.1
             REDIS_PORT: 6379
+            REDIS_LRU_HOST: 127.0.0.1
+            REDIS_LRU_PORT: 6380
             CACHE_STORE: redis
+            CACHE_LIMITER_STORE: redis
+            CACHE_PURE_STORE: lru
             QUEUE_CONNECTION: sync
             SESSION_DRIVER: array
 

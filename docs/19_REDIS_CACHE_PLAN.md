@@ -1,6 +1,6 @@
 # 19. Redis 8.10 и кэширование — план и задачи
 
-> **Статус:** план. Правила §3 действуют для всех новых задач с 02.11.2026.
+> **Статус:** C1 и C2 выполнены 02.11.2026 (architect); C0, C3–C8 — план. Правила §3 действуют для всех новых задач с 02.11.2026.
 > **Основание — решение владельца 02.11.2026:**
 > - всё, что можно кэшировать, — в Redis;
 > - версия Redis — 8.10;
@@ -15,7 +15,7 @@
 - **Последствие:** 8.10 пишет RDB 15. Обратно на 8.4 том Redis уже не поднимется. На проде это не важно, а на деве — пересоздать том `redisdata`, если понадобится старая версия.
 - **Защитное монтирование тома PostgreSQL 16 (`pgdata`)** в эту задачу не входит, его снятие — отдельное решение. Комментарий в compose, связывающий эти два шага, удаляется.
 
-**Где менять** — задача C1:
+**Где менять** — задача C1 (✅ выполнено 02.11.2026 вместе с C2):
 
 | Файл | Что |
 |---|---|
@@ -30,6 +30,8 @@
 
 ### 2.1. Инфраструктура
 
+> Состояние до C2 (02.11.2026); что стало — §4.
+
 - **Один экземпляр Redis:** AOF (`appendfsync everysec`), `maxmemory 256mb`, `maxmemory-policy noeviction`.
 - **Подключения в `config/database.php`:**
   - `default` — DB 0: очереди и сессии;
@@ -41,7 +43,7 @@
 - **Кэши фреймворка:** `config:cache`, `route:cache`, `view:cache`, `event:cache` в `docker/entrypoint.sh` — есть. `filament:optimize` — нет (`docs/20`, F1).
 - **OPcache** — с настройками по умолчанию, свои значения в `docker/php/zz-lexiflow.ini` не заданы (задача C7).
 
-**Почему один экземпляр — проблема для «кэшировать всё».** При `noeviction` заполненный кэш ломает запись очередей и сессий: Redis отвечает OOM на любую запись. Если же включить вытеснение, Redis может выкинуть ключи лимитов и защиты 2FA. Тогда атака «забить память кэшем → сбросить лимит попыток» становится реальной. Решение — §4.
+**Почему один экземпляр — проблема для «кэшировать всё».** При `noeviction` заполненный кэш ломает запись очередей и сессий: Redis отвечает OOM на любую запись. Если же включить вытеснение, Redis может выкинуть ключи лимитов и защиты 2FA. Тогда атака «забить память кэшем → сбросить лимит попыток» становится реальной. Решение — §4 (выполнено в C2).
 
 ### 2.2. Что уже кэшируется
 
@@ -64,7 +66,30 @@
 
 **Кэш** можно потерять без вреда: значение пересчитается. **Маркеры, блокировки, счётчики и защита** терять нельзя: при вытеснении появятся дубли ЛС, сброс лимитов, повтор TOTP-кода.
 
-**Отдельный случай — версия entitlement.** Ключ версии без TTL, значение — с TTL. Если вытеснить ключ версии, версия снова станет 0, и может вернуться старое значение `:v0` в пределах TTL — например, Pro после возврата денег. Это учитывается в §4.
+**Отдельный случай — версия entitlement.** Ключ версии без TTL, значение — с TTL. Если вытеснить ключ версии, версия снова станет 0, и может вернуться старое значение `:v0` в пределах TTL — например, Pro после возврата денег. Поэтому с C2 значение лежит в `lru`, а ключ версии — в невытесняемом `redis` (тест `PureCacheStoresTest`: Pro → возврат → потеря всего `lru` → Free).
+
+**Кэш → хранилище после C2** (`CACHE_PURE_STORE=lru` — чистый кэш через `PureCache::store()`; всё остальное — `Cache::` по умолчанию, невытесняемое):
+
+| Где | Хранилище |
+|---|---|
+| `EntitlementResolver` — снимки `entitlement:learner:{id}:v{n}` | `lru` |
+| `EntitlementResolver` — ключ версии `entitlement:ver:{id}` | `redis` (невытесняемое) |
+| `CourseCatalogService` — `catalog:courses:published:v1:{locale}` | `lru` |
+| `LearningCache` — слова урока, лидерборд экзамена, «выучено слов» | `lru` |
+| `PlatformStatsService` — `platform_stats:*` | `lru` |
+| `LeagueService` — `league:standings:v1:{группа}` | `lru` |
+| `MockExamService` — `mock_exam:distribution:course:{id}` | `lru` |
+| `SchedulerComparisonWidget` — `admin:scheduler-comparison:v1` | `lru` |
+| `TrainingFlowService` `paywall_shown:*`, `PracticeAudioService` `practice:audio-missing:*` — маркеры | `redis` |
+| `ReminderSender`, `PostLeaderboardJob`, `RenewalReminderSender`, `TelegramMessageRateLimiter` — блокировки `Cache::lock` | `redis` (`locks`) |
+| `OrgBillingService`, `RenewalReminderSender`, `QueueRenewalReminder` — маркеры и счётчики | `redis` |
+| `TwoFactorAttemptService` — счётчики попыток (`RateLimiter`) и `2fa:step:*` | `redis` |
+| `TelegramMessageRateLimiter` — счётчики | `redis` |
+| `SchedulerHeartbeat`, `QueueHeartbeat` — пульсы `/health/ready` | `redis` |
+| `RateLimiter` (throttle-мидлвары, логин, TWA) | `redis` (`cache.limiter`) |
+| Сессии, очереди, `APP_MAINTENANCE_STORE` | `redis` |
+
+Чистых кэшей в `Practice` не оказалось: `PracticeAudioService` хранит маркер события, `PracticeMaterialService` и `Modes/*` в кэш не пишут.
 
 ## 3. Правила кэширования
 
@@ -79,30 +104,35 @@
 7. **Пакетное чтение** — `Cache::many` / `putMany`, как `LearningCache::wordsLearned`. Не делаем N отдельных `get` в цикле.
 8. **В ключах только id,** без имён, телефонов и токенов. В значениях нет секретов.
 9. **Не кэшируем решения, которые принимаются под блокировкой БД:** списание квоты, деньги и статусы оплат, выдачу карточки в тренировке, финал матча и экзамена. Их показ на экранах можно кэшировать коротко, но решение всегда принимается по БД.
-10. **Чистый кэш — в вытесняемом хранилище** (§4) через доменный сервис-обёртку, как `LearningCache`. **Маркеры, блокировки, счётчики, лимиты и защита** — только в невытесняемом.
+10. **Чистый кэш — в вытесняемом хранилище** (§4) только через `App\Domain\Operations\Support\PureCache::store()` (возвращает хранилище `config('cache.pure_store')`), лучше внутри доменного сервиса-обёртки, как `LearningCache`. **Маркеры, блокировки, счётчики, лимиты и защита** — только в невытесняемом: `Cache::` по умолчанию. При сомнении — невытесняемое.
 11. **Метрики:** у каждого нового ключа понятно, как замерить эффект — число запросов до и после, время ответа.
 
 ## 4. Инфраструктура: два экземпляра Redis
 
-| Экземпляр | Что хранит | Политика | Сохранение на диск |
-|---|---|---|---|
-| `redis` (как сейчас) | очереди, сессии, блокировки (`locks`), лимиты (`cache.limiter`), маркеры и защита, ключи версий | `noeviction` | AOF, как сейчас |
-| `redis-cache` (новый) | чистый кэш | `volatile-lru`: вытесняются только ключи с TTL | без AOF и RDB (`--save ""`) |
+✅ Выполнено в C2 (02.11.2026). Фактические имена ниже.
 
-- **Хранилища Laravel.**
-  - `redis` — по умолчанию, невытесняемое: всё, что не помечено как чистый кэш, по умолчанию в безопасности.
-  - Новое хранилище `cache_lru` на подключении к `redis-cache` — для чистого кэша, только через обёртки.
-  - `cache.limiter` явно указывает на невытесняемое хранилище.
-  - Окончательную схему и миграцию существующих ключей утверждает architect (C2).
+| Экземпляр (compose) | Что хранит | Политика | Сохранение на диск |
+|---|---|---|---|
+| `redis` | очереди, сессии, блокировки (`locks`), лимиты (`cache.limiter`), маркеры и защита, ключи версий entitlement | `noeviction` (зашито в compose, переменной больше нет) | AOF `everysec`, том `redisdata` |
+| `redis-cache` | чистый кэш — хранилище `lru` | `volatile-lru`: вытесняются только ключи с TTL (у чистого кэша он есть всегда, §3 п. 4) | нет: `--appendonly no --save ""`, после рестарта пусто |
+
+- **Подключения `config/database.php` → `redis`:** `default`, `cache`, `queue`, `session`, `locks` — первый экземпляр (`REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`); `lru` — второй (`REDIS_LRU_HOST`, `REDIS_LRU_PORT`, `REDIS_LRU_PASSWORD`, `REDIS_LRU_DB`; в Docker `redis-cache:6379`, на голом сервере `127.0.0.1:6380`).
+- **Хранилища `config/cache.php`:**
+  - `redis` — по умолчанию (`CACHE_STORE=redis`), невытесняемое: всё, что не помечено как чистый кэш, в безопасности;
+  - `lru` — `driver redis`, `connection lru`, `lock_connection locks`: блокировки чистого кэша (`Cache::lock`, `Cache::flexible`) остаются на первом экземпляре;
+  - `cache.pure_store` (`CACHE_PURE_STORE=lru`; в тестах `array`) — то, что отдаёт `PureCache::store()`;
+  - `cache.limiter` (`CACHE_LIMITER_STORE=redis`; в тестах `array`) — `RateLimiter` явно на невытесняемом хранилище, от `CACHE_STORE` не зависит.
+- **Точка доступа:** `App\Domain\Operations\Support\PureCache` — `store()` (репозиторий), `storeName()`, `redisConnection()`; контейнерный ключ `cache.pure` (`PureCache::CONTAINER_KEY`), который тест подменяет через `app()->instance(PureCache::CONTAINER_KEY, $spy)`.
 - **Безопасность.**
-  - `requirepass` или ACL-пользователь на обоих экземплярах (`REDIS_PASSWORD`, `REDIS_CACHE_PASSWORD`).
-  - В проде порты наружу не публикуются, как сейчас.
-  - В деве порт привязан к `127.0.0.1`. Сейчас `"${REDIS_PORT_HOST:-6379}:6379"` слушает все интерфейсы, и Redis без пароля виден в локальной сети.
-- **Размер:** `redis-cache` — старт 256–512 МБ (`REDIS_CACHE_MAXMEMORY`), уточнить по метрикам C8.
+  - Пароли: `REDIS_PASSWORD` и `REDIS_CACHE_PASSWORD`. В проде обязательны: `docker-compose.prod.yml` без них не стартует (`${VAR:?…}` с понятным сообщением). Контейнерам приложения compose (dev и prod) сам подставляет `REDIS_LRU_HOST=redis-cache`, `REDIS_LRU_PORT=6379`, `REDIS_LRU_PASSWORD=$REDIS_CACHE_PASSWORD` — один пароль в `.env`, нечему разойтись; `REDIS_LRU_*` в `.env` — для голого сервера и `artisan` на хосте. В деве — по желанию, пустое значение = без пароля (именно пустое, не `null`).
+  - Пароль попадает в `redis-server` строкой конфига через stdin, не аргументом командной строки; healthcheck авторизуется через `REDISCLI_AUTH`. В `ps` пароля нет; в `docker inspect` (окружение контейнера) он виден — компромисс описан в `DEVOPS_GUIDE.md`.
+  - В проде порты не публикуются. В деве оба порта только на `127.0.0.1` (`REDIS_PORT_HOST`=6379, `REDIS_CACHE_PORT_HOST`=6380), как и PostgreSQL.
+- **Размер:** `REDIS_CACHE_MAXMEMORY` (по умолчанию 256 МБ), уточняется по метрикам C8; первый экземпляр — `REDIS_MAXMEMORY`.
 - **Мониторинг:**
-  - `/health/ready` проверяет оба экземпляра;
+  - `/health/ready` проверяет оба: `redis` (подключения кэша и очереди) и `redis_cache` (подключение `lru`) — отдельные проверки, видно, какой упал;
   - метрики `INFO`: `keyspace_hits` / `keyspace_misses`, `evicted_keys`, `used_memory`;
-  - алерт, если в `redis` растёт память или в `redis-cache` слишком много вытеснений.
+  - алерт, если в `redis` растёт память или в `redis-cache` слишком много вытеснений (`DEVOPS_GUIDE.md`, «Redis»).
+- **Тесты:** `tests/Feature/Operations/PureCacheStoresTest.php` — конфиг, точка доступа, потеря всего чистого кэша не трогает `RateLimiter`, шаг 2FA и пульсы, entitlement после потери кэша, readiness обоих экземпляров. CI (job `test`) гоняет Pest на PostgreSQL с двумя сервисами Redis (`CACHE_PURE_STORE=lru`); `docker/postgres/tests/run.sh` держит `redis-cache` в тестовом стеке.
 
 ## 5. Что добавить в кэш
 
@@ -129,8 +159,8 @@
 | # | Задача | Исполнитель | Готово, когда |
 |---|---|---|---|
 | C0 | **Замер и инвентаризация.** Команда объёмных данных `perf:seed` (только local и testing; общая с `docs/20` F0). Базовые замеры горячих эндпоинтов (`/me`, `/today`, `/courses`, `/courses/{slug}`, `/league`, `/friends`, `/practice/hub`, `/training/*`): число запросов, p50/p95. Таблица §2.2 дополнена всеми ключами | coder | Таблица замеров «до» в §8 |
-| C1 | **Redis 8.10** по §1 | coder | CI зелёный на 8.10; в документах нет «8.4» как действующего правила |
-| C2 | **Два экземпляра и хранилища** по §4: compose (dev, prod, тестовый стек), `config/database.php`, `config/cache.php` (`cache_lru`, `limiter`), перенос существующих чистых кэшей на `cache_lru`, маркеры и защита — на невытесняемом, версия entitlement — на невытесняемом, пароли, порт дева на `127.0.0.1`, `/health/ready` | architect → coder | Тест: при вытеснении кэша лимиты, 2FA и маркеры живы; `DEVOPS_GUIDE` обновлён |
+| C1 | **Redis 8.10** по §1 | architect (вместе с C2) | ✅ 02.11.2026: `redis:8.10-alpine` в compose dev/prod и CI; документы и `PROGRESS.md` обновлены |
+| C2 | **Два экземпляра и хранилища** по §4: compose (dev, prod, тестовый стек), `config/database.php` (`lru`), `config/cache.php` (`lru`, `pure_store`, `limiter`), `PureCache`, перенос существующих чистых кэшей на `lru`, маркеры и защита — на невытесняемом, версия entitlement — на невытесняемом, пароли, порты дева на `127.0.0.1`, `/health/ready` | architect | ✅ 02.11.2026: `PureCacheStoresTest` (потеря кэша не трогает лимиты, 2FA и маркеры), `DEVOPS_GUIDE` обновлён; `run.sh` переноса PostgreSQL зелёный с `redis-cache` |
 | C3 | **Кэш админки и кабинета центра** — K1, K2 (вместе с `docs/20` F5) | coder | Тест бюджета запросов дашборда; данные обновляются по TTL и событиям |
 | C4 | **Контент** — K3, K4, K5 | coder | Тесты инвалидации на каждый ключ |
 | C5 | **Сайт** — K6 | coder | Ответ из кэша байт в байт равен свежему; заголовки безопасности на месте |

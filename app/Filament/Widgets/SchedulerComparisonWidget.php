@@ -7,11 +7,11 @@ namespace App\Filament\Widgets;
 use App\Domain\Learning\DTO\SchedulerMetrics;
 use App\Domain\Learning\Enums\SchedulerKind;
 use App\Domain\Learning\Services\SchedulerMetricsService;
+use App\Domain\Operations\Support\PureCache;
 use App\Filament\Concerns\RequiresActiveAdmin;
 use App\Filament\Resources\Support\AdminNumbers;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use Illuminate\Support\Facades\Cache;
 
 /**
  * "SM-2 vs FSRS" over the last 28 days (docs/13 §8.3, docs/06 §9.6). Admin only: platform-wide numbers.
@@ -42,7 +42,7 @@ class SchedulerComparisonWidget extends StatsOverviewWidget
     {
         // The cache holds arrays of scalars, never DTO objects: the store may refuse to unserialize a class.
         /** @var array<string, SchedulerMetricsArray> $rows */
-        $rows = Cache::remember(self::CACHE_KEY, 120, fn (): array => array_map(
+        $rows = PureCache::store()->remember(self::CACHE_KEY, 120, fn (): array => array_map(
             static fn (SchedulerMetrics $metrics): array => $metrics->toArray(),
             app(SchedulerMetricsService::class)->compare(),
         ));

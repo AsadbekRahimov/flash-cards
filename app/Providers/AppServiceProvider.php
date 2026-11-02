@@ -15,6 +15,7 @@ use App\Domain\Learning\Contracts\NewCardBudgetResolver;
 use App\Domain\Learning\Support\FsrsParameters;
 use App\Domain\Learning\Support\LearningPolicy;
 use App\Domain\Localization\Services\LocaleResolver;
+use App\Domain\Operations\Support\PureCache;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\IrazasyedTelegramClient;
 use App\Domain\Telegram\Services\TelegramKeyboardFactory;
@@ -28,6 +29,7 @@ use App\Observers\OrganizationObserver;
 use App\Observers\TelegramGroupObserver;
 use App\Policies\Org\OrgPolicyResolver;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -55,6 +57,10 @@ class AppServiceProvider extends ServiceProvider
                 globalPerSecond: max(0, (int) config('telegram.outbound.global_per_second', 25)),
             );
         });
+
+        // The pure cache store (docs/19 §4): PureCache::store() resolves it here, so a test can swap it with instance().
+        // Not a singleton: the cache manager already keeps one repository per store name.
+        $this->app->bind(PureCache::CONTAINER_KEY, fn (): Repository => PureCache::resolve());
 
         $this->app->singleton(InitDataValidator::class, function (): InitDataValidator {
             return new InitDataValidator((string) config('telegram.bot_token'));

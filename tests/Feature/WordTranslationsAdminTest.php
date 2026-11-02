@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Content\Services\CoursePublisher;
 use App\Domain\Content\Services\WordTranslationWriter;
+use App\Domain\Operations\Support\PureCache;
 use App\Filament\Resources\LessonResource\Pages\EditLesson;
 use App\Filament\Resources\LessonResource\RelationManagers\WordsRelationManager;
 use App\Filament\Resources\WordResource;
@@ -16,7 +17,6 @@ use App\Models\Word;
 use App\Models\WordTranslation;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Cache;
 use Livewire\Features\SupportTesting\Testable;
 
 use function Pest\Livewire\livewire;
@@ -168,7 +168,7 @@ it('recounts the course and drops the lesson cache when a word is switched off a
     app(CoursePublisher::class)->recount($course);
     expect($course->fresh()->words_count)->toBe(3);
 
-    Cache::put("lesson:{$lesson->id}:word_count", 3);
+    PureCache::store()->put("lesson:{$lesson->id}:word_count", 3);
 
     livewire(EditWord::class, ['record' => $this->word->getRouteKey()])
         ->fillForm(['is_active' => false])
@@ -176,16 +176,16 @@ it('recounts the course and drops the lesson cache when a word is switched off a
         ->assertHasNoFormErrors();
 
     expect($course->fresh()->words_count)->toBe(2)
-        ->and(Cache::has("lesson:{$lesson->id}:word_count"))->toBeFalse();
+        ->and(PureCache::store()->has("lesson:{$lesson->id}:word_count"))->toBeFalse();
 
-    Cache::put("lesson:{$lesson->id}:word_count", 2);
+    PureCache::store()->put("lesson:{$lesson->id}:word_count", 2);
 
     livewire(EditWord::class, ['record' => $this->word->getRouteKey()])
         ->fillForm(['is_active' => true])
         ->call('save');
 
     expect($course->fresh()->words_count)->toBe(3)
-        ->and(Cache::has("lesson:{$lesson->id}:word_count"))->toBeFalse();
+        ->and(PureCache::store()->has("lesson:{$lesson->id}:word_count"))->toBeFalse();
 });
 
 it('recounts the course and drops the lesson cache when a word is added on the lesson screen', function (): void {
@@ -193,12 +193,12 @@ it('recounts the course and drops the lesson cache when a word is added on the l
     $lesson = $this->word->lesson;
     $course = $lesson->stage->course;
     app(CoursePublisher::class)->recount($course);
-    Cache::put("lesson:{$lesson->id}:word_count", 1);
+    PureCache::store()->put("lesson:{$lesson->id}:word_count", 1);
 
     livewire(WordsRelationManager::class, ['ownerRecord' => $lesson, 'pageClass' => EditLesson::class])
         ->callTableAction('create', data: ['word' => 'tea', 'translation' => 'чай'])
         ->assertHasNoTableActionErrors();
 
     expect($course->fresh()->words_count)->toBe(2)
-        ->and(Cache::has("lesson:{$lesson->id}:word_count"))->toBeFalse();
+        ->and(PureCache::store()->has("lesson:{$lesson->id}:word_count"))->toBeFalse();
 });

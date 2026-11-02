@@ -15,6 +15,7 @@ use App\Domain\Engagement\Enums\LeagueWeekStatus;
 use App\Domain\Engagement\Exceptions\LeagueAlreadyPlaced;
 use App\Domain\Engagement\Exceptions\LeagueWeekNotOpen;
 use App\Domain\Learners\Support\StoredDate;
+use App\Domain\Operations\Support\PureCache;
 use App\Jobs\SendLeagueResultsJob;
 use App\Models\LeagueGroup;
 use App\Models\LeagueMember;
@@ -27,7 +28,6 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 use Throwable;
@@ -307,7 +307,7 @@ final class LeagueService
 
         // The cache holds arrays of scalars, never DTO objects: the store may refuse to unserialize a class.
         /** @var list<LeagueStandingArray> $rows */
-        $rows = Cache::remember(
+        $rows = PureCache::store()->remember(
             self::CACHE_PREFIX.$group->id,
             $ttl,
             fn (): array => array_map(

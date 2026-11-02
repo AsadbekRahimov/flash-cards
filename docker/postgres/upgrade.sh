@@ -26,7 +26,7 @@
 #
 # What the upgrade does (idempotent, re-runnable after any failure):
 #   1. takes the lock shared with deploy.sh (.deploy.lock in the project directory) and only then looks at the volumes,
-#      stops every service of the stack except postgres and redis (the writers), then the old postgres; an existing 18+
+#      stops every service of the stack except postgres, redis and redis-cache (the data stores), then the old postgres; an existing 18+
 #      cluster gets its pg_hba.conf gate (below) while it is down; then the in-progress marker with the list of stopped
 #      services is written into the new volume (created by compose) - from here on `--check` stops every deploy;
 #   2. fingerprints the legacy cluster (md5 of global/pg_control: it changes whenever that server runs again);
@@ -611,7 +611,7 @@ running_writers() {
     running="$(compose ps --services --status running 2>/dev/null || true)"
     for s in $running; do
         keep=0
-        case "$s" in postgres|redis) keep=1 ;; esac
+        case "$s" in postgres|redis|redis-cache) keep=1 ;; esac
         [ "$keep" -eq 1 ] && continue
         grep -qx -- "$s" <<<"$known" || continue   # a profile-only service (vite, ngrok): not ours to stop
         printf '%s\n' "$s"
