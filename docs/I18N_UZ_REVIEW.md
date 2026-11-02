@@ -2642,13 +2642,17 @@
 >   - баттлы: «Do'stni bellashuvga chaqirish Pro'da mavjud. Do'stning taklifini qabul qilish har doim mumkin.» — «Звать друзей на баттл можно в Pro. Принять приглашение друга можно всегда.»
 >     Вторая фраза нужна, потому что принять приглашение друга можно всегда, даже без Pro. «Chaqirish» — позвать друга (как в разделе «G1 (backend)»), «taklif» — приглашение друга,
 >     «Pro'da mavjud» — «доступно в Pro» (как в `paywall.lead_practice`), «har doim mumkin» — «всегда можно»;
->   - практика: отдельной строки нет, окно берёт уже проверенную `paywall.lead_practice` («Amaliyot — so'zlarni mustahkamlash o'yinlari va do'stlar bilan bellashuvlar — Pro'da mavjud.»).
+>   - практика: окно берёт слово о практике, и оно не называет баттлы там, где они не в Pro (бесплатный тариф их получает, или они выключены):
+>     - баттлы тоже только в Pro — уже проверенная `paywall.lead_practice`: «Amaliyot — so'zlarni mustahkamlash o'yinlari va do'stlar bilan bellashuvlar — Pro'da mavjud.» — «Практика — игры на закрепление слов и баттлы с друзьями — доступна в Pro.»;
+>     - иначе — новая `paywall.lead_practice_solo`: «Amaliyot — so'zlarni mustahkamlash o'yinlari — Pro'da mavjud.» — «Практика — игры на закрепление слов — доступна в Pro.» Это та же фраза без «va do'stlar bilan bellashuvlar».
+>       Её же говорит окно, когда практика за Pro целиком (`PRACTICE_PLAN=pro`), а баттлы выключены.
 >
->   Проверить естественность «Do'stni bellashuvga chaqirish» и «Do'stning taklifini qabul qilish».
+>   Проверить естественность «Do'stni bellashuvga chaqirish» и «Do'stning taklifini qabul qilish», а в «Amaliyot — so'zlarni mustahkamlash o'yinlari — Pro'da mavjud» — что фраза читается без хвоста про баттлы.
 > - **Когда лимит вернётся** (`paywall.reset_tomorrow`, `paywall.reset_at`): подставляется в окно вместо `{when}`. Обычно сброс — начало следующих суток ученика: «ertaga soat 00:00 da»
 >   («завтра в 00:00»). Если часы телефона сбиты и приложение не может поручиться за день, остаётся одно время: «soat 19:00 da» («в 19:00»). Проверить «soat … da».
 > - **Пункт списка «Что даёт Pro»** (`benefits.practice`): «Amaliyot va bellashuvlar kunlik limitsiz» — по образцу `benefits.new_words` («Yangi so'zlar kunlik limitsiz»). Список виден в окне Pro
->   и на экране «Obuna»; этот пункт — только там, где у ученика есть практика (при выключенной практике и вне пилота его нет).
+>   и на экране «Obuna»; этот пункт — только там, где у ученика есть практика (при выключенной практике и вне пилота его нет). Когда баттлы выключены, вместо него
+>   `benefits.practice_solo`: «Amaliyot kunlik limitsiz» («Практика без дневного лимита») — без «va bellashuvlar».
 > - **`error.code.practice_limit_reached`** — запасной текст на случай, когда сервер отказал по лимиту, но не прислал цифры (обычно вместо него открывается окно Pro): «Bugungi bepul limit
 >   tugadi. U ertaga yangilanadi.» — «Бесплатный лимит на сегодня закончился. Он обновится завтра.»
 
@@ -2661,6 +2665,7 @@
 | `paywall.lead_practice_limit_battles` | Bugungi bepul bellashuvlar tugadi ({limit} tadan {limit} tasi). Yangilari — {when} yoki darhol Pro bilan. | Бесплатные баттлы на сегодня закончились ({limit} из {limit}). Новые — {when} или сразу с Pro. |
 | `paywall.lead_practice_limit_battles_soon` | Bugungi bepul bellashuvlar tugadi ({limit} tadan {limit} tasi). Yangilari — {when}. | Бесплатные баттлы на сегодня закончились ({limit} из {limit}). Новые — {when}. |
 | `paywall.lead_practice_limit_battles_pro` | Do'stni bellashuvga chaqirish Pro'da mavjud. Do'stning taklifini qabul qilish har doim mumkin. | Звать друзей на баттл можно в Pro. Принять приглашение друга можно всегда. |
+| `paywall.lead_practice_solo` | Amaliyot — so'zlarni mustahkamlash o'yinlari — Pro'da mavjud. | Практика — игры на закрепление слов — доступна в Pro. |
 | `paywall.reset_tomorrow` | ertaga soat {time} da | завтра в {time} |
 | `paywall.reset_at` | soat {time} da | в {time} |
 | `benefits.practice` | Amaliyot va bellashuvlar kunlik limitsiz | Практика и баттлы без дневного лимита |
