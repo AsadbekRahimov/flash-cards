@@ -13,8 +13,11 @@ use App\Filament\Widgets\ActivityChartWidget;
 use App\Filament\Widgets\ExamsLast30DaysWidget;
 use App\Filament\Widgets\HardestWordsTableWidget;
 use App\Filament\Widgets\LeagueGroupsTableWidget;
+use App\Filament\Widgets\OnboardingFunnelWidget;
 use App\Filament\Widgets\OrganizationSeatsTableWidget;
+use App\Filament\Widgets\PlatformSubscriptionsWidget;
 use App\Filament\Widgets\RevenueLast30DaysWidget;
+use App\Filament\Widgets\SchedulerComparisonWidget;
 use App\Filament\Widgets\TopLearnersTableWidget;
 use App\Filament\Widgets\TotalLearnersWidget;
 use App\Filament\Widgets\WebhookErrorsWidget;
@@ -24,6 +27,7 @@ use App\Models\LeagueWeek;
 use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\Payment;
+use App\Models\ProductEvent;
 use App\Models\Subscription;
 use App\Models\TelegramGroup;
 use App\Models\TrainingReview;
@@ -111,7 +115,11 @@ it('opens the dashboard of /admin a second time without a single query from its 
 
     expect(count($cold[TopLearnersTableWidget::class]))->toBeGreaterThan(0)
         ->and(count($cold[HardestWordsTableWidget::class]))->toBeGreaterThan(0)
-        ->and(count($cold[TotalLearnersWidget::class]))->toBeGreaterThan(0);
+        ->and(count($cold[TotalLearnersWidget::class]))->toBeGreaterThan(0)
+        // The three that were cached before the others (docs/19 §5.1, F7-1) compute on the first open too, so their zero below is the cache.
+        ->and(count($cold[PlatformSubscriptionsWidget::class]))->toBeGreaterThan(0)
+        ->and(count($cold[OnboardingFunnelWidget::class]))->toBeGreaterThan(0)
+        ->and(count($cold[SchedulerComparisonWidget::class]))->toBeGreaterThan(0);
 
     // The second one reads the cache: not one statement, from any of the twelve.
     foreach ($widgets as $widget) {
@@ -149,7 +157,7 @@ it('keeps each aggregate under a versioned key of its own, with the viewer in it
     $today = now()->toDateString();
     $week = LeagueWeek::query()->firstOrFail();
 
-    foreach ([TotalLearnersWidget::class, ExamsLast30DaysWidget::class, ActivityChartWidget::class, TopLearnersTableWidget::class, HardestWordsTableWidget::class, LeagueGroupsTableWidget::class, OrganizationSeatsTableWidget::class, RevenueLast30DaysWidget::class, WebhookErrorsWidget::class] as $widget) {
+    foreach ([TotalLearnersWidget::class, ExamsLast30DaysWidget::class, ActivityChartWidget::class, TopLearnersTableWidget::class, HardestWordsTableWidget::class, LeagueGroupsTableWidget::class, OrganizationSeatsTableWidget::class, RevenueLast30DaysWidget::class, WebhookErrorsWidget::class, PlatformSubscriptionsWidget::class, OnboardingFunnelWidget::class, SchedulerComparisonWidget::class] as $widget) {
         Livewire::test($widget)->assertOk();
     }
 
@@ -167,10 +175,19 @@ it('keeps each aggregate under a versioned key of its own, with the viewer in it
         'admin:widget:organization_seats:v1:all:p1:n10',
         "admin:widget:revenue_30d:v1:{$money}",
         "admin:widget:webhook_errors:v1:{$money}",
+        // Admin only, so the viewer is `all`; the three that were cached under keys of their own before F7-1.
+        'admin:widget:platform_subscriptions:v1:all',
+        'admin:widget:onboarding_funnel:v1:all',
+        'admin:widget:scheduler_comparison:v1:all',
     ] as $key) {
         expect(PureCache::store()->has($key))->toBeTrue($key);
         // Only arrays and scalars: nothing the store may refuse to unserialize (cache.serializable_classes = false).
         expect(PureCache::store()->get($key))->toBeArray();
+    }
+
+    // The unversioned keys of those three are not written any more: nobody reads them, they expire by themselves (no flush at deploy).
+    foreach (['platform_stats:subscriptions', 'platform_stats:funnel', 'admin:scheduler-comparison:v1'] as $old) {
+        expect(PureCache::store()->has($old))->toBeFalse($old);
     }
 });
 
@@ -216,6 +233,49 @@ it('refreshes a stale entry under a lock that is let go, on whatever store the p
         expect($stats->totalLearners()['total'])->toBe($expected, 'then the refresh, which took the lock and let it go');
     }
 });
+
+/** What changes the figures of the widget `$name` (the three older admin-only ones), so that a stale entry and a fresh one differ. */
+function changeFiguresOf(string $name): void
+{
+    match ($name) {
+        'platform_subscriptions' => Subscription::factory()->create(['subscriber_type' => 'learner', 'subscriber_id' => Learner::factory()->create()->id, 'current_period_ends_at' => now()->addDays(20)]),
+        'onboarding_funnel' => ProductEvent::query()->create(['name' => 'onboarding.started', 'learner_id' => Learner::factory()->create()->id, 'props' => [], 'occurred_at' => now()->subDay()]),
+        'scheduler_comparison' => TrainingReview::factory()->create(['created_at' => now()]),
+    };
+}
+
+it('serves the stale figures of the platform, onboarding and scheduler widgets without a query in the request, and recomputes them after the response', function (string $widget, string $name): void {
+    seedDashboardData();
+    Livewire::test($widget)->assertOk(); // the first open: computes and stores
+
+    $key = WidgetCache::key($name, 'all');
+    $created = Repository::FLEXIBLE_CREATED_KEY_PREFIX.$key;
+    $before = PureCache::store()->get($key);
+
+    // "Computed an hour ago": past the freshness, inside the lifetime. No clock is moved, so a Redis store takes part.
+    PureCache::store()->put($created, time() - 3600, 600);
+    changeFiguresOf($name);
+
+    // The reader gets the old figure at once - the request runs nothing and stores nothing ...
+    $request = QueryLog::during(fn () => Livewire::test($widget)->assertOk());
+
+    expect($request)->toBe([], class_basename($widget).' ran in the request: '.implode(' | ', $request))
+        ->and(PureCache::store()->get($key))->toBe($before);
+
+    // ... and the recompute runs after the response, under the lock, and moves the mark of creation.
+    $refresh = QueryLog::during(fn () => app(DeferredCallbackCollection::class)->invoke());
+
+    expect($refresh)->not->toBe([])
+        ->and(PureCache::store()->get($key))->not->toBe($before)
+        ->and((int) PureCache::store()->get($created))->toBeGreaterThan(time() - 60);
+
+    // The next open is fresh again and costs nothing.
+    expect(QueryLog::during(fn () => Livewire::test($widget)->assertOk()))->toBe([]);
+})->with([
+    'pro subscriptions' => [PlatformSubscriptionsWidget::class, 'platform_subscriptions'],
+    'onboarding funnel' => [OnboardingFunnelWidget::class, 'onboarding_funnel'],
+    'SM-2 / FSRS comparison' => [SchedulerComparisonWidget::class, 'scheduler_comparison'],
+]);
 
 it('keeps the money widgets one commit behind at most: a payment and a refund move them to a new data version, the others stay', function (): void {
     seedDashboardData();
