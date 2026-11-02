@@ -352,7 +352,7 @@ bind 127.0.0.1 -::1
 port 6380
 supervised systemd
 daemonize no
-pidfile /run/redis/redis-cache.pid
+pidfile /run/redis-cache/redis-cache.pid
 logfile /var/log/redis/redis-cache.log
 dir /var/lib/redis
 maxmemory 256mb
@@ -376,7 +376,7 @@ ExecStart=/usr/bin/redis-server /etc/redis/redis-cache.conf
 # No ExecStop with the password: SIGTERM from systemd shuts Redis down cleanly, and there is nothing to save here.
 TimeoutStopSec=10
 Restart=always
-RuntimeDirectory=redis
+RuntimeDirectory=redis-cache
 RuntimeDirectoryMode=2755
 
 [Install]
