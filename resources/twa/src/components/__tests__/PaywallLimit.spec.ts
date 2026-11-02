@@ -4,8 +4,10 @@ import { createPinia, setActivePinia } from 'pinia'
 import PaywallSheet from '../PaywallSheet.vue'
 import { api } from '@/api'
 import { setLocale } from '@/i18n'
+import { useBillingStore } from '@/stores/billing'
 import { useTodayStore } from '@/stores/today'
-import type { BillingCatalog, MeResponse, PracticeLimitHit } from '@/api/types'
+import { counter } from '@/api/__tests__/practiceFixtures'
+import type { BillingCatalog, MeResponse, PracticeLimitHit, PracticeLimits } from '@/api/types'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 
 vi.mock('@/api', () => ({
@@ -30,7 +32,7 @@ const MIDNIGHT = '2026-11-02T19:00:00+00:00'
 const SESSIONS: PracticeLimitHit = { kind: 'sessions', limit: 2, used: 2, resets_at: MIDNIGHT }
 const BATTLES: PracticeLimitHit = { kind: 'battles', limit: 1, used: 1, resets_at: MIDNIGHT }
 
-const me = (mode: 'coming_soon' | 'purchase' = 'coming_soon', plan: 'free' | 'pro' = 'free'): MeResponse => ({
+const me = (mode: 'coming_soon' | 'purchase' = 'coming_soon', plan: 'free' | 'pro' = 'free', battle = true): MeResponse => ({
   learner: { id: 1, first_name: 'A', username: null, locale: 'ru', onboarding_completed: true },
   groups: [],
   stats: { words_learned: 0, words_due_today: 0 },
@@ -44,7 +46,7 @@ const me = (mode: 'coming_soon' | 'purchase' = 'coming_soon', plan: 'free' | 'pr
   paywall: { mode, contact: null },
   settings: settingsFixture(),
   // A learner who meets the end of a free limit has practice: the sheet offers the line about it among the things Pro gives.
-  practice: { available: true, pro_required: false, modes: ['pairs', 'collocation', 'sentence', 'dictation'], battle: true },
+  practice: { available: true, pro_required: false, modes: ['pairs', 'collocation', 'sentence', 'dictation'], battle },
 })
 
 const catalog = (): BillingCatalog => ({
@@ -177,19 +179,85 @@ describe('PaywallSheet — a kind that is for Pro only (limit 0)', () => {
   const NO_SESSIONS: PracticeLimitHit = { kind: 'sessions', limit: 0, used: 0, resets_at: MIDNIGHT }
   const NO_BATTLES: PracticeLimitHit = { kind: 'battles', limit: 0, used: 0, resets_at: MIDNIGHT }
 
+  // The word on the practice: with the battles in it (`paywall.lead_practice`) and about the practice alone (`paywall.lead_practice_solo`).
   const PRACTICE_RU = 'Практика — игры на закрепление слов и баттлы с друзьями — доступна в Pro.'
   const PRACTICE_UZ = "Amaliyot — so'zlarni mustahkamlash o'yinlari va do'stlar bilan bellashuvlar — Pro'da mavjud."
+  const SOLO_RU = 'Практика — игры на закрепление слов — доступна в Pro.'
+  const SOLO_UZ = "Amaliyot — so'zlarni mustahkamlash o'yinlari — Pro'da mavjud."
   const BATTLES_RU = 'Звать друзей на баттл можно в Pro. Принять приглашение друга можно всегда.'
   const BATTLES_UZ = "Do'stni bellashuvga chaqirish Pro'da mavjud. Do'stning taklifini qabul qilish har doim mumkin."
 
-  it('sessions: the practice is in Pro - the existing lead of the practice, with no "over" and no day to wait for', async () => {
-    const soon = await render({ limitHit: NO_SESSIONS })
-    expect(lead(soon)).toBe(`${PRACTICE_RU} ${SOON_RU}`)
+  // The sessions of practice are for Pro only. What else Pro opens depends on the battles: the sentence names them only when they are for Pro only
+  // too (their limit is 0 as well) - not when Free gets them (a limit of 1 or more, or none) and not when they are switched off.
+  describe('sessions', () => {
+    const bothProOnly = (): PracticeLimits => ({ sessions: counter(0, 0, MIDNIGHT), battles: counter(0, 0, MIDNIGHT) })
+    const know = (limits: PracticeLimits | null) => useBillingStore().setLimits(limits)
+    /** A fresh store that knows `limits`, and the sheet in one mode of the sale. */
+    async function sheet(limits: PracticeLimits | null, mode: 'coming_soon' | 'purchase' = 'coming_soon', battle = true) {
+      setActivePinia(createPinia())
+      knowZone('Asia/Tashkent')
+      know(limits)
+      return render({ limitHit: NO_SESSIONS }, me(mode, 'free', battle))
+    }
 
-    setActivePinia(createPinia())
-    knowZone('Asia/Tashkent')
-    const sale = await render({ limitHit: NO_SESSIONS }, me('purchase'))
-    expect(lead(sale)).toBe(`${PRACTICE_RU} ${SALE_RU}`)
+    it('the battles are for Pro only too: one sentence for both - practice and battles with friends are in Pro', async () => {
+      expect(lead(await sheet(bothProOnly()))).toBe(`${PRACTICE_RU} ${SOON_RU}`)
+      expect(lead(await sheet(bothProOnly(), 'purchase'))).toBe(`${PRACTICE_RU} ${SALE_RU}`)
+    })
+
+    it.each<[string, PracticeLimits | null]>([
+      ['Free gets the battles (a limit of 1)', { sessions: counter(0, 0, MIDNIGHT), battles: counter(0, 1, MIDNIGHT) }],
+      ['Free gets the battles, one is used (1 of 1)', { sessions: counter(0, 0, MIDNIGHT), battles: counter(1, 1, MIDNIGHT) }],
+      ['the battles have no limit', { sessions: counter(0, 0, MIDNIGHT), battles: null }],
+      ['nothing is known of the battles (no counters at all)', null],
+    ])('%s: the practice alone is in Pro - the battles are not in the sentence', async (_name, limits) => {
+      const soon = await sheet(limits)
+      expect(lead(soon)).toBe(`${SOLO_RU} ${SOON_RU}`)
+      expect(lead(soon)).not.toMatch(/баттл/i)
+
+      expect(lead(await sheet(limits, 'purchase'))).toBe(`${SOLO_RU} ${SALE_RU}`)
+    })
+
+    it('the battles are switched off: the practice alone, even when the counter of the battles says 0 - no battles are sold that do not exist', async () => {
+      const w = await sheet(bothProOnly(), 'coming_soon', false)
+
+      expect(lead(w)).toBe(`${SOLO_RU} ${SOON_RU}`)
+      expect(lead(w)).not.toMatch(/баттл/i)
+    })
+
+    it('says it in Uzbek: with the battles when they are for Pro only too, the practice alone otherwise', async () => {
+      setLocale('uz')
+
+      expect(lead(await sheet(bothProOnly()))).toBe(`${PRACTICE_UZ} ${SOON_UZ}`)
+      expect(lead(await sheet(bothProOnly(), 'purchase'))).toBe(`${PRACTICE_UZ} ${SALE_UZ}`)
+
+      const alone = await sheet({ sessions: counter(0, 0, MIDNIGHT), battles: null })
+      expect(lead(alone)).toBe(`${SOLO_UZ} ${SOON_UZ}`)
+      expect(lead(alone)).not.toMatch(/bellashuv/i)
+      expect(lead(await sheet(null, 'purchase', false))).toBe(`${SOLO_UZ} ${SALE_UZ}`)
+    })
+
+    it('follows /me when it comes after the sheet is open: the practice alone at first, then both once it is known the battles are for Pro only too', async () => {
+      know(bothProOnly())
+      let arrive!: (value: MeResponse) => void
+      vi.mocked(api.me.get).mockReturnValue(new Promise((resolve) => (arrive = resolve)))
+      const w = mount(PaywallSheet, { props: { reason: 'practice_limit', limitHit: NO_SESSIONS } })
+      await flushPromises()
+      expect(lead(w)).toBe(`${SOLO_RU} ${SOON_RU}`) // nothing is known of the battles yet: only the practice is certain
+
+      arrive(me())
+      await flushPromises()
+
+      expect(lead(w)).toBe(`${PRACTICE_RU} ${SOON_RU}`)
+    })
+
+    it('never says "over" or "tomorrow" or a time: nothing was spent and nothing comes back', async () => {
+      for (const limits of [bothProOnly(), null] as const) {
+        const w = await sheet(limits)
+
+        expect(lead(w)).not.toMatch(/закончил|завтра|из 0|сегодня|\d{2}:\d{2}/i)
+      }
+    })
   })
 
   it('battles: calling a friend is in Pro, accepting an invitation is always possible', async () => {
@@ -202,15 +270,13 @@ describe('PaywallSheet — a kind that is for Pro only (limit 0)', () => {
     expect(lead(sale)).toBe(`${BATTLES_RU} ${SALE_RU}`)
   })
 
-  it('says it in Uzbek, for sessions and for battles, in both modes', async () => {
+  it('battles, in Uzbek, in both modes', async () => {
     setLocale('uz')
 
-    expect(lead(await render({ limitHit: NO_SESSIONS }))).toBe(`${PRACTICE_UZ} ${SOON_UZ}`)
     expect(lead(await render({ limitHit: NO_BATTLES }))).toBe(`${BATTLES_UZ} ${SOON_UZ}`)
 
     setActivePinia(createPinia())
     knowZone('Asia/Tashkent')
-    expect(lead(await render({ limitHit: NO_SESSIONS }, me('purchase')))).toBe(`${PRACTICE_UZ} ${SALE_UZ}`)
     expect(lead(await render({ limitHit: NO_BATTLES }, me('purchase')))).toBe(`${BATTLES_UZ} ${SALE_UZ}`)
   })
 
@@ -437,6 +503,28 @@ describe('PaywallSheet — without the numbers of a refusal', () => {
     const w = await render({ limitHit: null })
 
     expect(lead(w)).toBe('Практика — игры на закрепление слов и баттлы с друзьями — доступна в Pro. Pro скоро откроется.')
+  })
+
+  it('names the battles only where there are battles: with them switched off the word on the practice is about the practice alone', async () => {
+    const w = await render({ limitHit: null }, me('coming_soon', 'free', false))
+
+    expect(lead(w)).toBe(`Практика — игры на закрепление слов — доступна в Pro. ${SOON_RU}`)
+  })
+
+  it('the practice behind Pro (reason practice) does the same, in Uzbek too', async () => {
+    const ru = await render({ reason: 'practice' }, me('coming_soon', 'free', false))
+    expect(lead(ru)).toBe(`Практика — игры на закрепление слов — доступна в Pro. ${SOON_RU}`)
+
+    setLocale('uz')
+    setActivePinia(createPinia())
+    knowZone('Asia/Tashkent')
+    const uz = await render({ reason: 'practice' }, me('coming_soon', 'free', false))
+    expect(lead(uz)).toBe(`Amaliyot — so'zlarni mustahkamlash o'yinlari — Pro'da mavjud. ${SOON_UZ}`)
+    expect(lead(uz)).not.toMatch(/bellashuv/i)
+
+    setActivePinia(createPinia())
+    knowZone('Asia/Tashkent')
+    expect(lead(await render({ reason: 'practice' }))).toBe(`Amaliyot — so'zlarni mustahkamlash o'yinlari va do'stlar bilan bellashuvlar — Pro'da mavjud. ${SOON_UZ}`)
   })
 
   it('the other reasons ignore the numbers they are given', async () => {
