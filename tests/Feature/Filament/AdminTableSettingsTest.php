@@ -131,6 +131,20 @@ it('hands a paginator that knows only whether a next page exists', function (): 
         ->and($records->hasMorePages())->toBeTrue();
 });
 
+it('opens the learners list with the newest first and sorts it by the first name from the header', function (): void {
+    $zoya = Learner::factory()->create(['first_name' => 'Zoya']);
+    $adam = Learner::factory()->create(['first_name' => 'Adam']);
+    $mira = Learner::factory()->create(['first_name' => 'Mira']);
+
+    // By `id`: the page of a search for a frequent name walks the primary key, not the name index (docs/20 §4).
+    Livewire::test(ListLearners::class)
+        ->assertCanSeeTableRecords([$mira, $adam, $zoya], inOrder: true)
+        ->sortTable('first_name')
+        ->assertCanSeeTableRecords([$adam, $mira, $zoya], inOrder: true)
+        ->sortTable('first_name', 'desc')
+        ->assertCanSeeTableRecords([$zoya, $mira, $adam], inOrder: true);
+});
+
 // --- search of the identifiers --------------------------------------------------------------------
 
 it('finds a payment by the whole charge id or event id of the provider, never by a part of it', function (): void {

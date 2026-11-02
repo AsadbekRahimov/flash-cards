@@ -153,7 +153,9 @@ class LearnerResource extends Resource
                     ->formatStateUsing(fn (Learner $record): string => trim(($record->first_name ?? '').' '.($record->last_name ?? '')))
                     ->placeholder('—')
                     ->label(__('admin.learners.fields.name'))
-                    ->searchable(['first_name', 'last_name']),
+                    ->searchable(['first_name', 'last_name'])
+                    // From the header, by the first name (the index `(first_name, id)`); the list itself opens with the newest first.
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('username')
                     ->label(__('admin.learners.fields.username'))
                     ->prefix('@')
@@ -312,7 +314,9 @@ class LearnerResource extends Resource
                 PracticePilotAction::exclude(),
                 Actions\ViewAction::make(),
             ])
-            ->defaultSort('first_name');
+            // The newest first, on the primary key: sorted by the first name, the page of a search for a frequent name walked the
+            // name index and filtered it (135-790 ms at 200 000 learners, docs/20 §4); by `id` it is 0.1-4.6 ms.
+            ->defaultSort('id', 'desc');
     }
 
     /**
