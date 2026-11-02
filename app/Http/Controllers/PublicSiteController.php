@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Site\Services\LandingPricing;
 use App\Domain\Site\Services\SiteLinks;
+use App\Domain\Site\Services\SitePageCache;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -15,6 +16,8 @@ use Illuminate\Http\Response;
  * Public marketing / legal pages. Static content only: no session, no cookies.
  * Locale: explicit `/{locale}/...` wins; otherwise `Accept-Language`, else the
  * default locale (the response then carries `Vary: Accept-Language`).
+ *
+ * The body is the rendered HTML from the pure cache ({@see SitePageCache}, docs/19 K6); the headers are set on every response.
  */
 final class PublicSiteController extends Controller
 {
@@ -22,6 +25,7 @@ final class PublicSiteController extends Controller
         private readonly LocaleResolver $locales,
         private readonly SiteLinks $links,
         private readonly LandingPricing $pricing,
+        private readonly SitePageCache $cache,
     ) {}
 
     public function home(Request $request, ?string $locale = null): Response
@@ -41,7 +45,10 @@ final class PublicSiteController extends Controller
         return $this->page($request, 'privacy', 'site.privacy', $locale);
     }
 
-    /** @param  (Closure(string): array<string, mixed>)|null  $extra  view data that depends on the resolved locale */
+    /**
+     * @param  view-string  $view
+     * @param  (Closure(string): array<string, mixed>)|null  $extra  view data that depends on the resolved locale
+     */
     private function page(Request $request, string $page, string $view, ?string $locale, ?Closure $extra = null): Response
     {
         $negotiated = ! $this->locales->isSupported($locale);
@@ -49,7 +56,25 @@ final class PublicSiteController extends Controller
             ? $this->locales->fromAcceptLanguage($request->getLanguages())
             : (string) $locale;
 
-        $response = response()->view($view, [
+        $html = $this->cache->html($page, $locale, fn (): string => $this->render($view, $page, $locale, $extra));
+
+        $response = response($html);
+
+        $response->headers->set('Cache-Control', 'public, max-age=300');
+        if ($negotiated) {
+            $response->headers->set('Vary', 'Accept-Language');
+        }
+
+        return $response;
+    }
+
+    /**
+     * @param  view-string  $view
+     * @param  (Closure(string): array<string, mixed>)|null  $extra
+     */
+    private function render(string $view, string $page, string $locale, ?Closure $extra): string
+    {
+        return view($view, [
             'locale' => $locale,
             'locales' => $this->locales->supported(),
             'page' => $page,
@@ -59,13 +84,6 @@ final class PublicSiteController extends Controller
             // The limits every page quotes (the meta description of all three; the plan cards of the landing).
             'limits' => $this->pricing->limits($locale),
             ...($extra === null ? [] : $extra($locale)),
-        ]);
-
-        $response->headers->set('Cache-Control', 'public, max-age=300');
-        if ($negotiated) {
-            $response->headers->set('Vary', 'Accept-Language');
-        }
-
-        return $response;
+        ])->render();
     }
 }
