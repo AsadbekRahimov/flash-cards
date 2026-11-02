@@ -6,8 +6,9 @@ import BattleSetupView from '../BattleSetupView.vue'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
+import { useBattleStore } from '@/stores/battle'
 import { useBillingStore } from '@/stores/billing'
-import { courseDetail, courseRow, invitedBattle, options } from '@/api/__tests__/battleFixtures'
+import { closedBattle, courseDetail, courseRow, invitedBattle, options } from '@/api/__tests__/battleFixtures'
 import { freeLimits, inHours, limitDetails } from '@/api/__tests__/practiceFixtures'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 import type { BattleOptionsResponse, Course, CourseDetail, MeResponse, PracticeLimits } from '@/api/types'
@@ -764,6 +765,96 @@ describe('BattleSetupView — the Free limit of battles', () => {
       await click(r, 'invite-btn')
       expect(get(r, 'paywall').attributes('data-reason')).toBe('practice_limit')
       expect(api.battles.invite).not.toHaveBeenCalled()
+    })
+
+    // A battle that did not take place (declined, not answered in time, withdrawn) is not counted: its place comes back on the server, and
+    // the number on this screen may be from before. So a zero is confirmed by `/me` read again, not believed.
+    describe('a zero that the server may have forgiven', () => {
+      it('"Invite" reads /me again: the fresh counter has a place, the invitation is sent, and no paywall is shown', async () => {
+        serve({ limits: freeLimits(0, 1, inHours(4)) })
+        vi.mocked(api.battles.invite).mockResolvedValue(invitedBattle({ id: 21 }))
+        const r = await render()
+        expect(line(r).text()).toBe('Баттлов сегодня: осталось 0 из 1')
+        vi.mocked(api.me.get).mockResolvedValue(me(freeLimits(0, 0, inHours(4)))) // the server has given the place back
+
+        await click(r, 'invite-btn')
+
+        expect(api.me.get).toHaveBeenCalledTimes(2) // at the mount, and the question before the wall
+        expect(api.battles.invite).toHaveBeenCalledTimes(1)
+        expect(has(r, 'paywall')).toBe(false)
+        expect(route(r).name).toBe('battle')
+        expect(route(r).params.id).toBe('21')
+      })
+
+      it('the fresh counter still says none: the paywall of the limit, and the invitation is not sent', async () => {
+        serve({ limits: freeLimits(0, 1, inHours(4)) })
+        const r = await render()
+
+        await click(r, 'invite-btn')
+
+        expect(api.me.get).toHaveBeenCalledTimes(2)
+        expect(get(r, 'paywall').attributes('data-kind')).toBe('battles')
+        expect(api.battles.invite).not.toHaveBeenCalled()
+      })
+
+      it('the button waits while the counter is being confirmed: "Inviting…", switched off, one question', async () => {
+        serve({ limits: freeLimits(0, 1, inHours(4)) })
+        const r = await render()
+        let answer!: (value: ReturnType<typeof me>) => void
+        vi.mocked(api.me.get).mockReturnValue(new Promise((resolve) => (answer = resolve)))
+
+        await get(r, 'invite-btn').trigger('click')
+        await get(r, 'invite-btn').trigger('click')
+        expect(text(r, 'invite-btn')).toBe('Приглашаем…')
+        expect(get(r, 'invite-btn').attributes('disabled')).toBeDefined()
+        answer(me(freeLimits(0, 1, inHours(4))))
+        await flushPromises()
+
+        expect(api.me.get).toHaveBeenCalledTimes(2)
+        expect(text(r, 'invite-btn')).toBe('Пригласить')
+        expect(has(r, 'paywall')).toBe(true)
+      })
+
+      it('with /me out of reach there is no sales pitch on a number that cannot be checked: the invitation goes to the server', async () => {
+        vi.spyOn(console, 'warn').mockImplementation(() => {})
+        serve({ limits: freeLimits(0, 1, inHours(4)) })
+        vi.mocked(api.battles.invite).mockResolvedValue(invitedBattle({ id: 21 }))
+        const r = await render()
+        vi.mocked(api.me.get).mockRejectedValue(new ApiClientError('network', 0, 'network', 'fetch failed'))
+
+        await click(r, 'invite-btn')
+
+        expect(has(r, 'paywall')).toBe(false)
+        expect(api.battles.invite).toHaveBeenCalledTimes(1)
+      })
+
+      it('an invitation of the learner that closed meanwhile has taken its number off the screen: no line, and "Invite" is not stopped', async () => {
+        serve({ limits: freeLimits(0, 1, inHours(4)) })
+        vi.mocked(api.battles.invite).mockResolvedValue(invitedBattle({ id: 21 }))
+        const r = await render()
+        expect(line(r).exists()).toBe(true)
+
+        useBattleStore().applyBattle(closedBattle('invite_expired', { role: 'challenger' }))
+        await flushPromises()
+        vi.mocked(api.me.get).mockReturnValue(new Promise(() => {})) // /me is still on its way
+
+        expect(line(r).exists()).toBe(false)
+        await click(r, 'invite-btn')
+
+        expect(api.battles.invite).toHaveBeenCalledTimes(1)
+        expect(has(r, 'paywall')).toBe(false)
+      })
+
+      it('a kind that is for Pro only (limit 0) needs no question', async () => {
+        serve({ limits: { sessions: null, battles: { limit: 0, used: 0, remaining: 0, resets_at: inHours(4) } } })
+        const r = await render()
+
+        await click(r, 'invite-btn')
+
+        expect(api.me.get).toHaveBeenCalledTimes(1) // the reading beside the setup
+        expect(get(r, 'paywall').attributes('data-limit')).toBe('0')
+        expect(api.battles.invite).not.toHaveBeenCalled()
+      })
     })
 
     it('a counter whose day is over says nothing and stops nothing: the app stayed open overnight', async () => {

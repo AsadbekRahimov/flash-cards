@@ -7,6 +7,7 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { useToast } from '@/composables/useToast'
 import { setLocale } from '@/i18n'
+import { useBattleStore } from '@/stores/battle'
 import { useBillingStore } from '@/stores/billing'
 import { useFriendsStore } from '@/stores/friends'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
@@ -1229,6 +1230,7 @@ describe('FriendsView', () => {
 
           for (const name of ['Dilnoza', 'Друг']) {
             await rowOf(wrapper, name).get('[data-testid=battle-btn]').trigger('click')
+            await flushPromises()
             expect(wrapper.get('[data-testid=paywall]').attributes('data-reason')).toBe('practice_limit')
             await wrapper.get('[data-testid=paywall-close]').trigger('click')
             expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
@@ -1280,6 +1282,117 @@ describe('FriendsView', () => {
 
           expect(wrapper.get('[data-testid=paywall]').attributes('data-reason')).toBe('practice')
           expect(wrapper.get('[data-testid=paywall]').attributes('data-kind')).toBe('')
+        })
+      })
+
+      // A battle that did not take place (declined, not answered in time, withdrawn) is not counted: its place comes back on the server, and the
+      // number on this screen may be from before. So a zero is confirmed by `/me` read again, not believed.
+      describe('a zero that the server may have forgiven', () => {
+        it.each(['declined', 'invite_expired', 'canceled'] as const)(
+          'invited Dilnoza, the invitation did not become a battle (%s): "Battle" at the other friend shows no paywall when the server allows it',
+          async (reason) => {
+            // the 201 of the invitation to Dilnoza said that no place was left ...
+            useBillingStore().apply(meWith(withLimits(freeLimits(0, 1, inHours(4)))))
+            // ... and the battle screen saw it close without a match
+            useBattleStore().applyBattle(closedBattle(reason, { role: 'challenger' }))
+
+            // Friends opens: the server has given the place back
+            const { wrapper, router } = await renderBattles(withLimits(freeLimits(0, 0, inHours(4))))
+            expect(line(wrapper).text()).toBe('Баттлов сегодня: осталось 1 из 1')
+
+            await rowOf(wrapper, 'Друг').get('[data-testid=battle-btn]').trigger('click')
+            await flushPromises()
+
+            expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+            expect(router.currentRoute.value.name).toBe('battle-new')
+            expect(router.currentRoute.value.query).toEqual({ friendship: '12' })
+            expect(api.me.get).toHaveBeenCalledTimes(1) // the reading that Friends does itself: the tap had nothing left to ask
+          },
+        )
+
+        it('after the closure the screen shows no number and stops nobody until /me has said it: the line is not a stale zero', async () => {
+          useBillingStore().apply(meWith(withLimits(freeLimits(0, 1, inHours(4)))))
+          useBattleStore().applyBattle(closedBattle('declined', { role: 'challenger' }))
+          vi.mocked(api.me.get).mockReturnValue(new Promise(() => {})) // /me is still on its way
+          vi.mocked(api.battles.list).mockResolvedValue(battleList())
+
+          const { wrapper, router } = await render()
+          expect(line(wrapper).exists()).toBe(false)
+
+          await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+          await flushPromises()
+
+          expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+          expect(router.currentRoute.value.name).toBe('battle-new')
+        })
+
+        it('a zero that the screen still remembers (the closure was not seen) is confirmed by /me before the paywall: the place was given back', async () => {
+          const billing = useBillingStore()
+          billing.apply(meWith(withLimits(freeLimits(0, 1, inHours(4))))) // fresh in the cache: Friends does not read /me itself
+          const { wrapper, router } = await renderBattles(withLimits(freeLimits(0, 0, inHours(4)))) // ... what the server says now
+          expect(api.me.get).not.toHaveBeenCalled()
+          expect(line(wrapper).text()).toBe('Баттлов сегодня: осталось 0 из 1')
+
+          await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+          await flushPromises()
+
+          expect(api.me.get).toHaveBeenCalledTimes(1)
+          expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+          expect(router.currentRoute.value.name).toBe('battle-new')
+          expect(line(wrapper).text()).toBe('Баттлов сегодня: осталось 1 из 1')
+        })
+
+        it('the fresh counter still says none: the paywall, after one question and not more', async () => {
+          useBillingStore().apply(meWith(withLimits(freeLimits(0, 1, inHours(4)))))
+          const { wrapper, router } = await renderBattles(withLimits(freeLimits(0, 1, inHours(4))))
+
+          await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+          await flushPromises()
+
+          expect(api.me.get).toHaveBeenCalledTimes(1)
+          expect(wrapper.get('[data-testid=paywall]').attributes('data-kind')).toBe('battles')
+          expect(router.currentRoute.value.name).toBe('friends')
+        })
+
+        it('with /me out of reach there is no sales pitch on a number that cannot be checked: the setup opens, and the server decides there', async () => {
+          vi.spyOn(console, 'warn').mockImplementation(() => {})
+          useBillingStore().apply(meWith(withLimits(freeLimits(0, 1, inHours(4)))))
+          const { wrapper, router } = await renderBattles(withLimits(freeLimits(0, 1, inHours(4))))
+          vi.mocked(api.me.get).mockRejectedValue(new ApiClientError('network', 0, 'network', 'x'))
+
+          await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+          await flushPromises()
+
+          expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+          expect(router.currentRoute.value.name).toBe('battle-new')
+        })
+
+        it('the buttons wait while the counter is being confirmed: a second press is not a second question', async () => {
+          useBillingStore().apply(meWith(withLimits(freeLimits(0, 1, inHours(4)))))
+          const { wrapper } = await renderBattles(withLimits(freeLimits(0, 1, inHours(4))))
+          let answer!: (value: MeResponse) => void
+          vi.mocked(api.me.get).mockReturnValue(new Promise((resolve) => (answer = resolve)))
+
+          await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+          expect(wrapper.findAll('[data-testid=battle-btn]').every((button) => button.attributes('disabled') !== undefined)).toBe(true)
+          await rowOf(wrapper, 'Друг').get('[data-testid=battle-btn]').trigger('click')
+          answer(meWith(withLimits(freeLimits(0, 1, inHours(4)))))
+          await flushPromises()
+
+          expect(api.me.get).toHaveBeenCalledTimes(1)
+          expect(wrapper.findAll('[data-testid=paywall]')).toHaveLength(1)
+          expect(wrapper.findAll('[data-testid=battle-btn]').every((button) => button.attributes('disabled') === undefined)).toBe(true)
+        })
+
+        it('a kind that is for Pro only (limit 0) needs no question', async () => {
+          const zero = { sessions: null, battles: { limit: 0, used: 0, remaining: 0, resets_at: inHours(4) } }
+          const { wrapper } = await renderBattles(withLimits(zero))
+
+          await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+          await flushPromises()
+
+          expect(api.me.get).toHaveBeenCalledTimes(1) // Friends' own reading at mount
+          expect(wrapper.get('[data-testid=paywall]').attributes('data-limit')).toBe('0')
         })
       })
 

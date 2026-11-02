@@ -393,4 +393,103 @@ describe('billing store - the Free limits of practice and battles (docs/18 §3)'
       expect(billing.battleLimit).toBeNull()
     })
   })
+
+  // A battle that did not take place is not counted: its place comes back on the server, while the screens hold the number from before.
+  describe('forgetLimit', () => {
+    it('drops the counter of that kind alone - nothing shown, nothing stopped - and makes the next /me ask the server', () => {
+      const billing = useBillingStore()
+      billing.apply(meWith(access(freeLimits(1, 1))))
+      expect(billing.loadedAt).not.toBeNull()
+
+      billing.forgetLimit('battles')
+
+      expect(billing.battleLimit).toBeNull()
+      expect(billing.limitReached('battles')).toBeNull()
+      expect(billing.sessionLimit).toMatchObject({ used: 1, remaining: 1 })
+      expect(billing.loadedAt).toBeNull()
+    })
+
+    it('the counter comes back with the next reading of /me', async () => {
+      const billing = useBillingStore()
+      billing.apply(meWith(access(freeLimits(0, 1))))
+      billing.forgetLimit('battles')
+      vi.mocked(api.me.get).mockResolvedValue(meWith(access(freeLimits(0, 0))))
+
+      await billing.load()
+
+      expect(api.me.get).toHaveBeenCalledTimes(1)
+      expect(billing.battleLimit).toMatchObject({ limit: 1, remaining: 1 })
+    })
+
+    it('has nothing to drop for a learner without counters (Pro), but still makes /me ask', () => {
+      const billing = useBillingStore()
+      billing.apply(meWith(access(null)))
+
+      billing.forgetLimit('battles')
+
+      expect(billing.limits).toBeNull()
+      expect(billing.loadedAt).toBeNull()
+    })
+  })
+
+  // The wall that the SERVER stands behind: a zero on the screen may be old, so /me is read again before the paywall.
+  describe('confirmLimit', () => {
+    beforeEach(() => vi.spyOn(console, 'warn').mockImplementation(() => {}))
+
+    it('is nothing, without a question, while some place is left, for a kind without a counter and for Pro', async () => {
+      const billing = useBillingStore()
+
+      billing.setLimits(freeLimits(1, 0))
+      expect(await billing.confirmLimit('sessions')).toBeNull()
+      expect(await billing.confirmLimit('battles')).toBeNull()
+
+      billing.setLimits({ sessions: null, battles: null })
+      expect(await billing.confirmLimit('battles')).toBeNull()
+
+      billing.setLimits(null)
+      expect(await billing.confirmLimit('battles')).toBeNull()
+      expect(api.me.get).not.toHaveBeenCalled()
+    })
+
+    it('reads /me again (the answer to a question, not the cache) and is the wall the fresh counter describes', async () => {
+      const billing = useBillingStore()
+      const resetsAt = inHours(5)
+      billing.apply(meWith(access(freeLimits(2, 1, resetsAt)))) // fresh in the cache: a plain load() would not ask
+      vi.mocked(api.me.get).mockResolvedValue(meWith(access(freeLimits(2, 1, resetsAt))))
+
+      expect(await billing.confirmLimit('battles')).toEqual({ kind: 'battles', limit: 1, used: 1, resets_at: resetsAt })
+
+      expect(api.me.get).toHaveBeenCalledTimes(1)
+    })
+
+    it('is nothing when the fresh counter has a place: the server gave it back', async () => {
+      const billing = useBillingStore()
+      billing.apply(meWith(access(freeLimits(0, 1))))
+      vi.mocked(api.me.get).mockResolvedValue(meWith(access(freeLimits(0, 0))))
+
+      expect(await billing.confirmLimit('battles')).toBeNull()
+
+      expect(billing.battleLimit).toMatchObject({ remaining: 1 })
+    })
+
+    it('is nothing when /me cannot be read: the number cannot be checked, so the action itself goes to the server', async () => {
+      const billing = useBillingStore()
+      billing.apply(meWith(access(freeLimits(0, 1))))
+      vi.mocked(api.me.get).mockRejectedValue(new ApiClientError('network', 0, 'network', 'x'))
+
+      expect(await billing.confirmLimit('battles')).toBeNull()
+
+      expect(billing.battleLimit).toMatchObject({ remaining: 0 }) // what it knew is not thrown away
+    })
+
+    it('needs no question for a kind that is for Pro only (limit 0): nothing gives a place back there', async () => {
+      const billing = useBillingStore()
+      billing.setLimits({ sessions: counter(0, 0, inHours(5)), battles: counter(0, 0, inHours(5)) })
+
+      expect(await billing.confirmLimit('battles')).toMatchObject({ kind: 'battles', limit: 0 })
+      expect(await billing.confirmLimit('sessions')).toMatchObject({ kind: 'sessions', limit: 0 })
+
+      expect(api.me.get).not.toHaveBeenCalled()
+    })
+  })
 })

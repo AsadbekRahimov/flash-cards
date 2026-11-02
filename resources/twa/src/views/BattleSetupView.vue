@@ -37,7 +37,8 @@ import type { PracticeMode } from '@/api/types'
  * - A refusal is told in words: a battle of the learner's own in the way (with a link to it), the friend no longer a
  *   friend, battles switched off, the material gone since the numbers were read.
  * - Free has a few battles a day (docs/18 §3): above "Invite" a quiet line says how many are left ("Battles today: 1 of 1 left";
- *   Pro sees nothing). With none left "Invite" still works - it opens the paywall of the limit at once, without a request.
+ *   Pro sees nothing). With none left "Invite" still works - it reads `/me` again (a battle that did not take place gives its place back)
+ *   and opens the paywall of the limit if the fresh counter says none either; the invitation itself is not sent then.
  *   Accepting an invitation is never limited, and this screen is not where that happens.
  * "Back" leads to the Friends.
  */

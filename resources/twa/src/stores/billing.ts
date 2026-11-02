@@ -172,6 +172,30 @@ export const useBillingStore = defineStore('billing', {
       return reachedLimit(this.limits, kind)
     },
 
+    /**
+     * The counter of `kind` is not known any more: a place may have been given back (a battle that did not take place is not counted,
+     * and the screen may have seen it close). Nothing is shown for it and nothing is stopped by it, and the next reading of `/me` asks the
+     * server instead of the cache - that brings the counter back with the right number.
+     */
+    forgetLimit(kind: PracticeLimitKind): void {
+      if (this.limits !== null) this.limits = { ...this.limits, [kind]: null }
+      this.loadedAt = null
+    },
+
+    /**
+     * The wall of `kind` that the SERVER stands behind. A counter that says the free allowance is spent may be old (a battle that never
+     * started gives its place back, and this screen may not have seen it), so `/me` is read again first and the wall is what the FRESH
+     * counter says. Null: nothing is spent, the server gave a place back, or it could not be asked (no network) - the action itself then
+     * goes to the server and tells what is wrong, rather than a sales pitch on a number that cannot be checked. A kind that is for Pro
+     * only (limit 0) needs no question: nothing gives a place back there.
+     */
+    async confirmLimit(kind: PracticeLimitKind): Promise<PracticeLimitHit | null> {
+      const remembered = this.limitReached(kind)
+      if (remembered === null || remembered.limit === 0) return remembered
+      await this.load({ force: true })
+      return this.loadedAt === null ? null : this.limitReached(kind)
+    },
+
     /** The plan may have changed behind our back (e.g. the learner left a center): the next `load()` asks the server. */
     invalidate(): void {
       this.loadedAt = null
