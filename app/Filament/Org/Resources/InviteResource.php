@@ -6,6 +6,7 @@ namespace App\Filament\Org\Resources;
 
 use App\Domain\Organizations\Services\OrganizationInviteService;
 use App\Filament\Org\Resources\InviteResource\Pages;
+use App\Filament\Resources\Support\AdminTable;
 use App\Models\OrganizationInvite;
 use Carbon\CarbonImmutable;
 use Filament\Actions;
@@ -54,7 +55,8 @@ class InviteResource extends OrgResource
     {
         $invites = app(OrganizationInviteService::class);
 
-        return $table
+        // Page sizes 10/25/50/100 and nothing else (docs/20 §1.6): a forged $tableRecordsPerPage gets the default, not every row.
+        return AdminTable::bounded($table)
             ->columns([
                 Tables\Columns\TextColumn::make('code')->label(__('org.invites.columns.code'))->copyable()->fontFamily('mono'),
                 Tables\Columns\TextColumn::make('label')->label(__('org.invites.columns.label'))->placeholder('—')->limit(32),

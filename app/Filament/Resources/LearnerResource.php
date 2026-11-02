@@ -207,10 +207,10 @@ class LearnerResource extends Resource
                     ->toggleable()
                     ->visible($isAdmin),
                 // Invited learners (docs/13 §7.1): all non-rejected referrals; the flagged ones are in the Referrals tab.
+                // Not sortable: an order by this aggregate sorts the whole table by the subquery (docs/20 §1.5, §4).
                 Tables\Columns\TextColumn::make('referrals_count')
                     ->label(__('admin.learners.fields.referrals_count'))
                     ->counts(['referrals' => fn (Builder $q): Builder => $q->where('status', '<>', ReferralStatus::Rejected->value)])
-                    ->sortable()
                     ->toggleable()
                     ->visible($isAdmin),
                 Tables\Columns\TextColumn::make('last_seen_at')->label(__('admin.learners.fields.last_seen_at'))->dateTime()->sortable()->toggleable()->visible($isAdmin),
@@ -337,6 +337,9 @@ class LearnerResource extends Resource
             ->with(['groups' => fn ($groups) => $groups
                 ->wherePivot('status', 'active')
                 ->whereIn('telegram_groups.id', $scope->groups()->select('telegram_groups.id'))])
+            // A teacher's row policy (LearnerPolicy::view) reads the learner's active memberships: loaded with the rows,
+            // not queried per row (docs/20 A11). An admin may see anyone and does not need them.
+            ->when(! $scope->isAdmin(), fn (Builder $q): Builder => $q->with('activeGroupMemberships'))
             ->withCount([
                 'repetitions',
                 'trainingReviews' => fn (Builder $q): Builder => $q->whereIn('training_session_id', clone $sessionIds),

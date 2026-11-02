@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Domain\Administration\Services\PanelRequestMemo;
 use App\Domain\Billing\Providers\Click\ClickSignature;
 use App\Domain\Billing\Providers\ClickProvider;
 use App\Domain\Billing\Providers\Payme\PaymeAuth;
@@ -93,9 +94,11 @@ class AppServiceProvider extends ServiceProvider
             return $registry;
         });
 
-        // The `/org` access checks (role, visible groups) are read once per request or queued job: a scoped
-        // binding is forgotten by the queue worker before each job and by Octane between requests (docs/20 F4).
+        // The access checks of the panels (the role and the visible groups in `/org`, the groups of a teacher in
+        // `/admin`) are read once per request or queued job: a scoped binding is forgotten by the queue worker before
+        // each job and by Octane between requests (docs/20 F4, A11).
         $this->app->scoped(OrgRequestMemo::class);
+        $this->app->scoped(PanelRequestMemo::class);
 
         // Keys are read per request (not a singleton): a rotated PAYME_KEY / PAYME_TEST_KEY applies at once in tests and after config:cache.
         $this->app->bind(PaymeAuth::class, static fn (): PaymeAuth => PaymeAuth::fromConfig());
@@ -165,11 +168,13 @@ class AppServiceProvider extends ServiceProvider
         // A staff row written in this request changes the role its policies see: drop the per-request memory.
         OrganizationUser::observe(OrganizationUserObserver::class);
 
-        // A process that handles many requests without Octane (the test suite) would carry the memory of the
-        // cabinet from one request into the next; FPM and Octane do not need this, it costs them nothing.
+        // A process that handles many requests without Octane (the test suite) would carry the memories of the
+        // panels from one request into the next; FPM and Octane do not need this, it costs them nothing.
         Event::listen(RequestHandled::class, function (): void {
-            if ($this->app->resolved(OrgRequestMemo::class)) {
-                $this->app->make(OrgRequestMemo::class)->flush();
+            foreach ([OrgRequestMemo::class, PanelRequestMemo::class] as $memo) {
+                if ($this->app->resolved($memo)) {
+                    $this->app->make($memo)->flush();
+                }
             }
         });
 
