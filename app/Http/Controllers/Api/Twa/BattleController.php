@@ -9,6 +9,7 @@ use App\Domain\Practice\Exceptions\BattleException;
 use App\Domain\Practice\Exceptions\PracticeException;
 use App\Domain\Practice\Services\Battle\BattleReader;
 use App\Domain\Practice\Services\Battle\BattleService;
+use App\Domain\Practice\Services\PracticeLimits;
 use App\Http\Requests\Twa\BattleAnswerRequest;
 use App\Http\Requests\Twa\BattleAudioFailedRequest;
 use App\Http\Requests\Twa\BattleInviteRequest;
@@ -18,6 +19,7 @@ use App\Http\Requests\Twa\BattleSurrenderRequest;
 use App\Http\Resources\ApiErrorResource;
 use App\Http\Resources\Twa\BattleAnswerResource;
 use App\Http\Resources\Twa\BattleAudioFailedResource;
+use App\Http\Resources\Twa\BattleInvitedResource;
 use App\Http\Resources\Twa\BattleListResource;
 use App\Http\Resources\Twa\BattleOptionsResource;
 use App\Http\Resources\Twa\BattlePollResource;
@@ -43,6 +45,7 @@ final class BattleController
     public function __construct(
         private readonly BattleService $battles,
         private readonly BattleReader $reader,
+        private readonly PracticeLimits $limits,
     ) {}
 
     /** GET /api/twa/practice/battles/options */
@@ -69,7 +72,7 @@ final class BattleController
         return (new BattleListResource($list))->response();
     }
 
-    /** POST /api/twa/practice/battles — 201 with the new battle (an invitation, the friend is told in a DM). */
+    /** POST /api/twa/practice/battles — 201 with the new battle (an invitation, the friend is told in a DM) and the limits left today. */
     public function store(BattleInviteRequest $request): JsonResponse
     {
         $learner = $this->learner($request);
@@ -83,8 +86,10 @@ final class BattleController
                 $request->lessonId(),
                 $request->rematchOf(),
             );
+            $now = CarbonImmutable::now();
 
-            return (new BattleResource($this->reader->view($battle, $learner, CarbonImmutable::now())))->response()->setStatusCode(201);
+            return (new BattleInvitedResource($this->reader->view($battle, $learner, $now), $this->limits->forLearner($learner, $now)))
+                ->response()->setStatusCode(201);
         } catch (BattleException|PracticeException|FriendshipException $e) {
             return $this->error($e);
         }

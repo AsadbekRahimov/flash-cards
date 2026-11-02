@@ -59,7 +59,7 @@ const CONTRACT_CARD = ['word_id', 'word', 'translation', 'translation_fallback',
 const CONTRACT_EXAM_QUESTION = ['question_index', 'word_id', 'word', 'options', 'seconds_left'];
 const CONTRACT_FORBIDDEN_EXAM_KEYS = ['correct_index', 'correct_translation', 'canonical_index'];
 // The block `practice` of GET /me and of every answer with the refreshed profile (docs/16 §3.3).
-const CONTRACT_PRACTICE_ME = ['available', 'pro_required', 'modes', 'battle'];
+const CONTRACT_PRACTICE_ME = ['available', 'pro_required', 'modes', 'battle', 'limits'];
 
 function contractHeaders(Learner $learner): array
 {
@@ -155,7 +155,7 @@ it('GET /me keeps its exact JSON shape', function (): void {
         ->and($response->json('groups.0.id'))->toBe($s['group']->id)
         ->and($response->json('learner.id'))->toBe($s['learner']->id)
         // The block is always there; `PRACTICE_ACCESS` is `off` by default (docs/16 §3.3).
-        ->and($response->json('practice'))->toBe(['available' => false, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation'], 'battle' => true]);
+        ->and($response->json('practice'))->toBe(['available' => false, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation'], 'battle' => true, 'limits' => null]);
 });
 
 it('GET /today keeps its exact JSON shape, with and without an active course', function (): void {

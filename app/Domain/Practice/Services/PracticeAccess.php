@@ -38,6 +38,12 @@ final class PracticeAccess
         return $this->resolve($learner, fn (): Entitlement => $this->entitlements->for($learner, $now));
     }
 
+    /** The state with an entitlement already in hand (the one `/me` resolved): no second resolution, no query. */
+    public function stateFor(Learner $learner, Entitlement $entitlement): PracticeAccessState
+    {
+        return $this->resolve($learner, static fn (): Entitlement => $entitlement);
+    }
+
     /**
      * @throws PracticeException practice_unavailable (403) | practice_pro_required (403)
      */
@@ -82,7 +88,7 @@ final class PracticeAccess
      */
     public function describe(Learner $learner, Entitlement $entitlement): array
     {
-        $state = $this->resolve($learner, static fn (): Entitlement => $entitlement);
+        $state = $this->stateFor($learner, $entitlement);
 
         return [
             'available' => $state->showsEntries(),

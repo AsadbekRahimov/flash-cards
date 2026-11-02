@@ -28,6 +28,7 @@ use App\Domain\Practice\Exceptions\PracticeException;
 use App\Domain\Practice\Services\Modes\ModeRegistry;
 use App\Domain\Practice\Services\PracticeAccess;
 use App\Domain\Practice\Services\PracticeAudioService;
+use App\Domain\Practice\Services\PracticeLimits;
 use App\Domain\Practice\Services\PracticeMaterialService;
 use App\Domain\Practice\Services\PracticeSnapshotBuilder;
 use App\Jobs\SendBattleDmJob;
@@ -80,14 +81,18 @@ final class BattleService
         private readonly BattleSettings $settings,
         private readonly BattleReader $reader,
         private readonly ProductEventRecorder $events,
+        private readonly PracticeLimits $limits,
     ) {}
 
     /**
-     * Invites a friend (docs/16 §8.2). Outside the transaction: the access of both, the switches, the friendship, the course
-     * (published, not private) and the lesson, the snapshot of exactly `practice.battle.rounds` rounds for the languages of both
-     * players. Inside: the row and the two participants - the challenger busy with the match (a violation of the unique
-     * `active_learner_id` is 409 `battle_busy` with the id of the match that keeps them busy). After the commit: the event
-     * `battle.invited` and the DM to the friend.
+     * Invites a friend (docs/16 §8.2). Outside the transaction: the access of both, the switches, the Free limit of the day
+     * (docs/18 G1, {@see PracticeLimits}: a Free learner who has called `practice.free_limits.battles_per_day` battles today - a
+     * rematch counts for the one who offers it - is refused 403 `practice_limit_reached` right after the switches), the
+     * friendship, the course (published, not private) and the lesson, the snapshot of exactly `practice.battle.rounds` rounds for
+     * the languages of both players. Inside: the place of the call is TAKEN under the lock of the challenger's row (Free only,
+     * the first lock of the transaction; the friend's row is never locked), then the row and the two participants - the
+     * challenger busy with the match (a violation of the unique `active_learner_id` is 409 `battle_busy` with the id of the match
+     * that keeps them busy). After the commit: the event `battle.invited` and the DM to the friend.
      *
      * A rematch (`$rematchOf` - a battle of the learner that is over) needs no `$friendshipId`: the friend is the other player
      * of that battle, the mode, the course and the lesson are its own (what was sent for them is ignored); the snapshot is new.
@@ -103,7 +108,7 @@ final class BattleService
      *
      * @throws BattleException battle_disabled | battle_busy | battle_friend_no_access | not_friends | battle_material_unavailable |
      *                         battle_not_found (a rematch of a battle that is not the learner's) | battle_wrong_state (a rematch of a match still on)
-     * @throws PracticeException practice_unavailable | practice_pro_required | practice_mode_disabled | course_not_found | lesson_not_found | lesson_not_in_course
+     * @throws PracticeException practice_unavailable | practice_pro_required | practice_mode_disabled | practice_limit_reached | course_not_found | lesson_not_found | lesson_not_in_course
      * @throws FriendshipException friendship_not_found
      */
     public function invite(
@@ -124,6 +129,7 @@ final class BattleService
             $mode = $source->mode;
         }
         $this->access->assertModeEnabled($mode);
+        $this->limits->assertBattleAllowed($by, $now);
 
         [$friend, $friendship] = $source === null
             ? $this->friends->byFriendship($by, $friendshipId ?? throw FriendshipException::notFound())
@@ -163,7 +169,13 @@ final class BattleService
 
         for ($attempt = 0; $attempt < 2; $attempt++) {
             try {
-                return DB::transaction(function () use ($by, $friend, $attributes, $challengerLocale, $opponentLocale, $source): Battle {
+                return $this->transact(function () use ($by, $friend, $attributes, $challengerLocale, $opponentLocale, $source, $now): Battle|PracticeException {
+                    // The challenger's row first (Free only): the refusal of the limit is returned and thrown after the commit.
+                    $refusal = $this->limits->claimBattle($by, $now);
+                    if ($refusal !== null) {
+                        return $refusal;
+                    }
+
                     $battle = Battle::query()->create($attributes);
 
                     // Complete rows (the defaults of the columns written out): the caller shows the battle at once, from these two models.

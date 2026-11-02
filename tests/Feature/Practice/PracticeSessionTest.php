@@ -268,7 +268,7 @@ it('resumes with the very same layout: a reload returns the current element as i
     $opened = psOpen($this, $learner, $course->slug)->assertCreated()->json();
     $firstAgain = psGet($this, $learner, $opened['id'])->assertOk()->json();
     expect($firstAgain['current'])->toBe($opened['current'])
-        ->and(Arr::except($firstAgain, ['server_now']))->toBe(Arr::except($opened, ['server_now']));
+        ->and(Arr::except($firstAgain, ['server_now']))->toBe(Arr::except($opened, ['server_now', 'limits'])); // `limits` is the 201's alone (docs/18 G1)
 
     $answered = psAnswerCurrent($this, $learner, $opened)->assertOk()->json('session');
     $reload = psGet($this, $learner, $opened['id'])->assertOk()->json();

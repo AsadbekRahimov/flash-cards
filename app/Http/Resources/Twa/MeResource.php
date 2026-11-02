@@ -7,6 +7,7 @@ namespace App\Http\Resources\Twa;
 use App\Domain\Billing\DTO\Entitlement;
 use App\Domain\Learners\Services\LearnerSettingsService;
 use App\Domain\Learning\DTO\LearnerStats;
+use App\Domain\Practice\Services\PracticeLimits;
 use App\Models\Learner;
 use App\Models\TelegramGroup;
 use Illuminate\Http\Request;
@@ -16,8 +17,9 @@ use Illuminate\Support\Collection;
  * GET /api/twa/me
  *
  * @phpstan-import-type SettingsPayload from LearnerSettingsService
+ * @phpstan-import-type LimitsBlock from PracticeLimits
  *
- * @property array{learner: Learner, groups: Collection<int, TelegramGroup>, stats: LearnerStats, entitlement: Entitlement, renewal: array{auto: bool, provider: string, ends_at: string|null, reminder_sent: bool}|null, lapsed: array{provider: string, ended_at: string}|null, paywall: array{mode: string, contact: string|null}, settings: SettingsPayload, practice: array{available: bool, pro_required: bool, modes: list<string>, battle: bool}} $resource
+ * @property array{learner: Learner, groups: Collection<int, TelegramGroup>, stats: LearnerStats, entitlement: Entitlement, renewal: array{auto: bool, provider: string, ends_at: string|null, reminder_sent: bool}|null, lapsed: array{provider: string, ended_at: string}|null, paywall: array{mode: string, contact: string|null}, settings: SettingsPayload, practice: array{available: bool, pro_required: bool, modes: list<string>, battle: bool, limits: LimitsBlock|null}} $resource
  */
 final class MeResource extends TwaResource
 {

@@ -7,14 +7,23 @@ declare(strict_types=1);
 | Practice (four solo modes) and the 1-on-1 battle (docs/16 §3.1)
 |--------------------------------------------------------------------------
 |
-| The keys are final (docs/16): `env()` is read only by the switches. `access`: off | pilot | all;
+| The keys are final (docs/16): `env()` is read only by the switches and the Free limits. `access`: off | pilot | all;
 | `plan`: all | pro. A switched-off mode / the battle blocks only the CREATION of a session / an invitation:
 | sessions that are open and matches that are on go on to their end (docs/16 §3.2).
+|
+| `free_limits` (docs/18 §3, G1): what a learner WITHOUT the entitlement feature `practice.unlimited` (Pro, sponsored Pro
+| included) may create per local day - solo sessions opened (a retry of the mistakes is free) and battles called (a rematch
+| counts for the one who offers it; accepting is always free). `0` = only Pro creates; empty / null = no limit for Free.
+| Refused: 403 `practice_limit_reached` (docs/16 §3.2). `plan = pro` keeps the older rule: Free gets 403 `practice_pro_required`.
 */
 
 return [
     'access' => env('PRACTICE_ACCESS', 'off'),          // off | pilot | all
     'plan' => env('PRACTICE_PLAN', 'all'),              // all | pro
+    'free_limits' => [
+        'sessions_per_day' => env('PRACTICE_FREE_SESSIONS_PER_DAY', 2),
+        'battles_per_day' => env('PRACTICE_FREE_BATTLES_PER_DAY', 1),
+    ],
     'modes' => [
         'pairs' => (bool) env('PRACTICE_MODE_PAIRS', true),
         'collocation' => (bool) env('PRACTICE_MODE_COLLOCATION', true),
