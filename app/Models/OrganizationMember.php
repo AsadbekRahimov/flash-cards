@@ -30,7 +30,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $left_at
  * @property array<string, mixed> $meta
  * @property-read Organization $organization both FKs are NOT NULL with cascade: the parents of a membership always exist
- * @property-read Learner $learner
+ * @property-read Learner|null $learner the row exists, but a soft-deleted learner loads as null (SoftDeletes)
  */
 class OrganizationMember extends Model
 {

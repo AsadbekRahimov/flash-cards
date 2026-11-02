@@ -263,8 +263,10 @@ final class PanelDataScope
     /**
      * WHICH data this viewer sees, as a short key part for a cached aggregate (docs/19 K1): `all` for an admin; for a
      * teacher their user id and a hash of the ids of their groups, so the day a group is added or taken away is a
-     * different key at once and no stale aggregate of a group they lost is ever shown (nothing to invalidate); `none`
-     * when nobody is signed in (callers do not cache that). One small indexed read for a teacher, none for an admin.
+     * different key from their next request on and no stale aggregate of a group they lost is ever shown (nothing to
+     * invalidate); `none`
+     * when nobody is signed in (callers do not cache that). One small indexed read per request for a teacher
+     * ({@see teacherGroupIds()}), none for an admin.
      */
     public function fingerprint(): string
     {
@@ -278,10 +280,8 @@ final class PanelDataScope
             return 'all';
         }
 
-        /** @var list<int> $groupIds */
-        $groupIds = $user->telegramGroups()->pluck('telegram_groups.id')->map(static fn (mixed $id): int => (int) $id)->sort()->values()->all();
-
-        return 'u'.$user->id.'g'.substr(hash('sha256', implode(',', $groupIds)), 0, 12);
+        // The groups of the teacher, read once per request (ascending by id, so the hash is stable).
+        return 'u'.$user->id.'g'.substr(hash('sha256', implode(',', $this->teacherGroupIds($user))), 0, 12);
     }
 
     private function user(): ?User

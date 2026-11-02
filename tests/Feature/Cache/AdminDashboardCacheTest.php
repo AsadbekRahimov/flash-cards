@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Administration\Services\AdminDashboardStats;
 use App\Domain\Administration\Services\PanelDataScope;
+use App\Domain\Administration\Services\PanelRequestMemo;
 use App\Domain\Administration\Services\WidgetCache;
 use App\Domain\Engagement\Services\LeagueService;
 use App\Domain\Operations\Support\PureCache;
@@ -309,14 +310,17 @@ it('changes the key of a teacher the moment their groups change, so a lost group
     $both = $scope->fingerprint();
     expect(app(AdminDashboardStats::class)->totalLearners()['total'])->toBe(3);
 
-    // Group B is taken away: no waiting for the TTL, the numbers of B are gone with the next read.
+    // Group B is taken away by an administrator (another request): no waiting for the TTL, the numbers of B are gone with
+    // the teacher's next request. The groups are read once per request (PanelRequestMemo); the flush stands for its end.
     $teacher->telegramGroups()->detach($groupB->id);
+    app(PanelRequestMemo::class)->flush();
 
     expect($scope->fingerprint())->not->toBe($both)
         ->and(app(AdminDashboardStats::class)->totalLearners()['total'])->toBe(1);
 
     // Put back: the old key, still fresh, is read again.
     $teacher->telegramGroups()->attach($groupB->id);
+    app(PanelRequestMemo::class)->flush();
     expect($scope->fingerprint())->toBe($both);
 });
 

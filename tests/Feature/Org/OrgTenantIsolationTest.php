@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Livewire\Livewire;
 use Tests\Support\FakeTelegramClient;
+use Tests\Support\QueryLog;
 
 /*
  * Tenant isolation and the CRUD of the `/org` cabinet (docs/13 §6.3, §10, DoD 2B.3): two centers,
@@ -120,6 +121,14 @@ it('searches members by name or username, case-insensitively, within the tenant 
         ->assertCanNotSeeTableRecords([$this->memberA2]);
     // Bob is a member of B: the search never reaches across the tenant.
     Livewire::test(ListMembers::class)->searchTable('bob')->assertCountTableRecords(0);
+
+    // `_` and `%` of the typed text are letters, not wildcards: "anna_a" is not "annaXa", "%" finds nobody.
+    $lookalike = Learner::factory()->memberOf($this->groupA1)->seatedIn($this->a)->create(['first_name' => 'Annaxa', 'username' => 'annaXa']);
+    $lookalikeMember = OrganizationMember::query()->where('learner_id', $lookalike->id)->firstOrFail();
+    Livewire::test(ListMembers::class)->searchTable('anna_a')
+        ->assertCanSeeTableRecords([$this->memberA1])
+        ->assertCanNotSeeTableRecords([$lookalikeMember]);
+    Livewire::test(ListMembers::class)->searchTable('%')->assertCountTableRecords(0);
 });
 
 it('answers 404 to a direct URL of a record of the other organization', function (): void {
@@ -169,6 +178,31 @@ it('shows a teacher only the assigned groups and their learners, without the own
     expect(OrgSeatsWidget::canView())->toBeFalse();
     Livewire::test(OrgSeatsWidget::class)->assertForbidden();
     Livewire::test(OrgActivityWidget::class)->assertOk();
+});
+
+it('does not let a teacher open the membership row of a soft-deleted learner, and decides so without a query', function (): void {
+    $gone = Learner::factory()->memberOf($this->groupA1)->seatedIn($this->a)->create(['first_name' => 'Gone']);
+    $goneMember = OrganizationMember::query()->where('learner_id', $gone->id)->firstOrFail();
+    $gone->delete();
+    isoEnter($this->teacherA, $this->a);
+
+    // The row is in the teacher's list (the group membership is still active), but it is nobody's to open.
+    Livewire::test(ListMembers::class)
+        ->assertCanSeeTableRecords([$this->memberA1, $goneMember])
+        ->assertTableActionVisible('view', $this->memberA1)
+        ->assertTableActionHidden('view', $goneMember);
+
+    $scope = app(OrgTenantScope::class);
+    $scope->teacherGroupIds($this->teacherA, $this->a);
+    $row = OrganizationMember::query()->with('learner')->findOrFail($goneMember->id);
+
+    expect($row->learner)->toBeNull()
+        ->and(QueryLog::during(fn () => expect($scope->canSeeMember($this->teacherA, $this->a, $row))->toBeFalse()))->toBe([])
+        ->and($scope->canSeeMember($this->ownerA, $this->a, $row))->toBeTrue();
+
+    $this->actingAs($this->teacherA, 'org')->withSession(['2fa.org.passed_at' => now()->timestamp, '2fa.org.user_id' => $this->teacherA->id])
+        ->get("/org/center-a/members/{$goneMember->id}")
+        ->assertForbidden();
 });
 
 it('renders the owner dashboard widgets with the seats of the tenant', function (): void {

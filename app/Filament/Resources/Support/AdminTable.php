@@ -46,6 +46,37 @@ final class AdminTable
     }
 
     /**
+     * `$column` contains `$term`, case-insensitively, with `%`, `_` and `\` of the term taken literally (an own LIKE search
+     * without this lets "a_b" find "axb" and "%" find everything). The pattern is escaped with a backslash and says so with
+     * an explicit ESCAPE, so it means the same on PostgreSQL and SQLite. PostgreSQL compares `ilike` on the column itself -
+     * the form the trigram index of `learners.username` serves (docs/03 §2.17) - and SQLite's `like` is case-insensitive
+     * for ASCII.
+     *
+     * @template TModel of Model
+     *
+     * @param  Builder<TModel>  $query
+     * @param  literal-string  $column  a column name written in the code (`learners.username`), never taken from input
+     * @param  'and'|'or'  $boolean
+     * @return Builder<TModel>
+     */
+    public static function whereContains(Builder $query, string $column, string $term, string $boolean = 'and'): Builder
+    {
+        $operator = $query->getModel()->getConnection()->getDriverName() === 'pgsql' ? 'ilike' : 'like';
+
+        // The column name is part of the code, the term is a binding.
+        return $query->whereRaw("{$column} {$operator} ? escape '\\'", ['%'.self::escapeLike($term).'%'], $boolean);
+    }
+
+    /**
+     * A search term as the literal part of a LIKE pattern: `%`, `_` and `\` escaped with a backslash. The pattern must be
+     * compared with `ESCAPE '\'` (see {@see whereContains()}), PostgreSQL's default and SQLite's only way to escape.
+     */
+    public static function escapeLike(string $term): string
+    {
+        return str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $term);
+    }
+
+    /**
      * The search of an identifier (a payment id, a charge id): it matches the whole identifier, never a part of it - so it
      * can use the index of the column instead of scanning the table with a leading wildcard. A text that cannot be an
      * identifier (empty, or with a space inside) matches nothing.

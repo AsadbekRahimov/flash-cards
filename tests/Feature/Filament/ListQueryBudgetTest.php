@@ -131,13 +131,24 @@ it('lists the members of a center within budget, reading the role of the user on
     $c = budgetCenter();
     budgetEnter($c[$who], $c['organization']);
 
-    // Learners seated in the center and active in the teacher's group: what the columns and the row policy read.
+    // Learners seated in the center and active in the teacher's group: what the columns and the row policy read. Every
+    // fourth learner is soft-deleted afterwards: the membership row stays, the row's learner loads as null.
     $fill = function (int $rows) use ($c): void {
         $have = OrganizationMember::query()->where('organization_id', $c['organization']->id)->count();
-        Learner::factory()->count($rows - $have)->memberOf($c['group'])->seatedIn($c['organization'])->create();
+        Learner::factory()
+            ->count($rows - $have)
+            ->memberOf($c['group'])
+            ->seatedIn($c['organization'])
+            ->afterCreating(function (Learner $learner): void {
+                if ($learner->id % 4 === 0) {
+                    $learner->delete();
+                }
+            })
+            ->create();
     };
 
-    // Owner: the page, its count, the learners; teacher: plus the learners' active group memberships for the policy.
+    // Owner: the page, its count, the learners; teacher: plus the learners' active group memberships for the policy, and no
+    // query for a row whose learner is gone.
     $queries = FilamentQueryBudget::assert(ListMembers::class, $fill, ceiling: $who === 'owner' ? 10 : 14);
 
     // The measured window holds two requests of the page (the first render and the per-page update), and the tenant
@@ -229,9 +240,9 @@ it('lists the assignments of a center within budget', function (string $who): vo
         ->and(QueryLog::matching($queries[FilamentQueryBudget::LARGE], '/^select exists\(select \* from ["`]telegram_groups["`]/'))->toBe([]);
 })->with(['owner', 'teacher']);
 
-it('lists the results of an assignment within budget', function (): void {
+it('lists the results of an assignment within budget', function (string $who): void {
     $c = budgetCenter();
-    budgetEnter($c['owner'], $c['organization']);
+    budgetEnter($c[$who], $c['organization']);
     $assignment = Assignment::factory()->create(['organization_id' => $c['organization']->id, 'telegram_group_id' => $c['group']->id, 'lesson_id' => $c['lesson']->id]);
 
     // Result rows of learners active in the group (rows of learners who left are not listed), a third of them done.
@@ -247,7 +258,7 @@ it('lists the results of an assignment within budget', function (): void {
     };
 
     FilamentQueryBudget::assert(ResultsRelationManager::class, $fill, ceiling: 16, parameters: ['ownerRecord' => $assignment, 'pageClass' => ViewAssignment::class]);
-});
+})->with(['owner', 'teacher']);
 
 it('reports the statements that run once per row when a page has an N+1', function (): void {
     $small = ['select * from "a" where "id" = ?', 'select * from "b" where "a_id" = ?'];
