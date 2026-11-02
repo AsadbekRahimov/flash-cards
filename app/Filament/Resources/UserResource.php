@@ -125,7 +125,12 @@ class UserResource extends Resource
             ])
             ->bulkActions([
                 Actions\BulkActionGroup::make([
-                    Actions\DeleteBulkAction::make()->modalHeading(__('admin.users.actions.delete_selected')),
+                    // Rows are read in chunks as the action goes through them, never all at once (docs/20 §1.9). The policy is asked
+                    // for every user, not just once for the whole action (`deleteAny`): it forbids deleting oneself.
+                    Actions\DeleteBulkAction::make()
+                        ->modalHeading(__('admin.users.actions.delete_selected'))
+                        ->chunkSelectedRecords(250)
+                        ->authorizeIndividualRecords('delete'),
                 ]),
             ])
             ->defaultSort('created_at', 'desc');

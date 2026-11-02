@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use App\Domain\Administration\Services\PanelDataScope;
 use App\Filament\Resources\ExamSessionResource\Pages\ListExamSessions;
+use App\Filament\Resources\ExamSessionResource\Pages\ViewExamSession;
+use App\Filament\Resources\ExamSessionResource\RelationManagers\AnswersRelationManager;
 use App\Filament\Resources\LearnerResource;
 use App\Filament\Resources\LearnerResource\Pages\ListLearners;
 use App\Filament\Resources\LessonResource\Pages\ListLessons;
@@ -17,6 +19,7 @@ use App\Filament\Resources\Support\GroupFilter;
 use App\Filament\Resources\UserResource\Pages\ListUsers;
 use App\Filament\Resources\WordResource\Pages\ListWords;
 use App\Models\Course;
+use App\Models\ExamAnswer;
 use App\Models\ExamSession;
 use App\Models\Learner;
 use App\Models\Lesson;
@@ -359,4 +362,24 @@ it('offers a teacher the modules of the content they may read only', function ()
 
     $this->actingAs($this->admin);
     expect(StageResource::searchOptions(null, app(PanelDataScope::class)->stages()))->toHaveKeys([$platform->id, $deck->id]);
+});
+
+// --- bulk action and the answers --------------------------------------------------------------------------
+
+it('reads the selected users in chunks and asks the policy for each of them', function (): void {
+    $bulk = Livewire::test(ListUsers::class)->instance()->getTable()->getFlatBulkActions()['delete'];
+
+    expect($bulk->getSelectedRecordsChunkSize())->toBe(250)
+        ->and($bulk->shouldAuthorizeIndividualRecords())->toBeTrue();
+});
+
+it('shows the correct translation of an answer from the key of the exam, once read per request', function (): void {
+    $exam = ExamSession::factory()->withQuestions(3)->create();
+    $questions = $exam->config['questions'];
+    $answer = ExamAnswer::factory()->create(['exam_session_id' => $exam->id, 'word_id' => $questions[1]['word_id']]);
+    $unknown = ExamAnswer::factory()->create(['exam_session_id' => $exam->id, 'word_id' => Word::factory()->create()->id]);
+
+    Livewire::test(AnswersRelationManager::class, ['ownerRecord' => $exam, 'pageClass' => ViewExamSession::class])
+        ->assertTableColumnStateSet('correct_translation', $questions[1]['correct_translation'], $answer)
+        ->assertTableColumnStateSet('correct_translation', '—', $unknown);
 });

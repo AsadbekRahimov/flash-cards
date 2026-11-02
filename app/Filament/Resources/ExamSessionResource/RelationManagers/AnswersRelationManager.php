@@ -10,11 +10,20 @@ use App\Models\ExamSession;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class AnswersRelationManager extends RelationManager
 {
     protected static string $relationship = 'answers';
+
+    /**
+     * The correct translation by word id, read from the answer key of the session once per request - not searched for in
+     * the whole key for every row of the page.
+     *
+     * @var array<int, string>|null
+     */
+    private ?array $correctTranslations = null;
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
@@ -27,6 +36,8 @@ class AnswersRelationManager extends RelationManager
             ->modelLabel(__('admin.exams.answers.singular'))
             ->pluralModelLabel(__('admin.exams.answers.plural'))
             ->emptyStateHeading(__('admin.exams.answers.empty'))
+            // The learner and the word are read for a name and a spelling only (docs/20 §1.4).
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['learner:id,first_name,last_name', 'word:id,word']))
             ->columns([
                 Tables\Columns\TextColumn::make('learner.first_name')
                     ->label(__('admin.exams.answers.columns.learner'))
@@ -55,25 +66,30 @@ class AnswersRelationManager extends RelationManager
 
     private function correctTranslation(ExamAnswer $answer): string
     {
+        return $this->correctTranslations()[(int) $answer->word_id] ?? '—';
+    }
+
+    /** @return array<int, string> word id => the correct translation; the first question of a word wins */
+    private function correctTranslations(): array
+    {
+        if ($this->correctTranslations !== null) {
+            return $this->correctTranslations;
+        }
+
         $owner = $this->getOwnerRecord();
-        if (! $owner instanceof ExamSession) {
-            return '—';
-        }
+        $questions = $owner instanceof ExamSession ? ($owner->config['questions'] ?? []) : [];
+        $translations = [];
 
-        $questions = $owner->config['questions'] ?? [];
-        if (! is_array($questions)) {
-            return '—';
-        }
+        if (is_array($questions)) {
+            foreach ($questions as $question) {
+                if (! is_array($question)) {
+                    continue;
+                }
 
-        foreach ($questions as $question) {
-            if (
-                is_array($question)
-                && (int) ($question['word_id'] ?? 0) === (int) $answer->word_id
-            ) {
-                return (string) ($question['correct_translation'] ?? '—');
+                $translations[(int) ($question['word_id'] ?? 0)] ??= (string) ($question['correct_translation'] ?? '—');
             }
         }
 
-        return '—';
+        return $this->correctTranslations = $translations;
     }
 }

@@ -39,7 +39,8 @@ class ResultsRelationManager extends RelationManager
 
                 return $query
                     ->select('exam_results.*')
-                    ->selectSub($timeQuery, 'time_spent_ms');
+                    ->selectSub($timeQuery, 'time_spent_ms')
+                    ->with('learner:id,first_name,last_name');
             })
             ->columns([
                 Tables\Columns\TextColumn::make('learner.first_name')
