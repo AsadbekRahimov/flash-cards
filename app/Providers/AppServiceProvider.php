@@ -105,6 +105,10 @@ class AppServiceProvider extends ServiceProvider
         // only through a binding: one instance for the request or the job, forgotten with it.
         $this->app->scoped(WordTranslationObserver::class);
 
+        // The same for the members of a group that is being deleted: the observer enumerates them in `deleting` (the cascade is about to
+        // remove their rows) and uses them in `deleted`, which is a different event and, without a binding, a different observer.
+        $this->app->scoped(TelegramGroupObserver::class);
+
         // Keys are read per request (not a singleton): a rotated PAYME_KEY / PAYME_TEST_KEY applies at once in tests and after config:cache.
         $this->app->bind(PaymeAuth::class, static fn (): PaymeAuth => PaymeAuth::fromConfig());
         $this->app->bind(ClickSignature::class, static fn (): ClickSignature => ClickSignature::fromConfig());
