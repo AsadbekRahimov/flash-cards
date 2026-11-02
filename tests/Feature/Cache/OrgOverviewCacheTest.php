@@ -36,7 +36,6 @@ use Tests\Support\QueryLog;
 uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
-    config(['cache.pure_store' => 'array']);
     $this->now = CarbonImmutable::now();
 
     $this->a = Organization::factory()->create(['name' => 'Center A', 'slug' => 'center-a', 'timezone' => 'Asia/Tashkent']);
@@ -248,6 +247,7 @@ it('drops the summary when the subscription of the center changes, so an owner w
 });
 
 it('lets only the activity numbers wait for the end of the TTL', function (): void {
+    config(['cache.pure_store' => 'array']); // the clock of the test moves the clock of an array store only
     expect(orgOverview()->cachedSummary($this->ownerA, $this->a)->reviews7d)->toBe(14);
 
     LearnerDailyStats::factory()->create(['learner_id' => $this->l3->id, 'date' => $this->now->setTimezone('Asia/Tashkent')->subDay()->toDateString(), 'reviews_count' => 6, 'new_words_count' => 0]);

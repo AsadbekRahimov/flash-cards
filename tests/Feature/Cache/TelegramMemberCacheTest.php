@@ -31,7 +31,7 @@ const MEMBER_CACHE_BOT = 777000111;
 const MEMBER_CACHE_CHAT = -100777;
 
 beforeEach(function (): void {
-    config(['cache.pure_store' => 'array', 'telegram.bot_token' => MEMBER_CACHE_TOKEN]);
+    config(['telegram.bot_token' => MEMBER_CACHE_TOKEN]);
     $this->tg = new FakeTelegramClient;
     $this->app->instance(TelegramClient::class, $this->tg);
     $this->org = Organization::factory()->create();
@@ -74,6 +74,7 @@ it('asks Telegram once for the bot when it is added and the center links the gro
 });
 
 it('keeps the status of the bot under the key of the group and the bot, for ten minutes', function (): void {
+    config(['cache.pure_store' => 'array']); // the clock of the test moves the clock of an array store only
     memberCacheBotUpdate('left', 'member');
     $key = ChatMemberStatusCache::key(MEMBER_CACHE_CHAT, MEMBER_CACHE_BOT);
 

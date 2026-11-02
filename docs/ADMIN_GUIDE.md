@@ -616,6 +616,15 @@ The Pro and funnel figures are cached for 2 minutes, so a new subscription or ev
 up. The funnel reads `product_events` through the `(name, occurred_at)` index; events older than the retention period
 (`PRODUCT_EVENTS_RETENTION_DAYS`, 400 days) are pruned and do not affect a 7-day window.
 
+**Every other figure of the dashboard is cached too** (docs/19 K1, docs/20 F5): the learner counts and the exam tiles for 2
+minutes, the activity chart, top learners and hardest words for 5, the league and organization tables for 1-2. A figure past
+its time is still shown once while it is recomputed in the background, so the next open is fresh; opening the dashboard never
+waits for the heavy queries. A teacher's figures are cached separately from the admin's and from other teachers' and follow
+the teacher's groups at once. **Money is not left to the timer:** *Revenue* and *Payment webhook errors* are recomputed right
+after a payment, a renewal, a refund or a provider's cancel is saved. The widgets no longer refresh themselves every 5
+seconds; reload the page to see new numbers. The dashboard of a learning center (`/org`) caches its tiles for 90 seconds and
+drops them when a member joins, leaves or gets a seat, when a group is linked or unlinked, and when the subscription changes.
+
 ---
 
 ## Exam Logs

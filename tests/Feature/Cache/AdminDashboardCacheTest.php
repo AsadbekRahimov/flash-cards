@@ -43,13 +43,12 @@ use Tests\Support\QueryLog;
  * The cache of the dashboard widgets of /admin (docs/19 K1, docs/20 F5 / A12): every aggregate is an array of scalars on the
  * pure store, FRESH for a while and then served stale while it is recomputed after the response (`Cache::flexible`), keyed by
  * what the viewer may see; the money widgets are dropped by a payment or a refund; the stats widgets do not poll.
- * The pure store of the tests is an array store of the application, so `travel()` moves its clock too.
+ * The tests run on the configured pure store (an array store here, the second Redis in CI); the one that moves the clock uses an array store.
  */
 
 uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
-    config(['cache.pure_store' => 'array']);
     app(RolePermissionSeeder::class)->run();
 
     $this->admin = User::factory()->create([
@@ -169,6 +168,7 @@ it('keeps each aggregate under a versioned key of its own, with the viewer in it
 });
 
 it('serves the figure of the last computation until the refresh, which runs after the response', function (): void {
+    config(['cache.pure_store' => 'array']); // the clock of the test moves the clock of an array store only
     Learner::factory()->create();
     $stats = app(AdminDashboardStats::class);
 

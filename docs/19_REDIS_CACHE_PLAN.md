@@ -1,6 +1,6 @@
 # 19. Redis 8.10 и кэширование — план и задачи
 
-> **Статус:** C1 и C2 выполнены 02.11.2026 (architect); C0, C3–C8 — план. Правила §3 действуют для всех новых задач с 02.11.2026.
+> **Статус:** C1 и C2 выполнены 02.11.2026 (architect); C3–C6 выполнены 02.11.2026 (coder, §5.1); C0 (полный замер), C7, C8 — план. Правила §3 действуют для всех новых задач с 02.11.2026.
 > **Основание — решение владельца 02.11.2026:**
 > - всё, что можно кэшировать, — в Redis;
 > - версия Redis — 8.10;
@@ -63,6 +63,12 @@
 | `Administration/Services/TwoFactorAttemptService` | счётчики попыток, `2fa:step:{user}:{step}` | 60 с, 3600 с, 180 с | **безопасность** |
 | `Telegram/Services/TelegramMessageRateLimiter` | счётчики и блокировки | — | **лимиты Telegram** |
 | `Practice/Services/PracticeAudioService` | `practice:audio-missing:{session}:{element}` | 600 с | **маркер** |
+| `Administration/Services/AdminDashboardStats` + `WidgetCache` (C3) | `admin:widget:<виджет>:v1:<зритель>[:<параметры>]`, зритель — `PanelDataScope::fingerprint()` | свежий 60–300 с, ещё ×4 отдаётся устаревшим (`flexible`) | кэш виджетов `/admin` |
+| `Organizations/Services/OrgOverviewService::cachedSummary()` (C3) | `org:{id}:overview:v1:n{версия}:{owner \| u{id}g{хэш групп}}`; версия `org:{id}:overview:ver` | 90 с | кэш с версией |
+| `Content/Services/CourseCatalogService` — дерево курса (C4) | `catalog:course:v1:{id}:{locale}:n{версия}`; версия `catalog:course:ver:{id}` | 1800 с | кэш с версией |
+| `Content/Services/WordTranslationResolver` (C4) | `word:tr:v1:{слово}:{locale}` — строки `word_translations`, пачкой `many`/`putMany` | 7200 с | кэш |
+| `Site/Services/SitePageCache` (C5) | `site:page:v1:{страница}:{locale}:{отпечаток релиза}` — готовый HTML | 86400 с | кэш страниц |
+| `Telegram/Services/ChatMemberStatusCache` (C6) | `tg:member:v1:{чат}:{пользователь}` — статус бота в группе | 600 с | кэш |
 
 **Кэш** можно потерять без вреда: значение пересчитается. **Маркеры, блокировки, счётчики и защита** терять нельзя: при вытеснении появятся дубли ЛС, сброс лимитов, повтор TOTP-кода.
 
@@ -78,6 +84,14 @@
 | `LearningCache` — слова урока, лидерборд экзамена, «выучено слов» | `lru` |
 | `PlatformStatsService` — `platform_stats:*` | `lru` |
 | `LeagueService` — `league:standings:v1:{группа}` | `lru` |
+| `AdminDashboardStats` — `admin:widget:*` (C3) | `lru` |
+| `OrgOverviewService` — значения `org:{id}:overview:v1:*` (C3) | `lru` |
+| `OrgOverviewService` — ключ версии `org:{id}:overview:ver` (C3) | `redis` (невытесняемое) |
+| `CourseCatalogService` — значения `catalog:course:v1:*` (C4) | `lru` |
+| `CourseCatalogService` — ключ версии `catalog:course:ver:{id}` (C4) | `redis` (невытесняемое) |
+| `WordTranslationResolver` — `word:tr:v1:*` (C4) | `lru` |
+| `SitePageCache` — `site:page:v1:*` (C5) | `lru` |
+| `ChatMemberStatusCache` — `tg:member:v1:*` (C6) | `lru` |
 | `MockExamService` — `mock_exam:distribution:course:{id}` | `lru` |
 | `SchedulerComparisonWidget` — `admin:scheduler-comparison:v1` | `lru` |
 | `TrainingFlowService` `paywall_shown:*`, `PracticeAudioService` `practice:audio-missing:*` — маркеры | `redis` |
@@ -152,6 +166,31 @@
 
 Не кэшируются (правило 9): квоты, деньги, выдача карточки, ход матча и экзамена, решения доступа.
 
+### 5.1. Что сделано в C3–C6 (02.11.2026)
+
+**Ключ → TTL → инвалидация → тест** (тесты — в `tests/Feature/Cache/`; весь набор прогнан и на SQLite, и на PostgreSQL 16 с настоящим вторым Redis):
+
+| Ключ | TTL | Инвалидация | Тест |
+|---|---|---|---|
+| `admin:widget:total_learners \| exams_30d \| activity_chart \| top_learners \| hardest_words:v1:<зритель>` (K1) | 120 / 120 / 300 / 300 / 300 с свежий, всего ×5 | TTL; у чарта день в ключе; у учителя состав групп в ключе (смена групп — новый ключ сразу) | `AdminDashboardCacheTest` |
+| `admin:widget:league_week:v1:all`, `league_groups:w{неделя}:p{стр}:n{размер}:v1:all`, `organization_seats:p{стр}:n{размер}:v1:all` (K1) | 60 / 60 / 120 с | TTL; страница и размер страницы — свои записи | там же |
+| `admin:widget:revenue_30d \| webhook_errors:v1:all` — **деньги** (K1) | 120 / 60 с | `MoneyWidgetsObserver` после коммита записи в `payments` и `provider_transactions` (оплата, возврат, отказ) | там же |
+| `org:{id}:overview:v1:n{версия}:{зритель}` (K2) | 90 с | счётчик версии: `ForgetOrgOverview` (`OrganizationMember{Joined,Left,Seated}`), `TelegramGroupObserver` (группа перешла между центрами или удалена), `SubscriptionService::forgetAfterCommit` (подписка центра) | `OrgOverviewCacheTest` |
+| `catalog:course:v1:{курс}:{locale}:n{версия}` (K3) | 1800 с | счётчик версии: `CoursePublisher::recount()` (все пути, меняющие слова: импорт, правка слова, колоды), `transition()` (публикация), `CourseTreeObserver` (любое сохранение и удаление `Stage`/`Lesson`) | `ContentCacheTest` |
+| `word:tr:v1:{слово}:{locale}` (K4) | 7200 с | `WordTranslationObserver` после коммита сохранения и удаления строки `word_translations` (ручная правка `WordTranslationWriter`, импорт, колоды); обе локали слова сразу | `ContentCacheTest` |
+| `site:page:v1:{страница}:{locale}:{отпечаток}` (K6) | 86400 с | не сбрасывается: отпечаток = хэш перечисленного конфига (цены, режим paywall, провайдеры, лимиты, ссылка бота, `APP_URL`, переключатели практики; без секретов) и времён изменения шаблонов и lang-файлов страниц — деплой или смена цены дают новый ключ | `SitePageCacheTest` |
+| `tg:member:v1:{чат}:{пользователь}` (K7) | 600 с | `MyChatMemberHandler` на каждое изменение статуса бота; `ChatMemberHandler` на `chat_member` | `TelegramMemberCacheTest` |
+
+**Решения и отступления от черновика §5.**
+- **K3 — версия в ключе, а не `forget`.** Импорт идёт долгой транзакцией: читатель, посчитавший дерево по старым строкам, мог бы записать его после сброса. Счётчик версии на невытесняемом хранилище (как `entitlement:ver:*`) делает такую запись безвредной. Дерево колоды ученика (`owner_type = learner`) не кэшируется: колода личная и часто правится — её дерево читается всегда. Личный прогресс (`done` по урокам) не кэшируется нигде: один запрос по строкам самого ученика.
+- **K4 — кэшируются строки, а не итог.** Итоговый перевод зависит ещё и от `words.translation` (запасная колонка) — она читается из самого `Word` и всегда свежая; правка слова не требует сброса. Слово без строк — тоже запись (пустой массив).
+- **K5 — Redis-ключа нет.** Статическая часть каталога (провайдеры, валюты, цены) — только чтение конфига, без SQL: **9 мкс** на вызов против **15 мкс** на чтение записи из Redis даже по loopback (замер C4, PHP 8.5 CLI). Кэш был бы медленнее пересчёта и добавил бы риск показать старую цену. Вместо него: `CheckoutService::canSellToLearners()` — статическая половина каталога; `LearnerBillingService::paywall()` спрашивает её, а не строит весь каталог с офферами и подпиской ученика (−3 запроса на `/me` в режиме `purchase`). Личная часть (офферы, подписка) по-прежнему не общая.
+- **K6 — отпечаток вместо версии релиза.** В репозитории нет идентификатора релиза, а деплой и `docker/compose` в этой задаче не менялись; времена изменения файлов + хэш конфига дают то же свойство (новый деплой — новый ключ) и работают в деве (правка шаблона видна сразу). Тест сканирует источники страниц на вызовы `config()` и требует, чтобы каждый ключ был в отпечатке.
+- **K7 — `getChatMember` зовётся не на каждый апдейт.** Он вызывается дважды за жизнь группы: когда бота добавили (`MyChatMemberHandler`) и когда владелец центра привязывает группу (`OrgGroupLinkService`: статус владельца и ещё раз статус бота). Кэшируется только статус **бота**: его меняет `my_chat_member`, и обработчик сбрасывает запись; повторная проверка в пределах 10 минут не ходит в Telegram. Статус **владельца** центра не кэшируется: это решение о доступе (правило 9), а бот без прав администратора не получает `chat_member`, который мог бы закрыть устаревший ответ.
+- **K8 (хаб практики) — нет.** Практика в этой задаче не меняется; замер C0 — 6–7 запросов и p50 13–16 мс на пустом каталоге практики (материалов в наборе нет), оценить выигрыш на реальном объёме нельзя. Вернуться после появления материалов и решения по G2+.
+- **K9 (`/today`, `/me`) — нет.** 7 и 12–17 запросов, p50 18 и 38–45 мс при 200 тыс. учеников — уже лёгкие эндпоинты; кэшировать их части значит вешать инвалидацию на события ученика (каждый ответ в тренировке), а граница «что от ответа к ответу не меняется» — решение architect. Выигрыш — единицы миллисекунд.
+- **Опрос виджетов.** Filament опрашивает StatsOverview- и Chart-виджеты **каждые 5 с по умолчанию** (`CanPoll::$pollingInterval = '5s'`); `docs/20` §2 ошибочно считал, что опроса нет. Теперь у всех 12 виджетов `/admin` и 2 виджетов `/org` — `null`, а виджеты остаются ленивыми (тест `AdminDashboardCacheTest`).
+
 ## 6. Задачи
 
 Нумерация — C (cache). Исполнители — по `CLAUDE.md`.
@@ -161,10 +200,10 @@
 | C0 | **Замер и инвентаризация.** Команда объёмных данных `perf:seed` (только local и testing; общая с `docs/20` F0). Базовые замеры горячих эндпоинтов (`/me`, `/today`, `/courses`, `/courses/{slug}`, `/league`, `/friends`, `/practice/hub`, `/training/*`): число запросов, p50/p95. Таблица §2.2 дополнена всеми ключами | coder | Таблица замеров «до» в §8 |
 | C1 | **Redis 8.10** по §1 | architect (вместе с C2) | ✅ 02.11.2026: `redis:8.10-alpine` в compose dev/prod и CI; документы и `PROGRESS.md` обновлены |
 | C2 | **Два экземпляра и хранилища** по §4: compose (dev, prod, тестовый стек), `config/database.php` (`lru`), `config/cache.php` (`lru`, `pure_store`, `limiter`), `PureCache`, перенос существующих чистых кэшей на `lru`, маркеры и защита — на невытесняемом, версия entitlement — на невытесняемом, пароли, порты дева на `127.0.0.1`, `/health/ready` | architect | ✅ 02.11.2026: `PureCacheStoresTest` (потеря кэша не трогает лимиты, 2FA и маркеры), `DEVOPS_GUIDE` обновлён; `run.sh` переноса PostgreSQL зелёный с `redis-cache` |
-| C3 | **Кэш админки и кабинета центра** — K1, K2 (вместе с `docs/20` F5) | coder | Тест бюджета запросов дашборда; данные обновляются по TTL и событиям |
-| C4 | **Контент** — K3, K4, K5 | coder | Тесты инвалидации на каждый ключ |
-| C5 | **Сайт** — K6 | coder | Ответ из кэша байт в байт равен свежему; заголовки безопасности на месте |
-| C6 | **Telegram** — K7, и K8, K9 по замеру | coder | Меньше вызовов Telegram API в тестах-счётчиках; права после смены статуса обновляются |
+| C3 | **Кэш админки и кабинета центра** — K1, K2 (вместе с `docs/20` F5) | coder | ✅ 02.11.2026: дашборд `/admin` — 0 запросов от 12 виджетов на втором открытии (`AdminDashboardCacheTest`), обзор `/org` — `OrgOverviewCacheTest`; данные обновляются по TTL и событиям; опрос выключен |
+| C4 | **Контент** — K3, K4, K5 | coder | ✅ 02.11.2026: K3, K4 с тестами инвалидации на каждый путь записи; K5 без Redis-ключа — см. §5.1 |
+| C5 | **Сайт** — K6 | coder | ✅ 02.11.2026: `SitePageCacheTest` — тело байт в байт, заголовки (CSP `script-src 'none'` и др.) те же |
+| C6 | **Telegram** — K7, и K8, K9 по замеру | coder | ✅ 02.11.2026: K7 (`TelegramMemberCacheTest`); K8, K9 — нет, причины в §5.1 |
 | C7 | **OPcache для прод-образа:** `opcache.validate_timestamps=0` (код в образе неизменен), `memory_consumption`, `interned_strings_buffer`, `max_accelerated_files` по числу файлов `vendor` (Filament и Livewire — тысячи файлов); проверка, что после деплоя кэш новый (контейнер пересоздаётся) | coder | `opcache_get_status()` в проде без нехватки памяти и ключей |
 | C8 | **Замер после и ревью:** сравнение с C0, hit ratio, вытеснения; `PROGRESS.md` | reviewer, координатор | Таблица «после» в §8, блокирующих находок нет |
 

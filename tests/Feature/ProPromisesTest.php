@@ -22,10 +22,6 @@ use Tests\Support\FakeTelegramClient;
 
 uses(RefreshDatabase::class);
 
-beforeEach(function (): void {
-    config(['cache.pure_store' => 'array']);
-});
-
 /** The words that name the practice line in each locale. */
 const PRO_PRACTICE_WORDS = ['ru' => ['практик', 'баттл'], 'uz' => ['amaliyot', 'bellashuv']];
 

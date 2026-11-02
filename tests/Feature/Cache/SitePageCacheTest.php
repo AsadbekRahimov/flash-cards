@@ -16,7 +16,6 @@ use Illuminate\Testing\TestResponse;
  */
 
 beforeEach(function (): void {
-    config(['cache.pure_store' => 'array']);
     Config::set('telegram.bot_username', 'lexiflow_test_bot');
     Config::set('billing.paywall.contact', '@lexiflow_support');
 });

@@ -38,10 +38,6 @@ use Tests\Support\QueryLog;
 
 uses(RefreshDatabase::class);
 
-beforeEach(function (): void {
-    config(['cache.pure_store' => 'array']);
-});
-
 /**
  * The page of a course as rows `[stage, lesson, total, done]`.
  *
