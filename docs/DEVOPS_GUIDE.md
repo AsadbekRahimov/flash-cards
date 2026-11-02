@@ -31,6 +31,14 @@ bash deploy.sh
 
 Воркеры очереди в `docker-compose.prod.yml` разделены: `queue-high` (`--queue=high`) и `queue-default` (`--queue=default,low`), `scheduler` отдельно.
 
+### Кэши и OPcache прод-образа
+
+- **Кэши при старте.** `docker/entrypoint.sh` при `APP_ENV=production` на каждом старте контейнера собирает `config:cache`, `route:cache`, `view:cache`, **`filament:optimize`** (кэш компонентов панелей `/admin` и `/org` и Blade-иконок Filament, `docs/20` §1.12) и `event:cache`. В dev-контейнере (`APP_ENV=local`) ничего из этого не запускается: кэш компонентов скрыл бы новый ресурс или виджет. Новый ресурс в проде появляется вместе с новым контейнером: `filament:optimize` выполняется заново. Сбросить все кэши в dev — `make cache-clear` (`optimize:clear` и `filament:optimize-clear`).
+- **OPcache.** `docker/php/opcache-prod.ini` копируется **только** в прод-образ (`Dockerfile`, стадия `app`; `Dockerfile.dev` его не получает): `opcache.enable=1`, `opcache.validate_timestamps=0`, `opcache.save_comments=1`, `memory_consumption=256`, `interned_strings_buffer=64`, `max_accelerated_files=32531`. Размер взят по `find vendor app -name '*.php' | wc -l` = 16 899 файлов (дерево разработки; в `--no-dev` образе меньше) плюс около 250 скомпилированных Blade-шаблонов; PHP округляет значение до простого числа из своего списка (16229, 32531, 65407), так что запас — примерно вдвое. Сборка образа падает, если `php -i` не показывает `opcache.validate_timestamps => Off`, `opcache.save_comments => On` и `opcache.enable => On`.
+- **Почему `validate_timestamps=0` безопасен.** Код в образе неизменяем, а деплой (`deploy.sh`) собирает новый образ и пересоздаёт контейнеры `app`, `queue-high`, `queue-default`, `scheduler`: новый процесс стартует с пустым кэшем, и PHP больше не сверяет время файлов. Файлы `bootstrap/cache/*.php` entrypoint пишет **до** `exec php-fpm`, поэтому php-fpm читает уже готовые. Единственное, что с этой настройкой не работает, — правка PHP-файла **внутри живого контейнера** (ручной `artisan config:cache`, патч в `vendor`): php-fpm продолжит исполнять прежний код, пока его не перезапустят (`docker compose -f docker-compose.prod.yml --env-file .env restart app`). Так не делаем: любая правка идёт через коммит и деплой.
+- **Хватает ли памяти.** Статус общего кэша FPM (`opcache_get_status()`: `memory_usage`, `interned_strings_usage`, `opcache_statistics.num_cached_keys` против `max_cached_keys`, `oom_restarts`, `hash_restarts`) виден только из запроса, обработанного самим FPM: у CLI свой кэш, и `docker compose exec app php -r …` покажет не то. Норма: свободно не меньше ~20 % `memory_consumption`, `oom_restarts = 0`, `hash_restarts = 0`, `num_cached_keys` заметно ниже `max_cached_keys`. Снять эти числа под реальным трафиком — задача C8 (`docs/19`); поднять `memory_consumption` / `max_accelerated_files` в `docker/php/opcache-prod.ini` и пересобрать образ, если запас меньше нормы.
+- **Bare-сервер (без Docker).** Этот ini там не применяется. Если выставить `validate_timestamps=0` и на bare-сервере, после каждого деплоя нужен `systemctl reload php8.5-fpm` (сбрасывает кэш), иначе FPM продолжит исполнять старый код.
+
 ### Откат
 
 Откатываем код на предыдущий проверенный SHA (смотрите `git log` или предыдущий успешный запуск Actions):
@@ -294,12 +302,14 @@ If Node.js is not on the server, build locally and upload the `public/twa/` dire
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
+php artisan filament:optimize   # components of /admin and /org + Blade icons (docs/20 §1.12); production only
 php artisan event:cache
 ```
 
 To clear all caches (e.g. after a config change):
 ```bash
 php artisan optimize:clear
+php artisan filament:optimize-clear
 ```
 
 ---
@@ -694,6 +704,7 @@ php artisan livewire:publish --assets --no-interaction
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
+php artisan filament:optimize
 php artisan event:cache
 
 # Restart queue workers to pick up new code (both pools: lexiflow-worker-high / -default)
@@ -714,6 +725,7 @@ php artisan livewire:publish --assets --no-interaction
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
+php artisan filament:optimize   # optimize:clear dropped it
 nginx -t && systemctl reload nginx
 ```
 
