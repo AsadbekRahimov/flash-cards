@@ -13,7 +13,8 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 /**
  * Payment webhook trouble of the last 24 hours: events recorded as `failed` (money that could not
  * be credited) and canceled provider transactions. Admin only. The figures are the cached array of {@see AdminDashboardStats}
- * (a minute fresh, dropped by `PaymentObserver` after a payment).
+ * (a minute fresh, read at the data version `MoneyWidgetsObserver` moves on after a payment; the three anomalies of the
+ * payment orders only follow the minute).
  */
 class WebhookErrorsWidget extends StatsOverviewWidget
 {

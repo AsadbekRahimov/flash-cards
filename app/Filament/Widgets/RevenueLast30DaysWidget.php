@@ -15,8 +15,8 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
  * is the NET CASH MOVEMENT (charges by their date minus refunds by THEIR date); the description adds the
  * two parts and the cohort net (the period's own charges less what was refunded of them). Admin only.
  *
- * The figures are the cached array of {@see AdminDashboardStats} (docs/19 K1), dropped by `PaymentObserver` after a
- * payment and a refund, so money is never older than the commit that moved it.
+ * The figures are the cached array of {@see AdminDashboardStats} (docs/19 K1), read at a data version that `MoneyWidgetsObserver`
+ * moves on after the commit of a payment or a refund, so money is never older than the commit that moved it (docs/19 §5.1).
  */
 class RevenueLast30DaysWidget extends StatsOverviewWidget
 {
