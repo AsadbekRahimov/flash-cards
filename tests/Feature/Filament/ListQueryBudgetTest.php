@@ -131,13 +131,24 @@ it('lists the members of a center within budget, reading the role of the user on
     $c = budgetCenter();
     budgetEnter($c[$who], $c['organization']);
 
-    // Learners seated in the center and active in the teacher's group: what the columns and the row policy read.
+    // Learners seated in the center and active in the teacher's group: what the columns and the row policy read. Every
+    // fourth learner is soft-deleted afterwards: the membership row stays, the row's learner loads as null.
     $fill = function (int $rows) use ($c): void {
         $have = OrganizationMember::query()->where('organization_id', $c['organization']->id)->count();
-        Learner::factory()->count($rows - $have)->memberOf($c['group'])->seatedIn($c['organization'])->create();
+        Learner::factory()
+            ->count($rows - $have)
+            ->memberOf($c['group'])
+            ->seatedIn($c['organization'])
+            ->afterCreating(function (Learner $learner): void {
+                if ($learner->id % 4 === 0) {
+                    $learner->delete();
+                }
+            })
+            ->create();
     };
 
-    // Owner: the page, its count, the learners; teacher: plus the learners' active group memberships for the policy.
+    // Owner: the page, its count, the learners; teacher: plus the learners' active group memberships for the policy, and no
+    // query for a row whose learner is gone.
     $queries = FilamentQueryBudget::assert(ListMembers::class, $fill, ceiling: $who === 'owner' ? 10 : 14);
 
     // The measured window holds two requests of the page (the first render and the per-page update), and the tenant

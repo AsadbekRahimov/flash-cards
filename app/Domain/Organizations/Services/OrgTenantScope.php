@@ -235,7 +235,8 @@ final class OrgTenantScope
     /**
      * Whether the user may see this membership row (same rule as members()). For a teacher the learner
      * must be active in one of their groups: read from `learner.activeGroupMemberships` when the list
-     * query loaded it (MemberResource does), with one query otherwise (a single record page).
+     * query loaded it (MemberResource does), with one query otherwise (a single record page). A row whose
+     * learner is soft-deleted is no teacher's (as `learners()` lists none of them).
      */
     public function canSeeMember(User $user, Organization $organization, OrganizationMember $member): bool
     {
@@ -264,12 +265,20 @@ final class OrgTenantScope
             return false;
         }
 
-        $learner = $member->relationLoaded('learner') ? $member->learner : null;
+        if ($member->relationLoaded('learner')) {
+            $learner = $member->learner;
 
-        if ($learner instanceof Learner && $learner->relationLoaded('activeGroupMemberships')) {
-            return $learner->activeGroupMemberships->contains(
-                fn (GroupMember $membership): bool => in_array((int) $membership->telegram_group_id, $groupIds, true),
-            );
+            // The learner was loaded and is not there: soft-deleted. Not a teacher's to see (`learners()` never lists them),
+            // and not a query per row either.
+            if ($learner === null) {
+                return false;
+            }
+
+            if ($learner->relationLoaded('activeGroupMemberships')) {
+                return $learner->activeGroupMemberships->contains(
+                    fn (GroupMember $membership): bool => in_array((int) $membership->telegram_group_id, $groupIds, true),
+                );
+            }
         }
 
         return GroupMember::query()
