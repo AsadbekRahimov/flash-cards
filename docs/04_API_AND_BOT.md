@@ -89,7 +89,7 @@
       "daily_goals": [10, 20, 40]
     }
   },
-  "practice": { "available": true, "pro_required": false, "modes": ["pairs", "collocation", "sentence", "dictation"], "battle": true,
+  "practice": { "available": true, "pro_required": false, "modes": ["pairs", "collocation", "sentence", "dictation"], "battle": true, "pro_promise": "both",
                 "limits": { "sessions": { "limit": 2, "used": 1, "remaining": 1, "resets_at": "2026-10-30T19:00:00.000Z" }, "battles": { "limit": 1, "used": 0, "remaining": 1, "resets_at": "2026-10-30T19:00:00.000Z" } } }
 }
 ```
@@ -121,6 +121,7 @@
   можно показывать: практика открыта ученику (`PRACTICE_ACCESS` = `all`, либо `pilot` и ученик в пилоте) **или** это Free-ученик при `PRACTICE_PLAN=pro` (вход виден с чипом Pro); при `false` TWA входов не рисует, а
   эндпоинты практики отвечают 403 `practice_unavailable`. `pro_required` — Free-ученик при `PRACTICE_PLAN=pro`: нажатие на вход открывает пейвол `practice`, сервер отвечает 403 `practice_pro_required`.
   `modes` — включённые режимы (`PRACTICE_MODE_*`), `battle` — переключатель баттла (`PRACTICE_BATTLE`). Блок есть и в других ответах формы `/me` (`PATCH /me/settings`, `POST /billing/subscription/cancel|resume`, `POST /promo/redeem`) — их собирает тот же `MePayloadBuilder`.
+  `pro_promise` (docs/18 §3) — что о практике может сказать **этому ученику** список «что даёт Pro»: `both` — «Практика и баттлы без дневного лимита», `solo` — «Практика без дневного лимита», `none` — строки нет. Решает сервер, одно правило `ProPromises` на лендинг, счёт Stars и TWA; TWA ничего не выводит из `available` / `battle` (пока `/me` не пришёл — `none`). Правило: практика читающему не открыта (`available = false`) → `none`; иначе при `PRACTICE_PLAN=pro` (Free практики не имеет вовсе, Pro даёт её целиком) — `both`, при выключенных баттлах `solo`; иначе пока у Free есть лимит, который снимает Pro: баттлы включены и у Free есть лимит баттлов → `both`; есть лимит сессий → `solo`; иначе `none` (пустое значение `PRACTICE_FREE_*` — лимита нет, `0` — лимит есть). Чтение конфига, без запросов к БД.
   `limits` (G1, docs/16 §3.2–§3.3, docs/18 §3) — лимиты Free на сегодня: `sessions` — открытия сессий практики (один повтор ошибок сессии, открытой сегодня, не считается; второй повтор той же сессии, повтор повтора и повтор вчерашней сессии считаются; замена активной считается), `battles` — вызовы на баттл (приглашения и реванши, которые предложил ученик; принять вызов можно всегда). У каждого `limit`, `used`, `remaining`, `resets_at` (конец локального дня ученика, ISO 8601 UTC с миллисекундами; то же окно, что у квоты новых слов, с переносом дня после смены пояса).
   `null` — лимитов нет: Pro (фича `practice.unlimited`, в том числе спонсорский Pro центра), лимиты не заданы (пустые `PRACTICE_FREE_*`), либо практика ученику закрыта (`available = false` или `pro_required = true`). Вид без лимита — `null` внутри блока. Лимит `0` — вид только для Pro (`remaining: 0`). TWA показывает остаток и пейвол `practice_limit` при `remaining = 0`.
   Цена: у Free с открытой практикой `/me` стоит **на один SQL больше** (оба счётчика одним запросом); у Pro и при закрытой практике — ничего.

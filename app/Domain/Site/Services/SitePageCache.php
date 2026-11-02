@@ -45,6 +45,7 @@ final class SitePageCache
         'billing.plans',
         'decks.limits',
         'practice.access',
+        'practice.plan',
         'practice.battle',
         'practice.free_limits',
         'localization.supported',

@@ -21,6 +21,8 @@ use Illuminate\Support\Collection;
  * @phpstan-import-type SettingsPayload from LearnerSettingsService
  * @phpstan-import-type LimitsBlock from PracticeLimits
  *
+ * @phpstan-type PracticeBlock array{available: bool, pro_required: bool, modes: list<string>, battle: bool, pro_promise: 'none'|'solo'|'both', limits: LimitsBlock|null}
+ *
  * The data behind `App\Http\Resources\Twa\MeResource`: GET /me and every
  * endpoint that answers with the refreshed profile (e.g. POST /promo/redeem).
  */
@@ -46,7 +48,7 @@ final class MePayloadBuilder
      *   lapsed: array{provider: string, ended_at: string}|null,
      *   paywall: array{mode: string, contact: string|null},
      *   settings: SettingsPayload,
-     *   practice: array{available: bool, pro_required: bool, modes: list<string>, battle: bool, limits: LimitsBlock|null}
+     *   practice: PracticeBlock
      * }
      */
     public function build(Learner $learner): array
