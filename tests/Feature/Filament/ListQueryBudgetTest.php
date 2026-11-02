@@ -240,9 +240,9 @@ it('lists the assignments of a center within budget', function (string $who): vo
         ->and(QueryLog::matching($queries[FilamentQueryBudget::LARGE], '/^select exists\(select \* from ["`]telegram_groups["`]/'))->toBe([]);
 })->with(['owner', 'teacher']);
 
-it('lists the results of an assignment within budget', function (): void {
+it('lists the results of an assignment within budget', function (string $who): void {
     $c = budgetCenter();
-    budgetEnter($c['owner'], $c['organization']);
+    budgetEnter($c[$who], $c['organization']);
     $assignment = Assignment::factory()->create(['organization_id' => $c['organization']->id, 'telegram_group_id' => $c['group']->id, 'lesson_id' => $c['lesson']->id]);
 
     // Result rows of learners active in the group (rows of learners who left are not listed), a third of them done.
@@ -258,7 +258,7 @@ it('lists the results of an assignment within budget', function (): void {
     };
 
     FilamentQueryBudget::assert(ResultsRelationManager::class, $fill, ceiling: 16, parameters: ['ownerRecord' => $assignment, 'pageClass' => ViewAssignment::class]);
-});
+})->with(['owner', 'teacher']);
 
 it('reports the statements that run once per row when a page has an N+1', function (): void {
     $small = ['select * from "a" where "id" = ?', 'select * from "b" where "a_id" = ?'];
