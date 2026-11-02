@@ -46,11 +46,11 @@ final class AdminTable
     }
 
     /**
-     * `$column` contains `$term`, case-insensitively, with `%`, `_` and `\` of the term taken literally (an own LIKE search
-     * without this lets "a_b" find "axb" and "%" find everything). The pattern is escaped with a backslash and says so with
-     * an explicit ESCAPE, so it means the same on PostgreSQL and SQLite. PostgreSQL compares `ilike` on the column itself -
-     * the form the trigram index of `learners.username` serves (docs/03 §2.17) - and SQLite's `like` is case-insensitive
-     * for ASCII.
+     * `$column` contains `$term`, case-insensitively, with `%`, `_` and `!` of the term taken literally (an own LIKE search
+     * without this lets "a_b" find "axb" and "%" find everything). The pattern is escaped with `!` and says so with an
+     * explicit `ESCAPE '!'` - the escape character of Filament's own search, so it means the same on PostgreSQL and SQLite and
+     * does not depend on `standard_conforming_strings`. PostgreSQL compares `ilike` on the column itself - the form the
+     * trigram index of `learners.username` serves (docs/03 §2.17) - and SQLite's `like` is case-insensitive for ASCII.
      *
      * @template TModel of Model
      *
@@ -64,16 +64,17 @@ final class AdminTable
         $operator = $query->getModel()->getConnection()->getDriverName() === 'pgsql' ? 'ilike' : 'like';
 
         // The column name is part of the code, the term is a binding.
-        return $query->whereRaw("{$column} {$operator} ? escape '\\'", ['%'.self::escapeLike($term).'%'], $boolean);
+        return $query->whereRaw("{$column} {$operator} ? escape '!'", ['%'.self::escapeLike($term).'%'], $boolean);
     }
 
     /**
-     * A search term as the literal part of a LIKE pattern: `%`, `_` and `\` escaped with a backslash. The pattern must be
-     * compared with `ESCAPE '\'` (see {@see whereContains()}), PostgreSQL's default and SQLite's only way to escape.
+     * A search term as the literal part of a LIKE pattern: `%`, `_` and `!` escaped with `!`. The pattern must be compared with
+     * `ESCAPE '!'` (see {@see whereContains()}). Not a backslash: with `ESCAPE '\'` in the SQL text Laravel's `toRawSql()` takes
+     * `\'` for an escaped quote and puts the bindings in the wrong places (a debugging aid, but one worth keeping right).
      */
     public static function escapeLike(string $term): string
     {
-        return str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $term);
+        return str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $term);
     }
 
     /**

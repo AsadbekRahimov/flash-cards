@@ -222,18 +222,42 @@ it('keeps finding a learner by a full name, a username and the whole Telegram id
         ->assertCanNotSeeTableRecords([$other]);
 });
 
-it('takes the underscore and the percent sign of a username search as letters, not wildcards', function (): void {
+it('takes the underscore, the percent sign and the exclamation mark of a username search as letters, not wildcards', function (): void {
     $underscore = Learner::factory()->create(['first_name' => 'Uno', 'username' => 'a_b']);
     $lookalike = Learner::factory()->create(['first_name' => 'Duo', 'username' => 'axb']);
+    $bang = Learner::factory()->create(['first_name' => 'Tres', 'username' => 'wow!x']);
+    $withoutBang = Learner::factory()->create(['first_name' => 'Quattro', 'username' => 'wowx']);
+    $backslash = Learner::factory()->create(['first_name' => 'Cinco', 'username' => 'c\\d']);
+    $withoutBackslash = Learner::factory()->create(['first_name' => 'Seis', 'username' => 'cd']);
 
     Livewire::test(ListLearners::class)
         ->searchTable('@a_b')
         ->assertCanSeeTableRecords([$underscore])
         ->assertCanNotSeeTableRecords([$lookalike])
         ->searchTable('%')
-        ->assertCanNotSeeTableRecords([$underscore, $lookalike]);
+        ->assertCanNotSeeTableRecords([$underscore, $lookalike])
+        // `!` is the escape character of the pattern: typed by the admin it is a letter - inside the text and at its end.
+        ->searchTable('wow!x')
+        ->assertCanSeeTableRecords([$bang])
+        ->assertCanNotSeeTableRecords([$withoutBang])
+        ->searchTable('wow!')
+        ->assertCanSeeTableRecords([$bang])
+        ->assertCanNotSeeTableRecords([$withoutBang])
+        // A backslash is an ordinary character (it used to be the escape character of the pattern).
+        ->searchTable('c\\d')
+        ->assertCanSeeTableRecords([$backslash])
+        ->assertCanNotSeeTableRecords([$withoutBackslash]);
 
-    expect(AdminTable::escapeLike('a_b%c\\d'))->toBe('a\\_b\\%c\\\\d');
+    expect(AdminTable::escapeLike('a_b%c!d\\e'))->toBe('a!_b!%c!!d\\e');
+});
+
+it('writes the username search so that toRawSql() puts every binding in its place', function (): void {
+    // `escape '\'` made the substitution of the bindings read `\'` as an escaped quote: whatever binding came after it was left as `?`.
+    $sql = AdminTable::whereContains(Learner::query(), 'learners.username', 'a_b')->where('learners.id', 5)->toRawSql();
+
+    expect($sql)->toContain("'%a!_b%' escape '!'")
+        ->and($sql)->toContain('"learners"."id" = 5')
+        ->and($sql)->not->toContain('?');
 });
 
 // --- the columns a list selects ---------------------------------------------------------------------

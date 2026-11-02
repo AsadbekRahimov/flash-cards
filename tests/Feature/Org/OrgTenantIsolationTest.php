@@ -129,6 +129,17 @@ it('searches members by name or username, case-insensitively, within the tenant 
         ->assertCanSeeTableRecords([$this->memberA1])
         ->assertCanNotSeeTableRecords([$lookalikeMember]);
     Livewire::test(ListMembers::class)->searchTable('%')->assertCountTableRecords(0);
+
+    // `!`, the escape character of the pattern, is a letter too - inside the typed text and at its end, in a name and in a username.
+    $bang = Learner::factory()->memberOf($this->groupA1)->seatedIn($this->a)->create(['first_name' => 'Wow!x', 'username' => 'bang_user!']);
+    $withoutBang = Learner::factory()->memberOf($this->groupA1)->seatedIn($this->a)->create(['first_name' => 'Wowx', 'username' => 'bang_user']);
+    $bangMember = OrganizationMember::query()->where('learner_id', $bang->id)->firstOrFail();
+    $withoutBangMember = OrganizationMember::query()->where('learner_id', $withoutBang->id)->firstOrFail();
+    foreach (['wow!x', 'WOW!', '@bang_user!'] as $typed) {
+        Livewire::test(ListMembers::class)->searchTable($typed)
+            ->assertCanSeeTableRecords([$bangMember])
+            ->assertCanNotSeeTableRecords([$withoutBangMember]);
+    }
 });
 
 it('answers 404 to a direct URL of a record of the other organization', function (): void {
