@@ -5,7 +5,7 @@ import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { useBattleStore } from '../battle'
 import { useBillingStore } from '../billing'
-import { SERVER_NOW, battle, battleList, closedBattle, finishedBattle, incoming, invitedBattle, roomBattle } from '@/api/__tests__/battleFixtures'
+import { SERVER_NOW, battleList, closedBattle, finishedBattle, incoming, invitedBattle, roomBattle } from '@/api/__tests__/battleFixtures'
 import { freeLimits, inHours, limitDetails } from '@/api/__tests__/practiceFixtures'
 import type { Battle } from '@/api/types'
 

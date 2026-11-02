@@ -8,6 +8,7 @@ import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { hideErrorToast, showErrorToast } from '@/composables/errorToast'
 import { RESULT_CHECKS_MAX } from '@/stores/battle'
+import { useBillingStore } from '@/stores/billing'
 import {
   SERVER_NOW,
   answeringRound,
@@ -23,7 +24,7 @@ import {
   roomBattle,
   roundState,
 } from '@/api/__tests__/battleFixtures'
-import { dictationElement, sentenceElement } from '@/api/__tests__/practiceFixtures'
+import { dictationElement, freeLimits, limitDetails, sentenceElement } from '@/api/__tests__/practiceFixtures'
 import type { Battle, BattleEndReason, BattlePoll, BattleRound } from '@/api/types'
 
 vi.mock('@/api', () => ({
@@ -76,10 +77,12 @@ vi.mock('@/components/PaywallSheet.vue', async () => {
   const { defineComponent, h } = await import('vue')
   return {
     default: defineComponent({
-      props: { reason: { type: String, default: 'info' } },
+      props: { reason: { type: String, default: 'info' }, limitHit: { type: Object, default: null } },
       emits: ['close', 'review'],
       setup: (props, { emit }) => () =>
-        h('div', { 'data-testid': 'paywall', 'data-reason': props.reason }, [h('button', { 'data-testid': 'paywall-close', onClick: () => emit('close') })]),
+        h('div', { 'data-testid': 'paywall', 'data-reason': props.reason, 'data-kind': props.limitHit?.kind ?? '', 'data-limit': String(props.limitHit?.limit ?? '') }, [
+          h('button', { 'data-testid': 'paywall-close', onClick: () => emit('close') }),
+        ]),
     }),
   }
 })
@@ -2253,6 +2256,211 @@ describe('BattleView — behind Pro (docs/16 §3.2)', () => {
 
     expect(has(r, 'paywall')).toBe(false)
     expect(r.wrapper.text()).toContain('Практика сейчас недоступна.')
+  })
+})
+
+// docs/18 §3 (G1): Free has one battle (challenge) a day. A rematch - "Rematch", or "Invite again" after a battle that did not take place -
+// is a challenge like any other: when none is left it is the paywall of the limit instead of the invitation. Accepting a battle - an
+// invitation, a rematch of the friend's - and the room are never limited.
+describe('BattleView — the Free limit of battles', () => {
+  const spend = () => useBillingStore().setLimits(freeLimits(0, 1))
+
+  describe('“Rematch” when none is left', () => {
+    it('opens the paywall of the limit at once - no request, no toast - and the result stays under it', async () => {
+      spend()
+      const r = await render(finishedBattle('lost'))
+
+      await click(r, 'rematch-btn')
+
+      expect(get(r, 'paywall').attributes('data-reason')).toBe('practice_limit')
+      expect(get(r, 'paywall').attributes('data-kind')).toBe('battles')
+      expect(get(r, 'paywall').attributes('data-limit')).toBe('1')
+      expect(api.battles.invite).not.toHaveBeenCalled()
+      expect(showErrorToast).not.toHaveBeenCalled()
+      expect(has(r, 'battle-result')).toBe(true)
+      expect(route(r).params.id).toBe('15')
+      expect(tg.haptic).toHaveBeenCalledWith('medium')
+    })
+
+    it('the sheet closes, and the rematch is there to be pressed again', async () => {
+      spend()
+      const r = await render(finishedBattle('lost'))
+      await click(r, 'rematch-btn')
+
+      await click(r, 'paywall-close')
+      expect(has(r, 'paywall')).toBe(false)
+      expect(has(r, 'rematch-btn')).toBe(true)
+
+      await click(r, 'rematch-btn')
+      expect(get(r, 'paywall').attributes('data-reason')).toBe('practice_limit')
+      expect(api.battles.invite).not.toHaveBeenCalled()
+    })
+
+    it('“Invite again” after a battle that did not take place is a challenge too', async () => {
+      spend()
+      const r = await render(closedBattle('room_expired'))
+      expect(text(r, 'rematch-btn')).toBe('Пригласить снова')
+
+      await click(r, 'rematch-btn')
+
+      expect(get(r, 'paywall').attributes('data-kind')).toBe('battles')
+      expect(api.battles.invite).not.toHaveBeenCalled()
+    })
+
+    it('the button is still the one primary button of the screen, and it is not switched off', async () => {
+      spend()
+      const r = await render(finishedBattle('lost'))
+
+      expect(primaries(r)).toHaveLength(1)
+      expect(get(r, 'rematch-btn').attributes('disabled')).toBeUndefined()
+    })
+
+    it('a counter whose day is over says nothing and stops nothing: the app stayed open overnight', async () => {
+      useBillingStore().setLimits(freeLimits(0, 1, new Date(Date.now() - 60_000).toISOString()))
+      const r = await render(finishedBattle('lost'))
+      vi.mocked(api.battles.invite).mockResolvedValue(invitedBattle({ id: 16 }))
+      serveBattle((id) => (id === 16 ? invitedBattle({ id: 16 }) : finishedBattle('lost')))
+
+      await click(r, 'rematch-btn')
+
+      expect(api.battles.invite).toHaveBeenCalledTimes(1)
+      expect(has(r, 'paywall')).toBe(false)
+      expect(route(r).params.id).toBe('16')
+    })
+  })
+
+  describe('“Rematch” while a challenge is left', () => {
+    it('invites as it did, leads to the new battle, and keeps the counters of the 201', async () => {
+      useBillingStore().setLimits(freeLimits(1, 0))
+      const r = await render(finishedBattle('lost'))
+      vi.mocked(api.battles.invite).mockResolvedValue(invitedBattle({ id: 16, limits: freeLimits(1, 1) }))
+      serveBattle((id) => (id === 16 ? invitedBattle({ id: 16 }) : finishedBattle('lost')))
+
+      await click(r, 'rematch-btn')
+
+      expect(api.battles.invite).toHaveBeenCalledWith({ rematch_of: 15, mode: 'sentence', course: 'english-a1', lesson_id: 41, friendship_id: 11 })
+      expect(route(r).params.id).toBe('16')
+      expect(has(r, 'paywall')).toBe(false)
+      expect(useBillingStore().battleLimit).toMatchObject({ used: 1, remaining: 0 })
+    })
+
+    it('Pro is not asked about it: no counters, the rematch goes as it did', async () => {
+      useBillingStore().setLimits(null)
+      const r = await render(finishedBattle('lost'))
+      vi.mocked(api.battles.invite).mockResolvedValue(invitedBattle({ id: 16 }))
+      serveBattle((id) => (id === 16 ? invitedBattle({ id: 16 }) : finishedBattle('lost')))
+
+      await click(r, 'rematch-btn')
+
+      expect(api.battles.invite).toHaveBeenCalledTimes(1)
+      expect(route(r).params.id).toBe('16')
+    })
+
+    it('403 practice_limit_reached - the screen thought one was left - is the same paywall, with the numbers of the refusal, and no toast', async () => {
+      useBillingStore().setLimits(freeLimits(0, 0))
+      const r = await render(finishedBattle('lost'))
+      vi.mocked(api.battles.invite).mockRejectedValue(apiError('forbidden', 403, 'practice_limit_reached', limitDetails('battles')))
+
+      await click(r, 'rematch-btn')
+
+      expect(get(r, 'paywall').attributes('data-reason')).toBe('practice_limit')
+      expect(get(r, 'paywall').attributes('data-kind')).toBe('battles')
+      expect(showErrorToast).not.toHaveBeenCalled()
+      expect(has(r, 'battle-result')).toBe(true)
+      expect(route(r).params.id).toBe('15')
+    })
+
+    it('403 practice_limit_reached whose details cannot be read is told in a toast, as any refusal', async () => {
+      const r = await render(finishedBattle('lost'))
+      vi.mocked(api.battles.invite).mockRejectedValue(apiError('forbidden', 403, 'practice_limit_reached'))
+
+      await click(r, 'rematch-btn')
+
+      expect(showErrorToast).toHaveBeenCalledWith('Бесплатный лимит на сегодня закончился. Он обновится завтра.')
+      expect(has(r, 'paywall')).toBe(false)
+    })
+
+    it('the Pro wall of a rematch is the other paywall, as it was', async () => {
+      const r = await render(finishedBattle('lost'))
+      vi.mocked(api.battles.invite).mockRejectedValue(apiError('forbidden', 403, 'practice_pro_required'))
+
+      await click(r, 'rematch-btn')
+
+      expect(get(r, 'paywall').attributes('data-reason')).toBe('practice')
+      expect(get(r, 'paywall').attributes('data-kind')).toBe('')
+    })
+  })
+
+  describe('accepting is never limited', () => {
+    it('“Accept” of the invitation that came takes it, whatever the counter says', async () => {
+      spend()
+      const r = await render(invitedBattle({ role: 'opponent' }))
+      vi.mocked(api.battles.accept).mockResolvedValue(roomBattle({ role: 'opponent' }))
+
+      await click(r, 'accept-btn')
+
+      expect(api.battles.accept).toHaveBeenCalledWith(15)
+      expect(has(r, 'paywall')).toBe(false)
+      expect(has(r, 'battle-room')).toBe(true)
+    })
+
+    it('“Accept” of the rematch that the friend offered takes it and leads into its room', async () => {
+      spend()
+      const r = await render(finishedBattle('lost', 'completed', { rematch: { battle_id: 16, status: 'invited', by_me: false } }), { others: { 16: roomBattle({ id: 16, role: 'opponent' }) } })
+      vi.mocked(api.battles.accept).mockResolvedValue(roomBattle({ id: 16, role: 'opponent' }))
+
+      await click(r, 'accept-rematch-btn')
+
+      expect(api.battles.accept).toHaveBeenCalledWith(16)
+      expect(has(r, 'paywall')).toBe(false)
+      expect(route(r).params.id).toBe('16')
+    })
+
+    it('“Decline” of that rematch is not stopped either, and the offer of the friend does not hide “Accept” behind a wall', async () => {
+      spend()
+      const r = await render(finishedBattle('lost', 'completed', { rematch: { battle_id: 16, status: 'invited', by_me: false } }))
+      vi.mocked(api.battles.decline).mockResolvedValue(invitedBattle({ id: 16, status: 'closed' }))
+
+      expect(has(r, 'accept-rematch-btn')).toBe(true)
+      await click(r, 'decline-rematch-btn')
+
+      expect(api.battles.decline).toHaveBeenCalledWith(16)
+      expect(has(r, 'paywall')).toBe(false)
+    })
+
+    it('the room is not stopped: “Ready” asks the server', async () => {
+      spend()
+      const r = await render(roomBattle())
+      vi.mocked(api.battles.ready).mockResolvedValue(roomBattle({ ready: { me: true, opponent: false } }))
+
+      await click(r, 'ready-btn')
+
+      expect(api.battles.ready).toHaveBeenCalledTimes(1)
+      expect(has(r, 'paywall')).toBe(false)
+    })
+
+    it('an unexpected 403 practice_limit_reached of an “Accept” is told as a refusal, never as the wall of a challenge', async () => {
+      spend()
+      const r = await render(invitedBattle({ role: 'opponent' }))
+      vi.mocked(api.battles.accept).mockRejectedValue(apiError('forbidden', 403, 'practice_limit_reached', limitDetails('battles')))
+
+      await click(r, 'accept-btn')
+
+      expect(has(r, 'paywall')).toBe(false)
+      expect(showErrorToast).toHaveBeenCalledWith('Бесплатный лимит на сегодня закончился. Он обновится завтра.')
+    })
+  })
+
+  it('a wall that was shown does not stay for the next battle', async () => {
+    spend()
+    const r = await render(finishedBattle('lost'), { others: { 16: invitedBattle({ id: 16, role: 'opponent' }) } })
+    await click(r, 'rematch-btn')
+    expect(has(r, 'paywall')).toBe(true)
+
+    await r.wrapper.setProps({ id: 16 })
+    await flushPromises()
+
+    expect(has(r, 'paywall')).toBe(false)
   })
 })
 

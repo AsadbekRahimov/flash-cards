@@ -11,6 +11,7 @@ import { useBillingStore } from '@/stores/billing'
 import { useFriendsStore } from '@/stores/friends'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 import { activeOf, battleList, closedBattle, incoming, roomBattle } from '@/api/__tests__/battleFixtures'
+import { freeLimits, inHours } from '@/api/__tests__/practiceFixtures'
 import type { BattleListResponse, ChallengeItem, ChallengesResponse, FriendsResponse, MeResponse, PracticeAccess } from '@/api/types'
 
 const state = vi.hoisted(() => ({
@@ -37,10 +38,12 @@ vi.mock('@/components/PaywallSheet.vue', async () => {
   const { defineComponent, h } = await import('vue')
   return {
     default: defineComponent({
-      props: { reason: { type: String, default: 'info' } },
+      props: { reason: { type: String, default: 'info' }, limitHit: { type: Object, default: null } },
       emits: ['close', 'review'],
       setup: (props, { emit }) => () =>
-        h('div', { 'data-testid': 'paywall', 'data-reason': props.reason }, [h('button', { 'data-testid': 'paywall-close', onClick: () => emit('close') })]),
+        h('div', { 'data-testid': 'paywall', 'data-reason': props.reason, 'data-kind': props.limitHit?.kind ?? '', 'data-limit': String(props.limitHit?.limit ?? '') }, [
+          h('button', { 'data-testid': 'paywall-close', onClick: () => emit('close') }),
+        ]),
     }),
   }
 })
@@ -1116,6 +1119,168 @@ describe('FriendsView', () => {
         const { wrapper } = await renderBattles(BATTLES_ON, battleList({ incoming: [incoming({ id: 15 })] }))
 
         expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      })
+    })
+
+    // docs/18 §3 (G1): Free has one battle (challenge) a day. The list of friends says how many are left, in a quiet line under it;
+    // with none left "Battle" opens the paywall of the limit at once. Accepting an invitation is never limited.
+    describe('the Free limit of battles', () => {
+      const withLimits = (limits: PracticeAccess['limits']): PracticeAccess => ({ ...BATTLES_ON, limits })
+      const line = (wrapper: Wrapper) => wrapper.find('[data-testid=battle-limit]')
+
+      it('says how many challenges of the day are left, quietly, under the list of friends', async () => {
+        const { wrapper } = await renderBattles(withLimits(freeLimits(0, 0)))
+
+        expect(line(wrapper).text()).toBe('Вызовов сегодня: осталось 1 из 1')
+        const section = wrapper.get('[data-testid=friends]').html()
+        expect(section.indexOf('friend-row')).toBeLessThan(section.indexOf('battle-limit'))
+      })
+
+      it('is plain secondary text that wraps on a narrow screen: no button, no chip, no alert, no colour of its own', async () => {
+        const { wrapper } = await renderBattles(withLimits(freeLimits(0, 0)))
+
+        expect(line(wrapper).element.tagName).toBe('P')
+        expect(line(wrapper).classes()).toEqual(expect.arrayContaining(['text-tg-hint', 'text-[13px]']))
+        expect(line(wrapper).classes()).not.toContain('truncate')
+        expect(line(wrapper).classes()).not.toContain('whitespace-nowrap')
+        expect(line(wrapper).find('.btn, .chip, [role=alert], svg').exists()).toBe(false)
+      })
+
+      it('speaks Uzbek', async () => {
+        setLocale('uz')
+        const { wrapper } = await renderBattles(withLimits(freeLimits(0, 0)))
+
+        expect(line(wrapper).text()).toBe('Bugungi chaqiruvlar: 1 tadan 1 tasi qoldi')
+      })
+
+      it.each<[string, PracticeAccess['limits']]>([
+        ['Pro has none', null],
+        ['an older server does not send them', undefined],
+      ])('says nothing when %s', async (_name, limits) => {
+        const { wrapper } = await renderBattles(withLimits(limits))
+
+        expect(line(wrapper).exists()).toBe(false)
+        expect(wrapper.findAll('[data-testid=battle-btn]')).toHaveLength(2)
+      })
+
+      it('says nothing where there are no battles to start: battles switched off', async () => {
+        const { wrapper } = await renderBattles({ ...withLimits(freeLimits(0, 0)), battle: false })
+
+        expect(line(wrapper).exists()).toBe(false)
+      })
+
+      it('says nothing when there is nobody to challenge', async () => {
+        vi.mocked(api.me.get).mockResolvedValue(meWith(withLimits(freeLimits(0, 0))))
+        vi.mocked(api.battles.list).mockResolvedValue(battleList())
+        const { wrapper } = await render(friendsResponse({ friends: [] }))
+
+        expect(line(wrapper).exists()).toBe(false)
+      })
+
+      it('says nothing for a counter whose day is over: the app stayed open overnight, and the server decides', async () => {
+        const stale = freeLimits(0, 1, new Date(Date.now() - 60_000).toISOString())
+        const { wrapper, router } = await renderBattles(withLimits(stale))
+
+        expect(line(wrapper).exists()).toBe(false)
+        await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+        await flushPromises()
+        expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+        expect(router.currentRoute.value.name).toBe('battle-new')
+      })
+
+      it('"Battle" leads to the setup as it did while a challenge is left (spent sessions of practice are another counter)', async () => {
+        const { wrapper, router } = await renderBattles(withLimits(freeLimits(2, 0)))
+
+        await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+        await flushPromises()
+
+        expect(router.currentRoute.value.name).toBe('battle-new')
+        expect(router.currentRoute.value.query).toEqual({ friendship: '11' })
+        expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      })
+
+      describe('when none is left', () => {
+        const spent = () => withLimits(freeLimits(0, 1, inHours(4)))
+
+        it('the line says so in the same words, and every "Battle" button is still there', async () => {
+          const { wrapper } = await renderBattles(spent())
+
+          expect(line(wrapper).text()).toBe('Вызовов сегодня: осталось 0 из 1')
+          expect(wrapper.findAll('[data-testid=battle-btn]')).toHaveLength(2)
+        })
+
+        it('"Battle" opens the paywall of the limit at once - no setup that would end in it, no request, no toast', async () => {
+          const { wrapper, router } = await renderBattles(spent())
+
+          await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+          await flushPromises()
+
+          const sheet = wrapper.get('[data-testid=paywall]')
+          expect(sheet.attributes('data-reason')).toBe('practice_limit')
+          expect(sheet.attributes('data-kind')).toBe('battles')
+          expect(sheet.attributes('data-limit')).toBe('1')
+          expect(router.currentRoute.value.name).toBe('friends')
+          expect(useToast().toast.value).toBeNull()
+          expect(state.haptic).toHaveBeenCalledWith('light')
+        })
+
+        it('every friend does the same, the sheet closes, and the next press opens it again', async () => {
+          const { wrapper, router } = await renderBattles(spent())
+
+          for (const name of ['Dilnoza', 'Друг']) {
+            await rowOf(wrapper, name).get('[data-testid=battle-btn]').trigger('click')
+            expect(wrapper.get('[data-testid=paywall]').attributes('data-reason')).toBe('practice_limit')
+            await wrapper.get('[data-testid=paywall-close]').trigger('click')
+            expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+          }
+          expect(router.currentRoute.value.name).toBe('friends')
+        })
+
+        it('does not touch what is not a new challenge: the battle that is on is one tap away', async () => {
+          const { wrapper, router } = await renderBattles(spent(), battleList({ active: activeOf('room') }))
+
+          await wrapper.get('[data-testid=active-battle-row]').trigger('click')
+          await flushPromises()
+
+          expect(router.currentRoute.value.name).toBe('battle')
+          expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+        })
+
+        it('"Accept" is never limited: the invitation is accepted and leads into its room', async () => {
+          vi.mocked(api.battles.accept).mockResolvedValue(roomBattle({ id: 15, role: 'opponent' }))
+          const { wrapper, router } = await renderBattles(spent(), battleList({ incoming: [incoming({ id: 15 })] }))
+
+          await wrapper.get('[data-testid=battle-accept-btn]').trigger('click')
+          await flushPromises()
+
+          expect(api.battles.accept).toHaveBeenCalledWith(15)
+          expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+          expect(useToast().toast.value).toBeNull()
+          expect(router.currentRoute.value.name).toBe('battle')
+          expect(router.currentRoute.value.params.id).toBe('15')
+        })
+
+        it('and so is "Decline"', async () => {
+          vi.mocked(api.battles.decline).mockResolvedValue(closedBattle('declined'))
+          const { wrapper } = await renderBattles(spent(), battleList({ incoming: [incoming({ id: 15 })] }))
+
+          await wrapper.get('[data-testid=battle-decline-btn]').trigger('click')
+          await flushPromises()
+
+          expect(api.battles.decline).toHaveBeenCalledWith(15)
+          expect(wrapper.find('[data-testid=battle-invite-row]').exists()).toBe(false)
+        })
+
+        it('the Pro wall of an "Accept" is the other paywall, as it was', async () => {
+          vi.mocked(api.battles.accept).mockRejectedValue(new ApiClientError('forbidden', 403, 'practice_pro_required', 'x'))
+          const { wrapper } = await renderBattles(spent(), battleList({ incoming: [incoming({ id: 15 })] }))
+
+          await wrapper.get('[data-testid=battle-accept-btn]').trigger('click')
+          await flushPromises()
+
+          expect(wrapper.get('[data-testid=paywall]').attributes('data-reason')).toBe('practice')
+          expect(wrapper.get('[data-testid=paywall]').attributes('data-kind')).toBe('')
+        })
       })
     })
   })

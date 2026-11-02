@@ -9,7 +9,7 @@ import { setLocale } from '@/i18n'
 import { showErrorToast } from '@/composables/errorToast'
 import { useBillingStore } from '@/stores/billing'
 import { usePracticeStore } from '@/stores/practice'
-import { activeSession, hub, session } from '@/api/__tests__/practiceFixtures'
+import { activeSession, freeLimits, hub, inHours, limitDetails, session } from '@/api/__tests__/practiceFixtures'
 import type { BattleListResponse, FriendsResponse, PracticeHubResponse } from '@/api/types'
 
 vi.mock('@/api', () => ({
@@ -47,10 +47,10 @@ vi.mock('@/components/PaywallSheet.vue', async () => {
   const { defineComponent, h } = await import('vue')
   return {
     default: defineComponent({
-      props: { reason: { type: String, default: 'info' } },
+      props: { reason: { type: String, default: 'info' }, limitHit: { type: Object, default: null } },
       emits: ['close', 'review'],
       setup: (props, { emit }) => () =>
-        h('div', { 'data-testid': 'paywall', 'data-reason': props.reason }, [
+        h('div', { 'data-testid': 'paywall', 'data-reason': props.reason, 'data-kind': props.limitHit?.kind ?? '', 'data-limit': String(props.limitHit?.limit ?? '') }, [
           h('button', { 'data-testid': 'paywall-close', onClick: () => emit('close') }),
           h('button', { 'data-testid': 'paywall-review', onClick: () => emit('review') }),
         ]),
@@ -1114,6 +1114,420 @@ describe('PracticeHubView — Back', () => {
 
     expect(router.currentRoute.value.name).toBe('course')
     expect(router.currentRoute.value.params.slug).toBe('english-a1')
+    wrapper.unmount()
+  })
+})
+
+// docs/18 §3 (G1): Free has two sessions of practice and one battle a day. The hub says how many sessions are left, in a quiet line; when
+// none is left a card still looks and presses like a card, and the press opens the paywall of the limit at once, without a request.
+describe('PracticeHubView — the Free limit of sessions', () => {
+  const line = (wrapper: Awaited<ReturnType<typeof render>>['wrapper']) => wrapper.find('[data-testid=practice-limit]')
+  const resetsAt = () => inHours(4)
+
+  it('says how many sessions of the day are left, quietly, under "Choose a mode" and above the cards', async () => {
+    const { wrapper } = await render({}, hub({ limits: freeLimits(1, 0) }))
+
+    expect(line(wrapper).text()).toBe('Сегодня бесплатно: осталось 1 из 2')
+    const html = wrapper.html()
+    expect(html.indexOf('Выберите режим')).toBeLessThan(html.indexOf('Сегодня бесплатно'))
+    expect(html.indexOf('Сегодня бесплатно')).toBeLessThan(html.indexOf('data-testid="mode-cards"'))
+    wrapper.unmount()
+  })
+
+  it('is plain secondary text: no button, no chip, no alert, no colour of its own', async () => {
+    const { wrapper } = await render({}, hub({ limits: freeLimits(0, 0) }))
+
+    const quiet = line(wrapper)
+    expect(quiet.element.tagName).toBe('P')
+    expect(quiet.classes()).toEqual(expect.arrayContaining(['text-tg-hint', 'text-[13px]']))
+    expect(quiet.find('.btn, .chip, [role=alert], svg').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('wraps on a narrow screen instead of overflowing: no nowrap and no truncation', async () => {
+    const { wrapper } = await render({}, hub({ limits: freeLimits(1, 0) }))
+
+    expect(line(wrapper).classes()).not.toContain('truncate')
+    expect(line(wrapper).classes()).not.toContain('whitespace-nowrap')
+    wrapper.unmount()
+  })
+
+  it('speaks Uzbek', async () => {
+    setLocale('uz')
+    const { wrapper } = await render({}, hub({ limits: freeLimits(1, 0) }))
+
+    expect(line(wrapper).text()).toBe('Bugun bepul: 2 tadan 1 tasi qoldi')
+    wrapper.unmount()
+  })
+
+  it('Pro sees nothing: no line, and the cards are as they were', async () => {
+    const { wrapper } = await render({}, hub({ limits: null }))
+
+    expect(line(wrapper).exists()).toBe(false)
+    expect(wrapper.find('[data-testid=mode-cards]').exists()).toBe(true)
+    wrapper.unmount()
+  })
+
+  it('a server that does not send the limits (an older one) shows nothing, and stops nothing', async () => {
+    vi.mocked(api.practice.open).mockResolvedValue(session({ id: 90 }))
+    const { wrapper } = await render({}, hub())
+
+    expect(line(wrapper).exists()).toBe(false)
+    await card(wrapper, 'pairs').trigger('click')
+    await flushPromises()
+    expect(api.practice.open).toHaveBeenCalledTimes(1)
+    wrapper.unmount()
+  })
+
+  it('a counter whose day is over says nothing: the app stayed open overnight, and the server decides', async () => {
+    vi.mocked(api.practice.open).mockResolvedValue(session({ id: 90 }))
+    const { wrapper } = await render({}, hub({ limits: freeLimits(2, 0, new Date(Date.now() - 60_000).toISOString()) }))
+
+    expect(line(wrapper).exists()).toBe(false)
+    await card(wrapper, 'pairs').trigger('click')
+    await flushPromises()
+    expect(api.practice.open).toHaveBeenCalledTimes(1)
+    expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('opens a session as usual while some are left', async () => {
+    vi.mocked(api.practice.open).mockResolvedValue(session({ id: 91, mode: 'sentence' }))
+    const { wrapper, router } = await render({}, hub({ limits: freeLimits(1, 0) }))
+
+    await card(wrapper, 'sentence').trigger('click')
+    await flushPromises()
+
+    expect(router.currentRoute.value.name).toBe('practice-session')
+    expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  describe('when none is left', () => {
+    it('the line says so in the same words, and the cards are still there, as cards', async () => {
+      const { wrapper } = await render({}, hub({ limits: freeLimits(2, 0, resetsAt()) }))
+
+      expect(line(wrapper).text()).toBe('Сегодня бесплатно: осталось 0 из 2')
+      for (const mode of ['pairs', 'collocation', 'sentence', 'dictation']) {
+        expect(card(wrapper, mode).element.tagName).toBe('BUTTON')
+        expect((card(wrapper, mode).element as HTMLButtonElement).disabled).toBe(false)
+      }
+      wrapper.unmount()
+    })
+
+    it('a press opens the paywall of the limit at once - no request, no toast - with the numbers the sheet quotes', async () => {
+      const at = resetsAt()
+      const { wrapper } = await render({}, hub({ limits: freeLimits(2, 0, at) }))
+
+      await card(wrapper, 'sentence').trigger('click')
+
+      const sheet = wrapper.get('[data-testid=paywall]')
+      expect(sheet.attributes('data-reason')).toBe('practice_limit')
+      expect(sheet.attributes('data-kind')).toBe('sessions')
+      expect(sheet.attributes('data-limit')).toBe('2')
+      expect(api.practice.open).not.toHaveBeenCalled()
+      expect(showErrorToast).not.toHaveBeenCalled()
+      expect(wrapper.find('[data-testid=mode-busy]').exists()).toBe(false)
+      wrapper.unmount()
+    })
+
+    it('every mode does the same, and the sheet closes and opens again', async () => {
+      const { wrapper } = await render({}, hub({ limits: freeLimits(2, 0, resetsAt()) }))
+
+      for (const mode of ['pairs', 'collocation', 'sentence', 'dictation']) {
+        await card(wrapper, mode).trigger('click')
+        expect(wrapper.get('[data-testid=paywall]').attributes('data-reason')).toBe('practice_limit')
+        await wrapper.get('[data-testid=paywall-close]').trigger('click')
+        expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      }
+      expect(api.practice.open).not.toHaveBeenCalled()
+      wrapper.unmount()
+    })
+
+    it('"Repeat words" of the sheet leaves for the review, as on every paywall', async () => {
+      vi.mocked(api.training.open).mockResolvedValue({ session_id: 503, mode: 'daily_review', lesson: null, total_words: 12 })
+      const { wrapper, router } = await render({}, hub({ limits: freeLimits(2, 0, resetsAt()) }))
+      await card(wrapper, 'pairs').trigger('click')
+
+      await wrapper.get('[data-testid=paywall-review]').trigger('click')
+      await flushPromises()
+
+      expect(api.training.open).toHaveBeenCalledWith({ mode: 'daily_review', source: 'self' })
+      expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      expect(router.currentRoute.value.name).toBe('training')
+      wrapper.unmount()
+    })
+
+    it('the session that is unfinished is still the learner\'s: its card says "Continue" and goes back into it - it was counted when it began', async () => {
+      const { wrapper, router } = await render({}, hub({ limits: freeLimits(2, 0, resetsAt()), active_session: activeSession({ id: 77, mode: 'pairs' }) }))
+
+      await card(wrapper, 'pairs').trigger('click')
+      await flushPromises()
+
+      expect(api.practice.open).not.toHaveBeenCalled()
+      expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      expect(router.currentRoute.value.name).toBe('practice-session')
+      expect(router.currentRoute.value.params.id).toBe('77')
+      wrapper.unmount()
+    })
+
+    it('and so is the "Continue" card on top', async () => {
+      const { wrapper, router } = await render({}, hub({ limits: freeLimits(2, 0, resetsAt()), active_session: activeSession({ id: 77, mode: 'pairs' }) }))
+
+      await wrapper.get('[data-testid=continue-card]').trigger('click')
+      await flushPromises()
+
+      expect(router.currentRoute.value.params.id).toBe('77')
+      expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      wrapper.unmount()
+    })
+
+    it('another mode than the unfinished one is a new session, and meets the limit - not the question about the old one', async () => {
+      const { wrapper } = await render({}, hub({ limits: freeLimits(2, 0, resetsAt()), active_session: activeSession({ id: 77, mode: 'pairs' }) }))
+
+      await card(wrapper, 'dictation').trigger('click')
+      await flushPromises()
+
+      expect(wrapper.get('[data-testid=paywall]').attributes('data-reason')).toBe('practice_limit')
+      expect(wrapper.find('[data-testid=active-sheet]').exists()).toBe(false)
+      expect(api.practice.open).not.toHaveBeenCalled()
+      wrapper.unmount()
+    })
+
+    it('a card behind Pro is still the paywall of Pro, not of the limit', async () => {
+      const { wrapper } = await render({}, hub({ limits: freeLimits(2, 0, resetsAt()), modes: { dictation: { state: 'pro_required' } } }))
+
+      await card(wrapper, 'dictation').trigger('click')
+
+      expect(wrapper.get('[data-testid=paywall]').attributes('data-reason')).toBe('practice')
+      expect(wrapper.get('[data-testid=paywall]').attributes('data-kind')).toBe('')
+      wrapper.unmount()
+    })
+
+    it('a mode that lacks material is still told so: its card is not a button, the limit has nothing to say about it', async () => {
+      const { wrapper } = await render({}, hub({ limits: freeLimits(2, 0, resetsAt()), modes: { dictation: { state: 'not_enough', reason: 'no_words', available: 1, required: 3 } } }))
+
+      expect(card(wrapper, 'dictation').element.tagName).not.toBe('BUTTON')
+      expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      wrapper.unmount()
+    })
+
+    it('leaving the hub forgets the sheet: the next hub does not open with it', async () => {
+      const first = await render({}, hub({ limits: freeLimits(2, 0, resetsAt()) }))
+      await card(first.wrapper, 'pairs').trigger('click')
+      expect(first.wrapper.find('[data-testid=paywall]').exists()).toBe(true)
+      first.wrapper.unmount()
+
+      const next = await render({}, hub({ limits: freeLimits(2, 0, resetsAt()) }))
+
+      expect(next.wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      next.wrapper.unmount()
+    })
+  })
+
+  describe('the answer of the server to a session that is opened', () => {
+    it('the 201 brings the counters as they are after it, and the line follows', async () => {
+      vi.mocked(api.practice.open).mockResolvedValue(session({ id: 92, limits: freeLimits(1, 0) }))
+      const { wrapper } = await render({}, hub({ limits: freeLimits(0, 0) }))
+      expect(line(wrapper).text()).toBe('Сегодня бесплатно: осталось 2 из 2')
+
+      await card(wrapper, 'pairs').trigger('click')
+      await flushPromises()
+
+      expect(line(wrapper).text()).toBe('Сегодня бесплатно: осталось 1 из 2')
+      wrapper.unmount()
+    })
+
+    it('the last free session: the line goes to 0, and the next press is the paywall', async () => {
+      vi.mocked(api.practice.open).mockResolvedValueOnce(session({ id: 93, limits: freeLimits(2, 0, resetsAt()) }))
+      const { wrapper } = await render({}, hub({ limits: freeLimits(1, 0, resetsAt()) }))
+
+      await card(wrapper, 'pairs').trigger('click')
+      await flushPromises()
+      expect(line(wrapper).text()).toBe('Сегодня бесплатно: осталось 0 из 2')
+
+      await card(wrapper, 'collocation').trigger('click')
+      expect(wrapper.get('[data-testid=paywall]').attributes('data-reason')).toBe('practice_limit')
+      expect(api.practice.open).toHaveBeenCalledTimes(1)
+      wrapper.unmount()
+    })
+
+    it('a 201 with `null` (the learner is Pro now) takes the line away', async () => {
+      vi.mocked(api.practice.open).mockResolvedValue(session({ id: 94, limits: null }))
+      const { wrapper } = await render({}, hub({ limits: freeLimits(0, 0) }))
+
+      await card(wrapper, 'pairs').trigger('click')
+      await flushPromises()
+
+      expect(line(wrapper).exists()).toBe(false)
+      wrapper.unmount()
+    })
+
+    it('403 practice_limit_reached - the screen believed a session was left - is the paywall of the limit with the numbers of the refusal, no toast', async () => {
+      vi.mocked(api.practice.open).mockRejectedValue(apiError('forbidden', 403, 'practice_limit_reached', limitDetails('sessions', resetsAt())))
+      const { wrapper } = await render({}, hub({ limits: freeLimits(1, 0, resetsAt()) }))
+
+      await card(wrapper, 'pairs').trigger('click')
+      await flushPromises()
+
+      const sheet = wrapper.get('[data-testid=paywall]')
+      expect(sheet.attributes('data-reason')).toBe('practice_limit')
+      expect(sheet.attributes('data-kind')).toBe('sessions')
+      expect(showErrorToast).not.toHaveBeenCalled()
+      expect(line(wrapper).text()).toBe('Сегодня бесплатно: осталось 0 из 2')
+      wrapper.unmount()
+    })
+
+    it('403 practice_limit_reached whose details cannot be read is told in a toast, as any refusal', async () => {
+      vi.mocked(api.practice.open).mockRejectedValue(apiError('forbidden', 403, 'practice_limit_reached', { kind: 'sessions' }))
+      const { wrapper } = await render({}, hub({ limits: freeLimits(0, 0) }))
+
+      await card(wrapper, 'pairs').trigger('click')
+      await flushPromises()
+
+      expect(showErrorToast).toHaveBeenCalledWith('Бесплатный лимит на сегодня закончился. Он обновится завтра.')
+      expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      wrapper.unmount()
+    })
+
+    it('403 practice_limit_reached for a learner the screen thought was Pro: the sheet opens, the line appears', async () => {
+      vi.mocked(api.practice.open).mockRejectedValue(apiError('forbidden', 403, 'practice_limit_reached', limitDetails('sessions', resetsAt())))
+      const { wrapper } = await render({}, hub({ limits: null }))
+
+      await card(wrapper, 'pairs').trigger('click')
+      await flushPromises()
+
+      expect(wrapper.get('[data-testid=paywall]').attributes('data-reason')).toBe('practice_limit')
+      wrapper.unmount()
+    })
+
+    it('a refusal of another kind is as it was: a toast, and no paywall', async () => {
+      vi.mocked(api.practice.open).mockRejectedValue(offline())
+      const { wrapper } = await render({}, hub({ limits: freeLimits(0, 0) }))
+
+      await card(wrapper, 'pairs').trigger('click')
+      await flushPromises()
+
+      expect(showErrorToast).toHaveBeenCalledWith('Нет связи с сервером. Попробуйте ещё раз.')
+      expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      expect(line(wrapper).text()).toBe('Сегодня бесплатно: осталось 2 из 2')
+      wrapper.unmount()
+    })
+  })
+
+  describe('when the plan changes under the hub', () => {
+    const plan = (value: 'free' | 'pro') => ({
+      entitlement: { plan: value, source: value === 'pro' ? 'payment' : 'free', until: null, new_words_per_day: value === 'pro' ? null : 20 },
+      paywall: { mode: 'purchase' as const, contact: null },
+    })
+
+    it('Pro is paid for in the sheet: the hub is asked again, and the line is gone with the limit', async () => {
+      const billing = useBillingStore()
+      billing.apply(plan('free'))
+      const { wrapper } = await render({}, hub({ limits: freeLimits(2, 0, resetsAt()) }))
+      expect(line(wrapper).exists()).toBe(true)
+
+      vi.mocked(api.practice.hub).mockResolvedValue(hub({ limits: null }))
+      billing.apply(plan('pro'))
+      await flushPromises()
+
+      expect(line(wrapper).exists()).toBe(false)
+      wrapper.unmount()
+    })
+
+    it('and the next press is a session, not the paywall', async () => {
+      vi.mocked(api.practice.open).mockResolvedValue(session({ id: 95, limits: null }))
+      const billing = useBillingStore()
+      billing.apply(plan('free'))
+      const { wrapper, router } = await render({}, hub({ limits: freeLimits(2, 0, resetsAt()) }))
+
+      vi.mocked(api.practice.hub).mockResolvedValue(hub({ limits: null }))
+      billing.apply(plan('pro'))
+      await flushPromises()
+      await card(wrapper, 'pairs').trigger('click')
+      await flushPromises()
+
+      expect(api.practice.open).toHaveBeenCalledTimes(1)
+      expect(router.currentRoute.value.name).toBe('practice-session')
+      wrapper.unmount()
+    })
+  })
+})
+
+// "Play with a friend" starts a battle: a challenge, with a counter of its own (one a day on Free).
+describe('PracticeHubView — the Free limit of battles', () => {
+  const resetsAt = () => inHours(4)
+
+  it('with none left it opens the paywall of the limit, not the list of friends that would end in it', async () => {
+    const { wrapper } = await render({}, hub({ limits: freeLimits(0, 1, resetsAt()) }))
+
+    await wrapper.get('[data-testid=battle-play-btn]').trigger('click')
+    await flushPromises()
+
+    const sheet = wrapper.get('[data-testid=paywall]')
+    expect(sheet.attributes('data-reason')).toBe('practice_limit')
+    expect(sheet.attributes('data-kind')).toBe('battles')
+    expect(sheet.attributes('data-limit')).toBe('1')
+    expect(wrapper.find('[data-testid=friend-picker]').exists()).toBe(false)
+    expect(api.friends.get).not.toHaveBeenCalled()
+    wrapper.unmount()
+  })
+
+  it('closing the sheet leaves the hub as it was', async () => {
+    const { wrapper } = await render({}, hub({ limits: freeLimits(0, 1, resetsAt()) }))
+    await wrapper.get('[data-testid=battle-play-btn]').trigger('click')
+
+    await wrapper.get('[data-testid=paywall-close]').trigger('click')
+
+    expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=mode-cards]').exists()).toBe(true)
+    wrapper.unmount()
+  })
+
+  it('with a challenge left it opens the friends as it always did, even when the sessions of the day are spent', async () => {
+    const { wrapper, router } = await render({}, hub({ limits: freeLimits(2, 0, resetsAt()) }))
+
+    await wrapper.get('[data-testid=battle-play-btn]').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-testid=friend-picker]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+    await wrapper.get('[data-testid=friend-32]').trigger('click')
+    await flushPromises()
+
+    expect(router.currentRoute.value.name).toBe('battle-new')
+    wrapper.unmount()
+  })
+
+  it('a battle that is on is not a new challenge: the button leads back into it, whatever the counter says', async () => {
+    const { wrapper, router } = await render({}, hub({ limits: freeLimits(0, 1, resetsAt()), battle: { enabled: true, active_battle_id: 15, incoming_count: 0 } }))
+
+    await wrapper.get('[data-testid=battle-play-btn]').trigger('click')
+    await flushPromises()
+
+    expect(router.currentRoute.value.name).toBe('battle')
+    expect(router.currentRoute.value.params.id).toBe('15')
+    expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('an invitation of a friend is answered in its battle: the list of invitations is never behind the limit', async () => {
+    vi.mocked(api.battles.list).mockResolvedValue({ active: null, incoming: [incoming(15, 'Тимур')], finished: [] })
+    const { wrapper, router } = await render({}, hub({ limits: freeLimits(2, 1, resetsAt()), battle: { enabled: true, active_battle_id: null, incoming_count: 1 } }))
+
+    await wrapper.get('[data-testid=invitation-15]').trigger('click')
+    await flushPromises()
+
+    expect(router.currentRoute.value.name).toBe('battle')
+    expect(router.currentRoute.value.params.id).toBe('15')
+    expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('says nothing about battles on the hub: the line is about the sessions, the battle counter is told where a battle is made', async () => {
+    const { wrapper } = await render({}, hub({ limits: freeLimits(0, 1, resetsAt()) }))
+
+    expect(wrapper.find('[data-testid=practice-limit]').text()).not.toContain('Вызов')
+    expect(wrapper.get('[data-testid=battle-card]').text()).not.toContain('осталось')
     wrapper.unmount()
   })
 })
