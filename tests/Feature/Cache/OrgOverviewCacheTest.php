@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Services\SubscriptionService;
+use App\Domain\Learners\Services\GroupMembershipService;
 use App\Domain\Operations\Support\PureCache;
 use App\Domain\Organizations\Enums\OrganizationRole;
 use App\Domain\Organizations\Events\OrganizationMemberJoined;
@@ -17,13 +18,18 @@ use App\Filament\Org\Widgets\OrgSeatsWidget;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
 use App\Models\Organization;
+use App\Models\OrganizationMember;
 use App\Models\OrganizationUser;
 use App\Models\Subscription;
 use App\Models\TelegramGroup;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Filament\Facades\Filament;
+use Illuminate\Cache\ArrayStore;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Livewire\Livewire;
 use Tests\Support\QueryLog;
@@ -233,6 +239,48 @@ it('drops the summary of both centers when a group moves from one to the other',
 
     $this->groupB->delete();
     expect(orgOverview()->cachedSummary($this->ownerB, $this->b)->groups)->toBe(1);
+});
+
+it('lets the members follow a group that moves to another center, and leave a group that is deleted, even when the cache cannot be reached', function (): void {
+    $group = TelegramGroup::factory()->create(['status' => 'active', 'organization_id' => $this->a->id]);
+    $learner = Learner::factory()->create();
+    app(GroupMembershipService::class)->join($learner, $group, 'group');
+    $membership = fn (Organization $organization): ?string => OrganizationMember::query()
+        ->where('learner_id', $learner->id)->where('organization_id', $organization->id)->value('status');
+
+    expect($membership($this->a))->toBe('active');
+
+    // The version of the overview cannot be moved on (the default store is down for that key alone). The membership events are
+    // faked: their listener drops the overview too, and this test is about the group's own hook.
+    Event::fake([OrganizationMemberJoined::class, OrganizationMemberLeft::class, OrganizationMemberSeated::class]);
+    Cache::extend('overview-down', fn () => Cache::repository(new class extends ArrayStore
+    {
+        public function increment($key, $value = 1)
+        {
+            if (preg_match('/^org:\d+:overview:ver$/', (string) $key) === 1) {
+                throw new RuntimeException('redis-cache is down');
+            }
+
+            return parent::increment($key, $value);
+        }
+    }));
+    config(['cache.stores.overview-down' => ['driver' => 'overview-down'], 'cache.default' => 'overview-down']);
+    Log::spy();
+
+    // The link moves: the commit does not throw, the member leaves A and joins B, and the failure to drop the overview is logged.
+    $group->update(['organization_id' => $this->b->id]);
+
+    expect($membership($this->a))->toBe('left')
+        ->and($membership($this->b))->toBe('active');
+    Log::shouldHaveReceived('warning')->with('organizations.group_overview_forget_failed', Mockery::on(fn (array $context): bool => $context['telegram_group_id'] === $group->id))->once();
+
+    // The group is deleted: the member of B who was in no other group of B is released, and the failure is logged again.
+    $group->delete();
+
+    expect($membership($this->b))->toBe('left');
+    Log::shouldHaveReceived('warning')->with('organizations.group_overview_forget_failed', Mockery::type('array'))->twice();
+    Log::shouldNotHaveReceived('warning', ['organizations.group_relink_failed', Mockery::any()]);
+    Log::shouldNotHaveReceived('warning', ['organizations.group_delete_release_failed', Mockery::any()]);
 });
 
 it('drops the summary when the subscription of the center changes, so an owner who has just paid sees it', function (): void {

@@ -6,6 +6,7 @@ use App\Domain\Administration\Services\AdminDashboardStats;
 use App\Domain\Administration\Services\PanelDataScope;
 use App\Domain\Administration\Services\PanelRequestMemo;
 use App\Domain\Administration\Services\WidgetCache;
+use App\Domain\Billing\Services\BillingReportService;
 use App\Domain\Engagement\Services\LeagueService;
 use App\Domain\Operations\Support\PureCache;
 use App\Filament\Widgets\ActivityChartWidget;
@@ -36,6 +37,7 @@ use Illuminate\Cache\Repository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Defer\DeferredCallbackCollection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Livewire\Livewire;
@@ -44,7 +46,7 @@ use Tests\Support\QueryLog;
 /*
  * The cache of the dashboard widgets of /admin (docs/19 K1, docs/20 F5 / A12): every aggregate is an array of scalars on the
  * pure store, FRESH for a while and then served stale while it is recomputed after the response (`Cache::flexible`), keyed by
- * what the viewer may see; the money widgets are dropped by a payment or a refund; the stats widgets do not poll.
+ * what the viewer may see; the money widgets move to a new data version with a payment or a refund; the stats widgets do not poll.
  * The tests run on the configured pure store (an array store here, the second Redis in CI); the one that moves the clock uses an array store.
  */
 
@@ -151,6 +153,9 @@ it('keeps each aggregate under a versioned key of its own, with the viewer in it
         Livewire::test($widget)->assertOk();
     }
 
+    // The format version comes before the parameters (docs/19 §3 rule 3); the money widgets carry the data version of the ledger.
+    $money = 'all:n'.(int) Cache::get('admin:widget:money:ver', 0);
+
     foreach ([
         'admin:widget:total_learners:v1:all',
         'admin:widget:exams_30d:v1:all',
@@ -158,10 +163,10 @@ it('keeps each aggregate under a versioned key of its own, with the viewer in it
         'admin:widget:top_learners:v1:all',
         'admin:widget:hardest_words:v1:all',
         'admin:widget:league_week:v1:all',
-        "admin:widget:league_groups:w{$week->id}:p1:n10:v1:all",
-        'admin:widget:organization_seats:p1:n10:v1:all',
-        'admin:widget:revenue_30d:v1:all',
-        'admin:widget:webhook_errors:v1:all',
+        "admin:widget:league_groups:v1:all:w{$week->id}:p1:n10",
+        'admin:widget:organization_seats:v1:all:p1:n10',
+        "admin:widget:revenue_30d:v1:{$money}",
+        "admin:widget:webhook_errors:v1:{$money}",
     ] as $key) {
         expect(PureCache::store()->has($key))->toBeTrue($key);
         // Only arrays and scalars: nothing the store may refuse to unserialize (cache.serializable_classes = false).
@@ -212,17 +217,21 @@ it('refreshes a stale entry under a lock that is let go, on whatever store the p
     }
 });
 
-it('keeps the money widgets one commit behind at most: a payment and a refund drop them, the others stay', function (): void {
+it('keeps the money widgets one commit behind at most: a payment and a refund move them to a new data version, the others stay', function (): void {
     seedDashboardData();
     Livewire::test(RevenueLast30DaysWidget::class)->assertSee('29 000 UZS');
     Livewire::test(WebhookErrorsWidget::class)->assertOk();
     Livewire::test(TotalLearnersWidget::class)->assertOk();
 
-    // A new payment: both money entries go, the learners' one does not.
+    $widgets = app(WidgetCache::class);
+    $scope = $widgets->moneyScope();
+
+    // A new payment: the version moves on, so both money entries are read at a key nobody has written yet; the learners' one stays.
     $charge = Payment::factory()->create(['provider' => 'click', 'currency' => 'UZS', 'amount' => 1_000_000]);
 
-    expect(PureCache::store()->has(WidgetCache::key('revenue_30d', 'all')))->toBeFalse()
-        ->and(PureCache::store()->has(WidgetCache::key('webhook_errors', 'all')))->toBeFalse()
+    expect($widgets->moneyScope())->not->toBe($scope)
+        ->and(PureCache::store()->has(WidgetCache::key('revenue_30d', $widgets->moneyScope())))->toBeFalse()
+        ->and(PureCache::store()->has(WidgetCache::key('webhook_errors', $widgets->moneyScope())))->toBeFalse()
         ->and(PureCache::store()->has(WidgetCache::key('total_learners', 'all')))->toBeTrue();
 
     Livewire::test(RevenueLast30DaysWidget::class)->assertSee('39 000 UZS')->assertDontSee('29 000 UZS');
@@ -238,9 +247,10 @@ it('keeps the money widgets one commit behind at most: a payment and a refund dr
     Livewire::test(WebhookErrorsWidget::class)->assertSee('Payme: 1');
 });
 
-it('does not let a rolled-back payment drop the money widgets', function (): void {
+it('does not let a rolled-back payment move the money widgets to a new version', function (): void {
     seedDashboardData();
     Livewire::test(RevenueLast30DaysWidget::class)->assertOk();
+    $scope = app(WidgetCache::class)->moneyScope();
 
     try {
         DB::transaction(function (): void {
@@ -251,7 +261,56 @@ it('does not let a rolled-back payment drop the money widgets', function (): voi
     } catch (RuntimeException) {
     }
 
-    expect(PureCache::store()->has(WidgetCache::key('revenue_30d', 'all')))->toBeTrue('nothing was written, nothing to drop');
+    expect(app(WidgetCache::class)->moneyScope())->toBe($scope, 'nothing was written, nothing to drop')
+        ->and(PureCache::store()->has(WidgetCache::key('revenue_30d', $scope)))->toBeTrue();
+});
+
+it('does not keep the old figure of a reader that was still computing when the payment committed', function (): void {
+    seedDashboardData(); // 29 000 UZS in the ledger
+    $widgets = app(WidgetCache::class);
+    $stats = app(AdminDashboardStats::class);
+
+    // The reader makes the key at the version before the payment and computes the figure from the ledger as it is...
+    $before = $widgets->moneyScope();
+    $widgets->remember('revenue_30d', $before, 120, function (): array {
+        $billing = app(BillingReportService::class);
+        $figure = ['cash' => $billing->cashFlowLast30Days(), 'cohort' => $billing->cohortRevenueLast30Days()];
+
+        // ...and the payment commits before the reader has written it (its observer moves the version on after the commit).
+        Payment::factory()->create(['provider' => 'click', 'currency' => 'UZS', 'amount' => 1_000_000]);
+
+        return $figure;
+    });
+
+    // The late write went to the key of the old version, which nobody reads any more: the next open sees the payment.
+    // (A delete of the key at the commit would have come BEFORE that write and the old figure would have stood for the whole window.)
+    expect($widgets->moneyScope())->not->toBe($before)
+        ->and($stats->revenue30d()['cash']['UZS']['net'])->toBe(3_900_000)
+        ->and($stats->revenue30d()['cash']['UZS']['charge_count'])->toBe(2);
+
+    Livewire::test(RevenueLast30DaysWidget::class)->assertSee('39 000 UZS')->assertDontSee('29 000 UZS');
+});
+
+it('keeps the data version of the money on the default store, which never evicts, and moves it on only after the commit', function (): void {
+    $widgets = app(WidgetCache::class);
+
+    expect(WidgetCache::MONEY_VERSION_KEY)->toBe('admin:widget:money:ver')
+        ->and($widgets->moneyScope())->toBe('all:n0');
+
+    $widgets->forgetMoney();
+    expect((int) Cache::get(WidgetCache::MONEY_VERSION_KEY))->toBe(1)
+        ->and($widgets->moneyScope())->toBe('all:n1');
+
+    // Inside the transaction (and for a reader beside it) the version is still the old one: a reader that computes now would
+    // write a figure without the payment under the key of the old version, which is exactly where the payment is not yet.
+    $inside = null;
+    DB::transaction(function () use ($widgets, &$inside): void {
+        Payment::factory()->create(['provider' => 'click', 'currency' => 'UZS', 'amount' => 1_000_000]);
+        $inside = $widgets->moneyScope();
+    });
+
+    expect($inside)->toBe('all:n1')
+        ->and($widgets->moneyScope())->toBe('all:n2');
 });
 
 it('gives a teacher the figures of their own groups, never the cached ones of the admin or of another teacher', function (): void {
@@ -359,6 +418,112 @@ it('pages the cached tables in the simple mode: each page and page size is an en
     expect($component->instance()->getTableRecords()->count())->toBe(2)
         ->and($component->instance()->getTableRecords()->hasMorePages())->toBeFalse();
 });
+
+it('serves the league table only the page sizes it offers and the first 1000 pages: a forged number is the same entry, not a new one', function (): void {
+    $week = LeagueWeek::factory()->startingOn(app(LeagueService::class)->weekStart(CarbonImmutable::now())->toDateString())->create();
+    LeagueGroup::factory()->count(12)->create(['league_week_id' => $week->id, 'tier' => 0, 'members_count' => 3]);
+
+    $stats = app(AdminDashboardStats::class);
+    $key = fn (int|string $page, int|string $perPage): string => WidgetCache::key('league_groups', 'all', "w{$week->id}:p{$page}:n{$perPage}");
+    $first = $stats->leagueGroups($week->id, 1, 10);
+
+    // A size nobody offers is the default size: ten rows and the one more (never all twelve, as `limit 1000001` would give),
+    // read from the entry of the default size and with no entry of its own.
+    foreach ([1_000_000, 0, -3, 7, 11] as $forged) {
+        $rows = null;
+        $queries = QueryLog::during(function () use ($stats, $week, $forged, &$rows): void {
+            $rows = $stats->leagueGroups($week->id, 1, $forged);
+        });
+
+        expect($rows)->toBe($first, "size {$forged}")
+            ->and($queries)->toBe([], "size {$forged} reads the entry of the default size")
+            ->and(PureCache::store()->has($key(1, $forged)))->toBeFalse("no key of its own for size {$forged}");
+    }
+
+    // The sizes the widget offers are entries of their own.
+    expect($stats->leagueGroups($week->id, 1, 25))->toHaveCount(12)
+        ->and($stats->leagueGroups($week->id, 1, 50))->toHaveCount(12)
+        ->and(PureCache::store()->has($key(1, 25)))->toBeTrue()
+        ->and(PureCache::store()->has($key(1, 50)))->toBeTrue();
+
+    // A page before the first is the first; a page past the last one served is that last one, whatever number was sent.
+    expect($stats->leagueGroups($week->id, 0, 10))->toBe($first)
+        ->and($stats->leagueGroups($week->id, -4, 10))->toBe($first);
+
+    foreach ([1001, 5_000_000, PHP_INT_MAX] as $page) {
+        expect($stats->leagueGroups($week->id, $page, 10))->toBe([])
+            ->and(PureCache::store()->has($key($page, 10)))->toBeFalse("no key of its own for page {$page}");
+    }
+
+    expect(PureCache::store()->has($key(AdminDashboardStats::MAX_PAGE, 10)))->toBeTrue('they all share the entry of the last page');
+});
+
+it('serves the organization seats table only the page sizes it offers and the first 1000 pages', function (): void {
+    Organization::factory()->count(12)->create();
+
+    $stats = app(AdminDashboardStats::class);
+    $key = fn (int|string $page, int|string $perPage): string => WidgetCache::key('organization_seats', 'all', "p{$page}:n{$perPage}");
+    $first = $stats->organizationSeats(1, 10);
+
+    expect($first)->toHaveCount(11, 'ten and the one that says there is more');
+
+    // 50 and a million are not among the sizes of this widget (10 and 25): the default size, from the entry of the default size.
+    foreach ([50, 1_000_000, 0, -1] as $forged) {
+        $rows = null;
+        $queries = QueryLog::during(function () use ($stats, $forged, &$rows): void {
+            $rows = $stats->organizationSeats(1, $forged);
+        });
+
+        expect($rows)->toBe($first, "size {$forged}")
+            ->and($queries)->toBe([])
+            ->and(PureCache::store()->has($key(1, $forged)))->toBeFalse("no key of its own for size {$forged}");
+    }
+
+    expect($stats->organizationSeats(1, 25))->toHaveCount(12)
+        ->and(PureCache::store()->has($key(1, 25)))->toBeTrue()
+        ->and($stats->organizationSeats(0, 10))->toBe($first);
+
+    foreach ([1001, 5_000_000] as $page) {
+        expect($stats->organizationSeats($page, 10))->toBe([])
+            ->and(PureCache::store()->has($key($page, 10)))->toBeFalse("no key of its own for page {$page}");
+    }
+
+    expect(PureCache::store()->has($key(AdminDashboardStats::MAX_PAGE, 10)))->toBeTrue();
+});
+
+it('answers a forged page size or page of the table widgets with an offered size and a served page', function (string $widget, array $sizes): void {
+    $week = LeagueWeek::factory()->startingOn(app(LeagueService::class)->weekStart(CarbonImmutable::now())->toDateString())->create();
+    LeagueGroup::factory()->count(12)->create(['league_week_id' => $week->id, 'tier' => 0, 'members_count' => 3]);
+    Organization::factory()->count(12)->create();
+
+    $component = Livewire::test($widget);
+    $table = $component->instance()->getTable();
+
+    // The table offers the sizes of the service and enforces them: `tableRecordsPerPage` is a public Livewire property.
+    expect($table->enforcesPaginationPageOptions())->toBeTrue()
+        ->and($table->getPaginationPageOptions())->toBe($sizes);
+
+    foreach (['all', 1_000_000, 0, -1, 7, 'DROP'] as $forged) {
+        $component->set('tableRecordsPerPage', $forged);
+
+        expect($component->instance()->getTableRecordsPerPage())->toBe(10)
+            ->and($component->instance()->getTableRecords()->count())->toBe(10, "size {$forged}");
+    }
+
+    // A page number that no list has: the last page the widget serves, which is empty here, with no key of its own.
+    $component->set('tableRecordsPerPage', 10)->call('gotoPage', 5_000_000, 'page');
+
+    expect($component->instance()->getTableRecords()->count())->toBe(0);
+
+    $prefix = $widget === LeagueGroupsTableWidget::class ? "w{$week->id}:" : '';
+    $name = $widget === LeagueGroupsTableWidget::class ? 'league_groups' : 'organization_seats';
+    expect(PureCache::store()->has(WidgetCache::key($name, 'all', "{$prefix}p5000000:n10")))->toBeFalse()
+        ->and(PureCache::store()->has(WidgetCache::key($name, 'all', "{$prefix}p1000:n10")))->toBeTrue()
+        ->and(PureCache::store()->has(WidgetCache::key($name, 'all', "{$prefix}p1:n1000000")))->toBeFalse();
+})->with([
+    'league groups' => [LeagueGroupsTableWidget::class, AdminDashboardStats::LEAGUE_GROUPS_PAGE_SIZES],
+    'organization seats' => [OrganizationSeatsTableWidget::class, AdminDashboardStats::ORGANIZATION_SEATS_PAGE_SIZES],
+]);
 
 it('switches the polling off on every stats and chart widget and keeps all the widgets lazy', function (): void {
     seedDashboardData();

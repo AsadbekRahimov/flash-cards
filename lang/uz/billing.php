@@ -75,6 +75,9 @@ return [
             // and the year text does not repeat its length in days ("1 yilga" already says it).
             'description_month_practice' => "LexiFlow Pro: yangi so'zlar, amaliyot va bellashuvlar kunlik limitsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Har 30 kunda avtomatik yangilanadi; o'chirish: /pro.",
             'description_year_practice' => "LexiFlow Pro 1 yilga: yangi so'zlar, amaliyot va bellashuvlar kunlik limitsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Bir martalik to'lov, avtoyangilashsiz.",
+            // The same with the practice alone, while the battles are switched off (PRACTICE_BATTLE=false): no battles are sold that do not exist.
+            'description_month_practice_solo' => "LexiFlow Pro: yangi so'zlar va amaliyot kunlik limitsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Har 30 kunda avtomatik yangilanadi; o'chirish: /pro.",
+            'description_year_practice_solo' => "LexiFlow Pro 1 yilga: yangi so'zlar va amaliyot kunlik limitsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Bir martalik to'lov, avtoyangilashsiz.",
         ],
         'precheckout' => [
             'order_not_found' => 'Hisob topilmadi. /pro ni oching va yangisini yarating.',

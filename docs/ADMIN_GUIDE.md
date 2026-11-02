@@ -621,7 +621,10 @@ minutes, the activity chart, top learners and hardest words for 5, the league an
 its time is still shown once while it is recomputed in the background, so the next open is fresh; opening the dashboard never
 waits for the heavy queries. A teacher's figures are cached separately from the admin's and from other teachers' and follow
 the teacher's groups at once. **Money is not left to the timer:** *Revenue* and *Payment webhook errors* are recomputed right
-after a payment, a renewal, a refund or a provider's cancel is saved. The widgets no longer refresh themselves every 5
+after a payment, a renewal, a refund or a provider's cancel is saved. The exception is the three anomaly tiles of the webhook
+widget that count **payment orders** (*Double discounts*, *Tier mismatches*, *Double Stars subscriptions*): an order is flagged by
+the order itself, not by a payment row, so they follow the timer and may take up to a minute (and one more open of the dashboard) to show a
+new flagged order. The widgets no longer refresh themselves every 5
 seconds; reload the page to see new numbers. The dashboard of a learning center (`/org`) caches its tiles for 90 seconds and
 drops them when a member joins, leaves or gets a seat, when a group is linked or unlinked, and when the subscription changes.
 

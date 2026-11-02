@@ -73,10 +73,10 @@ final class TelegramStarsProvider implements BillingProvider
         $locale = $this->orderLocale($order);
         $period = __("billing.period.{$order->period}", [], $locale);
         $isSubscription = $order->period === 'month';
-        // The text that names practice and battles among the things Pro gives is for a release where practice is open to everybody;
-        // the choice is made here, from ProPromises (docs/18 G1), not by the lang file.
+        // The text that names practice (and battles) among the things Pro gives is for a release where practice is open to everybody
+        // and the battles are on or off; the choice is made here, from ProPromises (docs/18 G1), not by the lang file.
         $description = ($isSubscription ? 'billing.stars.invoice.description_month' : 'billing.stars.invoice.description_year')
-            .(ProPromises::practiceUnlimited() ? '_practice' : '');
+            .ProPromises::practice()->invoiceSuffix();
 
         $url = $this->telegram->createInvoiceLink(
             title: mb_substr(__('billing.stars.invoice.title', ['period' => $period], $locale), 0, 32),

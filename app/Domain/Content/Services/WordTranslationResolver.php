@@ -19,15 +19,19 @@ use App\Models\WordTranslation;
  * the fallback locale itself never counts as a fallback, even when the answer
  * comes from `words.translation`.
  *
- * The rows of `word_translations` are read through the pure cache (docs/19 K4): per word and locale, one `Cache::many` for a
+ * The rows of `word_translations` are read through the pure cache (docs/19 K4): per word, locale and fallback, one `Cache::many` for a
  * whole batch and one query plus one `Cache::putMany` for the words it has not seen; a word with no rows is an entry too (an
  * empty array). Only the ROWS are cached - the legacy `words.translation` is always the live attribute of the Word in hand -
  * so an edit of that column shows at once, and an edit of a row is dropped by {@see forget()}, which the WordTranslation
  * observer calls after every save and delete (the manual writer, the importer, the decks).
+ *
+ * The fallback is in the key because the entry IS made of the two locales (`[locale, fallback]`): were `localization.fallback`
+ * changed, an entry written under the old one would lack the row of the new one and the text would silently be the legacy column.
+ * The entries of the old fallback are never read again and expire; {@see forget()} drops those of the fallback in force.
  */
 final class WordTranslationResolver
 {
-    /** `word:tr:v1:{word id}:{locale}`: the rows the locale and the fallback read for the word, `locale => text`. */
+    /** `word:tr:v1:{word id}:{locale}:{fallback}`: the rows the locale and the fallback read for the word, `locale => text`. */
     private const CACHE_PREFIX = 'word:tr:v1:';
 
     private const CACHE_TTL = 7200;
@@ -96,16 +100,20 @@ final class WordTranslationResolver
     }
 
     /**
-     * Drops the cached rows of the words (every locale), after the commit of whatever changed their translations.
+     * Drops the cached rows of the words (every locale, under the fallback in force), after the commit of whatever changed their
+     * translations. ONE call to the store for all the words, each of them once: the observer gathers a whole import into it.
      *
      * @param  list<int>  $wordIds
      */
     public function forget(array $wordIds): void
     {
+        $fallback = $this->locales->fallback();
+        $locales = $this->locales->supported();
+
         $keys = [];
-        foreach ($wordIds as $wordId) {
-            foreach ($this->locales->supported() as $locale) {
-                $keys[] = self::cacheKey($wordId, $locale);
+        foreach (array_unique($wordIds) as $wordId) {
+            foreach ($locales as $locale) {
+                $keys[] = self::cacheKey($wordId, $locale, $fallback);
             }
         }
 
@@ -114,9 +122,9 @@ final class WordTranslationResolver
         }
     }
 
-    public static function cacheKey(int $wordId, string $locale): string
+    public static function cacheKey(int $wordId, string $locale, string $fallback): string
     {
-        return self::CACHE_PREFIX."{$wordId}:{$locale}";
+        return self::CACHE_PREFIX."{$wordId}:{$locale}:{$fallback}";
     }
 
     /**
@@ -129,9 +137,10 @@ final class WordTranslationResolver
     private function rowsOf(array $wordIds, string $locale): array
     {
         $cache = PureCache::store();
+        $fallback = $this->locales->fallback();
         $keys = [];
         foreach ($wordIds as $wordId) {
-            $keys[$wordId] = self::cacheKey($wordId, $locale);
+            $keys[$wordId] = self::cacheKey($wordId, $locale, $fallback);
         }
 
         $cached = $cache->many(array_values($keys));

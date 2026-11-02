@@ -33,10 +33,22 @@ use Illuminate\Support\Facades\DB;
  * every session for it) and leaves the deleted learners out with an anti-join against the few of them. The results are the
  * ones of the queries they replace, for an admin and for a teacher (`AdminDashboardQueriesTest` runs both on one data set).
  *
- * Table widgets get the page the viewer asked for (`$page`, `$perPage`): each page is an entry of its own.
+ * Table widgets get the page the viewer asked for (`$page`, `$perPage`): each page is an entry of its own - and the number of
+ * entries is bounded: `$perPage` is one of the sizes the widget offers, `$page` is one of the first {@see MAX_PAGE}. Both are
+ * public Livewire properties, so what arrives is not what the select shows; a forged size or page number would otherwise be a
+ * `limit 1000001` and a key of its own for every number tried.
  */
 final class AdminDashboardStats
 {
+    /** Rows per page of the league widget, the first one is the default (the same list the table offers and enforces). */
+    public const LEAGUE_GROUPS_PAGE_SIZES = [10, 25, 50];
+
+    /** Rows per page of the organization seats widget, the first one is the default. */
+    public const ORGANIZATION_SEATS_PAGE_SIZES = [10, 25];
+
+    /** The deepest page a table widget serves: a page number past it is this page, not a key of its own. */
+    public const MAX_PAGE = 1000;
+
     public function __construct(
         private readonly WidgetCache $cache,
         private readonly PanelDataScope $scope,
@@ -257,10 +269,10 @@ final class AdminDashboardStats
      */
     public function leagueGroups(int $weekId, int $page, int $perPage): array
     {
-        [$page, $perPage] = [max(1, $page), max(1, $perPage)];
+        [$page, $perPage] = [self::pageNumber($page), self::pageSize($perPage, self::LEAGUE_GROUPS_PAGE_SIZES)];
 
         /** @var list<array{id: int, tier: int, members_count: int, capacity: int, created_at: string|null}> */
-        return $this->cache->remember("league_groups:w{$weekId}:p{$page}:n{$perPage}", 'all', 60, fn (): array => LeagueGroup::query()
+        return $this->cache->remember('league_groups', 'all', 60, fn (): array => LeagueGroup::query()
             ->where('league_week_id', $weekId)
             ->orderByDesc('tier')
             ->orderBy('id')
@@ -275,7 +287,7 @@ final class AdminDashboardStats
                 'created_at' => $group->created_at?->toIso8601String(),
             ])
             ->values()
-            ->all());
+            ->all(), "w{$weekId}:p{$page}:n{$perPage}");
     }
 
     /**
@@ -288,10 +300,10 @@ final class AdminDashboardStats
      */
     public function organizationSeats(int $page, int $perPage): array
     {
-        [$page, $perPage] = [max(1, $page), max(1, $perPage)];
+        [$page, $perPage] = [self::pageNumber($page), self::pageSize($perPage, self::ORGANIZATION_SEATS_PAGE_SIZES)];
 
         /** @var list<array{id: int, name: string, status: string, active_groups_count: int, members_count: int, waitlisted_count: int, seats_limit: int|null, sponsoring: bool}> */
-        return $this->cache->remember("organization_seats:p{$page}:n{$perPage}", 'all', 120, function () use ($page, $perPage): array {
+        return $this->cache->remember('organization_seats', 'all', 120, function () use ($page, $perPage): array {
             $now = CarbonImmutable::now();
 
             $members = fn (string $seatState) => DB::table('organization_members as om')
@@ -341,33 +353,53 @@ final class AdminDashboardStats
                 ])
                 ->values()
                 ->all();
-        });
+        }, "p{$page}:n{$perPage}");
     }
 
     /**
      * Money of the last 30 days: the cash flow per currency and the cohort per currency ({@see BillingReportService}).
-     * Dropped by `PaymentObserver` after every payment and refund, so a refund shows at once.
+     * Read at the data version of the ledger ({@see WidgetCache::moneyScope()}): `MoneyWidgetsObserver` moves it on after every
+     * payment and refund, so a refund shows at once and a figure computed from the ledger before it can no longer be served
+     * after it.
      *
      * @return array{cash: array<string, array{gross: int, refunds: int, net: int, charge_count: int, refund_count: int}>, cohort: array<string, array{gross: int, refunded: int, net: int, count: int}>}
      */
     public function revenue30d(): array
     {
         /** @var array{cash: array<string, array{gross: int, refunds: int, net: int, charge_count: int, refund_count: int}>, cohort: array<string, array{gross: int, refunded: int, net: int, count: int}>} */
-        return $this->cache->remember('revenue_30d', 'all', 120, fn (): array => [
+        return $this->cache->remember('revenue_30d', $this->cache->moneyScope(), 120, fn (): array => [
             'cash' => $this->billing->cashFlowLast30Days(),
             'cohort' => $this->billing->cohortRevenueLast30Days(),
         ]);
     }
 
     /**
-     * Webhook trouble of the last 24 hours. Fresh for a minute and dropped with the money widgets after a payment.
+     * Webhook trouble of the last 24 hours. Fresh for a minute and read at the data version of the ledger like the revenue: a failed
+     * or a canceled payment shows at once. The three anomalies of `payment_orders` (double discounts, tier mismatches, Stars double
+     * subscriptions) are not written by a payment of the ledger, so they only change with the freshness window.
      *
      * @return array{failed_payments: int, failed_by_provider: array<string, int>, canceled_transactions: int, double_discounts: int, tier_mismatches: int, stars_double_subscriptions: int}
      */
     public function webhookErrors24h(): array
     {
         /** @var array{failed_payments: int, failed_by_provider: array<string, int>, canceled_transactions: int, double_discounts: int, tier_mismatches: int, stars_double_subscriptions: int} */
-        return $this->cache->remember('webhook_errors', 'all', 60, fn (): array => $this->billing->webhookErrorsLast24Hours());
+        return $this->cache->remember('webhook_errors', $this->cache->moneyScope(), 60, fn (): array => $this->billing->webhookErrorsLast24Hours());
+    }
+
+    /** A page number of a table widget: 1 up to {@see MAX_PAGE}. */
+    public static function pageNumber(int $page): int
+    {
+        return min(max(1, $page), self::MAX_PAGE);
+    }
+
+    /**
+     * A page size of a table widget: one of the sizes the widget offers, the default (the first) for anything else.
+     *
+     * @param  list<int>  $sizes
+     */
+    public static function pageSize(int $perPage, array $sizes): int
+    {
+        return in_array($perPage, $sizes, true) ? $perPage : $sizes[0];
     }
 
     /**
@@ -376,7 +408,7 @@ final class AdminDashboardStats
      * @param  Closure(): array<array-key, mixed>  $compute
      * @return array<array-key, mixed>
      */
-    private function scoped(string $widget, int $fresh, Closure $compute, string $suffix = ''): array
+    private function scoped(string $widget, int $fresh, Closure $compute, string $params = ''): array
     {
         $scope = $this->scope->fingerprint();
 
@@ -384,6 +416,6 @@ final class AdminDashboardStats
             return $compute();
         }
 
-        return $this->cache->remember($widget, $suffix === '' ? $scope : "{$scope}:{$suffix}", $fresh, $compute);
+        return $this->cache->remember($widget, $scope, $fresh, $compute, $params);
     }
 }
