@@ -11,6 +11,7 @@ use App\Domain\Organizations\Events\OrganizationMemberLeft;
 use App\Domain\Organizations\Events\OrganizationMemberSeated;
 use App\Domain\Organizations\Services\OrganizationMembershipService;
 use App\Domain\Organizations\Services\OrgOverviewService;
+use App\Domain\Organizations\Services\OrgRequestMemo;
 use App\Filament\Org\Widgets\OrgActivityWidget;
 use App\Filament\Org\Widgets\OrgSeatsWidget;
 use App\Models\Learner;
@@ -113,19 +114,24 @@ it('returns from the cache the very figures summary() computes, for an owner and
         ->and($teacher->subscriptionTier)->toBeNull();
 });
 
-it('reads a cached summary with the lookup of the role only, not with the aggregates', function (): void {
+it('reads a cached summary with the lookups of the viewer only, not with the aggregates; inside one request with none at all', function (): void {
     orgOverview()->cachedSummary($this->ownerA, $this->a);
     orgOverview()->cachedSummary($this->teacherA, $this->a);
 
+    // A request of its own: the role and the groups of a user are read once per request (OrgRequestMemo).
+    app(OrgRequestMemo::class)->flush();
     $owner = QueryLog::during(fn () => orgOverview()->cachedSummary($this->ownerA, $this->a));
+    app(OrgRequestMemo::class)->flush();
     $teacher = QueryLog::during(fn () => orgOverview()->cachedSummary($this->teacherA, $this->a));
+    $again = QueryLog::during(fn () => orgOverview()->cachedSummary($this->teacherA, $this->a));
 
-    // The owner: the role. The teacher: the role (asked again for the ids of their groups) and those ids, which are their key.
-    // Nothing of learner_daily_stats, organization_members or subscriptions - the 14 statements of the real computation.
+    // The owner: the role. The teacher: the role and the ids of their groups, which are their key. Nothing of learner_daily_stats,
+    // organization_members or subscriptions - the 14 statements of the real computation. The same request again: nothing at all.
     expect($owner)->toHaveCount(1)
         ->and(QueryLog::matching($owner, '/organization_users/'))->toHaveCount(1)
-        ->and($teacher)->toHaveCount(3)
-        ->and(QueryLog::matching($teacher, '/learner_daily_stats|organization_members|subscriptions/'))->toBe([]);
+        ->and($teacher)->toHaveCount(2)
+        ->and(QueryLog::matching($teacher, '/learner_daily_stats|organization_members|subscriptions/'))->toBe([])
+        ->and($again)->toBe([]);
 });
 
 it('keeps one entry per center and viewer, the organization id in the key, and arrays only', function (): void {
@@ -260,10 +266,13 @@ it('lets only the activity numbers wait for the end of the TTL', function (): vo
 it('keys a teacher by their groups, so a group they lose is gone from their numbers at once', function (): void {
     expect(orgOverview()->cachedSummary($this->teacherA, $this->a)->groups)->toBe(1);
 
+    // The next request: a pivot write announces itself to nobody, the memory of the request ends with the request.
     $this->teacherA->telegramGroups()->attach($this->groupA2->id);
+    app(OrgRequestMemo::class)->flush();
     expect(orgOverview()->cachedSummary($this->teacherA, $this->a)->groups)->toBe(2);
 
     $this->teacherA->telegramGroups()->detach([$this->groupA1->id, $this->groupA2->id]);
+    app(OrgRequestMemo::class)->flush();
     expect(orgOverview()->cachedSummary($this->teacherA, $this->a)->groups)->toBe(0);
 });
 
