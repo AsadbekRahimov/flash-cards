@@ -101,7 +101,8 @@ final class WordTranslationResolver
 
     /**
      * Drops the cached rows of the words (every locale, under the fallback in force), after the commit of whatever changed their
-     * translations. ONE call to the store for all the words, each of them once: the observer gathers a whole import into it.
+     * translations. ONE call to the store for all the words, each of them once - and on Redis one DEL with every key, not a DEL
+     * per key: the observer gathers a whole import into it, and a hung instance must cost the import one timeout, not N.
      *
      * @param  list<int>  $wordIds
      */
@@ -117,9 +118,7 @@ final class WordTranslationResolver
             }
         }
 
-        if ($keys !== []) {
-            PureCache::store()->deleteMultiple($keys);
-        }
+        PureCache::forgetMany($keys);
     }
 
     public static function cacheKey(int $wordId, string $locale, string $fallback): string
