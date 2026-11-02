@@ -77,6 +77,27 @@ it('caches exam leaderboards until the exam cache is cleared', function (): void
     expect($cache->examLeaderboard($session)['total_participants'])->toBe(2);
 });
 
+it('keeps an exam leaderboard under exam:{id}:leaderboard for five minutes: a forget a failing cache swallowed is not an hour of an old table', function (): void {
+    $group = TelegramGroup::factory()->create();
+    $session = ExamSession::factory()->create(['telegram_group_id' => $group->id, 'status' => 'closed', 'closed_at' => now()]);
+    $alice = Learner::factory()->memberOf($group)->create(['first_name' => 'Alice']);
+    $bob = Learner::factory()->memberOf($group)->create(['first_name' => 'Bob']);
+    ExamResult::factory()->create(['exam_session_id' => $session->id, 'learner_id' => $alice->id, 'total_score' => 30, 'rank' => 1]);
+    $cache = app(LearningCache::class);
+
+    expect($cache->examLeaderboard($session)['total_participants'])->toBe(1)
+        ->and(PureCache::store()->has("exam:{$session->id}:leaderboard"))->toBeTrue();
+
+    ExamResult::factory()->create(['exam_session_id' => $session->id, 'learner_id' => $bob->id, 'total_score' => 20, 'rank' => 2]);
+
+    $this->travel(299)->seconds();
+    expect($cache->examLeaderboard($session)['total_participants'])->toBe(1, 'inside the five minutes: the cached table');
+
+    $this->travel(2)->seconds();
+    expect(PureCache::store()->has("exam:{$session->id}:leaderboard"))->toBeFalse()
+        ->and($cache->examLeaderboard($session)['total_participants'])->toBe(2, 'past them: read again');
+});
+
 it('caches words learned per learner and hands only the learners without an entry to the loader', function (): void {
     $calls = [];
     $load = function (array $ids) use (&$calls): array {
