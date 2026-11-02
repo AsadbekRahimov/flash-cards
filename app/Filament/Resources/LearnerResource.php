@@ -160,8 +160,9 @@ class LearnerResource extends Resource
                     ->label(__('admin.learners.fields.username'))
                     ->prefix('@')
                     ->placeholder('—')
-                    // "@name" and "name" both match; the leading @ is not part of the stored username.
-                    ->searchable(query: fn (Builder $query, string $search): Builder => $query->whereLike('username', '%'.ltrim(trim($search), '@').'%')),
+                    // "@name" and "name" both match; the leading @ is not part of the stored username. `_` and `%` of the
+                    // typed text are literal (AdminTable::whereContains); the form is the one of `learners_username_trgm_idx`.
+                    ->searchable(query: fn (Builder $query, string $search): Builder => AdminTable::whereContains($query, 'learners.username', ltrim(trim($search), '@'))),
                 // Searching by Telegram ID is exact (the number is an identity: never a partial match) and admin-only,
                 // also here, because a hidden column still takes part in the table search.
                 Tables\Columns\TextColumn::make('telegram_user_id')

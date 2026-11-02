@@ -120,7 +120,16 @@ it('searches members by name or username, case-insensitively, within the tenant 
         ->assertCanSeeTableRecords([$this->memberA1])
         ->assertCanNotSeeTableRecords([$this->memberA2]);
     // Bob is a member of B: the search never reaches across the tenant.
-    Livewire::test(ListMembers::class)->searchTable('bob')->assertCountTableRecords(0);});
+    Livewire::test(ListMembers::class)->searchTable('bob')->assertCountTableRecords(0);
+
+    // `_` and `%` of the typed text are letters, not wildcards: "anna_a" is not "annaXa", "%" finds nobody.
+    $lookalike = Learner::factory()->memberOf($this->groupA1)->seatedIn($this->a)->create(['first_name' => 'Annaxa', 'username' => 'annaXa']);
+    $lookalikeMember = OrganizationMember::query()->where('learner_id', $lookalike->id)->firstOrFail();
+    Livewire::test(ListMembers::class)->searchTable('anna_a')
+        ->assertCanSeeTableRecords([$this->memberA1])
+        ->assertCanNotSeeTableRecords([$lookalikeMember]);
+    Livewire::test(ListMembers::class)->searchTable('%')->assertCountTableRecords(0);
+});
 
 it('answers 404 to a direct URL of a record of the other organization', function (): void {
     $this->actingAs($this->ownerA, 'org')->withSession(['2fa.org.passed_at' => now()->timestamp, '2fa.org.user_id' => $this->ownerA->id]);

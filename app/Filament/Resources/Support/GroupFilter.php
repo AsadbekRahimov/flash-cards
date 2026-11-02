@@ -45,7 +45,7 @@ final class GroupFilter
         $term = trim($search);
 
         return app(PanelDataScope::class)->groups()
-            ->when($term !== '', fn (Builder $groups): Builder => $groups->whereLike('title', '%'.$term.'%'))
+            ->when($term !== '', fn (Builder $groups): Builder => AdminTable::whereContains($groups, 'telegram_groups.title', $term))
             ->orderBy('title')
             ->limit(self::LIMIT)
             ->pluck('title', 'id')

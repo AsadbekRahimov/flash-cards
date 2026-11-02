@@ -222,6 +222,20 @@ it('keeps finding a learner by a full name, a username and the whole Telegram id
         ->assertCanNotSeeTableRecords([$other]);
 });
 
+it('takes the underscore and the percent sign of a username search as letters, not wildcards', function (): void {
+    $underscore = Learner::factory()->create(['first_name' => 'Uno', 'username' => 'a_b']);
+    $lookalike = Learner::factory()->create(['first_name' => 'Duo', 'username' => 'axb']);
+
+    Livewire::test(ListLearners::class)
+        ->searchTable('@a_b')
+        ->assertCanSeeTableRecords([$underscore])
+        ->assertCanNotSeeTableRecords([$lookalike])
+        ->searchTable('%')
+        ->assertCanNotSeeTableRecords([$underscore, $lookalike]);
+
+    expect(AdminTable::escapeLike('a_b%c\\d'))->toBe('a\\_b\\%c\\\\d');
+});
+
 // --- the columns a list selects ---------------------------------------------------------------------
 
 it('selects the columns of the learners list and none of the three counts of the learner page', function (): void {
@@ -356,8 +370,15 @@ it('offers a teacher the groups of theirs only, also by search and by a forged i
 
     $this->actingAs($teacher);
 
-    expect(GroupFilter::search(''))->toBe([$own->id => 'Own Club'])
-        ->and(GroupFilter::search('club'))->toBe([$own->id => 'Own Club'])
+    $underscore = TelegramGroup::factory()->create(['title' => 'A_B Club']);
+    $lookalike = TelegramGroup::factory()->create(['title' => 'AXB Club']);
+    $teacher->telegramGroups()->attach([$underscore->id, $lookalike->id]);
+
+    // The three groups of the teacher (the order of "A_B" and "AXB" depends on the collation).
+    expect(GroupFilter::search(''))->toHaveCount(3)->toHaveKeys([$own->id, $underscore->id, $lookalike->id])
+        ->and(GroupFilter::search('own club'))->toBe([$own->id => 'Own Club'])
+        // `_` is a letter of the search, not a wildcard.
+        ->and(GroupFilter::search('a_b'))->toBe([$underscore->id => 'A_B Club'])
         ->and(GroupFilter::title($own->id))->toBe('Own Club')
         ->and(GroupFilter::title($foreign->id))->toBeNull()
         ->and(GroupFilter::title('not-an-id'))->toBeNull()
