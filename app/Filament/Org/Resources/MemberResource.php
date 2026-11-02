@@ -69,12 +69,18 @@ class MemberResource extends OrgResource
                 Tables\Columns\TextColumn::make('learner_name')
                     ->label(__('org.members.columns.learner'))
                     ->state(fn (OrganizationMember $record): string => self::learnerName($record->learner))
-                    ->searchable(query: fn (Builder $query, string $search): Builder => $query->whereHas(
-                        'learner',
-                        fn (Builder $q): Builder => $q->where('first_name', 'like', "%{$search}%")
-                            ->orWhere('last_name', 'like', "%{$search}%")
-                            ->orWhere('username', 'like', "%{$search}%"),
-                    )),
+                    // Case-insensitive, in the forms the trigram indexes of `learners` serve (docs/03 §2.17, docs/20 F2):
+                    // `lower(col) like` as Filament's own search emits on PostgreSQL, `ilike` on the plain `username`.
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        $search = trim($search);
+                        $name = '%'.mb_strtolower($search).'%';
+                        $username = '%'.ltrim($search, '@').'%';
+
+                        return $query->whereHas('learner', fn (Builder $q): Builder => $q
+                            ->whereRaw('lower(first_name) like ?', [$name])
+                            ->orWhereRaw('lower(last_name) like ?', [$name])
+                            ->orWhereLike('username', $username));
+                    }),
                 Tables\Columns\TextColumn::make('learner.username')
                     ->label(__('org.members.columns.username'))
                     ->formatStateUsing(fn (?string $state): string => $state === null ? '—' : '@'.$state),

@@ -30,6 +30,9 @@ use Closure;
  * rewritten (OrganizationStaffService). Query-builder writes (`OrganizationUser::query()->update()`) bypass the
  * observers: a caller that does them calls {@see flush()} itself. Decisions taken under a row lock
  * (OrganizationStaffService::invite) read the table, never this memory.
+ *
+ * Never inject it into a singleton: a singleton would keep the instance of the request it was created in
+ * (the services that hold it — OrgTenantScope, the observers, the staff service — are all transient).
  */
 final class OrgRequestMemo
 {

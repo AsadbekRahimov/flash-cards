@@ -109,6 +109,19 @@ it('lists only the tenant records in every resource of the owner', function (): 
         ->assertCanNotSeeTableRecords(OrganizationUser::query()->where('organization_id', $this->b->id)->get());
 });
 
+it('searches members by name or username, case-insensitively, within the tenant only', function (): void {
+    isoEnter($this->ownerA, $this->a);
+
+    Livewire::test(ListMembers::class)->searchTable('aziz')
+        ->assertCanSeeTableRecords([$this->memberA2])
+        ->assertCanNotSeeTableRecords([$this->memberA1, $this->memberB]);
+    Livewire::test(ListMembers::class)->searchTable('@ANNA_a')
+        ->assertCanSeeTableRecords([$this->memberA1])
+        ->assertCanNotSeeTableRecords([$this->memberA2]);
+    // Bob is a member of B: the search never reaches across the tenant.
+    Livewire::test(ListMembers::class)->searchTable('bob')->assertCountTableRecords(0);
+});
+
 it('answers 404 to a direct URL of a record of the other organization', function (): void {
     $this->actingAs($this->ownerA, 'org')->withSession(['2fa.org.passed_at' => now()->timestamp, '2fa.org.user_id' => $this->ownerA->id]);
 
