@@ -31,6 +31,7 @@ use App\Models\Word;
 use Carbon\CarbonImmutable;
 use Database\Seeders\RolePermissionSeeder;
 use Filament\Facades\Filament;
+use Illuminate\Cache\Repository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Defer\DeferredCallbackCollection;
 use Illuminate\Support\Facades\Auth;
@@ -188,6 +189,26 @@ it('serves the figure of the last computation until the refresh, which runs afte
     Learner::factory()->create();
     $this->travel(700)->seconds();
     expect($stats->totalLearners()['total'])->toBe(3);
+});
+
+it('refreshes a stale entry under a lock that is let go, on whatever store the pure cache is (the second Redis in CI)', function (): void {
+    Learner::factory()->create();
+    $stats = app(AdminDashboardStats::class);
+    $created = Repository::FLEXIBLE_CREATED_KEY_PREFIX.WidgetCache::key('total_learners', 'all');
+
+    expect($stats->totalLearners()['total'])->toBe(1);
+
+    // "Computed an hour ago": past the freshness, inside the lifetime. No clock is moved, so a Redis store takes part.
+    foreach ([2, 3] as $expected) {
+        PureCache::store()->put($created, time() - 3600, 600);
+        Learner::factory()->create();
+
+        expect($stats->totalLearners()['total'])->toBe($expected - 1, 'the stale figure is served first');
+
+        app(DeferredCallbackCollection::class)->invoke();
+
+        expect($stats->totalLearners()['total'])->toBe($expected, 'then the refresh, which took the lock and let it go');
+    }
 });
 
 it('keeps the money widgets one commit behind at most: a payment and a refund drop them, the others stay', function (): void {

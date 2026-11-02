@@ -132,10 +132,20 @@ final class PanelDataScope
         return $this->trainingSessions()->select('training_sessions.id');
     }
 
-    /** @return Builder<TrainingReview> */
+    /**
+     * Admin: every review. Teacher: the reviews inside the sessions of {@see trainingSessions()}.
+     *
+     * An admin sees every session, and a review always belongs to one (`training_session_id` is a NOT NULL foreign key), so for
+     * an admin the filter by sessions is an empty one - which PostgreSQL still pays for with a hash join of the reviews against
+     * every session id (docs/20 §4, the activity chart at 200 000 learners: 249 ms). Left out for an admin, kept for anybody else.
+     *
+     * @return Builder<TrainingReview>
+     */
     public function trainingReviews(): Builder
     {
-        return TrainingReview::query()->whereIn('training_session_id', $this->trainingSessionIds());
+        $reviews = TrainingReview::query();
+
+        return $this->isAdmin() ? $reviews : $reviews->whereIn('training_session_id', $this->trainingSessionIds());
     }
 
     /**

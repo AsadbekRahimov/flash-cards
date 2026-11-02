@@ -14,7 +14,6 @@ use App\Models\Subscription;
 use App\Models\Word;
 use Carbon\CarbonImmutable;
 use Closure;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -25,8 +24,14 @@ use Illuminate\Support\Facades\DB;
  * costs no SQL until the entry goes stale (60-300 s, recomputed after the response) or is dropped by an event.
  *
  * Whose figures they are is the viewer's scope ({@see PanelDataScope}): the widgets a teacher also sees are keyed
- * by `PanelDataScope::fingerprint()`, the admin-only ones by `all`. The queries themselves are the ones the widgets
- * used to run; only the place moved.
+ * by `PanelDataScope::fingerprint()`, the admin-only ones by `all`.
+ *
+ * The cache sits on top of FAST queries (docs/20 §4 "Индексы F2": the heavy widgets are not cured by indexes): the first show
+ * after an entry has expired must not cost seconds either. The rankings are ONE aggregate over the reviews of the window
+ * (`group by word_id` / `group by learner_id`, the best ten) joined to the ten rows they name, not a correlated subquery per
+ * word or per learner; an admin's scope adds no filter by sessions (it would be an empty one, and PostgreSQL still hash-joins
+ * every session for it) and leaves the deleted learners out with an anti-join against the few of them. The results are the
+ * ones of the queries they replace, for an admin and for a teacher (`AdminDashboardQueriesTest` runs both on one data set).
  *
  * Table widgets get the page the viewer asked for (`$page`, `$perPage`): each page is an entry of its own.
  */
@@ -104,7 +109,8 @@ final class AdminDashboardStats
     /**
      * The ten learners with the most reviews in the last 30 days, with the groups of the viewer they study in. Reviews are
      * counted only inside sessions the viewer may see, so a teacher's ranking never includes a learner's personal practice
-     * or other groups' work.
+     * or other groups' work; only learners the viewer may see are ranked (an admin: everybody not deleted; a teacher: the active
+     * members of their groups). Ties are broken by the learner's id, so the list is the same at every computation.
      *
      * @return list<array{id: int, name: string, groups: string, reviews_count: int}>
      */
@@ -112,36 +118,70 @@ final class AdminDashboardStats
     {
         /** @var list<array{id: int, name: string, groups: string, reviews_count: int}> */
         return $this->scoped('top_learners', 300, function (): array {
-            $since = now()->subDays(30);
-            $sessionIds = $this->scope->trainingSessionIds();
+            $reviews = DB::table('training_reviews as tr')
+                ->where('tr.created_at', '>=', now()->subDays(30))
+                ->groupBy('tr.learner_id')
+                ->selectRaw('tr.learner_id, COUNT(*) AS reviews_count')
+                ->orderByDesc('reviews_count')
+                ->orderBy('tr.learner_id')
+                ->limit(10);
 
-            $reviewsInScope = fn (Builder $q): Builder => $q
-                ->where('created_at', '>=', $since)
-                ->whereIn('training_session_id', clone $sessionIds);
+            if ($this->scope->isAdmin()) {
+                $reviews->whereNotExists(fn (QueryBuilder $gone) => $gone->from('learners as gone')
+                    ->selectRaw('1')
+                    ->whereColumn('gone.id', 'tr.learner_id')
+                    ->whereNotNull('gone.deleted_at'));
+            } else {
+                $reviews
+                    ->whereIn('tr.training_session_id', $this->scope->trainingSessionIds())
+                    ->whereIn('tr.learner_id', $this->scope->learnerIds());
+            }
 
-            return $this->scope->learners()
+            /** @var array<int, int> $counts learner id => reviews in the window, the best first */
+            $counts = [];
+            foreach ($reviews->get() as $row) {
+                $counts[(int) $row->learner_id] = (int) $row->reviews_count;
+            }
+
+            if ($counts === []) {
+                return [];
+            }
+
+            $learners = Learner::query()
+                ->whereIn('id', array_keys($counts))
                 ->with(['groups' => fn ($groups) => $groups
                     ->wherePivot('status', 'active')
                     ->whereIn('telegram_groups.id', $this->scope->groups()->select('telegram_groups.id'))])
-                ->withCount(['trainingReviews as reviews_count' => $reviewsInScope])
-                ->whereHas('trainingReviews', $reviewsInScope)
-                ->orderByDesc('reviews_count')
-                ->limit(10)
                 ->get()
-                ->map(fn (Learner $learner): array => [
-                    'id' => (int) $learner->id,
+                ->keyBy('id');
+
+            $rows = [];
+            foreach ($counts as $id => $count) {
+                $learner = $learners->get($id);
+
+                // Deleted between the two reads: not ranked (the ranking leaves the deleted out as well).
+                if ($learner === null) {
+                    continue;
+                }
+
+                $rows[] = [
+                    'id' => $id,
                     'name' => trim(($learner->first_name ?? '—').' '.($learner->last_name ?? '')),
                     'groups' => $learner->groups->pluck('title')->implode(', '),
-                    'reviews_count' => (int) $learner->getAttribute('reviews_count'),
-                ])
-                ->values()
-                ->all();
+                    'reviews_count' => $count,
+                ];
+            }
+
+            return $rows;
         });
     }
 
     /**
      * The ten words learners miss most (a grade below 3) over the last 30 days, with at least five attempts in the
-     * viewer's sessions. The heaviest query of the dashboard (docs/20 §4), hence the longest freshness.
+     * viewer's sessions: one aggregate over the reviews of the window (`group by word_id having count(*) >= 5`, the ten with the
+     * highest share of misses) joined to the ten words it names. The heaviest widget of the dashboard before the rewrite (2.6 s
+     * at 200 000 learners, docs/20 §4). Ties are broken by more attempts, then the word's id, so the list is the same at every
+     * computation.
      *
      * @return list<array{id: int, word: string, translation: string, attempts: int, hard_ratio: float|null}>
      */
@@ -149,37 +189,27 @@ final class AdminDashboardStats
     {
         /** @var list<array{id: int, word: string, translation: string, attempts: int, hard_ratio: float|null}> */
         return $this->scoped('hardest_words', 300, function (): array {
-            $since = now()->subDays(30);
-            $sessionIds = $this->scope->trainingSessionIds();
+            $ranked = DB::table('training_reviews as tr')
+                ->where('tr.created_at', '>=', now()->subDays(30))
+                ->groupBy('tr.word_id')
+                ->havingRaw('COUNT(*) >= ?', [5])
+                ->selectRaw('tr.word_id, COUNT(*) AS attempts, CAST(SUM(CASE WHEN tr.quality < ? THEN 1 ELSE 0 END) AS FLOAT) / COUNT(*) AS hard_ratio', [3])
+                ->orderByDesc('hard_ratio')
+                ->orderByDesc('attempts')
+                ->orderBy('tr.word_id')
+                ->limit(10);
+
+            // An admin sees every session: no filter (a filter by every session id is empty, and PostgreSQL still hash-joins them all).
+            if (! $this->scope->isAdmin()) {
+                $ranked->whereIn('tr.training_session_id', $this->scope->trainingSessionIds());
+            }
 
             return Word::query()
-                ->select('words.id', 'words.word', 'words.translation')
-                ->selectSub(
-                    fn (QueryBuilder $q) => $q->from('training_reviews')
-                        ->selectRaw('COUNT(*)')
-                        ->whereColumn('training_reviews.word_id', 'words.id')
-                        ->whereIn('training_reviews.training_session_id', clone $sessionIds)
-                        ->where('training_reviews.created_at', '>=', $since),
-                    'attempts',
-                )
-                ->selectSub(
-                    fn (QueryBuilder $q) => $q->from('training_reviews')
-                        ->selectRaw('CAST(SUM(CASE WHEN quality < ? THEN 1 ELSE 0 END) AS FLOAT) / NULLIF(COUNT(*), 0)', [3])
-                        ->whereColumn('training_reviews.word_id', 'words.id')
-                        ->whereIn('training_reviews.training_session_id', clone $sessionIds)
-                        ->where('training_reviews.created_at', '>=', $since),
-                    'hard_ratio',
-                )
-                ->whereHas(
-                    'trainingReviews',
-                    fn (Builder $q): Builder => $q
-                        ->whereIn('training_session_id', clone $sessionIds)
-                        ->where('created_at', '>=', $since),
-                    '>=',
-                    5,
-                )
-                ->orderByDesc('hard_ratio')
-                ->limit(10)
+                ->joinSub($ranked, 'hard', 'hard.word_id', '=', 'words.id')
+                ->select('words.id', 'words.word', 'words.translation', 'hard.attempts', 'hard.hard_ratio')
+                ->orderByDesc('hard.hard_ratio')
+                ->orderByDesc('hard.attempts')
+                ->orderBy('words.id')
                 ->get()
                 ->map(fn (Word $word): array => [
                     'id' => (int) $word->id,
@@ -265,12 +295,16 @@ final class AdminDashboardStats
             $now = CarbonImmutable::now();
 
             $members = fn (string $seatState) => DB::table('organization_members as om')
-                // A deleted learner (soft delete) is not a member any more, though the membership row stays.
-                ->join('learners as l', 'l.id', '=', 'om.learner_id')
-                ->whereNull('l.deleted_at')
                 ->whereColumn('om.organization_id', 'organizations.id')
                 ->where('om.status', 'active')
                 ->where('om.seat_state', $seatState)
+                // A deleted learner (soft delete) is not a member any more, though the membership row stays. Asked as an anti-join
+                // against the few deleted ones (partial index learners_deleted_idx), not as a primary-key lookup of every member
+                // through a join of `learners` (32 000 lookups for 100 organizations at 200 000 learners, docs/20 §4).
+                ->whereNotExists(fn (QueryBuilder $gone) => $gone->from('learners as gone')
+                    ->selectRaw('1')
+                    ->whereColumn('gone.id', 'om.learner_id')
+                    ->whereNotNull('gone.deleted_at'))
                 ->selectRaw('count(*)');
 
             $sponsoring = PaidSubscriptionQuery::granting(
