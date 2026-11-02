@@ -13,7 +13,7 @@ use Carbon\CarbonImmutable;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 
 /**
  * Groups of the current league week (docs/13 §7.3): tier, members / capacity, status. The heading
@@ -43,12 +43,13 @@ class LeagueGroupsTableWidget extends TableWidget
 
         return $table
             ->heading($this->headingFor($league))
-            ->records(function (int|string $page, int|string $recordsPerPage) use ($stats, $league): LengthAwarePaginator {
+            // A table widget pages in the simple mode (no COUNT): the page and one row more, which tells the paginator there is a next one.
+            ->records(function (int|string $page, int|string $recordsPerPage) use ($stats, $league): Paginator {
                 [$page, $perPage] = [max(1, (int) $page), max(1, (int) $recordsPerPage)];
                 $weekId = $league['week']['id'] ?? null;
-                $groups = $weekId === null ? ['total' => 0, 'rows' => []] : $stats->leagueGroups($weekId, $page, $perPage);
+                $rows = $weekId === null ? [] : $stats->leagueGroups($weekId, $page, $perPage);
 
-                return (new LengthAwarePaginator(array_column($groups['rows'], null, 'id'), $groups['total'], $perPage, $page))->onEachSide(0);
+                return new Paginator(array_column($rows, null, 'id'), $perPage, $page);
             })
             ->columns([
                 Tables\Columns\TextColumn::make('id')->label(__('admin.widgets.league_groups.group')),

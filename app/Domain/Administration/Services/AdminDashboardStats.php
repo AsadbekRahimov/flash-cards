@@ -220,50 +220,47 @@ final class AdminDashboardStats
     }
 
     /**
-     * One page of the groups of a league week, highest tier first.
+     * One page of the groups of a league week, highest tier first: up to `$perPage + 1` rows, the extra one only tells a simple
+     * paginator (the pagination of a Filament table widget, no COUNT) that there is a next page.
      *
-     * @return array{total: int, rows: list<array{id: int, tier: int, members_count: int, capacity: int, created_at: string|null}>}
+     * @return list<array{id: int, tier: int, members_count: int, capacity: int, created_at: string|null}>
      */
     public function leagueGroups(int $weekId, int $page, int $perPage): array
     {
         [$page, $perPage] = [max(1, $page), max(1, $perPage)];
 
-        /** @var array{total: int, rows: list<array{id: int, tier: int, members_count: int, capacity: int, created_at: string|null}>} */
-        return $this->cache->remember("league_groups:w{$weekId}:p{$page}:n{$perPage}", 'all', 60, function () use ($weekId, $page, $perPage): array {
-            $query = LeagueGroup::query()->where('league_week_id', $weekId);
-
-            return [
-                'total' => (clone $query)->count(),
-                'rows' => $query
-                    ->orderByDesc('tier')
-                    ->orderBy('id')
-                    ->forPage($page, $perPage)
-                    ->get()
-                    ->map(fn (LeagueGroup $group): array => [
-                        'id' => (int) $group->id,
-                        'tier' => (int) $group->tier,
-                        'members_count' => (int) $group->members_count,
-                        'capacity' => (int) $group->capacity,
-                        'created_at' => $group->created_at?->toIso8601String(),
-                    ])
-                    ->values()
-                    ->all(),
-            ];
-        });
+        /** @var list<array{id: int, tier: int, members_count: int, capacity: int, created_at: string|null}> */
+        return $this->cache->remember("league_groups:w{$weekId}:p{$page}:n{$perPage}", 'all', 60, fn (): array => LeagueGroup::query()
+            ->where('league_week_id', $weekId)
+            ->orderByDesc('tier')
+            ->orderBy('id')
+            ->offset(($page - 1) * $perPage)
+            ->limit($perPage + 1)
+            ->get()
+            ->map(fn (LeagueGroup $group): array => [
+                'id' => (int) $group->id,
+                'tier' => (int) $group->tier,
+                'members_count' => (int) $group->members_count,
+                'capacity' => (int) $group->capacity,
+                'created_at' => $group->created_at?->toIso8601String(),
+            ])
+            ->values()
+            ->all());
     }
 
     /**
-     * One page of "seats / waiting" per organization (docs/13 §1.3, §6.1). Seated = `organization_members` rows
-     * `active + seated` of a learner who is not soft-deleted; waiting = `active + waitlisted`. Seats = `seats_limit` of the
-     * organization's granting subscription (null = unlimited or none); `sponsoring` = it has one and is active.
+     * One page of "seats / waiting" per organization (docs/13 §1.3, §6.1): up to `$perPage + 1` rows, the extra one only tells a simple
+     * paginator that there is a next page. Seated = `organization_members` rows `active + seated` of a learner who is not
+     * soft-deleted; waiting = `active + waitlisted`. Seats = `seats_limit` of the organization's granting subscription (null =
+     * unlimited or none); `sponsoring` = it has one and is active.
      *
-     * @return array{total: int, rows: list<array{id: int, name: string, status: string, active_groups_count: int, members_count: int, waitlisted_count: int, seats_limit: int|null, sponsoring: bool}>}
+     * @return list<array{id: int, name: string, status: string, active_groups_count: int, members_count: int, waitlisted_count: int, seats_limit: int|null, sponsoring: bool}>
      */
     public function organizationSeats(int $page, int $perPage): array
     {
         [$page, $perPage] = [max(1, $page), max(1, $perPage)];
 
-        /** @var array{total: int, rows: list<array{id: int, name: string, status: string, active_groups_count: int, members_count: int, waitlisted_count: int, seats_limit: int|null, sponsoring: bool}>} */
+        /** @var list<array{id: int, name: string, status: string, active_groups_count: int, members_count: int, waitlisted_count: int, seats_limit: int|null, sponsoring: bool}> */
         return $this->cache->remember("organization_seats:p{$page}:n{$perPage}", 'all', 120, function () use ($page, $perPage): array {
             $now = CarbonImmutable::now();
 
@@ -283,35 +280,33 @@ final class AdminDashboardStats
                 $now,
             )->orderByDesc('subscriptions.id')->limit(1);
 
-            return [
-                'total' => Organization::query()->count(),
-                'rows' => Organization::query()
-                    ->select('organizations.id', 'organizations.name', 'organizations.status')
-                    ->withCount(['telegramGroups as active_groups_count' => fn ($groups) => $groups->where('status', 'active')])
-                    ->addSelect([
-                        'members_count' => $members('seated'),
-                        'waitlisted_count' => $members('waitlisted'),
-                        'sponsor_subscription_id' => (clone $sponsoring)->select('subscriptions.id'),
-                        'seats_limit' => (clone $sponsoring)->select('subscriptions.seats_limit'),
-                    ])
-                    ->orderByDesc('members_count')
-                    ->orderBy('name')
-                    ->orderBy('organizations.id')
-                    ->forPage($page, $perPage)
-                    ->get()
-                    ->map(fn (Organization $organization): array => [
-                        'id' => (int) $organization->id,
-                        'name' => (string) $organization->name,
-                        'status' => (string) $organization->status,
-                        'active_groups_count' => (int) $organization->getAttribute('active_groups_count'),
-                        'members_count' => (int) $organization->getAttribute('members_count'),
-                        'waitlisted_count' => (int) $organization->getAttribute('waitlisted_count'),
-                        'seats_limit' => $organization->getAttribute('seats_limit') === null ? null : (int) $organization->getAttribute('seats_limit'),
-                        'sponsoring' => $organization->getAttribute('sponsor_subscription_id') !== null && $organization->status === 'active',
-                    ])
-                    ->values()
-                    ->all(),
-            ];
+            return Organization::query()
+                ->select('organizations.id', 'organizations.name', 'organizations.status')
+                ->withCount(['telegramGroups as active_groups_count' => fn ($groups) => $groups->where('status', 'active')])
+                ->addSelect([
+                    'members_count' => $members('seated'),
+                    'waitlisted_count' => $members('waitlisted'),
+                    'sponsor_subscription_id' => (clone $sponsoring)->select('subscriptions.id'),
+                    'seats_limit' => (clone $sponsoring)->select('subscriptions.seats_limit'),
+                ])
+                ->orderByDesc('members_count')
+                ->orderBy('name')
+                ->orderBy('organizations.id')
+                ->offset(($page - 1) * $perPage)
+                ->limit($perPage + 1)
+                ->get()
+                ->map(fn (Organization $organization): array => [
+                    'id' => (int) $organization->id,
+                    'name' => (string) $organization->name,
+                    'status' => (string) $organization->status,
+                    'active_groups_count' => (int) $organization->getAttribute('active_groups_count'),
+                    'members_count' => (int) $organization->getAttribute('members_count'),
+                    'waitlisted_count' => (int) $organization->getAttribute('waitlisted_count'),
+                    'seats_limit' => $organization->getAttribute('seats_limit') === null ? null : (int) $organization->getAttribute('seats_limit'),
+                    'sponsoring' => $organization->getAttribute('sponsor_subscription_id') !== null && $organization->status === 'active',
+                ])
+                ->values()
+                ->all();
         });
     }
 

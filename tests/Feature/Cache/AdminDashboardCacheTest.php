@@ -311,7 +311,7 @@ it('does not cache for a visitor nobody signed in', function (): void {
     expect(app(AdminDashboardStats::class)->totalLearners()['total'])->toBe(2);
 });
 
-it('pages the cached tables: each page and page size is an entry, and a page beyond the end is empty', function (): void {
+it('pages the cached tables in the simple mode: each page and page size is an entry, with one row more to tell there is a next page', function (): void {
     $week = LeagueWeek::factory()->startingOn(app(LeagueService::class)->weekStart(CarbonImmutable::now())->toDateString())->create();
     LeagueGroup::factory()->count(12)->create(['league_week_id' => $week->id, 'tier' => 0, 'members_count' => 3]);
 
@@ -320,15 +320,19 @@ it('pages the cached tables: each page and page size is an entry, and a page bey
     $second = $stats->leagueGroups($week->id, 2, 10);
     $third = $stats->leagueGroups($week->id, 3, 10);
 
-    expect($first['total'])->toBe(12)
-        ->and($first['rows'])->toHaveCount(10)
-        ->and($second['rows'])->toHaveCount(2)
-        ->and($third['rows'])->toBe([])
-        ->and(array_column($first['rows'], 'id'))->not->toContain(...array_column($second['rows'], 'id'));
+    expect($first)->toHaveCount(11, 'ten and the one that says there is more')
+        ->and($second)->toHaveCount(2)
+        ->and($third)->toBe([])
+        ->and(array_slice(array_column($first, 'id'), 10))->toBe([array_column($second, 'id')[0]]);
 
     $component = Livewire::test(LeagueGroupsTableWidget::class);
     $component->assertSee('групп — 12');
-    expect($component->instance()->getTableRecords()->count())->toBe(10);
+    expect($component->instance()->getTableRecords()->count())->toBe(10)
+        ->and($component->instance()->getTableRecords()->hasMorePages())->toBeTrue();
+
+    $component->call('gotoPage', 2, 'page');
+    expect($component->instance()->getTableRecords()->count())->toBe(2)
+        ->and($component->instance()->getTableRecords()->hasMorePages())->toBeFalse();
 });
 
 it('switches the polling off on every stats and chart widget and keeps all the widgets lazy', function (): void {

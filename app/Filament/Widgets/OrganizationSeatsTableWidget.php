@@ -10,7 +10,7 @@ use App\Filament\Resources\Support\AdminLabels;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 
 /**
  * "Seats / waiting" per organization (docs/13 §1.3, §6.1). Seated = `organization_members`
@@ -43,11 +43,12 @@ class OrganizationSeatsTableWidget extends TableWidget
     public function table(Table $table): Table
     {
         return $table
-            ->records(function (int|string $page, int|string $recordsPerPage): LengthAwarePaginator {
+            // A table widget pages in the simple mode (no COUNT): the page and one row more, which tells the paginator there is a next one.
+            ->records(function (int|string $page, int|string $recordsPerPage): Paginator {
                 [$page, $perPage] = [max(1, (int) $page), max(1, (int) $recordsPerPage)];
                 $organizations = app(AdminDashboardStats::class)->organizationSeats($page, $perPage);
 
-                return (new LengthAwarePaginator(array_column($organizations['rows'], null, 'id'), $organizations['total'], $perPage, $page))->onEachSide(0);
+                return new Paginator(array_column($organizations, null, 'id'), $perPage, $page);
             })
             ->columns([
                 Tables\Columns\TextColumn::make('name')->label(__('admin.widgets.organization_seats.name')),
