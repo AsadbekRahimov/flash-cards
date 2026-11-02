@@ -15,6 +15,7 @@ use App\Domain\Learning\Contracts\NewCardBudgetResolver;
 use App\Domain\Learning\Support\FsrsParameters;
 use App\Domain\Learning\Support\LearningPolicy;
 use App\Domain\Localization\Services\LocaleResolver;
+use App\Domain\Organizations\Services\OrgRequestMemo;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\IrazasyedTelegramClient;
 use App\Domain\Telegram\Services\TelegramKeyboardFactory;
@@ -23,13 +24,17 @@ use App\Domain\Twa\Services\InitDataValidator;
 use App\Domain\Twa\Services\JwtService;
 use App\Models\Learner;
 use App\Models\Organization;
+use App\Models\OrganizationUser;
 use App\Models\TelegramGroup;
 use App\Observers\OrganizationObserver;
+use App\Observers\OrganizationUserObserver;
 use App\Observers\TelegramGroupObserver;
 use App\Policies\Org\OrgPolicyResolver;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Foundation\Http\Events\RequestHandled;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -73,6 +78,10 @@ class AppServiceProvider extends ServiceProvider
 
             return $registry;
         });
+
+        // The `/org` access checks (role, visible groups) are read once per request or queued job: a scoped
+        // binding is forgotten by the queue worker before each job and by Octane between requests (docs/20 F4).
+        $this->app->scoped(OrgRequestMemo::class);
 
         // Keys are read per request (not a singleton): a rotated PAYME_KEY / PAYME_TEST_KEY applies at once in tests and after config:cache.
         $this->app->bind(PaymeAuth::class, static fn (): PaymeAuth => PaymeAuth::fromConfig());
@@ -128,6 +137,17 @@ class AppServiceProvider extends ServiceProvider
 
         // `/org` cabinet: tenant-aware policies replace the platform ones while that panel is served (docs/13 §6.3).
         OrgPolicyResolver::register();
+
+        // A staff row written in this request changes the role its policies see: drop the per-request memory.
+        OrganizationUser::observe(OrganizationUserObserver::class);
+
+        // A process that handles many requests without Octane (the test suite) would carry the memory of the
+        // cabinet from one request into the next; FPM and Octane do not need this, it costs them nothing.
+        Event::listen(RequestHandled::class, function (): void {
+            if ($this->app->resolved(OrgRequestMemo::class)) {
+                $this->app->make(OrgRequestMemo::class)->flush();
+            }
+        });
 
         RateLimiter::for('login', function (Request $request): Limit {
             $email = (string) $request->input('email', '');

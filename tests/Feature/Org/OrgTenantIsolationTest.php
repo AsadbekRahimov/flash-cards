@@ -269,8 +269,8 @@ it('invites, assigns groups to, re-roles and removes staff of the tenant', funct
     Livewire::test(ListStaff::class)->assertForbidden();
     expect($staff->fresh())->not->toBeNull();
 
-    // Staff of B is untouchable from A (back as owner).
-    OrganizationUser::query()->whereKey($ownRow->id)->update(['role' => 'owner']);
+    // Staff of B is untouchable from A (back as owner — through the model, so the per-request role memory is dropped).
+    $ownRow->refresh()->update(['role' => 'owner']);
     // Inside the cabinet every resource model carries the tenancy global scope — bypass it to fetch B's row.
     $staffB = OrganizationUser::query()->withoutGlobalScopes()->where('organization_id', $this->b->id)->firstOrFail();
     isoEnter($this->ownerA, $this->a);

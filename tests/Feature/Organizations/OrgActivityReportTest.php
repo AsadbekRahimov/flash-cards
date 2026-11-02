@@ -6,6 +6,7 @@ use App\Domain\Organizations\DTO\DateRange;
 use App\Domain\Organizations\Exceptions\ReportRangeException;
 use App\Domain\Organizations\Services\OrgActivityReport;
 use App\Domain\Organizations\Services\OrgActivityReportCsv;
+use App\Domain\Organizations\Services\OrgRequestMemo;
 use App\Models\Assignment;
 use App\Models\AssignmentResult;
 use App\Models\Learner;
@@ -195,6 +196,9 @@ it('reports a group without any activity as zeros', function (): void {
 
 it('reads aggregates only: no session-level table is queried, and the query count does not grow with learners', function (): void {
     $count = function (): int {
+        // Each count starts like a new request: the report built in beforeEach holds the per-request memory of the
+        // role (OrgRequestMemo), so it is flushed rather than forgotten in the container.
+        app(OrgRequestMemo::class)->flush();
         DB::flushQueryLog();
         DB::enableQueryLog();
         $this->report->perLearner($this->owner, $this->org, null, $this->range, $this->now);

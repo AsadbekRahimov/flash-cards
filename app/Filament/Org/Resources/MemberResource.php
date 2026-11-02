@@ -50,10 +50,16 @@ class MemberResource extends OrgResource
         return __('org.members.plural');
     }
 
-    /** @return Builder<OrganizationMember> */
+    /**
+     * The row policy of a teacher needs the learner's active group memberships (`OrgTenantScope::canSeeMember`):
+     * loaded with the list, not queried per row (docs/20 §1.3). An owner sees every row, so only the learner.
+     *
+     * @return Builder<OrganizationMember>
+     */
     public static function getEloquentQuery(): Builder
     {
-        return static::scope()->members(static::user(), static::tenant())->with('learner');
+        return static::scope()->members(static::user(), static::tenant())
+            ->with(static::isOwner() ? ['learner'] : ['learner.activeGroupMemberships']);
     }
 
     public static function table(Table $table): Table
