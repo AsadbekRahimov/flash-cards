@@ -1,9 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { ME_FRESH_MS, useBillingStore } from '../billing'
-import type { MeResponse, PracticeAccess } from '@/api/types'
+import type { MeResponse, PracticeAccess, PracticeLimitHit } from '@/api/types'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 import { counter, freeLimits, inHours } from '@/api/__tests__/practiceFixtures'
 
@@ -96,19 +97,60 @@ describe('billing store', () => {
       expect(api.me.get).toHaveBeenCalledTimes(2)
     })
 
-    it('does not send a second request while one is in flight, forced or not', async () => {
+    it('does not send a second request while one is in flight, forced or not: whoever asks meanwhile waits for THAT answer', async () => {
       let finish: (value: MeResponse) => void = () => {}
       vi.mocked(api.me.get).mockReturnValue(new Promise((resolve) => (finish = resolve)))
       const billing = useBillingStore()
 
       const first = billing.load()
-      await billing.load()
-      await billing.load({ force: true })
-      finish(me())
-      await first
+      const second = billing.load()
+      const forced = billing.load({ force: true })
+      const through: string[] = []
+      void first.then(() => through.push('first'))
+      void second.then(() => through.push('second'))
+      void forced.then(() => through.push('forced'))
+      await vi.advanceTimersByTimeAsync(0)
+      expect(through, 'nobody goes on before the answer').toEqual([])
+      expect(billing.entitlement).toBeNull()
 
+      finish(me())
+      await Promise.all([first, second, forced])
+
+      expect(through).toHaveLength(3)
       expect(api.me.get).toHaveBeenCalledTimes(1)
+      expect(billing.entitlement?.new_words_per_day).toBe(20) // all of them find the answer in the store
       expect(billing.loading).toBe(false)
+    })
+
+    it('a request in flight that fails lets everybody go on without a throw, and nothing is fresh', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      let fail: (reason: unknown) => void = () => {}
+      vi.mocked(api.me.get).mockReturnValue(new Promise((_, reject) => (fail = reject)))
+      const billing = useBillingStore()
+
+      const first = billing.load()
+      const forced = billing.load({ force: true })
+      fail(new ApiClientError('network', 0, 'network', 'x'))
+
+      await expect(Promise.all([first, forced])).resolves.toEqual([undefined, undefined])
+      expect(warn).toHaveBeenCalledTimes(1)
+      expect(api.me.get).toHaveBeenCalledTimes(1)
+      expect(billing.loadedAt).toBeNull()
+      expect(billing.loading).toBe(false)
+    })
+
+    it('forgets the request once it has come back: the next forced load asks again, and is waited for in its turn', async () => {
+      const billing = useBillingStore()
+      await billing.load()
+
+      let finish: (value: MeResponse) => void = () => {}
+      vi.mocked(api.me.get).mockReturnValue(new Promise((resolve) => (finish = resolve)))
+      const again = billing.load({ force: true })
+      const joined = billing.load()
+      finish(me())
+      await Promise.all([again, joined])
+
+      expect(api.me.get).toHaveBeenCalledTimes(2)
     })
 
     it('never calls the data fresh after a failed request: a forced load that fails makes the next one ask', async () => {
@@ -693,6 +735,97 @@ describe('billing store - the Free limits of practice and battles (docs/18 §3)'
       expect(await billing.confirmLimit('battles')).toBeNull()
 
       expect(billing.battleLimit).toMatchObject({ remaining: 0 }) // what it knew is not thrown away
+    })
+
+    // The screen began its own reading of /me (it asks at its start), and the learner pressed before the answer came. The stale zero must not
+    // decide: that reading is the newest word there is, so it is waited for - not skipped, and not asked again.
+    describe('a /me that is already on its way', () => {
+      const onItsWay = () => {
+        let answer: (value: MeResponse) => void = () => {}
+        vi.mocked(api.me.get).mockReturnValue(new Promise((resolve) => (answer = resolve)))
+        return (value: MeResponse) => answer(value)
+      }
+      const decide = (billing: ReturnType<typeof useBillingStore>) => {
+        const result: { hit: PracticeLimitHit | null | undefined } = { hit: undefined }
+        const done = billing.confirmLimit('battles').then((hit) => {
+          result.hit = hit
+        })
+        return { result, done }
+      }
+
+      it('is waited for, and its counter decides: the place it gives back is a place - no wall, no second request', async () => {
+        const billing = useBillingStore()
+        const resetsAt = inHours(5)
+        billing.setLimits(freeLimits(0, 1, resetsAt)) // the zero the screen remembers
+        const answer = onItsWay()
+        const reading = billing.load() // the screen's own reading at its start
+
+        const { result, done } = decide(billing)
+        await flushPromises()
+        expect(result.hit, 'the old zero does not decide before the answer').toBeUndefined()
+
+        answer(meWith(access(freeLimits(0, 0, resetsAt)))) // the server has given the place back
+        await Promise.all([done, reading])
+
+        expect(result.hit).toBeNull()
+        expect(api.me.get).toHaveBeenCalledTimes(1)
+        expect(billing.battleLimit).toMatchObject({ remaining: 1 })
+      })
+
+      it('and the wall stands when that answer still says none: with the numbers of the fresh counter', async () => {
+        const billing = useBillingStore()
+        const resetsAt = inHours(5)
+        billing.setLimits(freeLimits(0, 1, resetsAt))
+        const answer = onItsWay()
+        void billing.load()
+
+        const { result, done } = decide(billing)
+        answer(meWith(access(freeLimits(0, 1, resetsAt))))
+        await done
+
+        expect(result.hit).toEqual({ kind: 'battles', limit: 1, used: 1, resets_at: resetsAt })
+        expect(api.me.get).toHaveBeenCalledTimes(1)
+      })
+
+      it('is no wall when it fails: nothing can be checked, so the action goes to the server', async () => {
+        const billing = useBillingStore()
+        billing.setLimits(freeLimits(0, 1))
+        let fail: (reason: unknown) => void = () => {}
+        vi.mocked(api.me.get).mockReturnValue(new Promise((_, reject) => (fail = reject)))
+        void billing.load()
+
+        const { result, done } = decide(billing)
+        fail(new ApiClientError('network', 0, 'network', 'x'))
+        await done
+
+        expect(result.hit).toBeNull()
+        expect(api.me.get).toHaveBeenCalledTimes(1)
+      })
+
+      it('is not waited for when no wall is remembered: the action goes to the server at once', async () => {
+        const billing = useBillingStore()
+        billing.setLimits(freeLimits(0, 0))
+        onItsWay()
+        void billing.load()
+
+        expect(await billing.confirmLimit('battles')).toBeNull()
+      })
+
+      it('is waited for by a screen that asks while it is on its way, and a screen that asks after it has come back asks again', async () => {
+        const billing = useBillingStore()
+        billing.setLimits(freeLimits(0, 1))
+        const answer = onItsWay()
+        void billing.load()
+        const { done } = decide(billing)
+        answer(meWith(access(freeLimits(0, 1))))
+        await done
+        expect(api.me.get).toHaveBeenCalledTimes(1)
+
+        vi.mocked(api.me.get).mockResolvedValue(meWith(access(freeLimits(0, 0))))
+        expect(await billing.confirmLimit('battles')).toBeNull()
+
+        expect(api.me.get).toHaveBeenCalledTimes(2)
+      })
     })
 
     it('needs no question for a kind that is for Pro only (limit 0): nothing gives a place back there', async () => {

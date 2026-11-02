@@ -130,6 +130,29 @@ describe('billing store: catalog and purchase', () => {
     expect(billing.entitlement?.plan).toBe('pro')
   })
 
+  it('a /me that was on its way when the payment came is not waited for: it predates the payment, so /me is asked again', async () => {
+    tg.openInvoice.mockResolvedValue('paid')
+    vi.mocked(api.billing.checkout).mockResolvedValue(created('invoice_link'))
+    vi.mocked(api.billing.order).mockResolvedValue(order('paid'))
+    let finishOld: (value: MeResponse) => void = () => {}
+    vi.mocked(api.me.get).mockReset()
+    vi.mocked(api.me.get)
+      .mockReturnValueOnce(new Promise((resolve) => (finishOld = resolve)))
+      .mockResolvedValueOnce(me('pro'))
+    const billing = useBillingStore()
+    const old = billing.load() // from before the payment, still on its way
+
+    const done = billing.buy('month', 'telegram_stars')
+    await vi.advanceTimersByTimeAsync(0)
+    await done
+
+    expect(api.me.get).toHaveBeenCalledTimes(2)
+    expect(billing.purchase.status).toBe('paid')
+    expect(billing.entitlement?.plan).toBe('pro')
+    finishOld(me('free'))
+    await old
+  })
+
   it('does not take the invoice callback for a confirmation: even `paid` waits for the order', async () => {
     tg.openInvoice.mockResolvedValue('paid')
     vi.mocked(api.billing.checkout).mockResolvedValue(created())
