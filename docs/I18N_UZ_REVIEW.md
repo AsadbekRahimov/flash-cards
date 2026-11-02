@@ -2596,3 +2596,33 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `battle.invite.mode_disabled` | Bu format hozir o'chirilgan — taklifni qabul qila olmaysiz. | Этот формат сейчас выключен — принять приглашение нельзя. |
+
+## Лимиты практики 2026-11 · G1 (TWA) — на проверку носителю
+
+> Бесплатный тариф получает две сессии практики и один вызов на баттл в день (`docs/18` §3, `resources/twa/src/i18n/uz.ts`, задача G1-TWA). Приложение пишет, сколько осталось,
+> а когда лимит кончился — открывает окно Pro. Названия «Pro», «Free», «amaliyot», «bellashuv» и кнопки взяты из уже проверенных строк.
+>
+> Что решить носителю:
+> - **Остаток** (`practice.limit.sessions`, `battle.limit.left`): «Bugun bepul: 2 tadan 1 tasi qoldi» — «Сегодня бесплатно: осталось 1 из 2». Порядок «{M} tadan {N} tasi»
+>   взят из `practice.hub.reason.no_items_few` («{required} tadan {available} tasi»). Когда осталось 0, строка та же («2 tadan 0 tasi qoldi»); если для нуля естественнее
+>   другая фраза — сказать, отдельную строку для нуля заведём.
+> - **«Вызов»** (`battle.limit.left`, `paywall.lead_practice_limit_battles`): по-русски «вызов» — это приглашение на баттл. Взято «chaqiruv» (от «chaqiryapti» из
+>   `practice.hub.battle.invited_by`). «Musobaqa» не подходит: так названы недельные вызовы из раздела «Do'stlar» (`friends.challenge.*`), это другое.
+> - **Окно Pro при исчерпанном лимите** (`paywall.lead_practice_limit_sessions`, `paywall.lead_practice_limit_battles`): «Bugungi bepul amaliyot tugadi (2 tadan 2 tasi).
+>   Yangilari — ertaga soat 00:00 da yoki darhol Pro bilan.» — «Бесплатные тренировки на сегодня закончились (2 из 2). Новые — завтра в 00:00 или сразу с Pro.» Проверить
+>   «amaliyot» (в ru здесь «тренировки», а раздел «Практика» в приложении называется `practice.hub.title` = «Amaliyot»), «Yangilari» («новые»), «darhol Pro bilan» («сразу с Pro»).
+>   Окно продолжается прежней фразой о Pro (`paywall.soon` / `paywall.lead_purchase`).
+> - **Когда лимит вернётся** (`paywall.reset_tomorrow`, `paywall.reset_at`): подставляется в окно вместо `{when}`. Обычно сброс — начало следующих суток ученика: «ertaga soat 00:00 da»
+>   («завтра в 00:00»). Если часы телефона сбиты и приложение не может поручиться за день, остаётся одно время: «soat 19:00 da» («в 19:00»). Проверить «soat … da».
+> - **`error.code.practice_limit_reached`** — запасной текст на случай, когда сервер отказал по лимиту, но не прислал цифры (обычно вместо него открывается окно Pro): «Bugungi bepul limit
+>   tugadi. U ertaga yangilanadi.» — «Бесплатный лимит на сегодня закончился. Он обновится завтра.»
+
+| Ключ | uz | ru |
+|---|---|---|
+| `practice.limit.sessions` | Bugun bepul: {limit} tadan {remaining} tasi qoldi | Сегодня бесплатно: осталось {remaining} из {limit} |
+| `battle.limit.left` | Bugungi chaqiruvlar: {limit} tadan {remaining} tasi qoldi | Вызовов сегодня: осталось {remaining} из {limit} |
+| `paywall.lead_practice_limit_sessions` | Bugungi bepul amaliyot tugadi ({limit} tadan {limit} tasi). Yangilari — {when} yoki darhol Pro bilan. | Бесплатные тренировки на сегодня закончились ({limit} из {limit}). Новые — {when} или сразу с Pro. |
+| `paywall.lead_practice_limit_battles` | Bugungi bepul chaqiruvlar tugadi ({limit} tadan {limit} tasi). Yangilari — {when} yoki darhol Pro bilan. | Бесплатные вызовы на сегодня закончились ({limit} из {limit}). Новые — {when} или сразу с Pro. |
+| `paywall.reset_tomorrow` | ertaga soat {time} da | завтра в {time} |
+| `paywall.reset_at` | soat {time} da | в {time} |
+| `error.code.practice_limit_reached` | Bugungi bepul limit tugadi. U ertaga yangilanadi. | Бесплатный лимит на сегодня закончился. Он обновится завтра. |
