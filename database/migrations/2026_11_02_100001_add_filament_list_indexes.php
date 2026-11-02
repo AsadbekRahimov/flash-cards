@@ -66,14 +66,16 @@ return new class extends Migration
         }
     }
 
+    /**
+     * Drops the indexes. The extension stays: `pg_trgm` is shared infrastructure that later indexes and queries may come to
+     * depend on, and dropping it is a decision of its own, not a side effect of rolling back a set of indexes.
+     */
     public function down(): void
     {
         if ($this->isPostgres()) {
             foreach (array_reverse(array_keys(self::TRGM)) as $name) {
                 $this->dropIndex($name);
             }
-
-            DB::statement('DROP EXTENSION IF EXISTS pg_trgm');
         }
 
         foreach (array_reverse(array_keys(self::BTREE)) as $name) {

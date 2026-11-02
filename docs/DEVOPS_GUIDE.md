@@ -299,6 +299,13 @@ php artisan db:seed   # loads demo admin, teacher, 2 groups, 120 words, 5 learne
 > `migrate:status` mismatch (the `create_students_table` row has no file on disk). From the first production release on,
 > schema changes are **forward migrations only**.
 
+> **Index migrations with `CONCURRENTLY`** (`2026_10_28_000001`, `2026_11_02_100001`, `2026_11_02_200001`): a
+> `CREATE INDEX CONCURRENTLY` / `DROP INDEX CONCURRENTLY` waits for every transaction that was open on the table when it
+> started. If `php artisan migrate --force` hangs during a deploy, look for the transaction it is waiting on —
+> `select pid, state, xact_start, left(query, 80) from pg_stat_activity where state like 'idle in transaction%'` — and end
+> it (`select pg_terminate_backend(<pid>)`). A build interrupted this way leaves an INVALID index behind; running the
+> migration again drops it first and rebuilds.
+
 ---
 
 ## 6. Build the Frontend (TWA SPA)

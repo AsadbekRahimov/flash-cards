@@ -474,9 +474,10 @@ it('drops the list-page indexes on rollback of their migration and rebuilds them
     expect($names('learners'))->not->toContain('learners_first_name_id_idx')
         ->and($names('exam_sessions'))->not->toContain('exam_sessions_started_at_id_idx');
     if ($pgsql) {
+        // The extension is shared infrastructure: the rollback of these indexes leaves it in place.
         expect($names('learners'))->not->toContain('learners_username_trgm_idx')
             ->and($names('words'))->not->toContain('words_word_lower_trgm_idx')
-            ->and(DB::table('pg_extension')->where('extname', 'pg_trgm')->exists())->toBeFalse();
+            ->and(DB::table('pg_extension')->where('extname', 'pg_trgm')->exists())->toBeTrue();
     }
 
     $migration->up();

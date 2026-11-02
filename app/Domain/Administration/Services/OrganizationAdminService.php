@@ -84,8 +84,13 @@ final class OrganizationAdminService
      */
     public function deletionBlocker(Organization $organization): ?string
     {
-        $hasLiveSubscription = $organization->getAttribute(self::LIVE_SUBSCRIPTION_FACT)
-            ?? $organization->subscriptions()
+        // The facts are looked up by key, not read as attributes: an organization loaded without them (the edit page) must ask
+        // the database, not throw under `preventAccessingMissingAttributes`.
+        $attributes = $organization->getAttributes();
+
+        $hasLiveSubscription = array_key_exists(self::LIVE_SUBSCRIPTION_FACT, $attributes)
+            ? (bool) $attributes[self::LIVE_SUBSCRIPTION_FACT]
+            : $organization->subscriptions()
                 ->whereIn('status', SubscriptionStatus::liveValues())
                 ->exists();
 
@@ -93,8 +98,9 @@ final class OrganizationAdminService
             return 'The organization has a live subscription. Revoke it first, or suspend the organization instead of deleting it.';
         }
 
-        $groups = $organization->getAttribute(self::GROUPS_COUNT_FACT);
-        $hasGroups = $groups !== null ? (int) $groups > 0 : $organization->telegramGroups()->exists();
+        $hasGroups = array_key_exists(self::GROUPS_COUNT_FACT, $attributes)
+            ? (int) $attributes[self::GROUPS_COUNT_FACT] > 0
+            : $organization->telegramGroups()->exists();
 
         if ($hasGroups) {
             return 'The organization still has linked groups. Unlink them first, or suspend the organization instead of deleting it.';
