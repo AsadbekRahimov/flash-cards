@@ -36,8 +36,11 @@ final class ForkSafe
             }
             app('redis')->purge();
             Cache::forgetDriver();
-            if ($pureOnRedis) {
-                Cache::forgetDriver(PureCache::storeName());
+            // The repositories of every Redis-backed store (and of the failover chain over one) hold the closed clients.
+            foreach ((array) config('cache.stores', []) as $name => $store) {
+                if (in_array($store['driver'] ?? null, ['redis', 'failover'], true)) {
+                    Cache::forgetDriver((string) $name);
+                }
             }
         }
     }

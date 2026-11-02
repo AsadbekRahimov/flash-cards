@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Cache;
  * The one door to the PURE cache (docs/19_REDIS_CACHE_PLAN.md §3 rule 10, §4): the store on the second, evicting
  * Redis instance (`config('cache.pure_store')`, `lru` in production, `array` in tests). Anything written here may vanish
  * at any moment and must be recomputable from the database: catalog listings, standings, aggregates of widgets.
+ * In production `lru` is a failover chain (docs/19 §4.1): when that instance is unreachable the calls land on the array
+ * store and the application degrades to computing from the database instead of failing.
  *
  * What does NOT belong here, ever: markers ("already sent", "paywall shown"), locks, counters, rate limits, the 2FA
  * attempt protection, the entitlement version keys. Those stay on the default store (`Cache::`), whose instance never
@@ -40,14 +42,33 @@ final class PureCache
         return (string) config('cache.pure_store', 'lru');
     }
 
-    /** The Redis connection behind the pure store, or null when it is not a Redis store (tests: `array`). */
+    /**
+     * The Redis connection behind the pure store - through a failover chain (`lru` = `lru_redis` then `array`) to its
+     * first Redis member - or null when no Redis store is involved (tests: `array`). Readiness pings it, ForkSafe
+     * closes it before a fork.
+     */
     public static function redisConnection(): ?string
     {
-        $store = self::storeName();
-        if (config("cache.stores.{$store}.driver") !== 'redis') {
-            return null;
+        return self::redisConnectionOf(self::storeName());
+    }
+
+    private static function redisConnectionOf(string $store, int $depth = 0): ?string
+    {
+        $driver = config("cache.stores.{$store}.driver");
+
+        if ($driver === 'redis') {
+            return (string) config("cache.stores.{$store}.connection", 'default');
         }
 
-        return (string) config("cache.stores.{$store}.connection", 'default');
+        if ($driver === 'failover' && $depth < 3) {
+            foreach ((array) config("cache.stores.{$store}.stores", []) as $member) {
+                $connection = self::redisConnectionOf((string) $member, $depth + 1);
+                if ($connection !== null) {
+                    return $connection;
+                }
+            }
+        }
+
+        return null;
     }
 }

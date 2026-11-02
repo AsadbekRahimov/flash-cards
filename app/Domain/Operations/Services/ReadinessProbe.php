@@ -39,11 +39,14 @@ final class ReadinessProbe
             $checks['redis'] = $this->guard('redis', fn (): bool => $this->checkRedis($redisConnections));
         }
 
-        // The second, evicting instance behind the pure cache (docs/19 §4) is its own check: an operator sees which
-        // one is down. Skipped when the pure store is not on Redis (tests) or shares a connection with the first.
+        // The second, evicting instance behind the pure cache (docs/19 §4.1) is its own check, and its loss is a
+        // degradation, not a failure: the pure store falls over to the array store and the application serves from the
+        // database, so the report says `degraded` and the endpoint stays 200 - visible to the operator, no page.
+        // Skipped when the pure store is not on Redis (tests) or shares a connection with the first instance.
         $pureConnection = PureCache::redisConnection();
         if ($pureConnection !== null && ! in_array($pureConnection, $redisConnections, true)) {
-            $checks['redis_cache'] = $this->guard('redis_cache', fn (): bool => $this->checkRedis([$pureConnection]));
+            $alive = $this->guard('redis_cache', fn (): bool => $this->checkRedis([$pureConnection])) === ReadinessReport::OK;
+            $checks['redis_cache'] = $alive ? ReadinessReport::OK : ReadinessReport::DEGRADED;
         }
 
         // A group-chat Mini App link cannot be built without the bot username: production must have it.

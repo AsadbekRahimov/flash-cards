@@ -1,6 +1,6 @@
 # 19. Redis 8.10 и кэширование — план и задачи
 
-> **Статус:** C1 и C2 выполнены 02.11.2026 (architect); C3–C6 выполнены 02.11.2026 (coder, §5.1); C0 (полный замер), C7, C8 — план. Правила §3 действуют для всех новых задач с 02.11.2026.
+> **Статус:** C1 и C2 выполнены 02.11.2026 (architect, деградация §4.1 — по ревью); C3–C6 выполнены 02.11.2026 (coder, §5.1); C7 выполнен 02.11.2026 (`9d46a3a`, вместе с F1); C0 (полный замер) и C8 — план. Правила §3 действуют для всех новых задач с 02.11.2026.
 > **Основание — решение владельца 02.11.2026:**
 > - всё, что можно кэшировать, — в Redis;
 > - версия Redis — 8.10;
@@ -113,7 +113,7 @@
 2. **В значениях — массивы и скаляры.** Модели, DTO и коллекции не кладём (`serializable_classes = false`). DTO хранятся через `toArray()` / `fromArray()`, как `Entitlement`.
 3. **Ключ:** `<домен>:<сущность>:v<версия формата>:<id>[:<locale>]`, например `league:standings:v1:`. При смене формата значения версия увеличивается — старые ключи просто истекают.
 4. **TTL есть всегда.** `rememberForever` — только для неизменяемых данных и с явным `forget`.
-5. **Инвалидация при записи.** Сбрасывает тот сервис, который пишет данные, после фиксации транзакции (`DB::afterCommit`), или наблюдатель модели. На каждый ключ есть тест «записал → старое значение не отдаётся».
+5. **Инвалидация при записи.** Сбрасывает тот сервис, который пишет данные, после фиксации транзакции (`DB::afterCommit`), или наблюдатель модели. На каждый ключ есть тест «записал → старое значение не отдаётся». **Принятый компромисс при недоступном `redis-cache`** (§4.1): `forget` уходит в `array` и не бросает, а значение в Redis доживает до своего TTL — после восстановления экземпляра оно может отдаваться ещё до TTL. Поэтому TTL чистого кэша там, где устаревание заметно, — минуты, не часы; entitlement этому не подвержен: его инвалидация поднимает ключ версии в невытесняемом `redis`, и старый снимок никто не читает.
 6. **Защита от лавины пересчёта.** Тяжёлые агрегаты — через `Cache::flexible()` (отдать устаревшее и пересчитать в фоне) или `Cache::lock()->block()` вокруг пересчёта.
 7. **Пакетное чтение** — `Cache::many` / `putMany`, как `LearningCache::wordsLearned`. Не делаем N отдельных `get` в цикле.
 8. **В ключах только id,** без имён, телефонов и токенов. В значениях нет секретов.
@@ -133,7 +133,7 @@
 - **Подключения `config/database.php` → `redis`:** `default`, `cache`, `queue`, `session`, `locks` — первый экземпляр (`REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`); `lru` — второй (`REDIS_LRU_HOST`, `REDIS_LRU_PORT`, `REDIS_LRU_PASSWORD`, `REDIS_LRU_DB`; в Docker `redis-cache:6379`, на голом сервере `127.0.0.1:6380`).
 - **Хранилища `config/cache.php`:**
   - `redis` — по умолчанию (`CACHE_STORE=redis`), невытесняемое: всё, что не помечено как чистый кэш, в безопасности;
-  - `lru` — `driver redis`, `connection lru`, `lock_connection locks`: блокировки чистого кэша (`Cache::lock`, `Cache::flexible`) остаются на первом экземпляре;
+  - `lru_redis` — `driver redis`, `connection lru`, `lock_connection locks`: блокировки чистого кэша (`Cache::lock`, `Cache::flexible`) остаются на первом экземпляре; `lru` — цепочка `failover` [`lru_redis`, `array`] (§4.1), на неё указывает `CACHE_PURE_STORE`;
   - `cache.pure_store` (`CACHE_PURE_STORE=lru`; в тестах `array`) — то, что отдаёт `PureCache::store()`;
   - `cache.limiter` (`CACHE_LIMITER_STORE=redis`; в тестах `array`) — `RateLimiter` явно на невытесняемом хранилище, от `CACHE_STORE` не зависит.
 - **Точка доступа:** `App\Domain\Operations\Support\PureCache` — `store()` (репозиторий), `storeName()`, `redisConnection()`; контейнерный ключ `cache.pure` (`PureCache::CONTAINER_KEY`), который тест подменяет через `app()->instance(PureCache::CONTAINER_KEY, $spy)`.
@@ -143,10 +143,22 @@
   - В проде порты не публикуются. В деве оба порта только на `127.0.0.1` (`REDIS_PORT_HOST`=6379, `REDIS_CACHE_PORT_HOST`=6380), как и PostgreSQL.
 - **Размер:** `REDIS_CACHE_MAXMEMORY` (по умолчанию 256 МБ), уточняется по метрикам C8; первый экземпляр — `REDIS_MAXMEMORY`.
 - **Мониторинг:**
-  - `/health/ready` проверяет оба: `redis` (подключения кэша и очереди) и `redis_cache` (подключение `lru`) — отдельные проверки, видно, какой упал;
+  - `/health/ready` проверяет оба: `redis` (подключения кэша и очереди) и `redis_cache` (подключение `lru`) — отдельные проверки, видно, какой упал; падение второго — `degraded` и HTTP 200, не 503 (§4.1);
   - метрики `INFO`: `keyspace_hits` / `keyspace_misses`, `evicted_keys`, `used_memory`;
   - алерт, если в `redis` растёт память или в `redis-cache` слишком много вытеснений (`DEVOPS_GUIDE.md`, «Redis»).
 - **Тесты:** `tests/Feature/Operations/PureCacheStoresTest.php` — конфиг, точка доступа, потеря всего чистого кэша не трогает `RateLimiter`, шаг 2FA и пульсы, entitlement после потери кэша, readiness обоих экземпляров. CI (job `test`) гоняет Pest на PostgreSQL с двумя сервисами Redis (`CACHE_PURE_STORE=lru`); `docker/postgres/tests/run.sh` держит `redis-cache` в тестовом стеке.
+
+### 4.1. Деградация при недоступном `redis-cache`
+
+✅ Решение координатора по ревью раздела (02.11.2026): падение второго экземпляра не роняет приложение — оно считает из базы.
+
+- **Хранилище `lru` — цепочка `failover` Laravel 13:** `lru_redis` (driver `redis`, подключение `lru`, блокировки на `locks`) → `array`. Вызов, не прошедший в Redis, выполняется на array-хранилище процесса: промах чтения = расчёт из БД, запись и `forget` не бросают. `FailoverStore` шлёт `CacheFailedOver` один раз на сбой (пока хранилище падает подряд, повторов нет); `App\Listeners\Cache\LogCacheFailover` пишет `cache.failed_over` (warning: хранилище, класс исключения, текст) не чаще раза в минуту на хранилище и процесс.
+- **Подключение `lru`:** `timeout` 1 с, `read_timeout` 1 с, `max_retries` 0 — мёртвый кэш не вешает запрос; на закрытый порт отказ мгновенный, на «чёрную дыру» — до секунды на вызов.
+- **`/health/ready`:** проверка `redis_cache` при сбое отвечает `degraded`, общий `status: degraded`, HTTP **200**; `503` только при `fail` базы, первого экземпляра, планировщика или очереди (`DEVOPS_GUIDE.md` §15.2). Smoke-проверка `deploy.sh` принимает 200: деплой не блокируется, оператор видит `degraded`.
+- **Compose:** `app`, воркеры и `scheduler` зависят от `redis-cache` как `service_started`, не `service_healthy`: приложение стартует и отдаёт данные без кэша, а `redis` (очереди, сессии, блокировки) остаётся `service_healthy`.
+- **Компромисс инвалидаций** — §3 п. 5: во время сбоя `forget` не доходит до Redis, значение там живёт до TTL.
+- **Цена сбоя:** каждый вызов чистого кэша — неудачная попытка подключения плюс расчёт из БД (нагрузка на PostgreSQL растёт); array-хранилище долгоживущего воркера держит значения до их TTL.
+- **Тесты:** `tests/Feature/Operations/PureCacheDegradationTest.php` — закрытый порт `127.0.0.1:56399` вместо второго экземпляра: `/me`, entitlement, каталог, статистика платформы и виджет дашборда работают из БД, `CacheFailedOver` приходит, инвалидации не бросают, readiness = `degraded` (200), троттлинг лога слушателя. Тот же файл идёт и в прогоне на PostgreSQL с настоящим Redis первого экземпляра.
 
 ## 5. Что добавить в кэш
 
@@ -205,7 +217,7 @@
 | C4 | **Контент** — K3, K4, K5 | coder | ✅ 02.11.2026: K3, K4 с тестами инвалидации на каждый путь записи; K5 без Redis-ключа — см. §5.1 |
 | C5 | **Сайт** — K6 | coder | ✅ 02.11.2026: `SitePageCacheTest` — тело байт в байт, заголовки (CSP `script-src 'none'` и др.) те же |
 | C6 | **Telegram** — K7, и K8, K9 по замеру | coder | ✅ 02.11.2026: K7 (`TelegramMemberCacheTest`); K8, K9 — нет, причины в §5.1 |
-| C7 | **OPcache для прод-образа:** `opcache.validate_timestamps=0` (код в образе неизменен), `memory_consumption`, `interned_strings_buffer`, `max_accelerated_files` по числу файлов `vendor` (Filament и Livewire — тысячи файлов); проверка, что после деплоя кэш новый (контейнер пересоздаётся) | coder | `opcache_get_status()` в проде без нехватки памяти и ключей |
+| C7 | **OPcache для прод-образа:** `opcache.validate_timestamps=0` (код в образе неизменен), `memory_consumption`, `interned_strings_buffer`, `max_accelerated_files` по числу файлов `vendor` (Filament и Livewire — тысячи файлов); проверка, что после деплоя кэш новый (контейнер пересоздаётся) | coder | ✅ 02.11.2026 (`9d46a3a`, вместе с F1 `filament:optimize`): `docker/php/zz-lexiflow.ini` — `validate_timestamps=0`, память и число файлов по `vendor`; `opcache_get_status()` в проде без нехватки памяти и ключей |
 | C8 | **Замер после и ревью:** сравнение с C0, hit ratio, вытеснения; `PROGRESS.md` | reviewer, координатор | Таблица «после» в §8, блокирующих находок нет |
 
 **Общий DoD:**

@@ -14,8 +14,11 @@ services:
                 condition: service_healthy
             redis:
                 condition: service_healthy
+            # Started, not healthy: the pure cache is a failover chain (config/cache.php `lru`, docs/19 §4.1) - without
+            # the second instance the application serves from the database and reports `degraded`. Waiting for `healthy`
+            # would tie the whole application to a disposable component.
             redis-cache:
-                condition: service_healthy
+                condition: service_started
         volumes:
             - ./:/var/www/html
         environment:
@@ -85,6 +88,8 @@ services:
     # The optional password (empty = none, fine for dev) reaches redis-server as a config line on stdin, not as a command
     # line argument; the healthcheck authenticates through REDISCLI_AUTH, so the password is in no argument list either.
     # It remains readable in the container environment (`docker inspect`) - see docs/DEVOPS_GUIDE.md, "Redis".
+    # `null` and `(null)` count as "no password": older .env files say `REDIS_PASSWORD=null`, which Laravel's env() reads
+    # as PHP null (no AUTH sent) while compose would hand the literal word to redis-server - a NOAUTH on every request.
     redis:
         image: redis:8.10-alpine
         container_name: lexiflow-redis
@@ -94,15 +99,16 @@ services:
             - sh
             - -c
             - |
+              case "$$REDIS_PASSWORD" in ''|null|'(null)') AUTH='' ;; *) AUTH="requirepass $$REDIS_PASSWORD" ;; esac
               exec redis-server - --appendonly yes --appendfsync everysec --maxmemory ${REDIS_MAXMEMORY:-256mb} --maxmemory-policy noeviction <<EOF
-              $${REDIS_PASSWORD:+requirepass $$REDIS_PASSWORD}
+              $$AUTH
               EOF
         ports:
             - "127.0.0.1:${REDIS_PORT_HOST:-6379}:6379"
         volumes:
             - redisdata:/data
         healthcheck:
-            test: ["CMD-SHELL", "[ -z \"$$REDIS_PASSWORD\" ] || export REDISCLI_AUTH=\"$$REDIS_PASSWORD\"; redis-cli ping | grep -q PONG"]
+            test: ["CMD-SHELL", "case \"$$REDIS_PASSWORD\" in ''|null|'(null)') ;; *) export REDISCLI_AUTH=\"$$REDIS_PASSWORD\" ;; esac; redis-cli ping | grep -q PONG"]
             interval: 5s
             timeout: 3s
             retries: 10
@@ -118,13 +124,14 @@ services:
             - sh
             - -c
             - |
+              case "$$REDIS_PASSWORD" in ''|null|'(null)') AUTH='' ;; *) AUTH="requirepass $$REDIS_PASSWORD" ;; esac
               exec redis-server - --appendonly no --save "" --maxmemory ${REDIS_CACHE_MAXMEMORY:-256mb} --maxmemory-policy volatile-lru <<EOF
-              $${REDIS_PASSWORD:+requirepass $$REDIS_PASSWORD}
+              $$AUTH
               EOF
         ports:
             - "127.0.0.1:${REDIS_CACHE_PORT_HOST:-6380}:6379"
         healthcheck:
-            test: ["CMD-SHELL", "[ -z \"$$REDIS_PASSWORD\" ] || export REDISCLI_AUTH=\"$$REDIS_PASSWORD\"; redis-cli ping | grep -q PONG"]
+            test: ["CMD-SHELL", "case \"$$REDIS_PASSWORD\" in ''|null|'(null)') ;; *) export REDISCLI_AUTH=\"$$REDIS_PASSWORD\" ;; esac; redis-cli ping | grep -q PONG"]
             interval: 5s
             timeout: 3s
             retries: 10

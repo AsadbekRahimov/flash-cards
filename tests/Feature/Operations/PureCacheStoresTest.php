@@ -60,13 +60,19 @@ function redisFactoryAnswering(array $pings): void
 
 describe('configuration', function (): void {
     it('puts only the pure store on the evicting connection and keeps its locks on the first instance', function (): void {
-        expect(config('cache.stores.lru'))->toBe(['driver' => 'redis', 'connection' => 'lru', 'lock_connection' => 'locks'])
+        // `lru` is a failover chain over the Redis store of the second instance and the array store (docs/19 §4.1).
+        expect(config('cache.stores.lru'))->toBe(['driver' => 'failover', 'stores' => ['lru_redis', 'array']])
+            ->and(config('cache.stores.lru_redis'))->toBe(['driver' => 'redis', 'connection' => 'lru', 'lock_connection' => 'locks'])
             ->and(config('database.redis.lru.host'))->not->toBe('')
-            ->and(config('database.redis.lru.database'))->not->toBeNull();
+            ->and(config('database.redis.lru.database'))->not->toBeNull()
+            // A dead cache fails fast: short timeouts, no client retries.
+            ->and(config('database.redis.lru.timeout'))->toBeLessThanOrEqual(1.0)
+            ->and(config('database.redis.lru.read_timeout'))->toBeLessThanOrEqual(1.0)
+            ->and(config('database.redis.lru.max_retries'))->toBe(0);
 
         // Every other Redis store - the default `redis` among them - is on a connection of the first instance.
         foreach (config('cache.stores') as $name => $store) {
-            if ($name !== 'lru' && ($store['driver'] ?? null) === 'redis') {
+            if (! in_array($name, ['lru', 'lru_redis'], true) && ($store['driver'] ?? null) === 'redis') {
                 expect($store['connection'])->not->toBe('lru', "store {$name} must not use the evicting connection");
             }
         }
@@ -215,15 +221,28 @@ describe('readiness of the two instances', function (): void {
         expect($checks)->toHaveKey('redis_cache', 'ok')->not->toHaveKey('redis');
     });
 
-    it('fails readiness when the pure-cache instance is down while the first one answers', function (): void {
+    it('stays ready but degraded when the pure-cache instance is down while the first one answers', function (): void {
         Config::set('cache.default', 'redis');
         redisFactoryAnswering(['cache' => true, 'lru' => new RuntimeException('Connection refused')]);
 
         $report = app(ReadinessProbe::class)->run();
 
-        expect($report->ok())->toBeFalse()
+        expect($report->ok())->toBeTrue()
+            ->and($report->status())->toBe('degraded')
             ->and($report->checks['redis'])->toBe('ok')
-            ->and($report->checks['redis_cache'])->toBe('fail');
+            ->and($report->checks['redis_cache'])->toBe('degraded');
+
+        $this->getJson('/health/ready')->assertOk()->assertJsonPath('status', 'degraded')->assertJsonPath('checks.redis_cache', 'degraded');
+    });
+
+    it('fails, not degrades, when the first instance is down even though the pure-cache one answers', function (): void {
+        Config::set('cache.default', 'redis');
+        redisFactoryAnswering(['cache' => new RuntimeException('Connection refused'), 'lru' => true]);
+
+        $report = app(ReadinessProbe::class)->run();
+
+        expect($report->ok())->toBeFalse()->and($report->status())->toBe('fail');
+        $this->getJson('/health/ready')->assertStatus(503)->assertJsonPath('status', 'fail');
     });
 
     it('fails readiness when the first instance is down while the pure-cache one answers', function (): void {
@@ -243,13 +262,14 @@ describe('readiness of the two instances', function (): void {
 
         $this->getJson('/health/ready')
             ->assertOk()
+            ->assertJsonPath('status', 'ok')
             ->assertJsonPath('checks.redis', 'ok')
             ->assertJsonPath('checks.redis_cache', 'ok');
     });
 
     it('reports one check when the pure store shares the connection of the default store', function (): void {
         Config::set('cache.default', 'redis');
-        Config::set('cache.stores.lru.connection', 'cache');
+        Config::set('cache.stores.lru_redis.connection', 'cache');
         redisFactoryAnswering(['cache' => true]);
 
         expect(app(ReadinessProbe::class)->run()->checks)->toHaveKey('redis', 'ok')->not->toHaveKey('redis_cache');
