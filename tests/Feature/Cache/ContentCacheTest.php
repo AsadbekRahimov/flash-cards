@@ -191,6 +191,47 @@ it('drops the tree when a module or a lesson is created, renamed, moved or delet
     expect($titles())->toBe([['Basics', 'Greetings', 1], ['Basics', 'Moving', 5]]);
 });
 
+it('finds the course of a lesson in the module it carries, and asks for it with one lookup only when it does not', function (): void {
+    $fx = Fx::course([1 => [1 => 2], 2 => [1 => 1]]);
+    $elsewhere = Fx::course([1 => [1 => 1]]);
+    $version = fn (Course $course): int => (int) Cache::get(CourseCatalogService::courseTreeVersionKey($course->id));
+    $stagesRead = fn (array $queries): array => QueryLog::matching($queries, '/from ["`]stages["`]/');
+
+    // A lesson read on its own: the module is one primary-key lookup away.
+    $lesson = Lesson::query()->findOrFail($fx['lessons']['1.1']->id);
+    $before = $version($fx['course']);
+    $cold = QueryLog::during(fn () => $lesson->update(['title' => 'One']));
+
+    expect($stagesRead($cold))->toHaveCount(1)
+        ->and($version($fx['course']))->toBeGreaterThan($before);
+
+    // A lesson with its module loaded (the panel's lists load it): no lookup, and the tree is dropped all the same.
+    $lesson->load('stage');
+    $before = $version($fx['course']);
+    $warm = QueryLog::during(fn () => $lesson->update(['title' => 'Two']));
+
+    expect($stagesRead($warm))->toBe([])
+        ->and($version($fx['course']))->toBeGreaterThan($before);
+
+    // Moved to a module of ANOTHER course while the old one is loaded: the module it left is known, the one it entered costs a
+    // lookup, and the loaded module is not taken for the new one - both trees are dropped.
+    $target = Stage::query()->where('course_id', $elsewhere['course']->id)->firstOrFail();
+    [$beforeFrom, $beforeTo] = [$version($fx['course']), $version($elsewhere['course'])];
+    $moved = QueryLog::during(fn () => $lesson->update(['stage_id' => $target->id, 'number' => 7]));
+
+    expect($stagesRead($moved))->toHaveCount(1)
+        ->and($version($fx['course']))->toBeGreaterThan($beforeFrom, 'the course it left')
+        ->and($version($elsewhere['course']))->toBeGreaterThan($beforeTo, 'the course it entered');
+
+    // Deleted with its (new) module loaded: no lookup either.
+    $lesson->load('stage');
+    $beforeTo = $version($elsewhere['course']);
+    $deleted = QueryLog::during(fn () => $lesson->delete());
+
+    expect($stagesRead($deleted))->toBe([])
+        ->and($version($elsewhere['course']))->toBeGreaterThan($beforeTo);
+});
+
 it('drops the tree on a change of status and leaves the trees of other courses alone', function (): void {
     app(RolePermissionSeeder::class)->run();
     $admin = User::factory()->create(['is_active' => true]);

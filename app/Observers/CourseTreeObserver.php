@@ -15,6 +15,9 @@ use Illuminate\Support\Facades\DB;
  * of the course after the commit. The words of a course are the other half, and every path that changes them ends in
  * `CoursePublisher::recount()`, which drops it as well. Registered in AppServiceProvider for {@see Stage} and {@see Lesson};
  * query-builder updates bypass model events and must go through Eloquent (or call `forgetCourseTree()` themselves).
+ *
+ * The course of a lesson is its module's: read from the module when the lesson carries it (the relation is loaded), and with one
+ * primary-key lookup when it does not.
  */
 final class CourseTreeObserver
 {
@@ -58,7 +61,16 @@ final class CourseTreeObserver
         }
 
         $stageId = $original ? $model->getOriginal('stage_id') : $model->stage_id;
-        $courseId = is_numeric($stageId) ? Stage::query()->withoutGlobalScopes()->whereKey((int) $stageId)->value('course_id') : null;
+
+        if (! is_numeric($stageId)) {
+            return null;
+        }
+
+        // The module in hand is the module asked about only if their ids agree: a lesson moved to another module still carries the old one.
+        $loaded = $model->relationLoaded('stage') ? $model->getRelation('stage') : null;
+        $courseId = $loaded instanceof Stage && (int) $loaded->getKey() === (int) $stageId
+            ? $loaded->course_id
+            : Stage::query()->withoutGlobalScopes()->whereKey((int) $stageId)->value('course_id');
 
         return is_numeric($courseId) ? (int) $courseId : null;
     }
