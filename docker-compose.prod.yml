@@ -191,9 +191,11 @@ services:
     #   redis-cache - the pure cache (store `lru`): `volatile-lru`, no persistence - a lost key is recomputed.
     # Exact image tag on purpose (not the floating redis:8-alpine): the image is reproducible and the next upgrade is a
     # decision, not an accident. 8.10 writes RDB format 15: a `redisdata` volume written by it does not start on 8.4 again.
-    # Both passwords are mandatory here (`:?` - compose refuses to start without them). A password reaches redis-server
-    # as a config line on stdin, not as a command line argument, and the healthcheck authenticates through REDISCLI_AUTH;
-    # it remains readable in the container environment (`docker inspect`) - see docs/DEVOPS_GUIDE.md, "Redis".
+    # Both passwords are mandatory here (`:?` - compose refuses to start without them; the words `null` and `(null)`,
+    # what older .env files say, are refused by the container itself with a message in its log, because Laravel's env()
+    # would read them as PHP null and send no AUTH). A password reaches redis-server as a config line on stdin, not as
+    # a command line argument, and the healthcheck authenticates through REDISCLI_AUTH; it remains readable in the
+    # container environment (`docker inspect`) - see docs/DEVOPS_GUIDE.md, "Redis".
     redis:
         image: redis:8.10-alpine
         container_name: lexiflow-redis
@@ -204,6 +206,10 @@ services:
             - sh
             - -c
             - |
+              case "$$REDIS_PASSWORD" in ''|null|'(null)')
+                  echo "redis: REDIS_PASSWORD is empty or the word null in .env - set a real password: openssl rand -hex 32" >&2
+                  exit 1 ;;
+              esac
               exec redis-server - --appendonly yes --appendfsync everysec --maxmemory ${REDIS_MAXMEMORY:-256mb} --maxmemory-policy noeviction <<EOF
               requirepass $$REDIS_PASSWORD
               EOF
@@ -227,6 +233,10 @@ services:
             - sh
             - -c
             - |
+              case "$$REDIS_PASSWORD" in ''|null|'(null)')
+                  echo "redis-cache: REDIS_CACHE_PASSWORD is empty or the word null in .env - set a real password: openssl rand -hex 32" >&2
+                  exit 1 ;;
+              esac
               exec redis-server - --appendonly no --save "" --maxmemory ${REDIS_CACHE_MAXMEMORY:-256mb} --maxmemory-policy volatile-lru <<EOF
               requirepass $$REDIS_PASSWORD
               EOF
