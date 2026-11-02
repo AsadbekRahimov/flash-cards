@@ -64,8 +64,10 @@ import type { BattleResult, PracticeAnswerPayload } from '@/api/types'
  * screen as a line with the way into that battle: in the room and on the result screen.
  * Behind Pro (403 `practice_pro_required` on opening or on "Accept") the answer is the paywall, not a message.
  * A rematch ("Rematch" / "Invite again") starts a new battle, and Free has a few a day (docs/18 §3): when none is left the answer is the paywall
- * of the free limit (`limitHit`) - at once after a battle that was played; after one that did not take place (declined, not answered in time,
- * withdrawn) the server is asked, as such a battle is not counted. Accepting an invitation, a rematch of the friend's too, and the room are never limited.
+ * of the free limit (`limitHit`) - after a battle that was played, with no request for the invitation but after one reading of the state of the
+ * rematch (the friend may have offered theirs a moment ago: then the way leads into THEIR battle); after one that did not take place (declined,
+ * not answered in time, withdrawn) the server is asked, as such a battle is not counted. Accepting an invitation, a rematch of the friend's too,
+ * and the room are never limited.
  */
 const props = defineProps<{ id: number }>()
 
