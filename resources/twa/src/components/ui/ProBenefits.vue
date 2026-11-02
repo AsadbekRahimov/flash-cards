@@ -32,7 +32,12 @@ const BENEFITS: readonly StringKey[] = [
 const billing = useBillingStore()
 const { t } = useI18n()
 
-const benefits = computed(() => BENEFITS.filter((key) => key !== 'benefits.practice' || billing.practiceAccess.available))
+/** With the battles switched off (`PRACTICE_BATTLE=false`) the line speaks of the practice alone: no battles are sold that do not exist. */
+const benefits = computed((): StringKey[] =>
+  BENEFITS.filter((key) => key !== 'benefits.practice' || billing.practiceAccess.available).map((key) =>
+    key === 'benefits.practice' && !billing.practiceAccess.battle ? 'benefits.practice_solo' : key,
+  ),
+)
 </script>
 
 <template>

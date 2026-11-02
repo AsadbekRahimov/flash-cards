@@ -2663,4 +2663,5 @@
 | `paywall.reset_tomorrow` | ertaga soat {time} da | завтра в {time} |
 | `paywall.reset_at` | soat {time} da | в {time} |
 | `benefits.practice` | Amaliyot va bellashuvlar kunlik limitsiz | Практика и баттлы без дневного лимита |
+| `benefits.practice_solo` | Amaliyot kunlik limitsiz | Практика без дневного лимита (баттлы выключены) |
 | `error.code.practice_limit_reached` | Bugungi bepul limit tugadi. U ertaga yangilanadi. | Бесплатный лимит на сегодня закончился. Он обновится завтра. |

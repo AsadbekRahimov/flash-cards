@@ -46,6 +46,7 @@ export const uz: Translations = {
   // ---- benefits ----
   'benefits.new_words': "Yangi so'zlar kunlik limitsiz",
   'benefits.practice': 'Amaliyot va bellashuvlar kunlik limitsiz',
+  'benefits.practice_solo': 'Amaliyot kunlik limitsiz',
   'benefits.exercises': "So'zni yozish va misollardagi bo'sh joylar",
   'benefits.decks': "2000 tadan so'zli 20 tagacha o'z to'plamlaringiz",
   'benefits.freezes': "Seriyani muzlatish: o'tkazib yuborilgan kun seriyani uzmaydi",

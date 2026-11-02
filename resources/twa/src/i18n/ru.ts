@@ -54,6 +54,7 @@ export const ru = {
   // ---- benefits ----
   'benefits.new_words': 'Новые слова без дневного лимита',
   'benefits.practice': 'Практика и баттлы без дневного лимита',
+  'benefits.practice_solo': 'Практика без дневного лимита',
   'benefits.exercises': 'Написание слова и пропуски в примерах',
   'benefits.decks': 'До 20 своих колод по 2000 слов',
   'benefits.freezes': 'Заморозки серии: пропуск дня не обрывает серию',

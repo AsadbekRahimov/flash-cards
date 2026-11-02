@@ -71,11 +71,12 @@ describe('ProBenefits', () => {
     expect(texts(w)).toEqual(SIX)
   })
 
-  it('does not depend on the battles being on: the line is about the practice being available', () => {
+  it('speaks of the practice alone while the battles are switched off: no battles are sold that do not exist', () => {
     know({ ...AVAILABLE, battle: false })
     const w = mount(ProBenefits)
 
-    expect(texts(w)).toEqual(SIX)
+    expect(texts(w)).toEqual([FIVE[0], 'Практика без дневного лимита', ...FIVE.slice(1)])
+    expect(w.text()).not.toContain('баттл')
   })
 
   it('shows the line when /me comes after the list was drawn, and takes it back if the practice is closed afterwards', async () => {
