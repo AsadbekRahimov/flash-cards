@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { formatDate, formatNumber, type DateStyle } from '../format'
+import { calendarDay, formatDate, formatNumber, type DateStyle } from '../format'
 
 // Local time without an offset, so the day does not move with the time zone of the machine running the tests.
 const NOON = '2026-10-28T12:00:00'
@@ -30,6 +30,7 @@ describe('formatDate', () => {
     ['dayMonthShortTime', '28 окт., 18:05'],
     ['weekdayTime', 'ср 18:05'],
     ['weekdayDayMonth', 'среда, 28 октября'],
+    ['time', '18:05'],
   ])('ru %s', (style, expected) => {
     expect(plain(formatDate(EVENING, style, 'ru'))).toBe(expected)
   })
@@ -40,6 +41,7 @@ describe('formatDate', () => {
     ['dayMonthShort', '28-okt'],
     ['dayMonthShortTime', '28-okt, 18:05'],
     ['weekdayDayMonth', 'chorshanba, 28-oktabr'],
+    ['time', '18:05'],
   ])('uz (Latin) %s', (style, expected) => {
     expect(plain(formatDate(EVENING, style, 'uz'))).toBe(expected)
   })
@@ -114,6 +116,53 @@ describe('formatDate', () => {
     for (let i = 0; i < 3; i++) fresh.formatDate('2026-10-28T20:30:00Z', 'dayMonth', 'ru', 'Mars/Olympus')
 
     expect(zones).toEqual(['Asia/Tashkent', null, 'Mars/Olympus', null])
+  })
+})
+
+describe('calendarDay', () => {
+  const moment = '2026-10-28T20:30:00Z'
+
+  it('is the day of a moment in the zone it is given: the same moment is on two different days in two zones', () => {
+    expect(calendarDay(moment, 'Asia/Tashkent')).toBe('2026-10-29')
+    expect(calendarDay(moment, 'Pacific/Pago_Pago')).toBe('2026-10-28')
+    expect(calendarDay(moment, 'UTC')).toBe('2026-10-28')
+  })
+
+  it('takes a moment as a string, as a number of milliseconds and as a Date', () => {
+    expect(calendarDay(Date.parse(moment), 'Asia/Tashkent')).toBe('2026-10-29')
+    expect(calendarDay(new Date(moment), 'Asia/Tashkent')).toBe('2026-10-29')
+  })
+
+  it('tells the last minute of a day from the first of the next one, to the minute', () => {
+    expect(calendarDay('2026-10-28T18:59:00Z', 'Asia/Tashkent')).toBe('2026-10-28')
+    expect(calendarDay('2026-10-28T19:00:00Z', 'Asia/Tashkent')).toBe('2026-10-29')
+  })
+
+  it('falls back to the device zone for a zone the browser does not know, or none, without throwing', () => {
+    expect(calendarDay(moment, 'Mars/Olympus')).toBe(calendarDay(moment))
+    expect(calendarDay(moment, '')).toBe(calendarDay(moment))
+    expect(calendarDay(moment)).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+  })
+
+  it('is an empty string for a value that is not a moment', () => {
+    expect(calendarDay('not a date', 'UTC')).toBe('')
+    expect(calendarDay(Number.NaN)).toBe('')
+  })
+
+  it('builds one Intl formatter per zone', async () => {
+    vi.resetModules()
+    const zones: unknown[] = []
+    const Original = Intl.DateTimeFormat as new (...args: unknown[]) => unknown
+    vi.spyOn(Intl, 'DateTimeFormat').mockImplementation(function (...args: unknown[]) {
+      zones.push((args[1] as Intl.DateTimeFormatOptions | undefined)?.timeZone ?? null)
+      return new Original(...args) as never
+    })
+    const fresh = await import('../format')
+
+    for (let i = 0; i < 4; i++) fresh.calendarDay(moment, 'Asia/Tashkent')
+    for (let i = 0; i < 2; i++) fresh.calendarDay(moment)
+
+    expect(zones).toEqual(['Asia/Tashkent', null])
   })
 })
 

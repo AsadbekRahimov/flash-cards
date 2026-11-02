@@ -5,6 +5,8 @@ import type {
   PracticeActiveSession,
   PracticeAnswerResponse,
   PracticeHubResponse,
+  PracticeLimit,
+  PracticeLimits,
   PracticeMode,
   PracticeModeInfo,
   PracticeSession,
@@ -182,3 +184,26 @@ export function hub(
     ...rest,
   }
 }
+
+/** A moment `hours` from the real now: a counter whose day has not ended whenever the spec runs. */
+export const inHours = (hours: number): string => new Date(Date.now() + hours * 3_600_000).toISOString()
+
+/** One counter of today: `used` of `total` spent (docs/18 §3: two sessions of practice and one battle a day on Free). */
+export const counter = (used: number, total: number, resetsAt: string = inHours(3)): PracticeLimit => ({
+  limit: total,
+  used,
+  remaining: Math.max(0, total - used),
+  resets_at: resetsAt,
+})
+
+/** The Free limits of today as `/me`, the hub and the 201 answers send them. */
+export const freeLimits = (sessionsUsed = 0, battlesUsed = 0, resetsAt: string = inHours(3)): PracticeLimits => ({
+  sessions: counter(sessionsUsed, 2, resetsAt),
+  battles: counter(battlesUsed, 1, resetsAt),
+})
+
+/** `details` of 403 `practice_limit_reached`. */
+export const limitDetails = (
+  kind: 'sessions' | 'battles' = 'sessions',
+  resetsAt: string = inHours(3),
+): Record<string, unknown> => ({ kind, limit: kind === 'sessions' ? 2 : 1, used: kind === 'sessions' ? 2 : 1, resets_at: resetsAt })

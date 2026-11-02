@@ -186,12 +186,13 @@ describe('BillingView', () => {
   })
 
   describe('what Pro gives', () => {
-    it('lists the five benefits of Pro under «What Pro gives» for a Free learner', async () => {
+    it('lists the six benefits of Pro under «What Pro gives» for a Free learner', async () => {
       const { wrapper } = await render(me(), catalog())
 
       expect(wrapper.get('[data-testid=benefits-title]').text()).toBe('Что даёт Pro')
       expect(wrapper.findAll('[data-testid=benefit]').map((b) => b.text())).toEqual([
         'Новые слова без дневного лимита',
+        'Практика и баттлы без дневного лимита',
         'Написание слова и пропуски в примерах',
         'До 20 своих колод по 2000 слов',
         'Заморозки серии: пропуск дня не обрывает серию',
@@ -203,7 +204,7 @@ describe('BillingView', () => {
       const { wrapper } = await render(me({ plan: 'pro', until: renewing.ends_at, renewal: renewing }), catalog(summary()))
 
       expect(wrapper.get('[data-testid=benefits-title]').text()).toBe('Ваши возможности')
-      expect(wrapper.findAll('[data-testid=benefit]')).toHaveLength(5)
+      expect(wrapper.findAll('[data-testid=benefit]')).toHaveLength(6)
     })
 
     it('promises no statistics: there is no such feature', async () => {

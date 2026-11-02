@@ -209,6 +209,7 @@ describe('PaywallSheet', () => {
       expect(header.get('[data-testid=paywall-free]').text()).toContain('20 новых слов в день')
       expect(w.findAll('[data-testid=benefit]').map((b) => b.text())).toEqual([
         'Новые слова без дневного лимита',
+        'Практика и баттлы без дневного лимита',
         'Написание слова и пропуски в примерах',
         'До 20 своих колод по 2000 слов',
         'Заморозки серии: пропуск дня не обрывает серию',

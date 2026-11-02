@@ -38,6 +38,11 @@ import type { BattleIncoming, FriendItem, PracticeActiveSession, PracticeMode, P
  * The one unfinished session of a learner: a mode pressed while there is one asks what to do (`ActiveSessionSheet`).
  * "Back" leads to the course. A hub opened from the finish screen of a training session (`?from=finished`, the button
  * "Practice of the lesson / of the course") starts its sessions with `source = after_training` instead of `hub`.
+ *
+ * Free has a few sessions of practice a day (docs/18 §3): under "Choose a mode" a quiet line says how many are left ("Free today: 1 of 2
+ * left"; Pro sees nothing). The cards stay as they are when none is left - a press opens the paywall of the limit at once, without a request
+ * (`practice.open` checks the counter) - except the "Continue" card and the card of the mode that is unfinished: going back into a
+ * session that was already counted costs nothing. "Play with a friend" starts a battle and meets the counter of battles the same way.
  */
 const props = withDefaults(
   defineProps<{
@@ -60,7 +65,8 @@ const training = useTrainingStore()
 const { haptic } = useTelegram()
 const { t } = useI18n()
 
-const { hub, hubStatus, hubError, opening, openError, conflict, paywall } = storeToRefs(practice)
+const { hub, hubStatus, hubError, opening, openError, conflict, paywall, limitHit } = storeToRefs(practice)
+const { sessionLimit } = storeToRefs(billing)
 
 useBackButton({ name: 'course', params: { slug: props.slug } })
 
@@ -73,7 +79,7 @@ const pressed = ref<PracticeMode | null>(null)
 const proSheet = ref(false)
 const pickerOpen = ref(false)
 
-const showPaywall = computed(() => proSheet.value || paywall.value)
+const showPaywall = computed(() => proSheet.value || paywall.value || limitHit.value !== null)
 
 function closePaywall(): void {
   proSheet.value = false
@@ -210,6 +216,12 @@ function playWithFriend(): void {
     void router.push({ name: 'battle', params: { id: activeBattleId.value } })
     return
   }
+  // A new battle is counted, and Free has a few a day: with none left, the paywall instead of a setup that ends in it.
+  const spent = billing.limitReached('battles')
+  if (spent !== null) {
+    practice.showLimit(spent)
+    return
+  }
   pickerOpen.value = true
   void friends.load()
 }
@@ -327,6 +339,10 @@ onBeforeUnmount(() => {
       </RouterLink>
 
       <h2 class="section-label mt-0">{{ t('practice.hub.choose') }}</h2>
+      <!-- Free only: the sessions left today. Quiet on purpose - the cards below are the screen. -->
+      <p v-if="sessionLimit" class="-mt-0.5 mb-2 px-4 text-[13px] leading-[18px] text-tg-hint" data-testid="practice-limit">
+        {{ t('practice.limit.sessions', { remaining: Math.max(0, sessionLimit.remaining), limit: sessionLimit.limit }) }}
+      </p>
       <div class="flex flex-col gap-3" data-testid="mode-cards">
         <ModeCard
           v-for="info in hub.modes"
@@ -375,6 +391,12 @@ onBeforeUnmount(() => {
       @close="pickerOpen = false"
     />
 
-    <PaywallSheet v-if="showPaywall" reason="practice" @close="closePaywall" @review="reviewFromPaywall" />
+    <PaywallSheet
+      v-if="showPaywall"
+      :reason="limitHit ? 'practice_limit' : 'practice'"
+      :limit-hit="limitHit"
+      @close="closePaywall"
+      @review="reviewFromPaywall"
+    />
   </div>
 </template>

@@ -741,6 +741,38 @@ export type PracticeMode = 'pairs' | 'collocation' | 'sentence' | 'dictation'
 /** `kind` of an element a screen draws: it equals the mode except for pairs, whose element is one round. */
 export type PracticeElementKind = 'pairs_round' | 'collocation' | 'sentence' | 'dictation'
 
+/** What the Free plan counts per day (docs/18 §3, G1): the sessions of practice and the battles the learner starts. */
+export type PracticeLimitKind = 'sessions' | 'battles'
+
+/** One counter of today. `resets_at` is the end of the learner's "today" (ISO 8601, UTC): from then on the counter is full again. */
+export interface PracticeLimit {
+  limit: number
+  used: number
+  remaining: number
+  resets_at: string
+}
+
+/**
+ * The Free limits of today, in `practice.limits` of GET /me, `limits` of GET /practice/hub and of the 201 answers that create a session
+ * or a battle (the value AFTER the creation). `null` as a whole: Pro, no limit at all, or practice is closed. A repeat of mistakes spends
+ * nothing; accepting a battle is never limited.
+ *
+ * Each kind can be `null` on its own: an empty env on the server means that kind has no limit (`{sessions: null, battles: {...}}` or the
+ * other way round). Nothing is shown for such a kind and it is never stopped.
+ */
+export interface PracticeLimits {
+  sessions: PracticeLimit | null
+  battles: PracticeLimit | null
+}
+
+/** `details` of 403 `practice_limit_reached`: which counter is spent, with its numbers, and when it is full again. */
+export interface PracticeLimitHit {
+  kind: PracticeLimitKind
+  limit: number
+  used: number
+  resets_at: string
+}
+
 /** Block `practice` of GET /me (docs/16 §3.3): `available` false hides every entry; `pro_required` shows them with a Pro chip. */
 export interface PracticeAccess {
   available: boolean
@@ -748,6 +780,8 @@ export interface PracticeAccess {
   /** The modes switched on. */
   modes: PracticeMode[]
   battle: boolean
+  /** The Free limits of today; absent: an older server (nothing is shown, nothing is blocked). */
+  limits?: PracticeLimits | null
 }
 
 export interface PracticeCourseRef {
@@ -813,6 +847,8 @@ export interface PracticeHubResponse {
   modes: PracticeModeInfo[]
   active_session: PracticeActiveSession | null
   battle: { enabled: boolean; active_battle_id: number | null; incoming_count: number }
+  /** The Free limits of today (`null`: Pro, or no limit); absent: an older server. */
+  limits?: PracticeLimits | null
 }
 
 /** A fragment, an option or a side of a pair: an opaque id and what is written on it. */
@@ -981,6 +1017,8 @@ export interface PracticeSession {
   /** The element to answer; null once the session is finished. */
   current: PracticeElement | null
   summary: PracticeSummary | null
+  /** Only in the 201 of `POST /practice/sessions`: the Free limits after the session was created (`null`: Pro, or no limit). */
+  limits?: PracticeLimits | null
 }
 
 /** Answer of POST /practice/sessions/{id}/answer. Pairs: `verdict` is correct|wrong, `pair` the match tried, `reveal` null. */
@@ -1110,6 +1148,8 @@ export interface Battle {
   friendship_id: number | null
   /** Dictation, `room` and `countdown` only (docs/16 §10.3): the clips of the five rounds to load before "Ready"; else `null`. */
   audio_preload: string[] | null
+  /** Only in the 201 of `POST /practice/battles` (a rematch too): the Free limits after the battle was created (`null`: Pro, or no limit). */
+  limits?: PracticeLimits | null
 }
 
 /** GET /practice/battles/{id}/poll (docs/16 §7.4): at most 600 bytes, read every two seconds. */

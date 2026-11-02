@@ -53,6 +53,7 @@ export const ru = {
 
   // ---- benefits ----
   'benefits.new_words': 'Новые слова без дневного лимита',
+  'benefits.practice': 'Практика и баттлы без дневного лимита',
   'benefits.exercises': 'Написание слова и пропуски в примерах',
   'benefits.decks': 'До 20 своих колод по 2000 слов',
   'benefits.freezes': 'Заморозки серии: пропуск дня не обрывает серию',
@@ -256,6 +257,17 @@ export const ru = {
   'paywall.lead_streak_freeze': 'Заморозка серии — в Pro: пропущенный день не обрывает серию, до 2 заморозок, +1 каждую неделю.',
   'paywall.lead_exam_simulator': 'Пробные тесты IELTS и SAT — в Pro: 40 слов курса за 20 минут, результат в процентах и сравнение с другими.',
   'paywall.lead_practice': 'Практика — игры на закрепление слов и баттлы с друзьями — доступна в Pro.',
+
+  // ---- the Free limits of practice and battles (docs/18 §3, G1) ----
+  'practice.limit.sessions': 'Сегодня бесплатно: осталось {remaining} из {limit}',
+  'battle.limit.left': 'Баттлов сегодня: осталось {remaining} из {limit}',
+  // The lead of the paywall of the limit. "Or right away with Pro" only while Pro is for sale; while it is just "coming soon" (`_soon`) it promises nothing.
+  'paywall.lead_practice_limit_sessions': 'Бесплатная практика на сегодня закончилась ({limit} из {limit}). Новая — {when} или сразу с Pro.',
+  'paywall.lead_practice_limit_sessions_soon': 'Бесплатная практика на сегодня закончилась ({limit} из {limit}). Новая — {when}.',
+  'paywall.lead_practice_limit_battles': 'Бесплатные баттлы на сегодня закончились ({limit} из {limit}). Новые — {when} или сразу с Pro.',
+  'paywall.lead_practice_limit_battles_soon': 'Бесплатные баттлы на сегодня закончились ({limit} из {limit}). Новые — {when}.',
+  'paywall.reset_tomorrow': 'завтра в {time}',
+  'paywall.reset_at': 'в {time}',
 
   // ---- purchase (paywall mode purchase, subscription screen; docs/13 §5) ----
   'paywall.title_purchase': 'LexiFlow Pro',
@@ -1004,6 +1016,7 @@ export const ru = {
   // ---- errors: practice and battle (docs/16 §7.6) ----
   'error.code.practice_unavailable': 'Практика сейчас недоступна.',
   'error.code.practice_pro_required': 'Практика доступна в Pro.',
+  'error.code.practice_limit_reached': 'Бесплатный лимит на сегодня закончился. Он обновится завтра.',
   'error.code.practice_mode_disabled': 'Этот режим сейчас выключен. Выберите другой.',
   'error.code.practice_not_enough_material': 'Для этого режима пока мало материала. Выучите ещё несколько слов.',
   'error.code.practice_session_active': 'У вас уже есть незавершённая практика.',
