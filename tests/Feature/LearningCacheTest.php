@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Learning\Services\LearningCache;
+use App\Domain\Operations\Support\PureCache;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
 use App\Models\Learner;
@@ -18,6 +19,7 @@ uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     Config::set('cache.default', 'array');
+    Config::set('cache.pure_store', 'array'); // LearningCache is a pure cache: the same array store, so time travel expires it
     Cache::flush();
 });
 
@@ -95,13 +97,13 @@ it('caches words learned per learner and hands only the learners without an entr
 it('keeps a words learned entry under stats:words_learned:{id} for ten minutes', function (): void {
     app(LearningCache::class)->wordsLearned([7], fn (array $ids): array => [7 => 12]);
 
-    expect((int) Cache::get('stats:words_learned:7'))->toBe(12);
+    expect((int) PureCache::store()->get('stats:words_learned:7'))->toBe(12);
 
     $this->travel(599)->seconds();
-    expect(Cache::has('stats:words_learned:7'))->toBeTrue();
+    expect(PureCache::store()->has('stats:words_learned:7'))->toBeTrue();
 
     $this->travel(2)->seconds();
-    expect(Cache::has('stats:words_learned:7'))->toBeFalse();
+    expect(PureCache::store()->has('stats:words_learned:7'))->toBeFalse();
 
     $reloaded = [];
     app(LearningCache::class)->wordsLearned([7], function (array $ids) use (&$reloaded): array {
@@ -109,5 +111,5 @@ it('keeps a words learned entry under stats:words_learned:{id} for ten minutes',
 
         return [7 => 15];
     });
-    expect($reloaded)->toBe([7])->and((int) Cache::get('stats:words_learned:7'))->toBe(15);
+    expect($reloaded)->toBe([7])->and((int) PureCache::store()->get('stats:words_learned:7'))->toBe(15);
 });

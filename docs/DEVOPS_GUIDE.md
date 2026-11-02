@@ -122,7 +122,20 @@ bash docker/postgres/upgrade.sh --prod --keep-current   # правда — на 
 
 Затем деплой заново (после `--keep-current` контейнер `postgres`, остановленный guard'ом, в проде перезапустится сам; в dev — `docker compose up -d`). Отказы, которые защищают рабочую базу 18 от подмены: `--redo` на неизменившемся кластере 16 («nothing is stale»); `--redo`, когда 16 только запускалась и ничего не записала (NextXID/NextOID не сдвинулись), когда в старом томе другой, переинициализированный кластер (сменился system identifier — например, том удалили, а откат создал пустой) или когда 16 выключена нечисто (`Database cluster state` ≠ `shut down`: убита OOM или `docker rm -f`, и `pg_controldata` не может сказать, были ли записи после последней контрольной точки) — все три могли бы заменить живую базу 18 её же старым снимком или пустой базой, поэтому требуют `--redo --force` (копия 16 при этом сама доигрывает свой WAL); `--redo` и `--keep-current`, пока 16 работает (есть контейнер, держащий старый том на запись) — остановите её и повторите. Нечисто выключенная, но никем не запущенная 16 для `--keep-current` не помеха: кластер неподвижен, он записывается как есть с предупреждением; если 16 когда-нибудь запустить снова, отпечаток сменится и проверки остановят деплой ещё раз. Прерванный `--redo` оставляет маркер `in-progress` с `redo=1`, маркер `done` при этом сохраняется (история сверенного переноса): `--check` отвечает `STOP: a --redo … is in progress or was interrupted`, а дальше либо `--redo` доводит перенос (уже отложенная база и её имя в маркере не теряются: если восстановление успело завершиться, несверенная копия удаляется и восстанавливается заново, второй раз ничего не откладывается), либо `--keep-current` возвращает стек к данным 18 — открывает шлагбаум, поднимает остановленные сервисы, снимает маркер. Второе возможно, пока прерванный `--redo` не успел переименовать базу (`stale_db=` в маркере пишется перед переименованием): иначе скрипт откажет и скажет, как вернуть отложенную базу на место вручную (ничего не удаляется); если базу нельзя проверить (например, `psql` не подключается), скрипт тоже откажет, а не примет ошибку за ответ. Если `--redo` сорвался уже на запуске сервисов (данные сверены, `done` переписан), маркер становится `redo=0`: `--check` отвечает `OK`, а `make prod-pg-upgrade` без флагов поднимает сервисы и снимает маркер. Если старый том к этому времени удалён, `--redo`/`--keep-current` откажут (нечего копировать и сравнивать) — `--check` предлагает тот же запуск без флагов. Отложенные базы `lexiflow_stale_<время>` `make prod-pg-check` перечисляет строкой `databases set aside by --redo`. Тот же `--redo` — выход, если на пустой 18 успели прогнать миграции и сверка показала diff (раньше здесь предлагался `dropdb`).
 
-*Redis.* Образ закреплён на `redis:8.4-alpine`, а не на плавающем `redis:8-alpine`, пока жив путь отката: 8.4 пишет RDB формата 12, который читает `redis:7.4` коммита до апгрейда; 8.6+ пишут 13+, и 7.4 после первой перезаписи AOF/RDB падает с «Can't handle RDB format version» — откат остался бы без очереди и сессий. На последнюю 8.x переходим вместе с удалением защитного монтирования `pgdata`. Тесты в CI (job `test`) идут на той же версии.
+*Redis.* Образ — точный тег `redis:8.10-alpine` (решение владельца 02.11.2026, `docs/19_REDIS_CACHE_PLAN.md` §1), не плавающий `redis:8-alpine`: образ воспроизводим, обновление делается осознанно. 8.10 пишет RDB формата 15 — том `redisdata`, записанный 8.10, на 8.4 уже не поднимется (приложение не запущено, откат на старые Redis не нужен). Тесты в CI (job `test`) идут на той же версии.
+
+**Два экземпляра Redis** (`docs/19` §4; выполнено в C2, 02.11.2026):
+
+| Сервис | Для чего | Политика | Диск | Laravel |
+|---|---|---|---|---|
+| `redis` | очереди, сессии, блокировки, лимиты (`RateLimiter`), маркеры «уже отправлено», защита 2FA, ключи версий entitlement, пульсы `/health/ready` | `noeviction` — зашито в compose, переменной нет: ничего отсюда не должно пропасть из-за нехватки памяти | AOF `everysec`, том `redisdata` | подключения `default`/`cache`/`queue`/`session`/`locks`; `CACHE_STORE=redis`, `CACHE_LIMITER_STORE=redis` |
+| `redis-cache` | чистый кэш: каталог, таблицы лиг, агрегаты виджетов, снимки entitlement — всё, что пересчитывается из базы | `volatile-lru`: при нехватке памяти вытесняются ключи с TTL (у чистого кэша он есть всегда) | нет (`--appendonly no --save ""`): после рестарта пусто, это нормально | подключение `lru` (`REDIS_LRU_HOST/PORT/PASSWORD/DB`), хранилище `lru`, `CACHE_PURE_STORE=lru`; код берёт его только через `App\Domain\Operations\Support\PureCache::store()` |
+
+- **Пароли.** В проде обязательны оба: `REDIS_PASSWORD` и `REDIS_CACHE_PASSWORD` (`openssl rand -hex 32`). `docker-compose.prod.yml` без них не стартует: `required variable REDIS_PASSWORD is missing a value: …`. Контейнерам приложения compose сам подставляет `REDIS_LRU_HOST=redis-cache`, `REDIS_LRU_PORT=6379` и `REDIS_LRU_PASSWORD=$REDIS_CACHE_PASSWORD` (`environment` сильнее `env_file`), так что в Docker строки `REDIS_LRU_*` из `.env` внутри контейнеров не действуют; на голом сервере их задают руками (§4, VPS-гайд §5). В деве пароль по желанию: пустое значение = без пароля; именно пустое, не `null` — compose передал бы строку «null» как пароль. Пароль только из hex-символов: он попадает в конфиг Redis строкой `requirepass …` без кавычек.
+- **Где пароль виден.** `redis-server` получает его строкой конфига через stdin, а не аргументом, и `redis-cli` в healthcheck — через `REDISCLI_AUTH`: в `ps`, `/proc/*/cmdline` и `docker compose ps` пароля нет. Но он остаётся в окружении контейнера (`docker inspect lexiflow-redis` → `Config.Env`) и в `.env` на хосте — как `DB_PASSWORD`. Компромисс принят: иначе нужен отдельный файл конфига или Docker secrets ради секрета, который и так читается всеми, кто может выполнять `docker` на сервере (`docker` = root). Защита — права на `.env` (`chmod 600`) и круг людей с доступом к Docker.
+- **Размер.** `REDIS_MAXMEMORY` (первый, 256 МБ) и `REDIS_CACHE_MAXMEMORY` (второй, 256 МБ; уточняется по замерам C8 в `docs/19` §8). Заполненный первый экземпляр при `noeviction` отвечает `OOM command not allowed` на запись: очередь и сессии встают — это сигнал увеличить `REDIS_MAXMEMORY` и искать, кто пишет без TTL, а не включать вытеснение.
+- **Мониторинг.** Раз в минуту с обоих экземпляров (`docker compose exec redis sh -c 'REDISCLI_AUTH=$REDIS_PASSWORD redis-cli INFO'`, то же для `redis-cache`): `used_memory` и `maxmemory`, `evicted_keys`, `keyspace_hits` / `keyspace_misses` (hit ratio = hits / (hits + misses)), `rejected_connections`. Алерты: `used_memory` первого экземпляра растёт неделю подряд или выше 80 % `maxmemory` — ищем ключи без TTL (`redis-cli --bigkeys`, `SCAN` + `TTL`); `evicted_keys` второго растёт быстрее, чем пополняется кэш, или hit ratio ниже ~0.8 — поднимаем `REDIS_CACHE_MAXMEMORY` (`docker compose up -d redis-cache` применит); `evicted_keys` первого экземпляра всегда 0 — иначе политика не `noeviction`. `/health/ready` показывает оба экземпляра отдельно: `redis` и `redis_cache` (§15.2).
+- **Голый сервер без Docker:** второй `redis-server` на `127.0.0.1:6380`, `docs/VPS_DEPLOY_GUIDE_RU.md` §5.
 
 **Когда удалить старый том.** Когда 18 поработала достаточно (например, неделю), есть свежий бэкап и откат больше не нужен. Том держит контейнер `postgres` (защитное монтирование только для чтения — и остановленный контейнер тоже держит), поэтому `docker volume rm` сразу ответит «volume is in use»; сначала убрать контейнер:
 
@@ -133,7 +146,7 @@ docker volume rm lexiflow_pgdata                                           # т�
 docker compose -f docker-compose.prod.yml --env-file .env up -d            # postgres пересоздаётся; compose заведёт пустой lexiflow_pgdata — это безвредно
 ```
 
-Скрипты этого не делают никогда. Пустой том entrypoint не смущает, `make prod-pg-check` отвечает `OK` уже без «rollback copy». Внимание: из-за защитного монтирования том `pgdata` объявлен в compose, поэтому `docker compose down -v` удалит и его (как и все остальные данные стека). Само монтирование уберём из compose в одном из следующих релизов вместе с переходом Redis на последнюю 8.x.
+Скрипты этого не делают никогда. Пустой том entrypoint не смущает, `make prod-pg-check` отвечает `OK` уже без «rollback copy». Внимание: из-за защитного монтирования том `pgdata` объявлен в compose, поэтому `docker compose down -v` удалит и его (как и все остальные данные стека). Само монтирование уберём из compose в одном из следующих релизов.
 
 ---
 
@@ -203,6 +216,7 @@ DB_PASSWORD=your_strong_password
 
 REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
+REDIS_PASSWORD=<openssl rand -hex 32>
 REDIS_DB=0
 REDIS_CACHE_DB=1
 REDIS_QUEUE_CONNECTION=queue
@@ -211,8 +225,16 @@ REDIS_SESSION_DB=3
 REDIS_LOCK_DB=4
 REDIS_QUEUE_BLOCK_FOR=5
 REDIS_MAXMEMORY=256mb
-REDIS_MAXMEMORY_POLICY=noeviction
+# The second instance (pure cache, docs/19 §4): Docker - service redis-cache; bare server - 127.0.0.1:6380.
+REDIS_LRU_HOST=127.0.0.1
+REDIS_LRU_PORT=6380
+REDIS_LRU_PASSWORD=<openssl rand -hex 32>
+REDIS_LRU_DB=0
+REDIS_CACHE_PASSWORD=<Docker only: what docker-compose.prod.yml gives redis-cache and the app containers as REDIS_LRU_PASSWORD>
+REDIS_CACHE_MAXMEMORY=256mb
 CACHE_STORE=redis
+CACHE_LIMITER_STORE=redis
+CACHE_PURE_STORE=lru
 SESSION_DRIVER=redis
 SESSION_CONNECTION=session
 
@@ -517,7 +539,7 @@ Pre-generated word audio (`PregenerateWordAudioJob`, see below) runs on the `low
 
 For bigger classes, increase `numprocs` before adding app containers. With Redis queue and the current DB indexes, 2-3 workers are enough for roughly 300 active students/day unless Telegram API latency dominates.
 
-Keep `REDIS_MAXMEMORY_POLICY=noeviction` while cache, sessions and queues share the same Redis instance. `allkeys-lru` is only safe after moving queues/sessions to a separate Redis instance, otherwise Redis can evict pending jobs under memory pressure.
+The first Redis instance (queues, sessions, locks, limits) runs with `noeviction` and that is not configurable on purpose: an evicting policy there could drop pending jobs, locks or the login limits under memory pressure. The pure cache lives on the second instance (`redis-cache` / port 6380, `volatile-lru`), see §0 "Redis" and `docs/19` §4.
 
 Apply:
 ```bash
@@ -848,7 +870,8 @@ an external uptime monitor (UptimeRobot / Better Stack / GlitchTip uptime) and f
 | Check | Fails when |
 |---|---|
 | `db` | `select 1` throws |
-| `redis` | `PING` fails (only reported if cache or queue use the `redis` driver) |
+| `redis` | `PING` of the first instance fails (only reported if cache or queue use the `redis` driver) |
+| `redis_cache` | `PING` of the second instance (the pure cache connection `lru`) fails; only reported when `CACHE_PURE_STORE` is a Redis store on a connection of its own |
 | `scheduler` | no scheduler heartbeat for more than 3 minutes (`READINESS_HEARTBEAT_MAX_AGE`, seconds) |
 | `queue` | backlog of the `high` (`TELEGRAM_QUEUE`) or `default` queue exceeds `READINESS_QUEUE_MAX_SIZE` (1000), **or** the worker heartbeat of `high` / `low` is missing or older than 5 minutes (`READINESS_QUEUE_HEARTBEAT_MAX_AGE`, seconds; not checked with the `sync`/`null` driver) |
 
@@ -865,7 +888,8 @@ Worker heartbeat: every minute the scheduler dispatches `QueueHeartbeatJob` to t
 
 | Signal | Alert when |
 |---|---|
-| `GET /health/ready` (every 1 min) | 2 consecutive non-200 responses; the `checks` body tells which dependency failed |
+| `GET /health/ready` (every 1 min) | 2 consecutive non-200 responses; the `checks` body tells which dependency failed (`redis` and `redis_cache` are separate) |
+| Redis `INFO` of both instances (every 1 min) | first instance: `used_memory` above 80 % of `maxmemory` or growing for days, `evicted_keys` > 0; second instance: `evicted_keys` growing fast or hit ratio `keyspace_hits / (hits + misses)` below ~0.8 — raise `REDIS_CACHE_MAXMEMORY` (§0 "Redis") |
 | Sentry / GlitchTip issues | new issue in `production`; spike of a known issue |
 | Failed jobs (`failed_jobs`, `php artisan queue:failed`) | any growth, especially `PostLeaderboardJob` |
 | `backup:monitor` mail | any message (backup is missing or too old) |
@@ -1088,11 +1112,18 @@ chmod 600 .env
 | `TWA_JWT_SECRET` | ✅ | `openssl rand -hex 32` |
 | `TWA_BASE_URL` | ✅ | `https://yourdomain.com` |
 | `REDIS_HOST` | ✅ | `127.0.0.1` |
+| `REDIS_PASSWORD` | ✅ (production) | `openssl rand -hex 32`; empty in dev = no password (never `null`) |
 | `REDIS_CACHE_DB` | recommended | `1` |
 | `REDIS_QUEUE_DB` | recommended | `2` |
 | `REDIS_SESSION_DB` | recommended | `3` |
 | `REDIS_LOCK_DB` | recommended | `4` |
-| `REDIS_MAXMEMORY_POLICY` | recommended | `noeviction` |
+| `REDIS_MAXMEMORY` | recommended | `256mb` (first instance; its policy is `noeviction`, fixed) |
+| `REDIS_LRU_HOST` / `REDIS_LRU_PORT` | ✅ (bare server) | second instance: `127.0.0.1` / `6380`; in Docker compose sets `redis-cache` / `6379` for the app containers itself |
+| `REDIS_LRU_PASSWORD` | ✅ (bare server) | password of the second instance, `openssl rand -hex 32`; in Docker compose sets it from `REDIS_CACHE_PASSWORD` |
+| `REDIS_CACHE_PASSWORD` | ✅ (Docker production) | what `docker-compose.prod.yml` gives `redis-cache` and the app containers |
+| `REDIS_CACHE_MAXMEMORY` | recommended | `256mb` (second instance, `volatile-lru`) |
+| `CACHE_LIMITER_STORE` | recommended | `redis` (the rate limiter never on the evicting store) |
+| `CACHE_PURE_STORE` | recommended | `lru` (the pure cache, `PureCache::store()`) |
 | `QUEUE_CONNECTION` | ✅ | `redis` |
 | `TTS_VOICE` | optional | `en-US-AriaNeural` (voice of pre-generated audio) |
 | `TTS_AUDIO_VERSION` | optional | `1` (bump to re-voice the library) |

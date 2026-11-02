@@ -6,6 +6,7 @@ use App\Domain\Billing\DTO\Entitlement;
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Learners\Services\GroupMembershipService;
+use App\Domain\Operations\Support\PureCache;
 use App\Models\GroupMember;
 use App\Models\Learner;
 use App\Models\Organization;
@@ -221,14 +222,14 @@ it('caches the entitlement per learner and recomputes only after forget()', func
     $resolver = app(EntitlementResolver::class);
 
     expect($resolver->for($learner)->plan)->toBe(Plan::Free)
-        ->and(Cache::has(EntitlementResolver::cacheKey($learner->id)))->toBeTrue();
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($learner->id)))->toBeTrue();
 
     // A write that bypasses the services is not seen until the cache is dropped.
     entitlementSubscription($learner, ['current_period_ends_at' => null]);
     expect($resolver->for($learner)->plan)->toBe(Plan::Free);
 
     $resolver->forget($learner);
-    expect(Cache::has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse()
+    expect(PureCache::store()->has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse()
         ->and($resolver->for($learner)->plan)->toBe(Plan::Pro);
 });
 
@@ -239,7 +240,7 @@ it('invalidates by bumping the version: the old snapshot ages out, the new key s
     expect(EntitlementResolver::version($learner->id))->toBe(0);
     $resolver->for($learner);
     $v0Key = EntitlementResolver::cacheKey($learner->id);
-    expect($v0Key)->toEndWith(':v0')->and(Cache::has($v0Key))->toBeTrue();
+    expect($v0Key)->toEndWith(':v0')->and(PureCache::store()->has($v0Key))->toBeTrue();
 
     $resolver->forget($learner);
     $resolver->forget($learner->id);
@@ -248,8 +249,8 @@ it('invalidates by bumping the version: the old snapshot ages out, the new key s
     expect(EntitlementResolver::version($learner->id))->toBe(3)
         ->and(EntitlementResolver::version(999_999))->toBe(1)
         ->and(EntitlementResolver::cacheKey($learner->id))->toEndWith(':v3')
-        ->and(Cache::has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse()
-        ->and(Cache::has($v0Key))->toBeTrue(); // not deleted: nobody reads it any more, the TTL reclaims it
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse()
+        ->and(PureCache::store()->has($v0Key))->toBeTrue(); // not deleted: nobody reads it any more, the TTL reclaims it
 });
 
 it('never caches a snapshot computed before a concurrent invalidation', function (): void {
@@ -278,7 +279,7 @@ it('never caches a snapshot computed before a concurrent invalidation', function
 
     // ... but it must not shadow B's write for the next TTL: a plain forget() + put() did exactly that.
     expect($resolver->for($learner)->plan)->toBe(Plan::Pro)
-        ->and(Entitlement::fromArray(Cache::get(EntitlementResolver::cacheKey($learner->id)))->plan)->toBe(Plan::Pro);
+        ->and(Entitlement::fromArray(PureCache::store()->get(EntitlementResolver::cacheKey($learner->id)))->plan)->toBe(Plan::Pro);
 });
 
 it('recomputes a cached snapshot whose end has passed even without invalidation', function (): void {
@@ -291,7 +292,7 @@ it('recomputes a cached snapshot whose end has passed even without invalidation'
     CarbonImmutable::setTestNow(CarbonImmutable::now()->addMinutes(3));
 
     // The cache entry is still there (TTL 300 s) but is no longer current.
-    expect(Cache::has(EntitlementResolver::cacheKey($learner->id)))->toBeTrue()
+    expect(PureCache::store()->has(EntitlementResolver::cacheKey($learner->id)))->toBeTrue()
         ->and($resolver->for($learner)->plan)->toBe(Plan::Free);
 });
 
@@ -306,20 +307,20 @@ it('invalidates on join and leave through GroupMembershipService', function (): 
     expect($resolver->for($learner)->plan)->toBe(Plan::Free);
 
     $memberships->join($learner, $group, 'group');
-    expect(Cache::has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse()
+    expect(PureCache::store()->has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse()
         ->and($resolver->for($learner)->plan)->toBe(Plan::Pro);
 
     // Idempotent re-join changes nothing and keeps the cache.
     $memberships->join($learner, $group, 'group');
-    expect(Cache::has(EntitlementResolver::cacheKey($learner->id)))->toBeTrue();
+    expect(PureCache::store()->has(EntitlementResolver::cacheKey($learner->id)))->toBeTrue();
 
     $memberships->leave($learner, $group);
-    expect(Cache::has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse()
+    expect(PureCache::store()->has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse()
         ->and($resolver->for($learner)->plan)->toBe(Plan::Free);
 
     // Leaving again (no active row) is a no-op and does not touch the cache.
     $memberships->leave($learner, $group);
-    expect(Cache::has(EntitlementResolver::cacheKey($learner->id)))->toBeTrue();
+    expect(PureCache::store()->has(EntitlementResolver::cacheKey($learner->id)))->toBeTrue();
 });
 
 it('seats the members of a group linked to an organization and releases them when it is unlinked (TelegramGroupObserver, docs/13 §6.2)', function (): void {
@@ -337,14 +338,14 @@ it('seats the members of a group linked to an organization and releases them whe
 
     // Linking creates `joined_via = group` memberships for the active members only.
     $group->update(['organization_id' => $org->id]);
-    expect(Cache::has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse()
-        ->and(Cache::has(EntitlementResolver::cacheKey($leftLearner->id)))->toBeTrue() // not a member any more: untouched
+    expect(PureCache::store()->has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse()
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($leftLearner->id)))->toBeTrue() // not a member any more: untouched
         ->and($resolver->for($learner)->plan)->toBe(Plan::Pro)
         ->and(OrganizationMember::query()->where('organization_id', $org->id)->pluck('learner_id')->all())->toBe([$learner->id])
         ->and(OrganizationMember::query()->sole()->joined_via)->toBe('group');
 
     $group->update(['title' => 'Renamed']); // irrelevant change keeps the cache
-    expect(Cache::has(EntitlementResolver::cacheKey($learner->id)))->toBeTrue();
+    expect(PureCache::store()->has(EntitlementResolver::cacheKey($learner->id)))->toBeTrue();
 
     // The group's own status is not an input of the seat any more (the bot being removed does not evict the learners).
     $group->update(['status' => 'disabled']);
@@ -388,7 +389,7 @@ it('releases the group members when a group of the organization is deleted', fun
 
     $group->delete();
 
-    expect(Cache::has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse()
+    expect(PureCache::store()->has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse()
         ->and($member->fresh()?->status)->toBe('left')
         ->and($resolver->for($learner)->plan)->toBe(Plan::Free);
 });
@@ -406,9 +407,9 @@ it('forgetOrganization drops every active member of the organization\'s groups a
 
     $resolver->forgetOrganization($org);
 
-    expect(Cache::has(EntitlementResolver::cacheKey($a['learner']->id)))->toBeFalse()
-        ->and(Cache::has(EntitlementResolver::cacheKey($b['learner']->id)))->toBeFalse()
-        ->and(Cache::has(EntitlementResolver::cacheKey($other['learner']->id)))->toBeTrue();
+    expect(PureCache::store()->has(EntitlementResolver::cacheKey($a['learner']->id)))->toBeFalse()
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($b['learner']->id)))->toBeFalse()
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($other['learner']->id)))->toBeTrue();
 });
 
 it('invalidates members when the organization is suspended or deleted', function (): void {
@@ -426,7 +427,7 @@ it('invalidates members when the organization is suspended or deleted', function
     expect($resolver->for($learner)->plan)->toBe(Plan::Pro);
 
     $org->delete();
-    expect(Cache::has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse()
+    expect(PureCache::store()->has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse()
         ->and($resolver->for($learner)->plan)->toBe(Plan::Free);
 });
 

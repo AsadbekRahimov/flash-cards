@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Content\Services\VocabularyImporter;
+use App\Domain\Operations\Support\PureCache;
 use App\Models\AuditLog;
 use App\Models\Course;
 use App\Models\Lesson;
@@ -11,9 +12,11 @@ use App\Models\User;
 use App\Models\Word;
 use App\Models\WordTranslation;
 use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Mockery\MockInterface;
 
 uses(RefreshDatabase::class);
 
@@ -448,25 +451,36 @@ it('rolls the whole import back when a write fails midway', function (): void {
         ->and($course->fresh()->words_count)->toBe(0);
 });
 
+// The lesson word count and the published catalog are pure caches (docs/19 §4): the importer drops them on the store
+// PureCache hands out, which these tests replace with a spy.
+function spyPureCache(): MockInterface
+{
+    $spy = Mockery::spy(CacheRepository::class);
+    app()->instance(PureCache::CONTAINER_KEY, $spy);
+
+    return $spy;
+}
+
 it('drops the lesson cache after a successful commit', function (): void {
-    Cache::spy();
+    $pure = spyPureCache();
 
     expect(app(VocabularyImporter::class)->importAsSystem(sampleJson())->ok())->toBeTrue();
 
-    Cache::shouldHaveReceived('forget')->once()->with('lesson:'.Lesson::sole()->id.':word_count');
+    $pure->shouldHaveReceived('forget')->once()->with('lesson:'.Lesson::sole()->id.':word_count');
 });
 
 it('drops the lesson cache only once the import transaction has closed', function (): void {
     $base = DB::transactionLevel();
     $levels = [];
     $catalogLevels = [];
-    Cache::shouldReceive('forget')->andReturnUsing(function () use (&$levels): bool {
+    $pure = spyPureCache();
+    $pure->shouldReceive('forget')->andReturnUsing(function () use (&$levels): bool {
         $levels[] = DB::transactionLevel();
 
         return true;
     });
     // The published-catalog cache is dropped via recount as well: after commit too.
-    Cache::shouldReceive('deleteMultiple')->andReturnUsing(function () use (&$catalogLevels): bool {
+    $pure->shouldReceive('deleteMultiple')->andReturnUsing(function () use (&$catalogLevels): bool {
         $catalogLevels[] = DB::transactionLevel();
 
         return true;
@@ -481,12 +495,13 @@ it('defers the cache drop to the outer commit when the caller wraps the import i
     $base = DB::transactionLevel();
     $levels = [];
     $catalogLevels = [];
-    Cache::shouldReceive('forget')->andReturnUsing(function () use (&$levels): bool {
+    $pure = spyPureCache();
+    $pure->shouldReceive('forget')->andReturnUsing(function () use (&$levels): bool {
         $levels[] = DB::transactionLevel();
 
         return true;
     });
-    Cache::shouldReceive('deleteMultiple')->andReturnUsing(function () use (&$catalogLevels): bool {
+    $pure->shouldReceive('deleteMultiple')->andReturnUsing(function () use (&$catalogLevels): bool {
         $catalogLevels[] = DB::transactionLevel();
 
         return true;
@@ -508,7 +523,7 @@ it('defers the cache drop to the outer commit when the caller wraps the import i
 
 it('does not touch the lesson cache when the import rolls back', function (): void {
     Course::factory()->create(['slug' => 'broken']);
-    Cache::spy();
+    $pure = spyPureCache();
 
     $inserts = 0;
     WordTranslation::creating(function () use (&$inserts): void {
@@ -522,7 +537,7 @@ it('does not touch the lesson cache when the import rolls back', function (): vo
 
     WordTranslation::flushEventListeners();
 
-    Cache::shouldNotHaveReceived('forget');
+    $pure->shouldNotHaveReceived('forget');
 });
 
 function importer_user(string $role, bool $active = true): User

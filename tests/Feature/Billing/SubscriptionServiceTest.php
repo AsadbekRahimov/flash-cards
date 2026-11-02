@@ -10,6 +10,7 @@ use App\Domain\Billing\Exceptions\SubscriptionException;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Billing\Services\SubscriptionService;
 use App\Domain\Billing\Support\AutoRenewal;
+use App\Domain\Operations\Support\PureCache;
 use App\Domain\Organizations\Services\OrganizationMembershipService;
 use App\Models\AuditLog;
 use App\Models\Learner;
@@ -24,7 +25,6 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 
@@ -98,7 +98,7 @@ it('grants a manual Pro subscription with audit record, product event and cache 
     expect($event->learner_id)->toBe($learner->id)
         ->and($event->props['provider'])->toBe('manual');
 
-    expect(Cache::has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse();
+    expect(PureCache::store()->has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse();
     $e = $resolver->for($learner);
     expect($e->plan)->toBe(Plan::Pro)->and($e->subscriptionId)->toBe($sub->id);
 });
@@ -184,8 +184,8 @@ it('grants to an organization, invalidates its members and seats the waitlist af
     expect($sub->subscriber_type)->toBe('organization')
         ->and($sub->seats_limit)->toBe(30)
         ->and($membership?->fresh()?->seat_state)->toBe('seated')
-        ->and(Cache::has(EntitlementResolver::cacheKey($member->id)))->toBeFalse()
-        ->and(Cache::has(EntitlementResolver::cacheKey($outsider->id)))->toBeTrue()
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($member->id)))->toBeFalse()
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($outsider->id)))->toBeTrue()
         ->and($resolver->for($member)->source)->toBe("sponsor:organization:{$org->id}")
         ->and(ProductEvent::query()->where('name', 'subscription.granted')->sole()->learner_id)->toBeNull();
 });
@@ -212,7 +212,7 @@ it('revokes a live subscription with audit and invalidation, and refuses to revo
     expect($audit->entity_id)->toBe($sub->id)->and($audit->meta['note'])->toBe('refund')->and($audit->ip)->toBe('10.0.0.2');
     expect(ProductEvent::query()->where('name', 'subscription.expired')->sole()->props['reason'])->toBe('revoked');
 
-    expect(Cache::has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse()
+    expect(PureCache::store()->has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse()
         ->and($resolver->for($learner)->plan)->toBe(Plan::Free);
 
     try {
@@ -316,7 +316,7 @@ it('cancels an active auto-renewing subscription: canceled, still live until the
     expect($event->learner_id)->toBe($learner->id)->and($event->props['by'])->toBe('learner');
 
     // Still Pro, until the period end and without grace.
-    expect(Cache::has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse();
+    expect(PureCache::store()->has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse();
     $e = $resolver->for($learner);
     expect($e->plan)->toBe(Plan::Pro)->and($e->until?->toIso8601String())->toBe(CarbonImmutable::now()->addDays(20)->toIso8601String());
 
@@ -358,7 +358,7 @@ it('resumes a canceled subscription while the period runs and refuses once it is
         ->and($resumed->canceled_at)->toBeNull()
         ->and($resumed->meta['history'][1]['action'])->toBe('resumed')
         ->and(ProductEvent::query()->where('name', 'subscription.resumed')->count())->toBe(1)
-        ->and(Cache::has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse();
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse();
 
     // Not canceled -> not_resumable.
     try {
@@ -516,7 +516,7 @@ it('expires due subscriptions: grants and pay-per-period at once, Stars via grac
         ->and($perpetual->refresh()->status)->toBe('active');
 
     foreach ([$manual, $promo, $stars] as $s) {
-        expect(Cache::has(EntitlementResolver::cacheKey($s->subscriber_id)))->toBeFalse();
+        expect(PureCache::store()->has(EntitlementResolver::cacheKey($s->subscriber_id)))->toBeFalse();
     }
 
     expect(ProductEvent::query()->where('name', 'subscription.expired')->count())->toBe(7)

@@ -8,6 +8,7 @@ use App\Domain\Billing\DTO\Entitlement;
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Enums\SubscriptionStatus;
 use App\Domain\Billing\Support\SubscriptionLiveness;
+use App\Domain\Operations\Support\PureCache;
 use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\Subscription;
@@ -39,9 +40,13 @@ use Illuminate\Support\Facades\DB;
  * one. A read that computed its snapshot from pre-write data and only writes it
  * after the invalidation lands on the *old* key, which nobody reads any more —
  * the delete-then-put race of a plain forget() cannot resurrect stale data
- * (docs/12 §5.2). Old snapshots simply age out with the TTL; the version key has
- * no TTL (a few bytes per learner; if it is ever evicted readers fall back to
- * v0, which can only be stale within one TTL of a learner's first-ever forget).
+ * (docs/12 §5.2). Old snapshots simply age out with the TTL.
+ *
+ * Two stores (docs/19 §4): the snapshots are a pure cache and live on the
+ * evicting instance ({@see PureCache}) — a lost snapshot is recomputed. The
+ * version key has no TTL and lives on the default, non-evicting store: were it
+ * evicted, readers would fall back to v0 and could serve a stale snapshot (Pro
+ * after a refund) for up to one TTL, so it must never be on the evicting instance.
  *
  * A cached snapshot whose own end has passed is recomputed on read, so a plan
  * never outlives its subscription even if the scheduler is late. Every write
@@ -65,7 +70,7 @@ final class EntitlementResolver
         // while we compute bumps it, and our put() below goes to the dead key.
         $key = self::cacheKey($learner->id);
 
-        $cached = Cache::get($key);
+        $cached = PureCache::store()->get($key);
         if (is_array($cached)) {
             /** @var array<string, mixed> $cached */
             $entitlement = Entitlement::fromArray($cached);
@@ -76,7 +81,7 @@ final class EntitlementResolver
         }
 
         $entitlement = $this->resolve($learner, $now);
-        Cache::put($key, $entitlement->toArray(), $this->ttl());
+        PureCache::store()->put($key, $entitlement->toArray(), $this->ttl());
 
         return $entitlement;
     }

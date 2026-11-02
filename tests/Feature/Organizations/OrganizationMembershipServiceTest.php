@@ -6,6 +6,7 @@ use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Billing\Services\SubscriptionService;
 use App\Domain\Learners\Services\GroupMembershipService;
+use App\Domain\Operations\Support\PureCache;
 use App\Domain\Organizations\Events\OrganizationMemberJoined;
 use App\Domain\Organizations\Events\OrganizationMemberLeft;
 use App\Domain\Organizations\Events\OrganizationMemberSeated;
@@ -84,7 +85,7 @@ it('seats a learner who redeems an invite, counts the use, drops the cache and r
         ->and($member->seated_at?->toIso8601String())->toBe(CarbonImmutable::now()->toIso8601String())
         ->and($member->waitlisted_at)->toBeNull()
         ->and($invite->refresh()->uses_count)->toBe(1)
-        ->and(Cache::has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse()
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($learner->id)))->toBeFalse()
         ->and(omsPlan($learner))->toBe(Plan::Pro)
         ->and(app(EntitlementResolver::class)->for($learner)->source)->toBe("sponsor:organization:{$org->id}");
 
@@ -110,7 +111,7 @@ it('is idempotent for an active member: no second use, no event, nothing changes
         ->and($invite->refresh()->uses_count)->toBe(1)
         ->and(OrganizationMember::query()->count())->toBe(1)
         ->and(ProductEvent::query()->where('name', 'org.member_joined')->count())->toBe(1)
-        ->and(Cache::has(EntitlementResolver::cacheKey($learner->id)))->toBeTrue();
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($learner->id)))->toBeTrue();
 });
 
 it('rejects an unknown, deactivated, expired or exhausted invite with the documented codes', function (): void {
@@ -249,10 +250,10 @@ it('gives a freed seat to the earliest waitlisted member in the same transaction
         ->and($promoted->waitlisted_at)->toBeNull()
         ->and(OrganizationMember::query()->where('learner_id', $secondWaiting->id)->sole()->seat_state)->toBe('waitlisted')
         // Caches: the leaver and the promoted one are dropped, the untouched ones stay.
-        ->and(Cache::has(EntitlementResolver::cacheKey($a->id)))->toBeFalse()
-        ->and(Cache::has(EntitlementResolver::cacheKey($firstWaiting->id)))->toBeFalse()
-        ->and(Cache::has(EntitlementResolver::cacheKey($b->id)))->toBeTrue()
-        ->and(Cache::has(EntitlementResolver::cacheKey($secondWaiting->id)))->toBeTrue()
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($a->id)))->toBeFalse()
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($firstWaiting->id)))->toBeFalse()
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($b->id)))->toBeTrue()
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($secondWaiting->id)))->toBeTrue()
         ->and(omsPlan($a))->toBe(Plan::Free)
         ->and(omsPlan($firstWaiting))->toBe(Plan::Pro)
         ->and(omsService()->seatsSummary($org)->toArray())->toBe(['limit' => 2, 'seated' => 2, 'waitlisted' => 1, 'sponsoring' => true])
@@ -358,7 +359,7 @@ it('seats the waitlist FIFO after a tariff upgrade (grantManual with a bigger ti
         ->and($states[$learners[2]->id]->seat_state)->toBe('seated')
         ->and($states[$learners[3]->id]->seat_state)->toBe('seated')
         ->and($states[$learners[4]->id]->seat_state)->toBe('waitlisted')
-        ->and(Cache::has(EntitlementResolver::cacheKey($learners[2]->id)))->toBeFalse()
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($learners[2]->id)))->toBeFalse()
         ->and(omsPlan($learners[3]))->toBe(Plan::Pro)
         ->and(omsPlan($learners[4]))->toBe(Plan::Free);
 

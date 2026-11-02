@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 namespace App\Domain\Learning\Services;
 
+use App\Domain\Operations\Support\PureCache;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
 use App\Models\Lesson;
 use Closure;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Pure caches of the learning domain, all on the evicting store ({@see PureCache}): every value here is recomputed
+ * from the database when it is missing, nothing decides anything by it alone.
+ */
 final class LearningCache
 {
     private const LESSON_WORD_COUNT_TTL = 3600;
@@ -26,7 +30,7 @@ final class LearningCache
      */
     public function lessonWordCount(int $lessonId): int
     {
-        return (int) Cache::remember(
+        return (int) PureCache::store()->remember(
             "lesson:{$lessonId}:word_count",
             self::LESSON_WORD_COUNT_TTL,
             fn (): int => (int) DB::table('words')
@@ -45,7 +49,7 @@ final class LearningCache
     public function examLeaderboard(ExamSession $session): array
     {
         /** @var array{total_participants:int, rows:list<array{learner_id:int|null, rank:int, name:string, score:int}>} $leaderboard */
-        $leaderboard = Cache::remember(
+        $leaderboard = PureCache::store()->remember(
             "exam:{$session->id}:leaderboard",
             self::EXAM_RESULT_TTL,
             function () use ($session): array {
@@ -98,7 +102,8 @@ final class LearningCache
             return [];
         }
 
-        $cached = Cache::many(array_values($keys));
+        $cache = PureCache::store();
+        $cached = $cache->many(array_values($keys));
 
         $counts = [];
         $missing = [];
@@ -118,7 +123,7 @@ final class LearningCache
                 $counts[$id] = $loaded[$id] ?? 0;
                 $fresh[$keys[$id]] = $counts[$id];
             }
-            Cache::putMany($fresh, self::WORDS_LEARNED_TTL);
+            $cache->putMany($fresh, self::WORDS_LEARNED_TTL);
         }
 
         // The order of the request, not "hits first".
@@ -127,12 +132,12 @@ final class LearningCache
 
     public function forgetLesson(Lesson $lesson): void
     {
-        Cache::forget("lesson:{$lesson->id}:word_count");
+        PureCache::store()->forget("lesson:{$lesson->id}:word_count");
     }
 
     public function forgetExam(ExamSession $session): void
     {
-        Cache::forget("exam:{$session->id}:leaderboard");
+        PureCache::store()->forget("exam:{$session->id}:leaderboard");
     }
 
     private static function wordsLearnedKey(int $learnerId): string

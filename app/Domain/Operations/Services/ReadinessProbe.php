@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Operations\Services;
 
 use App\Domain\Operations\DTO\ReadinessReport;
+use App\Domain\Operations\Support\PureCache;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Redis\Factory as RedisFactory;
 use Illuminate\Database\DatabaseManager;
@@ -36,6 +37,13 @@ final class ReadinessProbe
         $redisConnections = $this->redisConnections();
         if ($redisConnections !== []) {
             $checks['redis'] = $this->guard('redis', fn (): bool => $this->checkRedis($redisConnections));
+        }
+
+        // The second, evicting instance behind the pure cache (docs/19 §4) is its own check: an operator sees which
+        // one is down. Skipped when the pure store is not on Redis (tests) or shares a connection with the first.
+        $pureConnection = PureCache::redisConnection();
+        if ($pureConnection !== null && ! in_array($pureConnection, $redisConnections, true)) {
+            $checks['redis_cache'] = $this->guard('redis_cache', fn (): bool => $this->checkRedis([$pureConnection]));
         }
 
         // A group-chat Mini App link cannot be built without the bot username: production must have it.

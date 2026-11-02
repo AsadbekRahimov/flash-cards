@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests;
 
+use App\Domain\Operations\Support\PureCache;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\IrazasyedTelegramClient;
 use App\Domain\Telegram\Services\TelegramKeyboardFactory;
@@ -38,6 +39,9 @@ abstract class TestCase extends BaseTestCase
         parent::setUp();
 
         Cache::flush();
+        if (config('cache.pure_store') !== config('cache.default')) {
+            PureCache::store()->flush();
+        }
 
         Http::preventStrayRequests();
 

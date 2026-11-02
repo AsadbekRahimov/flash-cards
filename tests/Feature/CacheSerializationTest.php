@@ -7,6 +7,7 @@ use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Engagement\Services\LeagueService;
 use App\Domain\Learning\Services\LearningCache;
+use App\Domain\Operations\Support\PureCache;
 use App\Filament\Widgets\SchedulerComparisonWidget;
 use App\Models\Course;
 use App\Models\ExamResult;
@@ -85,8 +86,8 @@ it('serves the standings of a league group from the cache as the same rows', fun
     $computed = $service->standings($group, $now);
     $key = LeagueService::CACHE_PREFIX.$group->id;
 
-    expect(Cache::has($key))->toBeTrue()
-        ->and(cacheEntryIsPlain(Cache::get($key)))->toBeTrue();
+    expect(PureCache::store()->has($key))->toBeTrue()
+        ->and(cacheEntryIsPlain(PureCache::store()->get($key)))->toBeTrue();
 
     $cached = $service->standings($group, $now);
 
@@ -109,8 +110,8 @@ it('shows the SM-2 / FSRS comparison from the cache on the second render', funct
 
     Livewire::test(SchedulerComparisonWidget::class)->assertOk()->assertSee('SM-2 —');
 
-    expect(Cache::has(SchedulerComparisonWidget::CACHE_KEY))->toBeTrue()
-        ->and(cacheEntryIsPlain(Cache::get(SchedulerComparisonWidget::CACHE_KEY)))->toBeTrue();
+    expect(PureCache::store()->has(SchedulerComparisonWidget::CACHE_KEY))->toBeTrue()
+        ->and(cacheEntryIsPlain(PureCache::store()->get(SchedulerComparisonWidget::CACHE_KEY)))->toBeTrue();
 
     // Served from the cache this time: a class in it would have come back incomplete and broken the widget.
     Livewire::test(SchedulerComparisonWidget::class)->assertOk()->assertSee('SM-2 —');
@@ -123,8 +124,8 @@ it('serves the entitlement of a learner from the cache as the same plan', functi
     $computed = $resolver->for($learner);
     $key = EntitlementResolver::cacheKey($learner->id);
 
-    expect(cacheEntryIsPlain(Cache::get($key)))->toBeTrue()
-        ->and(Cache::get($key))->toBeArray()
+    expect(cacheEntryIsPlain(PureCache::store()->get($key)))->toBeTrue()
+        ->and(PureCache::store()->get($key))->toBeArray()
         ->and($resolver->for($learner))->toEqual($computed);
 });
 
@@ -155,6 +156,6 @@ it('serves the admin dashboard figures from the cache as the same numbers', func
 
     expect($stats->subscriptions())->toBe($subscriptions)
         ->and($stats->onboardingFunnel())->toBe($funnel)
-        ->and(cacheEntryIsPlain(Cache::get('platform_stats:subscriptions')))->toBeTrue()
-        ->and(cacheEntryIsPlain(Cache::get('platform_stats:funnel')))->toBeTrue();
+        ->and(cacheEntryIsPlain(PureCache::store()->get('platform_stats:subscriptions')))->toBeTrue()
+        ->and(cacheEntryIsPlain(PureCache::store()->get('platform_stats:funnel')))->toBeTrue();
 });

@@ -74,9 +74,20 @@ return [
             ],
         ],
 
+        // The non-evicting instance (docs/19 §4): markers, locks, counters, rate limits, 2FA protection, the entitlement
+        // version keys. The default store: whatever is not explicitly a pure cache is safe from eviction.
         'redis' => [
             'driver' => 'redis',
             'connection' => env('REDIS_CACHE_CONNECTION', 'cache'),
+            'lock_connection' => env('REDIS_CACHE_LOCK_CONNECTION', 'locks'),
+        ],
+
+        // The pure cache (docs/19 §3 rule 10): values that are recomputed when missing, on the second, volatile-lru
+        // instance. Reached only through App\Domain\Operations\Support\PureCache. Its locks (Cache::lock on this
+        // store, Cache::flexible) stay on the non-evicting instance: a lock must never be evicted.
+        'lru' => [
+            'driver' => 'redis',
+            'connection' => 'lru',
             'lock_connection' => env('REDIS_CACHE_LOCK_CONNECTION', 'locks'),
         ],
 
@@ -115,6 +126,32 @@ return [
     */
 
     'prefix' => env('CACHE_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-cache-'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pure Cache Store
+    |--------------------------------------------------------------------------
+    |
+    | The store PureCache::store() hands out: the one on the evicting Redis
+    | instance (docs/19 §4). Nothing that must survive memory pressure may be
+    | written there. Tests use the array store (phpunit.xml).
+    |
+    */
+
+    'pure_store' => env('CACHE_PURE_STORE', 'lru'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Rate Limiter Store
+    |--------------------------------------------------------------------------
+    |
+    | The store of the RateLimiter (throttle middleware, RateLimiter facade).
+    | Pinned explicitly to the non-evicting instance: an evicted counter would
+    | reset a login or 2FA limit (docs/19 §4). Never the pure cache store.
+    |
+    */
+
+    'limiter' => env('CACHE_LIMITER_STORE', 'redis'),
 
     /*
     |--------------------------------------------------------------------------

@@ -67,7 +67,9 @@ it('counts in the database only the learners that missed the cache, in one query
 });
 
 it('lags up to ten minutes behind, while the exact count never does', function (): void {
-    config(['cache.default' => 'array']); // time travel moves the clock of the array store; a Redis server expires keys in real time
+    // Time travel moves the clock of the array store; a Redis server expires keys in real time. The friends' counts are a
+    // pure cache (PureCache), so the pure store is the one that has to be an array store here.
+    config(['cache.default' => 'array', 'cache.pure_store' => 'array']);
     $stats = app(LearnerStatsService::class);
     $friend = Learner::factory()->create();
     lsLearned($friend, 2);

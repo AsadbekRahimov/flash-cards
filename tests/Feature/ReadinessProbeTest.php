@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Operations\Services\QueueHeartbeat;
 use App\Domain\Operations\Services\SchedulerHeartbeat;
+use App\Domain\Operations\Support\PureCache;
 use App\Jobs\QueueHeartbeatJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
@@ -31,7 +32,10 @@ it('returns 200 with ok checks when dependencies are healthy', function (): void
         ->assertOk()
         ->assertExactJson([
             'status' => 'ok',
-            'checks' => ['db' => 'ok', 'scheduler' => 'ok', 'queue' => 'ok'] + (config('cache.stores.'.config('cache.default').'.driver') === 'redis' ? ['redis' => 'ok'] : []),
+            'checks' => ['db' => 'ok', 'scheduler' => 'ok', 'queue' => 'ok']
+                + (config('cache.stores.'.config('cache.default').'.driver') === 'redis' ? ['redis' => 'ok'] : [])
+                // CI runs the pure cache on the second Redis instance (CACHE_PURE_STORE=lru): a check of its own.
+                + (PureCache::redisConnection() !== null && PureCache::redisConnection() !== config('cache.stores.'.config('cache.default').'.connection') ? ['redis_cache' => 'ok'] : []),
         ]);
 });
 

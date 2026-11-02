@@ -3,8 +3,9 @@
 #
 #   bash docker/postgres/tests/run.sh
 #
-# Builds nothing: the application services are busybox stand-ins (compose.test.yml), PostgreSQL and Redis are the
-# official images the stack uses. Own compose project `lexiflow-pgtest`, no published ports; everything it creates is
+# Builds nothing: the application services are busybox stand-ins (compose.test.yml), PostgreSQL and both Redis
+# instances are the official images the stack uses (upgrade.sh keeps redis-cache running like redis: it writes nothing to
+# postgres). Own compose project `lexiflow-pgtest`, no published ports; everything it creates is
 # removed at the end (`down -v`, throwaway containers, temporary volumes). Every check prints PASS/FAIL with the
 # expected and the actual value; an unexpected error aborts with the scenario and the failing command; at the end of a
 # failed run the state of the containers and the postgres log are printed.
@@ -268,7 +269,7 @@ guard_stale_attempt() {
 # ------------------------------------------------------------------------------------------------------------------
 printf 'docker: %s\ncompose: %s\n' "$(docker version --format '{{.Server.Version}}')" "$(docker compose version --short)"
 scenario 'setup: images and a clean slate'
-for img in postgres:16-alpine postgres:18-alpine redis:8.4-alpine busybox:stable; do
+for img in postgres:16-alpine postgres:18-alpine redis:8.10-alpine busybox:stable; do
     docker image inspect "$img" >/dev/null 2>&1 || docker pull -q "$img" >/dev/null
 done
 reset_stack
@@ -299,8 +300,8 @@ expect_eq 'the lock file upgrade.sh created is world-writable (shared with deplo
 
 # ------------------------------------------------------------------------------------------------------------------
 scenario '7. the lock shared with deploy.sh'
-compose up -d app nginx redis >/dev/null 2>&1
-expect_eq 'stand-ins are running' 'app nginx redis' "$(running_services)"
+compose up -d app nginx redis redis-cache >/dev/null 2>&1
+expect_eq 'stand-ins are running' 'app nginx redis redis-cache' "$(running_services)"
 if command -v flock >/dev/null 2>&1; then
     # The holder becomes `sleep` itself (exec), so killing it closes the descriptor and releases the lock. Like deploy.sh and
     # upgrade.sh it truncates the file once it holds the lock, then writes its line: the first line always names the holder
@@ -316,7 +317,7 @@ if command -v flock >/dev/null 2>&1; then
     expect_contains 'upgrade.sh says who holds the lock and waits DEPLOY_LOCK_WAIT' 'still held after 2s' "$OUT"
     expect_contains 'upgrade.sh printed the holder' 'command=holder' "$OUT"
     expect_eq 'it waited about DEPLOY_LOCK_WAIT, not longer' 'yes' "$([ "$elapsed" -ge 2 ] && [ "$elapsed" -le 30 ] && echo yes || echo "no ($elapsed s)")"
-    expect_eq 'nothing was stopped' 'app nginx redis' "$(running_services)"
+    expect_eq 'nothing was stopped' 'app nginx redis redis-cache' "$(running_services)"
     expect_eq 'no in-progress marker was written' 'no' "$(yes_no volume_has "$NEW_VOL" "$MARKER_WIP")"
     run_capture upgrade --check
     expect_eq '--check is not blocked by the lock (exit 1 by state)' 1 "$RC"
@@ -337,7 +338,7 @@ expect_contains 'upgrade.sh verified the data' 'Verified: 2 tables with 5700 row
 expect_contains 'upgrade.sh reports done' 'Done: PostgreSQL 18 serves' "$OUT"
 expect_contains 'upgrade.sh measured the free space first' 'needed: about' "$OUT"
 expect_eq 'counts, sequences, jsonb, constraints and index on 18 equal 16' "$EXPECTED" "$(probe_18)"
-expect_eq 'the stand-ins run again' 'app nginx postgres redis' "$(running_services)"
+expect_eq 'the stand-ins run again' 'app nginx postgres redis redis-cache' "$(running_services)"
 expect_eq 'a network client can connect (gate open)' 1 "$(tcp_probe)"
 expect_eq 'no gate rule left in pg_hba.conf' 0 "$(volume_file "$NEW_VOL" 18/docker/pg_hba.conf | grep -c '^host all all all reject' || true)"
 expect_contains 'the done marker records the legacy fingerprint' 'legacy_pg_control_md5=' "$(volume_file "$NEW_VOL" "$MARKER_DONE")"
@@ -357,13 +358,13 @@ expect_contains '--check after `--`: the same report' 'OK: PostgreSQL 18 data is
 run_capture upgrade
 expect_eq 'a repeat exits 0' 0 "$RC"
 expect_contains 'a repeat is a no-op' 'Nothing to do: the upgrade has already completed' "$OUT"
-expect_eq 'the stand-ins still run' 'app nginx postgres redis' "$(running_services)"
+expect_eq 'the stand-ins still run' 'app nginx postgres redis redis-cache' "$(running_services)"
 
 # ------------------------------------------------------------------------------------------------------------------
 scenario '4. 🔴1 a PostgreSQL 18 cluster exists, no done marker (the hole of an interrupted run)'
 reset_stack
 seed_legacy_16
-compose up -d app nginx redis >/dev/null 2>&1
+compose up -d app nginx redis redis-cache >/dev/null 2>&1
 guard_attempt 'guard again'
 # What the old script left behind after a Ctrl+C between init and its marker: an initialised 18 cluster with the empty
 # POSTGRES_DB and nothing else. Made the same way, with the plain entrypoint on the new volume (no guard mount here).
@@ -400,7 +401,7 @@ expect_not_contains 'PG_UPGRADE_SKIP_SPACE_CHECK=1: nothing was measured' 'neede
 expect_contains 'upgrade.sh restored into the empty database' 'Restoring' "$OUT"
 expect_eq 'the data on 18 equals 16' "$EXPECTED" "$(probe_18)"
 expect_eq 'a network client can connect' 1 "$(tcp_probe)"
-expect_eq 'the stand-ins run again' 'app nginx postgres redis' "$(running_services)"
+expect_eq 'the stand-ins run again' 'app nginx postgres redis redis-cache' "$(running_services)"
 run_capture upgrade --check
 expect_eq '--check exits 0 afterwards' 0 "$RC"
 
@@ -408,12 +409,12 @@ expect_eq '--check exits 0 afterwards' 0 "$RC"
 scenario '4b. runs that fail before init and right after the new cluster is up (marker before init, network gate)'
 reset_stack
 seed_legacy_16
-compose up -d app nginx redis >/dev/null 2>&1
+compose up -d app nginx redis redis-cache >/dev/null 2>&1
 run_capture upgrade_failing_at 'initialise the new cluster'
 expect_eq 'the failure before init exits 2' 2 "$RC"
 expect_contains 'the failure names the step' 'FAILED during step "initialise the new cluster"' "$OUT"
 expect_not_contains 'the failure does not claim a gate that does not exist yet' 'pg_hba gate' "$OUT"
-expect_eq 'the stand-ins were stopped' 'redis' "$(running_services)"
+expect_eq 'the stand-ins were stopped' 'redis redis-cache' "$(running_services)"
 expect_eq 'the in-progress marker exists although no cluster does (marker before init)' 'yes no' \
     "$(yes_no volume_has "$NEW_VOL" "$MARKER_WIP") $(yes_no volume_has "$NEW_VOL" 18/docker/PG_VERSION)"
 expect_eq 'the in-progress marker lists the stopped services' 'app nginx' \
@@ -425,7 +426,7 @@ run_capture upgrade_failing_at 'copy the legacy volume'
 expect_eq 'the injected failure after the cluster is up exits 2' 2 "$RC"
 expect_contains 'the failure names the step' 'FAILED during step "copy the legacy volume"' "$OUT"
 expect_contains 'the failure explains the marker and the gate' 'rejects network connections (pg_hba gate)' "$OUT"
-expect_eq 'the stand-ins stay stopped' 'postgres redis' "$(running_services)"
+expect_eq 'the stand-ins stay stopped' 'postgres redis redis-cache' "$(running_services)"
 WIP="$(volume_file "$NEW_VOL" "$MARKER_WIP")"
 expect_contains 'the in-progress marker was rewritten (before init)' 'from=16 ' "$WIP"
 expect_eq 'the in-progress marker still lists the services the first run stopped' 'app nginx' "$(sed -n 's/^stopped_services=//p' <<<"$WIP" | tr ' ' '\n' | sort | tr '\n' ' ' | sed 's/ $//')"
@@ -441,7 +442,7 @@ expect_contains 'a network client is rejected by the gate' 'rejects connection' 
 run_capture upgrade
 expect_eq 'the resume exits 0' 0 "$RC"
 expect_contains 'the resume knew the services of the failed run' 'services stopped by the interrupted run, started again at the end:' "$OUT"
-expect_eq 'the stand-ins run again (list carried by the marker written before init)' 'app nginx postgres redis' "$(running_services)"
+expect_eq 'the stand-ins run again (list carried by the marker written before init)' 'app nginx postgres redis redis-cache' "$(running_services)"
 expect_eq 'the data on 18 equals 16' "$EXPECTED" "$(probe_18)"
 expect_eq 'a network client can connect again' 1 "$(tcp_probe)"
 run_capture upgrade --check
@@ -463,14 +464,14 @@ run_capture upgrade
 expect_eq 'upgrade.sh without a flag stops (exit 1)' 1 "$RC"
 expect_contains 'upgrade.sh saw the committed transactions' 'transactions were committed on PostgreSQL 16 after the upgrade' "$OUT"
 expect_contains 'upgrade.sh shows NextXID' 'NextXID:' "$OUT"
-expect_eq 'nothing was stopped by the refusal (postgres is down since the guard)' 'app nginx redis' "$(running_services)"
+expect_eq 'nothing was stopped by the refusal (postgres is down since the guard)' 'app nginx redis redis-cache' "$(running_services)"
 run_capture upgrade --redo
 expect_eq '--redo exits 0' 0 "$RC"
 expect_contains '--redo set the old 18 database aside' "Setting the current database aside: '$DB' → '${DB}_stale_" "$OUT"
 expect_eq 'D1 is on 18 now' 1 "$(sql_18 "SELECT count(*) FROM users WHERE name = 'D1'")"
 expect_eq 'the other rows are intact (951 users)' '951' "$(sql_18 'SELECT count(*) FROM users')"
 expect_eq 'the previous 18 database is kept aside' 1 "$(sql_18 "SELECT count(*) FROM pg_database WHERE datname LIKE '${DB}_stale_%'" postgres)"
-expect_eq 'the stand-ins run again (postgres started through the guard)' 'app nginx postgres redis' "$(running_services)"
+expect_eq 'the stand-ins run again (postgres started through the guard)' 'app nginx postgres redis redis-cache' "$(running_services)"
 expect_eq 'a network client can connect after --redo (gate open)' 1 "$(tcp_probe)"
 expect_contains 'the done marker keeps the history of the first move' 'previous=upgraded 16 → 18' "$(volume_file "$NEW_VOL" "$MARKER_DONE")"
 expect_eq 'the in-progress marker is gone' 'no' "$(yes_no volume_has "$NEW_VOL" "$MARKER_WIP")"
@@ -549,7 +550,7 @@ expect_eq 'the repeated --keep-current exits 0' 0 "$RC"
 expect_contains 'the repeat reopened the gate' 'network gate opened' "$OUT"
 expect_eq 'a network client can connect again' 1 "$(tcp_probe)"
 expect_eq 'D3 is not on 18' 0 "$(sql_18 "SELECT count(*) FROM users WHERE name = 'D3'")"
-expect_eq 'the stand-ins the interrupted --redo stopped run again' 'app nginx postgres redis' "$(running_services)"
+expect_eq 'the stand-ins the interrupted --redo stopped run again' 'app nginx postgres redis redis-cache' "$(running_services)"
 expect_eq 'the in-progress marker is gone' 'no' "$(yes_no volume_has "$NEW_VOL" "$MARKER_WIP")"
 run_capture upgrade --check
 expect_eq '--check exits 0 after --keep-current' 0 "$RC"
@@ -575,7 +576,7 @@ run_capture upgrade --keep-current
 expect_eq '--keep-current exits 0' 0 "$RC"
 run_capture upgrade --check
 expect_eq '--check exits 0' 0 "$RC"
-expect_eq 'the stand-ins still run' 'app nginx postgres redis' "$(running_services)"
+expect_eq 'the stand-ins still run' 'app nginx postgres redis redis-cache' "$(running_services)"
 # round 4b: 16 is killed (OOM, `docker rm -f`): pg_control keeps 'in production' for good while nothing runs on the volume.
 # --redo cannot tell writes from a mere start and needs --force; --keep-current records the still cluster with a warning
 start_16 -c autovacuum=off
@@ -596,7 +597,7 @@ expect_contains '--keep-current warns about the unclean shutdown' 'was not shut 
 expect_contains '--keep-current records the still cluster' 'Kept the PostgreSQL 18 data' "$OUT"
 run_capture upgrade --check
 expect_eq '--check exits 0 after --keep-current' 0 "$RC"
-expect_eq 'the stand-ins still run' 'app nginx postgres redis' "$(running_services)"
+expect_eq 'the stand-ins still run' 'app nginx postgres redis redis-cache' "$(running_services)"
 # round 5: 16 writes D5; a --redo is interrupted after its restore, before the verification: its marker names the database
 # it set aside (T1 - the real 18 data) and the stack's database holds an unverified copy. The second --redo must keep T1
 # and its name, drop the copy and restore again - not bury T1 under a second set-aside
@@ -618,7 +619,7 @@ expect_not_contains 'the second --redo did not set a database aside again' 'Sett
 expect_eq 'exactly one database was set aside in this round' "$((STALE_BEFORE + 1))" "$(sql_18 "SELECT count(*) FROM pg_database WHERE datname LIKE '${DB}_stale_%'" postgres)"
 expect_eq 'T1 is intact (951 users)' '951' "$(sql_18 'SELECT count(*) FROM users' "$T1")"
 expect_eq 'D5 is on 18 with everything 16 wrote (954 users)' '954' "$(sql_18 'SELECT count(*) FROM users')"
-expect_eq 'the stand-ins run again' 'app nginx postgres redis' "$(running_services)"
+expect_eq 'the stand-ins run again' 'app nginx postgres redis redis-cache' "$(running_services)"
 expect_eq 'a network client can connect' 1 "$(tcp_probe)"
 expect_eq 'the in-progress marker is gone' 'no' "$(yes_no volume_has "$NEW_VOL" "$MARKER_WIP")"
 run_capture upgrade --check
@@ -634,13 +635,13 @@ expect_contains 'the failure hints at the plain run, not at --redo' '(a deploy s
 WIP="$(volume_file "$NEW_VOL" "$MARKER_WIP")"
 expect_contains 'the in-progress marker is a plain pending start (redo=0)' 'redo=0' "$WIP"
 expect_eq 'the in-progress marker carries no stale_db' 'stale_db=' "$(grep '^stale_db=' <<<"$WIP")"
-expect_eq 'the stand-ins are still stopped' 'postgres redis' "$(running_services)"
+expect_eq 'the stand-ins are still stopped' 'postgres redis redis-cache' "$(running_services)"
 run_capture upgrade --check
 expect_eq '--check exits 0: a deploy may start the stack' 0 "$RC"
 expect_contains '--check: only the start is pending' 'did not get to start the application services' "$OUT"
 run_capture upgrade
 expect_eq 'the plain run finishes the pending start (exit 0)' 0 "$RC"
-expect_eq 'the stand-ins run again' 'app nginx postgres redis' "$(running_services)"
+expect_eq 'the stand-ins run again' 'app nginx postgres redis redis-cache' "$(running_services)"
 expect_eq 'the in-progress marker is gone' 'no' "$(yes_no volume_has "$NEW_VOL" "$MARKER_WIP")"
 expect_eq 'D6 is on 18 (955 users)' '955' "$(sql_18 'SELECT count(*) FROM users')"
 run_capture upgrade --check
@@ -660,7 +661,7 @@ expect_eq '--keep-current exits 0' 0 "$RC"
 expect_eq 'the in-progress marker is gone' 'no' "$(yes_no volume_has "$NEW_VOL" "$MARKER_WIP")"
 compose up -d postgres >/dev/null 2>&1
 wait_pg "$PG_CTR" "$DB_USER"
-expect_eq 'the stand-ins run again' 'app nginx postgres redis' "$(running_services)"
+expect_eq 'the stand-ins run again' 'app nginx postgres redis redis-cache' "$(running_services)"
 run_capture upgrade --check
 expect_eq '--check exits 0' 0 "$RC"
 # round 8: redo=1 next to a done marker that matches the legacy fingerprint - what the previous script left when a --redo
@@ -672,7 +673,7 @@ run_capture upgrade
 expect_eq 'the plain run finishes the pending start (exit 0)' 0 "$RC"
 expect_contains 'the plain run explains the markers' 'already records the current fingerprint of the legacy cluster' "$OUT"
 expect_eq 'the in-progress marker is gone' 'no' "$(yes_no volume_has "$NEW_VOL" "$MARKER_WIP")"
-expect_eq 'the stand-ins still run' 'app nginx postgres redis' "$(running_services)"
+expect_eq 'the stand-ins still run' 'app nginx postgres redis redis-cache' "$(running_services)"
 run_capture upgrade --check
 expect_eq '--check exits 0' 0 "$RC"
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Learning\DTO\SchedulerMetrics;
 use App\Domain\Learning\Enums\SchedulerKind;
+use App\Domain\Operations\Support\PureCache;
 use App\Filament\Resources\ExamSessionResource\Pages\ViewExamSession;
 use App\Filament\Resources\ExamSessionResource\RelationManagers\ResultsRelationManager;
 use App\Filament\Resources\LearnerResource\Pages\ViewLearner;
@@ -18,7 +19,6 @@ use App\Models\LearnerDailyStats;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Cache;
 
 use function Pest\Livewire\livewire;
 
@@ -80,7 +80,7 @@ it('writes the minutes of a learner day with a decimal comma', function (): void
 });
 
 it('writes the percents and ratios of the SM-2 / FSRS comparison with a decimal comma', function (): void {
-    Cache::put(SchedulerComparisonWidget::CACHE_KEY, [
+    PureCache::store()->put(SchedulerComparisonWidget::CACHE_KEY, [
         SchedulerKind::Sm2->value => (new SchedulerMetrics(SchedulerKind::Sm2, 50, 40, 37, 16, 7, 4))->toArray(),
         SchedulerKind::Fsrs->value => (new SchedulerMetrics(SchedulerKind::Fsrs, 0, 0, 0, 0, 0, 0))->toArray(),
     ], 60);

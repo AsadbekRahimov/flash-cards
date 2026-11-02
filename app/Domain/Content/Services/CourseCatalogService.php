@@ -10,6 +10,7 @@ use App\Domain\Content\DTO\CourseListing;
 use App\Domain\Content\DTO\LearnerProgress;
 use App\Domain\Content\DTO\LessonProgress;
 use App\Domain\Localization\Services\LocaleResolver;
+use App\Domain\Operations\Support\PureCache;
 use App\Models\Course;
 use App\Models\Learner;
 use App\Models\Lesson;
@@ -18,7 +19,6 @@ use App\Models\TelegramGroup;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Query\JoinClause;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -192,7 +192,7 @@ final class CourseCatalogService
         $locale = $this->locales->isSupported($locale) ? $locale : $this->locales->default();
 
         /** @var list<array{id:int, slug:string, title:string, description:string|null, level:string|null, exam_tag:string|null, words_count:int, is_featured:bool}> $rows */
-        $rows = Cache::remember(
+        $rows = PureCache::store()->remember(
             self::PUBLISHED_CACHE_PREFIX.$locale,
             self::PUBLISHED_CACHE_TTL,
             fn (): array => Course::query()
@@ -210,7 +210,7 @@ final class CourseCatalogService
 
     public function forgetPublished(): void
     {
-        Cache::deleteMultiple(array_map(
+        PureCache::store()->deleteMultiple(array_map(
             fn (string $locale): string => self::PUBLISHED_CACHE_PREFIX.$locale,
             $this->locales->supported(),
         ));
