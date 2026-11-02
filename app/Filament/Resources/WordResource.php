@@ -90,14 +90,16 @@ class WordResource extends Resource
     }
 
     /**
-     * The list: the course path of a word as the columns of the lesson, the stage and the course read it (their numbers and the
-     * code of the course, plus the owner of the course for the policy of the row).
+     * The list: the query of the page narrowed to LIST_COLUMNS, and the course path of a word as the columns of the lesson, the
+     * stage and the course read it (their numbers and the code of the course, plus the owner of the course for the policy of
+     * the row).
      *
+     * @param  Builder<Word>  $query  {@see getEloquentQuery()}
      * @return Builder<Word>
      */
-    private static function listQuery(): Builder
+    private static function forList(Builder $query): Builder
     {
-        return app(PanelDataScope::class)->words()
+        return $query
             ->select(self::LIST_COLUMNS)
             ->with(['lesson:id,number,stage_id', 'lesson.stage:id,number,course_id', 'lesson.stage.course:id,slug,owner_type']);
     }
@@ -105,7 +107,8 @@ class WordResource extends Resource
     public static function table(Table $table): Table
     {
         return AdminTable::big($table)
-            ->query(fn (): Builder => self::listQuery())
+            // A row action loads its own record (`$isResolvingRecord`): the whole row.
+            ->modifyQueryUsing(fn (Builder $query, bool $isResolvingRecord): Builder => $isResolvingRecord ? $query : self::forList($query))
             ->columns([
                 Tables\Columns\TextColumn::make('word')->label(__('admin.words.fields.word'))->searchable()->sortable(),
                 // The longer text of the two is searched from its own box in the header, not by the search of the table.

@@ -146,7 +146,8 @@ class LearnerResource extends Resource
         // The biggest table of the platform (docs/20 §1.6, §1.7). A full name is two words that find one person, so the
         // search of the learners keeps splitting the typed text; the rest of the settings is the big table's.
         return AdminTable::big($table, splitsSearch: true)
-            ->query(fn (): Builder => self::listQuery())
+            // A row action loads its own record (`$isResolvingRecord`): the whole row, the scheduler of the learner included.
+            ->modifyQueryUsing(fn (Builder $query, bool $isResolvingRecord): Builder => $isResolvingRecord ? $query : self::forList($query))
             ->columns([
                 Tables\Columns\TextColumn::make('first_name')
                     ->formatStateUsing(fn (Learner $record): string => trim(($record->first_name ?? '').' '.($record->last_name ?? '')))
@@ -327,7 +328,11 @@ class LearnerResource extends Resource
         $sessionIds = $scope->trainingSessionIds();
         $examIds = $scope->exams()->select('exam_sessions.id');
 
-        $query = self::viewerLearners($scope)
+        $query = $scope
+            ->learners()
+            ->with(['groups' => fn ($groups) => $groups
+                ->wherePivot('status', 'active')
+                ->whereIn('telegram_groups.id', $scope->groups()->select('telegram_groups.id'))])
             ->withCount([
                 'repetitions',
                 'trainingReviews' => fn (Builder $q): Builder => $q->whereIn('training_session_id', clone $sessionIds),
@@ -338,31 +343,17 @@ class LearnerResource extends Resource
     }
 
     /**
-     * The list (docs/20 §1.4): the columns the table and its row actions read - not the whole row, and none of the three
-     * counts of the learner page, which the list never shows and which cost a subquery each over the biggest tables.
-     * (The modal of a row action loads its own record: the whole row.)
+     * The list (docs/20 §1.4): the query of the page narrowed to the columns the table and its row actions read - not the
+     * whole row, and none of the three counts of the learner page, which the list never shows and which cost a subquery
+     * each over the biggest tables.
      *
+     * @param  Builder<Learner>  $query  {@see getEloquentQuery()}
      * @return Builder<Learner>
      */
-    private static function listQuery(): Builder
+    private static function forList(Builder $query): Builder
     {
-        $scope = app(PanelDataScope::class);
-
-        return self::withPlanColumns(self::viewerLearners($scope)->select(self::LIST_COLUMNS), $scope);
-    }
-
-    /**
-     * The learners the viewer may see, with the groups of theirs the learner is an active member of.
-     *
-     * @return Builder<Learner>
-     */
-    private static function viewerLearners(PanelDataScope $scope): Builder
-    {
-        return $scope
-            ->learners()
-            ->with(['groups' => fn ($groups) => $groups
-                ->wherePivot('status', 'active')
-                ->whereIn('telegram_groups.id', $scope->groups()->select('telegram_groups.id'))]);
+        // `select()` drops the columns the query carried (the counts, the plan); the plan comes back.
+        return self::withPlanColumns($query->select(self::LIST_COLUMNS), app(PanelDataScope::class));
     }
 
     /**

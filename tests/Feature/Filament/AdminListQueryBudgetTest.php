@@ -79,6 +79,9 @@ use Tests\Support\QueryLog;
  *
  * Every render is measured twice by the helper (the mount and the change of the page size), so the ceilings below are about
  * double the statements of one render.
+ *
+ * The lists a teacher opens come last. The learners and the exams of a teacher still carry a KNOWN N+1: the row policy asks the
+ * database about every row (docs/20 A11, §4); their tests pin today's cost with `knownPerRow` until the policies change.
  */
 
 uses(RefreshDatabase::class);

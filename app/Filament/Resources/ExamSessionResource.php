@@ -92,7 +92,8 @@ class ExamSessionResource extends Resource
     public static function table(Table $table): Table
     {
         return AdminTable::big($table)
-            ->query(fn (): Builder => self::listQuery())
+            // A row action loads its own record (`$isResolvingRecord`): the whole row.
+            ->modifyQueryUsing(fn (Builder $query, bool $isResolvingRecord): Builder => $isResolvingRecord ? $query : self::forList($query))
             ->columns([
                 Tables\Columns\TextColumn::make('group.title')
                     ->label(__('admin.exams.fields.group'))
@@ -151,16 +152,18 @@ class ExamSessionResource extends Resource
     }
 
     /**
-     * The list: the columns of LIST_COLUMNS, the title of the group and the numbers of the lesson and its stage - nobody
-     * reads who started a session in the list.
+     * The list: the query of the page narrowed to the columns of LIST_COLUMNS, the title of the group and the numbers of the
+     * lesson and its stage - nobody reads who started a session in the list.
      *
+     * @param  Builder<ExamSession>  $query  {@see getEloquentQuery()}
      * @return Builder<ExamSession>
      */
-    private static function listQuery(): Builder
+    private static function forList(Builder $query): Builder
     {
-        return app(PanelDataScope::class)
-            ->exams()
+        // `select()` drops the counts the query carried and `setEagerLoads()` the relations of the page; both come back leaner.
+        return $query
             ->select(self::LIST_COLUMNS)
+            ->setEagerLoads([])
             ->with(['group:id,title', 'lesson:id,number,stage_id', 'lesson.stage:id,number'])
             ->withCount(['results', 'answers']);
     }

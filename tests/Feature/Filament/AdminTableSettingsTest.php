@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Administration\Services\PanelDataScope;
+use App\Domain\Learning\Enums\SchedulerKind;
 use App\Filament\Resources\ExamSessionResource\Pages\ListExamSessions;
 use App\Filament\Resources\ExamSessionResource\Pages\ViewExamSession;
 use App\Filament\Resources\ExamSessionResource\RelationManagers\AnswersRelationManager;
@@ -251,6 +252,18 @@ it('reads a learner or a center for a name only when a list shows the subscriber
     Livewire::test(ListPayments::class)->assertSee('Sherzod Aliev @sher #'.$learner->id);
 });
 
+it('opens the scheduler switch of a learner on the scheduler the learner has: a row action works on the whole row', function (): void {
+    config(['learning.algorithm' => 'sm2']);
+    $learner = Learner::factory()->create(['scheduler' => SchedulerKind::Fsrs, 'meta' => ['kept' => true]]);
+
+    $component = Livewire::test(ListLearners::class)->mountTableAction('switchScheduler', $learner);
+
+    // The default of the field is read from the record of the row: the narrow row of the list has no `scheduler` and would offer the
+    // default arm of the platform instead of the learner's own.
+    $component->assertTableActionDataSet(['scheduler' => SchedulerKind::Fsrs->value]);
+    expect($component->instance()->getMountedAction()?->getRecord()?->getAttributes())->toHaveKeys(['scheduler', 'meta']);
+});
+
 it('lets the refund of a payment work on the whole row, not on the columns of the list', function (): void {
     $payment = Payment::factory()->create(['raw' => ['note' => 'kept']]);
 
@@ -370,7 +383,9 @@ it('reads the selected users in chunks and asks the policy for each of them', fu
     $bulk = Livewire::test(ListUsers::class)->instance()->getTable()->getFlatBulkActions()['delete'];
 
     expect($bulk->getSelectedRecordsChunkSize())->toBe(250)
-        ->and($bulk->shouldAuthorizeIndividualRecords())->toBeTrue();
+        ->and($bulk->shouldAuthorizeIndividualRecords())->toBeTrue()
+        // UserPolicy::deleteAny is false: the action stays closed to everybody, the chunks and the per-user check wait for the day it opens.
+        ->and($bulk->isAuthorized())->toBeFalse();
 });
 
 it('shows the correct translation of an answer from the key of the exam, once read per request', function (): void {
