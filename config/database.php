@@ -229,10 +229,11 @@ return [
             'password' => env('REDIS_LRU_PASSWORD'),
             'port' => env('REDIS_LRU_PORT', '6380'),
             'database' => env('REDIS_LRU_DB', '0'),
-            'max_retries' => env('REDIS_MAX_RETRIES', 3),
-            'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
-            'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
-            'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
+            // A dead cache must fail fast and be stepped over (the store `lru` is a failover chain, config/cache.php):
+            // short connect and read timeouts and no client-side retries. The first instance keeps the defaults above.
+            'timeout' => 1.0,
+            'read_timeout' => 1.0,
+            'max_retries' => 0,
         ],
 
     ],

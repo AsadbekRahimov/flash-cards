@@ -14,8 +14,11 @@ services:
                 condition: service_healthy
             redis:
                 condition: service_healthy
+            # Started, not healthy: the pure cache is a failover chain (config/cache.php `lru`, docs/19 §4.1) - without
+            # the second instance the application serves from the database and reports `degraded`. Waiting for `healthy`
+            # would tie the whole application to a disposable component.
             redis-cache:
-                condition: service_healthy
+                condition: service_started
         volumes:
             - ./:/var/www/html
         environment:

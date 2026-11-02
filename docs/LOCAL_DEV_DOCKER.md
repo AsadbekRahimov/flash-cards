@@ -175,6 +175,7 @@ make pg-upgrade                              # = bash docker/postgres/upgrade.sh
 - Пароли в деве не нужны: `REDIS_PASSWORD=` и `REDIS_CACHE_PASSWORD=` пустые. В старом `.env` замените `REDIS_PASSWORD=null` на пустое значение: compose считает `null` и `(null)` отсутствием пароля (как и Laravel), но пустая строка — единственная форма, в которой это очевидно. Хотите как в проде — задайте оба hex-значения и `docker compose up -d`.
 - Контейнеру `app` compose сам подставляет `REDIS_LRU_HOST=redis-cache`, `REDIS_LRU_PORT=6379` и `REDIS_LRU_PASSWORD=$REDIS_CACHE_PASSWORD`; строки `REDIS_LRU_*` в `.env` нужны только для `php artisan` на хосте (тогда `127.0.0.1:6380`).
 - Посмотреть, что в кэше: `docker compose exec redis-cache redis-cli --scan --pattern 'lexiflow_cache*' | head`, статистика — `docker compose exec redis-cache redis-cli INFO stats | grep -E 'keyspace|evicted'`.
+- `docker compose stop redis-cache` ничего не ломает: приложение считает из базы, в `storage/logs` появляется `cache.failed_over`, `/health/ready` отвечает `200` со `status: degraded` (`docs/19` §4.1).
 - Обновление с одного Redis: `docker compose up -d` сам создаст `redis-cache`; старый том `redisdata` 8.4 Redis 8.10 читает, обратно на 8.4 он уже не поднимется (`docker compose down -v`, если понадобится).
 
 ---

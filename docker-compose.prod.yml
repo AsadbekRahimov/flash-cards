@@ -19,6 +19,10 @@
 # The second Redis instance as the application sees it (docs/19 §4): the host and port inside the compose network and
 # the very password compose gives `redis-cache` - one REDIS_CACHE_PASSWORD in .env, nothing to keep equal by hand.
 # `environment` wins over `env_file`, so the REDIS_LRU_* lines of .env do not apply inside the containers.
+# The application services depend on `redis-cache` as `service_started`, not `service_healthy`: the pure cache is a
+# failover chain (config/cache.php `lru`, docs/19 §4.1) - without the second instance the application serves from the
+# database and /health/ready says `degraded`. Waiting for `healthy` would tie the whole application to a disposable
+# component; `redis` (queues, sessions, locks) stays `service_healthy`.
 x-lru-env: &lru-env
     REDIS_LRU_HOST: redis-cache
     REDIS_LRU_PORT: "6379"
@@ -42,7 +46,7 @@ services:
             redis:
                 condition: service_healthy
             redis-cache:
-                condition: service_healthy
+                condition: service_started
         env_file: .env
         environment:
             <<: *lru-env
@@ -62,7 +66,7 @@ services:
             redis:
                 condition: service_healthy
             redis-cache:
-                condition: service_healthy
+                condition: service_started
         env_file: .env
         environment:
             <<: *lru-env
@@ -81,7 +85,7 @@ services:
             redis:
                 condition: service_healthy
             redis-cache:
-                condition: service_healthy
+                condition: service_started
         env_file: .env
         environment:
             <<: *lru-env
@@ -100,7 +104,7 @@ services:
             redis:
                 condition: service_healthy
             redis-cache:
-                condition: service_healthy
+                condition: service_started
         env_file: .env
         environment:
             <<: *lru-env

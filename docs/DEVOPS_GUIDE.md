@@ -143,6 +143,7 @@ bash docker/postgres/upgrade.sh --prod --keep-current   # правда — на 
 - **Где пароль виден.** `redis-server` получает его строкой конфига через stdin, а не аргументом, и `redis-cli` в healthcheck — через `REDISCLI_AUTH`: в `ps`, `/proc/*/cmdline` и `docker compose ps` пароля нет. Но он остаётся в окружении контейнера (`docker inspect lexiflow-redis` → `Config.Env`) и в `.env` на хосте — как `DB_PASSWORD`. Компромисс принят: иначе нужен отдельный файл конфига или Docker secrets ради секрета, который и так читается всеми, кто может выполнять `docker` на сервере (`docker` = root). Защита — права на `.env` (`chmod 600`) и круг людей с доступом к Docker.
 - **Размер.** `REDIS_MAXMEMORY` (первый, 256 МБ) и `REDIS_CACHE_MAXMEMORY` (второй, 256 МБ; уточняется по замерам C8 в `docs/19` §8). Заполненный первый экземпляр при `noeviction` отвечает `OOM command not allowed` на запись: очередь и сессии встают — это сигнал увеличить `REDIS_MAXMEMORY` и искать, кто пишет без TTL, а не включать вытеснение.
 - **Мониторинг.** Раз в минуту с обоих экземпляров (`docker compose exec redis sh -c 'REDISCLI_AUTH=$REDIS_PASSWORD redis-cli INFO'`, то же для `redis-cache`): `used_memory` и `maxmemory`, `evicted_keys`, `keyspace_hits` / `keyspace_misses` (hit ratio = hits / (hits + misses)), `rejected_connections`. Алерты: `used_memory` первого экземпляра растёт неделю подряд или выше 80 % `maxmemory` — ищем ключи без TTL (`redis-cli --bigkeys`, `SCAN` + `TTL`); `evicted_keys` второго растёт быстрее, чем пополняется кэш, или hit ratio ниже ~0.8 — поднимаем `REDIS_CACHE_MAXMEMORY` (`docker compose up -d redis-cache` применит); `evicted_keys` первого экземпляра всегда 0 — иначе политика не `noeviction`. `/health/ready` показывает оба экземпляра отдельно: `redis` и `redis_cache` (§15.2).
+- **Деградация.** Хранилище чистого кэша `lru` — цепочка `failover` → `array` (`docs/19` §4.1): при недоступном `redis-cache` приложение считает из базы (медленнее, но работает), в лог один раз на сбой пишется `cache.failed_over` (warning), `/health/ready` отвечает `200` со `status: degraded` и `checks.redis_cache: degraded`; контейнеры приложения не ждут `redis-cache` (`depends_on: service_started`). Деплой этим не блокируется — smoke-проверка `deploy.sh` принимает `200`. Пока кэш лежит, растёт нагрузка на PostgreSQL: алерт на `degraded` дольше 10 минут (§15.3).
 - **Голый сервер без Docker:** второй `redis-server` на `127.0.0.1:6380`, `docs/VPS_DEPLOY_GUIDE_RU.md` §5.
 
 **Когда удалить старый том.** Когда 18 поработала достаточно (например, неделю), есть свежий бэкап и откат больше не нужен. Том держит контейнер `postgres` (защитное монтирование только для чтения — и остановленный контейнер тоже держит), поэтому `docker volume rm` сразу ответит «volume is in use»; сначала убрать контейнер:
@@ -883,11 +884,11 @@ an external uptime monitor (UptimeRobot / Better Stack / GlitchTip uptime) and f
 |---|---|
 | `db` | `select 1` throws |
 | `redis` | `PING` of the first instance fails (only reported if cache or queue use the `redis` driver) |
-| `redis_cache` | `PING` of the second instance (the pure cache connection `lru`) fails; only reported when `CACHE_PURE_STORE` is a Redis store on a connection of its own |
+| `redis_cache` | `PING` of the second instance (the pure cache connection `lru`) fails → the value is `degraded`, not `fail`: the pure cache falls over to the array store and the application serves from the database (`docs/19` §4.1). Only reported when `CACHE_PURE_STORE` is (a failover chain over) a Redis store on a connection of its own |
 | `scheduler` | no scheduler heartbeat for more than 3 minutes (`READINESS_HEARTBEAT_MAX_AGE`, seconds) |
 | `queue` | backlog of the `high` (`TELEGRAM_QUEUE`) or `default` queue exceeds `READINESS_QUEUE_MAX_SIZE` (1000), **or** the worker heartbeat of `high` / `low` is missing or older than 5 minutes (`READINESS_QUEUE_HEARTBEAT_MAX_AGE`, seconds; not checked with the `sync`/`null` driver) |
 
-Response: `200 {"status":"ok","checks":{"db":"ok",...}}` or `503 {"status":"fail","checks":{"db":"fail",...}}`.
+Response: `200 {"status":"ok","checks":{"db":"ok",...}}`, `200 {"status":"degraded","checks":{...,"redis_cache":"degraded"}}` (a dependency the application works without is down; `deploy.sh` and uptime monitors accept it, a lasting `degraded` is an alert of its own in §15.3) or `503 {"status":"fail","checks":{"db":"fail",...}}`.
 Only `ok`/`fail` is returned; error details, hosts and versions are written to the application log
 (`readiness.check_failed`), never to the response. The route is throttled (60 req/min per IP) and stateless.
 
@@ -901,6 +902,7 @@ Worker heartbeat: every minute the scheduler dispatches `QueueHeartbeatJob` to t
 | Signal | Alert when |
 |---|---|
 | `GET /health/ready` (every 1 min) | 2 consecutive non-200 responses; the `checks` body tells which dependency failed (`redis` and `redis_cache` are separate) |
+| `GET /health/ready` body `status: degraded` | longer than 10 minutes: the second Redis instance is down and the application computes from the database (slower, more load on PostgreSQL) — `docker compose ps redis-cache` and its log; `cache.failed_over` in the application log says when it started |
 | Redis `INFO` of both instances (every 1 min) | first instance: `used_memory` above 80 % of `maxmemory` or growing for days, `evicted_keys` > 0; second instance: `evicted_keys` growing fast or hit ratio `keyspace_hits / (hits + misses)` below ~0.8 — raise `REDIS_CACHE_MAXMEMORY` (§0 "Redis") |
 | Sentry / GlitchTip issues | new issue in `production`; spike of a known issue |
 | Failed jobs (`failed_jobs`, `php artisan queue:failed`) | any growth, especially `PostLeaderboardJob` |

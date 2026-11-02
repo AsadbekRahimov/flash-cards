@@ -82,13 +82,23 @@ return [
             'lock_connection' => env('REDIS_CACHE_LOCK_CONNECTION', 'locks'),
         ],
 
-        // The pure cache (docs/19 §3 rule 10): values that are recomputed when missing, on the second, volatile-lru
-        // instance. Reached only through App\Domain\Operations\Support\PureCache. Its locks (Cache::lock on this
-        // store, Cache::flexible) stay on the non-evicting instance: a lock must never be evicted.
-        'lru' => [
+        // The Redis store on the second, volatile-lru instance. Never used directly: `lru` below wraps it. Its locks
+        // (Cache::lock on the pure store, Cache::flexible) stay on the non-evicting instance: a lock must never be evicted.
+        'lru_redis' => [
             'driver' => 'redis',
             'connection' => 'lru',
             'lock_connection' => env('REDIS_CACHE_LOCK_CONNECTION', 'locks'),
+        ],
+
+        // The pure cache (docs/19 §3 rule 10, §4.1): values that are recomputed when missing. Reached only through
+        // App\Domain\Operations\Support\PureCache. A failover chain: `lru_redis` first; while the second instance is
+        // unreachable every call lands on the per-process array store (a miss = a computation from the database) and
+        // CacheFailedOver is dispatched once per outage (App\Listeners\Cache\LogCacheFailover writes it to the log), so
+        // the application degrades instead of failing. An invalidation during an outage does not reach Redis: a value
+        // there may outlive its forget() until its TTL (docs/19 §3 rule 5).
+        'lru' => [
+            'driver' => 'failover',
+            'stores' => ['lru_redis', 'array'],
         ],
 
         'dynamodb' => [
