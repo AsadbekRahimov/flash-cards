@@ -7,6 +7,7 @@ use App\Domain\Billing\Enums\Plan;
 use App\Domain\Practice\DTO\PracticeLimitState;
 use App\Domain\Practice\Enums\PracticeMode;
 use App\Domain\Practice\Exceptions\PracticeException;
+use App\Domain\Practice\Services\PracticeAccess;
 use App\Domain\Practice\Services\PracticeLimits;
 use App\Models\Battle;
 use App\Models\Course;
@@ -80,10 +81,9 @@ function limitsBlock(int $limit, int $used, string $resetsAt = LIMITS_RESET): ar
     return ['limit' => $limit, 'used' => $used, 'remaining' => max(0, $limit - $used), 'resets_at' => $resetsAt];
 }
 
-/** Plays a REAL sentence session to its end with a mistake in every element (a skip), so that a retry is available. @return array<string, mixed> */
-function limitsFinished(Learner $learner, Course $course, Lesson $lesson): array
+/** Plays a session (its JSON) to its end with a mistake in every element (a skip), so that a retry is available. @param array<string, mixed> $session @return array<string, mixed> */
+function limitsPlay(Learner $learner, array $session): array
 {
-    $session = limitsOpen($learner, $course->slug, ['mode' => 'sentence', 'lesson_id' => $lesson->id])->assertCreated()->json();
     for ($i = 0; $session['status'] === 'active' && $i < 10; $i++) {
         PracticeKit::resetLimiters($learner);
         $session = test()->withHeaders(PracticeKit::headers($learner))->postJson("/api/twa/practice/sessions/{$session['id']}/answer", [
@@ -93,6 +93,25 @@ function limitsFinished(Learner $learner, Course $course, Lesson $lesson): array
     expect($session['status'])->toBe('finished');
 
     return $session;
+}
+
+/** Opens a REAL sentence session of the lesson and plays it to its end. @return array<string, mixed> the finished session */
+function limitsFinished(Learner $learner, Course $course, Lesson $lesson): array
+{
+    return limitsPlay($learner, limitsOpen($learner, $course->slug, ['mode' => 'sentence', 'lesson_id' => $lesson->id])->assertCreated()->json());
+}
+
+/** A learner, a lesson of three words they know and five published sentence tasks aimed at them: the REAL mode, so retries are available. @return array{0: Learner, 1: Course, 2: Lesson} */
+function limitsRetryWorld(): array
+{
+    [$course, $lesson] = PracticeKit::course();
+    $learner = Learner::factory()->create();
+    $words = PracticeKit::words($lesson, 3, $learner);
+    foreach (range(1, 5) as $n) {
+        PracticeItem::factory()->sentence()->published()->forLesson($lesson)->targeting($words)->create();
+    }
+
+    return [$learner, $course, $lesson];
 }
 
 // ---------------------------------------------------------------- sessions
@@ -121,34 +140,52 @@ it('lets a Free learner open two sessions a day and refuses the third with 403 p
     expect(limitsEvents())->toHaveCount(2);
 });
 
-it('does not spend the limit on a retry of the mistakes, and lets a retry through even when sessions are for Pro only', function (): void {
-    [$course, $lesson] = PracticeKit::course();
-    $learner = Learner::factory()->create();
-    $words = PracticeKit::words($lesson, 3, $learner);
-    foreach (range(1, 5) as $n) {
-        PracticeItem::factory()->sentence()->published()->forLesson($lesson)->targeting($words)->create();
-    }
+it('gives one free retry per source opened today; a second retry of it and a retry of a retry take a place', function (): void {
+    PracticeKit::limits(3, 1);
+    [$learner, $course, $lesson] = limitsRetryWorld();
 
-    $finished = limitsFinished($learner, $course, $lesson); // the first session of the day
-    expect($finished['summary']['retry_available'])->toBeTrue();
+    $source = limitsFinished($learner, $course, $lesson); // the first session of the day
+    expect($source['summary']['retry_available'])->toBeTrue();
 
-    $retry = limitsOpen($learner, $course->slug, ['retry_of' => $finished['id'], 'source' => 'retry'])->assertCreated();
-    expect($retry->json('retry_of'))->toBe($finished['id'])
-        ->and($retry->json('limits.sessions'))->toBe(limitsBlock(2, 1)); // still one: the retry is free
+    $retry = limitsOpen($learner, $course->slug, ['retry_of' => $source['id'], 'source' => 'retry'])->assertCreated();
+    expect($retry->json('retry_of'))->toBe($source['id'])
+        ->and($retry->json('limits.sessions'))->toBe(limitsBlock(3, 1)); // free: still one
+    $retried = limitsPlay($learner, $retry->json());
 
-    // The retry itself, played with mistakes, can be retried - and the limit does not even look at it when sessions are for Pro only.
-    $retried = $retry->json();
-    for ($i = 0; $retried['status'] === 'active' && $i < 10; $i++) {
-        PracticeKit::resetLimiters($learner);
-        $retried = test()->withHeaders(PracticeKit::headers($learner))->postJson("/api/twa/practice/sessions/{$retried['id']}/answer", [
-            'request_id' => (string) Str::uuid(), 'element_id' => $retried['current']['id'], 'answer' => ['skip' => true],
-        ])->assertOk()->json('session');
-    }
+    // A second retry of the same source takes a place ...
+    $second = limitsOpen($learner, $course->slug, ['retry_of' => $source['id'], 'source' => 'retry'])->assertCreated();
+    expect($second->json('limits.sessions'))->toBe(limitsBlock(3, 2));
+    // ... and so does a retry of the retry.
+    $ofRetry = limitsOpen($learner, $course->slug, ['retry_of' => $retried['id'], 'source' => 'retry'])->assertCreated();
+    expect($ofRetry->json('limits.sessions'))->toBe(limitsBlock(3, 3));
+
+    // The day is full: neither a session nor another retry.
+    limitsOpen($learner, $course->slug)->assertForbidden()
+        ->assertJsonPath('error.details', ['kind' => 'sessions', 'limit' => 3, 'used' => 3, 'resets_at' => LIMITS_RESET]);
+    limitsOpen($learner, $course->slug, ['retry_of' => $source['id'], 'source' => 'retry'])->assertForbidden()->assertJsonPath('error.code', 'practice_limit_reached');
+    expect(limitsEvents())->toBe([['kind' => 'sessions', 'limit' => 3], ['kind' => 'sessions', 'limit' => 3]]);
+});
+
+it('charges a retry of a session opened yesterday and refuses it at a limit of 0: only the one retry of a source of today is free', function (): void {
+    PracticeKit::limits(2, 1);
+    [$learner, $course, $lesson] = limitsRetryWorld();
+
+    CarbonImmutable::setTestNow('2026-10-29 10:00:00'); // yesterday, 15:00 in Tashkent
+    $yesterday = limitsFinished($learner, $course, $lesson);
+
+    CarbonImmutable::setTestNow(LIMITS_T0);
+    expect(limitsMe($learner)->json('practice.limits.sessions'))->toBe(limitsBlock(2, 0));
+    $retry = limitsOpen($learner, $course->slug, ['retry_of' => $yesterday['id'], 'source' => 'retry'])->assertCreated();
+    expect($retry->json('limits.sessions'))->toBe(limitsBlock(2, 1)); // counted like a session
+
+    // A source of today: its one retry is free even with the day full.
+    $today = limitsFinished($learner, $course, $lesson);
+    $free = limitsOpen($learner, $course->slug, ['retry_of' => $today['id'], 'source' => 'retry'])->assertCreated();
+    expect($free->json('limits.sessions'))->toBe(limitsBlock(2, 2));
+
     PracticeKit::limits(0, 1);
-    limitsOpen($learner, $course->slug, ['retry_of' => $retried['id'], 'source' => 'retry'])->assertCreated()
-        ->assertJsonPath('limits.sessions', limitsBlock(0, 1));
-    limitsOpen($learner, $course->slug)->assertForbidden()->assertJsonPath('error.details.kind', 'sessions');
-    expect(limitsEvents())->toBe([['kind' => 'sessions', 'limit' => 0]]);
+    limitsOpen($learner, $course->slug, ['retry_of' => $yesterday['id'], 'source' => 'retry'])->assertForbidden()
+        ->assertJsonPath('error.details', ['kind' => 'sessions', 'limit' => 0, 'used' => 2, 'resets_at' => LIMITS_RESET]);
 });
 
 it('counts by the LOCAL day of the learner: the window closes at their midnight, resets_at names it, another zone has another day', function (): void {
@@ -363,8 +400,10 @@ it('counts a rematch for the one who offers it, and gives it back when it is wit
     expect($rematch->json('limits'))->toBe(['sessions' => null, 'battles' => limitsBlock(1, 1)]);
 
     BattleHttp::rematch($friend, $battle->id)->assertForbidden()->assertJsonPath('error.details.kind', 'battles'); // one that waits is the call of the day
-    BattleHttp::rematch($me, $battle->id)->assertForbidden()->assertJsonPath('error.details.kind', 'battles');     // mine was played: spent
+    // While the friend's rematch is open, mine is led into it (409, before my limit) - not to the paywall.
+    BattleHttp::rematch($me, $battle->id)->assertStatus(409)->assertJsonPath('error.code', 'battle_busy')->assertJsonPath('error.details.battle_id', $rematch->json('id'));
     BattleHttp::cancel($friend, (int) $rematch->json('id'))->assertOk();
+    BattleHttp::rematch($me, $battle->id)->assertForbidden()->assertJsonPath('error.details.kind', 'battles'); // mine was played: spent
     expect(limitsMe($friend)->json('practice.limits.battles.used'))->toBe(0) // withdrawn: given back
         ->and(limitsMe($me)->json('practice.limits.battles.used'))->toBe(1)
         ->and(limitsEvents())->toBe([['kind' => 'battles', 'limit' => 1], ['kind' => 'battles', 'limit' => 1]]);
@@ -397,11 +436,15 @@ it('counts the calls that wait or were played and gives back the ones that never
     'closed / voided' => ['closed', 'voided', false],
 ]);
 
-it('checks the limit of a battle after the switches and before the friend, the course and the material', function (): void {
+it('checks the limit of a battle after the switches and the pair, and before the friend\'s access, the course and the material', function (): void {
     [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
     PracticeKit::limits(null, 0);
 
-    BattleHttp::post($me, '', ['friendship_id' => 424242, 'mode' => 'collocation', 'course' => 'no-such-course'])->assertForbidden()
+    // The pair comes first (it names the friend whose open invitation would lead me in): an unknown pair is a 404, not the paywall.
+    BattleHttp::post($me, '', ['friendship_id' => 424242, 'mode' => 'collocation', 'course' => 'no-such-course'])->assertNotFound()
+        ->assertJsonPath('error.code', 'friendship_not_found');
+    // Then the limit, before the course and the material.
+    BattleHttp::post($me, '', ['friendship_id' => $friendship->id, 'mode' => 'collocation', 'course' => 'no-such-course'])->assertForbidden()
         ->assertJsonPath('error.code', 'practice_limit_reached')->assertJsonPath('error.details', ['kind' => 'battles', 'limit' => 0, 'used' => 0, 'resets_at' => LIMITS_RESET]);
     config(['practice.modes.collocation' => false]);
     BattleHttp::invite($me, $friendship, PracticeMode::Collocation, $course)->assertStatus(409)->assertJsonPath('error.code', 'practice_mode_disabled');
@@ -409,6 +452,55 @@ it('checks the limit of a battle after the switches and before the friend, the c
     BattleHttp::invite($me, $friendship, PracticeMode::Collocation, $course)->assertStatus(409)->assertJsonPath('error.code', 'battle_disabled');
     config(['practice.access' => 'off']);
     BattleHttp::invite($me, $friendship, PracticeMode::Collocation, $course)->assertForbidden()->assertJsonPath('error.code', 'practice_unavailable');
+});
+
+// ---------------------------------------------------------------- the order, the instant, the day
+
+it('leads a Free learner at the limit into the friend\'s open invitation - 409 battle_busy with its id - instead of the paywall, writing nothing', function (): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    PracticeKit::limits(null, 0);
+    PracticeKit::pro($friend);
+    $theirs = BattleHttp::invite($friend, $friendship, PracticeMode::Collocation, $course)->assertCreated();
+
+    BattleHttp::invite($me, $friendship, PracticeMode::Collocation, $course)->assertStatus(409)
+        ->assertJsonPath('error.code', 'battle_busy')
+        ->assertJsonPath('error.details', ['battle_id' => $theirs->json('id')]);
+    expect(Battle::query()->count())->toBe(1)
+        ->and(limitsEvents())->toBe([]);
+
+    // Without the friend's invitation the same learner meets the limit.
+    BattleHttp::cancel($friend, (int) $theirs->json('id'))->assertOk();
+    BattleHttp::invite($me, $friendship, PracticeMode::Collocation, $course)->assertForbidden()->assertJsonPath('error.code', 'practice_limit_reached');
+});
+
+it('stamps a call with the instant of the invitation: a call at 23:59:59 belongs to that day even when the row is written after midnight', function (): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    PracticeKit::limits(null, 1);
+    $lastSecond = CarbonImmutable::parse('2026-10-30 18:59:59'); // 23:59:59 in Tashkent
+    CarbonImmutable::setTestNow('2026-10-30 19:00:01');           // the clock of the INSERT is already tomorrow
+
+    $battle = BattleKit::service()->invite($me, $friendship->id, PracticeMode::Collocation, $course->slug, null, null, $lastSecond);
+    $limits = app(PracticeLimits::class);
+    $state = app(PracticeAccess::class)->state($me);
+
+    expect(BattleKit::fresh($battle)->created_at?->format('Y-m-d H:i:s'))->toBe('2026-10-30 18:59:59')
+        ->and($limits->describe($me, $state, null, $lastSecond)['battles'] ?? null)->toBe(limitsBlock(1, 1, '2026-10-30T19:00:00.000Z'))
+        ->and($limits->describe($me, $state, null, CarbonImmutable::parse('2026-10-30 19:00:01'))['battles'] ?? null)->toBe(limitsBlock(1, 0, '2026-10-31T19:00:00.000Z'));
+});
+
+it('keeps the limits of the day across a change of timezone: the day is carried over, nothing is reset', function (): void {
+    [$course] = PracticeKit::course();
+    $learner = Learner::factory()->create(['timezone' => 'Asia/Tashkent']);
+    limitsOpen($learner, $course->slug)->assertCreated();
+    limitsOpen($learner, $course->slug)->assertCreated();
+
+    // Kiritimati is past midnight already (UTC+14: 00:00 of the 31st at 10:00 UTC) - a fresh day, were the zone alone to decide.
+    test()->withHeaders(PracticeKit::headers($learner))->patchJson('/api/twa/me/settings', ['timezone' => 'Pacific/Kiritimati'])->assertOk();
+    $learner->refresh();
+
+    // The day is carried over (docs/12 §5.3): both places stay taken until the first midnight of the new zone after the old day's end.
+    expect(limitsMe($learner)->json('practice.limits.sessions'))->toBe(limitsBlock(2, 2, '2026-10-31T10:00:00.000Z'));
+    limitsOpen($learner, $course->slug)->assertForbidden()->assertJsonPath('error.details.used', 2);
 });
 
 // ---------------------------------------------------------------- the exception

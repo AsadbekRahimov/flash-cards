@@ -452,3 +452,25 @@ it('exposes paywall mode and a null contact when BILLING_SUPPORT_CONTACT is empt
     config()->set('billing.paywall.contact', '  @lexiflow_support ');
     expect(app(EntitlementResolver::class)->paywall())->toBe(['mode' => 'coming_soon', 'contact' => '@lexiflow_support']);
 });
+
+it('reads the features and the limit of a cached snapshot from the plan config of NOW: a snapshot written before a feature was added grants it', function (): void {
+    $learner = Learner::factory()->create();
+    $resolver = app(EntitlementResolver::class);
+    $key = EntitlementResolver::cacheKey($learner->id);
+
+    // A snapshot of an older release: Pro without `practice.unlimited`, with a limit of its own.
+    PureCache::store()->put($key, ['plan' => 'pro', 'source' => 'subscription', 'until' => null, 'features' => ['courses.public'], 'new_words_per_day' => 5, 'subscription_id' => 7], 300);
+
+    $e = $resolver->for($learner);
+    expect($e->plan)->toBe(Plan::Pro)
+        ->and($e->features)->toBe(Plan::Pro->features())
+        ->and($e->can('practice.unlimited'))->toBeTrue()
+        ->and($e->newWordsPerDay)->toBeNull()
+        ->and($e->subscriptionId)->toBe(7)
+        ->and($e->source)->toBe('subscription');
+
+    // What a fresh snapshot holds: the plan, its source, its end, the subscription - never what the plan grants.
+    $resolver->forget($learner);
+    $resolver->for($learner);
+    expect(array_keys((array) PureCache::store()->get(EntitlementResolver::cacheKey($learner->id))))->toBe(['plan', 'source', 'until', 'subscription_id']);
+});

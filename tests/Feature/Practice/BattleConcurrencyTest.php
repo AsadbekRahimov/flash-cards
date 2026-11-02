@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Tests\Support\ForkSafe;
 use Tests\Support\Practice\BattleKit;
+use Tests\Support\Practice\PracticeKit;
 
 /*
  * docs/16 §9 rules 8-13, §14.2: the real races of the battle. Several OS processes, each with its own PostgreSQL connection,
@@ -165,8 +166,11 @@ function battleRacePlay(Battle $battle, Learner $me, Learner $friend, int $round
     }
 }
 
-it('lets one learner accept only one of two invitations that arrive at the same instant: one room, 409 battle_busy for the other, one active row', function (): void {
+it('lets one learner accept only one of two invitations that arrive at the same instant: one room, 409 battle_busy for the other, one active row', function (bool $limits): void {
     [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    if ($limits) {
+        PracticeKit::limits(2, 1); // accepting is free of the limit and takes no learner lock
+    }
     $third = Learner::factory()->create(['interface_locale' => 'ru']);
     $withThird = Friendship::factory()->between($me, $third)->create();
     $fromFriend = BattleKit::invite($friend, $friendship, PracticeMode::Collocation, $course);
@@ -194,7 +198,7 @@ it('lets one learner accept only one of two invitations that arrive at the same 
         ->and(BattleParticipant::query()->where('active_learner_id', $meId)->sole()->battle_id)->toBe($won->id)
         ->and(battleRaceEvents('battle.accepted'))->toBe([['battle_id' => $won->id]])
         ->and($elapsed)->toBeLessThan(8.0); // nobody waited for a lock that never came
-});
+})->with(['limits off' => [false], 'limits on' => [true]]);
 
 it('serialises an acceptance and a cancellation of the same invitation: one closed match, no deadlock, the events once', function (): void {
     [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
@@ -227,8 +231,11 @@ it('serialises an acceptance and a cancellation of the same invitation: one clos
         ->and(ProductEvent::query()->where('name', 'battle.accepted')->count())->toBe(count(array_filter($seen, fn (string $s): bool => str_starts_with($s, 'ok/'))));
 });
 
-it('gives a learner who sends three invitations at the same instant exactly one: the others are 409 battle_busy with its id', function (): void {
+it('gives a learner who sends three invitations at the same instant exactly one: the others are 409 battle_busy with its id', function (bool $limits): void {
     [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    if ($limits) {
+        PracticeKit::limits(2, 5); // the learner's row is the first lock of every invitation; the limit does not bind, the index decides
+    }
     $others = [$friendship];
     foreach (range(1, 2) as $i) {
         $others[] = Friendship::factory()->between($me, Learner::factory()->create(['interface_locale' => 'uz']))->create();
@@ -253,7 +260,7 @@ it('gives a learner who sends three invitations at the same instant exactly one:
             expect($result['details'] ?? null)->toBe(['battle_id' => $winner->id]);
         }
     }
-});
+})->with(['limits off' => [false], 'limits on' => [true]]);
 
 it('takes the answers of both players at the same instant: one resolves the round, one reveal, two rows, version +2, the right scores', function (): void {
     [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
@@ -358,8 +365,11 @@ it('finalises a match exactly once when both players poll and the sweeper runs a
         ->and(battleRaceEvents('battle.finished')[0])->toMatchArray(['battle_id' => $battle->id, 'end_reason' => 'completed', 'result' => 'challenger', 'rounds_played' => 5]);
 });
 
-it('lets exactly one of two rematches that cross go through, whatever the gap between them: the other is 409 battle_busy with the id of the first (Ж2, open_pair)', function (): void {
+it('lets exactly one of two rematches that cross go through, whatever the gap between them: the other is 409 battle_busy with the id of the first (Ж2, open_pair)', function (bool $limits): void {
     [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    if ($limits) {
+        PracticeKit::limits(2, 20); // six played matches and six rematches a day for each: the limit does not bind, the pair's index decides
+    }
     $meId = $me->id;
     $friendId = $friend->id;
     $outcomes = [];
@@ -401,7 +411,7 @@ it('lets exactly one of two rematches that cross go through, whatever the gap be
 
     expect(ProductEvent::query()->where('name', 'battle.invited')->where('props->rematch', true)->count())->toBe(6)
         ->and(BattleParticipant::query()->whereNotNull('active_learner_id')->count())->toBe(0);
-});
+})->with(['limits off' => [false], 'limits on' => [true]]);
 
 it('settles a surrender and the opponent answer that meet: one finished match with the opponent as the winner, no deadlock', function (): void {
     [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();

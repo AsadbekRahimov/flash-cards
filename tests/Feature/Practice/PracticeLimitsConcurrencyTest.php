@@ -2,21 +2,28 @@
 
 declare(strict_types=1);
 
+use App\Domain\Practice\Enums\BattleEndReason;
+use App\Domain\Practice\Enums\BattleStatus;
 use App\Domain\Practice\Enums\PracticeMode;
 use App\Domain\Practice\Exceptions\BattleException;
 use App\Domain\Practice\Exceptions\PracticeException;
+use App\Domain\Practice\Services\Battle\BattleJanitor;
 use App\Domain\Practice\Services\Battle\BattleService;
+use App\Domain\Practice\Services\PracticeAccess;
+use App\Domain\Practice\Services\PracticeLimits;
 use App\Domain\Practice\Services\PracticeSessionService;
 use App\Models\Battle;
 use App\Models\BattleParticipant;
 use App\Models\Friendship;
 use App\Models\Learner;
+use App\Models\PracticeItem;
 use App\Models\PracticeSession;
 use App\Models\ProductEvent;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Tests\Support\ForkSafe;
 use Tests\Support\Practice\BattleKit;
 use Tests\Support\Practice\PracticeKit;
@@ -224,4 +231,98 @@ it('does not deadlock a Free opening against the lock of the learner row the tra
         ->and(limitsRaceOutcomes($results))->toBe(['ok', 'ok', 'ok'])
         ->and(PracticeSession::query()->where('learner_id', $meId)->count())->toBe(1)
         ->and(Battle::query()->where('challenger_id', $friendId)->count())->toBe(1);
+});
+
+it('decides accept ∥ invite of one learner by the index, with the limits on or off: one wins, the other is 409 battle_busy - never the limit', function (bool $limits): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    if ($limits) {
+        PracticeKit::limits(2, 1);
+    }
+    $third = Learner::factory()->create(['interface_locale' => 'ru']);
+    $withThird = Friendship::factory()->between($me, $third)->create();
+    $fromFriend = BattleKit::invite($friend, $friendship, PracticeMode::Collocation, $course);
+    $meId = $me->id;
+    $slug = $course->slug;
+    $pair = $withThird->id;
+
+    $results = limitsRace([
+        fn (): string => app(BattleService::class)->accept(limitsRaceLearner($meId), $fromFriend->id)->status->value,
+        fn (): int => app(BattleService::class)->invite(limitsRaceLearner($meId), $pair, PracticeMode::Collocation, $slug, null, null)->id,
+    ]);
+    $outcomes = limitsRaceOutcomes($results);
+    sort($outcomes);
+
+    // The acceptance takes no lock of the learner's row; the invitation takes it first and then meets the unique `active_learner_id`
+    // of whichever came first. Neither waits for what the other holds (docs/16 §9 rule 16), and the loser is told it is busy.
+    expect(limitsRaceCrashes($results))->toBe([])
+        ->and($outcomes)->toBe(['battle_busy', 'ok'])
+        ->and(BattleParticipant::query()->where('active_learner_id', $meId)->count())->toBe(1)
+        ->and(limitsRaceEvents('practice.limit_reached'))->toBe([]);
+})->with(['limits off' => [false], 'limits on' => [true]]);
+
+it('lets a new call through when the learner\'s own invitation has run out and the sweeper closes it at the same instant, with the limits on or off', function (bool $limits): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    if ($limits) {
+        PracticeKit::limits(2, 1);
+    }
+    $third = Learner::factory()->create(['interface_locale' => 'ru']);
+    $withThird = Friendship::factory()->between($me, $third)->create();
+    $dead = BattleKit::invite($me, $friendship, PracticeMode::Collocation, $course);
+    $later = CarbonImmutable::parse('2026-10-30 10:00:00')->addMinutes(6);
+    CarbonImmutable::setTestNow($later);
+    $meId = $me->id;
+    $slug = $course->slug;
+    $pair = $withThird->id;
+
+    $results = limitsRace([
+        fn (): int => app(BattleService::class)->invite(limitsRaceLearner($meId), $pair, PracticeMode::Collocation, $slug, null, null, $later)->id,
+        fn (): int => app(BattleJanitor::class)->sweep($later),
+    ]);
+
+    // The dead invitation is not a call of the day any more (limits on), so the claim passes; the row it still holds is closed by
+    // whoever gets to it first - the sweeper, or the call itself on its way (Ж1) - exactly once, and the call goes through.
+    $state = app(PracticeAccess::class)->state(limitsRaceLearner($meId));
+    expect(limitsRaceCrashes($results))->toBe([])
+        ->and($results[0]['ok'] ?? false)->toBeTrue()
+        ->and(BattleKit::fresh($dead)->end_reason)->toBe(BattleEndReason::InviteExpired)
+        ->and(Battle::query()->where('challenger_id', $meId)->whereIn('status', BattleStatus::nonTerminalValues())->count())->toBe(1)
+        ->and(limitsRaceEvents('battle.closed'))->toHaveCount(1)
+        ->and(app(PracticeLimits::class)->describe(limitsRaceLearner($meId), $state, null, $later)['battles']['used'] ?? null)->toBe($limits ? 1 : null);
+})->with(['limits off' => [false], 'limits on' => [true]]);
+
+it('gives the one free retry of a source to exactly one of three tabs that retry it at the same instant: the second takes the last place, the third is refused', function (): void {
+    PracticeKit::limits(2, 1);
+    [$course, $lesson] = PracticeKit::course();
+    $learner = Learner::factory()->create();
+    $words = PracticeKit::words($lesson, 3, $learner);
+    foreach (range(1, 5) as $n) {
+        PracticeItem::factory()->sentence()->published()->forLesson($lesson)->targeting($words)->create();
+    }
+    $headers = PracticeKit::headers($learner);
+    $source = test()->withHeaders($headers)->postJson('/api/twa/practice/sessions', ['mode' => 'sentence', 'course' => $course->slug, 'lesson_id' => $lesson->id])->assertCreated()->json();
+    for ($i = 0; $source['status'] === 'active' && $i < 10; $i++) {
+        PracticeKit::resetLimiters($learner);
+        $source = test()->withHeaders($headers)->postJson("/api/twa/practice/sessions/{$source['id']}/answer", [
+            'request_id' => (string) Str::uuid(), 'element_id' => $source['current']['id'], 'answer' => ['skip' => true],
+        ])->assertOk()->json('session');
+    }
+    expect($source['status'])->toBe('finished');
+    $learnerId = $learner->id;
+    $sourceId = (int) $source['id'];
+    $slug = $course->slug;
+
+    $results = limitsRace(array_fill(0, 3, fn (): int => app(PracticeSessionService::class)->open(
+        limitsRaceLearner($learnerId), PracticeMode::Sentence, $slug, null, 'retry', true, $sourceId,
+    )->id));
+    $outcomes = limitsRaceOutcomes($results);
+    sort($outcomes);
+
+    // Under the learner's lock the tabs go one by one: the first finds no retry of the source and is free, the second finds one and
+    // takes the second place of the day (the source took the first), the third finds the day full.
+    $state = app(PracticeAccess::class)->state(limitsRaceLearner($learnerId));
+    expect(limitsRaceCrashes($results))->toBe([])
+        ->and($outcomes)->toBe(['ok', 'ok', 'practice_limit_reached'])
+        ->and(PracticeSession::query()->where('retry_of_session_id', $sourceId)->count())->toBe(2)
+        ->and(app(PracticeLimits::class)->describe(limitsRaceLearner($learnerId), $state)['sessions']['used'] ?? null)->toBe(2)
+        ->and(limitsRaceEvents('practice.limit_reached'))->toBe([['kind' => 'sessions', 'limit' => 2]]);
 });
