@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\ExamSessionResource\RelationManagers;
 
+use App\Filament\Resources\Support\AdminTable;
 use App\Models\ExamAnswer;
 use App\Models\ExamSession;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -22,7 +23,7 @@ class AnswersRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return $table
+        return AdminTable::bounded($table)
             ->modelLabel(__('admin.exams.answers.singular'))
             ->pluralModelLabel(__('admin.exams.answers.plural'))
             ->emptyStateHeading(__('admin.exams.answers.empty'))

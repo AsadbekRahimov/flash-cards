@@ -7,6 +7,7 @@ namespace App\Filament\Resources;
 use App\Domain\Administration\Services\PanelDataScope;
 use App\Filament\Resources\StageResource\Pages;
 use App\Filament\Resources\StageResource\RelationManagers\LessonsRelationManager;
+use App\Filament\Resources\Support\AdminTable;
 use App\Models\Course;
 use App\Models\Stage;
 use Filament\Actions;
@@ -116,13 +117,14 @@ class StageResource extends Resource
      * "Модуль 3"); without a text, the first ones in course and number order. A module without a title has no title to
      * match, which is why the relationship search of the select (a LIKE on the title) is not enough.
      *
+     * @param  Builder<Stage>|null  $stages  the modules to choose from; all of them by default (the viewer's own, for a filter)
      * @return array<int, string> stage id => {@see displayTitle()}
      */
-    public static function searchOptions(?string $search): array
+    public static function searchOptions(?string $search, ?Builder $stages = null): array
     {
         $term = trim((string) $search);
 
-        return Stage::query()
+        return ($stages ?? Stage::query())
             ->when($term !== '', function (Builder $query) use ($term): void {
                 $query->where(function (Builder $query) use ($term): void {
                     $query->whereLike('title', "%{$term}%");
@@ -142,7 +144,7 @@ class StageResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return AdminTable::bounded($table)
             ->columns([
                 Tables\Columns\TextColumn::make('course.slug')->label(__('admin.stages.fields.course'))->sortable(),
                 Tables\Columns\TextColumn::make('number')->label(__('admin.stages.fields.number'))->sortable(),

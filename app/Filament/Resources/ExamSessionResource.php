@@ -9,6 +9,8 @@ use App\Filament\Resources\ExamSessionResource\Pages;
 use App\Filament\Resources\ExamSessionResource\RelationManagers\AnswersRelationManager;
 use App\Filament\Resources\ExamSessionResource\RelationManagers\ResultsRelationManager;
 use App\Filament\Resources\Support\AdminLabels;
+use App\Filament\Resources\Support\AdminTable;
+use App\Filament\Resources\Support\GroupFilter;
 use App\Models\ExamSession;
 use Filament\Actions;
 use Filament\Infolists\Components\TextEntry;
@@ -26,6 +28,21 @@ class ExamSessionResource extends Resource
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-check';
 
     protected static ?int $navigationSort = 10;
+
+    /**
+     * The columns the list selects (docs/20 §1.4): everything but the `config` of a session - the answer key and the order of
+     * its questions, a document of tens of kilobytes the list never shows.
+     *
+     * @var list<string>
+     */
+    private const LIST_COLUMNS = [
+        'exam_sessions.id',
+        'exam_sessions.telegram_group_id',
+        'exam_sessions.lesson_id',
+        'exam_sessions.status',
+        'exam_sessions.started_at',
+        'exam_sessions.ends_at',
+    ];
 
     public static function getNavigationGroup(): ?string
     {
@@ -74,7 +91,8 @@ class ExamSessionResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return AdminTable::big($table)
+            ->query(fn (): Builder => self::listQuery())
             ->columns([
                 Tables\Columns\TextColumn::make('group.title')
                     ->label(__('admin.exams.fields.group'))
@@ -106,13 +124,8 @@ class ExamSessionResource extends Resource
                     ->toggleable(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('telegram_group_id')
-                    ->options(fn (): array => app(PanelDataScope::class)
-                        ->groups()
-                        ->orderBy('title')
-                        ->pluck('title', 'id')
-                        ->all())
-                    ->label(__('admin.exams.fields.group')),
+                // The groups are found by typing, not rendered into the page (GroupFilter).
+                GroupFilter::make('telegram_group_id', __('admin.exams.fields.group')),
                 Tables\Filters\SelectFilter::make('status')
                     ->label(__('admin.exams.fields.status'))
                     ->options(AdminLabels::options('exams.status', ['open', 'closed'])),
@@ -124,12 +137,31 @@ class ExamSessionResource extends Resource
             ->defaultSort('started_at', 'desc');
     }
 
-    /** @return Builder<ExamSession> */
+    /**
+     * The session page: the whole row, who started it, and the counts of its infolist.
+     *
+     * @return Builder<ExamSession>
+     */
     public static function getEloquentQuery(): Builder
     {
         return app(PanelDataScope::class)
             ->exams()
             ->with(['group', 'lesson.stage', 'startedBy'])
+            ->withCount(['results', 'answers']);
+    }
+
+    /**
+     * The list: the columns of LIST_COLUMNS, the title of the group and the numbers of the lesson and its stage - nobody
+     * reads who started a session in the list.
+     *
+     * @return Builder<ExamSession>
+     */
+    private static function listQuery(): Builder
+    {
+        return app(PanelDataScope::class)
+            ->exams()
+            ->select(self::LIST_COLUMNS)
+            ->with(['group:id,title', 'lesson:id,number,stage_id', 'lesson.stage:id,number'])
             ->withCount(['results', 'answers']);
     }
 

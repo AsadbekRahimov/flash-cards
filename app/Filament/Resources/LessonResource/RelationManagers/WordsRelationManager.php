@@ -7,6 +7,7 @@ namespace App\Filament\Resources\LessonResource\RelationManagers;
 use App\Domain\Content\Services\LessonContentRefresher;
 use App\Domain\Content\Services\WordTranslationWriter;
 use App\Filament\Resources\Support\AdminLabels;
+use App\Filament\Resources\Support\AdminTable;
 use App\Filament\Resources\WordResource;
 use App\Models\Word;
 use Filament\Actions;
@@ -43,7 +44,7 @@ class WordsRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return $table
+        return AdminTable::bounded($table)
             ->modelLabel(mb_strtolower(__('admin.words.singular')))
             ->pluralModelLabel(__('admin.words.plural'))
             ->emptyStateHeading(__('admin.words.empty'))

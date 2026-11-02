@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\Support\AdminLabels;
+use App\Filament\Resources\Support\AdminTable;
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
 use Filament\Actions;
@@ -85,7 +86,7 @@ class UserResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return AdminTable::bounded($table)
             ->columns([
                 Tables\Columns\TextColumn::make('name')->label(__('admin.users.fields.name'))->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('email')->label(__('admin.users.fields.email'))->searchable()->copyable(),

@@ -6,6 +6,7 @@ namespace App\Filament\Resources;
 
 use App\Domain\Administration\Services\PanelDataScope;
 use App\Filament\Resources\Support\AdminLabels;
+use App\Filament\Resources\Support\AdminTable;
 use App\Filament\Resources\TelegramGroupResource\Pages;
 use App\Models\TelegramGroup;
 use Filament\Actions;
@@ -85,7 +86,7 @@ class TelegramGroupResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return AdminTable::bounded($table)
             ->columns([
                 Tables\Columns\TextColumn::make('chat_id')->label(__('admin.telegram_groups.fields.chat_id'))->copyable()->searchable(),
                 Tables\Columns\TextColumn::make('title')->label(__('admin.telegram_groups.fields.title'))->searchable()->limit(40),

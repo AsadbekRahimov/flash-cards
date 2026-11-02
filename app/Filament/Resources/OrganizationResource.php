@@ -11,6 +11,7 @@ use App\Filament\Resources\OrganizationResource\RelationManagers\GroupsRelationM
 use App\Filament\Resources\OrganizationResource\RelationManagers\InvitesRelationManager;
 use App\Filament\Resources\OrganizationResource\RelationManagers\MembersRelationManager;
 use App\Filament\Resources\Support\AdminLabels;
+use App\Filament\Resources\Support\AdminTable;
 use App\Models\Organization;
 use Filament\Actions;
 use Filament\Forms;
@@ -102,7 +103,7 @@ class OrganizationResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return AdminTable::bounded($table)
             // The delete button asks OrganizationPolicy, which needs two facts per row: they ride along with the page query.
             ->modifyQueryUsing(fn (Builder $query): Builder => app(OrganizationAdminService::class)->withDeletionFacts($query))
             ->columns([

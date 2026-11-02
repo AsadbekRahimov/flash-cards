@@ -8,6 +8,7 @@ use App\Domain\Organizations\Exceptions\OrganizationMembershipException;
 use App\Domain\Organizations\Services\OrganizationMembershipService;
 use App\Filament\Resources\Support\AdminErrors;
 use App\Filament\Resources\Support\AdminLabels;
+use App\Filament\Resources\Support\AdminTable;
 use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\OrganizationMember;
@@ -39,7 +40,7 @@ class MembersRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return $table
+        return AdminTable::bounded($table)
             ->modelLabel(__('admin.organizations.members.singular'))
             ->pluralModelLabel(__('admin.organizations.members.plural'))
             ->emptyStateHeading(__('admin.organizations.members.empty'))

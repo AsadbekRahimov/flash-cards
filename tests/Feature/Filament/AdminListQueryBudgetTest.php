@@ -10,6 +10,7 @@ use App\Filament\Resources\ExamSessionResource\Pages\ListExamSessions;
 use App\Filament\Resources\ExamSessionResource\Pages\ViewExamSession;
 use App\Filament\Resources\ExamSessionResource\RelationManagers\AnswersRelationManager;
 use App\Filament\Resources\ExamSessionResource\RelationManagers\ResultsRelationManager;
+use App\Filament\Resources\LearnerResource\Pages\ListLearners;
 use App\Filament\Resources\LearnerResource\Pages\ViewLearner;
 use App\Filament\Resources\LearnerResource\RelationManagers\DailyStatsRelationManager;
 use App\Filament\Resources\LearnerResource\RelationManagers\OffersRelationManager;
@@ -131,19 +132,19 @@ it('lists courses with the stages counted by the page query', function (): void 
         foreach ($courses as $course) {
             Stage::factory()->create(['course_id' => $course->id]);
         }
-    }, ceiling: 8);
+    }, ceiling: 6);
 });
 
 it('lists stages with the course and the lessons counted by the page query', function (): void {
     FilamentQueryBudget::assert(ListStages::class, function (int $rows): void {
         Stage::factory()->count($rows - Stage::query()->count())->create();
-    }, ceiling: 10);
+    }, ceiling: 8);
 });
 
 it('lists lessons with the stage and the words counted by the page query', function (): void {
     FilamentQueryBudget::assert(ListLessons::class, function (int $rows): void {
         Lesson::factory()->count($rows - Lesson::query()->count())->create();
-    }, ceiling: 12);
+    }, ceiling: 10);
 });
 
 it('lists words with the course path and the translations counted by the page query', function (): void {
@@ -154,7 +155,7 @@ it('lists words with the course path and the translations counted by the page qu
             $word = Word::factory()->create(['lesson_id' => $lesson->id, 'word' => "budget-word-{$i}"]);
             WordTranslation::factory()->create(['word_id' => $word->id]);
         }
-    }, ceiling: 14);
+    }, ceiling: 10);
 });
 
 it('lists exam sessions with the group, the lesson and the counts of results and answers', function (): void {
@@ -174,7 +175,7 @@ it('lists exam sessions with the group, the lesson and the counts of results and
             ]);
             ExamResult::factory()->create(['exam_session_id' => $session->id]);
         }
-    }, ceiling: 18);
+    }, ceiling: 12);
 });
 
 it('lists payments with the subscriber of either kind loaded in two statements', function (): void {
@@ -187,7 +188,7 @@ it('lists payments with the subscriber of either kind loaded in two statements',
                 ? ['subscriber_type' => 'organization', 'subscriber_id' => $organization->id]
                 : []);
         }
-    }, ceiling: 10);
+    }, ceiling: 8);
 });
 
 it('lists payment orders with the subscriber of either kind and the flags of the meta', function (): void {
@@ -199,13 +200,13 @@ it('lists payment orders with the subscriber of either kind and the flags of the
                 ? ['subscriber_type' => 'organization', 'subscriber_id' => $organization->id, 'meta' => ['tier_mismatch' => true, 'tier_mismatch_live_tier' => 'tutor']]
                 : ['meta' => ['paid_after_cancel' => true, 'canceled_reason' => 'offer_redeemed']]);
         }
-    }, ceiling: 10);
+    }, ceiling: 8);
 });
 
 it('lists provider transactions with their order', function (): void {
     FilamentQueryBudget::assert(ListProviderTransactions::class, function (int $rows): void {
         ProviderTransaction::factory()->count($rows - ProviderTransaction::query()->count())->create();
-    }, ceiling: 10);
+    }, ceiling: 6);
 });
 
 it('lists subscriptions with the subscriber of either kind and the admin who granted them', function (): void {
@@ -218,13 +219,13 @@ it('lists subscriptions with the subscriber of either kind and the admin who gra
                 ? ['subscriber_type' => 'organization', 'subscriber_id' => $organization->id, 'granted_by_user_id' => $this->admin->id, 'status' => $i === 0 ? 'active' : 'expired']
                 : ['granted_by_user_id' => $this->admin->id]);
         }
-    }, ceiling: 12);
+    }, ceiling: 10);
 });
 
 it('lists promo codes with the admin who created them', function (): void {
     FilamentQueryBudget::assert(ListPromoCodes::class, function (int $rows): void {
         PromoCode::factory()->count($rows - PromoCode::query()->count())->create(['created_by_user_id' => $this->admin->id]);
-    }, ceiling: 10);
+    }, ceiling: 8);
 });
 
 it('lists organizations without asking the database about the delete button of every row', function (): void {
@@ -239,7 +240,7 @@ it('lists organizations without asking the database about the delete button of e
                 default => Subscription::factory()->forOrganization($organization)->expired()->create(),
             };
         }
-    }, ceiling: 8);
+    }, ceiling: 6);
 });
 
 it('answers whether an organization may be deleted from the facts its list row carries, and asks the database without them', function (): void {
@@ -278,7 +279,7 @@ it('lists telegram groups with the active members counted by the page query', fu
         foreach ($groups as $group) {
             GroupMember::factory()->create(['telegram_group_id' => $group->id, 'learner_id' => Learner::factory()]);
         }
-    }, ceiling: 8);
+    }, ceiling: 6);
 });
 
 it('lists staff users with their roles loaded in one statement', function (): void {
@@ -287,7 +288,7 @@ it('lists staff users with their roles loaded in one statement', function (): vo
         foreach ($users as $user) {
             $user->assignRole('teacher');
         }
-    }, ceiling: 12);
+    }, ceiling: 10);
 });
 
 it('lists practice items with the course, the lesson and both versions loaded by the page query', function (): void {
@@ -298,7 +299,86 @@ it('lists practice items with the course, the lesson and both versions loaded by
             // A dictation with ready audio: the audio status column reads both versions.
             PracticeItem::factory()->dictation()->published()->audioReady()->forCourse($course)->create();
         }
-    }, ceiling: 16);
+    }, ceiling: 14);
+});
+
+// --- the lists a teacher opens ----------------------------------------------------------------------------
+
+/**
+ * A teacher of $group, signed in.
+ */
+function alb_teacher(TelegramGroup $group): User
+{
+    $teacher = User::factory()->create(['is_active' => true]);
+    $teacher->assignRole('teacher');
+    $teacher->telegramGroups()->attach($group->id, ['is_primary' => true]);
+    test()->actingAs($teacher);
+
+    return $teacher;
+}
+
+it('lists the learners of a teacher, whose row policy still asks the database about every row', function (): void {
+    $group = TelegramGroup::factory()->create();
+    alb_teacher($group);
+
+    // KNOWN N+1 (docs/20 A11): LearnerPolicy::view re-asks "is the viewer a teacher of an active group of this learner" for the
+    // link, the view button and the record action of every row - 6 statements per row, though the list is already limited to
+    // exactly these learners (PanelDataScope). Fixing it touches the access rules: it waits for the decision recorded in
+    // docs/20 §4, and this test pins today's cost so it cannot get worse.
+    FilamentQueryBudget::assert(ListLearners::class, function (int $rows) use ($group): void {
+        Learner::factory()->count($rows - Learner::query()->count())->memberOf($group)->create();
+    }, ceiling: 308, knownPerRow: 6);
+});
+
+it('lists the exams of a teacher, whose row policy still asks the database about every row', function (): void {
+    $group = TelegramGroup::factory()->create();
+    alb_teacher($group);
+    $lesson = Lesson::factory()->create();
+
+    // KNOWN N+1 (docs/20 A11), the same as above: ExamSessionPolicy::view asks whether the viewer teaches the group of the
+    // exam, 6 statements per row.
+    FilamentQueryBudget::assert(ListExamSessions::class, function (int $rows) use ($group, $lesson): void {
+        for ($i = ExamSession::query()->count(); $i < $rows; $i++) {
+            ExamSession::factory()->create(['telegram_group_id' => $group->id, 'lesson_id' => $lesson->id, 'status' => 'closed', 'closed_at' => now()]);
+        }
+    }, ceiling: 312, knownPerRow: 6);
+});
+
+it('lists the groups of a teacher with the members counted by the page query', function (): void {
+    $teacher = alb_teacher(TelegramGroup::factory()->create());
+
+    FilamentQueryBudget::assert(ListTelegramGroups::class, function (int $rows) use ($teacher): void {
+        for ($i = TelegramGroup::query()->count(); $i < $rows; $i++) {
+            $teacher->telegramGroups()->attach(TelegramGroup::factory()->create()->id, ['is_primary' => false]);
+        }
+    }, ceiling: 6);
+});
+
+it('lists the words of a teacher in a number of statements that does not depend on the rows', function (): void {
+    alb_teacher(TelegramGroup::factory()->create());
+    $lesson = Lesson::factory()->create();
+
+    FilamentQueryBudget::assert(ListWords::class, function (int $rows) use ($lesson): void {
+        for ($i = Word::query()->count(); $i < $rows; $i++) {
+            Word::factory()->create(['lesson_id' => $lesson->id, 'word' => "teacher-word-{$i}"]);
+        }
+    }, ceiling: 10);
+});
+
+it('lists the lessons of a teacher in a number of statements that does not depend on the rows', function (): void {
+    alb_teacher(TelegramGroup::factory()->create());
+
+    FilamentQueryBudget::assert(ListLessons::class, function (int $rows): void {
+        Lesson::factory()->count($rows - Lesson::query()->count())->create();
+    }, ceiling: 10);
+});
+
+it('lists the modules of a teacher in a number of statements that does not depend on the rows', function (): void {
+    alb_teacher(TelegramGroup::factory()->create());
+
+    FilamentQueryBudget::assert(ListStages::class, function (int $rows): void {
+        Stage::factory()->count($rows - Stage::query()->count())->create();
+    }, ceiling: 8);
 });
 
 // --- the tables of the relation managers -------------------------------------------------------------
@@ -308,7 +388,7 @@ it('lists the stages of a course', function (): void {
 
     FilamentQueryBudget::assert(StagesRelationManager::class, function (int $rows) use ($course): void {
         Stage::factory()->count($rows - Stage::query()->where('course_id', $course->id)->count())->create(['course_id' => $course->id]);
-    }, ceiling: 8, parameters: ['ownerRecord' => $course, 'pageClass' => EditCourse::class]);
+    }, ceiling: 7, parameters: ['ownerRecord' => $course, 'pageClass' => EditCourse::class]);
 });
 
 it('lists the lessons of a stage', function (): void {
@@ -316,7 +396,7 @@ it('lists the lessons of a stage', function (): void {
 
     FilamentQueryBudget::assert(LessonsRelationManager::class, function (int $rows) use ($stage): void {
         Lesson::factory()->count($rows - Lesson::query()->where('stage_id', $stage->id)->count())->create(['stage_id' => $stage->id]);
-    }, ceiling: 8, parameters: ['ownerRecord' => $stage, 'pageClass' => EditStage::class]);
+    }, ceiling: 7, parameters: ['ownerRecord' => $stage, 'pageClass' => EditStage::class]);
 });
 
 it('lists the words of a lesson', function (): void {
@@ -326,7 +406,7 @@ it('lists the words of a lesson', function (): void {
         for ($i = Word::query()->where('lesson_id', $lesson->id)->count(); $i < $rows; $i++) {
             Word::factory()->create(['lesson_id' => $lesson->id, 'word' => "lesson-word-{$i}"]);
         }
-    }, ceiling: 8, parameters: ['ownerRecord' => $lesson, 'pageClass' => EditLesson::class]);
+    }, ceiling: 7, parameters: ['ownerRecord' => $lesson, 'pageClass' => EditLesson::class]);
 });
 
 it('lists the translations of a word', function (): void {
@@ -339,7 +419,7 @@ it('lists the translations of a word', function (): void {
                 WordTranslation::factory()->create(['word_id' => $word->id, 'locale' => $locale]);
             }
         }
-    }, ceiling: 8, parameters: ['ownerRecord' => $word, 'pageClass' => EditWord::class], sizes: [1, 2]);
+    }, ceiling: 7, parameters: ['ownerRecord' => $word, 'pageClass' => EditWord::class], sizes: [1, 2]);
 });
 
 it('lists the answers of an exam with the learner and the word loaded in one statement each', function (): void {
@@ -348,7 +428,7 @@ it('lists the answers of an exam with the learner and the word loaded in one sta
 
     FilamentQueryBudget::assert(AnswersRelationManager::class, function (int $rows) use ($exam, $word): void {
         ExamAnswer::factory()->count($rows - ExamAnswer::query()->where('exam_session_id', $exam->id)->count())->create(['exam_session_id' => $exam->id, 'word_id' => $word->id]);
-    }, ceiling: 14, parameters: ['ownerRecord' => $exam, 'pageClass' => ViewExamSession::class]);
+    }, ceiling: 11, parameters: ['ownerRecord' => $exam, 'pageClass' => ViewExamSession::class]);
 });
 
 it('lists the results of an exam with the learner and the time spent', function (): void {
@@ -358,7 +438,7 @@ it('lists the results of an exam with the learner and the time spent', function 
         for ($i = ExamResult::query()->where('exam_session_id', $exam->id)->count(); $i < $rows; $i++) {
             ExamResult::factory()->create(['exam_session_id' => $exam->id, 'rank' => $i + 1]);
         }
-    }, ceiling: 12, parameters: ['ownerRecord' => $exam, 'pageClass' => ViewExamSession::class]);
+    }, ceiling: 9, parameters: ['ownerRecord' => $exam, 'pageClass' => ViewExamSession::class]);
 });
 
 it('lists the subscriptions of a learner', function (): void {
@@ -367,7 +447,7 @@ it('lists the subscriptions of a learner', function (): void {
     FilamentQueryBudget::assert(SubscriptionsRelationManager::class, function (int $rows) use ($learner): void {
         // A learner has one live subscription at most: the rest is history.
         Subscription::factory()->expired()->count($rows - Subscription::query()->where('subscriber_id', $learner->id)->count())->create(['subscriber_id' => $learner->id]);
-    }, ceiling: 6, parameters: ['ownerRecord' => $learner, 'pageClass' => ViewLearner::class]);
+    }, ceiling: 5, parameters: ['ownerRecord' => $learner, 'pageClass' => ViewLearner::class]);
 });
 
 it('lists the offers of a learner with the center that made them', function (): void {
@@ -380,7 +460,7 @@ it('lists the offers of a learner with the center that made them', function (): 
         for ($i = Offer::query()->where('learner_id', $learner->id)->count(); $i < $rows; $i++) {
             Offer::factory()->expired()->create(['learner_id' => $learner->id, 'kind' => $kinds[$i], 'source_organization_id' => $center->id]);
         }
-    }, ceiling: 8, parameters: ['ownerRecord' => $learner, 'pageClass' => ViewLearner::class], sizes: [1, 3]);
+    }, ceiling: 7, parameters: ['ownerRecord' => $learner, 'pageClass' => ViewLearner::class], sizes: [1, 3]);
 });
 
 it('lists the referrals of a learner with the invited learner loaded in one statement', function (): void {
@@ -388,7 +468,7 @@ it('lists the referrals of a learner with the invited learner loaded in one stat
 
     FilamentQueryBudget::assert(ReferralsRelationManager::class, function (int $rows) use ($learner): void {
         Referral::factory()->count($rows - Referral::query()->where('referrer_learner_id', $learner->id)->count())->create(['referrer_learner_id' => $learner->id]);
-    }, ceiling: 12, parameters: ['ownerRecord' => $learner, 'pageClass' => ViewLearner::class]);
+    }, ceiling: 9, parameters: ['ownerRecord' => $learner, 'pageClass' => ViewLearner::class]);
 });
 
 it('lists the last product events of a learner', function (): void {
@@ -398,7 +478,7 @@ it('lists the last product events of a learner', function (): void {
         for ($i = ProductEvent::query()->where('learner_id', $learner->id)->count(); $i < $rows; $i++) {
             ProductEvent::query()->create(['name' => 'course.selected', 'learner_id' => $learner->id, 'props' => ['position' => $i], 'occurred_at' => now()->subMinutes($i)]);
         }
-    }, ceiling: 6, parameters: ['ownerRecord' => $learner, 'pageClass' => ViewLearner::class]);
+    }, ceiling: 5, parameters: ['ownerRecord' => $learner, 'pageClass' => ViewLearner::class]);
 });
 
 it('lists the daily statistics of a learner for the last 14 days', function (): void {
@@ -409,7 +489,7 @@ it('lists the daily statistics of a learner for the last 14 days', function (): 
         for ($i = LearnerDailyStats::query()->where('learner_id', $learner->id)->count(); $i < $rows; $i++) {
             LearnerDailyStats::factory()->create(['learner_id' => $learner->id, 'date' => now()->subDays($i)->toDateString(), 'reviews_count' => 5]);
         }
-    }, ceiling: 6, parameters: ['ownerRecord' => $learner, 'pageClass' => ViewLearner::class], sizes: [4, 14]);
+    }, ceiling: 5, parameters: ['ownerRecord' => $learner, 'pageClass' => ViewLearner::class], sizes: [4, 14]);
 });
 
 it('lists the groups of an organization with the active members counted by the page query', function (): void {
@@ -420,7 +500,7 @@ it('lists the groups of an organization with the active members counted by the p
         foreach ($groups as $group) {
             GroupMember::factory()->create(['telegram_group_id' => $group->id, 'learner_id' => Learner::factory()]);
         }
-    }, ceiling: 10, parameters: ['ownerRecord' => $organization, 'pageClass' => EditOrganization::class]);
+    }, ceiling: 7, parameters: ['ownerRecord' => $organization, 'pageClass' => EditOrganization::class]);
 });
 
 it('lists the invite links of an organization with the group they lead to', function (): void {
@@ -429,7 +509,7 @@ it('lists the invite links of an organization with the group they lead to', func
 
     FilamentQueryBudget::assert(InvitesRelationManager::class, function (int $rows) use ($organization, $group): void {
         OrganizationInvite::factory()->count($rows - OrganizationInvite::query()->where('organization_id', $organization->id)->count())->create(['organization_id' => $organization->id, 'telegram_group_id' => $group->id]);
-    }, ceiling: 10, parameters: ['ownerRecord' => $organization, 'pageClass' => EditOrganization::class]);
+    }, ceiling: 9, parameters: ['ownerRecord' => $organization, 'pageClass' => EditOrganization::class]);
 });
 
 it('lists the members of an organization with the learner loaded in one statement', function (): void {
@@ -437,5 +517,5 @@ it('lists the members of an organization with the learner loaded in one statemen
 
     FilamentQueryBudget::assert(MembersRelationManager::class, function (int $rows) use ($organization): void {
         OrganizationMember::factory()->count($rows - OrganizationMember::query()->where('organization_id', $organization->id)->count())->create(['organization_id' => $organization->id]);
-    }, ceiling: 12, parameters: ['ownerRecord' => $organization, 'pageClass' => EditOrganization::class]);
+    }, ceiling: 9, parameters: ['ownerRecord' => $organization, 'pageClass' => EditOrganization::class]);
 });

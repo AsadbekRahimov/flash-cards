@@ -199,9 +199,11 @@ it('shows the module of a lesson in the lesson list without a query per row', fu
     $stageReads = collect(DB::getQueryLog())->pluck('query')->filter(fn (string $sql): bool => str_contains($sql, 'from "stages"') || str_contains($sql, 'from `stages`'));
     DB::disableQueryLog();
 
-    // One read for the relation of the column (the page at once), one for the options of the module filter; the caption of
-    // a blank title adds no read of its own - and the filter loads only what the caption needs.
+    // One read for the relation of the column (the page at once), one for the options of the module filter (the first 50, the
+    // rest is found by typing); the caption of a blank title adds no read of its own - and the filter loads only what the caption
+    // needs.
     expect($stageReads->count())->toBe(2)
-        ->and($stageReads->last())->toContain('"stages"."id", "stages"."number", "stages"."title"')
+        ->and($stageReads->last())->toContain('select "id", "number", "title" from "stages"')
+        ->and($stageReads->last())->toContain('limit 50')
         ->and($stageReads->last())->not->toContain('description');
 });
