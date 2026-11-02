@@ -33,9 +33,11 @@ export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam
  * `reason = 'quota'` is the end of today's new words; `'decks'` is a refused deck / deck-word limit
  * (docs/04 A.10; `deckLimits` are the numbers of `GET /decks`, the lead quotes them); `'streak_freeze'` is the Free
  * teaser of streak freezes (docs/13 §7.2); `'exam_simulator'` is a refused IELTS / SAT mock (docs/13 §8.4); `'practice'` is
- * the practice (or a battle) behind Pro while `PRACTICE_PLAN=pro` (docs/16 §3.2); `'practice_limit'` is the end of the free sessions
- * of practice or of the free battles of today (docs/18 §3; `limitHit` holds the numbers the lead quotes, and the time the counter is full
- * again is told in the learner's zone, the one of the Today screen; a limit of 0 is "only Pro": the lead says so, with no day to wait for); `'info'` is
+ * the practice (or a battle) behind Pro while `PRACTICE_PLAN=pro` (docs/16 §3.2; its lead names the battles only where there are battles,
+ * `practiceLead`); `'practice_limit'` is the end of the free sessions of practice or of the free battles of today (docs/18 §3; `limitHit`
+ * holds the numbers the lead quotes, and the time the counter is full again is told in the learner's zone, the one of the Today screen; a
+ * limit of 0 is "only Pro": the lead says so, with no day to wait for - sessions: the practice, and the battles with it only when they are
+ * for Pro only too); `'info'` is
  * the learner opening it from the Today screen or from "Renew Pro". A promo code that works or a confirmed payment
  * refreshes `/me` (billing store) and `/today`.
  *
@@ -92,13 +94,26 @@ const paid = computed(() => billing.purchase.status === 'paid')
 const done = computed(() => redeemed.value || paid.value)
 const busy = computed(() => billing.purchase.status === 'starting' || billing.purchase.status === 'awaiting')
 
-/** What the reason adds before the sales pitch (none for `info`; `decks` quotes the limits, see `reasonLead`). */
+/** What the reason adds before the sales pitch (none for `info`; `decks` quotes the limits, see `reasonLead`; `practice`, see `practiceLead`). */
 const REASON_LEADS: Partial<Record<PaywallReason, StringKey>> = {
   quota: 'paywall.lead_quota',
   streak_freeze: 'paywall.lead_streak_freeze',
   exam_simulator: 'paywall.lead_exam_simulator',
-  practice: 'paywall.lead_practice',
 }
+
+/**
+ * The plain word on the practice behind Pro: "Practice - word games - and battles with friends is in Pro". The battles are in the sentence
+ * only where there are battles at all: with the battles switched off (`practiceAccess.battle` false) it speaks of the practice alone, as the
+ * Pro line of the list does - no battles are sold that do not exist.
+ */
+const practiceLead = computed((): string => t(billing.practiceAccess.battle ? 'paywall.lead_practice' : 'paywall.lead_practice_solo'))
+
+/**
+ * The battles are for Pro only: they exist and their limit is 0 (not "all used" - there were none to use). Then, when the sessions of
+ * practice are for Pro only too, "practice and battles" is said together; when the battles are Free's (a limit of 1 or more, or none) or
+ * are switched off, the sentence is about the practice alone.
+ */
+const battlesProOnly = computed((): boolean => billing.practiceAccess.battle && billing.limitReached('battles')?.limit === 0)
 
 /**
  * The lead of the end of a free limit, by the kind that is spent: "Free practice for today is over (2 of 2). A new one - tomorrow at 00:00
@@ -113,9 +128,12 @@ const LIMIT_LEADS: Record<PracticeLimitKind, { purchase: StringKey; soon: String
 const limitLead = computed((): string => {
   const hit = props.limitHit
   // Without the numbers of a refusal there is nothing to quote: the plain word on the practice stands.
-  if (hit === null) return t('paywall.lead_practice')
+  if (hit === null) return practiceLead.value
   // A limit of 0 is "only Pro": nothing was spent and nothing comes back tomorrow, so the lead says what Pro has - no "over", no time.
-  if (hit.limit === 0) return t(hit.kind === 'battles' ? 'paywall.lead_practice_limit_battles_pro' : 'paywall.lead_practice')
+  if (hit.limit === 0) {
+    if (hit.kind === 'battles') return t('paywall.lead_practice_limit_battles_pro')
+    return t(battlesProOnly.value ? 'paywall.lead_practice' : 'paywall.lead_practice_solo')
+  }
   return t(LIMIT_LEADS[hit.kind][purchaseMode.value ? 'purchase' : 'soon'], {
     limit: hit.limit,
     when: resetWhen(hit.resets_at, locale.value, today.data?.timezone),
@@ -124,6 +142,7 @@ const limitLead = computed((): string => {
 
 const reasonLead = computed((): string => {
   if (props.reason === 'practice_limit') return limitLead.value
+  if (props.reason === 'practice') return practiceLead.value
   if (props.reason === 'decks') {
     const limits = props.deckLimits
     return limits

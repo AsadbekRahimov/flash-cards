@@ -234,28 +234,53 @@ describe('the real paywall behind the free limits (Pro is for sale)', () => {
   })
 })
 
-// A limit of 0 is "only Pro": the sheet says what Pro has, with no "over", no "0 of 0" and no time of a reset.
+// A limit of 0 is "only Pro": the sheet says what Pro has, with no "over", no "0 of 0" and no time of a reset. For the sessions of practice
+// the sentence names the battles only when they are for Pro only too; the screens and the sheet read the same counters (/me brings them).
 describe('the real paywall behind a kind that is for Pro only (limit 0)', () => {
   const NO_SESSIONS: PracticeLimits = { sessions: counter(0, 0, MIDNIGHT), battles: null }
   const NO_BATTLES: PracticeLimits = { sessions: null, battles: counter(0, 0, MIDNIGHT) }
+  const NO_BOTH: PracticeLimits = { sessions: counter(0, 0, MIDNIGHT), battles: counter(0, 0, MIDNIGHT) }
   const SALE_RU =
     'Новые слова без дневного лимита, упражнения на написание, свои колоды, заморозки серии и пробные тесты.'
   const SALE_UZ = "Yangi so'zlar kunlik limitsiz, so'zni yozish mashqlari, o'z to'plamlaringiz, seriyani muzlatish va sinov testlari."
+  const COMBINED_RU = 'Практика — игры на закрепление слов и баттлы с друзьями — доступна в Pro.'
+  const SOLO_RU = 'Практика — игры на закрепление слов — доступна в Pro.'
+  const COMBINED_UZ = "Amaliyot — so'zlarni mustahkamlash o'yinlari va do'stlar bilan bellashuvlar — Pro'da mavjud."
+  const SOLO_UZ = "Amaliyot — so'zlarni mustahkamlash o'yinlari — Pro'da mavjud."
 
-  it('the practice hub, sessions: the practice is in Pro - no line before it, no "over" in it', async () => {
-    vi.mocked(api.practice.hub).mockResolvedValue(hub({ limits: NO_SESSIONS }))
+  /** The server tells the same counters on the hub and on /me. */
+  const serve = (limits: PracticeLimits, mode: 'coming_soon' | 'purchase' = 'coming_soon') => {
+    vi.mocked(api.me.get).mockResolvedValue(me(mode, limits))
+    vi.mocked(api.practice.hub).mockResolvedValue(hub({ limits }))
+  }
+  const pressPairs = async (wrapper: VueWrapper) => {
+    await wrapper.get('[data-testid=mode-card-pairs]').trigger('click')
+    await flushPromises()
+  }
+
+  it('the practice hub, sessions, while Free gets the battles: the practice alone is in Pro - no line before it, no battles and no "over" in it', async () => {
+    serve(NO_SESSIONS)
     const wrapper = await mountWith(PracticeHubView, { slug: 'english-a1', lessonId: 41 })
     expect(wrapper.find('[data-testid=practice-limit]').exists()).toBe(false)
 
-    await wrapper.get('[data-testid=mode-card-pairs]').trigger('click')
-    await flushPromises()
+    await pressPairs(wrapper)
 
-    expect(lead(wrapper)).toBe('Практика — игры на закрепление слов и баттлы с друзьями — доступна в Pro. Pro скоро откроется.')
+    expect(lead(wrapper)).toBe(`${SOLO_RU} Pro скоро откроется.`)
+    expect(lead(wrapper)).not.toMatch(/баттл/)
     expect(api.practice.open).not.toHaveBeenCalled()
   })
 
+  it('the practice hub, sessions, while the battles are for Pro only too: practice and battles with friends are in Pro', async () => {
+    serve(NO_BOTH)
+    const wrapper = await mountWith(PracticeHubView, { slug: 'english-a1', lessonId: 41 })
+
+    await pressPairs(wrapper)
+
+    expect(lead(wrapper)).toBe(`${COMBINED_RU} Pro скоро откроется.`)
+  })
+
   it('the practice hub, "Play with a friend": calling a friend is in Pro, accepting is always possible', async () => {
-    vi.mocked(api.practice.hub).mockResolvedValue(hub({ limits: NO_BATTLES }))
+    serve(NO_BATTLES)
     const wrapper = await mountWith(PracticeHubView, { slug: 'english-a1', lessonId: 41 })
 
     await wrapper.get('[data-testid=battle-play-btn]').trigger('click')
@@ -295,24 +320,29 @@ describe('the real paywall behind a kind that is for Pro only (limit 0)', () => 
     expect(lead(wrapper)).not.toMatch(/tugadi|ertaga|0 tadan/)
   })
 
-  it('the hub in Uzbek, sessions: the existing words of the practice in Pro', async () => {
+  it('the hub in Uzbek, sessions: the practice alone, or with the battles when they are for Pro only too', async () => {
     setLocale('uz')
-    vi.mocked(api.practice.hub).mockResolvedValue(hub({ limits: NO_SESSIONS }))
-    const wrapper = await mountWith(PracticeHubView, { slug: 'english-a1', lessonId: 41 })
+    serve(NO_SESSIONS)
+    const alone = await mountWith(PracticeHubView, { slug: 'english-a1', lessonId: 41 })
+    await pressPairs(alone)
+    expect(lead(alone)).toBe(`${SOLO_UZ} Pro tez orada ochiladi.`)
+    expect(lead(alone)).not.toMatch(/bellashuv/)
 
-    await wrapper.get('[data-testid=mode-card-pairs]').trigger('click')
-    await flushPromises()
-
-    expect(lead(wrapper)).toBe("Amaliyot — so'zlarni mustahkamlash o'yinlari va do'stlar bilan bellashuvlar — Pro'da mavjud. Pro tez orada ochiladi.")
+    setActivePinia(createPinia())
+    useTodayStore().data = { timezone: 'Asia/Tashkent', due_count: 0 } as never
+    serve(NO_BOTH)
+    const both = await mountWith(PracticeHubView, { slug: 'english-a1', lessonId: 41 })
+    await pressPairs(both)
+    expect(lead(both)).toBe(`${COMBINED_UZ} Pro tez orada ochiladi.`)
   })
 
   describe('while Pro is for sale', () => {
     beforeEach(() => {
-      vi.mocked(api.me.get).mockResolvedValue(me('purchase', NO_BATTLES))
       vi.mocked(api.billing.catalog).mockResolvedValue(SALE)
     })
 
     it('the Friends screen: what Pro has, then what Pro gives - and not "or right away"', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(me('purchase', NO_BATTLES))
       useBillingStore().apply(me('purchase', NO_BATTLES))
       const wrapper = await mountWith(FriendsView)
 
@@ -323,16 +353,23 @@ describe('the real paywall behind a kind that is for Pro only (limit 0)', () => 
       expect(lead(wrapper)).not.toContain('сразу с Pro')
     })
 
-    it('the hub, in Uzbek, sessions', async () => {
+    it('the hub, in Uzbek, sessions: the practice alone, then what Pro gives', async () => {
       setLocale('uz')
-      vi.mocked(api.me.get).mockResolvedValue(me('purchase', NO_SESSIONS))
-      vi.mocked(api.practice.hub).mockResolvedValue(hub({ limits: NO_SESSIONS }))
+      serve(NO_SESSIONS, 'purchase')
       const wrapper = await mountWith(PracticeHubView, { slug: 'english-a1', lessonId: 41 })
 
-      await wrapper.get('[data-testid=mode-card-pairs]').trigger('click')
-      await flushPromises()
+      await pressPairs(wrapper)
 
-      expect(lead(wrapper)).toBe(`Amaliyot — so'zlarni mustahkamlash o'yinlari va do'stlar bilan bellashuvlar — Pro'da mavjud. ${SALE_UZ}`)
+      expect(lead(wrapper)).toBe(`${SOLO_UZ} ${SALE_UZ}`)
+    })
+
+    it('the hub, sessions and battles both for Pro only: both in the sentence, then what Pro gives', async () => {
+      serve(NO_BOTH, 'purchase')
+      const wrapper = await mountWith(PracticeHubView, { slug: 'english-a1', lessonId: 41 })
+
+      await pressPairs(wrapper)
+
+      expect(lead(wrapper)).toBe(`${COMBINED_RU} ${SALE_RU}`)
     })
   })
 })

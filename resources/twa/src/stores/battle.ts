@@ -49,6 +49,9 @@ const LIVE: readonly BattleStatus[] = ['invited', 'room', 'countdown', 'playing'
 /** The order in which a battle goes through its statuses (the two end ones are equal): an older reading does not take a newer one back. */
 const STATUS_RANK: Record<BattleStatus, number> = { invited: 0, room: 1, countdown: 2, playing: 3, finished: 4, closed: 4 }
 
+/** The statuses of a battle that is on (not over): a rematch in one of them is a battle to go to. */
+const OPEN_STATUSES: readonly BattleStatus[] = ['invited', 'room', 'countdown', 'playing']
+
 /** How many times a lost answer is sent again by itself before the screen asks the learner to retry. */
 export const ANSWER_REPEATS = 3
 /** The pause before each repeat, in milliseconds. */
@@ -858,8 +861,10 @@ export const useBattleStore = defineStore('battle', {
      * accepts it.
      *
      * A rematch is a new battle like any other and Free has a few of them a day: when the counter says they are spent the paywall opens
-     * instead, without a request (the server would refuse with 403 `practice_limit_reached`, which is told the same way). Accepting
-     * a rematch (`acceptRematch`) is never limited.
+     * instead, without a request for the invitation (the server would refuse with 403 `practice_limit_reached`, which is told the same way)
+     * - but only after the state of the rematch was read: the friend may have offered one at this very moment, and accepting is never
+     * limited (the server looks for such a counter-invitation before it looks at the limit), so the way then leads into THEIR battle.
+     * Accepting a rematch (`acceptRematch`) is never limited.
      *
      * Only after a battle that was played (`finished`): one that did not take place (declined, not answered in time, withdrawn) is not
      * counted among the battles of the day, so after it "Invite again" asks the server whatever the counter on the screen remembers.
@@ -870,10 +875,7 @@ export const useBattleStore = defineStore('battle', {
 
       this.limitHit = null
       const spent = battle.status === 'finished' ? useBillingStore().limitReached('battles') : null
-      if (spent !== null) {
-        this.limitHit = spent
-        return null
-      }
+      if (spent !== null) return this.rematchAtZero(spent)
 
       const generation = this.generation
       this.acting = 'rematch'
@@ -906,6 +908,27 @@ export const useBattleStore = defineStore('battle', {
       } finally {
         if (generation === this.generation) this.acting = null
       }
+    },
+
+    /**
+     * The counter says no battle is left, and "Rematch" was pressed. The state of the rematch is read first (the poll, best effort): when a
+     * rematch is open already - the friend's offer that waits for the learner, or one that is on - the way leads into THAT battle (nothing
+     * new is made, so nothing is counted). Otherwise, or when it cannot be read, the counter's word stands: the paywall of the limit.
+     */
+    async rematchAtZero(spent: PracticeLimitHit): Promise<number | null> {
+      const generation = this.generation
+      this.acting = 'rematch'
+      try {
+        await this.readRematch()
+      } finally {
+        if (generation === this.generation) this.acting = null
+      }
+      if (generation !== this.generation) return null
+
+      const open = this.rematchOffer
+      if (open !== null && OPEN_STATUSES.includes(open.status)) return open.battle_id
+      this.limitHit = spent
+      return null
     },
 
     /**

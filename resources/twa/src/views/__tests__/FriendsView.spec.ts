@@ -1399,6 +1399,56 @@ describe('FriendsView', () => {
           expect(wrapper.findAll('[data-testid=battle-btn]').every((button) => button.attributes('disabled') === undefined)).toBe(true)
         })
 
+        // The screen asks for /me at its start when what it has is older than the cache allows, and the learner may press before the answer: the
+        // zero from the earlier screen must not decide - that reading is waited for, and its counter is the word.
+        describe('a /me that the screen itself began and that is still on its way', () => {
+          const staleZero = () => {
+            const billing = useBillingStore()
+            billing.apply(meWith(withLimits(freeLimits(0, 1, inHours(4))))) // the earlier screen: the practice block and the zero
+            billing.invalidate() // ... older than the cache allows, so this screen asks again
+          }
+          const onItsWay = () => {
+            let answer!: (value: MeResponse) => void
+            vi.mocked(api.me.get).mockReturnValue(new Promise((resolve) => (answer = resolve)))
+            return (value: MeResponse) => answer(value)
+          }
+
+          it('"Battle" waits for it, and the place it gives back is a place: no paywall, the setup opens - after ONE reading', async () => {
+            staleZero()
+            const answer = onItsWay()
+            const { wrapper, router } = await render()
+            expect(line(wrapper).text()).toBe('Баттлов сегодня: осталось 0 из 1') // the stale zero is what the screen shows meanwhile
+
+            await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+            await flushPromises()
+            expect(wrapper.find('[data-testid=paywall]').exists(), 'the stale zero does not decide').toBe(false)
+            expect(router.currentRoute.value.name).toBe('friends')
+            expect(wrapper.findAll('[data-testid=battle-btn]').every((button) => button.attributes('disabled') !== undefined)).toBe(true)
+
+            answer(meWith(withLimits(freeLimits(0, 0, inHours(4))))) // the server had given the place back
+            await flushPromises()
+
+            expect(api.me.get).toHaveBeenCalledTimes(1)
+            expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+            expect(router.currentRoute.value.name).toBe('battle-new')
+            expect(router.currentRoute.value.query).toEqual({ friendship: '11' })
+          })
+
+          it('and when that answer still says none, the paywall opens', async () => {
+            staleZero()
+            const answer = onItsWay()
+            const { wrapper, router } = await render()
+
+            await rowOf(wrapper, 'Dilnoza').get('[data-testid=battle-btn]').trigger('click')
+            answer(meWith(withLimits(freeLimits(0, 1, inHours(4)))))
+            await flushPromises()
+
+            expect(api.me.get).toHaveBeenCalledTimes(1)
+            expect(wrapper.get('[data-testid=paywall]').attributes('data-kind')).toBe('battles')
+            expect(router.currentRoute.value.name).toBe('friends')
+          })
+        })
+
         it('a learner who left the screen while the counter was being confirmed finds no sheet waiting for the next visit', async () => {
           useBillingStore().apply(meWith(withLimits(freeLimits(0, 1, inHours(4)))))
           const { wrapper, router } = await renderBattles(withLimits(freeLimits(0, 1, inHours(4))))

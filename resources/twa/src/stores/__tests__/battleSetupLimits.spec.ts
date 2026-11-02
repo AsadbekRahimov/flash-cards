@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
@@ -154,6 +155,47 @@ describe('battle setup — "Invite" meets the counter of battles', () => {
       expect(api.me.get).toHaveBeenCalledTimes(1)
       expect(api.battles.invite).toHaveBeenCalledTimes(1)
       expect(setup.inviting).toBe(false)
+    })
+
+    it('a /me that is already on its way (the reading of the screen itself) is waited for, and its counter decides: no second question', async () => {
+      useBillingStore().setLimits(freeLimits(0, 1))
+      const setup = await ready()
+      let answer!: (value: MeResponse) => void
+      vi.mocked(api.me.get).mockReturnValue(new Promise((resolve) => (answer = resolve)))
+      vi.mocked(api.battles.invite).mockResolvedValue(invitedBattle({ id: 21 }))
+      vi.mocked(api.me.get).mockClear()
+      const reading = useBillingStore().load({ force: true }) // began with the screen, the learner pressed before the answer
+
+      const inviting = setup.invite()
+      expect(setup.inviting).toBe(true)
+      await flushPromises()
+      expect(api.battles.invite, 'the old zero does not decide, and nothing is sent before the answer').not.toHaveBeenCalled()
+      answer(meWith(freeLimits(0, 0))) // the server had given the place back
+
+      expect(await inviting).toBe(21)
+      await reading
+      expect(api.me.get).toHaveBeenCalledTimes(1) // the one that was on its way: the invitation did not ask a second time
+      expect(setup.limitHit).toBeNull()
+    })
+
+    it('... and when that answer still says none, the wall opens without the invitation', async () => {
+      const resetsAt = inHours(4)
+      useBillingStore().setLimits(freeLimits(0, 1, resetsAt))
+      const setup = await ready()
+      let answer!: (value: MeResponse) => void
+      vi.mocked(api.me.get).mockReturnValue(new Promise((resolve) => (answer = resolve)))
+      vi.mocked(api.me.get).mockClear()
+      void useBillingStore().load({ force: true })
+
+      const inviting = setup.invite()
+      await flushPromises()
+      expect(api.battles.invite, 'nothing is sent before the answer').not.toHaveBeenCalled()
+      answer(meWith(freeLimits(0, 1, resetsAt)))
+
+      expect(await inviting).toBeNull()
+      expect(api.me.get).toHaveBeenCalledTimes(1)
+      expect(api.battles.invite).not.toHaveBeenCalled()
+      expect(setup.limitHit).toEqual({ kind: 'battles', limit: 1, used: 1, resets_at: resetsAt })
     })
 
     it('an answer that comes after a new setup was started moves nobody', async () => {

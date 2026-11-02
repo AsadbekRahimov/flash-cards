@@ -94,8 +94,8 @@ const activeBattle = computed(() => (battleOn.value ? battles.active : null))
 const retries = ref(0)
 
 // The battle that is on and the invitations are asked for as soon as the learner is known to play battles. That is when `/me` has come,
-// and it may be on its way for another screen already (then `billing.load()` of this one returns at once and `battleOn` turns true
-// later, with nobody to ask): the list follows the switch, not the end of this screen's own reading.
+// and it may be on its way for another screen already (then `billing.load()` of this one just waits for that request): the list follows
+// the switch `battleOn`, not the end of this screen's own reading.
 // "Retry" asks again as well: when `/me` was known before this screen opened, `battleOn` does not turn and the switch alone would stay
 // silent, so the screen would come back with the friends but without the invitations and the battle that is on. One watch for both
 // keeps it a single request per cause: a retry whose `/me` comes in the middle of it asks once, not twice.

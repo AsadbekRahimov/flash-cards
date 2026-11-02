@@ -89,6 +89,30 @@ const DAY_SLACK_MS = 100
 /** `setTimeout` takes a signed 32-bit number of milliseconds and fires at once with more: a day that ends later is waited for in steps. */
 const MAX_TIMER_MS = 2 ** 31 - 1
 
+/** The `/me` request that is in flight, one per store: whoever asks for `/me` meanwhile gets ITS answer instead of a second request (`load`). */
+const meRequests = new WeakMap<object, Promise<void>>()
+
+/** The part of the store that a reading of `/me` writes into. */
+interface MeTarget {
+  loading: boolean
+  loadedAt: number | null
+  apply: (me: MeResponse) => void
+}
+
+/** One reading of `/me`, best effort: it never throws - a failure keeps what the store had and makes the next `load()` ask again. */
+async function readMe(store: MeTarget): Promise<void> {
+  store.loading = true
+  try {
+    store.apply(await api.me.get())
+  } catch (err) {
+    // keep whatever we had (a screen can still show it), but never call it fresh: the next load() asks again
+    store.loadedAt = null
+    console.warn('billing: failed to load /me', err)
+  } finally {
+    store.loading = false
+  }
+}
+
 /**
  * Plan, paywall settings and the purchase flow of the learner (docs/13 §5, docs/04 A.8): `GET /me`
  * (loaded when a paywall is about to be shown, refreshed from the answer of a promo redemption or of
@@ -138,22 +162,20 @@ export const useBillingStore = defineStore('billing', {
     /**
      * Best effort: the paywall still works without it (no support contact, no numeric limit).
      * Without `force` nothing is requested while the stored data is younger than `ME_FRESH_MS` and the last request
-     * did not fail; a request already in flight is not repeated either way.
+     * did not fail. A request already in flight is not repeated either way: whoever asks meanwhile, `force` or not, WAITS for its
+     * answer and finds it in the store (`confirmLimit` decides by it).
      */
     async load({ force = false }: { force?: boolean } = {}): Promise<void> {
-      if (this.loading) return
+      if (this.loading) return meRequests.get(this)
       if (!force && this.loadedAt !== null && Date.now() - this.loadedAt < ME_FRESH_MS) return
 
-      this.loading = true
-      try {
-        this.apply(await api.me.get())
-      } catch (err) {
-        // keep whatever we had (a screen can still show it), but never call it fresh: the next load() asks again
-        this.loadedAt = null
-        console.warn('billing: failed to load /me', err)
-      } finally {
-        this.loading = false
-      }
+      const request = readMe(this)
+      meRequests.set(this, request)
+      void request.then(() => {
+        // a newer request (after a payment, `onPaid`) may have taken the place of this one meanwhile
+        if (meRequests.get(this) === request) meRequests.delete(this)
+      })
+      return request
     },
 
     /** Takes a `/me` (or an answer that carries the same `entitlement` / `paywall`) and marks the data fresh. */
@@ -228,9 +250,11 @@ export const useBillingStore = defineStore('billing', {
     /**
      * The wall of `kind` that the SERVER stands behind. A counter that says the free allowance is spent may be old (a battle that never
      * started gives its place back, and this screen may not have seen it), so `/me` is read again first and the wall is what the FRESH
-     * counter says. Null: nothing is spent, the server gave a place back, or it could not be asked (no network) - the action itself then
-     * goes to the server and tells what is wrong, rather than a sales pitch on a number that cannot be checked. A kind that is for Pro
-     * only (limit 0) needs no question: nothing gives a place back there.
+     * counter says. A `/me` that is already on its way (the screen's own reading at its start) is waited for - its answer is the newest
+     * there is, and the stale zero must not decide before it - else a new one is asked for, whatever the cache says. Null: nothing is
+     * spent, the server gave a place back, or it could not be asked (no network) - the action itself then goes to the server and tells what
+     * is wrong, rather than a sales pitch on a number that cannot be checked. A kind that is for Pro only (limit 0) needs no question:
+     * nothing gives a place back there.
      */
     async confirmLimit(kind: PracticeLimitKind): Promise<PracticeLimitHit | null> {
       const remembered = this.limitReached(kind)
@@ -370,7 +394,7 @@ export const useBillingStore = defineStore('billing', {
 
     async onPaid(): Promise<void> {
       this.purchase.status = 'paid'
-      this.loading = false // a /me request still in flight predates the payment; ask again
+      this.loading = false // a /me request still in flight predates the payment: `load` does not join it, it asks again
       await Promise.all([this.load({ force: true }), this.loadCatalog()])
       // The numbers on the Today screen (quota, plan badge) change with the plan.
       void useTodayStore().load()

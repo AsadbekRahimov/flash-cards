@@ -258,6 +258,8 @@ export const ru = {
   'paywall.lead_streak_freeze': 'Заморозка серии — в Pro: пропущенный день не обрывает серию, до 2 заморозок, +1 каждую неделю.',
   'paywall.lead_exam_simulator': 'Пробные тесты IELTS и SAT — в Pro: 40 слов курса за 20 минут, результат в процентах и сравнение с другими.',
   'paywall.lead_practice': 'Практика — игры на закрепление слов и баттлы с друзьями — доступна в Pro.',
+  // The same without the battles: where they are switched off, or Free gets them (the sessions of practice are for Pro only).
+  'paywall.lead_practice_solo': 'Практика — игры на закрепление слов — доступна в Pro.',
 
   // ---- the Free limits of practice and battles (docs/18 §3, G1) ----
   'practice.limit.sessions': 'Сегодня бесплатно: осталось {remaining} из {limit}',

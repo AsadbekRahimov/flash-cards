@@ -2282,6 +2282,40 @@ describe('BattleView — the Free limit of battles', () => {
       expect(tg.haptic).toHaveBeenCalledWith('medium')
     })
 
+    // The friend may have offered a rematch a moment ago, and the screen hears of it with its next reading. Accepting is never limited, and the
+    // server looks for such an invitation before it looks at the limit: so the press reads the state first, and the paywall is for no offer.
+    it('the friend offered a rematch a moment ago and the screen has not heard yet: “Rematch” leads into THEIR invitation, not into the paywall', async () => {
+      spend()
+      const r = await render(finishedBattle('lost'), { others: { 31: invitedBattle({ id: 31, role: 'opponent' }) } })
+      expect(has(r, 'rematch-offer')).toBe(false)
+      servePoll(() => pollOf(finishedBattle('lost'), { rematch: { battle_id: 31, status: 'invited', by_me: false } }))
+
+      await click(r, 'rematch-btn')
+
+      expect(has(r, 'paywall')).toBe(false)
+      expect(api.battles.invite).not.toHaveBeenCalled()
+      expect(showErrorToast).not.toHaveBeenCalled()
+      expect(route(r).params.id).toBe('31')
+    })
+
+    it('the button waits while the state is read - switched off, one reading - and then it is the paywall when nothing was offered', async () => {
+      spend()
+      const r = await render(finishedBattle('lost'))
+      const reading = pending<BattlePoll>()
+      vi.mocked(api.battles.poll).mockClear()
+      vi.mocked(api.battles.poll).mockReturnValue(reading.promise)
+
+      await get(r, 'rematch-btn').trigger('click')
+      expect(get(r, 'rematch-btn').attributes('disabled')).toBeDefined()
+      reading.resolve(pollOf(finishedBattle('lost')))
+      await flushPromises()
+
+      expect(vi.mocked(api.battles.poll)).toHaveBeenCalledTimes(1)
+      expect(get(r, 'paywall').attributes('data-reason')).toBe('practice_limit')
+      expect(get(r, 'rematch-btn').attributes('disabled')).toBeUndefined()
+      expect(route(r).params.id).toBe('15')
+    })
+
     it('the sheet closes, and the rematch is there to be pressed again', async () => {
       spend()
       const r = await render(finishedBattle('lost'))

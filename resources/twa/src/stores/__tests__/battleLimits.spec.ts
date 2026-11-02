@@ -5,9 +5,9 @@ import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { useBattleStore } from '../battle'
 import { useBillingStore } from '../billing'
-import { SERVER_NOW, battleList, closedBattle, finishedBattle, incoming, invitedBattle, roomBattle } from '@/api/__tests__/battleFixtures'
+import { SERVER_NOW, battleList, closedBattle, finishedBattle, incoming, invitedBattle, pollOf, roomBattle } from '@/api/__tests__/battleFixtures'
 import { freeLimits, inHours, limitDetails } from '@/api/__tests__/practiceFixtures'
-import type { Battle } from '@/api/types'
+import type { Battle, BattlePoll, BattleRematch } from '@/api/types'
 
 vi.mock('@/api', () => ({
   api: {
@@ -69,6 +69,134 @@ describe('battle store — the rematch meets the counter of battles', () => {
     expect(store.acting).toBeNull()
     expect(store.actionError).toBe('')
     expect(store.paywall).toBe(false)
+  })
+
+  // The friend may have offered a rematch at this very moment. That is not a new battle of the learner's and accepting is never limited: the
+  // server looks for such a counter-invitation before it looks at the limit, so at zero the state of the rematch is read first.
+  describe('at zero, a rematch that is open already is gone into, not sold', () => {
+    const offer = (overrides: Partial<BattleRematch> = {}): BattleRematch => ({ battle_id: 31, status: 'invited', by_me: false, ...overrides })
+    const spentAndPlayed = async () => {
+      useBillingStore().setLimits(freeLimits(0, 1, inHours(4)))
+      return opened(finishedBattle('lost'))
+    }
+    const serveRematch = (rematch: BattleRematch | null) => vi.mocked(api.battles.poll).mockResolvedValue(pollOf(finishedBattle('lost'), { rematch }))
+
+    it('the friend offered one meanwhile: the way leads into THEIR battle - no paywall, no invitation - and the result shows the offer', async () => {
+      const store = await spentAndPlayed()
+      serveRematch(offer())
+
+      expect(await store.rematch()).toBe(31)
+
+      expect(api.battles.poll).toHaveBeenCalledTimes(1)
+      expect(api.battles.poll).toHaveBeenCalledWith(15)
+      expect(api.battles.invite).not.toHaveBeenCalled()
+      expect(store.limitHit).toBeNull()
+      expect(store.rematchOffer).toEqual(offer())
+      expect(store.acting).toBeNull()
+      expect(store.actionError).toBe('')
+    })
+
+    it.each([
+      ['a rematch that is on already (the room is open)', offer({ status: 'room' })],
+      ['a rematch that has begun', offer({ status: 'playing' })],
+      ['an offer of the learner\'s own that waits (made elsewhere)', offer({ by_me: true })],
+    ])('%s is gone into as well', async (_name, open) => {
+      const store = await spentAndPlayed()
+      serveRematch(open)
+
+      expect(await store.rematch()).toBe(31)
+
+      expect(api.battles.invite).not.toHaveBeenCalled()
+      expect(store.limitHit).toBeNull()
+    })
+
+    it('nothing offered: the paywall of the limit, after one reading and with no invitation', async () => {
+      const store = await spentAndPlayed()
+      serveRematch(null)
+
+      expect(await store.rematch()).toBeNull()
+
+      expect(api.battles.poll).toHaveBeenCalledTimes(1)
+      expect(api.battles.invite).not.toHaveBeenCalled()
+      expect(store.limitHit).toMatchObject({ kind: 'battles', limit: 1, used: 1 })
+      expect(store.acting).toBeNull()
+      expect(store.rematchOffer).toBeNull()
+    })
+
+    it.each(['finished', 'closed'] as const)('a rematch that is over (%s) is no battle to go to: the paywall', async (status) => {
+      const store = await spentAndPlayed()
+      serveRematch(offer({ status }))
+
+      expect(await store.rematch()).toBeNull()
+
+      expect(store.limitHit).toMatchObject({ kind: 'battles' })
+    })
+
+    it('the state cannot be read: the counter\'s word stands, the paywall', async () => {
+      const store = await spentAndPlayed()
+      vi.mocked(api.battles.poll).mockRejectedValue(new ApiClientError('network', 0, 'network', 'fetch failed'))
+
+      expect(await store.rematch()).toBeNull()
+
+      expect(api.battles.invite).not.toHaveBeenCalled()
+      expect(store.limitHit).toMatchObject({ kind: 'battles' })
+      expect(store.actionError).toBe('')
+      expect(store.acting).toBeNull()
+    })
+
+    it('an offer the screen already knew is not lost when the reading fails: it is gone into', async () => {
+      const store = await spentAndPlayed()
+      store.applyRematch(offer())
+      vi.mocked(api.battles.poll).mockRejectedValue(new ApiClientError('network', 0, 'network', 'fetch failed'))
+
+      expect(await store.rematch()).toBe(31)
+
+      expect(store.limitHit).toBeNull()
+    })
+
+    it('the button waits while the state is read: "rematch" is the action, a second press does nothing, one reading is made', async () => {
+      const store = await spentAndPlayed()
+      let answer!: (value: BattlePoll) => void
+      vi.mocked(api.battles.poll).mockReturnValue(new Promise((resolve) => (answer = resolve)))
+
+      const first = store.rematch()
+      expect(store.acting).toBe('rematch')
+      expect(await store.rematch()).toBeNull()
+      answer(pollOf(finishedBattle('lost'), { rematch: null }))
+
+      expect(await first).toBeNull()
+      expect(api.battles.poll).toHaveBeenCalledTimes(1)
+      expect(store.limitHit).toMatchObject({ kind: 'battles' })
+      expect(store.acting).toBeNull()
+    })
+
+    it('an answer that comes after the learner left the screen moves nobody and leaves no wall behind', async () => {
+      const store = await spentAndPlayed()
+      let answer!: (value: BattlePoll) => void
+      vi.mocked(api.battles.poll).mockReturnValue(new Promise((resolve) => (answer = resolve)))
+
+      const asking = store.rematch()
+      store.leave()
+      answer(pollOf(finishedBattle('lost'), { rematch: offer() }))
+
+      expect(await asking).toBeNull()
+      expect(store.limitHit).toBeNull()
+      expect(store.rematchOffer).toBeNull()
+    })
+
+    it('reads nothing while a place is left, nor after a battle that did not take place: those go to the server as ever', async () => {
+      useBillingStore().setLimits(freeLimits(0, 0))
+      vi.mocked(api.battles.invite).mockResolvedValue(invitedBattle({ id: 16 }))
+      const played = await opened(finishedBattle('lost'))
+      expect(await played.rematch()).toBe(16)
+      played.leave()
+
+      useBillingStore().setLimits(freeLimits(0, 1))
+      const unplayed = await opened(closedBattle('declined'))
+      expect(await unplayed.rematch()).toBe(16)
+
+      expect(api.battles.poll).not.toHaveBeenCalled()
+    })
   })
 
   // A battle that did not take place (declined, not answered in time, withdrawn) is not counted among the battles of the day: the counter the

@@ -234,6 +234,8 @@ export const uz: Translations = {
   'paywall.lead_streak_freeze': "Seriyani muzlatish — Pro'da: o'tkazib yuborilgan kun seriyani uzmaydi, 2 tagacha muzlatish, har hafta +1.",
   'paywall.lead_exam_simulator': "IELTS va SAT sinov testlari — Pro'da: 20 daqiqada kursdan 40 ta so'z, natija foizda va boshqalar bilan taqqoslash.",
   'paywall.lead_practice': "Amaliyot — so'zlarni mustahkamlash o'yinlari va do'stlar bilan bellashuvlar — Pro'da mavjud.",
+  // The same without the battles: where they are switched off, or Free gets them (the sessions of practice are for Pro only).
+  'paywall.lead_practice_solo': "Amaliyot — so'zlarni mustahkamlash o'yinlari — Pro'da mavjud.",
 
   // ---- the Free limits of practice and battles (docs/18 §3, G1) ----
   'practice.limit.sessions': 'Bugun bepul: {limit} tadan {remaining} tasi qoldi',
