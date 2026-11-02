@@ -12,6 +12,7 @@ use App\Domain\Content\Services\LessonContentRefresher;
 use App\Domain\Content\Services\VocabularyImporter;
 use App\Domain\Content\Services\WordTranslationResolver;
 use App\Domain\Content\Services\WordTranslationWriter;
+use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Operations\Support\PureCache;
 use App\Models\Course;
 use App\Models\Learner;
@@ -23,9 +24,12 @@ use App\Models\Word;
 use App\Models\WordRepetition;
 use App\Models\WordTranslation;
 use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Cache\ArrayStore;
+use Illuminate\Cache\Repository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Exceptions;
 use Tests\Support\FakeBillingProvider;
 use Tests\Support\HotPathFixtures as Fx;
 use Tests\Support\QueryLog;
@@ -257,6 +261,49 @@ function translatedWords(): array
     return [$a, $b, $c];
 }
 
+/** The key of the rows of a word for a locale, under the fallback in force. */
+function translationKey(int $wordId, string $locale): string
+{
+    return WordTranslationResolver::cacheKey($wordId, $locale, app(LocaleResolver::class)->fallback());
+}
+
+/**
+ * A pure store that remembers how it was asked to delete: every call to `deleteMultiple` with the keys in it, in order.
+ *
+ * @return Repository&object{calls: list<list<string>>}
+ */
+function countingPureStore(): Repository
+{
+    $store = new class(new ArrayStore) extends Repository
+    {
+        /** @var list<list<string>> */
+        public array $calls = [];
+
+        public function deleteMultiple($keys): bool
+        {
+            $keys = is_array($keys) ? $keys : iterator_to_array($keys);
+            $this->calls[] = array_map(strval(...), array_values($keys));
+
+            return parent::deleteMultiple($keys);
+        }
+    };
+
+    app()->instance(PureCache::CONTAINER_KEY, $store);
+
+    return $store;
+}
+
+/**
+ * The calls of a counting store that dropped translation rows.
+ *
+ * @param  list<list<string>>  $calls
+ * @return list<list<string>>
+ */
+function translationDrops(array $calls): array
+{
+    return array_values(array_filter($calls, fn (array $keys): bool => str_starts_with($keys[0] ?? '', 'word:tr:')));
+}
+
 it('reads translations of a batch with one Cache::many, and the words it has not seen with one query', function (): void {
     [$a, $b, $c] = translatedWords();
     $resolver = app(WordTranslationResolver::class);
@@ -287,14 +334,35 @@ it('reads translations of a batch with one Cache::many, and the words it has not
         ->and($queries[0]['bindings'])->toContain($d->id)->not->toContain($a->id);
 });
 
-it('keeps the rows of a word under a key of its own per locale, a word with no rows as an empty array', function (): void {
+it('keeps the rows of a word under a key of its own per locale and fallback, a word with no rows as an empty array', function (): void {
     [$a, , $c] = translatedWords();
     app(WordTranslationResolver::class)->map([$a, $c], 'uz');
 
-    expect(WordTranslationResolver::cacheKey($a->id, 'uz'))->toBe("word:tr:v1:{$a->id}:uz")
-        ->and(PureCache::store()->get(WordTranslationResolver::cacheKey($a->id, 'uz')))->toBe(['ru' => 'а-ru', 'uz' => 'a-uz'])
-        ->and(PureCache::store()->get(WordTranslationResolver::cacheKey($c->id, 'uz')))->toBe([])
-        ->and(PureCache::store()->has(WordTranslationResolver::cacheKey($a->id, 'ru')))->toBeFalse('no one asked for ru');
+    expect(translationKey($a->id, 'uz'))->toBe("word:tr:v1:{$a->id}:uz:ru")
+        ->and(PureCache::store()->get(translationKey($a->id, 'uz')))->toBe(['ru' => 'а-ru', 'uz' => 'a-uz'])
+        ->and(PureCache::store()->get(translationKey($c->id, 'uz')))->toBe([])
+        ->and(PureCache::store()->has(translationKey($a->id, 'ru')))->toBeFalse('no one asked for ru');
+});
+
+it('keeps an entry under the fallback it was read with: a changed fallback is another key, not the rows of the old chain', function (): void {
+    $word = Word::factory()->create(['translation' => 'legacy']);
+    WordTranslation::factory()->uz()->create(['word_id' => $word->id, 'translation' => 'faqat-uz']); // a uz row and no ru one
+    $resolver = app(WordTranslationResolver::class);
+
+    // A ru reader with the fallback ru: the chain is [ru], it has no row, so the legacy column answers - and "no rows" is cached.
+    expect($resolver->for($word, 'ru'))->toBe('legacy')
+        ->and(PureCache::store()->get(WordTranslationResolver::cacheKey($word->id, 'ru', 'ru')))->toBe([]);
+
+    // The fallback becomes uz: the chain of the same reader is [ru, uz] and the uz row answers. The entry written under the old
+    // fallback says "no rows" and is not read.
+    config(['localization.fallback' => 'uz']);
+    expect($resolver->for($word, 'ru'))->toBe('faqat-uz')
+        ->and(PureCache::store()->get(WordTranslationResolver::cacheKey($word->id, 'ru', 'uz')))->toBe(['uz' => 'faqat-uz']);
+
+    // An edit drops the entries of the fallback in force.
+    app(WordTranslationWriter::class)->save($word, 'uz', 'faqat-uz-2');
+    expect(PureCache::store()->has(WordTranslationResolver::cacheKey($word->id, 'ru', 'uz')))->toBeFalse()
+        ->and($resolver->for($word, 'ru'))->toBe('faqat-uz-2');
 });
 
 it('shows a manual edit of a translation at once, in its locale and in the locales that fall back to it', function (): void {
@@ -368,8 +436,86 @@ it('does not drop the rows of a word for a write that was rolled back', function
     } catch (RuntimeException) {
     }
 
-    expect(PureCache::store()->has(WordTranslationResolver::cacheKey($a->id, 'uz')))->toBeTrue()
+    expect(PureCache::store()->has(translationKey($a->id, 'uz')))->toBeTrue()
         ->and($resolver->for($a, 'uz'))->toBe('a-uz');
+});
+
+it('drops the rows of a whole import with ONE call to the store after the commit, each word once', function (): void {
+    $course = Course::factory()->published()->create();
+    $json = fn (string $suffix): string => (string) json_encode([
+        'course' => $course->slug,
+        'stage' => ['number' => 1],
+        'lesson' => ['number' => 1],
+        'words' => array_map(
+            fn (int $i): array => ['word' => "word{$i}", 'translation' => "слово{$i}{$suffix}", 'translations' => ['ru' => "слово{$i}{$suffix}", 'uz' => "soz{$i}{$suffix}"]],
+            range(1, 5),
+        ),
+    ]);
+    $store = countingPureStore();
+    $importer = app(VocabularyImporter::class);
+    $resolver = app(WordTranslationResolver::class);
+
+    $importer->importAsSystem($json(''));
+    $words = Word::query()->orderBy('id')->get();
+    expect($words)->toHaveCount(5)
+        ->and($resolver->map($words, 'uz'))->toBe(array_combine($words->pluck('id')->all(), array_map(fn (int $i): string => "soz{$i}", range(1, 5))));
+
+    // The first import wrote ten rows: the store was asked once for them, not ten times. Now to the next one, which changes all ten
+    // rows (the ru and the uz text of five words) in one transaction.
+    expect(translationDrops($store->calls))->toHaveCount(1);
+    $store->calls = [];
+
+    $importer->importAsSystem($json('-2'));
+
+    $expected = [];
+    foreach ($words as $word) {
+        foreach (['ru', 'uz'] as $locale) {
+            $expected[] = translationKey($word->id, $locale);
+        }
+    }
+
+    $drops = translationDrops($store->calls);
+    expect($drops)->toHaveCount(1, 'one call to the store for the whole import, not one per row')
+        ->and($drops[0])->toEqualCanonicalizing($expected, 'every word in both locales, each key once')
+        ->and($resolver->map($words, 'uz'))->toBe(array_combine($words->pluck('id')->all(), array_map(fn (int $i): string => "soz{$i}-2", range(1, 5))));
+});
+
+it('drops nothing for a write that was rolled back; the next write that commits drops its own word', function (): void {
+    [$a, $b] = translatedWords();
+    $store = countingPureStore();
+
+    try {
+        DB::transaction(function () use ($a): void {
+            app(WordTranslationWriter::class)->save($a, 'uz', 'never saved');
+
+            throw new RuntimeException('rolled back');
+        });
+    } catch (RuntimeException) {
+    }
+
+    expect(translationDrops($store->calls))->toBe([], 'a rolled-back write drops nothing');
+
+    // A write that commits afterwards drops its own word - and, harmlessly, the one the rolled-back write had noted: a reload, never stale.
+    app(WordTranslationWriter::class)->save($b, 'ru', 'б-ru-new');
+
+    $drops = translationDrops($store->calls);
+    expect($drops)->toHaveCount(1)
+        ->and($drops[0])->toContain(translationKey($b->id, 'ru'), translationKey($b->id, 'uz'));
+});
+
+it('does not fail the save of a translation when the pure cache is down: the row is written and the failure is reported', function (): void {
+    Exceptions::fake();
+    $word = Word::factory()->create();
+    $down = Mockery::mock(Repository::class);
+    foreach (['get', 'put', 'forget', 'has', 'many', 'putMany', 'deleteMultiple', 'flexible', 'remember', 'add', 'increment'] as $method) {
+        $down->shouldReceive($method)->andThrow(new RuntimeException('redis-cache is down'));
+    }
+    app()->instance(PureCache::CONTAINER_KEY, $down);
+
+    app(WordTranslationWriter::class)->save($word, 'uz', 'olma');
+
+    expect(WordTranslation::query()->where('word_id', $word->id)->where('locale', 'uz')->value('translation'))->toBe('olma');
+    Exceptions::assertReported(fn (RuntimeException $e): bool => $e->getMessage() === 'redis-cache is down');
 });
 
 // --- K5: the static part of the billing catalog is not a Redis key -------------------------------------

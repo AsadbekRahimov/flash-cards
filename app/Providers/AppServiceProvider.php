@@ -100,6 +100,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->scoped(OrgRequestMemo::class);
         $this->app->scoped(PanelRequestMemo::class);
 
+        // The words whose cached translations an open transaction has changed are gathered by the observer and dropped with ONE call
+        // after the commit (docs/19 K4). Eloquent makes the observer anew for every event, so the rows of an import share the state
+        // only through a binding: one instance for the request or the job, forgotten with it.
+        $this->app->scoped(WordTranslationObserver::class);
+
         // Keys are read per request (not a singleton): a rotated PAYME_KEY / PAYME_TEST_KEY applies at once in tests and after config:cache.
         $this->app->bind(PaymeAuth::class, static fn (): PaymeAuth => PaymeAuth::fromConfig());
         $this->app->bind(ClickSignature::class, static fn (): ClickSignature => ClickSignature::fromConfig());
