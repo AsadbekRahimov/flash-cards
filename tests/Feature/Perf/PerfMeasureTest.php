@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Operations\Services\PerfSeeder;
+use App\Domain\Operations\Support\PureCache;
 use App\Domain\Twa\Services\JwtService;
 use App\Models\Learner;
 use App\Models\Organization;
@@ -84,17 +85,20 @@ function perfPageRow($test, string $label, string $url, ?int $rows, int $repeat 
 
     $summary = PerfProbe::summarize($runs);
 
-    return [$label.($status === 200 ? '' : " ({$status})"), $rows === null ? '' : number_format($rows), $summary['queries'], round($summary['sql_ms']), round($summary['render_ms']), round($summary['p95']), round($bytes / 1024, 1), $summary['repeat'] ?? ''];
+    return [$label.($status === 200 ? '' : " ({$status})"), $rows === null ? '' : number_format($rows), $summary['queries'], round($summary['sql_ms']), round($summary['render_ms']), round($summary['p95']), round($bytes / 1024, 1), $summary['repeat'] ?? '', '', ''];
 }
 
 /**
- * Mounts a widget $repeat times after one warm-up; one report row.
+ * Mounts a widget $repeat times after one warm-up; one report row. The widget's own cache (docs/19 K1, K2) is dropped
+ * first, so the warm-up is the COLD path (the aggregate is computed and stored) and the measured mounts are the WARM
+ * one (read from the cache): the row carries both, the first columns are the warm ones.
  *
  * @return list<string|int|float|null>
  */
 function perfWidgetRow(string $widget, int $repeat = 3): array
 {
-    Livewire::test($widget);
+    PureCache::store()->flush();
+    $cold = PerfProbe::measure(fn () => Livewire::test($widget));
 
     $runs = [];
     $bytes = 0;
@@ -106,16 +110,18 @@ function perfWidgetRow(string $widget, int $repeat = 3): array
 
     $summary = PerfProbe::summarize($runs);
 
-    return [class_basename($widget), '', $summary['queries'], round($summary['sql_ms']), round($summary['render_ms']), round($summary['p95']), round($bytes / 1024, 1), $summary['repeat'] ?? ''];
+    return [class_basename($widget), '', $summary['queries'], round($summary['sql_ms']), round($summary['render_ms']), round($summary['p95']), round($bytes / 1024, 1), $summary['repeat'] ?? '', $cold['queries'], round($cold['sql_ms'])];
 }
 
-const PERF_PAGE_HEADER = ['Page', 'Rows', 'Queries', 'SQL, ms', 'Render, ms', 'p95 total, ms', 'HTML, KB', 'Most repeated statement'];
+const PERF_PAGE_HEADER = ['Page', 'Rows', 'Queries', 'SQL, ms', 'Render, ms', 'p95 total, ms', 'HTML, KB', 'Most repeated statement', 'Cold queries', 'Cold SQL, ms'];
 
 /** A panel's dashboard: the page and each widget on its own (widgets load lazily in a browser), and their sum. */
 function perfDashboard($test, string $title, string $url, array $widgets): string
 {
     $rows = [perfPageRow($test, 'Dashboard page '.$url, $url, null)];
     $sum = $rows[0];
+    $sum[8] = 0;
+    $sum[9] = 0;
 
     foreach ($widgets as $widget) {
         if (! $widget::canView()) {
@@ -124,7 +130,7 @@ function perfDashboard($test, string $title, string $url, array $widgets): strin
 
         $row = perfWidgetRow($widget);
         $rows[] = $row;
-        foreach ([2, 3, 4, 5, 6] as $i) {
+        foreach ([2, 3, 4, 5, 6, 8, 9] as $i) {
             $sum[$i] += $row[$i];
         }
     }
@@ -284,6 +290,7 @@ it('measures the hot TWA endpoints', function (): void {
         foreach ([...$endpoints, ...$training] as $label => $call) {
             // The training steps run in order for the same learner: open, next, review.
             Cache::flush();
+            PureCache::store()->flush();
             $m = perfTwa($pool, $warm, $call);
             $rows[] = [$label.($m['status'] === 200 ? '' : " ({$m['status']})"), $m['queries'], $m['queries_max'], round($m['sql_ms'], 1), round($m['render_ms'], 1), round($m['p50'], 1), round($m['p95'], 1), $m['kb'], $m['repeat'] ?? ''];
         }
