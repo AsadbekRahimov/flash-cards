@@ -9,7 +9,7 @@ import { setLocale } from '@/i18n'
 import { useToast } from '@/composables/useToast'
 import { useBillingStore } from '@/stores/billing'
 import { useTodayStore } from '@/stores/today'
-import type { BillingCatalog, MeResponse, Renewal, SubscriptionSummary } from '@/api/types'
+import type { BillingCatalog, MeResponse, PracticeAccess, Renewal, SubscriptionSummary } from '@/api/types'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 
 const state = vi.hoisted(() => ({ ensure: vi.fn(), back: undefined as undefined | (() => void), hideBack: vi.fn() }))
@@ -46,16 +46,21 @@ interface Setup {
   contact?: string | null
   /** New words a day of a Free learner. */
   limit?: number
+  /** The `practice` block of `/me` (absent: an older server, or nothing to say). */
+  practice?: PracticeAccess
 }
 
-const me = ({ plan = 'free', source, until = null, renewal = null, mode = 'purchase', contact = null, limit = 20 }: Setup = {}): MeResponse => ({
+const me = ({ plan = 'free', source, until = null, renewal = null, mode = 'purchase', contact = null, limit = 20, practice }: Setup = {}): MeResponse => ({
   learner: { id: 1, first_name: 'A', username: null, locale: 'ru', onboarding_completed: true },
   groups: [],
   stats: { words_learned: 0, words_due_today: 0 },
   entitlement: { plan, source: source ?? (plan === 'pro' ? 'subscription' : 'free'), until, new_words_per_day: plan === 'pro' ? null : limit, renewal },
   paywall: { mode, contact },
   settings: settingsFixture(),
+  ...(practice ? { practice } : {}),
 })
+
+const PRACTICE: PracticeAccess = { available: true, pro_required: false, modes: ['pairs', 'collocation', 'sentence', 'dictation'], battle: true }
 
 const summary = (overrides: Partial<SubscriptionSummary> = {}): SubscriptionSummary => ({
   status: 'active', provider: 'telegram_stars', plan: 'pro', ends_at: '2026-12-01T00:00:00+00:00', auto_renew: true, can_cancel: true, can_resume: false, perpetual: false, ...overrides,
@@ -186,10 +191,22 @@ describe('BillingView', () => {
   })
 
   describe('what Pro gives', () => {
-    it('lists the six benefits of Pro under «What Pro gives» for a Free learner', async () => {
+    it('lists the five benefits of Pro under «What Pro gives» for a Free learner who has no practice', async () => {
       const { wrapper } = await render(me(), catalog())
 
       expect(wrapper.get('[data-testid=benefits-title]').text()).toBe('Что даёт Pro')
+      expect(wrapper.findAll('[data-testid=benefit]').map((b) => b.text())).toEqual([
+        'Новые слова без дневного лимита',
+        'Написание слова и пропуски в примерах',
+        'До 20 своих колод по 2000 слов',
+        'Заморозки серии: пропуск дня не обрывает серию',
+        'Пробные тесты IELTS и SAT',
+      ])
+    })
+
+    it('adds practice and battles without a daily limit, second, when the practice is available to the learner', async () => {
+      const { wrapper } = await render(me({ practice: PRACTICE }), catalog())
+
       expect(wrapper.findAll('[data-testid=benefit]').map((b) => b.text())).toEqual([
         'Новые слова без дневного лимита',
         'Практика и баттлы без дневного лимита',
@@ -200,11 +217,28 @@ describe('BillingView', () => {
       ])
     })
 
+    it('sells no such line where there is no practice (PRACTICE_ACCESS=off, a pilot the learner is not in), and keeps it behind Pro', async () => {
+      const off = await render(me({ practice: { ...PRACTICE, available: false, modes: [], battle: false } }), catalog())
+      expect(off.wrapper.findAll('[data-testid=benefit]')).toHaveLength(5)
+      expect(off.wrapper.text()).not.toContain('Практика и баттлы')
+
+      setActivePinia(createPinia())
+      const proOnly = await render(me({ practice: { ...PRACTICE, pro_required: true } }), catalog())
+      expect(proOnly.wrapper.findAll('[data-testid=benefit]')).toHaveLength(6)
+    })
+
     it('calls the same list «Your benefits» for a Pro learner', async () => {
-      const { wrapper } = await render(me({ plan: 'pro', until: renewing.ends_at, renewal: renewing }), catalog(summary()))
+      const { wrapper } = await render(me({ plan: 'pro', until: renewing.ends_at, renewal: renewing, practice: PRACTICE }), catalog(summary()))
 
       expect(wrapper.get('[data-testid=benefits-title]').text()).toBe('Ваши возможности')
       expect(wrapper.findAll('[data-testid=benefit]')).toHaveLength(6)
+    })
+
+    it('says it in Uzbek', async () => {
+      setLocale('uz')
+      const { wrapper } = await render(me({ practice: PRACTICE }), catalog())
+
+      expect(wrapper.findAll('[data-testid=benefit]').map((b) => b.text())).toContain('Amaliyot va bellashuvlar kunlik limitsiz')
     })
 
     it('promises no statistics: there is no such feature', async () => {

@@ -43,6 +43,8 @@ const me = (mode: 'coming_soon' | 'purchase' = 'coming_soon', plan: 'free' | 'pr
   },
   paywall: { mode, contact: null },
   settings: settingsFixture(),
+  // A learner who meets the end of a free limit has practice: the sheet offers the line about it among the things Pro gives.
+  practice: { available: true, pro_required: false, modes: ['pairs', 'collocation', 'sentence', 'dictation'], battle: true },
 })
 
 const catalog = (): BillingCatalog => ({
