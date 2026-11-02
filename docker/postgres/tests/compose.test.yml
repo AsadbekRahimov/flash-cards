@@ -2,7 +2,7 @@
 #   docker compose -p lexiflow-pgtest -f docker-compose.yml -f docker/postgres/tests/compose.test.yml ...
 # The application services become stand-ins that only have to be "running" for upgrade.sh to stop and start them
 # (busybox, no build, no bind mounts); nothing publishes a port; the container names do not collide with a dev stack.
-# postgres and redis keep their real images and volumes - that is what is under test.
+# postgres, redis and redis-cache keep their real images and volumes - that is what is under test.
 services:
     app:
         image: busybox:stable
@@ -28,4 +28,8 @@ services:
 
     redis:
         container_name: lexiflow-pgtest-redis
+        ports: !reset []
+
+    redis-cache:
+        container_name: lexiflow-pgtest-redis-cache
         ports: !reset []

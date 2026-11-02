@@ -12,7 +12,7 @@
 |-------------------------------|-----------------------------------------------------------------------------|
 | `Dockerfile`                  | Прод-образ: php-fpm 8.5, минимум расширений.                                |
 | `Dockerfile.dev`              | **Дев-образ**: + Xdebug, Node.js (LTS из репозитория Alpine), npm, vim, less, увеличенные лимиты. |
-| `docker-compose.yml`          | Базовый стек: `app`, `nginx`, `postgres`, `redis`.                          |
+| `docker-compose.yml`          | Базовый стек: `app`, `nginx`, `postgres`, `redis`, `redis-cache` (см. §2.4). |
 | `docker-compose.override.yml` | Дев-настройки: подмена на `Dockerfile.dev`, сервисы `vite` и `ngrok`.        |
 | `docker-compose.prod.yml`     | Прод-стек, **override НЕ применяется** при явном `-f docker-compose.prod.yml`. |
 | `Makefile`                    | Шорткаты: `make up`, `make shell`, `make test`, `make migrate`, …            |
@@ -159,6 +159,23 @@ make pg-upgrade                              # = bash docker/postgres/upgrade.sh
 нужен — последовательность выше (`down` → `volume rm` → `up -d`). На macOS без `flock` скрипт работает без общей с
 `deploy.sh` блокировки и предупреждает об этом. Подробности и прод — `docs/DEVOPS_GUIDE.md`, §0 «Обновление PostgreSQL
 16 → 18 (Docker)».
+
+---
+
+### 2.4 Два Redis и порты только на localhost
+
+С 02.11.2026 (`docs/19_REDIS_CACHE_PLAN.md` §4) в стеке два Redis `8.10-alpine`:
+
+| Сервис | Порт на хосте | Что в нём | Политика |
+|---|---|---|---|
+| `redis` | `127.0.0.1:${REDIS_PORT_HOST:-6379}` | очереди, сессии, блокировки, лимиты, маркеры | `noeviction`, AOF, том `redisdata` |
+| `redis-cache` | `127.0.0.1:${REDIS_CACHE_PORT_HOST:-6380}` | чистый кэш (хранилище `lru`, `PureCache::store()`) | `volatile-lru`, ничего не сохраняет: после `docker compose restart redis-cache` пусто — так и задумано |
+
+- Порты PostgreSQL и обоих Redis привязаны к `127.0.0.1`: из локальной сети до дев-базы без пароля не достучаться. Нужен доступ с другой машины — SSH-туннель, а не публикация порта.
+- Пароли в деве не нужны: `REDIS_PASSWORD=` и `REDIS_CACHE_PASSWORD=` пустые (именно пустые, не `null`). Хотите как в проде — задайте оба hex-значения и `docker compose up -d`.
+- Контейнеру `app` compose сам подставляет `REDIS_LRU_HOST=redis-cache`, `REDIS_LRU_PORT=6379` и `REDIS_LRU_PASSWORD=$REDIS_CACHE_PASSWORD`; строки `REDIS_LRU_*` в `.env` нужны только для `php artisan` на хосте (тогда `127.0.0.1:6380`).
+- Посмотреть, что в кэше: `docker compose exec redis-cache redis-cli --scan --pattern 'lexiflow_cache*' | head`, статистика — `docker compose exec redis-cache redis-cli INFO stats | grep -E 'keyspace|evicted'`.
+- Обновление с одного Redis: `docker compose up -d` сам создаст `redis-cache`; старый том `redisdata` 8.4 Redis 8.10 читает, обратно на 8.4 он уже не поднимется (`docker compose down -v`, если понадобится).
 
 ---
 
@@ -409,7 +426,7 @@ description: Достать актуальный публичный URL ngrok-т
 ## 7. Полная пере-инициализация (если что-то поломалось)
 
 ```bash
-docker compose down -v        # удалит volumes (БД, redis) — данные пропадут!
+docker compose down -v        # удалит volumes (БД, redis; redis-cache тома не имеет) — данные пропадут!
 docker compose build --no-cache app
 docker compose up -d
 docker compose exec app composer install

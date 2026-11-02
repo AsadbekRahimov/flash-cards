@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Services\EntitlementResolver;
+use App\Domain\Operations\Support\PureCache;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Models\GroupMember;
@@ -85,7 +86,7 @@ it('keeps the seat (and the sponsored Pro) of the members when the bot is remove
     // Since 2B.1 the plan hangs on the seat, not on the group row (docs/13 §1.3): the bot leaving
     // the chat does not take the learner out of the center. The cache is still dropped (observer).
     expect($group->fresh()?->status)->toBe('disabled')
-        ->and(Cache::has(EntitlementResolver::cacheKey($member->id)))->toBeFalse()
+        ->and(PureCache::store()->has(EntitlementResolver::cacheKey($member->id)))->toBeFalse()
         ->and($resolver->for($member)->plan)->toBe(Plan::Pro);
 });
 

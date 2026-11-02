@@ -7,12 +7,15 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { hideErrorToast, showErrorToast } from '@/composables/errorToast'
+import { useBillingStore } from '@/stores/billing'
 import { usePracticeStore } from '@/stores/practice'
 import {
   answerResponse,
   collocationElement,
   dictationElement,
   finishedSession,
+  freeLimits,
+  limitDetails,
   pairsElement,
   sentenceElement,
   session,
@@ -70,10 +73,12 @@ vi.mock('@/components/PaywallSheet.vue', async () => {
   const { defineComponent, h } = await import('vue')
   return {
     default: defineComponent({
-      props: { reason: { type: String, default: 'info' } },
+      props: { reason: { type: String, default: 'info' }, limitHit: { type: Object, default: null } },
       emits: ['close', 'review'],
       setup: (props, { emit }) => () =>
-        h('div', { 'data-testid': 'paywall', 'data-reason': props.reason }, [h('button', { 'data-testid': 'paywall-close', onClick: () => emit('close') })]),
+        h('div', { 'data-testid': 'paywall', 'data-reason': props.reason, 'data-kind': props.limitHit?.kind ?? '' }, [
+          h('button', { 'data-testid': 'paywall-close', onClick: () => emit('close') }),
+        ]),
     }),
   }
 })
@@ -800,6 +805,82 @@ describe('PracticeSessionView — the summary', () => {
     expect(r.router.currentRoute.value.name).toBe('course')
     expect(r.router.currentRoute.value.params.slug).toBe('english-a1')
     r.wrapper.unmount()
+  })
+
+  // docs/18 §3 (G1): "Again" is one more session and meets the Free limit of sessions; "Repeat mistakes" spends nothing and does not.
+  describe('when the free sessions of the day are spent', () => {
+    const spend = () => useBillingStore().setLimits(freeLimits(2, 0))
+
+    it('"Again" opens the paywall of the limit at once, without a request, over the summary that stays', async () => {
+      const r = await render(finished({ summary: summary({ retry_available: false }) }))
+      spend()
+
+      await r.wrapper.get('[data-testid=again-btn]').trigger('click')
+      await flushPromises()
+
+      const sheet = r.wrapper.get('[data-testid=paywall]')
+      expect(sheet.attributes('data-reason')).toBe('practice_limit')
+      expect(sheet.attributes('data-kind')).toBe('sessions')
+      expect(api.practice.open).not.toHaveBeenCalled()
+      expect(showErrorToast).not.toHaveBeenCalled()
+      expect(r.wrapper.find('[data-testid=practice-summary]').exists()).toBe(true)
+      expect(r.router.currentRoute.value.params.id).toBe('77')
+
+      await r.wrapper.get('[data-testid=paywall-close]').trigger('click')
+      expect(r.wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      r.wrapper.unmount()
+    })
+
+    it('"Repeat mistakes" is not stopped: it opens the session, as it did', async () => {
+      const r = await render(finished())
+      spend()
+      vi.mocked(api.practice.open).mockResolvedValue(session({ id: 94, source: 'retry', retry_of: 77, limits: freeLimits(2, 0) }))
+
+      await r.wrapper.get('[data-testid=retry-btn]').trigger('click')
+      await flushPromises()
+
+      expect(api.practice.open).toHaveBeenCalledWith({ mode: 'sentence', course: 'english-a1', lesson_id: 41, source: 'retry', retry_of: 77 })
+      expect(r.wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+      expect(r.router.currentRoute.value.params.id).toBe('94')
+      r.wrapper.unmount()
+    })
+
+    it('"Again" with a session left goes on as it did, and the counters of the 201 are kept', async () => {
+      const r = await render(finished({ summary: summary({ retry_available: false }) }))
+      useBillingStore().setLimits(freeLimits(1, 0))
+      vi.mocked(api.practice.open).mockResolvedValue(session({ id: 95, limits: freeLimits(2, 0) }))
+
+      await r.wrapper.get('[data-testid=again-btn]').trigger('click')
+      await flushPromises()
+
+      expect(r.router.currentRoute.value.params.id).toBe('95')
+      expect(useBillingStore().sessionLimit).toMatchObject({ used: 2, remaining: 0 })
+      r.wrapper.unmount()
+    })
+
+    it('403 practice_limit_reached on "Again" - the screen thought a session was left - is the same paywall', async () => {
+      const r = await render(finished({ summary: summary({ retry_available: false }) }))
+      useBillingStore().setLimits(freeLimits(1, 0))
+      vi.mocked(api.practice.open).mockRejectedValue(apiError('forbidden', 403, 'practice_limit_reached', limitDetails('sessions')))
+
+      await r.wrapper.get('[data-testid=again-btn]').trigger('click')
+      await flushPromises()
+
+      expect(r.wrapper.get('[data-testid=paywall]').attributes('data-reason')).toBe('practice_limit')
+      expect(showErrorToast).not.toHaveBeenCalled()
+      r.wrapper.unmount()
+    })
+
+    it('the sheet of the limit is not told to the next screen when the learner has left', async () => {
+      const r = await render(finished({ summary: summary({ retry_available: false }) }))
+      spend()
+      await r.wrapper.get('[data-testid=again-btn]').trigger('click')
+      expect(usePracticeStore().limitHit).not.toBeNull()
+
+      r.wrapper.unmount()
+
+      expect(usePracticeStore().limitHit).toBeNull()
+    })
   })
 
   it('"Close" closes the Mini App', async () => {

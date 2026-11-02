@@ -25,7 +25,7 @@
 |---|---|---|
 | PHP + PHP-FPM | **8.5** | версия CI и Docker-образов; в Ubuntu 24.04 штатно 8.3, поэтому ставим из `ppa:ondrej/php` (§2) |
 | PostgreSQL | **18** | основная БД; из официального репозитория PGDG (§4), штатный в Ubuntu 24.04 — 16 |
-| Redis | **8** | кэш, сессии, очереди, блокировки; из репозитория `packages.redis.io` (§5) |
+| Redis | **8.10+** | два экземпляра: очереди/сессии/блокировки (6379) и чистый кэш (6380); из репозитория `packages.redis.io` (§5) |
 | Nginx | из репозитория Ubuntu | веб-сервер |
 | Node.js | **26 LTS** | только для сборки фронтенда (Vite) |
 | Composer | 2 | зависимости PHP |
@@ -97,7 +97,7 @@ ufw enable
 ufw status
 ```
 
-PostgreSQL (5432) и Redis (6379) **не открываем** наружу — они слушают только `127.0.0.1`.
+PostgreSQL (5432) и оба Redis (6379, 6380) **не открываем** наружу — они слушают только `127.0.0.1`.
 
 ### 1.4 Swap (если RAM ≤ 2–4 ГБ)
 
@@ -306,10 +306,12 @@ sudo systemctl restart postgresql
 
 ---
 
-## 5. Установка Redis 8
+## 5. Установка Redis 8.10 — два экземпляра
 
-В штатных репозиториях Ubuntu 24.04 и Debian 12 лежит Redis 7.0 (приложению он тоже подходит), но Docker-стек проекта
-работает на Redis 8, поэтому ставим пакеты из официального репозитория Redis:
+В штатных репозиториях Ubuntu 24.04 и Debian 12 лежит Redis 7.0, а Docker-стек проекта закреплён на `redis:8.10-alpine`
+(`docs/19_REDIS_CACHE_PLAN.md` §1), поэтому ставим 8.10 или новее из официального репозитория Redis. Экземпляра два
+(`docs/19` §4): **первый** (6379) — очереди, сессии, блокировки, лимиты и маркеры, ничего из него не должно
+вытесняться; **второй** (6380) — чистый кэш, который можно потерять в любой момент.
 
 ```bash
 curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
@@ -318,29 +320,76 @@ echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://pack
     | sudo tee /etc/apt/sources.list.d/redis.list
 sudo apt update
 sudo apt -y install redis-server
-redis-server --version                  # Redis server v=8.x
+redis-server --version                  # Redis server v=8.10 или новее
 sudo nano /etc/redis/redis.conf
 ```
 
-Найдите и поменяйте:
+**Первый экземпляр** (штатный `redis-server`, порт 6379). Найдите и поменяйте:
 
 ```text
 bind 127.0.0.1 -::1
 supervised systemd
 maxmemory 256mb
 maxmemory-policy noeviction
+requirepass ПАРОЛЬ_1            # openssl rand -hex 32; в .env -> REDIS_PASSWORD
 ```
 
-> **`noeviction` обязательно**, пока кэш, сессии и очереди живут в одном Redis: с политикой `allkeys-lru`
-> Redis под нехваткой памяти может выкинуть задания очереди (платёжные, напоминания).
-
-По желанию — пароль (`requirepass СИЛЬНЫЙ_ПАРОЛЬ`, тогда задайте `REDIS_PASSWORD` в `.env`).
+> **`noeviction` обязательно** для первого экземпляра: здесь очереди, сессии, блокировки, лимиты входа и защита 2FA.
+> С политикой вытеснения Redis под нехваткой памяти мог бы выкинуть задание оплаты или сбросить лимит попыток.
 
 ```bash
 sudo systemctl restart redis-server
 sudo systemctl enable redis-server
-redis-cli ping            # PONG
+REDISCLI_AUTH=ПАРОЛЬ_1 redis-cli ping            # PONG
 ```
+
+**Второй экземпляр** (чистый кэш, порт 6380): свой конфиг и свой unit systemd. Без сохранения на диск — после
+перезапуска он пуст, приложение пересчитает всё из базы; `volatile-lru` вытесняет ключи с TTL при нехватке памяти.
+
+```bash
+sudo tee /etc/redis/redis-cache.conf >/dev/null <<'EOF'
+bind 127.0.0.1 -::1
+port 6380
+supervised systemd
+daemonize no
+pidfile /run/redis/redis-cache.pid
+logfile /var/log/redis/redis-cache.log
+dir /var/lib/redis
+maxmemory 256mb
+maxmemory-policy volatile-lru
+save ""
+appendonly no
+requirepass ПАРОЛЬ_2            # openssl rand -hex 32; в .env -> REDIS_LRU_PASSWORD
+EOF
+sudo chown redis:redis /etc/redis/redis-cache.conf && sudo chmod 640 /etc/redis/redis-cache.conf
+
+sudo tee /etc/systemd/system/redis-cache.service >/dev/null <<'EOF'
+[Unit]
+Description=Redis (LexiFlow pure cache, volatile-lru, no persistence)
+After=network.target
+
+[Service]
+Type=notify
+User=redis
+Group=redis
+ExecStart=/usr/bin/redis-server /etc/redis/redis-cache.conf
+# No ExecStop with the password: SIGTERM from systemd shuts Redis down cleanly, and there is nothing to save here.
+TimeoutStopSec=10
+Restart=always
+RuntimeDirectory=redis
+RuntimeDirectoryMode=2755
+
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo systemctl daemon-reload
+sudo systemctl enable --now redis-cache
+REDISCLI_AUTH=ПАРОЛЬ_2 redis-cli -p 6380 ping    # PONG
+REDISCLI_AUTH=ПАРОЛЬ_2 redis-cli -p 6380 config get maxmemory-policy   # volatile-lru
+```
+
+Пароли — только hex-символы (`openssl rand -hex 32`). Мониторинг обоих экземпляров (`INFO`: `used_memory`,
+`evicted_keys`, `keyspace_hits`/`keyspace_misses`) и что делать при росте памяти — `docs/DEVOPS_GUIDE.md` §0, «Redis».
 
 ---
 
@@ -471,10 +520,10 @@ DB_DATABASE=lexiflow
 DB_USERNAME=lexiflow
 DB_PASSWORD=СИЛЬНЫЙ_ПАРОЛЬ
 
-# --- Redis: кэш, сессии, очереди ---
+# --- Redis: первый экземпляр (6379) — очереди, сессии, блокировки, лимиты ---
 REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
-REDIS_PASSWORD=null
+REDIS_PASSWORD=ПАРОЛЬ_1
 REDIS_DB=0
 REDIS_CACHE_DB=1
 REDIS_QUEUE_CONNECTION=queue
@@ -482,7 +531,16 @@ REDIS_QUEUE_DB=2
 REDIS_SESSION_DB=3
 REDIS_LOCK_DB=4
 REDIS_QUEUE_BLOCK_FOR=5
+REDIS_MAXMEMORY=256mb
+# --- Redis: второй экземпляр (6380) — чистый кэш (§5) ---
+REDIS_LRU_HOST=127.0.0.1
+REDIS_LRU_PORT=6380
+REDIS_LRU_PASSWORD=ПАРОЛЬ_2
+REDIS_LRU_DB=0
+REDIS_CACHE_MAXMEMORY=256mb
 CACHE_STORE=redis
+CACHE_LIMITER_STORE=redis
+CACHE_PURE_STORE=lru
 SESSION_DRIVER=redis
 SESSION_CONNECTION=session
 QUEUE_CONNECTION=redis
@@ -1081,8 +1139,9 @@ sudo -u www-data php artisan backup:list
 | Правка `.env` «не действует» | `php artisan config:cache` + `supervisorctl restart lexiflow-worker:*` |
 | Новый код «не действует» | `opcache.validate_timestamps=0` → `systemctl reload php8.5-fpm` |
 | Не рисуются карточки достижений | нет FreeType в GD: `php -r 'var_dump(gd_info()["FreeType Support"]);'` → переустановить `php8.5-gd` |
-| `/health/ready` не готов | cron не настроен (§14) или нет воркеров (§13); Redis/PostgreSQL недоступны |
-| Ошибка «MISCONF Redis…» / задания пропадают | закончилась память Redis: увеличьте `maxmemory`, политика должна быть `noeviction` |
+| `/health/ready` не готов | cron не настроен (§14) или нет воркеров (§13); Redis/PostgreSQL недоступны — `checks.redis` это первый экземпляр, `checks.redis_cache` второй (6380, §5) |
+| Ошибка «MISCONF Redis…» / `OOM command not allowed` / задания пропадают | закончилась память первого Redis: увеличьте `maxmemory`, политика должна остаться `noeviction`; кэш живёт во втором экземпляре и первому не мешает |
+| `NOAUTH Authentication required` в логах | пароль в `.env` (`REDIS_PASSWORD` / `REDIS_LRU_PASSWORD`) не совпадает с `requirepass` соответствующего экземпляра |
 
 ---
 
@@ -1091,7 +1150,7 @@ sudo -u www-data php artisan backup:list
 - [ ] Сервер обновлён, UTC, пользователь `deploy`, SSH по ключу, ufw (22/80/443)
 - [ ] PHP 8.5 (`ppa:ondrej/php` / `packages.sury.org`) + расширения (`pgsql redis bcmath intl mbstring gd zip xml curl`; OPcache встроен), FreeType = true
 - [ ] PostgreSQL 18 (репозиторий PGDG): пользователь и база `lexiflow`, слушает только localhost
-- [ ] Redis 8 (`packages.redis.io`): `bind 127.0.0.1`, `maxmemory-policy noeviction`
+- [ ] Redis 8.10+ (`packages.redis.io`), два экземпляра: 6379 `noeviction` + `requirepass`, 6380 `volatile-lru`, `save ""`, `appendonly no` + `requirepass` (§5)
 - [ ] Код в `/var/www/lexiflow`, права на `storage/` и `bootstrap/cache/`
 - [ ] `composer install --no-dev`, собраны `public/build` и `public/twa`
 - [ ] `.env` заполнен (production, debug=false, секреты, Telegram, TWA), `chmod 640`

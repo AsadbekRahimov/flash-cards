@@ -136,9 +136,9 @@ fi
 echo "==> Building immutable application and nginx images"
 $COMPOSE build --pull app nginx
 
-echo "==> Starting database and Redis"
+echo "==> Starting database and both Redis instances"
 STACK_TOUCHED=1
-$COMPOSE up -d postgres redis
+$COMPOSE up -d postgres redis redis-cache
 
 echo "==> Checking the TLS certificate"
 if ! $COMPOSE run --rm --no-deps --entrypoint sh certbot -c \

@@ -7,14 +7,15 @@ import ProBenefits from '@/components/ui/ProBenefits.vue'
 import SegmentedControl, { type SegmentOption } from '@/components/ui/SegmentedControl.vue'
 import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice, graceText, inStarsGrace, yearSavingPct } from '@/composables/billingFormat'
 import { formatDate } from '@/composables/format'
+import { resetWhen } from '@/composables/practiceLimits'
 import { supportContactLink } from '@/composables/supportContact'
 import { useBillingStore } from '@/stores/billing'
 import { useTodayStore } from '@/stores/today'
 import { useI18n } from '@/i18n'
 import type { StringKey } from '@/i18n/ru'
-import type { BillingPeriod, BillingProviderKey, DeckLimits, MeResponse } from '@/api/types'
+import type { BillingPeriod, BillingProviderKey, DeckLimits, MeResponse, PracticeLimitHit, PracticeLimitKind } from '@/api/types'
 
-export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam_simulator' | 'practice'
+export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam_simulator' | 'practice' | 'practice_limit'
 
 /**
  * Paywall (docs/12 §5.4, docs/13 §5, docs/14 §6.6): a bottom sheet with a grabber and a close button, the
@@ -32,7 +33,9 @@ export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam
  * `reason = 'quota'` is the end of today's new words; `'decks'` is a refused deck / deck-word limit
  * (docs/04 A.10; `deckLimits` are the numbers of `GET /decks`, the lead quotes them); `'streak_freeze'` is the Free
  * teaser of streak freezes (docs/13 §7.2); `'exam_simulator'` is a refused IELTS / SAT mock (docs/13 §8.4); `'practice'` is
- * the practice (or a battle) behind Pro while `PRACTICE_PLAN=pro` (docs/16 §3.2); `'info'` is
+ * the practice (or a battle) behind Pro while `PRACTICE_PLAN=pro` (docs/16 §3.2); `'practice_limit'` is the end of the free sessions
+ * of practice or of the free battles of today (docs/18 §3; `limitHit` holds the numbers the lead quotes, and the time the counter is full
+ * again is told in the learner's zone, the one of the Today screen); `'info'` is
  * the learner opening it from the Today screen or from "Renew Pro". A promo code that works or a confirmed payment
  * refreshes `/me` (billing store) and `/today`.
  *
@@ -56,7 +59,11 @@ export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam
  * a11y (minimal): the focus moves into the dialog on open and returns to the opener on close;
  * Escape closes it.
  */
-const props = withDefaults(defineProps<{ reason?: PaywallReason; deckLimits?: DeckLimits | null }>(), { reason: 'info', deckLimits: null })
+const props = withDefaults(defineProps<{ reason?: PaywallReason; deckLimits?: DeckLimits | null; limitHit?: PracticeLimitHit | null }>(), {
+  reason: 'info',
+  deckLimits: null,
+  limitHit: null,
+})
 const emit = defineEmits<{ close: []; redeemed: [me: MeResponse]; review: [] }>()
 
 const { t, tn, locale } = useI18n()
@@ -93,7 +100,28 @@ const REASON_LEADS: Partial<Record<PaywallReason, StringKey>> = {
   practice: 'paywall.lead_practice',
 }
 
+/**
+ * The lead of the end of a free limit, by the kind that is spent: "Free practice for today is over (2 of 2). A new one - tomorrow at 00:00
+ * or right away with Pro", or the same about the battles. "Right away with Pro" is said only while Pro is for sale (`purchase`); while it
+ * is just coming (`soon`) the lead promises nothing, and the pitch that follows it says "Pro opens soon".
+ */
+const LIMIT_LEADS: Record<PracticeLimitKind, { purchase: StringKey; soon: StringKey }> = {
+  sessions: { purchase: 'paywall.lead_practice_limit_sessions', soon: 'paywall.lead_practice_limit_sessions_soon' },
+  battles: { purchase: 'paywall.lead_practice_limit_battles', soon: 'paywall.lead_practice_limit_battles_soon' },
+}
+
+const limitLead = computed((): string => {
+  const hit = props.limitHit
+  // Without the numbers of a refusal there is nothing to quote: the plain word on the practice stands.
+  if (hit === null) return t('paywall.lead_practice')
+  return t(LIMIT_LEADS[hit.kind][purchaseMode.value ? 'purchase' : 'soon'], {
+    limit: hit.limit,
+    when: resetWhen(hit.resets_at, locale.value, today.data?.timezone),
+  })
+})
+
 const reasonLead = computed((): string => {
+  if (props.reason === 'practice_limit') return limitLead.value
   if (props.reason === 'decks') {
     const limits = props.deckLimits
     return limits

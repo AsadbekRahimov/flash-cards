@@ -6,13 +6,13 @@ namespace App\Domain\Administration\Services;
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Billing\Support\PaidSubscriptionQuery;
+use App\Domain\Operations\Support\PureCache;
 use App\Models\Learner;
 use App\Models\Organization;
 use App\Models\ProductEvent;
 use App\Models\Subscription;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -44,7 +44,7 @@ final class PlatformStatsService
     public function subscriptions(): array
     {
         /** @var array{pro_learners:int, personal:int, organizations:int, expiring:int} */
-        return Cache::remember(self::CACHE_PREFIX.'subscriptions', self::CACHE_TTL, function (): array {
+        return PureCache::store()->remember(self::CACHE_PREFIX.'subscriptions', self::CACHE_TTL, function (): array {
             $now = CarbonImmutable::now();
             // Only an ACTIVE organization sponsors (a suspended one keeps its row but grants nothing).
             $learnerSubscriptions = fn (): Builder => Subscription::query()->where('subscriptions.subscriber_type', 'learner');
@@ -77,7 +77,7 @@ final class PlatformStatsService
     public function onboardingFunnel(): array
     {
         /** @var array{started:int, completed:int, conversion:float|null} */
-        return Cache::remember(self::CACHE_PREFIX.'funnel', self::CACHE_TTL, function (): array {
+        return PureCache::store()->remember(self::CACHE_PREFIX.'funnel', self::CACHE_TTL, function (): array {
             $since = CarbonImmutable::now()->subDays(self::FUNNEL_DAYS);
             $started = ProductEvent::query()
                 ->where('name', ProductEventName::OnboardingStarted->value)
@@ -106,7 +106,7 @@ final class PlatformStatsService
 
     public function flush(): void
     {
-        Cache::forget(self::CACHE_PREFIX.'subscriptions');
-        Cache::forget(self::CACHE_PREFIX.'funnel');
+        PureCache::store()->forget(self::CACHE_PREFIX.'subscriptions');
+        PureCache::store()->forget(self::CACHE_PREFIX.'funnel');
     }
 }

@@ -89,14 +89,15 @@ it('reads the plan of the learner from the cached entitlement only when the plan
 it('says in GET /me what the learner sees: the flags of the modes and of the battle', function (): void {
     $learner = Learner::factory()->create();
     $headers = PracticeKit::headers($learner);
+    PracticeKit::limits(null, null); // the block `limits` is PracticeLimitsTest's; here it is null
 
     config(['practice.access' => 'off']);
     $this->withHeaders($headers)->getJson('/api/twa/me')->assertOk()
-        ->assertJsonPath('practice', ['available' => false, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation'], 'battle' => true]);
+        ->assertJsonPath('practice', ['available' => false, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation'], 'battle' => true, 'limits' => null]);
 
     config(['practice.access' => 'all', 'practice.modes.sentence' => false, 'practice.battle.enabled' => false]);
     $this->withHeaders($headers)->getJson('/api/twa/me')->assertOk()
-        ->assertJsonPath('practice', ['available' => true, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'dictation'], 'battle' => false]);
+        ->assertJsonPath('practice', ['available' => true, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'dictation'], 'battle' => false, 'limits' => null]);
 
     // A Free learner at plan = pro still SEES the entries (with a Pro chip): available + pro_required.
     config(['practice.plan' => 'pro']);

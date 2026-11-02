@@ -182,7 +182,7 @@ it('keeps the exact JSON of a battle from the invitation to the countdown, for b
     [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
 
     // The invitation: 201 with the whole body in the language of the one who invited.
-    $created = BattleHttp::invite($me, $friendship, PracticeMode::Dictation, $course, $lesson)->assertCreated()->assertExactJsonStructure(battleShape());
+    $created = BattleHttp::invite($me, $friendship, PracticeMode::Dictation, $course, $lesson)->assertCreated()->assertExactJsonStructure([...battleShape(), 'limits']);
     $id = (int) $created->json('id');
     expect(ksorted($created->json()))->toBe(ksorted([
         'id' => $id, 'status' => 'invited', 'end_reason' => null, 'mode' => 'dictation', 'role' => 'challenger',
@@ -195,14 +195,14 @@ it('keeps the exact JSON of a battle from the invitation to the countdown, for b
         'version' => 0, 'server_now' => '2026-10-30T10:00:00.000Z',
         'ready' => ['me' => false, 'opponent' => false], 'opponent_present' => true, 'opponent_absent_since' => null,
         'round' => null, 'scores' => ['me' => 0, 'opponent' => 0], 'result' => null,
-        'rematch' => null, 'friendship_id' => $friendship->id, 'audio_preload' => null,
+        'rematch' => null, 'friendship_id' => $friendship->id, 'audio_preload' => null, 'limits' => null,
     ]));
 
     // The same battle for the friend: their side, their language; a read is the same body as the 201 (except for the side).
     $theirs = BattleHttp::view($friend, $id)->assertOk()->assertExactJsonStructure(battleShape());
     expect([$theirs->json('role'), $theirs->json('opponent'), $theirs->json('course.title')])->toBe(['opponent', ['first_name' => 'Bek'], 'Ingliz tili A1']);
     $mine = BattleHttp::view($me, $id)->assertOk();
-    expect(ksorted($mine->json()))->toBe(ksorted($created->json()));
+    expect(ksorted($mine->json()))->toBe(ksorted(array_diff_key($created->json(), ['limits' => true]))); // `limits` belongs to the creation alone (docs/18 G1)
 
     // The room: both are in, the clocks of the room run, and the five clips of the dictation are listed for the preload.
     BattleHttp::accept($friend, $id)->assertOk()->assertExactJsonStructure(battleShape());
@@ -825,7 +825,7 @@ it('validates the body of an invitation, and a rematch needs only `rematch_of` -
     // What the TWA sends: the battle and - because it does not know better - the mode, the course, the lesson, the friendship. All of it
     // other than the truth here; none of it is read, and none of it is a 422.
     $first = BattleHttp::rematch($me, $source, ['mode' => 'pairs', 'course' => 'no-such-course', 'lesson_id' => 999999, 'friendship_id' => 424242])
-        ->assertCreated()->assertExactJsonStructure(battleShape());
+        ->assertCreated()->assertExactJsonStructure([...battleShape(), 'limits']);
     expect($first->json())->toMatchArray(['status' => 'invited', 'mode' => 'collocation', 'role' => 'challenger', 'friendship_id' => $friendship->id])
         ->and($first->json('course.slug'))->toBe('english-a1')
         ->and($first->json('lesson.id'))->toBe($lesson->id)

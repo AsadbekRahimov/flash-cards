@@ -11,6 +11,7 @@ use App\Domain\Learning\DTO\MockExamResult;
 use App\Domain\Learning\Exceptions\ExamSessionException;
 use App\Domain\Learning\Exceptions\MockExamException;
 use App\Domain\Localization\Services\LocaleResolver;
+use App\Domain\Operations\Support\PureCache;
 use App\Models\Course;
 use App\Models\ExamAnswer;
 use App\Models\ExamResult;
@@ -20,7 +21,6 @@ use App\Models\Word;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\UniqueConstraintViolationException;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -259,7 +259,7 @@ final class MockExamService
         }
 
         if ($closed->course_id !== null) {
-            Cache::forget(self::distributionCacheKey((int) $closed->course_id));
+            PureCache::store()->forget(self::distributionCacheKey((int) $closed->course_id));
         }
 
         $result = $this->result($closed, $now);
@@ -325,7 +325,7 @@ final class MockExamService
         $cutoff = $now->subDays($days);
 
         /** @var array<int, int> $distribution */
-        $distribution = Cache::remember(
+        $distribution = PureCache::store()->remember(
             self::distributionCacheKey($courseId),
             $ttl,
             function () use ($courseId, $cutoff): array {

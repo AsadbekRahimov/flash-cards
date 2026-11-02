@@ -133,7 +133,10 @@ function practiceRaceSession(string $slug, PracticeMode $mode = PracticeMode::Co
     return [$learner->id, $session->id, (string) ($view->current['id'] ?? '')];
 }
 
-it('opens exactly one session when four tabs open the same practice at the same instant', function (): void {
+it('opens exactly one session when four tabs open the same practice at the same instant', function (bool $limits): void {
+    if ($limits) {
+        PracticeKit::limits(2, 1); // the learner's row is the first lock of every tab; the limit itself does not bind
+    }
     PracticeKit::fake(PracticeMode::Collocation, candidates: 6);
     [$course] = PracticeKit::course();
     $learnerId = Learner::factory()->create()->id;
@@ -157,7 +160,7 @@ it('opens exactly one session when four tabs open the same practice at the same 
         ->and(array_unique(array_map(fn (array $r): mixed => $r['details']['session_id'] ?? null, $refused)))->each->toBe($winner->id)
         ->and(PracticeSession::query()->where('active_learner_id', $learnerId)->count())->toBe(1)
         ->and(ProductEvent::query()->where('name', 'practice.session_started')->count())->toBe(1); // the losers rolled back
-});
+})->with(['limits off' => [false], 'limits on' => [true]]);
 
 it('gives the session to one of two tabs that open DIFFERENT practices, and 409 to the other', function (): void {
     PracticeKit::fake(PracticeMode::Collocation, candidates: 6);
@@ -179,7 +182,10 @@ it('gives the session to one of two tabs that open DIFFERENT practices, and 409 
         ->and(PracticeSession::query()->where('active_learner_id', $learnerId)->count())->toBe(1);
 });
 
-it('lets two tabs that ask to REPLACE both succeed, and leaves one active session: the last one in', function (): void {
+it('lets two tabs that ask to REPLACE both succeed, and leaves one active session: the last one in', function (bool $limits): void {
+    if ($limits) {
+        PracticeKit::limits(5, 1); // two openings of two devices take two places of the day (docs/16 §6.1); the limit does not bind here
+    }
     PracticeKit::fake(PracticeMode::Collocation, candidates: 6);
     PracticeKit::fake(PracticeMode::Sentence, candidates: 6);
     [$course] = PracticeKit::course();
@@ -200,7 +206,7 @@ it('lets two tabs that ask to REPLACE both succeed, and leaves one active sessio
         ->and(PracticeSession::query()->where('status', 'active')->count())->toBe(1)
         ->and(PracticeSession::query()->where('status', 'finished')->sole()->finish_reason)->toBe(FinishReason::Replaced)
         ->and(ProductEvent::query()->where('name', 'practice.session_finished')->count())->toBe(1);
-});
+})->with(['limits off' => [false], 'limits on' => [true]]);
 
 it('takes one answer to an element from two tabs with different request ids: the second is 409 answer_already_accepted', function (): void {
     PracticeKit::fake(PracticeMode::Collocation, candidates: 6);

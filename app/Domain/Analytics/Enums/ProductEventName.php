@@ -92,6 +92,8 @@ enum ProductEventName: string
     case PracticeNotEnoughMaterial = 'practice.not_enough_material';
     /** A dictation could not be played and was swapped / reported (props: session_id | battle_id, source — word / phrase, reason — file_missing / client_report, verified). */
     case PracticeAudioFailed = 'practice.audio_failed';
+    /** A Free learner was refused a session or a battle call by the daily limit (props: kind — sessions / battles, limit; docs/18 G1). */
+    case PracticeLimitReached = 'practice.limit_reached';
     /** A battle invitation was sent (props: battle_id, mode, course_id, lesson_id, rematch); actor = the challenger. */
     case BattleInvited = 'battle.invited';
     /** The invited friend accepted (props: battle_id). */

@@ -35,8 +35,10 @@ import type { PracticeAnswerPayload } from '@/api/types'
  * - `finished` — `PracticeSummary`.
  * A dictation whose clip does not load or play opens `AudioTrouble` over it; a refusal that leaves the learner on the
  * element (no network, a rule of the server) is a toast. The `PaywallSheet` opens over the session when the server says
- * `practice_pro_required`. "No sound for now" - in that sheet, and the button the dictation always has - leads to the hub with the
- * session dropped on purpose (`practice.abandonSession()`): the mode chosen there starts over it without asking.
+ * `practice_pro_required`; "Again" on the summary opens the one of the free limit (`limitHit`) when today's free sessions are spent
+ * (a repeat of mistakes spends nothing, so it is never stopped by it). "No sound for now" - in that sheet, and the button the dictation
+ * always has - leads to the hub with the session dropped on purpose (`practice.abandonSession()`): the mode chosen there starts over it
+ * without asking.
  *
  * ✕ and the system "Back" lead to the hub of the session (docs/16 §11.1): the answers are saved as they go, nothing is
  * asked. When the store knows nothing yet (a link straight to the session) they lead to the courses.
@@ -50,7 +52,7 @@ const audio = usePracticeAudio()
 const { close, haptic, notificationHaptic } = useTelegram()
 const { t } = useI18n()
 
-const { status, session, outcome, errorMessage, actionError, paywall, retryUnavailable, opening, elementSeq, progress, current } = storeToRefs(practice)
+const { status, session, outcome, errorMessage, actionError, paywall, limitHit, retryUnavailable, opening, elementSeq, progress, current } = storeToRefs(practice)
 
 /** The hub the session belongs to; the courses while nothing is known about it. */
 function hubLocation(): RouteLocationRaw {
@@ -362,6 +364,12 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => practice.dismissPaywall
       @close="troubleDismissed = true"
     />
 
-    <PaywallSheet v-if="paywall" reason="practice" @close="practice.dismissPaywall()" @review="reviewFromPaywall" />
+    <PaywallSheet
+      v-if="paywall || limitHit"
+      :reason="limitHit ? 'practice_limit' : 'practice'"
+      :limit-hit="limitHit"
+      @close="practice.dismissPaywall()"
+      @review="reviewFromPaywall"
+    />
   </section>
 </template>

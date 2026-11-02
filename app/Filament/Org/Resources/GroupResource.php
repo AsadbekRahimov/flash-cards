@@ -135,8 +135,9 @@ class GroupResource extends OrgResource
                 ->label(__('org.groups.columns.status'))
                 ->badge()
                 ->formatStateUsing(fn (string $state): string => __('org.groups.status.'.$state)),
-            // `active_members_count` comes with the page query (`getEloquentQuery()`): no count of its own.
-            Infolists\Components\TextEntry::make('active_members_count')->label(__('org.groups.columns.learners')),
+            // Resolved through getEloquentQuery(), so the record already carries the `withCount` value (docs/20 A10).
+            Infolists\Components\TextEntry::make('active_members_count')
+                ->label(__('org.groups.columns.learners')),
             Infolists\Components\TextEntry::make('teachers.name')->label(__('org.groups.columns.teachers'))->listWithLineBreaks()->placeholder('—'),
             Infolists\Components\TextEntry::make('created_at')->label(__('org.groups.columns.since'))->dateTime('d.m.Y H:i'),
         ]);

@@ -6,17 +6,18 @@ import { setLocale } from '@/i18n'
 describe('ProBenefits', () => {
   afterEach(() => setLocale('ru'))
 
-  it('lists the five Pro benefits with a check each', () => {
+  it('lists the six Pro benefits with a check each', () => {
     const w = mount(ProBenefits)
 
     expect(w.findAll('[data-testid=benefit]').map((li) => li.text())).toEqual([
       'Новые слова без дневного лимита',
+      'Практика и баттлы без дневного лимита',
       'Написание слова и пропуски в примерах',
       'До 20 своих колод по 2000 слов',
       'Заморозки серии: пропуск дня не обрывает серию',
       'Пробные тесты IELTS и SAT',
     ])
-    expect(w.findAll('svg')).toHaveLength(5)
+    expect(w.findAll('svg')).toHaveLength(6)
     expect(w.findAll('svg').every((svg) => svg.attributes('fill') === 'currentColor')).toBe(true)
   })
 
@@ -42,8 +43,9 @@ describe('ProBenefits', () => {
     setLocale('uz')
     const w = mount(ProBenefits)
 
-    expect(w.findAll('[data-testid=benefit]')).toHaveLength(5)
+    expect(w.findAll('[data-testid=benefit]')).toHaveLength(6)
     expect(w.text()).toContain("Yangi so'zlar kunlik limitsiz")
+    expect(w.text()).toContain('Amaliyot va bellashuvlar kunlik limitsiz')
     expect(w.text()).toContain('IELTS va SAT sinov testlari')
   })
 })

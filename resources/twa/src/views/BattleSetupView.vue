@@ -17,6 +17,7 @@ import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
 import { useAuthStore } from '@/stores/auth'
 import { useBattleSetupStore } from '@/stores/battleSetup'
+import { useBillingStore } from '@/stores/billing'
 import { useCoursesStore } from '@/stores/courses'
 import { errorMessage } from '@/i18n/errors'
 import { useI18n } from '@/i18n'
@@ -35,6 +36,9 @@ import type { PracticeMode } from '@/api/types'
  *   and the button stays off.
  * - A refusal is told in words: a battle of the learner's own in the way (with a link to it), the friend no longer a
  *   friend, battles switched off, the material gone since the numbers were read.
+ * - Free has a few battles a day (docs/18 §3): above "Invite" a quiet line says how many are left ("Battles today: 1 of 1 left";
+ *   Pro sees nothing). With none left "Invite" still works - it opens the paywall of the limit at once, without a request.
+ *   Accepting an invitation is never limited, and this screen is not where that happens.
  * "Back" leads to the Friends.
  */
 const props = defineProps<{
@@ -46,12 +50,14 @@ const props = defineProps<{
 const router = useRouter()
 const auth = useAuthStore()
 const setup = useBattleSetupStore()
+const billing = useBillingStore()
 const catalog = useCoursesStore()
 const { haptic } = useTelegram()
 const { t } = useI18n()
 
-const { options, optionsStatus, optionsError, blocked, inviting, inviteError, busyBattleId, paywall, mode, course, lessonId } = storeToRefs(setup)
+const { options, optionsStatus, optionsError, blocked, inviting, inviteError, busyBattleId, paywall, limitHit, mode, course, lessonId } = storeToRefs(setup)
 const { listStatus, detailStatus } = storeToRefs(catalog)
+const { battleLimit } = storeToRefs(billing)
 
 useBackButton({ name: 'friends' })
 
@@ -67,6 +73,8 @@ async function load(): Promise<void> {
     loginError.value = errorMessage(err, 'battle')
     return
   }
+  // The battles left today are asked for beside the setup: best effort, the screen works without the line.
+  void billing.load()
   await setup.begin(props.friendshipId, props.course, props.lessonId)
 }
 
@@ -243,6 +251,10 @@ const blockedKey = computed(() => {
         <button v-if="busyBattleId !== null" type="button" class="btn btn-tinted btn-block" data-testid="open-busy" @click="openBusy">
           {{ t('battle.open_current') }}
         </button>
+        <!-- Free only: the battles left today. -->
+        <p v-if="battleLimit" class="px-4 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="battle-limit">
+          {{ t('battle.limit.left', { remaining: Math.max(0, battleLimit.remaining), limit: battleLimit.limit }) }}
+        </p>
         <button type="button" class="btn btn-primary btn-lg btn-block" :disabled="!setup.canInvite" data-testid="invite-btn" @click="invite">
           {{ inviting ? t('battle.setup.inviting') : t('battle.setup.invite') }}
         </button>
@@ -250,6 +262,12 @@ const blockedKey = computed(() => {
       </section>
     </div>
 
-    <PaywallSheet v-if="paywall" reason="practice" @close="setup.dismissPaywall()" @review="reviewFromPaywall" />
+    <PaywallSheet
+      v-if="paywall || limitHit"
+      :reason="limitHit ? 'practice_limit' : 'practice'"
+      :limit-hit="limitHit"
+      @close="setup.dismissPaywall()"
+      @review="reviewFromPaywall"
+    />
   </div>
 </template>

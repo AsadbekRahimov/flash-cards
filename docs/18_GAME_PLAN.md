@@ -95,7 +95,7 @@
 
 - **Остаются бесплатными, как сейчас:** карточки, повторения, курсы, лиги, челленджи, достижения.
 - **Все лимиты — в конфиге через env.** Новые фичи entitlement: `game.unlimited_runs`, `game.all_bosses`, `game.arena_unlimited`, `game.tournament`, `season.pro_track`, `practice.unlimited`.
-- **`PRACTICE_PLAN` превращается из «всё или ничего» в лимиты.**
+- **`PRACTICE_PLAN` превращается из «всё или ничего» в лимиты.** Сделано в G1.1 (backend, 2026-11-02): при `PRACTICE_PLAN=all` Free получает `PRACTICE_FREE_SESSIONS_PER_DAY` (2) и `PRACTICE_FREE_BATTLES_PER_DAY` (1) в локальный день; `PRACTICE_PLAN=pro` сохранён как более жёсткий режим (Free — 403 `practice_pro_required`). Что считается, окно, атомарность и форма ответа — `docs/16` §3.2–§3.3, `docs/04` A.2, A.16, A.17.
 
 ## 4. Правила честности
 
@@ -161,7 +161,7 @@
 | # | Задача | Исполнитель | Готово, когда |
 |---|---|---|---|
 | **G1** | **Free и Pro для готовой практики и баттла** — быстрые деньги на уже готовом коде | | |
-| G1.1 | Лимиты вместо `PRACTICE_PLAN`: Free — 2 сессии практики в день, баттл: принять — всегда, вызвать — 1 в день; Pro — без лимита. Фичи entitlement, счётчик по локальному дню ученика (как квота новых слов) | coder | Pest на обе ветки и на границу локального дня; пейвол `practice` с остатком |
+| G1.1 | Лимиты вместо `PRACTICE_PLAN`: Free — 2 сессии практики в день, баттл: принять — всегда, вызвать — 1 в день; Pro — без лимита. Фичи entitlement, счётчик по локальному дню ученика (как квота новых слов) | architect | **Сделано (backend, 2026-11-02):** `practice.free_limits` (`PRACTICE_FREE_SESSIONS_PER_DAY`, `PRACTICE_FREE_BATTLES_PER_DAY`), фича `practice.unlimited`, `PracticeLimits` (подсчёт под `FOR NO KEY UPDATE` строки ученика; вызов на баттл, который не начался не по вине вызвавшего, возвращается), 403 `practice_limit_reached`, событие `practice.limit_reached`, `limits` в `/me`, хабе и 201; `PracticeLimitsTest`, `PracticeLimitsConcurrencyTest`; `docs/16` §3, `docs/04` A.2/A.16/A.17 |
 | G1.2 | TWA: остаток на сегодня, чип Pro, пейвол с правильной причиной | coder | vue-tsc, vitest, сборка зелёные |
 | G1.3 | Публичный выпуск практики по `docs/15` этап 8 с A/B-группой | координатор | Включено на часть учеников, метрики пишутся |
 | **G2** | **Караван** | | |

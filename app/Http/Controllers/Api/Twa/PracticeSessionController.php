@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Twa;
 
 use App\Domain\Practice\Exceptions\PracticeException;
+use App\Domain\Practice\Services\PracticeLimits;
 use App\Domain\Practice\Services\PracticeSessionService;
 use App\Http\Requests\Twa\OpenPracticeSessionRequest;
 use App\Http\Requests\Twa\PracticeAnswerRequest;
 use App\Http\Requests\Twa\PracticeReplaceRequest;
 use App\Http\Resources\ApiErrorResource;
 use App\Http\Resources\Twa\PracticeAnswerResource;
+use App\Http\Resources\Twa\PracticeSessionOpenedResource;
 use App\Http\Resources\Twa\PracticeSessionResource;
 use App\Models\Learner;
 use Illuminate\Http\JsonResponse;
@@ -22,9 +24,12 @@ use Illuminate\Http\Request;
  */
 final class PracticeSessionController
 {
-    public function __construct(private readonly PracticeSessionService $sessions) {}
+    public function __construct(
+        private readonly PracticeSessionService $sessions,
+        private readonly PracticeLimits $limits,
+    ) {}
 
-    /** POST /api/twa/practice/sessions — 201 with the new session (or the one a parallel tab has just opened). */
+    /** POST /api/twa/practice/sessions — 201 with the new session (or the one a parallel tab has just opened) and the limits left today. */
     public function store(OpenPracticeSessionRequest $request): JsonResponse
     {
         $learner = $this->learner($request);
@@ -40,7 +45,8 @@ final class PracticeSessionController
                 $request->retryOf(),
             );
 
-            return (new PracticeSessionResource($this->sessions->view($session, $learner)))->response()->setStatusCode(201);
+            return (new PracticeSessionOpenedResource($this->sessions->view($session, $learner), $this->limits->forLearner($learner)))
+                ->response()->setStatusCode(201);
         } catch (PracticeException $e) {
             return $this->error($e);
         }

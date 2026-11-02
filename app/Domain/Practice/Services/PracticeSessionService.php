@@ -67,11 +67,17 @@ final class PracticeSessionService
         private readonly ModeRegistry $modes,
         private readonly LocaleResolver $locales,
         private readonly ProductEventRecorder $events,
+        private readonly PracticeLimits $limits,
     ) {}
 
     /**
      * Opens a solo session. Not inside an outer transaction: after a unique violation (two tabs) the winner is read again.
      *
+     * - the Free limit of the day (docs/18 G1, {@see PracticeLimits}): after the access and the switch of the mode, a Free learner
+     *   who has opened `practice.free_limits.sessions_per_day` sessions today is refused 403 `practice_limit_reached` before any
+     *   material is read; the place is TAKEN in the transaction, under the lock of the learner's row, before the active session
+     *   is looked at (two tabs racing for the last place: one opens). ONE retry of the mistakes per source opened today is free of
+     *   the limit; a second retry of the same source, a retry of a retry and a retry of an older session take a place like a session;
      * - an active session and no `$replaceActive` -> 409 `practice_session_active` (with its details); with the flag it is
      *   finished (`replaced`); one past its `expires_at` is finished (`expired`) either way;
      * - `$retryOf`: the id of a FINISHED session of the learner; mode, course and lesson are taken from it, the material is its
@@ -84,9 +90,9 @@ final class PracticeSessionService
      * - two tabs at once: the loser of the race gets the winner's session when it is the same practice (same mode, course,
      *   lesson), else the 409.
      *
-     * @throws PracticeException practice_unavailable | practice_pro_required | practice_mode_disabled | course_not_found |
-     *                           lesson_not_found | lesson_not_in_course | practice_not_enough_material | practice_session_active |
-     *                           practice_session_not_found | retry_not_available
+     * @throws PracticeException practice_unavailable | practice_pro_required | practice_mode_disabled | practice_limit_reached |
+     *                           course_not_found | lesson_not_found | lesson_not_in_course | practice_not_enough_material |
+     *                           practice_session_active | practice_session_not_found | retry_not_available
      */
     public function open(
         Learner $learner,
@@ -113,6 +119,7 @@ final class PracticeSessionService
             $source = PracticeSession::SOURCE_RETRY;
         }
         $this->access->assertModeEnabled($mode);
+        $this->limits->assertSessionAllowed($learner, $now, $retrySource);
 
         if ($retrySource !== null) {
             $course = $this->material->courseById($retrySource->course_id, $learner);
@@ -161,7 +168,14 @@ final class PracticeSessionService
 
         for ($attempt = 0; $attempt < 3; $attempt++) {
             try {
-                return DB::transaction(function () use ($learner, $attributes, $replaceActive, $retrySource, $now): PracticeSession {
+                $outcome = DB::transaction(function () use ($learner, $attributes, $replaceActive, $retrySource, $now): PracticeSession|PracticeException {
+                    // The learner's row first (Free only), then the session row: the refusal is returned, thrown after the commit.
+                    // A retry is free once per source opened today; any other retry takes a place like a session (docs/16 §3.2).
+                    $refusal = $this->limits->claimSession($learner, $now, $retrySource);
+                    if ($refusal !== null) {
+                        return $refusal;
+                    }
+
                     /** @var PracticeSession|null $active */
                     $active = PracticeSession::query()->where('active_learner_id', $learner->id)->lockForUpdate()->first();
 
@@ -189,6 +203,11 @@ final class PracticeSessionService
 
                     return $session;
                 });
+                if ($outcome instanceof PracticeException) {
+                    throw $outcome;
+                }
+
+                return $outcome;
             } catch (UniqueConstraintViolationException) {
                 // Two tabs at once: the other one has just opened a session for this learner.
                 $winner = $this->activeOf($learner);

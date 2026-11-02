@@ -1,10 +1,12 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
+import { limitHitFrom } from '@/composables/practiceLimits'
 import { newRequestId } from '@/composables/requestId'
 import { useServerClock, type ServerClock } from '@/composables/useServerClock'
 import { t } from '@/i18n'
 import { errorMessage } from '@/i18n/errors'
+import { useBillingStore } from '@/stores/billing'
 import type {
   Battle,
   BattleIncoming,
@@ -15,6 +17,7 @@ import type {
   BattleRoundState,
   BattleStatus,
   PracticeAnswerPayload,
+  PracticeLimitHit,
 } from '@/api/types'
 
 export type BattleListStatus = 'idle' | 'loading' | 'ready' | 'error'
@@ -126,6 +129,11 @@ interface BattleState {
   busyBattleId: number | null
   /** The action was refused because practice is behind Pro (403 `practice_pro_required`): the paywall opens instead of a message. */
   paywall: boolean
+  /**
+   * The paywall of today's free limit of battles: a rematch (a new battle) that the counter says is spent - nothing was asked - or that
+   * the server refused (403 `practice_limit_reached`); the Friends screen opens it too when "Battle" meets a spent counter.
+   */
+  limitHit: PracticeLimitHit | null
   /** Number of the newest round request: an older round that comes late is dropped. */
   roundReq: number
   /** Grows with every new round element: the screen keys the mode component by it, so a new round has no pick left over. */
@@ -267,6 +275,7 @@ export const useBattleStore = defineStore('battle', {
     actionError: '',
     busyBattleId: null,
     paywall: false,
+    limitHit: null,
     roundReq: 0,
     elementSeq: 0,
     audioReported: [],
@@ -366,6 +375,12 @@ export const useBattleStore = defineStore('battle', {
 
     dismissPaywall(): void {
       this.paywall = false
+      this.limitHit = null
+    },
+
+    /** The paywall of today's free limit, opened by a screen whose own check found the counter of battles spent (Friends: "Battle"). */
+    showLimit(hit: PracticeLimitHit): void {
+      this.limitHit = hit
     },
 
     // -------------------------------------------------------- the screen
@@ -397,6 +412,7 @@ export const useBattleStore = defineStore('battle', {
       this.actionError = ''
       this.busyBattleId = null
       this.paywall = false
+      this.limitHit = null
       this.roundReq += 1
       this.elementSeq = 0
       this.audioReported = []
@@ -473,6 +489,9 @@ export const useBattleStore = defineStore('battle', {
       this.applyRematch(battle.rematch)
       this.dropStaleAnswer()
       this.updatePolling()
+      // An invitation of mine that closed without a battle (declined, not answered in time, withdrawn) no longer counts among the battles of
+      // the day. The counters the screens hold are from before: the next reading of /me is asked for, not taken from the cache.
+      if (battle.status === 'closed' && battle.role === 'challenger') useBillingStore().invalidate()
     },
 
     /**
@@ -835,11 +854,26 @@ export const useBattleStore = defineStore('battle', {
 
     /**
      * "Rematch": a new invitation to the same friend, in the same format and place. Returns the id of the battle to go to, or null
-     * (`actionError`). If the friend offered a rematch at the same moment, the invitation to go to is THEIRS - the learner accepts it.
+     * (`actionError`, or `limitHit`). If the friend offered a rematch at the same moment, the invitation to go to is THEIRS - the learner
+     * accepts it.
+     *
+     * A rematch is a new battle like any other and Free has a few of them a day: when the counter says they are spent the paywall opens
+     * instead, without a request (the server would refuse with 403 `practice_limit_reached`, which is told the same way). Accepting
+     * a rematch (`acceptRematch`) is never limited.
+     *
+     * Only after a battle that was played (`finished`): one that did not take place (declined, not answered in time, withdrawn) is not
+     * counted among the battles of the day, so after it "Invite again" asks the server whatever the counter on the screen remembers.
      */
     async rematch(): Promise<number | null> {
       const battle = this.battle
       if (battle === null || !this.isOver || this.acting !== null) return null
+
+      this.limitHit = null
+      const spent = battle.status === 'finished' ? useBillingStore().limitReached('battles') : null
+      if (spent !== null) {
+        this.limitHit = spent
+        return null
+      }
 
       const generation = this.generation
       this.acting = 'rematch'
@@ -853,9 +887,17 @@ export const useBattleStore = defineStore('battle', {
           lesson_id: battle.lesson?.id ?? null,
           ...(typeof battle.friendship_id === 'number' ? { friendship_id: battle.friendship_id } : {}),
         })
+        // The battle exists, and counts, whether or not this screen is still there.
+        useBillingStore().setLimits(created.limits)
         return created.id
       } catch (err) {
+        const hit = err instanceof ApiClientError && err.code === 'practice_limit_reached' ? limitHitFrom(err.details) : null
+        if (hit !== null) useBillingStore().noteLimitHit(hit)
         if (generation !== this.generation) return null
+        if (hit !== null) {
+          this.limitHit = hit
+          return null
+        }
         const theirs = await incomingInvitation(err)
         if (generation !== this.generation) return null
         if (theirs !== null) return theirs

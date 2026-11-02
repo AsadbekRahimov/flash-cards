@@ -657,6 +657,7 @@ it('shows the client the prompt and the fragments and nothing else of the task, 
         'id', 'status', 'mode', 'source', 'retry_of', 'course' => ['slug', 'title'], 'lesson' => ['id', 'stage', 'number', 'title'],
         'progress' => ['done', 'total'], 'counters' => ['correct_first', 'hints', 'mismatches'], 'expires_at', 'server_now',
         'current' => ['id', 'kind', 'prompt', 'fragments' => ['*' => ['id', 'text']]], 'summary',
+        'limits', // the 201 alone carries the Free limits of the day (docs/18 G1)
     ]);
     expect(array_values(array_intersect(smKeys($bodies), SM_SECRET_KEYS)))->toBe([]);
 

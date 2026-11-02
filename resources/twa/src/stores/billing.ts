@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
+import { liveLimit, reachedLimit } from '@/composables/practiceLimits'
 import { useTelegram } from '@/composables/useTelegram'
 import { t } from '@/i18n'
 import { errorMessage } from '@/i18n/errors'
@@ -13,6 +14,10 @@ import type {
   MeResponse,
   Paywall,
   PracticeAccess,
+  PracticeLimit,
+  PracticeLimitHit,
+  PracticeLimitKind,
+  PracticeLimits,
 } from '@/api/types'
 
 /**
@@ -34,8 +39,14 @@ interface PurchaseState {
 interface BillingState {
   entitlement: Entitlement | null
   paywall: Paywall | null
-  /** The `practice` block of `/me` (docs/16 §3.3); null until `/me` has come, or when the server sent none. */
+  /** The `practice` block of `/me` (docs/16 §3.3); null until `/me` has come, or when the server sent none. Its `limits` are kept in `limits`. */
   practice: PracticeAccess | null
+  /**
+   * The Free limits of today's practice and battles (docs/18 §3, G1): from `/me`, from the practice hub, and from the 201 that creates a
+   * session or a battle, which is the newest word on them. null: Pro, no limit, or not told yet - nothing is shown and nothing is blocked.
+   * A kind can be null on its own (the server has no limit of that kind): it is treated the same way, the other kind goes on as usual.
+   */
+  limits: PracticeLimits | null
   loading: boolean
   catalog: BillingCatalog | null
   catalogLoading: boolean
@@ -80,6 +91,7 @@ export const useBillingStore = defineStore('billing', {
     entitlement: null,
     paywall: null,
     practice: null,
+    limits: null,
     loading: false,
     catalog: null,
     catalogLoading: false,
@@ -95,6 +107,12 @@ export const useBillingStore = defineStore('billing', {
 
     /** What the learner may do with practice; "nothing" until `/me` says otherwise, so no entry shows by mistake. */
     practiceAccess: (state): PracticeAccess => state.practice ?? { available: false, pro_required: false, modes: [], battle: false },
+
+    /** The counter of today's practice sessions; null for Pro, for sessions without a limit, when none was told, and once its day is over (it says nothing then). */
+    sessionLimit: (state): PracticeLimit | null => liveLimit(state.limits?.sessions),
+
+    /** The counter of the battles the learner starts today (accepting one is never counted); null as above. */
+    battleLimit: (state): PracticeLimit | null => liveLimit(state.limits?.battles),
   },
 
   actions: {
@@ -123,8 +141,35 @@ export const useBillingStore = defineStore('billing', {
     apply(me: Pick<MeResponse, 'entitlement' | 'paywall' | 'practice'>): void {
       this.entitlement = me.entitlement
       this.paywall = me.paywall
-      this.practice = me.practice ?? null
+      if (me.practice) {
+        // The limits live apart: the hub and the creation of a session or a battle bring newer ones than this `/me`.
+        const { limits, ...access } = me.practice
+        this.practice = access
+        this.setLimits(limits)
+      } else {
+        this.practice = null
+      }
       this.loadedAt = Date.now()
+    },
+
+    /** An answer that carries the counters (`/me`, the hub, the 201 of a session or a battle). `undefined`: it did not say - nothing changes. */
+    setLimits(limits: PracticeLimits | null | undefined): void {
+      if (limits !== undefined) this.limits = limits
+    },
+
+    /**
+     * The server refused for today's limit: that counter is spent, whatever this screen believed - a counter that was not there included
+     * (the learner taken for Pro, a kind taken for unlimited). The other kind is not touched; when no counters were told at all it stays
+     * `null` (no counter: nothing shown, nothing stopped) until the next answer says more.
+     */
+    noteLimitHit(hit: PracticeLimitHit): void {
+      const spent: PracticeLimit = { limit: hit.limit, used: hit.used, remaining: 0, resets_at: hit.resets_at }
+      this.limits = { sessions: null, battles: null, ...this.limits, [hit.kind]: spent }
+    },
+
+    /** The wall of `kind` if today's free allowance of it is spent (the paywall opens without a request), else null: the server decides. */
+    limitReached(kind: PracticeLimitKind): PracticeLimitHit | null {
+      return reachedLimit(this.limits, kind)
     },
 
     /** The plan may have changed behind our back (e.g. the learner left a center): the next `load()` asks the server. */

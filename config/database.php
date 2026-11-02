@@ -220,6 +220,21 @@ return [
             'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
         ],
 
+        // The SECOND Redis instance (`redis-cache` in compose, docs/19_REDIS_CACHE_PLAN.md §4): volatile-lru, no
+        // persistence. Only the pure cache store `lru` (config/cache.php) lives here - every connection above is on the
+        // first, non-evicting instance.
+        'lru' => [
+            'host' => env('REDIS_LRU_HOST', '127.0.0.1'),
+            'username' => env('REDIS_LRU_USERNAME'),
+            'password' => env('REDIS_LRU_PASSWORD'),
+            'port' => env('REDIS_LRU_PORT', '6380'),
+            'database' => env('REDIS_LRU_DB', '0'),
+            'max_retries' => env('REDIS_MAX_RETRIES', 3),
+            'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
+            'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
+            'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
+        ],
+
     ],
 
 ];

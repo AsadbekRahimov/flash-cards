@@ -36,6 +36,10 @@ import type { BattleIncoming, BattleStatus, ChallengeItem, ChallengeMetric, Chal
  * Battles 1 on 1 (docs/16 §11.1), only while `/me.practice` says practice and battles are available: "Battle" at every
  * friend leads to the setup of a battle with them; above everything is the battle that is on ("A battle is on") and the
  * invitations that came ("Battle invitations": "Accept" leads into the room, "Decline" closes them).
+ *
+ * Free has a few battles a day (docs/18 §3): under the list of friends a quiet line says how many are left ("Battles today: 1 of 1
+ * left"; Pro sees nothing). With none left "Battle" opens the paywall of the limit at once instead of a setup that would end in it.
+ * "Accept" is never limited.
  */
 const auth = useAuthStore()
 const store = useFriendsStore()
@@ -82,6 +86,8 @@ watch(
 /** Battles are offered only to a learner who may practise and whose server has battles switched on. */
 const battleOn = computed(() => billing.practiceAccess.available && billing.practiceAccess.battle)
 const invitations = computed(() => (battleOn.value ? battles.incoming : []))
+/** The battles left today (Free); null for Pro and while nothing is known. */
+const battleLimit = computed(() => (battleOn.value ? billing.battleLimit : null))
 const activeBattle = computed(() => (battleOn.value ? battles.active : null))
 
 /** Counts the taps on "Retry": each one asks for the list of battles again (see the watch below). */
@@ -129,6 +135,12 @@ function invitationMeta(invitation: BattleIncoming): string {
 
 function startBattle(friendshipId: number): void {
   haptic('light')
+  // A new battle is counted, and Free has a few a day: with none left, the paywall instead of a setup that ends in it.
+  const spent = billing.limitReached('battles')
+  if (spent !== null) {
+    battles.showLimit(spent)
+    return
+  }
   void router.push({ name: 'battle-new', query: { friendship: String(friendshipId) } })
 }
 
@@ -468,6 +480,10 @@ onMounted(() => {
             </div>
           </div>
         </div>
+        <!-- Free only: the battles left today. -->
+        <p v-if="battleLimit && friends.friends.length > 0" class="mt-1.5 px-4 text-[13px] leading-[18px] text-tg-hint" data-testid="battle-limit">
+          {{ t('battle.limit.left', { remaining: Math.max(0, battleLimit.remaining), limit: battleLimit.limit }) }}
+        </p>
       </section>
 
       <section data-testid="challenges">
@@ -541,6 +557,12 @@ onMounted(() => {
       </section>
     </div>
 
-    <PaywallSheet v-if="battles.paywall" reason="practice" @close="battles.dismissPaywall()" @review="reviewFromPaywall" />
+    <PaywallSheet
+      v-if="battles.paywall || battles.limitHit"
+      :reason="battles.limitHit ? 'practice_limit' : 'practice'"
+      :limit-hit="battles.limitHit"
+      @close="battles.dismissPaywall()"
+      @review="reviewFromPaywall"
+    />
   </div>
 </template>

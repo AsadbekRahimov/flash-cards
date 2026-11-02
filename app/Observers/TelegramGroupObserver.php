@@ -7,6 +7,7 @@ namespace App\Observers;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Organizations\Services\GroupAssignmentCloser;
 use App\Domain\Organizations\Services\OrganizationMembershipService;
+use App\Domain\Organizations\Services\OrgRequestMemo;
 use App\Models\TelegramGroup;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -17,7 +18,9 @@ use Throwable;
  * (docs/13 §1.3, §6.2): whatever path changes it (Filament relation manager, group edit form,
  * console) the active members join the new organization (`joined_via = group`) and leave the
  * old one when they are in none of its other groups — after commit, each in its own short
- * transaction. The members' cached entitlements are dropped as before (docs/12 §5.2).
+ * transaction. The members' cached entitlements are dropped as before (docs/12 §5.2). The link is
+ * also an input of what the staff of either center may see (`OrgTenantScope`): the per-request memory
+ * of the cabinet is dropped in the same transaction.
  * Registered in AppServiceProvider. Such changes must go through Eloquent: query-builder
  * updates (`TelegramGroup::where()->update()`) bypass observers.
  */
@@ -27,6 +30,7 @@ final class TelegramGroupObserver
         private readonly EntitlementResolver $entitlements,
         private readonly OrganizationMembershipService $organizations,
         private readonly GroupAssignmentCloser $assignments,
+        private readonly OrgRequestMemo $memo,
     ) {}
 
     public function updated(TelegramGroup $group): void
@@ -38,6 +42,8 @@ final class TelegramGroupObserver
         }
 
         if ($group->wasChanged('organization_id')) {
+            $this->memo->flush();
+
             $previous = $group->getOriginal('organization_id');
             $previous = $previous === null ? null : (int) $previous;
             $learnerIds = $this->activeLearnerIds($group);
@@ -82,6 +88,8 @@ final class TelegramGroupObserver
         if ($organizationId === null) {
             return;
         }
+
+        $this->memo->flush();
 
         DB::afterCommit(function () use ($group, $organizationId): void {
             $this->guard('organizations.group_delete_release_failed', $group, fn () => $this->organizations->releaseOrphans($organizationId));

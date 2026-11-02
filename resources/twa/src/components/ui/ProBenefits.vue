@@ -16,6 +16,7 @@ defineProps<{ compact?: boolean }>()
 
 const BENEFITS: readonly StringKey[] = [
   'benefits.new_words',
+  'benefits.practice',
   'benefits.exercises',
   'benefits.decks',
   'benefits.freezes',

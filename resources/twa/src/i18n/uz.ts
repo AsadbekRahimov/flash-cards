@@ -45,6 +45,7 @@ export const uz: Translations = {
 
   // ---- benefits ----
   'benefits.new_words': "Yangi so'zlar kunlik limitsiz",
+  'benefits.practice': 'Amaliyot va bellashuvlar kunlik limitsiz',
   'benefits.exercises': "So'zni yozish va misollardagi bo'sh joylar",
   'benefits.decks': "2000 tadan so'zli 20 tagacha o'z to'plamlaringiz",
   'benefits.freezes': "Seriyani muzlatish: o'tkazib yuborilgan kun seriyani uzmaydi",
@@ -232,6 +233,17 @@ export const uz: Translations = {
   'paywall.lead_streak_freeze': "Seriyani muzlatish — Pro'da: o'tkazib yuborilgan kun seriyani uzmaydi, 2 tagacha muzlatish, har hafta +1.",
   'paywall.lead_exam_simulator': "IELTS va SAT sinov testlari — Pro'da: 20 daqiqada kursdan 40 ta so'z, natija foizda va boshqalar bilan taqqoslash.",
   'paywall.lead_practice': "Amaliyot — so'zlarni mustahkamlash o'yinlari va do'stlar bilan bellashuvlar — Pro'da mavjud.",
+
+  // ---- the Free limits of practice and battles (docs/18 §3, G1) ----
+  'practice.limit.sessions': 'Bugun bepul: {limit} tadan {remaining} tasi qoldi',
+  'battle.limit.left': 'Bugungi bellashuvlar: {limit} tadan {remaining} tasi qoldi',
+  // The lead of the paywall of the limit. "Or right away with Pro" only while Pro is for sale; while it is just "coming soon" (`_soon`) it promises nothing.
+  'paywall.lead_practice_limit_sessions': 'Bugungi bepul amaliyot tugadi ({limit} tadan {limit} tasi). Yangisi — {when} yoki darhol Pro bilan.',
+  'paywall.lead_practice_limit_sessions_soon': 'Bugungi bepul amaliyot tugadi ({limit} tadan {limit} tasi). Yangisi — {when}.',
+  'paywall.lead_practice_limit_battles': 'Bugungi bepul bellashuvlar tugadi ({limit} tadan {limit} tasi). Yangilari — {when} yoki darhol Pro bilan.',
+  'paywall.lead_practice_limit_battles_soon': 'Bugungi bepul bellashuvlar tugadi ({limit} tadan {limit} tasi). Yangilari — {when}.',
+  'paywall.reset_tomorrow': 'ertaga soat {time} da',
+  'paywall.reset_at': 'soat {time} da',
 
   // ---- purchase (paywall mode purchase, subscription screen; docs/13 §5) ----
   'paywall.title_purchase': 'LexiFlow Pro',
@@ -960,6 +972,7 @@ export const uz: Translations = {
   // ---- errors: practice and battle (docs/16 §7.6) ----
   'error.code.practice_unavailable': 'Amaliyot hozircha mavjud emas.',
   'error.code.practice_pro_required': "Amaliyot Pro'da mavjud.",
+  'error.code.practice_limit_reached': 'Bugungi bepul limit tugadi. U ertaga yangilanadi.',
   'error.code.practice_mode_disabled': "Bu rejim hozir o'chirilgan. Boshqasini tanlang.",
   'error.code.practice_not_enough_material': "Bu rejim uchun material hali kam. Yana bir nechta so'z o'rganing.",
   'error.code.practice_session_active': 'Sizda tugallanmagan amaliyot bor.',

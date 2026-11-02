@@ -178,9 +178,12 @@ erDiagram
 | is_active | boolean default true | слово не удаляем, а деактивируем; учитывается в `courses.words_count` и в проверке публикации курса |
 | meta | jsonb default '{}' | |
 
-**Индексы:** `(lesson_id, word)` unique, `lesson_id`, `word` (для поиска); `(id) WHERE is_active = false` — partial
+**Индексы:** `(lesson_id, word)` unique, `lesson_id`, `word` (точное совпадение); `(id) WHERE is_active = false` — partial
 `words_inactive_idx`: под анти-join `DueRepetitionCriteria` (`NOT EXISTS (… words.is_active = false)`, docs/06 §6) —
 выведенных слов мало, и хэш их id строится с пары страниц индекса вместо seq scan всех активных слов.
+**PostgreSQL, `pg_trgm`** (docs/20 F2, миграция `2026_11_02_100001_add_filament_list_indexes`): поиск `/admin/words` — `like '%…%'`, b-tree по `word`
+ему не помогает; GIN-триграммы `words_word_lower_trgm_idx (lower(word) gin_trgm_ops)` и `words_translation_lower_trgm_idx (lower(translation) gin_trgm_ops)`
+в форме `lower(колонка) like`, которую выдаёт поиск Filament на PostgreSQL.
 
 ### 2.8 `word_repetitions` — состояние SM-2 для пары (learner, слово)
 | Колонка | Тип | Описание |
@@ -332,6 +335,8 @@ Backfill миграции `add_learning_state_to_word_repetitions`: `repetitions
 - `(learner_id) WHERE status = 'open' AND mode = 'personal_mock'` unique (`exam_sessions_one_open_mock_per_learner`) — не
   более одного открытого mock'а у learner'а (2D.4).
 - `(learner_id, status, started_at)`, `(course_id, mode, closed_at)` — открытый mock learner'а и выборка процентиля по курсу.
+- `exam_sessions_started_at_id_idx (started_at, id)` — сортировка по умолчанию списка `/admin/exam-sessions` (`started_at desc, id desc`;
+  docs/20 F2, миграция `2026_11_02_100001_add_filament_list_indexes`): первая страница — первые записи индекса, а не сортировка всей таблицы.
 - PG CHECK `exam_sessions_mode_shape_check`: `group_exam` ⇒ `telegram_group_id`, `lesson_id`, `started_by_user_id` NOT NULL;
   `personal_mock` ⇒ `learner_id`, `course_id` NOT NULL (миграция `2026_10_23_400001_generalize_exam_sessions_for_personal_mock`;
   на sqlite таблица перестраивается, partial-индекс группы пересоздаётся явно).
@@ -477,6 +482,11 @@ Append-only журнал для продуктовой аналитики (не 
 
 **Индексы:** `telegram_user_id` unique; `next_reminder_at` — **partial** `WHERE next_reminder_at IS NOT NULL AND dm_blocked_at IS NULL`
 (`learners_next_reminder_at_idx`, PostgreSQL; на sqlite — обычный индекс); `onboarding_state`; `last_seen_at`; `active_course_id`; `referrer_learner_id`; `referral_code` unique.
+Под список `/admin/learners` (docs/20 F2, миграция `2026_11_02_100001_add_filament_list_indexes`): `learners_first_name_id_idx (first_name, id)` —
+сортировка по умолчанию (Filament добавляет первичный ключ вторым ключом); **PostgreSQL, `pg_trgm`:** GIN-триграммы под поиск `like '%…%'` —
+`learners_first_name_lower_trgm_idx (lower(first_name) gin_trgm_ops)`, `learners_last_name_lower_trgm_idx (lower(last_name) gin_trgm_ops)` — в форме
+`lower(колонка) like`, которую выдаёт поиск Filament на PostgreSQL (и поиск участников `/org`), `learners_username_trgm_idx (username gin_trgm_ops)` —
+под `ilike` по самой колонке (`whereLike`). Форма запроса и форма индекса должны совпадать: `lower(col) like` не использует индекс по `col`, и наоборот.
 
 ### 2.18 `group_members` — членство learner'а в Telegram-группе
 | Колонка | Тип | Описание |
@@ -1167,6 +1177,12 @@ CHECK не создаются — инвариант дублируют серв
 52. `2026_10_30_100004_create_battles_tables` — `battles`, `battle_participants`, `battle_answers`; созданы вместе с практикой, чтобы баттл (18.6) стартовал на готовой схеме *(18.1, §2.45–§2.47)*
 53. `2026_10_30_100010_add_scope_to_practice_item_versions_table` — `practice_item_versions.target_word_ids` (jsonb NOT NULL default `'[]'`), `lesson_id` (nullable FK → `lessons`, ON DELETE SET NULL), `level`; backfill всех существующих версий из их заданий (слова — из `practice_item_words` по возрастанию, урок и уровень — из `practice_items`; query builder, чанки по 500 заданий, переносимо для SQLite и PostgreSQL). На SQLite FK добавляется пересборкой таблицы, а пересборка пересоздаёт индексы без предиката — поэтому partial-индекс `practice_item_versions_audio_pending_idx` перед ней снимается и после неё ставится заново. `down()` снимает FK и три колонки *(18.9a, §2.41–§2.42)*
 54. `2026_10_30_100011_add_lesson_index_to_practice_item_versions_table` — индекс `practice_item_versions (lesson_id)` (`practice_item_versions_lesson_id_index`): внешний ключ `lesson_id` с `ON DELETE SET NULL` не имел своего индекса, а PostgreSQL его для ссылающегося столбца не создаёт — удаление урока сканировало бы всю таблицу версий (она только растёт). `down()` снимает индекс *(18.11b, §2.41)*
+55. `2026_11_02_100001_add_filament_list_indexes` — индексы под страницы списков Filament по `EXPLAIN` реальных запросов на 200 тыс. учеников (docs/20 F2, §4):
+    b-tree `learners_first_name_id_idx (first_name, id)` и `exam_sessions_started_at_id_idx (started_at, id)` под сортировки по умолчанию (оба драйвера);
+    на PostgreSQL — `CREATE EXTENSION IF NOT EXISTS pg_trgm` и GIN-триграммы под поиск `like '%…%'`: `learners_first_name_lower_trgm_idx`,
+    `learners_last_name_lower_trgm_idx`, `learners_username_trgm_idx`, `words_word_lower_trgm_idx`, `words_translation_lower_trgm_idx` (§2.7, §2.17).
+    Как 44: `CONCURRENTLY` вне транзакции мигратора (`$withinTransaction = false`), обычные инструкции внутри чужой транзакции и на sqlite, `DROP INDEX IF EXISTS`
+    перед каждой сборкой. `down()` снимает индексы и расширение; на sqlite расширения и GIN нет — только b-tree *(W2-A)*
 
 Миграции практики (49–54) — отдельные **forward**-миграции с рабочим `down()` (он удаляет таблицы в обратном порядке зависимостей; индексы и CHECK уходят вместе с таблицами; `down()` 49 снимает колонку, `down()` 53 — FK и три колонки, `down()` 54 — индекс); откат всех проверяет `DatabaseSchemaTest`, backfill и откат 53 — `PracticeVersionScopeMigrationTest`. Цикл `practice_items` ↔ `practice_item_versions` разорван сознательно (версии ссылаются на задание FK, обратные ссылки `current_version_id` / `published_version_id` — без FK).
 

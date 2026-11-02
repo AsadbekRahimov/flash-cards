@@ -2,10 +2,12 @@ import { defineStore } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { errorMessage } from '@/i18n/errors'
+import { limitHitFrom } from '@/composables/practiceLimits'
 import { incomingInvitation } from '@/stores/battle'
+import { useBillingStore } from '@/stores/billing'
 import { useCoursesStore } from '@/stores/courses'
 import { useFriendsStore } from '@/stores/friends'
-import type { BattleModeOption, BattleOptionsResponse, Course, PracticeMode } from '@/api/types'
+import type { BattleModeOption, BattleOptionsResponse, Course, PracticeLimitHit, PracticeMode } from '@/api/types'
 
 export type SetupOptionsStatus = 'idle' | 'loading' | 'ready' | 'error'
 
@@ -43,6 +45,8 @@ interface SetupState {
   busyBattleId: number | null
   /** Show the paywall (`practice_pro_required`). */
   paywall: boolean
+  /** Show the paywall of today's free limit of battles: the counter says it is spent (nothing was asked), or the server refused (403 `practice_limit_reached`). */
+  limitHit: PracticeLimitHit | null
   /** Counts the setups the store has been reset for: a reply that comes back for an earlier one is dropped. */
   generation: number
 }
@@ -70,6 +74,7 @@ export const useBattleSetupStore = defineStore('battleSetup', {
     inviteError: '',
     busyBattleId: null,
     paywall: false,
+    limitHit: null,
     generation: 0,
   }),
 
@@ -133,6 +138,7 @@ export const useBattleSetupStore = defineStore('battleSetup', {
         inviteError: '',
         busyBattleId: null,
         paywall: false,
+        limitHit: null,
       })
       if (friendshipId === null) return
 
@@ -268,23 +274,42 @@ export const useBattleSetupStore = defineStore('battleSetup', {
     },
 
     /**
-     * "Invite". Returns the id of the battle for the route, or null with the reason in `inviteError` / `paywall` / `blocked`. If the
-     * friend has invited the learner at this very moment (409 `battle_busy` names THEIR invitation), the id is that invitation's: the
+     * "Invite". Returns the id of the battle for the route, or null with the reason in `inviteError` / `paywall` / `limitHit` / `blocked`.
+     * If the friend has invited the learner at this very moment (409 `battle_busy` names THEIR invitation), the id is that invitation's: the
      * screen leads into it, where the learner accepts it - no refusal is shown.
+     *
+     * An invitation starts a battle, and Free has a few of them a day: a learner whose counter says they are spent gets the paywall at
+     * once, without a request (the server would refuse with 403 `practice_limit_reached`, which is told the same way). The 201 brings
+     * the counters as they are after the battle was created.
      */
     async invite(): Promise<number | null> {
       if (!this.canInvite || this.friendshipId === null || this.course === null || this.mode === null) return null
 
-      const generation = this.generation
-      this.inviting = true
       this.inviteError = ''
       this.busyBattleId = null
       this.paywall = false
+      this.limitHit = null
+      const spent = useBillingStore().limitReached('battles')
+      if (spent !== null) {
+        this.limitHit = spent
+        return null
+      }
+
+      const generation = this.generation
+      this.inviting = true
       try {
         const battle = await api.battles.invite({ friendship_id: this.friendshipId, mode: this.mode, course: this.course, lesson_id: this.lessonId })
+        // The battle exists, and counts, whether or not this setup is still on screen.
+        useBillingStore().setLimits(battle.limits)
         return generation === this.generation ? battle.id : null
       } catch (err) {
+        const hit = err instanceof ApiClientError && err.code === 'practice_limit_reached' ? limitHitFrom(err.details) : null
+        if (hit !== null) useBillingStore().noteLimitHit(hit)
         if (generation !== this.generation) return null
+        if (hit !== null) {
+          this.limitHit = hit
+          return null
+        }
         const theirs = await incomingInvitation(err)
         if (generation !== this.generation) return null
         if (theirs !== null) return theirs
@@ -306,6 +331,7 @@ export const useBattleSetupStore = defineStore('battleSetup', {
 
     dismissPaywall(): void {
       this.paywall = false
+      this.limitHit = null
     },
 
     clearInviteError(): void {
