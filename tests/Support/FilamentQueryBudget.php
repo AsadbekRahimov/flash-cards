@@ -49,6 +49,11 @@ final class FilamentQueryBudget
             $component = null;
             $queries[$rows] = QueryLog::during(function () use (&$component, $page, $parameters, $perPage): void {
                 $component = Livewire::test($page, $parameters)->set('tableRecordsPerPage', $perPage);
+
+                // A table with deferred loading has no rows (and no query) until it is asked for them (docs/20 §1.8).
+                if ($component->instance()->getTable()->isLazyLoaded()) {
+                    $component->loadTable();
+                }
             });
 
             // Outside the measured window: the rows really were rendered, so the count above means something.
