@@ -372,9 +372,11 @@ it('puts the variant of the description into the Stars invoice by the promise', 
 
 it('changes nothing for the settings the app ships with: no practice on the landing or in the invoice while it is off, and both words at the public release', function (): void {
     // config/practice.php as it ships: PRACTICE_ACCESS=off, PRACTICE_PLAN=all, 2 sessions and 1 battle a day for Free, battles on.
+    // The limits are compared by value: from config/practice.php's defaults they are the integers 2 and 1, from a `.env` made
+    // of `.env.example` (as CI makes it) env() reads the strings '2' and '1' - the same setting either way.
     expect(config('practice.access'))->toBe('off')
         ->and(config('practice.plan'))->toBe('all')
-        ->and(config('practice.free_limits'))->toBe(['sessions_per_day' => 2, 'battles_per_day' => 1])
+        ->and(config('practice.free_limits'))->toEqual(['sessions_per_day' => 2, 'battles_per_day' => 1])
         ->and(config('practice.battle.enabled'))->toBeTrue()
         ->and(ProPromises::publicPractice())->toBe(ProPracticePromise::None);
 
