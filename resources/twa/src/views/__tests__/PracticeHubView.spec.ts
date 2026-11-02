@@ -123,6 +123,7 @@ beforeEach(() => {
   tg.backHandler = null
 })
 afterEach(() => {
+  vi.useRealTimers()
   setLocale('ru')
   document.body.innerHTML = ''
 })
@@ -1188,6 +1189,24 @@ describe('PracticeHubView — the Free limit of sessions', () => {
     await flushPromises()
     expect(api.practice.open).toHaveBeenCalledTimes(1)
     expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('the line goes by itself when the day of the counter ends: the app stayed open overnight, and nothing else happened', async () => {
+    // Only the timers the store waits with and the date: `flushPromises` waits on `setImmediate`, which keeps running.
+    vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'] })
+    vi.setSystemTime(new Date('2026-11-02T10:00:00Z'))
+    const { wrapper } = await render({}, hub({ limits: freeLimits(1, 0, '2026-11-02T19:00:00Z') }))
+    expect(line(wrapper).text()).toBe('Сегодня бесплатно: осталось 1 из 2')
+
+    vi.advanceTimersByTime(9 * 3_600_000 - 1000)
+    await flushPromises()
+    expect(line(wrapper).exists(), 'a second before the end of the day').toBe(true)
+
+    vi.advanceTimersByTime(2000)
+    await flushPromises()
+
+    expect(line(wrapper).exists()).toBe(false)
     wrapper.unmount()
   })
 

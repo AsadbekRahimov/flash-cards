@@ -149,6 +149,7 @@ beforeEach(() => {
 })
 afterEach(() => {
   while (mounted.length > 0) mounted.pop()?.unmount()
+  vi.useRealTimers()
   setLocale('ru')
   document.body.innerHTML = ''
 })
@@ -657,6 +658,21 @@ describe('BattleSetupView — the Free limit of battles', () => {
   it('Pro sees nothing', async () => {
     serve({ limits: null })
     const r = await render()
+
+    expect(line(r).exists()).toBe(false)
+    expect(has(r, 'invite-btn')).toBe(true)
+  })
+
+  it('the line goes by itself when the day of the counter ends: the app stayed open overnight, and nothing else happened', async () => {
+    // Only the timers the store waits with and the date: `flushPromises` waits on `setImmediate`, which keeps running.
+    vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'] })
+    vi.setSystemTime(new Date('2026-11-02T10:00:00Z'))
+    serve({ limits: freeLimits(0, 0, '2026-11-02T19:00:00Z') })
+    const r = await render()
+    expect(line(r).text()).toBe('Баттлов сегодня: осталось 1 из 1')
+
+    vi.advanceTimersByTime(9 * 3_600_000 + 500)
+    await flushPromises()
 
     expect(line(r).exists()).toBe(false)
     expect(has(r, 'invite-btn')).toBe(true)

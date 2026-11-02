@@ -6,7 +6,7 @@ import type { PracticeLimit, PracticeLimitHit, PracticeLimitKind, PracticeLimits
  * The Free limits of practice (docs/18 §3, G1): two counters of the learner's "today" - the sessions of practice and the battles they
  * start. The server owns them; these are the small pure rules the screens share:
  * - `limitHitFrom` reads the `details` of 403 `practice_limit_reached`;
- * - `liveLimit` and `reachedLimit` tell what a counter says while its day lasts;
+ * - `liveLimit`, `shownLimit` and `reachedLimit` tell what a counter says while its day lasts, and `nextReset` when that is over;
  * - `resetWhen` says in words when the counters are full again.
  */
 
@@ -42,6 +42,21 @@ export function liveLimit(limit: PracticeLimit | null | undefined, now: number =
 export function shownLimit(limit: PracticeLimit | null | undefined, now: number = Date.now()): PracticeLimit | null {
   const live = liveLimit(limit, now)
   return live !== null && live.limit > 0 ? live : null
+}
+
+/**
+ * The nearest end of a day among the counters that still describe today (epoch ms), or null when there is none: the moment a screen that
+ * shows a counter has to look again, because `liveLimit` turns null there. A counter whose `resets_at` cannot be read never ends (see
+ * `liveLimit`), so it gives no moment either.
+ */
+export function nextReset(limits: PracticeLimits | null | undefined, now: number = Date.now()): number | null {
+  let next: number | null = null
+  for (const kind of KINDS) {
+    const counter = limits?.[kind]
+    const at = counter ? Date.parse(counter.resets_at) : Number.NaN
+    if (Number.isFinite(at) && at > now && (next === null || at < next)) next = at
+  }
+  return next
 }
 
 /**

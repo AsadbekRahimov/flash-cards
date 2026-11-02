@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
-import { reachedLimit, shownLimit } from '@/composables/practiceLimits'
+import { nextReset, reachedLimit, shownLimit } from '@/composables/practiceLimits'
 import { useTelegram } from '@/composables/useTelegram'
 import { t } from '@/i18n'
 import { errorMessage } from '@/i18n/errors'
@@ -47,6 +47,11 @@ interface BillingState {
    * A kind can be null on its own (the server has no limit of that kind): it is treated the same way, the other kind goes on as usual.
    */
   limits: PracticeLimits | null
+  /**
+   * The moment (`Date.now()`) the counters of `limits` are judged at. The getters read it instead of the clock, so what they give moves with
+   * time: `watchDay` sets it again when a counter's day ends, and with every new word on the counters.
+   */
+  now: number
   loading: boolean
   catalog: BillingCatalog | null
   catalogLoading: boolean
@@ -75,6 +80,15 @@ const idlePurchase = (): PurchaseState => ({ status: 'idle', orderToken: null, e
 
 const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
 
+/** The timer that wakes a store when the day of its nearest counter ends (`watchDay`); one per store. */
+const dayTimers = new WeakMap<object, ReturnType<typeof setTimeout>>()
+
+/** A little after the moment, so that the clock is surely past it when the store looks again (a timer may fire a hair early). */
+const DAY_SLACK_MS = 100
+
+/** `setTimeout` takes a signed 32-bit number of milliseconds and fires at once with more: a day that ends later is waited for in steps. */
+const MAX_TIMER_MS = 2 ** 31 - 1
+
 /**
  * Plan, paywall settings and the purchase flow of the learner (docs/13 §5, docs/04 A.8): `GET /me`
  * (loaded when a paywall is about to be shown, refreshed from the answer of a promo redemption or of
@@ -92,6 +106,7 @@ export const useBillingStore = defineStore('billing', {
     paywall: null,
     practice: null,
     limits: null,
+    now: Date.now(),
     loading: false,
     catalog: null,
     catalogLoading: false,
@@ -110,12 +125,13 @@ export const useBillingStore = defineStore('billing', {
 
     /**
      * The counter of today's practice sessions to show; null for Pro, for sessions without a limit, for sessions that are for Pro only (limit 0:
-     * nothing to count), when none was told, and once its day is over (it says nothing then). The wall (`limitReached`) knows the limit 0.
+     * nothing to count), when none was told, and once its day is over (it says nothing then - and a screen left open overnight redraws by
+     * itself at that moment: the getter reads `now`, which `watchDay` moves). The wall (`limitReached`) knows the limit 0.
      */
-    sessionLimit: (state): PracticeLimit | null => shownLimit(state.limits?.sessions),
+    sessionLimit: (state): PracticeLimit | null => shownLimit(state.limits?.sessions, state.now),
 
     /** The counter of the battles the learner starts today (accepting one is never counted); null as above. */
-    battleLimit: (state): PracticeLimit | null => shownLimit(state.limits?.battles),
+    battleLimit: (state): PracticeLimit | null => shownLimit(state.limits?.battles, state.now),
   },
 
   actions: {
@@ -157,7 +173,27 @@ export const useBillingStore = defineStore('billing', {
 
     /** An answer that carries the counters (`/me`, the hub, the 201 of a session or a battle). `undefined`: it did not say - nothing changes. */
     setLimits(limits: PracticeLimits | null | undefined): void {
-      if (limits !== undefined) this.limits = limits
+      if (limits === undefined) return
+      this.limits = limits
+      this.watchDay()
+    },
+
+    /**
+     * Keeps `now` true, the moment the counters are judged at: the getters `sessionLimit` / `battleLimit` read it, so a line drawn for today
+     * goes by itself when the day of its counter ends - an app left open overnight does not keep yesterday's "0 of 2" on the screen. One
+     * timer per store, set for the nearest end of a day among the counters and only while there is one; every new word on the counters
+     * sets it again. (`useNow` is a clock of a component and stops with it, a store has no such scope; it would also tick all the time,
+     * where this wakes once, at the very moment.)
+     */
+    watchDay(): void {
+      const pending = dayTimers.get(this)
+      if (pending !== undefined) clearTimeout(pending)
+      dayTimers.delete(this)
+
+      this.now = Date.now()
+      const at = nextReset(this.limits, this.now)
+      if (at === null) return
+      dayTimers.set(this, setTimeout(() => this.watchDay(), Math.min(at - this.now + DAY_SLACK_MS, MAX_TIMER_MS)))
     },
 
     /**
@@ -168,6 +204,7 @@ export const useBillingStore = defineStore('billing', {
     noteLimitHit(hit: PracticeLimitHit): void {
       const spent: PracticeLimit = { limit: hit.limit, used: hit.used, remaining: 0, resets_at: hit.resets_at }
       this.limits = { sessions: null, battles: null, ...this.limits, [hit.kind]: spent }
+      this.watchDay()
     },
 
     /** The wall of `kind` if today's free allowance of it is spent (the paywall opens without a request), else null: the server decides. */
@@ -181,7 +218,10 @@ export const useBillingStore = defineStore('billing', {
      * server instead of the cache - that brings the counter back with the right number.
      */
     forgetLimit(kind: PracticeLimitKind): void {
-      if (this.limits !== null) this.limits = { ...this.limits, [kind]: null }
+      if (this.limits !== null) {
+        this.limits = { ...this.limits, [kind]: null }
+        this.watchDay()
+      }
       this.loadedAt = null
     },
 

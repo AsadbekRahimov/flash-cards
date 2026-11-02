@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { limitHitFrom, liveLimit, reachedLimit, resetWhen, shownLimit } from '../practiceLimits'
+import { limitHitFrom, liveLimit, nextReset, reachedLimit, resetWhen, shownLimit } from '../practiceLimits'
 import { setLocale } from '@/i18n'
 import { counter, freeLimits } from '@/api/__tests__/practiceFixtures'
 
@@ -87,6 +87,48 @@ describe('shownLimit (the counter that is drawn)', () => {
   it('reads the real clock when none is given', () => {
     expect(shownLimit(counter(0, 2, new Date(Date.now() + 60_000).toISOString()))).not.toBeNull()
     expect(shownLimit(counter(0, 2, new Date(Date.now() - 60_000).toISOString()))).toBeNull()
+  })
+})
+
+describe('nextReset (when a screen has to look at the counters again)', () => {
+  const at = (iso: string) => Date.parse(iso)
+
+  it('is the end of the day of the counters', () => {
+    expect(nextReset(freeLimits(1, 0, MIDNIGHT), NOW)).toBe(at(MIDNIGHT))
+  })
+
+  it('is the nearest one when the counters end at different moments', () => {
+    const limits = { sessions: counter(1, 2, '2026-11-02T19:00:00Z'), battles: counter(0, 1, '2026-11-02T14:00:00Z') }
+
+    expect(nextReset(limits, NOW)).toBe(at('2026-11-02T14:00:00Z'))
+    expect(nextReset({ sessions: limits.battles, battles: limits.sessions }, NOW)).toBe(at('2026-11-02T14:00:00Z'))
+  })
+
+  it('looks at the counter that is there: a kind without a limit gives no moment', () => {
+    expect(nextReset({ sessions: null, battles: counter(0, 1, MIDNIGHT) }, NOW)).toBe(at(MIDNIGHT))
+    expect(nextReset({ sessions: counter(0, 2, MIDNIGHT), battles: null }, NOW)).toBe(at(MIDNIGHT))
+  })
+
+  it('passes over a counter whose day is over, the other one still counts', () => {
+    const limits = { sessions: counter(2, 2, '2026-11-02T09:00:00Z'), battles: counter(0, 1, MIDNIGHT) }
+
+    expect(nextReset(limits, NOW)).toBe(at(MIDNIGHT))
+  })
+
+  it('is null when nothing is left to wait for: no counters, Pro, counters whose days are over, a moment that cannot be read', () => {
+    expect(nextReset(null, NOW)).toBeNull()
+    expect(nextReset(undefined, NOW)).toBeNull()
+    expect(nextReset({ sessions: null, battles: null }, NOW)).toBeNull()
+    expect(nextReset(freeLimits(2, 1, '2026-11-02T09:00:00Z'), NOW)).toBeNull()
+    expect(nextReset(freeLimits(2, 1, new Date(NOW).toISOString()), NOW), 'the very moment is already the new day').toBeNull()
+    expect(nextReset({ sessions: counter(1, 2, 'soon'), battles: null }, NOW), 'liveLimit keeps such a counter for good').toBeNull()
+  })
+
+  it('reads the real clock when none is given', () => {
+    const soon = new Date(Date.now() + 60_000).toISOString()
+
+    expect(nextReset(freeLimits(0, 0, soon))).toBe(Date.parse(soon))
+    expect(nextReset(freeLimits(0, 0, new Date(Date.now() - 60_000).toISOString()))).toBeNull()
   })
 })
 

@@ -158,6 +158,7 @@ describe('FriendsView', () => {
     useToast().hide()
   })
   afterEach(() => {
+    vi.useRealTimers()
     setLocale('ru')
     useToast().hide()
   })
@@ -1176,6 +1177,20 @@ describe('FriendsView', () => {
         const { wrapper } = await render(friendsResponse({ friends: [] }))
 
         expect(line(wrapper).exists()).toBe(false)
+      })
+
+      it('the line goes by itself when the day of the counter ends: the app stayed open overnight, and nothing else happened', async () => {
+        // Only the timers the store waits with and the date: `flushPromises` waits on `setImmediate`, which keeps running.
+        vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'] })
+        vi.setSystemTime(new Date('2026-11-02T10:00:00Z'))
+        const { wrapper } = await renderBattles(withLimits(freeLimits(0, 0, '2026-11-02T19:00:00Z')))
+        expect(line(wrapper).text()).toBe('Баттлов сегодня: осталось 1 из 1')
+
+        vi.advanceTimersByTime(9 * 3_600_000 + 500)
+        await flushPromises()
+
+        expect(line(wrapper).exists()).toBe(false)
+        expect(wrapper.findAll('[data-testid=battle-btn]')).toHaveLength(2)
       })
 
       it('says nothing for a counter whose day is over: the app stayed open overnight, and the server decides', async () => {

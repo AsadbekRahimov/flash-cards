@@ -295,6 +295,151 @@ describe('billing store - the Free limits of practice and battles (docs/18 §3)'
     })
   })
 
+  // The getters read `now`, which a timer moves at the end of the day of the nearest counter: a screen left open overnight redraws by itself.
+  describe('the end of the day of the counters (an app left open overnight)', () => {
+    const HOUR = 3_600_000
+    const NOON = new Date('2026-11-02T10:00:00Z')
+    const EVENING = '2026-11-02T19:00:00Z' // nine hours later
+
+    beforeEach(() => {
+      vi.useFakeTimers()
+      vi.setSystemTime(NOON)
+    })
+
+    it('the counters go by themselves when their day ends: no answer comes, nothing is touched', () => {
+      const billing = useBillingStore()
+      billing.setLimits(freeLimits(1, 0, EVENING))
+      expect(billing.sessionLimit).toMatchObject({ remaining: 1 })
+      expect(billing.battleLimit).toMatchObject({ remaining: 1 })
+
+      vi.advanceTimersByTime(9 * HOUR - 1)
+      expect(billing.sessionLimit, 'a moment before the end of the day').not.toBeNull()
+
+      vi.advanceTimersByTime(1 + 200)
+      expect(billing.sessionLimit).toBeNull()
+      expect(billing.battleLimit).toBeNull()
+      expect(billing.limitReached('sessions')).toBeNull()
+    })
+
+    it('the nearest day ends first: the other counter stays until its own end', () => {
+      const billing = useBillingStore()
+      billing.setLimits({ sessions: counter(1, 2, '2026-11-02T12:00:00Z'), battles: counter(0, 1, '2026-11-02T15:00:00Z') })
+      expect(billing.sessionLimit).not.toBeNull()
+      expect(billing.battleLimit).not.toBeNull()
+
+      vi.advanceTimersByTime(2 * HOUR + 500)
+      expect(billing.sessionLimit).toBeNull()
+      expect(billing.battleLimit).not.toBeNull()
+
+      vi.advanceTimersByTime(3 * HOUR)
+      expect(billing.battleLimit).toBeNull()
+    })
+
+    it('/me brings the counters and their end is waited for as well', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(meWith(access(freeLimits(2, 1, EVENING))))
+      const billing = useBillingStore()
+      await billing.load()
+      expect(billing.sessionLimit).toMatchObject({ remaining: 0 })
+
+      vi.advanceTimersByTime(9 * HOUR + 500)
+
+      expect(billing.sessionLimit).toBeNull()
+      expect(billing.battleLimit).toBeNull()
+    })
+
+    it('a refusal of the server counts too: the counter it makes goes at the end of its own day', () => {
+      const billing = useBillingStore()
+      billing.noteLimitHit({ kind: 'battles', limit: 1, used: 1, resets_at: '2026-11-02T12:00:00Z' })
+      expect(billing.battleLimit).not.toBeNull()
+
+      vi.advanceTimersByTime(2 * HOUR + 500)
+
+      expect(billing.battleLimit).toBeNull()
+    })
+
+    it('the next day starts afresh: a new word after the end shows its counter, and that one is waited for in its turn', () => {
+      const billing = useBillingStore()
+      billing.setLimits(freeLimits(1, 0, EVENING))
+      vi.advanceTimersByTime(9 * HOUR + 500)
+      expect(billing.sessionLimit).toBeNull()
+
+      billing.setLimits(freeLimits(0, 0, '2026-11-03T19:00:00Z'))
+      expect(billing.sessionLimit).toMatchObject({ remaining: 2 })
+
+      vi.advanceTimersByTime(24 * HOUR)
+      expect(billing.sessionLimit).toBeNull()
+    })
+
+    it('keeps one timer: every new word on the counters replaces the one before', () => {
+      const billing = useBillingStore()
+
+      billing.setLimits(freeLimits(0, 0, EVENING))
+      billing.setLimits(freeLimits(1, 0, EVENING))
+      billing.noteLimitHit({ kind: 'sessions', limit: 2, used: 2, resets_at: EVENING })
+      billing.forgetLimit('battles')
+
+      expect(vi.getTimerCount()).toBe(1)
+    })
+
+    it.each([
+      ['Pro (null)', null],
+      ['no limit of either kind', { sessions: null, battles: null }],
+      ['counters whose day is over', freeLimits(2, 1, '2026-11-02T09:00:00Z')],
+    ] as const)('has nothing to wait for with %s: the timer is taken away', (_, limits) => {
+      const billing = useBillingStore()
+      billing.setLimits(freeLimits(0, 0, EVENING))
+      expect(vi.getTimerCount()).toBe(1)
+
+      billing.setLimits(limits)
+
+      expect(vi.getTimerCount()).toBe(0)
+    })
+
+    it('dropping the last counter takes the wait away, and a store that never had counters waits for nothing', () => {
+      const billing = useBillingStore()
+      billing.apply(meWith(access()))
+      expect(vi.getTimerCount()).toBe(0)
+
+      billing.setLimits({ sessions: null, battles: counter(0, 1, EVENING) })
+      expect(vi.getTimerCount()).toBe(1)
+      billing.forgetLimit('battles')
+
+      expect(vi.getTimerCount()).toBe(0)
+    })
+
+    it('a day that ends in more than a timer can wait for (about 24 days) is waited for in steps, never at once', () => {
+      const spy = vi.spyOn(globalThis, 'setTimeout')
+      const billing = useBillingStore()
+
+      billing.setLimits(freeLimits(0, 0, new Date(NOON.getTime() + 40 * 24 * HOUR).toISOString()))
+
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy.mock.calls[0]?.[1]).toBeLessThanOrEqual(2 ** 31 - 1)
+      vi.advanceTimersByTime(1000)
+      expect(billing.sessionLimit, 'not at once').not.toBeNull()
+
+      vi.advanceTimersByTime(25 * 24 * HOUR) // the first step is over: the store looked again and waits on
+      expect(billing.sessionLimit).not.toBeNull()
+      expect(vi.getTimerCount()).toBe(1)
+
+      vi.advanceTimersByTime(16 * 24 * HOUR)
+      expect(billing.sessionLimit).toBeNull()
+      expect(vi.getTimerCount()).toBe(0)
+      spy.mockRestore()
+    })
+
+    it('a limit of 0 has no counter to draw at any time, and its wall stands until the day ends', () => {
+      const billing = useBillingStore()
+      billing.setLimits({ sessions: null, battles: counter(0, 0, EVENING) })
+      expect(billing.battleLimit).toBeNull()
+      expect(billing.limitReached('battles')).not.toBeNull()
+
+      vi.advanceTimersByTime(9 * HOUR + 500)
+
+      expect(billing.limitReached('battles')).toBeNull()
+    })
+  })
+
   // A limit of 0 is "only Pro": "0 of 0 left" says nothing, so the screens get no counter for it - while the wall (`limitReached`) stands.
   describe('a kind that is for Pro only (limit 0)', () => {
     const proOnly = () => ({ sessions: counter(0, 0, inHours(5)), battles: counter(0, 0, inHours(5)) })
