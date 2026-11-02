@@ -16,6 +16,9 @@ use App\Domain\Learning\Contracts\NewCardBudgetResolver;
 use App\Domain\Learning\Support\FsrsParameters;
 use App\Domain\Learning\Support\LearningPolicy;
 use App\Domain\Localization\Services\LocaleResolver;
+use App\Domain\Operations\Support\CacheCircuitBreaker;
+use App\Domain\Operations\Support\CircuitBreakerFailoverRepository;
+use App\Domain\Operations\Support\CircuitBreakerFailoverStore;
 use App\Domain\Operations\Support\PureCache;
 use App\Domain\Organizations\Services\OrgRequestMemo;
 use App\Domain\Telegram\Contracts\TelegramClient;
@@ -40,11 +43,16 @@ use App\Observers\OrganizationUserObserver;
 use App\Observers\TelegramGroupObserver;
 use App\Observers\WordTranslationObserver;
 use App\Policies\Org\OrgPolicyResolver;
+use Illuminate\Cache\CacheManager;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Cache\Repository;
+use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Foundation\Http\Events\RequestHandled;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -75,6 +83,29 @@ class AppServiceProvider extends ServiceProvider
         // The pure cache store (docs/19 §4): PureCache::store() resolves it here, so a test can swap it with instance().
         // Not a singleton: the cache manager already keeps one repository per store name.
         $this->app->bind(PureCache::CONTAINER_KEY, fn (): Repository => PureCache::resolve());
+
+        // The cache driver of the pure store's chain (config/cache.php `lru`): Laravel's failover chain with a circuit
+        // breaker in front of the Redis member (docs/19 §4.1). Registered before any provider boots, so no store can be
+        // resolved on a manager that does not know the driver yet.
+        $this->app->booting(function (): void {
+            Cache::extend('failover_breaker', function (Application $app, array $config): Repository {
+                /** @var CacheManager $manager */
+                $manager = $app->make('cache');
+                $breaker = new CacheCircuitBreaker(
+                    directory: (string) ($config['marker_path'] ?? storage_path('framework/cache/circuits')),
+                    openSeconds: max(1, (int) ($config['open_seconds'] ?? 15)),
+                );
+                /** @var list<string> $members */
+                $members = array_values((array) ($config['stores'] ?? []));
+
+                // The chain's repository drops many keys with one call; it fires no cache events of its own - its
+                // members do (as with the framework's failover driver, which builds its repository without events).
+                return new CircuitBreakerFailoverRepository(
+                    new CircuitBreakerFailoverStore($manager, $app->make(Dispatcher::class), $members, $breaker),
+                    Arr::only($config, ['store']),
+                );
+            });
+        });
 
         $this->app->singleton(InitDataValidator::class, function (): InitDataValidator {
             return new InitDataValidator((string) config('telegram.bot_token'));

@@ -91,14 +91,19 @@ return [
         ],
 
         // The pure cache (docs/19 §3 rule 10, §4.1): values that are recomputed when missing. Reached only through
-        // App\Domain\Operations\Support\PureCache. A failover chain: `lru_redis` first; while the second instance is
-        // unreachable every call lands on the per-process array store (a miss = a computation from the database) and
-        // CacheFailedOver is dispatched once per outage (App\Listeners\Cache\LogCacheFailover writes it to the log), so
-        // the application degrades instead of failing. An invalidation during an outage does not reach Redis: a value
-        // there may outlive its forget() until its TTL (docs/19 §3 rule 5).
+        // App\Domain\Operations\Support\PureCache. A failover chain with a circuit breaker (the app's driver
+        // `failover_breaker`, App\Domain\Operations\Support\CircuitBreakerFailoverStore): `lru_redis` first; when it fails -
+        // refused, or hung and timed out after `database.redis.lru.timeout` - the breaker opens for `open_seconds` and
+        // every call of every process lands on the per-process array store straight away (a miss = a computation from the
+        // database); then one process probes Redis again. CacheFailedOver is dispatched once per opening
+        // (App\Listeners\Cache\LogCacheFailover writes it to the log), so the application degrades instead of failing.
+        // An invalidation during an outage does not reach Redis: a value there may outlive its forget() until its TTL
+        // (docs/19 §3 rule 5). The marker of the breaker is a file under storage/framework/cache/circuits, shared by the
+        // php-fpm workers and - through the storage volume - the queue workers and the scheduler.
         'lru' => [
-            'driver' => 'failover',
+            'driver' => 'failover_breaker',
             'stores' => ['lru_redis', 'array'],
+            'open_seconds' => 15,
         ],
 
         'dynamodb' => [

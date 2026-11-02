@@ -15,8 +15,8 @@ use Illuminate\Support\Facades\Log;
 /**
  * Dependency checks behind `GET /health/ready`.
  *
- * The report carries only "ok"/"fail" per check: exception messages, hosts
- * and versions are logged internally and never exposed to the caller.
+ * The report carries only "ok"/"degraded"/"fail" per check: exception messages,
+ * hosts and versions are logged internally and never exposed to the caller.
  */
 final class ReadinessProbe
 {
@@ -40,13 +40,18 @@ final class ReadinessProbe
         }
 
         // The second, evicting instance behind the pure cache (docs/19 §4.1) is its own check, and its loss is a
-        // degradation, not a failure: the pure store falls over to the array store and the application serves from the
-        // database, so the report says `degraded` and the endpoint stays 200 - visible to the operator, no page.
+        // degradation, not a failure, as long as the pure store has somewhere to fall over to: the chain goes to the array
+        // store and the application serves from the database, so the report says `degraded` and the endpoint stays 200 -
+        // visible to the operator, no page. A pure store on Redis alone would throw on every call: that loss is a failure.
         // Skipped when the pure store is not on Redis (tests) or shares a connection with the first instance.
         $pureConnection = PureCache::redisConnection();
         if ($pureConnection !== null && ! in_array($pureConnection, $redisConnections, true)) {
             $alive = $this->guard('redis_cache', fn (): bool => $this->checkRedis([$pureConnection])) === ReadinessReport::OK;
-            $checks['redis_cache'] = $alive ? ReadinessReport::OK : ReadinessReport::DEGRADED;
+            $checks['redis_cache'] = match (true) {
+                $alive => ReadinessReport::OK,
+                PureCache::hasFallback() => ReadinessReport::DEGRADED,
+                default => ReadinessReport::FAIL,
+            };
         }
 
         // A group-chat Mini App link cannot be built without the bot username: production must have it.
