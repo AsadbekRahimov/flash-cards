@@ -282,7 +282,8 @@ final class OrgTenantScope
             }
         }
 
-        // Nothing loaded: the same answer from one query - the learner must not be soft-deleted (`whereHas` carries the scope).
+        // The memberships are not loaded (a single record page): the same answer from one query. The learner must be alive
+        // here too - `whereHas` carries the soft-delete scope - or a deleted learner would be the teacher's on this path only.
         return GroupMember::query()
             ->whereHas('learner')
             ->where('learner_id', $member->learner_id)
