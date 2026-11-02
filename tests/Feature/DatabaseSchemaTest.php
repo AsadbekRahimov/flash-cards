@@ -430,6 +430,65 @@ it('has the next-card index in the exact order of CardPicker and the partial ind
     expect($invalid)->toBe(0);
 })->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'pg_indexes catalog is PostgreSQL-only.');
 
+it('has the b-tree indexes under the default sorts of the list pages (docs/20 F2)', function (): void {
+    $names = fn (string $table): array => array_column(Schema::getIndexes($table), 'name');
+
+    expect($names('learners'))->toContain('learners_first_name_id_idx')
+        ->and($names('exam_sessions'))->toContain('exam_sessions_started_at_id_idx');
+
+    $columns = fn (string $table, string $index): ?array => collect(Schema::getIndexes($table))->firstWhere('name', $index)['columns'] ?? null;
+
+    expect($columns('learners', 'learners_first_name_id_idx'))->toBe(['first_name', 'id'])
+        ->and($columns('exam_sessions', 'exam_sessions_started_at_id_idx'))->toBe(['started_at', 'id']);
+});
+
+it('has pg_trgm and the trigram indexes under the searches, in the forms the pages compare (docs/20 F2)', function (): void {
+    expect(DB::table('pg_extension')->where('extname', 'pg_trgm')->exists())->toBeTrue();
+
+    $defs = DB::table('pg_indexes')
+        ->whereIn('tablename', ['learners', 'words'])
+        ->pluck('indexdef', 'indexname');
+
+    // Filament's search on PostgreSQL compares `lower(column) like`; `username` is `ilike` on the plain column.
+    expect($defs->get('learners_first_name_lower_trgm_idx'))->toContain('USING gin (lower((first_name)::text) gin_trgm_ops)')
+        ->and($defs->get('learners_last_name_lower_trgm_idx'))->toContain('USING gin (lower((last_name)::text) gin_trgm_ops)')
+        ->and($defs->get('learners_username_trgm_idx'))->toContain('USING gin (username gin_trgm_ops)')
+        ->and($defs->get('words_word_lower_trgm_idx'))->toContain('USING gin (lower((word)::text) gin_trgm_ops)')
+        ->and($defs->get('words_translation_lower_trgm_idx'))->toContain('USING gin (lower((translation)::text) gin_trgm_ops)');
+
+    // All valid (a CONCURRENTLY build that failed would leave an INVALID one).
+    $invalid = DB::table('pg_index')
+        ->join('pg_class', 'pg_class.oid', '=', 'pg_index.indexrelid')
+        ->where('pg_class.relname', 'like', '%_trgm_idx')
+        ->where('pg_index.indisvalid', false)
+        ->count();
+    expect($invalid)->toBe(0);
+})->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'pg_trgm and GIN indexes are PostgreSQL-only.');
+
+it('drops the list-page indexes on rollback of their migration and rebuilds them on re-run', function (): void {
+    $migration = require database_path('migrations/2026_11_02_100001_add_filament_list_indexes.php');
+    $names = fn (string $table): array => array_column(Schema::getIndexes($table), 'name');
+    $pgsql = DB::getDriverName() === 'pgsql';
+
+    $migration->down();
+    expect($names('learners'))->not->toContain('learners_first_name_id_idx')
+        ->and($names('exam_sessions'))->not->toContain('exam_sessions_started_at_id_idx');
+    if ($pgsql) {
+        expect($names('learners'))->not->toContain('learners_username_trgm_idx')
+            ->and($names('words'))->not->toContain('words_word_lower_trgm_idx')
+            ->and(DB::table('pg_extension')->where('extname', 'pg_trgm')->exists())->toBeFalse();
+    }
+
+    $migration->up();
+    $migration->up(); // a retry after an interrupted deploy is harmless
+    expect(array_count_values($names('learners'))['learners_first_name_id_idx'])->toBe(1)
+        ->and($names('exam_sessions'))->toContain('exam_sessions_started_at_id_idx');
+    if ($pgsql) {
+        expect(array_count_values($names('learners'))['learners_username_trgm_idx'])->toBe(1)
+            ->and($names('words'))->toContain('words_word_lower_trgm_idx', 'words_translation_lower_trgm_idx');
+    }
+});
+
 it('restores the old hard-due index on rollback of the next-card index migration and swaps it back on re-run', function (): void {
     $migration = require database_path('migrations/2026_10_28_000001_add_next_card_and_inactive_words_indexes.php');
     $names = fn (string $table): array => array_column(Schema::getIndexes($table), 'name');

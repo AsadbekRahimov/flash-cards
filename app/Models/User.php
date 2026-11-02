@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Domain\Organizations\Enums\OrganizationRole;
+use App\Domain\Organizations\Services\OrgTenantScope;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasTenants;
@@ -118,18 +119,13 @@ class User extends Authenticatable implements FilamentUser, HasTenants
     }
 
     /**
-     * Tenant role of this user in one organization (`null` = not staff there). One query, not cached:
-     * the policies of the `/org` panel ask it per request and must see a removal at once.
+     * Tenant role of this user in one organization (`null` = not staff there). Read through
+     * {@see OrgTenantScope}, i.e. once per request: the tenant check and every policy of the `/org`
+     * panel share that one lookup, and a staff row written in the same request drops it (OrgRequestMemo).
      */
     public function organizationRole(Organization|int $organization): ?OrganizationRole
     {
-        $organizationId = $organization instanceof Organization ? $organization->id : $organization;
-
-        $role = $this->organizationRoles()
-            ->where('organization_id', $organizationId)
-            ->value('role');
-
-        return is_string($role) ? OrganizationRole::tryFrom($role) : null;
+        return app(OrgTenantScope::class)->role($this, $organization);
     }
 
     public function isOrganizationOwner(Organization|int $organization): bool

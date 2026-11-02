@@ -46,6 +46,11 @@ final class FilamentQueryBudget
         foreach ($sizes as $rows) {
             $fill($rows);
 
+            // Each measured render starts like a new request: whatever the application remembers for one request
+            // (scoped bindings, e.g. the role memory of the `/org` cabinet) is forgotten, as the queue worker and
+            // Octane do, so the count includes the statements such a memory saves within a request only.
+            app()->forgetScopedInstances();
+
             $component = null;
             $queries[$rows] = QueryLog::during(function () use (&$component, $page, $parameters, $perPage): void {
                 $component = Livewire::test($page, $parameters)->set('tableRecordsPerPage', $perPage);
