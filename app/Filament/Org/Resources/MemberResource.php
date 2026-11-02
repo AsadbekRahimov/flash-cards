@@ -50,10 +50,16 @@ class MemberResource extends OrgResource
         return __('org.members.plural');
     }
 
-    /** @return Builder<OrganizationMember> */
+    /**
+     * The row policy of a teacher needs the learner's active group memberships (`OrgTenantScope::canSeeMember`):
+     * loaded with the list, not queried per row (docs/20 §1.3). An owner sees every row, so only the learner.
+     *
+     * @return Builder<OrganizationMember>
+     */
     public static function getEloquentQuery(): Builder
     {
-        return static::scope()->members(static::user(), static::tenant())->with('learner');
+        return static::scope()->members(static::user(), static::tenant())
+            ->with(static::isOwner() ? ['learner'] : ['learner.activeGroupMemberships']);
     }
 
     public static function table(Table $table): Table
@@ -63,12 +69,18 @@ class MemberResource extends OrgResource
                 Tables\Columns\TextColumn::make('learner_name')
                     ->label(__('org.members.columns.learner'))
                     ->state(fn (OrganizationMember $record): string => self::learnerName($record->learner))
-                    ->searchable(query: fn (Builder $query, string $search): Builder => $query->whereHas(
-                        'learner',
-                        fn (Builder $q): Builder => $q->where('first_name', 'like', "%{$search}%")
-                            ->orWhere('last_name', 'like', "%{$search}%")
-                            ->orWhere('username', 'like', "%{$search}%"),
-                    )),
+                    // Case-insensitive, in the forms the trigram indexes of `learners` serve (docs/03 §2.17, docs/20 F2):
+                    // `lower(col) like` as Filament's own search emits on PostgreSQL, `ilike` on the plain `username`.
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        $search = trim($search);
+                        $name = '%'.mb_strtolower($search).'%';
+                        $username = '%'.ltrim($search, '@').'%';
+
+                        return $query->whereHas('learner', fn (Builder $q): Builder => $q
+                            ->whereRaw('lower(first_name) like ?', [$name])
+                            ->orWhereRaw('lower(last_name) like ?', [$name])
+                            ->orWhereLike('username', $username));
+                    }),
                 Tables\Columns\TextColumn::make('learner.username')
                     ->label(__('org.members.columns.username'))
                     ->formatStateUsing(fn (?string $state): string => $state === null ? '—' : '@'.$state),

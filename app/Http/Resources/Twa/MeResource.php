@@ -31,7 +31,7 @@ final class MeResource extends TwaResource
      *   entitlement: array{plan: string, source: string, until: string|null, new_words_per_day: int|null, renewal: array{auto: bool, provider: string, ends_at: string|null, reminder_sent: bool}|null, lapsed: array{provider: string, ended_at: string}|null},
      *   paywall: array{mode: string, contact: string|null},
      *   settings: SettingsPayload,
-     *   practice: array{available: bool, pro_required: bool, modes: list<string>, battle: bool}
+     *   practice: array{available: bool, pro_required: bool, modes: list<string>, battle: bool, limits: LimitsBlock|null}
      * }
      */
     public function toArray(Request $request): array

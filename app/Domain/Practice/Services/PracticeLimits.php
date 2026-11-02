@@ -27,8 +27,10 @@ use Illuminate\Support\Facades\DB;
  * new words (LearnerClock::limitWindowUtc: the current local day, carried over after a change of timezone so that no hopping
  * between zones shortens it) - a learner WITHOUT the entitlement feature `practice.unlimited` may:
  *
- *   - OPEN at most `practice.free_limits.sessions_per_day` solo sessions (`practice_sessions.started_at` in the window; a retry
- *     of the mistakes, `retry_of_session_id`, is free; a session that replaces the active one is a new one and counts);
+ *   - OPEN at most `practice.free_limits.sessions_per_day` solo sessions (`practice_sessions.started_at` in the window; a session
+ *     that replaces the active one is a new one and counts). ONE retry of the mistakes per source is free - the earliest retry
+ *     of a session that is not a retry itself and was opened in the window ({@see FREE_RETRY_SQL}); a second retry of the same
+ *     source, a retry of a retry and a retry of an older session take a place like a session (the coordinator, 2026-11-02);
  *   - CALL at most `practice.free_limits.battles_per_day` battles (`battles.created_at` in the window, `challenger_id` = the
  *     learner: a rematch counts for the one who offers it; ACCEPTING is always free - a Pro friend brings Free friends in).
  *     A call that never started through no fault of the caller is given back ({@see UNSPENT_END_REASONS}): what counts is a
@@ -80,6 +82,18 @@ final class PracticeLimits
         BattleEndReason::RoomExpired->value,
         BattleEndReason::Voided->value,
     ];
+
+    /**
+     * The one FREE retry of a source (SQL over the counted row `practice_sessions`; two bindings: the start and the end of the
+     * window): the row is a retry, its source is not a retry itself and was opened in the window, and the row is the earliest
+     * retry of that source (the one the claim let through for free: {@see isFreeRetry()} checks "no retry yet" under the lock, so
+     * the earliest is exactly that one). Every other session of the window counts.
+     */
+    private const FREE_RETRY_SQL = '(practice_sessions.retry_of_session_id is not null'
+        .' and exists (select 1 from practice_sessions as src where src.id = practice_sessions.retry_of_session_id'
+        .' and src.retry_of_session_id is null and src.started_at >= ? and src.started_at < ?)'
+        .' and practice_sessions.id = (select min(earliest.id) from practice_sessions as earliest'
+        .' where earliest.retry_of_session_id = practice_sessions.retry_of_session_id))';
 
     public function __construct(
         private readonly EntitlementResolver $entitlements,
@@ -146,13 +160,14 @@ final class PracticeLimits
     }
 
     /**
-     * The courtesy check before the work of an opening (no lock).
+     * The courtesy check before the work of an opening (no lock). `$retryOf` - the source of a retry of the mistakes: one retry per
+     * source opened today is free, any other retry is a session.
      *
      * @throws PracticeException practice_limit_reached (403)
      */
-    public function assertSessionAllowed(Learner $learner, CarbonImmutable $now): void
+    public function assertSessionAllowed(Learner $learner, CarbonImmutable $now, ?PracticeSession $retryOf = null): void
     {
-        $refusal = $this->refusal(self::KIND_SESSIONS, $learner, $now, lock: false);
+        $refusal = $this->refusal(self::KIND_SESSIONS, $learner, $now, lock: false, retryOf: $retryOf);
         if ($refusal !== null) {
             throw $refusal;
         }
@@ -176,9 +191,9 @@ final class PracticeLimits
      * the refusal - the caller RETURNS it out of the transaction and throws it after the commit (see the class comment); `null`
      * = the place is the caller's, insert the row.
      */
-    public function claimSession(Learner $learner, CarbonImmutable $now): ?PracticeException
+    public function claimSession(Learner $learner, CarbonImmutable $now, ?PracticeSession $retryOf = null): ?PracticeException
     {
-        return $this->refusal(self::KIND_SESSIONS, $learner, $now, lock: true);
+        return $this->refusal(self::KIND_SESSIONS, $learner, $now, lock: true, retryOf: $retryOf);
     }
 
     /** Takes the place of a battle call INSIDE the creating transaction; the same contract as {@see claimSession()}. */
@@ -187,7 +202,7 @@ final class PracticeLimits
         return $this->refusal(self::KIND_BATTLES, $learner, $now, lock: true);
     }
 
-    private function refusal(string $kind, Learner $learner, CarbonImmutable $now, bool $lock): ?PracticeException
+    private function refusal(string $kind, Learner $learner, CarbonImmutable $now, bool $lock, ?PracticeSession $retryOf = null): ?PracticeException
     {
         $limit = $this->limitOf($kind);
         if ($limit === null || $this->isUnlimited($this->entitlements->for($learner, $now))) {
@@ -198,6 +213,9 @@ final class PracticeLimits
             $this->lockLearner((int) $learner->id);
         }
         $window = $this->clock->limitWindowUtc($learner, $now);
+        if ($retryOf !== null && $this->isFreeRetry($retryOf, $window)) {
+            return null;
+        }
         $used = $this->usedOf($kind, (int) $learner->id, $window, $now);
         if ($used < $limit) {
             return null;
@@ -230,14 +248,28 @@ final class PracticeLimits
         (DB::connection()->getDriverName() === 'pgsql' ? $lock->lock('for no key update') : $lock->lockForUpdate())->value('id');
     }
 
+    /**
+     * ONE retry per source is free: the source is not a retry itself, was opened in the window, and has no retry yet. The claim
+     * asks under the lock of the learner's row, so two tabs retrying the same source at once get one free place, not two.
+     */
+    private function isFreeRetry(PracticeSession $source, DayBounds $window): bool
+    {
+        $openedAt = CarbonImmutable::make($source->started_at);
+
+        return $source->retry_of_session_id === null
+            && $openedAt !== null
+            && $window->contains($openedAt)
+            && ! PracticeSession::query()->where('retry_of_session_id', $source->id)->exists();
+    }
+
     private function usedOf(string $kind, int $learnerId, DayBounds $window, CarbonImmutable $now): int
     {
         if ($kind === self::KIND_SESSIONS) {
             return PracticeSession::query()
                 ->where('learner_id', $learnerId)
-                ->whereNull('retry_of_session_id')
                 ->where('started_at', '>=', $window->startUtc)
                 ->where('started_at', '<', $window->endUtc)
+                ->whereRaw('not '.self::FREE_RETRY_SQL, [self::sql($window->startUtc), self::sql($window->endUtc)])
                 ->count();
         }
 
@@ -249,9 +281,15 @@ final class PracticeLimits
                 $spent->whereNull('end_reason')->orWhereNotIn('end_reason', self::UNSPENT_END_REASONS);
             })
             ->whereNot(function (Builder $runOut) use ($now): void {
-                $runOut->where('status', BattleStatus::Invited->value)->where('invite_expires_at', '<=', $now);
+                $runOut->where('status', BattleStatus::Invited->value)->where('invite_expires_at', '<=', $now->utc());
             })
             ->count();
+    }
+
+    /** A UTC instant as the database stores it. */
+    private static function sql(CarbonImmutable $instant): string
+    {
+        return $instant->utc()->format('Y-m-d H:i:s');
     }
 
     /**
@@ -263,18 +301,18 @@ final class PracticeLimits
      */
     private function usedOfBoth(int $learnerId, DayBounds $window, CarbonImmutable $now): array
     {
-        $start = $window->startUtc->format('Y-m-d H:i:s');
-        $end = $window->endUtc->format('Y-m-d H:i:s');
+        $start = self::sql($window->startUtc);
+        $end = self::sql($window->endUtc);
         $unspent = implode(', ', array_fill(0, count(self::UNSPENT_END_REASONS), '?'));
 
         $row = DB::selectOne(
             'select'
-            .' (select count(*) from practice_sessions where learner_id = ? and retry_of_session_id is null and started_at >= ? and started_at < ?) as sessions,'
+            .' (select count(*) from practice_sessions where learner_id = ? and started_at >= ? and started_at < ? and not '.self::FREE_RETRY_SQL.') as sessions,'
             .' (select count(*) from battles where challenger_id = ? and created_at >= ? and created_at < ?'
             ." and (end_reason is null or end_reason not in ({$unspent})) and not (status = ? and invite_expires_at <= ?)) as battles",
             [
-                $learnerId, $start, $end,
-                $learnerId, $start, $end, ...self::UNSPENT_END_REASONS, BattleStatus::Invited->value, $now->setTimezone('UTC')->format('Y-m-d H:i:s'),
+                $learnerId, $start, $end, $start, $end,
+                $learnerId, $start, $end, ...self::UNSPENT_END_REASONS, BattleStatus::Invited->value, self::sql($now),
             ],
         );
 
