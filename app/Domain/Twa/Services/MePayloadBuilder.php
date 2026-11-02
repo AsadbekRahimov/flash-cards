@@ -12,12 +12,14 @@ use App\Domain\Learners\Services\LearnerSettingsService;
 use App\Domain\Learning\DTO\LearnerStats;
 use App\Domain\Learning\Services\LearnerStatsService;
 use App\Domain\Practice\Services\PracticeAccess;
+use App\Domain\Practice\Services\PracticeLimits;
 use App\Models\Learner;
 use App\Models\TelegramGroup;
 use Illuminate\Support\Collection;
 
 /**
  * @phpstan-import-type SettingsPayload from LearnerSettingsService
+ * @phpstan-import-type LimitsBlock from PracticeLimits
  *
  * The data behind `App\Http\Resources\Twa\MeResource`: GET /me and every
  * endpoint that answers with the refreshed profile (e.g. POST /promo/redeem).
@@ -31,6 +33,7 @@ final class MePayloadBuilder
         private readonly LearnerSettingsService $settings,
         private readonly LearnerBillingService $billing,
         private readonly PracticeAccess $practice,
+        private readonly PracticeLimits $limits,
     ) {}
 
     /**
@@ -43,7 +46,7 @@ final class MePayloadBuilder
      *   lapsed: array{provider: string, ended_at: string}|null,
      *   paywall: array{mode: string, contact: string|null},
      *   settings: SettingsPayload,
-     *   practice: array{available: bool, pro_required: bool, modes: list<string>, battle: bool}
+     *   practice: array{available: bool, pro_required: bool, modes: list<string>, battle: bool, limits: LimitsBlock|null}
      * }
      */
     public function build(Learner $learner): array
@@ -59,7 +62,11 @@ final class MePayloadBuilder
             'lapsed' => $this->billing->lapsed($learner, $entitlement),
             'paywall' => $this->billing->paywall($learner),
             'settings' => $this->settings->describe($learner),
-            'practice' => $this->practice->describe($learner, $entitlement),
+            'practice' => [
+                ...$this->practice->describe($learner, $entitlement),
+                // The Free limits of the day (docs/18 G1): one statement, and only while the practice is open to the learner.
+                'limits' => $this->limits->describe($learner, $this->practice->stateFor($learner, $entitlement), $entitlement),
+            ],
         ];
     }
 }

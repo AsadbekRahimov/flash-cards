@@ -7,7 +7,7 @@
 | План | Документ | Задачи | Статус |
 |---|---|---|---|
 | «Говорим» — разговор с ИИ голосовыми сообщениями, пробный IELTS Speaking | `docs/17_SPEAKING_PLAN.md` | S0 спайк → S1 проект → S2–S11 → S12 ревью и пилот | ⏸ отложено владельцем до релиза (02.11.2026) |
-| «Караван» — игра для Pro и бесплатная часть | `docs/18_GAME_PLAN.md` | G1 Free/Pro для практики и баттла → G2 Караван → G3 Арена → G4 Сезоны → G5 ревью | 🔄 G1 в работе (решение владельца 02.11.2026); G2+ ждут решений §11 |
+| «Караван» — игра для Pro и бесплатная часть | `docs/18_GAME_PLAN.md` | G1 Free/Pro для практики и баттла → G2 Караван → G3 Арена → G4 Сезоны → G5 ревью | 🔄 G1 в работе (решение владельца 02.11.2026): G1.1 backend ✅ (лимиты Free `PRACTICE_FREE_SESSIONS_PER_DAY` / `PRACTICE_FREE_BATTLES_PER_DAY`, фича `practice.unlimited`, `PracticeLimits`, 403 `practice_limit_reached`, блок `limits` в `/me`, хабе и 201; `PracticeLimitsTest`, PG-гонки `PracticeLimitsConcurrencyTest`), G1.2 TWA — параллельно; G2+ ждут решений §11 |
 | Redis 8.10 и кэширование | `docs/19_REDIS_CACHE_PLAN.md` | C0 замер → C1 Redis 8.10 → C2 два экземпляра → C3–C6 кэш → C7 OPcache → C8 замер после | 🔄 в работе; второй экземпляр и пароль в проде одобрены владельцем 02.11.2026 |
 | Производительность Filament | `docs/20_FILAMENT_PERFORMANCE.md` | F0 замер → F1 `filament:optimize` → F2 индексы → F3 таблицы → F4 N+1 → F5 виджеты → F6 действия → F7 ревью | 🔄 в работе |
 

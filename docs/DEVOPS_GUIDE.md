@@ -1169,7 +1169,9 @@ The switches are read from `.env`; everything else of `config/practice.php` (siz
 | Variable | Default | Meaning |
 |---|---|---|
 | `PRACTICE_ACCESS` | `off` | Who may practise: `off` (nobody), `pilot` (learners with `learners.practice_pilot_at`, set by an admin), `all`. Any other value counts as `off` |
-| `PRACTICE_PLAN` | `all` | `pro` — only Pro learners practise; a Free learner gets the paywall (403 `practice_pro_required`) |
+| `PRACTICE_PLAN` | `all` | `pro` — only Pro learners practise; a Free learner gets the paywall (403 `practice_pro_required`). With `all`, Free learners practise within the daily limits below |
+| `PRACTICE_FREE_SESSIONS_PER_DAY` | `2` | Practice sessions a Free learner may open per local day (docs/18 G1); a retry of the mistakes is free, replacing the unfinished session counts. Pro (feature `practice.unlimited`, sponsored Pro included) has no limit. `0` — only Pro opens sessions; empty — no limit for Free. Refused: 403 `practice_limit_reached` |
+| `PRACTICE_FREE_BATTLES_PER_DAY` | `1` | Battle calls a Free learner may send per local day: invitations and rematches they offer (withdrawn or expired ones count — they were created); accepting a friend's call is always free. `0` / empty as above |
 | `PRACTICE_MODE_PAIRS` / `_COLLOCATION` / `_SENTENCE` / `_DICTATION` | `true` | Switches one mode off: no new session of it; sessions already started finish |
 | `PRACTICE_BATTLE` | `true` | The switch of the 1-on-1 battle: `false` refuses new invitations and the acceptance of sent ones (409 `battle_disabled`) and hides the entries (`/me` → `practice.battle`); matches that are on finish. `PRACTICE_ACCESS=off` is stronger: the sweeper voids the matches that are on |
 | `TTS_SERVICE_URL`, `TTS_VOICE`, `TTS_AUDIO_VERSION` | see §10.1 | Voicing of the dictation phrases uses the same service and voice as the word audio (§10.2) |

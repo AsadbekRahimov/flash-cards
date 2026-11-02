@@ -12,6 +12,7 @@ use App\Domain\Practice\DTO\ElementState;
 use App\Domain\Practice\DTO\LocaleSet;
 use App\Domain\Practice\DTO\MaterialScope;
 use App\Domain\Practice\DTO\ModeAvailability;
+use App\Domain\Practice\DTO\PracticeLimitState;
 use App\Domain\Practice\Enums\FinishReason;
 use App\Domain\Practice\Enums\PracticeMode;
 use App\Domain\Practice\Enums\Verdict;
@@ -82,6 +83,12 @@ function contractSession(?array $current, bool $lesson = false, bool $summary = 
         ...($current === null ? ['current'] : ['current' => $current]),
         ...($summary ? ['summary' => [...CONTRACT_PRACTICE_SUMMARY, 'mistakes' => ['*' => CONTRACT_PRACTICE_MISTAKE]]] : ['summary']),
     ];
+}
+
+/** The 201 of an opening: the session plus `limits` - the Free limits of the day after it (docs/18 G1; `null` here: the kit lifts them). */
+function contractOpened(?array $current, bool $lesson = false): array
+{
+    return [...contractSession($current, $lesson), 'limits'];
 }
 
 /** Every key of a decoded JSON at any depth. @return list<string> */
@@ -182,7 +189,7 @@ it('GET /practice/hub keeps its exact JSON shape, for a lesson and for a whole c
             'lesson' => CONTRACT_PRACTICE_LESSON,
             'modes' => ['*' => CONTRACT_PRACTICE_MODE_ROW],
             'active_session',
-            'battle' => ['enabled', 'active_battle_id', 'incoming_count'],
+            'battle' => ['enabled', 'active_battle_id', 'incoming_count'], 'limits',
         ]);
 
     expect($response->json('modes'))->toHaveCount(4)
@@ -192,7 +199,7 @@ it('GET /practice/hub keeps its exact JSON shape, for a lesson and for a whole c
 
     $this->withHeaders($headers)->getJson("/api/twa/practice/hub?course={$course->slug}")
         ->assertOk()
-        ->assertExactJsonStructure(['course' => CONTRACT_PRACTICE_COURSE, 'lesson', 'modes' => ['*' => CONTRACT_PRACTICE_MODE_ROW], 'active_session', 'battle' => ['enabled', 'active_battle_id', 'incoming_count']])
+        ->assertExactJsonStructure(['course' => CONTRACT_PRACTICE_COURSE, 'lesson', 'modes' => ['*' => CONTRACT_PRACTICE_MODE_ROW], 'active_session', 'battle' => ['enabled', 'active_battle_id', 'incoming_count'], 'limits'])
         ->assertJsonPath('lesson', null);
 
     $session = contractOpen($learner, $course->slug, 'collocation')->assertCreated()->json();
@@ -201,7 +208,7 @@ it('GET /practice/hub keeps its exact JSON shape, for a lesson and for a whole c
         ->assertExactJsonStructure([
             'course' => CONTRACT_PRACTICE_COURSE, 'lesson', 'modes' => ['*' => CONTRACT_PRACTICE_MODE_ROW],
             'active_session' => CONTRACT_PRACTICE_ACTIVE,
-            'battle' => ['enabled', 'active_battle_id', 'incoming_count'],
+            'battle' => ['enabled', 'active_battle_id', 'incoming_count'], 'limits',
         ])
         ->assertJsonPath('active_session.id', $session['id'])
         ->assertJsonPath('active_session.lesson', null);   // the practice of a whole course names no lesson
@@ -213,12 +220,12 @@ it('POST /practice/sessions and GET /practice/sessions/{id} keep their exact JSO
     $current = ['id', 'kind', 'prompt'];
 
     $opened = contractOpen($learner, $course->slug, 'collocation', ['lesson_id' => $lesson->id])
-        ->assertCreated()->assertExactJsonStructure(contractSession($current, lesson: true))->json();
+        ->assertCreated()->assertExactJsonStructure(contractOpened($current, lesson: true))->json();
     $this->withHeaders(PracticeKit::headers($learner))->getJson("/api/twa/practice/sessions/{$opened['id']}")
         ->assertOk()->assertExactJsonStructure(contractSession($current, lesson: true));
 
     PracticeSession::query()->delete();
-    contractOpen($learner, $course->slug, 'collocation')->assertCreated()->assertExactJsonStructure(contractSession($current))->assertJsonPath('lesson', null);
+    contractOpen($learner, $course->slug, 'collocation')->assertCreated()->assertExactJsonStructure(contractOpened($current))->assertJsonPath('lesson', null);
 
     expect($opened['expires_at'])->toBe('2026-10-31T10:00:00.000Z')
         ->and($opened['server_now'])->toBe('2026-10-30T10:00:00.000Z');
@@ -246,7 +253,7 @@ it('POST /practice/sessions/{id}/answer keeps its exact JSON shape: a final answ
     // A matching of pairs: no reveal, a pair, `round_done`.
     PracticeSession::query()->delete();
     $pairs = contractOpen($learner, $course->slug, 'pairs')->assertCreated()
-        ->assertExactJsonStructure(contractSession(['id', 'kind', 'left' => ['*' => ['id', 'text']], 'right' => ['*' => ['id', 'text' => ['ru']]], 'matched', 'mismatches']))->json();
+        ->assertExactJsonStructure(contractOpened(['id', 'kind', 'left' => ['*' => ['id', 'text']], 'right' => ['*' => ['id', 'text' => ['ru']]], 'matched', 'mismatches']))->json();
     $round = PracticeSession::query()->findOrFail($pairs['id'])->snapshot['elements'][0];
     $left = $round['left'][0]['id'];
 
@@ -263,7 +270,7 @@ it('POST /practice/sessions/{id}/replace keeps the shape of a session', function
     [$learner, $course] = contractWorld();
     $current = ['id', 'kind', 'source', 'audio_url', 'words', 'replacements_left'];
 
-    $session = contractOpen($learner, $course->slug, 'dictation')->assertCreated()->assertExactJsonStructure(contractSession($current))->json();
+    $session = contractOpen($learner, $course->slug, 'dictation')->assertCreated()->assertExactJsonStructure(contractOpened($current))->json();
     $this->withHeaders(PracticeKit::headers($learner))->postJson("/api/twa/practice/sessions/{$session['id']}/replace", [
         'request_id' => (string) Str::uuid(), 'element_id' => $session['current']['id'], 'reason' => 'audio_unavailable',
     ])->assertOk()->assertExactJsonStructure(contractSession($current));
@@ -278,7 +285,7 @@ it('keeps the exact JSON shape of the REAL dictation: an element without a text,
     $review = ['expected', 'your_text', 'diff' => ['*' => ['expected', 'got', 'ok']], 'translation', 'explanation'];
 
     $opened = contractOpen($learner, $course->slug, 'dictation', ['lesson_id' => $lesson->id])->assertCreated()
-        ->assertExactJsonStructure(contractSession($current, lesson: true))->json();
+        ->assertExactJsonStructure(contractOpened($current, lesson: true))->json();
     $read = $this->withHeaders($headers)->getJson("/api/twa/practice/sessions/{$opened['id']}")->assertOk()
         ->assertExactJsonStructure(contractSession($current, lesson: true))->json();
     $hub = $this->withHeaders($headers)->getJson("/api/twa/practice/hub?course={$course->slug}&lesson_id={$lesson->id}")->assertOk()->json();
@@ -378,7 +385,7 @@ it('keeps the contract of the collocation element on the real handler: its exact
     $seen = [];
 
     $session = contractOpen($learner, $course->slug, 'collocation', ['lesson_id' => $lesson->id])->assertCreated()
-        ->assertExactJsonStructure(contractSession($current, lesson: true))->json();
+        ->assertExactJsonStructure(contractOpened($current, lesson: true))->json();
     $seen[] = $session;
     $seen[] = $this->withHeaders($headers)->getJson("/api/twa/practice/sessions/{$session['id']}")->assertOk()->assertExactJsonStructure(contractSession($current, lesson: true))->json();
     $seen[] = $this->withHeaders($headers)->getJson("/api/twa/practice/hub?course={$course->slug}&lesson_id={$lesson->id}")->assertOk()->json();
@@ -465,7 +472,7 @@ it('shows the sentence mode on the wire: the prompt and the fragments before the
     $reveal = ['correct_text', 'alternatives', 'your_text', 'explanation'];
 
     $session = contractOpen($learner, $course->slug, 'sentence', ['lesson_id' => $lesson->id])->assertCreated()
-        ->assertExactJsonStructure(contractSession($element, lesson: true))->json();
+        ->assertExactJsonStructure(contractOpened($element, lesson: true))->json();
     $seen = [
         $session,
         $this->withHeaders($headers)->getJson("/api/twa/practice/sessions/{$session['id']}")->assertOk()->assertExactJsonStructure(contractSession($element, lesson: true))->json(),
@@ -521,6 +528,7 @@ it('wraps every error of the practice in the envelope, with `details` exactly wh
         // code => [the exception, the keys of `details` (null: the key is absent)]
         'practice_unavailable' => [PracticeException::unavailable(), null],
         'practice_pro_required' => [PracticeException::proRequired(), null],
+        'practice_limit_reached' => [PracticeException::limitReached(new PracticeLimitState('sessions', 2, 2, CarbonImmutable::parse('2026-10-30 19:00:00'))), ['kind', 'limit', 'used', 'resets_at']],
         'practice_mode_disabled' => [PracticeException::modeDisabled(PracticeMode::Pairs), ['mode']],
         'practice_not_enough_material' => [PracticeException::notEnoughMaterial(PracticeMode::Pairs, new ModeAvailability(false, 2, 3, 'no_words'), 'english-a1', 41), ['mode', 'available', 'required', 'reason', 'course', 'lesson_id']],
         'practice_session_active' => [PracticeException::sessionActive(['session_id' => 7, 'mode' => 'pairs', 'course' => 'a', 'course_title' => 'A', 'lesson_id' => null, 'lesson' => null, 'progress' => ['done' => 1, 'total' => 3]]), CONTRACT_PRACTICE_ACTIVE_DETAILS],
@@ -620,7 +628,7 @@ it('names the place of an unfinished session - the title of its course in the la
     // The hub of ANOTHER course: the unfinished session is not of this place, yet it is named.
     $hub = $this->withHeaders(PracticeKit::headers($learner))->getJson("/api/twa/practice/hub?course={$other->slug}")
         ->assertOk()
-        ->assertExactJsonStructure(['course' => CONTRACT_PRACTICE_COURSE, 'lesson', 'modes' => ['*' => CONTRACT_PRACTICE_MODE_ROW], 'active_session' => ['id', 'mode', 'course', 'course_title', 'lesson_id', 'lesson' => ['stage', 'number', 'title'], 'progress' => CONTRACT_PRACTICE_PROGRESS], 'battle' => ['enabled', 'active_battle_id', 'incoming_count']]);
+        ->assertExactJsonStructure(['course' => CONTRACT_PRACTICE_COURSE, 'lesson', 'modes' => ['*' => CONTRACT_PRACTICE_MODE_ROW], 'active_session' => ['id', 'mode', 'course', 'course_title', 'lesson_id', 'lesson' => ['stage', 'number', 'title'], 'progress' => CONTRACT_PRACTICE_PROGRESS], 'battle' => ['enabled', 'active_battle_id', 'incoming_count'], 'limits']);
     expect($hub->json('active_session'))->toBe(['id' => $session['id'], 'mode' => 'collocation', ...$place]);
 
     $details = contractError(contractOpen($learner, $other->slug, 'pairs'), 409, 'practice_session_active', CONTRACT_PRACTICE_ACTIVE_DETAILS);
@@ -722,7 +730,7 @@ it('keeps the JSON of the pairs on the real handler: the board, a wrong and a ri
 
     // The board.
     $session = contractOpen($learner, $course->slug, 'pairs', ['lesson_id' => $lesson->id])->assertCreated()
-        ->assertExactJsonStructure(contractSession($board, lesson: true))->json();
+        ->assertExactJsonStructure(contractOpened($board, lesson: true))->json();
     $seen[] = $session;
     $rounds = PracticeSession::query()->findOrFail($session['id'])->snapshot['elements'];
     $table = $rounds[0]['pairs'];
@@ -875,7 +883,7 @@ it('puts `details` INSIDE `error` on the wire: replace_not_allowed names its rea
 
 it('keeps the statuses of docs/16 §7.6 for the codes of the practice and of the battle', function (): void {
     $practice = [
-        'practice_unavailable' => 403, 'practice_pro_required' => 403, 'practice_mode_disabled' => 409, 'practice_not_enough_material' => 422,
+        'practice_unavailable' => 403, 'practice_pro_required' => 403, 'practice_limit_reached' => 403, 'practice_mode_disabled' => 409, 'practice_not_enough_material' => 422,
         'practice_session_active' => 409, 'practice_session_not_found' => 404, 'practice_session_closed' => 410, 'element_not_current' => 409,
         'answer_already_accepted' => 409, 'pair_already_matched' => 409, 'invalid_answer_shape' => 422, 'unknown_element_id' => 422,
         'replace_not_allowed' => 409, 'retry_not_available' => 409, 'practice_audio_unavailable' => 503, 'lesson_not_in_course' => 422,

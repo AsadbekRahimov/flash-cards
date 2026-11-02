@@ -2596,3 +2596,21 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `battle.invite.mode_disabled` | Bu format hozir o'chirilgan — taklifni qabul qila olmaysiz. | Этот формат сейчас выключен — принять приглашение нельзя. |
+
+## Лимиты практики 2026-11 · G1 (backend) — на проверку носителю
+
+> Тексты сервера для 403 `practice_limit_reached` (`lang/uz/practice.php`, `lang/ru/practice.php`; английский в `lang/en/practice.php` — для консоли и тестов).
+> Это `message` ответа API: приложение показывает пейвол по коду, а текст — запасной вариант для любого другого клиента. Формы множественного числа — `trans_choice`:
+> `{0}` — лимит 0 (вид только для Pro), `[1,*]` — лимит исчерпан, `:limit` — число. У русского четыре формы (1 сессия / 2 сессии / 5 сессий; 1 вызов / 2 вызова / 5 вызовов).
+>
+> Что решить носителю:
+> - **«mashq seansi»** для «сессия практики» (в приложении практика — «mashq»): уместно ли «seans», или лучше «mashq» без счётного слова («kuniga :limit ta mashq»).
+> - **«jang chaqiruvi»** для «вызов на баттл» (в экранах баттла баттл — «jang», см. `battle.*`): «chaqiruv» — «вызов/приглашение»; проверить сочетание и форму «Do'st chaqiruvini qabul qilish har doim mumkin».
+> - Апостроф в «Pro'da», «Free'da» — как в остальных строках (`billing.*`).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `practice.limit_reached.sessions` `{0}` | Mashq Pro'da mavjud. | Практика доступна в Pro. |
+| `practice.limit_reached.sessions` `[1,*]` | Bugungi limit tugadi: Free'da kuniga :limit ta mashq seansi. Pro'da cheklov yo'q. | Лимит на сегодня исчерпан: на Free — :limit сессия/сессии/сессий практики в день. В Pro — без ограничений. |
+| `practice.limit_reached.battles` `{0}` | Do'stni jangga chaqirish Pro'da mavjud. Do'st chaqiruvini qabul qilish har doim mumkin. | Вызывать друзей на баттл можно в Pro. Принять вызов друга можно всегда. |
+| `practice.limit_reached.battles` `[1,*]` | Bugungi limit tugadi: Free'da kuniga :limit ta jang chaqiruvi. Do'st chaqiruvini qabul qilish har doim mumkin. | Лимит на сегодня исчерпан: на Free — :limit вызов/вызова/вызовов на баттл в день. Принять вызов друга можно всегда. |

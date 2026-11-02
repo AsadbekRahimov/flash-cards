@@ -45,7 +45,8 @@ return [
         'pro' => [
             'rank' => 1,
             'limits' => ['new_words_per_day' => null],
-            'features' => ['courses.public', 'training.daily', 'training.lesson', 'streak.freeze', 'exam.simulator', 'exercise.spelling', 'exercise.gap_fill'],
+            // `practice.unlimited`: no daily limit of practice sessions and battle calls (docs/18 §3; the Free limits are `practice.free_limits`).
+            'features' => ['courses.public', 'training.daily', 'training.lesson', 'streak.freeze', 'exam.simulator', 'exercise.spelling', 'exercise.gap_fill', 'practice.unlimited'],
         ],
     ],
 
