@@ -414,7 +414,7 @@ it('gives a teacher the figures of their own groups, never the cached ones of th
     }
 });
 
-it('changes the key of a teacher the moment their groups change, so a lost group is never shown from the cache', function (): void {
+it('changes the key of a teacher from their next request after their groups change, so a lost group is never shown from the cache', function (): void {
     $groupA = TelegramGroup::factory()->create();
     $groupB = TelegramGroup::factory()->create();
     Learner::factory()->memberOf($groupA)->create();
