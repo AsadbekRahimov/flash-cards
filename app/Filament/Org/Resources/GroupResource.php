@@ -135,9 +135,8 @@ class GroupResource extends OrgResource
                 ->label(__('org.groups.columns.status'))
                 ->badge()
                 ->formatStateUsing(fn (string $state): string => __('org.groups.status.'.$state)),
-            Infolists\Components\TextEntry::make('active_members_count')
-                ->label(__('org.groups.columns.learners'))
-                ->state(fn (TelegramGroup $record): int => $record->members()->where('status', 'active')->count()),
+            // `active_members_count` comes with the page query (`getEloquentQuery()`): no count of its own.
+            Infolists\Components\TextEntry::make('active_members_count')->label(__('org.groups.columns.learners')),
             Infolists\Components\TextEntry::make('teachers.name')->label(__('org.groups.columns.teachers'))->listWithLineBreaks()->placeholder('—'),
             Infolists\Components\TextEntry::make('created_at')->label(__('org.groups.columns.since'))->dateTime('d.m.Y H:i'),
         ]);
