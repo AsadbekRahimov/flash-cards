@@ -65,6 +65,7 @@ use App\Models\User;
 use App\Models\Word;
 use App\Models\WordTranslation;
 use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Gate;
 use Tests\Support\FilamentQueryBudget;
@@ -270,10 +271,20 @@ it('answers whether an organization may be deleted from the facts its list row c
         ->and($verdicts[$withGroup->id]->message())->toContain('linked groups')
         ->and($verdicts[$free->id]->allowed())->toBeTrue();
 
-    // The edit page loads the organization without the facts: the policy reads the database and says the same.
-    expect(Gate::forUser($this->admin)->inspect('delete', Organization::query()->findOrFail($withSubscription->id))->message())->toContain('live subscription')
-        ->and(Gate::forUser($this->admin)->inspect('delete', Organization::query()->findOrFail($withGroup->id))->message())->toContain('linked groups')
-        ->and(Gate::forUser($this->admin)->inspect('delete', Organization::query()->findOrFail($free->id))->allowed())->toBeTrue();
+    // The edit page loads the organization without the facts: the policy reads the database and says the same. It must not read
+    // the missing facts as attributes (`getAttribute()`): with `preventAccessingMissingAttributes` on - as AdminTableSettingsTest
+    // switches it on - that throws. Reverting `deletionBlocker()` to `getAttribute()` fails this part.
+    Model::preventAccessingMissingAttributes();
+
+    try {
+        $withoutFacts = Organization::query()->findOrFail($withSubscription->id);
+        expect(array_key_exists(OrganizationAdminService::LIVE_SUBSCRIPTION_FACT, $withoutFacts->getAttributes()))->toBeFalse()
+            ->and(Gate::forUser($this->admin)->inspect('delete', $withoutFacts)->message())->toContain('live subscription')
+            ->and(Gate::forUser($this->admin)->inspect('delete', Organization::query()->findOrFail($withGroup->id))->message())->toContain('linked groups')
+            ->and(Gate::forUser($this->admin)->inspect('delete', Organization::query()->findOrFail($free->id))->allowed())->toBeTrue();
+    } finally {
+        Model::preventAccessingMissingAttributes(false);
+    }
 });
 
 it('lists telegram groups with the active members counted by the page query', function (): void {

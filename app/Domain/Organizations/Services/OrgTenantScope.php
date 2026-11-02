@@ -233,10 +233,11 @@ final class OrgTenantScope
     }
 
     /**
-     * Whether the user may see this membership row (same rule as members()). For a teacher the learner
-     * must be active in one of their groups: read from `learner.activeGroupMemberships` when the list
-     * query loaded it (MemberResource does), with one query otherwise (a single record page). A row whose
-     * learner is soft-deleted is no teacher's (as `learners()` lists none of them).
+     * Whether the user may see this membership row. An owner: every row of the organization. A teacher: the row of a learner
+     * who is active in one of their groups - read from `learner.activeGroupMemberships` when the list query loaded it
+     * (MemberResource does), with one query otherwise (a single record page). The one difference from members(): a row whose
+     * learner is soft-deleted is no teacher's (as `learners()` lists none of them), while members() still lists it - the
+     * learner's group membership stays active.
      */
     public function canSeeMember(User $user, Organization $organization, OrganizationMember $member): bool
     {
@@ -268,9 +269,9 @@ final class OrgTenantScope
         if ($member->relationLoaded('learner')) {
             $learner = $member->learner;
 
-            // The learner was loaded and is not there: soft-deleted. Not a teacher's to see (`learners()` never lists them),
-            // and not a query per row either.
-            if ($learner === null) {
+            // The learner was loaded and is not there (soft-deleted), or is there trashed (loaded `withTrashed`). Not a teacher's
+            // to see (`learners()` never lists them), and not a query per row either.
+            if ($learner === null || $learner->trashed()) {
                 return false;
             }
 
@@ -281,7 +282,10 @@ final class OrgTenantScope
             }
         }
 
+        // The memberships are not loaded (a single record page): the same answer from one query. The learner must be alive
+        // here too - `whereHas` carries the soft-delete scope - or a deleted learner would be the teacher's on this path only.
         return GroupMember::query()
+            ->whereHas('learner')
             ->where('learner_id', $member->learner_id)
             ->where('status', 'active')
             ->whereIn('telegram_group_id', $groupIds)

@@ -129,6 +129,17 @@ it('searches members by name or username, case-insensitively, within the tenant 
         ->assertCanSeeTableRecords([$this->memberA1])
         ->assertCanNotSeeTableRecords([$lookalikeMember]);
     Livewire::test(ListMembers::class)->searchTable('%')->assertCountTableRecords(0);
+
+    // `!`, the escape character of the pattern, is a letter too - inside the typed text and at its end, in a name and in a username.
+    $bang = Learner::factory()->memberOf($this->groupA1)->seatedIn($this->a)->create(['first_name' => 'Wow!x', 'username' => 'bang_user!']);
+    $withoutBang = Learner::factory()->memberOf($this->groupA1)->seatedIn($this->a)->create(['first_name' => 'Wowx', 'username' => 'bang_user']);
+    $bangMember = OrganizationMember::query()->where('learner_id', $bang->id)->firstOrFail();
+    $withoutBangMember = OrganizationMember::query()->where('learner_id', $withoutBang->id)->firstOrFail();
+    foreach (['wow!x', 'WOW!', '@bang_user!'] as $typed) {
+        Livewire::test(ListMembers::class)->searchTable($typed)
+            ->assertCanSeeTableRecords([$bangMember])
+            ->assertCanNotSeeTableRecords([$withoutBangMember]);
+    }
 });
 
 it('answers 404 to a direct URL of a record of the other organization', function (): void {
@@ -186,7 +197,7 @@ it('does not let a teacher open the membership row of a soft-deleted learner, an
     $gone->delete();
     isoEnter($this->teacherA, $this->a);
 
-    // The row is in the teacher's list (the group membership is still active), but it is nobody's to open.
+    // The row is in the teacher's list (the group membership is still active), but the teacher may not open it - the owner may.
     Livewire::test(ListMembers::class)
         ->assertCanSeeTableRecords([$this->memberA1, $goneMember])
         ->assertTableActionVisible('view', $this->memberA1)
@@ -203,6 +214,33 @@ it('does not let a teacher open the membership row of a soft-deleted learner, an
     $this->actingAs($this->teacherA, 'org')->withSession(['2fa.org.passed_at' => now()->timestamp, '2fa.org.user_id' => $this->teacherA->id])
         ->get("/org/center-a/members/{$goneMember->id}")
         ->assertForbidden();
+});
+
+it('decides a membership row the same way when its learner is not loaded, or is loaded trashed', function (): void {
+    $gone = Learner::factory()->memberOf($this->groupA1)->seatedIn($this->a)->create(['first_name' => 'Gone']);
+    $goneMemberId = OrganizationMember::query()->where('learner_id', $gone->id)->value('id');
+    $gone->delete();
+
+    $scope = app(OrgTenantScope::class);
+    $scope->teacherGroupIds($this->teacherA, $this->a);
+
+    // A record page loads the row alone: no learner, no memberships - ONE query answers, and the learner must be alive.
+    $deleted = OrganizationMember::query()->findOrFail($goneMemberId);
+    $alive = OrganizationMember::query()->findOrFail($this->memberA1->id);
+    $elsewhere = OrganizationMember::query()->findOrFail($this->memberA2->id);
+
+    expect($deleted->relationLoaded('learner'))->toBeFalse()
+        ->and(QueryLog::during(fn () => expect($scope->canSeeMember($this->teacherA, $this->a, $deleted))->toBeFalse()))->toHaveCount(1)
+        ->and(QueryLog::during(fn () => expect($scope->canSeeMember($this->teacherA, $this->a, $alive))->toBeTrue()))->toHaveCount(1)
+        // A learner of the other group of the center is not the teacher's, the owner sees every row.
+        ->and($scope->canSeeMember($this->teacherA, $this->a, $elsewhere))->toBeFalse()
+        ->and($scope->canSeeMember($this->ownerA, $this->a, $deleted))->toBeTrue();
+
+    // Loaded with the trashed ones the learner is there, but deleted: the same answer, and still no query.
+    $trashed = OrganizationMember::query()->with(['learner' => fn ($learner) => $learner->withTrashed()])->findOrFail($goneMemberId);
+
+    expect($trashed->learner?->trashed())->toBeTrue()
+        ->and(QueryLog::during(fn () => expect($scope->canSeeMember($this->teacherA, $this->a, $trashed))->toBeFalse()))->toBe([]);
 });
 
 it('renders the owner dashboard widgets with the seats of the tenant', function (): void {

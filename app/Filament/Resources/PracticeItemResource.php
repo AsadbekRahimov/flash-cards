@@ -473,9 +473,11 @@ class PracticeItemResource extends Resource
             ->join('stages', 'stages.id', '=', 'lessons.stage_id')
             ->where('stages.course_id', $courseId)
             ->where('words.is_active', true)
-            ->when($term !== '', fn (Builder $query): Builder => $query->where(fn (Builder $q): Builder => $q
-                ->whereLike('words.word', "%{$term}%")
-                ->orWhereLike('words.translation', "%{$term}%")))
+            // In the form of the trigram indexes on `lower(word)` and `lower(translation)` (docs/03 §2.7); `%` and `_` are letters.
+            ->when($term !== '', fn (Builder $query): Builder => $query->where(function (Builder $match) use ($term): void {
+                AdminTable::whereContains($match, 'words.word', $term, lower: true);
+                AdminTable::whereContains($match, 'words.translation', $term, 'or', lower: true);
+            }))
             ->orderBy('stages.number')
             ->orderBy('lessons.number')
             ->orderBy('words.id')

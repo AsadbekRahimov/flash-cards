@@ -127,7 +127,7 @@ class StageResource extends Resource
         return ($stages ?? Stage::query())
             ->when($term !== '', function (Builder $query) use ($term): void {
                 $query->where(function (Builder $query) use ($term): void {
-                    $query->whereLike('title', "%{$term}%");
+                    AdminTable::whereContains($query, 'stages.title', $term);
 
                     if (preg_match('/\d+/', $term, $digits) === 1) {
                         $query->orWhere('number', (int) $digits[0]);

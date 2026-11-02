@@ -71,21 +71,12 @@ class MemberResource extends OrgResource
                 Tables\Columns\TextColumn::make('learner_name')
                     ->label(__('org.members.columns.learner'))
                     ->state(fn (OrganizationMember $record): string => self::learnerName($record->learner))
-                    // Case-insensitive, in the forms the trigram indexes of `learners` serve (docs/03 §2.17, docs/20 F2):
-                    // `lower(col) like` as Filament's own search emits on PostgreSQL, `ilike` on the plain `username`; `%`, `_`
-                    // and `\` of the typed text are literal (escaped, with an explicit ESCAPE - the same meaning on SQLite).
-                    ->searchable(query: function (Builder $query, string $search): Builder {
-                        $search = trim($search);
-                        $name = '%'.AdminTable::escapeLike(mb_strtolower($search)).'%';
-
-                        return $query->whereHas('learner', fn (Builder $q): Builder => AdminTable::whereContains(
-                            $q->whereRaw("lower(first_name) like ? escape '\\'", [$name])
-                                ->orWhereRaw("lower(last_name) like ? escape '\\'", [$name]),
-                            'username',
-                            ltrim($search, '@'),
-                            'or',
-                        ));
-                    }),
+                    // Case-insensitive, in the forms the trigram indexes of `learners` serve (docs/03 §2.17, docs/20 F2); `%`, `_`
+                    // and `!` of the typed text are literal (AdminTable::whereLearnerContains).
+                    ->searchable(query: fn (Builder $query, string $search): Builder => $query->whereHas(
+                        'learner',
+                        fn (Builder $learner): Builder => AdminTable::whereLearnerContains($learner, $search),
+                    )),
                 Tables\Columns\TextColumn::make('learner.username')
                     ->label(__('org.members.columns.username'))
                     ->formatStateUsing(fn (?string $state): string => $state === null ? '—' : '@'.$state),
