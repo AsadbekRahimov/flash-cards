@@ -53,8 +53,10 @@ it('lists learners with a number of statements that does not depend on the numbe
             ->create();
     };
 
-    // 8 statements for 10 rows and for 50 (the page, its count, the groups, the plan subqueries ride in the page query).
-    $queries = FilamentQueryBudget::assert(ListLearners::class, $fill, ceiling: 10);
+    // 6 statements for 10 rows and for 50: two renders (the mount and the change of the page size) of the page, the groups of its
+    // learners and the options of the group filter; no count of the rows (the table pages Simple), the plan subqueries ride in the
+    // page query.
+    $queries = FilamentQueryBudget::assert(ListLearners::class, $fill, ceiling: 8);
 
     expect(count($queries[FilamentQueryBudget::SMALL]))->toBe(count($queries[FilamentQueryBudget::LARGE]));
 });
